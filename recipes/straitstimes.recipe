@@ -16,11 +16,10 @@ class StraitsTimes(BasicNewsRecipe):
     max_articles_per_feed  = 100
     no_stylesheets         = True
     use_embedded_content   = False
-    encoding               = 'cp1252'
+    encoding               = 'utf-8'
     publisher              = 'Singapore Press Holdings Ltd.'
     category               = 'news, politics, singapore, asia'
     language               = 'en_SG'
-    extra_css              = ' .top_headline{font-size: x-large; font-weight: bold} '
 
     conversion_options = {
                              'comments'  : description
@@ -38,24 +37,26 @@ class StraitsTimes(BasicNewsRecipe):
                                lambda m: ''),
                          ]
     remove_tags = [
-                     dict(name=['object','link','map'])
-                    ,dict(name='div',attrs={'align':'left'})
-                  ]
+        dict(name=['object','link','map', 'style']),
+        dict(attrs={'class':'st2014-realted-links'}),
+    ]
 
-    keep_only_tags = [dict(name='div', attrs={'class':'stleft'})]
+    keep_only_tags = [dict(name='div', attrs={'class':'story'})]
     remove_tags_after=dict(name='div',attrs={'class':'hr_thin'})
 
     feeds = [
-               (u'Singapore'       , u'http://www.straitstimes.com/STI/STIFILES/rss/break_singapore.xml' )
-              ,(u'SE Asia'         , u'http://www.straitstimes.com/STI/STIFILES/rss/break_sea.xml'       )
-              ,(u'Money'           , u'http://www.straitstimes.com/STI/STIFILES/rss/break_money.xml'     )
-              ,(u'Sport'           , u'http://www.straitstimes.com/STI/STIFILES/rss/break_sport.xml'     )
-              ,(u'World'           , u'http://www.straitstimes.com/STI/STIFILES/rss/break_world.xml'     )
-              ,(u'Tech & Science'  , u'http://www.straitstimes.com/STI/STIFILES/rss/break_tech.xml'      )
-              ,(u'Lifestyle'       , u'http://www.straitstimes.com/STI/STIFILES/rss/break_lifestyle.xml' )
+               (u'Singapore'       , u'http://www.straitstimes.com/news/singapore/rss.xml' )
+              ,(u'Asia'            , u'http://www.straitstimes.com/news/asia/rss.xml'       )
+              ,(u'Business'        , u'http://www.straitstimes.com/news/business/rss.xml'     )
+              ,(u'Sport'           , u'http://www.straitstimes.com/news/sport/rss.xml'     )
+              ,(u'World'           , u'http://www.straitstimes.com/news/world/rss.xml'     )
+              ,(u'Lifestyle'       , u'http://www.straitstimes.com/news/lifestyle/rss.xml' )
+              ,(u'Digital Life'    , u'http://www.straitstimes.com/news/digital-life/rss.xml' )
             ]
 
     def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
+        for a in soup.findAll('a', attrs={'class':'thumb'}):
+            img = a.find('img')
+            if img is not None:
+                img['src'] = a['href']
         return soup
