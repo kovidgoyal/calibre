@@ -36,7 +36,9 @@ def parallel_build(jobs, log, verbose=True):
             if stderr:
                 log(stderr)
         if not ok:
+            p.close()
             return False
+    p.close()
     return True
 
 def parallel_check_output(jobs, log):
