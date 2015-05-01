@@ -28,6 +28,7 @@ class ChooseFormatDialog(QDialog):
         l.addLayout(h)
         if show_open_with:
             self.owb = QPushButton(_('&Open With...'), self)
+            self.formats.currentRowChanged.connect(self.update_open_with_button)
             h.addWidget(self.owb)
             self.own = QMenu(self.owb.text())
             self.owb.setMenu(self.own)
@@ -45,21 +46,24 @@ class ChooseFormatDialog(QDialog):
         self._format = self.open_with_format = None
         if show_open_with:
             self.populate_open_with()
+            self.update_open_with_button()
 
     def populate_open_with(self):
         from calibre.gui2.open_with import populate_menu, edit_programs
         menu = self.own
         menu.clear()
         fmt = self._formats[self.formats.currentRow()]
-        m = QMenu(_('Open %s with...') % fmt.upper(), menu)
-        populate_menu(m, self.open_with, fmt)
-        if len(m.actions()) == 0:
+        populate_menu(menu, self.open_with, fmt)
+        if len(menu.actions()) == 0:
             menu.addAction(_('Open %s with...') % fmt.upper(), self.choose_open_with)
         else:
-            m.addSeparator()
-            m.addAction(_('Add other application for %s files...') % fmt.upper(), self.choose_open_with)
-            m.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, self))
-            menu.addMenu(m)
+            menu.addSeparator()
+            menu.addAction(_('Add other application for %s files...') % fmt.upper(), self.choose_open_with)
+            menu.addAction(_('Edit Open With applications...'), partial(edit_programs, fmt, self))
+
+    def update_open_with_button(self):
+        fmt = self._formats[self.formats.currentRow()]
+        self.owb.setText(_('Open %s With...') % fmt)
 
     def open_with(self, entry):
         self.open_with_format = (self._formats[self.formats.currentRow()], entry)
