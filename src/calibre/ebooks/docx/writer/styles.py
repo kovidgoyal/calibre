@@ -420,15 +420,17 @@ class BlockStyle(DOCXStyle):
                 val = getter(self)
                 if (self is normal_style and val > 0) or val != getter(normal_style):
                     ind.set(w(edge), str(val))
+                    ind.set(w(edge + 'Chars'), '0')  # This is needed to override any declaration in the parent style
         css_val, css_unit = parse_css_length(self.css_text_indent)
         if css_unit in ('em', 'ex'):
             chars = max(0, int(css_val * (50 if css_unit == 'ex' else 100)))
             if (self is normal_style and chars > 0) or self.css_text_indent != normal_style.css_text_indent:
-                ind.set('firstLineChars', str(chars))
+                ind.set(w('firstLineChars'), str(chars))
         else:
             val = self.text_indent
             if (self is normal_style and val > 0) or self.text_indent != normal_style.text_indent:
-                ind.set('firstLine', str(val))
+                ind.set(w('firstLine'), str(val))
+                ind.set(w('firstLineChars'), '0')  # This is needed to override any declaration in the parent style
         if ind.attrib:
             style.append(ind)
 
