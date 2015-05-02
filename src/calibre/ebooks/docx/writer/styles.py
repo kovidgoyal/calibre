@@ -353,7 +353,7 @@ class BlockStyle(DOCXStyle):
         else:
             self.page_break_before = css['page-break-before'] == 'always'
             self.keep_lines = css['page-break-inside'] == 'avoid'
-            self.text_indent = max(0, int(css['text-indent'] * 20))
+            self.text_indent = int(css['text-indent'] * 20)
             self.css_text_indent = css._get('text-indent')
             self.line_height = max(0, int(css.lineHeight * 20))
             self.background_color = None if is_table_cell else convert_color(css['background-color'])
@@ -423,14 +423,23 @@ class BlockStyle(DOCXStyle):
                     ind.set(w(edge + 'Chars'), '0')  # This is needed to override any declaration in the parent style
         css_val, css_unit = parse_css_length(self.css_text_indent)
         if css_unit in ('em', 'ex'):
-            chars = max(0, int(css_val * (50 if css_unit == 'ex' else 100)))
-            if (self is normal_style and chars > 0) or self.css_text_indent != normal_style.css_text_indent:
-                ind.set(w('firstLineChars'), str(chars))
+            chars = int(css_val * (50 if css_unit == 'ex' else 100))
+            if css_val >= 0:
+                if (self is normal_style and chars > 0) or self.css_text_indent != normal_style.css_text_indent:
+                    ind.set(w('firstLineChars'), str(chars))
+            else:
+                if (self is normal_style and chars < 0) or self.css_text_indent != normal_style.css_text_indent:
+                    ind.set(w('hangingChars'), str(abs(chars)))
         else:
             val = self.text_indent
-            if (self is normal_style and val > 0) or self.text_indent != normal_style.text_indent:
-                ind.set(w('firstLine'), str(val))
-                ind.set(w('firstLineChars'), '0')  # This is needed to override any declaration in the parent style
+            if val >= 0:
+                if (self is normal_style and val > 0) or self.text_indent != normal_style.text_indent:
+                    ind.set(w('firstLine'), str(val))
+                    ind.set(w('firstLineChars'), '0')  # This is needed to override any declaration in the parent style
+            else:
+                if (self is normal_style and val < 0) or self.text_indent != normal_style.text_indent:
+                    ind.set(w('hanging'), str(abs(val)))
+                    ind.set(w('hangingChars'), '0')
         if ind.attrib:
             style.append(ind)
 
