@@ -962,6 +962,7 @@ class EbookViewer(MainWindow):
             'Bookmark': bac,
             'Reload': self.action_reload,
             'Table of Contents': self.action_table_of_contents,
+            'Print': self.action_print,
         }.get(key, None)
         if action is not None:
             event.accept()

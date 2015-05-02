@@ -92,4 +92,7 @@ SHORTCUTS = {
 
         'Reload': (['Ctrl+R', 'F5'],
                      _('Reload the current book')),
+
+        'Print': (['Ctrl+P'],
+                     _('Print the current book')),
 }
