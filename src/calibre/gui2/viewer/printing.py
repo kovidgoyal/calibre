@@ -77,6 +77,10 @@ class PrintDialog(Dialog):
         pnum.setChecked(vprefs.get('print-to-pdf-page-numbers', True))
         l.addRow(pnum)
 
+        self.show_file = sf = QCheckBox(_('Open PDF file after printing'), self)
+        sf.setChecked(vprefs.get('print-to-pdf-show-file', True))
+        l.addRow(sf)
+
         l.addRow(self.bb)
 
     @property
@@ -85,6 +89,7 @@ class PrintDialog(Dialog):
             'output': self.file_name.text().strip(),
             'paper_size': self.paper_size.currentText().lower(),
             'page_numbers':self.pnum.isChecked(),
+            'show_file':self.show_file.isChecked(),
         }
         for edge in 'left top right bottom'.split():
             ans['margin_' + edge] = getattr(self, '%s_margin' % edge).value()
@@ -100,6 +105,7 @@ class PrintDialog(Dialog):
         data = self.data
         vprefs['print-to-pdf-page-size'] = data['paper_size']
         vprefs['print-to-pdf-page-numbers'] = data['page_numbers']
+        vprefs['print-to-pdf-show-file'] = data['show_file']
         for edge in 'left top right bottom'.split():
             vprefs['print-to-pdf-%s-margin' % edge] = data['margin_' + edge]
 
@@ -153,8 +159,9 @@ def do_print():
 
 class Printing(QProgressDialog):
 
-    def __init__(self, thread, parent=None):
+    def __init__(self, thread, show_file, parent=None):
         QProgressDialog.__init__(self, _('Printing, this will take a while, please wait...'), _('&Cancel'), 0, 0, parent)
+        self.show_file = show_file
         self.setWindowTitle(_('Printing...'))
         self.setWindowIcon(QIcon(I('print.png')))
         self.thread = thread
@@ -170,7 +177,8 @@ class Printing(QProgressDialog):
             error_dialog(self, _('Failed to convert to PDF'), _(
                 'Failed to generate PDF file, click "Show details" for more information.'), det_msg=self.thread.tb or self.thread.log, show=True)
         else:
-            open_local_file(self.thread.data['output'])
+            if self.show_file:
+                open_local_file(self.thread.data['output'])
         self.accept()
 
     def do_cancel(self):
@@ -192,7 +200,7 @@ def print_book(path_to_book, parent=None, book_title=None):
         data['input'] = path_to_book
         t = DoPrint(data)
         t.start()
-        Printing(t, parent).exec_()
+        Printing(t, data['show_file'], parent).exec_()
 
 if __name__ == '__main__':
     app = Application([])
