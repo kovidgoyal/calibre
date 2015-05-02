@@ -9,6 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import subprocess
 from multiprocessing.dummy import Pool
 from functools import partial
+from contextlib import closing
 
 from setup.build_environment import cpu_count
 
@@ -30,22 +31,24 @@ def create_job(cmd, human_text=None):
 
 def parallel_build(jobs, log, verbose=True):
     p = Pool(cpu_count)
-    for ok, stdout, stderr in p.imap(run_worker, jobs):
-        if verbose or not ok:
-            log(stdout)
-            if stderr:
-                log(stderr)
-        if not ok:
-            return False
-    return True
+    with closing(p):
+        for ok, stdout, stderr in p.imap(run_worker, jobs):
+            if verbose or not ok:
+                log(stdout)
+                if stderr:
+                    log(stderr)
+            if not ok:
+                return False
+        return True
 
 def parallel_check_output(jobs, log):
     p = Pool(cpu_count)
-    for ok, stdout, stderr in p.imap(
-            partial(run_worker, decorate=False), ((j, '') for j in jobs)):
-        if not ok:
-            log(stdout)
-            if stderr:
-                log(stderr)
-            raise SystemExit(1)
-        yield stdout
+    with closing(p):
+        for ok, stdout, stderr in p.imap(
+                partial(run_worker, decorate=False), ((j, '') for j in jobs)):
+            if not ok:
+                log(stdout)
+                if stderr:
+                    log(stderr)
+                raise SystemExit(1)
+            yield stdout
