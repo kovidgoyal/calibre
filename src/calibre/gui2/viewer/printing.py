@@ -15,13 +15,15 @@ from PyQt5.Qt import (
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.conversion.plugins.pdf_output import PAPER_SIZES
-from calibre.gui2 import elided_text, error_dialog, choose_save_file, Application, open_local_file
+from calibre.gui2 import elided_text, error_dialog, choose_save_file, Application, open_local_file, dynamic
 from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.viewer.main import vprefs
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 
 class PrintDialog(Dialog):
+
+    OUTPUT_NAME = 'print-to-pdf-choose-file'
 
     def __init__(self, book_title, parent=None, prefs=vprefs):
         self.book_title = book_title
@@ -34,7 +36,12 @@ class PrintDialog(Dialog):
         l.addRow(QLabel(_('Print %s to a PDF file') % elided_text(self.book_title)))
         self.h = h = QHBoxLayout()
         self.file_name = f = QLineEdit(self)
-        f.setText(os.path.abspath(os.path.join(os.path.expanduser('~'), self.default_file_name)))
+        val = dynamic.get(self.OUTPUT_NAME, None)
+        if not val:
+            val = os.path.expanduser('~')
+        else:
+            val = os.path.dirname(val)
+        f.setText(os.path.abspath(os.path.join(val, self.default_file_name)))
         self.browse_button = b = QToolButton(self)
         b.setIcon(QIcon(I('document_open.png'))), b.setToolTip(_('Choose location for PDF file'))
         b.clicked.connect(self.choose_file)
@@ -84,7 +91,7 @@ class PrintDialog(Dialog):
         return ans
 
     def choose_file(self):
-        ans = choose_save_file(self, 'print-to-pdf-choose-file', _('PDF file'), filters=[(_('PDF file'), 'pdf')],
+        ans = choose_save_file(self, self.OUTPUT_NAME, _('PDF file'), filters=[(_('PDF file'), 'pdf')],
                                all_files=False, initial_filename=self.default_file_name)
         if ans:
             self.file_name.setText(ans)
