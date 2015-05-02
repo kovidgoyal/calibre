@@ -308,6 +308,9 @@ class EbookViewer(MainWindow):
         open_url(url)
 
     def print_book(self):
+        if self.iterator is None:
+            return error_dialog(self, _('No book opened'), _(
+                'Cannot print as no book is opened'), show=True)
         from calibre.gui2.viewer.printing import print_book
         print_book(self.iterator.pathtoebook, self, self.current_title)
 
