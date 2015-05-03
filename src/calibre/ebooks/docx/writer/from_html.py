@@ -296,7 +296,9 @@ class Blocks(object):
         self.pos = len(self.all_blocks)
         self.block_map = {}
 
-    def __exit__(self, *args):
+    def __exit__(self, etype, value, traceback):
+        if value is not None:
+            return  # Since there was an exception, the data structures are not in a consistent state
         if self.current_block is not None:
             self.all_blocks.append(self.current_block)
         self.current_block = None
