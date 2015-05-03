@@ -500,24 +500,24 @@ class StylesManager(object):
             block_counts[block.style] += 1
             block_rmap[block.style].append(block)
             for run in block.runs:
-                run_counts[run.style] += 1
+                run_counts[run.style] += (0 if run.is_empty() else 1)
                 run_rmap[run.style].append(run)
+        bnum = len(str(max(1, len(block_counts) - 1)))
         for i, (block_style, count) in enumerate(block_counts.most_common()):
             if i == 0:
                 self.normal_block_style = block_style
                 block_style.id = 'ParagraphNormal'
-                block_style.name = 'Normal'
             else:
                 block_style.id = 'Paragraph%d' % i
-                block_style.name = 'Paragraph %d' % i
+            block_style.name = '%0{}d Para'.format(bnum) % i
+        rnum = len(str(max(1, len(run_counts) - 1)))
         for i, (text_style, count) in enumerate(run_counts.most_common()):
             if i == 0:
                 self.normal_text_style = text_style
                 text_style.id = 'TextNormal'
-                text_style.name = 'Normal'
             else:
                 text_style.id = 'Text%d' % i
-                text_style.name = 'Text %d' % i
+            text_style.name = '%0{}d Text'.format(rnum) % i
         for s in tuple(self.block_styles):
             if s.id is None:
                 self.block_styles.pop(s)
