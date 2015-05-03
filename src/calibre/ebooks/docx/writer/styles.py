@@ -190,7 +190,15 @@ class TextStyle(DOCXStyle):
             self.spacing = int(float(css['letter-spacing']) * 20)
         except (ValueError, TypeError, AttributeError):
             self.spacing = None
-        self.vertical_align = css['vertical-align']
+        va = css.first_vertical_align
+        if isinstance(va, (int, float)):
+            self.vertical_align = str(int(self.vertical_align * 2))
+        else:
+            val = {
+                'top':'superscript', 'text-top':'superscript', 'sup':'superscript', 'super':'superscript',
+                'bottom':'subscript', 'text-bottom':'subscript', 'sub':'subscript'}.get(va)
+            self.vertical_align = val or 'baseline'
+
         self.padding = self.border_color = self.border_width = self.border_style = None
         if not is_parent_style:
             # DOCX does not support individual borders/padding for inline content
@@ -274,16 +282,11 @@ class TextStyle(DOCXStyle):
             style.append(makeelement(style, 'shadow', val=bmap(self.shadow)))
         if check_attr('spacing'):
             style.append(makeelement(style, 'spacing', val=str(self.spacing or 0)))
-        if isinstance(self.vertical_align, (int, float)):
-            val = int(self.vertical_align * 2)
-            style.append(makeelement(style, 'position', val=str(val)))
-        elif isinstance(self.vertical_align, basestring):
-            val = {
-                'top':'superscript', 'text-top':'superscript', 'sup':'superscript', 'super':'superscript',
-                'bottom':'subscript', 'text-bottom':'subscript', 'sub':'subscript'}.get(
-                self.vertical_align.lower())
-            if val:
-                style.append(makeelement(style, 'vertAlign', val=val))
+        if (self is normal_style and self.vertical_align in {'superscript', 'subscript'}) or self.vertical_align != normal_style.vertical_align:
+            if self.vertical_align in {'superscript', 'subscript', 'baseline'}:
+                style.append(makeelement(style, 'vertAlign', val=self.vertical_align))
+            else:
+                style.append(makeelement(style, 'position', val=self.vertical_align))
 
         bdr = self.serialize_borders(makeelement(style, 'bdr'), normal_style)
         if bdr.attrib:
