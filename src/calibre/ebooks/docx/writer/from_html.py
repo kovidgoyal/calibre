@@ -435,7 +435,7 @@ class Convert(object):
         if anchor:
             block.bookmarks.add(self.bookmark_for_anchor(anchor, html_tag))
         if tagname == 'img':
-            self.images_manager.add_image(html_tag, block, stylizer)
+            self.images_manager.add_image(html_tag, block, stylizer, as_block=True)
         else:
             if html_tag.text:
                 block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link)
