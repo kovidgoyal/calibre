@@ -654,7 +654,7 @@ class Style(object):
         if val != 'baseline':
             return val
         parent = self._get_parent()
-        if parent is not None:
+        if parent is not None and 'inline' in parent['display']:
             return parent.first_vertical_align
 
     @property
