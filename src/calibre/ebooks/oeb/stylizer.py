@@ -646,6 +646,18 @@ class Style(object):
         return css
 
     @property
+    def first_vertical_align(self):
+        ''' For docx output where tags are not nested, we cannot directly
+        simulate the HTML vertical-align rendering model. Instead use the
+        approximation of considering the first non-default vertical-align '''
+        val = self['vertical-align']
+        if val != 'baseline':
+            return val
+        parent = self._get_parent()
+        if parent is not None and 'inline' in parent['display']:
+            return parent.first_vertical_align
+
+    @property
     def marginTop(self):
         return self._unit_convert(
             self._get('margin-top'), base=self.parent_width)

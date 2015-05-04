@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os, math, json
 from base64 import b64encode
 from functools import partial
+from future_builtins import map
 
 from PyQt5.Qt import (
     QSize, QSizePolicy, QUrl, Qt, pyqtProperty, QPainter, QPalette, QBrush,
@@ -30,7 +31,7 @@ from calibre.gui2.viewer.inspector import WebInspector
 from calibre.gui2.viewer.gestures import GestureHandler
 from calibre.gui2.viewer.footnote import Footnotes
 from calibre.ebooks.oeb.display.webview import load_html
-from calibre.constants import isxp, iswindows, DEBUG
+from calibre.constants import isxp, iswindows, DEBUG, __version__
 # }}}
 
 def apply_settings(settings, opts):
@@ -207,6 +208,9 @@ class Document(QWebPage):  # {{{
         evaljs = self.mainFrame().evaluateJavaScript
         self.loaded_lang = self.js_loader(evaljs, self.current_language,
                 self.hyphenate_default_lang)
+        evaljs('window.calibre_utils.setup_epub_reading_system(%s, %s, %s, %s)' % tuple(map(json.dumps, (
+            'calibre-desktop', __version__, 'paginated' if self.in_paged_mode else 'scrolling',
+            'dom-manipulation layout-changes mouse-events keyboard-events'.split()))))
         mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
         if iswindows:
             mjpath = u'/' + mjpath

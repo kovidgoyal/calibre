@@ -44,7 +44,7 @@ class ImagesManager(object):
         self.document_relationships = document_relationships
         self.count = 0
 
-    def add_image(self, img, block, stylizer, bookmark=None):
+    def add_image(self, img, block, stylizer, bookmark=None, as_block=False):
         src = img.get('src')
         if not src:
             return
@@ -58,16 +58,22 @@ class ImagesManager(object):
             image_rid = self.document_relationships.add_image(image_fname)
             self.images[href] = Image(image_rid, image_fname, width, height, fmt, item)
             item.unload_data_from_memory()
-        drawing = self.create_image_markup(img, stylizer, href)
+        drawing = self.create_image_markup(img, stylizer, href, as_block=as_block)
         block.add_image(drawing, bookmark=bookmark)
         return self.images[href].rid
 
-    def create_image_markup(self, html_img, stylizer, href):
+    def create_image_markup(self, html_img, stylizer, href, as_block=False):
         # TODO: img inside a link (clickable image)
         style = stylizer.style(html_img)
         floating = style['float']
         if floating not in {'left', 'right'}:
             floating = None
+        if as_block:
+            ml, mr = style._get('margin-left'), style._get('margin-right')
+            if ml == 'auto':
+                floating = 'center' if mr == 'auto' else 'right'
+            if mr == 'auto':
+                floating = 'center' if ml == 'auto' else 'right'
         fake_margins = floating is None
         self.count += 1
         img = self.images[href]
@@ -98,7 +104,10 @@ class ImagesManager(object):
             makeelement(parent, 'wp:effectExtent', l='0', r='0', t='0', b='0')
         if floating is not None:
             # The idiotic Word requires this to be after the extent settings
-            makeelement(parent, 'wp:wrapSquare', wrapText='bothSides')
+            if as_block:
+                makeelement(parent, 'wp:wrapTopAndBottom')
+            else:
+                makeelement(parent, 'wp:wrapSquare', wrapText='bothSides')
         makeelement(parent, 'wp:docPr', id=str(self.count), name=name, descr=html_img.get('alt') or name)
         makeelement(makeelement(parent, 'wp:cNvGraphicFramePr'), 'a:graphicFrameLocks', noChangeAspect="1")
         g = makeelement(parent, 'a:graphic')

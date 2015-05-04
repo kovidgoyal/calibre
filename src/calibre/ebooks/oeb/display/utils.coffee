@@ -136,6 +136,16 @@ class CalibreUtils
 
     # }}}
 
+    setup_epub_reading_system: (name, version, layout, features) ->  # {{{
+        window.navigator.epubReadingSystem = {
+            'name':name, 'version':version, 'layoutStyle':layout,
+            'hasFeature': (feature, version=1.0) ->
+                if (version == null or version == 1.0) and feature.toLowerCase() in features
+                    return true
+                return false
+        }
+    # }}}
+
 if window?
     window.calibre_utils = new CalibreUtils()
 

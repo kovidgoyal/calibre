@@ -296,7 +296,9 @@ class Blocks(object):
         self.pos = len(self.all_blocks)
         self.block_map = {}
 
-    def __exit__(self, *args):
+    def __exit__(self, etype, value, traceback):
+        if value is not None:
+            return  # Since there was an exception, the data structures are not in a consistent state
         if self.current_block is not None:
             self.all_blocks.append(self.current_block)
         self.current_block = None
@@ -435,7 +437,7 @@ class Convert(object):
         if anchor:
             block.bookmarks.add(self.bookmark_for_anchor(anchor, html_tag))
         if tagname == 'img':
-            self.images_manager.add_image(html_tag, block, stylizer)
+            self.images_manager.add_image(html_tag, block, stylizer, as_block=True)
         else:
             if html_tag.text:
                 block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link)
