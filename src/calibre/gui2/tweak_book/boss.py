@@ -47,6 +47,7 @@ from calibre.gui2.tweak_book.widgets import (
     RationalizeFolders, MultiSplit, ImportForeign, QuickOpen, InsertLink,
     InsertSemantics, BusyCursor, InsertTag, FilterCSS, AddCover)
 from calibre.utils.config import JSONConfig
+from calibre.utils.icu import numeric_sort_key
 
 _diff_dialogs = []
 
@@ -446,7 +447,8 @@ class Boss(QObject):
                      for x, folder in folder_map.iteritems()}
             self.add_savepoint(_('Before Add files'))
             c = current_container()
-            for path, name in files.iteritems():
+            for path in sorted(files, key=numeric_sort_key):
+                name = files[path]
                 i = 0
                 while c.exists(name) or c.manifest_has_name(name):
                     i += 1
