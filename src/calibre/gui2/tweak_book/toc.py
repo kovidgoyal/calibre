@@ -64,6 +64,7 @@ class TOCEditor(QDialog):
             self.stacks.setCurrentIndex(0)
         elif self.stacks.currentIndex() == 0:
             self.write_toc()
+            tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
             super(TOCEditor, self).accept()
 
     def really_accept(self, tb):
@@ -72,7 +73,6 @@ class TOCEditor(QDialog):
             error_dialog(self, _('Failed to write book'),
                 _('Could not write %s. Click "Show details" for'
                   ' more information.')%self.book_title, det_msg=tb, show=True)
-            tprefs['toc_editor_window_geom'] = bytearray(self.saveGeometry())
             super(TOCEditor, self).reject()
             return
 
