@@ -594,7 +594,7 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
 def extract_tarball(raw, destdir):
     prints('Extracting application files...')
     with open('/dev/null', 'w') as null:
-        p = subprocess.Popen(['tar', 'xJof', '-', '-C', destdir], stdout=null, stdin=subprocess.PIPE, close_fds=True,
+        p = subprocess.Popen([b'tar', 'xJof', '-', '-C', destdir], stdout=null, stdin=subprocess.PIPE, close_fds=True,
             preexec_fn=lambda:
                         signal.signal(signal.SIGPIPE, signal.SIG_DFL))
         p.stdin.write(raw)
