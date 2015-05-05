@@ -15,7 +15,9 @@ is64bit = platform.architecture()[0] == '64bit'
 url = 'http://code.calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
 url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', url)
 py3 = sys.version_info[0] > 2
-enc = getattr(sys.stdout, 'encoding', 'UTF-8') or 'utf-8'
+enc = getattr(sys.stdout, 'encoding', 'utf-8') or 'utf-8'
+if enc.lower() == 'ascii':
+    enc = 'utf-8'
 calibre_version = signature = None
 urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
 has_ssl_verify = hasattr(ssl, 'PROTOCOL_TLSv1_2') and sys.version_info[:3] > (2, 7, 8)
@@ -25,9 +27,15 @@ if py3:
     raw_input = input
     from urllib.parse import urlparse
     import http.client as httplib
+    encode_for_subprocess = lambda x:x
 else:
+    from future_builtins import map
     from urlparse import urlparse
     import httplib
+    def encode_for_subprocess(x):
+        if isinstance(x, unicode):
+            x = x.encode(enc)
+        return x
 
 class TerminalController:  # {{{
     BOL = ''             #: Move the cursor to the beginning of the line
@@ -594,9 +602,10 @@ def get_https_resource_securely(url, timeout=60, max_redirects=5, ssl_version=No
 def extract_tarball(raw, destdir):
     prints('Extracting application files...')
     with open('/dev/null', 'w') as null:
-        p = subprocess.Popen(['tar', 'xJof', '-', '-C', destdir], stdout=null, stdin=subprocess.PIPE, close_fds=True,
-            preexec_fn=lambda:
-                        signal.signal(signal.SIGPIPE, signal.SIG_DFL))
+        p = subprocess.Popen(
+            list(map(encode_for_subprocess, ['tar', 'xJof', '-', '-C', destdir])),
+            stdout=null, stdin=subprocess.PIPE, close_fds=True, preexec_fn=lambda:
+            signal.signal(signal.SIGPIPE, signal.SIG_DFL))
         p.stdin.write(raw)
         p.stdin.close()
         if p.wait() != 0:
