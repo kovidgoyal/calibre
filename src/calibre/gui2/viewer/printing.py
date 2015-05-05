@@ -20,6 +20,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.gui2.viewer.main import vprefs
 from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.simple_worker import start_pipe_worker
+from calibre.utils.filenames import expanduser
 
 class PrintDialog(Dialog):
 
@@ -38,7 +39,7 @@ class PrintDialog(Dialog):
         self.file_name = f = QLineEdit(self)
         val = dynamic.get(self.OUTPUT_NAME, None)
         if not val:
-            val = os.path.expanduser('~')
+            val = expanduser('~')
         else:
             val = os.path.dirname(val)
         f.setText(os.path.abspath(os.path.join(val, self.default_file_name)))
