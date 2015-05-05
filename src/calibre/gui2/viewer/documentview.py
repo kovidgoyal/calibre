@@ -68,6 +68,9 @@ class Document(QWebPage):  # {{{
     settings_changed = pyqtSignal()
     animated_scroll_done_signal = pyqtSignal()
 
+    def userAgentForUrl(self, url):
+        return QWebPage.userAgentForUrl(self, url).replace('libprs500', 'calibre (libprs500)/%s' % __version__)
+
     def set_font_settings(self, opts):
         settings = self.settings()
         apply_settings(settings, opts)
