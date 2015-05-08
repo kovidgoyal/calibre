@@ -1,8 +1,9 @@
-#!/usr/bin/env  python
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>\
-2014, 2015, Rémi Vanicat <vanicat at debian.org'
+2015, Rémi Vanicat <vanicat at debian.org'
 '''
 Courrier International
 '''
@@ -27,8 +28,10 @@ class CourrierInternational(BasicNewsRecipe):
     keep_only_tags   = [
         dict(name='div', attrs={'class':'article-content'}),
     ]
+
     remove_tags      = [
-        dict(name='aside', attrs={'class':re.compile('article-sitesocial|article-ad')}),
+        dict(name='aside', attrs={'class':re.compile('article-sitesocial|article-ad|article-tertiary|view-ci-service-article')}),
+        dict(name='button', attrs={'id':re.compile('action-zen-off-(top|bottom)')}),
     ]
 
     needs_subscription = "optional"
