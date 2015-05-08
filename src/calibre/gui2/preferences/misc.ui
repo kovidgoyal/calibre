@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Max. simultaneous conversion/news download jobs:</string>
+      <string>Max. simultaneous conversion/news download/plugin jobs:</string>
      </property>
      <property name="buddy">
       <cstring>opt_worker_limit</cstring>
@@ -134,7 +134,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&amp;Abort conversion jobs that take more than:</string>
+      <string>&amp;Abort jobs that take more than:</string>
      </property>
      <property name="buddy">
       <cstring>opt_worker_max_time</cstring>
