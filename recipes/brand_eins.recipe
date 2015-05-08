@@ -3,53 +3,57 @@
 from __future__ import unicode_literals
 
 __license__   = 'GPL v3'
-__copyright__ = '2014, Nikolas Mangold-Takao <nmangold at gmail.com>'
-__version__   = '0.10'
+__version__   = '0.2'
 
-''' http://brandeins.de - Wirtschaftsmagazin '''
+'''
+brand eins.de
+'''
+from calibre.web.feeds.news import BasicNewsRecipe
 from collections import OrderedDict
-from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class BrandEins(BasicNewsRecipe):
 
     title       = u'brand eins'
     __author__  = 'Nikolas Mangold-Takao'
-    description = u'brand eins beschreibt den momentanen Wandel in Wirtschaft und Gesellschaft, den Übergang vom Informations- zum Wissenszeitalter.'
+    language    = 'de'
+    description = u'brand eins beschreibt den momentanen Wandel in Wirtschaft und Gesellschaft.'
     publisher   = u'brand eins Verlag GmbH & Co. oHG'
-    category = 'politics, business, wirtschaft, Germany'
+    category    = 'politics, business, wirtschaft, Germany'
 
-    PREFIX = 'http://www.brandeins.de/'
-    INDEX  = PREFIX + 'archiv/listeansicht.html'
+    PREFIX      = 'http://www.brandeins.de/'
+    INDEX       = PREFIX + 'archiv/listeansicht.html'
 
-    use_embedded_content = False
-    lang = 'de-DE'
-    no_stylesheets = True
-    encoding = 'utf-8'
-    language = 'de'
-    publication_type = 'magazine'
-    needs_subscription = 'optional'
-    timefmt = ''
+    use_embedded_content    = False
+    resolve_internal_links  = True
+
+    no_stylesheets          = True
+    needs_subscription      = False
+
+    delay                   = 1
+    summary_length          = 200
+    simultaneous_downloads  = 5
+    remove_javascript       = True
 
     keep_only_tags = dict(name='div', attrs={'id':'content'})
+
+    # remove share image from articles
+    remove_tags  = [dict(name='img', attrs={'class':'share-instruction'}),
+                    dict(name='div', attrs={'class':'articleAuthor'})]
+
     remove_tags_before = dict(name='div', attrs={'class':'innerContent typeArticle'})
     remove_tags_after = dict(name='div', attrs={'id':'socialshareprivacy'})
 
-    issue_url = ''
-
+    extra_css      = '''
+    body, p {text-align: left;}
+    .headline {font-size: x-large;}
+    h2 {font-size: medium;}
+    h1 {font-size: large;}
+    em.Bold {font-weight:bold;font-style:normal;}
+    em.Italic {font-style:italic;}
     '''
-  brandeins.de
-  '''
 
     def parse_index(self):
-        # Allow username/password information to access a past issue (mis)using username and password fields
-        # username = year [yyyy, e.g. 2012]
-        # password = month [MM, e.g. 10 for October]
         issue = ""
-        if self.username is not None and self.password is not None:
-            try:
-                issue = "{}{}".format(self.username, self.password)  # yyyyMM
-            except:
-                pass
 
         soup = self.index_to_soup(self.INDEX)
         issue_list = soup.findAll('div', attrs={'class': 'details'})
@@ -73,8 +77,8 @@ class BrandEins(BasicNewsRecipe):
                 issue = yyyymm
             i+=1
 
-        self.log('Issue to get: ', issue, title)
         url = 'http://brandeins.de/'+issue_map[issue]
+        self.log('Issue to get: ', issue, title, url)
         self.issue_url = url  # save to extract cover
 
         return self.parse_issue(url)
@@ -94,19 +98,23 @@ class BrandEins(BasicNewsRecipe):
                 feeds[sec] = []
             desc = ''
             for p in item.findAll('p'):
-                desc += self.tag_to_string(p) + '\n'
+                desc += self.tag_to_string(p)
             feeds[sec].append({'title':title, 'url':url, 'description':desc})
             self.log('Found article:', title, 'at', url)
 
         return [(st, articles) for st, articles in feeds.iteritems() if articles]
 
     def get_cover_url(self):
-        # the index does not contain a usable cover, but the "Welt in Zahlen"-article contains it
-        cover_article = "{}/{}".format(self.issue_url[:-5], 'die-welt-in-zahlen.html')
-        self.log(cover_article)
+        # the index does not contain a usable cover, but the 'Welt in Zahlen'-article contains it
+        cover_article = "{}/{}".format(self.issue_url, 'die-welt-in-zahlen.html')
+        self.log('Cover article URL: %s' % cover_article)
         soup = self.index_to_soup(cover_article)
         cover_meta = soup.find('meta', attrs={'property':'og:image'})
         if cover_meta:
             return cover_meta['content']
         else:
             self.log('ERROR: Could not return cover url')
+
+    def preprocess_raw_html(self, raw_html, url):
+        return raw_html.replace('<p>• ', '<p>')
+
