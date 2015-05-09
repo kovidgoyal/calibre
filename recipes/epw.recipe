@@ -4,7 +4,7 @@ __copyright__ = '2014-2015, Karthik <hashkendistro@gmail.com>, Krittika Goyal'
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class EconomicAndPoliticalWeekly(BasicNewsRecipe):
-    title                  = 'Economic and Poitical Weekly'
+    title                  = 'Economic and Political Weekly'
     __author__             = 'Karthik K, Krittika Goyal'
     description            = 'Economic and Political news from India'
     publisher              = 'epw.in'
@@ -17,12 +17,11 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
     encoding               = 'utf-8'
     language               = 'en_IN'
     publication_type       = 'newspaper'
-    #timefmt                = ''
     masthead_url           = 'http://www.epw.in/system/files/epw_masthead.png'
     extra_css              = """
                                  body{font-family: Arial,Helvetica,sans-serif}
                              """
-    conversion_options     = {'comment'          : description, 
+    conversion_options     = {'comment'          : description,
                               'tags'             : category,
                               'publisher'        : publisher,
                               'language'         : language
