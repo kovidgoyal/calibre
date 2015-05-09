@@ -890,12 +890,15 @@ some functionality, such as drag and drop to not work.
 Finally, some users have reported that disabling UAC fixes the problem.
 
 
-calibre is not starting on OS X?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+calibre is not starting/crashing on OS X?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-One common cause of failures on OS X is the use of accessibility technologies that are incompatible with the graphics toolkit calibre uses.
-Try turning off VoiceOver if you have it on. Also go to System Preferences->System->Universal Access and turn off the setting for enabling
-access for assistive devices in all the tabs.
+One common cause of failures on OS X is the use of accessibility technologies
+that are incompatible with the graphics toolkit calibre uses.  Try turning off
+VoiceOver if you have it on. Also go to System Preferences->System->Universal
+Access and turn off the setting for enabling access for assistive devices in
+all the tabs. Another cause can be some third party apps that modify system
+behavior, such as Smart Scroll.
 
 You can obtain debug output about why calibre is not starting by running `Console.app`. Debug output will
 be printed to it. If the debug output contains a line that looks like::
