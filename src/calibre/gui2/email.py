@@ -63,7 +63,7 @@ class Sendmail(object):
         opts = email_config().parse()
         rh = opts.relay_host
         if rh and (
-            'gmail.com' in rh or 'live.com' in rh):
+            'gmail.com' in rh or 'live.com' in rh or 'gmx.com' in rh):
             self.rate_limit = tweaks['public_smtp_relay_delay']
 
     def __call__(self, attachment, aname, to, subject, text, log=None,
@@ -152,10 +152,8 @@ def email_news(mi, remove, get_fmts, done, job_manager):
         attachment = files[0]
         to_s = [account]
         subjects = [_('News:')+' '+mi.title]
-        texts    = [
-                _('Attached is the %s periodical downloaded by calibre.')
-                    % (mi.title,)
-                ]
+        texts    = [_(
+            'Attached is the %s periodical downloaded by calibre.') % (mi.title,)]
         attachment_names = [ascii_filename(mi.title)+os.path.splitext(attachment)[1]]
         attachments = [attachment]
         jobnames = [mi.title]
