@@ -325,6 +325,25 @@ class VLTabs(QTabBar):  # {{{
         self.tabCloseRequested.connect(self.tab_close)
         self.setStyleSheet('QTabBar::tab:selected { font-weight: bold } QTabBar::tab { text-align: center }')
         self.setVisible(gprefs['show_vl_tabs'])
+        self.next_action = a = QAction(self)
+        a.triggered.connect(partial(self.next_tab, delta=1)), self.gui.addAction(a)
+        self.previous_action = a = QAction(self)
+        a.triggered.connect(partial(self.next_tab, delta=-1)), self.gui.addAction(a)
+        self.gui.keyboard.register_shortcut(
+            'virtual-library-tab-bar-next', _('Next virtual library'), action=self.next_action,
+            default_keys=('Ctrl+Right',),
+            description=_('Switch to the next Virtual Library in the Virtual Library tab bar')
+        )
+        self.gui.keyboard.register_shortcut(
+            'virtual-library-tab-bar-previous', _('Previous virtual library'), action=self.previous_action,
+            default_keys=('Ctrl+Left',),
+            description=_('Switch to the previous Virtual Library in the Virtual Library tab bar')
+        )
+
+    def next_tab(self, delta=1):
+        if self.count() > 1 and self.isVisible():
+            idx = (self.currentIndex() + delta) % self.count()
+            self.setCurrentIndex(idx)
 
     def enable_bar(self):
         gprefs['show_vl_tabs'] = True

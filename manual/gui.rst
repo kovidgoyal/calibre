@@ -704,6 +704,10 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
       - Clear the additional restriction
     * - :kbd:`Ctrl+*`
       - Create a temporary virtual library based on the current search
+    * - :kbd:`Ctrl+Right`
+      - Select the next virtual library tab
+    * - :kbd:`Ctrl+Left`
+      - Select the previous virtua library tab
     * - :kbd:`N or F3`
       - Find the next book that matches the current search (only works if the highlight checkbox next to the search bar is checked)
     * - :kbd:`Shift+N or Shift+F3`
