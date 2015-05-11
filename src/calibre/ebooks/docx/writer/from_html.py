@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re
+from collections import Counter
 
 from calibre.ebooks.docx.writer.container import create_skeleton
 from calibre.ebooks.docx.writer.styles import StylesManager, FloatSpec
@@ -17,6 +18,13 @@ from calibre.ebooks.docx.writer.tables import Table
 from calibre.ebooks.docx.writer.lists import ListsManager
 from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
+from calibre.utils.localization import lang_as_iso639_1
+
+def lang_for_tag(tag):
+    for attr in ('lang', '{http://www.w3.org/XML/1998/namespace}lang'):
+        val = lang_as_iso639_1(tag.get(attr))
+        if val:
+            return val
 
 class Style(St):
 
@@ -46,13 +54,14 @@ class TextRun(object):
 
     ws_pat = None
 
-    def __init__(self, namespace, style, first_html_parent):
+    def __init__(self, namespace, style, first_html_parent, lang=None):
         self.first_html_parent = first_html_parent
         if self.ws_pat is None:
             TextRun.ws_pat = self.ws_pat = re.compile(r'\s+')
         self.style = style
         self.texts = []
         self.link = None
+        self.lang = lang
         self.parent_style = None
         self.makelement = namespace.makeelement
 
@@ -76,9 +85,13 @@ class TextRun(object):
         makeelement = self.makelement
         parent = p if self.link is None else links_manager.serialize_hyperlink(p, self.link)
         r = makeelement(parent, 'w:r')
+        rpr = makeelement(r, 'w:rPr', append=False)
         if self.parent_style is not self.style:
-            rpr = makeelement(r, 'w:rPr')
             makeelement(rpr, 'w:rStyle', w_val=self.style.id)
+        if self.lang:
+            makeelement(rpr, 'w:lang', w_bidi=self.lang, w_val=self.lang, w_eastAsia=self.lang)
+        if len(rpr) > 0:
+            r.append(rpr)
 
         for text, preserve_whitespace, bookmark in self.texts:
             if bookmark is not None:
@@ -138,6 +151,7 @@ class Block(object):
         self.page_break_before = style['page-break-before'] == 'always'
         self.keep_lines = style['page-break-inside'] == 'avoid'
         self.page_break_after = False
+        self.block_lang = None
 
     def resolve_skipped(self, next_block):
         if not self.is_empty():
@@ -147,13 +161,13 @@ class Block(object):
             if self.list_tag is not None:
                 next_block.list_tag = self.list_tag
 
-    def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False, bookmark=None, link=None):
+    def add_text(self, text, style, ignore_leading_whitespace=False, html_parent=None, is_parent_style=False, bookmark=None, link=None, lang=None):
         ts = self.styles_manager.create_text_style(style, is_parent_style=is_parent_style)
         ws = style['white-space']
-        if self.runs and ts == self.runs[-1].style and link == self.runs[-1].link:
+        if self.runs and ts == self.runs[-1].style and link == self.runs[-1].link and lang == self.runs[-1].lang:
             run = self.runs[-1]
         else:
-            run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent)
+            run = TextRun(self.namespace, ts, self.html_block if html_parent is None else html_parent, lang=lang)
             self.runs.append(run)
         preserve_whitespace = ws in {'pre', 'pre-wrap'}
         if ignore_leading_whitespace and not preserve_whitespace:
@@ -189,6 +203,10 @@ class Block(object):
         for bmark in self.bookmarks:
             end_bookmarks.append(str(self.links_manager.bookmark_id))
             makeelement(p, 'w:bookmarkStart', w_id=end_bookmarks[-1], w_name=bmark)
+        if self.block_lang:
+            rpr = makeelement(p, 'w:rPr')
+            makeelement(rpr, 'w:lang', w_val=self.block_lang, w_bidi=self.block_lang, w_eastAsia=self.block_lang)
+
         ppr = makeelement(p, 'w:pPr')
         if self.keep_next:
             makeelement(ppr, 'w:keepNext')
@@ -344,6 +362,20 @@ class Blocks(object):
                 if next_block.parent_items is block.parent_items and block.parent_items is self.items:
                     next_block.page_break_before = True
 
+    def resolve_language(self):
+        default_lang = self.styles_manager.document_lang
+        for block in self.all_blocks:
+            count = Counter()
+            for run in block.runs:
+                count[run.lang] += 1
+            if count:
+                block.block_lang = bl = count.most_common(1)[0][0]
+            for run in block.runs:
+                if run.lang == bl:
+                    run.lang = None
+            if bl == default_lang:
+                block.block_lang = None
+
     def __repr__(self):
         return 'Block(%r)' % self.runs
 
@@ -372,7 +404,7 @@ class Convert(object):
         self.lists_manager = ListsManager(self.docx)
         self.fonts_manager = FontsManager(self.docx.namespace, self.oeb, self.opts)
         self.blocks = Blocks(self.docx.namespace, self.styles_manager, self.links_manager)
-        self.current_link = None
+        self.current_link = self.current_lang = None
 
         for item in self.oeb.spine:
             self.process_item(item)
@@ -391,6 +423,7 @@ class Convert(object):
             self.blocks.delete_block_at(pos)
         self.blocks.all_blocks[0].is_first_block = True
         self.blocks.apply_page_break_after()
+        self.blocks.resolve_language()
 
         self.lists_manager.finalize(all_blocks)
         self.styles_manager.finalize(all_blocks)
@@ -403,6 +436,7 @@ class Convert(object):
             stylizer = Stylizer(item.data, item.href, self.oeb, self.opts, self.opts.output_profile, base_css=self.base_css)
         self.abshref = self.images_manager.abshref = item.abshref
 
+        self.current_lang = lang_for_tag(item.data) or self.styles_manager.document_lang
         for i, body in enumerate(XPath('//h:body')(item.data)):
             with self.blocks:
                 body.set('id', body.get('id', None) or self.links_manager.top_anchor)
@@ -419,6 +453,10 @@ class Convert(object):
         previous_link = self.current_link
         if tagname == 'a' and html_tag.get('href'):
             self.current_link = (self.current_item, html_tag.get('href'), html_tag.get('title'))
+        previous_lang = self.current_lang
+        tag_lang = lang_for_tag(html_tag)
+        if tag_lang:
+            self.current_lang = tag_lang
 
         display = tag_style._get('display')
         is_float = tag_style['float'] in {'left', 'right'} and not is_first_tag
@@ -458,6 +496,7 @@ class Convert(object):
             self.blocks.all_blocks[-1].keep_next = True
 
         self.current_link = previous_link
+        self.current_lang = previous_lang
 
         if display == 'table-row':
             return  # We ignore the tail for these tags
@@ -467,10 +506,11 @@ class Convert(object):
             # Ignore trailing space after a block tag, as otherwise it will
             # become a new empty paragraph
             block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
-            block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True, link=self.current_link)
+            block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True, link=self.current_link, lang=self.current_lang)
 
     def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False, float_spec=None, is_list_item=False):
-        block = self.blocks.start_new_block(html_tag, tag_style, is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
+        block = self.blocks.start_new_block(
+            html_tag, tag_style, is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
         anchor = html_tag.get('id') or html_tag.get('name')
         if anchor:
             block.bookmarks.add(self.bookmark_for_anchor(anchor, html_tag))
@@ -478,7 +518,7 @@ class Convert(object):
             self.images_manager.add_image(html_tag, block, stylizer, as_block=True)
         else:
             if html_tag.text:
-                block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link)
+                block.add_text(html_tag.text, tag_style, ignore_leading_whitespace=True, is_parent_style=True, link=self.current_link, lang=self.current_lang)
 
     def add_inline_tag(self, tagname, html_tag, tag_style, stylizer):
         anchor = html_tag.get('id') or html_tag.get('name') or None
@@ -495,7 +535,7 @@ class Convert(object):
         else:
             if html_tag.text:
                 block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
-                block.add_text(html_tag.text, tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link)
+                block.add_text(html_tag.text, tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
 
     def bookmark_for_anchor(self, anchor, html_tag):
         return self.links_manager.bookmark_for_anchor(anchor, self.current_item, html_tag)

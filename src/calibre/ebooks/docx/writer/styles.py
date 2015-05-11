@@ -501,9 +501,7 @@ class StylesManager(object):
 
     def __init__(self, namespace, log, document_lang):
         self.namespace = namespace
-        self.document_lang = lang_as_iso639_1(document_lang) or 'en-US'
-        if self.document_lang == 'en':
-            self.document_lang = 'en-US'
+        self.document_lang = lang_as_iso639_1(document_lang) or 'en'
         self.log = log
         self.block_styles, self.text_styles = {}, {}
 
