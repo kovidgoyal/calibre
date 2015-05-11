@@ -421,12 +421,6 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
     for x in r:
         x.tag = XHTML('span')
 
-    # Remove lang redefinition inserted by the amazing Microsoft Word!
-    body = xpath(data, '/h:html/h:body')[0]
-    for key in list(body.attrib.keys()):
-        if key == 'lang' or key.endswith('}lang'):
-            body.attrib.pop(key)
-
     def remove_elem(a):
         p = a.getparent()
         idx = p.index(a) -1
