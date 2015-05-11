@@ -13,52 +13,56 @@ class FIELDSTREAM(BasicNewsRecipe):
     oldest_article      = 24
     remove_javascript   = True
     remove_empty_feeds  = True
-    masthead_url        = 'http://www.fieldandstream.com/sites/all/themes/fs/logo.png'
-    cover_url           = 'http://www.arrowheadflyangler.com/Portals/1/Articles/FieldStream/Field%20and%20Stream%20March%20Fishing%20Edition%20Article%20Cover.jpg'
-    # recursions          = 0
+    cover_url           = 'http://www.arrowheadflyangler.com/Portals/1/Articles/FieldStream/Field%20and%20Stream%20March%20Fishing%20Edition%20Article%20Cover.jpg'  # noqa
     max_articles_per_feed = 10
     INDEX = 'http://www.fieldandstream.com'
 
-    keep_only_tags     = [dict(name='div', attrs={'class':['interior-main']})
-                          ]
-    remove_tags = [dict(name='div', attrs={'id':['comments']})]
+    keep_only_tags     = [
+        dict(name='div', attrs={'class':['article-wrapper']}),
+    ]
+    remove_tags = [
+        dict(name='div', attrs={'class':lambda x: x and 'content-main-bottom' in x.split()}),
+        dict(name='div', attrs={'class':lambda x: x and 'pw-widget' in x.split()}),
+    ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        for form in soup.findAll('form'):
+            form.parent.extract()
+        return soup
 
     def parse_index(self):
         feeds = []
+        num = self.test[0] if self.test else 100
         for title, url in [
-                            (u"Wild Chef", u"http://www.fieldandstream.com/blogs/wild-chef"),
-                            (u"The Gun Nut", u"http://www.fieldandstream.com/blogs/gun-nut"),
-                            (u"Whitetail 365", u"http://www.fieldandstream.com/blogs/whitetail-365"),
-                            (u"Fly Talk",  u"http://www.fieldandstream.com/blogs/flytalk"),
-                            (u"Generation Wild",  u"http://www.fieldandstream.com/blogs/generation-wild"),
-                            (u"Conservationist",  u"http://www.fieldandstream.com/blogs/conservationist"),
-                            (u"Honest Angler",  u"http://www.fieldandstream.com/blogs/honest-angler"),
-                            (u"Mans Best Friend", u"http://www.fieldandstream.com/blogs/mans-best-friend"),
-
-                             ]:
+                ('Field Test', 'http://www.fieldandstream.com/blogs/field-test'),
+                (u"Wild Chef", u"http://www.fieldandstream.com/blogs/wild-chef"),
+                (u"The Gun Nuts", u"http://www.fieldandstream.com/blogs/gun-nut"),
+                (u"Whitetail 365", u"http://www.fieldandstream.com/blogs/whitetail-365"),
+                ('Field Notes', 'http://www.fieldandstream.com/blogs/field-notes'),
+                (u"Fly Talk",  u"http://www.fieldandstream.com/blogs/flytalk"),
+                (u"The Conservationist",  u"http://www.fieldandstream.com/blogs/conservationist"),
+                ('The Lateral Line', 'http://www.fieldandstream.com/blogs/lateral-line'),
+                ('Total Outdoorsman', 'http://www.fieldandstream.com/blogs/total-outdoorsman'),
+                ('A Sportsman\'s Life', 'http://www.fieldandstream.com/blogs/a-sportsmans-life'),
+        ]:
+            self.log('Section:', title)
             articles = self.make_links(url)
             if articles:
                 feeds.append((title, articles))
+            if len(feeds) > num:
+                break
         return feeds
 
     def make_links(self, url):
-        title = 'Temp'
         current_articles = []
         soup = self.index_to_soup(url)
-        print 'The soup is: ', soup
         for item in soup.findAll('h2'):
-            print 'item is: ', item
             link = item.find('a')
-            print 'the link is: ', link
             if link:
                 url         = self.INDEX + link['href']
                 title       = self.tag_to_string(link)
-                print 'the title is: ', title
-                print 'the url is: ', url
-                print 'the title is: ', title
-                current_articles.append({'title': title, 'url': url, 'description':'', 'date':''}) # append all this
+                self.log('\t', title, 'at', url)
+                current_articles.append({'title': title, 'url': url, 'description':'', 'date':''})
         return current_articles
-
-
-
-
