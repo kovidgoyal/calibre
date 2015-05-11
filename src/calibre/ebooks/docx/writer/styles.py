@@ -49,6 +49,7 @@ class CombinedStyle(object):
         self.bs, self.rs, self.blocks = bs, rs, blocks
         self.namespace = namespace
         self.id = self.name = self.seq = None
+        self.outline_level = None
 
     def apply(self):
         for block in self.blocks:
@@ -68,6 +69,8 @@ class CombinedStyle(object):
             block.set(w('default'), '1')
         pPr = makeelement(block, 'w:pPr')
         self.bs.serialize_properties(pPr, normal_style.bs)
+        if self.outline_level is not None:
+            makeelement(pPr, 'w:outlineLvl', w_val=str(self.outline_level))
         rPr = makeelement(block, 'w:rPr')
         self.rs.serialize_properties(rPr, normal_style.rs)
 
@@ -526,6 +529,8 @@ class StylesManager(object):
         block_counts, run_counts = Counter(), Counter()
         block_rmap, run_rmap = defaultdict(list), defaultdict(list)
         used_pairs = defaultdict(list)
+        heading_styles = defaultdict(list)
+        headings = frozenset('h1 h2 h3 h4 h5 h6'.split())
 
         for block in blocks:
             bs = block.style
@@ -540,6 +545,8 @@ class StylesManager(object):
             if local_run_counts:
                 rs = local_run_counts.most_common(1)[0][0]
                 used_pairs[(bs, rs)].append(block)
+                if block.html_tag in headings:
+                    heading_styles[block.html_tag].append((bs, rs))
 
         rnum = len(str(max(1, len(run_counts) - 1)))
         for i, (text_style, count) in enumerate(run_counts.most_common()):
@@ -553,16 +560,29 @@ class StylesManager(object):
                 self.text_styles.pop(s)
 
         counts = Counter()
+        smap = {}
         for (bs, rs), blocks in used_pairs.iteritems():
             s = CombinedStyle(bs, rs, blocks, self.namespace)
+            smap[(bs, rs)] = s
             counts[s] += sum(1 for b in blocks if not b.is_empty())
+        for i, heading_tag in enumerate(sorted(heading_styles)):
+            styles = sorted((smap[k] for k in heading_styles[heading_tag]), key=counts.__getitem__)
+            styles = filter(lambda s:s.outline_level is None, styles)
+            if styles:
+                heading_style = styles[-1]
+                heading_style.outline_level = i
+
         snum = len(str(max(1, len(counts) - 1)))
         for i, (style, count) in enumerate(counts.most_common()):
             if i == 0:
                 self.normal_style = style
                 style.id = style.name = 'Normal'
             else:
-                style.id = style.name = 'Para %0{}d'.format(snum) % i
+                if style.outline_level is None:
+                    val = 'Para %0{}d'.format(snum) % i
+                else:
+                    val = 'Heading %d' % (style.outline_level + 1)
+                style.id = style.name = val
             style.seq = i
         self.combined_styles = sorted(counts.iterkeys(), key=attrgetter('seq'))
         [ls.apply() for ls in self.combined_styles]

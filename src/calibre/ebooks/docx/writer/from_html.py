@@ -124,6 +124,7 @@ class Block(object):
         self.numbering_id = None
         self.parent_items = None
         self.html_block = html_block
+        self.html_tag = barename(html_block.tag)
         self.float_spec = float_spec
         if float_spec is not None:
             float_spec.blocks.append(self)
