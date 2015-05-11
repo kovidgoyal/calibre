@@ -53,6 +53,7 @@ class TextRun(object):
         self.style = style
         self.texts = []
         self.link = None
+        self.parent_style = None
         self.makelement = namespace.makeelement
 
     def add_text(self, text, preserve_whitespace, bookmark=None, link=None):
@@ -75,8 +76,9 @@ class TextRun(object):
         makeelement = self.makelement
         parent = p if self.link is None else links_manager.serialize_hyperlink(p, self.link)
         r = makeelement(parent, 'w:r')
-        rpr = makeelement(r, 'w:rPr')
-        makeelement(rpr, 'w:rStyle', w_val=self.style.id)
+        if self.parent_style is not self.style:
+            rpr = makeelement(r, 'w:rPr')
+            makeelement(rpr, 'w:rStyle', w_val=self.style.id)
 
         for text, preserve_whitespace, bookmark in self.texts:
             if bookmark is not None:
@@ -104,6 +106,14 @@ class TextRun(object):
             return True
         return False
 
+    @property
+    def style_weight(self):
+        ans = 0
+        for text, preserve_whitespace, bookmark in self.texts:
+            if isinstance(text, type('')):
+                ans += len(text)
+        return ans
+
 class Block(object):
 
     def __init__(self, namespace, styles_manager, links_manager, html_block, style, is_table_cell=False, float_spec=None, is_list_item=False):
@@ -124,6 +134,7 @@ class Block(object):
         self.page_break_before = False
         self.runs = []
         self.skipped = False
+        self.linked_style = None
 
     def resolve_skipped(self, next_block):
         if not self.is_empty():
@@ -186,7 +197,8 @@ class Block(object):
             numpr = makeelement(ppr, 'w:numPr')
             makeelement(numpr, 'w:ilvl', w_val=str(self.numbering_id[1]))
             makeelement(numpr, 'w:numId', w_val=str(self.numbering_id[0]))
-        makeelement(ppr, 'w:pStyle', w_val=self.style.id)
+        if self.linked_style is not None:
+            makeelement(ppr, 'w:pStyle', w_val=self.linked_style.id)
         if self.is_first_block:
             makeelement(ppr, 'w:pageBreakBefore', w_val='off')
         for run in self.runs:
@@ -311,6 +323,9 @@ class Blocks(object):
             self.all_blocks[self.pos].page_break_before = True
         self.block_map = {}
 
+    def __repr__(self):
+        return 'Block(%r)' % self.runs
+
 class Convert(object):
 
     # Word does not apply default styling to hyperlinks, so we ensure they get
@@ -320,16 +335,17 @@ class Convert(object):
     a[href] { text-decoration: underline; color: blue }
     '''
 
-    def __init__(self, oeb, docx):
+    def __init__(self, oeb, docx, mi):
         self.oeb, self.docx = oeb, docx
         self.log, self.opts = docx.log, docx.opts
+        self.mi = mi
 
     def __call__(self):
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
         self.svg_rasterizer = SVGRasterizer(base_css=self.base_css)
         self.svg_rasterizer(self.oeb, self.opts)
 
-        self.styles_manager = StylesManager(self.docx.namespace)
+        self.styles_manager = StylesManager(self.docx.namespace, self.log, self.mi.language)
         self.links_manager = LinksManager(self.docx.namespace, self.docx.document_relationships)
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
         self.lists_manager = ListsManager(self.docx)

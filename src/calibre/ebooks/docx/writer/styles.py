@@ -13,7 +13,7 @@ from lxml import etree
 
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.docx.writer.utils import convert_color, int_or_zero
-from calibre.utils.icu import numeric_sort_key
+from calibre.utils.localization import lang_as_iso639_1
 from tinycss.css21 import CSS21Parser
 
 css_parser = CSS21Parser()
@@ -42,6 +42,34 @@ def bmap(x):
 
 def is_dropcaps(html_tag, tag_style):
     return len(html_tag) < 2 and len(etree.tostring(html_tag, method='text', encoding=unicode, with_tail=False)) < 5 and tag_style['float'] == 'left'
+
+class CombinedStyle(object):
+
+    def __init__(self, bs, rs, blocks, namespace):
+        self.bs, self.rs, self.blocks = bs, rs, blocks
+        self.namespace = namespace
+        self.id = self.name = self.seq = None
+
+    def apply(self):
+        for block in self.blocks:
+            block.linked_style = self
+            for run in block.runs:
+                run.parent_style = self.rs
+
+    def serialize(self, styles, normal_style):
+        makeelement = self.namespace.makeelement
+        w = lambda x: '{%s}%s' % (self.namespace.namespaces['w'], x)
+        block = makeelement(styles, 'w:style', w_styleId=self.id, w_type='paragraph')
+        makeelement(block, 'w:name', w_val=self.name)
+        makeelement(block, 'w:qFormat')
+        if self is not normal_style:
+            makeelement(block, 'w:basedOn', w_val=normal_style.id)
+        if self.seq == 0:
+            block.set(w('default'), '1')
+        pPr = makeelement(block, 'w:pPr')
+        self.bs.serialize_properties(pPr, normal_style.bs)
+        rPr = makeelement(block, 'w:rPr')
+        self.rs.serialize_properties(rPr, normal_style.rs)
 
 class FloatSpec(object):
 
@@ -134,14 +162,11 @@ class DOCXStyle(object):
     __str__ = __repr__
 
     def serialize(self, styles, normal_style):
-        w, makeelement = self.w, self.makeelement
+        makeelement = self.makeelement
         style = makeelement(styles, 'style', styleId=self.id, type=self.TYPE)
         style.append(makeelement(style, 'name', val=self.name))
-        if self is normal_style:
-            style.set(w('default'), '1')
-        else:
+        if self is not normal_style:
             style.append(makeelement(style, 'basedOn', val=normal_style.id))
-        style.append(makeelement(style, 'qFormat'))
         styles.append(style)
         return style
 
@@ -235,13 +260,14 @@ class TextStyle(DOCXStyle):
 
     def serialize_borders(self, bdr, normal_style):
         w = self.w
-        if (self.padding not in (None, ignore, 0) and self is normal_style) or self.padding != normal_style.padding:
+        is_normal_style = self is normal_style
+        if is_normal_style or self.padding != normal_style.padding:
             bdr.set(w('space'), str(0 if self.padding in (None, ignore) else self.padding))
-        if (self.border_width not in (None, ignore, 0) and self is normal_style) or self.border_width != normal_style.border_width:
+        if is_normal_style or self.border_width != normal_style.border_width:
             bdr.set(w('sz'), str(0 if self.border_width in (None, ignore) else self.border_width))
-        if (self.border_style not in (None, ignore, 'none') and self is normal_style) or self.border_style != normal_style.border_style:
+        if is_normal_style or self.border_style != normal_style.border_style:
             bdr.set(w('val'), 'none' if self.border_style in (None, ignore) else self.border_style)
-        if (self.border_color not in (None, ignore, 'auto') and self is normal_style) or self.border_color != normal_style.border_color:
+        if is_normal_style or self.border_color != normal_style.border_color:
             bdr.set(w('color'), 'auto' if self.border_color in (None, ignore) else self.border_color)
         return bdr
 
@@ -249,52 +275,57 @@ class TextStyle(DOCXStyle):
         makeelement = self.makeelement
         style_root = DOCXStyle.serialize(self, styles, normal_style)
         style = makeelement(style_root, 'rPr')
-
-        if self is normal_style or self.font_family != normal_style.font_family:
-            style.append(makeelement(
-                style, 'rFonts', **{k:self.font_family for k in 'ascii cs eastAsia hAnsi'.split()}))
-
-        for name, attr, vmap in (('sz', 'font_size', str), ('b', 'bold', bmap), ('i', 'italic', bmap)):
-            val = getattr(self, attr)
-            if self is normal_style or getattr(normal_style, attr) != val:
-                for suffix in ('', 'Cs'):
-                    style.append(makeelement(style, name + suffix, val=vmap(val)))
-
-        def check_attr(attr):
-            val = getattr(self, attr)
-            return (self is normal_style and val is not False and val is not None) or (val != getattr(normal_style, attr))
-
-        if check_attr('color'):
-            style.append(makeelement(style, 'color', val=self.color or 'auto'))
-        if check_attr('background_color'):
-            style.append(makeelement(style, 'shd', fill=self.background_color or 'auto'))
-        if check_attr('underline'):
-            style.append(makeelement(style, 'u', val='single' if self.underline else 'none'))
-        if check_attr('dstrike'):
-            style.append(makeelement(style, 'dstrike', val=bmap(self.dstrike)))
-        if check_attr('strike'):
-            style.append(makeelement(style, 'strike', val=bmap(self.strike)))
-        if check_attr('caps'):
-            style.append(makeelement(style, 'caps', val=bmap(self.caps)))
-        if check_attr('small_caps'):
-            style.append(makeelement(style, 'smallCaps', val=bmap(self.small_caps)))
-        if check_attr('shadow'):
-            style.append(makeelement(style, 'shadow', val=bmap(self.shadow)))
-        if check_attr('spacing'):
-            style.append(makeelement(style, 'spacing', val=str(self.spacing or 0)))
-        if (self is normal_style and self.vertical_align in {'superscript', 'subscript'}) or self.vertical_align != normal_style.vertical_align:
-            if self.vertical_align in {'superscript', 'subscript', 'baseline'}:
-                style.append(makeelement(style, 'vertAlign', val=self.vertical_align))
-            else:
-                style.append(makeelement(style, 'position', val=self.vertical_align))
-
-        bdr = self.serialize_borders(makeelement(style, 'bdr'), normal_style)
-        if bdr.attrib:
-            style.append(bdr)
-
+        self.serialize_properties(style, normal_style)
         if len(style) > 0:
             style_root.append(style)
         return style_root
+
+    def serialize_properties(self, rPr, normal_style):
+        makeelement = self.makeelement
+        is_normal_style = self is normal_style
+        if is_normal_style or self.font_family != normal_style.font_family:
+            rPr.append(makeelement(
+                rPr, 'rFonts', **{k:self.font_family for k in 'ascii cs eastAsia hAnsi'.split()}))
+
+        for name, attr, vmap in (('sz', 'font_size', str), ('b', 'bold', bmap), ('i', 'italic', bmap)):
+            val = getattr(self, attr)
+            if is_normal_style or getattr(normal_style, attr) != val:
+                for suffix in ('', 'Cs'):
+                    rPr.append(makeelement(rPr, name + suffix, val=vmap(val)))
+
+        def check_attr(attr):
+            val = getattr(self, attr)
+            return is_normal_style or (val != getattr(normal_style, attr))
+
+        if check_attr('color'):
+            rPr.append(makeelement(rPr, 'color', val=self.color or 'auto'))
+        if check_attr('background_color'):
+            rPr.append(makeelement(rPr, 'shd', fill=self.background_color or 'auto'))
+        if check_attr('underline'):
+            rPr.append(makeelement(rPr, 'u', val='single' if self.underline else 'none'))
+        if check_attr('dstrike'):
+            rPr.append(makeelement(rPr, 'dstrike', val=bmap(self.dstrike)))
+        if check_attr('strike'):
+            rPr.append(makeelement(rPr, 'strike', val=bmap(self.strike)))
+        if check_attr('caps'):
+            rPr.append(makeelement(rPr, 'caps', val=bmap(self.caps)))
+        if check_attr('small_caps'):
+            rPr.append(makeelement(rPr, 'smallCaps', val=bmap(self.small_caps)))
+        if check_attr('shadow'):
+            rPr.append(makeelement(rPr, 'shadow', val=bmap(self.shadow)))
+        if check_attr('spacing'):
+            rPr.append(makeelement(rPr, 'spacing', val=str(self.spacing or 0)))
+        if is_normal_style:
+            rPr.append(makeelement(rPr, 'vertAlign', val=self.vertical_align if self.vertical_align in {'superscript', 'subscript'} else 'baseline'))
+        elif self.vertical_align != normal_style.vertical_align:
+            if self.vertical_align in {'superscript', 'subscript', 'baseline'}:
+                rPr.append(makeelement(rPr, 'vertAlign', val=self.vertical_align))
+            else:
+                rPr.append(makeelement(rPr, 'position', val=self.vertical_align))
+
+        bdr = self.serialize_borders(makeelement(rPr, 'bdr'), normal_style)
+        if bdr.attrib:
+            rPr.append(bdr)
 
 def read_css_block_borders(self, css, store_css_style=False):
     for edge in border_edges:
@@ -385,11 +416,17 @@ class BlockStyle(DOCXStyle):
         return bdr
 
     def serialize(self, styles, normal_style):
-        w, makeelement = self.w, self.makeelement
+        makeelement = self.makeelement
         style_root = DOCXStyle.serialize(self, styles, normal_style)
         style = makeelement(style_root, 'pPr')
 
-        spacing = makeelement(style, 'spacing')
+        if len(style) > 0:
+            style_root.append(style)
+        return style_root
+
+    def serialize_properties(self, pPr, normal_style):
+        makeelement, w = self.makeelement, self.w
+        spacing = makeelement(pPr, 'spacing')
         for edge, attr in {'top':'before', 'bottom':'after'}.iteritems():
             getter = attrgetter('css_margin_' + edge)
             css_val, css_unit = parse_css_length(getter(self))
@@ -408,9 +445,9 @@ class BlockStyle(DOCXStyle):
             spacing.set(w('lineRule'), 'atLeast')
 
         if spacing.attrib:
-            style.append(spacing)
+            pPr.append(spacing)
 
-        ind = makeelement(style, 'ind')
+        ind = makeelement(pPr, 'ind')
         for edge in ('left', 'right'):
             getter = attrgetter('css_margin_' + edge)
             css_val, css_unit = parse_css_length(getter(self))
@@ -444,35 +481,35 @@ class BlockStyle(DOCXStyle):
                     ind.set(w('hanging'), str(abs(val)))
                     ind.set(w('hangingChars'), '0')
         if ind.attrib:
-            style.append(ind)
+            pPr.append(ind)
 
         if (self is normal_style and self.background_color) or self.background_color != normal_style.background_color:
-            style.append(makeelement(style, 'shd', val='clear', color='auto', fill=self.background_color or 'auto'))
+            pPr.append(makeelement(pPr, 'shd', val='clear', color='auto', fill=self.background_color or 'auto'))
 
-        pbdr = self.serialize_borders(style.makeelement(w('pBdr')), normal_style)
+        pbdr = self.serialize_borders(pPr.makeelement(w('pBdr')), normal_style)
         if len(pbdr):
-            style.append(pbdr)
+            pPr.append(pbdr)
 
         if self is normal_style or self.text_align != normal_style.text_align:
-            style.append(makeelement(style, 'jc', val=self.text_align))
+            pPr.append(makeelement(pPr, 'jc', val=self.text_align))
 
         if (self is normal_style and self.page_break_before) or self.page_break_before != normal_style.page_break_before:
-            style.append(makeelement(style, 'pageBreakBefore', val=bmap(self.page_break_before)))
+            pPr.append(makeelement(pPr, 'pageBreakBefore', val=bmap(self.page_break_before)))
         if (self is normal_style and self.keep_lines) or self.keep_lines != normal_style.keep_lines:
-            style.append(makeelement(style, 'keepLines', val=bmap(self.keep_lines)))
+            pPr.append(makeelement(pPr, 'keepLines', val=bmap(self.keep_lines)))
 
         if self is not normal_style and self.next_style is not None:
-            style.append(makeelement(style, 'next', val=self.next_style))
-
-        if len(style) > 0:
-            style_root.append(style)
-        return style_root
+            pPr.append(makeelement(pPr, 'next', val=self.next_style))
 
 
 class StylesManager(object):
 
-    def __init__(self, namespace):
+    def __init__(self, namespace, log, document_lang):
         self.namespace = namespace
+        self.document_lang = lang_as_iso639_1(document_lang) or 'en-US'
+        if self.document_lang == 'en':
+            self.document_lang = 'en-US'
+        self.log = log
         self.block_styles, self.text_styles = {}, {}
 
     def create_text_style(self, css_style, is_parent_style=False):
@@ -496,37 +533,55 @@ class StylesManager(object):
     def finalize(self, blocks):
         block_counts, run_counts = Counter(), Counter()
         block_rmap, run_rmap = defaultdict(list), defaultdict(list)
+        used_pairs = defaultdict(list)
+
         for block in blocks:
-            block_counts[block.style] += 1
+            bs = block.style
+            block_counts[bs] += 1
             block_rmap[block.style].append(block)
+            local_run_counts = Counter()
             for run in block.runs:
-                run_counts[run.style] += (0 if run.is_empty() else 1)
+                count = run.style_weight
+                run_counts[run.style] += count
+                local_run_counts[run.style] += count
                 run_rmap[run.style].append(run)
-        bnum = len(str(max(1, len(block_counts) - 1)))
-        for i, (block_style, count) in enumerate(block_counts.most_common()):
-            if i == 0:
-                self.normal_block_style = block_style
-                block_style.id = 'ParagraphNormal'
-            else:
-                block_style.id = 'Paragraph%d' % i
-            block_style.name = '%0{}d Para'.format(bnum) % i
+            if local_run_counts:
+                rs = local_run_counts.most_common(1)[0][0]
+                used_pairs[(bs, rs)].append(block)
+
         rnum = len(str(max(1, len(run_counts) - 1)))
         for i, (text_style, count) in enumerate(run_counts.most_common()):
+            text_style.id = 'Text%d' % i
+            text_style.name = '%0{}d Text'.format(rnum) % i
+            text_style.seq = i
             if i == 0:
                 self.normal_text_style = text_style
-                text_style.id = 'TextNormal'
-            else:
-                text_style.id = 'Text%d' % i
-            text_style.name = '%0{}d Text'.format(rnum) % i
-        for s in tuple(self.block_styles):
-            if s.id is None:
-                self.block_styles.pop(s)
         for s in tuple(self.text_styles):
             if s.id is None:
                 self.text_styles.pop(s)
 
+        counts = Counter()
+        for (bs, rs), blocks in used_pairs.iteritems():
+            s = CombinedStyle(bs, rs, blocks, self.namespace)
+            counts[s] += sum(1 for b in blocks if not b.is_empty())
+        snum = len(str(max(1, len(counts) - 1)))
+        for i, (style, count) in enumerate(counts.most_common()):
+            if i == 0:
+                self.normal_style = style
+                style.id = style.name = 'Normal'
+            else:
+                style.id = style.name = 'Para %0{}d'.format(snum) % i
+            style.seq = i
+        self.combined_styles = sorted(counts.iterkeys(), key=attrgetter('seq'))
+        [ls.apply() for ls in self.combined_styles]
+        self.log.debug('%d Text Styles %d Combined styles' % tuple(map(len, (
+            self.text_styles, self.combined_styles))))
+
     def serialize(self, styles):
-        for style in sorted(self.block_styles, key=lambda s:(s is not self.normal_block_style, numeric_sort_key(s.id))):
-            style.serialize(styles, self.normal_block_style)
-        for style in sorted(self.text_styles, key=lambda s:(s is not self.normal_text_style, numeric_sort_key(s.id))):
+        lang = styles.xpath('descendant::*[local-name()="lang"]')[0]
+        for k in tuple(lang.attrib):
+            lang.attrib[k] = self.document_lang
+        for style in self.combined_styles:
+            style.serialize(styles, self.normal_style)
+        for style in sorted(self.text_styles, key=attrgetter('seq')):
             style.serialize(styles, self.normal_text_style)
