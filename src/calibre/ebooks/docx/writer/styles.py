@@ -259,19 +259,30 @@ class TextStyle(DOCXStyle):
                 elif self.border_style != style:
                     self.border_style = ignore
 
+        if self.padding in (None, ignore):
+            self.padding = 0
+        if self.border_width in (None, ignore):
+            self.border_width = 0
+        if self.border_style in (None, ignore):
+            self.border_style = 'none'
+        if self.border_color in (None, ignore):
+            self.border_color = 'auto'
+        if self.border_style == 'none':
+            self.border_width, self.border_color = 0, 'auto'
+
         DOCXStyle.__init__(self, namespace)
 
     def serialize_borders(self, bdr, normal_style):
         w = self.w
         is_normal_style = self is normal_style
         if is_normal_style or self.padding != normal_style.padding:
-            bdr.set(w('space'), str(0 if self.padding in (None, ignore) else self.padding))
+            bdr.set(w('space'), str(self.padding))
         if is_normal_style or self.border_width != normal_style.border_width:
-            bdr.set(w('sz'), str(0 if self.border_width in (None, ignore) else self.border_width))
+            bdr.set(w('sz'), str(self.border_width))
         if is_normal_style or self.border_style != normal_style.border_style:
-            bdr.set(w('val'), 'none' if self.border_style in (None, ignore) else self.border_style)
+            bdr.set(w('val'), self.border_style)
         if is_normal_style or self.border_color != normal_style.border_color:
-            bdr.set(w('color'), 'auto' if self.border_color in (None, ignore) else self.border_color)
+            bdr.set(w('color'), self.border_color)
         return bdr
 
     def serialize(self, styles, normal_style):
