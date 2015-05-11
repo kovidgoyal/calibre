@@ -363,7 +363,7 @@ def read_css_block_borders(self, css, store_css_style=False):
 class BlockStyle(DOCXStyle):
 
     ALL_PROPS = tuple(
-        'text_align page_break_before keep_lines css_text_indent text_indent line_height background_color'.split() +
+        'text_align css_text_indent text_indent line_height background_color'.split() +
         ['margin_' + edge for edge in border_edges] +
         ['css_margin_' + edge for edge in border_edges] +
         [x%edge for edge in border_edges for x in border_props]
@@ -378,15 +378,12 @@ class BlockStyle(DOCXStyle):
                 setattr(self, 'padding_' + edge, 0)
                 setattr(self, 'margin_' + edge, 0)
         if css is None:
-            self.page_break_before = self.keep_lines = False
             self.text_indent = 0
             self.css_text_indent = None
             self.line_height = 280
             self.background_color = None
             self.text_align = 'left'
         else:
-            self.page_break_before = css['page-break-before'] == 'always'
-            self.keep_lines = css['page-break-inside'] == 'avoid'
             self.text_indent = int(css['text-indent'] * 20)
             self.css_text_indent = css._get('text-indent')
             self.line_height = max(0, int(css.lineHeight * 20))
@@ -492,11 +489,6 @@ class BlockStyle(DOCXStyle):
 
         if self is normal_style or self.text_align != normal_style.text_align:
             pPr.append(makeelement(pPr, 'jc', val=self.text_align))
-
-        if (self is normal_style and self.page_break_before) or self.page_break_before != normal_style.page_break_before:
-            pPr.append(makeelement(pPr, 'pageBreakBefore', val=bmap(self.page_break_before)))
-        if (self is normal_style and self.keep_lines) or self.keep_lines != normal_style.keep_lines:
-            pPr.append(makeelement(pPr, 'keepLines', val=bmap(self.keep_lines)))
 
         if self is not normal_style and self.next_style is not None:
             pPr.append(makeelement(pPr, 'next', val=self.next_style))

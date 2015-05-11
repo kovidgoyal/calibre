@@ -131,10 +131,12 @@ class Block(object):
         self.style = styles_manager.create_block_style(style, html_block, is_table_cell=is_table_cell)
         self.styles_manager, self.links_manager = styles_manager, links_manager
         self.keep_next = False
-        self.page_break_before = False
         self.runs = []
         self.skipped = False
         self.linked_style = None
+        self.page_break_before = style['page-break-before'] == 'always'
+        self.keep_lines = style['page-break-inside'] == 'avoid'
+        self.page_break_after = False
 
     def resolve_skipped(self, next_block):
         if not self.is_empty():
@@ -189,8 +191,6 @@ class Block(object):
         ppr = makeelement(p, 'w:pPr')
         if self.keep_next:
             makeelement(ppr, 'w:keepNext')
-        if self.page_break_before:
-            makeelement(ppr, 'w:pageBreakBefore')
         if self.float_spec is not None:
             self.float_spec.serialize(self, ppr)
         if self.numbering_id is not None:
@@ -201,6 +201,10 @@ class Block(object):
             makeelement(ppr, 'w:pStyle', w_val=self.linked_style.id)
         if self.is_first_block:
             makeelement(ppr, 'w:pageBreakBefore', w_val='off')
+        elif self.page_break_before:
+            makeelement(ppr, 'w:pageBreakBefore', w_val='on')
+        if self.keep_lines:
+            makeelement(ppr, 'w:keepLines', w_val='on')
         for run in self.runs:
             run.serialize(p, self.links_manager)
         for bmark in end_bookmarks:
@@ -208,6 +212,7 @@ class Block(object):
 
     def __repr__(self):
         return 'Block(%r)' % self.runs
+    __str__ = __repr__
 
     def is_empty(self):
         for run in self.runs:
@@ -228,6 +233,7 @@ class Blocks(object):
         self.tables = []
         self.current_table = None
         self.open_html_blocks = set()
+        self.html_tag_start_blocks = {}
 
     def current_or_new_block(self, html_tag, tag_style):
         return self.current_block or self.start_new_block(html_tag, tag_style)
@@ -248,6 +254,7 @@ class Blocks(object):
         self.current_block = Block(
             self.namespace, self.styles_manager, self.links_manager, html_block, style,
             is_table_cell=is_table_cell, float_spec=float_spec, is_list_item=is_list_item)
+        self.html_tag_start_blocks[html_block] = self.current_block
         self.open_html_blocks.add(html_block)
         return self.current_block
 
@@ -267,6 +274,9 @@ class Blocks(object):
 
     def finish_tag(self, html_tag):
         if self.current_block is not None and html_tag in self.open_html_blocks:
+            start_block = self.html_tag_start_blocks.get(html_tag)
+            if start_block is not None and start_block.html_style['page-break-after'] == 'always':
+                self.current_block.page_break_after = True
             self.end_current_block()
             self.open_html_blocks.discard(html_tag)
 
@@ -300,7 +310,10 @@ class Blocks(object):
         if block.float_spec is not None:
             block.float_spec.blocks.remove(block)
         try:
-            self.all_blocks[pos].bookmarks.update(block.bookmarks)
+            next_block = self.all_blocks[pos]
+            next_block.bookmarks.update(block.bookmarks)
+            for attr in 'page_break_after page_break_before'.split():
+                setattr(next_block, attr, getattr(block, attr))
         except (IndexError, KeyError):
             pass
 
@@ -322,6 +335,13 @@ class Blocks(object):
             # Insert a page break corresponding to the start of the html file
             self.all_blocks[self.pos].page_break_before = True
         self.block_map = {}
+
+    def apply_page_break_after(self):
+        for i, block in enumerate(self.all_blocks):
+            if block.page_break_after and i < len(self.all_blocks) - 1:
+                next_block = self.all_blocks[i + 1]
+                if next_block.parent_items is block.parent_items and block.parent_items is self.items:
+                    next_block.page_break_before = True
 
     def __repr__(self):
         return 'Block(%r)' % self.runs
@@ -369,6 +389,7 @@ class Convert(object):
         for pos, block in reversed(remove_blocks):
             self.blocks.delete_block_at(pos)
         self.blocks.all_blocks[0].is_first_block = True
+        self.blocks.apply_page_break_after()
 
         self.lists_manager.finalize(all_blocks)
         self.styles_manager.finalize(all_blocks)
