@@ -565,6 +565,22 @@ problem for *some* calibre users.
   * Try resetting the Kobo (sometimes this cures the problem for a little while, but then it re-appears, in which case you have to reset again and again)
   * Try only putting one or two books onto the Kobo at a time and do not keep large collections on the Kobo
 
+
+I tansferred some books to my Kindle using calibre and they did not show up?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Books sent to the Kindle only show up on the Kindle after they have been
+*indexed* by the Kindle. This can take some time. If the book still does not
+show up after some time, then it is likely that the Kindle indexer crashed.
+Sometimes a particular book can cause the indexer to crash. Unfortunately, Amazon has
+not provided any way to deduce which book is causing a crash on the Kindle.
+Your only recourse is to either reset the Kindle, or delete all files from its
+memory using Windows Explorer (or whatever file manager you use) and then send
+the books to it again, one by one, until you discover the problem book. Once
+you have found the problem book, delete it off the Kindle and do a MOBI to MOBI
+or MOBI to AZW3 conversion in calibre and then send it back. This will most
+likely take care of the problem.
+
 Library Management
 ------------------
 
