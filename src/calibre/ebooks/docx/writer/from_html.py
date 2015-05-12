@@ -487,6 +487,9 @@ class Convert(object):
                 # Image is floating so dont start a new paragraph for it
                 self.add_inline_tag(tagname, html_tag, tag_style, stylizer)
             else:
+                if tagname == 'hr':
+                    for edge in 'right bottom left'.split():
+                        tag_style.set('border-%s-style' % edge, 'none')
                 self.add_block_tag(tagname, html_tag, tag_style, stylizer, float_spec=float_spec)
 
         for child in html_tag.iterchildren('*'):
