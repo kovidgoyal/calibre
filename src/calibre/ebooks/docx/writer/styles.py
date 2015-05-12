@@ -430,7 +430,7 @@ class BlockStyle(DOCXStyle):
         makeelement = self.makeelement
         style_root = DOCXStyle.serialize(self, styles, normal_style)
         style = makeelement(style_root, 'pPr')
-
+        self.serialize_properties(style, normal_style)
         if len(style) > 0:
             style_root.append(style)
         return style_root
@@ -540,6 +540,7 @@ class StylesManager(object):
         used_pairs = defaultdict(list)
         heading_styles = defaultdict(list)
         headings = frozenset('h1 h2 h3 h4 h5 h6'.split())
+        pure_block_styles = set()
 
         for block in blocks:
             bs = block.style
@@ -556,6 +557,16 @@ class StylesManager(object):
                 used_pairs[(bs, rs)].append(block)
                 if block.html_tag in headings:
                     heading_styles[block.html_tag].append((bs, rs))
+            else:
+                pure_block_styles.add(bs)
+
+        self.pure_block_styles = sorted(pure_block_styles, key=block_counts.__getitem__)
+        bnum = len(str(max(1, len(pure_block_styles) - 1)))
+        for i, bs in enumerate(self.pure_block_styles):
+            bs.id = bs.name = '%0{}d Block'.format(bnum) % i
+            bs.seq = i
+            if i == 0:
+                self.normal_pure_block_style = bs
 
         rnum = len(str(max(1, len(run_counts) - 1)))
         for i, (text_style, count) in enumerate(run_counts.most_common()):
@@ -606,3 +617,5 @@ class StylesManager(object):
             style.serialize(styles, self.normal_style)
         for style in sorted(self.text_styles, key=attrgetter('seq')):
             style.serialize(styles, self.normal_text_style)
+        for style in sorted(self.pure_block_styles, key=attrgetter('seq')):
+            style.serialize(styles, self.normal_pure_block_style)

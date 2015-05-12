@@ -218,6 +218,8 @@ class Block(object):
             makeelement(numpr, 'w:numId', w_val=str(self.numbering_id[0]))
         if self.linked_style is not None:
             makeelement(ppr, 'w:pStyle', w_val=self.linked_style.id)
+        elif self.style.id:
+            makeelement(ppr, 'w:pStyle', w_val=self.style.id)
         if self.is_first_block:
             makeelement(ppr, 'w:pageBreakBefore', w_val='off')
         elif self.page_break_before:
