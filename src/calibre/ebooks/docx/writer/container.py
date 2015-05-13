@@ -27,6 +27,12 @@ def xml2str(root, pretty_print=False, with_tail=False):
                           pretty_print=pretty_print, with_tail=with_tail)
     return ans
 
+def page_size(opts):
+    width, height = PAPER_SIZES[opts.docx_page_size]
+    if opts.docx_custom_page_size is not None:
+        width, height = map(float, opts.docx_custom_page_size.partition('x')[0::2])
+    return width, height
+
 def create_skeleton(opts, namespaces=None):
     namespaces = namespaces or DOCXNamespace().namespaces
     def w(x):
@@ -36,9 +42,7 @@ def create_skeleton(opts, namespaces=None):
     doc = E.document()
     body = E.body()
     doc.append(body)
-    width, height = PAPER_SIZES[opts.docx_page_size]
-    if opts.docx_custom_page_size is not None:
-        width, height = map(float, opts.docx_custom_page_size.partition('x')[0::2])
+    width, height = page_size(opts)
     width, height = int(20 * width), int(20 * height)
     def margin(which):
         return w(which), str(int(getattr(opts, 'margin_'+which) * 20))

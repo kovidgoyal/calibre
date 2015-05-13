@@ -9,7 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from collections import Counter
 
-from calibre.ebooks.docx.writer.container import create_skeleton
+from calibre.ebooks.docx.writer.container import create_skeleton, page_size
 from calibre.ebooks.docx.writer.styles import StylesManager, FloatSpec
 from calibre.ebooks.docx.writer.links import LinksManager
 from calibre.ebooks.docx.writer.images import ImagesManager
@@ -390,10 +390,11 @@ class Convert(object):
     a[href] { text-decoration: underline; color: blue }
     '''
 
-    def __init__(self, oeb, docx, mi):
-        self.oeb, self.docx = oeb, docx
+    def __init__(self, oeb, docx, mi, add_cover):
+        self.oeb, self.docx, self.add_cover = oeb, docx, add_cover
         self.log, self.opts = docx.log, docx.opts
         self.mi = mi
+        self.cover_img = None
 
     def __call__(self):
         from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
@@ -411,6 +412,11 @@ class Convert(object):
         for item in self.oeb.spine:
             self.process_item(item)
 
+        if self.add_cover and self.oeb.metadata.cover and unicode(self.oeb.metadata.cover[0]) in self.oeb.manifest.ids:
+            cover_id = unicode(self.oeb.metadata.cover[0])
+            item = self.oeb.manifest.ids[cover_id]
+            self.cover_img = self.images_manager.read_image(item.href)
+
         all_blocks = self.blocks.all_blocks
         remove_blocks = []
         for i, block in enumerate(all_blocks):
@@ -427,6 +433,8 @@ class Convert(object):
         self.blocks.apply_page_break_after()
         self.blocks.resolve_language()
 
+        if self.cover_img is not None:
+            self.cover_img = self.images_manager.create_cover_markup(self.cover_img, *page_size(self.opts))
         self.lists_manager.finalize(all_blocks)
         self.styles_manager.finalize(all_blocks)
         self.write()
@@ -549,6 +557,8 @@ class Convert(object):
         self.docx.document, self.docx.styles, body = create_skeleton(self.opts)
         self.blocks.serialize(body)
         body.append(body[0])  # Move <sectPr> to the end
+        if self.cover_img is not None:
+            self.images_manager.write_cover_block(body, self.cover_img)
         self.styles_manager.serialize(self.docx.styles)
         self.images_manager.serialize(self.docx.images)
         self.fonts_manager.serialize(self.styles_manager.text_styles, self.docx.font_table, self.docx.embedded_fonts, self.docx.fonts)

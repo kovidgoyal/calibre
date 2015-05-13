@@ -47,6 +47,13 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="opt_docx_no_cover">
+     <property name="text">
+      <string>Do not insert &amp;cover as image at start of document</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

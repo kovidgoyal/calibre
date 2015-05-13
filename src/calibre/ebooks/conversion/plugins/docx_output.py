@@ -28,6 +28,10 @@ class DOCXOutput(OutputFormatPlugin):
             'EG. `123x321` to specify the width and height (in pts). '
             'This overrides any specified page-size.')),
 
+        OptionRecommendation(name='docx_no_cover', recommended_value=False,
+            help=_('Do not insert the book cover as an image at the start of the document.'
+                   ' If you use this option, the book cover will be discarded.')),
+
         OptionRecommendation(name='extract_to',
             help=_('Extract the contents of the generated %s file to the '
                 'specified directory. The contents of the directory are first '
@@ -55,7 +59,7 @@ class DOCXOutput(OutputFormatPlugin):
         from calibre.ebooks.docx.writer.from_html import Convert
         docx = DOCX(opts, log)
         self.convert_metadata(oeb)
-        Convert(oeb, docx, self.mi)()
+        Convert(oeb, docx, self.mi, not opts.docx_no_cover)()
         docx.write(output_path, self.mi)
         if opts.extract_to:
             from calibre.ebooks.docx.dump import do_dump
