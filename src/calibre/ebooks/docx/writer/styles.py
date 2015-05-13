@@ -70,7 +70,7 @@ class CombinedStyle(object):
         pPr = makeelement(block, 'w:pPr')
         self.bs.serialize_properties(pPr, normal_style.bs)
         if self.outline_level is not None:
-            makeelement(pPr, 'w:outlineLvl', w_val=str(self.outline_level))
+            makeelement(pPr, 'w:outlineLvl', w_val=str(self.outline_level + 1))
         rPr = makeelement(block, 'w:rPr')
         self.rs.serialize_properties(rPr, normal_style.rs)
 
