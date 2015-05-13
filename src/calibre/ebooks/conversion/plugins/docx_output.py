@@ -34,6 +34,13 @@ class DOCXOutput(OutputFormatPlugin):
                 'deleted, so be careful.') % 'DOCX'),
     }
 
+    recommendations = {
+        ('margin_left', 72.0, OptionRecommendation.MED),
+        ('margin_right', 72.0, OptionRecommendation.MED),
+        ('margin_top', 72.0, OptionRecommendation.MED),
+        ('margin_bottom', 72.0, OptionRecommendation.MED),
+    }
+
     def convert_metadata(self, oeb):
         from lxml import etree
         from calibre.ebooks.oeb.base import OPF, OPF2_NS
