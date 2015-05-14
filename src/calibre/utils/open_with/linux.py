@@ -76,7 +76,9 @@ def find_icons():
     global icon_data
     if icon_data is not None:
         return icon_data
-    base_dirs = [os.path.expanduser('~/.icons')] + [
+    base_dirs = [(os.environ.get('XDG_DATA_HOME') or os.path.expanduser('~/.local/share')) + '/icons']
+    base_dirs += [os.path.expanduser('~/.icons')]
+    base_dirs += [
         os.path.join(b, 'icons') for b in os.environ.get(
             'XDG_DATA_DIRS', '/usr/local/share:/usr/share').split(os.pathsep)] + [
                 '/usr/share/pixmaps']
