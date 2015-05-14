@@ -19,7 +19,7 @@ class PluginWidget(Widget, Ui_Form):
 
     def __init__(self, parent, get_option, get_help, db=None, book_id=None):
         Widget.__init__(self, parent, [
-            'docx_page_size', 'docx_custom_page_size', 'docx_no_cover',
+            'docx_page_size', 'docx_custom_page_size', 'docx_no_cover', 'docx_no_toc',
         ])
         for x in get_option('docx_page_size').option.choices:
             self.opt_docx_page_size.addItem(x)

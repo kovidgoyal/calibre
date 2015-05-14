@@ -63,7 +63,7 @@ class TextRun(object):
         self.link = None
         self.lang = lang
         self.parent_style = None
-        self.makelement = namespace.makeelement
+        self.makeelement = namespace.makeelement
 
     def add_text(self, text, preserve_whitespace, bookmark=None, link=None):
         if not preserve_whitespace:
@@ -82,7 +82,7 @@ class TextRun(object):
         self.texts.append((drawing, None, bookmark))
 
     def serialize(self, p, links_manager):
-        makeelement = self.makelement
+        makeelement = self.makeelement
         parent = p if self.link is None else links_manager.serialize_hyperlink(p, self.link)
         r = makeelement(parent, 'w:r')
         rpr = makeelement(r, 'w:rPr', append=False)
@@ -390,8 +390,8 @@ class Convert(object):
     a[href] { text-decoration: underline; color: blue }
     '''
 
-    def __init__(self, oeb, docx, mi, add_cover):
-        self.oeb, self.docx, self.add_cover = oeb, docx, add_cover
+    def __init__(self, oeb, docx, mi, add_cover, add_toc):
+        self.oeb, self.docx, self.add_cover, self.add_toc = oeb, docx, add_cover, add_toc
         self.log, self.opts = docx.log, docx.opts
         self.mi = mi
         self.cover_img = None
@@ -411,6 +411,8 @@ class Convert(object):
 
         for item in self.oeb.spine:
             self.process_item(item)
+        if self.add_toc:
+            self.links_manager.process_toc_links(self.oeb)
 
         if self.add_cover and self.oeb.metadata.cover and unicode(self.oeb.metadata.cover[0]) in self.oeb.manifest.ids:
             cover_id = unicode(self.oeb.metadata.cover[0])
@@ -557,6 +559,8 @@ class Convert(object):
         self.docx.document, self.docx.styles, body = create_skeleton(self.opts)
         self.blocks.serialize(body)
         body.append(body[0])  # Move <sectPr> to the end
+        if self.links_manager.toc:
+            self.links_manager.serialize_toc(body, self.styles_manager.primary_heading_style)
         if self.cover_img is not None:
             self.images_manager.write_cover_block(body, self.cover_img)
         self.styles_manager.serialize(self.docx.styles)

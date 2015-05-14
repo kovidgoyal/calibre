@@ -593,6 +593,7 @@ class StylesManager(object):
                 heading_style.outline_level = i
 
         snum = len(str(max(1, len(counts) - 1)))
+        heading_styles = []
         for i, (style, count) in enumerate(counts.most_common()):
             if i == 0:
                 self.normal_style = style
@@ -602,12 +603,24 @@ class StylesManager(object):
                     val = 'Para %0{}d'.format(snum) % i
                 else:
                     val = 'Heading %d' % (style.outline_level + 1)
+                    heading_styles.append(style)
                 style.id = style.name = val
             style.seq = i
         self.combined_styles = sorted(counts.iterkeys(), key=attrgetter('seq'))
         [ls.apply() for ls in self.combined_styles]
         self.log.debug('%d Text Styles %d Combined styles' % tuple(map(len, (
             self.text_styles, self.combined_styles))))
+
+        self.primary_heading_style = None
+        if heading_styles:
+            heading_styles.sort(key=attrgetter('outline_level'))
+            self.primary_heading_style = heading_styles[0]
+        else:
+            ms = 0
+            for s in self.combined_styles:
+                if s.rs.font_size > ms:
+                    self.primary_heading_style = s
+                    ms = s.rs.font_size
 
     def serialize(self, styles):
         lang = styles.xpath('descendant::*[local-name()="lang"]')[0]
