@@ -192,7 +192,9 @@ else:
         ans.setToolTip(comment + _('Command line:') + '\n' + (' '.join(entry['Exec'])))
 
     def choose_manually(filetype, parent):
-        ans = choose_files(parent, 'choose-open-with-program-manually', _('Choose a program to open %s files') % filetype.upper(), select_only_single_file=True)
+        dd = '/usr/bin' if os.path.isdir('/usr/bin') else '~'
+        ans = choose_files(parent, 'choose-open-with-program-manually', _('Choose a program to open %s files') % filetype.upper(),
+                           select_only_single_file=True, default_dir=dd)
         if ans:
             ans = ans[0]
             if not os.access(ans, os.X_OK):

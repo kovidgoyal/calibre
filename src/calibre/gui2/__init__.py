@@ -746,7 +746,7 @@ def choose_osx_app(window, name, title, default_dir='/Applications'):
         return app
 
 def choose_files(window, name, title,
-                 filters=[], all_files=True, select_only_single_file=False):
+                 filters=[], all_files=True, select_only_single_file=False, default_dir=u'~'):
     '''
     Ask user to choose a bunch of files.
     :param name: Unique dialog name used to store the opened directory
@@ -759,7 +759,7 @@ def choose_files(window, name, title,
     :param select_only_single_file: If True only one file can be selected
     '''
     mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
-    fd = FileDialog(title=title, name=name, filters=filters,
+    fd = FileDialog(title=title, name=name, filters=filters, default_dir=default_dir,
                     parent=window, add_all_files_filter=all_files, mode=mode,
                     )
     fd.setParent(None)
