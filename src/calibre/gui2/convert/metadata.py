@@ -62,6 +62,7 @@ class MetadataWidget(Widget, Ui_Form):
         self.cover_button.clicked.connect(self.select_cover)
         self.comment.hide_toolbars()
         self.cover.cover_changed.connect(self.change_cover)
+        self.series.currentTextChanged.connect(self.series_changed)
 
     def change_cover(self, data):
         self.cover_changed = True
@@ -105,6 +106,10 @@ class MetadataWidget(Widget, Ui_Form):
         for x in ('author', 'series', 'publisher'):
             x = getattr(self, x)
             x.lineEdit().deselect()
+        self.series_changed()
+
+    def series_changed(self):
+        self.series_index.setEnabled(len(self.series.currentText().strip()) > 0)
 
     def set_cover_tooltip(self, pm):
         tt = _('Cover size: %(width)d x %(height)d pixels') % dict(
