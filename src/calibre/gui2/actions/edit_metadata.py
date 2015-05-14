@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os, shutil, copy
 from functools import partial
 
-from PyQt5.Qt import QMenu, QModelIndex, QTimer, QIcon
+from PyQt5.Qt import QMenu, QModelIndex, QTimer, QIcon, QApplication
 
 from calibre.gui2 import error_dialog, Dispatcher, question_dialog, gprefs
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -738,6 +738,7 @@ class EditMetadataAction(InterfaceAction):
                 _('Failed to apply updated metadata for some books'
                     ' in your library. Click "Show Details" to see '
                     'details.'), det_msg='\n\n'.join(msg), show=True)
+        changed_books = len(self.applied_ids or ())
         self.refresh_gui(self.applied_ids)
 
         self.apply_id_map = []
@@ -747,6 +748,8 @@ class EditMetadataAction(InterfaceAction):
                 self.apply_callback(list(self.applied_ids))
         finally:
             self.apply_callback = None
+        if changed_books:
+            QApplication.alert(self.gui, 2000)
 
     def refresh_gui(self, book_ids, covers_changed=True, tag_browser_changed=True):
         if book_ids:
