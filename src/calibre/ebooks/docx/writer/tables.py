@@ -301,8 +301,8 @@ class Table(object):
                         except Exception:
                             tcell = None
                         if tcell is None:
-                            nrow.extend([SpannedCell(nrow[-1], horizontal=True) for i in xrange(idx - len(nrow))])
-                            nrow.append(sc)
+                            nrow.cells.extend([SpannedCell(nrow.cells[-1], horizontal=True) for i in xrange(idx - len(nrow.cells))])
+                            nrow.cells.append(sc)
                         else:
                             if isinstance(tcell, SpannedCell):
                                 # Conflict between rowspan and colspan

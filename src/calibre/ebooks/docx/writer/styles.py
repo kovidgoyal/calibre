@@ -405,8 +405,11 @@ class BlockStyle(DOCXStyle):
             except (TypeError, ValueError):
                 self.line_height = max(0, int(1.2 * css.fontSize * 20))
             self.background_color = None if is_table_cell else convert_color(css['background-color'])
-            self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
-                css['text-align'].lower(), 'left')
+            try:
+                self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
+                    css['text-align'].lower(), 'left')
+            except AttributeError:
+                self.text_align = 'left'
 
         DOCXStyle.__init__(self, namespace)
 
