@@ -513,7 +513,7 @@ class Style(object):
         x = self._style.get(attr)
         if x is not None:
             if x == 'auto':
-                ans = base
+                ans = self._unit_convert(str(img_size) + 'px', base=base)
             else:
                 x = self._unit_convert(x, base=base)
                 if isinstance(x, (float, int, long)):
