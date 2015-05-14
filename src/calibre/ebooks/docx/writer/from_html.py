@@ -322,8 +322,9 @@ class Blocks(object):
         pos = self.pos if pos is None else pos
         block = self.all_blocks[pos]
         del self.all_blocks[pos]
-        if self.block_map:
-            del self.items[self.block_map.pop(block)]
+        bpos = self.block_map.pop(block, None)
+        if bpos is not None:
+            del self.items[bpos]
         else:
             items = self.items if block.parent_items is None else block.parent_items
             items.remove(block)
@@ -410,6 +411,7 @@ class Convert(object):
         self.current_link = self.current_lang = None
 
         for item in self.oeb.spine:
+            self.log.debug('Processing', item.href)
             self.process_item(item)
         if self.add_toc:
             self.links_manager.process_toc_links(self.oeb)
