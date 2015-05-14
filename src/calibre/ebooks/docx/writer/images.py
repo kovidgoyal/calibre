@@ -61,7 +61,10 @@ class ImagesManager(object):
         if not src:
             return
         href = self.abshref(src)
-        rid = self.read_image(href).rid
+        try:
+            rid = self.read_image(href).rid
+        except AttributeError:
+            return
         drawing = self.create_image_markup(img, stylizer, href, as_block=as_block)
         block.add_image(drawing, bookmark=bookmark)
         return rid

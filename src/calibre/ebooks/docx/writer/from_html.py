@@ -372,11 +372,11 @@ class Blocks(object):
                 count[run.lang] += 1
             if count:
                 block.block_lang = bl = count.most_common(1)[0][0]
-            for run in block.runs:
-                if run.lang == bl:
-                    run.lang = None
-            if bl == default_lang:
-                block.block_lang = None
+                for run in block.runs:
+                    if run.lang == bl:
+                        run.lang = None
+                if bl == default_lang:
+                    block.block_lang = None
 
     def __repr__(self):
         return 'Block(%r)' % self.runs

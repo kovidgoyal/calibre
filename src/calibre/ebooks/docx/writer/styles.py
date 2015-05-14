@@ -400,7 +400,10 @@ class BlockStyle(DOCXStyle):
         else:
             self.text_indent = int(css['text-indent'] * 20)
             self.css_text_indent = css._get('text-indent')
-            self.line_height = max(0, int(css.lineHeight * 20))
+            try:
+                self.line_height = max(0, int(css.lineHeight * 20))
+            except (TypeError, ValueError):
+                self.line_height = max(0, int(1.2 * css.fontSize * 20))
             self.background_color = None if is_table_cell else convert_color(css['background-color'])
             self.text_align = {'start':'left', 'left':'left', 'end':'right', 'right':'right', 'center':'center', 'justify':'both', 'centre':'center'}.get(
                 css['text-align'].lower(), 'left')
