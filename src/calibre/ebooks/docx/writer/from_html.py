@@ -262,7 +262,7 @@ class Blocks(object):
     def end_current_block(self):
         if self.current_block is not None:
             self.all_blocks.append(self.current_block)
-            if self.current_table is not None:
+            if self.current_table is not None and self.current_table.current_row is not None:
                 self.current_table.add_block(self.current_block)
             else:
                 self.block_map[self.current_block] = len(self.items)
