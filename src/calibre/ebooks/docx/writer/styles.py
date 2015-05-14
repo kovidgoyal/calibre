@@ -202,7 +202,7 @@ class TextStyle(DOCXStyle):
             self.font_size = None
 
         fw = css['font-weight']
-        self.bold = fw.lower() in {'bold', 'bolder'} or int_or_zero(fw) >= 700
+        self.bold = (fw.lower() if hasattr(fw, 'lower') else fw) in {'bold', 'bolder'} or int_or_zero(fw) >= 700
         self.italic = css['font-style'].lower() in {'italic', 'oblique'}
         self.color = convert_color(css['color'])
         self.background_color = None if is_parent_style else convert_color(css.backgroundColor)
