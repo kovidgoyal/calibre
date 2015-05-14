@@ -22,6 +22,7 @@ class TheOnion(BasicNewsRecipe):
     publication_type      = 'newsportal'
     needs_subscription    = 'optional'
     masthead_url          = 'http://www.theonion.com/static/onion/img/logo_1x.png'
+    cover_url             = 'http://www.theonion.com/static/onion/img/logo_1x.png'
     extra_css             = """
                                 body{font-family: Helvetica,Arial,sans-serif}
                                 .section_title{color: gray; text-transform: uppercase}
@@ -38,11 +39,13 @@ class TheOnion(BasicNewsRecipe):
                         , 'language' : language
                         }
 
-    keep_only_tags    = [dict(attrs={'class':'full-article'})]
+    keep_only_tags    = [dict(attrs={'class':lambda x: x and 'content-wrapper' in x.split()})]
     remove_attributes = ['lang','rel']
     remove_tags       = [
-                         dict(name=['object','link','iframe','base','meta'])
+                         dict(name=['object','link','iframe','base','meta','button','footer','blockquote','figcaption'])
                         ,dict(attrs={'class':lambda x: x and 'share-tools' in x.split()})
+                        ,dict(attrs={'class':lambda x: x and 'content-meta' in x.split()})
+                        ,dict(attrs={'class':'below-article-tools'})
                         ,dict(name='div', attrs={'id':['topshare', 'bottomshare']})
                         ]
 
