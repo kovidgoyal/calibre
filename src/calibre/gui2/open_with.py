@@ -104,8 +104,9 @@ if iswindows:
         if ans:
             ans = os.path.abspath(ans[0])
             if not os.access(ans, os.X_OK):
-                return error_dialog(parent, _('Cannot execute'), _(
+                error_dialog(parent, _('Cannot execute'), _(
                     'The program %s is not an executable file') % ans, show=True)
+                return
             qans = ans.replace('"', r'\"')
             name = friendly_app_name(exe=ans) or os.path.splitext(os.path.basename(ans))[0]
             return {'cmdline':'"%s" "%%1"' % qans, 'name':name, 'icon_resource':ans + ',0'}
@@ -168,8 +169,9 @@ elif isosx:
                         '%s is not a valid OS X application bundle.') % ans, show=True)
                 return app
             if not os.access(ans, os.X_OK):
-                return error_dialog(parent, _('Cannot execute'), _(
+                error_dialog(parent, _('Cannot execute'), _(
                     'The program %s is not an executable file') % ans, show=True)
+                return
 
             return {'path':ans, 'name': os.path.basename(ans)}
 
@@ -194,8 +196,9 @@ else:
         if ans:
             ans = ans[0]
             if not os.access(ans, os.X_OK):
-                return error_dialog(parent, _('Cannot execute'), _(
+                error_dialog(parent, _('Cannot execute'), _(
                     'The program %s is not an executable file') % ans, show=True)
+                return
             return {'Exec':[ans, '%f'], 'Name':os.path.basename(ans)}
 
     def finalize_entry(entry):
