@@ -20,6 +20,42 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.28.0
+  date: 2015-05-15
+
+  new features:
+    - title: "Conversion of all ebook formats to Microsoft Word (DOCX) files"
+      type: major
+      description: "Supports conversion of text styles, images, lists, tables, embedded fonts, etc. Produces DOCX files compatible with Microsoft Word 2007 or newer. Note that this code is very new, so there will likely still be kinks that will be worked out in the coming weeks."
+
+    - title: "Add keyboard shortcuts (Ctrl+Right, Ctrl+Left) to switch between virtual library tabs."
+      tickets: [1453497]
+
+    - title: "When sending email using GMX pause for five minutes between books, to prevent GMX from blocking the account. The delay can be configured via Preferences->Tweaks"
+
+  bug fixes:
+    - title: "Open With: Fix application icons in XDG_DATA_HOME on linux not being found and fix unhandled error when choosing non-executable files as applications."
+
+    - title: "AZW3 Output: Remove duplicate anchors to workaround some Kindle renderers using the last occurrence of an anchor as the target instead of the first."
+      tickets: [1454199]
+
+    - title: "Fix language definition on body tag being ignored during conversion"
+
+    - title: "Edit book: When importing multiple files into the book, import them in the order sorted by their filenames instead of in random order"
+
+    - title: "E-book viewer: Fix print to pdf not working on some windows systems with non-ascii usernames and non-utf-8 system locales. Also make the print to pdf dialog a little easier to use."
+
+    - title: "Edit Book: Fix TOC editor window not remembering its last used size"
+
+  improved recipes:
+    - Field and Stream
+    - Linux Magazine
+    - Brand Eins
+    - Courrier International
+    - Wired Magazine
+    - The Onion
+
+
 - version: 2.27.0
   date: 2015-05-01
 
