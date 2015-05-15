@@ -57,7 +57,7 @@
    <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="opt_docx_no_toc">
      <property name="text">
-      <string>Do not insert the &amp;Table of Contents as a page a tthe start of the document</string>
+      <string>Do not insert the &amp;Table of Contents as a page at the start of the document</string>
      </property>
     </widget>
    </item>
