@@ -566,7 +566,7 @@ problem for *some* calibre users.
   * Try only putting one or two books onto the Kobo at a time and do not keep large collections on the Kobo
 
 
-I tansferred some books to my Kindle using calibre and they did not show up?
+I transferred some books to my Kindle using calibre and they did not show up?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Books sent to the Kindle only show up on the Kindle after they have been
