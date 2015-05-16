@@ -40,6 +40,7 @@ class WiredDailyNews(BasicNewsRecipe):
                   ]
     keep_only_tags=[
         dict(attrs={'data-js':['post', 'postHeader']}),
+        dict(attrs={'class':'exchange fsb-content relative'}),
     ]
 
     def get_date_url(self):
