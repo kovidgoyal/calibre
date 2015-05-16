@@ -684,7 +684,6 @@ class ServerLoop(object):
             self.pre_activated_socket = None
             self.setup_socket()
 
-        self.ready = True
         # Timeout so KeyboardInterrupt can be caught on Win32
         self.socket.settimeout(1)
         self.socket.listen(self.request_queue_size)
@@ -695,6 +694,7 @@ class ServerLoop(object):
 
         # Create worker threads
         self.requests.start()
+        self.ready = True
 
         while self.ready:
             try:
