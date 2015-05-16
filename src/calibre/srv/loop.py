@@ -681,6 +681,7 @@ class ServerLoop(object):
                 raise socket.error(msg)
         else:
             self.socket = self.pre_activated_socket
+            self.pre_activated_socket = None
             self.setup_socket()
 
         self.ready = True
