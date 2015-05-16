@@ -1,0 +1,16 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+__license__ = 'GPL v3'
+__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+
+
+class NonHTTPConnRequest(Exception):
+
+    def __init__(self, data=None):
+        Exception.__init__(self, '')
+        self.data = data
+
+
