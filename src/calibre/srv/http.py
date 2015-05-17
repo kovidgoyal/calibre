@@ -70,6 +70,9 @@ comma_separated_headers = {
     b'WWW-Authenticate'
 }
 
+decoded_headers = {
+    'Transfer-Encoding', 'Connection', 'Keep-Alive', 'Expect',
+}
 
 def read_headers(readline, max_line_size, hdict=None):  # {{{
     """
@@ -118,7 +121,7 @@ def read_headers(readline, max_line_size, hdict=None):  # {{{
         try:
             v = v.decode('ascii')
         except UnicodeDecodeError:
-            if hname in 'Transfer-Encoding Connection Keep-Alive Expect':
+            if hname in decoded_headers:
                 raise
         hdict[hname] = v
 
