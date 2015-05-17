@@ -546,6 +546,12 @@ class ServerLoop(object):
                  # socket activation
                  allow_socket_preallocation=True,
 
+                 # Max. size of single header
+                 max_header_line_size=8192,  # 8 KB
+
+                 # Max. size of a request
+                 max_request_body_size=500 * 1024 * 1024,
+
                  # no_delay turns on TCP_NODELAY which decreases latency at the cost of
                  # worse overall performance when sending multiple small packets. It
                  # prevents the TCP stack from aggregating multiple small TCP packets.
@@ -568,6 +574,8 @@ class ServerLoop(object):
         self.no_delay = no_delay
         self.request_queue_size = request_queue_size
         self.timeout = timeout
+        self.max_header_line_size = max_header_line_size
+        self.max_request_body_size = max_request_body_size
         self.shutdown_timeout = shutdown_timeout
         ba = bind_address
         if not isinstance(ba, basestring):
