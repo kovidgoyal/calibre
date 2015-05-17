@@ -113,7 +113,7 @@ def recursive_import(db, root, single_book_per_directory=True,
                 break
     return duplicates
 
-def add_catalog(cache, path, title):
+def add_catalog(cache, path, title, dbapi=None):
     from calibre.ebooks.metadata.book.base import Metadata
     from calibre.ebooks.metadata.meta import get_metadata
     from calibre.utils.date import utcnow
@@ -142,11 +142,11 @@ def add_catalog(cache, path, title):
                 new_book_added = True
             else:
                 cache._set_metadata(db_id, mi)
-        cache.add_format(db_id, fmt, stream)  # Cant keep write lock since post-import hooks might run
+        cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Cant keep write lock since post-import hooks might run
 
     return db_id, new_book_added
 
-def add_news(cache, path, arg):
+def add_news(cache, path, arg, dbapi=None):
     from calibre.ebooks.metadata.meta import get_metadata
     from calibre.utils.date import utcnow
 
@@ -173,7 +173,7 @@ def add_news(cache, path, arg):
             mi.timestamp = utcnow()
 
         db_id = cache._create_book_entry(mi, apply_import_tags=False)
-    cache.add_format(db_id, fmt, stream)  # Cant keep write lock since post-import hooks might run
+    cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Cant keep write lock since post-import hooks might run
 
     if not hasattr(path, 'read'):
         stream.close()
