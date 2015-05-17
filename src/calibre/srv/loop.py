@@ -13,6 +13,7 @@ from threading import Thread, current_thread
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 
 from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
+from calibre.srv.http import http_communicate
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 
@@ -35,8 +36,6 @@ socket_errors_to_ignore = error_codes(
     "ENETRESET", "WSAENETRESET",
     "EHOSTDOWN", "EHOSTUNREACH",
 )
-socket_errors_to_ignore.add("timed out")
-socket_errors_to_ignore.add("The read operation timed out")
 socket_errors_nonblocking = error_codes(
     'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
@@ -350,52 +349,6 @@ class Connection(object):
         self.socket = socket
         self.socket_file = SocketFile(socket)
 
-    def http_communicate(self):
-        """Read each request and respond appropriately."""
-        request_seen = False
-        try:
-            while True:
-                # (re)set req to None so that if something goes wrong in
-                # the RequestHandlerClass constructor, the error doesn't
-                # get written to the previous request.
-                req = None
-                req = self.server_loop.http_handler(self)
-
-                # This order of operations should guarantee correct pipelining.
-                req.parse_request()
-                if not req.ready:
-                    # Something went wrong in the parsing (and the server has
-                    # probably already made a simple_response). Return and
-                    # let the conn close.
-                    return
-
-                request_seen = True
-                req.respond()
-                if req.close_connection:
-                    return
-        except socket.error as e:
-            errnum = e.args[0]
-            if errnum.endswith('timed out'):
-                # Don't error if we're between requests; only error
-                # if 1) no request has been started at all, or 2) we're
-                # in the middle of a request.
-                if (not request_seen) or (req and req.started_request):
-                    # Don't bother writing the 408 if the response
-                    # has already started being written.
-                    if req and not req.sent_headers:
-                        req.simple_response("408 Request Timeout")
-            elif errnum not in socket_errors_to_ignore:
-                self.server_loop.log.exception("socket.error %s" % repr(errnum))
-                if req and not req.sent_headers:
-                    req.simple_response("500 Internal Server Error")
-            return
-        except NonHTTPConnRequest:
-            raise
-        except Exception:
-            self.server_loop.log.exception()
-            if req and not req.sent_headers:
-                req.simple_response("500 Internal Server Error")
-
     def nonhttp_communicate(self, data):
         try:
             self.server_loop.nonhttp_handler(self, data)
@@ -453,7 +406,7 @@ class WorkerThread(Thread):
                     return  # Clean exit
                 with conn, self:
                     try:
-                        conn.http_communicate()
+                        http_communicate(conn)
                     except NonHTTPConnRequest as e:
                         conn.nonhttp_communicate(e.data)
         except (KeyboardInterrupt, SystemExit):
@@ -852,7 +805,11 @@ class ServerLoop(object):
 def echo_handler(conn, data):
     keep_going = True
     while keep_going:
-        line = conn.socket_file.readline()
+        try:
+            line = conn.socket_file.readline()
+        except socket.timeout:
+            continue
+        conn.server_loop.log('Received:', repr(line))
         if not line.rstrip():
             keep_going = False
             line = b'bye\r\n'
