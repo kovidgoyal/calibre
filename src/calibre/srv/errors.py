@@ -13,4 +13,7 @@ class NonHTTPConnRequest(Exception):
         Exception.__init__(self, '')
         self.data = data
 
+class MaxSizeExceeded(Exception):
 
+    def __init__(self, prefix, size, limit):
+        Exception.__init__(self, prefix + (' %d > maximum %d' % (size, limit)))

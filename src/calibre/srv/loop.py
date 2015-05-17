@@ -12,7 +12,7 @@ from Queue import Queue, Full
 from threading import Thread, current_thread
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 
-from calibre.srv.errors import NonHTTPConnRequest
+from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 
@@ -209,18 +209,24 @@ class SocketFile(object):  # {{{
                 del data  # noqa explicit free
             return buf.getvalue()
 
-    def readline(self, size=-1):
+    def readline(self, size=-1, maxsize=sys.maxsize):
         buf = self._rbuf
         buf.seek(0, 2)  # seek end
         if buf.tell() > 0:
             # check if we already have it in our buffer
             buf.seek(0)
             bline = buf.readline(size)
+            self._rbuf = BytesIO()
             if bline.endswith(b'\n') or len(bline) == size:
-                self._rbuf = BytesIO()
                 self._rbuf.write(buf.read())
+                if len(bline) > maxsize:
+                    raise MaxSizeExceeded('Line length', len(bline), maxsize)
                 return bline
+            else:
+                self._rbuf.write(bline)
+                self._rbuf.write(buf.read())
             del bline
+
         if size < 0:
             # Read until \n or EOF, whichever comes first
             if self._rbufsize <= 1:
@@ -230,10 +236,14 @@ class SocketFile(object):  # {{{
                 self._rbuf = BytesIO()  # reset _rbuf.  we consume it via buf.
                 data = None
                 recv = self.recv
+                sz = len(buffers[0])
                 while data != b'\n':
                     data = recv(1)
                     if not data:
                         break
+                    sz += 1
+                    if sz > maxsize:
+                        raise MaxSizeExceeded('Line length', sz, maxsize)
                     buffers.append(data)
                 return b''.join(buffers)
 
@@ -251,6 +261,8 @@ class SocketFile(object):  # {{{
                     del data
                     break
                 buf.write(data)  # noqa
+                if buf.tell() > maxsize:
+                    raise MaxSizeExceeded('Line length', buf.tell(), maxsize)
             return buf.getvalue()
         else:
             # Read until size bytes or \n or EOF seen, whichever comes first
@@ -261,6 +273,8 @@ class SocketFile(object):  # {{{
                 rv = buf.read(size)
                 self._rbuf = BytesIO()
                 self._rbuf.write(buf.read())
+                if len(rv) > maxsize:
+                    raise MaxSizeExceeded('Line length', len(rv), maxsize)
                 return rv
             self._rbuf = BytesIO()  # reset _rbuf.  we consume it via buf.
             while True:
@@ -279,12 +293,17 @@ class SocketFile(object):  # {{{
                         break
                     else:
                         # Shortcut.  Avoid data copy through buf when returning
-                        # a substring of our first recv().
+                        # a substring of our first recv() and buf has no
+                        # existing data.
+                        if nl > maxsize:
+                            raise MaxSizeExceeded('Line length', nl, maxsize)
                         return data[:nl]
                 n = len(data)
                 if n == size and not buf_len:
                     # Shortcut.  Avoid data copy through buf when
                     # returning exactly all of our first recv().
+                    if n > maxsize:
+                        raise MaxSizeExceeded('Line length', n, maxsize)
                     return data
                 if n >= left:
                     buf.write(data[:left])
@@ -292,13 +311,15 @@ class SocketFile(object):  # {{{
                     break
                 buf.write(data)
                 buf_len += n
+            if buf.tell() > maxsize:
+                raise MaxSizeExceeded('Line length', buf.tell(), maxsize)
             return buf.getvalue()
 
-    def readlines(self, sizehint=0):
+    def readlines(self, sizehint=0, maxsize=sys.maxsize):
         total = 0
         ans = []
         while True:
-            line = self.readline()
+            line = self.readline(maxsize=maxsize)
             if not line:
                 break
             ans.append(line)
@@ -307,16 +328,13 @@ class SocketFile(object):  # {{{
                 break
         return ans
 
-    # Iterator protocols
-
     def __iter__(self):
-        return self
+        line = True
+        while line:
+            line = self.readline()
+            if line:
+                yield line
 
-    def next(self):
-        line = self.readline()
-        if not line:
-            raise StopIteration
-        return line
 # }}}
 
 class Connection(object):
