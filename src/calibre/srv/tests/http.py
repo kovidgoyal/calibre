@@ -45,3 +45,14 @@ class TestHTTP(BaseTest):
             read_headers(headers('Connection:a\n').readline)
             read_headers(headers(' Connection:a\n').readline)
 
+    def test_accept_encoding(self):
+        'Test parsing of Accept-Encoding'
+        from calibre.srv.http import acceptable_encoding
+        def test(name, val, ans, allowed={'gzip'}):
+            self.ae(acceptable_encoding(val, allowed), ans, name + ' failed')
+        test('Empty field', '', None)
+        test('Simple', 'gzip', 'gzip')
+        test('Case insensitive', 'GZIp', 'gzip')
+        test('Multiple', 'gzip, identity', 'gzip')
+        test('Priority', '1;q=0.5, 2;q=0.75, 3;q=1.0', '3', {'1', '2', '3'})
+

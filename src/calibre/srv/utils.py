@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from urlparse import parse_qs
+import repr as reprlib
 
 class MultiDict(dict):
 
@@ -67,3 +68,10 @@ class MultiDict(dict):
         if ans is default:
             return [] if all else default
         return ans if all else ans[-1]
+
+    def __repr__(self):
+        return '{' + ', '.join('%s: %s' % (reprlib.repr(k), reprlib.repr(v)) for k, v in self.iteritems()) + '}'
+    __str__ = __unicode__ = __repr__
+
+    def pretty(self, leading_whitespace=''):
+        return leading_whitespace + ('\n' + leading_whitespace).join('%s: %s' % (k, v) for k, v in self.items())

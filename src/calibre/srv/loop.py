@@ -9,7 +9,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import socket, os, errno, ssl, time, sys
 from operator import and_
 from Queue import Queue, Full
-from threading import Thread, current_thread
+from threading import Thread, current_thread, Lock
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 
 from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
@@ -570,6 +570,7 @@ class ServerLoop(object):
         if http_handler is None and nonhttp_handler is None:
             raise ValueError('You must specify at least one protocol handler')
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
+        self.gso_cache, self.gso_lock = {}, Lock()
         self.allow_socket_preallocation = allow_socket_preallocation
         self.no_delay = no_delay
         self.request_queue_size = request_queue_size
