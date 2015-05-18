@@ -14,6 +14,7 @@ from io import DEFAULT_BUFFER_SIZE, BytesIO
 
 from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
 from calibre.srv.http import http_communicate
+from calibre.srv.opts import defaults
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 
@@ -517,50 +518,17 @@ class ThreadPool(object):
 
 class ServerLoop(object):
 
-    def __init__(self,
-                 bind_address=('localhost', 8080),
-
-                 http_handler=None,
-                 nonhttp_handler=None,
-
-                 ssl_certfile=None,
-                 ssl_keyfile=None,
-
-                 # Max. queued connections for socket.accept()
-                 request_queue_size=5,
-
-                 # Timeout in seconds for accepted connections
-                 timeout=10,
-
-                 # Total time in seconds to wait for worker threads to cleanly
-                 # exit
-                 shutdown_timeout=5,
-
-                 # Minimum number of connection handling threads
-                 min_threads=10,
-                 # Maximum number of connection handling threads (beyond this
-                 # number of connections will be dropped)
-                 max_threads=500,
-
-                 # Allow socket pre-allocation, for example, with systemd
-                 # socket activation
-                 allow_socket_preallocation=True,
-
-                 # Max. size of single header
-                 max_header_line_size=8192,  # 8 KB
-
-                 # Max. size of a request
-                 max_request_body_size=500 * 1024 * 1024,
-
-                 # no_delay turns on TCP_NODELAY which decreases latency at the cost of
-                 # worse overall performance when sending multiple small packets. It
-                 # prevents the TCP stack from aggregating multiple small TCP packets.
-                 no_delay=True,
-
-                 # A calibre logging object. If None a default log that logs to
-                 # stdout is used
-                 log=None
+    def __init__(
+        self,
+        bind_address=('localhost', 8080),
+        http_handler=None,
+        nonhttp_handler=None,
+        opts=None,
+        # A calibre logging object. If None a default log that logs to
+        # stdout is used
+        log=None
     ):
+        self.opts = opts or defaults
         if http_handler is None:
             def aborth(*args, **kwargs):
                 raise NonHTTPConnRequest()
@@ -571,13 +539,6 @@ class ServerLoop(object):
             raise ValueError('You must specify at least one protocol handler')
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
         self.gso_cache, self.gso_lock = {}, Lock()
-        self.allow_socket_preallocation = allow_socket_preallocation
-        self.no_delay = no_delay
-        self.request_queue_size = request_queue_size
-        self.timeout = timeout
-        self.max_header_line_size = max_header_line_size
-        self.max_request_body_size = max_request_body_size
-        self.shutdown_timeout = shutdown_timeout
         ba = bind_address
         if not isinstance(ba, basestring):
             ba = tuple(ba)
@@ -586,12 +547,12 @@ class ServerLoop(object):
                 ba = ('0.0.0.0', ba[1])
         self.bind_address = ba
         self.ssl_context = None
-        if ssl_certfile is not None and ssl_keyfile is not None:
+        if self.opts.ssl_certfile is not None and self.opts.ssl_keyfile is not None:
             self.ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-            self.ssl_context.load_cert_chain(certfile=ssl_certfile, keyfile=ssl_keyfile)
+            self.ssl_context.load_cert_chain(certfile=self.opts.ssl_certfile, keyfile=self.opts.ssl_keyfile)
 
         self.pre_activated_socket = None
-        if self.allow_socket_preallocation:
+        if self.opts.allow_socket_preallocation:
             from calibre.srv.pre_activated import pre_activated_socket
             self.pre_activated_socket = pre_activated_socket()
             if self.pre_activated_socket is not None:
@@ -599,7 +560,7 @@ class ServerLoop(object):
                 self.bind_address = self.pre_activated_socket.getsockname()
 
         self.ready = False
-        self.requests = ThreadPool(self, min_threads=min_threads, max_threads=max_threads)
+        self.requests = ThreadPool(self, min_threads=self.opts.min_threads, max_threads=self.opts.max_threads)
 
     def __str__(self):
         return "%s(%r)" % (self.__class__.__name__, self.bind_address)
@@ -666,7 +627,7 @@ class ServerLoop(object):
 
         # Timeout so KeyboardInterrupt can be caught on Win32
         self.socket.settimeout(1)
-        self.socket.listen(self.request_queue_size)
+        self.socket.listen(self.opts.request_queue_size)
         ba = self.bind_address
         if isinstance(ba, tuple):
             ba = ':'.join(map(type(''), ba))
@@ -686,7 +647,7 @@ class ServerLoop(object):
 
     def setup_socket(self):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        if self.no_delay and not isinstance(self.bind_address, basestring):
+        if self.opts.no_delay and not isinstance(self.bind_address, basestring):
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
         # If listening on the IPV6 any address ('::' = IN6ADDR_ANY),
@@ -717,7 +678,7 @@ class ServerLoop(object):
 
             set_socket_inherit(s, False)
             if hasattr(s, 'settimeout'):
-                s.settimeout(self.timeout)
+                s.settimeout(self.opts.timeout)
 
             if self.ssl_context is not None:
                 try:
@@ -741,7 +702,7 @@ class ServerLoop(object):
                         return  # Drop connection
                     raise
                 if hasattr(s, 'settimeout'):
-                    s.settimeout(self.timeout)
+                    s.settimeout(self.opts.timeout)
 
             conn = Connection(self, s)
 
@@ -809,7 +770,7 @@ class ServerLoop(object):
                 sock.close()
             self.socket = None
 
-        self.requests.stop(self.shutdown_timeout)
+        self.requests.stop(self.opts.shutdown_timeout)
 
 def echo_handler(conn, data):
     keep_going = True
