@@ -508,7 +508,7 @@ class HTTPPair(object):
         # Read and discard any remaining body from the HTTP request
         self.input_reader.read()
         if self.status_code is None:
-            raise Exception('Request handler did not set status_code')
+            self.status_code = httplib.OK
 
         try:
             self.status_code, output = finalize_output(output, self.inheaders, self.outheaders, self.status_code, self.response_protocol is HTTP1, self.method)
