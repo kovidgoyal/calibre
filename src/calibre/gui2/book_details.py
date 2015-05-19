@@ -207,7 +207,7 @@ class CoverView(QWidget):  # {{{
         self._current_pixmap_size = QSize(120, 120)
         self.vertical = vertical
 
-        self.animation = QPropertyAnimation(self, 'current_pixmap_size', self)
+        self.animation = QPropertyAnimation(self, b'current_pixmap_size', self)
         self.animation.setEasingCurve(QEasingCurve(QEasingCurve.OutExpo))
         self.animation.setDuration(1000)
         self.animation.setStartValue(QSize(0, 0))

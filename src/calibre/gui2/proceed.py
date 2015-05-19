@@ -47,7 +47,7 @@ class Icon(QWidget):
         self.set_icon('dialog_question.png')
         self.default_icon = self.icon
         self._fraction = 0.0
-        self.animation = a = QPropertyAnimation(self, "fraction", self)
+        self.animation = a = QPropertyAnimation(self, b"fraction", self)
         a.setDuration(2000), a.setEasingCurve(QEasingCurve.Linear)
         a.setStartValue(0.0), a.setEndValue(2.0), a.setLoopCount(10)
 
@@ -96,7 +96,7 @@ class ProceedQuestion(QWidget):
         parent.installEventFilter(self)
 
         self._show_fraction = 0.0
-        self.show_animation = a = QPropertyAnimation(self, "show_fraction", self)
+        self.show_animation = a = QPropertyAnimation(self, b"show_fraction", self)
         a.setDuration(1000), a.setEasingCurve(QEasingCurve.OutQuad)
         a.setStartValue(0.0), a.setEndValue(1.0)
         a.finished.connect(self.stop_show_animation)

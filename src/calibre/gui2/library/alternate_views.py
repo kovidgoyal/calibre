@@ -325,7 +325,7 @@ class CoverDelegate(QStyledItemDelegate):
     def __init__(self, parent):
         super(CoverDelegate, self).__init__(parent)
         self._animated_size = 1.0
-        self.animation = QPropertyAnimation(self, 'animated_size', self)
+        self.animation = QPropertyAnimation(self, b'animated_size', self)
         self.animation.setEasingCurve(QEasingCurve.OutInCirc)
         self.animation.setDuration(500)
         self.set_dimensions()

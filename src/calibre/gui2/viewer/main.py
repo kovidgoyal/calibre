@@ -150,7 +150,7 @@ class EbookViewer(MainWindow):
         self.toolbar_hidden = None
         self.addAction(self.toggle_toolbar_action)
         self.full_screen_label_anim = QPropertyAnimation(
-                self.full_screen_label, 'size')
+                self.full_screen_label, b'size')
         self.clock_timer = QTimer(self)
         self.clock_timer.timeout.connect(self.update_clock)
 

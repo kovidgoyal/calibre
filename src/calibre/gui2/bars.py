@@ -22,7 +22,7 @@ class RevealBar(QWidget):  # {{{
         QWidget.__init__(self, parent)
         self.setVisible(False)
         self._animated_size = 1.0
-        self.animation = QPropertyAnimation(self, 'animated_size', self)
+        self.animation = QPropertyAnimation(self, b'animated_size', self)
         self.animation.setEasingCurve(QEasingCurve.Linear)
         self.animation.setDuration(1000), self.animation.setStartValue(0.0), self.animation.setEndValue(1.0)
         self.animation.valueChanged.connect(self.animation_value_changed)

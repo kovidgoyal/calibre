@@ -16,7 +16,7 @@ class ThrobbingButton(QToolButton):
 
     def __init__(self, *args):
         QToolButton.__init__(self, *args)
-        self.animation = QPropertyAnimation(self, 'iconSize', self)
+        self.animation = QPropertyAnimation(self, b'iconSize', self)
         self.animation.setDuration(60/72.*1000)
         self.animation.setLoopCount(4)
         self.normal_icon_size = QSize(64, 64)
