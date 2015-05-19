@@ -489,7 +489,7 @@ class HTTPPair(object):
     def generate_static_output(self, name, generator):
         return generate_static_output(self.server_loop.gso_cache, self.server_loop.gso_lock, name, generator)
 
-    def response(self):
+    def respond(self):
         if self.chunked_read:
             self.input_reader = ChunkedReader(self.conn.socket_file, self.max_request_body_size)
         else:

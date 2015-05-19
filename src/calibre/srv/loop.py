@@ -395,6 +395,7 @@ class WorkerThread(Thread):  # {{{
         self.ready = False
         self.serving = False
         self.server_loop = server_loop
+        self.conn = None
         Thread.__init__(self, name='ServerWorker')
 
     def run(self):
@@ -402,7 +403,7 @@ class WorkerThread(Thread):  # {{{
             self.ready = True
             while True:
                 self.serving = False
-                conn = self.server_loop.requests.get()
+                self.conn = conn = self.server_loop.requests.get()
                 if conn is None:
                     return  # Clean exit
                 with conn, self:

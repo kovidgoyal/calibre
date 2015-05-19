@@ -65,7 +65,10 @@ class MultiDict(dict):  # {{{
                 return dict.__getitem__(self, key)
             except KeyError:
                 return []
-        return self.__getitem__(key)
+        try:
+            return self.__getitem__(key)
+        except KeyError:
+            return default
 
     def pop(self, key, default=None, all=False):
         ans = dict.pop(self, key, default)
