@@ -53,8 +53,8 @@ class MultiDict(dict):  # {{{
                 yield v[-1]
     itervalues = values
 
-    def set(self, key, val, replace=False):
-        if replace:
+    def set(self, key, val, replace_all=False):
+        if replace_all:
             dict.__setitem__(self, key, [val])
         else:
             self[key] = val

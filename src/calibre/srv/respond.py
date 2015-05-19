@@ -97,7 +97,7 @@ class DynamicOutput(object):
             ct = outheaders.get('Content-Type', 'text/plain')
             if 'charset=' not in ct:
                 ct += '; charset=UTF-8'
-            outheaders.set('Content-Type', ct, replace=True)
+            outheaders.set('Content-Type', ct, replace_all=True)
         self.content_length = len(self.data)
         self.etag = None
         self.accept_ranges = False
@@ -173,16 +173,16 @@ def finalize_output(output, inheaders, outheaders, status_code, is_http1, method
     # TODO: Ranges, If-Range
 
     if output.etag and method in ('GET', 'HEAD'):
-        outheaders.set('ETag', output.etag, replace=True)
+        outheaders.set('ETag', output.etag, replace_all=True)
     if accept_ranges:
-        outheaders.set('Accept-Ranges', 'bytes', replace=True)
+        outheaders.set('Accept-Ranges', 'bytes', replace_all=True)
     elif compressible:
-        outheaders.set('Content-Encoding', 'gzip', replace=True)
+        outheaders.set('Content-Encoding', 'gzip', replace_all=True)
     if output.content_length is not None and not compressible and not ranges:
-        outheaders.set('Content-Length', '%d' % output.content_length, replace=True)
+        outheaders.set('Content-Length', '%d' % output.content_length, replace_all=True)
 
     if compressible or output.content_length is None:
-        outheaders.set('Transfer-Encoding', 'chunked', replace=True)
+        outheaders.set('Transfer-Encoding', 'chunked', replace_all=True)
 
     output.commit = output.write_compressed if compressible else output.write
 
