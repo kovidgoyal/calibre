@@ -14,7 +14,7 @@ from io import DEFAULT_BUFFER_SIZE, BytesIO
 
 from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
 from calibre.srv.http import http_communicate
-from calibre.srv.opts import defaults
+from calibre.srv.opts import Options
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 
@@ -337,7 +337,7 @@ class SocketFile(object):  # {{{
 
 # }}}
 
-class Connection(object):
+class Connection(object):  # {{{
 
     ' A thin wrapper around an active socket '
 
@@ -385,9 +385,9 @@ class Connection(object):
 
     def __exit__(self, *args):
         self.close()
+# }}}
 
-
-class WorkerThread(Thread):
+class WorkerThread(Thread):  # {{{
 
     daemon = True
 
@@ -419,9 +419,9 @@ class WorkerThread(Thread):
 
     def __exit__(self, *args):
         self.serving = False
+# }}}
 
-
-class ThreadPool(object):
+class ThreadPool(object):  # {{{
 
     def __init__(self, server_loop, min_threads=10, max_threads=-1, accepted_queue_size=-1, accepted_queue_timeout=10):
         self.server_loop = server_loop
@@ -514,7 +514,7 @@ class ThreadPool(object):
     @property
     def qsize(self):
         return self._queue.qsize()
-
+# }}}
 
 class ServerLoop(object):
 
@@ -528,7 +528,7 @@ class ServerLoop(object):
         # stdout is used
         log=None
     ):
-        self.opts = opts or defaults
+        self.opts = opts or Options()
         if http_handler is None:
             def aborth(*args, **kwargs):
                 raise NonHTTPConnRequest()
@@ -546,6 +546,7 @@ class ServerLoop(object):
                 # AI_PASSIVE does not work with host of '' or None
                 ba = ('0.0.0.0', ba[1])
         self.bind_address = ba
+        self.bound_address = None
         self.ssl_context = None
         if self.opts.ssl_certfile is not None and self.opts.ssl_keyfile is not None:
             self.ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -628,7 +629,7 @@ class ServerLoop(object):
         # Timeout so KeyboardInterrupt can be caught on Win32
         self.socket.settimeout(1)
         self.socket.listen(self.opts.request_queue_size)
-        ba = self.bind_address
+        self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
             ba = ':'.join(map(type(''), ba))
         self.log('calibre server listening on', ba)

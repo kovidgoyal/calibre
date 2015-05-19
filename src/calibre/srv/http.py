@@ -260,7 +260,7 @@ class HTTPPair(object):
 
     ''' Represents a HTTP request/response pair '''
 
-    def __init__(self, conn, handle_request):
+    def __init__(self, handle_request, conn):
         self.conn = conn
         self.server_loop = conn.server_loop
         self.max_header_line_size = self.server_loop.opts.max_header_line_size * 1024
@@ -522,3 +522,6 @@ class HTTPPair(object):
 
     def send_headers(self):
         self.sent_headers = True
+
+def create_http_handler(handle_request):
+    return partial(HTTPPair, handle_request)

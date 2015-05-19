@@ -6,7 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
+from operator import attrgetter
 
 Option = namedtuple('Option', 'name default longdoc shortdoc choices')
 
@@ -76,7 +77,13 @@ while i + 3 < len(raw_options):
         choices = default
         default = default.default
     options.append(Option(name, default, doc, shortdoc, choices))
-options = tuple(options)
+options = OrderedDict([(o.name, o) for o in sorted(options, key=attrgetter('name'))])
 del raw_options
 
-defaults = namedtuple('Defaults', ' '.join(o.name for o in options))(*tuple(o.default for o in options))
+class Options(object):
+
+    __slots__ = tuple(name for name in options)
+
+    def __init__(self, **kwargs):
+        for opt in options.itervalues():
+            setattr(self, opt.name, kwargs.get(opt.name, opt.default))
