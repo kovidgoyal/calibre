@@ -10,6 +10,7 @@ import os, hashlib, shutil, httplib, zlib, struct, time
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 
 from calibre import force_unicode
+from calibre.srv.errors import IfNoneMatch
 
 def acceptable_encoding(val, allowed=frozenset({'gzip'})):
     def enc(x):
@@ -75,7 +76,7 @@ class FileSystemOutputFile(object):
         pos = output.tell()
         output.seek(0, os.SEEK_END)
         self.content_length = output.tell() - pos
-        self.etag = hashlib.sha1(force_unicode(output.name or '') + str(os.fstat(output.fileno()).st_mtime)).hexdigest()
+        self.etag = hashlib.sha1(type('')(os.fstat(output.fileno()).st_mtime) + force_unicode(output.name or '')).hexdigest()
         output.seek(pos)
         self.accept_ranges = True
 
@@ -141,7 +142,10 @@ def generate_static_output(cache, gso_lock, name, generator):
             ans = cache[name] = StaticGeneratedOutput(generator())
         return ans
 
-def finalize_output(output, inheaders, outheaders, status_code):
+def parse_if_none_match(val):
+    return {x.strip() for x in val.split(',')}
+
+def finalize_output(output, inheaders, outheaders, status_code, is_http1, method):
     ct = outheaders.get('Content-Type', '')
     compressible = not ct or ct.startswith('text/') or ct.startswith('image/svg') or ct.startswith('application/json')
     if isinstance(output, file):
@@ -153,20 +157,29 @@ def finalize_output(output, inheaders, outheaders, status_code):
     else:
         output = GeneratedOutput(output, outheaders)
     compressible = (status_code == httplib.OK and compressible and output.content_length > 1024 and
-                    acceptable_encoding(inheaders.get('Accept-Encoding', '')))
-    accept_ranges = not compressible and output.accept_ranges is not None and status_code == httplib.OK
+                    acceptable_encoding(inheaders.get('Accept-Encoding', '')) and not is_http1)
+    accept_ranges = (not compressible and output.accept_ranges is not None and status_code == httplib.OK and
+                     not is_http1)
+    ranges = None
 
-    for header in 'Accept-Ranges Content-Encoding Transfer-Encoding ETag'.split():
+    for header in ('Accept-Ranges', 'Content-Encoding', 'Transfer-Encoding', 'ETag', 'Content-Length'):
         outheaders.pop('header', all=True)
 
-    # TODO: If-None-Match, Ranges, If-Range
+    none_match = parse_if_none_match(inheaders.get('If-None-Match', ''))
+    matched = '*' in none_match or (output.etag and output.etag in none_match)
+    if matched:
+        raise IfNoneMatch(output.etag)
 
-    if output.etag:
+    # TODO: Ranges, If-Range
+
+    if output.etag and method in ('GET', 'HEAD'):
         outheaders.set('ETag', output.etag, replace=True)
     if accept_ranges:
         outheaders.set('Accept-Ranges', 'bytes', replace=True)
     elif compressible:
         outheaders.set('Content-Encoding', 'gzip', replace=True)
+    if output.content_length is not None and not compressible and not ranges:
+        outheaders.set('Content-Length', '%d' % output.content_length, replace=True)
 
     if compressible or output.content_length is None:
         outheaders.set('Transfer-Encoding', 'chunked', replace=True)

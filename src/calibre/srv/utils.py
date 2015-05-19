@@ -8,8 +8,12 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from urlparse import parse_qs
 import repr as reprlib
+from email.utils import formatdate
 
-class MultiDict(dict):
+def http_date(timeval=None):
+    return type('')(formatdate(timeval=timeval, usegmt=True))
+
+class MultiDict(dict):  # {{{
 
     def __setitem__(self, key, val):
         vals = dict.get(self, key, [])
@@ -75,3 +79,4 @@ class MultiDict(dict):
 
     def pretty(self, leading_whitespace=''):
         return leading_whitespace + ('\n' + leading_whitespace).join('%s: %s' % (k, v) for k, v in self.items())
+# }}}

@@ -13,9 +13,10 @@ from urllib import unquote
 from functools import partial
 
 from calibre import as_unicode
-from calibre.srv.errors import MaxSizeExceeded, NonHTTPConnRequest
+from calibre.srv.errors import (
+    MaxSizeExceeded, NonHTTPConnRequest, HTTP404, IfNoneMatch)
 from calibre.srv.respond import finalize_output, generate_static_output
-from calibre.srv.utils import MultiDict
+from calibre.srv.utils import MultiDict, http_date
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
@@ -436,7 +437,7 @@ class HTTPPair(object):
             self.flushed_write(msg.encode('ascii'))
         return True
 
-    def simple_response(self, status_code, msg=""):
+    def simple_response(self, status_code, msg="", read_remaining_input=False):
         abort = status_code in (httplib.REQUEST_ENTITY_TOO_LARGE, httplib.REQUEST_URI_TOO_LONG)
         if abort:
             self.close_connection = True
@@ -448,13 +449,32 @@ class HTTPPair(object):
         buf = [
             '%s %d %s' % (self.reponse_protocol, status_code, httplib.responses[status_code]),
             "Content-Length: %s" % len(msg),
-            "Content-Type: text/plain; charset=UTF-8"
+            "Content-Type: text/plain; charset=UTF-8",
+            "Date: " + http_date(),
         ]
         if abort and self.reponse_protocol is HTTP11:
             buf.append("Connection: close")
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
         buf.append(msg)
+        if read_remaining_input:
+            self.input_reader.read()
+        self.flushed_write(b''.join(buf))
+
+    def send_not_modified(self, etag=None):
+        buf = [
+            '%s %d %s' % (self.reponse_protocol, httplib.NOT_MODIFIED, httplib.responses[httplib.NOT_MODIFIED]),
+            "Content-Length: 0",
+            "Date: " + http_date(),
+        ]
+        if etag is not None:
+            buf.append('ETag: ' + etag)
+        for header in ('Expires', 'Cache-Control', 'Vary'):
+            val = self.outheaders.get(header)
+            if val:
+                buf.append(header + ': ' + val)
+        buf.append('')
+        buf = [(x + '\r\n').encode('ascii') for x in buf]
         self.flushed_write(b''.join(buf))
 
     def flushed_write(self, data):
@@ -475,13 +495,24 @@ class HTTPPair(object):
         else:
             self.input_reader = FixedSizeReader(self.conn.socket_file, self.request_content_length)
 
-        output = self.handle_request(self)
-        if self.status_code is None:
-            raise Exception('Request handler did not set status_code')
+        try:
+            output = self.handle_request(self)
+        except HTTP404 as e:
+            self.simple_response(httplib.NOT_FOUND, e.message, read_remaining_input=True)
+            return
         # Read and discard any remaining body from the HTTP request
         self.input_reader.read()
+        if self.status_code is None:
+            raise Exception('Request handler did not set status_code')
 
-        self.status_code, output = finalize_output(output, self.inheaders, self.outheaders, self.status_code)
+        try:
+            self.status_code, output = finalize_output(output, self.inheaders, self.outheaders, self.status_code, self.response_protocol is HTTP1, self.method)
+        except IfNoneMatch as e:
+            if self.method in ('GET', 'HEAD'):
+                self.send_not_modified(e.etag)
+            else:
+                self.simple_response(httplib.PRECONDITION_FAILED)
+            return
 
         self.send_headers()
 
