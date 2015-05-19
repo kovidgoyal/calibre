@@ -11,8 +11,10 @@ from io import BytesIO
 import repr as reprlib
 from urllib import unquote
 from functools import partial
+from operator import itemgetter
 
 from calibre import as_unicode
+from calibre.constants import __version__
 from calibre.srv.errors import (
     MaxSizeExceeded, NonHTTPConnRequest, HTTP404, IfNoneMatch)
 from calibre.srv.respond import finalize_output, generate_static_output
@@ -527,6 +529,22 @@ class HTTPPair(object):
 
     def send_headers(self):
         self.sent_headers = True
+        self.outheaders.set('Date', http_date(), replace_all=True)
+        self.outheaders.set('Server', 'calibre %s' % __version__, replace_all=True)
+        if 'Connection' not in self.outheaders:
+            if self.reponse_protocol is HTTP11:
+                if self.close_connection:
+                    self.outheaders.set('Connection', 'close')
+            else:
+                if not self.close_connection:
+                    self.outheaders.set('Connection', 'Keep-Alive')
+
+        buf = [HTTP11 + (' %d ' % self.status_code) + httplib.responses[self.status_code]]
+        for header, value in sorted(self.outheaders.iteritems(), key=itemgetter(0)):
+            buf.append('%s: %s' % (header, value))
+        buf.append('')
+        self.flushed_write(b''.join((x + '\r\n').encode('ascii') for x in buf))
+
 
 def create_http_handler(handle_request):
     return partial(HTTPPair, handle_request)
