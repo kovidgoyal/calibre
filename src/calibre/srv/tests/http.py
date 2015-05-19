@@ -65,6 +65,7 @@ class TestHTTP(BaseTest):
         def handler(conn):
             raise HTTP404(body)
         with TestServer(handler) as server:
+            # Test 404
             conn = server.connect()
             conn.request('HEAD', '/moose')
             r = conn.getresponse()
@@ -78,4 +79,22 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, httplib.NOT_FOUND)
             self.ae(r.read(), 'Requested resource not found')
+
+            server.change_handler(lambda conn:conn.path[1])
+            # Test simple GET
+            conn.request('GET', '/test')
+            self.ae(conn.getresponse().read(), 'test')
+
+            # Test pipelining
+            responses = []
+            for i in xrange(10):
+                conn._HTTPConnection__state = httplib._CS_IDLE
+                conn.request('GET', '/%d'%i)
+                responses.append(conn.response_class(conn.sock, strict=conn.strict, method=conn._method))
+            for i in xrange(10):
+                r = responses[i]
+                r.begin()
+                self.ae(r.read(), ('%d' % i).encode('ascii'))
+            conn._HTTPConnection__state = httplib._CS_IDLE
+
     # }}}

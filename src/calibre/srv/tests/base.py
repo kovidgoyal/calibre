@@ -61,3 +61,7 @@ class TestServer(Thread):
 
     def connect(self):
         return httplib.HTTPConnection(self.address[0], self.address[1], strict=True, timeout=0.1)
+
+    def change_handler(self, handler):
+        from calibre.srv.http import create_http_handler
+        self.loop.http_handler = create_http_handler(handler)
