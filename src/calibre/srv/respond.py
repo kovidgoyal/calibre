@@ -76,7 +76,7 @@ class FileSystemOutputFile(object):
         pos = output.tell()
         output.seek(0, os.SEEK_END)
         self.content_length = output.tell() - pos
-        self.etag = hashlib.sha1(type('')(os.fstat(output.fileno()).st_mtime) + force_unicode(output.name or '')).hexdigest()
+        self.etag = '"%s"' % hashlib.sha1(type('')(os.fstat(output.fileno()).st_mtime) + force_unicode(output.name or '')).hexdigest()
         output.seek(pos)
         self.accept_ranges = True
 
@@ -125,7 +125,7 @@ class StaticGeneratedOutput(object):
 
     def __init__(self, data):
         self.data = data
-        self.etag = hashlib.sha1(data).hexdigest()
+        self.etag = '"%s"' % hashlib.sha1(data).hexdigest()
         self.content_length = len(data)
         self.accept_ranges = False
 
