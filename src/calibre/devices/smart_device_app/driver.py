@@ -1799,6 +1799,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     @synchronous('sync_lock')
     def startup(self):
         self.listen_socket = None
+        self.is_connected = False
 
     @synchronous('sync_lock')
     def startup_on_demand(self):
