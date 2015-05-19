@@ -7,9 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, shutil, time, httplib
+import unittest, shutil, time, httplib, traceback
 from functools import partial
 from threading import Thread
+from calibre.utils.logging import ThreadSafeLog
 
 rmtree = partial(shutil.rmtree, ignore_errors=True)
 
@@ -20,6 +21,12 @@ class BaseTest(unittest.TestCase):
 
     ae = unittest.TestCase.assertEqual
 
+class TestLog(ThreadSafeLog):
+
+    def exception(self, *args, **kwargs):
+        limit = kwargs.pop('limit', None)
+        self.prints(self.ERROR, *args, **kwargs)
+        self.prints(self.WARN, traceback.format_exc(limit))
 
 class TestServer(Thread):
 
@@ -30,11 +37,10 @@ class TestServer(Thread):
         from calibre.srv.opts import Options
         from calibre.srv.loop import ServerLoop
         from calibre.srv.http import create_http_handler
-        from calibre.utils.logging import ThreadSafeLog
         self.loop = ServerLoop(
             opts=Options(shutdown_timeout=0.1),
             bind_address=('localhost', 0), http_handler=create_http_handler(handler),
-            log=ThreadSafeLog(level=ThreadSafeLog.WARN),
+            log=TestLog(level=ThreadSafeLog.WARN),
         )
 
     def run(self):

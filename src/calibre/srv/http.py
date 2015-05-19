@@ -176,8 +176,12 @@ def http_communicate(conn):
                 pair.simple_response(httplib.REQUEST_TIMEOUT)
     except NonHTTPConnRequest:
         raise
+    except socket.error:
+        # This socket is broken. Log the error and close connection
+        conn.server_loop.log.exception(
+            'Communication failed while processing request:', pair.repr_for_log() if getattr(pair, 'started_request', False) else 'None')
     except Exception:
-        conn.server_loop.log.exception('Error serving request:', pair.repr_for_log() if pair else 'None')
+        conn.server_loop.log.exception('Error serving request:', pair.repr_for_log() if getattr(pair, 'started_request', False) else 'None')
         if pair and not pair.sent_headers:
             pair.simple_response(httplib.INTERNAL_SERVER_ERROR)
 
@@ -272,6 +276,7 @@ class HTTPPair(object):
         self.request_line = None
         self.path = ()
         self.qs = MultiDict()
+        self.method = None
 
         """When True, the request has been parsed and is ready to begin generating
         the response. When False, signals the calling Connection that the response
@@ -316,7 +321,7 @@ class HTTPPair(object):
         self.ready = True
 
     def read_request_line(self):
-        request_line = self.conn.socket_file.readline(maxsize=self.max_header_line_size)
+        self.request_line = request_line = self.conn.socket_file.readline(maxsize=self.max_header_line_size)
 
         # Set started_request to True so http_communicate() knows to send 408
         # from here on out.
@@ -338,7 +343,6 @@ class HTTPPair(object):
                 httplib.BAD_REQUEST, "HTTP requires CRLF terminators")
             return False
 
-        self.request_line = request_line
         try:
             method, uri, req_protocol = request_line.strip().split(b' ', 2)
             rp = int(req_protocol[5]), int(req_protocol[7])
@@ -456,7 +460,8 @@ class HTTPPair(object):
             buf.append("Connection: close")
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
-        buf.append(msg)
+        if self.method != 'HEAD':
+            buf.append(msg)
         if read_remaining_input:
             self.input_reader.read()
         self.flushed_write(b''.join(buf))

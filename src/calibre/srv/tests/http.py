@@ -61,11 +61,21 @@ class TestHTTP(BaseTest):
     def test_http_basic(self):  # {{{
         'Test basic HTTP protocol conformance'
         from calibre.srv.errors import HTTP404
+        body = 'Requested resource not found'
         def handler(conn):
-            raise HTTP404('Requested resource not found')
+            raise HTTP404(body)
         with TestServer(handler) as server:
             conn = server.connect()
             conn.request('HEAD', '/moose')
             r = conn.getresponse()
             self.ae(r.status, httplib.NOT_FOUND)
+            self.assertIsNotNone(r.getheader('Date', None))
+            self.ae(r.getheader('Content-Length'), str(len(body)))
+            self.ae(r.getheader('Content-Type'), 'text/plain; charset=UTF-8')
+            self.ae(len(r.getheaders()), 3)
+            self.ae(r.read(), '')
+            conn.request('GET', '/moose')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.NOT_FOUND)
+            self.ae(r.read(), 'Requested resource not found')
     # }}}
