@@ -2,6 +2,7 @@
 __license__   = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.utils.date import now
 
 def absurl(url):
     if url.startswith('/'):
@@ -10,7 +11,7 @@ def absurl(url):
 
 class ScientificAmerican(BasicNewsRecipe):
     title                 = u'Scientific American'
-    description           = u'Popular Science. Monthly magazine.'
+    description           = u'Popular Science. Monthly magazine. Should be downloaded around the middle of each month.'
     category              = 'science'
     __author__            = 'Kovid Goyal'
     no_stylesheets        = True
@@ -18,11 +19,18 @@ class ScientificAmerican(BasicNewsRecipe):
     publisher             = 'Nature Publishing Group'
     remove_empty_feeds    = True
     remove_javascript     = True
+    timefmt               = ' [%B %Y]'
 
     needs_subscription    = 'optional'
 
     keep_only_tags = [
-        dict(attrs={'class':['article-title', 'article-dek', 'article-author article-date', 'article-content', 'article-slatwallPayWall']}),
+        dict(attrs={'class':['article-title', 'article-dek', 'article-author article-date', 'article-complementary', 'article-slatwallPayWall']}),
+        dict(attrs={'class':lambda x: x and 'article-content' in x.split()}),
+    ]
+    remove_tags = [
+        dict(attrs={'class':['article-footer']}),
+        dict(id=['seeAlsoLinks']),
+        dict(attrs={'class':lambda x: x and 'moreToExplore' in x.split()}),
     ]
 
     def get_browser(self, *args):
@@ -38,7 +46,11 @@ class ScientificAmerican(BasicNewsRecipe):
     def parse_index(self):
         # Get the cover, date and issue URL
         root = self.index_to_soup('http://www.scientificamerican.com/sciammag/', as_tree=True)
-        for a in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' archiveIssues ')]/descendant-or-self::*/a[@class and contains(concat(' ', normalize-space(@class), ' '), ' cover ') and (@href)]'''):
+        for a in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' archiveIssues ')]/descendant-or-self::*/a[@class and contains(concat(' ', normalize-space(@class), ' '), ' cover ') and (@href)]'''):  # noqa
+            url = a.get('href')
+            month = int(filter(None, url.split('/'))[-1].partition('-')[0])
+            if month > now().month:
+                continue
             self.cover_url = absurl(a.xpath('descendant-or-self::img[@src]')[0].get('src'))
             root = self.index_to_soup(absurl(a.get('href')), as_tree=True)
             for a in a.xpath('following-sibling::a[@href]'):
@@ -50,7 +62,7 @@ class ScientificAmerican(BasicNewsRecipe):
 
         # Now parse the actual issue to get the list of articles
         feeds = []
-        for i, div in enumerate(root.xpath('''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' toc-features ')] | descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' toc-departments ')]''')):
+        for i, div in enumerate(root.xpath('''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' toc-features ')] | descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' toc-departments ')]''')):  # noqa
             if i == 0:
                 feeds.append(('Features', list(self.parse_sciam_features(div))))
             else:
@@ -73,7 +85,7 @@ class ScientificAmerican(BasicNewsRecipe):
 
     def parse_sciam_departments(self, div):
         section_title, articles = 'Unknown', []
-        for x in div.xpath('''descendant-or-self::li/descendant-or-self::*/a[@href]/descendant-or-self::*/h3 | descendant-or-self::li/descendant-or-self::*/span[@class and contains(concat(' ', normalize-space(@class), ' '), ' deptTitle ')]/descendant-or-self::*/a[@href]'''):
+        for x in div.xpath('''descendant-or-self::li/descendant-or-self::*/a[@href]/descendant-or-self::*/h3 | descendant-or-self::li/descendant-or-self::*/span[@class and contains(concat(' ', normalize-space(@class), ' '), ' deptTitle ')]/descendant-or-self::*/a[@href]'''):  # noqa
             if x.tag == 'a':
                 if articles:
                     yield section_title, list(articles)
