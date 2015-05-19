@@ -262,7 +262,8 @@ class HTTPPair(object):
     def __init__(self, conn, handle_request):
         self.conn = conn
         self.server_loop = conn.server_loop
-        self.max_header_line_size = self.server_loop.opts.max_header_line_size
+        self.max_header_line_size = self.server_loop.opts.max_header_line_size * 1024
+        self.max_request_body_size = self.server_loop.opts.max_request_body_size * 1024 * 1024
         self.scheme = 'http' if self.server_loop.ssl_context is None else 'https'
         self.inheaders = MultiDict()
         self.outheaders = MultiDict()
@@ -393,11 +394,11 @@ class HTTPPair(object):
             self.simple_response(httplib.BAD_REQUEST, as_unicode(e))
             return False
 
-        if self.request_content_length > self.server_loop.opts.max_request_body_size:
+        if self.request_content_length > self.max_request_body_size:
             self.simple_response(
                 httplib.REQUEST_ENTITY_TOO_LARGE,
                 "The entity sent with the request exceeds the maximum "
-                "allowed bytes (%d)." % self.server_loop.opts.max_request_body_size)
+                "allowed bytes (%d)." % self.max_request_body_size)
             return False
 
         # Persistent connection support
@@ -470,7 +471,7 @@ class HTTPPair(object):
 
     def response(self):
         if self.chunked_read:
-            self.input_reader = ChunkedReader(self.conn.socket_file, self.server_loop.opts.max_request_body_size)
+            self.input_reader = ChunkedReader(self.conn.socket_file, self.max_request_body_size)
         else:
             self.input_reader = FixedSizeReader(self.conn.socket_file, self.request_content_length)
 
