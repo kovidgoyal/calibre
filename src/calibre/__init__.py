@@ -8,7 +8,8 @@ __builtin__.__dict__['dynamic_property'] = lambda func: func(None)
 from math import floor
 from functools import partial
 
-warnings.simplefilter('ignore', DeprecationWarning)
+if 'CALIBRE_SHOW_DEPRECATION_WARNINGS' not in os.environ:
+    warnings.simplefilter('ignore', DeprecationWarning)
 try:
     os.getcwdu()
 except:

@@ -32,6 +32,7 @@ Environment variables
     * ``CALIBRE_NO_NATIVE_FILEDIALOGS`` - Causes calibre to not use native file dialogs for selecting files/directories. Set it to 1 to enable.
     * ``CALIBRE_NO_NATIVE_MENUBAR`` - Causes calibre to not create a native (global) menu on Ubuntu Unity and similar linux desktop environments. The menu is instead placed inside the window, as traditional.
     * ``CALIBRE_IGNORE_SYSTEM_THEME`` - Causes calibre to ignore any system Qt style plugins and use its builtin style plugin instead. Useful to workaround crashes caused by the system Qt plugin being incompatible with the version of Qt shipped with calibre.
+    * ``CALIBRE_SHOW_DEPRECATION_WARNINGS`` - Causes calibre to print deprecation warnings to stdout. Useful for calibre developers.
     * ``SYSFS_PATH`` - Use if sysfs is mounted somewhere other than /sys
     * ``http_proxy`` - Used on linux to specify an HTTP proxy
 
