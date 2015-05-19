@@ -26,7 +26,7 @@ def error_codes(*errnames):
 
 socket_error_eintr = error_codes("EINTR", "WSAEINTR")
 
-socket_errors_to_ignore = error_codes(
+socket_errors_to_ignore = error_codes(  # errors indicating a closed connection
     "EPIPE",
     "EBADF", "WSAEBADF",
     "ENOTSOCK", "WSAENOTSOCK",
@@ -82,7 +82,10 @@ class SocketFile(object):  # {{{
     def close(self):
         try:
             if self._sock is not None:
-                self.flush()
+                try:
+                    self.flush()
+                except socket.error:
+                    pass
         finally:
             if self._close and self._sock is not None:
                 self._sock.close()
