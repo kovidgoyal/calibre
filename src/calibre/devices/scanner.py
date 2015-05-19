@@ -109,9 +109,10 @@ _USBDevice = namedtuple('USBDevice',
 
 class USBDevice(_USBDevice):
 
-    def __init__(self, *args, **kwargs):
-        _USBDevice.__init__(self, *args, **kwargs)
+    def __new__(cls, *args, **kwargs):
+        self = super(USBDevice, cls).__new__(cls, *args)
         self.busnum = self.devnum = -1
+        return self
 
     def __repr__(self):
         return (u'USBDevice(busnum=%s, devnum=%s, '
