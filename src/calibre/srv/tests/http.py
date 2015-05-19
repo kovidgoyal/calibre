@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap, httplib
+import textwrap, httplib, socket
 from io import BytesIO
 
 from calibre.srv.tests.base import BaseTest, TestServer
@@ -80,10 +80,23 @@ class TestHTTP(BaseTest):
             self.ae(r.status, httplib.NOT_FOUND)
             self.ae(r.read(), 'Requested resource not found')
 
-            server.change_handler(lambda conn:conn.path[1])
+            server.change_handler(lambda conn:conn.path[1] + conn.input_reader.read().decode('ascii'))
             # Test simple GET
             conn.request('GET', '/test')
             self.ae(conn.getresponse().read(), 'test')
+
+            # Test POST with simple body
+            conn.request('POST', '/test', 'body')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.CREATED)
+            self.ae(r.read(), 'testbody')
+
+            # Test POST with chunked transfer encoding
+            conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
+            conn.send(b'4\r\nbody\r\n0\r\n\r\n')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.CREATED)
+            self.ae(r.read(), 'testbody')
 
             # Test pipelining
             responses = []
@@ -96,5 +109,13 @@ class TestHTTP(BaseTest):
                 r.begin()
                 self.ae(r.read(), ('%d' % i).encode('ascii'))
             conn._HTTPConnection__state = httplib._CS_IDLE
+
+            # Test closing
+            conn.request('GET', '/close', headers={'Connection':'close'})
+            r = conn.getresponse()
+            self.ae(r.status, 200), self.ae(r.read(), 'close')
+            conn.request('HEAD', '/close')
+            with self.assertRaises(socket.error):
+                conn.sock.send(b'xxx')
 
     # }}}
