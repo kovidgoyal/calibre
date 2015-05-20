@@ -543,7 +543,9 @@ class HTTPPair(object):
             self.status_code = httplib.CREATED if self.method == 'POST' else httplib.OK
 
         try:
-            self.status_code, output = finalize_output(output, self.inheaders, self.outheaders, self.status_code, self.response_protocol is HTTP1, self.method)
+            self.status_code, output = finalize_output(
+                output, self.inheaders, self.outheaders, self.status_code,
+                self.response_protocol is HTTP1, self.method, self.server_loop.opts.compress_min_size)
         except IfNoneMatch as e:
             if self.method in ('GET', 'HEAD'):
                 self.send_not_modified(e.etag)

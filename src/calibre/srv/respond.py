@@ -124,6 +124,8 @@ class GeneratedOutput(object):
 class StaticGeneratedOutput(object):
 
     def __init__(self, data):
+        if isinstance(data, type('')):
+            data = data.encode('utf-8')
         self.data = data
         self.etag = '"%s"' % hashlib.sha1(data).hexdigest()
         self.content_length = len(data)
@@ -145,7 +147,7 @@ def generate_static_output(cache, gso_lock, name, generator):
 def parse_if_none_match(val):
     return {x.strip() for x in val.split(',')}
 
-def finalize_output(output, inheaders, outheaders, status_code, is_http1, method):
+def finalize_output(output, inheaders, outheaders, status_code, is_http1, method, compress_min_size):
     ct = outheaders.get('Content-Type', '')
     compressible = not ct or ct.startswith('text/') or ct.startswith('image/svg') or ct.startswith('application/json')
     if isinstance(output, file):
@@ -156,7 +158,8 @@ def finalize_output(output, inheaders, outheaders, status_code, is_http1, method
         pass
     else:
         output = GeneratedOutput(output, outheaders)
-    compressible = (status_code == httplib.OK and compressible and output.content_length > 1024 and
+    compressible = (status_code == httplib.OK and compressible and
+                    (compress_min_size > -1 and output.content_length >= compress_min_size) and
                     acceptable_encoding(inheaders.get('Accept-Encoding', '')) and not is_http1)
     accept_ranges = (not compressible and output.accept_ranges is not None and status_code == httplib.OK and
                      not is_http1)

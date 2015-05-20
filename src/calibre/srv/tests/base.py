@@ -61,7 +61,9 @@ class TestServer(Thread):
     def __exit__(self, *args):
         self.loop.stop()
 
-    def connect(self, timeout=0.1):
+    def connect(self, timeout=None):
+        if timeout is None:
+            timeout = self.loop.opts.timeout
         return httplib.HTTPConnection(self.address[0], self.address[1], strict=True, timeout=timeout)
 
     def change_handler(self, handler):

@@ -59,6 +59,10 @@ raw_options = (
     'max_request_body_size', 500.0,
     None,
 
+    'Minimum size for which responses use data compression (in bytes)',
+    'compress_min_size', 1024,
+    None,
+
     'Decrease latency by using the TCP_NODELAY feature',
     'no_delay', True,
     'no_delay turns on TCP_NODELAY which decreases latency at the cost of'

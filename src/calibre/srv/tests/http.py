@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap, httplib
+import textwrap, httplib, hashlib, zlib
 from io import BytesIO
 
 from calibre.srv.tests.base import BaseTest, TestServer
@@ -159,3 +159,28 @@ class TestHTTP(BaseTest):
             self.ae(server.loop.requests.idle, 10)
 
     # }}}
+
+    def test_http_response(self):  # {{{
+        'Test HTTP protocol responses'
+        def handler(conn):
+            return conn.generate_static_output('test', lambda : ''.join(conn.path))
+        with TestServer(handler, timeout=0.1, compress_min_size=0) as server:
+            # Test ETag
+            conn = server.connect()
+            conn.request('GET', '/an_etagged_path')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.OK), self.ae(r.read(), b'an_etagged_path')
+            etag = r.getheader('ETag')
+            self.ae(etag, '"%s"' % hashlib.sha1('an_etagged_path').hexdigest())
+            conn.request('GET', '/an_etagged_path', headers={'If-None-Match':etag})
+            r = conn.getresponse()
+            self.ae(r.status, httplib.NOT_MODIFIED)
+            self.ae(r.read(), b'')
+
+            # Test gzip
+            conn.request('GET', '/an_etagged_path', headers={'Accept-Encoding':'gzip'})
+            r = conn.getresponse()
+            self.ae(r.status, httplib.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), b'an_etagged_path')
+
+    # }}}
+
