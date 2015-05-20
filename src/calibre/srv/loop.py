@@ -444,6 +444,10 @@ class ThreadPool(object):  # {{{
     def idle(self):
         return sum(int(not w.serving) for w in self._threads)
 
+    @property
+    def busy(self):
+        return sum(int(w.serving) for w in self._threads)
+
     def put(self, obj):
         self._queue.put(obj, block=True, timeout=self._queue_put_timeout)
 

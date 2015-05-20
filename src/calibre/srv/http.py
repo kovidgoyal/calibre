@@ -16,7 +16,7 @@ from operator import itemgetter
 from calibre import as_unicode
 from calibre.constants import __version__
 from calibre.srv.errors import (
-    MaxSizeExceeded, NonHTTPConnRequest, HTTP404, IfNoneMatch)
+    MaxSizeExceeded, NonHTTPConnRequest, HTTP404, IfNoneMatch, BadChunkedInput)
 from calibre.srv.respond import finalize_output, generate_static_output
 from calibre.srv.utils import MultiDict, http_date
 
@@ -146,6 +146,9 @@ def read_headers(readline):  # {{{
 def http_communicate(conn):
     ' Represents interaction with a http client over a single, persistent connection '
     request_seen = False
+    def repr_for_pair(pair):
+        return pair.repr_for_log() if getattr(pair, 'started_request', False) else 'None'
+
     try:
         while True:
             # (re)set pair to None so that if something goes wrong in
@@ -181,13 +184,25 @@ def http_communicate(conn):
     except socket.error:
         # This socket is broken. Log the error and close connection
         conn.server_loop.log.exception(
-            'Communication failed while processing request:', pair.repr_for_log() if getattr(pair, 'started_request', False) else 'None')
+            'Communication failed (socket error) while processing request:', repr_for_pair(pair))
+    except MaxSizeExceeded as e:
+        conn.server_loop.log.warn('Too large request body (%d > %d) for request:' % (e.size, e.limit), repr_for_pair(pair))
+        # Can happen if the request uses chunked transfer encoding
+        if pair and not pair.sent_headers:
+            pair.simple_response(httplib.REQUEST_ENTITY_TOO_LARGE,
+                "The entity sent with the request exceeds the maximum "
+                "allowed bytes (%d)." % pair.max_request_body_size)
+    except BadChunkedInput as e:
+        conn.server_loop.log.warn('Bad chunked encoding (%s) for request:' % as_unicode(e.message), repr_for_pair(pair))
+        if pair and not pair.sent_headers:
+            pair.simple_response(httplib.BAD_REQUEST,
+                'Invalid chunked encoding for request body: %s' % as_unicode(e.message))
     except Exception:
         conn.server_loop.log.exception('Error serving request:', pair.repr_for_log() if getattr(pair, 'started_request', False) else 'None')
         if pair and not pair.sent_headers:
             pair.simple_response(httplib.INTERNAL_SERVER_ERROR)
 
-class FixedSizeReader(object):
+class FixedSizeReader(object):  # {{{
 
     def __init__(self, socket_file, content_length):
         self.socket_file, self.remaining = socket_file, content_length
@@ -201,9 +216,9 @@ class FixedSizeReader(object):
         data = self.socket_file.read(size)
         self.remaining -= len(data)
         return data
+# }}}
 
-
-class ChunkedReader(object):
+class ChunkedReader(object):  # {{{
 
     def __init__(self, socket_file, maxsize):
         self.socket_file, self.maxsize = socket_file, maxsize
@@ -225,14 +240,14 @@ class ChunkedReader(object):
         try:
             chunk_size = int(line, 16) + 2
         except Exception:
-            raise ValueError('%s is not a valid chunk size' % reprlib.repr(chunk_size))
+            raise BadChunkedInput('%s is not a valid chunk size' % reprlib.repr(chunk_size))
         if chunk_size + self.bytes_read > self.maxsize:
             raise MaxSizeExceeded('Request entity too large', self.bytes_read + chunk_size, self.maxsize)
         chunk = self.socket_file.read(chunk_size)
         if len(chunk) < chunk_size:
-            raise ValueError('Bad chunked encoding, chunk truncated: %d < %s' % (len(chunk), chunk_size))
+            raise BadChunkedInput('Bad chunked encoding, chunk truncated: %d < %s' % (len(chunk), chunk_size))
         if not chunk.endswith(b'\r\n'):
-            raise ValueError('Bad chunked encoding: %r != CRLF' % chunk[:-2])
+            raise BadChunkedInput('Bad chunked encoding: %r != CRLF' % chunk[:-2])
         self.rbuf.seek(0, os.SEEK_END)
         self.bytes_read += chunk_size
         if chunk_size == 2:
@@ -260,7 +275,7 @@ class ChunkedReader(object):
             self.rbuf.write(data[size:])
             return data[:size]
         return data
-
+# }}}
 
 class HTTPPair(object):
 
@@ -269,8 +284,8 @@ class HTTPPair(object):
     def __init__(self, handle_request, conn):
         self.conn = conn
         self.server_loop = conn.server_loop
-        self.max_header_line_size = self.server_loop.opts.max_header_line_size * 1024
-        self.max_request_body_size = self.server_loop.opts.max_request_body_size * 1024 * 1024
+        self.max_header_line_size = int(self.server_loop.opts.max_header_line_size * 1024)
+        self.max_request_body_size = int(self.server_loop.opts.max_request_body_size * 1024 * 1024)
         self.scheme = 'http' if self.server_loop.ssl_context is None else 'https'
         self.inheaders = MultiDict()
         self.outheaders = MultiDict()
@@ -292,7 +307,7 @@ class HTTPPair(object):
         self.close_connection = False
 
         self.started_request = False
-        self.reponse_protocol = HTTP1
+        self.response_protocol = HTTP1
 
         self.status_code = None
         self.sent_headers = False
@@ -305,7 +320,8 @@ class HTTPPair(object):
         try:
             if not self.read_request_line():
                 return
-        except MaxSizeExceeded:
+        except MaxSizeExceeded as e:
+            self.server_loop.log.warn('Too large request URI (%d > %d), dropping connection' % (e.size, e.limit))
             self.simple_response(
                 httplib.REQUEST_URI_TOO_LONG,
                 "The Request-URI sent with the request exceeds the maximum allowed bytes.")
@@ -314,7 +330,8 @@ class HTTPPair(object):
         try:
             if not self.read_request_headers():
                 return
-        except MaxSizeExceeded:
+        except MaxSizeExceeded as e:
+            self.server_loop.log.warn('Too large header (%d > %d) for request, dropping connection' % (e.size, e.limit))
             self.simple_response(
                 httplib.REQUEST_ENTITY_TOO_LARGE,
                 "The headers sent with the request exceed the maximum allowed bytes.")
@@ -358,6 +375,7 @@ class HTTPPair(object):
         except KeyError:
             self.simple_response(httplib.HTTP_VERSION_NOT_SUPPORTED)
             return False
+        self.response_protocol = protocol_map[min((1, 1), rp)]
 
         scheme, authority, path = parse_request_uri(uri)
         if b'#' in path:
@@ -386,9 +404,7 @@ class HTTPPair(object):
         except ValueError as e:
             self.simple_response(httplib.BAD_REQUEST, as_unicode(e))
             return False
-        self.path = tuple(x.replace('%2F', '/') for x in path.split('/'))
-
-        self.response_protocol = protocol_map[min((1, 1), rp)]
+        self.path = tuple(filter(None, (x.replace('%2F', '/') for x in path.split('/'))))
 
         return True
 
@@ -447,18 +463,18 @@ class HTTPPair(object):
         abort = status_code in (httplib.REQUEST_ENTITY_TOO_LARGE, httplib.REQUEST_URI_TOO_LONG)
         if abort:
             self.close_connection = True
-            if self.reponse_protocol is HTTP1:
+            if self.response_protocol is HTTP1:
                 # HTTP/1.0 has no 413/414 codes
                 status_code = httplib.BAD_REQUEST
 
         msg = msg.encode('utf-8')
         buf = [
-            '%s %d %s' % (self.reponse_protocol, status_code, httplib.responses[status_code]),
+            '%s %d %s' % (self.response_protocol, status_code, httplib.responses[status_code]),
             "Content-Length: %s" % len(msg),
             "Content-Type: text/plain; charset=UTF-8",
             "Date: " + http_date(),
         ]
-        if abort and self.reponse_protocol is HTTP11:
+        if abort and self.response_protocol is HTTP11:
             buf.append("Connection: close")
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
@@ -470,7 +486,7 @@ class HTTPPair(object):
 
     def send_not_modified(self, etag=None):
         buf = [
-            '%s %d %s' % (self.reponse_protocol, httplib.NOT_MODIFIED, httplib.responses[httplib.NOT_MODIFIED]),
+            '%s %d %s' % (self.response_protocol, httplib.NOT_MODIFIED, httplib.responses[httplib.NOT_MODIFIED]),
             "Content-Length: 0",
             "Date: " + http_date(),
         ]
@@ -489,9 +505,16 @@ class HTTPPair(object):
         self.conn.socket_file.flush()
 
     def repr_for_log(self):
-        return 'HTTPPair: %r\nPath:%r\nQuery:\n%s\nIn Headers:\n%s\nOut Headers:\n%s' % (
-            self.request_line, self.path, self.qs.pretty('\t'), self.inheaders.pretty('\t'), self.outheaders.pretty('\t')
-        )
+        ans = ['HTTPPair: %r' % self.request_line]
+        if self.path:
+            ans.append('Path: %r' % (self.path,))
+        if self.qs:
+            ans.append('Query: %r' % self.qs)
+        if self.inheaders:
+            ans.extend(('In Headers:', self.inheaders.pretty('\t')))
+        if self.outheaders:
+            ans.extend(('Out Headers:', self.outheaders.pretty('\t')))
+        return '\n'.join(ans)
 
     def generate_static_output(self, name, generator):
         return generate_static_output(self.server_loop.gso_cache, self.server_loop.gso_lock, name, generator)
@@ -532,7 +555,7 @@ class HTTPPair(object):
         self.outheaders.set('Date', http_date(), replace_all=True)
         self.outheaders.set('Server', 'calibre %s' % __version__, replace_all=True)
         if 'Connection' not in self.outheaders:
-            if self.reponse_protocol is HTTP11:
+            if self.response_protocol is HTTP11:
                 if self.close_connection:
                     self.outheaders.set('Connection', 'close')
             else:

@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap, httplib, socket
+import textwrap, httplib
 from io import BytesIO
 
 from calibre.srv.tests.base import BaseTest, TestServer
@@ -64,7 +64,7 @@ class TestHTTP(BaseTest):
         body = 'Requested resource not found'
         def handler(conn):
             raise HTTP404(body)
-        with TestServer(handler) as server:
+        with TestServer(handler, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
             # Test 404
             conn = server.connect()
             conn.request('HEAD', '/moose')
@@ -80,10 +80,14 @@ class TestHTTP(BaseTest):
             self.ae(r.status, httplib.NOT_FOUND)
             self.ae(r.read(), 'Requested resource not found')
 
-            server.change_handler(lambda conn:conn.path[1] + conn.input_reader.read().decode('ascii'))
+            server.change_handler(lambda conn:conn.path[0] + conn.input_reader.read().decode('ascii'))
+            conn = server.connect()
+
             # Test simple GET
-            conn.request('GET', '/test')
-            self.ae(conn.getresponse().read(), 'test')
+            conn.request('GET', '/test/')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.OK)
+            self.ae(r.read(), 'test')
 
             # Test POST with simple body
             conn.request('POST', '/test', 'body')
@@ -98,6 +102,24 @@ class TestHTTP(BaseTest):
             self.ae(r.status, httplib.CREATED)
             self.ae(r.read(), 'testbody')
 
+            # Test various incorrect input
+            orig_level, server.log.filter_level = server.log.filter_level, server.log.ERROR
+
+            conn.request('GET', '/test' + ('a' * 200))
+            r = conn.getresponse()
+            self.ae(r.status, httplib.BAD_REQUEST)
+
+            conn.request('GET', '/test', ('a' * 200))
+            r = conn.getresponse()
+            self.ae(r.status, httplib.REQUEST_ENTITY_TOO_LARGE)
+
+            conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
+            conn.send(b'x\r\nbody\r\n0\r\n\r\n')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.BAD_REQUEST)
+
+            server.log.filter_level = orig_level
+            conn = server.connect()
             # Test pipelining
             responses = []
             for i in xrange(10):
@@ -112,10 +134,11 @@ class TestHTTP(BaseTest):
 
             # Test closing
             conn.request('GET', '/close', headers={'Connection':'close'})
+            self.ae(server.loop.requests.busy, 1)
             r = conn.getresponse()
             self.ae(r.status, 200), self.ae(r.read(), 'close')
-            conn.request('HEAD', '/close')
-            with self.assertRaises(socket.error):
-                conn.sock.send(b'xxx')
+            self.ae(server.loop.requests.busy, 0)
+            self.assertIsNone(conn.sock)
+            self.ae(server.loop.requests.idle, 10)
 
     # }}}

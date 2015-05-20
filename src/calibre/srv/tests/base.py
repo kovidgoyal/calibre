@@ -32,16 +32,18 @@ class TestServer(Thread):
 
     daemon = True
 
-    def __init__(self, handler):
+    def __init__(self, handler, **kwargs):
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.opts import Options
         from calibre.srv.loop import ServerLoop
         from calibre.srv.http import create_http_handler
+        kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
         self.loop = ServerLoop(
-            opts=Options(shutdown_timeout=0.1),
+            opts=Options(**kwargs),
             bind_address=('localhost', 0), http_handler=create_http_handler(handler),
             log=TestLog(level=ThreadSafeLog.WARN),
         )
+        self.log = self.loop.log
 
     def run(self):
         try:

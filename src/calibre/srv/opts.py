@@ -52,11 +52,11 @@ raw_options = (
     None,
 
     'Max. size of single HTTP header (in KB)',
-    'max_header_line_size', 8,
+    'max_header_line_size', 8.0,
     None,
 
     'Max. size of a HTTP request (in MB)',
-    'max_request_body_size', 500,
+    'max_request_body_size', 500.0,
     None,
 
     'Decrease latency by using the TCP_NODELAY feature',
