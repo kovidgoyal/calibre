@@ -38,6 +38,12 @@ class TestHTTP(BaseTest):
              a:mūs\r
              \r\n''', a='mūs'.encode('utf-8'))
 
+        test('Comma-separated parsing',
+             '''\
+             Accept-Encoding: one\r
+             Accept-Encoding: two\r
+             \r\n''', accept_encoding='one, two')
+
         with self.assertRaises(ValueError):
             read_headers(headers('Connection:mūs\r\n').readline)
             read_headers(headers('Connection\r\n').readline)
