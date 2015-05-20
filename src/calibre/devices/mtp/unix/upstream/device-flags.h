@@ -241,7 +241,7 @@
  * Direct PTP match required.
  * (libgphoto2)
  */
-#define DEVICE_FLAG_MATCH_PTP_INTERFACE		0x00800000
+#define DEVICE_FLAG_OLYMPUS_XML_WRAPPED		0x00800000
 /**
  * This flag is like DEVICE_FLAG_OGG_IS_UNKNOWN but for FLAC
  * files instead. Using the unknown filetype for FLAC files.
@@ -295,7 +295,7 @@
   (DEVICE_FLAG_UNLOAD_DRIVER | \
    DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST | \
    DEVICE_FLAG_UNIQUE_FILENAMES | \
-   DEVICE_FLAG_FORCE_RESET_ON_CLOSE )
+   DEVICE_FLAG_FORCE_RESET_ON_CLOSE)
 /**
  * All these bug flags need to be set on Android devices,
  * they claim to support MTP operations they actually
@@ -308,7 +308,8 @@
    DEVICE_FLAG_BROKEN_SET_OBJECT_PROPLIST | \
    DEVICE_FLAG_BROKEN_SEND_OBJECT_PROPLIST | \
    DEVICE_FLAG_UNLOAD_DRIVER | \
-   DEVICE_FLAG_LONG_TIMEOUT )
+   DEVICE_FLAG_LONG_TIMEOUT | \
+   DEVICE_FLAG_FORCE_RESET_ON_CLOSE)
 /**
  * All these bug flags appear on a number of SonyEricsson
  * devices including Android devices not using the stock
@@ -326,4 +327,4 @@
 #define DEVICE_FLAGS_ARICENT_BUGS \
   (DEVICE_FLAG_IGNORE_HEADER_ERRORS | \
    DEVICE_FLAG_BROKEN_SEND_OBJECT_PROPLIST | \
-   DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST )
+   DEVICE_FLAG_BROKEN_MTPGETOBJPROPLIST)
