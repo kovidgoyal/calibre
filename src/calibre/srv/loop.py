@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import socket, os, errno, ssl, time, sys
+import socket, os, ssl, time, sys
 from operator import and_
 from Queue import Queue, Full
 from threading import Thread, current_thread, Lock
@@ -15,30 +15,9 @@ from io import DEFAULT_BUFFER_SIZE, BytesIO
 from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
 from calibre.srv.http import http_communicate
 from calibre.srv.opts import Options
+from calibre.srv.utils import socket_errors_to_ignore, socket_error_eintr, socket_errors_nonblocking
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
-
-def error_codes(*errnames):
-    ''' Return error numbers for error names, ignoring non-existent names '''
-    ans = {getattr(errno, x, None) for x in errnames}
-    ans.discard(None)
-    return ans
-
-socket_error_eintr = error_codes("EINTR", "WSAEINTR")
-
-socket_errors_to_ignore = error_codes(  # errors indicating a closed connection
-    "EPIPE",
-    "EBADF", "WSAEBADF",
-    "ENOTSOCK", "WSAENOTSOCK",
-    "ETIMEDOUT", "WSAETIMEDOUT",
-    "ECONNREFUSED", "WSAECONNREFUSED",
-    "ECONNRESET", "WSAECONNRESET",
-    "ECONNABORTED", "WSAECONNABORTED",
-    "ENETRESET", "WSAENETRESET",
-    "EHOSTDOWN", "EHOSTUNREACH",
-)
-socket_errors_nonblocking = error_codes(
-    'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
 class SocketFile(object):  # {{{
     """Faux file object attached to a socket object. Works with non-blocking

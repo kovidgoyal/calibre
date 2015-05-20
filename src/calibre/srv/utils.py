@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+import errno
 from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
@@ -83,3 +84,27 @@ class MultiDict(dict):  # {{{
     def pretty(self, leading_whitespace=''):
         return leading_whitespace + ('\n' + leading_whitespace).join('%s: %s' % (k, v) for k, v in self.items())
 # }}}
+
+def error_codes(*errnames):
+    ''' Return error numbers for error names, ignoring non-existent names '''
+    ans = {getattr(errno, x, None) for x in errnames}
+    ans.discard(None)
+    return ans
+
+socket_error_eintr = error_codes("EINTR", "WSAEINTR")
+
+socket_errors_to_ignore = error_codes(  # errors indicating a closed connection
+    "EPIPE",
+    "EBADF", "WSAEBADF",
+    "ENOTSOCK", "WSAENOTSOCK",
+    "ETIMEDOUT", "WSAETIMEDOUT",
+    "ECONNREFUSED", "WSAECONNREFUSED",
+    "ECONNRESET", "WSAECONNRESET",
+    "ECONNABORTED", "WSAECONNABORTED",
+    "ENETRESET", "WSAENETRESET",
+    "EHOSTDOWN", "EHOSTUNREACH",
+)
+socket_errors_nonblocking = error_codes(
+    'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
+
+

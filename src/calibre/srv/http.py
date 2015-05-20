@@ -18,7 +18,7 @@ from calibre.constants import __version__
 from calibre.srv.errors import (
     MaxSizeExceeded, NonHTTPConnRequest, HTTP404, IfNoneMatch, BadChunkedInput)
 from calibre.srv.respond import finalize_output, generate_static_output
-from calibre.srv.utils import MultiDict, http_date
+from calibre.srv.utils import MultiDict, http_date, socket_errors_to_ignore
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
@@ -149,6 +149,14 @@ def http_communicate(conn):
     def repr_for_pair(pair):
         return pair.repr_for_log() if getattr(pair, 'started_request', False) else 'None'
 
+    def simple_response(pair, code, msg=''):
+        if pair and not pair.sent_headers:
+            try:
+                pair.simple_response(code, msg=msg)
+            except socket.error as e:
+                if e.errno not in socket_errors_to_ignore:
+                    raise
+
     try:
         while True:
             # (re)set pair to None so that if something goes wrong in
@@ -177,8 +185,7 @@ def http_communicate(conn):
         if (not request_seen) or (pair and pair.started_request):
             # Don't bother writing the 408 if the response
             # has already started being written.
-            if pair and not pair.sent_headers:
-                pair.simple_response(httplib.REQUEST_TIMEOUT)
+            simple_response(pair, httplib.REQUEST_TIMEOUT)
     except NonHTTPConnRequest:
         raise
     except socket.error:
@@ -188,19 +195,16 @@ def http_communicate(conn):
     except MaxSizeExceeded as e:
         conn.server_loop.log.warn('Too large request body (%d > %d) for request:' % (e.size, e.limit), repr_for_pair(pair))
         # Can happen if the request uses chunked transfer encoding
-        if pair and not pair.sent_headers:
-            pair.simple_response(httplib.REQUEST_ENTITY_TOO_LARGE,
-                "The entity sent with the request exceeds the maximum "
-                "allowed bytes (%d)." % pair.max_request_body_size)
+        simple_response(pair, httplib.REQUEST_ENTITY_TOO_LARGE,
+                        "The entity sent with the request exceeds the maximum "
+                        "allowed bytes (%d)." % pair.max_request_body_size)
     except BadChunkedInput as e:
         conn.server_loop.log.warn('Bad chunked encoding (%s) for request:' % as_unicode(e.message), repr_for_pair(pair))
-        if pair and not pair.sent_headers:
-            pair.simple_response(httplib.BAD_REQUEST,
-                'Invalid chunked encoding for request body: %s' % as_unicode(e.message))
+        simple_response(pair, httplib.BAD_REQUEST,
+                        'Invalid chunked encoding for request body: %s' % as_unicode(e.message))
     except Exception:
         conn.server_loop.log.exception('Error serving request:', pair.repr_for_log() if getattr(pair, 'started_request', False) else 'None')
-        if pair and not pair.sent_headers:
-            pair.simple_response(httplib.INTERNAL_SERVER_ERROR)
+        simple_response(pair, httplib.INTERNAL_SERVER_ERROR)
 
 class FixedSizeReader(object):  # {{{
 
@@ -247,7 +251,7 @@ class ChunkedReader(object):  # {{{
         if len(chunk) < chunk_size:
             raise BadChunkedInput('Bad chunked encoding, chunk truncated: %d < %s' % (len(chunk), chunk_size))
         if not chunk.endswith(b'\r\n'):
-            raise BadChunkedInput('Bad chunked encoding: %r != CRLF' % chunk[:-2])
+            raise BadChunkedInput('Bad chunked encoding: %r != CRLF' % chunk[-2:])
         self.rbuf.seek(0, os.SEEK_END)
         self.bytes_read += chunk_size
         if chunk_size == 2:
