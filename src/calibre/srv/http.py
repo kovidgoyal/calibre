@@ -247,7 +247,10 @@ class ChunkedReader(object):  # {{{
             raise BadChunkedInput('%s is not a valid chunk size' % reprlib.repr(chunk_size))
         if chunk_size + self.bytes_read > self.maxsize:
             raise MaxSizeExceeded('Request entity too large', self.bytes_read + chunk_size, self.maxsize)
-        chunk = self.socket_file.read(chunk_size)
+        try:
+            chunk = self.socket_file.read(chunk_size)
+        except socket.timeout:
+            raise BadChunkedInput('Timed out waiting for chunk of size %d to complete' % chunk_size)
         if len(chunk) < chunk_size:
             raise BadChunkedInput('Bad chunked encoding, chunk truncated: %d < %s' % (len(chunk), chunk_size))
         if not chunk.endswith(b'\r\n'):

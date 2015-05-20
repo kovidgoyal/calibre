@@ -64,7 +64,7 @@ class TestHTTP(BaseTest):
         body = 'Requested resource not found'
         def handler(conn):
             raise HTTP404(body)
-        with TestServer(handler, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
+        with TestServer(handler, timeout=0.1, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
             # Test 404
             conn = server.connect()
             conn.request('HEAD', '/moose')
@@ -109,14 +109,31 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, httplib.BAD_REQUEST)
 
+            conn = server.connect()
             conn.request('GET', '/test', ('a' * 200))
             r = conn.getresponse()
             self.ae(r.status, httplib.REQUEST_ENTITY_TOO_LARGE)
 
+            conn = server.connect()
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'x\r\nbody\r\n0\r\n\r\n')
             r = conn.getresponse()
             self.ae(r.status, httplib.BAD_REQUEST)
+            self.assertIn(b'not a valid chunk size', r.read())
+
+            conn = server.connect()
+            conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
+            conn.send(b'3\r\nbody\r\n0\r\n\r\n')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.BAD_REQUEST)
+            self.assertIn(b'!= CRLF', r.read())
+
+            conn = server.connect(timeout=1)
+            conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
+            conn.send(b'30\r\nbody\r\n0\r\n\r\n')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.BAD_REQUEST)
+            self.assertIn(b'Timed out waiting for chunk', r.read())
 
             server.log.filter_level = orig_level
             conn = server.connect()
