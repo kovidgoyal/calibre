@@ -14,6 +14,7 @@ from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
         AbortCommit
 from calibre.gui2.preferences.email_ui import Ui_Form
 from calibre.utils.config import ConfigProxy
+from calibre.utils.icu import numeric_sort_key
 from calibre.gui2 import gprefs
 from calibre.utils.smtp import config as smtp_prefs
 
@@ -24,7 +25,9 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.accounts = accounts
         self.subjects = subjects
         self.aliases = aliases
-        self.account_order = sorted(self.accounts.keys())
+        self.sorted_on = (0, True)
+        self.account_order = self.accounts.keys()
+        self.do_sort()
         self.headers  = map(unicode, [_('Email'), _('Formats'), _('Subject'),
             _('Auto send'), _('Alias')])
         self.default_font = QFont()
@@ -41,6 +44,35 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                      '(provided it is in one of the listed formats).'),
              _('Friendly name to use for this email address')
              ])))
+
+    def do_sort(self):
+        col = self.sorted_on[0]
+        if col == 0:
+            def key(account_key):
+                return numeric_sort_key(account_key)
+        elif col == 1:
+            def key(account_key):
+                return numeric_sort_key(self.accounts[account_key][0] or '')
+        elif col == 2:
+            def key(account_key):
+                return numeric_sort_key(self.subjects.get(account_key) or '')
+        elif col == 3:
+            def key(account_key):
+                return numeric_sort_key(type(u'')(self.accounts[account_key][0]) or '')
+        elif col == 4:
+            def key(account_key):
+                return numeric_sort_key(self.aliases.get(account_key) or '')
+        self.account_order.sort(key=key, reverse=not self.sorted_on[1])
+
+    def sort(self, column, order=Qt.AscendingOrder):
+        nsort = (column, order == Qt.AscendingOrder)
+        if nsort != self.sorted_on:
+            self.sorted_on = nsort
+            self.beginResetModel()
+            try:
+                self.do_sort()
+            finally:
+                self.endResetModel()
 
     def rowCount(self, *args):
         return len(self.account_order)
@@ -136,7 +168,8 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         self.beginResetModel()
         self.accounts[y] = ['MOBI, EPUB', auto_send,
                                                 len(self.account_order) == 0]
-        self.account_order = sorted(self.accounts.keys())
+        self.account_order = self.accounts.keys()
+        self.do_sort()
         self.endResetModel()
         return self.index(self.account_order.index(y), 0)
 
@@ -177,6 +210,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self._email_accounts.dataChanged.connect(lambda x,y:
                 self.changed_signal.emit())
         self.email_view.setModel(self._email_accounts)
+        self.email_view.sortByColumn(0, Qt.AscendingOrder)
+        self.email_view.setSortingEnabled(True)
 
         self.email_add.clicked.connect(self.add_email_account)
         self.email_make_default.clicked.connect(self.make_default)
