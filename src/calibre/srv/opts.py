@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from itertools import izip_longest
 from collections import namedtuple, OrderedDict
 from operator import attrgetter
 
@@ -69,13 +70,16 @@ raw_options = (
     ' worse overall performance when sending multiple small packets. It'
     ' prevents the TCP stack from aggregating multiple small TCP packets.',
 )
+assert len(raw_options) % 4 == 0
 
 options = []
 
-i = 0
-while i + 3 < len(raw_options):
-    shortdoc, name, default, doc = raw_options[i:i+4]
-    i += 4
+def grouper(n, iterable, fillvalue=None):
+    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return izip_longest(*args, fillvalue=fillvalue)
+
+for shortdoc, name, default, doc in grouper(4, raw_options):
     choices = None
     if isinstance(default, Choices):
         choices = default
