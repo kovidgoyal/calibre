@@ -63,7 +63,28 @@ class TestHTTP(BaseTest):
         test('Case insensitive', 'GZIp', 'gzip')
         test('Multiple', 'gzip, identity', 'gzip')
         test('Priority', '1;q=0.5, 2;q=0.75, 3;q=1.0', '3', {'1', '2', '3'})
-        # }}}
+    # }}}
+
+    def test_range_parsing(self):  # {{{
+        'Test parsing of Range header'
+        from calibre.srv.respond import get_ranges
+        def test(val, *args):
+            pval = get_ranges(val, 100)
+            if len(args) == 1 and args[0] is None:
+                self.assertIsNone(pval, val)
+            else:
+                self.assertListEqual(pval, list(args), val)
+        test('crap', None)
+        test('crap=', None)
+        test('crap=1', None)
+        test('crap=1-2', None)
+        test('bytes=a-2')
+        test('bytes=0-99', (0, 100))
+        test('bytes=0-0,-1', (0, 1), (99, 1))
+        test('bytes=-5', (95, 5))
+        test('bytes=95-', (95, 5))
+        test('bytes=-200', (0, 100))
+    # }}}
 
     def test_http_basic(self):  # {{{
         'Test basic HTTP protocol conformance'
@@ -194,4 +215,3 @@ class TestHTTP(BaseTest):
             self.ae(r.status, httplib.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), b'an_etagged_path')
 
     # }}}
-

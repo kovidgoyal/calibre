@@ -12,6 +12,49 @@ from io import DEFAULT_BUFFER_SIZE, BytesIO
 from calibre import force_unicode
 from calibre.srv.errors import IfNoneMatch
 
+def get_ranges(headervalue, content_length):
+    """Return a list of (start, num_of_bytes) indices from a Range header, or None.
+    If this function returns an empty list, it indicates no valid range was found.
+    """
+    if not headervalue:
+        return None
+
+    result = []
+    try:
+        bytesunit, byteranges = headervalue.split("=", 1)
+    except Exception:
+        return None
+    if bytesunit.strip() != 'bytes':
+        return None
+
+    for brange in byteranges.split(","):
+        start, stop = [x.strip() for x in brange.split("-", 1)]
+        if start:
+            if not stop:
+                stop = content_length - 1
+            try:
+                start, stop = int(start), int(stop)
+            except Exception:
+                continue
+            if start >= content_length:
+                continue
+            if stop < start:
+                continue
+            result.append((start, stop - start + 1))
+        elif stop:
+            # Negative subscript (last N bytes)
+            try:
+                stop = int(stop)
+            except Exception:
+                continue
+            if stop > content_length:
+                result.append((0, content_length))
+            else:
+                result.append((content_length - stop, stop))
+
+    return result
+
+
 def acceptable_encoding(val, allowed=frozenset({'gzip'})):
     def enc(x):
         e, r = x.partition(';')[::2]
