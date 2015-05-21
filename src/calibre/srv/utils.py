@@ -121,3 +121,4 @@ class Corked(object):
     def __exit__(self, *args):
         if self.sock is not None:
             self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
+            self.sock.send(b'')  # Ensure that uncorking occurs
