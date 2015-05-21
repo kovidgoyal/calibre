@@ -6,9 +6,10 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import textwrap, httplib, hashlib, zlib
+import textwrap, httplib, hashlib, zlib, string
 from io import BytesIO
 
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.srv.tests.base import BaseTest, TestServer
 
 def headers(raw):
@@ -54,7 +55,7 @@ class TestHTTP(BaseTest):
 
     def test_accept_encoding(self):  # {{{
         'Test parsing of Accept-Encoding'
-        from calibre.srv.http import acceptable_encoding
+        from calibre.srv.respond import acceptable_encoding
         def test(name, val, ans, allowed={'gzip'}):
             self.ae(acceptable_encoding(val, allowed), ans, name + ' failed')
         test('Empty field', '', None)
@@ -170,7 +171,11 @@ class TestHTTP(BaseTest):
         'Test HTTP protocol responses'
         def handler(conn):
             return conn.generate_static_output('test', lambda : ''.join(conn.path))
-        with TestServer(handler, timeout=0.1, compress_min_size=0) as server:
+        with TestServer(handler, timeout=0.1, compress_min_size=0) as server, PersistentTemporaryFile('test.epub') as f:
+            fdata = string.ascii_letters * 100
+            f.write(fdata)
+            f.close()
+
             # Test ETag
             conn = server.connect()
             conn.request('GET', '/an_etagged_path')
