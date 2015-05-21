@@ -64,6 +64,7 @@ class TextRun(object):
         self.lang = lang
         self.parent_style = None
         self.makeelement = namespace.makeelement
+        self.descendant_style = None
 
     def add_text(self, text, preserve_whitespace, bookmark=None, link=None):
         if not preserve_whitespace:
@@ -86,8 +87,8 @@ class TextRun(object):
         parent = p if self.link is None else links_manager.serialize_hyperlink(p, self.link)
         r = makeelement(parent, 'w:r')
         rpr = makeelement(r, 'w:rPr', append=False)
-        if self.parent_style is not self.style:
-            makeelement(rpr, 'w:rStyle', w_val=self.style.id)
+        if getattr(self.descendant_style, 'id', None) is not None:
+            makeelement(rpr, 'w:rStyle', w_val=self.descendant_style.id)
         if self.lang:
             makeelement(rpr, 'w:lang', w_bidi=self.lang, w_val=self.lang, w_eastAsia=self.lang)
         if len(rpr) > 0:

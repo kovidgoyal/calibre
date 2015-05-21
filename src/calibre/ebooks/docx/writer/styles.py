@@ -341,6 +341,93 @@ class TextStyle(DOCXStyle):
         if bdr.attrib:
             rPr.append(bdr)
 
+class DescendantTextStyle(object):
+
+    def __init__(self, parent_style, child_style):
+        self.id = self.name = None
+        self.makeelement = child_style.makeelement
+
+        p = []
+        def add(name, **props):
+            p.append((name, frozenset(props.iteritems())))
+
+        def vals(attr):
+            return getattr(parent_style, attr), getattr(child_style, attr)
+
+        def check(attr):
+            pval, cval = vals(attr)
+            return pval != cval
+
+        if parent_style.font_family != child_style.font_family:
+            add('rFonts', **{k:child_style.font_family for k in 'ascii cs eastAsia hAnsi'.split()})
+
+        for name, attr in (('sz', 'font_size'), ('b', 'bold'), ('i', 'italic')):
+            pval, cval = vals(attr)
+            if pval != cval:
+                val = 'on' if attr in {'bold', 'italic'} else str(cval)  # bold, italic are toggle properties
+                for suffix in ('', 'Cs'):
+                    add(name + suffix, val=val)
+
+        if check('color'):
+            add('color', val=child_style.color or 'auto')
+        if check('background_color'):
+            add('shd', fill=child_style.background_color or 'auto')
+        if check('underline'):
+            add('u', val='single' if child_style.underline else 'none')
+        if check('dstrike'):
+            add('dstrike', val=bmap(child_style.dstrike))
+        if check('strike'):
+            add('strike', val='on')  # toggle property
+        if check('caps'):
+            add('caps', val='on')  # toggle property
+        if check('small_caps'):
+            add('smallCaps', val='on')  # toggle property
+        if check('shadow'):
+            add('shadow', val='on')  # toggle property
+        if check('spacing'):
+            add('spacing', val=str(child_style.spacing or 0))
+        if check('vertical_align'):
+            val = child_style.vertical_align
+            if val in {'superscript', 'subscript', 'baseline'}:
+                add('vertAlign', val=val)
+            else:
+                add('position', val=val)
+
+        bdr = {}
+        if check('padding'):
+            bdr['space'] = str(child_style.padding)
+        if check('border_width'):
+            bdr['sz'] = str(child_style.border_width)
+        if check('border_style'):
+            bdr['val'] = child_style.border_style
+        if check('border_color'):
+            bdr['color'] = child_style.border_color
+        if bdr:
+            add('bdr', **bdr)
+        self.properties = tuple(p)
+        self._hash = hash(self.properties)
+
+    def __hash__(self):
+        return self._hash
+
+    def __eq__(self, other):
+        return self.properties == other.properties
+
+    def __ne__(self, other):
+        return self.properties != other.properties
+
+    def serialize(self, styles):
+        makeelement = self.makeelement
+        style = makeelement(styles, 'style', styleId=self.id, type='character')
+        style.append(makeelement(style, 'name', val=self.name))
+        rpr = makeelement(style, 'rPr')
+        style.append(rpr)
+        for name, attrs in self.properties:
+            rpr.append(makeelement(style, name, **dict(attrs)))
+        styles.append(style)
+        return style
+
+
 def read_css_block_borders(self, css, store_css_style=False):
     for edge in border_edges:
         if css is None:
@@ -540,7 +627,7 @@ class StylesManager(object):
             ans = existing
         return ans
 
-    def finalize(self, blocks):
+    def finalize(self, all_blocks):
         block_counts, run_counts = Counter(), Counter()
         block_rmap, run_rmap = defaultdict(list), defaultdict(list)
         used_pairs = defaultdict(list)
@@ -548,7 +635,7 @@ class StylesManager(object):
         headings = frozenset('h1 h2 h3 h4 h5 h6'.split())
         pure_block_styles = set()
 
-        for block in blocks:
+        for block in all_blocks:
             bs = block.style
             block_counts[bs] += 1
             block_rmap[block.style].append(block)
@@ -573,17 +660,6 @@ class StylesManager(object):
             bs.seq = i
             if i == 0:
                 self.normal_pure_block_style = bs
-
-        rnum = len(str(max(1, len(run_counts) - 1)))
-        for i, (text_style, count) in enumerate(run_counts.most_common()):
-            text_style.id = 'Text%d' % i
-            text_style.name = '%0{}d Text'.format(rnum) % i
-            text_style.seq = i
-            if i == 0:
-                self.normal_text_style = text_style
-        for s in tuple(self.text_styles):
-            if s.id is None:
-                self.text_styles.pop(s)
 
         counts = Counter()
         smap = {}
@@ -614,8 +690,27 @@ class StylesManager(object):
             style.seq = i
         self.combined_styles = sorted(counts.iterkeys(), key=attrgetter('seq'))
         [ls.apply() for ls in self.combined_styles]
+
+        descendant_style_map = {}
+        ds_counts = Counter()
+        for block in all_blocks:
+            for run in block.runs:
+                if run.parent_style is not run.style:
+                    ds = DescendantTextStyle(run.parent_style, run.style)
+                    if ds.properties:
+                        run.descendant_style = descendant_style_map.get(ds)
+                        if run.descendant_style is None:
+                            run.descendant_style = descendant_style_map[ds] = ds
+                        ds_counts[run.descendant_style] += run.style_weight
+        rnum = len(str(max(1, len(ds_counts) - 1)))
+        for i, (text_style, count) in enumerate(ds_counts.most_common()):
+            text_style.id = 'Text%d' % i
+            text_style.name = '%0{}d Text'.format(rnum) % i
+            text_style.seq = i
+        self.descendant_text_styles = sorted(descendant_style_map, key=attrgetter('seq'))
+
         self.log.debug('%d Text Styles %d Combined styles' % tuple(map(len, (
-            self.text_styles, self.combined_styles))))
+            self.descendant_text_styles, self.combined_styles))))
 
         self.primary_heading_style = None
         if heading_styles:
@@ -634,7 +729,7 @@ class StylesManager(object):
             lang.attrib[k] = self.document_lang
         for style in self.combined_styles:
             style.serialize(styles, self.normal_style)
-        for style in sorted(self.text_styles, key=attrgetter('seq')):
-            style.serialize(styles, self.normal_text_style)
+        for style in self.descendant_text_styles:
+            style.serialize(styles)
         for style in sorted(self.pure_block_styles, key=attrgetter('seq')):
             style.serialize(styles, self.normal_pure_block_style)
