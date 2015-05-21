@@ -553,11 +553,11 @@ class HTTPPair(object):
                 self.simple_response(httplib.PRECONDITION_FAILED)
             return
 
-        self.send_headers()
-
-        if self.method != 'HEAD':
-            output.commit(self.conn.socket_file)
-        self.conn.socket_file.flush()
+        with self.conn.corked:
+            self.send_headers()
+            if self.method != 'HEAD':
+                output.commit(self.conn.socket_file)
+            self.conn.socket_file.flush()
 
     def send_headers(self):
         self.sent_headers = True

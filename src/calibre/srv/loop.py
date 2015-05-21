@@ -15,7 +15,7 @@ from io import DEFAULT_BUFFER_SIZE, BytesIO
 from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
 from calibre.srv.http import http_communicate
 from calibre.srv.opts import Options
-from calibre.srv.utils import socket_errors_to_ignore, socket_error_eintr, socket_errors_nonblocking
+from calibre.srv.utils import socket_errors_to_ignore, socket_error_eintr, socket_errors_nonblocking, Corked
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 
@@ -330,6 +330,7 @@ class Connection(object):  # {{{
     def __init__(self, server_loop, socket):
         self.server_loop = server_loop
         self.socket = socket
+        self.corked = Corked(socket)
         self.socket_file = SocketFile(socket)
 
     def nonhttp_communicate(self, data):

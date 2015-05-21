@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno
+import errno, socket
 from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
@@ -107,4 +107,17 @@ socket_errors_to_ignore = error_codes(  # errors indicating a closed connection
 socket_errors_nonblocking = error_codes(
     'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
+class Corked(object):
 
+    ' Context manager to turn on TCP corking. Ensures maximum throughput for large logical packets. '
+
+    def __init__(self, sock):
+        self.sock = sock if hasattr(socket, 'TCP_CORK') else None
+
+    def __enter__(self):
+        if self.sock is not None:
+            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 1)
+
+    def __exit__(self, *args):
+        if self.sock is not None:
+            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
