@@ -695,7 +695,7 @@ class StylesManager(object):
         ds_counts = Counter()
         for block in all_blocks:
             for run in block.runs:
-                if run.parent_style is not run.style:
+                if run.parent_style is not run.style and run.parent_style and run.style:
                     ds = DescendantTextStyle(run.parent_style, run.style)
                     if ds.properties:
                         run.descendant_style = descendant_style_map.get(ds)
