@@ -575,7 +575,7 @@ class HTTPPair(object):
         for header, value in sorted(self.outheaders.iteritems(), key=itemgetter(0)):
             buf.append('%s: %s' % (header, value))
         buf.append('')
-        self.flushed_write(b''.join((x + '\r\n').encode('ascii') for x in buf))
+        self.conn.socket_file.write(b''.join((x + '\r\n').encode('ascii') for x in buf))
 
 
 def create_http_handler(handle_request):
