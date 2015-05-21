@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re, math
+import sys, os, re, math, errno
 from collections import OrderedDict, defaultdict
 
 from lxml import html
@@ -282,6 +282,10 @@ class Convert(object):
                 seraw = self.docx.read(sename)
             except KeyError:
                 self.log.warn('Settings %s do not exist' % sename)
+            except EnvironmentError as e:
+                if e.errno != errno.ENOENT:
+                    raise
+                self.log.warn('Settings %s file missing' % sename)
             else:
                 self.settings(fromstring(seraw))
 
