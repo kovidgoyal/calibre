@@ -177,9 +177,13 @@ class ReadableOutput(object):
     def write(self, dest):
         if self.use_sendfile:
             dest.flush()  # Ensure everything in the SocketFile buffer is sent before calling sendfile()
-            sendfile_to_socket(self.src_file, 0, self.content_length, dest)
+            sent = sendfile_to_socket(self.src_file, 0, self.content_length, dest)
         else:
-            copy_range(self.src_file, 0, self.content_length, dest)
+            sent = copy_range(self.src_file, 0, self.content_length, dest)
+        if sent != self.content_length:
+            raise IOError(
+                'Failed to send complete file (%r) (%s != %s bytes), perhaps the file was modified during send?' % (
+                    getattr(self.src_file, 'name', '<file>'), sent, self.content_length))
         self.src_file = None
 
     def write_compressed(self, dest):
@@ -201,10 +205,14 @@ class ReadableOutput(object):
         self.src_file = None
 
     def copy_range(self, start, size, dest):
-        func = sendfile_to_socket if self.use_sendfile else copy_range
         if self.use_sendfile:
             dest.flush()  # Ensure everything in the SocketFile buffer is sent before calling sendfile()
-        func(self.src_file, start, size, dest)
+            sent = sendfile_to_socket(self.src_file, start, size, dest)
+        else:
+            sent = copy_range(self.src_file, start, size, dest)
+        if sent != size:
+            raise IOError('Failed to send byte range from file (%r) (%s != %s bytes), perhaps the file was modified during send?' % (
+                    getattr(self.src_file, 'name', '<file>'), sent, size))
 
 class FileSystemOutputFile(ReadableOutput):
 
