@@ -194,7 +194,8 @@ class TestHTTP(BaseTest):
         from calibre.srv.respond import parse_multipart_byterange
         def handler(conn):
             return conn.generate_static_output('test', lambda : ''.join(conn.path))
-        with TestServer(handler, timeout=0.1, compress_min_size=0) as server, NamedTemporaryFile(suffix='test.epub') as f:
+        with TestServer(handler, timeout=0.1, compress_min_size=0) as server, \
+                NamedTemporaryFile(suffix='test.epub') as f, open(P('localization/locales.zip'), 'rb') as lf:
             fdata = string.ascii_letters * 100
             f.write(fdata), f.seek(0)
 
@@ -258,4 +259,12 @@ class TestHTTP(BaseTest):
             buf = BytesIO(data)
             self.ae(parse_multipart_byterange(buf, r.getheader('Content-Type')), [(0, fdata[:26]), (26, fdata[26:51])])
 
+            # Test sending of larger file
+            lf.seek(0)
+            data =  lf.read()
+            server.change_handler(lambda conn: lf)
+            conn = server.connect()
+            conn.request('GET', '/test')
+            r = conn.getresponse()
+            self.ae(data, r.read())
     # }}}

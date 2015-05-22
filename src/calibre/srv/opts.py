@@ -69,6 +69,12 @@ raw_options = (
     'no_delay turns on TCP_NODELAY which decreases latency at the cost of'
     ' worse overall performance when sending multiple small packets. It'
     ' prevents the TCP stack from aggregating multiple small TCP packets.',
+
+    'Use zero copy file transfers for increased performance',
+    'use_sendfile', True,
+    'This will use zero-copy in-kernel transfers when sending files over the network,'
+    ' increasing performance. However, it can cause corrupted file transfers on some'
+    ' broken filesystems. If you experience corrupted file transfers, turn it off.',
 )
 assert len(raw_options) % 4 == 0
 

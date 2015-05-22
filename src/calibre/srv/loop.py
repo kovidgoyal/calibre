@@ -80,6 +80,9 @@ class SocketFile(object):  # {{{
     def fileno(self):
         return self._sock.fileno()
 
+    def gettimeout(self):
+        return self._sock.gettimeout()
+
     def __enter__(self):
         return self
 

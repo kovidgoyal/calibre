@@ -557,7 +557,7 @@ class HTTPPair(object):
         try:
             self.status_code, output = finalize_output(
                 output, self.inheaders, self.outheaders, self.status_code,
-                self.response_protocol is HTTP1, self.method, self.server_loop.opts.compress_min_size)
+                self.response_protocol is HTTP1, self.method, self.server_loop.opts)
         except IfNoneMatch as e:
             if self.method in ('GET', 'HEAD'):
                 self.send_not_modified(e.etag)

@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, hashlib, shutil, httplib, zlib, struct, time, uuid
+import os, hashlib, httplib, zlib, struct, time, uuid
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 from collections import namedtuple
 from functools import partial
@@ -15,6 +15,7 @@ from itertools import izip_longest
 
 from calibre import force_unicode, guess_type
 from calibre.srv.errors import IfNoneMatch, RangeNotSatisfiable
+from calibre.srv.sendfile import file_metadata, copy_range, sendfile_to_socket
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex.decode('ascii')
@@ -163,18 +164,22 @@ def parse_multipart_byterange(buf, content_type):
         ans.append(data)
     return ans
 
-class FileSystemOutputFile(object):
+class ReadableOutput(object):
 
-    def __init__(self, output, outheaders, size):
+    def __init__(self, output, outheaders):
         self.src_file = output
-        self.name = output.name
-        self.content_length = size
-        self.etag = '"%s"' % hashlib.sha1(type('')(os.fstat(output.fileno()).st_mtime) + force_unicode(output.name or '')).hexdigest()
+        self.src_file.seek(0, os.SEEK_END)
+        self.content_length = self.src_file.tell()
+        self.etag = None
         self.accept_ranges = True
+        self.use_sendfile = False
 
     def write(self, dest):
-        self.src_file.seek(0)
-        shutil.copyfileobj(self.src_file, dest)
+        if self.use_sendfile:
+            dest.flush()  # Ensure everything in the SocketFile buffer is sent before calling sendfile()
+            sendfile_to_socket(self.src_file, 0, self.content_length, dest)
+        else:
+            copy_range(self.src_file, 0, self.content_length, dest)
         self.src_file = None
 
     def write_compressed(self, dest):
@@ -196,12 +201,21 @@ class FileSystemOutputFile(object):
         self.src_file = None
 
     def copy_range(self, start, size, dest):
-        self.src_file.seek(start)
-        while size > 0:
-            data = self.src_file.read(min(size, DEFAULT_BUFFER_SIZE))
-            dest.write(data)
-            size -= len(data)
-            del data
+        func = sendfile_to_socket if self.use_sendfile else copy_range
+        if self.use_sendfile:
+            dest.flush()  # Ensure everything in the SocketFile buffer is sent before calling sendfile()
+        func(self.src_file, start, size, dest)
+
+class FileSystemOutputFile(ReadableOutput):
+
+    def __init__(self, output, outheaders, stat_result, use_sendfile):
+        self.src_file = output
+        self.name = output.name
+        self.content_length = stat_result.st_size
+        self.etag = '"%s"' % hashlib.sha1(type('')(stat_result.st_mtime) + force_unicode(output.name or '')).hexdigest()
+        self.accept_ranges = True
+        self.use_sendfile = use_sendfile and sendfile_to_socket is not None
+
 
 class DynamicOutput(object):
 
@@ -262,16 +276,12 @@ def generate_static_output(cache, gso_lock, name, generator):
 def parse_if_none_match(val):
     return {x.strip() for x in val.split(',')}
 
-def finalize_output(output, inheaders, outheaders, status_code, is_http1, method, compress_min_size):
+def finalize_output(output, inheaders, outheaders, status_code, is_http1, method, opts):
     ct = outheaders.get('Content-Type', '')
     compressible = not ct or ct.startswith('text/') or ct.startswith('image/svg') or ct.startswith('application/json')
-    try:
-        fd = output.fileno()
-        fsize = os.fstat(fd).st_size
-    except Exception:
-        fd = fsize = None
-    if fsize is not None:
-        output = FileSystemOutputFile(output, outheaders, fsize)
+    stat_result = file_metadata(output)
+    if stat_result is not None:
+        output = FileSystemOutputFile(output, outheaders, stat_result, opts.use_sendfile)
         if 'Content-Type' not in outheaders:
             mt = guess_type(output.name)[0]
             if mt:
@@ -280,12 +290,14 @@ def finalize_output(output, inheaders, outheaders, status_code, is_http1, method
                 outheaders['Content-Type'] = mt
     elif isinstance(output, (bytes, type(''))):
         output = DynamicOutput(output, outheaders)
+    elif hasattr(output, 'read'):
+        output = ReadableOutput(output, outheaders)
     elif isinstance(output, StaticGeneratedOutput):
         pass
     else:
         output = GeneratedOutput(output, outheaders)
     compressible = (status_code == httplib.OK and compressible and
-                    (compress_min_size > -1 and output.content_length >= compress_min_size) and
+                    (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size) and
                     acceptable_encoding(inheaders.get('Accept-Encoding', '')) and not is_http1)
     accept_ranges = (not compressible and output.accept_ranges is not None and status_code == httplib.OK and
                      not is_http1)

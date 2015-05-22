@@ -112,13 +112,21 @@ class Corked(object):
     ' Context manager to turn on TCP corking. Ensures maximum throughput for large logical packets. '
 
     def __init__(self, sock):
-        self.sock = sock if hasattr(socket, 'TCP_CORK') else None
+        self.sock = sock
 
     def __enter__(self):
-        if self.sock is not None:
+        nodelay = self.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY)
+        if nodelay == 1:
+            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 0)
+            self.set_nodelay = True
+        else:
+            self.set_nodelay = False
+        if hasattr(socket, 'TCP_CORK'):
             self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 1)
 
     def __exit__(self, *args):
-        if self.sock is not None:
+        if self.set_nodelay:
+            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+        if hasattr(socket, 'TCP_CORK'):
             self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
             self.sock.send(b'')  # Ensure that uncorking occurs
