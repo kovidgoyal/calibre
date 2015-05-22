@@ -196,7 +196,7 @@ class SocketFile(object):  # {{{
 
     def readline(self, size=-1, maxsize=sys.maxsize):
         buf = self._rbuf
-        buf.seek(0, 2)  # seek end
+        buf.seek(0, os.SEEK_END)
         if buf.tell() > 0:
             # check if we already have it in our buffer
             buf.seek(0)
@@ -232,7 +232,7 @@ class SocketFile(object):  # {{{
                     buffers.append(data)
                 return b''.join(buffers)
 
-            buf.seek(0, 2)  # seek end
+            buf.seek(0, os.SEEK_END)
             self._rbuf = BytesIO()  # reset _rbuf.  we consume it via buf.
             while True:
                 data = self.recv(self._rbufsize)
