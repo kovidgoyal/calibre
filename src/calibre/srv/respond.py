@@ -47,6 +47,7 @@ def get_ranges(headervalue, content_length):
                 continue
             if stop < start:
                 continue
+            stop = min(stop, content_length - 1)
             result.append(Range(start, stop, stop - start + 1))
         elif stop:
             # Negative subscript (last N bytes)

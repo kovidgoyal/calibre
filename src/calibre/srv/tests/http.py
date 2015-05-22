@@ -241,6 +241,10 @@ class TestHTTP(BaseTest):
                 self.ae(type('')(r.getheader('Content-Range')), 'bytes */%d' % len(fdata))
                 self.ae(r.status, httplib.REQUESTED_RANGE_NOT_SATISFIABLE)
 
+                conn.request('GET', '/test', headers={'Range':'bytes=0-1000000'})
+                r = conn.getresponse()
+                self.ae(r.status, httplib.PARTIAL_CONTENT), self.ae(r.read(), fdata)
+
                 conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':etag})
                 r = conn.getresponse()
                 self.ae(int(r.getheader('Content-Length')), 26)
