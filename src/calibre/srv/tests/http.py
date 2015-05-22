@@ -273,6 +273,7 @@ class TestHTTP(BaseTest):
                 r = conn.getresponse()
                 self.ae(data, r.read())
 
+                # Now try it without sendfile
                 server.loop.opts.use_sendfile ^= True
                 conn = server.connect()
     # }}}
