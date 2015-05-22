@@ -382,19 +382,22 @@ class Connection(object):  # {{{
         self.socket = socket
         self.corked = Corked(socket)
         self.socket_file = SocketFile(socket)
+        self.closed = False
 
     def nonhttp_communicate(self, data):
-        try:
-            self.server_loop.nonhttp_handler(self, data)
-        except Exception:
-            self.server_loop.log.exception()
-            return
+        self.server_loop.nonhttp_handler(self, data)
 
     def close(self):
         """Close the socket underlying this connection."""
+        if self.closed:
+            return
         self.socket_file.close()
-        self.socket.shutdown(socket.SHUT_WR)
-        self.socket.close()
+        try:
+            self.socket.shutdown(socket.SHUT_WR)
+            self.socket.close()
+        except socket.error:
+            pass
+        self.closed = True
 
     def __enter__(self):
         return self
@@ -408,15 +411,14 @@ class WorkerThread(Thread):  # {{{
     daemon = True
 
     def __init__(self, server_loop):
-        self.ready = False
         self.serving = False
         self.server_loop = server_loop
         self.conn = None
+        self.forcible_shutdown = False
         Thread.__init__(self, name='ServerWorker')
 
     def run(self):
         try:
-            self.ready = True
             while True:
                 self.serving = False
                 self.conn = conn = self.server_loop.requests.get()
@@ -429,6 +431,9 @@ class WorkerThread(Thread):  # {{{
                         conn.nonhttp_communicate(e.data)
         except (KeyboardInterrupt, SystemExit):
             self.server_loop.stop()
+        except socket.error:
+            if not self.forcible_shutdown:
+                raise
 
     def __enter__(self):
         self.serving = True
@@ -506,7 +511,8 @@ class ThreadPool(object):  # {{{
         for worker in self._threads:
             self._queue.put(None)
 
-        # Don't join the current thread (when stop is called inside a request).
+        # Don't join the current thread (this should never happen, since
+        # ServerLoop calls stop() in its own thread, but better to be safe).
         current = current_thread()
         if timeout and timeout >= 0:
             endtime = time.time() + timeout
@@ -523,6 +529,7 @@ class ThreadPool(object):  # {{{
                         if worker.is_alive():
                             # We exhausted the timeout.
                             # Forcibly shut down the socket.
+                            worker.forcible_shutdown = True
                             c = worker.conn
                             if c and not c.socket_file.closed:
                                 c.socket.shutdown(socket.SHUT_RDWR)
@@ -759,7 +766,18 @@ class ServerLoop(object):
         """ Gracefully shutdown the server loop. """
         if not self.ready:
             return
+        # We run the stop code in its own thread so that it is not interrupted
+        # by KeyboardInterrupt
         self.ready = False
+        t = Thread(target=self._stop)
+        t.start()
+        try:
+            t.join()
+        except KeyboardInterrupt:
+            pass
+
+    def _stop(self):
+        self.log('Shutting down server gracefully, waiting for connections to close...')
         self.requests.stop(self.opts.shutdown_timeout)
         sock = self.tick_once()
         if hasattr(sock, "close"):
