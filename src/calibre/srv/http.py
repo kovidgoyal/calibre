@@ -16,7 +16,7 @@ from operator import itemgetter
 from calibre import as_unicode
 from calibre.constants import __version__
 from calibre.srv.errors import (
-    MaxSizeExceeded, NonHTTPConnRequest, HTTP404, IfNoneMatch, BadChunkedInput)
+    MaxSizeExceeded, NonHTTPConnRequest, HTTP404, IfNoneMatch, BadChunkedInput, RangeNotSatisfiable)
 from calibre.srv.respond import finalize_output, generate_static_output
 from calibre.srv.utils import MultiDict, http_date, socket_errors_to_ignore
 
@@ -499,13 +499,25 @@ class HTTPPair(object):
         ]
         if etag is not None:
             buf.append('ETag: ' + etag)
-        for header in ('Expires', 'Cache-Control', 'Vary'):
-            val = self.outheaders.get(header)
-            if val:
-                buf.append(header + ': ' + val)
+        self.send_buf(buf)
+
+    def send_buf(self, buf, include_cache_headers=True):
+        if include_cache_headers:
+            for header in ('Expires', 'Cache-Control', 'Vary'):
+                val = self.outheaders.get(header)
+                if val:
+                    buf.append(header + ': ' + val)
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
         self.flushed_write(b''.join(buf))
+
+    def send_range_not_satisfiable(self, content_length):
+        buf = [
+            '%s %d %s' % (self.response_protocol, httplib.REQUESTED_RANGE_NOT_SATISFIABLE, httplib.responses[httplib.REQUESTED_RANGE_NOT_SATISFIABLE]),
+            "Date: " + http_date(),
+            "Content-Range: bytes */%d" % content_length,
+        ]
+        self.send_buf(buf)
 
     def flushed_write(self, data):
         self.conn.socket_file.write(data)
@@ -551,6 +563,9 @@ class HTTPPair(object):
                 self.send_not_modified(e.etag)
             else:
                 self.simple_response(httplib.PRECONDITION_FAILED)
+            return
+        except RangeNotSatisfiable as e:
+            self.send_range_not_satisfiable(e.content_length)
             return
 
         with self.conn.corked:

@@ -30,3 +30,9 @@ class IfNoneMatch(Exception):
 
 class BadChunkedInput(ValueError):
     pass
+
+class RangeNotSatisfiable(ValueError):
+
+    def __init__(self, content_length):
+        ValueError.__init__(self)
+        self.content_length = content_length

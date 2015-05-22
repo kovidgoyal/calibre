@@ -8,8 +8,9 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import textwrap, httplib, hashlib, zlib, string
 from io import BytesIO
+from tempfile import NamedTemporaryFile
 
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
 
 def headers(raw):
@@ -73,17 +74,17 @@ class TestHTTP(BaseTest):
             if len(args) == 1 and args[0] is None:
                 self.assertIsNone(pval, val)
             else:
-                self.assertListEqual(pval, list(args), val)
+                self.assertListEqual([tuple(x) for x in pval], list(args), val)
         test('crap', None)
         test('crap=', None)
         test('crap=1', None)
         test('crap=1-2', None)
         test('bytes=a-2')
-        test('bytes=0-99', (0, 100))
-        test('bytes=0-0,-1', (0, 1), (99, 1))
-        test('bytes=-5', (95, 5))
-        test('bytes=95-', (95, 5))
-        test('bytes=-200', (0, 100))
+        test('bytes=0-99', (0, 99, 100))
+        test('bytes=0-0,-1', (0, 0, 1), (99, 99, 1))
+        test('bytes=-5', (95, 99, 5))
+        test('bytes=95-', (95, 99, 5))
+        test('bytes=-200', (0, 99, 100))
     # }}}
 
     def test_http_basic(self):  # {{{
@@ -190,12 +191,12 @@ class TestHTTP(BaseTest):
 
     def test_http_response(self):  # {{{
         'Test HTTP protocol responses'
+        from calibre.srv.respond import parse_multipart_byterange
         def handler(conn):
             return conn.generate_static_output('test', lambda : ''.join(conn.path))
-        with TestServer(handler, timeout=0.1, compress_min_size=0) as server, PersistentTemporaryFile('test.epub') as f:
+        with TestServer(handler, timeout=0.1, compress_min_size=0) as server, NamedTemporaryFile(suffix='test.epub') as f:
             fdata = string.ascii_letters * 100
-            f.write(fdata)
-            f.close()
+            f.write(fdata), f.seek(0)
 
             # Test ETag
             conn = server.connect()
@@ -213,5 +214,48 @@ class TestHTTP(BaseTest):
             conn.request('GET', '/an_etagged_path', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
             self.ae(r.status, httplib.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), b'an_etagged_path')
+
+            # Test getting a filesystem file
+            server.change_handler(lambda conn: f)
+            conn = server.connect()
+            conn.request('GET', '/test')
+            r = conn.getresponse()
+            etag = type('')(r.getheader('ETag'))
+            self.assertTrue(etag)
+            self.ae(r.getheader('Content-Type'), guess_type(f.name)[0])
+            self.ae(type('')(r.getheader('Accept-Ranges')), 'bytes')
+            self.ae(int(r.getheader('Content-Length')), len(fdata))
+            self.ae(r.status, httplib.OK), self.ae(r.read(), fdata)
+
+            conn.request('GET', '/test', headers={'Range':'bytes=0-25'})
+            r = conn.getresponse()
+            self.ae(type('')(r.getheader('Accept-Ranges')), 'bytes')
+            self.ae(type('')(r.getheader('Content-Range')), 'bytes 0-25/%d' % len(fdata))
+            self.ae(int(r.getheader('Content-Length')), 26)
+            self.ae(r.status, httplib.PARTIAL_CONTENT), self.ae(r.read(), fdata[0:26])
+
+            conn.request('GET', '/test', headers={'Range':'bytes=100000-'})
+            r = conn.getresponse()
+            self.ae(type('')(r.getheader('Content-Range')), 'bytes */%d' % len(fdata))
+            self.ae(r.status, httplib.REQUESTED_RANGE_NOT_SATISFIABLE), self.ae(r.read(), b'')
+
+            conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':etag})
+            r = conn.getresponse()
+            self.ae(int(r.getheader('Content-Length')), 26)
+            self.ae(r.status, httplib.PARTIAL_CONTENT), self.ae(r.read(), fdata[25:51])
+
+            conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':'"nomatch"'})
+            r = conn.getresponse()
+            self.assertFalse(r.getheader('Content-Range'))
+            self.ae(int(r.getheader('Content-Length')), len(fdata))
+            self.ae(r.status, httplib.OK), self.ae(r.read(), fdata)
+
+            conn.request('GET', '/test', headers={'Range':'bytes=0-25,26-50'})
+            r = conn.getresponse()
+            clen = int(r.getheader('Content-Length'))
+            data = r.read()
+            self.ae(clen, len(data))
+            buf = BytesIO(data)
+            self.ae(parse_multipart_byterange(buf, r.getheader('Content-Type')), [(0, fdata[:26]), (26, fdata[26:51])])
 
     # }}}
