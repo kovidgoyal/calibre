@@ -760,11 +760,11 @@ class ServerLoop(object):
         if not self.ready:
             return
         self.ready = False
+        self.requests.stop(self.opts.shutdown_timeout)
         sock = self.tick_once()
         if hasattr(sock, "close"):
             sock.close()
         self.socket = None
-        self.requests.stop(self.opts.shutdown_timeout)
 
     def tick_once(self):
         # Touch our own socket to make accept() return immediately.
