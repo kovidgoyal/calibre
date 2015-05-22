@@ -12,6 +12,7 @@ from Queue import Queue, Full
 from threading import Thread, current_thread, Lock
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 
+from calibre.constants import iswindows
 from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
 from calibre.srv.http import http_communicate
 from calibre.srv.opts import Options
@@ -322,6 +323,54 @@ class SocketFile(object):  # {{{
 
 # }}}
 
+class HandleInterrupt(object):  # {{{
+
+    # On windows socket functions like accept(), recv(), send() are not
+    # interrupted by a Ctrl-C in the console. So to make Ctrl-C work we have to
+    # use this special context manager. See the echo server example at the
+    # bottom of this file for how to use it.
+
+    def __init__(self, action):
+        if not iswindows:
+            return  # Interrupts work fine on POSIX
+        self.action = action
+        from ctypes import WINFUNCTYPE, windll
+        from ctypes.wintypes import BOOL, DWORD
+
+        kernel32 = windll.LoadLibrary('kernel32')
+
+        # <http://msdn.microsoft.com/en-us/library/ms686016.aspx>
+        PHANDLER_ROUTINE = WINFUNCTYPE(BOOL, DWORD)
+        self.SetConsoleCtrlHandler = kernel32.SetConsoleCtrlHandler
+        self.SetConsoleCtrlHandler.argtypes = (PHANDLER_ROUTINE, BOOL)
+        self.SetConsoleCtrlHandler.restype = BOOL
+
+        @PHANDLER_ROUTINE
+        def handle(event):
+            if event == 0:  # CTRL_C_EVENT
+                if self.action is not None:
+                    self.action()
+                    self.action = None
+                # Typical C implementations would return 1 to indicate that
+                # the event was processed and other control handlers in the
+                # stack should not be executed.  However, that would
+                # prevent the Python interpreter's handler from translating
+                # CTRL-C to a `KeyboardInterrupt` exception, so we pretend
+                # that we didn't handle it.
+            return 0
+        self.handle = handle
+
+    def __enter__(self):
+        if iswindows:
+            if self.SetConsoleCtrlHandler(self.handle, 1) == 0:
+                raise WindowsError()
+
+    def __exit__(self, *args):
+        if iswindows:
+            if self.SetConsoleCtrlHandler(self.handle, 0) == 0:
+                raise WindowsError()
+# }}}
+
 class Connection(object):  # {{{
 
     ' A thin wrapper around an active socket '
@@ -600,8 +649,6 @@ class ServerLoop(object):
             self.pre_activated_socket = None
             self.setup_socket()
 
-        # Timeout so KeyboardInterrupt can be caught on Win32
-        self.socket.settimeout(1)
         self.socket.listen(self.opts.request_queue_size)
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
@@ -716,11 +763,17 @@ class ServerLoop(object):
         if not self.ready:
             return
         self.ready = False
+        sock = self.tick_once()
+        if hasattr(sock, "close"):
+            sock.close()
+        self.socket = None
+        self.requests.stop(self.opts.shutdown_timeout)
 
+    def tick_once(self):
+        # Touch our own socket to make accept() return immediately.
         sock = getattr(self, "socket", None)
         if sock is not None:
             if not isinstance(self.bind_address, basestring):
-                # Touch our own socket to make accept() return immediately.
                 try:
                     host, port = sock.getsockname()[:2]
                 except socket.error as e:
@@ -741,11 +794,7 @@ class ServerLoop(object):
                         except socket.error:
                             if s is not None:
                                 s.close()
-            if hasattr(sock, "close"):
-                sock.close()
-            self.socket = None
-
-        self.requests.stop(self.opts.shutdown_timeout)
+        return sock
 
 def echo_handler(conn, data):
     keep_going = True
@@ -763,7 +812,9 @@ def echo_handler(conn, data):
 
 if __name__ == '__main__':
     s = ServerLoop(nonhttp_handler=echo_handler)
-    try:
-        s.serve_forever()
-    except KeyboardInterrupt:
-        pass
+    with HandleInterrupt(s.tick_once):
+        try:
+            s.serve_forever()
+        except KeyboardInterrupt:
+            pass
+    s.stop()
