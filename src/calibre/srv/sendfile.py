@@ -11,6 +11,7 @@ from io import DEFAULT_BUFFER_SIZE
 from select import select
 
 from calibre.constants import iswindows, isosx
+from calibre.utils.ipc import eintr_retry_call
 
 def file_metadata(fileobj):
     try:
@@ -23,7 +24,7 @@ def copy_range(src_file, start, size, dest):
     total_sent = 0
     src_file.seek(start)
     while size > 0:
-        data = src_file.read(min(size, DEFAULT_BUFFER_SIZE))
+        data = eintr_retry_call(src_file.read, min(size, DEFAULT_BUFFER_SIZE))
         if len(data) == 0:
             break  # EOF
         dest.write(data)
