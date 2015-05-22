@@ -210,10 +210,9 @@ class DynamicOutput(object):
             self.data = output
         else:
             self.data = output.encode('utf-8')
-            ct = outheaders.get('Content-Type', 'text/plain')
-            if 'charset=' not in ct:
-                ct += '; charset=UTF-8'
-            outheaders.set('Content-Type', ct, replace_all=True)
+            ct = outheaders.get('Content-Type')
+            if not ct:
+                outheaders.set('Content-Type', 'text/plain; charset=UTF-8', replace_all=True)
         self.content_length = len(self.data)
         self.etag = None
         self.accept_ranges = False

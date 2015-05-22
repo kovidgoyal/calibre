@@ -586,6 +586,10 @@ class HTTPPair(object):
                 if not self.close_connection:
                     self.outheaders.set('Connection', 'Keep-Alive')
 
+        ct = self.outheaders.get('Content-Type', '')
+        if ct.startswith('text/') and 'charset=' not in ct:
+            self.outheaders.set('Content-Type', ct + '; charset=UTF-8')
+
         buf = [HTTP11 + (' %d ' % self.status_code) + httplib.responses[self.status_code]]
         for header, value in sorted(self.outheaders.iteritems(), key=itemgetter(0)):
             buf.append('%s: %s' % (header, value))
