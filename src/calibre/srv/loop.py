@@ -328,7 +328,6 @@ class Connection(object):  # {{{
 
     remote_addr = None
     remote_port = None
-    linger = False
 
     def __init__(self, server_loop, socket):
         self.server_loop = server_loop
@@ -346,25 +345,8 @@ class Connection(object):  # {{{
     def close(self):
         """Close the socket underlying this connection."""
         self.socket_file.close()
-
-        if not self.linger:
-            # Python's socket module does NOT call close on the kernel
-            # socket when you call socket.close(). We do so manually here
-            # because we want this server to send a FIN TCP segment
-            # immediately. Note this must be called *before* calling
-            # socket.close(), because the latter drops its reference to
-            # the kernel socket.
-            if hasattr(self.socket, '_sock'):
-                self.socket._sock.close()
-            self.socket.close()
-        else:
-            # On the other hand, sometimes we want to hang around for a bit
-            # to make sure the client has a chance to read our entire
-            # response. Skipping the close() calls here delays the FIN
-            # packet until the socket object is garbage-collected later.
-            # Someday, perhaps, we'll do the full lingering_close that
-            # Apache does, but not today.
-            pass
+        self.socket.shutdown(socket.SHUT_WR)
+        self.socket.close()
 
     def __enter__(self):
         return self
@@ -496,6 +478,7 @@ class ThreadPool(object):  # {{{
                             c = worker.conn
                             if c and not c.socket_file.closed:
                                 c.socket.shutdown(socket.SHUT_RDWR)
+                                c.socket.close()
                             worker.join()
                 except (AssertionError,
                         # Ignore repeated Ctrl-C.
