@@ -189,7 +189,6 @@ class SocketFile(object):  # {{{
                     buf.write(data)
                     del data  # explicit free
                     break
-                assert n <= left, "recv(%d) returned %d bytes" % (left, n)
                 buf.write(data)  # noqa
                 buf_len += n
                 del data  # noqa explicit free
@@ -507,13 +506,13 @@ class ThreadPool(object):  # {{{
         for worker in self._threads:
             self._queue.put(None)
 
-        # Don't join currentThread (when stop is called inside a request).
+        # Don't join the current thread (when stop is called inside a request).
         current = current_thread()
         if timeout and timeout >= 0:
             endtime = time.time() + timeout
         while self._threads:
             worker = self._threads.pop()
-            if worker is not current and worker.isAlive():
+            if worker is not current and worker.is_alive():
                 try:
                     if timeout is None or timeout < 0:
                         worker.join()
@@ -529,10 +528,8 @@ class ThreadPool(object):  # {{{
                                 c.socket.shutdown(socket.SHUT_RDWR)
                                 c.socket.close()
                             worker.join()
-                except (AssertionError,
-                        # Ignore repeated Ctrl-C.
-                        KeyboardInterrupt):
-                    pass
+                except KeyboardInterrupt:
+                    pass  # Ignore repeated Ctrl-C.
 
     @property
     def qsize(self):
