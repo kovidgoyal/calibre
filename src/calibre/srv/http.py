@@ -578,6 +578,9 @@ class HTTPPair(object):
         self.sent_headers = True
         self.outheaders.set('Date', http_date(), replace_all=True)
         self.outheaders.set('Server', 'calibre %s' % __version__, replace_all=True)
+        keep_alive = not self.close_connection and self.server_loop.opts.timeout > 0
+        if keep_alive:
+            self.outheaders.set('Keep-Alive', 'timeout=%d' % self.server_loop.opts.timeout)
         if 'Connection' not in self.outheaders:
             if self.response_protocol is HTTP11:
                 if self.close_connection:

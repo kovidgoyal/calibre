@@ -32,8 +32,8 @@ raw_options = (
     'request_queue_size', 5,
     None,
 
-    'Timeout in seconds for accepted connections',
-    'timeout', 10.0,
+    'Time (in seconds) after which an idle connection is closed',
+    'timeout', 60.0,
     None,
 
     'Total time in seconds to wait for clean shutdown',
