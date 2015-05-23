@@ -12,10 +12,9 @@ from Queue import Queue, Full
 from threading import Thread, current_thread, Lock
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 
-from calibre.constants import iswindows
 from calibre.srv.errors import MaxSizeExceeded
 from calibre.srv.opts import Options
-from calibre.srv.utils import socket_errors_to_ignore, socket_error_eintr, socket_errors_nonblocking, Corked
+from calibre.srv.utils import socket_errors_to_ignore, socket_error_eintr, socket_errors_nonblocking, Corked, HandleInterrupt
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 
@@ -319,54 +318,6 @@ class SocketFile(object):  # {{{
             if line:
                 yield line
 
-# }}}
-
-class HandleInterrupt(object):  # {{{
-
-    # On windows socket functions like accept(), recv(), send() are not
-    # interrupted by a Ctrl-C in the console. So to make Ctrl-C work we have to
-    # use this special context manager. See the echo server example at the
-    # bottom of this file for how to use it.
-
-    def __init__(self, action):
-        if not iswindows:
-            return  # Interrupts work fine on POSIX
-        self.action = action
-        from ctypes import WINFUNCTYPE, windll
-        from ctypes.wintypes import BOOL, DWORD
-
-        kernel32 = windll.LoadLibrary('kernel32')
-
-        # <http://msdn.microsoft.com/en-us/library/ms686016.aspx>
-        PHANDLER_ROUTINE = WINFUNCTYPE(BOOL, DWORD)
-        self.SetConsoleCtrlHandler = kernel32.SetConsoleCtrlHandler
-        self.SetConsoleCtrlHandler.argtypes = (PHANDLER_ROUTINE, BOOL)
-        self.SetConsoleCtrlHandler.restype = BOOL
-
-        @PHANDLER_ROUTINE
-        def handle(event):
-            if event == 0:  # CTRL_C_EVENT
-                if self.action is not None:
-                    self.action()
-                    self.action = None
-                # Typical C implementations would return 1 to indicate that
-                # the event was processed and other control handlers in the
-                # stack should not be executed.  However, that would
-                # prevent the Python interpreter's handler from translating
-                # CTRL-C to a `KeyboardInterrupt` exception, so we pretend
-                # that we didn't handle it.
-            return 0
-        self.handle = handle
-
-    def __enter__(self):
-        if iswindows:
-            if self.SetConsoleCtrlHandler(self.handle, 1) == 0:
-                raise WindowsError()
-
-    def __exit__(self, *args):
-        if iswindows:
-            if self.SetConsoleCtrlHandler(self.handle, 0) == 0:
-                raise WindowsError()
 # }}}
 
 class Connection(object):  # {{{
