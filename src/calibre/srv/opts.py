@@ -28,10 +28,6 @@ raw_options = (
     'ssl_keyfile', None,
     None,
 
-    'Max. queued connections while waiting to accept',
-    'request_queue_size', 5,
-    None,
-
     'Time (in seconds) after which an idle connection is closed',
     'timeout', 60.0,
     None,
