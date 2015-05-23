@@ -165,3 +165,12 @@ def create_sock_pair(port=0):
         client_sock.setblocking(True)
 
     return client_sock, srv_sock
+
+def eintr_retry_call(func, *args, **kwargs):
+    while True:
+        try:
+            return func(*args, **kwargs)
+        except EnvironmentError as e:
+            if getattr(e, 'errno', None) in socket_error_eintr:
+                continue
+            raise

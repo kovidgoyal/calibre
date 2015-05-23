@@ -11,7 +11,7 @@ from io import DEFAULT_BUFFER_SIZE
 from select import select
 
 from calibre.constants import iswindows, isosx
-from calibre.utils.ipc import eintr_retry_call
+from calibre.srv.utils import eintr_retry_call
 
 def file_metadata(fileobj):
     try:
