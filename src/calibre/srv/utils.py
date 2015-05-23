@@ -6,7 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno, socket
+import errno, socket, select
+from contextlib import closing
 from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
@@ -130,3 +131,37 @@ class Corked(object):
         if hasattr(socket, 'TCP_CORK'):
             self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
             self.sock.send(b'')  # Ensure that uncorking occurs
+
+def create_sock_pair(port=0):
+    '''Create socket pair. Works also on windows by using an ephemeral TCP port.'''
+    if hasattr(socket, 'socketpair'):
+        client_sock, srv_sock = socket.socketpair()
+        return client_sock, srv_sock
+
+    # Create a non-blocking temporary server socket
+    temp_srv_sock = socket.socket()
+    temp_srv_sock.setblocking(False)
+    temp_srv_sock.bind(('localhost', port))
+    port = temp_srv_sock.getsockname()[1]
+    temp_srv_sock.listen(1)
+    with closing(temp_srv_sock):
+        # Create non-blocking client socket
+        client_sock = socket.socket()
+        client_sock.setblocking(False)
+        while True:
+            try:
+                client_sock.connect(('localhost', port))
+            except socket.error as err:
+                # EWOULDBLOCK is not an error, as the socket is non-blocking
+                if err.errno not in socket_errors_nonblocking:
+                    raise
+
+        # Use select to wait for connect() to succeed.
+        timeout = 1
+        readable = select.select([temp_srv_sock], [], [], timeout)[0]
+        if temp_srv_sock not in readable:
+            raise Exception('Client socket not connected in {} second(s)'.format(timeout))
+        srv_sock = temp_srv_sock.accept()[0]
+        client_sock.setblocking(True)
+
+    return client_sock, srv_sock
