@@ -731,7 +731,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.set_number_of_books_shown()
         self.update_status_bar()
 
-    def job_exception(self, job, dialog_title=_('Conversion Error')):
+    def job_exception(self, job, dialog_title=_('Conversion Error'), retry_func=None):
         if not hasattr(self, '_modeless_dialogs'):
             self._modeless_dialogs = []
         minz = self.is_minimized_to_tray
@@ -813,7 +813,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if not minz:
             self.job_error_dialog.show_error(dialog_title,
                     _('<b>Failed</b>')+': '+unicode(job.description),
-                    det_msg=job.details)
+                    det_msg=job.details, retry_func=retry_func)
 
     def read_settings(self):
         geometry = config['main_window_geometry']

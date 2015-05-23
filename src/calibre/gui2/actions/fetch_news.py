@@ -6,6 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import gc
+from functools import partial
 
 from PyQt5.Qt import Qt
 
@@ -48,8 +49,7 @@ class FetchNewsAction(InterfaceAction):
         func, args, desc, fmt, temp_files = \
                 fetch_scheduled_recipe(arg)
         job = self.gui.job_manager.run_job(
-                Dispatcher(self.scheduled_recipe_fetched), func, args=args,
-                           description=desc)
+                Dispatcher(self.scheduled_recipe_fetched), func, args=args, description=desc)
         self.conversion_jobs[job] = (temp_files, fmt, arg)
         self.gui.status_bar.show_message(_('Fetching news from ')+arg['title'], 2000)
 
@@ -58,7 +58,7 @@ class FetchNewsAction(InterfaceAction):
         fname = temp_files[0].name
         if job.failed:
             self.scheduler.recipe_download_failed(arg)
-            return self.gui.job_exception(job)
+            return self.gui.job_exception(job, retry_func=partial(self.scheduler.download, arg['urn']))
         id = self.gui.library_view.model().add_news(fname, arg)
 
         # Arg may contain a "keep_issues" variable. If it is non-zero,
