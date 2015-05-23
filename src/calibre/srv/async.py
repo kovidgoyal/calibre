@@ -12,7 +12,7 @@ from io import BytesIO
 from calibre import as_unicode
 from calibre.srv.opts import Options
 from calibre.srv.utils import (
-    socket_errors_socket_closed, socket_errors_nonblocking)
+    socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt)
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.monotonic import monotonic
@@ -331,4 +331,6 @@ class EchoLine(Connection):
             self.rbuf.seek(pos + sent)
 
 if __name__ == '__main__':
-    ServerLoop(EchoLine).serve_forever()
+    s = ServerLoop(EchoLine)
+    with HandleInterrupt(s.wakeup):
+        s.serve_forever()
