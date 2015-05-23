@@ -170,7 +170,7 @@ class ServerLoop(object):
 
         self.ready = True
         self.connection_map = {}
-        self.socket.listen(5)
+        self.socket.listen(min(socket.SOMAXCONN, 128))
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
             ba = ':'.join(map(type(''), ba))
@@ -296,7 +296,7 @@ class ServerLoop(object):
         for s, conn in tuple(self.connection_map.iteritems()):
             self.close(s, conn)
 
-class EchoLine(Connection):
+class EchoLine(Connection):  # {{{
 
     bye_after_echo = False
 
@@ -329,6 +329,7 @@ class EchoLine(Connection):
                 self.ready = False
         else:
             self.rbuf.seek(pos + sent)
+# }}}
 
 if __name__ == '__main__':
     s = ServerLoop(EchoLine)
