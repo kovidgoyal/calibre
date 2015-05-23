@@ -638,7 +638,7 @@ class ServerLoop(object):
             self.pre_activated_socket = None
             self.setup_socket()
 
-        self.socket.listen(self.opts.request_queue_size)
+        self.socket.listen(5)
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
             ba = ':'.join(map(type(''), ba))

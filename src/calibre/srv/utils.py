@@ -92,12 +92,14 @@ def error_codes(*errnames):
     ans.discard(None)
     return ans
 
-socket_error_eintr = error_codes("EINTR", "WSAEINTR")
+socket_errors_eintr = error_codes("EINTR", "WSAEINTR")
 
-socket_errors_to_ignore = error_codes(  # errors indicating a closed connection
+socket_errors_socket_closed = error_codes(  # errors indicating a disconnected connection
     "EPIPE",
     "EBADF", "WSAEBADF",
     "ENOTSOCK", "WSAENOTSOCK",
+    "ENOTCONN", "WSAENOTCONN",
+    "ESHUTDOWN", "WSAESHUTDOWN",
     "ETIMEDOUT", "WSAETIMEDOUT",
     "ECONNREFUSED", "WSAECONNREFUSED",
     "ECONNRESET", "WSAECONNRESET",
@@ -171,6 +173,6 @@ def eintr_retry_call(func, *args, **kwargs):
         try:
             return func(*args, **kwargs)
         except EnvironmentError as e:
-            if getattr(e, 'errno', None) in socket_error_eintr:
+            if getattr(e, 'errno', None) in socket_errors_eintr:
                 continue
             raise
