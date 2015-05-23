@@ -16,7 +16,7 @@ from operator import itemgetter
 from calibre import as_unicode
 from calibre.constants import __version__
 from calibre.srv.errors import (
-    MaxSizeExceeded, NonHTTPConnRequest, HTTP404, IfNoneMatch, BadChunkedInput, RangeNotSatisfiable)
+    MaxSizeExceeded, HTTP404, IfNoneMatch, BadChunkedInput, RangeNotSatisfiable)
 from calibre.srv.respond import finalize_output, generate_static_output
 from calibre.srv.utils import MultiDict, http_date, socket_errors_to_ignore
 
@@ -143,7 +143,7 @@ def read_headers(readline):  # {{{
     return hdict
 # }}}
 
-def http_communicate(conn):
+def http_communicate(handle_request, conn):
     ' Represents interaction with a http client over a single, persistent connection '
     request_seen = False
     def repr_for_pair(pair):
@@ -163,7 +163,7 @@ def http_communicate(conn):
             # the HTTPPair constructor, the error doesn't
             # get written to the previous request.
             pair = None
-            pair = conn.server_loop.http_handler(conn)
+            pair = HTTPPair(handle_request, conn)
 
             # This order of operations should guarantee correct pipelining.
             pair.parse_request()
@@ -186,8 +186,6 @@ def http_communicate(conn):
             # Don't bother writing the 408 if the response
             # has already started being written.
             simple_response(pair, httplib.REQUEST_TIMEOUT)
-    except NonHTTPConnRequest:
-        raise
     except socket.error:
         # This socket is broken. Log the error and close connection
         conn.server_loop.log.exception(
@@ -601,4 +599,4 @@ class HTTPPair(object):
 
 
 def create_http_handler(handle_request):
-    return partial(HTTPPair, handle_request)
+    return partial(http_communicate, handle_request)

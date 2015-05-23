@@ -13,8 +13,7 @@ from threading import Thread, current_thread, Lock
 from io import DEFAULT_BUFFER_SIZE, BytesIO
 
 from calibre.constants import iswindows
-from calibre.srv.errors import NonHTTPConnRequest, MaxSizeExceeded
-from calibre.srv.http import http_communicate
+from calibre.srv.errors import MaxSizeExceeded
 from calibre.srv.opts import Options
 from calibre.srv.utils import socket_errors_to_ignore, socket_error_eintr, socket_errors_nonblocking, Corked
 from calibre.utils.socket_inheritance import set_socket_inherit
@@ -384,9 +383,6 @@ class Connection(object):  # {{{
         self.socket_file = SocketFile(socket)
         self.closed = False
 
-    def nonhttp_communicate(self, data):
-        self.server_loop.nonhttp_handler(self, data)
-
     def close(self):
         """Close the socket underlying this connection."""
         if self.closed:
@@ -425,10 +421,7 @@ class WorkerThread(Thread):  # {{{
                 if conn is None:
                     return  # Clean exit
                 with conn, self:
-                    try:
-                        http_communicate(conn)
-                    except NonHTTPConnRequest as e:
-                        conn.nonhttp_communicate(e.data)
+                    self.server_loop.req_resp_handler(conn)
         except (KeyboardInterrupt, SystemExit):
             self.server_loop.stop()
         except socket.error:
@@ -547,23 +540,15 @@ class ServerLoop(object):
 
     def __init__(
         self,
+        req_resp_handler,
         bind_address=('localhost', 8080),
-        http_handler=None,
-        nonhttp_handler=None,
         opts=None,
         # A calibre logging object. If None a default log that logs to
         # stdout is used
         log=None
     ):
         self.opts = opts or Options()
-        if http_handler is None:
-            def aborth(*args, **kwargs):
-                raise NonHTTPConnRequest()
-            http_handler = aborth
-        self.http_handler = http_handler
-        self.nonhttp_handler = nonhttp_handler
-        if http_handler is None and nonhttp_handler is None:
-            raise ValueError('You must specify at least one protocol handler')
+        self.req_resp_handler = req_resp_handler
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
         self.gso_cache, self.gso_lock = {}, Lock()
         ba = bind_address
@@ -811,7 +796,7 @@ class ServerLoop(object):
                                 s.close()
         return sock
 
-def echo_handler(conn, data):
+def echo_handler(conn):
     keep_going = True
     while keep_going:
         try:
@@ -826,7 +811,7 @@ def echo_handler(conn, data):
         conn.socket_file.flush()
 
 if __name__ == '__main__':
-    s = ServerLoop(nonhttp_handler=echo_handler)
+    s = ServerLoop(echo_handler)
     with HandleInterrupt(s.tick_once):
         try:
             s.serve_forever()

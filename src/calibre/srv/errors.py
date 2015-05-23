@@ -7,12 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-class NonHTTPConnRequest(Exception):
-
-    def __init__(self, data=None):
-        Exception.__init__(self, '')
-        self.data = data
-
 class MaxSizeExceeded(Exception):
 
     def __init__(self, prefix, size, limit):

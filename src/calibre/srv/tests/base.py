@@ -39,8 +39,9 @@ class TestServer(Thread):
         from calibre.srv.http import create_http_handler
         kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
         self.loop = ServerLoop(
+            create_http_handler(handler),
             opts=Options(**kwargs),
-            bind_address=('localhost', 0), http_handler=create_http_handler(handler),
+            bind_address=('localhost', 0),
             log=TestLog(level=ThreadSafeLog.WARN),
         )
         self.log = self.loop.log
@@ -68,4 +69,4 @@ class TestServer(Thread):
 
     def change_handler(self, handler):
         from calibre.srv.http import create_http_handler
-        self.loop.http_handler = create_http_handler(handler)
+        self.loop.req_resp_handler = create_http_handler(handler)
