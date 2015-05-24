@@ -65,6 +65,7 @@ application/isup
 application/java-archive				jar
 application/java-serialized-object				ser
 application/java-vm				class
+application/x-javascript				js
 application/javascript				js
 application/json				json
 application/kpml-request+xml
@@ -806,7 +807,6 @@ application/x-internet-signup				ins isp
 application/x-iphone				iii
 application/x-iso9660-image				iso
 application/x-java-jnlp-file				jnlp
-application/x-javascript				js
 application/x-jmol				jmz
 application/x-kchart				chrt
 application/x-killustrator				kil
