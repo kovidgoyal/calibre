@@ -7,7 +7,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, httplib, hashlib, uuid, zlib, time, struct, repr as reprlib
-from select import PIPE_BUF
+try:
+    from select import PIPE_BUF
+except ImportError:
+    PIPE_BUF = 512  # windows
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
