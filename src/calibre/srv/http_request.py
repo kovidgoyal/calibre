@@ -154,7 +154,6 @@ class HTTPRequest(Connection):
 
     def __init__(self, *args, **kwargs):
         Connection.__init__(self, *args, **kwargs)
-        self.corked = False
         self.max_header_line_size = int(1024 * self.opts.max_header_line_size)
         self.max_request_body_size = int(1024 * 1024 * self.opts.max_request_body_size)
 

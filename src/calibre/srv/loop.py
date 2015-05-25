@@ -14,17 +14,20 @@ from calibre import as_unicode
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.opts import Options
 from calibre.srv.utils import (
-    socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt, socket_errors_eintr)
+    socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt,
+    socket_errors_eintr, start_cork, stop_cork)
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.monotonic import monotonic
 
 READ, WRITE, RDWR = 'READ', 'WRITE', 'RDWR'
+DESIRED_SEND_BUFFER_SIZE = 16 * 1024
 
 class Connection(object):
 
     def __init__(self, socket, opts, ssl_context, tdir):
         self.opts = opts
+        self.orig_send_bufsize = self.send_bufsize = 4096
         self.tdir = tdir
         self.ssl_context = ssl_context
         self.wait_for = READ
@@ -38,6 +41,22 @@ class Connection(object):
             self.socket = socket
             self.connection_ready()
         self.last_activity = monotonic()
+
+    def optimize_for_sending_packet(self):
+        start_cork(self.socket)
+        self.orig_send_bufsize = self.send_bufsize = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF)
+        if self.send_bufsize < DESIRED_SEND_BUFFER_SIZE:
+            try:
+                self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, DESIRED_SEND_BUFFER_SIZE)
+            except socket.error:
+                pass
+            else:
+                self.send_bufsize = self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF)
+
+    def end_send_optimization(self):
+        stop_cork(self.socket)
+        if self.send_bufsize != self.orig_send_bufsize:
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, self.orig_send_bufsize)
 
     def set_state(self, wait_for, func, *args, **kwargs):
         self.wait_for = wait_for

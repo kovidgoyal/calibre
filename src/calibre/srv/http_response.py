@@ -7,10 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, httplib, hashlib, uuid, zlib, time, struct, repr as reprlib
-try:
-    from select import PIPE_BUF
-except ImportError:
-    PIPE_BUF = 512  # windows
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
@@ -23,7 +19,7 @@ from calibre.srv.loop import WRITE
 from calibre.srv.errors import HTTP404
 from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
-from calibre.srv.utils import MultiDict, start_cork, stop_cork, http_date, HTTP1, HTTP11, socket_errors_socket_closed
+from calibre.srv.utils import MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed
 from calibre.utils.monotonic import monotonic
 
 Range = namedtuple('Range', 'start stop size')
@@ -283,7 +279,7 @@ class HTTPConnection(HTTPRequest):
                 self.use_sendfile = self.ready = False
                 raise IOError('sendfile() failed to write any bytes to the socket')
         else:
-            sent = self.send(buf.read(min(limit, PIPE_BUF)))
+            sent = self.send(buf.read(min(limit, self.send_bufsize)))
         buf.seek(pos + sent)
         return buf.tell() == end
 
@@ -367,8 +363,7 @@ class HTTPConnection(HTTPRequest):
 
     def response_ready(self, header_file, output=None):
         self.response_started = True
-        start_cork(self.socket)
-        self.corked = True
+        self.optimize_for_sending_packet()
         self.use_sendfile = False
         self.set_state(WRITE, self.write_response_headers, header_file, output)
 
@@ -437,8 +432,7 @@ class HTTPConnection(HTTPRequest):
     def reset_state(self):
         self.connection_ready()
         self.ready = not self.close_after_response
-        stop_cork(self.socket)
-        self.corked = False
+        self.end_send_optimization()
 
     def report_unhandled_exception(self, e, formatted_traceback):
         self.simple_response(httplib.INTERNAL_SERVER_ERROR)
