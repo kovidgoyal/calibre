@@ -11,8 +11,12 @@ from contextlib import closing
 from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
+from operator import itemgetter
 
 from calibre.constants import iswindows
+
+HTTP1  = 'HTTP/1.0'
+HTTP11 = 'HTTP/1.1'
 
 def http_date(timeval=None):
     return type('')(formatdate(timeval=timeval, usegmt=True))
@@ -85,7 +89,8 @@ class MultiDict(dict):  # {{{
     __str__ = __unicode__ = __repr__
 
     def pretty(self, leading_whitespace=''):
-        return leading_whitespace + ('\n' + leading_whitespace).join('%s: %s' % (k, v) for k, v in self.items())
+        return leading_whitespace + ('\n' + leading_whitespace).join(
+            '%s: %s' % (k, (repr(v) if isinstance(v, bytes) else v)) for k, v in sorted(self.items(), key=itemgetter(0)))
 # }}}
 
 def error_codes(*errnames):
@@ -112,29 +117,15 @@ socket_errors_socket_closed = error_codes(  # errors indicating a disconnected c
 socket_errors_nonblocking = error_codes(
     'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
-class Corked(object):
+def start_cork(sock):
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 0)
+    if hasattr(socket, 'TCP_CORK'):
+        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 1)
 
-    ' Context manager to turn on TCP corking. Ensures maximum throughput for large logical packets. '
-
-    def __init__(self, sock):
-        self.sock = sock
-
-    def __enter__(self):
-        nodelay = self.sock.getsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY)
-        if nodelay == 1:
-            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 0)
-            self.set_nodelay = True
-        else:
-            self.set_nodelay = False
-        if hasattr(socket, 'TCP_CORK'):
-            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 1)
-
-    def __exit__(self, *args):
-        if self.set_nodelay:
-            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-        if hasattr(socket, 'TCP_CORK'):
-            self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
-            self.sock.send(b'')  # Ensure that uncorking occurs
+def stop_cork(sock):
+    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    if hasattr(socket, 'TCP_CORK'):
+        sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
 def create_sock_pair(port=0):
     '''Create socket pair. Works also on windows by using an ephemeral TCP port.'''

@@ -36,14 +36,6 @@ raw_options = (
     'shutdown_timeout', 5.0,
     None,
 
-    'Minimum number of connection handling threads',
-    'min_threads', 10,
-    None,
-
-    'Maximum number of simultaneous connections (beyond this number of connections will be dropped)',
-    'max_threads', 500,
-    None,
-
     'Allow socket pre-allocation, for example, with systemd socket activation',
     'allow_socket_preallocation', True,
     None,
@@ -52,19 +44,13 @@ raw_options = (
     'max_header_line_size', 8.0,
     None,
 
-    'Max. size of a HTTP request (in MB)',
+    'Max. allowed size for files uploaded to the server (in MB)',
     'max_request_body_size', 500.0,
     None,
 
     'Minimum size for which responses use data compression (in bytes)',
     'compress_min_size', 1024,
     None,
-
-    'Decrease latency by using the TCP_NODELAY feature',
-    'no_delay', True,
-    'no_delay turns on TCP_NODELAY which decreases latency at the cost of'
-    ' worse overall performance when sending multiple small packets. It'
-    ' prevents the TCP stack from aggregating multiple small TCP packets.',
 
     'Use zero copy file transfers for increased performance',
     'use_sendfile', True,

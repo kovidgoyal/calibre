@@ -10,7 +10,7 @@ import os, ctypes, errno, socket
 from io import DEFAULT_BUFFER_SIZE
 from select import select
 
-from calibre.constants import iswindows, isosx
+from calibre.constants import islinux, isosx
 from calibre.srv.utils import eintr_retry_call
 
 def file_metadata(fileobj):
@@ -33,10 +33,15 @@ def copy_range(src_file, start, size, dest):
         del data
     return total_sent
 
+class CannotSendfile(Exception):
+    pass
 
-if iswindows:
-    sendfile_to_socket = None
-elif isosx:
+class SendfileInterrupted(Exception):
+    pass
+
+sendfile_to_socket = sendfile_to_socket_async = None
+
+if isosx:
     libc = ctypes.CDLL(None, use_errno=True)
     sendfile = ctypes.CFUNCTYPE(
         ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int64, ctypes.POINTER(ctypes.c_int64), ctypes.c_void_p, ctypes.c_int, use_errno=True)(
@@ -68,7 +73,19 @@ elif isosx:
             offset += num_bytes.value
         return total_sent
 
-else:
+    def sendfile_to_socket_async(fileobj, offset, size, socket_file):
+        num_bytes = ctypes.c_int64(size)
+        ret = sendfile(fileobj.fileno(), socket_file.fileno(), offset, ctypes.byref(num_bytes), None, 0)
+        if ret != 0:
+            err = ctypes.get_errno()
+            if err in (errno.EBADF, errno.ENOTSUP, errno.ENOTSOCK, errno.EOPNOTSUPP):
+                raise CannotSendfile()
+            if err in (errno.EINTR, errno.EAGAIN):
+                raise SendfileInterrupted()
+            raise IOError((err, os.strerror(err)))
+        return num_bytes.value
+
+elif islinux:
     libc = ctypes.CDLL(None, use_errno=True)
     sendfile = ctypes.CFUNCTYPE(
         ctypes.c_ssize_t, ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.c_int64), ctypes.c_size_t, use_errno=True)(('sendfile64', libc))
@@ -97,3 +114,15 @@ else:
                 size -= sent
                 total_sent += sent
         return total_sent
+
+    def sendfile_to_socket_async(fileobj, offset, size, socket_file):
+        off = ctypes.c_int64(offset)
+        sent = sendfile(socket_file.fileno(), fileobj.fileno(), ctypes.byref(off), size)
+        if sent < 0:
+            err = ctypes.get_errno()
+            if err in (errno.ENOSYS, errno.EINVAL):
+                raise CannotSendfile()
+            if err in (errno.EINTR, errno.EAGAIN):
+                raise SendfileInterrupted()
+            raise IOError((err, os.strerror(err)))
+        return sent
