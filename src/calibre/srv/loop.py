@@ -15,13 +15,12 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.opts import Options
 from calibre.srv.utils import (
     socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt,
-    socket_errors_eintr, start_cork, stop_cork)
+    socket_errors_eintr, start_cork, stop_cork, DESIRED_SEND_BUFFER_SIZE)
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.monotonic import monotonic
 
 READ, WRITE, RDWR = 'READ', 'WRITE', 'RDWR'
-DESIRED_SEND_BUFFER_SIZE = 16 * 1024
 
 class Connection(object):
 

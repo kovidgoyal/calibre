@@ -17,6 +17,7 @@ from calibre.constants import iswindows
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
+DESIRED_SEND_BUFFER_SIZE = 16 * 1024  # windows 7 uses an 8KB sndbuf
 
 def http_date(timeval=None):
     return type('')(formatdate(timeval=timeval, usegmt=True))

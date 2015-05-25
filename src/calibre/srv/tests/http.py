@@ -329,6 +329,7 @@ class TestHTTP(BaseTest):
                 self.ae(len(data), len(rdata))
                 self.ae(hashlib.sha1(data).hexdigest(), hashlib.sha1(rdata).hexdigest())
                 self.ae(data, rdata)
-                self.assertLess(monotonic() - start_time, 1, 'Large file transfer took too long')
+                time_taken = monotonic() - start_time
+                self.assertLess(time_taken, 1, 'Large file transfer took too long')
 
     # }}}
