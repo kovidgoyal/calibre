@@ -274,6 +274,7 @@ class ServerLoop(object):
                     select.select([s], [], [], 0)
                 except select.error:
                     self.close(s, conn)  # Bad socket, discard
+            return
 
         if not self.ready:
             return
