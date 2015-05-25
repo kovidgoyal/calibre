@@ -320,7 +320,10 @@ class TestHTTP(BaseTest):
                 conn = server.connect()
                 conn.request('GET', '/test')
                 r = conn.getresponse()
-                self.ae(data, r.read())
+                rdata = r.read()
+                self.ae(len(data), len(rdata))
+                self.ae(hashlib.sha1(data).hexdigest(), hashlib.sha1(rdata).hexdigest())
+                self.ae(data, rdata)
 
                 # Now try it without sendfile
     # }}}
