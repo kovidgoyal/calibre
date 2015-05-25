@@ -225,7 +225,7 @@ __all__ = ["compile", "escape", "findall", "finditer", "fullmatch", "match",
   "V0", "VERSION0", "V1", "VERSION1", "X", "VERBOSE", "W", "WORD", "error",
   "Regex"]
 
-__version__ = "2.4.48"
+__version__ = "2.4.61"
 
 # --------------------------------------------------------------------
 # Public interface.
@@ -333,6 +333,7 @@ def compile(pattern, flags=0, **kwargs):
 def purge():
     "Clear the regular expression cache"
     _cache.clear()
+    _locale_sensitive.clear()
 
 def template(pattern, flags=0):
     "Compile a template pattern, returning a pattern object."
@@ -423,38 +424,43 @@ _MAXREPCACHE = 500
 
 def _compile(pattern, flags=0, kwargs={}):
     "Compiles a regular expression to a PatternObject."
+
+    # We won't bother to cache the pattern if we're debugging.
+    debugging = (flags & DEBUG) != 0
+
     # What locale is this pattern using?
     locale_key = (type(pattern), pattern)
     if _locale_sensitive.get(locale_key, True) or (flags & LOCALE) != 0:
         # This pattern is, or might be, locale-sensitive.
-        pattern_locale = _getlocale()
+        pattern_locale = _getlocale()[1]
     else:
         # This pattern is definitely not locale-sensitive.
         pattern_locale = None
 
-    try:
-        # Do we know what keyword arguments are needed?
-        args_key = pattern, type(pattern), flags
-        args_needed = _named_args[args_key]
+    if not debugging:
+        try:
+            # Do we know what keyword arguments are needed?
+            args_key = pattern, type(pattern), flags
+            args_needed = _named_args[args_key]
 
-        # Are we being provided with its required keyword arguments?
-        args_supplied = set()
-        if args_needed:
-            for k, v in args_needed:
-                try:
-                    args_supplied.add((k, frozenset(kwargs[k])))
-                except KeyError:
-                    raise error("missing named list: {!r}".format(k))
+            # Are we being provided with its required keyword arguments?
+            args_supplied = set()
+            if args_needed:
+                for k, v in args_needed:
+                    try:
+                        args_supplied.add((k, frozenset(kwargs[k])))
+                    except KeyError:
+                        raise error("missing named list: {!r}".format(k))
 
-        args_supplied = frozenset(args_supplied)
+            args_supplied = frozenset(args_supplied)
 
-        # Have we already seen this regular expression and named list?
-        pattern_key = (pattern, type(pattern), flags, args_supplied,
-          DEFAULT_VERSION, pattern_locale)
-        return _cache[pattern_key]
-    except KeyError:
-        # It's a new pattern, or new named list for a known pattern.
-        pass
+            # Have we already seen this regular expression and named list?
+            pattern_key = (pattern, type(pattern), flags, args_supplied,
+              DEFAULT_VERSION, pattern_locale)
+            return _cache[pattern_key]
+        except KeyError:
+            # It's a new pattern, or new named list for a known pattern.
+            pass
 
     # Guess the encoding from the class of the pattern string.
     if isinstance(pattern, unicode):
@@ -463,7 +469,7 @@ def _compile(pattern, flags=0, kwargs={}):
         guess_encoding = ASCII
     elif isinstance(pattern, _pattern_type):
         if flags:
-            raise ValueError("can't process flags argument with a compiled pattern")
+            raise ValueError("cannot process flags argument with a compiled pattern")
 
         return pattern
     else:
@@ -490,10 +496,11 @@ def _compile(pattern, flags=0, kwargs={}):
             caught_exception = e
 
         if caught_exception:
-            raise error(str(caught_exception))
+            raise error(caught_exception.msg, caught_exception.pattern,
+              caught_exception.pos)
 
     if not source.at_end():
-        raise error("trailing characters in pattern at position %d" % source.pos)
+        raise error("unbalanced parenthesis", pattern, source.pos)
 
     # Check the global flags for conflicts.
     version = (info.flags & _ALL_VERSIONS) or DEFAULT_VERSION
@@ -520,7 +527,7 @@ def _compile(pattern, flags=0, kwargs={}):
         parsed.dump(indent=0, reverse=reverse)
 
     # Fix the group references.
-    parsed.fix_groups(reverse, False)
+    parsed.fix_groups(pattern, reverse, False)
 
     # Optimise the parsed pattern.
     parsed = parsed.optimise(info)
@@ -591,19 +598,23 @@ def _compile(pattern, flags=0, kwargs={}):
     if len(_cache) >= _MAXCACHE:
         _cache_lock.acquire()
         try:
-            _shrink_cache(_cache, _named_args, _MAXCACHE)
+            _shrink_cache(_cache, _named_args, _locale_sensitive, _MAXCACHE)
         finally:
             _cache_lock.release()
 
-    args_needed = frozenset(args_needed)
+    if not debugging:
+        if (info.flags & LOCALE) == 0:
+            pattern_locale = None
 
-    # Store this regular expression and named list.
-    pattern_key = (pattern, type(pattern), flags, args_needed, DEFAULT_VERSION,
-      pattern_locale)
-    _cache[pattern_key] = compiled_pattern
+        args_needed = frozenset(args_needed)
 
-    # Store what keyword arguments are needed.
-    _named_args[args_key] = args_needed
+        # Store this regular expression and named list.
+        pattern_key = (pattern, type(pattern), flags, args_needed,
+          DEFAULT_VERSION, pattern_locale)
+        _cache[pattern_key] = compiled_pattern
+
+        # Store what keyword arguments are needed.
+        _named_args[args_key] = args_needed
 
     return compiled_pattern
 

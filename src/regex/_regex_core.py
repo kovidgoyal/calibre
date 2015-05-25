@@ -31,9 +31,21 @@ __all__ = ["A", "ASCII", "B", "BESTMATCH", "D", "DEBUG", "E", "ENHANCEMATCH",
 
 # The regex exception.
 class error(Exception):
-    def __init__(self, message, set_error=False):
+    def __init__(self, message, pattern=None, pos=None):
+        newline = u'\n' if isinstance(pattern, unicode) else '\n'
+        self.msg = message
+        self.pattern = pattern
+        self.pos = pos
+        if pattern is not None and pos is not None:
+            self.lineno = pattern.count(newline, 0, pos) + 1
+            self.colno = pos - pattern.rfind(newline, 0, pos)
+
+            message = "%s at position %d" % (message, pos)
+
+            if newline in pattern:
+                message += " (line %d, column %d)" % (self.lineno, self.colno)
+
         Exception.__init__(self, message)
-        self.set_error = set_error
 
 # The exception for when a positional flag has been turned on in the old
 # behaviour.
@@ -210,7 +222,7 @@ OP = Namespace()
 for i, op in enumerate(OPCODES.split()):
     setattr(OP, op, i)
 
-def _shrink_cache(cache_dict, args_dict, max_length, divisor=5):
+def _shrink_cache(cache_dict, args_dict, locale_sensitive, max_length, divisor=5):
     """Make room in the given cache.
 
     Args:
@@ -247,10 +259,18 @@ def _shrink_cache(cache_dict, args_dict, max_length, divisor=5):
             # Ignore problems if the cache changed from another thread.
             pass
 
-    # Rebuild the arguments dictionary.
+    # Rebuild the arguments and locale-sensitivity dictionaries.
     args_dict.clear()
+    sensitivity_dict = {}
     for pattern, pattern_type, flags, args, default_version, locale in cache_dict:
         args_dict[pattern, pattern_type, flags, default_version, locale] = args
+        try:
+            sensitivity_dict[pattern_type, pattern] = locale_sensitive[pattern_type, pattern]
+        except KeyError:
+            pass
+
+    locale_sensitive.clear()
+    locale_sensitive.update(sensitivity_dict)
 
 def _fold_case(info, string):
     "Folds the case of a string."
@@ -384,8 +404,11 @@ def apply_quantifier(source, info, counts, characters, case_flags, ch,
         element = Character(characters[-1], case_flags=case_flags)
     else:
         # The quantifier applies to the last item in the sequence.
-        if applied or not sequence:
-            raise error("nothing to repeat at position %d" % saved_pos)
+        if applied:
+            raise error("multiple repeat", source.string, saved_pos)
+
+        if not sequence:
+            raise error("nothing to repeat", source.string, saved_pos)
 
         element = sequence.pop()
 
@@ -420,7 +443,8 @@ def apply_constraint(source, info, constraints, characters, case_flags,
     else:
         # The constraint applies to the last item in the sequence.
         if applied or not sequence:
-            raise error("nothing for fuzzy constraint at position %d" % saved_pos)
+            raise error("nothing for fuzzy constraint", source.string,
+              saved_pos)
 
         element = sequence.pop()
 
@@ -473,7 +497,8 @@ def parse_limited_quantifier(source):
         max_count = int(max_count) if max_count else None
 
         if max_count is not None and min_count > max_count:
-            raise error("min repeat greater than max repeat at position %d" % saved_pos)
+            raise error("min repeat greater than max repeat", source.string,
+              saved_pos)
     else:
         if not min_count:
             source.pos = saved_pos
@@ -482,7 +507,7 @@ def parse_limited_quantifier(source):
         min_count = max_count = int(min_count)
 
     if is_above_limit(min_count) or is_above_limit(max_count):
-        raise error("repeat count too big at position %d" % saved_pos)
+        raise error("repeat count too big", source.string, saved_pos)
 
     if not source.match ("}"):
         source.pos = saved_pos
@@ -507,7 +532,7 @@ def parse_fuzzy(source, ch):
         return None
 
     if not source.match("}"):
-        raise error("expected } at position %d" % source.pos)
+        raise error("expected }", source.string, source.pos)
 
     return constraints
 
@@ -544,7 +569,7 @@ def parse_cost_constraint(source, constraints):
                 max_cost -= 1
 
             if max_cost < 0:
-                raise error("bad fuzzy cost limit at position %d" % cost_pos)
+                raise error("bad fuzzy cost limit", source.string, cost_pos)
 
             constraints[constraint] = 0, max_cost
     elif ch in DIGITS:
@@ -575,7 +600,7 @@ def parse_cost_constraint(source, constraints):
                 max_cost -= 1
 
             if not 0 <= min_cost <= max_cost:
-                raise error("bad fuzzy cost limit at position %d" % cost_pos)
+                raise error("bad fuzzy cost limit", source.string, cost_pos)
 
             constraints[constraint] = min_cost, max_cost
         except ValueError:
@@ -586,10 +611,10 @@ def parse_cost_constraint(source, constraints):
 def parse_constraint(source, constraints, ch):
     "Parses a constraint."
     if ch not in "deis":
-        raise error("bad fuzzy constraint at position %d" % source.pos)
+        raise error("bad fuzzy constraint", source.string, source.pos)
 
     if ch in constraints:
-        raise error("repeated fuzzy constraint at position %d" % source.pos)
+        raise error("repeated fuzzy constraint", source.string, source.pos)
 
     return ch
 
@@ -605,7 +630,7 @@ def parse_fuzzy_compare(source):
 def parse_cost_equation(source, constraints):
     "Parses a cost equation."
     if "cost" in constraints:
-        raise error("more than one cost equation at position %d" % source.pos)
+        raise error("more than one cost equation", source.string, source.pos)
 
     cost = {}
 
@@ -615,7 +640,7 @@ def parse_cost_equation(source, constraints):
 
     max_inc = parse_fuzzy_compare(source)
     if max_inc is None:
-        raise error("missing fuzzy cost limit at position %d" % source.pos)
+        raise error("missing fuzzy cost limit", source.string, source.pos)
 
     max_cost = int(parse_count(source))
 
@@ -623,7 +648,7 @@ def parse_cost_equation(source, constraints):
         max_cost -= 1
 
     if max_cost < 0:
-        raise error("bad fuzzy cost limit at position %d" % source.pos)
+        raise error("bad fuzzy cost limit", source.string, source.pos)
 
     cost["max"] = max_cost
 
@@ -637,7 +662,7 @@ def parse_cost_term(source, cost):
         raise ParseError()
 
     if ch in cost:
-        raise error("repeated fuzzy cost at position %d" % source.pos)
+        raise error("repeated fuzzy cost", source.string, source.pos)
 
     cost[ch] = int(coeff or 1)
 
@@ -816,10 +841,11 @@ def parse_extension(source, info):
         return Group(info, group, subpattern)
     if ch == "=":
         # (?P=...: a named group reference.
-        name = parse_name(source)
+        name = parse_name(source, allow_numeric=True)
         source.expect(")")
         if info.is_open_group(name):
-            raise error("can't refer to an open group at position %d" % saved_pos)
+            raise error("cannot refer to an open group", source.string,
+              saved_pos)
 
         return make_ref_group(info, name, saved_pos)
     if ch == ">" or ch == "&":
@@ -827,7 +853,7 @@ def parse_extension(source, info):
         return parse_call_named_group(source, info, saved_pos)
 
     source.pos = saved_pos
-    raise error("unknown extension at position %d" % saved_pos)
+    raise error("unknown extension", source.string, saved_pos)
 
 def parse_comment(source):
     "Parses a comment."
@@ -941,7 +967,8 @@ def parse_flags(source, info):
     if source.match("-"):
         flags_off = parse_flag_set(source)
         if not flags_off:
-            raise error("bad inline flags: no flags after '-' at position %d" % source.pos)
+            raise error("bad inline flags: no flags after '-'", source.string,
+              source.pos)
     else:
         flags_off = 0
 
@@ -973,10 +1000,12 @@ def parse_flags_subpattern(source, info):
     flags_on, flags_off = parse_flags(source, info)
 
     if flags_off & GLOBAL_FLAGS:
-        raise error("bad inline flags: can't turn off global flag at position %d" % source.pos)
+        raise error("bad inline flags: cannot turn off global flag",
+          source.string, source.pos)
 
     if flags_on & flags_off:
-        raise error("bad inline flags: flag turned on and off at position %d" % source.pos)
+        raise error("bad inline flags: flag turned on and off", source.string,
+          source.pos)
 
     # Handle flags which are global in all regex behaviours.
     new_global_flags = (flags_on & ~info.global_flags) & GLOBAL_FLAGS
@@ -996,7 +1025,7 @@ def parse_flags_subpattern(source, info):
         parse_positional_flags(source, info, flags_on, flags_off)
         return FLAGS
 
-    raise error("unknown extension at position %d" % source.pos)
+    raise error("unknown extension", source.string, source.pos)
 
 def parse_positional_flags(source, info, flags_on, flags_off):
     "Parses positional flags."
@@ -1004,7 +1033,8 @@ def parse_positional_flags(source, info, flags_on, flags_off):
     if version == VERSION0:
         # Positional flags are global and can only be turned on.
         if flags_off:
-            raise error("bad inline flags: can't turn flags off at position %d" % source.pos)
+            raise error("bad inline flags: cannot turn flags off",
+              source.string, source.pos)
 
         new_global_flags = flags_on & ~info.global_flags
         if new_global_flags:
@@ -1017,19 +1047,22 @@ def parse_positional_flags(source, info, flags_on, flags_off):
 
     source.ignore_space = bool(info.flags & VERBOSE)
 
-def parse_name(source, allow_numeric=False):
+def parse_name(source, allow_numeric=False, allow_group_0=False):
     "Parses a name."
     name = source.get_while(set(")>"), include=False)
 
     if not name:
-        raise error("bad group name at position %d" % source.pos)
+        raise error("missing group name", source.string, source.pos)
 
     if name.isdigit():
-        if not allow_numeric:
-            raise error("bad group name at position %d" % source.pos)
+        min_group = 0 if allow_group_0 else 1
+        if not allow_numeric or int(name) < min_group:
+            raise error("bad character in group name", source.string,
+              source.pos)
     else:
         if not is_identifier(name):
-            raise error("bad group name at position %d" % source.pos)
+            raise error("bad character in group name", source.string,
+              source.pos)
 
     return name
 
@@ -1064,10 +1097,10 @@ def parse_escape(source, info, in_set):
     source.ignore_space = saved_ignore
     if not ch:
         # A backslash at the end of the pattern.
-        raise error("bad escape at position %d" % source.pos)
+        raise error("bad escape (end of pattern)", source.string, source.pos)
     if ch in HEX_ESCAPES:
         # A hexadecimal escape sequence.
-        return parse_hex_escape(source, info, HEX_ESCAPES[ch], in_set)
+        return parse_hex_escape(source, info, HEX_ESCAPES[ch], in_set, ch)
     elif ch == "g" and not in_set:
         # A group reference.
         saved_pos = source.pos
@@ -1150,7 +1183,7 @@ def parse_numeric_escape(source, info, ch, in_set):
     # Group reference.
     source.pos = saved_pos
     if info.is_open_group(digits):
-        raise error("can't refer to an open group at position %d" % source.pos)
+        raise error("cannot refer to an open group", source.string, source.pos)
 
     return make_ref_group(info, digits, source.pos)
 
@@ -1168,15 +1201,21 @@ def parse_octal_escape(source, info, digits, in_set):
         value = int("".join(digits), 8)
         return make_character(info, value, in_set)
     except ValueError:
-        raise error("bad octal escape at position %d" % source.pos)
+        if digits[0] in OCT_DIGITS:
+            raise error("incomplete escape \\%s" % ''.join(digits),
+              source.string, source.pos)
+        else:
+            raise error("bad escape \\%s" % digits[0], source.string,
+              source.pos)
 
-def parse_hex_escape(source, info, expected_len, in_set):
+def parse_hex_escape(source, info, expected_len, in_set, type):
     "Parses a hex escape sequence."
     digits = []
     for i in range(expected_len):
         ch = source.get()
         if ch not in HEX_DIGITS:
-            raise error("bad hex escape at position %d" % source.pos)
+            raise error("incomplete escape \\%s%s" % (type, ''.join(digits)),
+              source.string, source.pos)
         digits.append(ch)
 
     value = int("".join(digits), 16)
@@ -1189,7 +1228,7 @@ def parse_group_ref(source, info):
     name = parse_name(source, True)
     source.expect(">")
     if info.is_open_group(name):
-        raise error("can't refer to an open group at position %d" % source.pos)
+        raise error("cannot refer to an open group", source.string, source.pos)
 
     return make_ref_group(info, name, saved_pos)
 
@@ -1199,7 +1238,7 @@ def parse_string_set(source, info):
     name = parse_name(source, True)
     source.expect(">")
     if name is None or name not in info.kwargs:
-        raise error("undefined named list at position %d" % source.pos)
+        raise error("undefined named list", source.string, source.pos)
 
     return make_string_set(info, name)
 
@@ -1213,7 +1252,8 @@ def parse_named_char(source, info, in_set):
                 value = unicodedata.lookup(name)
                 return make_character(info, ord(value), in_set)
             except KeyError:
-                raise error("undefined character name at position %d" % source.pos)
+                raise error("undefined character name", source.string,
+                  source.pos)
 
     source.pos = saved_pos
     return make_character(info, ord("N"), in_set)
@@ -1227,12 +1267,12 @@ def parse_property(source, info, positive, in_set):
         prop_name, name = parse_property_name(source)
         if source.match("}"):
             # It's correctly delimited.
-            prop = lookup_property(prop_name, name, positive != negate, source_pos=source.pos)
+            prop = lookup_property(prop_name, name, positive != negate, source)
             return make_property(info, prop, in_set)
     elif ch and ch in "CLMNPSZ":
         # An abbreviated property, eg \pL.
-        prop = lookup_property(None, ch, positive)
-        return make_property(info, prop, in_set, source_pos=source.pos)
+        prop = lookup_property(None, ch, positive, source)
+        return make_property(info, prop, in_set)
 
     # Not a property, so treat as a literal "p" or "P".
     source.pos = saved_pos
@@ -1276,7 +1316,7 @@ def parse_set(source, info):
             item = parse_set_union(source, info)
 
         if not source.match("]"):
-            raise error("missing ] at position %d" % source.pos)
+            raise error("missing ]", source.string, source.pos)
     finally:
         source.ignore_space = saved_ignore
 
@@ -1354,17 +1394,26 @@ def parse_set_member(source, info):
     "Parses a member in a character set."
     # Parse a set item.
     start = parse_set_item(source, info)
+    saved_pos1 = source.pos
     if (not isinstance(start, Character) or not start.positive or not
       source.match("-")):
         # It's not the start of a range.
         return start
 
+    version = (info.flags & _ALL_VERSIONS) or DEFAULT_VERSION
+
     # It looks like the start of a range of characters.
-    saved_pos = source.pos
+    saved_pos2 = source.pos
+    if version == VERSION1 and source.match("-"):
+        # It's actually the set difference operator '--', so return the
+        # character.
+        source.pos = saved_pos1
+        return start
+
     if source.match("]"):
         # We've reached the end of the set, so return both the character and
         # hyphen.
-        source.pos = saved_pos
+        source.pos = saved_pos2
         return SetUnion(info, [start, Character(ord("-"))])
 
     # Parse a set item.
@@ -1375,7 +1424,7 @@ def parse_set_member(source, info):
 
     # It _is_ a range.
     if start.value > end.value:
-        raise error("bad character range at position %d" % source.pos)
+        raise error("bad character range", source.string, source.pos)
 
     if start.value == end.value:
         return start
@@ -1407,7 +1456,7 @@ def parse_set_item(source, info):
         item = parse_set_union(source, info)
 
         if not source.match("]"):
-            raise error("missing ] at position %d" % source.pos)
+            raise error("missing ]", source.string, source.pos)
 
         if negate:
             item = item.with_flags(positive=not item.positive)
@@ -1416,7 +1465,7 @@ def parse_set_item(source, info):
 
     ch = source.get()
     if not ch:
-        raise error("bad set at position %d" % source.pos, True)
+        raise error("unterminated character set", source.string, source.pos)
 
     return Character(ord(ch))
 
@@ -1427,7 +1476,7 @@ def parse_posix_class(source, info):
     if not source.match(":]"):
         raise ParseError()
 
-    return lookup_property(prop_name, name, positive=not negate, source_pos=source.pos)
+    return lookup_property(prop_name, name, not negate, source)
 
 def float_to_rational(flt):
     "Converts a float to a rational pair."
@@ -1442,7 +1491,7 @@ def float_to_rational(flt):
 
 def numeric_to_rational(numeric):
     "Converts a numeric string to a rational string, if possible."
-    if numeric[0] == "-":
+    if numeric[ : 1] == "-":
         sign, numeric = numeric[0], numeric[1 : ]
     else:
         sign = ""
@@ -1468,7 +1517,7 @@ def standardise_name(name):
     except (ValueError, ZeroDivisionError):
         return "".join(ch for ch in name if ch not in "_- ").upper()
 
-def lookup_property(property, value, positive, source_pos=None):
+def lookup_property(property, value, positive, source=None):
     "Looks up a property."
     # Normalise the names (which may still be lists).
     property = standardise_name(property) if property else None
@@ -1481,12 +1530,18 @@ def lookup_property(property, value, positive, source_pos=None):
         # Both the property and the value are provided.
         prop = PROPERTIES.get(property)
         if not prop:
-            raise error("unknown property at position %d" % source_pos)
+            if not source:
+                raise error("unknown property")
+
+            raise error("unknown property", source.string, source.pos)
 
         prop_id, value_dict = prop
         val_id = value_dict.get(value)
         if val_id is None:
-            raise error("unknown property value at position %d" % source_pos)
+            if not source:
+                raise error("unknown property value")
+
+            raise error("unknown property value", source.string, source.pos)
 
         if "YES" in value_dict and val_id == 0:
             positive, val_id = not positive, 1
@@ -1526,7 +1581,10 @@ def lookup_property(property, value, positive, source_pos=None):
                 return Property((prop_id << 16) | val_id, positive)
 
     # Unknown property.
-    raise error("unknown property at position %d" % source_pos)
+    if not source:
+        raise error("unknown property")
+
+    raise error("unknown property", source.string, source.pos)
 
 def _compile_replacement(source, pattern, is_unicode):
     "Compiles a replacement template escape sequence."
@@ -1539,7 +1597,7 @@ def _compile_replacement(source, pattern, is_unicode):
 
         if ch in HEX_ESCAPES and (ch == "x" or is_unicode):
             # A hexadecimal escape sequence.
-            return False, [parse_repl_hex_escape(source, HEX_ESCAPES[ch])]
+            return False, [parse_repl_hex_escape(source, HEX_ESCAPES[ch], ch)]
 
         if ch == "g":
             # A group preference.
@@ -1595,18 +1653,19 @@ def _compile_replacement(source, pattern, is_unicode):
 
     if not ch:
         # A trailing backslash.
-        raise error("bad escape at position %d" % source.pos)
+        raise error("bad escape (end of pattern)", source.string, source.pos)
 
     # An escaped non-backslash is a backslash followed by the literal.
     return False, [ord("\\"), ord(ch)]
 
-def parse_repl_hex_escape(source, expected_len):
+def parse_repl_hex_escape(source, expected_len, type):
     "Parses a hex escape sequence in a replacement string."
     digits = []
     for i in range(expected_len):
         ch = source.get()
         if ch not in HEX_DIGITS:
-            raise error("bad hex escape at position %d" % source.pos)
+            raise error("incomplete escape \\%s%s" % (type, ''.join(digits)),
+              source.string, source.pos)
         digits.append(ch)
 
     return int("".join(digits), 16)
@@ -1622,7 +1681,8 @@ def parse_repl_named_char(source):
                 value = unicodedata.lookup(name)
                 return ord(value)
             except KeyError:
-                raise error("undefined character name at position %d" % source.pos)
+                raise error("undefined character name", source.string,
+                  source.pos)
 
     source.pos = saved_pos
     return None
@@ -1630,13 +1690,13 @@ def parse_repl_named_char(source):
 def compile_repl_group(source, pattern):
     "Compiles a replacement template group reference."
     source.expect("<")
-    name = parse_name(source, True)
+    name = parse_name(source, True, True)
 
     source.expect(">")
     if name.isdigit():
         index = int(name)
         if not 0 <= index <= pattern.groups:
-            raise error("invalid group at position %d" % source.pos)
+            raise error("invalid group reference", source.string, source.pos)
 
         return index
 
@@ -1689,7 +1749,7 @@ class RegexBase(object):
 
         return self.rebuild(positive, case_flags, zerowidth)
 
-    def fix_groups(self, reverse, fuzzy):
+    def fix_groups(self, pattern, reverse, fuzzy):
         pass
 
     def optimise(self, info):
@@ -1797,8 +1857,8 @@ class Atomic(RegexBase):
         RegexBase.__init__(self)
         self.subpattern = subpattern
 
-    def fix_groups(self, reverse, fuzzy):
-        self.subpattern.fix_groups(reverse, fuzzy)
+    def fix_groups(self, pattern, reverse, fuzzy):
+        self.subpattern.fix_groups(pattern, reverse, fuzzy)
 
     def optimise(self, info):
         self.subpattern = self.subpattern.optimise(info)
@@ -1857,9 +1917,9 @@ class Branch(RegexBase):
         RegexBase.__init__(self)
         self.branches = branches
 
-    def fix_groups(self, reverse, fuzzy):
+    def fix_groups(self, pattern, reverse, fuzzy):
         for b in self.branches:
-            b.fix_groups(reverse, fuzzy)
+            b.fix_groups(pattern, reverse, fuzzy)
 
     def optimise(self, info):
         # Flatten branches within branches.
@@ -2235,27 +2295,27 @@ class CallGroup(RegexBase):
 
         self._key = self.__class__, self.group
 
-    def fix_groups(self, reverse, fuzzy):
+    def fix_groups(self, pattern, reverse, fuzzy):
         try:
             self.group = int(self.group)
         except ValueError:
             try:
                 self.group = self.info.group_index[self.group]
             except KeyError:
-                raise error("unknown group at position %d" % self.position)
+                raise error("invalid group reference", pattern, self.position)
 
         if not 0 <= self.group <= self.info.group_count:
-            raise error("unknown group at position %d" % self.position)
+            raise error("unknown group", pattern, self.position)
 
         if self.group > 0 and self.info.open_group_count[self.group] > 1:
-            raise error("ambiguous group reference at position %d" % self.position)
+            raise error("ambiguous group reference", pattern, self.position)
 
         self.info.group_calls.append((self, reverse, fuzzy))
 
         self._key = self.__class__, self.group
 
     def remove_captures(self):
-        raise error("group reference not allowed at position %d" % self.position)
+        raise error("group reference not allowed", pattern, self.position)
 
     def _compile(self, reverse, fuzzy):
         return [(OP.GROUP_CALL, self.call_ref)]
@@ -2352,20 +2412,20 @@ class Conditional(RegexBase):
         self.no_item = no_item
         self.position = position
 
-    def fix_groups(self, reverse, fuzzy):
+    def fix_groups(self, pattern, reverse, fuzzy):
         try:
             self.group = int(self.group)
         except ValueError:
             try:
                 self.group = self.info.group_index[self.group]
             except KeyError:
-                raise error("unknown group at position %d" % self.position)
+                raise error("unknown group", pattern, self.position)
 
         if not 1 <= self.group <= self.info.group_count:
-            raise error("unknown group at position %d" % self.position)
+            raise error("invalid group reference", pattern, self.position)
 
-        self.yes_item.fix_groups(reverse, fuzzy)
-        self.no_item.fix_groups(reverse, fuzzy)
+        self.yes_item.fix_groups(pattern, reverse, fuzzy)
+        self.no_item.fix_groups(pattern, reverse, fuzzy)
 
     def optimise(self, info):
         yes_item = self.yes_item.optimise(info)
@@ -2496,8 +2556,8 @@ class Fuzzy(RegexBase):
             constraints["cost"] = {"d": 1, "i": 1, "s": 1, "max":
               constraints["e"][1]}
 
-    def fix_groups(self, reverse, fuzzy):
-        self.subpattern.fix_groups(reverse, True)
+    def fix_groups(self, pattern, reverse, fuzzy):
+        self.subpattern.fix_groups(pattern, reverse, True)
 
     def pack_characters(self, info):
         self.subpattern = self.subpattern.pack_characters(info)
@@ -2612,8 +2672,8 @@ class GreedyRepeat(RegexBase):
         self.min_count = min_count
         self.max_count = max_count
 
-    def fix_groups(self, reverse, fuzzy):
-        self.subpattern.fix_groups(reverse, fuzzy)
+    def fix_groups(self, pattern, reverse, fuzzy):
+        self.subpattern.fix_groups(pattern, reverse, fuzzy)
 
     def optimise(self, info):
         subpattern = self.subpattern.optimise(info)
@@ -2700,9 +2760,9 @@ class Group(RegexBase):
 
         self.call_ref = None
 
-    def fix_groups(self, reverse, fuzzy):
+    def fix_groups(self, pattern, reverse, fuzzy):
         self.info.defined_groups[self.group] = (self, reverse, fuzzy)
-        self.subpattern.fix_groups(reverse, fuzzy)
+        self.subpattern.fix_groups(pattern, reverse, fuzzy)
 
     def optimise(self, info):
         subpattern = self.subpattern.optimise(info)
@@ -2788,8 +2848,8 @@ class LookAround(RegexBase):
         self.positive = bool(positive)
         self.subpattern = subpattern
 
-    def fix_groups(self, reverse, fuzzy):
-        self.subpattern.fix_groups(self.behind, fuzzy)
+    def fix_groups(self, pattern, reverse, fuzzy):
+        self.subpattern.fix_groups(pattern, self.behind, fuzzy)
 
     def optimise(self, info):
         subpattern = self.subpattern.optimise(info)
@@ -2982,22 +3042,22 @@ class RefGroup(RegexBase):
 
         self._key = self.__class__, self.group, self.case_flags
 
-    def fix_groups(self, reverse, fuzzy):
+    def fix_groups(self, pattern, reverse, fuzzy):
         try:
             self.group = int(self.group)
         except ValueError:
             try:
                 self.group = self.info.group_index[self.group]
             except KeyError:
-                raise error("unknown group at position %d" % self.position)
+                raise error("unknown group", pattern, self.position)
 
         if not 1 <= self.group <= self.info.group_count:
-            raise error("unknown group at position %d" % self.position)
+            raise error("invalid group reference", pattern, self.position)
 
         self._key = self.__class__, self.group, self.case_flags
 
     def remove_captures(self):
-        raise error("group reference not allowed at position %d" % self.position)
+        raise error("group reference not allowed", pattern, self.position)
 
     def _compile(self, reverse, fuzzy):
         flags = 0
@@ -3024,9 +3084,9 @@ class Sequence(RegexBase):
 
         self.items = items
 
-    def fix_groups(self, reverse, fuzzy):
+    def fix_groups(self, pattern, reverse, fuzzy):
         for s in self.items:
-            s.fix_groups(reverse, fuzzy)
+            s.fix_groups(pattern, reverse, fuzzy)
 
     def optimise(self, info):
         # Flatten the sequences.
@@ -3208,7 +3268,7 @@ class SetBase(RegexBase):
         print "%s%s %s%s" % (INDENT * indent, self._op_name,
           POS_TEXT[self.positive], CASE_TEXT[self.case_flags])
         for i in self.items:
-            i.dump(indent + 1)
+            i.dump(indent + 1, reverse)
 
     def _handle_case_folding(self, info, in_set):
         # Is the set case-sensitive?
@@ -3494,9 +3554,9 @@ class String(RegexBase):
 class Literal(String):
     def _dump(self, indent, reverse):
         for c in self.characters:
-            display = ascii("".join(chr(c))).lstrip("bu")
-            print("{}CHARACTER MATCH {}{}".format(INDENT * indent,
-              display, CASE_TEXT[self.case_flags]))
+            display = repr(unichr(c)).lstrip("bu")
+            print "%sCHARACTER MATCH %s%s" % (INDENT * indent, display,
+              CASE_TEXT[self.case_flags])
 
 class StringSet(RegexBase):
     _opcode = {(NOCASE, False): OP.STRING_SET, (IGNORECASE, False):
@@ -3792,7 +3852,7 @@ class Source(object):
 
     def expect(self, substring):
         if not self.match(substring):
-            raise error("missing %s at position %d" % (substring, self.pos))
+            raise error("missing %s" % substring, self.string, self.pos)
 
     def at_end(self):
         string = self.string
@@ -3953,7 +4013,7 @@ class Scanner:
             source.ignore_space = bool(info.flags & VERBOSE)
             parsed = _parse_pattern(source, info)
             if not source.at_end():
-                raise error("trailing characters at position %d" % source.pos)
+                raise error("unbalanced parenthesis", source.string, source.pos)
 
             # We want to forbid capture groups within each phrase.
             patterns.append(parsed.remove_captures())
@@ -3977,7 +4037,8 @@ class Scanner:
         # Complain if there are any group calls. They are not supported by the
         # Scanner class.
         if info.call_refs:
-            raise error("recursive regex not supported by Scanner")
+            raise error("recursive regex not supported by Scanner",
+              source.string, source.pos)
 
         reverse = bool(info.flags & REVERSE)
 
