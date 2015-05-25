@@ -80,9 +80,10 @@ if isosx:
             err = ctypes.get_errno()
             if err in (errno.EBADF, errno.ENOTSUP, errno.ENOTSOCK, errno.EOPNOTSUPP):
                 raise CannotSendfile()
-            if err in (errno.EINTR, errno.EAGAIN):
+            if err == errno.EINTR:
                 raise SendfileInterrupted()
-            raise IOError((err, os.strerror(err)))
+            if err != errno.EAGAIN:
+                raise IOError((err, os.strerror(err)))
         return num_bytes.value
 
 elif islinux:

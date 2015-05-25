@@ -24,6 +24,7 @@ from calibre.srv.errors import HTTP404
 from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
 from calibre.srv.utils import MultiDict, start_cork, stop_cork, http_date, HTTP1, HTTP11, socket_errors_socket_closed
+from calibre.utils.monotonic import monotonic
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex.decode('ascii')
@@ -274,6 +275,8 @@ class HTTPConnection(HTTPRequest):
                     self.ready = self.use_sendfile = False
                     return False
                 raise
+            finally:
+                self.last_activity = monotonic()
             if sent == 0:
                 # Something bad happened, was the file modified on disk by
                 # another process?

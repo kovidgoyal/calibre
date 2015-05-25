@@ -12,6 +12,7 @@ from tempfile import NamedTemporaryFile
 
 from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
+from calibre.utils.monotonic import monotonic
 
 class TestHTTP(BaseTest):
 
@@ -242,8 +243,8 @@ class TestHTTP(BaseTest):
         from calibre.srv.http_response import parse_multipart_byterange
         def handler(conn):
             return conn.generate_static_output('test', lambda : ''.join(conn.path))
-        with TestServer(handler, timeout=0.1, compress_min_size=0) as server, \
-                NamedTemporaryFile(suffix='test.epub') as f, open(P('localization/locales.zip'), 'rb') as lf:
+        with NamedTemporaryFile(suffix='test.epub') as f, open(P('localization/locales.zip'), 'rb') as lf, \
+                TestServer(handler, timeout=0.2, compress_min_size=0) as server:
             fdata = string.ascii_letters * 100
             f.write(fdata), f.seek(0)
 
@@ -280,20 +281,21 @@ class TestHTTP(BaseTest):
 
                 conn.request('GET', '/test', headers={'Range':'bytes=2-25'})
                 r = conn.getresponse()
+                self.ae(r.status, httplib.PARTIAL_CONTENT)
                 self.ae(type('')(r.getheader('Accept-Ranges')), 'bytes')
                 self.ae(type('')(r.getheader('Content-Range')), 'bytes 2-25/%d' % len(fdata))
                 self.ae(int(r.getheader('Content-Length')), 24)
-                self.ae(r.status, httplib.PARTIAL_CONTENT), self.ae(r.read(), fdata[2:26])
+                self.ae(r.read(), fdata[2:26])
 
                 conn.request('GET', '/test', headers={'Range':'bytes=100000-'})
                 r = conn.getresponse()
-                self.ae(type('')(r.getheader('Content-Range')), 'bytes */%d' % len(fdata))
                 self.ae(r.status, httplib.REQUESTED_RANGE_NOT_SATISFIABLE)
+                self.ae(type('')(r.getheader('Content-Range')), 'bytes */%d' % len(fdata))
 
                 conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':etag})
                 r = conn.getresponse()
-                self.ae(int(r.getheader('Content-Length')), 26)
                 self.ae(r.status, httplib.PARTIAL_CONTENT), self.ae(r.read(), fdata[25:51])
+                self.ae(int(r.getheader('Content-Length')), 26)
 
                 conn.request('GET', '/test', headers={'Range':'bytes=0-1000000'})
                 r = conn.getresponse()
@@ -301,12 +303,13 @@ class TestHTTP(BaseTest):
 
                 conn.request('GET', '/test', headers={'Range':'bytes=25-50', 'If-Range':'"nomatch"'})
                 r = conn.getresponse()
+                self.ae(r.status, httplib.OK), self.ae(r.read(), fdata)
                 self.assertFalse(r.getheader('Content-Range'))
                 self.ae(int(r.getheader('Content-Length')), len(fdata))
-                self.ae(r.status, httplib.OK), self.ae(r.read(), fdata)
 
                 conn.request('GET', '/test', headers={'Range':'bytes=0-25,26-50'})
                 r = conn.getresponse()
+                self.ae(r.status, httplib.PARTIAL_CONTENT)
                 clen = int(r.getheader('Content-Length'))
                 data = r.read()
                 self.ae(clen, len(data))
@@ -314,16 +317,18 @@ class TestHTTP(BaseTest):
                 self.ae(parse_multipart_byterange(buf, r.getheader('Content-Type')), [(0, fdata[:26]), (26, fdata[26:51])])
 
                 # Test sending of larger file
+                start_time = monotonic()
                 lf.seek(0)
                 data =  lf.read()
                 server.change_handler(lambda conn: lf)
                 conn = server.connect()
                 conn.request('GET', '/test')
                 r = conn.getresponse()
+                self.ae(r.status, httplib.OK)
                 rdata = r.read()
                 self.ae(len(data), len(rdata))
                 self.ae(hashlib.sha1(data).hexdigest(), hashlib.sha1(rdata).hexdigest())
                 self.ae(data, rdata)
+                self.assertLess(monotonic() - start_time, 5, 'Large file transfer took too long')
 
-                # Now try it without sendfile
     # }}}
