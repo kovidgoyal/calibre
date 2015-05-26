@@ -23,6 +23,7 @@ from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
+from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
 
 class UpdateEditorGeometry(object):
@@ -307,13 +308,22 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def createEditor(self, parent, option, index):
         if self.db and hasattr(self.db, self.items_func_name):
-            col = index.model().column_map[index.column()]
+            m = index.model()
+            col = m.column_map[index.column()]
+            # If shifted, bring up the tag editor instead of the line editor.
+            # Don't do this for people-name columns because order will be lost
+            if QApplication.keyboardModifiers() == Qt.ShiftModifier and self.sep == ',':
+                key = col if m.is_custom_column(col) else None
+                d = TagEditor(parent, self.db, m.id(index.row()), key=key)
+                if d.exec_() == TagEditor.Accepted:
+                    m.setData(index, self.sep.join(d.tags), Qt.EditRole)
+                return None
             editor = EditWithComplete(parent)
             editor.set_separator(self.sep)
             editor.set_space_before_sep(self.space_before_sep)
             if self.sep == '&':
                 editor.set_add_separator(tweaks['authors_completer_append_separator'])
-            if not index.model().is_custom_column(col):
+            if not m.is_custom_column(col):
                 all_items = getattr(self.db, self.items_func_name)()
             else:
                 all_items = list(self.db.all_custom(
