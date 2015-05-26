@@ -10,12 +10,13 @@ import textwrap, os, shlex, subprocess, glob, shutil, re, sys
 from distutils import sysconfig
 
 from setup import Command, islinux, isbsd, isosx, SRC, iswindows, __version__
-from setup.build_environment import (chmlib_inc_dirs,
-        podofo_inc, podofo_lib, podofo_error, pyqt, NMAKE, QMAKE,
-        msvc, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs,
-        magick_libs, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-        icu_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs, cpu_count,
-        zlib_libs, zlib_lib_dirs, zlib_inc_dirs, is64bit, glib_flags, fontconfig_flags)
+from setup.build_environment import (
+    chmlib_inc_dirs, podofo_inc, podofo_lib, podofo_error, pyqt, NMAKE, QMAKE,
+    msvc, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs, magick_libs,
+    chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs, icu_lib_dirs, ft_libs,
+    ft_lib_dirs, ft_inc_dirs, cpu_count, zlib_libs, zlib_lib_dirs,
+    zlib_inc_dirs, is64bit, glib_flags, fontconfig_flags, openssl_inc_dirs,
+    openssl_lib_dirs)
 from setup.parallel_build import create_job, parallel_build
 isunix = islinux or isosx or isbsd
 
@@ -84,6 +85,15 @@ extensions = [
     Extension('speedup',
         ['calibre/utils/speedup.c'],
         libraries=[] if iswindows else ['m']
+        ),
+
+    Extension('certgen',
+        ['calibre/utils/certgen.c'],
+        libraries=['libeay32'] if iswindows else ['crypto'],
+        # Apple has deprecated openssl in OSX, so we need this, until we
+        # build our own private copy of openssl
+        cflags=['-Wno-deprecated-declarations'] if isosx else [],
+        inc_dirs=openssl_inc_dirs, lib_dirs=openssl_lib_dirs,
         ),
 
     Extension('html',

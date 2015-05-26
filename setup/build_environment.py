@@ -122,6 +122,7 @@ icu_lib_dirs = []
 zlib_inc_dirs = []
 zlib_lib_dirs = []
 zlib_libs = ['z']
+openssl_inc_dirs, openssl_lib_dirs = [], []
 ICU = sw = ''
 
 QT_DLLS = ['Qt5' + x for x in (
@@ -149,6 +150,9 @@ if iswindows:
     icu_inc_dirs = [os.path.join(ICU, 'source', 'common'), os.path.join(ICU,
         'source', 'i18n')]
     icu_lib_dirs = [os.path.join(ICU, 'source', 'lib')]
+    SSL = os.environ.get('OPENSSL_DIR', os.path.join(prefix, 'private', 'openssl'))
+    openssl_inc_dirs = [os.path.join(SSL, 'include')]
+    openssl_lib_dirs = [os.path.join(SSL, 'lib')]
     sqlite_inc_dirs = [sw_inc_dir]
     chmlib_inc_dirs = consolidate('CHMLIB_INC_DIR', os.path.join(prefix,
         'build', 'chmlib-0.40', 'src'))

@@ -75,6 +75,10 @@ def test_lxml():
     else:
         raise RuntimeError('lxml failed')
 
+def test_certgen():
+    from calibre.utils.certgen import create_key_pair
+    create_key_pair()
+
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
     from calibre.constants import plugins
@@ -223,6 +227,7 @@ def test():
     test_apsw()
     test_imaging()
     test_unrar()
+    test_certgen()
     test_icu()
     test_woff()
     test_qt()

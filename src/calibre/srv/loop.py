@@ -156,7 +156,7 @@ class Connection(object):
 
     def do_ssl_handshake(self, event):
         try:
-            self._sslobj.do_handshake()
+            self.socket._sslobj.do_handshake()
         except ssl.SSLWantReadError:
             self.set_state(READ, self.do_ssl_handshake)
         except ssl.SSLWantWriteError:
