@@ -22,7 +22,9 @@ from calibre.utils.monotonic import monotonic
 
 READ, WRITE, RDWR = 'READ', 'WRITE', 'RDWR'
 
-class ReadBuffer(object):
+class ReadBuffer(object):  # {{{
+
+    ' A ring buffer used to speed up the readline() implementation by minimizing recv() calls '
 
     __slots__ = ('ba', 'buf', 'read_pos', 'write_pos', 'full_state')
 
@@ -78,6 +80,7 @@ class ReadBuffer(object):
 
     def readline(self):
         # Return whatever is in the buffer upto (and including) the first \n
+        # If no \n is present, returns everything
         if self.read_pos == self.write_pos and self.full_state is WRITE:
             return b''
         if self.read_pos < self.write_pos:
@@ -104,6 +107,7 @@ class ReadBuffer(object):
                 if self.read_pos == self.write_pos:
                     self.full_state = WRITE
         return ans
+    # }}}
 
 class Connection(object):
 
@@ -365,28 +369,30 @@ class ServerLoop(object):
 
     def tick(self):
         now = monotonic()
-        for s, conn in tuple(self.connection_map.iteritems()):
+        read_needed, write_needed, readable, remove = [], [], [], []
+        for s, conn in self.connection_map.iteritems():
             if now - conn.last_activity > self.opts.timeout:
                 if not conn.handle_timeout():
-                    self.log.debug('Closing connection because of extended inactivity')
-                    self.close(s, conn)
-
-        read_needed, write_needed, readable = [], [], []
-        for c in self.connection_map.itervalues():
-            if c.wait_for is READ:
-                (readable if c.read_buffer.has_data else read_needed).append(c.socket)
-            elif c.wait_for is WRITE:
-                write_needed.append(c.socket)
+                    remove.append((s, conn))
+                    continue
+            if conn.wait_for is READ:
+                (readable if conn.read_buffer.has_data else read_needed).append(s)
+            elif conn.wait_for is WRITE:
+                write_needed.append(s)
             else:
-                write_needed.append(c)
-                (readable if c.read_buffer.has_data else read_needed).append(c.socket)
+                write_needed.append(s)
+                (readable if conn.read_buffer.has_data else read_needed).append(s)
+
+        for s, conn in remove:
+            self.log.debug('Closing connection because of extended inactivity')
+            self.close(s, conn)
 
         if readable:
             writable = []
         else:
             try:
                 readable, writable, _ = select.select([self.socket] + read_needed, write_needed, [], self.opts.timeout)
-            except select.error as e:
+            except (select.error, socket.error) as e:
                 if e.errno in socket_errors_eintr:
                     return
                 for s, conn in tuple(self.connection_map.iteritems()):
