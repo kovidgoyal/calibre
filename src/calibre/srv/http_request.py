@@ -13,7 +13,7 @@ from urllib import unquote
 from calibre import as_unicode, force_unicode
 from calibre.ptempfile import SpooledTemporaryFile
 from calibre.srv.loop import Connection, READ, WRITE
-from calibre.srv.utils import MultiDict, HTTP1, HTTP11
+from calibre.srv.utils import MultiDict, HTTP1, HTTP11, Accumulator
 
 protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
 quoted_slash = re.compile(br'%2[fF]')
@@ -171,13 +171,12 @@ class HTTPRequest(Connection):
 
     def readline(self, buf):
         line = self.read_buffer.readline()
-        buf.write(line)
-        if buf.tell() > self.max_header_line_size:
+        buf.append(line)
+        if buf.total_length > self.max_header_line_size:
             self.simple_response(self.header_line_too_long_error_code)
             return
         if line.endswith(b'\n'):
             line = buf.getvalue()
-            buf.seek(0), buf.truncate()
             if not line.endswith(b'\r\n'):
                 self.simple_response(httplib.BAD_REQUEST, 'HTTP requires CRLF line terminators')
                 return
@@ -194,7 +193,7 @@ class HTTPRequest(Connection):
         self.close_after_response = False
         self.header_line_too_long_error_code = httplib.REQUEST_URI_TOO_LONG
         self.response_started = False
-        self.set_state(READ, self.parse_request_line, BytesIO(), first=True)
+        self.set_state(READ, self.parse_request_line, Accumulator(), first=True)
 
     def parse_request_line(self, buf, event, first=False):  # {{{
         line = self.readline(buf)
@@ -203,7 +202,7 @@ class HTTPRequest(Connection):
         if line == b'\r\n':
             # Ignore a single leading empty line, as per RFC 2616 sec 4.1
             if first:
-                return self.set_state(READ, self.parse_request_line, BytesIO())
+                return self.set_state(READ, self.parse_request_line, Accumulator())
             return self.simple_response(httplib.BAD_REQUEST, 'Multiple leading empty lines not allowed')
 
         try:
@@ -246,7 +245,7 @@ class HTTPRequest(Connection):
         self.path = tuple(filter(None, (x.replace('%2F', '/') for x in path.split('/'))))
         self.header_line_too_long_error_code = httplib.REQUEST_ENTITY_TOO_LARGE
         self.request_line = line.rstrip()
-        self.set_state(READ, self.parse_header_line, HTTPHeaderParser(), BytesIO())
+        self.set_state(READ, self.parse_header_line, HTTPHeaderParser(), Accumulator())
     # }}}
 
     @property
@@ -310,7 +309,7 @@ class HTTPRequest(Connection):
     def read_request_body(self, inheaders, request_content_length, chunked_read):
         buf = SpooledTemporaryFile(prefix='rq-body-', max_size=DEFAULT_BUFFER_SIZE, dir=self.tdir)
         if chunked_read:
-            self.set_state(READ, self.read_chunk_length, inheaders, BytesIO(), buf, [0])
+            self.set_state(READ, self.read_chunk_length, inheaders, Accumulator(), buf, [0])
         else:
             if request_content_length > 0:
                 self.set_state(READ, self.sized_read, inheaders, buf, request_content_length)
@@ -334,7 +333,7 @@ class HTTPRequest(Connection):
             return self.simple_response(httplib.REQUEST_ENTITY_TOO_LARGE,
                                         'Chunked request is larger than %d bytes' % self.max_request_body_size)
         if chunk_size == 0:
-            self.set_state(READ, self.read_chunk_separator, inheaders, BytesIO(), buf, bytes_read, last=True)
+            self.set_state(READ, self.read_chunk_separator, inheaders, Accumulator(), buf, bytes_read, last=True)
         else:
             self.set_state(READ, self.read_chunk, inheaders, buf, chunk_size, buf.tell() + chunk_size, bytes_read)
 
@@ -342,7 +341,7 @@ class HTTPRequest(Connection):
         if not self.read(buf, end):
             return
         bytes_read[0] += chunk_size
-        self.set_state(READ, self.read_chunk_separator, inheaders, BytesIO(), buf, bytes_read)
+        self.set_state(READ, self.read_chunk_separator, inheaders, Accumulator(), buf, bytes_read)
 
     def read_chunk_separator(self, inheaders, line_buf, buf, bytes_read, event, last=False):
         line = self.readline(line_buf)
@@ -357,7 +356,7 @@ class HTTPRequest(Connection):
         if last:
             self.prepare_response(inheaders, buf)
         else:
-            self.set_state(READ, self.read_chunk_length, inheaders, BytesIO(), buf, bytes_read)
+            self.set_state(READ, self.read_chunk_length, inheaders, Accumulator(), buf, bytes_read)
 
     def handle_timeout(self):
         if self.response_started:

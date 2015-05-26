@@ -219,3 +219,20 @@ class HandleInterrupt(object):  # {{{
                 raise WindowsError()
 # }}}
 
+class Accumulator(object):
+
+    'Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()'
+
+    def __init__(self):
+        self._buf = []
+        self.total_length = 0
+
+    def append(self, b):
+        self._buf.append(b)
+        self.total_length += len(b)
+
+    def getvalue(self):
+        ans = b''.join(self._buf)
+        self._buf = []
+        self.total_length = 0
+        return ans
