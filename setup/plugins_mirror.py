@@ -131,6 +131,9 @@ def convert_node(fields, x, names={}, import_data=None):
                 return get_import_data(x.id, import_data[0][x.id], *import_data[1:])
             raise ValueError('Could not find name %s for fields: %s' % (x.id, fields))
         return names[x.id]
+    elif name == 'BinOp':
+        if x.right.__class__.__name__ == 'Str':
+            return x.right.s.decode('utf-8') if isinstance(x.right.s, bytes) else x.right.s
     raise TypeError('Unknown datatype %s for fields: %s' % (x, fields))
 
 Alias = namedtuple('Alias', 'name asname')
@@ -174,7 +177,7 @@ def parse_metadata(raw, namelist, zf):
             if mod in {
                 'calibre.customize', 'calibre.customize.conversion',
                 'calibre.ebooks.metadata.sources.base', 'calibre.ebooks.metadata.covers',
-                'calibre.devices.interface', 'calibre.ebooks.metadata.fetch',
+                'calibre.devices.interface', 'calibre.ebooks.metadata.fetch', 'calibre.customize.builtins',
                        } or re.match(r'calibre\.devices\.[a-z0-9]+\.driver', mod) is not None:
                 inames = {n.asname or n.name for n in names}
                 inames = {x for x in inames if x.lower() != x}
