@@ -160,7 +160,7 @@ class HTTPRequest(Connection):
     def read(self, buf, endpos):
         size = endpos - buf.tell()
         if size > 0:
-            data = self.recv(min(size, DEFAULT_BUFFER_SIZE))
+            data = self.recv(size)
             if data:
                 buf.write(data)
                 return len(data) >= size
@@ -170,19 +170,21 @@ class HTTPRequest(Connection):
             return True
 
     def readline(self, buf):
-        if buf.tell() >= self.max_header_line_size - 1:
+        line = self.read_buffer.readline()
+        buf.write(line)
+        if buf.tell() > self.max_header_line_size:
             self.simple_response(self.header_line_too_long_error_code)
             return
-        data = self.recv(1)
-        if data:
-            buf.write(data)
-            if b'\n' == data:
-                line = buf.getvalue()
-                buf.seek(0), buf.truncate()
-                if line.endswith(b'\r\n'):
-                    return line
-                else:
-                    self.simple_response(httplib.BAD_REQUEST, 'HTTP requires CRLF line terminators')
+        if line.endswith(b'\n'):
+            line = buf.getvalue()
+            buf.seek(0), buf.truncate()
+            if not line.endswith(b'\r\n'):
+                self.simple_response(httplib.BAD_REQUEST, 'HTTP requires CRLF line terminators')
+                return
+            return line
+        if not line:
+            # read buffer is empty, fill it
+            self.fill_read_buffer()
 
     def connection_ready(self):
         'Become ready to read an HTTP request'
