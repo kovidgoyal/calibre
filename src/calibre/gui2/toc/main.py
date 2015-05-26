@@ -75,7 +75,8 @@ class XPathDialog(QDialog):  # {{{
             name = unicode(name).strip()
             if name:
                 saved = self.prefs.get('xpath_toc_settings', {})
-                saved[name] = {i:x for i, x in enumerate(xpaths)}
+                # in JSON all keys have to be strings
+                saved[name] = {str(i):x for i, x in enumerate(xpaths)}
                 self.prefs.set('xpath_toc_settings', saved)
                 self.setup_load_button()
 
@@ -98,7 +99,7 @@ class XPathDialog(QDialog):  # {{{
     def load_settings(self, name):
         saved = self.prefs.get('xpath_toc_settings', {}).get(name, {})
         for i, w in enumerate(self.widgets):
-            txt = saved.get(i, '')
+            txt = saved.get(str(i), '')
             w.edit.setText(txt)
 
     def check(self):
