@@ -115,6 +115,7 @@ class Connection(object):
         self.wait_for = READ
         self.response_started = False
         self.read_buffer = ReadBuffer()
+        self.handle_event = None
         if self.ssl_context is not None:
             self.ready = False
             self.socket = self.ssl_context.wrap_socket(socket, server_side=True, do_handshake_on_connect=False)
@@ -144,7 +145,9 @@ class Connection(object):
     def set_state(self, wait_for, func, *args, **kwargs):
         self.wait_for = wait_for
         if args or kwargs:
-            func = partial(func, *args, **kwargs)
+            pfunc = partial(func, *args, **kwargs)
+            pfunc.__name__ = func.__name__
+            func = pfunc
         self.handle_event = func
 
     def do_ssl_handshake(self, event):
