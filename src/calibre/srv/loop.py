@@ -391,15 +391,20 @@ class ServerLoop(object):
             writable = []
         else:
             try:
-                readable, writable, _ = select.select([self.socket] + read_needed, write_needed, [], self.opts.timeout)
+                readable, writable, _ = select.select([self.socket.fileno()] + read_needed, write_needed, [], self.opts.timeout)
+            except ValueError:  # self.socket.fileno() == -1
+                self.ready = False
+                self.log.error('Listening socket was unexpectedly terminated')
+                return
             except (select.error, socket.error) as e:
                 if e.errno in socket_errors_eintr:
                     return
                 for s, conn in tuple(self.connection_map.iteritems()):
                     try:
                         select.select([s], [], [], 0)
-                    except select.error:
-                        self.close(s, conn)  # Bad socket, discard
+                    except (select.error, socket.error):
+                        if e.errno not in socket_errors_eintr:
+                            self.close(s, conn)  # Bad socket, discard
                 return
 
         if not self.ready:
@@ -457,13 +462,16 @@ class ServerLoop(object):
         conn.close()
 
     def get_actions(self, readable, writable):
+        listener = self.socket.fileno()
         for s in readable:
-            if s is self.socket:
-                s, addr = self.accept()
-                if s is not None:
-                    self.connection_map[s] = conn = self.handler(s, self.opts, self.ssl_context, self.tdir)
-                    if self.ssl_context is not None:
-                        yield s, conn, RDWR
+            if s == listener:
+                sock, addr = self.accept()
+                if sock is not None:
+                    s = sock.fileno()
+                    if s > -1:
+                        self.connection_map[s] = conn = self.handler(sock, self.opts, self.ssl_context, self.tdir)
+                        if self.ssl_context is not None:
+                            yield s, conn, RDWR
             else:
                 yield s, self.connection_map[s], READ
         for s in writable:
