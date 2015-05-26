@@ -17,15 +17,15 @@ def create_key_pair(size=2048):
 def create_cert_request(
     key_pair, common_name,
     country='IN', state='Maharashtra', locality='Mumbai', organization=None,
-    organizational_unit=None, email_address=None
+    organizational_unit=None, email_address=None, alt_names=()
 ):
     def enc(x):
         if isinstance(x, type('')):
             x = x.encode('ascii')
         return x or None
     return certgen.create_rsa_cert_req(
-        key_pair, *map(enc, (
-            common_name, country, state, locality, organization, organizational_unit, email_address))
+        key_pair, tuple(bytes(enc(x)) for x in alt_names if x),
+        *map(enc, (common_name, country, state, locality, organization, organizational_unit, email_address))
     )
 
 def create_cert(req, ca_cert, ca_keypair, expire=365, not_before=0):
@@ -47,7 +47,7 @@ def create_server_cert(
     domain, ca_cert_file=None, server_cert_file=None, server_key_file=None,
     expire=365, ca_key_file=None, ca_name='Dummy Certificate Authority', key_size=2048,
     country='IN', state='Maharashtra', locality='Mumbai', organization=None,
-    organizational_unit=None, email_address=None, encrypt_key_with_password=None,
+    organizational_unit=None, email_address=None, alt_names=(), encrypt_key_with_password=None,
 ):
     # Create the Certificate Authority
     cakey = create_key_pair(key_size)
@@ -56,7 +56,7 @@ def create_server_cert(
 
     # Create the server certificate issued by the newly created CA
     pkey = create_key_pair(key_size)
-    req = create_cert_request(pkey, domain, country, state, locality, organization, organizational_unit, email_address)
+    req = create_cert_request(pkey, domain, country, state, locality, organization, organizational_unit, email_address, alt_names)
     cert = create_cert(req, cacert, cakey, expire=expire)
 
     def export(dest, obj, func, *args):
@@ -71,3 +71,10 @@ def create_server_cert(
     export(server_cert_file, cert, serialize_cert)
     export(server_key_file, pkey, serialize_key, encrypt_key_with_password)
     export(ca_key_file, cakey, serialize_key, encrypt_key_with_password)
+    return cacert, cakey, cert, pkey
+
+if __name__ == '__main__':
+    cacert, cakey, cert, pkey = create_server_cert('test.me', alt_names=['1.test.me', '*.all.test.me'])
+    print (cert_info(cert).encode('utf-8'))
+
+
