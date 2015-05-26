@@ -250,7 +250,7 @@ class DevNull(object):
 NULL = DevNull()
 
 def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
-        oauthors, oisbn, otags, oseries, oseries_index, ocover, olanguages):
+        oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages):
     orig = sys.stdout
     # sys.stdout = NULL
     try:
@@ -277,6 +277,10 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                 mi.title = os.path.splitext(os.path.basename(book))[0]
             if not mi.authors:
                 mi.authors = [_('Unknown')]
+            if oidentifiers:
+                ids = mi.get_identifiers()
+                ids.update(oidentifiers)
+                mi.set_identifiers(ids)
             for x in ('title', 'authors', 'isbn', 'tags', 'series', 'languages'):
                 val = locals()['o'+x]
                 if val:
@@ -367,6 +371,8 @@ the directory related options below.
             help=_('Set the authors of the added book(s)'))
     parser.add_option('-i', '--isbn', default=None,
             help=_('Set the ISBN of the added book(s)'))
+    parser.add_option('-I', '--identifier', default=[], action='append',
+                      help=_('Set the identifiers for this book, for e.g. -I asin:XXX -I isbn:YYY'))
     parser.add_option('-T', '--tags', default=None,
             help=_('Set the tags of the added book(s)'))
     parser.add_option('-s', '--series', default=None,
@@ -380,13 +386,15 @@ the directory related options below.
 
     return parser
 
-def do_add_empty(db, title, authors, isbn, tags, series, series_index, cover, languages):
+def do_add_empty(db, title, authors, isbn, tags, series, series_index, cover, identifiers, languages):
     from calibre.ebooks.metadata import MetaInformation
     mi = MetaInformation(None)
     if title is not None:
         mi.title = title
     if authors:
         mi.authors = authors
+    if identifiers:
+        mi.set_identifiers(identifiers)
     if isbn:
         mi.isbn = isbn
     if tags:
@@ -410,9 +418,11 @@ def command_add(args, dbpath):
     tags = [x.strip() for x in opts.tags.split(',')] if opts.tags else []
     lcodes = [canonicalize_lang(x) for x in (opts.languages or '').split(',')]
     lcodes = [x for x in lcodes if x]
+    identifiers = (x.partition(':')[::2] for x in opts.identifier)
+    identifiers = dict((k.strip(), v.strip()) for k, v in identifiers if k.strip() and v.strip())
     if opts.empty:
         do_add_empty(get_db(dbpath, opts), opts.title, aut, opts.isbn, tags,
-                opts.series, opts.series_index, opts.cover, lcodes)
+                opts.series, opts.series_index, opts.cover, identifiers, lcodes)
         return 0
     if len(args) < 2:
         parser.print_help()
@@ -421,7 +431,7 @@ def command_add(args, dbpath):
         return 1
     do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory,
             opts.recurse, opts.duplicates, opts.title, aut, opts.isbn,
-            tags, opts.series, opts.series_index, opts.cover, lcodes)
+            tags, opts.series, opts.series_index, opts.cover, identifiers, lcodes)
     return 0
 
 def do_remove(db, ids):
