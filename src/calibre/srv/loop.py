@@ -59,7 +59,7 @@ class ReadBuffer(object):
             if self.read_pos == self.write_pos:
                 self.full_state = WRITE
             if size > sz and self.read_pos < self.write_pos:
-                ans += self.read(size - len(ans.buf))
+                ans += self.read(size - len(ans))
         return ans
 
     def recv_from(self, socket):
