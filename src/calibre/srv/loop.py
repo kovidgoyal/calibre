@@ -334,11 +334,13 @@ class ServerLoop(object):
             self.ready = True
             self.log('calibre server listening on', ba)
 
-            while True:
+            while self.ready:
                 try:
                     self.tick()
-                except (KeyboardInterrupt, SystemExit):
+                except (KeyboardInterrupt, SystemExit) as e:
                     self.shutdown()
+                    if isinstance(e, SystemExit):
+                        raise
                     break
                 except:
                     self.log.exception('Error in ServerLoop.tick')
