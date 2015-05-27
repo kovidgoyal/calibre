@@ -1,10 +1,237 @@
 Files: *
-Copyright: Copyright (C) 2008 Kovid Goyal <kovid@kovidgoyal.net>
+Copyright: Copyright (C) 2008-2015 Kovid Goyal <kovid@kovidgoyal.net>
 License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
-Files: setup/iso_639/*
+Files: src/unrar/*
+Copyright: Various
+License: Non-free
+   Code can be distributed freely.
+
+Files: src/html5lib/*
+Copyright: Copyright (c) 2006-2013 James Graham and other contributors
+License: Expat
+
+Files: src/templite/*
+Copyright: Copyright (c) 2009 joonis new media, Thimo Kraemer
+License: GPL-2+
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-2 on Debian systems.
+
+Files: src/calibre/devices/bambook/*
+Copyright: 2010, Li Fanxi
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/binatone/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/boeye/*
+Copyright: 2011,  Ken <ken at szboeye.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/cybook/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/hanlin/*
+Copyright: 2009, Tijmen Ruizendaal <tijmen at mybebook.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/hanvon/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/iliad/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/irex/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/jetbook/*
+Copyright: 2009, James Ralston <jralston at mindspring.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/kindle/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/kobo/*
+Copyright: 2010-2012, Timothy Legge <timlegge@gmail.com>, Kovid Goyal <kovid@kovidgoyal.net> and David Forrester <davidfor@internode.on.net>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/nokia/*
+Copyright: 2009-2014, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/nook/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/sne/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/devices/usbms/*
+Copyright: 2009, John Schember <john at nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/azw4/*
+Copyright: 2011, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/chem/*
+Copyright: 2008, Kovid Goyal <kovid at kovidgoyal.net>, Alex Bramley <a.bramley at gmail.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/compression/*
+Copyright: 2009, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/djvu/*
+Copyright: 2011, Anthon van der Neut <anthon@mnt.org>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/htmlz/*
+Copyright: 2011, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/markdown/*
+Copyright: 2007-2013 The Python Markdown Project (v. 1.7 and later)
+License: BSD
+ The full text of the BSD license is distributed as in
+ /usr/share/common-licenses/BSD on Debian systems.
+
+Files: src/calibre/ebooks/oeb/*
+Copyright: 2008, Marshall T. Vandegrift <llasram@gmail.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/pdb/*
+Copyright: 2009, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/pml/*
+Copyright: 2009, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/rb/*
+Copyright: 2009, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/snb/*
+Copyright: 2010, Li Fanxi <lifanxi@freemindworld.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/tcr/*
+Copyright: 2009, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/textile/unsmarten.py
+Copyright: 2011, Leigh Parry <leighparry@blueyonder.co.uk>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/textile/unsmarten.py
+Copyright: 2011, Leigh Parry <leighparry@blueyonder.co.uk>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/ebooks/textile/functions.py
+Copyright: 2011, Leigh Parry <leighparry@blueyonder.co.uk>
+License: BSD-3-clause-like
+
+Files: src/calibre/ebooks/txt/*
+Copyright: 2008, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/gui2/store/*
+Copyright: 2011, John Schember <john@nachtimwald.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/headless/fontconfig_database.cpp
+Copyright: Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies)
+License: LGPL-2.1, LGPL-3
+
+Files: src/calibre/utils/chm/*
+Copyright: Copyright (C) 2003-2006 Rubens Ramos <rubensr@users.sourceforge.net>
+License: GPL-2+
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-2 on Debian systems.
+
+Files: src/calibre/utils/open_search/description.py
+Copyright: 2011, John Schember <john@nachtimwald.com>, 2006, Ed Summers <ehs@pobox.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: src/calibre/utils/open_search/{query.py, url.py}
+Copyright: 2006, Ed Summers <ehs@pobox.com>
+License: GPL-3
+ The full text of the GPL is distributed as in
+ /usr/share/common-licenses/GPL-3 on Debian systems.
+
+Files: setup/iso*
 Copyright: Various
 License: LGPL 2.1
  The full text of the LGPL is distributed as in
@@ -16,25 +243,19 @@ License: BSD
  The full text of the BSD license is distributed as in
  /usr/share/common-licenses/BSD on Debian systems.
 
-Files: src/qtcurve/*
-Copyright: Craig Drummond, 2007 - 2010 craig.p.drummond@gmail.com
-License: GPL-2
- The full text of the GPL is distributed as in
- /usr/share/common-licenses/GPL-2 on Debian systems.
-
-Files: src/calibre/ebooks/chardet/*
+Files: src/chardet/*
 Copyright: Copyright (C) 1998-2001 Netscape Communications Corporation
 License: LGPL-2.1+
  The full text of the LGPL is distributed as in
  /usr/share/common-licenses/LGPL-2.1 on Debian systems.
 
-Files: src/calibre/utils/fonts/woff/*
+Files: src/calibre/utils/fonts/woff/woff*
 Copyright: Jonathan Kew?
 License: LGPL-2.1
  The full text of the LGPL is distributed as in
  /usr/share/common-licenses/LGPL-2.1 on Debian systems.
 
-Files: srx/regex/*
+Files: src/regex/*
 Copyright: Matthew Barnett
 License: Python Software Foundation License
 
@@ -42,28 +263,20 @@ Files: src/hunspell/*
 Copyright: Various
 License: GPL-2+
 
-Files: src/calibre/utils/diff/_patiencediff_c.c
+Files: src/calibre/gui2/tweak_book/diff/_patiencediff_c.c
 Copyright: Canonical
 License: GPL-2+
 
 Files: src/calibre/ebooks/hyphenate.py
-Copyright: Copyright (C) 1990, 2004, 2005 Gerard D.C. Kuiken.
-License: other
- Copying and distribution of this file, with or without modification,
- are permitted in any medium without royalty provided the copyright
- notice and this notice are preserved.
+Copyright: Ned Batchelder
+License: Other
+  This Python code is in the public domain.
 
 Files: src/tinycss/*
 Copyright: Simon Sapin
 License: BSD
 
 Files: src/calibre/ebooks/readability/*
-Copyright: Unknown
-License: Apache 2.0
-  The full text of the Apache 2.0 license is available at:
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Files: resources/viewer/mathjax/*
 Copyright: Unknown
 License: Apache 2.0
   The full text of the Apache 2.0 license is available at:
@@ -83,7 +296,7 @@ License: BSD
  /usr/share/common-licenses/BSD on Debian systems.
 
 Files: src/odf/*
-Copyright: Copyright (C) 2006-2008 Søren Roug, European Environment Agency
+Copyright: Copyright (C) 2006-2008 S�ren Roug, European Environment Agency
 License: LGPL2.1+
  The full text of the LGPL is distributed as in
  /usr/share/common-licenses/LGPL-2.1 on Debian systems.
@@ -167,19 +380,9 @@ License: BSD
  The full text of the BSD license is distributed as in
  /usr/share/common-licenses/BSD on Debian systems.
 
-Files: src/calibre/web/feeds/recipes/*
-Copyright: 2008, Darko Miletic <darko.miletic at gmail.com>
-Copyright: 2008, Mathieu Godlewski <mathieu at godlewski.fr>
-Copyright: Copyright (C) 2008 B.Scott Wxby [bswxby]
-Copyright: Copyright (C) 2007 David Chen SonyReader<at>DaveChen<dot>org
-Copyright: 2008, Derry FitzGerald
-License: GPL-3
- The full text of the GPL is distributed as in
- /usr/share/common-licenses/GPL-3 on Debian systems.
-
 Files: src/calibre/ebooks/metadata/*
 Copyright: 2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>
-Copyright: Copyright (C) 2006 Søren Roug, European Environment Agency
+Copyright: Copyright (C) 2006 S�ren Roug, European Environment Agency
 License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
@@ -200,172 +403,16 @@ License: GPL-3, Perl
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
-Files: src/encutils/__init__.py
-Copyright: 2005-2008: Christof Hoeke
-License: LGPL-3+, CC-BY-3.0
- The full text of the LGPL is distributed as in
- /usr/share/common-licenses/LGPL-3 on Debian systems.
-
-Files: src/calibre/translations/*
-Copyright: Copyright (C) 2007, Kovid Goyal
-Copyright: Copyright (C) 2008, Rosetta Contributors and Canonical Ltd.
+Files: src/calibre/translations/dynamic.py
+Copyright: Copyright (C) 2008, Marshall T. Vandegrift
 License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
-Files: src/calibre/gui2/viewer/jquery.js
-Files: src/calibre/gui2/viewer/jquery_scrollTo.js
-Files: src/calibre/library/static/date.js
-Copyright: Copyright (C) 2008, John Resig (jquery.com)
-Copyright: Copyright (C) 2007-2008, Ariel Flesler - aflesler@gmail.com | http://flesler.blogspot.com
-Copyright: Copyright (C) 2006-2007, Coolite Inc. (http://www.coolite.com/)
-License: MIT
- Permission is hereby granted, free of charge, to any person obtaining
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
- 
- The above copyright notice and this permission notice shall be
- included in all copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+Files: src/calibre/translations/msgfmt.py
+Copyright: Martin v. Loewis
+License: Python Software Foundation License
 
-Files: src/calibre/ebooks/lrf/fonts/liberation/*
-Copyright: Copyright (C) 2007, Red Hat, Inc. All rights reserved. 
-License: Other
- Copyright (C) 2007, Red Hat, Inc. All rights reserved. 
- LIBERATION is a trademark of Red Hat, Inc.
- 
- This agreement governs the use of the Software and any updates to the Software,
- regardless of the delivery mechanism. Subject to the following terms, Red Hat, Inc.
- ("Red Hat") grants to the user ("Client") a license to this work pursuant to 
- the GNU General Public License v.2 with the exceptions set forth below and such 
- other terms as our set forth in this End User License Agreement.
- 
- 1. The Software and License Exception. LIBERATION font software  (the "Software")
- consists of TrueType-OpenType formatted font software for rendering LIBERATION
- typefaces in sans serif, serif, and monospaced character styles. You are licensed 
- to  use, modify, copy, and distribute the Software pursuant to the GNU General
- Public License v.2 with the following exceptions:  
- 
- (a) As a special exception, if you create a document which uses this font, and 
-  embed this font or unaltered portions of this font into the document, this
-  font does not by itself cause the resulting document to be covered by the 
-  GNU General Public License.  This exception does not however invalidate any
-  other reasons why the document might be covered by the GNU General Public 
-  License.  If you modify this font, you may extend this exception to your 
-  version of the font, but you are not obligated to do so. If you do not 
-  wish to do so, delete this exception statement from your version.
- 
- (b) As a further exception, any distribution of the object code of the Software 
-  in a physical product must provide you the right to access and modify the
-  source code for the Software and to reinstall that modified version of the 
-  Software in object code form on the same physical product on which you 
-  received it.
- 
- 2. Intellectual Property Rights. The Software and each of its components, including 
-    the source code, documentation, appearance, structure and organization are owned 
-    by Red Hat and others and are protected under copyright and other laws. Title to 
-    the Software and any component, or to any copy, modification, or merged portion
-    shall remain with the aforementioned, subject to the applicable license. 
-    The "LIBERATION" trademark is a trademark of Red Hat, Inc. in the U.S. and other
-    countries. This agreement does not permit Client to distribute modified versions 
-    of the Software using Red Hat's trademarks. If Client makes a redistribution of 
-    a modified version of the Software, then Client must modify the files names to 
-    remove any reference to the Red Hat trademarks and must not use the Red Hat 
-    trademarks in any way to reference or promote the modified Software. 
- 
- 3. Limited Warranty. To the maximum extent permitted under applicable law, the 
-    Software is provided and licensed "as is" without warranty of any kind, 
-    expressed or implied, including the implied warranties of merchantability, 
-    non-infringement or fitness for a particular purpose. Red Hat does not warrant
-    that the functions contained in the Software will meet Client's requirements or
-    that the operation of the Software will be entirely error free or appear precisely
-    as described in the accompanying documentation. 
- 
- 4. Limitation of Remedies and Liability.  To the maximum extent permitted by applicable
-    law, Red Hat or any Red Hat authorized dealer will not be liable to Client for any
-    incidental or consequential damages, including lost profits or lost savings arising 
-    out of the use or inability to use the Software, even if Red Hat or such dealer has
-    been advised of the possibility of such damages. 
- 
- 5. General. If any provision of this agreement is held to be unenforceable, that shall
-    not affect the enforceability of the remaining provisions. This agreement shall be
-    governed by the laws of the State of North Carolina and of the United States, without
-    regard to any conflict of laws provisions, except that the United Nations Convention 
-    on the International Sale of Goods shall not apply.
-
-
-Files: installer/cx_Freeze/*
-Copyright: Copyright © 2007-2008, Colt Engineering, Edmonton, Alberta, Canada.
-Copyright: Copyright © 2001-2006, Computronix (Canada) Ltd., Edmonton, Alberta, Canada.
-License: other
- All rights reserved.
-  
- NOTE: this license is derived from the Python Software Foundation License
- which can be found at http://www.python.org/psf/license
-  
- License for cx_Freeze 4.0.1
- ---------------------------
-  
- 1. This LICENSE AGREEMENT is between the copyright holders and the Individual
-    or Organization ("Licensee") accessing and otherwise using cx_Freeze
-    software in source or binary form and its associated documentation.
-  
- 2. Subject to the terms and conditions of this License Agreement, the
-    copyright holders hereby grant Licensee a nonexclusive, royalty-free,
-    world-wide license to reproduce, analyze, test, perform and/or display
-    publicly, prepare derivative works, distribute, and otherwise use cx_Freeze
-    alone or in any derivative version, provided, however, that this License
-    Agreement and this notice of copyright are retained in cx_Freeze alone or in
-    any derivative version prepared by Licensee.
-  
- 3. In the event Licensee prepares a derivative work that is based on or
-    incorporates cx_Freeze or any part thereof, and wants to make the derivative
-    work available to others as provided herein, then Licensee hereby agrees to
-    include in any such work a brief summary of the changes made to cx_Freeze.
-  
- 4. The copyright holders are making cx_Freeze available to Licensee on an
-    "AS IS" basis.  THE COPYRIGHT HOLDERS MAKE NO REPRESENTATIONS OR WARRANTIES,
-    EXPRESS OR IMPLIED.  BY WAY OF EXAMPLE, BUT NOT LIMITATION, THE COPYRIGHT
-    HOLDERS MAKE NO AND DISCLAIM ANY REPRESENTATION OR WARRANTY OF
-    MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE USE OF
-    CX_FREEZE WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
-  
- 5. THE COPYRIGHT HOLDERS SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF
-    CX_FREEZE FOR ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR LOSS AS
-    A RESULT OF MODIFYING, DISTRIBUTING, OR OTHERWISE USING CX_FREEZE, OR ANY
-    DERIVATIVE THEREOF, EVEN IF ADVISED OF THE POSSIBILITY THEREOF.
- 
- 6. This License Agreement will automatically terminate upon a material breach
-    of its terms and conditions.
-  
- 7. Nothing in this License Agreement shall be deemed to create any relationship
-    of agency, partnership, or joint venture between the copyright holders and
-    Licensee.  This License Agreement does not grant permission to use
-    copyright holder's trademarks or trade name in a trademark sense to endorse
-    or promote products or services of Licensee, or any third party.
-  
- 8. By copying, installing or otherwise using cx_Freeze, Licensee agrees to be
-    bound by the terms and conditions of this License Agreement.
-  
- Computronix® is a registered trademark of Computronix (Canada) Ltd.
-
-
-Liberation Fonts
------------------
-calibre includes a copy of the liberation fonts in TTF format, licensed under
-the SIL Open Font License, Version 1.1, and available from
-https://fedorahosted.org/liberation-fonts/
 
 BSD License (for all the BSD licensed code indicated above)
 -----------------------------------------------------------
