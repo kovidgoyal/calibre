@@ -229,6 +229,7 @@ class TestHTTP(BaseTest):
             conn._HTTPConnection__state = httplib._CS_IDLE
 
             # Test closing
+            server.loop.opts.timeout = 10  # ensure socket is not closed because of timeout
             conn.request('GET', '/close', headers={'Connection':'close'})
             r = conn.getresponse()
             self.ae(server.loop.num_active_connections, 1)
