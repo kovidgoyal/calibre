@@ -6,20 +6,18 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, ssl, os, subprocess, time, socket
-from unittest import skipIf, skipUnless
+import httplib, ssl, os, socket
+from unittest import skipIf
 
-from calibre.constants import islinux
 try:
     from calibre.utils.certgen import create_server_cert
 except ImportError:
     create_server_cert = None
 
 
+from calibre.srv.pre_activated import pre_activated_socket
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
-
-SYSTEMD = '/usr/lib/systemd/systemd-activate'
 
 class LoopTest(BaseTest):
 
@@ -42,33 +40,20 @@ class LoopTest(BaseTest):
                 subject = dict(x[0] for x in cert['subject'])
                 self.ae(subject['commonName'], address)
 
-    @skipUnless(islinux and os.access(SYSTEMD, os.X_OK), 'systemd-activate not available')
-    def test_systemd(self):
-        'Test systemd socket activation'
+    @skipIf(pre_activated_socket is None, 'pre_activated_socket not available')
+    def test_socket_activation(self):
+        'Test socket activation'
+        os.closerange(3, 4)  # Ensure the socket gets fileno == 3
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         s.bind(('localhost', 0))
         port = s.getsockname()[1]
-        f = os.path.abspath(__file__).rstrip('c')
-        s.close()
-        p = subprocess.Popen([SYSTEMD, '-l', '127.0.0.1:%d' % port, 'calibre-debug', f], stdout=open(os.devnull, 'wb'), stderr=subprocess.STDOUT)
-        try:
-            conn = httplib.HTTPConnection('localhost', port, strict=True, timeout=1)
+        self.ae(s.fileno(), 3)
+        os.environ['LISTEN_PID'] = str(os.getpid())
+        os.environ['LISTEN_FDS'] = '1'
+        with TestServer(lambda data:(data.path[0] + data.read()), allow_socket_preallocation=True) as server:
+            conn = server.connect()
             conn.request('GET', '/test', 'body')
             r = conn.getresponse()
             self.ae(r.status, httplib.OK)
             self.ae(r.read(), b'testbody')
-            conn.request('GET', '/quit')
-            st = time.time()
-            while p.poll() is None and time.time() - st < 2:
-                time.sleep(0.01)
-        finally:
-            if p.poll() is None:
-                p.kill()
-
-if __name__ == '__main__':
-    def handler(data):
-        if data.path and data.path[0] == 'quit':
-            raise SystemExit(0)
-        return (data.path[0] + data.read()) if data.path else ''
-    with TestServer(handler, allow_socket_preallocation=True) as server:
-        server.join()
+            self.ae(server.loop.bound_address[1], port)
