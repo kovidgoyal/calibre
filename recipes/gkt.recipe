@@ -4,7 +4,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Politics(BasicNewsRecipe):
     title          = u'General Knowledge Today'
     language       = 'en_IN'
-    __author__     = 'Kanika G'
+    __author__     = 'Kovid Goyal'
     oldest_article = 7  # days
     max_articles_per_feed = 20
     use_embedded_content = False
@@ -13,21 +13,26 @@ class Politics(BasicNewsRecipe):
     no_javascript = True
     auto_cleanup = True
 
+    def parse_gkt_section(self, url):
+        root = self.index_to_soup(url, as_tree=True)
+        for a in root.xpath('//h1[@class="post-title"]/a[@href]'):
+            title = self.tag_to_string(a).strip()
+            url = a.get('href')
+            if title and url:
+                self.log('\tFound article:', title, 'at', url)
+                yield {'title':title, 'url':url}
+
     def parse_index(self):
-        soup = self.index_to_soup('http://www.gktoday.in/')
-
-        # Find TOC
-        toc = soup.find('div', attrs={'class':'entry clearfix'})
-        articles = []
-        for li in toc.findAll('li'):
-            a = li.find('a')
-            info = self.tag_to_string(a)
-            url = a['href']
-            desc = ''
-            self.log('Found article:', info)
-            self.log('\t', url)
-            self.log('\t', desc)
-            articles.append({'title':info, 'url':url, 'date':'',
-                'description':desc})
-
-        return [('Current Issue', articles)]
+        url = 'http://www.gktoday.in/'
+        root = self.index_to_soup(url, as_tree=True)
+        ans = []
+        for h3 in root.xpath('//h3[@class="widget-title" and contains(text(), "Current Affairs Category")]'):
+            for a in h3.getparent().xpath('descendant::li/a[@href]'):
+                category = self.tag_to_string(a).strip()
+                url = a.get('href')
+                self.log('Found section:', category)
+                articles = list(self.parse_gkt_section(url)) + list(self.parse_gkt_section(url + '/page/2'))
+                if articles:
+                    ans.append((category, articles))
+            break
+        return ans
