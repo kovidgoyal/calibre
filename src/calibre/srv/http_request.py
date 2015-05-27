@@ -250,7 +250,10 @@ class HTTPRequest(Connection):
 
     @property
     def state_description(self):
-        return 'State: %s Request: %s' % (getattr(self.handle_event, '__name__', None), force_unicode(self.request_line, 'utf-8'))
+        return 'State: %s Client: %s:%s Request: %s' % (
+            getattr(self.handle_event, '__name__', None),
+            self.remote_addr, self.remote_port,
+            force_unicode(self.request_line, 'utf-8'))
 
     def parse_header_line(self, parser, buf, event):
         line = self.readline(buf)
