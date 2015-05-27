@@ -180,10 +180,11 @@ def get_range_parts(ranges, content_type, content_length):  # {{{
 
 class RequestData(object):  # {{{
 
-    def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol, static_cache, opts):
+    def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol, static_cache, opts, remote_addr, remote_port):
         self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders, self.response_protocol, self.static_cache = (
             method, path, query, inheaders, request_body_file, outheaders, response_protocol, static_cache
         )
+        self.remote_addr, self.remote_port = remote_addr, remote_port
         self.opts = opts
         self.status_code = httplib.CREATED if self.method == 'POST' else httplib.OK
 
@@ -310,7 +311,11 @@ class HTTPConnection(HTTPRequest):
             return self.simple_response(httplib.OK, msg, close_after_response=False)
         request_body_file.seek(0)
         outheaders = MultiDict()
-        data = RequestData(self.method, self.path, self.query, inheaders, request_body_file, outheaders, self.response_protocol, self.static_cache, self.opts)
+        data = RequestData(
+            self.method, self.path, self.query, inheaders, request_body_file,
+            outheaders, self.response_protocol, self.static_cache, self.opts,
+            self.remote_addr, self.remote_port
+        )
         try:
             output = self.request_handler(data)
         except HTTP404 as e:

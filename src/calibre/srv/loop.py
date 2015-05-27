@@ -111,8 +111,14 @@ class ReadBuffer(object):  # {{{
 
 class Connection(object):
 
-    def __init__(self, socket, opts, ssl_context, tdir):
+    def __init__(self, socket, opts, ssl_context, tdir, addr):
         self.opts = opts
+        try:
+            self.remote_addr = addr[0]
+            self.remote_port = addr[1]
+        except Exception:
+            # In case addr is None, which can occassionally happen
+            self.remote_addr = self.remote_port = None
         self.orig_send_bufsize = self.send_bufsize = 4096
         self.tdir = tdir
         self.ssl_context = ssl_context
@@ -471,7 +477,7 @@ class ServerLoop(object):
                 if sock is not None:
                     s = sock.fileno()
                     if s > -1:
-                        self.connection_map[s] = conn = self.handler(sock, self.opts, self.ssl_context, self.tdir)
+                        self.connection_map[s] = conn = self.handler(sock, self.opts, self.ssl_context, self.tdir, addr)
                         if self.ssl_context is not None:
                             yield s, conn, RDWR
             else:
