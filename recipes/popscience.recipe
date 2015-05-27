@@ -1,21 +1,16 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     title = 'Popular Science'
     language = 'en'
-    __author__ = 'TonytheBookworm'
+    __author__ = 'Kovid Goyal'
     description = 'Popular Science'
     publisher = 'Popular Science'
-    category = 'gadgets,science'
-    oldest_article = 7 # change this if you want more current articles. I like to go a week in
+    oldest_article = 7  # change this if you want more current articles. I like to go a week in
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_javascript = True
-    use_embedded_content = True
-
-    masthead_url = 'http://www.raytheon.com/newsroom/rtnwcm/groups/Public/documents/masthead/rtn08_popscidec_masthead.jpg'
-
+    use_embedded_content = False
 
     feeds          = [
 
@@ -26,31 +21,11 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
                       ('DIY', 'http://www.popsci.com/full-feed/diy'),
 
                     ]
+    keep_only_tags = [
+        dict(attrs={'class':lambda x: x and {'pane-node-header', 'pane-node-body'} & set(x.split())}),
+    ]
 
-
- #The following will get read of the Gallery: links when found
-
-    def preprocess_html(self, soup) :
-        weblinks = soup.findAll(['head','h2'])
-        if weblinks is not None:
-            for link in weblinks:
-                if re.search('(Gallery)(:)',str(link)):
-
-                  link.parent.extract()
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-medsrc':True}):
+            img['src'] = img['data-medsrc']
         return soup
-  #-----------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
