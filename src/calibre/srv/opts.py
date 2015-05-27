@@ -29,7 +29,7 @@ raw_options = (
     None,
 
     'Time (in seconds) after which an idle connection is closed',
-    'timeout', 60.0,
+    'timeout', 120.0,
     None,
 
     'Total time in seconds to wait for clean shutdown',
