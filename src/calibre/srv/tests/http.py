@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, hashlib, zlib, string
+import httplib, hashlib, zlib, string, time
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
@@ -234,6 +234,10 @@ class TestHTTP(BaseTest):
             self.ae(server.loop.num_active_connections, 1)
             self.ae(r.status, 200), self.ae(r.read(), 'close')
             server.loop.wakeup()
+            num = 10
+            while num and server.loop.num_active_connections != 0:
+                time.sleep(0.01)
+                num -= 1
             self.ae(server.loop.num_active_connections, 0)
             self.assertIsNone(conn.sock)
     # }}}
