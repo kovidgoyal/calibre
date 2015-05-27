@@ -2,9 +2,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
-                      QDialogButtonBox)
+                      QDialogButtonBox, QTableWidget, QObject, pyqtSignal,
+                      QEvent, QItemDelegate)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
+from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
 from calibre.utils.icu import sort_key
 
@@ -15,14 +17,25 @@ class NameTableWidgetItem(QTableWidgetItem):
         self.initial_value = txt
         self.current_value = txt
         self.previous_value = txt
+        self.is_deleted = False
 
     def data(self, role):
         if role == Qt.DisplayRole:
+            if self.is_deleted:
+                return ''
             return self.current_value
         elif role == Qt.EditRole:
             return self.current_value
         else:
             return QTableWidgetItem.data(self, role)
+
+    def set_is_deleted(self, to_what):
+        if to_what:
+            self.setIcon(QIcon(I('trash.png')))
+        else:
+            self.setIcon(QIcon(None))
+            self.current_value = self.previous_value = self.initial_value
+        self.is_deleted = to_what
 
     def setData(self, role, data):
         if role == Qt.EditRole:
@@ -61,6 +74,27 @@ class CountTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
         return self._count < other._count
 
+class EditColumnDelegate(QItemDelegate):
+
+    def __init__(self, table):
+        QItemDelegate.__init__(self)
+        self.table = table
+
+    def createEditor(self, parent, option, index):
+        item = self.table.item(index.row(), 0)
+        if index.column() == 0:
+            item = self.table.item(index.row(), 0)
+            if item.is_deleted:
+                return None
+            return QItemDelegate.createEditor(self, parent, option, index)
+        if not confirm(
+                _('Do you want to undo your changes?'),
+                 'tag_list_editor_undo'):
+                return
+        item.setText(item.initial_text())
+        self.table.blockSignals(True)
+        self.table.item(index.row(), 2).setData(Qt.DisplayRole, '')
+        self.table.blockSignals(False)
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 
@@ -122,6 +156,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.count_order = 1
         self.was_order = 1
 
+        self.table.setItemDelegate(EditColumnDelegate(self.table))
+
         # Add the data
         select_item = None
         self.table.setRowCount(len(self.all_tags))
@@ -136,8 +172,9 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             # only the name column can be selected
             item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
             self.table.setItem(row, 1, item)
-            item = QTableWidgetItem('')
-            item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
+            item = QTableWidgetItem()
+#             item.setFlags(item.flags() & ~(Qt.ItemIsSelectable|Qt.ItemIsEditable))
+            item.setFlags((item.flags() | Qt.ItemIsEditable) & ~Qt.ItemIsSelectable)
             self.table.setItem(row, 2, item)
 
         # Scroll to the selected item if there is one
@@ -157,6 +194,8 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         self.search_box.editTextChanged.connect(self.find_text_changed)
         self.search_button.clicked.connect(self.search_clicked)
         self.search_button.setDefault(True)
+
+        self.table.setEditTriggers(QTableWidget.EditKeyPressed)
 
         self.start_find_pos = -1
 
@@ -216,7 +255,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
         if not item.text():
                 error_dialog(self, _('Item is blank'),
                              _('An item cannot be set to nothing. Delete it instead.')).exec_()
-                item.setText(item.previous_text())
+                item.setText(item.initial_text())
                 return
         if item.text() != item.initial_text():
             id_ = int(item.data(Qt.UserRole))
@@ -235,7 +274,19 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             error_dialog(self, _('No item selected'),
                          _('You must select one item from the list of Available items.')).exec_()
             return
-        self.table.editItem(item)
+        col_zero_item = self.table.item(item.row(), 0);
+        if col_zero_item.is_deleted:
+            if not question_dialog(self, _('Undelete item?'),
+                   '<p>'+_('That item is deleted. Do you want to undelete it?')+'<br>'):
+                return
+            col_zero_item.set_is_deleted(False)
+            self.to_delete.discard(int(col_zero_item.data(Qt.UserRole)))
+            orig = self.table.item(col_zero_item.row(), 2)
+            self.table.blockSignals(True)
+            orig.setData(Qt.DisplayRole, '')
+            self.table.blockSignals(False)
+        else:
+            self.table.editItem(item)
 
     def delete_tags(self):
         deletes = self.table.selectedItems()
@@ -243,16 +294,43 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             error_dialog(self, _('No items selected'),
                          _('You must select at least one item from the list.')).exec_()
             return
-        ct = ', '.join([unicode(item.text()) for item in deletes])
-        if not question_dialog(self, _('Are you sure?'),
-            '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct):
-            return
+
+        to_del = []
+        to_undel = []
+        for item in deletes:
+            if item.is_deleted:
+                to_undel.append(item)
+            else:
+                to_del.append(item)
+        if to_del:
+            ct = ', '.join([unicode(item.text()) for item in to_del])
+            if not confirm(
+                '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct,
+                 'tag_list_editor_delete'):
+                return
+        if to_undel:
+            ct = ', '.join([unicode(item.text()) for item in to_undel])
+            if not confirm(
+                '<p>'+_('Are you sure you want to undelete the following items?')+'<br>'+ct,
+                 'tag_list_editor_undelete'):
+                return
         row = self.table.row(deletes[0])
         for item in deletes:
-            id = int(item.data(Qt.UserRole))
-            self.to_delete.add(id)
-            self.table.removeRow(self.table.row(item))
-
+            if item.is_deleted:
+                item.set_is_deleted(False)
+                self.to_delete.discard(int(item.data(Qt.UserRole)))
+                orig = self.table.item(item.row(), 2)
+                self.table.blockSignals(True)
+                orig.setData(Qt.DisplayRole, '')
+                self.table.blockSignals(False)
+            else:
+                id = int(item.data(Qt.UserRole))
+                self.to_delete.add(id)
+                item.set_is_deleted(True)
+                orig = self.table.item(item.row(), 2)
+                self.table.blockSignals(True)
+                orig.setData(Qt.DisplayRole, item.initial_text())
+                self.table.blockSignals(False)
         if row >= self.table.rowCount():
             row = self.table.rowCount() - 1
         if row >= 0:
