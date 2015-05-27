@@ -81,9 +81,10 @@ def serialize_xmp_packet(root, encoding='utf-8'):
 
 def read_simple_property(elem):
     # A simple property
-    if elem.text:
-        return elem.text
-    return elem.get(expand('rdf:resource'), '')
+    if elem is not None:
+        if elem.text:
+            return elem.text
+        return elem.get(expand('rdf:resource'), '')
 
 def read_lang_alt(parent):
     # A text value with possible alternate values in different languages
