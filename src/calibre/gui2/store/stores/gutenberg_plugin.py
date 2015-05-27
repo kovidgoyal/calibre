@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, 2013, John Schember <john@nachtimwald.com>'
@@ -49,11 +49,8 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
 
             # We could use the <link rel="alternate" type="text/html" ...> tag from the
             # detail odps page but this is easier.
-            id = ''.join(data.xpath('./*[local-name() = "id"]/text()')).strip()
-            s.detail_item = fix_url(url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub('[^\d]', '', id))))
-            if not s.detail_item:
-                continue
-
+            id = fix_url(''.join(data.xpath('./*[local-name() = "id"]/text()')).strip())
+            s.detail_item = url_slash_cleaner('%s/ebooks/%s' % (web_url, re.sub('[^\d]', '', id)))
             s.title = ' '.join(data.xpath('./*[local-name() = "title"]//text()')).strip()
             s.author = ', '.join(data.xpath('./*[local-name() = "content"]//text()')).strip()
             if not s.title or not s.author:
@@ -122,3 +119,8 @@ class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
         '''
         for result in search(query, max_results, timeout):
             yield result
+
+if __name__ == '__main__':
+    import sys
+    for result in search(' '.join(sys.argv[1:]), write_raw_to='/t/gutenberg.html'):
+        print (result)
