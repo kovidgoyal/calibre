@@ -15,7 +15,7 @@ except ImportError:
     create_server_cert = None
 
 
-from calibre.srv.pre_activated import pre_activated_socket
+from calibre.srv.pre_activated import pre_activated_socket, has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 
@@ -40,7 +40,7 @@ class LoopTest(BaseTest):
                 subject = dict(x[0] for x in cert['subject'])
                 self.ae(subject['commonName'], address)
 
-    @skipIf(pre_activated_socket is None, 'pre_activated_socket not available')
+    @skipIf(not has_preactivated_support, 'pre_activated_socket not available')
     def test_socket_activation(self):
         'Test socket activation'
         os.closerange(3, 4)  # Ensure the socket gets fileno == 3
