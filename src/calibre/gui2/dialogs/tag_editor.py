@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from PyQt5.Qt import Qt, QDialog
+from PyQt5.Qt import Qt, QDialog, QAbstractItemView
 
 from calibre.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from calibre.gui2 import question_dialog, error_dialog, gprefs
@@ -18,7 +18,15 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.setupUi(self)
 
         self.db = db
+        self.sep = ','
+        self.is_names = False
         if key:
+            # Assume that if given a key then it is a custom column
+            try:
+                self.is_names = db.field_metadata[key]['display'].get('is_names', False)
+                self.sep = '&'
+            except Exception:
+                pass
             key = db.field_metadata.key_to_label(key)
         self.key = key
         self.index = db.row(id_) if id_ is not None else None
@@ -32,13 +40,16 @@ class TagEditor(QDialog, Ui_TagEditor):
         else:
             tags = []
         if tags:
-            tags.sort(key=sort_key)
+            if not self.is_names:
+                tags.sort(key=sort_key)
             for tag in tags:
                 self.applied_tags.addItem(tag)
         else:
             tags = []
 
-        self.tags = tags
+        if self.is_names:
+            self.applied_tags.setDragDropMode(QAbstractItemView.InternalMove)
+            self.applied_tags.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         if key:
             all_tags = [tag for tag in self.db.all_custom(label=key)]
@@ -108,14 +119,16 @@ class TagEditor(QDialog, Ui_TagEditor):
         items = self.available_tags.selectedItems() if item is None else [item]
         rows = [self.available_tags.row(i) for i in items]
         row = max(rows)
+        tags = self._get_applied_tags_box_contents()
         for item in items:
             tag = unicode(item.text())
-            self.tags.append(tag)
+            tags.append(tag)
             self.available_tags.takeItem(self.available_tags.row(item))
 
-        self.tags.sort(key=sort_key)
+        if not self.is_names:
+            tags.sort(key=sort_key)
         self.applied_tags.clear()
-        for tag in self.tags:
+        for tag in tags:
             self.applied_tags.addItem(tag)
 
         if row >= self.available_tags.count():
@@ -128,16 +141,24 @@ class TagEditor(QDialog, Ui_TagEditor):
         # use the filter again when the applied tags were changed
         self.filter_tags(self.applied_filter_input.text(), which='applied_tags')
 
+    def _get_applied_tags_box_contents(self):
+        tags = []
+        for i in range(0, self.applied_tags.count()):
+            tags.append(unicode(self.applied_tags.item(i).text()))
+        return tags
+
     def unapply_tags(self, item=None):
+        tags = self._get_applied_tags_box_contents()
         items = self.applied_tags.selectedItems() if item is None else [item]
         for item in items:
             tag = unicode(item.text())
-            self.tags.remove(tag)
+            tags.remove(tag)
             self.available_tags.addItem(tag)
 
-        self.tags.sort(key=sort_key)
+        if not self.is_names:
+            tags.sort(key=sort_key)
         self.applied_tags.clear()
-        for tag in self.tags:
+        for tag in tags:
             self.applied_tags.addItem(tag)
 
         items = [unicode(self.available_tags.item(x).text()) for x in
@@ -152,19 +173,21 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.filter_tags(self.available_filter_input.text())
 
     def add_tag(self):
-        tags = unicode(self.add_tag_input.text()).split(',')
+        tags = unicode(self.add_tag_input.text()).split(self.sep)
+        tags_in_box = self._get_applied_tags_box_contents()
         for tag in tags:
             tag = tag.strip()
             if not tag:
                 continue
             for item in self.available_tags.findItems(tag, Qt.MatchFixedString):
                 self.available_tags.takeItem(self.available_tags.row(item))
-            if tag not in self.tags:
-                self.tags.append(tag)
+            if tag not in tags_in_box:
+                tags_in_box.append(tag)
 
-        self.tags.sort(key=sort_key)
+        if not self.is_names:
+            tags_in_box.sort(key=sort_key)
         self.applied_tags.clear()
-        for tag in self.tags:
+        for tag in tags_in_box:
             self.applied_tags.addItem(tag)
 
         self.add_tag_input.setText('')
@@ -180,6 +203,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             item.setHidden(bool(q and not primary_contains(q, unicode(item.text()))))
 
     def accept(self):
+        self.tags = self._get_applied_tags_box_contents()
         self.save_state()
         return QDialog.accept(self)
 
@@ -189,3 +213,11 @@ class TagEditor(QDialog, Ui_TagEditor):
 
     def save_state(self):
         gprefs['tag_editor_geometry'] = bytearray(self.saveGeometry())
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    from calibre.library import db
+    db = db()
+    app = Application([])
+    d = TagEditor(None, db, key='#authors', id_=tuple(db.new_api.all_book_ids())[0])
+    d.exec_()

@@ -2,8 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from PyQt5.Qt import (Qt, QDialog, QTableWidgetItem, QIcon, QByteArray, QSize,
-                      QDialogButtonBox, QTableWidget, QObject, pyqtSignal,
-                      QEvent, QItemDelegate)
+                      QDialogButtonBox, QTableWidget, QItemDelegate)
 
 from calibre.gui2.dialogs.tag_list_editor_ui import Ui_TagListEditor
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -89,7 +88,7 @@ class EditColumnDelegate(QItemDelegate):
             return QItemDelegate.createEditor(self, parent, option, index)
         if not confirm(
                 _('Do you want to undo your changes?'),
-                 'tag_list_editor_undo'):
+                'tag_list_editor_undo'):
                 return
         item.setText(item.initial_text())
         self.table.blockSignals(True)
@@ -274,7 +273,7 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             error_dialog(self, _('No item selected'),
                          _('You must select one item from the list of Available items.')).exec_()
             return
-        col_zero_item = self.table.item(item.row(), 0);
+        col_zero_item = self.table.item(item.row(), 0)
         if col_zero_item.is_deleted:
             if not question_dialog(self, _('Undelete item?'),
                    '<p>'+_('That item is deleted. Do you want to undelete it?')+'<br>'):
@@ -306,13 +305,13 @@ class TagListEditor(QDialog, Ui_TagListEditor):
             ct = ', '.join([unicode(item.text()) for item in to_del])
             if not confirm(
                 '<p>'+_('Are you sure you want to delete the following items?')+'<br>'+ct,
-                 'tag_list_editor_delete'):
+                'tag_list_editor_delete'):
                 return
         if to_undel:
             ct = ', '.join([unicode(item.text()) for item in to_undel])
             if not confirm(
                 '<p>'+_('Are you sure you want to undelete the following items?')+'<br>'+ct,
-                 'tag_list_editor_undelete'):
+                'tag_list_editor_undelete'):
                 return
         row = self.table.row(deletes[0])
         for item in deletes:

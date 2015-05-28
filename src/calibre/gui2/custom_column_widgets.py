@@ -317,9 +317,7 @@ class Text(Base):
             if self.sep['ui_to_list'] == '&':
                 w.set_space_before_sep(True)
                 w.set_add_separator(tweaks['authors_completer_append_separator'])
-                w.get_editor_button().setVisible(False)
-            else:
-                w.get_editor_button().clicked.connect(self.edit)
+            w.get_editor_button().clicked.connect(self.edit)
             w.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
         else:
             w = EditWithComplete(parent)
