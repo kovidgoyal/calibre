@@ -140,7 +140,7 @@ def create_sock_pair(port=0):
     temp_srv_sock = socket.socket()
     set_socket_inherit(temp_srv_sock, False)
     temp_srv_sock.setblocking(False)
-    temp_srv_sock.bind(('localhost', port))
+    temp_srv_sock.bind(('127.0.0.1', port))
     port = temp_srv_sock.getsockname()[1]
     temp_srv_sock.listen(1)
     with closing(temp_srv_sock):
@@ -148,13 +148,12 @@ def create_sock_pair(port=0):
         client_sock = socket.socket()
         client_sock.setblocking(False)
         set_socket_inherit(client_sock, False)
-        while True:
-            try:
-                client_sock.connect(('localhost', port))
-            except socket.error as err:
-                # EWOULDBLOCK is not an error, as the socket is non-blocking
-                if err.errno not in socket_errors_nonblocking:
-                    raise
+        try:
+            client_sock.connect(('127.0.0.1', port))
+        except socket.error as err:
+            # EWOULDBLOCK is not an error, as the socket is non-blocking
+            if err.errno not in socket_errors_nonblocking:
+                raise
 
         # Use select to wait for connect() to succeed.
         timeout = 1
