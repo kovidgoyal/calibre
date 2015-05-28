@@ -14,6 +14,7 @@ from email.utils import formatdate
 from operator import itemgetter
 
 from calibre.constants import iswindows
+from calibre.utils.socket_inheritance import set_socket_inherit
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
@@ -132,10 +133,12 @@ def create_sock_pair(port=0):
     '''Create socket pair. Works also on windows by using an ephemeral TCP port.'''
     if hasattr(socket, 'socketpair'):
         client_sock, srv_sock = socket.socketpair()
+        set_socket_inherit(client_sock, False), set_socket_inherit(srv_sock, False)
         return client_sock, srv_sock
 
     # Create a non-blocking temporary server socket
     temp_srv_sock = socket.socket()
+    set_socket_inherit(temp_srv_sock, False)
     temp_srv_sock.setblocking(False)
     temp_srv_sock.bind(('localhost', port))
     port = temp_srv_sock.getsockname()[1]
@@ -144,6 +147,7 @@ def create_sock_pair(port=0):
         # Create non-blocking client socket
         client_sock = socket.socket()
         client_sock.setblocking(False)
+        set_socket_inherit(client_sock, False)
         while True:
             try:
                 client_sock.connect(('localhost', port))
@@ -158,6 +162,7 @@ def create_sock_pair(port=0):
         if temp_srv_sock not in readable:
             raise Exception('Client socket not connected in {} second(s)'.format(timeout))
         srv_sock = temp_srv_sock.accept()[0]
+        set_socket_inherit(srv_sock, False)
         client_sock.setblocking(True)
 
     return client_sock, srv_sock
@@ -219,7 +224,7 @@ class HandleInterrupt(object):  # {{{
                 raise WindowsError()
 # }}}
 
-class Accumulator(object):
+class Accumulator(object):  # {{{
 
     'Optimized replacement for BytesIO when the usage pattern is many writes followed by a single getvalue()'
 
@@ -236,3 +241,4 @@ class Accumulator(object):
         self._buf = []
         self.total_length = 0
         return ans
+# }}}
