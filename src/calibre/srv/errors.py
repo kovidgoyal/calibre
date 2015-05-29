@@ -9,3 +9,6 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 class HTTP404(Exception):
     pass
+
+class JobQueueFull(Exception):
+    pass

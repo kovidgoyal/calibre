@@ -21,6 +21,14 @@ from calibre.ptempfile import TemporaryDirectory
 
 class LoopTest(BaseTest):
 
+    def test_workers(self):
+        ' Test worker semantics '
+        with TestServer(lambda data:(data.path[0] + data.read()), worker_count=3) as server:
+            self.ae(3, sum(int(w.is_alive()) for w in server.loop.pool.workers))
+            server.loop.stop()
+            server.join()
+            self.ae(0, sum(int(w.is_alive()) for w in server.loop.pool.workers))
+
     @skipIf(create_server_cert is None, 'certgen module not available')
     def test_ssl(self):
         'Test serving over SSL'

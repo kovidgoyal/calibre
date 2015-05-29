@@ -8,10 +8,13 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import ssl, socket, select, os, traceback
 from io import BytesIO
+from Queue import Empty, Full
 from functools import partial
 
 from calibre import as_unicode
 from calibre.ptempfile import TemporaryDirectory
+from calibre.srv.errors import JobQueueFull
+from calibre.srv.pool import ThreadPool
 from calibre.srv.opts import Options
 from calibre.srv.utils import (
     socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt,
@@ -21,7 +24,7 @@ from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.monotonic import monotonic
 
-READ, WRITE, RDWR = 'READ', 'WRITE', 'RDWR'
+READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = bytes(bytearray(xrange(2)))
 
 class ReadBuffer(object):  # {{{
@@ -113,8 +116,8 @@ class ReadBuffer(object):  # {{{
 
 class Connection(object):  # {{{
 
-    def __init__(self, socket, opts, ssl_context, tdir, addr):
-        self.opts = opts
+    def __init__(self, socket, opts, ssl_context, tdir, addr, pool):
+        self.opts, self.pool = opts, pool
         try:
             self.remote_addr = addr[0]
             self.remote_port = addr[1]
@@ -234,11 +237,29 @@ class Connection(object):  # {{{
         except socket.error:
             pass
 
+    def queue_job(self, func, *args):
+        if args:
+            func = partial(func, *args)
+        try:
+            self.pool.put_nowait(self.socket.fileno(), func)
+        except Full:
+            raise JobQueueFull()
+        self.set_state(WAIT, self._job_done)
+
+    def _job_done(self, event):
+        self.job_done(*event)
+
+    def job_done(self, ok, result):
+        raise NotImplementedError()
+
     @property
     def state_description(self):
         return ''
 
     def report_unhandled_exception(self, e, formatted_traceback):
+        pass
+
+    def report_busy(self):
         pass
 
     def connection_ready(self):
@@ -286,6 +307,7 @@ class ServerLoop(object):
                 self.bind_address = self.pre_activated_socket.getsockname()
 
         self.create_control_connection()
+        self.pool = ThreadPool(self.log, self.job_completed, count=self.opts.worker_count)
 
     def create_control_connection(self):
         self.control_in, self.control_out = create_sock_pair()
@@ -343,6 +365,7 @@ class ServerLoop(object):
         self.bound_address = ba = self.socket.getsockname()
         if isinstance(ba, tuple):
             ba = ':'.join(map(type(''), ba))
+        self.pool.start()
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir
             self.ready = True
@@ -351,13 +374,14 @@ class ServerLoop(object):
             while self.ready:
                 try:
                     self.tick()
-                except (KeyboardInterrupt, SystemExit) as e:
+                except SystemExit:
                     self.shutdown()
-                    if isinstance(e, SystemExit):
-                        raise
+                    raise
+                except KeyboardInterrupt:
                     break
                 except:
                     self.log.exception('Error in ServerLoop.tick')
+            self.shutdown()
 
     def setup_socket(self):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -388,14 +412,17 @@ class ServerLoop(object):
         read_needed, write_needed, readable, remove = [], [], [], []
         for s, conn in self.connection_map.iteritems():
             if now - conn.last_activity > self.opts.timeout:
-                if not conn.handle_timeout():
+                if conn.handle_timeout():
+                    conn.last_activity = now
+                else:
                     remove.append((s, conn))
                     continue
-            if conn.wait_for is READ:
+            wf = conn.wait_for
+            if wf is READ:
                 (readable if conn.read_buffer.has_data else read_needed).append(s)
-            elif conn.wait_for is WRITE:
+            elif wf is WRITE:
                 write_needed.append(s)
-            else:
+            elif wf is RDWR:
                 write_needed.append(s)
                 (readable if conn.read_buffer.has_data else read_needed).append(s)
 
@@ -434,10 +461,20 @@ class ServerLoop(object):
                 conn.handle_event(event)
                 if not conn.ready:
                     self.close(s, conn)
+            except JobQueueFull:
+                self.log.exception('Server busy handling request: ' % conn.state_description)
+                if conn.ready:
+                    if conn.response_started:
+                        self.close(s, conn)
+                    else:
+                        try:
+                            conn.report_busy()
+                        except Exception:
+                            self.close(s, conn)
             except Exception as e:
                 ignore.add(s)
+                self.log.exception('Unhandled exception in state: %s' % conn.state_description)
                 if conn.ready:
-                    self.log.exception('Unhandled exception in state: %s' % conn.state_description)
                     if conn.response_started:
                         self.close(s, conn)
                     else:
@@ -452,6 +489,19 @@ class ServerLoop(object):
     def wakeup(self):
         self.control_in.sendall(WAKEUP)
 
+    def job_completed(self):
+        self.control_in.sendall(JOB_DONE)
+
+    def dispatch_job_results(self):
+        while True:
+            try:
+                s, ok, result = self.pool.get_nowait()
+            except Empty:
+                break
+            conn = self.connection_map.get(s)
+            if conn is not None:
+                yield s, conn, (ok, result)
+
     def close(self, s, conn):
         self.connection_map.pop(s, None)
         conn.close()
@@ -465,7 +515,7 @@ class ServerLoop(object):
                 if sock is not None:
                     s = sock.fileno()
                     if s > -1:
-                        self.connection_map[s] = conn = self.handler(sock, self.opts, self.ssl_context, self.tdir, addr)
+                        self.connection_map[s] = conn = self.handler(sock, self.opts, self.ssl_context, self.tdir, addr, self.pool)
                         if self.ssl_context is not None:
                             yield s, conn, RDWR
             elif s == control:
@@ -478,7 +528,8 @@ class ServerLoop(object):
                     self.create_control_connection()
                     continue
                 if c == JOB_DONE:
-                    pass
+                    for s, conn, event in self.dispatch_job_results():
+                        yield s, conn, event
                 elif c == WAKEUP:
                     pass
                 elif not c:
@@ -510,6 +561,7 @@ class ServerLoop(object):
             pass
         for s, conn in tuple(self.connection_map.iteritems()):
             self.close(s, conn)
+        self.pool.stop(self.opts.shutdown_timeout)
 
 class EchoLine(Connection):  # {{{
 

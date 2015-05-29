@@ -316,14 +316,45 @@ class HTTPConnection(HTTPRequest):
             outheaders, self.response_protocol, self.static_cache, self.opts,
             self.remote_addr, self.remote_port
         )
-        try:
-            output = self.request_handler(data)
-        except HTTP404 as e:
-            return self.simple_response(httplib.NOT_FOUND, msg=e.message or '', close_after_response=False)
+        self.queue_job(self.run_request_handler, data)
 
+    def run_request_handler(self, data):
+        result = self.request_handler(data)
+        return data, result
+
+    def send_range_not_satisfiable(self, content_length):
+        buf = [
+            '%s %d %s' % (self.response_protocol, httplib.REQUESTED_RANGE_NOT_SATISFIABLE, httplib.responses[httplib.REQUESTED_RANGE_NOT_SATISFIABLE]),
+            "Date: " + http_date(),
+            "Content-Range: bytes */%d" % content_length,
+        ]
+        self.response_ready(header_list_to_file(buf))
+
+    def send_not_modified(self, etag=None):
+        buf = [
+            '%s %d %s' % (self.response_protocol, httplib.NOT_MODIFIED, httplib.responses[httplib.NOT_MODIFIED]),
+            "Content-Length: 0",
+            "Date: " + http_date(),
+        ]
+        if etag is not None:
+            buf.append('ETag: ' + etag)
+        self.response_ready(header_list_to_file(buf))
+
+    def report_busy(self):
+        self.simple_response(httplib.SERVICE_UNAVAILABLE)
+
+    def job_done(self, ok, result):
+        if not ok:
+            etype, e, tb = result
+            if isinstance(e, HTTP404):
+                return self.simple_response(httplib.NOT_FOUND, msg=e.message or '', close_after_response=False)
+            raise e, None, tb
+
+        data, output = result
         output = self.finalize_output(output, data, self.method is HTTP1)
         if output is None:
             return
+        outheaders = data.outheaders
 
         outheaders.set('Date', http_date(), replace_all=True)
         outheaders.set('Server', 'calibre %s' % __version__, replace_all=True)
@@ -347,24 +378,6 @@ class HTTPConnection(HTTPRequest):
             buf.append('%s: %s' % (header, value))
         buf.append('')
         self.response_ready(BytesIO(b''.join((x + '\r\n').encode('ascii') for x in buf)), output=output)
-
-    def send_range_not_satisfiable(self, content_length):
-        buf = [
-            '%s %d %s' % (self.response_protocol, httplib.REQUESTED_RANGE_NOT_SATISFIABLE, httplib.responses[httplib.REQUESTED_RANGE_NOT_SATISFIABLE]),
-            "Date: " + http_date(),
-            "Content-Range: bytes */%d" % content_length,
-        ]
-        self.response_ready(header_list_to_file(buf))
-
-    def send_not_modified(self, etag=None):
-        buf = [
-            '%s %d %s' % (self.response_protocol, httplib.NOT_MODIFIED, httplib.responses[httplib.NOT_MODIFIED]),
-            "Content-Length: 0",
-            "Date: " + http_date(),
-        ]
-        if etag is not None:
-            buf.append('ETag: ' + etag)
-        self.response_ready(header_list_to_file(buf))
 
     def response_ready(self, header_file, output=None):
         self.response_started = True

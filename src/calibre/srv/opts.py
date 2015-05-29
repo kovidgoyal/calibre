@@ -52,6 +52,10 @@ raw_options = (
     'compress_min_size', 1024,
     None,
 
+    'Number of worker threads to use to process requests',
+    'worker_count', 10,
+    None,
+
     'Use zero copy file transfers for increased performance',
     'use_sendfile', True,
     'This will use zero-copy in-kernel transfers when sending files over the network,'
