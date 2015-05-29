@@ -89,10 +89,10 @@ class TestHTTP(BaseTest):
 
     def test_http_basic(self):  # {{{
         'Test basic HTTP protocol conformance'
-        from calibre.srv.errors import HTTP404
+        from calibre.srv.errors import HTTPNotFound, HTTPRedirect
         body = 'Requested resource not found'
         def handler(data):
-            raise HTTP404(body)
+            raise HTTPNotFound(body)
         def raw_send(conn, raw):
             conn.send(raw)
             conn._HTTPConnection__state = httplib._CS_REQ_SENT
@@ -145,6 +145,17 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, httplib.INTERNAL_SERVER_ERROR)
             server.loop.log.filter_level = orig
+
+            # Test 301
+            def handler(data):
+                raise HTTPRedirect('/somewhere-else')
+            server.change_handler(handler)
+            conn = server.connect()
+            conn.request('GET', '/')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.MOVED_PERMANENTLY)
+            self.ae(r.getheader('Location'), '/somewhere-else')
+            self.ae('', r.read())
 
             server.change_handler(lambda data:data.path[0] + data.read().decode('ascii'))
             conn = server.connect()

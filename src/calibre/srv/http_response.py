@@ -16,7 +16,7 @@ from functools import wraps
 from calibre import guess_type, force_unicode
 from calibre.constants import __version__
 from calibre.srv.loop import WRITE
-from calibre.srv.errors import HTTP404
+from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
 from calibre.srv.utils import MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed
@@ -284,10 +284,15 @@ class HTTPConnection(HTTPRequest):
         buf.seek(pos + sent)
         return buf.tell() == end
 
-    def simple_response(self, status_code, msg='', close_after_response=True):
-        if self.response_protocol is HTTP1 and status_code in (httplib.REQUEST_ENTITY_TOO_LARGE, httplib.REQUEST_URI_TOO_LONG):
-            # HTTP/1.0 has no 413/414 codes
-            status_code = httplib.BAD_REQUEST
+    def simple_response(self, status_code, msg='', close_after_response=True, extra_headers=None):
+        if self.response_protocol is HTTP1:
+            # HTTP/1.0 has no 413/414/303 codes
+            status_code = {
+                httplib.REQUEST_ENTITY_TOO_LARGE:httplib.BAD_REQUEST,
+                httplib.REQUEST_URI_TOO_LONG:httplib.BAD_REQUEST,
+                httplib.SEE_OTHER:httplib.FOUND
+            }.get(status_code, status_code)
+
         self.close_after_response = close_after_response
         msg = msg.encode('utf-8')
         ct = 'http' if self.method == 'TRACE' else 'plain'
@@ -299,6 +304,9 @@ class HTTPConnection(HTTPRequest):
         ]
         if self.close_after_response and self.response_protocol is HTTP11:
             buf.append("Connection: close")
+        if extra_headers is not None:
+            for h, v in extra_headers.iteritems():
+                buf.append('%s: %s' % (h, v))
         buf.append('')
         buf = [(x + '\r\n').encode('ascii') for x in buf]
         if self.method != 'HEAD':
@@ -346,8 +354,11 @@ class HTTPConnection(HTTPRequest):
     def job_done(self, ok, result):
         if not ok:
             etype, e, tb = result
-            if isinstance(e, HTTP404):
-                return self.simple_response(httplib.NOT_FOUND, msg=e.message or '', close_after_response=False)
+            if isinstance(e, HTTPSimpleResponse):
+                eh = {}
+                if e.location:
+                    eh['Location'] = e.location
+                return self.simple_response(e.http_code, msg=e.message or '', close_after_response=e.close_connection, extra_headers=eh)
             raise e, None, tb
 
         data, output = result
