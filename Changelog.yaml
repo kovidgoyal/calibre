@@ -20,6 +20,37 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.29.0
+  date: 2015-05-29
+
+  new features:
+    - title: "Allow opening the full Tag Editor dialog directly from the book list by holding down the Shift key while starting an edit of a tag-like field. For example, click on the tags field for a book and press Shift-F2"
+
+    - title: "Tag Browser: Allow undoing the deletion of items in the Manage categories window"
+
+    - title: "calibredb add: Allow setting arbitrary identifiers, not just ISBN."
+      tickets: [1458620]
+
+    - title: "Add a 'Retry' button to the news download failed error message."
+      tickets: [1458076]
+
+  bug fixes:
+    - title: "DOCX Output: Detect the common idiom of placing centered images as inline images inside a containing centered block and render the resulting image as a floating centered image in the DOCX file."
+      tickets: [1455502]
+
+    - title: "DOCX Output: Fix incorrect handling of bold/italic in paragraphs where the majority of text is either bold or italic instead of normal"
+
+    - title: "Table of Contents editor: Fix save/load of settings in the XPath wizard not working across restarts"
+
+    - title: "Get Books: Update the Kobo Store plugin for website changes"
+
+  improved recipes:
+    - Popular Science
+    - General Knowledge Today
+    - Scientific American
+    - Wired Magazine
+
+
 - version: 2.28.0
   date: 2015-05-15
 
