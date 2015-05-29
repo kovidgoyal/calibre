@@ -15,7 +15,7 @@ except ImportError:
     create_server_cert = None
 
 
-from calibre.srv.pre_activated import pre_activated_socket, has_preactivated_support
+from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 
