@@ -29,6 +29,59 @@ class LoopTest(BaseTest):
             server.join()
             self.ae(0, sum(int(w.is_alive()) for w in server.loop.pool.workers))
 
+    def test_ring_buffer(self):
+        class FakeSocket(object):
+            def __init__(self, data):
+                self.data = data
+
+            def recv_into(self, mv):
+                sz = min(len(mv), len(self.data))
+                mv[:sz] = self.data[:sz]
+                return sz
+        from calibre.srv.loop import ReadBuffer, READ, WRITE
+        buf = ReadBuffer(100)
+        def write(data):
+            return buf.recv_from(FakeSocket(data))
+        def set(data, rpos, wpos, state):
+            buf.ba = bytearray(data)
+            buf.buf = memoryview(buf.ba)
+            buf.read_pos, buf.write_pos, buf.full_state = rpos, wpos, state
+
+        self.ae(b'', buf.read(10))
+        self.assertTrue(buf.has_space), self.assertFalse(buf.has_data)
+        self.ae(write(b'a'*50), 50)
+        self.ae(write(b'a'*50), 50)
+        self.ae(write(b'a'*50), 0)
+        self.ae(buf.read(1000), bytes(buf.ba))
+        self.ae(b'', buf.read(10))
+        self.ae(write(b'a'*10), 10)
+        numbers = bytes(bytearray(xrange(10)))
+        set(numbers, 1, 3, READ)
+        self.ae(buf.read(1), b'\x01')
+        self.ae(buf.read(10), b'\x02')
+        self.ae(buf.full_state, WRITE)
+        set(numbers, 3, 1, READ)
+        self.ae(buf.read(1), b'\x03')
+        self.ae(buf.read(10), b'\x04\x05\x06\x07\x08\x09\x00')
+        set(numbers, 1, 3, READ)
+        self.ae(buf.readline(), b'\x01\x02')
+        set(b'123\n', 0, 3, READ)
+        self.ae(buf.readline(), b'123')
+        set(b'123\n', 0, 0, READ)
+        self.ae(buf.readline(), b'123\n')
+        self.ae(buf.full_state, WRITE)
+        set(b'1\n2345', 2, 2, READ)
+        self.ae(buf.readline(), b'23451\n')
+        self.ae(buf.full_state, WRITE)
+        set(b'1\n2345', 1, 1, READ)
+        self.ae(buf.readline(), b'\n')
+        set(b'1\n2345', 4, 1, READ)
+        self.ae(buf.readline(), b'451')
+        set(b'1\n2345', 4, 2, READ)
+        self.ae(buf.readline(), b'451\n')
+        set(b'123456\n7', 4, 2, READ)
+        self.ae(buf.readline(), b'56\n')
+
     @skipIf(create_server_cert is None, 'certgen module not available')
     def test_ssl(self):
         'Test serving over SSL'
