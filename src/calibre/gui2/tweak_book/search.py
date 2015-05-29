@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QWidget, QToolBar, Qt, QHBoxLayout, QSize, QIcon, QGridLayout, QLabel, QTimer,
     QPushButton, pyqtSignal, QComboBox, QCheckBox, QSizePolicy, QVBoxLayout, QFont,
     QLineEdit, QToolButton, QListView, QFrame, QApplication, QStyledItemDelegate,
-    QAbstractListModel, QModelIndex, QMenu, QItemSelection, QStackedLayout)
+    QAbstractListModel, QModelIndex, QMenu, QItemSelection, QStackedLayout, QScrollArea)
 
 import regex
 
@@ -491,6 +491,17 @@ class SearchPanel(QWidget):  # {{{
             return QWidget.keyPressEvent(self, ev)
 # }}}
 
+class SearchDescription(QScrollArea):
+
+    def __init__(self, parent):
+        QScrollArea.__init__(self, parent)
+        self.label = QLabel(' \n \n ')
+        self.setWidget(self.label)
+        self.setWidgetResizable(True)
+        self.label.setTextFormat(Qt.PlainText)
+        self.label.setWordWrap(True)
+        self.set_text = self.label.setText
+
 class SearchesModel(QAbstractListModel):
 
     def __init__(self, parent):
@@ -867,10 +878,9 @@ class SavedSearches(QWidget):
         d.setFrameStyle(QFrame.HLine)
         v.addWidget(d)
 
-        self.description = d = QLabel(' \n \n ')
-        d.setTextFormat(Qt.PlainText)
-        d.setWordWrap(True)
+        self.description = d = SearchDescription(self)
         mw.v.addWidget(d)
+        mw.v.setStretch(0, 10)
 
         self.ib = b = pb(_('&Import'), _('Import saved searches'))
         b.clicked.connect(self.import_searches)
@@ -1056,7 +1066,7 @@ class SavedSearches(QWidget):
         self.edit_search_widget.search_name.setFocus(Qt.OtherFocusReason)
 
     def show_details(self):
-        self.description.setText(' \n \n ')
+        self.description.set_text(' \n \n ')
         i = self.searches.currentIndex()
         if i.isValid():
             try:
@@ -1069,7 +1079,7 @@ class SavedSearches(QWidget):
                 ts = _('(Case sensitive: {0} Dot All: {1})').format(cs, da)
             else:
                 ts = _('(Case sensitive: {0} [Normal search])').format(cs)
-            self.description.setText(_('{2} {3}\nFind: {0}\nReplace: {1}').format(
+            self.description.set_text(_('{2} {3}\nFind: {0}\nReplace: {1}').format(
                 search.get('find', ''), search.get('replace', ''), search.get('name', ''), ts))
 
     def import_searches(self):
