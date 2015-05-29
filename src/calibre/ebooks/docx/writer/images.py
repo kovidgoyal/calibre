@@ -86,7 +86,7 @@ class ImagesManager(object):
             if len(parent) == 1 and not (parent.text or '').strip() and not (html_img.tail or '').strip():
                 # We have an inline image alone inside a block
                 pstyle = stylizer.style(parent)
-                if pstyle['text-align'] in ('center', 'right'):
+                if pstyle['text-align'] in ('center', 'right') and 'block' in pstyle['display']:
                     floating = pstyle['text-align']
         fake_margins = floating is None
         self.count += 1
