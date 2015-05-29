@@ -12,12 +12,28 @@ from functools import partial
 
 from PyQt5.Qt import (
     QStandardItem, QStandardItemModel, Qt, QFont, QTreeView, QWidget,
-    QHBoxLayout, QToolButton, QIcon, QModelIndex, pyqtSignal, QMenu)
+    QHBoxLayout, QToolButton, QIcon, QModelIndex, pyqtSignal, QMenu,
+    QStyledItemDelegate, QToolTip)
 
 from calibre.ebooks.metadata.toc import TOC as MTOC
 from calibre.gui2 import error_dialog
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
+
+class Delegate(QStyledItemDelegate):
+
+    def helpEvent(self, ev, view, option, index):
+        # Show a tooltip only if the item is truncated
+        if not ev or not view:
+            return False
+        if ev.type() == ev.ToolTip:
+            rect = view.visualRect(index)
+            size = self.sizeHint(option, index)
+            if rect.width() < size.width():
+                tooltip = index.data(Qt.DisplayRole)
+                QToolTip.showText(ev.globalPos(), tooltip, view)
+                return True
+        return QStyledItemDelegate.helpEvent(self, ev, view, option, index)
 
 class TOCView(QTreeView):
 
@@ -25,6 +41,8 @@ class TOCView(QTreeView):
 
     def __init__(self, *args):
         QTreeView.__init__(self, *args)
+        self.delegate = Delegate(self)
+        self.setItemDelegate(self.delegate)
         self.setMinimumWidth(80)
         self.header().close()
         self.setMouseTracking(True)
