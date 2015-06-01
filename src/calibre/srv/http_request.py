@@ -125,13 +125,16 @@ class HTTPHeaderParser(object):
                     val = existing + ', ' + val
             self.hdict[key] = val
 
+        if self.finished:
+            raise ValueError('Header block already terminated')
+
         if line == b'\r\n':
             # Normal end of headers
             commit()
             self.finished = True
             return
 
-        if line[0] in b' \t':
+        if line and line[0] in b' \t':
             # It's a continuation line.
             if not self.lines:
                 raise ValueError('Orphaned continuation line')

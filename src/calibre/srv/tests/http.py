@@ -42,16 +42,16 @@ class TestHTTP(BaseTest):
              'accept-Encoding: two',
              '\r\n', accept_encoding='one, two')
 
-        def parse(line):
-            HTTPHeaderParser()(line)
+        def parse(*lines):
+            lines = list(lines)
+            lines.append(b'\r\n')
+            self.assertRaises(ValueError, HTTPHeaderParser().push, *lines)
 
-        with self.assertRaises(ValueError):
-            parse('Connection:mūs\r\n')
-            parse('Connection\r\n')
-            parse('Connection:a\r\n')
-            parse('Connection:a\n')
-            parse(' Connection:a\n')
-            parse(':a\n')
+        parse(b'Connection:mūs\r\n')
+        parse(b'Connection\r\n')
+        parse(b'Connection:a\r\n', b'\r\n')
+        parse(b' Connection:a\n')
+        parse(b':a\n')
     # }}}
 
     def test_accept_encoding(self):  # {{{
