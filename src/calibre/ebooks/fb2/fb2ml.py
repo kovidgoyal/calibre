@@ -204,8 +204,8 @@ class FB2MLizer(object):
                         <version>1.0</version>
                     </document-info>
                     <publish-info>
-                        %(year)s
                         %(publisher)s
+                        %(year)s
                         %(isbn)s
                     </publish-info>
                 </description>\n''') % metadata
