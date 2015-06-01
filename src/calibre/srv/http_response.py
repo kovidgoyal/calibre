@@ -359,7 +359,7 @@ class HTTPConnection(HTTPRequest):
                 if e.location:
                     eh['Location'] = e.location
                 return self.simple_response(e.http_code, msg=e.message or '', close_after_response=e.close_connection, extra_headers=eh)
-            raise e, None, tb
+            raise etype, e, tb
 
         data, output = result
         output = self.finalize_output(output, data, self.method is HTTP1)
