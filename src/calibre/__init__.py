@@ -12,7 +12,7 @@ if 'CALIBRE_SHOW_DEPRECATION_WARNINGS' not in os.environ:
     warnings.simplefilter('ignore', DeprecationWarning)
 try:
     os.getcwdu()
-except:
+except EnvironmentError:
     os.chdir(os.path.expanduser('~'))
 
 from calibre.constants import (iswindows, isosx, islinux, isfrozen,
