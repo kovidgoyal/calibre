@@ -7,7 +7,7 @@ calibre is completely open source, licensed under the `GNU GPL v3 <http://www.gn
 This means that you are free to download and modify the program to your heart's content. In this section,
 you will learn how to get a calibre development environment set up on the operating system of your choice.
 calibre is written primarily in `Python <https://www.python.org>`_ with some C/C++ code for speed and system interfacing.
-Note that calibre is not compatible with Python 3 and requires at least Python 2.7.
+Note that calibre is not compatible with Python 3 and requires at least Python 2.7.9.
 
 .. contents:: Contents
   :depth: 2
