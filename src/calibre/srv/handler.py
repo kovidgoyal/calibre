@@ -15,6 +15,9 @@ class LibraryBroker(object):
 
 class Context(object):
 
+    log = None
+    url_for = None
+
     def __init__(self, libraries):
         self.library_broker = LibraryBroker(libraries)
 
@@ -24,4 +27,7 @@ class Handler(object):
         self.router = Router(ctx=Context(libraries), url_prefix=opts.url_prefix)
         self.router.ctx.url_for = self.router.url_for
         self.dispatch = self.router.dispatch
+
+    def set_log(self, log):
+        self.router.ctx.log = log
 

@@ -56,11 +56,12 @@ def daemonize():  # {{{
 class Server(object):
 
     def __init__(self, libraries, opts):
-        self.handler = Handler(libraries, opts)
         log = None
         if opts.log:
             log = RotatingLog(opts.log, max_size=opts.max_log_size)
+        self.handler = Handler(libraries, opts)
         self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log)
+        self.handler.set_log(self.loop.log)
         self.serve_forever = self.loop.serve_forever
 
 
