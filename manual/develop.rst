@@ -224,7 +224,7 @@ Linux development environment
 calibre is primarily developed on Linux. You have two choices in setting up the development environment. You can install the
 calibre binary as normal and use that as a runtime environment to do your development. This approach is similar to that
 used in Windows and OS X. Alternatively, you can install calibre from source. Instructions for setting up a development
-environment from source are in the INSTALL file in the source tree. Here we will address using the binary at runtime, which is the
+environment from source are in the INSTALL file in the source tree. Here we will address using the binary as a runtime, which is the
 recommended method.
 
 Install calibre using the binary installer. Then open a terminal and change to the previously checked out calibre code directory, for example::
