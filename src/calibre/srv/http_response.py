@@ -544,11 +544,11 @@ class HTTPConnection(HTTPRequest):
         return output
 
 def create_http_handler(handler):
-    static_cache = {}  # noqa
+    static_cache = {}
     @wraps(handler)
     def wrapper(*args, **kwargs):
         ans = HTTPConnection(*args, **kwargs)
         ans.request_handler = handler
-        ans.static_cache = {}
+        ans.static_cache = static_cache
         return ans
     return wrapper
