@@ -8,6 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import httplib, ssl, os, socket, time
 from unittest import skipIf
+from glob import glob
 
 try:
     from calibre.utils.certgen import create_server_cert
@@ -20,6 +21,34 @@ from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 
 class LoopTest(BaseTest):
+
+    def test_log_rotation(self):
+        'Test log rotation'
+        from calibre.srv.utils import RotatingLog
+        from calibre.ptempfile import TemporaryDirectory
+        with TemporaryDirectory() as tdir:
+            fname = os.path.join(tdir, 'log')
+            l = RotatingLog(fname, max_size=100)
+
+            def history():
+                return {int(x.rpartition('.')[-1]) for x in glob(fname + '.*')}
+
+            def log_size():
+                ssize = l.outputs[0].stream.tell()
+                self.ae(ssize, l.outputs[0].current_pos)
+                self.ae(ssize, os.path.getsize(fname))
+                return ssize
+
+            self.ae(log_size(), 0)
+            l('a' * 99)
+            self.ae(log_size(), 100)
+            l('b'), l('c')
+            self.ae(log_size(), 2)
+            self.ae(history(), {1})
+            for i in 'abcdefg':
+                l(i * 101)
+            self.assertLessEqual(log_size(), 100)
+            self.ae(history(), {1,2,3,4,5})
 
     def test_workers(self):
         ' Test worker semantics '
@@ -42,6 +71,7 @@ class LoopTest(BaseTest):
             self.ae(1, sum(int(w.is_alive()) for w in pool.workers))
 
     def test_ring_buffer(self):
+        'Test the ring buffer used for reads'
         class FakeSocket(object):
             def __init__(self, data):
                 self.data = data

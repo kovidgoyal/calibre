@@ -13,8 +13,11 @@ import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
 
+from calibre import prints
 from calibre.constants import iswindows
+from calibre.utils.filenames import atomic_rename
 from calibre.utils.socket_inheritance import set_socket_inherit
+from calibre.utils.logging import ThreadSafeLog
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
@@ -174,6 +177,49 @@ def eintr_retry_call(func, *args, **kwargs):
             if getattr(e, 'errno', None) in socket_errors_eintr:
                 continue
             raise
+
+class RotatingStream(object):
+
+    def __init__(self, filename, max_size=None, history=5):
+        self.filename, self.history, self.max_size = filename, history, max_size
+        self.set_output()
+
+    def set_output(self):
+        self.stream = lopen(self.filename, 'ab', 1)  # line buffered
+        try:
+            self.current_pos = self.stream.tell()
+        except EnvironmentError:
+            # Happens if filename is /dev/stdout for example
+            self.current_pos = 0
+            self.max_size = None
+
+    def flush(self):
+        self.stream.flush()
+
+    def prints(self, level, *args, **kwargs):
+        kwargs['safe_encode'] = True
+        kwargs['file'] = self.stream
+        self.current_pos += prints(*args, **kwargs)
+        self.rollover()
+
+    def rollover(self):
+        if self.max_size is None or self.current_pos <= self.max_size:
+            return
+        self.stream.close()
+        for i in xrange(self.history - 1, 0, -1):
+            try:
+                atomic_rename('%s.%d' % (self.filename, i), '%s.%d' % (self.filename, i+1))
+            except EnvironmentError as e:
+                if e.errno != errno.ENOENT:  # the source of the rename does not exist
+                    raise
+        atomic_rename(self.filename, '%s.%d' % (self.filename, 1))
+        self.set_output()
+
+class RotatingLog(ThreadSafeLog):
+
+    def __init__(self, filename, max_size=None, history=5):
+        ThreadSafeLog.__init__(self)
+        self.outputs = [RotatingStream(filename, max_size, history)]
 
 class HandleInterrupt(object):  # {{{
 

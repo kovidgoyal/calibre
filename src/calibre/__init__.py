@@ -166,14 +166,15 @@ def prints(*args, **kwargs):
     Has the same signature as the print function from Python 3, except for the
     additional keyword argument safe_encode, which if set to True will cause the
     function to use repr when encoding fails.
+
+    Returns the number of bytes written.
     '''
     file = kwargs.get('file', sys.stdout)
-    sep  = kwargs.get('sep', ' ')
-    end  = kwargs.get('end', '\n')
-    enc = preferred_encoding
+    sep  = bytes(kwargs.get('sep', ' '))
+    end  = bytes(kwargs.get('end', '\n'))
+    enc = 'utf-8' if 'CALIBRE_WORKER' in os.environ else preferred_encoding
     safe_encode = kwargs.get('safe_encode', False)
-    if 'CALIBRE_WORKER' in os.environ:
-        enc = 'utf-8'
+    count = 0
     for i, arg in enumerate(args):
         if isinstance(arg, unicode):
             if iswindows:
@@ -181,8 +182,10 @@ def prints(*args, **kwargs):
                 cs = Detect(file)
                 if cs.is_console:
                     cs.write_unicode_text(arg)
+                    count += len(arg)
                     if i != len(args)-1:
-                        file.write(bytes(sep))
+                        file.write(sep)
+                        count += len(sep)
                     continue
             try:
                 arg = arg.encode(enc)
@@ -211,12 +214,18 @@ def prints(*args, **kwargs):
 
         try:
             file.write(arg)
+            count += len(arg)
         except:
             import repr as reprlib
-            file.write(reprlib.repr(arg))
+            arg = reprlib.repr(arg)
+            file.write(arg)
+            count += len(arg)
         if i != len(args)-1:
-            file.write(bytes(sep))
-    file.write(bytes(end))
+            file.write(sep)
+            count += len(sep)
+    file.write(end)
+    count += len(sep)
+    return count
 
 class CommandLineError(Exception):
     pass
