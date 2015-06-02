@@ -66,6 +66,18 @@ class TestHTTP(BaseTest):
         test('Priority', '1;q=0.5, 2;q=0.75, 3;q=1.0', '3', {'1', '2', '3'})
     # }}}
 
+    def test_accept_language(self):  # {{{
+        'Test parsing of Accept-Language'
+        from calibre.srv.http_response import preferred_lang
+        def test(name, val, ans):
+            self.ae(preferred_lang(val, lambda x:(True, x, None)), ans, name + ' failed')
+        test('Empty field', '', 'en')
+        test('Simple', 'de', 'de')
+        test('Case insensitive', 'Es', 'es')
+        test('Multiple', 'fr, es', 'fr')
+        test('Priority', 'en;q=0.1, de;q=0.7, fr;q=0.5', 'de')
+    # }}}
+
     def test_range_parsing(self):  # {{{
         'Test parsing of Range header'
         from calibre.srv.http_response import get_ranges

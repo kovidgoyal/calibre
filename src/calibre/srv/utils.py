@@ -12,10 +12,12 @@ from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
+from future_builtins import map
 
 from calibre import prints
 from calibre.constants import iswindows
 from calibre.utils.filenames import atomic_rename
+from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 
@@ -169,6 +171,22 @@ def create_sock_pair(port=0):
 
     return client_sock, srv_sock
 
+def sort_q_values(header_val):
+    'Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7...'
+    if not header_val:
+        return []
+    def item(x):
+        e, r = x.partition(';')[::2]
+        p, v = r.partition('=')[::2]
+        q = 1.0
+        if p == 'q' and v:
+            try:
+                q = max(0.0, min(1.0, float(v.strip())))
+            except Exception:
+                pass
+        return e.strip(), q
+    return tuple(map(itemgetter(0), sorted(map(item, header_val.split(',')), key=itemgetter(1), reverse=True)))
+
 def eintr_retry_call(func, *args, **kwargs):
     while True:
         try:
@@ -177,6 +195,14 @@ def eintr_retry_call(func, *args, **kwargs):
             if getattr(e, 'errno', None) in socket_errors_eintr:
                 continue
             raise
+
+def get_translator_for_lang(cache, bcp_47_code):
+    try:
+        return cache[bcp_47_code]
+    except KeyError:
+        pass
+    cache[bcp_47_code] = ans = get_translator(bcp_47_code)
+    return ans
 
 # Logging {{{
 

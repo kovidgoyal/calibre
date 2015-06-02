@@ -107,6 +107,30 @@ def get_all_translators():
                 buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
                 yield lang, GNUTranslations(buf)
 
+def get_single_translator(mpath):
+    from zipfile import ZipFile
+    with ZipFile(P('localization/locales.zip', allow_user_override=False), 'r') as zf:
+        buf = cStringIO.StringIO(zf.read(mpath + '/messages.mo'))
+        return GNUTranslations(buf)
+
+def get_translator(bcp_47_code):
+    parts = bcp_47_code.replace('-', '_').split('_')[:2]
+    parts[0] = lang_as_iso639_1(parts[0].lower())
+    if len(parts) > 1:
+        parts[1] = parts[1].upper()
+    lang = '_'.join(parts)
+    lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(lang, lang)
+    available = available_translations()
+    found = True
+    if lang not in available:
+        lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(parts[0], parts[0])
+        if lang not in available:
+            lang = get_lang()
+            found = False
+    if lang == 'en':
+        return found, lang, NullTranslations()
+    return found, lang, get_single_translator(lang)
+
 lcdata = {
     u'abday': (u'Sun', u'Mon', u'Tue', u'Wed', u'Thu', u'Fri', u'Sat'),
     u'abmon': (u'Jan', u'Feb', u'Mar', u'Apr', u'May', u'Jun', u'Jul', u'Aug', u'Sep', u'Oct', u'Nov', u'Dec'),

@@ -154,6 +154,7 @@ class HTTPRequest(Connection):
 
     request_handler = None
     static_cache = None
+    translator_cache = None
 
     def __init__(self, *args, **kwargs):
         Connection.__init__(self, *args, **kwargs)

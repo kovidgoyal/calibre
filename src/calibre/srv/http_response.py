@@ -19,7 +19,9 @@ from calibre.srv.loop import WRITE
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
-from calibre.srv.utils import MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed
+from calibre.srv.utils import (
+    MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed,
+    sort_q_values, get_translator_for_lang)
 from calibre.utils.monotonic import monotonic
 
 Range = namedtuple('Range', 'start stop size')
@@ -71,21 +73,19 @@ def parse_if_none_match(val):  # {{{
 # }}}
 
 def acceptable_encoding(val, allowed=frozenset({'gzip'})):  # {{{
-    def enc(x):
-        e, r = x.partition(';')[::2]
-        p, v = r.partition('=')[::2]
-        q = 1.0
-        if p == 'q' and v:
-            try:
-                q = float(v)
-            except Exception:
-                pass
-        return e.lower(), q
+    for x in sort_q_values(val):
+        x = x.lower()
+        if x in allowed:
+            return x
+# }}}
 
-    emap = dict(enc(x.strip()) for x in val.split(','))
-    acceptable = sorted(set(emap) & allowed, key=emap.__getitem__, reverse=True)
-    if acceptable:
-        return acceptable[0]
+def preferred_lang(val, get_translator_for_lang):  # {{{
+    for x in sort_q_values(val):
+        x = x.lower()
+        found, lang, translator = get_translator_for_lang(x)
+        if found:
+            return x
+    return 'en'
 # }}}
 
 def get_ranges(headervalue, content_length):  # {{{
@@ -180,9 +180,13 @@ def get_range_parts(ranges, content_type, content_length):  # {{{
 
 class RequestData(object):  # {{{
 
-    def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol, static_cache, opts, remote_addr, remote_port):
-        self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders, self.response_protocol, self.static_cache = (
-            method, path, query, inheaders, request_body_file, outheaders, response_protocol, static_cache
+    def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol,
+                 static_cache, opts, remote_addr, remote_port, translator_cache):
+
+        (self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders,
+         self.response_protocol, self.static_cache, self.translator_cache) = (
+            method, path, query, inheaders, request_body_file, outheaders,
+            response_protocol, static_cache, translator_cache
         )
         self.remote_addr, self.remote_port = remote_addr, remote_port
         self.opts = opts
@@ -196,6 +200,12 @@ class RequestData(object):  # {{{
 
     def read(self, size=-1):
         return self.request_body_file.read(size)
+
+    def get_translator(self, bcp_47_code):
+        return get_translator_for_lang(self.translator_cache, bcp_47_code)
+
+    def get_preferred_language(self):
+        return preferred_lang(self.outheaders.get('Accept-Language'), self.get_translator)
 # }}}
 
 class ReadableOutput(object):
@@ -322,7 +332,7 @@ class HTTPConnection(HTTPRequest):
         data = RequestData(
             self.method, self.path, self.query, inheaders, request_body_file,
             outheaders, self.response_protocol, self.static_cache, self.opts,
-            self.remote_addr, self.remote_port
+            self.remote_addr, self.remote_port, self.translator_cache
         )
         self.queue_job(self.run_request_handler, data)
 
@@ -545,10 +555,12 @@ class HTTPConnection(HTTPRequest):
 
 def create_http_handler(handler):
     static_cache = {}
+    translator_cache = {}
     @wraps(handler)
     def wrapper(*args, **kwargs):
         ans = HTTPConnection(*args, **kwargs)
         ans.request_handler = handler
         ans.static_cache = static_cache
+        ans.translator_cache = translator_cache
         return ans
     return wrapper
