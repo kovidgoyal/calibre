@@ -253,11 +253,6 @@ QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, config_dir)
 QSettings.setPath(QSettings.IniFormat, QSettings.SystemScope, config_dir)
 QSettings.setDefaultFormat(QSettings.IniFormat)
 
-# Turn off DeprecationWarnings in windows GUI
-if iswindows:
-    import warnings
-    warnings.simplefilter('ignore', DeprecationWarning)
-
 def available_heights():
     desktop  = QCoreApplication.instance().desktop()
     return map(lambda x: x.height(), map(desktop.availableGeometry, range(desktop.screenCount())))
