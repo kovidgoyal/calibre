@@ -274,7 +274,6 @@ class ServerLoop(object):
     def __init__(
         self,
         handler,
-        bind_address=('localhost', 8080),
         opts=None,
         # A calibre logging object. If None, a default log that logs to
         # stdout is used
@@ -285,7 +284,7 @@ class ServerLoop(object):
         self.opts = opts or Options()
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
 
-        ba = tuple(bind_address)
+        ba = (opts.listen_on, int(opts.port))
         if not ba[0]:
             # AI_PASSIVE does not work with host of '' or None
             ba = ('0.0.0.0', ba[1])

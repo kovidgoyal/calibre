@@ -38,10 +38,11 @@ class TestServer(Thread):
         from calibre.srv.loop import ServerLoop
         from calibre.srv.http_response import create_http_handler
         kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
+        kwargs['listen_on'] = kwargs.get('listen_on', 'localhost')
+        kwargs['port'] = kwargs.get('port', 0)
         self.loop = ServerLoop(
             create_http_handler(handler),
             opts=Options(**kwargs),
-            bind_address=('localhost', 0),
             log=TestLog(level=ThreadSafeLog.WARN),
         )
         self.log = self.loop.log

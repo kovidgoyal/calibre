@@ -56,6 +56,16 @@ raw_options = (
     'worker_count', 10,
     None,
 
+    'The port on which to listen for connections',
+    'port', 8080,
+    None,
+
+    'The interface on which to listen for connections',
+    'listen_on', '0.0.0.0',
+    'The default is to listen on all available interfaces. You can change this to, for'
+    ' example, "127.0.0.1" to only listen for connections from the local machine, or'
+    ' to "::" to listen to all incoming IPv6 and IPv4 connections.',
+
     'Use zero copy file transfers for increased performance',
     'use_sendfile', True,
     'This will use zero-copy in-kernel transfers when sending files over the network,'
