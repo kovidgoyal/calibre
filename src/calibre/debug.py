@@ -81,6 +81,8 @@ Everything after the -- is passed to the script.
         'calibre-debug --diff file1 file2'))
     parser.add_option('--default-programs', default=None, choices=['register', 'unregister'],
                           help=_('(Un)register calibre from Windows Default Programs.') + ' --default-programs=(register|unregister)')
+    parser.add_option('--new-server', action='store_true',
+        help='Run the new calibre content server. Any options specified after a -- will be passed to the server.')
 
     return parser
 
@@ -278,6 +280,9 @@ def main(args=sys.argv):
             from calibre.utils.winreg.default_programs import unregister as func
         print 'Running', func.__name__, '...'
         func()
+    elif opts.new_server:
+        from calibre.srv.standalone import main
+        main(args)
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'py', 'recipe'}:
         run_script(args[1], args[2:])
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'mobi', 'azw', 'azw3', 'docx', 'odt'}:
