@@ -166,6 +166,7 @@ class DevNull(Log):
         self.outputs = []
 
 class ThreadSafeLog(Log):
+    exception_traceback_level = Log.DEBUG
 
     def __init__(self, level=Log.INFO):
         Log.__init__(self, level=level)
@@ -179,7 +180,7 @@ class ThreadSafeLog(Log):
         limit = kwargs.pop('limit', None)
         with self._lock:
             Log.prints(self, ERROR, *args, **kwargs)
-            Log.prints(self, DEBUG, traceback.format_exc(limit))
+            Log.prints(self, self.exception_traceback_level, traceback.format_exc(limit))
 
 class ThreadSafeWrapper(Log):
 

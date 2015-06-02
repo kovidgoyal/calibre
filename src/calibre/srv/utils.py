@@ -178,6 +178,11 @@ def eintr_retry_call(func, *args, **kwargs):
                 continue
             raise
 
+# Logging {{{
+
+class ServerLog(ThreadSafeLog):
+    exception_traceback_level = ThreadSafeLog.WARN
+
 class RotatingStream(object):
 
     def __init__(self, filename, max_size=None, history=5):
@@ -215,11 +220,12 @@ class RotatingStream(object):
         atomic_rename(self.filename, '%s.%d' % (self.filename, 1))
         self.set_output()
 
-class RotatingLog(ThreadSafeLog):
+class RotatingLog(ServerLog):
 
     def __init__(self, filename, max_size=None, history=5):
-        ThreadSafeLog.__init__(self)
+        ServerLog.__init__(self)
         self.outputs = [RotatingStream(filename, max_size, history)]
+# }}}
 
 class HandleInterrupt(object):  # {{{
 
