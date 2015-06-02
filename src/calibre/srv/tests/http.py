@@ -349,3 +349,19 @@ class TestHTTP(BaseTest):
                 self.assertLess(time_taken, 1, 'Large file transfer took too long')
 
     # }}}
+
+    def test_static_generation(self):  # {{{
+        'Test static generation'
+        nums = list(map(str, xrange(10)))
+        def handler(conn):
+            return conn.generate_static_output('test', nums.pop)
+        with TestServer(handler) as server:
+            conn = server.connect()
+            conn.request('GET', '/an_etagged_path')
+            r = conn.getresponse()
+            data = r.read()
+            for i in xrange(5):
+                conn.request('GET', '/an_etagged_path')
+                r = conn.getresponse()
+                self.assertEqual(data, r.read())
+    # }}}
