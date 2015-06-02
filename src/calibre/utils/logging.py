@@ -12,18 +12,17 @@ ERROR = 3
 
 import sys, traceback, cStringIO
 from functools import partial
-from threading import RLock
+from threading import Lock
 
-from calibre import isbytestring, force_unicode, as_unicode
+from calibre import isbytestring, force_unicode, as_unicode, prints
 
 class Stream(object):
 
     def __init__(self, stream=None):
-        from calibre import prints
-        self._prints = partial(prints, safe_encode=True)
         if stream is None:
             stream = cStringIO.StringIO()
         self.stream = stream
+        self._prints = partial(prints, safe_encode=True, file=stream)
 
     def flush(self):
         self.stream.flush()
@@ -53,7 +52,6 @@ class FileStream(Stream):
         Stream.__init__(self, stream)
 
     def prints(self, level, *args, **kwargs):
-        kwargs['file'] = self.stream
         self._prints(*args, **kwargs)
 
 class HTMLStream(Stream):
@@ -171,18 +169,24 @@ class ThreadSafeLog(Log):
 
     def __init__(self, level=Log.INFO):
         Log.__init__(self, level=level)
-        self._lock = RLock()
+        self._lock = Lock()
 
     def prints(self, *args, **kwargs):
         with self._lock:
             Log.prints(self, *args, **kwargs)
+
+    def exception(self, *args, **kwargs):
+        limit = kwargs.pop('limit', None)
+        with self._lock:
+            Log.prints(self, ERROR, *args, **kwargs)
+            Log.prints(self, DEBUG, traceback.format_exc(limit))
 
 class ThreadSafeWrapper(Log):
 
     def __init__(self, other_log):
         Log.__init__(self, level=other_log.filter_level)
         self.outputs = list(other_log.outputs)
-        self._lock = RLock()
+        self._lock = Lock()
 
     def prints(self, *args, **kwargs):
         with self._lock:
