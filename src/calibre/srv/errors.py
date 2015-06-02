@@ -11,6 +11,9 @@ import httplib
 class JobQueueFull(Exception):
     pass
 
+class RouteError(ValueError):
+    pass
+
 class HTTPSimpleResponse(Exception):
 
     def __init__(self, http_code, http_message='', close_connection=False, location=None):

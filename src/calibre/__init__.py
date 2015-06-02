@@ -377,20 +377,21 @@ def random_user_agent(choose=None):
         choose = random.randint(0, len(choices)-1)
     return choices[choose]
 
-def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, use_robust_parser=False):
+def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, use_robust_parser=False, verify_ssl_certificates=True):
     '''
     Create a mechanize browser for web scraping. The browser handles cookies,
     refresh requests and ignores robots.txt. Also uses proxy if available.
 
     :param honor_time: If True honors pause time in refresh requests
     :param max_time: Maximum time in seconds to wait during a refresh request
+    :param verify_ssl_certificates: If false SSL certificates errors are ignored
     '''
     from calibre.utils.browser import Browser
     if use_robust_parser:
         import mechanize
-        opener = Browser(factory=mechanize.RobustFactory())
+        opener = Browser(factory=mechanize.RobustFactory(), verify_ssl=verify_ssl_certificates)
     else:
-        opener = Browser()
+        opener = Browser(verify_ssl=verify_ssl_certificates)
     opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     if user_agent is None:
