@@ -69,7 +69,7 @@ def _get_external_ip():
                     break
             except:
                 time.sleep(0.3)
-    #print 'ipaddr: %s' % ipaddr
+    # print 'ipaddr: %s' % ipaddr
     return ipaddr
 
 def verify_ipV4_address(ip_address):
@@ -98,8 +98,8 @@ def start_server():
         from calibre.utils.Zeroconf import Zeroconf
         try:
             _server = Zeroconf()
-        except:
-            time.sleep(0.2)
+        except Exception:
+            time.sleep(1)
             _server = Zeroconf()
 
         atexit.register(stop_server)
@@ -149,6 +149,7 @@ def publish(desc, type, port, properties=None, add_hostname=True, use_ip_address
     service = create_service(desc, type, port, properties, add_hostname,
                              use_ip_address)
     server.registerService(service)
+    return service
 
 def unpublish(desc, type, port, properties=None, add_hostname=True):
     '''
