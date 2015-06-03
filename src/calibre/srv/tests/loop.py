@@ -89,6 +89,7 @@ class LoopTest(BaseTest):
             with self.assertRaises(socket.timeout):
                 conn.getresponse()
             self.ae(pool.busy, 1)
+            server.loop.log.filter_level = server.loop.log.ERROR
             server.loop.stop()
             server.join()
             self.ae(1, sum(int(w.is_alive()) for w in pool.workers))

@@ -566,6 +566,8 @@ class ServerLoop(object):
         wait_till = time.time() + self.opts.shutdown_timeout
         for pool in (self.plugin_pool, self.pool):
             pool.stop(wait_till)
+            if pool.workers:
+                self.log.warn('Failed to shutdown %d workers in %s cleanly' % (len(pool.workers), pool.__class__.__name__))
 
 class EchoLine(Connection):  # {{{
 
