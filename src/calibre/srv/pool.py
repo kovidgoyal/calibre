@@ -60,8 +60,7 @@ class ThreadPool(object):
     def get_nowait(self):
         return self.result_queue.get_nowait()
 
-    def stop(self, shutdown_timeout):
-        end = time.time() + shutdown_timeout
+    def stop(self, wait_till):
         for w in self.workers:
             try:
                 self.request_queue.put_nowait(None)
@@ -69,9 +68,9 @@ class ThreadPool(object):
                 break
         for w in self.workers:
             now = time.time()
-            if now >= end:
+            if now >= wait_till:
                 break
-            w.join(end - now)
+            w.join(wait_till - now)
         self.workers = [w for w in self.workers if w.is_alive()]
 
     @property
@@ -103,13 +102,12 @@ class PluginPool(object):
         for w in self.workers:
             w.start()
 
-    def stop(self, shutdown_timeout):
-        end = time.time() + shutdown_timeout
+    def stop(self, wait_till):
         for w in self.workers:
             if w.is_alive():
                 w.plugin.stop()
         for w in self.workers:
-            left = end - time.time()
+            left = wait_till - time.time()
             if left > 0:
                 w.join(left)
             else:

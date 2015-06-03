@@ -563,9 +563,9 @@ class ServerLoop(object):
             pass
         for s, conn in tuple(self.connection_map.iteritems()):
             self.close(s, conn)
-        end = time.time() + self.opts.shutdown_timeout
+        wait_till = time.time() + self.opts.shutdown_timeout
         for pool in (self.plugin_pool, self.pool):
-            pool.stop(max(0, end - time.time()))
+            pool.stop(wait_till)
 
 class EchoLine(Connection):  # {{{
 
