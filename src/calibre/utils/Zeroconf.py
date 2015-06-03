@@ -104,25 +104,26 @@ _BROWSER_TIME = 500
 # Some DNS constants
 
 _MDNS_ADDR = '224.0.0.251'
-_MDNS_PORT = 5353;
-_DNS_PORT = 53;
-_DNS_TTL = 60 * 60; # one hour default TTL
+_MDNS_PORT = 5353
+_DNS_PORT = 53
+_DNS_TTL = 60 * 60
+# one hour default TTL
 
-_MAX_MSG_TYPICAL = 1460 # unused
+_MAX_MSG_TYPICAL = 1460  # unused
 _MAX_MSG_ABSOLUTE = 8972
 
-_FLAGS_QR_MASK = 0x8000 # query response mask
-_FLAGS_QR_QUERY = 0x0000 # query
-_FLAGS_QR_RESPONSE = 0x8000 # response
+_FLAGS_QR_MASK = 0x8000  # query response mask
+_FLAGS_QR_QUERY = 0x0000  # query
+_FLAGS_QR_RESPONSE = 0x8000  # response
 
-_FLAGS_AA = 0x0400 # Authorative answer
-_FLAGS_TC = 0x0200 # Truncated
-_FLAGS_RD = 0x0100 # Recursion desired
-_FLAGS_RA = 0x8000 # Recursion available
+_FLAGS_AA = 0x0400  # Authorative answer
+_FLAGS_TC = 0x0200  # Truncated
+_FLAGS_RD = 0x0100  # Recursion desired
+_FLAGS_RA = 0x8000  # Recursion available
 
-_FLAGS_Z = 0x0040 # Zero
-_FLAGS_AD = 0x0020 # Authentic data
-_FLAGS_CD = 0x0010 # Checking disabled
+_FLAGS_Z = 0x0040  # Zero
+_FLAGS_AD = 0x0020  # Authentic data
+_FLAGS_CD = 0x0010  # Checking disabled
 
 _CLASS_IN = 1
 _CLASS_CS = 2
@@ -155,14 +156,14 @@ _TYPE_ANY =  255
 
 # Mapping constants to names
 
-_CLASSES = { _CLASS_IN : "in",
+_CLASSES = {_CLASS_IN : "in",
              _CLASS_CS : "cs",
              _CLASS_CH : "ch",
              _CLASS_HS : "hs",
              _CLASS_NONE : "none",
-             _CLASS_ANY : "any" }
+             _CLASS_ANY : "any"}
 
-_TYPES = { _TYPE_A : "a",
+_TYPES = {_TYPE_A : "a",
            _TYPE_NS : "ns",
            _TYPE_MD : "md",
            _TYPE_MF : "mf",
@@ -180,7 +181,7 @@ _TYPES = { _TYPE_A : "a",
            _TYPE_TXT : "txt",
            _TYPE_AAAA : "quada",
            _TYPE_SRV : "srv",
-           _TYPE_ANY : "any" }
+           _TYPE_ANY : "any"}
 
 # utility functions
 
@@ -218,8 +219,9 @@ class BadTypeInNameException(Exception):
     pass
 
 class BadDomainName(Exception):
+
     def __init__(self, pos):
-      Exception.__init__(self, "at position " + str(pos))
+        Exception.__init__(self, "at position " + str(pos))
 
 class BadDomainNameCircular(BadDomainName):
     pass
@@ -227,6 +229,7 @@ class BadDomainNameCircular(BadDomainName):
 # implementation classes
 
 class DNSEntry(object):
+
     """A DNS entry"""
 
     def __init__(self, name, type, clazz):
@@ -275,6 +278,7 @@ class DNSEntry(object):
         return result
 
 class DNSQuestion(DNSEntry):
+
     """A DNS question entry"""
 
     def __init__(self, name, type, clazz):
@@ -292,6 +296,7 @@ class DNSQuestion(DNSEntry):
 
 
 class DNSRecord(DNSEntry):
+
     """A DNS record - like a DNS entry, but has a TTL"""
 
     def __init__(self, name, type, clazz, ttl):
@@ -353,6 +358,7 @@ class DNSRecord(DNSEntry):
         return DNSEntry.toString(self, "record", arg)
 
 class DNSAddress(DNSRecord):
+
     """A DNS address record"""
 
     def __init__(self, name, type, clazz, ttl, address):
@@ -377,6 +383,7 @@ class DNSAddress(DNSRecord):
             return 'record[%s]' % self.address
 
 class DNSHinfo(DNSRecord):
+
     """A DNS host information record"""
 
     def __init__(self, name, type, clazz, ttl, cpu, os):
@@ -400,6 +407,7 @@ class DNSHinfo(DNSRecord):
         return self.cpu + " " + self.os
 
 class DNSPointer(DNSRecord):
+
     """A DNS pointer record"""
 
     def __init__(self, name, type, clazz, ttl, alias):
@@ -421,6 +429,7 @@ class DNSPointer(DNSRecord):
         return self.toString(self.alias)
 
 class DNSText(DNSRecord):
+
     """A DNS text record"""
 
     def __init__(self, name, type, clazz, ttl, text):
@@ -445,6 +454,7 @@ class DNSText(DNSRecord):
             return self.toString(self.text)
 
 class DNSService(DNSRecord):
+
     """A DNS service record"""
 
     def __init__(self, name, type, clazz, ttl, priority, weight, port, server):
@@ -472,6 +482,7 @@ class DNSService(DNSRecord):
         return self.toString("%s:%s" % (self.server, self.port))
 
 class DNSIncoming(object):
+
     """Object representation of an incoming DNS packet"""
 
     def __init__(self, data):
@@ -566,7 +577,8 @@ class DNSIncoming(object):
             elif info[0] == _TYPE_TXT:
                 rec = DNSText(domain, info[0], info[1], info[2], self.readString(info[3]))
             elif info[0] == _TYPE_SRV:
-                rec = DNSService(domain, info[0], info[1], info[2], self.readUnsignedShort(), self.readUnsignedShort(), self.readUnsignedShort(), self.readName())
+                rec = DNSService(domain, info[0], info[1], info[2], self.readUnsignedShort(),
+                                 self.readUnsignedShort(), self.readUnsignedShort(), self.readName())
             elif info[0] == _TYPE_HINFO:
                 rec = DNSHinfo(domain, info[0], info[1], info[2], self.readCharacterString(), self.readCharacterString())
             elif info[0] == _TYPE_AAAA:
@@ -628,9 +640,10 @@ class DNSIncoming(object):
 
 
 class DNSOutgoing(object):
+
     """Object representation of an outgoing packet"""
 
-    def __init__(self, flags, multicast = 1):
+    def __init__(self, flags, multicast=1):
         self.finished = 0
         self.id = 0
         self.multicast = multicast
@@ -759,7 +772,7 @@ class DNSOutgoing(object):
         self.size -= 2
 
         length = len(''.join(self.data[index:]))
-        self.insertShort(index, length) # Here is the short we adjusted for
+        self.insertShort(index, length)  # Here is the short we adjusted for
 
     def packet(self):
         """Returns a string containing the packet's bytes
@@ -790,6 +803,7 @@ class DNSOutgoing(object):
 
 
 class DNSCache(object):
+
     """A cache of DNS entries"""
 
     def __init__(self):
@@ -835,7 +849,8 @@ class DNSCache(object):
 
     def entries(self):
         """Returns a list of all entries"""
-        def add(x, y): return x+y
+        def add(x, y):
+            return x+y
         try:
             return reduce(add, self.cache.values())
         except:
@@ -843,6 +858,7 @@ class DNSCache(object):
 
 
 class Engine(threading.Thread):
+
     """An engine wraps read access to sockets, allowing objects that
     need to receive data from sockets to be called back when the
     sockets are ready.
@@ -857,10 +873,10 @@ class Engine(threading.Thread):
     def __init__(self, zeroconf):
         threading.Thread.__init__(self)
         self.zeroconf = zeroconf
-        self.readers = {} # maps socket to reader
+        self.readers = {}  # maps socket to reader
         self.timeout = 5
         self.condition = threading.Condition()
-        self.setDaemon(True) # By Kovid
+        self.setDaemon(True)  # By Kovid
         self.start()
 
     def run(self):
@@ -914,6 +930,7 @@ class Engine(threading.Thread):
         self.condition.release()
 
 class Listener(object):
+
     """A Listener is used by this module to listen on the multicast
     group to which DNS messages are sent, allowing the implementation
     to cache information as it arrives.
@@ -945,12 +962,13 @@ class Listener(object):
 
 
 class Reaper(threading.Thread):
+
     """A Reaper is used by this module to remove cache entries that
     have expired."""
 
     def __init__(self, zeroconf):
         threading.Thread.__init__(self)
-        self.setDaemon(True) # By Kovid
+        self.setDaemon(True)  # By Kovid
         self.zeroconf = zeroconf
         self.start()
 
@@ -958,7 +976,7 @@ class Reaper(threading.Thread):
         while 1:
             try:
                 self.zeroconf.wait(10 * 1000)
-            except TypeError: # By Kovid
+            except TypeError:  # By Kovid
                 globals()['_GLOBAL_DONE'] = 1
                 return
             if globals()['_GLOBAL_DONE']:
@@ -976,6 +994,7 @@ class Reaper(threading.Thread):
 
 
 class ServiceBrowser(threading.Thread):
+
     """Used to browse for a service of a specific type.
 
     The listener object will have its addService() and
@@ -1055,6 +1074,7 @@ class ServiceBrowser(threading.Thread):
 
 
 class ServiceInfo(object):
+
     """Service information"""
 
     def __init__(self, type, name, address=None, port=None, weight=0, priority=0, properties=None, server=None):
@@ -1259,6 +1279,7 @@ class ServiceInfo(object):
 
 
 class Zeroconf(object):
+
     """Implementation of Zeroconf Multicast DNS Service Discovery
 
     Supports registration, unregistration, queries and browsing.
@@ -1296,7 +1317,7 @@ class Zeroconf(object):
             # the SO_REUSE* options have been set, so ignore it
             #
             pass
-        #self.socket.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_IF, socket.inet_aton(self.intf) + socket.inet_aton('0.0.0.0'))
+        # self.socket.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_IF, socket.inet_aton(self.intf) + socket.inet_aton('0.0.0.0'))
         self.socket.setsockopt(socket.SOL_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(_MDNS_ADDR) + socket.inet_aton('0.0.0.0'))
 
         self.listeners = []
@@ -1361,10 +1382,7 @@ class Zeroconf(object):
         changed if needed to make it unique on the network."""
         self.checkService(info)
         self.services[info.name.lower()] = info
-        if self.servicetypes.has_key(info.type):
-            self.servicetypes[info.type]+=1
-        else:
-            self.servicetypes[info.type]=1
+        self.servicetypes.set(info.type, self.servicetypes.get(info.type, 0) + 1)
         now = currentTimeMillis()
         nextTime = now
         i = 0
@@ -1542,13 +1560,16 @@ class Zeroconf(object):
                     if question.type in (_TYPE_A, _TYPE_AAAA, _TYPE_ANY):
                         for service in self.services.values():
                             if service.server == question.name.lower():
-                                out.addAnswer(msg, DNSAddress(question.name, address_type(service.address), _CLASS_IN | _CLASS_UNIQUE, _DNS_TTL, service.address))
+                                out.addAnswer(
+                                    msg, DNSAddress(question.name, address_type(service.address), _CLASS_IN | _CLASS_UNIQUE, _DNS_TTL, service.address))
 
                     service = self.services.get(question.name.lower(), None)
-                    if not service: continue
+                    if not service:
+                        continue
 
                     if question.type == _TYPE_SRV or question.type == _TYPE_ANY:
-                        out.addAnswer(msg, DNSService(question.name, _TYPE_SRV, _CLASS_IN | _CLASS_UNIQUE, _DNS_TTL, service.priority, service.weight, service.port, service.server))
+                        out.addAnswer(msg, DNSService(question.name, _TYPE_SRV, _CLASS_IN | _CLASS_UNIQUE,
+                                      _DNS_TTL, service.priority, service.weight, service.port, service.server))
                     if question.type == _TYPE_TXT or question.type == _TYPE_ANY:
                         out.addAnswer(msg, DNSText(question.name, _TYPE_TXT, _CLASS_IN | _CLASS_UNIQUE, _DNS_TTL, service.text))
                     if question.type == _TYPE_SRV:
@@ -1560,10 +1581,10 @@ class Zeroconf(object):
             out.id = msg.id
             self.send(out, addr, port)
 
-    def send(self, out, addr = _MDNS_ADDR, port = _MDNS_PORT):
+    def send(self, out, addr=_MDNS_ADDR, port=_MDNS_PORT):
         """Sends an outgoing packet."""
         # This is a quick test to see if we can parse the packets we generate
-        #temp = DNSIncoming(out.packet())
+        # temp = DNSIncoming(out.packet())
         try:
             self.socket.sendto(out.packet(), 0, (addr, port))
         except:
