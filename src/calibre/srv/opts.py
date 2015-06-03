@@ -67,6 +67,12 @@ raw_options = (
     ' example, "127.0.0.1" to only listen for connections from the local machine, or'
     ' to "::" to listen to all incoming IPv6 and IPv4 connections.',
 
+    'Fallback to auto-detected interface',
+    'fallback_to_detected_interface', True,
+    'If for some reason the server is unable to bind to the interface specified in'
+    ' the listen_on option, then it will try to detect an interface that connects'
+    ' to the outside world and bind to that.',
+
     'Enable/disable zero copy file transfers for increased performance',
     'use_sendfile', True,
     'This will use zero-copy in-kernel transfers when sending files over the network,'

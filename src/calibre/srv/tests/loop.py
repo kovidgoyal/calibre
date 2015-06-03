@@ -94,6 +94,13 @@ class LoopTest(BaseTest):
             server.join()
             self.ae(1, sum(int(w.is_alive()) for w in pool.workers))
 
+    def test_fallback_interface(self):
+        'Test falling back to default interface'
+        def specialize(server):
+            server.loop.log.filter_level = server.loop.log.ERROR
+        with TestServer(lambda data:(data.path[0] + data.read()), listen_on='1.1.1.1', fallback_to_detected_interface=True, specialize=specialize) as server:
+            self.assertNotEqual('1.1.1.1', server.address[0])
+
     def test_ring_buffer(self):
         'Test the ring buffer used for reads'
         class FakeSocket(object):

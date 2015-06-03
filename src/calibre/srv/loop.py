@@ -23,6 +23,7 @@ from calibre.srv.utils import (
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
 from calibre.utils.monotonic import monotonic
+from calibre.utils.mdns import get_external_ip
 
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = bytes(bytearray(xrange(2)))
@@ -321,41 +322,53 @@ class ServerLoop(object):
     def num_active_connections(self):
         return len(self.connection_map)
 
+    def do_bind(self):
+        # Get the correct address family for our host (allows IPv6 addresses)
+        host, port = self.bind_address
+        try:
+            info = socket.getaddrinfo(
+                host, port, socket.AF_UNSPEC,
+                socket.SOCK_STREAM, 0, socket.AI_PASSIVE)
+        except socket.gaierror:
+            if ':' in host:
+                info = [(socket.AF_INET6, socket.SOCK_STREAM,
+                        0, "", self.bind_address + (0, 0))]
+            else:
+                info = [(socket.AF_INET, socket.SOCK_STREAM,
+                        0, "", self.bind_address)]
+
+        self.socket = None
+        msg = "No socket could be created"
+        for res in info:
+            af, socktype, proto, canonname, sa = res
+            try:
+                self.bind(af, socktype, proto)
+            except socket.error as serr:
+                msg = "%s -- (%s: %s)" % (msg, sa, as_unicode(serr))
+                if self.socket:
+                    self.socket.close()
+                self.socket = None
+                continue
+            break
+        if not self.socket:
+            raise socket.error(msg)
+
     def serve_forever(self):
         """ Listen for incoming connections. """
 
         if self.pre_activated_socket is None:
-            # AF_INET or AF_INET6 socket
-            # Get the correct address family for our host (allows IPv6
-            # addresses)
-            host, port = self.bind_address
             try:
-                info = socket.getaddrinfo(
-                    host, port, socket.AF_UNSPEC,
-                    socket.SOCK_STREAM, 0, socket.AI_PASSIVE)
-            except socket.gaierror:
-                if ':' in host:
-                    info = [(socket.AF_INET6, socket.SOCK_STREAM,
-                            0, "", self.bind_address + (0, 0))]
-                else:
-                    info = [(socket.AF_INET, socket.SOCK_STREAM,
-                            0, "", self.bind_address)]
-
-            self.socket = None
-            msg = "No socket could be created"
-            for res in info:
-                af, socktype, proto, canonname, sa = res
-                try:
-                    self.bind(af, socktype, proto)
-                except socket.error, serr:
-                    msg = "%s -- (%s: %s)" % (msg, sa, serr)
-                    if self.socket:
-                        self.socket.close()
-                    self.socket = None
-                    continue
-                break
-            if not self.socket:
-                raise socket.error(msg)
+                self.do_bind()
+            except socket.error as err:
+                if not self.opts.fallback_to_detected_interface:
+                    raise
+                ip = get_external_ip()
+                if ip == self.bind_address[0]:
+                    raise
+                self.log.warn('Failed to bind to %s with error: %s. Trying to bind to the default interface: %s instead' % (
+                    self.bind_address[0], as_unicode(err), ip))
+                self.bind_address = (ip, self.bind_address[1])
+                self.do_bind()
         else:
             self.socket = self.pre_activated_socket
             self.pre_activated_socket = None

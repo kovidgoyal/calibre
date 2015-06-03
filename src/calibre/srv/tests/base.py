@@ -23,7 +23,7 @@ class TestServer(Thread):
 
     daemon = True
 
-    def __init__(self, handler, plugins=(), **kwargs):
+    def __init__(self, handler, plugins=(), specialize=lambda srv:None, **kwargs):
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.opts import Options
         from calibre.srv.loop import ServerLoop
@@ -38,6 +38,7 @@ class TestServer(Thread):
             log=ServerLog(level=ServerLog.WARN),
         )
         self.log = self.loop.log
+        specialize(self)
 
     def run(self):
         try:
