@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ssl, socket, select, os, traceback
+import ssl, socket, select, os, traceback, time
 from io import BytesIO
 from Queue import Empty, Full
 from functools import partial
@@ -14,7 +14,7 @@ from functools import partial
 from calibre import as_unicode
 from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import JobQueueFull
-from calibre.srv.pool import ThreadPool
+from calibre.srv.pool import ThreadPool, PluginPool
 from calibre.srv.opts import Options
 from calibre.srv.utils import (
     socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt,
@@ -275,6 +275,7 @@ class ServerLoop(object):
         self,
         handler,
         opts=None,
+        plugins=(),
         # A calibre logging object. If None, a default log that logs to
         # stdout is used
         log=None
@@ -307,6 +308,7 @@ class ServerLoop(object):
 
         self.create_control_connection()
         self.pool = ThreadPool(self.log, self.job_completed, count=self.opts.worker_count)
+        self.plugin_pool = PluginPool(self, plugins)
 
     def create_control_connection(self):
         self.control_in, self.control_out = create_sock_pair()
@@ -369,6 +371,7 @@ class ServerLoop(object):
             self.tdir = tdir
             self.ready = True
             self.log('calibre server listening on', ba)
+            self.plugin_pool.start()
 
             while self.ready:
                 try:
@@ -560,7 +563,9 @@ class ServerLoop(object):
             pass
         for s, conn in tuple(self.connection_map.iteritems()):
             self.close(s, conn)
-        self.pool.stop(self.opts.shutdown_timeout)
+        end = time.time() + self.opts.shutdown_timeout
+        for pool in (self.plugin_pool, self.pool):
+            pool.stop(max(0, end - time.time()))
 
 class EchoLine(Connection):  # {{{
 

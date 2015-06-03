@@ -9,6 +9,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import httplib, ssl, os, socket, time
 from unittest import skipIf
 from glob import glob
+from threading import Event
 
 try:
     from calibre.utils.certgen import create_server_cert
@@ -49,6 +50,28 @@ class LoopTest(BaseTest):
                 l(i * 101)
             self.assertLessEqual(log_size(), 100)
             self.ae(history(), {1,2,3,4,5})
+
+    def test_plugins(self):
+        'Test plugin semantics'
+        class Plugin(object):
+            def __init__(self):
+                self.running = Event()
+                self.event = Event()
+                self.port = None
+            def start(self, loop):
+                self.running.set()
+                self.port = loop.bound_address[1]
+                self.event.wait()
+                self.running.clear()
+            def stop(self):
+                self.event.set()
+
+        plugin = Plugin()
+        with TestServer(lambda data:'xxx', plugins=(plugin,)) as server:
+            self.assertTrue(plugin.running.wait(0.2))
+            self.ae(plugin.port, server.address[1])
+        self.assertTrue(plugin.event.wait(0.2))
+        self.assertFalse(plugin.running.is_set())
 
     def test_workers(self):
         ' Test worker semantics '

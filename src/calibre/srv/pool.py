@@ -81,3 +81,37 @@ class ThreadPool(object):
     @property
     def idle(self):
         return sum(int(not w.working) for w in self.workers)
+
+class PluginPool(object):
+
+    def __init__(self, loop, plugins):
+        self.workers = []
+        self.loop = loop
+        for plugin in plugins:
+            w = Thread(target=self.run_plugin, args=(plugin,), name=plugin.__class__.__name__)
+            w.daemon = True
+            w.plugin = plugin
+            self.workers.append(w)
+
+    def run_plugin(self, plugin):
+        try:
+            plugin.start(self.loop)
+        except Exception:
+            self.loop.log.exception('Failed to start plugin: %s', plugin.__class__.__name__)
+
+    def start(self):
+        for w in self.workers:
+            w.start()
+
+    def stop(self, shutdown_timeout):
+        end = time.time() + shutdown_timeout
+        for w in self.workers:
+            if w.is_alive():
+                w.plugin.stop()
+        for w in self.workers:
+            left = end - time.time()
+            if left > 0:
+                w.join(left)
+            else:
+                break
+        self.workers = [w for w in self.workers if w.is_alive()]

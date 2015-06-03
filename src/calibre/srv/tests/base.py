@@ -23,7 +23,7 @@ class TestServer(Thread):
 
     daemon = True
 
-    def __init__(self, handler, **kwargs):
+    def __init__(self, handler, plugins=(), **kwargs):
         Thread.__init__(self, name='ServerMain')
         from calibre.srv.opts import Options
         from calibre.srv.loop import ServerLoop
@@ -34,6 +34,7 @@ class TestServer(Thread):
         self.loop = ServerLoop(
             create_http_handler(handler),
             opts=Options(**kwargs),
+            plugins=plugins,
             log=ServerLog(level=ServerLog.WARN),
         )
         self.log = self.loop.log
