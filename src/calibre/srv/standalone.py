@@ -83,13 +83,10 @@ program will be used.
     parser.add_option(
         '--log', default=None,
         help=_('Path to log file for server log'))
-    parser.add_option(
-        '--url-prefix', default=None,
-        help=_('A prefix to prepend to all URLs. Useful if you wish to run this server behind a reverse proxy.'))
     parser.add_option('--daemonize', default=False, action='store_true',
-            help=_('Run process in background as a daemon. No effect on Windows.'))
+        help=_('Run process in background as a daemon. No effect on Windows.'))
     parser.add_option('--pidfile', default=None,
-            help=_('Write process PID to the specified file'))
+        help=_('Write process PID to the specified file'))
 
     return parser
 

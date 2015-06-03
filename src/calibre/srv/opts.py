@@ -61,6 +61,10 @@ raw_options = (
     'port', 8080,
     None,
 
+    'A prefix to prepend to all URLs',
+    'url_prefix', None,
+    'Useful if you wish to run this server behind a reverse proxy.',
+
     'The interface on which to listen for connections',
     'listen_on', '0.0.0.0',
     'The default is to listen on all available interfaces. You can change this to, for'
