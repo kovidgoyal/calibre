@@ -498,7 +498,7 @@ class HTTPConnection(HTTPRequest):
             output = GeneratedOutput(output)
         ct = outheaders.get('Content-Type', '').partition(';')[0]
         compressible = (not ct or ct.startswith('text/') or ct.startswith('image/svg') or
-                        ct in {'application/json', 'application/javascript'})
+                        ct in {'application/json', 'application/javascript', 'application/xml'})
         compressible = (compressible and request.status_code == httplib.OK and
                         (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size) and
                         acceptable_encoding(request.inheaders.get('Accept-Encoding', '')) and not is_http1)
