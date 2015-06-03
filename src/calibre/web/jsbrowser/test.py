@@ -74,7 +74,7 @@ class Server(object):
     @cherrypy.expose
     def controls_test(self, **kwargs):
         self.form_data = kwargs.copy()
-        #pprint.pprint(kwargs)
+        # pprint.pprint(kwargs)
         return pprint.pformat(kwargs)
 
     @cherrypy.expose
@@ -93,10 +93,10 @@ class Server(object):
             cookie = cherrypy.response.cookie
             cookie[b'cookiea'] = 'The%20first%20cookie'
             cookie[b'cookiea']['path'] = '/'
-            cookie[b'cookiea']['max-age'] = 60 # seconds
+            cookie[b'cookiea']['max-age'] = 60  # seconds
             cookie[b'cookieb'] = 'The_second_cookie'
             cookie[b'cookieb']['path'] = '/'
-            cookie[b'cookieb']['expires'] = cookie_max_age_to_expires(60) # seconds
+            cookie[b'cookieb']['expires'] = cookie_max_age_to_expires(60)  # seconds
             cookie[b'cookiec'] = 'The_third_cookie'
             cookie[b'cookiec']['path'] = '/'
             self.sent_cookies = {n:(c.value, dict(c)) for n, c in
@@ -129,13 +129,13 @@ class Test(unittest.TestCase):
         cherrypy.config.update({
             'log.screen'             : False,
             'checker.on'             : False,
-            'engine.autoreload_on'   : False,
+            'engine.autoreload.on'   : False,
             'request.show_tracebacks': True,
             'server.socket_host'     : b'127.0.0.1',
             'server.socket_port'     : cls.port,
-            'server.socket_timeout'  : 10, #seconds
-            'server.thread_pool'     : 5, # number of threads setting to 1 causes major slowdown
-            'server.shutdown_timeout': 0.1, # minutes
+            'server.socket_timeout'  : 10,  # seconds
+            'server.thread_pool'     : 5,  # number of threads setting to 1 causes major slowdown
+            'server.shutdown_timeout': 0.1,  # minutes
         })
         cherrypy.tree.mount(cls.server, '/', config={'/':{}})
 
@@ -238,4 +238,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-

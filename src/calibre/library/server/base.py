@@ -155,7 +155,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
 
         cherrypy.config.update({
             'log.screen'             : opts.develop,
-            'engine.autoreload_on'   : getattr(opts,
+            'engine.autoreload.on'   : getattr(opts,
                                         'auto_reload', False),
             'tools.log_headers.on'   : opts.develop,
             'tools.encode.encoding'  : 'UTF-8',
@@ -178,7 +178,7 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         # self.config['/'] = {
         #    'tools.sessions.on' : True,
         # 'tools.sessions.timeout': 60, # Session times out after 60 minutes
-        #}
+        # }
 
         if not wsgi:
             self.setup_loggers()
@@ -322,5 +322,3 @@ class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         return self.db.search_getting_ids(
             (query or '').strip(), self.search_restriction,
             sort_results=False, use_virtual_library=False)
-
-
