@@ -132,6 +132,8 @@ class Router(object):
         self.routes = {}
         self.url_prefix = url_prefix or ''
         self.ctx = ctx
+        self.init_session = getattr(ctx, 'init_session', lambda ep, data:None)
+        self.finalize_session = getattr(ctx, 'finalize_session', lambda ep, data, output:None)
 
     def add(self, endpoint):
         key = route_key(endpoint.route)
@@ -170,7 +172,10 @@ class Router(object):
         endpoint_, args = self.find_route(data.path)
         if data.method not in endpoint_.methods:
             raise HTTPSimpleResponse(httplib.METHOD_NOT_ALLOWED)
-        return endpoint_(self.ctx, data, *args)
+        self.init_session(endpoint_, data)
+        ans = endpoint_(self.ctx, data, *args)
+        self.finalize_session(endpoint_, data, ans)
+        return ans
 
     def url_for(self, route, **kwargs):
         return self.url_prefix + self.routes[route].url_for(**kwargs)
