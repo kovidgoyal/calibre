@@ -1382,7 +1382,7 @@ class Zeroconf(object):
         changed if needed to make it unique on the network."""
         self.checkService(info)
         self.services[info.name.lower()] = info
-        self.servicetypes.set(info.type, self.servicetypes.get(info.type, 0) + 1)
+        self.servicetypes[info.type] = self.servicetypes.get(info.type, 0) + 1
         now = currentTimeMillis()
         nextTime = now
         i = 0
