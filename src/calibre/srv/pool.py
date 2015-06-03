@@ -87,16 +87,19 @@ class PluginPool(object):
         self.workers = []
         self.loop = loop
         for plugin in plugins:
-            w = Thread(target=self.run_plugin, args=(plugin,), name=plugin.__class__.__name__)
+            w = Thread(target=self.run_plugin, args=(plugin,), name=self.plugin_name(plugin))
             w.daemon = True
             w.plugin = plugin
             self.workers.append(w)
+
+    def plugin_name(self, plugin):
+        return plugin.__class__.__name__
 
     def run_plugin(self, plugin):
         try:
             plugin.start(self.loop)
         except Exception:
-            self.loop.log.exception('Failed to start plugin: %s', plugin.__class__.__name__)
+            self.loop.log.exception('Failed to start plugin: %s', self.plugin_name(plugin))
 
     def start(self):
         for w in self.workers:
@@ -105,7 +108,10 @@ class PluginPool(object):
     def stop(self, wait_till):
         for w in self.workers:
             if w.is_alive():
-                w.plugin.stop()
+                try:
+                    w.plugin.stop()
+                except Exception:
+                    self.loop.log.exception('Failed to stop plugin: %s', self.plugin_name(w.plugin))
         for w in self.workers:
             left = wait_till - time.time()
             if left > 0:
