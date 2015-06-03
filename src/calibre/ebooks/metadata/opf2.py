@@ -1176,6 +1176,12 @@ class OPF(object):  # {{{
                     mt = item.get('media-type', '')
                     if mt and mt.startswith('image/'):
                         return item.get('href', None)
+        elif self.package_version >= 3.0:
+            for item in self.itermanifest():
+                if item.get('properties') == 'cover-image':
+                    mt = item.get('media-type', '')
+                    if mt and 'xml' not in mt and 'html' not in mt:
+                        return item.get('href', None)
 
     @dynamic_property
     def cover(self):
