@@ -65,6 +65,11 @@ raw_options = (
     'url_prefix', None,
     'Useful if you wish to run this server behind a reverse proxy.',
 
+    'Advertise OPDS feeds via BonJour',
+    'use_bonjour', True,
+    'Advertise the OPDS feeds via the BonJour service, so that OPDS based'
+    ' reading apps can detect and connect to the server automatically.',
+
     'The interface on which to listen for connections',
     'listen_on', '0.0.0.0',
     'The default is to listen on all available interfaces. You can change this to, for'

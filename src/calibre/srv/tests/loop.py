@@ -101,6 +101,23 @@ class LoopTest(BaseTest):
         with TestServer(lambda data:(data.path[0] + data.read()), listen_on='1.1.1.1', fallback_to_detected_interface=True, specialize=specialize) as server:
             self.assertNotEqual('1.1.1.1', server.address[0])
 
+    def test_bonjour(self):
+        'Test advertising via BonJour'
+        from calibre.srv.plugins import BonJour
+        from calibre.utils.Zeroconf import Zeroconf
+        b = BonJour()
+        with TestServer(lambda data:(data.path[0] + data.read()), plugins=(b,), shutdown_timeout=5) as server:
+            self.assertTrue(b.started.wait(5), 'BonJour not started')
+            self.ae(b.advertised_port, server.address[1])
+            service = b.services[0]
+            self.ae(service.type, b'_calibre._tcp.local.')
+            r = Zeroconf()
+            info = r.getServiceInfo(service.type, service.name)
+            self.assertIsNotNone(info)
+            self.ae(info.text, b'\npath=/opds')
+
+        self.assertTrue(b.stopped.wait(5), 'BonJour not stopped')
+
     def test_ring_buffer(self):
         'Test the ring buffer used for reads'
         class FakeSocket(object):

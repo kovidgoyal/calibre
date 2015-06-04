@@ -11,6 +11,7 @@ import sys, os
 from calibre import as_unicode
 from calibre.constants import plugins, iswindows
 from calibre.srv.loop import ServerLoop
+from calibre.srv.plugins import BonJour
 from calibre.srv.opts import opts_to_parser
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.handler import Handler
@@ -60,7 +61,10 @@ class Server(object):
         if opts.log:
             log = RotatingLog(opts.log, max_size=opts.max_log_size)
         self.handler = Handler(libraries, opts)
-        self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log)
+        plugins = []
+        if opts.use_bonjour:
+            plugins.append(BonJour())
+        self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log, plugins=plugins)
         self.handler.set_log(self.loop.log)
         self.serve_forever = self.loop.serve_forever
 
