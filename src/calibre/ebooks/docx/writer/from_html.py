@@ -523,8 +523,15 @@ class Convert(object):
         if not is_first_tag and html_tag.tail and (not ignore_whitespace_tail or not html_tag.tail.isspace()):
             # Ignore trailing space after a block tag, as otherwise it will
             # become a new empty paragraph
-            block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
+            block = self.create_block_from_parent(html_tag, stylizer)
             block.add_text(html_tag.tail, stylizer.style(html_tag.getparent()), is_parent_style=True, link=self.current_link, lang=self.current_lang)
+
+    def create_block_from_parent(self, html_tag, stylizer):
+        parent = html_tag.getparent()
+        block = self.blocks.current_or_new_block(parent, stylizer.style(parent))
+        # Do not inherit page-break-before from parent
+        block.page_break_before = False
+        return block
 
     def add_block_tag(self, tagname, html_tag, tag_style, stylizer, is_table_cell=False, float_spec=None, is_list_item=False):
         block = self.blocks.start_new_block(
@@ -545,14 +552,14 @@ class Convert(object):
             bmark = self.bookmark_for_anchor(anchor, html_tag)
         if tagname == 'br':
             if html_tag.tail or html_tag is not tuple(html_tag.getparent().iterchildren('*'))[-1]:
-                block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
+                block = self.create_block_from_parent(html_tag, stylizer)
                 block.add_break(clear={'both':'all', 'left':'left', 'right':'right'}.get(tag_style['clear'], 'none'), bookmark=bmark)
         elif tagname == 'img':
-            block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
+            block = self.create_block_from_parent(html_tag, stylizer)
             self.images_manager.add_image(html_tag, block, stylizer, bookmark=bmark)
         else:
             if html_tag.text:
-                block = self.blocks.current_or_new_block(html_tag.getparent(), stylizer.style(html_tag.getparent()))
+                block = self.create_block_from_parent(html_tag, stylizer)
                 block.add_text(html_tag.text, tag_style, is_parent_style=False, bookmark=bmark, link=self.current_link, lang=self.current_lang)
 
     def bookmark_for_anchor(self, anchor, html_tag):
