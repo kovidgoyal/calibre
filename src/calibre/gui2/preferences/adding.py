@@ -41,6 +41,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('auto_add_everything', gprefs, restart_required=True)
         r('auto_add_check_for_duplicates', gprefs)
         r('auto_add_auto_convert', gprefs)
+        r('auto_convert_same_fmt', gprefs)
 
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)

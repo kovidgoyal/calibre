@@ -102,6 +102,7 @@ defs['edit_metadata_single_layout'] = 'default'
 defs['default_author_link'] = 'https://en.wikipedia.org/w/index.php?search={author}'
 defs['preserve_date_on_ctl'] = True
 defs['manual_add_auto_convert'] = False
+defs['auto_convert_same_fmt'] = False
 defs['cb_fullscreen'] = False
 defs['worker_max_time'] = 0
 defs['show_files_after_save'] = True

@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt5.Qt import QModelIndex, QTimer
 
-from calibre.gui2 import error_dialog, Dispatcher
+from calibre.gui2 import error_dialog, Dispatcher, gprefs
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebook
 from calibre.utils.config import prefs, tweaks
 from calibre.gui2.actions import InterfaceAction
@@ -87,7 +87,7 @@ class ConvertAction(InterfaceAction):
         for book_id in book_ids:
             fmts = db.formats(book_id, index_is_id=True)
             fmts = set(x.lower() for x in fmts.split(',')) if fmts else set()
-            if of not in fmts:
+            if gprefs['auto_convert_same_fmt'] or of not in fmts:
                 needed.add(book_id)
         if needed:
             jobs, changed, bad = convert_single_ebook(self.gui,
