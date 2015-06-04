@@ -535,7 +535,13 @@ class Style(object):
 
     def img_size(self, width, height):
         ' Return the final size of an <img> given that it points to an image of size widthxheight '
-        return self.img_dimension('width', width), self.img_dimension('height', height)
+        w, h = self._get('width'), self._get('height')
+        answ, ansh = self.img_dimension('width', width), self.img_dimension('height', height)
+        if w == 'auto' and h != 'auto':
+            answ = (float(width)/height) * ansh
+        elif h == 'auto' and w != 'auto':
+            ansh = (float(height)/width) * answ
+        return answ, ansh
 
     @property
     def width(self):
