@@ -103,7 +103,7 @@ class LoopTest(BaseTest):
 
     def test_bonjour(self):
         'Test advertising via BonJour'
-        from calibre.srv.plugins import BonJour
+        from calibre.srv.bonjour import BonJour
         from calibre.utils.Zeroconf import Zeroconf
         b = BonJour()
         with TestServer(lambda data:(data.path[0] + data.read()), plugins=(b,), shutdown_timeout=5) as server:

@@ -11,7 +11,7 @@ import sys, os
 from calibre import as_unicode
 from calibre.constants import plugins, iswindows
 from calibre.srv.loop import ServerLoop
-from calibre.srv.plugins import BonJour
+from calibre.srv.bonjour import BonJour
 from calibre.srv.opts import opts_to_parser
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.handler import Handler
