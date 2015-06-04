@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = [
         'pot', 'translations', 'get_translations', 'iso639', 'iso3166',
-        'build', 'server', 'mathjax',
+        'build', 'mathjax',
         'gui',
         'develop', 'install',
         'kakasi', 'coffee', 'resources',
@@ -34,9 +34,6 @@ iso3166 = ISO3166()
 
 from setup.extensions import Build
 build = Build()
-
-from setup.server import Server
-server = Server()
 
 from setup.mathjax import MathJax
 mathjax = MathJax()
