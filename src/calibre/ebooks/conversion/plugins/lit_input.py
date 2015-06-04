@@ -26,7 +26,8 @@ class LITInput(InputFormatPlugin):
         from calibre.ebooks.oeb.base import XHTML_NS, XPath, XHTML
         for item in oeb.spine:
             root = item.data
-            if not hasattr(root, 'xpath'): continue
+            if not hasattr(root, 'xpath'):
+                continue
             for bad in ('metadata', 'guide'):
                 metadata = XPath('//h:'+bad)(root)
                 if metadata:
@@ -42,11 +43,16 @@ class LITInput(InputFormatPlugin):
                     from calibre.ebooks.chardet import xml_to_unicode
                     from lxml import etree
                     import copy
+                    self.log('LIT file with all text in singe <pre> tag detected')
                     html = separate_paragraphs_single_line(pre.text)
                     html = convert_basic(html).replace('<html>',
                             '<html xmlns="%s">'%XHTML_NS)
                     html = xml_to_unicode(html, strip_encoding_pats=True,
                             resolve_entities=True)[0]
+                    if opts.smarten_punctuation:
+                        # SmartyPants skips text inside <pre> tags
+                        from calibre.ebooks.conversion.preprocess import smarten_punctuation
+                        html = smarten_punctuation(html, self.log)
                     root = etree.fromstring(html)
                     body = XPath('//h:body')(root)
                     pre.tag = XHTML('div')
