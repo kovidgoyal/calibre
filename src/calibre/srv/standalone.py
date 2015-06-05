@@ -129,6 +129,6 @@ def main(args=sys.argv):
         with lopen(opts.pidfile, 'wb') as f:
             f.write(str(os.getpid()))
     signal.signal(signal.SIGTERM, lambda s,f: server.stop())
-    if not opts.daemonize:
+    if not opts.daemonize and not iswindows:
         signal.signal(signal.SIGHUP, lambda s,f: server.stop())
     server.serve_forever()
