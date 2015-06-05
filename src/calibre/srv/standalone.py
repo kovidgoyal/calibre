@@ -91,6 +91,11 @@ program will be used.
         help=_('Run process in background as a daemon. No effect on Windows.'))
     parser.add_option('--pidfile', default=None,
         help=_('Write process PID to the specified file'))
+    parser.add_option(
+        '--auto-reload', default=False, action='store_true',
+        help=_('Automatically reload server when source code changes. Useful'
+               ' for development. You should also specify a small value for the'
+               ' shutdown timeout.'))
 
     return parser
 
@@ -104,6 +109,16 @@ def main(args=sys.argv):
         if not prefs['library_path']:
             raise SystemExit(_('You must specify at least one calibre library'))
         libraries = [prefs['library_path']]
+
+    if opts.auto_reload:
+        if opts.daemonize:
+            raise SystemExit('Cannot specify --auto-reload and --daemonize at the same time')
+        from calibre.srv.auto_reload import auto_reload, NoAutoReload
+        try:
+            from calibre.utils.logging import default_log
+            return auto_reload(default_log)
+        except NoAutoReload as e:
+            raise SystemExit(e.message)
     server = Server(libraries, opts)
     if opts.daemonize:
         if not opts.log and not iswindows:
