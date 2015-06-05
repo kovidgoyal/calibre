@@ -20,6 +20,39 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.30.0
+  date: 2015-06-05
+
+  new features:
+    - title: "An option to auto-convert a book on adding even if it is already in the output format (Preferences->Adding Books)."
+      tickets: [1460477]
+
+    - title: "E-book viewer: If there are entries in the Table of Contents that are long enough to be truncated, display the full text in a popup menu when the mouse hovers over the item."
+      tickets: [1460093]
+
+    - title: "News download: Add support for turning off SSL certificate verification in individual recipes"
+
+  bug fixes:
+    - title: "DOCX Output: Fix aspect ratio of images being distorted when the input document specifies image width but not height or vice-versa."
+      tickets: [1455502]
+
+    - title: "DOCX Output: Fix extra page breaks being inserted in some situations."
+      tickets: [1455502]
+
+    - title: "LIT Input: Fix smarten punctuation not working for text (as opposed to HTML) based LIT files."
+      tickets: [1460998]
+
+    - title: "EPUB metadata: Fix extraction of cover image from EPUB 3 files that do not use EPUB 2 backward compatible markup and that have incorrect cover page markup as well."
+      tickets: [1461321]
+
+    - title: "Book details panel: On windows use only \\ as a path separator when copying file paths"
+
+    - title: "Edit Book: Fix Saved searches panel not working well with very long search/replace expressions"
+
+    - title: "OS X: Fix changing preferences causing 'Email to selected recipients...' appearing multiple times in the Connect/Share menu."
+      tickets: [1460089]
+
+
 - version: 2.29.0
   date: 2015-05-29
 
