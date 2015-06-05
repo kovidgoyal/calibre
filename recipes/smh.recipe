@@ -3,19 +3,19 @@ __copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 smh.com.au
 '''
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Smh_au(BasicNewsRecipe):
-    title                 = 'The Sydney Morning Herald - Printed edition'
+    title                 = 'The Sydney Morning Herald'
     __author__            = 'Darko Miletic'
-    description           = 'Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news.'
+    description           = 'Breaking news from Sydney, Australia and the world. Features the latest business, sport, entertainment, travel, lifestyle, and technology news.'  # noqa
     publisher             = 'Fairfax Digital'
     category              = 'news, politics, Australia, Sydney'
     oldest_article        = 2
     max_articles_per_feed = 200
     no_stylesheets        = True
+    ignore_duplicate_articles = {'title', 'url'}
+    use_embedded_content = False
     encoding              = 'utf-8'
     use_embedded_content  = False
     language              = 'en_AU'
@@ -28,60 +28,38 @@ class Smh_au(BasicNewsRecipe):
                                 .cT-imageLandscape,.cT-imagePortrait{font-size: x-small}
                             """
 
-    conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+    feeds = [
+        ('Politics', 'http://www.smh.com.au/rssheadlines/political-news/article/rss.xml'),
+        ('NSW News', 'http://www.smh.com.au/rssheadlines/nsw/article/rss.xml'),
+        ('World', 'http://www.smh.com.au/rssheadlines/world/article/rss.xml'),
+        ('National', 'http://www.smh.com.au/rssheadlines/national/article/rss.xml'),
+        ('Business', 'http://www.smh.com.au/rssheadlines/business/article/rss.xml'),
+        ('Entertainment', 'http://feeds.smh.com.au/rssheadlines/entertainment.xml'),
+        ('Technology', 'http://www.smh.com.au/rssheadlines/technology-news/article/rss.xml'),
+        ('Health', 'http://www.smh.com.au/rssheadlines/health/article/rss.xml'),
+        ('Sport', 'http://feeds.smh.com.au/rssheadlines/sport.xml'),
+        ('Cricket', 'http://www.smh.com.au/rssheadlines/cricket/article/rss.xml'),
+    ]
 
-    remove_tags_after = [dict(name='div',attrs={'class':'articleBody'})]
-    keep_only_tags    = [dict(name='div',attrs={'id':'content'})]
+    remove_tags_after = [
+        dict(name='div',attrs={'class':'articleBody'})
+    ]
+    keep_only_tags    = [
+        dict(name='div',attrs={'id':'content'})
+    ]
     remove_tags       = [
-                        dict(name='div',
-                            attrs={'id':['googleAds','moreGoogleAds','comments',
-                                'video-player-content']}),
-                        dict(name='div', attrs={'class':'cT-imageMultimedia'}),
-                        dict(name=['object','embed','iframe']),
-                        dict(attrs={'class':'hidden'}),
-                        dict(name=['link','meta','base','embed','object','iframe'])
-                        ]
+        dict(name='div', attrs={'id':['googleAds','moreGoogleAds','comments', 'video-player-content']}),
+        dict(name='div', attrs={'class':'cT-imageMultimedia'}),
+        dict(name=['object','embed','iframe']),
+        dict(attrs={'class':'hidden'}),
+        dict(name=['link','meta','base','embed','object','iframe'])
+    ]
     remove_attributes = ['width','height','lang']
-
-    def parse_index(self):
-        articles = []
-        rawc = self.index_to_soup('http://www.smh.com.au/todays-paper',True)
-        soup = BeautifulSoup(rawc,fromEncoding=self.encoding)
-        for itimg in soup.findAll('img',src=True):
-            if itimg['src'].endswith('frontpage.jpg'):
-               self.cover_url = itimg['src']
-
-        for item in soup.findAll(attrs={'class':'cN-storyHeadlineLead cfix'}):
-            description = ''
-            title_prefix = ''
-            feed_link = item.find('a',href=True)
-            descript = item.find('p')
-            if descript:
-               description = self.tag_to_string(descript)
-            if feed_link:
-                url   = feed_link['href']
-                title = title_prefix + self.tag_to_string(feed_link)
-                date  = strftime(self.timefmt)
-                articles.append({
-                                  'title'      :title
-                                 ,'date'       :date
-                                 ,'url'        :url
-                                 ,'description':description
-                                })
-        return [(self.tag_to_string(soup.find('title')), articles)]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
         for item in soup.findAll('bod'):
             item.name = 'div'
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
         return soup
 
