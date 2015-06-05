@@ -76,8 +76,8 @@ def patheq(p1, p2):
     return d(p1) == d(p2)
 
 def unicode_path(path, abs=False):
-    if not isinstance(path, unicode):
-        path = path.decode(sys.getfilesystemencoding())
+    if isinstance(path, bytes):
+        path = path.decode(filesystem_encoding)
     if abs:
         path = os.path.abspath(path)
     return path
