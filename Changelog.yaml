@@ -32,6 +32,9 @@
 
     - title: "News download: Add support for turning off SSL certificate verification in individual recipes"
 
+    - title: "Kobo driver: Support for upcoming firmware version 3.16"
+      tickets: [1461964]
+
   bug fixes:
     - title: "DOCX Output: Fix aspect ratio of images being distorted when the input document specifies image width but not height or vice-versa."
       tickets: [1455502]
