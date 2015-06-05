@@ -13,6 +13,7 @@ from functools import partial
 from PyQt5.Qt import QWidget, pyqtSignal, QDialog, Qt, QLabel, \
         QLineEdit, QDialogButtonBox, QGridLayout, QCheckBox
 
+from calibre import prints
 from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2.dialogs.test_email_ui import Ui_Dialog as TE_Dialog
@@ -159,6 +160,7 @@ class SendEmail(QWidget, Ui_Form):
         opts = smtp_prefs().parse()
         from calibre.utils.smtp import sendmail, create_mail
         buf = cStringIO.StringIO()
+        debug_out = partial(prints, file=buf)
         oout, oerr = sys.stdout, sys.stderr
         sys.stdout = sys.stderr = buf
         tb = None
@@ -167,7 +169,7 @@ class SendEmail(QWidget, Ui_Form):
                     'Test mail from calibre')
             sendmail(msg, from_=opts.from_, to=[to],
                 verbose=3, timeout=30, relay=opts.relay_host,
-                username=opts.relay_username,
+                username=opts.relay_username, debug_output=debug_out,
                 password=unhexlify(opts.relay_password).decode('utf-8'),
                 encryption=opts.encryption, port=opts.relay_port)
         except:
