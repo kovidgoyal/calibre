@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os
+import sys, os, signal
 
 from calibre import as_unicode
 from calibre.constants import plugins, iswindows
@@ -67,6 +67,7 @@ class Server(object):
         self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log, plugins=plugins)
         self.handler.set_log(self.loop.log)
         self.serve_forever = self.loop.serve_forever
+        self.stop = self.loop.stop
 
 
 def create_option_parser():
@@ -127,4 +128,5 @@ def main(args=sys.argv):
     if opts.pidfile:
         with lopen(opts.pidfile, 'wb') as f:
             f.write(str(os.getpid()))
+    signal.signal(signal.SIGTERM, lambda s,f: server.stop())
     server.serve_forever()
