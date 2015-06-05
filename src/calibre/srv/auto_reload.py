@@ -9,13 +9,16 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, subprocess, signal, time
 from threading import Thread
 
-from calibre.constants import islinux, iswindows
+from calibre.constants import islinux, iswindows, isosx
 
 class NoAutoReload(EnvironmentError):
     pass
 
 EXTENSIONS_TO_WATCH = frozenset('py pyj'.split())
 BOUNCE_INTERVAL = 2  # seconds
+
+def file_is_watched(fname):
+    return fname and fname.rpartition('.')[-1] in EXTENSIONS_TO_WATCH
 
 class WatcherBase(object):
 
@@ -42,7 +45,7 @@ if islinux:
     from calibre.utils.inotify import INotifyTreeWatcher
 
     def ignore_event(path, name):
-        return name and name.rpartition('.')[-1] not in EXTENSIONS_TO_WATCH
+        return not file_is_watched(name)
 
     class Watcher(WatcherBase):
 
@@ -101,7 +104,7 @@ elif iswindows:
                         None, None
                     )
                     for action, filename in results:
-                        if filename and filename.rpartition('.')[-1] in EXTENSIONS_TO_WATCH:
+                        if file_is_watched(filename):
                             self.modified_queue.put(os.path.join(self.path_to_watch, filename))
             except Exception:
                 import traceback
@@ -124,8 +127,37 @@ elif iswindows:
                     path = self.modified_queue.get()
                     if path is None:
                         break
-                    modified = {path}
-                    self.handle_modified(modified)
+                    self.handle_modified({path})
+
+elif isosx:
+    from fsevents import Observer, Stream
+
+    class Watcher(WatcherBase):
+
+        def __init__(self, root_dirs, server, log):
+            WatcherBase.__init__(self, server, log)
+            self.stream = Stream(self.notify, *(x.encode('utf-8') for x in root_dirs), file_events=True)
+
+        def loop(self):
+            observer = Observer()
+            observer.schedule(self.stream)
+            observer.daemon = True
+            observer.start()
+            try:
+                while True:
+                    # Cannot use observer.join() as it is not interrupted by
+                    # Ctrl-C
+                    time.sleep(10000)
+            finally:
+                observer.unschedule(self.stream)
+                observer.stop()
+
+        def notify(self, ev):
+            name = ev.name
+            if isinstance(name, bytes):
+                name = name.decode('utf-8')
+            if file_is_watched(name):
+                self.handle_modified({name})
 
 else:
     Watcher = None

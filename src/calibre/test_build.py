@@ -13,7 +13,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 '''
 
 import cStringIO, os, ctypes
-from calibre.constants import plugins, iswindows, islinux
+from calibre.constants import plugins, iswindows, islinux, isosx
 
 def test_dlls():
     import win32api
@@ -78,6 +78,10 @@ def test_lxml():
 def test_certgen():
     from calibre.utils.certgen import create_key_pair
     create_key_pair()
+
+def test_fsevents():
+    from fsevents import Observer, Stream
+    del Observer, Stream
 
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
@@ -245,6 +249,8 @@ def test():
         test_terminal()
     if islinux:
         test_dbus()
+    if isosx:
+        test_fsevents()
 
 if __name__ == '__main__':
     test()
