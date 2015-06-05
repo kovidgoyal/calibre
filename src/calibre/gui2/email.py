@@ -115,13 +115,19 @@ class Sendmail(object):
             eto = []
             for x in to.split(','):
                 eto.append(extract_email_address(x.strip()))
+            def safe_debug(*args, **kwargs):
+                try:
+                    return log.debug(*args, **kwargs)
+                except Exception:
+                    pass
+
             sendmail(msg, efrom, eto, localhost=None,
                         verbose=1,
                         relay=opts.relay_host,
                         username=opts.relay_username,
                         password=unhexlify(opts.relay_password).decode('utf-8'), port=opts.relay_port,
                         encryption=opts.encryption,
-                        debug_output=log.debug)
+                        debug_output=safe_debug)
         finally:
             self.last_send_time = time.time()
 
