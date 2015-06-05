@@ -9,13 +9,33 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, subprocess, signal, time
 from threading import Thread
 
-from calibre.constants import islinux
+from calibre.constants import islinux, iswindows
 
 class NoAutoReload(EnvironmentError):
     pass
 
-EXTENSIONS_TO_WATCH = frozenset('py pyj css js xml'.split())
+EXTENSIONS_TO_WATCH = frozenset('py pyj'.split())
 BOUNCE_INTERVAL = 2  # seconds
+
+class WatcherBase(object):
+
+    def __init__(self, server, log):
+        self.server, self.log = server, log
+        fpath = os.path.abspath(__file__)
+        d = os.path.dirname
+        self.base = d(d(d(d(fpath))))
+        self.last_restart_time = time.time()
+
+    def handle_modified(self, modified):
+        if modified:
+            if time.time() - self.last_restart_time > BOUNCE_INTERVAL:
+                modified = {os.path.relpath(x, self.base) if x.startswith(self.base) else x for x in modified if x}
+                changed = os.pathsep.join(sorted(modified))
+                self.log('')
+                self.log('Restarting server because of changed files:', changed)
+                self.log('')
+                self.server.restart()
+                self.last_restart_time = time.time()
 
 if islinux:
     import select
@@ -24,18 +44,14 @@ if islinux:
     def ignore_event(path, name):
         return name and name.rpartition('.')[-1] not in EXTENSIONS_TO_WATCH
 
-    class Watcher(object):
+    class Watcher(WatcherBase):
 
         def __init__(self, root_dirs, server, log):
-            self.server, self.log = server, log
+            WatcherBase.__init__(self, server, log)
             self.fd_map = {}
             for d in frozenset(root_dirs):
                 w = INotifyTreeWatcher(d, ignore_event)
                 self.fd_map[w._inotify_fd] = w
-            self.last_restart_time = time.time()
-            fpath = os.path.abspath(__file__)
-            d = os.path.dirname
-            self.base = d(d(d(d(fpath))))
 
         def loop(self):
             while True:
@@ -44,15 +60,73 @@ if islinux:
                 for fd in r:
                     w = self.fd_map[fd]
                     modified |= w()
-                if modified:
-                    if time.time() - self.last_restart_time > BOUNCE_INTERVAL:
-                        modified = {os.path.relpath(x, self.base) if x.startswith(self.base) else x for x in modified if x}
-                        changed = os.pathsep.join(sorted(modified))
-                        self.log('')
-                        self.log('Restarting server because of changed files:', changed)
-                        self.log('')
-                        self.server.restart()
-                        self.last_restart_time = time.time()
+                self.handle_modified()
+
+elif iswindows:
+    import win32file, win32con
+    from Queue import Queue
+    FILE_LIST_DIRECTORY = 0x0001
+    from calibre.srv.utils import HandleInterrupt
+
+    class TreeWatcher(Thread):
+        daemon = True
+
+        def __init__(self, path_to_watch, modified_queue):
+            Thread.__init__(self, name='TreeWatcher')
+            self.modified_queue = modified_queue
+            self.path_to_watch = path_to_watch
+            self.dir_handle = win32file.CreateFile(
+                path_to_watch,
+                FILE_LIST_DIRECTORY,
+                win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
+                None,
+                win32con.OPEN_EXISTING,
+                win32con.FILE_FLAG_BACKUP_SEMANTICS,
+                None
+            )
+
+        def run(self):
+            try:
+                while True:
+                    results = win32file.ReadDirectoryChangesW(
+                        self.dir_handle,
+                        8192,  # Buffer size for storing events
+                        True,  # Watch sub-directories as well
+                        win32con.FILE_NOTIFY_CHANGE_FILE_NAME |
+                        win32con.FILE_NOTIFY_CHANGE_DIR_NAME |
+                        win32con.FILE_NOTIFY_CHANGE_ATTRIBUTES |
+                        win32con.FILE_NOTIFY_CHANGE_SIZE |
+                        win32con.FILE_NOTIFY_CHANGE_LAST_WRITE |
+                        win32con.FILE_NOTIFY_CHANGE_SECURITY,
+                        None, None
+                    )
+                    for action, filename in results:
+                        if filename and filename.rpartition('.')[-1] in EXTENSIONS_TO_WATCH:
+                            self.modified_queue.put(os.path.join(self.path_to_watch, filename))
+            except Exception:
+                import traceback
+                traceback.print_exc()
+
+    class Watcher(WatcherBase):
+
+        def __init__(self, root_dirs, server, log):
+            WatcherBase.__init__(self, server, log)
+            self.watchers = []
+            self.modified_queue = Queue()
+            for d in frozenset(root_dirs):
+                self.watchers.append(TreeWatcher(d, self.modified_queue))
+
+        def loop(self):
+            for w in self.watchers:
+                w.start()
+            with HandleInterrupt(lambda : self.modified_queue.put(None)):
+                while True:
+                    path = self.modified_queue.get()
+                    if path is None:
+                        break
+                    modified = {path}
+                    self.handle_modified(modified)
+
 else:
     Watcher = None
 
