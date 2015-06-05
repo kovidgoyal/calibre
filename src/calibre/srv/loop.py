@@ -455,13 +455,15 @@ class ServerLoop(object):
                 self.log.error('Listening socket was unexpectedly terminated')
                 return
             except (select.error, socket.error) as e:
-                if e.errno in socket_errors_eintr:
+                # select.error has no errno attribute. errno is instead
+                # e.args[0]
+                if getattr(e, 'errno', e.args[0]) in socket_errors_eintr:
                     return
                 for s, conn in tuple(self.connection_map.iteritems()):
                     try:
                         select.select([s], [], [], 0)
-                    except (select.error, socket.error):
-                        if e.errno not in socket_errors_eintr:
+                    except (select.error, socket.error) as e:
+                        if getattr(e, 'errno', e.args[0]) not in socket_errors_eintr:
                             self.close(s, conn)  # Bad socket, discard
                 return
 
