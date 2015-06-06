@@ -125,12 +125,10 @@ socket_errors_nonblocking = error_codes(
     'EAGAIN', 'EWOULDBLOCK', 'WSAEWOULDBLOCK')
 
 def start_cork(sock):
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 0)
     if hasattr(socket, 'TCP_CORK'):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 1)
 
 def stop_cork(sock):
-    sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     if hasattr(socket, 'TCP_CORK'):
         sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_CORK, 0)
 
