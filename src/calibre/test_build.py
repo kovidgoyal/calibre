@@ -82,6 +82,7 @@ def test_certgen():
 def test_fsevents():
     from fsevents import Observer, Stream
     del Observer, Stream
+    print ('macfsevents OK!')
 
 def test_winutil():
     from calibre.devices.scanner import win_pnp_drives
