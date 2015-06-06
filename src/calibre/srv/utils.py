@@ -171,6 +171,51 @@ def create_sock_pair(port=0):
 
     return client_sock, srv_sock
 
+def parse_http_list(header_val):
+    """Parse lists as described by RFC 2068 Section 2.
+
+    In particular, parse comma-separated lists where the elements of
+    the list may include quoted-strings.  A quoted-string could
+    contain a comma.  A non-quoted string could have quotes in the
+    middle.  Neither commas nor quotes count if they are escaped.
+    Only double-quotes count, not single-quotes.
+    """
+    if isinstance(header_val, bytes):
+        slash, dquote, comma = b'\\",'
+        empty = b''
+    else:
+        slash, dquote, comma = '\\",'
+        empty = ''
+
+    part = empty
+    escape = quote = False
+    for cur in header_val:
+        if escape:
+            part += cur
+            escape = False
+            continue
+        if quote:
+            if cur == slash:
+                escape = True
+                continue
+            elif cur == dquote:
+                quote = False
+            part += cur
+            continue
+
+        if cur == comma:
+            yield part.strip()
+            part = empty
+            continue
+
+        if cur == dquote:
+            quote = True
+
+        part += cur
+
+    if part:
+        yield part.strip()
+
 def sort_q_values(header_val):
     'Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7...'
     if not header_val:
@@ -185,7 +230,7 @@ def sort_q_values(header_val):
             except Exception:
                 pass
         return e.strip(), q
-    return tuple(map(itemgetter(0), sorted(map(item, header_val.split(',')), key=itemgetter(1), reverse=True)))
+    return tuple(map(itemgetter(0), sorted(map(item, parse_http_list(header_val)), key=itemgetter(1), reverse=True)))
 
 def eintr_retry_call(func, *args, **kwargs):
     while True:
