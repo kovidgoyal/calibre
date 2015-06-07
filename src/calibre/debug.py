@@ -31,7 +31,8 @@ Everything after the -- is passed to the script.
 '''))
     parser.add_option('-c', '--command', help=_('Run python code.'))
     parser.add_option('-e', '--exec-file', help=_('Run the python code in file.'))
-    parser.add_option('-f', '--subset-font', help=_('Subset the specified font'))
+    parser.add_option('-f', '--subset-font', action='store_true', default=False,
+                      help=_('Subset the specified font. Use -- after this option to pass option to the font subsetting program.'))
     parser.add_option('-d', '--debug-device-driver', default=False, action='store_true',
                       help=_('Debug device detection'))
     parser.add_option('-g', '--gui',  default=False, action='store_true',
@@ -258,7 +259,7 @@ def main(args=sys.argv):
         shutdown_other()
     elif opts.subset_font:
         from calibre.utils.fonts.sfnt.subset import main
-        main(['subset-font']+[opts.subset_font]+args[1:])
+        main(['subset-font'] + args[1:])
     elif opts.exec_file:
         run_script(opts.exec_file, args[1:])
     elif opts.run_plugin:

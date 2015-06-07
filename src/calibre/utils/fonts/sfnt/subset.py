@@ -12,6 +12,7 @@ from collections import OrderedDict
 from operator import itemgetter
 from functools import partial
 
+from calibre.utils.icu import safe_chr
 from calibre.utils.fonts.sfnt.container import Sfnt
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont, NoGlyphs
 
@@ -237,6 +238,11 @@ def main(args):
             prints(c, 'is not a single character', file=sys.stderr)
             raise SystemExit(1)
 
+    def conv_code(c):
+        if c.upper()[:2] in ('U+', '0X'):
+            c = int(c[2:], 16)
+        return safe_chr(int(c))
+
     for c in chars:
         if '-' in c:
             parts = [x.strip() for x in c.split('-')]
@@ -244,12 +250,12 @@ def main(args):
                 prints('Invalid range:', c, file=sys.stderr)
                 raise SystemExit(1)
             if opts.codes:
-                parts = tuple(map(unichr, map(int, parts)))
+                parts = tuple(map(conv_code, parts))
             map(not_single, parts)
             ranges.add(tuple(parts))
         else:
             if opts.codes:
-                c = unichr(int(c))
+                c = conv_code(c)
             not_single(c)
             individual.add(c)
     st = time.time()
@@ -325,8 +331,7 @@ def all():
                 print ('Failed!')
                 failed.append((font['full_name'], font['path'], unicode(e)))
             else:
-                averages.append(sum(new_stats.itervalues())/sum(old_stats.itervalues())
-                        * 100)
+                averages.append(sum(new_stats.itervalues())/sum(old_stats.itervalues()) * 100)
                 print ('Reduced to:', '%.1f'%averages[-1] , '%')
     if unsupported:
         print ('\n\nUnsupported:')
