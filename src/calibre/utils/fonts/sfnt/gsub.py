@@ -82,7 +82,7 @@ class ContexttualSubstitution(UnknownLookupSubTable):
         return self.format != 3
 
     def initialize(self, data):
-        pass # TODO
+        pass  # TODO
 
     def all_substitutions(self, glyph_ids):
         # This table only defined substitution in terms of other tables
@@ -98,7 +98,7 @@ class ChainingContextualSubstitution(UnknownLookupSubTable):
         return self.format != 3
 
     def initialize(self, data):
-        pass # TODO
+        pass  # TODO
 
     def all_substitutions(self, glyph_ids):
         # This table only defined substitution in terms of other tables
@@ -117,7 +117,7 @@ class ReverseChainSingleSubstitution(UnknownLookupSubTable):
                 single_special=False)
         backtrack_offsets = [data.start_pos + x for x in backtrack_offsets]
         lookahead_offsets = [data.start_pos + x for x in lookahead_offsets]
-        backtrack_offsets, lookahead_offsets # TODO: Use these
+        backtrack_offsets, lookahead_offsets  # TODO: Use these
         count = data.unpack('H')
         self.substitutes = data.unpack('%dH'%count)
 
@@ -178,4 +178,3 @@ class GSUBTable(UnknownTable):
                 gids = subtable.all_substitutions(glyph_ids)
                 ans |= gids
         return ans
-
