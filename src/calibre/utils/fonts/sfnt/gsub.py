@@ -171,10 +171,11 @@ class GSUBTable(UnknownTable):
                 self.lookuplist_offset)
 
     def all_substitutions(self, glyph_ids):
-        ans = set()
         glyph_ids = frozenset(glyph_ids)
+        ans = set(glyph_ids)
         for lookup_table in self.lookup_list_table:
             for subtable in lookup_table:
-                gids = subtable.all_substitutions(glyph_ids)
-                ans |= gids
-        return ans
+                glyphs = subtable.all_substitutions(ans)
+                if glyphs:
+                    ans |= glyphs
+        return ans - {glyph_ids}
