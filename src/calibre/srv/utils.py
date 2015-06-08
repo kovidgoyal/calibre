@@ -214,6 +214,20 @@ def parse_http_list(header_val):
     if part:
         yield part.strip()
 
+def parse_http_dict(header_val):
+    'Parse an HTTP comma separated header with items of the form a=1, b="xxx" into a dictionary'
+    if not header_val:
+        return {}
+    ans = {}
+    sep, dquote = b'="' if isinstance(header_val, bytes) else '="'
+    for item in parse_http_list(header_val):
+        k, v = item.partition(sep)[::2]
+        if k:
+            if v.startswith(dquote) and v.endswith(dquote):
+                v = v[1:-1]
+            ans[k] = v
+    return ans
+
 def sort_q_values(header_val):
     'Get sorted items from an HTTP header of type: a;q=0.5, b;q=0.7...'
     if not header_val:

@@ -16,11 +16,13 @@ class RouteError(ValueError):
 
 class HTTPSimpleResponse(Exception):
 
-    def __init__(self, http_code, http_message='', close_connection=False, location=None):
+    def __init__(self, http_code, http_message='', close_connection=False, location=None, authenticate=None, log=None):
         Exception.__init__(self, http_message)
         self.http_code = http_code
         self.close_connection = close_connection
         self.location = location
+        self.authenticate = authenticate
+        self.log = log
 
 class HTTPRedirect(HTTPSimpleResponse):
 
@@ -31,3 +33,11 @@ class HTTPNotFound(HTTPSimpleResponse):
 
     def __init__(self, http_message='', close_connection=False):
         HTTPSimpleResponse.__init__(self, httplib.NOT_FOUND, http_message, close_connection)
+
+class HTTPAuthRequired(HTTPSimpleResponse):
+
+    def __init__(self, payload, log=None):
+        HTTPSimpleResponse.__init__(self, httplib.UNAUTHORIZED, authenticate=payload, log=log)
+
+class InvalidCredentials(ValueError):
+    pass

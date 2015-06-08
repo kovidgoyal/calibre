@@ -35,7 +35,7 @@ class TestHTTP(BaseTest):
              '\r\n', a='one', b='two 2 3', c='three')
 
         test('Non-ascii headers parsing',
-             b'a:mūs\r', '\r\n', a='mūs'.encode('utf-8'))
+             b'a:mūs\r', '\r\n', a='mūs')
 
         test('Comma-separated parsing',
              'Accept-Encoding: one',
@@ -47,7 +47,7 @@ class TestHTTP(BaseTest):
             lines.append(b'\r\n')
             self.assertRaises(ValueError, HTTPHeaderParser().push, *lines)
 
-        parse(b'Connection:mūs\r\n')
+        parse('Connection:mūs\r\n'.encode('utf-16'))
         parse(b'Connection\r\n')
         parse(b'Connection:a\r\n', b'\r\n')
         parse(b' Connection:a\n')

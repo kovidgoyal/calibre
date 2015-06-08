@@ -180,6 +180,9 @@ def get_range_parts(ranges, content_type, content_length):  # {{{
 
 class RequestData(object):  # {{{
 
+    cookies = {}
+    username = None
+
     def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol,
                  static_cache, opts, remote_addr, remote_port, translator_cache):
 
@@ -200,6 +203,13 @@ class RequestData(object):  # {{{
 
     def read(self, size=-1):
         return self.request_body_file.read(size)
+
+    def peek(self, size=-1):
+        pos = self.request_body_file.tell()
+        try:
+            return self.read(size)
+        finally:
+            self.request_body_file.seek(pos)
 
     def get_translator(self, bcp_47_code):
         return get_translator_for_lang(self.translator_cache, bcp_47_code)
@@ -368,6 +378,10 @@ class HTTPConnection(HTTPRequest):
                 eh = {}
                 if e.location:
                     eh['Location'] = e.location
+                if e.authenticate:
+                    eh['WWW-Authenticate'] = e.authenticate
+                if e.log:
+                    self.log.warn(e.log)
                 return self.simple_response(e.http_code, msg=e.message or '', close_after_response=e.close_connection, extra_headers=eh)
             raise etype, e, tb
 

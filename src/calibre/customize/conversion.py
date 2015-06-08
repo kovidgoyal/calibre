@@ -77,8 +77,7 @@ class OptionRecommendation(object):
                                                     self.option.choices:
             raise ValueError('OpRec: %s: Recommended value not in choices'%
                              self.option.name)
-        if not (isinstance(self.recommended_value, (int, float, str, unicode))
-            or self.recommended_value is None):
+        if not (isinstance(self.recommended_value, (int, float, str, unicode)) or self.recommended_value is None):
             raise ValueError('OpRec: %s:'%self.option.name +
                              repr(self.recommended_value) +
                              ' is not a string or a number')
@@ -123,6 +122,7 @@ def gui_configuration_widget(name, parent, get_option_by_name,
 
 
 class InputFormatPlugin(Plugin):
+
     '''
     InputFormatPlugins are responsible for converting a document into
     HTML+OPF+CSS+etc.
@@ -262,7 +262,7 @@ class InputFormatPlugin(Plugin):
         '''
         Called to create the widget used for configuring this plugin in the
         calibre GUI. The widget must be an instance of the PluginWidget class.
-        See the builting input plugins for examples.
+        See the builtin input plugins for examples.
         '''
         name = self.name.lower().replace(' ', '_')
         return gui_configuration_widget(name, parent, get_option_by_name,
@@ -270,6 +270,7 @@ class InputFormatPlugin(Plugin):
 
 
 class OutputFormatPlugin(Plugin):
+
     '''
     OutputFormatPlugins are responsible for converting an OEB document
     (OPF+HTML) into an output ebook.
@@ -360,7 +361,3 @@ class OutputFormatPlugin(Plugin):
         name = self.name.lower().replace(' ', '_')
         return gui_configuration_widget(name, parent, get_option_by_name,
                 get_option_help, db, book_id, for_output=True)
-
-
-
-

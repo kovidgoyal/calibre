@@ -17,11 +17,13 @@ default_methods = frozenset(('HEAD', 'GET'))
 def route_key(route):
     return route.partition('{')[0].rstrip('/')
 
-def endpoint(route, methods=default_methods, types=None):
+def endpoint(route, methods=default_methods, types=None, auth_required=False, android_workaround=False):
     def annotate(f):
         f.route = route.rstrip('/') or '/'
         f.types = types or {}
         f.methods = methods
+        f.auth_required = auth_required
+        f.android_workaround = android_workaround
         f.is_endpoint = True
         return f
     return annotate
@@ -128,18 +130,27 @@ class Route(object):
 
 class Router(object):
 
-    def __init__(self, ctx=None, url_prefix=None):
+    def __init__(self, endpoints=None, ctx=None, url_prefix=None, auth_controller=None):
         self.routes = {}
         self.url_prefix = url_prefix or ''
         self.ctx = ctx
+        self.auth_controller = auth_controller
         self.init_session = getattr(ctx, 'init_session', lambda ep, data:None)
         self.finalize_session = getattr(ctx, 'finalize_session', lambda ep, data, output:None)
+        if endpoints is not None:
+            self.load_routes(endpoints)
+            self.finalize()
 
     def add(self, endpoint):
         key = route_key(endpoint.route)
         if key in self.routes:
             raise RouteError('A route with the key: %s already exists as: %s' % (key, self.routes[key]))
         self.routes[key] = Route(endpoint)
+
+    def load_routes(self, items):
+        for item in items:
+            if getattr(item, 'is_endpoint', False) is True:
+                self.add(item)
 
     def __iter__(self):
         return self.routes.itervalues()
@@ -168,10 +179,29 @@ class Router(object):
                     return route.endpoint, args
         raise HTTPNotFound()
 
+    def read_cookies(self, data):
+        data.cookies = c = {}
+
+        for cval in data.inheaders.get('Cookie', all=True):
+            if isinstance(cval, bytes):
+                cval = cval.decode('utf-8', 'replace')
+            for x in cval.split(';'):
+                x = x.strip()
+                if x:
+                    k, v = x.partition('=')[::2]
+                    if k:
+                        c[k] = v
+
     def dispatch(self, data):
         endpoint_, args = self.find_route(data.path)
         if data.method not in endpoint_.methods:
             raise HTTPSimpleResponse(httplib.METHOD_NOT_ALLOWED)
+
+        self.read_cookies(data)
+
+        if endpoint_.auth_required and self.auth_controller is not None:
+            self.auth_controller(data, endpoint_)
+
         self.init_session(endpoint_, data)
         ans = endpoint_(self.ctx, data, *args)
         self.finalize_session(endpoint_, data, ans)

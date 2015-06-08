@@ -12,6 +12,7 @@ from urllib import unquote
 
 from calibre import as_unicode, force_unicode
 from calibre.ptempfile import SpooledTemporaryFile
+from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.loop import Connection, READ, WRITE
 from calibre.srv.utils import MultiDict, HTTP1, HTTP11, Accumulator
 
@@ -19,7 +20,8 @@ protocol_map = {(1, 0):HTTP1, (1, 1):HTTP11}
 quoted_slash = re.compile(br'%2[fF]')
 HTTP_METHODS = {'HEAD', 'GET', 'PUT', 'POST', 'TRACE', 'DELETE', 'OPTIONS'}
 
-def parse_request_uri(uri):  # {{{
+# Parse URI {{{
+def parse_request_uri(uri):
     """Parse a Request-URI into (scheme, authority, path).
 
     Note that Request-URI's must be one of::
@@ -49,7 +51,7 @@ def parse_request_uri(uri):  # {{{
         # http_URL = "http:" "//" host [ ":" port ] [ abs_path [ "?" query
         # ]]
         scheme, remainder = uri[:i].lower(), uri[i + 3:]
-        authority, path = remainder.split(b'/', 1)
+        authority, path = remainder.partition(b'/')[::2]
         path = b'/' + path
         return scheme, authority, path
 
@@ -59,6 +61,34 @@ def parse_request_uri(uri):  # {{{
     else:
         # An authority.
         return None, uri, None
+
+def parse_uri(uri, parse_query=True):
+    scheme, authority, path = parse_request_uri(uri)
+    if b'#' in path:
+        raise HTTPSimpleResponse(httplib.BAD_REQUEST, "Illegal #fragment in Request-URI.")
+
+    if scheme:
+        try:
+            scheme = scheme.decode('ascii')
+        except ValueError:
+            raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Un-decodeable scheme')
+
+    path, qs = path.partition(b'?')[::2]
+    if parse_query:
+        try:
+            query = MultiDict.create_from_query_string(qs)
+        except Exception:
+            raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'Unparseable query string')
+    else:
+        query = None
+
+    try:
+        path = '%2F'.join(unquote(x).decode('utf-8') for x in quoted_slash.split(path))
+    except ValueError as e:
+        raise HTTPSimpleResponse(httplib.BAD_REQUEST, as_unicode(e))
+    path = tuple(filter(None, (x.replace('%2F', '/') for x in path.split('/'))))
+
+    return scheme, path, query
 # }}}
 
 # HTTP Header parsing {{{
@@ -69,12 +99,20 @@ comma_separated_headers = {
     'Connection', 'Content-Encoding', 'Content-Language', 'Expect',
     'If-Match', 'If-None-Match', 'Pragma', 'Proxy-Authenticate', 'TE',
     'Trailer', 'Transfer-Encoding', 'Upgrade', 'Vary', 'Via', 'Warning',
-    'WWW-Authenticate'
 }
 
 decoded_headers = {
-    'Transfer-Encoding', 'Connection', 'Keep-Alive', 'Expect',
+    'Transfer-Encoding', 'Connection', 'Keep-Alive', 'Expect', 'WWW-Authenticate', 'Authorization',
 } | comma_separated_headers
+
+uppercase_headers = {'WWW', 'TE'}
+
+def normalize_header_name(name):
+    parts = [x.capitalize() for x in name.split('-')]
+    q = parts[0].upper()
+    if q in uppercase_headers:
+        parts[0] = q
+    return '-'.join(parts)
 
 class HTTPHeaderParser(object):
 
@@ -102,7 +140,7 @@ class HTTPHeaderParser(object):
 
         def safe_decode(hname, value):
             try:
-                return value.decode('ascii')
+                return value.decode('utf-8')
             except UnicodeDecodeError:
                 if hname in decoded_headers:
                     raise
@@ -115,7 +153,7 @@ class HTTPHeaderParser(object):
             del self.lines[:]
 
             k, v = line.partition(b':')[::2]
-            key = k.strip().decode('ascii').title()
+            key = normalize_header_name(k.strip().decode('ascii'))
             val = safe_decode(key, v.strip())
             if not key or not val:
                 raise ValueError('Malformed header line: %s' % reprlib.repr(line))
@@ -224,29 +262,10 @@ class HTTPRequest(Connection):
         except KeyError:
             return self.simple_response(httplib.HTTP_VERSION_NOT_SUPPORTED)
         self.response_protocol = protocol_map[min((1, 1), rp)]
-        scheme, authority, path = parse_request_uri(uri)
-        if b'#' in path:
-            return self.simple_response(httplib.BAD_REQUEST, "Illegal #fragment in Request-URI.")
-
-        if scheme:
-            try:
-                self.scheme = scheme.decode('ascii')
-            except ValueError:
-                return self.simple_response(httplib.BAD_REQUEST, 'Un-decodeable scheme')
-
-        qs = b''
-        if b'?' in path:
-            path, qs = path.split(b'?', 1)
-            try:
-                self.query = MultiDict.create_from_query_string(qs)
-            except Exception:
-                return self.simple_response(httplib.BAD_REQUEST, 'Unparseable query string')
-
         try:
-            path = '%2F'.join(unquote(x).decode('utf-8') for x in quoted_slash.split(path))
-        except ValueError as e:
-            return self.simple_response(httplib.BAD_REQUEST, as_unicode(e))
-        self.path = tuple(filter(None, (x.replace('%2F', '/') for x in path.split('/'))))
+            self.scheme, self.path, self.query = parse_uri(uri)
+        except HTTPSimpleResponse as e:
+            return self.simple_response(e.http_code, e.message, close_after_response=False)
         self.header_line_too_long_error_code = httplib.REQUEST_ENTITY_TOO_LARGE
         self.request_line = line.rstrip()
         self.set_state(READ, self.parse_header_line, HTTPHeaderParser(), Accumulator())
