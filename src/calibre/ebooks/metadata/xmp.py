@@ -317,8 +317,11 @@ def consolidate_metadata(info_mi, info):
     metadata unless the Info ModDate is never than the XMP MetadataDate. This
     is the algorithm recommended by the PDF spec. '''
     try:
-        xmp_mi = metadata_from_xmp_packet(info['xmp_metadata'])
-    except:
+        raw = info['xmp_metadata'].rstrip()
+        if not raw:
+            return info_mi
+        xmp_mi = metadata_from_xmp_packet(raw)
+    except Exception:
         import traceback
         traceback.print_exc()
         return info_mi
