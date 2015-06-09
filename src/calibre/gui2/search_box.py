@@ -377,8 +377,8 @@ class SavedSearchBox(QComboBox):  # {{{
                          _('No search is selected'), show=True)
             return
         if not confirm('<p>'+_('The selected search will be '
-                       '<b>permanently deleted</b>. Are you sure?')
-                    +'</p>', 'saved_search_delete', self):
+                       '<b>permanently deleted</b>. Are you sure?') +
+                       '</p>', 'saved_search_delete', self):
             return
         ss = db.saved_search_lookup(unicode(self.currentText()))
         if ss is None:
