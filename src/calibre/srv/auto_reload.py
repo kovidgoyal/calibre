@@ -14,13 +14,11 @@ from calibre.constants import islinux, iswindows, isosx
 class NoAutoReload(EnvironmentError):
     pass
 
-EXTENSIONS_TO_WATCH = frozenset('py pyj'.split())
-BOUNCE_INTERVAL = 2  # seconds
-
-def file_is_watched(fname):
-    return fname and fname.rpartition('.')[-1] in EXTENSIONS_TO_WATCH
 
 class WatcherBase(object):
+
+    EXTENSIONS_TO_WATCH = frozenset('py pyj'.split())
+    BOUNCE_INTERVAL = 2  # seconds
 
     def __init__(self, server, log):
         self.server, self.log = server, log
@@ -31,7 +29,7 @@ class WatcherBase(object):
 
     def handle_modified(self, modified):
         if modified:
-            if time.time() - self.last_restart_time > BOUNCE_INTERVAL:
+            if time.time() - self.last_restart_time > self.BOUNCE_INTERVAL:
                 modified = {os.path.relpath(x, self.base) if x.startswith(self.base) else x for x in modified if x}
                 changed = os.pathsep.join(sorted(modified))
                 self.log('')
@@ -40,12 +38,12 @@ class WatcherBase(object):
                 self.server.restart()
                 self.last_restart_time = time.time()
 
+    def file_is_watched(self, fname):
+        return fname and fname.rpartition('.')[-1] in self.EXTENSIONS_TO_WATCH
+
 if islinux:
     import select
     from calibre.utils.inotify import INotifyTreeWatcher
-
-    def ignore_event(path, name):
-        return not file_is_watched(name)
 
     class Watcher(WatcherBase):
 
@@ -53,7 +51,7 @@ if islinux:
             WatcherBase.__init__(self, server, log)
             self.fd_map = {}
             for d in frozenset(root_dirs):
-                w = INotifyTreeWatcher(d, ignore_event)
+                w = INotifyTreeWatcher(d, self.ignore_event)
                 self.fd_map[w._inotify_fd] = w
 
         def loop(self):
@@ -64,6 +62,9 @@ if islinux:
                     w = self.fd_map[fd]
                     modified |= w()
                 self.handle_modified()
+
+        def ignore_event(self, path, name):
+            return not self.file_is_watched(name)
 
 elif iswindows:
     import win32file, win32con
@@ -104,7 +105,7 @@ elif iswindows:
                         None, None
                     )
                     for action, filename in results:
-                        if file_is_watched(filename):
+                        if self.file_is_watched(filename):
                             self.modified_queue.put(os.path.join(self.path_to_watch, filename))
             except Exception:
                 import traceback
@@ -156,7 +157,7 @@ elif isosx:
             name = ev.name
             if isinstance(name, bytes):
                 name = name.decode('utf-8')
-            if file_is_watched(name):
+            if self.file_is_watched(name):
                 self.handle_modified({name})
 
 else:
