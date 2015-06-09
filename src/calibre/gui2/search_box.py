@@ -19,6 +19,13 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 
+class AsYouType(unicode):
+
+    def __new__(cls, text):
+        self = unicode.__new__(cls, text)
+        self.as_you_type = True
+        return self
+
 class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
     select_on_mouse_press = None
@@ -189,17 +196,19 @@ class SearchBox2(QComboBox):  # {{{
         self.normalize_state()
 
     def timer_event(self):
-        self.do_search()
+        self._do_search(as_you_type=True)
 
     def history_selected(self, text):
         self.changed.emit()
         self.do_search()
 
-    def _do_search(self, store_in_history=True):
+    def _do_search(self, store_in_history=True, as_you_type=False):
         self.hide_completer_popup()
         text = unicode(self.currentText()).strip()
         if not text:
             return self.clear()
+        if as_you_type:
+            text = AsYouType(text)
         self.search.emit(text)
 
         if store_in_history:
