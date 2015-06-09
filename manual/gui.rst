@@ -545,7 +545,7 @@ Hierarchical items (items with children) use the same four 'click-on' searches a
 
 You can drag and drop items in the Tag browser onto user categories to add them to that category. If the source is a user category, holding the shift key while dragging will move the item to the new category. You can also drag and drop books from the book list onto items in the Tag Browser; dropping a book on an item causes that item to be automatically applied to the dropped books. For example, dragging a book onto Isaac Asimov will set the author of that book to Isaac Asimov. Dropping it onto the tag History will add the tag History to the book's tags.
 
-There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose one of several operations. Some examples are to hide the it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
+There is a search bar at the top of the Tag Browser that allows you to easily find any item in the Tag Browser. In addition, you can right click on any item and choose one of several operations. Some examples are to hide it, rename it, or open a "Manage x" dialog that allows you to manage items of that kind. For example, the "Manage Authors" dialog allows you to rename authors and control how their names are sorted.
 
 You can control how items are sorted in the Tag browser via the :guilabel:`Alter Tag Browser` button at the bottom of the Tag Browser. You can choose to sort by name, average rating or popularity (popularity is the number of books with an item in your library; for example, the popularity of Isaac Asimov is the number of books in your library by Isaac Asimov).
 
@@ -582,7 +582,7 @@ browser display itself in a separate popup window.
 Quickview
 ----------
 
-Sometimes you want to to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens a second window showing the list of books matching the value of interest.
+Sometimes you want to select a book and quickly get a list of books with the same value in some category (authors, tags, publisher, series, etc) as the currently selected book, but without changing the current view of the library. You can do this with Quickview. Quickview opens a second window showing the list of books matching the value of interest.
 
 For example, assume you want to see a list of all the books with the same author of the currently-selected book. Click in the author cell you are interested in and press the 'Q' key. A window will open with all the authors for that book on the left, and all the books by the selected author on the right. 
 
