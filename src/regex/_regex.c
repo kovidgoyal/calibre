@@ -1194,6 +1194,18 @@ Py_LOCAL_INLINE(BOOL) locale_has_property(RE_LocaleInfo* locale_info, RE_CODE
     case RE_PROP_LOWER >> 16:
         v = locale_islower(locale_info, ch);
         break;
+    case RE_PROP_POSIX_ALNUM >> 16:
+        v = re_get_posix_alnum(ch) != 0;
+        break;
+    case RE_PROP_POSIX_DIGIT >> 16:
+        v = re_get_posix_digit(ch) != 0;
+        break;
+    case RE_PROP_POSIX_PUNCT >> 16:
+        v = re_get_posix_punct(ch) != 0;
+        break;
+    case RE_PROP_POSIX_XDIGIT >> 16:
+        v = re_get_posix_xdigit(ch) != 0;
+        break;
     case RE_PROP_PRINT >> 16:
         v = locale_isprint(locale_info, ch);
         break;
@@ -19101,8 +19113,8 @@ Py_LOCAL_INLINE(PyObject*) pattern_subx(PatternObject* self, PyObject*
 #if PY_VERSION_HEX >= 0x02060000
     BOOL built_capture = FALSE;
 #endif
-    PyObject* args = NULL;
-    PyObject* kwargs = NULL;
+    PyObject* args;
+    PyObject* kwargs;
     Py_ssize_t end_pos;
 
     /* Get the string. */

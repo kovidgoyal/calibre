@@ -97,6 +97,10 @@ typedef RE_UINT32 (*RE_GetPropertyFunc)(RE_UINT32 ch);
 #define RE_PROP_UPPER 0x090001
 #define RE_PROP_WORD 0x4B0001
 #define RE_PROP_XDIGIT 0x4C0001
+#define RE_PROP_POSIX_ALNUM 0x4E0001
+#define RE_PROP_POSIX_DIGIT 0x4D0001
+#define RE_PROP_POSIX_PUNCT 0x4F0001
+#define RE_PROP_POSIX_XDIGIT 0x500001
 
 #define RE_BREAK_OTHER 0
 #define RE_BREAK_DOUBLEQUOTE 1
@@ -130,11 +134,11 @@ typedef RE_UINT32 (*RE_GetPropertyFunc)(RE_UINT32 ch);
 #define RE_GBREAK_LVT 11
 #define RE_GBREAK_PREPEND 12
 
-extern char* re_strings[1257];
-extern RE_Property re_properties[143];
+extern char* re_strings[1261];
+extern RE_Property re_properties[147];
 extern RE_PropertyValue re_property_values[1372];
 extern RE_UINT16 re_expand_on_folding[104];
-extern RE_GetPropertyFunc re_get_property[77];
+extern RE_GetPropertyFunc re_get_property[81];
 
 RE_UINT32 re_get_general_category(RE_UINT32 ch);
 RE_UINT32 re_get_block(RE_UINT32 ch);
@@ -213,6 +217,10 @@ RE_UINT32 re_get_graph(RE_UINT32 ch);
 RE_UINT32 re_get_print(RE_UINT32 ch);
 RE_UINT32 re_get_word(RE_UINT32 ch);
 RE_UINT32 re_get_xdigit(RE_UINT32 ch);
+RE_UINT32 re_get_posix_digit(RE_UINT32 ch);
+RE_UINT32 re_get_posix_alnum(RE_UINT32 ch);
+RE_UINT32 re_get_posix_punct(RE_UINT32 ch);
+RE_UINT32 re_get_posix_xdigit(RE_UINT32 ch);
 int re_get_all_cases(RE_UINT32 ch, RE_UINT32* codepoints);
 RE_UINT32 re_get_simple_case_folding(RE_UINT32 ch);
 int re_get_full_case_folding(RE_UINT32 ch, RE_UINT32* codepoints);
