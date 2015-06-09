@@ -46,7 +46,7 @@ Sections enabled by a checkmark will be included in the generated catalog:
     * :guilabel:`Titles` - all books, sorted by title, presented in a list format.
     * :guilabel:`Series` - all books that are part of a series, sorted by series, presented in a list format.
     * :guilabel:`Genres` - individual genres presented in a list, sorted by Author and Series.
-    * :guilabel:`Recently` Added - all books, sorted in reverse chronological order. List includes books added in the last 30 days, then a month-by-month listing of added books.
+    * :guilabel:`Recently Added` - all books, sorted in reverse chronological order. List includes books added in the last 30 days, then a month-by-month listing of added books.
     * :guilabel:`Descriptions` - detailed description page for each book, including a cover thumbnail and comments. Sorted by author, with non-series books listed before series books.
 
 Prefixes
