@@ -71,7 +71,7 @@ class DigestAuth(object):  # {{{
         timestamp, server secret and realm. This allows the timestamp to be
         validated and stale nonce's to be rejected.'''
         if timestamp is None:
-            timestamp = binascii.hexlify(struct.pack(b'!f', float(monotonic())))
+            timestamp = binascii.hexlify(struct.pack(b'!d', float(monotonic())))
         h = sha1_hex(':'.join((timestamp, realm, secret)))
         nonce = ':'.join((timestamp, h))
         return nonce
@@ -83,7 +83,7 @@ class DigestAuth(object):  # {{{
 
     def is_nonce_stale(self, max_age_seconds=MAX_AGE_SECONDS):
         try:
-            timestamp = struct.unpack(b'!f', binascii.unhexlify(as_bytestring(self.nonce.partition(':')[0])))[0]
+            timestamp = struct.unpack(b'!d', binascii.unhexlify(as_bytestring(self.nonce.partition(':')[0])))[0]
             return timestamp + max_age_seconds < monotonic()
         except Exception:
             pass
