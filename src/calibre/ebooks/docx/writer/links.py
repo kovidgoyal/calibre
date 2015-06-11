@@ -61,8 +61,9 @@ def sanitize_bookmark_name(base):
 
 class LinksManager(object):
 
-    def __init__(self, namespace, document_relationships):
+    def __init__(self, namespace, document_relationships, log):
         self.namespace = namespace
+        self.log = log
         self.document_relationships = document_relationships
         self.top_anchor = type('')(uuid4().hex)
         self.anchor_map = {}
@@ -107,6 +108,8 @@ class LinksManager(object):
                 else:
                     bmark = self.anchor_map[(href, self.top_anchor)]
                 return self.namespace.makeelement(parent, 'w:hyperlink', w_anchor=bmark, w_tooltip=tooltip or '')
+            else:
+                self.log.warn('Ignoring internal hyperlink with href (%s) pointing to unknown destination' % url)
         if purl.scheme in {'http', 'https', 'ftp'}:
             if url not in self.external_links:
                 self.external_links[url] = self.document_relationships.add_relationship(url, self.namespace.names['LINKS'], target_mode='External')

@@ -404,7 +404,7 @@ class Convert(object):
         self.svg_rasterizer(self.oeb, self.opts)
 
         self.styles_manager = StylesManager(self.docx.namespace, self.log, self.mi.language)
-        self.links_manager = LinksManager(self.docx.namespace, self.docx.document_relationships)
+        self.links_manager = LinksManager(self.docx.namespace, self.docx.document_relationships, self.log)
         self.images_manager = ImagesManager(self.oeb, self.docx.document_relationships)
         self.lists_manager = ListsManager(self.docx)
         self.fonts_manager = FontsManager(self.docx.namespace, self.oeb, self.opts)
@@ -454,7 +454,7 @@ class Convert(object):
         self.current_lang = lang_for_tag(item.data) or self.styles_manager.document_lang
         for i, body in enumerate(XPath('//h:body')(item.data)):
             with self.blocks:
-                body.set('id', body.get('id', None) or self.links_manager.top_anchor)
+                self.links_manager.bookmark_for_anchor(self.links_manager.top_anchor, self.current_item, body)
                 self.process_tag(body, stylizer, is_first_tag=i == 0)
 
     def process_tag(self, html_tag, stylizer, is_first_tag=False, float_spec=None):
