@@ -7,7 +7,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import binascii, os, random, struct, base64, httplib
-from hashlib import md5, sha1
+from hashlib import md5, sha1, sha256
+from itertools import permutations
 
 from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse, InvalidCredentials
 from calibre.srv.http_request import parse_uri
@@ -27,8 +28,38 @@ def md5_hex(s):
 def sha1_hex(s):
     return sha1(as_bytestring(s)).hexdigest().decode('ascii')
 
+def sha256_hex(s):
+    return sha256(as_bytestring(s)).hexdigest().decode('ascii')
+
 def base64_decode(s):
     return base64.standard_b64decode(as_bytestring(s)).decode('utf-8')
+
+def synthesize_nonce(key_order, realm, secret, timestamp=None):
+    '''
+    Create a nonce. Can be used for either digest or cookie based auth.
+    The nonce is of the form timestamp:hash with has being a hash of the
+    timestamp, server secret and realm. This allows the timestamp to be
+    validated and stale nonce's to be rejected.
+    '''
+    if timestamp is None:
+        timestamp = binascii.hexlify(struct.pack(b'!d', float(monotonic())))
+    h = sha256_hex(key_order.format(timestamp, realm, secret))
+    nonce = ':'.join((timestamp, h))
+    return nonce
+
+def validate_nonce(key_order, nonce, realm, secret):
+    timestamp, hashpart = nonce.partition(':')[::2]
+    s_nonce = synthesize_nonce(key_order, realm, secret, timestamp)
+    return s_nonce == nonce
+
+def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
+    try:
+        timestamp = struct.unpack(b'!d', binascii.unhexlify(as_bytestring(nonce.partition(':')[0])))[0]
+        return timestamp + max_age_seconds < monotonic()
+    except Exception:
+        pass
+    return True
+
 
 class DigestAuth(object):  # {{{
 
@@ -63,31 +94,6 @@ class DigestAuth(object):  # {{{
         else:
             if self.cnonce or self.nonce_count:
                 raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'qop missing')
-
-    @staticmethod
-    def synthesize_nonce(realm, secret, timestamp=None):
-        '''Create a nonce for HTTP Digest AUTH.
-        The nonce is of the form timestamp:hash with has being a hash of the
-        timestamp, server secret and realm. This allows the timestamp to be
-        validated and stale nonce's to be rejected.'''
-        if timestamp is None:
-            timestamp = binascii.hexlify(struct.pack(b'!d', float(monotonic())))
-        h = sha1_hex(':'.join((timestamp, realm, secret)))
-        nonce = ':'.join((timestamp, h))
-        return nonce
-
-    def validate_nonce(self, realm, secret):
-        timestamp, hashpart = self.nonce.partition(':')[::2]
-        s_nonce = DigestAuth.synthesize_nonce(realm, secret, timestamp)
-        return s_nonce == self.nonce
-
-    def is_nonce_stale(self, max_age_seconds=MAX_AGE_SECONDS):
-        try:
-            timestamp = struct.unpack(b'!d', binascii.unhexlify(as_bytestring(self.nonce.partition(':')[0])))[0]
-            return timestamp + max_age_seconds < monotonic()
-        except Exception:
-            pass
-        return True
 
     def H(self, val):
         return md5_hex(val)
@@ -149,12 +155,38 @@ class DigestAuth(object):  # {{{
 
 class AuthController(object):
 
+    '''
+    Implement Basic/Digest authentication for the content server. Android browsers
+    cannot handle HTTP AUTH when downloading files, as the download is handed
+    off to a separate process. So we use a cookie based authentication scheme
+    for some endpoints (/get) to allow downloads to work on android. Apparently,
+    cookies are passed to the download process. The cookie expires after
+    MAX_AGE_SECONDS.
+
+    The android browser appears to send a GET request to the server and only if
+    that request succeeds is the download handed off to the download process.
+    We could reduce MAX_AGE_SECONDS, but we leave it high as the download
+    process might have downloads queued and therefore not start the download
+    immediately.
+
+    Note that this makes the server vulnerable to session-hijacking (i.e. some
+    one can sniff the traffic and create their own requests to /get with the
+    appropriate cookie, for an hour). The fix is to use https, but since this
+    is usually run as a private server, that cannot be done. If you care about
+    this vulnerability, run the server behind a reverse proxy that uses HTTPS.
+
+    Also, note that digest auth is itself vulnerable to partial session
+    hijacking, since we have to ignore repeated nc values, because Firefox does
+    not implement the digest auth spec properly (it sends out of order nc
+    values).
+    '''
+
     def __init__(self, user_credentials=None, prefer_basic_auth=False, realm='calibre', max_age_seconds=MAX_AGE_SECONDS, log=None):
         self.user_credentials, self.prefer_basic_auth = user_credentials, prefer_basic_auth
         self.log = log
         self.secret = binascii.hexlify(os.urandom(random.randint(20, 30))).decode('ascii')
         self.max_age_seconds = max_age_seconds
-        self.key_order = random.choice(('{0}:{1}', '{1}:{0}'))
+        self.key_order = '{%d}:{%d}:{%d}' % random.choice(tuple(permutations((0,1,2))))
         self.realm = realm
         if '"' in realm:
             raise ValueError('Double-quotes are not allowed in the authentication realm')
@@ -184,10 +216,10 @@ class AuthController(object):
             scheme = scheme.lower()
             if scheme == 'digest':
                 da = DigestAuth(rest.strip())
-                if da.validate_nonce(self.realm, self.secret):
+                if validate_nonce(self.key_order, da.nonce, self.realm, self.secret):
                     pw = self.user_credentials.get(da.username)
                     if pw and da.validate_request(pw, data, self.log):
-                        nonce_is_stale = da.is_nonce_stale(self.max_age_seconds)
+                        nonce_is_stale = is_nonce_stale(da.nonce, self.max_age_seconds)
                         if not nonce_is_stale:
                             data.username = da.username
                             return
@@ -212,7 +244,7 @@ class AuthController(object):
             raise HTTPAuthRequired('Basic realm="%s"' % self.realm, log=log_msg)
 
         s = 'Digest realm="%s", nonce="%s", algorithm="MD5", qop="auth"' % (
-            self.realm, DigestAuth.synthesize_nonce(self.realm, self.secret))
+            self.realm, synthesize_nonce(self.key_order, self.realm, self.secret))
         if nonce_is_stale:
             s += ', stale="true"'
         raise HTTPAuthRequired(s, log=log_msg)
