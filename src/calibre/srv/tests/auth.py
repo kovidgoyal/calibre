@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, base64, urllib2, subprocess, os
+import httplib, base64, urllib2, subprocess, os, cookielib
 from distutils.spawn import find_executable
 
 from calibre.srv.tests.base import BaseTest, TestServer
@@ -24,7 +24,7 @@ def auth(ctx, data):
 
 @endpoint('/android', auth_required=True, android_workaround=True)
 def android(ctx, data):
-    return '/android'
+    return 'android'
 
 def router(prefer_basic_auth=False):
     from calibre.srv.auth import AuthController
@@ -170,4 +170,33 @@ class TestAuth(BaseTest):
                 docurl(b'', '--digest', '--user', 'xxxx:testpw')
                 docurl(b'', '--digest', '--user', 'testuser:xtestpw')
                 docurl(b'closed', '--digest', '--user', 'testuser:testpw')
+    # }}}
+
+    def test_android_auth_workaround(self):  # {{{
+        'Test authentication workaround for Android'
+        r = router()
+        with TestServer(r.dispatch) as server:
+            r.auth_controller.log = server.log
+            conn = server.connect()
+
+            # First check that unauth access fails
+            conn.request('GET', '/android')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.UNAUTHORIZED)
+
+            auth_handler = urllib2.HTTPDigestAuthHandler()
+            url = 'http://localhost:%d%s' % (server.address[1], '/android')
+            auth_handler.add_password(realm=REALM, uri=url, user='testuser', passwd='testpw')
+            cj = cookielib.CookieJar()
+            cookie_handler = urllib2.HTTPCookieProcessor(cj)
+            r = urllib2.build_opener(auth_handler, cookie_handler).open(url)
+            self.ae(r.getcode(), httplib.OK)
+            cookies = tuple(cj)
+            self.ae(len(cookies), 1)
+            cookie = cookies[0]
+            self.assertIn(b':', cookie.value)
+            self.ae(cookie.path, b'/android')
+            r = urllib2.build_opener(cookie_handler).open(url)
+            self.ae(r.getcode(), httplib.OK)
+            self.ae(r.read(), b'android')
     # }}}

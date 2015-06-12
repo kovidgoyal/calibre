@@ -21,7 +21,7 @@ from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
 from calibre.srv.utils import (
     MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed,
-    sort_q_values, get_translator_for_lang)
+    sort_q_values, get_translator_for_lang, Cookie)
 from calibre.utils.monotonic import monotonic
 
 Range = namedtuple('Range', 'start stop size')
@@ -194,6 +194,7 @@ class RequestData(object):  # {{{
         self.remote_addr, self.remote_port = remote_addr, remote_port
         self.opts = opts
         self.status_code = httplib.CREATED if self.method == 'POST' else httplib.OK
+        self.outcookie = Cookie()
 
     def generate_static_output(self, name, generator):
         ans = self.static_cache.get(name)
@@ -411,6 +412,12 @@ class HTTPConnection(HTTPRequest):
         buf = [HTTP11 + (' %d ' % data.status_code) + httplib.responses[data.status_code]]
         for header, value in sorted(outheaders.iteritems(), key=itemgetter(0)):
             buf.append('%s: %s' % (header, value))
+        for morsel in data.outcookie.itervalues():
+            morsel['version'] = '1'
+            x = morsel.output()
+            if isinstance(x, bytes):
+                x = x.decode('ascii')
+            buf.append(x)
         buf.append('')
         self.response_ready(BytesIO(b''.join((x + '\r\n').encode('ascii') for x in buf)), output=output)
 

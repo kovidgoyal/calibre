@@ -7,12 +7,12 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import binascii, os, random, struct, base64, httplib
-from hashlib import md5, sha1, sha256
+from hashlib import md5, sha256
 from itertools import permutations
 
 from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse, InvalidCredentials
 from calibre.srv.http_request import parse_uri
-from calibre.srv.utils import parse_http_dict
+from calibre.srv.utils import parse_http_dict, encode_path
 from calibre.utils.monotonic import monotonic
 
 MAX_AGE_SECONDS = 3600
@@ -24,9 +24,6 @@ def as_bytestring(x):
 
 def md5_hex(s):
     return md5(as_bytestring(s)).hexdigest().decode('ascii')
-
-def sha1_hex(s):
-    return sha1(as_bytestring(s)).hexdigest().decode('ascii')
 
 def sha256_hex(s):
     return sha256(as_bytestring(s)).hexdigest().decode('ascii')
@@ -180,6 +177,7 @@ class AuthController(object):
     not implement the digest auth spec properly (it sends out of order nc
     values).
     '''
+    ANDROID_COOKIE = 'android_workaround'
 
     def __init__(self, user_credentials=None, prefer_basic_auth=False, realm='calibre', max_age_seconds=MAX_AGE_SECONDS, log=None):
         self.user_credentials, self.prefer_basic_auth = user_credentials, prefer_basic_auth
@@ -202,8 +200,15 @@ class AuthController(object):
         return pw and self.user_credentials.get(un) == pw
 
     def __call__(self, data, endpoint):
-        # TODO: Implement Android workaround for /get
-        self.do_http_auth(data, endpoint)
+        http_auth_needed = not (endpoint.android_workaround and self.validate_android_cookie(data.cookies.get(self.ANDROID_COOKIE)))
+        if http_auth_needed:
+            self.do_http_auth(data, endpoint)
+            if endpoint.android_workaround:
+                data.outcookie[self.ANDROID_COOKIE] = synthesize_nonce(self.key_order, self.realm, self.secret)
+                data.outcookie[self.ANDROID_COOKIE]['path'] = encode_path(*data.path)
+
+    def validate_android_cookie(self, cookie):
+        return cookie and validate_nonce(self.key_order, cookie, self.realm, self.secret) and not is_nonce_stale(cookie, self.max_age_seconds)
 
     def do_http_auth(self, data, endpoint):
         auth = data.inheaders.get('Authorization')

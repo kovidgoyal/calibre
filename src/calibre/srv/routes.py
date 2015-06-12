@@ -190,7 +190,9 @@ class Router(object):
                 if x:
                     k, v = x.partition('=')[::2]
                     if k:
-                        c[k] = v
+                        # Since we only set simple hex encoded cookies, we dont
+                        # need more sophisticated value parsing
+                        c[k] = v.strip('"')
 
     def dispatch(self, data):
         endpoint_, args = self.find_route(data.path)

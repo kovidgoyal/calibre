@@ -7,12 +7,14 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import errno, socket, select
+from Cookie import SimpleCookie
 from contextlib import closing
 from urlparse import parse_qs
 import repr as reprlib
 from email.utils import formatdate
 from operator import itemgetter
 from future_builtins import map
+from urllib import quote as urlquote
 
 from calibre import prints
 from calibre.constants import iswindows
@@ -260,6 +262,17 @@ def get_translator_for_lang(cache, bcp_47_code):
         pass
     cache[bcp_47_code] = ans = get_translator(bcp_47_code)
     return ans
+
+def encode_path(*components):
+    'Encode the path specified as a list of path components using URL encoding'
+    return '/' + '/'.join(urlquote(x.encode('utf-8'), '').decode('ascii') for x in components)
+
+class Cookie(SimpleCookie):
+
+    def _BaseCookie__set(self, key, real_value, coded_value):
+        if not isinstance(key, bytes):
+            key = key.encode('ascii')  # Python 2.x cannot handle unicode keys
+        return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)
 
 # Logging {{{
 
