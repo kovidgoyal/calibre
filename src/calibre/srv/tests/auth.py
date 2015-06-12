@@ -26,6 +26,10 @@ def auth(ctx, data):
 def android(ctx, data):
     return 'android'
 
+@endpoint('/android2', auth_required=True, android_workaround=True)
+def android2(ctx, data):
+    return 'android2'
+
 def router(prefer_basic_auth=False):
     from calibre.srv.auth import AuthController
     return Router(globals().itervalues(), auth_controller=AuthController(
@@ -199,4 +203,11 @@ class TestAuth(BaseTest):
             r = urllib2.build_opener(cookie_handler).open(url)
             self.ae(r.getcode(), httplib.OK)
             self.ae(r.read(), b'android')
+            # Test that a replay attack against a different URL does not work
+            try:
+                urllib2.build_opener(cookie_handler).open(url+'2')
+                assert ('Replay attack succeeded')
+            except urllib2.HTTPError as e:
+                self.ae(e.code, httplib.UNAUTHORIZED)
+
     # }}}

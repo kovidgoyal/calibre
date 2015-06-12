@@ -200,15 +200,16 @@ class AuthController(object):
         return pw and self.user_credentials.get(un) == pw
 
     def __call__(self, data, endpoint):
-        http_auth_needed = not (endpoint.android_workaround and self.validate_android_cookie(data.cookies.get(self.ANDROID_COOKIE)))
+        path = encode_path(*data.path)
+        http_auth_needed = not (endpoint.android_workaround and self.validate_android_cookie(path, data.cookies.get(self.ANDROID_COOKIE)))
         if http_auth_needed:
             self.do_http_auth(data, endpoint)
             if endpoint.android_workaround:
-                data.outcookie[self.ANDROID_COOKIE] = synthesize_nonce(self.key_order, self.realm, self.secret)
-                data.outcookie[self.ANDROID_COOKIE]['path'] = encode_path(*data.path)
+                data.outcookie[self.ANDROID_COOKIE] = synthesize_nonce(self.key_order, path, self.secret)
+                data.outcookie[self.ANDROID_COOKIE]['path'] = path
 
-    def validate_android_cookie(self, cookie):
-        return cookie and validate_nonce(self.key_order, cookie, self.realm, self.secret) and not is_nonce_stale(cookie, self.max_age_seconds)
+    def validate_android_cookie(self, path, cookie):
+        return cookie and validate_nonce(self.key_order, cookie, path, self.secret) and not is_nonce_stale(cookie, self.max_age_seconds)
 
     def do_http_auth(self, data, endpoint):
         auth = data.inheaders.get('Authorization')
