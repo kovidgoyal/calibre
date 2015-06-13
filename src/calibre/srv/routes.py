@@ -6,24 +6,38 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, sys, inspect, re
+import httplib, sys, inspect, re, time, numbers
 from itertools import izip
 from operator import attrgetter
 
 from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
+from calibre.srv.utils import http_date
 
 default_methods = frozenset(('HEAD', 'GET'))
 
 def route_key(route):
     return route.partition('{')[0].rstrip('/')
 
-def endpoint(route, methods=default_methods, types=None, auth_required=True, android_workaround=False):
+def endpoint(route,
+             methods=default_methods,
+             types=None,
+             auth_required=True,
+             android_workaround=False,
+
+             # Manage the HTTP caching
+             # Set to None or 'no-cache' to prevent caching of this endpoint
+             # Set to a number to cache for at most number hours
+             # Set to a tuple (cache_type, max_age) to explicitly set the
+             # Cache-Control header
+             cache_control=False
+):
     def annotate(f):
         f.route = route.rstrip('/') or '/'
         f.types = types or {}
         f.methods = methods
         f.auth_required = auth_required
         f.android_workaround = android_workaround
+        f.cache_control = cache_control
         f.is_endpoint = True
         return f
     return annotate
@@ -207,6 +221,27 @@ class Router(object):
         self.init_session(endpoint_, data)
         ans = endpoint_(self.ctx, data, *args)
         self.finalize_session(endpoint_, data, ans)
+        outheaders = data.outheaders
+
+        cc = endpoint_.cache_control
+        if cc is not False and 'Cache-Control' not in data.outheaders:
+            if cc is None or cc == 'no-cache':
+                outheaders['Expires'] = http_date(10000.0)  # A date in the past
+                outheaders['Cache-Control'] = 'no-cache, must-revalidate'
+                outheaders['Pragma'] = 'no-cache'
+            elif isinstance(cc, numbers.Number):
+                cc = int(60 * 60 * cc)
+                outheaders['Cache-Control'] = 'public, max-age=%d' % cc
+                if cc == 0:
+                    cc -= 100000
+                outheaders['Expires'] = http_date(cc + time.time())
+            else:
+                ctype, max_age = cc
+                max_age = int(60 * 60 * max_age)
+                outheaders['Cache-Control'] = '%s, max-age=%d' % (ctype, max_age)
+                if max_age == 0:
+                    max_age -= 100000
+                outheaders['Expires'] = http_date(max_age + time.time())
         return ans
 
     def url_for(self, route, **kwargs):

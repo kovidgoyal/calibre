@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from importlib import import_module
+
 from calibre.srv.routes import Router
 
 class LibraryBroker(object):
@@ -32,6 +34,10 @@ class Handler(object):
 
     def __init__(self, libraries, opts):
         self.router = Router(ctx=Context(libraries, opts), url_prefix=opts.url_prefix)
+        for module in ('content',):
+            module = import_module('calibre.srv.' + module)
+            self.router.load_routes(vars(module).itervalues())
+        self.router.finalize()
         self.router.ctx.url_for = self.router.url_for
         self.dispatch = self.router.dispatch
 

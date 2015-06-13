@@ -522,7 +522,7 @@ class HTTPConnection(HTTPRequest):
                 mt = guess_type(output.name)[0]
                 if mt:
                     if mt in {'text/plain', 'text/html', 'application/javascript', 'text/css'}:
-                        mt =+ '; charset=UTF-8'
+                        mt += '; charset=UTF-8'
                     outheaders['Content-Type'] = mt
         elif isinstance(output, (bytes, type(''))):
             output = dynamic_output(output, outheaders)
