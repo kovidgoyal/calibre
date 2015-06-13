@@ -47,6 +47,8 @@ def config(defaults=None):
     c.add_opt('hyphenate', default=False, help=_('Hyphenate text'))
     c.add_opt('hyphenate_default_lang', default='en',
             help=_('Default language for hyphenation rules'))
+    c.add_opt('search_online_url', default='https://www.google.com/search?q={text}',
+              help=_('The URL to use when searching for selected text online'))
     c.add_opt('remember_current_page', default=True,
             help=_('Save the current position in the document, when quitting'))
     c.add_opt('copy_bookmarks_to_file', default=True,
@@ -313,6 +315,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.hyphenate_default_lang.setCurrentIndex(idx)
         self.hyphenate.setChecked(opts.hyphenate)
         self.hyphenate_default_lang.setEnabled(opts.hyphenate)
+        self.search_online_url.setText(opts.search_online_url or '')
         self.opt_fit_images.setChecked(opts.fit_images)
         self.opt_fullscreen_clock.setChecked(opts.fullscreen_clock)
         self.opt_fullscreen_scrollbar.setChecked(opts.fullscreen_scrollbar)
@@ -397,6 +400,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 self.hyphenate_default_lang.itemData(idx))
         c.set('line_scrolling_stops_on_pagebreaks',
                 self.opt_line_scrolling_stops_on_pagebreaks.isChecked())
+        c.set('search_online_url', self.search_online_url.text().strip())
         c.set('fullscreen_clock', self.opt_fullscreen_clock.isChecked())
         c.set('fullscreen_pos', self.opt_fullscreen_pos.isChecked())
         c.set('fullscreen_scrollbar', self.opt_fullscreen_scrollbar.isChecked())

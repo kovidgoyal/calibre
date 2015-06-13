@@ -189,6 +189,7 @@ class Document(QWebPage):  # {{{
         self.show_controls = opts.show_controls
         self.remember_current_page = opts.remember_current_page
         self.copy_bookmarks_to_file = opts.copy_bookmarks_to_file
+        self.search_online_url = opts.search_online_url or 'https://www.google.com/search?q={text}'
 
     def fit_images(self):
         if self.do_fit_images and not self.in_paged_mode:
@@ -701,7 +702,7 @@ class DocumentView(QWebView):  # {{{
         if len(t) > 40:
             t = t[:40] + u'...'
         t = t.replace(u'&', u'&&')
-        return _("S&earch Google for '%s'")%t
+        return _("S&earch online for '%s'")%t
 
     def popup_table(self):
         html = self.document.extract_node()
@@ -820,7 +821,7 @@ class DocumentView(QWebView):  # {{{
             self.do_search_online(t)
 
     def do_search_online(self, text):
-        url = 'https://www.google.com/search?q=' + QUrl().toPercentEncoding(text)
+        url = self.document.search_online_url.replace('{text}', QUrl().toPercentEncoding(text))
         open_url(QUrl.fromEncoded(url))
 
     def set_manager(self, manager):
