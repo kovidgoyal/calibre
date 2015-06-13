@@ -17,7 +17,7 @@ default_methods = frozenset(('HEAD', 'GET'))
 def route_key(route):
     return route.partition('{')[0].rstrip('/')
 
-def endpoint(route, methods=default_methods, types=None, auth_required=False, android_workaround=False):
+def endpoint(route, methods=default_methods, types=None, auth_required=True, android_workaround=False):
     def annotate(f):
         f.route = route.rstrip('/') or '/'
         f.types = types or {}

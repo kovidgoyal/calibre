@@ -14,7 +14,7 @@ from calibre.srv.routes import endpoint, Router
 
 REALM = 'calibre-test'
 
-@endpoint('/open')
+@endpoint('/open', auth_required=False)
 def noauth(ctx, data):
     return 'open'
 
