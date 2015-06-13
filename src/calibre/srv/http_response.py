@@ -195,6 +195,8 @@ class RequestData(object):  # {{{
         self.opts = opts
         self.status_code = httplib.CREATED if self.method == 'POST' else httplib.OK
         self.outcookie = Cookie()
+        self.lang_code = self.gettext_func = self.ngettext_func = None
+        self.set_translator(self.get_preferred_language())
 
     def generate_static_output(self, name, generator):
         ans = self.static_cache.get(name)
@@ -216,7 +218,20 @@ class RequestData(object):  # {{{
         return get_translator_for_lang(self.translator_cache, bcp_47_code)
 
     def get_preferred_language(self):
-        return preferred_lang(self.outheaders.get('Accept-Language'), self.get_translator)
+        return preferred_lang(self.inheaders.get('Accept-Language'), self.get_translator)
+
+    def _(self, text):
+        return self.gettext_func(text)
+
+    def ngettext(self, singular, plural, n):
+        return self.ngettext_func(singular, plural, n)
+
+    def set_translator(self, lang_code):
+        if lang_code != self.lang_code:
+            found, lang, t = self.get_translator(lang_code)
+            self.lang_code = lang
+            self.gettext_func = t.ugettext
+            self.ngettext_func = t.ungettext
 # }}}
 
 class ReadableOutput(object):

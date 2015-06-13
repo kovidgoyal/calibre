@@ -115,7 +115,7 @@ def get_single_translator(mpath):
 
 def get_translator(bcp_47_code):
     parts = bcp_47_code.replace('-', '_').split('_')[:2]
-    parts[0] = lang_as_iso639_1(parts[0].lower())
+    parts[0] = lang_as_iso639_1(parts[0].lower()) or 'en'
     if len(parts) > 1:
         parts[1] = parts[1].upper()
     lang = '_'.join(parts)

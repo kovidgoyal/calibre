@@ -69,6 +69,7 @@ class TestHTTP(BaseTest):
     def test_accept_language(self):  # {{{
         'Test parsing of Accept-Language'
         from calibre.srv.http_response import preferred_lang
+        from calibre.utils.localization import get_translator
         def test(name, val, ans):
             self.ae(preferred_lang(val, lambda x:(True, x, None)), ans, name + ' failed')
         test('Empty field', '', 'en')
@@ -76,6 +77,24 @@ class TestHTTP(BaseTest):
         test('Case insensitive', 'Es', 'es')
         test('Multiple', 'fr, es', 'fr')
         test('Priority', 'en;q=0.1, de;q=0.7, fr;q=0.5', 'de')
+
+        def handler(data):
+            return data.lang_code + data._('Unknown')
+
+        with TestServer(handler, timeout=0.1) as server:
+            conn = server.connect()
+
+            def test(al, q):
+                conn.request('GET', '/', headers={'Accept-Language': al})
+                r = conn.getresponse()
+                self.ae(r.status, httplib.OK)
+                q += get_translator(q)[-1].ugettext('Unknown')
+                self.ae(r.read(), q)
+
+            test('en', 'en')
+            test('eng', 'en')
+            test('es', 'es')
+
     # }}}
 
     def test_range_parsing(self):  # {{{
@@ -377,3 +396,4 @@ class TestHTTP(BaseTest):
                 r = conn.getresponse()
                 self.assertEqual(data, r.read())
     # }}}
+
