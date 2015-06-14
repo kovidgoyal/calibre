@@ -27,6 +27,7 @@ from calibre.utils.monotonic import monotonic
 
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex.decode('ascii')
+COMPRESSIBLE_TYPES = {'application/json', 'application/javascript', 'application/xml', 'application/oebps-package+xml'}
 
 def header_list_to_file(buf):  # {{{
     buf.append('')
@@ -514,10 +515,14 @@ class HTTPConnection(HTTPRequest):
         if chunk is None:
             self.set_state(WRITE, self.write_chunk, BytesIO(b'0\r\n\r\n'), output, last=True)
         else:
-            if not isinstance(chunk, bytes):
-                chunk = chunk.encode('utf-8')
-            chunk = ('%X\r\n' % len(chunk)).encode('ascii') + chunk + b'\r\n'
-            self.set_state(WRITE, self.write_chunk, BytesIO(chunk), output)
+            if chunk:
+                if not isinstance(chunk, bytes):
+                    chunk = chunk.encode('utf-8')
+                chunk = ('%X\r\n' % len(chunk)).encode('ascii') + chunk + b'\r\n'
+                self.set_state(WRITE, self.write_chunk, BytesIO(chunk), output)
+            else:
+                # Empty chunk, ignore it
+                self.write_iter(output, event)
 
     def write_chunk(self, buf, output, event, last=False):
         if self.write(buf):
@@ -556,7 +561,7 @@ class HTTPConnection(HTTPRequest):
             output = GeneratedOutput(output)
         ct = outheaders.get('Content-Type', '').partition(';')[0]
         compressible = (not ct or ct.startswith('text/') or ct.startswith('image/svg') or
-                        ct in {'application/json', 'application/javascript', 'application/xml'})
+                        ct.partition(';')[0] in COMPRESSIBLE_TYPES)
         compressible = (compressible and request.status_code == httplib.OK and
                         (opts.compress_min_size > -1 and output.content_length >= opts.compress_min_size) and
                         acceptable_encoding(request.inheaders.get('Accept-Encoding', '')) and not is_http1)

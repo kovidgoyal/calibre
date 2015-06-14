@@ -308,9 +308,12 @@ class TestHTTP(BaseTest):
             self.ae(r.read(), b'')
 
             # Test gzip
+            raw = b'a'*20000
+            server.change_handler(lambda conn: raw)
+            conn = server.connect()
             conn.request('GET', '/an_etagged_path', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
-            self.ae(r.status, httplib.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), b'an_etagged_path')
+            self.ae(r.status, httplib.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), raw)
 
             # Test getting a filesystem file
             for use_sendfile in (True, False):
