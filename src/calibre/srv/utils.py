@@ -43,7 +43,7 @@ class MultiDict(dict):  # {{{
     @staticmethod
     def create_from_query_string(qs):
         ans = MultiDict()
-        for k, v in parse_qs(qs, keep_blank_values=True):
+        for k, v in parse_qs(qs, keep_blank_values=True).iteritems():
             dict.__setitem__(ans, k.decode('utf-8'), [x.decode('utf-8') for x in v])
         return ans
 
