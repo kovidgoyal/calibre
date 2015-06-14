@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, zlib
+import httplib, zlib, json
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata
@@ -159,6 +159,16 @@ class ContentTest(LibraryBaseTest):
             self.ae(db.field_for('title', 1), opf.title)
             self.ae(db.field_for('authors', 1), tuple(opf.authors))
             conn.request('GET', '/get/opf/1', headers={'Accept-Encoding':'gzip'})
+            r = conn.getresponse()
+            self.ae(r.status, httplib.OK), self.ae(r.getheader('Content-Encoding'), 'gzip')
+            raw = r.read()
+            self.ae(zlib.decompress(raw, 16+zlib.MAX_WBITS), data)
+
+            # Test serving metadata as json
+            r, data = get('json', 1)
+            self.ae(r.status, httplib.OK)
+            self.ae(db.field_for('title', 1), json.loads(data)['title'])
+            conn.request('GET', '/get/json/1', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
             self.ae(r.status, httplib.OK), self.ae(r.getheader('Content-Encoding'), 'gzip')
             raw = r.read()

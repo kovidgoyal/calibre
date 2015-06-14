@@ -118,8 +118,8 @@ def decode_is_multiple(fm):
 
 class JsonCodec(object):
 
-    def __init__(self):
-        self.field_metadata = FieldMetadata()
+    def __init__(self, field_metadata=None):
+        self.field_metadata = field_metadata or FieldMetadata()
 
     def encode_to_file(self, file_, booklist):
         file_.write(json.dumps(self.encode_booklist_metadata(booklist),

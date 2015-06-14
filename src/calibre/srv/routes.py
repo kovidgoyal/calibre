@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, sys, inspect, re, time, numbers
+import httplib, sys, inspect, re, time, numbers, json as jsonlib
 from itertools import izip
 from operator import attrgetter
 
@@ -14,6 +14,13 @@ from calibre.srv.errors import HTTPSimpleResponse, HTTPNotFound, RouteError
 from calibre.srv.utils import http_date
 
 default_methods = frozenset(('HEAD', 'GET'))
+
+def json(ctx, rd, endpoint, output):
+    rd.outheaders['Content-Type'] = 'application/json; charset=UTF-8'
+    ans = jsonlib.dumps(output, ensure_ascii=False)
+    if not isinstance(ans, bytes):
+        ans = ans.encode('utf-8')
+    return ans
 
 def route_key(route):
     return route.partition('{')[0].rstrip('/')
@@ -29,7 +36,9 @@ def endpoint(route,
              # Set to a number to cache for at most number hours
              # Set to a tuple (cache_type, max_age) to explicitly set the
              # Cache-Control header
-             cache_control=False
+             cache_control=False,
+
+             postprocess=None
 ):
     def annotate(f):
         f.route = route.rstrip('/') or '/'
@@ -38,6 +47,7 @@ def endpoint(route,
         f.auth_required = auth_required
         f.android_workaround = android_workaround
         f.cache_control = cache_control
+        f.postprocess = postprocess
         f.is_endpoint = True
         return f
     return annotate
@@ -222,6 +232,10 @@ class Router(object):
         ans = endpoint_(self.ctx, data, *args)
         self.finalize_session(endpoint_, data, ans)
         outheaders = data.outheaders
+
+        pp = endpoint_.postprocess
+        if pp is not None:
+            ans = pp(self.ctx, data, endpoint_, ans)
 
         cc = endpoint_.cache_control
         if cc is not False and 'Cache-Control' not in data.outheaders:

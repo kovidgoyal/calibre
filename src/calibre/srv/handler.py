@@ -76,7 +76,7 @@ class Handler(object):
 
     def __init__(self, libraries, opts, testing=False):
         self.router = Router(ctx=Context(libraries, opts, testing=testing), url_prefix=opts.url_prefix)
-        for module in ('content',):
+        for module in ('content', 'ajax'):
             module = import_module('calibre.srv.' + module)
             self.router.load_routes(vars(module).itervalues())
         self.router.finalize()
