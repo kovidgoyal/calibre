@@ -1,11 +1,16 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+__license__ = 'GPL v3'
+__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class EntrepeneurMagRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
-    __author__ = 'kwetal'
+    __author__ = 'Kovid Goyal'
     language = 'en'
-    version = 1
 
     title = u'Entrepeneur Magazine'
     publisher = u'Entrepreneur Media, Inc'
@@ -17,78 +22,52 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'printbody'}))
-
-    remove_tags = []
-    remove_tags.append(dict(name = 'base'))
-    remove_tags.append(dict(name = 'a', attrs = {'id': 'ctl00_privacyPolicyLink'}))
-
+    keep_only_tags = [
+        dict(attrs={'class':['headline']}),
+        dict(itemprop='articlebody'),
+    ]
+    remove_tags = [
+        dict(attrs={'class':['related-content']}),
+    ]
     remove_attributes = ['style']
 
-    INDEX = 'http://www.entrepeneur.com'
-
-    extra_css = '''
-                body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
-                img {float: left; margin-right: 0.5em;}
-                a, a[href] {text-decoration: none; color: blue;}
-                div#ctl00_bodyContentPlaceHolder_articleHeader_divHeaderText {font-weight: bold;
-                    font-size: medium;}
-                h1 {font-size: xx-large; font-weight: bold;}
-                div.byline {font-size: small; color: #696969; font-weight: normal;}
-                a.h2 {font-size: medium; font-weight: bold; color: #666666; text-decoration: none;
-                    margin-bottom: 0em;}
-                '''
-
-    conversion_options = {'comments': description, 'language': 'en',
-                          'publisher': publisher}
+    INDEX = 'http://www.entrepreneur.com'
 
     def parse_index(self):
-        soup = self.index_to_soup('http://www.entrepreneur.com/magazine/entrepreneur/index.html')
-        answer = []
+        root = self.index_to_soup(self.INDEX + '/magazine/index.html', as_tree=True)
+        for href in root.xpath('//div[@class="Ddeck title"]/a/@href'):
+            return self.parse_ent_index(self.INDEX + href)
 
-        div = soup.find('div', attrs = {'id': 'magfeature'})
-        if div:
-            a = div.find('a', attrs = {'class': 'headline'})
-            if a:
-                title = self.tag_to_string(a)
-                url = self.INDEX + a['href']
-                description = a.findNextSibling(text = True)
+    def parse_ent_index(self, url):
+        root = self.index_to_soup(url, as_tree=True)
+        img = root.xpath('//div[@class="magcoverissue"]/img')[0]
+        self.cover_url = img.get('src')
+        self.timefmt = ' [%s]' % img.get('alt').rpartition('-')[-1].strip()
+        body = root.xpath('//div[@class="cbody"]')[0]
+        current_section = 'Unknown'
+        current_articles = []
+        ans = []
+        for x in body.xpath('descendant::*[name() = "h2" or name() = "h3"]'):
+            if x.tag == 'h2':
+                if current_articles:
+                    ans.append((current_section, current_articles))
+                current_section = self.tag_to_string(x)
+                current_articles = []
+                self.log('Found section:', current_section)
+            else:
+                title = self.tag_to_string(x)
+                try:
+                    a = x.xpath('./a')[0]
+                except IndexError:
+                    continue
+                url = self.INDEX + a.get('href')
+                d = x.getnext()
+                desc = self.tag_to_string(d) if d is not None else ''
+                self.log('\t', title, 'at:', url)
+                self.log('\t\t', desc)
+                current_articles.append({'title':title, 'url':url, 'description':desc})
 
-                articles = [{'title': title, 'date': None, 'url': url, 'description': description}]
-                answer.append(('Cover Story', articles))
+        if current_articles:
+            ans.append((current_section, current_articles))
 
-        for div in soup.findAll('div', attrs = {'class': 'subhead-special'}):
-            articles = []
-            for tag in div.findNextSiblings(['a', 'div'], attrs = {'class': ['h2', 'subhead-special']}):
-                if tag.name == 'div' and tag['class'] == 'subhead-special':
-                    break
-                if tag.name == 'a' and tag['class'] == 'h2':
-                    title = self.tag_to_string(tag)
-                    url = tag['href']
-                    description = tag.findNextSibling(text = True)
-                    articles.append({'title': title, 'date': None, 'url': url, 'description': description})
-            answer.append((self.tag_to_string(div), articles))
-
-        return answer
-
-
-    def print_version(self, url):
-        id = url.rpartition('/')[2]
-
-        return 'http://www.entrepreneur.com/article/printthis/' + id
-
-    def preprocess_html(self, soup):
-        div = soup.find('div', attrs = {'id': 'printbody'})
-        if div:
-            a = div.find(lambda tag: tag.name == 'a' and len(tag.attrs) == 1)
-            if a:
-                txt = a.findPreviousSibling(text = re.compile('URL:.*'))
-                if txt:
-                    txt.extract()
-                for br in a.findNextSiblings('br'):
-                    br.extract()
-                a.extract()
-
-        return soup
-
+        return ans
