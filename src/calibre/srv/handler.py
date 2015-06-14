@@ -72,6 +72,14 @@ class Context(object):
     def get_library(self, library_id=None):
         return self.library_broker.get(library_id)
 
+    def restrict_to_ids(self, db, data):
+        # TODO: Implement this based on data.username caching result on the
+        # data object
+        ans = data.restrict_to_ids.get(db.server_library_id)
+        if ans is None:
+            ans = data.restrict_to_ids[db.server_library_id] = db.all_book_ids()
+        return ans
+
 class Handler(object):
 
     def __init__(self, libraries, opts, testing=False):
