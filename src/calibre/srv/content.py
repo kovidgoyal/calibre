@@ -12,9 +12,11 @@ from io import BytesIO
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
+from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint
+from calibre.srv.utils import http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
 from calibre.utils.filenames import ascii_filename
@@ -142,10 +144,10 @@ def get(ctx, rd, what, book_id, library_id):
     db = ctx.get_library(library_id)
     if db is None:
         raise HTTPNotFound('Library %r not found' % library_id)
-    library_id = db.server_library_id
     with db.safe_read_lock:
         if not db.has_id(book_id):
             raise HTTPNotFound('Book with id %r does not exist' % book_id)
+        library_id = db.server_library_id  # in case library_id was None
         if what == 'thumb' or what.startswith('thumb_'):
             try:
                 w, h = map(int, what.partition('_')[2].partition('x')[::2])
@@ -154,7 +156,13 @@ def get(ctx, rd, what, book_id, library_id):
             return cover(ctx, rd, library_id, db, book_id, width=w, height=h)
         elif what == 'cover':
             return cover(ctx, rd, library_id, db, book_id)
-        # TODO: Implement opf and json
+        elif what == 'opf':
+            mi = db.get_metadata(book_id, get_cover=False)
+            rd.outheaders['Content-Type'] = 'application/oebps-package+xml; charset=UTF-8'
+            rd.outheaders['Last-Modified'] = http_date(timestampfromdt(mi.last_modified))
+            return metadata_to_opf(mi)
+        elif what == 'json':
+            raise NotImplementedError('TODO: Implement this')
         else:
             try:
                 return book_fmt(ctx, rd, library_id, db, book_id, what.lower())

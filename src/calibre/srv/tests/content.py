@@ -6,10 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib
+import httplib, zlib
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.magick.draw import identify_data
 
@@ -122,6 +123,7 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, httplib.OK)
             self.ae(data, db.cover(1))
             self.ae(r.getheader('Used-Cache'), 'no')
+            self.ae(r.getheader('Content-Type'), 'image/jpeg')
             r, data = get('cover', 1)
             self.ae(r.status, httplib.OK)
             self.ae(data, db.cover(1))
@@ -147,5 +149,19 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, httplib.OK)
             self.ae(identify_data(data), (100, 100, 'jpeg'))
             self.ae(r.getheader('Used-Cache'), 'no')
+
+            # Test serving of metadata as opf
+            r, data = get('opf', 1)
+            self.ae(r.status, httplib.OK)
+            self.ae(r.getheader('Content-Type'), 'application/oebps-package+xml; charset=UTF-8')
+            self.assertIsNotNone(r.getheader('Last-Modified'))
+            opf = OPF(BytesIO(data), populate_spine=False, try_to_guess_cover=False)
+            self.ae(db.field_for('title', 1), opf.title)
+            self.ae(db.field_for('authors', 1), tuple(opf.authors))
+            conn.request('GET', '/get/opf/1', headers={'Accept-Encoding':'gzip'})
+            r = conn.getresponse()
+            self.ae(r.status, httplib.OK), self.ae(r.getheader('Content-Encoding'), 'gzip')
+            raw = r.read()
+            self.ae(zlib.decompress(raw, 16+zlib.MAX_WBITS), data)
 
     # }}}
