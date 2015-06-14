@@ -204,9 +204,8 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
                 continue
             user_categories[c] = []
             for sc in gst[c]:
-                if sc in categories.keys():
-                    for t in categories[sc]:
-                        user_categories[c].append([t.name, sc, 0])
+                for t in categories.get(sc, ()):
+                    user_categories[c].append([t.name, sc, 0])
 
         gst_icon = icon_map['gst'] if icon_map else None
         for user_cat in sorted(user_categories.iterkeys(), key=sort_key):
