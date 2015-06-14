@@ -7,3 +7,5 @@ cherrypy private copy (you will have to re-write jsbrowser.test to not use
 cherrypy)
 
 Remove the bundled routes package
+
+Grep for from calibre.library.server and port all code that uses it
