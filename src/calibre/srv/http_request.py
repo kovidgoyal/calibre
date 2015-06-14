@@ -64,6 +64,8 @@ def parse_request_uri(uri):
 
 def parse_uri(uri, parse_query=True):
     scheme, authority, path = parse_request_uri(uri)
+    if path is None:
+        raise HTTPSimpleResponse(httplib.BAD_REQUEST, "No path component")
     if b'#' in path:
         raise HTTPSimpleResponse(httplib.BAD_REQUEST, "Illegal #fragment in Request-URI.")
 
