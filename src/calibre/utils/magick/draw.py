@@ -117,6 +117,10 @@ def thumbnail(data, width=120, height=120, bgcolor='#ffffff', fmt='jpg',
     img = Image()
     img.load(data)
     owidth, oheight = img.size
+    if width is None:
+        width = owidth
+    if height is None:
+        height = oheight
     if not preserve_aspect_ratio:
         scaled = owidth > width or oheight > height
         nwidth = width

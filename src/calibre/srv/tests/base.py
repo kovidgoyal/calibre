@@ -59,6 +59,7 @@ class LibraryBaseTest(BaseTest):
         db.init()
         db.set_cover({1:I('lt.png', data=True), 2:I('polish.png', data=True)})
         db.add_format(1, 'FMT1', BytesIO(b'book1fmt1'), run_hooks=False)
+        db.add_format(1, 'EPUB', open(P('quick_start/eng.epub'), 'rb'), run_hooks=False)
         db.add_format(1, 'FMT2', BytesIO(b'book1fmt2'), run_hooks=False)
         db.add_format(2, 'FMT1', BytesIO(b'book2fmt1'), run_hooks=False)
         db.backend.conn.close()
@@ -124,11 +125,12 @@ class LibraryServer(TestServer):
         from calibre.srv.http_response import create_http_handler
         opts = Options(**kwargs)
         self.libraries = libraries or (library_path,)
-        self.handler = Handler(libraries, opts)
+        self.handler = Handler(self.libraries, opts, testing=True)
         self.loop = ServerLoop(
             create_http_handler(self.handler.dispatch),
             opts=opts,
             plugins=plugins,
             log=ServerLog(level=ServerLog.WARN),
         )
+        self.handler.set_log(self.loop.log)
         specialize(self)

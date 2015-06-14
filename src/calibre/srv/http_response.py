@@ -12,6 +12,7 @@ from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
 from operator import itemgetter
 from functools import wraps
+from future_builtins import map
 
 from calibre import guess_type, force_unicode
 from calibre.constants import __version__
@@ -178,13 +179,22 @@ def get_range_parts(ranges, content_type, content_length):  # {{{
     return list(map(part, ranges)) + [('--%s--' % MULTIPART_SEPARATOR).encode('ascii')]
 # }}}
 
+class ETaggedFile(object):  # {{{
+
+    def __init__(self, output, etag):
+        self.output, self.etag = output, etag
+
+    def fileno(self):
+        return self.output.fileno()
+# }}}
+
 class RequestData(object):  # {{{
 
     cookies = {}
     username = None
 
     def __init__(self, method, path, query, inheaders, request_body_file, outheaders, response_protocol,
-                 static_cache, opts, remote_addr, remote_port, translator_cache):
+                 static_cache, opts, remote_addr, remote_port, translator_cache, tdir):
 
         (self.method, self.path, self.query, self.inheaders, self.request_body_file, self.outheaders,
          self.response_protocol, self.static_cache, self.translator_cache) = (
@@ -197,12 +207,19 @@ class RequestData(object):  # {{{
         self.outcookie = Cookie()
         self.lang_code = self.gettext_func = self.ngettext_func = None
         self.set_translator(self.get_preferred_language())
+        self.tdir = tdir
 
     def generate_static_output(self, name, generator):
         ans = self.static_cache.get(name)
         if ans is None:
             ans = self.static_cache[name] = StaticOutput(generator())
         return ans
+
+    def filesystem_file_with_custom_etag(self, output, *etag_parts):
+        etag = hashlib.sha1()
+        string = type('')
+        tuple(map(lambda x:etag.update(string(x)), etag_parts))
+        return ETaggedFile(output, etag.hexdigest())
 
     def read(self, size=-1):
         return self.request_body_file.read(size)
@@ -249,7 +266,12 @@ class ReadableOutput(object):
         self.src_file.seek(0)
 
 def filesystem_file_output(output, outheaders, stat_result):
-    etag = '"%s"' % hashlib.sha1(type('')(stat_result.st_mtime) + force_unicode(output.name or '')).hexdigest()
+    etag = getattr(output, 'etag', None)
+    if etag is None:
+        etag = hashlib.sha1(type('')(stat_result.st_mtime) + force_unicode(output.name or '')).hexdigest()
+    else:
+        output = output.output
+    etag = '"%s"' % etag
     self = ReadableOutput(output, etag=etag, content_length=stat_result.st_size)
     self.name = output.name
     self.use_sendfile = True
@@ -358,7 +380,7 @@ class HTTPConnection(HTTPRequest):
         data = RequestData(
             self.method, self.path, self.query, inheaders, request_body_file,
             outheaders, self.response_protocol, self.static_cache, self.opts,
-            self.remote_addr, self.remote_port, self.translator_cache
+            self.remote_addr, self.remote_port, self.translator_cache, self.tdir
         )
         self.queue_job(self.run_request_handler, data)
 
