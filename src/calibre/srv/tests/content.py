@@ -27,9 +27,10 @@ class ContentTest(LibraryBaseTest):
                 self.ae(r.status, httplib.NOT_FOUND)
                 self.ae(r.read(), body)
 
-            missing('/static/missing.xxx')
-            missing('/static/../out.html', b'Naughty, naughty!')
-            missing('/static/C:/out.html', b'Naughty, naughty!')
+            for prefix in ('static', 'icon'):
+                missing('/%s/missing.xxx' % prefix)
+                missing('/%s/../out.html' % prefix, b'Naughty, naughty!')
+                missing('/%s/C:/out.html' % prefix, b'Naughty, naughty!')
 
             def test_response(r):
                 self.assertIn(b'max-age=', r.getheader('Cache-Control'))
@@ -38,12 +39,16 @@ class ContentTest(LibraryBaseTest):
                 self.assertIsNotNone(r.getheader('ETag'))
                 self.assertIsNotNone(r.getheader('Content-Type'))
 
-            def test(src, url):
+            def test(src, url, sz=None):
                 raw = P(src, data=True)
                 conn.request('GET', url)
                 r = conn.getresponse()
                 self.ae(r.status, httplib.OK)
-                self.ae(r.read(), raw)
+                data = r.read()
+                if sz is None:
+                    self.ae(data, raw)
+                else:
+                    self.ae(sz, identify_data(data)[0])
                 test_response(r)
                 conn.request('GET', url, headers={'If-None-Match':r.getheader('ETag')})
                 r = conn.getresponse()
@@ -52,6 +57,9 @@ class ContentTest(LibraryBaseTest):
 
             test('content-server/empty.html', '/static/empty.html')
             test('images/lt.png', '/favicon.png')
+            test('images/lt.png', '/icon/lt.png?sz=full')
+            test('images/lt.png', '/icon/lt.png', sz=48)
+            test('images/lt.png', '/icon/lt.png?sz=16', sz=16)
     # }}}
 
     def test_get(self):  # {{{
@@ -60,8 +68,9 @@ class ContentTest(LibraryBaseTest):
             db = server.handler.router.ctx.get_library()
             conn = server.connect()
 
-            def get(what, book_id, library_id=None):
-                conn.request('GET', '/get/%s/%s' % (what, book_id) + (('/' + library_id) if library_id else ''))
+            def get(what, book_id, library_id=None, q=''):
+                q = ('?' + q) if q else q
+                conn.request('GET', '/get/%s/%s' % (what, book_id) + (('/' + library_id) if library_id else '') + q)
                 r = conn.getresponse()
                 return r, r.read()
 
@@ -137,15 +146,15 @@ class ContentTest(LibraryBaseTest):
             r, data = get('thumb', 1)
             self.ae(r.status, httplib.OK)
             self.ae(r.getheader('Used-Cache'), 'yes')
-            r, data = get('thumb_100x100', 1)
+            r, data = get('thumb', 1, q='sz=100')
             self.ae(r.status, httplib.OK)
             self.ae(identify_data(data), (100, 100, 'jpeg'))
             self.ae(r.getheader('Used-Cache'), 'no')
-            r, data = get('thumb_100x100', 1)
+            r, data = get('thumb', 1, q='sz=100x100')
             self.ae(r.status, httplib.OK)
             self.ae(r.getheader('Used-Cache'), 'yes')
             db.set_cover({1:I('lt.png', data=True)})
-            r, data = get('thumb_100x100', 1)
+            r, data = get('thumb', 1, q='sz=100')
             self.ae(r.status, httplib.OK)
             self.ae(identify_data(data), (100, 100, 'jpeg'))
             self.ae(r.getheader('Used-Cache'), 'no')

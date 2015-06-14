@@ -6,9 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno
+import os
 from io import BytesIO
 
+from calibre import fit_image
+from calibre.constants import config_dir
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
@@ -21,7 +23,7 @@ from calibre.srv.utils import http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.magick.draw import thumbnail
+from calibre.utils.magick.draw import thumbnail, Image
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
@@ -123,6 +125,8 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
 
 @endpoint('/static/{+what}', auth_required=False, cache_control=24)
 def static(ctx, rd, what):
+    if not what:
+        raise HTTPNotFound()
     base = P('content-server', allow_user_override=False)
     path = os.path.abspath(os.path.join(base, *what.split('/')))
     if not path.startswith(base) or ':' in what:
@@ -131,14 +135,69 @@ def static(ctx, rd, what):
     path = P('content-server/' + path)
     try:
         return lopen(path, 'rb')
-    except EnvironmentError as e:
-        if e.errno == errno.EISDIR or os.path.isdir(path):
-            raise HTTPNotFound('Cannot get a directory')
+    except EnvironmentError:
         raise HTTPNotFound()
 
 @endpoint('/favicon.png', auth_required=False, cache_control=24)
 def favicon(ctx, rd):
     return lopen(I('lt.png'), 'rb')
+
+@endpoint('/icon/{+which}', auth_required=False, cache_control=24)
+def icon(ctx, rd, which):
+    sz = rd.query.get('sz')
+    if sz != 'full':
+        try:
+            sz = int(rd.query.get('sz', 48))
+        except Exception:
+            sz = 48
+    if which in {'', '_'}:
+        raise HTTPNotFound()
+    if which.startswith('_'):
+        base = os.path.join(config_dir, 'tb_icons')
+        path = os.path.abspath(os.path.join(base, *which[1:].split('/')))
+        if not path.startswith(base) or ':' in which:
+            raise HTTPNotFound('Naughty, naughty!')
+    else:
+        base = P('images', allow_user_override=False)
+        path = os.path.abspath(os.path.join(base, *which.split('/')))
+        if not path.startswith(base) or ':' in which:
+            raise HTTPNotFound('Naughty, naughty!')
+        path = os.path.relpath(path, base).replace(os.sep, '/')
+        path = P('images/' + path)
+    if sz == 'full':
+        try:
+            return lopen(path, 'rb')
+        except EnvironmentError:
+            raise HTTPNotFound()
+    tdir = os.path.join(rd.tdir, 'icons')
+    cached = os.path.join(tdir, '%d-%s.png' % (sz, which))
+    try:
+        return lopen(cached, 'rb')
+    except EnvironmentError:
+        pass
+    try:
+        src = lopen(path, 'rb')
+    except EnvironmentError:
+        raise HTTPNotFound()
+    with src:
+        img = Image()
+        img.load(src.read())
+    width, height = img.size
+    scaled, width, height = fit_image(width, height, sz, sz)
+    if scaled:
+        img.size = (width, height)
+    try:
+        ans = lopen(cached, 'w+b')
+    except EnvironmentError:
+        try:
+            os.mkdir(tdir)
+        except EnvironmentError:
+            pass
+        ans = lopen(cached, 'w+b')
+    ans.write(img.export('png'))
+    ans.seek(0)
+    return ans
+
 
 @endpoint('/get/{what}/{book_id}/{library_id=None}', types={'book_id':int})
 def get(ctx, rd, what, book_id, library_id):
@@ -149,11 +208,23 @@ def get(ctx, rd, what, book_id, library_id):
         if not db.has_id(book_id):
             raise HTTPNotFound('Book with id %r does not exist' % book_id)
         library_id = db.server_library_id  # in case library_id was None
-        if what == 'thumb' or what.startswith('thumb_'):
-            try:
-                w, h = map(int, what.partition('_')[2].partition('x')[::2])
-            except Exception:
-                w, h = 60, 80
+        if what == 'thumb':
+            sz = rd.query.get('sz')
+            w, h = 60, 80
+            if sz is None:
+                pass
+            elif sz == 'full':
+                w = h = None
+            elif 'x' in sz:
+                try:
+                    w, h = map(int, sz.partition('x')[::2])
+                except Exception:
+                    pass
+            else:
+                try:
+                    w = h = int(sz)
+                except Exception:
+                    pass
             return cover(ctx, rd, library_id, db, book_id, width=w, height=h)
         elif what == 'cover':
             return cover(ctx, rd, library_id, db, book_id)
