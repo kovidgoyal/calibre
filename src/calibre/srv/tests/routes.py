@@ -64,6 +64,10 @@ class TestRouter(BaseTest):
         def soak_opt(ctx, dest, rest):
             pass
 
+        @endpoint('/needs quoting/{x}')
+        def quoting(ctx, dest, x):
+            pass
+
         for x in locals().itervalues():
             if getattr(x, 'is_endpoint', False):
                 router.add(x)
@@ -91,3 +95,5 @@ class TestRouter(BaseTest):
         self.ae(ep, soak_opt), self.ae(args, ['xxx'])
         ep, args = find('/soak_opt/a/b')
         self.ae(ep, soak_opt), self.ae(args, ['a/b'])
+
+        self.ae(router.url_for('/needs quoting', x='a/b c'), '/needs quoting/a%2Fb%20c')

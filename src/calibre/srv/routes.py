@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import httplib, sys, inspect, re, time, numbers, json as jsonlib
+from urllib import quote as urlquote
 from itertools import izip
 from operator import attrgetter
 
@@ -144,6 +145,13 @@ class Route(object):
             raise RouteError('The required variable(s) %s were not specified for the route: %s' % (','.join(not_spec), self.endpoint.route))
         args = self.defaults.copy()
         args.update(kwargs)
+        def quoted(x):
+            if not isinstance(x, unicode) and not isinstance(x, bytes):
+                x = unicode(x)
+            if isinstance(x, unicode):
+                x = x.encode('utf-8')
+            return urlquote(x, '')
+        args = {k:quoted(v) for k, v in args.iteritems()}
         route = self.var_pat.sub(lambda m:'{%s}' % m.group(1).partition('=')[0].lstrip('+'), self.endpoint.route)
         return route.format(**args)
 
