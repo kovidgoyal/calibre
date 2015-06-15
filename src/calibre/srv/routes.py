@@ -41,6 +41,8 @@ def endpoint(route,
 
              postprocess=None
 ):
+    from calibre.srv.handler import Context
+    from calibre.srv.http_response import RequestData
     def annotate(f):
         f.route = route.rstrip('/') or '/'
         f.route_key = route_key(f.route)
@@ -51,6 +53,17 @@ def endpoint(route,
         f.cache_control = cache_control
         f.postprocess = postprocess
         f.is_endpoint = True
+        argspec = inspect.getargspec(f)
+        if len(argspec.args) < 2:
+            raise TypeError('The endpoint %r must take at least two arguments' % f.route)
+        f.__annotations__ = {
+            argspec.args[0]: Context,
+            argspec.args[1]: RequestData,
+        }
+        f.__doc__ = (f.__doc__ or '') + '\n\n' + (
+            (':type %s: calibre.srv.handler.Context\n' % argspec.args[0]) +
+            (':type %s: calibre.srv.http_response.RequestData\n' % argspec.args[1])
+        )
         return f
     return annotate
 
