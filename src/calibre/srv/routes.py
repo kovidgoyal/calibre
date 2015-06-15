@@ -168,9 +168,11 @@ class Route(object):
             if isinstance(x, unicode):
                 x = x.encode('utf-8')
             return urlquote(x, '')
-        args = {k:quoted(v) for k, v in kwargs.iteritems()}
+        args = {k:'' for k in self.defaults}
+        args.update(kwargs)
+        args = {k:quoted(v) for k, v in args.iteritems()}
         route = self.var_pat.sub(lambda m:'{%s}' % m.group(1).partition('=')[0].lstrip('+'), self.endpoint.route)
-        return route.format(**args)
+        return route.format(**args).rstrip('/')
 
     def __str__(self):
         return self.endpoint.route
