@@ -105,7 +105,8 @@ class Route(object):
                     raise route_error('Cannot have non-optional path components after optional ones')
                 matchers.append((None, p.__eq__))
         self.names = [n for n, m in matchers if n is not None]
-        self.required_names = frozenset(self.names) - frozenset(self.defaults)
+        self.all_names = frozenset(self.names)
+        self.required_names = self.all_names - frozenset(self.defaults)
         argspec = inspect.getargspec(self.endpoint)
         if len(self.names) + 2 != len(argspec.args) - len(argspec.defaults or ()):
             raise route_error('Function must take %d non-default arguments' % (len(self.names) + 2))
@@ -140,9 +141,13 @@ class Route(object):
         return (args_map[name] for name in self.names)
 
     def url_for(self, **kwargs):
-        not_spec = self.required_names - frozenset(kwargs)
+        names = frozenset(kwargs)
+        not_spec = self.required_names - names
         if not_spec:
             raise RouteError('The required variable(s) %s were not specified for the route: %s' % (','.join(not_spec), self.endpoint.route))
+        unknown = names - self.all_names
+        if unknown:
+            raise RouteError('The variable(s) %s are not part of the route: %s' % (','.join(unknown), self.endpoint.route))
         def quoted(x):
             if not isinstance(x, unicode) and not isinstance(x, bytes):
                 x = unicode(x)
