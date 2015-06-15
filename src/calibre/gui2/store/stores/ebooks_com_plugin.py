@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -27,12 +27,8 @@ class EbookscomStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
         m_url = 'http://www.dpbolvw.net/'
-        h_click = 'click-4879827-10364500'
-        d_click = 'click-4879827-10281551'
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            h_click = 'click-4913808-10364500'
-            d_click = 'click-4913808-10281551'
+        h_click = 'click-4913808-10364500'
+        d_click = 'click-4913808-10281551'
 
         url = m_url + h_click
         detail_url = None
