@@ -121,7 +121,7 @@ class LibraryDatabase(object):
         return self.backend.dbpath
 
     def last_modified(self):
-        return self.backend.last_modified()
+        return self.new_api.last_modified()
 
     def check_if_modified(self):
         if self.last_modified() > self.last_update_check:

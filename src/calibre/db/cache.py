@@ -107,6 +107,7 @@ class Cache(object):
         self.dirtied_cache = {}
         self.dirtied_sequence = 0
         self.cover_caches = set()
+        self.clear_search_cache_count = 0
 
         # Implement locking for all simple read/write API methods
         # An unlocked version of the method is stored with the name starting
@@ -189,7 +190,12 @@ class Cache(object):
 
     @write_api
     def clear_search_caches(self, book_ids=None):
+        self.clear_search_cache_count += 1
         self._search_api.update_or_clear(self, book_ids)
+
+    @read_api
+    def last_modified(self):
+        return self.backend.last_modified()
 
     @write_api
     def clear_caches(self, book_ids=None, template_cache=True, search_cache=True):
