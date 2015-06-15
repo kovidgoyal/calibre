@@ -143,15 +143,13 @@ class Route(object):
         not_spec = self.required_names - frozenset(kwargs)
         if not_spec:
             raise RouteError('The required variable(s) %s were not specified for the route: %s' % (','.join(not_spec), self.endpoint.route))
-        args = self.defaults.copy()
-        args.update(kwargs)
         def quoted(x):
             if not isinstance(x, unicode) and not isinstance(x, bytes):
                 x = unicode(x)
             if isinstance(x, unicode):
                 x = x.encode('utf-8')
             return urlquote(x, '')
-        args = {k:quoted(v) for k, v in args.iteritems()}
+        args = {k:quoted(v) for k, v in kwargs.iteritems()}
         route = self.var_pat.sub(lambda m:'{%s}' % m.group(1).partition('=')[0].lstrip('+'), self.endpoint.route)
         return route.format(**args)
 
