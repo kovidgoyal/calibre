@@ -26,13 +26,13 @@ def ensure_val(x, *allowed):
         x = allowed[0]
     return x
 
-def get_pagination(query):
+def get_pagination(query, num=100, offset=0):
     try:
-        num = int(query.get('num', 100))
+        num = int(query.get('num', num))
     except:
         raise HTTPNotFound("Invalid num")
     try:
-        offset = int(query.get('offset', 0))
+        offset = int(query.get('offset', offset))
     except:
         raise HTTPNotFound("Invalid offset")
     return num, offset
@@ -526,7 +526,7 @@ def search(ctx, rd, library_id):
     '''
     Return the books (as list of ids) matching the specified search query.
 
-    Optional: ?num=100&offset=0&sort=title&sort_order=asc&get_additional_fields=
+    Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=
     '''
     db = get_db(ctx, library_id)
     with db.safe_read_lock:
