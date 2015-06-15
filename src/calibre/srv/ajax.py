@@ -7,23 +7,53 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
-from binascii import hexlify, unhexlify
 
+from calibre import force_unicode
+from calibre.library.field_metadata import category_icon_map
+from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import http_date
+from calibre.srv.content import get as get_content, icon as get_icon
+from calibre.srv.utils import http_date, custom_fields_to_display, encode_name, decode_name
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
+from calibre.utils.icu import numeric_sort_key as sort_key
 
-def encode_name(name):
-    if isinstance(name, unicode):
-        name = name.encode('utf-8')
-    return hexlify(name)
+def ensure_val(x, *allowed):
+    if x not in allowed:
+        x = allowed[0]
+    return x
 
-def decode_name(name):
-    return unhexlify(name).decode('utf-8')
+def get_pagination(query):
+    try:
+        num = int(query.get('num', 100))
+    except:
+        raise HTTPNotFound("Invalid num")
+    try:
+        offset = int(query.get('offset', 0))
+    except:
+        raise HTTPNotFound("Invalid offset")
+    return num, offset
+
+def get_db(ctx, library_id):
+    db = ctx.get_library(library_id)
+    if db is None:
+        raise HTTPNotFound('Library %r not found' % library_id)
+    return db
+
+def category_icon(category, meta):  # {{{
+    if category in category_icon_map:
+        icon = category_icon_map[category]
+    elif meta['is_custom']:
+        icon = category_icon_map['custom:']
+    elif meta['kind'] == 'user':
+        icon = category_icon_map['user:']
+    else:
+        icon = 'blank.png'
+    return icon
+# }}}
 
 # Book metadata {{{
 
@@ -41,7 +71,7 @@ def book_to_json(ctx, rd, db, book_id,
             'rights', 'book_producer'):
         data.pop(x, None)
 
-    get = partial(ctx.url_for, '/get', book_id=book_id, library_id=db.server_library_id)
+    get = partial(ctx.url_for, get_content, book_id=book_id, library_id=db.server_library_id)
     data['cover'] = get(what='cover')
     data['thumbnail'] = get(what='thumb')
 
@@ -71,6 +101,7 @@ def book_to_json(ctx, rd, db, book_id,
 
         if get_category_urls:
             category_urls = data['category_urls'] = {}
+            all_cats = ctx.get_categories(rd, db)
             for key in mi.all_field_keys():
                 fm = mi.metadata_for_field(key)
                 if (fm and fm['is_category'] and not fm['is_csp'] and
@@ -78,12 +109,17 @@ def book_to_json(ctx, rd, db, book_id,
                     categories = mi.get(key) or []
                     if isinstance(categories, basestring):
                         categories = [categories]
-                    idmap = db.get_item_ids(key, categories)
                     category_urls[key] = dbtags = {}
-                    for category, category_id in idmap.iteritems():
-                        if category_id is not None:
-                            dbtags[category] = ctx.url_for(
-                                '/ajax/books_in', category=encode_name(key), item=encode_name(str(category_id)))
+                    for category in categories:
+                        for tag in all_cats.get(key, ()):
+                            if tag.original_name == category:
+                                dbtags[category] = ctx.url_for(
+                                    books_in,
+                                    encoded_category=encode_name(tag.category if tag.category else key),
+                                    encoded_item=encode_name(tag.original_name if tag.id is None else unicode(tag.id)),
+                                    library_id=db.server_library_id
+                                )
+                                break
     else:
         series = data.get('series', None) or ''
         if series:
@@ -118,9 +154,7 @@ def book(ctx, rd, book_id, library_id):
 
     If id_is_uuid is true then the book_id is assumed to be a book uuid instead.
     '''
-    db = ctx.get_library(library_id)
-    if db is None:
-        raise HTTPNotFound('Library %r not found' % library_id)
+    db = get_db(ctx, library_id)
     with db.safe_read_lock:
         id_is_uuid = rd.query.get('id_is_uuid', 'false')
         oid = book_id
@@ -133,7 +167,7 @@ def book(ctx, rd, book_id, library_id):
                     book_id = None
             except Exception:
                 book_id = None
-        if book_id is None:
+        if book_id is None or book_id not in ctx.allowed_book_ids(rd, db):
             raise HTTPNotFound('Book with id %r does not exist' % oid)
         category_urls = rd.query.get('category_urls', 'true').lower()
         device_compatible = rd.query.get('device_compatible', 'false').lower()
@@ -159,9 +193,7 @@ def books(ctx, rd, library_id):
 
     If id_is_uuid is true then the book_id is assumed to be a book uuid instead.
     '''
-    db = ctx.get_library(library_id)
-    if db is None:
-        raise HTTPNotFound('Library %r not found' % library_id)
+    db = get_db(ctx, library_id)
     with db.safe_read_lock:
         id_is_uuid = rd.query.get('id_is_uuid', 'false')
         ids = rd.query.get('ids')
@@ -182,7 +214,7 @@ def books(ctx, rd, library_id):
         device_compatible = rd.query.get('device_compatible', 'false').lower() == 'true'
         device_for_template = rd.query.get('device_for_template', None)
         ans = {}
-        restricted_to = ctx.restrict_to_ids(db, rd)
+        restricted_to = ctx.allowed_book_ids(rd, db)
         for book_id in ids:
             if book_id not in restricted_to:
                 ans[book_id] = None
@@ -198,6 +230,292 @@ def books(ctx, rd, library_id):
 
 # }}}
 
-@endpoint('/ajax/books_in/{category}/{item}', postprocess=json)
-def books_in(ctx, rd, category, item):
-    raise NotImplementedError('TODO: Implement this')
+# Categories (Tag Browser)  {{{
+@endpoint('/ajax/categories/{library_id=None}', postprocess=json)
+def categories(ctx, rd, library_id):
+    '''
+    Return the list of top-level categories as a list of dictionaries. Each
+    dictionary is of the form::
+        {
+        'name': Display Name,
+        'url':URL that gives the JSON object corresponding to all entries in this category,
+        'icon': URL to icon of this category,
+        'is_category': False for the All Books and Newest categories, True for everything else
+        }
+
+    '''
+    db = get_db(ctx, library_id)
+    with db.safe_read_lock:
+        ans = {}
+        categories = ctx.get_categories(rd, db)
+        category_meta = db.field_metadata
+        library_id = db.server_library_id
+        def getter(x):
+            return category_meta[x]['name']
+
+        displayed_custom_fields = custom_fields_to_display(db)
+
+        for category in sorted(categories, key=lambda x: sort_key(getter(x))):
+            if len(categories[category]) == 0:
+                continue
+            if category in ('formats', 'identifiers'):
+                continue
+            meta = category_meta.get(category, None)
+            if meta is None:
+                continue
+            if category_meta.is_ignorable_field(category) and \
+                        category not in displayed_custom_fields:
+                continue
+            display_name = meta['name']
+            if category.startswith('@'):
+                category = category.partition('.')[0]
+                display_name = category[1:]
+            url = force_unicode(category)
+            icon = category_icon(category, meta)
+            ans[url] = (display_name, icon)
+
+        ans = [{'url':k, 'name':v[0], 'icon':v[1], 'is_category':True}
+                for k, v in ans.iteritems()]
+        ans.sort(key=lambda x: sort_key(x['name']))
+        for name, url, icon in [
+                (_('All books'), 'allbooks', 'book.png'),
+                (_('Newest'), 'newest', 'forward.png'),
+                ]:
+            ans.insert(0, {'name':name, 'url':url, 'icon':icon,
+                'is_category':False})
+
+        for c in ans:
+            c['url'] = ctx.url_for(globals()['category'], encoded_name=encode_name(c['url']), library_id=library_id)
+            c['icon'] = ctx.url_for(get_icon, which=c['icon'])
+
+        return ans
+
+
+@endpoint('/ajax/category/{encoded_name}/{library_id=None}', postprocess=json)
+def category(ctx, rd, encoded_name, library_id):
+    '''
+    Return a dictionary describing the category specified by name. The
+
+    Optional: ?num=100&offset=0&sort=name&sort_order=asc
+
+    The dictionary looks like::
+
+        {
+            'category_name': Category display name,
+            'base_url': Base URL for this category,
+            'total_num': Total numberof items in this category,
+            'offset': The offset for the items returned in this result,
+            'num': The number of items returned in this result,
+            'sort': How the returned items are sorted,
+            'sort_order': asc or desc
+            'subcategories': List of sub categories of this category.
+            'items': List of items in this category,
+        }
+
+    Each subcategory is a dictionary of the same form as those returned by
+    /ajax/categories
+
+    Each  item is a dictionary of the form::
+
+        {
+            'name': Display name,
+            'average_rating': Average rating for books in this item,
+            'count': Number of books in this item,
+            'url': URL to get list of books in this item,
+            'has_children': If True this item contains sub categories, look
+            for an entry corresponding to this item in subcategories int he
+            main dictionary,
+        }
+
+    :param sort: How to sort the returned items. Choices are: name, rating,
+                    popularity
+    :param sort_order: asc or desc
+
+    To learn how to create subcategories see
+    http://manual.calibre-ebook.com/sub_groups.html
+    '''
+
+    db = get_db(ctx, library_id)
+    with db.safe_read_lock:
+        num, offset = get_pagination(rd.query)
+        sort, sort_order = rd.query.get('sort'), rd.query.get('sort_order')
+        sort = ensure_val(sort, 'name', 'rating', 'popularity')
+        sort_order = ensure_val(sort_order, 'asc', 'desc')
+        try:
+            dname = decode_name(encoded_name)
+        except:
+            raise HTTPNotFound('Invalid encoding of category name %r'%encoded_name)
+        base_url = ctx.url_for(globals()['category'], encoded_name=encoded_name, library_id=db.server_library_id)
+
+        if dname in ('newest', 'allbooks'):
+            sort, sort_order = 'timestamp', 'desc'
+            rd.query['sort'], rd.query['sort_order'] = sort, sort_order
+            return books_in(ctx, rd, encoded_name, encode_name('0'), library_id)
+
+        fm = db.field_metadata
+        categories = ctx.get_categories(rd, db)
+        hierarchical_categories = db.pref('categories_using_hierarchy', ())
+
+        subcategory = dname
+        toplevel = subcategory.partition('.')[0]
+        if toplevel == subcategory:
+            subcategory = None
+        if toplevel not in categories or toplevel not in fm:
+            raise HTTPNotFound('Category %r not found'%toplevel)
+
+        # Find items and sub categories
+        subcategories = []
+        meta = fm[toplevel]
+        item_names = {}
+        children = set()
+
+        if meta['kind'] == 'user':
+            fullname = ((toplevel + '.' + subcategory) if subcategory is not
+                                None else toplevel)
+            try:
+                # User categories cannot be applied to books, so this is the
+                # complete set of items, no need to consider sub categories
+                items = categories[fullname]
+            except:
+                raise HTTPNotFound('User category %r not found'%fullname)
+
+            parts = fullname.split('.')
+            for candidate in categories:
+                cparts = candidate.split('.')
+                if len(cparts) == len(parts)+1 and cparts[:-1] == parts:
+                    subcategories.append({'name':cparts[-1],
+                        'url':candidate,
+                        'icon':category_icon(toplevel, meta)})
+
+            category_name = toplevel[1:].split('.')
+            # When browsing by user categories we ignore hierarchical normal
+            # columns, so children can be empty
+
+        elif toplevel in hierarchical_categories:
+            items = []
+
+            category_names = [x.original_name.split('.') for x in categories[toplevel] if
+                    '.' in x.original_name]
+
+            if subcategory is None:
+                children = set(x[0] for x in category_names)
+                category_name = [meta['name']]
+                items = [x for x in categories[toplevel] if '.' not in x.original_name]
+            else:
+                subcategory_parts = subcategory.split('.')[1:]
+                category_name = [meta['name']] + subcategory_parts
+
+                lsp = len(subcategory_parts)
+                children = set('.'.join(x) for x in category_names if len(x) ==
+                        lsp+1 and x[:lsp] == subcategory_parts)
+                items = [x for x in categories[toplevel] if x.original_name in
+                        children]
+                item_names = {x:x.original_name.rpartition('.')[-1] for x in
+                        items}
+                # Only mark the subcategories that have children themselves as
+                # subcategories
+                children = set('.'.join(x[:lsp+1]) for x in category_names if len(x) >
+                        lsp+1 and x[:lsp] == subcategory_parts)
+            subcategories = [{'name':x.rpartition('.')[-1],
+                'url':toplevel+'.'+x,
+                'icon':category_icon(toplevel, meta)} for x in children]
+        else:
+            items = categories[toplevel]
+            category_name = meta['name']
+
+        for x in subcategories:
+            x['url'] = ctx.url_for(globals()['category'], encoded_name=encode_name(x['url']), library_id=db.server_library_id)
+            x['icon'] = ctx.url_for(get_icon, which=x['icon'])
+            x['is_category'] = True
+
+        sort_keygen = {
+                'name': lambda x: sort_key(x.sort if x.sort else x.original_name),
+                'popularity': lambda x: x.count,
+                'rating': lambda x: x.avg_rating
+        }
+        items.sort(key=sort_keygen[sort], reverse=sort_order == 'desc')
+        total_num = len(items)
+        items = items[offset:offset+num]
+        items = [{
+            'name':item_names.get(x, x.original_name),
+            'average_rating': x.avg_rating,
+            'count': x.count,
+            'url': ctx.url_for(books_in, encoded_category=encode_name(x.category if x.category else toplevel),
+                               encoded_item=encode_name(x.original_name if x.id is None else unicode(x.id)),
+                               library_id=db.server_library_id
+                               ),
+            'has_children': x.original_name in children,
+            } for x in items]
+
+        return {
+                'category_name': category_name,
+                'base_url': base_url,
+                'total_num': total_num,
+                'offset':offset, 'num':len(items), 'sort':sort,
+                'sort_order':sort_order,
+                'subcategories':subcategories,
+                'items':items,
+        }
+
+
+@endpoint('/ajax/books_in/{encoded_category}/{encoded_item}/{library_id=None}', postprocess=json)
+def books_in(ctx, rd, encoded_category, encoded_item, library_id):
+    '''
+    Return the books (as list of ids) present in the specified category.
+
+    Optional: ?num=100&offset=0&sort=title&sort_order=asc&get_additional_fields=
+    '''
+    db = get_db(ctx, library_id)
+    with db.safe_read_lock:
+        try:
+            dname, ditem = map(decode_name, (encoded_category, encoded_item))
+        except:
+            raise HTTPNotFound('Invalid encoded param: %r' % (encoded_category, encoded_item))
+        num, offset = get_pagination(rd.query)
+        sort, sort_order = rd.query.get('sort', 'title'), rd.query.get('sort_order')
+        sort_order = ensure_val(sort_order, 'asc', 'desc')
+        sfield = sanitize_sort_field_name(db.field_metadata, sort)
+        if sfield not in db.field_metadata.sortable_field_keys():
+            raise HTTPNotFound('%s is not a valid sort field'%sort)
+
+        if dname in ('allbooks', 'newest'):
+            ids = ctx.allowed_book_ids(rd, db)
+        elif dname == 'search':
+            try:
+                ids = ctx.search(rd, db, 'search:"%s"'%ditem)
+            except Exception:
+                raise HTTPNotFound('Search: %r not understood'%ditem)
+        else:
+            try:
+                cid = int(ditem)
+            except Exception:
+                raise HTTPNotFound('Category id %r not an integer'%ditem)
+
+            if dname == 'news':
+                dname = 'tags'
+            ids = db.get_books_for_category(dname, cid).intersection(ctx.allowed_book_ids(rd, db))
+
+        ids = db.multisort(fields=[(sfield, sort_order == 'asc')], ids_to_sort=ids)
+        total_num = len(ids)
+        ids = ids[offset:offset+num]
+
+        result = {
+                'total_num': total_num, 'sort_order':sort_order,
+                'offset':offset, 'num':len(ids), 'sort':sort,
+                'base_url':ctx.url_for(books_in, encoded_category=encoded_category, encoded_item=encoded_item, library_id=db.server_library_id),
+                'book_ids':ids
+        }
+
+        get_additional_fields = rd.query.get('get_additional_fields')
+        if get_additional_fields:
+            additional_fields = {}
+            for field in get_additional_fields.split(','):
+                field = field.strip()
+                if field:
+                    flist = additional_fields[field] = []
+                    for id_ in ids:
+                        flist.append(db.field_for(field, id_, default_value=None))
+            if additional_fields:
+                result['additional_fields'] = additional_fields
+        return result
+# }}}

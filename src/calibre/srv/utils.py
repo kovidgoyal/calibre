@@ -15,9 +15,11 @@ from email.utils import formatdate
 from operator import itemgetter
 from future_builtins import map
 from urllib import quote as urlquote
+from binascii import hexlify, unhexlify
 
 from calibre import prints
 from calibre.constants import iswindows
+from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
@@ -267,12 +269,31 @@ def encode_path(*components):
     'Encode the path specified as a list of path components using URL encoding'
     return '/' + '/'.join(urlquote(x.encode('utf-8'), '').decode('ascii') for x in components)
 
+def encode_name(name):
+    'Encode a name (arbitrary string) as URL safe characters. See decode_name() also.'
+    if isinstance(name, unicode):
+        name = name.encode('utf-8')
+    return hexlify(name)
+
+def decode_name(name):
+    return unhexlify(name).decode('utf-8')
+
 class Cookie(SimpleCookie):
 
     def _BaseCookie__set(self, key, real_value, coded_value):
         if not isinstance(key, bytes):
             key = key.encode('ascii')  # Python 2.x cannot handle unicode keys
         return SimpleCookie._BaseCookie__set(self, key, real_value, coded_value)
+
+def custom_fields_to_display(db):
+    ckeys = set(db.field_metadata.ignorable_field_keys())
+    yes_fields = set(tweaks['content_server_will_display'])
+    no_fields = set(tweaks['content_server_wont_display'])
+    if '*' in yes_fields:
+        yes_fields = ckeys
+    if '*' in no_fields:
+        no_fields = ckeys
+    return frozenset(ckeys & (yes_fields - no_fields))
 
 # Logging {{{
 
