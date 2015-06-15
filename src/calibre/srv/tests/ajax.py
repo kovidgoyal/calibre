@@ -8,6 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import httplib, zlib, json
 from functools import partial
+from urllib import urlencode
 
 from calibre.srv.tests.base import LibraryBaseTest
 
@@ -47,7 +48,7 @@ class ContentTest(LibraryBaseTest):
     # }}}
 
     def test_ajax_categories(self):  # {{{
-        'Test /ajax/categories'
+        'Test /ajax/categories and /ajax/search'
         with self.create_server() as server:
             db = server.handler.router.ctx.get_library()
             conn = server.connect()
@@ -66,6 +67,9 @@ class ContentTest(LibraryBaseTest):
             names = {x['name']:x['url'] for x in data['items']}
             self.ae(set(names), set('Tag One,Tag Two,News'.split(',')))
             r, data = request(names['Tag One'], prefix='')
+            self.ae(r.status, httplib.OK)
+            self.ae(set(data['book_ids']), {1, 2})
+            r, data = request('/search?' + urlencode({'query': 'tags:"=Tag One"'}))
             self.ae(r.status, httplib.OK)
             self.ae(set(data['book_ids']), {1, 2})
     # }}}

@@ -108,7 +108,7 @@ class Context(object):
         if old is None or old[0] < db.clear_search_cache_count:
             matches = db.search(query, book_ids=restrict_to_ids)
             cache[key] = old = (db.clear_search_cache_count, matches)
-            if len(self._search_cache) > self.SEARCH_CACHE_SIZE:
+            if len(cache) > self.SEARCH_CACHE_SIZE:
                 cache.popitem(last=False)
         else:
             cache[key] = old

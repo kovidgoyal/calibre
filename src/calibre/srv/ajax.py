@@ -519,3 +519,36 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
                 result['additional_fields'] = additional_fields
         return result
 # }}}
+
+
+@endpoint('/ajax/search/{library_id=None}', postprocess=json)
+def search(ctx, rd, library_id):
+    '''
+    Return the books (as list of ids) matching the specified search query.
+
+    Optional: ?num=100&offset=0&sort=title&sort_order=asc&get_additional_fields=
+    '''
+    db = get_db(ctx, library_id)
+    with db.safe_read_lock:
+        query = rd.query.get('query')
+        num, offset = get_pagination(rd.query)
+        sort, sort_order = rd.query.get('sort', 'title'), rd.query.get('sort_order')
+        sort_order = ensure_val(sort_order, 'asc', 'desc')
+        sfield = sanitize_sort_field_name(db.field_metadata, sort)
+        if sfield not in db.field_metadata.sortable_field_keys():
+            raise HTTPNotFound('%s is not a valid sort field'%sort)
+
+        if not query:
+            ids = ctx.allowed_book_ids(rd, db)
+        else:
+            ids = ctx.search(rd, db, query)
+        ids = db.multisort(fields=[(sfield, sort_order == 'asc')], ids_to_sort=ids)
+        total_num = len(ids)
+        ids = ids[offset:offset+num]
+        return {
+                'total_num': total_num, 'sort_order':sort_order,
+                'offset':offset, 'num':len(ids), 'sort':sort,
+                'base_url':ctx.url_for(search, library_id=db.server_library_id),
+                'query': query,
+                'book_ids':ids
+        }
