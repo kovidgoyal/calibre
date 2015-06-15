@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, sys, inspect, re, time, numbers, json as jsonlib
+import httplib, sys, inspect, re, time, numbers, json as jsonlib, textwrap
 from urllib import quote as urlquote
 from itertools import izip
 from operator import attrgetter
@@ -60,7 +60,7 @@ def endpoint(route,
             argspec.args[0]: Context,
             argspec.args[1]: RequestData,
         }
-        f.__doc__ = (f.__doc__ or '') + '\n\n' + (
+        f.__doc__ = textwrap.dedent(f.__doc__ or '') + '\n\n' + (
             (':type %s: calibre.srv.handler.Context\n' % argspec.args[0]) +
             (':type %s: calibre.srv.http_response.RequestData\n' % argspec.args[1])
         )
