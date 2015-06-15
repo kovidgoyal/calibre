@@ -16,7 +16,6 @@ from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
-from calibre.srv.ajax import book_to_json
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import http_date
@@ -234,6 +233,7 @@ def get(ctx, rd, what, book_id, library_id):
             rd.outheaders['Last-Modified'] = http_date(timestampfromdt(mi.last_modified))
             return metadata_to_opf(mi)
         elif what == 'json':
+            from calibre.srv.ajax import book_to_json
             data, last_modified = book_to_json(ctx, rd, db, book_id)
             rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
             return json(ctx, rd, get, data)

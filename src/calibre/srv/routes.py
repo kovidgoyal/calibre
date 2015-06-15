@@ -43,6 +43,7 @@ def endpoint(route,
 ):
     def annotate(f):
         f.route = route.rstrip('/') or '/'
+        f.route_key = route_key(f.route)
         f.types = types or {}
         f.methods = methods
         f.auth_required = auth_required
@@ -172,15 +173,19 @@ class Router(object):
         self.auth_controller = auth_controller
         self.init_session = getattr(ctx, 'init_session', lambda ep, data:None)
         self.finalize_session = getattr(ctx, 'finalize_session', lambda ep, data, output:None)
+        self.endpoints = set()
         if endpoints is not None:
             self.load_routes(endpoints)
             self.finalize()
 
     def add(self, endpoint):
-        key = route_key(endpoint.route)
+        if endpoint in self.endpoints:
+            return
+        key = endpoint.route_key
         if key in self.routes:
             raise RouteError('A route with the key: %s already exists as: %s' % (key, self.routes[key]))
         self.routes[key] = Route(endpoint)
+        self.endpoints.add(endpoint)
 
     def load_routes(self, items):
         for item in items:
@@ -270,4 +275,5 @@ class Router(object):
         return ans
 
     def url_for(self, route, **kwargs):
+        route = getattr(route, 'route_key', route)
         return self.url_prefix + self.routes[route].url_for(**kwargs)
