@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -86,11 +86,7 @@ class KoboStore(BasicStoreConfig, StorePlugin):
     minimum_calibre_version = (2, 21, 0)
 
     def open(self, parent=None, detail_item=None, external=False):
-        pub_id = 'sHa5EXvYOwA'
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            pub_id = '0dsO3kDu/AU'
-
+        pub_id = '0dsO3kDu/AU'
         murl = 'http://click.linksynergy.com/fs-bin/click?id=%s&subid=&offerid=280046.1&type=10&tmpid=9310&RD_PARM1=http%%3A%%2F%%2Fkobo.com' % pub_id
 
         if detail_item:
