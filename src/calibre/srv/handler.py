@@ -11,7 +11,6 @@ from collections import OrderedDict
 from importlib import import_module
 from threading import Lock
 
-from calibre import force_unicode
 from calibre.db.cache import Cache
 from calibre.db.legacy import create_backend, LibraryDatabase
 from calibre.srv.routes import Router
@@ -27,15 +26,15 @@ class LibraryBroker(object):
     def __init__(self, libraries):
         self.lock = Lock()
         self.lmap = {}
-        for path in libraries:
+        seen = set()
+        for i, path in enumerate(os.path.abspath(p) for p in libraries):
+            if path in seen:
+                continue
+            seen.add(path)
             if not LibraryDatabase.exists_at(path):
                 continue
-            library_id = base = force_unicode(os.path.basename(path))
-            c = 0
-            while library_id in self.lmap:
-                c += 1
-                library_id = base + ' (1)'
-            if path is libraries[0]:
+            library_id = 'lib%d' % len(self.lmap)
+            if i == 0:
                 self.default_library = library_id
             self.lmap[library_id] = path
         self.category_caches = {lid:OrderedDict() for lid in self.lmap}
