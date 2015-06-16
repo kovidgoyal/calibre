@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5 # Needed for dynamic plugin loading
+store_version = 6 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2014, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2015, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -68,7 +68,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = 'http://www.legimi.com/' + cover_url
+                s.cover_url = 'http:' + cover_url
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = price
