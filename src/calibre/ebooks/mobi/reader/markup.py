@@ -49,7 +49,11 @@ def update_internal_links(mobi8_reader, log):
                     tag = posfid_index_pattern.sub(b'"' + replacement + b'"', tag, 1)
                 srcpieces[j] = tag
         raw = b''.join(srcpieces)
-        parts.append(raw.decode(mr.header.codec))
+        try:
+            parts.append(raw.decode(mr.header.codec))
+        except UnicodeDecodeError:
+            log.warn('Failed to decode text in KF8 part, replacing bad bytes')
+            parts.append(raw.decode(mr.header.codec, 'replace'))
 
     # All parts are now unicode and have no internal links
     return parts
