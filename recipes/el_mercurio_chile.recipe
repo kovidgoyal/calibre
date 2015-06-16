@@ -1,23 +1,26 @@
+#!/usr/bin/env  python2
+# -*- coding: latin-1 mode: python -*-
+
 __license__   = 'GPL v3'
-__copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2009-2015, Darko Miletic <darko.miletic at gmail.com>'
+__docformat__ = 'restructuredtext es'
 '''
-emol.com
+www.emol.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElMercurio(BasicNewsRecipe):
-    title                 = 'El Mercurio online'
+    title                 = 'Emol.com - El sitio de noticias online de Chile'
     __author__            = 'Darko Miletic'
     description           = 'El sitio de noticias online de Chile'
-    publisher             = 'El Mercurio'
+    publisher             = 'El Mercurio S.A.P.'
     category              = 'news, politics, Chile'
     oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'cp1252'
-    masthead_url          = 'http://www.emol.com/especiales/logo_emol/logo_emol.gif'
+    encoding              = 'utf8'
+    masthead_url          = 'http://static.emol.cl/emol50/img/logo_emol.gif'
     remove_javascript     = True
     use_embedded_content  = False
     language              = 'es_CL'
@@ -30,21 +33,42 @@ class ElMercurio(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags = [dict(name='div', attrs={'id':['cont_iz_titulobajada','cont_iz_creditos_1_a','cont_iz_cuerpo']})]
+    keep_only_tags = [
+                       dict(name='div', attrs={'class':['cont_iz_titulobajada','info-notaemol-por','info-notaemol-porfecha']})
+                      ,dict(name='div', attrs={'id':'texto_noticia'})
+                     ]
     remove_tags = [dict(name='div', attrs={'id':'cont_iz_cuerpo_relacionados'})]
-    remove_attributes = ['height','width']
 
     feeds = [
-               (u'Noticias de ultima hora', u'http://rss.emol.com/rss.asp?canal=0')
-              ,(u'Nacional', u'http://rss.emol.com/rss.asp?canal=1')
-              ,(u'Mundo', u'http://rss.emol.com/rss.asp?canal=2')
-              ,(u'Deportes', u'http://rss.emol.com/rss.asp?canal=4')
-              ,(u'Magazine', u'http://rss.emol.com/rss.asp?canal=6')
-              ,(u'Tecnologia', u'http://rss.emol.com/rss.asp?canal=5')
+               (u'Nacional'    , u'http://www.emol.com/noticias/nacional/todas.aspx'     )
+              ,(u'Mundo'       , u'http://www.emol.com/noticias/internacional/todas.aspx')
+              ,(u'Deportes'    , u'http://www.emol.com/noticias/deportes/todas.aspx'     )
+              ,(u'Espectaculos', u'http://www.emol.com/noticias/cultura/todas.aspx'      )
+              ,(u'Tecnologia'  , u'http://www.emol.com/noticias/economia/todas.aspx'     )
             ]
 
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
-
+    def parse_index(self):
+        totalfeeds = []
+        lfeeds = self.get_feeds()
+        for feedobj in lfeeds:
+            feedtitle, feedurl = feedobj
+            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            articles = []
+            soup = self.index_to_soup(feedurl)
+            arts = soup.find('div', attrs={'id':'caja_listado_noticia_todas'})
+            if arts:
+                for item in arts.findAll('div', attrs={'class':'listado'}):
+                    atag    = item.find('a')
+                    ptag    = item.find('span')
+                    url           = atag['href']
+                    title         = self.tag_to_string(atag)
+                    description   = self.tag_to_string(ptag)
+                    #date,sep,rest = self.tag_to_string(ptag).partition('|')
+                    articles.append({
+                                          'title'      :title
+                                         ,'date'       :''
+                                         ,'url'        :url
+                                         ,'description':description
+                                        })
+                totalfeeds.append((feedtitle, articles))
+        return totalfeeds
