@@ -7,7 +7,10 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import httplib, base64, urllib2, subprocess, os, cookielib
-from distutils.spawn import find_executable
+try:
+    from distutils.spawn import find_executable
+except ImportError:  # windows
+    find_executable = lambda x: None
 
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.routes import endpoint, Router
