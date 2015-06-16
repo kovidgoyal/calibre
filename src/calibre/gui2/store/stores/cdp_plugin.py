@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5 # Needed for dynamic plugin loading
+store_version = 6 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2013-2015, Tomasz Długosz <tomek3d@gmail.com>'
@@ -65,11 +65,10 @@ class CdpStore(BasicStoreConfig, StorePlugin):
                     cover_url = ''.join(data.xpath('.//a[@class="product-image"]/img/@data-src'))
                     title = ''.join(data.xpath('.//h3[1]/a/@title'))
                     price = ''.join(data.xpath('.//span[@class="custom_price"]/text()'))+','+''.join(data.xpath('.//span[@class="custom_price"]/sup/text()'))
-                    author = ''
+                    author = ''.join(data.xpath('.//div[@class="authors"]/@title'))
                     formats = ''
                     with closing(br.open( id.strip(), timeout=timeout/4)) as nf:
                         idata = html.fromstring(nf.read())
-                        author = ', '.join(idata.xpath('.//ul[@class="film-data"]/li[1]/p/text()'))
                         formats = idata.xpath('//div[@class="product-attributes-container"][2]/ul/li/span/text()')[-1]
 
                     counter -= 1
