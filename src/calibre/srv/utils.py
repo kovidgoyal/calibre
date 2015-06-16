@@ -24,6 +24,7 @@ from calibre.utils.filenames import atomic_rename
 from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
+from calibre.utils.shared_file import share_open
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
@@ -307,7 +308,7 @@ class RotatingStream(object):
         self.set_output()
 
     def set_output(self):
-        self.stream = lopen(self.filename, 'ab', 1)  # line buffered
+        self.stream = share_open(self.filename, 'ab', 1)  # line buffered
         try:
             self.current_pos = self.stream.tell()
         except EnvironmentError:
