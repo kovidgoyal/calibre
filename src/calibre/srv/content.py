@@ -32,6 +32,10 @@ lock = Lock()
 
 # Get book formats/cover as a cached filesystem file {{{
 
+# We cannot store mtimes in the filesystem since some operating systems (OS X)
+# have only one second precision for mtimes
+mtimes = {}
+
 def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func, extra_etag_data=''):
     ''' We cannot copy files directly from the library folder to the output
     socket, as this can potentially lock the library for an extended period. So
@@ -45,14 +49,12 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
     library_id = library_id.replace('\\', '_').replace('/', '_')
     bname = '%s-%s-%s.%s' % (prefix, library_id, book_id, ext)
     fname = os.path.join(base, bname)
-    do_copy = True
-    mtime = timestampfromdt(mtime)
 
     # TODO: Implement locking for this cache
-    try:
-        ans = lopen(fname, 'r+b')
-        do_copy = os.fstat(ans.fileno()).st_mtime < mtime
-    except EnvironmentError:
+
+    previous_mtime = mtimes.get(bname)
+    used_cache = 'no'
+    if previous_mtime is None or previous_mtime < mtime:
         try:
             ans = lopen(fname, 'w+b')
         except EnvironmentError:
@@ -61,11 +63,14 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
             except EnvironmentError:
                 pass
             ans = lopen(fname, 'w+b')
-    if do_copy:
         copy_func(ans)
         ans.seek(0)
+        mtimes[bname] = mtime
+    else:
+        ans = lopen(fname, 'rb')
+        used_cache = 'yes'
     if ctx.testing:
-        rd.outheaders['Used-Cache'] = 'no' if do_copy else 'yes'
+        rd.outheaders['Used-Cache'] = used_cache
     return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
 
 def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
