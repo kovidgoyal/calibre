@@ -137,10 +137,10 @@ class Connection(object):  # {{{
             self.socket = self.ssl_context.wrap_socket(socket, server_side=True, do_handshake_on_connect=False)
             self.set_state(RDWR, self.do_ssl_handshake)
         else:
-            self.ready = True
             self.socket = socket
             self.connection_ready()
         self.last_activity = monotonic()
+        self.ready = True
 
     def optimize_for_sending_packet(self):
         start_cork(self.socket)
@@ -173,8 +173,8 @@ class Connection(object):  # {{{
             self.set_state(READ, self.do_ssl_handshake)
         except ssl.SSLWantWriteError:
             self.set_state(WRITE, self.do_ssl_handshake)
-        self.ready = True
-        self.connection_ready()
+        else:
+            self.connection_ready()
 
     def send(self, data):
         try:
@@ -561,7 +561,9 @@ class ServerLoop(object):
 
     def accept(self):
         try:
-            return self.socket.accept()
+            sock, addr = self.socket.accept()
+            set_socket_inherit(sock, False), sock.setblocking(False)
+            return sock, addr
         except socket.error:
             return None, None
 
