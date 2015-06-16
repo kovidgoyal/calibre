@@ -26,6 +26,8 @@ every time you add an HTML file to the library.\
     on_import = True
 
     def run(self, htmlfile):
+        import codecs
+        from calibre import prints
         from calibre.ptempfile import TemporaryDirectory
         from calibre.gui2.convert.gui_conversion import gui_convert
         from calibre.customize.conversion import OptionRecommendation
@@ -38,8 +40,12 @@ every time you add an HTML file to the library.\
                 sc = self.site_customization.strip()
                 enc, _, bf = sc.partition('|')
                 if enc:
-                    recs.append(['input_encoding', enc,
-                        OptionRecommendation.HIGH])
+                    try:
+                        codecs.lookup(enc)
+                    except Exception:
+                        prints('Ignoring invalid input encoding for HTML:', enc)
+                    else:
+                        recs.append(['input_encoding', enc, OptionRecommendation.HIGH])
                 if bf == 'bf':
                     recs.append(['breadth_first', True,
                         OptionRecommendation.HIGH])
@@ -84,8 +90,7 @@ every time you add an HTML file to the library.\
         help_text = self.customization_help(gui=True)
         help_text = QLabel(help_text, config_dialog)
         help_text.setWordWrap(True)
-        help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse
-                | Qt.LinksAccessibleByKeyboard)
+        help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse | Qt.LinksAccessibleByKeyboard)
         help_text.setOpenExternalLinks(True)
         v.addWidget(help_text)
         bf = QCheckBox(_('Add linked files in breadth first order'))
