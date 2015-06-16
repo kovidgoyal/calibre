@@ -7,6 +7,7 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+from binascii import hexlify
 from collections import OrderedDict
 from importlib import import_module
 from threading import Lock
@@ -33,7 +34,11 @@ class LibraryBroker(object):
             seen.add(path)
             if not LibraryDatabase.exists_at(path):
                 continue
-            library_id = 'lib%d' % len(self.lmap)
+            bname = library_id = hexlify(os.path.basename(path).encode('utf-8')).decode('ascii')
+            c = 0
+            while library_id in self.lmap:
+                c += 1
+                library_id = bname + '%d' % c
             if i == 0:
                 self.default_library = library_id
             self.lmap[library_id] = path
