@@ -79,7 +79,7 @@ elif iswindows:
             Thread.__init__(self, name='TreeWatcher')
             self.modified_queue = modified_queue
             self.path_to_watch = path_to_watch
-            self.dir_handle = win32file.CreateFile(
+            self.dir_handle = win32file.CreateFileW(
                 path_to_watch,
                 FILE_LIST_DIRECTORY,
                 win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
