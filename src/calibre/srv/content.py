@@ -8,6 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from io import BytesIO
+from threading import Lock
 
 from calibre import fit_image
 from calibre.constants import config_dir
@@ -27,6 +28,7 @@ from calibre.utils.magick.draw import thumbnail, Image
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
 update_metadata_in_fmts = frozenset(plugboard_content_server_formats)
+lock = Lock()
 
 # Get book formats/cover as a cached filesystem file {{{
 
@@ -45,6 +47,8 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
     fname = os.path.join(base, bname)
     do_copy = True
     mtime = timestampfromdt(mtime)
+
+    # TODO: Implement locking for this cache
     try:
         ans = lopen(fname, 'r+b')
         do_copy = os.fstat(ans.fileno()).st_mtime < mtime
@@ -167,34 +171,35 @@ def icon(ctx, rd, which):
             return lopen(path, 'rb')
         except EnvironmentError:
             raise HTTPNotFound()
-    tdir = os.path.join(rd.tdir, 'icons')
-    cached = os.path.join(tdir, '%d-%s.png' % (sz, which))
-    try:
-        return lopen(cached, 'rb')
-    except EnvironmentError:
-        pass
-    try:
-        src = lopen(path, 'rb')
-    except EnvironmentError:
-        raise HTTPNotFound()
-    with src:
-        img = Image()
-        img.load(src.read())
-    width, height = img.size
-    scaled, width, height = fit_image(width, height, sz, sz)
-    if scaled:
-        img.size = (width, height)
-    try:
-        ans = lopen(cached, 'w+b')
-    except EnvironmentError:
+    with lock:
+        tdir = os.path.join(rd.tdir, 'icons')
+        cached = os.path.join(tdir, '%d-%s.png' % (sz, which))
         try:
-            os.mkdir(tdir)
+            return lopen(cached, 'rb')
         except EnvironmentError:
             pass
-        ans = lopen(cached, 'w+b')
-    ans.write(img.export('png'))
-    ans.seek(0)
-    return ans
+        try:
+            src = lopen(path, 'rb')
+        except EnvironmentError:
+            raise HTTPNotFound()
+        with src:
+            img = Image()
+            img.load(src.read())
+        width, height = img.size
+        scaled, width, height = fit_image(width, height, sz, sz)
+        if scaled:
+            img.size = (width, height)
+        try:
+            ans = lopen(cached, 'w+b')
+        except EnvironmentError:
+            try:
+                os.mkdir(tdir)
+            except EnvironmentError:
+                pass
+            ans = lopen(cached, 'w+b')
+        ans.write(img.export('png'))
+        ans.seek(0)
+        return ans
 
 
 @endpoint('/get/{what}/{book_id}/{library_id=None}', types={'book_id':int})

@@ -67,6 +67,7 @@ class Context(object):
         self.opts = opts
         self.library_broker = LibraryBroker(libraries)
         self.testing = testing
+        self.lock = Lock()
 
     def init_session(self, endpoint, data):
         pass
@@ -80,39 +81,42 @@ class Context(object):
     def allowed_book_ids(self, data, db):
         # TODO: Implement this based on data.username caching result on the
         # data object
-        ans = data.allowed_book_ids.get(db.server_library_id)
-        if ans is None:
-            ans = data.allowed_book_ids[db.server_library_id] = db.all_book_ids()
-        return ans
+        with self.lock:
+            ans = data.allowed_book_ids.get(db.server_library_id)
+            if ans is None:
+                ans = data.allowed_book_ids[db.server_library_id] = db.all_book_ids()
+            return ans
 
     def get_categories(self, data, db, restrict_to_ids=None):
         if restrict_to_ids is None:
             restrict_to_ids = self.allowed_book_ids(data, db)
-        cache = self.library_broker.category_caches[db.server_library_id]
-        old = cache.pop(restrict_to_ids, None)
-        if old is None or old[0] <= db.last_modified():
-            categories = db.get_categories(book_ids=restrict_to_ids)
-            cache[restrict_to_ids] = old = (utcnow(), categories)
-            if len(cache) > self.CATEGORY_CACHE_SIZE:
-                cache.popitem(last=False)
-        else:
-            cache[restrict_to_ids] = old
-        return old[1]
+        with self.lock:
+            cache = self.library_broker.category_caches[db.server_library_id]
+            old = cache.pop(restrict_to_ids, None)
+            if old is None or old[0] <= db.last_modified():
+                categories = db.get_categories(book_ids=restrict_to_ids)
+                cache[restrict_to_ids] = old = (utcnow(), categories)
+                if len(cache) > self.CATEGORY_CACHE_SIZE:
+                    cache.popitem(last=False)
+            else:
+                cache[restrict_to_ids] = old
+            return old[1]
 
     def search(self, data, db, query, restrict_to_ids=None):
         if restrict_to_ids is None:
             restrict_to_ids = self.allowed_book_ids(data, db)
-        cache = self.library_broker.search_caches[db.server_library_id]
-        key = (query, restrict_to_ids)
-        old = cache.pop(key, None)
-        if old is None or old[0] < db.clear_search_cache_count:
-            matches = db.search(query, book_ids=restrict_to_ids)
-            cache[key] = old = (db.clear_search_cache_count, matches)
-            if len(cache) > self.SEARCH_CACHE_SIZE:
-                cache.popitem(last=False)
-        else:
-            cache[key] = old
-        return old[1]
+        with self.lock:
+            cache = self.library_broker.search_caches[db.server_library_id]
+            key = (query, restrict_to_ids)
+            old = cache.pop(key, None)
+            if old is None or old[0] < db.clear_search_cache_count:
+                matches = db.search(query, book_ids=restrict_to_ids)
+                cache[key] = old = (db.clear_search_cache_count, matches)
+                if len(cache) > self.SEARCH_CACHE_SIZE:
+                    cache.popitem(last=False)
+            else:
+                cache[key] = old
+            return old[1]
 
 class Handler(object):
 
