@@ -57,7 +57,6 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
             except EnvironmentError:
                 pass
             ans = lopen(fname, 'w+b')
-            do_copy = True
     if do_copy:
         copy_func(ans)
         ans.seek(0)
