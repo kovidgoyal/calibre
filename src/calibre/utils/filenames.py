@@ -457,7 +457,7 @@ def atomic_rename(oldpath, newpath):
             try:
                 win32file.MoveFileEx(oldpath, newpath, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
                 break
-            except:
+            except Exception:
                 if i > 8:
                     raise
                 # Try the rename repeatedly in case something like a virus
