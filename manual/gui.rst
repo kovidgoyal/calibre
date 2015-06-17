@@ -709,11 +709,11 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`Ctrl+Left`
       - Select the previous virtual library tab
     * - :kbd:`N or F3`
-      - Find the next book that matches the current search (only works if the highlight checkbox next to the search bar is checked)
+      - Find the next book that matches the current search (only works if search highlighting is turned on in search preferences)
     * - :kbd:`Shift+N or Shift+F3`
-      - Find the next book that matches the current search (only works if the highlight checkbox next to the search bar is checked)
+      - Find the previous book that matches the current search (only works if search highlighting is turned on in search preferences)
     * - :kbd:`Ctrl+D`
-      - Download metadata and shortcuts
+      - Download metadata and covers
     * - :kbd:`Ctrl+R`
       - Restart calibre
     * - :kbd:`Ctrl+Shift+R`
