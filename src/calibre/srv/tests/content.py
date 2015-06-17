@@ -129,6 +129,14 @@ class ContentTest(LibraryBaseTest):
                 c.DEBUG = orig
 
             # Test the serving of covers
+            def change_cover(count, book_id=2):
+                cpath = db.format_abspath(book_id, '__COVER_INTERNAL__')
+                db.set_cover({2:I('lt.png', data=True)})
+                t = time.time() + 1 + count
+                # Ensure mtime changes, needed on OS X where HFS+ has a 1s
+                # mtime resolution
+                os.utime(cpath, (t, t))
+
             r, data = get('cover', 1)
             self.ae(r.status, httplib.OK)
             self.ae(data, db.cover(1))
@@ -154,21 +162,13 @@ class ContentTest(LibraryBaseTest):
             r, data = get('thumb', 1, q='sz=100x100')
             self.ae(r.status, httplib.OK)
             self.ae(r.getheader('Used-Cache'), 'yes')
-            db.set_cover({1:I('lt.png', data=True)})
+            change_cover(1, 1)
             r, data = get('thumb', 1, q='sz=100')
             self.ae(r.status, httplib.OK)
             self.ae(identify_data(data), (100, 100, 'jpeg'))
             self.ae(r.getheader('Used-Cache'), 'no')
 
             # Test file sharing in cache
-            cpath = db.format_abspath(2, '__COVER_INTERNAL__')
-            def change_cover(count):
-                db.set_cover({2:I('lt.png', data=True)})
-                t = time.time() + 1 + count
-                # Ensure mtime changes, needed on OS X where HFS+ has a 1s
-                # mtime resolution
-                os.utime(cpath, (t, t))
-
             test_share_open()
             r, data = get('cover', 2)
             self.ae(r.status, httplib.OK)
