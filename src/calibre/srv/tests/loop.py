@@ -175,8 +175,9 @@ class LoopTest(BaseTest):
     @skipIf(create_server_cert is None, 'certgen module not available')
     def test_ssl(self):
         'Test serving over SSL'
-        with TestServer(lambda data:(data.path[0] + data.read())) as server:
-            address = server.address[0]
+        s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0)
+        s.bind(('localhost', 0))
+        address = s.getsockname()[0]
         with TemporaryDirectory('srv-test-ssl') as tdir:
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
             create_server_cert(address, ca_file, cert_file, key_file, key_size=1024)
