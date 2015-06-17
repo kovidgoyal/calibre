@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, zlib, json, binascii
+import httplib, zlib, json, binascii, time, os
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata
@@ -161,6 +161,14 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.getheader('Used-Cache'), 'no')
 
             # Test file sharing in cache
+            cpath = db.format_abspath(2, '__COVER_INTERNAL__')
+            def change_cover(count):
+                db.set_cover({2:I('lt.png', data=True)})
+                t = time.time() + 1 + count
+                # Ensure mtime changes, needed on OS X where HFS+ has a 1s
+                # mtime resolution
+                os.utime(cpath, (t, t))
+
             test_share_open()
             r, data = get('cover', 2)
             self.ae(r.status, httplib.OK)
@@ -169,7 +177,7 @@ class ContentTest(LibraryBaseTest):
             path = binascii.unhexlify(r.getheader('Tempfile')).decode('utf-8')
             f, fdata = share_open(path, 'rb'), data
             # Now force an update
-            db.set_cover({2:I('lt.png', data=True)})
+            change_cover(1)
             r, data = get('cover', 2)
             self.ae(r.status, httplib.OK)
             self.ae(data, db.cover(2))
@@ -177,7 +185,7 @@ class ContentTest(LibraryBaseTest):
             path = binascii.unhexlify(r.getheader('Tempfile')).decode('utf-8')
             f2, f2data = share_open(path, 'rb'), data
             # Do it again
-            db.set_cover({2:I('lt.png', data=True)})
+            change_cover(2)
             r, data = get('cover', 2)
             self.ae(r.status, httplib.OK)
             self.ae(data, db.cover(2))
