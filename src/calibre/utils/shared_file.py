@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, sys
 from calibre.constants import iswindows, plugins
 
 '''
@@ -76,7 +76,7 @@ def flags_from_mode(mode):
 if iswindows:
     from numbers import Integral
     import msvcrt
-    import win32file
+    import win32file, pywintypes
     CREATE_NEW                  = win32file.CREATE_NEW
     CREATE_ALWAYS               = win32file.CREATE_ALWAYS
     OPEN_EXISTING               = win32file.OPEN_EXISTING
@@ -115,6 +115,9 @@ if iswindows:
         os.O_CREAT | os.O_TRUNC             : CREATE_ALWAYS
     }
 
+    def raise_winerror(pywinerr):
+        raise WindowsError(pywinerr.winerror, (pywinerr.funcname or '') + b': ' + (pywinerr.strerror or '')), None, sys.exc_info()[2]
+
     def os_open(path, flags, mode=0o777, share_flags=FILE_SHARE_VALID_FLAGS):
         '''
         Replacement for os.open() allowing moving or unlinking before closing
@@ -148,8 +151,11 @@ if iswindows:
         if flags & os.O_RANDOM:
             attrib_flags |= FILE_FLAG_RANDOM_ACCESS
 
-        h = win32file.CreateFileW(
-            path, access_flags, share_flags, None, create_flags, attrib_flags, None)
+        try:
+            h = win32file.CreateFileW(
+                path, access_flags, share_flags, None, create_flags, attrib_flags, None)
+        except pywintypes.error as e:
+            raise_winerror(e)
         ans = msvcrt.open_osfhandle(h, flags | os.O_NOINHERIT)
         h.Detach()  # We dont want the handle to be automatically closed when h is deleted
         return ans
