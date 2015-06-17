@@ -78,9 +78,7 @@ class TestServer(Thread):
         from calibre.srv.opts import Options
         from calibre.srv.loop import ServerLoop
         from calibre.srv.http_response import create_http_handler
-        kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
-        kwargs['listen_on'] = kwargs.get('listen_on', 'localhost')
-        kwargs['port'] = kwargs.get('port', 0)
+        self.setup_defaults(kwargs)
         self.loop = ServerLoop(
             create_http_handler(handler),
             opts=Options(**kwargs),
@@ -89,6 +87,11 @@ class TestServer(Thread):
         )
         self.log = self.loop.log
         specialize(self)
+
+    def setup_defaults(self, kwargs):
+        kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
+        kwargs['listen_on'] = kwargs.get('listen_on', 'localhost')
+        kwargs['port'] = kwargs.get('port', 0)
 
     def run(self):
         try:
@@ -123,9 +126,7 @@ class LibraryServer(TestServer):
         from calibre.srv.loop import ServerLoop
         from calibre.srv.handler import Handler
         from calibre.srv.http_response import create_http_handler
-        kwargs['shutdown_timeout'] = kwargs.get('shutdown_timeout', 0.1)
-        kwargs['listen_on'] = kwargs.get('listen_on', 'localhost')
-        kwargs['port'] = kwargs.get('port', 0)
+        self.setup_defaults(kwargs)
         opts = Options(**kwargs)
         self.libraries = libraries or (library_path,)
         self.handler = Handler(self.libraries, opts, testing=True)
