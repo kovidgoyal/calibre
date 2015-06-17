@@ -6,9 +6,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, time
+import sys
 from Queue import Queue, Full
 from threading import Thread
+
+from calibre.utils.monotonic import monotonic
 
 class Worker(Thread):
 
@@ -67,7 +69,7 @@ class ThreadPool(object):
             except Full:
                 break
         for w in self.workers:
-            now = time.time()
+            now = monotonic()
             if now >= wait_till:
                 break
             w.join(wait_till - now)
@@ -113,7 +115,7 @@ class PluginPool(object):
                 except Exception:
                     self.loop.log.exception('Failed to stop plugin: %s', self.plugin_name(w.plugin))
         for w in self.workers:
-            left = wait_till - time.time()
+            left = wait_till - monotonic()
             if left > 0:
                 w.join(left)
             else:

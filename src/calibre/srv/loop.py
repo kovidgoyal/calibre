@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ssl, socket, select, os, traceback, time
+import ssl, socket, select, os, traceback
 from io import BytesIO
 from Queue import Empty, Full
 from functools import partial
@@ -580,7 +580,7 @@ class ServerLoop(object):
             pass
         for s, conn in tuple(self.connection_map.iteritems()):
             self.close(s, conn)
-        wait_till = time.time() + self.opts.shutdown_timeout
+        wait_till = monotonic() + self.opts.shutdown_timeout
         for pool in (self.plugin_pool, self.pool):
             pool.stop(wait_till)
             if pool.workers:
