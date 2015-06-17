@@ -108,6 +108,7 @@ class TestServer(Thread):
 
     def __exit__(self, *args):
         self.loop.stop()
+        self.join(self.loop.opts.shutdown_timeout)
 
     def connect(self, timeout=None):
         if timeout is None:
