@@ -7,11 +7,12 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
+from binascii import hexlify
 from io import BytesIO
 from threading import Lock
 
 from calibre import fit_image
-from calibre.constants import config_dir
+from calibre.constants import config_dir, iswindows
 from calibre.db.errors import NoSuchFormat
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
@@ -22,8 +23,9 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
-from calibre.utils.filenames import ascii_filename
+from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.magick.draw import thumbnail, Image
+from calibre.utils.shared_file import share_open
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
@@ -35,6 +37,7 @@ lock = Lock()
 # We cannot store mtimes in the filesystem since some operating systems (OS X)
 # have only one second precision for mtimes
 mtimes = {}
+rename_counter = 0
 
 def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func, extra_etag_data=''):
     ''' We cannot copy files directly from the library folder to the output
@@ -42,36 +45,53 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
     instead we copy out the data from the library folder into a temp folder. We
     make sure to only do this copy once, using the previous copy, if there have
     been no changes to the data for the file since the last copy. '''
+    global rename_counter
 
     # Avoid too many items in a single directory for performance
     base = os.path.join(rd.tdir, 'fcache', (('%x' % book_id)[-3:]))
+    if iswindows:
+        base = '\\\\?\\' + os.path.abspath(base)  # Ensure fname is not too long for windows' API
 
-    library_id = library_id.replace('\\', '_').replace('/', '_')
-    bname = '%s-%s-%s.%s' % (prefix, library_id, book_id, ext)
+    bname = '%s-%s-%x.%s' % (prefix, library_id, book_id, ext)
+    if '\\' in bname or '/' in bname:
+        raise ValueError('File components must not contain path separators')
     fname = os.path.join(base, bname)
-
-    # TODO: Implement locking for this cache
-
-    previous_mtime = mtimes.get(bname)
     used_cache = 'no'
-    if previous_mtime is None or previous_mtime < mtime:
-        try:
-            ans = lopen(fname, 'w+b')
-        except EnvironmentError:
+
+    with lock:
+        previous_mtime = mtimes.get(bname)
+        if previous_mtime is None or previous_mtime < mtime:
+            if previous_mtime is not None:
+                # File exists and may be open, so we cannot change its
+                # contents, as that would lead to corrupted downloads in any
+                # clients that are currently downloading the file.
+                if iswindows:
+                    # On windows in order to re-use bname, we have to rename it
+                    # before deleting it
+                    rename_counter += 1
+                    dname = os.path.join(base, '_%x' % rename_counter)
+                    atomic_rename(fname, dname)
+                    os.remove(dname)
+                else:
+                    os.remove(fname)
             try:
-                os.makedirs(base)
+                ans = share_open(fname, 'w+b')
             except EnvironmentError:
-                pass
-            ans = lopen(fname, 'w+b')
-        copy_func(ans)
-        ans.seek(0)
-        mtimes[bname] = mtime
-    else:
-        ans = lopen(fname, 'rb')
-        used_cache = 'yes'
-    if ctx.testing:
-        rd.outheaders['Used-Cache'] = used_cache
-    return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
+                try:
+                    os.makedirs(base)
+                except EnvironmentError:
+                    pass
+                ans = share_open(fname, 'w+b')
+            mtimes[bname] = mtime
+            copy_func(ans)
+            ans.seek(0)
+        else:
+            ans = share_open(fname, 'rb')
+            used_cache = 'yes'
+        if ctx.testing:
+            rd.outheaders['Used-Cache'] = used_cache
+            rd.outheaders['Tempfile'] = hexlify(fname.encode('utf-8'))
+        return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
 
 def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     mtime = db.cover_last_modified(book_id)
@@ -141,13 +161,13 @@ def static(ctx, rd, what):
     path = os.path.relpath(path, base).replace(os.sep, '/')
     path = P('content-server/' + path)
     try:
-        return lopen(path, 'rb')
+        return share_open(path, 'rb')
     except EnvironmentError:
         raise HTTPNotFound()
 
 @endpoint('/favicon.png', auth_required=False, cache_control=24)
 def favicon(ctx, rd):
-    return lopen(I('lt.png'), 'rb')
+    return share_open(I('lt.png'), 'rb')
 
 @endpoint('/icon/{+which}', auth_required=False, cache_control=24)
 def icon(ctx, rd, which):
@@ -173,18 +193,18 @@ def icon(ctx, rd, which):
         path = P('images/' + path)
     if sz == 'full':
         try:
-            return lopen(path, 'rb')
+            return share_open(path, 'rb')
         except EnvironmentError:
             raise HTTPNotFound()
     with lock:
         tdir = os.path.join(rd.tdir, 'icons')
         cached = os.path.join(tdir, '%d-%s.png' % (sz, which))
         try:
-            return lopen(cached, 'rb')
+            return share_open(cached, 'rb')
         except EnvironmentError:
             pass
         try:
-            src = lopen(path, 'rb')
+            src = share_open(path, 'rb')
         except EnvironmentError:
             raise HTTPNotFound()
         with src:
@@ -195,13 +215,13 @@ def icon(ctx, rd, which):
         if scaled:
             img.size = (width, height)
         try:
-            ans = lopen(cached, 'w+b')
+            ans = share_open(cached, 'w+b')
         except EnvironmentError:
             try:
                 os.mkdir(tdir)
             except EnvironmentError:
                 pass
-            ans = lopen(cached, 'w+b')
+            ans = share_open(cached, 'w+b')
         ans.write(img.export('png'))
         ans.seek(0)
         return ans
