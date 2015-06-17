@@ -69,7 +69,7 @@ except ImportError:
                 return (timebase.numer, timebase.denom)
 
             timebase = mach_timebase_info()
-            factor = timebase[0] / timebase[1] * NSEC_PER_SEC
+            factor = timebase[0] / (timebase[1] * NSEC_PER_SEC)
 
             def monotonic():  # NOQA
                 return mach_absolute_time() * factor
