@@ -62,7 +62,7 @@ class LibraryBroker(object):
 
     def close(self):
         for db in self.lmap.itervalues():
-            db.close()
+            getattr(db, 'close', lambda : None)()
         self.lmap = {}
 
 class Context(object):
