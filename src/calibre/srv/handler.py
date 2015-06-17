@@ -60,6 +60,10 @@ class LibraryBroker(object):
                     raise
             return ans
 
+    def close(self):
+        for db in self.lmap.itervalues():
+            db.close()
+        self.lmap = {}
 
 class Context(object):
 
@@ -136,4 +140,7 @@ class Handler(object):
 
     def set_log(self, log):
         self.router.ctx.log = log
+
+    def close(self):
+        self.router.ctx.library_broker.close()
 

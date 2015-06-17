@@ -137,3 +137,7 @@ class LibraryServer(TestServer):
         )
         self.handler.set_log(self.loop.log)
         specialize(self)
+
+    def __exit__(self, *args):
+        self.loop.stop()
+        self.handler.close()
