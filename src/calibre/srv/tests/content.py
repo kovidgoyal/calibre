@@ -6,13 +6,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, zlib, json
+import httplib, zlib, json, binascii
 from io import BytesIO
 
 from calibre.ebooks.metadata.epub import get_metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.magick.draw import identify_data
+from calibre.utils.shared_file import share_open, test as test_share_open
 
 class ContentTest(LibraryBaseTest):
 
@@ -158,6 +159,31 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, httplib.OK)
             self.ae(identify_data(data), (100, 100, 'jpeg'))
             self.ae(r.getheader('Used-Cache'), 'no')
+
+            # Test file sharing in cache
+            test_share_open()
+            r, data = get('cover', 2)
+            self.ae(r.status, httplib.OK)
+            self.ae(data, db.cover(2))
+            self.ae(r.getheader('Used-Cache'), 'no')
+            path = binascii.unhexlify(r.getheader('Tempfile')).decode('utf-8')
+            f, fdata = share_open(path, 'rb'), data
+            # Now force an update
+            db.set_cover({2:I('lt.png', data=True)})
+            r, data = get('cover', 2)
+            self.ae(r.status, httplib.OK)
+            self.ae(data, db.cover(2))
+            self.ae(r.getheader('Used-Cache'), 'no')
+            path = binascii.unhexlify(r.getheader('Tempfile')).decode('utf-8')
+            f2, f2data = share_open(path, 'rb'), data
+            # Do it again
+            db.set_cover({2:I('lt.png', data=True)})
+            r, data = get('cover', 2)
+            self.ae(r.status, httplib.OK)
+            self.ae(data, db.cover(2))
+            self.ae(r.getheader('Used-Cache'), 'no')
+            self.ae(f.read(), fdata)
+            self.ae(f2.read(), f2data)
 
             # Test serving of metadata as opf
             r, data = get('opf', 1)
