@@ -169,6 +169,9 @@ else:
         flags = flags_from_mode(mode) | speedup.O_CLOEXEC
         return speedup.fdopen(os.open(path, flags), path, mode, buffering)
 
+    def raise_winerror(x):
+        raise NotImplementedError(), None, sys.exc_info()[2]
+
 def test():
     import repr as reprlib
 

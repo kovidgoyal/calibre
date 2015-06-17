@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno, socket, select
+import errno, socket, select, os
 from Cookie import SimpleCookie
 from contextlib import closing
 from urlparse import parse_qs
@@ -20,11 +20,10 @@ from binascii import hexlify, unhexlify
 from calibre import prints
 from calibre.constants import iswindows
 from calibre.utils.config_base import tweaks
-from calibre.utils.filenames import atomic_rename
 from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
 from calibre.utils.logging import ThreadSafeLog
-from calibre.utils.shared_file import share_open
+from calibre.utils.shared_file import share_open, raise_winerror
 
 HTTP1  = 'HTTP/1.0'
 HTTP11 = 'HTTP/1.1'
@@ -305,6 +304,8 @@ class RotatingStream(object):
 
     def __init__(self, filename, max_size=None, history=5):
         self.filename, self.history, self.max_size = filename, history, max_size
+        if iswindows:
+            self.filename = '\\\\?\\' + os.path.abspath(self.filename)
         self.set_output()
 
     def set_output(self):
@@ -325,17 +326,28 @@ class RotatingStream(object):
         self.current_pos += prints(*args, **kwargs)
         self.rollover()
 
+    def rename(self, src, dest):
+        try:
+            if iswindows:
+                import win32file, pywintypes
+                try:
+                    win32file.MoveFileEx(src, dest, win32file.MOVEFILE_REPLACE_EXISTING|win32file.MOVEFILE_WRITE_THROUGH)
+                except pywintypes.error as e:
+                    raise_winerror(e)
+            else:
+                os.rename(src, dest)
+        except EnvironmentError as e:
+            if e.errno != errno.ENOENT:  # the source of the rename does not exist
+                raise
+
     def rollover(self):
         if self.max_size is None or self.current_pos <= self.max_size:
             return
         self.stream.close()
         for i in xrange(self.history - 1, 0, -1):
-            try:
-                atomic_rename('%s.%d' % (self.filename, i), '%s.%d' % (self.filename, i+1))
-            except EnvironmentError as e:
-                if e.errno != errno.ENOENT:  # the source of the rename does not exist
-                    raise
-        atomic_rename(self.filename, '%s.%d' % (self.filename, 1))
+            src, dest = '%s.%d' % (self.filename, i), '%s.%d' % (self.filename, i+1)
+            self.rename(src, dest)
+        self.rename(self.filename, '%s.%d' % (self.filename, 1))
         self.set_output()
 
 class RotatingLog(ServerLog):
@@ -343,6 +355,10 @@ class RotatingLog(ServerLog):
     def __init__(self, filename, max_size=None, history=5):
         ServerLog.__init__(self)
         self.outputs = [RotatingStream(filename, max_size, history)]
+
+    def flush(self):
+        for o in self.outputs:
+            o.flush()
 # }}}
 
 class HandleInterrupt(object):  # {{{
