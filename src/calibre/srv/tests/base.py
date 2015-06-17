@@ -143,3 +143,4 @@ class LibraryServer(TestServer):
     def __exit__(self, *args):
         self.loop.stop()
         self.handler.close()
+        self.join(self.loop.opts.shutdown_timeout)
