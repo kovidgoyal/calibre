@@ -35,7 +35,7 @@ except ImportError:
                 def monotonic():
                     perf_counter = ctypes.c_uint64()
                     if ctypes.windll.kernel32.QueryPerformanceCounter(ctypes.byref(perf_counter)) == 0:
-                        raise RuntimeError('monotonic() failed: %s' % ctypes.FormatError())
+                        raise ctypes.WinError()
                     return perf_counter.value / perf_frequency
 
         elif sys.platform == 'darwin':
