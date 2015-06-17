@@ -21,15 +21,22 @@ try:
 except ImportError:
     import ctypes
     import sys
+    NSEC_PER_SEC = 1e9
 
     try:
         if sys.platform == 'win32':
             # Windows only
-            GetTickCount64 = ctypes.windll.kernel32.GetTickCount64
-            GetTickCount64.restype = ctypes.c_ulonglong
+            perf_frequency = ctypes.c_uint64()
+            if ctypes.windll.kernel32.QueryPerformanceFrequency(ctypes.byref(perf_frequency)) == 0:
+                from time import time as monotonic  # noqa
+            else:
+                perf_frequency = perf_frequency.value
 
-            def monotonic():  # NOQA
-                return GetTickCount64() / 1000
+                def monotonic():
+                    perf_counter = ctypes.c_uint64()
+                    if ctypes.windll.kernel32.QueryPerformanceCounter(ctypes.byref(perf_counter)) == 0:
+                        raise RuntimeError('monotonic() failed: %s' % ctypes.FormatError())
+                    return perf_counter.value / perf_frequency
 
         elif sys.platform == 'darwin':
             # Mac OS X
@@ -62,7 +69,7 @@ except ImportError:
                 return (timebase.numer, timebase.denom)
 
             timebase = mach_timebase_info()
-            factor = timebase[0] / timebase[1] * 1e-9
+            factor = timebase[0] / timebase[1] * NSEC_PER_SEC
 
             def monotonic():  # NOQA
                 return mach_absolute_time() * factor
@@ -93,12 +100,11 @@ except ImportError:
             else:
                 raise OSError
 
-            def monotonic():  # NOQA
+            def monotonic():
                 if clock_gettime(CLOCK_MONOTONIC, ctypes.pointer(tspec)) != 0:
                     errno_ = ctypes.get_errno()
                     raise OSError(errno_, os.strerror(errno_))
-                return tspec.tv_sec + tspec.tv_nsec / 1e9
+                return tspec.tv_sec + tspec.tv_nsec / NSEC_PER_SEC
 
     except:
-        from time import time as monotonic  # NOQA
-        monotonic
+        from time import time as monotonic  # noqa
