@@ -309,7 +309,7 @@ class RotatingStream(object):
         self.set_output()
 
     def set_output(self):
-        self.stream = share_open(self.filename, 'ab', 1)  # line buffered
+        self.stream = share_open(self.filename, 'ab', -1 if iswindows else 1)  # line buffered
         try:
             self.current_pos = self.stream.tell()
         except EnvironmentError:
@@ -324,6 +324,11 @@ class RotatingStream(object):
         kwargs['safe_encode'] = True
         kwargs['file'] = self.stream
         self.current_pos += prints(*args, **kwargs)
+        if iswindows:
+            # For some reason line buffering does not work on windows
+            end = kwargs.get('end', b'\n')
+            if b'\n' in end:
+                self.flush()
         self.rollover()
 
     def rename(self, src, dest):
