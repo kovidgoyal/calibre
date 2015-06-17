@@ -70,7 +70,7 @@ class LoopTest(BaseTest):
         with TestServer(lambda data:'xxx', plugins=(plugin,)) as server:
             self.assertTrue(plugin.running.wait(0.2))
             self.ae(plugin.port, server.address[1])
-        self.assertTrue(plugin.event.wait(0.2))
+        self.assertTrue(plugin.event.wait(5))
         self.assertFalse(plugin.running.is_set())
 
     def test_workers(self):
