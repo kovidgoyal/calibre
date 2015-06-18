@@ -54,13 +54,13 @@ class Context(object):
 
     def eval(self, code='', noreturn=False):
         try:
-            self._ctx.eval(code, noreturn)
+            return self._ctx.eval(code, noreturn)
         except dukpy.JSError as e:
             raise JSError(e)
 
     def eval_file(self, path, noreturn=False):
         try:
-            self._ctx.eval_file(path, noreturn)
+            return self._ctx.eval_file(path, noreturn)
         except dukpy.JSError as e:
             raise JSError(e)
 
