@@ -712,13 +712,13 @@ class EbookViewer(MainWindow):
         # restore the current page position.
         self.resize_in_progress = False
         wmc = self.window_mode_changed
-        if self.window_mode_changed:
+        self.view.document.after_resize()
+        if wmc:
             # This resize is part of a window mode change, special case it
             self.handle_window_mode_toggle()
         else:
             if self.isFullScreen():
                 self.relayout_fullscreen_labels()
-        self.view.document.after_resize()
         if not wmc:
             pre_footnote_pos = self.pre_footnote_toggle_position()
             if pre_footnote_pos is not None:
