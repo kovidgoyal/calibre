@@ -170,7 +170,7 @@ def test_icu():
 
 def test_dukpy():
     print ('Testing dukpy')
-    from duktape.tests import test_build
+    from duktape import test_build
     test_build()
     print ('dukpy OK!')
 

@@ -13,6 +13,7 @@ typedef struct DukEnum_ DukEnum;
 
 PyObject DukUndefined;
 #define Duk_undefined (&DukUndefined)
+extern PyObject *JSError;
 
 
 /* context.c */

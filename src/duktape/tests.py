@@ -1,7 +1,8 @@
 import os
 import sys
 import unittest
-from duktape import Context, undefined
+from duktape import dukpy
+undefined, JSError, Context = dukpy.undefined, dukpy.JSError, dukpy.Context
 
 class ContextTests(unittest.TestCase):
     def setUp(self):
@@ -129,6 +130,24 @@ class EvalTests(unittest.TestCase):
     def test_eval_kwargs(self):
         self.assertEqual(self.ctx.eval(code="1+1"), 2)
 
+    def test_eval_errors(self):
+        try:
+            self.ctx.eval('1+/1')
+            self.assert_('No error raised for malformed js')
+        except JSError as e:
+            e = e.args[0]
+            self.assertEqual('SyntaxError', e.name)
+            self.assertEqual(1, e.lineNumber)
+            self.assertIn('line 1', e.toString())
+
+        try:
+            self.ctx.eval('\na()')
+            self.assert_('No error raised for malformed js')
+        except JSError as e:
+            e = e.args[0]
+            self.assertEqual('ReferenceError', e.name)
+            self.assertEqual(2, e.lineNumber)
+
     def test_eval_noreturn(self):
         self.assertIsNone(self.ctx.eval("1+1", noreturn=True))
 
@@ -148,27 +167,4 @@ class EvalTests(unittest.TestCase):
     def test_eval_file_noreturn(self):
         self.assertIsNone(self.ctx.eval_file(self.testfile, noreturn=True))
 
-def load_tests(loader, suite, pattern):
-    for x in globals().itervalues():
-        if isinstance(x, type) and issubclass(x, unittest.TestCase):
-            tests = loader.loadTestsFromTestCase(x)
-            suite.addTests(tests)
-    return suite
 
-class TestRunner(unittest.main):
-
-    def createTests(self):
-        tl = unittest.TestLoader()
-        suite = unittest.TestSuite()
-        self.test = load_tests(tl, suite, None)
-
-def run(verbosity=4):
-    TestRunner(verbosity=verbosity, exit=False)
-
-def test_build():
-    result = TestRunner(verbosity=0, buffer=True, catchbreak=True, failfast=True, argv=sys.argv[:1], exit=False).result
-    if not result.wasSuccessful():
-        raise SystemExit(1)
-
-if __name__ == '__main__':
-    run()

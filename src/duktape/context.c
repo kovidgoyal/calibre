@@ -98,8 +98,12 @@ static PyObject *DukContext_eval(DukContext *self, PyObject *args, PyObject *kw)
     if (temp && PyObject_IsTrue(temp)) noresult = 1;
 
     if (duk_peval_string(self->ctx, code) != 0) {
-        PyErr_Format(PyExc_SyntaxError, "%s",
-                     duk_safe_to_string(self->ctx, -1));
+        temp = duk_to_python(self->ctx, -1);
+        if (temp) {
+            PyErr_SetObject(JSError, temp);
+            Py_DECREF(temp);
+        }
+        duk_pop(self->ctx);
         return NULL;
     }
 
@@ -128,8 +132,12 @@ static PyObject *DukContext_eval_file(DukContext *self, PyObject *args, PyObject
     if (temp && PyObject_IsTrue(temp)) noresult = 1;
 
     if (duk_peval_file(self->ctx, path) != 0) {
-        PyErr_Format(PyExc_SyntaxError,
-                     "%s:%s", path, duk_safe_to_string(self->ctx, -1));
+        temp = duk_to_python(self->ctx, -1);
+        if (temp) {
+            PyErr_SetObject(JSError, temp);
+            Py_DECREF(temp);
+        }
+        duk_pop(self->ctx);
         return NULL;
     }
 

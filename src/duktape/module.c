@@ -1,5 +1,7 @@
 #include "dukpy.h"
 
+PyObject *JSError = NULL;
+
 /* ARGSUSED */
 static PyObject *
 undefined_repr(PyObject *op)
@@ -131,6 +133,9 @@ initdukpy(void)
 
         Py_INCREF(Duk_undefined);
         PyModule_AddObject(mod, "undefined", (PyObject *)Duk_undefined);
+
+        JSError = PyErr_NewException("dukpy.JSError", NULL, NULL);
+        if (JSError) PyModule_AddObject(mod, "JSError", JSError);
     }
 
 #if PY_MAJOR_VERSION >= 3
