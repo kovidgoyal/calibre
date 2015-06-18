@@ -67,6 +67,12 @@ if iswindows:
 
 extensions = [
 
+    Extension('dukpy',
+              ['duktape/%s.c' % x for x in 'context conversions proxy module duktape/duktape'.split()],
+              headers=['duktape/dukpy.h', 'duktape/duktape/duktape.h'],
+              optimize_level=2,
+              ),
+
     Extension('hunspell',
               ['hunspell/'+x for x in
                 'affentry.cxx affixmgr.cxx csutil.cxx dictmgr.cxx filemgr.cxx hashmgr.cxx hunspell.cxx phonet.cxx replist.cxx suggestmgr.cxx'.split()

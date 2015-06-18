@@ -168,6 +168,12 @@ def test_icu():
     test_build()
     print ('ICU OK!')
 
+def test_dukpy():
+    print ('Testing dukpy')
+    from duktape.tests import test_build
+    test_build()
+    print ('dukpy OK!')
+
 def test_wpd():
     wpd = plugins['wpd'][0]
     try:
@@ -226,6 +232,7 @@ def test():
     if iswindows:
         test_dlls()
     test_plugins()
+    test_dukpy()
     test_lxml()
     test_ssl()
     test_sqlite()

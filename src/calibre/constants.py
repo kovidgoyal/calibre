@@ -147,6 +147,7 @@ class Plugins(collections.Mapping):
                 'matcher',
                 'tokenizer',
                 'certgen',
+                'dukpy',
             ]
         if iswindows:
             plugins.extend(['winutil', 'wpd', 'winfonts'])

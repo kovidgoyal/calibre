@@ -4,6 +4,10 @@ License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
 
+Files: src/duktape/*
+Copyright: Various
+License: MIT
+
 Files: src/unrar/*
 Copyright: Various
 License: Non-free
