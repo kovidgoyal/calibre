@@ -1369,6 +1369,13 @@ class DocumentView(QWebView):  # {{{
             return True
         return QWebView.event(self, ev)
 
+    def mouseMoveEvent(self, ev):
+        if self.document.in_paged_mode and ev.buttons() & Qt.LeftButton and not self.rect().contains(ev.pos(), True):
+            # Prevent this event from causing WebKit to scroll the viewport
+            # See https://bugs.launchpad.net/bugs/1464862
+            return
+        return QWebView.mouseMoveEvent(self, ev)
+
     def mouseReleaseEvent(self, ev):
         r = self.document.mainFrame().hitTestContent(ev.pos())
         a, url = r.linkElement(), r.linkUrl()
