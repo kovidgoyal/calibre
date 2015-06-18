@@ -20,53 +20,95 @@ static int get_repr(PyObject *value, char *buf, int bufsz) {
 static duk_ret_t python_function_caller(duk_context *ctx)
 {
     PyObject *func, *args, *result;
+    DukContext *dctx;
     duk_idx_t nargs, i;
     static char buf1[200], buf2[1024];
+    int gil_acquired = 0, ret = 1;
 
+    dctx = DukContext_get(ctx);
     nargs = duk_get_top(ctx);
 
     duk_push_current_function(ctx);
     duk_get_prop_string(ctx, -1, "\xff" "py_object");
     func = duk_get_pointer(ctx, -1);
 
+    if (dctx->py_thread_state) {
+        gil_acquired = 1;
+        PyEval_RestoreThread(dctx->py_thread_state);
+        dctx->py_thread_state = NULL;
+    }
+
     args = PyTuple_New(nargs);
-    if (!args)
-        return DUK_RET_ALLOC_ERROR;
+    if (!args) {
+        ret = DUK_RET_ALLOC_ERROR;
+        goto error;
+    }
 
     for (i = 0; i < nargs; i++) {
         PyObject *arg = duk_to_python(ctx, i);
-        if (arg == NULL)
-            return DUK_RET_TYPE_ERROR;
+        if (arg == NULL)  {
+            Py_DECREF(args);
+            ret = DUK_RET_TYPE_ERROR;
+            goto error;
+        }
 
         PyTuple_SET_ITEM(args, i, arg);
     }
 
     result = PyObject_Call(func, args, NULL);
+    Py_DECREF(args);
+
     if (!result) {
         get_repr(func, buf1, 200);
-        if (!PyErr_Occurred())
+        if (!PyErr_Occurred()) {
+            if (gil_acquired) {
+                dctx->py_thread_state = PyEval_SaveThread();
+                gil_acquired = 0;
+            }
             duk_error(ctx, DUK_ERR_ERROR, "Python function (%s) failed", buf1);
+        }
         PyObject *ptype = NULL, *pval = NULL, *tb = NULL;
         PyErr_Fetch(&ptype, &pval, &tb);
         if (!get_repr(pval, buf2, 1024)) get_repr(ptype, buf2, 1024);
         Py_XDECREF(ptype); Py_XDECREF(pval); Py_XDECREF(tb);
         PyErr_Clear();  /* In case there was an error in get_repr() */
+        if (gil_acquired) {
+            dctx->py_thread_state = PyEval_SaveThread();
+            gil_acquired = 0;
+        }
         duk_error(ctx, DUK_ERR_ERROR, "Python function (%s) failed with error: %s", buf1, buf2);
 
     }
     python_to_duk(ctx, result);
     Py_DECREF(result);
-    return 1;
+error:
+    if (gil_acquired) {
+        dctx->py_thread_state = PyEval_SaveThread();
+        gil_acquired = 0;
+    }
+    return ret;
 }
 
 static duk_ret_t python_object_decref(duk_context *ctx) {
-    int deleted = 0;
+    int deleted = 0, gil_acquired = 0;
+    DukContext *dctx = DukContext_get(ctx);
+
+
     duk_get_prop_string(ctx, 0, "\xff""deleted");
     deleted = duk_to_boolean(ctx, -1);
     duk_pop(ctx);
     if (!deleted) {
         duk_get_prop_string(ctx, 0, "\xff""py_object");
+        if (dctx->py_thread_state) {
+            gil_acquired = 1;
+            PyEval_RestoreThread(dctx->py_thread_state);
+            dctx->py_thread_state = NULL;
+        }
         Py_XDECREF(duk_get_pointer(ctx, -1));
+        if (gil_acquired) {
+            dctx->py_thread_state = PyEval_SaveThread();
+            gil_acquired = 0;
+        }
         duk_pop(ctx);
 
         // Mark as deleted

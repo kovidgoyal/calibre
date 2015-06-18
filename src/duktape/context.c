@@ -18,6 +18,7 @@ static int DukContext_init(DukContext *self, PyObject *args, PyObject *kw)
     (void)kw;
 
     self->heap_manager = NULL;  /* We manage the heap */
+    self->py_thread_state = NULL;
 
     self->ctx = duk_create_heap_default();
     if (!self->ctx) {
@@ -87,7 +88,7 @@ static void DukContext_dealloc(DukContext *self)
 static PyObject *DukContext_eval(DukContext *self, PyObject *args, PyObject *kw)
 {
     const char *code;
-    int noresult = 0;
+    int noresult = 0, ret = 0;
     PyObject *result = NULL, *temp = NULL;
 
     static char *keywords[] = {"code", "noreturn", NULL};
@@ -97,7 +98,11 @@ static PyObject *DukContext_eval(DukContext *self, PyObject *args, PyObject *kw)
     }
     if (temp && PyObject_IsTrue(temp)) noresult = 1;
 
-    if (duk_peval_string(self->ctx, code) != 0) {
+    self->py_thread_state = PyEval_SaveThread();  // Release GIL
+    ret = duk_peval_string(self->ctx, code);
+    PyEval_RestoreThread(self->py_thread_state);  // Acquire GIL
+    self->py_thread_state = NULL;  
+    if (ret != 0) {
         temp = duk_to_python(self->ctx, -1);
         if (temp) {
             PyErr_SetObject(JSError, temp);
@@ -121,7 +126,7 @@ static PyObject *DukContext_eval(DukContext *self, PyObject *args, PyObject *kw)
 static PyObject *DukContext_eval_file(DukContext *self, PyObject *args, PyObject *kw)
 {
     const char *path;
-    int noresult = 0;
+    int noresult = 0, ret = 0;
     PyObject *result = NULL, *temp = NULL;
 
     static char *keywords[] = {"path", "noreturn", NULL};
@@ -131,7 +136,11 @@ static PyObject *DukContext_eval_file(DukContext *self, PyObject *args, PyObject
     }
     if (temp && PyObject_IsTrue(temp)) noresult = 1;
 
-    if (duk_peval_file(self->ctx, path) != 0) {
+    self->py_thread_state = PyEval_SaveThread();  // Release GIL
+    ret = duk_peval_file(self->ctx, path);
+    PyEval_RestoreThread(self->py_thread_state);  // Acquire GIL
+    self->py_thread_state = NULL;  
+    if (ret != 0) {
         temp = duk_to_python(self->ctx, -1);
         if (temp) {
             PyErr_SetObject(JSError, temp);

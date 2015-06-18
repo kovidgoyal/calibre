@@ -1,10 +1,12 @@
 import os
 import sys
 import unittest
+from threading import Thread, Event
 from duktape import dukpy
 undefined, JSError, Context = dukpy.undefined, dukpy.JSError, dukpy.Context
 
 class ContextTests(unittest.TestCase):
+
     def setUp(self):
         self.ctx = Context()
         self.g = self.ctx.g
@@ -30,6 +32,7 @@ class ContextTests(unittest.TestCase):
 
 
 class ValueTests(unittest.TestCase):
+
     def setUp(self):
         self.ctx = Context()
         self.g = self.ctx.g
@@ -106,6 +109,7 @@ class ValueTests(unittest.TestCase):
 
 
 class EvalTests(unittest.TestCase):
+
     def setUp(self):
         self.ctx = Context()
         self.g = self.ctx.g
@@ -148,6 +152,18 @@ class EvalTests(unittest.TestCase):
             self.assertEqual('ReferenceError', e.name)
             self.assertEqual(2, e.lineNumber)
 
+    def test_eval_multithreading(self):
+        ev = Event()
+        self.ctx.g.func = ev.wait
+        t = Thread(target=self.ctx.eval, args=('func()',))
+        t.daemon = True
+        t.start()
+        t.join(0.01)
+        self.assertTrue(t.is_alive())
+        ev.set()
+        t.join(1)
+        self.assertFalse(t.is_alive())
+
     def test_eval_noreturn(self):
         self.assertIsNone(self.ctx.eval("1+1", noreturn=True))
 
@@ -166,5 +182,3 @@ class EvalTests(unittest.TestCase):
 
     def test_eval_file_noreturn(self):
         self.assertIsNone(self.ctx.eval_file(self.testfile, noreturn=True))
-
-

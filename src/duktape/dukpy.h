@@ -22,6 +22,7 @@ struct DukContext_ {
     PyObject_HEAD
     duk_context *ctx;
     DukContext *heap_manager;
+    PyThreadState *py_thread_state;
 };
 
 PyTypeObject DukContext_Type;
