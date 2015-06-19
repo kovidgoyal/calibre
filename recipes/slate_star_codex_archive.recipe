@@ -1,0 +1,54 @@
+#!/usr/bin/env python2
+
+from calibre.web.feeds.news import BasicNewsRecipe
+import re
+
+__license__   = 'GPL v3'
+__copyright__ = '2015, Ned Letcher - ned@nedned.net'
+
+
+"""A calibre custom news recipe for creating eBooks of *all* posts
+from the blog Slate Star Codex.
+
+If calibre is installed on your system you can generate an epub of the
+entire SSC archive from your command line like so:
+
+$ ebook-convert slate_star_codex.recipe .epub
+
+Author: Ned Letcher
+
+"""
+
+
+class SlateStarCodexArchive(BasicNewsRecipe):
+    title = u'Slate Star Codex (Complete Archive)'
+    description = 'IN A MAD WORLD, ALL BLOGGING IS PSYCHIATRY BLOGGING'
+    simultaneous_downloads = 10
+    max_articles_per_feed = 1000
+    reverse_article_order = True
+    language = 'en'
+    no_stylesheets = True
+    # alternative candidate for keep_only_tags:
+    # [{'attrs':{'class':['pjgm-posttitle', 'pjgm-postmeta', 'pjgm-postcontent']}}]
+    keep_only_tags = [dict(name='div', attrs={'class':re.compile(r'\bpost\b')})]
+    remove_tags = [dict(name='div', attrs={'class':re.compile(r'\bsharedaddy\b')})]
+   
+    def get_archived_posts(self):
+        soup = self.index_to_soup('http://slatestarcodex.com/archives/')
+        entries = soup.findAll(attrs={'class':'sya_postcontent'})
+
+        posts = []
+        for entry in entries:
+            atag = entry.find('a')
+            url = atag['href']
+            post = {
+                'title' : atag.contents[0],
+                'url' : url,
+                'date' : "-".join(url.strip('/').split('/')[-4:-1]),
+            }
+            posts.append(post)
+        return posts
+
+    def parse_index(self):
+        posts = self.get_archived_posts()
+        return [[self.title, posts]]
