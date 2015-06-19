@@ -19,19 +19,20 @@ if sys.version_info.major > 2:
     raise SystemExit(1)
 
 import time, BaseHTTPServer, os, sys, re, SocketServer
-from threading import Lock
+from threading import Lock, local
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 # Compiler {{{
 
-_compiler = None
+tls = local()
+
 def compiler():
-    global _compiler
-    if _compiler is None:
+    ans = getattr(tls, 'compiler', None)
+    if ans is None:
         from duktape import Context
-        c = _compiler = Context()
+        c = tls.compiler = Context()
         c.eval(P('coffee-script.js', data=True).decode('utf-8'))
-    return _compiler
+    return tls.compiler
 
 def compile_coffeescript(raw, filename=None):
     from duktape import JSError
