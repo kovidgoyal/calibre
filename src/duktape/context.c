@@ -87,19 +87,21 @@ static void DukContext_dealloc(DukContext *self)
 
 static PyObject *DukContext_eval(DukContext *self, PyObject *args, PyObject *kw)
 {
-    const char *code;
+    const char *code, *fname = "<eval>";
     int noresult = 0, ret = 0;
     PyObject *result = NULL, *temp = NULL;
 
-    static char *keywords[] = {"code", "noreturn", NULL};
-    if (!PyArg_ParseTupleAndKeywords(args, kw, "s|O:eval", keywords, 
-                &code, &temp)) {
+    static char *keywords[] = {"code", "noreturn", "fname", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kw, "s|Os:eval", keywords, 
+                &code, &temp, &fname)) {
         return NULL;
     }
     if (temp && PyObject_IsTrue(temp)) noresult = 1;
 
     self->py_thread_state = PyEval_SaveThread();  // Release GIL
-    ret = (noresult) ? duk_peval_string_noresult(self->ctx, code) : duk_peval_string(self->ctx, code);
+    ret = DUK_COMPILE_EVAL | DUK_COMPILE_SAFE | DUK_COMPILE_NOSOURCE | DUK_COMPILE_STRLEN | ((noresult) ? DUK_COMPILE_NORESULT : 0);
+    duk_push_string(self->ctx, fname);
+	ret = duk_eval_raw(self->ctx, code, 0, ret);
     PyEval_RestoreThread(self->py_thread_state);  // Acquire GIL
     self->py_thread_state = NULL;  
     if (ret != 0) {

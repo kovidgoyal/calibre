@@ -141,15 +141,17 @@ class EvalTests(unittest.TestCase):
         except JSError as e:
             e = e.args[0]
             self.assertEqual('SyntaxError', e.name)
+            self.assertEqual('<eval>', e.fileName)
             self.assertEqual(1, e.lineNumber)
             self.assertIn('line 1', e.toString())
 
         try:
-            self.ctx.eval('\na()')
+            self.ctx.eval('\na()', fname='xxx')
             self.assert_('No error raised for malformed js')
         except JSError as e:
             e = e.args[0]
             self.assertEqual('ReferenceError', e.name)
+            self.assertEqual('xxx', e.fileName)
             self.assertEqual(2, e.lineNumber)
 
     def test_eval_multithreading(self):
