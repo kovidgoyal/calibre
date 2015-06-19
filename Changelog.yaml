@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.31.0
+  date: 2015-06-19
+
+  new features:
+    - title: "E-book viewer: Make the search engine used for searching for selected text configurable (in the Miscellaneous section of the viewer preferences)"
+
+  bug fixes:
+    - title: "E-book viewer: Fix dragging to select text with the mouse causing the page to slide sideways in paged mode, if the mouse leaves the text area."
+      tickets: [1464862]
+
+    - title: "E-book viewer: Fix transitioning between full screen mode and normal mode sometimes causing current position to not be preserved."
+      tickets: [1466082]
+
+    - title: "AZW3 Input: Ignore incorrect text encoding (incorrectly encoded bytes are now replaced by placeholders) instead of erroring out."
+      tickets: [1465769]
+
+    - title: "Get Books: Update Legimi and CDP store plugins for website changes"
+
+    - title: "Fix Cybook Nolimbook not being detected in linux and OS X."
+      tickets: [1464382]
+
+    - title: "DOCX Output: Fix internal hyperlinks being ignored when they point to a HTML file whose <body> element has an id."
+      tickets: [1464086]
+
+    - title: "Edit Book: Fix groups in replace template being interpreted backwards when search direction is up"
+
+    - title: "Searching: When search as you type is active, do not change automatically change focus to the book list when searching, unless the user presses Enter."
+      tickets: [1463042]
+
+    - title: "Font subsetting: Fix subsetting removing some needed ligatures when subsetting some Arabic fonts"
+
+    - title: "Prevent errors when testing email sending even if stderr on the host machine is broken"
+
+  improved recipes:
+    - Baltimore Sun
+    - El Mercurio Chile
+    - Sydney Morning Herald
+
+  new recipes:
+    - title: Various Ukranian news sources 
+      author: rpalyvoda
+
 - version: 2.30.0
   date: 2015-06-05
 
