@@ -99,21 +99,20 @@ static PyObject *DukContext_eval(DukContext *self, PyObject *args, PyObject *kw)
     if (temp && PyObject_IsTrue(temp)) noresult = 1;
 
     self->py_thread_state = PyEval_SaveThread();  // Release GIL
-    ret = duk_peval_string(self->ctx, code);
+    ret = (noresult) ? duk_peval_string_noresult(self->ctx, code) : duk_peval_string(self->ctx, code);
     PyEval_RestoreThread(self->py_thread_state);  // Acquire GIL
     self->py_thread_state = NULL;  
     if (ret != 0) {
         temp = duk_to_python(self->ctx, -1);
+        duk_pop(self->ctx);
         if (temp) {
             PyErr_SetObject(JSError, temp);
             Py_DECREF(temp);
-        }
-        duk_pop(self->ctx);
+        } else PyErr_SetString(PyExc_RuntimeError, "The was an error during eval(), but the error could not be read of the stack");
         return NULL;
     }
 
     if (noresult) {
-        duk_pop(self->ctx);
         Py_RETURN_NONE;
     }
 
@@ -137,21 +136,20 @@ static PyObject *DukContext_eval_file(DukContext *self, PyObject *args, PyObject
     if (temp && PyObject_IsTrue(temp)) noresult = 1;
 
     self->py_thread_state = PyEval_SaveThread();  // Release GIL
-    ret = duk_peval_file(self->ctx, path);
+    ret = (noresult) ? duk_peval_file_noresult(self->ctx, path) : duk_peval_file(self->ctx, path);
     PyEval_RestoreThread(self->py_thread_state);  // Acquire GIL
     self->py_thread_state = NULL;  
     if (ret != 0) {
         temp = duk_to_python(self->ctx, -1);
+        duk_pop(self->ctx);
         if (temp) {
             PyErr_SetObject(JSError, temp);
             Py_DECREF(temp);
-        }
-        duk_pop(self->ctx);
+        } else PyErr_SetString(PyExc_RuntimeError, "The was an error during eval_file(), but the error could not be read of the stack");
         return NULL;
     }
 
     if (noresult) {
-        duk_pop(self->ctx);
         Py_RETURN_NONE;
     }
 
