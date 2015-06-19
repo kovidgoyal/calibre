@@ -20,6 +20,7 @@ static int get_repr(PyObject *value, char *buf, int bufsz) {
 static duk_ret_t python_function_caller(duk_context *ctx)
 {
     PyObject *func, *args, *result;
+    PyObject *ptype = NULL, *pval = NULL, *tb = NULL;
     DukContext *dctx;
     duk_idx_t nargs, i;
     static char buf1[200], buf2[1024];
@@ -67,7 +68,6 @@ static duk_ret_t python_function_caller(duk_context *ctx)
             }
             duk_error(ctx, DUK_ERR_ERROR, "Python function (%s) failed", buf1);
         }
-        PyObject *ptype = NULL, *pval = NULL, *tb = NULL;
         PyErr_Fetch(&ptype, &pval, &tb);
         if (!get_repr(pval, buf2, 1024)) get_repr(ptype, buf2, 1024);
         Py_XDECREF(ptype); Py_XDECREF(pval); Py_XDECREF(tb);

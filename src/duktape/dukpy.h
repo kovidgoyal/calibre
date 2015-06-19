@@ -11,7 +11,7 @@ typedef struct DukEnum_ DukEnum;
 
 /* module.c */
 
-PyObject DukUndefined;
+extern PyObject DukUndefined;
 #define Duk_undefined (&DukUndefined)
 extern PyObject *JSError;
 
@@ -25,7 +25,7 @@ struct DukContext_ {
     PyThreadState *py_thread_state;
 };
 
-PyTypeObject DukContext_Type;
+extern PyTypeObject DukContext_Type;
 
 DukContext *DukContext_get(duk_context *ctx);
 
@@ -38,10 +38,10 @@ struct DukObject_ {
     DukObject *parent;
 };
 
-PyTypeObject DukObject_Type;
-PyTypeObject DukArray_Type;
-PyTypeObject DukFunction_Type;
-PyTypeObject DukEnum_Type;
+extern PyTypeObject DukObject_Type;
+extern PyTypeObject DukArray_Type;
+extern PyTypeObject DukFunction_Type;
+extern PyTypeObject DukEnum_Type;
 
 DukObject *DukObject_from_DukContext(DukContext *context, duk_idx_t index);
 DukObject *DukObject_from_ctx(duk_context *ctx, duk_idx_t index);
