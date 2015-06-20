@@ -83,6 +83,8 @@ class JSError(Exception):
             self.lineNumber = e.lineNumber
             self.stack = e.stack
         else:
+            # Happens if js code throws a string or integer rather than a
+            # subclass of Error
             Exception.__init__(self, type('')(e))
             self.name = self.js_message = self.fileName = self.lineNumber = self.stack = None
 
