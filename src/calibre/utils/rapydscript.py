@@ -6,11 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, json, sys, errno, re
+import os, json, sys, errno, re, atexit
 from threading import local
+from functools import partial
 
+from calibre.constants import cache_dir, iswindows
 from calibre.utils.terminal import ANSIStream, colored
-from calibre.constants import cache_dir
 
 COMPILER_PATH = 'rapydscript/compiler.js'
 
@@ -172,11 +173,13 @@ class Repl(object):
 
     LINE_CONTINUATION_CHARS = r'\:'
 
-    def __init__(self, ps1=colored('>>> ', fg='green'), ps2=colored('... ', fg='green'), show_js=False, libdir=None):
+    def __init__(self, ps1='>>> ', ps2='... ', show_js=False, libdir=None):
         from duktape import Context, undefined, JSError, to_python
         self.lines = []
         self.libdir = libdir
         self.ps1, self.ps2 = ps1, ps2
+        if not iswindows:
+            self.ps1, self.ps2 = colored(self.ps1, fg='green'), colored(self.ps2, fg='green')
         self.ctx = Context()
         self.ctx.g.show_js = show_js
         self.undefined = undefined
@@ -188,7 +191,7 @@ class Repl(object):
             self.readline = readline
         except ImportError:
             pass
-        self.output = ANSIStream(sys.stderr)
+        self.output = ANSIStream(sys.stdout)
 
     def resetbuffer(self):
         self.lines = []
@@ -207,12 +210,15 @@ class Repl(object):
         self.prints(colored('Welcome to the RapydScript REPL! Press Ctrl+D to quit.\n'
                     'Use show_js = True to have the REPL print out the'
                     ' compiled javascript before executing it.\n', bold=True))
-        history = os.path.join(cache_dir(), 'pyj-repl-history.txt')
-        try:
-            self.readline.read_history_file(history)
-        except EnvironmentError as e:
-            if e.errno != errno.ENOENT:
-                raise
+        if hasattr(self, 'readline'):
+            history = os.path.join(cache_dir(), 'pyj-repl-history.txt')
+            self.readline.parse_and_bind("tab: complete")
+            try:
+                self.readline.read_history_file(history)
+            except EnvironmentError as e:
+                if e.errno != errno.ENOENT:
+                    raise
+            atexit.register(partial(self.readline.write_history_file, history))
         more = False
         while True:
             try:
@@ -224,8 +230,7 @@ class Repl(object):
                     prompt += lw
 
                 try:
-                    self.prints(prompt, end='')
-                    line = raw_input().decode(self.enc)
+                    line = raw_input(prompt).decode(self.enc)
                 except EOFError:
                     self.prints()
                     break
@@ -238,7 +243,6 @@ class Repl(object):
                 self.prints("\nKeyboardInterrupt")
                 self.resetbuffer()
                 more = False
-        self.readline.write_history_file(history)
 
     def push(self, line):
         self.lines.append(line)
@@ -274,7 +278,7 @@ class Repl(object):
         if self.ctx.g.show_js:
             self.prints(colored('Compiled Javascript:', fg='green'), js, sep='\n')
         try:
-            result = self.ctx.eval(js)
+            result = self.ctx.eval(js, fname='line')
         except self.JSError as e:
             self.prints(e.message)
         except Exception as e:
