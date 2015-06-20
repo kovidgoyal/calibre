@@ -1326,7 +1326,7 @@ def run_search(
             d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False)
             d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
             b.setIcon(QIcon(I('diff.png'))), d.set_details(None), b.clicked.connect(d.accept)
-            b.clicked.connect(partial(show_current_diff, allow_revert=True))
+            b.clicked.connect(partial(show_current_diff, allow_revert=True), type=Qt.QueuedConnection)
             d.exec_()
         else:
             info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True)
