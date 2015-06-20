@@ -7,9 +7,9 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
-__all__ = ['dukpy', 'Context', 'undefined', 'JSError']
+__all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 
-import errno, os, sys
+import errno, os, sys, numbers
 from functools import partial
 
 from calibre.constants import plugins
@@ -19,32 +19,80 @@ if err:
 del err
 Context_, undefined = dukpy.Context, dukpy.undefined
 
-def load_file(base_dirs, name):
+def load_file(base_dirs, builtin_modules, name):
+    ans = builtin_modules.get(name)
+    if ans is not None:
+        return ans
+    if not name.endswith('.js'):
+        name += '.js'
+    def do_open(*args):
+        with open(os.path.join(*args), 'rb') as f:
+            return f.read().decode('utf-8')
+
     for b in base_dirs:
         try:
-            return open(os.path.join(b, name), 'rb').read().decode('utf-8')
+            return do_open(b, name)
         except EnvironmentError as e:
             if e.errno != errno.ENOENT:
                 raise
     raise EnvironmentError('No module named: %s found in the base directories: %s' % (name, os.pathsep.join(base_dirs)))
 
+def readfile(path, enc='utf-8'):
+    with open(path, 'rb') as f:
+        return f.read().decode(enc)
+
+class Function(object):
+
+    def __init__(self, func):
+        self.func = func
+
+    def __repr__(self):
+        # For some reason x._Formals is undefined in duktape
+        x = self.func
+        return str('function: %s(...) from file: %s' % (x.name, x.fileName))
+
+    def __call__(self, *args, **kwargs):
+        return self.func(*args, **kwargs)
+
+def to_python(x):
+    if isinstance(x, (numbers.Number, type(''), bytes, bool)):
+        if isinstance(x, type('')):
+            x = x.encode('utf-8')
+        if isinstance(x, numbers.Integral):
+            x = int(x)
+        return x
+    name = x.__class__.__name__
+    if name == 'Array proxy':
+        return [to_python(y) for y in x]
+    if name == 'Object proxy':
+        return {to_python(k):to_python(v) for k, v in x.items()}
+    if name == 'Function proxy':
+        return Function(x)
+    return x
+
 class JSError(Exception):
 
     def __init__(self, e):
         e = e.args[0]
-        Exception.__init__(self, e.toString())
-        self.name = e.name
-        self.js_message = e.message
-        self.fileName = e.fileName
-        self.lineNumber = e.lineNumber
-        self.stack = e.stack
+        if hasattr(e, 'toString()'):
+            msg = '%s:%s:%s' % (e.fileName, e.lineNumber, e.toString())
+            Exception.__init__(self, msg)
+            self.name = e.name
+            self.js_message = e.message
+            self.fileName = e.fileName
+            self.lineNumber = e.lineNumber
+            self.stack = e.stack
+        else:
+            Exception.__init__(self, type('')(e))
+            self.name = self.js_message = self.fileName = self.lineNumber = self.stack = None
 
 class Context(object):
 
-    def __init__(self, base_dirs=()):
+    def __init__(self, base_dirs=(), builtin_modules=None):
         self._ctx = Context_()
         self.g = self._ctx.g
-        self.g.Duktape.load_file = partial(load_file, base_dirs or (os.getcwdu(),))
+        self.g.Duktape.load_file = partial(load_file, base_dirs or (os.getcwdu(),), builtin_modules or {})
+        self.g.Duktape.readfile = readfile
         self.eval('''
             console = { log: function() { print(Array.prototype.join.call(arguments, ' ')); } };
             Duktape.modSearch = function (id, require, exports, module) {
@@ -52,9 +100,9 @@ class Context(object):
             }
         ''')
 
-    def eval(self, code='', noreturn=False):
+    def eval(self, code='', fname='<eval>', noreturn=False):
         try:
-            return self._ctx.eval(code, noreturn)
+            return self._ctx.eval(code, noreturn, fname)
         except dukpy.JSError as e:
             raise JSError(e)
 
