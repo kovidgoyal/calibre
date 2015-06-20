@@ -66,7 +66,7 @@ def compiler():
     if c is None:
         from duktape import Context
         c = tls.compiler = Context(base_dirs=(P('rapydscript', allow_user_override=False),))
-        c.eval(P(COMPILER_PATH, data=True, allow_user_override=False).decode('utf-8'))
+        c.eval(P(COMPILER_PATH, data=True, allow_user_override=False).decode('utf-8'), fname='rapydscript-compiler.js')
     return c
 
 class PYJError(Exception):
@@ -254,14 +254,15 @@ def main(args=sys.argv):
     parser.add_argument('--show-js', action='store_true', help='Have the REPL output compiled javascript before executing it')
     parser.add_argument('--libdir', help='Where to look for imported modules')
     args = parser.parse_args(args)
+    libdir = os.path.expanduser(args.libdir) if args.libdir else None
 
     if sys.stdin.isatty():
-        Repl(show_js=args.show_js, libdir=args.libdir)()
+        Repl(show_js=args.show_js, libdir=libdir)()
     else:
         from duktape import JSError
         try:
             enc = getattr(sys.stdin, 'encoding', 'utf-8') or 'utf-8'
-            sys.stdout.write(compile_pyj(sys.stdin.read().decode(enc), libdir=args.libdir))
+            sys.stdout.write(compile_pyj(sys.stdin.read().decode(enc), libdir=libdir))
         except PYJError as e:
             for e in e.errors:
                 print(format_error(e), file=sys.stderr)
