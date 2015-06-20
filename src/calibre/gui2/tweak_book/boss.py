@@ -312,7 +312,7 @@ class Boss(QObject):
             self.gui.action_save.setEnabled(False)
             self.update_global_history_actions()
             recent_books = list(tprefs.get('recent-books', []))
-            path = container.path_to_ebook
+            path = os.path.abspath(container.path_to_ebook)
             if path in recent_books:
                 recent_books.remove(path)
             recent_books.insert(0, path)
