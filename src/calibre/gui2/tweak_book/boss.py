@@ -242,6 +242,10 @@ class Boss(QObject):
 
         :param edit_file: The name of a file inside the newly opened book to start editing. Can also be a list of names.
         '''
+        if isinstance(path, (list, tuple)) and path:
+            # Can happen from an file_event_hook on OS X when drag and dropping
+            # onto the icon in the dock or using open -a
+            path = path[-1]
         if not self._check_before_open():
             return
         if not hasattr(path, 'rpartition'):
