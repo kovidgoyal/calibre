@@ -159,15 +159,6 @@ class Container(object):  # {{{
             for f in filenames:
                 path = join(dirpath, f)
                 name = self.abspath_to_name(path)
-                # OS X silently changes all file names to NFD form. The EPUB
-                # spec requires all text including filenames to be in NFC form.
-                # The proper fix is to implement a VFS that maps between
-                # canonical names and their file system representation, however,
-                # I dont have the time for that now. Note that the container
-                # ensures that all text files are normalized to NFC when
-                # decoding them anyway, so there should be no mismatch between
-                # names in the text and NFC canonical file names.
-                name = unicodedata.normalize('NFC', name)
                 self.name_path_map[name] = path
                 self.mime_map[name] = guess_type(path)
                 # Special case if we have stumbled onto the opf
@@ -373,7 +364,15 @@ class Container(object):  # {{{
 
         :param root: The base directory. By default the root for this container object is used.
         '''
-        return abspath_to_name(fullpath, root or self.root)
+        # OS X silently changes all file names to NFD form. The EPUB
+        # spec requires all text including filenames to be in NFC form.
+        # The proper fix is to implement a VFS that maps between
+        # canonical names and their file system representation, however,
+        # I dont have the time for that now. Note that the container
+        # ensures that all text files are normalized to NFC when
+        # decoding them anyway, so there should be no mismatch between
+        # names in the text and NFC canonical file names.
+        return unicodedata.normalize('NFC', abspath_to_name(fullpath, root or self.root))
 
     def name_to_abspath(self, name):
         ' Convert a canonical name to an absolute OS dependant path '
