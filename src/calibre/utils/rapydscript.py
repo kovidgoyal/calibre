@@ -223,12 +223,15 @@ class Repl(object):
         while True:
             try:
                 prompt = self.ps2 if more else self.ps1
+                lw = ''
                 if more:
                     lw = ' ' * 4
                     if self.lines:
                         lw = leading_whitespace(self.lines[-1]) + lw
+                if hasattr(self, 'readline'):
+                    self.readline.set_pre_input_hook(lambda:(self.readline.insert_text(lw), self.readline.redisplay()))
+                else:
                     prompt += lw
-
                 try:
                     line = raw_input(prompt).decode(self.enc)
                 except EOFError:
@@ -261,7 +264,8 @@ class Repl(object):
         except PYJError as e:
             for data in e.errors:
                 msg = data.get('message') or ''
-                if data['line'] == len(self.lines) and 'Unexpected token: eof' in msg or 'Unterminated regular expression' in msg:
+                if data['line'] == len(self.lines) and data['col'] > 0 and (
+                        'Unexpected token: eof' in msg or 'Unterminated regular expression' in msg):
                     return True
             else:
                 for e in e.errors:
