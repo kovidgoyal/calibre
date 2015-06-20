@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, json, sys, errno
+import os, json, sys, errno, re
 from threading import local
 
 from calibre.utils.terminal import ANSIStream, colored
@@ -17,7 +17,45 @@ COMPILER_PATH = 'rapydscript/compiler.js'
 def abspath(x):
     return os.path.realpath(os.path.abspath(x))
 
-def update_rapydscript():  # {{{
+# Update RapydScript {{{
+def parse_baselib(src):
+    # duktape does not store function source code, so we have to do it manually
+    start = re.compile(r'''['"]([a-zA-Z0-9]+)['"]\s*:''')
+    in_func = None
+    funcs = {}
+    for line in src.splitlines():
+        line = line.rstrip()
+        if in_func is None:
+            m = start.match(line)
+            if m is not None:
+                funcs[m.group(1)] = in_func = [line.partition(':')[-1].lstrip()]
+        else:
+            if line in ',}':
+                in_func = None
+            else:
+                in_func.append(line)
+    funcs = {k:'\n'.join(v) for k, v in funcs.iteritems()}
+    return funcs
+
+def compile_baselib(ctx, baselib, beautify=True):
+    ctx.g.current_output_options = {'beautify':beautify, 'private_scope':False}
+    ctx.g.filename = 'baselib.pyj'
+    ctx.g.basedir = ''
+    ctx.g.libdir = ''
+
+    def doit(src):
+        src += '\n'
+        ctx.g.code = src
+        try:
+            return ctx.eval(COMPILER_JS)
+        except Exception as e:
+            print ('Failed to compile source:')
+            print (src)
+            raise SystemExit(str(e))
+
+    return {k:doit(v) for k, v in sorted(baselib.iteritems())}
+
+def update_rapydscript():
     from duktape import Context, JSError
     vm_js = '''
     exports.createContext = function(x) { x.AST_Node = {}; return x; }
@@ -49,14 +87,33 @@ def update_rapydscript():  # {{{
     data = b'\n\n'.join(open(os.path.join(base, 'bin', x.lstrip('/')), 'rb').read() for x in ctx.g.RapydScript.FILES)
 
     package = json.load(open(os.path.join(base, 'package.json')))
+    baselib = parse_baselib(open(os.path.join(base, 'src', 'baselib.pyj'), 'rb').read().decode('utf-8'))
+    ctx = Context()
+    ctx.eval(data.decode('utf-8'))
+    baselib = {'beautifed': compile_baselib(ctx, baselib), 'minified': compile_baselib(ctx, baselib, False)}
+
     with open(P(COMPILER_PATH, allow_user_override=False), 'wb') as f:
         f.write(data)
-        f.write(b'\n\nrs_baselib_pyj = ' + json.dumps(open(os.path.join(base, 'src', 'baselib.pyj'), 'rb').read().decode('utf-8')))
-        f.write(b'\n\nrs_package_version = ' + json.dumps(package['version']))
+        f.write(b'\n\nrs_baselib_pyj = ' + json.dumps(baselib) + b';')
+        f.write(b'\n\nrs_package_version = ' + json.dumps(package['version']) + b';\n')
 # }}}
 
 # Compiler {{{
 tls = local()
+COMPILER_JS = '''
+(function() {
+var output = OutputStream(current_output_options);
+var ast = parse(code, {
+    filename: filename,
+    readfile: Duktape.readfile,
+    basedir: basedir,
+    auto_bind: false,
+    libdir: libdir
+});
+ast.print(output);
+return output.get();
+})();
+'''
 
 def to_dict(obj):
     return dict(zip(obj.keys(), obj.values()))
@@ -75,21 +132,17 @@ class PYJError(Exception):
         Exception.__init__(self, '')
         self.errors = errors
 
-def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None):
-    from duktape import JSError
+def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False):
+    import duktape
     if isinstance(data, bytes):
         data = data.decode('utf-8')
     c = compiler()
-    c.g.current_output_options = {'beautify':beautify, 'private_scope':private_scope}
-    # Add baselib.pyj
-    c.eval('''
-(function() {
-    var baselib_ast = parse(rs_baselib_pyj, {readfile:Duktape.readfile});
-    var os = OutputStream({private_scope:false, beautify:current_output_options.beautify});
-    baselib_ast.print(os);
-    current_output_options.baselib = eval(os.toString());
-})();
-''')
+    c.g.current_output_options = {
+        'beautify':beautify,
+        'private_scope':private_scope,
+        'omit_baselib': omit_baselib,
+        'baselib':dict(dict(c.g.rs_baselib_pyj)['beautifed' if beautify else 'minified']),
+    }
     d = os.path.dirname
     c.g.libdir = libdir or os.path.join(d(d(d(abspath(__file__)))), 'pyj')
     c.g.code = data
@@ -98,21 +151,8 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
     errors = []
     c.g.AST_Node.warn = lambda templ, data:errors.append(to_dict(data))
     try:
-        return c.eval('''
-(function() {
-var output = OutputStream(current_output_options);
-var ast = parse(code, {
-    filename: filename,
-    readfile: Duktape.readfile,
-    basedir: basedir,
-    auto_bind: false,
-    libdir: libdir
-});
-ast.print(output);
-return output.get();
-})();
-        ''')
-    except JSError:
+        return c.eval(COMPILER_JS)
+    except duktape.JSError:
         if errors:
             raise PYJError(errors)
         raise
@@ -253,6 +293,8 @@ def main(args=sys.argv):
             version='Using RapydScript compiler version: '+ver)
     parser.add_argument('--show-js', action='store_true', help='Have the REPL output compiled javascript before executing it')
     parser.add_argument('--libdir', help='Where to look for imported modules')
+    parser.add_argument('--omit-baselib', action='store_true', default=False, help='Omit the RapydScript base library')
+    parser.add_argument('--no-private-scope', action='store_true', default=False, help='Do not wrap the output in its own private scope')
     args = parser.parse_args(args)
     libdir = os.path.expanduser(args.libdir) if args.libdir else None
 
@@ -262,7 +304,8 @@ def main(args=sys.argv):
         from duktape import JSError
         try:
             enc = getattr(sys.stdin, 'encoding', 'utf-8') or 'utf-8'
-            sys.stdout.write(compile_pyj(sys.stdin.read().decode(enc), libdir=libdir))
+            data = compile_pyj(sys.stdin.read().decode(enc), libdir=libdir, private_scope=not args.no_private_scope, omit_baselib=args.omit_baselib)
+            print(data.encode(enc))
         except PYJError as e:
             for e in e.errors:
                 print(format_error(e), file=sys.stderr)
