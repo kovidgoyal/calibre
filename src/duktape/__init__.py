@@ -49,7 +49,7 @@ class Function(object):
     def __repr__(self):
         # For some reason x._Formals is undefined in duktape
         x = self.func
-        return str('function: %s(...) from file: %s' % (x.name, x.fileName))
+        return str('[Function: %s(...) from file: %s]' % (x.name, x.fileName))
 
     def __call__(self, *args, **kwargs):
         return self.func(*args, **kwargs)
