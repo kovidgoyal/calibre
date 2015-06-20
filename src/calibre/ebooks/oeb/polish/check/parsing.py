@@ -17,7 +17,7 @@ from calibre.ebooks.html_entities import html5_entities
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style as fix_style_tag
 from calibre.ebooks.oeb.polish.utils import PositionFinder, guess_type
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, ERROR, INFO
-from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS, urlquote, URL_SAFE
+from calibre.ebooks.oeb.base import OEB_DOCS, XHTML_NS, urlquote, URL_SAFE, XHTML
 
 HTML_ENTITTIES = frozenset(html5_entities)
 XML_ENTITIES = {'lt', 'gt', 'amp', 'apos', 'quot'}
@@ -328,6 +328,38 @@ class DuplicateId(BaseError):
         container.dirty(self.name)
         return True
 
+class BareTextInBody(BaseError):
+
+    INDIVIDUAL_FIX = _('Wrap the bare text in a p tag')
+    HELP = _('You cannot have bare text inside the body tag. The text must be placed inside some other tag, such as p or div')
+    has_multiple_locations = True
+
+    def __init__(self, name, lines):
+        BaseError.__init__(self, _('Bare text in body tag'), name)
+        self.all_locations = [(name, l, None) for l in sorted(lines)]
+
+    def __call__(self, container):
+        root = container.parsed(self.name)
+        for body in root.xpath('//*[local-name() = "body"]'):
+            children = tuple(body.iterchildren('*'))
+            if body.text and body.text.strip():
+                p = body.makeelement(XHTML('p'))
+                p.text, body.text = body.text.strip(), '\n  '
+                p.tail = '\n'
+                if children:
+                    p.tail += '  '
+                body.insert(0, p)
+            for child in children:
+                if child.tail and child.tail.strip():
+                    p = body.makeelement(XHTML('p'))
+                    p.text, child.tail = child.tail.strip(), '\n  '
+                    p.tail = '\n'
+                    body.insert(body.index(child) + 1, p)
+                    if child is not children[-1]:
+                        p.tail += '  '
+        container.dirty(self.name)
+        return True
+
 class ErrorHandler(object):
 
     ' Replacement logger to get useful error/warning info out of cssutils during parsing '
@@ -401,4 +433,20 @@ def check_ids(container):
                 else:
                     seen_ids[eid] = elem.sourceline
             errors.extend(DuplicateId(name, eid, locs) for eid, locs in dups.iteritems())
+    return errors
+
+def check_markup(container):
+    errors = []
+    for name, mt in container.mime_map.iteritems():
+        if mt in OEB_DOCS:
+            lines = []
+            root = container.parsed(name)
+            for body in root.xpath('//*[local-name()="body"]'):
+                if body.text and body.text.strip():
+                    lines.append(body.sourceline)
+                for child in body.iterchildren('*'):
+                    if child.tail and child.tail.strip():
+                        lines.append(child.sourceline)
+            if lines:
+                errors.append(BareTextInBody(name, lines))
     return errors
