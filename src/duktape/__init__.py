@@ -95,9 +95,10 @@ class Context(object):
         self.g.Duktape.readfile = readfile
         self.eval('''
             console = { log: function() { print(Array.prototype.join.call(arguments, ' ')); } };
-            Duktape.modSearch = function (id, require, exports, module) {
-                return Duktape.load_file(id);
-            }
+            Duktape.modSearch = function (id, require, exports, module) { return Duktape.load_file(id); }
+            String.prototype.trimLeft = function() { return this.replace(/^\s+/, ''); };
+            String.prototype.trimRight = function() { return this.replace(/\s+$/, ''); };
+            String.prototype.trim = function() { return this.replace(/^\s+/, '').replace(/\s+$/, ''); };
         ''')
 
     def eval(self, code='', fname='<eval>', noreturn=False):
