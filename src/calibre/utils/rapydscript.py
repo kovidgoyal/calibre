@@ -125,6 +125,7 @@ def compiler():
         from duktape import Context
         c = tls.compiler = Context(base_dirs=(P('rapydscript', allow_user_override=False),))
         c.eval(P(COMPILER_PATH, data=True, allow_user_override=False).decode('utf-8'), fname='rapydscript-compiler.js')
+        c.g.current_output_options = {}
     return c
 
 class PYJError(Exception):
@@ -192,6 +193,10 @@ class Repl(object):
         except ImportError:
             pass
         self.output = ANSIStream(sys.stdout)
+        c = compiler()
+        baselib = dict(dict(c.g.rs_baselib_pyj)['beautifed'])
+        baselib = '\n\n'.join(baselib.itervalues())
+        self.ctx.eval(baselib)
 
     def resetbuffer(self):
         self.lines = []
@@ -260,7 +265,7 @@ class Repl(object):
 
     def runsource(self, source):
         try:
-            js = compile_pyj(source, filename='', private_scope=False, libdir=self.libdir)
+            js = compile_pyj(source, filename='', private_scope=False, libdir=self.libdir, omit_baselib=True)
         except PYJError as e:
             for data in e.errors:
                 msg = data.get('message') or ''
