@@ -344,7 +344,6 @@ class EbookViewer(MainWindow):
             a.setEndValue(QSize(width, height))
             a.start()
             QTimer.singleShot(3500, self.full_screen_label.hide)
-        self.view.document.switch_to_fullscreen_mode()
         if self.view.document.fullscreen_clock:
             self.show_clock()
         if self.view.document.fullscreen_pos:
@@ -403,17 +402,6 @@ class EbookViewer(MainWindow):
             super(EbookViewer, self).showMaximized()
         else:
             super(EbookViewer, self).showNormal()
-
-    def handle_window_mode_toggle(self):
-        if self.window_mode_changed:
-            fs = self.window_mode_changed == 'fullscreen'
-            self.window_mode_changed = None
-            if fs:
-                self.show_full_screen_label()
-            else:
-                self.view.document.switch_to_window_mode()
-            self.view.document.page_position.restore()
-            self.scrolled(self.view.scroll_fraction)
 
     def goto(self, ref):
         if ref:
@@ -711,15 +699,24 @@ class EbookViewer(MainWindow):
         # There hasn't been a resize event for some time
         # restore the current page position.
         self.resize_in_progress = False
-        wmc = self.window_mode_changed
+        wmc, self.window_mode_changed = self.window_mode_changed, None
+        fs = wmc == 'fullscreen'
+        if wmc:
+            # Sets up body text margins, which can be limited in fs mode by a
+            # separate config option, so must be done before relayout of text
+            (self.view.document.switch_to_fullscreen_mode if fs else self.view.document.switch_to_window_mode)()
+        # Re-layout text, must be done before restoring page position
         self.view.document.after_resize()
         if wmc:
             # This resize is part of a window mode change, special case it
-            self.handle_window_mode_toggle()
+            if fs:
+                self.show_full_screen_label()
+            self.view.document.page_position.restore()
+            self.scrolled(self.view.scroll_fraction)
         else:
             if self.isFullScreen():
                 self.relayout_fullscreen_labels()
-        if not wmc:
+
             pre_footnote_pos = self.pre_footnote_toggle_position()
             if pre_footnote_pos is not None:
                 self.view.document.page_number = pre_footnote_pos
