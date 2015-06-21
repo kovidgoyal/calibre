@@ -62,7 +62,14 @@ if not _run_once:
 
     #
     # Ensure that the max number of open files is at least 1024
-    if not iswindows:
+    if iswindows:
+        # See https://msdn.microsoft.com/en-us/library/6e3b887c.aspx
+        import ctypes
+        msvcrt = ctypes.cdll.msvcrt
+        soft, hard = msvcrt._getmaxstdio(), 2048
+        if soft < 1024:
+            msvcrt._setmaxstdio(min(1024, hard))
+    else:
         import resource
         soft, hard = resource.getrlimit(resource.RLIMIT_NOFILE)
         if soft < 1024:
