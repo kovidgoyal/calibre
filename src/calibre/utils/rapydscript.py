@@ -36,6 +36,8 @@ def parse_baselib(src):
             else:
                 in_func.append(line)
     funcs = {k:'\n'.join(v) for k, v in funcs.iteritems()}
+    # use my own version of print
+    funcs['print'] = 'def _$rapyd$_print(*args):\n    if isinstance(console, Object): console.log.apply(console, args)\n'
     return funcs
 
 def compile_baselib(ctx, baselib, beautify=True):
