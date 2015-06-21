@@ -229,9 +229,10 @@ class Repl(object):
             try:
                 prompt = self.ps2 if more else self.ps1
                 lw = ''
-                if more:
-                    lw = ' ' * 4
+                if more and self.lines:
                     if self.lines:
+                        if self.lines[-1][-1:] in self.LINE_CONTINUATION_CHARS:
+                            lw = ' ' * 4
                         lw = leading_whitespace(self.lines[-1]) + lw
                 if hasattr(self, 'readline'):
                     self.readline.set_pre_input_hook(lambda:(self.readline.insert_text(lw), self.readline.redisplay()))
@@ -246,6 +247,8 @@ class Repl(object):
                     if more and line.lstrip():
                         self.lines.append(line)
                         continue
+                    if more and not line.lstrip():
+                        line = line.lstrip()
                     more = self.push(line)
             except KeyboardInterrupt:
                 self.prints("\nKeyboardInterrupt")
