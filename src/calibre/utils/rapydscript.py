@@ -233,8 +233,8 @@ class Repl(object):
                 lw = ''
                 if more and self.lines:
                     if self.lines:
-                        if self.lines[-1][-1:] in self.LINE_CONTINUATION_CHARS:
-                            lw = ' ' * 4
+                        if self.lines[-1][-1:] == ':':
+                            lw = ' ' * 4  # autoindent
                         lw = leading_whitespace(self.lines[-1]) + lw
                 if hasattr(self, 'readline'):
                     self.readline.set_pre_input_hook(lambda:(self.readline.insert_text(lw), self.readline.redisplay()))
