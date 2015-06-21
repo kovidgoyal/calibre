@@ -4,27 +4,21 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
 __license__   = 'GPL v3'
-__copyright__ = '2015, Ned Letcher - ned@nedned.net'
+__copyright__ = '2015, Ned Letcher <ned at nedned.net>'
 
 
-"""A calibre custom news recipe for creating eBooks of periodic
-updates from the blog Slate Star Codex.
-
-If calibre is installed on your system you can generate an epub
-of recent SSC posts from your command line like so:
-
-$ ebook-convert slate_star_codex.recipe .epub
-
-Author: Ned Letcher
-
+"""
+calibre recipe for Slate Star Codex.
 """
 
 
 class SlateStarCodex(BasicNewsRecipe):
     title = u'Slate Star Codex'
     description = 'IN A MAD WORLD, ALL BLOGGING IS PSYCHIATRY BLOGGING'
+    __author__ = 'Ned Letcher'
     max_articles_per_feed = 20
     language = 'en'
+    encoding = 'utf-8'
     no_stylesheets = True
     # alternative candidate for keep_only_tags:
     # [{'attrs':{'class':['pjgm-posttitle', 'pjgm-postmeta', 'pjgm-postcontent']}}]
