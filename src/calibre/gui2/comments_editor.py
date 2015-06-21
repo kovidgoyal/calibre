@@ -730,6 +730,14 @@ class Editor(QWidget):  # {{{
                 self.editor.html = unicode(self.code_edit.toPlainText())
                 self.source_dirty = False
 
+    @dynamic_property
+    def tab(self):
+        def fget(self):
+            return 'code' if self.tabs.currentWidget() is self.code_edit else 'wyswyg'
+        def fset(self, val):
+            self.tabs.setCurrentWidget(self.code_edit if val == 'code' else self.wyswyg)
+        return property(fget=fget, fset=fset)
+
     def wyswyg_dirtied(self, *args):
         self.wyswyg_dirty = True
 

@@ -527,6 +527,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             # break_cycles has already been called, don't know why this should
             # happen but a user reported it
             return True
+        self.comments_tab_at_apply = self.comments.tab
         for widget in self.basic_metadata_widgets:
             try:
                 if hasattr(widget, 'validate_for_commit'):
@@ -634,6 +635,8 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.button_box.button(self.button_box.Ok).setDefault(True)
         self.button_box.button(self.button_box.Ok).setFocus(Qt.OtherFocusReason)
         self(self.db.id(self.row_list[self.current_row]))
+        if getattr(self, 'comments_tab_at_apply', None) == 'code':
+            self.comments.tab = 'code'
 
     def break_cycles(self):
         # Break any reference cycles that could prevent python
