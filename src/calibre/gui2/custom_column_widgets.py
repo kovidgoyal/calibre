@@ -254,6 +254,14 @@ class Comments(Base):
             val = None
         return val
 
+    @dynamic_property
+    def tab(self):
+        def fget(self):
+            return self._tb.tab
+        def fset(self, val):
+            self._tb.tab = val
+        return property(fget=fget, fset=fset)
+
 class MultipleWidget(QWidget):
 
     def __init__(self, parent):

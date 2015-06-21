@@ -23,7 +23,7 @@ from calibre.gui2.metadata.basic_widgets import (TitleEdit, AuthorsEdit,
     RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit,
     BuddyLabel, DateEdit, PubdateEdit, LanguagesEdit, RightClickButton)
 from calibre.gui2.metadata.single_download import FullFetch
-from calibre.gui2.custom_column_widgets import populate_metadata_page
+from calibre.gui2.custom_column_widgets import populate_metadata_page, Comments
 from calibre.utils.config import tweaks
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
@@ -49,6 +49,7 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.rows_to_refresh = set()
         self.metadata_before_fetch = None
         self.editing_multiple = editing_multiple
+        self.comments_edit_state_at_apply = {}
         ResizableDialog.__init__(self, parent)
 
     def setupUi(self, *args):  # {{{
@@ -104,6 +105,10 @@ class MetadataSingleDialogBase(ResizableDialog):
 
         if len(self.db.custom_column_label_map):
             self.create_custom_metadata_widgets()
+        self.comments_edit_state_at_apply = {self.comments:None}
+        for widget in self.custom_metadata_widgets:
+            if isinstance(widget, Comments):
+                self.comments_edit_state_at_apply[widget] = None
 
         self.do_layout()
         geom = gprefs.get('metasingle_window_geometry3', None)
@@ -527,7 +532,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             # break_cycles has already been called, don't know why this should
             # happen but a user reported it
             return True
-        self.comments_tab_at_apply = self.comments.tab
+        self.comments_edit_state_at_apply = {w:w.tab for w in self.comments_edit_state_at_apply}
         for widget in self.basic_metadata_widgets:
             try:
                 if hasattr(widget, 'validate_for_commit'):
@@ -635,8 +640,9 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.button_box.button(self.button_box.Ok).setDefault(True)
         self.button_box.button(self.button_box.Ok).setFocus(Qt.OtherFocusReason)
         self(self.db.id(self.row_list[self.current_row]))
-        if getattr(self, 'comments_tab_at_apply', None) == 'code':
-            self.comments.tab = 'code'
+        for w, state in self.comments_edit_state_at_apply.iteritems():
+            if state == 'code':
+                w.tab = 'code'
 
     def break_cycles(self):
         # Break any reference cycles that could prevent python
