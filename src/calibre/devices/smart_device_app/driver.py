@@ -669,9 +669,14 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                                'totalBooks': total_books,
                                'willStreamBooks': True,
                                'willStreamBinary' : True,
-                               'wantsSendOkToSendbook' : self.can_send_ok_to_sendbook},
+                               'wantsSendOkToSendbook' : self.can_send_ok_to_sendbook,
+                               'canSupportLpathChanges': True},
                           print_debug_info=False,
                           wait_for_response=self.can_send_ok_to_sendbook)
+
+        if self.can_send_ok_to_sendbook:
+            lpath = result.get('lpath', lpath)
+            book_metadata.lpath = lpath
         self._set_known_metadata(book_metadata)
         pos = 0
         failed = False
@@ -686,7 +691,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.time = None
         if close_:
             infile.close()
-        return -1 if failed else length
+        return (-1, None) if failed else (length, lpath)
 
     def _get_smartdevice_option_number(self, opt_string):
         if opt_string == 'password':
@@ -1015,7 +1020,8 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
                     'timestampFormat': tweaks['gui_timestamp_display_format'],
                     'lastModifiedFormat': tweaks['gui_last_modified_display_format'],
                     'calibre_version': numeric_version,
-                    'canSupportUpdateBooks': True})
+                    'canSupportUpdateBooks': True,
+                    'canSupportLpathChanges': True})
             if opcode != 'OK':
                 # Something wrong with the return. Close the socket
                 # and continue.
@@ -1443,7 +1449,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             if not hasattr(infile, 'read'):
                 infile = USBMS.normalize_path(infile)
             book = SDBook(self.PREFIX, lpath, other=mdata)
-            length = self._put_file(infile, lpath, book, i, len(files))
+            length, lpath = self._put_file(infile, lpath, book, i, len(files))
             if length < 0:
                 raise ControlError(desc='Sending book %s to device failed' % lpath)
             paths.append((lpath, length))
