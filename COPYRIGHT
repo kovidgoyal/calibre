@@ -8,6 +8,10 @@ Files: src/duktape/*
 Copyright: Various
 License: MIT
 
+Files: resources/rapydscript/compiler.js
+Copyright: Alexander Tsepkov
+License: BSD
+
 Files: src/unrar/*
 Copyright: Various
 License: Non-free
