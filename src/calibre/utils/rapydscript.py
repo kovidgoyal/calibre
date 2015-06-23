@@ -162,15 +162,12 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         raise
 # }}}
 
-# See https://github.com/atsepkov/RapydScript/issues/62
-LINE_NUMBER_DELTA = -1
-
 # REPL {{{
 def leading_whitespace(line):
     return line[:len(line) - len(line.lstrip())]
 
 def format_error(data):
-    return ':'.join(map(type(''), (data['file'], data['line'] + LINE_NUMBER_DELTA, data['col'], data['message'])))
+    return ':'.join(map(type(''), (data['file'], data['line'], data['col'], data['message'])))
 
 class Repl(object):
 

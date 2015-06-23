@@ -84,10 +84,8 @@ function enumerate(item) {
     }
 function _$rapyd$_print() {
         var args = [].slice.call(arguments, 0);
-        var output;
-        output = JSON.stringify(args);
         if (typeof console === "object") {
-            console.log(output.substr(1, output.length - 2));
+            console.log.apply(console, args);
         }
     }
 function reversed(arr) {
@@ -705,14 +703,19 @@ AST_Scope = DEFNODE("Scope", "directives variables localvars functions uses_with
         cname: "[integer/S] current index for mangling variables (used internally by the mangler)"
     }
 }, AST_Block);
-AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports strict shebang", {
+AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports strict shebang import_order module_id exports submodules classes", {
     $documentation: "The toplevel scope",
     $propdoc: {
         globals: "[Object/S] a map of name -> SymbolDef for all undeclared names",
         baselib: "[Object/s] a collection of used parts of baselib",
-        imports: "[AST_Import*] a collection of all imported modules",
+        imports: "[Object/S] a map of module_id->AST_Toplevel for all imported modules",
         strict: "[boolean/S] true if strict directive is in scope",
-        shebang: "[string] If #! line is present, it will be stored here"
+        shebang: "[string] If #! line is present, it will be stored here",
+        import_order: "[number] The global order in which this scope was imported",
+        module_id: "[string] The id of this module",
+        exports: "[SymbolDef*] list of names exported from this module",
+        submodules: "[string*] list of names exported from this module",
+        classes: "[Object/S] a map of class names to AST_Class for classes defined in this module"
     },
     wrap_enclose: function(arg_parameter_pairs) {
         var self, args, parameters, wrapped_tl;
@@ -786,13 +789,13 @@ AST_Toplevel = DEFNODE("Toplevel", "globals baselib imports strict shebang", {
         return wrapped_tl;
     }
 }, AST_Scope);
-AST_Import = DEFNODE("Import", "module argnames variables body", {
-    $documentation: "Container for imported files",
+AST_Import = DEFNODE("Import", "module key argnames body", {
+    $documentation: "Container for imports",
     $propdoc: {
-        "module": "[AST_SymbolVar] name of the module we're importing",
+        module: "[AST_SymbolVar] name of the module we're importing",
+        key: "[string] The key by which this module is stored in the global modules mapping",
         argnames: "[AST_SymbolVar*] names of objects to be imported",
-        variables: "[Object/S] a map of name -> SymbolDef for all variables/functions defined in this scope",
-        body: "[AST_TopLevel] contents of the imported file"
+        body: "[AST_TopLevel] parsed contents of the imported file"
     }
 }, AST_Statement);
 AST_Decorator = DEFNODE("Decorator", "name", {
@@ -827,7 +830,7 @@ AST_Accessor = DEFNODE("Accessor", null, {
 AST_Function = DEFNODE("Function", null, {
     $documentation: "A function expression"
 }, AST_Lambda);
-AST_Class = DEFNODE("Class", "init name parent static external bound decorators modules", {
+AST_Class = DEFNODE("Class", "init name parent static external bound decorators module_id", {
     $documentation: "A class declaration",
     $propdoc: {
         name: "[AST_SymbolDeclaration?] the name of this class",
@@ -837,7 +840,7 @@ AST_Class = DEFNODE("Class", "init name parent static external bound decorators 
         external: "[boolean] true if class is declared elsewhere, but will be within current scope at runtime",
         bound: "[string*] list of methods that need to be bound to behave correctly (function pointers)",
         decorators: "[AST_Decorator*] function decorators, if any",
-        modules: "[string*] module stack that this class resides inside of, if any"
+        module_id: "[string] The id of the module this class is defined in"
     },
     _walk: function(visitor) {
         return visitor._visit(this, function() {
@@ -1470,10 +1473,10 @@ TreeWalker.prototype = {
     }
 };
 
-var KEYWORDS, RESERVED_WORDS, KEYWORDS_BEFORE_EXPRESSION, KEYWORDS_ATOM, NATIVE_CLASSES, COMMON_STATIC, OPERATOR_CHARS, RE_HEX_NUMBER, RE_OCT_NUMBER, RE_DEC_NUMBER, OPERATORS, OP_MAP, WHITESPACE_CHARS, PUNC_BEFORE_EXPRESSION, PUNC_CHARS, REGEXP_MODIFIERS, UNICODE, IMPORTED, BASELIB, EX_EOF, UNARY_PREFIX, UNARY_POSTFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN;
+var KEYWORDS, RESERVED_WORDS, KEYWORDS_BEFORE_EXPRESSION, KEYWORDS_ATOM, NATIVE_CLASSES, COMMON_STATIC, OPERATOR_CHARS, RE_HEX_NUMBER, RE_OCT_NUMBER, RE_DEC_NUMBER, OPERATORS, OP_MAP, WHITESPACE_CHARS, PUNC_BEFORE_EXPRESSION, PUNC_CHARS, REGEXP_MODIFIERS, UNICODE, BASELIB, EX_EOF, UNARY_PREFIX, UNARY_POSTFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN;
 "\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript2\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n**********************************************************************\n";
 "use strict";
-KEYWORDS = "as break case class const continue debugger default def del do elif else except finally for from if import in instanceof is module new nonlocal pass raise return switch til to try typeof var void while with or and not";
+KEYWORDS = "as break case class const continue debugger default def del do elif else except finally for from if import in instanceof is new nonlocal pass raise return switch til to try typeof var void while with or and not";
 KEYWORDS_ATOM = "False None True";
 RESERVED_WORDS = "abstract boolean byte char double enum export extends final float goto implements int interface long native package private protected public short static super synchronized this throws transient volatile" + " " + KEYWORDS_ATOM + " " + KEYWORDS;
 KEYWORDS_BEFORE_EXPRESSION = "return new del raise elif else if";
@@ -1540,8 +1543,16 @@ UNICODE = {
     space_combining_mark: new RegExp("[\\u0903\\u093E-\\u0940\\u0949-\\u094C\\u094E\\u0982\\u0983\\u09BE-\\u09C0\\u09C7\\u09C8\\u09CB\\u09CC\\u09D7\\u0A03\\u0A3E-\\u0A40\\u0A83\\u0ABE-\\u0AC0\\u0AC9\\u0ACB\\u0ACC\\u0B02\\u0B03\\u0B3E\\u0B40\\u0B47\\u0B48\\u0B4B\\u0B4C\\u0B57\\u0BBE\\u0BBF\\u0BC1\\u0BC2\\u0BC6-\\u0BC8\\u0BCA-\\u0BCC\\u0BD7\\u0C01-\\u0C03\\u0C41-\\u0C44\\u0C82\\u0C83\\u0CBE\\u0CC0-\\u0CC4\\u0CC7\\u0CC8\\u0CCA\\u0CCB\\u0CD5\\u0CD6\\u0D02\\u0D03\\u0D3E-\\u0D40\\u0D46-\\u0D48\\u0D4A-\\u0D4C\\u0D57\\u0D82\\u0D83\\u0DCF-\\u0DD1\\u0DD8-\\u0DDF\\u0DF2\\u0DF3\\u0F3E\\u0F3F\\u0F7F\\u102B\\u102C\\u1031\\u1038\\u103B\\u103C\\u1056\\u1057\\u1062-\\u1064\\u1067-\\u106D\\u1083\\u1084\\u1087-\\u108C\\u108F\\u109A-\\u109C\\u17B6\\u17BE-\\u17C5\\u17C7\\u17C8\\u1923-\\u1926\\u1929-\\u192B\\u1930\\u1931\\u1933-\\u1938\\u19B0-\\u19C0\\u19C8\\u19C9\\u1A19-\\u1A1B\\u1A55\\u1A57\\u1A61\\u1A63\\u1A64\\u1A6D-\\u1A72\\u1B04\\u1B35\\u1B3B\\u1B3D-\\u1B41\\u1B43\\u1B44\\u1B82\\u1BA1\\u1BA6\\u1BA7\\u1BAA\\u1C24-\\u1C2B\\u1C34\\u1C35\\u1CE1\\u1CF2\\uA823\\uA824\\uA827\\uA880\\uA881\\uA8B4-\\uA8C3\\uA952\\uA953\\uA983\\uA9B4\\uA9B5\\uA9BA\\uA9BB\\uA9BD-\\uA9C0\\uAA2F\\uAA30\\uAA33\\uAA34\\uAA4D\\uAA7B\\uABE3\\uABE4\\uABE6\\uABE7\\uABE9\\uABEA\\uABEC]"),
     connector_punctuation: new RegExp("[\\u005F\\u203F\\u2040\\u2054\\uFE33\\uFE34\\uFE4D-\\uFE4F\\uFF3F]")
 };
-IMPORTED = {};
 BASELIB = {};
+function ImportError() {
+    ImportError.prototype.__init__.apply(this, arguments);
+}
+_$rapyd$_extends(ImportError, Error);
+ImportError.prototype.__init__ = function __init__(message){
+    var self = this;
+    self.message = message;
+};
+
 function is_letter(code) {
     return code >= 97 && code <= 122 || code >= 65 && code <= 90 || code >= 170 && UNICODE.letter.test(String.fromCharCode(code));
 }
@@ -2136,13 +2147,18 @@ PRECEDENCE = function(a, ret) {
 STATEMENTS_WITH_LABELS = array_to_hash([ "for", "do", "while", "switch" ]);
 ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name" ]);
 function parse($TEXT, options) {
-    var S, statement, import_, from_import_, ModuleTreeNode, module_, class_, function_, nonlocal_, const_, new_, expr_atom, array_, object_, subscripts, maybe_unary, expr_op, maybe_conditional, maybe_assign, expression;
+    var module_id, IMPORTED, IMPORTING, S, statement, import_, class_, function_, nonlocal_, const_, new_, expr_atom, array_, object_, subscripts, maybe_unary, expr_op, maybe_conditional, maybe_assign, expression;
     options = defaults(options, {
         strict: false,
         filename: null,
         auto_bind: false,
+        module_id: "__main__",
         toplevel: null
     });
+    module_id = options.module_id;
+    IMPORTED = options.IMPORTED || {};
+    IMPORTING = options.IMPORTING || {};
+    IMPORTING[module_id] = true;
     S = {
         input: typeof $TEXT === "string" ? tokenizer($TEXT, options.filename) : $TEXT,
         token: null,
@@ -2154,9 +2170,7 @@ function parse($TEXT, options) {
         in_class: [ false ],
         classes: [ {} ],
         labels: [],
-        decorators: [],
-        module_tree: {},
-        module_stack: []
+        decorators: []
     };
     S.token = next();
     function is_(type, value) {
@@ -2223,6 +2237,9 @@ function parse($TEXT, options) {
             var start, expr, end;
             start = S.token;
             expr = parser();
+            if (expr === undefined) {
+                unexpected();
+            }
             end = prev();
             expr.start = start;
             expr.end = end;
@@ -2248,53 +2265,92 @@ function parse($TEXT, options) {
             return false;
         }
     }
-    function scan_for_local_vars(body, is_module) {
+    function scan_for_top_level_callables(body) {
+        var obj, opt, x, name, ans;
+        ans = [];
+        if (body instanceof Array) {
+            for (name in body) {
+                obj = body[name];
+                if (obj instanceof AST_Function || obj instanceof AST_Class) {
+                    ans.push(obj.name);
+                } else {
+                    if (obj instanceof AST_Scope) {
+                        continue;
+                    }
+                    var _$rapyd$_Iter0 = _$rapyd$_Iterable([ "body", "alternative" ]);
+                    for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
+                        x = _$rapyd$_Iter0[_$rapyd$_Index0];
+                        opt = obj[x];
+                        if (opt) {
+                            ans = ans.concat(scan_for_top_level_callables(opt));
+                        }
+                        if (opt instanceof AST_Assign && !(opt.right instanceof AST_Scope)) {
+                            ans = ans.concat(scan_for_top_level_callables(opt.right));
+                        }
+                    }
+                }
+            }
+        } else if (body.body) {
+            ans = ans.concat(scan_for_top_level_callables(body.body));
+            if (body.alternative) {
+                ans = ans.concat(scan_for_top_level_callables(body.alternative));
+            }
+        }
+        return ans;
+    }
+    function scan_for_classes(body) {
+        var ans, obj, name;
+        ans = {};
+        for (name in body) {
+            obj = body[name];
+            if (obj instanceof AST_Class) {
+                ans[obj.name.name] = obj;
+            }
+        }
+        return ans;
+    }
+    function scan_for_local_vars(body) {
         var stmt, vars;
-        "\n        Pick out all variables being assigned to from within this scope, we'll mark them as local\n\n        body        body to be scanned\n        is_module   if this body belongs to a module object and variables should be exposed\n        ";
+        "\n        Pick out all variables being assigned to from within this scope, we'll mark them as local\n\n        body        body to be scanned\n        ";
         vars = [];
         if (body instanceof Array) {
             for (stmt in body) {
                 if (body[stmt] instanceof AST_Scope) {
-                    if (is_module && body[stmt].name) {
-                        vars.push(body[stmt].name);
-                    }
                     continue;
                 }
                 [ "body", "alternative" ].forEach(function(option) {
                     var opt;
                     opt = body[stmt][option];
                     if (opt) {
-                        vars = vars.concat(scan_for_local_vars(opt, is_module));
+                        vars = vars.concat(scan_for_local_vars(opt));
                     }
                     if (opt instanceof AST_Assign && !(opt.right instanceof AST_Scope)) {
-                        vars = vars.concat(scan_for_local_vars(opt.right, is_module));
+                        vars = vars.concat(scan_for_local_vars(opt.right));
                     }
                 });
-                if (!is_module) {
-                    if (body[stmt] instanceof AST_ForIn) {
-                        if (body[stmt].init instanceof AST_Array) {
-                            vars.push("_$rapyd$_Unpack");
-                            body[stmt].init.elements.forEach(function(elem) {
-                                if (vars.indexOf(elem.name) === -1) {
-                                    vars.push(elem.name);
-                                }
-                            });
-                        } else if (vars.indexOf(body[stmt].init.name) === -1) {
-                            vars.push(body[stmt].init.name);
-                        }
-                    } else if (body[stmt] instanceof AST_DWLoop) {
-                        vars = vars.concat(scan_for_local_vars(body[stmt], is_module));
-                    } else if (body[stmt] instanceof AST_If && is_nested_comparison(body[stmt].condition)) {
-                        vars.push("_$rapyd$_Temp");
-                    } else if (body[stmt] instanceof AST_Exit && is_nested_comparison(body[stmt].value)) {
-                        vars.push("_$rapyd$_Temp");
+                if (body[stmt] instanceof AST_ForIn) {
+                    if (body[stmt].init instanceof AST_Array) {
+                        vars.push("_$rapyd$_Unpack");
+                        body[stmt].init.elements.forEach(function(elem) {
+                            if (vars.indexOf(elem.name) === -1) {
+                                vars.push(elem.name);
+                            }
+                        });
+                    } else if (vars.indexOf(body[stmt].init.name) === -1) {
+                        vars.push(body[stmt].init.name);
                     }
+                } else if (body[stmt] instanceof AST_DWLoop) {
+                    vars = vars.concat(scan_for_local_vars(body[stmt]));
+                } else if (body[stmt] instanceof AST_If && is_nested_comparison(body[stmt].condition)) {
+                    vars.push("_$rapyd$_Temp");
+                } else if (body[stmt] instanceof AST_Exit && is_nested_comparison(body[stmt].value)) {
+                    vars.push("_$rapyd$_Temp");
                 }
             }
         } else if (body.body) {
-            vars = vars.concat(scan_for_local_vars(body.body, is_module));
+            vars = vars.concat(scan_for_local_vars(body.body));
             if (body.alternative) {
-                vars = vars.concat(scan_for_local_vars(body.alternative, is_module));
+                vars = vars.concat(scan_for_local_vars(body.alternative));
             }
         } else if (body instanceof AST_Assign) {
             if (body.left instanceof AST_Array) {
@@ -2347,25 +2403,6 @@ function parse($TEXT, options) {
             }
         }
         return vars;
-    }
-    function finalize_import(imp) {
-        var classes, c, key;
-        classes = scan_for_classes(imp.body.body);
-        for (c in classes) {
-            if (classes[c] instanceof ModuleTreeNode) {
-                S.module_tree[c] = classes[c];
-            } else {
-                S.classes[0][c] = classes[c];
-            }
-        }
-        key = "";
-        while (imp instanceof AST_Dot) {
-            key = "." + imp.property + key;
-            imp = imp.expression;
-        }
-        key = imp.name + key;
-        IMPORTED[key] = true;
-        return imp;
     }
     statement = embed_tokens(function() {
         var dir, stat, tmp_, start, func, chain, tmp;
@@ -2442,17 +2479,15 @@ function parse($TEXT, options) {
                 }
                 return for_();
             } else if (tmp_ === "from") {
-                return finalize_import(from_import_());
+                return import_(true);
             } else if (tmp_ === "import") {
-                return finalize_import(import_());
+                return import_(false);
             } else if (tmp_ === "class") {
                 BASELIB["extends"] = true;
                 if (options.auto_bind) {
                     BASELIB["rebind_all"] = true;
                 }
                 return class_();
-            } else if (tmp_ === "module") {
-                return module_();
             } else if (tmp_ === "def") {
                 start = prev();
                 func = function_(S.in_class.slice(-1)[0]);
@@ -2626,24 +2661,8 @@ function parse($TEXT, options) {
             body: in_loop(statement)
         });
     }
-    function scan_for_classes(body) {
-        var classes, stmt, i;
-        classes = new ModuleTreeNode();
-        for (i in body) {
-            stmt = body[i];
-            if (stmt instanceof AST_Class) {
-                classes[stmt.name.name] = {
-                    "static": stmt.static,
-                    bound: stmt.bound
-                };
-            } else if (stmt instanceof AST_Module) {
-                classes[stmt.name.name] = scan_for_classes(stmt.body);
-            }
-        }
-        return classes;
-    }
     function get_class_in_scope(expr) {
-        var s, referenced_path, current_scope, traversed_path, visible_scope;
+        var referenced_path, class_name, s;
         if (expr instanceof AST_SymbolRef) {
             if (NATIVE_CLASSES.hasOwnProperty(expr.name)) {
                 return NATIVE_CLASSES[expr.name];
@@ -2661,175 +2680,141 @@ function parse($TEXT, options) {
             }
             if (expr instanceof AST_SymbolRef) {
                 referenced_path.unshift(expr.name);
-                current_scope = S.module_stack.slice();
-                current_scope.unshift("");
-                while (current_scope.length) {
-                    visible_scope = S.module_tree;
-                    current_scope.forEach(function(module__) {
-                        if (_$rapyd$_in(module__, visible_scope)) {
-                            visible_scope = visible_scope[module__];
-                        }
-                    });
-                    traversed_path = referenced_path.slice();
-                    while (traversed_path && visible_scope[traversed_path[0]]) {
-                        visible_scope = visible_scope[traversed_path[0]];
-                        traversed_path.shift();
-                    }
-                    if (!traversed_path.length) {
-                        if (!(visible_scope instanceof ModuleTreeNode)) {
-                            return visible_scope;
-                        } else {
-                            return false;
+                if (len(referenced_path) > 1) {
+                    class_name = referenced_path.join(".");
+                    for (s = S.classes.length - 1; s > -1; s-=1) {
+                        if (S.classes[s].hasOwnProperty(class_name)) {
+                            return S.classes[s][class_name];
                         }
                     }
-                    current_scope.pop();
                 }
             }
         }
         return false;
     }
-    import_ = function() {
-        var name, tmp, file, contents;
+    function do_import(key) {
+        var package_module_id, modpath, _$rapyd$_Unpack, data, filename, src_code, location, contents;
+        if (IMPORTED.hasOwnProperty(key)) {
+            return;
+        }
+        if (IMPORTING.hasOwnProperty(key) && IMPORTING[key]) {
+            throw new ImportError("Detected a recursive import of: " + key + " while importing: " + module_id);
+        }
+        package_module_id = key.split(".").slice(0, -1).join(".");
+        if (len(package_module_id) > 0) {
+            do_import(package_module_id);
+        }
+        function safe_read(base_path) {
+            var _$rapyd$_Unpack, i, path;
+            var _$rapyd$_Iter1 = _$rapyd$_Iterable(enumerate([ base_path + ".pyj", base_path + "/__init__.pyj" ]));
+            for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
+                _$rapyd$_Unpack = _$rapyd$_Iter1[_$rapyd$_Index1];
+                i = _$rapyd$_Unpack[0];
+                path = _$rapyd$_Unpack[1];
+                try {
+                    return [ options.readfile(path, "utf-8"), path ];
+                } catch (_$rapyd$_Exception) {
+                    var e = _$rapyd$_Exception;
+                    if (e.code === "ENOENT" || e.code === "EPERM" || e.code === "EACCESS") {
+                        if (i === 1) {
+                            return [null, null];
+                        }
+                    }
+                    if (i === 1) {
+                        throw _$rapyd$_Exception;
+                    }
+                }
+            }
+        }
+        src_code = filename = null;
+        modpath = key.replace(".", "/");
+        var _$rapyd$_Iter2 = _$rapyd$_Iterable([ options.basedir, options.libdir ]);
+        for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
+            location = _$rapyd$_Iter2[_$rapyd$_Index2];
+            if (location) {
+                _$rapyd$_Unpack = safe_read(location + "/" + modpath);
+                data = _$rapyd$_Unpack[0];
+                filename = _$rapyd$_Unpack[1];
+                if (data !== null) {
+                    src_code = data;
+                    break;
+                }
+            }
+        }
+        if (src_code === null) {
+            throw "Failed Import: '" + key + "' module doesn't exist in either '" + options.basedir + "' or '" + options.libdir + "'";
+        }
+        contents = parse(src_code, {
+            filename: filename,
+            toplevel: null,
+            readfile: options.readfile,
+            basedir: options.basedir,
+            libdir: options.libdir,
+            module_id: key,
+            IMPORTED: IMPORTED,
+            IMPORTING: IMPORTING
+        });
+        if (len(package_module_id) > 0) {
+            IMPORTED[package_module_id].submodules.push(key);
+        }
+    }
+    function read_import() {
+        var name, tmp, key;
         tmp = name = expression(false);
-        file = ".pyj";
+        key = "";
         while (tmp instanceof AST_Dot) {
-            file = "/" + tmp.property + file;
+            key = "." + tmp.property + key;
             tmp = tmp.expression;
         }
-        file = tmp.name + file;
-        contents = null;
-        try {
-            contents = parse(options.readfile(options.basedir + "/" + file, "utf-8"), {
-                filename: file,
-                toplevel: contents,
-                readfile: options.readfile,
-                basedir: options.basedir,
-                libdir: options.libdir
-            });
-        } catch (_$rapyd$_Exception) {
-            var e = _$rapyd$_Exception;
-            if (!e.message.search("no such file or directory")) {
-                throw _$rapyd$_Exception;
+        key = tmp.name + key;
+        do_import(key);
+        return [name, key];
+    }
+    import_ = function(from_import) {
+        var _$rapyd$_Unpack, name, key, classes, argnames, argvar, obj, i;
+        _$rapyd$_Unpack = read_import();
+        name = _$rapyd$_Unpack[0];
+        key = _$rapyd$_Unpack[1];
+        argnames = null;
+        classes = IMPORTED[key].classes;
+        if (from_import) {
+            expect_token("keyword", "import");
+            argnames = [];
+            argnames.push(as_symbol(AST_SymbolVar));
+            while (is_("punc", ",")) {
+                next();
+                argnames.push(as_symbol(AST_SymbolVar));
             }
-            try {
-                contents = parse(options.readfile(options.libdir + "/" + file, "utf-8"), {
-                    filename: file,
-                    toplevel: contents,
-                    readfile: options.readfile,
-                    basedir: options.libdir,
-                    libdir: options.libdir
-                });
-            } catch (_$rapyd$_Exception) {
-                var e = _$rapyd$_Exception;
-                if (e.message.search("no such file or directory")) {
-                    throw "Failed Import: '" + tmp.name + "' module doesn't exist in either '" + options.basedir + "' or '" + options.libdir + "'";
-                } else {
-                    throw _$rapyd$_Exception;
+            var _$rapyd$_Iter3 = _$rapyd$_Iterable(argnames);
+            for (var _$rapyd$_Index3 = 0; _$rapyd$_Index3 < _$rapyd$_Iter3.length; _$rapyd$_Index3++) {
+                argvar = _$rapyd$_Iter3[_$rapyd$_Index3];
+                obj = classes[argvar.name];
+                if (obj) {
+                    S.classes[S.classes.length-1][argvar.name] = {
+                        "static": obj.static,
+                        bound: obj.bound
+                    };
+                }
+            }
+        } else {
+            for (i in classes) {
+                obj = classes[i];
+                if (obj instanceof AST_Class) {
+                    S.classes[S.classes.length-1][key + "." + obj.name.name] = {
+                        "static": obj.static,
+                        bound: obj.bound
+                    };
                 }
             }
         }
         return new AST_Import({
-            "module": name,
-            argnames: null,
-            body: contents,
-            variables: function() {
-                return scan_for_local_vars(contents, true).filter(function(element, index, arr) {
-                    return arr.lastIndexOf(element) === index;
-                });
-            }.call(this)
-        });
-    };
-    from_import_ = function() {
-        var name, file, contents;
-        name = expression(false);
-        file = ".pyj";
-        while (name instanceof AST_Dot) {
-            file = "/" + name.property + file;
-            name = name.expression;
-        }
-        file = name.name + file;
-        expect_token("keyword", "import");
-        contents = null;
-        try {
-            contents = parse(options.readfile(options.basedir + "/" + file, "utf-8"), {
-                filename: file,
-                toplevel: contents,
-                readfile: options.readfile,
-                basedir: options.basedir,
-                libdir: options.libdir
-            });
-        } catch (_$rapyd$_Exception) {
-            contents = parse(options.readfile(options.libdir + "/" + file, "utf-8"), {
-                filename: file,
-                toplevel: contents,
-                readfile: options.readfile,
-                basedir: options.libdir,
-                libdir: options.libdir
-            });
-        }
-        return new AST_Import({
-            "module": name,
-            argnames: function(a) {
-                a.push(as_symbol(AST_SymbolVar));
-                while (is_("punc", ",")) {
-                    next();
-                    a.push(as_symbol(AST_SymbolVar));
-                }
-                return a;
-            }.call(this, []),
-            body: contents
-        });
-    };
-    ModuleTreeNode = function() {
-    };
-    module_ = function(use_name) {
-        var name, externaldecorator, definition;
-        name = use_name ? use_name : as_symbol(AST_SymbolDefun);
-        if (!name) {
-            unexpected();
-        }
-        externaldecorator = S.decorators.indexOf("external");
-        if (externaldecorator !== -1) {
-            S.decorators.splice(externaldecorator, 1);
-        }
-        definition = new AST_Module({
-            name: name,
+            module: name,
+            key: key,
             body: function() {
-                var module_tree, a;
-                module_tree = S.module_tree;
-                S.module_stack.forEach(function(module__) {
-                    module_tree = module_tree[module__];
-                });
-                module_tree[name.name] = new ModuleTreeNode();
-                S.module_stack.push(name.name);
-                a = block_();
-                S.module_stack.pop();
-                return a;
-            }.call(this),
-            external: externaldecorator !== -1,
-            decorators: function() {
-                var d;
-                d = [];
-                S.decorators.forEach(function(decorator) {
-                    d.push(new AST_Decorator({
-                        name: decorator
-                    }));
-                });
-                S.decorators = [];
-                return d;
-            }.call(this),
-            variables: [],
-            localvars: []
+                return IMPORTED[key];
+            },
+            argnames: argnames
         });
-        definition.variables = scan_for_local_vars(definition.body, true).filter(function(element, index, arr) {
-            return arr.lastIndexOf(element) === index;
-        });
-        definition.localvars = scan_for_local_vars(definition.body, false).filter(function(element, index, arr) {
-            return arr.lastIndexOf(element) === index;
-        }).map(function(element) {
-            return new_symbol(AST_SymbolVar, element);
-        });
-        return definition;
     };
     class_ = function() {
         var name, externaldecorator, class_details, definition, stmt, i;
@@ -2847,6 +2832,7 @@ function parse($TEXT, options) {
         };
         definition = new AST_Class({
             name: name,
+            module_id: module_id,
             parent: function() {
                 var a;
                 if (is_("punc", "(")) {
@@ -2858,7 +2844,6 @@ function parse($TEXT, options) {
                     return null;
                 }
             }.call(this),
-            modules: S.module_stack.slice(),
             localvars: [],
             "static": class_details.static,
             external: externaldecorator !== -1,
@@ -2875,12 +2860,7 @@ function parse($TEXT, options) {
                 return d;
             }.call(this),
             body: function(loop, labels) {
-                var module_tree, a;
-                module_tree = S.module_tree;
-                S.module_stack.forEach(function(module__) {
-                    module_tree = module_tree[module__];
-                });
-                module_tree[name.name] = class_details;
+                var a;
                 S.in_class.push(name.name);
                 S.classes[S.classes.length - 1][name.name] = class_details;
                 S.classes.push({});
@@ -3006,9 +2986,9 @@ function parse($TEXT, options) {
         nonlocals = scan_for_nonlocal_defs(definition.body);
         nonlocals.forEach(function(variable) {
             var i;
-            var _$rapyd$_Iter0 = _$rapyd$_Iterable(dir(definition.localvars).reverse());
-            for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
-                i = _$rapyd$_Iter0[_$rapyd$_Index0];
+            var _$rapyd$_Iter4 = _$rapyd$_Iterable(dir(definition.localvars).reverse());
+            for (var _$rapyd$_Index4 = 0; _$rapyd$_Index4 < _$rapyd$_Iter4.length; _$rapyd$_Index4++) {
+                i = _$rapyd$_Iter4[_$rapyd$_Index4];
                 if (definition.localvars[i].name === variable) {
                     definition.localvars.splice(i, 1);
                 }
@@ -3340,9 +3320,9 @@ function parse($TEXT, options) {
         if (func_call) {
             tmp = [];
             tmp.kwargs = [];
-            var _$rapyd$_Iter1 = _$rapyd$_Iterable(enumerate(a));
-            for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
-                _$rapyd$_Unpack = _$rapyd$_Iter1[_$rapyd$_Index1];
+            var _$rapyd$_Iter5 = _$rapyd$_Iterable(enumerate(a));
+            for (var _$rapyd$_Index5 = 0; _$rapyd$_Index5 < _$rapyd$_Iter5.length; _$rapyd$_Index5++) {
+                _$rapyd$_Unpack = _$rapyd$_Iter5[_$rapyd$_Index5];
                 i = _$rapyd$_Unpack[0];
                 arg = _$rapyd$_Unpack[1];
                 if (arg instanceof AST_Assign) {
@@ -3715,7 +3695,7 @@ function parse($TEXT, options) {
         if (is_("operator") && UNARY_PREFIX(start.value)) {
             next();
             if (start.value === "@") {
-                if (is_("name") && (peek().value === "@" || peek().value === "def" || peek().value === "class" || peek().value === "module")) {
+                if (is_("name") && (peek().value === "@" || peek().value === "def" || peek().value === "class")) {
                     S.decorators.push(S.token.value);
                     next();
                     return new AST_EmptyStatement();
@@ -3896,7 +3876,7 @@ function parse($TEXT, options) {
         return ret;
     }
     return function() {
-        var start, body, element, shebang, first_token, end, toplevel, assignments;
+        var start, body, element, shebang, first_token, end, toplevel, assignments, callables;
         start = S.token;
         body = [];
         first_token = true;
@@ -3920,9 +3900,9 @@ function parse($TEXT, options) {
                 body: body,
                 strict: function() {
                     var stmt;
-                    var _$rapyd$_Iter2 = _$rapyd$_Iterable(body);
-                    for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
-                        stmt = _$rapyd$_Iter2[_$rapyd$_Index2];
+                    var _$rapyd$_Iter6 = _$rapyd$_Iterable(body);
+                    for (var _$rapyd$_Index6 = 0; _$rapyd$_Index6 < _$rapyd$_Iter6.length; _$rapyd$_Index6++) {
+                        stmt = _$rapyd$_Iter6[_$rapyd$_Index6];
                         if (stmt instanceof AST_Directive && stmt.value === "use strict") {
                             return true;
                         }
@@ -3933,15 +3913,24 @@ function parse($TEXT, options) {
                 end: end
             });
         }
-        assignments = scan_for_local_vars(toplevel.body, false).filter(function(element, index, arr) {
+        function uniq(element, index, arr) {
             return arr.lastIndexOf(element) === index;
-        });
+        }
+        assignments = scan_for_local_vars(toplevel.body).filter(uniq);
+        callables = scan_for_top_level_callables(toplevel.body).filter(uniq);
         toplevel.localvars = [];
         assignments.forEach(function(item) {
             toplevel.localvars.push(new_symbol(AST_SymbolVar, item));
         });
+        toplevel.exports = toplevel.localvars.concat(callables).filter(uniq);
+        toplevel.submodules = [];
+        toplevel.classes = scan_for_classes(toplevel.body);
+        toplevel.import_order = Object.keys(IMPORTED).length;
+        toplevel.module_id = module_id;
+        IMPORTED[module_id] = toplevel;
         toplevel.imports = IMPORTED;
         toplevel.baselib = BASELIB;
+        IMPORTING[module_id] = false;
         return toplevel;
     }.call(this);
 }
@@ -3966,11 +3955,11 @@ function OutputStream(options) {
         semicolons: true,
         comments: false,
         preserve_line: false,
-        namespace_imports: false,
         omit_baselib: false,
         baselib: null,
         private_scope: true,
-        auto_bind: false
+        auto_bind: false,
+        write_name: true
     }, true);
     indentation = 0;
     current_col = 0;
@@ -4281,16 +4270,9 @@ function OutputStream(options) {
         assign: assign_var,
         prologue: prologue,
         "import": function(module_) {
-            var key, should_import;
-            key = "";
-            while (module_ instanceof AST_Dot) {
-                key = "." + module_.property + key;
-                module_ = module_.expression;
+            if (!IMPORTED.hasOwnProperty(module_.key)) {
+                IMPORTED[module_.key] = module_;
             }
-            key = module_.name + key;
-            should_import = !IMPORTED[key];
-            IMPORTED[key] = true;
-            return should_import;
         },
         is_main: function() {
             return OUTPUT.length === 0;
@@ -4548,6 +4530,54 @@ function OutputStream(options) {
             output.newline();
         }
     }
+    function write_imports(module_, output) {
+        var imports, import_id;
+        imports = [];
+        var _$rapyd$_Iter1 = _$rapyd$_Iterable(Object.keys(module_.imports));
+        for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
+            import_id = _$rapyd$_Iter1[_$rapyd$_Index1];
+            imports.push(module_.imports[import_id]);
+        }
+        imports.sort(function(a, b) {
+            var _$rapyd$_Unpack;
+            _$rapyd$_Unpack = [a.import_order, b.import_order];
+            a = _$rapyd$_Unpack[0];
+            b = _$rapyd$_Unpack[1];
+            return a < b ? -1 : a > b ? 1 : 0;
+        });
+        if (imports.length > 1) {
+            output.indent();
+            output.print("if (typeof _$rapyd$_modules !== \"object\") var _$rapyd$_modules = {};");
+            output.newline();
+        }
+        var _$rapyd$_Iter2 = _$rapyd$_Iterable(imports);
+        for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
+            module_ = _$rapyd$_Iter2[_$rapyd$_Index2];
+            if (module_.module_id !== "__main__") {
+                output.indent();
+                output.print("_$rapyd$_modules[\"");
+                output.print(module_.module_id);
+                output.print("\"] = {}");
+                output.semicolon();
+                output.newline();
+            }
+        }
+        var _$rapyd$_Iter3 = _$rapyd$_Iterable(imports);
+        for (var _$rapyd$_Index3 = 0; _$rapyd$_Index3 < _$rapyd$_Iter3.length; _$rapyd$_Index3++) {
+            module_ = _$rapyd$_Iter3[_$rapyd$_Index3];
+            if (module_.module_id !== "__main__") {
+                print_module(module_, output);
+            }
+        }
+        if (output.option("write_name")) {
+            output.newline();
+            output.indent();
+            output.print("var __name__ = \"__main__\"");
+            output.semicolon();
+            output.newline();
+            output.newline();
+        }
+    }
     function display_complex_body(node, is_toplevel, output) {
         var offset, arg;
         offset = 0;
@@ -4650,6 +4680,33 @@ function OutputStream(options) {
             output.newline();
         }
     }
+    function declare_exports(module_id, exports, submodules, output) {
+        var seen, symbol, key, sub_module_id;
+        seen = {};
+        var _$rapyd$_Iter4 = _$rapyd$_Iterable(exports);
+        for (var _$rapyd$_Index4 = 0; _$rapyd$_Index4 < _$rapyd$_Iter4.length; _$rapyd$_Index4++) {
+            symbol = _$rapyd$_Iter4[_$rapyd$_Index4];
+            output.newline();
+            output.indent();
+            output.print("_$rapyd$_modules[\"" + module_id + "\"][\"" + symbol.name + "\"] = " + symbol.name);
+            seen[symbol.name] = true;
+            output.semicolon();
+            output.newline();
+        }
+        var _$rapyd$_Iter5 = _$rapyd$_Iterable(submodules);
+        for (var _$rapyd$_Index5 = 0; _$rapyd$_Index5 < _$rapyd$_Iter5.length; _$rapyd$_Index5++) {
+            sub_module_id = _$rapyd$_Iter5[_$rapyd$_Index5];
+            if (!seen.hasOwnProperty(module_id)) {
+                key = sub_module_id.split(".")[sub_module_id.split(".").length-1];
+                output.newline();
+                output.indent();
+                output.print("_$rapyd$_modules[\"" + module_id + "\"][\"" + key + "\"] = ");
+                output.print("_$rapyd$_modules[\"" + sub_module_id + "\"]");
+                output.semicolon();
+                output.newline();
+            }
+        }
+    }
     function unpack_tuple(tuple, output, in_statement) {
         tuple.elements.forEach(function(elem, i) {
             output.indent();
@@ -4691,6 +4748,7 @@ function OutputStream(options) {
                     output.semicolon();
                     output.newline();
                     output.prologue(self);
+                    write_imports(self, output);
                     display_complex_body(self, true, output);
                     output.newline();
                 });
@@ -4700,6 +4758,7 @@ function OutputStream(options) {
         } else {
             if (is_main) {
                 output.prologue(self);
+                write_imports(self, output);
             }
             if (self.strict) {
                 declare_vars(self.localvars, output);
@@ -4707,64 +4766,58 @@ function OutputStream(options) {
             display_body(self.body, true, output);
         }
     });
-    function print_module(self, variables, output) {
-        function print_var(name) {
-            if (typeof name === "string") {
-                output.print(name);
-            } else {
-                name.print(output);
-            }
-        }
+    function print_module(self, output) {
+        output.newline();
+        output.indent();
         output.with_parens(function() {
             output.print("function()");
             output.with_block(function() {
-                display_complex_body(self, false, output);
                 output.indent();
-                output.print("return");
-                output.space();
-                output.with_block(function() {
-                    variables.forEach(function(arg, i) {
-                        output.indent();
-                        print_var(arg);
-                        output.print(":");
-                        output.space();
-                        print_var(arg);
-                        if (i < variables.length - 1) {
-                            output.comma();
-                        }
-                        output.newline();
-                    });
-                });
+                output.print("var ");
+                output.assign("__name__");
+                output.print("\"" + self.module_id + "\"");
+                output.semicolon();
+                output.newline();
+                declare_vars(self.localvars, output);
+                display_body(self.body, true, output);
+                declare_exports(self.module_id, self.exports, self.submodules, output);
+                output.newline();
+                output.indent();
+                output.print("return this");
                 output.semicolon();
                 output.newline();
             });
         });
         output.print("()");
+        output.semicolon();
+        output.newline();
     }
     DEFPRINT(AST_Import, function(self, output) {
-        if (output.import(self.module)) {
-            if (!output.option("namespace_imports")) {
-                self.body.print(output);
-            } else {
-                output.print("var");
-                output.space();
-                output.assign(self.module);
-                print_module(self.body, self.variables, output);
-                output.semicolon();
-                output.newline();
-            }
-        }
-        if (output.option("namespace_imports") && self.argnames) {
-            self.variables.forEach(function(arg) {
-                output.print("var");
-                output.space();
-                output.assign(arg);
-                self.module.print(output);
+        var argname, bound_name;
+        output.import(self.module);
+        function add_aname(aname, key, from_import) {
+            output.print("var ");
+            output.assign(aname);
+            output.print("_$rapyd$_modules[\"");
+            output.print(key);
+            output.print("\"]");
+            if (from_import) {
                 output.print(".");
-                arg.print(output);
-                output.semicolon();
-                output.newline();
-            });
+                output.print(aname);
+            }
+            output.semicolon();
+            output.newline();
+            output.indent();
+        }
+        if (self.argnames) {
+            var _$rapyd$_Iter6 = _$rapyd$_Iterable(self.argnames);
+            for (var _$rapyd$_Index6 = 0; _$rapyd$_Index6 < _$rapyd$_Iter6.length; _$rapyd$_Index6++) {
+                argname = _$rapyd$_Iter6[_$rapyd$_Index6];
+                add_aname(argname.name, self.key, true);
+            }
+        } else {
+            bound_name = self.key.split(".", 1)[0];
+            add_aname(bound_name, bound_name, false);
         }
     });
     DEFPRINT(AST_LabeledStatement, function(self, output) {
@@ -5172,13 +5225,11 @@ function OutputStream(options) {
                 output.print("()");
                 output.space();
                 output.with_block(function() {
+                    var cname;
                     bind_methods(self.bound, output);
                     output.indent();
-                    if (self.init) {
-                        self.name.print(output);
-                    } else {
-                        self.parent.print(output);
-                    }
+                    cname = self.name ? self.name : self.parent;
+                    cname.print(output);
                     output.print(".prototype.__init__.apply");
                     output.with_parens(function() {
                         output.print("this");
@@ -5228,25 +5279,6 @@ function OutputStream(options) {
         });
     });
     DEFPRINT(AST_Class, function(self, output) {
-        self._do_print(output);
-    });
-    AST_Module.DEFMETHOD("_do_print", function(output) {
-        var self;
-        self = this;
-        if (self.external) {
-            return;
-        }
-        output.print("var");
-        output.space();
-        output.assign(self.name);
-        function internalsub() {
-            print_module(self, self.variables, output);
-        }
-        decorate(self, output, internalsub);
-        output.semicolon();
-        output.newline();
-    });
-    DEFPRINT(AST_Module, function(self, output) {
         self._do_print(output);
     });
     AST_Exit.DEFMETHOD("_do_print", function(output, kind) {
@@ -5955,6 +5987,6 @@ function OutputStream(options) {
     });
 })();
 
-rs_baselib_pyj = {"minified": {"enumerate": "function enumerate(item){var arr;arr=[];for(var i=0;i<item.length;i++){arr[arr.length]=[i,item[i]]}return arr}", "len": "function len(obj){var count;if(obj instanceof Array||typeof obj===\"string\"){return obj.length}else{count=0;for(var i in obj){if(obj.hasOwnProperty(i)){count+=1}}return count}}", "print": "function _$rapyd$_print(){var args=[].slice.call(arguments,0);if(console instanceof Object){console.log.apply(console,args)}}", "eslice": "function _$rapyd$_eslice(arr,step,start,end){var isString;arr=arr.slice(0);if(typeof arr===\"string\"||arr instanceof String){isString=true;arr=arr.split(\"\")}}", "iterable": "function _$rapyd$_Iterable(iterable){if(iterable instanceof Array||iterable instanceof String||typeof iterable===\"string\"){return iterable}return Object.keys(iterable)}", "getattr": "function getattr(obj,name){return obj[name]}", "reversed": "function reversed(arr){var tmp;tmp=arr.slice(0);return tmp.reverse()}", "mixin": "function _$rapyd$_mixin(target,source,overwrite){for(var i in source){if(source.hasOwnProperty(i)&&overwrite||typeof target[i]===\"undefined\"){target[i]=source[i]}}}", "sum": "function sum(arr,start){if(typeof start===\"undefined\")start=0;return arr.reduce(function(prev,cur){return prev+cur},start)}", "dir": "function dir(item){var arr;arr=[];for(var i in item){arr.push(i)}return arr}", "extends": "function _$rapyd$_extends(child,parent){child.prototype=Object.create(parent.prototype);child.prototype.constructor=child}", "setattr": "function setattr(obj,name,value){obj[name]=value}", "abs": "function abs(n){return Math.abs(n)}", "range": "function range(start,stop,step){if(arguments.length<=1){stop=start||0;start=0}step=arguments[2]||1}", "in": "function _$rapyd$_in(val,arr){if(arr instanceof Array||typeof arr===\"string\"){return arr.indexOf(val)!==-1}else{if(arr.hasOwnProperty(val)){return true}return false}}", "hasattr": "function hasattr(obj,name){return name in obj}", "bind": "function _$rapyd$_bind(fn,thisArg){var ret;if(fn.orig){fn=fn.orig}if(thisArg===false){return fn}ret=function(){return fn.apply(thisArg,arguments)};ret.orig=fn;return ret}"}, "beautifed": {"enumerate": "function enumerate(item) {\n    var arr;\n    arr = [];\n    for (var i=0;i<item.length;i++) {\n        arr[arr.length] = [ i, item[i] ];\n    }\n    return arr;\n}", "len": "function len(obj) {\n    var count;\n    if (obj instanceof Array || typeof obj === \"string\") {\n        return obj.length;\n    } else {\n        count = 0;\n        for (var i in obj) {\n            if (obj.hasOwnProperty(i)) {\n                count += 1;\n            }\n        }\n        return count;\n    }\n}", "print": "function _$rapyd$_print() {\n    var args = [].slice.call(arguments, 0);\n    if (console instanceof Object) {\n        console.log.apply(console, args);\n    }\n}", "eslice": "function _$rapyd$_eslice(arr, step, start, end) {\n    var isString;\n    arr = arr.slice(0);\n    if (typeof arr === \"string\" || arr instanceof String) {\n        isString = true;\n        arr = arr.split(\"\");\n    }\n}", "iterable": "function _$rapyd$_Iterable(iterable) {\n    if (iterable instanceof Array || iterable instanceof String || typeof iterable === \"string\") {\n        return iterable;\n    }\n    return Object.keys(iterable);\n}", "getattr": "function getattr(obj, name) {\n    return obj[name];\n}", "reversed": "function reversed(arr) {\n    var tmp;\n    tmp = arr.slice(0);\n    return tmp.reverse();\n}", "mixin": "function _$rapyd$_mixin(target, source, overwrite) {\n    for (var i in source) {\n        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === \"undefined\") {\n            target[i] = source[i];\n        }\n    }\n}", "sum": "function sum(arr, start) {\n    if (typeof start === \"undefined\") start = 0;\n    return arr.reduce(function(prev, cur) {\n        return prev + cur;\n    }, start);\n}", "dir": "function dir(item) {\n    var arr;\n    arr = [];\n    for (var i in item) {\n        arr.push(i);\n    }\n    return arr;\n}", "extends": "function _$rapyd$_extends(child, parent) {\n    child.prototype = Object.create(parent.prototype);\n    child.prototype.constructor = child;\n}", "setattr": "function setattr(obj, name, value) {\n    obj[name] = value;\n}", "abs": "function abs(n) {\n    return Math.abs(n);\n}", "range": "function range(start, stop, step) {\n    if (arguments.length <= 1) {\n        stop = start || 0;\n        start = 0;\n    }\n    step = arguments[2] || 1;\n}", "in": "function _$rapyd$_in(val, arr) {\n    if (arr instanceof Array || typeof arr === \"string\") {\n        return arr.indexOf(val) !== -1;\n    } else {\n        if (arr.hasOwnProperty(val)) {\n            return true;\n        }\n        return false;\n    }\n}", "hasattr": "function hasattr(obj, name) {\n    return name in obj;\n}", "bind": "function _$rapyd$_bind(fn, thisArg) {\n    var ret;\n    if (fn.orig) {\n        fn = fn.orig;\n    }\n    if (thisArg === false) {\n        return fn;\n    }\n    ret = function() {\n        return fn.apply(thisArg, arguments);\n    };\n    ret.orig = fn;\n    return ret;\n}"}};
+rs_baselib_pyj = {"minified": {"setattr": "var __name__ = \"__main__\";function setattr(obj,name,value){obj[name]=value}", "eslice": "var __name__ = \"__main__\";function _$rapyd$_eslice(arr,step,start,end){var isString;arr=arr.slice(0);if(typeof arr===\"string\"||arr instanceof String){isString=true;arr=arr.split(\"\")}}", "symbolfor": "var __name__ = \"__main__\";function symbolfor(name){if(typeof Symbol===\"function\"&&typeof Symbol.for===\"function\"){return Symbol.for(name)}return name+\"-Symbol-\"+\"db29e2d8176e4678a83171145c3e3896\"}", "in": "var __name__ = \"__main__\";function _$rapyd$_in(val,arr){if(arr instanceof Array||typeof arr===\"string\"){return arr.indexOf(val)!==-1}else{if(arr.hasOwnProperty(val)){return true}return false}}", "len": "var __name__ = \"__main__\";function len(obj){var count;if(obj instanceof Array||typeof obj===\"string\"){return obj.length}else{count=0;for(var i in obj){if(obj.hasOwnProperty(i)){count+=1}}return count}}", "sum": "var __name__ = \"__main__\";function sum(arr,start){if(typeof start===\"undefined\")start=0;return arr.reduce(function(prev,cur){return prev+cur},start)}", "hasattr": "var __name__ = \"__main__\";function hasattr(obj,name){return name in obj}", "reversed": "var __name__ = \"__main__\";function reversed(arr){var tmp;tmp=arr.slice(0);return tmp.reverse()}", "bind": "var __name__ = \"__main__\";function _$rapyd$_bind(fn,thisArg){var ret;if(fn.orig){fn=fn.orig}if(thisArg===false){return fn}ret=function(){return fn.apply(thisArg,arguments)};ret.orig=fn;return ret}", "mixin": "var __name__ = \"__main__\";function _$rapyd$_mixin(target,source,overwrite){for(var i in source){if(source.hasOwnProperty(i)&&overwrite||typeof target[i]===\"undefined\"){target[i]=source[i]}}}", "enumerate": "var __name__ = \"__main__\";function enumerate(item){var arr;arr=[];for(var i=0;i<item.length;i++){arr[arr.length]=[i,item[i]]}return arr}", "extends": "var __name__ = \"__main__\";function _$rapyd$_extends(child,parent){child.prototype=Object.create(parent.prototype);child.prototype.constructor=child}", "getattr": "var __name__ = \"__main__\";function getattr(obj,name){return obj[name]}", "abs": "var __name__ = \"__main__\";function abs(n){return Math.abs(n)}", "dir": "var __name__ = \"__main__\";function dir(item){var arr;arr=[];for(var i in item){arr.push(i)}return arr}", "range": "var __name__ = \"__main__\";function range(start,stop,step){if(arguments.length<=1){stop=start||0;start=0}step=arguments[2]||1}", "print": "var __name__ = \"__main__\";function _$rapyd$_print(){var args=[].slice.call(arguments,0);if(console instanceof Object){console.log.apply(console,args)}}", "iterable": "var __name__ = \"__main__\";function _$rapyd$_Iterable(iterable){if(iterable instanceof Array||iterable instanceof String||typeof iterable===\"string\"){return iterable}return Object.keys(iterable)}"}, "beautifed": {"setattr": "\nvar __name__ = \"__main__\";\n\nfunction setattr(obj, name, value) {\n    obj[name] = value;\n}", "eslice": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_eslice(arr, step, start, end) {\n    var isString;\n    arr = arr.slice(0);\n    if (typeof arr === \"string\" || arr instanceof String) {\n        isString = true;\n        arr = arr.split(\"\");\n    }\n}", "symbolfor": "\nvar __name__ = \"__main__\";\n\nfunction symbolfor(name) {\n    if (typeof Symbol === \"function\" && typeof Symbol.for === \"function\") {\n        return Symbol.for(name);\n    }\n    return name + \"-Symbol-\" + \"db29e2d8176e4678a83171145c3e3896\";\n}", "in": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_in(val, arr) {\n    if (arr instanceof Array || typeof arr === \"string\") {\n        return arr.indexOf(val) !== -1;\n    } else {\n        if (arr.hasOwnProperty(val)) {\n            return true;\n        }\n        return false;\n    }\n}", "len": "\nvar __name__ = \"__main__\";\n\nfunction len(obj) {\n    var count;\n    if (obj instanceof Array || typeof obj === \"string\") {\n        return obj.length;\n    } else {\n        count = 0;\n        for (var i in obj) {\n            if (obj.hasOwnProperty(i)) {\n                count += 1;\n            }\n        }\n        return count;\n    }\n}", "sum": "\nvar __name__ = \"__main__\";\n\nfunction sum(arr, start) {\n    if (typeof start === \"undefined\") start = 0;\n    return arr.reduce(function(prev, cur) {\n        return prev + cur;\n    }, start);\n}", "hasattr": "\nvar __name__ = \"__main__\";\n\nfunction hasattr(obj, name) {\n    return name in obj;\n}", "reversed": "\nvar __name__ = \"__main__\";\n\nfunction reversed(arr) {\n    var tmp;\n    tmp = arr.slice(0);\n    return tmp.reverse();\n}", "bind": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_bind(fn, thisArg) {\n    var ret;\n    if (fn.orig) {\n        fn = fn.orig;\n    }\n    if (thisArg === false) {\n        return fn;\n    }\n    ret = function() {\n        return fn.apply(thisArg, arguments);\n    };\n    ret.orig = fn;\n    return ret;\n}", "mixin": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_mixin(target, source, overwrite) {\n    for (var i in source) {\n        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === \"undefined\") {\n            target[i] = source[i];\n        }\n    }\n}", "enumerate": "\nvar __name__ = \"__main__\";\n\nfunction enumerate(item) {\n    var arr;\n    arr = [];\n    for (var i=0;i<item.length;i++) {\n        arr[arr.length] = [ i, item[i] ];\n    }\n    return arr;\n}", "extends": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_extends(child, parent) {\n    child.prototype = Object.create(parent.prototype);\n    child.prototype.constructor = child;\n}", "getattr": "\nvar __name__ = \"__main__\";\n\nfunction getattr(obj, name) {\n    return obj[name];\n}", "abs": "\nvar __name__ = \"__main__\";\n\nfunction abs(n) {\n    return Math.abs(n);\n}", "dir": "\nvar __name__ = \"__main__\";\n\nfunction dir(item) {\n    var arr;\n    arr = [];\n    for (var i in item) {\n        arr.push(i);\n    }\n    return arr;\n}", "range": "\nvar __name__ = \"__main__\";\n\nfunction range(start, stop, step) {\n    if (arguments.length <= 1) {\n        stop = start || 0;\n        start = 0;\n    }\n    step = arguments[2] || 1;\n}", "print": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_print() {\n    var args = [].slice.call(arguments, 0);\n    if (console instanceof Object) {\n        console.log.apply(console, args);\n    }\n}", "iterable": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_Iterable(iterable) {\n    if (iterable instanceof Array || iterable instanceof String || typeof iterable === \"string\") {\n        return iterable;\n    }\n    return Object.keys(iterable);\n}"}};
 
 rs_package_version = "0.3.4";

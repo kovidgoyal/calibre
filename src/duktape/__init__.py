@@ -38,8 +38,13 @@ def load_file(base_dirs, builtin_modules, name):
     raise EnvironmentError('No module named: %s found in the base directories: %s' % (name, os.pathsep.join(base_dirs)))
 
 def readfile(path, enc='utf-8'):
-    with open(path, 'rb') as f:
-        return f.read().decode(enc)
+    try:
+        with open(path, 'rb') as f:
+            return [f.read().decode(enc), None, None]
+    except UnicodeDecodeError as e:
+        return None, 0, 'Failed to decode the file: %s with specified encoding: %s' % (path, enc)
+    except EnvironmentError as e:
+        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message)]
 
 class Function(object):
 
@@ -94,13 +99,20 @@ class Context(object):
         self._ctx = Context_()
         self.g = self._ctx.g
         self.g.Duktape.load_file = partial(load_file, base_dirs or (os.getcwdu(),), builtin_modules or {})
-        self.g.Duktape.readfile = readfile
+        self.g.Duktape.pyreadfile = readfile
         self.eval('''
             console = { log: function() { print(Array.prototype.join.call(arguments, ' ')); } };
             Duktape.modSearch = function (id, require, exports, module) { return Duktape.load_file(id); }
             String.prototype.trimLeft = function() { return this.replace(/^\s+/, ''); };
             String.prototype.trimRight = function() { return this.replace(/\s+$/, ''); };
             String.prototype.trim = function() { return this.replace(/^\s+/, '').replace(/\s+$/, ''); };
+            Duktape.readfile = function(path, encoding) {
+                var x = Duktape.pyreadfile(path, encoding);
+                var data = x[0]; var errcode = x[1]; var errmsg = x[2];
+                if (errmsg !== null) throw {code:errcode, message:errmsg};
+                return data;
+            }
+
         ''')
 
     def eval(self, code='', fname='<eval>', noreturn=False):
