@@ -111,7 +111,7 @@ class Context(object):
                     return this.replace(rtrim, '');
                     };
                 })();
-            }
+            };
             if (!String.prototype.trimLeft) {
                 (function() {
                     // Make sure we trim BOM and NBSP
@@ -120,7 +120,7 @@ class Context(object):
                     return this.replace(rtrim, '');
                     };
                 })();
-            }
+            };
             if (!String.prototype.trimRight) {
                 (function() {
                     // Make sure we trim BOM and NBSP
@@ -129,6 +129,23 @@ class Context(object):
                     return this.replace(rtrim, '');
                     };
                 })();
+            };
+            if (!String.prototype.startsWith) {
+                String.prototype.startsWith = function(searchString, position) {
+                position = position || 0;
+                return this.indexOf(searchString, position) === position;
+                };
+            }
+            if (!String.prototype.endsWith) {
+                String.prototype.endsWith = function(searchString, position) {
+                    var subjectString = this.toString();
+                    if (position === undefined || position > subjectString.length) {
+                        position = subjectString.length;
+                    }
+                    position -= searchString.length;
+                    var lastIndex = subjectString.indexOf(searchString, position);
+                    return lastIndex !== -1 && lastIndex === position;
+                };
             }
             Duktape.readfile = function(path, encoding) {
                 var x = Duktape.pyreadfile(path, encoding);
