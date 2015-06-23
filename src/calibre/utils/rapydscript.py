@@ -136,7 +136,7 @@ class PYJError(Exception):
         Exception.__init__(self, '')
         self.errors = errors
 
-def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False):
+def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False, write_name=True):
     import duktape
     if isinstance(data, bytes):
         data = data.decode('utf-8')
@@ -145,6 +145,7 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         'beautify':beautify,
         'private_scope':private_scope,
         'omit_baselib': omit_baselib,
+        'write_name': write_name,
         'baselib':dict(dict(c.g.rs_baselib_pyj)['beautifed' if beautify else 'minified']),
     }
     d = os.path.dirname
@@ -267,7 +268,7 @@ class Repl(object):
 
     def runsource(self, source):
         try:
-            js = compile_pyj(source, filename='', private_scope=False, libdir=self.libdir, omit_baselib=True)
+            js = compile_pyj(source, filename='', private_scope=False, libdir=self.libdir, omit_baselib=True, write_name=False)
         except PYJError as e:
             for data in e.errors:
                 msg = data.get('message') or ''
