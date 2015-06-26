@@ -54,6 +54,15 @@
 
 QT_BEGIN_NAMESPACE
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+static const int maxWeight = 99;
+
+static inline int mapToQtWeightForRange(int fcweight, int fcLower, int fcUpper, int qtLower, int qtUpper)
+{
+    return qtLower + ((fcweight - fcLower) * (qtUpper - qtLower)) / (fcUpper - fcLower);
+}
+#endif
+
 static inline bool requiresOpenType(int writingSystem)
 {
     return ((writingSystem >= QFontDatabase::Syriac && writingSystem <= QFontDatabase::Sinhala)
@@ -68,6 +77,29 @@ static inline int weightFromFcWeight(int fcweight)
     // mapping.  This ensures that where there is a corresponding enum on both sides (for example
     // FC_WEIGHT_DEMIBOLD and QFont::DemiBold) we map one to the other but other values map
     // to intermediate Qt weights.
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+    if (fcweight <= FC_WEIGHT_THIN)
+        return QFont::Thin;
+    if (fcweight <= FC_WEIGHT_ULTRALIGHT)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_THIN, FC_WEIGHT_ULTRALIGHT, QFont::Thin, QFont::ExtraLight);
+    if (fcweight <= FC_WEIGHT_LIGHT)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_ULTRALIGHT, FC_WEIGHT_LIGHT, QFont::ExtraLight, QFont::Light);
+    if (fcweight <= FC_WEIGHT_NORMAL)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_LIGHT, FC_WEIGHT_NORMAL, QFont::Light, QFont::Normal);
+    if (fcweight <= FC_WEIGHT_MEDIUM)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_NORMAL, FC_WEIGHT_MEDIUM, QFont::Normal, QFont::Medium);
+    if (fcweight <= FC_WEIGHT_DEMIBOLD)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_MEDIUM, FC_WEIGHT_DEMIBOLD, QFont::Medium, QFont::DemiBold);
+    if (fcweight <= FC_WEIGHT_BOLD)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_DEMIBOLD, FC_WEIGHT_BOLD, QFont::DemiBold, QFont::Bold);
+    if (fcweight <= FC_WEIGHT_ULTRABOLD)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_BOLD, FC_WEIGHT_ULTRABOLD, QFont::Bold, QFont::ExtraBold);
+    if (fcweight <= FC_WEIGHT_BLACK)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_ULTRABOLD, FC_WEIGHT_BLACK, QFont::ExtraBold, QFont::Black);
+    if (fcweight <= FC_WEIGHT_ULTRABLACK)
+        return mapToQtWeightForRange(fcweight, FC_WEIGHT_BLACK, FC_WEIGHT_ULTRABLACK, QFont::Black, maxWeight);
+    return maxWeight;
+#else
     const int maxWeight = 99;
     int qtweight;
     if (fcweight < 0)
@@ -88,6 +120,7 @@ static inline int weightFromFcWeight(int fcweight)
         qtweight = maxWeight;
 
     return qtweight;
+#endif
 }
 
 static inline int stretchFromFcWidth(int fcwidth)
@@ -209,7 +242,35 @@ static const char *specialLanguages[] = {
     "hmd", // Miao
     "sa", // Sharada
     "srb", // SoraSompeng
-    "doi"  // Takri
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+    "doi", // Takri
+    "lez", // CaucasianAlbanian
+    "bsq", // BassaVah
+    "fr", // Duployan
+    "sq", // Elbasan
+    "sa", // Grantha
+    "hnj", // PahawhHmong
+    "sd", // Khojki
+    "lab", // LinearA
+    "hi", // Mahajani
+    "xmn", // Manichaean
+    "men", // MendeKikakui
+    "mr", // Modi
+    "mru", // Mro
+    "xna", // OldNorthArabian
+    "arc", // Nabataean
+    "arc", // Palmyrene
+    "ctd", // PauCinHau
+    "kv", // OldPermic
+    "pal", // PsalterPahlavi
+    "sa", // Siddham
+    "sd", // Khudawadi
+    "mai", // Tirhuta
+    "hoc"  // WarangCiti
+#else
+    "doi" // Takri
+#endif
+
 };
 Q_STATIC_ASSERT(sizeof(specialLanguages) / sizeof(const char *) == QChar::ScriptCount);
 
@@ -270,7 +331,11 @@ static const char *openType[] = {
     "deva",  // Devanagari
     "beng",  // Bengali
     "guru",  // Gurmukhi
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 5, 0))
+    "gujr",  // Gujarati
+#else
     "gurj",  // Gujarati
+#endif
     "orya",  // Oriya
     "taml",  // Tamil
     "telu",  // Telugu
