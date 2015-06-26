@@ -21,7 +21,10 @@ def get_memory():
     'Return memory usage in bytes'
     import psutil
     p = psutil.Process(os.getpid())
-    mem = p.get_ext_memory_info()
+    if hasattr(p, 'memory_info_ex'):
+        mem = p.memory_info_ex()
+    else:
+        mem = p.get_ext_memory_info()
     attr = 'wset' if iswindows else 'data' if islinux else 'rss'
     return getattr(mem, attr)
 
