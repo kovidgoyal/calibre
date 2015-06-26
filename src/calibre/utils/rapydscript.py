@@ -10,7 +10,7 @@ import os, json, sys, re, atexit, errno
 from threading import local
 from functools import partial
 from threading import Thread
-from Queue import Queue
+from Queue import Queue, Empty
 
 from duktape import Context, JSError, to_python
 from calibre.constants import cache_dir
@@ -223,6 +223,14 @@ class Repl(Thread):
             'lib_path': self.libdir or os.path.dirname(P(COMPILER_PATH))  # TODO: Change this to load pyj files from the src code
         }
 
+    def get_from_repl(self):
+        while True:
+            try:
+                return self.from_repl.get(True, 1)
+            except Empty:
+                if not self.is_alive():
+                    raise SystemExit(1)
+
     def run(self):
         self.init_ctx()
         rl = None
@@ -252,6 +260,8 @@ class Repl(Thread):
         ''')
         rl = self.ctx.g.rl
         self.ctx.eval('module.exports(repl_options)')
+        completer = to_python(rl.completer)
+
         while True:
             ev, line = self.to_repl.get()
             try:
@@ -261,12 +271,11 @@ class Repl(Thread):
                 elif ev == 'line':
                     rl.send_line(line)
                 else:
-                    val = rl.completer(line)
+                    val = completer(line)
                     val = to_python(val)
                     self.from_repl.put(val[0])
             except Exception as e:
-                if 'JSError' in e.__class__.__name__:
-                    e = JSError(e)  # A bare JSError
+                if isinstance(e, JSError):
                     print (e.stack or e.message, file=sys.stderr)
                 else:
                     import traceback
@@ -290,7 +299,7 @@ class Repl(Thread):
         def completer(text, num):
             if self.completions is None:
                 self.to_repl.put(('complete', text))
-                self.completions = self.from_repl.get()
+                self.completions = filter(None, self.get_from_repl())
                 if self.completions is None:
                     return None
             try:
@@ -302,7 +311,7 @@ class Repl(Thread):
             self.readline.set_completer(completer)
 
         while True:
-            lw = self.from_repl.get()
+            lw = self.get_from_repl()
             if lw is None:
                 raise SystemExit(1)
             q = self.prompt

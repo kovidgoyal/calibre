@@ -24,7 +24,22 @@ exports.readFileSync = Duktape.readfile;
 '''
 vm = '''
 exports.createContext = Duktape.create_context;
-exports.runInContext = Duktape.run_in_context;
+exports.runInContext = function(code, ctx) {
+    var result = Duktape.run_in_context(code, ctx);
+    if (result[0]) return result[1];
+    var cls = Error;
+    var e = result[1];
+    if (e.name) {
+        try {
+            cls = eval(e.name);
+        } catch(e) {}
+    }
+    var err = cls(e.message);
+    err.fileName = e.fileName;
+    err.lineNumber = e.lineNumber;
+    err.stack = e.stack;
+    throw err;
+};
 '''
 path = '''
 exports.join = function () { return arguments[0] + '/' + arguments[1]; }
@@ -74,7 +89,13 @@ class Function(object):
         return str('[Function: %s(...) from file: %s]' % (x.name, x.fileName))
 
     def __call__(self, *args, **kwargs):
-        return self.func(*args, **kwargs)
+        try:
+            return self.func(*args, **kwargs)
+        except dukpy.JSError as e:
+            self.reraise(e)
+
+    def reraise(self, e):
+        raise JSError(e), None, sys.exc_info()[2]
 
 def to_python(x):
     try:
@@ -113,6 +134,15 @@ class JSError(Exception):
             Exception.__init__(self, type('')(e))
             self.name = self.js_message = self.fileName = self.lineNumber = self.stack = None
 
+    def as_dict(self):
+        return {
+            'name':self.name or undefined,
+            'message': self.js_message or self.message,
+            'fileName': self.fileName or undefined,
+            'lineNumber': self.lineNumber or undefined,
+            'stack': self.stack or undefined
+        }
+
 contexts = {}
 
 def create_context(base_dirs, *args):
@@ -125,8 +155,12 @@ def create_context(base_dirs, *args):
     return key
 
 def run_in_context(code, ctx, options=None):
-    ans = contexts[ctx].eval(code)
-    return to_python(ans)
+    c = contexts[ctx]
+    try:
+        ans = c.eval(code)
+    except JSError as e:
+        return [False, e.as_dict()]
+    return [True, to_python(ans)]
 
 class Context(object):
 
