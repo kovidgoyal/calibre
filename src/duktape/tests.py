@@ -106,6 +106,14 @@ class ValueTests(unittest.TestCase):
         self.g.obj1 = {'a': 42}
         self.g.obj2 = self.g.obj1
         self.assertEqual(self.g.obj1.a, self.g.obj2.a)
+        self.ctx.eval('function f() {nonexistent()}')
+        try:
+            self.g.f()
+            self.assert_('No error raised for bad function')
+        except JSError as e:
+            e = e.args[0]
+            self.assertEqual('ReferenceError', e.name)
+            self.assertIn('nonexistent', e.toString())
 
 
 class EvalTests(unittest.TestCase):

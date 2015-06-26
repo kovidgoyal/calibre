@@ -396,14 +396,13 @@ PyObject* DukFunction_call(DukObject *self, PyObject *args, PyObject *kw)
 {
     duk_context *ctx = self->context->ctx;
     Py_ssize_t nargs, i;
-    int return_none = 0;
-    PyObject *result;
+    int return_none = 0, ret = 0;
+    PyObject *result, *temp;
 
     /* NULL if no parent */
     PyObject *this = (PyObject *)self->parent;
 
     if (kw) {
-        PyObject *temp;
 
         temp = PyDict_GetItemString(kw, "this");
         if (temp)
@@ -435,9 +434,19 @@ PyObject* DukFunction_call(DukObject *self, PyObject *args, PyObject *kw)
     }
 
     if (this)
-        duk_call_method(ctx, (duk_idx_t)nargs);
+        ret = duk_pcall_method(ctx, (duk_idx_t)nargs);
     else
-        duk_call(ctx, (duk_idx_t)nargs);
+        ret = duk_pcall(ctx, (duk_idx_t)nargs);
+
+    if (ret != DUK_EXEC_SUCCESS) {
+        temp = duk_to_python(ctx, -1);
+        duk_pop(ctx);
+        if (temp) {
+            PyErr_SetObject(JSError, temp);
+            Py_DECREF(temp);
+        } else PyErr_SetString(PyExc_RuntimeError, "The was an error during call(), but the error could not be read of the stack");
+        return NULL;
+    }
 
     if (return_none) {
         /* Always return None. This saves converting the function's
