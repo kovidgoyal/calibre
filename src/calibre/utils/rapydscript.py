@@ -6,12 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, json, sys, errno, re, atexit
+import os, json, sys, re, atexit, errno
 from threading import local
 from functools import partial
+from threading import Thread
+from Queue import Queue
 
-from calibre.constants import cache_dir, iswindows
-from calibre.utils.terminal import ANSIStream, colored
+from duktape import Context, JSError, to_python
+from calibre.constants import cache_dir
+from calibre.utils.terminal import ANSIStream
 
 COMPILER_PATH = 'rapydscript/compiler.js'
 
@@ -57,7 +60,6 @@ def compile_baselib(ctx, baselib, beautify=True):
     return {k:doit(v) for k, v in sorted(baselib.iteritems())}
 
 def update_rapydscript():
-    from duktape import Context, JSError
     vm_js = '''
     exports.createContext = function(x) { x.AST_Node = {}; return x; }
     exports.runInContext = function() { return null; }
@@ -88,10 +90,12 @@ def update_rapydscript():
     ctx = Context()
     ctx.eval(data.decode('utf-8'))
     baselib = {'beautifed': compile_baselib(ctx, baselib), 'minified': compile_baselib(ctx, baselib, False)}
+    repl = open(os.path.join(base, 'tools', 'repl.js'), 'rb').read()
 
     with open(P(COMPILER_PATH, allow_user_override=False), 'wb') as f:
         f.write(data)
         f.write(b'\n\nrs_baselib_pyj = ' + json.dumps(baselib) + b';')
+        f.write(b'\n\nrs_repl_js = ' + json.dumps(repl) + b';')
         f.write(b'\n\nrs_package_version = ' + json.dumps(package['version']) + b';\n')
 # }}}
 
@@ -118,7 +122,6 @@ def to_dict(obj):
 def compiler():
     c = getattr(tls, 'compiler', None)
     if c is None:
-        from duktape import Context
         c = tls.compiler = Context(base_dirs=(P('rapydscript', allow_user_override=False),))
         c.eval(P(COMPILER_PATH, data=True, allow_user_override=False).decode('utf-8'), fname='rapydscript-compiler.js')
         c.g.current_output_options = {}
@@ -164,20 +167,13 @@ def leading_whitespace(line):
 def format_error(data):
     return ':'.join(map(type(''), (data['file'], data['line'], data['col'], data['message'])))
 
-class Repl(object):
+class Repl(Thread):
 
     LINE_CONTINUATION_CHARS = r'\:'
+    daemon = True
 
     def __init__(self, ps1='>>> ', ps2='... ', show_js=False, libdir=None):
-        from duktape import Context, undefined, JSError, to_python
-        self.lines = []
-        self.libdir = libdir
-        self.ps1, self.ps2 = ps1, ps2
-        if not iswindows:
-            self.ps1, self.ps2 = colored(self.ps1, fg='green'), colored(self.ps2, fg='green')
-        self.ctx = Context()
-        self.ctx.g.show_js = show_js
-        self.undefined = undefined
+        Thread.__init__(self, name='RapydScriptREPL')
         self.to_python = to_python
         self.JSError = JSError
         self.enc = getattr(sys.stdin, 'encoding', None) or 'utf-8'
@@ -187,28 +183,100 @@ class Repl(object):
         except ImportError:
             pass
         self.output = ANSIStream(sys.stdout)
-        c = compiler()
-        baselib = dict(dict(c.g.rs_baselib_pyj)['beautifed'])
+        self.to_repl = Queue()
+        self.from_repl = Queue()
+        self.ps1, self.ps2 = ps1, ps2
+        self.show_js, self.libdir = show_js, libdir
+        self.prompt = ''
+        self.completions = None
+        self.start()
+
+    def init_ctx(self):
+        cc = '''
+        exports.AST_Node = AST_Node;
+        exports.ALL_KEYWORDS = ALL_KEYWORDS;
+        exports.tokenizer = tokenizer;
+        exports.parse = parse;
+        exports.OutputStream = OutputStream;
+        exports.IDENTIFIER_PAT = IDENTIFIER_PAT;
+        '''
+        self.prompt = self.ps1
+        readline = '''
+        exports.createInterface = function(options) { rl.completer = options.completer; return rl; }
+        '''
+        self.ctx = Context(builtin_modules={'readline':readline, 'compiler':cc})
+        self.ctx.g.Duktape.write = self.output.write
+        self.ctx.eval(r'''console = { log: function() { Duktape.write(Array.prototype.slice.call(arguments).join(' ') + '\n');}};
+                      console['error'] = console['log'];''')
+        cc = P(COMPILER_PATH, data=True, allow_user_override=False)
+        self.ctx.eval(cc)
+        baselib = dict(dict(self.ctx.g.rs_baselib_pyj)['beautifed'])
         baselib = '\n\n'.join(baselib.itervalues())
-        self.ctx.eval(baselib)
+        self.ctx.eval('module = {}')
+        self.ctx.eval(self.ctx.g.rs_repl_js, fname='repl.js')
+        self.ctx.g.repl_options = {
+            'baselib': baselib, 'show_js': self.show_js,
+            'histfile':False,
+            'input':True, 'output':True, 'ps1':self.ps1, 'ps2':self.ps2,
+            'terminal':self.output.isatty,
+            'enum_global': 'Object.keys(this)',
+            'lib_path': self.libdir or os.path.dirname(P(COMPILER_PATH))  # TODO: Change this to load pyj files from the src code
+        }
 
-    def resetbuffer(self):
-        self.lines = []
+    def run(self):
+        self.init_ctx()
+        rl = None
 
-    def prints(self, *args, **kwargs):
-        sep = kwargs.get('sep', ' ')
-        for x in args:
-            self.output.write(type('')(x))
-            if sep and x is not args[-1]:
-                self.output.write(sep)
-        end = kwargs.get('end', '\n')
-        if end:
-            self.output.write(end)
+        def set_prompt(p):
+            self.prompt = p
+
+        def prompt(lw):
+            self.from_repl.put(to_python(lw))
+
+        self.ctx.g.set_prompt = set_prompt
+        self.ctx.g.prompt = prompt
+
+        self.ctx.eval('''
+        listeners = {};
+        rl = {
+            setPrompt:set_prompt,
+            write:Duktape.write,
+            clearLine:function() {},
+            on: function(ev, cb) { listeners[ev] = cb; return rl; },
+            prompt: prompt,
+            sync_prompt: true,
+            send_line: function(line) { listeners['line'](line); },
+            send_interrupt: function() { listeners['SIGINT'](); },
+            close: function() {listeners['close'](); }
+        };
+        ''')
+        rl = self.ctx.g.rl
+        self.ctx.eval('module.exports(repl_options)')
+        while True:
+            ev, line = self.to_repl.get()
+            try:
+                if ev == 'SIGINT':
+                    self.output.write('\n')
+                    rl.send_interrupt()
+                elif ev == 'line':
+                    rl.send_line(line)
+                else:
+                    val = rl.completer(line)
+                    val = to_python(val)
+                    self.from_repl.put(val[0])
+            except Exception as e:
+                if 'JSError' in e.__class__.__name__:
+                    e = JSError(e)  # A bare JSError
+                    print (e.stack or e.message, file=sys.stderr)
+                else:
+                    import traceback
+                    traceback.print_exc()
+
+                for i in xrange(100):
+                    # Do this many times to ensure we dont deadlock
+                    self.from_repl.put(None)
 
     def __call__(self):
-        self.prints(colored('Welcome to the RapydScript REPL! Press Ctrl+D to quit.\n'
-                    'Use show_js = True to have the REPL print out the'
-                    ' compiled javascript before executing it.\n', bold=True))
         if hasattr(self, 'readline'):
             history = os.path.join(cache_dir(), 'pyj-repl-history.txt')
             self.readline.parse_and_bind("tab: complete")
@@ -218,80 +286,38 @@ class Repl(object):
                 if e.errno != errno.ENOENT:
                     raise
             atexit.register(partial(self.readline.write_history_file, history))
-        more = False
-        while True:
+
+        def completer(text, num):
+            if self.completions is None:
+                self.to_repl.put(('complete', text))
+                self.completions = self.from_repl.get()
+                if self.completions is None:
+                    return None
             try:
-                prompt = self.ps2 if more else self.ps1
-                lw = ''
-                if more and self.lines:
-                    if self.lines:
-                        if self.lines[-1][-1:] == ':':
-                            lw = ' ' * 4  # autoindent
-                        lw = leading_whitespace(self.lines[-1]) + lw
-                if hasattr(self, 'readline'):
-                    self.readline.set_pre_input_hook(lambda:(self.readline.insert_text(lw), self.readline.redisplay()))
-                else:
-                    prompt += lw
-                try:
-                    line = raw_input(prompt).decode(self.enc)
-                except EOFError:
-                    self.prints()
-                    break
-                else:
-                    if more and line.lstrip():
-                        self.lines.append(line)
-                        continue
-                    if more and not line.lstrip():
-                        line = line.lstrip()
-                    more = self.push(line)
-            except KeyboardInterrupt:
-                self.prints("\nKeyboardInterrupt")
-                self.resetbuffer()
-                more = False
+                return self.completions[num]
+            except (IndexError, TypeError, AttributeError, KeyError):
+                self.completions = None
 
-    def push(self, line):
-        self.lines.append(line)
-        rl = line.rstrip()
-        if rl and rl[-1] in self.LINE_CONTINUATION_CHARS:
-            return True
-        source = '\n'.join(self.lines)
-        more = self.runsource(source)
-        if not more:
-            self.resetbuffer()
-        return more
+        if hasattr(self, 'readline'):
+            self.readline.set_completer(completer)
 
-    def runsource(self, source):
-        try:
-            js = compile_pyj(source, filename='', private_scope=False, libdir=self.libdir, omit_baselib=True, write_name=False)
-        except PYJError as e:
-            for data in e.errors:
-                msg = data.get('message') or ''
-                if data['line'] == len(self.lines) and data['col'] > 0 and (
-                        'Unexpected token: eof' in msg or 'Unterminated regular expression' in msg):
-                    return True
+        while True:
+            lw = self.from_repl.get()
+            if lw is None:
+                raise SystemExit(1)
+            q = self.prompt
+            if hasattr(self, 'readline'):
+                self.readline.set_pre_input_hook(lambda:(self.readline.insert_text(lw), self.readline.redisplay()))
             else:
-                for e in e.errors:
-                    self.prints(format_error(e))
-        except self.JSError as e:
-            self.prints(e.message)
-        except Exception as e:
-            self.prints(e)
-        else:
-            self.runjs(js)
-        return False
+                q += lw
+            try:
+                line = raw_input(q)
+                self.to_repl.put(('line', line))
+            except EOFError:
+                return
+            except KeyboardInterrupt:
+                self.to_repl.put(('SIGINT', None))
 
-    def runjs(self, js):
-        if self.ctx.g.show_js:
-            self.prints(colored('Compiled Javascript:', fg='green'), js, sep='\n')
-        try:
-            result = self.ctx.eval(js, fname='line')
-        except self.JSError as e:
-            self.prints(e.message)
-        except Exception as e:
-            self.prints(str(e))
-        else:
-            if result is not self.undefined:
-                self.prints(colored(repr(self.to_python(result)), bold=True))
 # }}}
 
 def main(args=sys.argv):
@@ -311,7 +337,6 @@ def main(args=sys.argv):
     if sys.stdin.isatty():
         Repl(show_js=args.show_js, libdir=libdir)()
     else:
-        from duktape import JSError
         try:
             enc = getattr(sys.stdin, 'encoding', 'utf-8') or 'utf-8'
             data = compile_pyj(sys.stdin.read().decode(enc), libdir=libdir, private_scope=not args.no_private_scope, omit_baselib=args.omit_baselib)

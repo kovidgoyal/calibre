@@ -19,8 +19,25 @@ if err:
 del err
 Context_, undefined = dukpy.Context, dukpy.undefined
 
+fs = '''
+exports.readFileSync = Duktape.readfile;
+'''
+vm = '''
+exports.createContext = Duktape.create_context;
+exports.runInContext = Duktape.run_in_context;
+'''
+path = '''
+exports.join = function () { return arguments[0] + '/' + arguments[1]; }
+'''
+util = '''
+exports.inspect = function(x) { return x.toString(); };
+'''
+
 def load_file(base_dirs, builtin_modules, name):
     ans = builtin_modules.get(name)
+    if ans is not None:
+        return ans
+    ans = {'fs':fs, 'vm':vm, 'path':path, 'util':util}.get(name)
     if ans is not None:
         return ans
     if not name.endswith('.js'):
@@ -60,12 +77,15 @@ class Function(object):
         return self.func(*args, **kwargs)
 
 def to_python(x):
-    if isinstance(x, (numbers.Number, type(''), bytes, bool)):
-        if isinstance(x, type('')):
-            x = x.encode('utf-8')
-        if isinstance(x, numbers.Integral):
-            x = int(x)
-        return x
+    try:
+        if isinstance(x, (numbers.Number, type(''), bytes, bool)):
+            if isinstance(x, type('')):
+                x = x.encode('utf-8')
+            if isinstance(x, numbers.Integral):
+                x = int(x)
+            return x
+    except TypeError:
+        pass
     name = x.__class__.__name__
     if name == 'Array proxy':
         return [to_python(y) for y in x]
@@ -93,6 +113,21 @@ class JSError(Exception):
             Exception.__init__(self, type('')(e))
             self.name = self.js_message = self.fileName = self.lineNumber = self.stack = None
 
+contexts = {}
+
+def create_context(base_dirs, *args):
+    data = to_python(args[0]) if args else {}
+    ctx = Context(base_dirs=base_dirs)
+    for k, val in data.iteritems():
+        setattr(ctx.g, k, val)
+    key = id(ctx)
+    contexts[key] = ctx
+    return key
+
+def run_in_context(code, ctx, options=None):
+    ans = contexts[ctx].eval(code)
+    return to_python(ans)
+
 class Context(object):
 
     def __init__(self, base_dirs=(), builtin_modules=None):
@@ -100,59 +135,75 @@ class Context(object):
         self.g = self._ctx.g
         self.g.Duktape.load_file = partial(load_file, base_dirs or (os.getcwdu(),), builtin_modules or {})
         self.g.Duktape.pyreadfile = readfile
+        self.g.Duktape.create_context = partial(create_context, base_dirs)
+        self.g.Duktape.run_in_context = run_in_context
+        self.g.Duktape.cwd = os.getcwdu
         self.eval('''
-            console = { log: function() { print(Array.prototype.join.call(arguments, ' ')); } };
-            Duktape.modSearch = function (id, require, exports, module) { return Duktape.load_file(id); }
-            if (!String.prototype.trim) {
-                (function() {
-                    // Make sure we trim BOM and NBSP
-                    var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
-                    String.prototype.trim = function() {
-                    return this.replace(rtrim, '');
-                    };
-                })();
-            };
-            if (!String.prototype.trimLeft) {
-                (function() {
-                    // Make sure we trim BOM and NBSP
-                    var rtrim = /^[\s\uFEFF\xA0]+/g;
-                    String.prototype.trimLeft = function() {
-                    return this.replace(rtrim, '');
-                    };
-                })();
-            };
-            if (!String.prototype.trimRight) {
-                (function() {
-                    // Make sure we trim BOM and NBSP
-                    var rtrim = /[\s\uFEFF\xA0]+$/g;
-                    String.prototype.trimRight = function() {
-                    return this.replace(rtrim, '');
-                    };
-                })();
-            };
-            if (!String.prototype.startsWith) {
-                String.prototype.startsWith = function(searchString, position) {
-                position = position || 0;
-                return this.indexOf(searchString, position) === position;
+        console = {
+            log: function() { print(Array.prototype.join.call(arguments, ' ')); },
+            error: function() { print(Array.prototype.join.call(arguments, ' ')); },
+            debug: function() { print(Array.prototype.join.call(arguments, ' ')); }
+        };
+
+        Duktape.modSearch = function (id, require, exports, module) { return Duktape.load_file(id); }
+
+        if (!String.prototype.trim) {
+            (function() {
+                // Make sure we trim BOM and NBSP
+                var rtrim = /^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g;
+                String.prototype.trim = function() {
+                return this.replace(rtrim, '');
                 };
-            }
-            if (!String.prototype.endsWith) {
-                String.prototype.endsWith = function(searchString, position) {
-                    var subjectString = this.toString();
-                    if (position === undefined || position > subjectString.length) {
-                        position = subjectString.length;
-                    }
-                    position -= searchString.length;
-                    var lastIndex = subjectString.indexOf(searchString, position);
-                    return lastIndex !== -1 && lastIndex === position;
+            })();
+        };
+        if (!String.prototype.trimLeft) {
+            (function() {
+                // Make sure we trim BOM and NBSP
+                var rtrim = /^[\s\uFEFF\xA0]+/g;
+                String.prototype.trimLeft = function() {
+                return this.replace(rtrim, '');
                 };
-            }
-            Duktape.readfile = function(path, encoding) {
-                var x = Duktape.pyreadfile(path, encoding);
-                var data = x[0]; var errcode = x[1]; var errmsg = x[2];
-                if (errmsg !== null) throw {code:errcode, message:errmsg};
-                return data;
-            }
+            })();
+        };
+        if (!String.prototype.trimRight) {
+            (function() {
+                // Make sure we trim BOM and NBSP
+                var rtrim = /[\s\uFEFF\xA0]+$/g;
+                String.prototype.trimRight = function() {
+                return this.replace(rtrim, '');
+                };
+            })();
+        };
+        if (!String.prototype.startsWith) {
+            String.prototype.startsWith = function(searchString, position) {
+            position = position || 0;
+            return this.indexOf(searchString, position) === position;
+            };
+        }
+        if (!String.prototype.endsWith) {
+            String.prototype.endsWith = function(searchString, position) {
+                var subjectString = this.toString();
+                if (position === undefined || position > subjectString.length) {
+                    position = subjectString.length;
+                }
+                position -= searchString.length;
+                var lastIndex = subjectString.indexOf(searchString, position);
+                return lastIndex !== -1 && lastIndex === position;
+            };
+        }
+        Duktape.readfile = function(path, encoding) {
+            var x = Duktape.pyreadfile(path, encoding);
+            var data = x[0]; var errcode = x[1]; var errmsg = x[2];
+            if (errmsg !== null) throw {code:errcode, message:errmsg};
+            return data;
+        }
+
+        process = {
+            'platform': 'duktape',
+            'env': {'HOME': '_HOME_'},
+            'exit': function() {},
+            'cwd':Duktape.cwd
+        }
 
         ''')
 
