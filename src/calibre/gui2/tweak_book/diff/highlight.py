@@ -39,7 +39,11 @@ class QtHighlighter(QTextDocument):
                 cursor.insertText(block.text())
                 dest_block = cursor.block()
                 c = QTextCursor(dest_block)
-                for af in block.layout().additionalFormats():
+                try:
+                    afs = block.layout().additionalFormats()
+                except AttributeError:
+                    afs = ()
+                for af in afs:
                     start = dest_block.position() + af.start
                     c.setPosition(start), c.setPosition(start + af.length, c.KeepAnchor)
                     c.setCharFormat(af.format)
