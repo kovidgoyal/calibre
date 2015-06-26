@@ -1,65 +1,7 @@
-function _$rapyd$_extends(child, parent) {
-        child.prototype = Object.create(parent.prototype);
-        child.prototype.constructor = child;
-    }
-function _$rapyd$_in(val, arr) {
-        if (arr instanceof Array || typeof arr === "string") {
-            return arr.indexOf(val) !== -1;
-        } else {
-            if (arr.hasOwnProperty(val)) {
-                return true;
-            }
-            return false;
-        }
-    }
 function abs(n) {
         return Math.abs(n);
     }
-function dir(item) {
-        var arr;
-        arr = [];
-        for (var i in item) {
-            arr.push(i);
-        }
-        return arr;
-    }
-function len(obj) {
-        var count;
-        if (obj instanceof Array || typeof obj === "string") {
-            return obj.length;
-        } else {
-            count = 0;
-            for (var i in obj) {
-                if (obj.hasOwnProperty(i)) {
-                    count += 1;
-                }
-            }
-            return count;
-        }
-    }
-function range(start, stop, step) {
-        var length, idx, range;
-        if (arguments.length <= 1) {
-            stop = start || 0;
-            start = 0;
-        }
-        step = arguments[2] || 1;
-        length = Math.max(Math.ceil((stop - start) / step), 0);
-        idx = 0;
-        range = new Array(length);
-        while (idx < length) {
-            range[idx++] = start;
-            start += step;
-        }
-        return range;
-    }
-function _$rapyd$_mixin(target, source, overwrite) {
-        for (var i in source) {
-            if (source.hasOwnProperty(i) && overwrite || typeof target[i] === "undefined") {
-                target[i] = source[i];
-            }
-        }
-    }
+
 function _$rapyd$_bind(fn, thisArg) {
         var ret;
         if (fn.orig) {
@@ -74,6 +16,31 @@ function _$rapyd$_bind(fn, thisArg) {
         ret.orig = fn;
         return ret;
     }
+
+function _$rapyd$_rebindAll(thisArg, rebind) {
+        if (typeof rebind === "undefined") {
+            rebind = true;
+        }
+        for (var p in thisArg) {
+            if (thisArg[p] && thisArg[p].orig) {
+                if (rebind) {
+                    thisArg[p] = _$rapyd$_bind(thisArg[p], thisArg);
+                } else {
+                    thisArg[p] = thisArg[p].orig;
+                }
+            }
+        }
+    }
+
+function dir(item) {
+        var arr;
+        arr = [];
+        for (var i in item) {
+            arr.push(i);
+        }
+        return arr;
+    }
+
 function enumerate(item) {
         var arr;
         arr = [];
@@ -82,32 +49,7 @@ function enumerate(item) {
         }
         return arr;
     }
-function _$rapyd$_print() {
-        var args = [].slice.call(arguments, 0);
-        if (typeof console === "object") {
-            console.log.apply(console, args);
-        }
-    }
-function reversed(arr) {
-        var tmp;
-        tmp = arr.slice(0);
-        return tmp.reverse();
-    }
-function getattr(obj, name) {
-        return obj[name];
-    }
-function setattr(obj, name, value) {
-        obj[name] = value;
-    }
-function hasattr(obj, name) {
-        return name in obj;
-    }
-function sum(arr, start) {
-        if (typeof start === "undefined") start = 0;
-        return arr.reduce(function(prev, cur) {
-            return prev + cur;
-        }, start);
-    }
+
 function _$rapyd$_eslice(arr, step, start, end) {
         var isString;
         arr = arr.slice(0);
@@ -136,17 +78,106 @@ function _$rapyd$_eslice(arr, step, start, end) {
         });
         return isString ? arr.join("") : arr;
     }
+
+function _$rapyd$_extends(child, parent) {
+        child.prototype = Object.create(parent.prototype);
+        child.prototype.constructor = child;
+    }
+
+function _$rapyd$_in(val, arr) {
+        if (Array.isArray(arr) || typeof arr === "string") {
+            return arr.indexOf(val) !== -1;
+        } else {
+            if (arr.hasOwnProperty(val)) {
+                return true;
+            }
+            return false;
+        }
+    }
+
 function _$rapyd$_Iterable(iterable) {
-        if (iterable instanceof Array || iterable instanceof String || typeof iterable === "string") {
+        if (Array.isArray(iterable) || iterable instanceof String || typeof iterable === "string") {
             return iterable;
         }
         return Object.keys(iterable);
     }
 
+function len(obj) {
+        if (Array.isArray(obj) || typeof obj === "string") {
+            return obj.length;
+        }
+        return Object.keys(obj).length;
+    }
+
+function _$rapyd$_mixin(target, source, overwrite) {
+        for (var i in source) {
+            if (source.hasOwnProperty(i) && overwrite || typeof target[i] === "undefined") {
+                target[i] = source[i];
+            }
+        }
+    }
+
+function _$rapyd$_print() {
+        if (typeof console === "object") {
+            console.log.apply(console, arguments);
+        }
+    }
+
+function range(start, stop, step) {
+        var length, idx, range;
+        if (arguments.length <= 1) {
+            stop = start || 0;
+            start = 0;
+        }
+        step = arguments[2] || 1;
+        length = Math.max(Math.ceil((stop - start) / step), 0);
+        idx = 0;
+        range = new Array(length);
+        while (idx < length) {
+            range[idx++] = start;
+            start += step;
+        }
+        return range;
+    }
+
+function reversed(arr) {
+        var tmp;
+        tmp = arr.slice(0);
+        return tmp.reverse();
+    }
+
+function sum(arr, start) {
+        if (typeof start === "undefined") start = 0;
+        return arr.reduce(function(prev, cur) {
+            return prev + cur;
+        }, start);
+    }
+
+function getattr(obj, name) {
+        return obj[name];
+    }
+
+function setattr(obj, name, value) {
+        obj[name] = value;
+    }
+
+function hasattr(obj, name) {
+        return name in obj;
+    }
+
+function _$rapyd$_symbolfor_polyfill() {
+        if (typeof Symbol === "function" && typeof Symbol.for === "function") {
+            return Symbol.for;
+        }
+        return function(name) {
+            return name + "-Symbol-" + "5d0927e5554349048cf0e3762a228256";
+        };
+    }
+
 
 
 var MAP;
-"\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript2\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n **********************************************************************\n";
+"\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n **********************************************************************\n";
 "use strict";
 function array_to_hash(a) {
     var ret, i;
@@ -258,7 +289,7 @@ MAP = function() {
             }
             return is_last;
         }
-        if (a instanceof Array) {
+        if (Array.isArray(a)) {
             if (backwards) {
                 for (i = a.length - 1; i > -1; i-=1) {
                     if (doit()) {
@@ -378,7 +409,7 @@ function set_intersection(a, b) {
 }
 function makePredicate(words) {
     var cats, skip, j, cat, i, f;
-    if (!(words instanceof Array)) {
+    if (!Array.isArray(words)) {
         words = words.split(" ");
     }
     f = "";
@@ -476,7 +507,7 @@ Dictionary.prototype = {
 };
 
 var AST_Token, AST_Node, AST_Statement, AST_Debugger, AST_Directive, AST_SimpleStatement, AST_Block, AST_BlockStatement, AST_EmptyStatement, AST_StatementWithBody, AST_LabeledStatement, AST_DWLoop, AST_Do, AST_While, AST_ForIn, AST_ForJS, AST_ListComprehension, AST_With, AST_Scope, AST_Toplevel, AST_Import, AST_Decorator, AST_Lambda, AST_Accessor, AST_Function, AST_Class, AST_Module, AST_Method, AST_Jump, AST_Exit, AST_Return, AST_Throw, AST_LoopControl, AST_Break, AST_Continue, AST_If, AST_Switch, AST_SwitchBranch, AST_Default, AST_Case, AST_Try, AST_Catch, AST_Except, AST_Finally, AST_Definitions, AST_Var, AST_Const, AST_VarDef, AST_BaseCall, AST_Call, AST_ClassCall, AST_New, AST_Seq, AST_PropAccess, AST_Dot, AST_Sub, AST_Splice, AST_Unary, AST_UnaryPrefix, AST_UnaryPostfix, AST_Binary, AST_Conditional, AST_Assign, AST_Array, AST_TupleUnpack, AST_Object, AST_ObjectProperty, AST_ObjectKeyVal, AST_ObjectSetter, AST_ObjectGetter, AST_Symbol, AST_SymbolAccessor, AST_SymbolDeclaration, AST_SymbolVar, AST_SymbolConst, AST_SymbolFunarg, AST_SymbolDefun, AST_SymbolLambda, AST_SymbolCatch, AST_Label, AST_SymbolRef, AST_LabelRef, AST_This, AST_Constant, AST_String, AST_Verbatim, AST_Number, AST_RegExp, AST_Atom, AST_Null, AST_NaN, AST_Undefined, AST_Hole, AST_Infinity, AST_Boolean, AST_False, AST_True;
-"\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript2\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n **********************************************************************\n";
+"\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n **********************************************************************\n";
 "use strict";
 function DEFNODE(type, props, methods, base) {
     var self_props, proto, code, ctor, i;
@@ -1473,13 +1504,14 @@ TreeWalker.prototype = {
     }
 };
 
-var KEYWORDS, RESERVED_WORDS, KEYWORDS_BEFORE_EXPRESSION, KEYWORDS_ATOM, NATIVE_CLASSES, COMMON_STATIC, OPERATOR_CHARS, RE_HEX_NUMBER, RE_OCT_NUMBER, RE_DEC_NUMBER, OPERATORS, OP_MAP, WHITESPACE_CHARS, PUNC_BEFORE_EXPRESSION, PUNC_CHARS, REGEXP_MODIFIERS, UNICODE, BASELIB, EX_EOF, UNARY_PREFIX, UNARY_POSTFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN;
-"\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript2\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n**********************************************************************\n";
+var ALL_KEYWORDS, KEYWORDS, RESERVED_WORDS, KEYWORDS_BEFORE_EXPRESSION, KEYWORDS_ATOM, NATIVE_CLASSES, COMMON_STATIC, OPERATOR_CHARS, RE_HEX_NUMBER, RE_OCT_NUMBER, RE_DEC_NUMBER, OPERATORS, OP_MAP, WHITESPACE_CHARS, PUNC_BEFORE_EXPRESSION, PUNC_CHARS, REGEXP_MODIFIERS, UNICODE, BASELIB, IDENTIFIER_PAT, EX_EOF, UNARY_PREFIX, UNARY_POSTFIX, ASSIGNMENT, PRECEDENCE, STATEMENTS_WITH_LABELS, ATOMIC_START_TOKEN;
+"\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n**********************************************************************\n";
 "use strict";
 KEYWORDS = "as break case class const continue debugger default def del do elif else except finally for from if import in instanceof is new nonlocal pass raise return switch til to try typeof var void while with or and not";
 KEYWORDS_ATOM = "False None True";
 RESERVED_WORDS = "abstract boolean byte char double enum export extends final float goto implements int interface long native package private protected public short static super synchronized this throws transient volatile" + " " + KEYWORDS_ATOM + " " + KEYWORDS;
 KEYWORDS_BEFORE_EXPRESSION = "return new del raise elif else if";
+ALL_KEYWORDS = RESERVED_WORDS + " " + KEYWORDS_BEFORE_EXPRESSION;
 KEYWORDS = makePredicate(KEYWORDS);
 RESERVED_WORDS = makePredicate(RESERVED_WORDS);
 KEYWORDS_BEFORE_EXPRESSION = makePredicate(KEYWORDS_BEFORE_EXPRESSION);
@@ -1515,7 +1547,11 @@ NATIVE_CLASSES = {
     "Uint16Array": {},
     "Uint32Array": {},
     "Uint8Array": {},
-    "Uint8ClampedArray": {}
+    "Uint8ClampedArray": {},
+    "Map": {},
+    "WeakMap": {},
+    "Set": {},
+    "WeakSet": {}
 };
 COMMON_STATIC = [ "call", "apply", "bind", "toString" ];
 OPERATOR_CHARS = makePredicate(characters("+-*&%=<>!?|~^@"));
@@ -1544,6 +1580,7 @@ UNICODE = {
     connector_punctuation: new RegExp("[\\u005F\\u203F\\u2040\\u2054\\uFE33\\uFE34\\uFE4D-\\uFE4F\\uFF3F]")
 };
 BASELIB = {};
+IDENTIFIER_PAT = /^[a-z_$][_a-z0-9$]*$/i;
 function ImportError() {
     ImportError.prototype.__init__.apply(this, arguments);
 }
@@ -1569,7 +1606,7 @@ function is_unicode_connector_punctuation(ch) {
     return UNICODE.connector_punctuation.test(ch);
 }
 function is_identifier(name) {
-    return !RESERVED_WORDS(name) && /^[a-z_$][a-z0-9_$]*$/i.test(name);
+    return !RESERVED_WORDS(name) && IDENTIFIER_PAT.test(name);
 }
 function is_identifier_start(code) {
     return code === 36 || code === 95 || is_letter(code);
@@ -1588,24 +1625,25 @@ function parse_js_number(num) {
         return parseFloat(num);
     }
 }
-function JS_Parse_Error(message, line, col, pos) {
+function JS_Parse_Error(message, line, col, pos, is_eof) {
     this.message = message;
     this.line = line;
     this.col = col;
     this.pos = pos;
     this.stack = new Error().stack;
+    this.is_eof = is_eof;
 }
 JS_Parse_Error.prototype.toString = function() {
     return this.message + " (line: " + this.line + ", col: " + this.col + ", pos: " + this.pos + ")" + "\n\n" + this.stack;
 };
-function js_error(message, filename, line, col, pos) {
+function js_error(message, filename, line, col, pos, is_eof) {
     AST_Node.warn("ERROR: {message} [{file}:{line},{col}]", {
         message: message,
         file: filename,
         line: line,
         col: col
     });
-    throw new JS_Parse_Error(message, line, col, pos);
+    throw new JS_Parse_Error(message, line, col, pos, is_eof);
 }
 function is_token(token, type, val) {
     return token.type === type && (val === null || val === undefined || token.value === val);
@@ -1776,8 +1814,8 @@ function tokenizer($TEXT, filename) {
         }
         return ret;
     }
-    function parse_error(err) {
-        js_error(err, filename, S.tokline, S.tokcol, S.tokpos);
+    function parse_error(err, is_eof) {
+        js_error(err, filename, S.tokline, S.tokcol, S.tokpos, is_eof);
     }
     function read_num(prefix) {
         var has_e, after_e, has_x, has_dot, num, valid;
@@ -2065,7 +2103,7 @@ function tokenizer($TEXT, filename) {
             } catch (_$rapyd$_Exception) {
                 var ex = _$rapyd$_Exception;
                 if (ex === EX_EOF) {
-                    parse_error(eof_error);
+                    parse_error(eof_error, true);
                 } else {
                     throw _$rapyd$_Exception;
                 }
@@ -2147,13 +2185,14 @@ PRECEDENCE = function(a, ret) {
 STATEMENTS_WITH_LABELS = array_to_hash([ "for", "do", "while", "switch" ]);
 ATOMIC_START_TOKEN = array_to_hash([ "atom", "num", "string", "regexp", "name" ]);
 function parse($TEXT, options) {
-    var module_id, IMPORTED, IMPORTING, S, statement, import_, class_, function_, nonlocal_, const_, new_, expr_atom, array_, object_, subscripts, maybe_unary, expr_op, maybe_conditional, maybe_assign, expression;
+    var module_id, IMPORTED, IMPORTING, S, obj, cname, statement, import_, class_, function_, nonlocal_, const_, new_, expr_atom, array_, object_, subscripts, maybe_unary, expr_op, maybe_conditional, maybe_assign, expression;
     options = defaults(options, {
         strict: false,
         filename: null,
         auto_bind: false,
         module_id: "__main__",
-        toplevel: null
+        toplevel: null,
+        classes: undefined
     });
     module_id = options.module_id;
     IMPORTED = options.IMPORTED || {};
@@ -2172,6 +2211,17 @@ function parse($TEXT, options) {
         labels: [],
         decorators: []
     };
+    if (options.classes) {
+        var _$rapyd$_Iter0 = _$rapyd$_Iterable(options.classes);
+        for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
+            cname = _$rapyd$_Iter0[_$rapyd$_Index0];
+            obj = options.classes[cname];
+            S.classes[0][cname] = {
+                "static": obj.static,
+                "bound": obj.bound
+            };
+        }
+    }
     S.token = next();
     function is_(type, value) {
         return is_token(S.token, type, value);
@@ -2193,13 +2243,15 @@ function parse($TEXT, options) {
     function prev() {
         return S.prev;
     }
-    function croak(msg, line, col, pos) {
+    function croak(msg, line, col, pos, is_eof) {
         var ctx;
         ctx = S.input.context();
-        js_error(msg, ctx.filename, line !== undefined ? line : ctx.tokline, col !== undefined ? col : ctx.tokcol, pos !== undefined ? pos : ctx.tokpos);
+        js_error(msg, ctx.filename, line !== undefined ? line : ctx.tokline, col !== undefined ? col : ctx.tokcol, pos !== undefined ? pos : ctx.tokpos, is_eof);
     }
     function token_error(token, msg) {
-        croak(msg, token.line, token.col);
+        var is_eof;
+        is_eof = token.type === "eof" ? true : false;
+        croak(msg, token.line, token.col, undefined, is_eof);
     }
     function unexpected(token) {
         if (token === undefined) {
@@ -2268,7 +2320,7 @@ function parse($TEXT, options) {
     function scan_for_top_level_callables(body) {
         var obj, opt, x, name, ans;
         ans = [];
-        if (body instanceof Array) {
+        if (Array.isArray(body)) {
             for (name in body) {
                 obj = body[name];
                 if (obj instanceof AST_Function || obj instanceof AST_Class) {
@@ -2277,9 +2329,9 @@ function parse($TEXT, options) {
                     if (obj instanceof AST_Scope) {
                         continue;
                     }
-                    var _$rapyd$_Iter0 = _$rapyd$_Iterable([ "body", "alternative" ]);
-                    for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
-                        x = _$rapyd$_Iter0[_$rapyd$_Index0];
+                    var _$rapyd$_Iter1 = _$rapyd$_Iterable([ "body", "alternative" ]);
+                    for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
+                        x = _$rapyd$_Iter1[_$rapyd$_Index1];
                         opt = obj[x];
                         if (opt) {
                             ans = ans.concat(scan_for_top_level_callables(opt));
@@ -2313,7 +2365,7 @@ function parse($TEXT, options) {
         var stmt, vars;
         "\n        Pick out all variables being assigned to from within this scope, we'll mark them as local\n\n        body        body to be scanned\n        ";
         vars = [];
-        if (body instanceof Array) {
+        if (Array.isArray(body)) {
             for (stmt in body) {
                 if (body[stmt] instanceof AST_Scope) {
                     continue;
@@ -2378,7 +2430,7 @@ function parse($TEXT, options) {
     function scan_for_nonlocal_defs(body) {
         var stmt, vars;
         vars = [];
-        if (body instanceof Array) {
+        if (Array.isArray(body)) {
             for (stmt in body) {
                 if (body[stmt] instanceof AST_Scope) {
                     continue;
@@ -2706,9 +2758,9 @@ function parse($TEXT, options) {
         }
         function safe_read(base_path) {
             var _$rapyd$_Unpack, i, path;
-            var _$rapyd$_Iter1 = _$rapyd$_Iterable(enumerate([ base_path + ".pyj", base_path + "/__init__.pyj" ]));
-            for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
-                _$rapyd$_Unpack = _$rapyd$_Iter1[_$rapyd$_Index1];
+            var _$rapyd$_Iter2 = _$rapyd$_Iterable(enumerate([ base_path + ".pyj", base_path + "/__init__.pyj" ]));
+            for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
+                _$rapyd$_Unpack = _$rapyd$_Iter2[_$rapyd$_Index2];
                 i = _$rapyd$_Unpack[0];
                 path = _$rapyd$_Unpack[1];
                 try {
@@ -2728,9 +2780,9 @@ function parse($TEXT, options) {
         }
         src_code = filename = null;
         modpath = key.replace(".", "/");
-        var _$rapyd$_Iter2 = _$rapyd$_Iterable([ options.basedir, options.libdir ]);
-        for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
-            location = _$rapyd$_Iter2[_$rapyd$_Index2];
+        var _$rapyd$_Iter3 = _$rapyd$_Iterable([ options.basedir, options.libdir ]);
+        for (var _$rapyd$_Index3 = 0; _$rapyd$_Index3 < _$rapyd$_Iter3.length; _$rapyd$_Index3++) {
+            location = _$rapyd$_Iter3[_$rapyd$_Index3];
             if (location) {
                 _$rapyd$_Unpack = safe_read(location + "/" + modpath);
                 data = _$rapyd$_Unpack[0];
@@ -2785,9 +2837,9 @@ function parse($TEXT, options) {
                 next();
                 argnames.push(as_symbol(AST_SymbolVar));
             }
-            var _$rapyd$_Iter3 = _$rapyd$_Iterable(argnames);
-            for (var _$rapyd$_Index3 = 0; _$rapyd$_Index3 < _$rapyd$_Iter3.length; _$rapyd$_Index3++) {
-                argvar = _$rapyd$_Iter3[_$rapyd$_Index3];
+            var _$rapyd$_Iter4 = _$rapyd$_Iterable(argnames);
+            for (var _$rapyd$_Index4 = 0; _$rapyd$_Index4 < _$rapyd$_Iter4.length; _$rapyd$_Index4++) {
+                argvar = _$rapyd$_Iter4[_$rapyd$_Index4];
                 obj = classes[argvar.name];
                 if (obj) {
                     S.classes[S.classes.length-1][argvar.name] = {
@@ -2986,9 +3038,9 @@ function parse($TEXT, options) {
         nonlocals = scan_for_nonlocal_defs(definition.body);
         nonlocals.forEach(function(variable) {
             var i;
-            var _$rapyd$_Iter4 = _$rapyd$_Iterable(dir(definition.localvars).reverse());
-            for (var _$rapyd$_Index4 = 0; _$rapyd$_Index4 < _$rapyd$_Iter4.length; _$rapyd$_Index4++) {
-                i = _$rapyd$_Iter4[_$rapyd$_Index4];
+            var _$rapyd$_Iter5 = _$rapyd$_Iterable(dir(definition.localvars).reverse());
+            for (var _$rapyd$_Index5 = 0; _$rapyd$_Index5 < _$rapyd$_Iter5.length; _$rapyd$_Index5++) {
+                i = _$rapyd$_Iter5[_$rapyd$_Index5];
                 if (definition.localvars[i].name === variable) {
                     definition.localvars.splice(i, 1);
                 }
@@ -3320,9 +3372,9 @@ function parse($TEXT, options) {
         if (func_call) {
             tmp = [];
             tmp.kwargs = [];
-            var _$rapyd$_Iter5 = _$rapyd$_Iterable(enumerate(a));
-            for (var _$rapyd$_Index5 = 0; _$rapyd$_Index5 < _$rapyd$_Iter5.length; _$rapyd$_Index5++) {
-                _$rapyd$_Unpack = _$rapyd$_Iter5[_$rapyd$_Index5];
+            var _$rapyd$_Iter6 = _$rapyd$_Iterable(enumerate(a));
+            for (var _$rapyd$_Index6 = 0; _$rapyd$_Index6 < _$rapyd$_Iter6.length; _$rapyd$_Index6++) {
+                _$rapyd$_Unpack = _$rapyd$_Iter6[_$rapyd$_Index6];
                 i = _$rapyd$_Unpack[0];
                 arg = _$rapyd$_Unpack[1];
                 if (arg instanceof AST_Assign) {
@@ -3660,7 +3712,7 @@ function parse($TEXT, options) {
                 } else if (expr instanceof AST_SymbolRef) {
                     tmp_ = expr.name;
                     if (tmp_ === "abs" || tmp_ === "bind" || tmp_ === "rebind_all" || tmp_ === "dir" || tmp_ === "enumerate" || tmp_ === "len" || tmp_ === "mixin" || tmp_ === "print" || tmp_ === "range" || tmp_ === "reversed" || tmp_ === "sum" || tmp_ === "getattr" || tmp_ === "setattr" || tmp_ === "hasattr") {
-                        BASELIB[expr.name] = true;
+                        BASELIB[tmp_] = true;
                     } else if (tmp_ === "type") {
                         return new AST_UnaryPrefix({
                             start: start,
@@ -3677,6 +3729,8 @@ function parse($TEXT, options) {
                             right: args[1],
                             end: prev()
                         });
+                    } else if (tmp_ === "symbolfor") {
+                        BASELIB[tmp_ + "()"] = true;
                     }
                 }
                 return subscripts(new AST_Call({
@@ -3900,9 +3954,9 @@ function parse($TEXT, options) {
                 body: body,
                 strict: function() {
                     var stmt;
-                    var _$rapyd$_Iter6 = _$rapyd$_Iterable(body);
-                    for (var _$rapyd$_Index6 = 0; _$rapyd$_Index6 < _$rapyd$_Iter6.length; _$rapyd$_Index6++) {
-                        stmt = _$rapyd$_Iter6[_$rapyd$_Index6];
+                    var _$rapyd$_Iter7 = _$rapyd$_Iterable(body);
+                    for (var _$rapyd$_Index7 = 0; _$rapyd$_Index7 < _$rapyd$_Iter7.length; _$rapyd$_Index7++) {
+                        stmt = _$rapyd$_Iter7[_$rapyd$_Index7];
                         if (stmt instanceof AST_Directive && stmt.value === "use strict") {
                             return true;
                         }
@@ -3935,7 +3989,7 @@ function parse($TEXT, options) {
     }.call(this);
 }
 
-"\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript2\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n **********************************************************************\n";
+"\n**********************************************************************\n\n  A RapydScript to JavaScript compiler.\n  https://github.com/atsepkov/RapydScript\n\n  -------------------------------- (C) ---------------------------------\n\n                       Author: Alexander Tsepkov\n                         <atsepkov@pyjeon.com>\n                         http://www.pyjeon.com\n\n  Distributed under Apache 2.0 license:\n    Copyright 2013 (c) Alexander Tsepkov <atsepkov@pyjeon.com>\n\n  RapydScript source code is originally based on UglifyJS2 (covered\n  by BSD license). UglifyJS2 was written by Mihai Bazon\n  <mihai.bazon@gmail.com>, who is its respective copyright holder.\n\n    Redistribution and use in source and binary forms, with or without\n    modification, are permitted provided that the following conditions\n    are met:\n\n        * Redistributions of source code must retain the above\n          copyright notice, this list of conditions and the following\n          disclaimer.\n\n        * Redistributions in binary form must reproduce the above\n          copyright notice, this list of conditions and the following\n          disclaimer in the documentation and/or other materials\n          provided with the distribution.\n\n    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER “AS IS” AND ANY\n    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE\n    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR\n    PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE\n    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,\n    OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n    PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n    PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY\n    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR\n    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF\n    THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF\n    SUCH DAMAGE.\n\n **********************************************************************\n";
 "use strict";
 function OutputStream(options) {
     var indentation, current_col, current_line, current_pos, OUTPUT, IMPORTED, might_need_space, might_need_semicolon, last, requireSemicolonChars, space, indent, with_indent, newline, semicolon, add_mapping, stack;
@@ -4203,16 +4257,26 @@ function OutputStream(options) {
         }
     } : noop;
     function dump_baselib(key) {
+        var is_func, ckey;
         indent();
+        is_func = key.substr(key.length - 2) === "()";
+        if (is_func) {
+            ckey = key.substr(0, key.length - 2);
+            print_("var " + ckey + " = (");
+        }
         print_(options.baselib[key]);
+        if (is_func) {
+            print_(")()");
+            semicolon();
+        }
         newline();
     }
     function prologue(module_) {
         var lib;
         if (!options.omit_baselib) {
-            var _$rapyd$_Iter0 = _$rapyd$_Iterable(module_.baselib);
-            for (var _$rapyd$_Index0 = 0; _$rapyd$_Index0 < _$rapyd$_Iter0.length; _$rapyd$_Index0++) {
-                lib = _$rapyd$_Iter0[_$rapyd$_Index0];
+            var _$rapyd$_Iter8 = _$rapyd$_Iterable(module_.baselib);
+            for (var _$rapyd$_Index8 = 0; _$rapyd$_Index8 < _$rapyd$_Iter8.length; _$rapyd$_Index8++) {
+                lib = _$rapyd$_Iter8[_$rapyd$_Index8];
                 dump_baselib(lib);
             }
         }
@@ -4533,9 +4597,9 @@ function OutputStream(options) {
     function write_imports(module_, output) {
         var imports, import_id;
         imports = [];
-        var _$rapyd$_Iter1 = _$rapyd$_Iterable(Object.keys(module_.imports));
-        for (var _$rapyd$_Index1 = 0; _$rapyd$_Index1 < _$rapyd$_Iter1.length; _$rapyd$_Index1++) {
-            import_id = _$rapyd$_Iter1[_$rapyd$_Index1];
+        var _$rapyd$_Iter9 = _$rapyd$_Iterable(Object.keys(module_.imports));
+        for (var _$rapyd$_Index9 = 0; _$rapyd$_Index9 < _$rapyd$_Iter9.length; _$rapyd$_Index9++) {
+            import_id = _$rapyd$_Iter9[_$rapyd$_Index9];
             imports.push(module_.imports[import_id]);
         }
         imports.sort(function(a, b) {
@@ -4550,9 +4614,9 @@ function OutputStream(options) {
             output.print("if (typeof _$rapyd$_modules !== \"object\") var _$rapyd$_modules = {};");
             output.newline();
         }
-        var _$rapyd$_Iter2 = _$rapyd$_Iterable(imports);
-        for (var _$rapyd$_Index2 = 0; _$rapyd$_Index2 < _$rapyd$_Iter2.length; _$rapyd$_Index2++) {
-            module_ = _$rapyd$_Iter2[_$rapyd$_Index2];
+        var _$rapyd$_Iter10 = _$rapyd$_Iterable(imports);
+        for (var _$rapyd$_Index10 = 0; _$rapyd$_Index10 < _$rapyd$_Iter10.length; _$rapyd$_Index10++) {
+            module_ = _$rapyd$_Iter10[_$rapyd$_Index10];
             if (module_.module_id !== "__main__") {
                 output.indent();
                 output.print("_$rapyd$_modules[\"");
@@ -4562,9 +4626,9 @@ function OutputStream(options) {
                 output.newline();
             }
         }
-        var _$rapyd$_Iter3 = _$rapyd$_Iterable(imports);
-        for (var _$rapyd$_Index3 = 0; _$rapyd$_Index3 < _$rapyd$_Iter3.length; _$rapyd$_Index3++) {
-            module_ = _$rapyd$_Iter3[_$rapyd$_Index3];
+        var _$rapyd$_Iter11 = _$rapyd$_Iterable(imports);
+        for (var _$rapyd$_Index11 = 0; _$rapyd$_Index11 < _$rapyd$_Iter11.length; _$rapyd$_Index11++) {
+            module_ = _$rapyd$_Iter11[_$rapyd$_Index11];
             if (module_.module_id !== "__main__") {
                 print_module(module_, output);
             }
@@ -4683,9 +4747,9 @@ function OutputStream(options) {
     function declare_exports(module_id, exports, submodules, output) {
         var seen, symbol, key, sub_module_id;
         seen = {};
-        var _$rapyd$_Iter4 = _$rapyd$_Iterable(exports);
-        for (var _$rapyd$_Index4 = 0; _$rapyd$_Index4 < _$rapyd$_Iter4.length; _$rapyd$_Index4++) {
-            symbol = _$rapyd$_Iter4[_$rapyd$_Index4];
+        var _$rapyd$_Iter12 = _$rapyd$_Iterable(exports);
+        for (var _$rapyd$_Index12 = 0; _$rapyd$_Index12 < _$rapyd$_Iter12.length; _$rapyd$_Index12++) {
+            symbol = _$rapyd$_Iter12[_$rapyd$_Index12];
             output.newline();
             output.indent();
             output.print("_$rapyd$_modules[\"" + module_id + "\"][\"" + symbol.name + "\"] = " + symbol.name);
@@ -4693,9 +4757,9 @@ function OutputStream(options) {
             output.semicolon();
             output.newline();
         }
-        var _$rapyd$_Iter5 = _$rapyd$_Iterable(submodules);
-        for (var _$rapyd$_Index5 = 0; _$rapyd$_Index5 < _$rapyd$_Iter5.length; _$rapyd$_Index5++) {
-            sub_module_id = _$rapyd$_Iter5[_$rapyd$_Index5];
+        var _$rapyd$_Iter13 = _$rapyd$_Iterable(submodules);
+        for (var _$rapyd$_Index13 = 0; _$rapyd$_Index13 < _$rapyd$_Iter13.length; _$rapyd$_Index13++) {
+            sub_module_id = _$rapyd$_Iter13[_$rapyd$_Index13];
             if (!seen.hasOwnProperty(module_id)) {
                 key = sub_module_id.split(".")[sub_module_id.split(".").length-1];
                 output.newline();
@@ -4810,9 +4874,9 @@ function OutputStream(options) {
             output.indent();
         }
         if (self.argnames) {
-            var _$rapyd$_Iter6 = _$rapyd$_Iterable(self.argnames);
-            for (var _$rapyd$_Index6 = 0; _$rapyd$_Index6 < _$rapyd$_Iter6.length; _$rapyd$_Index6++) {
-                argname = _$rapyd$_Iter6[_$rapyd$_Index6];
+            var _$rapyd$_Iter14 = _$rapyd$_Iterable(self.argnames);
+            for (var _$rapyd$_Index14 = 0; _$rapyd$_Index14 < _$rapyd$_Iter14.length; _$rapyd$_Index14++) {
+                argname = _$rapyd$_Iter14[_$rapyd$_Index14];
                 add_aname(argname.name, self.key, true);
             }
         } else {
@@ -5987,6 +6051,6 @@ function OutputStream(options) {
     });
 })();
 
-rs_baselib_pyj = {"minified": {"setattr": "var __name__ = \"__main__\";function setattr(obj,name,value){obj[name]=value}", "eslice": "var __name__ = \"__main__\";function _$rapyd$_eslice(arr,step,start,end){var isString;arr=arr.slice(0);if(typeof arr===\"string\"||arr instanceof String){isString=true;arr=arr.split(\"\")}}", "symbolfor": "var __name__ = \"__main__\";function symbolfor(name){if(typeof Symbol===\"function\"&&typeof Symbol.for===\"function\"){return Symbol.for(name)}return name+\"-Symbol-\"+\"db29e2d8176e4678a83171145c3e3896\"}", "in": "var __name__ = \"__main__\";function _$rapyd$_in(val,arr){if(arr instanceof Array||typeof arr===\"string\"){return arr.indexOf(val)!==-1}else{if(arr.hasOwnProperty(val)){return true}return false}}", "len": "var __name__ = \"__main__\";function len(obj){var count;if(obj instanceof Array||typeof obj===\"string\"){return obj.length}else{count=0;for(var i in obj){if(obj.hasOwnProperty(i)){count+=1}}return count}}", "sum": "var __name__ = \"__main__\";function sum(arr,start){if(typeof start===\"undefined\")start=0;return arr.reduce(function(prev,cur){return prev+cur},start)}", "hasattr": "var __name__ = \"__main__\";function hasattr(obj,name){return name in obj}", "reversed": "var __name__ = \"__main__\";function reversed(arr){var tmp;tmp=arr.slice(0);return tmp.reverse()}", "bind": "var __name__ = \"__main__\";function _$rapyd$_bind(fn,thisArg){var ret;if(fn.orig){fn=fn.orig}if(thisArg===false){return fn}ret=function(){return fn.apply(thisArg,arguments)};ret.orig=fn;return ret}", "mixin": "var __name__ = \"__main__\";function _$rapyd$_mixin(target,source,overwrite){for(var i in source){if(source.hasOwnProperty(i)&&overwrite||typeof target[i]===\"undefined\"){target[i]=source[i]}}}", "enumerate": "var __name__ = \"__main__\";function enumerate(item){var arr;arr=[];for(var i=0;i<item.length;i++){arr[arr.length]=[i,item[i]]}return arr}", "extends": "var __name__ = \"__main__\";function _$rapyd$_extends(child,parent){child.prototype=Object.create(parent.prototype);child.prototype.constructor=child}", "getattr": "var __name__ = \"__main__\";function getattr(obj,name){return obj[name]}", "abs": "var __name__ = \"__main__\";function abs(n){return Math.abs(n)}", "dir": "var __name__ = \"__main__\";function dir(item){var arr;arr=[];for(var i in item){arr.push(i)}return arr}", "range": "var __name__ = \"__main__\";function range(start,stop,step){if(arguments.length<=1){stop=start||0;start=0}step=arguments[2]||1}", "print": "var __name__ = \"__main__\";function _$rapyd$_print(){var args=[].slice.call(arguments,0);if(console instanceof Object){console.log.apply(console,args)}}", "iterable": "var __name__ = \"__main__\";function _$rapyd$_Iterable(iterable){if(iterable instanceof Array||iterable instanceof String||typeof iterable===\"string\"){return iterable}return Object.keys(iterable)}"}, "beautifed": {"setattr": "\nvar __name__ = \"__main__\";\n\nfunction setattr(obj, name, value) {\n    obj[name] = value;\n}", "eslice": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_eslice(arr, step, start, end) {\n    var isString;\n    arr = arr.slice(0);\n    if (typeof arr === \"string\" || arr instanceof String) {\n        isString = true;\n        arr = arr.split(\"\");\n    }\n}", "symbolfor": "\nvar __name__ = \"__main__\";\n\nfunction symbolfor(name) {\n    if (typeof Symbol === \"function\" && typeof Symbol.for === \"function\") {\n        return Symbol.for(name);\n    }\n    return name + \"-Symbol-\" + \"db29e2d8176e4678a83171145c3e3896\";\n}", "in": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_in(val, arr) {\n    if (arr instanceof Array || typeof arr === \"string\") {\n        return arr.indexOf(val) !== -1;\n    } else {\n        if (arr.hasOwnProperty(val)) {\n            return true;\n        }\n        return false;\n    }\n}", "len": "\nvar __name__ = \"__main__\";\n\nfunction len(obj) {\n    var count;\n    if (obj instanceof Array || typeof obj === \"string\") {\n        return obj.length;\n    } else {\n        count = 0;\n        for (var i in obj) {\n            if (obj.hasOwnProperty(i)) {\n                count += 1;\n            }\n        }\n        return count;\n    }\n}", "sum": "\nvar __name__ = \"__main__\";\n\nfunction sum(arr, start) {\n    if (typeof start === \"undefined\") start = 0;\n    return arr.reduce(function(prev, cur) {\n        return prev + cur;\n    }, start);\n}", "hasattr": "\nvar __name__ = \"__main__\";\n\nfunction hasattr(obj, name) {\n    return name in obj;\n}", "reversed": "\nvar __name__ = \"__main__\";\n\nfunction reversed(arr) {\n    var tmp;\n    tmp = arr.slice(0);\n    return tmp.reverse();\n}", "bind": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_bind(fn, thisArg) {\n    var ret;\n    if (fn.orig) {\n        fn = fn.orig;\n    }\n    if (thisArg === false) {\n        return fn;\n    }\n    ret = function() {\n        return fn.apply(thisArg, arguments);\n    };\n    ret.orig = fn;\n    return ret;\n}", "mixin": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_mixin(target, source, overwrite) {\n    for (var i in source) {\n        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === \"undefined\") {\n            target[i] = source[i];\n        }\n    }\n}", "enumerate": "\nvar __name__ = \"__main__\";\n\nfunction enumerate(item) {\n    var arr;\n    arr = [];\n    for (var i=0;i<item.length;i++) {\n        arr[arr.length] = [ i, item[i] ];\n    }\n    return arr;\n}", "extends": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_extends(child, parent) {\n    child.prototype = Object.create(parent.prototype);\n    child.prototype.constructor = child;\n}", "getattr": "\nvar __name__ = \"__main__\";\n\nfunction getattr(obj, name) {\n    return obj[name];\n}", "abs": "\nvar __name__ = \"__main__\";\n\nfunction abs(n) {\n    return Math.abs(n);\n}", "dir": "\nvar __name__ = \"__main__\";\n\nfunction dir(item) {\n    var arr;\n    arr = [];\n    for (var i in item) {\n        arr.push(i);\n    }\n    return arr;\n}", "range": "\nvar __name__ = \"__main__\";\n\nfunction range(start, stop, step) {\n    if (arguments.length <= 1) {\n        stop = start || 0;\n        start = 0;\n    }\n    step = arguments[2] || 1;\n}", "print": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_print() {\n    var args = [].slice.call(arguments, 0);\n    if (console instanceof Object) {\n        console.log.apply(console, args);\n    }\n}", "iterable": "\nvar __name__ = \"__main__\";\n\nfunction _$rapyd$_Iterable(iterable) {\n    if (iterable instanceof Array || iterable instanceof String || typeof iterable === \"string\") {\n        return iterable;\n    }\n    return Object.keys(iterable);\n}"}};
+rs_baselib_pyj = {"beautifed": {"mixin": "function _$rapyd$_mixin(target, source, overwrite) {\n    for (var i in source) {\n        if (source.hasOwnProperty(i) && overwrite || typeof target[i] === \"undefined\") {\n            target[i] = source[i];\n        }\n    }\n}", "len": "function len(obj) {\n    if (Array.isArray(obj) || typeof obj === \"string\") {\n        return obj.length;\n    }\n    return Object.keys(obj).length;\n}", "range": "function range(start, stop, step) {\n    var length, idx, range;\n    if (arguments.length <= 1) {\n        stop = start || 0;\n        start = 0;\n    }\n    step = arguments[2] || 1;\n    length = Math.max(Math.ceil((stop - start) / step), 0);\n    idx = 0;\n    range = new Array(length);\n    while (idx < length) {\n        range[idx++] = start;\n        start += step;\n    }\n    return range;\n}", "eslice": "function _$rapyd$_eslice(arr, step, start, end) {\n    var isString;\n    arr = arr.slice(0);\n    if (typeof arr === \"string\" || arr instanceof String) {\n        isString = true;\n        arr = arr.split(\"\");\n    }\n    if (step < 0) {\n        step = -step;\n        arr.reverse();\n        if (typeof start !== \"undefined\") {\n            start = arr.length - start - 1;\n        }\n        if (typeof end !== \"undefined\") {\n            end = arr.length - end - 1;\n        }\n    }\n    if (typeof start === \"undefined\") {\n        start = 0;\n    }\n    if (typeof end === \"undefined\") {\n        end = arr.length;\n    }\n    arr = arr.slice(start, end).filter(function(e, i) {\n        return i % step === 0;\n    });\n    return isString ? arr.join(\"\") : arr;\n}", "dir": "function dir(item) {\n    var arr;\n    arr = [];\n    for (var i in item) {\n        arr.push(i);\n    }\n    return arr;\n}", "bind": "function _$rapyd$_bind(fn, thisArg) {\n    var ret;\n    if (fn.orig) {\n        fn = fn.orig;\n    }\n    if (thisArg === false) {\n        return fn;\n    }\n    ret = function() {\n        return fn.apply(thisArg, arguments);\n    };\n    ret.orig = fn;\n    return ret;\n}", "extends": "function _$rapyd$_extends(child, parent) {\n    child.prototype = Object.create(parent.prototype);\n    child.prototype.constructor = child;\n}", "sum": "function sum(arr, start) {\n    if (typeof start === \"undefined\") start = 0;\n    return arr.reduce(function(prev, cur) {\n        return prev + cur;\n    }, start);\n}", "setattr": "function setattr(obj, name, value) {\n    obj[name] = value;\n}", "reversed": "function reversed(arr) {\n    var tmp;\n    tmp = arr.slice(0);\n    return tmp.reverse();\n}", "in": "function _$rapyd$_in(val, arr) {\n    if (Array.isArray(arr) || typeof arr === \"string\") {\n        return arr.indexOf(val) !== -1;\n    } else {\n        if (arr.hasOwnProperty(val)) {\n            return true;\n        }\n        return false;\n    }\n}", "getattr": "function getattr(obj, name) {\n    return obj[name];\n}", "symbolfor()": "function _$rapyd$_symbolfor_polyfill() {\n    if (typeof Symbol === \"function\" && typeof Symbol.for === \"function\") {\n        return Symbol.for;\n    }\n    return function(name) {\n        return name + \"-Symbol-\" + \"5d0927e5554349048cf0e3762a228256\";\n    };\n}", "hasattr": "function hasattr(obj, name) {\n    return name in obj;\n}", "enumerate": "function enumerate(item) {\n    var arr;\n    arr = [];\n    for (var i=0;i<item.length;i++) {\n        arr[arr.length] = [ i, item[i] ];\n    }\n    return arr;\n}", "print": "function _$rapyd$_print() {\n    if (typeof console === \"object\") {\n        console.log.apply(console, arguments);\n    }\n}", "abs": "function abs(n) {\n    return Math.abs(n);\n}", "iterable": "function _$rapyd$_Iterable(iterable) {\n    if (Array.isArray(iterable) || iterable instanceof String || typeof iterable === \"string\") {\n        return iterable;\n    }\n    return Object.keys(iterable);\n}"}, "minified": {"mixin": "function _$rapyd$_mixin(target,source,overwrite){for(var i in source){if(source.hasOwnProperty(i)&&overwrite||typeof target[i]===\"undefined\"){target[i]=source[i]}}}", "len": "function len(obj){if(Array.isArray(obj)||typeof obj===\"string\"){return obj.length}return Object.keys(obj).length}", "range": "function range(start,stop,step){var length,idx,range;if(arguments.length<=1){stop=start||0;start=0}step=arguments[2]||1;length=Math.max(Math.ceil((stop-start)/step),0);idx=0;range=new Array(length);while(idx<length){range[idx++]=start;start+=step}return range}", "eslice": "function _$rapyd$_eslice(arr,step,start,end){var isString;arr=arr.slice(0);if(typeof arr===\"string\"||arr instanceof String){isString=true;arr=arr.split(\"\")}if(step<0){step=-step;arr.reverse();if(typeof start!==\"undefined\"){start=arr.length-start-1}if(typeof end!==\"undefined\"){end=arr.length-end-1}}if(typeof start===\"undefined\"){start=0}if(typeof end===\"undefined\"){end=arr.length}arr=arr.slice(start,end).filter(function(e,i){return i%step===0});return isString?arr.join(\"\"):arr}", "dir": "function dir(item){var arr;arr=[];for(var i in item){arr.push(i)}return arr}", "bind": "function _$rapyd$_bind(fn,thisArg){var ret;if(fn.orig){fn=fn.orig}if(thisArg===false){return fn}ret=function(){return fn.apply(thisArg,arguments)};ret.orig=fn;return ret}", "extends": "function _$rapyd$_extends(child,parent){child.prototype=Object.create(parent.prototype);child.prototype.constructor=child}", "sum": "function sum(arr,start){if(typeof start===\"undefined\")start=0;return arr.reduce(function(prev,cur){return prev+cur},start)}", "setattr": "function setattr(obj,name,value){obj[name]=value}", "reversed": "function reversed(arr){var tmp;tmp=arr.slice(0);return tmp.reverse()}", "in": "function _$rapyd$_in(val,arr){if(Array.isArray(arr)||typeof arr===\"string\"){return arr.indexOf(val)!==-1}else{if(arr.hasOwnProperty(val)){return true}return false}}", "getattr": "function getattr(obj,name){return obj[name]}", "symbolfor()": "function _$rapyd$_symbolfor_polyfill(){if(typeof Symbol===\"function\"&&typeof Symbol.for===\"function\"){return Symbol.for}return function(name){return name+\"-Symbol-\"+\"5d0927e5554349048cf0e3762a228256\"}}", "hasattr": "function hasattr(obj,name){return name in obj}", "enumerate": "function enumerate(item){var arr;arr=[];for(var i=0;i<item.length;i++){arr[arr.length]=[i,item[i]]}return arr}", "print": "function _$rapyd$_print(){if(typeof console===\"object\"){console.log.apply(console,arguments)}}", "abs": "function abs(n){return Math.abs(n)}", "iterable": "function _$rapyd$_Iterable(iterable){if(Array.isArray(iterable)||iterable instanceof String||typeof iterable===\"string\"){return iterable}return Object.keys(iterable)}"}};
 
 rs_package_version = "0.3.4";

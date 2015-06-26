@@ -21,7 +21,7 @@ def abspath(x):
 # Update RapydScript {{{
 def parse_baselib(src):
     # duktape does not store function source code, so we have to do it manually
-    start = re.compile(r'''['"]([a-zA-Z0-9]+)['"]\s*:''')
+    start = re.compile(r'''['"]([a-zA-Z0-9()]+)['"]\s*:''')
     in_func = None
     funcs = {}
     for line in src.splitlines():
@@ -31,17 +31,15 @@ def parse_baselib(src):
             if m is not None:
                 funcs[m.group(1)] = in_func = [line.partition(':')[-1].lstrip()]
         else:
-            if line in ',}':
+            if line in (',', '}'):
                 in_func = None
             else:
                 in_func.append(line)
     funcs = {k:'\n'.join(v) for k, v in funcs.iteritems()}
-    # use my own version of print
-    funcs['print'] = 'def _$rapyd$_print(*args):\n    if isinstance(console, Object): console.log.apply(console, args)\n'
     return funcs
 
 def compile_baselib(ctx, baselib, beautify=True):
-    ctx.g.current_output_options = {'beautify':beautify, 'private_scope':False}
+    ctx.g.current_output_options = {'beautify':beautify, 'private_scope':False, 'write_name':False}
     ctx.g.filename = 'baselib.pyj'
     ctx.g.basedir = ''
     ctx.g.libdir = ''
@@ -73,21 +71,17 @@ def update_rapydscript():
     exports.dirname = function(x) { return x; }
     exports.resolve = function(x) { return x; }
     '''
-    util_js = '''
-    exports.debug = console.log;
-    '''
 
     d = os.path.dirname
     base = d(d(d(d(d(abspath(__file__))))))
     base = os.path.join(base, 'rapydscript')
-    ctx = Context(base_dirs=(base,), builtin_modules={'path':path_js, 'fs':fs_js, 'vm':vm_js, 'util':util_js, 'async':''})
+    ctx = Context(base_dirs=(base,), builtin_modules={'path':path_js, 'fs':fs_js, 'vm':vm_js})
     ctx.g.require.id = 'rapydscript/bin'
-    ctx.g.__filename = ''
     try:
-        ctx.eval('RapydScript = require("../tools/node")', fname='bin/rapydscript')
+        ctx.eval('RapydScript = require("../tools/compiler")', fname='bin/rapydscript')
     except JSError as e:
         raise SystemExit('%s:%s:%s' % (e.fileName, e.lineNumber, e.message))
-    data = b'\n\n'.join(open(os.path.join(base, 'bin', x.lstrip('/')), 'rb').read() for x in ctx.g.RapydScript.FILES)
+    data = b'\n\n'.join(open(os.path.join(base, 'lib', x + '.js'), 'rb').read() for x in ctx.g.RapydScript.FILENAMES)
 
     package = json.load(open(os.path.join(base, 'package.json')))
     baselib = parse_baselib(open(os.path.join(base, 'src', 'baselib.pyj'), 'rb').read().decode('utf-8'))
