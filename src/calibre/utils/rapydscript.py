@@ -249,27 +249,29 @@ class Repl(Thread):
         rl = {
             setPrompt:set_prompt,
             write:Duktape.write,
-            clearLine:function() {},
+            clearLine: function() {},
             on: function(ev, cb) { listeners[ev] = cb; return rl; },
             prompt: prompt,
             sync_prompt: true,
             send_line: function(line) { listeners['line'](line); },
             send_interrupt: function() { listeners['SIGINT'](); },
-            close: function() {listeners['close'](); }
+            close: function() {listeners['close'](); },
         };
         ''')
         rl = self.ctx.g.rl
         self.ctx.eval('module.exports(repl_options)')
         completer = to_python(rl.completer)
+        send_interrupt = to_python(rl.send_interrupt)
+        send_line = to_python(rl.send_line)
 
         while True:
             ev, line = self.to_repl.get()
             try:
                 if ev == 'SIGINT':
                     self.output.write('\n')
-                    rl.send_interrupt()
+                    send_interrupt()
                 elif ev == 'line':
-                    rl.send_line(line)
+                    send_line(line)
                 else:
                     val = completer(line)
                     val = to_python(val)
