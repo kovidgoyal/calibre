@@ -1,19 +1,19 @@
 # vim:fileencoding=UTF-8
 from __future__ import unicode_literals
-
 import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import browser
 
 class AdvancedUserRecipe1390132023(BasicNewsRecipe):
     title          = u'Daily Express'
-    language = 'en_GB'
     __author__ = 'Dave Asbury'
-    # 21.11.14 written due to website changes
-    oldest_article = 1
+    # 27.6.15 using feed43 as rss feeds dead
+    # feed 43 string = <div {*}<a href="{%}"{*}<h4>{%}</h4>
+    oldest_article = 1.5
     max_articles_per_feed = 10
     compress_news_images = True
-    compress_news_images_max_size = 30
+    compress_news_images_max_size = 20
     ignore_duplicate_articles = {'title', 'url'}
     masthead_url = 'http://cdn.images.dailyexpress.co.uk/img/page/express_logo.png'
     auto_cleanup_keep = '//*[@class="author"]|//section[@class="photo changeSpace"]'
@@ -21,30 +21,43 @@ class AdvancedUserRecipe1390132023(BasicNewsRecipe):
     no_stylesheets        = False
 
     preprocess_regexps = [
-                 (re.compile(r'\| [\w].+?\| [\w].+?\| Daily Express', re.IGNORECASE | re.DOTALL), lambda match: ''),
+        (re.compile(r'\| [\w].+?\| [\w].+?\| Daily Express', re.IGNORECASE | re.DOTALL), lambda match: ''),
+    ]
 
-                        ]
     feeds          = [
-        (u'UK News', u'http://www.express.co.uk/posts/rss/1/uk'),
-        (u'World News',u'http://www.express.co.uk/posts/rss/78/world'),
-        (u'Finance',u'http://www.express.co.uk/posts/rss/21/finance'),
-        (u'Sport',u'http://www.express.co.uk/posts/rss/65/sport'),
-        (u'Entertainment',u'http://www.express.co.uk/posts/rss/18/entertainment'),
-        (u'Lifestyle',u'http://www.express.co.uk/posts/rss/8/life&style'),
-        (u'Fun',u'http://www.express.co.uk/posts/rss/110/fun'),
+        (u'UK News', u'http://feed43.com/3460616116055543.xml'),
+        # http://feeds.feedburner.com/daily-express-uk-news'),#http://www.express.co.uk/posts/rss/1/uk'),
+        (u'World News',u'http://feed43.com/5650105317448722.xml'),
+        # http://www.express.co.uk/posts/rss/78/world'),
+        (u'Showbiz News',u'http://feed43.com/2564008080442425.xml'),
+        (u'Finance',u'http://feed43.com/8636615325246501.xml'),
+        # http://www.express.co.uk/posts/rss/21/finance'),
+        (u'Sport - Boxing',u'http://feed43.com/7570233481503246.xml'),
+        (u'Sport - Rugby Union',u'http://feed43.com/4235483647118470.xml'),
+        (u'Sport - Others',u'http://feed43.com/6106345668326737.xml'),
+        # http://www.express.co.uk/posts/rss/65/sport'),
+        (u'Entertainment',u'http://feed43.com/8864645080210731.xml'),
+        # http://www.express.co.uk/posts/rss/18/entertainment'),
+        (u'Lifestyle',u'http://feed43.com/8705161426770855.xml'),
+        # http://www.express.co.uk/posts/rss/8/life&style'),
+        (u'Travel',u'http://feed43.com/6547373884767554.xml'),
     ]
 
     def get_cover_url(self):
+        print '============Cover ================='
+        print
         soup = self.index_to_soup('http://www.express.co.uk/ourpaper/')
         cov = soup.find(attrs={'src' : re.compile('http://cdn.images.express.co.uk/img/covers/')})
         cov=str(cov)
+        print '^^^^^^^', cov
         cov2 =  re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', cov)
 
         cov=str(cov2)
         cov=cov[2:len(cov)-2]
 
+        print '&&&&&&&&',cov,'***'
         # cover_url=cov
-        br = self.get_browser()
+        br = browser()
         br.set_handle_redirect(False)
         try:
             br.open_novisit(cov)
