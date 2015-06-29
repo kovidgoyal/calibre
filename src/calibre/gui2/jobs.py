@@ -16,6 +16,7 @@ from PyQt5.Qt import (QAbstractTableModel, QModelIndex, Qt,
     QHBoxLayout, QVBoxLayout, QSizePolicy, QLabel, QCoreApplication, QAction,
     QByteArray, QSortFilterProxyModel, QTextBrowser, QPlainTextEdit)
 
+from calibre import strftime
 from calibre.constants import islinux, isbsd
 from calibre.utils.ipc.server import Server
 from calibre.utils.ipc.job import ParallelJob
@@ -127,7 +128,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                         return None
                     return ('%dm %ds'%(int(rtime)//60, int(rtime)%60))
                 if col == 4 and job.start_time is not None:
-                    return (time.strftime('%H:%M -- %d %b', time.localtime(job.start_time)))
+                    return (strftime(u'%H:%M -- %d %b', time.localtime(job.start_time)))
             if role == Qt.DecorationRole and col == 0:
                 state = job.run_state
                 if state == job.WAITING:
