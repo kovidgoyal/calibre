@@ -29,9 +29,50 @@ def debug_print(*args):
     if DEBUG:
         prints('DEBUG: %6.1f'%(time.time()-BASE_TIME), *args)
 
+def safe_walk(top, topdown=True, onerror=None, followlinks=False):
+    ' A replacement for os.walk that does not die when it encounters undecodeable filenames in a linux filesystem'
+    islink, join, isdir = os.path.islink, os.path.join, os.path.isdir
+
+    # We may not have read permission for top, in which case we can't
+    # get a list of the files the directory contains.  os.path.walk
+    # always suppressed the exception then, rather than blow up for a
+    # minor reason when (say) a thousand readable directories are still
+    # left to visit.  That logic is copied here.
+    try:
+        names = os.listdir(top)
+    except os.error as err:
+        if onerror is not None:
+            onerror(err)
+        return
+
+    dirs, nondirs = [], []
+    for name in names:
+        if isinstance(name, bytes):
+            try:
+                name = name.decode(filesystem_encoding)
+            except UnicodeDecodeError:
+                debug_print('Skipping undecodeable file: %r' % name)
+                continue
+        if isdir(join(top, name)):
+            dirs.append(name)
+        else:
+            nondirs.append(name)
+
+    if topdown:
+        yield top, dirs, nondirs
+    for name in dirs:
+        new_path = join(top, name)
+        if followlinks or not islink(new_path):
+            for x in safe_walk(new_path, topdown, onerror, followlinks):
+                yield x
+    if not topdown:
+        yield top, dirs, nondirs
+
+
 # CLI must come before Device as it implements the CLI functions that
 # are inherited from the device interface in Device.
 class USBMS(CLI, Device):
+
     '''
     The base class for all USBMS devices. Implements the logic for
     sending/getting/updating metadata/caching metadata/etc.
@@ -212,7 +253,7 @@ class USBMS(CLI, Device):
             if self.SUPPORTS_SUB_DIRS or self.SUPPORTS_SUB_DIRS_FOR_SCAN:
                 # build a list of files to check, so we can accurately report progress
                 flist = []
-                for path, dirs, files in os.walk(ebook_dir):
+                for path, dirs, files in safe_walk(ebook_dir):
                     for filename in files:
                         if filename != self.METADATA_CACHE:
                             flist.append({'filename': self.path_to_unicode(filename),
