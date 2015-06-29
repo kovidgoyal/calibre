@@ -5,7 +5,6 @@ www.ft.com/intl/uk-edition
 '''
 
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from collections import OrderedDict
 
@@ -31,14 +30,6 @@ class FinancialTimes(BasicNewsRecipe):
     INDEX                 = 'http://www.ft.com/intl/uk-edition'
     PREFIX                = 'http://www.ft.com'
 
-    conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
-                        }
-
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
@@ -54,11 +45,11 @@ class FinancialTimes(BasicNewsRecipe):
                         dict(name='div' , attrs={'class':['master-row editorialSection']})
                      ]
     remove_tags = [
-                      dict(name='div', attrs={'id':'floating-con'})
-                     ,dict(name=['meta','iframe','base','object','embed','link'])
-                     ,dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']})
-                     ,dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()})
-                  ]
+        dict(name='div', attrs={'id':'floating-con'}),
+        dict(name=['meta','iframe','base','object','embed','link']),
+        dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']}),
+        dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()})
+    ]
     remove_attributes = ['width','height','lang']
 
     extra_css = """
@@ -73,36 +64,11 @@ class FinancialTimes(BasicNewsRecipe):
                 .byline,.ft-story-body,.ft-story-header{font-family: Arial,Helvetica,sans-serif}
                 """
 
-    def get_artlinks(self, elem):
-        articles = []
-        count = 0
-        for item in elem.findAll('a',href=True):
-            count = count + 1
-            if self.test and count > 2:
-                return articles
-            rawlink = item['href']
-            url = rawlink
-            if not rawlink.startswith('http://'):
-                url = self.PREFIX + rawlink
-            try:
-                urlverified = self.browser.open_novisit(url).geturl()  # resolve redirect.
-            except:
-                continue
-            title = self.tag_to_string(item)
-            date = strftime(self.timefmt)
-            articles.append({
-                              'title'      :title
-                             ,'date'       :date
-                             ,'url'        :urlverified
-                             ,'description':''
-                            })
-        return articles
-
     def parse_index(self):
         feeds = OrderedDict()
         soup = self.index_to_soup(self.INDEX)
-        #dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
-        #self.timefmt = ' [%s]'%dates
+        # dates= self.tag_to_string(soup.find('div', attrs={'class':'btm-links'}).find('div'))
+        # self.timefmt = ' [%s]'%dates
         section_title = 'Untitled'
 
         for column in soup.findAll('div', attrs={'class':'feedBoxes clearfix'}):
@@ -110,11 +76,13 @@ class FinancialTimes(BasicNewsRecipe):
                 sectiontitle=self.tag_to_string(section.find('h4'))
                 if '...' not in sectiontitle:
                     section_title=sectiontitle
+                    self.log('Found section:', sectiontitle)
                 for article in section.ul.findAll('li'):
                     articles = []
                     title=self.tag_to_string(article.a)
                     url=article.a['href']
                     articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+                    self.log('\tFound article:', title)
 
                     if articles:
                         if section_title not in feeds:
@@ -134,6 +102,9 @@ class FinancialTimes(BasicNewsRecipe):
                 it.attrs = []
         for item in soup.findAll(style=True):
             del item['style']
+        for img in soup.findAll('img', src=True):
+            if 'track/track.js' in img['src']:
+                img.extract()
         for item in soup.findAll('a'):
             limg = item.find('img')
             if item.string is not None:
@@ -146,9 +117,6 @@ class FinancialTimes(BasicNewsRecipe):
                 else:
                     str = self.tag_to_string(item)
                     item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-                item['alt'] = 'image'
         return soup
 
     def get_obfuscated_article(self, url):
