@@ -77,7 +77,7 @@ class DevicePlugin(Plugin):
     OPEN_FEEDBACK_MESSAGE = None
 
     #: Set of extensions that are "virtual books" on the device
-    #: and therefore cannot be viewed/saved/added to library
+    #: and therefore cannot be viewed/saved/added to library.
     #: For example: ``frozenset(['kobo'])``
     VIRTUAL_BOOK_EXTENSIONS = frozenset([])
 
