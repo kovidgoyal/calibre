@@ -1,60 +1,54 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class NYTimes(BasicNewsRecipe):
+def class_sel(cls):
+    def f(x):
+        return x and cls in x.split()
+    return f
+
+class Spectator(BasicNewsRecipe):
 
     title       = 'Spectator Magazine'
-    __author__  = 'Krittika Goyal'
+    __author__  = 'Kovid Goyal'
     description = 'Magazine'
-    timefmt = ' [%d %b, %Y]'
-    needs_subscription = False
     language = 'en'
 
     no_stylesheets = True
-    #auto_cleanup = True
-    #auto_cleanup_keep = '//div[@class="thumbnail"]'
 
-    keep_only_tags = dict(name='div', attrs={'id':'content'})
+    keep_only_tags = dict(name='div', attrs={'class':['article-head', 'article-image', 'article-body']})
     remove_tags = [
-       dict(name='div', attrs={'id':['disqus_thread']}),
-       ##dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
-       ##dict(name='form', attrs={'onsubmit':''}),
-       #dict(name='section', attrs={'id':['article-quote', 'article-navigation']}),
+        dict(name='div', attrs={'id':['disqus_thread']}),
+        dict(attrs={'class':['middle-promo']}),
     ]
 
-    #TO GET ARTICLE TOC
-    def spec_get_index(self):
-            return self.index_to_soup('http://www.spectator.co.uk/')
+    def parse_spec_section(self, div):
+        h2 = div.find('h2')
+        sectitle = self.tag_to_string(h2)
+        self.log('Section:', sectitle)
+        articles = []
+        for div in div.findAll('div', id=lambda x: x and x.startswith('post-')):
+            h2 = div.find('h2', attrs={'class':class_sel('post-title')})
+            title = self.tag_to_string(h2)
+            a = h2.find('a')
+            url = a['href']
+            desc = ''
+            self.log('\tArticle:', title)
+            p = div.find('p')
+            if p is not None:
+                desc = self.tag_to_string(p)
+            articles.append({'title':title, 'url':url, 'description':desc})
+        return sectitle, articles
 
-    # To parse artice toc
     def parse_index(self):
-        parse_soup = self.index_to_soup('http://www.spectator.co.uk/')
+        soup = self.index_to_soup('http://www.spectator.co.uk/magazine/')
+        a = soup.find('a', attrs={'class':'magazine-issue-wrap'})
+        self.timefmt = a['title']
+        self.cover_url = a['href']
 
         feeds = []
-        feed_title = 'Spectator Magazine Articles'
 
-        articles = []
-        self.log('Found section:', feed_title)
-        div = parse_soup.find(attrs={'class':'one-col-tax-widget magazine-list columns-1 post-8 taxonomy-category full-width widget section-widget icit-taxonomical-listings'})
-        for art in div.findAll(name='h2'):
-            art_info = art.find(name = 'a')
-            if art_info is None:
-                continue
-            art_title = self.tag_to_string(art_info)
-            url = art_info.get('href')
-            self.log.info('\tFound article:', art_title, 'at', url)
-            article = {'title':art_title, 'url':url, 'date':''}
-            #au = art.find(attrs={'class':'articleAuthors'})
-            #if au is not None:
-                #article['author'] = self.tag_to_string(au)
-            #desc = art.find(attrs={'class':'hover_text'})
-            #if desc is not None:
-                #desc = self.tag_to_string(desc)
-                #if 'author' in article:
-                    #desc = ' by ' + article['author'] + ' ' +desc
-                #article['description'] = desc
-            articles.append(article)
-        if articles:
-            feeds.append((feed_title, articles))
-
+        div = soup.find(id='magazine-full')
+        for x in div.findAll(attrs={'class':class_sel('magazine-section-holder')}):
+            title, articles = self.parse_spec_section(x)
+            if articles:
+                feeds.append((title, articles))
         return feeds
-
