@@ -233,7 +233,7 @@ There are a few more options in this section.
 :guilabel:`Input character encoding`
     Older documents sometimes don't specify their character encoding. When converted, this can
     result in non-English characters or special characters like smart quotes being corrupted. 
-    calibre tries to auto-detect the character encoding of the source document, but it does not'
+    calibre tries to auto-detect the character encoding of the source document, but it does not
     always succeed. You can force it to assume a particular character encoding by using this setting.
     `cp1252` is a common encoding for documents produced using windows software. You should also read
     :ref:`char-encoding-faq` for more on encoding issues.
