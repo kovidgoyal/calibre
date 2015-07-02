@@ -1,18 +1,29 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
+def select_form(form):
+    return form.attrs.get('class', None) == 'user-login-form'
+
+
 class ForeignAffairsRecipe(BasicNewsRecipe):
+
     ''' there are three modifications:
     1) fetch issue cover
     2) toggle ignore premium articles
     3) extract proper section names, ie. "Comments", "Essay"
 
-    by Chen Wei weichen302@gmx.com, 2012-02-05'''
+    by Chen Wei, 2012-02-05
+
+        Additional modifications to support rebranded website
+
+        by anisotrope, 27 June 2015
+        '''
 
     __license__  = 'GPL v3'
-    __author__ = 'Rick Shang, kwetal'
+    __author__ = 'Rick Shang, kwetal, anisotrope'
     language = 'en'
-    version = 1.01
+    version = 1.02
 
     title = u'Foreign Affairs (Subcription)'
     publisher = u'Council on Foreign Relations'
@@ -26,14 +37,9 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     INDEX = 'http://www.foreignaffairs.com'
     FRONTPAGE = 'http://www.foreignaffairs.com/magazine'
 
-
-    remove_tags = []
-    remove_tags.append(dict(name = 'base'))
-    #remove_tags.append(dict(name = '', attrs = {'': ''}))
-
-    remove_tags_before = dict(name = 'h1', attrs = {'class': 'print-title'})
-
-    remove_tags_after = dict(name = 'div', attrs = {'class': 'print-footer'})
+    remove_tags = [dict(name='svg')]
+    remove_tags_before = dict(name='div', attrs={'class': 'print-content'})
+    remove_tags_after = dict(name='div', attrs={'class': 'print-footer'})
 
     extra_css = '''
                 body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
@@ -47,83 +53,71 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup(self.FRONTPAGE)
-        div = soup.find('div', attrs={'class':'inthemag-issuebuy-cover'})
+        div = soup.find('div', attrs={'class':'magazine-hero__image image_auto_width'})
         img_url =  div.find('img')['src']
-        return self.INDEX + img_url
+        return img_url  # The url includes the https:// as necessary
+
+    def get_print_url(self, url):
+        article_soup = self.index_to_soup(url.strip())
+
+        if article_soup is not None:
+            shortlink = article_soup.find('a', attrs={'class':re.compile(r'\bicon-print\b')})
+            if shortlink:
+                return shortlink['href']
+            else:
+                return url
+        else:
+            return url
 
     def parse_index(self):
 
         answer = []
         soup = self.index_to_soup(self.FRONTPAGE)
-        #get dates
+        # get dates
         date = re.split('\s\|\s',self.tag_to_string(soup.head.title.string))[0]
+        self.title = "Foreign Affairs ({})".format(date)
         self.timefmt =  u' [%s]'%date
 
-        sec_start = soup.findAll('div', attrs= {'class':'panel-pane'})
+        sec_start = soup.findAll('section', attrs={'class':re.compile(r'\bmagazine-list\b')})
         for sec in sec_start:
             articles = []
-            section = self.tag_to_string(sec.find('h2'))
-            if 'Books' in section:
-                reviewsection=sec.find('div', attrs = {'class': 'item-list'})
-                for subsection in reviewsection.findAll('div'):
-                    subsectiontitle=self.tag_to_string(subsection.span.a)
-                    subsectionurl=self.INDEX + subsection.span.a['href']
-                    soup1 = self.index_to_soup(subsectionurl)
-                    for div in soup1.findAll('div', attrs = {'class': 'views-field-title'}):
-                        if div.find('a') is not None:
-                            originalauthor=self.tag_to_string(div.findNext('div', attrs = {'class':'views-field-field-article-book-nid'}).div.a)
-                            title=subsectiontitle+': '+self.tag_to_string(div.span.a)+' by '+originalauthor
-                            url=self.INDEX+self.index_to_soup(self.INDEX+div.span.a['href']).find('a', attrs={'class':'fa_addthis_print'})['href']
-                            atr=div.findNext('div', attrs = {'class': 'views-field-field-article-display-authors-value'})
-                            if atr is not None:
-                                author=self.tag_to_string(atr.span)
-                            else:
-                                author=''
-                            desc=div.findNext('span', attrs = {'class': 'views-field-field-article-summary-value'})
-                            if desc is not None:
-                                description=self.tag_to_string(desc.div.p)
-                            else:
-                                description=''
-                            articles.append({'title':title, 'date':None, 'url':url, 'description':description, 'author':author})
-                    subsectiontitle=''
-            else:
-                for div in sec.findAll('div', attrs = {'class': 'views-field-title'}):
-                    if div.find('a') is not None:
-                        title=self.tag_to_string(div.span.a)
-                        url=self.INDEX+self.index_to_soup(self.INDEX+div.span.a['href']).find('a', attrs={'class':'fa_addthis_print'})['href']
-                        atr=div.findNext('div', attrs = {'class': 'views-field-field-article-display-authors-value'})
-                        if atr is not None:
-                            author=self.tag_to_string(atr.span)
-                        else:
-                            author=''
-                        desc=div.findNext('span', attrs = {'class': 'views-field-field-article-summary-value'})
-                        if desc is not None:
-                            description=self.tag_to_string(desc.div.p)
-                        else:
-                            description=''
-                        articles.append({'title':title, 'date':None, 'url':url, 'description':description, 'author':author})
+            section = self.tag_to_string(sec.find('h1'))
+            for article_block in sec.findAll('article'):
+                if article_block.find('a') is not None:
+                    title=self.tag_to_string(article_block.div.a.h2)
+                    article_url = article_block.div.a['href']
+                    url = self.get_print_url(article_url)
+                    atr=article_block.findNext('p', attrs={'class': 'author'})
+                    if atr is not None:
+                        author=self.tag_to_string(atr)
+                    else:
+                        author=''
+                    desc=article_block.findNext('div', attrs={'class': 'deck'})
+                    if desc is not None:
+                        description=self.tag_to_string(desc)
+                    else:
+                        description=''
+                    articles.append({'title':title, 'date':None, 'url':url, 'description':description, 'author':author})
             if articles:
                 answer.append((section, articles))
         return answer
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs = {'src': True}):
-            if not img['src'].startswith('http://'):
+        for img in soup.findAll('img', attrs={'src': True}):
+            if not img['src'].startswith('http'):
                 img['src'] = self.INDEX + img['src']
 
         return soup
-
-
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://www.foreignaffairs.com/user?destination=user%3Fop%3Dlo')
-            br.select_form(nr = 1)
-            br['name']   = self.username
-            br['pass'] = self.password
+            br.select_form(predicate=select_form)
+            br.form['name'] = self.username
+            br.form['pass'] = self.password
             br.submit()
         return br
 
     def cleanup(self):
-        self.browser.open('http://www.foreignaffairs.com/logout?destination=user%3Fop=lo')
+        self.browser.open('https://www.foreignaffairs.com/user/logout')
