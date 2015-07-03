@@ -264,7 +264,7 @@ class FB2MLizer(object):
 
             # Start a <section> if we must sectionize each file or if the TOC references this page
             page_section_open = False
-            if self.opts.sectionize == 'files' or self.toc.get(item.href) == 'page':
+            if self.opts.sectionize == 'files' or None in self.toc.get(item.href, ()):
                 text.append('<section>')
                 page_section_open = True
                 self.section_level += 1
@@ -322,7 +322,7 @@ class FB2MLizer(object):
         for item in nodes:
             href, mid, id = item.href.partition('#')
             if not id:
-                self.toc[href] = 'page'
+                self.toc[href] = {None: 'page'}
             else:
                 if not self.toc.get(href, None):
                     self.toc[href] = {}
@@ -426,12 +426,13 @@ class FB2MLizer(object):
                 # the TOC pointed to a specific element
                 newlevel = 0
                 toc_entry = self.toc.get(page.href, None)
-                if toc_entry == 'page':
-                    if tag != 'body' and hasattr(elem_tree, 'text') and elem_tree.text:
-                        newlevel = 1
-                        self.toc[page.href] = None
-                elif toc_entry and elem_tree.attrib.get('id', None):
-                    newlevel = toc_entry.get(elem_tree.attrib.get('id', None), None)
+                if toc_entry is not None:
+                    if None in toc_entry:
+                        if tag != 'body' and hasattr(elem_tree, 'text') and elem_tree.text:
+                            newlevel = 1
+                            self.toc[page.href] = None
+                    if not newlevel and elem_tree.attrib.get('id', None) is not None:
+                        newlevel = toc_entry.get(elem_tree.attrib.get('id', None), None)
 
                 # Start a new section if necessary
                 if newlevel:
