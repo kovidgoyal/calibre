@@ -12,7 +12,8 @@
 #include "private/qtextengine_p.h"
 #include "private/qfontengine_p.h"
 
-GlyphInfo* get_glyphs(QPointF &p, const QTextItem &text_item) {
+PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item) {
+    const quint32 *tag = reinterpret_cast<const quint32 *>("name");
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
     QFontEngine *fe = ti.fontEngine;
     qreal size = ti.fontEngine->fontDef.pixelSize;
@@ -33,40 +34,49 @@ GlyphInfo* get_glyphs(QPointF &p, const QTextItem &text_item) {
     QVarLengthArray<QFixedPoint> positions;
     QTransform m = QTransform::fromTranslate(p.x(), p.y());
     fe->getGlyphPositions(ti.glyphs, m, ti.flags, glyphs, positions);
-    QVector<QPointF> points = QVector<QPointF>(positions.count());
+
+    PyObject *points = NULL, *indices = NULL, *temp = NULL;
+
+    points = PyTuple_New(positions.count());
+    if (points == NULL) return PyErr_NoMemory();
     for (int i = 0; i < positions.count(); i++) {
-        points[i].setX(positions[i].x.toReal()/stretch);
-        points[i].setY(positions[i].y.toReal());
+        temp = Py_BuildValue("dd", positions[i].x.toReal()/stretch, positions[i].y.toReal());
+        if (temp == NULL) { Py_DECREF(points); return NULL; }
+        PyTuple_SET_ITEM(points, i, temp); temp = NULL;
     }
 
-    QVector<quint32> indices = QVector<quint32>(glyphs.count());
-    for (int i = 0; i < glyphs.count(); i++)
-        indices[i] = (quint32)glyphs[i];
-
-    const quint32 *tag = reinterpret_cast<const quint32 *>("name");
-
-    return new GlyphInfo(fe->getSfntTable(qToBigEndian(*tag)), size, stretch, points, indices);
+    indices = PyTuple_New(glyphs.count());
+    if (indices == NULL) { Py_DECREF(points); return PyErr_NoMemory(); }
+    for (int i = 0; i < glyphs.count(); i++) {
+        temp = PyInt_FromLong((long)glyphs[i]);
+        if (temp == NULL) { Py_DECREF(indices); Py_DECREF(points); return PyErr_NoMemory(); }
+        PyTuple_SET_ITEM(indices, i, temp); temp = NULL;
+    }
+    const QByteArray table(fe->getSfntTable(qToBigEndian(*tag)));
+    return Py_BuildValue("s#ffOO", table.constData(), table.size(), size, stretch, points, indices);
 }
 
-GlyphInfo::GlyphInfo(const QByteArray& name, qreal size, qreal stretch, const QVector<QPointF> &positions, const QVector<quint32> &indices) :name(name), positions(positions), size(size), stretch(stretch), indices(indices) {
-}
-
-QByteArray get_sfnt_table(const QTextItem &text_item, const char* tag_name) {
+PyObject* get_sfnt_table(const QTextItem &text_item, const char* tag_name) {
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
     const quint32 *tag = reinterpret_cast<const quint32 *>(tag_name);
-    return ti.fontEngine->getSfntTable(qToBigEndian(*tag));
+    const QByteArray table(ti.fontEngine->getSfntTable(qToBigEndian(*tag)));
+    return Py_BuildValue("s#", table.constData());
 }
 
-QVector<quint32>* get_glyph_map(const QTextItem &text_item) {
+PyObject* get_glyph_map(const QTextItem &text_item) {
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
-    QVector<quint32> *ans = new QVector<quint32>(0x10000);
     QGlyphLayoutArray<10> glyphs;
     int nglyphs = 10;
+    PyObject *t = NULL, *ans = PyTuple_New(0x10000);
+
+    if (ans == NULL) return PyErr_NoMemory();
 
     for (uint uc = 0; uc < 0x10000; ++uc) {
         QChar ch(uc);
         ti.fontEngine->stringToCMap(&ch, 1, &glyphs, &nglyphs, QFontEngine::GlyphIndicesOnly);
-        (*ans)[uc] = glyphs.glyphs[0];
+        t = PyInt_FromLong(glyphs.glyphs[0]);
+        if (t == NULL) { Py_DECREF(ans); return PyErr_NoMemory(); }
+        PyTuple_SET_ITEM(ans, uc, t); t = NULL;
     }
     return ans;
 }

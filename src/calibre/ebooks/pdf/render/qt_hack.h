@@ -10,26 +10,11 @@
 #include <QGlyphRun>
 #include <QTextItem>
 #include <QPointF>
+#include <Python.h>
 
+PyObject* get_glyphs(const QPointF &p, const QTextItem &text_item);
 
-class GlyphInfo {
-    public:
-        QByteArray name;
-        QVector<QPointF> positions;
-        qreal size;
-        qreal stretch;
-        QVector<quint32> indices;
+PyObject* get_sfnt_table(const QTextItem &text_item, const char* tag_name);
 
-        GlyphInfo(const QByteArray &name, qreal size, qreal stretch, const QVector<QPointF> &positions, const QVector<quint32> &indices);
-
-    private:
-        GlyphInfo(const GlyphInfo&);
-        GlyphInfo &operator=(const GlyphInfo&);
-};
-
-GlyphInfo* get_glyphs(QPointF &p, const QTextItem &text_item);
-
-QByteArray get_sfnt_table(const QTextItem &text_item, const char* tag_name);
-
-QVector<quint32>* get_glyph_map(const QTextItem &text_item);
+PyObject* get_glyph_map(const QTextItem &text_item);
 

@@ -10,9 +10,8 @@ __docformat__ = 'restructuredtext en'
 import sys, traceback, math
 from collections import namedtuple
 from functools import wraps, partial
-from future_builtins import map
+from future_builtins import map, zip
 
-import sip
 from PyQt5.Qt import (QPaintEngine, QPaintDevice, Qt, QTransform, QBrush)
 
 from calibre.constants import plugins
@@ -24,6 +23,7 @@ from calibre.utils.fonts.sfnt.metrics import FontMetrics
 
 Point = namedtuple('Point', 'x y')
 ColorState = namedtuple('ColorState', 'color opacity do')
+GlyphInfo = namedtuple('GlyphInfo', 'name size stretch positions indices')
 
 def repr_transform(t):
     vals = map(fmtnum, (t.m11(), t.m12(), t.m21(), t.m22(), t.dx(), t.dy()))
@@ -242,11 +242,10 @@ class PdfEngine(QPaintEngine):
     def drawTextItem(self, point, text_item):
         # return super(PdfEngine, self).drawTextItem(point, text_item)
         self.apply_graphics_state()
-        gi = self.qt_hack.get_glyphs(point, text_item)
+        gi = GlyphInfo(*self.qt_hack.get_glyphs(point, text_item))
         if not gi.indices:
-            sip.delete(gi)
             return
-        name = hash(bytes(gi.name))
+        name = hash(gi.name)
         if name not in self.fonts:
             try:
                 self.fonts[name] = self.create_sfnt(text_item)
@@ -260,14 +259,12 @@ class PdfEngine(QPaintEngine):
                 pass
         glyphs = []
         last_x = last_y = 0
-        for i, pos in enumerate(gi.positions):
-            x, y = pos.x(), pos.y()
-            glyphs.append((x-last_x, last_y - y, gi.indices[i]))
+        for glyph_index, (x, y) in zip(gi.indices, gi.positions):
+            glyphs.append((x-last_x, last_y - y, glyph_index))
             last_x, last_y = x, y
 
         self.pdf.draw_glyph_run([gi.stretch, 0, 0, -1, 0, 0], gi.size, metrics,
                                 glyphs)
-        sip.delete(gi)
 
     @store_error
     def drawPolygon(self, points, mode):
