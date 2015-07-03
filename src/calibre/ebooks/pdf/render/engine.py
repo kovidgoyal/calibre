@@ -50,10 +50,10 @@ class Font(FontMetrics):
 class PdfEngine(QPaintEngine):
 
     FEATURES = QPaintEngine.AllFeatures & ~(
-        QPaintEngine.PorterDuff | QPaintEngine.PerspectiveTransform
-        | QPaintEngine.ObjectBoundingModeGradients
-        | QPaintEngine.RadialGradientFill
-        | QPaintEngine.ConicalGradientFill
+        QPaintEngine.PorterDuff | QPaintEngine.PerspectiveTransform |
+        QPaintEngine.ObjectBoundingModeGradients |
+        QPaintEngine.RadialGradientFill |
+        QPaintEngine.ConicalGradientFill
     )
 
     def __init__(self, file_object, page_width, page_height, left_margin,
@@ -378,5 +378,3 @@ class PdfDevice(QPaintDevice):  # {{{
         self.engine.set_metadata(*args, **kwargs)
 
 # }}}
-
-
