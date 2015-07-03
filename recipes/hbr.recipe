@@ -60,8 +60,8 @@ class HBR(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('http://hbr.org/magazine')
-        fig = soup.find('figure', attrs={'class': lambda x: x and 'magazine-cover' in x.split()})
-        url = 'https://hbr.org' + fig.findParent('a', href=True)['href']
+        fig = soup.find('figure', attrs={'class': lambda x: x and 'current-issue' in x.split()})
+        url = 'https://hbr.org' + fig.find('a', href=True)['href']
         img = fig.find('img')
         self.cover_url = 'https://hbr.org' + img['src']
         self.timefmt = img['alt']
