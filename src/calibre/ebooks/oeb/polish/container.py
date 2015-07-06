@@ -825,12 +825,12 @@ class Container(object):  # {{{
 
     def serialize_item(self, name):
         ''' Convert a parsed object (identified by canonical name) into a bytestring. See :meth:`parsed`. '''
-        data = self.parsed(name)
+        data = root = self.parsed(name)
         if name == self.opf_name:
             self.format_opf()
         data = serialize(data, self.mime_map[name], pretty_print=name in
                          self.pretty_print)
-        if name == self.opf_name:
+        if name == self.opf_name and root.nsmap.get(None) == OPF2_NS:
             # Needed as I can't get lxml to output opf:role and
             # not output <opf:metadata> as well
             data = re.sub(br'(<[/]{0,1})opf:', r'\1', data)
