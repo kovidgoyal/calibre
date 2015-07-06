@@ -114,9 +114,9 @@ In the previous section, we saw that the font size for articles from the print v
 
     no_stylesheets = True
 
-The recipe now looks like:
-
 .. _bbc1:
+
+The recipe now looks like:
 
 .. image:: images/bbc_altered1.png
     :align: center
