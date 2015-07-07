@@ -17,7 +17,7 @@ class FOLDER_DEVICE_FOR_CONFIG(USBMS):
     description    = _('Use an arbitrary folder as a device.')
     author         = 'John Schember/Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    FORMATS     = list(BOOK_EXTENSIONS)
+    FORMATS     = list(BOOK_EXTENSIONS) + ['ppt', 'pptx']
 
     VENDOR_ID   = [0xffff]
     PRODUCT_ID  = [0xffff]
@@ -40,7 +40,7 @@ class FOLDER_DEVICE(USBMS):
     BCD         = [0xffff]
     DEVICE_PLUGBOARD_NAME = 'FOLDER_DEVICE'
 
-    THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
+    THUMBNAIL_HEIGHT = 68  # Height for thumbnails on device
 
     CAN_SET_METADATA = ['title', 'authors']
     SUPPORTS_SUB_DIRS = True
@@ -58,7 +58,7 @@ class FOLDER_DEVICE(USBMS):
 
     def __init__(self, path):
         if not os.path.isdir(path):
-            raise IOError, 'Path is not a folder'
+            raise IOError('Path is not a folder')
         path = USBMS.normalize_path(path)
         if path.endswith(os.sep):
             self._main_prefix = path
@@ -105,5 +105,3 @@ class FOLDER_DEVICE(USBMS):
     @classmethod
     def save_settings(cls, config_widget):
         return FOLDER_DEVICE_FOR_CONFIG.save_settings(config_widget)
-
-
