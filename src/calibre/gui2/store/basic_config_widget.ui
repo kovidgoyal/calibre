@@ -27,7 +27,7 @@
    <item row="0" column="0" colspan="2">
     <widget class="QCheckBox" name="open_external">
      <property name="text">
-      <string>Open store in external web browswer</string>
+      <string>Open store in external web browser</string>
      </property>
     </widget>
    </item>
