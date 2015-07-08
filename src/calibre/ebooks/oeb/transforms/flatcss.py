@@ -62,6 +62,8 @@ class KeyMapper(object):
         endp = 0 if size < base else 36
         diff = (abs(base - size) * 3) + ((36 - size) / 100)
         logb = abs(base - endp)
+        if logb == 1.0:
+            logb = 1.1
         try:
             result = sign * math.log(diff, logb)
         except ValueError:
