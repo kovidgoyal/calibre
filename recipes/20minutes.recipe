@@ -9,9 +9,9 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 class Minutes(BasicNewsRecipe):
 
     title                  = '20 minutes'
-    __author__             = 'calibre'
+    __author__             = u'Aurélien Chabot'
     description            = 'Actualités'
-    encoding               = 'cp1252'
+    encoding               = 'utf-8'
     publisher              = '20minutes.fr'
     category               = 'Actualités, France, Monde'
     language               = 'fr'
@@ -21,30 +21,15 @@ class Minutes(BasicNewsRecipe):
     max_articles_per_feed  = 15
     no_stylesheets         = True
     remove_empty_feeds     = True
-    filterDuplicates       = True
 
-    extra_css = '''
-                    h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
-                    .mna-details {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
-                    .mna-image {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
-                    .mna-body {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
-                '''
-
-    remove_tags = [
-            dict(name='iframe'),
-            dict(name='div', attrs={'class':['mn-section-heading']}),
-            dict(name='a', attrs={'href':['#commentaires']}),
-            dict(name='div', attrs={'class':['mn-right']}),
-            dict(name='div', attrs={'class':['mna-box']}),
-            dict(name='div', attrs={'class':['mna-comment-call']}),
-            dict(name='div', attrs={'class':['mna-tools']}),
-            dict(name='div', attrs={'class':['mn-trilist']})
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(attrs={'class':lambda x: x and 'lt-content' in x.split()}),
     ]
-
-    keep_only_tags    = [dict(id='mn-article')]
-
-    remove_tags_after  = dict(name='div', attrs={'class':['mna-body','mna-signature']})
-
+    remove_tags = [
+        dict(attrs={'class':lambda x:x and 'content-related' in x.split()}),
+    ]
+    remove_tags_after = dict(id='ob_holder')
 
     feeds = [
         ('France', 'http://www.20minutes.fr/rss/actu-france.xml'),
@@ -62,9 +47,3 @@ class Minutes(BasicNewsRecipe):
         ('Lyon', 'http://www.20minutes.fr/rss/lyon.xml'),
         ('Toulouse', 'http://www.20minutes.fr/rss/toulouse.xml')
     ]
-
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return soup
