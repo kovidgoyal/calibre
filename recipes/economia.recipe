@@ -1,17 +1,48 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+from urllib import quote
 
-class AdvancedUserRecipe1314326622(BasicNewsRecipe):
-    title          = u'Economia'
-    __author__     = 'Manish Bhattarai'
+class EconomiaMagazine(BasicNewsRecipe):
+    title          = u'Economia Magazine'
+    __author__     = 'Kovid Goyal'
     description = 'Economia - Intelligence & Insight for ICAEW Members'
     language = 'en_GB'
-    oldest_article = 7
-    max_articles_per_feed = 25
-    masthead_url = 'http://economia.icaew.com/~/media/Images/Design%20Images/Economia_Red_website.ashx'
-    cover_url = 'http://economia.icaew.com/~/media/Images/Design%20Images/Economia_Red_website.ashx'
+    BASE = 'http://economia.icaew.com/'
     no_stylesheets = True
-    remove_empty_feeds = True
-    remove_tags_before = dict(id='content')
-    remove_tags_after  = dict(id='stars-wrapper')
-    remove_tags = [dict(attrs={'class':['floatR', 'sharethis', 'rating clearfix']})]
-    feeds          = [(u'News', u'http://feedity.com/icaew-com/VlNTVFRa.rss'),(u'Business', u'http://feedity.com/icaew-com/VlNTVFtS.rss'),(u'People', u'http://feedity.com/icaew-com/VlNTVFtX.rss'),(u'Opinion', u'http://feedity.com/icaew-com/VlNTVFtW.rss'),(u'Finance', u'http://feedity.com/icaew-com/VlNTVFtV.rss')]
+
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(name='figure', attrs={'class':lambda x:x and 'figure' in x.split()}),
+        dict(attrs={'class':'intro articleCopy'.split()})
+    ]
+
+    def image_url_processor(cls, baseurl, iurl):
+        if iurl:
+            return baseurl + quote(iurl)
+        return baseurl + '404.jpeg'
+
+    def preprocess_raw_html(self, raw_html, url):
+        return raw_html.replace('src=""', '')
+
+    def parse_index(self):
+        soup = self.index_to_soup('http://economia.icaew.com/')
+        img = soup.find('img', src=lambda x:x and 'Magazine covers' in x)
+        self.cover_url = self.BASE + quote(img['src'].encode('utf-8'))
+        soup = self.index_to_soup(self.BASE + img.parent['href'])
+        self.timefmt = ' [%s]' % self.tag_to_string(soup.find('title')).split('|')[0].strip()
+        ans = []
+        for div in soup.findAll('div', attrs={'class':'articlePreview'}):
+            h2 = div.find('h2')
+            section_title = self.tag_to_string(h2).strip()
+            self.log('Found section:', section_title)
+            articles = []
+            for li in div.findAll('li'):
+                h3 = li.find('h3')
+                title = self.tag_to_string(h3)
+                a = h3.find('a', href=True)
+                url = self.BASE + a['href']
+                p = li.find('p')
+                self.log('\t', title, 'at', url)
+                articles.append({'title':title, 'url':url, 'description':self.tag_to_string(p)})
+            if articles:
+                ans.append((section_title, articles))
+        return ans
