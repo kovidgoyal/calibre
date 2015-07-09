@@ -23,7 +23,7 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags = [
-        dict(attrs={'class':['headline']}),
+        dict(attrs={'class':['headline', 'hero topimage']}),
         dict(itemprop='articlebody'),
     ]
     remove_tags = [
@@ -35,39 +35,27 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
 
     def parse_index(self):
         root = self.index_to_soup(self.INDEX + '/magazine/index.html', as_tree=True)
-        for href in root.xpath('//div[@class="Ddeck title"]/a/@href'):
+        for href in root.xpath('//h2[@class="sectiontitle nb"]/a/@href'):
             return self.parse_ent_index(self.INDEX + href)
 
     def parse_ent_index(self, url):
         root = self.index_to_soup(url, as_tree=True)
-        img = root.xpath('//div[@class="magcoverissue"]/img')[0]
-        self.cover_url = img.get('src')
+        img = root.xpath('//a[@class="hero"]/img[@class="lazy"]')[0]
+        self.cover_url = img.get('data-original')
         self.timefmt = ' [%s]' % img.get('alt').rpartition('-')[-1].strip()
-        body = root.xpath('//div[@class="cbody"]')[0]
-        current_section = 'Unknown'
-        current_articles = []
+        body = root.xpath('//div[@id="latest"]')[0]
         ans = []
-        for x in body.xpath('descendant::*[name() = "h2" or name() = "h3"]'):
-            if x.tag == 'h2':
-                if current_articles:
-                    ans.append((current_section, current_articles))
-                current_section = self.tag_to_string(x)
-                current_articles = []
-                self.log('Found section:', current_section)
-            else:
-                title = self.tag_to_string(x)
-                try:
-                    a = x.xpath('./a')[0]
-                except IndexError:
-                    continue
-                url = self.INDEX + a.get('href')
-                d = x.getnext()
-                desc = self.tag_to_string(d) if d is not None else ''
-                self.log('\t', title, 'at:', url)
-                self.log('\t\t', desc)
-                current_articles.append({'title':title, 'url':url, 'description':desc})
+        for x in body.xpath('descendant::h3'):
+            title = self.tag_to_string(x)
+            try:
+                a = x.xpath('./a')[0]
+            except IndexError:
+                continue
+            url = self.INDEX + a.get('href')
+            d = x.getnext()
+            desc = self.tag_to_string(d) if d is not None else ''
+            self.log('\t', title, 'at:', url)
+            self.log('\t\t', desc)
+            ans.append({'title':title, 'url':url, 'description':desc})
 
-        if current_articles:
-            ans.append((current_section, current_articles))
-
-        return ans
+        return [('Articles', ans)]
