@@ -7,7 +7,6 @@ www.accountancyage.com
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import Tag
 
 class AccountancyAge(BasicNewsRecipe):
     title                  = 'Accountancy Age'
@@ -24,36 +23,12 @@ class AccountancyAge(BasicNewsRecipe):
     lang                   = 'en'
     language = 'en'
 
-
-    html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
-
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
-
-    keep_only_tags      = [dict(name='div', attrs={'class':'bodycol'})]
-    remove_tags         = [dict(name=['embed','object'])]
-    remove_tags_after   = dict(name='div', attrs={'id':'permalink'})
-    remove_tags_before  = dict(name='div', attrs={'class':'gap6'})
-
     feeds          = [(u'All News', u'http://feeds.accountancyage.com/rss/latest/accountancyage/all')]
 
-    def print_version(self, url):
-        rest, sep, miss = url.rpartition('/')
-        rr, ssep, artid = rest.rpartition('/')
-        return u'http://www.accountancyage.com/articles/print/' + artid
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(attrs={'class':'article_content'}),
+    ]
 
     def get_article_url(self, article):
         return article.get('guid',  None)
-
-    def preprocess_html(self, soup):
-        soup.html['xml:lang'] = self.lang
-        soup.html['lang']     = self.lang
-        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
-        soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)
-        return self.adeify_images(soup)
-
