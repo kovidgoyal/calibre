@@ -73,6 +73,8 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.available_filter_input.textChanged.connect(self.filter_tags)
         self.applied_filter_input.textChanged.connect(partial(self.filter_tags, which='applied_tags'))
 
+        self.available_filter_input.setFocus()
+
         if islinux:
             self.available_tags.itemDoubleClicked.connect(self.apply_tags)
         else:
