@@ -52,7 +52,7 @@ CherryPy code
 
 hello.py::
 
-    #!/usr/bin/python
+    #!/usr/bin/python2
     import cherrypy
 
     class HelloWorld:
