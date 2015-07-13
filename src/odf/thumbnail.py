@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 # This contains a 128x128 px thumbnail in PNG format
 # Taken from http://www.zwahlendesign.ch/en/node/20

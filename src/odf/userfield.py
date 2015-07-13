@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 # Copyright (C) 2006-2009 Søren Roug, European Environment Agency
 #
