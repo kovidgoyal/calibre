@@ -35,9 +35,12 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
             self.select_search(initial_search)
 
     def populate_search_list(self):
+        self.search_name_box.blockSignals(True)
         self.search_name_box.clear()
         for name in sorted(self.searches.keys(), key=sort_key):
             self.search_name_box.addItem(name)
+        self.search_names = set([icu_lower(n) for n in self.searches.keys()])
+        self.search_name_box.blockSignals(False)
 
     def sanitize_name(self):
         n = unicode(self.input_box.text()).strip().replace('\\', '')
@@ -45,6 +48,7 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
         return n
 
     def add_search(self):
+        self.save_current_search()
         search_name = self.sanitize_name()
         if search_name == '':
             return False
@@ -72,6 +76,7 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
             self.search_name_box.removeItem(self.search_name_box.currentIndex())
 
     def rename_search(self):
+        self.save_current_search()
         new_search_name = self.sanitize_name()
         if new_search_name == '':
             return False
@@ -101,11 +106,14 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
             self.current_search_name  = None
             self.search_text.setPlainText('')
 
+    def save_current_search(self):
+        if self.current_search_name:
+            self.searches[self.current_search_name] = unicode(self.search_text.toPlainText())
+
     def accept(self):
         from calibre.gui2.ui import get_gui
         db = get_gui().current_db
-        if self.current_search_name:
-            self.searches[self.current_search_name] = unicode(self.search_text.toPlainText())
+        self.save_current_search()
         ss = {name:self.searches[name] for name in self.searches}
         db.saved_search_set_all(ss)
         QDialog.accept(self)

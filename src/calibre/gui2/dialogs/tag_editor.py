@@ -73,6 +73,12 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.available_filter_input.textChanged.connect(self.filter_tags)
         self.applied_filter_input.textChanged.connect(partial(self.filter_tags, which='applied_tags'))
 
+        # Restore the focus to the last input box used (typed into)
+        self.add_tag_input.textChanged.connect(partial(self.edit_box_changed, which="add_tag_input"))
+        self.available_filter_input.textChanged.connect(partial(self.edit_box_changed, which="available_filter_input"))
+        self.applied_filter_input.textChanged.connect(partial(self.edit_box_changed, which="applied_filter_input"))
+        getattr(self, gprefs.get('tag_editor_last_filter', 'add_tag_input')).setFocus()
+
         if islinux:
             self.available_tags.itemDoubleClicked.connect(self.apply_tags)
         else:
@@ -82,6 +88,10 @@ class TagEditor(QDialog, Ui_TagEditor):
         geom = gprefs.get('tag_editor_geometry', None)
         if geom is not None:
             self.restoreGeometry(geom)
+
+    def edit_box_changed(self, which):
+        gprefs['tag_editor_last_filter'] = which
+
 
     def delete_tags(self, item=None):
         confirms, deletes = [], []
