@@ -1054,9 +1054,10 @@ class Manifest(object):
                 return href
             if '/' not in self.href:
                 return href
-            base = os.path.dirname(self.href).split('/')
+            base = filter(None, os.path.dirname(os.path.normpath(self.href)).replace(os.sep, '/').split('/'))
             target, frag = urldefrag(href)
             target = target.split('/')
+            index = 0
             for index in xrange(min(len(base), len(target))):
                 if base[index] != target[index]:
                     break
