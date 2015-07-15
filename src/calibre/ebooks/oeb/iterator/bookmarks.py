@@ -78,12 +78,12 @@ class BookmarksMixin(object):
             raw = raw.decode('utf-8')
         self.parse_bookmarks(raw)
 
-    def save_bookmarks(self, bookmarks=None):
+    def save_bookmarks(self, bookmarks=None, no_copy_to_file=False):
         if bookmarks is None:
             bookmarks = self.bookmarks
         dat = self.serialize_bookmarks(bookmarks)
         self.config['bookmarks_'+self.pathtoebook] = dat
-        if self.copy_bookmarks_to_file and os.path.splitext(
+        if not no_copy_to_file and self.copy_bookmarks_to_file and os.path.splitext(
                 self.pathtoebook)[1].lower() == '.epub' and os.access(self.pathtoebook, os.W_OK):
             try:
                 zf = open(self.pathtoebook, 'r+b')
@@ -93,11 +93,11 @@ class BookmarksMixin(object):
                     BytesIO(dat.encode('utf-8')),
                     add_missing=True)
 
-    def add_bookmark(self, bm):
+    def add_bookmark(self, bm, no_copy_to_file=False):
         self.bookmarks = [x for x in self.bookmarks if x['title'] !=
                 bm['title']]
         self.bookmarks.append(bm)
-        self.save_bookmarks()
+        self.save_bookmarks(no_copy_to_file=no_copy_to_file)
 
     def set_bookmarks(self, bookmarks):
         self.bookmarks = bookmarks

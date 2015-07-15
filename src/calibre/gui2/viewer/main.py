@@ -74,6 +74,7 @@ class EbookViewer(MainWindow):
             'into pages like a paper book')
     PAGED_MODE_TT = _('Switch to flow mode - where the text is not broken up '
             'into pages')
+    AUTOSAVE_INTERVAL = 10  # seconds
 
     def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None,
                  start_in_fullscreen=False):
@@ -96,7 +97,11 @@ class EbookViewer(MainWindow):
         self.was_maximized     = False
         self.page_position_on_footnote_toggle = []
         self.read_settings()
+        self.autosave_timer = t = QTimer(self)
+        t.setInterval(self.AUTOSAVE_INTERVAL * 1000), t.setSingleShot(True)
+        t.timeout.connect(self.autosave)
         self.pos.value_changed.connect(self.update_pos_label)
+        self.pos.value_changed.connect(self.autosave_timer.start)
         self.pos.setMinimumWidth(150)
         self.setFocusPolicy(Qt.StrongFocus)
         self.view.set_manager(self)
@@ -783,6 +788,9 @@ class EbookViewer(MainWindow):
             self.set_bookmarks(self.iterator.bookmarks)
             self.bookmarks.set_current_bookmark(bm)
 
+    def autosave(self):
+        self.save_current_position(no_copy_to_file=True)
+
     def bookmarks_edited(self, bookmarks):
         self.build_bookmarks_menu(bookmarks)
         self.iterator.set_bookmarks(bookmarks)
@@ -816,12 +824,12 @@ class EbookViewer(MainWindow):
         bm['title'] = 'calibre_current_page_bookmark'
         return bm
 
-    def save_current_position(self):
+    def save_current_position(self, no_copy_to_file=False):
         if not self.view.document.remember_current_page:
             return
         if hasattr(self, 'current_index'):
             try:
-                self.iterator.add_bookmark(self.current_page_bookmark)
+                self.iterator.add_bookmark(self.current_page_bookmark, no_copy_to_file=no_copy_to_file)
             except:
                 traceback.print_exc()
 
