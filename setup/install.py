@@ -316,5 +316,19 @@ class Sdist(Command):
         if os.path.exists(self.DEST):
             os.remove(self.DEST)
 
+class Bootstrap(Command):
 
+    description = 'Bootstrap a fresh checkout of calibre from git to a state where it can be installed. Requires various development tools/libraries/headers'
+    TRANSLATIONS_REPO = 'https://github.com/kovidgoyal/calibre-translations.git'
+
+    def run(self, opts):
+        tdir = self.j(self.d(self.SRC), 'translations')
+        if os.path.exists(tdir):
+            subprocess.check_call(['git', 'pull'], cwd=tdir)
+        else:
+            subprocess.check_call(['git', 'clone', self.TRANSLATIONS_REPO, 'translations'], cwd=self.d(self.SRC))
+        for cmd in 'build iso639 iso3166 translations gui resources'.split():
+            self.info('Running %s setup.py %s' % (sys.executable, cmd))
+            subprocess.check_call([sys.executable, 'setup.py', cmd], cwd=self.d(self.SRC))
+        self.info('\n\nAll done! You should now be able to run "%s setup.py install" to install calibre' % sys.executable)
 

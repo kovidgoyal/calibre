@@ -13,7 +13,7 @@ __all__ = [
         'develop', 'install',
         'kakasi', 'coffee', 'resources',
         'check',
-        'sdist',
+        'sdist', 'bootstrap',
         'manual', 'tag_release',
         'pypi_register', 'pypi_upload', 'upload_to_server',
         'upload_installers',
@@ -38,10 +38,11 @@ build = Build()
 from setup.mathjax import MathJax
 mathjax = MathJax()
 
-from setup.install import Develop, Install, Sdist
+from setup.install import Develop, Install, Sdist, Bootstrap
 develop = Develop()
 install = Install()
 sdist = Sdist()
+bootstrap = Bootstrap()
 
 from setup.gui import GUI
 gui = GUI()
