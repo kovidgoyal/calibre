@@ -171,7 +171,10 @@ class SplashScreen(QSplashScreen):
         painter.setBackground(QBrush(QColor(0xee, 0xee, 0xee)))
         painter.setPen(Qt.black)
         painter.setRenderHint(painter.TextAntialiasing, True)
-        painter.drawText(self.rect().adjusted(5, 5, -5, -5), Qt.AlignLeft, self.message())
+        r = self.rect().adjusted(5, 5, -5, -5)
+        br = painter.drawText(r, Qt.AlignLeft, self.message())
+        painter.fillRect(br.adjusted(-2, -3, 80, 3), painter.background())
+        br = painter.drawText(r, Qt.AlignLeft, self.message())
 
     def show_message(self, msg):
         self.showMessage(msg)
