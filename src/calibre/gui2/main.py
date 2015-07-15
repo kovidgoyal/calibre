@@ -229,11 +229,13 @@ class GuiRunner(QObject):
         self.app.file_event_hook = add_filesystem_book
 
     def choose_dir(self, initial_dir):
+        self.hide_splash_screen()
         return choose_dir(self.splash_screen, 'choose calibre library',
                 _('Choose a location for your new calibre e-book library'),
                 default_dir=initial_dir)
 
     def show_error(self, title, msg, det_msg=''):
+        self.hide_splash_screen()
         with self.app:
             error_dialog(self.splash_screen, title, msg, det_msg=det_msg, show=True)
 
@@ -279,6 +281,7 @@ class GuiRunner(QObject):
             db = LibraryDatabase(self.library_path)
         except apsw.Error:
             with self.app:
+                self.hide_splash_screen()
                 repair = question_dialog(self.splash_screen, _('Corrupted database'),
                         _('The library database at %s appears to be corrupted. Do '
                         'you want calibre to try and rebuild it automatically? '
@@ -302,6 +305,11 @@ class GuiRunner(QObject):
         self.splash_screen = SplashScreen()
         self.splash_screen.show()
         self.splash_screen.show_message(_('Starting %s: Loading books...') % __appname__)
+
+    def hide_splash_screen(self):
+        if self.splash_screen is not None:
+            self.splash_screen.hide()
+        self.splash_screen = None
 
     def initialize(self, *args):
         if gprefs['show_splash_screen'] and not self.opts.start_in_tray:
