@@ -33,16 +33,17 @@ class NRCHandelsblad(BasicNewsRecipe):
         from calibre.web.jsbrowser.browser import Browser, ElementNotFound
         br = Browser()
         br.visit('http://login.nrc.nl/login', timeout=60)
-        f = br.select_form('#command')
+        f = br.select_form('#fm1')
         f['username'] = self.username
         f['password'] = self.password
-        br.submit()
+        br.submit('button[type="submit"]')
         raw = br.html
-        if '>log out<' not in raw:
+        if '>Uitloggen<' not in raw:
             raise ValueError('Failed to login, check username and password')
         epubraw = None
         for today in (date.today(), date.today() - timedelta(days=1),):
-            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/NH/%s/%d/%s___/downloads.html' % (today.strftime('%Y'), today.month - 1, today.strftime('%Y%m%d'))
+            url = 'http://digitaleeditie.nrc.nl/digitaleeditie/NH/%s/%d/%s___/downloads.html' % (
+                today.strftime('%Y'), today.month - 1, today.strftime('%Y%m%d'))
             self.log('Trying to download epub from:', url)
             br.start_load(url, timeout=60)
             try:
