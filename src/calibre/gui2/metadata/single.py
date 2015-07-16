@@ -106,9 +106,6 @@ class MetadataSingleDialogBase(ResizableDialog):
         if len(self.db.custom_column_label_map):
             self.create_custom_metadata_widgets()
         self.comments_edit_state_at_apply = {self.comments:None}
-        for widget in self.custom_metadata_widgets:
-            if isinstance(widget, Comments):
-                self.comments_edit_state_at_apply[widget] = None
 
         self.do_layout()
         geom = gprefs.get('metasingle_window_geometry3', None)
@@ -287,6 +284,9 @@ class MetadataSingleDialogBase(ResizableDialog):
             populate_metadata_page(layout, self.db, None, parent=w, bulk=False,
                 two_column=self.cc_two_column)
         self.__custom_col_layouts = [layout]
+        for widget in self.custom_metadata_widgets:
+            if isinstance(widget, Comments):
+                self.comments_edit_state_at_apply[widget] = None
     # }}}
 
     def set_custom_metadata_tab_order(self, before=None, after=None):  # {{{
