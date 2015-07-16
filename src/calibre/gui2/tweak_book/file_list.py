@@ -478,6 +478,12 @@ class FileList(QTreeWidget):
             self.merge_requested.emit(category, names, d.ans)
 
     def edit_current_item(self):
+        if not current_container().SUPPORTS_FILENAMES:
+            error_dialog(self, _('Cannot rename'), _(
+                '%s books do not support file renaming as they do not use file names'
+                ' internally. The filenames you see are automatically generated from the'
+                ' internal structures of the original file.') % current_container().book_type.upper(), show=True)
+            return
         if self.currentItem() is not None:
             self.editItem(self.currentItem())
 
@@ -502,6 +508,12 @@ class FileList(QTreeWidget):
             return QTreeWidget.keyPressEvent(self, ev)
 
     def request_bulk_rename(self):
+        if not current_container().SUPPORTS_FILENAMES:
+            error_dialog(self, _('Cannot rename'), _(
+                '%s books do not support file renaming as they do not use file names'
+                ' internally. The filenames you see are automatically generated from the'
+                ' internal structures of the original file.') % current_container().book_type.upper(), show=True)
+            return
         names = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
         bad = names & current_container().names_that_must_not_be_changed
         if bad:
