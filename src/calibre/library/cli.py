@@ -77,6 +77,10 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     data = db.get_data_as_dict(prefix, authors_as_string=True, convert_to_local_tz=False)
     if limit > -1:
         data = data[:limit]
+    try:
+        fields.remove('id')
+    except ValueError:
+        pass
     fields = ['id'] + fields
     title_fields = fields
     def field_name(f):
@@ -167,7 +171,7 @@ def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, se
     return o.getvalue()
 
 def list_option_parser(db=None):
-    fields = set(FIELDS)
+    fields = set(FIELDS) | {'id'}
     if db is not None:
         for f, data in db.custom_column_label_map.iteritems():
             fields.add('*'+f)
@@ -212,7 +216,7 @@ def command_list(args, dbpath):
     db = get_db(dbpath, opts)
     parser = list_option_parser(db=db)
     opts, args = parser.parse_args(sys.argv[:1] + args)
-    afields = set(FIELDS)
+    afields = set(FIELDS) | {'id'}
     if db is not None:
         for f, data in db.custom_column_label_map.iteritems():
             afields.add('*'+f)
