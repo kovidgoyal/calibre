@@ -1,63 +1,45 @@
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
-
 
 class PsychologyToday(BasicNewsRecipe):
 
     title       = 'Psychology Today'
-    __author__  = 'Rick Shang'
+    __author__  = 'Kovid Goyal'
 
-    description = 'This magazine takes information from the latest research in the field of psychology and makes it useful to people in their everyday lives. Its coverage encompasses self-improvement, relationships, the mind-body connection, health, family, the workplace and culture.'
+    description = ('This magazine takes information from the latest research'
+    ' in the field of psychology and makes it useful to people in their everyday'
+    ' lives. Its coverage encompasses self-improvement, relationships, the mind-body'
+    ' connection, health, family, the workplace and culture.')
     language = 'en'
-    category = 'news'
     encoding = 'UTF-8'
-    auto_cleanup = True
-    #keep_only_tags = [dict(attrs={'class':['print-title', 'print-submitted', 'print-content', 'print-footer', 'print-source_url', 'print-links']})]
     no_javascript = True
     no_stylesheets = True
 
+    keep_only_tags = [
+        dict(role='main'),
+    ]
+    remove_tags = [
+        dict(attrs={'class':['pt-social-media', 'fb-like-button']}),
+    ]
 
     def parse_index(self):
-        articles = []
         soup = self.index_to_soup('http://www.psychologytoday.com/magazine')
-
-
-        #Go to the main body
-        div = soup.find('div',attrs={'id':'content-content'})
-        #Find cover & date
-        cover_item = div.find('div', attrs={'class':'collections-header-image'})
-        cover = cover_item.find('img',src=True)
-        self.cover_url = cover['src']
-        date = self.tag_to_string(cover['title'])
-        self.timefmt = u' [%s]'%date
-
+        div = soup.find(id='block-views-magazine-issues-block')
+        a = div.findAll('h3', attrs={'class':'magazine-published-date'})[1].find('a')
+        self.timefmt = ' [%s]' % self.tag_to_string(a).capitalize()
+        soup = self.index_to_soup('http://www.psychologytoday.com' + a['href'])
+        self.cover_url = soup.find(role='main').find('img', src=lambda x:x and '/field_magazine_cover/' in x)['src'].partition('?')[0]
+        div = soup.find(id='block-system-main')
         articles = []
-        for post in div.findAll('div', attrs={'class':'collections-node-feature collection-node-even'}):
-            title = self.tag_to_string(post.find('h2'))
-            author_item=post.find('div', attrs={'class':'collection-node-byline'})
-            author = re.sub(r'.*by\s',"",self.tag_to_string(author_item).strip())
-            title = title + u' (%s)'%author
-            url= 'http://www.psychologytoday.com'+post.find('a', href=True)['href']
-            #print_page=article_page.find('li', attrs={'class':'print_html first'})
-            #url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
-            desc = self.tag_to_string(post.find('div', attrs={'class':'collection-node-description'})).strip()
-            self.log('Found article:', title)
-            self.log('\t', url)
-            self.log('\t', desc)
-            articles.append({'title':title, 'url':url, 'date':'','description':desc})
-        for post in div.findAll('div', attrs={'class':'collections-node-feature collection-node-odd'}):
-            title = self.tag_to_string(post.find('h2'))
-            author_item=post.find('div', attrs={'class':'collection-node-byline'})
-            author = re.sub(r'.*by\s',"",self.tag_to_string(author_item).strip())
-            title = title + u' (%s)'%author
-            url= 'http://www.psychologytoday.com'+post.find('a', href=True)['href']
-            #print_page=article_page.find('li', attrs={'class':'print_html first'})
-            #url='http://www.psychologytoday.com'+print_page.find('a',href=True)['href']
-            desc = self.tag_to_string(post.find('div', attrs={'class':'collection-node-description'})).strip()
-            self.log('Found article:', title)
-            self.log('\t', url)
-            self.log('\t', desc)
-            articles.append({'title':title, 'url':url, 'date':'','description':desc})
-
+        for x in div.findAll(attrs={'class':'field__item'}):
+            h2 = x.find('h2')
+            title = self.tag_to_string(h2)
+            url = 'http://www.psychologytoday.com' + h2.find('a')['href']
+            self.log('\n', title, 'at', url)
+            desc = ''
+            for y in x.findAll(attrs={'class':['subtext', 'collection__subtitle']}):
+                desc += self.tag_to_string(y) + ' '
+            if desc:
+                self.log(desc)
+            articles.append({'title':title, 'url':url, 'description':desc})
 
         return [('Current Issue', articles)]
