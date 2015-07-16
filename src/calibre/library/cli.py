@@ -458,7 +458,7 @@ def remove_option_parser():
 %prog remove ids
 
 Remove the books identified by ids from the database. ids should be a comma separated \
-list of id numbers (you can get id numbers by using the list command). For example, \
+list of id numbers (you can get id numbers by using the search command). For example, \
 23,34,57-85 (when specifying a range, the last number in the range is not
 included).
 '''))
@@ -498,7 +498,7 @@ def add_format_option_parser():
 %prog add_format [options] id ebook_file
 
 Add the ebook in ebook_file to the available formats for the logical book identified \
-by id. You can get id by using the list command. If the format already exists, \
+by id. You can get id by using the search command. If the format already exists, \
 it is replaced, unless the do not replace option is specified.\
 '''))
     parser.add_option('--dont-replace', dest='replace', default=True, action='store_false',
@@ -533,7 +533,7 @@ def remove_format_option_parser():
 %prog remove_format [options] id fmt
 
 Remove the format fmt from the logical book identified by id. \
-You can get id by using the list command. fmt should be a file extension \
+You can get id by using the search command. fmt should be a file extension \
 like LRF or TXT or EPUB. If the logical book does not have fmt available, \
 do nothing.
 '''))
@@ -568,7 +568,7 @@ def show_metadata_option_parser():
 %prog show_metadata [options] id
 
 Show the metadata stored in the calibre database for the book identified by id.
-id is an id number from the list command.
+id is an id number from the search command.
 '''))
     parser.add_option('--as-opf', default=False, action='store_true',
                       help=_('Print metadata in OPF form (XML)'))
@@ -596,7 +596,7 @@ def set_metadata_option_parser():
 %prog set_metadata [options] id [/path/to/metadata.opf]
 
 Set the metadata stored in the calibre database for the book identified by id
-from the OPF file metadata.opf. id is an id number from the list command. You
+from the OPF file metadata.opf. id is an id number from the search command. You
 can get a quick feel for the OPF format by using the --as-opf switch to the
 show_metadata command. You can also set the metadata of individual fields with
 the --field option. If you use the --field option, there is no need to specify
@@ -769,7 +769,7 @@ def export_option_parser():
 
 Export the books specified by ids (a comma separated list) to the filesystem.
 The export operation saves all formats of the book, its cover and metadata (in
-an opf file). You can get id numbers from the list command.
+an opf file). You can get id numbers from the search command.
 '''))
     parser.add_option('--all', default=False, action='store_true',
                       help=_('Export all books in database, ignoring the list of ids.'))
@@ -1013,7 +1013,7 @@ def set_custom_option_parser():
     %prog set_custom [options] column id value
 
     Set the value of a custom column for the book identified by id.
-    You can get a list of ids using the list command.
+    You can get a list of ids using the search command.
     You can get a list of custom column names using the custom_columns
     command.
     '''))
@@ -1529,13 +1529,44 @@ def command_clone(args, dbpath):
     db.close()
     LibraryDatabase(loc, default_prefs=dbprefs)
 
+def search_option_parser():
+    parser = get_parser(_(
+    '''\
+%prog search [options] search expression
+
+Search the library for the specified search term, returning a comma separated
+list of book ids matching the search expression. The output format is useful
+to feed into other commands that accept a list of ids as input.
+
+The search expression can be anything from calibre's powerful search query
+language, for example: {}
+''').format('author:asimov title:robot'))
+    parser.add_option('-l', '--limit', default=sys.maxsize, type=int,
+        help=_('The maximum number of results to return. Default is all results.'))
+    return parser
 
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
             'remove_custom_column', 'set_custom', 'restore_database',
             'check_library', 'list_categories', 'backup_metadata',
-            'clone', 'embed_metadata')
+            'clone', 'embed_metadata', 'search')
+
+def command_search(args, dbpath):
+    parser = search_option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) < 1:
+        parser.print_help()
+        print
+        prints(_('Error: You must specify the search expression'))
+        return 1
+    db = get_db(dbpath, opts)
+    q = ' '.join(args)
+    ids = db.new_api.search(q)
+    if not ids:
+        prints(_('No books matching the search expression:') + ' ' + q, file=sys.stderr)
+        raise SystemExit(1)
+    prints(','.join(map(str, sorted(ids)[:opts.limit])), end='')
 
 
 def option_parser():
