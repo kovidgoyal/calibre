@@ -80,6 +80,25 @@ class NoHref(BaseError):
                 container.dirty(container.opf_name)
         return changed
 
+class MissingNCXRef(BaseError):
+
+    HELP = _('The <spine> tag has no reference to the NCX table of contents file.'
+             ' Without this reference, the table of contents will not work in most'
+             ' readers. The reference should look like <spine toc="id of manifest item for the ncx file">.')
+    INDIVIDUAL_FIX = _('Add the reference to the NCX file')
+
+    def __init__(self, name, lnum, ncx_id):
+        BaseError.__init__(self, _('Missing reference to the NCX Table of Contents'), name, lnum)
+        self.ncx_id = ncx_id
+
+    def __call__(self, container):
+        changed = False
+        for item in container.opf_xpath('/opf:package/opf:spine'):
+            if item.get('toc') is None:
+                item.set('toc', self.ncx_id)
+                changed = True
+                container.dirty(container.opf_name)
+        return changed
 
 class MissingHref(BaseError):
 
@@ -213,9 +232,15 @@ def check_opf(container):
     errors = []
 
     if container.opf.tag != OPF('package'):
-        err = BaseError(_('The OPF does not have the correct root element'), container.opf_name)
+        err = BaseError(_('The OPF does not have the correct root element'), container.opf_name, container.opf.sourceline)
         err.HELP = xml(_(
             'The opf must have the root element <package> in namespace {0}, like this: <package xmlns="{0}">')).format(OPF2_NS)
+        errors.append(err)
+
+    elif container.opf.get('version') is None:
+        err = BaseError(_('The OPF does not have a version'), container.opf_name, container.opf.sourceline)
+        err.HELP = xml(_(
+            'The <package> tag in the OPF must have a version attribute. This is usually version="2.0" for EPUB2 and AZW3 and version="3.0" for EPUB3'))
         errors.append(err)
 
     for tag in ('metadata', 'manifest', 'spine'):
@@ -269,6 +294,17 @@ def check_opf(container):
                 errors.append(IncorrectToc(container.opf_name, mitem.sourceline, bad_mimetype=mitem.get('media-type')))
         else:
             errors.append(IncorrectToc(container.opf_name, spine.sourceline, bad_idref=spine.get('toc')))
+    else:
+        spine = container.opf_xpath('/opf:package/opf:spine')
+        if spine:
+            spine = spine[0]
+            ncx = container.manifest_type_map.get(guess_type('a.ncx'))
+            if ncx:
+                ncx_name = ncx[0]
+                rmap = {v:k for k, v in container.manifest_id_map.iteritems()}
+                ncx_id = rmap.get(ncx_name)
+                if ncx_id:
+                    errors.append(MissingNCXRef(container.opf_name, spine.sourceline, ncx_id))
 
     covers = container.opf_xpath('/opf:package/opf:metadata/opf:meta[@name="cover"]')
     if len(covers) > 0:
