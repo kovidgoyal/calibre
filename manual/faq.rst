@@ -435,10 +435,10 @@ address. You can now browse your book collection and download books from calibre
 to your device to open with whatever ebook reading software you have on your
 android device.
 
-Some reading programs support browsing the Calibre library directly. For
+Some reading programs support browsing the calibre library directly. For
 example, in Aldiko, click My Catalogs, then + to add a catalog, then give the
-catalog a title such as "Calibre" and provide the URL listed above. You can now
-browse the Calibre library and download directly into the reading software.
+catalog a title such as "calibre" and provide the URL listed above. You can now
+browse the calibre library and download directly into the reading software.
 
 Can I access my calibre books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
