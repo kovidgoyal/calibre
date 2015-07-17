@@ -237,7 +237,7 @@ def check_opf(container):
             'The opf must have the root element <package> in namespace {0}, like this: <package xmlns="{0}">')).format(OPF2_NS)
         errors.append(err)
 
-    elif container.opf.get('version') is None:
+    elif container.opf.get('version') is None and container.book_type == 'epub':
         err = BaseError(_('The OPF does not have a version'), container.opf_name, container.opf.sourceline)
         err.HELP = xml(_(
             'The <package> tag in the OPF must have a version attribute. This is usually version="2.0" for EPUB2 and AZW3 and version="3.0" for EPUB3'))
