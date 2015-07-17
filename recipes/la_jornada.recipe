@@ -5,6 +5,8 @@ www.jornada.unam.mx
 '''
 
 import re
+from urllib import urlencode
+from urlparse import urlparse, urlunparse, parse_qs
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -86,6 +88,14 @@ class LaJornada_mx(BasicNewsRecipe):
         return soup
 
     def get_article_url(self, article):
+        # Get link to original article URL
         rurl = article.get('guid',  None)
-        return rurl.rpartition('&partner=')[0]
-
+	if not rurl:
+            # Use the "link" attribute as failover
+            return article.get('link', None)
+	# Remove "partner" query param
+        u = urlparse(rurl)
+        query = parse_qs(u.query)
+        query.pop('partner', None)
+        u = u._replace(query=urlencode(query, True))
+        return urlunparse(u)
