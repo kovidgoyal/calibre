@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title: 
 
-- version: 2.32.0
+- version: 2.32.1
   date: 2015-07-17
 
   new features:
@@ -44,6 +44,8 @@
     - title: "Edit Book: Allow drag and drop of files onto dock icon on OS X"
 
   bug fixes:
+    - title: "There was a regression in 2.32.0 that caused conversion to PDF to fail, the fix for this was released in 2.32.1"
+
     - title: "E-book viewer: Fix a regression in the previous release that caused the maximum text width setting in full screen mode to be ignored when switching from normal to full screen."
       tickets: [1467164]
 
