@@ -5,6 +5,8 @@ www.jornada.unam.mx
 '''
 
 import re
+from urllib import urlencode
+from urlparse import urlparse, urlunparse, parse_qs
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -52,7 +54,7 @@ class LaJornada_mx(BasicNewsRecipe):
                         }
 
     preprocess_regexps = [
-                          (re.compile(  r'<div class="inicial">(.*)</div><p class="s-s">'
+                          (re.compile(r'<div class="inicial">(.*)</div><p class="s-s">'
                                        ,re.DOTALL|re.IGNORECASE)
                                        ,lambda match: '<p class="inicial">' + match.group(1) + '</p><p class="s-s">')
                          ]
@@ -64,20 +66,20 @@ class LaJornada_mx(BasicNewsRecipe):
     remove_tags = [dict(name='div', attrs={'class':['buttonbar','comment-cont']})]
 
     feeds = [
-              (u'Opinion'             , u'http://www.jornada.unam.mx/rss/opinion.xml'      )
-             ,(u'Cartones'            , u'http://www.jornada.unam.mx/rss/cartones.xml'     )
-             ,(u'Politica'            , u'http://www.jornada.unam.mx/rss/politica.xml'     )
-             ,(u'Economia'            , u'http://www.jornada.unam.mx/rss/economia.xml'     )
-             ,(u'Mundo'               , u'http://www.jornada.unam.mx/rss/mundo.xml'        )
-             ,(u'Estados'             , u'http://www.jornada.unam.mx/rss/estados.xml'      )
-             ,(u'Capital'             , u'http://www.jornada.unam.mx/rss/capital.xml'      )
-             ,(u'Sociedad y justicia' , u'http://www.jornada.unam.mx/rss/sociedad.xml'     )
-             ,(u'Ciencias'            , u'http://www.jornada.unam.mx/rss/ciencias.xml'     )
-             ,(u'Cultura'             , u'http://www.jornada.unam.mx/rss/cultura.xml'      )
-             ,(u'Gastronomia'         , u'http://www.jornada.unam.mx/rss/gastronomia.xml'  )
-             ,(u'Espectaculos'        , u'http://www.jornada.unam.mx/rss/espectaculos.xml' )
-             ,(u'Deportes'            , u'http://www.jornada.unam.mx/rss/deportes.xml'     )
-             ,(u'Ultimas noticias'    , u'http://www.jornada.unam.mx/ultimas/news/RSS'     )
+              (u'Opinion'             , u'http://www.jornada.unam.mx/rss/opinion.xml')
+             ,(u'Cartones'            , u'http://www.jornada.unam.mx/rss/cartones.xml')
+             ,(u'Politica'            , u'http://www.jornada.unam.mx/rss/politica.xml')
+             ,(u'Economia'            , u'http://www.jornada.unam.mx/rss/economia.xml')
+             ,(u'Mundo'               , u'http://www.jornada.unam.mx/rss/mundo.xml')
+             ,(u'Estados'             , u'http://www.jornada.unam.mx/rss/estados.xml')
+             ,(u'Capital'             , u'http://www.jornada.unam.mx/rss/capital.xml')
+             ,(u'Sociedad y justicia' , u'http://www.jornada.unam.mx/rss/sociedad.xml')
+             ,(u'Ciencias'            , u'http://www.jornada.unam.mx/rss/ciencias.xml')
+             ,(u'Cultura'             , u'http://www.jornada.unam.mx/rss/cultura.xml')
+             ,(u'Gastronomia'         , u'http://www.jornada.unam.mx/rss/gastronomia.xml')
+             ,(u'Espectaculos'        , u'http://www.jornada.unam.mx/rss/espectaculos.xml')
+             ,(u'Deportes'            , u'http://www.jornada.unam.mx/rss/deportes.xml')
+             ,(u'Ultimas noticias'    , u'http://www.jornada.unam.mx/ultimas/news/RSS')
             ]
 
     def preprocess_html(self, soup):
@@ -86,6 +88,14 @@ class LaJornada_mx(BasicNewsRecipe):
         return soup
 
     def get_article_url(self, article):
+        # Get link to original article URL
         rurl = article.get('guid',  None)
-        return rurl.rpartition('&partner=')[0]
-
+        if not rurl:
+            # Use the "link" attribute as failover
+            return article.get('link', None)
+        # Remove "partner" query param
+        u = urlparse(rurl)
+        query = parse_qs(u.query)
+        query.pop('partner', None)
+        u = u._replace(query=urlencode(query, True))
+        return urlunparse(u)
