@@ -60,7 +60,7 @@ PyObject* get_sfnt_table(const QTextItem &text_item, const char* tag_name) {
     QTextItemInt ti = static_cast<const QTextItemInt &>(text_item);
     const quint32 *tag = reinterpret_cast<const quint32 *>(tag_name);
     const QByteArray table(ti.fontEngine->getSfntTable(qToBigEndian(*tag)));
-    return Py_BuildValue("s#", table.constData());
+    return Py_BuildValue("s#", table.constData(), table.size());
 }
 
 PyObject* get_glyph_map(const QTextItem &text_item) {
