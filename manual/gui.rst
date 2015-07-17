@@ -721,7 +721,7 @@ Calibre has several keyboard shortcuts to save you time and mouse movement. Thes
     * - :kbd:`Shift+Ctrl+E`
       - Add empty books to calibre
     * - :kbd:`Ctrl+M`
-      - Toggle Mark/unmarkes status on selected books
+      - Toggle Mark/unmarked status on selected books
     * - :kbd:`Q`
       - Open the Quick View popup for viewing books in related series/tags/etc.
     * - :kbd:`Shift+Q`
