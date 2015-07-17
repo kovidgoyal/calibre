@@ -20,6 +20,86 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.32.0
+  date: 2015-07-17
+
+  new features:
+    - title: "E-book viewer: Automatically save the current reading position every ten seconds. Prevents loss of reading position on crash/forced shutdown."
+      tickets: [1473737]
+
+    - title: "Edit Book: Check Book: Add checks for missing OPF version and toc references and for text placed directly inside the <body> tag"
+      tickets: [1468649]
+
+    - title: "calibredb: Add a new search sub-command that can be used to generate a list of book ids from a search expression"
+
+    - title: "Tag Editor: Place the keyboard focus on the last edited field."
+      tickets: [1473140]
+
+    - title: "Edit metadata dialog: When clicking Next and Previous preserve the current tab of the edit comments widget."
+      tickets: [1467129]
+
+    - title: "Linux: Various fixes to make calibre work when compiled against the latest versions of Qt and PyQt"
+      tickets: [1471083] 
+
+    - title: "Edit Book: Allow drag and drop of files onto dock icon on OS X"
+
+  bug fixes:
+    - title: "E-book viewer: Fix a regression in the previous release that caused the maximum text width setting in full screen mode to be ignored when switching from normal to full screen."
+      tickets: [1467164]
+
+    - title: "Fix error in template dialog when using {id} in send to device preferences."
+      tickets: [1474513]
+
+    - title: "Edit Book/Book polishing: Fix EPUB books with opf files that use a non-default namespace for the OPF namespace being corrupted."
+      tickets: [1471419]
+
+    - title: "OS X: Workaround for Qt 5 regression that causes any errors during startup to be hidden behind the splash screen."
+      tickets: [1473017]
+
+    - title: "Conversion: Fix incorrect relative URLs being generated when an HTML or CSS file is placed higher in the folder hierarchy than the opf file."
+      tickets: [1474287]
+
+    - title: "FB2 Output: Fix error when using the sectionize with toc option and the input documents Table of Contents contains multiple items pointing to the same HTML file."
+      tickets: [1471125]
+
+    - title: "Conversion: Fix error when input document contains a font size exactly one point away from the base size."
+      tickets: [1472291]
+
+    - title: "Device drivers: Handle devices with undecodeable filenames in their filesystem. Simply ignore those files."
+      tickets: [1467433]
+
+    - title: "Fix Cmd+Left/Right keyboard shortcut not working when editing items in the book list on OS X."
+      tickets: [1469554]
+
+    - title: "Fix corrupted text in the jobs list on some non-English windows installs"
+      tickets: [1469549] 
+
+    - title: "Edit Book: Workaround for a Qt regression that caused 'See what changed' after a search and replace on OS X causing the application to become unresponsive."
+      tickets: [1466732]
+
+    - title: "Edit Book: Fix smarten punctuation not working for books with non-ascii characters in internal file names on OS X"
+
+  improved recipes:
+    - Harvard Business Review
+    - Psychology Today
+    - NRC Handelsblad
+    - Entrepeneur Magazine
+    - 20 minutes
+    - Economia
+    - Accountancy Age
+    - Jakarta Post
+    - Foreign Affairs
+    - Spectator Magazine
+    - Daily Express
+    - The Onion AV Club
+    - Metro UK
+
+  new recipes:
+    - title: Slate Star Codex 
+      author: Ned Letcher
+    - title: Hurriyet 
+      author: Adrian Tennessee
+
 - version: 2.31.0
   date: 2015-06-19
 
