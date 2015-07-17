@@ -493,7 +493,13 @@ class Convert(object):
         wrapper.tail = elems[-1].tail
         elems[-1].tail = None
         for elem in elems:
-            p.remove(elem)
+            try:
+                p.remove(elem)
+            except ValueError:
+                # Probably a hyperlink that spans multiple
+                # paragraphs,theoretically we should break this up into
+                # multiple hyperlinks, but I can't be bothered.
+                elem.getparent().remove(elem)
             wrapper.append(elem)
         return wrapper
 
