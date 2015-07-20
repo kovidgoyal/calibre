@@ -31,11 +31,23 @@ class Extract(ODF2XHTML):
                 with open(name, 'wb') as f:
                     f.write(data)
 
+    def apply_list_starts(self, root, log):
+        if not self.list_starts:
+            return
+        list_starts = frozenset(self.list_starts)
+        for ol in root.xpath('//*[local-name() = "ol" and @class]'):
+            classes = {'.' + x for x in ol.get('class', '').split()}
+            found = classes & list_starts
+            if found:
+                val = self.list_starts[next(iter(found))]
+                ol.set('start', val)
+
     def fix_markup(self, html, log):
         root = etree.fromstring(html)
         self.filter_css(root, log)
         self.extract_css(root, log)
         self.epubify_markup(root, log)
+        self.apply_list_starts(root, log)
         html = etree.tostring(root, encoding='utf-8',
                 xml_declaration=True)
         return html
@@ -95,8 +107,7 @@ class Extract(ODF2XHTML):
                 style = div.attrib.get('style', '')
                 if style and not style.endswith(';'):
                     style = style + ';'
-                style += 'position:static'  # Ensures position of containing
-                                           # div is static
+                style += 'position:static'  # Ensures position of containing div is static
                 # Ensure that the img is always contained in its frame
                 div.attrib['style'] = style
                 img.attrib['style'] = 'max-width: 100%; max-height: 100%'

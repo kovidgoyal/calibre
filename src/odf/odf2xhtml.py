@@ -511,6 +511,7 @@ class ODF2XHTML(handler.ContentHandler):
         self.stylestack = []
         self.styledict = {}
         self.currentstyle = None
+        self.list_starts = {}
 
         self._resetfootnotes()
 
@@ -1355,10 +1356,13 @@ dl.notes dd:last-of-type { page-break-after: avoid }
     def s_text_list_level_style_number(self, tag, attrs):
         name = self.tagstack.stackparent()[(STYLENS,'name')]
         level = attrs[(TEXTNS,'level')]
-        num_format = attrs.get((STYLENS,'name'),"1")
+        num_format = attrs.get((STYLENS,'num-format'),"1")
+        start_value = attrs.get((TEXTNS, 'start-value'), '1')
         list_class = "%s_%s" % (name, level)
         self.prevstyle = self.currentstyle
         self.currentstyle = ".%s_%s" % (name.replace(".","_"), level)
+        if start_value != '1':
+            self.list_starts[self.currentstyle] = start_value
         self.listtypes[list_class] = 'ol'
         self.stylestack.append(self.currentstyle)
         self.styledict[self.currentstyle] = {}
