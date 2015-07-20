@@ -526,4 +526,23 @@ class POCKETBOOK626(USBMS):
     VENDOR_NAME = ['USB_2.0']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER']
 
+class SONYDPTS1(USBMS):
 
+    name  = 'SONY DPT-S1'
+    gui_name = 'SONY DPT'
+    description    = _('Communicate with the SONY DPT-S1')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+    # Ordered list of supported formats
+    FORMATS     = ['pdf']
+    VENDOR_ID   = [0x054c]
+    PRODUCT_ID  = [0x0854]
+    BCD         = [0x0226]
+
+    EBOOK_DIR_MAIN = 'Books'
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS = True
+
+    VENDOR_NAME = ['SONY']
+    WINDOWS_MAIN_MEM = ['DPT-S1']
+    WINDOWS_CARD_A_MEM = ['DPT-S1__SD']
