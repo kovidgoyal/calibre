@@ -58,16 +58,17 @@ dealloc(Dictionary *self) {
 
 static PyObject *
 recognized(Dictionary *self, PyObject *args) {
-	char *word;
+	char *word = NULL;
 	if (!PyArg_ParseTuple(args, "es", self->encoding, &word)) return NULL;
 
-    if (self->handle->spell(word) == 0) Py_RETURN_FALSE;
+    if (self->handle->spell(word) == 0) { PyMem_Free(word); Py_RETURN_FALSE;}
+    PyMem_Free(word);
     Py_RETURN_TRUE;
 }
 
 static PyObject *
 suggest(Dictionary *self, PyObject *args) {
-	char *word, **slist = NULL;
+	char *word = NULL, **slist = NULL;
 	int i, num_slist;
 	PyObject *ans, *temp;
 
@@ -85,24 +86,27 @@ suggest(Dictionary *self, PyObject *args) {
     }
 
     if (slist != NULL) self->handle->free_list(&slist, num_slist);
+    PyMem_Free(word);
 	return ans;
 }
 
 static PyObject *
 add(Dictionary *self, PyObject *args) {
-	char *word;
+	char *word = NULL;
 
 	if (!PyArg_ParseTuple(args, "es", self->encoding, &word)) return NULL;
-	if (self->handle->add(word) == 0) Py_RETURN_TRUE;
+	if (self->handle->add(word) == 0) { PyMem_Free(word); Py_RETURN_TRUE; }
+    PyMem_Free(word);
     Py_RETURN_FALSE;
 }
 
 static PyObject *
 remove_word(Dictionary *self, PyObject *args) {
-	char *word;
+	char *word = NULL;
 
 	if (!PyArg_ParseTuple(args, "es", self->encoding, &word)) return NULL;
-	if (self->handle->remove(word) == 0) Py_RETURN_TRUE;
+	if (self->handle->remove(word) == 0) { PyMem_Free(word); Py_RETURN_TRUE; }
+    PyMem_Free(word);
     Py_RETURN_FALSE;
 }
 
