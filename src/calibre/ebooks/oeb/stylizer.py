@@ -50,23 +50,45 @@ FONT_SIZE_NAMES = {
     'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
 }
 
+ALL_MEDIA_TYPES = frozenset('all aural braille handheld print projection screen tty tv embossed amzn-mobi amzn-kf8'.split())
+ALLOWED_MEDIA_TYPES = frozenset({'screen', 'all', 'aural', 'amzn-kf8'})
 IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome resolution min-resolution max-resolution scan grid'.split())  # noqa
 
 def media_ok(raw):
     if not raw:
         return True
-    if raw == 'amzn-mobi':
+    if raw == 'amzn-mobi':  # Optimization for the common case
         return False
-    try:
-        mq = CSSMedia3Parser().parse_stylesheet(u'@media %s {}' % raw).rules[0].media[0]
-        if mq.media_type not in {'screen', 'all', 'aural'}:
-            return False
+
+    def query_ok(mq):
+        matched = True
+        if mq.media_type not in ALLOWED_MEDIA_TYPES:
+            matched = False
+        # Media queries that test for device specific features always fail
         for media_feature, expr in mq.expressions:
             if media_feature in IGNORED_MEDIA_FEATURES:
-                return False
+                matched = False
+        return mq.negated ^ matched
+
+    try:
+        for mq in CSSMedia3Parser().parse_stylesheet(u'@media %s {}' % raw).rules[0].media:
+            if query_ok(mq):
+                return True
+        return False
     except Exception:
         pass
     return True
+
+def test_media_ok():
+    assert media_ok(None)
+    assert media_ok('')
+    assert not media_ok('amzn-mobi')
+    assert media_ok('amzn-kf8')
+    assert media_ok('screen')
+    assert not media_ok('not screen')
+    assert not media_ok('(device-width:10px)')
+    assert media_ok('screen, (device-width:10px)')
+    assert not media_ok('screen and (device-width:10px)')
 
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
@@ -108,7 +130,7 @@ class Stylizer(object):
         self.font_face_rules = []
         for elem in style_tags:
             if (elem.tag == XHTML('style') and
-                elem.get('type', CSS_MIME) in OEB_STYLES):
+                elem.get('type', CSS_MIME) in OEB_STYLES and media_ok(elem.get('media'))):
                 text = elem.text if elem.text else u''
                 for x in elem:
                     t = getattr(x, 'text', None)
@@ -145,12 +167,11 @@ class Stylizer(object):
                     replaceUrls(stylesheet, item.abshref,
                             ignoreImportRules=True)
                     stylesheets.append(stylesheet)
-            elif elem.tag == XHTML('link') and elem.get('href') \
-                 and elem.get('rel', 'stylesheet').lower() == 'stylesheet' \
-                 and elem.get('type', CSS_MIME).lower() in OEB_STYLES:
-                media = elem.get('media', '')
-                if not media_ok(media):
-                    continue
+            elif (elem.tag == XHTML('link') and elem.get('href') and
+                  elem.get('rel', 'stylesheet').lower() == 'stylesheet' and
+                  elem.get('type', CSS_MIME).lower() in OEB_STYLES and
+                  media_ok(elem.get('media'))
+                  ):
                 href = urlnormalize(elem.attrib['href'])
                 path = item.abshref(href)
                 sitem = oeb.manifest.hrefs.get(path, None)
