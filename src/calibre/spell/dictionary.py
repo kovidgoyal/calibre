@@ -6,11 +6,13 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, glob, shutil, re
-from collections import namedtuple
+import os, glob, shutil, re, sys
+from collections import namedtuple, defaultdict
 from operator import attrgetter
 from itertools import chain
+from functools import partial
 
+from calibre import prints
 from calibre.constants import plugins, config_dir
 from calibre.spell import parse_lang_code
 from calibre.utils.config import JSONConfig
@@ -164,6 +166,7 @@ class Dictionaries(object):
         self.dictionaries = {}
         self.word_cache = {}
         self.ignored_words = set()
+        self.added_user_words = {}
         try:
             self.default_locale = parse_lang_code(get_lang())
         except ValueError:
@@ -186,6 +189,14 @@ class Dictionaries(object):
             ans = get_dictionary(locale)
             if ans is not None:
                 ans = load_dictionary(ans)
+                for ud in self.active_user_dictionaries:
+                    for word, langcode in ud.words:
+                        if langcode == locale.langcode:
+                            try:
+                                ans.obj.add(word)
+                            except Exception:
+                                # not critical since all it means is that the word wont show up in suggestions
+                                prints('Failed to add the word %r to the dictionary for %s' % (word, locale), file=sys.stderr)
             self.dictionaries[locale] = ans
         return ans
 
@@ -227,6 +238,18 @@ class Dictionaries(object):
     def save_user_dictionaries(self):
         dprefs['user_dictionaries'] = [d.serialize() for d in self.all_user_dictionaries]
 
+    def add_user_words(self, words, langcode):
+        for d in self.dictionaries.itervalues():
+            if d.primary_locale.langcode == langcode:
+                for word in words:
+                    d.obj.add(word)
+
+    def remove_user_words(self, words, langcode):
+        for d in self.dictionaries.itervalues():
+            if d.primary_locale.langcode == langcode:
+                for word in words:
+                    d.obj.remove(word)
+
     def add_to_user_dictionary(self, name, word, locale):
         ud = self.user_dictionary(name)
         if ud is None:
@@ -234,8 +257,10 @@ class Dictionaries(object):
         wl = len(ud.words)
         if isinstance(word, (set, frozenset)):
             ud.words |= word
+            self.add_user_words(word, locale.langcode)
         else:
             ud.words.add((word, locale.langcode))
+            self.add_user_words((word,), locale.langcode)
         if len(ud.words) > wl:
             self.save_user_dictionaries()
             try:
@@ -255,21 +280,26 @@ class Dictionaries(object):
         if changed:
             self.word_cache.pop((word, locale), None)
             self.save_user_dictionaries()
+            self.remove_user_words((word,), locale.langcode)
         return changed
 
     def remove_from_user_dictionary(self, name, words):
         changed = False
+        removals = defaultdict(set)
         keys = [(w, l.langcode) for w, l in words]
         for d in self.all_user_dictionaries:
             if d.name == name:
                 for key in keys:
                     if key in d.words:
                         d.words.discard(key)
+                        removals[key[1]].add(key[0])
                         changed = True
         if changed:
             for key in words:
                 self.word_cache.pop(key, None)
-                self.save_user_dictionaries()
+            for langcode, words in removals.iteritems():
+                self.remove_user_words(words, langcode)
+            self.save_user_dictionaries()
         return changed
 
     def word_in_user_dictionary(self, word, locale):
@@ -366,9 +396,15 @@ class Dictionaries(object):
 
         return ans
 
-if __name__ == '__main__':
+def test_dictionaries():
     dictionaries = Dictionaries()
     dictionaries.initialize()
-    print (dictionaries.recognized('recognized', parse_lang_code('en')))
-    print (dictionaries.suggestions('ade-quately', parse_lang_code('en')))
-    print (dictionaries.suggestions('magic.wand', parse_lang_code('en')))
+    eng = parse_lang_code('en')
+    rec = partial(dictionaries.recognized, locale=eng)
+    sg = partial(dictionaries.suggestions, locale=eng)
+    assert rec('recognized')
+    assert 'adequately' in sg('ade-quately')
+    assert 'magic. Wand' in sg('magic.wand')
+
+if __name__ == '__main__':
+    test_dictionaries()
