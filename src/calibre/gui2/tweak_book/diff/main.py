@@ -118,7 +118,10 @@ def get_decoded_raw(name):
             try:
                 raw = raw.decode(enc)
             except (LookupError, ValueError):
-                pass
+                try:
+                    raw = raw.decode('utf-8')
+                except ValueError:
+                    pass
     return raw, syntax
 
 
