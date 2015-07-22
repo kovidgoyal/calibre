@@ -52,6 +52,9 @@
 #define FORBIDDENWORD  65510
 #define ONLYUPCASEFLAG 65511
 
+// fopen or optional _wfopen to fix long pathname problem of WIN32
+LIBHUNSPELL_DLL_EXPORTED FILE * myfopen(const char * path, const char * mode);
+
 // convert UTF-16 characters to UTF-8
 LIBHUNSPELL_DLL_EXPORTED char * u16_u8(char * dest, int size, const w_char * src, int srclen);
 

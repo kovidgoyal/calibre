@@ -18,7 +18,7 @@
 #define PACKAGE_NAME "hunspell"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "hunspell 1.3.2"
+#define PACKAGE_STRING "hunspell 1.3.3"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "hunspell"
@@ -27,10 +27,10 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.3.2"
+#define PACKAGE_VERSION "1.3.3"
 
 /* Version number of package */
-#define VERSION "1.3.2"
+#define VERSION "1.3.3"
 
 #endif /* !__config_h__ */
 

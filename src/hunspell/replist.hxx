@@ -8,6 +8,9 @@
 
 class LIBHUNSPELL_DLL_EXPORTED RepList
 {
+private:
+    RepList(const RepList&);
+    RepList& operator = (const RepList&);
 protected:
     replentry ** dat;
     int size;

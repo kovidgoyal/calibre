@@ -9,7 +9,7 @@
 #  else
 #    define LIBHUNSPELL_DLL_EXPORTED __declspec(dllimport)
 #  endif
-#elif BUILDING_LIBHUNSPELL && @HAVE_VISIBILITY@
+#elif defined(BUILDING_LIBHUNSPELL) && @HAVE_VISIBILITY@
 #  define LIBHUNSPELL_DLL_EXPORTED __attribute__((__visibility__("default")))
 #else
 #  define LIBHUNSPELL_DLL_EXPORTED

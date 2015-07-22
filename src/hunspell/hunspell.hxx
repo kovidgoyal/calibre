@@ -19,6 +19,10 @@
 
 class LIBHUNSPELL_DLL_EXPORTED Hunspell
 {
+private:
+  Hunspell(const Hunspell&);
+  Hunspell& operator = (const Hunspell&);
+private:
   AffixMgr*       pAMgr;
   HashMgr*        pHMgr[MAXDIC];
   int             maxdic;
@@ -34,6 +38,11 @@ public:
 
   /* Hunspell(aff, dic) - constructor of Hunspell class
    * input: The affix and dictionary data as bytes
+   *
+   * In WIN32 environment, use UTF-8 encoded paths started with the long path
+   * prefix \\\\?\\ to handle system-independent character encoding and very
+   * long path names (without the long path prefix Hunspell will use fopen()
+   * with system-dependent character encoding instead of _wfopen()).
    */
 
   Hunspell(const char *affix_data, const size_t affix_len, const char *dic_data, const size_t dic_len);
@@ -127,6 +136,9 @@ public:
   const char * get_version();
 
   int get_langnum() const;
+
+  /* need for putdic */
+  int input_conv(const char * word, char * dest);
   
   /* experimental and deprecated functions */
 
