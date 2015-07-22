@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import codecs, shutil, os, posixpath
-from urlparse import urlparse
+from urlparse import urlparse, urlunparse
 from collections import Counter, defaultdict
 
 from calibre import sanitize_file_name_unicode
@@ -42,6 +42,35 @@ class LinkReplacer(object):
             nfrag = self.frag_map(name, purl.fragment)
             if nfrag:
                 href += '#%s'%nfrag
+        if href != url:
+            self.replaced = True
+        return href
+
+class IdReplacer(object):
+
+    def __init__(self, base, container, id_map):
+        self.base, self.container, self.replaced = base, container, False
+        self.id_map = id_map
+
+    def __call__(self, url):
+        if url and url.startswith('#'):
+            repl = self.id_map.get(self.base, {}).get(url[1:])
+            if repl is None or repl == url[1:]:
+                return url
+            self.replaced = True
+            return '#' + repl
+        name = self.container.href_to_name(url, self.base)
+        if not name:
+            return url
+        id_map = self.id_map.get(name)
+        if id_map is None:
+            return url
+        purl = urlparse(url)
+        nfrag = id_map.get(purl.fragment)
+        if nfrag is None:
+            return url
+        purl = purl._replace(fragment=nfrag)
+        href = urlunparse(purl)
         if href != url:
             self.replaced = True
         return href
@@ -87,6 +116,22 @@ def replace_links(container, link_map, frag_map=lambda name, frag:frag, replace_
             continue
         repl = LinkReplacer(name, container, link_map, frag_map)
         container.replace_links(name, repl)
+
+def replace_ids(container, id_map):
+    '''
+    Replace all links in the container that pointed to the changed ids.
+
+    :param id_map: A mapping of {name:id_map} where each id_map is a mapping of {old_id:new_id}
+    :return: True iff at least one link was changed
+
+    '''
+    changed = False
+    for name, media_type in container.mime_map.iteritems():
+        repl = IdReplacer(name, container, id_map)
+        container.replace_links(name, repl)
+        if repl.replaced:
+            changed = True
+    return changed
 
 def smarten_punctuation(container, report):
     from calibre.ebooks.conversion.preprocess import smarten_punctuation
