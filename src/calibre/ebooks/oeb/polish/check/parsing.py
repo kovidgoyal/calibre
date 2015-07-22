@@ -330,6 +330,7 @@ class DuplicateId(BaseError):
 
 class InvalidId(BaseError):
 
+    level = WARN
     INDIVIDUAL_FIX = _(
         'Replace this id with a randomly generated valid id')
 
