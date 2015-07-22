@@ -99,7 +99,7 @@ This is likely deliberate on Amazon's part to try to force authors to sell only
 through them. In other words, Kindle's only display covers for books marked as
 Personal Documents or books bought directly from Amazon. 
 
-If you send a MOBI file to a Kindle with calibre using a USB connection,
+If you send a MOBI file to an e-ink Kindle with calibre using a USB connection,
 calibre works around this Amazon bug by uploading a cover thumbnail itself.
 However, that workaround is only possible when using a USB connection and
 sending with calibre. Note that if you send using email, Amazon will
