@@ -21,7 +21,7 @@ Dictionary = namedtuple('Dictionary', 'primary_locale locales dicpath affpath bu
 LoadedDictionary = namedtuple('Dictionary', 'primary_locale locales obj builtin name id')
 hunspell = plugins['hunspell'][0]
 if hunspell is None:
-    raise RuntimeError('Failed to load hunspell: %s' % plugins[1])
+    raise RuntimeError('Failed to load hunspell: %s' % plugins['hunspell'][1])
 dprefs = JSONConfig('dictionaries/prefs.json')
 dprefs.defaults['preferred_dictionaries'] = {}
 dprefs.defaults['preferred_locales'] = {}
