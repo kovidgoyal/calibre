@@ -153,8 +153,11 @@ def get_dictionary(locale, exact_match=False):
                 return d
 
 def load_dictionary(dictionary):
+    from calibre.spell.import_from import convert_to_utf8
     with open(dictionary.dicpath, 'rb') as dic, open(dictionary.affpath, 'rb') as aff:
-        obj = hunspell.Dictionary(dic.read(), aff.read())
+        dic_data, aff_data = dic.read(), aff.read()
+        dic_data, aff_data = convert_to_utf8(dic_data, aff_data)
+        obj = hunspell.Dictionary(dic_data, aff_data)
     return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name, dictionary.id)
 
 class Dictionaries(object):
@@ -402,9 +405,14 @@ def test_dictionaries():
     eng = parse_lang_code('en')
     rec = partial(dictionaries.recognized, locale=eng)
     sg = partial(dictionaries.suggestions, locale=eng)
-    assert rec('recognized')
-    assert 'adequately' in sg('ade-quately')
-    assert 'magic. Wand' in sg('magic.wand')
+    if not rec('recognized'):
+        raise ValueError('recognized not recognized')
+    if 'adequately' not in sg('ade-quately'):
+        raise ValueError('adequately not in %s' % sg('ade-quately'))
+    if 'magic. Wand' not in sg('magic.wand'):
+        raise ValueError('magic. Wand not in: %s' % sg('magic.wand'))
+    d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
+    assert d.recognized('Achí')
 
 if __name__ == '__main__':
     test_dictionaries()

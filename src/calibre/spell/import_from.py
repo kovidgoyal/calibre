@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, glob, os, shutil, tempfile
+import sys, glob, os, tempfile, re, codecs
 
 from lxml import etree
 
@@ -40,6 +40,21 @@ def parse_xcu(raw, origin='%origin%'):
         ans[(dic, aff)] = locales
     return ans
 
+def convert_to_utf8(dic_data, aff_data, errors='strict'):
+    m = re.search(br'^SET\s+(\S+)$', aff_data[:2048], flags=re.MULTILINE)
+    if m is not None:
+        enc = m.group(1)
+        if enc.upper() not in (b'UTF-8', b'UTF8'):
+            try:
+                codecs.lookup(enc)
+            except LookupError:
+                pass
+            else:
+                aff_data = aff_data[:m.start()] + b'SET UTF-8' + aff_data[m.end():]
+                aff_data = aff_data.decode(enc, errors).encode('utf-8')
+                dic_data = dic_data.decode(enc, errors).encode('utf-8')
+    return dic_data, aff_data
+
 def import_from_libreoffice_source_tree(source_path):
     dictionaries = {}
     for x in glob.glob(os.path.join(source_path, '*', 'dictionaries.xcu')):
@@ -58,9 +73,11 @@ def import_from_libreoffice_source_tree(source_path):
             dest = os.path.join(base, locale)
             if not os.path.exists(dest):
                 os.makedirs(dest)
-            for src in (dic, aff):
-                df = os.path.join(dest, locale + os.path.splitext(src)[1])
-                shutil.copyfile(src, df)
+            with open(dic, 'rb') as df, open(aff, 'rb') as af:
+                dd, ad = convert_to_utf8(df.read(), af.read())
+            for src, raw in ((dic, dd), (aff, ad)):
+                with open(os.path.join(dest, locale + os.path.splitext(src)[1]), 'wb') as df:
+                    df.write(raw)
             with open(os.path.join(dest, 'locales'), 'wb') as f:
                 locales.sort(key=lambda x: (0, x) if x == locale else (1, x))
                 f.write(('\n'.join(locales)).encode('utf-8'))
@@ -99,10 +116,11 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
             metadata = [name] + list(locales)
             with open(os.path.join(d, 'locales'), 'wb') as f:
                 f.write(('\n'.join(metadata)).encode('utf-8'))
+            dd, ad = convert_to_utf8(zf.open(dic).read(), zf.open(aff).read())
             with open(os.path.join(d, '%s.dic' % locales[0]), 'wb') as f:
-                shutil.copyfileobj(zf.open(dic), f)
+                f.write(dd)
             with open(os.path.join(d, '%s.aff' % locales[0]), 'wb') as f:
-                shutil.copyfileobj(zf.open(aff), f)
+                f.write(ad)
             num += 1
     return num
 

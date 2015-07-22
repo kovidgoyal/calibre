@@ -54,6 +54,11 @@ def test_html5lib():
     from html5lib import parse  # noqa
     print ('html5lib OK!')
 
+def test_spell():
+    from calibre.spell.dictionary import test_dictionaries
+    test_dictionaries()
+    print ('hunspell OK!')
+
 def test_plugins():
     bad = []
     for name in plugins:
@@ -233,6 +238,7 @@ def test():
         test_dlls()
     test_plugins()
     test_dukpy()
+    test_spell()
     test_lxml()
     test_ssl()
     test_sqlite()
