@@ -20,6 +20,7 @@ from calibre.ebooks import unit_convert
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES, xpath, urlnormalize
 from calibre.ebooks.oeb.normalize_css import DEFAULTS, normalizers
 from css_selectors import Select, SelectorError, INAPPROPRIATE_PSEUDO_CLASSES
+from tinycss.media3 import CSSMedia3Parser
 
 cssutils_log.setLevel(logging.WARN)
 
@@ -48,6 +49,24 @@ INHERITED = {
 FONT_SIZE_NAMES = {
     'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
 }
+
+IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome resolution min-resolution max-resolution scan grid'.split())  # noqa
+
+def media_ok(raw):
+    if not raw:
+        return True
+    if raw == 'amzn-mobi':
+        return False
+    try:
+        mq = CSSMedia3Parser().parse_stylesheet(u'@media %s {}' % raw).rules[0].media[0]
+        if mq.media_type not in {'screen', 'all', 'aural'}:
+            return False
+        for media_feature, expr in mq.expressions:
+            if media_feature in IGNORED_MEDIA_FEATURES:
+                return False
+    except Exception:
+        pass
+    return True
 
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()
@@ -108,7 +127,7 @@ class Stylizer(object):
                     for rule in stylesheet.cssRules:
                         if rule.type == rule.IMPORT_RULE:
                             ihref = item.abshref(rule.href)
-                            if rule.media.mediaText == 'amzn-mobi':
+                            if not media_ok(rule.media.mediaText):
                                 continue
                             hrefs = self.oeb.manifest.hrefs
                             if ihref not in hrefs:
@@ -129,6 +148,9 @@ class Stylizer(object):
             elif elem.tag == XHTML('link') and elem.get('href') \
                  and elem.get('rel', 'stylesheet').lower() == 'stylesheet' \
                  and elem.get('type', CSS_MIME).lower() in OEB_STYLES:
+                media = elem.get('media', '')
+                if not media_ok(media):
+                    continue
                 href = urlnormalize(elem.attrib['href'])
                 path = item.abshref(href)
                 sitem = oeb.manifest.hrefs.get(path, None)
