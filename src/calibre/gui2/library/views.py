@@ -1098,7 +1098,7 @@ class DeviceBooksView(BooksView):  # {{{
         rows = self.selectionModel().selectedRows()
         paths = [force_unicode(p, enc=filesystem_encoding) for p in m.paths(rows) if p]
         md = QMimeData()
-        md.setData('application/calibre+from_device', 'dummy')
+        md.setData('application/calibre+from_device', b'dummy')
         md.setUrls([QUrl.fromLocalFile(p) for p in paths])
         drag = QDrag(self)
         drag.setMimeData(md)

@@ -101,7 +101,7 @@ def drag_data(self):
     selected = self.get_selected_ids()
     ids = ' '.join(map(str, selected))
     md = QMimeData()
-    md.setData('application/calibre+from_library', ids)
+    md.setData('application/calibre+from_library', ids.encode('utf-8'))
     fmt = prefs['output_format']
 
     def url_for_id(i):

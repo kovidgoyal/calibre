@@ -55,11 +55,11 @@ class UpdateEditorGeometry(object):
         # Now get the size of the combo/spinner arrows and add them to the needed width
         if isinstance(editor, (QComboBox, QDateTimeEdit)):
             r = style.subControlRect(QStyle.CC_ComboBox, QStyleOptionComboBox(),
-                                      QStyle.SC_ComboBoxArrow)
+                                      QStyle.SC_ComboBoxArrow, editor)
             new_width += r.width()
         elif isinstance(editor, (QSpinBox, QDoubleSpinBox)):
             r = style.subControlRect(QStyle.CC_SpinBox, QStyleOptionSpinBox(),
-                                  QStyle.SC_SpinBoxUp)
+                                  QStyle.SC_SpinBoxUp, editor)
             new_width += r.width()
 
         # Compute the maximum we can show if we consume the entire viewport
