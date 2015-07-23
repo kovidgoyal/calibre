@@ -104,6 +104,19 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
         os.makedirs(dest_dir)
     num = 0
     with ZipFile(source_path) as zf:
+
+        def read_file(key):
+            try:
+                return zf.open(key).read()
+            except KeyError:
+                # Some dictionaries apparently put the xcu in a sub-directory
+                # and incorrectly make paths relative to that directory instead
+                # of the root, for example:
+                # http://extensions.libreoffice.org/extension-center/italian-dictionary-thesaurus-hyphenation-patterns/releases/4.1/dict-it.oxt
+                while key.startswith('../'):
+                    key = key[3:]
+                return zf.open(key.lstrip('/')).read()
+
         root = etree.fromstring(zf.open('META-INF/manifest.xml').read())
         xcu = XPath('//manifest:file-entry[@manifest:media-type="application/vnd.sun.star.configuration-data"]')(root)[0].get(
             '{%s}full-path' % NS_MAP['manifest'])
@@ -116,7 +129,7 @@ def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
             metadata = [name] + list(locales)
             with open(os.path.join(d, 'locales'), 'wb') as f:
                 f.write(('\n'.join(metadata)).encode('utf-8'))
-            dd, ad = convert_to_utf8(zf.open(dic).read(), zf.open(aff).read())
+            dd, ad = convert_to_utf8(read_file(dic), read_file(aff))
             with open(os.path.join(d, '%s.dic' % locales[0]), 'wb') as f:
                 f.write(dd)
             with open(os.path.join(d, '%s.aff' % locales[0]), 'wb') as f:
