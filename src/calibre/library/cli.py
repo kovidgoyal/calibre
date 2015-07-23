@@ -70,8 +70,9 @@ def get_db(dbpath, options):
 def do_list(db, fields, afields, sort_by, ascending, search_text, line_width, separator,
             prefix, limit, for_machine=False):
     from calibre.utils.terminal import ColoredStream, geometry
-    if sort_by:
-        db.sort(sort_by, ascending)
+    if sort_by is None:
+        ascending = True
+    db.sort(sort_by or 'id', ascending)
     if search_text:
         db.search(search_text)
     data = db.get_data_as_dict(prefix, authors_as_string=True, convert_to_local_tz=False)
@@ -192,7 +193,7 @@ List the books available in the calibre database.
                           ' special field "all" can be used to select all fields.'
                           )%', '.join(sorted(fields)))
     parser.add_option('--sort-by', default=None,
-                      help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%', '.join(sorted(FIELDS)))
+                      help=_('The field by which to sort the results.\nAvailable fields: {0}\nDefault: {1}').format(', '.join(sorted(FIELDS)), 'id'))
     parser.add_option('--ascending', default=False, action='store_true',
                       help=_('Sort results in ascending order'))
     parser.add_option('-s', '--search', default=None,
