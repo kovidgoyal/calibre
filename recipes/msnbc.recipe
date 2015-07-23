@@ -16,72 +16,30 @@ class MsNBC(BasicNewsRecipe):
     use_embedded_content   = False
     encoding               = 'utf8'
     publisher              = 'msnbc.com'
-    category               = 'news, USA, world'
     language               = 'en'
-    extra_css              = """
-                                body{ font-family: Georgia,Times,serif }
-                                .hide{display: none}
-                                .caption{font-family: Arial,sans-serif; font-size: x-small}
-                                .entry-summary{font-family: Arial,sans-serif}
-                                .copyright{font-size: 0.95em; font-style: italic}
-                                .source-org{font-size: small; font-family: Arial,sans-serif}
-                                img{display: block; margin-bottom: 0.5em}
-                                span.byline{display: none}
-                            """
-
-    conversion_options = {
-                             'comments' : description
-                            ,'tags'     : category
-                            ,'language' : language
-                            ,'publisher': publisher
-                         }
-
-    remove_tags_before = dict(name='h1', attrs={'id':'headline'})
-    remove_tags_after = dict(name='span', attrs={'class':['copyright','Linear copyright']})
     keep_only_tags=[
-                      dict(attrs={'id':['headline','deck','byline','source','intelliTXT']})
-                     ,dict(attrs={'class':['gl_headline','articleText','drawer-content Linear','v-center3','byline','textBodyBlack']})
-                   ]
-    remove_attributes=['property','lang','rel','xmlns:fb','xmlns:v','xmlns:dc','xmlns:dcmitype','xmlns:og','xmlns:media','xmlns:vcard','typeof','itemscope','itemtype','itemprop','about','type','size','width','height','onreadystatechange','data','border','hspace','vspace']
-
-    remove_tags      = [
-                          dict(name=['iframe','object','link','embed','meta','table'])
-                         ,dict(name='span', attrs={'class':['copyright','Linear copyright']})
-                         ,dict(name='div', attrs={'class':'social'})
-                       ]
-
+        dict(itemprop='headline'),
+        dict(attrs={'class':lambda x: x and set(x.split()).intersection({'byline_article', 'article_main'})}),
+    ]
+    remove_tags = [
+        dict(name=['iframe', 'button', 'meta', 'link']),
+        dict(attrs={'class':lambda x: x and set(x.split()).intersection({'widget_video', 'ad-container'})}),
+    ]
 
     feeds = [
-               (u'US News'       , u'http://rss.msnbc.msn.com/id/3032524/device/rss/rss.xml'      )
-              ,(u'World News'    , u'http://rss.msnbc.msn.com/id/3032506/device/rss/rss.xml'      )
-              ,(u'Politics'      , u'http://rss.msnbc.msn.com/id/3032552/device/rss/rss.xml'      )
-              ,(u'Business'      , u'http://rss.msnbc.msn.com/id/3032071/device/rss/rss.xml'      )
+              (u'US News'        , u'http://rss.msnbc.msn.com/id/3032524/device/rss/rss.xml')
+              ,(u'Politics'      , u'http://rss.msnbc.msn.com/id/3032552/device/rss/rss.xml')
+              ,(u'Business'      , u'http://rss.msnbc.msn.com/id/3032071/device/rss/rss.xml')
               ,(u'Sports'        , u'http://rss.nbcsports.msnbc.com/id/3032112/device/rss/rss.xml')
-              ,(u'Entertainment' , u'http://rss.msnbc.msn.com/id/3032083/device/rss/rss.xml'      )
-              ,(u'Health'        , u'http://rss.msnbc.msn.com/id/3088327/device/rss/rss.xml'      )
-              ,(u'Tech & Science', u'http://rss.msnbc.msn.com/id/3032117/device/rss/rss.xml'      )
+              ,(u'Entertainment' , u'http://rss.msnbc.msn.com/id/3032083/device/rss/rss.xml')
+              ,(u'Health'        , u'http://rss.msnbc.msn.com/id/3088327/device/rss/rss.xml')
+              ,(u'Tech & Science', u'http://rss.msnbc.msn.com/id/3032117/device/rss/rss.xml')
             ]
 
-    def preprocess_html(self, soup):
-        for item in soup.body.findAll('html'):
-            item.name='div'
-        for item in soup.body.findAll('div'):
-            if item.has_key('id') and item['id'].startswith('vine-'):
-               item.extract()
-            if item.has_key('class') and ( item['class'].startswith('ad') or item['class'].startswith('vine')):
-               item.extract()
-        for item in soup.body.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        for item in soup.body.findAll('ol'):
-            if item.has_key('class') and item['class'].startswith('grid'):
-               item.extract()
-        for item in soup.body.findAll('span'):
-            if ( item.has_key('id') and item['id'].startswith('byLine') and item.string is None) or ( item.has_key('class') and item['class'].startswith('inline') ):
-               item.extract()
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
-        return soup
+    def get_article_url(self, article):
+        return article.get('guid')
 
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-original':True}):
+            img['src'] = img['data-original']
+        return soup
