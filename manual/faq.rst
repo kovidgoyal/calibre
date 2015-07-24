@@ -223,7 +223,7 @@ Follow these steps to find the problem:
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, calibre provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information. Note that if you are using the user defined plugin for a device normally detected by a builtin calibre plugin, you must disable the builtin plugin first, so that your user defined plugin is used instead.
+In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, calibre provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on Windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information. Note that if you are using the user defined plugin for a device normally detected by a builtin calibre plugin, you must disable the builtin plugin first, so that your user defined plugin is used instead.
 
 How does calibre manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -882,7 +882,7 @@ see which one is causing the issue. Basically, stop a program, run calibre,
 check for crashes. If they still happen, stop another program and repeat.
 
 
-Using the viewer or doing any conversions results in a permission denied error on windows
+Using the viewer or doing any conversions results in a permission denied error on Windows
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Something on your computer is preventing calibre from accessing its own
@@ -937,14 +937,14 @@ Downloading from the Internet can sometimes result in a corrupted download. If t
     * Try rebooting your computer and running a registry cleaner like `Wise registry cleaner <http://www.wisecleaner.com>`_.
     * Try a clean install. That is, uninstall calibre, delete :file:`C:\\Program Files\\Calibre2` (or wherever you previously chose to install calibre). Then re-install calibre. Note that uninstalling does not touch your books or settings.
     * Try downloading the installer with an alternate browser. For example if you are using Internet Explorer, try using Firefox or Chrome instead.
-    * If you get an error about a missing DLL on windows, then most likely, the
+    * If you get an error about a missing DLL on Windows, then most likely, the
       permissions on your temporary folder are incorrect. Go to the folder
       :file:`C:\\Users\\USERNAME\\AppData\\Local` in Windows explorer and then
       right click on the :file:`Temp` folder and select :guilabel:`Properties` and go to
       the :guilabel:`Security` tab. Make sure that your user account has full control 
       for this folder.
       
-If you still cannot get the installer to work and you are on windows, you can use the `calibre portable install <http://calibre-ebook.com/download_portable>`_, which does not need an installer (it is just a zip file).
+If you still cannot get the installer to work and you are on Windows, you can use the `calibre portable install <http://calibre-ebook.com/download_portable>`_, which does not need an installer (it is just a zip file).
 
 My antivirus program claims calibre is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1003,7 +1003,7 @@ How do I get calibre to use my HTTP proxy?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 By default, calibre uses whatever proxy settings are set in your OS. Sometimes
-these are incorrect, for example, on windows if you don't use Internet Explorer
+these are incorrect, for example, on Windows if you don't use Internet Explorer
 then the proxy settings may not be up to date. You can tell calibre to use a
 particular proxy server by setting the ``http_proxy`` environment variable. The
 format of the variable is: ``http://username:password@servername`` you should
