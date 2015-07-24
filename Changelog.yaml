@@ -20,6 +20,31 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.33.0
+  date: 2015-07-24
+
+  new features:
+    - title: "Driver for SONY DPT-S1."
+      tickets: [1476093]
+
+    - title: "Edit Book: When showing suggestions for mis-spelled words, also show suggestions from user created word lists"
+
+    - title: 'Edit Book: Check Book: Add a check for "invalid" ids'
+
+  bug fixes:
+    - title: "Conversion: Ignore stylesheets linked via media queries that use device specific features."
+      tickets: [1476089]
+
+    - title: "Fix covers not being read from some TXTZ files."
+      tickets: [1475984]
+
+    - title: "ODT Input: Add support for numbered lists that do not start numbering at 1."
+      tickets: [1475846]
+
+  improved recipes:
+    - msnbc.com
+    - Houston Chronicle
+
 - version: 2.32.1
   date: 2015-07-17
 
