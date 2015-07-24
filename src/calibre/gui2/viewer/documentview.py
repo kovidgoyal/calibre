@@ -570,7 +570,7 @@ class DocumentView(QWebView):  # {{{
         self.document.animated_scroll_done_signal.connect(self.animated_scroll_done, type=Qt.QueuedConnection)
         self.document.page_turn.connect(self.page_turn_requested)
         copy_action = self.copy_action
-        copy_action.setIcon(QIcon(I('convert.png')))
+        copy_action.setIcon(QIcon(I('edit-copy.png')))
         copy_action.triggered.connect(self.copy, Qt.QueuedConnection)
         d = self.document
         self.unimplemented_actions = list(map(self.pageAction,
