@@ -492,7 +492,7 @@ antivirus program.
     show you more ads. They are trying to claim that SMTP is insecure,
     that is incorrect and simply an excuse. If you have trouble with
     gmail you will need to 
-    `allow less secure apps as descibed here <https://support.google.com/accounts/answer/6010255>`_.
+    `allow less secure apps as described here <https://support.google.com/accounts/answer/6010255>`_.
 
 .. note:: 
     If you are concerned about giving calibre access to your email
