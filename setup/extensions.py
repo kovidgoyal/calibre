@@ -14,9 +14,8 @@ from setup.build_environment import (
     chmlib_inc_dirs, podofo_inc, podofo_lib, podofo_error, pyqt, NMAKE, QMAKE,
     msvc, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs, magick_libs,
     chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs, icu_lib_dirs, ft_libs,
-    ft_lib_dirs, ft_inc_dirs, cpu_count, zlib_libs, zlib_lib_dirs,
-    zlib_inc_dirs, is64bit, glib_flags, fontconfig_flags, openssl_inc_dirs,
-    openssl_lib_dirs)
+    ft_lib_dirs, ft_inc_dirs, cpu_count, is64bit, glib_flags, fontconfig_flags,
+    openssl_inc_dirs, openssl_lib_dirs)
 from setup.parallel_build import create_job, parallel_build
 isunix = islinux or isosx or isbsd
 
@@ -171,18 +170,6 @@ extensions = [
         inc_dirs=ft_inc_dirs,
         libraries=ft_libs,
         lib_dirs=ft_lib_dirs),
-
-    Extension('woff',
-        ['calibre/utils/fonts/woff/main.c',
-         'calibre/utils/fonts/woff/woff.c'],
-        headers=[
-        'calibre/utils/fonts/woff/woff.h',
-        'calibre/utils/fonts/woff/woff-private.h'],
-        libraries=zlib_libs,
-        lib_dirs=zlib_lib_dirs,
-        inc_dirs=zlib_inc_dirs,
-        ),
-
 
     Extension('msdes',
                 ['calibre/utils/msdes/msdesmodule.c',

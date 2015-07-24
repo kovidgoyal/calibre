@@ -137,7 +137,6 @@ class Plugins(collections.Mapping):
                 'speedup',
                 'html',
                 'freetype',
-                'woff',
                 'unrar',
                 'qt_hack',
                 '_regex',

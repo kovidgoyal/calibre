@@ -189,11 +189,6 @@ def test_wpd():
         wpd.uninit()
     print ('WPD OK!')
 
-def test_woff():
-    from calibre.utils.fonts.woff import test
-    test()
-    print ('WOFF ok!')
-
 def test_magick():
     from calibre.utils.magick import create_canvas
     i = create_canvas(100, 100)
@@ -247,7 +242,6 @@ def test():
     test_unrar()
     test_certgen()
     test_icu()
-    test_woff()
     test_qt()
     test_html5lib()
     test_regex()
