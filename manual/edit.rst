@@ -634,9 +634,9 @@ Adding new dictionaries
 The spelling checker comes with builtin dictionaries for the English and
 Spanish languages. You can install your own dictionaries via
 :guilabel:`Preferences->Editor->Manage spelling dictionaries`. The spell
-checker can use dictionaries from the OpenOffice program (in the .oxt
+checker can use dictionaries from the LibreOffice program (in the .oxt
 format). You can download these dictionaries from
-`The OpenOffice Extensions repository <http://extensions.openoffice.org/>`_.
+`The LibreOffice Extensions repository <http://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings>`_.
 
 
 Inserting special characters
