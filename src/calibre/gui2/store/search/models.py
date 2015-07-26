@@ -12,6 +12,7 @@ from operator import attrgetter
 from PyQt5.Qt import (Qt, QAbstractItemModel, QPixmap, QModelIndex, QSize,
                       pyqtSignal)
 
+from calibre import force_unicode
 from calibre.gui2 import FunctionDispatcher
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
@@ -469,5 +470,6 @@ class SearchFilter(SearchQueryParser):
     def field_trimmer(self, field):
         ''' Remove common joiner words and punctuation to improve matching,
         punctuation is removed first, so that a.and.b becomes a b '''
+        field = force_unicode(field)
         return self.joiner_pat.sub(' ', field.translate(self.punctuation_table))
 
