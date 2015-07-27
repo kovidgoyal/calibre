@@ -59,8 +59,8 @@ class WiredDailyNews(BasicNewsRecipe):
         for a in soup.find('main').findAll('a', href=True):
             url = a['href']
             if url.startswith('http://www.wired.com/') and url.endswith('/'):
-                title = self.tag_to_string(a.find('h2'))
-                dateloc = a.find('time')
+                title = self.tag_to_string(a.parent.find('h2'))
+                dateloc = a.parent.find('time')
                 date = self.tag_to_string(dateloc)
                 if title.lower() != 'read more' and title and url not in seen:
                     seen.add(url)
