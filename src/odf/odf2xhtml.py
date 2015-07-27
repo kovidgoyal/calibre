@@ -1117,6 +1117,7 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 
         # Then load the parent style if we find it
         if parent:
+            parent = parent.replace(".", "_")
             parent = "%s-%s" % (sfamily, parent)
             parent = special_styles.get(parent, "."+parent)
             if parent in self.styledict:
