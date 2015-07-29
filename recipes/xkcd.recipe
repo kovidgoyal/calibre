@@ -2,6 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Changelog:
+2015-07-29
+Fixed issue with 'a' tags outside of list of articles (cjp)
 2012-04-06
 Fixed empty articles, added masthead img (NiLuJe)
 2011-09-24
@@ -39,7 +41,7 @@ class XkcdCom(BasicNewsRecipe):
 
         soup = self.index_to_soup(INDEX)
         articles = []
-        for item in soup.findAll('a', title=True):
+        for item in soup.find('div', attrs={'id': 'middleContainer'}).findAll('a', title=True):
             articles.append({
                 'date': item['title'],
                 'timestamp': time.mktime(time.strptime(item['title'], '%Y-%m-%d'))+1,
