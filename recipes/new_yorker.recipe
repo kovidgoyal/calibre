@@ -41,12 +41,14 @@ class NewYorker(BasicNewsRecipe):
         articles = []
         current_section = 'Current Issue'
         feeds = []
-        for story in soup.findAll(['h5', 'article'], itemtype=[None, 'http://schema.org/NewsArticle']):
+        for story in soup.findAll(['h5', 'article']):
             if story.name == 'h5':
                 if articles:
                     feeds.append((current_section, articles))
                 current_section, articles = self.tag_to_string(story), []
                 self.log('\nFound section: ' + current_section)
+                continue
+            if story['itemtype'] != 'http://schema.org/Article':
                 continue
             h2 = story.find('h2')
             url = h2.find('a', href=True)['href']
