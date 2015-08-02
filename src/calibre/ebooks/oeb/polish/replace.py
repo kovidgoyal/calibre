@@ -129,6 +129,14 @@ def replace_ids(container, id_map):
     for name, media_type in container.mime_map.iteritems():
         repl = IdReplacer(name, container, id_map)
         container.replace_links(name, repl)
+        if name == container.opf_name:
+            imap = id_map.get(name, {})
+            for item in container.opf_xpath('//*[@idref]'):
+                old_id = item.get('idref')
+                if old_id is not None:
+                    new_id = imap.get(old_id)
+                    if new_id is not None:
+                        item.set('idref', new_id)
         if repl.replaced:
             changed = True
     return changed
