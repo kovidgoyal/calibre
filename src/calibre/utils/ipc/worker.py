@@ -196,8 +196,14 @@ def main():
 
         notifier.queue.put(None)
 
-    sys.stdout.flush()
-    sys.stderr.flush()
+    try:
+        sys.stdout.flush()
+    except EnvironmentError:
+        pass  # Happens sometimes on OS X for GUI processes (EPIPE)
+    try:
+        sys.stderr.flush()
+    except EnvironmentError:
+        pass  # Happens sometimes on OS X for GUI processes (EPIPE)
     return 0
 
 
