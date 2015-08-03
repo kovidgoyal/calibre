@@ -220,7 +220,7 @@ class TextStyle(DOCXStyle):
             self.spacing = None
         va = css.first_vertical_align
         if isinstance(va, (int, float)):
-            self.vertical_align = str(int(self.vertical_align * 2))
+            self.vertical_align = str(int(va * 2))
         else:
             val = {
                 'top':'superscript', 'text-top':'superscript', 'sup':'superscript', 'super':'superscript',

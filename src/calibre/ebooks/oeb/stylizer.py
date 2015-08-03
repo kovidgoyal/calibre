@@ -701,6 +701,9 @@ class Style(object):
         approximation of considering the first non-default vertical-align '''
         val = self['vertical-align']
         if val != 'baseline':
+            raw_val = self._get('vertical-align')
+            if '%' in raw_val:
+                val = self._unit_convert(raw_val, base=self['line-height'])
             return val
         parent = self._get_parent()
         if parent is not None and 'inline' in parent['display']:
