@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 
-import errno, os, sys, numbers
+import errno, os, sys, numbers, hashlib
 from functools import partial
 
 from calibre.constants import plugins
@@ -23,22 +23,27 @@ fs = '''
 exports.readFileSync = Duktape.readfile;
 '''
 vm = '''
-exports.createContext = Duktape.create_context;
-exports.runInContext = function(code, ctx) {
-    var result = Duktape.run_in_context(code, ctx);
+function handle_result(result) {
     if (result[0]) return result[1];
     var cls = Error;
     var e = result[1];
     if (e.name) {
         try {
             cls = eval(e.name);
-        } catch(e) {}
+        } catch(ex) {}
     }
-    var err = cls(e.message);
+    var err = new cls(e.message);
     err.fileName = e.fileName;
     err.lineNumber = e.lineNumber;
     err.stack = e.stack;
     throw err;
+}
+exports.createContext = Duktape.create_context;
+exports.runInContext = function(code, ctx) {
+    return handle_result(Duktape.run_in_context(code, ctx));
+};
+exports.runInThisContext = function(code, options) {
+    return handle_result(Duktape.run_in_this_context(code, options.filename));
 };
 '''
 path = '''
@@ -47,6 +52,9 @@ exports.join = function () { return arguments[0] + '/' + arguments[1]; }
 util = '''
 exports.inspect = function(x) { return x.toString(); };
 '''
+
+def sha1sum(x):
+    return hashlib.sha1(x).hexdigest()
 
 def load_file(base_dirs, builtin_modules, name):
     ans = builtin_modules.get(name)
@@ -82,6 +90,7 @@ class Function(object):
 
     def __init__(self, func):
         self.func = func
+        self.name = func.name
 
     def __repr__(self):
         # For some reason x._Formals is undefined in duktape
@@ -171,7 +180,9 @@ class Context(object):
         self.g.Duktape.pyreadfile = readfile
         self.g.Duktape.create_context = partial(create_context, base_dirs)
         self.g.Duktape.run_in_context = run_in_context
+        self.g.Duktape.run_in_this_context = self.run_in_this_context
         self.g.Duktape.cwd = os.getcwdu
+        self.g.Duktape.sha1sum = sha1sum
         self.eval('''
         console = {
             log: function() { print(Array.prototype.join.call(arguments, ' ')); },
@@ -246,6 +257,12 @@ class Context(object):
             return self._ctx.eval(code, noreturn, fname)
         except dukpy.JSError as e:
             raise JSError(e)
+
+    def run_in_this_context(self, code, fname='<eval>'):
+        try:
+            return [True, self._ctx.eval(code, False, fname or '<eval>')]
+        except dukpy.JSError as e:
+            return [False, JSError(e).as_dict()]
 
     def eval_file(self, path, noreturn=False):
         try:
