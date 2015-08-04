@@ -70,5 +70,6 @@ DukEnum *DukEnum_from_DukContext(DukContext *context, dukenum_mode_t mode);
 int python_to_duk(duk_context *ctx, PyObject *value);
 PyObject *duk_to_python(duk_context *ctx, duk_idx_t index);
 
+void set_dukpy_error(PyObject *obj);
 
 #endif /* DUKPY_H */

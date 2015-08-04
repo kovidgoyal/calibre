@@ -24,7 +24,7 @@ static duk_ret_t python_function_caller(duk_context *ctx)
     DukContext *dctx;
     duk_idx_t nargs, i;
     static char buf1[200], buf2[1024];
-    int gil_acquired = 0, ret = 1;
+    int gil_acquired = 0, ret = 1, err_occured;
 
     dctx = DukContext_get(ctx);
     nargs = duk_get_top(ctx);
@@ -60,13 +60,15 @@ static duk_ret_t python_function_caller(duk_context *ctx)
     Py_DECREF(args);
 
     if (!result) {
+        err_occured = PyErr_Occurred() != NULL;
         get_repr(func, buf1, 200);
-        if (!PyErr_Occurred()) {
+        if (!err_occured) {
             if (gil_acquired) {
                 dctx->py_thread_state = PyEval_SaveThread();
                 gil_acquired = 0;
             }
-            duk_error(ctx, DUK_ERR_ERROR, "Python function (%s) failed", buf1);
+            get_repr(func, buf1, 200);
+            duk_error(ctx, DUK_ERR_ERROR, "Function (%s) failed", buf1);
         }
         PyErr_Fetch(&ptype, &pval, &tb);
         if (!get_repr(pval, buf2, 1024)) get_repr(ptype, buf2, 1024);
@@ -76,7 +78,8 @@ static duk_ret_t python_function_caller(duk_context *ctx)
             dctx->py_thread_state = PyEval_SaveThread();
             gil_acquired = 0;
         }
-        duk_error(ctx, DUK_ERR_ERROR, "Python function (%s) failed with error: %s", buf1, buf2);
+        get_repr(func, buf1, 200);
+        duk_error(ctx, DUK_ERR_ERROR, "Function (%s) failed with error: %s", buf1, buf2);
 
     }
     python_to_duk(ctx, result);
@@ -142,7 +145,7 @@ int python_to_duk(duk_context *ctx, PyObject *value)
     else if (value == Py_False) {
         duk_push_false(ctx);
     }
-    else if (Py_TYPE(value) == &DukObject_Type) {
+    else if (Py_TYPE(value) == &DukObject_Type || Py_TYPE(value) == &DukFunction_Type || Py_TYPE(value) == &DukArray_Type) {
         DukObject_push((DukObject *)value, ctx);
     }
     else if (PyUnicode_Check(value)) {

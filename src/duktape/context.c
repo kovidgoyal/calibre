@@ -108,7 +108,7 @@ static PyObject *DukContext_eval(DukContext *self, PyObject *args, PyObject *kw)
         temp = duk_to_python(self->ctx, -1);
         duk_pop(self->ctx);
         if (temp) {
-            PyErr_SetObject(JSError, temp);
+            set_dukpy_error(temp);
             Py_DECREF(temp);
         } else PyErr_SetString(PyExc_RuntimeError, "The was an error during eval(), but the error could not be read of the stack");
         return NULL;
@@ -145,7 +145,7 @@ static PyObject *DukContext_eval_file(DukContext *self, PyObject *args, PyObject
         temp = duk_to_python(self->ctx, -1);
         duk_pop(self->ctx);
         if (temp) {
-            PyErr_SetObject(JSError, temp);
+            set_dukpy_error(temp);
             Py_DECREF(temp);
         } else PyErr_SetString(PyExc_RuntimeError, "The was an error during eval_file(), but the error could not be read of the stack");
         return NULL;

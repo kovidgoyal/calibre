@@ -67,7 +67,7 @@ if iswindows:
 extensions = [
 
     Extension('dukpy',
-              ['duktape/%s.c' % x for x in 'context conversions proxy module duktape/duktape'.split()],
+              ['duktape/%s.c' % x for x in 'errors context conversions proxy module duktape/duktape'.split()],
               headers=['duktape/dukpy.h', 'duktape/duktape/duktape.h'],
               optimize_level=2,
               ),

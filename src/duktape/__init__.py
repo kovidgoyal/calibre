@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 
-import errno, os, sys, numbers, hashlib
+import errno, os, sys, numbers, hashlib, json
 from functools import partial
 
 from calibre.constants import plugins
@@ -20,6 +20,7 @@ del err
 Context_, undefined = dukpy.Context, dukpy.undefined
 
 fs = '''
+exports.writeFileSync = Duktape.writefile;
 exports.readFileSync = Duktape.readfile;
 '''
 vm = '''
@@ -43,7 +44,12 @@ exports.runInContext = function(code, ctx) {
     return handle_result(Duktape.run_in_context(code, ctx));
 };
 exports.runInThisContext = function(code, options) {
-    return handle_result(Duktape.run_in_this_context(code, options.filename));
+    try {
+        return eval(code);
+    } catch (e) {
+        console.error('Error:' + e + ' while evaluating: ' + options.filename);
+        throw e;
+    }
 };
 '''
 path = '''
@@ -51,40 +57,79 @@ exports.join = function () { return arguments[0] + '/' + arguments[1]; }
 '''
 util = '''
 exports.inspect = function(x) { return x.toString(); };
+exports.inherits = function(ctor, superCtor) {
+    try {
+        ctor.super_ = superCtor;
+        ctor.prototype = Object.create(superCtor.prototype, {
+            constructor: {
+            value: ctor,
+            enumerable: false,
+            writable: true,
+            configurable: true
+            }
+        });
+    } catch(e) { console.log('util.inherits() failed with error:', e); throw e; }
+};
+'''
+
+_assert = '''
+module.exports = function(x) {if (!x) throw x + " is false"; };
+exports.ok = module.exports;
+exports.notStrictEqual = exports.strictEqual = exports.deepEqual = function() {};
+'''
+
+stream = '''
+module.exports = {};
 '''
 
 def sha1sum(x):
     return hashlib.sha1(x).hexdigest()
 
 def load_file(base_dirs, builtin_modules, name):
-    ans = builtin_modules.get(name)
-    if ans is not None:
-        return ans
-    ans = {'fs':fs, 'vm':vm, 'path':path, 'util':util}.get(name)
-    if ans is not None:
-        return ans
-    if not name.endswith('.js'):
-        name += '.js'
-    def do_open(*args):
-        with open(os.path.join(*args), 'rb') as f:
-            return f.read().decode('utf-8')
+    try:
+        ans = builtin_modules.get(name)
+        if ans is not None:
+            return [True, ans]
+        ans = {'fs':fs, 'vm':vm, 'path':path, 'util':util, 'assert':_assert, 'stream':stream}.get(name)
+        if ans is not None:
+            return [True, ans]
+        if not name.endswith('.js'):
+            name += '.js'
+        def do_open(*args):
+            with open(os.path.join(*args), 'rb') as f:
+                return [True, f.read().decode('utf-8')]
 
-    for b in base_dirs:
-        try:
-            return do_open(b, name)
-        except EnvironmentError as e:
-            if e.errno != errno.ENOENT:
-                raise
-    raise EnvironmentError('No module named: %s found in the base directories: %s' % (name, os.pathsep.join(base_dirs)))
+        for b in base_dirs:
+            try:
+                return do_open(b, name)
+            except EnvironmentError as e:
+                if e.errno != errno.ENOENT:
+                    raise
+        raise EnvironmentError('No module named: %s found in the base directories: %s' % (name, os.pathsep.join(base_dirs)))
+    except Exception as e:
+        return [False, str(e)]
 
 def readfile(path, enc='utf-8'):
     try:
         with open(path, 'rb') as f:
-            return [f.read().decode(enc), None, None]
+            return [f.read().decode(enc or 'utf-8'), None, None]
     except UnicodeDecodeError as e:
-        return None, 0, 'Failed to decode the file: %s with specified encoding: %s' % (path, enc)
+        return None, '', 'Failed to decode the file: %s with specified encoding: %s' % (path, enc)
     except EnvironmentError as e:
-        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message)]
+        return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message or e)]
+
+def writefile(path, data, enc='utf-8'):
+    if enc == undefined:
+        enc = 'utf-8'
+    try:
+        if isinstance(data, type('')):
+            data = data.encode(enc or 'utf-8')
+        with open(path, 'wb') as f:
+            f.write(data)
+    except UnicodeEncodeError as e:
+        return '', 'Failed to encode the data for file: %s with specified encoding: %s' % (path, enc)
+    except EnvironmentError as e:
+        return [errno.errorcode[e.errno], 'Failed to write to file: %s with error: %s' % (path, e.message or e)]
 
 class Function(object):
 
@@ -127,16 +172,24 @@ def to_python(x):
 
 class JSError(Exception):
 
-    def __init__(self, e):
-        e = e.args[0]
-        if hasattr(e, 'toString()'):
-            msg = '%s:%s:%s' % (e.fileName, e.lineNumber, e.toString())
-            Exception.__init__(self, msg)
-            self.name = e.name
-            self.js_message = e.message
-            self.fileName = e.fileName
-            self.lineNumber = e.lineNumber
-            self.stack = e.stack
+    def __init__(self, ex):
+        e = ex.args[0]
+        if isinstance(e, dict):
+            if 'message' in e:
+                fn, ln = e.get('fileName'), e.get('lineNumber')
+                msg = type('')(e['message'])
+                if ln:
+                    msg = type('')(ln) + ':' + msg
+                if fn:
+                    msg = type('')(fn) + ':' + msg
+                Exception.__init__(self, msg)
+                for k, v in e.iteritems():
+                    if k != 'message':
+                        setattr(self, k, v)
+                    else:
+                        setattr(self, 'js_message', v)
+            else:
+                Exception.__init__(self, type('')(e))
         else:
             # Happens if js code throws a string or integer rather than a
             # subclass of Error
@@ -169,6 +222,10 @@ def run_in_context(code, ctx, options=None):
         ans = c.eval(code)
     except JSError as e:
         return [False, e.as_dict()]
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return [False, {'message':type('')(e)}]
     return [True, to_python(ans)]
 
 class Context(object):
@@ -178,19 +235,24 @@ class Context(object):
         self.g = self._ctx.g
         self.g.Duktape.load_file = partial(load_file, base_dirs or (os.getcwdu(),), builtin_modules or {})
         self.g.Duktape.pyreadfile = readfile
+        self.g.Duktape.pywritefile = writefile
         self.g.Duktape.create_context = partial(create_context, base_dirs)
         self.g.Duktape.run_in_context = run_in_context
-        self.g.Duktape.run_in_this_context = self.run_in_this_context
         self.g.Duktape.cwd = os.getcwdu
         self.g.Duktape.sha1sum = sha1sum
+        self.g.Duktape.errprint = lambda *args: print(*args, file=sys.stderr)
         self.eval('''
         console = {
             log: function() { print(Array.prototype.join.call(arguments, ' ')); },
-            error: function() { print(Array.prototype.join.call(arguments, ' ')); },
+            error: function() { Duktape.errprint(Array.prototype.join.call(arguments, ' ')); },
             debug: function() { print(Array.prototype.join.call(arguments, ' ')); }
         };
 
-        Duktape.modSearch = function (id, require, exports, module) { return Duktape.load_file(id); }
+        Duktape.modSearch = function (id, require, exports, module) {
+            var ans = Duktape.load_file(id);
+            if (ans[0]) return ans[1];
+            throw ans[1];
+        }
 
         if (!String.prototype.trim) {
             (function() {
@@ -243,32 +305,37 @@ class Context(object):
             return data;
         }
 
+        Duktape.writefile = function(path, data, encoding) {
+            var x = Duktape.pywritefile(path, data, encoding);
+            var errcode = x[0]; var errmsg = x[1];
+            if (errmsg !== null) throw {code:errcode, message:errmsg};
+        }
+
         process = {
             'platform': 'duktape',
-            'env': {'HOME': '_HOME_'},
+            'env': {'HOME': _HOME_, 'TERM':_TERM_},
             'exit': function() {},
             'cwd':Duktape.cwd
         }
 
-        ''')
+        '''.replace(
+            '_HOME_', json.dumps(os.path.expanduser('~'))).replace('_TERM_', json.dumps(os.environ.get('TERM', ''))),
+        '<init>')
+
+    def reraise(self, e):
+        raise JSError(e), None, sys.exc_info()[2]
 
     def eval(self, code='', fname='<eval>', noreturn=False):
         try:
             return self._ctx.eval(code, noreturn, fname)
         except dukpy.JSError as e:
-            raise JSError(e)
-
-    def run_in_this_context(self, code, fname='<eval>'):
-        try:
-            return [True, self._ctx.eval(code, False, fname or '<eval>')]
-        except dukpy.JSError as e:
-            return [False, JSError(e).as_dict()]
+            self.reraise(e)
 
     def eval_file(self, path, noreturn=False):
         try:
             return self._ctx.eval_file(path, noreturn)
         except dukpy.JSError as e:
-            raise JSError(e)
+            self.reraise(e)
 
 def test_build():
     import unittest

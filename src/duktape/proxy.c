@@ -1,6 +1,6 @@
 #include "dukpy.h"
 
-/* DukObject */
+/* DukObject  {{{ */
 
 static void DukObject_INIT(DukObject *self, DukContext *context,
                            duk_idx_t index)
@@ -231,9 +231,9 @@ PyTypeObject DukObject_Type = {
     0,                               /* tp_alloc */
     0                                /* tp_new */
 };
+// }}}
 
-
-/* DukArray */
+/* DukArray {{{ */
 
 DukObject *DukArray_from_ctx(duk_context *ctx, duk_idx_t index)
 {
@@ -370,9 +370,9 @@ PyTypeObject DukArray_Type = {
     0,                               /* tp_weaklistoffset */
     (getiterfunc)DukArray_iter       /* tp_iter */
 };
+/// }}}
 
-
-/* DukFunction */
+/* DukFunction  {{{ */
 
 DukObject *DukFunction_from_ctx(duk_context *ctx, duk_idx_t index)
 {
@@ -390,6 +390,14 @@ DukObject *DukFunction_from_ctx(duk_context *ctx, duk_idx_t index)
 
     DukObject_INIT(self, context, index);
     return self;
+}
+
+PyObject* DukFunction_repr(DukObject *self) {
+    PyObject *ans = NULL;
+    PyObject *name = PyObject_GetAttrString((PyObject*)self, "name"), *fname = PyObject_GetAttrString((PyObject*)self, "fileName");
+    ans = PyUnicode_FromFormat("[Function proxy: %S() in filename: %S]", name, fname);
+    Py_XDECREF(name); Py_XDECREF(fname); 
+    return ans;
 }
 
 PyObject* DukFunction_call(DukObject *self, PyObject *args, PyObject *kw)
@@ -442,7 +450,7 @@ PyObject* DukFunction_call(DukObject *self, PyObject *args, PyObject *kw)
         temp = duk_to_python(ctx, -1);
         duk_pop(ctx);
         if (temp) {
-            PyErr_SetObject(JSError, temp);
+            set_dukpy_error(temp);
             Py_DECREF(temp);
         } else PyErr_SetString(PyExc_RuntimeError, "The was an error during call(), but the error could not be read of the stack");
         return NULL;
@@ -470,7 +478,7 @@ PyTypeObject DukFunction_Type = {
     0,                               /* tp_getattr */
     0,                               /* tp_setattr */
     0,                               /* tp_reserved */
-    0,                               /* tp_repr */
+    (reprfunc)DukFunction_repr,                /* tp_repr */
     0,                               /* tp_as_number */
     0,                               /* tp_as_sequence */
     0,                               /* tp_as_mapping */
@@ -483,9 +491,9 @@ PyTypeObject DukFunction_Type = {
     Py_TPFLAGS_DEFAULT,              /* tp_flags */
     "Duktape function proxy"         /* tp_doc */
 };
+// }}}
 
-
-/* DukEnum */
+/* DukEnum {{{ */
 
 DukEnum *DukEnum_from_DukContext(DukContext *context, dukenum_mode_t mode)
 {
@@ -575,3 +583,4 @@ PyTypeObject DukEnum_Type = {
     (getiterfunc)DukEnum_iter,       /* tp_iter */
     (iternextfunc)DukEnum_iternext,  /* tp_iternext */
 };
+// }}}

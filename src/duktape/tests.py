@@ -30,6 +30,12 @@ class ContextTests(unittest.TestCase):
     def test_undefined(self):
         self.assertEqual(repr(undefined), 'undefined')
 
+    def test_roundtrip(self):
+        self.g.g = self.ctx.eval('function f() {return 1;}; f')
+        self.assertEqual(self.g.g.name, 'f')
+        self.g.a = self.ctx.eval('[1,2,3]')
+        self.assertEqual(self.g.a[2], 3)
+
 
 class ValueTests(unittest.TestCase):
 
@@ -112,8 +118,8 @@ class ValueTests(unittest.TestCase):
             self.assert_('No error raised for bad function')
         except JSError as e:
             e = e.args[0]
-            self.assertEqual('ReferenceError', e.name)
-            self.assertIn('nonexistent', e.toString())
+            self.assertEqual('ReferenceError', e['name'])
+            self.assertIn('nonexistent', e['message'])
 
 
 class EvalTests(unittest.TestCase):
@@ -148,19 +154,19 @@ class EvalTests(unittest.TestCase):
             self.assert_('No error raised for malformed js')
         except JSError as e:
             e = e.args[0]
-            self.assertEqual('SyntaxError', e.name)
-            self.assertEqual('<eval>', e.fileName)
-            self.assertEqual(1, e.lineNumber)
-            self.assertIn('line 1', e.toString())
+            self.assertEqual('SyntaxError', e['name'])
+            self.assertEqual('<eval>', e['fileName'])
+            self.assertEqual(1, e['lineNumber'])
+            self.assertIn('line 1', e['message'])
 
         try:
             self.ctx.eval('\na()', fname='xxx')
             self.assert_('No error raised for malformed js')
         except JSError as e:
             e = e.args[0]
-            self.assertEqual('ReferenceError', e.name)
-            self.assertEqual('xxx', e.fileName)
-            self.assertEqual(2, e.lineNumber)
+            self.assertEqual('ReferenceError', e['name'])
+            self.assertEqual('xxx', e['fileName'])
+            self.assertEqual(2, e['lineNumber'])
 
     def test_eval_multithreading(self):
         ev = Event()
