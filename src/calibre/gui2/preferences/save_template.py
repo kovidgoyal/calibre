@@ -23,9 +23,14 @@ class SaveTemplate(QWidget, Ui_Form):
         QWidget.__init__(self, *args)
         Ui_Form.__init__(self)
         self.setupUi(self)
+        self.orig_help_text = self.help_label.text()
 
     def initialize(self, name, default, help, field_metadata):
         variables = sorted(FORMAT_ARG_DESCS.keys())
+        if name == 'send_to_device':
+            self.help_label.setText(self.orig_help_text + _(
+                '. This setting can be overridden for <b>individual devices</b>,'
+                ' by clicking the device icon and choosing "Configure this device".'))
         rows = []
         for var in variables:
             rows.append(u'<tr><td>%s</td><td>&nbsp;</td><td>%s</td></tr>'%
@@ -50,7 +55,6 @@ class SaveTemplate(QWidget, Ui_Form):
         if t.exec_():
             self.opt_template.set_value(t.rule[1])
 
-
     def changed(self, *args):
         self.changed_signal.emit()
 
@@ -69,7 +73,7 @@ class SaveTemplate(QWidget, Ui_Form):
                       'books will have the same name. Is this OK?'))
         except Exception as err:
             error_dialog(self, _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%tmpl + \
+                    '<p>'+_('The template %s is invalid:')%tmpl +
                     '<br>'+str(err), show=True)
             return False
         return True
@@ -81,8 +85,3 @@ class SaveTemplate(QWidget, Ui_Form):
         val = unicode(self.opt_template.text())
         config.set(name, val)
         self.opt_template.save_history(self.option_name+'_template_history')
-
-
-
-
-

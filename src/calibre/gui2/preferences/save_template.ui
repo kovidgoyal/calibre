@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>477</width>
     <height>300</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="label_4">
+       <widget class="QLabel" name="help_label">
         <property name="text">
          <string>By adjusting the template below, you can control what folders the files are saved in and what filenames they are given. You can use the / character to indicate sub-folders. Available metadata variables are described below. If a particular book does not have some metadata, the variable will be replaced by the empty string.</string>
         </property>

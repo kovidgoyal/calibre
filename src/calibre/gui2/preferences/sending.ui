@@ -23,7 +23,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>Metadata &amp;management:</string>
+      <string>Me&amp;tadata management:</string>
      </property>
      <property name="buddy">
       <cstring>opt_manage_device_metadata</cstring>
@@ -94,16 +94,6 @@
     <widget class="QLineEdit" name="opt_send_timefmt"/>
    </item>
    <item row="3" column="0" colspan="3">
-    <widget class="QLabel" name="label_43">
-     <property name="text">
-      <string>Here you can control how calibre will save your books when you click the Send to Device button. This setting can be overriden for individual devices by customizing the device interface plugins in Preferences-&gt;Advanced-&gt;Plugins</string>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="3">
     <widget class="SaveTemplate" name="send_template" native="true"/>
    </item>
   </layout>
