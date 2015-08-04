@@ -189,7 +189,7 @@ class JSError(Exception):
                     else:
                         setattr(self, 'js_message', v)
             else:
-                Exception.__init__(self, type('')(e))
+                Exception.__init__(self, type('')(to_python(e)))
         else:
             # Happens if js code throws a string or integer rather than a
             # subclass of Error
