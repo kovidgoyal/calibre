@@ -104,7 +104,7 @@ class Worker(Thread):  # Get details {{{
         from lxml.html import tostring
         self.tostring = tostring
 
-        months = {
+        months = {  # {{{
             'de': {
             1: ['jän', 'januar'],
             2: ['februar'],
@@ -180,8 +180,11 @@ class Worker(Thread):  # Get details {{{
             11: [u'11月'],
             12: [u'12月'],
             },
+            'nl': {
+                1: ['januari'], 2: ['februari'], 3: ['maart'], 5: ['mei'], 6: ['juni'], 7: ['juli'], 8: ['augustus'], 10: ['oktober'],
+            }
 
-        }
+        }  # }}}
 
         self.english_months = [None, 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -195,6 +198,7 @@ class Worker(Thread):  # Get details {{{
                  text()="Détails sur le produit" or \
                  text()="Detalles del producto" or \
                  text()="Detalhes do produto" or \
+                 text()="Productgegevens" or \
                  starts-with(text(), "登録情報")]/../div[@class="content"]
             '''
         # Editor: is for Spanish
@@ -205,9 +209,10 @@ class Worker(Thread):  # Get details {{{
                     starts-with(text(), "Editeur") or \
                     starts-with(text(), "Editor:") or \
                     starts-with(text(), "Editora:") or \
+                    starts-with(text(), "Uitgever:") or \
                     starts-with(text(), "出版社:")]
             '''
-        self.publisher_names = {'Publisher', 'Verlag', 'Editore', 'Editeur', 'Editor', 'Editora', '出版社'}
+        self.publisher_names = {'Publisher', 'Uitgever', 'Verlag', 'Editore', 'Editeur', 'Editor', 'Editora', '出版社'}
 
         self.language_xpath =    '''
             descendant::*[
@@ -220,7 +225,7 @@ class Worker(Thread):  # Get details {{{
                 or starts-with(text(), "言語") \
                 ]
             '''
-        self.language_names = {'Language', 'Sprache', 'Lingua', 'Idioma', 'Langue', '言語'}
+        self.language_names = {'Language', 'Sprache', 'Lingua', 'Idioma', 'Langue', '言語', 'Taal'}
 
         self.tags_xpath = '''
             descendant::h2[
@@ -235,16 +240,17 @@ class Worker(Thread):  # Get details {{{
         '''
 
         self.ratings_pat = re.compile(
-            r'([0-9.]+) ?(out of|von|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas)){0,1}')
+            r'([0-9.]+) ?(out of|von|van|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas|sterren)){0,1}')
 
         lm = {
-                'eng': ('English', 'Englisch'),
+                'eng': ('English', 'Englisch', 'Engels'),
                 'fra': ('French', 'Français'),
                 'ita': ('Italian', 'Italiano'),
                 'deu': ('German', 'Deutsch'),
                 'spa': ('Spanish', 'Espa\xf1ol', 'Espaniol'),
                 'jpn': ('Japanese', u'日本語'),
                 'por': ('Portuguese', 'Português'),
+                'nld': ('Dutch', 'Nederlands',),
                 }
         self.lang_map = {}
         for code, names in lm.iteritems():
@@ -690,6 +696,7 @@ class Amazon(Source):
             'jp': _('Japan'),
             'es': _('Spain'),
             'br': _('Brazil'),
+            'nl': _('Netherlands'),
     }
 
     options = (
@@ -835,7 +842,7 @@ class Amazon(Source):
             q['field-isbn'] = isbn
         else:
             # Only return book results
-            q['search-alias'] = 'digital-text' if domain == 'br' else 'stripbooks'
+            q['search-alias'] = {'br':'digital-text', 'nl':'aps'}.get(domain, 'stripbooks')
             if title:
                 title_tokens = list(self.get_title_tokens(title))
                 if title_tokens:
@@ -854,9 +861,18 @@ class Amazon(Source):
         # magic parameter to enable Japanese Shift_JIS encoding.
         if domain == 'jp':
             q['__mk_ja_JP'] = u'カタカナ'
+        if domain == 'nl':
+            q['__mk_nl_NL'] = u'ÅMÅŽÕÑ'
+            if 'field-keywords' not in q:
+                q['field-keywords'] = ''
+            for f in 'field-isbn field-title field-author'.split():
+                q['field-keywords'] += ' ' + q.pop(f, '')
+            q['field-keywords'] = q['field-keywords'].strip()
 
         if domain == 'jp':
             encode_to = 'Shift_JIS'
+        elif domain == 'nl':
+            encode_to='utf-8'
         else:
             encode_to = 'latin1'
         encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
@@ -1233,6 +1249,16 @@ if __name__ == '__main__':  # tests {{{
                 {'title':'Guerra dos Tronos'},
                 [title_test('A Guerra dos Tronos - As Crônicas de Gelo e Fogo',
                     exact=True), authors_test(['George R. R. Martin'])
+                 ]
+
+            ),
+    ]  # }}}
+
+    nl_tests = [  # {{{
+            (
+                {'title':'Freakonomics'},
+                [title_test('Freakonomics',
+                    exact=True), authors_test(['Steven Levitt & Stephen Dubner & R. Kuitenbrouwer & O. Brenninkmeijer & A. van Den Berg'])
                  ]
 
             ),
