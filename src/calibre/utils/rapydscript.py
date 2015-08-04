@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, json, sys, re, atexit, errno
+import os, sys, atexit, errno, subprocess, bz2, glob, shutil, json
 from threading import local
 from functools import partial
 from threading import Thread
@@ -16,105 +16,30 @@ from duktape import Context, JSError, to_python
 from calibre.constants import cache_dir
 from calibre.utils.terminal import ANSIStream
 
-COMPILER_PATH = 'rapydscript/compiler.js'
+COMPILER_PATH = 'rapydscript/compiler.js.bz2'
 
 def abspath(x):
     return os.path.realpath(os.path.abspath(x))
 
 # Update RapydScript {{{
-def parse_baselib(src):
-    # duktape does not store function source code, so we have to do it manually
-    start = re.compile(r'''['"]([a-zA-Z0-9()]+)['"]\s*:''')
-    in_func = None
-    funcs = {}
-    for line in src.splitlines():
-        line = line.rstrip()
-        if in_func is None:
-            m = start.match(line)
-            if m is not None:
-                funcs[m.group(1)] = in_func = [line.partition(':')[-1].lstrip()]
-        else:
-            if line in (',', '}'):
-                in_func = None
-            else:
-                in_func.append(line)
-    funcs = {k:'\n'.join(v) for k, v in funcs.iteritems()}
-    return funcs
-
-def compile_baselib(ctx, baselib, beautify=True):
-    ctx.g.current_output_options = {'beautify':beautify, 'private_scope':False, 'write_name':False}
-    ctx.g.filename = 'baselib.pyj'
-    ctx.g.basedir = ''
-    ctx.g.libdir = ''
-
-    def doit(src):
-        src += '\n'
-        ctx.g.code = src
-        try:
-            return ctx.eval(COMPILER_JS)
-        except Exception as e:
-            print ('Failed to compile source:')
-            print (src)
-            raise SystemExit(str(e))
-
-    return {k:doit(v) for k, v in sorted(baselib.iteritems())}
-
 def update_rapydscript():
-    vm_js = '''
-    exports.createContext = function(x) { x.AST_Node = {}; return x; }
-    exports.runInContext = function() { return null; }
-    '''
-    fs_js = '''
-    exports.realpathSync = function(x) { return x; }
-    exports.readFileSync = function() { return ""; }
-    '''
-    path_js = '''
-    exports.join = function(x, y) { return x + '/' + y; }
-    exports.dirname = function(x) { return x; }
-    exports.resolve = function(x) { return x; }
-    '''
-
     d = os.path.dirname
     base = d(d(d(d(d(abspath(__file__))))))
     base = os.path.join(base, 'rapydscript')
-    ctx = Context(base_dirs=(base,), builtin_modules={'path':path_js, 'fs':fs_js, 'vm':vm_js})
-    ctx.g.require.id = 'rapydscript/bin'
-    try:
-        ctx.eval('RapydScript = require("../tools/compiler")', fname='bin/rapydscript')
-    except JSError as e:
-        raise SystemExit('%s:%s:%s' % (e.fileName, e.lineNumber, e.message))
-    data = b'\n\n'.join(open(os.path.join(base, 'lib', x + '.js'), 'rb').read() for x in ctx.g.RapydScript.FILENAMES)
-
-    package = json.load(open(os.path.join(base, 'package.json')))
-    baselib = parse_baselib(open(os.path.join(base, 'src', 'baselib.pyj'), 'rb').read().decode('utf-8'))
-    ctx = Context()
-    ctx.eval(data.decode('utf-8'))
-    baselib = {'beautifed': compile_baselib(ctx, baselib), 'minified': compile_baselib(ctx, baselib, False)}
-    repl = open(os.path.join(base, 'tools', 'repl.js'), 'rb').read()
-
-    with open(P(COMPILER_PATH, allow_user_override=False), 'wb') as f:
-        f.write(data)
-        f.write(b'\n\nrs_baselib_pyj = ' + json.dumps(baselib) + b';')
-        f.write(b'\n\nrs_repl_js = ' + json.dumps(repl) + b';')
-        f.write(b'\n\nrs_package_version = ' + json.dumps(package['version']) + b';\n')
+    raw = subprocess.check_output(['node', '--harmony', os.path.join(base, 'bin', 'export')])
+    path = P(COMPILER_PATH, allow_user_override=False)
+    with open(path, 'wb') as f:
+        f.write(bz2.compress(raw, 9))
+    base = os.path.join(base, 'src', 'lib')
+    dest = os.path.join(P('rapydscript', allow_user_override=False), 'lib')
+    if not os.path.exists(dest):
+        os.mkdir(dest)
+    for x in glob.glob(os.path.join(base, '*.pyj')):
+        shutil.copy2(x, dest)
 # }}}
 
 # Compiler {{{
 tls = local()
-COMPILER_JS = '''
-(function() {
-var output = OutputStream(current_output_options);
-var ast = parse(code, {
-    filename: filename,
-    readfile: Duktape.readfile,
-    basedir: basedir,
-    auto_bind: false,
-    libdir: libdir
-});
-ast.print(output);
-return output.get();
-})();
-'''
 
 def to_dict(obj):
     return dict(zip(obj.keys(), obj.values()))
@@ -122,9 +47,9 @@ def to_dict(obj):
 def compiler():
     c = getattr(tls, 'compiler', None)
     if c is None:
-        c = tls.compiler = Context(base_dirs=(P('rapydscript', allow_user_override=False),))
-        c.eval(P(COMPILER_PATH, data=True, allow_user_override=False).decode('utf-8'), fname='rapydscript-compiler.js')
-        c.g.current_output_options = {}
+        c = tls.compiler = Context()
+        c.eval('exports = {}; sha1sum = Duktape.sha1sum;', noreturn=True)
+        c.eval(bz2.decompress(P(COMPILER_PATH, data=True, allow_user_override=False)), fname=COMPILER_PATH, noreturn=True)
     return c
 
 class PYJError(Exception):
@@ -133,31 +58,20 @@ class PYJError(Exception):
         Exception.__init__(self, '')
         self.errors = errors
 
-def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False, write_name=True):
-    import duktape
+def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False):
     if isinstance(data, bytes):
         data = data.decode('utf-8')
     c = compiler()
-    c.g.current_output_options = {
+    c.g.current_options = {
         'beautify':beautify,
         'private_scope':private_scope,
         'omit_baselib': omit_baselib,
-        'write_name': write_name,
-        'baselib':dict(dict(c.g.rs_baselib_pyj)['beautifed' if beautify else 'minified']),
+        'libdir': libdir or P('rapydscript/lib', allow_user_override=False),
+        'basedir': os.getcwdu() if not filename or filename == '<stdin>' else os.path.dirname(filename),
+        'filename': filename,
     }
-    d = os.path.dirname
-    c.g.libdir = libdir or os.path.join(d(d(d(abspath(__file__)))), 'pyj')
-    c.g.code = data
-    c.g.filename = filename
-    c.g.basedir = os.getcwdu() if not filename or filename == '<stdin>' else d(filename)
-    errors = []
-    c.g.AST_Node.warn = lambda templ, data:errors.append(to_dict(data))
-    try:
-        return c.eval(COMPILER_JS)
-    except duktape.JSError:
-        if errors:
-            raise PYJError(errors)
-        raise
+    c.g.rs_source_code = data
+    return c.eval('exports["compile"](rs_source_code, %s, current_options)' % json.dumps(filename))
 # }}}
 
 # REPL {{{
@@ -192,30 +106,14 @@ class Repl(Thread):
         self.start()
 
     def init_ctx(self):
-        cc = '''
-        exports.AST_Node = AST_Node;
-        exports.ALL_KEYWORDS = ALL_KEYWORDS;
-        exports.tokenizer = tokenizer;
-        exports.parse = parse;
-        exports.OutputStream = OutputStream;
-        exports.IDENTIFIER_PAT = IDENTIFIER_PAT;
-        '''
         self.prompt = self.ps1
-        readline = '''
-        exports.createInterface = function(options) { rl.completer = options.completer; return rl; }
-        '''
-        self.ctx = Context(builtin_modules={'readline':readline, 'compiler':cc})
+
+        self.ctx = compiler()
         self.ctx.g.Duktape.write = self.output.write
         self.ctx.eval(r'''console = { log: function() { Duktape.write(Array.prototype.slice.call(arguments).join(' ') + '\n');}};
                       console['error'] = console['log'];''')
-        cc = P(COMPILER_PATH, data=True, allow_user_override=False)
-        self.ctx.eval(cc)
-        baselib = dict(dict(self.ctx.g.rs_baselib_pyj)['beautifed'])
-        baselib = '\n\n'.join(baselib.itervalues())
-        self.ctx.eval('module = {}')
-        self.ctx.eval(self.ctx.g.rs_repl_js, fname='repl.js')
         self.ctx.g.repl_options = {
-            'baselib': baselib, 'show_js': self.show_js,
+            'show_js': self.show_js,
             'histfile':False,
             'input':True, 'output':True, 'ps1':self.ps1, 'ps2':self.ps2,
             'terminal':self.output.isatty,
@@ -257,9 +155,10 @@ class Repl(Thread):
             send_interrupt: function() { listeners['SIGINT'](); },
             close: function() {listeners['close'](); },
         };
-        ''')
+        repl_options.readline = { createInterface: function(options) { rl.completer = options.completer; return rl; }};
+        exports.init_repl(repl_options)
+        ''', fname='<init repl>')
         rl = self.ctx.g.rl
-        self.ctx.eval('module.exports(repl_options)')
         completer = to_python(rl.completer)
         send_interrupt = to_python(rl.send_interrupt)
         send_line = to_python(rl.send_line)
@@ -333,7 +232,7 @@ class Repl(Thread):
 
 def main(args=sys.argv):
     import argparse
-    ver = compiler().g.rs_package_version
+    ver = compiler().g.exports.rs_version
     parser = argparse.ArgumentParser(prog='pyj',
         description='RapydScript compiler and REPL. If passed input on stdin, it is compiled and written to stdout. Otherwise a REPL is started.')
     parser.add_argument('--version', action='version',

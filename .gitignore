@@ -1,6 +1,7 @@
 *_ui.py
 *.pyc
 *.pyo
+*.pyj-cached
 .bzr
 .bzrignore
 .check-cache.pickle
