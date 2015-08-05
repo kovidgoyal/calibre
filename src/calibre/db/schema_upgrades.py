@@ -621,8 +621,8 @@ class SchemaUpgrade(object):
         '''
 
         script = '''
-        DROP TRIGGER series_insert_trg;
-        DROP TRIGGER series_update_trg;
+        DROP TRIGGER IF EXISTS series_insert_trg;
+        DROP TRIGGER IF EXISTS series_update_trg;
 
         UPDATE series SET sort=title_sort(name);
 
