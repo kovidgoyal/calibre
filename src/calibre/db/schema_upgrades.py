@@ -615,3 +615,28 @@ class SchemaUpgrade(object):
         self.db.execute(script)
 
 
+    def upgrade_version_21(self):
+        '''
+        Write the series sort into the existing sort column in the series table
+        '''
+
+        script = '''
+        DROP TRIGGER series_insert_trg;
+        DROP TRIGGER series_update_trg;
+
+        UPDATE series SET sort=title_sort(name);
+
+        CREATE TRIGGER series_insert_trg
+            AFTER INSERT ON series
+            BEGIN
+              UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
+            END;
+
+        CREATE TRIGGER series_update_trg
+            AFTER UPDATE ON series
+            BEGIN
+              UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
+            END;
+        '''
+        self.db.execute(script)
+
