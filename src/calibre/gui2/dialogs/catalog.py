@@ -114,6 +114,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
 
         if self.sync.isEnabled():
             self.sync.setChecked(dynamic.get('catalog_sync_to_device', True))
+        self.add_to_library.setChecked(dynamic.get('catalog_add_to_library', True))
 
         self.format.currentIndexChanged.connect(self.show_plugin_tab)
         self.buttonBox.button(self.buttonBox.Apply).clicked.connect(self.apply)
@@ -169,6 +170,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
         self.catalog_sync = bool(self.sync.isChecked())
         dynamic.set('catalog_sync_to_device', self.catalog_sync)
         dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
+        dynamic.set('catalog_add_to_library', self.add_to_library.isChecked())
 
     def apply(self, *args):
         # Store current values without building catalog
