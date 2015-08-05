@@ -539,11 +539,11 @@ CREATE TRIGGER fkc_update_books_tags_link_b
 CREATE TRIGGER series_insert_trg
         AFTER INSERT ON series
         BEGIN
-          UPDATE series SET sort=NEW.name WHERE id=NEW.id;
+          UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
         END;
 CREATE TRIGGER series_update_trg
         AFTER UPDATE ON series
         BEGIN
-          UPDATE series SET sort=NEW.name WHERE id=NEW.id;
+          UPDATE series SET sort=title_sort(NEW.name) WHERE id=NEW.id;
         END;
-pragma user_version=21;
+pragma user_version=22;
