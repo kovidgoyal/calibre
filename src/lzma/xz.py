@@ -242,13 +242,13 @@ def read_block_header(f, block_header_size_, check_type):
     padding = header[pos:]
     if padding.lstrip(b'\0'):
         raise InvalidXZ('Non-null block header padding: %r' % padding)
+    filters.reverse()
     return filters, compressed_size, uncompressed_size
 
 def read_block(f, block_header_size_, check_type, outfile):
     start_pos = f.tell() - 1
     filters, compressed_size, uncompressed_size = read_block_header(f, block_header_size_, check_type)
     fpos, opos = f.tell(), outfile.tell()
-    filters.reverse()
     filters[0](f, outfile, filters[1:])
     actual_compressed_size = f.tell() - fpos
     uncompressed_actual_size = outfile.tell() - opos
