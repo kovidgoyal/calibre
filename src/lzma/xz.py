@@ -12,12 +12,8 @@ from hashlib import sha256
 from struct import unpack, error as struct_error
 from binascii import crc32 as _crc32
 
-from calibre.constants import plugins
 from calibre.ptempfile import SpooledTemporaryFile
-
-lzma = plugins['lzma_binding'][0]
-if not lzma:
-    raise RuntimeError('Failed to load lzma_binding module with error: %s' % plugins['lzma_binding'][1])
+from lzma.errors import NotXZ, InvalidXZ, lzma
 
 HEADER_MAGIC = b'\xfd7zXZ\0'
 DELTA_FILTER_ID = 0x03
@@ -25,15 +21,6 @@ LZMA2_FILTER_ID = 0x21
 
 def crc32(raw, start=0):
     return 0xFFFFFFFF & _crc32(raw, start)
-
-class XZError(ValueError):
-    pass
-
-class NotXZ(XZError):
-    pass
-
-class InvalidXZ(XZError):
-    pass
 
 def decode_var_int(f):
     ans, i, ch = 0, -1, 0x80

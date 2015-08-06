@@ -87,11 +87,11 @@ delta_decode(PyObject *self, PyObject *args) {
 static PyObject *
 decompress2(PyObject *self, PyObject *args) {
     PyObject *read = NULL, *seek = NULL, *write = NULL, *rres = NULL;
-    unsigned long bufsize = 0, bytes_written = 0, bytes_read = 0, inbuf_pos = 0, inbuf_len = 0, leftover = 0;
+    SizeT bufsize = 0, bytes_written = 0, bytes_read = 0, inbuf_pos = 0, inbuf_len = 0, leftover = 0;
     unsigned char props = 0;
     char *inbuf = NULL, *outbuf = NULL;
     CLzma2Dec state;
-    SRes res = 0;
+    SRes res = SZ_OK;
     ELzmaStatus status = LZMA_STATUS_NOT_FINISHED;
 
     if (!PyArg_ParseTuple(args, "OOOBk", &read, &seek, &write, &props, &bufsize)) return NULL;
@@ -108,12 +108,17 @@ decompress2(PyObject *self, PyObject *args) {
 
     while (status != LZMA_STATUS_FINISHED_WITH_MARK) {
         bytes_written = bufsize; bytes_read = inbuf_len - inbuf_pos;
-        Py_BEGIN_ALLOW_THREADS;
-        res = Lzma2Dec_DecodeToBuf(&state, (Byte*)outbuf, &bytes_written, (Byte*)(inbuf) + inbuf_pos, &bytes_read, LZMA_FINISH_ANY, &status);
-        Py_END_ALLOW_THREADS;
+        if (bytes_read) {
+            Py_BEGIN_ALLOW_THREADS;
+            res = Lzma2Dec_DecodeToBuf(&state, (Byte*)outbuf, &bytes_written, (Byte*)(inbuf) + inbuf_pos, &bytes_read, LZMA_FINISH_ANY, &status);
+            Py_END_ALLOW_THREADS;
+        } else { res = SZ_OK; bytes_written = 0; status = LZMA_STATUS_NEEDS_MORE_INPUT; }
         if (res != SZ_OK) { SET_ERROR(res); goto exit; }
         if (bytes_written > 0) {
             if(!PyObject_CallFunction(write, "s#", outbuf, bytes_written)) goto exit;
+        }
+        if (inbuf_len > inbuf_pos && !bytes_read && !bytes_written && status != LZMA_STATUS_NEEDS_MORE_INPUT && status != LZMA_STATUS_FINISHED_WITH_MARK) {
+            SET_ERROR(SZ_ERROR_DATA); goto exit;
         }
         if (bytes_read > 0) inbuf_pos += bytes_read;
         if (status == LZMA_STATUS_NEEDS_MORE_INPUT) {
@@ -141,9 +146,83 @@ exit:
     Py_RETURN_NONE;
 }
 
+static PyObject*
+decompress(PyObject *self, PyObject *args) {
+    PyObject *read = NULL, *seek = NULL, *write = NULL, *rres = NULL;
+    UInt64 decompressed_size = 0;
+    int size_known = 0;
+    Py_ssize_t header_size = 0;
+    unsigned char *header = NULL, *inbuf = NULL, *outbuf = NULL;
+    CLzmaDec state;
+    SRes res = 0;
+    SizeT bufsize = 0, bytes_written = 0, bytes_read = 0, inbuf_pos = 0, inbuf_len = 0, leftover = 0, total_written = 0;
+    ELzmaStatus status = LZMA_STATUS_NOT_FINISHED;
+    ELzmaFinishMode finish_mode = LZMA_FINISH_ANY;
+
+    if(!PyArg_ParseTuple(args, "OOOKs#k", &read, &seek, &write, &decompressed_size, &header, &header_size, &bufsize)) return NULL;
+    size_known = (decompressed_size != (UInt64)(Int64)-1);
+    if (header_size != 13) { PyErr_SetString(LZMAError, "Header must be exactly 13 bytes long"); return NULL; }
+    if (!decompressed_size) { PyErr_SetString(LZMAError, "Cannot decompress empty file"); return NULL; }
+
+    LzmaDec_Construct(&state);
+    res = LzmaDec_Allocate(&state, header, LZMA_PROPS_SIZE, &allocator);
+    if (res == SZ_ERROR_MEM) { PyErr_NoMemory(); return NULL; }
+    if (res != SZ_OK) { PyErr_SetString(PyExc_TypeError, "Incorrect stream properties"); goto exit; }
+    inbuf = (unsigned char*)PyMem_Malloc(bufsize);
+    outbuf = (unsigned char*)PyMem_Malloc(bufsize);
+    if (!inbuf || !outbuf) {PyErr_NoMemory(); goto exit;}
+
+    LzmaDec_Init(&state);
+
+    while (status != LZMA_STATUS_FINISHED_WITH_MARK) {
+        bytes_written = bufsize; bytes_read = inbuf_len - inbuf_pos;
+        if (bytes_read) {
+            Py_BEGIN_ALLOW_THREADS;
+            finish_mode = LZMA_FINISH_ANY;
+            if (size_known && total_written + bufsize > decompressed_size) finish_mode = LZMA_FINISH_END;
+            res = LzmaDec_DecodeToBuf(&state, (Byte*)outbuf, &bytes_written, (Byte*)(inbuf) + inbuf_pos, &bytes_read, finish_mode, &status);
+            Py_END_ALLOW_THREADS;
+        } else { res = SZ_OK; bytes_written = 0; status = LZMA_STATUS_NEEDS_MORE_INPUT; }
+        if (res != SZ_OK) { SET_ERROR(res); goto exit; }
+        if (bytes_written > 0) {
+            if(!PyObject_CallFunction(write, "s#", outbuf, bytes_written)) goto exit;
+            total_written += bytes_written;
+        }
+        if (inbuf_len > inbuf_pos && !bytes_read && !bytes_written && status != LZMA_STATUS_NEEDS_MORE_INPUT && status != LZMA_STATUS_FINISHED_WITH_MARK) {
+            SET_ERROR(SZ_ERROR_DATA); goto exit;
+        }
+        if (bytes_read > 0) inbuf_pos += bytes_read;
+        if (status == LZMA_STATUS_NEEDS_MORE_INPUT) {
+            leftover = inbuf_len - inbuf_pos;
+            inbuf_pos = 0;
+            if (!PyObject_CallFunction(seek, "ii", -leftover, SEEK_CUR)) goto exit;
+            rres = PyObject_CallFunction(read, "n", bufsize);
+            if (rres == NULL) goto exit;
+            inbuf_len = PyBytes_GET_SIZE(rres);
+            if (inbuf_len == 0) { PyErr_SetString(PyExc_ValueError, "LZMA block was truncated"); goto exit; }
+            memcpy(inbuf, PyBytes_AS_STRING(rres), inbuf_len);
+            Py_DECREF(rres); rres = NULL;
+        } 
+    }
+    leftover = inbuf_len - inbuf_pos;
+    if (leftover > 0) {
+        if (!PyObject_CallFunction(seek, "ii", -leftover, SEEK_CUR)) goto exit;
+    }
+
+exit:
+    LzmaDec_Free(&state, &allocator);
+    PyMem_Free(inbuf); PyMem_Free(outbuf);
+    if (PyErr_Occurred()) return NULL;
+    Py_RETURN_NONE;
+}
+
 static PyMethodDef lzma_binding_methods[] = {
     {"decompress2", decompress2, METH_VARARGS,
         "Decompress an LZMA2 encoded block, of unknown compressed size (reads till LZMA2 EOS marker)"
+    },
+
+    {"decompress", decompress, METH_VARARGS,
+        "Decompress an LZMA encoded block, of (un)known size (reads till LZMA EOS marker when size unknown)"
     },
 
     {"crc64", crc64, METH_VARARGS,
