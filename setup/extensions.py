@@ -66,6 +66,11 @@ if iswindows:
 
 extensions = [
 
+    Extension('lzma_binding',
+              glob.glob(os.path.join(SRC, 'lzma', '*.c')),
+              headers=glob.glob(os.path.join(SRC, 'lzma', '*.h')),
+              ),
+
     Extension('dukpy',
               ['duktape/%s.c' % x for x in 'errors context conversions proxy module duktape/duktape'.split()],
               headers=['duktape/dukpy.h', 'duktape/duktape/duktape.h'],
