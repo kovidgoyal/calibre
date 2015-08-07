@@ -232,8 +232,8 @@ class Main(MainWindow):
 
     def __init__(self, opts, notify=None):
         MainWindow.__init__(self, opts, disable_automatic_gc=True)
-        self.boss = Boss(self, notify=notify)
         self.setWindowTitle(self.APP_NAME)
+        self.boss = Boss(self, notify=notify)
         self.setWindowIcon(QIcon(I('tweak.png')))
         self.opts = opts
         self.path_to_ebook = None
