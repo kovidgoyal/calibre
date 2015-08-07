@@ -9,9 +9,11 @@
 #define UNICODE
 #include "Python.h"
 #include "Lzma2Dec.h"
+#include "Lzma2Enc.h"
+#define UNUSED_VAR(x) (void)x;
 
-static void *Alloc(void *p, size_t size) { p = p; return PyMem_Malloc(size); }
-static void Free(void *p, void *address) { p = p; PyMem_Free(address); }
+static void *Alloc(void *p, size_t size) { UNUSED_VAR(p); return PyMem_Malloc(size); }
+static void Free(void *p, void *address) { UNUSED_VAR(p); PyMem_Free(address); }
 static ISzAlloc allocator = { Alloc, Free };
 static const char* error_codes[18] = {
     "OK",
@@ -33,7 +35,27 @@ static const char* error_codes[18] = {
 };
 #define SET_ERROR(x) PyErr_SetString(LZMAError, ((x) > 0 && (x) < 17) ? error_codes[(x)] : "UNKNOWN")
 
+typedef struct {
+    ISeqInStream stream;
+    PyObject *read;
+    PyThreadState **thread_state;
+} InStream;
+
+typedef struct {
+    ISeqOutStream stream;
+    PyObject *write;
+    PyThreadState **thread_state;
+} OutStream;
+
+typedef struct {
+    ICompressProgress progress;
+    PyObject *callback;
+    PyThreadState **thread_state;
+} Progress;
+
 static PyObject *LZMAError = NULL;
+
+// Utils {{{
 static UInt64 crc64_table[256];
 
 static void init_crc_table() {
@@ -83,7 +105,9 @@ delta_decode(PyObject *self, PyObject *args) {
     }
     return Py_BuildValue("B", pos);
 }
+// }}}
 
+// LZMA2 decompress {{{
 static PyObject *
 decompress2(PyObject *self, PyObject *args) {
     PyObject *read = NULL, *seek = NULL, *write = NULL, *rres = NULL;
@@ -145,7 +169,9 @@ exit:
     if (PyErr_Occurred()) return NULL;
     Py_RETURN_NONE;
 }
+// }}}
 
+// LZMA1 decompress {{{
 static PyObject*
 decompress(PyObject *self, PyObject *args) {
     PyObject *read = NULL, *seek = NULL, *write = NULL, *rres = NULL;
@@ -216,9 +242,134 @@ exit:
     Py_RETURN_NONE;
 }
 
+// }}}
+
+// LZMA2 Compress {{{
+static void
+init_props(CLzma2EncProps *props, int preset) {
+    int level = (preset < 0) ? 0 : ((preset > 9) ? 9 : preset);
+    props->blockSize = 0;
+    props->numBlockThreads = 1;
+    props->numTotalThreads = 1;
+    props->lzmaProps.numThreads = 1;
+    props->lzmaProps.writeEndMark = 1;
+
+    props->lzmaProps.level = level;
+    props->lzmaProps.dictSize = 0;
+    props->lzmaProps.reduceSize = 0xFFFFFFFF;
+    props->lzmaProps.lc = -1;
+    props->lzmaProps.lp = -1;
+    props->lzmaProps.pb = -1;
+    props->lzmaProps.algo = -1;
+    props->lzmaProps.fb = -1;
+    props->lzmaProps.btMode = -1;
+    props->lzmaProps.numHashBytes = -1;
+    props->lzmaProps.mc = 0;
+}
+
+#define ACQUIRE_GIL PyEval_RestoreThread(*(self->thread_state)); *(self->thread_state) = NULL;
+#define RELEASE_GIL *(self->thread_state) = PyEval_SaveThread();
+
+static SRes iread(void *p, void *buf, size_t *size) {
+    InStream *self = (InStream*)p;
+    PyObject *res = NULL;
+    char *str = NULL;
+    if (*size == 0) return SZ_OK;
+    ACQUIRE_GIL
+    res = PyObject_CallFunction(self->read, "n", size);
+    if (res == NULL) return SZ_ERROR_READ;
+    str = PyBytes_AsString(res);
+    if (str == NULL) { Py_DECREF(res); return SZ_ERROR_READ; }
+    *size = PyBytes_Size(res);
+    if(*size) memcpy(buf, str, *size);
+    Py_DECREF(res);
+    RELEASE_GIL
+    return SZ_OK;
+}
+
+static size_t owrite(void *p, const void *buf, size_t size) {
+    OutStream *self = (OutStream*)p;
+    PyObject *res = NULL;
+    if (!size) return 0;
+    ACQUIRE_GIL
+    res = PyObject_CallFunction(self->write, "s#", buf, size);
+    if (res == NULL) return SZ_ERROR_WRITE;
+    Py_DECREF(res);
+    RELEASE_GIL
+    return size;
+}
+
+static SRes report_progress(void *p, UInt64 in_size, UInt64 out_size) {
+    Progress *self = (Progress*)p;
+    if (!self->callback) return SZ_OK;
+    ACQUIRE_GIL
+    PyObject *res = NULL;
+    res = PyObject_CallFunction(self->callback, "KK", in_size, out_size);
+    if (!res || !PyObject_IsTrue(res)) { Py_DECREF(res); return SZ_ERROR_PROGRESS; }
+    Py_DECREF(res);
+    RELEASE_GIL
+    return SZ_OK;
+}
+
+static PyObject*
+compress(PyObject *self, PyObject *args) {
+    PyObject *read = NULL, *write = NULL, *progress_callback = NULL;
+    CLzma2EncHandle lzma2 = NULL;
+    CLzma2EncProps props;
+    int preset = 5;
+    InStream in_stream;
+    OutStream out_stream;
+    Progress progress;
+    SRes res = SZ_OK;
+    char dictsize = 0;
+    PyThreadState *ts = NULL;
+
+    if (!PyArg_ParseTuple(args, "OO|Oi", &read, &write, &progress_callback, preset)) return NULL;
+    if (progress_callback && !PyCallable_Check(progress_callback)) progress_callback = NULL;
+
+    lzma2 = Lzma2Enc_Create(&allocator, &allocator);
+    if (lzma2 == NULL) { PyErr_NoMemory(); goto exit; }
+
+    // Initialize parameters based on the preset
+    init_props(&props, preset);
+    res = Lzma2Enc_SetProps(lzma2, &props);
+    if (res != SZ_OK) { SET_ERROR(res); goto exit; }
+
+    // Write the dict size to the output stream
+    dictsize = Lzma2Enc_WriteProperties(lzma2);
+    if (!PyObject_CallFunction(write, "c", &dictsize)) { goto exit; }
+
+    // Create the streams and progress callback
+    in_stream.stream.Read = iread;
+    in_stream.read = read;
+    out_stream.stream.Write = owrite;
+    out_stream.write = write;
+    progress.progress.Progress = report_progress;
+    progress.callback = progress_callback;
+
+    // Run the compressor
+    ts = PyEval_SaveThread();
+    in_stream.thread_state = &ts;
+    out_stream.thread_state = &ts;
+    progress.thread_state = &ts;
+    res = Lzma2Enc_Encode(lzma2, (ISeqOutStream*)&out_stream, (ISeqInStream*)&in_stream, (ICompressProgress*)&progress);
+    if (res != SZ_OK) if (!PyErr_Occurred()) SET_ERROR(res);
+    if (ts) PyEval_RestoreThread(ts);
+exit:
+    if (lzma2) Lzma2Enc_Destroy(lzma2);
+    if (PyErr_Occurred()) return NULL;
+    Py_RETURN_NONE;
+}
+
+// }}}
+ 
 static PyMethodDef lzma_binding_methods[] = {
     {"decompress2", decompress2, METH_VARARGS,
         "Decompress an LZMA2 encoded block, of unknown compressed size (reads till LZMA2 EOS marker)"
+    },
+
+    {"compress", compress, METH_VARARGS,
+        "Compress data into an LZMA2 block"
     },
 
     {"decompress", decompress, METH_VARARGS,
@@ -248,21 +399,6 @@ initlzma_binding(void) {
     );
     Py_INCREF(LZMAError);
     PyModule_AddObject(m, "error", LZMAError);
-    PyModule_AddIntMacro(m, SZ_OK);
-    PyModule_AddIntMacro(m, SZ_ERROR_DATA);
-    PyModule_AddIntMacro(m, SZ_ERROR_MEM);
-    PyModule_AddIntMacro(m, SZ_ERROR_CRC);
-    PyModule_AddIntMacro(m, SZ_ERROR_UNSUPPORTED);
-    PyModule_AddIntMacro(m, SZ_ERROR_PARAM);
-    PyModule_AddIntMacro(m, SZ_ERROR_INPUT_EOF);
-    PyModule_AddIntMacro(m, SZ_ERROR_OUTPUT_EOF);
-    PyModule_AddIntMacro(m, SZ_ERROR_READ);
-    PyModule_AddIntMacro(m, SZ_ERROR_WRITE);
-    PyModule_AddIntMacro(m, SZ_ERROR_PROGRESS);
-    PyModule_AddIntMacro(m, SZ_ERROR_FAIL);
-    PyModule_AddIntMacro(m, SZ_ERROR_THREAD);
-    PyModule_AddIntMacro(m, SZ_ERROR_ARCHIVE);
-    PyModule_AddIntMacro(m, SZ_ERROR_NO_ARCHIVE);
 
     if (m == NULL) return;
 }

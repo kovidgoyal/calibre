@@ -69,6 +69,7 @@ extensions = [
     Extension('lzma_binding',
               glob.glob(os.path.join(SRC, 'lzma', '*.c')),
               headers=glob.glob(os.path.join(SRC, 'lzma', '*.h')),
+              cflags=[('/' if iswindows else '-') + 'D' + x for x in ('_7ZIP_ST',)],
               ),
 
     Extension('dukpy',
