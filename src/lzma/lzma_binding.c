@@ -155,7 +155,7 @@ decompress2(PyObject *self, PyObject *args) {
             rres = PyObject_CallFunction(read, "n", bufsize);
             if (rres == NULL) goto exit;
             inbuf_len = PyBytes_GET_SIZE(rres);
-            if (inbuf_len == 0) { PyErr_SetString(PyExc_ValueError, "LZMA2 block was truncated"); goto exit; }
+            if (inbuf_len == 0) { PyErr_SetString(LZMAError, "LZMA2 block was truncated"); goto exit; }
             memcpy(inbuf, PyBytes_AS_STRING(rres), inbuf_len);
             Py_DECREF(rres); rres = NULL;
         } 
@@ -221,6 +221,7 @@ decompress(PyObject *self, PyObject *args) {
             SET_ERROR(SZ_ERROR_DATA); goto exit;
         }
         if (bytes_read > 0) inbuf_pos += bytes_read;
+        if (size_known && total_written >= decompressed_size) break;
         if (status == LZMA_STATUS_NEEDS_MORE_INPUT) {
             leftover = inbuf_len - inbuf_pos;
             inbuf_pos = 0;
@@ -228,7 +229,7 @@ decompress(PyObject *self, PyObject *args) {
             rres = PyObject_CallFunction(read, "n", bufsize);
             if (rres == NULL) goto exit;
             inbuf_len = PyBytes_GET_SIZE(rres);
-            if (inbuf_len == 0) { PyErr_SetString(PyExc_ValueError, "LZMA block was truncated"); goto exit; }
+            if (inbuf_len == 0) { PyErr_SetString(LZMAError, "LZMA block was truncated"); goto exit; }
             memcpy(inbuf, PyBytes_AS_STRING(rres), inbuf_len);
             Py_DECREF(rres); rres = NULL;
         } 
@@ -296,7 +297,7 @@ static size_t owrite(void *p, const void *buf, size_t size) {
     if (!size) return 0;
     ACQUIRE_GIL
     res = PyObject_CallFunction(self->write, "s#", buf, size);
-    if (res == NULL) return SZ_ERROR_WRITE;
+    if (res == NULL) return 0;
     Py_DECREF(res);
     RELEASE_GIL
     return size;
@@ -327,7 +328,7 @@ compress(PyObject *self, PyObject *args) {
     char dictsize = 0;
     PyThreadState *ts = NULL;
 
-    if (!PyArg_ParseTuple(args, "OO|Oi", &read, &write, &progress_callback, preset)) return NULL;
+    if (!PyArg_ParseTuple(args, "OO|Oi", &read, &write, &progress_callback, &preset)) return NULL;
     if (progress_callback && !PyCallable_Check(progress_callback)) progress_callback = NULL;
 
     lzma2 = Lzma2Enc_Create(&allocator, &allocator);
@@ -356,7 +357,7 @@ compress(PyObject *self, PyObject *args) {
     out_stream.thread_state = &ts;
     progress.thread_state = &ts;
     res = Lzma2Enc_Encode(lzma2, (ISeqOutStream*)&out_stream, (ISeqInStream*)&in_stream, (ICompressProgress*)&progress);
-    if (res != SZ_OK) if (!PyErr_Occurred()) SET_ERROR(res);
+    if (res != SZ_OK && !PyErr_Occurred()) SET_ERROR(res);
     if (ts) PyEval_RestoreThread(ts);
 exit:
     if (lzma2) Lzma2Enc_Destroy(lzma2);
