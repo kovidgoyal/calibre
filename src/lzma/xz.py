@@ -144,7 +144,7 @@ class LZMA2Filter(object):
             bufsize = self.BUFSIZE
         self.bufsize = int(bufsize * 1024 * 1024)
 
-    def __call__(self, f, outfile, filters):
+    def __call__(self, f, outfile, filters=()):
         w = outfile.write
         c = self.crc
         def write(raw):
@@ -331,6 +331,16 @@ def decompress(raw, outfile=None):
                 if padding.lstrip(b'\0') or len(padding) % 4:
                     raise InvalidXZ('Found trailing garbage between streams')
     return outfile
+
+def test_lzma2():
+    raw = P('template-functions.json', allow_user_override=False, data=True)
+    ibuf, obuf = BytesIO(raw), BytesIO()
+    props = lzma.compress(ibuf.read, obuf.write)
+    cc = obuf.getvalue()
+    ibuf, obuf = BytesIO(cc), BytesIO()
+    LZMA2Filter(props, 0, 1)(ibuf, obuf)
+    if obuf.getvalue() != raw:
+        raise ValueError('Roundtripping via LZMA2 failed')
 
 if __name__ == '__main__':
     import sys

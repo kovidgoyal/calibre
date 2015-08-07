@@ -296,7 +296,7 @@ static size_t owrite(void *p, const void *buf, size_t size) {
     PyObject *res = NULL;
     if (!size) return 0;
     ACQUIRE_GIL
-    res = PyObject_CallFunction(self->write, "s#", buf, size);
+    res = PyObject_CallFunction(self->write, "s#", (char*)buf, size);
     if (res == NULL) return 0;
     Py_DECREF(res);
     RELEASE_GIL
@@ -325,7 +325,7 @@ compress(PyObject *self, PyObject *args) {
     OutStream out_stream;
     Progress progress;
     SRes res = SZ_OK;
-    char dictsize = 0;
+    Byte props_out = 0;
     PyThreadState *ts = NULL;
 
     if (!PyArg_ParseTuple(args, "OO|Oi", &read, &write, &progress_callback, &preset)) return NULL;
@@ -340,8 +340,7 @@ compress(PyObject *self, PyObject *args) {
     if (res != SZ_OK) { SET_ERROR(res); goto exit; }
 
     // Write the dict size to the output stream
-    dictsize = Lzma2Enc_WriteProperties(lzma2);
-    if (!PyObject_CallFunction(write, "c", &dictsize)) { goto exit; }
+    props_out = Lzma2Enc_WriteProperties(lzma2);
 
     // Create the streams and progress callback
     in_stream.stream.Read = iread;
@@ -362,7 +361,7 @@ compress(PyObject *self, PyObject *args) {
 exit:
     if (lzma2) Lzma2Enc_Destroy(lzma2);
     if (PyErr_Occurred()) return NULL;
-    Py_RETURN_NONE;
+    return Py_BuildValue("s#", &props_out, 1);
 }
 
 // }}}
@@ -373,7 +372,7 @@ static PyMethodDef lzma_binding_methods[] = {
     },
 
     {"compress", compress, METH_VARARGS,
-        "Compress data into an LZMA2 block"
+        "Compress data into an LZMA2 block, writing it to outfile. Returns the LZMA2 properties as a bytestring."
     },
 
     {"decompress", decompress, METH_VARARGS,
