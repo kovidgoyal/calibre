@@ -147,7 +147,7 @@
              <property name="toolTip">
               <string>Add the catalog to your calibre library after it is generated.
 Note that if you disable adding of the catalog to the library
-sending of the catalog todevice will not work.</string>
+automatic sending of the catalog to the device will not work.</string>
              </property>
              <property name="text">
               <string>&amp;Add catalog to library</string>
