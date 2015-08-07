@@ -20,6 +20,42 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.34.0
+  date: 2015-08-07
+
+  new features:
+    - title: "Amazon metadata download: Add support for amazon.nl. To use it go to Preferences->Metadata download and configure the amazon plugin to use Netherlands as the source."
+
+    - title: "Catalogs: Add an option to not add the generated catalog to the library."
+      tickets: [1481529]
+
+    - title: "E-book viewer: Improve performance of hyphenation (by updating the version of the hyphenation library it uses)"
+
+  bug fixes:
+    - title: "DOCX Input: Add support for text whose vertical position is adjusted by offsets from the baseline"
+
+    - title: "DOCX Output: Handle length and percentage values for vertical-align in the input document."
+      tickets: [1480300]
+
+    - title: "Edit Book: Check Book: Fix automatic correction of invalid ids not updating the idrefs in the spine for ids in the manifest of the OPF file."
+      tickets: [1479462]
+
+    - title: "E-book viewer: Fix printing to PDF could result in filenames with characters not supported by windows"
+      tickets: [1478515]
+
+    - title: "E-book viewer: Also fix a bug in the hyphenation algorithm that could cause the word 'undefined' to be mangled during hyphenation."
+      tickets: [1478292]
+
+    - title: "ODT Input: Fix custom styles with a dot in their name not being inherited."
+      tickets: [1478346]
+
+  improved recipes:
+    - Daily Express
+    - The New Yorker
+    - XKCD
+    - Wired Magazine
+    - Wired UK
+
 - version: 2.33.0
   date: 2015-07-24
 
