@@ -60,9 +60,10 @@ static UInt64 crc64_table[256];
 
 static void init_crc_table() {
     static const UInt64 poly64 = (UInt64)(0xC96C5795D7870F42);
-    for (size_t i = 0; i < 256; ++i) {
+    size_t i, j;
+    for (i = 0; i < 256; ++i) {
         UInt64 crc64 = i;
-        for (size_t j = 0; j < 8; ++j) {
+        for (j = 0; j < 8; ++j) {
             if (crc64 & 1)
                 crc64 = (crc64 >> 1) ^ poly64;
             else
@@ -77,9 +78,10 @@ crc64(PyObject *self, PyObject *args) {
     unsigned char *data = NULL;
     Py_ssize_t size = 0;
     UInt64 crc = 0;
+    size_t i;
     if (!PyArg_ParseTuple(args, "s#|K", &data, &size, &crc)) return NULL;
     crc = ~crc;
-    for (size_t i = 0; i < size; ++i)
+    for (i = 0; i < (size_t)size; ++i)
         crc = crc64_table[data[i] ^ (crc & 0xFF)] ^ (crc >> 8);
 
     return Py_BuildValue("K", ~crc);
@@ -90,7 +92,7 @@ delta_decode(PyObject *self, PyObject *args) {
     PyObject *array = NULL, *histarray = NULL;
     unsigned char *data = NULL, pos = 0, *history = NULL;
     unsigned int distance = 0;
-    Py_ssize_t datalen = 0;
+    Py_ssize_t datalen = 0, i;
     if (!PyArg_ParseTuple(args, "O!O!BB", &PyByteArray_Type, &array, &PyByteArray_Type, &histarray, &pos, &distance)) return NULL;
     if (PyByteArray_GET_SIZE(histarray) != 256) {
         PyErr_SetString(PyExc_TypeError, "histarray must be 256 bytes long");
@@ -99,7 +101,7 @@ delta_decode(PyObject *self, PyObject *args) {
     data = (unsigned char*)PyByteArray_AS_STRING(array); history = (unsigned char*)PyByteArray_AS_STRING(histarray);
     datalen = PyBytes_GET_SIZE(array);
 
-    for (Py_ssize_t i = 0; i < datalen; i++) {
+    for (i = 0; i < datalen; i++) {
         data[i] += history[(unsigned char)(pos + distance)]; 
         history[pos--] = data[i];
     }
@@ -111,7 +113,8 @@ delta_decode(PyObject *self, PyObject *args) {
 static PyObject *
 decompress2(PyObject *self, PyObject *args) {
     PyObject *read = NULL, *seek = NULL, *write = NULL, *rres = NULL;
-    SizeT bufsize = 0, bytes_written = 0, bytes_read = 0, inbuf_pos = 0, inbuf_len = 0, leftover = 0;
+    SizeT bufsize = 0, bytes_written = 0, bytes_read = 0, inbuf_pos = 0, inbuf_len = 0;
+    Py_ssize_t leftover = 0;
     unsigned char props = 0;
     char *inbuf = NULL, *outbuf = NULL;
     CLzma2Dec state;
@@ -177,11 +180,11 @@ decompress(PyObject *self, PyObject *args) {
     PyObject *read = NULL, *seek = NULL, *write = NULL, *rres = NULL;
     UInt64 decompressed_size = 0;
     int size_known = 0;
-    Py_ssize_t header_size = 0;
+    Py_ssize_t header_size = 0, leftover = 0;
     unsigned char *header = NULL, *inbuf = NULL, *outbuf = NULL;
     CLzmaDec state;
     SRes res = 0;
-    SizeT bufsize = 0, bytes_written = 0, bytes_read = 0, inbuf_pos = 0, inbuf_len = 0, leftover = 0, total_written = 0;
+    SizeT bufsize = 0, bytes_written = 0, bytes_read = 0, inbuf_pos = 0, inbuf_len = 0, total_written = 0;
     ELzmaStatus status = LZMA_STATUS_NOT_FINISHED;
     ELzmaFinishMode finish_mode = LZMA_FINISH_ANY;
 
@@ -301,9 +304,9 @@ static size_t owrite(void *p, const void *buf, size_t size) {
 
 static SRes report_progress(void *p, UInt64 in_size, UInt64 out_size) {
     Progress *self = (Progress*)p;
+    PyObject *res = NULL;
     if (!self->callback) return SZ_OK;
     ACQUIRE_GIL
-    PyObject *res = NULL;
     res = PyObject_CallFunction(self->callback, "KK", in_size, out_size);
     if (!res || !PyObject_IsTrue(res)) { Py_DECREF(res); return SZ_ERROR_PROGRESS; }
     Py_DECREF(res);
