@@ -316,6 +316,27 @@ static SRes report_progress(void *p, UInt64 in_size, UInt64 out_size) {
 }
 
 static PyObject*
+get_lzma2_properties(int preset) {
+    CLzma2EncHandle lzma2 = NULL;
+    CLzma2EncProps props;
+    Byte props_out = 0;
+    SRes res = SZ_OK;
+    lzma2 = Lzma2Enc_Create(&allocator, &allocator);
+    if (lzma2 == NULL) { PyErr_NoMemory(); goto exit; }
+
+    // Initialize parameters based on the preset
+    init_props(&props, preset);
+    res = Lzma2Enc_SetProps(lzma2, &props);
+    if (res != SZ_OK) { SET_ERROR(res); goto exit; }
+    props_out = Lzma2Enc_WriteProperties(lzma2);
+exit:
+    if (lzma2) Lzma2Enc_Destroy(lzma2);
+    if (PyErr_Occurred()) return NULL;
+    return Py_BuildValue("s#", &props_out, 1);
+}
+
+
+static PyObject*
 compress(PyObject *self, PyObject *args) {
     PyObject *read = NULL, *write = NULL, *progress_callback = NULL;
     CLzma2EncHandle lzma2 = NULL;
@@ -393,15 +414,21 @@ static PyMethodDef lzma_binding_methods[] = {
 
 PyMODINIT_FUNC
 initlzma_binding(void) {
-    PyObject *m = NULL;
+    PyObject *m = NULL, *preset_map = NULL, *temp = NULL;
+    int i = 0;
     init_crc_table();
     LZMAError = PyErr_NewException("lzma_binding.error", NULL, NULL);
     if (!LZMAError) return;
-    m = Py_InitModule3("lzma_binding", lzma_binding_methods,
-    "Bindings to the LZMA (de)compression C code"
-    );
+    m = Py_InitModule3("lzma_binding", lzma_binding_methods, "Bindings to the LZMA (de)compression C code");
+    if (m == NULL) return;
+    preset_map = PyTuple_New(10);
+    if (preset_map == NULL) return;
+    for (i = 0; i < 10; i++) {
+        temp = get_lzma2_properties(i);
+        if (temp == NULL) return;
+        PyTuple_SET_ITEM(preset_map, i, temp);
+    }
+    PyModule_AddObject(m, "preset_map", preset_map);
     Py_INCREF(LZMAError);
     PyModule_AddObject(m, "error", LZMAError);
-
-    if (m == NULL) return;
 }
