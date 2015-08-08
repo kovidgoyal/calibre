@@ -9,7 +9,7 @@
 
 static int copy_error_attr(PyObject *obj, const char* name, PyObject *dest) {
     PyObject *value = NULL;
-    if (!PyObject_HasAttrString(obj, name)) return NULL;
+    if (!PyObject_HasAttrString(obj, name)) return 0;
     value = PyObject_GetAttrString(obj, name);
     if (value == NULL) return 0;
     if (PyDict_SetItemString(dest, name, value) != 0) {Py_DECREF(value); return 0;}
