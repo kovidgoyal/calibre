@@ -678,6 +678,8 @@ class Win32Freeze(Command, WixMixIn):
                         # on some systems magick.pyd fails to load from memory
                         # on 64 bit
                         'magick.pyd',
+                        # dupypy crashes when loaded from the zip file
+                        'dukpy.pyd',
                         }:
                         self.add_to_zipfile(zf, pyd, x)
                         os.remove(self.j(x, pyd))
