@@ -49,6 +49,11 @@ def test_regex():
         raise ValueError('regex module failed on a simple search')
     print ('regex OK!')
 
+def test_lzma():
+    from lzma.xz import test_lzma2
+    test_lzma2()
+    print ('lzma OK!')
+
 def test_html5lib():
     import html5lib.html5parser  # noqa
     from html5lib import parse  # noqa
@@ -232,6 +237,7 @@ def test():
     if iswindows:
         test_dlls()
     test_plugins()
+    test_lzma()
     test_dukpy()
     test_spell()
     test_lxml()
