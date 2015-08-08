@@ -402,6 +402,7 @@ def compress(raw, outfile=None, level=5, check_type='crc64'):
             uncompressed_size[0] += len(ans)
             checker(ans)
         return ans
+    lzma.compress(read, outfile.write, None, level)
     unpadded_size = outfile.tell() - start
     pos = outfile.tell()
     if pos % 4:

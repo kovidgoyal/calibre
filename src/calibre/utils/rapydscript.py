@@ -6,17 +6,19 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, atexit, errno, subprocess, bz2, glob, shutil, json
+import os, sys, atexit, errno, subprocess, glob, shutil, json
+from io import BytesIO
 from threading import local
 from functools import partial
 from threading import Thread
 from Queue import Queue, Empty
 
 from duktape import Context, JSError, to_python
+from lzma.xz import compress, decompress
 from calibre.constants import cache_dir
 from calibre.utils.terminal import ANSIStream
 
-COMPILER_PATH = 'rapydscript/compiler.js.bz2'
+COMPILER_PATH = 'rapydscript/compiler.js.xz'
 
 def abspath(x):
     return os.path.realpath(os.path.abspath(x))
@@ -27,9 +29,11 @@ def update_rapydscript():
     base = d(d(d(d(d(abspath(__file__))))))
     base = os.path.join(base, 'rapydscript')
     raw = subprocess.check_output(['node', '--harmony', os.path.join(base, 'bin', 'export')])
+    if isinstance(raw, type('')):
+        raw = raw.encode('utf-8')
     path = P(COMPILER_PATH, allow_user_override=False)
     with open(path, 'wb') as f:
-        f.write(bz2.compress(raw, 9))
+        compress(raw, f, 9)
     base = os.path.join(base, 'src', 'lib')
     dest = os.path.join(P('rapydscript', allow_user_override=False), 'lib')
     if not os.path.exists(dest):
@@ -49,7 +53,9 @@ def compiler():
     if c is None:
         c = tls.compiler = Context()
         c.eval('exports = {}; sha1sum = Duktape.sha1sum;', noreturn=True)
-        c.eval(bz2.decompress(P(COMPILER_PATH, data=True, allow_user_override=False)), fname=COMPILER_PATH, noreturn=True)
+        buf = BytesIO()
+        decompress(P(COMPILER_PATH, data=True, allow_user_override=False), buf)
+        c.eval(buf.getvalue(), fname=COMPILER_PATH, noreturn=True)
     return c
 
 class PYJError(Exception):
