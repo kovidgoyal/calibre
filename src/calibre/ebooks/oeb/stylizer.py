@@ -52,7 +52,7 @@ FONT_SIZE_NAMES = {
 
 ALL_MEDIA_TYPES = frozenset('all aural braille handheld print projection screen tty tv embossed amzn-mobi amzn-kf8'.split())
 ALLOWED_MEDIA_TYPES = frozenset({'screen', 'all', 'aural', 'amzn-kf8'})
-IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome resolution min-resolution max-resolution scan grid'.split())  # noqa
+IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome -webkit-min-device-pixel-ratio resolution min-resolution max-resolution scan grid'.split())  # noqa
 
 def media_ok(raw):
     if not raw:
@@ -85,6 +85,7 @@ def test_media_ok():
     assert not media_ok('amzn-mobi')
     assert media_ok('amzn-kf8')
     assert media_ok('screen')
+    assert media_ok('only screen')
     assert not media_ok('not screen')
     assert not media_ok('(device-width:10px)')
     assert media_ok('screen, (device-width:10px)')
@@ -207,13 +208,10 @@ class Stylizer(object):
             self.stylesheets.add(href)
             for rule in stylesheet.cssRules:
                 if rule.type == rule.MEDIA_RULE:
-                    media = {rule.media.item(i) for i in
-                             xrange(rule.media.length)}
-                    if not media.intersection({'all', 'screen', 'amzn-kf8'}):
-                        continue
-                    for subrule in rule.cssRules:
-                        rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index==0))
-                        index += 1
+                    if media_ok(rule.media.mediaText):
+                        for subrule in rule.cssRules:
+                            rules.extend(self.flatten_rule(subrule, href, index, is_user_agent_sheet=sheet_index==0))
+                            index += 1
                 else:
                     rules.extend(self.flatten_rule(rule, href, index, is_user_agent_sheet=sheet_index==0))
                     index = index + 1
