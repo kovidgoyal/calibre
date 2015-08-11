@@ -822,6 +822,8 @@ class DocumentView(QWebView):  # {{{
 
     def do_search_online(self, text):
         url = self.document.search_online_url.replace('{text}', QUrl().toPercentEncoding(text))
+        if not isinstance(url, bytes):
+            url = url.encode('utf-8')
         open_url(QUrl.fromEncoded(url))
 
     def set_manager(self, manager):
