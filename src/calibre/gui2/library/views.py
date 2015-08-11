@@ -13,7 +13,7 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     QTableView, Qt, QAbstractItemView, QMenu, pyqtSignal, QFont, QModelIndex,
     QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView,
-    QStyleOptionHeader, QItemSelectionModel)
+    QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics)
 
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
@@ -35,6 +35,7 @@ class HeaderView(QHeaderView):  # {{{
         self.current_font = QFont(self.font())
         self.current_font.setBold(True)
         self.current_font.setItalic(True)
+        self.fm = QFontMetrics(self.current_font)
 
     def event(self, e):
         if e.type() in (e.HoverMove, e.HoverEnter):
@@ -42,6 +43,25 @@ class HeaderView(QHeaderView):  # {{{
         elif e.type() in (e.Leave, e.HoverLeave):
             self.hover = -1
         return QHeaderView.event(self, e)
+
+    def sectionSizeFromContents(self, logical_index):
+        self.ensurePolished()
+        opt = QStyleOptionHeader()
+        self.initStyleOption(opt)
+        opt.section = logical_index
+        opt.orientation = self.orientation()
+        opt.fontMetrics = self.fm
+        model = self.parent().model()
+        opt.text = unicode(model.headerData(logical_index, opt.orientation, Qt.DisplayRole) or '')
+        if opt.orientation == Qt.Vertical:
+            try:
+                opt.icon = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
+                opt.iconAlignment = Qt.AlignVCenter
+            except (IndexError, ValueError, TypeError):
+                pass
+        if self.isSortIndicatorShown():
+            opt.sortIndicator = QStyleOptionHeader.SortDown
+        return self.style().sizeFromContents(QStyle.CT_HeaderSection, opt, QSize(), self)
 
     def paintSection(self, painter, rect, logical_index):
         opt = QStyleOptionHeader()
