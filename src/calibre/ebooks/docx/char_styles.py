@@ -246,7 +246,7 @@ class RunStyle(object):
                     c[x.replace('_', '-')] = '%.3gpt' % val
 
             if self.position is not inherit:
-                c['vertical-align'] = '%.3gpt' % val
+                c['vertical-align'] = '%.3gpt' % self.position
 
             if self.highlight is not inherit and self.highlight != 'transparent':
                 c['background-color'] = self.highlight
