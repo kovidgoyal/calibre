@@ -78,6 +78,9 @@ def config(defaults=None):
     c.add_opt('show_fullscreen_help', default=True, action='store_false',
               help=_('Show full screen usage help'))
     c.add_opt('cols_per_screen', default=1)
+    c.add_opt('cols_per_screen_portrait', default=1)
+    c.add_opt('cols_per_screen_landscape', default=1)
+    c.add_opt('cols_per_screen_migrated', default=False, action='store_true')
     c.add_opt('use_book_margins', default=False, action='store_true')
     c.add_opt('top_margin', default=20)
     c.add_opt('side_margin', default=40)
@@ -97,6 +100,15 @@ def config(defaults=None):
     fonts('mono_font_size', default=16, help=_('The monospaced font size in px'))
     fonts('standard_font', default='serif', help=_('The standard font type'))
     fonts('minimum_font_size', default=8, help=_('The minimum font size in px'))
+
+    oparse = c.parse
+
+    def parse():
+        ans = oparse()
+        if not ans.cols_per_screen_migrated:
+            ans.cols_per_screen_portrait = ans.cols_per_screen_landscape = ans.cols_per_screen
+        return ans
+    c.parse = parse
 
     return c
 
@@ -322,7 +334,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.opt_start_in_fullscreen.setChecked(opts.start_in_fullscreen)
         self.opt_show_fullscreen_help.setChecked(opts.show_fullscreen_help)
         self.opt_fullscreen_pos.setChecked(opts.fullscreen_pos)
-        self.opt_cols_per_screen.setValue(opts.cols_per_screen)
+        self.opt_cols_per_screen_portrait.setValue(opts.cols_per_screen_portrait)
+        self.opt_cols_per_screen_landscape.setValue(opts.cols_per_screen_landscape)
         self.opt_override_book_margins.setChecked(not opts.use_book_margins)
         for x in ('top', 'bottom', 'side'):
             getattr(self, 'opt_%s_margin'%x).setValue(getattr(opts,
@@ -405,7 +418,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('fullscreen_pos', self.opt_fullscreen_pos.isChecked())
         c.set('fullscreen_scrollbar', self.opt_fullscreen_scrollbar.isChecked())
         c.set('show_fullscreen_help', self.opt_show_fullscreen_help.isChecked())
-        c.set('cols_per_screen', int(self.opt_cols_per_screen.value()))
+        c.set('cols_per_screen_migrated', True)
+        c.set('cols_per_screen_portrait', int(self.opt_cols_per_screen_portrait.value()))
+        c.set('cols_per_screen_landscape', int(self.opt_cols_per_screen_landscape.value()))
         c.set('start_in_fullscreen', self.opt_start_in_fullscreen.isChecked())
         c.set('use_book_margins', not
                 self.opt_override_book_margins.isChecked())

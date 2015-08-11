@@ -183,7 +183,8 @@ class Document(QWebPage):  # {{{
         self.start_in_fullscreen = opts.start_in_fullscreen
         self.show_fullscreen_help = opts.show_fullscreen_help
         self.use_book_margins = opts.use_book_margins
-        self.cols_per_screen = opts.cols_per_screen
+        self.cols_per_screen_portrait = opts.cols_per_screen_portrait
+        self.cols_per_screen_landscape = opts.cols_per_screen_landscape
         self.side_margin = opts.side_margin
         self.top_margin, self.bottom_margin = opts.top_margin, opts.bottom_margin
         self.show_controls = opts.show_controls
@@ -291,12 +292,14 @@ class Document(QWebPage):  # {{{
     def switch_to_paged_mode(self, onresize=False, last_loaded_path=None):
         if onresize and not self.loaded_javascript:
             return
+        cols_per_screen = self.cols_per_screen_portrait if self.is_portrait else self.cols_per_screen_landscape
+        cols_per_screen = max(1, min(5, cols_per_screen))
         self.javascript('''
             window.paged_display.use_document_margins = %s;
             window.paged_display.set_geometry(%d, %d, %d, %d);
             '''%(
             ('true' if self.use_book_margins else 'false'),
-            self.cols_per_screen, self.top_margin, self.side_margin,
+            cols_per_screen, self.top_margin, self.side_margin,
             self.bottom_margin
             ))
         force_fullscreen_layout = bool(getattr(last_loaded_path,
@@ -447,6 +450,10 @@ class Document(QWebPage):  # {{{
     @property
     def window_width(self):
         return self.javascript('window.innerWidth', 'int')
+
+    @property
+    def is_portrait(self):
+        return self.window_width < self.window_height
 
     @property
     def xpos(self):

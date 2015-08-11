@@ -261,20 +261,27 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_13">
-             <property name="text">
-              <string>The number of &amp;pages of text to show on screen </string>
-             </property>
-             <property name="buddy">
-              <cstring>opt_cols_per_screen</cstring>
+           <item row="3" column="0" colspan="2">
+            <widget class="Line" name="line">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="opt_cols_per_screen">
-             <property name="suffix">
-              <string> page(s)</string>
+           <item row="5" column="0">
+            <widget class="QLabel" name="label_27">
+             <property name="text">
+              <string>In &amp;Portrait orientation:</string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_cols_per_screen_portrait</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QSpinBox" name="opt_cols_per_screen_portrait">
+             <property name="toolTip">
+              <string>Controls the number of pages on the screen when the viewer window's width is less than its height</string>
              </property>
              <property name="minimum">
               <number>1</number>
@@ -284,7 +291,7 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="2" column="0" colspan="2">
+           <item row="8" column="0" colspan="2">
             <widget class="QCheckBox" name="opt_override_book_margins">
              <property name="text">
               <string>&amp;Override the page margin settings specified in the book</string>
@@ -294,7 +301,7 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="3" column="0">
+           <item row="9" column="0">
             <widget class="QLabel" name="label_18">
              <property name="text">
               <string>&amp;Top margin</string>
@@ -304,7 +311,7 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="9" column="1">
             <widget class="QSpinBox" name="opt_top_margin">
              <property name="suffix">
               <string> px</string>
@@ -317,7 +324,7 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="10" column="0">
             <widget class="QLabel" name="label_19">
              <property name="text">
               <string>&amp;Side margin</string>
@@ -327,7 +334,7 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="10" column="1">
             <widget class="QSpinBox" name="opt_side_margin">
              <property name="suffix">
               <string> px</string>
@@ -340,7 +347,7 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="5" column="0">
+           <item row="11" column="0">
             <widget class="QLabel" name="label_17">
              <property name="text">
               <string>&amp;Bottom margin</string>
@@ -350,7 +357,7 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
-           <item row="5" column="1">
+           <item row="11" column="1">
             <widget class="QSpinBox" name="opt_bottom_margin">
              <property name="suffix">
               <string> px</string>
@@ -363,6 +370,43 @@ QToolBox::tab:hover {
              </property>
             </widget>
            </item>
+           <item row="7" column="0" colspan="2">
+            <widget class="Line" name="line_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2">
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>The number of pages of text to show on screen </string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label_28">
+             <property name="text">
+              <string>In &amp;Landscape orientation: </string>
+             </property>
+             <property name="buddy">
+              <cstring>opt_cols_per_screen_landscape</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QSpinBox" name="opt_cols_per_screen_landscape">
+             <property name="toolTip">
+              <string>Controls the number of pages on the screen when the viewer window's height is less than its width</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>5</number>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
          <widget class="QWidget" name="page_2">
@@ -370,8 +414,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>378</height>
+            <width>381</width>
+            <height>193</height>
            </rect>
           </property>
           <attribute name="label">
@@ -472,8 +516,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>378</height>
+            <width>340</width>
+            <height>70</height>
            </rect>
           </property>
           <attribute name="label">
@@ -551,8 +595,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>378</height>
+            <width>384</width>
+            <height>140</height>
            </rect>
           </property>
           <attribute name="label">
@@ -629,8 +673,8 @@ QToolBox::tab:hover {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>799</width>
-            <height>378</height>
+            <width>479</width>
+            <height>226</height>
            </rect>
           </property>
           <attribute name="label">
