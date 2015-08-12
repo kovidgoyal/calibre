@@ -550,7 +550,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
                                                 else option.widget.style()
         self.document.setHtml(option.text)
         style.drawPrimitive(QStyle.PE_PanelItemViewItem, option, painter, widget=option.widget)
-        rect = style.subElementRect(QStyle.SE_ItemViewItemDecoration, option)
+        rect = style.subElementRect(QStyle.SE_ItemViewItemDecoration, option, self.parent())
         ic = option.icon
         if rect.isValid() and not ic.isNull():
             sz = ic.actualSize(option.decorationSize)
@@ -559,7 +559,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
         ctx.palette = option.palette
         if option.state & QStyle.State_Selected:
             ctx.palette.setColor(ctx.palette.Text, ctx.palette.color(ctx.palette.HighlightedText))
-        textRect = style.subElementRect(QStyle.SE_ItemViewItemText, option)
+        textRect = style.subElementRect(QStyle.SE_ItemViewItemText, option, self.parent())
         painter.save()
         painter.translate(textRect.topLeft())
         painter.setClipRect(textRect.translated(-textRect.topLeft()))
