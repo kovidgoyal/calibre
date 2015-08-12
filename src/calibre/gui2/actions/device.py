@@ -235,12 +235,11 @@ class ConnectShareAction(InterfaceAction):
                     _('Stopping server, this could take upto a minute, please wait...'),
                     show_copy_button=False)
             QTimer.singleShot(1000, self.check_exited)
+            self.stopping_msg.exec_()
 
     def check_exited(self):
-        if self.gui.content_server.is_running:
-            QTimer.singleShot(20, self.check_exited)
-            if not self.stopping_msg.isVisible():
-                self.stopping_msg.exec_()
+        if getattr(self.gui.content_server, 'is_running', False):
+            QTimer.singleShot(50, self.check_exited)
             return
         self.gui.content_server = None
         self.stopping_msg.accept()
