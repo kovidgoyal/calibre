@@ -13,7 +13,7 @@ Originally developed by Timothy Legge <timlegge@gmail.com>.
 Extended to support Touch firmware 2.0.0 and later and newer devices by David Forrester <davidfor@internode.on.net>
 '''
 
-import os, time, shutil
+import os, time, shutil, re
 
 from contextlib import closing
 from calibre.devices.usbms.books import BookList
@@ -64,11 +64,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 1, 9)
+    version = (2, 1, 10)
 
     dbversion = 0
     fwversion = 0
-    supported_dbversion = 120
+    supported_dbversion = 125
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -144,6 +144,8 @@ class KOBO(USBMS):
     OPT_SHOW_PREVIEWS = 4
     OPT_SHOW_RECOMMENDATIONS = 5
     OPT_SUPPORT_NEWER_FIRMWARE = 6
+    
+    invalid_filename_chars_re = re.compile(r'[\/\\\?%\*:;\|\"\'><\$!]', re.IGNORECASE | re.UNICODE)
 
     def initialize(self):
         USBMS.initialize(self)
@@ -151,6 +153,9 @@ class KOBO(USBMS):
 
     def device_database_path(self):
         return self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
+
+    def sanitize_path_components(self, components):
+        return [self.invalid_filename_chars_re.sub('_', x) for x in components]
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -1256,7 +1261,7 @@ class KOBOTOUCH(KOBO):
     description = 'Communicate with the Kobo Touch, Glo, Mini and Aura HD ereaders. Based on the existing Kobo driver by %s.' % (KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 120
+    supported_dbversion             = 125
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1265,7 +1270,7 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (3, 16, 11)
+    max_supported_fwversion         = (3, 17, 1)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
