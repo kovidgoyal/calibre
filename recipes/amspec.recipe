@@ -5,44 +5,45 @@ spectator.org
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from css_selectors import Select
 
 class TheAmericanSpectator(BasicNewsRecipe):
     title                 = 'The American Spectator'
-    __author__            = 'Darko Miletic'
+    __author__            = 'Kovid Goyal'
     description           = 'News from USA'
-    category              = 'news, politics, USA, world'
-    publisher             = 'The American Spectator'
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
     language              = 'en'
-    INDEX                 = 'http://spectator.org'
     auto_cleanup = True
     encoding = 'utf-8'
 
-    conversion_options = {
-                             'comments'        : description
-                            ,'tags'            : category
-                            ,'language'        : language
-                            ,'publisher'       : publisher
-                         }
-
-    feeds = [ (u'Articles', u'http://feeds.feedburner.com/amspecarticles')]
-
-    def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(self.INDEX)
-        link_item = soup.find('a',attrs={'class':'cover'})
-        if link_item:
-            soup2 = self.index_to_soup(link_item['href'])
-            link_item2 = soup2.find('div',attrs={'class':'post inner issues'})
-            cover_url = self.INDEX + link_item2.img['src']
-        return cover_url
-
-    def print_version(self, url):
-        return url + '/print'
-
-    def get_article_url(self, article):
-        return article.get('guid', None)
-
+    def parse_index(self):
+        root = self.index_to_soup('http://spectator.org/issues/current', as_tree=True)
+        select = Select(root)
+        main = tuple(select('div#block-system-main'))[0]
+        feeds = []
+        for div in select('div.item-list', main):
+            for h3 in div.xpath('./h3'):
+                section_title = self.tag_to_string(h3)
+                self.log('\n' + section_title)
+                break
+            else:
+                continue
+            articles = []
+            for li in div.xpath('descendant::li'):
+                for x in select('div.views-field-title', li):
+                    title = self.tag_to_string(x)
+                    break
+                else:
+                    raise ValueError('No article title found')
+                url = 'http://spectator.org' + li.xpath('./a/@href')[0]
+                desc = ''
+                for x in select('div.views-field-field-short-summary', li):
+                    desc = self.tag_to_string(x)
+                    break
+                articles.append({'title':title, 'url':url, 'description':desc})
+                self.log('\t', title, 'at', url)
+            feeds.append((section_title, articles))
+        return feeds
