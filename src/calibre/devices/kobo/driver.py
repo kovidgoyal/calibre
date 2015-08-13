@@ -144,8 +144,6 @@ class KOBO(USBMS):
     OPT_SHOW_PREVIEWS = 4
     OPT_SHOW_RECOMMENDATIONS = 5
     OPT_SUPPORT_NEWER_FIRMWARE = 6
-    
-    invalid_filename_chars_re = re.compile(r'[\/\\\?%\*:;\|\"\'><\$!]', re.IGNORECASE | re.UNICODE)
 
     def initialize(self):
         USBMS.initialize(self)
@@ -155,7 +153,8 @@ class KOBO(USBMS):
         return self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
 
     def sanitize_path_components(self, components):
-        return [self.invalid_filename_chars_re.sub('_', x) for x in components]
+        invalid_filename_chars_re = re.compile(r'[\/\\\?%\*:;\|\"\'><\$!]', re.IGNORECASE | re.UNICODE)
+        return [invalid_filename_chars_re.sub('_', x) for x in components]
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
