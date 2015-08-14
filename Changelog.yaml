@@ -20,6 +20,35 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.35.0
+  date: 2015-08-14
+
+  new features:
+    - title: "Kobo driver: Add support for the new firmware version 3.17"
+      tickets: [1484516] 
+
+    - title: "E-book viewer: Allow setting the number of pages per screen separately for portrait and landscape modes."
+      tickets: [1483313]
+
+  bug fixes:
+    - title: "DOCX Input: Fix a regression in the previous release that broke conversion of some documents that specify vertical alignment in absolute units"
+
+    - title: "Book list: Fix the current row number being partially cutoff on some windows 10 machines."
+      tickets: [1482993]
+
+    - title: "Fix 'stopping content server' message popping up repeatedly even when it is closed while the content server has not fully stopped"
+
+    - title: "Conversion: Fix error when converting a file that uses media queries with comments in the media selector."
+      tickets: [1482983]
+
+  improved recipes:
+    - American Spectator
+    - South China Morning Post
+
+  new recipes:
+    - title: 3D News and iXBT.com 
+      author: bugmen00t
+
 - version: 2.34.0
   date: 2015-08-07
 
