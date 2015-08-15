@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, posixpath, weakref
+import os, posixpath, weakref, sys
 from functools import partial
 
 from PyQt5.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
@@ -72,12 +72,12 @@ class LibraryUsageStats(object):  # {{{
         self.write_stats()
         return self.pretty(lpath)
 
-    def locations(self, db):
+    def locations(self, db, limit=None):
         lpath = self.canonicalize_path(db.library_path)
         locs = list(self.stats.keys())
         if lpath in locs:
             locs.remove(lpath)
-        limit = tweaks['many_libraries']
+        limit = tweaks['many_libraries'] if limit is None else limit
         key = sort_key if len(locs) > limit else lambda x:self.stats[x]
         locs.sort(key=key, reverse=len(locs)<=limit)
         for loc in locs:
@@ -346,7 +346,10 @@ class ChooseLibraryAction(InterfaceAction):
             ac.setStatusTip(_('Remove: %s') % loc)
 
         qs_actions = []
-        for i, x in enumerate(locations[:len(self.switch_actions)]):
+        locations_by_frequency = locations
+        if len(locations) >= tweaks['many_libraries']:
+            locations_by_frequency = list(self.stats.locations(db, limit=sys.maxsize))
+        for i, x in enumerate(locations_by_frequency[:len(self.switch_actions)]):
             name, loc = x
             name = name.replace('&', '&&')
             ac = self.switch_actions[i]
