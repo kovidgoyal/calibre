@@ -77,7 +77,7 @@ class EbookViewer(MainWindow):
     AUTOSAVE_INTERVAL = 10  # seconds
 
     def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None,
-                 start_in_fullscreen=False):
+                 start_in_fullscreen=False, continue_reading=False):
         MainWindow.__init__(self, debug_javascript)
         self.view.magnification_changed.connect(self.magnification_changed)
         self.closed = False
@@ -148,6 +148,8 @@ class EbookViewer(MainWindow):
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook, open_at=open_at)
             QTimer.singleShot(50, f)
+        elif continue_reading:
+            QTimer.singleShot(50, self.continue_reading)
         self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
         self.toggle_toolbar_action.setCheckable(True)
@@ -243,6 +245,11 @@ class EbookViewer(MainWindow):
             if os.path.exists(path):
                 m.addAction(RecentAction(path, m))
                 count += 1
+
+    def continue_reading(self):
+        actions = self.open_history_menu.actions()[2:]
+        if actions:
+            actions[0].trigger()
 
     def shutdown(self):
         if self.isFullScreen() and not self.view.document.start_in_fullscreen:
@@ -1035,6 +1042,8 @@ def config(defaults=None):
     c.add_opt('open_at', ['--open-at'], default=None,
         help=_('The position at which to open the specified book. The position is '
             'a location as displayed in the top left corner of the viewer.'))
+    c.add_opt('continue_reading', ['--continue'], default=False,
+        help=_('Continue reading at the previously opened book'))
 
     return c
 
@@ -1064,7 +1073,7 @@ def main(args=sys.argv):
     QApplication.setOrganizationName(ORG_NAME)
     QApplication.setApplicationName(APP_UID)
     main = EbookViewer(args[1] if len(args) > 1 else None,
-            debug_javascript=opts.debug_javascript, open_at=open_at,
+            debug_javascript=opts.debug_javascript, open_at=open_at, continue_reading=opts.continue_reading,
                        start_in_fullscreen=opts.full_screen)
     app.installEventFilter(main)
     # This is needed for paged mode. Without it, the first document that is
