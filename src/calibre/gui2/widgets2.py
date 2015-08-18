@@ -137,7 +137,7 @@ class Dialog(QDialog):
     '''
     An improved version of Qt's QDialog class. This automatically remembers the
     last used size, automatically connects the signals for QDialogButtonBox,
-    automatically sets the window title and if the dialog has an object names
+    automatically sets the window title and if the dialog has an object named
     splitter, automatically saves the splitter state.
 
     In order to use it, simply subclass an implement setup_ui(). You can also
