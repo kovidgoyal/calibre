@@ -86,7 +86,9 @@ class HeaderView(QHeaderView):  # {{{
         sm = self.selectionModel()
         if opt.orientation == Qt.Vertical:
             try:
-                opt.icon = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
+                val = model.headerData(logical_index, opt.orientation, Qt.DecorationRole)
+                if val is not None:
+                    opt.icon = val
                 opt.iconAlignment = Qt.AlignVCenter
             except (IndexError, ValueError, TypeError):
                 pass
