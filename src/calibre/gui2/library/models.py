@@ -211,6 +211,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         # remember that the cover grid view needs a larger version of the icon,
         # anyway)
         self.marked_icon = QIcon(I('marked.png'))
+        self.bool_blank_icon_as_icon = QIcon(self.bool_blank_icon)
         self.row_decoration = None
         self.device_connected = False
         self.ids_to_highlight = []
@@ -235,7 +236,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.row_height = height
 
     def set_row_decoration(self, current_marked):
-        self.row_decoration = self.bool_blank_icon if current_marked else None
+        self.row_decoration = self.bool_blank_icon_as_icon if current_marked else None
 
     def change_alignment(self, colname, alignment):
         if colname in self.column_map and alignment in ('left', 'right', 'center'):
