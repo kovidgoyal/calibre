@@ -18,6 +18,7 @@ from calibre import walk, fit_image
 from calibre.customize.ui import interface_actions
 from calibre.gui2 import must_use_qt, gprefs, choose_dir, error_dialog, choose_save_file
 from calibre.gui2.widgets2 import Dialog
+from calibre.utils.date import utcnow
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.magick import create_canvas, Image
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
@@ -193,6 +194,8 @@ class ThemeCreateDialog(Dialog):
             'author': self.author.text().strip(),
             'version': self.version.value(),
             'description': self.description.toPlainText().strip(),
+            'number': len(self.report.name_map) - len(self.report.extra),
+            'date': utcnow().date().isoformat(),
         }
 
     def save_metadata(self):
