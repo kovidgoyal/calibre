@@ -54,9 +54,9 @@ def read_images_from_folder(path):
 
 class Theme(object):
 
-    def __init__(self, title='', author='', version=-1, description='', license='Unknown', cover=None):
+    def __init__(self, title='', author='', version=-1, description='', license='Unknown', url=None, cover=None):
         self.title, self.author, self.version, self.description = title, author, version, description
-        self.license, self.cover = license, cover
+        self.license, self.cover, self.url = license, cover, url
 
 class Report(object):
 
@@ -93,7 +93,7 @@ def read_theme_from_folder(path):
         except Exception:
             return -1
     g = lambda x, defval='': metadata.get(x, defval)
-    theme = Theme(g('title'), g('author'), safe_int(g('version', -1)), g('description'), g('license', 'Unknown'))
+    theme = Theme(g('title'), g('author'), safe_int(g('version', -1)), g('description'), g('license', 'Unknown'), g('url', None))
 
     ans = Report(path, name_map, extra, missing, theme)
     try:
@@ -182,6 +182,7 @@ class ThemeCreateDialog(Dialog):
         self.w = w = QGroupBox(_('Theme Metadata'), self)
         self.splitter.addWidget(w)
         l = w.l = QFormLayout(w)
+        l.setFieldGrowthPolicy(l.ExpandingFieldsGrow)
         self.missing_icons_group = mg = QGroupBox(self)
         self.mising_icons = mi = QListWidget(mg)
         mi.setSelectionMode(mi.NoSelection)
@@ -197,6 +198,8 @@ class ThemeCreateDialog(Dialog):
         l.addRow(_('&Version:'), v)
         self.license = lc = QLineEdit(self)
         l.addRow(_('&License:'), lc)
+        self.url = QLineEdit(self)
+        l.addRow(_('&URL:'), self.url)
         lc.setText(_(
             'The license for the icons in this theme. Common choices are'
             ' Creative Commons or Public Domain.'))
@@ -223,6 +226,7 @@ class ThemeCreateDialog(Dialog):
             'date': utcnow().date().isoformat(),
             'name': self.report.name,
             'license': self.license.text().strip() or 'Unknown',
+            'url': self.url.text().strip() or None,
         }
 
     def save_metadata(self):
@@ -241,6 +245,7 @@ class ThemeCreateDialog(Dialog):
         self.version.setValue(theme.version or 1)
         self.description.setText((theme.description or '').strip())
         self.license.setText((theme.license or 'Unknown').strip())
+        self.url.setText((theme.url or '').strip())
         if self.report.missing:
             title =  _('%d icons missing in this theme') % len(self.report.missing)
         else:
