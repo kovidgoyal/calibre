@@ -11,7 +11,7 @@ from io import BytesIO
 
 from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
-    QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon
+    QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
 )
 
 from calibre import walk, fit_image
@@ -28,27 +28,45 @@ IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'
 THEME_METADATA = 'metadata.json'
 
+def render_svg(filepath):
+    must_use_qt(headless=False)
+    pngpath = filepath[:-4] + '.png'
+    i = QImage(filepath)
+    i.save(pngpath)
+
 def read_images_from_folder(path):
     name_map = {}
     path = os.path.abspath(path)
     for filepath in walk(path):
         name = os.path.relpath(filepath, path).replace(os.sep, '/').lower()
         ext = name.rpartition('.')[-1]
+        bname = os.path.basename(name)
+        if bname.startswith('.') or bname.startswith('_'):
+            continue
+        if ext == 'svg':
+            render_svg(filepath)
+            ext = 'png'
+            filepath = filepath[:-4] + '.png'
+            name = name[:-4] + '.png'
         if ext in IMAGE_EXTENSIONS:
             name_map[name] = filepath
     return name_map
 
 class Theme(object):
 
-    def __init__(self, title='', author='', version=-1, description='', cover=None):
+    def __init__(self, title='', author='', version=-1, description='', license='Unknown', cover=None):
         self.title, self.author, self.version, self.description = title, author, version, description
-        self.cover = cover
+        self.license, self.cover = license, cover
 
 class Report(object):
 
     def __init__(self, path, name_map, extra, missing, theme):
         self.path, self.name_map, self.extra, self.missing, self.theme = path, name_map, extra, missing, theme
         self.bad = {}
+
+    @property
+    def name(self):
+        return ascii_filename(self.theme.title).replace(' ', '_').lower()
 
 def read_theme_from_folder(path):
     path = os.path.abspath(path)
@@ -74,7 +92,8 @@ def read_theme_from_folder(path):
             return int(x)
         except Exception:
             return -1
-    theme = Theme(metadata.get('title', ''), metadata.get('author', ''), safe_int(metadata.get('version', -1)), metadata.get('description', ''))
+    g = lambda x, defval='': metadata.get(x, defval)
+    theme = Theme(g('title'), g('author'), safe_int(g('version', -1)), g('description'), g('license', 'Unknown'))
 
     ans = Report(path, name_map, extra, missing, theme)
     try:
@@ -176,6 +195,11 @@ class ThemeCreateDialog(Dialog):
         self.version = v = QSpinBox(self)
         v.setMinimum(1), v.setMaximum(1000000)
         l.addRow(_('&Version:'), v)
+        self.license = lc = QLineEdit(self)
+        l.addRow(_('&License:'), lc)
+        lc.setText(_(
+            'The license for the icons in this theme. Common choices are'
+            ' Creative Commons or Public Domain.'))
         self.description = QTextEdit(self)
         l.addRow(self.description)
         self.refresh_button = rb = self.bb.addButton(_('&Refresh'), self.bb.ActionRole)
@@ -189,6 +213,7 @@ class ThemeCreateDialog(Dialog):
 
     @property
     def metadata(self):
+        self.report.theme.title = self.title.text().strip()  # Needed for report.name to work
         return {
             'title': self.title.text().strip(),
             'author': self.author.text().strip(),
@@ -196,6 +221,8 @@ class ThemeCreateDialog(Dialog):
             'description': self.description.toPlainText().strip(),
             'number': len(self.report.name_map) - len(self.report.extra),
             'date': utcnow().date().isoformat(),
+            'name': self.report.name,
+            'license': self.license.text().strip() or 'Unknown',
         }
 
     def save_metadata(self):
@@ -213,6 +240,7 @@ class ThemeCreateDialog(Dialog):
         self.author.setText((theme.author or '').strip())
         self.version.setValue(theme.version or 1)
         self.description.setText((theme.description or '').strip())
+        self.license.setText((theme.license or 'Unknown').strip())
         if self.report.missing:
             title =  _('%d icons missing in this theme') % len(self.report.missing)
         else:
@@ -244,13 +272,13 @@ def create_themeball(report):
     out = BytesIO()
     compress(buf, out, level=9)
     buf = BytesIO()
-    prefix = ascii_filename(report.theme.title).replace(' ', '_').lower()
+    prefix = report.name
     with ZipFile(buf, 'w') as zf:
         with open(os.path.join(report.path, THEME_METADATA), 'rb') as f:
             zf.writestr(prefix + '/' + THEME_METADATA, f.read())
         zf.writestr(prefix + '/' + THEME_COVER, create_cover(report))
         zf.writestr(prefix + '/' + 'icons.zip.xz', out.getvalue(), compression=ZIP_STORED)
-    return buf.getvalue()
+    return buf.getvalue(), prefix
 
 
 def create_theme(folder=None, parent=None):
@@ -264,10 +292,10 @@ def create_theme(folder=None, parent=None):
     if d.exec_() != d.Accepted:
         return
     d.save_metadata()
-    raw = create_themeball(d.report)
+    raw, prefix = create_themeball(d.report)
     dest = choose_save_file(parent, 'create-icon-theme-dest', _(
         'Choose destination for icon theme'),
-        [(_('ZIP files'), ['zip'])], initial_filename='my-calibre-icon-theme.zip')
+        [(_('ZIP files'), ['zip'])], initial_filename=prefix + '.zip')
     if dest:
         with open(dest, 'wb') as f:
             f.write(raw)
