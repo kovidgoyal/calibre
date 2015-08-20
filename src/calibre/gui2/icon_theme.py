@@ -38,7 +38,7 @@ def read_images_from_folder(path):
     name_map = {}
     path = os.path.abspath(path)
     for filepath in walk(path):
-        name = os.path.relpath(filepath, path).replace(os.sep, '/').lower()
+        name = os.path.relpath(filepath, path).replace(os.sep, '/')
         ext = name.rpartition('.')[-1]
         bname = os.path.basename(name)
         if bname.startswith('.') or bname.startswith('_'):
@@ -265,9 +265,8 @@ def create_themeball(report):
     buf = BytesIO()
     with ZipFile(buf, 'w') as zf:
         for name, path in report.name_map.iteritems():
-            if name not in report.extra:
-                with open(os.path.join(report.path, name), 'rb') as f:
-                    zf.writestr(name, f.read(), compression=ZIP_STORED)
+            with open(os.path.join(report.path, name), 'rb') as f:
+                zf.writestr(name, f.read(), compression=ZIP_STORED)
     buf.seek(0)
     out = BytesIO()
     compress(buf, out, level=9)
