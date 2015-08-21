@@ -5,8 +5,9 @@ import os, sys, Queue, threading, glob
 from contextlib import contextmanager
 from threading import RLock, Lock
 from urllib import unquote
+from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
 from PyQt5.Qt import (
-    QFileInfo, QObject, QBuffer, Qt, QStyle, QByteArray, QTranslator,
+    QFileInfo, QObject, QBuffer, Qt, QByteArray, QTranslator,
     QCoreApplication, QThread, QEvent, QTimer, pyqtSignal, QDateTime,
     QDesktopServices, QFileDialog, QFileIconProvider, QSettings, QIcon,
     QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale, QFontInfo)
