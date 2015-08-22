@@ -28,6 +28,8 @@ IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 THEME_COVER = 'icon-theme-cover.jpg'
 THEME_METADATA = 'metadata.json'
 
+# Theme creation {{{
+
 def render_svg(filepath):
     must_use_qt(headless=False)
     pngpath = filepath[:-4] + '.png'
@@ -303,6 +305,8 @@ def create_theme(folder=None, parent=None):
     if dest:
         with open(dest, 'wb') as f:
             f.write(raw)
+
+# }}}
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

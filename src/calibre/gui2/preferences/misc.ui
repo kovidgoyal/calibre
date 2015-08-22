@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>Max. simultaneous conversion/news download/plugin jobs:</string>
+      <string>Max. simultaneous conversion/&amp;news download/plugin jobs:</string>
      </property>
      <property name="buddy">
       <cstring>opt_worker_limit</cstring>
@@ -91,7 +91,7 @@
      </property>
     </spacer>
    </item>
-   <item row="9" column="0">
+   <item row="10" column="0">
     <spacer name="verticalSpacer_8">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -104,14 +104,14 @@
      </property>
     </spacer>
    </item>
-   <item row="8" column="0" colspan="2">
+   <item row="9" column="0" colspan="2">
     <widget class="QPushButton" name="button_open_config_dir">
      <property name="text">
       <string>Open calibre &amp;configuration directory</string>
      </property>
     </widget>
    </item>
-   <item row="21" column="0">
+   <item row="22" column="0">
     <spacer name="verticalSpacer_9">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -124,7 +124,7 @@
      </property>
     </spacer>
    </item>
-   <item row="10" column="0" colspan="2">
+   <item row="11" column="0" colspan="2">
     <widget class="QLabel" name="proxies">
      <property name="text">
       <string/>
@@ -134,7 +134,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&amp;Abort jobs that take more than:</string>
+      <string>Abort &amp;jobs that take more than:</string>
      </property>
      <property name="buddy">
       <cstring>opt_worker_max_time</cstring>
@@ -154,6 +154,13 @@
      </property>
      <property name="singleStep">
       <number>10</number>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="QPushButton" name="icon_theme_button">
+     <property name="text">
+      <string>Create a calibre &amp;icon theme</string>
      </property>
     </widget>
    </item>
