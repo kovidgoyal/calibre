@@ -66,7 +66,7 @@ class Report(object):
 
     @property
     def name(self):
-        return ascii_filename(self.theme.title).replace(' ', '_').lower()
+        return ascii_filename(self.theme.title).replace(' ', '_').replace('.', '_').lower()
 
 def read_theme_from_folder(path):
     path = os.path.abspath(path)
