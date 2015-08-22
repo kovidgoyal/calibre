@@ -60,11 +60,21 @@ class Clarin(BasicNewsRecipe):
         return article.get('guid',  None)
 
     def get_cover_url(self):
-        cover_url = None
-        soup = self.index_to_soup(self.INDEX)
-        for item in soup.findAll('a', href=True):
-            if item['href'].startswith('/tapas/TAPA_CLA'):
-               cover_url = self.INDEX + item['href']
-               return cover_url
+        import urllib2
+        from datetime import datetime, timedelta
+
+        dat = datetime.now()
+        for x in (0,1):
+            cover_url = 'http://tapas.clarin.com/tapa/'
+            stg = dat.strftime("%Y%m%d")
+            cover_url = cover_url + stg[:4] + '/' + stg[4:6] + '/' + stg[6:8] + '/' + stg + '_thumb.jpg'
+            req = urllib2.Request(cover_url)
+            try:
+                resp = urllib2.urlopen(req)
+                break
+            except urllib2.URLError, e:
+                if e.code == 404: # today's cover not published yet, look for yesterday's cover
+                    dat = dat - timedelta(days=1)
+                cover_url = None
         return cover_url
 
