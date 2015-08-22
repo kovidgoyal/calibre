@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re, binascii, cPickle, ssl
+import re, binascii, cPickle, ssl, json
 from future_builtins import map
 from threading import Thread, Event
 
@@ -28,10 +28,15 @@ def get_download_url():
     return 'http://calibre-ebook.com/download_' + which
 
 def get_newest_version():
+    try:
+        icon_theme_name = json.loads(I('icon-theme.json', data=True))['name']
+    except Exception:
+        icon_theme_name = ''
     headers={
         'CALIBRE-VERSION':__version__,
         'CALIBRE-OS': ('win' if iswindows else 'osx' if isosx else 'oth'),
-        'CALIBRE-INSTALL-UUID': prefs['installation_uuid']
+        'CALIBRE-INSTALL-UUID': prefs['installation_uuid'],
+        'CALIBRE-ICON-THEME': icon_theme_name,
     }
     try:
         version = get_https_resource_securely(URL, headers=headers)
