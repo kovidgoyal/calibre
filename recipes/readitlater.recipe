@@ -30,7 +30,7 @@ class Pocket(BasicNewsRecipe):
     publisher = 'getpocket.com'
     category = 'news, custom'
 
-    #Settings people change
+    # Settings people change
     max_articles_per_feed = 50
     minimum_articles      = 10
     mark_as_read_after_dl = True  # Set this to False for testing
@@ -38,13 +38,13 @@ class Pocket(BasicNewsRecipe):
     # To filter by tag this needs to be a single tag in quotes; IE 'calibre'
     only_pull_tag         = None
 
-    #You don't want to change anything under
+    # You don't want to change anything under
     no_stylesheets = True
     use_embedded_content = False
     needs_subscription = True
     articles_are_obfuscated = True
     apikey = '19eg0e47pbT32z4793Tf021k99Afl889'
-    index_url = u'http://getpocket.com'
+    index_url = u'https://getpocket.com'
     read_api_url = index_url + u'/v3/get'
     modify_api_url = index_url + u'/v3/send'
     legacy_login_url = index_url + u'/l'  # We use this to cheat oAuth
