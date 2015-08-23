@@ -41,16 +41,16 @@ class Clarin(BasicNewsRecipe):
     remove_attributes = ['lang']
 
     feeds = [
-               (u'Pagina principal', u'http://www.clarin.com/rss/'             )
-              ,(u'Politica'        , u'http://www.clarin.com/rss/politica/'    )
-              ,(u'Deportes'        , u'http://www.clarin.com/rss/deportes/'    )
-              ,(u'Mundo'           , u'http://www.clarin.com/rss/mundo/'       )
-              ,(u'iEco'            , u'http://www.ieco.clarin.com/rss/'        )
+               (u'Pagina principal', u'http://www.clarin.com/rss/')
+              ,(u'Politica'        , u'http://www.clarin.com/rss/politica/')
+              ,(u'Deportes'        , u'http://www.clarin.com/rss/deportes/')
+              ,(u'Mundo'           , u'http://www.clarin.com/rss/mundo/')
+              ,(u'iEco'            , u'http://www.ieco.clarin.com/rss/')
               ,(u'Espectaculos'    , u'http://www.clarin.com/rss/espectaculos/')
-              ,(u'Sociedad'        , u'http://www.clarin.com/rss/sociedad/'    )
-              ,(u'Ciudades'        , u'http://www.clarin.com/rss/ciudades/'    )
-              ,(u'Policiales'      , u'http://www.clarin.com/rss/policiales/'  )
-              ,(u'Internet'        , u'http://www.clarin.com/rss/internet/'    )
+              ,(u'Sociedad'        , u'http://www.clarin.com/rss/sociedad/')
+              ,(u'Ciudades'        , u'http://www.clarin.com/rss/ciudades/')
+              ,(u'Policiales'      , u'http://www.clarin.com/rss/policiales/')
+              ,(u'Internet'        , u'http://www.clarin.com/rss/internet/')
             ]
 
     def print_version(self, url):
@@ -60,20 +60,18 @@ class Clarin(BasicNewsRecipe):
         return article.get('guid',  None)
 
     def get_cover_url(self):
-        import urllib2
         from datetime import datetime, timedelta
+        br = self.cloned_browser
 
         dat = datetime.now()
         for x in (0,1):
             stg = dat.strftime("%Y%m%d")
             cover_url = "http://tapas.clarin.com/tapa/{}/{}/{}/{}_thumb.jpg".format(stg[:4],stg[4:6],stg[6:8],stg)
-            req = urllib2.Request(cover_url)
             try:
-                resp = urllib2.urlopen(req)
+                br.open(cover_url)
                 break
-            except urllib2.URLError, e:
-                if e.code == 404: # today's cover not published yet, look for yesterday's cover
+            except Exception as e:
+                if hasattr(e, 'getcode') and e.getcode() == 404:
                     dat = dat - timedelta(days=1)
                 cover_url = None
         return cover_url
-
