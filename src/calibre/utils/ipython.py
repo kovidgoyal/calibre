@@ -118,23 +118,23 @@ history_length(2000) #value of -1 means no limit
         pyreadline.rlmain.config_path = conf
         import readline, atexit
         import pyreadline.unicode_helper  # noqa
-        #Normally the codepage for pyreadline is set to be sys.stdout.encoding
-        #if you need to change this uncomment the following line
-        #pyreadline.unicode_helper.pyreadline_codepage="utf8"
+        # Normally the codepage for pyreadline is set to be sys.stdout.encoding
+        # if you need to change this uncomment the following line
+        # pyreadline.unicode_helper.pyreadline_codepage="utf8"
     except ImportError:
         print("Module readline not available.")
     else:
-        #import tab completion functionality
+        # import tab completion functionality
         import rlcompleter
 
-        #Override completer from rlcompleter to disable automatic ( on callable
+        # Override completer from rlcompleter to disable automatic ( on callable
         completer_obj = rlcompleter.Completer()
         def nop(val, word):
             return word
         completer_obj._callable_postfix = nop
         readline.set_completer(completer_obj.complete)
 
-        #activate tab completion
+        # activate tab completion
         readline.parse_and_bind("tab: complete")
         readline.read_history_file()
         atexit.register(readline.write_history_file)
@@ -161,7 +161,10 @@ def simple_repl(user_ns={}):
 def ipython(user_ns=None):
     try:
         import IPython
-        from IPython.config.loader import Config
+        try:
+            from traitlets.config import Config
+        except ImportError:
+            from IPython.config.loader import Config
     except ImportError:
         return simple_repl(user_ns=user_ns)
     defns = {'os':os, 're':re, 'sys':sys}
@@ -193,4 +196,3 @@ def ipython(user_ns=None):
     c.PrefilterManager.multi_line_specials = True
 
     IPython.embed(config=c, user_ns=user_ns)
-
