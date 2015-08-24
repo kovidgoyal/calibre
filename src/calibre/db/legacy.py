@@ -38,10 +38,12 @@ def cleanup_tags(tags):
 
 def create_backend(
         library_path, default_prefs=None, read_only=False,
-        progress_callback=lambda x, y:True, restore_all_prefs=False):
+        progress_callback=lambda x, y:True, restore_all_prefs=False,
+        load_user_formatter_functions=True):
     return DB(library_path, default_prefs=default_prefs,
                      read_only=read_only, restore_all_prefs=restore_all_prefs,
-                     progress_callback=progress_callback)
+                     progress_callback=progress_callback,
+                     load_user_formatter_functions=load_user_formatter_functions)
 
 class LibraryDatabase(object):
 
@@ -67,7 +69,8 @@ class LibraryDatabase(object):
 
         backend = self.backend = create_backend(library_path, default_prefs=default_prefs,
                     read_only=read_only, restore_all_prefs=restore_all_prefs,
-                    progress_callback=progress_callback)
+                    progress_callback=progress_callback,
+                    load_user_formatter_functions=not is_second_db)
         cache = self.new_api = Cache(backend)
         cache.init()
         self.data = View(cache)

@@ -396,11 +396,12 @@ class CopyToLibraryAction(InterfaceAction):
 
         # Open the new db so we can check the custom columns. We use only the
         # backend since we only need the custom column definitions, not the
-        # rest of the data in the db.
+        # rest of the data in the db. We also do not want the user defined
+        # formatter functions because loading them can poison the template cache
         global libraries_with_checked_columns
 
         from calibre.db.legacy import create_backend
-        newdb = create_backend(loc)
+        newdb = create_backend(loc, load_user_formatter_functions=False)
 
         continue_processing = True
         with closing(newdb):
