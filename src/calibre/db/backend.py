@@ -310,7 +310,8 @@ class DB(object):
     # Initialize database {{{
 
     def __init__(self, library_path, default_prefs=None, read_only=False,
-                 restore_all_prefs=False, progress_callback=lambda x, y:True):
+                 restore_all_prefs=False, progress_callback=lambda x, y:True,
+                 load_user_formatter_functions=True):
         try:
             if isbytestring(library_path):
                 library_path = library_path.decode(filesystem_encoding)
@@ -386,7 +387,8 @@ class DB(object):
         self.initialize_prefs(default_prefs, restore_all_prefs, progress_callback)
         self.initialize_custom_columns()
         self.initialize_tables()
-        load_user_template_functions(self.library_id,
+        if load_user_formatter_functions:
+            load_user_template_functions(self.library_id,
                                         self.prefs.get('user_template_functions', []))
 
     def initialize_prefs(self, default_prefs, restore_all_prefs, progress_callback):  # {{{
