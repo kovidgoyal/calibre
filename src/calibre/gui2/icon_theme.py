@@ -15,12 +15,12 @@ from threading import Thread
 from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
-    QCursor, pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox,
-    QPixmap, QGridLayout, QStyledItemDelegate, QModelIndex, QApplication,
-    QStaticText, QStyle, QPen
+    pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap,
+    QGridLayout, QStyledItemDelegate, QModelIndex, QApplication, QStaticText,
+    QStyle, QPen
 )
 
-from calibre import walk, fit_image
+from calibre import walk, fit_image, human_readable
 from calibre.constants import cache_dir, config_dir
 from calibre.customize.ui import interface_actions
 from calibre.gui2 import must_use_qt, gprefs, choose_dir, error_dialog, choose_save_file, question_dialog
@@ -415,13 +415,15 @@ class Delegate(QStyledItemDelegate):
         bottom = option.rect.bottom() - 2
         painter.drawLine(0, bottom, option.rect.right(), bottom)
         if 'static-text' not in theme:
-            theme['static-text'] = QStaticText(
+            theme['static-text'] = QStaticText(_(
                 '''
             <h1>{title}</h1>
-            <p>by <i>{author}</i> with <b>{number}</b> icons</p>
+            <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
             <p>{description}</p>
+            <p>Version: {version}</p>
             '''.format(title=theme.get('title', _('Unknown')), author=theme.get('author', _('Unknown')),
-                       number=theme.get('number', 0), description=theme.get('description', '')))
+                       number=theme.get('number', 0), description=theme.get('description', ''),
+                       size=human_readable(theme.get('compressed-size', 0)), version=theme.get('version', 1))))
         painter.drawStaticText(COVER_SIZE[0] + self.SPACING, option.rect.top() + self.SPACING, theme['static-text'])
         painter.restore()
 
@@ -457,11 +459,12 @@ class ChooseTheme(Dialog):
             self.current_theme = json.loads(I('icon-theme.json', data=True))['title']
         except Exception:
             self.current_theme = None
-        self.changed = False
         Dialog.__init__(self, _('Choose an icon theme'), 'choose-icon-theme-dialog', parent)
         self.themes_downloaded.connect(self.show_themes, type=Qt.QueuedConnection)
         self.cover_downloaded.connect(self.set_cover, type=Qt.QueuedConnection)
         self.keep_downloading = True
+        self.commit_changes = None
+        self.new_theme_title = None
 
     def sizeHint(self):
         desktop  = QApplication.instance().desktop()
@@ -603,8 +606,7 @@ class ChooseTheme(Dialog):
                     'Are you sure you want to remove the <b>%s</b> icon theme'
                     ' and return to the stock icons?') % self.current_theme):
                 return
-        self.changed = True
-        remove_icon_theme()
+        self.commit_changes = remove_icon_theme
         Dialog.accept(self)
 
     def accept(self):
@@ -614,7 +616,7 @@ class ChooseTheme(Dialog):
         theme = self.theme_list.currentItem().data(Qt.UserRole)
         url = BASE_URL + theme['icons-url']
         size = theme['compressed-size']
-        theme = {k:theme.get(k, '') for k in 'name title'.split()}
+        theme = {k:theme.get(k, '') for k in 'name title version'.split()}
         self.keep_downloading = True
         d = DownloadProgress(self, size)
         d.canceled_signal.connect(lambda : setattr(self, 'keep_downloading', False))
@@ -626,7 +628,7 @@ class ChooseTheme(Dialog):
             try:
                 response = get_https_resource_securely(url, get_response=True)
                 while self.keep_downloading:
-                    raw = response.read(100)
+                    raw = response.read(1024)
                     if not raw:
                         break
                     buf.write(raw)
@@ -647,22 +649,16 @@ class ChooseTheme(Dialog):
                 'Failed to download icon theme, click "Show Details" for more information.'), show=True, det_msg=self.downloaded_theme)
         if ret == d.Rejected or not self.keep_downloading or d.canceled or self.downloaded_theme is None:
             return
-        self.changed = True
-        with BusyCursor():
-            self.downloaded_theme.seek(0)
-            f = decompress(self.downloaded_theme)
+        dt = self.downloaded_theme
+        def commit_changes():
+            dt.seek(0)
+            f = decompress(dt)
             f.seek(0)
             remove_icon_theme()
             install_icon_theme(theme, f)
+        self.commit_changes = commit_changes
+        self.new_theme_title = theme['title']
         return Dialog.accept(self)
-
-class BusyCursor(object):
-
-    def __enter__(self):
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-
-    def __exit__(self, *args):
-        QApplication.restoreOverrideCursor()
 
 # }}}
 
@@ -709,5 +705,7 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     # create_theme('.')
-    ChooseTheme().exec_()
+    d = ChooseTheme()
+    if d.exec_() == d.Accepted and d.commit_changes is not None:
+        d.commit_changes()
     del app

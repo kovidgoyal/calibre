@@ -5,12 +5,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import json
+
 from threading import Thread
 from functools import partial
 
 from PyQt5.Qt import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter,
-    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal,
+    QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor,
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout)
 
 from calibre import human_readable
@@ -24,6 +26,14 @@ from calibre.utils.icu import sort_key
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
+
+class BusyCursor(object):
+
+    def __enter__(self):
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
+    def __exit__(self, *args):
+        QApplication.restoreOverrideCursor()
 
 class DisplayedFields(QAbstractListModel):  # {{{
 
@@ -136,6 +146,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r = self.register
 
+        try:
+            self.icon_theme_title = json.loads(I('icon-theme.json', data=True))['name']
+        except Exception:
+            self.icon_theme_title = _('Default icons')
+        self.icon_theme.setText(_('Icon theme: <b>%s</b>') % self.icon_theme_title)
+        self.commit_icon_theme = None
+        self.icon_theme_button.clicked.connect(self.choose_icon_theme)
         r('gui_layout', config, restart_required=True, choices=[(_('Wide'), 'wide'), (_('Narrow'), 'narrow')])
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('Calibre style'),
                     'calibre')])
@@ -207,8 +224,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         choices = set([k for k in db.field_metadata.all_field_keys()
                 if (db.field_metadata[k]['is_category'] and
                    (db.field_metadata[k]['datatype'] in ['text', 'series', 'enumeration']) and
-                    not db.field_metadata[k]['display'].get('is_names', False))
-                  or
+                    not db.field_metadata[k]['display'].get('is_names', False)) or
                    (db.field_metadata[k]['datatype'] in ['composite'] and
                     db.field_metadata[k]['display'].get('make_category', False))])
         choices -= set(['authors', 'publisher', 'formats', 'news', 'identifiers'])
@@ -280,6 +296,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_cover_grid_disk_cache_size.setMaximum(self.gui.grid_view.thumbnail_cache.min_disk_cache * 100)
         self.opt_cover_grid_width.valueChanged.connect(self.update_aspect_ratio)
         self.opt_cover_grid_height.valueChanged.connect(self.update_aspect_ratio)
+
+    def choose_icon_theme(self):
+        from calibre.gui2.icon_theme import ChooseTheme
+        d = ChooseTheme(self)
+        if d.exec_() == d.Accepted:
+            self.commit_icon_theme = d.commit_changes
+            self.icon_theme_title = d.new_theme_title or _('Default icons')
+            self.icon_theme.setText(_('Icon theme: <b>%s</b>') % self.icon_theme_title)
+            self.changed_signal.emit()
 
     @property
     def current_cover_size(self):
@@ -448,20 +473,24 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.changed_signal.emit()
 
     def commit(self, *args):
-        rr = ConfigWidgetBase.commit(self, *args)
-        if self.current_font != self.initial_font:
-            gprefs['font'] = (self.current_font[:4] if self.current_font else
-                    None)
-            gprefs['font_stretch'] = (self.current_font[4] if self.current_font
-                    is not None else QFont.Unstretched)
-            QApplication.setFont(self.font_display.font())
-            rr = True
-        self.display_model.commit()
-        self.edit_rules.commit(self.gui.current_db.prefs)
-        self.icon_rules.commit(self.gui.current_db.prefs)
-        self.grid_rules.commit(self.gui.current_db.prefs)
-        gprefs['cover_grid_color'] = tuple(self.cg_bg_widget.bcol.getRgb())[:3]
-        gprefs['cover_grid_texture'] = self.cg_bg_widget.btex
+        with BusyCursor():
+            rr = ConfigWidgetBase.commit(self, *args)
+            if self.current_font != self.initial_font:
+                gprefs['font'] = (self.current_font[:4] if self.current_font else
+                        None)
+                gprefs['font_stretch'] = (self.current_font[4] if self.current_font
+                        is not None else QFont.Unstretched)
+                QApplication.setFont(self.font_display.font())
+                rr = True
+            self.display_model.commit()
+            self.edit_rules.commit(self.gui.current_db.prefs)
+            self.icon_rules.commit(self.gui.current_db.prefs)
+            self.grid_rules.commit(self.gui.current_db.prefs)
+            gprefs['cover_grid_color'] = tuple(self.cg_bg_widget.bcol.getRgb())[:3]
+            gprefs['cover_grid_texture'] = self.cg_bg_widget.btex
+            if self.commit_icon_theme is not None:
+                self.commit_icon_theme()
+                rr = True
         return rr
 
     def refresh_gui(self, gui):
