@@ -685,19 +685,24 @@ def remove_icon_theme():
     os.remove(metadata_file)
 
 def install_icon_theme(theme, f):
-    icdir = os.path.join(config_dir, 'resources', 'images')
+    icdir = os.path.abspath(os.path.join(config_dir, 'resources', 'images'))
     if not os.path.exists(icdir):
         os.makedirs(icdir)
     theme['files'] = set()
     metadata_file = os.path.join(icdir, 'icon-theme.json')
     with ZipFile(f) as zf:
         for name in zf.namelist():
+            if '..' in name:
+                continue
             base = icdir
             if '/' in name:
                 base = os.path.join(icdir, os.path.dirname(name))
                 if not os.path.exists(base):
                     os.makedirs(base)
-            with zf.open(name) as src, open(os.path.join(base, os.path.basename(name)), 'wb') as dest:
+            destpath = os.path.abspath(os.path.join(base, os.path.basename(name)))
+            if not destpath.startswith(icdir):
+                continue
+            with zf.open(name) as src, open(destpath, 'wb') as dest:
                 shutil.copyfileobj(src, dest)
             theme['files'].add(name)
 
