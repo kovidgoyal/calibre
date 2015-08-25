@@ -1248,6 +1248,19 @@ class OPF(object):  # {{{
             if c is not None:
                 del a['content']
                 a['content'] = c
+        # The PocketBook requires calibre:series_index to come after
+        # calibre:series or it fails to read series info
+        # We swap attributes instead of elements, as that avoids namespace
+        # re-declarations
+        smap = {}
+        for child in self.metadata.xpath('./*[@name="calibre:series" or @name="calibre:series_index"]'):
+            smap[child.get('name')] = (child, self.metadata.index(child))
+        if len(smap) == 2 and smap['calibre:series'][1] > smap['calibre:series_index'][1]:
+            s, si = smap['calibre:series'][0], smap['calibre:series_index'][0]
+            def swap(attr):
+                t = s.get(attr, '')
+                s.set(attr, si.get(attr, '')), si.set(attr, t)
+            swap('name'), swap('content')
 
         self.write_user_metadata()
         if pretty_print_opf:
