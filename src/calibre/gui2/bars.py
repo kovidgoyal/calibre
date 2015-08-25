@@ -13,7 +13,6 @@ from PyQt5.Qt import (
     QTimer, QPropertyAnimation, QEasingCurve, pyqtProperty, QPainter, QWidget)
 
 from calibre.constants import isosx
-from calibre.gui2.throbber import create_donate_widget
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 
 class RevealBar(QWidget):  # {{{
@@ -83,8 +82,7 @@ class ToolBar(QToolBar):  # {{{
         QToolBar.resizeEvent(self, ev)
         style = self.get_text_style()
         self.setToolButtonStyle(style)
-        if hasattr(self, 'd_widget') and hasattr(self.d_widget, 'filler'):
-            self.d_widget.filler.setVisible(style != Qt.ToolButtonIconOnly)
+        self.donate_button.setToolButtonStyle(style)
 
     def get_text_style(self):
         style = Qt.ToolButtonTextUnderIcon
@@ -134,8 +132,7 @@ class ToolBar(QToolBar):  # {{{
                     bar.setup_tool_button(bar, ac, QToolButton.MenuButtonPopup)
                     ac.setVisible(False)
             elif what == 'Donate':
-                self.d_widget = create_donate_widget(self.donate_button)
-                bar.addWidget(self.d_widget)
+                bar.addWidget(self.donate_button)
                 self.showing_donate = True
             elif what in self.gui.iactions:
                 action = self.gui.iactions[what]
@@ -550,6 +547,7 @@ class BarsManager(QObject):
         for bar in self.bars:
             bar.setIconSize(QSize(sz, sz))
             bar.setToolButtonStyle(style)
-        self.donate_button.set_normal_icon_size(sz, sz)
+        self.donate_button.setIconSize(bar.iconSize())
+        self.donate_button.setToolButtonStyle(style)
 
 

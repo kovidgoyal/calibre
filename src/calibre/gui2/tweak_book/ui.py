@@ -22,7 +22,7 @@ from calibre.gui2 import elided_text, open_url
 from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.keyboard import Manager as KeyboardManager
 from calibre.gui2.main_window import MainWindow
-from calibre.gui2.throbber import ThrobbingButton, create_donate_widget
+from calibre.gui2.throbber import ThrobbingButton
 from calibre.gui2.tweak_book import (
     current_container, tprefs, actions, capitalize, toolbar_actions, editors, update_mark_text_action)
 from calibre.gui2.tweak_book.file_list import FileListWidget
@@ -619,15 +619,10 @@ class Main(MainWindow):
                 self.donate_button = b = ThrobbingButton(self)
                 b.clicked.connect(open_donate)
                 b.setAutoRaise(True)
-                self.donate_widget = w = create_donate_widget(b)
-                if hasattr(w, 'filler'):
-                    w.filler.setVisible(False)
-                b.set_normal_icon_size(self.global_bar.iconSize().width(), self.global_bar.iconSize().height())
-                b.setIcon(QIcon(I('donate.png')))
                 b.setToolTip(_('Donate to support calibre development'))
                 if animate:
                     QTimer.singleShot(10, b.start_animation)
-                bar.addWidget(w)
+                bar.addWidget(b)
             else:
                 try:
                     bar.addAction(actions[ac])
