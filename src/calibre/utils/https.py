@@ -157,7 +157,7 @@ else:
             getattr(ssl, 'match_hostname', match_hostname)(self.sock.getpeercert(), self.host)
 
 def get_https_resource_securely(
-    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5, ssl_version=None, headers=None):
+    url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5, ssl_version=None, headers=None, get_response=False):
     '''
     Download the resource pointed to by url using https securely (verify server
     certificate).  Ensures that redirects, if any, are also downloaded
@@ -210,9 +210,11 @@ def get_https_resource_securely(
             if newurl is None:
                 raise ValueError('%s returned a redirect response with no Location header' % url)
             return get_https_resource_securely(
-                newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects-1, ssl_version=ssl_version)
+                newurl, cacerts=cacerts, timeout=timeout, max_redirects=max_redirects-1, ssl_version=ssl_version, get_response=get_response)
         if response.status != httplib.OK:
             raise HTTPError(url, response.status)
+        if get_response:
+            return response
         return response.read()
 
 if __name__ == '__main__':
