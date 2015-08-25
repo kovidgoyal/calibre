@@ -420,10 +420,12 @@ class Delegate(QStyledItemDelegate):
             <h1>{title}</h1>
             <p>by <i>{author}</i> with <b>{number}</b> icons [{size}]</p>
             <p>{description}</p>
-            <p>Version: {version}</p>
+            <p>Version: {version} Number of users: {usage}</p>
             '''.format(title=theme.get('title', _('Unknown')), author=theme.get('author', _('Unknown')),
                        number=theme.get('number', 0), description=theme.get('description', ''),
-                       size=human_readable(theme.get('compressed-size', 0)), version=theme.get('version', 1))))
+                       size=human_readable(theme.get('compressed-size', 0)), version=theme.get('version', 1),
+                       usage=theme.get('usage', 0),
+        )))
         painter.drawStaticText(COVER_SIZE[0] + self.SPACING, option.rect.top() + self.SPACING, theme['static-text'])
         painter.restore()
 
@@ -510,7 +512,7 @@ class ChooseTheme(Dialog):
         self.sort_by = sb = QComboBox(self)
         add_row(_('&Sort by:'), sb)
         sb.addItems([_('Number of icons'), _('Popularity'), _('Name'),])
-        sb.setEditable(False), sb.setCurrentIndex(0)
+        sb.setEditable(False), sb.setCurrentIndex(1)
         sb.currentIndexChanged[int].connect(self.re_sort)
         self.theme_list = tl = QListWidget(self)
         self.delegate = Delegate(tl)
@@ -580,6 +582,8 @@ class ChooseTheme(Dialog):
                          det_msg=self.themes, show=True)
             self.reject()
             return
+        for theme in self.themes:
+            theme['usage'] = self.usage.get(theme['name'], 0)
         self.re_sort()
         get_covers(self.themes, self.cover_downloaded.emit)
 
