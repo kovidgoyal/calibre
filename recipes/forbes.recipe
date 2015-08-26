@@ -1,7 +1,8 @@
-import re
-from calibre.web.feeds.news import BasicNewsRecipe
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+from calibre.web.feeds.jsnews import JavascriptRecipe
 
-class Forbes(BasicNewsRecipe):
+class Forbes(JavascriptRecipe):
     title          = u'Forbes'
     description    = 'Business and Financial News'
     __author__     = 'Kovid Goyal'
@@ -9,41 +10,48 @@ class Forbes(BasicNewsRecipe):
     max_articles_per_feed = 20
     language = 'en'
     encoding = 'utf-8'
-    recursions = 1
+
+    recursions = 9
+    links_from_selectors = ('a.article-pagination-next',)
+    keep_only_tags = ('h1.article-headline', 'div.article-body-content',)
+    remove_tags = ('div.vestpocket', 'div.article-print-bar', 'div.article-comment', 'p.previous-page')
 
     no_stylesheets = True
 
     cover_url  = u'http://www.forbes.com/media/current_covers/forbes_120_160.gif'
 
-    feeds          = [(u'Latest', u'http://www.forbes.com/news/index.xml'),
+    feeds          = [
+        (u'Latest', u'http://www.forbes.com/news/index.xml'),
         (u'Most Popular', u'http://www.forbes.com/feeds/popstories.xml'),
         (u'Technology', u'http://www.forbes.com/technology/index.xml'),
         (u'Business', u'http://www.forbes.com/business/index.xml'),
         (u'Sports Money', u'http://www.forbes.com/sportsmoney/index.xml'),
-        (u'Leadership', u'http://www.forbes.com/leadership/index.xml'),]
+        (u'Leadership', u'http://www.forbes.com/leadership/index.xml'),
+    ]
 
-    keep_only_tags = \
-            {'class':lambda x: x and (set(x.split()) & {'body', 'pagination',
-                'articleHead', 'article_head'})}
-    remove_tags_before = {'name':'h1'}
-    remove_tags = [
-            {'class':['comment_bug', 'engagement_block',
-                        'video_promo_block', 'article_actions']},
-            {'id':'comments'}
-        ]
+    def load_complete(self, browser, url, recursion_level):
+        browser.wait_for_element('h1.article-headline')
+        # browser.wait_for_element('div.article-injected-body')
+        return True
 
-    def is_link_wanted(self, url, tag):
-        ans = re.match(r'http://.*/[2-9]/', url) is not None
-        if ans:
-            self.log('Following multipage link: %s'%url)
-        return ans
+    def get_publication_data(self, browser):
+        # return {'index':[('Test', [{'title':'Test Article', 'url':'http://www.forbes.com/sites/stevekeen/2015/08/26/why-china-had-to-crash-part-1/'}])]}  # noqa
+        index = []
+        for feed in self.parse_feeds():
+            articles = []
+            for article in feed.articles:
+                articles.append({'title':article.title, 'url':article.url, 'description':article.text_summary})
+            if articles:
+                index.append((feed.title, articles))
+        return {'index':index}
 
-    def postprocess_html(self, soup, first_fetch):
-        for pag in soup.findAll(True, 'pagination'):
-            pag.extract()
-        if not first_fetch:
-            h1 = soup.find('h1')
-            if h1 is not None:
-                h1.extract()
-        return soup
-
+    def preprocess_stage2(self, article, browser, url, recursion_level):
+        mf = browser.page.mainFrame()
+        if recursion_level > 0:
+            for sel in ('div.contrib-group', 'h1.article-headline'):
+                for elem in mf.findAllElements(sel):
+                    if not elem.isNull():
+                        elem.removeFromDocument()
+        for elem in mf.findAllElements('div.article-pagination'):
+            if not elem.isNull():
+                elem.removeFromDocument()
