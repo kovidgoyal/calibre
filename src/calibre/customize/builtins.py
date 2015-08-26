@@ -1173,7 +1173,7 @@ class Server(PreferencesPlugin):
 
 class MetadataSources(PreferencesPlugin):
     name = 'Metadata download'
-    icon = I('metadata.png')
+    icon = I('download-metadata.png')
     gui_name = _('Metadata download')
     category = 'Sharing'
     gui_category = _('Sharing')
