@@ -91,6 +91,7 @@ class EbookViewer(MainWindow):
         self.pending_reference = None
         self.pending_bookmark  = None
         self.pending_restore   = False
+        self.pending_goto_page = None
         self.cursor_hidden     = False
         self.existing_bookmarks= []
         self.selected_text     = None
@@ -738,6 +739,9 @@ class EbookViewer(MainWindow):
                 if len(self.page_position_on_footnote_toggle) % 2 == 1:
                     self.page_position_on_footnote_toggle[-1] = self.page_position_on_footnote_toggle[-1]._replace(
                         after_resize_page_number=self.view.document.page_number)
+        if self.pending_goto_page is not None:
+            pos, self.pending_goto_page = self.pending_goto_page, None
+            self.goto_page(pos, loaded_check=False)
 
     def update_page_number(self):
         self.set_page_number(self.view.document.scroll_fraction)
@@ -916,7 +920,10 @@ class EbookViewer(MainWindow):
                         open_at = self.pos.maximum()
                     if open_at < self.pos.minimum():
                         open_at = self.pos.minimum()
-                    self.goto_page(open_at, loaded_check=False)
+                    if self.resize_in_progress:
+                        self.pending_goto_page = open_at
+                    else:
+                        self.goto_page(open_at, loaded_check=False)
 
     def set_vscrollbar_value(self, pagenum):
         self.vertical_scrollbar.blockSignals(True)
