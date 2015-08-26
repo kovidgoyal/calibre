@@ -17,74 +17,68 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__license__   = 'GPL v3'
-__copyright__ = '2014 - 2015 Martin Račák <martin.racak@riseup.net>, 2011 Miroslav Vasko <zemiak@gmail.com>'
+__license__ = 'GPL v3'
+__copyright__ = ('2014 - 2015 Martin Račák <martin.racak@riseup.net>,'
+                 '2011 Miroslav Vasko <zemiak@gmail.com>')
 
 '''
 .týždeň - iný pohľad na spoločnosť
 '''
 
-import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Tyzden(BasicNewsRecipe):
-    title                = u'týždeň'
-    __author__           = u'Martin Račák, zemiak'
-    description          = 'A conservative weekly magazine.'
-    publisher            = 'www.tyzden.sk'
-    publication_type     = 'magazine'
-    language             = 'sk'
-    needs_subscription   = 'optional'
+    title = u'.týždeň'
+    __author__ = u'Martin Račák, zemiak'
+    description = u'Politicko-spoločenský týždenník.'
+    publisher = 'www.tyzden.sk'
+    publication_type = 'magazine'
+    language = 'sk'
+    needs_subscription = 'optional'
     use_embedded_content = False
-    no_stylesheets       = True
+    no_stylesheets = True
+    base_url = 'http://www.tyzden.sk'
+    piano_param = '?piano_d=1'
+    issue_url = base_url + '/casopis/'
+    keep_only_tags = [
+        dict(name='div', attrs={'class': 'detail__title article__title'}),
+        dict(name='div', attrs={'class': 'article'}),
+    ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
+        br.open(self.base_url + '/' + self.piano_param)
+        br.set_cookie('pianovisitkey=""')
         if self.username is not None and self.password is not None:
-            br.open('http://www.tyzden.sk/prihlasenie.html')
-            br.select_form(nr=1)
-            br['user'] = self.username
-            br['pass'] = self.password
+            br.select_form(nr=2)
+            br['username'] = self.username
+            br['password'] = self.password
             br.submit()
         return br
 
-    base_url = 'http://www.tyzden.sk/'
-    issue_url = base_url + 'casopis.html'
-
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'class': 'text_area top_nofoto'}))
-    keep_only_tags.append(dict(name='div', attrs={'class': 'text_block'}))
-
     def find_sections(self):
         soup = self.index_to_soup(self.issue_url)
-        # Use only the impotant part of page
-        content = soup.find('div', 'top')
-        content.extract()
+        img_wrapper = soup.find('div', 'mag__title-img-wrapper')
+        if img_wrapper is not None:
+            self.cover_url = img_wrapper.img['src']
 
-        # Find cover pic
-        img = content.find('div', 'foto').img
-        if img is not None:
-            self.cover_url = self.base_url + img['src']
-
-        for section in content.findAll('a', {'href': re.compile(r'rubrika/.*')}):
-            yield (self.tag_to_string(section), section)
+        for section in soup.findAll('div', 'mag__section'):
+            section_title = section.find('span', 'mag__section-title')
+            yield (self.tag_to_string(section_title), section)
 
     def find_articles(self, soup):
-        for article in soup.findAllNext('a'):
-            if (not article['href'].startswith('casopis/')):
-                break
-
+        for title in soup.findAll('h1', 'teaser__title'):
             yield {
-                    'title': self.tag_to_string(article),
-                    'url': self.base_url + article['href'],
-                    'date': strftime(' %a, %d %b'),
-                    }
+                'title': self.tag_to_string(title.a),
+                'url': title.a['href'],
+                'date': strftime(' %a, %d %b'),
+            }
 
     def parse_index(self):
         feeds = []
         for title, section in self.find_sections():
             feeds.append((title, list(self.find_articles(section))))
-
         return feeds
 
