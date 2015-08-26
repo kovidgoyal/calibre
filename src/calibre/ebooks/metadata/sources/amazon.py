@@ -557,11 +557,11 @@ class Worker(Thread):  # Get details {{{
     def parse_cover(self, root, raw=b""):
         # Look for the image URL in javascript, using the first image in the
         # image gallery as the cover
+        import json
         imgpat = re.compile(r"""'imageGalleryData'\s*:\s*(\[\s*{.+])""")
         for script in root.xpath('//script'):
             m = imgpat.search(script.text or '')
             if m is not None:
-                import json
                 try:
                     return json.loads(m.group(1))[0]['mainUrl']
                 except Exception:
@@ -590,6 +590,25 @@ class Worker(Thread):  # Get details {{{
             imgs = root.xpath('//div[@class="main-image-inner-wrapper"]/img[@src]')
             if not imgs:
                 imgs = root.xpath('//div[@id="main-image-container"]//img[@src]')
+                if not imgs:
+                    imgs = root.xpath('//div[@id="mainImageContainer"]//img[@data-a-dynamic-image]')
+                    for img in imgs:
+                        try:
+                            idata = json.loads(img.get('data-a-dynamic-image'))
+                        except Exception:
+                            imgs = ()
+                        else:
+                            mwidth = 0
+                            try:
+                                url = None
+                                for iurl, (width, height) in idata.iteritems():
+                                    if width > mwidth:
+                                        mwidth = width
+                                        url = iurl
+                                return url
+                            except Exception:
+                                pass
+
         for img in imgs:
             src = img.get('src')
             if 'data:' in src:
@@ -972,7 +991,6 @@ class Amazon(Source):
         if udata is not None:
             # Try to directly get details page instead of running a search
             domain, idtype, asin, durl = udata
-            durl = 'http://www.amazon.com/gp/product/' + asin
             preparsed_root = parse_details_page(durl, log, timeout, br, domain)
             if preparsed_root is not None:
                 qasin = parse_asin(preparsed_root[1], log, durl)
@@ -1123,11 +1141,9 @@ if __name__ == '__main__':  # tests {{{
             ),
 
             (  # + in title and uses id="main-image" for cover
-             {'title':'C++ Concurrency in Action'},
-             [title_test('C++ Concurrency in Action: Practical Multithreading',
-                         exact=True),
-              ]
-             ),
+                {'identifiers':{'amazon':'1933988770'}},
+                [title_test('C++ Concurrency in Action: Practical Multithreading', exact=True)]
+            ),
 
 
             (  # noscript description
