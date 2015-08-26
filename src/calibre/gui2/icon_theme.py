@@ -33,6 +33,7 @@ from calibre.utils.https import get_https_resource_securely, HTTPError
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.magick import create_canvas, Image
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
+from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
 
 IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -684,6 +685,12 @@ def remove_icon_theme():
                 raise
     os.remove(metadata_file)
 
+def safe_copy(src, destpath):
+    tpath = destpath + '-temp'
+    with open(tpath, 'wb') as dest:
+        shutil.copyfileobj(src, dest)
+    atomic_rename(tpath, destpath)
+
 def install_icon_theme(theme, f):
     icdir = os.path.abspath(os.path.join(config_dir, 'resources', 'images'))
     if not os.path.exists(icdir):
@@ -702,13 +709,15 @@ def install_icon_theme(theme, f):
             destpath = os.path.abspath(os.path.join(base, os.path.basename(name)))
             if not destpath.startswith(icdir):
                 continue
-            with zf.open(name) as src, open(destpath, 'wb') as dest:
-                shutil.copyfileobj(src, dest)
+            with zf.open(name) as src:
+                safe_copy(src, destpath)
             theme['files'].add(name)
 
     theme['files'] = tuple(theme['files'])
-    with open(metadata_file, 'wb') as mf:
-        json.dump(theme, mf, indent=2)
+    buf = BytesIO()
+    json.dump(theme, buf, indent=2)
+    buf.seek(0)
+    safe_copy(buf, metadata_file)
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
