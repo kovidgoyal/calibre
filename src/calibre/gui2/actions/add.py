@@ -238,7 +238,7 @@ class AddAction(InterfaceAction):
         Add an empty book item to the library. This does not import any formats
         from a book file.
         '''
-        author = series = None
+        author = series = title = None
         index = self.gui.library_view.currentIndex()
         if index.isValid():
             raw = index.model().db.authors(index.row())
@@ -247,8 +247,9 @@ class AddAction(InterfaceAction):
                 if authors:
                     author = authors[0]
             series = index.model().db.series(index.row())
+            title = index.model().db.title(index.row())
         dlg = AddEmptyBookDialog(self.gui, self.gui.library_view.model().db,
-                                 author, series)
+                                 author, series, dup_title=title)
         if dlg.exec_() == dlg.Accepted:
             temp_files = []
             num = dlg.qty_to_add
@@ -256,11 +257,16 @@ class AddAction(InterfaceAction):
             title = dlg.selected_title or _('Unknown')
             db = self.gui.library_view.model().db
             ids = []
+            if dlg.duplicate_current_book:
+                origmi = db.get_metadata(index.row(), get_cover=True, cover_as_data=True)
             for x in xrange(num):
-                mi = MetaInformation(title, dlg.selected_authors)
-                if series:
-                    mi.series = series
-                    mi.series_index = db.get_next_series_num_for(series)
+                if dlg.duplicate_current_book:
+                    mi = origmi
+                else:
+                    mi = MetaInformation(title, dlg.selected_authors)
+                    if series:
+                        mi.series = series
+                        mi.series_index = db.get_next_series_num_for(series)
                 fmts = []
                 empty_format = gprefs.get('create_empty_format_file', '')
                 if empty_format:

@@ -15,7 +15,7 @@ from calibre.gui2 import gprefs
 
 class AddEmptyBookDialog(QDialog):
 
-    def __init__(self, parent, db, author, series=None, title=None):
+    def __init__(self, parent, db, author, series=None, title=None, dup_title=None):
         QDialog.__init__(self, parent)
         self.db = db
 
@@ -99,7 +99,20 @@ class AddEmptyBookDialog(QDialog):
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
         self._layout.addWidget(button_box, 10, 0, 1, -1)
+        if dup_title:
+            self.dup_button = b = button_box.addButton(_('&Duplicate current book'), button_box.ActionRole)
+            b.clicked.connect(self.do_duplicate_book)
+            b.setIcon(QIcon(I('edit-copy.png')))
+            b.setToolTip(_(
+                'Make the new empty book records exact duplicates\n'
+                'of the current book "%s", with all metadata identical'
+            ) % dup_title)
         self.resize(self.sizeHint())
+        self.duplicate_current_book = False
+
+    def do_duplicate_book(self):
+        self.duplicate_current_book = True
+        self.accept()
 
     def accept(self):
         gprefs['create_empty_format_file'] = self.format_value.currentText().lower()
