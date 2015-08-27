@@ -360,7 +360,7 @@ class Chunker(object):
         # an offset from the start of the chunk to the start of the tag pointed
         # to by the link.
         aid_map = {}  # Map of aid to (fid, offset_from_start_of_chunk, offset_from_start_of_text)
-        for match in re.finditer(br'<[^>]+? aid=[\'"]([A-Z0-9]+)[\'"]', rebuilt_text):
+        for match in re.finditer(br'<[^>]+? [ac]id=[\'"]([cA-Z0-9]+)[\'"]', rebuilt_text):
             offset = match.start()
             pos_fid = None
             for chunk in self.chunk_table:

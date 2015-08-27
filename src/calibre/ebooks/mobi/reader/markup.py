@@ -60,10 +60,11 @@ def update_internal_links(mobi8_reader, log):
 
 def remove_kindlegen_markup(parts, aid_anchor_suffix, linked_aids):
 
-    # we can safely remove all of the Kindlegen generated aid tags
-    find_tag_with_aid_pattern = re.compile(r'''(<[^>]*\said\s*=[^>]*>)''',
+    # we can safely remove all of the Kindlegen generated aid attributes and
+    # calibre generated cid attributes
+    find_tag_with_aid_pattern = re.compile(r'''(<[^>]*\s[ac]id\s*=[^>]*>)''',
             re.IGNORECASE)
-    within_tag_aid_position_pattern = re.compile(r'''\said\s*=['"]([^'"]*)['"]''')
+    within_tag_aid_position_pattern = re.compile(r'''\s[ac]id\s*=['"]([^'"]*)['"]''')
 
     for i in xrange(len(parts)):
         part = parts[i]
