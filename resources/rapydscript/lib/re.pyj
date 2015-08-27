@@ -32,7 +32,7 @@ supports_unicode = RegExp.prototype.unicode is not undefined
 _RE_ESCAPE = /[-\/\\^$*+?.()|[\]{}]/g
 
 _re_cache_map = {}
-_re_cache_items = JS('[]')
+_re_cache_items = v'[]'
 
 error = SyntaxError  # This is the error JS throws for invalid regexps
 
@@ -41,7 +41,7 @@ def _expand(groups, repl, group_name_map):
 
     def next():
         nonlocal i
-        return JS('repl[i++]')
+        return v'repl[i++]'
 
     def peek():
         return repl[i]
@@ -139,7 +139,7 @@ def transform_regex(source, flags):
     group_count = 0
 
     while pos < source.length:
-        ch = JS('source[pos++]')
+        ch = v'source[pos++]'
         if previous_backslash:
             ans += '\\' + ch
             previous_backslash = False
@@ -175,7 +175,7 @@ def transform_regex(source, flags):
                     if close == -1:
                         raise SyntaxError('Expecting a closing )')
                     flgs = source[pos+1:close]
-                    for JS('var i = 0; i < flgs.length; i++'):
+                    for v'var i = 0; i < flgs.length; i++':
                         q = flgs[i]  # noqa:undef
                         if not flag_map.hasOwnProperty(q):
                             raise SyntaxError('Invalid flag: ' + q)
@@ -195,8 +195,8 @@ def transform_regex(source, flags):
                             raise SyntaxError('Named group not closed, expecting >')
                         name = source[pos+1:close]
                         if not Object.prototype.hasOwnProperty.call(group_map, name):
-                            group_map[name] = JS('[]')
-                        group_map[name].push(JS('++group_count'))
+                            group_map[name] = v'[]'
+                        group_map[name].push(v'++group_count')
                         pos = close + 1
                     elif q == '=':
                         close = source.indexOf(')', pos)
@@ -235,14 +235,14 @@ class MatchObject:
     def _compute_extents(self):
         # compute start/end for each group
         match = self._groups
-        self._start = JS('Array(match.length)')
-        self._end = JS('Array(match.length)')
+        self._start = v'Array(match.length)'
+        self._end = v'Array(match.length)'
         self._start[0] = self._start_pos
         self._end[0] = self._start_pos + match[0].length
         offset = self._start_pos
         extent = match[0]
         loc = 0
-        for JS('var i = 1; i < match.length; i++'):
+        for v'var i = 1; i < match.length; i++':
             g = match[i]
             loc = extent.indexOf(g, loc)
             if loc == -1:
@@ -254,8 +254,8 @@ class MatchObject:
                 self._end[i] = offset + loc # noqa:undef
 
     def groups(self, defval=None):
-        ans = JS('[]')
-        for JS('var i = 1; i < self._groups.length; i++'):
+        ans = v'[]'
+        for v'var i = 1; i < self._groups.length; i++':
             val = self._groups[i]  # noqa:undef
             if val is undefined:
                 val = defval
@@ -283,8 +283,8 @@ class MatchObject:
     def group(self):
         if arguments.length == 0:
             return self._groups[0]
-        ans = JS('[]')
-        for JS('var i = 0; i < arguments.length; i++'):
+        ans = v'[]'
+        for v'var i = 0; i < arguments.length; i++':
             q = arguments[i]  # noqa:undef
             ans.push(self._group_val(q, None))
         return ans[0] if ans.length == 1 else ans
@@ -315,7 +315,7 @@ class MatchObject:
         gnm = self.re.group_name_map
         names = Object.keys(gnm)
         ans = {}
-        for JS("var i = 0; i < names.length; i++"):
+        for v"var i = 0; i < names.length; i++":
             name = names[i]  # noqa:undef
             if Object.prototype.hasOwnProperty.call(gnm, name):
                 val = self._groups[gnm[name][-1]]
@@ -329,7 +329,7 @@ class MatchObject:
         if not Object.prototype.hasOwnProperty.call(self.re.group_name_map, group_name):
             return ans
         groups = self.re.group_name_map[group_name]
-        for JS('var i = 0; i < groups.length; i++'):
+        for v'var i = 0; i < groups.length; i++':
             val = self._groups[groups[i]]  # noqa:undef
             if val is not undefined:
                 ans.push(val)
@@ -339,7 +339,7 @@ class MatchObject:
         gnm = self.re.group_name_map
         names = Object.keys(gnm)
         ans = {}
-        for JS("var i = 0; i < names.length; i++"):
+        for v'var i = 0; i < names.length; i++':
             name = names[i]  # noqa:undef
             ans[name] = self.captures(name)
         return ans
@@ -381,7 +381,7 @@ class RegexObject:
 
     def findall(self, string):
         self._pattern.lastIndex = 0
-        return _$rapyd$_list_decorate(string.match(self._pattern) or JS('[]'))
+        return _$rapyd$_list_decorate(string.match(self._pattern) or v'[]')
 
     def finditer(self, string):
         pat = RegExp(this._pattern.source, this._modifiers)  # We have to do this since lastIndex is mutable
@@ -403,7 +403,7 @@ class RegexObject:
             expand = def(m, repl, gnm): return '' + repl(MatchObject(self, m, 0, None))
         this._pattern.lastIndex = 0
         num = 0
-        matches = JS('[]')
+        matches = v'[]'
 
         while count < 1 or num < count:
             m = this._pattern.exec(string)
@@ -412,7 +412,7 @@ class RegexObject:
             matches.push(m)
             num += 1
 
-        for JS('var i = matches.length - 1; i > -1; i--'):
+        for v'var i = matches.length - 1; i > -1; i--':
             m = matches[i]  # noqa:undef
             start = m.index
             end = start + m[0].length
@@ -425,11 +425,11 @@ class RegexObject:
 def _get_from_cache(pattern, flags):
     if isinstance(pattern, RegExp):
         pattern = pattern.source
-    key = JSON.stringify(JS('[pattern, flags]'))
+    key = JSON.stringify(v'[pattern, flags]')
     if Object.prototype.hasOwnProperty.call(_re_cache_map, key):
         return _re_cache_map[key]
     if _re_cache_items.length >= 100:
-        JS('delete _re_cache_map[_re_cache_items.shift()]')
+        v'delete _re_cache_map[_re_cache_items.shift()]'
     ans = RegexObject(pattern, flags)
     _re_cache_map[key] = ans
     _re_cache_items.push(key)
@@ -465,4 +465,4 @@ def escape(string):
 def purge():
     nonlocal _re_cache_map, _re_cache_items
     _re_cache_map = {}
-    _re_cache_items = JS('[]')
+    _re_cache_items = v'[]'
