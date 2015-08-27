@@ -141,12 +141,14 @@ class Develop(Command):
     def install_env_module(self):
         import distutils.sysconfig as s
         libdir = s.get_python_lib(prefix=self.opts.staging_root)
-        if os.path.exists(libdir):
+        try:
+            if not os.path.exists(libdir):
+                os.makedirs(libdir)
             path = os.path.join(libdir, 'init_calibre.py')
             self.info('Installing calibre environment module: '+path)
             with open(path, 'wb') as f:
                 f.write(HEADER.format(**self.template_args()))
-        else:
+        except:
             self.warn('Cannot install calibre environment module to: '+libdir)
 
     def install_files(self):
@@ -331,4 +333,3 @@ class Bootstrap(Command):
 
     def run(self, opts):
         self.info('\n\nAll done! You should now be able to run "%s setup.py install" to install calibre' % sys.executable)
-
