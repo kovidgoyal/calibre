@@ -371,11 +371,11 @@ class AjaxServer(object):
                 'count': Number of books in this item,
                 'url': URL to get list of books in this item,
                 'has_children': If True this item contains sub categories, look
-                for an entry corresponding to this item in subcategories int he
+                for an entry corresponding to this item in subcategories in the
                 main dictionary,
             }
 
-        :param sort: How to sort the returned items. CHoices are: name, rating,
+        :param sort: How to sort the returned items. Choices are: name, rating,
                      popularity
         :param sort_order: asc or desc
 

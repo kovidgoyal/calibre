@@ -145,7 +145,7 @@ class Bookmarks(BadLink):
     HELP = _(
         'This file stores the bookmarks and last opened information from'
         ' the calibre ebook viewer. You can remove it if you do not'
-        ' need that information, or dont want to share it with'
+        ' need that information, or don\'t want to share it with'
         ' other people you send this book to.')
     INDIVIDUAL_FIX = _('Remove this file')
     level = INFO

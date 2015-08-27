@@ -21,7 +21,7 @@ The slashes are text, which is put into the template where it appears. For examp
 For the book "The Foundation" by "Isaac Asimov" it will become::
 
     Asimov, Isaac Some Important Text The Foundation/The Foundation - Isaac Asimov
-    
+
 You can use all the various metadata fields available in calibre in a template, including any custom columns you have created yourself. To find out the template name for a column simply hover your mouse over the column header. Names for custom fields (columns you have created yourself) always have a # as the first character. For series type custom fields, there is always an additional field named ``#seriesname_index`` that becomes the series index for that series. So if you have a custom series field named ``#myseries``, there will also be a field named ``#myseries_index``.
 
 In addition to the column based fields, you also can use::
@@ -62,7 +62,7 @@ Using this syntax, we can solve the above series problem with the template::
 
 The hyphens will be included only if the book has a series index, which it will have only if it has a series.
 
-Notes: you must include the : character if you want to use a prefix or a suffix. You must either use no \| characters or both of them; using one, as in ``{field:| - }``, is not allowed. It is OK not to provide any text for one side or the other, such as in ``{series:|| - }``. Using ``{title:||}`` is the same as using ``{title}``. 
+Notes: you must include the : character if you want to use a prefix or a suffix. You must either use no \| characters or both of them; using one, as in ``{field:| - }``, is not allowed. It is OK not to provide any text for one side or the other, such as in ``{series:|| - }``. Using ``{title:||}`` is the same as using ``{title}``.
 
 Second: formatting. Suppose you wanted to ensure that the series_index is always formatted as three digits with leading zeros. This would do the trick::
 
@@ -103,7 +103,7 @@ Using functions in templates - single-function mode
 
 Suppose you want to display the value of a field in upper case, when that field is normally in title case. You can do this (and many more things) using the functions available for templates. For example, to display the title in upper case, use ``{title:uppercase()}``. To display it in title case, use ``{title:titlecase()}``.
 
-Function references appear in the format part, going after the ``:`` and before the first ``|`` or the closing ``}``. If you have both a format and a function reference, the function comes after another ``:``. Functions must always end with ``()``. Some functions take extra values (arguments), and these go inside the ``()``. 
+Function references appear in the format part, going after the ``:`` and before the first ``|`` or the closing ``}``. If you have both a format and a function reference, the function comes after another ``:``. Functions must always end with ``()``. Some functions take extra values (arguments), and these go inside the ``()``.
 
 Functions are always applied before format specifications. See further down for an example of using both a format and a function, where this order is demonstrated.
 
@@ -135,7 +135,7 @@ The functions available are listed below. Note that the definitive documentation
     * ``str_in_list(val, separator, string, found_val, not_found_val)`` -- treat val as a list of items separated by separator, comparing the string against each value in the list. If the string matches a value, return found_val, otherwise return not_found_val. If the string contains separators, then it is also treated as a list and each value is checked.
     * ``subitems(val, start_index, end_index)`` -- This function is used to break apart lists of tag-like hierarchical items such as genres. It interprets the value as a comma-separated list of tag-like items, where each item is a period-separated list. Returns a new list made by first finding all the period-separated tag-like items, then for each such item extracting the components from `start_index` to `end_index`, then combining the results back together. The first component in a period-separated list has an index of zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples::
 
-        Assuming a #genre column containing "A.B.C":    
+        Assuming a #genre column containing "A.B.C":
             {#genre:subitems(0,1)} returns "A"
             {#genre:subitems(0,2)} returns "A.B"
             {#genre:subitems(1,0)} returns "B.C"
@@ -144,11 +144,11 @@ The functions available are listed below. Note that the definitive documentation
             {#genre:subitems(0,2)} returns "A.B, D.E"
 
     * ``sublist(val, start_index, end_index, separator)`` -- interpret the value as a list of items separated by `separator`, returning a new list made from the items from `start_index`to `end_index`. The first item is number zero. If an index is negative, then it counts from the end of the list. As a special case, an end_index of zero is assumed to be the length of the list. Examples assuming that the tags column (which is comma-separated) contains "A, B ,C"::
-    
+
         {tags:sublist(0,1,\,)} returns "A"
         {tags:sublist(-1,0,\,)} returns "C"
         {tags:sublist(0,-1,\,)} returns "A, B"
-        
+
     * ``swap_around_comma(val) `` -- given a value of the form ``B, A``, return ``A B``. This is most useful for converting names in LN, FN format to FN LN. If there is no comma, the function returns val unchanged.
     * ``switch(pattern, value, pattern, value, ..., else_value)`` -- for each ``pattern, value`` pair, checks if the field matches the regular expression ``pattern`` and if so, returns that ``value``. If no ``pattern`` matches, then ``else_value`` is returned. You can have as many ``pattern, value`` pairs as you want.
     * ``test(text if not empty, text if empty)`` -- return `text if not empty` if the field is not empty, otherwise return `text if empty`.
@@ -157,17 +157,17 @@ The functions available are listed below. Note that the definitive documentation
 Now, what about using functions and formatting in the same field. Suppose you have an integer custom column called ``#myint`` that you want to see with leading zeros, as in ``003``. To do this, you would use a format of ``0>3s``. However, by default, if a number (integer or float) equals zero then the field produces the empty value, so zero values will produce nothing, not ``000``. If you really want to see ``000`` values, then you use both the format string and the ``ifempty`` function to change the empty value back to a zero. The field reference would be::
 
     {#myint:0>3s:ifempty(0)}
-    
+
 Note that you can use the prefix and suffix as well. If you want the number to appear as ``[003]`` or ``[000]``, then use the field::
 
     {#myint:0>3s:ifempty(0)|[|]}
-    
+
 .. _template_mode:
 
 Using functions in templates - template program mode
 ----------------------------------------------------
 
-The template language program mode differs from single-function mode in that it permits you to write template expressions that refer to other metadata fields, modify values, and do arithmetic. It is a reasonably complete programming language. 
+The template language program mode differs from single-function mode in that it permits you to write template expressions that refer to other metadata fields, modify values, and do arithmetic. It is a reasonably complete programming language.
 
 You can use the functions documented above in template program mode. See below for details.
 
@@ -182,7 +182,7 @@ The example shows several things:
     * functions must be given all their arguments. There is no default value. For example, the standard built-in functions must be given an additional initial parameter indicating the source field, which is a significant difference from single-function mode.
     * white space is ignored and can be used anywhere within the expression.
     * constant strings are enclosed in matching quotes, either ``'`` or ``"``.
-    
+
 The language is similar to ``functional`` languages in that it is built almost entirely from functions. A statement is a function. An expression is a function. Constants and identifiers can be thought of as functions returning the value indicated by the constant or stored in the identifier.
 
 The syntax of the language is shown by the following grammar::
@@ -200,21 +200,21 @@ Comments are lines with a '#' character at the beginning of the line.
 An ``expression`` always has a value, either the value of the constant, the value contained in the identifier, or the value returned by a function. The value of a ``statement`` is the value of the last expression in the sequence of statements. As such, the value of the program (statement)::
 
     1; 2; 'foobar'; 3
-    
+
 is 3.
 
 Another example of a complex but rather silly program might help make things clearer::
 
     {series_index:'
         substr(
-            strcat($, '->', 
-                cmp(divide($, 2), 1, 
-                    assign(c, 1); substr('lt123', c, 0), 
+            strcat($, '->',
+                cmp(divide($, 2), 1,
+                    assign(c, 1); substr('lt123', c, 0),
                     'eq', 'gt')),
             0, 6)
        '| prefix | suffix}
-    
-This program does the following: 
+
+This program does the following:
 
     * specify that the field being looked at is series_index. This sets the value of the variable ``$``.
     * calls the ``substr`` function, which takes 3 parameters ``(str, start, end)``. It returns a string formed by extracting the start through end characters from string, zero-based (the first character is character zero). In this case the string will be computed by the ``strcat`` function, the start is 0, and the end is 6. In this case it will return the first 6 characters of the string returned by ``strcat``, which must be evaluated before substr can return.
@@ -239,8 +239,8 @@ The following functions are available in addition to those described in single-f
     * ``add(x, y)`` -- returns x + y. Throws an exception if either x or y are not numbers.
     * ``assign(id, val)`` -- assigns val to id, then returns val. id must be an identifier, not an expression
     * ``approximate_formats()`` -- return a comma-separated list of formats that at one point were associated with the book. There is no guarantee that the list is correct, although it probably is. This function can be called in template program mode using the template ``{:'approximate_formats()'}``. Note that format names are always uppercase, as in EPUB.
-	* ``author_links(val_separator, pair_separator)`` -- returns a string containing a list of authors and that author's link values in the form ``author1 val_separator author1link pair_separator author2 val_separator author2link`` etc. An author is separated from its link value by the ``val_separator`` string with no added spaces. ``author:linkvalue`` pairs are separated by the ``pair_separator`` string argument with no added spaces. It is up to you to choose separator strings that do not occur in author names or links. An author is included even if the author link is empty.
-	* ``author_sorts(val_separator)`` -- returns a string containing a list of author's sort values for the authors of the book. The sort is the one in the author metadata (different from the author_sort in books). The returned list has the form author sort 1 ``val_separator`` author sort 2 etc. The author sort values in this list are in the same order as the authors of the book. If you want spaces around ``val_separator`` then include them in the separator string
+    * ``author_links(val_separator, pair_separator)`` -- returns a string containing a list of authors and that author's link values in the form ``author1 val_separator author1link pair_separator author2 val_separator author2link`` etc. An author is separated from its link value by the ``val_separator`` string with no added spaces. ``author:linkvalue`` pairs are separated by the ``pair_separator`` string argument with no added spaces. It is up to you to choose separator strings that do not occur in author names or links. An author is included even if the author link is empty.
+    * ``author_sorts(val_separator)`` -- returns a string containing a list of author's sort values for the authors of the book. The sort is the one in the author metadata (different from the author_sort in books). The returned list has the form author sort 1 ``val_separator`` author sort 2 etc. The author sort values in this list are in the same order as the authors of the book. If you want spaces around ``val_separator`` then include them in the separator string
     * ``booksize()`` -- returns the value of the calibre 'size' field. Returns '' if there are no formats.
     * ``cmp(x, y, lt, eq, gt)`` -- compares x and y after converting both to numbers. Returns ``lt`` if x < y. Returns ``eq`` if x == y. Otherwise returns ``gt``.
     * ``current_library_name() -- `` return the last name on the path to the current calibre library. This function can be called in template program mode using the template ``{:'current_library_name()'}``.
@@ -250,22 +250,22 @@ The following functions are available in addition to those described in single-f
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using template program mode.
     * ``field(name)`` -- returns the metadata field named by ``name``.
     * ``first_matching_cmp(val, cmp1, result1, cmp2, r2, ..., else_result)`` -- compares "val < cmpN" in sequence, returning resultN for the first comparison that succeeds. Returns else_result if no comparison succeeds. Example::
-    
+
         ``first_matching_cmp(10,5,"small",10,"middle",15,"large","giant")``
-    
+
     returns "large". The same example with a first value of 16 returns "giant".
     * ``first_non_empty(value, value, ...)`` -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
     * ``format_date(x, date_format)`` -- format_date(val, format_string) -- format the value, which must be a date field, using the format_string, returning a string. The formatting codes are::
-    
+
         d    : the day as number without a leading zero (1 to 31)
-        dd   : the day as number with a leading zero (01 to 31) 
-        ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun"). 
-        dddd : the long localized day name (e.g. "Monday" to "Sunday"). 
-        M    : the month as number without a leading zero (1 to 12). 
-        MM   : the month as number with a leading zero (01 to 12) 
-        MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec"). 
-        MMMM : the long localized month name (e.g. "January" to "December"). 
-        yy   : the year as two digit number (00 to 99). 
+        dd   : the day as number with a leading zero (01 to 31)
+        ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun").
+        dddd : the long localized day name (e.g. "Monday" to "Sunday").
+        M    : the month as number without a leading zero (1 to 12).
+        MM   : the month as number with a leading zero (01 to 12)
+        MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec").
+        MMMM : the long localized month name (e.g. "January" to "December").
+        yy   : the year as two digit number (00 to 99).
         yyyy : the year as four digit number.
         h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)
         hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)
@@ -276,22 +276,22 @@ The following functions are available in addition to those described in single-f
         ap   : use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the localized string for am or pm.
         AP   : use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
         iso  : the date with time and timezone. Must be the only format present.
-        
+
     You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the format tweaks to contain MMMM. In this case, instead of using something like ``{pubdate:format_date(yyyy)}``, write the template using template program mode as in ``{:'format_date(raw_field('pubdate'),'yyyy')'}``.
-    
+
     * finish_formatting(val, fmt, prefix, suffix) -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to :ref:`general program mode <general_mode>` (see below) to take advantage of GPM template compilation. For example, the following program produces the same output as the above template::
-    
+
         program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
-    
+
     Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
-    
-        program: 
+
+        program:
             strcat(
-                re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'), 
+                re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'),
                 finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
                 field('title')
             )
-            
+
     * ``formats_modtimes(date_format)`` -- return a comma-separated list of colon_separated items representing modification times for the formats of a book. The date_format parameter specifies how the date is to be formatted. See the date_format function for details. You can use the select function to get the mod time for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_paths()`` -- return a comma-separated list of colon_separated items representing full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_sizes()`` -- return a comma-separated list of colon_separated items representing sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
@@ -309,11 +309,11 @@ The following functions are available in addition to those described in single-f
     * ``or(value, value, ...)`` -- returns the string "1" if any value is not empty, otherwise returns the empty string. This function works well with test or first_non_empty. You can have as many values as you want.
     * ``print(a, b, ...)`` -- prints the arguments to standard output. Unless you start calibre from the command line (``calibre-debug -g``), the output will go to a black hole.
     * ``raw_field(name)`` -- returns the metadata field named by name without applying any formatting.
-	* ``raw_list(name, separator)`` -- returns the metadata list named by name without applying any formatting or sorting and with items separated by separator.
+    * ``raw_list(name, separator)`` -- returns the metadata list named by name without applying any formatting or sorting and with items separated by separator.
     * ``re_group(val, pattern, template_for_group_1, for_group_2, ...)`` --  return a string made by applying the reqular expression pattern to the val and replacing each matched instance with the string computed by replacing each matched group by the value returned by the corresponding template. The original matched value for the group is available as $. In template program mode, like for the template and the eval functions, you use [[ for { and ]] for }. The following example in template program mode looks for series with more than one word and uppercases the first word::
-    
+
         {series:'re_group($, "(\S* )(.*)", "[[$:uppercase()]]", "[[$]]")'}
-    
+
     * ``series_sort()`` -- returns the series sort value.
     * ``strcat(a, b, ...)`` -- can take any number of arguments. Returns a string formed by concatenating all the arguments.
     * ``strcat_max(max, string1, prefix2, string2, ...)`` -- Returns a string formed by concatenating the arguments. The returned value is initialized to string1. `Prefix, string` pairs are added to the end of the value as long as the resulting string length is less than `max`. String1 is returned even if string1 is longer than max. You can pass as many `prefix, string` pairs as you wish.
@@ -325,7 +325,7 @@ The following functions are available in addition to those described in single-f
     * ``template(x)`` -- evaluates x as a template. The evaluation is done in its own context, meaning that variables are not shared between the caller and the template evaluation. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. For example, ``template('[[title_sort]]') will evaluate the template ``{title_sort}`` and return its value. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using template program mode.
 
 .. _template_functions_reference:
-    
+
 Function classification
 ---------------------------
 
@@ -334,7 +334,7 @@ Function classification
 
     generated/|lang|/template_ref
 
-        
+
 .. _general_mode:
 
 Using general program mode
@@ -349,15 +349,15 @@ The following example is a `program:` mode implementation of a recipe on the Mob
 The solution requires creating three composite columns. The first column is used to remove the leading articles. The second is used to compute the 'shorten' form. The third is to compute the 'initials' form. Once you have these columns, the plugboard selects between them. You can hide any or all of the three columns on the library view.
 
     First column:
-    Name: #stripped_series. 
+    Name: #stripped_series.
     Template: {series:re(^(A|The|An)\s+,)||}
 
     Second column (the shortened form):
-    Name: #shortened. 
+    Name: #shortened.
     Template: {#stripped_series:shorten(4,-,4)}
 
     Third column (the initials form):
-    Name: #initials. 
+    Name: #initials.
     Template: {#stripped_series:re(([^\s])[^\s]+(\s|$),\1)}
 
     Plugboard expression:
@@ -387,7 +387,7 @@ The solution requires creating three composite columns. The first column is used
 
 The following program produces the same results as the original recipe, using only one custom column to hold the results of a program that computes the special title value::
 
-    Custom column: 
+    Custom column:
     Name: #special_title
     Template: (the following with all leading spaces removed)
         program:
@@ -398,21 +398,21 @@ The following program produces the same results as the original recipe, using on
 
         #	Format the series index. Ends up as empty if there is no series index.
         #	Note that leading and trailing spaces will be removed by the formatter,
-        # 	so we cannot add them here. We will do that in the strcat below.
+        #	so we cannot add them here. We will do that in the strcat below.
         #	Also note that because we are in 'program' mode, we can freely use
         #	curly brackets in strings, something we cannot do in template mode.
             s_index = template('{series_index:0>2.0f}');
 
         #	print(stripped, shortened, initials, s_index);
 
-        #	Now concatenate all the bits together. The switch picks between 
-        # 	initials and shortened, depending on whether there is a space
+        #	Now concatenate all the bits together. The switch picks between
+        #	initials and shortened, depending on whether there is a space
         #	in stripped. We then add the brackets around s_index if it is
         #	not empty. Finally, add the title. As this is the last function in
-        # 	the program, its value will be returned.
+        #	the program, its value will be returned.
             strcat(
-                switch(	stripped, 
-                        '.\s', initials, 
+                switch(	stripped,
+                        '.\s', initials,
                         '.', shortened,
                         field('series')),
                 test(s_index, strcat(' [', s_index, '] '), ''),
@@ -445,7 +445,7 @@ The lookup function lets us do even fancier processing. For example, assume that
 
 To accomplish this, we:
     1. Create a composite field (call it AA) containing ``{series}/{series_index} - {title'}``. If the series is not empty, then this template will produce `series/series_index - title`.
-    2. Create a composite field (call it BB) containing ``{#genre:ifempty(Unknown)}/{author_sort}/{title}``. This template produces `genre/author_sort/title`, where an empty genre is replaced wuth `Unknown`.
+    2. Create a composite field (call it BB) containing ``{#genre:ifempty(Unknown)}/{author_sort}/{title}``. This template produces `genre/author_sort/title`, where an empty genre is replaced with `Unknown`.
     3. Set the save template to ``{series:lookup(.,AA,BB)}``. This template chooses composite field AA if series is not empty, and composite field BB if series is empty. We therefore have two completely different save paths, depending on whether or not `series` is empty.
 
 Templates and Plugboards
@@ -461,12 +461,12 @@ When a plugboard might apply (content server, save to disk, or send to device), 
     * a plugboard with an exact match on format and the special ``any device`` choice, e.g., ``EPUB`` and ``any device``
     * a plugboard with the special ``any format`` choice and an exact match on device, e.g., ``any format`` and ``ANDROID``
     * a plugboard with ``any format`` and ``any device``
-    
+
 The tags and authors fields have special treatment, because both of these fields can hold more than one item. A book can have many tags and many authors. When you specify that one of these two fields is to be changed, the template's result is examined to see if more than one item is there. For tags, the result is cut apart wherever calibre finds a comma. For example, if the template produces the value ``Thriller, Horror``, then the result will be two tags, ``Thriller`` and ``Horror``. There is no way to put a comma in the middle of a tag.
 
 The same thing happens for authors, but using a different character for the cut, a `&` (ampersand) instead of a comma. For example, if the template produces the value ``Blogs, Joe&Posts, Susan``, then the book will end up with two authors, ``Blogs, Joe`` and ``Posts, Susan``. If the template produces the value ``Blogs, Joe;Posts, Susan``, then the book will have one author with a rather strange name.
 
-Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window. 
+Plugboards affect the metadata written into the book when it is saved to disk or written to the device. Plugboards do not affect the metadata used by ``save to disk`` and ``send to device`` to create the file names. Instead, file names are constructed using the templates entered on the appropriate preferences window.
 
 Helpful Tips
 ------------

@@ -4,14 +4,14 @@ Function Mode for Search & Replace in the Editor
 The Search & Replace tool in the editor support a *function mode*. In this
 mode, you can combine regular expressions (see :doc:`regexp`) with
 arbitrarily powerful python functions to do all sorts of advanced text
-processing. 
+processing.
 
 In the standard *regexp* mode for search and replace, you specify both a
 regular expression to search for as well as a template that is used to replace
 all found matches. In function mode, instead of using a fixed template, you
-specify an arbitrary function, in the 
+specify an arbitrary function, in the
 `python programming language <https://docs.python.org/2.7/>`_. This allows
-you to do lots of things that are not possible with simple templates. 
+you to do lots of things that are not possible with simple templates.
 
 Techniques for using function mode and the syntax will be described by means of
 examples, showing you how to create functions to perform progressively more
@@ -29,7 +29,7 @@ Here, we will leverage one of the builtin functions in the editor to
 automatically change the case of all text inside heading tags to title case::
 
     Find expression: <([Hh][1-6])[^>]*>.+?</\1>
-    
+
 For the function, simply choose the :guilabel:`Title-case text (ignore tags)` builtin
 function. The will change titles that look like: ``<h1>some TITLE</h1>`` to
 ``<h1>Some Title</h1>``. It will work even if there are other HTML tags inside
@@ -53,7 +53,7 @@ function and copy the python code from below.
         return match.group().replace('--', '—').replace('-', '—')
 
 Every Search & Replace custom function must have a unique name and consist of a
-python function named replace, that accepts all the arguments shown above. 
+python function named replace, that accepts all the arguments shown above.
 For the moment, we wont worry about all the different arguments to
 ``replace()`` function. Just focus on the ``match`` argument. It represents a
 match when running a search and replace. Its full documentation in available
@@ -96,7 +96,7 @@ write a simple function to automatically find and fix such words.
         # Search for words split by a hyphen
         text = replace_entities(match.group()[1:-1])  # Handle HTML entities like &amp;
         corrected = regex.sub(r'(\w+)\s*-\s*(\w+)', replace_word, text, flags=regex.VERSION1 | regex.UNICODE)
-        return '>%s<' % prepare_string_for_xml(corrected)  # Put back required entities 
+        return '>%s<' % prepare_string_for_xml(corrected)  # Put back required entities
 
 Use this function with the same find expression as before, namely::
 
@@ -154,7 +154,7 @@ Auto create a Table of Contents
 -------------------------------------
 
 Finally, lets try something a little more ambitious. Suppose your book has
-headings in ``h1`` and ``h2`` tags that look like 
+headings in ``h1`` and ``h2`` tags that look like
 ``<h1 id="someid">Some Text</h1>``. We will auto-generate an HTML Table of
 Contents based on these headings. Create the custom function below:
 
@@ -187,7 +187,7 @@ Contents based on these headings. Create the custom function below:
                 data['toc'] = []
             tag_name, anchor, text = match.group(1), replace_entities(match.group(2)), replace_entities(match.group(3))
             data['toc'].append((file_name, tag_name, anchor, text))
-            return match.group()  # We dont want to make any actual changes, so return the original matched text
+            return match.group()  # We don't want to make any actual changes, so return the original matched text
 
     # Ensure that we are called once after the last match is found so we can
     # output the ToC
@@ -225,7 +225,7 @@ The API for the function mode
 
 All function mode functions must be python functions named replace, with the
 following signature::
-    
+
     def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
         return a_string
 
@@ -238,7 +238,7 @@ documented below.
 The ``match`` argument
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``match`` argument represents the currently found match. It is a 
+The ``match`` argument represents the currently found match. It is a
 `python Match object <https://docs.python.org/2.7/library/re.html#match-objects>`_.
 It's most useful method is ``group()`` which can be used to get the matched
 text corresponding to individual capture groups in the search regular

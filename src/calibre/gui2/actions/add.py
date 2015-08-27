@@ -63,7 +63,7 @@ class AddAction(InterfaceAction):
             'file is the same book in a different format)')).triggered.connect(
             self.add_recursive_single)
         ma('recursive-multiple', _('Add books from directories, including '
-            'sub directories (Multiple books per directory, assumes every '
+            'sub-directories (Multiple books per directory, assumes every '
             'ebook file is a different book)')).triggered.connect(
                     self.add_recursive_multiple)
         arm = self.add_archive_menu = self.add_menu.addMenu(_('Add multiple books from archive (ZIP/RAR)'))
