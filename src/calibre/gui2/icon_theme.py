@@ -516,6 +516,7 @@ class ChooseTheme(Dialog):
         sb.setEditable(False), sb.setCurrentIndex(1)
         sb.currentIndexChanged[int].connect(self.re_sort)
         self.theme_list = tl = QListWidget(self)
+        tl.setVerticalScrollMode(tl.ScrollPerPixel)
         self.delegate = Delegate(tl)
         tl.setItemDelegate(self.delegate)
         tl.itemDoubleClicked.connect(self.accept)
