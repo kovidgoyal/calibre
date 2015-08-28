@@ -20,6 +20,57 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.36.0
+  date: 2015-08-28
+
+  new features:
+    - title: "Icon themes: Change the calibre icons easily via icon themes"
+      type: major
+      description: "You can now change the icons calibre uses easily via Preferences->Look & Feel->Change icon theme. Several icon themes are already available for calibre"
+
+    - title: "When adding empty books to the library also allow creating duplicates of the current book, with all metadata copied. To use right click the Add Books button and select 'Add Empty Books'"
+      tickets: [1488398]
+
+    - title: "Driver for the Unusual Sapiens V2 and Adlibris Letto readers."
+      tickets: [1486531, 1484585]
+
+    - title: "Kobo driver: Add support for firmware 3.17.3"
+
+    - title: "E-book viewer: Add a command line option to open the previously read book when starting up."
+      tickets: [1483313]
+
+    - title: "Edit Book: Live CSS: Allow copying of CSS rules by right clicking on the Live CSS panel."
+      tickets: [1485237]
+
+    - title: "Linux installer: Install application and mimetype icons in multiple sizes"
+      tickets: [1489654]
+
+  bug fixes:
+    - title: "Amazon metadata download: Support for yet another variant of amazon cover image markup"
+
+    - title: "E-book viewer: Fix --open-at sometimes giving inaccurate results (depends on speed of book loading)"
+
+    - title: "EPUB Metadata: Add workaround for bug in PocketBook firmware which causes it to fail to read series metadata if the series number is declared before the series."
+      tickets: [1488113]
+
+    - title: "Fix user defined template functions leaking from one library to another when switching libraries/using copy to library."
+      tickets: [1487949]
+
+    - title: "Fix a regression in the previous release that could cause the marked books icon to be incorrectly rendered next to the row number"
+      tickets: [1486398]
+
+    - title: "Edit Book: Check Book: Fix incorrect links that consist only of an anchor and no filename not being detected."
+      tickets: [1485670]
+
+    - title: "AZW3 Output: Fix large tables (with many columns) not rendering correctly on Kindles."
+      tickets: [1489495]
+
+  improved recipes:
+    - .tyzden
+    - Forbes
+    - Clarin
+
+
 - version: 2.35.0
   date: 2015-08-14
 
