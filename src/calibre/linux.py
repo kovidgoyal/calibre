@@ -776,35 +776,36 @@ class PostInstall:
                 env['LD_LIBRARY_PATH'] = os.pathsep.join(npaths)
                 cc = partial(check_call, env=env)
 
-            with TemporaryDirectory() as tdir, CurrentDir(tdir), \
-                                PreserveMIMEDefaults():
-                render_img('mimetypes/lrf.png', 'calibre-lrf.png')
-                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-lrf', '128'))
-                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-lrs',
-                '128'))
-                render_img('mimetypes/mobi.png', 'calibre-mobi.png')
-                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-mobi.png application-x-mobipocket-ebook', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-x-mobipocket-ebook', '128'))
-                render_img('mimetypes/tpz.png', 'calibre-tpz.png')
-                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-tpz.png application-x-topaz-ebook', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-x-topaz-ebook', '128'))
-                render_img('mimetypes/azw2.png', 'calibre-azw2.png')
-                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-azw2.png application-x-kindle-application', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-x-kindle-application', '128'))
-                render_img('mimetypes/azw3.png', 'calibre-azw3.png')
-                cc('xdg-icon-resource install --noupdate --context mimetypes --size 128 calibre-azw3.png application-x-mobi8-ebook', shell=True)
-                self.icon_resources.append(('mimetypes', 'application-x-mobi8-ebook', '128'))
-                render_img('lt.png', 'calibre-gui.png', width=256, height=256)
-                cc('xdg-icon-resource install --noupdate --size 256 calibre-gui.png calibre-gui', shell=True)
-                self.icon_resources.append(('apps', 'calibre-gui', '256'))
-                render_img('viewer.png', 'calibre-viewer.png', width=256, height=256)
-                cc('xdg-icon-resource install --noupdate --size 256 calibre-viewer.png calibre-viewer', shell=True)
-                self.icon_resources.append(('apps', 'calibre-viewer', '256'))
-                render_img('tweak.png', 'calibre-ebook-edit.png', width=256, height=256)
-                cc('xdg-icon-resource install --size 256 calibre-ebook-edit.png calibre-ebook-edit', shell=True)
-                self.icon_resources.append(('apps', 'calibre-ebook-edit', '256'))
+            with TemporaryDirectory() as tdir, CurrentDir(tdir), PreserveMIMEDefaults():
+
+                def install_single_icon(iconsrc, basename, size, context, is_last_icon=False):
+                    filename = '%s-%s.png' % (basename, size)
+                    render_img(iconsrc, filename, width=int(size), height=int(size))
+                    cmd = ['xdg-icon-resource', 'install', '--noupdate', '--context', context, '--size', str(size), filename, basename]
+                    if is_last_icon:
+                        del cmd[2]
+                    cc(cmd)
+                    self.icon_resources.append((context, basename, str(size)))
+
+                def install_icons(iconsrc, basename, context, is_last_icon=False):
+                    sizes = (16, 32, 48, 64, 128, 256)
+                    for size in sizes:
+                        install_single_icon(iconsrc, basename, size, context, is_last_icon and size is sizes[-1])
+
+                icons = filter(None, [x.strip() for x in '''\
+                    mimetypes/lrf.png application-lrf mimetypes
+                    mimetypes/lrf.png text-lrs mimetypes
+                    mimetypes/mobi.png application-x-mobipocket-ebook mimetypes
+                    mimetypes/tpz.png application-x-topaz-ebook mimetypes
+                    mimetypes/azw2.png application-x-kindle-application mimetypes
+                    mimetypes/azw3.png application-x-mobi8-ebook mimetypes
+                    lt.png calibre-gui apps
+                    viewer.png calibre-viewer apps
+                    tweak.png calibre-ebook-edit apps
+                    '''.splitlines()])
+                for line in icons:
+                    iconsrc, basename, context = line.split()
+                    install_icons(iconsrc, basename, context, is_last_icon=line is icons[-1])
 
                 mimetypes = set()
                 for x in all_input_formats():
