@@ -256,9 +256,13 @@ class AddAction(InterfaceAction):
             series = dlg.selected_series
             title = dlg.selected_title or _('Unknown')
             db = self.gui.library_view.model().db
-            ids = []
+            ids, orig_fmts = [], []
             if dlg.duplicate_current_book:
                 origmi = db.get_metadata(index.row(), get_cover=True, cover_as_data=True)
+                if dlg.copy_formats.isChecked():
+                    book_id = db.id(index.row())
+                    orig_fmts = tuple(db.new_api.format(book_id, fmt, as_path=True) for fmt in db.new_api.formats(book_id))
+
             for x in xrange(num):
                 if dlg.duplicate_current_book:
                     mi = origmi
@@ -269,7 +273,9 @@ class AddAction(InterfaceAction):
                         mi.series_index = db.get_next_series_num_for(series)
                 fmts = []
                 empty_format = gprefs.get('create_empty_format_file', '')
-                if empty_format:
+                if dlg.duplicate_current_book and dlg.copy_formats.isChecked():
+                    fmts = orig_fmts
+                elif empty_format:
                     from calibre.ebooks.oeb.polish.create import create_book
                     pt = PersistentTemporaryFile(suffix='.' + empty_format)
                     pt.close()
@@ -277,6 +283,7 @@ class AddAction(InterfaceAction):
                     create_book(mi, pt.name, fmt=empty_format)
                     fmts = [pt.name]
                 ids.append(db.import_book(mi, fmts))
+            tuple(map(os.remove, orig_fmts))
             self.gui.library_view.model().books_added(num)
             self.gui.refresh_cover_browser()
             self.gui.tags_view.recount()

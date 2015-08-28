@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 
 from PyQt5.Qt import (
     QDialog, QGridLayout, QLabel, QDialogButtonBox,  QApplication, QSpinBox,
-    QToolButton, QIcon, QLineEdit, QComboBox)
+    QToolButton, QIcon, QLineEdit, QComboBox, QCheckBox)
 from calibre.ebooks.metadata import string_to_authors
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.config import tweaks
@@ -95,10 +95,17 @@ class AddEmptyBookDialog(QDialog):
             pass
         self._layout.addWidget(c, 9, 0, 1, 1)
 
+        self.copy_formats = cf = QCheckBox(_('Also copy book &formats when duplicating a book'), self)
+        cf.setToolTip(_(
+            'Also copy all ebook files into the newly created duplicate'
+            ' books.'))
+        cf.setChecked(gprefs.get('create_empty_copy_dup_formats', False))
+        self._layout.addWidget(cf, 10, 0, 1, -1)
+
         button_box = self.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
-        self._layout.addWidget(button_box, 10, 0, 1, -1)
+        self._layout.addWidget(button_box, 11, 0, 1, -1)
         if dup_title:
             self.dup_button = b = button_box.addButton(_('&Duplicate current book'), button_box.ActionRole)
             b.clicked.connect(self.do_duplicate_book)
@@ -115,8 +122,16 @@ class AddEmptyBookDialog(QDialog):
         self.accept()
 
     def accept(self):
-        gprefs['create_empty_format_file'] = self.format_value.currentText().lower()
+        self.save_settings()
         return QDialog.accept(self)
+
+    def save_settings(self):
+        gprefs['create_empty_format_file'] = self.format_value.currentText().lower()
+        gprefs['create_empty_copy_dup_formats'] = self.copy_formats.isChecked()
+
+    def reject(self):
+        self.save_settings()
+        return QDialog.reject(self)
 
     def reset_author(self, *args):
         self.authors_combo.setEditText(_('Unknown'))
