@@ -2,7 +2,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 from calibre.utils.magick import Image
-from BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 ''' Version 1.2, updated cover image to match the changed website.
  added info date on title
@@ -61,13 +61,13 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
     cover_url = 'http://www.readmetro.com/en/holland/metro-holland/image/large/last/'
     publication_type = 'newspaper'
     encoding = 'utf-8'
-    remove_attributes = ['style', 'font', 'width', 'height', 'itemtype', 'itemprop', 'itemscope']#, 'href']
+    remove_attributes = ['style', 'font', 'width', 'height', 'itemtype', 'itemprop', 'itemscope']  # , 'href']
     use_embedded_content = False
     extra_css = 'body{font-size:1em;padding:5px 0}body,a,h2{background-color:#fff;text-decoration:none;color:#000}#date,div.byline,p.article-image-caption .credits,.calibrenavbar,.calibre5{font-size:.5em}.article-box-fact.module-title,#date,div.byline{clear:both}.article-box-fact{font-size:0.7em}.article-box-fact.module-title{margin:8px 0; font-size:0.8em}h2{font-size:1em}h1.title{font-size:1.4em}h1.title,.article-body p,div.article-image-caption-2column,div.article-image-caption-3column,#date,div.byline{margin-bottom:.6em}div.article-box-fact div.subtitle,.article-box-fact.module-title,h1.title,p.article-image-caption{font-weight:700}div.column-1-3{margin-left:19px}div.column-1-2{display:inline}div.column-1-2,div.column-1-3{margin-right:7px}p.article-image-caption{font-size:.6em;margin-top:5px}p.article-image-caption,#date,div.byline{color:#616262}p.article-image-caption .credits{font-style:italic}div.article-image-caption{width:246px}div.article-image-caption-2column{width:373px}div.column-3{background-color:#eee;float:right;width:50%}div.column-3 module-title{border:1px solid #aaa}div.article-box-fact div.subtitle,.article-box-fact.module-title{color:#24763b}div.byline{border-top:2px solid #24763b}div.column-3,img,div.column-3,p.small,div.article-image-caption{margin:.5em}img,p.small,.column1,h2,.calibre5,.calibrenavbar{border:0;padding:0}.column1,h1,h2,.calibrenavbar{margin:0}'
 
-
     preprocess_regexps = [
-        (re.compile(r'(&nbsp;|\s|<img[^>]+metronieuws\.nl/([^>]+/templates/[^>]+\.jpe?g|internal\-roxen\-unit\.gif)[^>]+>)', re.DOTALL|re.IGNORECASE),lambda match: ' '),
+        (re.compile(r'(&nbsp;|\s|<img[^>]+metronieuws\.nl/([^>]+/templates/[^>]+\.jpe?g|internal\-roxen\-unit\.gif)[^>]+>)',
+         re.DOTALL|re.IGNORECASE),lambda match: ' '),
         #(re.compile(r'(&nbsp;|\s)+', re.DOTALL|re.IGNORECASE),lambda match:' '),
         #(re.compile(r'<(a |/a)[^>]*>', re.DOTALL|re.IGNORECASE),lambda match:'')
         #(re.compile('(</?)h2', re.DOTALL|re.IGNORECASE),lambda match:'\1em')
@@ -75,15 +75,17 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
 
     remove_tags_before= dict(id='subwrapper')
     remove_tags_after = dict(name='div', attrs={'class':['body-area','article-main-area']})
-#name='div', attrs={'class':['subwrapper']})]
-#'column-1-3','gallery-text']})]#id='share-and-byline')]
+# name='div', attrs={'class':['subwrapper']})]
+# 'column-1-3','gallery-text']})]#id='share-and-byline')]
 
     filter_regexps = [r'mailto:.*']
 
     remove_tags = [
         dict(name=['iframe','script','noscript','style']),
-        dict(name='div', attrs={'class':['fact-related-box','aside clearfix','aside clearfix middle-col-line','comments','share-tools','article-right-column','column-4-5','column-1-5','ad-msg','col-179 ','col-373 ','clear','ad','navigation',re.compile('share-tools(-top)?'),'tools','metroCommentFormWrap','article-tools-below-title','related-links','padding-top-15',re.compile('^promo.*?$'),'teaser-component',re.compile('fb(-comments|_iframe_widget)'),'promos','header-links','promo-2']}),
-        dict(id=['super-carousel','article-2','googleads','column-1-5-bottom','column-4-5',re.compile('^ad(\d+|adcomp.*?)?$'),'adadcomp-4','margin-5','sidebar',re.compile('^article-\d'),'comments','gallery-1','sharez_container','ts-container','topshares','ts-title']),
+        dict(name='div', attrs={'class':['fact-related-box','aside clearfix','aside clearfix middle-col-line','comments','share-tools','article-right-column','column-4-5','column-1-5','ad-msg','col-179 ','col-373 ','clear','ad','navigation',re.compile(
+            'share-tools(-top)?'),'tools','metroCommentFormWrap','article-tools-below-title','related-links','padding-top-15',re.compile('^promo.*?$'),'teaser-component',re.compile('fb(-comments|_iframe_widget)'),'promos','header-links','promo-2']}),
+        dict(id=['super-carousel','article-2','googleads','column-1-5-bottom','column-4-5',re.compile('^ad(\d+|adcomp.*?)?$'),'adadcomp-4',
+             'margin-5','sidebar',re.compile('^article-\d'),'comments','gallery-1','sharez_container','ts-container','topshares','ts-title']),
         dict(name='a', attrs={'name':'comments'}),
         #dict(name='div', attrs={'data-href'}),
         dict(name='img', attrs={'class':'top-line','title':'volledig scherm'}),
@@ -128,6 +130,7 @@ class AdvancedUserRecipe1306097511(BasicNewsRecipe):
         ]
 
 class MerryPreProcess():
+
     def optimizePicture(self,soup):
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
             try:
@@ -142,6 +145,7 @@ class MerryPreProcess():
         return soup
 
 class MerryExtract():
+
     def safeRemovePart(self, killingSoup, soupIsArray):
         if killingSoup and not killingSoup == None:
             try:
@@ -174,15 +178,15 @@ class MerryProcess(BeautifulSoup):
                     self.myKiller.safeRemovePart(part, True)
         articlefacts = soup.find('div', {'class':'article-box-fact column'})
         if (articlefacts and not articlefacts==None):
-          try:
-            contenttag = soup.find('div', {'class':'article-body'})
-            foundrighttag = False
-            if contenttag and not contenttag == None:
-                foundrighttag = True
-            if foundrighttag == True:
-                contenttag.insert(0, allfactsparent)
-          except:
-              pass
+            try:
+                contenttag = soup.find('div', {'class':'article-body'})
+                foundrighttag = False
+                if contenttag and not contenttag == None:
+                    foundrighttag = True
+                if foundrighttag == True:
+                    contenttag.insert(0, allfactsparent)
+            except:
+                pass
         return soup
 
     def moveTitleAndAuthor(self, soup):
@@ -207,7 +211,7 @@ class MerryProcess(BeautifulSoup):
     def removeUnwantedTags(self,soup):
         self.insertFacts(soup)
         self.removeEmptyTags(soup)
-        self.removeArrayOfTags(soup.findAll(attrs={'class': 'share-tools-bottom'})) # at end to keep author
+        self.removeArrayOfTags(soup.findAll(attrs={'class': 'share-tools-bottom'}))  # at end to keep author
         return soup
 
     def removeArrayOfTags(self,souparray):
@@ -215,9 +219,10 @@ class MerryProcess(BeautifulSoup):
 
     def removeEmptyTags(self,soup,run=0):
         emptymatches = re.compile('^[&nbsp;\s\n\r\t ]*$')
-        emptytags = soup.findAll(lambda tag: tag.find(True) is None and (tag.string is None or tag.string.strip()=="" or tag.string.strip()==emptymatches) and not tag.isSelfClosing)
+        emptytags = soup.findAll(lambda tag: tag.find(True) is None and (
+            tag.string is None or tag.string.strip()=="" or tag.string.strip()==emptymatches) and not tag.isSelfClosing)
         if emptytags and not (emptytags == None or emptytags == []):
             self.removeArrayOfTags(emptytags)
-            #recursive in case removing empty tag creates new empty tag
+            # recursive in case removing empty tag creates new empty tag
             self.removeEmptyTags(soup, run=run)
         return soup
