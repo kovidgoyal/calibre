@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 7 # Needed for dynamic plugin loading
+store_version = 8 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -86,6 +86,17 @@ class AmazonESKindleStore(StorePlugin):
                 price_xpath = (
                         './/ul[contains(@class, "rsltL") or contains(@class, "rsltGridList")]'
                         '//span[contains(@class, "lrg") and contains(@class, "bld")]/text()')
+            elif doc.xpath('//div[@id = "atfResults" and contains(@class, "s-result-list-parent-container")]'):
+                #print('new list form')
+                data_xpath = '//li[contains(@class, "s-result-item")]'
+                format_xpath = './/a[contains(@class, "a-size-small")]/text()'
+                format_xpath2 = './/h3[contains(@class, "s-inline")]/text()'
+                asin_xpath = '@data-asin'
+                cover_xpath = './/img[contains(@class, "cfMarker")]/@src'
+                title_xpath = './/h2[contains(@class, "s-access-title")]/text()'
+                author_xpath = ('.//div[contains(@class, "a-fixed-left-grid-col")]'
+                                '/div/div/span//text()')
+                price_xpath = ('.//div[contains(@class, "a-spacing-none")]/a/span[contains(@class, "s-price")]/text()')
             elif doc.xpath('//div[@id = "atfResults" and contains(@class, "list")]'):
                 #print('list form')
                 data_xpath = '//li[@class="s-result-item"]'
@@ -140,7 +151,7 @@ class AmazonESKindleStore(StorePlugin):
                 if mo:
                     authors = mo.group(1).strip()
 
-                price = ''.join(data.xpath(price_xpath))
+                price = ''.join(data.xpath(price_xpath)[-1])
 
                 counter -= 1
 
