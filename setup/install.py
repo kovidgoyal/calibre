@@ -144,12 +144,13 @@ class Develop(Command):
         try:
             if not os.path.exists(libdir):
                 os.makedirs(libdir)
+        except EnvironmentError:
+            self.warn('Cannot install calibre environment module to: '+libdir)
+        else:
             path = os.path.join(libdir, 'init_calibre.py')
             self.info('Installing calibre environment module: '+path)
             with open(path, 'wb') as f:
                 f.write(HEADER.format(**self.template_args()))
-        except:
-            self.warn('Cannot install calibre environment module to: '+libdir)
 
     def install_files(self):
         pass
