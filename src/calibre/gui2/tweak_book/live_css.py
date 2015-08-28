@@ -171,7 +171,10 @@ class Declaration(QWidget):
                 Cell(vtext, QRect(br1.right() + side_margin, ypos, br2.width(), br2.height()), swatch=prop.color, is_overriden=prop.is_overriden)
             ])
             self.lines_for_copy.append(text + vtext)
+            if prop.is_overriden:
+                self.lines_for_copy[-1] += ' [overriden]'
             ypos += max(br1.height(), br2.height()) + line_spacing
+        self.lines_for_copy.append('--------------------------\n')
 
         self.height_hint = ypos + line_spacing
         self.width_hint = max(row[-1].rect.right() + side_margin for row in self.rows) if self.rows else 0
