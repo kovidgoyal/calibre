@@ -800,7 +800,7 @@ class PostInstall:
                 cc('xdg-icon-resource install --noupdate --size 256 calibre-gui.png calibre-gui', shell=True)
                 self.icon_resources.append(('apps', 'calibre-gui', '256'))
                 render_img('viewer.png', 'calibre-viewer.png', width=256, height=256)
-                cc('xdg-icon-resource install --size 256 calibre-viewer.png calibre-viewer', shell=True)
+                cc('xdg-icon-resource install --noupdate --size 256 calibre-viewer.png calibre-viewer', shell=True)
                 self.icon_resources.append(('apps', 'calibre-viewer', '256'))
                 render_img('tweak.png', 'calibre-ebook-edit.png', width=256, height=256)
                 cc('xdg-icon-resource install --size 256 calibre-ebook-edit.png calibre-ebook-edit', shell=True)
