@@ -326,7 +326,6 @@ class ChooseLibraryAction(InterfaceAction):
         for ac in self.switch_actions:
             ac.setVisible(False)
         self.quick_menu.clear()
-        self.qs_locations = [i[1] for i in locations]
         self.rename_menu.clear()
         self.delete_menu.clear()
         quick_actions, rename_actions, delete_actions = [], [], []
@@ -357,6 +356,7 @@ class ChooseLibraryAction(InterfaceAction):
             ac.setStatusTip(_('Switch to: %s') % loc)
             ac.setVisible(True)
             qs_actions.append(ac)
+        self.qs_locations = [i[1] for i in locations_by_frequency]
 
         self.quick_menu_action.setVisible(bool(locations))
         self.rename_menu_action.setVisible(bool(locations))
