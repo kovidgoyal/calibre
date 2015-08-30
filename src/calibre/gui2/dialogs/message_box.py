@@ -109,7 +109,7 @@ class MessageBox(QDialog):  # {{{
             if yes_icon is not None:
                 self.bb.button(self.bb.Yes).setIcon(yes_icon if isinstance(yes_icon, QIcon) else QIcon(I(yes_icon)))
             if no_icon is not None:
-                self.bb.button(self.bb.No).setIcon(yes_icon if isinstance(no_icon, QIcon) else QIcon(I(no_icon)))
+                self.bb.button(self.bb.No).setIcon(no_icon if isinstance(no_icon, QIcon) else QIcon(I(no_icon)))
         else:
             self.bb.button(self.bb.Ok).setDefault(True)
 
