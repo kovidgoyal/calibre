@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QRegExpValidator, QRegExp, QPalette, QColor, QBrush, QPainter,
     QDockWidget, QSize, QWebView, QLabel, QVBoxLayout)
 
-from calibre.gui2 import rating_font
+from calibre.gui2 import rating_font, error_dialog
 from calibre.gui2.main_window import MainWindow
 from calibre.gui2.search_box import SearchBox2
 from calibre.gui2.viewer.documentview import DocumentView
@@ -285,6 +285,7 @@ class Main(MainWindow):
         d.setAllowedAreas(Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea | Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
 
         self.create_actions()
+        self.themes_menu.aboutToShow.connect(self.themes_menu_shown, type=Qt.QueuedConnection)
 
         self.metadata = Metadata(self.centralwidget)
         self.history = History(self.action_back, self.action_forward)
@@ -346,6 +347,12 @@ class Main(MainWindow):
         self.setCorner(Qt.TopRightCorner, Qt.RightDockWidgetArea)
         self.setCorner(Qt.BottomRightCorner, Qt.RightDockWidgetArea)
         self.footnotes_dock.close()
+
+    def themes_menu_shown(self):
+        if len(self.themes_menu.actions()) == 0:
+            self.themes_menu.hide()
+            error_dialog(self, _('No themes'), _(
+                'You must first create some themes in the viewer preferences'), show=True)
 
     def create_actions(self):
         def a(name, text, icon, tb=None, sc_name=None, menu_name=None, popup_mode=QToolButton.MenuButtonPopup):
