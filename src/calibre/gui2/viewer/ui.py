@@ -51,7 +51,7 @@ class Reference(QLineEdit):  # {{{
             'Go to a reference. To get reference numbers, use the <i>reference '
             'mode</i>, by clicking the reference mode button in the toolbar.')))
         if hasattr(self, 'setPlaceholderText'):
-            self.setPlaceholderText(_('Go to...'))
+            self.setPlaceholderText(_('Go to a reference number...'))
         self.editingFinished.connect(self.editing_finished)
 
     def editing_finished(self):
