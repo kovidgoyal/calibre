@@ -53,6 +53,7 @@ class ProgressSpinner(QWidget):
         pal = self.palette()
         self.dark = pal.color(pal.Text)
         self.light = pal.color(pal.Window)
+        self.errored_out = False
 
     @property
     def animation_interval(self):
@@ -106,7 +107,13 @@ class ProgressSpinner(QWidget):
         self.update()
 
     def paintEvent(self, ev):
-        draw_snake_spinner(QPainter(self), self.rect(), self.loading_angle, self.light, self.dark)
+        if not self.errored_out:
+            try:
+                draw_snake_spinner(QPainter(self), self.rect(), self.loading_angle, self.light, self.dark)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+                self.errored_out = True
 
 ProgressIndicator = ProgressSpinner
 if __name__ == '__main__':
