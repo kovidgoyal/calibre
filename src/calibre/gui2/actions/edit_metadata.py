@@ -408,6 +408,7 @@ class EditMetadataAction(InterfaceAction):
         '''
         Merge selected books in library.
         '''
+        from calibre.gui2.dialogs.confirm_merge import confirm_merge
         if self.gui.stack.currentIndex() != 0:
             return
         rows = self.gui.library_view.selectionModel().selectedRows()
@@ -425,20 +426,21 @@ class EditMetadataAction(InterfaceAction):
                 return
 
         dest_id, src_ids = self.books_to_merge(rows)
-        title = self.gui.library_view.model().db.title(dest_id, index_is_id=True)
+        mi = self.gui.current_db.new_api.get_proxy_metadata(dest_id)
+        title = mi.title
         if safe_merge:
-            if not confirm('<p>'+_(
+            if not confirm_merge('<p>'+_(
                 'Book formats and metadata from the selected books '
                 'will be added to the <b>first selected book</b> (%s).<br> '
                 'The second and subsequently selected books will not '
                 'be deleted or changed.<br><br>'
                 'Please confirm you want to proceed.')%title +
-                           '</p>', 'merge_books_safe', self.gui):
+                           '</p>', 'merge_books_safe', self.gui, mi):
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.merge_metadata(dest_id, src_ids)
         elif merge_only_formats:
-            if not confirm('<p>'+_(
+            if not confirm_merge('<p>'+_(
                 'Book formats from the selected books will be merged '
                 'into the <b>first selected book</b> (%s). '
                 'Metadata in the first selected book will not be changed. '
@@ -449,12 +451,12 @@ class EditMetadataAction(InterfaceAction):
                 'and any duplicate formats in the second and subsequently selected books '
                 'will be permanently <b>deleted</b> from your calibre library.<br><br>  '
                 'Are you <b>sure</b> you want to proceed?')%title +
-                           '</p>', 'merge_only_formats', self.gui):
+                           '</p>', 'merge_only_formats', self.gui, mi):
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.delete_books_after_merge(src_ids)
         else:
-            if not confirm('<p>'+_(
+            if not confirm_merge('<p>'+_(
                 'Book formats and metadata from the selected books will be merged '
                 'into the <b>first selected book</b> (%s).<br><br>'
                 'After merger the second and '
@@ -463,7 +465,7 @@ class EditMetadataAction(InterfaceAction):
                 'and any duplicate formats in the second and subsequently selected books '
                 'will be permanently <b>deleted</b> from your calibre library.<br><br>  '
                 'Are you <b>sure</b> you want to proceed?')%title +
-                           '</p>', 'merge_books', self.gui):
+                           '</p>', 'merge_books', self.gui, mi):
                 return
             self.add_formats(dest_id, self.formats_for_books(rows))
             self.merge_metadata(dest_id, src_ids)
