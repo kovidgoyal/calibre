@@ -531,6 +531,16 @@ class GenericEinkLarge(GenericEink):
     screen_size               = (600, 999)
     comic_screen_size = screen_size
 
+class GenericEinkHD(GenericEink):
+
+    name = 'Generic e-ink HD'
+    short_name = 'generic_eink_hd'
+    description = _('Suitable for use with any modern high resolution e-ink device')
+
+    screen_size = (10000, 10000)
+    comic_screen_size = (10000, 10000)
+
+
 class JetBook5Output(OutputProfile):
 
     name        = 'JetBook 5-inch'
@@ -662,7 +672,7 @@ class KindlePaperWhiteOutput(KindleOutput):
 
     name = 'Kindle PaperWhite'
     short_name = 'kindle_pw'
-    description = _('This profile is intended for the Amazon Kindle PaperWhite')
+    description = _('This profile is intended for the Amazon Kindle PaperWhite 1 and 2')
 
     # Screen size is a best guess
     screen_size               = (658, 940)
@@ -680,6 +690,12 @@ class KindleVoyageOutput(KindleOutput):
     screen_size               = (1080, 1430)
     dpi                       = 300.0
     comic_screen_size = screen_size
+
+class KindlePaperWhite3Output(KindleVoyageOutput):
+
+    name = 'Kindle PaperWhite 3'
+    short_name = 'kindle_pw3'
+    description = _('This profile is intended for the Amazon Kindle PaperWhite 3 and above')
 
 
 class KindleFireOutput(KindleDXOutput):
@@ -793,13 +809,17 @@ class PocketBookPro912Output(OutputProfile):
     dpi                       = 155.0
     comic_screen_size         = screen_size
 
-output_profiles = [OutputProfile, SonyReaderOutput, SonyReader300Output,
-        SonyReader900Output, SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
-        HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput,
-        iPadOutput, iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
-        SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
-        IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-        BambookOutput, NookColorOutput, PocketBook900Output, PocketBookPro912Output,
-        GenericEink, GenericEinkLarge, KindleFireOutput, KindlePaperWhiteOutput, KindleVoyageOutput]
+output_profiles = [
+    OutputProfile, SonyReaderOutput, SonyReader300Output, SonyReader900Output,
+    SonyReaderT3Output, MSReaderOutput, MobipocketOutput, HanlinV3Output,
+    HanlinV5Output, CybookG3Output, CybookOpusOutput, KindleOutput, iPadOutput,
+    iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
+    SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
+    IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
+    BambookOutput, NookColorOutput, PocketBook900Output,
+    PocketBookPro912Output, GenericEink, GenericEinkLarge, GenericEinkHD,
+    KindleFireOutput, KindlePaperWhiteOutput, KindleVoyageOutput,
+    KindlePaperWhite3Output
+]
 
 output_profiles.sort(cmp=lambda x,y:cmp(x.name.lower(), y.name.lower()))
