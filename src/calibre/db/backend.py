@@ -1111,7 +1111,9 @@ class DB(object):
         if self.is_deletable(path):
             try:
                 shutil.rmtree(path)
-            except:
+            except EnvironmentError as e:
+                if e.errno == errno.ENOENT and not os.path.exists(path):
+                    return
                 import traceback
                 traceback.print_exc()
                 time.sleep(1)  # In case something has temporarily locked a file
