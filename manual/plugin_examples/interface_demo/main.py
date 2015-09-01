@@ -25,9 +25,10 @@ class DemoDialog(QDialog):
         self.do_user_config = do_user_config
 
         # The current database shown in the GUI
-        # db is an instance of the class LibraryDatabase2 from database.py
+        # db is an instance of the class LibraryDatabase from db/legacy.py
         # This class has many, many methods that allow you to do a lot of
-        # things.
+        # things. For most purposes you should use db.new_api, which has
+        # a much nicer interface from db/cache.py
         self.db = gui.current_db
 
         self.l = QVBoxLayout()
@@ -81,15 +82,11 @@ class DemoDialog(QDialog):
 
     def marked(self):
         ''' Show books with only one format '''
-        fmt_idx = self.db.FIELD_MAP['formats']
-        matched_ids = set()
-        for record in self.db.data.iterall():
-            # Iterate over all records
-            fmts = record[fmt_idx]
-            # fmts is either None or a comma separated list of formats
-            if fmts and ',' not in fmts:
-                matched_ids.add(record[0])
+        db = self.db.new_api
+        matched_ids = {book_id for book_id in db.all_book_ids() if len(db.formats(book_id)) == 1}
         # Mark the records with the matching ids
+        # new_api does not know anything about marked books, so we use the full
+        # db object
         self.db.set_marked_ids(matched_ids)
 
         # Tell the GUI to search for all marked records
@@ -99,22 +96,17 @@ class DemoDialog(QDialog):
     def view(self):
         ''' View the most recently added book '''
         most_recent = most_recent_id = None
-        timestamp_idx = self.db.FIELD_MAP['timestamp']
-
-        for record in self.db.data:
-            # Iterate over all currently showing records
-            timestamp = record[timestamp_idx]
+        db = self.db.new_api
+        for book_id, timestamp in db.all_field_for('timestamp', db.all_book_ids()).iteritems():
             if most_recent is None or timestamp > most_recent:
                 most_recent = timestamp
-                most_recent_id = record[0]
+                most_recent_id = book_id
 
         if most_recent_id is not None:
-            # Get the row number of the id as shown in the GUI
-            row_number = self.db.row(most_recent_id)
             # Get a reference to the View plugin
             view_plugin = self.gui.iactions['View']
             # Ask the view plugin to launch the viewer for row_number
-            view_plugin._view_books([row_number])
+            view_plugin._view_calibre_books([most_recent_id])
 
     def update_metadata(self):
         '''
@@ -131,29 +123,26 @@ class DemoDialog(QDialog):
                              'No books selected', show=True)
         # Map the rows to book ids
         ids = list(map(self.gui.library_view.model().id, rows))
+        db = self.db.new_api
         for book_id in ids:
             # Get the current metadata for this book from the db
-            mi = self.db.get_metadata(book_id, index_is_id=True,
-                    get_cover=True, cover_as_data=True)
-            fmts = self.db.formats(book_id, index_is_id=True)
+            mi = db.get_metadata(book_id, get_cover=True, cover_as_data=True)
+            fmts = db.formats(book_id)
             if not fmts:
                 continue
-            for fmt in fmts.split(','):
+            for fmt in fmts:
                 fmt = fmt.lower()
                 # Get a python file object for the format. This will be either
                 # an in memory file or a temporary on disk file
-                ffile = self.db.format(book_id, fmt, index_is_id=True,
-                        as_file=True)
+                ffile = db.format(book_id, fmt, as_file=True)
+                ffile.seek(0)
                 # Set metadata in the format
                 set_metadata(ffile, mi, fmt)
                 ffile.seek(0)
                 # Now replace the file in the calibre library with the updated
                 # file. We dont use add_format_with_hooks as the hooks were
                 # already run when the file was first added to calibre.
-                ffile.name = 'xxx'  # add_format() will not work if the file
-                                    # path of the file being added is the same
-                                    # as the path of the file being replaced
-                self.db.add_format(book_id, fmt, ffile, index_is_id=True)
+                db.add_format(book_id, fmt, ffile, run_hooks=False)
 
         info_dialog(self, 'Updated files',
                 'Updated the metadata in the files of %d book(s)'%len(ids),
