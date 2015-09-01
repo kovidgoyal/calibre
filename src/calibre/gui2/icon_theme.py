@@ -90,6 +90,7 @@ def read_theme_from_folder(path):
     current_image_map = read_images_from_folder(P('images', allow_user_override=False))
     name_map = read_images_from_folder(path)
     name_map.pop(THEME_COVER, None)
+    name_map.pop('blank.png', None)
     current_names = frozenset(current_image_map)
     names = frozenset(name_map)
     extra = names - current_names
@@ -701,7 +702,7 @@ def install_icon_theme(theme, f):
     metadata_file = os.path.join(icdir, 'icon-theme.json')
     with ZipFile(f) as zf:
         for name in zf.namelist():
-            if '..' in name:
+            if '..' in name or name == 'blank.png':
                 continue
             base = icdir
             if '/' in name:
