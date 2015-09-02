@@ -104,7 +104,7 @@ class PrintDialog(Dialog):
         return ans
 
     def choose_file(self):
-        ans = choose_save_file(self, self.OUTPUT_NAME, _('PDF file'), filters=[(_('PDF file'), 'pdf')],
+        ans = choose_save_file(self, self.OUTPUT_NAME, _('PDF file'), filters=[(_('PDF file'), ['pdf'])],
                                all_files=False, initial_filename=self.default_file_name)
         if ans:
             self.file_name.setText(ans)
