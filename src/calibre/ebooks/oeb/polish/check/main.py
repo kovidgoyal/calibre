@@ -74,8 +74,8 @@ def run_checks(container):
     errors += check_mimetypes(container)
     errors += check_links(container) + check_link_destinations(container)
     errors += check_fonts(container)
-    errors += check_filenames(container)
     errors += check_ids(container)
+    errors += check_filenames(container)
     errors += check_markup(container)
     errors += check_opf(container)
 
