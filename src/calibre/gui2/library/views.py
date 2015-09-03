@@ -72,11 +72,16 @@ class HeaderView(QHeaderView):  # {{{
         opt.section = logical_index
         opt.orientation = self.orientation()
         opt.textAlignment = Qt.AlignHCenter | Qt.AlignVCenter
+        opt.fontMetrics = self.fm
         model = self.parent().model()
-        opt.text = unicode(model.headerData(logical_index, opt.orientation, Qt.DisplayRole) or '')
+        style = self.style()
+        margin = 2 * style.pixelMetric(style.PM_HeaderMargin, None, self)
         if self.isSortIndicatorShown() and self.sortIndicatorSection() == logical_index:
             opt.sortIndicator = QStyleOptionHeader.SortDown if self.sortIndicatorOrder() == Qt.AscendingOrder else QStyleOptionHeader.SortUp
-        opt.text = opt.fontMetrics.elidedText(opt.text, Qt.ElideRight, rect.width() - 4)
+            margin += style.pixelMetric(style.PM_HeaderMarkSize, None, self)
+        opt.text = unicode(model.headerData(logical_index, opt.orientation, Qt.DisplayRole) or '')
+        if self.textElideMode() != Qt.ElideNone:
+            opt.text = opt.fontMetrics.elidedText(opt.text, Qt.ElideRight, rect.width() - margin)
         if self.isEnabled():
             opt.state |= QStyle.State_Enabled
             if self.window().isActiveWindow():
