@@ -51,6 +51,12 @@ The default values for the tweaks are reproduced below
 Overriding icons, templates, et cetera
 ----------------------------------------
 
+.. note:: 
+    calibre has direct support for icon themes, there are several icon themes
+    available for calibre, that you can use by going to :guilabel:`Preferences->Look &
+    Feel->Change Icon theme`. The icon themes use the same mechanism as
+    described below for overriding static resources.
+
 calibre allows you to override the static resources, like icons, javascript and
 templates for the metadata jacket, catalogs, etc. with customized versions that
 you like.  All static resources are stored in the resources sub-folder of the
@@ -77,11 +83,20 @@ the configuration directory as :file:`resources/images/trash.png`. All the
 icons used by the calibre user interface are in :file:`resources/images` and
 its sub-folders.
 
+Creating your own icon theme for calibre
+-------------------------------------------------------------
 
-.. note:: 
-    There are several replacement icon sets for calibre created by users
-    over the years. You can find them gathered together in this `forum thread 
-    <http://www.mobileread.com/forums/showthread.php?t=151397>`_.
+If you have created a beautiful set of icons and wish to share them with other
+calibre users via calibre's builtin icon theme support, you can easily package
+up your icons into a theme. To do so, go to
+:guilabel:`Preferences->Miscellaneous->Create icon theme`, select the folder
+where you have put your icons (usually the :file:`resources/images` folder in
+the calibre config directory, as described above). Then fill up the theme
+metadata and click OK.  This will result in a zip file containing the theme
+icons. You can upload that to the calibre forum at `Mobileread
+<http://www.mobileread.com/forums/forumdisplay.php?f=166>`_ and then I will
+make your theme available via calibre's builtin icon theme system.
+
 
 Customizing calibre with plugins
 --------------------------------
