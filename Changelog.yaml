@@ -20,6 +20,34 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.37.0
+  date: 2015-09-04
+
+  new features:
+    - title: "Driver for the Lark Freebook reader device"
+      ticket: [1491543]
+
+    - title: "A redesigned busy spinner -- why should icons get all the love?"
+
+    - title: "When merging book records, show more information about the target book record."
+      tickets: [1490343]
+
+    - title: "A new icon theme 'Dark Blue' (Preferences->Look & Feel->Change icon theme)"
+
+    - title: "Add a check box to control copying ebook files when duplicating book records via the Add Empty Book dialog"
+
+  bug fixes:
+    - title: "Edit Book: Check Book: Fix automatic fixing of unsafe ids not working if the file containing the unsafe also needs to be fixed for an unsafe filename."
+      tickets: [1491728]
+
+    - title: "E-book viewer: Informative error message for themes button when no themes have been created"
+
+    - title: "Fix a regression that caused the library switch entries at the bottom of the library menu to not work when there are many libraries."
+      tickets: [1490096]
+
+    - title: "Get Books: Update Amazon EU store plugins for website changes"
+
+
 - version: 2.36.0
   date: 2015-08-28
 
