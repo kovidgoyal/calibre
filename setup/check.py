@@ -62,7 +62,7 @@ class Check(Command):
             errors = False
             ext = os.path.splitext(f)[1]
             if ext in {'.py', '.recipe'}:
-                p = subprocess.Popen(['flake8', '--ignore=E,W', f])
+                p = subprocess.Popen(['flake8-python2', '--ignore=E,W', f])
                 if p.wait() != 0:
                     errors = True
             else:
