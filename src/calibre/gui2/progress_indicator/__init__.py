@@ -97,6 +97,8 @@ class ProgressSpinner(QWidget):
         return self._size_hint
 
     def setSizeHint(self, val):
+        if isinstance(val, int):
+            val = QSize(val, val)
         self._size_hint = val
         self.update()
     setDisplaySize = setSizeHint
