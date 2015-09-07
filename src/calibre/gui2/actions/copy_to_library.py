@@ -166,12 +166,12 @@ class Worker(Thread):  # {{{
                             self.duplicate_ids[x] = (mi.title, mi.authors)
                         continue
 
-                newdb.import_book(mi, paths, notify=False, import_hooks=False,
+                new_book_id = newdb.import_book(mi, paths, notify=False, import_hooks=False,
                     apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
                     preserve_uuid=self.delete_after)
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
-                    newdb.set_conversion_options(x, 'PIPE', co)
+                    newdb.set_conversion_options(new_book_id, 'PIPE', co)
                 self.processed.add(x)
             finally:
                 for path in paths:
