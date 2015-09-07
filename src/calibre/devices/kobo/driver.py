@@ -64,7 +64,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 1, 10)
+    version = (2, 1, 11)
 
     dbversion = 0
     fwversion = 0
@@ -1377,9 +1377,10 @@ class KOBOTOUCH(KOBO):
     GLO_HD_PRODUCT_ID   = [0x4223]
     MINI_PRODUCT_ID     = [0x4183]
     TOUCH_PRODUCT_ID    = [0x4163]
+    TOUCH2_PRODUCT_ID   = [0x4224]
     PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
-                          MINI_PRODUCT_ID + TOUCH_PRODUCT_ID
+                          MINI_PRODUCT_ID + TOUCH_PRODUCT_ID +TOUCH2_PRODUCT_ID
 
     BCD = [0x0110, 0x0326]
 
@@ -2800,6 +2801,8 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.MINI_PRODUCT_ID
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
+    def isTouch2(self):
+        return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
 
     def cover_file_endings(self):
         return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() \
@@ -2822,6 +2825,8 @@ class KOBOTOUCH(KOBO):
             device_name = 'Kobo Mini'
         elif self.isTouch():
             device_name = 'Kobo Touch'
+        elif self.isTouch2():
+            device_name = 'Kobo Touch 2'
         self.__class__.gui_name = device_name
         return device_name
 
