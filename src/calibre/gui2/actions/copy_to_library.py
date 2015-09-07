@@ -166,9 +166,30 @@ class Worker(Thread):  # {{{
                             self.duplicate_ids[x] = (mi.title, mi.authors)
                         continue
 
+                new_authors = {k for k, v in newdb.new_api.get_item_ids('authors', mi.authors).iteritems() if v is None}
                 new_book_id = newdb.import_book(mi, paths, notify=False, import_hooks=False,
                     apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
                     preserve_uuid=self.delete_after)
+                if new_authors:
+                    author_id_map = self.db.new_api.get_item_ids('authors', new_authors)
+                    sort_map, link_map = {}, {}
+                    for author, aid in author_id_map.iteritems():
+                        if aid is not None:
+                            adata = self.db.new_api.author_data((aid,)).get(aid)
+                            if adata is not None:
+                                aid = newdb.new_api.get_item_id('authors', author)
+                                if aid is not None:
+                                    asv = adata.get('sort')
+                                    if asv:
+                                        sort_map[aid] = asv
+                                    alv = adata.get('link')
+                                    if alv:
+                                        link_map[aid] = alv
+                    if sort_map:
+                        newdb.new_api.set_sort_for_authors(sort_map, update_books=False)
+                    if link_map:
+                        newdb.new_api.set_link_for_authors(link_map)
+
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
                     newdb.set_conversion_options(new_book_id, 'PIPE', co)
@@ -490,5 +511,3 @@ class CopyToLibraryAction(InterfaceAction):
         warning_dialog(self.gui, _('Not allowed'),
                     _('You cannot use other libraries while using the environment'
                       ' variable CALIBRE_OVERRIDE_DATABASE_PATH.'), show=True)
-
-
