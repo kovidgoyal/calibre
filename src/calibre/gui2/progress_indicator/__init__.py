@@ -8,7 +8,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import math
 from PyQt5.Qt import (
     Qt, QWidget, QSizePolicy, QSize, QRect, QConicalGradient, QPen, QBrush,
-    QPainter, QTimer
+    QPainter, QTimer, QVBoxLayout, QLabel, QStackedWidget
 )
 
 def draw_snake_spinner(painter, rect, angle, light, dark):
@@ -118,6 +118,39 @@ class ProgressSpinner(QWidget):
                 self.errored_out = True
 
 ProgressIndicator = ProgressSpinner
+
+class WaitPanel(QWidget):
+
+    def __init__(self, msg, parent=None, size=256, interval=10):
+        QWidget.__init__(self, parent)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.l = l = QVBoxLayout(self)
+        self.spinner = ProgressIndicator(parent=self, size=size, interval=interval)
+        self.start, self.stop = self.spinner.start, self.spinner.stop
+        l.addStretch(), l.addWidget(self.spinner, 0, Qt.AlignCenter)
+        self.la = QLabel(msg)
+        self.la.setStyleSheet('QLabel { font-size: 40px; font-weight: bold }')
+        l.addWidget(self.la, 0, Qt.AlignCenter), l.addStretch()
+
+class WaitStack(QStackedWidget):
+
+    def __init__(self, msg, after=None, parent=None, size=256, interval=10):
+        QStackedWidget.__init__(self, parent)
+        self.wp = WaitPanel(msg, self, size, interval)
+        if after is None:
+            after = QWidget(self)
+        self.after = after
+        self.addWidget(self.wp)
+        self.addWidget(after)
+
+    def start(self):
+        self.setCurrentWidget(self.wp)
+        self.wp.start()
+
+    def stop(self):
+        self.wp.stop()
+        self.setCurrentWidget(self.after)
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
