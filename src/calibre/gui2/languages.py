@@ -11,6 +11,16 @@ from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.localization import lang_map
 from calibre.utils.icu import sort_key, lower
 
+_lang_map = None
+
+def get_lang_map():
+    global _lang_map
+    if _lang_map is None:
+        _lang_map = lang_map().copy()
+        for x in ('zxx', 'mis', 'mul'):
+            _lang_map.pop(x, None)
+    return _lang_map
+
 class LanguagesEdit(EditWithComplete):
 
     def __init__(self, parent=None, db=None):
@@ -18,7 +28,7 @@ class LanguagesEdit(EditWithComplete):
 
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(20)
-        self._lang_map = lang_map()
+        self._lang_map = get_lang_map()
         self.names_with_commas = [x for x in self._lang_map.itervalues() if ',' in x]
         self.comma_map = {k:k.replace(',', '|') for k in self.names_with_commas}
         self.comma_rmap = {v:k for k, v in self.comma_map.iteritems()}
