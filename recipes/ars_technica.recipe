@@ -53,19 +53,18 @@ class ArsTechnica(BasicNewsRecipe):
 
     feeds = [
 
-             (u'Ars Features (All our long-form feature articles)'        , u'http://feeds.arstechnica.com/arstechnica/features')
-             , (u'Technology Lab (Information Technology)'        , u'http://feeds.arstechnica.com/arstechnica/technology-lab/')
-             ,(u'Ministry of Innovation (Business of Technology)'        , u'http://feeds.arstechnica.com/arstechnica/business')
-             ,(u'Staff Blogs (From the Minds of Ars)'        , u'http://feeds.arstechnica.com/arstechnica/staff-blogs')
-             ,(u'Infinite Loop (Apple content)'        , u'http://feeds.arstechnica.com/arstechnica/apple/')
-             ,(u'Opposable Thumbs (Gaming content)'    , u'http://feeds.arstechnica.com/arstechnica/gaming/')
-             ,(u'Gear and Gadgets'                     , u'http://feeds.arstechnica.com/arstechnica/gadgets/')
-             ,(u'Uptime (IT content)'                  , u'http://feeds.arstechnica.com/arstechnica/business/')
-             ,(u'Open Ended (Open Source content)'     , u'http://feeds.arstechnica.com/arstechnica/open-source/')
-             ,(u'One Microsoft Way'                    , u'http://feeds.arstechnica.com/arstechnica/microsoft/')
-             ,(u'Scientific method (Science content)'       , u'http://feeds.arstechnica.com/arstechnica/science/')
-             ,(u'Law & Disorder (Tech policy content)' , u'http://feeds.arstechnica.com/arstechnica/tech-policy/')
-             ,(u'Risk Assessment (Security content)'   , u'http://feeds.arstechnica.com/arstechnica/security/')
+             (u'Ars Features (All our long-form feature articles)' , u'http://feeds.arstechnica.com/arstechnica/features')
+             , (u'Technology Lab (Information Technology)'     , u'http://feeds.arstechnica.com/arstechnica/technology-lab')
+             ,(u'Gear & Gadgets'                               , u'http://feeds.arstechnica.com/arstechnica/gadgets')
+             ,(u'Ministry of Innovation (Business of Technology)'  , u'http://feeds.arstechnica.com/arstechnica/business')
+             ,(u'Risk Assessment (Security & Hacktivism)'      , u'http://feeds.arstechnica.com/arstechnica/security')
+             ,(u'Law & Disorder (Civilizations & Discontents)' , u'http://feeds.arstechnica.com/arstechnica/tech-policy')
+             ,(u'Infinite Loop (Apple Ecosystem)'              , u'http://feeds.arstechnica.com/arstechnica/apple')
+             ,(u'Opposable Thumbs (Gaming & Entertainment)'    , u'http://feeds.arstechnica.com/arstechnica/gaming')
+             ,(u'Scientific Method (Science & Exploration)'       , u'http://feeds.arstechnica.com/arstechnica/science')
+             ,(u'Multiverse (Exploratoins & Meditations on Sci-Fi)'    , u'http://feeds.arstechnica.com/arstechnica/multiverse')
+             ,(u'Cars Technica (All Things Automotive)'        , u'http://feeds.arstechnica.com/arstechnica/cars')
+             ,(u'Staff Blogs (From the Minds of Ars)'          , u'http://feeds.arstechnica.com/arstechnica/staff-blogs')
             ]
 
     def append_page(self, soup, appendtag, position):
