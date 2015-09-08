@@ -1,11 +1,13 @@
-#!/usr/bin/env  python2
-# -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
-__copyright__ = '2011, gagsays <gagsays at gmail dot com>'
-'''
-nationalgeographic.com
-'''
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
+import html5lib
+from lxml.html import tostring
+from css_selectors import Select
+
 class NatGeo(BasicNewsRecipe):
     title          = u'National Geographic'
     description = 'Daily news articles from The National Geographic'
@@ -15,57 +17,50 @@ class NatGeo(BasicNewsRecipe):
     encoding              = 'utf8'
     publisher              = 'nationalgeographic.com'
     category               = 'science, nat geo'
-    __author__           = 'gagsays'
+    __author__           = 'Kovid Goyal'
     masthead_url        = 'http://s.ngeo.com/wpf/sites/themes/global/i/presentation/ng_logo_small.png'
     description           = 'Inspiring people to care about the planet since 1888'
     timefmt = ' [%a, %d %b, %Y]'
     no_stylesheets        = True
     use_embedded_content  = False
+    remove_attributes = ['style']
 
-    extra_css = '''
-                body {color: #000000;font-size: medium;}
-                h1 {color: #222222; font-size: large; font-weight:lighter; text-decoration:none; text-align: center;font-family:Georgia,Times New Roman,Times,serif;}
-          h2 {color: #454545; font-size: small; font-weight:lighter; text-decoration:none; text-align: justify; font-style:italic;font-family :Georgia,Times New Roman,Times,serif;}
-                h3 {color: #555555; font-size: small; font-style:italic; margin-top: 10px;}
-                img{margin-bottom: 0.25em;display:block;margin-left: auto;margin-right: auto;}
-                a:link,a,.a,href {text-decoration: none;color: #000000;}
-                .caption{color: #000000;font-size: xx-small;text-align: justify;font-weight:normal;}
-                .credit{color: #555555;font-size: xx-small;text-align: left;font-weight:lighter;}
-                p.author,p.publication{color: #000000;font-size: xx-small;text-align: left;display:inline;}
-                p.publication_time{color: #000000;font-size: xx-small;text-align: right;text-decoration: underline;}
-                p {margin-bottom: 0;}
-                p + p {text-indent: 1.5em;margin-top: 0;}
-                .hidden{display:none;}
-                #page_head{text-transform:uppercase;}
-               '''
+    feeds = [
+        (u'Daily News', u'http://feeds.nationalgeographic.com/ng/News/News_Main')
+    ]
 
-    def parse_feeds (self):
-      feeds = BasicNewsRecipe.parse_feeds(self)
-      for feed in feeds:
-        for article in feed.articles[:]:
-          if 'Presented' in article.title or 'Pictures' in article.title:
-            feed.articles.remove(article)
-      return feeds
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles[:]:
+                if 'Presented' in article.title or 'Pictures' in article.title:
+                    feed.articles.remove(article)
+        return feeds
+
+    def preprocess_raw_html(self, raw_html, url):
+        # BeautifulSoup does not parse the natgeo html correctly, so we use a
+        # custom cleanup routine
+        root = html5lib.parse(raw_html, namespaceHTMLElements=False, treebuilder='lxml')
+        select = Select(root)
+        keep = tuple(select('.mainArt')) + tuple(select('.byline')) + tuple(select('#article__body'))
+        body = root.xpath('//body')[0]
+        for elem in keep:
+            body.append(elem)
+        for child in tuple(body.iterchildren('*')):
+            if child not in keep:
+                body.remove(child)
+        for head in root.xpath('//head'):
+            for child in tuple(head.iterchildren('*')):
+                head.remove(child)
+        return tostring(root, encoding=unicode)
 
     def preprocess_html(self, soup):
-        for alink in soup.findAll('a'):
-            if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
+        for div in soup.findAll(attrs={'data-src':True, 'class':'delayed-image-load'}):
+            url = div['data-src']
+            idx = url.find('.jpg/{width')
+            if idx != -1:
+                url = url[:idx + 4]
+                img = Tag(soup, "img")
+                img['src'] = url
+                div.append(img)
         return soup
-
-    remove_tags_before = dict(id='page_head')
-    keep_only_tags = [
-         dict(name='div',attrs={'id':['page_head','content_mainA']})
-    ]
-    remove_tags_after = [
-         dict(name='div',attrs={'class':['article_text','promo_collection']})
-    ]
-    remove_tags    = [
-                               dict(name='div', attrs={'class':['aside','primary full_width']})
-                               ,dict(name='div', attrs={'id':['header_search','navigation_mainB_wrap']})
-                                ]
-    feeds = [
-                    (u'Daily News', u'http://feeds.nationalgeographic.com/ng/News/News_Main')
-                    ]
-
