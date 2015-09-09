@@ -220,6 +220,13 @@ class EditorSettings(BasicSettings):
             ' for easy correction as you type.'))
         l.addRow(lw)
 
+        lw = self('editor_accepts_drops')
+        lw.setText(_('Allow drag and drop editing of text'))
+        lw.setToolTip('<p>' + _(
+        'Allow using drag and drop to move text around in the editor.'
+        ' It can be useful to turn this off if you have a misbehaving touchpad.'))
+        l.addRow(lw)
+
         self.dictionaries = d = QPushButton(_('Manage &spelling dictionaries'), self)
         d.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         d.clicked.connect(self.manage_dictionaries)
