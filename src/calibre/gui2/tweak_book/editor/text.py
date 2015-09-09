@@ -119,6 +119,7 @@ class TextEdit(PlainTextEdit):
 
     def apply_settings(self, prefs=None, dictionaries_changed=False):  # {{{
         prefs = prefs or tprefs
+        self.setAcceptDrops(prefs.get('editor_accepts_drops', True))
         self.setLineWrapMode(QPlainTextEdit.WidgetWidth if prefs['editor_line_wrap'] else QPlainTextEdit.NoWrap)
         theme = get_theme(prefs['editor_theme'])
         self.apply_theme(theme)
