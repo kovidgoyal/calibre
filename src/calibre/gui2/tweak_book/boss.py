@@ -1190,6 +1190,12 @@ class Boss(QObject):
         mt = current_container().mime_map.get(name, guess_type(name))
         self.edit_file_requested(name, None, mt)
 
+    def check_external_links(self):
+        if current_container() is None:
+            return error_dialog(self.gui, _('No book open'), _(
+                'You must first open a book in order to check links.'), show=True)
+        self.gui.check_external_links.show()
+
     def sync_editor_to_preview(self, name, sourceline_address):
         editor = self.edit_file(name, 'html')
         self.ignore_preview_to_editor_sync = True

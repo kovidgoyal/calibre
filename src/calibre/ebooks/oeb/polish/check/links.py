@@ -9,7 +9,11 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from collections import defaultdict
 from urlparse import urlparse
+from future_builtins import map
+from threading import Thread
+from Queue import Queue, Empty
 
+from calibre import browser
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
@@ -336,3 +340,45 @@ def check_links(container):
             a(Bookmarks(name))
 
     return errors
+
+def check_external_links(container, progress_callback=lambda num, total:None):
+    progress_callback(0, 0)
+    external_links = defaultdict(list)
+    for name, mt in container.mime_map.iteritems():
+        if mt in OEB_DOCS or mt in OEB_STYLES:
+            for href, lnum, col in container.iterlinks(name):
+                purl = urlparse(href)
+                if purl.scheme in ('http', 'https'):
+                    key = href.partition('#')[0]
+                    external_links[key].append((name, href, lnum, col))
+    if not external_links:
+        return []
+    items = Queue()
+    ans = []
+    tuple(map(items.put, external_links.iteritems()))
+    progress_callback(0, len(external_links))
+    done = []
+
+    def check_links():
+        br = browser(honor_time=False, verify_ssl_certificates=False)
+        while True:
+            try:
+                href, locations = items.get_nowait()
+            except Empty:
+                return
+            try:
+                br.open(href, timeout=10).close()
+            except Exception as e:
+                ans.append((locations, e, href))
+            finally:
+                done.append(None)
+                progress_callback(len(done), len(external_links))
+
+    workers = [Thread(name="CheckLinks", target=check_links) for i in xrange(min(10, len(external_links)))]
+    for w in workers:
+        w.daemon = True
+        w.start()
+
+    for w in workers:
+        w.join()
+    return ans

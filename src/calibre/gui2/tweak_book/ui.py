@@ -33,6 +33,7 @@ from calibre.gui2.tweak_book.preview import Preview
 from calibre.gui2.tweak_book.plugin import create_plugin_actions
 from calibre.gui2.tweak_book.search import SearchPanel
 from calibre.gui2.tweak_book.check import Check
+from calibre.gui2.tweak_book.check_links import CheckExternalLinks
 from calibre.gui2.tweak_book.spell import SpellCheck
 from calibre.gui2.tweak_book.search import SavedSearches
 from calibre.gui2.tweak_book.toc import TOCViewer
@@ -250,6 +251,7 @@ class Main(MainWindow):
         self.saved_searches = SavedSearches(self)
         self.image_browser = InsertImage(self, for_browsing=True)
         self.reports = Reports(self)
+        self.check_external_links = CheckExternalLinks(self)
         self.insert_char = CharSelect(self)
         self.manage_fonts = ManageFonts(self)
         self.sr_debug_output = DebugOutput(self)
@@ -382,6 +384,8 @@ class Main(MainWindow):
         self.action_add_cover = treg('default_cover.png', _('Add &cover'), self.boss.add_cover, 'add-cover', (), _('Add a cover to the book'))
         self.action_reports = treg(
             'reports.png', _('&Reports'), self.boss.show_reports, 'show-reports', ('Ctrl+Shift+R',), _('Show a report on various aspects of the book'))
+        self.action_check_external_links = treg('insert-link.png', _('Check &external links'), self.boss.check_external_links, 'check-external-links', (), _(
+            'Check external links in the book'))
 
         def ereg(icon, text, target, sid, keys, description):
             return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
@@ -538,6 +542,7 @@ class Main(MainWindow):
         e.addAction(self.action_set_semantics)
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
+        e.addAction(self.action_check_external_links)
         e.addAction(self.action_check_book)
         e.addAction(self.action_reports)
 

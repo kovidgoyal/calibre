@@ -681,6 +681,14 @@ Note that editing the styles does not actually make changes to the book
 contents, it only allows for quick experimentation. The ability to live edit
 inside the Inspector is under development.
 
+Checking external links
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can use this tool to check all links in your book that point to external
+websites. The tool will try to visit every externally linked website, and
+if the visit fails, it will report all broken links in a convenient format for 
+you to fix.
+
 Arrange files into folders by type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
