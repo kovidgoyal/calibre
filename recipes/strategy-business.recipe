@@ -65,8 +65,10 @@ class StrategyBusinessRecipe(BasicNewsRecipe):
     feeds.append((u'Business Literature', u'http://feeds.feedburner.com/StrategyBusiness-BusinessLiterature?format=xml'))
     feeds.append((u'Recent Research', u'http://feeds.feedburner.com/StrategyBusiness-RecentResearch?format=xml'))
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name='div', attrs={'id': 'sb-column2'}))
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(attrs={'class':['introAndByline', 'content', 'resources']}),
+    ]
 
     remove_tags = []
     remove_tags.append(dict(name='img', attrs={'class': 'content1'}))
