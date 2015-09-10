@@ -1957,7 +1957,7 @@ class DeviceMixin(object):  # {{{
                             pt.close()
                             files.append(filename_to_unicode(os.path.abspath(pt.name)))
                             names.append(fmt_name)
-                            metadata.append(db.new_api.get_metadata(id_, get_cover=True, cover_as_data=True))
+                            metadata.append(db.new_api.get_metadata(id_, get_cover=True))
                         except:
                             prints('Problem creating temporary file for', fmt_name)
                             traceback.print_exc()
