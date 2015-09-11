@@ -30,6 +30,8 @@
 
     - title: "Edit Book: Add an option to turn off drag and drop editing of text (Preferences->Editor)"
 
+    - title: "Two new icon themes: Primo+ and Black Edition (Preferences->Look & Feel->Change icon theme)"
+
   bug fixes:
     - title: "Copy to Library: Fix author sort/link values not being copied when copying a book with an author not present in the destination library."
       tickets: [1492685]
