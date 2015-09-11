@@ -20,6 +20,34 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.38.0
+  date: 2015-09-11
+
+  new features:
+    - title: "Add support for Kobo Touch 2"
+
+    - title: "Edit Book: Add a tool to check external links (links pointing to websites). Can be accessed via Tools->Check external links"
+
+    - title: "Edit Book: Add an option to turn off drag and drop editing of text (Preferences->Editor)"
+
+  bug fixes:
+    - title: "Copy to Library: Fix author sort/link values not being copied when copying a book with an author not present in the destination library."
+      tickets: [1492685]
+
+    - title: "When inserting metadata jackets do not set media for the stylesheet. This prevented the stylesheet from working with some reader devices."
+
+    - title: "Copy to library: Fix conversion options not being copied when copying books between libraries"
+
+  improved recipes:
+    - Strategy+Business
+    - Ars Technica 
+    - National Geographic
+    - New York Times Technology Beat
+
+  new recipes:
+    - title: Karsi Gazete 
+      author: Voltran
+
 - version: 2.37.1
   date: 2015-09-04
 
