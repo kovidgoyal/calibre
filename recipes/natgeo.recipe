@@ -2,6 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 import html5lib
@@ -40,6 +41,10 @@ class NatGeo(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         # BeautifulSoup does not parse the natgeo html correctly, so we use a
         # custom cleanup routine
+
+        # NatGeo embeds huge inline svg images as interactive graphics, this
+        # breaks conversion because split points cannot be found
+        raw_html = re.sub(r'<svg.+?</svg>', '', raw_html, flags=re.DOTALL)
         root = html5lib.parse(raw_html, namespaceHTMLElements=False, treebuilder='lxml')
         select = Select(root)
         keep = tuple(select('.mainArt')) + tuple(select('.byline')) + tuple(select('#article__body'))
