@@ -394,7 +394,7 @@ class Document(QWebPage):  # {{{
         return ans
 
     def javaScriptConsoleMessage(self, msg, lineno, msgid):
-        if DEBUG:
+        if DEBUG or self.debug_javascript:
             prints(msg)
 
     def javaScriptAlert(self, frame, msg):
