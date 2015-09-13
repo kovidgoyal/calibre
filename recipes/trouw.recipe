@@ -1,4 +1,5 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+import cookielib
 
 class BasicUserRecipe1333905513(BasicNewsRecipe):
     title          = u'Trouw'
@@ -7,6 +8,40 @@ class BasicUserRecipe1333905513(BasicNewsRecipe):
     description    = u'Trouw de Verdieping'
     oldest_article = 1
     max_articles_per_feed = 25
-    auto_cleanup = True
+    no_stylesheets = True
 
-    feeds          = [(u'Nederland', u'http://www.trouw.nl/nieuws/nederland/rss.xml'), (u'Buitenland', u'http://www.trouw.nl/nieuws/buitenland/rss.xml'), (u'Politiek', u'http://www.trouw.nl/nieuws/politiek/rss.xml'), (u'Economie', u'http://www.trouw.nl/nieuws/economie/rss.xml'), (u'Sport', u'http://www.trouw.nl/nieuws/sport/rss.xml'), (u'Cultuur', u'http://www.trouw.nl/nieuws/cultuur/rss.xml'), (u'Gezondheid', u'http://www.trouw.nl/nieuws/gezondheid/rss.xml'), (u'Onderwijs', u'http://www.trouw.nl/nieuws/onderwijs/rss.xml'), (u'Opinie', u'http://www.trouw.nl/opinie/rss.xml'), (u'Groen', u'http://www.trouw.nl/groen/rss.xml'), (u'Religie-Filosofie', u'http://www.trouw.nl/religie-filosofie/rss.xml'), (u'Schrijf', u'http://www.trouw.nl/schrijf/rss.xml'), (u'Moderne Manieren', u'http://www.trouw.nl/moderne-manieren/rss.xml')]
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        # Add a cookie indicating we have accepted the cookie
+        # policy
+        ck = cookielib.Cookie(
+            version=0, name='nl_cookiewall_version', value='1', port=None,
+            port_specified=False, domain='.trouw.nl',
+            domain_specified=False, domain_initial_dot=True, path='/',
+            path_specified=False, secure=False, expires=None, discard=False,
+            comment=None, comment_url=None, rest={'HttpOnly': None}, rfc2109=False)
+        br.cookiejar.set_cookie(ck)
+        return br
+
+    keep_only_tags = [
+        dict(id=['articleDetailTitle', 'art_box2']),
+    ]
+    remove_tags = [
+        dict(attrs={'class':'twitter-tweet'}),
+    ]
+
+    feeds          = [
+        (u'Nederland', u'http://www.trouw.nl/nieuws/nederland/rss.xml'),
+        (u'Buitenland', u'http://www.trouw.nl/nieuws/buitenland/rss.xml'),
+        (u'Politiek', u'http://www.trouw.nl/nieuws/politiek/rss.xml'),
+        (u'Economie', u'http://www.trouw.nl/nieuws/economie/rss.xml'),
+        (u'Sport', u'http://www.trouw.nl/nieuws/sport/rss.xml'),
+        (u'Cultuur', u'http://www.trouw.nl/nieuws/cultuur/rss.xml'),
+        (u'Gezondheid', u'http://www.trouw.nl/nieuws/gezondheid/rss.xml'),
+        (u'Onderwijs', u'http://www.trouw.nl/nieuws/onderwijs/rss.xml'),
+        (u'Opinie', u'http://www.trouw.nl/opinie/rss.xml'),
+        (u'Groen', u'http://www.trouw.nl/groen/rss.xml'),
+        (u'Religie-Filosofie', u'http://www.trouw.nl/religie-filosofie/rss.xml'),
+        (u'Schrijf', u'http://www.trouw.nl/schrijf/rss.xml'),
+        (u'Moderne Manieren', u'http://www.trouw.nl/moderne-manieren/rss.xml')
+    ]
