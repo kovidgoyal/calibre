@@ -146,27 +146,33 @@ lcdata = {
     u'yesexpr': u'^[yY].*'
 }
 
+def load_po(path):
+    from calibre.translations.msgfmt import make
+    buf = cStringIO.StringIO()
+    try:
+        make(path, buf)
+    except Exception:
+        print (('Failed to compile translations file: %s, ignoring') % path)
+        buf = None
+    else:
+        buf = cStringIO.StringIO(buf.getvalue())
+    return buf
+
+
 def set_translators():
     global _lang_trans, lcdata
     # To test different translations invoke as
     # CALIBRE_OVERRIDE_LANG=de_DE.utf8 program
     lang = get_lang()
-    t = None
+    t = buf = iso639 = None
+
+    if 'CALIBRE_TEST_TRANSLATION' in os.environ:
+        buf = load_po(os.path.expanduser(os.environ['CALIBRE_TEST_TRANSLATION']))
 
     if lang:
-        buf = iso639 = None
         mpath = get_lc_messages_path(lang)
-        if mpath and os.access(mpath+'.po', os.R_OK):
-            from calibre.translations.msgfmt import make
-            buf = cStringIO.StringIO()
-            try:
-                make(mpath+'.po', buf)
-            except:
-                print (('Failed to compile translations file: %s,'
-                        ' ignoring')%(mpath+'.po'))
-                buf = None
-            else:
-                buf = cStringIO.StringIO(buf.getvalue())
+        if buf is None and mpath and os.access(mpath + '.po', os.R_OK):
+            buf = load_po(mpath + '.po')
 
         if mpath is not None:
             from zipfile import ZipFile
@@ -187,11 +193,11 @@ def set_translators():
                     except:
                         pass  # No lcdata
 
-        if buf is not None:
-            t = GNUTranslations(buf)
-            if iso639 is not None:
-                iso639 = _lang_trans = GNUTranslations(iso639)
-                t.add_fallback(iso639)
+    if buf is not None:
+        t = GNUTranslations(buf)
+        if iso639 is not None:
+            iso639 = _lang_trans = GNUTranslations(iso639)
+            t.add_fallback(iso639)
 
     if t is None:
         t = NullTranslations()
