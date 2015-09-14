@@ -19,6 +19,7 @@ from calibre.library.server.utils import strftime, format_tag_string
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable, isbytestring
+from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import utcfromtimestamp, as_local_time
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import sort_key
@@ -148,8 +149,8 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
             if val:
                 ctext += '%s=[%s] '%tuple(val.split(':#:'))
 
-        first = SPAN(u'\u202f%s %s by %s' % (book['title'], series,
-            book['authors']), CLASS('first-line'))
+        first = SPAN(u'\u202f%s %s by %s' % (clean_xml_chars(book['title']), clean_xml_chars(series),
+            clean_xml_chars(book['authors'])), CLASS('first-line'))
         div.append(first)
         second = SPAN(u'%s - %s %s %s' % (book['size'],
             book['timestamp'],
