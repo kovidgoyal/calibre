@@ -154,7 +154,7 @@ class WSJ(JavascriptRecipe):
     def get_wsj_index(self, browser):
         # return self.test_wsj_index()
         ans = {}
-        root = self.index_to_soup('http://online.wsj.com/itp')
+        root = self.index_to_soup('http://online.wsj.com/itp/today')
         for span in CSSSelect('span.date-date')(root):
             if span.text:
                 self.timefmt = span.text
