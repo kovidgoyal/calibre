@@ -12,7 +12,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     category = 'info, custom, Instapaper'
     oldest_article = 365
     max_articles_per_feed = 100
-    reverse_article_order = True
+#    reverse_article_order = True
     no_stylesheets = False
     extra_css = 'q { font-style: italic; } .size3mode { color: black; }'
     remove_javascript = True
@@ -26,18 +26,19 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             dict(name='div', attrs={'class':'modal_name'}),
             dict(name='div', attrs={'class':'highlight_popover'}),
             dict(name='div', attrs={'class':'bar bottom'}),
+            dict(name='div', attrs={'class':'evernote_confirm'}),
             dict(name='div', attrs={'id':'controlbar_container'}),
             dict(name='div', attrs={'id':'footer'}),
             dict(name='label')
     ]
     use_embedded_content = False
     needs_subscription = True
-    INDEX = u'http://www.instapaper.com'
+    INDEX = u'https://www.instapaper.com'
     LOGIN = INDEX + u'/user/login'
 
     feeds = [
-            (u'Instapaper Unread', u'https://www.instapaper.com/u'),
-            (u'Instapaper Starred', u'http://www.instapaper.com/starred')
+            (u'Instapaper Unread', u'https://www.instapaper.com/u')
+#            (u'Instapaper Starred', u'https://www.instapaper.com/starred')
     ]
 
     def get_browser(self):
@@ -68,4 +69,4 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
         return totalfeeds
 
     def print_version(self, url):
-        return 'http://www.instapaper.com' + url
+        return 'https://www.instapaper.com' + url
