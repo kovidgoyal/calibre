@@ -12,7 +12,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     category = 'info, custom, Instapaper'
     oldest_article = 365
     max_articles_per_feed = 100
-    reverse_article_order = True
+#    reverse_article_order = True
     no_stylesheets = False
     extra_css = 'q { font-style: italic; } .size3mode { color: black; }'
     remove_javascript = True
