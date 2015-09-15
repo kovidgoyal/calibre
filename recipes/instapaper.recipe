@@ -37,8 +37,8 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     LOGIN = INDEX + u'/user/login'
 
     feeds = [
-            (u'Instapaper Unread', u'https://www.instapaper.com/u'),
-            (u'Instapaper Starred', u'https://www.instapaper.com/starred')
+            (u'Instapaper Unread', u'https://www.instapaper.com/u')
+#            (u'Instapaper Starred', u'https://www.instapaper.com/starred')
     ]
 
     def get_browser(self):
