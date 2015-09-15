@@ -33,12 +33,12 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
     ]
     use_embedded_content = False
     needs_subscription = True
-    INDEX = u'http://www.instapaper.com'
+    INDEX = u'https://www.instapaper.com'
     LOGIN = INDEX + u'/user/login'
 
     feeds = [
             (u'Instapaper Unread', u'https://www.instapaper.com/u'),
-            (u'Instapaper Starred', u'http://www.instapaper.com/starred')
+            (u'Instapaper Starred', u'https://www.instapaper.com/starred')
     ]
 
     def get_browser(self):
@@ -69,4 +69,4 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
         return totalfeeds
 
     def print_version(self, url):
-        return 'http://www.instapaper.com' + url
+        return 'https://www.instapaper.com' + url
