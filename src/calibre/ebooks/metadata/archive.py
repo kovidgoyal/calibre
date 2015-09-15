@@ -108,7 +108,10 @@ def get_comic_book_info(d, mi, series_index='volume'):
         if si is None:
             si = d.get('issue' if series_index == 'volume' else 'volume', None)
         if si is not None:
-            mi.series_index = float(si)
+            try:
+                mi.series_index = float(si)
+            except Exception:
+                mi.series_index = 1
     if d.get('rating', -1) > -1:
         mi.rating = d['rating']
     for x in ('title', 'publisher'):
