@@ -150,6 +150,9 @@ class Images(QAbstractListModel):
                     self.image_names.append(name)
 
     def refresh(self):
+        from calibre.gui2.tweak_book.boss import get_boss
+        boss = get_boss()
+        boss.commit_all_editors_to_container()
         self.beginResetModel()
         self.build()
         self.endResetModel()
