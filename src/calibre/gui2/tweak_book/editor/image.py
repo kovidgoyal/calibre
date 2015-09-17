@@ -10,7 +10,7 @@ import sys
 from functools import partial
 
 from PyQt5.Qt import (
-    QMainWindow, Qt, QApplication, pyqtSignal, QLabel, QIcon, QFormLayout,
+    QMainWindow, Qt, QApplication, pyqtSignal, QLabel, QIcon, QFormLayout, QSize,
     QDialog, QSpinBox, QCheckBox, QDialogButtonBox, QToolButton, QMenu, QInputDialog)
 
 from calibre.gui2 import error_dialog
@@ -284,6 +284,7 @@ class Editor(QMainWindow):
         for x in self.bars:
             x.setFloatable(False)
             x.topLevelChanged.connect(self.toolbar_floated)
+            x.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
         self.restore_state()
 
     def toolbar_floated(self, floating):

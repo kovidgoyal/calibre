@@ -425,6 +425,14 @@ class ToolbarSettings(QWidget):
         self.toggle_visibility(False)
         self.bars.currentIndexChanged.connect(self.bar_changed)
 
+        self.toolbar_icon_size = ics = QSpinBox(self)
+        ics.setMinimum(16), ics.setMaximum(128), ics.setSuffix(' px'), ics.setValue(tprefs['toolbar_icon_size'])
+        ics.setToolTip('<p>' + _('Adjust the size of icons on all toolbars'))
+        r = l.rowCount()
+        self.toolbar_icon_size_label = la = QLabel(_('Toolbar &icon size:'))
+        la.setBuddy(ics)
+        l.addWidget(la, r, 0), l.addWidget(ics, r, 1)
+
     def read_settings(self, prefs=None):
         prefs = prefs or tprefs
         val = self.original_settings = {}
@@ -541,9 +549,12 @@ class ToolbarSettings(QWidget):
         self.read_settings(tprefs.defaults)
         self.original_settings = o
         self.build_lists()
+        self.toolbar_icon_size.setValue(tprefs.defaults['toolbar_icon_size'])
         self.changed_signal.emit()
 
     def commit(self):
+        if self.toolbar_icon_size.value() != tprefs['toolbar_icon_size']:
+            tprefs['toolbar_icon_size'] = self.toolbar_icon_size.value()
         if self.original_settings != self.current_settings:
             self.changed = True
             with tprefs:

@@ -148,6 +148,7 @@ class Boss(QObject):
 
     def preferences(self):
         orig_spell = tprefs['inline_spell_check']
+        orig_size = tprefs['toolbar_icon_size']
         p = Preferences(self.gui)
         ret = p.exec_()
         if p.dictionaries_changed:
@@ -158,6 +159,12 @@ class Boss(QObject):
             for ed in editors.itervalues():
                 if hasattr(ed, 'populate_toolbars'):
                     ed.populate_toolbars()
+        if orig_size != tprefs['toolbar_icon_size']:
+            for ed in editors.itervalues():
+                if hasattr(ed, 'bars'):
+                    for bar in ed.bars:
+                        bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
+
         if ret == p.Accepted:
             setup_cssutils_serialization()
             self.gui.apply_settings()

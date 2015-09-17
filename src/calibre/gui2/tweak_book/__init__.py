@@ -70,6 +70,7 @@ d['templates'] = {}
 d['auto_close_tags'] = True
 d['restore_book_state'] = True
 d['editor_accepts_drops'] = True
+d['toolbar_icon_size'] = 24
 del d
 
 ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}

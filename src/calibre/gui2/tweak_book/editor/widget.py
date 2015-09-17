@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     QMainWindow, Qt, QApplication, pyqtSignal, QMenu, qDrawShadeRect, QPainter,
-    QImage, QColor, QIcon, QPixmap, QToolButton, QAction, QTextCursor)
+    QImage, QColor, QIcon, QPixmap, QToolButton, QAction, QTextCursor, QSize)
 
 from calibre import prints
 from calibre.constants import DEBUG
@@ -25,7 +25,8 @@ from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
 
-def create_icon(text, palette=None, sz=32, divider=2):
+def create_icon(text, palette=None, sz=None, divider=2):
+    sz = sz or tprefs['toolbar_icon_size']
     if palette is None:
         palette = QApplication.palette()
     img = QImage(sz, sz, QImage.Format_ARGB32)
@@ -34,7 +35,7 @@ def create_icon(text, palette=None, sz=32, divider=2):
     p.setRenderHints(p.TextAntialiasing | p.Antialiasing)
     qDrawShadeRect(p, img.rect(), palette, fill=QColor('#ffffff'), lineWidth=1, midLineWidth=1)
     f = p.font()
-    f.setFamily('Liberation Sans'), f.setPixelSize(sz // divider), f.setBold(True)
+    f.setFamily('Liberation Sans'), f.setPixelSize(int(sz // divider)), f.setBold(True)
     p.setFont(f), p.setPen(Qt.black)
     p.drawText(img.rect().adjusted(2, 2, -2, -2), Qt.AlignCenter, text)
     p.end()
@@ -301,6 +302,7 @@ class Editor(QMainWindow):
         for x in self.bars:
             x.setFloatable(False)
             x.topLevelChanged.connect(self.toolbar_floated)
+            x.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
 
     def toolbar_floated(self, floating):
         if not floating:

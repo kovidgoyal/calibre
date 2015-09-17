@@ -14,7 +14,7 @@ from future_builtins import map
 from PyQt5.Qt import (
     QDockWidget, Qt, QLabel, QIcon, QAction, QApplication, QWidget, QEvent,
     QVBoxLayout, QStackedWidget, QTabWidget, QImage, QPixmap, pyqtSignal,
-    QMenu, QHBoxLayout, QTimer, QUrl)
+    QMenu, QHBoxLayout, QTimer, QUrl, QSize)
 
 from calibre import prints
 from calibre.constants import __appname__, get_version, isosx, DEBUG
@@ -289,6 +289,8 @@ class Main(MainWindow):
             self.setCorner(getattr(Qt, '%s%sCorner' % tuple(map(capitalize, (v, h)))), area)
         self.preview.apply_settings()
         self.live_css.apply_theme()
+        for bar in (self.global_bar, self.tools_bar, self.plugins_bar):
+            bar.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
 
     def show_status_message(self, msg, timeout=5):
         self.status_bar.showMessage(msg, int(timeout*1000))
@@ -609,6 +611,7 @@ class Main(MainWindow):
             b = self.addToolBar(text)
             b.setObjectName(name)  # Needed for saveState
             actions[name] = b.toggleViewAction()
+            b.setIconSize(QSize(tprefs['toolbar_icon_size'], tprefs['toolbar_icon_size']))
             return b
         self.global_bar = create(_('Book tool bar'), 'global')
         self.tools_bar = create(_('Tools tool bar'), 'tools')
