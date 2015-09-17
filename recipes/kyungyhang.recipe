@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 __license__   = 'GPL v3'
 __copyright__ = '2011, Seongkyoun Yoo <seongkyoun.yoo at gmail.com>'
 '''
@@ -5,26 +6,34 @@ Profile to download The Kyungyhang
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+import re
 
 class Kyungyhang(BasicNewsRecipe):
     title          = u'Kyungyhang'
     language = 'ko'
     description = u'The Kyungyhang Shinmun articles'
     __author__	= 'Seongkyoun Yoo'
-    oldest_article = 20
-    recursions = 2
-    max_articles_per_feed = 20
-    no_stylesheets         = True
+    oldest_article = 7
+    max_articles_per_feed = 10
+    no_stylesheets        = True
     remove_javascript     = True
+
+    preprocess_regexps = [
+			(re.compile("<div class='ad_movFocus'.*</html>", re.DOTALL|re.IGNORECASE), lambda match: '</html>'),
+			]
 
     keep_only_tags    = [
                         dict(name='div', attrs ={'class':['article_title_wrap']}),
+                        dict(name='div', attrs ={'class':['viewHeader']}),
                         dict(name='span', attrs ={'class':['article_txt']})
                         ]
 
     remove_tags_after = dict(id={'sub_bottom'})
 
     remove_tags = [
+       dict(name='div', attrs={'class':['widget_top_dable']}),
+       dict(name='div', attrs={'class':['article_bottom_ad']}),
+       dict(name='div', attrs={'class':['article_date']}),
        dict(name='iframe'),
        dict(id={'TdHot'}),
        dict(name='div', attrs={'class':['btn_list','bline','linebottom','bestArticle']}),
@@ -33,5 +42,14 @@ class Kyungyhang(BasicNewsRecipe):
        ]
 
     feeds = [
-	('All News','http://www.khan.co.kr/rss/rssdata/total_news.xml'),
+	#(u'전체기사','http://www.khan.co.kr/rss/rssdata/total_news.xml'),
+	(u'정치',    'http://www.khan.co.kr/rss/rssdata/politic_news.xml'),
+	(u'경제',    'http://www.khan.co.kr/rss/rssdata/economy_news.xml'),
+	(u'사회',    'http://www.khan.co.kr/rss/rssdata/society_news.xml'),
+	(u'세계',    'http://www.khan.co.kr/rss/rssdata/kh_world.xml'),
+	(u'스포츠',  'http://www.khan.co.kr/rss/rssdata/kh_sports.xml'),
+	(u'문화',    'http://www.khan.co.kr/rss/rssdata/culture_news.xml'),
+	(u'연예',    'http://www.khan.co.kr/rss/rssdata/kh_entertainment.xml'),
+	(u'IT',      'http://www.khan.co.kr/rss/rssdata/it_news.xml'),
+	(u'오피니언','http://www.khan.co.kr/rss/rssdata/opinion_news.xml'),
            ]

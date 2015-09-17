@@ -9,17 +9,30 @@ class Hankyoreh21(BasicNewsRecipe):
     title          = u'Hankyoreh21'
     language = 'ko'
     description = u'The Hankyoreh21 Magazine articles'
-    __author__	= 'Seongkyoun Yoo'
-    oldest_article = 20
-    recursions = 1
-    max_articles_per_feed = 120
-    no_stylesheets         = True
+    __author__  = 'Seongkyoun Yoo'
+    oldest_article = 30
+    max_articles_per_feed = 10
+    no_stylesheets        = True
     remove_javascript     = True
     keep_only_tags    = [
-						dict(name='font', attrs={'class':'t18bk'}),
-						dict(id=['fontSzArea'])
+                        dict(name='header', attrs ={'class':['article_head']}),
+                        dict(name='div', attrs ={'class':['article_body']}),
                         ]
+    remove_tags   = [
+                    dict(name='div', attrs ={'class':['article_tools']}),
+                    ]
 
     feeds = [
-	('Hani21','http://h21.hani.co.kr/rss/ '),
+        #('전체기사',  'http://h21.hani.co.kr/rss/'),
+        ('표지이야기','http://h21.hani.co.kr/rss/cover/'),
+        ('특집',      'http://h21.hani.co.kr/rss/special/'),
+        ('정치',      'http://h21.hani.co.kr/rss/politics/'),
+        ('경제',      'http://h21.hani.co.kr/rss/economy/'),
+        ('사회',      'http://h21.hani.co.kr/rss/society/'),
+        ('세계',      'http://h21.hani.co.kr/rss/world/'),
+        ('문화',      'http://h21.hani.co.kr/rss/culture/'),
            ]
+
+    def get_article_url(self, article):
+        org_url = BasicNewsRecipe.get_article_url(self, article)
+        return "http://h21.hani.co.kr"+org_url if org_url[0]=='/' else org_url
