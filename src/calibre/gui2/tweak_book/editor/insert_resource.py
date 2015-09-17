@@ -241,6 +241,7 @@ class InsertImage(Dialog):
             b.setToolTip(_('Import an image from elsewhere in your computer'))
 
     def refresh(self):
+        self.d.cover_cache.clear()
         self.model.refresh()
 
     def import_image(self):
