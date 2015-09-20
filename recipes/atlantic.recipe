@@ -13,12 +13,12 @@ class TheAtlantic(BasicNewsRecipe):
     title      = 'The Atlantic'
     __author__ = 'Kovid Goyal'
     description = 'Current affairs and politics focussed on the US'
-    INDEX = 'http://www.theatlantic.com/magazine/toc/0/'
+    INDEX = 'http://www.theatlantic.com/magazine/'
     language = 'en'
     encoding = 'utf-8'
 
     keep_only_tags = [
-        {'attrs':{'class':['article-header', 'article-body', 'article-magazine']}},
+        {'attrs':{'class':['article-header', 'article-body', 'article-magazine', 'metadata', 'article-cover-content']}},
     ]
     remove_tags        = [
         {'name': ['meta', 'link', 'noscript']},
@@ -27,6 +27,7 @@ class TheAtlantic(BasicNewsRecipe):
         {'src':lambda x:x and 'spotxchange.com' in x},
     ]
     no_stylesheets = True
+    remove_attributes = ['style']
     preprocess_regexps = [
         (re.compile(r'<script\b.+?</script>', re.DOTALL), lambda m: ''),
         (re.compile(r'^.*<html', re.DOTALL|re.IGNORECASE), lambda m: '<html'),
@@ -35,28 +36,46 @@ class TheAtlantic(BasicNewsRecipe):
     def print_version(self, url):
         return url + '?single_page=true'
 
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        return soup
+
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
-        col = soup.find(attrs={'class':'contentColumn singleContent'})
-        current_section, current_articles = None, []
+        figure = soup.find('figure', id='cover-image')
+        if figure is not None:
+            img = figure.find('img', src=True)
+            if img:
+                self.cover_url = img['src']
+        current_section, current_articles = 'Cover Story', []
         feeds = []
-        for tag in col.findAll(name=['h2', 'li'], attrs={'class':['section-header', 'top-item', 'river-item']}):
-            if tag.name == 'h2':
-                if current_section and current_articles:
-                    feeds.append((current_section, current_articles))
-                current_section = self.tag_to_string(tag).capitalize()
-                current_articles = []
-                self.log('Found section:', current_section)
-            elif current_section:
-                a = tag.find('a', href=True)
-                if a is not None:
-                    title, url = self.tag_to_string(a), a['href']
-                    if title and url:
-                        p = tag.find('p', attrs={'class':'river-dek'})
-                        desc = self.tag_to_string(p) if p is not None else ''
-                        current_articles.append({'title':title, 'url':url, 'description':desc})
-                        self.log('\tArticle:', title, '[%s]' % url)
+        for div in soup.findAll('div', attrs={'class':lambda x: x and set(x.split()).intersection({'top-sections', 'bottom-sections'})}):
+            for h2 in div.findAll('h2', attrs={'class':True}):
+                if 'section-name' in h2['class'].split():
+                    if current_articles:
+                        feeds.append((current_section, current_articles))
+                    current_articles = []
+                    current_section = self.tag_to_string(h2)
+                    self.log('\nFound section:', current_section)
+                elif 'hed' in h2['class'].split():
+                    title = self.tag_to_string(h2)
+                    a = h2.findParent('a', href=True)
+                    url = a['href']
+                    if url.startswith('/'):
+                        url = 'http://www.theatlantic.com' + url
+                    li = a.findParent('li', attrs={'class':lambda x: x and 'article' in x.split()})
+                    desc = ''
+                    dek = li.find(attrs={'class':lambda x:x and 'dek' in x.split()})
+                    if dek is not None:
+                        desc += self.tag_to_string(dek)
+                    byline = li.find(attrs={'class':lambda x:x and 'byline' in x.split()})
+                    if byline is not None:
+                        desc += ' -- ' + self.tag_to_string(byline)
+                    self.log('\t', title, 'at', url)
+                    if desc:
                         self.log('\t\t', desc)
-        if current_section and current_articles:
+                    current_articles.append({'title':title, 'url':url, 'description':desc})
+        if current_articles:
             feeds.append((current_section, current_articles))
         return feeds
