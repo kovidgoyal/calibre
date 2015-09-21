@@ -19,7 +19,7 @@ class SeattleTimes(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    encoding              = 'cp1252'
+    encoding              = 'utf-8'
     language = 'en'
     auto_cleanup          = True
     auto_cleanup_keep     = '//div[@id="PhotoContainer"]'
@@ -28,7 +28,7 @@ class SeattleTimes(BasicNewsRecipe):
     feeds              = [
                           (u'Top Stories',
                               u'http://seattletimes.nwsource.com/rss/home.xml'),
-                          #(u'Articles', u'http://seattletimes.nwsource.com/rss/seattletimes.xml')
+                          # (u'Articles', u'http://seattletimes.nwsource.com/rss/seattletimes.xml')
                           (u'Business & Technology',
                               u'http://seattletimes.nwsource.com/rss/businesstechnology.xml'),
                           (u'Personal Technology',
