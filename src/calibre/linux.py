@@ -573,7 +573,7 @@ def write_completion(bash_comp_dest, zsh):
         o_and_w('fetch-ebook-metadata', fem_op, [])
         o_and_w('calibre-smtp', smtp_op, [])
         o_and_w('calibre-server', serv_op, [])
-        o_and_e('calibre-debug', debug_op, ['py', 'recipe', 'mobi', 'azw', 'azw3', 'docx'], file_map={
+        o_and_e('calibre-debug', debug_op, ['py', 'recipe', 'epub', 'mobi', 'azw', 'azw3', 'docx'], file_map={
             '--tweak-book':['epub', 'azw3', 'mobi'],
             '--subset-font':['ttf', 'otf'],
             '--exec-file':['py', 'recipe'],
