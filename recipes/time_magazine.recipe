@@ -15,15 +15,17 @@ from lxml import html
 # Keep the login method as standalone, so it can be easily tested
 def do_login(browser, username, password):
     from calibre.web.jsbrowser.browser import Timeout
-    browser.visit('http://time.com/magazine')
+    browser.visit(
+        'http://subscription-assets.time.com/prod/assets/themes/magazines/SUBS/templates/velocity/site/td-pcslogin/login.html')
     form = browser.select_form('#sign-in-form')
     form['username'] = username
     form['password'] = password
-    browser.submit('#Sign_In')
+    browser.submit('#sign-in-button')
     try:
         browser.wait_for_element('body.is-signed-in', timeout=180)
     except Timeout:
-        raise ValueError('Failed to login to time.com, check your username and password and try again in a little while.')
+        raise ValueError(
+            'Failed to login to time.com, check your username and password and try again in a little while.')
 
 def evaljs(elem, js):
     # Need this to work with both PyQt4 and PyQt5
@@ -58,7 +60,7 @@ class Time(JavascriptRecipe):
         return browser.get_resource(cover_url)
 
     def get_publication_data(self, browser):
-        # We are already at the magazine page thanks to the do_login() method
+        browser.visit('http://time.com/magazine')
         ans = {}
         raw = browser.html
         root = html.fromstring(raw)
