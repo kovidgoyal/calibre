@@ -193,7 +193,7 @@ class NoUID(BaseError):
     def __call__(self, container):
         import uuid
         opf = container.opf
-        uid = str(uuid.uuid4())
+        uid = 'u' + str(uuid.uuid4())
         opf.set('unique-identifier', uid)
         m = container.opf_xpath('/opf:package/opf:metadata')
         if not m:
