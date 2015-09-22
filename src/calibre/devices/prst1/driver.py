@@ -94,9 +94,9 @@ class PRST1(USBMS):
           'Leave this disabled if you use Metadata Plugboards.')
         _('Mark all new exported books as Read') +
               ':::' +
-              _('Set this option if you want the new exported books '
-                'to be marked as read and not appear under the Sony '
-                'new books collection.')
+        _('Set this option if you want the new exported books '
+          'to be marked as read and not appear under the Sony '
+          'new books collection.')
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 ', '.join(['series', 'tags']),
