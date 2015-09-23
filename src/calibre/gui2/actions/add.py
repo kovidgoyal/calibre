@@ -507,10 +507,10 @@ class AddAction(InterfaceAction):
         remove = set([p for p in paths if ext(p) in ve])
         if remove:
             paths = [p for p in paths if p not in remove]
-            info_dialog(self.gui,  _('Not Implemented'),
-                        _('The following books are virtual and cannot be added'
-                          ' to the calibre library:'), '\n'.join(remove),
-                        show=True)
+            vmsg = getattr(self.gui.device_manager.device, 'VIRTUAL_BOOK_EXTENSION_MESSAGE', None) or _(
+                'The following books are virtual and cannot be added'
+                ' to the calibre library:')
+            info_dialog(self.gui,  _('Not Implemented'), vmsg, '\n'.join(remove), show=True)
             if not paths:
                 return
         if not paths or len(paths) == 0:

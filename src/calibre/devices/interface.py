@@ -79,7 +79,10 @@ class DevicePlugin(Plugin):
     #: Set of extensions that are "virtual books" on the device
     #: and therefore cannot be viewed/saved/added to library.
     #: For example: ``frozenset(['kobo'])``
-    VIRTUAL_BOOK_EXTENSIONS = frozenset([])
+    VIRTUAL_BOOK_EXTENSIONS = frozenset()
+
+    #: Message to display to user for virtual book extensions.
+    VIRTUAL_BOOK_EXTENSION_MESSAGE = None
 
     #: Whether to nuke comments in the copy of the book sent to the device. If
     #: not None this should be short string that the comments will be replaced
