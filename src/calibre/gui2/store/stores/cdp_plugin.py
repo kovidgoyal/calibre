@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6 # Needed for dynamic plugin loading
+store_version = 7 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2013-2015, Tomasz Długosz <tomek3d@gmail.com>'
@@ -27,7 +27,7 @@ class CdpStore(BasicStoreConfig, StorePlugin):
     def open(self, parent=None, detail_item=None, external=False):
         aff_root = 'https://www.a4b-tracking.com/pl/stat-click-text-link/47/58/'
 
-        url = 'https://cdp.pl/ksiazki'
+        url = 'https://cdp.pl/ksiazki/e-book.html'
 
         aff_url = aff_root + str(b64encode(url))
 
@@ -52,7 +52,7 @@ class CdpStore(BasicStoreConfig, StorePlugin):
         while counter:
             with closing(br.open(u'https://cdp.pl/ksiazki/e-book.html?q=' + urllib.quote_plus(query) + '&p=' + str(page), timeout=timeout)) as f:
                 doc = html.fromstring(f.read())
-                for data in doc.xpath('//ul[@class="grid-of-products"]/li'):
+                for data in doc.xpath('//ul[@class="products"]/li'):
                     if counter <= 0:
                         break
 
@@ -69,13 +69,13 @@ class CdpStore(BasicStoreConfig, StorePlugin):
                     formats = ''
                     with closing(br.open( id.strip(), timeout=timeout/4)) as nf:
                         idata = html.fromstring(nf.read())
-                        formats = idata.xpath('//div[@class="product-attributes-container"][2]/ul/li/span/text()')[-1]
+                        formats = idata.xpath('//div[@class="second-part-holder"]//div[@class="product-attributes-container"]/ul/li/span/text()')[-1]
 
                     counter -= 1
 
                     s = SearchResult()
                     s.cover_url = cover_url
-                    s.title = title.strip()
+                    s.title = title.replace(' (ebook)','').strip()
                     s.author = author
                     s.price = price + ' zł'
                     s.detail_item = id.strip()
@@ -83,6 +83,6 @@ class CdpStore(BasicStoreConfig, StorePlugin):
                     s.formats = formats.upper().strip()
 
                     yield s
-                if not doc.xpath('//span[@class="next-page"]/a'):
+                if not doc.xpath('//a[@class="next-page"]'):
                     break
             page+=1
