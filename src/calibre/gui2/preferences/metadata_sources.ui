@@ -14,7 +14,16 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item>
@@ -28,7 +37,7 @@
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
+       <item row="8" column="1">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Max. &amp;time to wait after first match is found:</string>
@@ -38,7 +47,7 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
+       <item row="9" column="1">
         <widget class="QLabel" name="label_4">
          <property name="text">
           <string>Max. time to wait after first &amp;cover is found:</string>
@@ -48,14 +57,14 @@
          </property>
         </widget>
        </item>
-       <item row="8" column="2">
+       <item row="9" column="2">
         <widget class="QSpinBox" name="opt_wait_after_first_cover_result">
          <property name="suffix">
           <string> secs</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="1" colspan="2">
+       <item row="5" column="1" colspan="2">
         <widget class="QCheckBox" name="opt_fewer_tags">
          <property name="toolTip">
           <string>&lt;p&gt;Different metadata sources have different sets of tags for the same book. If this option is checked, then calibre will use the smaller tag sets. These tend to be more like genres, while the larger tag sets tend to describe the books content.
@@ -66,6 +75,13 @@
          </property>
          <property name="text">
           <string>Prefer &amp;fewer tags</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1" colspan="2">
+        <widget class="QCheckBox" name="opt_swap_author_names">
+         <property name="text">
+          <string>Swap author names from FN LN to LN, FN</string>
          </property>
         </widget>
        </item>
@@ -129,34 +145,27 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="1" colspan="2">
-        <widget class="QCheckBox" name="opt_swap_author_names">
-         <property name="text">
-          <string>Swap author names from FN LN to LN, FN</string>
-         </property>
-        </widget>
+       <item row="7" column="2">
+        <widget class="QSpinBox" name="opt_max_tags"/>
        </item>
-       <item row="6" column="1">
+       <item row="7" column="1">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Max. number of &amp;tags to download:</string>
+          <string>Max. &amp;number of tags to download:</string>
          </property>
          <property name="buddy">
           <cstring>opt_max_tags</cstring>
          </property>
         </widget>
        </item>
-       <item row="6" column="2">
-        <widget class="QSpinBox" name="opt_max_tags"/>
-       </item>
-       <item row="7" column="2">
+       <item row="8" column="2">
         <widget class="QSpinBox" name="opt_wait_after_first_identify_result">
          <property name="suffix">
           <string> secs</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0" rowspan="9">
+       <item row="0" column="0" rowspan="10">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Metadata sources</string>
@@ -207,7 +216,7 @@
          </layout>
         </widget>
        </item>
-       <item row="5" column="1" colspan="2">
+       <item row="4" column="1">
         <widget class="QCheckBox" name="opt_append_comments">
          <property name="toolTip">
           <string>&lt;p&gt;When downloading comments, append the downloaded comments to any existing comment, instead of overwriting them.</string>
@@ -217,6 +226,13 @@
          </property>
          <property name="text">
           <string>Append &amp;comments to existing</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1" colspan="2">
+        <widget class="QPushButton" name="tag_map_rules_button">
+         <property name="text">
+          <string>Create &amp;rules to filter/transform tags</string>
          </property>
         </widget>
        </item>

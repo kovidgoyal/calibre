@@ -319,6 +319,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.select_default_button.clicked.connect(self.fields_model.select_user_defaults)
         self.select_default_button.clicked.connect(self.changed_signal)
         self.set_as_default_button.clicked.connect(self.fields_model.commit_user_defaults)
+        self.tag_map_rules = None
+        self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
 
     def configure_plugin(self):
         for index in self.sources_view.selectionModel().selectedRows():
@@ -343,11 +345,21 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.stack.removeWidget(self.pc)
         self.pc = None
 
+    def change_tag_map_rules(self):
+        from calibre.gui2.tag_mapper import RulesDialog
+        d = RulesDialog(self)
+        if msprefs.get('tag_map_rules'):
+            d.rules = msprefs['tag_map_rules']
+        if d.exec_() == d.Accepted:
+            self.tag_map_rules = d.rules
+            self.changed_signal.emit()
+
     def initialize(self):
         ConfigWidgetBase.initialize(self)
         self.sources_model.initialize()
         self.sources_view.resizeColumnsToContents()
         self.fields_model.initialize()
+        self.tag_map_rules = None
 
     def restore_defaults(self):
         ConfigWidgetBase.restore_defaults(self)
@@ -358,6 +370,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def commit(self):
         self.sources_model.commit()
         self.fields_model.commit()
+        if self.tag_map_rules is not None:
+            if self.tag_map_rules:
+                msprefs['tag_map_rules'] = self.tag_map_rules
+            else:
+                msprefs.pop('tag_map_rules', None)
         return ConfigWidgetBase.commit(self)
 
 if __name__ == '__main__':

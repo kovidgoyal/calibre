@@ -494,9 +494,14 @@ def identify(log, abort,  # {{{
 
     log('We have %d merged results, merging took: %.2f seconds' %
             (len(results), time.time() - start_time))
+    tm_rules = msprefs['tag_map_rules']
+    if tm_rules:
+        from calibre.ebooks.metadata.tag_mapper import map_tags
 
     max_tags = msprefs['max_tags']
     for r in results:
+        if tm_rules:
+            r.tags = map_tags(r.tags, tm_rules)
         r.tags = r.tags[:max_tags]
         if getattr(r.pubdate, 'year', 2000) <= UNDEFINED_DATE.year:
             r.pubdate = None
