@@ -225,7 +225,7 @@ class Rules(QWidget):
         d = RuleEditDialog(self)
         if d.exec_() == d.Accepted:
             i = RuleItem(d.edit_widget.rule, self.rule_list)
-            self.rule_list.scrollTo(i)
+            self.rule_list.scrollToItem(i)
 
     def edit_rule(self):
         i = self.rule_list.currentItem()

@@ -40,8 +40,17 @@ def apply_rules(tag, rules):
             if ac == 'keep':
                 return tag
             if ac == 'replace':
-                tag = regex.sub(rule['query'], rule['replace'], flags=REGEX_FLAGS)
+                tag = regex.sub(rule['query'], rule['replace'], tag, flags=REGEX_FLAGS)
     return tag
+
+def uniq(vals, kmap=icu_lower):
+    ''' Remove all duplicates from vals, while preserving order. kmap must be a
+    callable that returns a hashable value for every item in vals '''
+    vals = vals or ()
+    lvals = (kmap(x) for x in vals)
+    seen = set()
+    seen_add = seen.add
+    return list(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
 
 
 def map_tags(tags, rules=()):
@@ -50,4 +59,4 @@ def map_tags(tags, rules=()):
     if not rules:
         return list(tags)
     rules = [(r, matcher(r)) for r in rules]
-    return [x for x in (apply_rules(t, rules) for t in tags) if x]
+    return uniq([x for x in (apply_rules(t, rules) for t in tags) if x])
