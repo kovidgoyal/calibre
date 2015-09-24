@@ -40,7 +40,10 @@ def apply_rules(tag, rules):
             if ac == 'keep':
                 return tag
             if ac == 'replace':
-                tag = regex.sub(rule['query'], rule['replace'], tag, flags=REGEX_FLAGS)
+                if 'matches' in rule['match_type']:
+                    tag = regex.sub(rule['query'], rule['replace'], tag, flags=REGEX_FLAGS)
+                else:
+                    tag = rule['replace']
     return tag
 
 def uniq(vals, kmap=icu_lower):
@@ -60,3 +63,9 @@ def map_tags(tags, rules=()):
         return list(tags)
     rules = [(r, matcher(r)) for r in rules]
     return uniq([x for x in (apply_rules(t, rules) for t in tags) if x])
+
+def test():
+    rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2'}]
+    assert map_tags(['t1', 'x1'], rules) == ['t2', 'x1']
+    rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2'}]
+    assert map_tags(['t1', 'x1'], rules) == ['t2', 'x2']
