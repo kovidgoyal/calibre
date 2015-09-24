@@ -14,6 +14,7 @@ from PyQt5.Qt import (
     QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu
 )
 
+from calibre.ebooks.metadata.tag_mapper import map_tags
 from calibre.gui2 import error_dialog, elided_text, Application, question_dialog
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
@@ -272,11 +273,43 @@ class Rules(QWidget):
             if 'action' in rule and 'match_type' in rule and 'query' in rule:
                 RuleItem(rule, self.rule_list)
 
+class Tester(Dialog):
+
+    def __init__(self, rules, parent=None):
+        self.rules = rules
+        Dialog.__init__(self, _('Test tag mapper rules'), 'test-tag-mapper-rules', parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.bb.setStandardButtons(self.bb.Close)
+        self.la = la = QLabel(_(
+            'Enter a comma separated list of &tags to test:'))
+        l.addWidget(la)
+        self.tags = t = QLineEdit(self)
+        la.setBuddy(t)
+        t.setPlaceholderText(_('Enter tags and click the Test button'))
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(t)
+        self.test_button = b = QPushButton(_('&Test'), self)
+        b.clicked.connect(self.do_test)
+        h.addWidget(b)
+        self.result = la = QLabel(self)
+        la.setWordWrap(True)
+        l.addWidget(la)
+        l.addWidget(self.bb)
+
+    def do_test(self):
+        tags = [x.strip() for x in self.tags.text().split(',')]
+        tags = map_tags(tags, self.rules)
+        self.result.setText(_('<b>Resulting tags:</b> %s') % ', '.join(tags))
+
+
 class RulesDialog(Dialog):
 
     def __init__(self, parent=None):
         self.loaded_ruleset = None
-        Dialog.__init__(self, _('Edit tag mapper rules'), 'edit-tag-mapper-rules', parent=None)
+        Dialog.__init__(self, _('Edit tag mapper rules'), 'edit-tag-mapper-rules', parent=parent)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
@@ -291,6 +324,8 @@ class RulesDialog(Dialog):
         self.load_menu = QMenu(self)
         b.setMenu(self.load_menu)
         self.build_load_menu()
+        self.test_button = b = self.bb.addButton(_('&Test rules'), self.bb.ActionRole)
+        b.clicked.connect(self.test_rules)
 
     @property
     def rules(self):
@@ -335,6 +370,9 @@ class RulesDialog(Dialog):
     def delete_ruleset(self, name):
         del tag_maps[name]
         self.build_load_menu()
+
+    def test_rules(self):
+        Tester(self.rules, self).exec_()
 
 if __name__ == '__main__':
     app = Application([])
