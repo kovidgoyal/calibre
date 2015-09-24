@@ -1196,8 +1196,8 @@ if __name__ == '__main__':  # tests {{{
     de_tests = [  # {{{
             (
                 {'identifiers':{'isbn': '9783453314979'}},
-                [title_test('Die letzten Wächter: Roman (Der Wächter-Zyklus, Band 6)',
-                    exact=False), authors_test(['Sergej Lukianenko'])
+                [title_test('Die letzten Wächter: Roman',
+                    exact=False), authors_test(['Sergej Lukianenko', 'Christiane Pöhlmann'])
                  ]
 
             ),
