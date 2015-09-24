@@ -62,15 +62,15 @@ class Worker(Thread):
 
         files = [x for x in os.listdir(self.path) if
                     # Must not be in the process of being added to the db
-                    x not in self.staging
+                    x not in self.staging and
                     # Firefox creates 0 byte placeholder files when downloading
-                    and os.stat(os.path.join(self.path, x)).st_size > 0
+                    os.stat(os.path.join(self.path, x)).st_size > 0 and
                     # Must be a file
-                    and os.path.isfile(os.path.join(self.path, x))
+                    os.path.isfile(os.path.join(self.path, x)) and
                     # Must have read and write permissions
-                    and os.access(os.path.join(self.path, x), os.R_OK|os.W_OK)
+                    os.access(os.path.join(self.path, x), os.R_OK|os.W_OK) and
                     # Must be a known ebook file type
-                    and os.path.splitext(x)[1][1:].lower() in self.allowed
+                    os.path.splitext(x)[1][1:].lower() in self.allowed
                 ]
         data = {}
         # Give any in progress copies time to complete
@@ -201,8 +201,11 @@ class AutoAdder(QObject):
             mi = os.path.join(tdir, 'metadata.opf')
             if not os.access(mi, os.R_OK):
                 continue
-            mi = [OPF(open(mi, 'rb'), tdir,
-                    populate_spine=False).to_book_metadata()]
+            mi = OPF(open(mi, 'rb'), tdir, populate_spine=False).to_book_metadata()
+            if gprefs.get('tag_map_on_add_rules'):
+                from calibre.ebooks.metadata.tag_mapper import map_tags
+                mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
+            mi = [mi]
             dups, ids = m.add_books(paths,
                     [os.path.splitext(fname)[1][1:].upper()], mi,
                     add_duplicates=not gprefs['auto_add_check_for_duplicates'],
@@ -268,4 +271,3 @@ class AutoAdder(QObject):
     def do_auto_convert(self, added_ids):
         gui = self.parent()
         gui.iactions['Convert Books'].auto_convert_auto_add(added_ids)
-

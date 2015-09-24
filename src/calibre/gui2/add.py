@@ -298,6 +298,9 @@ class Adder(QObject):
                 break
         if mi.application_id == '__calibre_dummy__':
             mi.application_id = None
+        if gprefs.get('tag_map_on_add_rules'):
+            from calibre.ebooks.metadata.tag_mapper import map_tags
+            mi.tags = map_tags(mi.tags, gprefs['tag_map_on_add_rules'])
 
         self.pd.msg = mi.title
 

@@ -336,6 +336,10 @@ class RulesDialog(Dialog):
         self.edit_widget.rules = rules
 
     def save_ruleset(self):
+        if not self.rules:
+            error_dialog(self, _('No rules'), _(
+                'Cannot save as no rules have been created'), show=True)
+            return
         text, ok = QInputDialog.getText(self, _('Save ruleset as'), _(
             'Enter a name for this ruleset:'), text=self.loaded_ruleset or '')
         if ok and text:

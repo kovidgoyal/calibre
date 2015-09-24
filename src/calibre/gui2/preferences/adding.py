@@ -50,6 +50,17 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for signal in ('Activated', 'Changed', 'DoubleClicked', 'Clicked'):
             signal = getattr(self.opt_blocked_auto_formats, 'item'+signal)
             signal.connect(self.blocked_auto_formats_changed)
+        self.tag_map_rules = None
+        self.tag_map_rules_button.clicked.connect(self.change_tag_map_rules)
+
+    def change_tag_map_rules(self):
+        from calibre.gui2.tag_mapper import RulesDialog
+        d = RulesDialog(self)
+        if gprefs.get('tag_map_on_add_rules'):
+            d.rules = gprefs['tag_map_on_add_rules']
+        if d.exec_() == d.Accepted:
+            self.tag_map_rules = d.rules
+            self.changed_signal.emit()
 
     def choose_aa_path(self):
         path = choose_dir(self, 'auto add path choose',
@@ -64,6 +75,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.filename_pattern.blockSignals(False)
         self.init_blocked_auto_formats()
         self.opt_automerge.setEnabled(self.opt_add_formats_to_existing.isChecked())
+        self.tag_map_rules = None
 
     # Blocked auto formats {{{
     def blocked_auto_formats_changed(self, *args):
@@ -133,6 +145,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         changed = set(fmts) != set(old)
         if changed:
             gprefs['blocked_auto_formats'] = self.current_blocked_auto_formats
+        if self.tag_map_rules is not None:
+            if self.tag_map_rules:
+                gprefs['tag_map_on_add_rules'] = self.tag_map_rules
+            else:
+                gprefs.pop('tag_map_on_add_rules', None)
         ret = ConfigWidgetBase.commit(self)
         return changed or ret
 
