@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
 infobae.com
 '''
@@ -16,9 +16,9 @@ class Infobae(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    auto_cleanup          = False
     language              = 'es_AR'
     encoding              = 'utf8'
-    masthead_url          = 'http://www.infobae.com/media/img/static/logo-infobae.gif'
     remove_empty_feeds    = True
     extra_css             = '''
                               body{font-family: Arial,Helvetica,sans-serif}
@@ -32,43 +32,21 @@ class Infobae(BasicNewsRecipe):
                         , 'publisher'        : publisher
                         , 'language'         : language
                         }
-    
-    keep_only_tags    = [dict(attrs={'class':['titularnota','nota','post-title','post-entry','entry-title','entry-info','entry-content']})]
-    remove_tags_after = dict(attrs={'class':['interior-noticia','nota-desc','tags']})
+
+    remove_tags_before = dict(name='h1', attrs={'class':'entry-title'})
+    remove_tags_after = dict(name='div', attrs={'class':'narrowcontent'})
     remove_tags       = [
                           dict(name=['base','meta','link','iframe','object','embed','ins'])
-                         ,dict(attrs={'class':['barranota','tags']})
+                         ,dict(attrs={'class':['social-hori clearfix','narrowcontent','embed_cont type_freetext']})
+                         ,dict(attrs={'id':'captcha-modal'})
                         ]
-    
+
     feeds = [
-              (u'Saludable' , u'http://www.infobae.com/rss/saludable.xml')
-             ,(u'Economia'  , u'http://www.infobae.com/rss/economia.xml' )
-             ,(u'En Numeros', u'http://www.infobae.com/rss/rating.xml'   )
-             ,(u'Finanzas'  , u'http://www.infobae.com/rss/finanzas.xml' )
-             ,(u'Mundo'     , u'http://www.infobae.com/rss/mundo.xml'    )
-             ,(u'Sociedad'  , u'http://www.infobae.com/rss/sociedad.xml' )
-             ,(u'Politica'  , u'http://www.infobae.com/rss/politica.xml' )
-             ,(u'Deportes'  , u'http://www.infobae.com/rss/deportes.xml' )
+              (u'Ahora'     , u'http://cdn02.ib.infobae.com/adjuntos/162/rss/Infobae.xml')
+             ,(u'Economia'  , u'http://cdn02.ib.infobae.com/adjuntos/162/rss/economia.xml')
+             ,(u'Cultura'   , u'http://cdn02.ib.infobae.com/adjuntos/162/rss/Cultura.xml')
+             ,(u'Finanzas'  , u'http://cdn02.ib.infobae.com/adjuntos/162/rss/finanzas.xml')
+             ,(u'Sociedad'  , u'http://cdn02.ib.infobae.com/adjuntos/162/rss/sociedad.xml')
+             ,(u'Politica'  , u'http://cdn02.ib.infobae.com/adjuntos/162/rss/politica.xml')
+             ,(u'Deportes'  , u'http://cdn02.ib.infobae.com/adjuntos/162/rss/deportes.xml')
             ]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            limg = item.find('img')
-            if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
-            else:
-               if limg:
-                  item.name = 'div'
-                  item.attrs = []
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        return soup
-
-
