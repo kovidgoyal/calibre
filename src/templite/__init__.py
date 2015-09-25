@@ -84,4 +84,4 @@ class Templite(object):
 
     def write(self, *args):
         for a in args:
-            self.__output.append(str(a))
+            self.__output.append(unicode(a))

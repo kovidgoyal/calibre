@@ -127,6 +127,8 @@ class HTMLOutput(OutputFormatPlugin):
                     toc=html_toc, meta=meta, nextLink=nextLink,
                     tocUrl=tocUrl, cssLink=cssLink,
                     firstContentPageLink=nextLink)
+            if isinstance(t, unicode):
+                t = t.encode('utf-8')
             f.write(t)
 
         with CurrentDir(output_dir):
