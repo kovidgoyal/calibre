@@ -38,6 +38,8 @@ QMAKE = os.environ.get('QMAKE', QMAKE)
 
 PKGCONFIG = find_executable('pkg-config')
 PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
+if islinux and not PKGCONFIG:
+    raise SystemExit('Failed to find pkg-config on your system. You can use the environment variable PKG_CONFIG to point to the pkg-config executable')
 
 if iswindows:
     import win32api
