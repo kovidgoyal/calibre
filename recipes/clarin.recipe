@@ -1,10 +1,12 @@
 from __future__ import unicode_literals
 __license__   = 'GPL v3'
-__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
 clarin.com
 '''
 
+import urllib
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Clarin(BasicNewsRecipe):
@@ -21,12 +23,16 @@ class Clarin(BasicNewsRecipe):
     delay                 = 1
     language              = 'es_AR'
     publication_type      = 'newspaper'
+    needs_subscription    = 'optional'
     INDEX                 = 'http://www.clarin.com'
-    masthead_url          = 'http://www.clarin.com/static/CLAClarin/images/logo-clarin-print.jpg'
+    LOGIN                 = 'https://app-pase.clarin.com/pase-registracion/app/pase/ingresarNavegable?execution=e1s1'
+    masthead_url          = 'http://www.clarin.com/static/CLAClarinV3/images/logo.png'
+    cover_url             = strftime('http://tapas.clarin.com/tapa/%Y/%m/%d/%Y%m%d_thumb.jpg')
     extra_css             = """
                                body{font-family: Arial,Helvetica,sans-serif}
                                h2{font-family: Georgia,serif; font-size: xx-large}
                                .info,.nombre-autor,.hora{font-size: small}
+                               .columnista-datos ul{list-style-type: none;}
                             """
 
     conversion_options = {
@@ -36,8 +42,13 @@ class Clarin(BasicNewsRecipe):
                         , 'language' : language
                         }
 
-    keep_only_tags    = [dict(attrs={'class':['hd','mt','bd']})]
-    remove_tags       = [dict(name=['meta','base','link','iframe','embed','object'])]
+    remove_tags_before = dict(attrs={'class':'int-nota-title'})
+    remove_tags       = [
+                         dict(name=['meta','base','link','iframe','embed','object']),
+                         dict(attrs={'class':['tags-bar','breadcrumb','share-bar']}),
+                         dict(attrs={'id':['relacionadas']})
+                        ]
+    remove_tags_after = dict(name='div', attrs={'id':'relacionadas'})
     remove_attributes = ['lang']
 
     feeds = [
@@ -45,7 +56,6 @@ class Clarin(BasicNewsRecipe):
               ,(u'Politica'        , u'http://www.clarin.com/rss/politica/')
               ,(u'Deportes'        , u'http://www.clarin.com/rss/deportes/')
               ,(u'Mundo'           , u'http://www.clarin.com/rss/mundo/')
-              ,(u'iEco'            , u'http://www.ieco.clarin.com/rss/')
               ,(u'Espectaculos'    , u'http://www.clarin.com/rss/espectaculos/')
               ,(u'Sociedad'        , u'http://www.clarin.com/rss/sociedad/')
               ,(u'Ciudades'        , u'http://www.clarin.com/rss/ciudades/')
@@ -53,25 +63,18 @@ class Clarin(BasicNewsRecipe):
               ,(u'Internet'        , u'http://www.clarin.com/rss/internet/')
             ]
 
-    def print_version(self, url):
-        return url + '?print=1'
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.open(self.INDEX)
+        if self.username is not None and self.password is not None:
+            data = urllib.urlencode({'ingresar_ingresar_paseForm':'ingresar_ingresar_paseForm'
+                                     ,'ingresar_ingresar_email_paseInputComponent':self.username
+                                     ,'ingresar_ingresar_palabraClave_paseInputComponent':self.password
+                                     ,'ingresar_ingresar_ingresar_paseButton':'Ingresar'
+                                     ,'javax.faces.ViewState':'e1s1'
+                                   })
+            br.open(self.LOGIN, data)
+        return br
 
     def get_article_url(self, article):
         return article.get('guid',  None)
-
-    def get_cover_url(self):
-        from datetime import datetime, timedelta
-        br = self.cloned_browser
-
-        dat = datetime.now()
-        for x in (0,1):
-            stg = dat.strftime("%Y%m%d")
-            cover_url = "http://tapas.clarin.com/tapa/{}/{}/{}/{}_thumb.jpg".format(stg[:4],stg[4:6],stg[6:8],stg)
-            try:
-                br.open(cover_url)
-                break
-            except Exception as e:
-                if hasattr(e, 'getcode') and e.getcode() == 404:
-                    dat = dat - timedelta(days=1)
-                cover_url = None
-        return cover_url
