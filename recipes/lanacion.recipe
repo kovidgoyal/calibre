@@ -1,4 +1,4 @@
-__copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
 lanacion.com.ar
 '''
@@ -14,7 +14,9 @@ class Lanacion(BasicNewsRecipe):
     oldest_article        = 1
     max_articles_per_feed = 100
     use_embedded_content  = False
+    auto_cleanup          = False
     no_stylesheets        = True
+    encoding              = 'utf8'
     language              = 'es_AR'
     publication_type      = 'newspaper'
     remove_empty_feeds    = True
@@ -27,7 +29,6 @@ class Lanacion(BasicNewsRecipe):
                                 .epigrafe-columna{font-size: x-small}
                             """
 
-
     conversion_options = {
                           'comment'  : description
                         , 'tags'     : category
@@ -36,71 +37,44 @@ class Lanacion(BasicNewsRecipe):
                         }
 
     remove_tags = [
-                     dict(name=['iframe','embed','object','meta','link'])
-                    ,dict(attrs={'id':['herramientas','relacionadas','ampliar']})
+                     dict(name=['iframe','embed','object','meta','link','button'])
+                    ,dict(attrs={'id':['herramientas-sociales','comunidad', 'ranking-nota','footer']})
+                    ,dict(attrs={'class':['mas-sobre-tema','cinturon-notas floatFix','cinturon-notas']})
                   ]
-                  
-    remove_tags_before = dict(attrs={'id':'encabezado'})
-    remove_tags_after  = dict(attrs={'id':'relacionadas'})
+
+    remove_tags_before = dict(attrs={'id':'nota'})
+    remove_tags_after  = dict(attrs={'class':'en-esta-nota'})
 
     feeds          = [
-                         (u'Politica'             , u'http://lanacion.com.ar.feedsportal.com/politica'                 )
-                        ,(u'Deportes'             , u'http://lanacion.com.ar.feedsportal.com/deportes'                 )
-                        ,(u'Economia'             , u'http://lanacion.com.ar.feedsportal.com/economia'                 )
-                        ,(u'Sociedad'             , u'http://lanacion.com.ar.feedsportal.com/sociedad'                 )
-                        ,(u'Seguridad'            , u'http://lanacion.com.ar.feedsportal.com/seguridad'                )
-                        ,(u'Buenos Aires'         , u'http://lanacion.com.ar.feedsportal.com/buenosaires'              )                        
-                        ,(u'Opinion'              , u'http://lanacion.com.ar.feedsportal.com/opinion'                  )
-                        ,(u'Espectaculos'         , u'http://lanacion.com.ar.feedsportal.com/espectaculos'             )
-                        ,(u'El Mundo'             , u'http://lanacion.com.ar.feedsportal.com/mundo'                    )
-                        ,(u'Revista'              , u'http://lanacion.com.ar.feedsportal.com/revistalanacion'          )
-                        ,(u'Enfoques'             , u'http://lanacion.com.ar.feedsportal.com/enfoques'                 )
-                        ,(u'Comercio Exterior'    , u'http://lanacion.com.ar.feedsportal.com/comercioexterior'         )
-                        ,(u'Tecnologia'           , u'http://lanacion.com.ar.feedsportal.com/tecnologia'               )
-                        ,(u'Turismo'              , u'http://lanacion.com.ar.feedsportal.com/turismo'                  )
-                        ,(u'Al volante'           , u'http://lanacion.com.ar.feedsportal.com/alvolante'                )
-                        ,(u'El Campo'             , u'http://lanacion.com.ar.feedsportal.com/elcampo'                  )
-                        ,(u'Moda y Belleza'       , u'http://lanacion.com.ar.feedsportal.com/modaybelleza'             )
-                        ,(u'Inmuebles Comerciales', u'http://lanacion.com.ar.feedsportal.com/inmueblescomerciales'     )
-                        ,(u'Countries'            , u'http://lanacion.com.ar.feedsportal.com/countries'                )
-                        ,(u'adnCultura'           , u'http://lanacion.com.ar.feedsportal.com/adncultura'               )
-                        ,(u'The WSJ Americas'     , u'http://lanacion.com.ar.feedsportal.com/wallstreetjournalamericas')
+                         (u'Politica'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30')
+                        ,(u'Deportes'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=131')
+                        ,(u'Economia'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=272')
+                        ,(u'Sociedad'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7773')
+                        ,(u'Seguridad'            , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7775')
+                        ,(u'Buenos Aires'         , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7774')
+                        ,(u'Opinion'              , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=28')
+                        ,(u'Espectaculos'         , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=120')
+                        ,(u'El Mundo'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7')
+                        ,(u'Revista'              , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=494')
+                        ,(u'Enfoques'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=421')
+                        ,(u'Comercio Exterior'    , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=347')
+                        ,(u'Tecnologia'           , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=432')
+                        ,(u'Turismo'              , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=504')
+                        ,(u'Al volante'           , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=371')
+                        ,(u'El Campo'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=337')
+                        ,(u'Moda y Belleza'       , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1312')
+                        ,(u'Inmuebles Comerciales', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1363')
+                        ,(u'Countries'            , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1348')
+                        ,(u'Comunidad'            , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1344')
+                        ,(u'adnCultura'           , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=6734')
+                        ,(u'The WSJ Americas'     , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=6373')
                      ]
-
-                     
-    def get_article_url(self, article):
-        link = article.get('guid',  None)
-        if link.startswith('http://blogs.lanacion') and not link.endswith('/'):
-           return self.browser.open_novisit(link).geturl()
-        if link.rfind('galeria=') > 0:
-           return None        
-        return link
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.lanacion.com.ar/edicion-impresa')
         atap = soup.find(attrs={'class':'tapa'})
         if atap:
-           li = atap.find('img')
-           if li:
-              return li['src']
+            li = atap.find('img')
+            if li:
+                return li['src']
         return None
-        
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            limg = item.find('img')
-            if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
-            else:
-               if limg:
-                  item.name = 'div'
-                  item.attrs = []
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'            
-        return soup
