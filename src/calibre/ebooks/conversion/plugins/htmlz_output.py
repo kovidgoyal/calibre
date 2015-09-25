@@ -70,6 +70,8 @@ class HTMLZOutput(OutputFormatPlugin):
                 from calibre.utils.filenames import shorten_components_to
                 fname = shorten_components_to(100, (ascii_filename(unicode(oeb_book.metadata.title[0])),))[0]
             with open(os.path.join(tdir, fname+u'.html'), 'wb') as tf:
+                if isinstance(html, unicode):
+                    html = html.encode('utf-8')
                 tf.write(html)
 
             # CSS
