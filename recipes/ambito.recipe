@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
 ambito.com
 '''
@@ -15,8 +15,9 @@ class Ambito(BasicNewsRecipe):
     oldest_article        = 2
     no_stylesheets        = True
     encoding              = 'cp1252'
-    masthead_url          = 'http://www.ambito.com/img/logo_.jpg'
+    masthead_url          = 'http://www.ambito.com/img/logo.jpg'
     use_embedded_content  = False
+    remove_empty_feeds    = True    
     language              = 'es_AR'
     publication_type      = 'newsportal'
     extra_css             = """
@@ -33,9 +34,8 @@ class Ambito(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    keep_only_tags    = [dict(name='div', attrs={'align':'justify'})]
-    remove_tags       = [dict(name=['object','link','embed','iframe','meta','link','table','img'])]
-    remove_attributes = ['align']
+    keep_only_tags    = [dict(attrs={'id':['tituloDespliegue','imgDesp','textoDespliegue']})]
+    remove_tags       = [dict(name=['object','link','embed','iframe','meta','link'])]
 
     feeds = [
               (u'Principales Noticias', u'http://www.ambito.com/rss/noticiasp.asp'                         )
@@ -49,16 +49,3 @@ class Ambito(BasicNewsRecipe):
              ,(u'Tecnologia'          , u'http://www.ambito.com/rss/noticias.asp?S=Tecnolog%EDa'           )
              ,(u'Ambito Nacional'     , u'http://www.ambito.com/rss/noticias.asp?S=Ambito%20Nacional'      )
             ]
-
-    def print_version(self, url):
-        return url.replace('/noticia.asp?','/noticias/imprimir.asp?')
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            str = item.string
-            if str is None:
-               str = self.tag_to_string(item)
-            item.replaceWith(str)
-        return soup
