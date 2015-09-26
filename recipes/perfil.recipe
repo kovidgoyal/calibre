@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2011, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
 perfil.com
 '''
@@ -15,11 +15,11 @@ class Perfil(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 200
     no_stylesheets        = True
-    encoding              = 'cp1252'
+    encoding              = 'utf8'
     use_embedded_content  = False
     language              = 'es_AR'
     remove_empty_feeds    = True
-    masthead_url          = 'http://www.perfil.com/export/sites/diarioperfil/arte/10/logo_perfilcom_mm.gif'
+    masthead_url          = 'http://www.perfil.com/__export/1330013400000/system/modules/com.tfsla.perfil.diario/resources/v1/images/perfilcom-logo-secciones.png'
     extra_css             = """
                                 body{font-family: Arial,Helvetica,sans-serif }
                                 .seccion{border-bottom: 1px dotted #666666; text-transform: uppercase; font-size: x-large}
@@ -37,13 +37,11 @@ class Perfil(BasicNewsRecipe):
                         }
 
     remove_tags   = [
-                      dict(name=['iframe','embed','object','base','meta','link'])
-                     ,dict(name='a', attrs={'href':'#comentarios'})
-                     ,dict(name='div', attrs={'class':'foto3'})
-                     ,dict(name='img', attrs={'alt':['ampliar','Ampliar']})
+                       dict(name=['iframe','embed','object','base','meta','link'])
+                      ,dict(attrs={'id':['social-articulo','relacionadas']})
+                      ,dict(attrs={'class':'destacadoNota'})
                     ]
-    keep_only_tags=[dict(attrs={'class':['articulo','cuerpoSuperior']})]
-    remove_attributes=['onload','lang','width','height','border']
+    keep_only_tags=[dict(attrs={'id':'header-noticia'}), dict(attrs={'class':'cuerpo'})]
 
     feeds = [
               (u'Ultimo momento' , u'http://www.perfil.com/rss/ultimomomento.xml')
@@ -60,27 +58,3 @@ class Perfil(BasicNewsRecipe):
              ,(u'Salud'          , u'http://www.perfil.com/rss/salud.xml'        )
              ,(u'Tecnologia'     , u'http://www.perfil.com/rss/tecnologia.xml'   )
             ]
-
-    def get_article_url(self, article):
-        return article.get('guid',  None)
-            
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            limg = item.find('img')
-            if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
-            else:
-               if limg:
-                  item.name = 'div'
-                  item.attrs = []
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        return soup
-        
