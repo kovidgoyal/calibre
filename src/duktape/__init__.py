@@ -54,6 +54,7 @@ exports.runInThisContext = function(code, options) {
 '''
 path = '''
 exports.join = function () { return arguments[0] + '/' + arguments[1]; }
+exports.dirname = function(x) { return Duktape.dirname(x); }
 '''
 util = '''
 exports.inspect = function(x) { return x.toString(); };
@@ -240,6 +241,7 @@ class Context(object):
         self.g.Duktape.run_in_context = run_in_context
         self.g.Duktape.cwd = os.getcwdu
         self.g.Duktape.sha1sum = sha1sum
+        self.g.Duktape.dirname = os.path.dirname
         self.g.Duktape.errprint = lambda *args: print(*args, file=sys.stderr)
         self.eval('''
         console = {

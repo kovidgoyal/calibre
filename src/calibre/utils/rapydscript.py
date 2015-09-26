@@ -15,7 +15,7 @@ from Queue import Queue, Empty
 
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
-from calibre.constants import cache_dir
+from calibre.constants import cache_dir, __appname__, __version__
 from calibre.utils.terminal import ANSIStream
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
@@ -79,6 +79,30 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
     c.g.rs_source_code = data
     return c.eval('exports["compile"](rs_source_code, %s, current_options)' % json.dumps(filename))
 # }}}
+
+def create_pot(source_files):
+    ctx = compiler()
+    ctx.g.gettext_options = {
+        'package_name': __appname__,
+        'package_version': __version__,
+        'bugs_address': 'kovid@kovidgoyal.net'
+    }
+    ctx.eval('catalog = {}')
+    for fname in source_files:
+        with open(fname, 'rb') as f:
+            ctx.g.code = f.read().decode('utf-8')
+            ctx.g.fname = fname
+        ctx.eval('exports.gettext_parse(catalog, code, fname)')
+    buf = []
+    ctx.g.pywrite = buf.append
+    ctx.eval('exports.gettext_output(catalog, gettext_options, pywrite)')
+    return ''.join(buf)
+
+def msgfmt(po_data_as_string):
+    ctx = compiler()
+    ctx.g.po_data = po_data_as_string
+    ctx.g.msgfmt_options = {'use_fuzzy': False}
+    return ctx.eval('exports.msgfmt(po_data, msgfmt_options)')
 
 # REPL {{{
 def leading_whitespace(line):
