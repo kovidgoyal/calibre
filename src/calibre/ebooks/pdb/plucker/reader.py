@@ -199,8 +199,10 @@ class SectionMetadata(object):
 
         adv = 0
         for i in xrange(record_count):
-            type, = struct.unpack('>H', raw[2+adv:4+adv])
-            length, = struct.unpack('>H', raw[4+adv:6+adv])
+            try:
+                type, length = struct.unpack_from('>HH', raw, 2 + adv)
+            except struct.error:
+                break
 
             # CharSet
             if type == 1:
