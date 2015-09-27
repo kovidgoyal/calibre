@@ -12,6 +12,7 @@ import struct, sys, base64, re
 from collections import defaultdict
 
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.mobi.utils import decint
 from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_only_date
@@ -220,12 +221,10 @@ class PackedIon(PackedData):
     def unpack_number(self):
         # variable length numbers, MSB first, 7 bits per byte, last byte is
         # flagged by MSB set
-        number = 0
-        while (True):
-            byte = self.unpack_one('B')
-            number = (number << 7) | (byte & 0x7f)
-            if byte >= 0x80:
-                return number
+        raw = self.buffer[self.offset:self.offset+10]
+        number, consumed = decint(raw)
+        self.advance(consumed)
+        return number
 
     def unpack_unsigned_int(self, length):
         # unsigned big-endian (MSB first)
