@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import os, sys, Queue, threading, glob
 from contextlib import contextmanager
-from threading import RLock, Lock, Thread
+from threading import RLock, Lock
 from urllib import unquote
 from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
 from PyQt5.Qt import (
@@ -1140,15 +1140,6 @@ def open_local_file(path):
     if iswindows:
         with sanitize_env_vars():
             os.startfile(os.path.normpath(path))
-    elif islinux or isbsd:
-        import subprocess
-        if isinstance(path, unicode):
-            path = path.encode(filesystem_encoding)
-        with sanitize_env_vars():
-            p = subprocess.Popen(['xdg-open', path])
-        t = Thread(name='WaitXDGOpen', target=p.wait)
-        t.daemon = True
-        t.start()
     else:
         url = QUrl.fromLocalFile(path)
         open_url(url)
