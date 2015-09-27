@@ -923,8 +923,9 @@ class FilterCSS(Dialog):  # {{{
         l.addRow(QLabel(_('Select what style information you want completely removed:')))
         self.h = h = QHBoxLayout()
 
-        for name, text in {
-                'fonts':_('&Fonts'), 'margins':_('&Margins'), 'padding':_('&Padding'), 'floats':_('Flo&ats'), 'colors':_('&Colors')}.iteritems():
+        for name, text in (
+                ('fonts', _('&Fonts')), ('margins', _('&Margins')), ('padding', _('&Padding')), ('floats', _('Flo&ats')), ('colors', _('&Colors')),
+            ):
             c = QCheckBox(text)
             setattr(self, 'opt_' + name, c)
             h.addWidget(c)
