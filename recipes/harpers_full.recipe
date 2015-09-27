@@ -29,7 +29,7 @@ class Harpers_full(BasicNewsRecipe):
     needs_subscription    = 'optional'
     masthead_url          = 'http://harpers.org/wp-content/themes/harpers/images/pheader.gif'
     publication_type      = 'magazine'
-    LOGIN                 = 'http://harpers.org/wp-content/themes/harpers/ajax_login.php'
+    LOGIN                 = 'http://harpers.org/wp-admin/admin-ajax.php'
     extra_css             = """
                                 body{font-family: adobe-caslon-pro,serif}
                                 .category{font-size: small}
@@ -55,7 +55,8 @@ class Harpers_full(BasicNewsRecipe):
         br.open('http://harpers.org/')
         if self.username is not None and self.password is not None:
             tt = time.localtime()*1000
-            data = urllib.urlencode({ 'm':self.username
+            data = urllib.urlencode({ 'action':'cds_auth_user'
+                                     ,'m':self.username
                                      ,'p':self.password
                                      ,'rt':'http://harpers.org/'
                                      ,'tt':tt
