@@ -80,6 +80,8 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
     return c.eval('exports["compile"](rs_source_code, %s, current_options)' % json.dumps(filename))
 # }}}
 
+# Translations {{{
+
 def create_pot(source_files):
     ctx = compiler()
     ctx.g.gettext_options = {
@@ -103,6 +105,7 @@ def msgfmt(po_data_as_string):
     ctx.g.po_data = po_data_as_string
     ctx.g.msgfmt_options = {'use_fuzzy': False}
     return ctx.eval('exports.msgfmt(po_data, msgfmt_options)')
+# }}}
 
 # REPL {{{
 def leading_whitespace(line):
