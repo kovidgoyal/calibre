@@ -174,6 +174,9 @@ class USBMS(CLI, Device):
     def formats_to_scan_for(self):
         return set(self.settings().format_map) | set(self.FORMATS)
 
+    def is_a_book_file(self, filename, path, prefix):
+        return False
+
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
 
@@ -216,7 +219,7 @@ class USBMS(CLI, Device):
 
         def update_booklist(filename, path, prefix):
             changed = False
-            if path_to_ext(filename) in all_formats:
+            if path_to_ext(filename) in all_formats or self.is_a_book_file(filename, path, prefix):
                 try:
                     lpath = os.path.join(path, filename).partition(self.normalize_path(prefix))[2]
                     if lpath.startswith(os.sep):
@@ -376,6 +379,9 @@ class USBMS(CLI, Device):
         self.report_progress(1.0, _('Adding books to device metadata listing...'))
         debug_print('USBMS: finished adding metadata')
 
+    def delete_single_book(self, path):
+        os.unlink(path)
+
     def delete_books(self, paths, end_session=True):
         debug_print('USBMS: deleting %d books'%(len(paths)))
         for i, path in enumerate(paths):
@@ -383,7 +389,7 @@ class USBMS(CLI, Device):
             path = self.normalize_path(path)
             if os.path.exists(path):
                 # Delete the ebook
-                os.unlink(path)
+                self.delete_single_book(path)
 
                 filepath = os.path.splitext(path)[0]
                 for ext in self.DELETE_EXTS:
