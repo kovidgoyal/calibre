@@ -6,6 +6,7 @@ from datetime import date
 
 from PyQt5.Qt import QDialog, QDialogButtonBox
 
+from calibre import strftime
 from calibre.gui2.dialogs.search_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 from calibre.gui2 import gprefs
@@ -36,7 +37,7 @@ class SearchDialog(QDialog, Ui_Dialog):
         QDialog.__init__(self, parent)
         self.setupUi(self)
         self.um_label.setText(self.um_label.text() % localize_user_manual_link('http://manual.calibre-ebook.com/gui.html#the-search-interface'))
-        for val, text in [(0, '')] + [(i, date(2010, i, 1).strftime('%B')) for i in xrange(1, 13)]:
+        for val, text in [(0, '')] + [(i, strftime('%B', date(2010, i, 1).timetuple())) for i in xrange(1, 13)]:
             self.date_month.addItem(text, val)
         for val, text in [('today', _('Today')), ('yesterday', _('Yesterday')), ('thismonth', _('This month'))]:
             self.date_human.addItem(text, val)
