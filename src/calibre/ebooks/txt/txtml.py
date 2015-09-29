@@ -68,6 +68,9 @@ class TXTMLizer(object):
         output.append(self.get_toc())
         for item in self.oeb_book.spine:
             self.log.debug('Converting %s to TXT...' % item.href)
+            for x in item.data.iterdescendants(etree.Comment):
+                if x.text and '--' in x.text:
+                    x.text = x.text.replace('--', '__')
             content = unicode(etree.tostring(item.data, encoding=unicode))
             content = self.remove_newlines(content)
             content = etree.fromstring(content)
