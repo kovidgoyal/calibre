@@ -178,7 +178,7 @@ class Rules(QWidget):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
 
-        self.la = la = QLabel(
+        self.msg_label = la = QLabel(
             '<p>' + _('You can specify rules to filter/transform tags here. Click the "Add Rule" button'
             ' below to get started. The rules will be processed in order for every tag until either a'
             ' "remove" or a "keep" rule matches.') + '<p>' + _(

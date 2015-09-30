@@ -847,6 +847,11 @@ class ActionQuickview(InterfaceActionBase):
     actual_plugin = 'calibre.gui2.actions.show_quickview:ShowQuickviewAction'
     description = _('Show a list of related books quickly')
 
+class ActionTagMapper(InterfaceActionBase):
+    name = 'Tag Mapper'
+    actual_plugin = 'calibre.gui2.actions.tag_mapper:TagMapAction'
+    description = _('Filter/transform the tags for books in the library')
+
 class ActionTemplateTester(InterfaceActionBase):
     name = 'Template Tester'
     actual_plugin = 'calibre.gui2.actions.show_template_tester:ShowTemplateTesterAction'
@@ -987,7 +992,7 @@ plugins += [ActionAdd, ActionFetchAnnotations, ActionGenerateCatalog,
         ActionAddToLibrary, ActionEditCollections, ActionMatchBooks, ActionChooseLibrary,
         ActionCopyToLibrary, ActionTweakEpub, ActionUnpackBook, ActionNextMatch, ActionStore,
         ActionPluginUpdater, ActionPickRandom, ActionEditToC, ActionSortBy,
-        ActionMarkBooks, ActionEmbed, ActionTemplateTester]
+        ActionMarkBooks, ActionEmbed, ActionTemplateTester, ActionTagMapper]
 
 # }}}
 
