@@ -13,7 +13,7 @@ from collections import defaultdict, Set, MutableSet
 from functools import wraps, partial
 from future_builtins import zip
 
-from calibre import isbytestring
+from calibre import isbytestring, as_unicode
 from calibre.constants import iswindows, preferred_encoding
 from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
@@ -1446,7 +1446,11 @@ class Cache(object):
         ''' Return data suitable for use in :meth:`has_book`. This can be used for an
         implementation of :meth:`has_book` in a worker process without access to the
         db. '''
-        return {icu_lower(title) for title in self.fields['title'].table.book_col_map.itervalues()}
+        try:
+            return {icu_lower(title) for title in self.fields['title'].table.book_col_map.itervalues()}
+        except TypeError:
+            # Some non-unicode titles in the db
+            return {icu_lower(as_unicode(title)) for title in self.fields['title'].table.book_col_map.itervalues()}
 
     @read_api
     def has_book(self, mi):
