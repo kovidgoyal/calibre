@@ -10,7 +10,7 @@ import os, sys
 from calibre.constants import iswindows, plugins
 
 '''
-This modeule defines a share_open() function which is a replacement for
+This module defines a share_open() function which is a replacement for
 python's builtin open() function.
 
 This replacement, opens 'shareable' files on all platforms. That is files that
