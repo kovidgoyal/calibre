@@ -217,6 +217,12 @@ class Polish(QDialog):  # {{{
                 return
             ac['metadata'] = saved_prefs['metadata'] = True
             self.opt_metadata.setChecked(True)
+        if ac['jacket'] and ac['remove_jacket']:
+            if not question_dialog(self, _('Add or remove jacket?'), _(
+                    'You have chosen to both add and remove the metadata jacket.'
+                    ' This will result in the final book having no jacket. Is this'
+                    ' what you want?')):
+                return
         if not something:
             return error_dialog(self, _('No actions selected'),
                 _('You must select at least one action, or click Cancel.'),
