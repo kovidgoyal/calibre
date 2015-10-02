@@ -27,7 +27,9 @@ class NYTimes(BasicNewsRecipe):
 
     # set getPopularArticles to False if you don't want the Most E-mailed and Most Viewed articles
     # otherwise you will get up to 20 of the most popular e-mailed and viewed articles (in each category)
-    getPopularArticles = True
+    # This is currently disabled because the NYT is changing this functionality
+    # on their website to a new "Trending" page
+    getPopularArticles = False
     popularPeriod = '1'  # set this to the number of days to include in the measurement
                         # e.g. 7 will get the most popular measured over the last 7 days
                         # and 30 will get the most popular measured over 30 days.
