@@ -20,6 +20,42 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.40.0
+  date: 2015-10-02
+
+  new features:
+    - title: "A new tool to apply Tag mapper rules to existing books in the library. To use it, go to Preferences->Toolbars and add the tool to the toolbar."
+
+    - title: "Kindle driver: Detect books in Amazon's new KFX format present on e-ink kindles."
+      description: "Note that this only detects KFX books and allows you to delete them. You cannot copy them to your calibre library. Doing so would be pointless anyway, as KFX books are specialised for individual devices. Instead go to your 'Manage my content' page an amazon.com and download them from there -- this will give you a regular azw3 file you can add to calibre."
+      tickets: [1496206]
+
+  bug fixes:
+    - title: "TXT Output: Do not fail when input contains HTML comments with double hyphens in the comment text."
+
+    - title: "E-book polishing: Show a confirmation if the user selects both the add and remove jacket actions."
+
+    - title: "Edit Book: Fix order of checkboxes in filter style information tool is random"
+
+    - title: "PDB Input: Ingore malformed metadata records."
+      tickets: [1499878]
+
+    - title: "Revert change in previous release to workaround broken xdg-open on linux. Apparently xdg-open is so badly broken that working around it is not possible."
+      tickets: [1500226]
+
+    - title: "ZIP Output: Fix system encoding being used instead of UTF-8 for html files."
+      tickets: [1499514]
+
+  improved recipes:
+    - The Philosopher's Magazine
+    - Harper's Magazine
+    - Ambito
+    - Perfil
+    - Telam
+    - Infobae.com
+    - La Nacion
+    - Clarin
+
 - version: 2.39.0
   date: 2015-09-25
 
