@@ -19,7 +19,6 @@ static int copy_error_attr(PyObject *obj, const char* name, PyObject *dest) {
 
 void set_dukpy_error(PyObject *obj) {
     PyObject *err = NULL, *iterator = NULL, *item = NULL;
-    Py_ssize_t i = 0;
     if (Py_TYPE(obj) == &DukObject_Type) {
         err = PyDict_New();
         if (err == NULL) { PyErr_NoMemory(); return; }
@@ -34,7 +33,7 @@ void set_dukpy_error(PyObject *obj) {
         // Now copy over own properties
         iterator = PyObject_CallMethod(obj, "items", NULL);
         if (iterator == NULL) { Py_DECREF(err); return; }
-        while (item = PyIter_Next(iterator)) {
+        while ((item = PyIter_Next(iterator))) {
             PyDict_SetItem(err, PyTuple_GET_ITEM(item, 0), PyTuple_GET_ITEM(item, 1));
             Py_DECREF(item);
         }
