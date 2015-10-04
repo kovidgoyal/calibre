@@ -44,6 +44,10 @@ class OEB2HTML(object):
     def oeb2html(self, oeb_book, opts):
         self.log.info('Converting OEB book to HTML...')
         self.opts = opts
+        try:
+            self.book_title = unicode(oeb_book.metadata.title[0])
+        except Exception:
+            self.book_title = _('Unknown')
         self.links = {}
         self.images = {}
         self.base_hrefs = [item.href for item in oeb_book.spine]
@@ -52,7 +56,10 @@ class OEB2HTML(object):
         return self.mlize_spine(oeb_book)
 
     def mlize_spine(self, oeb_book):
-        output = [u'<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /></head><body>']
+        output = [
+            u'<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" /><title>%s</title></head><body>' % (
+                prepare_string_for_xml(self.book_title))
+        ]
         for item in oeb_book.spine:
             self.log.debug('Converting %s to HTML...' % item.href)
             self.rewrite_ids(item.data, item)
@@ -330,8 +337,9 @@ class OEB2HTMLClassCSSizer(OEB2HTML):
             css = u'<link href="style.css" rel="stylesheet" type="text/css" />'
         else:
             css =  u'<style type="text/css">' + self.get_css(oeb_book) + u'</style>'
+        title = u'<title>%s</title>' % prepare_string_for_xml(self.book_title)
         output = [u'<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" />'] + \
-            [css] + [u'</head><body>'] + output + [u'</body></html>']
+            [css] + [title, u'</head><body>'] + output + [u'</body></html>']
         return ''.join(output)
 
     def dump_text(self, elem, stylizer, page):
