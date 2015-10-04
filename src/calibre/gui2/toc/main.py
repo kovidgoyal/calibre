@@ -508,6 +508,11 @@ class TreeWidget(QTreeWidget):  # {{{
             t = unicode(item.data(0, Qt.DisplayRole) or '')
             item.setData(0, Qt.DisplayRole, titlecase(t))
 
+    def upper_case(self):
+        for item in self.selectedItems():
+            t = unicode(item.data(0, Qt.DisplayRole) or '')
+            item.setData(0, Qt.DisplayRole, icu_upper(t))
+
     def bulk_rename(self):
         from calibre.gui2.tweak_book.file_list import get_bulk_rename_settings
         sort_map = {item:i for i, item in enumerate(self.iteritems())}
@@ -559,6 +564,7 @@ class TreeWidget(QTreeWidget):  # {{{
                 m.addAction(QIcon(I('forward.png')), (_('Indent "%s"')%ci)+key(Qt.Key_Right), self.move_right)
             m.addAction(QIcon(I('edit_input.png')), _('Change the location this entry points to'), self.edit_item)
             m.addAction(_('Change all selected items to title case'), self.title_case)
+            m.addAction(_('Change all selected items to upper case'), self.upper_case)
             m.addAction(QIcon(I('modified.png')), _('Bulk rename all selected items'), self.bulk_rename)
             m.exec_(QCursor.pos())
 # }}}
