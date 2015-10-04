@@ -1,5 +1,5 @@
-import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 class TheIndependentNew(BasicNewsRecipe):
 
@@ -20,17 +20,34 @@ class TheIndependentNew(BasicNewsRecipe):
     remove_empty_feeds      = True
     language                = 'en_GB'
     publication_type        = 'newspaper'
-    masthead_url            = 'http://www.independent.co.uk/independent.co.uk/editorial/logo/independent_Masthead.png'
     encoding                = 'utf-8'
     compress_news_images    = True
 
-    keep_only_tags = [dict(id='main')]
-    remove_tags = [
-        dict(attrs={'class':['column-2', 'article-links', 'second-gallery', 'buttons']}),
-        dict(attrs={'class':lambda x: x and 'share-tool-ctr' in x.split()}),
-        dict(id=lambda x: x and re.match(r'slideshow-\d+', x)),
-        dict(id=['anchor-href-comment', 'anchor-href-reply', 'commentReference']),
+    keep_only_tags = [
+        dict(itemprop=['articleBody', 'headline', 'contentUrl']),
+        dict(attrs={'class':['intro', 'author']}),
     ]
+    remove_tags = [
+        dict(attrs={'class':lambda x: x and 'show-all' in x.split()}),
+        dict(attrs={'data-scald-gallery':True}),
+    ]
+
+    remove_attributes = ['style']
+
+    def preprocess_html(self, soup):
+        for div in soup.findAll(attrs={'class':'full-gallery'}):
+            imgs = {}
+            for li in div.findAll('li', attrs={'data-gallery-item':True, 'data-original':True}):
+                imgs[li['data-gallery-item']] = li['data-original']
+                li.extract()
+            for li in div.findAll('li', attrs={'data-gallery-legend':True}):
+                src = imgs.get(li['data-gallery-legend'])
+                if src is not None:
+                    img = Tag(soup, 'img')
+                    img['src'] = src
+                    img['style'] = 'display:block'
+                    li.append(img)
+        return soup
 
     feeds = [
         (u'News - UK',
