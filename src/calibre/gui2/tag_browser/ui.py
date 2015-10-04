@@ -342,9 +342,15 @@ class TagBrowserWidget(QWidget):  # {{{
         ac.triggered.connect(self.set_focus_to_find_box)
 
         self.search_button = QToolButton()
-        self.search_button.setText(_('F&ind'))
+        self.search_button.setText(_('Find'))
         self.search_button.setToolTip(_('Find the first/next matching item'))
         search_layout.addWidget(self.search_button)
+        ac = QAction(parent)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('tag browser find button',
+                _('Find button'), default_keys=("ALT+i",),
+                action=ac, group=_('Tag Browser'))
+        ac.triggered.connect(self.search_button.click)
 
         self.expand_button = QToolButton()
         self.expand_button.setText('-')
