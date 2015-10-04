@@ -9,9 +9,9 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt5.Qt import (Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QShortcut,
-        QKeySequence, QToolButton, QLabel, QFrame, QTimer,
-        QMenu, QPushButton, QActionGroup)
+from PyQt5.Qt import (
+    Qt, QIcon, QWidget, QHBoxLayout, QVBoxLayout, QToolButton, QLabel, QFrame,
+    QTimer, QMenu, QPushButton, QActionGroup, QAction)
 
 from calibre.gui2 import error_dialog, question_dialog
 from calibre.gui2.widgets import HistoryLineEdit
@@ -334,9 +334,12 @@ class TagBrowserWidget(QWidget):  # {{{
         '*foo will filter all categories at once, showing only those items\n'
         'containing the text "foo"'))
         search_layout.addWidget(self.item_search)
-        # Not sure if the shortcut should be translatable ...
-        sc = QShortcut(QKeySequence(_('ALT+f')), parent)
-        sc.activated.connect(self.set_focus_to_find_box)
+        ac = QAction(parent)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('tag browser find box',
+                _('Find item'), default_keys=("Alt+f",),
+                action=ac, group=_('Tag Browser'))
+        ac.triggered.connect(self.set_focus_to_find_box)
 
         self.search_button = QToolButton()
         self.search_button.setText(_('F&ind'))
@@ -350,6 +353,12 @@ class TagBrowserWidget(QWidget):  # {{{
         search_layout.setStretch(0, 10)
         search_layout.setStretch(1, 1)
         search_layout.setStretch(2, 1)
+        ac = QAction(parent)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('tag browser collapse all',
+                _('Collapse all'), default_keys=(),
+                action=ac, group=_('Tag Browser'))
+        ac.triggered.connect(self.expand_button.clicked)
 
         self.current_find_position = None
         self.search_button.clicked.connect(self.find)
@@ -386,6 +395,12 @@ class TagBrowserWidget(QWidget):  # {{{
         l.m = QMenu()
         l.setMenu(l.m)
         self._layout.addWidget(l)
+        ac = QAction(parent)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('tag browser alter',
+                _('Alter tag browser'), default_keys=(),
+                action=ac, group=_('Tag Browser'))
+        ac.triggered.connect(l.showMenu)
 
         sb = l.m.addAction(_('Sort by'))
         sb.m = l.sort_menu = QMenu(l.m)
@@ -427,9 +442,20 @@ class TagBrowserWidget(QWidget):  # {{{
         mt.m = l.manage_menu = QMenu(l.m)
         mt.setMenu(mt.m)
 
+        ac = QAction(parent)
+        parent.addAction(ac)
+        parent.keyboard.register_shortcut('tag browser toggle item',
+                _("'Click' found item"), default_keys=(),
+                description="foobar",
+                action=ac, group=_('Tag Browser'))
+        ac.triggered.connect(self.toggle_item)
+
         # self.leak_test_timer = QTimer(self)
         # self.leak_test_timer.timeout.connect(self.test_for_leak)
         # self.leak_test_timer.start(5000)
+
+    def toggle_item(self):
+        self.tags_view.toggle_current_index()
 
     def set_pane_is_visible(self, to_what):
         self.tags_view.set_pane_is_visible(to_what)

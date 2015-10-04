@@ -279,6 +279,11 @@ class TagsView(QTreeView):  # {{{
         joiner = ' and ' if self.match_all else ' or '
         return joiner.join(tokens)
 
+    def toggle_current_index(self):
+        ci = self.currentIndex()
+        if ci.isValid():
+            self.toggle(ci)
+
     def toggle(self, index):
         self._toggle(index, None)
 
