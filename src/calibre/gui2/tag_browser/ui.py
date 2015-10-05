@@ -452,7 +452,6 @@ class TagBrowserWidget(QWidget):  # {{{
         parent.addAction(ac)
         parent.keyboard.register_shortcut('tag browser toggle item',
                 _("'Click' found item"), default_keys=(),
-                description="foobar",
                 action=ac, group=_('Tag Browser'))
         ac.triggered.connect(self.toggle_item)
 
