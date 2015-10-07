@@ -61,7 +61,7 @@ if islinux:
                 for fd in r:
                     w = self.fd_map[fd]
                     modified |= w()
-                self.handle_modified()
+                self.handle_modified(modified)
 
         def ignore_event(self, path, name):
             return not self.file_is_watched(name)
@@ -176,6 +176,7 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
         base = d(d(d(srv)))
         add(os.path.join(base, 'resources', 'server'))
         add(os.path.join(base, 'src', 'calibre', 'db'))
+        add(os.path.join(base, 'src', 'pyj'))
     return dirs
 
 def join_process(p, timeout=5):
@@ -211,7 +212,9 @@ class Worker(object):
             self.p = None
 
     def restart(self):
+        from calibre.utils.rapydscript import compile_srv
         self.clean_kill()
+        compile_srv()
         self.p = subprocess.Popen(self.cmd, creationflags=getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0))
 
 def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):

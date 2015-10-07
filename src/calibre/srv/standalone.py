@@ -69,6 +69,10 @@ class Server(object):
         self.handler.set_log(self.loop.log)
         self.serve_forever = self.loop.serve_forever
         self.stop = self.loop.stop
+        _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
+        if _df and os.path.exists(_df):
+            from calibre.utils.rapydscript import compile_srv
+            compile_srv()
 
 
 def create_option_parser():

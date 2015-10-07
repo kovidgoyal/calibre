@@ -78,6 +78,17 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
     }
     c.g.rs_source_code = data
     return c.eval('exports["compile"](rs_source_code, %s, current_options)' % json.dumps(filename))
+
+def compile_srv():
+    d = os.path.dirname
+    base = d(d(d(d(os.path.abspath(__file__)))))
+    rapydscript_dir = os.path.join(base, 'src', 'pyj')
+    fname = os.path.join(rapydscript_dir, 'srv.pyj')
+    with open(fname, 'rb') as f:
+        raw = compile_pyj(f.read(), fname)
+    with open(P('content-server/main.js', allow_user_override=False), 'wb') as f:
+        f.write(raw.encode('utf-8'))
+
 # }}}
 
 # Translations {{{
