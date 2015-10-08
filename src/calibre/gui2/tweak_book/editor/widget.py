@@ -221,8 +221,14 @@ class Editor(QMainWindow):
     def _build_insert_tag_button_menu(self):
         m = self.insert_tag_menu
         m.clear()
-        for name in tprefs['insert_tag_mru']:
+        names = tprefs['insert_tag_mru']
+        for name in names:
             m.addAction(name, partial(self.insert_tag, name))
+        if names:
+            m.addSeparator()
+            m = m.addMenu(_('Remove from this menu'))
+            for name in names:
+                m.addAction(name, partial(self.remove_insert_tag, name))
 
     def insert_tag(self, name):
         self.editor.insert_tag(name)
@@ -232,6 +238,15 @@ class Editor(QMainWindow):
         except ValueError:
             pass
         mru.insert(0, name)
+        tprefs['insert_tag_mru'] = mru
+        self._build_insert_tag_button_menu()
+
+    def remove_insert_tag(self, name):
+        mru = tprefs['insert_tag_mru']
+        try:
+            mru.remove(name)
+        except ValueError:
+            pass
         tprefs['insert_tag_mru'] = mru
         self._build_insert_tag_button_menu()
 
