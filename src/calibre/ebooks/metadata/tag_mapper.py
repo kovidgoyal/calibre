@@ -44,6 +44,8 @@ def apply_rules(tag, rules):
                     tag = regex.sub(rule['query'], rule['replace'], tag, flags=REGEX_FLAGS)
                 else:
                     tag = rule['replace']
+                if ',' in tag:
+                    tag = [x.strip() for x in tag.split(',')]
     return tag
 
 def uniq(vals, kmap=icu_lower):
@@ -62,10 +64,18 @@ def map_tags(tags, rules=()):
     if not rules:
         return list(tags)
     rules = [(r, matcher(r)) for r in rules]
-    return uniq([x for x in (apply_rules(t, rules) for t in tags) if x])
+    ans = []
+    for t in tags:
+        mapped = apply_rules(t, rules)
+        (ans.extend if isinstance(mapped, list) else ans.append)(mapped)
+    return uniq(filter(None, ans))
 
 def test():
     rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2'}]
     assert map_tags(['t1', 'x1'], rules) == ['t2', 'x1']
     rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2'}]
     assert map_tags(['t1', 'x1'], rules) == ['t2', 'x2']
+    rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2, t3'}]
+    assert map_tags(['t1', 'x1'], rules) == ['t2', 't3', 'x1']
+    rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2,3'}]
+    assert map_tags(['t1', 'x1'], rules) == ['t2', '3', 'x2']
