@@ -95,6 +95,14 @@ class TOCView(QTreeView):
         m.addAction(_('Collapse all items'), self.collapseAll)
         m.exec_(self.mapToGlobal(pos))
 
+    def keyPressEvent(self, event):
+        try:
+            if self.handle_shortcuts(event):
+                return
+        except AttributeError:
+            pass
+        return QTreeView.keyPressEvent(self, event)
+
 class TOCSearch(QWidget):
 
     def __init__(self, toc_view, parent=None):
