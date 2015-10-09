@@ -10,7 +10,7 @@ from functools import partial
 
 from PyQt5.Qt import (
     Qt, QMenu, QPoint, QIcon, QDialog, QGridLayout, QLabel, QLineEdit, QComboBox,
-    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QRadioButton, QAction)
+    QDialogButtonBox, QSize, QVBoxLayout, QListWidget, QRadioButton, QAction, QTextBrowser)
 
 from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -112,9 +112,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
         gl.addWidget(self.vl_name, 0, 1)
         self.editing = editing
 
-        self.saved_searches_label = QLabel('')
-        self.saved_searches_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        gl.addWidget(self.saved_searches_label, 2, 0, 1, 2)
+        self.saved_searches_label = sl = QTextBrowser(self)
+        sl.viewport().setAutoFillBackground(False)
+        gl.addWidget(sl, 2, 0, 1, 2)
 
         self.la2 = la2 = QLabel(_('&Search expression:'))
         gl.addWidget(la2, 1, 0)
@@ -211,9 +211,9 @@ class CreateVirtualLibrary(QDialog):  # {{{
             else:
                 txt = ''
         if len(searches) > 1:
-            self.saved_searches_label.setText('\n'.join(searches))
+            self.saved_searches_label.setPlainText('\n'.join(searches))
         else:
-            self.saved_searches_label.setText('')
+            self.saved_searches_label.setPlainText('')
 
     def name_text_edited(self, new_name):
         self.new_name = unicode(new_name)
