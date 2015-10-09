@@ -272,6 +272,9 @@
  * Early Creative Zen (etc) models actually only support
  * command 9805 (Get object property list) and will hang
  * if you try to get individual properties of an object.
+ * Or so it seemed. Later bug fixes to the library has made
+ * this work flawlessly so the bug flag is moot.
+ * NOT USED ANYMORE, THIS FLAG MAY BE RECYCLED.
  */
 #define DEVICE_FLAG_BROKEN_GET_OBJECT_PROPVAL	0x20000000
 /**
