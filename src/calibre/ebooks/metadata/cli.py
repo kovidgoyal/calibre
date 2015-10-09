@@ -165,7 +165,6 @@ def main(args=sys.argv):
         prints(_('No file specified'), file=sys.stderr)
         return 1
     path = args[1]
-    stream = open(path, 'r+b')
     stream_type = os.path.splitext(path)[1].replace('.', '').lower()
 
     trying_to_set = False
@@ -175,7 +174,8 @@ def main(args=sys.argv):
         if getattr(opts, pref.name) is not None:
             trying_to_set = True
             break
-    mi = get_metadata(stream, stream_type, force_read_metadata=True)
+    with open(path, 'rb') as stream:
+        mi = get_metadata(stream, stream_type, force_read_metadata=True)
     if trying_to_set:
         prints(_('Original metadata')+'::')
     metadata = unicode(mi)
@@ -184,16 +184,16 @@ def main(args=sys.argv):
     prints(metadata, safe_encode=True)
 
     if trying_to_set:
-        stream.seek(0)
-        do_set_metadata(opts, mi, stream, stream_type)
-        stream.seek(0)
-        stream.flush()
-        lrf = None
-        if stream_type == 'lrf':
-            if opts.lrf_bookid is not None:
-                lrf = LRFMetaFile(stream)
-                lrf.book_id = opts.lrf_bookid
-        mi = get_metadata(stream, stream_type, force_read_metadata=True)
+        with open(path, 'r+b') as stream:
+            do_set_metadata(opts, mi, stream, stream_type)
+            stream.seek(0)
+            stream.flush()
+            lrf = None
+            if stream_type == 'lrf':
+                if opts.lrf_bookid is not None:
+                    lrf = LRFMetaFile(stream)
+                    lrf.book_id = opts.lrf_bookid
+            mi = get_metadata(stream, stream_type, force_read_metadata=True)
         prints('\n' + _('Changed metadata') + '::')
         metadata = unicode(mi)
         metadata = '\t'+'\n\t'.join(metadata.split('\n'))
