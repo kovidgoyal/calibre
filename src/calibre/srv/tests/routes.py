@@ -97,3 +97,4 @@ class TestRouter(BaseTest):
         self.ae(ep, soak_opt), self.ae(args, ['a/b'])
 
         self.ae(router.url_for('/needs quoting', x='a/b c'), '/needs quoting/a%2Fb%20c')
+        self.ae(router.url_for(None), '/')

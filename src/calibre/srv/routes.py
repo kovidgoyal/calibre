@@ -290,5 +290,7 @@ class Router(object):
         return ans
 
     def url_for(self, route, **kwargs):
+        if route is None:
+            return self.url_prefix or '/'
         route = getattr(route, 'route_key', route)
         return self.url_prefix + self.routes[route].url_for(**kwargs)
