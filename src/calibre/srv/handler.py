@@ -15,6 +15,7 @@ from threading import Lock
 from calibre.db.cache import Cache
 from calibre.db.legacy import create_backend, LibraryDatabase
 from calibre.srv.routes import Router
+from calibre.srv.session import Sessions
 from calibre.utils.date import utcnow
 
 def init_library(library_path):
@@ -71,18 +72,21 @@ class Context(object):
     url_for = None
     CATEGORY_CACHE_SIZE = 25
     SEARCH_CACHE_SIZE = 100
+    SESSION_COOKIE = 'calibre_session'
 
     def __init__(self, libraries, opts, testing=False):
         self.opts = opts
         self.library_broker = LibraryBroker(libraries)
         self.testing = testing
         self.lock = Lock()
+        self.sessions = Sessions()
 
     def init_session(self, endpoint, data):
-        pass
+        data.session = self.sessions.get_or_create(key=data.cookies.get(self.SESSION_COOKIE), username=data.username)
 
     def finalize_session(self, endpoint, data, output):
-        pass
+        data.outcookie[self.SESSION_COOKIE] = data.session.key
+        data.outcookie[self.SESSION_COOKIE]['path'] = self.url_for(None)
 
     def get_library(self, library_id=None):
         return self.library_broker.get(library_id)
