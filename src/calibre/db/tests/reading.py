@@ -290,7 +290,7 @@ class ReadingTest(BaseTest):
             'title:="Title One"', 'title:~title', '#enum:=one', '#enum:tw',
             '#enum:false', '#enum:true', 'series:one', 'tags:one', 'tags:true',
             'tags:false', 'uuid:2', 'one', '20.02', '"publisher one"',
-            '"my comments one"',
+            '"my comments one"', 'series_sort:one',
 
             # User categories
             '@Good Authors:One', '@Good Series.good tags:two',

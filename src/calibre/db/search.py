@@ -682,6 +682,13 @@ class Parser(SearchQueryParser):  # {{{
                         if _match(q, val, matchkind, use_primary_find_in_search=upf):
                             matches |= book_ids
 
+            if location == 'series_sort':
+                book_lang_map = self.dbcache.fields['languages'].book_value_map
+                for val, book_ids in self.dbcache.fields['series'].iter_searchable_values_for_sort(current_candidates, book_lang_map):
+                    if val is not None:
+                        if _match(q, (val,), matchkind, use_primary_find_in_search=upf):
+                            matches |= book_ids
+
         return matches
 
     def get_user_category_matches(self, location, query, candidates):

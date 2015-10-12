@@ -670,6 +670,24 @@ class SeriesField(ManyToOneField):
         val = self.table.id_map[item_id]
         return title_sort(val, order=tss, lang=lang)
 
+    def iter_searchable_values_for_sort(self, candidates, lang_map, default_value=None):
+        cbm = self.table.col_book_map
+        sso = tweaks['title_series_sorting']
+        ts = title_sort
+        empty = set()
+        lang_map = {k:v[0] if v else None for k, v in lang_map.iteritems()}
+        for item_id, val in self.table.id_map.iteritems():
+            book_ids = cbm.get(item_id, empty).intersection(candidates)
+            if book_ids:
+                lang_counts = Counter()
+                for book_id in book_ids:
+                    lang = lang_map.get(book_id)
+                    if lang:
+                        lang_counts[lang[0]] += 1
+                lang = lang_counts.most_common(1)[0][0] if lang_counts else None
+                yield ts(val, order=sso, lang=lang), book_ids
+
+
 class TagsField(ManyToManyField):
 
     def get_news_category(self, tag_class, book_ids=None):
