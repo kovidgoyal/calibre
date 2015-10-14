@@ -172,7 +172,7 @@ class NetworkReply(QNetworkReply):
         if data is None:
             return QTimer.singleShot(10, self.check_for_parse)
         self.__data = data
-        self.setHeader(QNetworkRequest.ContentTypeHeader, 'text/html; charset=utf-8')
+        self.setHeader(QNetworkRequest.ContentTypeHeader, 'application/xhtml+xml; charset=utf-8')
         self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
         self.finalize_reply()
 
