@@ -27,7 +27,7 @@ from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_re
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
 from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc, create_inline_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
-from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url
+from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url, choose_dir
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.tweak_book import (
     set_current_container, current_container, tprefs, actions, editors,
@@ -243,7 +243,7 @@ class Boss(QObject):
                 return get_container(dest, tdir=tdir)
             self.gui.blocking_job('import_book', _('Importing book, please wait...'), self.book_opened, func, src, dest, tdir=self.mkdtemp())
 
-    def open_book(self, path=None, edit_file=None, clear_notify_data=True):
+    def open_book(self, path=None, edit_file=None, clear_notify_data=True, open_folder=False):
         '''
         Open the ebook at ``path`` for editing. Will show an error if the ebook is not in a supported format or the current book has unsaved changes.
 
@@ -256,14 +256,24 @@ class Boss(QObject):
         if not self._check_before_open():
             return
         if not hasattr(path, 'rpartition'):
-            path = choose_files(self.gui, 'open-book-for-tweaking', _('Choose book'),
+            if open_folder:
+                path = choose_dir(self.gui, 'open-book-folder-for-tweaking', _('Choose book folder'))
+                if path:
+                    path = [path]
+            else:
+                path = choose_files(self.gui, 'open-book-for-tweaking', _('Choose book'),
                                 [(_('Books'), [x.lower() for x in SUPPORTED])], all_files=False, select_only_single_file=True)
+
             if not path:
                 return
             path = path[0]
 
+        if not os.path.exists(path):
+            return error_dialog(self.gui, _('File not found'), _(
+                'The file %s does not exist.') % path, show=True)
+        isdir = os.path.isdir(path)
         ext = path.rpartition('.')[-1].upper()
-        if ext not in SUPPORTED:
+        if ext not in SUPPORTED and not isdir:
             from calibre.ebooks.oeb.polish.import_book import IMPORTABLE
             if ext.lower() in IMPORTABLE:
                 return self.import_book(path)
@@ -271,9 +281,6 @@ class Boss(QObject):
                 _('Tweaking is only supported for books in the %s formats.'
                   ' Convert your book to one of these formats first.') % _(' and ').join(sorted(SUPPORTED)),
                 show=True)
-        if not os.path.exists(path):
-            return error_dialog(self.gui, _('File not found'), _(
-                'The file %s does not exist.') % path, show=True)
 
         for name in tuple(editors):
             self.close_editor(name)
@@ -972,7 +979,7 @@ class Boss(QObject):
                 ed.is_modified = False
         path_to_ebook = os.path.abspath(c.path_to_ebook)
         destdir = os.path.dirname(path_to_ebook)
-        if not os.path.exists(destdir):
+        if not c.is_dir and not os.path.exists(destdir):
             info_dialog(self.gui, _('Path does not exist'), _(
                 'The file you are editing (%s) no longer exists. You have to choose a new save location.') % path_to_ebook,
                         show_copy_button=False, show=True)
@@ -996,6 +1003,9 @@ class Boss(QObject):
 
     def save_copy(self):
         c = current_container()
+        if c.is_dir:
+            return error_dialog(self.gui, _('Cannot save a copy'), _(
+                'Saving a copy of a folder based book is not supported'), show=True)
         ext = c.path_to_ebook.rpartition('.')[-1]
         path = choose_save_file(self.gui, 'tweak_book_save_copy', _(
             'Choose path'), filters=[(_('Book (%s)') % ext.upper(), [ext.lower()])], all_files=False)

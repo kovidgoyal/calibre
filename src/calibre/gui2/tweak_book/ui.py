@@ -327,6 +327,8 @@ class Main(MainWindow):
                                    'new-file', (), _('Create a new file in the current book'))
         self.action_import_files = treg('document-import.png', _('&Import files into book'), self.boss.add_files, 'new-files', (), _('Import files into book'))
         self.action_open_book = treg('document_open.png', _('Open &book'), self.boss.open_book, 'open-book', 'Ctrl+O', _('Open a new book'))
+        self.action_open_book_folder = treg('mimetypes/dir.png', _('Open &folder (unzipped EPUB) as book'), partial(self.boss.open_book, open_folder=True),
+                                            'open-folder-as-book', (), _('Open a folder (unzipped EPUB) as a book'))
         # Qt does not generate shortcut overrides for cmd+arrow on os x which
         # means these shortcuts interfere with editing
         self.action_global_undo = treg('back.png', _('&Revert to before'), self.boss.do_global_undo, 'global-undo', () if isosx else 'Ctrl+Left',
@@ -503,6 +505,7 @@ class Main(MainWindow):
         f.addAction(self.action_open_book)
         f.addAction(self.action_new_book)
         f.addAction(self.action_import_book)
+        f.addAction(self.action_open_book_folder)
         self.recent_books_menu = f.addMenu(_('&Recently opened books'))
         self.update_recent_books()
         f.addSeparator()

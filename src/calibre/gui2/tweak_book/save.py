@@ -19,7 +19,16 @@ from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename, format_permissions
 from calibre.utils.ipc import RC
 
+def save_dir_container(container, path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+    if not os.path.isdir(path):
+        raise ValueError('%s is not a folder, cannot save a directory based container to it' % path)
+    container.commit(path)
+
 def save_container(container, path):
+    if container.is_dir:
+        return save_dir_container(container, path)
     temp = PersistentTemporaryFile(
         prefix=('_' if iswindows else '.'), suffix=os.path.splitext(path)[1], dir=os.path.dirname(path))
     if hasattr(os, 'fchmod'):
