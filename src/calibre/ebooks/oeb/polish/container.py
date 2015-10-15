@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, logging, sys, hashlib, uuid, re, shutil, unicodedata
+import os, logging, sys, hashlib, uuid, re, shutil, unicodedata, errno
 from collections import defaultdict
 from io import BytesIO
 from urlparse import urlparse
@@ -125,6 +125,8 @@ class Container(object):  # {{{
 
     #: The type of book (epub for EPUB files and azw3 for AZW3 files)
     book_type = 'oeb'
+    #: If this container represents an unzipped book (a directory)
+    is_dir = False
 
     SUPPORTS_TITLEPAGES = True
     SUPPORTS_FILENAMES = True
@@ -912,6 +914,21 @@ class ObfuscationKeyMissing(InvalidEpub):
     pass
 
 OCF_NS = 'urn:oasis:names:tc:opendocument:xmlns:container'
+VCS_IGNORE_FILES = frozenset('.gitignore .hgignore .agignore .bzrignore'.split())
+VCS_DIRS = frozenset(('.git', '.hg', '.svn', '.bzr'))
+
+def walk_dir(basedir):
+    for dirpath, dirnames, filenames in os.walk(basedir):
+        for vcsdir in VCS_DIRS:
+            try:
+                dirnames.remove(vcsdir)
+            except Exception:
+                pass
+        is_root = os.path.abspath(os.path.normcase(dirpath)) == os.path.abspath(os.path.normcase(basedir))
+        yield is_root, dirpath, None
+        for fname in filenames:
+            if fname not in VCS_IGNORE_FILES:
+                yield is_root, dirpath, fname
 
 class EpubContainer(Container):
 
@@ -929,7 +946,7 @@ class EpubContainer(Container):
     def __init__(self, pathtoepub, log, clone_data=None, tdir=None):
         if clone_data is not None:
             super(EpubContainer, self).__init__(None, None, log, clone_data=clone_data)
-            for x in ('pathtoepub', 'obfuscated_fonts'):
+            for x in ('pathtoepub', 'obfuscated_fonts', 'is_dir'):
                 setattr(self, x, clone_data[x])
             return
 
@@ -938,16 +955,28 @@ class EpubContainer(Container):
             tdir = PersistentTemporaryDirectory('_epub_container')
         tdir = os.path.abspath(os.path.realpath(tdir))
         self.root = tdir
-        with open(self.pathtoepub, 'rb') as stream:
-            try:
-                zf = ZipFile(stream)
-                zf.extractall(tdir)
-            except:
-                log.exception('EPUB appears to be invalid ZIP file, trying a'
-                        ' more forgiving ZIP parser')
-                from calibre.utils.localunzip import extractall
-                stream.seek(0)
-                extractall(stream, path=tdir)
+        self.is_dir = os.path.isdir(pathtoepub)
+        if self.is_dir:
+            for is_root, dirpath, fname in walk_dir(self.pathtoepub):
+                if is_root:
+                    base = tdir
+                else:
+                    base = os.path.join(tdir, os.path.relpath(dirpath, self.pathtoepub))
+                    if fname is None:
+                        os.mkdir(base)
+                if fname is not None:
+                    shutil.copy(os.path.join(dirpath, fname), os.path.join(base, fname))
+        else:
+            with open(self.pathtoepub, 'rb') as stream:
+                try:
+                    zf = ZipFile(stream)
+                    zf.extractall(tdir)
+                except:
+                    log.exception('EPUB appears to be invalid ZIP file, trying a'
+                            ' more forgiving ZIP parser')
+                    from calibre.utils.localunzip import extractall
+                    stream.seek(0)
+                    extractall(stream, path=tdir)
         try:
             os.remove(join(tdir, 'mimetype'))
         except EnvironmentError:
@@ -980,6 +1009,7 @@ class EpubContainer(Container):
         ans = super(EpubContainer, self).clone_data(dest_dir)
         ans['pathtoepub'] = self.pathtoepub
         ans['obfuscated_fonts'] = self.obfuscated_fonts.copy()
+        ans['is_dir'] = self.is_dir
         return ans
 
     def rename(self, old_name, new_name):
@@ -1109,13 +1139,42 @@ class EpubContainer(Container):
                 f.write(decrypt_font_data(key, data, alg))
         if outpath is None:
             outpath = self.pathtoepub
-        from calibre.ebooks.tweak import zip_rebuilder
-        with open(join(self.root, 'mimetype'), 'wb') as f:
-            f.write(guess_type('a.epub'))
-        zip_rebuilder(self.root, outpath)
-        for name, data in restore_fonts.iteritems():
-            with self.open(name, 'wb') as f:
-                f.write(data)
+        if self.is_dir:
+            # First remove items from the source dir that do not exist any more
+            for is_root, dirpath, fname in walk_dir(self.pathtoepub):
+                if fname is not None:
+                    if is_root and fname == 'mimetype':
+                        continue
+                    base = self.root if is_root else os.path.join(self.root, os.path.relpath(dirpath, self.pathtoepub))
+                    fpath = os.path.join(base, fname)
+                    if not os.path.exists(fpath):
+                        os.remove(os.path.join(dirpath, fname))
+                        try:
+                            os.rmdir(dirpath)
+                        except EnvironmentError as err:
+                            if err.errno != errno.ENOTEMPTY:
+                                raise
+            # Now copy over everything from root to source dir
+            for dirpath, dirnames, filenames in os.walk(self.root):
+                is_root = os.path.abspath(os.path.normcase(dirpath)) == os.path.abspath(os.path.normcase(self.root))
+                base = self.pathtoepub if is_root else os.path.join(self.pathtoepub, os.path.relpath(dirpath, self.root))
+                try:
+                    os.mkdir(base)
+                except EnvironmentError as err:
+                    if err.errno != errno.EEXIST:
+                        raise
+                for fname in filenames:
+                    with open(os.path.join(dirpath, fname), 'rb') as src, open(os.path.join(base, fname), 'wb') as dest:
+                        shutil.copyfileobj(src, dest)
+
+        else:
+            from calibre.ebooks.tweak import zip_rebuilder
+            with open(join(self.root, 'mimetype'), 'wb') as f:
+                f.write(guess_type('a.epub'))
+            zip_rebuilder(self.root, outpath)
+            for name, data in restore_fonts.iteritems():
+                with self.open(name, 'wb') as f:
+                    f.write(data)
 
     @dynamic_property
     def path_to_ebook(self):
@@ -1254,7 +1313,11 @@ class AZW3Container(Container):
 def get_container(path, log=None, tdir=None, tweak_mode=False):
     if log is None:
         log = default_log
-    ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3', 'original_mobi'}
+    try:
+        isdir = os.path.isdir(path)
+    except Exception:
+        isdir = False
+    ebook = (AZW3Container if path.rpartition('.')[-1].lower() in {'azw3', 'mobi', 'original_azw3', 'original_mobi'} and not isdir
             else EpubContainer)(path, log, tdir=tdir)
     ebook.tweak_mode = tweak_mode
     return ebook

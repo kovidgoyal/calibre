@@ -7,14 +7,15 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, subprocess
+from zipfile import ZipFile
 
+from calibre import CurrentDir
 from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_split_book
-
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, OCF_NS
 from calibre.ebooks.oeb.polish.replace import rename_files
 from calibre.ebooks.oeb.polish.split import split, merge
 from calibre.utils.filenames import nlinks_file
-from calibre.ptempfile import TemporaryFile
+from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
@@ -235,3 +236,28 @@ class ContainerTests(BaseTest):
         c = get_container(book)
         merge(c, 'styles', ('stylesheet.css', 'page_styles.css'), 'stylesheet.css')
         self.check_links(c)
+
+    def test_dir_container(self):
+        def create_book(source):
+            with ZipFile(P('quick_start/eng.epub', allow_user_override=False)) as zf:
+                zf.extractall(source)
+            with CurrentDir(source):
+                self.assertTrue(os.path.exists('images/cover.jpg'))
+                with open('.gitignore', 'wb') as f:
+                    f.write(b'nothing')
+                os.mkdir('.git')
+                with open('.git/xxx', 'wb') as f:
+                    f.write(b'xxx')
+        with TemporaryDirectory('-polish-dir-container') as source:
+            create_book(source)
+            c = get_container(source)
+            c.remove_item('images/cover.jpg')
+            with c.open('images/test-container.xyz', 'wb') as f:
+                f.write(b'xyz')
+            c.commit()
+
+            with CurrentDir(source):
+                self.assertTrue(os.path.exists('.gitignore'))
+                self.assertTrue(os.path.exists('.git/xxx'))
+                self.assertTrue(os.path.exists('images/test-container.xyz'))
+                self.assertFalse(os.path.exists('images/cover.jpg'))
