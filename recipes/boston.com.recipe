@@ -1,7 +1,7 @@
 import string, re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
-from datetime import date
+from datetime import date, timedelta
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.ptempfile import PersistentTemporaryFile
 
@@ -14,21 +14,19 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     __author__  = 'Rob Freundlich'
     description = 'Boston Globe with full articles for subscribers'
     language    = 'en'
-    INDEX = date.today().strftime('http://www.bostonglobe.com/todayspaper/%Y/%m/%d')
+    INDEX = 'http://www.bostonglobe.com/todayspaper/%Y/%m/%d'
     todaysDate = date.today().strftime("%d/%m/%Y")
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = 'optional'
-    remove_tags = [dict(attrs={"class":["skip-nav article-more",
-                                                  "aside promo",
-                                                  "article-bar bar-yellow",
-                                                  "tools",
-                                                  "sticky-tools",
-                                                  "article-footer",
-                                                  "bg-footer"]}),
-                   dict(attrs={"id":["masthead",
-                                        "video",
-                                        "section-nav",
-                                        "meter-limit-met-popup"]})]
+    keep_only_tags = [
+        dict(attrs={'class':['section-head', 'comic', 'article']})
+    ]
+    remove_tags = [
+        dict(attrs={"class":[
+            "skip-nav article-more", "aside promo", "article-bar bar-yellow", "tools", "sticky-tools", "article-footer", "bg-footer"
+        ]}),
+        dict(attrs={"id":["masthead", "video", "section-nav", 'newsletter-form', "meter-limit-met-popup"]})
+    ]
     no_stylesheets = True
     # simultaneous_downloads = 1
     valid_filename_chars = "-_.%s%s" % (string.ascii_letters, string.digits)
@@ -126,8 +124,9 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     def make_url(self, url):
         if url.startswith("//"):
             return "http:" + url
-
-        return "http://www.bostonglobe.com" + url
+        if url.startswith('/'):
+            url = "http://www.bostonglobe.com" + url
+        return url
 
     def make_bostoncom_url(self, url):
         if url.startswith("//"):
@@ -138,173 +137,81 @@ class BostonGlobeSubscription(BasicNewsRecipe):
     def parse_index(self):
         # self.logger.setLevel(logging.WARNING)
         feeds = []
-        self.log("Getting today's paper from ", self.INDEX)
-        soup = self.index_to_soup(self.INDEX)
+        try:
+            index = date.today().strftime(self.INDEX)
+            self.log("Getting today's paper from ", index)
+            soup = self.index_to_soup(index)
+        except Exception:
+            self.todaysDate = (date.today() - timedelta(days=1))
+            index = self.todaysDate.strftime(self.INDEX)
+            self.log("Getting today's paper from ", index)
+            soup = self.index_to_soup(index)
+
+        def title_from_h2(h2):
+            [img.extract() for img in h2.findAll('img')]
+            return self.tag_to_string(h2)
 
         def get_top_stories():
-            self.log("Getting top stories")
+            self.log("Getting Top Stories")
             articles = []
-            topStoriesDiv = soup.find("div", {"class":re.compile(".*stories-top.*")})
-
-            title = ""
-            url = ""
-            excerpt = ""
-
-            stories = topStoriesDiv.findAll("div", {"class":re.compile("story.*")})
+            topStoriesDiv = soup.find("div", {"class":"stories-top"})
+            stories = topStoriesDiv.findAll("div", {"class":"story"})
             for story in stories:
-                title = self.tag_to_string(story.find("h2", {"class":re.compile(".*story-title.*")}))
+                h2 = story.find("h2", {"class":'story-title'})
                 link = story.find("a")
-                if (link):
-                    url = link["href"]
+                if h2 is not None and link is not None:
+                    title = title_from_h2(h2)
+                    url = self.make_url(link["href"])
                     excerpt_div = story.find("div", {"class":"excerpt"})
                     excerpt = self.tag_to_string(excerpt_div)
+                    self.log('\t', title, '[%s]' % url)
+                    self.log('\t\t', excerpt)
                     articles.append({"title":title, "url":self.make_url(url), "date":self.todaysDate, "description":excerpt})
-                else:
-                    self.log("Skipping ", title, " because it has no link")
 
             if articles:
                 feeds.append(("Top Stories", articles))
 
-        def get_section(sectionTitle, sectionID):
-            self.log("Getting section", sectionTitle)
+        def get_section(sectionDiv):
+            sectionHeader = sectionDiv.find("h2", "hed-section")
             articles = []
-            sectionDiv = soup.find(id=sectionID)
-            if (sectionDiv):
-                sectionHeader = sectionDiv.find("h2", "hed-section")
-                feedTitle = self.tag_to_string(sectionHeader)
-                excerpts = sectionDiv.findAll("div", "sec-excerpt")
-                for excerpt in excerpts:
-                    url = ""
-                    title = ""
-                    category = ""
-                    author = ""
+            feedTitle = self.tag_to_string(sectionHeader)
+            self.log("Getting", feedTitle)
+            excerpts = sectionDiv.findAll("div", "sec-excerpt")
+            for excerpt in excerpts:
+                # Stories here follow similar forms to top-stories (above)
+                storyTitle = excerpt.find("h3", "story-title")
+                if (storyTitle.parent.name == "a"):
+                    a = storyTitle.parent
+                    url = a["href"]
+                    title = title_from_h2(storyTitle)
+                else:
+                    a = storyTitle.find("a")
+                    url = a["href"]
+                    title = title_from_h2(a)
 
-                    # Stories here follow similar forms to top-stories (above)
-                    storyTitle = excerpt.find("h3", "story-title")
-                    if (storyTitle.parent.name == "a"):
-                        a = storyTitle.parent
-                        url = a["href"]
-                        title = self.tag_to_string(storyTitle)
-                    else:
-                        a = storyTitle.find("a")
-                        url = a["href"]
-                        title = self.tag_to_string(a)
+                hedCat = excerpt.find("p", "hed-cat")
+                if (hedCat):
+                    category = self.tag_to_string(hedCat)
 
-                    hedCat = excerpt.find("p", "hed-cat")
-                    if (hedCat):
-                        category = self.tag_to_string(hedCat)
+                authorHeader = excerpt.find("h4", "author")
+                if (authorHeader):
+                    author = self.tag_to_string(authorHeader)
 
-                    authorHeader = excerpt.find("h4", "author")
-                    if (authorHeader):
-                        author = self.tag_to_string(authorHeader)
-
-                    if (category != "") & (category != " "):
-                        title = category + ": " + title
-
-                    description = ""
-                    for para in excerpt.findAll("p"):
-                        if (para != hedCat):
-                            description += self.tag_to_string(para)
-
-                    articles.append({"title":title, "url":self.make_url(url), "author":author, "date":self.todaysDate, "description":description})
-
-                if articles:
-                    feeds.append((feedTitle, articles))
-
-        def getOpinionSection():
-            self.log("Getting section", "Editorials and Opinions")
-            articles = []
-            opinionSoup = self.index_to_soup("http://www.bostonglobe.com/opinion")
-
-            # Find and process the editorials
-            topStories = opinionSoup.find("div", "stories-top")
-            for story in topStories.findAll("div", {"class":re.compile("story.*")}):
-                # Story title is always in an H2 tag whose class contains "story-title"
-                titleTag = story.find("h2", {"class":re.compile("story-title.*")})
-
-                # Description is always in a DIV whose class is "excert"
-                excerptTag = story.find("div", "excerpt")
-
-                # Author is in a P whose class is "hed-cat" or in a CITE
-                authorTag = story.find("p", "hed-cat")
-                if (authorTag is None):
-                    authorTag = story.find("cite")
-
-                # URL is in an A whose class is "story-perm".  If not, it's in the only A tag
-                urlTag = story.find("a", "story-perm")
-                if (urlTag is None):
-                    urlTag = story.find("a")
-
-                # Extract the values and build the article
-                title = ""
-                if (titleTag):
-                    title = self.tag_to_string(titleTag)
-
-                author = ""
-                if (authorTag):
-                    author = self.tag_to_string(authorTag)
+                if (category != "") & (category != " "):
+                    title = category + ": " + title
 
                 description = ""
-                if (excerptTag):
-                    description = self.tag_to_string(excerptTag)
+                for para in excerpt.findAll("p"):
+                    if (para != hedCat):
+                        description += self.tag_to_string(para)
 
-                url = ""
-                if (urlTag):
-                    url = urlTag["href"]
-                    articles.append({"title":title, "url":self.make_url(url), "author":author, "date":self.todaysDate, "description":description})
-
-            # Now find Letters to the Editor and process them
-            mainDiv = opinionSoup.find("div", {"id":"main"})
-            if (mainDiv is None):
-                print "no mainDiv found"
-            else:
-                lettersAnchor = mainDiv.find("a", {"href":re.compile(".*opinion/letters.*")})
-                if (lettersAnchor is None):
-                    print "No lettersAnchor found"
-                else:
-                    lettersFeatureWell = lettersAnchor.parent.parent
-                    lettersContent = lettersFeatureWell.find("div", "content")
-                    if (lettersContent is None):
-                        print "No lettersContent found"
-                    else:
-                        mainLetterDiv = lettersContent.find("div", {"class":re.compile("main.*")})
-                        mainLetterStories = mainLetterDiv.findAll("h4", "story-title")
-                        if (mainLetterStories is None):
-                            print "no mainLetterStories found"
-                        else:
-                            for mainLetterStory in mainLetterStories:
-                                mainLetterAnchor = mainLetterStory.parent
-                                if (mainLetterAnchor is None):
-                                    print "no mainLetterAnchor found"
-                                else:
-                                    articles.append({"title":self.tag_to_string(mainLetterStory), "url":self.make_url(
-                                        mainLetterAnchor["href"]), "author":"Letter", "date":self.todaysDate, "description":""})
-                    inSection = lettersFeatureWell.find("div", "in-section")
-                    if (inSection is None):
-                        print "no inSection found"
-                    else:
-                        lettersList = inSection.find("ul")
-                        if (lettersList is None):
-                            print "no lettersList found"
-                        else:
-                            for letter in lettersList.findAll("li"):
-                                letterAnchor = letter.find("a")
-                                if (letterAnchor is None):
-                                    print "no letterAnchor for ", letter
-                                else:
-                                    articles.append({"title":self.tag_to_string(letterAnchor), "url":self.make_url(
-                                        letterAnchor["href"]), "author":"Letter", "date":self.todaysDate, "description":""})
+                self.log('\t', title, '[%s]' % self.make_url(url))
+                if description:
+                    self.log('\t\t', description)
+                articles.append({"title":title, "url":self.make_url(url), "author":author, "date":self.todaysDate, "description":description})
 
             if articles:
-                # for article in articles:
-                #    print "============"
-                #    print "TITLE", article["title"]
-                #    print "URL", article["url"]
-                #    print "AUTHOR", article["author"]
-                #    print "DATE", article["date"]
-                #    print "DESCRIPTION", article["description"]
-                #    print "============"
-                feeds.append(("Editorial and Opinion", articles))
+                feeds.append((feedTitle, articles))
 
         def get_comics():
             articles = []
@@ -326,39 +233,10 @@ class BostonGlobeSubscription(BasicNewsRecipe):
 
         get_top_stories()
 
-        get_section("Nation", "tp-section-thenation")
-        get_section("World", "tp-section-theworld")
-        get_section("Metro", "tp-section-metro")
-        getOpinionSection()
-        get_section("Arts & Movies", "tp-section-g:arts&movies")
-        get_section("Family", "tp-section-g:family")
-        get_section("Style", "tp-section-g:style")
-        get_section("Globe West", "tp-section-globewest")
-        get_section("Food", "tp-section-g:food")
-        get_section("Living", "tp-section-living")
-        get_section("Health", "tp-section-g:health")
-        get_section("Ideas", "tp-section-ideas")
-        get_section("Boston Globe Magazine", "tp-section-magazine")
+        for div in soup.findAll('div', {'class':'tod-paper-section'}):
+            get_section(div)
 
         get_comics()
-
-        # get_section("Business", "tp-section-business")
-        # get_section("Obituaries", "tp-section-obituaries")
-        # get_section("Sports", "tp-section-sports")
-        # get_section("Globe North", "tp-section-globenorth")
-        # get_section("Globe South", "tp-section-globesouth")
-        # get_section("Money & Careers", "tp-section-money&careers")
-        # get_section("Books", "tp-section-books")
-        # get_section("Travel", "tp-section-travel")
-        # get_section("Real Estate", "tp-section-realestate")
-
-        for feed in feeds:
-            feedTitle = feed[0]
-            articles = feed[1]
-            self.log(feedTitle)
-            for article in articles:
-                self.log("    ", article["title"], ".....", article["url"])
-                self.log("        ", article["description"])
 
         return feeds
 
@@ -369,11 +247,6 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         byline = sectionHead.h3
         imgLink = main.find("a", "comic")
         img = imgLink.img
-
-        print "title: %s" % title
-        print "byline: %s" % byline
-        print "imgLink: %s" % imgLink
-        print "img: %s" % img
 
         body = Tag(soup, "body")
         body.insert(0, title)
