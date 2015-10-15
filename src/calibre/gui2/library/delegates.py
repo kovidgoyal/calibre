@@ -160,8 +160,12 @@ ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
 # setter for text-like delegates. Return '' if CTRL is pushed {{{
 
+def check_key_modifier(which_modifier):
+    v = int(QApplication.keyboardModifiers() & (Qt.ControlModifier | Qt.ShiftModifier))
+    return v == which_modifier
+
 def get_val_for_textlike_columns(index_):
-    if QApplication.keyboardModifiers() == Qt.ControlModifier:
+    if check_key_modifier(Qt.ControlModifier):
         ct = ''
     else:
         ct = index_.data(Qt.DisplayRole) or ''
@@ -202,7 +206,7 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return u'\u2605'*r
 
     def setEditorData(self, editor, index):
-        if QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if check_key_modifier(Qt.ControlModifier):
             val = 0
         else:
             val = index.data(Qt.EditRole)
@@ -241,9 +245,9 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
-        if QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if check_key_modifier(Qt.ControlModifier):
             val = UNDEFINED_QDATETIME
-        elif QApplication.keyboardModifiers() == Qt.ShiftModifier:
+        elif check_key_modifier(Qt.ShiftModifier):
             val = now()
         else:
             val = index.data(Qt.EditRole)
@@ -271,8 +275,10 @@ class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def setEditorData(self, editor, index):
         val = index.data(Qt.EditRole)
-        if is_date_undefined(val) or QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if is_date_undefined(val) or check_key_modifier(Qt.ControlModifier):
             val = QDate(2000, 1, 1)
+        elif check_key_modifier(Qt.ShiftModifier):
+            val = now()
         if isinstance(val, QDateTime):
             val = val.date()
         editor.setDate(val)
@@ -334,7 +340,7 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             m = index.model()
             col = m.column_map[index.column()]
             # If shifted, bring up the tag editor instead of the line editor.
-            if QApplication.keyboardModifiers() == Qt.ShiftModifier and col != 'authors':
+            if check_key_modifier(Qt.ShiftModifier) and col != 'authors':
                 key = col if m.is_custom_column(col) else None
                 d = TagEditor(parent, self.db, m.id(index.row()), key=key)
                 if d.exec_() == TagEditor.Accepted:
@@ -414,9 +420,9 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
-        if QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if check_key_modifier(Qt.ControlModifier):
             val = UNDEFINED_QDATETIME
-        elif QApplication.keyboardModifiers() == Qt.ShiftModifier:
+        elif check_key_modifier(Qt.ShiftModifier):
             val = now()
         else:
             m = index.model()
@@ -499,7 +505,7 @@ class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-        if val is None or QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if val is None or check_key_modifier(Qt.ControlModifier):
             val = 0
         editor.setValue(val)
 
@@ -550,7 +556,7 @@ class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-        if val is None or QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if val is None or check_key_modifier(Qt.ControlModifier):
             val = ''
         idx = editor.findText(val)
         if idx < 0:
@@ -594,7 +600,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        if QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if check_key_modifier(Qt.ControlModifier):
             text = ''
         else:
             text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
@@ -655,9 +661,9 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if not m.db.prefs.get('bools_are_tristate'):
-            val = 1 if not val or QApplication.keyboardModifiers() != Qt.ControlModifier else 0
+            val = 1 if not val or check_key_modifier(Qt.ControlModifier) else 0
         else:
-            val = 2 if val is None or QApplication.keyboardModifiers() == Qt.ControlModifier \
+            val = 2 if val is None or check_key_modifier(Qt.ControlModifier) \
                             else 1 if not val else 0
         editor.setCurrentIndex(val)
 
@@ -674,7 +680,7 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         mi = m.db.get_metadata(index.row(), index_is_id=False)
-        if QApplication.keyboardModifiers() == Qt.ControlModifier:
+        if check_key_modifier(Qt.ControlModifier):
             text = u''
         else:
             text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
