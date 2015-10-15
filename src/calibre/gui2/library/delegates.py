@@ -223,7 +223,11 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
-        QStyledItemDelegate.setEditorData(self, editor, index)
+        if QApplication.keyboardModifiers() == Qt.ShiftModifier:
+            val = UNDEFINED_QDATETIME
+        else:
+            val = index.data(Qt.EditRole)
+        editor.setDateTime(val)
 
 # }}}
 
@@ -393,12 +397,15 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
-        m = index.model()
-        # db col is not named for the field, but for the table number. To get it,
-        # gui column -> column label -> table number -> db column
-        val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-        if val is None:
-            val = now()
+        if QApplication.keyboardModifiers() == Qt.ShiftModifier:
+            val = UNDEFINED_QDATETIME
+        else:
+            m = index.model()
+            # db col is not named for the field, but for the table number. To get it,
+            # gui column -> column label -> table number -> db column
+            val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
+            if val is None:
+                val = now()
         editor.setDateTime(val)
 
     def setModelData(self, editor, model, index):
