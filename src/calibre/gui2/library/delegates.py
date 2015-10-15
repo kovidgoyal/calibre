@@ -158,6 +158,21 @@ ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
 # }}}
 
+# setter for text-like delegates. Return '' if CTRL is pushed {{{
+
+def check_key_modifier(which_modifier):
+    v = int(QApplication.keyboardModifiers() & (Qt.ControlModifier | Qt.ShiftModifier))
+    return v == which_modifier
+
+def get_val_for_textlike_columns(index_):
+    if check_key_modifier(Qt.ControlModifier):
+        ct = ''
+    else:
+        ct = index_.data(Qt.DisplayRole) or ''
+    return unicode(ct)
+
+# }}}
+
 class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -189,6 +204,13 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         if r < 0 or r > 5:
             r = 0
         return u'\u2605'*r
+
+    def setEditorData(self, editor, index):
+        if check_key_modifier(Qt.ControlModifier):
+            val = 0
+        else:
+            val = index.data(Qt.EditRole)
+        editor.setValue(val)
 
     def sizeHint(self, option, index):
         option.font = self.rf
@@ -223,8 +245,10 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
-        if QApplication.keyboardModifiers() == Qt.ShiftModifier:
+        if check_key_modifier(Qt.ControlModifier):
             val = UNDEFINED_QDATETIME
+        elif check_key_modifier(Qt.ShiftModifier):
+            val = now()
         else:
             val = index.data(Qt.EditRole)
         editor.setDateTime(val)
@@ -251,8 +275,10 @@ class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def setEditorData(self, editor, index):
         val = index.data(Qt.EditRole)
-        if is_date_undefined(val):
+        if is_date_undefined(val) or check_key_modifier(Qt.ControlModifier):
             val = QDate(2000, 1, 1)
+        elif check_key_modifier(Qt.ShiftModifier):
+            val = now()
         if isinstance(val, QDateTime):
             val = val.date()
         editor.setDate(val)
@@ -285,8 +311,7 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return editor
 
     def setEditorData(self, editor, index):
-        ct = unicode(index.data(Qt.DisplayRole) or '')
-        editor.setText(ct)
+        editor.setText(get_val_for_textlike_columns(index))
         editor.selectAll()
 
     def setModelData(self, editor, model, index):
@@ -315,7 +340,7 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             m = index.model()
             col = m.column_map[index.column()]
             # If shifted, bring up the tag editor instead of the line editor.
-            if QApplication.keyboardModifiers() == Qt.ShiftModifier and col != 'authors':
+            if check_key_modifier(Qt.ShiftModifier) and col != 'authors':
                 key = col if m.is_custom_column(col) else None
                 d = TagEditor(parent, self.db, m.id(index.row()), key=key)
                 if d.exec_() == TagEditor.Accepted:
@@ -337,8 +362,7 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return editor
 
     def setEditorData(self, editor, index):
-        ct = unicode(index.data(Qt.DisplayRole) or '')
-        editor.setText(ct)
+        editor.setText(get_val_for_textlike_columns(index))
         editor.selectAll()
 
     def setModelData(self, editor, model, index):
@@ -361,8 +385,7 @@ class LanguagesDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return editor
 
     def setEditorData(self, editor, index):
-        ct = unicode(index.data(Qt.DisplayRole) or '')
-        editor.show_initial_value(ct)
+        editor.show_initial_value(get_val_for_textlike_columns(index))
 
     def setModelData(self, editor, model, index):
         val = ','.join(editor.lang_codes)
@@ -397,8 +420,10 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return DateTimeEdit(parent, self.format)
 
     def setEditorData(self, editor, index):
-        if QApplication.keyboardModifiers() == Qt.ShiftModifier:
+        if check_key_modifier(Qt.ControlModifier):
             val = UNDEFINED_QDATETIME
+        elif check_key_modifier(Qt.ShiftModifier):
+            val = now()
         else:
             m = index.model()
             # db col is not named for the field, but for the table number. To get it,
@@ -437,8 +462,7 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return editor
 
     def setEditorData(self, editor, index):
-        ct = unicode(index.data(Qt.DisplayRole) or '')
-        editor.setText(ct)
+        editor.setText(get_val_for_textlike_columns(index))
         editor.selectAll()
 
     def setModelData(self, editor, model, index):
@@ -481,7 +505,7 @@ class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-        if val is None:
+        if val is None or check_key_modifier(Qt.ControlModifier):
             val = 0
         editor.setValue(val)
 
@@ -532,7 +556,7 @@ class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-        if val is None:
+        if val is None or check_key_modifier(Qt.ControlModifier):
             val = ''
         idx = editor.findText(val)
         if idx < 0:
@@ -576,7 +600,10 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
+        if check_key_modifier(Qt.ControlModifier):
+            text = ''
+        else:
+            text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
         editor = CommentsDialog(parent, text, column_name=m.custom_columns[col]['name'])
         d = editor.exec_()
         if d:
@@ -634,9 +661,10 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
         if not m.db.prefs.get('bools_are_tristate'):
-            val = 1 if not val else 0
+            val = 1 if not val or check_key_modifier(Qt.ControlModifier) else 0
         else:
-            val = 2 if val is None else 1 if not val else 0
+            val = 2 if val is None or check_key_modifier(Qt.ControlModifier) \
+                            else 1 if not val else 0
         editor.setCurrentIndex(val)
 
 # }}}
@@ -652,7 +680,10 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         mi = m.db.get_metadata(index.row(), index_is_id=False)
-        text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
+        if check_key_modifier(Qt.ControlModifier):
+            text = u''
+        else:
+            text = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
         editor = TemplateDialog(parent, text, mi)
         editor.setWindowTitle(_("Edit template"))
         editor.textbox.setTabChangesFocus(False)
@@ -661,21 +692,5 @@ class CcTemplateDelegate(QStyledItemDelegate):  # {{{
         if d:
             m.setData(index, (editor.rule[1]), Qt.EditRole)
         return None
-
-    def setModelData(self, editor, model, index):
-        val = unicode(editor.textbox.toPlainText())
-        try:
-            validation_formatter.validate(val)
-        except Exception as err:
-            error_dialog(self.parent(), _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%val +
-                    '<br>'+str(err), show=True)
-        model.setData(index, (val), Qt.EditRole)
-
-    def setEditorData(self, editor, index):
-        m = index.model()
-        val = m.custom_columns[m.column_map[index.column()]]['display']['composite_template']
-        editor.textbox.setPlainText(val)
-
 
 # }}}
