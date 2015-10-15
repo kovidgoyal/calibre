@@ -92,8 +92,8 @@ class Context(object):
         return self.library_broker.get(library_id)
 
     def allowed_book_ids(self, data, db):
-        # TODO: Implement this based on data.username caching result on the
-        # data object
+        # TODO: Implement this based on data.username for per-user
+        # restrictions. Cache result on the data object
         with self.lock:
             ans = data.allowed_book_ids.get(db.server_library_id)
             if ans is None:

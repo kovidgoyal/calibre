@@ -11,8 +11,9 @@ from threading import Lock
 from calibre.utils.lru_cache import lru_cache
 
 defaults = {
-    'sort': 'date:asc',
+    'sort': 'date:desc',
     'library_id': None,
+    'view_mode': 'cover_grid',
 }
 
 class Session(object):

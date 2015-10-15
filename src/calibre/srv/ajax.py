@@ -7,6 +7,8 @@ __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
+from future_builtins import zip
+from itertools import cycle
 
 from calibre import force_unicode
 from calibre.library.field_metadata import category_icon_map
@@ -15,6 +17,7 @@ from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint, json
+from calibre.srv.session import defaults
 from calibre.srv.content import get as get_content, icon as get_icon
 from calibre.srv.utils import http_date, custom_fields_to_display, encode_name, decode_name
 from calibre.utils.config import prefs, tweaks
@@ -520,6 +523,29 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
         return result
 # }}}
 
+# Search {{{
+def _search(ctx, rd, db, query, num, offset, sort, sort_order):
+    multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc'))
+                 for s, o in zip(sort.split(','), cycle(sort_order.split(',')))]
+    skeys = db.field_metadata.sortable_field_keys()
+    for sfield, sorder in multisort:
+        if sfield not in skeys:
+            raise HTTPNotFound('%s is not a valid sort field'%sort)
+
+    if not query:
+        ids = ctx.allowed_book_ids(rd, db)
+    else:
+        ids = ctx.search(rd, db, query)
+    ids = db.multisort(fields=multisort, ids_to_sort=ids)
+    total_num = len(ids)
+    ids = ids[offset:offset+num]
+    return {
+            'total_num': total_num, 'sort_order':sort_order,
+            'offset':offset, 'num':len(ids), 'sort':sort,
+            'base_url':ctx.url_for(search, library_id=db.server_library_id),
+            'query': query,
+            'book_ids':ids
+    }
 
 @endpoint('/ajax/search/{library_id=None}', postprocess=json)
 def search(ctx, rd, library_id):
@@ -529,26 +555,43 @@ def search(ctx, rd, library_id):
     Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=
     '''
     db = get_db(ctx, library_id)
+    query = rd.query.get('query')
+    num, offset = get_pagination(rd.query)
     with db.safe_read_lock:
-        query = rd.query.get('query')
-        num, offset = get_pagination(rd.query)
-        sort, sort_order = rd.query.get('sort', 'title'), rd.query.get('sort_order')
-        sort_order = ensure_val(sort_order, 'asc', 'desc')
-        sfield = sanitize_sort_field_name(db.field_metadata, sort)
-        if sfield not in db.field_metadata.sortable_field_keys():
-            raise HTTPNotFound('%s is not a valid sort field'%sort)
+        return _search(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'))
+# }}}
 
-        if not query:
-            ids = ctx.allowed_book_ids(rd, db)
-        else:
-            ids = ctx.search(rd, db, query)
-        ids = db.multisort(fields=[(sfield, sort_order == 'asc')], ids_to_sort=ids)
-        total_num = len(ids)
-        ids = ids[offset:offset+num]
-        return {
-                'total_num': total_num, 'sort_order':sort_order,
-                'offset':offset, 'num':len(ids), 'sort':sort,
-                'base_url':ctx.url_for(search, library_id=db.server_library_id),
-                'query': query,
-                'book_ids':ids
-        }
+
+@endpoint('/ajax/interface-data/{library_id=None}', postprocess=json)
+def interface_data(ctx, rd, library_id):
+    '''
+    Return the data needed to create the server main UI
+
+    Optional: ?num=75
+    '''
+    session = rd.session
+    ans = {'session_data': {k:session[k] for k in defaults.iterkeys()}}
+    sorts, orders = [], []
+    for x in ans['session_data']['sort'].split(','):
+        s, o = x.partition(':')[::2]
+        sorts.append(s.strip()), orders.append(o.strip())
+    sort, sort_order = ans['session_data']['sort'].partition(',')[0].partition(':')[::2]
+    try:
+        num = int(rd.query.get('num', 75))
+    except Exception:
+        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+    last_modified = None
+    db = get_db(ctx, library_id)
+    with db.safe_read_lock:
+        ans['search_result'] = _search(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
+        ans['field_metadata'] = db.field_metadata
+        # ans['categories'] = ctx.get_categories(rd, db)
+        mdata = ans['metadata'] = {}
+        for book_id in ans['search_result']['book_ids']:
+            data, lm = book_to_json(ctx, rd, db, book_id)
+            last_modified = lm if last_modified is None else max(lm, last_modified)
+            mdata[book_id] = data
+
+    if last_modified is not None:
+        rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
+    return ans

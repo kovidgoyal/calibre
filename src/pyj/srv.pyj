@@ -1,5 +1,15 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-alert('hello world!')
+from elementmaker import E
 
+def create_page_load_progress_bar():
+    E.progress(id='library_load_bar')
+
+def on_document_loaded():
+    alert(11111111)
+
+# We wait for all page elements to load, since this is a single page app
+# with a largely empty starting document, we can use this to preload any resources
+# we know are going to be needed immediately.
+window.addEventListener("load", on_document_loaded)

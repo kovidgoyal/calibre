@@ -1,0 +1,17 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+simple_vendor_prefixes = {
+    'transform': v"['webkit', 'ms']",
+}
+
+def set_css(elem, **kw):
+    s = elem.style
+    if s:
+        for prop in kw:
+            name, val = str.replace(prop, '_', '-'), kw[prop]
+            s.setProperty(name, val)
+            prefixes = simple_vendor_prefixes[name]
+            if prefixes:
+                for prefix in prefixes:
+                    s.setProperty('-' + prefix + '-' + name, val)

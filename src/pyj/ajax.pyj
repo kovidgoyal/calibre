@@ -1,0 +1,14 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def ajax(path, on_complete, on_progress=None, bypass_cache=True):
+    xhr = XMLHttpRequest()
+    if bypass_cache:
+        path += ('&' if '?' in path else '?') + Date().getTime()
+    if on_progress:
+        xhr.addEventListener('progress', on_progress)
+    xhr.addEventListener('abort', def(ev): on_complete('abort', this, xhr);)
+    xhr.addEventListener('error', def(ev): on_complete('error', this, xhr);)
+    xhr.addEventListener('load', def(ev): on_complete('load', this, xhr);)
+    return xhr
+
