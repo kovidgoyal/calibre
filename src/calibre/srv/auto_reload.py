@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, subprocess, signal, time
+import os, sys, subprocess, signal, time, errno
 from threading import Thread
 
 from calibre.constants import islinux, iswindows, isosx
@@ -216,9 +216,14 @@ class Worker(object):
         self.clean_kill()
         try:
             compile_srv()
-        except EnvironmentError:
-            time.sleep(0.1)
-            compile_srv()  # Happens if the editor deletes and replaces a file being edited
+        except EnvironmentError as e:
+            # Happens if the editor deletes and replaces a file being edited
+            if e.errno != errno.ENOENT or not getattr(e, 'filename', False):
+                raise
+            st = time.time()
+            while not os.path.exists(e.filename) and time.time() - st < 3:
+                time.sleep(0.01)
+            compile_srv()
         self.p = subprocess.Popen(self.cmd, creationflags=getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0))
 
 def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
