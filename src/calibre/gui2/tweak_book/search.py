@@ -277,9 +277,9 @@ class SearchWidget(QWidget):
         f.setFrameShape(f.VLine)
         fhl.addWidget(f)
 
-        self.fb = fb = PushButton(_('&Find'), 'find', self)
+        self.fb = fb = PushButton(_('Fin&d'), 'find', self)
         self.rfb = rfb = PushButton(_('Replace a&nd Find'), 'replace-find', self)
-        self.rb = rb = PushButton(_('&Replace'), 'replace', self)
+        self.rb = rb = PushButton(_('Re&place'), 'replace', self)
         self.rab = rab = PushButton(_('Replace &all'), 'replace-all', self)
         l.addWidget(fb, 0, 2)
         l.addWidget(rfb, 0, 3)
