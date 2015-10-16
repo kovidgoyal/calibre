@@ -20,6 +20,45 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.41.0
+  date: 2015-10-16
+
+  new features:
+    - title: "Edit Book: Allow editing an unzipped EPUB (a folder) as a book"
+      description: "Useful if you wish to store your ebook in a version control system and edit it directly with the calibre ebook editor (File->Open folder as book)"
+
+    - title: "Edit Book: Allow easily removing items from the popup menu for the 'Insert tag' button"
+
+    - title: "Make Tag Browser more useable with keyboard shortcuts. Configure the keyboard shortcuts in Preferences->Keyboard->Tag Browser"
+
+    - title: "ToC editor: Add context menu item to change selected entries to upper case"
+
+  bug fixes:
+    - title: "Edit Book: Preview panel: Render in XHTML mode. Fixes svg elements using a global svg namespace not rendering."
+
+    - title: "Tag Browser: Fix clicking on first-letter groups for series not working"
+
+    - title: "DOCX Output: Ignore corrupted images in the input instead of erroring out on them."
+
+    - title: "E-book viewer: Fix keyboard shortcut to toggle table of contents not working when ToC window is made floating."
+      tickets: [1503910]
+
+    - title: "Allow ebook-metadata to work with read-only files when no options are specified to change metadata."
+      tickets: [1504345]
+
+    - title: "Tag mapper: When the replacement tag contains commas, create multiple tags instead of replacing the comma with a semi-colon."
+      tickets: [1503526]
+
+    - title: "HTMLZ Output: Set the HTML <title> to the book title."
+      tickets: [1502592]
+
+  improved recipes:
+    - Boston Globe
+    - Wall Street Journal
+    - Komputerra
+    - Spectator Magazine
+    - The Independent
+
 - version: 2.40.0
   date: 2015-10-02
 
