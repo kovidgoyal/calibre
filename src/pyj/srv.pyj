@@ -12,9 +12,9 @@ def on_library_loaded(end_type, xhr, ev):
         data = xhr.response
         data
     else:
-        document.body.appendChild(E.p(style="color:red", _(
-            'Failed to download library data, with status:') + str.format(' [{}] {}', xhr.status, xhr.statusText)
-        ))
+        document.body.appendChild(E.p(style="color:red", str.format(_(
+            'Failed to download library data from "{}", with status: [{}] {}'),
+        xhr.request_path, xhr.status, xhr.statusText)))
 
 def on_library_load_progress(loaded, total):
     p = document.querySelector('#page_load_progress > progress')

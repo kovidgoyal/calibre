@@ -5,6 +5,7 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET'):
     xhr = XMLHttpRequest()
     if bypass_cache:
         path += ('&' if '?' in path else '?') + Date().getTime()
+    xhr.request_path = path
 
     def progress_callback(ev):
         if ev.lengthComputable:
