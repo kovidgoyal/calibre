@@ -12,14 +12,13 @@ from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOp
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
         QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize)
 
-from calibre.gui2 import UNDEFINED_QDATETIME, error_dialog, rating_font
+from calibre.gui2 import UNDEFINED_QDATETIME, rating_font
 from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
 from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined
 from calibre.utils.config import tweaks
-from calibre.utils.formatter import validation_formatter
 from calibre.utils.icu import sort_key
 from calibre.gui2.dialogs.comments_dialog import CommentsDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
