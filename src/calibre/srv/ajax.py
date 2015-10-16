@@ -580,7 +580,6 @@ def interface_data(ctx, rd, library_id):
         num = int(rd.query.get('num', 75))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
-    last_modified = None
     db = get_db(ctx, library_id)
     with db.safe_read_lock:
         ans['search_result'] = _search(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
@@ -588,10 +587,7 @@ def interface_data(ctx, rd, library_id):
         # ans['categories'] = ctx.get_categories(rd, db)
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
-            data, lm = book_to_json(ctx, rd, db, book_id)
-            last_modified = lm if last_modified is None else max(lm, last_modified)
+            data, last_modified = book_to_json(ctx, rd, db, book_id)
             mdata[book_id] = data
 
-    if last_modified is not None:
-        rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
     return ans

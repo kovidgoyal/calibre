@@ -1,14 +1,36 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-def ajax(path, on_complete, on_progress=None, bypass_cache=True):
+def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET'):
     xhr = XMLHttpRequest()
     if bypass_cache:
         path += ('&' if '?' in path else '?') + Date().getTime()
+
+    def progress_callback(ev):
+        if ev.lengthComputable:
+            on_progress(ev.loaded, ev.total, xhr)
+        elif ev.loaded:
+            ul = xhr.getResponseHeader('Calibre-Uncompressed-Length')
+            if ul:
+                try:
+                    ul = int(ul)
+                except Exception:
+                    return
+                on_progress(ev.loaded, ul)
+
+    def complete_callback(end_type, ev):
+        if end_type != 'load':
+            on_complete(end_type, xhr, ev)
+            return
+        if not (200 <= xhr.status < 300):
+            end_type = 'error'
+        on_complete(end_type, xhr, ev)
+
     if on_progress:
-        xhr.addEventListener('progress', on_progress)
-    xhr.addEventListener('abort', def(ev): on_complete('abort', this, xhr);)
-    xhr.addEventListener('error', def(ev): on_complete('error', this, xhr);)
-    xhr.addEventListener('load', def(ev): on_complete('load', this, xhr);)
+        xhr.addEventListener('progress', progress_callback)
+    xhr.addEventListener('abort', def(ev): complete_callback('abort', xhr, ev);)
+    xhr.addEventListener('error', def(ev): complete_callback('error', xhr, ev);)
+    xhr.addEventListener('load', def(ev): complete_callback('load', xhr, ev);)
+    xhr.open(method, path)
     return xhr
 

@@ -1,13 +1,28 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from ajax import ajax
 from elementmaker import E
+from gettext import gettext as _
 
-def create_page_load_progress_bar():
-    E.progress(id='library_load_bar')
+def on_library_loaded(end_type, xhr, ev):
+    p = document.getElementById('page_load_progress')
+    p.parentNode.removeChild(p)
+    if end_type == 'load':
+        data = xhr.response
+        data
+    else:
+        document.body.appendChild(E.p(style="color:red", _(
+            'Failed to download library data, with status:') + str.format(' [{}] {}', xhr.status, xhr.statusText)
+        ))
+
+def on_library_load_progress(loaded, total):
+    p = document.querySelector('#page_load_progress > progress')
+    p.max = total
+    p.value = loaded
 
 def on_document_loaded():
-    alert(11111111)
+    ajax(window.interface_data_url, on_library_loaded, on_library_load_progress).send()
 
 # We wait for all page elements to load, since this is a single page app
 # with a largely empty starting document, we can use this to preload any resources

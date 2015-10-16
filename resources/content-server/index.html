@@ -2,9 +2,24 @@
 <html>
     <head>
         <title>calibre</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-        <script type="text/javascript" src="js/main.js"></script>
+        <meta charset="utf-8"/>
+		<script>window.interface_data_url = 'ajax/interface-data';</script>
+        <script type="text/javascript" src="static/main.js"></script>
+		<link rel="stylesheet" href="static/reset.css"></link>
     </head>
     <body>
+		<div id="page_load_progress">
+			<progress>
+			</progress>
+			<div>Loading library, please wait&hellip;<div>
+			<style type="text/css">
+#page_load_progress {
+	position:relative;
+	top: 50px;
+	margin-left: auto; margin-right: auto;
+	text-align: center;
+}
+			</style>
+		</div>
     </body>
 </html>
