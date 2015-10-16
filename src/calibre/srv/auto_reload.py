@@ -217,6 +217,7 @@ class Worker(object):
         try:
             compile_srv()
         except EnvironmentError:
+            time.sleep(0.1)
             compile_srv()  # Happens if the editor deletes and replaces a file being edited
         self.p = subprocess.Popen(self.cmd, creationflags=getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0))
 
