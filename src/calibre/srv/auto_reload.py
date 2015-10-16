@@ -214,7 +214,10 @@ class Worker(object):
     def restart(self):
         from calibre.utils.rapydscript import compile_srv
         self.clean_kill()
-        compile_srv()
+        try:
+            compile_srv()
+        except EnvironmentError:
+            compile_srv()  # Happens if the editor deletes and replaces a file being edited
         self.p = subprocess.Popen(self.cmd, creationflags=getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0))
 
 def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
