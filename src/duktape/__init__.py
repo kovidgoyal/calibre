@@ -128,9 +128,10 @@ def writefile(path, data, enc='utf-8'):
         with open(path, 'wb') as f:
             f.write(data)
     except UnicodeEncodeError as e:
-        return '', 'Failed to encode the data for file: %s with specified encoding: %s' % (path, enc)
+        return ['', 'Failed to encode the data for file: %s with specified encoding: %s' % (path, enc)]
     except EnvironmentError as e:
         return [errno.errorcode[e.errno], 'Failed to write to file: %s with error: %s' % (path, e.message or e)]
+    return [None, None]
 
 class Function(object):
 
