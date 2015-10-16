@@ -313,6 +313,7 @@ class TestHTTP(BaseTest):
             conn = server.connect()
             conn.request('GET', '/an_etagged_path', headers={'Accept-Encoding':'gzip'})
             r = conn.getresponse()
+            self.ae(str(len(raw)), r.getheader('Calibre-Uncompressed-Length'))
             self.ae(r.status, httplib.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), raw)
 
             # Test getting a filesystem file

@@ -595,6 +595,8 @@ class HTTPConnection(HTTPRequest):
             outheaders.set('Accept-Ranges', 'bytes', replace_all=True)
         if compressible and not ranges:
             outheaders.set('Content-Encoding', 'gzip', replace_all=True)
+            if getattr(output, 'content_length', None):
+                outheaders.set('Calibre-Uncompressed-Length', '%d' % output.content_length)
             output = GeneratedOutput(compress_readable_output(output.src_file), etag=output.etag)
         if output.content_length is not None and not compressible and not ranges:
             outheaders.set('Content-Length', '%d' % output.content_length, replace_all=True)
