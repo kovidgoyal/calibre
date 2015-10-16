@@ -22,3 +22,7 @@ class lifehacking(BasicNewsRecipe):
     no_stylesheets=True
 
     feeds = [(u'Lifehacker polska', u'http://feeds.feedburner.com/pl_lh')]
+
+    keep_only_tags = [
+        dict(name='header', attrs={'class': 'td-post-title'}),
+        dict(name='div', attrs={'class': 'td-post-content'})]
