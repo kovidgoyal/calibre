@@ -202,7 +202,7 @@ def ensure_id(elem):
     elem_id = elem.get('id', None)
     if elem_id:
         return False, elem_id
-    elem.set('id', uuid_id())
+    elem.set('id', 'u' + uuid_id())
     return True, elem.get('id')
 
 def elem_to_toc_text(elem):
@@ -392,7 +392,7 @@ def add_id(container, name, loc, totals=None):
                                     ' before editing.') % name)
         container.replace(name, root)
 
-    node.set('id', node.get('id', uuid_id()))
+    node.set('id', node.get('id', 'u' + uuid_id()))
     container.commit_item(name, keep_parsed=True)
     return node.get('id')
 
@@ -461,7 +461,7 @@ def commit_toc(container, toc, lang=None, uid=None):
         if eid:
             m = container.opf_xpath('//*[@id="%s"]'%eid)
             if m:
-                uid = xml2text(m[0])
+                uid = 'u' + xml2text(m[0])
 
     title = _('Table of Contents')
     m = container.opf_xpath('//dc:title')
