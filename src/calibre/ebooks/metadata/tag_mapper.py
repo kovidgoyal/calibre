@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 import regex
+from collections import deque
+
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
 
 
@@ -31,22 +33,35 @@ def matcher(rule):
 
 
 def apply_rules(tag, rules):
-    for rule, matches in rules:
-        ltag = icu_lower(tag)
-        if matches(ltag):
-            ac = rule['action']
-            if ac == 'remove':
-                return None
-            if ac == 'keep':
-                return tag
-            if ac == 'replace':
-                if 'matches' in rule['match_type']:
-                    tag = regex.sub(rule['query'], rule['replace'], tag, flags=REGEX_FLAGS)
-                else:
-                    tag = rule['replace']
-                if ',' in tag:
-                    tag = [x.strip() for x in tag.split(',')]
-    return tag
+    ans = []
+    tags = deque()
+    tags.append(tag)
+    while tags:
+        tag = tags.popleft()
+        for rule, matches in rules:
+            ltag = icu_lower(tag)
+            if matches(ltag):
+                ac = rule['action']
+                if ac == 'remove':
+                    break
+                if ac == 'keep':
+                    ans.append(tag)
+                    break
+                if ac == 'replace':
+                    if 'matches' in rule['match_type']:
+                        tag = regex.sub(rule['query'], rule['replace'], tag, flags=REGEX_FLAGS)
+                    else:
+                        tag = rule['replace']
+                    if ',' in tag:
+                        tags.extendleft(x.strip() for x in reversed(tag.split(',')))
+                    else:
+                        tags.appendleft(tag)
+                    break
+        else:  # no rule matched, default keep
+            ans.append(tag)
+
+    ans.extend(tags)
+    return ans
 
 def uniq(vals, kmap=icu_lower):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
@@ -66,8 +81,7 @@ def map_tags(tags, rules=()):
     rules = [(r, matcher(r)) for r in rules]
     ans = []
     for t in tags:
-        mapped = apply_rules(t, rules)
-        (ans.extend if isinstance(mapped, list) else ans.append)(mapped)
+        ans.extend(apply_rules(t, rules))
     return uniq(filter(None, ans))
 
 def test():
@@ -79,3 +93,8 @@ def test():
     assert map_tags(['t1', 'x1'], rules) == ['t2', 't3', 'x1']
     rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2,3'}]
     assert map_tags(['t1', 'x1'], rules) == ['t2', '3', 'x2']
+    rules = [
+        {'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':r't2,t3'},
+        {'action':'remove', 'query':'t2', 'match_type':'one_of'},
+    ]
+    assert map_tags(['t1', 'x1'], rules) == ['t3', 'x1']
