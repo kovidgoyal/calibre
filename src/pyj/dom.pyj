@@ -2,14 +2,14 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 simple_vendor_prefixes = {
-    'transform': v"['webkit', 'ms']",
+    'transform': v"['webkit', 'ms', 'moz']",
 }
 
 def set_css(elem, **kw):
     s = elem.style
     if s:
         for prop in kw:
-            name, val = str.replace(prop, '_', '-'), kw[prop]
+            name, val = str.replace(str.rstrip(prop, '_'), '_', '-'), kw[prop]
             s.setProperty(name, val)
             prefixes = simple_vendor_prefixes[name]
             if prefixes:
