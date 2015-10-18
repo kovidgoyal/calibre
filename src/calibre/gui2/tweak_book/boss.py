@@ -1138,6 +1138,7 @@ class Boss(QObject):
         if current_container() is None:
             return
         self.commit_all_editors_to_container()
+        self.add_savepoint(_('Before: Spell Check'))
         self.gui.spell_check.show()
 
     @in_thread_job
