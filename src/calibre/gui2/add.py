@@ -221,7 +221,7 @@ class Adder(QObject):
         except Failure as err:
             error_dialog(self.pd, _('Cannot add books'), _(
             'Failed to add any books, click "Show details" for more information.'),
-            det_msg=unicode(err.failure_message) + '\n' + unicode(err.details), show=True)
+            det_msg=as_unicode(err.failure_message) + '\n' + as_unicode(err.details), show=True)
             self.pd.canceled = True
         self.do_one_signal.emit()
 
