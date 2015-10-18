@@ -87,10 +87,6 @@ program will be used.
 '''
     ))
     parser.add_option(
-        '-l', '--library', dest='libraries', action='append', default=[],
-        help=_('Path to a calibre library folder. Can be specified multiple'
-               ' times to serve multiple libraries'))
-    parser.add_option(
         '--log', default=None,
         help=_('Path to log file for server log'))
     parser.add_option('--daemonize', default=False, action='store_true',

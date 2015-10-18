@@ -66,6 +66,14 @@ class LibraryBroker(object):
             getattr(db, 'close', lambda : None)()
         self.lmap = {}
 
+    @property
+    def library_map(self):
+        def lpath(x):
+            if hasattr(x, 'rpartition'):
+                return x
+            return x.backend.library_path
+        return {k:os.path.basename(lpath(v)) for k, v in self.lmap.iteritems()}
+
 class Context(object):
 
     log = None
@@ -90,6 +98,10 @@ class Context(object):
 
     def get_library(self, library_id=None):
         return self.library_broker.get(library_id)
+
+    @property
+    def library_map(self):
+        return self.library_broker.library_map, self.library_broker.default_library
 
     def allowed_book_ids(self, data, db):
         # TODO: Implement this based on data.username for per-user

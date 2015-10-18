@@ -571,6 +571,7 @@ def interface_data(ctx, rd, library_id):
     '''
     session = rd.session
     ans = {'session_data': {k:session[k] for k in defaults.iterkeys()}}
+    ans['library_map'], ans['default_library'] = ctx.library_map
     sorts, orders = [], []
     for x in ans['session_data']['sort'].split(','):
         s, o = x.partition(':')[::2]
