@@ -221,7 +221,7 @@ def replace(text, original_word, new_word, lang):
         text = text[:idx] + new_word + text[idx+len(original_word):]
     return text, bool(indices)
 
-def replace_word(container, new_word, locations, locale):
+def replace_word(container, new_word, locations, locale, undo_cache=None):
     changed = set()
     for loc in locations:
         node = loc.location_node
@@ -231,14 +231,24 @@ def replace_word(container, new_word, locations, locale):
         else:
             text = getattr(node, attr)
         replacement = loc.elided_prefix + new_word
-        text, replaced = replace(text, loc.original_word, replacement, locale.langcode)
+        rtext, replaced = replace(text, loc.original_word, replacement, locale.langcode)
         if replaced:
+            if undo_cache is not None:
+                undo_cache[(loc.file_name, node, is_attr, attr)] = text
             if is_attr:
-                node.set(attr, text)
+                node.set(attr, rtext)
             else:
-                setattr(node, attr, text)
+                setattr(node, attr, rtext)
             container.replace(loc.file_name, node.getroottree().getroot())
             changed.add(loc.file_name)
+    return changed
+
+def undo_replace_word(container, undo_cache):
+    changed = set()
+    for (file_name, node, is_attr, attr), text in undo_cache.iteritems():
+        node.set(attr, text) if is_attr else setattr(node, attr, text)
+        container.replace(file_name, node.getroottree().getroot())
+        changed.add(file_name)
     return changed
 
 if __name__ == '__main__':
