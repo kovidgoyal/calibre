@@ -23,7 +23,7 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET'):
         if end_type != 'load':
             on_complete(end_type, xhr, ev)
             return
-        if not (200 <= xhr.status < 300):
+        if xhr.status != 200:
             end_type = 'error'
         on_complete(end_type, xhr, ev)
 

@@ -1,0 +1,17 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from book_list.ui import BookList
+
+class Boss:
+
+    def __init__(self, interface_data):
+        self.interface_data = interface_data
+        self.current_library_id = interface_data['default_library']
+        self.current_library_name = interface_data['library_map'][self.current_library_id]
+        self.update_window_title()
+        self.book_list = BookList(interface_data)
+
+    def update_window_title(self):
+        document.title = 'calibre :: ' + self.current_library_name
+

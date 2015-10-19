@@ -1,0 +1,11 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def get_color(name):
+    return {
+        'window-background': '#F6F3E9',
+        'window-foreground': 'black',
+        'bar-background': '#39322B',
+        'bar-foreground': 'white',
+    }[name]
+

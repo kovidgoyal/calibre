@@ -1,0 +1,13 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from book_list.theme import get_color
+from book_list.top_bar import TopBar
+from dom import set_css
+
+class BookList:
+
+    def __init__(self, interface_data):
+        set_css(document.body, background_color=get_color('window-background'))
+        self.top_bar = TopBar()
+

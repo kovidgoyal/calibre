@@ -4,13 +4,15 @@
 from ajax import ajax
 from elementmaker import E
 from gettext import gettext as _
+from book_list.boss import Boss
+from book_list.globals import set_boss
 
 def on_library_loaded(end_type, xhr, ev):
     p = document.getElementById('page_load_progress')
     p.parentNode.removeChild(p)
     if end_type == 'load':
-        data = xhr.response
-        data
+        boss = Boss(JSON.parse(xhr.responseText))
+        set_boss(boss)
     else:
         document.body.appendChild(E.p(style="color:red", str.format(_(
             'Failed to download library data from "{}", with status: [{}] {}'),

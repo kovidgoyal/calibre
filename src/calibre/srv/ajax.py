@@ -567,7 +567,7 @@ def interface_data(ctx, rd, library_id):
     '''
     Return the data needed to create the server main UI
 
-    Optional: ?num=75
+    Optional: ?num=50
     '''
     session = rd.session
     ans = {'session_data': {k:session[k] for k in defaults.iterkeys()}}
@@ -578,7 +578,7 @@ def interface_data(ctx, rd, library_id):
         sorts.append(s.strip()), orders.append(o.strip())
     sort, sort_order = ans['session_data']['sort'].partition(',')[0].partition(':')[::2]
     try:
-        num = int(rd.query.get('num', 75))
+        num = int(rd.query.get('num', 50))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     db = get_db(ctx, library_id)

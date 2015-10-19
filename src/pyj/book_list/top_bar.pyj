@@ -1,0 +1,29 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from book_list.theme import get_color
+from dom import set_css
+from elementmaker import E
+
+bar_counter = 0
+
+class TopBar:
+
+    def __init__(self):
+        nonlocal bar_counter
+        bar_counter += 1
+        self.bar_id, self.dummy_bar_id = 'top-bar-' + bar_counter, 'dummy-top-bar-' + bar_counter
+        db, b = E.div(id=self.dummy_bar_id), E.div(id=self.bar_id)
+        set_css(b, position='fixed', left='0', top='0')
+        document.body.appendChild(db)
+        document.body.appendChild(b)
+        for bar in db, b:
+            set_css(bar, width='100%', min_height='25px', background_color=get_color('bar-background'), padding='0.1rem')
+
+    @property
+    def bar(self):
+        return document.getElementById(self.bar_id)
+
+    @property
+    def dummy_bar(self):
+        return document.getElementById(self.dummy_bar_id)
