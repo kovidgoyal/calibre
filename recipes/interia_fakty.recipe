@@ -1,7 +1,7 @@
 #!/usr/bin/env  python2
 
 __license__   = 'GPL v3'
-__copyright__ = u'2010-2013, Tomasz Dlugosz <tomek3d@gmail.com>'
+__copyright__ = u'2010-2015, Tomasz Dlugosz <tomek3d@gmail.com>'
 '''
 fakty.interia.pl
 '''
@@ -29,7 +29,7 @@ class InteriaFakty(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(name='div', attrs={'class': ['lead textContent', 'text textContent', 'source']})]
+        dict(name='div', attrs={'class': ['lead textContent fontSize-medium', 'text textContent fontSize-medium', 'source']})]
 
     remove_tags = [dict(name='div', attrs={'class':['embed embedAd', 'REMOVE', 'boxHeader']})]
 
