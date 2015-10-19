@@ -8,6 +8,10 @@ Files: src/duktape/*
 Copyright: Various
 License: MIT
 
+Files: resources/content-server/font-awesome/*
+Copyright: Various
+License: MIT and SIL OFL
+
 Files: resources/rapydscript/*
 Copyright: Various
 License: BSD
