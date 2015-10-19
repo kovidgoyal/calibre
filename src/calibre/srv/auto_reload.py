@@ -33,7 +33,7 @@ class WatcherBase(object):
                 modified = {os.path.relpath(x, self.base) if x.startswith(self.base) else x for x in modified if x}
                 changed = os.pathsep.join(sorted(modified))
                 self.log('')
-                self.log('Restarting server because of changed files:', changed)
+                self.log.warn('Restarting server because of changed files:', changed)
                 self.log('')
                 self.server.restart()
                 self.last_restart_time = time.time()
@@ -188,8 +188,9 @@ def join_process(p, timeout=5):
 
 class Worker(object):
 
-    def __init__(self, cmd, timeout=5):
+    def __init__(self, cmd, log, timeout=5):
         self.cmd = cmd
+        self.log = log
         self.p = None
         self.timeout = timeout
 
@@ -226,8 +227,8 @@ class Worker(object):
                     time.sleep(0.01)
                 compile_srv()
             except CompileFailure as e:
-                print(e.message, file=sys.stderr)
-                print('Retrying in one second')
+                self.log.error(e.message)
+                self.log('Retrying in one second')
                 time.sleep(1)
                 continue
             break
@@ -246,7 +247,7 @@ def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
     dirs = find_dirs_to_watch(fpath, dirs, add_default_dirs)
     log('Auto-restarting server on changes press Ctrl-C to quit')
     log('Watching %d directory trees for changes' % len(dirs))
-    with Worker(cmd) as server:
+    with Worker(cmd, log) as server:
         w = Watcher(dirs, server, log)
         try:
             w.loop()
