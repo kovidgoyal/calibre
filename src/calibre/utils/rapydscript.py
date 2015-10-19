@@ -58,11 +58,8 @@ def compiler():
         c.eval(buf.getvalue(), fname=COMPILER_PATH, noreturn=True)
     return c
 
-class PYJError(Exception):
-
-    def __init__(self, errors):
-        Exception.__init__(self, '')
-        self.errors = errors
+class CompileFailure(ValueError):
+    pass
 
 def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False):
     if isinstance(data, bytes):
@@ -77,7 +74,25 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         'filename': filename,
     }
     c.g.rs_source_code = data
-    return c.eval('exports["compile"](rs_source_code, %s, current_options)' % json.dumps(filename))
+    ok, result = c.eval(
+        '''
+        ans = [null, null];
+        try {
+            ans = [true, exports["compile"](rs_source_code, %s, current_options)];
+        } catch(e) {
+            ans = [false, e]
+        }
+        ans;
+        ''' % json.dumps(filename))
+    if ok:
+        return result
+    result = to_python(result)
+    if 'message' in result:
+        msg = result['message']
+        if 'filename' in result and 'line' in result:
+            msg = '%s:%s:%s' % (result['filename'], result['line'], msg)
+        raise CompileFailure(msg)
+    raise CompileFailure(repr(result))
 
 def compile_srv():
     d = os.path.dirname
@@ -295,11 +310,9 @@ def main(args=sys.argv):
             enc = getattr(sys.stdin, 'encoding', 'utf-8') or 'utf-8'
             data = compile_pyj(sys.stdin.read().decode(enc), libdir=libdir, private_scope=not args.no_private_scope, omit_baselib=args.omit_baselib)
             print(data.encode(enc))
-        except PYJError as e:
-            for e in e.errors:
-                print(format_error(e), file=sys.stderr)
-            raise SystemExit(1)
         except JSError as e:
+            raise SystemExit(e.message)
+        except CompileFailure as e:
             raise SystemExit(e.message)
 
 def entry():

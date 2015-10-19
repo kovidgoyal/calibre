@@ -212,18 +212,26 @@ class Worker(object):
             self.p = None
 
     def restart(self):
-        from calibre.utils.rapydscript import compile_srv
+        from calibre.utils.rapydscript import compile_srv, CompileFailure
         self.clean_kill()
-        try:
-            compile_srv()
-        except EnvironmentError as e:
-            # Happens if the editor deletes and replaces a file being edited
-            if e.errno != errno.ENOENT or not getattr(e, 'filename', False):
-                raise
-            st = time.time()
-            while not os.path.exists(e.filename) and time.time() - st < 3:
-                time.sleep(0.01)
-            compile_srv()
+        while True:
+            try:
+                compile_srv()
+            except EnvironmentError as e:
+                # Happens if the editor deletes and replaces a file being edited
+                if e.errno != errno.ENOENT or not getattr(e, 'filename', False):
+                    raise
+                st = time.time()
+                while not os.path.exists(e.filename) and time.time() - st < 3:
+                    time.sleep(0.01)
+                compile_srv()
+            except CompileFailure as e:
+                print(e.message, file=sys.stderr)
+                print('Retrying in two seconds')
+                time.sleep(2)
+                continue
+            break
+
         self.p = subprocess.Popen(self.cmd, creationflags=getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0))
 
 def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
