@@ -227,8 +227,8 @@ class Worker(object):
                 compile_srv()
             except CompileFailure as e:
                 print(e.message, file=sys.stderr)
-                print('Retrying in two seconds')
-                time.sleep(2)
+                print('Retrying in one second')
+                time.sleep(1)
                 continue
             break
 
