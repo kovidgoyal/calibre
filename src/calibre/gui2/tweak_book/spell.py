@@ -1250,6 +1250,7 @@ class SpellCheck(Dialog):
 
     def show(self):
         Dialog.show(self)
+        self.undo_cache.clear()
         QTimer.singleShot(0, self.refresh)
 
     def accept(self):
