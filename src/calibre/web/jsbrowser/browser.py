@@ -146,6 +146,20 @@ class WebPage(QWebPage):  # {{{
         finally:
             del self.saved_img
 
+    def supportsExtension(self, extension):
+        if extension == QWebPage.ErrorPageExtension:
+            return True
+        return False
+
+    def extension(self, extension, option, output):
+        # Log more data about a failed page load
+        if extension != QWebPage.ErrorPageExtension:
+            return False
+        domain = {QWebPage.QtNetwork:'Network', QWebPage.Http:'HTTP', QWebPage.WebKit:'WebKit'}.get(option.domain, 'Unknown')
+        err = 'Error loading: %s: [%s %d: %s]' % (option.url.toString(), domain, option.error, unicode(option.errorString))
+        self.log.error(err)
+        return False  # If we return True then loadFinished() will also return True, which we dont want
+
 
 # }}}
 
