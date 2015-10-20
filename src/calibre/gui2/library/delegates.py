@@ -160,7 +160,7 @@ ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 # setter for text-like delegates. Return '' if CTRL is pushed {{{
 
 def check_key_modifier(which_modifier):
-    v = int(QApplication.keyboardModifiers() & (Qt.ControlModifier | Qt.ShiftModifier))
+    v = int(QApplication.keyboardModifiers() & (Qt.ControlModifier + Qt.ShiftModifier))
     return v == which_modifier
 
 def get_val_for_textlike_columns(index_):
@@ -246,7 +246,7 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def setEditorData(self, editor, index):
         if check_key_modifier(Qt.ControlModifier):
             val = UNDEFINED_QDATETIME
-        elif check_key_modifier(Qt.ShiftModifier):
+        elif check_key_modifier(Qt.ShiftModifier + Qt.ControlModifier):
             val = now()
         else:
             val = index.data(Qt.EditRole)
@@ -274,10 +274,12 @@ class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def setEditorData(self, editor, index):
         val = index.data(Qt.EditRole)
-        if is_date_undefined(val) or check_key_modifier(Qt.ControlModifier):
-            val = QDate(2000, 1, 1)
-        elif check_key_modifier(Qt.ShiftModifier):
+        if check_key_modifier(Qt.ControlModifier):
+            val = UNDEFINED_QDATETIME
+        elif check_key_modifier(Qt.ShiftModifier + Qt.ControlModifier):
             val = now()
+        elif is_date_undefined(val):
+            val = QDate(2000, 1, 1)
         if isinstance(val, QDateTime):
             val = val.date()
         editor.setDate(val)
@@ -421,7 +423,7 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def setEditorData(self, editor, index):
         if check_key_modifier(Qt.ControlModifier):
             val = UNDEFINED_QDATETIME
-        elif check_key_modifier(Qt.ShiftModifier):
+        elif check_key_modifier(Qt.ShiftModifier + Qt.ControlModifier):
             val = now()
         else:
             m = index.model()
@@ -504,7 +506,9 @@ class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def setEditorData(self, editor, index):
         m = index.model()
         val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-        if val is None or check_key_modifier(Qt.ControlModifier):
+        if check_key_modifier(Qt.ControlModifier):
+            val = -1000000
+        elif val is None:
             val = 0
         editor.setValue(val)
 
