@@ -22,7 +22,7 @@ class TopBar:
         style += build_rule('#' + self.bar_id + ' a:active', color=get_color('bar-highlight'))
         for bid in self.dummy_bar_id, self.bar_id:
             bar = E.div(
-                id=bid, class_='top-bar', style="padding-left: 0.5em; padding-right: 0.5em; padding-top: 0.5ex; padding-bottom: 0.5ex",
+                id=bid, class_='top-bar',
                 E.div(style="display:table-cell;"),
                 E.div(style="display:table-cell; text-align:right; padding-right: " + self.SPACING)
             )
@@ -31,8 +31,10 @@ class TopBar:
                 bar.appendChild(E.style(style, type='text/css'))
             set_css(bar,
                     width='100%', display='table', font_size=get_font_size('title'),
+                    padding_top='0.5ex', padding_bottom='0.5ex',
                     color=get_color('bar-foreground'), background_color=get_color('bar-background'))
             document.body.appendChild(bar)
+            set_css(bar.firstChild, padding_left='0.5em')
 
     @property
     def bar(self):
@@ -75,7 +77,7 @@ class TopBar:
         for bar in self.bar, self.dummy_bar:
             right = bar.firstChild.nextSibling
             right.appendChild(E.a(
-                style="overflow: hidden; display:inline-block; vertical-align:text-top; margin-right: " + self.SPACING,
+                style="overflow: hidden; display:inline-block; vertical-align:text-top; margin-left: " + self.SPACING,
                 href="javascript:void(0)", title=tooltip,
                 E.i(class_='fa fa-' + icon_name)
             ))
