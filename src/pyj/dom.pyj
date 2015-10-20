@@ -2,7 +2,16 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 simple_vendor_prefixes = {
-    'transform': v"['webkit', 'ms', 'moz']",
+    'transform': v"['webkit', 'ms', 'moz', 'o']",
+    'animation': v"['webkit', 'moz', 'o']",
+    'animation-name': v"['webkit', 'moz', 'o']",
+    'animation-duration': v"['webkit', 'moz', 'o']",
+    'animation-timing-function': v"['webkit', 'moz', 'o']",
+    'animation-delay': v"['webkit', 'moz', 'o']",
+    'animation-iteration-count': v"['webkit', 'moz', 'o']",
+    'animation-direction': v"['webkit', 'moz', 'o']",
+    'animation-fill-mode': v"['webkit', 'moz', 'o']",
+    'animation-play-state': v"['webkit', 'moz', 'o']",
 }
 
 def set_css(elem, **kw):
@@ -10,8 +19,27 @@ def set_css(elem, **kw):
     if s:
         for prop in kw:
             name, val = str.replace(str.rstrip(prop, '_'), '_', '-'), kw[prop]
-            s.setProperty(name, val)
+            if val is None or val is undefined:
+                s.removeProperty(name)
+            else:
+                s.setProperty(name, val)
             prefixes = simple_vendor_prefixes[name]
             if prefixes:
                 for prefix in prefixes:
-                    s.setProperty('-' + prefix + '-' + name, val)
+                    if val is None or val is undefined:
+                        s.removeProperty('-' + prefix + '-' + name)
+                    else:
+                        s.setProperty('-' + prefix + '-' + name, val)
+
+def clear(*nodes):
+    for node in nodes:
+        node.innerHTML = ''
+
+def create_keyframes(animation_name, *frames):
+    ans = v'[]'
+    for prefix in '-webkit-', '-moz-', '-o-', '':
+        ans.push('@' + prefix + 'keyframes ' + animation_name + ' {')
+        for frame in frames:
+            ans.push(frame)
+        ans.push('}')
+    return ans.join('\n')

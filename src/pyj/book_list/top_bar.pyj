@@ -2,10 +2,17 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from book_list.theme import get_color
-from dom import set_css
+from dom import set_css, clear, create_keyframes
 from elementmaker import E
+from gettext import gettext as _
 
 bar_counter = 0
+
+def show_donate_page():
+    url = 'http://calibre-ebook.com/donate'
+    if not window.open(url, '_blank'):
+        window.location = url
+    return False
 
 class TopBar:
 
@@ -13,12 +20,22 @@ class TopBar:
         nonlocal bar_counter
         bar_counter += 1
         self.bar_id, self.dummy_bar_id = 'top-bar-' + bar_counter, 'dummy-top-bar-' + bar_counter
-        db, b = E.div(id=self.dummy_bar_id), E.div(id=self.bar_id)
-        set_css(b, position='fixed', left='0', top='0')
-        document.body.appendChild(db)
-        document.body.appendChild(b)
-        for bar in db, b:
-            set_css(bar, width='100%', min_height='25px', background_color=get_color('bar-background'), padding='0.1rem')
+        self.throbber_name = self.bar_id + '-throbber'
+        style = create_keyframes(self.throbber_name, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
+        for bid in self.dummy_bar_id, self.bar_id:
+            bar = E.div(
+                id=bid, class_='top-bar', style="padding-left: 0.5em; padding-right: 0.5em; padding-top: 0.5ex; padding-bottom: 0.5ex",
+                E.div(style="display:table-cell;"),
+                E.div(style="display:table-cell; text-align:right;")
+            )
+            if bid == self.bar_id:
+                set_css(bar, position='fixed', left='0', top='0')
+                bar.appendChild(E.style(style, type='text/css'))
+            set_css(bar,
+                    width='100%', display='table', min_height='25px', font_size='1.4rem',
+                    color=get_color('bar-foreground'), background_color=get_color('bar-background'))
+            document.body.appendChild(bar)
+        self.set_left(run_animation=True)
 
     @property
     def bar(self):
@@ -27,3 +44,21 @@ class TopBar:
     @property
     def dummy_bar(self):
         return document.getElementById(self.dummy_bar_id)
+
+    def set_left(self, title='calibre', icon_name='heart', action=show_donate_page, tooltip='', run_animation=False):
+        if not tooltip and icon_name == 'heart':
+            tooltip = _('Donate to support calibre')
+        for bar in self.bar, self.dummy_bar:
+            left = bar.firstChild
+            clear(left)
+            left.appendChild(E.a(
+                style="overflow: hidden; display:inline-block; vertical-align:text-top",
+                href="javascript:void(0)", title=tooltip,
+                E.i(class_='fa fa-' + icon_name)
+            ))
+            left.appendChild(E.span(title, style='margin-left: 0.5em; font-weight: bold; text-overflow:ellipsis; overflow: hidden'))
+            if icon_name == 'heart' and bar is self.bar:
+                set_css(left.firstChild,
+                    animation_name=self.throbber_name, animation_duration='1s', animation_timing_function='ease-in-out',
+                    animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'
+                )
