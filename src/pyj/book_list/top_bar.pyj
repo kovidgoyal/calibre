@@ -10,7 +10,7 @@ bar_counter = 0
 
 class TopBar:
 
-    SPACING = '0.5em'
+    SPACING = '0.75em'
 
     def __init__(self):
         nonlocal bar_counter
