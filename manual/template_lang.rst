@@ -249,48 +249,60 @@ The following functions are available in addition to those described in single-f
     * ``divide(x, y)`` -- returns x / y. Throws an exception if either x or y are not numbers.
     * ``eval(string)`` -- evaluates the string as a program, passing the local variables (those ``assign`` ed to). This permits using the template processor to construct complex results from local variables. Because the `{` and `}` characters are special, you must use `[[` for the `{` character and `]]` for the '}' character; they are converted automatically. Note also that prefixes and suffixes (the `|prefix|suffix` syntax) cannot be used in the argument to this function when using template program mode.
     * ``field(name)`` -- returns the metadata field named by ``name``.
-    * ``first_matching_cmp(val, cmp1, result1, cmp2, r2, ..., else_result)`` -- compares "val < cmpN" in sequence, returning resultN for the first comparison that succeeds. Returns else_result if no comparison succeeds. Example::
+    * ``first_matching_cmp(val, cmp1, result1, cmp2, r2, ..., else_result)`` -- compares ``val < cmpN`` in sequence, returning resultN for the first comparison that succeeds. Returns else_result if no comparison succeeds. Example::
 
-        ``first_matching_cmp(10,5,"small",10,"middle",15,"large","giant")``
+            first_matching_cmp(10,5,"small",10,"middle",15,"large","giant")
 
-    returns "large". The same example with a first value of 16 returns "giant".
+        returns "large". The same example with a first value of 16 returns "giant".
+
     * ``first_non_empty(value, value, ...)`` -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
-    * ``format_date(x, date_format)`` -- format_date(val, format_string) -- format the value, which must be a date field, using the format_string, returning a string. The formatting codes are::
 
-        d    : the day as number without a leading zero (1 to 31)
-        dd   : the day as number with a leading zero (01 to 31)
-        ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun").
-        dddd : the long localized day name (e.g. "Monday" to "Sunday").
-        M    : the month as number without a leading zero (1 to 12).
-        MM   : the month as number with a leading zero (01 to 12)
-        MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec").
-        MMMM : the long localized month name (e.g. "January" to "December").
-        yy   : the year as two digit number (00 to 99).
-        yyyy : the year as four digit number.
-        h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)
-        hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)
-        m    : the minutes without a leading 0 (0 to 59)
-        mm   : the minutes with a leading 0 (00 to 59)
-        s    : the seconds without a leading 0 (0 to 59)
-        ss   : the seconds with a leading 0 (00 to 59)
-        ap   : use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the localized string for am or pm.
-        AP   : use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
-        iso  : the date with time and timezone. Must be the only format present.
+    * ``format_date(x, date_format)`` -- format the value, which must be a date
+      field, using the format_string, returning a string. The formatting codes
+      are::
 
-    You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the format tweaks to contain MMMM. In this case, instead of using something like ``{pubdate:format_date(yyyy)}``, write the template using template program mode as in ``{:'format_date(raw_field('pubdate'),'yyyy')'}``.
+            d    : the day as number without a leading zero (1 to 31)
+            dd   : the day as number with a leading zero (01 to 31)
+            ddd  : the abbreviated localized day name (e.g. "Mon" to "Sun").
+            dddd : the long localized day name (e.g. "Monday" to "Sunday").
+            M    : the month as number without a leading zero (1 to 12).
+            MM   : the month as number with a leading zero (01 to 12)
+            MMM  : the abbreviated localized month name (e.g. "Jan" to "Dec").
+            MMMM : the long localized month name (e.g. "January" to "December").
+            yy   : the year as two digit number (00 to 99).
+            yyyy : the year as four digit number.
+            h    : the hours without a leading 0 (0 to 11 or 0 to 23, depending on am/pm)
+            hh   : the hours with a leading 0 (00 to 11 or 00 to 23, depending on am/pm)
+            m    : the minutes without a leading 0 (0 to 59)
+            mm   : the minutes with a leading 0 (00 to 59)
+            s    : the seconds without a leading 0 (0 to 59)
+            ss   : the seconds with a leading 0 (00 to 59)
+            ap   : use a 12-hour clock instead of a 24-hour clock, with 'ap' replaced by the localized string for am or pm.
+            AP   : use a 12-hour clock instead of a 24-hour clock, with 'AP' replaced by the localized string for AM or PM.
+            iso  : the date with time and timezone. Must be the only format present.
 
-    * finish_formatting(val, fmt, prefix, suffix) -- apply the format, prefix, and suffix to a value in the same way as done in a template like ``{series_index:05.2f| - |- }``. This function is provided to ease conversion of complex single-function- or template-program-mode templates to :ref:`general program mode <general_mode>` (see below) to take advantage of GPM template compilation. For example, the following program produces the same output as the above template::
 
-        program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
+      You might get unexpected results if the date you are formatting contains localized month names, which can happen if you changed the format tweaks to contain ``MMMM``. In this case, instead of using something like ``{pubdate:format_date(yyyy)}``, write the template using template program mode as in ``{:'format_date(raw_field('pubdate'),'yyyy')'}``.
 
-    Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
+    * ``finish_formatting(val, fmt, prefix, suffix)`` -- apply the format,
+      prefix, and suffix to a value in the same way as done in a template like
+      ``{series_index:05.2f| - |- }``. This function is provided to ease
+      conversion of complex single-function- or template-program-mode templates
+      to :ref:`general program mode <general_mode>` (see below) to take
+      advantage of GPM template compilation. For example, the following program
+      produces the same output as the above template::
 
-        program:
-            strcat(
-                re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'),
-                finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
-                field('title')
-            )
+            program: finish_formatting(field("series_index"), "05.2f", " - ", " - ")
+
+
+      Another example: for the template ``{series:re(([^\s])[^\s]+(\s|$),\1)}{series_index:0>2s| - | - }{title}`` use::
+
+            program:
+                strcat(
+                    re(field('series'), '([^\s])[^\s]+(\s|$)', '\1'),
+                    finish_formatting(field('series_index'), '0>2s', ' - ', ' - '),
+                    field('title')
+                )
 
     * ``formats_modtimes(date_format)`` -- return a comma-separated list of colon-separated items representing modification times for the formats of a book. The date_format parameter specifies how the date is to be formatted. See the date_format function for details. You can use the select function to get the mod time for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_paths()`` -- return a comma-separated list of colon-separated items representing full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
@@ -346,7 +358,7 @@ One advantage of `program:` mode is that the brackets are no longer special. For
 
 The following example is a `program:` mode implementation of a recipe on the MobileRead forum: "Put series into the title, using either initials or a shortened form. Strip leading articles from the series name (any)." For example, for the book The Two Towers in the Lord of the Rings series, the recipe gives `LotR [02] The Two Towers`. Using standard templates, the recipe requires three custom columns and a plugboard, as explained in the following:
 
-The solution requires creating three composite columns. The first column is used to remove the leading articles. The second is used to compute the 'shorten' form. The third is to compute the 'initials' form. Once you have these columns, the plugboard selects between them. You can hide any or all of the three columns on the library view.
+The solution requires creating three composite columns. The first column is used to remove the leading articles. The second is used to compute the 'shorten' form. The third is to compute the 'initials' form. Once you have these columns, the plugboard selects between them. You can hide any or all of the three columns on the library view::
 
     First column:
     Name: #stripped_series.
