@@ -253,7 +253,8 @@ The following functions are available in addition to those described in single-f
 
             first_matching_cmp(10,5,"small",10,"middle",15,"large","giant")
 
-        returns "large". The same example with a first value of 16 returns "giant".
+
+      returns "large". The same example with a first value of 16 returns "giant".
 
     * ``first_non_empty(value, value, ...)`` -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
 
