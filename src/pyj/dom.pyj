@@ -2,7 +2,6 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 simple_vendor_prefixes = {
-    'transform': v"['webkit', 'ms', 'moz', 'o']",
     'animation': v"['webkit', 'moz', 'o']",
     'animation-name': v"['webkit', 'moz', 'o']",
     'animation-duration': v"['webkit', 'moz', 'o']",
@@ -12,6 +11,8 @@ simple_vendor_prefixes = {
     'animation-direction': v"['webkit', 'moz', 'o']",
     'animation-fill-mode': v"['webkit', 'moz', 'o']",
     'animation-play-state': v"['webkit', 'moz', 'o']",
+    'transform': v"['webkit', 'ms', 'moz', 'o']",
+    'user-select': v"['webkit', 'moz', 'ms']",
 }
 
 def set_css(elem, **kw):
