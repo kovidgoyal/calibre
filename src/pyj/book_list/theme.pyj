@@ -6,6 +6,11 @@ def get_color(name):
         'window-background': '#F6F3E9',
         'window-foreground': 'black',
         'bar-background': '#39322B',
-        'bar-foreground': 'white',
+        'bar-foreground': '#F6F3E9',
+        'heart': '#B92111',
     }[name]
 
+def get_font_size(name):
+    return {
+        'title': '1.4rem',
+    }[name]

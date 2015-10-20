@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from book_list.theme import get_color
+from book_list.theme import get_color, get_font_size
 from dom import set_css, clear, create_keyframes
 from elementmaker import E
 from gettext import gettext as _
@@ -32,7 +32,7 @@ class TopBar:
                 set_css(bar, position='fixed', left='0', top='0')
                 bar.appendChild(E.style(style, type='text/css'))
             set_css(bar,
-                    width='100%', display='table', min_height='25px', font_size='1.4rem',
+                    width='100%', display='table', font_size=get_font_size('title'),
                     color=get_color('bar-foreground'), background_color=get_color('bar-background'))
             document.body.appendChild(bar)
         self.set_left(run_animation=True)
@@ -46,8 +46,10 @@ class TopBar:
         return document.getElementById(self.dummy_bar_id)
 
     def set_left(self, title='calibre', icon_name='heart', action=show_donate_page, tooltip='', run_animation=False):
-        if not tooltip and icon_name == 'heart':
-            tooltip = _('Donate to support calibre')
+        if icon_name == 'heart':
+            if not tooltip:
+                tooltip = _('Donate to support calibre')
+
         for bar in self.bar, self.dummy_bar:
             left = bar.firstChild
             clear(left)
@@ -57,8 +59,14 @@ class TopBar:
                 E.i(class_='fa fa-' + icon_name)
             ))
             left.appendChild(E.span(title, style='margin-left: 0.5em; font-weight: bold; text-overflow:ellipsis; overflow: hidden'))
-            if icon_name == 'heart' and bar is self.bar:
-                set_css(left.firstChild,
-                    animation_name=self.throbber_name, animation_duration='1s', animation_timing_function='ease-in-out',
-                    animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'
+            if bar is self.bar:
+                if icon_name == 'heart':
+                    set_css(left.firstChild,
+                        animation_name=self.throbber_name, animation_duration='1s', animation_timing_function='ease-in-out',
+                        animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'
+                    )
+                    set_css(left.firstChild.firstChild, color=get_color('heart'))
+                left.firstChild.addEventListener('click', def(event):
+                                                 event.preventDefault()
+                                                 action()
                 )
