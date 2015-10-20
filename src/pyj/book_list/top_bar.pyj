@@ -8,12 +8,6 @@ from gettext import gettext as _
 
 bar_counter = 0
 
-def show_donate_page():
-    url = 'http://calibre-ebook.com/donate'
-    if not window.open(url, '_blank'):
-        window.location = url
-    return False
-
 class TopBar:
 
     def __init__(self):
@@ -45,10 +39,10 @@ class TopBar:
     def dummy_bar(self):
         return document.getElementById(self.dummy_bar_id)
 
-    def set_left(self, title='calibre', icon_name='heart', action=show_donate_page, tooltip='', run_animation=False):
+    def set_left(self, title='calibre', icon_name='heart', action=None, tooltip='', run_animation=False):
         if icon_name == 'heart':
             if not tooltip:
-                tooltip = _('Donate to support calibre')
+                tooltip = _('Donate to support calibre development')
 
         for bar in self.bar, self.dummy_bar:
             left = bar.firstChild
@@ -58,15 +52,16 @@ class TopBar:
                 href="javascript:void(0)", title=tooltip,
                 E.i(class_='fa fa-' + icon_name)
             ))
+            a = left.firstChild
             left.appendChild(E.span(title, style='margin-left: 0.5em; font-weight: bold; text-overflow:ellipsis; overflow: hidden'))
             if bar is self.bar:
                 if icon_name == 'heart':
-                    set_css(left.firstChild,
+                    set_css(a,
                         animation_name=self.throbber_name, animation_duration='1s', animation_timing_function='ease-in-out',
                         animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'
                     )
-                    set_css(left.firstChild.firstChild, color=get_color('heart'))
-                left.firstChild.addEventListener('click', def(event):
-                                                 event.preventDefault()
-                                                 action()
-                )
+                    set_css(a.firstChild, color=get_color('heart'))
+                    a.setAttribute('href', 'http://calibre-ebook.com/donate')
+                    a.setAttribute('target', 'donate-to-calibre')
+                if action is not None:
+                    a.addEventListener('click', def(event): event.preventDefault(), action();)
