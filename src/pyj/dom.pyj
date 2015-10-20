@@ -31,6 +31,18 @@ def set_css(elem, **kw):
                     else:
                         s.setProperty('-' + prefix + '-' + name, val)
 
+def build_rule(selector, **kw):
+    ans = v'[selector + " { "]'
+    for prop in kw:
+        name, val = str.replace(str.rstrip(prop, '_'), '_', '-'), kw[prop]
+        ans.push(name + ':' + val + ';')
+        prefixes = simple_vendor_prefixes[name]
+        if prefixes:
+            for prefix in prefixes:
+                ans.push('-' + prefix + '-' + name + ':' + val + ';')
+    ans.push('}')
+    return ans.join('\n') + '\n'
+
 def clear(*nodes):
     for node in nodes:
         node.innerHTML = ''
@@ -42,4 +54,4 @@ def create_keyframes(animation_name, *frames):
         for frame in frames:
             ans.push(frame)
         ans.push('}')
-    return ans.join('\n')
+    return ans.join('\n') + '\n'

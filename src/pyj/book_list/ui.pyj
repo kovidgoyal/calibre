@@ -4,10 +4,27 @@
 from book_list.theme import get_color
 from book_list.top_bar import TopBar
 from dom import set_css
+from gettext import gettext as _
+
+class BarState:
+
+    def __init__(self, **kw):
+        self.left_state = kw
+        self.buttons = v'[]'
+
+    def add_button(self, **kw):
+        self.buttons.push(kw)
 
 class BookList:
 
     def __init__(self, interface_data):
         set_css(document.body, background_color=get_color('window-background'))
+        self.states = []
+        self.initial_bar_state = ibs = BarState(run_animation=True)
+        ibs.add_button(icon_name='sort-alpha-asc', tooltip=_('Sort books'))
+        ibs.add_button(icon_name='search', tooltip=_('Search for books'))
+        ibs.add_button(icon_name='bars', tooltip=_('More actions'))
+        self.states.append(ibs)
         self.top_bar = TopBar()
-
+        self.top_bar.apply_state(ibs.left_state, ibs.buttons)
+        ibs.left_state.run_animation = False
