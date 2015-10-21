@@ -99,7 +99,9 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
         editor.setText(name)
         ext_pos = name.rfind('.')
         slash_pos = name.rfind('/')
-        if ext_pos > -1 and slash_pos > -1 and ext_pos > slash_pos + 1:
+        if slash_pos == -1 and ext_pos > 0:
+            editor.setSelection(0, ext_pos)
+        elif ext_pos > -1 and slash_pos > -1 and ext_pos > slash_pos + 1:
             editor.setSelection(slash_pos+1, ext_pos - slash_pos - 1)
         else:
             editor.selectAll()
