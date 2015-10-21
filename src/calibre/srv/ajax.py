@@ -16,6 +16,7 @@ from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.srv.errors import HTTPNotFound
+from calibre.srv.metadata import book_as_json
 from calibre.srv.routes import endpoint, json
 from calibre.srv.session import defaults
 from calibre.srv.content import get as get_content, icon as get_icon
@@ -584,11 +585,11 @@ def interface_data(ctx, rd, library_id):
     db = get_db(ctx, library_id)
     with db.safe_read_lock:
         ans['search_result'] = _search(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
-        ans['field_metadata'] = db.field_metadata
+        ans['field_metadata'] = db.field_metadata.all_metadata()
         # ans['categories'] = ctx.get_categories(rd, db)
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
-            data, last_modified = book_to_json(ctx, rd, db, book_id)
+            data = book_as_json(db, book_id)
             mdata[book_id] = data
 
     return ans
