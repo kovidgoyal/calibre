@@ -23,15 +23,15 @@ class TopBar:
         for bid in self.dummy_bar_id, self.bar_id:
             bar = E.div(
                 id=bid, class_='top-bar',
-            E.div(style="display:table-cell; padding-left: 0.5em"),
-                E.div(style="display:table-cell; text-align:right; padding-right: 0.5em")
+                E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.5em;"),
+                E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
             )
             if bid == self.bar_id:
                 set_css(bar, position='fixed', left='0', top='0')
                 bar.appendChild(E.style(style, type='text/css'))
             set_css(bar,
-                width='100%', display='table', font_size=get_font_size('title'),
-                padding_top='0.5ex', padding_bottom='0.5ex', user_select='none',
+                width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
+                font_size=get_font_size('title'), padding_top='0.5ex', padding_bottom='0.5ex', user_select='none',
                 color=get_color('bar-foreground'), background_color=get_color('bar-background')
             )
             document.body.appendChild(bar)
@@ -58,7 +58,7 @@ class TopBar:
                 E.i(class_='fa fa-' + icon_name)
             ))
             a = left.firstChild
-            left.appendChild(E.span(title, style=str.format('margin-left: {}; font-weight: bold; text-overflow:ellipsis; overflow: hidden', self.SPACING)))
+            left.appendChild(E.span(title, style=str.format('margin-left: {}; font-weight: bold;', self.SPACING)))
             if bar is self.bar:
                 if icon_name == 'heart':
                     set_css(a,
