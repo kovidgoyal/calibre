@@ -411,7 +411,7 @@ in calibre and use the :guilabel:`Send to device` button to transfer files to
 your device wirelessly.
 
 calibre also has a builtin web server, the :guilabel:`Content Server`.
-You can browse your calibre collection on your Android device is by using the
+You can browse your calibre collection on your Android device by using the
 calibre content server, which makes your collection available over the net.
 First perform the following steps in calibre
 
