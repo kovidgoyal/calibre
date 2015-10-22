@@ -5,6 +5,7 @@ nrc.nl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import Tag
 
 class Pagina12(BasicNewsRecipe):
     title                 = 'NRC'
@@ -21,56 +22,25 @@ class Pagina12(BasicNewsRecipe):
     country               = 'NL'
     remove_empty_feeds    = True
     masthead_url          = 'http://www.nrc.nl/nrc.nl/images/logo_nrc.png'
-    extra_css             = """
-                                body{font-family: Georgia,serif }
-                                img{margin-bottom: 0.4em; display: block}
-                                .bijschrift,.sectie{font-size: x-small}
-                                .sectie{color: gray}
-                            """
 
-    conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+    keep_only_tags = [
+        dict(name=['h1', 'figure']),
+        dict(attrs={'class':['intro', 'byline']}),
+        dict(attrs={'class':lambda x: x and 'article__content' in x}),
+    ]
+    remove_attributes = ['style']
 
-    keep_only_tags = [dict(attrs={'class':'uitstekendekeus'})]
-    remove_tags    = [
-                        dict(name=['meta','base','link','object','embed'])
-                       ,dict(attrs={'class':['reclamespace','tags-and-sharing','sharing-is-caring']})
-                     ]
-    remove_attributes=['lang']
-
-    feeds = [
-              (u'Voor nieuws', u'http://www.nrc.nl/nieuws/categorie/nieuws/rss.php'           )
-             ,(u'Binnenland' , u'http://www.nrc.nl/nieuws/categorie/binnenland/rss.php'       )
-             ,(u'Buitenland' , u'http://www.nrc.nl/nieuws/categorie/buitenland/rss.php'       )
-             ,(u'Economie'   , u'http://www.nrc.nl/nieuws/categorie/economie/rss.php'         )
-             ,(u'Cultuur'    , u'http://www.nrc.nl/nieuws/categorie/cultuur/rss.php'          )
-             ,(u'Sport'      , u'http://www.nrc.nl/nieuws/categorie/sport/rss.php'            )
-             ,(u'Wetenschap ', u'http://www.nrc.nl/nieuws/categorie/wetenschap-nieuws/rss.php')
-            ]
+    feeds = ['http://www.nrc.nl/rss/']
 
     def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            limg = item.find('img')
-            if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
-            else:
-               if limg:
-                  item.name = 'div'
-                  atritems =['href','target','rel']
-                  for atit in atritems:
-                      if item.has_key(atit):
-                         del item[atit]
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
+        src = None
+        for meta in soup.findAll('meta', itemprop='image', content=True):
+            src = meta['content']
+            break
+        if src is not None:
+            div = soup.find('div', attrs={'class':lambda x: x and 'featured-img' in x})
+            if div is not None:
+                img = Tag(soup, 'img')
+                img['src'] = src
+                div.append(img)
         return soup
