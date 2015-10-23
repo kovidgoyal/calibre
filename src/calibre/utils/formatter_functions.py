@@ -578,7 +578,7 @@ class BuiltinReGroup(BuiltinFormatterFunction):
     arg_count = -1
     category = 'String manipulation'
     __doc__ = doc = _('re_group(val, pattern, template_for_group_1, for_group_2, ...) -- '
-            'return a string made by applying the reqular expression pattern '
+            'return a string made by applying the regular expression pattern '
             'to the val and replacing each matched instance with the string '
             'computed by replacing each matched group by the value returned '
             'by the corresponding template. The original matched value for the '
