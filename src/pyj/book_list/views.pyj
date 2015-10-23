@@ -93,11 +93,11 @@ class BooksView:
     def cover_grid_item(self, book_id):
         cover_url = str.format('get/thumb/{}/{}?sz={}x{}', book_id, self.interface_data['library_id'], THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
         metadata = self.interface_data['metadata'][book_id]
+        alt = str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & '))
         return E.div(
             style='margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around',
             data_book_id=str(book_id),
-            E.img(src=cover_url,
-                  alt=str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & ')),
+            E.img(src=cover_url, alt=alt, title=alt,
                   style='max-width: 100%; max-height: 100%; display: block; cursor: pointer; width:auto; height:auto')
         )
 
