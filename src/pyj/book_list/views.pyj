@@ -3,6 +3,7 @@
 
 from dom import set_css
 from elementmaker import E
+from gettext import gettext as _
 
 bv_counter = 0
 THUMBNAIL_MAX_WIDTH = 300
@@ -18,20 +19,27 @@ class BooksView:
         self.metadata_map = interface_data['metadata']
         self.container_id = 'books-view-' + bv_counter
         div = E.div(
-            id=self.container_id, style='display:none',
+            id=self.container_id, style='display:block',
             E.style(),
             E.div(),
             E.div(id='get-more-books')
         )
         document.body.appendChild(div)
-        self.render_book = bind(self.cover_grid_item, self)
-        self.init_grid = bind(self.init_cover_grid, self)
-        self.resize_grid = bind(self.resize_cover_grid, self)
-        self.mode = 'cover_grid'
+        self.set_view_mode(interface_data['session_data']['view_mode'])
+
+    def set_view_mode(self, mode='cover_grid'):
+        if self.mode == mode:
+            return
+        if mode not in v"['cover_grid']":
+            mode = 'cover_grid'
+        self.mode = mode
+        if mode == 'cover_grid':
+            self.render_book = bind(self.cover_grid_item, self)
+            self.init_grid = bind(self.init_cover_grid, self)
+            self.resize_grid = bind(self.resize_cover_grid, self)
         self.init_grid()
         self.render_ids()
         self.resize_grid()
-        self.is_visible = True
 
     @property
     def container(self):
@@ -84,10 +92,13 @@ class BooksView:
 
     def cover_grid_item(self, book_id):
         cover_url = str.format('get/thumb/{}/{}?sz={}x{}', book_id, self.interface_data['library_id'], THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
+        metadata = self.interface_data['metadata'][book_id]
         return E.div(
             style='margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around',
             data_book_id=str(book_id),
-            E.img(src=cover_url, style='max-width: 100%; max-height: 100%; display: block; cursor: pointer; width:auto; height:auto')
+            E.img(src=cover_url,
+                  alt=str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & ')),
+                  style='max-width: 100%; max-height: 100%; display: block; cursor: pointer; width:auto; height:auto')
         )
 
     def render_ids(self, book_ids=None):
