@@ -526,7 +526,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 
 # Search {{{
 def _search(ctx, rd, db, query, num, offset, sort, sort_order):
-    multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc'))
+    multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc') == 'asc')
                  for s, o in zip(sort.split(','), cycle(sort_order.split(',')))]
     skeys = db.field_metadata.sortable_field_keys()
     for sfield, sorder in multisort:
@@ -578,7 +578,6 @@ def interface_data(ctx, rd, library_id):
     for x in ans['session_data']['sort'].split(','):
         s, o = x.partition(':')[::2]
         sorts.append(s.strip()), orders.append(o.strip())
-    sort, sort_order = ans['session_data']['sort'].partition(',')[0].partition(':')[::2]
     try:
         num = int(rd.query.get('num', 50))
     except Exception:
