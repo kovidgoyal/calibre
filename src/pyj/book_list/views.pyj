@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from dom import set_css
+from dom import set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
@@ -18,9 +18,10 @@ class BooksView:
         self.search_result = interface_data['search_result']
         self.metadata_map = interface_data['metadata']
         self.container_id = 'books-view-' + bv_counter
+        style = build_rule('#' + self.container_id + ' .cover_grid img:hover', transform='scale(1.2)')
         div = E.div(
             id=self.container_id, style='display:block',
-            E.style(),
+            E.style(style),
             E.div(),
             E.div(id='get-more-books')
         )
@@ -68,6 +69,7 @@ class BooksView:
     def init_cover_grid(self):
         div = self.grid
         set_css(div, display='flex', flex_wrap='wrap', justify_content='flex-start', align_items='flex-end', align_content='flex-start')
+        div.setAttribute('class', 'cover_grid')
         self.cover_grid_width = self.cover_grid_height = -1
 
     def resize_cover_grid(self):
