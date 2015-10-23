@@ -3,8 +3,10 @@
 
 from book_list.theme import get_color
 from book_list.top_bar import TopBar
+from book_list.views import BooksView
 from dom import set_css
 from gettext import gettext as _
+from utils import debounce
 
 class BarState:
 
@@ -27,4 +29,9 @@ class BookList:
         self.states.append(ibs)
         self.top_bar = TopBar()
         self.top_bar.apply_state(ibs.left_state, ibs.buttons)
+        self.books_view = BooksView(interface_data)
         ibs.left_state.run_animation = False
+        window.addEventListener('resize', debounce(bind(self.on_resize, self), 250))
+
+    def on_resize(self):
+        self.books_view.on_resize()

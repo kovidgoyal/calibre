@@ -1,0 +1,22 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def debounce(func, wait, immediate=False):
+    # Returns a function, that, as long as it continues to be invoked, will not
+    # be triggered. The function will be called after it stops being called for
+    # N milliseconds. If `immediate` is True, trigger the function on the
+    # leading edge, instead of the trailing.
+    timeout = None
+    return def debounce_inner():  # noqa: unused-local
+        nonlocal timeout
+        context, args = this, arguments
+        def later():
+            nonlocal timeout
+            timeout = None
+            if not immediate:
+                func.apply(context, args)
+        call_now = immediate and not timeout
+        window.clearTimeout(timeout)
+        timeout = window.setTimeout(later, wait)
+        if call_now:
+            func.apply(context, args)

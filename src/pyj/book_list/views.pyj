@@ -1,0 +1,102 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from dom import set_css
+from elementmaker import E
+
+bv_counter = 0
+THUMBNAIL_MAX_WIDTH = 300
+THUMBNAIL_MAX_HEIGHT = 400
+
+class BooksView:
+
+    def __init__(self, interface_data):
+        nonlocal bv_counter
+        bv_counter += 1
+        self.interface_data = interface_data
+        self.search_result = interface_data['search_result']
+        self.metadata_map = interface_data['metadata']
+        self.container_id = 'books-view-' + bv_counter
+        div = E.div(
+            id=self.container_id, style='display:none',
+            E.style(),
+            E.div(),
+            E.div(id='get-more-books')
+        )
+        document.body.appendChild(div)
+        self.render_book = bind(self.cover_grid_item, self)
+        self.init_grid = bind(self.init_cover_grid, self)
+        self.resize_grid = bind(self.resize_cover_grid, self)
+        self.mode = 'cover_grid'
+        self.init_grid()
+        self.render_ids()
+        self.resize_grid()
+        self.is_visible = True
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    @property
+    def grid(self):
+        return self.container.lastChild.previousSibling
+
+    @property
+    def is_visible(self):
+        self.container.style.display == 'block'
+
+    @is_visible.setter
+    def is_visible(self, val):
+        self.container.style.display = 'block' if val else 'none'
+
+    def clear(self):
+        # We replace the div entirely so that any styles associated with it are
+        # also removed
+        c = self.container
+        c.removeChild(self.grid)
+        c.insertBefore(E.div(), c.lastChild)
+        self.init_grid()
+
+    def init_cover_grid(self):
+        div = self.grid
+        set_css(div, display='flex', flex_wrap='wrap', justify_content='flex-start', align_items='flex-end', align_content='flex-start')
+        self.cover_grid_width = self.cover_grid_height = -1
+
+    def resize_cover_grid(self):
+        w, h = window.innerWidth, window.innerHeight
+        if w <= h:
+            # Portrait
+            MAX_WIDTH, MIN_WIDTH = THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_WIDTH // 2
+            no_wider_than = (w - 50) // 2
+            width = min(no_wider_than, MAX_WIDTH)
+            width = max(width, MIN_WIDTH)
+            height = int((4 / 3) * width)
+        else:
+            # Landscape
+            MAX_HEIGHT, MIN_HEIGHT = THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_HEIGHT // 2
+            no_taller_than = (h - 75) // 2
+            height = min(no_taller_than, MAX_HEIGHT)
+            height = max(height, MIN_HEIGHT)
+            width = int((3 / 4) * height)
+        width, height = width + 'px', height + 'px'
+        for child in self.grid.childNodes:
+            set_css(child, width=width, height=height)
+
+    def cover_grid_item(self, book_id):
+        cover_url = str.format('get/thumb/{}/{}?sz={}x{}', book_id, self.interface_data['library_id'], THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
+        return E.div(
+            style='margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around',
+            data_book_id=str(book_id),
+            E.img(src=cover_url, style='max-width: 100%; max-height: 100%; display: block; cursor: pointer; width:auto; height:auto')
+        )
+
+    def render_ids(self, book_ids=None):
+        if book_ids is None:
+            book_ids = self.search_result['book_ids']
+        div = self.grid
+        for book_id in book_ids:
+            div.appendChild(self.render_book(book_id))
+
+    def on_resize(self):
+        if self.resize_grid:
+            self.resize_grid()
