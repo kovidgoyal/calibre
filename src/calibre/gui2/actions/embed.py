@@ -53,7 +53,7 @@ class EmbedAction(InterfaceAction):
         self.embed_menu = self.qaction.menu()
         m = partial(self.create_menu_action, self.embed_menu)
         m('embed-specific',
-                _('Embed metadata into files of a specific format from selected books..'),
+                _('Embed metadata into files of a specific format from selected books...'),
                 triggered=self.embed_selected_formats)
         self.qaction.setMenu(self.embed_menu)
         self.pd_timer = t = QTimer()
