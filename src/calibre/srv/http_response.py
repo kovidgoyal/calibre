@@ -310,6 +310,8 @@ class StaticOutput(object):
 
 class HTTPConnection(HTTPRequest):
 
+    use_sendfile = False
+
     def write(self, buf, end=None):
         pos = buf.tell()
         if end is None:
