@@ -22,6 +22,13 @@ class DeviceDefaults(object):
                     'send_to': ['documents', 'books', 'kindle'],
                     }
                 ),
+                # B&N devices
+                ({'vendor':0x2080}, {
+                    'format_map': ['epub', 'pdf'],
+                    'send_to': ['NOOK', 'Calibre_Companion', 'Books',
+                    'eBooks/import', 'eBooks', 'sdcard/ebooks'],
+                    }
+                ),
         )
 
     def __call__(self, device, driver):
@@ -47,7 +54,10 @@ class DeviceDefaults(object):
                     matches = False
                     break
             if matches:
-                return rule[1]
+                ans = rule[1]
+                if vid == 0x2080 and pid == 0x000a:
+                    ans['calibre_file_paths'] = {'metadata':'NOOK/metadata.calibre', 'driveinfo':'NOOK/driveinfo.calibre'}
+                return ans
 
         return {}
 
