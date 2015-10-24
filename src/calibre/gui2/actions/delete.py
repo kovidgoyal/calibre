@@ -120,7 +120,7 @@ class DeleteAction(InterfaceAction):
         self.delete_menu = self.qaction.menu()
         m = partial(self.create_menu_action, self.delete_menu)
         m('delete-specific',
-                _('Remove files of a specific format from selected books..'),
+                _('Remove files of a specific format from selected books...'),
                 triggered=self.delete_selected_formats)
         m('delete-except',
                 _('Remove all formats from selected books, except...'),
