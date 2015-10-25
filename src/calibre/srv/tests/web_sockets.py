@@ -13,7 +13,7 @@ from hashlib import sha1
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.web_socket import (
     GUID_STR, BINARY, TEXT, MessageWriter, create_frame, CLOSE, NORMAL_CLOSE,
-    PING, PONG, PROTOCOL_ERROR)
+    PING, PONG, PROTOCOL_ERROR, CONTINUATION)
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
 
@@ -201,6 +201,8 @@ class WebSocketTest(BaseTest):
                 client.write_frame(**msg)
             else:
                 client.write_message(msg)
+        ordered = not isinstance(expected, (set, frozenset))
+        pexpected, replies = set(), set()
         for ex in expected:
             if isinstance(ex, type('')):
                 ex = TEXT, ex
@@ -208,7 +210,12 @@ class WebSocketTest(BaseTest):
                 ex = BINARY, ex
             elif isinstance(ex, int):
                 ex = ex, b''
-            self.ae(ex, client.read_message())
+            if ordered:
+                self.ae(ex, client.read_message())
+            else:
+                pexpected.add(ex), replies.add(client.read_message())
+        if not ordered:
+            self.ae(pexpected, replies)
         if send_close:
             client.write_close(close_code, close_reason)
         opcode, data = client.read_message()
@@ -235,6 +242,8 @@ class WebSocketTest(BaseTest):
             for payload in (b'', b'pong'):
                 simple_test([(PONG, payload)], [])
 
+            fragments = 'frag1 frag2'.split()
+
             with server.silence_log:
                 for rsv in xrange(1, 7):
                     simple_test([{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
@@ -246,13 +255,30 @@ class WebSocketTest(BaseTest):
                         {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
                     ], close_code=PROTOCOL_ERROR, send_close=False)
 
-                simple_test([{'opcode':0, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
+                for fin in (0, 1):
+                    simple_test([{'opcode':0, 'fin': fin, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
 
-            fragments = 'frag1 frag2'.split()
+                simple_test([
+                    {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}, {'opcode':0, 'fin':0}
+                ], [''.join(fragments)], close_code=PROTOCOL_ERROR, send_close=False)
+
+                simple_test([
+                    {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]},
+                ], close_code=PROTOCOL_ERROR, send_close=False)
+
             simple_test([
-                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]}
+                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}
             ], [''.join(fragments)])
 
             simple_test([
-                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, (PING, b'pong'), {'opcode':TEXT, 'payload':fragments[1]}
-            ], [(PONG, b'pong'), ''.join(fragments)])
+                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, (PING, b'pong'), {'opcode':CONTINUATION, 'payload':fragments[1]}
+            ], {(PONG, b'pong'), ''.join(fragments)})
+
+            fragments = '12345'
+            simple_test([
+                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1], 'fin':0},
+                (PING, b'1'),
+                {'opcode':CONTINUATION, 'payload':fragments[2], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[3], 'fin':0},
+                (PING, b'2'),
+                {'opcode':CONTINUATION, 'payload':fragments[4]}
+            ], {(PONG, b'1'), (PONG, b'2'), fragments})
