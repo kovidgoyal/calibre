@@ -64,6 +64,11 @@ class ReadFrame(object):  # {{{
             return
         b = ord(data)
         self.fin = b & 0b10000000
+        if b & 0b01110000:
+            conn.log.error('RSV bits set in frame from client')
+            conn.websocket_close(PROTOCOL_ERROR, 'RSV bits set')
+            return
+
         self.opcode = b & 0b1111
         self.state = self.read_header1
         if self.opcode not in ALL_CODES:
@@ -153,8 +158,8 @@ def create_frame(fin, opcode, payload, mask=None, rsv=0):
         payload = payload.encode('utf-8')
     l = len(payload)
     opcode &= 0b1111
-    b1 = opcode | (0b10000000 if fin else 0)
-    b2 = rsv | (0 if mask is None else 0b10000000)
+    b1 = opcode | (0b10000000 if fin else 0) | (rsv & 0b01110000)
+    b2 = 0 if mask is None else 0b10000000
     if l < 126:
         header = bytes(bytearray((b1, b2 | l)))
     elif 126 <= l <= 65535:

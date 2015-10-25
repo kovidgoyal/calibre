@@ -130,8 +130,8 @@ class WSClient(object):
                 break
             self.socket.sendall(frame.getvalue())
 
-    def write_frame(self, fin, opcode, payload=b'', rsv=0, mask=True):
-        frame = create_frame(fin, opcode, payload, rsv=rsv, mask=self.mask if mask else None)
+    def write_frame(self, fin=1, opcode=CLOSE, payload=b'', rsv=0, mask=True):
+        frame = create_frame(fin, opcode, payload, rsv=(rsv << 4), mask=self.mask if mask else None)
         self.socket.sendall(frame)
 
     def write_close(self, code, reason=b''):
@@ -196,7 +196,10 @@ class WebSocketTest(BaseTest):
 
     def simple_test(self, client, msgs, expected=(), close_code=NORMAL_CLOSE, send_close=True, close_reason=b'NORMAL CLOSE'):
         for msg in msgs:
-            client.write_message(msg)
+            if isinstance(msg, dict):
+                client.write_frame(**msg)
+            else:
+                client.write_message(msg)
         for ex in expected:
             if isinstance(ex, type('')):
                 ex = TEXT, ex
@@ -233,3 +236,11 @@ class WebSocketTest(BaseTest):
             for payload in (b'', b'pong'):
                 client = server.connect()
                 self.simple_test(client, [(PONG, payload)], [])
+
+            with server.silence_log:
+                for rsv in xrange(1, 7):
+                    client = server.connect()
+                    self.simple_test(client, [{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
+                for opcode in (3, 4, 5, 6, 7, 11, 12, 13, 14, 15):
+                    client = server.connect()
+                    self.simple_test(client, [{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
