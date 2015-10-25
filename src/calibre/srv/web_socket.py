@@ -317,16 +317,6 @@ class WebSocketConnection(HTTPConnection):
         message_starting = self.current_recv_opcode is None
         if message_starting:
             self.current_recv_opcode = opcode
-        else:
-            if opcode != CONTINUATION:
-                # This is a new message
-                try:
-                    self.handle_websocket_data('' if self.current_recv_opcode == TEXT else b'', False, True)
-                except Exception as err:
-                    self.log.exception('Error in WebSockets data handler:')
-                    self.websocket_close(UNEXPECTED_ERROR, 'Unexpected error in handler: %r' % as_unicode(err))
-                self.current_recv_opcode = opcode
-                message_starting = True
         message_finished = frame_finished and is_final_frame_of_message
         if message_finished:
             self.current_recv_opcode = None

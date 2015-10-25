@@ -251,3 +251,9 @@ class WebSocketTest(BaseTest):
                         {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
                     ], close_code=PROTOCOL_ERROR, send_close=False)
 
+            fragments = 'frag1 frag2'.split()
+            client = server.connect()
+            self.simple_test(client, [
+                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]}
+            ], [''.join(fragments)])
+
