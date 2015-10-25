@@ -11,7 +11,9 @@ from functools import partial
 from hashlib import sha1
 
 from calibre.srv.tests.base import BaseTest, TestServer
-from calibre.srv.web_socket import GUID_STR, BINARY, TEXT, MessageWriter, create_frame, CLOSE, NORMAL_CLOSE
+from calibre.srv.web_socket import (
+    GUID_STR, BINARY, TEXT, MessageWriter, create_frame, CLOSE, NORMAL_CLOSE,
+    PING, PONG, PROTOCOL_ERROR)
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
 
@@ -116,6 +118,11 @@ class WSClient(object):
         return opcode, ans
 
     def write_message(self, msg, chunk_size=None):
+        if isinstance(msg, tuple):
+            opcode, msg = msg
+            if isinstance(msg, type('')):
+                msg = msg.encode('utf-8')
+            return self.write_frame(1, opcode, msg)
         w = MessageWriter(msg, self.mask, chunk_size)
         while True:
             frame = w.create_frame()
@@ -187,7 +194,7 @@ class WSTestServer(TestServer):
 
 class WebSocketTest(BaseTest):
 
-    def simple_test(self, client, msgs, expected, close_code=NORMAL_CLOSE, send_close=True, close_reason=b'NORMAL CLOSE'):
+    def simple_test(self, client, msgs, expected=(), close_code=NORMAL_CLOSE, send_close=True, close_reason=b'NORMAL CLOSE'):
         for msg in msgs:
             client.write_message(msg)
         for ex in expected:
@@ -214,3 +221,15 @@ class WebSocketTest(BaseTest):
             for q in (b'', b'\xfe' * 125, b'\xfe' * 126, b'\xfe' * 127, b'\xfe' * 128, b'\xfe' * 65535, b'\xfe' * 65536):
                 client = server.connect()
                 self.simple_test(client, [q], [q])
+
+            for payload in ['', 'ping', b'\x00\xff\xfe\xfd\xfc\xfb\x00\xff', b"\xfe" * 125]:
+                client = server.connect()
+                self.simple_test(client, [(PING, payload)], [(PONG, payload)])
+
+            client = server.connect()
+            with server.silence_log:
+                self.simple_test(client, [(PING, 'a'*126)], close_code=PROTOCOL_ERROR, send_close=False)
+
+            for payload in (b'', b'pong'):
+                client = server.connect()
+                self.simple_test(client, [(PONG, payload)], [])
