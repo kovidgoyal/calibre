@@ -343,7 +343,6 @@ class HTTPConnection(HTTPRequest):
                 raise IOError('sendfile() failed to write any bytes to the socket')
         else:
             sent = self.send(buf.read(min(limit, self.send_bufsize)))
-            self.last_activity = monotonic()
         buf.seek(pos + sent)
         return buf.tell() == end
 
