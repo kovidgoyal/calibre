@@ -91,9 +91,9 @@ class WSClient(object):
             raise ValueError('Got a frame with mask bit set from the server')
         payload_length = b2 & 0b01111111
         if payload_length == 126:
-            payload_length = struct.unpack(b'!H', self.read_size(2))
+            payload_length = struct.unpack(b'!H', self.read_size(2))[0]
         elif payload_length == 127:
-            payload_length = struct.unpack(b'!Q', self.read_size(8))
+            payload_length = struct.unpack(b'!Q', self.read_size(8))[0]
         return Frame(fin, opcode, self.read_size(payload_length))
 
     def read_message(self):
@@ -182,7 +182,7 @@ class WSTestServer(TestServer):
     def ws_handler(self):
         return self.loop.handler.websocket_handler
 
-    def ws_connect(self):
+    def connect(self):
         return WSClient(self.address[1])
 
 class WebSocketTest(BaseTest):
@@ -208,6 +208,9 @@ class WebSocketTest(BaseTest):
         'Test basic interaction with the websocket server'
 
         with WSTestServer(EchoHandler) as server:
-            client = server.ws_connect()
-            st = partial(self.simple_test, client)
-            st([''], [''])
+            for q in ('', '*' * 125, '*' * 126, '*' * 127, '*' * 128, '*' * 65535, '*' * 65536):
+                client = server.connect()
+                self.simple_test(client, [q], [q])
+            for q in (b'', b'\xfe' * 125, b'\xfe' * 126, b'\xfe' * 127, b'\xfe' * 128, b'\xfe' * 65535, b'\xfe' * 65536):
+                client = server.connect()
+                self.simple_test(client, [q], [q])
