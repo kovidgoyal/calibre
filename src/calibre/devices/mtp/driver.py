@@ -143,12 +143,17 @@ class MTP_DEVICE(BASE):
         if self.is_mtp_device_connected:
             self.eject()
 
+    def put_calibre_file(self, storage, key, stream, size):
+        path = self.calibre_file_paths[key].split('/')
+        parent = self.ensure_parent(storage, path)
+        self.put_file(parent, path[-1], stream, size)
+
     # Device information {{{
     def _update_drive_info(self, storage, location_code, name=None):
         from calibre.utils.date import isoformat, now
         from calibre.utils.config import from_json, to_json
         import uuid
-        f = storage.find_path((self.calibre_file_paths['driveinfo'],))
+        f = storage.find_path(self.calibre_file_paths['driveinfo'].split('/'))
         dinfo = {}
         if f is not None:
             try:
@@ -170,7 +175,7 @@ class MTP_DEVICE(BASE):
         dinfo['date_last_connected'] = isoformat(now())
         dinfo['mtp_prefix'] = storage.storage_prefix
         raw = json.dumps(dinfo, default=to_json)
-        self.put_file(storage, self.calibre_file_paths['driveinfo'], BytesIO(raw), len(raw))
+        self.put_calibre_file(storage, 'driveinfo', BytesIO(raw), len(raw))
         self.driveinfo[location_code] = dinfo
 
     def get_driveinfo(self):
@@ -225,7 +230,7 @@ class MTP_DEVICE(BASE):
         self.report_progress(0, _('Reading ebook metadata'))
         # Read the cache if it exists
         storage = self.filesystem_cache.storage(sid)
-        cache = storage.find_path((self.calibre_file_paths['metadata'],))
+        cache = storage.find_path(self.calibre_file_paths['metadata'].split('/'))
         if cache is not None:
             json_codec = JSONCodec()
             try:
@@ -301,7 +306,7 @@ class MTP_DEVICE(BASE):
         json_codec.encode_to_file(stream, bl)
         size = stream.tell()
         stream.seek(0)
-        self.put_file(storage, self.calibre_file_paths['metadata'], stream, size)
+        self.put_calibre_file(storage, 'metadata', stream, size)
 
     def sync_booklists(self, booklists, end_session=True):
         debug('sync_booklists() called')
