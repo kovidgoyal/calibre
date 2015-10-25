@@ -282,3 +282,8 @@ class WebSocketTest(BaseTest):
                 (PING, b'2'),
                 {'opcode':CONTINUATION, 'payload':fragments[4]}
             ], {(PONG, b'1'), (PONG, b'2'), fragments})
+
+            simple_test([
+                {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0}, {'opcode':CONTINUATION},], [''])
+            simple_test([
+                {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0, 'payload':'x'}, {'opcode':CONTINUATION},], ['x'])
