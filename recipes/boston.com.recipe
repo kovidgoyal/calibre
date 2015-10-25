@@ -193,6 +193,7 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                 if (hedCat):
                     category = self.tag_to_string(hedCat)
 
+                author = ''
                 authorHeader = excerpt.find("h4", "author")
                 if (authorHeader):
                     author = self.tag_to_string(authorHeader)
