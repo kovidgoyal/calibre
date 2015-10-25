@@ -86,6 +86,7 @@ class TestServer(Thread):
             log=ServerLog(level=ServerLog.WARN),
         )
         self.log = self.loop.log
+        self.silence_log = self.log
         specialize(self)
 
     def setup_defaults(self, kwargs):

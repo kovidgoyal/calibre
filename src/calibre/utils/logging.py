@@ -159,6 +159,13 @@ class Log(object):
     def __call__(self, *args, **kwargs):
         self.prints(INFO, *args, **kwargs)
 
+    def __enter__(self):
+        self.orig_filter_level = self.filter_level
+        self.filter_level = self.ERROR + 100
+
+    def __exit__(self, *args):
+        self.filter_level = self.orig_filter_level
+
 class DevNull(Log):
 
     def __init__(self):
