@@ -316,6 +316,10 @@ class WebSocketConnection(HTTPConnection):
 
         message_starting = self.current_recv_opcode is None
         if message_starting:
+            if opcode == CONTINUATION:
+                self.log.error('Client sent continuation frame with no message to continue')
+                self.websocket_close(PROTOCOL_ERROR, 'Continuation frame without any message to continue')
+                return
             self.current_recv_opcode = opcode
         message_finished = frame_finished and is_final_frame_of_message
         if message_finished:

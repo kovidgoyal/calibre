@@ -251,9 +251,16 @@ class WebSocketTest(BaseTest):
                         {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
                     ], close_code=PROTOCOL_ERROR, send_close=False)
 
+                client = server.connect()
+                self.simple_test(client, [{'opcode':0, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
+
             fragments = 'frag1 frag2'.split()
             client = server.connect()
             self.simple_test(client, [
                 {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]}
             ], [''.join(fragments)])
 
+            client = server.connect()
+            self.simple_test(client, [
+                {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, (PING, b'pong'), {'opcode':TEXT, 'payload':fragments[1]}
+            ], [(PONG, b'pong'), ''.join(fragments)])
