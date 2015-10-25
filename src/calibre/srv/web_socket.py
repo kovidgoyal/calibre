@@ -116,6 +116,9 @@ class ReadFrame(object):  # {{{
         self.state = self.read_payload
         self.pos = 0
         self.frame_starting = True
+        if self.payload_length == 0:
+            conn.ws_data_received(b'', self.opcode, True, True, bool(self.fin))
+            self.state = None
 
     def read_payload(self, conn):
         bytes_left = self.payload_length - self.pos
@@ -133,13 +136,13 @@ class ReadFrame(object):  # {{{
 
 # Sending frames {{{
 
-def create_frame(fin, opcode, payload, mask=None):
+def create_frame(fin, opcode, payload, mask=None, rsv=0):
     if isinstance(payload, type('')):
         payload = payload.encode('utf-8')
     l = len(payload)
     opcode &= 0b1111
     b1 = opcode | (0b10000000 if fin else 0)
-    b2 = 0 if mask is None else 0b10000000
+    b2 = rsv | (0 if mask is None else 0b10000000)
     if l < 126:
         header = bytes(bytearray((b1, b2 | l)))
     elif 126 <= l <= 65535:
@@ -159,13 +162,14 @@ def create_frame(fin, opcode, payload, mask=None):
 
 class MessageWriter(object):
 
-    def __init__(self, buf):
-        self.buf, self.data_type = buf, BINARY
+    def __init__(self, buf, mask=None, chunk_size=None):
+        self.buf, self.data_type, self.mask = buf, BINARY, mask
         if isinstance(buf, type('')):
             self.buf, self.data_type = BytesIO(buf.encode('utf-8')), TEXT
         elif isinstance(buf, bytes):
             self.buf = BytesIO(buf)
         buf = self.buf
+        self.chunk_size = chunk_size or SEND_CHUNK_SIZE
         try:
             pos = buf.tell()
             buf.seek(0, os.SEEK_END)
@@ -179,12 +183,12 @@ class MessageWriter(object):
         if self.exhausted:
             return None
         buf = self.buf
-        raw = buf.read(SEND_CHUNK_SIZE)
+        raw = buf.read(self.chunk_size)
         has_more = True if self.size is None else self.size > buf.tell()
         fin = 0 if has_more and raw else 1
         opcode = 0 if self.first_frame_created else self.data_type
         self.first_frame_created, self.exhausted = True, bool(fin)
-        return BytesIO(create_frame(fin, opcode, raw))
+        return BytesIO(create_frame(fin, opcode, raw, self.mask))
 # }}}
 
 conn_id = 0
