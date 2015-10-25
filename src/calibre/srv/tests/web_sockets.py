@@ -194,7 +194,8 @@ class WSTestServer(TestServer):
 
 class WebSocketTest(BaseTest):
 
-    def simple_test(self, client, msgs, expected=(), close_code=NORMAL_CLOSE, send_close=True, close_reason=b'NORMAL CLOSE'):
+    def simple_test(self, server, msgs, expected=(), close_code=NORMAL_CLOSE, send_close=True, close_reason=b'NORMAL CLOSE'):
+        client = server.connect()
         for msg in msgs:
             if isinstance(msg, dict):
                 client.write_frame(**msg)
@@ -218,49 +219,40 @@ class WebSocketTest(BaseTest):
         'Test basic interaction with the websocket server'
 
         with WSTestServer(EchoHandler) as server:
+            simple_test = partial(self.simple_test, server)
+
             for q in ('', '*' * 125, '*' * 126, '*' * 127, '*' * 128, '*' * 65535, '*' * 65536):
-                client = server.connect()
-                self.simple_test(client, [q], [q])
+                simple_test([q], [q])
             for q in (b'', b'\xfe' * 125, b'\xfe' * 126, b'\xfe' * 127, b'\xfe' * 128, b'\xfe' * 65535, b'\xfe' * 65536):
-                client = server.connect()
-                self.simple_test(client, [q], [q])
+                simple_test([q], [q])
 
             for payload in ['', 'ping', b'\x00\xff\xfe\xfd\xfc\xfb\x00\xff', b"\xfe" * 125]:
-                client = server.connect()
-                self.simple_test(client, [(PING, payload)], [(PONG, payload)])
+                simple_test([(PING, payload)], [(PONG, payload)])
 
-            client = server.connect()
             with server.silence_log:
-                self.simple_test(client, [(PING, 'a'*126)], close_code=PROTOCOL_ERROR, send_close=False)
+                simple_test([(PING, 'a'*126)], close_code=PROTOCOL_ERROR, send_close=False)
 
             for payload in (b'', b'pong'):
-                client = server.connect()
-                self.simple_test(client, [(PONG, payload)], [])
+                simple_test([(PONG, payload)], [])
 
             with server.silence_log:
                 for rsv in xrange(1, 7):
-                    client = server.connect()
-                    self.simple_test(client, [{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
+                    simple_test([{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
                 for opcode in (3, 4, 5, 6, 7, 11, 12, 13, 14, 15):
-                    client = server.connect()
-                    self.simple_test(client, [{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
+                    simple_test([{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
 
                 for opcode in (PING, PONG):
-                    client = server.connect()
-                    self.simple_test(client, [
+                    simple_test([
                         {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
                     ], close_code=PROTOCOL_ERROR, send_close=False)
 
-                client = server.connect()
-                self.simple_test(client, [{'opcode':0, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
+                simple_test([{'opcode':0, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
 
             fragments = 'frag1 frag2'.split()
-            client = server.connect()
-            self.simple_test(client, [
+            simple_test([
                 {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]}
             ], [''.join(fragments)])
 
-            client = server.connect()
-            self.simple_test(client, [
+            simple_test([
                 {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, (PING, b'pong'), {'opcode':TEXT, 'payload':fragments[1]}
             ], [(PONG, b'pong'), ''.join(fragments)])
