@@ -244,3 +244,10 @@ class WebSocketTest(BaseTest):
                 for opcode in (3, 4, 5, 6, 7, 11, 12, 13, 14, 15):
                     client = server.connect()
                     self.simple_test(client, [{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
+
+                for opcode in (PING, PONG):
+                    client = server.connect()
+                    self.simple_test(client, [
+                        {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
+                    ], close_code=PROTOCOL_ERROR, send_close=False)
+
