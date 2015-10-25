@@ -105,6 +105,7 @@ comma_separated_headers = {
 
 decoded_headers = {
     'Transfer-Encoding', 'Connection', 'Keep-Alive', 'Expect', 'WWW-Authenticate', 'Authorization',
+    'Sec-WebSocket-Key', 'Sec-WebSocket-Version', 'Sec-WebSocket-Protocol',
 } | comma_separated_headers
 
 uppercase_headers = {'WWW', 'TE'}
@@ -114,6 +115,8 @@ def normalize_header_name(name):
     q = parts[0].upper()
     if q in uppercase_headers:
         parts[0] = q
+    if len(parts) == 3 and parts[1] == 'Websocket':
+        parts[1] = 'WebSocket'
     return '-'.join(parts)
 
 class HTTPHeaderParser(object):

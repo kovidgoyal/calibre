@@ -117,8 +117,8 @@ class ReadBuffer(object):  # {{{
 
 class Connection(object):  # {{{
 
-    def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log):
-        self.opts, self.pool, self.log = opts, pool, log
+    def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, wakeup):
+        self.opts, self.pool, self.log, self.wakeup = opts, pool, log, wakeup
         try:
             self.remote_addr = addr[0]
             self.remote_port = addr[1]
@@ -286,7 +286,7 @@ class ServerLoop(object):
         self.opts = opts or Options()
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
 
-        ba = (opts.listen_on, int(opts.port))
+        ba = (self.opts.listen_on, int(self.opts.port))
         if not ba[0]:
             # AI_PASSIVE does not work with host of '' or None
             ba = ('0.0.0.0', ba[1])
@@ -532,7 +532,7 @@ class ServerLoop(object):
                 if sock is not None:
                     s = sock.fileno()
                     if s > -1:
-                        self.connection_map[s] = conn = self.handler(sock, self.opts, self.ssl_context, self.tdir, addr, self.pool, self.log)
+                        self.connection_map[s] = conn = self.handler(sock, self.opts, self.ssl_context, self.tdir, addr, self.pool, self.log, self.wakeup)
                         if self.ssl_context is not None:
                             yield s, conn, RDWR
             elif s == control:

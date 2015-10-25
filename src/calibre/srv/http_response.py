@@ -621,13 +621,19 @@ class HTTPConnection(HTTPRequest):
             request.status_code = httplib.PARTIAL_CONTENT
         return output
 
-def create_http_handler(handler):
+def create_http_handler(handler=None, websocket_handler=None):
+    from calibre.srv.web_socket import WebSocketConnection
     static_cache = {}
     translator_cache = {}
+    if handler is None:
+        def dummy_http_handler(data):
+            return 'Hello'
+        handler = dummy_http_handler
     @wraps(handler)
     def wrapper(*args, **kwargs):
-        ans = HTTPConnection(*args, **kwargs)
+        ans = WebSocketConnection(*args, **kwargs)
         ans.request_handler = handler
+        ans.websocket_handler = websocket_handler
         ans.static_cache = static_cache
         ans.translator_cache = translator_cache
         return ans
