@@ -150,9 +150,9 @@ class ReadFrame(object):  # {{{
             data = conn.recv(min(bytes_left, CHUNK_SIZE))
             if not data:
                 return
+            data = fast_mask(data, self.mask_buf, self.pos)
         else:
             data = b''
-        data = fast_mask(data, self.mask_buf, self.pos)
         self.pos += len(data)
         frame_finished = self.pos >= self.payload_length
         conn.ws_data_received(data, self.opcode, self.frame_starting, frame_finished, self.fin)
@@ -330,7 +330,7 @@ class WebSocketConnection(HTTPConnection):
                 self.frag_decoder.reset()
             try:
                 data = self.frag_decoder.decode(data, final=message_finished)
-            except ValueError:
+            except UnicodeDecodeError:
                 self.frag_decoder.reset()
                 self.log.error('Client sent undecodeable UTF-8')
                 return self.websocket_close(INCONSISTENT_DATA, 'Not valid UTF-8')
