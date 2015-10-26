@@ -48,6 +48,8 @@ POLICY_VIOLATION = 1008
 MESSAGE_TOO_BIG = 1009
 UNEXPECTED_ERROR = 1011
 
+RESERVED_CLOSE_CODES = (1004,1005,1006,)
+
 class ReadFrame(object):  # {{{
 
     def __init__(self):
@@ -93,9 +95,9 @@ class ReadFrame(object):  # {{{
             self.reset()
             return
         self.payload_length = b & 0b01111111
-        if self.opcode in (PING, PONG) and self.payload_length > 125:
-            conn.log.error('Too large ping packet from client')
-            conn.websocket_close(PROTOCOL_ERROR, 'Ping packet too large')
+        if self.opcode in CONTROL_CODES and self.payload_length > 125:
+            conn.log.error('Too large control frame from client')
+            conn.websocket_close(PROTOCOL_ERROR, 'Control frame too large')
             self.reset()
             return
         self.mask_buf = b''
@@ -347,13 +349,29 @@ class WebSocketConnection(HTTPConnection):
     def ws_control_frame(self, opcode, data):
         if opcode in (PING, CLOSE):
             rcode = PONG if opcode == PING else CLOSE
+            if opcode == CLOSE:
+                self.ws_close_received = True
+                self.stop_reading = True
+                if data:
+                    try:
+                        close_code = struct.unpack_from(b'!H', data)[0]
+                    except struct.error:
+                        data = struct.pack(b'!H', PROTOCOL_ERROR) + b'close frame data must be atleast two bytes'
+                    else:
+                        try:
+                            data[2:].decode('utf-8')
+                        except UnicodeDecodeError:
+                            data = struct.pack(b'!H', PROTOCOL_ERROR) + b'close frame data must be valid UTF-8'
+                        else:
+                            if close_code < 1000 or close_code in RESERVED_CLOSE_CODES or (1011 < close_code < 3000):
+                                data = struct.pack(b'!H', PROTOCOL_ERROR) + b'close code reserved'
+                else:
+                    close_code = NORMAL_CLOSE
+                    data = struct.pack(b'!H', close_code)
             f = BytesIO(create_frame(1, rcode, data))
             f.is_close_frame = opcode == CLOSE
             with self.cf_lock:
                 self.control_frames.append(f)
-            if opcode == CLOSE:
-                self.ws_close_received = True
-                self.stop_reading = True
         self.set_ws_state()
 
     def websocket_close(self, code=NORMAL_CLOSE, reason=b''):

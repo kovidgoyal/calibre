@@ -13,7 +13,7 @@ from hashlib import sha1
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.web_socket import (
     GUID_STR, BINARY, TEXT, MessageWriter, create_frame, CLOSE, NORMAL_CLOSE,
-    PING, PONG, PROTOCOL_ERROR, CONTINUATION)
+    PING, PONG, PROTOCOL_ERROR, CONTINUATION, INCONSISTENT_DATA)
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
 
@@ -243,6 +243,7 @@ class WebSocketTest(BaseTest):
                 simple_test([(PONG, payload)], [])
 
             fragments = 'Hello-µ@ßöä üàá-UTF-8!!'.split()
+            nc = struct.pack(b'!H', NORMAL_CLOSE)
 
             with server.silence_log:
                 for rsv in xrange(1, 7):
@@ -254,6 +255,7 @@ class WebSocketTest(BaseTest):
                     simple_test([
                         {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
                     ], close_code=PROTOCOL_ERROR, send_close=False)
+                simple_test([(CLOSE, nc + b'x'*124)], send_close=False, close_code=PROTOCOL_ERROR)
 
                 for fin in (0, 1):
                     simple_test([{'opcode':0, 'fin': fin, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
@@ -265,6 +267,16 @@ class WebSocketTest(BaseTest):
                 simple_test([
                     {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]},
                 ], close_code=PROTOCOL_ERROR, send_close=False)
+
+                frags = []
+                for payload in (b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', b'\xed\xa0\x80', b'\x80\x65\x64\x69\x74\x65\x64'):
+                    frags.append({'opcode':(CONTINUATION if frags else TEXT), 'fin':1 if len(frags) == 2 else 0, 'payload':payload})
+                simple_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
+
+                frags, q = [], b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5\xed\xa0\x80\x80\x65\x64\x69\x74\x65\x64'
+                for i, b in enumerate(q):
+                    frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
+                simple_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
 
             simple_test([
                 {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}
@@ -288,9 +300,21 @@ class WebSocketTest(BaseTest):
             simple_test([
                 {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0, 'payload':'x'}, {'opcode':CONTINUATION},], ['x'])
 
-            byte_data = "Hello-µ@ßöäüàá-UTF-8!!".encode('utf-8')
-            frags = []
-            for i, b in enumerate(byte_data):
-                frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(byte_data)-1 else 0, 'payload':b})
-            simple_test(frags, [byte_data.decode('utf-8')])
+            for q in (b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5',  "Hello-µ@ßöäüàá-UTF-8!!".encode('utf-8')):
+                frags = []
+                for i, b in enumerate(q):
+                    frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
+                simple_test(frags, [q.decode('utf-8')])
 
+            simple_test([(CLOSE, nc), (CLOSE, b'\x01\x01')], send_close=False)
+            simple_test([(CLOSE, nc), (PING, b'ping')], send_close=False)
+            simple_test([(CLOSE, nc), 'xxx'], send_close=False)
+            simple_test([{'opcode':TEXT, 'payload':'xxx', 'fin':0}, (CLOSE, nc), {'opcode':CONTINUATION, 'payload':'yyy'}], send_close=False)
+            simple_test([(CLOSE, b'')], send_close=False)
+            simple_test([(CLOSE, b'\x01')], send_close=False, close_code=PROTOCOL_ERROR)
+            simple_test([(CLOSE, nc + b'x'*123)], send_close=False)
+            simple_test([(CLOSE, nc + b'a\x80\x80')], send_close=False, close_code=PROTOCOL_ERROR)
+            for code in (1000,1001,1002,1003,1007,1008,1009,1010,1011,3000,3999,4000,4999):
+                simple_test([(CLOSE, struct.pack(b'!H', code))], send_close=False, close_code=code)
+            for code in (0,999,1004,1005,1006,1012,1013,1014,1015,1016,1100,2000,2999):
+                simple_test([(CLOSE, struct.pack(b'!H', code))], send_close=False, close_code=PROTOCOL_ERROR)
