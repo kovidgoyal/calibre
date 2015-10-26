@@ -217,6 +217,23 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
     return ret;
 }
 
+static PyObject*
+speedup_websocket_mask(PyObject *self, PyObject *args) {
+	PyObject *data = NULL, *mask = NULL, *ans = NULL;
+	Py_ssize_t offset_ = 0;
+	size_t offset = 0, i = 0;
+	char *data_buf = NULL, *mask_buf = NULL, *ans_buf = NULL;
+    if(!PyArg_ParseTuple(args, "OO|n", &data, &mask, &offset)) return NULL;
+	offset = (size_t)offset_;
+	ans = PyBytes_FromStringAndSize(NULL, PyBytes_GET_SIZE(data));
+	if (ans != NULL) {
+		data_buf = PyBytes_AS_STRING(data); mask_buf = PyBytes_AS_STRING(mask); ans_buf = PyBytes_AS_STRING(ans);
+		for(i = 0; i < PyBytes_GET_SIZE(ans); i++)
+			ans_buf[i] = data_buf[i] ^ mask_buf[(i + offset) & 3];
+	}
+	return ans;
+}
+
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
         "parse_date()\n\nParse ISO dates faster."
@@ -242,6 +259,10 @@ static PyMethodDef speedup_methods[] = {
 
     {"fdopen", speedup_fdopen, METH_VARARGS,
         "fdopen(fd, name, mode [, bufsize=-1)\n\nCreate a python file object from an OS file descriptor with a name. Note that this does not do any validation of mode, so you must ensure fd already has the correct flags set."
+    },
+
+    {"websocket_mask", speedup_websocket_mask, METH_VARARGS,
+        "websocket_mask(data, mask [, offset=0)\n\nXOR the data (bytestring) with the specified (must be 4-byte bytestring) mask"
     },
 
     {NULL, NULL, 0, NULL}

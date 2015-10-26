@@ -15,9 +15,15 @@ from Queue import Queue, Empty
 from threading import Lock, Thread
 
 from calibre import as_unicode
+from calibre.constants import plugins
 from calibre.srv.loop import ServerLoop, HandleInterrupt, WRITE, READ, RDWR, Connection
 from calibre.srv.http_response import HTTPConnection, create_http_handler
 from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
+speedup, err = plugins['speedup']
+if not speedup:
+    raise RuntimeError('Failed to load speedup module with error: ' + err)
+fast_mask = speedup.websocket_mask
+del speedup, err
 
 HANDSHAKE_STR = (
     "HTTP/1.1 101 Switching Protocols\r\n"
@@ -131,8 +137,6 @@ class ReadFrame(object):  # {{{
         self.mask_buf += data
         if len(self.mask_buf) < 4:
             return
-        self.mask = bytearray(self.mask_buf)
-        del self.mask_buf
         self.state = self.read_payload
         self.pos = 0
         self.frame_starting = True
@@ -148,10 +152,7 @@ class ReadFrame(object):  # {{{
                 return
         else:
             data = b''
-        data = bytearray(data)
-        for i in xrange(len(data)):
-            data[i] ^= self.mask[(self.pos + i) & 3]
-        data = bytes(data)
+        data = fast_mask(data, self.mask_buf, self.pos)
         self.pos += len(data)
         frame_finished = self.pos >= self.payload_length
         conn.ws_data_received(data, self.opcode, self.frame_starting, frame_finished, self.fin)
@@ -177,11 +178,7 @@ def create_frame(fin, opcode, payload, mask=None, rsv=0):
         header = bytes(bytearray((b1, b2 | 127))) + struct.pack(b'!Q', l)
     if mask is not None:
         header += mask
-        mask = bytearray(mask)
-        payload = bytearray(payload)
-        for i in xrange(len(payload)):
-            payload[i] ^= mask[i & 3]
-        payload = bytes(payload)
+        payload = fast_mask(payload, mask)
 
     return header + payload
 

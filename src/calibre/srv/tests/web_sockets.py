@@ -318,3 +318,11 @@ class WebSocketTest(BaseTest):
                 simple_test([(CLOSE, struct.pack(b'!H', code))], send_close=False, close_code=code)
             for code in (0,999,1004,1005,1006,1012,1013,1014,1015,1016,1100,2000,2999):
                 simple_test([(CLOSE, struct.pack(b'!H', code))], send_close=False, close_code=PROTOCOL_ERROR)
+
+    def test_websocket_perf(self):
+        with WSTestServer(EchoHandler) as server:
+            simple_test = partial(self.simple_test, server)
+            for sz in (64, 256, 1024, 4096, 8192, 16384):
+                sz *= 1024
+                t, b = 'a'*sz, b'a'*sz
+                simple_test([t, b], [t, b])
