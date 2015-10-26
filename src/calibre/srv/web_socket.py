@@ -414,7 +414,7 @@ class WebSocketConnection(HTTPConnection):
                 self.log.exception('Error in WebSocket close handler')
             # Try to write a close frame, just once
             try:
-                if self.send_buf is None:
+                if self.send_buf is None and not self.ws_close_sent:
                     self.websocket_close(SHUTTING_DOWN, 'Shutting down')
                     with self.cf_lock:
                         self.write(self.control_frames.pop())
