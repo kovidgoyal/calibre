@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-import codecs, httplib, struct, os, weakref, repr as reprlib, socket
+import codecs, httplib, struct, os, weakref, socket
 from base64 import standard_b64encode
 from collections import deque
 from functools import partial
@@ -454,6 +454,10 @@ class DummyHandler(object):
         pass
 
 # Testing {{{
+
+# Run this file with calibre-debug and use wstest to run the Autobahn test
+# suite
+
 class EchoClientHandler(object):
 
     def __init__(self, *args, **kwargs):
@@ -477,7 +481,7 @@ class EchoClientHandler(object):
             j = '' if isinstance(self.msg_buf[0], type('')) else b''
             msg = j.join(self.msg_buf)
             self.msg_buf = []
-            print('Received message from client:', reprlib.repr(msg))
+            # print('Received message from client:', reprlib.repr(msg))
             self.conn(connection_id).send_websocket_message(msg)
 
     def handle_websocket_close(self, connection_id):
