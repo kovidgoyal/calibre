@@ -15,11 +15,11 @@
 
 #ifdef _MSC_VER
 #ifndef uint32_t
-#define unsigned __int32 uint32_t;
+typedef unsigned __int32 uint32_t;
 #endif
 
 #ifndef uint8_t
-#define unsigned char uint8_t;
+typedef unsigned __int8 uint8_t;
 #endif
 #else
 #include <stdint.h>
@@ -240,7 +240,7 @@ speedup_websocket_mask(PyObject *self, PyObject *args) {
 	ans = PyBytes_FromStringAndSize(NULL, PyBytes_GET_SIZE(data));
 	if (ans != NULL) {
 		data_buf = PyBytes_AS_STRING(data); mask_buf = PyBytes_AS_STRING(mask); ans_buf = PyBytes_AS_STRING(ans);
-		for(i = 0; i < PyBytes_GET_SIZE(ans); i++)
+		for(i = 0; i < (size_t)PyBytes_GET_SIZE(ans); i++)
 			ans_buf[i] = data_buf[i] ^ mask_buf[(i + offset) & 3];
 	}
 	return ans;
@@ -270,7 +270,11 @@ static const uint8_t utf8d[] = {
   1,3,1,1,1,1,1,3,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // s7..s8
 };
 
+#ifdef _MSC_VER
+static void __inline
+#else
 static void inline
+#endif
 utf8_decode_(uint32_t* state, uint32_t* codep, uint8_t byte) {
   /* Comes from http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ */
   uint32_t type = utf8d[byte];
@@ -288,13 +292,13 @@ utf8_decode(PyObject *self, PyObject *args) {
 	PyObject *data = NULL, *ans = NULL;
 	Py_ssize_t i = 0, pos = 0;
 	uint32_t *buf = NULL;
-	unsigned char *dbuf = NULL;
+	uint8_t *dbuf = NULL;
 
     if(!PyArg_ParseTuple(args, "O|II", &data, &state, &codep)) return NULL;
 
 	buf = (uint32_t*)PyMem_Malloc(sizeof(uint32_t) * PyBytes_GET_SIZE(data));
 	if (buf == NULL) return PyErr_NoMemory();
-	dbuf = (unsigned char*)PyBytes_AS_STRING(data);
+	dbuf = (uint8_t*)PyBytes_AS_STRING(data);
 
 	for (i = 0; i < PyBytes_GET_SIZE(data); i++) {
 		utf8_decode_(&state, &codep, dbuf[i]);
