@@ -246,10 +246,6 @@ speedup_websocket_mask(PyObject *self, PyObject *args) {
 	return ans;
 }
 
-#if PY_VERSION_HEX >= 0x03030000 
-#error Not implemented for python >= 3.3
-#endif
-
 #define UTF8_ACCEPT 0
 #define UTF8_REJECT 1
 
