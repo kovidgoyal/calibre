@@ -378,6 +378,11 @@ class WebSocketConnection(HTTPConnection):
             f.is_close_frame = opcode == CLOSE
             with self.cf_lock:
                 self.control_frames.append(f)
+        elif opcode == PONG:
+            try:
+                self.websocket_handler.handle_websocket_pong(self.websocket_connection_id, data)
+            except Exception:
+                self.log.exception('Error in PONG handler:')
         self.set_ws_state()
 
     def websocket_close(self, code=NORMAL_CLOSE, reason=b''):
@@ -452,12 +457,22 @@ class WebSocketConnection(HTTPConnection):
         with self.cf_lock:
             self.control_frames.append(BytesIO(frame))
 
+    def send_websocket_ping(self, data=b''):
+        ''' Send a PING to the remote client, it should reply with a PONG which
+        will be sent to the handle_websocket_pong callback in your handler. '''
+        if isinstance(data, type('')):
+            data = data.encode('utf-8')
+        frame = create_frame(True, PING, data)
+        with self.cf_lock:
+            self.control_frames.append(BytesIO(frame))
+
     def handle_websocket_data(self, data, message_starting, message_finished):
         ''' Called when some data is received from the remote client. In general the
         data may not constitute a complete "message", use the message_starting
         and message_finished flags to re-assemble it into a complete message in
         the handler. '''
-        self.websocket_handler.handle_websocket_data(data, message_starting, message_finished, self.websocket_connection_id)
+        self.websocket_handler.handle_websocket_data(self.websocket_connection_id, data, message_starting, message_finished)
+
 
 class DummyHandler(object):
 
@@ -465,7 +480,10 @@ class DummyHandler(object):
         conn = connection_ref()
         conn.websocket_close(NORMAL_CLOSE, 'No WebSocket handler available')
 
-    def handle_websocket_data(self, data, message_starting, message_finished, connection_id):
+    def handle_websocket_data(self, connection_id, data, message_starting, message_finished):
+        pass
+
+    def handle_websocket_pong(self, connection_id, data):
         pass
 
     def handle_websocket_close(self, connection_id):
@@ -490,8 +508,11 @@ class EchoHandler(object):
     def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders):
         self.ws_connections[connection_id] = connection_ref
 
-    def handle_websocket_data(self, data, message_starting, message_finished, connection_id):
+    def handle_websocket_data(self, connection_id, data, message_starting, message_finished):
         self.conn(connection_id).send_websocket_frame(data, message_starting, message_finished)
+
+    def handle_websocket_pong(self, connection_id, data):
+        pass
 
     def handle_websocket_close(self, connection_id):
         self.ws_connections.pop(connection_id, None)
