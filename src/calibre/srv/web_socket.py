@@ -226,6 +226,7 @@ conn_id = 0
 
 class WebSocketConnection(HTTPConnection):
 
+    # Internal API {{{
     in_websocket_mode = False
     websocket_handler = None
 
@@ -431,14 +432,31 @@ class WebSocketConnection(HTTPConnection):
             Connection.close(self)
         else:
             HTTPConnection.close(self)
+    # }}}
 
     def send_websocket_message(self, buf, wakeup=True):
+        ''' Send a complete message. This class will take care of splitting it
+        into appropriate frames automatically. `buf` must be a file like object. '''
         self.sendq.put(MessageWriter(buf))
         self.wait_for = RDWR
         if wakeup:
             self.wakeup()
 
+    def send_websocket_frame(self, data, is_first=True, is_last=True):
+        ''' Useful for streaming handlers that want to break up messages into
+        frames themselves. Note that these frames will be interleaved with
+        control frames, so they should not be too large. '''
+        opcode = (TEXT if isinstance(data, type('')) else BINARY) if is_first else CONTINUATION
+        fin = 1 if is_last else 0
+        frame = create_frame(fin, opcode, data)
+        with self.cf_lock:
+            self.control_frames.append(BytesIO(frame))
+
     def handle_websocket_data(self, data, message_starting, message_finished):
+        ''' Called when some data is received from the remote client. In general the
+        data may not constitute a complete "message", use the message_starting
+        and message_finished flags to re-assemble it into a complete message in
+        the handler. '''
         self.websocket_handler.handle_websocket_data(data, message_starting, message_finished, self.websocket_connection_id)
 
 class DummyHandler(object):
@@ -458,10 +476,9 @@ class DummyHandler(object):
 # Run this file with calibre-debug and use wstest to run the Autobahn test
 # suite
 
-class EchoClientHandler(object):
+class EchoHandler(object):
 
     def __init__(self, *args, **kwargs):
-        self.msg_buf = []
         self.ws_connections = {}
 
     def conn(self, cid):
@@ -474,21 +491,13 @@ class EchoClientHandler(object):
         self.ws_connections[connection_id] = connection_ref
 
     def handle_websocket_data(self, data, message_starting, message_finished, connection_id):
-        if message_starting:
-            self.msg_buf = []
-        self.msg_buf.append(data)
-        if message_finished:
-            j = '' if isinstance(self.msg_buf[0], type('')) else b''
-            msg = j.join(self.msg_buf)
-            self.msg_buf = []
-            # print('Received message from client:', reprlib.repr(msg))
-            self.conn(connection_id).send_websocket_message(msg)
+        self.conn(connection_id).send_websocket_frame(data, message_starting, message_finished)
 
     def handle_websocket_close(self, connection_id):
         self.ws_connections.pop(connection_id, None)
 
 if __name__ == '__main__':
-    s = ServerLoop(create_http_handler(websocket_handler=EchoClientHandler()))
+    s = ServerLoop(create_http_handler(websocket_handler=EchoHandler()))
     with HandleInterrupt(s.wakeup):
         s.serve_forever()
 # }}}

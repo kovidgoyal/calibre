@@ -13,7 +13,7 @@ from hashlib import sha1
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.srv.web_socket import (
     GUID_STR, BINARY, TEXT, MessageWriter, create_frame, CLOSE, NORMAL_CLOSE,
-    PING, PONG, PROTOCOL_ERROR, CONTINUATION, INCONSISTENT_DATA)
+    PING, PONG, PROTOCOL_ERROR, CONTINUATION, INCONSISTENT_DATA, CONTROL_CODES)
 from calibre.utils.monotonic import monotonic
 from calibre.utils.socket_inheritance import set_socket_inherit
 
@@ -80,13 +80,16 @@ class WSClient(object):
         while len(ans) < size:
             d = self.recv(size - len(ans))
             if not d:
-                raise ValueError('Connection to server closed, no data received')
+                return None
             ans += d
         return ans
 
     def read_frame(self):
-        b1, b2 = bytearray(self.read_size(2))
-        fin = b1 & 0b10000000
+        x = self.read_size(2)
+        if x is None:
+            return None
+        b1, b2 = bytearray(x)
+        fin = bool(b1 & 0b10000000)
         opcode = b1 & 0b1111
         masked = b2 & 0b10000000
         if masked:
@@ -98,24 +101,26 @@ class WSClient(object):
             payload_length = struct.unpack(b'!Q', self.read_size(8))[0]
         return Frame(fin, opcode, self.read_size(payload_length))
 
-    def read_message(self):
-        frames = []
+    def read_messages(self):
+        messages, control_frames = [], []
+        msg_buf, opcode = [], None
         while True:
             frame = self.read_frame()
-            frames.append(frame)
-            if frame.fin:
+            if frame is None or frame.payload is None:
                 break
-        ans, opcode = [], None
-        for frame in frames:
-            if frame is frames[0]:
-                opcode = frame.opcode
-                if frame.fin == 0 and frame.opcode not in (BINARY, TEXT):
-                    raise ValueError('Server sent a start frame with fin=0 and bad opcode')
-            ans.append(frame.payload)
-        ans = b''.join(ans)
-        if opcode == TEXT:
-            ans = ans.decode('utf-8')
-        return opcode, ans
+            if frame.opcode in CONTROL_CODES:
+                control_frames.append((frame.opcode, frame.payload))
+            else:
+                if opcode is None:
+                    opcode = frame.opcode
+                msg_buf.append(frame.payload)
+                if frame.fin:
+                    data = b''.join(msg_buf)
+                    if opcode == TEXT:
+                        data = data.decode('utf-8', 'replace')
+                    messages.append((opcode, data))
+                    msg_buf, opcode = [], None
+        return messages, control_frames
 
     def write_message(self, msg, chunk_size=None):
         if isinstance(msg, tuple):
@@ -140,47 +145,9 @@ class WSClient(object):
         self.write_frame(1, CLOSE, struct.pack(b'!H', code) + reason)
 
 
-class TestHandler(object):
-
-    def __init__(self):
-        self.connections = {}
-        self.connection_state = {}
-
-    def conn(self, cid):
-        ans = self.connections.get(cid)
-        if ans is not None:
-            ans = ans()
-        return ans
-
-    def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders):
-        self.connections[connection_id] = connection_ref
-
-    def handle_websocket_data(self, data, message_starting, message_finished, connection_id):
-        pass
-
-    def handle_websocket_close(self, connection_id):
-        self.connections.pop(connection_id, None)
-
-class EchoHandler(TestHandler):
-
-    def __init__(self):
-        TestHandler.__init__(self)
-        self.msg_buf = []
-
-    def handle_websocket_data(self, data, message_starting, message_finished, connection_id):
-        if message_starting:
-            self.msg_buf = []
-        self.msg_buf.append(data)
-        if message_finished:
-            j = '' if isinstance(self.msg_buf[0], type('')) else b''
-            msg = j.join(self.msg_buf)
-            self.msg_buf = []
-            self.conn(connection_id).send_websocket_message(msg, wakeup=False)
-
-
 class WSTestServer(TestServer):
 
-    def __init__(self, handler=TestHandler):
+    def __init__(self, handler):
         TestServer.__init__(self, None)
         from calibre.srv.http_response import create_http_handler
         self.loop.handler = create_http_handler(websocket_handler=handler())
@@ -201,8 +168,8 @@ class WebSocketTest(BaseTest):
                 client.write_frame(**msg)
             else:
                 client.write_message(msg)
-        ordered = not isinstance(expected, (set, frozenset))
-        pexpected, replies = set(), set()
+
+        expected_messages, expected_controls = [], []
         for ex in expected:
             if isinstance(ex, type('')):
                 ex = TEXT, ex
@@ -210,20 +177,22 @@ class WebSocketTest(BaseTest):
                 ex = BINARY, ex
             elif isinstance(ex, int):
                 ex = ex, b''
-            if ordered:
-                self.ae(ex, client.read_message())
+            if ex[0] in CONTROL_CODES:
+                expected_controls.append(ex)
             else:
-                pexpected.add(ex), replies.add(client.read_message())
-        if not ordered:
-            self.ae(pexpected, replies)
+                expected_messages.append(ex)
         if send_close:
             client.write_close(close_code, close_reason)
-        opcode, data = client.read_message()
-        self.ae(opcode, CLOSE)
-        self.ae(close_code, struct.unpack_from(b'!H', data, 0)[0])
+        messages, control_frames = client.read_messages()
+        self.ae(expected_messages, messages)
+        self.assertGreaterEqual(len(control_frames), 1)
+        self.ae(expected_controls, control_frames[:-1])
+        self.ae(control_frames[-1][0], CLOSE)
+        self.ae(close_code, struct.unpack_from(b'!H', control_frames[-1][1], 0)[0])
 
     def test_websocket_basic(self):
         'Test basic interaction with the websocket server'
+        from calibre.srv.web_socket import EchoHandler
 
         with WSTestServer(EchoHandler) as server:
             simple_test = partial(self.simple_test, server)
@@ -284,7 +253,7 @@ class WebSocketTest(BaseTest):
 
             simple_test([
                 {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, (PING, b'pong'), {'opcode':CONTINUATION, 'payload':fragments[1]}
-            ], {(PONG, b'pong'), ''.join(fragments)})
+            ], [(PONG, b'pong'), ''.join(fragments)])
 
             fragments = '12345'
             simple_test([
@@ -293,7 +262,7 @@ class WebSocketTest(BaseTest):
                 {'opcode':CONTINUATION, 'payload':fragments[2], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[3], 'fin':0},
                 (PING, b'2'),
                 {'opcode':CONTINUATION, 'payload':fragments[4]}
-            ], {(PONG, b'1'), (PONG, b'2'), fragments})
+            ], [(PONG, b'1'), (PONG, b'2'), fragments])
 
             simple_test([
                 {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0}, {'opcode':CONTINUATION},], [''])
@@ -320,6 +289,7 @@ class WebSocketTest(BaseTest):
                 simple_test([(CLOSE, struct.pack(b'!H', code))], send_close=False, close_code=PROTOCOL_ERROR)
 
     def test_websocket_perf(self):
+        from calibre.srv.web_socket import EchoHandler
         with WSTestServer(EchoHandler) as server:
             simple_test = partial(self.simple_test, server)
             for sz in (64, 256, 1024, 4096, 8192, 16384):
