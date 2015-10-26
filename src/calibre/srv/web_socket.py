@@ -5,14 +5,14 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-import codecs, httplib, struct, os, weakref, repr as reprlib, time, socket
+import codecs, httplib, struct, os, weakref, repr as reprlib, socket
 from base64 import standard_b64encode
 from collections import deque
 from functools import partial
 from hashlib import sha1
 from io import BytesIO
 from Queue import Queue, Empty
-from threading import Lock, Thread
+from threading import Lock
 
 from calibre import as_unicode
 from calibre.constants import plugins
@@ -471,58 +471,6 @@ class EchoClientHandler(object):
             self.msg_buf = []
             print('Received message from client:', reprlib.repr(msg))
             self.conn(connection_id).send_websocket_message(msg)
-
-    def handle_websocket_close(self, connection_id):
-        self.ws_connections.pop(connection_id, None)
-
-class EchoServerHandler(object):
-
-    def __init__(self, *args, **kwargs):
-        self.msg_buf = []
-        self.ws_connections = {}
-        t = Thread(name='StdinReader', target=self.get_input)
-        t.start()
-
-    def conn(self, cid):
-        ans = self.ws_connections.get(cid)
-        if ans is not None:
-            ans = ans()
-        return ans
-
-    def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders):
-        self.ws_connections[connection_id] = connection_ref
-
-    def handle_websocket_data(self, data, message_starting, message_finished, connection_id):
-        if message_starting:
-            self.msg_buf = []
-        self.msg_buf.append(data)
-        if message_finished:
-            j = '' if isinstance(self.msg_buf[0], type('')) else b''
-            msg = j.join(self.msg_buf)
-            self.msg_buf = []
-            print('Received message from client:', msg)
-
-    def get_input(self):
-        time.sleep(0.5)
-        try:
-            while True:
-                try:
-                    raw = raw_input('Enter some text: ')
-                    if not raw:
-                        break
-                    raw = raw.decode('utf-8')
-                    for conn in self.ws_connections.itervalues():
-                        conn = conn()
-                        if conn is not None:
-                            conn.send_websocket_message(raw)
-                except (EOFError, KeyboardInterrupt):
-                    break
-        finally:
-            for conn in self.ws_connections.itervalues():
-                conn = conn()
-                if conn is not None:
-                    conn.close()
-            print('\nUse Ctrl+C to exit server loop')
 
     def handle_websocket_close(self, connection_id):
         self.ws_connections.pop(connection_id, None)
