@@ -13,6 +13,18 @@
 #define CLAMP(value, lower, upper) ((value > upper) ? upper : ((value < lower) ? lower : value))
 #define STRIDE(width, r, c) ((width * (r)) + (c))
 
+#ifdef _MSC_VER
+#ifndef uint32_t
+#define unsigned __int32 uint32_t;
+#endif
+
+#ifndef uint8_t
+#define unsigned char uint8_t;
+#endif
+#else
+#include <stdint.h>
+#endif
+
 static PyObject *
 speedup_parse_date(PyObject *self, PyObject *args) {
     const char *raw, *orig, *tz;
@@ -234,6 +246,68 @@ speedup_websocket_mask(PyObject *self, PyObject *args) {
 	return ans;
 }
 
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+
+#define UTF8_ACCEPT 0
+#define UTF8_REJECT 1
+
+static const uint8_t utf8d[] = {
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 00..1f
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 20..3f
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 40..5f
+  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 60..7f
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9, // 80..9f
+  7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7, // a0..bf
+  8,8,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2, // c0..df
+  0xa,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x3,0x4,0x3,0x3, // e0..ef
+  0xb,0x6,0x6,0x6,0x5,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8,0x8, // f0..ff
+  0x0,0x1,0x2,0x3,0x5,0x8,0x7,0x1,0x1,0x1,0x4,0x6,0x1,0x1,0x1,0x1, // s0..s0
+  1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1,1,1,1,1, // s1..s2
+  1,2,1,1,1,1,1,2,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1, // s3..s4
+  1,2,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,3,1,1,1,1,1,1, // s5..s6
+  1,3,1,1,1,1,1,3,1,3,1,1,1,1,1,1,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1, // s7..s8
+};
+
+static void inline
+utf8_decode_(uint32_t* state, uint32_t* codep, uint8_t byte) {
+  /* Comes from http://bjoern.hoehrmann.de/utf-8/decoder/dfa/ */
+  uint32_t type = utf8d[byte];
+
+  *codep = (*state != UTF8_ACCEPT) ?
+    (byte & 0x3fu) | (*codep << 6) :
+    (0xff >> type) & (byte);
+
+  *state = utf8d[256 + *state*16 + type];
+}
+
+static PyObject*
+utf8_decode(PyObject *self, PyObject *args) {
+	uint32_t state = UTF8_ACCEPT, codep = 0;
+	PyObject *data = NULL, *ans = NULL;
+	Py_ssize_t i = 0, pos = 0;
+	uint32_t *buf = NULL;
+	unsigned char *dbuf = NULL;
+
+    if(!PyArg_ParseTuple(args, "O|II", &data, &state, &codep)) return NULL;
+
+	buf = (uint32_t*)PyMem_Malloc(sizeof(uint32_t) * PyBytes_GET_SIZE(data));
+	if (buf == NULL) return PyErr_NoMemory();
+	dbuf = (unsigned char*)PyBytes_AS_STRING(data);
+
+	for (i = 0; i < PyBytes_GET_SIZE(data); i++) {
+		utf8_decode_(&state, &codep, dbuf[i]);
+		if (state == UTF8_ACCEPT) buf[pos++] = codep;
+		else if (state == UTF8_REJECT) { PyErr_SetString(PyExc_ValueError, "Invalid byte in UTF-8 string"); goto error; }
+	}
+	ans = PyUnicode_DecodeUTF32((const char*)buf, pos * sizeof(uint32_t), "strict", NULL);
+error:
+	PyMem_Free(buf); buf = NULL;
+	if (ans == NULL) return ans;
+	return Py_BuildValue("NII", ans, state, codep);
+}
+
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
         "parse_date()\n\nParse ISO dates faster."
@@ -264,6 +338,10 @@ static PyMethodDef speedup_methods[] = {
     {"websocket_mask", speedup_websocket_mask, METH_VARARGS,
         "websocket_mask(data, mask [, offset=0)\n\nXOR the data (bytestring) with the specified (must be 4-byte bytestring) mask"
     },
+
+	{"utf8_decode", utf8_decode, METH_VARARGS,
+		"utf8_decode(data, [, state=0, codep=0)\n\nDecode an UTF-8 bytestring, using a strict UTF-8 decoder, that unlike python does not allow orphaned surrogates. Returns a unicode object and the state."
+	},
 
     {NULL, NULL, 0, NULL}
 };

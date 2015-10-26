@@ -247,6 +247,9 @@ class WebSocketTest(BaseTest):
                     frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
                 simple_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
 
+                for q in (b'\xce', b'\xce\xba\xe1'):
+                    simple_test([{'opcode':TEXT, 'payload':q}], close_code=INCONSISTENT_DATA, send_close=False)
+
             simple_test([
                 {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}
             ], [''.join(fragments)])
@@ -269,7 +272,7 @@ class WebSocketTest(BaseTest):
             simple_test([
                 {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0, 'payload':'x'}, {'opcode':CONTINUATION},], ['x'])
 
-            for q in (b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5',  "Hello-µ@ßöäüàá-UTF-8!!".encode('utf-8')):
+            for q in (b'\xc2\xb5', b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5',  "Hello-µ@ßöäüàá-UTF-8!!".encode('utf-8')):
                 frags = []
                 for i, b in enumerate(q):
                     frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})

@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-import codecs, httplib, struct, os, weakref, socket
+import httplib, struct, os, weakref, socket
 from base64 import standard_b64encode
 from collections import deque
 from functools import partial
@@ -22,7 +22,7 @@ from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
 speedup, err = plugins['speedup']
 if not speedup:
     raise RuntimeError('Failed to load speedup module with error: ' + err)
-fast_mask = speedup.websocket_mask
+fast_mask, utf8_decode = speedup.websocket_mask, speedup.utf8_decode
 del speedup, err
 
 HANDSHAKE_STR = (
@@ -224,6 +224,20 @@ class MessageWriter(object):
 
 conn_id = 0
 
+class UTF8Decoder(object):  # {{{
+
+    def __init__(self):
+        self.reset()
+
+    def __call__(self, data):
+        ans, self.state, self.codep = utf8_decode(data, self.state, self.codep)
+        return ans
+
+    def reset(self):
+        self.state = 0
+        self.codep = 0
+# }}}
+
 class WebSocketConnection(HTTPConnection):
 
     # Internal API {{{
@@ -238,7 +252,7 @@ class WebSocketConnection(HTTPConnection):
         self.cf_lock = Lock()
         self.sending = None
         self.send_buf = None
-        self.frag_decoder = codecs.getincrementaldecoder('utf-8')(errors='strict')
+        self.frag_decoder = UTF8Decoder()
         self.ws_close_received = self.ws_close_sent = False
         conn_id += 1
         self.websocket_connection_id = conn_id
@@ -337,12 +351,18 @@ class WebSocketConnection(HTTPConnection):
         if self.current_recv_opcode == TEXT:
             if message_starting:
                 self.frag_decoder.reset()
+            empty_data = not data
             try:
-                data = self.frag_decoder.decode(data, final=message_finished)
-            except UnicodeDecodeError:
+                data = self.frag_decoder(data)
+            except ValueError:
                 self.frag_decoder.reset()
                 self.log.error('Client sent undecodeable UTF-8')
                 return self.websocket_close(INCONSISTENT_DATA, 'Not valid UTF-8')
+            if message_finished:
+                if (not data and not empty_data) or self.frag_decoder.state:
+                    self.frag_decoder.reset()
+                    self.log.error('Client sent undecodeable UTF-8')
+                    return self.websocket_close(INCONSISTENT_DATA, 'Not valid UTF-8')
         if message_finished:
             self.current_recv_opcode = None
             self.frag_decoder.reset()
@@ -365,8 +385,8 @@ class WebSocketConnection(HTTPConnection):
                         data = struct.pack(b'!H', PROTOCOL_ERROR) + b'close frame data must be atleast two bytes'
                     else:
                         try:
-                            data[2:].decode('utf-8')
-                        except UnicodeDecodeError:
+                            utf8_decode(data[2:])
+                        except ValueError:
                             data = struct.pack(b'!H', PROTOCOL_ERROR) + b'close frame data must be valid UTF-8'
                         else:
                             if close_code < 1000 or close_code in RESERVED_CLOSE_CODES or (1011 < close_code < 3000):
