@@ -223,7 +223,7 @@ speedup_websocket_mask(PyObject *self, PyObject *args) {
 	Py_ssize_t offset_ = 0;
 	size_t offset = 0, i = 0;
 	char *data_buf = NULL, *mask_buf = NULL, *ans_buf = NULL;
-    if(!PyArg_ParseTuple(args, "OO|n", &data, &mask, &offset)) return NULL;
+    if(!PyArg_ParseTuple(args, "OO|n", &data, &mask, &offset_)) return NULL;
 	offset = (size_t)offset_;
 	ans = PyBytes_FromStringAndSize(NULL, PyBytes_GET_SIZE(data));
 	if (ans != NULL) {
