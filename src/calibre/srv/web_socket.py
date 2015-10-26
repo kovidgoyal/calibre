@@ -326,17 +326,17 @@ class WebSocketConnection(HTTPConnection):
             self.websocket_close(PROTOCOL_ERROR, 'Continuation frame with non-zero opcode')
             return
         message_finished = frame_finished and is_final_frame_of_message
-        if message_finished:
-            self.current_recv_opcode = None
-        if opcode == TEXT:
+        if self.current_recv_opcode == TEXT:
             if message_starting:
                 self.frag_decoder.reset()
             try:
                 data = self.frag_decoder.decode(data, final=message_finished)
             except ValueError:
                 self.frag_decoder.reset()
+                self.log.error('Client sent undecodeable UTF-8')
                 return self.websocket_close(INCONSISTENT_DATA, 'Not valid UTF-8')
         if message_finished:
+            self.current_recv_opcode = None
             self.frag_decoder.reset()
         try:
             self.handle_websocket_data(data, message_starting, message_finished)

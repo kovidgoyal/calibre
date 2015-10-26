@@ -228,7 +228,7 @@ class WebSocketTest(BaseTest):
         with WSTestServer(EchoHandler) as server:
             simple_test = partial(self.simple_test, server)
 
-            for q in ('', '*' * 125, '*' * 126, '*' * 127, '*' * 128, '*' * 65535, '*' * 65536):
+            for q in ('', '*' * 125, '*' * 126, '*' * 127, '*' * 128, '*' * 65535, '*' * 65536, "Hello-µ@ßöäüàá-UTF-8!!"):
                 simple_test([q], [q])
             for q in (b'', b'\xfe' * 125, b'\xfe' * 126, b'\xfe' * 127, b'\xfe' * 128, b'\xfe' * 65535, b'\xfe' * 65536):
                 simple_test([q], [q])
@@ -242,7 +242,7 @@ class WebSocketTest(BaseTest):
             for payload in (b'', b'pong'):
                 simple_test([(PONG, payload)], [])
 
-            fragments = 'frag1 frag2'.split()
+            fragments = 'Hello-µ@ßöä üàá-UTF-8!!'.split()
 
             with server.silence_log:
                 for rsv in xrange(1, 7):
@@ -287,3 +287,10 @@ class WebSocketTest(BaseTest):
                 {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0}, {'opcode':CONTINUATION},], [''])
             simple_test([
                 {'opcode':TEXT, 'fin':0}, {'opcode':CONTINUATION, 'fin':0, 'payload':'x'}, {'opcode':CONTINUATION},], ['x'])
+
+            byte_data = "Hello-µ@ßöäüàá-UTF-8!!".encode('utf-8')
+            frags = []
+            for i, b in enumerate(byte_data):
+                frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(byte_data)-1 else 0, 'payload':b})
+            simple_test(frags, [byte_data.decode('utf-8')])
+
