@@ -94,10 +94,12 @@ def extract_calibre_cover(raw, base, log):
         'font', 'br'])
     images = soup.findAll('img')
     if matches is None and len(images) == 1 and \
-            images[0].get('alt', '')=='cover':
+            images[0].get('alt', '').lower()=='cover':
         img = images[0]
         img = os.path.join(base, *img['src'].split('/'))
-        return_raster_image(img)
+        q = return_raster_image(img)
+        if q is not None:
+            return q
 
     # Look for a simple cover, i.e. a body with no text and only one <img> tag
     if matches is None:
@@ -110,7 +112,7 @@ def extract_calibre_cover(raw, base, log):
             images = body.findAll('img', src=True)
             if 0 < len(images) < 2:
                 img = os.path.join(base, *images[0]['src'].split('/'))
-                return_raster_image(img)
+                return return_raster_image(img)
 
 def render_html_svg_workaround(path_to_html, log, width=590, height=750):
     from calibre.ebooks.oeb.base import SVG_NS
