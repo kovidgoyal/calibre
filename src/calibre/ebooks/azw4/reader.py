@@ -16,6 +16,15 @@ import re
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 
+def unwrap(stream, output_path):
+    raw_data = stream.read()
+    m = re.search(br'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
+    if m is None:
+        raise ValueError('No embedded PDF found in AZW4 file')
+    with open(output_path, 'wb') as f:
+        f.write(m.group())
+
+
 class Reader(FormatReader):
 
     def __init__(self, header, stream, log, options):
@@ -30,17 +39,15 @@ class Reader(FormatReader):
         self.stream.seek(0)
         raw_data = self.stream.read()
         data = ''
-        mo = re.search(r'(?ums)%PDF.*%%EOF.', raw_data)
+        mo = re.search(br'%PDF.+%%EOF', raw_data, flags=re.DOTALL)
         if mo:
             data = mo.group()
-        
+
         pdf_n = os.path.join(os.getcwdu(), 'tmp.pdf')
-        pdf = open(pdf_n, 'wb')
-        pdf.write(data)
-        pdf.close()
-    
+        with open(pdf_n, 'wb') as pdf:
+            pdf.write(data)
         from calibre.customize.ui import plugin_for_input_format
-        
+
         pdf_plugin = plugin_for_input_format('pdf')
         for opt in pdf_plugin.options:
             if not hasattr(self.options, opt.option.name):

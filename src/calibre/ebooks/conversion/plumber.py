@@ -1030,6 +1030,15 @@ OptionRecommendation(name='search_replace',
 
         if hasattr(self.opts, 'lrf') and self.output_plugin.file_type == 'lrf':
             self.opts.lrf = True
+        if self.input_fmt == 'azw4' and self.output_plugin.file_type == 'pdf':
+            self.ui_reporter(0.01, 'AZW4 files are simply wrappers around PDF files.'
+                             ' Skipping the conversion and unwrapping the embedded PDF instead')
+            from calibre.ebooks.azw4.reader import unwrap
+            unwrap(stream, self.output)
+            self.ui_reporter(1.)
+            self.log(self.output_fmt.upper(), 'output written to', self.output)
+            self.flush()
+            return
 
         self.ui_reporter(0.01, _('Converting input to HTML...'))
         ir = CompositeProgressReporter(0.01, 0.34, self.ui_reporter)
