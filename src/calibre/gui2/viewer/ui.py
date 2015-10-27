@@ -34,8 +34,11 @@ class DoubleSpinBox(QDoubleSpinBox):  # {{{
     def set_value(self, val):
         self.blockSignals(True)
         self.setValue(val)
-        self.setToolTip(self.tt +
+        try:
+            self.setToolTip(self.tt +
                 ' [{0:.0%}]'.format(float(val)/self.maximum()))
+        except ZeroDivisionError:
+            self.setToolTip(self.tt)
         self.blockSignals(False)
         self.value_changed.emit(self.value(), self.maximum())
 # }}}
