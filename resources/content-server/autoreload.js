@@ -8,6 +8,7 @@
 (function(autoreload_port) {
     "use strict;";
     var url = 'ws://127.0.0.1:' + autoreload_port;
+    var MAX_RETRIES = 10;
 
     function ReconnectingWebSocket() {
         self = this;
@@ -31,10 +32,9 @@
             self.ws.onclose = function(event) {
                 console.log('Connection to reload server closed with code: ' + event.code + ' and reason: ' + event.reason);
                 self.retries += 1;
-                if (self.retries < 60) {
-                    self.interval *= 2; 
+                if (self.retries < MAX_RETRIES) {
                     setTimeout(self.reconnect, self.interval);
-                }
+                } else window.location.reload(true);
             };
         };
         self.reconnect();
