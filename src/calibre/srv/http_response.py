@@ -211,10 +211,13 @@ class RequestData(object):  # {{{
         self.tdir = tdir
         self.allowed_book_ids = {}
 
-    def generate_static_output(self, name, generator):
+    def generate_static_output(self, name, generator, content_type='text/html; charset=UTF-8'):
         ans = self.static_cache.get(name)
         if ans is None:
             ans = self.static_cache[name] = StaticOutput(generator())
+        ct = self.outheaders.get('Content-Type')
+        if not ct:
+            self.outheaders.set('Content-Type', content_type, replace_all=True)
         return ans
 
     def filesystem_file_with_custom_etag(self, output, *etag_parts):

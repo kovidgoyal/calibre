@@ -23,10 +23,11 @@ def on_library_load_progress(loaded, total):
     p.max = total
     p.value = loaded
 
-def on_document_loaded():
-    ajax(window.interface_data_url, on_library_loaded, on_library_load_progress).send()
+def on_load():
+    if window.calibre_entry_point == 'book list':
+        ajax('ajax/interface-data', on_library_loaded, on_library_load_progress).send()
 
 # We wait for all page elements to load, since this is a single page app
 # with a largely empty starting document, we can use this to preload any resources
 # we know are going to be needed immediately.
-window.addEventListener("load", on_document_loaded)
+window.addEventListener("load", on_load)

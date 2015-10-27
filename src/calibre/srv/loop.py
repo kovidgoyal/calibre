@@ -272,6 +272,8 @@ class Connection(object):  # {{{
 
 class ServerLoop(object):
 
+    LISTENING_MSG = 'calibre server listening on'
+
     def __init__(
         self,
         handler,
@@ -383,7 +385,8 @@ class ServerLoop(object):
         with TemporaryDirectory(prefix='srv-') as tdir:
             self.tdir = tdir
             self.ready = True
-            self.log('calibre server listening on', ba)
+            if self.LISTENING_MSG:
+                self.log(self.LISTENING_MSG, ba)
             self.plugin_pool.start()
 
             while self.ready:

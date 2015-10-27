@@ -6,37 +6,44 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, subprocess, signal, time, errno
-from threading import Thread
+import os, sys, subprocess, signal, time, errno, socket
+from threading import Thread, Lock
 
 from calibre.constants import islinux, iswindows, isosx
+from calibre.srv.http_response import create_http_handler
+from calibre.srv.loop import ServerLoop
+from calibre.srv.opts import Options
+from calibre.srv.standalone import create_option_parser
+from calibre.srv.web_socket import DummyHandler
+from calibre.utils.monotonic import monotonic
 
 class NoAutoReload(EnvironmentError):
     pass
 
+# Filesystem watcher {{{
 
 class WatcherBase(object):
 
     EXTENSIONS_TO_WATCH = frozenset('py pyj'.split())
     BOUNCE_INTERVAL = 2  # seconds
 
-    def __init__(self, server, log):
-        self.server, self.log = server, log
+    def __init__(self, worker, log):
+        self.worker, self.log = worker, log
         fpath = os.path.abspath(__file__)
         d = os.path.dirname
         self.base = d(d(d(d(fpath))))
-        self.last_restart_time = time.time()
+        self.last_restart_time = monotonic()
 
     def handle_modified(self, modified):
         if modified:
-            if time.time() - self.last_restart_time > self.BOUNCE_INTERVAL:
+            if monotonic() - self.last_restart_time > self.BOUNCE_INTERVAL:
                 modified = {os.path.relpath(x, self.base) if x.startswith(self.base) else x for x in modified if x}
                 changed = os.pathsep.join(sorted(modified))
                 self.log('')
                 self.log.warn('Restarting server because of changed files:', changed)
                 self.log('')
-                self.server.restart()
-                self.last_restart_time = time.time()
+                self.worker.restart()
+                self.last_restart_time = monotonic()
 
     def file_is_watched(self, fname):
         return fname and fname.rpartition('.')[-1] in self.EXTENSIONS_TO_WATCH
@@ -47,8 +54,8 @@ if islinux:
 
     class Watcher(WatcherBase):
 
-        def __init__(self, root_dirs, server, log):
-            WatcherBase.__init__(self, server, log)
+        def __init__(self, root_dirs, worker, log):
+            WatcherBase.__init__(self, worker, log)
             self.fd_map = {}
             for d in frozenset(root_dirs):
                 w = INotifyTreeWatcher(d, self.ignore_event)
@@ -113,8 +120,8 @@ elif iswindows:
 
     class Watcher(WatcherBase):
 
-        def __init__(self, root_dirs, server, log):
-            WatcherBase.__init__(self, server, log)
+        def __init__(self, root_dirs, worker, log):
+            WatcherBase.__init__(self, worker, log)
             self.watchers = []
             self.modified_queue = Queue()
             for d in frozenset(root_dirs):
@@ -135,8 +142,8 @@ elif isosx:
 
     class Watcher(WatcherBase):
 
-        def __init__(self, root_dirs, server, log):
-            WatcherBase.__init__(self, server, log)
+        def __init__(self, root_dirs, worker, log):
+            WatcherBase.__init__(self, worker, log)
             self.stream = Stream(self.notify, *(x.encode('utf-8') for x in root_dirs), file_events=True)
 
         def loop(self):
@@ -178,6 +185,7 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
         add(os.path.join(base, 'src', 'calibre', 'db'))
         add(os.path.join(base, 'src', 'pyj'))
     return dirs
+# }}}
 
 def join_process(p, timeout=5):
     t = Thread(target=p.wait, name='JoinProcess')
@@ -188,11 +196,32 @@ def join_process(p, timeout=5):
 
 class Worker(object):
 
-    def __init__(self, cmd, log, timeout=5):
+    def __init__(self, cmd, log, server, timeout=5):
         self.cmd = cmd
         self.log = log
+        self.server = server
         self.p = None
         self.timeout = timeout
+        cmd = self.cmd
+        if 'calibre-debug' in cmd[0].lower():
+            try:
+                idx = cmd.index('--')
+            except ValueError:
+                cmd = ['srv']
+            else:
+                cmd = ['srv'] + cmd[idx+1:]
+
+        opts = create_option_parser().parse_args(cmd)[0]
+        self.port = opts.port
+        self.connection_timeout = opts.timeout
+        t = Thread(name='PingThread', target=self.ping_thread)
+        t.daemon = True
+        t.start()
+
+    def ping_thread(self):
+        while True:
+            self.server.ping()
+            time.sleep(0.9 * self.connection_timeout)
 
     def __enter__(self):
         self.restart()
@@ -222,8 +251,8 @@ class Worker(object):
                 # Happens if the editor deletes and replaces a file being edited
                 if e.errno != errno.ENOENT or not getattr(e, 'filename', False):
                     raise
-                st = time.time()
-                while not os.path.exists(e.filename) and time.time() - st < 3:
+                st = monotonic()
+                while not os.path.exists(e.filename) and monotonic() - st < 3:
                     time.sleep(0.01)
                 compile_srv()
             except CompileFailure as e:
@@ -234,6 +263,82 @@ class Worker(object):
             break
 
         self.p = subprocess.Popen(self.cmd, creationflags=getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0))
+        self.wait_for_listen()
+        self.server.notify_reload()
+
+    def wait_for_listen(self):
+        st = monotonic()
+        while monotonic() - st < 5:
+            try:
+                return socket.create_connection(('localhost', self.port), 5).close()
+            except socket.error:
+                time.sleep(0.01)
+        self.log.error('Restarted server did not start listening on:', self.port)
+
+# WebSocket reload notifier {{{
+
+class ReloadHandler(DummyHandler):
+
+    def __init__(self, *args, **kw):
+        DummyHandler.__init__(self, *args, **kw)
+        self.connections = {}
+        self.conn_lock = Lock()
+
+    def handle_websocket_upgrade(self, connection_id, connection_ref, inheaders):
+        with self.conn_lock:
+            self.connections[connection_id] = connection_ref
+
+    def handle_websocket_close(self, connection_id):
+        with self.conn_lock:
+            self.connections.pop(connection_id, None)
+
+    def notify_reload(self):
+        with self.conn_lock:
+            for connref in self.connections.itervalues():
+                conn = connref()
+                if conn is not None and conn.ready:
+                    conn.send_websocket_message('reload')
+
+    def ping(self):
+        with self.conn_lock:
+            for connref in self.connections.itervalues():
+                conn = connref()
+                if conn is not None and conn.ready:
+                    conn.send_websocket_ping()
+
+
+class ReloadServer(Thread):
+
+    daemon = True
+
+    def __init__(self):
+        Thread.__init__(self, name='ReloadServer')
+        self.reload_handler = ReloadHandler()
+        self.loop = ServerLoop(
+            create_http_handler(websocket_handler=self.reload_handler),
+            opts=Options(shutdown_timeout=0.1, listen_on='127.0.0.1', port=0))
+        self.loop.LISTENING_MSG = None
+        self.notify_reload = self.reload_handler.notify_reload
+        self.ping = self.reload_handler.ping
+        self.start()
+
+    def run(self):
+        try:
+            self.loop.serve_forever()
+        except KeyboardInterrupt:
+            pass
+
+    def __enter__(self):
+        while not self.loop.ready and self.is_alive():
+            time.sleep(0.01)
+        self.address = self.loop.bound_address[:2]
+        os.environ['CALIBRE_AUTORELOAD_PORT'] = str(self.address[1])
+        return self
+
+    def __exit__(self, *args):
+        self.loop.stop()
+        self.join(self.loop.opts.shutdown_timeout)
+# }}}
 
 def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
     if Watcher is None:
@@ -247,8 +352,8 @@ def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
     dirs = find_dirs_to_watch(fpath, dirs, add_default_dirs)
     log('Auto-restarting server on changes press Ctrl-C to quit')
     log('Watching %d directory trees for changes' % len(dirs))
-    with Worker(cmd, log) as server:
-        w = Watcher(dirs, server, log)
+    with ReloadServer() as server, Worker(cmd, log, server) as worker:
+        w = Watcher(dirs, worker, log)
         try:
             w.loop()
         except KeyboardInterrupt:

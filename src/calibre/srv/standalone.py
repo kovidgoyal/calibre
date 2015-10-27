@@ -121,6 +121,7 @@ def main(args=sys.argv):
             return auto_reload(default_log)
         except NoAutoReload as e:
             raise SystemExit(e.message)
+    opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     try:
         server = Server(libraries, opts)
     except InvalidCredentials as e:
