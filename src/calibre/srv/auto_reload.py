@@ -8,14 +8,18 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, subprocess, signal, time, errno, socket
 from threading import Thread, Lock
+from Queue import Queue, Empty
 
 from calibre.constants import islinux, iswindows, isosx
 from calibre.srv.http_response import create_http_handler
 from calibre.srv.loop import ServerLoop
 from calibre.srv.opts import Options
 from calibre.srv.standalone import create_option_parser
+from calibre.srv.utils import create_sock_pair
 from calibre.srv.web_socket import DummyHandler
 from calibre.utils.monotonic import monotonic
+
+MAX_RETRIES = 10
 
 class NoAutoReload(EnvironmentError):
     pass
@@ -45,6 +49,10 @@ class WatcherBase(object):
                 self.worker.restart()
                 self.last_restart_time = monotonic()
 
+    def force_restart(self):
+        self.worker.restart(forced=True)
+        self.last_restart_time = monotonic()
+
     def file_is_watched(self, fname):
         return fname and fname.rpartition('.')[-1] in self.EXTENSIONS_TO_WATCH
 
@@ -56,6 +64,7 @@ if islinux:
 
         def __init__(self, root_dirs, worker, log):
             WatcherBase.__init__(self, worker, log)
+            self.client_sock, self.srv_sock = create_sock_pair()
             self.fd_map = {}
             for d in frozenset(root_dirs):
                 w = INotifyTreeWatcher(d, self.ignore_event)
@@ -63,9 +72,13 @@ if islinux:
 
         def loop(self):
             while True:
-                r = select.select(list(self.fd_map.iterkeys()), [], [])[0]
+                r = select.select([self.srv_sock] + list(self.fd_map.iterkeys()), [], [])[0]
                 modified = set()
                 for fd in r:
+                    if fd is self.srv_sock:
+                        self.srv_sock.recv(1000)
+                        self.force_restart()
+                        continue
                     w = self.fd_map[fd]
                     modified |= w()
                 self.handle_modified(modified)
@@ -73,9 +86,11 @@ if islinux:
         def ignore_event(self, path, name):
             return not self.file_is_watched(name)
 
+        def wakeup(self):
+            self.client_sock.sendall(b'w')
+
 elif iswindows:
     import win32file, win32con
-    from Queue import Queue
     FILE_LIST_DIRECTORY = 0x0001
     from calibre.srv.utils import HandleInterrupt
 
@@ -127,6 +142,9 @@ elif iswindows:
             for d in frozenset(root_dirs):
                 self.watchers.append(TreeWatcher(d, self.modified_queue))
 
+        def wakeup(self):
+            self.modified_queue.put(True)
+
         def loop(self):
             for w in self.watchers:
                 w.start()
@@ -135,7 +153,10 @@ elif iswindows:
                     path = self.modified_queue.get()
                     if path is None:
                         break
-                    self.handle_modified({path})
+                    if path is True:
+                        self.force_restart()
+                    else:
+                        self.handle_modified({path})
 
 elif isosx:
     from fsevents import Observer, Stream
@@ -145,6 +166,10 @@ elif isosx:
         def __init__(self, root_dirs, worker, log):
             WatcherBase.__init__(self, worker, log)
             self.stream = Stream(self.notify, *(x.encode('utf-8') for x in root_dirs), file_events=True)
+            self.wait_queue = Queue()
+
+        def wakeup(self):
+            self.wait_queue.put(True)
 
         def loop(self):
             observer = Observer()
@@ -153,9 +178,13 @@ elif isosx:
             observer.start()
             try:
                 while True:
-                    # Cannot use observer.join() as it is not interrupted by
-                    # Ctrl-C
-                    time.sleep(10000)
+                    try:
+                        # Cannot use blocking get() as it is not interrupted by
+                        # Ctrl-C
+                        if self.wait_queue.get(10000) is True:
+                            self.force_restart()
+                    except Empty:
+                        pass
             finally:
                 observer.unschedule(self.stream)
                 observer.stop()
@@ -201,6 +230,7 @@ class Worker(object):
         self.log = log
         self.server = server
         self.p = None
+        self.wakeup = None
         self.timeout = timeout
         cmd = self.cmd
         if 'calibre-debug' in cmd[0].lower():
@@ -214,6 +244,7 @@ class Worker(object):
         opts = create_option_parser().parse_args(cmd)[0]
         self.port = opts.port
         self.connection_timeout = opts.timeout
+        self.retry_count = 0
         t = Thread(name='PingThread', target=self.ping_thread)
         t.daemon = True
         t.start()
@@ -241,27 +272,29 @@ class Worker(object):
                 self.p.wait()
             self.p = None
 
-    def restart(self):
+    def restart(self, forced=False):
         from calibre.utils.rapydscript import compile_srv, CompileFailure
         self.clean_kill()
-        while True:
-            try:
-                compile_srv()
-            except EnvironmentError as e:
-                # Happens if the editor deletes and replaces a file being edited
-                if e.errno != errno.ENOENT or not getattr(e, 'filename', False):
-                    raise
-                st = monotonic()
-                while not os.path.exists(e.filename) and monotonic() - st < 3:
-                    time.sleep(0.01)
-                compile_srv()
-            except CompileFailure as e:
-                self.log.error(e.message)
-                self.log('Retrying in one second')
-                time.sleep(1)
-                continue
-            break
+        if forced:
+            self.retry_count += 1
+        try:
+            compile_srv()
+        except EnvironmentError as e:
+            # Happens if the editor deletes and replaces a file being edited
+            if e.errno != errno.ENOENT or not getattr(e, 'filename', False):
+                raise
+            st = monotonic()
+            while not os.path.exists(e.filename) and monotonic() - st < 3:
+                time.sleep(0.01)
+            compile_srv()
+        except CompileFailure as e:
+            self.log.error(e.message)
+            time.sleep(0.1 * self.retry_count)
+            if self.retry_count < MAX_RETRIES:
+                self.wakeup()  # Force a restart
+            return
 
+        self.retry_count = 0
         self.p = subprocess.Popen(self.cmd, creationflags=getattr(subprocess, 'CREATE_NEW_PROCESS_GROUP', 0))
         self.wait_for_listen()
         self.server.notify_reload()
@@ -354,6 +387,7 @@ def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
     log('Watching %d directory trees for changes' % len(dirs))
     with ReloadServer() as server, Worker(cmd, log, server) as worker:
         w = Watcher(dirs, worker, log)
+        worker.wakeup = w.wakeup
         try:
             w.loop()
         except KeyboardInterrupt:
