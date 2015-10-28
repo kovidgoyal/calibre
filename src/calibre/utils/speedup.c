@@ -282,19 +282,19 @@ utf8_decode_(uint32_t* state, uint32_t* codep, uint8_t byte) {
 
 static PyObject*
 utf8_decode(PyObject *self, PyObject *args) {
-	uint32_t state = UTF8_ACCEPT, codep = 0;
-	PyObject *data = NULL, *ans = NULL;
-	Py_ssize_t i = 0, pos = 0;
-	uint32_t *buf = NULL;
 	uint8_t *dbuf = NULL;
+	uint32_t state = UTF8_ACCEPT, codep = 0, *buf = NULL;
+	PyObject *data_obj = NULL, *ans = NULL;
+	Py_buffer pbuf;
+	Py_ssize_t i = 0, pos = 0;
 
-    if(!PyArg_ParseTuple(args, "O|II", &data, &state, &codep)) return NULL;
-
-	buf = (uint32_t*)PyMem_Malloc(sizeof(uint32_t) * PyBytes_GET_SIZE(data));
+    if(!PyArg_ParseTuple(args, "O|II", &data_obj, &state, &codep)) return NULL;
+	if (PyObject_GetBuffer(data_obj, &pbuf, PyBUF_SIMPLE) != 0) return NULL;
+	buf = (uint32_t*)PyMem_Malloc(sizeof(uint32_t) * pbuf.len);
 	if (buf == NULL) return PyErr_NoMemory();
-	dbuf = (uint8_t*)PyBytes_AS_STRING(data);
+	dbuf = (uint8_t*)pbuf.buf;
 
-	for (i = 0; i < PyBytes_GET_SIZE(data); i++) {
+	for (i = 0; i < pbuf.len; i++) {
 		utf8_decode_(&state, &codep, dbuf[i]);
 		if (state == UTF8_ACCEPT) buf[pos++] = codep;
 		else if (state == UTF8_REJECT) { PyErr_SetString(PyExc_ValueError, "Invalid byte in UTF-8 string"); goto error; }
