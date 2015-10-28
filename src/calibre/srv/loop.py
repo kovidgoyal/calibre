@@ -560,7 +560,11 @@ class ServerLoop(object):
             else:
                 yield s, self.connection_map[s], READ
         for s in writable:
-            yield s, self.connection_map[s], WRITE
+            try:
+                conn = self.connection_map[s]
+            except KeyError:
+                continue  # Happens if connection was closed during read phase
+            yield s, conn, WRITE
 
     def accept(self):
         try:
