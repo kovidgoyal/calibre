@@ -15,7 +15,7 @@ from setup.build_environment import (
     msvc, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs, magick_libs,
     chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs, icu_lib_dirs, ft_libs,
     ft_lib_dirs, ft_inc_dirs, cpu_count, is64bit, glib_flags, fontconfig_flags,
-    openssl_inc_dirs, openssl_lib_dirs)
+    openssl_inc_dirs, openssl_lib_dirs, zlib_inc_dirs, zlib_lib_dirs, zlib_libs)
 from setup.parallel_build import create_job, parallel_build
 isunix = islinux or isosx or isbsd
 
@@ -100,6 +100,12 @@ extensions = [
     Extension('speedup',
         ['calibre/utils/speedup.c'],
         libraries=[] if iswindows else ['m']
+        ),
+
+    Extension('zlib2',
+        ['calibre/utils/zlib2.c'],
+        inc_dirs=zlib_inc_dirs,
+        libraries=zlib_libs, lib_dirs=zlib_lib_dirs
         ),
 
     Extension('certgen',

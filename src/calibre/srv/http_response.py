@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, httplib, hashlib, uuid, zlib, time, struct, repr as reprlib
+import os, httplib, hashlib, uuid, time, struct, repr as reprlib
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
@@ -15,7 +15,7 @@ from functools import wraps
 from future_builtins import map
 
 from calibre import guess_type, force_unicode
-from calibre.constants import __version__
+from calibre.constants import __version__, plugins
 from calibre.srv.loop import WRITE
 from calibre.srv.errors import HTTPSimpleResponse
 from calibre.srv.http_request import HTTPRequest, read_headers
@@ -28,10 +28,14 @@ from calibre.utils.monotonic import monotonic
 Range = namedtuple('Range', 'start stop size')
 MULTIPART_SEPARATOR = uuid.uuid4().hex.decode('ascii')
 COMPRESSIBLE_TYPES = {'application/json', 'application/javascript', 'application/xml', 'application/oebps-package+xml'}
+zlib, zlib2_err = plugins['zlib2']
+if zlib2_err:
+    raise RuntimeError('Failed to laod the zlib2 module with error: ' + zlib2_err)
+del zlib2_err
 
 def header_list_to_file(buf):  # {{{
     buf.append('')
-    return BytesIO(b''.join((x + '\r\n').encode('ascii') for x in buf))
+    return ReadOnlyFileBuffer(b''.join((x + '\r\n').encode('ascii') for x in buf))
 # }}}
 
 def parse_multipart_byterange(buf, content_type):  # {{{
@@ -166,7 +170,7 @@ def compress_readable_output(src_file, compress_level=6):
             prefix_written = True
             data = gzip_prefix(time.time()) + data
         yield data
-    yield zobj.flush() + struct.pack(b"<L", crc & 0xFFFFFFFF) + struct.pack(b"<L", size & 0xFFFFFFFF)
+    yield zobj.flush() + struct.pack(b"<L", crc) + struct.pack(b"<L", size)
 # }}}
 
 def get_range_parts(ranges, content_type, content_length):  # {{{
@@ -290,7 +294,7 @@ def dynamic_output(output, outheaders):
         ct = outheaders.get('Content-Type')
         if not ct:
             outheaders.set('Content-Type', 'text/plain; charset=UTF-8', replace_all=True)
-    ans = ReadableOutput(BytesIO(data))
+    ans = ReadableOutput(ReadOnlyFileBuffer(data))
     ans.accept_ranges = False
     return ans
 
@@ -376,7 +380,7 @@ class HTTPConnection(HTTPRequest):
         buf = [(x + '\r\n').encode('ascii') for x in buf]
         if self.method != 'HEAD':
             buf.append(msg)
-        self.response_ready(BytesIO(b''.join(buf)))
+        self.response_ready(ReadOnlyFileBuffer(b''.join(buf)))
 
     def prepare_response(self, inheaders, request_body_file):
         if self.method == 'TRACE':
@@ -463,7 +467,7 @@ class HTTPConnection(HTTPRequest):
                 x = x.decode('ascii')
             buf.append(x)
         buf.append('')
-        self.response_ready(BytesIO(b''.join((x + '\r\n').encode('ascii') for x in buf)), output=output)
+        self.response_ready(ReadOnlyFileBuffer(b''.join((x + '\r\n').encode('ascii') for x in buf)), output=output)
 
     def response_ready(self, header_file, output=None):
         self.response_started = True
@@ -503,10 +507,10 @@ class HTTPConnection(HTTPRequest):
         r, range_part = next(ranges)
         if r is None:
             # EOF range part
-            self.set_state(WRITE, self.write_buf, BytesIO(b'\r\n' + range_part))
+            self.set_state(WRITE, self.write_buf, ReadOnlyFileBuffer(b'\r\n' + range_part))
         else:
             buf.seek(r.start)
-            self.set_state(WRITE, self.write_range_part, BytesIO((b'' if first else b'\r\n') + range_part + b'\r\n'), buf, r.stop + 1, ranges)
+            self.set_state(WRITE, self.write_range_part, ReadOnlyFileBuffer((b'' if first else b'\r\n') + range_part + b'\r\n'), buf, r.stop + 1, ranges)
 
     def write_range_part(self, part_buf, buf, end, ranges, event):
         if self.write(part_buf):
@@ -519,13 +523,13 @@ class HTTPConnection(HTTPRequest):
     def write_iter(self, output, event):
         chunk = next(output)
         if chunk is None:
-            self.set_state(WRITE, self.write_chunk, BytesIO(b'0\r\n\r\n'), output, last=True)
+            self.set_state(WRITE, self.write_chunk, ReadOnlyFileBuffer(b'0\r\n\r\n'), output, last=True)
         else:
             if chunk:
                 if not isinstance(chunk, bytes):
                     chunk = chunk.encode('utf-8')
                 chunk = ('%X\r\n' % len(chunk)).encode('ascii') + chunk + b'\r\n'
-                self.set_state(WRITE, self.write_chunk, BytesIO(chunk), output)
+                self.set_state(WRITE, self.write_chunk, ReadOnlyFileBuffer(chunk), output)
             else:
                 # Empty chunk, ignore it
                 self.write_iter(output, event)
@@ -562,7 +566,7 @@ class HTTPConnection(HTTPRequest):
         elif hasattr(output, 'read'):
             output = ReadableOutput(output)
         elif isinstance(output, StaticOutput):
-            output = ReadableOutput(BytesIO(output.data), etag=output.etag, content_length=output.content_length)
+            output = ReadableOutput(ReadOnlyFileBuffer(output.data), etag=output.etag, content_length=output.content_length)
         else:
             output = GeneratedOutput(output)
         ct = outheaders.get('Content-Type', '').partition(';')[0]

@@ -136,6 +136,7 @@ class Plugins(collections.Mapping):
                 'icu',
                 'speedup',
                 'monotonic',
+                'zlib2',
                 'html',
                 'freetype',
                 'unrar',
