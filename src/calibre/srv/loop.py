@@ -213,6 +213,29 @@ class Connection(object):  # {{{
                 return b''
             raise
 
+    def recv_into(self, buf, amt=0):
+        amt = amt or len(buf)
+        if self.read_buffer.has_data:
+            data = self.read_buffer.read(amt)
+            buf[0:len(data)] = data
+            return len(data)
+        try:
+            bytes_read = self.socket.recv_into(buf, amt)
+            self.last_activity = monotonic()
+            if bytes_read == 0:
+                # a closed connection is indicated by signaling
+                # a read condition, and having recv() return 0.
+                self.ready = False
+                return 0
+            return bytes_read
+        except socket.error as e:
+            if e.errno in socket_errors_nonblocking or e.errno in socket_errors_eintr:
+                return 0
+            if e.errno in socket_errors_socket_closed:
+                self.ready = False
+                return 0
+            raise
+
     def fill_read_buffer(self):
         try:
             num = self.read_buffer.recv_from(self.socket)

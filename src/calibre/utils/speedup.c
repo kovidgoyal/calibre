@@ -231,19 +231,17 @@ speedup_create_texture(PyObject *self, PyObject *args, PyObject *kw) {
 
 static PyObject*
 speedup_websocket_mask(PyObject *self, PyObject *args) {
-	PyObject *data = NULL, *mask = NULL, *ans = NULL;
-	Py_ssize_t offset_ = 0;
-	size_t offset = 0, i = 0;
-	char *data_buf = NULL, *mask_buf = NULL, *ans_buf = NULL;
-    if(!PyArg_ParseTuple(args, "OO|n", &data, &mask, &offset_)) return NULL;
-	offset = (size_t)offset_;
-	ans = PyBytes_FromStringAndSize(NULL, PyBytes_GET_SIZE(data));
-	if (ans != NULL) {
-		data_buf = PyBytes_AS_STRING(data); mask_buf = PyBytes_AS_STRING(mask); ans_buf = PyBytes_AS_STRING(ans);
-		for(i = 0; i < (size_t)PyBytes_GET_SIZE(ans); i++)
-			ans_buf[i] = data_buf[i] ^ mask_buf[(i + offset) & 3];
-	}
-	return ans;
+	PyObject *data = NULL, *mask = NULL;
+	Py_buffer data_buf = {0}, mask_buf = {0};
+	Py_ssize_t offset = 0, i = 0;
+	char *dbuf = NULL, *mbuf = NULL;
+    if(!PyArg_ParseTuple(args, "OO|n", &data, &mask, &offset)) return NULL;
+	if (PyObject_GetBuffer(data, &data_buf, PyBUF_SIMPLE|PyBUF_WRITABLE) != 0) return NULL;
+	if (PyObject_GetBuffer(mask, &mask_buf, PyBUF_SIMPLE) != 0) return NULL;
+	dbuf = (char*)data_buf.buf; mbuf = (char*)mask_buf.buf;
+	for(i = 0; i < data_buf.len; i++)
+		dbuf[i] ^= mbuf[(i + offset) & 3];
+	Py_RETURN_NONE;
 }
 
 #define UTF8_ACCEPT 0

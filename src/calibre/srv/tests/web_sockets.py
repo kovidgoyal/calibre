@@ -37,7 +37,7 @@ class WSClient(object):
         self.socket.sendall(HANDSHAKE_STR.format(self.key).encode('ascii'))
         self.read_buf = deque()
         self.read_upgrade_response()
-        self.mask = os.urandom(4)
+        self.mask = memoryview(os.urandom(4))
         self.frames = []
 
     def read_upgrade_response(self):
