@@ -235,13 +235,22 @@ speedup_websocket_mask(PyObject *self, PyObject *args) {
 	Py_buffer data_buf = {0}, mask_buf = {0};
 	Py_ssize_t offset = 0, i = 0;
 	char *dbuf = NULL, *mbuf = NULL;
+    int ok = 0;
+
     if(!PyArg_ParseTuple(args, "OO|n", &data, &mask, &offset)) return NULL;
+
 	if (PyObject_GetBuffer(data, &data_buf, PyBUF_SIMPLE|PyBUF_WRITABLE) != 0) return NULL;
-	if (PyObject_GetBuffer(mask, &mask_buf, PyBUF_SIMPLE) != 0) return NULL;
+	if (PyObject_GetBuffer(mask, &mask_buf, PyBUF_SIMPLE) != 0) goto done;
+
 	dbuf = (char*)data_buf.buf; mbuf = (char*)mask_buf.buf;
-	for(i = 0; i < data_buf.len; i++)
-		dbuf[i] ^= mbuf[(i + offset) & 3];
-	Py_RETURN_NONE;
+	for(i = 0; i < data_buf.len; i++) dbuf[i] ^= mbuf[(i + offset) & 3];
+    ok = 1;
+
+done:
+    if(data_buf.obj) PyBuffer_Release(&data_buf);
+    if(mask_buf.obj) PyBuffer_Release(&mask_buf);
+    if (ok) { Py_RETURN_NONE; }
+    return NULL;
 }
 
 #define UTF8_ACCEPT 0
@@ -291,7 +300,7 @@ utf8_decode(PyObject *self, PyObject *args) {
     if(!PyArg_ParseTuple(args, "O|II", &data_obj, &state, &codep)) return NULL;
 	if (PyObject_GetBuffer(data_obj, &pbuf, PyBUF_SIMPLE) != 0) return NULL;
 	buf = (uint32_t*)PyMem_Malloc(sizeof(uint32_t) * pbuf.len);
-	if (buf == NULL) return PyErr_NoMemory();
+	if (buf == NULL) goto error;
 	dbuf = (uint8_t*)pbuf.buf;
 
 	for (i = 0; i < pbuf.len; i++) {
@@ -301,7 +310,8 @@ utf8_decode(PyObject *self, PyObject *args) {
 	}
 	ans = PyUnicode_DecodeUTF32((const char*)buf, pos * sizeof(uint32_t), "strict", NULL);
 error:
-	PyMem_Free(buf); buf = NULL;
+    if (pbuf.obj) PyBuffer_Release(&pbuf);
+	if (buf) { PyMem_Free(buf); buf = NULL; }
 	if (ans == NULL) return ans;
 	return Py_BuildValue("NII", ans, state, codep);
 }
