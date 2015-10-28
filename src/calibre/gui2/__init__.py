@@ -138,6 +138,7 @@ defs['gpm_template_editor_font_size'] = 10
 defs['show_emblems'] = False
 defs['emblem_size'] = 32
 defs['emblem_position'] = 'left'
+defs['metadata_diff_mark_rejected'] = False
 del defs
 # }}}
 

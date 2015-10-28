@@ -15,7 +15,7 @@ from PyQt5.Qt import (
     QDialog, QWidget, QGridLayout, QLabel, QToolButton, QIcon,
     QVBoxLayout, QDialogButtonBox, QApplication, pyqtSignal, QFont, QPixmap,
     QSize, QPainter, Qt, QColor, QPen, QSizePolicy, QScrollArea, QFrame,
-    QKeySequence, QAction, QMenu)
+    QKeySequence, QAction, QMenu, QHBoxLayout, QCheckBox)
 
 from calibre import fit_image
 from calibre.ebooks.metadata import title_sort, authors_to_sort_string, fmt_sidx
@@ -539,6 +539,7 @@ class CompareMany(QDialog):
         self.ids = list(ids)
         self.total = len(self.ids)
         self.accepted = OrderedDict()
+        self.rejected_ids = set()
         self.window_title = window_title or _('Compare metadata')
 
         if intro_msg:
@@ -585,7 +586,14 @@ class CompareMany(QDialog):
         b.setIcon(QIcon(I('forward.png' if self.total > 1 else 'ok.png')))
         b.clicked.connect(partial(self.next_item, True))
         b.setDefault(True)
-        l.addWidget(bb)
+        self.bbh = h = QHBoxLayout()
+        h.setContentsMargins(0, 0, 0, 0)
+        l.addLayout(h)
+        self.markq = m = QCheckBox(_('&Mark rejected books'))
+        m.setChecked(gprefs['metadata_diff_mark_rejected'])
+        m.stateChanged[int].connect(lambda : gprefs.set('metadata_diff_mark_rejected', m.isChecked()))
+        m.setToolTip(_('Mark rejected books in the book list after this dialog is closed'))
+        h.addWidget(m), h.addWidget(bb)
 
         self.next_item(True)
 
@@ -598,6 +606,10 @@ class CompareMany(QDialog):
         if geom is not None:
             self.restoreGeometry(geom)
         b.setFocus(Qt.OtherFocusReason)
+
+    @property
+    def mark_rejected(self):
+        return self.markq.isChecked()
 
     def action_button_clicked(self):
         self.action_button_action(self.ids[0])
@@ -623,6 +635,8 @@ class CompareMany(QDialog):
             changed = self.compare_widget.apply_changes()
         if self.current_mi is not None:
             old_id = self.ids.pop(0)
+            if not accept:
+                self.rejected_ids.add(old_id)
             self.accepted[old_id] = (changed, self.current_mi) if accept else (False, None)
         if not self.ids:
             return self.accept()
@@ -645,6 +659,7 @@ class CompareMany(QDialog):
             return
         self.next_item(False)
         for id_ in self.ids:
+            self.rejected_ids.add(id_)
             oldmi, newmi = self.get_metadata(id_)
             self.accepted[id_] = (False, None)
         self.ids = []

@@ -173,6 +173,7 @@ class EditMetadataAction(InterfaceAction):
         good_ids, tdir, log_file, lm_map, failed_ids = payload
         if not good_ids:
             return
+        restrict_to_failed = False
 
         modified = set()
         db = self.gui.current_db
@@ -244,6 +245,9 @@ class EditMetadataAction(InterfaceAction):
                 db=db
             )
             if d.exec_() == d.Accepted:
+                if d.mark_rejected:
+                    failed_ids |= d.rejected_ids
+                    restrict_to_failed = True
                 nid_map = {}
                 for book_id, (changed, mi) in d.accepted.iteritems():
                     if mi is None:  # discarded
@@ -263,7 +267,7 @@ class EditMetadataAction(InterfaceAction):
             else:
                 id_map = {}
 
-        restrict_to_failed = bool(args and args[0])
+        restrict_to_failed = restrict_to_failed or bool(args and args[0])
         if restrict_to_failed:
             db.data.set_marked_ids(failed_ids)
 
