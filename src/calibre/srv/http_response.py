@@ -157,7 +157,7 @@ def compress_readable_output(src_file, compress_level=6):
     size = 0
     zobj = zlib.compressobj(compress_level,
                             zlib.DEFLATED, -zlib.MAX_WBITS,
-                            zlib.DEF_MEM_LEVEL, 0)
+                            zlib.DEF_MEM_LEVEL, zlib.Z_DEFAULT_STRATEGY)
     prefix_written = False
     while True:
         data = src_file.read(DEFAULT_BUFFER_SIZE)
