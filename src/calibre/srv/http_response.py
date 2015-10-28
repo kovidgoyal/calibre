@@ -22,7 +22,7 @@ from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
 from calibre.srv.utils import (
     MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed,
-    sort_q_values, get_translator_for_lang, Cookie)
+    sort_q_values, get_translator_for_lang, Cookie, ReadOnlyFileBuffer)
 from calibre.utils.monotonic import monotonic
 
 Range = namedtuple('Range', 'start stop size')
@@ -324,7 +324,7 @@ class HTTPConnection(HTTPRequest):
         limit = end - pos
         if limit == 0:
             return True
-        if self.use_sendfile and not isinstance(buf, BytesIO):
+        if self.use_sendfile and not isinstance(buf, (BytesIO, ReadOnlyFileBuffer)):
             try:
                 sent = sendfile_to_socket_async(buf, pos, limit, self.socket)
             except CannotSendfile:
