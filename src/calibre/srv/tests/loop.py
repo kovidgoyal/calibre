@@ -20,6 +20,7 @@ except ImportError:
 from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
+from calibre.utils.monotonic import monotonic
 
 class LoopTest(BaseTest):
 
@@ -209,3 +210,15 @@ class LoopTest(BaseTest):
             self.ae(r.status, httplib.OK)
             self.ae(r.read(), b'testbody')
             self.ae(server.loop.bound_address[1], port)
+
+    def test_monotonic(self):
+        'Test the monotonic() clock'
+        a = monotonic()
+        b = monotonic()
+        self.assertGreaterEqual(b, a)
+        a = monotonic()
+        time.sleep(0.01)
+        b = monotonic()
+        self.assertGreaterEqual(b, a)
+        self.assertGreaterEqual(b - a, 0.01)
+        self.assertLessEqual(b - a, 0.02)

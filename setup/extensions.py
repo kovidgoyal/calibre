@@ -93,6 +93,10 @@ extensions = [
               optimize_level=2,
               ),
 
+    Extension('monotonic',
+        ['calibre/utils/monotonic.c'],
+        ),
+
     Extension('speedup',
         ['calibre/utils/speedup.c'],
         libraries=[] if iswindows else ['m']
