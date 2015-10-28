@@ -421,7 +421,7 @@ class MetadataSingleDialogBase(ResizableDialog):
             self.authors.set_value(mi.authors)
         if not mi.is_null('author_sort'):
             self.author_sort.set_value(mi.author_sort)
-        elif update_sorts:
+        elif update_sorts and not mi.is_null('authors'):
             self.author_sort.auto_generate()
         if not mi.is_null('rating'):
             try:
