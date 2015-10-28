@@ -550,8 +550,13 @@ class EchoHandler(object):
     def handle_websocket_close(self, connection_id):
         self.ws_connections.pop(connection_id, None)
 
-if __name__ == '__main__':
+def run_echo_server():
     s = ServerLoop(create_http_handler(websocket_handler=EchoHandler()))
     with HandleInterrupt(s.wakeup):
         s.serve_forever()
+
+if __name__ == '__main__':
+    # import cProfile
+    # cProfile.runctx('r()', {'r':run_echo_server}, {}, filename='stats.profile')
+    run_echo_server()
 # }}}
