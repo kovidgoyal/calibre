@@ -300,6 +300,7 @@ class WebSocketConnection(HTTPConnection):
             except Exception as err:
                 self.log.exception('Error in WebSockets upgrade handler:')
                 self.websocket_close(UNEXPECTED_ERROR, 'Unexpected error in handler: %r' % as_unicode(err))
+            self.handle_event = self.ws_duplex
             self.set_ws_state()
             self.end_send_optimization()
 
@@ -308,22 +309,22 @@ class WebSocketConnection(HTTPConnection):
             if self.ws_close_sent:
                 self.ready = False
             else:
-                self.set_state(WRITE, self.ws_duplex)
+                self.wait_for = WRITE
             return
 
         if self.send_buf is not None or self.sending is not None:
-            self.set_state(RDWR, self.ws_duplex)
+            self.wait_for = RDWR
         else:
             try:
                 self.sending = self.sendq.get_nowait()
             except Empty:
                 with self.cf_lock:
                     if self.control_frames:
-                        self.set_state(RDWR, self.ws_duplex)
+                        self.wait_for = RDWR
                     else:
-                        self.set_state(READ, self.ws_duplex)
+                        self.wait_for = READ
             else:
-                self.set_state(RDWR, self.ws_duplex)
+                self.wait_for = RDWR
 
         if self.stop_reading:
             if self.wait_for is READ:
