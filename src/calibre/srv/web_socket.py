@@ -60,6 +60,7 @@ class ReadFrame(object):  # {{{
     def __init__(self):
         self.header_buf = bytearray(14)
         self.rbuf = bytearray(CHUNK_SIZE)
+        self.empty = memoryview(b'')
         self.reset()
 
     def reset(self):
@@ -136,7 +137,7 @@ class ReadFrame(object):  # {{{
         self.bytes_received = 0
         if self.payload_length <= CHUNK_SIZE:
             if self.payload_length == 0:
-                conn.ws_data_received(b'', self.opcode, True, True, self.fin)
+                conn.ws_data_received(self.empty, self.opcode, True, True, self.fin)
                 self.reset()
             else:
                 self.rview = memoryview(self.rbuf)[:self.payload_length]
@@ -152,7 +153,7 @@ class ReadFrame(object):  # {{{
         if num_bytes >= len(self.rview):
             data = memoryview(self.rbuf)[:self.payload_length]
             fast_mask(data, self.mask)
-            conn.ws_data_received(data.tobytes(), self.opcode, True, True, self.fin)
+            conn.ws_data_received(data, self.opcode, True, True, self.fin)
             self.reset()
         else:
             self.rview = self.rview[num_bytes:]
@@ -165,7 +166,7 @@ class ReadFrame(object):  # {{{
         fast_mask(data, self.mask, self.bytes_received)
         self.bytes_received += num_bytes
         frame_finished = self.bytes_received >= self.payload_length
-        conn.ws_data_received(data.tobytes(), self.opcode, self.frame_starting, frame_finished, self.fin)
+        conn.ws_data_received(data, self.opcode, self.frame_starting, frame_finished, self.fin)
         self.frame_starting = False
         if frame_finished:
             self.reset()
@@ -360,7 +361,7 @@ class WebSocketConnection(HTTPConnection):
         if self.current_recv_opcode == TEXT:
             if message_starting:
                 self.frag_decoder.reset()
-            empty_data = not data
+            empty_data = len(data) == 0
             try:
                 data = self.frag_decoder(data)
             except ValueError:
@@ -496,10 +497,12 @@ class WebSocketConnection(HTTPConnection):
             self.control_frames.append(ReadOnlyFileBuffer(frame))
 
     def handle_websocket_data(self, data, message_starting, message_finished):
-        ''' Called when some data is received from the remote client. In general the
-        data may not constitute a complete "message", use the message_starting
-        and message_finished flags to re-assemble it into a complete message in
-        the handler. '''
+        ''' Called when some data is received from the remote client. In
+        general the data may not constitute a complete "message", use the
+        message_starting and message_finished flags to re-assemble it into a
+        complete message in the handler. Note that for binary data, data is a
+        mutable object. If you intend to keep it around after this method
+        returns, create a bytestring from it, using tobytes(). '''
         self.websocket_handler.handle_websocket_data(self.websocket_connection_id, data, message_starting, message_finished)
 
 
