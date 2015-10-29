@@ -117,7 +117,7 @@ if iswindows:
         return cmdline.replace('%1', qpath)
 
     del run_program
-    def run_program(entry, path, parent):
+    def run_program(entry, path, parent):  # noqa
         cmdline = entry_to_cmdline(entry, path)
         print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(cmdline))
         try:
