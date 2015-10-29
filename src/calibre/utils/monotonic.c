@@ -26,16 +26,19 @@
 
 #ifdef _MSC_VER
 #include <Windows.h>
-static LARGE_INTEGER frequency = {0}, ts = {0};
-
-/* static PyObject* monotonic(PyObject *self, PyObject *args) { */
-/* 	return PyFloat_FromDouble(((double)GetTickCount64())/SEC_TO_MS); */
-/* } */
 
 static PyObject* monotonic(PyObject *self, PyObject *args) {
-	if (!QueryPerformanceCounter(&ts)) { PyErr_SetFromWindowsErr(0); return NULL; }
-	return PyFloat_FromDouble(((double)ts.QuadPart)/frequency.QuadPart);
+	return PyFloat_FromDouble(((double)GetTickCount64())/SEC_TO_MS);
 }
+
+/* QueryPerformanceCounter() is wildly inaccurate, so we use the more stable
+ * the lower resolution GetTickCount64() (this is what python 3.x uses)
+ * static LARGE_INTEGER frequency = {0}, ts = {0};
+ * static PyObject* monotonic(PyObject *self, PyObject *args) { 
+ * 	if (!QueryPerformanceCounter(&ts)) { PyErr_SetFromWindowsErr(0); return NULL; }
+ * 	return PyFloat_FromDouble(((double)ts.QuadPart)/frequency.QuadPart); 
+ * } 
+ */
 
 #elif defined(__APPLE__)
 #include <mach/mach_time.h>
@@ -72,7 +75,7 @@ PyMODINIT_FUNC
 initmonotonic(void) {
     PyObject *m;
 #ifdef _MSC_VER
-	if(!QueryPerformanceFrequency(&frequency)) { PyErr_SetFromWindowsErr(0); return; }
+	/* if(!QueryPerformanceFrequency(&frequency)) { PyErr_SetFromWindowsErr(0); return; } */
 #endif
 #ifdef __APPLE__
 	mach_timebase_info(&timebase);

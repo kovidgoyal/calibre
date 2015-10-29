@@ -9,6 +9,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import binascii, os, random, struct, base64, httplib
 from hashlib import md5, sha256
 from itertools import permutations
+from threading import Lock
 
 from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse, InvalidCredentials
 from calibre.srv.http_request import parse_uri
@@ -16,6 +17,7 @@ from calibre.srv.utils import parse_http_dict, encode_path
 from calibre.utils.monotonic import monotonic
 
 MAX_AGE_SECONDS = 3600
+nonce_counter, nonce_counter_lock = 0, Lock()
 
 def as_bytestring(x):
     if not isinstance(x, bytes):
@@ -34,12 +36,18 @@ def base64_decode(s):
 def synthesize_nonce(key_order, realm, secret, timestamp=None):
     '''
     Create a nonce. Can be used for either digest or cookie based auth.
-    The nonce is of the form timestamp:hash with has being a hash of the
+    The nonce is of the form timestamp:hash with hash being a hash of the
     timestamp, server secret and realm. This allows the timestamp to be
     validated and stale nonce's to be rejected.
     '''
     if timestamp is None:
-        timestamp = binascii.hexlify(struct.pack(b'!d', float(monotonic())))
+        global nonce_counter
+        with nonce_counter_lock:
+            nonce_counter += 1
+            # The resolution of monotonic() on windows is very low (10s of
+            # milliseconds) so to ensure nonce values are not re-used, we have a
+            # global counter
+            timestamp = binascii.hexlify(struct.pack(b'!dQ', float(monotonic()), nonce_counter))
     h = sha256_hex(key_order.format(timestamp, realm, secret))
     nonce = ':'.join((timestamp, h))
     return nonce
@@ -51,7 +59,7 @@ def validate_nonce(key_order, nonce, realm, secret):
 
 def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
     try:
-        timestamp = struct.unpack(b'!d', binascii.unhexlify(as_bytestring(nonce.partition(':')[0])))[0]
+        timestamp = struct.unpack(b'!dQ', binascii.unhexlify(as_bytestring(nonce.partition(':')[0])))[0]
         return timestamp + max_age_seconds < monotonic()
     except Exception:
         pass
