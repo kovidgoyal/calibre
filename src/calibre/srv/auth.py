@@ -43,11 +43,11 @@ def synthesize_nonce(key_order, realm, secret, timestamp=None):
     if timestamp is None:
         global nonce_counter
         with nonce_counter_lock:
-            nonce_counter += 1
+            nonce_counter = (nonce_counter + 1) % 65535
             # The resolution of monotonic() on windows is very low (10s of
             # milliseconds) so to ensure nonce values are not re-used, we have a
             # global counter
-            timestamp = binascii.hexlify(struct.pack(b'!dQ', float(monotonic()), nonce_counter))
+            timestamp = binascii.hexlify(struct.pack(b'!dH', float(monotonic()), nonce_counter))
     h = sha256_hex(key_order.format(timestamp, realm, secret))
     nonce = ':'.join((timestamp, h))
     return nonce
@@ -59,7 +59,7 @@ def validate_nonce(key_order, nonce, realm, secret):
 
 def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
     try:
-        timestamp = struct.unpack(b'!dQ', binascii.unhexlify(as_bytestring(nonce.partition(':')[0])))[0]
+        timestamp = struct.unpack(b'!dH', binascii.unhexlify(as_bytestring(nonce.partition(':')[0])))[0]
         return timestamp + max_age_seconds < monotonic()
     except Exception:
         pass
