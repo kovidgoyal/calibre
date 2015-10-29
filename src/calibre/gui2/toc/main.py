@@ -624,7 +624,7 @@ class TOCView(QWidget):  # {{{
         l.addWidget(b, col, 1)
         self.default_msg = _('Double click on an entry to change the text')
         self.hl = hl = QLabel(self.default_msg)
-        hl.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Preferred)
+        hl.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
         l.addWidget(hl, col, 2, 1, -1)
         self.item_view = i = ItemView(self, self.prefs)
         self.item_view.delete_item.connect(self.delete_current_item)
