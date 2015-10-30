@@ -20,6 +20,36 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.42.0
+  date: 2015-10-30
+
+  new features:
+    - title: "Driver for the new NookGlowlight Plus. This device allow allows sending of files inside the NOOK folder, so calibre now follows that limitation."
+
+    - title: "When converting AZW4 files to PDF, skip the conversion and simply unwrap the PDF file already embedded inside the AZW4 file."
+
+    - title: "Metadata download review dialog: Add an option to mark rejected books in the main book list after the review is completed."
+      tickets: [1507198]
+
+    - title: "Edit Book: Spell check dialog: Add a button to undo the last spelling change"
+
+  bug fixes:
+    - title: "Edit metadata dialog: When downloading metadata with download of authors turned off, do not regenerate the author sort field after the download."
+      tickets: [1510335]
+
+    - title: "Fix a regression that broke the heuristic used to detect cover images in some EPUB files that do not specify their cover metadata."
+      tickets: [1509642]
+
+    - title: "Edit Book File List: Fix pre-selection of filename when renaming a file in the root"
+
+    - title: "Tag mapper: Fix bug when replacement tag has comma in it and the replacement rule is not the last rule"
+
+  improved recipes:
+    - Sueddeutsche.de
+    - NRC
+    - Various Polish news sources
+    - Pocket
+
 - version: 2.41.0
   date: 2015-10-16
 
