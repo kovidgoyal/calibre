@@ -24,7 +24,7 @@
   date: 2015-10-30
 
   new features:
-    - title: "Driver for the new NookGlowlight Plus. This device allow allows sending of files inside the NOOK folder, so calibre now follows that limitation."
+    - title: "Driver for the new NookGlowlight Plus. This device only allows sending of files inside the NOOK folder, so calibre now follows that limitation."
 
     - title: "When converting AZW4 files to PDF, skip the conversion and simply unwrap the PDF file already embedded inside the AZW4 file."
 
