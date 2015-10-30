@@ -334,6 +334,7 @@ class Diff(Dialog):
 
     def __enter__(self):
         self.stacks.setCurrentIndex(0)
+        self.busy.setVisible(True)
         self.busy.pi.startAnimation()
         QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
         QApplication.processEvents(QEventLoop.ExcludeUserInputEvents | QEventLoop.ExcludeSocketNotifiers)
@@ -387,7 +388,9 @@ class Diff(Dialog):
             calls.append((args, kwargs))
 
         if len(changed_names) + len(renamed_names) + len(removed_names) + len(added_names) < 1:
+            self.busy.setVisible(False)
             info_dialog(self, _('No changes found'), identical_msg, show=True)
+            self.busy.setVisible(True)
             return True
 
         kwargs = lambda name: {'context':self.context, 'beautify':self.beautify, 'syntax':syntax_map.get(name, None)}
