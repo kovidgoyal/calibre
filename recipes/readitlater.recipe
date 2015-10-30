@@ -31,6 +31,7 @@ class Pocket(BasicNewsRecipe):
     category = 'news, custom'
 
     # Settings people change
+    oldest_article        = 7.0
     max_articles_per_feed = 50
     minimum_articles      = 10
     mark_as_read_after_dl = True  # Set this to False for testing
@@ -153,18 +154,17 @@ class Pocket(BasicNewsRecipe):
         parsed by calibre.
         """
         article = self.get_textview(url)
-        template = Template('<h1>$title</h1>\
-                $img\
-                <div class="body">$body</div>')
-        try:
-            image = '<img src="{0}" \>'.format(article['images']['1']['src'])
-        except:
-            image = ''
+        template = Template('<h1>$title</h1><div class="body">$body</div>')
         with tempfile.NamedTemporaryFile(delete=False) as tf:
+            tmpbody = article['article']
+            for img in article['images']:
+                imgdiv = '<div id="RIL_IMG_{0}" class="RIL_IMG"></div>'.format(article['images'][img]['image_id'])
+                imgtag = '<img src="{0}" \>'.format(article['images'][img]['src'])
+                tmpbody = tmpbody.replace(imgdiv, imgtag)
+
             tf.write(template.safe_substitute(
                 title=article['title'],
-                img=image,
-                body=article['article']
+                body=tmpbody
                 ))
         return tf.name
 
