@@ -269,10 +269,10 @@ class WebSocketConnection(HTTPConnection):
         self.stop_reading = False
 
     def finalize_headers(self, inheaders):
-        upgrade = inheaders.get('Upgrade', None)
+        upgrade = inheaders.get('Upgrade', '')
         key = inheaders.get('Sec-WebSocket-Key', None)
-        conn = inheaders.get('Connection', None)
-        if key is None or upgrade.lower() != 'websocket' or conn != 'Upgrade':
+        conn = {x.strip().lower() for x in inheaders.get('Connection', '').split(',')}
+        if key is None or upgrade.lower() != 'websocket' or 'upgrade' not in conn:
             return HTTPConnection.finalize_headers(self, inheaders)
         ver = inheaders.get('Sec-WebSocket-Version', 'Unknown')
         try:
