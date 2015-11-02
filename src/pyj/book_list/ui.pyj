@@ -1,9 +1,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from book_list.globals import get_boss
 from book_list.theme import get_color
 from book_list.top_bar import TopBar
 from book_list.views import BooksView
+from book_list.item_list import ItemsView, create_item
 from dom import set_css
 from gettext import gettext as _
 from utils import debounce
@@ -17,21 +19,94 @@ class BarState:
     def add_button(self, **kw):
         self.buttons.push(kw)
 
-class BookList:
+class ClosePanelBar(BarState):
+
+    def __init__(self, title, tooltip=''):
+        tooltip = tooltip or _('Close this panel')
+        BarState.__init__(self, title=title, tooltip=tooltip, action=close_panel, icon_name='times')
+
+class UIState:
+
+    def __init__(self, top_bar_state=None, main_panel=None, panel_data=None):
+        self.top_bar_state = top_bar_state
+        self.main_panel = main_panel or get_boss().ui.items_view
+        self.panel_data = panel_data
+
+    def add_button(self, **kw):
+        self.top_bar_state.add_button(**kw)
+
+panels = {}
+
+def panel(key):
+    ans = panels[key]
+    if not ans:
+        ans = panels[key] = create_panel[key]()
+    return ans
+
+def close_panel():
+    get_boss().ui.close_panel()
+
+def replace_panel_action(replacement):
+    return def():
+        get_boss().ui.replace_panel(panel(replacement))
+
+def show_panel_action(key):
+    return def():
+        get_boss().ui.show_panel(panel(key))
+
+create_panel = {
+    'more-actions-menu': def more_actions_menu():
+        return UIState(ClosePanelBar(_('More actions')), panel_data=[
+        create_item(_('Book List Mode'), replace_panel_action('booklist-mode-menu'), _('Change how the list of books is displayed')),
+    ])
+    ,
+
+    'booklist-mode-menu': def booklist_mode_menu():
+        return UIState(ClosePanelBar(_('Book List Mode')), panel_data=[
+        ])
+    ,
+}
+
+
+class UI:
 
     def __init__(self, interface_data):
         set_css(document.body, background_color=get_color('window-background'))
-        self.states = []
-        self.initial_bar_state = ibs = BarState(run_animation=True)
+        self.states, self.panels = [], []
+        self.top_bar = TopBar()
+        self.books_view = BooksView(interface_data)
+        self.items_view = ItemsView(interface_data)
+        ibs = BarState(run_animation=True)
         ibs.add_button(icon_name='sort-alpha-asc', tooltip=_('Sort books'))
         ibs.add_button(icon_name='search', tooltip=_('Search for books'))
-        ibs.add_button(icon_name='bars', tooltip=_('More actions'))
-        self.states.append(ibs)
-        self.top_bar = TopBar()
-        self.top_bar.apply_state(ibs.left_state, ibs.buttons)
-        self.books_view = BooksView(interface_data)
+        ibs.add_button(icon_name='ellipsis-v', tooltip=_('More actions'), action=show_panel_action('more-actions-menu'))
+        self.states.append(UIState(ibs, self.books_view))
+        self.apply_state(self.states[0])
         ibs.left_state.run_animation = False
         window.addEventListener('resize', debounce(bind(self.on_resize, self), 250))
+        self.panels = v'[self.books_view, self.items_view]'
 
     def on_resize(self):
         self.books_view.on_resize()
+
+    def apply_state(self, state):
+        self.top_bar.apply_state(state.top_bar_state.left_state, state.top_bar_state.buttons)
+        for panel in self.panels:
+            panel.is_visible = panel is state.main_panel
+        if callable(state.main_panel.init):
+            state.main_panel.init(state.panel_data)
+
+    def close_panel(self):
+        if len(self.states) > 1:
+            self.states.pop()
+            self.apply_state(self.states[-1])
+
+    def replace_panel(self, state):
+        if len(self.states) > 1:
+            self.states.pop()
+            self.states.append(state)
+            self.apply_state(self.states[-1])
+
+    def show_panel(self, state):
+        self.states.append(state)
+        self.apply_state(self.states[-1])

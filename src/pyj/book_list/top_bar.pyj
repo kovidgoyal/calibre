@@ -81,7 +81,7 @@ class TopBar:
                 href="javascript:void(0)", title=tooltip,
                 E.i(class_='fa fa-' + icon_name)
             ))
-            a = right.firstChild
+            a = right.lastChild
             if bar is self.bar:
                 if action is not None:
                     a.addEventListener('click', def(event): event.preventDefault(), action();)
