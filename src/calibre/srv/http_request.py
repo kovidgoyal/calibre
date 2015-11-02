@@ -104,7 +104,7 @@ comma_separated_headers = {
 }
 
 decoded_headers = {
-    'Transfer-Encoding', 'Connection', 'Keep-Alive', 'Expect', 'WWW-Authenticate', 'Authorization',
+    'Transfer-Encoding', 'Keep-Alive', 'Expect', 'WWW-Authenticate', 'Authorization',
     'Sec-WebSocket-Key', 'Sec-WebSocket-Version', 'Sec-WebSocket-Protocol',
 } | comma_separated_headers
 
