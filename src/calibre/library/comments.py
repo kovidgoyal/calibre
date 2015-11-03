@@ -135,9 +135,11 @@ def merge_comments(one, two):
 
 def sanitize_comments_html(html):
     from calibre.ebooks.markdown import Markdown
+    import bleach
     text = html2text(html)
-    md = Markdown(safe_mode='remove')
-    cleansed = re.sub('\n+', '', md.convert(text))
+    md = Markdown()
+    html = md.convert(text)
+    cleansed = re.sub(u'\n+', u'', bleach.clean(html))
     return cleansed
 
 def test():
