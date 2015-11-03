@@ -11,7 +11,7 @@ var reference_last_highlighted_para = null;
 function show_reference_panel(ref) {
     panel = $("#calibre_reference_panel");
     if (panel.length < 1) {
-        $(document.body).append('<div id="calibre_reference_panel" style="top:20px; left:20px; padding-left:30px; padding-right:30px; font:monospace normal;text-align:center; z-index:10000; background: beige; border:red ridge 2px; position:absolute;"><h5>Paragraph</h5><p style="text-indent:0pt">None</p></div>')
+        $(document.body).append('<div id="calibre_reference_panel" style="top:20px; left:20px; padding-left:30px; padding-right:30px; font:monospace normal;text-align:center; z-index:10000; background: beige; border:red ridge 2px; position:absolute; color: black"><h5>Paragraph</h5><p style="text-indent:0pt">None</p></div>');
         panel = $("#calibre_reference_panel");
     }
     $("> p", panel).text(ref);
@@ -47,7 +47,7 @@ function leave_reference_mode() {
     $("p").unbind("mouseenter mouseleave", toggle_reference);
     panel = $("#calibre_reference_panel");
     if (panel.length > 0) panel.hide();
-    if (reference_last_highlighted_para != null) 
+    if (reference_last_highlighted_para !== null) 
         reference_last_highlighted_para.css({backgroundColor:reference_old_bgcol});
 }
 
@@ -66,7 +66,7 @@ function goto_reference(ref) {
         window.paged_display.scroll_to_xpos(xpos, true, true, 1000);
     } else 
         $.scrollTo(dest, 1000,
-            {onAfter:function(){window.py_bridge.animated_scroll_done()}});
+            {onAfter:function(){window.py_bridge.animated_scroll_done();}});
 }
 
 
