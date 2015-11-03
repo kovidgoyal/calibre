@@ -236,6 +236,8 @@ def test_terminal():
 def test_markdown():
     from calibre.ebooks.markdown import Markdown
     Markdown(extensions=['extra'])
+    import bleach
+    bleach.clean(u'xxx<script>a</script>')
     print('Markdown OK!')
 
 def test():
