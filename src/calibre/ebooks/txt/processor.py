@@ -98,8 +98,8 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
 def convert_markdown(txt, title='', extensions=('footnotes', 'tables', 'toc')):
     from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
     from calibre.ebooks.markdown import Markdown
-    extensions = [x.lower() for x in extensions if x.lower() in MD_EXTENSIONS]
-    md = Markdown(extensions=extensions, safe_mode=False)
+    extensions = ['calibre.ebooks.markdown.extensions.' + x.lower() for x in extensions if x.lower() in MD_EXTENSIONS]
+    md = Markdown(extensions=extensions)
     return HTML_TEMPLATE % (title, md.convert(txt))
 
 def convert_textile(txt, title=''):

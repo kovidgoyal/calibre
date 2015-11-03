@@ -2,9 +2,9 @@
 CORE MARKDOWN BLOCKPARSER
 ===========================================================================
 
-This parser handles basic parsing of Markdown blocks.  It doesn't concern itself
-with inline elements such as **bold** or *italics*, but rather just catches
-blocks, lists, quotes, etc.
+This parser handles basic parsing of Markdown blocks.  It doesn't concern
+itself with inline elements such as **bold** or *italics*, but rather just
+catches blocks, lists, quotes, etc.
 
 The BlockParser is made up of a bunch of BlockProssors, each handling a
 different type of block. Extensions may add/replace/remove BlockProcessors
@@ -19,7 +19,7 @@ import re
 from . import util
 from .blockparser import BlockParser
 
-logger =  logging.getLogger('MARKDOWN')
+logger = logging.getLogger('MARKDOWN')
 
 
 def build_block_parser(md_instance, **kwargs):
@@ -38,9 +38,9 @@ def build_block_parser(md_instance, **kwargs):
     return parser
 
 
-class BlockProcessor:
-    """ Base class for block processors. 
-    
+class BlockProcessor(object):
+    """ Base class for block processors.
+
     Each subclass will provide the methods below to work with the source and
     tree. Each processor will need to define it's own ``test`` and ``run``
     methods. The ``test`` method should return True or False, to indicate
@@ -82,32 +82,32 @@ class BlockProcessor:
         return '\n'.join(lines)
 
     def test(self, parent, block):
-        """ Test for block type. Must be overridden by subclasses. 
-        
-        As the parser loops through processors, it will call the ``test`` method
-        on each to determine if the given block of text is of that type. This
-        method must return a boolean ``True`` or ``False``. The actual method of
-        testing is left to the needs of that particular block type. It could 
-        be as simple as ``block.startswith(some_string)`` or a complex regular
-        expression. As the block type may be different depending on the parent
-        of the block (i.e. inside a list), the parent etree element is also 
-        provided and may be used as part of the test.
+        """ Test for block type. Must be overridden by subclasses.
+
+        As the parser loops through processors, it will call the ``test``
+        method on each to determine if the given block of text is of that
+        type. This method must return a boolean ``True`` or ``False``. The
+        actual method of testing is left to the needs of that particular
+        block type. It could be as simple as ``block.startswith(some_string)``
+        or a complex regular expression. As the block type may be different
+        depending on the parent of the block (i.e. inside a list), the parent
+        etree element is also provided and may be used as part of the test.
 
         Keywords:
-        
+
         * ``parent``: A etree element which will be the parent of the block.
-        * ``block``: A block of text from the source which has been split at 
+        * ``block``: A block of text from the source which has been split at
             blank lines.
         """
-        pass
+        pass  # pragma: no cover
 
     def run(self, parent, blocks):
-        """ Run processor. Must be overridden by subclasses. 
-        
+        """ Run processor. Must be overridden by subclasses.
+
         When the parser determines the appropriate type of a block, the parser
         will call the corresponding processor's ``run`` method. This method
         should parse the individual lines of the block and append them to
-        the etree. 
+        the etree.
 
         Note that both the ``parent`` and ``etree`` keywords are pointers
         to instances of the objects which should be edited in place. Each
@@ -123,12 +123,12 @@ class BlockProcessor:
         * ``parent``: A etree element which is the parent of the current block.
         * ``blocks``: A list of all remaining blocks of the document.
         """
-        pass
+        pass  # pragma: no cover
 
 
 class ListIndentProcessor(BlockProcessor):
-    """ Process children of list items. 
-    
+    """ Process children of list items.
+
     Example:
         * a list item
             process this part
@@ -141,17 +141,15 @@ class ListIndentProcessor(BlockProcessor):
     LIST_TYPES = ['ul', 'ol']
 
     def __init__(self, *args):
-        BlockProcessor.__init__(self, *args)
-        self.INDENT_RE = re.compile(r'^(([ ]{%s})+)'% self.tab_length)
+        super(ListIndentProcessor, self).__init__(*args)
+        self.INDENT_RE = re.compile(r'^(([ ]{%s})+)' % self.tab_length)
 
     def test(self, parent, block):
         return block.startswith(' '*self.tab_length) and \
-                not self.parser.state.isstate('detabbed') and  \
-                (parent.tag in self.ITEM_TYPES or \
-                    (len(parent) and parent[-1] and \
-                        (parent[-1].tag in self.LIST_TYPES)
-                    )
-                )
+            not self.parser.state.isstate('detabbed') and \
+            (parent.tag in self.ITEM_TYPES or
+                (len(parent) and parent[-1] is not None and
+                    (parent[-1].tag in self.LIST_TYPES)))
 
     def run(self, parent, blocks):
         block = blocks.pop(0)
@@ -162,7 +160,7 @@ class ListIndentProcessor(BlockProcessor):
         if parent.tag in self.ITEM_TYPES:
             # It's possible that this parent has a 'ul' or 'ol' child list
             # with a member.  If that is the case, then that should be the
-            # parent.  This is intended to catch the edge case of an indented 
+            # parent.  This is intended to catch the edge case of an indented
             # list whose first member was parsed previous to this point
             # see OListProcessor
             if len(parent) and parent[-1].tag in self.LIST_TYPES:
@@ -193,7 +191,7 @@ class ListIndentProcessor(BlockProcessor):
         """ Create a new li and parse the block with it as the parent. """
         li = util.etree.SubElement(parent, 'li')
         self.parser.parseBlocks(li, [block])
- 
+
     def get_level(self, parent, block):
         """ Get level of indent based on list level. """
         # Get indent level
@@ -211,7 +209,8 @@ class ListIndentProcessor(BlockProcessor):
         # Step through children of tree to find matching indent level.
         while indent_level > level:
             child = self.lastChild(parent)
-            if child and (child.tag in self.LIST_TYPES or child.tag in self.ITEM_TYPES):
+            if (child is not None and
+               (child.tag in self.LIST_TYPES or child.tag in self.ITEM_TYPES)):
                 if child.tag in self.LIST_TYPES:
                     level += 1
                 parent = child
@@ -227,19 +226,21 @@ class CodeBlockProcessor(BlockProcessor):
 
     def test(self, parent, block):
         return block.startswith(' '*self.tab_length)
-    
+
     def run(self, parent, blocks):
         sibling = self.lastChild(parent)
         block = blocks.pop(0)
         theRest = ''
-        if sibling and sibling.tag == "pre" and len(sibling) \
-                    and sibling[0].tag == "code":
+        if (sibling is not None and sibling.tag == "pre" and
+           len(sibling) and sibling[0].tag == "code"):
             # The previous block was a code block. As blank lines do not start
             # new code blocks, append this block to the previous, adding back
             # linebreaks removed from the split into a list.
             code = sibling[0]
             block, theRest = self.detab(block)
-            code.text = util.AtomicString('%s\n%s\n' % (code.text, block.rstrip()))
+            code.text = util.AtomicString(
+                '%s\n%s\n' % (code.text, block.rstrip())
+            )
         else:
             # This is a new codeblock. Create the elements and insert text.
             pre = util.etree.SubElement(parent, 'pre')
@@ -247,7 +248,7 @@ class CodeBlockProcessor(BlockProcessor):
             block, theRest = self.detab(block)
             code.text = util.AtomicString('%s\n' % block.rstrip())
         if theRest:
-            # This block contained unindented line(s) after the first indented 
+            # This block contained unindented line(s) after the first indented
             # line. Insert these lines as the first block of the master blocks
             # list for future processing.
             blocks.insert(0, theRest)
@@ -264,14 +265,15 @@ class BlockQuoteProcessor(BlockProcessor):
         block = blocks.pop(0)
         m = self.RE.search(block)
         if m:
-            before = block[:m.start()] # Lines before blockquote
+            before = block[:m.start()]  # Lines before blockquote
             # Pass lines before blockquote in recursively for parsing forst.
             self.parser.parseBlocks(parent, [before])
             # Remove ``> `` from begining of each line.
-            block = '\n'.join([self.clean(line) for line in 
-                            block[m.start():].split('\n')])
+            block = '\n'.join(
+                [self.clean(line) for line in block[m.start():].split('\n')]
+            )
         sibling = self.lastChild(parent)
-        if sibling and sibling.tag == "blockquote":
+        if sibling is not None and sibling.tag == "blockquote":
             # Previous block was a blockquote so set that as this blocks parent
             quote = sibling
         else:
@@ -293,23 +295,29 @@ class BlockQuoteProcessor(BlockProcessor):
         else:
             return line
 
+
 class OListProcessor(BlockProcessor):
     """ Process ordered list blocks. """
 
     TAG = 'ol'
-    # Detect an item (``1. item``). ``group(1)`` contains contents of item.
-    RE = re.compile(r'^[ ]{0,3}\d+\.[ ]+(.*)')
-    # Detect items on secondary lines. they can be of either list type.
-    CHILD_RE = re.compile(r'^[ ]{0,3}((\d+\.)|[*+-])[ ]+(.*)')
-    # Detect indented (nested) items of either type
-    INDENT_RE = re.compile(r'^[ ]{4,7}((\d+\.)|[*+-])[ ]+.*')
     # The integer (python string) with which the lists starts (default=1)
     # Eg: If list is intialized as)
     #   3. Item
     # The ol tag will get starts="3" attribute
     STARTSWITH = '1'
-    # List of allowed sibling tags. 
+    # List of allowed sibling tags.
     SIBLING_TAGS = ['ol', 'ul']
+
+    def __init__(self, parser):
+        super(OListProcessor, self).__init__(parser)
+        # Detect an item (``1. item``). ``group(1)`` contains contents of item.
+        self.RE = re.compile(r'^[ ]{0,%d}\d+\.[ ]+(.*)' % (self.tab_length - 1))
+        # Detect items on secondary lines. they can be of either list type.
+        self.CHILD_RE = re.compile(r'^[ ]{0,%d}((\d+\.)|[*+-])[ ]+(.*)' %
+                                   (self.tab_length - 1))
+        # Detect indented (nested) items of either type
+        self.INDENT_RE = re.compile(r'^[ ]{%d,%d}((\d+\.)|[*+-])[ ]+.*' %
+                                    (self.tab_length, self.tab_length * 2 - 1))
 
     def test(self, parent, block):
         return bool(self.RE.match(block))
@@ -319,15 +327,15 @@ class OListProcessor(BlockProcessor):
         items = self.get_items(blocks.pop(0))
         sibling = self.lastChild(parent)
 
-        if sibling and sibling.tag in self.SIBLING_TAGS:
+        if sibling is not None and sibling.tag in self.SIBLING_TAGS:
             # Previous block was a list item, so set that as parent
             lst = sibling
-            # make sure previous item is in a p- if the item has text, then it
-            # it isn't in a p
-            if lst[-1].text: 
-                # since it's possible there are other children for this sibling,
-                # we can't just SubElement the p, we need to insert it as the 
-                # first item
+            # make sure previous item is in a p- if the item has text,
+            # then it isn't in a p
+            if lst[-1].text:
+                # since it's possible there are other children for this
+                # sibling, we can't just SubElement the p, we need to
+                # insert it as the first item.
                 p = util.etree.Element('p')
                 p.text = lst[-1].text
                 lst[-1].text = ''
@@ -347,7 +355,7 @@ class OListProcessor(BlockProcessor):
             self.parser.parseBlocks(li, [firstitem])
             self.parser.state.reset()
         elif parent.tag in ['ol', 'ul']:
-            # this catches the edge case of a multi-item indented list whose 
+            # this catches the edge case of a multi-item indented list whose
             # first item is in a blank parent-list item:
             # * * subitem1
             #     * subitem2
@@ -357,7 +365,7 @@ class OListProcessor(BlockProcessor):
             # This is a new list so create parent with appropriate tag.
             lst = util.etree.SubElement(parent, self.TAG)
             # Check if a custom start integer is set
-            if not self.parser.markdown.lazy_ol and self.STARTSWITH !='1':
+            if not self.parser.markdown.lazy_ol and self.STARTSWITH != '1':
                 lst.attrib['start'] = self.STARTSWITH
 
         self.parser.state.set('list')
@@ -381,7 +389,7 @@ class OListProcessor(BlockProcessor):
             if m:
                 # This is a new list item
                 # Check first item for the start index
-                if not items and self.TAG=='ol':
+                if not items and self.TAG == 'ol':
                     # Detect the integer value of first list item
                     INTEGER_RE = re.compile('(\d+)')
                     self.STARTSWITH = INTEGER_RE.match(m.group(1)).group()
@@ -404,7 +412,11 @@ class UListProcessor(OListProcessor):
     """ Process unordered list blocks. """
 
     TAG = 'ul'
-    RE = re.compile(r'^[ ]{0,3}[*+-][ ]+(.*)')
+
+    def __init__(self, parser):
+        super(UListProcessor, self).__init__(parser)
+        # Detect an item (``1. item``). ``group(1)`` contains contents of item.
+        self.RE = re.compile(r'^[ ]{0,%d}[*+-][ ]+(.*)' % (self.tab_length - 1))
 
 
 class HashHeaderProcessor(BlockProcessor):
@@ -420,8 +432,8 @@ class HashHeaderProcessor(BlockProcessor):
         block = blocks.pop(0)
         m = self.RE.search(block)
         if m:
-            before = block[:m.start()] # All lines before header
-            after = block[m.end():]    # All lines after header
+            before = block[:m.start()]  # All lines before header
+            after = block[m.end():]     # All lines after header
             if before:
                 # As the header was not the first line of the block and the
                 # lines before the header must be parsed first,
@@ -433,7 +445,7 @@ class HashHeaderProcessor(BlockProcessor):
             if after:
                 # Insert remaining lines as first block for future parsing.
                 blocks.insert(0, after)
-        else:
+        else:  # pragma: no cover
             # This should never happen, but just in case...
             logger.warn("We've got a problem header: %r" % block)
 
@@ -495,7 +507,6 @@ class HRProcessor(BlockProcessor):
             blocks.insert(0, postlines)
 
 
-
 class EmptyBlockProcessor(BlockProcessor):
     """ Process blocks that are empty or start with an empty line. """
 
@@ -515,9 +526,12 @@ class EmptyBlockProcessor(BlockProcessor):
                 # Add remaining lines to master blocks for later.
                 blocks.insert(0, theRest)
         sibling = self.lastChild(parent)
-        if sibling and sibling.tag == 'pre' and len(sibling) and sibling[0].tag == 'code':
+        if (sibling is not None and sibling.tag == 'pre' and
+           len(sibling) and sibling[0].tag == 'code'):
             # Last block is a codeblock. Append to preserve whitespace.
-            sibling[0].text = util.AtomicString('%s%s' % (sibling[0].text, filler))
+            sibling[0].text = util.AtomicString(
+                '%s%s' % (sibling[0].text, filler)
+            )
 
 
 class ParagraphProcessor(BlockProcessor):
@@ -533,7 +547,7 @@ class ParagraphProcessor(BlockProcessor):
             if self.parser.state.isstate('list'):
                 # The parent is a tight-list.
                 #
-                # Check for any children. This will likely only happen in a 
+                # Check for any children. This will likely only happen in a
                 # tight-list when a header isn't followed by a blank line.
                 # For example:
                 #

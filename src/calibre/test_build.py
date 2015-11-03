@@ -233,6 +233,11 @@ def test_terminal():
     del readline
     print ('readline and curses OK!')
 
+def test_markdown():
+    from calibre.ebooks.markdown import Markdown
+    Markdown(extensions=['extra'])
+    print('Markdown OK!')
+
 def test():
     if iswindows:
         test_dlls()
@@ -256,6 +261,7 @@ def test():
     test_netifaces()
     test_psutil()
     test_podofo()
+    test_markdown()
     if iswindows:
         test_wpd()
         test_winutil()

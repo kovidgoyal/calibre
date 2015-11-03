@@ -1,18 +1,13 @@
 from __future__ import unicode_literals
 from __future__ import absolute_import
 from . import util
-
 from copy import deepcopy
 
-def iteritems_compat(d):
-    """Return an iterator over the (key, value) pairs of a dictionary.
-    Copied from `six` module."""
-    return iter(getattr(d, _iteritems)())
 
 class OrderedDict(dict):
     """
     A dictionary that keeps its keys in the order in which they're inserted.
-    
+
     Copied from Django's SortedDict with some modifications.
 
     """
@@ -87,11 +82,11 @@ class OrderedDict(dict):
         for key in self.keyOrder:
             yield self[key]
 
-    if util.PY3:
+    if util.PY3:  # pragma: no cover
         items = _iteritems
         keys = _iterkeys
         values = _itervalues
-    else:
+    else:  # pragma: no cover
         iteritems = _iteritems
         iterkeys = _iterkeys
         itervalues = _itervalues
@@ -106,8 +101,8 @@ class OrderedDict(dict):
             return [self[k] for k in self.keyOrder]
 
     def update(self, dict_):
-        for k, v in iteritems_compat(dict_):
-            self[k] = v
+        for k in dict_:
+            self[k] = dict_[k]
 
     def setdefault(self, key, default):
         if key not in self:
@@ -138,7 +133,9 @@ class OrderedDict(dict):
         Replaces the normal dict.__repr__ with a version that returns the keys
         in their Ordered order.
         """
-        return '{%s}' % ', '.join(['%r: %r' % (k, v) for k, v in iteritems_compat(self)])
+        return '{%s}' % ', '.join(
+            ['%r: %r' % (k, v) for k, v in self._iteritems()]
+        )
 
     def clear(self):
         super(OrderedDict, self).clear()
