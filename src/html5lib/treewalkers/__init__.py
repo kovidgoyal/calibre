@@ -10,8 +10,12 @@ returning an iterator generating tokens.
 
 from __future__ import absolute_import, division, unicode_literals
 
+__all__ = ["getTreeWalker", "pprint", "dom", "etree", "genshistream", "lxmletree",
+           "pulldom"]
+
 import sys
 
+from .. import constants
 from ..utils import default_etree
 
 treeWalkerCache = {}
@@ -55,3 +59,89 @@ def getTreeWalker(treeType, implementation=None, **kwargs):
             # XXX: NEVER cache here, caching is done in the etree submodule
             return etree.getETreeModule(implementation, **kwargs).TreeWalker
     return treeWalkerCache.get(treeType)
+
+
+def concatenateCharacterTokens(tokens):
+    pendingCharacters = []
+    for token in tokens:
+        type = token["type"]
+        if type in ("Characters", "SpaceCharacters"):
+            pendingCharacters.append(token["data"])
+        else:
+            if pendingCharacters:
+                yield {"type": "Characters", "data": "".join(pendingCharacters)}
+                pendingCharacters = []
+            yield token
+    if pendingCharacters:
+        yield {"type": "Characters", "data": "".join(pendingCharacters)}
+
+
+def pprint(walker):
+    """Pretty printer for tree walkers"""
+    output = []
+    indent = 0
+    for token in concatenateCharacterTokens(walker):
+        type = token["type"]
+        if type in ("StartTag", "EmptyTag"):
+            # tag name
+            if token["namespace"] and token["namespace"] != constants.namespaces["html"]:
+                if token["namespace"] in constants.prefixes:
+                    ns = constants.prefixes[token["namespace"]]
+                else:
+                    ns = token["namespace"]
+                name = "%s %s" % (ns, token["name"])
+            else:
+                name = token["name"]
+            output.append("%s<%s>" % (" " * indent, name))
+            indent += 2
+            # attributes (sorted for consistent ordering)
+            attrs = token["data"]
+            for (namespace, localname), value in sorted(attrs.items()):
+                if namespace:
+                    if namespace in constants.prefixes:
+                        ns = constants.prefixes[namespace]
+                    else:
+                        ns = namespace
+                    name = "%s %s" % (ns, localname)
+                else:
+                    name = localname
+                output.append("%s%s=\"%s\"" % (" " * indent, name, value))
+            # self-closing
+            if type == "EmptyTag":
+                indent -= 2
+
+        elif type == "EndTag":
+            indent -= 2
+
+        elif type == "Comment":
+            output.append("%s<!-- %s -->" % (" " * indent, token["data"]))
+
+        elif type == "Doctype":
+            if token["name"]:
+                if token["publicId"]:
+                    output.append("""%s<!DOCTYPE %s "%s" "%s">""" %
+                                  (" " * indent,
+                                   token["name"],
+                                   token["publicId"],
+                                   token["systemId"] if token["systemId"] else ""))
+                elif token["systemId"]:
+                    output.append("""%s<!DOCTYPE %s "" "%s">""" %
+                                  (" " * indent,
+                                   token["name"],
+                                   token["systemId"]))
+                else:
+                    output.append("%s<!DOCTYPE %s>" % (" " * indent,
+                                                       token["name"]))
+            else:
+                output.append("%s<!DOCTYPE >" % (" " * indent,))
+
+        elif type == "Characters":
+            output.append("%s\"%s\"" % (" " * indent, token["data"]))
+
+        elif type == "SpaceCharacters":
+            assert False, "concatenateCharacterTokens should have got rid of all Space tokens"
+
+        else:
+            raise ValueError("Unknown token type, %s" % type)
+
+    return "\n".join(output)

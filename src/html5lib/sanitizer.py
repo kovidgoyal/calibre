@@ -1,10 +1,29 @@
 from __future__ import absolute_import, division, unicode_literals
 
 import re
+import sys
 from xml.sax.saxutils import escape, unescape
+if sys.version_info[0] == 2:
+    from urlparse import urlparse
+else:
+    from urllib.parse import urlparse
 
 from .tokenizer import HTMLTokenizer
 from .constants import tokenTypes
+
+
+content_type_rgx = re.compile(r'''
+                               ^
+                               # Match a content type <application>/<type>
+                               (?P<content_type>[-a-zA-Z0-9.]+/[-a-zA-Z0-9.]+)
+                               # Match any character set and encoding
+                               (?:(?:;charset=(?:[-a-zA-Z0-9]+)(?:;(?:base64))?)
+                                 |(?:;(?:base64))?(?:;charset=(?:[-a-zA-Z0-9]+))?)
+                               # Assume the rest is data
+                               ,.*
+                               $
+                               ''',
+                              re.VERBOSE)
 
 
 class HTMLSanitizerMixin(object):
@@ -100,8 +119,8 @@ class HTMLSanitizerMixin(object):
                       'xml:base', 'xml:lang', 'xml:space', 'xmlns', 'xmlns:xlink', 'y',
                       'y1', 'y2', 'zoomAndPan']
 
-    attr_val_is_uri = ['href', 'src', 'cite', 'action', 'longdesc', 'poster',
-                       'xlink:href', 'xml:base']
+    attr_val_is_uri = ['href', 'src', 'cite', 'action', 'longdesc', 'poster', 'background', 'datasrc',
+                       'dynsrc', 'lowsrc', 'ping', 'poster', 'xlink:href', 'xml:base']
 
     svg_attr_val_allows_ref = ['clip-path', 'color-profile', 'cursor', 'fill',
                                'filter', 'marker', 'marker-start', 'marker-mid', 'marker-end',
@@ -138,7 +157,9 @@ class HTMLSanitizerMixin(object):
     acceptable_protocols = ['ed2k', 'ftp', 'http', 'https', 'irc',
                             'mailto', 'news', 'gopher', 'nntp', 'telnet', 'webcal',
                             'xmpp', 'callto', 'feed', 'urn', 'aim', 'rsync', 'tag',
-                            'ssh', 'sftp', 'rtsp', 'afs']
+                            'ssh', 'sftp', 'rtsp', 'afs', 'data']
+
+    acceptable_content_types = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/bmp', 'text/plain']
 
     # subclasses may define their own versions of these constants
     allowed_elements = acceptable_elements + mathml_elements + svg_elements
@@ -147,6 +168,7 @@ class HTMLSanitizerMixin(object):
     allowed_css_keywords = acceptable_css_keywords
     allowed_svg_properties = acceptable_svg_properties
     allowed_protocols = acceptable_protocols
+    allowed_content_types = acceptable_content_types
 
     # Sanitize the +html+, escaping all elements not in ALLOWED_ELEMENTS, and
     # stripping out all # attributes not in ALLOWED_ATTRIBUTES. Style
@@ -189,10 +211,21 @@ class HTMLSanitizerMixin(object):
                                        unescape(attrs[attr])).lower()
                 # remove replacement characters from unescaped characters
                 val_unescaped = val_unescaped.replace("\ufffd", "")
-                if (re.match("^[a-z0-9][-+.a-z0-9]*:", val_unescaped) and
-                    (val_unescaped.split(':')[0] not in
-                     self.allowed_protocols)):
+                try:
+                    uri = urlparse.urlparse(val_unescaped)
+                except ValueError:
+                    uri = None
                     del attrs[attr]
+                if uri and uri.scheme:
+                    if uri.scheme not in self.allowed_protocols:
+                        del attrs[attr]
+                    if uri.scheme == 'data':
+                        m = content_type_rgx.match(uri.path)
+                        if not m:
+                            del attrs[attr]
+                        elif m.group('content_type') not in self.allowed_content_types:
+                            del attrs[attr]
+
             for attr in self.svg_attr_val_allows_ref:
                 if attr in attrs:
                     attrs[attr] = re.sub(r'url\s*\(\s*[^#\s][^)]+?\)',
@@ -245,7 +278,7 @@ class HTMLSanitizerMixin(object):
             elif prop.split('-')[0].lower() in ['background', 'border', 'margin',
                                                 'padding']:
                 for keyword in value.split():
-                    if not keyword in self.acceptable_css_keywords and \
+                    if keyword not in self.acceptable_css_keywords and \
                             not re.match("^(#[0-9a-f]+|rgb\(\d+%?,\d*%?,?\d*%?\)?|\d{0,2}\.?\d{0,2}(cm|em|ex|in|mm|pc|pt|px|%|,|\))?)$", keyword):
                         break
                 else:
