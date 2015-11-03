@@ -11,7 +11,10 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
 MD_EXTENSIONS = {
     'abbr': _('Abbreviations'),
+    'admonition': _('Support admonitions'),
+    'attr_list': _('Add attribute to HTML tags'),
     'def_list': _('Definition lists'),
+    'extra': _('Enables various common extensions'),
     'fenced_code': _('Alternative code block syntax'),
     'footnotes': _('Footnotes'),
     'headerid': _('Allow ids as part of a header'),
@@ -26,7 +29,7 @@ class TXTInput(InputFormatPlugin):
     name        = 'TXT Input'
     author      = 'John Schember'
     description = 'Convert TXT files to HTML'
-    file_types  = set(['txt', 'txtz', 'text', 'md', 'textile', 'markdown'])
+    file_types  = {'txt', 'txtz', 'text', 'md', 'textile', 'markdown'}
 
     options = set([
         OptionRecommendation(name='paragraph_type', recommended_value='auto',
