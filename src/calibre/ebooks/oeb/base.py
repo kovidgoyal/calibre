@@ -410,7 +410,10 @@ def urlnormalize(href):
     """Convert a URL into normalized form, with all and only URL-unsafe
     characters URL quoted.
     """
-    parts = urlparse(href)
+    try:
+        parts = urlparse(href)
+    except ValueError as e:
+        raise ValueError('Failed to parse the URL: %r with underlying error: %s' % (href, as_unicode(e)))
     if not parts.scheme or parts.scheme == 'file':
         path, frag = urldefrag(href)
         parts = ('', '', path, '', '', frag)
