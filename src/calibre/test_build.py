@@ -236,8 +236,8 @@ def test_terminal():
 def test_markdown():
     from calibre.ebooks.markdown import Markdown
     Markdown(extensions=['extra'])
-    import bleach
-    bleach.clean(u'xxx<script>a</script>')
+    from calibre.library.comments import sanitize_html
+    sanitize_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
     print('Markdown OK!')
 
 def test():
