@@ -1,0 +1,58 @@
+__copyright__ = '2015, Darko Miletic <darko.miletic at gmail.com>'
+'''
+www.lapoliticaonline.com
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class LaPoliticaOnline_AR(BasicNewsRecipe):
+    title                 = 'La Politica Online'
+    __author__            = 'Darko Miletic'
+    description           = "Informacion actualizada las 24 horas, con noticias de Argentina y del mundo"
+    publisher             = 'La Politica Online SA'
+    category              = 'news, politics, Argentina'
+    oldest_article        = 1
+    max_articles_per_feed = 100
+    use_embedded_content  = False
+    auto_cleanup          = False
+    no_stylesheets        = True
+    encoding              = 'latin1'
+    language              = 'es_AR'
+    publication_type      = 'newspaper'
+    remove_empty_feeds    = True
+    masthead_url          = 'http://www.lapoliticaonline.com/0/img/header/logo.gif'
+    extra_css             = """
+                                .title,.vsmcontent{font-family: Georgia,"Times New Roman",Times,serif}
+                                body{font-family: Arial,Helvetica,sans-serif}
+                                .galleryfooter{font-size: small; color: gainsboro;}
+                                img{display: block}
+                                .title{font-size: x-large; font-weight: bold; line-height: 2em;}
+                            """
+
+    conversion_options = {
+                          'comment'  : description
+                        , 'tags'     : category
+                        , 'publisher': publisher
+                        , 'language' : language
+                        }
+
+    remove_tags = [
+                     dict(name=['iframe','embed','object','meta','link','button'])
+                    ,dict(attrs={'class':['share-related', 'controls oneimage', 'toolbar', 'itemheader']})
+                  ]
+
+    remove_tags_before = dict(name='div', attrs={'class':'title'})
+    remove_tags_after  = dict(attrs={'id':'vsmcontent'})
+
+    feeds          = [
+                         (u'Politica'   , u'http://www.lapoliticaonline.com/files/rss/politica.xml')
+                        ,(u'Economia'   , u'http://www.lapoliticaonline.com/files/rss/economia.xml')
+                        ,(u'Ciudad'     , u'http://www.lapoliticaonline.com/files/rss/ciudad.xml')
+                        ,(u'Provincia'  , u'http://www.lapoliticaonline.com/files/rss/provincia.xml')
+                        ,(u'Conurbano'  , u'http://www.lapoliticaonline.com/files/rss/conurbano.xml')
+                        ,(u'Mendoza'    , u'http://www.lapoliticaonline.com/files/rss/mendoza.xml')
+                        ,(u'Santa Fe'   , u'http://www.lapoliticaonline.com/files/rss/santafe.xml')
+                        ,(u'Transporte' , u'http://www.lapoliticaonline.com/files/rss/transporte.xml')
+                        ,(u'Energia'    , u'http://www.lapoliticaonline.com/files/rss/energía.xml')
+                        ,(u'Judiciales' , u'http://www.lapoliticaonline.com/files/rss/judiciales.xml')
+                     ]
