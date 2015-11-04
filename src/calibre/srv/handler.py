@@ -15,6 +15,7 @@ from threading import Lock
 from calibre.db.cache import Cache
 from calibre.db.legacy import create_backend, LibraryDatabase
 from calibre.srv.routes import Router
+from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
 
 def init_library(library_path):
@@ -85,6 +86,7 @@ class Context(object):
         self.library_broker = LibraryBroker(libraries)
         self.testing = testing
         self.lock = Lock()
+        self.user_manager = UserManager()
 
     def init_session(self, endpoint, data):
         pass

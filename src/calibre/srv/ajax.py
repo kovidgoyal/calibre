@@ -593,7 +593,19 @@ def interface_data(ctx, rd):
     '''
     ans = {'username':rd.username}
     ans['library_map'], ans['default_library'] = ctx.library_map
+    ud = {}
+    if rd.username:
+        # Override session data with stored values for the authenticated user,
+        # if any
+        ud = ctx.user_manager.get_session_data(rd.username)
+        lid = ud.get('library_id')
+        if lid and lid in ans['library_map']:
+            rd.query.set('library_id', lid)
+        usort = ud.get('sort')
+        if usort:
+            rd.query.set('sort', usort)
     ans['library_id'], db, sorts, orders = get_basic_query_data(ctx, rd.query)
+    ans['user_session_data'] = ud
     try:
         num = int(rd.query.get('num', 50))
     except Exception:

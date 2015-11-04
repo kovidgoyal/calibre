@@ -4,7 +4,7 @@
 from ajax import ajax
 from elementmaker import E
 from gettext import gettext as _
-from session import UserSessionData
+from session import UserSessionData, SessionData
 from book_list.boss import Boss
 from book_list.globals import set_boss, set_session_data
 
@@ -13,6 +13,7 @@ def on_library_loaded(end_type, xhr, ev):
     p.parentNode.removeChild(p)
     if end_type == 'load':
         interface_data = JSON.parse(xhr.responseText)
+        set_session_data(UserSessionData(interface_data['username']))
         # TODO: Copy any user specific session data from the server to
         # the local session data object, overriding local data
         boss = Boss(interface_data)
@@ -28,11 +29,8 @@ def on_library_load_progress(loaded, total):
     p.value = loaded
 
 def load_book_list():
-    sd = set_session_data(UserSessionData(window.calibre_username))
-    query = {}
-    if not sd.has_user:
-        # For authenticated users use the session data cached on the server
-        query = {'library_id':sd.get('library_id'), 'sort':sd.get('sort')}
+    temp = SessionData()  # So that settings for anonymous users are preserved
+    query = {'library_id':temp.get('library_id'), 'sort':temp.get('sort')}
     ajax('ajax/interface-data', on_library_loaded, on_library_load_progress, query=query).send()
 
 def on_load():
