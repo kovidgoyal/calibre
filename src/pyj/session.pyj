@@ -1,6 +1,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+defaults = {
+    'view_mode': 'cover_grid',
+    'sort': 'date.desc',
+}
+
 def storage_available(which):
     which = which or 'localStorage'
     try:
@@ -51,19 +56,23 @@ class SessionData:
         self.has_overflow = False
 
     def get(self, key, defval):
-        if defval is undefined:
-            defval = None
         if self.has_overflow:
             ans = self.overflow_storage[key]
             if ans is undefined:
                 ans = self.storage.getItem(key)
         else:
             ans = self.storage.getItem(key)
-        if ans is undefined:
+        if ans is undefined or ans is None:
+            if defval is undefined:
+                defval = None
             return defval
         return JSON.parse(ans)
 
     def set(self, key, value):
+        if value is None:
+            self.storage.removeItem(key)
+            v'delete self.overflow_storage[key]'
+            return True
         value = JSON.stringify(value)
         try:
             self.storage.setItem(key, value)
@@ -89,9 +98,10 @@ class UserSessionData(SessionData):
         SessionData.__init__(self)
 
     def get(self, key, defval):
+        if defval is undefined:
+            defval = defaults[key]
         return SessionData.get(self, (self.prefix + key), defval)
 
     def set(self, key, value):
         # TODO: Send updated data to server if self.has_user
         return SessionData.set(self, (self.prefix + key), value)
-

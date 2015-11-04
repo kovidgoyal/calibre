@@ -7,11 +7,11 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     keys = Object.keys(query)
     has_query = False
     if keys.length:
-        for i, k in enumerate(keys):
+        for k in keys:
             val = query[k]
             if val is undefined or val is None:
                 continue
-            path += ('?' if i == 0 else '&') + window.encodeURIComponent(k) + '=' + window.encodeURIComponent(val.toString())
+            path += ('&' if has_query else '?') + window.encodeURIComponent(k) + '=' + window.encodeURIComponent(val.toString())
             has_query = True
     if bypass_cache:
         path += ('&' if has_query else '?') + Date().getTime()
