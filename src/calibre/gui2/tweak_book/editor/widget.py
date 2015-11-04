@@ -25,7 +25,9 @@ from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
 
-def create_icon(text, palette=None, sz=None, divider=2):
+def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
+    if isinstance(fill, basestring):
+        fill = QColor(fill)
     sz = sz or tprefs['toolbar_icon_size']
     if palette is None:
         palette = QApplication.palette()
@@ -33,7 +35,8 @@ def create_icon(text, palette=None, sz=None, divider=2):
     img.fill(Qt.transparent)
     p = QPainter(img)
     p.setRenderHints(p.TextAntialiasing | p.Antialiasing)
-    qDrawShadeRect(p, img.rect(), palette, fill=QColor('#ffffff'), lineWidth=1, midLineWidth=1)
+    if fill is not None:
+        qDrawShadeRect(p, img.rect(), palette, fill=fill, lineWidth=1, midLineWidth=1)
     f = p.font()
     f.setFamily('Liberation Sans'), f.setPixelSize(int(sz // divider)), f.setBold(True)
     p.setFont(f), p.setPen(Qt.black)
@@ -83,7 +86,7 @@ def register_text_editor_actions(_reg, palette):
     ac = reg('insert-link', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'), syntaxes=('html',))
     ac.setToolTip(_('<h3>Insert hyperlink</h3>Insert a hyperlink into the text'))
 
-    ac = reg(create_icon('/*'), _('Smart &comment'), ('smart_comment',), 'editor-smart-comment', ('Ctrl+`',), _(
+    ac = reg(create_icon('/*', divider=1, fill=None), _('Smart &comment'), ('smart_comment',), 'editor-smart-comment', ('Ctrl+`',), _(
         'Smart comment (toggle block comments)'), syntaxes=())
     ac.setToolTip(_('<h3>Smart comment</h3>Comment or uncomment text<br><br>'
                     'If the cursor is inside an existing block comment, uncomment it, otherwise comment out the selected text.'))
