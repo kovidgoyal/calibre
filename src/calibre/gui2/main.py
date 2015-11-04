@@ -127,7 +127,10 @@ def get_library_path(gui_runner):
     if library_path is None:  # Need to migrate to new database layout
         base = os.path.expanduser('~')
         if iswindows:
-            base = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
+            try:
+                base = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
+            except ValueError:
+                base = None
             if not base or not os.path.exists(base):
                 from PyQt5.Qt import QDir
                 base = unicode(QDir.homePath()).replace('/', os.sep)

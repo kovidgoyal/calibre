@@ -12,7 +12,7 @@ from contextlib import closing
 
 
 from PyQt5.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
-    QItemSelectionModel, QObject, QTimer, pyqtSignal, QItemSelection)
+    QItemSelectionModel, QObject, QTimer, pyqtSignal, QItemSelection, QDir)
 from calibre import __appname__, patheq
 from calibre.library.move import MoveLibrary
 from calibre.constants import (filesystem_encoding, iswindows, plugins,
@@ -805,7 +805,10 @@ class LibraryPage(QWizardPage, LibraryUI):
             fname = _('Calibre Library')
             base = os.path.expanduser(u'~')
             if iswindows:
-                x = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
+                try:
+                    x = winutil.special_folder_path(winutil.CSIDL_PERSONAL)
+                except ValueError:
+                    x = QDir.homePath().replace('/', os.sep)
                 if x and os.access(x, os.W_OK):
                     base = x
 
@@ -837,8 +840,7 @@ class LibraryPage(QWizardPage, LibraryUI):
         newloc = unicode(self.location.text())
         try:
             dln = self.default_library_name
-            if (dln and os.path.exists(dln) and not os.listdir(dln) and newloc
-                    != dln):
+            if (dln and os.path.exists(dln) and not os.listdir(dln) and newloc != dln):
                 os.rmdir(dln)
         except:
             pass
