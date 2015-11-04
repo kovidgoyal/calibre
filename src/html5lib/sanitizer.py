@@ -212,7 +212,7 @@ class HTMLSanitizerMixin(object):
                 # remove replacement characters from unescaped characters
                 val_unescaped = val_unescaped.replace("\ufffd", "")
                 try:
-                    uri = urlparse.urlparse(val_unescaped)
+                    uri = urlparse(val_unescaped)
                 except ValueError:
                     uri = None
                     del attrs[attr]
@@ -291,11 +291,11 @@ class HTMLSanitizerMixin(object):
 
 class HTMLSanitizer(HTMLTokenizer, HTMLSanitizerMixin):
     def __init__(self, stream, encoding=None, parseMeta=True, useChardet=True,
-                 lowercaseElementName=False, lowercaseAttrName=False, parser=None):
+                 lowercaseElementName=False, lowercaseAttrName=False, parser=None, track_positions=False):
         # Change case matching defaults as we only output lowercase html anyway
         # This solution doesn't seem ideal...
         HTMLTokenizer.__init__(self, stream, encoding, parseMeta, useChardet,
-                               lowercaseElementName, lowercaseAttrName, parser=parser)
+                               lowercaseElementName, lowercaseAttrName, parser=parser, track_positions=track_positions)
 
     def __iter__(self):
         for token in HTMLTokenizer.__iter__(self):
