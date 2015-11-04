@@ -92,7 +92,10 @@ def _get_cache_dir():
 
     if iswindows:
         w = plugins['winutil'][0]
-        candidate = os.path.join(w.special_folder_path(w.CSIDL_LOCAL_APPDATA), u'%s-cache'%__appname__)
+        try:
+            candidate = os.path.join(w.special_folder_path(w.CSIDL_LOCAL_APPDATA), u'%s-cache'%__appname__)
+        except ValueError:
+            return confcache
     elif isosx:
         candidate = os.path.join(os.path.expanduser(u'~/Library/Caches'), __appname__)
     else:
@@ -206,8 +209,11 @@ if 'CALIBRE_CONFIG_DIRECTORY' in os.environ:
 elif iswindows:
     if plugins['winutil'][0] is None:
         raise Exception(plugins['winutil'][1])
-    config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
-    if not os.access(config_dir, os.W_OK|os.X_OK):
+    try:
+        config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
+    except ValueError:
+        config_dir = None
+    if not config_dir or not os.access(config_dir, os.W_OK|os.X_OK):
         config_dir = os.path.expanduser('~')
     config_dir = os.path.join(config_dir, 'calibre')
 elif isosx:
