@@ -70,8 +70,9 @@ class ItemsView:
             a = ul.lastChild.firstChild
             if item.subtitle:
                 a.appendChild(E.div(item.subtitle, class_='subtitle'))
+            a.addEventListener('click', def(event): event.preventDefault();)
             if item.action:
-                a.addEventListener('click', def(event): event.preventDefault(), item.action();)
+                ul.lastChild.addEventListener('click', item.action)
 
 
 def create_item(title, action=None, subtitle=None, icon_name=None):

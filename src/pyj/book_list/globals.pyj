@@ -2,11 +2,20 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 boss = None
+session_data = None
 
 def get_boss():
-    nonlocal boss
     return boss
 
 def set_boss(obj):
     nonlocal boss
     boss = obj
+    return boss
+
+def set_session_data(sd):
+    nonlocal session_data
+    session_data = sd
+    return session_data
+
+def get_session_data():
+    return session_data

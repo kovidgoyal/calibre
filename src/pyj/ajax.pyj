@@ -1,10 +1,21 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET'):
+def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None):
+    query = query or {}
     xhr = XMLHttpRequest()
+    keys = Object.keys(query)
+    has_query = False
+    if keys.length:
+        for i, k in enumerate(keys):
+            val = query[k]
+            if val is undefined or val is None:
+                continue
+            path += ('?' if i == 0 else '&') + window.encodeURIComponent(k) + '=' + window.encodeURIComponent(val.toString())
+            has_query = True
     if bypass_cache:
-        path += ('&' if '?' in path else '?') + Date().getTime()
+        path += ('&' if has_query else '?') + Date().getTime()
+
     xhr.request_path = path
 
     def progress_callback(ev):

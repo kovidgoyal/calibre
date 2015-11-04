@@ -4,10 +4,12 @@
 from dom import set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
+from book_list.globals import get_session_data
 
-bv_counter = 0
 THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
+
+bv_counter = 0
 
 class BooksView:
 
@@ -27,7 +29,7 @@ class BooksView:
             E.div(id='get-more-books')
         )
         document.body.appendChild(div)
-        self.set_view_mode(interface_data['session_data']['view_mode'])
+        self.set_view_mode(get_session_data().get('view_mode'))
 
     def set_view_mode(self, mode='cover_grid'):
         if self.mode == mode:

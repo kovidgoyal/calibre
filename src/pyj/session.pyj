@@ -1,0 +1,96 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+def storage_available(which):
+    which = which or 'localStorage'
+    try:
+        storage = window[which]
+        x = '__storage__test__'
+        storage.setItem(x, x)
+        storage.removeItem(x)
+        return True
+    except:
+        return False
+
+session_storage = None
+
+class FakeStorage:
+
+    def __init__(self):
+        self.data = {}
+
+    def getItem(self, key):
+        return self.data[key]
+
+    def setItem(self, key, value):
+        if type(value) != 'string':
+            value = JSON.stringify(value)
+        self.data[key] = value
+
+    def clear(self):
+        self.data = {}
+
+def get_session_storage():
+    nonlocal session_storage
+    if session_storage is None:
+        if storage_available('localStorage'):
+            session_storage = window.localStorage
+        elif storage_available('sessionStorage'):
+            session_storage = window.sessionStorage
+            console.error('localStorage not available using sessionStorage instead')
+        else:
+            session_storage = FakeStorage()
+            console.error('sessionStorage and localStorage not available using a temp cache instead')
+    return session_storage
+
+class SessionData:
+
+    def __init__(self):
+        self.storage = get_session_storage()
+        self.overflow_storage = {}
+        self.has_overflow = False
+
+    def get(self, key, defval):
+        if defval is undefined:
+            defval = None
+        if self.has_overflow:
+            ans = self.overflow_storage[key]
+            if ans is undefined:
+                ans = self.storage.getItem(key)
+        else:
+            ans = self.storage.getItem(key)
+        if ans is undefined:
+            return defval
+        return JSON.parse(ans)
+
+    def set(self, key, value):
+        value = JSON.stringify(value)
+        try:
+            self.storage.setItem(key, value)
+            v'delete self.overflow_storage[key]'
+            return True
+        except:
+            self.overflow_storage[key] = value
+            self.has_overflow = True
+            console.error('session storage has overflowed, using a temp cache instead')
+        return False
+
+    def clear(self):
+        self.storage.clear()
+        self.overflow_storage = {}
+        self.has_overflow = False
+
+class UserSessionData(SessionData):
+
+    def __init__(self, username):
+        self.prefix = (username or '') + ':'
+        self.has_user = bool(username)
+        self.username = username
+        SessionData.__init__(self)
+
+    def get(self, key, defval):
+        return SessionData.get(self, (self.prefix + key), defval)
+
+    def set(self, key, value):
+        return SessionData.set(self, (self.prefix + key), value)
+

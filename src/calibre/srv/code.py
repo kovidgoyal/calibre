@@ -4,10 +4,11 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re
+import re, json
 from functools import partial
 from threading import Lock
 
+from calibre import prepare_string_for_xml
 from calibre.srv.routes import endpoint
 
 html_cache = {}
@@ -43,4 +44,5 @@ def get_html(name, auto_reload_port, **replacements):
 def index(ctx, rd):
     return rd.generate_static_output('/', partial(
         get_html, 'content-server/index.html', getattr(rd.opts, 'auto_reload_port', 0),
-        ENTRY_POINT='book list', LOADING_MSG=_('Loading library, please wait')))
+        USERNAME=json.dumps(rd.username), ENTRY_POINT='book list',
+        LOADING_MSG=prepare_string_for_xml(_('Loading library, please wait'))))
