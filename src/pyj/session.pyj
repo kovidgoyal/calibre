@@ -92,5 +92,6 @@ class UserSessionData(SessionData):
         return SessionData.get(self, (self.prefix + key), defval)
 
     def set(self, key, value):
+        # TODO: Send updated data to server if self.has_user
         return SessionData.set(self, (self.prefix + key), value)
 
