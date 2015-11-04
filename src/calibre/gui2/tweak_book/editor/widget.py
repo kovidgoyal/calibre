@@ -83,6 +83,11 @@ def register_text_editor_actions(_reg, palette):
     ac = reg('insert-link', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'), syntaxes=('html',))
     ac.setToolTip(_('<h3>Insert hyperlink</h3>Insert a hyperlink into the text'))
 
+    ac = reg(create_icon('/*'), _('Smart &comment'), ('smart_comment',), 'editor-smart-comment', ('Ctrl+`',), _(
+        'Smart comment (toggle block comments)'), syntaxes=())
+    ac.setToolTip(_('<h3>Smart comment</h3>Comment or uncomment text<br><br>'
+                    'If the cursor is inside an existing block comment, uncomment it, otherwise comment out the selected text.'))
+
     for i, name in enumerate(('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p')):
         text = ('&' + name) if name == 'p' else (name[0] + '&' + name[1])
         desc = _('Convert the paragraph to &lt;%s&gt;') % name

@@ -323,6 +323,10 @@ class TextEdit(PlainTextEdit):
                 self.update_extra_selections()
         return count
 
+    def smart_comment(self):
+        from calibre.gui2.tweak_book.editor.comments import smart_comment
+        smart_comment(self, self.syntax)
+
     def find(self, pat, wrap=False, marked=False, complete=False, save_match=None):
         if marked:
             return self.find_in_marked(pat, wrap=wrap, save_match=save_match)

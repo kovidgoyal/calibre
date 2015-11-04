@@ -56,7 +56,7 @@ d['global_tools_toolbar'] = [
     'manage-fonts', 'smarten-punctuation', 'remove-unused-css', 'show-reports'
 ]
 d['global_plugins_toolbar'] = []
-d['editor_common_toolbar'] = [('editor-' + x) if x else None for x in ('undo', 'redo', None, 'cut', 'copy', 'paste')]
+d['editor_common_toolbar'] = [('editor-' + x) if x else None for x in ('undo', 'redo', None, 'cut', 'copy', 'paste', 'smart-comment')]
 d['editor_css_toolbar'] = ['pretty-current', 'insert-image']
 d['editor_xml_toolbar'] = ['pretty-current', 'insert-tag']
 d['editor_html_toolbar'] = ['fix-html-current', 'pretty-current', 'insert-image', 'insert-hyperlink', 'insert-tag', 'change-paragraph']
