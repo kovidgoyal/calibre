@@ -4,7 +4,6 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-
 import regex
 from collections import deque
 
@@ -39,9 +38,9 @@ def apply_rules(tag, rules):
     maxiter = 20
     while tags and maxiter > 0:
         tag = tags.popleft()
+        ltag = icu_lower(tag)
         maxiter -= 1
         for rule, matches in rules:
-            ltag = icu_lower(tag)
             if matches(ltag):
                 ac = rule['action']
                 if ac == 'remove':
@@ -55,8 +54,21 @@ def apply_rules(tag, rules):
                     else:
                         tag = rule['replace']
                     if ',' in tag:
-                        tags.extendleft(x.strip() for x in reversed(tag.split(',')))
+                        replacement_tags = []
+                        self_added = False
+                        for rtag in (x.strip() for x in tag.split(',')):
+                            if icu_lower(rtag) == ltag:
+                                if not self_added:
+                                    ans.append(rtag)
+                                    self_added = True
+                            else:
+                                replacement_tags.append(rtag)
+                        tags.extendleft(replacement_tags)
                     else:
+                        if icu_lower(tag) == ltag:
+                            # Case change or self replacement
+                            ans.append(tag)
+                            break
                         tags.appendleft(tag)
                     break
         else:  # no rule matched, default keep
@@ -107,3 +119,11 @@ def test():
         {'action':'replace', 'query':'t2', 'match_type':'one_of', 'replace':'t1'},
     ]
     assert set(map_tags(['t1', 't2'], rules)) == {'t1', 't2'}
+    rules = [
+        {'action':'replace', 'query':'a', 'match_type':'one_of', 'replace':'A'},
+    ]
+    assert map_tags(['a', 'b'], rules) == ['A', 'b']
+    rules = [
+        {'action':'replace', 'query':'a,b', 'match_type':'one_of', 'replace':'A,B'},
+    ]
+    assert map_tags(['a', 'b'], rules) == ['A', 'B']
