@@ -36,8 +36,10 @@ def apply_rules(tag, rules):
     ans = []
     tags = deque()
     tags.append(tag)
-    while tags:
+    maxiter = 20
+    while tags and maxiter > 0:
         tag = tags.popleft()
+        maxiter -= 1
         for rule, matches in rules:
             ltag = icu_lower(tag)
             if matches(ltag):
@@ -98,3 +100,10 @@ def test():
         {'action':'remove', 'query':'t2', 'match_type':'one_of'},
     ]
     assert map_tags(['t1', 'x1'], rules) == ['t3', 'x1']
+    rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t1'}]
+    assert map_tags(['t1', 'x1'], rules) == ['t1', 'x1']
+    rules = [
+        {'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2'},
+        {'action':'replace', 'query':'t2', 'match_type':'one_of', 'replace':'t1'},
+    ]
+    assert set(map_tags(['t1', 't2'], rules)) == {'t1', 't2'}
