@@ -63,7 +63,7 @@ def apply_rules(tag, rules):
                                     self_added = True
                             else:
                                 replacement_tags.append(rtag)
-                        tags.extendleft(replacement_tags)
+                        tags.extendleft(reversed(replacement_tags))
                     else:
                         if icu_lower(tag) == ltag:
                             # Case change or self replacement
@@ -104,9 +104,9 @@ def test():
     rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2'}]
     assert map_tags(['t1', 'x1'], rules) == ['t2', 'x2']
     rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2, t3'}]
-    assert map_tags(['t1', 'x1'], rules) == ['t3', 't2', 'x1']
+    assert map_tags(['t1', 'x1'], rules) == ['t2', 't3', 'x1']
     rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2,3'}]
-    assert map_tags(['t1', 'x1'], rules) == ['3', 't2', 'x2']
+    assert map_tags(['t1', 'x1'], rules) == ['t2', '3', 'x2']
     rules = [
         {'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':r't2,t3'},
         {'action':'remove', 'query':'t2', 'match_type':'one_of'},
@@ -118,7 +118,7 @@ def test():
         {'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2'},
         {'action':'replace', 'query':'t2', 'match_type':'one_of', 'replace':'t1'},
     ]
-    assert set(map_tags(['t1', 't2'], rules)) == {'t1', 't2'}
+    assert map_tags(['t1', 't2'], rules) == ['t1', 't2']
     rules = [
         {'action':'replace', 'query':'a', 'match_type':'one_of', 'replace':'A'},
     ]
