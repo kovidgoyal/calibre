@@ -389,4 +389,6 @@ if __name__ == '__main__':
         {'action':'replace', 'query':'moose', 'match_type':'one_of', 'replace':'xxxx'},
     ]
     d.exec_()
+    from pprint import pprint
+    pprint(d.rules)
     del d, app
