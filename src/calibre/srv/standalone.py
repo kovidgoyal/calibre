@@ -8,8 +8,8 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, signal
 
-from calibre import as_unicode
-from calibre.constants import plugins, iswindows
+from calibre import as_unicode, prints
+from calibre.constants import plugins, iswindows, preferred_encoding
 from calibre.srv.errors import InvalidCredentials
 from calibre.srv.loop import ServerLoop
 from calibre.srv.bonjour import BonJour
@@ -74,9 +74,103 @@ class Server(object):
             from calibre.utils.rapydscript import compile_srv
             compile_srv()
 
+# Manage users CLI {{{
+def manage_users(path=None):
+    from calibre.srv.users import UserManager
+    m = UserManager(path)
+    enc = getattr(sys.stdin, 'encoding', preferred_encoding) or preferred_encoding
+
+    def choice(question, choices, default=None, banner=''):
+        prints(banner)
+        for i, choice in enumerate(choices):
+            prints('%d)' % (i+1), choice)
+        print()
+        while True:
+            prompt = question + ' [1-%d]: ' % len(choices)
+            if default is not None:
+                prompt = question + ' [1-%d %s: %d]' % (len(choices), _('default'), default+1)
+            reply = raw_input(prompt)
+            if not reply and default is not None:
+                reply = str(default + 1)
+            if not reply:
+                raise SystemExit(0)
+            reply = reply.strip()
+            try:
+                num = int(reply) - 1
+                if not (0 <= num < len(choices)):
+                    raise Exception('bad num')
+                return num
+            except Exception:
+                prints(_('%s is not a valid choice, try again') % reply)
+
+    def get_valid(prompt, invalidq=lambda x: None):
+        while True:
+            ans = raw_input(prompt + ': ').strip().decode(enc)
+            fail_message = invalidq(ans)
+            if fail_message is None:
+                return ans
+            prints(fail_message)
+
+    def get_valid_user():
+        prints(_('Existing user names:'))
+        users = sorted(m.all_user_names)
+        if not users:
+            raise SystemExit(_('There are no users, you must first add an user'))
+        prints(', '.join(users))
+
+        def validate(username):
+            if not m.has_user(username):
+                return _('The username %s does not exist') % username
+        return get_valid(_('Enter the username'), validate)
+
+    def get_pass(username):
+        while True:
+            from getpass import getpass
+            one = getpass(_('Enter the new password for %s: ') % username).decode(enc)
+            if not one:
+                prints(_('Empty passwords are not allowed'))
+                continue
+            two = getpass(_('Re-enter the new password for %s, to verify: ') % username).decode(enc)
+            if one != two:
+                prints(_('Passwords do not match'))
+                continue
+            msg = m.validate_password(one)
+            if msg is None:
+                return one
+            prints(msg)
+
+    def add_user():
+        username = get_valid(_('Enter the username'), m.validate_username)
+        pw = get_pass(username)
+        m.add_user(username, pw)
+        prints(_('User %s added successfully!') % username)
+
+    def remove_user():
+        un = get_valid_user()
+        if raw_input((_('Are you sure you want to remove the user %s?') % un) + ' [y/n]: ').decode(enc) != 'y':
+            raise SystemExit(0)
+        m.remove_user(un)
+        prints(_('User %s successfully removed!') % un)
+
+    def edit_user():
+        username = get_valid_user()
+        pw = get_pass(username)
+        m.change_password(username, pw)
+        prints(_('Password for %s successfully changed!') % username)
+
+    def show_password():
+        username = get_valid_user()
+        pw = m.get(username)
+        prints(_('Password for {0} is: {1}').format(username, pw))
+
+    {0:add_user, 1:edit_user, 2:remove_user, 3:show_password}[choice(_('What do you want to do?'), [
+        _('Add a new user'), _('Edit an existing user'), _('Remove a user'), _('Show the password for a user')])]()
+
+
+# }}}
 
 def create_option_parser():
-    parser = opts_to_parser('%prog '+ _(
+    parser=opts_to_parser('%prog '+ _(
 '''[options] [path to library folder ...]
 
 Start the calibre content server. The calibre content server
@@ -98,19 +192,30 @@ program will be used.
         help=_('Automatically reload server when source code changes. Useful'
                ' for development. You should also specify a small value for the'
                ' shutdown timeout.'))
+    parser.add_option(
+        '--manage-users', default=False, action='store_true',
+        help=_('Manage the database of users allowed to connect to this server.'
+               ' See also the %s option.') % '--userdb')
 
     return parser
 
 def main(args=sys.argv):
-    opts, args = create_option_parser().parse_args(args)
-    libraries = args[1:]
+    opts, args=create_option_parser().parse_args(args)
+    if opts.manage_users:
+        try:
+            manage_users(opts.userdb)
+        except (KeyboardInterrupt, EOFError):
+            raise SystemExit(_('Interrupted by user'))
+        raise SystemExit(0)
+
+    libraries=args[1:]
     for lib in libraries:
         if not lib or not LibraryDatabase.exists_at(lib):
             raise SystemExit(_('There is no calibre library at: %s') % lib)
     if not libraries:
         if not prefs['library_path']:
             raise SystemExit(_('You must specify at least one calibre library'))
-        libraries = [prefs['library_path']]
+        libraries=[prefs['library_path']]
 
     if opts.auto_reload:
         if opts.daemonize:
@@ -121,9 +226,9 @@ def main(args=sys.argv):
             return auto_reload(default_log)
         except NoAutoReload as e:
             raise SystemExit(e.message)
-    opts.auto_reload_port = int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
+    opts.auto_reload_port=int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
     try:
-        server = Server(libraries, opts)
+        server=Server(libraries, opts)
     except InvalidCredentials as e:
         raise SystemExit(e.message)
     if opts.daemonize:

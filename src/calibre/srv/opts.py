@@ -110,6 +110,7 @@ raw_options = (
     ' will use "basic" if SSL is configured otherwise it will use "digest".',
 )
 assert len(raw_options) % 4 == 0
+# TODO: Mark these strings for translation, once you finalize the option set
 
 options = []
 
