@@ -104,9 +104,9 @@ def test():
     rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2'}]
     assert map_tags(['t1', 'x1'], rules) == ['t2', 'x2']
     rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2, t3'}]
-    assert map_tags(['t1', 'x1'], rules) == ['t2', 't3', 'x1']
+    assert map_tags(['t1', 'x1'], rules) == ['t3', 't2', 'x1']
     rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2,3'}]
-    assert map_tags(['t1', 'x1'], rules) == ['t2', '3', 'x2']
+    assert map_tags(['t1', 'x1'], rules) == ['3', 't2', 'x2']
     rules = [
         {'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':r't2,t3'},
         {'action':'remove', 'query':'t2', 'match_type':'one_of'},
@@ -127,3 +127,6 @@ def test():
         {'action':'replace', 'query':'a,b', 'match_type':'one_of', 'replace':'A,B'},
     ]
     assert map_tags(['a', 'b'], rules) == ['A', 'B']
+
+if __name__ == '__main__':
+    test()
