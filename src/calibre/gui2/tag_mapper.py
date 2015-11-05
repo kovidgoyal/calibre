@@ -26,7 +26,10 @@ class RuleEdit(QWidget):
     ACTION_MAP = OrderedDict((
                 ('remove', _('Remove')),
                 ('replace', _('Replace')),
-                ('keep', _('Keep'))
+                ('keep', _('Keep')),
+                ('capitalize', _('Capitalize')),
+                ('lower', _('Lower-case')),
+                ('upper', _('Upper-case')),
     ))
 
     MATCH_TYPE_MAP = OrderedDict((

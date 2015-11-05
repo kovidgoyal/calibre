@@ -71,6 +71,15 @@ def apply_rules(tag, rules):
                             break
                         tags.appendleft(tag)
                     break
+                if ac == 'capitalize':
+                    ans.append(tag.capitalize())
+                    break
+                if ac == 'lower':
+                    ans.append(icu_lower(tag))
+                    break
+                if ac == 'upper':
+                    ans.append(icu_upper(tag))
+                    break
         else:  # no rule matched, default keep
             ans.append(tag)
 
@@ -99,34 +108,36 @@ def map_tags(tags, rules=()):
     return uniq(filter(None, ans))
 
 def test():
-    rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2'}]
-    assert map_tags(['t1', 'x1'], rules) == ['t2', 'x1']
-    rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2'}]
-    assert map_tags(['t1', 'x1'], rules) == ['t2', 'x2']
-    rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2, t3'}]
-    assert map_tags(['t1', 'x1'], rules) == ['t2', 't3', 'x1']
-    rules = [{'action':'replace', 'query':'(.)1', 'match_type':'matches', 'replace':r'\g<1>2,3'}]
-    assert map_tags(['t1', 'x1'], rules) == ['t2', '3', 'x2']
-    rules = [
-        {'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':r't2,t3'},
-        {'action':'remove', 'query':'t2', 'match_type':'one_of'},
-    ]
-    assert map_tags(['t1', 'x1'], rules) == ['t3', 'x1']
-    rules = [{'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t1'}]
-    assert map_tags(['t1', 'x1'], rules) == ['t1', 'x1']
-    rules = [
-        {'action':'replace', 'query':'t1', 'match_type':'one_of', 'replace':'t2'},
-        {'action':'replace', 'query':'t2', 'match_type':'one_of', 'replace':'t1'},
-    ]
-    assert map_tags(['t1', 't2'], rules) == ['t1', 't2']
-    rules = [
-        {'action':'replace', 'query':'a', 'match_type':'one_of', 'replace':'A'},
-    ]
-    assert map_tags(['a', 'b'], rules) == ['A', 'b']
-    rules = [
-        {'action':'replace', 'query':'a,b', 'match_type':'one_of', 'replace':'A,B'},
-    ]
-    assert map_tags(['a', 'b'], rules) == ['A', 'B']
+
+    def rule(action, query, replace=None, match_type='one_of'):
+        ans = {'action':action, 'query': query, 'match_type':match_type}
+        if replace is not None:
+            ans['replace'] = replace
+        return ans
+
+    def run(rules, tags, expected):
+        if isinstance(rules, dict):
+            rules = [rules]
+        if isinstance(tags, type('')):
+            tags = [x.strip() for x in tags.split(',')]
+        if isinstance(expected, type('')):
+            expected = [x.strip() for x in expected.split(',')]
+        ans = map_tags(tags, rules)
+        if ans != expected:
+            raise AssertionError('Expected: %r != %r' % (expected, ans))
+
+    run(rule('capitalize', 't1,t2'), 't1,x1', 'T1,x1')
+    run(rule('upper', 'ta,t2'), 'ta,x1', 'TA,x1')
+    run(rule('lower', 'ta,x1'), 'TA,X1', 'ta,x1')
+    run(rule('replace', 't1', 't2'), 't1,x1', 't2,x1')
+    run(rule('replace', '(.)1', r'\g<1>2', 'matches'), 't1,x1', 't2,x2')
+    run(rule('replace', '(.)1', r'\g<1>2,3', 'matches'), 't1,x1', 't2,3,x2')
+    run(rule('replace', 't1', 't2, t3'), 't1,x1', 't2,t3,x1')
+    run([rule('replace', 't1', 't2,t3'), rule('remove', 't2')], 't1,x1', 't3,x1')
+    run(rule('replace', 't1', 't1'), 't1,x1', 't1,x1')
+    run([rule('replace', 't1', 't2'), rule('replace', 't2', 't1')], 't1,t2', 't1,t2')
+    run(rule('replace', 'a', 'A'), 'a,b', 'A,b')
+    run(rule('replace', 'a,b', 'A,B'), 'a,b', 'A,B')
 
 if __name__ == '__main__':
     test()
