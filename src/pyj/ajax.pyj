@@ -46,3 +46,9 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     xhr.open(method, path)
     return xhr
 
+# TODO: Implement AJAX based switch user by:
+# 1) POST to a logout URL with an incorrect username and password
+# 2) Have the server accept that incorrect username/password
+# 3) Navigate to / which should cause the browser to re-prompt for username and password
+# (only problem is login dialog will likely pre-show the wrong username) To workaround that,
+# You can consider using a dedicated ajax based login form, see http://www.peej.co.uk/articles/http-auth-with-html-forms.html)

@@ -14,6 +14,7 @@ from threading import Lock
 
 from calibre.db.cache import Cache
 from calibre.db.legacy import create_backend, LibraryDatabase
+from calibre.srv.auth import AuthController
 from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
@@ -86,7 +87,7 @@ class Context(object):
         self.library_broker = LibraryBroker(libraries)
         self.testing = testing
         self.lock = Lock()
-        self.user_manager = UserManager()
+        self.user_manager = UserManager(opts.userdb)
 
     def init_session(self, endpoint, data):
         pass
@@ -144,7 +145,13 @@ class Context(object):
 class Handler(object):
 
     def __init__(self, libraries, opts, testing=False):
-        self.router = Router(ctx=Context(libraries, opts, testing=testing), url_prefix=opts.url_prefix)
+        ctx = Context(libraries, opts, testing=testing)
+        self.auth_controller = None
+        if opts.auth:
+            has_ssl = opts.ssl_certfile is not None and opts.ssl_keyfile is not None
+            prefer_basic_auth = {'auto':has_ssl, 'basic':True}.get(opts.auth_mode, 'digest')
+            self.auth_controller = AuthController(user_credentials=ctx.user_manager, prefer_basic_auth=prefer_basic_auth)
+        self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
         for module in ('content', 'ajax', 'code'):
             module = import_module('calibre.srv.' + module)
             self.router.load_routes(vars(module).itervalues())
@@ -154,6 +161,8 @@ class Handler(object):
 
     def set_log(self, log):
         self.router.ctx.log = log
+        if self.auth_controller is not None:
+            self.auth_controller.log = log
 
     def close(self):
         self.router.ctx.library_broker.close()
