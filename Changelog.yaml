@@ -20,6 +20,33 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.43.0
+  date: 2015-11-06
+
+  new features:
+    - title: "Edit Book: Add a 'Smart Comment' tool to easily comment/uncomment text"
+      description: "Press Ctrl+` to trigger the tool, or add the tool to your toolbar via Preferences->Toolbar->Tools for all editors. It will either insert comments around the selected text or uncomment an existing comment if the cursor is inside one."
+
+    - title: "Tag mapper: Add new rule types to upper-case, lower-case or capitalize tags"
+
+    - title: "Markdown input: Allow the 'extra' convenience extension as a shortcut for enabling multiple other extensions. Also add the Attribute List and Admonition extensions. Finally, update the markdown library used by calibre"
+      tickets: [1512461]
+
+  bug fixes:
+    - title: "Amazon metadata download: Fix for website change at amazon.com that prevented ratings from being downloaded."
+      tickets: [1513318]
+
+    - title: "Tag mapper: Prevent cycles in the replacement rules from causing the tag mapper to hang"
+      tickets: [1513330] 
+
+    - title: "Do not fail on windows systems where the system function to get the users home folder fails"
+
+    - title: "E-book viewer: Set the foreground color as well as the background color for the reference mode popup. Makes it legible even when the user specifies a different color theme for the viewer."
+
+  new recipes:
+    - title: La Politica Online 
+      author: Darko Miletic
+
 - version: 2.42.0
   date: 2015-10-30
 
