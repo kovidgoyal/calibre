@@ -12,6 +12,14 @@ import apsw
 from calibre.constants import config_dir
 from calibre.utils.config import to_json, from_json
 
+def as_json(data):
+    return json.dumps(data, ensure_ascii=False, default=to_json)
+
+def load_json(raw):
+    try:
+        return json.loads(raw, object_hook=from_json)
+    except Exception:
+        return {}
 
 class UserManager(object):
 
@@ -36,7 +44,7 @@ class UserManager(object):
                             pw TEXT NOT NULL,
                             timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
                             session_data TEXT NOT NULL DEFAULT "{}",
-                            restriction TEXT NOT NULL DEFAULT "",
+                            restriction TEXT NOT NULL DEFAULT "{}",
                             readonly TEXT NOT NULL DEFAULT "n",
                             misc_data TEXT NOT NULL DEFAULT "{}",
                             UNIQUE(name)
@@ -55,17 +63,14 @@ class UserManager(object):
         with self.lock:
             for data, in self.conn.cursor().execute(
                     'SELECT data FROM users WHERE name=?', (username,)):
-                try:
-                    return json.loads(data, object_hook=from_json)
-                except Exception:
-                    break
-            return {}
+                return load_json(data)
+        return {}
 
     def set_session_data(self, username, data):
         with self.lock:
             conn = self.conn
             c = conn.cursor()
-            data = json.dumps(data, ensure_ascii=False, default=to_json)
+            data = as_json(data)
             if isinstance(data, bytes):
                 data = data.decode('utf-8')
             c.execute('UPDATE users SET data=? WHERE name=?', (data, username))
