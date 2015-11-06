@@ -21,7 +21,7 @@ from PyQt5.Qt import (
     QDialog, QVBoxLayout, QLabel, QDialogButtonBox, QStyle, QStackedWidget,
     QWidget, QTableView, QGridLayout, QFontInfo, QPalette, QTimer, pyqtSignal,
     QAbstractTableModel, QSize, QListView, QPixmap, QModelIndex, QUrl,
-    QAbstractListModel, QColor, QRect, QTextBrowser, QStringListModel, QMenu,
+    QAbstractListModel, QRect, QTextBrowser, QStringListModel, QMenu,
     QCursor, QHBoxLayout, QPushButton, QSizePolicy)
 from PyQt5.QtWebKitWidgets import QWebView
 
@@ -32,6 +32,7 @@ from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.gui2 import error_dialog, rating_font, gprefs
+from calibre.gui2.progress_indicator import draw_snake_spinner
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
 from calibre.library.comments import comments_to_html
@@ -88,46 +89,20 @@ class CoverDelegate(QStyledItemDelegate):  # {{{
         self.angle = 0
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.frame_changed)
-        self.color = parent.palette().color(QPalette.WindowText)
+        self.dark_color = parent.palette().color(QPalette.WindowText)
+        self.light_color = parent.palette().color(QPalette.Window)
         self.spinner_width = 64
 
     def frame_changed(self, *args):
-        self.angle = (self.angle+30)%360
+        self.angle = (self.angle-2)%360
         self.needs_redraw.emit()
 
     def start_animation(self):
         self.angle = 0
-        self.timer.start(200)
+        self.timer.start(10)
 
     def stop_animation(self):
         self.timer.stop()
-
-    def draw_spinner(self, painter, rect):
-        width = rect.width()
-
-        outer_radius = (width-1)*0.5
-        inner_radius = (width-1)*0.5*0.38
-
-        capsule_height = outer_radius - inner_radius
-        capsule_width  = int(capsule_height * (0.23 if width > 32 else 0.35))
-        capsule_radius = capsule_width//2
-
-        painter.save()
-        painter.setRenderHint(painter.Antialiasing)
-
-        for i in xrange(12):
-            color = QColor(self.color)
-            color.setAlphaF(1.0 - (i/12.0))
-            painter.setPen(Qt.NoPen)
-            painter.setBrush(color)
-            painter.save()
-            painter.translate(rect.center())
-            painter.rotate(self.angle - i*30.0)
-            painter.drawRoundedRect(-capsule_width*0.5,
-                    -(inner_radius+capsule_height), capsule_width,
-                    capsule_height, capsule_radius, capsule_radius)
-            painter.restore()
-        painter.restore()
 
     def paint(self, painter, option, index):
         QStyledItemDelegate.paint(self, painter, option, index)
@@ -136,7 +111,7 @@ class CoverDelegate(QStyledItemDelegate):  # {{{
         if waiting:
             rect = QRect(0, 0, self.spinner_width, self.spinner_width)
             rect.moveCenter(option.rect.center())
-            self.draw_spinner(painter, rect)
+            draw_snake_spinner(painter, rect, self.angle, self.light_color, self.dark_color)
         else:
             # Ensure the cover is rendered over any selection rect
             style.drawItemPixmap(painter, option.rect, Qt.AlignTop|Qt.AlignHCenter,
