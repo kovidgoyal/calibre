@@ -191,9 +191,9 @@ class NoUID(BaseError):
         BaseError.__init__(self, _('The OPF has no unique identifier'), name)
 
     def __call__(self, container):
-        import uuid
+        from calibre.ebooks.oeb.base import uuid_id
         opf = container.opf
-        uid = 'u' + str(uuid.uuid4())
+        uid = uuid_id()
         opf.set('unique-identifier', uid)
         m = container.opf_xpath('/opf:package/opf:metadata')
         if not m:

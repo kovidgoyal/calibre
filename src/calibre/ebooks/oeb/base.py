@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, uuid, logging
+import os, re, logging
 from collections import defaultdict
 from itertools import count
 from urlparse import urldefrag, urlparse, urlunparse, urljoin
@@ -21,6 +21,7 @@ from calibre import (isbytestring, as_unicode, get_types_map)
 from calibre.ebooks.oeb.parse_utils import (barename, XHTML_NS, RECOVER_PARSER,
         namespace, XHTML, parse_html, NotHTML)
 from calibre.utils.cleantext import clean_xml_chars
+from calibre.utils.short_uuid import uuid4
 
 XML_NS       = 'http://www.w3.org/XML/1998/namespace'
 OEB_DOC_NS   = 'http://openebook.org/namespaces/oeb-document/1.0/'
@@ -100,7 +101,7 @@ def close_self_closing_tags(raw):
     return _self_closing_pat.sub(r'<\g<tag>\g<arg>></\g<tag>>', raw)
 
 def uuid_id():
-    return 'u'+unicode(uuid.uuid4())
+    return u'u'+uuid4()
 
 def itercsslinks(raw):
     for match in _css_url_re.finditer(raw):

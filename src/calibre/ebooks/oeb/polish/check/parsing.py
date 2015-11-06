@@ -344,9 +344,9 @@ class InvalidId(BaseError):
         self.invalid_id = eid
 
     def __call__(self, container):
-        import uuid
+        from calibre.ebooks.oeb.base import uuid_id
         from calibre.ebooks.oeb.polish.replace import replace_ids
-        newid = 'g' + uuid.uuid4().hex
+        newid = uuid_id()
         changed = False
         elems = (e for e in container.parsed(self.name).xpath('//*[@id]') if e.get('id') == self.invalid_id)
         for e in elems:
