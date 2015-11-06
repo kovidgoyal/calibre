@@ -21,7 +21,8 @@ from PyQt5.Qt import (
     QApplication, QSystemTrayIcon)
 
 from calibre import prints, force_unicode, detect_ncpus
-from calibre.constants import __appname__, isosx, filesystem_encoding, DEBUG
+from calibre.constants import (
+        __appname__, isosx, iswindows, filesystem_encoding, DEBUG)
 from calibre.utils.config import prefs, dynamic
 from calibre.utils.ipc.pool import Pool
 from calibre.db.legacy import LibraryDatabase
@@ -260,6 +261,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.system_tray_icon = factory(app_id='com.calibre-ebook.gui').create_system_tray_icon(parent=self, title='calibre')
         if self.system_tray_icon is not None:
             self.system_tray_icon.setIcon(QIcon(I('lt.png')))
+            if not (iswindows or isosx):
+                self.system_tray_icon.setIcon(QIcon.fromTheme('calibre-gui', QIcon(I('lt.png'))))
             self.system_tray_icon.setToolTip(self.jobs_button.tray_tooltip())
             self.system_tray_icon.setVisible(True)
             self.jobs_button.tray_tooltip_updated.connect(self.system_tray_icon.setToolTip)
