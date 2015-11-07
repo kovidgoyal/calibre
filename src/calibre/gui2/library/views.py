@@ -1114,7 +1114,6 @@ class DeviceBooksView(BooksView):  # {{{
         self._model.resize_rows.connect(self.do_row_sizing,
                                                  type=Qt.QueuedConnection)
         self.can_add_columns = False
-        self.columns_resized = False
         self.resize_on_select = False
         self.rating_delegate = None
         for i in range(10):
@@ -1162,10 +1161,6 @@ class DeviceBooksView(BooksView):  # {{{
     def set_database(self, db):
         self._model.set_database(db)
         self.restore_state()
-
-    def resizeColumnsToContents(self):
-        QTableView.resizeColumnsToContents(self)
-        self.columns_resized = True
 
     def connect_dirtied_signal(self, slot):
         self._model.booklist_dirtied.connect(slot)

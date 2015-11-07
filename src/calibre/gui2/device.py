@@ -1075,15 +1075,17 @@ class DeviceMixin(object):  # {{{
         else:
             self.device_connected = None
             self.status_bar.device_disconnected()
+            dviews = (self.memory_view, self.card_a_view, self.card_b_view)
+            for v in dviews:
+                v.save_state()
             if self.current_view() != self.library_view:
                 self.book_details.reset_info()
             self.location_manager.update_devices()
             self.bars_manager.update_bars(reveal_bar=True)
             self.library_view.set_device_connected(self.device_connected)
             # Empty any device view information
-            self.memory_view.set_database([])
-            self.card_a_view.set_database([])
-            self.card_b_view.set_database([])
+            for v in dviews:
+                v.set_database([])
             self.refresh_ondevice()
         device_signals.device_connection_changed.emit(connected)
 
