@@ -23,7 +23,7 @@ class BooksView:
         self.metadata_map = interface_data['metadata']
         self.container_id = 'books-view-' + bv_counter
         style = build_rule('#' + self.container_id + ' .cover_grid img:hover', transform='scale(1.2)')
-        style += build_rule('#' + self.container_id + ' .cover_grid img:active', transform='scale(0.8)')
+        style += build_rule('#' + self.container_id + ' .cover_grid img:active', transform='scale(2.0)')
         div = E.div(
             id=self.container_id, style='display:block',
             E.style(style),

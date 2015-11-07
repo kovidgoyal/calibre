@@ -25,8 +25,8 @@ class TopBar:
                 sel, display='inline-block', vertical_align='middle', overflow='hidden', cursor='pointer',
                 color=get_color('bar-foreground'), background='none', padding_top=self.VSPACING, padding_bottom=self.VSPACING
             )
-        style += build_rule(sel + ':hover', color=get_color('bar-background'), background_color=get_color('bar-foreground'))
-        style += build_rule(sel + ':active', transform='scale(0.6)')
+        style += build_rule(sel + ':hover', transform='scale(1.5)')
+        style += build_rule(sel + ':active', transform='scale(2)')
         style += build_rule(sel + ':focus', outline='none')
         for bid in self.dummy_bar_id, self.bar_id:
             bar = E.div(
