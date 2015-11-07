@@ -19,8 +19,8 @@ class ItemsView:
         style += build_rule(cid + ' li', padding='1em', border_bottom='solid 1px ' + get_color('window-foreground'), border_top='solid 1px ' + get_color('window-background'), cursor='pointer', list_style='none')
         style += build_rule(cid + ' .title', font_size=get_font_size('item-list-title'))
         style += build_rule(cid + ' .subtitle', font_size=get_font_size('item-list-subtitle'), font_style='italic')
-        style += build_rule(cid + ' li:hover', color=get_color('bar-foreground'), background_color=get_color('bar-background'), border_top_color=get_color('bar-foreground'))
-        style += build_rule(cid + ' li:active', color=get_color('bar-highlight'))
+        style += build_rule(cid + ' li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'), border_top_color=get_color('list-hover-foreground'))
+        style += build_rule(cid + ' li:active')
         self.base_style = style
         div = E.div(
             id=self.container_id, style='display:none',

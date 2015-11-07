@@ -7,8 +7,10 @@ from book_list.top_bar import TopBar
 from book_list.views import BooksView
 from book_list.item_list import ItemsView, create_item
 from dom import set_css
+from elementmaker import E
 from gettext import gettext as _
 from utils import debounce
+from widgets import get_widget_css
 
 class BarState:
 
@@ -71,7 +73,8 @@ create_panel = {
 class UI:
 
     def __init__(self, interface_data):
-        set_css(document.body, background_color=get_color('window-background'))
+        document.head.appendChild(E.style(get_widget_css()))
+        set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
         self.states, self.panels = [], []
         self.top_bar = TopBar()
         self.books_view = BooksView(interface_data)

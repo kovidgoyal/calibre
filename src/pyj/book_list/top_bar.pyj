@@ -19,7 +19,8 @@ class TopBar:
         self.throbber_name = self.bar_id + '-throbber'
         style = create_keyframes(self.throbber_name, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
         style += build_rule('#' + self.bar_id + ' a:hover', transform='scale(1.4)')
-        style += build_rule('#' + self.bar_id + ' a:active', color=get_color('bar-highlight'))
+        style += build_rule('#' + self.bar_id + ' a:active', transform='scale(0.6)')
+        style += build_rule('#' + self.bar_id + ' a:focus', outline='none')
         for bid in self.dummy_bar_id, self.bar_id:
             bar = E.div(
                 id=bid, class_='top-bar',

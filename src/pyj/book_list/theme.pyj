@@ -1,14 +1,29 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+DARK = '#39322B'
+LIGHT = '#F6F3E9'
+HIGHLIGHT = 'red'
+
 def get_color(name):
     return {
-        'window-background': '#F6F3E9',
-        'window-foreground': 'black',
-        'bar-background': '#39322B',
-        'bar-foreground': '#F6F3E9',
-        'bar-highlight': 'red',
+        # General colors
+        'window-background': LIGHT,
+        'window-foreground': DARK,
+
+        # Top bar specific colors
+        'bar-background': DARK,
+        'bar-foreground': LIGHT,
         'heart': '#B92111',
+
+        # Item list colors
+        'list-hover-background': DARK,
+        'list-hover-foreground': LIGHT,
+
+        # Button colors
+        'button-start': DARK,
+        'button-end': '#49423B',
+        'button-text': LIGHT,
     }[name]
 
 def get_font_size(name):

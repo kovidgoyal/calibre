@@ -4,7 +4,9 @@
 from dom import set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
+
 from book_list.globals import get_session_data
+from widgets import create_button
 
 THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
@@ -30,6 +32,11 @@ class BooksView:
         )
         document.body.appendChild(div)
         self.set_view_mode(get_session_data().get('view_mode'))
+        more = div.lastChild
+        more.appendChild(create_button(
+            _('Show more books'), 'cloud-download'
+        ))
+        set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', width='100%', text_align='center')
 
     def set_view_mode(self, mode='cover_grid'):
         if self.mode == mode:
@@ -69,6 +76,8 @@ class BooksView:
         c.insertBefore(E.div(), c.lastChild)
         self.init_grid()
 
+    # Cover grid {{{
+
     def init_cover_grid(self):
         div = self.grid
         set_css(div, display='flex', flex_wrap='wrap', justify_content='flex-start', align_items='flex-end', align_content='flex-start')
@@ -105,6 +114,8 @@ class BooksView:
             E.img(src=cover_url, alt=alt, title=alt,
                   style='max-width: 100%; max-height: 100%; display: block; cursor: pointer; width:auto; height:auto')
         )
+
+    # }}}
 
     def render_ids(self, book_ids=None):
         if book_ids is None:
