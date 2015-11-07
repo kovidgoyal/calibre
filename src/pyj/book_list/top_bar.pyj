@@ -22,10 +22,10 @@ class TopBar:
         for sel in (self.dummy_bar_id, self.bar_id):
             sel = '#' + sel + ' a'
             style += build_rule(
-                sel, display='inline-block', vertical_align='text-top', overflow='hidden', cursor='pointer',
-                border='none', color=get_color('bar-foreground'), background='none'
+                sel, display='inline-block', vertical_align='middle', overflow='hidden', cursor='pointer',
+                color=get_color('bar-foreground'), background='none', padding_top=self.VSPACING, padding_bottom=self.VSPACING
             )
-        style += build_rule(sel + ':hover', transform='scale(1.4)')
+        style += build_rule(sel + ':hover', color=get_color('bar-background'), background_color=get_color('bar-foreground'))
         style += build_rule(sel + ':active', transform='scale(0.6)')
         style += build_rule(sel + ':focus', outline='none')
         for bid in self.dummy_bar_id, self.bar_id:
@@ -39,7 +39,7 @@ class TopBar:
                 bar.appendChild(E.style(style, type='text/css'))
             set_css(bar,
                 width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
-                font_size=get_font_size('title'), padding_top=self.VSPACING, padding_bottom=self.VSPACING, user_select='none',
+                font_size=get_font_size('title'), user_select='none',
                 color=get_color('bar-foreground'), background_color=get_color('bar-background')
             )
             document.body.appendChild(bar)
@@ -61,7 +61,7 @@ class TopBar:
             left = bar.firstChild
             clear(left)
             left.appendChild(E.a(title=tooltip, E.i(class_='fa fa-' + icon_name + ' fa-fw')))
-            left.appendChild(E.span(title, style=str.format('margin-left: {}; font-weight: bold;', self.SPACING)))
+            left.appendChild(E.span(title, style=str.format('margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}', self.SPACING, self.VSPACING)))
             if bar is self.bar:
                 a = left.firstChild
                 if icon_name == 'heart':
