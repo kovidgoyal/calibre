@@ -11,6 +11,7 @@ bar_counter = 0
 class TopBar:
 
     SPACING = '0.75em'
+    VSPACING = '0.5ex'
 
     def __init__(self):
         nonlocal bar_counter
@@ -38,7 +39,7 @@ class TopBar:
                 bar.appendChild(E.style(style, type='text/css'))
             set_css(bar,
                 width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
-                font_size=get_font_size('title'), padding_top='0.5ex', padding_bottom='0.5ex', user_select='none',
+                font_size=get_font_size('title'), padding_top=self.VSPACING, padding_bottom=self.VSPACING, user_select='none',
                 color=get_color('bar-foreground'), background_color=get_color('bar-background')
             )
             document.body.appendChild(bar)
