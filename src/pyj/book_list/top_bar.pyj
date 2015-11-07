@@ -18,17 +18,23 @@ class TopBar:
         self.bar_id, self.dummy_bar_id = 'top-bar-' + bar_counter, 'dummy-top-bar-' + bar_counter
         self.throbber_name = self.bar_id + '-throbber'
         style = create_keyframes(self.throbber_name, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
-        style += build_rule('#' + self.bar_id + ' a:hover', transform='scale(1.4)')
-        style += build_rule('#' + self.bar_id + ' a:active', transform='scale(0.6)')
-        style += build_rule('#' + self.bar_id + ' a:focus', outline='none')
+        for sel in (self.dummy_bar_id, self.bar_id):
+            sel = '#' + sel + ' a'
+            style += build_rule(
+                sel, display='inline-block', vertical_align='text-top', overflow='hidden', cursor='pointer',
+                border='none', color=get_color('bar-foreground'), background='none'
+            )
+        style += build_rule(sel + ':hover', transform='scale(1.4)')
+        style += build_rule(sel + ':active', transform='scale(0.6)')
+        style += build_rule(sel + ':focus', outline='none')
         for bid in self.dummy_bar_id, self.bar_id:
             bar = E.div(
-                id=bid, class_='top-bar',
+                id=bid,
                 E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.5em;"),
                 E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
             )
             if bid == self.bar_id:
-                set_css(bar, position='fixed', left='0', top='0')
+                set_css(bar, position='fixed', left='0', top='0', z_index='1')
                 bar.appendChild(E.style(style, type='text/css'))
             set_css(bar,
                 width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
@@ -53,14 +59,10 @@ class TopBar:
         for bar in self.bar, self.dummy_bar:
             left = bar.firstChild
             clear(left)
-            left.appendChild(E.a(
-                style="overflow: hidden; display:inline-block; vertical-align:text-top",
-                href="javascript:void(0)", title=tooltip,
-                E.i(class_='fa fa-' + icon_name)
-            ))
-            a = left.firstChild
+            left.appendChild(E.a(title=tooltip, E.i(class_='fa fa-' + icon_name + ' fa-fw')))
             left.appendChild(E.span(title, style=str.format('margin-left: {}; font-weight: bold;', self.SPACING)))
             if bar is self.bar:
+                a = left.firstChild
                 if icon_name == 'heart':
                     set_css(a,
                         animation_name=self.throbber_name, animation_duration='1s', animation_timing_function='ease-in-out',
@@ -78,14 +80,12 @@ class TopBar:
         for bar in self.bar, self.dummy_bar:
             right = bar.firstChild.nextSibling
             right.appendChild(E.a(
-                style="overflow: hidden; display:inline-block; vertical-align:text-top; margin-left: " + self.SPACING,
-                href="javascript:void(0)", title=tooltip,
-                E.i(class_='fa fa-' + icon_name)
+                style="margin-left: " + self.SPACING,
+                title=tooltip, E.i(class_='fa fa-' + icon_name + ' fa-fw')
             ))
-            a = right.lastChild
             if bar is self.bar:
                 if action is not None:
-                    a.addEventListener('click', def(event): event.preventDefault(), action();)
+                    right.lastChild.addEventListener('click', def(event): event.preventDefault(), action();)
 
     def apply_state(self, left, buttons):
         self.set_left(**left)
