@@ -492,9 +492,9 @@ Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_rele
     * Slim down Qt by not building various things we dont need. Edit
       :file:`qtwebkit/Tools/qmake/mkspecs/features/configure.prf` and remove
       build_webkit2. Edit qt.pro and comment out the addModule() lines for
-      qtxmlpatterns, qtdeclarative, qtquick1, qttools, qtwebsockets,
+      qtxmlpatterns, qtdeclarative, qtquick1, qttools, qtwebsockets, qtwebchannel,
       qtwebengine. Change the addModule line for qtwebkit to depend on qtbase
-      instead of qtdeclarative.
+      instead of qtdeclarative anf remove qtwebchannel
 
     * Qt uses its own routine to locate and load "system libraries" including
       the openssl libraries needed for "Get Books". This means that we have to
