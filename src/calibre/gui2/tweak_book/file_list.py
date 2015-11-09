@@ -53,13 +53,20 @@ def name_is_ok(name, show_error):
     show_error('')
     return True
 
-def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True, prefix=None):  # {{{
+def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True, prefix=None, category='text'):  # {{{
     d = QDialog(parent)
     d.setWindowTitle(_('Bulk rename items'))
     d.l = l = QFormLayout(d)
     d.setLayout(l)
     d.prefix = p = QLineEdit(d)
-    p.setText(prefix or _('Chapter-'))
+    default_prefixes = {
+        'images': _('Image-'),
+        'styles': _('Style-'),
+        'fonts':  _('Font-'),
+        'text':   _('Chapter-'),
+        'misc':   _('Misc-')
+    }
+    p.setText(prefix or default_prefixes.get(category))
     p.selectAll()
     d.la = la = QLabel(msg or _(
         'All selected files will be renamed to the form prefix-number'))
@@ -517,12 +524,16 @@ class FileList(QTreeWidget):
                 ' internal structures of the original file.') % current_container().book_type.upper(), show=True)
             return
         names = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
+        categories = {unicode(item.data(0, CATEGORY_ROLE) or '') for item in self.selectedItems()}
+        if len(categories) > 1:
+            return error_dialog(self, _('Cannot rename'),
+                         _('The file(s) %s cannot be renamed because they are of different types.') % ('<b>%s</b>' % ', '.join(names)), show=True)
         bad = names & current_container().names_that_must_not_be_changed
         if bad:
             return error_dialog(self, _('Cannot rename'),
                          _('The file(s) %s cannot be renamed.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
         names = sorted(names, key=self.index_of_name)
-        fmt, num = get_bulk_rename_settings(self, len(names))
+        fmt, num = get_bulk_rename_settings(self, len(names), category=categories.pop())
         if fmt is not None:
             def change_name(name, num):
                 parts = name.split('/')
@@ -853,4 +864,3 @@ class FileListWidget(QWidget):
         if name in self.forwarded_signals:
             return getattr(self.file_list, name)
         return QWidget.__getattr__(self, name)
-
