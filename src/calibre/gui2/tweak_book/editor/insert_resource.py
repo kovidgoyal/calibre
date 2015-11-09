@@ -20,11 +20,12 @@ from calibre import fit_image
 from calibre.constants import plugins
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.gui2 import choose_files, error_dialog
+from calibre.gui2 import choose_files, error_dialog, pixmap_to_data
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.tweak_book.file_list import name_is_ok
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key
 
@@ -239,6 +240,10 @@ class InsertImage(Dialog):
             b.clicked.connect(self.import_image)
             b.setIcon(QIcon(I('view-image.png')))
             b.setToolTip(_('Import an image from elsewhere in your computer'))
+            b = self.paste_button = self.bb.addButton(_('&Paste image'), self.bb.ActionRole)
+            b.clicked.connect(self.paste_image)
+            b.setIcon(QIcon(I('edit-paste.png')))
+            b.setToolTip(_('Paste an image from the clipboard'))
 
     def refresh(self):
         self.d.cover_cache.clear()
@@ -256,6 +261,26 @@ class InsertImage(Dialog):
             if d.exec_() == d.Accepted and d.filename:
                 self.accept()
                 self.chosen_image_is_external = (d.filename, path)
+
+    def paste_image(self):
+        c = QApplication.instance().clipboard()
+        img = c.image()
+        if img.isNull():
+            img = c.image(c.Selection)
+        if img.isNull():
+            return error_dialog(self, _('No image'), _(
+                'There is no image on the clipboard'), show=True)
+        d = ChooseName('image.jpg', self)
+        if d.exec_() == d.Accepted and d.filename:
+            fmt = d.filename.rpartition('.')[-1].lower()
+            if fmt not in {'jpg', 'jpeg', 'png'}:
+                return error_dialog(self, _('Invalid file extension'), _(
+                    'The file name you choose must have a .jpg or .png extension'), show=True)
+            t = PersistentTemporaryFile(prefix='editor-paste-image-', suffix='.' + fmt)
+            t.write(pixmap_to_data(img, fmt))
+            t.close()
+            self.chosen_image_is_external = (d.filename, t.name)
+            self.accept()
 
     def pressed(self, index):
         if QApplication.mouseButtons() & Qt.LeftButton:
