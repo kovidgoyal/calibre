@@ -19,7 +19,7 @@ Also add eth1 to the auto line (use sudo ifup eth1 to start eth1 without rebooti
 
 sudo visudo (all no password actions for user)
 sudo apt-get install build-essential module-assistant vim zsh vim-scripts rsync \
-    htop nasm unzip libdbus-1-dev cmake libltdl-dev libudev-dev apt-file \
+    htop nasm unzip libdbus-1-dev cmake libltdl-dev libudev-dev apt-file p7zip \
     libdbus-glib-1-dev libcups2-dev "^libxcb.*" libx11-xcb-dev libglu1-mesa-dev \
     libxrender-dev flex bison gperf libasound2-dev libgstreamer0.10-dev \
     libgstreamer-plugins-base0.10-dev libpulse-dev libgtk2.0-dev libffi-dev xcb-proto python-xcbgen dh-autoreconf
