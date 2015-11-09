@@ -330,7 +330,7 @@ def get_term_geometry():
 
     def ioctl_GWINSZ(fd):
         try:
-            return struct.unpack(b'hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, b'1234'))
+            return struct.unpack(b'HHHH', fcntl.ioctl(fd, termios.TIOCGWINSZ, b'\0'*8))[:2]
         except Exception:
             return None, None
 
