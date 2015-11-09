@@ -325,23 +325,48 @@ def windows_terminfo():
         raise Exception('stdout is not a console?')
     return csbi
 
+def get_term_geometry():
+    import fcntl, termios, struct
+
+    def ioctl_GWINSZ(fd):
+        try:
+            return struct.unpack(b'hh', fcntl.ioctl(fd, termios.TIOCGWINSZ, b'1234'))
+        except Exception:
+            return None, None
+
+    for f in (sys.stdin, sys.stdout, sys.stderr):
+        lines, cols = ioctl_GWINSZ(f.fileno())
+        if lines is not None:
+            return lines, cols
+    try:
+        fd = os.open(os.ctermid(), os.O_RDONLY)
+        try:
+            lines, cols = ioctl_GWINSZ(fd)
+            if lines is not None:
+                return lines, cols
+        finally:
+            os.close(fd)
+    except Exception:
+        pass
+    return None, None
+
+
 def geometry():
     if iswindows:
         try:
 
             ti = windows_terminfo()
-            return (ti.dwSize.X or 80, ti.dwSize.Y or 80)
+            return (ti.dwSize.X or 80, ti.dwSize.Y or 25)
         except:
-            return 80, 80
-    try:
-        import curses
-        curses.setupterm()
-    except:
-        return 80, 80
+            return 80, 25
     else:
-        width = curses.tigetnum('cols') or 80
-        height = curses.tigetnum('lines') or 80
-        return width, height
+        try:
+            lines, cols = get_term_geometry()
+            if lines is not None:
+                return cols, lines
+        except Exception:
+            pass
+        return 80, 25
 
 def test():
     s = ANSIStream()

@@ -228,10 +228,9 @@ def test_podofo():
     print ('podofo OK!')
 
 def test_terminal():
-    import readline, curses
-    curses.setupterm()
+    import readline
     del readline
-    print ('readline and curses OK!')
+    print ('readline OK!')
 
 def test_markdown():
     from calibre.ebooks.markdown import Markdown
