@@ -22,8 +22,11 @@ class BooksView:
         self.is_fetching = False
         self.shown_book_ids = {}
         self.container_id = 'books-view-' + bv_counter
-        style = build_rule('#' + self.container_id + ' .cover_grid img:hover', transform='scale(1.2)')
-        style += build_rule('#' + self.container_id + ' .cover_grid img:active', transform='scale(2.0)')
+        # We have to apply the transform ont he containing div not the img because of a bug in WebKit
+        # that causes img aspect ratios to be messed up on window resize if the transform is specified
+        # on the img itself
+        style = build_rule('#' + self.container_id + ' .cover_grid > div:hover', transform='scale(1.2)')
+        style += build_rule('#' + self.container_id + ' .cover_grid > div:active', transform='scale(2.0)')
         div = E.div(
             id=self.container_id, style='display:block',
             E.style(style),
