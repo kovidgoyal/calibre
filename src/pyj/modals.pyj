@@ -1,0 +1,98 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from elementmaker import E
+from dom import set_css, clear, build_rule
+from gettext import gettext as _
+from book_list.theme import get_color
+
+modal_container = None
+
+class ModalContainer:
+
+    def __init__(self):
+        div = E.div(id='modal-container',
+            E.div(  # popup
+                E.div(),  # content area
+                E.a(E.i(class_='fa fa-close', style='vertical-align:bottom;'), title=_('Close'))
+            ),
+            E.style(build_rule(
+                '#modal-container > div > a:hover',
+                color=get_color('window-foreground') + ' !important',
+                background_color=get_color('window-background') + ' !important')
+            )
+        )
+        document.body.appendChild(div)
+
+        # Container style
+        set_css(div,
+            position='fixed', top='0', right='0', bottom='0', left='0', # Stretch over entire window
+            background_color='rgba(0,0,0,0.8)', z_index='1000',
+            display='none', text_align='center', user_select='none'
+        )
+
+        # Popup style
+        set_css(div.firstChild,
+            position='relative', display='inline-block', top='50vh', transform='translateY(-50%)',
+            min_width='200px', max_width='90vw', max_height='60vh',
+            border_radius='1em', padding='1em 2em',
+            background=get_color('window-background'), color=get_color('window-foreground')
+        )
+
+        # Close button style
+        set_css(div.firstChild.lastChild,
+            font_size='1.5em', line_height='100%', cursor='pointer', position='absolute',
+            right='-0.5em', top='-0.5em', width='1em', height='1em',
+            background_color=get_color('window-foreground'), color=get_color('window-background'), display='inline-box',
+            border_radius='50%', padding='4px', text_align='center', box_shadow='1px 1px 3px black'
+        )
+        div.firstChild.lastChild.addEventListener('click', def(event): event.preventDefault(), self.close_modal(event);)
+
+        # Content container style
+        set_css(div.firstChild.firstChild, user_select='text')
+
+        self.modals = v'[]'
+        self.current_modal = None
+        self.hide = bind(self.close_modal, self)
+
+    @property
+    def modal_container(self):
+        return document.getElementById('modal-container')
+
+    def show_modal(self, create_func, on_close=None):
+        self.modals.push(v'[create_func, on_close]')
+        self.update()
+
+    def update(self):
+        if self.current_modal is None and self.modals:
+            self.current_modal = self.modals.shift()
+            c = self.modal_container
+            try:
+                self.current_modal[0](c.firstChild.firstChild, self.hide)
+            except:
+                self.current_modal = None
+                raise
+            if c.style.display == 'none':
+                set_css(c, display='block')
+
+    def close_modal(self, event):
+        if self.current_modal is not None:
+            if self.current_modal[1] is not None and self.current_modal[1](event) is True:
+                return
+            self.current_modal = None
+            c = self.modal_container
+            clear(c.firstChild.firstChild)
+            if self.modals.length == 0:
+                set_css(c, display='none')
+            else:
+                self.update()
+
+
+def create_modal_container():
+    nonlocal modal_container
+    if modal_container is None:
+        modal_container = ModalContainer()
+    return modal_container
+
+def show_modal(create_func, on_close=None):
+    modal_container.show_modal(create_func, on_close)
