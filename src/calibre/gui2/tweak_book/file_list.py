@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os
 from binascii import hexlify
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict, defaultdict, Counter
 from functools import partial
 
 import sip
@@ -37,6 +37,14 @@ LINEAR_ROLE = CATEGORY_ROLE + 1
 MIME_ROLE = LINEAR_ROLE + 1
 NBSP = '\xa0'
 
+CATEGORIES = (
+    ('text', _('Text'), _('Chapter-')),
+    ('styles', _('Styles'), _('Style-')),
+    ('images', _('Images'), _('Image-')),
+    ('fonts', _('Fonts'), _('Font-')),
+    ('misc', _('Miscellaneous'), _('Misc-')),
+)
+
 def name_is_ok(name, show_error):
     if not name or not name.strip():
         return show_error('') and False
@@ -59,14 +67,8 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
     d.l = l = QFormLayout(d)
     d.setLayout(l)
     d.prefix = p = QLineEdit(d)
-    default_prefixes = {
-        'images': _('Image-'),
-        'styles': _('Style-'),
-        'fonts':  _('Font-'),
-        'text':   _('Chapter-'),
-        'misc':   _('Misc-')
-    }
-    p.setText(prefix or default_prefixes.get(category))
+    prefix = prefix or {k:v for k, __, v in CATEGORIES}.get(category, _('Chapter-'))
+    p.setText(prefix)
     p.selectAll()
     d.la = la = QLabel(msg or _(
         'All selected files will be renamed to the form prefix-number'))
@@ -264,13 +266,7 @@ class FileList(QTreeWidget):
         self.root = self.invisibleRootItem()
         self.root.setFlags(Qt.ItemIsDragEnabled)
         self.categories = {}
-        for category, text in (
-            ('text', _('Text')),
-            ('styles', _('Styles')),
-            ('images', _('Images')),
-            ('fonts', _('Fonts')),
-            ('misc', _('Miscellaneous')),
-        ):
+        for category, text, __ in CATEGORIES:
             self.categories[category] = i = QTreeWidgetItem(self.root, 0)
             i.setText(0, text)
             i.setData(0, Qt.DecorationRole, self.top_level_pixmap_cache[category])
@@ -524,16 +520,13 @@ class FileList(QTreeWidget):
                 ' internal structures of the original file.') % current_container().book_type.upper(), show=True)
             return
         names = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
-        categories = {unicode(item.data(0, CATEGORY_ROLE) or '') for item in self.selectedItems()}
-        if len(categories) > 1:
-            return error_dialog(self, _('Cannot rename'),
-                         _('The file(s) %s cannot be renamed because they are of different types.') % ('<b>%s</b>' % ', '.join(names)), show=True)
         bad = names & current_container().names_that_must_not_be_changed
         if bad:
             return error_dialog(self, _('Cannot rename'),
                          _('The file(s) %s cannot be renamed.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
         names = sorted(names, key=self.index_of_name)
-        fmt, num = get_bulk_rename_settings(self, len(names), category=categories.pop())
+        categories = Counter(unicode(item.data(0, CATEGORY_ROLE) or '') for item in self.selectedItems())
+        fmt, num = get_bulk_rename_settings(self, len(names), category=categories.most_common(1)[0][0])
         if fmt is not None:
             def change_name(name, num):
                 parts = name.split('/')
