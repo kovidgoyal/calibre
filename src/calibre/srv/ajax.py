@@ -16,7 +16,6 @@ from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import title_sort
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.srv.errors import HTTPNotFound
-from calibre.srv.metadata import book_as_json
 from calibre.srv.routes import endpoint, json
 from calibre.srv.content import get as get_content, icon as get_icon
 from calibre.srv.utils import http_date, custom_fields_to_display, encode_name, decode_name
@@ -524,7 +523,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 # }}}
 
 # Search {{{
-def _search(ctx, rd, db, query, num, offset, sort, sort_order):
+def search_result(ctx, rd, db, query, num, offset, sort, sort_order):
     multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc') == 'asc')
                  for s, o in zip(sort.split(','), cycle(sort_order.split(',')))]
     skeys = db.field_metadata.sortable_field_keys()
@@ -558,65 +557,7 @@ def search(ctx, rd, library_id):
     query = rd.query.get('query')
     num, offset = get_pagination(rd.query)
     with db.safe_read_lock:
-        return _search(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'))
+        return search_result(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'))
 # }}}
 
-def get_basic_query_data(ctx, query):
-    library_id = query.get('library_id')
-    library_map, default_library = ctx.library_map
-    if library_id not in library_map:
-        library_id = default_library
-    db = get_db(ctx, library_id)
-    skeys = db.field_metadata.sortable_field_keys()
-    sorts, orders = [], []
-    for x in query.get('sort', '').split(','):
-        if x:
-            s, o = x.partition('.')[::2]
-            if o not in ('asc', 'desc'):
-                o = 'asc'
-            if s.startswith('_'):
-                s = '#' + s[1:]
-            s = sanitize_sort_field_name(db.field_metadata, s)
-            if s in skeys:
-                sorts.append(s), orders.append(o)
-    if not sorts:
-        sorts, orders = ['date'], ['desc']
-    return library_id, db, sorts, orders
 
-
-@endpoint('/ajax/interface-data', postprocess=json)
-def interface_data(ctx, rd):
-    '''
-    Return the data needed to create the server main UI
-
-    Optional: ?num=50&sort=date.desc&library_id=<default library>
-    '''
-    ans = {'username':rd.username}
-    ans['library_map'], ans['default_library'] = ctx.library_map
-    ud = {}
-    if rd.username:
-        # Override session data with stored values for the authenticated user,
-        # if any
-        ud = ctx.user_manager.get_session_data(rd.username)
-        lid = ud.get('library_id')
-        if lid and lid in ans['library_map']:
-            rd.query.set('library_id', lid)
-        usort = ud.get('sort')
-        if usort:
-            rd.query.set('sort', usort)
-    ans['library_id'], db, sorts, orders = get_basic_query_data(ctx, rd.query)
-    ans['user_session_data'] = ud
-    try:
-        num = int(rd.query.get('num', 50))
-    except Exception:
-        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
-    with db.safe_read_lock:
-        ans['search_result'] = _search(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
-        ans['field_metadata'] = db.field_metadata.all_metadata()
-        # ans['categories'] = ctx.get_categories(rd, db)
-        mdata = ans['metadata'] = {}
-        for book_id in ans['search_result']['book_ids']:
-            data = book_as_json(db, book_id)
-            mdata[book_id] = data
-
-    return ans

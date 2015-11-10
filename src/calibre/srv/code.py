@@ -7,9 +7,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 import re
 from functools import partial
 from threading import Lock
+from json import load as load_json_file
 
-from calibre import prepare_string_for_xml
-from calibre.srv.routes import endpoint
+from calibre import prepare_string_for_xml, as_unicode
+from calibre.db.view import sanitize_sort_field_name
+from calibre.srv.ajax import get_db, search_result
+from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
+from calibre.srv.metadata import book_as_json
+from calibre.srv.routes import endpoint, json
 
 html_cache = {}
 cache_lock = Lock()
@@ -45,3 +50,99 @@ def index(ctx, rd):
     return rd.generate_static_output('/', partial(
         get_html, 'content-server/index.html', getattr(rd.opts, 'auto_reload_port', 0),
         ENTRY_POINT='book list', LOADING_MSG=prepare_string_for_xml(_('Loading library, please wait'))))
+
+def get_library_data(ctx, query):
+    library_id = query.get('library_id')
+    library_map, default_library = ctx.library_map
+    if library_id not in library_map:
+        library_id = default_library
+    db = get_db(ctx, library_id)
+    return db, library_id, library_map, default_library
+
+def get_basic_query_data(ctx, query):
+    db, library_id, library_map, default_library = get_library_data(ctx, query)
+    skeys = db.field_metadata.sortable_field_keys()
+    sorts, orders = [], []
+    for x in query.get('sort', '').split(','):
+        if x:
+            s, o = x.partition('.')[::2]
+            if o not in ('asc', 'desc'):
+                o = 'asc'
+            if s.startswith('_'):
+                s = '#' + s[1:]
+            s = sanitize_sort_field_name(db.field_metadata, s)
+            if s in skeys:
+                sorts.append(s), orders.append(o)
+    if not sorts:
+        sorts, orders = ['date'], ['desc']
+    return library_id, db, sorts, orders
+
+DEFAULT_NUMBER_OF_BOOKS = 50
+
+@endpoint('/interface-data/init', postprocess=json)
+def interface_data(ctx, rd):
+    '''
+    Return the data needed to create the server main UI
+
+    Optional: ?num=50&sort=date.desc&library_id=<default library>
+    '''
+    ans = {'username':rd.username}
+    ans['library_map'], ans['default_library'] = ctx.library_map
+    ud = {}
+    if rd.username:
+        # Override session data with stored values for the authenticated user,
+        # if any
+        ud = ctx.user_manager.get_session_data(rd.username)
+        lid = ud.get('library_id')
+        if lid and lid in ans['library_map']:
+            rd.query.set('library_id', lid)
+        usort = ud.get('sort')
+        if usort:
+            rd.query.set('sort', usort)
+    ans['library_id'], db, sorts, orders = get_basic_query_data(ctx, rd.query)
+    ans['user_session_data'] = ud
+    try:
+        num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
+    except Exception:
+        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+    with db.safe_read_lock:
+        ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
+        ans['field_metadata'] = db.field_metadata.all_metadata()
+        # ans['categories'] = ctx.get_categories(rd, db)
+        mdata = ans['metadata'] = {}
+        for book_id in ans['search_result']['book_ids']:
+            data = book_as_json(db, book_id)
+            mdata[book_id] = data
+
+    return ans
+
+@endpoint('/interface-data/more-books', postprocess=json, methods={'GET', 'HEAD', 'POST'})
+def more_books(ctx, rd):
+    '''
+    Get more results from the specified search-query, which must
+    be specified as JSON in the request body.
+
+    Optional: ?num=50&library_id=<default library>
+    '''
+    db, library_id = get_library_data(ctx, rd.query)[:2]
+
+    try:
+        num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
+    except Exception:
+        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+    try:
+        search_query = load_json_file(rd.request_body_file)
+        query, sorts, orders = search_query['query'], search_query['sort'], search_query['sort_order']
+    except KeyError as err:
+        raise HTTPBadRequest('Search query missing key: %s' % as_unicode(err))
+    except Exception as err:
+        raise HTTPBadRequest('Invalid query: %s' % as_unicode(err))
+    ans = {}
+    with db.safe_read_lock:
+        ans['search_result'] = search_result(ctx, rd, db, query, num, 0, sorts, orders)
+        mdata = ans['metadata'] = {}
+        for book_id in ans['search_result']['book_ids']:
+            data = book_as_json(db, book_id)
+            mdata[book_id] = data
+
+    return ans
