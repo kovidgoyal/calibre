@@ -12,6 +12,8 @@ simple_vendor_prefixes = {
     'animation-fill-mode': v"['webkit', 'moz', 'o']",
     'animation-play-state': v"['webkit', 'moz', 'o']",
     'transform': v"['webkit', 'ms', 'moz', 'o']",
+    'transition': v"['webkit', 'moz', 'o']",
+    'filter': v"['webkit']",
     'user-select': v"['webkit', 'moz', 'ms']",
 }
 
@@ -46,7 +48,8 @@ def build_rule(selector, **kw):
 
 def clear(*nodes):
     for node in nodes:
-        node.innerHTML = ''
+        while node.firstChild:
+            node.removeChild(node.firstChild)
 
 def create_keyframes(animation_name, *frames):
     ans = v'[]'
