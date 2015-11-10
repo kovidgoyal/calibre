@@ -19,8 +19,8 @@ class BooksView:
         nonlocal bv_counter
         bv_counter += 1
         self.interface_data = interface_data
-        self.search_result = interface_data['search_result']
-        self.metadata_map = interface_data['metadata']
+        self.is_fetching = False
+        self.shown_book_ids = {}
         self.container_id = 'books-view-' + bv_counter
         style = build_rule('#' + self.container_id + ' .cover_grid img:hover', transform='scale(1.2)')
         style += build_rule('#' + self.container_id + ' .cover_grid img:active', transform='scale(2.0)')
@@ -28,15 +28,24 @@ class BooksView:
             id=self.container_id, style='display:block',
             E.style(style),
             E.div(),
-            E.div(id='get-more-books')
+            E.div()
         )
         document.body.appendChild(div)
         self.set_view_mode(get_session_data().get('view_mode'))
+        self.create_more_button(div)
+
+    def create_more_button(self, div):
         more = div.lastChild
         more.appendChild(create_button(
-            _('Show more books'), 'cloud-download'
+            _('Show more books'), 'cloud-download', def():self.get_more_books()
         ))
+        set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto')
         set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', width='100%', text_align='center')
+        more.appendChild(E.div(
+            E.i(class_='fa fa-lg fa-cloud-download'), '\xa0' + _('Fetching metadata for more books, please wait') + '…',
+            style='margin-left:auto; margin-right:auto; display:none')
+        )
+        self.update_fetching_status()
 
     def set_view_mode(self, mode='cover_grid'):
         if self.mode == mode:
@@ -75,6 +84,34 @@ class BooksView:
         c.removeChild(self.grid)
         c.insertBefore(E.div(), c.lastChild)
         self.init_grid()
+
+    def render_ids(self):
+        book_ids = self.interface_data['search_result']['book_ids']
+        self.shown_book_ids = {}
+        div = self.grid
+        for book_id in book_ids:
+            div.appendChild(self.render_book(book_id))
+            self.shown_book_ids[book_id] = True
+
+    def on_resize(self):
+        if self.resize_grid:
+            self.resize_grid()
+
+    def update_fetching_status(self):
+        c = self.container
+        more = c.lastChild
+        if self.is_fetching:
+            more.firstChild.style.display = 'none'
+            more.lastChild.style.display = 'block'
+        elif self.interface_data['search_result']['total_num'] > self.interface_data['search_result']['book_ids'].length:
+            more.firstChild.style.display = 'block'
+            more.lastChild.style.display = 'none'
+        else:
+            more.firstChild.style.display = 'none'
+            more.lastChild.style.display = 'none'
+
+    def get_more_books(self):
+        self.update_fetching_status()
 
     # Cover grid {{{
 
@@ -117,13 +154,4 @@ class BooksView:
 
     # }}}
 
-    def render_ids(self, book_ids=None):
-        if book_ids is None:
-            book_ids = self.search_result['book_ids']
-        div = self.grid
-        for book_id in book_ids:
-            div.appendChild(self.render_book(book_id))
 
-    def on_resize(self):
-        if self.resize_grid:
-            self.resize_grid()
