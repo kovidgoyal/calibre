@@ -56,10 +56,8 @@ class BooksView:
         if mode == 'cover_grid':
             self.render_book = bind(self.cover_grid_item, self)
             self.init_grid = bind(self.init_cover_grid, self)
-            self.resize_grid = bind(self.resize_cover_grid, self)
         self.init_grid()
         self.render_ids()
-        self.resize_grid()
 
     @property
     def container(self):
@@ -93,10 +91,6 @@ class BooksView:
             div.appendChild(self.render_book(book_id))
             self.shown_book_ids[book_id] = True
 
-    def on_resize(self):
-        if self.resize_grid:
-            self.resize_grid()
-
     def update_fetching_status(self):
         c = self.container
         more = c.lastChild
@@ -121,37 +115,17 @@ class BooksView:
         div.setAttribute('class', 'cover_grid')
         self.cover_grid_width = self.cover_grid_height = -1
 
-    def resize_cover_grid(self):
-        w, h = window.innerWidth, window.innerHeight
-        if w <= h:
-            # Portrait
-            MAX_WIDTH, MIN_WIDTH = THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_WIDTH // 2
-            no_wider_than = (w - 50) // 2
-            width = min(no_wider_than, MAX_WIDTH)
-            width = max(width, MIN_WIDTH)
-            height = int((4 / 3) * width)
-        else:
-            # Landscape
-            MAX_HEIGHT, MIN_HEIGHT = THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_HEIGHT // 2
-            no_taller_than = (h - 75) // 2
-            height = min(no_taller_than, MAX_HEIGHT)
-            height = max(height, MIN_HEIGHT)
-            width = int((3 / 4) * height)
-        width, height = width + 'px', height + 'px'
-        for child in self.grid.childNodes:
-            set_css(child, width=width, height=height)
-
     def cover_grid_item(self, book_id):
         cover_url = str.format('get/thumb/{}/{}?sz={}x{}', book_id, self.interface_data['library_id'], THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
         metadata = self.interface_data['metadata'][book_id]
         alt = str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & '))
         return E.div(
-            style='margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around',
+            style=str.format(('margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around;'
+                             'width: 21vw; height: 28vw; max-width: {}px; max-height: {}px; min-width: {}px; min-height: {}px'),
+                             THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH // 2, THUMBNAIL_MAX_HEIGHT // 2),
             data_book_id=str(book_id),
             E.img(src=cover_url, alt=alt, title=alt,
                   style='max-width: 100%; max-height: 100%; display: block; cursor: pointer; width:auto; height:auto')
         )
 
     # }}}
-
-
