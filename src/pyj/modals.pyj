@@ -16,10 +16,15 @@ class ModalContainer:
                 E.div(),  # content area
                 E.a(E.i(class_='fa fa-close', style='vertical-align:bottom;'), title=_('Close'))
             ),
-            E.style(build_rule(
-                '#modal-container > div > a:hover',
-                color=get_color('dialog-foreground') + ' !important',
-                background_color=get_color('dialog-background') + ' !important')
+            E.style(
+                build_rule(
+                    '#modal-container > div > a:hover',
+                    color=get_color('dialog-foreground') + ' !important',
+                    background_color=get_color('dialog-background') + ' !important'
+                ) +
+                build_rule(
+                    '#modal-container a.dialog-simple-link:hover', color='red !important'
+                )
             )
         )
         document.body.appendChild(div)
@@ -34,7 +39,7 @@ class ModalContainer:
         # Popup style
         set_css(div.firstChild,
             position='relative', display='inline-block', top='50vh', transform='translateY(-50%)',
-            min_width='25vw', max_width='75vw', max_height='60vh',
+            min_width='25vw', max_width='75vw',
             border_radius='1em', padding='1em 2em', margin_right='1em', margin_left='1em',
             background=get_color('dialog-background'), color=get_color('dialog-foreground'),
             background_image=str.format('linear-gradient(to bottom, {}, {})', get_color('dialog-background'), get_color('dialog-background2'))
@@ -50,7 +55,7 @@ class ModalContainer:
         div.firstChild.lastChild.addEventListener('click', def(event): event.preventDefault(), self.close_modal(event);)
 
         # Content container style
-        set_css(div.firstChild.firstChild, user_select='text')
+        set_css(div.firstChild.firstChild, user_select='text', max_height='60vh', overflow='auto')
 
         self.modals = v'[]'
         self.current_modal = None
@@ -91,6 +96,11 @@ class ModalContainer:
 def create_simple_dialog(title, msg, details, icon_name, prefix):
     details = details or ''
     def create_func(parent):
+        show_details = E.a(class_='dialog-simple-link', style='cursor:pointer; color: blue; padding-top:1em; display:inline-block; margin-left: auto', _('Show details'))
+        show_details.addEventListener('click', def():
+            show_details.style.display = 'none'
+            show_details.nextSibling.style.display = 'block'
+        )
         parent.appendChild(
             E.div(
                 style='max-width:60em; text-align: left',
@@ -98,7 +108,13 @@ def create_simple_dialog(title, msg, details, icon_name, prefix):
                     E.i(class_='fa fa-lg fa-' + icon_name, style='color:red'), E.span('\xa0' + prefix + '\xa0', style='font-variant:small-caps'), title,
                     style='font-weight: bold; font-size: ' + get_font_size('title')
                 ),
-                E.div(msg, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor')
+                E.div(msg, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
+                E.div(style='display: ' + ('block' if details else 'none'),
+                    show_details,
+                    E.div(details,
+                          style='display:none; white-space:pre-wrap; font-size: smaller; margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1em'
+                    )
+                )
             )
         )
     show_modal(create_func)
@@ -109,13 +125,20 @@ def error_dialog(title, msg, details=None):
 def warning_dialog(title, msg, details=None):
     create_simple_dialog(title, msg, details, 'warning', _('Warning:'))
 
-def test_error():
-    error_dialog('Hello, world!', 'Some long text to test rendering/line breaking in error dialogs that contain lots of text like this test error dialog from hell in a handbasket with fruits and muppets making a scene.')
+# def test_error():
+#     error_dialog(
+#         'Hello, world!',
+#         'Some long text to test rendering/line breaking in error dialogs that contain lots of text like this test error dialog from hell in a handbasket with fruits and muppets making a scene.',
+#         ['a word ' for i in range(10000)].join(' ')
+#     )
 
 def create_modal_container():
     nonlocal modal_container
     if modal_container is None:
         modal_container = ModalContainer()
+    # window.setTimeout(def():
+    #     document.getElementById('books-view-1').addEventListener('click', test_error)
+    # , 10)
     return modal_container
 
 def show_modal(create_func, on_close=None):

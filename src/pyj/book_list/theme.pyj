@@ -4,7 +4,6 @@
 DARK = '#39322B'
 LIGHT = '#F6F3E9'
 LIGHT2 = '#d6d3c8'
-HIGHLIGHT = 'red'
 
 def get_color(name):
     return {
