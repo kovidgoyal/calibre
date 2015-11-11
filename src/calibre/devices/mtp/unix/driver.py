@@ -367,7 +367,7 @@ class MTP_DEVICE(MTPDeviceBase):
         ename = name.encode('utf-8') if isinstance(name, unicode) else name
         sid, pid = parent.storage_id, parent.object_id
         if pid == sid:
-            pid = 0
+            pid = 0xFFFFFFFF
 
         ans, errs = self.dev.put_file(sid, pid, ename, stream, size, callback)
         if ans is None:
