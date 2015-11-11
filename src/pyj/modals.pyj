@@ -4,7 +4,7 @@
 from elementmaker import E
 from dom import set_css, clear, build_rule
 from gettext import gettext as _
-from book_list.theme import get_color
+from book_list.theme import get_color, get_font_size
 
 modal_container = None
 
@@ -18,8 +18,8 @@ class ModalContainer:
             ),
             E.style(build_rule(
                 '#modal-container > div > a:hover',
-                color=get_color('window-foreground') + ' !important',
-                background_color=get_color('window-background') + ' !important')
+                color=get_color('dialog-foreground') + ' !important',
+                background_color=get_color('dialog-background') + ' !important')
             )
         )
         document.body.appendChild(div)
@@ -34,9 +34,10 @@ class ModalContainer:
         # Popup style
         set_css(div.firstChild,
             position='relative', display='inline-block', top='50vh', transform='translateY(-50%)',
-            min_width='200px', max_width='90vw', max_height='60vh',
-            border_radius='1em', padding='1em 2em',
-            background=get_color('window-background'), color=get_color('window-foreground')
+            min_width='25vw', max_width='75vw', max_height='60vh',
+            border_radius='1em', padding='1em 2em', margin_right='1em', margin_left='1em',
+            background=get_color('dialog-background'), color=get_color('dialog-foreground'),
+            background_image=str.format('linear-gradient(to bottom, {}, {})', get_color('dialog-background'), get_color('dialog-background2'))
         )
 
         # Close button style
@@ -87,6 +88,29 @@ class ModalContainer:
             else:
                 self.update()
 
+def create_simple_dialog(title, msg, details, icon_name, prefix):
+    details = details or ''
+    def create_func(parent):
+        parent.appendChild(
+            E.div(
+                style='max-width:60em; text-align: left',
+                E.h2(
+                    E.i(class_='fa fa-lg fa-' + icon_name, style='color:red'), E.span('\xa0' + prefix + '\xa0', style='font-variant:small-caps'), title,
+                    style='font-weight: bold; font-size: ' + get_font_size('title')
+                ),
+                E.div(msg, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor')
+            )
+        )
+    show_modal(create_func)
+
+def error_dialog(title, msg, details=None):
+    create_simple_dialog(title, msg, details, 'bug', _('Error:'))
+
+def warning_dialog(title, msg, details=None):
+    create_simple_dialog(title, msg, details, 'warning', _('Warning:'))
+
+def test_error():
+    error_dialog('Hello, world!', 'Some long text to test rendering/line breaking in error dialogs that contain lots of text like this test error dialog from hell in a handbasket with fruits and muppets making a scene.')
 
 def create_modal_container():
     nonlocal modal_container

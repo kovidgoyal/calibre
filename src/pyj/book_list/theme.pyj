@@ -3,6 +3,7 @@
 
 DARK = '#39322B'
 LIGHT = '#F6F3E9'
+LIGHT2 = '#d6d3c8'
 HIGHLIGHT = 'red'
 
 def get_color(name):
@@ -24,6 +25,11 @@ def get_color(name):
         'button-start': DARK,
         'button-end': '#49423B',
         'button-text': LIGHT,
+
+        # Dialog colors
+        'dialog-background': LIGHT,
+        'dialog-background2': LIGHT2,
+        'dialog-foreground': DARK,
     }[name]
 
 def get_font_size(name):
