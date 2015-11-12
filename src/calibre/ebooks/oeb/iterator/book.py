@@ -19,8 +19,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.config import DynamicConfig
 from calibre.utils.logging import default_log
-from calibre import (guess_type, prepare_string_for_xml,
-        xml_replace_entities)
+from calibre import guess_type, prepare_string_for_xml
 from calibre.ebooks.oeb.transforms.cover import CoverManager
 from calibre.ebooks.oeb.iterator.spine import (SpineItem, create_indexing_data)
 from calibre.ebooks.oeb.iterator.bookmarks import BookmarksMixin
@@ -61,19 +60,32 @@ class EbookIterator(BookmarksMixin):
         self.ebook_ext = ext.replace('original_', '')
 
     def search(self, text, index, backwards=False):
-        text = prepare_string_for_xml(text.lower())
+        from calibre.ebooks.oeb.polish.parsing import parse
         pmap = [(i, path) for i, path in enumerate(self.spine)]
         if backwards:
             pmap.reverse()
+        q = text.lower()
         for i, path in pmap:
             if (backwards and i < index) or (not backwards and i > index):
                 with open(path, 'rb') as f:
                     raw = f.read().decode(path.encoding)
-                try:
-                    raw = xml_replace_entities(raw)
-                except:
-                    pass
-                if text in raw.lower():
+                root = parse(raw)
+                fragments = []
+                def serialize(elem):
+                    if elem.text:
+                        fragments.append(elem.text.lower())
+                    if elem.tail:
+                        fragments.append(elem.tail.lower())
+                    for child in elem.iterchildren():
+                        if hasattr(getattr(child, 'tag', None), 'rpartition') and child.tag.rpartition('}')[-1] not in {'script', 'style', 'del'}:
+                            serialize(child)
+                        elif getattr(child, 'tail', None):
+                            fragments.append(child.tail.lower())
+                for body in root.xpath('//*[local-name() = "body"]'):
+                    body.tail = None
+                    serialize(body)
+
+                if q in ''.join(fragments):
                     return i
 
     def __enter__(self, processed=False, only_input_plugin=False,
