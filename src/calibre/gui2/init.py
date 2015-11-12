@@ -528,6 +528,8 @@ class LayoutMixin(object):  # {{{
                 self.iactions['Save To Disk'].save_library_format_by_ids)
         self.book_details.restore_specific_format.connect(
             self.iactions['Remove Books'].restore_format)
+        self.book_details.set_cover_from_format.connect(
+            self.iactions['Edit Metadata'].set_cover_from_format)
         self.book_details.copy_link.connect(self.bd_copy_link,
                 type=Qt.QueuedConnection)
         self.book_details.view_device_book.connect(

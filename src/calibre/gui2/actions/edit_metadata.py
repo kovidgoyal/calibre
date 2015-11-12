@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, shutil, copy
 from functools import partial
+from io import BytesIO
 
 from PyQt5.Qt import QMenu, QModelIndex, QTimer, QIcon, QApplication
 
@@ -785,3 +786,55 @@ class EditMetadataAction(InterfaceAction):
             affected_books = db.set_field(field, {book_id:''})
         if affected_books:
             self.refresh_books_after_metadata_edit(affected_books)
+
+    def set_cover_from_format(self, book_id, fmt):
+        from calibre.utils.config import prefs
+        from calibre.ebooks.metadata.meta import get_metadata
+        fmt = fmt.lower()
+        cdata = None
+        db = self.gui.current_db.new_api
+        if fmt == 'pdf':
+            pdfpath = db.format_abspath(book_id, fmt)
+            if pdfpath is None:
+                return error_dialog(self.gui, _('Format file missing'), _(
+                    'Cannot read cover as the %s file is missing from this book') % 'PDF', show=True)
+            from calibre.gui2.metadata.pdf_covers import PDFCovers
+            d = PDFCovers(pdfpath, parent=self.gui)
+            if d.exec_() == d.Accepted:
+                cpath = d.cover_path
+                if cpath:
+                    with open(cpath, 'rb') as f:
+                        cdata = f.read()
+            d.cleanup()
+        else:
+            stream = BytesIO()
+            try:
+                db.copy_format_to(book_id, fmt, stream)
+            except NoSuchFormat:
+                return error_dialog(self.gui, _('Format file missing'), _(
+                    'Cannot read cover as the %s file is missing from this book') % fmt.upper(), show=True)
+            old = prefs['read_file_metadata']
+            if not old:
+                prefs['read_file_metadata'] = True
+            try:
+                stream.seek(0)
+                mi = get_metadata(stream, fmt)
+            except Exception:
+                import traceback
+                return error_dialog(self.gui, _('Could not read metadata'),
+                            _('Could not read metadata from %s format')%fmt.upper(),
+                             det_msg=traceback.format_exc(), show=True)
+            finally:
+                if old != prefs['read_file_metadata']:
+                    prefs['read_file_metadata'] = old
+            if mi.cover and os.access(mi.cover, os.R_OK):
+                cdata = open(mi.cover).read()
+            elif mi.cover_data[1] is not None:
+                cdata = mi.cover_data[1]
+            if cdata is None:
+                return error_dialog(self.gui, _('Could not read cover'),
+                            _('Could not read cover from %s format')%fmt.upper(), show=True)
+        db.set_cover({book_id:cdata})
+        current_idx = self.gui.library_view.currentIndex()
+        self.gui.library_view.model().current_changed(current_idx, current_idx)
+        self.gui.refresh_cover_browser()

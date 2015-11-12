@@ -130,10 +130,12 @@ def details_context_menu_event(view, ev, book_info):  # {{{
                 ofmt = fmt.upper() if fmt.startswith('ORIGINAL_') else 'ORIGINAL_' + fmt
                 nfmt = ofmt[len('ORIGINAL_'):]
                 fmts = {x.upper() for x in db.formats(book_id)}
-                for a, t in [('remove', _('Delete the %s format')),
-                    ('save', _('Save the %s format to disk')),
-                    ('restore', _('Restore the %s format')),
-                    ('compare', ''),
+                for a, t in [
+                        ('remove', _('Delete the %s format')),
+                        ('save', _('Save the %s format to disk')),
+                        ('restore', _('Restore the %s format')),
+                        ('compare', ''),
+                        ('set_cover', _('Set the book cover from the %s file')),
                 ]:
                     if a == 'restore' and not fmt.startswith('ORIGINAL_'):
                         continue
@@ -401,6 +403,7 @@ class BookInfo(QWebView):
     save_format = pyqtSignal(int, object)
     restore_format = pyqtSignal(int, object)
     compare_format = pyqtSignal(int, object)
+    set_cover_format = pyqtSignal(int, object)
     copy_link = pyqtSignal(object)
     manage_author = pyqtSignal(object)
     open_fmt_with = pyqtSignal(int, object, object)
@@ -422,7 +425,9 @@ class BookInfo(QWebView):
         for x, icon in [
             ('remove_format', 'trash.png'), ('save_format', 'save.png'),
             ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png'),
-            ('manage_author', 'user_profile.png'), ('compare_format', 'diff.png')]:
+            ('manage_author', 'user_profile.png'), ('compare_format', 'diff.png'),
+            ('set_cover_format', 'book.png'),
+        ]:
             ac = QAction(QIcon(I(icon)), '', self)
             ac.current_fmt = None
             ac.current_url = None
@@ -458,6 +463,9 @@ class BookInfo(QWebView):
 
     def compare_format_triggerred(self):
         self.context_action_triggered('compare_format')
+
+    def set_cover_format_triggerred(self):
+        self.context_action_triggered('set_cover_format')
 
     def copy_link_triggerred(self):
         self.context_action_triggered('copy_link')
@@ -603,6 +611,7 @@ class BookDetails(QWidget):  # {{{
     remove_metadata_item = pyqtSignal(int, object, object)
     save_specific_format = pyqtSignal(int, object)
     restore_specific_format = pyqtSignal(int, object)
+    set_cover_from_format = pyqtSignal(int, object)
     compare_specific_format = pyqtSignal(int, object)
     copy_link = pyqtSignal(object)
     remote_file_dropped = pyqtSignal(object, object)
@@ -680,6 +689,7 @@ class BookDetails(QWidget):  # {{{
         self.book_info.open_fmt_with.connect(self.open_fmt_with)
         self.book_info.save_format.connect(self.save_specific_format)
         self.book_info.restore_format.connect(self.restore_specific_format)
+        self.book_info.set_cover_format.connect(self.set_cover_from_format)
         self.book_info.compare_format.connect(self.compare_specific_format)
         self.book_info.copy_link.connect(self.copy_link)
         self.book_info.manage_author.connect(self.manage_author)
