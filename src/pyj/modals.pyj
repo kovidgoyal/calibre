@@ -101,6 +101,10 @@ def create_simple_dialog(title, msg, details, icon_name, prefix):
             show_details.style.display = 'none'
             show_details.nextSibling.style.display = 'block'
         )
+        is_html_msg = /<[a-zA-Z]/.test(msg)
+        html_container = E.div()
+        if is_html_msg:
+            html_container.innerHTML = msg
         parent.appendChild(
             E.div(
                 style='max-width:60em; text-align: left',
@@ -108,7 +112,7 @@ def create_simple_dialog(title, msg, details, icon_name, prefix):
                     E.i(class_='fa fa-lg fa-' + icon_name, style='color:red'), E.span('\xa0' + prefix + '\xa0', style='font-variant:small-caps'), title,
                     style='font-weight: bold; font-size: ' + get_font_size('title')
                 ),
-                E.div(msg, style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
+                E.div((html_container if is_html_msg else msg), style='padding-top: 1em; margin-top: 1em; border-top: 1px solid currentColor'),
                 E.div(style='display: ' + ('block' if details else 'none'),
                     show_details,
                     E.div(details,

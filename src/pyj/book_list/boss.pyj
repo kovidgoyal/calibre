@@ -2,6 +2,8 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from book_list.ui import UI
+from modals import error_dialog
+from gettext import gettext as _
 
 class Boss:
 
@@ -11,7 +13,15 @@ class Boss:
         self.current_library_name = interface_data['library_map'][self.current_library_id]
         self.update_window_title()
         self.ui = UI(interface_data)
+        window.onerror = bind(self.onerror, self)
 
     def update_window_title(self):
         document.title = 'calibre :: ' + self.current_library_name
 
+    def onerror(self, msg, script_url, line_number, column_number, error_object):
+        fname = str.rpartition(script_url, '/')[-1] or script_url
+        msg = msg + '<br><span style="font-size:smaller">' + str.format('Error at {}:{}:{}', fname, line_number, column_number or '') + '</span>'
+        details = ''
+        if error_object and error_object.stack:
+            details = error_object.stack
+        error_dialog(_('Unhandled error'), msg, details)
