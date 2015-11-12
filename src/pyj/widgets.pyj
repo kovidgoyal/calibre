@@ -13,7 +13,7 @@ def create_button(text, icon=None, action=None, tooltip=None):
         text = '\xa0' + text
     ans = E.button(E.i(class_=cls), text, class_='calibre-push-button', type='button', title=tooltip or '')
     if action is not None:
-        ans.addEventListener('click', def(event): event.preventDefault(), action(event, ans);)
+        ans.addEventListener('click', def(event): event.preventDefault(), action(event);)
     return ans
 
 create_button.style = build_rule('button.calibre-push-button',
