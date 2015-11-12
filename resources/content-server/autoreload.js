@@ -6,7 +6,7 @@
  */
 
 (function(autoreload_port) {
-    "use strict;";
+    "use strict";
     var url = 'ws://127.0.0.1:' + autoreload_port;
     var MAX_RETRIES = 10;
 
