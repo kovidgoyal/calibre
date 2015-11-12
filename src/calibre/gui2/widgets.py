@@ -177,14 +177,14 @@ class FormatList(QListWidget):  # {{{
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS):
+        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS, allow_all_extensions=True):
             event.acceptProposedAction()
 
     def dropEvent(self, event):
         event.setDropAction(Qt.CopyAction)
         md = event.mimeData()
         # Now look for ebook files
-        urls, filenames = dnd_get_files(md, self.DROPABBLE_EXTENSIONS)
+        urls, filenames = dnd_get_files(md, self.DROPABBLE_EXTENSIONS, allow_all_extensions=True)
         if not urls:
             # Nothing found
             return

@@ -619,7 +619,7 @@ class BookDetails(QWidget):  # {{{
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS) or \
+        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS, allow_all_extensions=True) or \
                 dnd_has_image(md):
             event.acceptProposedAction()
 
@@ -642,7 +642,7 @@ class BookDetails(QWidget):  # {{{
                 return
 
         # Now look for ebook files
-        urls, filenames = dnd_get_files(md, BOOK_EXTENSIONS)
+        urls, filenames = dnd_get_files(md, BOOK_EXTENSIONS, allow_all_extensions=True)
         if not urls:
             # Nothing found
             return

@@ -158,7 +158,7 @@ def remote_urls_from_qurl(qurls, allowed_exts):
                 qurl.path())[1][1:].lower() in allowed_exts:
             yield bytes(qurl.toEncoded()), posixpath.basename(qurl.path())
 
-def dnd_has_extension(md, extensions):
+def dnd_has_extension(md, extensions, allow_all_extensions=False):
     if DEBUG:
         prints('\nDebugging DND event')
         for f in md.formats():
@@ -177,6 +177,8 @@ def dnd_has_extension(md, extensions):
         prints('Paths:', paths)
         prints('Extensions:', exts)
 
+    if allow_all_extensions:
+        return bool(exts)
     return bool(exts.intersection(frozenset(extensions)))
 
 def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
@@ -236,7 +238,7 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
 
     return None, None
 
-def dnd_get_files(md, exts):
+def dnd_get_files(md, exts, allow_all_extensions=False):
     '''
     Get the file in the QMimeData object md with an extension that is one of
     the extensions in exts.
@@ -249,9 +251,12 @@ def dnd_get_files(md, exts):
     urls = urls_from_md(md)
     # First look for a local file
     local_files = [path_from_qurl(x) for x in urls]
-    local_files = [p for p in local_files if
-            posixpath.splitext(urllib.unquote(p))[1][1:].lower() in
-            exts]
+    def is_ok(path):
+        ext = posixpath.splitext(path)[1][1:].lower()
+        if allow_all_extensions and ext:
+            return True
+        return ext in exts
+    local_files = [p for p in local_files if is_ok(urllib.unquote(p))]
     local_files = [x for x in local_files if os.path.exists(x)]
     if local_files:
         return local_files, None

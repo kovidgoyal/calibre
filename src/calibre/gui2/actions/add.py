@@ -370,7 +370,7 @@ class AddAction(InterfaceAction):
                     accept = True
                     db.set_cover(cid, pmap)
                     cover_changed = True
-            elif ext in BOOK_EXTENSIONS:
+            else:
                 formats.append((ext, path))
                 accept = True
         if accept and event is not None:
