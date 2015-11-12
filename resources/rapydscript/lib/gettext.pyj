@@ -112,7 +112,6 @@ performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 var $0 = $$.length - 1;
 switch (yystate) {
 case 1: return { type : 'GROUP', expr: $$[$0-1] };
-break;
 case 2:this.$ = { type: 'TERNARY', expr: $$[$0-4], truthy : $$[$0-2], falsey: $$[$0] };
 break;
 case 3:this.$ = { type: "OR", left: $$[$0-2], right: $$[$0] };
@@ -188,7 +187,7 @@ parse: function parse(input) {
         return token;
     }
 
-    var symbol, preErrorSymbol, state, action, a, r, yyval={},p,len,newState, expected;
+    var symbol, preErrorSymbol, state, action, a, r, yyval={},p,len,newState, expected, errStr;
     while (true) {
         // retreive state number from top of stack
         state = stack[stack.length-1];
@@ -197,7 +196,7 @@ parse: function parse(input) {
         if (this.defaultActions[state]) {
             action = this.defaultActions[state];
         } else {
-            if (symbol == null)
+            if (symbol === null || symbol === undefined)
                 symbol = lex();
             // read action for current state and first input
             action = table[state] && table[state][symbol];
@@ -213,7 +212,7 @@ parse: function parse(input) {
                 for (p in table[state]) if (this.terminals_[p] && p > 2) {
                     expected.push("'"+this.terminals_[p]+"'");
                 }
-                var errStr = '';
+                errStr = '';
                 if (this.lexer.showPosition) {
                     errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+"\nExpecting "+expected.join(', ') + ", got '" + this.terminals_[symbol]+ "'";
                 } else {
@@ -245,7 +244,7 @@ parse: function parse(input) {
                 if ((TERROR.toString()) in table[state]) {
                     break;
                 }
-                if (state == 0) {
+                if (state === 0) {
                     throw new Error(errStr || 'Parsing halted.');
                 }
                 popStack(1);
@@ -407,7 +406,7 @@ next:function () {
                 this.yylloc = {first_line: this.yylloc.last_line,
                                last_line: this.yylineno+1,
                                first_column: this.yylloc.last_column,
-                               last_column: lines ? lines[lines.length-1].length-1 : this.yylloc.last_column + match[0].length}
+                               last_column: lines ? lines[lines.length-1].length-1 : this.yylloc.last_column + match[0].length};
                 this.yytext += match[0];
                 this.match += match[0];
                 this.matches = match;
