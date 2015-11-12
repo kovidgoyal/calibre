@@ -92,7 +92,7 @@ class UI:
         self.panels = v'[self.books_view, self.items_view]'
 
     def on_resize(self):
-        self.books_view.on_resize()
+        pass
 
     def apply_state(self, state):
         self.top_bar.apply_state(state.top_bar_state.left_state, state.top_bar_state.buttons)
