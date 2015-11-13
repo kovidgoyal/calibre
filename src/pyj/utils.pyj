@@ -20,3 +20,16 @@ def debounce(func, wait, immediate=False):
         timeout = window.setTimeout(later, wait)
         if call_now:
             func.apply(context, args)
+
+def to_utf8(string):
+    if type(TextEncoder) == 'function':
+        return TextEncoder('utf-8').encode(string)
+    escstr = encodeURIComponent(string)
+    binstr = escstr.replace(/%([0-9A-F]{2})/g, def(match, p1):
+        return String.fromCharCode('0x' + p1)
+    )
+    ua = Uint8Array(binstr.length)
+    Array.prototype.forEach.call(binstr, def(ch, i):
+        ua[i] = ch.charCodeAt(0)
+    )
+    return ua
