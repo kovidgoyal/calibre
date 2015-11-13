@@ -88,7 +88,7 @@ class UI:
         self.states.append(UIState(ibs, self.books_view))
         self.apply_state(self.states[0])
         ibs.left_state.run_animation = False
-        window.addEventListener('resize', debounce(bind(self.on_resize, self), 250))
+        window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         self.panels = v'[self.books_view, self.items_view]'
 
     def on_resize(self):

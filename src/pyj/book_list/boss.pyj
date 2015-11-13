@@ -13,7 +13,7 @@ class Boss:
         self.current_library_name = interface_data['library_map'][self.current_library_id]
         self.update_window_title()
         self.ui = UI(interface_data)
-        window.onerror = bind(self.onerror, self)
+        window.onerror = self.onerror.bind(self)
 
     def update_window_title(self):
         document.title = 'calibre :: ' + self.current_library_name

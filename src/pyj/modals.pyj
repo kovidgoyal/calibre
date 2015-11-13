@@ -59,7 +59,7 @@ class ModalContainer:
 
         self.modals = v'[]'
         self.current_modal = None
-        self.hide = bind(self.close_modal, self)
+        self.hide = self.close_modal.bind(self)
 
     @property
     def modal_container(self):
