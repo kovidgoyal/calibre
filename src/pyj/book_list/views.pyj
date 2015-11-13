@@ -44,6 +44,7 @@ class BooksView:
         more.appendChild(create_button(
             _('Show more books'), 'cloud-download', def():self.get_more_books()
         ))
+        more.lastChild.setAttribute('rel', 'next')
         set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto')
         set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', width='100%', text_align='center')
         more.appendChild(E.div(
