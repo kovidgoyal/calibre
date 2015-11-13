@@ -20,6 +20,38 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.44.0
+  date: 2015-11-13
+
+  new features:
+    - title: "Allow setting the cover for a book from one of the book's formats by right clicking on the format in the Book details panel."
+      tickets: [1515411]
+
+    - title: "Allow drag and drop of all file types onto the book details panel and the format list in the edit metadata dialog."
+      tickets: [1515462]
+
+    - title: "Edit Book: When inserting an image into the current document, add a button to paste the image from the clipboard"
+
+    - title: "Edit Book: Change the suggested prefix for bulk renaming of files depending on the type of files being renamed."
+      tickets: [1514468]
+
+    - title: "On Linux, use the system tray icon from the system theme, if available"
+
+  bug fixes:
+    - title: "Fix for error when connecting to some Android phones/tablets that have an SD card on OS X and Linux"
+
+    - title: "Linux build: Fix problem with pointing hand mouse cursor not using the system theme on some Linux systems"
+
+    - title: "Fix the device view state not being saved when a connected device is ejected/disconnected"
+
+    - title: "Edit Book: Fix saving fails if the original file is deleted during editing session"
+      tickets: [1513849]
+
+    - title: "E-book viewer: When doing a search do not match text in comments, attributes and inappropriate tags, such as <script> and <style>"
+
+  improved recipes:
+    - Gamasutra
+
 - version: 2.43.0
   date: 2015-11-06
 
