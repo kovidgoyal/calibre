@@ -39,6 +39,10 @@ def endpoint(route,
              # Cache-Control header
              cache_control=False,
 
+             # The HTTP code to be used when no error occurs. By default it is
+             # 200 for GET and HEAD and 201 for POST
+             ok_code=None,
+
              postprocess=None
 ):
     from calibre.srv.handler import Context
@@ -52,6 +56,7 @@ def endpoint(route,
         f.android_workaround = android_workaround
         f.cache_control = cache_control
         f.postprocess = postprocess
+        f.ok_code = ok_code
         f.is_endpoint = True
         argspec = inspect.getargspec(f)
         if len(argspec.args) < 2:
@@ -258,6 +263,9 @@ class Router(object):
 
         if endpoint_.auth_required and self.auth_controller is not None:
             self.auth_controller(data, endpoint_)
+
+        if endpoint_.ok_code is not None:
+            data.status_code = endpoint_.ok_code
 
         self.init_session(endpoint_, data)
         ans = endpoint_(self.ctx, data, *args)
