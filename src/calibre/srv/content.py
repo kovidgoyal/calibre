@@ -11,8 +11,6 @@ from binascii import hexlify
 from io import BytesIO
 from threading import Lock
 
-from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt
-
 from calibre import fit_image
 from calibre.constants import config_dir, iswindows
 from calibre.db.errors import NoSuchFormat
@@ -25,6 +23,7 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
+from calibre.utils.img import scale_image, image_from_data
 from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.shared_file import share_open
 
@@ -93,28 +92,6 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
             rd.outheaders['Used-Cache'] = used_cache
             rd.outheaders['Tempfile'] = hexlify(fname.encode('utf-8'))
         return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
-
-def scale_image(data, width=60, height=80, compression_quality=75, as_png=False):
-    # We use Qt instead of ImageMagick here because ImageMagick seems to use
-    # some kind of memory pool, causing memory consumption in the server to
-    # sky rocket. Since we are only using QImage this method is thread safe,
-    # and does not require a QApplication
-    if isinstance(data, QImage):
-        img = data
-    else:
-        img = QImage()
-        if not img.loadFromData(data):
-            raise ValueError('Could not load image for thumbnail generation')
-    scaled, nwidth, nheight = fit_image(img.width(), img.height(), width, height)
-    if scaled:
-        img = img.scaled(nwidth, nheight, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-    ba = QByteArray()
-    buf = QBuffer(ba)
-    buf.open(QBuffer.WriteOnly)
-    fmt = 'PNG' if as_png else 'JPEG'
-    if not img.save(buf, fmt, quality=compression_quality):
-        raise ValueError('Failed to export thumbnail image to: ' + fmt)
-    return ba.data()
 
 def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     mtime = db.cover_last_modified(book_id)
@@ -231,9 +208,8 @@ def icon(ctx, rd, which):
         except EnvironmentError:
             raise HTTPNotFound()
         with src:
-            img = QImage()
             idata = src.read()
-            img.loadFromData(idata)
+            img = image_from_data(idata)
         scaled, width, height = fit_image(img.width(), img.height(), sz, sz)
         if scaled:
             idata = scale_image(img, width, height, as_png=True)
