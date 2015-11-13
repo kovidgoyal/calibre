@@ -16,10 +16,11 @@ def image_from_data(data):
     return i
 
 def scale_image(data, width=60, height=80, compression_quality=70, as_png=False, preserve_aspect_ratio=True):
+    ''' Scale an image, returning it as either JPEG or PNG data (bytestring).
+    Transparency is alpha blended with white when converting to JPEG. Is thread
+    safe and does not require a QApplication. '''
     # We use Qt instead of ImageMagick here because ImageMagick seems to use
-    # some kind of memory pool, causing memory consumption to sky rocket. Since
-    # we are only using QImage this method is thread safe, and does not require
-    # a QApplication/GUI thread
+    # some kind of memory pool, causing memory consumption to sky rocket.
     if isinstance(data, QImage):
         img = data
     else:
@@ -47,5 +48,3 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
     if not img.save(buf, fmt, quality=compression_quality):
         raise ValueError('Failed to export thumbnail image to: ' + fmt)
     return img.width(), img.height(), ba.data()
-
-

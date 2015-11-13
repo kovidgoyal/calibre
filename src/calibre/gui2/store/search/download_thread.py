@@ -13,7 +13,7 @@ from Queue import Queue
 
 from calibre import browser
 from calibre.constants import DEBUG
-from calibre.utils.magick.draw import thumbnail
+from calibre.utils.img import scale_image
 
 class GenericDownloadThreadPool(object):
     '''
@@ -161,7 +161,7 @@ class CoverThread(Thread):
                 if result and result.cover_url:
                     with closing(self.br.open(result.cover_url, timeout=timeout)) as f:
                         result.cover_data = f.read()
-                    result.cover_data = thumbnail(result.cover_data, 64, 64)[2]
+                    result.cover_data = scale_image(result.cover_data, 64, 64)[2]
                     callback()
                 self.tasks.task_done()
             except:

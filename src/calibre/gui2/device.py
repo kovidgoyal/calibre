@@ -32,7 +32,7 @@ from calibre.devices.folder_device.driver import FOLDER_DEVICE
 from calibre.devices.bambook.driver import BAMBOOK, BAMBOOKWifi
 from calibre.constants import DEBUG
 from calibre.utils.config import tweaks, device_prefs
-from calibre.utils.magick.draw import thumbnail
+from calibre.utils.img import scale_image
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
 # }}}
@@ -926,7 +926,7 @@ class DeviceMixin(object):  # {{{
 
     def set_default_thumbnail(self, height):
         img = I('book.png', data=True)
-        self.default_thumbnail = thumbnail(img, height, height)
+        self.default_thumbnail = scale_image(img, height, height, preserve_aspect_ratio=False)
 
     def connect_to_folder_named(self, folder):
         if os.path.exists(folder) and os.path.isdir(folder):
@@ -1282,7 +1282,7 @@ class DeviceMixin(object):  # {{{
         if self.device_manager.device and \
                 hasattr(self.device_manager.device, 'THUMBNAIL_WIDTH'):
             try:
-                return thumbnail(data,
+                return scale_image(data,
                                  self.device_manager.device.THUMBNAIL_WIDTH,
                                  self.device_manager.device.THUMBNAIL_HEIGHT,
                                  preserve_aspect_ratio=False)
@@ -1292,7 +1292,7 @@ class DeviceMixin(object):  # {{{
         ht = self.device_manager.device.THUMBNAIL_HEIGHT \
                 if self.device_manager else DevicePlugin.THUMBNAIL_HEIGHT
         try:
-            return thumbnail(data, ht, ht,
+            return scale_image(data, ht, ht,
                     compression_quality=self.device_manager.device.THUMBNAIL_COMPRESSION_QUALITY)
         except:
             pass
