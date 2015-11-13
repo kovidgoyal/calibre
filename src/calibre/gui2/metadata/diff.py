@@ -554,21 +554,22 @@ class CompareMany(QDialog):
         sa.setWidgetResizable(True)
 
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Cancel)
+        bb.button(bb.Cancel).setAutoDefault(False)
         bb.rejected.connect(self.reject)
         if self.total > 1:
             self.aarb = b = bb.addButton(_('&Accept all remaining'), bb.YesRole)
-            b.setIcon(QIcon(I('ok.png')))
+            b.setIcon(QIcon(I('ok.png'))), b.setAutoDefault(False)
             if accept_all_tooltip:
                 b.setToolTip(accept_all_tooltip)
             b.clicked.connect(self.accept_all_remaining)
             self.rarb = b = bb.addButton(_('Re&ject all remaining'), bb.NoRole)
-            b.setIcon(QIcon(I('minus.png')))
+            b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
             if reject_all_tooltip:
                 b.setToolTip(reject_all_tooltip)
             b.clicked.connect(self.reject_all_remaining)
             self.sb = b = bb.addButton(_('&Reject'), bb.ActionRole)
             b.clicked.connect(partial(self.next_item, False))
-            b.setIcon(QIcon(I('minus.png')))
+            b.setIcon(QIcon(I('minus.png'))), b.setAutoDefault(False)
             if reject_button_tooltip:
                 b.setToolTip(reject_button_tooltip)
             self.next_action = ac = QAction(self)
@@ -585,7 +586,7 @@ class CompareMany(QDialog):
             self.next_action.triggered.connect(b.click)
         b.setIcon(QIcon(I('forward.png' if self.total > 1 else 'ok.png')))
         b.clicked.connect(partial(self.next_item, True))
-        b.setDefault(True)
+        b.setDefault(True), b.setAutoDefault(True)
         self.bbh = h = QHBoxLayout()
         h.setContentsMargins(0, 0, 0, 0)
         l.addLayout(h)
@@ -664,6 +665,12 @@ class CompareMany(QDialog):
             self.accepted[id_] = (False, None)
         self.ids = []
         self.accept()
+
+    def keyPressEvent(self, ev):
+        if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
+            ev.accept()
+            return
+        return QDialog.keyPressEvent(self, ev)
 
 if __name__ == '__main__':
     app = QApplication([])
