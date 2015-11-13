@@ -8,7 +8,7 @@ from gettext import gettext as _
 from modals import error_dialog
 
 from book_list.globals import get_session_data
-from widgets import create_button
+from widgets import create_button, create_spinner
 
 THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
@@ -47,7 +47,7 @@ class BooksView:
         set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto')
         set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', width='100%', text_align='center')
         more.appendChild(E.div(
-            E.i(class_='fa fa-lg fa-cloud-download'), '\xa0' + _('Fetching metadata for more books, please wait') + '…',
+            create_spinner(), '\xa0' + _('Fetching metadata for more books, please wait') + '…',
             style='margin-left:auto; margin-right:auto; display:none')
         )
         self.update_fetching_status()

@@ -26,6 +26,9 @@ create_button.style += build_rule('button.calibre-push-button:active', transform
 create_button.style += build_rule('button.calibre-push-button:focus', outline='none')
 create_button.style += build_rule('button.calibre-push-button::-moz-focus-inner', border='0')
 
+def create_spinner(sz='lg'):
+    return E.i(class_='fa fa-spin fa-spinner fa-' + sz)
+
 def get_widget_css():
     ans = create_button.style
     return ans
