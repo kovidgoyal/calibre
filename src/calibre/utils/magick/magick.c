@@ -1026,7 +1026,7 @@ magick_Image_rotate(magick_Image *self, PyObject *args) {
 }
 // }}}
 
-// Image.rotate {{{
+// Image.flip {{{
 
 static PyObject *
 magick_Image_flip(magick_Image *self, PyObject *args) {
@@ -1567,7 +1567,7 @@ magick_Image_compose(magick_Image *self, PyObject *args)
 }
 // }}}
 
-// Image.compose {{{
+// Image.compare {{{
 static PyObject *
 magick_Image_compare(magick_Image *self, PyObject *args)
 {
