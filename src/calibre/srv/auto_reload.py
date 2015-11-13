@@ -278,6 +278,8 @@ class Worker(object):
         self.clean_kill()
         if forced:
             self.retry_count += 1
+        else:
+            self.retry_count = 0
         try:
             compile_srv()
         except EnvironmentError as e:
