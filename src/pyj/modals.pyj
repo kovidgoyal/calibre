@@ -42,7 +42,7 @@ class ModalContainer:
             min_width='25vw', max_width='75vw',
             border_radius='1em', padding='1em 2em', margin_right='1em', margin_left='1em',
             background=get_color('dialog-background'), color=get_color('dialog-foreground'),
-            background_image=str.format('linear-gradient(to bottom, {}, {})', get_color('dialog-background'), get_color('dialog-background2'))
+            background_image=get_color('dialog-background-image'), get_color('dialog-background'), get_color('dialog-background2')
         )
 
         # Close button style

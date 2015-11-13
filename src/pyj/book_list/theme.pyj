@@ -3,7 +3,7 @@
 
 DARK = '#39322B'
 LIGHT = '#F6F3E9'
-LIGHT2 = '#d6d3c8'
+LIGHT_GRADIENT = 'linear-gradient(to bottom, ' + LIGHT + ', #b6b3a8)'
 
 def get_color(name):
     return {
@@ -27,7 +27,7 @@ def get_color(name):
 
         # Dialog colors
         'dialog-background': LIGHT,
-        'dialog-background2': LIGHT2,
+        'dialog-background-image': LIGHT_GRADIENT,
         'dialog-foreground': DARK,
     }[name]
 
