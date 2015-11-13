@@ -107,7 +107,7 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
             buf = BytesIO()
             db.copy_cover_to(book_id, buf)
             quality = min(99, max(50, tweaks['content_server_thumbnail_compression_quality']))
-            data = scale_image(buf.getvalue(), width=width, height=height, compression_quality=quality)
+            data = scale_image(buf.getvalue(), width=width, height=height, compression_quality=quality)[-1]
             dest.write(data)
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)
 
@@ -212,7 +212,7 @@ def icon(ctx, rd, which):
             img = image_from_data(idata)
         scaled, width, height = fit_image(img.width(), img.height(), sz, sz)
         if scaled:
-            idata = scale_image(img, width, height, as_png=True)
+            idata = scale_image(img, width, height, as_png=True)[-1]
         try:
             ans = share_open(cached, 'w+b')
         except EnvironmentError:

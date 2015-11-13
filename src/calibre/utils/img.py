@@ -46,6 +46,6 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
     fmt = 'PNG' if as_png else 'JPEG'
     if not img.save(buf, fmt, quality=compression_quality):
         raise ValueError('Failed to export thumbnail image to: ' + fmt)
-    return ba.data()
+    return img.width(), img.height(), ba.data()
 
 
