@@ -28,7 +28,7 @@
       tickets: [1515411]
 
     - title: "Allow drag and drop of all file types onto the book details panel and the format list in the edit metadata dialog."
-      tickets: [1515462]
+      tickets: [1515407]
 
     - title: "Edit Book: When inserting an image into the current document, add a button to paste the image from the clipboard"
 
