@@ -116,13 +116,12 @@ class BooksView:
         div = self.grid
         set_css(div, display='flex', flex_wrap='wrap', justify_content='flex-start', align_items='flex-end', align_content='flex-start', user_select='none')
         div.setAttribute('class', 'cover_grid')
-        self.cover_grid_width = self.cover_grid_height = -1
 
     def cover_grid_item(self, book_id):
         cover_url = str.format('get/thumb/{}/{}?sz={}x{}', book_id, self.interface_data['library_id'], THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
         metadata = self.interface_data['metadata'][book_id]
         alt = str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & '))
-        img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
+        img = E.img(alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
                 style='max-width: 100%; max-height: 100%; display: block; width:auto; height:auto')
         img.onerror = def(err):
             img = err.target
@@ -136,6 +135,7 @@ class BooksView:
             ))
             set_css(div, border='dashed 1px currentColor', border_radius='10px')
 
+        img.setAttribute('src', cover_url)
         return E.div(
             style=str.format(('margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around;'
                               'width: 21vw; height: 28vw; max-width: {}px; max-height: {}px; min-width: {}px; min-height: {}px; cursor:pointer'),
