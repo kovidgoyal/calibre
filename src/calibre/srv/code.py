@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re
+import re, httplib
 from functools import partial
 from threading import Lock
 from json import load as load_json_file
@@ -116,7 +116,7 @@ def interface_data(ctx, rd):
 
     return ans
 
-@endpoint('/interface-data/more-books', postprocess=json, methods={'GET', 'HEAD', 'POST'})
+@endpoint('/interface-data/more-books', postprocess=json, methods={'GET', 'POST', 'HEAD'}, ok_code=httplib.OK)
 def more_books(ctx, rd):
     '''
     Get more results from the specified search-query, which must
@@ -132,14 +132,14 @@ def more_books(ctx, rd):
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     try:
         search_query = load_json_file(rd.request_body_file)
-        query, sorts, orders = search_query['query'], search_query['sort'], search_query['sort_order']
+        query, offset, sorts, orders = search_query['query'], search_query['offset'], search_query['sort'], search_query['sort_order']
     except KeyError as err:
         raise HTTPBadRequest('Search query missing key: %s' % as_unicode(err))
     except Exception as err:
         raise HTTPBadRequest('Invalid query: %s' % as_unicode(err))
     ans = {}
     with db.safe_read_lock:
-        ans['search_result'] = search_result(ctx, rd, db, query, num, 0, sorts, orders)
+        ans['search_result'] = search_result(ctx, rd, db, query, num, offset, sorts, orders)
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)

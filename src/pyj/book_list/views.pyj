@@ -1,9 +1,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from ajax import ajax_send
 from dom import set_css, build_rule, clear
 from elementmaker import E
 from gettext import gettext as _
+from modals import error_dialog
 
 from book_list.globals import get_session_data
 from widgets import create_button
@@ -19,8 +21,8 @@ class BooksView:
         nonlocal bv_counter
         bv_counter += 1
         self.interface_data = interface_data
-        self.is_fetching = False
-        self.shown_book_ids = {}
+        self.is_fetching = None
+        self.shown_book_ids = set()
         self.container_id = 'books-view-' + bv_counter
         # We have to apply the transform on the containing div not the img because of a bug in WebKit
         # that causes img aspect ratios to be messed up on window resize if the transform is specified
@@ -59,7 +61,7 @@ class BooksView:
         if mode == 'cover_grid':
             self.render_book = self.cover_grid_item.bind(self)
             self.init_grid = self.init_cover_grid.bind(self)
-        self.init_grid()
+        self.clear()
         self.render_ids()
 
     @property
@@ -84,23 +86,30 @@ class BooksView:
         c = self.container
         c.removeChild(self.grid)
         c.insertBefore(E.div(), c.lastChild)
+        self.shown_book_ids.clear()
         self.init_grid()
 
-    def render_ids(self):
-        book_ids = self.interface_data['search_result']['book_ids']
-        self.shown_book_ids = {}
+    def render_id(self, book_id):
+        l = self.shown_book_ids.length
+        self.shown_book_ids.add(book_id)
+        if l < self.shown_book_ids.length:
+            return self.render_book(book_id)
+
+    def render_ids(self, book_ids):
+        book_ids = book_ids or self.interface_data['search_result']['book_ids']
         div = self.grid
         for book_id in book_ids:
-            div.appendChild(self.render_book(book_id))
-            self.shown_book_ids[book_id] = True
+            child = self.render_id(book_id)
+            if child is not None:
+                div.appendChild(self.render_book(book_id))
 
     def update_fetching_status(self):
         c = self.container
         more = c.lastChild
-        if self.is_fetching:
+        if self.is_fetching is not None:
             more.firstChild.style.display = 'none'
             more.lastChild.style.display = 'block'
-        elif self.interface_data['search_result']['total_num'] > self.interface_data['search_result']['book_ids'].length:
+        elif self.interface_data['search_result']['total_num'] > self.shown_book_ids.length:
             more.firstChild.style.display = 'block'
             more.lastChild.style.display = 'none'
         else:
@@ -108,7 +117,37 @@ class BooksView:
             more.lastChild.style.display = 'none'
 
     def get_more_books(self):
+        data = {'offset':self.shown_book_ids.length}
+        for key in 'query', 'sort', 'sort_order':
+            data[key] = self.interface_data['search_result'][key]
+        self.is_fetching = ajax_send('interface-data/more-books', data, self.got_more_books.bind(self),
+                                     query={'library_id':self.interface_data.library_id})
         self.update_fetching_status()
+
+    def abort_get_more_books(self):
+        if self.is_fetching:
+            a, self.is_fetching = self.is_fetching, None
+            a.abort()
+            self.update_fetching_status()
+
+    def got_more_books(self, end_type, xhr, event):
+        if self.is_fetching is None or self.is_fetching is not xhr:
+            return  # Fetching was aborted
+        self.is_fetching = None
+        self.update_fetching_status()
+        if end_type == 'load':
+            try:
+                data = JSON.parse(xhr.responseText)
+                for key in data.metadata:
+                    self.interface_data.metadata[key] = data.metadata[key]
+                if not data.search_result.book_ids:
+                    raise Exception('No books ids object in search result from server')
+                self.render_ids(data.search_result.book_ids)
+                self.interface_data.search_result = data.search_result
+            except Exception as err:
+                error_dialog(_('Could not get more books'), _('Server returned an invalid response'), err.stack or err.toString())
+        elif end_type != 'abort':
+            error_dialog(_('Could not get more books'), xhr.error_string)
 
     # Cover grid {{{
 

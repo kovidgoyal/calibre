@@ -1,7 +1,9 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None):
+from gettext import gettext as _
+
+def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=30*1000, ok_code=200):
     query = query or {}
     xhr = XMLHttpRequest()
     keys = Object.keys(query)
@@ -11,12 +13,22 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
             val = query[k]
             if val is undefined or val is None:
                 continue
-            path += ('&' if has_query else '?') + window.encodeURIComponent(k) + '=' + window.encodeURIComponent(val.toString())
+            path += ('&' if has_query else '?') + encodeURIComponent(k) + '=' + encodeURIComponent(val.toString())
             has_query = True
     if bypass_cache:
         path += ('&' if has_query else '?') + Date().getTime()
 
     xhr.request_path = path
+    xhr.error_string = ''
+
+    def set_error(event):
+        if event == 'timeout':
+            xhr.error_string = str.format(_('Failed to download data from "{}", timed out after: {} seconds'), xhr.request_path, timeout/1000)
+        elif event == 'abort':
+            xhr.error_string = str.format(_('Failed to download data from "{}", aborted'), xhr.request_path)
+        else:
+            rtext = xhr.responseText or ''
+            xhr.error_string = str.format(_('Failed to download data from "{}", with status: [{}] {}<br>{}'), xhr.request_path, xhr.status, xhr.statusText, rtext[:200])
 
     def progress_callback(ev):
         if ev.lengthComputable:
@@ -31,19 +43,28 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
                 on_progress(ev.loaded, ul)
 
     def complete_callback(end_type, ev):
-        if end_type != 'load':
-            on_complete(end_type, xhr, ev)
-            return
-        if xhr.status != 200:
+        if xhr.status != ok_code and end_type == 'load':
             end_type = 'error'
+        if end_type != 'load':
+            set_error(end_type)
         on_complete(end_type, xhr, ev)
 
     if on_progress:
         xhr.addEventListener('progress', progress_callback)
-    xhr.addEventListener('abort', def(ev): complete_callback('abort', xhr, ev);)
-    xhr.addEventListener('error', def(ev): complete_callback('error', xhr, ev);)
-    xhr.addEventListener('load', def(ev): complete_callback('load', xhr, ev);)
+    xhr.addEventListener('abort', def(ev): complete_callback('abort', ev);)
+    xhr.addEventListener('error', def(ev): complete_callback('error', ev);)
+    xhr.addEventListener('load', def(ev): complete_callback('load', ev);)
+    xhr.addEventListener('timeout', def(ev): complete_callback('timeout', ev);)
     xhr.open(method, path)
+    xhr.timeout = timeout  # IE requires timeout to be set after open
+    return xhr
+
+def ajax_send(path, data, on_complete, on_progress=None, query=None, timeout=30*1000, ok_code=200):
+    # Unfortunately, browsers do not allow sending of data with HTTP GET, except
+    # as query parameters, so we have to use POST
+    xhr = ajax(path, on_complete, on_progress, False, 'POST', query, timeout, ok_code)
+    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8')
+    xhr.send(JSON.stringify(data))
     return xhr
 
 # TODO: Implement AJAX based switch user by:
