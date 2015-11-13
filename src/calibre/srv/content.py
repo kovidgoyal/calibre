@@ -11,6 +11,8 @@ from binascii import hexlify
 from io import BytesIO
 from threading import Lock
 
+from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt
+
 from calibre import fit_image
 from calibre.constants import config_dir, iswindows
 from calibre.db.errors import NoSuchFormat
@@ -24,7 +26,6 @@ from calibre.srv.utils import http_date
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
 from calibre.utils.filenames import ascii_filename, atomic_rename
-from calibre.utils.magick.draw import thumbnail, Image
 from calibre.utils.shared_file import share_open
 
 plugboard_content_server_value = 'content_server'
@@ -93,6 +94,28 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
             rd.outheaders['Tempfile'] = hexlify(fname.encode('utf-8'))
         return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
 
+def scale_image(data, width=60, height=80, compression_quality=75, as_png=False):
+    # We use Qt instead of ImageMagick here because ImageMagick seems to use
+    # some kind of memory pool, causing memory consumption in the server to
+    # sky rocket. Since we are only using QImage this method is thread safe,
+    # and does not require a QApplication
+    if isinstance(data, QImage):
+        img = data
+    else:
+        img = QImage()
+        if not img.loadFromData(data):
+            raise ValueError('Could not load image for thumbnail generation')
+    scaled, nwidth, nheight = fit_image(img.width(), img.height(), width, height)
+    if scaled:
+        img = img.scaled(nwidth, nheight, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    ba = QByteArray()
+    buf = QBuffer(ba)
+    buf.open(QBuffer.WriteOnly)
+    fmt = 'PNG' if as_png else 'JPEG'
+    if not img.save(buf, fmt, quality=compression_quality):
+        raise ValueError('Failed to export thumbnail image to: ' + fmt)
+    return ba.data()
+
 def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     mtime = db.cover_last_modified(book_id)
     if mtime is None:
@@ -107,7 +130,7 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
             buf = BytesIO()
             db.copy_cover_to(book_id, buf)
             quality = min(99, max(50, tweaks['content_server_thumbnail_compression_quality']))
-            w, h, data = thumbnail(buf.getvalue(), width=width, height=height, compression_quality=quality)
+            data = scale_image(buf.getvalue(), width=width, height=height, compression_quality=quality)
             dest.write(data)
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)
 
@@ -208,12 +231,12 @@ def icon(ctx, rd, which):
         except EnvironmentError:
             raise HTTPNotFound()
         with src:
-            img = Image()
-            img.load(src.read())
-        width, height = img.size
-        scaled, width, height = fit_image(width, height, sz, sz)
+            img = QImage()
+            idata = src.read()
+            img.loadFromData(idata)
+        scaled, width, height = fit_image(img.width(), img.height(), sz, sz)
         if scaled:
-            img.size = (width, height)
+            idata = scale_image(img, width, height, as_png=True)
         try:
             ans = share_open(cached, 'w+b')
         except EnvironmentError:
@@ -222,7 +245,7 @@ def icon(ctx, rd, which):
             except EnvironmentError:
                 pass
             ans = share_open(cached, 'w+b')
-        ans.write(img.export('png'))
+        ans.write(idata)
         ans.seek(0)
         return ans
 
