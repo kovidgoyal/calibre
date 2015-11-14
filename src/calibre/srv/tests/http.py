@@ -206,14 +206,14 @@ class TestHTTP(BaseTest):
             # Test POST with simple body
             conn.request('POST', '/test', 'body')
             r = conn.getresponse()
-            self.ae(r.status, httplib.CREATED)
+            self.ae(r.status, httplib.OK)
             self.ae(r.read(), b'testbody')
 
             # Test POST with chunked transfer encoding
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'4\r\nbody\r\na\r\n1234567890\r\n0\r\n\r\n')
             r = conn.getresponse()
-            self.ae(r.status, httplib.CREATED)
+            self.ae(r.status, httplib.OK)
             self.ae(r.read(), b'testbody1234567890')
 
             # Test various incorrect input

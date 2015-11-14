@@ -208,7 +208,7 @@ class RequestData(object):  # {{{
         )
         self.remote_addr, self.remote_port = remote_addr, remote_port
         self.opts = opts
-        self.status_code = httplib.CREATED if self.method == 'POST' else httplib.OK
+        self.status_code = httplib.OK
         self.outcookie = Cookie()
         self.lang_code = self.gettext_func = self.ngettext_func = None
         self.set_translator(self.get_preferred_language())
