@@ -62,7 +62,7 @@ class UserManager(object):
     def get_session_data(self, username):
         with self.lock:
             for data, in self.conn.cursor().execute(
-                    'SELECT data FROM users WHERE name=?', (username,)):
+                    'SELECT session_data FROM users WHERE name=?', (username,)):
                 return load_json(data)
         return {}
 
@@ -73,7 +73,7 @@ class UserManager(object):
             data = as_json(data)
             if isinstance(data, bytes):
                 data = data.decode('utf-8')
-            c.execute('UPDATE users SET data=? WHERE name=?', (data, username))
+            c.execute('UPDATE users SET session_data=? WHERE name=?', (data, username))
 
     def get(self, username):
         ' Get password for user, or None if user does not exist '
