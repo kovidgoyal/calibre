@@ -107,6 +107,8 @@ def interface_data(ctx, rd):
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     with db.safe_read_lock:
         ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
+        ans['sortable_fields'] = sf = db.field_metadata.ui_sortable_field_keys()
+        sf.pop('ondevice', None)
         ans['field_metadata'] = db.field_metadata.all_metadata()
         # ans['categories'] = ctx.get_categories(rd, db)
         mdata = ans['metadata'] = {}

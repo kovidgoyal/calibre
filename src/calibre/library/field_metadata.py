@@ -448,6 +448,15 @@ class FieldMetadata(dict):
                 if self._tb_cats[k]['kind']=='field' and
                    self._tb_cats[k]['datatype'] is not None]
 
+    def ui_sortable_field_keys(self):
+        ans = {k:self._tb_cats[k]['name'] for k in set(self.sortable_field_keys()) - {
+            'sort', 'author_sort', 'au_map', 'series_sort', 'marked',
+            'series_index', 'path', 'formats', 'identifiers', 'uuid',
+            'comments',
+        } if self._tb_cats[k]['name']}
+        ans['cover'] = _('Has cover')
+        return ans
+
     def displayable_field_keys(self):
         return [k for k in self._tb_cats.keys()
                 if self._tb_cats[k]['kind']=='field' and

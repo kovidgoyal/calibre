@@ -53,20 +53,12 @@ class SortByAction(InterfaceAction):
         except TypeError:
             sort_col, order = 'date', True
         fm = db.field_metadata
-        def get_name(k):
-            ans = fm[k]['name']
-            if k == 'cover':
-                ans = _('Has cover')
-            return ans
-
-        name_map = {get_name(k):k for k in fm.sortable_field_keys() if fm[k]['name']}
+        name_map = {v:k for k, v in fm.ui_sortable_field_keys().iteritems()}
         self._sactions = []
         for name in sorted(name_map, key=sort_key):
             key = name_map[name]
-            if key in {'sort', 'series_sort', 'formats', 'path'}:
-                continue
             if key == 'ondevice' and self.gui.device_connected is None:
-                    continue
+                continue
             ascending = None
             if key == sort_col:
                 name = _('%s [reverse current sort]') % name
