@@ -11,7 +11,7 @@ from hashlib import md5, sha256
 from itertools import permutations
 from threading import Lock
 
-from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse, InvalidCredentials
+from calibre.srv.errors import HTTPAuthRequired, HTTPSimpleResponse
 from calibre.srv.http_request import parse_uri
 from calibre.srv.utils import parse_http_dict, encode_path
 from calibre.utils.monotonic import monotonic
@@ -196,13 +196,6 @@ class AuthController(object):
         self.realm = realm
         if '"' in realm:
             raise ValueError('Double-quotes are not allowed in the authentication realm')
-        for k, v in self.user_credentials.iteritems():
-            if '"' in k:
-                raise ValueError('Double-quotes are not allowed in usernames')
-            try:
-                k.encode('ascii'), v.encode('ascii')
-            except ValueError:
-                raise InvalidCredentials('Only ASCII characters are allowed in usernames and passwords')
 
     def check(self, un, pw):
         return pw and self.user_credentials.get(un) == pw

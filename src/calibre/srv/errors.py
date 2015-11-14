@@ -43,6 +43,3 @@ class HTTPBadRequest(HTTPSimpleResponse):
 
     def __init__(self, message, close_connection=False):
         HTTPSimpleResponse.__init__(self, httplib.BAD_REQUEST, message, close_connection)
-
-class InvalidCredentials(ValueError):
-    pass

@@ -10,7 +10,6 @@ import sys, os, signal
 
 from calibre import as_unicode, prints
 from calibre.constants import plugins, iswindows, preferred_encoding
-from calibre.srv.errors import InvalidCredentials
 from calibre.srv.loop import ServerLoop
 from calibre.srv.bonjour import BonJour
 from calibre.srv.opts import opts_to_parser
@@ -227,10 +226,7 @@ def main(args=sys.argv):
         except NoAutoReload as e:
             raise SystemExit(e.message)
     opts.auto_reload_port=int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
-    try:
-        server=Server(libraries, opts)
-    except InvalidCredentials as e:
-        raise SystemExit(e.message)
+    server=Server(libraries, opts)
     if opts.daemonize:
         if not opts.log and not iswindows:
             raise SystemExit('In order to daemonize you must specify a log file, you can use /dev/stdout to log to screen even as a daemon')
