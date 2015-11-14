@@ -145,10 +145,7 @@ def identify_data(data):
         # ImageMagick segfaults when trying to identify SVG images
         raise ValueError('Identifying svg images is not supported')
     img = Image()
-    if hasattr(img, 'identify'):
-        img.identify(data)
-    else:
-        img.load(data)
+    img.identify(data)
     width, height = img.size
     fmt = img.format
     return (width, height, fmt)
