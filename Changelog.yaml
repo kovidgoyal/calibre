@@ -20,6 +20,13 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.44.1
+  date: 2015-11-15
+
+  bug fixes:
+    - title: "Update the version of libpng bundled with calibre to fix a security vulnerability in libpng"
+      description: "See https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-8126 for details on the vulnerability"
+
 - version: 2.44.0
   date: 2015-11-13
 
