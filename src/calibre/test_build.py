@@ -263,13 +263,13 @@ def test():
     test_psutil()
     test_podofo()
     test_markdown()
+    if islinux:
+        test_dbus()
     if iswindows:
         test_wpd()
         test_winutil()
     else:
         test_terminal()
-    if islinux:
-        test_dbus()
     if isosx:
         test_fsevents()
 
