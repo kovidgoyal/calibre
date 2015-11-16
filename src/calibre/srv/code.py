@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re, httplib
+import re
 from functools import partial
 from threading import Lock
 from json import load as load_json_file
@@ -15,10 +15,12 @@ from calibre.srv.ajax import get_db, search_result
 from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
 from calibre.srv.metadata import book_as_json
 from calibre.srv.routes import endpoint, json
+from calibre.utils.icu import sort_key
 
 html_cache = {}
 cache_lock = Lock()
 autoreload_js = None
+POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
 
 def get_html(name, auto_reload_port, **replacements):
     global autoreload_js
@@ -74,7 +76,7 @@ def get_basic_query_data(ctx, query):
             if s in skeys:
                 sorts.append(s), orders.append(o)
     if not sorts:
-        sorts, orders = ['date'], ['desc']
+        sorts, orders = ['timestamp'], ['desc']
     return library_id, db, sorts, orders
 
 DEFAULT_NUMBER_OF_BOOKS = 50
@@ -84,7 +86,7 @@ def interface_data(ctx, rd):
     '''
     Return the data needed to create the server main UI
 
-    Optional: ?num=50&sort=date.desc&library_id=<default library>
+    Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
     '''
     ans = {'username':rd.username}
     ans['library_map'], ans['default_library'] = ctx.library_map
@@ -107,8 +109,11 @@ def interface_data(ctx, rd):
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     with db.safe_read_lock:
         ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
-        ans['sortable_fields'] = sf = db.field_metadata.ui_sortable_field_keys()
+        sf = db.field_metadata.ui_sortable_field_keys()
         sf.pop('ondevice', None)
+        ans['sortable_fields'] = sorted(((
+            sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
+                                        key=lambda (field, name):sort_key(name))
         ans['field_metadata'] = db.field_metadata.all_metadata()
         # ans['categories'] = ctx.get_categories(rd, db)
         mdata = ans['metadata'] = {}
@@ -118,7 +123,7 @@ def interface_data(ctx, rd):
 
     return ans
 
-@endpoint('/interface-data/more-books', postprocess=json, methods={'GET', 'POST', 'HEAD'}, ok_code=httplib.OK)
+@endpoint('/interface-data/more-books', postprocess=json, methods=POSTABLE)
 def more_books(ctx, rd):
     '''
     Get more results from the specified search-query, which must
@@ -148,3 +153,20 @@ def more_books(ctx, rd):
             mdata[book_id] = data
 
     return ans
+
+@endpoint('/interface-data/set-session-data', postprocess=json, methods=POSTABLE)
+def set_session_data(ctx, rd):
+    '''
+    Store session data persistently so that it is propagated automatically to
+    new logged in clients
+    '''
+    if rd.username:
+        try:
+            new_data = load_json_file(rd.request_body_file)
+            if not isinstance(new_data, dict):
+                raise Exception('session data must be a dict')
+        except Exception as err:
+            raise HTTPBadRequest('Invalid data: %s' % as_unicode(err))
+        ud = ctx.user_manager.get_session_data(rd.username)
+        ud.update(new_data)
+        ctx.user_manager.set_session_data(rd.username, ud)

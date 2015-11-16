@@ -12,9 +12,8 @@ def on_library_loaded(end_type, xhr, ev):
     p.parentNode.removeChild(p)
     if end_type == 'load':
         interface_data = JSON.parse(xhr.responseText)
-        set_session_data(UserSessionData(interface_data['username']))
-        # TODO: Copy any user specific session data from the server to
-        # the local session data object, overriding local data
+        sd = UserSessionData(interface_data['username'], interface_data['user_session_data'])
+        set_session_data(sd)
         boss = Boss(interface_data)
         set_boss(boss)
     else:

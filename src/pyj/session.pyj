@@ -1,9 +1,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from ajax import ajax_send
+
 defaults = {
     'view_mode': 'cover_grid',
-    'sort': 'date.desc',
+    'sort': 'timestamp.desc',
 }
 
 def storage_available(which):
@@ -50,12 +52,15 @@ def get_session_storage():
 
 class SessionData:
 
+    global_prefix = 'calibre-'
+
     def __init__(self):
         self.storage = get_session_storage()
         self.overflow_storage = {}
         self.has_overflow = False
 
     def get(self, key, defval):
+        key = self.global_prefix + key
         if self.has_overflow:
             ans = self.overflow_storage[key]
             if ans is undefined:
@@ -69,6 +74,7 @@ class SessionData:
         return JSON.parse(ans)
 
     def set(self, key, value):
+        key = self.global_prefix + key
         if value is None:
             self.storage.removeItem(key)
             v'delete self.overflow_storage[key]'
@@ -91,11 +97,18 @@ class SessionData:
 
 class UserSessionData(SessionData):
 
-    def __init__(self, username):
-        self.prefix = (username or '') + ':'
+    def __init__(self, username, saved_data):
+        self.prefix = (username or '') + '-'
         self.has_user = bool(username)
         self.username = username
         SessionData.__init__(self)
+        self.echo_changes = False
+        self.changes = {}
+        self.has_changes = False
+        self.push_timer_id = None
+        for key in saved_data:
+            self.set(key, saved_data[key])
+        self.echo_changes = True
 
     def get(self, key, defval):
         if defval is undefined:
@@ -103,5 +116,19 @@ class UserSessionData(SessionData):
         return SessionData.get(self, (self.prefix + key), defval)
 
     def set(self, key, value):
-        # TODO: Send updated data to server if self.has_user
+        if self.echo_changes and self.has_user:
+            self.changes[key] = value
+            self.has_changes = True
+            if self.push_timer_id is not None:
+                clearTimeout(self.push_timer_id)
+            self.push_timer_id = setTimeout(self.push_to_server.bind(self), 1000)
         return SessionData.set(self, (self.prefix + key), value)
+
+    def push_to_server(self):
+        if self.has_changes:
+            ajax_send('interface-data/set-session-data', self.changes, def(end_type, xhr, ev):
+                if end_type != 'load':
+                    console.error('Failed to send session data to server: ' + xhr.error_string)
+            )
+            self.changes = {}
+            self.has_changes = False
