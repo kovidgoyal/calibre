@@ -23,12 +23,12 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
 
     def set_error(event):
         if event == 'timeout':
-            xhr.error_string = str.format(_('Failed to download data from "{}", timed out after: {} seconds'), xhr.request_path, timeout/1000)
+            xhr.error_string = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout/1000)
         elif event == 'abort':
-            xhr.error_string = str.format(_('Failed to download data from "{}", aborted'), xhr.request_path)
+            xhr.error_string = str.format(_('Failed to communicate with "{}", aborted'), xhr.request_path)
         else:
             rtext = xhr.responseText or ''
-            xhr.error_string = str.format(_('Failed to download data from "{}", with status: [{}] {}<br>{}'), xhr.request_path, xhr.status, xhr.statusText, rtext[:200])
+            xhr.error_string = str.format(_('Failed to communicate with "{}", with status: [{}] {}<br>{}'), xhr.request_path, xhr.status, xhr.statusText, rtext[:200])
 
     def progress_callback(ev):
         if ev.lengthComputable:
