@@ -122,10 +122,14 @@ class Develop(Command):
             raise SystemExit(1)
 
         if os.geteuid() == 0:
+            # We drop privileges for security, regaining them when installing
+            # files. Also ensures that any config files created as a side
+            # effect of the build process are not owned by root.
             self.drop_privileges()
-            # Ensure any calibre config files are created as correct user
-            import calibre.utils.config as c
-            c
+
+        # Ensure any config files created as a side effect of importing calibre
+        # during the build process are in /tmp
+        os.environ['CALIBRE_CONFIG_DIRECTORY'] = os.environ.get('CALIBRE_CONFIG_DIRECTORY', '/tmp/calibre-install-config')
 
     def run(self, opts):
         self.manifest = []
