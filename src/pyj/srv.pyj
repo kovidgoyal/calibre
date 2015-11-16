@@ -6,6 +6,7 @@ from elementmaker import E
 from session import UserSessionData, SessionData
 from book_list.boss import Boss
 from book_list.globals import set_boss, set_session_data
+from gettext import gettext as _
 
 def on_library_loaded(end_type, xhr, ev):
     p = document.getElementById('page_load_progress')
@@ -17,7 +18,12 @@ def on_library_loaded(end_type, xhr, ev):
         boss = Boss(interface_data)
         set_boss(boss)
     else:
-        document.body.appendChild(E.p(style='color:red', xhr.error_string))
+        p = E.p(style='color:red; font-weight: bold; font-size:1.5em')
+        if xhr.status == 401:
+            p.innerHTML = _('You are not authorized to view this site')
+        else:
+            p.innerHTML = xhr.error_string
+        document.body.appendChild(p)
 
 def on_library_load_progress(loaded, total):
     p = document.querySelector('#page_load_progress > progress')
