@@ -18,7 +18,6 @@
 typedef unsigned char bool;
 #define TRUE 1
 #define FALSE 0
-#define MIN(x, y) ((x < y) ? x : y)
 #define MAX(x, y) ((x > y) ? x : y)
 #define nullfree(x) if(x != NULL) free(x); x = NULL;
 
