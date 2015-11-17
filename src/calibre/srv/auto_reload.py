@@ -293,7 +293,7 @@ class Worker(object):
         except CompileFailure as e:
             self.log.error(e.message)
             time.sleep(0.1 * self.retry_count)
-            if self.retry_count < MAX_RETRIES:
+            if self.retry_count < MAX_RETRIES and self.wakeup is not None:
                 self.wakeup()  # Force a restart
             return
 
