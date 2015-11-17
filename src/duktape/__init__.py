@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 
-import errno, os, sys, numbers, hashlib, json
+import errno, os, sys, numbers, hashlib, json, tempfile, stat
 from functools import partial
 
 from calibre.constants import plugins
@@ -119,14 +119,19 @@ def readfile(path, enc='utf-8'):
     except EnvironmentError as e:
         return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message or e)]
 
+def atomic_write(name, raw):
+    with tempfile.NamedTemporaryFile(dir=os.getcwdu(), delete=False) as f:
+        f.write(raw)
+        os.fchmod(f.fileno(), stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
+        os.rename(f.name, name)
+
 def writefile(path, data, enc='utf-8'):
     if enc == undefined:
         enc = 'utf-8'
     try:
         if isinstance(data, type('')):
             data = data.encode(enc or 'utf-8')
-        with open(path, 'wb') as f:
-            f.write(data)
+        atomic_write(path, data)
     except UnicodeEncodeError as e:
         return ['', 'Failed to encode the data for file: %s with specified encoding: %s' % (path, enc)]
     except EnvironmentError as e:
