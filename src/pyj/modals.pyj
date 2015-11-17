@@ -7,6 +7,15 @@ from gettext import gettext as _
 from book_list.theme import get_color, get_font_size
 
 modal_container = None
+modal_count = 0
+
+class Modal:
+
+    def __init__(self, create_func, on_close, show_close):
+        nonlocal modal_count
+        self.create_func, self.on_close, self.show_close = create_func, on_close, show_close
+        modal_count += 1
+        self.id = modal_count
 
 class ModalContainer:
 
@@ -52,38 +61,53 @@ class ModalContainer:
             background_color=get_color('window-foreground'), color=get_color('window-background'), display='inline-box',
             border_radius='50%', padding='4px', text_align='center', box_shadow='1px 1px 3px black'
         )
-        div.firstChild.lastChild.addEventListener('click', def(event): event.preventDefault(), self.close_modal(event);)
+        div.firstChild.lastChild.addEventListener('click', def(event): event.preventDefault(), self.close_current_modal(event);)
 
         # Content container style
         set_css(div.firstChild.firstChild, user_select='text', max_height='60vh', overflow='auto')
 
         self.modals = v'[]'
         self.current_modal = None
-        self.hide = self.close_modal.bind(self)
+        self.hide = self.close_current_modal.bind(self)
 
     @property
     def modal_container(self):
         return document.getElementById('modal-container')
 
-    def show_modal(self, create_func, on_close=None):
-        self.modals.push(v'[create_func, on_close]')
+    def show_modal(self, create_func, on_close=None, show_close=True):
+        self.modals.push(Modal(create_func, on_close, show_close))
+        modal_id = self.modals[-1].id
         self.update()
+        return modal_id
+
+    def hide_modal(self, modal_id):
+        if self.current_modal is not None and self.current_modal.id == modal_id:
+            self.close_current_modal()
+        else:
+            doomed_modal = None
+            for i, modal in enumerate(self.modals):
+                if modal.id == modal_id:
+                    doomed_modal = i
+                    break
+            if doomed_modal is not None:
+                self.modals.splice(doomed_modal, 1)
 
     def update(self):
         if self.current_modal is None and self.modals:
             self.current_modal = self.modals.shift()
             c = self.modal_container
             try:
-                self.current_modal[0](c.firstChild.firstChild, self.hide)
+                self.current_modal.create_func(c.firstChild.firstChild, self.hide)
             except:
                 self.current_modal = None
                 raise
             if c.style.display == 'none':
                 set_css(c, display='block')
+            c.firstChild.lastChild.style.visibility = 'visible' if self.current_modal.show_close else 'hidden'
 
-    def close_modal(self, event):
+    def close_current_modal(self, event):
         if self.current_modal is not None:
-            if self.current_modal[1] is not None and self.current_modal[1](event) is True:
+            if self.current_modal.on_close is not None and self.current_modal.on_close(event) is True:
                 return
             self.current_modal = None
             c = self.modal_container
@@ -123,12 +147,36 @@ def create_simple_dialog(title, msg, details, icon_name, prefix):
         )
     show_modal(create_func)
 
-def error_dialog(title, msg, details=None):
-    create_simple_dialog(title, msg, details, 'bug', _('Error:'))
+def create_progress_dialog(msg, on_close):
+    msg = msg or _('Loading, please wait...')
+    pbar, msg_div = E.progress(style='display:inline-block'), E.div(msg, style='text-align:center; padding-top:1ex')
+    def create_func(parent):
+        parent.appendChild(E.div(style='text-align: center', pbar, msg_div))
+    show_close = on_close is not None
+    modal_id = show_modal(create_func, on_close, show_close)
+    return {
+        'close': def(): modal_container.hide_modal(modal_id);,
+        'update_progress': def(amount, total): pbar.max, pbar.value = total, amount;,
+        'set_msg': def(new_msg): msg_div.innerHTML = new_msg;,
+    }
 
-def warning_dialog(title, msg, details=None):
-    create_simple_dialog(title, msg, details, 'warning', _('Warning:'))
-
+# def test_progress():
+#     counter = 0
+#     pd = progress_dialog('Testing progress dialog', def():
+#         nonlocal counter
+#         counter = 101
+#         console.log('pd canceled')
+#     )
+#     def update():
+#         nonlocal counter
+#         counter += 1
+#         pd.update_progress(counter, 100)
+#         if counter < 100:
+#             setTimeout(update, 150)
+#         else:
+#             pd.close()
+#     update()
+#
 # def test_error():
 #     error_dialog(
 #         'Hello, world!',
@@ -141,9 +189,18 @@ def create_modal_container():
     if modal_container is None:
         modal_container = ModalContainer()
     # window.setTimeout(def():
-    #     document.getElementById('books-view-1').addEventListener('click', test_error)
+    #     document.getElementById('books-view-1').addEventListener('click', test_progress)
     # , 10)
     return modal_container
 
-def show_modal(create_func, on_close=None):
-    modal_container.show_modal(create_func, on_close)
+def show_modal(create_func, on_close=None, show_close=True):
+    return modal_container.show_modal(create_func, on_close, show_close)
+
+def error_dialog(title, msg, details=None):
+    create_simple_dialog(title, msg, details, 'bug', _('Error:'))
+
+def warning_dialog(title, msg, details=None):
+    create_simple_dialog(title, msg, details, 'warning', _('Warning:'))
+
+def progress_dialog(msg, on_close=None):
+    return create_progress_dialog(msg, on_close)
