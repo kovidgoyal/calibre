@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from ajax import ajax
 from elementmaker import E
 from dom import set_css, clear, build_rule
 from gettext import gettext as _
@@ -162,7 +163,7 @@ def create_progress_dialog(msg, on_close):
 
 # def test_progress():
 #     counter = 0
-#     pd = progress_dialog('Testing progress dialog', def():
+#     pd = progress_dialog('Testing progress dialog, please wait...', def():
 #         nonlocal counter
 #         counter = 101
 #         console.log('pd canceled')
@@ -203,4 +204,23 @@ def warning_dialog(title, msg, details=None):
     create_simple_dialog(title, msg, details, 'warning', _('Warning:'))
 
 def progress_dialog(msg, on_close=None):
+    # Show a modal dialog with a progress bar and an optional close button.
+    # If the user clicks the close button, on_close is called and the dialog is closed.
+    # Returns an object with the methods: close(), update_progress(amount, total), set_msg()
+    # Call update_progress() to update the progress bar
+    # Call set_msg() to change the displayed message
+    # Call close() once the task being performed is finished
     return create_progress_dialog(msg, on_close)
+
+def ajax_progress_dialog(path, on_complete, msg, **kw):
+    pd = None
+    def on_complete_callback(event_type, xhr, ev):
+        nonlocal pd
+        pd.close()
+        pd = undefined
+        return on_complete(event_type, xhr, ev)
+    def on_progress_callback(loaded, total, xhr):
+        pd.update_progress(loaded, total)
+    xhr = ajax(path, on_complete_callback, on_progress=on_progress_callback, **kw)
+    pd = progress_dialog(msg, xhr.abort)
+    return xhr, pd
