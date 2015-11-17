@@ -565,7 +565,7 @@ class DeviceManager(Thread):  # {{{
                             if DEBUG:
                                 prints('Setting metadata in:', mi.title, 'at:',
                                         f, file=sys.__stdout__)
-                            with open(f, 'r+b') as stream:
+                            with lopen(f, 'r+b') as stream:
                                 if cpb:
                                     newmi = mi.deepcopy_metadata()
                                     newmi.template_to_attribute(mi, cpb)
@@ -622,7 +622,7 @@ class DeviceManager(Thread):  # {{{
             name = sanitize_file_name2(os.path.basename(path))
             dest = os.path.join(target, name)
             if os.path.abspath(dest) != os.path.abspath(path):
-                with open(dest, 'wb') as f:
+                with lopen(dest, 'wb') as f:
                     self.device.get_file(path, f)
 
     def save_books(self, done, paths, target, add_as_step_to_job=None):
@@ -631,7 +631,7 @@ class DeviceManager(Thread):  # {{{
                         to_job=add_as_step_to_job)
 
     def _view_book(self, path, target):
-        with open(target, 'wb') as f:
+        with lopen(target, 'wb') as f:
             self.device.get_file(path, f)
         return target
 
