@@ -86,13 +86,16 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         ''' % json.dumps(filename))
     if ok:
         return result
-    result = to_python(result)
+    presult = to_python(result)
     if 'message' in result:
-        msg = result['message']
-        if 'filename' in result and 'line' in result:
-            msg = '%s:%s:%s' % (result['filename'], result['line'], msg)
+        msg = presult['message']
+        if 'filename' in presult and 'line' in presult:
+            msg = '%s:%s:%s' % (presult['filename'], presult['line'], msg)
         raise CompileFailure(msg)
-    raise CompileFailure(repr(result))
+    if result.stack:
+        # Javascript error object instead of ParseError
+        raise CompileFailure(result.stack)
+    raise CompileFailure(repr(presult))
 
 def compile_srv():
     d = os.path.dirname
