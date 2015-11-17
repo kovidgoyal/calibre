@@ -432,11 +432,12 @@ class CopyToLibraryAction(InterfaceAction):
                 incompatible_columns = []
                 missing_columns = []
                 for k, m in db.field_metadata.custom_iteritems():
-                    if m['datatype'] == 'composite':
-                        continue
                     if k not in newdb_meta:
                         missing_columns.append(k)
                     elif not self._column_is_compatible(m, newdb_meta[k]):
+                        # Note that composite columns are always assumed to be
+                        # compatible. No attempt is made to copy the template
+                        # from the source to the destination.
                         incompatible_columns.append(k)
 
                 if missing_columns or incompatible_columns:
