@@ -16,6 +16,7 @@ from calibre.customize.ui import (available_input_formats, available_output_form
 from calibre.devices.interface import DevicePlugin, currently_connected_device
 from calibre.devices.errors import (UserFeedback, OpenFeedback, OpenFailed,
                                     InitialConnectionError)
+from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
 from calibre.utils.ipc.job import BaseJob
 from calibre.devices.scanner import DeviceScanner
@@ -925,8 +926,9 @@ class DeviceMixin(object):  # {{{
         )
 
     def set_default_thumbnail(self, height):
-        img = I('book.png', data=True)
-        self.default_thumbnail = scale_image(img, height, height, preserve_aspect_ratio=False)
+        ratio = height / float(cprefs['cover_height'])
+        self.default_thumbnail_prefs = prefs = override_prefs(cprefs)
+        scale_cover(prefs, ratio)
 
     def connect_to_folder_named(self, folder):
         if os.path.exists(folder) and os.path.isdir(folder):
@@ -1730,9 +1732,11 @@ class DeviceMixin(object):  # {{{
 
     def update_thumbnail(self, book):
         if book.cover and os.access(book.cover, os.R_OK):
-            book.thumbnail = self.cover_to_thumbnail(open(book.cover, 'rb').read())
+            with lopen(book.cover, 'rb') as f:
+                book.thumbnail = self.cover_to_thumbnail(f.read())
         else:
-            book.thumbnail = self.default_thumbnail
+            cprefs = self.default_thumbnail_prefs
+            book.thumbnail = (cprefs['cover_width'], cprefs['cover_height'], generate_cover(book, prefs=cprefs))
 
     def set_books_in_library(self, booklists, reset=False, add_as_step_to_job=None,
                              force_send=False, do_device_sync=True):
