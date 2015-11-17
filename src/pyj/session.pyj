@@ -128,7 +128,7 @@ class UserSessionData(SessionData):
         if self.has_changes:
             ajax_send('interface-data/set-session-data', self.changes, def(end_type, xhr, ev):
                 if end_type != 'load':
-                    console.error('Failed to send session data to server: ' + xhr.error_string)
+                    console.error('Failed to send session data to server: ' + xhr.error_html)
             )
             self.changes = {}
             self.has_changes = False

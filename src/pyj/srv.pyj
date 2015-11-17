@@ -22,7 +22,7 @@ def on_library_loaded(end_type, xhr, ev):
         if xhr.status == 401:
             p.innerHTML = _('You are not authorized to view this site')
         else:
-            p.innerHTML = xhr.error_string
+            p.innerHTML = xhr.error_html
         document.body.appendChild(p)
 
 def on_library_load_progress(loaded, total):
