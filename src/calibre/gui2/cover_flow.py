@@ -84,18 +84,41 @@ if pictureflow is not None:
             self.is_cover_browser_visible = is_cover_browser_visible
             self.model.modelReset.connect(self.reset, type=Qt.QueuedConnection)
             self.ignore_image_requests = True
+            self.template_inited = False
+
+        def init_template(self, db):
+            self.template_cache = {}
+            self.template_error_reported = False
+            self.template = db.pref('cover_browser_title_template', '{title}')
+            self.template_is_title = self.template == '{title}'
 
         def count(self):
             return self.model.count()
 
         def caption(self, index):
+            if self.ignore_image_requests:
+                return ''
+            ans = ''
             try:
-                ans = self.model.title(index)
-                if not ans:
-                    ans = ''
-                ans = ans.replace('&', '&&')
-            except:
-                ans = ''
+                db = self.model.db.new_api
+                if not self.template_inited:
+                    self.init_template(db)
+                if self.template_is_title:
+                    ans = self.model.title(index)
+                else:
+                    book_id = self.model.id(index)
+                    mi = db.get_proxy_metadata(book_id)
+                    try:
+                        ans = mi.formatter.safe_format(self.template, mi, _('TEMPLATE ERROR'), mi, template_cache=self.template_cache)
+                    except Exception:
+                        if not self.template_error_reported:
+                            self.template_error_reported = True
+                            import traceback
+                            traceback.print_exc()
+                        ans = ''
+                ans = (ans or '').replace('&', '&&')
+            except Exception:
+                return ''
             return ans
 
         def subtitle(self, index):

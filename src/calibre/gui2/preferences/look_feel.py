@@ -16,6 +16,7 @@ from PyQt5.Qt import (
     QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout)
 
 from calibre import human_readable
+from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
 from calibre.gui2 import config, gprefs, qt_app, open_local_file, question_dialog
@@ -170,10 +171,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
         r('show_rating_in_cover_browser', gprefs)
+        r('cover_browser_title_template', db.prefs)
         r('emblem_size', gprefs)
         r('emblem_position', gprefs, choices=[
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
         r('book_list_extra_row_spacing', gprefs)
+        self.cover_browser_title_template_button.clicked.connect(self.edit_cb_title_template)
 
         def get_esc_lang(l):
             if l == 'en':
@@ -334,6 +337,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def cg_reset_size(self):
         self.opt_cover_grid_width.setValue(0)
         self.opt_cover_grid_height.setValue(0)
+
+    def edit_cb_title_template(self):
+        t = TemplateDialog(self, self.opt_cover_browser_title_template.text(), fm=self.gui.current_db.field_metadata)
+        t.setWindowTitle(_('Edit template for caption'))
+        if t.exec_():
+            self.opt_cover_browser_title_template.setText(t.rule[1])
 
     def initialize(self):
         ConfigWidgetBase.initialize(self)
@@ -501,6 +510,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.library_view.refresh_book_details()
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
+        gui.cover_flow.template_inited = False
         gui.library_view.refresh_row_sizing()
         gui.grid_view.refresh_settings()
 
