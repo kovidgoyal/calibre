@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from ajax import ajax
+from ajax import ajax, ajax_send
 from elementmaker import E
 from dom import set_css, clear, build_rule
 from gettext import gettext as _
@@ -222,5 +222,18 @@ def ajax_progress_dialog(path, on_complete, msg, **kw):
     def on_progress_callback(loaded, total, xhr):
         pd.update_progress(loaded, total)
     xhr = ajax(path, on_complete_callback, on_progress=on_progress_callback, **kw)
+    pd = progress_dialog(msg, xhr.abort)
+    return xhr, pd
+
+def ajax_send_progress_dialog(path, data, on_complete, msg, **kw):
+    pd = None
+    def on_complete_callback(event_type, xhr, ev):
+        nonlocal pd
+        pd.close()
+        pd = undefined
+        return on_complete(event_type, xhr, ev)
+    def on_progress_callback(loaded, total, xhr):
+        pd.update_progress(loaded, total)
+    xhr = ajax_send(path, data, on_complete_callback, on_progress=on_progress_callback, **kw)
     pd = progress_dialog(msg, xhr.abort)
     return xhr, pd
