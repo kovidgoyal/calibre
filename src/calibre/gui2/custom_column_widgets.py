@@ -1046,9 +1046,11 @@ class BulkText(BulkBase):
         if not self.col_metadata['is_multiple']:
             val = self.get_initial_value(book_ids)
             self.initial_val = val = self.normalize_db_val(val)
+            self.ignore_change_signals = True
             self.main_widget.blockSignals(True)
             self.main_widget.show_initial_value(val)
             self.main_widget.blockSignals(False)
+            self.ignore_change_signals = False
 
     def commit(self, book_ids, notify=False):
         if not self.a_c_checkbox.isChecked():
