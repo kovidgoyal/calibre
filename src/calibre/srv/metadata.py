@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from datetime import datetime, time
 
+from calibre.db.categories import Tag
 from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
 from calibre.utils.icu import sort_key, collation_order
 
@@ -43,17 +44,23 @@ def book_as_json(db, book_id):
                 add_field(field, db, book_id, ans, fm[field])
     return ans
 
+_include_fields = frozenset(Tag.__slots__) - frozenset({
+    'state', 'is_editable', 'is_searchable', 'original_name', 'use_sort_as_name', 'is_hierarchical'
+})
+
 def category_item_as_json(x):
     sname = x.sort or x.name
     ans = {'sort_key': tuple(bytearray(sort_key(sname))), 'first_letter_sort_key': collation_order(icu_upper(sname or ' '))}
-    for k in x.__slots__:
-        if k != 'state':
-            val = getattr(x, k)
-            if isinstance(val, set):
-                val = tuple(val)
-            if val is not None:
-                ans[k] = val
-    if ans.get('sort', False) == ans['name']:
+    for k in _include_fields:
+        val = getattr(x, k)
+        if isinstance(val, set):
+            val = tuple(val)
+        if val is not None:
+            ans[k] = val
+    if x.use_sort_as_name:
+        ans['original_name'], ans['name'] = ans['name'], ans['sort']
+        del ans['sort']
+    elif x.sort == x.name:
         del ans['sort']
     return ans
 
