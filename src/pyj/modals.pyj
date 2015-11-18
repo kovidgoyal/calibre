@@ -83,7 +83,7 @@ class ModalContainer:
 
     def hide_modal(self, modal_id):
         if self.current_modal is not None and self.current_modal.id == modal_id:
-            self.close_current_modal()
+            self.clear_current_modal()
         else:
             doomed_modal = None
             for i, modal in enumerate(self.modals):
@@ -106,17 +106,20 @@ class ModalContainer:
                 set_css(c, display='block')
             c.firstChild.lastChild.style.visibility = 'visible' if self.current_modal.show_close else 'hidden'
 
+    def clear_current_modal(self):
+        self.current_modal = None
+        c = self.modal_container
+        clear(c.firstChild.firstChild)
+        if self.modals.length == 0:
+            set_css(c, display='none')
+        else:
+            self.update()
+
     def close_current_modal(self, event):
         if self.current_modal is not None:
             if self.current_modal.on_close is not None and self.current_modal.on_close(event) is True:
                 return
-            self.current_modal = None
-            c = self.modal_container
-            clear(c.firstChild.firstChild)
-            if self.modals.length == 0:
-                set_css(c, display='none')
-            else:
-                self.update()
+            self.clear_current_modal()
 
 def create_simple_dialog(title, msg, details, icon_name, prefix):
     details = details or ''
@@ -222,7 +225,8 @@ def ajax_progress_dialog(path, on_complete, msg, **kw):
     def on_progress_callback(loaded, total, xhr):
         pd.update_progress(loaded, total)
     xhr = ajax(path, on_complete_callback, on_progress=on_progress_callback, **kw)
-    pd = progress_dialog(msg, xhr.abort)
+    pd = progress_dialog(msg, xhr.abort.bind(xhr))
+    xhr.send()
     return xhr, pd
 
 def ajax_send_progress_dialog(path, data, on_complete, msg, **kw):
@@ -235,5 +239,5 @@ def ajax_send_progress_dialog(path, data, on_complete, msg, **kw):
     def on_progress_callback(loaded, total, xhr):
         pd.update_progress(loaded, total)
     xhr = ajax_send(path, data, on_complete_callback, on_progress=on_progress_callback, **kw)
-    pd = progress_dialog(msg, xhr.abort)
+    pd = progress_dialog(msg, xhr.abort.bind(xhr))
     return xhr, pd
