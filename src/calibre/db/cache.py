@@ -84,6 +84,7 @@ def _add_newbook_tag(mi):
                 elif tag not in mi.tags:
                     mi.tags.append(tag)
 
+dynamic_category_preferences = frozenset({'grouped_search_make_user_categories', 'grouped_search_terms', 'user_categories'})
 
 class Cache(object):
 
@@ -146,14 +147,18 @@ class Cache(object):
         will happen.'''
         return SafeReadLock(self.read_lock)
 
-    @write_api
-    def initialize_dynamic(self):
+    def _initialize_dynamic_categories(self):
         # Reconstruct the user categories, putting them into field_metadata
-        # Assumption is that someone else will fix them if they change.
-        self.field_metadata.remove_dynamic_categories()
+        fm = self.field_metadata
+        fm.remove_dynamic_categories()
         for user_cat in sorted(self._pref('user_categories', {}).iterkeys(), key=sort_key):
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
-            self.field_metadata.add_user_category(label=cat_name, name=user_cat)
+            while cat_name:
+                try:
+                    fm.add_user_category(label=cat_name, name=user_cat)
+                except ValueError:
+                    break  # Can happen since we are removing dots and adding parent categories ourselves
+                cat_name = cat_name.rpartition('.')[0]
 
         # add grouped search term user categories
         muc = frozenset(self._pref('grouped_search_make_user_categories', []))
@@ -163,7 +168,7 @@ class Cache(object):
                 # user category. Print the exception and continue.
                 try:
                     self.field_metadata.add_user_category(label=u'@' + cat, name=cat)
-                except:
+                except ValueError:
                     traceback.print_exc()
 
         if len(self._search_api.saved_searches.names()) > 0:
@@ -171,13 +176,15 @@ class Cache(object):
 
         self.field_metadata.add_grouped_search_terms(
                                     self._pref('grouped_search_terms', {}))
-
         self._refresh_search_locations()
 
+    @write_api
+    def initialize_dynamic(self):
         self.dirtied_cache = {x:i for i, (x,) in enumerate(
             self.backend.execute('SELECT book FROM metadata_dirtied'))}
         if self.dirtied_cache:
             self.dirtied_sequence = max(self.dirtied_cache.itervalues())+1
+        self._initialize_dynamic_categories()
 
     @write_api
     def initialize_template_cache(self):
@@ -587,6 +594,8 @@ class Cache(object):
         self.backend.prefs.set(name, val)
         if name == 'grouped_search_terms':
             self._clear_search_caches()
+        if name in dynamic_category_preferences:
+            self._initialize_dynamic_categories()
 
     @api
     def get_metadata(self, book_id,
@@ -2080,4 +2089,3 @@ class Cache(object):
                 report_progress(i+1, len(book_ids), mi)
 
     # }}}
-

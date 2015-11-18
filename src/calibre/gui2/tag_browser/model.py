@@ -880,34 +880,6 @@ class TagsModel(QAbstractItemModel):  # {{{
                     first_letter_sort=self.collapse_model == 'first letter')
             self.restriction_error.emit()
 
-        # Reconstruct the user categories, putting them into metadata
-        self.db.field_metadata.remove_dynamic_categories()
-        tb_cats = self.db.field_metadata
-        for user_cat in sorted(self.db.prefs.get('user_categories', {}).keys(),
-                               key=sort_key):
-            cat_name = '@' + user_cat  # add the '@' to avoid name collision
-            while True:
-                try:
-                    tb_cats.add_user_category(label=cat_name, name=user_cat)
-                    dot = cat_name.rfind('.')
-                    if dot < 0:
-                        break
-                    cat_name = cat_name[:dot]
-                except ValueError:
-                    break
-
-        for cat in sorted(self.db.prefs.get('grouped_search_terms', {}).keys(),
-                          key=sort_key):
-            if (u'@' + cat) in data:
-                try:
-                    tb_cats.add_user_category(label=u'@' + cat, name=cat)
-                except ValueError:
-                    traceback.print_exc()
-        self.db.new_api.refresh_search_locations()
-
-        if len(self.db.saved_search_names()):
-            tb_cats.add_search_category(label='search', name=_('Searches'))
-
         if self.filter_categories_by:
             for category in data.keys():
                 data[category] = [t for t in data[category]
