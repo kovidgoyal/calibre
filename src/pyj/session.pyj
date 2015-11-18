@@ -106,8 +106,9 @@ class UserSessionData(SessionData):
         self.changes = {}
         self.has_changes = False
         self.push_timer_id = None
-        for key in saved_data:
-            self.set(key, saved_data[key])
+        if saved_data:
+            for key in saved_data:
+                self.set(key, saved_data[key])
         self.echo_changes = True
 
     def get(self, key, defval):
