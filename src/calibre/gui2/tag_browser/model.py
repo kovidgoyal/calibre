@@ -127,9 +127,6 @@ class TagTreeItem(object):  # {{{
             name = tag.sort
             tt_author = True
         else:
-            p = self
-            while p.parent.type != self.ROOT:
-                p = p.parent
             if not tag.is_hierarchical:
                 name = tag.original_name
             else:
