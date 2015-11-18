@@ -9,10 +9,12 @@ __docformat__ = 'restructuredtext en'
 
 __all__ = ['dukpy', 'Context', 'undefined', 'JSError', 'to_python']
 
-import errno, os, sys, numbers, hashlib, json, tempfile, stat
+import errno, os, sys, numbers, hashlib, json
 from functools import partial
 
-from calibre.constants import plugins
+from calibre.constants import plugins, iswindows
+from calibre.utils.filenames import atomic_rename
+
 dukpy, err = plugins['dukpy']
 if err:
     raise RuntimeError('Failed to load dukpy with error: %s' % err)
@@ -120,10 +122,11 @@ def readfile(path, enc='utf-8'):
         return [None, errno.errorcode[e.errno], 'Failed to read from file: %s with error: %s' % (path, e.message or e)]
 
 def atomic_write(name, raw):
-    with tempfile.NamedTemporaryFile(dir=os.getcwdu(), delete=False) as f:
+    bdir, bname = os.path.dirname(os.path.abspath(name)), os.path.basename(name)
+    tname = ('_' if iswindows else '.') + bname
+    with open(os.path.join(bdir, tname), 'wb') as f:
         f.write(raw)
-        os.fchmod(f.fileno(), stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
-        os.rename(f.name, name)
+    atomic_rename(tname, name)
 
 def writefile(path, data, enc='utf-8'):
     if enc == undefined:
