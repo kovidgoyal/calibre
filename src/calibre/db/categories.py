@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy
+import copy, re
 from functools import partial
 from future_builtins import map
 
@@ -187,6 +187,19 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
 
     # User categories
     user_categories = clean_user_categories(dbcache).copy()
+
+    # First add any grouped search terms to the user categories
+    muc = dbcache.pref('grouped_search_make_user_categories', [])
+    gst = dbcache.pref('grouped_search_terms', {})
+    for c in gst:
+        if c not in muc:
+            continue
+        user_categories[c] = []
+        for sc in gst[c]:
+            for t in categories.get(sc, ()):
+                user_categories[c].append([t.name, sc, 0])
+    gst_icon = icon_map['gst'] if icon_map else None
+
     if user_categories:
         # We want to use same node in the user category as in the source
         # category. To do that, we need to find the original Tag node. There is
@@ -197,34 +210,28 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
         for c, items in categories.iteritems():
             taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), items))
 
-        muc = dbcache.pref('grouped_search_make_user_categories', [])
-        gst = dbcache.pref('grouped_search_terms', {})
-        for c in gst:
-            if c not in muc:
-                continue
-            user_categories[c] = []
-            for sc in gst[c]:
-                for t in categories.get(sc, ()):
-                    user_categories[c].append([t.name, sc, 0])
-
-        gst_icon = icon_map['gst'] if icon_map else None
+        # Add the category values to the user categories
+        tt_pattern = re.compile(':.*?\)')
         for user_cat in sorted(user_categories.iterkeys(), key=sort_key):
             items = []
             names_seen = {}
+            user_cat_is_gst = user_cat in gst
             for name, label, ign in user_categories[user_cat]:
                 n = icu_lower(name)
                 if label in taglist and n in taglist[label]:
-                    if user_cat in gst:
+                    if user_cat_is_gst:
                         # for gst items, make copy and consolidate the tags by name.
                         if n in names_seen:
                             t = names_seen[n]
-                            t.id_set |= taglist[label][n].id_set
-                            t.count += taglist[label][n].count
+                            other_tag = taglist[label][n]
+                            t.id_set |= other_tag.id_set
+                            t.count += other_tag.count
                             t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
                         else:
                             t = copy.copy(taglist[label][n])
+                            t.tooltip = tt_pattern.sub(')', t.tooltip)
                             t.icon = gst_icon
-                            names_seen[t.name] = t
+                            names_seen[n] = t
                             items.append(t)
                     else:
                         items.append(taglist[label][n])
