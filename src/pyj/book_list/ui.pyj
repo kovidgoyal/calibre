@@ -30,10 +30,11 @@ class ClosePanelBar(BarState):
 
 class UIState:
 
-    def __init__(self, top_bar_state=None, main_panel=None, panel_data=None):
+    def __init__(self, top_bar_state=None, main_panel=None, panel_data=None, is_cacheable=True):
         self.top_bar_state = top_bar_state
         self.main_panel = main_panel or get_boss().ui.items_view
         self.panel_data = panel_data
+        self.is_cacheable = is_cacheable
 
     def add_button(self, **kw):
         self.top_bar_state.add_button(**kw)
@@ -43,7 +44,9 @@ panels = {}
 def panel(key):
     ans = panels[key]
     if not ans:
-        ans = panels[key] = create_panel[key]()
+        ans = create_panel[key]()
+        if ans.is_cacheable:
+            panels[key] = ans
     return ans
 
 def close_panel():
@@ -65,8 +68,12 @@ create_panel = {
     ,
 
     'booklist-mode-menu': def booklist_mode_menu():
-        return UIState(ClosePanelBar(_('Book List Mode')), panel_data=[
-        ])
+        return UIState(ClosePanelBar(_('Book List Mode')), panel_data=[])
+    ,
+
+    'booklist-sort-menu': def change_booklist_sort():
+        data = get_boss().ui.books_view.sort_panel_data(create_item)
+        return UIState(ClosePanelBar(_('Sort books')), panel_data=data, is_cacheable=False)
     ,
 }
 
@@ -82,7 +89,7 @@ class UI:
         self.books_view = BooksView(interface_data)
         self.items_view = ItemsView(interface_data)
         ibs = BarState(run_animation=True)
-        ibs.add_button(icon_name='sort-alpha-asc', tooltip=_('Sort books'))
+        ibs.add_button(icon_name='sort-amount-desc', tooltip=_('Sort books'), action=show_panel_action('booklist-sort-menu'))
         ibs.add_button(icon_name='search', tooltip=_('Search for books'))
         ibs.add_button(icon_name='ellipsis-v', tooltip=_('More actions'), action=show_panel_action('more-actions-menu'))
         self.states.append(UIState(ibs, self.books_view))

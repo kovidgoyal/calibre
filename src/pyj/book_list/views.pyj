@@ -5,9 +5,9 @@ from ajax import ajax_send
 from dom import set_css, build_rule, clear
 from elementmaker import E
 from gettext import gettext as _
-from modals import error_dialog
+from modals import error_dialog, ajax_progress_dialog
 
-from book_list.globals import get_session_data
+from book_list.globals import get_session_data, get_boss
 from widgets import create_button, create_spinner
 
 THUMBNAIL_MAX_WIDTH = 300
@@ -148,7 +148,7 @@ class BooksView:
             except Exception as err:
                 error_dialog(_('Could not get more books'), _('Server returned an invalid response'), err.stack or err.toString())
         elif end_type != 'abort':
-            error_dialog(_('Could not get more books'), xhr.error_string)
+            error_dialog(_('Could not get more books'), xhr.error_html)
 
     # Cover grid {{{
 
@@ -186,3 +186,51 @@ class BooksView:
         )
 
     # }}}
+
+    def sort_panel_data(self, create_item):
+        current_sorted_field = str.partition(self.interface_data.search_result.sort, ',')[0]
+        current_sorted_field_order = str.partition(self.interface_data.search_result.sort_order, ',')[0]
+        new_sort_order = 'desc' if current_sorted_field_order == 'asc' else 'asc'
+        if current_sorted_field == 'date':
+            current_sorted_field = 'timestamp'
+        ans = []
+        ans.subtitle = _('Change how the list of books is sorted')
+        for field, name in self.interface_data.sortable_fields:
+            subtitle = icon_name = None
+            if field == current_sorted_field:
+                subtitle = _('Reverse current sort order')
+                icon_name = 'sort-amount-asc' if current_sorted_field_order == 'asc' else 'sort-amount-desc'
+                action = self.change_sort.bind(self, field, new_sort_order)
+            else:
+                action = self.change_sort.bind(self, field, None)
+            ans.push(create_item(name, subtitle=subtitle, icon_name=icon_name, action=action))
+        return ans
+
+    def change_sort(self, field, order):
+        key = 'sort-order-for-' + field
+        sd = get_session_data()
+        order = order or sd.get(key, 'asc')
+        order = 'asc' if order == 'asc' else 'desc'
+        sd.set(key, order)
+        sr = self.interface_data.search_result
+        sort = field + '.' + order + ',' + sr.sort + '.' + sr.order
+        data = {'search':sr.query or '', 'sort':sort, 'num':self.shown_book_ids.length, 'library_id':self.interface_data.library_id}
+        ajax_progress_dialog('interface-data/get-books', self.sort_change_completed.bind(self), _(
+            'Fetching data from server, please wait') + '…', query=data)
+
+    def sort_change_completed(self, end_type, xhr, ev):
+        if end_type == 'load':
+            boss = get_boss()
+            try:
+                data = JSON.parse(xhr.responseText)
+                boss.change_books(data)
+            except Exception as err:
+                return error_dialog(_('Could not change sort order'), err + '', details=err.stack)
+            boss.ui.close_panel()
+            window.scrollTo(0, 0)
+        elif end_type != 'abort':
+            error_dialog(_('Could not change sort order'), xhr.error_html)
+
+    def refresh(self):
+        self.clear()
+        self.render_ids()

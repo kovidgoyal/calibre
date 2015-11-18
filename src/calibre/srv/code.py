@@ -16,6 +16,7 @@ from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
 from calibre.srv.metadata import book_as_json
 from calibre.srv.routes import endpoint, json
 from calibre.utils.icu import sort_key
+from calibre.utils.search_query_parser import ParseException
 
 html_cache = {}
 cache_lock = Lock()
@@ -67,7 +68,9 @@ def get_basic_query_data(ctx, query):
     sorts, orders = [], []
     for x in query.get('sort', '').split(','):
         if x:
-            s, o = x.partition('.')[::2]
+            s, o = x.rpartition('.')[::2]
+            if o and not s:
+                s, o = o, ''
             if o not in ('asc', 'desc'):
                 o = 'asc'
             if s.startswith('_'):
@@ -170,3 +173,29 @@ def set_session_data(ctx, rd):
         ud = ctx.user_manager.get_session_data(rd.username)
         ud.update(new_data)
         ctx.user_manager.set_session_data(rd.username, ud)
+
+@endpoint('/interface-data/get-books', postprocess=json)
+def get_books(ctx, rd):
+    '''
+    Get books for the specified query
+
+    Optional: ?library_id=<default library>&num=50&sort=timestamp.desc&search=''
+    '''
+    library_id, db, sorts, orders = get_basic_query_data(ctx, rd.query)
+    try:
+        num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
+    except Exception:
+        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+    searchq = rd.query.get('search', '')
+    db = get_library_data(ctx, rd.query)[0]
+    ans = {}
+    mdata = ans['metadata'] = {}
+    with db.safe_read_lock:
+        try:
+            ans['search_result'] = search_result(ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders))
+        except ParseException as err:
+            raise HTTPBadRequest('Invalid search expression: %s' % as_unicode(err))
+        for book_id in ans['search_result']['book_ids']:
+            data = book_as_json(db, book_id)
+            mdata[book_id] = data
+    return ans

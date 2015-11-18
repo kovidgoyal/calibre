@@ -4,6 +4,7 @@
 from book_list.ui import UI
 from modals import error_dialog
 from gettext import gettext as _
+from book_list.globals import get_session_data
 
 class Boss:
 
@@ -29,3 +30,14 @@ class Boss:
             return True
         except:
             console.error('There was an error in the unhandled exception handler')
+
+    def change_books(self, data):
+        data.search_result.sort = str.split(data.search_result.sort, ',')[:2].join(',')
+        data.search_result.sort_order = str.split(data.search_result.sort_order, ',')[:2].join(',')
+        sval = ''
+        for field, order in zip(str.split(data.search_result.sort, ','), str.split(data.search_result.sort_order, ',')):
+            sval += field + '.' + order + ','
+        get_session_data().set('sort', str.rstrip(sval, ','))
+        self.interface_data.metadata = data.metadata
+        self.interface_data.search_result = data.search_result
+        self.ui.books_view.refresh()
