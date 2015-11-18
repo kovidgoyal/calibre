@@ -126,7 +126,7 @@ def atomic_write(name, raw):
     tname = ('_' if iswindows else '.') + bname
     with open(os.path.join(bdir, tname), 'wb') as f:
         f.write(raw)
-    atomic_rename(tname, name)
+    atomic_rename(f.name, name)
 
 def writefile(path, data, enc='utf-8'):
     if enc == undefined:
