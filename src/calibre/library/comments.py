@@ -134,6 +134,8 @@ def merge_comments(one, two):
     return comments_to_html(one) + '\n\n' + comments_to_html(two)
 
 def sanitize_html(html):
+    if not html:
+        return u''
     if isinstance(html, bytes):
         html = html.decode('utf-8', 'replace')
     import html5lib
