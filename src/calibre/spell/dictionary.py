@@ -243,13 +243,13 @@ class Dictionaries(object):
 
     def add_user_words(self, words, langcode):
         for d in self.dictionaries.itervalues():
-            if getattr(d.primary_locale, 'langcode', None) == langcode:
+            if d and getattr(d.primary_locale, 'langcode', None) == langcode:
                 for word in words:
                     d.obj.add(word)
 
     def remove_user_words(self, words, langcode):
         for d in self.dictionaries.itervalues():
-            if d.primary_locale.langcode == langcode:
+            if d and d.primary_locale.langcode == langcode:
                 for word in words:
                     d.obj.remove(word)
 
