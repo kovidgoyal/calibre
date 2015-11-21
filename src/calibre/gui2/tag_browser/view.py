@@ -491,7 +491,7 @@ class TagsView(QTreeView):  # {{{
                         # to a user category'
                         m = self.context_menu.addMenu(self.user_category_icon,
                                         _('Add %s to user category')%display_name(tag))
-                        nt = self.model().category_node_tree
+                        nt = self.model().user_category_node_tree
                         def add_node_tree(tree_dict, m, path):
                             p = path[:]
                             for k in sorted(tree_dict.keys(), key=sort_key):
