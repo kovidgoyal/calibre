@@ -596,6 +596,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         for category in self.category_nodes:
             process_one_node(category, collapse_model,
                              state_map.get(category.category_key, {}))
+        self.intermediate_nodes = None
 
         # Fix up the node tree, reordering as needed and deleting undisplayed nodes
         new_children = []
