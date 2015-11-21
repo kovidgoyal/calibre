@@ -382,6 +382,23 @@ class USBMS(CLI, Device):
     def delete_single_book(self, path):
         os.unlink(path)
 
+    def delete_extra_book_files(self, path):
+        filepath = os.path.splitext(path)[0]
+        for ext in self.DELETE_EXTS:
+            for x in (filepath, path):
+                x += ext
+                if os.path.exists(x):
+                    if os.path.isdir(x):
+                        shutil.rmtree(x, ignore_errors=True)
+                    else:
+                        os.unlink(x)
+
+        if self.SUPPORTS_SUB_DIRS:
+            try:
+                os.removedirs(os.path.dirname(path))
+            except:
+                pass
+
     def delete_books(self, paths, end_session=True):
         debug_print('USBMS: deleting %d books'%(len(paths)))
         for i, path in enumerate(paths):
@@ -390,22 +407,8 @@ class USBMS(CLI, Device):
             if os.path.exists(path):
                 # Delete the ebook
                 self.delete_single_book(path)
+                self.delete_extra_book_files(path)
 
-                filepath = os.path.splitext(path)[0]
-                for ext in self.DELETE_EXTS:
-                    for x in (filepath, path):
-                        x += ext
-                        if os.path.exists(x):
-                            if os.path.isdir(x):
-                                shutil.rmtree(x, ignore_errors=True)
-                            else:
-                                os.unlink(x)
-
-                if self.SUPPORTS_SUB_DIRS:
-                    try:
-                        os.removedirs(os.path.dirname(path))
-                    except:
-                        pass
         self.report_progress(1.0, _('Removing books from device...'))
         debug_print('USBMS: finished deleting %d books'%(len(paths)))
 
