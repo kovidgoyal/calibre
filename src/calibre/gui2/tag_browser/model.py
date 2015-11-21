@@ -9,6 +9,7 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import traceback, cPickle, copy, os
+from collections import OrderedDict
 
 from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
@@ -312,17 +313,12 @@ class TagsModel(QAbstractItemModel):  # {{{
 
         last_category_node = None
         category_node_map = {}
-        self.category_node_tree = {}
-        for i, key in enumerate(self.row_map):
-            if self.hidden_categories:
-                if key in self.hidden_categories:
-                    continue
-                found = False
-                for cat in self.hidden_categories:
-                    if cat.startswith('@') and key.startswith(cat + '.'):
-                        found = True
-                if found:
-                    continue
+        self.user_category_node_tree = {}
+
+        # We build the node tree including categories that might later not be
+        # displayed because their items might be in user categories. The resulting
+        # nodes will be reordered later.
+        for i, key in enumerate(self.categories):
             is_gst = False
             if key.startswith('@') and key[1:] in gst:
                 tt = _(u'The grouped search term name is "{0}"').format(key)
@@ -347,7 +343,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 path_parts = [p for p in key.split('.')]
                 path = ''
                 last_category_node = self.root_item
-                tree_root = self.category_node_tree
+                tree_root = self.user_category_node_tree
                 for i,p in enumerate(path_parts):
                     path += p
                     if path not in category_node_map:
@@ -414,9 +410,8 @@ class TagsModel(QAbstractItemModel):  # {{{
 
         def process_one_node(category, collapse_model, state_map):  # {{{
             collapse_letter = None
-            category_node = category
-            key = category_node.category_key
-            is_gst = category_node.is_gst
+            key = category.category_key
+            is_gst = category.is_gst
             if key not in data:
                 return
             if key in gprefs['tag_browser_dont_collapse']:
@@ -503,8 +498,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                             else:
                                 sub_cat = self.create_node(parent=category, data=name,
                                      tooltip=None, temporary=True,
-                                     category_icon=category_node.icon,
-                                     category_key=category_node.category_key,
+                                     category_icon=category.icon,
+                                     category_key=category.category_key,
                                      icon_map=self.icon_state_map)
                                 sub_cat.tag.is_searchable = False
                                 sub_cat.is_gst = is_gst
@@ -518,9 +513,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                             collapse_letter = cl
                             sub_cat = self.create_node(parent=category,
                                      data=collapse_letter,
-                                     category_icon=category_node.icon,
+                                     category_icon=category.icon,
                                      tooltip=None, temporary=True,
-                                     category_key=category_node.category_key,
+                                     category_key=category.category_key,
                                      icon_map=self.icon_state_map)
                         sub_cat.is_gst = is_gst
                         node_parent = sub_cat
@@ -565,19 +560,24 @@ class TagsModel(QAbstractItemModel):  # {{{
                                 '5state' if tag.category != 'search' else '3state'
                         else:
                             if i < len(components)-1:
-                                t = copy.copy(tag)
-                                t.original_name = '.'.join(components[:i+1])
-                                t.count = 0
-                                if key != 'search':
-                                    # This 'manufactured' intermediate node can
-                                    # be searched, but cannot be edited.
-                                    t.is_editable = False
-                                else:
-                                    t.is_searchable = t.is_editable = False
+                                original_name = '.'.join(components[:i+1])
+                                t = self.intermediate_nodes.get((original_name, tag.category), None)
+                                if t is None:
+                                    t = copy.copy(tag)
+                                    t.original_name = original_name
+                                    t.count = 0
+                                    if key != 'search':
+                                        # This 'manufactured' intermediate node can
+                                        # be searched, but cannot be edited.
+                                        t.is_editable = False
+                                    else:
+                                        t.is_searchable = t.is_editable = False
+                                    self.intermediate_nodes[(original_name, tag.category)] = t
                             else:
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
+                                self.intermediate_nodes[(t.original_name, tag.category)] = t
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
@@ -590,9 +590,31 @@ class TagsModel(QAbstractItemModel):  # {{{
             return
         # }}}
 
+        # Build the entire node tree. Note that category_nodes is in field
+        # metadata order so the user categories will be at the end
+        self.intermediate_nodes = {}
         for category in self.category_nodes:
             process_one_node(category, collapse_model,
                              state_map.get(category.category_key, {}))
+        self.intermediate_nodes = None
+
+        # Fix up the node tree, reordering as needed and deleting undisplayed nodes
+        new_children = []
+        for node in self.root_item.children:
+            key = node.category_key
+            if key in self.row_map:
+                if self.hidden_categories:
+                    if key in self.hidden_categories:
+                        continue
+                    found = False
+                    for cat in self.hidden_categories:
+                        if cat.startswith('@') and key.startswith(cat + '.'):
+                            found = True
+                    if found:
+                        continue
+                new_children.append(node)
+        self.root_item.children = new_children
+        self.root_item.children.sort(key=lambda x: self.row_map.index(x.category_key))
 
     def get_category_editor_data(self, category):
         for cat in self.root_item.children:
@@ -865,7 +887,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         Called by __init__. Do not directly call this method.
         '''
         self.row_map = []
-        self.categories = {}
+        self.categories = OrderedDict()
 
         # Get the categories
         try:
@@ -885,14 +907,16 @@ class TagsModel(QAbstractItemModel):  # {{{
                 data[category] = [t for t in data[category]
                         if lower(t.name).find(self.filter_categories_by) >= 0]
 
+        # Build a dict of the keys that have data
         tb_categories = self.db.field_metadata
+        for category in tb_categories:
+            if category in data:  # The search category can come and go
+                self.categories[category] = tb_categories[category]['name']
+
+        # Now build the list of fields in display order
         order = tweaks['tag_browser_category_order']
         defvalue = order.get('*', 100)
-        tb_keys = sorted(tb_categories.keys(), key=lambda x: order.get(x, defvalue))
-        for category in tb_keys:
-            if category in data:  # The search category can come and go
-                self.row_map.append(category)
-                self.categories[category] = tb_categories[category]['name']
+        self.row_map = sorted(self.categories, key=lambda x: order.get(x, defvalue))
         return data
 
     def set_categories_filter(self, txt):
