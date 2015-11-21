@@ -309,6 +309,11 @@ class TreeBuilder(_base.TreeBuilder):
         if (parent == self.document and
                 self.document._elementTree.getroot()[-1].tag == comment_type):
                 warnings.warn("lxml cannot represent adjacent comments beyond the root elements", DataLossWarning)
+        if data['data']:
+            # lxml cannot handle comment text that contains -- or endswith -
+            # Should really check if changes happened and issue a data loss
+            # warning, but that's a fairly big performance hit.
+            data['data'] = data['data'].replace('--', '\u2010\u2010').rstrip('-')
         super(TreeBuilder, self).insertComment(data, parent)
 
     def insertRoot(self, token):
