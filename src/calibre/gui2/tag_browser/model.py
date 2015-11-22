@@ -401,6 +401,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         sort_by = config['sort_tags_by']
 
         eval_formatter = EvalFormatter()
+        intermediate_nodes = {}
 
         if data is None:
             print ('_create_node_tree: no data!')
@@ -580,7 +581,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                         else:
                             if i < len(components)-1:
                                 original_name = '.'.join(components[:i+1])
-                                t = self.intermediate_nodes.get((original_name, tag.category), None)
+                                t = intermediate_nodes.get((original_name, tag.category), None)
                                 if t is None:
                                     t = copy.copy(tag)
                                     t.original_name = original_name
@@ -591,12 +592,12 @@ class TagsModel(QAbstractItemModel):  # {{{
                                         t.is_editable = False
                                     else:
                                         t.is_searchable = t.is_editable = False
-                                    self.intermediate_nodes[(original_name, tag.category)] = t
+                                    intermediate_nodes[(original_name, tag.category)] = t
                             else:
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                                self.intermediate_nodes[(t.original_name, tag.category)] = t
+                                intermediate_nodes[(t.original_name, tag.category)] = t
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
@@ -611,11 +612,9 @@ class TagsModel(QAbstractItemModel):  # {{{
 
         # Build the entire node tree. Note that category_nodes is in field
         # metadata order so the user categories will be at the end
-        self.intermediate_nodes = {}
         for category in self.category_nodes:
             process_one_node(category, collapse_model,
                              state_map.get(category.category_key, {}))
-        self.intermediate_nodes = None
 
         # Fix up the node tree, reordering as needed and deleting undisplayed nodes
         new_children = []
