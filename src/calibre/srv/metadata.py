@@ -200,7 +200,7 @@ def get_name_components(name):
         components = [name]
     return components
 
-def collapse_partition(items, category_node, idx, tag, opts, top_level_component,
+def collapse_partition(collapse_nodes, items, category_node, idx, tag, opts, top_level_component,
     cat_len, category_is_hierarchical, category_items, eval_formatter, is_gst,
     last_idx, node_parent):
     # Only partition at the top level. This means that we must not do a break
@@ -228,11 +228,12 @@ def collapse_partition(items, category_node, idx, tag, opts, top_level_component
                 parent=category_node['id'], is_editable=False, is_gst=is_gst,
                 is_hierarchical=category_is_hierarchical, is_searchable=False)
             node_parent = {'id':node_id, 'children':[]}
+            collapse_nodes.append(node_parent)
             category_node['children'].append(node_parent)
         last_idx = idx  # remember where we last partitioned
     return last_idx, node_parent
 
-def collapse_first_letter(items, category_node, cl_list, idx, is_gst, category_is_hierarchical, collapse_letter, node_parent):
+def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is_gst, category_is_hierarchical, collapse_letter, node_parent):
     cl = cl_list[idx]
     if cl != collapse_letter:
         collapse_letter = cl
@@ -242,9 +243,12 @@ def collapse_first_letter(items, category_node, cl_list, idx, is_gst, category_i
             is_hierarchical=category_is_hierarchical)
         node_parent = {'id':node_id, 'children':[]}
         category_node['children'].append(node_parent)
+        collapse_nodes.append(node_parent)
     return collapse_letter, node_parent
 
-def process_category_node(category_node, items, category_data, eval_formatter, field_metadata, opts, tag_map, hierarchical_tags, node_to_tag_map):
+def process_category_node(
+        category_node, items, category_data, eval_formatter, field_metadata,
+        opts, tag_map, hierarchical_tags, node_to_tag_map, collapse_nodes):
     category = items[category_node['id']]['category']
     category_items = category_data[category]
     cat_len = len(category_items)
@@ -288,12 +292,12 @@ def process_category_node(category_node, items, category_data, eval_formatter, f
         if collapsible:
             if partitioned:
                 last_idx, node_parent = collapse_partition(
-                items, category_node, idx, tag, opts, top_level_component,
+                collapse_nodes, items, category_node, idx, tag, opts, top_level_component,
                 cat_len, category_is_hierarchical, category_items,
                 eval_formatter, is_gst, last_idx, node_parent)
             else:  # by 'first letter'
                 collapse_letter, node_parent = collapse_first_letter(
-                    items, category_node, cl_list, idx, is_gst, category_is_hierarchical, collapse_letter, node_parent)
+                    collapse_nodes, items, category_node, cl_list, idx, is_gst, category_is_hierarchical, collapse_letter, node_parent)
         else:
             node_parent = category_node
 
@@ -340,11 +344,16 @@ def process_category_node(category_node, items, category_data, eval_formatter, f
                 items[node_parent['id']]['id_set'] |= tag.id_set
             node_parent = orig_node_parent
 
+def iternode_descendants(node):
+    for child in node['children']:
+        yield child
+        for x in iternode_descendants(child):
+            yield x
 
 def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts):
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
-    first, later = [], []
+    first, later, collapse_nodes = [], [], []
     # User categories have to be processed after normal categories as they can
     # reference hierarchical nodes that were created only during processing of
     # normal categories
@@ -355,7 +364,10 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
 
     for coll in (first, later):
         for cnode in coll:
-            process_category_node(cnode, items, category_data, eval_formatter, field_metadata, opts, tag_map, hierarchical_tags, node_to_tag_map)
+            process_category_node(
+                cnode, items, category_data, eval_formatter, field_metadata,
+                opts, tag_map, hierarchical_tags, node_to_tag_map,
+                collapse_nodes)
 
     # Do not store id_set in the tag items as it is a lot of data, with not
     # much use. Instead only update the counts based on id_set
@@ -363,6 +375,10 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
         id_len = len(item.pop('id_set', ()))
         if id_len:
             item['count'] = id_len
+
+    for node in collapse_nodes:
+        item = items[node['id']]
+        item['count'] = sum(1 for _ in iternode_descendants(node))
 
 def render_categories(field_metadata, opts, category_data):
     items = {}
