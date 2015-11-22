@@ -12,7 +12,7 @@ from urllib import quote
 import cherrypy
 from lxml import html
 from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
-        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR, META
+        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR, H1, H2, META
 
 from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
@@ -72,72 +72,90 @@ def build_search_box(num, search, sort, order, prefix):  # {{{
 
 def build_navigation(start, num, total, url_base):  # {{{
     end = min((start+num-1), total)
+
     tagline = SPAN('Books %d to %d of %d'%(start, end, total),
             style='display: block; text-align: center;')
-    left_buttons = TD(CLASS('button', style='text-align:left'))
-    right_buttons = TD(CLASS('button', style='text-align:right'))
+
+    left_buttons = DIV(CLASS('navigation_left'))
+    right_buttons = DIV(CLASS('navigation_right'))
 
     if start > 1:
-        for t,s in [('First', 1), ('Previous', max(start-num,1))]:
-            left_buttons.append(A(t, href='%s;start=%d'%(url_base, s)))
+        left_buttons.append(A('<<', CLASS('navigation_first'),
+                              href='%s;start=%d' % (url_base, 1)))
+        left_buttons.append(A('< Prev', CLASS('navigation_prev'),
+                              href='%s;start=%d' % (url_base, max(start-num, 1))))
 
     if total > start + num:
-        for t,s in [('Next', start+num), ('Last', total-num+1)]:
-            right_buttons.append(A(t, href='%s;start=%d'%(url_base, s)))
+        right_buttons.append(A('>>', CLASS('navigation_last'),
+                               href='%s;start=%d' % (url_base, total-num+1)))
+        right_buttons.append(A('Next >', CLASS('navigation_next'),
+                               href='%s;start=%d' % (url_base, start+num)))
 
-    buttons = TABLE(
-            TR(left_buttons, right_buttons),
-            CLASS('buttons'))
-    return DIV(tagline, buttons, CLASS('navigation'))
+    buttons = DIV(left_buttons, right_buttons, CLASS('navigation'))
+
+    #return DIV(tagline, buttons, CLASS('navigation'))
+    return buttons
 
     # }}}
 
 def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         prefix, have_kobo_browser=False):
-    logo = DIV(IMG(src=prefix+'/static/calibre.png', alt=__appname__), id='logo')
+
+    logo = DIV(IMG(src=prefix+'/static/calibre.png', alt=__appname__), id='navigation')
 
     search_box = build_search_box(num, search, sort, order, prefix)
     navigation = build_navigation(start, num, total, prefix+url_base)
     navigation2 = build_navigation(start, num, total, prefix+url_base)
-    bookt = TABLE(id='listing')
+    bookt = DIV(id='listing')
 
     body = BODY(
         logo,
         search_box,
         navigation,
-        HR(CLASS('spacer')),
         bookt,
-        HR(CLASS('spacer')),
         navigation2
     )
 
     # Book list {{{
     for book in books:
-        thumbnail = TD(
-                IMG(type='image/jpeg', border='0',
-                    src=prefix+'/get/thumb/%s' %
-                            book['id']),
-                CLASS('thumbnail'))
+        thumbnail = DIV(
+            IMG(type='image/jpeg', src=prefix+'/get/thumb_300_300/%s' % book['id']),
+            CLASS('book_thumbnail')
+        )
 
-        data = TD()
-        for fmt in book['formats'].split(','):
+        data = DIV(CLASS('book_info'))
+
+        downloads = DIV(CLASS('book_downloads'))
+
+        # These preferences are for iPhone mostly
+        sort_preferences = ['epub', 'pdf', 'mobi', 'azw3']
+
+        all_formats = [  fmt for fmt in book['formats'].lower().split(',')
+                         if fmt is not None and
+                         fmt != '' and
+                         not fmt.startswith('original_') ]
+
+        # Add the preferred formats in the best order for the user
+        available_formats = [fmt for fmt in sort_preferences if fmt in all_formats]
+        # Add the remaining formats
+        available_formats.append([fmt for fmt in all_formats if fmt not in sort_preferences])
+
+        for fmt in available_formats:
             if not fmt or fmt.lower().startswith('original_'):
                 continue
+
             file_extension = "kepub.epub" if have_kobo_browser and fmt.lower() == "kepub" else fmt
             a = quote(ascii_filename(book['authors']))
             t = quote(ascii_filename(book['title']))
-            s = SPAN(
-                A(
+            s = A(  CLASS('btn'),
                     fmt.lower(),
-                    href=prefix+'/get/%s/%s-%s_%d.%s' % (fmt, a, t,
-                        book['id'], file_extension.lower())
-                ),
-                CLASS('button'))
+                    href=prefix+'/get/%s/%s-%s_%d.%s' % (fmt, a, t, book['id'], file_extension.lower()))
             s.tail = u''
-            data.append(s)
+            downloads.append(s)
 
-        div = DIV(CLASS('data-container'))
-        data.append(div)
+        title = DIV(CLASS('book_title'))
+        data.append(title)
+        data.append(downloads)
 
         series = u'[%s - %s]'%(book['series'], book['series_index']) \
                 if book['series'] else ''
@@ -149,15 +167,17 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
             if val:
                 ctext += '%s=[%s] '%tuple(val.split(':#:'))
 
-        first = SPAN(u'\u202f%s %s by %s' % (clean_xml_chars(book['title']), clean_xml_chars(series),
-            clean_xml_chars(book['authors'])), CLASS('first-line'))
-        div.append(first)
-        second = SPAN(u'%s - %s %s %s' % (book['size'],
+        first = H1(u'%s %s' % (clean_xml_chars(book['title']), clean_xml_chars(series)), CLASS('book_name'))
+        title.append(first)
+
+        size = SPAN(u'%s - %s %s %s' % (book['size'],
             book['timestamp'],
             tags, ctext), CLASS('second-line'))
-        div.append(second)
 
-        bookt.append(TR(thumbnail, data))
+        authors = DIV(u'%s' % (clean_xml_chars(book['authors'])), CLASS('book_author'))
+        title.append(authors)
+
+        bookt.append(DIV(CLASS('book'), thumbnail, data))
     # }}}
 
     body.append(DIV(
@@ -167,14 +187,14 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
             title=_('The full interface gives you many more features, '
                 'but it may not work well on a small screen')),
         style="text-align:center"))
+
     return HTML(
         HEAD(
             TITLE(__appname__ + ' Library'),
-            LINK(rel='icon', href='http://calibre-ebook.com/favicon.ico',
-                type='image/x-icon'),
-            LINK(rel='stylesheet', type='text/css',
-                href=prefix+'/mobile/style.css'),
+            LINK(rel='icon', href='/static/favicon.ico', type='image/x-icon'),
+            LINK(rel='stylesheet', type='text/css', href=prefix+'/mobile/style.css'),
             LINK(rel='apple-touch-icon', href="/static/calibre.png"),
+            META(name='viewport', content="width=device-width, initial-scale=1, maximum-scale=1"),
             META(name="robots", content="noindex")
         ),  # End head
         body

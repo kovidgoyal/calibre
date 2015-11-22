@@ -1,46 +1,13 @@
 /* CSS for the mobile version of the content server webpage */
 
-.body {
-    font-family: sans-serif;
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 100%;
+    line-height: 1.3em;
+    margin: 0;
+    padding: 0;
 }
 
-.navigation table.buttons {
-    width: 100%;
-}
-
-.navigation .button {
-    width: 50%;
-}
-
-.button a, .button:visited a {
-    padding: 0.5em;
-    font-size: larger;
-    border: 1px solid black;
-    text-color: black;
-    text-decoration: none;
-    margin-right: 0.5em;
-    background-color: #ddd;
-    border-top: 1px solid ThreeDLightShadow;
-    border-right: 1px solid ButtonShadow;
-    border-bottom: 1px solid ButtonShadow;
-    border-left: 1 px solid ThreeDLightShadow;
-    -moz-border-radius: 0.25em;
-    -webkit-border-radius: 0.25em;
-}
-
-.button:hover a {
-    border-top: 1px solid #666;
-    border-right: 1px solid #CCC;
-    border-bottom: 1 px solid #CCC;
-    border-left: 1 px solid #666;
-
-
-}
-
-div.navigation {
-    padding-bottom: 1em;
-    clear: both;
-}
 
 #search_box {
     border: 1px solid #393;
@@ -48,38 +15,160 @@ div.navigation {
     -webkit-border-radius: 0.5em;
     padding: 1em;
     margin-bottom: 0.5em;
-    float: right;
 }
 
 #listing {
     width: 100%;
-    border-collapse: collapse;
-}
-#listing td {
-    padding: 0.25em;
-    vertical-align: middle;
+    border-top: 1px solid #e0e0e0;
 }
 
-#listing td.thumbnail {
-    height: 60px;
-    width: 60px;
+.book {
+    padding: 0.7em;
+    border-bottom: 1px solid #e0e0e0;
+}
+/* Clearfix */
+.book:before,
+.book:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+.book:after {
+    clear: both;
+}
+.book {
+    *zoom: 1;
 }
 
-#listing tr:nth-child(even) {
-
-    background: #eee;
-}
-
-#listing .button a{
-    display: inline-block;
-    width: 2.5em;
-    padding-left: 0em;
-    padding-right: 0em;
+.book_thumbnail {
+    float: left;
+    width: 5em;
+    height: 7em;
     overflow: hidden;
-    text-align: center;
-    text-decoration: none;
-    vertical-align: middle;
 }
+.book_thumbnail img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.book_info {
+    margin-left: 6em;
+}
+
+.book_title {
+    margin-bottom: 0.7em;
+}
+.book_title h1 {
+    margin: 0;
+    font-size: 1em;
+}
+.book_author {
+    margin: 0;
+    font-size: 0.8em;
+}
+
+.book_downloads {
+
+}
+
+.book_downloads .btn {
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-right: 0.7em;
+    background: #5c6c7c;
+}
+.book_downloads .btn:hover {
+    background: #4f5f6e;
+}
+.book_downloads .btn:first-child {
+    background: #158cba;
+}
+.book_downloads .btn:first-child:hover {
+    background: #31b0d5;
+}
+.book_downloads .btn:last-child {
+    margin-right: 0;
+}
+
+.btn, a.btn {
+    display: inline-block;
+    padding: 0.5em 0.8em 0.5em 0.8em;
+    text-decoration: none;
+    color: #ffffff;
+    background: #606060;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    margin: 0;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 15px;
+    -webkit-user-select: none;
+}
+
+
+
+.navigation {
+    border-top: 1px solid #e0e0e0;
+    background: #f0f0f0;
+    overflow: hidden;
+}
+.navigation_left, .navigation_right {
+    float: left;
+    box-sizing: border-box;
+    width: 50%;
+    margin: 0;
+    min-height: 2.7em;
+}
+.navigation_left {
+    border-right: 1px solid #e0e0e0;
+}
+.navigation a {
+    box-sizing: border-box;
+    font-size: 0.8em;
+    line-height: 1.5em;
+    text-transform: uppercase;
+    font-weight: bold;
+
+    display: block;
+    text-align: center;
+    padding: 0.9em 0 0.8em 0;
+    text-decoration: none;
+    color: #158cba;
+    background: #f0f0f0;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    margin: 0;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    white-space: nowrap;
+    -webkit-user-select: none;
+}
+a.navigation_first {
+    float: left;
+    width: 3em;
+    border-right: 1px solid #e0e0e0;
+}
+a.navigation_next {
+    margin-right: 3em;
+}
+a.navigation_prev {
+    margin-left: 3em;
+}
+a.navigation_last {
+    float: right;
+    width: 3em;
+    border-left: 1px solid #e0e0e0;
+}
+
 
 #logo {
     float: left;
