@@ -124,6 +124,12 @@ def get_decoded_raw(name):
                     pass
     return raw, syntax
 
+def string_diff(left, right, left_syntax=None, right_syntax=None, left_name='left', right_name='right'):
+    left, right = unicode(left), unicode(right)
+    cache = Cache()
+    cache.set_left(left_name, left), cache.set_right(right_name, right)
+    changed_names = {} if left == right else {left_name:right_name}
+    return cache, {left_name:left_syntax, right_name:right_syntax}, changed_names, {}, set(), set()
 
 def file_diff(left, right):
     (raw1, syntax1), (raw2, syntax2) = map(get_decoded_raw, (left, right))
@@ -369,6 +375,13 @@ class Diff(Dialog):
     def file_diff(self, left, right, identical_msg=None):
         with self:
             identical = self.apply_diff(identical_msg or _('The files are identical'), *file_diff(left, right))
+            self.view.finalize()
+        if identical:
+            self.reject()
+
+    def string_diff(self, left, right, **kw):
+        with self:
+            identical = self.apply_diff(kw.pop('identical_msg', None) or _('The strings are identical'), *string_diff(left, right, **kw))
             self.view.finalize()
         if identical:
             self.reject()
