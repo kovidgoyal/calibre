@@ -380,11 +380,8 @@ def dump_categories_tree(data):
     ans, indent = [], '  '
     def dump_node(node, level=0):
         item = items[node['id']]
-        on = item.get('original_name', '')
-        if on:
-            on += ' '
         try:
-            ans.append(indent*level + item['name'] + ' [%scount=%s]' % (on, item['count']))
+            ans.append(indent*level + item['name'] + ' [count=%s]' % (item['count'],))
         except KeyError:
             print(item)
             raise
@@ -395,10 +392,35 @@ def dump_categories_tree(data):
     [dump_node(c) for c in root['children']]
     return '\n'.join(ans)
 
+def dump_tags_model(m):
+    from PyQt5.Qt import QModelIndex, Qt
+    ans, indent = [], '  '
+    def dump_node(index, level=-1):
+        if level > -1:
+            ans.append(indent*level + index.data(Qt.UserRole).dump_data())
+        for i in xrange(m.rowCount(index)):
+            dump_node(m.index(i, 0, index), level + 1)
+        if level == 0:
+            ans.append('')
+    dump_node(QModelIndex())
+    return '\n'.join(ans)
+
 def test_tag_browser(library_path=None):
     from calibre.library import db
-    db = db(library_path).new_api
+    olddb = db(library_path)
+    db = olddb.new_api
     opts = categories_settings({}, db)
     category_data = db.get_categories(sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
     data = render_categories(db.field_metadata, opts, category_data)
-    print(dump_categories_tree(data))
+    srv_data = dump_categories_tree(data)
+    from calibre.gui2 import Application
+    from calibre.gui2.tag_browser.model import TagsModel
+    app = Application([])
+    m = TagsModel(None)
+    m.set_database(olddb)
+    m_data = dump_tags_model(m)
+    from calibre.gui2.tweak_book.diff.main import Diff
+    d = Diff(show_as_window=True)
+    d.string_diff(m_data, srv_data, left_name='GUI', right_name='server')
+    d.exec_()
+    del app

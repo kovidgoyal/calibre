@@ -158,6 +158,22 @@ class TagTreeItem(object):  # {{{
             return self.icon_state_map[0]
         return None
 
+    def dump_data(self):
+        fmt = '%s [count=%s]'
+        if self.type == self.CATEGORY:
+            return fmt % (self.py_name, len(self.child_tags()))
+        tag = self.tag
+        if tag.use_sort_as_name:
+            name = tag.sort
+        else:
+            if not tag.is_hierarchical:
+                name = tag.original_name
+            else:
+                name = tag.name
+        count = len(self.id_set)
+        count = count if count > 0 else tag.count
+        return fmt % (name, count,)
+
     def toggle(self, set_to=None):
         '''
         set_to: None => advance the state, otherwise a value from TAG_SEARCH_STATES
