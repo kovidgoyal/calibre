@@ -660,7 +660,7 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
             pi.extend(['--bindir', bin_dir])
         if share_dir is not None:
             pi.extend(['--sharedir', share_dir])
-        subprocess.call(pi, shell=len(pi) == 1)
+        subprocess.call(pi)
         prints('Run "calibre" to start calibre')
     else:
         prints('Run "%s/calibre" to start calibre' % destdir)
