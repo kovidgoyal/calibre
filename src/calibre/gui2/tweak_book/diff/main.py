@@ -381,7 +381,7 @@ class Diff(Dialog):
 
     def string_diff(self, left, right, **kw):
         with self:
-            identical = self.apply_diff(kw.pop('identical_msg', None) or _('The strings are identical'), *string_diff(left, right, **kw))
+            identical = self.apply_diff(kw.pop('identical_msg', None) or _('No differences found'), *string_diff(left, right, **kw))
             self.view.finalize()
         if identical:
             self.reject()
