@@ -639,7 +639,7 @@ def check_version():
     if calibre_version == '%version':
         calibre_version = urllib.urlopen('http://code.calibre-ebook.com/latest').read()
 
-def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
+def run_installer(install_dir, isolated, bin_dir, share_dir):
     destdir = os.path.abspath(os.path.expanduser(install_dir or '/opt'))
     if destdir == '/usr/bin':
         prints(destdir, 'is not a valid install location. Choose', end='')
@@ -665,6 +665,9 @@ def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
     else:
         prints('Run "%s/calibre" to start calibre' % destdir)
     return 0
+
+def main(install_dir=None, isolated=False, bin_dir=None, share_dir=None):
+    run_installer(install_dir, isolated, bin_dir, share_dir)
 
 try:
     __file__
