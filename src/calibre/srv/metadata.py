@@ -90,7 +90,7 @@ def category_item_as_json(x, clear_rating=False):
     return ans
 
 CategoriesSettings = namedtuple(
-    'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by template using_hierarchy grouped_search_terms')
+    'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by template using_hierarchy grouped_search_terms hidden_categories')
 
 def categories_settings(query, db):
     dont_collapse = frozenset(query.get('dont_collapse', '').split(','))
@@ -111,8 +111,9 @@ def categories_settings(query, db):
             collapse_model = 'partition'
         template = tweaks['categories_collapsed_%s_template' % sort_by]
     using_hierarchy = frozenset(db.pref('categories_using_hierarchy', []))
+    hidden_categories = db.pref('tag_browser_hidden_categories', set())
     return CategoriesSettings(
-        dont_collapse, collapse_model, collapse_at, sort_by, template, using_hierarchy, db.pref('grouped_search_terms', {}))
+        dont_collapse, collapse_model, collapse_at, sort_by, template, using_hierarchy, db.pref('grouped_search_terms', {}), hidden_categories)
 
 def create_toplevel_tree(category_data, items, field_metadata, opts):
     # Create the basic tree, containing all top level categories , user
@@ -384,6 +385,10 @@ def render_categories(field_metadata, opts, category_data):
     items = {}
     root, node_id_map, category_nodes = create_toplevel_tree(category_data, items, field_metadata, opts)
     fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts)
+    if opts.hidden_categories:
+        # We have to remove hidden categories after all processing is done as
+        # items from a hidden category could be in a user category
+        root['children'] = filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children'])
     return {'root':root, 'item_map': items}
 
 def categories_as_json(ctx, rd, db):
@@ -429,6 +434,7 @@ def test_tag_browser(library_path=None):
     olddb = db(library_path)
     db = olddb.new_api
     opts = categories_settings({}, db)
+    # opts = opts._replace(hidden_categories={'publisher'})
     category_data = db.get_categories(sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
     data = render_categories(db.field_metadata, opts, category_data)
     srv_data = dump_categories_tree(data)
@@ -442,7 +448,7 @@ def test_tag_browser(library_path=None):
     }
     app = Application([])
     m = TagsModel(None, prefs)
-    m.set_database(olddb, hidden_categories=set())
+    m.set_database(olddb, opts.hidden_categories)
     m_data = dump_tags_model(m)
     from calibre.gui2.tweak_book.diff.main import Diff
     d = Diff(show_as_window=True)
