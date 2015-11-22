@@ -90,6 +90,8 @@ def interface_data(ctx, rd):
     Return the data needed to create the server main UI
 
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
+              &sort_tags_by=name&partition_method=first letter&collapse_at=25&
+              &dont_collapse=
     '''
     ans = {'username':rd.username}
     ans['library_map'], ans['default_library'] = ctx.library_map
@@ -118,7 +120,7 @@ def interface_data(ctx, rd):
             sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
                                         key=lambda (field, name):sort_key(name))
         ans['field_metadata'] = db.field_metadata.all_metadata()
-        ans['categories'] = categories_as_json(ctx.get_categories(rd, db))
+        ans['categories'] = categories_as_json(ctx, rd, db)
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)

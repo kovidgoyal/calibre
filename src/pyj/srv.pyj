@@ -32,7 +32,9 @@ def on_library_load_progress(loaded, total):
 
 def load_book_list():
     temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
-    query = {'library_id':temp.get('library_id'), 'sort':temp.get('sort')}
+    query = {k:temp.get(k) for k in str.split(
+        'library_id sort partition_method collapse_at dont_collapse sort_tags_by'
+    )}
     ajax('interface-data/init', on_library_loaded, on_library_load_progress, query=query).send()
 
 def on_load():

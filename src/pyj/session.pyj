@@ -4,8 +4,15 @@
 from ajax import ajax_send
 
 defaults = {
+    # Book list settings
     'view_mode': 'cover_grid',
-    'sort': 'timestamp.desc',
+    'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
+
+    # Tag Browser settings
+    'partition_method': 'first letter',  # other choices: 'disable', 'partition'
+    'collapse_at': 25,  # number of items at which sub-groups are created, 0 to disable
+    'dont_collapse': '',  # comma separated list of category names
+    'sort_tags_by': 'name', # other choices: popularity, rating
 }
 
 def storage_available(which):

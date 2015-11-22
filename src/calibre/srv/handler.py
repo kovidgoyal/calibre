@@ -111,19 +111,20 @@ class Context(object):
                 ans = data.allowed_book_ids[db.server_library_id] = db.all_book_ids()
             return ans
 
-    def get_categories(self, data, db, restrict_to_ids=None):
+    def get_categories(self, data, db, restrict_to_ids=None, sort='name', first_letter_sort=True):
         if restrict_to_ids is None:
             restrict_to_ids = self.allowed_book_ids(data, db)
+        key = (restrict_to_ids, sort, first_letter_sort)
         with self.lock:
             cache = self.library_broker.category_caches[db.server_library_id]
-            old = cache.pop(restrict_to_ids, None)
+            old = cache.pop(key, None)
             if old is None or old[0] <= db.last_modified():
-                categories = db.get_categories(book_ids=restrict_to_ids)
-                cache[restrict_to_ids] = old = (utcnow(), categories)
+                categories = db.get_categories(book_ids=restrict_to_ids, sort=sort, first_letter_sort=first_letter_sort)
+                cache[key] = old = (utcnow(), categories)
                 if len(cache) > self.CATEGORY_CACHE_SIZE:
                     cache.popitem(last=False)
             else:
-                cache[restrict_to_ids] = old
+                cache[key] = old
             return old[1]
 
     def search(self, data, db, query, restrict_to_ids=None):
