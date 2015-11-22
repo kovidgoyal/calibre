@@ -408,8 +408,11 @@ def dump_categories_tree(data):
     ans, indent = [], '  '
     def dump_node(node, level=0):
         item = items[node['id']]
+        rating = item.get('avg_rating', None) or 0
+        if rating:
+            rating = ',rating=%.1f' % rating
         try:
-            ans.append(indent*level + item['name'] + ' [count=%s]' % (item['count'],))
+            ans.append(indent*level + item['name'] + ' [count=%s%s]' % (item['count'], rating or ''))
         except KeyError:
             print(item)
             raise

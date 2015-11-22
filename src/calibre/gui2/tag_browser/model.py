@@ -159,9 +159,9 @@ class TagTreeItem(object):  # {{{
         return None
 
     def dump_data(self):
-        fmt = '%s [count=%s]'
+        fmt = '%s [count=%s%s]'
         if self.type == self.CATEGORY:
-            return fmt % (self.py_name, len(self.child_tags()))
+            return fmt % (self.py_name, len(self.child_tags()), '')
         tag = self.tag
         if tag.use_sort_as_name:
             name = tag.sort
@@ -172,7 +172,10 @@ class TagTreeItem(object):  # {{{
                 name = tag.name
         count = len(self.id_set)
         count = count if count > 0 else tag.count
-        return fmt % (name, count,)
+        rating = tag.avg_rating or 0
+        if rating:
+            rating = ',rating=%.1f' % rating
+        return fmt % (name, count, rating or '')
 
     def toggle(self, set_to=None):
         '''
