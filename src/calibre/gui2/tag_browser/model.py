@@ -210,8 +210,9 @@ class TagsModel(QAbstractItemModel):  # {{{
     drag_drop_finished = pyqtSignal(object)
     user_categories_edited = pyqtSignal(object, object)
 
-    def __init__(self, parent):
+    def __init__(self, parent, prefs=gprefs):
         QAbstractItemModel.__init__(self, parent)
+        self.prefs = prefs
         self.node_map = {}
         self.category_nodes = []
         iconmap = {}
@@ -219,7 +220,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             iconmap[key] = QIcon(I(category_icon_map[key]))
         self.category_icon_map = TagsIcons(iconmap)
         self.category_custom_icons = dict()
-        for k, v in gprefs['tags_browser_category_icons'].iteritems():
+        for k, v in self.prefs['tags_browser_category_icons'].iteritems():
             icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
             if len(icon.availableSizes()) > 0:
                 self.category_custom_icons[k] = icon
@@ -242,7 +243,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         return QObject.parent(self)
 
     def set_custom_category_icon(self, key, path):
-        d = gprefs['tags_browser_category_icons']
+        d = self.prefs['tags_browser_category_icons']
         if path:
             d[key] = path
             self.category_custom_icons[key] = QIcon(os.path.join(config_dir,
@@ -256,13 +257,13 @@ class TagsModel(QAbstractItemModel):  # {{{
                     pass
             del d[key]
             del self.category_custom_icons[key]
-        gprefs['tags_browser_category_icons'] = d
+        self.prefs['tags_browser_category_icons'] = d
 
     def reread_collapse_model(self, state_map, rebuild=True):
-        if gprefs['tags_browser_collapse_at'] == 0:
+        if self.prefs['tags_browser_collapse_at'] == 0:
             self.collapse_model = 'disable'
         else:
-            self.collapse_model = gprefs['tags_browser_partition_method']
+            self.collapse_model = self.prefs['tags_browser_partition_method']
         if rebuild:
             self.rebuild_node_tree(state_map)
 
@@ -388,7 +389,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             traceback.print_stack()
             return
 
-        collapse = gprefs['tags_browser_collapse_at']
+        collapse = self.prefs['tags_browser_collapse_at']
         collapse_model = self.collapse_model
         if collapse == 0:
             collapse_model = 'disable'
@@ -414,7 +415,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             is_gst = category.is_gst
             if key not in data:
                 return
-            if key in gprefs['tag_browser_dont_collapse']:
+            if key in self.prefs['tag_browser_dont_collapse']:
                 collapse_model = 'disable'
             cat_len = len(data[key])
             if cat_len <= 0:
