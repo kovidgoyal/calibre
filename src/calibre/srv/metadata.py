@@ -391,6 +391,8 @@ def categories_as_json(ctx, rd, db):
     category_data = ctx.get_categories(rd, db, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
     render_categories(db.field_metadata, opts, category_data)
 
+# Test tag browser {{{
+
 def dump_categories_tree(data):
     root, items = data['root'], data['item_map']
     ans, indent = [], '  '
@@ -422,6 +424,7 @@ def dump_tags_model(m):
     return '\n'.join(ans)
 
 def test_tag_browser(library_path=None):
+    ' Compare output of server and GUI tag browsers '
     from calibre.library import db
     olddb = db(library_path)
     db = olddb.new_api
@@ -429,14 +432,21 @@ def test_tag_browser(library_path=None):
     category_data = db.get_categories(sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
     data = render_categories(db.field_metadata, opts, category_data)
     srv_data = dump_categories_tree(data)
-    from calibre.gui2 import Application
+    from calibre.gui2 import Application, gprefs
     from calibre.gui2.tag_browser.model import TagsModel
+    prefs = {
+        'tags_browser_category_icons':gprefs['tags_browser_category_icons'],
+        'tags_browser_collapse_at':opts.collapse_at,
+        'tags_browser_partition_method': opts.collapse_model,
+        'tag_browser_dont_collapse': opts.dont_collapse,
+    }
     app = Application([])
-    m = TagsModel(None)
-    m.set_database(olddb)
+    m = TagsModel(None, prefs)
+    m.set_database(olddb, hidden_categories=set())
     m_data = dump_tags_model(m)
     from calibre.gui2.tweak_book.diff.main import Diff
     d = Diff(show_as_window=True)
     d.string_diff(m_data, srv_data, left_name='GUI', right_name='server')
     d.exec_()
     del app
+# }}}
