@@ -61,7 +61,10 @@ class FontMetrics(object):
     def postscript_name(self):
         if 'postscript_name' in self.names:
             return self.names['postscript_name'].replace(' ', '-')
-        return self.names['full_name'].replace(' ', '-')
+        try:
+            return self.names['full_name'].replace(' ', '-')
+        except KeyError:
+            return self.names['family_name'].replace(' ', '-')
 
     def underline_thickness(self, pixel_size=12.0):
         'Thickness for lines (in pixels) at the specified size'
