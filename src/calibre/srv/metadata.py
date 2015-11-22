@@ -120,7 +120,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts):
     # categories and grouped search terms
     last_category_node, category_node_map, root = None, {}, {'id':None, 'children':[]}
     node_id_map = {}
-    category_nodes = []
+    category_nodes, recount_nodes = [], []
     order = tweaks['tag_browser_category_order']
     defvalue = order.get('*', 100)
     categories = [category for category in field_metadata if category in category_data]
@@ -157,6 +157,8 @@ def create_toplevel_tree(category_data, items, field_metadata, opts):
                     )
                     node_id_map[last_category_node] = category_node_map[path] = node = {'id':last_category_node, 'children':[]}
                     category_nodes.append(last_category_node)
+                    if not is_gst:
+                        recount_nodes.append(node)
                     current_root['children'].append(node)
                     current_root = node
                 else:
@@ -172,7 +174,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts):
             root['children'].append(node)
             category_nodes.append(last_category_node)
 
-    return root, node_id_map, category_nodes
+    return root, node_id_map, category_nodes, recount_nodes
 
 def build_first_letter_list(category_items):
     # Build a list of 'equal' first letters by noticing changes
@@ -383,8 +385,11 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
 
 def render_categories(field_metadata, opts, category_data):
     items = {}
-    root, node_id_map, category_nodes = create_toplevel_tree(category_data, items, field_metadata, opts)
+    root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, field_metadata, opts)
     fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts)
+    for node in recount_nodes:
+        item = items[node['id']]
+        item['count'] = sum(1 for x in iternode_descendants(node) if not items[x['id']].get('is_user_category', False))
     if opts.hidden_categories:
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
