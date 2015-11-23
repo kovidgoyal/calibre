@@ -422,6 +422,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         sort_by = config['sort_tags_by']
 
         eval_formatter = EvalFormatter()
+        intermediate_nodes = {}
 
         if data is None:
             print ('_create_node_tree: no data!')
@@ -585,6 +586,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     if tag.id_set is not None:
                         n.id_set |= tag.id_set
                     category_child_map[tag.name, tag.category] = n
+                    intermediate_nodes[tag.original_name, tag.category] = tag
                 else:
                     for i,comp in enumerate(components):
                         if i == 0:
@@ -601,19 +603,23 @@ class TagsModel(QAbstractItemModel):  # {{{
                         else:
                             if i < len(components)-1:
                                 original_name = '.'.join(components[:i+1])
-                                t = copy.copy(tag)
-                                t.original_name = original_name
-                                t.count = 0
-                                if key != 'search':
-                                    # This 'manufactured' intermediate node can
-                                    # be searched, but cannot be edited.
-                                    t.is_editable = False
-                                else:
-                                    t.is_searchable = t.is_editable = False
+                                t = intermediate_nodes.get((original_name, tag.category), None)
+                                if t is None:
+                                    t = copy.copy(tag)
+                                    t.original_name = original_name
+                                    t.count = 0
+                                    if key != 'search':
+                                        # This 'manufactured' intermediate node can
+                                        # be searched, but cannot be edited.
+                                        t.is_editable = False
+                                    else:
+                                        t.is_searchable = t.is_editable = False
+                                    intermediate_nodes[original_name, tag.category] = t
                             else:
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
+                                intermediate_nodes[t.original_name, t.category] = t
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
