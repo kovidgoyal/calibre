@@ -251,7 +251,8 @@ def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is
 
 def process_category_node(
         category_node, items, category_data, eval_formatter, field_metadata,
-        opts, tag_map, hierarchical_tags, node_to_tag_map, collapse_nodes):
+        opts, tag_map, hierarchical_tags, node_to_tag_map, collapse_nodes,
+        intermediate_nodes):
     category = items[category_node['id']]['category']
     category_items = category_data[category]
     cat_len = len(category_items)
@@ -313,6 +314,7 @@ def process_category_node(
         ):  # A non-hierarchical leaf item in a non-hierarchical category
             node, item = create_tag_node(tag, node_parent)
             category_child_map[item['name'], item['category']] = node
+            intermediate_nodes[tag.category, tag.original_name] = node
         else:
             orig_node_parent = node_parent
             for i, component in enumerate(components):
@@ -331,15 +333,25 @@ def process_category_node(
                     hierarchical_tags.add(id(node_to_tag_map[node_parent['id']]))
                 else:
                     if i < len(components) - 1:  # Non-leaf node
-                        t = copy(tag)
-                        t.original_name, t.count = '.'.join(components[:i+1]), 0
-                        t.is_editable, t.is_searchable = False, category == 'search'
-                        node_parent, item = create_tag_node(t, node_parent)
-                        hierarchical_tags.add(id(t))
+                        original_name = '.'.join(components[:i+1])
+                        inode = intermediate_nodes.get((tag.category, original_name), None)
+                        if inode is None:
+                            t = copy(tag)
+                            t.original_name, t.count = original_name, 0
+                            t.is_editable, t.is_searchable = False, category == 'search'
+                            node_parent, item = create_tag_node(t, node_parent)
+                            hierarchical_tags.add(id(t))
+                            intermediate_nodes[tag.category, original_name] = node_parent
+                        else:
+                            item = items[inode['id']]
+                            ch = node_parent['children']
+                            node_parent = {'id':inode['id'], 'children':[]}
+                            ch.append(node_parent)
                     else:
                         node_parent, item = create_tag_node(tag, node_parent)
                         if not is_user_category:
                             item['original_name'] = tag.name
+                        intermediate_nodes[tag.category, tag.original_name] = node_parent
                     item['name'] = component
                     item['is_hierarchical'] = 3 if tag.category == 'search' else 5
                     hierarchical_tags.add(id(tag))
@@ -356,7 +368,7 @@ def iternode_descendants(node):
 def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts):
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
-    first, later, collapse_nodes = [], [], []
+    first, later, collapse_nodes, intermediate_nodes = [], [], [], {}
     # User categories have to be processed after normal categories as they can
     # reference hierarchical nodes that were created only during processing of
     # normal categories
@@ -370,7 +382,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
             process_category_node(
                 cnode, items, category_data, eval_formatter, field_metadata,
                 opts, tag_map, hierarchical_tags, node_to_tag_map,
-                collapse_nodes)
+                collapse_nodes, intermediate_nodes)
 
     # Do not store id_set in the tag items as it is a lot of data, with not
     # much use. Instead only update the counts based on id_set
