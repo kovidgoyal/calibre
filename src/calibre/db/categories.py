@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, re
+import copy
 from functools import partial
 from future_builtins import map
 
@@ -22,10 +22,10 @@ class Tag(object):
 
     __slots__ = ('name', 'original_name', 'id', 'count', 'state', 'is_hierarchical',
             'is_editable', 'is_searchable', 'id_set', 'avg_rating', 'sort',
-            'use_sort_as_name', 'tooltip', 'icon', 'category')
+            'use_sort_as_name', 'icon', 'category')
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 tooltip=None, icon=None, category=None, id_set=None,
+                 icon=None, category=None, id_set=None,
                  is_editable=True, is_searchable=True, use_sort_as_name=False):
         self.name = self.original_name = name
         self.id = id
@@ -38,20 +38,11 @@ class Tag(object):
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         self.use_sort_as_name = use_sort_as_name
-        if tooltip is None:
-            tooltip = '(%s:%s)'%(category, name)
-        if self.avg_rating > 0:
-            if tooltip:
-                tooltip = tooltip + ': '
-            tooltip = _('%(tt)sAverage rating is %(rating)3.1f')%dict(
-                    tt=tooltip, rating=self.avg_rating)
-        self.tooltip = tooltip
         self.icon = icon
         self.category = category
 
     def __unicode__(self):
-        return u'%s:%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state,
-                                  self.category, self.tooltip)
+        return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.category)
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -211,7 +202,6 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
             taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), items))
 
         # Add the category values to the user categories
-        tt_pattern = re.compile(':.*?\)')
         for user_cat in sorted(user_categories.iterkeys(), key=sort_key):
             items = []
             names_seen = {}
@@ -226,10 +216,8 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
                             other_tag = taglist[label][n]
                             t.id_set |= other_tag.id_set
                             t.count += other_tag.count
-                            t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
                         else:
                             t = copy.copy(taglist[label][n])
-                            t.tooltip = tt_pattern.sub(')', t.tooltip)
                             t.icon = gst_icon
                             names_seen[n] = t
                             items.append(t)
@@ -249,7 +237,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
         icon = icon_map['search']
     queries = dbcache._search_api.saved_searches.queries
     for srch in sorted(queries, key=sort_key):
-        items.append(Tag(srch, tooltip=queries[srch], sort=srch, icon=icon,
+        items.append(Tag(srch, sort=srch, icon=icon,
                          category='search', is_editable=False))
     if len(items):
         categories['search'] = items

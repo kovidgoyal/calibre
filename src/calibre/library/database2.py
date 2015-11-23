@@ -2123,7 +2123,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                             t = names_seen[n]
                             t.id_set |= taglist[label][n].id_set
                             t.count += taglist[label][n].count
-                            t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
                         else:
                             t = copy.copy(taglist[label][n])
                             t.icon = gst_icon
@@ -2152,7 +2151,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if icon_map and 'search' in icon_map:
                 icon = icon_map['search']
         for srch in saved_searches().names():
-            items.append(Tag(srch, tooltip=saved_searches().lookup(srch),
+            items.append(Tag(srch,
                              sort=srch, icon=icon, category='search',
                              is_editable=False))
         if len(items):
