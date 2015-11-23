@@ -12,7 +12,8 @@ from urllib import quote
 import cherrypy
 from lxml import html
 from lxml.html.builder import HTML, HEAD, TITLE, LINK, DIV, IMG, BODY, \
-        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR, H1, H2, META
+        OPTION, SELECT, INPUT, FORM, SPAN, TABLE, TR, TD, A, HR, \
+        H1, H2, H3, H4, H5, H6, LABEL, FOR, META
 
 from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import strftime, format_tag_string
@@ -29,9 +30,23 @@ def CLASS(*args, **kwargs):  # class is a reserved word in Python
     return kwargs
 
 
+def build_nav(num, search, sort, order, prefix):
+    nav = DIV(id='nav')
+
+    logo = A(CLASS('logo'),
+             IMG(src=prefix+'/static/calibre.png', alt=__appname__),
+             href="/")
+    search = build_search_box(num, search, sort, order, prefix)
+
+    nav.append(logo)
+    nav.append(search)
+
+    return nav
+
+
 def build_search_box(num, search, sort, order, prefix):  # {{{
-    div = DIV(id='search_box')
-    form = FORM('Show ', method='get', action=prefix+'/mobile')
+    div = DIV(id='search')
+    form = FORM(method='get', action=prefix+'/mobile')
     form.set('accept-charset', 'UTF-8')
 
     div.append(form)
@@ -43,11 +58,12 @@ def build_search_box(num, search, sort, order, prefix):  # {{{
             kwargs['SELECTED'] = 'SELECTED'
         num_select.append(OPTION(str(option), **kwargs))
     num_select.tail = ' books matching '
-    form.append(num_select)
+    #form.append(num_select)
+    form.append(INPUT(type='hidden', name='num', value='25'))
 
-    searchf = INPUT(name='search', id='s', value=search if search else '')
-    searchf.tail = ' sorted by '
-    form.append(searchf)
+    search_input = INPUT(name='search', id='search_query', placeholder='Search Books', value=search if search else '')
+    #searchf.tail = ' sorted by '
+    form.append(search_input)
 
     sort_select = SELECT(name='sort')
     for option in ('date','author','title','rating','size','tags','series'):
@@ -55,7 +71,8 @@ def build_search_box(num, search, sort, order, prefix):  # {{{
         if option == sort:
             kwargs['SELECTED'] = 'SELECTED'
         sort_select.append(OPTION(option, **kwargs))
-    form.append(sort_select)
+    #form.append(sort_select)
+    form.append(INPUT(type='hidden', name='sort', value='date'))
 
     order_select = SELECT(name='order')
     for option in ('ascending','descending'):
@@ -63,9 +80,10 @@ def build_search_box(num, search, sort, order, prefix):  # {{{
         if option == order:
             kwargs['SELECTED'] = 'SELECTED'
         order_select.append(OPTION(option, **kwargs))
-    form.append(order_select)
+    #form.append(order_select)
+    form.append(INPUT(type='hidden', name='order', value='descending'))
 
-    form.append(INPUT(id='go', type='submit', value='Search'))
+    form.append(INPUT(type='submit', value='Search'))
 
     return div
     # }}}
@@ -101,18 +119,41 @@ def build_navigation(start, num, total, url_base):  # {{{
 def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         prefix, have_kobo_browser=False):
 
-    logo = DIV(IMG(src=prefix+'/static/calibre.png', alt=__appname__), id='navigation')
+    nav = build_nav(num, search, sort, order, prefix)
 
-    search_box = build_search_box(num, search, sort, order, prefix)
-    navigation = build_navigation(start, num, total, prefix+url_base)
-    navigation2 = build_navigation(start, num, total, prefix+url_base)
-    bookt = DIV(id='listing')
+    # Don't show navigation if there's just one page.
+    if start == 1 and total <= num:
+        navigation = DIV()
+        navigation2 = DIV()
+    else:
+        navigation = build_navigation(start, num, total, prefix+url_base)
+        navigation2 = build_navigation(start, num, total, prefix+url_base)
+
+    if len(books) == 0:
+        book_list = DIV(CLASS('empty'), id='listing')
+    else:
+        book_list = DIV(id='listing')
+
+    if search is None or search == '':
+        page_title = DIV(H1('Your Book Library'),
+                         DIV(unicode(total)+' books in your collection', CLASS('subtitle')),
+                         CLASS('page-title collection'))
+        if len(books) == 0:
+            book_list.append(DIV(u'You don\'t have any books in your Calibre library yet.', CLASS('empty-prompt')))
+    else:
+        page_title = DIV(H1('Results for "'+ clean_xml_chars(search) +'"'),
+                         DIV(unicode(total)+' books found', CLASS('subtitle')),
+                         CLASS('page-title search'))
+
+        if len(books) == 0:
+            book_list.append(DIV(u'There are no results for "'+ clean_xml_chars(search) +'"', CLASS('empty-prompt')))
+            book_list.append(DIV(A(u'Back to your library', href="/"), CLASS('empty-suggestion')))
 
     body = BODY(
-        logo,
-        search_box,
+        nav,
+        page_title,
         navigation,
-        bookt,
+        book_list,
         navigation2
     )
 
@@ -177,16 +218,17 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         authors = DIV(u'%s' % (clean_xml_chars(book['authors'])), CLASS('book_author'))
         title.append(authors)
 
-        bookt.append(DIV(CLASS('book'), thumbnail, data))
+        book_list.append(DIV(CLASS('book'), thumbnail, data))
     # }}}
 
-    body.append(DIV(
-        A(_('Switch to the full interface (non-mobile interface)'),
+    switch_to_full = DIV(
+        A(_('Switch to the desktop version'),
             href=prefix+"/browse",
-            style="text-decoration: none; color: blue",
             title=_('The full interface gives you many more features, '
                 'but it may not work well on a small screen')),
-        style="text-align:center"))
+        CLASS('prompt-desktop-version'))
+
+    body.append(switch_to_full)
 
     return HTML(
         HEAD(
