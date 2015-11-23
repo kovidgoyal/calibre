@@ -79,7 +79,7 @@ def category_item_as_json(x, clear_rating=False):
     for k in _include_fields:
         val = getattr(x, k)
         if val is not None:
-            ans[k] = val
+            ans[k] = val.copy() if isinstance(val, set) else val
     if x.use_sort_as_name:
         ans['name'] = ans['sort']
     if x.original_name != ans['name']:
