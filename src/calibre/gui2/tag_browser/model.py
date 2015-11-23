@@ -73,6 +73,7 @@ class TagTreeItem(object):  # {{{
                    is_searchable=category_key not in ['search'])
         elif self.type == self.TAG:
             self.tag = data
+            self.cached_average_rating = None
 
         self.tooltip = tooltip or ''
 
@@ -119,6 +120,8 @@ class TagTreeItem(object):  # {{{
             return self.tag.avg_rating
         if not self.children:
             return self.tag.avg_rating  # leaf node, avg_rating is correct
+        if self.cached_average_rating:
+            return self.cached_average_rating
         total = num = 0
         for child in self.children:
             r = child.average_rating
@@ -129,7 +132,8 @@ class TagTreeItem(object):  # {{{
             total += 1
             num += self.tag.avg_rating
         try:
-            return num/float(total)
+            self.cached_average_rating = num/float(total)
+            return self.cached_average_rating
         except ZeroDivisionError:
             return 0
 
