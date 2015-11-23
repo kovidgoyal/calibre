@@ -523,6 +523,9 @@ def test_tag_browser(library_path=None):
     m = TagsModel(None, prefs)
     m.set_database(olddb, opts.hidden_categories)
     m_data = dump_tags_model(m)
+    if m_data == srv_data:
+        print('No differences found in the two Tag Browser implementations')
+        raise SystemExit(0)
     from calibre.gui2.tweak_book.diff.main import Diff
     d = Diff(show_as_window=True)
     d.string_diff(m_data, srv_data, left_name='GUI', right_name='server')
