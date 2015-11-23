@@ -47,7 +47,6 @@ class TagTreeItem(object):  # {{{
         self.parent = parent
         self.children = []
         self.blank = QIcon()
-        self.id_set = set()
         self.is_gst = False
         self.boxed = False
         self.icon_state_map = list(icon_map)
@@ -154,7 +153,7 @@ class TagTreeItem(object):  # {{{
             else:
                 name = tag.name
         if role == Qt.DisplayRole:
-            count = len(self.id_set)
+            count = len(tag.id_set)
             count = count if count > 0 else tag.count
             if count == 0:
                 return ('%s'%(name))
@@ -191,7 +190,7 @@ class TagTreeItem(object):  # {{{
                 name = tag.original_name
             else:
                 name = tag.name
-        count = len(self.id_set)
+        count = len(tag.id_set)
         count = count if count > 0 else tag.count
         rating = self.average_rating
         if rating:
@@ -586,8 +585,6 @@ class TagsModel(QAbstractItemModel):  # {{{
                         tag.icon = self.category_custom_icons[key]
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
-                    if tag.id_set is not None:
-                        n.id_set |= tag.id_set
                     category_child_map[tag.name, tag.category] = n
                     intermediate_nodes[tag.original_name, tag.category] = tag
                 else:
@@ -603,6 +600,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                             node_parent = child_map[(comp,tag.category)]
                             node_parent.tag.is_hierarchical = \
                                 '5state' if tag.category != 'search' else '3state'
+                            if tag.id_set is not None and node_parent.tag.id_set is not None:
+                                node_parent.tag.id_set |= tag.id_set
                         else:
                             if i < len(components)-1:
                                 original_name = '.'.join(components[:i+1])
@@ -630,8 +629,6 @@ class TagsModel(QAbstractItemModel):  # {{{
                             node_parent = self.create_node(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
-                        # This id_set must not be None
-                        node_parent.id_set |= tag.id_set
             return
         # }}}
 
