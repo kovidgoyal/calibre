@@ -213,7 +213,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                             total_rating = 0
                             count = 0
                             for id_ in t.id_set:
-                                rating = book_rating_map[id_]
+                                rating = book_rating_map.get(id_, 0)
                                 if rating:
                                     total_rating += rating/2
                                     count += 1
