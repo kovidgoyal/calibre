@@ -113,7 +113,10 @@ class TagTreeItem(object):  # {{{
         if self.tag.avg_rating:
             total += 1
             num += self.tag.avg_rating
-        return num/float(total)
+        try:
+            return num/float(total)
+        except ZeroDivisionError:
+            return 0
 
     def data(self, role):
         if role == Qt.UserRole:
