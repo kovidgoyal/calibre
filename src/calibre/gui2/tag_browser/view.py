@@ -42,13 +42,14 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             painter.restore()
         if item.type != TagTreeItem.TAG:
             return
-        if (item.tag.state == 0 and config['show_avg_rating'] and
-                item.tag.avg_rating is not None):
+        if item.tag.state == 0 and config['show_avg_rating']:
+            rating = item.average_rating
+            if rating is None:
+                return
             r = style.subElementRect(style.SE_ItemViewItemDecoration,
                     option, widget)
             icon = option.icon
             painter.save()
-            rating = item.tag.avg_rating
             nr = r.adjusted(0, 0, 0, 0)
             nr.setBottom(r.bottom()-int(r.height()*(rating/5.0)))
             painter.setClipRect(nr)

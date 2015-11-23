@@ -72,7 +72,7 @@ class TagTreeItem(object):  # {{{
             self.icon_state_map[0] = data.icon
             self.tag = data
 
-        self.tooltip = (tooltip + ' ') if tooltip else ''
+        self.tooltip = tooltip or ''
 
     def break_cycles(self):
         del self.parent
@@ -96,6 +96,25 @@ class TagTreeItem(object):  # {{{
         child.parent = self
         self.children.append(child)
 
+    @property
+    def average_rating(self):
+        if self.type != self.TAG:
+            return 0
+        if not self.tag.is_hierarchical:
+            return self.tag.avg_rating
+        if not self.children:
+            return self.tag.avg_rating  # leaf node, avg_rating is correct
+        total = num = 0
+        for child in self.children:
+            r = child.average_rating
+            if r:
+                total += 1
+                num += r
+        if self.tag.avg_rating:
+            total += 1
+            num += self.tag.avg_rating
+        return num/float(total)
+
     def data(self, role):
         if role == Qt.UserRole:
             return self
@@ -116,8 +135,8 @@ class TagTreeItem(object):  # {{{
             return self.icon
         if role == Qt.FontRole:
             return bf()
-        if role == Qt.ToolTipRole and self.tooltip is not None:
-            return (self.tooltip)
+        if role == Qt.ToolTipRole:
+            return self.tooltip
         if role == DRAG_IMAGE_ROLE:
             return self.icon
         return None
@@ -126,13 +145,11 @@ class TagTreeItem(object):  # {{{
         tag = self.tag
         if tag.use_sort_as_name:
             name = tag.sort
-            tt_author = True
         else:
             if not tag.is_hierarchical:
                 name = tag.original_name
             else:
                 name = tag.name
-            tt_author = False
         if role == Qt.DisplayRole:
             count = len(self.id_set)
             count = count if count > 0 else tag.count
@@ -145,15 +162,14 @@ class TagTreeItem(object):  # {{{
         if role == Qt.DecorationRole:
             return self.icon_state_map[tag.state]
         if role == Qt.ToolTipRole:
-            if tt_author:
-                if tag.tooltip is not None:
-                    return ('(%s) %s'%(tag.name, tag.tooltip))
-                else:
-                    return (tag.name)
-            if tag.tooltip:
-                return (self.tooltip + tag.tooltip)
-            else:
-                return (self.tooltip)
+            tt = [self.tooltip] if self.tooltip else []
+            tt.append('%s:%s' % (tag.category, tag.original_name))
+            ar = self.average_rating
+            if ar:
+                tt.append(_('Average rating for books in this category: %.1f') % ar)
+            elif self.type == self.TAG and ar is not None:
+                tt.append(_('Books in this category are unrated'))
+            return '\n'.join(tt)
         if role == DRAG_IMAGE_ROLE:
             return self.icon_state_map[0]
         return None
@@ -172,7 +188,7 @@ class TagTreeItem(object):  # {{{
                 name = tag.name
         count = len(self.id_set)
         count = count if count > 0 else tag.count
-        rating = tag.avg_rating or 0
+        rating = self.average_rating
         if rating:
             rating = ',rating=%.1f' % rating
         return fmt % (name, count, rating or '')
