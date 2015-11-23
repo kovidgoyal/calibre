@@ -16,6 +16,7 @@ from calibre.db.categories import Tag
 from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
 from calibre.utils.config import tweaks, JSONConfig
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.icu import collation_order
 from calibre.library.field_metadata import category_icon_map
 
@@ -124,6 +125,9 @@ def icon_map():
             for k, v in custom_icons.iteritems():
                 if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
                     _icon_map[k] = '_' + v
+            _icon_map['file_type_icons'] = {
+                k:'mimetypes/%s.png' % v for k, v in EXT_MAP.iteritems()
+            }
         return _icon_map
 
 def categories_settings(query, db):
