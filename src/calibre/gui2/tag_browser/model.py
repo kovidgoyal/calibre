@@ -184,7 +184,10 @@ class TagTreeItem(object):  # {{{
             return self.icon_state_map[tag.state]
         if role == Qt.ToolTipRole:
             tt = [self.tooltip] if self.tooltip else []
-            tt.append('%s:%s' % (tag.category, tag.original_name))
+            if tag.original_categories:
+                tt.append('%s:%s' % (','.join(tag.original_categories), tag.original_name))
+            else:
+                tt.append('%s:%s' % (tag.category, tag.original_name))
             ar = self.average_rating
             if ar:
                 tt.append(_('Average rating for books in this category: %.1f') % ar)
