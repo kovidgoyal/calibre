@@ -46,6 +46,7 @@ class LibraryBroker(object):
             self.lmap[library_id] = path
         self.category_caches = {lid:OrderedDict() for lid in self.lmap}
         self.search_caches = {lid:OrderedDict() for lid in self.lmap}
+        self.tag_browser_caches = {lid:OrderedDict() for lid in self.lmap}
 
     def get(self, library_id=None):
         with self.lock:
@@ -121,6 +122,22 @@ class Context(object):
             if old is None or old[0] <= db.last_modified():
                 categories = db.get_categories(book_ids=restrict_to_ids, sort=sort, first_letter_sort=first_letter_sort)
                 cache[key] = old = (utcnow(), categories)
+                if len(cache) > self.CATEGORY_CACHE_SIZE:
+                    cache.popitem(last=False)
+            else:
+                cache[key] = old
+            return old[1]
+
+    def get_tag_browser(self, data, db, opts, render, restrict_to_ids=None):
+        if restrict_to_ids is None:
+            restrict_to_ids = self.allowed_book_ids(data, db)
+        key = (restrict_to_ids, opts)
+        with self.lock:
+            cache = self.library_broker.category_caches[db.server_library_id]
+            old = cache.pop(key, None)
+            if old is None or old[0] <= db.last_modified():
+                categories = db.get_categories(book_ids=restrict_to_ids, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
+                cache[key] = old = (utcnow(), render(categories))
                 if len(cache) > self.CATEGORY_CACHE_SIZE:
                     cache.popitem(last=False)
             else:

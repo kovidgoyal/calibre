@@ -7,6 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 from copy import copy
 from collections import namedtuple
 from datetime import datetime, time
+from functools import partial
 
 from calibre.db.categories import Tag
 from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
@@ -92,6 +93,21 @@ def category_item_as_json(x, clear_rating=False):
 CategoriesSettings = namedtuple(
     'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by template using_hierarchy grouped_search_terms hidden_categories')
 
+class GroupedSearchTerms(object):
+
+    __slots__ = ('keys', 'vals', 'hash')
+
+    def __init__(self, src):
+        self.keys = frozenset(src)
+        self.vals = frozenset(tuple(v) for v in src.itervalues())
+        self.hash = hash((self.keys, self.vals))
+
+    def __contains__(self, val):
+        return val in self.keys
+
+    def __hash__(self):
+        return self.hash
+
 def categories_settings(query, db):
     dont_collapse = frozenset(query.get('dont_collapse', '').split(','))
     partition_method = query.get('partition_method', 'first letter')
@@ -111,9 +127,11 @@ def categories_settings(query, db):
             collapse_model = 'partition'
         template = tweaks['categories_collapsed_%s_template' % sort_by]
     using_hierarchy = frozenset(db.pref('categories_using_hierarchy', []))
-    hidden_categories = db.pref('tag_browser_hidden_categories', set())
+    hidden_categories = frozenset(db.pref('tag_browser_hidden_categories', set()))
     return CategoriesSettings(
-        dont_collapse, collapse_model, collapse_at, sort_by, template, using_hierarchy, db.pref('grouped_search_terms', {}), hidden_categories)
+        dont_collapse, collapse_model, collapse_at, sort_by, template,
+        using_hierarchy, GroupedSearchTerms(db.pref('grouped_search_terms', {})),
+        hidden_categories)
 
 def create_toplevel_tree(category_data, items, field_metadata, opts):
     # Create the basic tree, containing all top level categories , user
@@ -446,8 +464,7 @@ def render_categories(field_metadata, opts, category_data):
 
 def categories_as_json(ctx, rd, db):
     opts = categories_settings(rd.query, db)
-    category_data = ctx.get_categories(rd, db, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
-    render_categories(db.field_metadata, opts, category_data)
+    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, db.field_metadata, opts))
 
 # Test tag browser {{{
 
