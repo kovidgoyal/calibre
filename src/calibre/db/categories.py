@@ -12,7 +12,6 @@ from functools import partial
 from future_builtins import map
 
 from calibre.ebooks.metadata import author_to_author_sort
-from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key, collation_order
 
@@ -22,10 +21,10 @@ class Tag(object):
 
     __slots__ = ('name', 'original_name', 'id', 'count', 'state', 'is_hierarchical',
             'is_editable', 'is_searchable', 'id_set', 'avg_rating', 'sort',
-            'use_sort_as_name', 'icon', 'category', 'search_expression')
+            'use_sort_as_name', 'category', 'search_expression')
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 icon=None, category=None, id_set=None, search_expression=None,
+                 category=None, id_set=None, search_expression=None,
                  is_editable=True, is_searchable=True, use_sort_as_name=False):
         self.name = self.original_name = name
         self.id = id
@@ -38,7 +37,6 @@ class Tag(object):
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         self.use_sort_as_name = use_sort_as_name
-        self.icon = icon
         self.category = category
         self.search_expression = search_expression
 
@@ -59,18 +57,9 @@ def find_categories(field_metadata):
               cat['display'].get('make_category', False)):
             yield (category, cat['is_multiple'].get('cache_to_list', None), True)
 
-def create_tag_class(category, fm, icon_map):
+def create_tag_class(category, fm):
     cat = fm[category]
     dt = cat['datatype']
-    icon = None
-    label = fm.key_to_label(category)
-    if icon_map:
-        if not fm.is_custom_field(category):
-            if category in icon_map:
-                icon = icon_map[label]
-        else:
-            icon = icon_map['custom:']
-            icon_map[category] = icon
     is_editable = category not in {'news', 'rating', 'languages', 'formats',
                                    'identifiers'} and dt != 'composite'
 
@@ -83,8 +72,8 @@ def create_tag_class(category, fm, icon_map):
     else:
         use_sort_as_name = False
 
-    return partial(Tag, use_sort_as_name=use_sort_as_name, icon=icon,
-                        is_editable=is_editable, category=category)
+    return partial(Tag, use_sort_as_name=use_sort_as_name,
+                   is_editable=is_editable, category=category)
 
 def clean_user_categories(dbcache):
     user_cats = dbcache.pref('user_categories', {})
@@ -121,10 +110,7 @@ def sort_categories(items, sort, first_letter_sort=False):
     items.sort(key=key)
     return items
 
-def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
-                   first_letter_sort=False):
-    if icon_map is not None and type(icon_map) != TagsIcons:
-        raise TypeError('icon_map passed to get_categories must be of type TagIcons')
+def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False):
     if sort not in CATEGORY_SORTS:
         raise ValueError('sort ' + sort + ' not a valid value')
 
@@ -145,7 +131,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
     bids = None
 
     for category, is_multiple, is_composite in find_categories(fm):
-        tag_class = create_tag_class(category, fm, icon_map)
+        tag_class = create_tag_class(category, fm)
         if is_composite:
             if bids is None:
                 bids = dbcache._all_book_ids() if book_ids is None else book_ids
@@ -190,7 +176,6 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
         for sc in gst[c]:
             for t in categories.get(sc, ()):
                 user_categories[c].append([t.name, sc, 0])
-    gst_icon = icon_map['gst'] if icon_map else None
 
     if user_categories:
         # We want to use same node in the user category as in the source
@@ -219,30 +204,21 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
                             t.count += other_tag.count
                         else:
                             t = copy.copy(taglist[label][n])
-                            t.icon = gst_icon
                             names_seen[n] = t
                             items.append(t)
                     else:
                         items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
-            # Not a problem if we accumulate entries in the icon map
-            if icon_map is not None:
-                icon_map[cat_name] = icon_map['user:']
             categories[cat_name] = sort_categories(items, sort)
 
     # ### Finally, the saved searches category ####
     items = []
-    icon = None
-    if icon_map and 'search' in icon_map:
-        icon = icon_map['search']
     queries = dbcache._search_api.saved_searches.queries
     for srch in sorted(queries, key=sort_key):
-        items.append(Tag(srch, sort=srch, icon=icon, search_expression=queries[srch],
+        items.append(Tag(srch, sort=srch, search_expression=queries[srch],
                          category='search', is_editable=False))
     if len(items):
         categories['search'] = items
 
     return categories
-
-

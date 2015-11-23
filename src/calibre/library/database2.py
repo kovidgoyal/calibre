@@ -17,7 +17,7 @@ from calibre.ebooks.metadata import (title_sort, author_to_author_sort,
         string_to_authors, get_title_sort_pat)
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.database import LibraryDatabase
-from calibre.library.field_metadata import FieldMetadata, TagsIcons
+from calibre.library.field_metadata import FieldMetadata
 from calibre.library.schema_upgrades import SchemaUpgrade
 from calibre.library.caches import ResultCache
 from calibre.library.custom_columns import CustomColumns
@@ -1770,8 +1770,6 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
     def get_categories(self, sort='name', ids=None, icon_map=None):
         #start = last = time.clock()
-        if icon_map is not None and type(icon_map) != TagsIcons:
-            raise TypeError('icon_map passed to get_categories must be of type TagIcons')
         if sort not in self.CATEGORY_SORTS:
             raise ValueError('sort ' + sort + ' not a valid value')
 
@@ -2010,7 +2008,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             is_editable = (category not in ['news', 'rating', 'languages'] and
                                 datatype != "composite")
             categories[category] = [tag_class(formatter(r.n), count=r.c, id=r.id,
-                                        avg=avgr(r), sort=r.s, icon=icon,
+                                        avg=avgr(r), sort=r.s,
                                         category=category,
                                         id_set=r.id_set, is_editable=is_editable,
                                         use_sort_as_name=use_sort_as_name)
@@ -2049,7 +2047,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                        WHERE format=?''', (fmt,),
                                        all=False)
             if count > 0:
-                categories['formats'].append(Tag(fmt, count=count, icon=icon,
+                categories['formats'].append(Tag(fmt, count=count,
                                                  category='formats', is_editable=False))
 
         if sort == 'popularity':
@@ -2077,7 +2075,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                        WHERE type=?''', (ident,),
                                        all=False)
             if count > 0:
-                categories['identifiers'].append(Tag(ident, count=count, icon=icon,
+                categories['identifiers'].append(Tag(ident, count=count,
                                                  category='identifiers',
                                                  is_editable=False))
 
@@ -2152,7 +2150,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon = icon_map['search']
         for srch in saved_searches().names():
             items.append(Tag(srch,
-                             sort=srch, icon=icon, category='search',
+                             sort=srch, category='search',
                              is_editable=False))
         if len(items):
             if icon_map is not None:

@@ -348,7 +348,7 @@ class ReadingTest(BaseTest):
             for attr in ('name', 'original_name', 'id', 'count',
                          'is_hierarchical', 'is_editable', 'is_searchable',
                          'id_set', 'avg_rating', 'sort', 'use_sort_as_name',
-                         'icon', 'category'):
+                         'category'):
                 oval, nval = getattr(old, attr), getattr(new, attr)
                 if (
                     (category in {'rating', '#rating'} and attr in {'id_set', 'sort'}) or
