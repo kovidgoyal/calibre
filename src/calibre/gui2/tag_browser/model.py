@@ -169,6 +169,8 @@ class TagTreeItem(object):  # {{{
                 tt.append(_('Average rating for books in this category: %.1f') % ar)
             elif self.type == self.TAG and ar is not None:
                 tt.append(_('Books in this category are unrated'))
+            if self.type == self.TAG and self.tag.category == 'search':
+                tt.append(_('Search expression:') + ' ' + self.tag.search_expression)
             return '\n'.join(tt)
         if role == DRAG_IMAGE_ROLE:
             return self.icon_state_map[0]

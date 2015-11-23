@@ -22,10 +22,10 @@ class Tag(object):
 
     __slots__ = ('name', 'original_name', 'id', 'count', 'state', 'is_hierarchical',
             'is_editable', 'is_searchable', 'id_set', 'avg_rating', 'sort',
-            'use_sort_as_name', 'icon', 'category')
+            'use_sort_as_name', 'icon', 'category', 'search_expression')
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 icon=None, category=None, id_set=None,
+                 icon=None, category=None, id_set=None, search_expression=None,
                  is_editable=True, is_searchable=True, use_sort_as_name=False):
         self.name = self.original_name = name
         self.id = id
@@ -40,6 +40,7 @@ class Tag(object):
         self.use_sort_as_name = use_sort_as_name
         self.icon = icon
         self.category = category
+        self.search_expression = search_expression
 
     def __unicode__(self):
         return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.category)
@@ -237,7 +238,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
         icon = icon_map['search']
     queries = dbcache._search_api.saved_searches.queries
     for srch in sorted(queries, key=sort_key):
-        items.append(Tag(srch, sort=srch, icon=icon,
+        items.append(Tag(srch, sort=srch, icon=icon, search_expression=queries[srch],
                          category='search', is_editable=False))
     if len(items):
         categories['search'] = items
