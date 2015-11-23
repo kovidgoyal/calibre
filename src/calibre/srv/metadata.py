@@ -118,7 +118,7 @@ def icon_map():
         _icon_map = category_icon_map.copy()
         custom_icons = JSONConfig('gui').get('tags_browser_category_icons', {})
         for k, v in custom_icons.iteritems():
-            if os.path.exists(os.path.join(config_dir, 'tb_icons', v)):
+            if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
                 _icon_map[k] = '_' + v
     return _icon_map
 
