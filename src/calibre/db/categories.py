@@ -21,11 +21,12 @@ class Tag(object):
 
     __slots__ = ('name', 'original_name', 'id', 'count', 'state', 'is_hierarchical',
             'is_editable', 'is_searchable', 'id_set', 'avg_rating', 'sort',
-            'use_sort_as_name', 'category', 'search_expression')
+            'use_sort_as_name', 'category', 'search_expression', 'original_categories')
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
                  category=None, id_set=None, search_expression=None,
-                 is_editable=True, is_searchable=True, use_sort_as_name=False):
+                 is_editable=True, is_searchable=True, use_sort_as_name=False,
+                 original_categories=None):
         self.name = self.original_name = name
         self.id = id
         self.count = count
@@ -39,6 +40,7 @@ class Tag(object):
         self.use_sort_as_name = use_sort_as_name
         self.category = category
         self.search_expression = search_expression
+        self.original_categories = None
 
     def __unicode__(self):
         return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.category)
@@ -198,12 +200,29 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                     if user_cat_is_gst:
                         # for gst items, make copy and consolidate the tags by name.
                         if n in names_seen:
+                            # We must combine this node into a previous one with
+                            # the same name ignoring case. As part of the process,
+                            # remember the source categories and correct the
+                            # average rating
                             t = names_seen[n]
                             other_tag = taglist[label][n]
                             t.id_set |= other_tag.id_set
-                            t.count += other_tag.count
+                            t.count = len(t.id_set)
+                            t.original_categories.add(other_tag.category)
+
+                            total_rating = 0
+                            count = 0
+                            for id_ in t.id_set:
+                                rating = book_rating_map[id_]
+                                if rating:
+                                    total_rating += rating/2
+                                    count += 1
+                            if total_rating and count:
+                                t.avg_rating = total_rating/count
                         else:
-                            t = copy.copy(taglist[label][n])
+                            # Must deepcopy so we don't share the id_set between nodes
+                            t = copy.deepcopy(taglist[label][n])
+                            t.original_categories = {t.category}
                             names_seen[n] = t
                             items.append(t)
                     else:

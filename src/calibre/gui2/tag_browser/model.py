@@ -73,6 +73,8 @@ class TagTreeItem(object):  # {{{
                    is_searchable=category_key not in ['search'])
         elif self.type == self.TAG:
             self.tag = data
+            self.cached_average_rating = None
+            self.cached_item_count = None
 
         self.tooltip = tooltip or ''
 
@@ -119,6 +121,8 @@ class TagTreeItem(object):  # {{{
             return self.tag.avg_rating
         if not self.children:
             return self.tag.avg_rating  # leaf node, avg_rating is correct
+        if self.cached_average_rating:
+            return self.cached_average_rating
         total = num = 0
         for child in self.children:
             r = child.average_rating
@@ -129,9 +133,25 @@ class TagTreeItem(object):  # {{{
             total += 1
             num += self.tag.avg_rating
         try:
-            return num/float(total)
+            self.cached_average_rating = num/float(total)
         except ZeroDivisionError:
-            return 0
+            self.cached_average_rating = 0
+        return self.cached_average_rating
+
+    @property
+    def item_count(self):
+        if not self.tag.is_hierarchical or not self.children:
+            return self.tag.count
+        if self.cached_item_count:
+            return self.cached_item_count
+
+        def child_item_set(node):
+            s = node.tag.id_set.copy()
+            for child in node.children:
+                s |= child_item_set(child)
+            return s
+        self.cached_item_count = len(child_item_set(self))
+        return self.cached_item_count
 
     def data(self, role):
         if role == Qt.UserRole:
@@ -170,8 +190,7 @@ class TagTreeItem(object):  # {{{
             else:
                 name = tag.name
         if role == Qt.DisplayRole:
-            count = len(tag.id_set)
-            count = count if count > 0 else tag.count
+            count = self.item_count
             if count == 0:
                 return ('%s'%(name))
             else:
@@ -184,7 +203,10 @@ class TagTreeItem(object):  # {{{
             return self.icon_state_map[tag.state]
         if role == Qt.ToolTipRole:
             tt = [self.tooltip] if self.tooltip else []
-            tt.append('%s:%s' % (tag.category, tag.original_name))
+            if tag.original_categories:
+                tt.append('%s:%s' % (','.join(tag.original_categories), tag.original_name))
+            else:
+                tt.append('%s:%s' % (tag.category, tag.original_name))
             ar = self.average_rating
             if ar:
                 tt.append(_('Average rating for books in this category: %.1f') % ar)
@@ -210,8 +232,7 @@ class TagTreeItem(object):  # {{{
                 name = tag.original_name
             else:
                 name = tag.name
-        count = len(tag.id_set)
-        count = count if count > 0 else tag.count
+        count = self.item_count
         rating = self.average_rating
         if rating:
             rating = ',rating=%.1f' % rating
@@ -591,7 +612,6 @@ class TagsModel(QAbstractItemModel):  # {{{
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     category_child_map[tag.name, tag.category] = n
-                    intermediate_nodes[tag.original_name, tag.category] = tag
                 else:
                     for i,comp in enumerate(components):
                         if i == 0:
@@ -603,10 +623,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                                             if t.type != TagTreeItem.CATEGORY])
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
-                            node_parent.tag.is_hierarchical = \
-                                '5state' if tag.category != 'search' else '3state'
-                            if tag.id_set is not None and node_parent.tag.id_set is not None:
-                                node_parent.tag.id_set |= tag.id_set
+                            t = node_parent.tag
+                            t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
+                            intermediate_nodes[t.original_name, t.category] = t
                         else:
                             if i < len(components)-1:
                                 original_name = '.'.join(components[:i+1])
