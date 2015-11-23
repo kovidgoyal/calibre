@@ -9,6 +9,7 @@ from copy import copy
 from collections import namedtuple
 from datetime import datetime, time
 from functools import partial
+from threading import Lock
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag
@@ -112,15 +113,18 @@ class GroupedSearchTerms(object):
         return self.hash
 
 _icon_map = None
+_icon_map_lock = Lock()
+
 def icon_map():
     global _icon_map
-    if _icon_map is None:
-        _icon_map = category_icon_map.copy()
-        custom_icons = JSONConfig('gui').get('tags_browser_category_icons', {})
-        for k, v in custom_icons.iteritems():
-            if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
-                _icon_map[k] = '_' + v
-    return _icon_map
+    with _icon_map_lock:
+        if _icon_map is None:
+            _icon_map = category_icon_map.copy()
+            custom_icons = JSONConfig('gui').get('tags_browser_category_icons', {})
+            for k, v in custom_icons.iteritems():
+                if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
+                    _icon_map[k] = '_' + v
+        return _icon_map
 
 def categories_settings(query, db):
     dont_collapse = frozenset(query.get('dont_collapse', '').split(','))
