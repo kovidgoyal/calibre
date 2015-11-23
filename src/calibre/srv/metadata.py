@@ -252,7 +252,7 @@ def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is
 def process_category_node(
         category_node, items, category_data, eval_formatter, field_metadata,
         opts, tag_map, hierarchical_tags, node_to_tag_map, collapse_nodes,
-        intermediate_nodes):
+        intermediate_nodes, hierarchical_nodes):
     category = items[category_node['id']]['category']
     category_items = category_data[category]
     cat_len = len(category_items)
@@ -288,6 +288,8 @@ def process_category_node(
         else:
             node_id, node_data = node_data
         node = {'id':node_id, 'children':[]}
+        if node_id not in hierarchical_nodes:
+            hierarchical_nodes[node_id] = node
         parent['children'].append(node)
         return node, node_data
 
@@ -329,7 +331,10 @@ def process_category_node(
                 cm_key = component, tag.category
                 if cm_key in child_map:
                     node_parent = child_map[cm_key]
-                    items[node_parent['id']]['is_hierarchical'] = 3 if tag.category == 'search' else 5
+                    node_id = node_parent['id']
+                    items[node_id]['is_hierarchical'] = 3 if tag.category == 'search' else 5
+                    if node_id not in hierarchical_nodes:
+                        hierarchical_nodes[node_id] = node_parent
                     hierarchical_tags.add(id(node_to_tag_map[node_parent['id']]))
                 else:
                     if i < len(components) - 1:  # Non-leaf node
@@ -368,7 +373,7 @@ def iternode_descendants(node):
 def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts):
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
-    first, later, collapse_nodes, intermediate_nodes = [], [], [], {}
+    first, later, collapse_nodes, intermediate_nodes, hierarchical_nodes = [], [], [], {}, {}
     # User categories have to be processed after normal categories as they can
     # reference hierarchical nodes that were created only during processing of
     # normal categories
@@ -382,7 +387,7 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
             process_category_node(
                 cnode, items, category_data, eval_formatter, field_metadata,
                 opts, tag_map, hierarchical_tags, node_to_tag_map,
-                collapse_nodes, intermediate_nodes)
+                collapse_nodes, intermediate_nodes, hierarchical_nodes)
 
     # Do not store id_set in the tag items as it is a lot of data, with not
     # much use. Instead only update the counts based on id_set
@@ -394,6 +399,37 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
     for node in collapse_nodes:
         item = items[node['id']]
         item['count'] = sum(1 for _ in iternode_descendants(node))
+
+    # Calculate correct avg_rating for hierarchical category items
+    calculated = {}
+
+    def set_average_rating(item_id, children):
+        cr = calculated.get(item_id, None)
+        if cr is not None:
+            return cr
+        item = items[item_id]
+        if not item.get('is_hierarchical', False) or not children:
+            return item.get('avg_rating', 0)
+        total = num = 0
+        for child in children:
+            r = set_average_rating(child['id'], child['children'])
+            if r:
+                total += 1
+                num += r
+        sr = item.get('avg_rating', 0)
+        if sr:
+            total += 1
+            num += sr
+        try:
+            calculated[item_id] = item['avg_rating'] = ans = num/float(total)
+        except ZeroDivisionError:
+            calculated[item_id] = item['avg_rating'] = ans = 0
+        return ans
+
+    for item_id, node in hierarchical_nodes.iteritems():
+        item = items[item_id]
+        if item.get('is_hierarchical', False):
+            set_average_rating(item_id, node['children'])
 
 def render_categories(field_metadata, opts, category_data):
     items = {}
