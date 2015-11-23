@@ -4,16 +4,19 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import os
 from copy import copy
 from collections import namedtuple
 from datetime import datetime, time
 from functools import partial
 
+from calibre.constants import config_dir
 from calibre.db.categories import Tag
 from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, JSONConfig
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.icu import collation_order
+from calibre.library.field_metadata import category_icon_map
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked id au_map'.split())
 
@@ -107,6 +110,17 @@ class GroupedSearchTerms(object):
 
     def __hash__(self):
         return self.hash
+
+_icon_map = None
+def icon_map():
+    global _icon_map
+    if _icon_map is None:
+        _icon_map = category_icon_map.copy()
+        custom_icons = JSONConfig('gui').get('tags_browser_category_icons', {})
+        for k, v in custom_icons.iteritems():
+            if os.path.exists(os.path.join(config_dir, 'tb_icons', v)):
+                _icon_map[k] = '_' + v
+    return _icon_map
 
 def categories_settings(query, db):
     dont_collapse = frozenset(query.get('dont_collapse', '').split(','))
@@ -460,7 +474,7 @@ def render_categories(field_metadata, opts, category_data):
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
         root['children'] = filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children'])
-    return {'root':root, 'item_map': items}
+    return {'root':root, 'item_map': items, 'icon_map':icon_map()}
 
 def categories_as_json(ctx, rd, db):
     opts = categories_settings(rd.query, db)
