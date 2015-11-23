@@ -594,7 +594,6 @@ class TagsModel(QAbstractItemModel):  # {{{
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
                     category_child_map[tag.name, tag.category] = n
-                    intermediate_nodes[tag.original_name, tag.category] = tag
                 else:
                     for i,comp in enumerate(components):
                         if i == 0:
@@ -606,10 +605,11 @@ class TagsModel(QAbstractItemModel):  # {{{
                                             if t.type != TagTreeItem.CATEGORY])
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
-                            node_parent.tag.is_hierarchical = \
-                                '5state' if tag.category != 'search' else '3state'
-                            if tag.id_set is not None and node_parent.tag.id_set is not None:
-                                node_parent.tag.id_set |= tag.id_set
+                            t = node_parent.tag
+                            t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
+                            if tag.id_set is not None and t.id_set is not None:
+                                t.id_set |= tag.id_set
+                            intermediate_nodes[t.original_name, t.category] = t
                         else:
                             if i < len(components)-1:
                                 original_name = '.'.join(components[:i+1])
