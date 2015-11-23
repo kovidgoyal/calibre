@@ -207,7 +207,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                             t = names_seen[n]
                             other_tag = taglist[label][n]
                             t.id_set |= other_tag.id_set
-                            t.count += other_tag.count
+                            t.count = len(t.id_set)
                             t.original_categories.add(other_tag.category)
 
                             total_rating = 0

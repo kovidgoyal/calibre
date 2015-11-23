@@ -74,6 +74,7 @@ class TagTreeItem(object):  # {{{
         elif self.type == self.TAG:
             self.tag = data
             self.cached_average_rating = None
+            self.cached_item_count = None
 
         self.tooltip = tooltip or ''
 
@@ -137,6 +138,21 @@ class TagTreeItem(object):  # {{{
         except ZeroDivisionError:
             return 0
 
+    @property
+    def item_count(self):
+        if not self.tag.is_hierarchical or len(self.children) == 0:
+            return self.tag.count
+        if self.cached_item_count:
+            return self.cached_item_count
+
+        def child_item_set(node):
+            s = set() | node.tag.id_set # force a copy of the set
+            for child in node.children:
+                s |= child_item_set(child)
+            return s
+        self.cached_item_count = len(child_item_set(self))
+        return self.cached_item_count
+
     def data(self, role):
         if role == Qt.UserRole:
             return self
@@ -174,8 +190,7 @@ class TagTreeItem(object):  # {{{
             else:
                 name = tag.name
         if role == Qt.DisplayRole:
-            count = len(tag.id_set)
-            count = count if count > 0 else tag.count
+            count = self.item_count
             if count == 0:
                 return ('%s'%(name))
             else:
@@ -217,8 +232,7 @@ class TagTreeItem(object):  # {{{
                 name = tag.original_name
             else:
                 name = tag.name
-        count = len(tag.id_set)
-        count = count if count > 0 else tag.count
+        count = self.item_count
         rating = self.average_rating
         if rating:
             rating = ',rating=%.1f' % rating
@@ -611,8 +625,6 @@ class TagsModel(QAbstractItemModel):  # {{{
                             node_parent = child_map[(comp,tag.category)]
                             t = node_parent.tag
                             t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
-                            if tag.id_set is not None and t.id_set is not None:
-                                t.id_set |= tag.id_set
                             intermediate_nodes[t.original_name, t.category] = t
                         else:
                             if i < len(components)-1:
