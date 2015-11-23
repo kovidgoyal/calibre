@@ -121,7 +121,7 @@ class TagTreeItem(object):  # {{{
             return self.tag.avg_rating
         if not self.children:
             return self.tag.avg_rating  # leaf node, avg_rating is correct
-        if self.cached_average_rating:
+        if self.cached_average_rating is not None:
             return self.cached_average_rating
         total = num = 0
         for child in self.children:
@@ -142,7 +142,7 @@ class TagTreeItem(object):  # {{{
     def item_count(self):
         if not self.tag.is_hierarchical or not self.children:
             return self.tag.count
-        if self.cached_item_count:
+        if self.cached_item_count is not None:
             return self.cached_item_count
 
         def child_item_set(node):
