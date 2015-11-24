@@ -121,21 +121,8 @@ class TagTreeItem(object):  # {{{
             return self.tag.avg_rating
         if not self.children:
             return self.tag.avg_rating  # leaf node, avg_rating is correct
-        if self.cached_average_rating is not None:
-            return self.cached_average_rating
-        total = num = 0
-        for child in self.children:
-            r = child.average_rating
-            if r:
-                total += 1
-                num += r
-        if self.tag.avg_rating:
-            total += 1
-            num += self.tag.avg_rating
-        try:
-            self.cached_average_rating = num/float(total)
-        except ZeroDivisionError:
-            self.cached_average_rating = 0
+        if self.cached_average_rating is None:
+            raise ValueError('Must compute average rating for tag ' + self.tag.original_name)
         return self.cached_average_rating
 
     @property
@@ -488,7 +475,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 components = [name]
             return components
 
-        def process_one_node(category, collapse_model, state_map):  # {{{
+        def process_one_node(category, collapse_model, book_rating_map, state_map):  # {{{
             collapse_letter = None
             key = category.category_key
             is_gst = category.is_gst
@@ -625,6 +612,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                             node_parent = child_map[(comp,tag.category)]
                             t = node_parent.tag
                             t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
+                            if tag.id_set is not None and t.id_set is not None:
+                                t.id_set = t.id_set | tag.id_set
                             intermediate_nodes[t.original_name, t.category] = t
                         else:
                             if i < len(components)-1:
@@ -652,14 +641,24 @@ class TagsModel(QAbstractItemModel):  # {{{
                             node_parent = self.create_node(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
+
+                        # Correct the average rating for the node
+                        total = count = 0
+                        for book_id in t.id_set:
+                            rating = book_rating_map.get(book_id, 0)
+                            if rating:
+                                total += rating/2.0
+                                count += 1
+                        node_parent.cached_average_rating = float(total)/count if total and count else 0
             return
         # }}}
 
         # Build the entire node tree. Note that category_nodes is in field
         # metadata order so the user categories will be at the end
-        for category in self.category_nodes:
-            process_one_node(category, collapse_model,
-                             state_map.get(category.category_key, {}))
+        with self.db.new_api.safe_read_lock:  # needed as we read from book_value_map
+            for category in self.category_nodes:
+                process_one_node(category, collapse_model, self.db.new_api.fields['rating'].book_value_map,
+                                state_map.get(category.category_key, {}))
 
         # Fix up the node tree, reordering as needed and deleting undisplayed nodes
         new_children = []
