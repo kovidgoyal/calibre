@@ -461,10 +461,11 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
         item = items[node['id']]
         item['count'] = sum(1 for _ in iternode_descendants(node))
 
-def render_categories(field_metadata, opts, book_rating_map, category_data):
+def render_categories(opts, db, category_data):
     items = {}
-    root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, field_metadata, opts)
-    fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map)
+    with db.safe_read_lock:
+        root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, db.field_metadata, opts)
+        fillout_tree(root, items, node_id_map, category_nodes, category_data, db.field_metadata, opts, db.fields['rating'].book_value_map)
     for node in recount_nodes:
         item = items[node['id']]
         item['count'] = sum(1 for x in iternode_descendants(node) if not items[x['id']].get('is_category', False))
@@ -476,7 +477,7 @@ def render_categories(field_metadata, opts, book_rating_map, category_data):
 
 def categories_as_json(ctx, rd, db):
     opts = categories_settings(rd.query, db)
-    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, db.field_metadata, opts, db.fields['rating'].book_value_map))
+    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts))
 
 # Test tag browser {{{
 
@@ -521,7 +522,7 @@ def test_tag_browser(library_path=None):
     opts = categories_settings({}, db)
     # opts = opts._replace(hidden_categories={'publisher'})
     category_data = db.get_categories(sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
-    data = render_categories(db.field_metadata, opts, db.fields['rating'].book_value_map, category_data)
+    data = render_categories(opts, db, category_data)
     srv_data = dump_categories_tree(data)
     from calibre.gui2 import Application, gprefs
     from calibre.gui2.tag_browser.model import TagsModel
