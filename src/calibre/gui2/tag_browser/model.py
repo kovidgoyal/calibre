@@ -121,21 +121,8 @@ class TagTreeItem(object):  # {{{
             return self.tag.avg_rating
         if not self.children:
             return self.tag.avg_rating  # leaf node, avg_rating is correct
-        if self.cached_average_rating is not None:
-            return self.cached_average_rating
-        total = num = 0
-        for child in self.children:
-            r = child.average_rating
-            if r:
-                total += 1
-                num += r
-        if self.tag.avg_rating:
-            total += 1
-            num += self.tag.avg_rating
-        try:
-            self.cached_average_rating = num/float(total)
-        except ZeroDivisionError:
-            self.cached_average_rating = 0
+        if self.cached_average_rating is None:
+            raise ValueError('Must compute average rating for tag ' + self.tag.original_name)
         return self.cached_average_rating
 
     @property
@@ -357,6 +344,8 @@ class TagsModel(QAbstractItemModel):  # {{{
         db.new_api.set_pref('tag_browser_hidden_categories', list(self.hidden_categories))
         if hidden_categories is not None:
             self.hidden_categories = hidden_categories
+
+        self.book_rating_map = db.new_api.fields['rating'].book_value_map
 
         self.db = db
         self._run_rebuild()
@@ -625,6 +614,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                             node_parent = child_map[(comp,tag.category)]
                             t = node_parent.tag
                             t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
+                            if tag.id_set is not None and t.id_set is not None:
+                                t.id_set = t.id_set | tag.id_set
                             intermediate_nodes[t.original_name, t.category] = t
                         else:
                             if i < len(components)-1:
@@ -652,6 +643,19 @@ class TagsModel(QAbstractItemModel):  # {{{
                             node_parent = self.create_node(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
+
+                        # Correct the average rating for the node
+                        total = 0
+                        count = 0
+                        for id_ in t.id_set:
+                            rating = self.book_rating_map.get(id_, 0)
+                            if rating:
+                                total += rating/2
+                                count += 1
+                        if total and count:
+                            node_parent.cached_average_rating = total/count
+                        else:
+                            node_parent.cached_average_rating = 0
             return
         # }}}
 
