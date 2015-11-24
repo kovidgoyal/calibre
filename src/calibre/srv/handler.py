@@ -137,7 +137,8 @@ class Context(object):
             old = cache.pop(key, None)
             if old is None or old[0] <= db.last_modified():
                 categories = db.get_categories(book_ids=restrict_to_ids, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
-                cache[key] = old = (utcnow(), render(categories))
+                with db.safe_read_lock:
+                    cache[key] = old = (utcnow(), render(categories))
                 if len(cache) > self.CATEGORY_CACHE_SIZE:
                     cache.popitem(last=False)
             else:

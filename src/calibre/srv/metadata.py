@@ -303,7 +303,7 @@ def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is
 def process_category_node(
         category_node, items, category_data, eval_formatter, field_metadata,
         opts, tag_map, hierarchical_tags, node_to_tag_map, collapse_nodes,
-        intermediate_nodes, hierarchical_nodes):
+        intermediate_nodes, hierarchical_items):
     category = items[category_node['id']]['category']
     category_items = category_data[category]
     cat_len = len(category_items)
@@ -339,8 +339,6 @@ def process_category_node(
         else:
             node_id, node_data = node_data
         node = {'id':node_id, 'children':[]}
-        if node_id not in hierarchical_nodes:
-            hierarchical_nodes[node_id] = node
         parent['children'].append(node)
         return node, node_data
 
@@ -383,9 +381,11 @@ def process_category_node(
                 if cm_key in child_map:
                     node_parent = child_map[cm_key]
                     node_id = node_parent['id']
-                    items[node_id]['is_hierarchical'] = 3 if tag.category == 'search' else 5
-                    if node_id not in hierarchical_nodes:
-                        hierarchical_nodes[node_id] = node_parent
+                    item = items[node_id]
+                    item['is_hierarchical'] = 3 if tag.category == 'search' else 5
+                    if tag.id_set is not None:
+                        item['id_set'] |= tag.id_set
+                    hierarchical_items.add(node_id)
                     hierarchical_tags.add(id(node_to_tag_map[node_parent['id']]))
                 else:
                     if i < len(components) - 1:  # Non-leaf node
@@ -421,10 +421,10 @@ def iternode_descendants(node):
         for x in iternode_descendants(child):
             yield x
 
-def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts):
+def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map):
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
-    first, later, collapse_nodes, intermediate_nodes, hierarchical_nodes = [], [], [], {}, {}
+    first, later, collapse_nodes, intermediate_nodes, hierarchical_items = [], [], [], {}, set()
     # User categories have to be processed after normal categories as they can
     # reference hierarchical nodes that were created only during processing of
     # normal categories
@@ -438,10 +438,20 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
             process_category_node(
                 cnode, items, category_data, eval_formatter, field_metadata,
                 opts, tag_map, hierarchical_tags, node_to_tag_map,
-                collapse_nodes, intermediate_nodes, hierarchical_nodes)
+                collapse_nodes, intermediate_nodes, hierarchical_items)
 
     # Do not store id_set in the tag items as it is a lot of data, with not
-    # much use. Instead only update the counts based on id_set
+    # much use. Instead only update the ratings and counts based on id_set
+    for item_id in hierarchical_items:
+        item = items[item_id]
+        total = count = 0
+        for book_id in item['id_set']:
+            rating = book_rating_map.get(book_id, 0)
+            if rating:
+                total += rating/2.0
+                count += 1
+        item['avg_rating'] = float(total)/count if count else 0
+
     for item_id, item in tag_map.itervalues():
         id_len = len(item.pop('id_set', ()))
         if id_len:
@@ -451,41 +461,10 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
         item = items[node['id']]
         item['count'] = sum(1 for _ in iternode_descendants(node))
 
-    # Calculate correct avg_rating for hierarchical category items
-    calculated = {}
-
-    def set_average_rating(item_id, children):
-        cr = calculated.get(item_id, None)
-        if cr is not None:
-            return cr
-        item = items[item_id]
-        if not item.get('is_hierarchical', False) or not children:
-            return item.get('avg_rating', 0)
-        total = num = 0
-        for child in children:
-            r = set_average_rating(child['id'], child['children'])
-            if r:
-                total += 1
-                num += r
-        sr = item.get('avg_rating', 0)
-        if sr:
-            total += 1
-            num += sr
-        try:
-            calculated[item_id] = item['avg_rating'] = ans = num/float(total)
-        except ZeroDivisionError:
-            calculated[item_id] = item['avg_rating'] = ans = 0
-        return ans
-
-    for item_id, node in hierarchical_nodes.iteritems():
-        item = items[item_id]
-        if item.get('is_hierarchical', False):
-            set_average_rating(item_id, node['children'])
-
-def render_categories(field_metadata, opts, category_data):
+def render_categories(field_metadata, opts, book_rating_map, category_data):
     items = {}
     root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, field_metadata, opts)
-    fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts)
+    fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map)
     for node in recount_nodes:
         item = items[node['id']]
         item['count'] = sum(1 for x in iternode_descendants(node) if not items[x['id']].get('is_category', False))
@@ -497,7 +476,7 @@ def render_categories(field_metadata, opts, category_data):
 
 def categories_as_json(ctx, rd, db):
     opts = categories_settings(rd.query, db)
-    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, db.field_metadata, opts))
+    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, db.field_metadata, opts, db.fields['rating'].book_value_map))
 
 # Test tag browser {{{
 
@@ -542,7 +521,7 @@ def test_tag_browser(library_path=None):
     opts = categories_settings({}, db)
     # opts = opts._replace(hidden_categories={'publisher'})
     category_data = db.get_categories(sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
-    data = render_categories(db.field_metadata, opts, category_data)
+    data = render_categories(db.field_metadata, opts, db.fields['rating'].book_value_map, category_data)
     srv_data = dump_categories_tree(data)
     from calibre.gui2 import Application, gprefs
     from calibre.gui2.tag_browser.model import TagsModel
