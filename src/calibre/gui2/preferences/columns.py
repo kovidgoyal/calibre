@@ -117,10 +117,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             fm = self.custcols[col]
         else:
             fm = field_metadata[col]
-        dt = fm['datatype']
-        if fm['is_multiple']:
-            dt = '*' + dt
-        item = QTableWidgetItem(self.column_desc[dt])
+
+        if col in ['title', 'ondevice']:
+            coltype = _('Text')
+        else:
+            dt = fm['datatype']
+            if fm['is_multiple']:
+                dt = '*' + dt
+            coltype = self.column_desc[dt]
+        item = QTableWidgetItem(coltype)
         self.opt_columns.setItem(row, 2, item)
 
         desc = fm['display'].get('description', "")
