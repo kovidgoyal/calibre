@@ -106,14 +106,23 @@ class GroupedSearchTerms(object):
 
     def __init__(self, src):
         self.keys = frozenset(src)
-        self.vals = frozenset(tuple(v) for v in src.itervalues())
-        self.hash = hash((self.keys, self.vals))
+        self.hash = hash(self.keys)
+        # We dont need to store values since this is used as part of a key for
+        # a cache and if the values have changed the cache will be invalidated
+        # for other reasons anyway (last_modified() will have changed on the
+        # db)
 
     def __contains__(self, val):
         return val in self.keys
 
     def __hash__(self):
         return self.hash
+
+    def __eq__(self, other):
+        try:
+            return self.keys == other.keys
+        except AttributeError:
+            return False
 
 _icon_map = None
 _icon_map_lock = Lock()
