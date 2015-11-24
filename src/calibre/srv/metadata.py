@@ -199,8 +199,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts):
                     )
                     node_id_map[last_category_node] = category_node_map[path] = node = {'id':last_category_node, 'children':[]}
                     category_nodes.append(last_category_node)
-                    if not is_gst:
-                        recount_nodes.append(node)
+                    recount_nodes.append(node)
                     current_root['children'].append(node)
                     current_root = node
                 else:
@@ -215,6 +214,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts):
             category_node_map[category] = node_id_map[last_category_node] = node = {'id':last_category_node, 'children':[]}
             root['children'].append(node)
             category_nodes.append(last_category_node)
+            recount_nodes.append(node)
 
     return root, node_id_map, category_nodes, recount_nodes
 
@@ -479,7 +479,7 @@ def render_categories(field_metadata, opts, category_data):
     fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts)
     for node in recount_nodes:
         item = items[node['id']]
-        item['count'] = sum(1 for x in iternode_descendants(node) if not items[x['id']].get('is_user_category', False))
+        item['count'] = sum(1 for x in iternode_descendants(node) if not items[x['id']].get('is_category', False))
     if opts.hidden_categories:
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
