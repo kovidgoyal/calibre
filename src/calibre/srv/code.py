@@ -13,7 +13,7 @@ from calibre import prepare_string_for_xml, as_unicode
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import get_db, search_result
 from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
-from calibre.srv.metadata import book_as_json, categories_as_json
+from calibre.srv.metadata import book_as_json, categories_as_json, icon_map
 from calibre.srv.routes import endpoint, json
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
@@ -120,6 +120,7 @@ def interface_data(ctx, rd):
             sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
                                         key=lambda (field, name):sort_key(name))
         ans['field_metadata'] = db.field_metadata.all_metadata()
+        ans['icon_map'] = icon_map()
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)

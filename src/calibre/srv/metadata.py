@@ -493,7 +493,7 @@ def render_categories(field_metadata, opts, category_data):
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
         root['children'] = filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children'])
-    return {'root':root, 'item_map': items, 'icon_map':icon_map()}
+    return {'root':root, 'item_map': items}
 
 def categories_as_json(ctx, rd, db):
     opts = categories_settings(rd.query, db)
