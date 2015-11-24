@@ -120,7 +120,6 @@ def interface_data(ctx, rd):
             sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
                                         key=lambda (field, name):sort_key(name))
         ans['field_metadata'] = db.field_metadata.all_metadata()
-        ans['tag_browser'] = categories_as_json(ctx, rd, db)
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)
