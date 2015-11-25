@@ -1042,7 +1042,8 @@ class Cache(object):
                 else:
                     v = sid = None
                 if name.startswith('#') and sid is None:
-                    sid = 1.0  # The value will be set to 1.0 in the db table
+                    extra = self.field_for(name + '_index', k)
+                    sid = extra if extra else 1.0 # The value to be set the db link table
                 bimap[k] = v
                 if sid is not None:
                     simap[k] = sid
