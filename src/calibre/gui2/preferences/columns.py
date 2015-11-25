@@ -118,8 +118,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             fm = field_metadata[col]
 
-        if col in ['title', 'ondevice']:
+        if col == 'title':
             coltype = _('Text')
+        elif col == 'ondevice':
+            coltype = _('Yes/No with text')
         else:
             dt = fm['datatype']
             if fm['is_multiple']:
