@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, os
 import __builtin__
-from urllib import quote
+from urllib import quote, urlencode
 
 import cherrypy
 from lxml import html
@@ -224,6 +224,7 @@ class MobileServer(object):
             num = int(num)
         except ValueError:
             raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
+        print(111111, search)
         if not search:
             search = ''
         if isbytestring(search):
@@ -287,7 +288,8 @@ class MobileServer(object):
         cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
 
-        url_base = "/mobile?search=" + search+";order="+order+";sort="+sort+";num="+str(num)
+        q = {b'search':search.encode('utf-8'), 'order':order.encode('utf-8'), 'sort':sort.encode('utf-8'), 'num':str(num).encode('utf-8')}
+        url_base = "/mobile?" + urlencode(q)
         ua = cherrypy.request.headers.get('User-Agent', '').strip()
         have_kobo_browser = self.is_kobo_browser(ua)
 
