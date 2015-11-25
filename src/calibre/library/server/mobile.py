@@ -79,11 +79,11 @@ def build_navigation(start, num, total, url_base):  # {{{
 
     if start > 1:
         for t,s in [('First', 1), ('Previous', max(start-num,1))]:
-            left_buttons.append(A(t, href='%s;start=%d'%(url_base, s)))
+            left_buttons.append(A(t, href='%s&start=%d'%(url_base, s)))
 
     if total > start + num:
         for t,s in [('Next', start+num), ('Last', total-num+1)]:
-            right_buttons.append(A(t, href='%s;start=%d'%(url_base, s)))
+            right_buttons.append(A(t, href='%s&start=%d'%(url_base, s)))
 
     buttons = TABLE(
             TR(left_buttons, right_buttons),
@@ -224,7 +224,6 @@ class MobileServer(object):
             num = int(num)
         except ValueError:
             raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
-        print(111111, search)
         if not search:
             search = ''
         if isbytestring(search):
