@@ -1768,7 +1768,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             pass
         return new_cats
 
-    def get_categories(self, sort='name', ids=None, icon_map=None):
+    def get_categories(self, sort='name', ids=None):
         #start = last = time.clock()
         if sort not in self.CATEGORY_SORTS:
             raise ValueError('sort ' + sort + ' not a valid value')
@@ -1954,7 +1954,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
             # icon_map is not None if get_categories is to store an icon and
             # possibly a tooltip in the tag structure.
-            icon = None
+            icon = icon_map = None
             label = tb_cats.key_to_label(category)
             if icon_map:
                 if not tb_cats.is_custom_field(category):

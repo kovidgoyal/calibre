@@ -776,7 +776,7 @@ LibraryDatabase.format_hash = MT(lambda self, book_id, fmt:self.new_api.format_h
 LibraryDatabase.index = MT(lambda self, book_id, cache=False:self.data.id_to_index(book_id))
 LibraryDatabase.has_cover = MT(lambda self, book_id:self.new_api.field_for('cover', book_id))
 LibraryDatabase.get_tags = MT(lambda self, book_id:set(self.new_api.field_for('tags', book_id)))
-LibraryDatabase.get_categories = MT(lambda self, sort='name', ids=None, icon_map=None:self.new_api.get_categories(sort=sort, book_ids=ids, icon_map=icon_map))
+LibraryDatabase.get_categories = MT(lambda self, sort='name', ids=None:self.new_api.get_categories(sort=sort, book_ids=ids))
 LibraryDatabase.get_identifiers = MT(
     lambda self, index, index_is_id=False: self.new_api.field_for('identifiers', index if index_is_id else self.id(index)))
 LibraryDatabase.isbn = MT(
