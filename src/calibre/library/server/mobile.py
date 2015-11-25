@@ -288,7 +288,7 @@ class MobileServer(object):
         cherrypy.response.headers['Content-Type'] = 'text/html; charset=utf-8'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
 
-        q = {b'search':search.encode('utf-8'), 'order':order.encode('utf-8'), 'sort':sort.encode('utf-8'), 'num':str(num).encode('utf-8')}
+        q = {b'search':search.encode('utf-8'), b'order':order.encode('utf-8'), b'sort':sort.encode('utf-8'), b'num':str(num).encode('utf-8')}
         url_base = "/mobile?" + urlencode(q)
         ua = cherrypy.request.headers.get('User-Agent', '').strip()
         have_kobo_browser = self.is_kobo_browser(ua)
