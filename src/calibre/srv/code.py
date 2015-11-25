@@ -90,8 +90,6 @@ def interface_data(ctx, rd):
     Return the data needed to create the server main UI
 
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
-              &sort_tags_by=name&partition_method=first letter&collapse_at=25&
-              &dont_collapse=
     '''
     ans = {'username':rd.username}
     ans['library_map'], ans['default_library'] = ctx.library_map
