@@ -269,10 +269,11 @@ class Restore(Thread):
         save_path = self.olddb = os.path.splitext(dbpath)[0]+'_pre_restore.db'
         if os.path.exists(save_path):
             os.remove(save_path)
-        try:
-            os.rename(dbpath, save_path)
-        except EnvironmentError:
-            time.sleep(30)  # Wait a little for dropbox or the antivirus or whatever to release the file
-            shutil.copyfile(dbpath, save_path)
-            os.remove(dbpath)
+        if os.path.exists(dbpath):
+            try:
+                os.rename(dbpath, save_path)
+            except EnvironmentError:
+                time.sleep(30)  # Wait a little for dropbox or the antivirus or whatever to release the file
+                shutil.copyfile(dbpath, save_path)
+                os.remove(dbpath)
         shutil.copyfile(ndbpath, dbpath)
