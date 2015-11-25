@@ -61,7 +61,7 @@ class TopBar:
             left = bar.firstChild
             clear(left)
             left.appendChild(E.a(title=tooltip, E.i(class_='fa fa-' + icon_name + ' fa-fw')))
-            left.appendChild(E.span(title, style=str.format('margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}', self.SPACING, self.VSPACING)))
+            left.appendChild(E.span(title, style=str.format('margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle', self.SPACING, self.VSPACING)))
             if bar is self.bar:
                 a = left.firstChild
                 if icon_name == 'heart':
