@@ -1,19 +1,29 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from book_list.ui import UI
-from modals import error_dialog
+from dom import set_css
+from elementmaker import E
+from modals import error_dialog, create_modal_container
 from gettext import gettext as _
+from widgets import get_widget_css
 from book_list.globals import get_session_data
+
+from book_list.theme import get_color
+from book_list.ui import UI
 
 class Boss:
 
     def __init__(self, interface_data):
+        document.head.appendChild(E.style(get_widget_css()))
+        set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
+        create_modal_container()
         self.interface_data = interface_data
         self.current_library_id = interface_data['default_library']
         self.current_library_name = interface_data['library_map'][self.current_library_id]
         self.update_window_title()
-        self.ui = UI(interface_data)
+        div = E.div(id='book-list-container')
+        document.body.appendChild(div)
+        self.ui = UI(interface_data, div)
         window.onerror = self.onerror.bind(self)
 
     def update_window_title(self):

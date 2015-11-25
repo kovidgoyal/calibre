@@ -10,7 +10,7 @@ iv_counter = 0
 
 class ItemsView:
 
-    def __init__(self, interface_data):
+    def __init__(self, interface_data, book_list_container):
         nonlocal iv_counter
         iv_counter += 1
         self.container_id = 'items-view-' + iv_counter
@@ -26,7 +26,7 @@ class ItemsView:
             id=self.container_id, style='display:none',
             E.style(style, type='text/css')
         )
-        document.body.appendChild(div)
+        book_list_container.appendChild(div)
 
     @property
     def container(self):

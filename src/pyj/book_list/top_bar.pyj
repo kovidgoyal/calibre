@@ -13,7 +13,7 @@ class TopBar:
     SPACING = '0.75em'
     VSPACING = '0.5ex'
 
-    def __init__(self):
+    def __init__(self, book_list_container):
         nonlocal bar_counter
         bar_counter += 1
         self.bar_id, self.dummy_bar_id = 'top-bar-' + bar_counter, 'dummy-top-bar-' + bar_counter
@@ -42,7 +42,7 @@ class TopBar:
                 font_size=get_font_size('title'), user_select='none',
                 color=get_color('bar-foreground'), background_color=get_color('bar-background')
             )
-            document.body.appendChild(bar)
+            book_list_container.appendChild(bar)
 
     @property
     def bar(self):

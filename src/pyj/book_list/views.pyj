@@ -17,7 +17,7 @@ bv_counter = 0
 
 class BooksView:
 
-    def __init__(self, interface_data):
+    def __init__(self, interface_data, book_list_container):
         nonlocal bv_counter
         bv_counter += 1
         self.interface_data = interface_data
@@ -35,7 +35,7 @@ class BooksView:
             E.div(),
             E.div()
         )
-        document.body.appendChild(div)
+        book_list_container.appendChild(div)
         self.set_view_mode(get_session_data().get('view_mode'))
         self.create_more_button(div)
 

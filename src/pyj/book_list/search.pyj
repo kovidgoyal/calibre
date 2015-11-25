@@ -1,0 +1,32 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from elementmaker import E
+
+sp_counter = 0
+
+class SearchPanel:
+
+    def __init__(self, interface_data, book_list_container):
+        nonlocal sp_counter
+        sp_counter += 1
+        self.container_id = 'search-panel-' + sp_counter
+        self.interface_data = interface_data
+        style = ''
+        div = E.div(
+            id=self.container_id, style='display:none',
+            E.style(style, type='text/css')
+        )
+        book_list_container.appendChild(div)
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    @property
+    def is_visible(self):
+        self.container.style.display == 'block'
+
+    @is_visible.setter
+    def is_visible(self, val):
+        self.container.style.display = 'block' if val else 'none'
