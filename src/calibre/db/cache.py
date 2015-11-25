@@ -1036,13 +1036,15 @@ class Cache(object):
 
         if is_series:
             bimap, simap = {}, {}
+            sfield = self.fields[name + '_index']
             for k, v in book_id_to_val_map.iteritems():
                 if isinstance(v, basestring):
                     v, sid = get_series_values(v)
                 else:
                     v = sid = None
-                if name.startswith('#') and sid is None:
-                    sid = 1.0  # The value will be set to 1.0 in the db table
+                if sid is None and name.startswith('#'):
+                    extra = self._fast_field_for(sfield, k)
+                    sid = extra or 1.0  # The value to be set the db link table
                 bimap[k] = v
                 if sid is not None:
                     simap[k] = sid
