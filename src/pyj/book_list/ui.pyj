@@ -90,7 +90,12 @@ class UI:
         self.search_panel = SearchPanel(interface_data, book_list_container)
         ibs = BarState(run_animation=True, title=def():
             q = self.books_view.interface_data['search_result']['query']
-            return (_('Books matching:') + ' ' + q) if q else 'calibre'
+            if q:
+                return {'title': _('Books matching') + '::  ' + q, 'title_tooltip':_('Click to clear this search'),
+                        'title_action':def():
+                    self.books_view.change_search('')
+                }
+            return {'title': 'calibre'}
         )
         ibs.add_button(icon_name='sort-amount-desc', tooltip=_('Sort books'), action=show_panel_action('booklist-sort-menu'))
         ibs.add_button(icon_name='search', tooltip=_('Search for books'), action=show_panel_action('booklist-search'))
@@ -125,3 +130,8 @@ class UI:
     def show_panel(self, state):
         self.states.append(state)
         self.apply_state(self.states[-1])
+
+    def refresh_books_view(self):
+        self.books_view.refresh()
+        if len(self.states) == 1:
+            self.top_bar.refresh_left()

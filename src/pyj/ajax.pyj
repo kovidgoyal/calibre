@@ -3,6 +3,21 @@
 
 from gettext import gettext as _
 
+def encode_query(query):
+    if not query:
+        return ''
+    keys = Object.keys(query)
+    has_query = False
+    path = ''
+    if keys.length:
+        for k in keys:
+            val = query[k]
+            if val is undefined or val is None:
+                continue
+            path += ('&' if has_query else '?') + encodeURIComponent(k) + '=' + encodeURIComponent(val.toString())
+            has_query = True
+    return path
+
 def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=30*1000, ok_code=200):
     # Run an AJAX request. on_complete must be a function that accepts three
     # arguments: end_type, xhr, ev where end_type is one of 'abort', 'error',
@@ -14,15 +29,9 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     # Returns the xhr object, call xhr.send() to start the request.
     query = query or {}
     xhr = XMLHttpRequest()
-    keys = Object.keys(query)
-    has_query = False
-    if keys.length:
-        for k in keys:
-            val = query[k]
-            if val is undefined or val is None:
-                continue
-            path += ('&' if has_query else '?') + encodeURIComponent(k) + '=' + encodeURIComponent(val.toString())
-            has_query = True
+    eq = encode_query(query)
+    has_query = eq.length > 0
+    path += eq
     if bypass_cache:
         path += ('&' if has_query else '?') + Date().getTime()
 

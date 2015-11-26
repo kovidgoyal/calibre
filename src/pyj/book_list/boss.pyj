@@ -6,8 +6,9 @@ from elementmaker import E
 from modals import error_dialog, create_modal_container
 from gettext import gettext as _
 from widgets import get_widget_css
-from book_list.globals import get_session_data
+from utils import parse_url_params
 
+from book_list.globals import get_session_data
 from book_list.theme import get_color
 from book_list.ui import UI
 
@@ -25,6 +26,9 @@ class Boss:
         document.body.appendChild(div)
         self.ui = UI(interface_data, div)
         window.onerror = self.onerror.bind(self)
+        setTimeout(def():
+            window.onpopstate = self.onpopstate.bind(self)
+        , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
 
     def update_window_title(self):
         document.title = 'calibre :: ' + self.current_library_name
@@ -41,6 +45,13 @@ class Boss:
         except:
             console.error('There was an error in the unhandled exception handler')
 
+    def onpopstate(self, ev):
+        data = parse_url_params()
+        if not data.mode or data.mode == 'book_list':
+            search = data.search or ''
+            if search != self.ui.books_view.interface_data.search_result.query:
+                self.ui.books_view.change_search(search)
+
     def change_books(self, data):
         data.search_result.sort = str.split(data.search_result.sort, ',')[:2].join(',')
         data.search_result.sort_order = str.split(data.search_result.sort_order, ',')[:2].join(',')
@@ -50,4 +61,4 @@ class Boss:
         get_session_data().set('sort', str.rstrip(sval, ','))
         self.interface_data.metadata = data.metadata
         self.interface_data.search_result = data.search_result
-        self.ui.books_view.refresh()
+        self.ui.refresh_books_view()

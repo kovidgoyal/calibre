@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from ajax import ajax_send
+from ajax import ajax_send, encode_query
 from dom import set_css, build_rule, clear
 from elementmaker import E
 from gettext import gettext as _
@@ -230,6 +230,28 @@ class BooksView:
             window.scrollTo(0, 0)
         elif end_type != 'abort':
             error_dialog(_('Could not change sort order'), xhr.error_html)
+
+    def change_search(self, query):
+        query = query or ''
+        sd = get_session_data()
+        data = {'search':query, 'sort':sd.get('sort'), 'library_id':self.interface_data.library_id}
+        ajax_progress_dialog('interface-data/get-books', self.search_change_completed.bind(self), _(
+            'Fetching data from server, please wait') + '…', query=data)
+
+    def search_change_completed(self, end_type, xhr, ev):
+        if end_type == 'load':
+            boss = get_boss()
+            try:
+                data = JSON.parse(xhr.responseText)
+                boss.change_books(data)
+            except Exception as err:
+                return error_dialog(_('Could not change search query'), err + '', details=err.stack)
+            query = {'search':self.interface_data.search_result.query, 'library_id':self.interface_data.library_id}
+            window.history.pushState(None, '', encode_query(query))
+            boss.ui.close_panel()
+            window.scrollTo(0, 0)
+        elif end_type != 'abort':
+            error_dialog(_('Could not change search query'), xhr.error_html)
 
     def refresh(self):
         self.clear()
