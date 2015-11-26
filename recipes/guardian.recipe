@@ -31,10 +31,7 @@ class Guardian(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     remove_attributes = ['style']
-
-    # List of section titles to ignore
-    # For example: ['Sport']
-    ignore_sections = []
+    ignore_duplicate_articles = {'title', 'url'}
 
     timefmt = ' [%a, %d %b %Y]'
 
@@ -58,11 +55,11 @@ class Guardian(BasicNewsRecipe):
             img['srcset'] = ''
         return soup
 
-    def parse_index(self):
+    def parse_section(self, url, title_prefix=''):
         feeds = []
-        soup = self.index_to_soup(self.base_url)
+        soup = self.index_to_soup(url)
         for section in soup.findAll('section'):
-            title = self.tag_to_string(section.find(attrs={'class':'fc-container__header__title'})).strip().capitalize()
+            title = title_prefix + self.tag_to_string(section.find(attrs={'class':'fc-container__header__title'})).strip().capitalize()
             self.log('\nFound section:', title)
             feeds.append((title, []))
             for li in section.findAll('li'):
@@ -72,4 +69,9 @@ class Guardian(BasicNewsRecipe):
                     self.log(' ', title, url)
                     feeds[-1][1].append({'title':title, 'url':url})
                     break
+        return feeds
+
+    def parse_index(self):
+        feeds = self.parse_section(self.base_url)
+        feeds += self.parse_section('http://www.theguardian.com/uk/sport', 'Sport - ')
         return feeds
