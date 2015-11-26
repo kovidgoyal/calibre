@@ -88,7 +88,10 @@ class UI:
         self.books_view = BooksView(interface_data, book_list_container)
         self.items_view = ItemsView(interface_data, book_list_container)
         self.search_panel = SearchPanel(interface_data, book_list_container)
-        ibs = BarState(run_animation=True)
+        ibs = BarState(run_animation=True, title=def():
+            q = self.books_view.interface_data['search_result']['query']
+            return (_('Books matching:') + ' ' + q) if q else 'calibre'
+        )
         ibs.add_button(icon_name='sort-amount-desc', tooltip=_('Sort books'), action=show_panel_action('booklist-sort-menu'))
         ibs.add_button(icon_name='search', tooltip=_('Search for books'), action=show_panel_action('booklist-search'))
         ibs.add_button(icon_name='ellipsis-v', tooltip=_('More actions'), action=show_panel_action('more-actions-menu'))

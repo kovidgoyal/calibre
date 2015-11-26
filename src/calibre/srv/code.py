@@ -90,6 +90,7 @@ def interface_data(ctx, rd):
     Return the data needed to create the server main UI
 
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
+              &search=''&extra_books=''
     '''
     ans = {'username':rd.username}
     ans['library_map'], ans['default_library'] = ctx.library_map
@@ -111,7 +112,7 @@ def interface_data(ctx, rd):
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     with db.safe_read_lock:
-        ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
+        ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders))
         sf = db.field_metadata.ui_sortable_field_keys()
         sf.pop('ondevice', None)
         ans['sortable_fields'] = sorted(((
@@ -120,9 +121,16 @@ def interface_data(ctx, rd):
         ans['field_metadata'] = db.field_metadata.all_metadata()
         ans['icon_map'] = icon_map()
         mdata = ans['metadata'] = {}
-        for book_id in ans['search_result']['book_ids']:
-            data = book_as_json(db, book_id)
-            mdata[book_id] = data
+        try:
+            extra_books = set(int(x) for x in rd.query.get('extra_books', '').split(','))
+        except Exception:
+            extra_books = ()
+        for coll in (ans['search_result']['book_ids'], extra_books):
+            for book_id in coll:
+                if book_id not in mdata:
+                    data = book_as_json(db, book_id)
+                    if data is not None:
+                        mdata[book_id] = data
 
     return ans
 
@@ -153,7 +161,8 @@ def more_books(ctx, rd):
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)
-            mdata[book_id] = data
+            if data is not None:
+                mdata[book_id] = data
 
     return ans
 
@@ -197,7 +206,8 @@ def get_books(ctx, rd):
             raise HTTPBadRequest('Invalid search expression: %s' % as_unicode(err))
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)
-            mdata[book_id] = data
+            if data is not None:
+                mdata[book_id] = data
     return ans
 
 @endpoint('/interface-data/tag-browser', postprocess=json)

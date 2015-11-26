@@ -57,6 +57,9 @@ class TopBar:
             if not tooltip:
                 tooltip = _('Donate to support calibre development')
 
+        if callable(title):
+            title = title()
+
         for bar in self.bar, self.dummy_bar:
             left = bar.firstChild
             clear(left)

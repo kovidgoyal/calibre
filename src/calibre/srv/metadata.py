@@ -33,11 +33,13 @@ def encode_datetime(dateval):
         return None
     return isoformat(dateval)
 
+empty_val = ((), '', {})
+
 def add_field(field, db, book_id, ans, field_metadata):
     datatype = field_metadata.get('datatype')
     if datatype is not None:
         val = db._field_for(field, book_id)
-        if val is not None and val != ():
+        if val is not None and val not in empty_val:
             if datatype == 'datetime':
                 val = encode_datetime(val)
                 if val is None:
@@ -48,6 +50,8 @@ def book_as_json(db, book_id):
     db = db.new_api
     with db.safe_read_lock:
         ans = {'formats':db._formats(book_id)}
+        if not ans['formats'] and not db.has_id(book_id):
+            return None
         fm = db.field_metadata
         for field in fm.all_field_keys():
             if field not in IGNORED_FIELDS:

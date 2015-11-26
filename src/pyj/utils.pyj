@@ -33,3 +33,24 @@ def to_utf8(string):
         ua[i] = ch.charCodeAt(0)
     )
     return ua
+
+def parse_url_params(url=None, allow_multiple=False):
+    url = url or window.location.href
+    qs = url.indexOf('?')
+    ans = {}
+    if qs < 0:
+        return ans
+    q = url.slice(qs + 1, ((url.indexOf('#') + 1) or (url.length + 1)))
+    if not q:
+        return ans
+    pairs = q.replace(/\+/g, " ").split("&")
+    for pair in pairs:
+        key, val = str.partition(pair, '=')[::2]
+        key, val = decodeURIComponent(key), decodeURIComponent(val)
+        if allow_multiple:
+            if not Object.prototype.hasOwnProperty.call(ans, key):
+                ans[key] = []
+            ans[key].append(val)
+        else:
+            ans[key] = val
+    return ans
