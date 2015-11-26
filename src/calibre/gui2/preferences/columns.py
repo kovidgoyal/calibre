@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import copy, sys
 
-from PyQt5.Qt import Qt, QTableWidgetItem, QIcon, QHeaderView, QTimer
+from PyQt5.Qt import Qt, QTableWidgetItem, QIcon
 
 from calibre.gui2 import gprefs
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
@@ -91,7 +91,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for row, col in enumerate(colmap):
             self.setup_row(self.field_metadata, row, col)
 
-        self.restore_geometry();
+        self.restore_geometry()
         self.opt_columns.blockSignals(False)
 
     def restore_geometry(self):
@@ -185,7 +185,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             return
         self.opt_columns.removeRow(idx)
         if self.custcols[col]['colnum'] is None:
-            del self.custcols[col] # A newly-added column was deleted
+            del self.custcols[col]  # A newly-added column was deleted
         else:
             self.custcols[col]['*deleteme'] = True
         self.changed_signal.emit()
@@ -216,15 +216,15 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
     def apply_custom_column_changes(self):
         model = self.gui.library_view.model()
         db = model.db
-        config_cols = [unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')\
+        config_cols = [unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
                  for i in range(self.opt_columns.rowCount())]
         if not config_cols:
             config_cols = ['title']
         removed_cols = set(model.column_map) - set(config_cols)
-        hidden_cols = set([unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')\
-                 for i in range(self.opt_columns.rowCount()) \
+        hidden_cols = set([unicode(self.opt_columns.item(i, 0).data(Qt.UserRole) or '')
+                 for i in range(self.opt_columns.rowCount())
                  if self.opt_columns.item(i, 0).checkState()==Qt.Unchecked])
-        hidden_cols = hidden_cols.union(removed_cols) # Hide removed cols
+        hidden_cols = hidden_cols.union(removed_cols)  # Hide removed cols
         hidden_cols = list(hidden_cols.intersection(set(model.column_map)))
         if 'ondevice' in hidden_cols:
             hidden_cols.remove('ondevice')
@@ -247,7 +247,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                                 name=self.custcols[c]['name'],
                                 datatype=self.custcols[c]['datatype'],
                                 is_multiple=self.custcols[c]['is_multiple'],
-                                display = self.custcols[c]['display'])
+                                display=self.custcols[c]['display'])
                 must_restart = True
             elif '*deleteme' in self.custcols[c]:
                 db.delete_custom_column(label=self.custcols[c]['label'])
@@ -256,7 +256,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 cc = self.custcols[c]
                 db.set_custom_column_metadata(cc['colnum'], name=cc['name'],
                                               label=cc['label'],
-                                              display = self.custcols[c]['display'],
+                                              display=self.custcols[c]['display'],
                                               notify=False)
                 if '*must_restart' in self.custcols[c]:
                     must_restart = True
@@ -267,4 +267,3 @@ if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Interface', 'Custom Columns')
-

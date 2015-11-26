@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt5.Qt import QDialog, Qt, QListWidgetItem, QColor, QIcon, QTableWidgetItem
+from PyQt5.Qt import QDialog, Qt, QColor
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
@@ -160,8 +160,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                   'An Oblique Approach</b></big> [Belisarius [1]]". The template '
                   '<pre>&lt;a href="http://www.beam-ebooks.de/ebook/{identifiers'
                   ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
-                  'will generate a link to the book on the Beam ebooks site.')
-                        + '</p>')
+                  'will generate a link to the book on the Beam ebooks site.') + '</p>')
         self.exec_()
 
     def shortcut_activated(self, url):
