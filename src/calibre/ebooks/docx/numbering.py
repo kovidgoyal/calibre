@@ -6,13 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
+import re, string
 from collections import Counter, defaultdict
+from functools import partial
 
 from lxml.html.builder import OL, UL, SPAN
 
 from calibre.ebooks.docx.block_styles import ParagraphStyle
 from calibre.ebooks.docx.char_styles import RunStyle, inherit
+from calibre.ebooks.metadata import roman
 
 STYLE_MAP = {
     'aiueo': 'hiragana',
@@ -27,6 +29,16 @@ STYLE_MAP = {
     'upperRoman': 'upper-roman',
     'chineseCounting': 'cjk-ideographic',
     'decimalZero': 'decimal-leading-zero',
+}
+
+def alphabet(val, lower=True):
+    x = string.ascii_lowercase if lower else string.ascii_uppercase
+    return x[(abs(val - 1)) % len(x)]
+
+alphabet_map = {
+    'lower-alpha':alphabet, 'upper-alpha':partial(alphabet, lower=False),
+    'lower-roman':lambda x:roman(x).lower(), 'upper-roman':roman,
+    'decimal-leading-zero': lambda x: '0%d' % x
 }
 
 class Level(object):
@@ -57,7 +69,9 @@ class Level(object):
             x = int(m.group(1)) - 1
             if x > ilvl or x not in counter:
                 return ''
-            return '%d' % (counter[x] - (0 if x == ilvl else 1))
+            val = counter[x] - (0 if x == ilvl else 1)
+            formatter = alphabet_map.get(self.fmt, lambda x: '%d' % x)
+            return formatter(val)
         return re.sub(r'%(\d+)', sub, template).rstrip() + '\xa0'
 
     def read_from_xml(self, lvl, override=False):
