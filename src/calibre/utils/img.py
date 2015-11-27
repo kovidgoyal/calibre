@@ -98,7 +98,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             inw = Thread(name='CopyInput', target=copy, args=(src, p.stdin))
             inw.daemon = True
             inw.start()
-            outw = Thread('CopyOutput', target=copy, args=(p.stdout, outf))
+            outw = Thread(name='CopyOutput', target=copy, args=(p.stdout, outf))
             outw.daemon = True
             outw.start()
         raw = force_unicode(stderr.read())
@@ -137,4 +137,4 @@ def encode_jpeg(file_path, quality=80):
     buf.open(QBuffer.WriteOnly)
     if not img.save(buf, 'PPM'):
         raise ValueError('Failed to export image to PPM')
-    return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data))
+    return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data()))

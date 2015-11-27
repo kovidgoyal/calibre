@@ -12,8 +12,10 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import cStringIO, os, ctypes
+import cStringIO, os, ctypes, shutil
+from calibre import CurrentDir
 from calibre.constants import plugins, iswindows, islinux, isosx
+from calibre.ptempfile import TemporaryDirectory
 
 def test_dlls():
     import win32api
@@ -239,10 +241,27 @@ def test_markdown():
     sanitize_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
     print('Markdown OK!')
 
+def test_image_compression():
+    from calibre.utils.img import optimize_png, optimize_jpeg, encode_jpeg
+    with TemporaryDirectory() as tdir, CurrentDir(tdir):
+        shutil.copyfile(I('devices/kindle.jpg'), 'test.jpg')
+        ret = optimize_jpeg('test.jpg')
+        if ret is not None:
+            raise SystemExit(ret)
+        ret = encode_jpeg('test.jpg')
+        if ret is not None:
+            raise SystemExit(ret)
+        shutil.copyfile(I('lt.png'), 'test.png')
+        ret = optimize_png('test.png')
+        if ret is not None:
+            raise SystemExit(ret)
+    print('Image compression OK!')
+
 def test():
     if iswindows:
         test_dlls()
     test_plugins()
+    test_image_compression()
     test_lzma()
     test_dukpy()
     test_spell()
