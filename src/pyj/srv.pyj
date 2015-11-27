@@ -44,6 +44,7 @@ def load_book_list():
 
 def on_load():
     if window.calibre_entry_point == 'book list':
+        print('calibre loaded at:', Date().toString())
         load_book_list()
 
 # We wait for all page elements to load, since this is a single page app
