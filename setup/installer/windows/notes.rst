@@ -545,6 +545,26 @@ libimobiledevice
 
 See libimobiledevice_notes.rst
 
+optipng
+----------
+
+Compiling instructions::
+
+    sed -i.bak 's/\$</%s/' src/libpng/scripts/makefile.vcwin32
+    nmake -f build/visualc.mk
+    cp src/optipng/optipng.exe* ~/sw/bin
+
+mozjpeg
+----------
+
+Compiling instructions::
+
+   mkdir -p build && cd build
+   cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_TURBOJPEG:BOOL=FALSE ..
+   nmake
+   cp jpegtran-static.exe ~/sw/bin/jpegtran-calibre.exe
+   cp cjpeg-static.exe ~/sw/bin/cjpeg-calibre.exe
+
 calibre
 ---------
 
