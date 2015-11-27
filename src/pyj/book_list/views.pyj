@@ -207,6 +207,7 @@ class BooksView:
         return ans
 
     def change_sort(self, field, order):
+        self.abort_get_more_books()
         key = 'sort-order-for-' + field
         sd = get_session_data()
         order = order or sd.get(key, 'asc')
@@ -232,6 +233,7 @@ class BooksView:
             error_dialog(_('Could not change sort order'), xhr.error_html)
 
     def change_search(self, query):
+        self.abort_get_more_books()
         query = query or ''
         sd = get_session_data()
         data = {'search':query, 'sort':sd.get('sort'), 'library_id':self.interface_data.library_id}
