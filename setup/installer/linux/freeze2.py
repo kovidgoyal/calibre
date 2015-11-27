@@ -67,7 +67,9 @@ arch = 'x86_64' if is64bit else 'i686'
 
 def binary_includes():
     return [
-    j(SW, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm')] + [
+    j(SW, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'optipng')] + [
+
+    j(SW, 'private', 'mozjpeg', 'bin', x) for x in ('jpegtran', 'cjpeg')] + [
 
     j(SW, 'lib', 'lib' + x) for x in (
         'usb-1.0.so.0', 'mtp.so.9', 'expat.so.1', 'sqlite3.so.0',
