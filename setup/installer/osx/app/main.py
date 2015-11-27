@@ -419,9 +419,12 @@ class Py2App(object):
 
     @flush
     def add_imaging_libs(self):
-        info('\nAdding libjpeg, libpng and libwebp')
+        info('\nAdding libjpeg, libpng, libwebp, optipng and mozjpeg')
         for x in ('jpeg.8', 'png16.16', 'webp.5'):
             self.install_dylib(os.path.join(SW, 'lib', 'lib%s.dylib' % x))
+        self.install_dylib(os.path.join(SW, 'bin', 'optipng'), False)
+        for x in ('jpegtran', 'cjpeg'):
+            self.install_dylib(os.path.join(SW, 'private', 'mozjpeg', 'bin', x), False)
 
     @flush
     def add_fontconfig(self):
