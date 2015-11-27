@@ -20,6 +20,49 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.45.0
+  date: 2015-11-27
+
+  new features:
+    - title: "Cover browser: Allow customizing the text that appears under the covers with a template in Preferences->Look & Feel->Cover browser"
+
+    - title: "When sending books without a cover to the device, generate a cover with book metadata instead of using the blank book icon"
+
+    - title: "Preferenes->Add your own columns: Show more information about existing columns"
+
+  bug fixes:
+    - title: "PDF Output: Handle input documents with fonts that do not have either postscript or full name information."
+      tickets: [1518678]
+
+    - title: "DOCX Input: Handle numbering styles that use non-decimal number formats and custom templates."
+      tickets: [1519962]
+
+    - title: "Allow restoring of corrupted library to work even if the metadata.db file is missing from the library folder"
+      tickets: [1519855]
+
+    - title: "Bulk metadata dialog: Fix renaming a custom series via search and replace causing the series index to be reset to 1."
+      tickets: [1519599]
+
+    - title: "Bulk metadata dialog: Fix search and replace not working for text like custom columns if the column contains only a single value."
+      tickets: [1516890]
+
+    - title: "Content server: Fix next and previous links not working in the mobile view when using a search query that includes url unsafe characters."
+      tickets: [1519606]
+
+    - title: "Update Amazon metadata download plugin to handle amazon.com website change that was preventing any metadata from being downloaded"
+
+    - title: "Edit Book: Fix error when trying to add words to user dictionary for a book with a language that has no dictionary available."
+      tickets: [1517928]
+
+    - title: "Tag browser: Fix various bugs in how grouped search terms are displayed. Also fix counts and average rating for items in user categories"
+
+    - title: "When using copy to library also create missing composite columns in the destination library."
+      tickets: [1516880]
+
+  improved recipes:
+    - The Guardian and The Observer
+
+
 - version: 2.44.1
   date: 2015-11-15
 
