@@ -72,16 +72,16 @@ def compress_images(container, report=None, names=None, jpeg_quality=None):
                 before_total += before
                 after_total += after
                 if report:
-                    report(_('{0} compressed from {1} to {2} bytes [{3:.1%}]').format(
-                        name, human_readable(before), human_readable(after), after/before))
+                    report(_('{0} compressed from {1} to {2} bytes [{3:.1%} reduction]').format(
+                        name, human_readable(before), human_readable(after), (before - after)/before))
         else:
             report(_('Failed to process {0} with error:').format(name))
             report(res)
     if report:
         if before_total > 0:
             report('')
-            report(_('Total image filesize reduced from {0} to {1} [{2:.1%}]').format(
-                human_readable(before_total), human_readable(after_total), after_total/before_total))
+            report(_('Total image filesize reduced from {0} to {1} [{2:.1%} reduction]').format(
+                human_readable(before_total), human_readable(after_total), (before_total - after_total)/before_total))
         else:
             report(_('Images are already fully optimized'))
     return before_total > 0, results
