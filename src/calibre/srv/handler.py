@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, json
 from collections import OrderedDict
 from importlib import import_module
 from threading import Lock
@@ -137,7 +137,10 @@ class Context(object):
             old = cache.pop(key, None)
             if old is None or old[0] <= db.last_modified():
                 categories = db.get_categories(book_ids=restrict_to_ids, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
-                cache[key] = old = (utcnow(), render(db, categories))
+                data = json.dumps(render(db, categories), ensure_ascii=False)
+                if isinstance(data, type('')):
+                    data = data.encode('utf-8')
+                cache[key] = old = (utcnow(), data)
                 if len(cache) > self.CATEGORY_CACHE_SIZE:
                     cache.popitem(last=False)
             else:

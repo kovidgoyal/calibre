@@ -18,9 +18,12 @@ default_methods = frozenset(('HEAD', 'GET'))
 
 def json(ctx, rd, endpoint, output):
     rd.outheaders['Content-Type'] = 'application/json; charset=UTF-8'
-    ans = jsonlib.dumps(output, ensure_ascii=False)
-    if not isinstance(ans, bytes):
-        ans = ans.encode('utf-8')
+    if isinstance(output, bytes):
+        ans = output  # Assume output is already UTF-8 encoded json
+    else:
+        ans = jsonlib.dumps(output, ensure_ascii=False)
+        if not isinstance(ans, bytes):
+            ans = ans.encode('utf-8')
     return ans
 
 def route_key(route):
