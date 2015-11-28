@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import os
 from functools import partial
-from threading import Thread
+from threading import Thread, Event
 from Queue import Queue, Empty
 
 from calibre import detect_ncpus, human_readable
@@ -15,14 +15,16 @@ class Worker(Thread):
 
     daemon = True
 
-    def __init__(self, name, queue, results, container, jpeg_quality):
+    def __init__(self, abort, name, queue, results, container, jpeg_quality, progress_callback):
         Thread.__init__(self, name=name)
         self.queue, self.results, self.container = queue, results, container
+        self.progress_callback = progress_callback
         self.jpeg_quality = jpeg_quality
+        self.abort = abort
         self.start()
 
     def run(self):
-        while True:
+        while not self.abort.is_set():
             try:
                 name = self.queue.get_nowait()
             except Empty:
@@ -33,6 +35,11 @@ class Worker(Thread):
                 import traceback
                 self.results[name] = (False, traceback.format_exc())
             finally:
+                try:
+                    self.progress_callback(name)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
                 self.queue.task_done()
 
     def compress(self, name):
@@ -50,19 +57,28 @@ class Worker(Thread):
         after = os.path.getsize(path)
         self.results[name] = (True, (before, after))
 
-
-def compress_images(container, report=None, names=None, jpeg_quality=None):
+def get_compressible_images(container):
     mt_map = container.manifest_type_map
     images = set()
     for mt in 'png jpg jpeg'.split():
         images |= set(mt_map.get('image/' + mt, ()))
+    return images
+
+def compress_images(container, report=None, names=None, jpeg_quality=None, progress_callback=lambda n, t, name:True):
+    images = get_compressible_images(container)
     if names is not None:
         images &= set(names)
     results = {}
     queue = Queue()
+    abort = Event()
     for name in images:
         queue.put(name)
-    [Worker('CompressImage%d' % i, queue, results, container, jpeg_quality) for i in xrange(min(detect_ncpus(), len(images)))]
+    def pc(name):
+        keep_going = progress_callback(len(results), len(images), name)
+        if not keep_going:
+            abort.set()
+    progress_callback(0, len(images), '')
+    [Worker(abort, 'CompressImage%d' % i, queue, results, container, jpeg_quality, pc) for i in xrange(min(detect_ncpus(), len(images)))]
     queue.join()
     before_total = after_total = 0
     for name, (ok, res) in results.iteritems():

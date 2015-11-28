@@ -390,6 +390,8 @@ class Main(MainWindow):
             'reports.png', _('&Reports'), self.boss.show_reports, 'show-reports', ('Ctrl+Shift+R',), _('Show a report on various aspects of the book'))
         self.action_check_external_links = treg('insert-link.png', _('Check &external links'), self.boss.check_external_links, 'check-external-links', (), _(
             'Check external links in the book'))
+        self.action_compress_images = treg('compress-image.png', _('Compress &images losslessly'), self.boss.compress_images, 'compress-images', (), _(
+            'Compress images losslessly'))
 
         def ereg(icon, text, target, sid, keys, description):
             return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
@@ -538,6 +540,7 @@ class Main(MainWindow):
         e.addAction(self.action_manage_fonts)
         e.addAction(self.action_embed_fonts)
         e.addAction(self.action_subset_fonts)
+        e.addAction(self.action_compress_images)
         e.addAction(self.action_smarten_punctuation)
         e.addAction(self.action_remove_unused_css)
         e.addAction(self.action_fix_html_all)

@@ -1211,6 +1211,29 @@ class Boss(QObject):
         if self.ensure_book(_('You must first open a book in order to check links.')):
             self.gui.check_external_links.show()
 
+    def compress_images(self):
+        if not self.ensure_book(_('You must first open a book in order to compress images.')):
+            return
+        from calibre.gui2.tweak_book.polish import show_report, CompressImages, CompressImagesProgress
+        d = CompressImages(self.gui)
+        if d.exec_() == d.Accepted:
+            with BusyCursor():
+                self.add_savepoint(_('Before: compress images'))
+                d = CompressImagesProgress(names=d.names, jpeg_quality=d.jpeg_quality, parent=self.gui)
+                if d.exec_() != d.Accepted:
+                    self.rewind_savepoint()
+                    return
+                changed, report = d.result
+                if changed is None and report:
+                    self.rewind_savepoint()
+                    return error_dialog(self.gui, _('Unexpected error'), _(
+                        'Failed to compress images, click "Show details" for more information'), det_msg=report, show=True)
+                if changed:
+                    self.apply_container_update_to_gui()
+                else:
+                    self.rewind_savepoint()
+            show_report(changed, self.current_metadata.title, report, self.gui, self.show_current_diff)
+
     def sync_editor_to_preview(self, name, sourceline_address):
         editor = self.edit_file(name, 'html')
         self.ignore_preview_to_editor_sync = True
