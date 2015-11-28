@@ -26,7 +26,7 @@ if iswindows:
         if 'SDK' in p:
             MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
     MT = os.path.join(SDK, 'Bin', 'mt.exe')
-    os.environ['QMAKESPEC'] = 'win32-msvc2008'
+    os.environ['QMAKESPEC'] = os.environ.get('QMAKESPEC', 'win32-msvc2008')
 
 QMAKE = 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
