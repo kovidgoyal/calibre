@@ -1197,6 +1197,8 @@ class ZipFile:
             arcname += '/'
         zinfo = ZipInfo(arcname, date_time)
         zinfo.external_attr = (st[0] & 0xFFFF) << 16L      # Unix attributes
+        if isdir:
+            zinfo.compress_type = ZIP_STORED
         if compress_type is None:
             zinfo.compress_type = self.compression
         else:
