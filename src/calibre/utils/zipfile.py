@@ -35,7 +35,7 @@ class LargeZipFile(Exception):
 error = BadZipfile      # The exception raised by this module
 
 ZIP64_LIMIT = (1 << 31) - 1
-ZIP_FILECOUNT_LIMIT = 1 << 16
+ZIP_FILECOUNT_LIMIT = (1 << 16) - 1
 ZIP_MAX_COMMENT = (1 << 16) - 1
 
 # constants for Zip file compression methods
