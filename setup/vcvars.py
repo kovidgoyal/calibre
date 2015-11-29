@@ -8,9 +8,12 @@ __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, sys, subprocess
-from distutils.msvc9compiler import find_vcvarsall, get_build_version
 
 plat = 'amd64' if sys.maxsize > 2**32 else 'x86'
+
+def distutils_vcvars():
+    from distutils.msvc9compiler import find_vcvarsall, get_build_version
+    return find_vcvarsall(get_build_version())
 
 def remove_dups(variable):
     old_list = variable.split(os.pathsep)
@@ -21,6 +24,8 @@ def remove_dups(variable):
     return os.pathsep.join(new_list)
 
 def query_process(cmd):
+    if 'PROGRAMFILES(x86)' not in os.environ:
+        os.environ['PROGRAMFILES(x86)'] = os.environ['PROGRAMFILES'] + ' (x86)'
     result = {}
     popen = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
@@ -48,7 +53,11 @@ def query_process(cmd):
     return result
 
 def query_vcvarsall():
-    vcvarsall = find_vcvarsall(get_build_version())
+    tools = os.environ.get('VS140COMNTOOLS')
+    if tools:
+        vcvarsall = os.path.join(os.path.dirname(os.path.dirname(tools)), 'VC', 'vcvarsall.bat')
+    else:
+        vcvarsall = distutils_vcvars()
     return query_process('"%s" %s & set' % (vcvarsall, plat))
 
 env = query_vcvarsall()
