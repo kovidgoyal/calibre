@@ -61,5 +61,11 @@ class heiseDe(BasicNewsRecipe):
 
     remove_tags_after = [dict(name='div', attrs={'class':'news_foren'})]
 
-    feeds =  [ ('heise', 'http://www.heise.de/newsticker/heise.rdf') ]
+    feeds =  [ 
+        ('heise online', 'http://www.heise.de/newsticker/heise.rdf'),
+        ('heise Developer', 'http://www.heise.de/developer/rss/news-atom.xml'),
+        ('heise open', 'http://www.heise.de/open/news/news-atom.xml')
+    ]
 
+    def get_article_url(self, article):
+        return article.link + "&view=print"
