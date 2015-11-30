@@ -116,6 +116,10 @@ For 32-bit::
 
     ./run.bat Win32 || echo "\n\nPython compilation failed!"
 
+Run the python test suite, as::
+
+    ./PCbuild/*/python.exe Lib/test/regrtest.py -u network,cpu,subprocess,urlfetch
+
 Edit Lib/mimetypes.py and set _winreg = None to prevent reading
 of mimetypes from the windows registry
 
