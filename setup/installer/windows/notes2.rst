@@ -25,9 +25,9 @@ Cygwin
 ------------
 
 This is needed for automation of the build process, and the ease of use of the
-unix shell (bash).
+unix shell (zsh).
 
-Install vim, subversion, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl at a minimum.
+Install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl at a minimum.
 Run::
     mkdir -p ~/sw/bin ~/sw/sources ~/sw/build ~/sw/lib ~/sw/private
 
@@ -85,7 +85,7 @@ Pass port 22 through Windows firewall. Create ~/.ssh/authorized_keys
 Build python
 ----------------
 
-Get nasm.exe from (needed for openssl and libjpeg-turbo)
+Get nasm.exe (needed for openssl and libjpeg-turbo) from
 http://www.nasm.us/pub/nasm/releasebuilds/2.11/win32/nasm-2.11-win32.zip
 and put it in ~/sw/bin (which must be in PATH)::
     chmod +x ~/sw/bin/nasm.exe
