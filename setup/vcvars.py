@@ -53,11 +53,7 @@ def query_process(cmd):
     return result
 
 def query_vcvarsall():
-    tools = os.environ.get('VS140COMNTOOLS')
-    if tools:
-        vcvarsall = os.path.join(os.path.dirname(os.path.dirname(tools)), 'VC', 'vcvarsall.bat')
-    else:
-        vcvarsall = distutils_vcvars()
+    vcvarsall = distutils_vcvars()
     return query_process('"%s" %s & set' % (vcvarsall, plat))
 
 env = query_vcvarsall()
