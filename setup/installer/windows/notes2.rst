@@ -110,18 +110,22 @@ First run::
 
 For 64-bit ::
 
-    ./run.bat x64 || echo "\n\nPython compilation failed!"
+    ./run.bat x64 || echo '\n\nPython compilation failed!'
 
 For 32-bit::
 
-    ./run.bat Win32 || echo "\n\nPython compilation failed!"
+    ./run.bat Win32 || echo '\n\nPython compilation failed!'
 
 Run the python test suite, as::
 
     ./PCbuild/*/python.exe Lib/test/regrtest.py -u network,cpu,subprocess,urlfetch
 
-Edit Lib/mimetypes.py and set _winreg = None to prevent reading
-of mimetypes from the windows registry
+Install python as::
+
+    ./PCbuild/amd64/python.exe /cygwin64/home/kovid/build/calibre/setup/installer/windows/install_python.py /cygwin64/home/kovid/sw/private
+
+Make sure ~/sw/private/python is in your PATH
+
 
 Basic dependencies
 --------------------
