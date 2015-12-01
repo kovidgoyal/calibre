@@ -94,6 +94,7 @@ and put it in ~/sw/bin (which must be in PATH)::
     chmod +x ~/sw/bin/nasm.exe
 
 Install tortoise svn from http://tortoisesvn.net/downloads.html
+Install git for windows from https://git-scm.com/download/win
 
 Get a customized version of python that compiles with VS 2015, like this::
 
