@@ -98,7 +98,7 @@ Install git for windows from https://git-scm.com/download/win
 
 Get a customized version of python that compiles with VS 2015, like this::
 
-    git clone https://github.com/kovidgoyal/cpython.git && cd cpython && git checkout 2.7
+    git clone --depth 1 https://github.com/kovidgoyal/cpython.git && cd cpython && git checkout 2.7
 
 PlatformToolset below corresponds to the version of Visual Studio, here 2015 (14.0)
 We create externals/nasm-2.11.06 below so that the python build script does not
