@@ -7,14 +7,14 @@ Overview
 calibre and all its dependencies are compiled using Visual Studio 2015. All the
 following instructions must be run in a visual studio command prompt (the
 various commands use unix notation, so if you want to use them directly, you
-have to setup cygwin).
+have to setup cygwin, as described below).
 
 calibre contains build script to automate the building of the calibre
 installer. These scripts make certain assumptions about where dependencies are
 installed. Your best best is to setup a VM and replicate the paths mentioned
 below exactly.
 
-Microsoft Visual Studio and Windows SDK
+Microsoft Visual Studio 
 ----------------------------------------
 
 1) Install Visual Studio 2015 Community Edition
@@ -25,17 +25,14 @@ Cygwin
 ------------
 
 This is needed for automation of the build process, and the ease of use of the
-unix shell (zsh).
+unix shell (zsh). Install it by running: https://www.cygwin.com/setup-x86_64.exe
 
-Install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl at a minimum.
+In cygwin, install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl 
+
 Run::
     mkdir -p ~/sw/bin ~/sw/sources ~/sw/build ~/sw/lib ~/sw/private
 
-After installing python (below) run::
-    python setup/vcvars.py 
-
-And have your shell source `~/.vcvars` which will be created by the above
-command.  This will allow you to use the visual studio tools in the cygwin shell.
+Edit /etc/passwd and replace all occurrences of /bin/bash with /bin/zsh
 
 The following is only needed for automation (setting up ssh access to the
 windows machine).
@@ -82,6 +79,12 @@ to login as the normal user account with ssh. To do this, follow these steps:
 
 Pass port 22 through Windows firewall. Create ~/.ssh/authorized_keys
 
+Get the calibre source code
+------------------------------
+
+Get the calibre source code::
+    mkdir -p ~/build && rm -rf calibre && cd ~/build && curl -L http://code.calibre-ebook.com/dist/src | tar xvJ && mv calibre-* calibre
+
 Build python
 ----------------
 
@@ -111,14 +114,12 @@ First run::
 For 64-bit ::
 
     ./run.bat x64 || echo '\n\nPython compilation failed!'
+    ./PCbuild/amd64/python.exe Lib/test/regrtest.py -u network,cpu,subprocess,urlfetch
 
 For 32-bit::
 
     ./run.bat Win32 || echo '\n\nPython compilation failed!'
-
-Run the python test suite, as::
-
-    ./PCbuild/*/python.exe Lib/test/regrtest.py -u network,cpu,subprocess,urlfetch
+    ./PCbuild/python.exe Lib/test/regrtest.py -u network,cpu,subprocess,urlfetch
 
 Install python as::
 
@@ -137,6 +138,13 @@ You have to
 Set CMAKE_PREFIX_PATH environment variable to C:\cygwin64\home\kovid\sw
 
 This is where all dependencies will be installed.
+
+Run::
+    python /cygwin64/home/kovid/build/calibre/setup/vcvars.py > ~/.vcvars
+
+Add `source ~/.vcvars` to `~/.zshenv`
+This will allow you to use the Visual Studio tools in the cygwin shell.
+
 
 Python packages
 ------------------

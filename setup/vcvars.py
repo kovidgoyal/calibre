@@ -82,6 +82,5 @@ export LIBPATH="%s"
 
 '''%(unix(paths), lib.replace('\\', r'\\'), include.replace('\\', r'\\'), libpath.replace('\\', r'\\'))
 
-with open(os.path.expanduser('~/.vcvars'), 'wb') as f:
-    f.write(raw.encode('utf-8'))
+print(raw.encode('utf-8'))
 
