@@ -97,12 +97,11 @@ Install tortoise svn from http://tortoisesvn.net/downloads.html
 
 Get a customized version of python that compiles with VS 2015, like this::
 
-    git clone git@github.com:kovidgoyal/cpython.git
-    git checkout 2.7
+    git clone https://github.com/kovidgoyal/cpython.git && cd cpython && git checkout 2.7
 
 PlatformToolset below corresponds to the version of Visual Studio, here 2015 (14.0)
 We create externals/nasm-2.11.06 below so that the python build script does not
-try to download its own nasm ans uses the one we installed above (the python
+try to download its own nasm instead using the one we installed above (the python
 build script fails to mark its nasm as executable, and therefore errors out)
 
 First run::
