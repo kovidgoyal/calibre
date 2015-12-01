@@ -138,11 +138,6 @@ Set CMAKE_PREFIX_PATH environment variable to C:\cygwin64\home\kovid\sw
 
 This is where all dependencies will be installed.
 
-Add C:\Python27\Scripts and C:\Python27 to PATH 
-
-Edit /cygdrive/c/Python27/Lib/mimetypes.py and set _winreg = None to prevent reading
-of mimetypes from the windows registry
-
 Python packages
 ------------------
 
