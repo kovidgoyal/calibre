@@ -145,6 +145,12 @@ Run::
 Add `source ~/.vcvars` to `~/.zshenv`
 This will allow you to use the Visual Studio tools in the cygwin shell.
 
+Install perl and ruby (needed to build openssl and qt):
+Perl: http://www.activestate.com/activeperl
+Ruby: http://rubyinstaller.org/
+
+Put both perl.exe and ruby.exe in the PATH
+
 
 setuptools
 --------------
@@ -169,6 +175,7 @@ Run::
     python setup.py -q build --plat-name=(win32|win-amd64)  # Do this
             # repeatedly until you stop getting .manifest file errors
     python setup.py -q install
+    rm ~/sw/private/python/Lib/site-packages/*.chm
 
 SQLite
 ---------
@@ -181,15 +188,6 @@ APSW
 Download source from http://code.google.com/p/apsw/downloads/list and run 
 
 python setup.py fetch --all --missing-checksum-ok build --enable-all-extensions install test
-
-Build requirements
--------------------
-
-Install perl and ruby (needed to build openssl and qt):
-Perl: http://www.activestate.com/activeperl
-Ruby: http://rubyinstaller.org/
-
-Put both perl.exe and ruby.exe in the PATH
 
 OpenSSL
 --------
