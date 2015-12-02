@@ -27,7 +27,7 @@ Cygwin
 This is needed for automation of the build process, and the ease of use of the
 unix shell (zsh). Install it by running: https://www.cygwin.com/setup-x86_64.exe
 
-In cygwin, install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl 
+In cygwin, install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl, patch
 
 Run::
     mkdir -p ~/sw/bin ~/sw/sources ~/sw/build ~/sw/lib ~/sw/private
@@ -146,35 +146,29 @@ Add `source ~/.vcvars` to `~/.zshenv`
 This will allow you to use the Visual Studio tools in the cygwin shell.
 
 
-Python packages
-------------------
+setuptools
+--------------
+Download and extract setuptools from https://pypi.python.org/pypi/setuptools/
+Run::
+    cd ~/sw/build/setuptools-* && sed -i.bak 's/zip_safe\s*=\s*True/zip_safe=False/' setup.py && \
+    python setup.py install
 
-Install setuptools from http://pypi.python.org/pypi/setuptools. Use the source
-tarball. Edit setup.py and set zip_safe=False. Then run::
+Miscellaneous python packages
+--------------------------------------
 
-     python setup.py install
+Run::
+    ~/sw/private/python/Scripts/easy_install.exe --always-unzip -U python-dateutil dnspython mechanize pygments pyreadline cssutils pycrypto
 
-Run the following command to install python dependencies::
+pywin32
+----------
 
-    easy_install --always-unzip -U mechanize python-dateutil dnspython cssutils clientform pycrypto pygments
+Run::
 
-Install pyreadline from https://pypi.python.org/pypi/pyreadline/2.0
-
-Install pywin32 and edit win32com\__init__.py setting _frozen = True and
-__gen_path__ to a temp dir (otherwise it tries to set it to a dir in the
-install tree which leads to permission errors)
-Note that you should use::
-
-    import tempfile
-    __gen_path__ = os.path.join(
-                            tempfile.gettempdir(), "gen_py",
-                            "%d.%d" % (sys.version_info[0], sys.version_info[1]))
-
-Use gettempdir instead of the win32 api method as gettempdir returns a temp dir
-that is guaranteed to actually work.
-
-Also edit win32com\client\gencache.py and change the except IOError on line 57
-to catch all exceptions.
+    git clone --depth 1 https://github.com/kovidgoyal/pywin32.git
+    chmod +x swig/swig.exe
+    python setup.py -q build --plat-name=(win32|win-amd64)  # Do this
+            # repeatedly until you stop getting .manifest file errors
+    python setup.py -q install
 
 SQLite
 ---------

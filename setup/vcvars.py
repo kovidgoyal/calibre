@@ -61,6 +61,7 @@ paths = env['path'].split(';')
 lib = env['lib']
 include = env['include']
 libpath = env['libpath']
+sdkdir = env['windowssdkdir']
 
 def unix(paths):
     up = []
@@ -80,7 +81,9 @@ export INCLUDE="%s"
 
 export LIBPATH="%s"
 
-'''%(unix(paths), lib.replace('\\', r'\\'), include.replace('\\', r'\\'), libpath.replace('\\', r'\\'))
+export WindowsSdkDir="%s"
+
+'''%(unix(paths), lib.replace('\\', r'\\'), include.replace('\\', r'\\'), libpath.replace('\\', r'\\'), sdkdir.replace('\\', r'\\'))
 
 print(raw.encode('utf-8'))
 
