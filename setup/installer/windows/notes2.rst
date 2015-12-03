@@ -425,17 +425,9 @@ Get the source from: http://www.imagemagick.org/download/windows/ImageMagick-win
 Unzip it and then run::
     chmod +x `find . -name '*.exe'`
 
-Edit VisualMagick/configure/configure.cpp to set
-
-int projectType = MULTITHREADEDDLL;
-
 Open configure.sln and build it to create configure.exe
 
-Run configure.exe set 32/64 bit disable X11 and OpenMP and click the Edit
-magick-baseconfig.h button
-
-Undefine ProvideDllMain 
-
+Run configure.exe set 32/64 bit disable OpenMP 
 Now open VisualMagick/VisualDynamicMT.sln set to Release
 
 Remove the UTIL_IMdisplay and CORE_Magick++ projects.
