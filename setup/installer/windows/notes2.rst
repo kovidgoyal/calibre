@@ -34,6 +34,24 @@ Run::
 
 Edit /etc/passwd and replace all occurrences of /bin/bash with /bin/zsh
 
+Run::
+    
+Create a file ~/bin/winenv with the following::
+
+    cat << '    EOF' |  sed -e 's/^ *//' > ~/bin/winenv
+    #!pyrun
+    import os, subprocess, sys
+    env = os.environ.copy()
+    # Ensure windows based exes are used in preference to cygwin ones
+    parts = filter(lambda x: '\\cygwin64\\' not in x, env['PATH'].split(os.pathsep))
+    parts.insert(0, r'C:\cygwin64\home\kovid\sw\bin')
+    parts.insert(0, r'C:\cygwin64\home\kovid\sw\private\python')
+    env['PATH'] = os.pathsep.join(parts)
+    p = subprocess.Popen(sys.argv[1:], env=env)
+    raise SystemExit(p.wait())
+    EOF
+    chmod +x ~/bin/winenv
+
 The following is only needed for automation (setting up ssh access to the
 windows machine).
 
@@ -127,6 +145,19 @@ Install python as::
 
 Make sure ~/sw/private/python is in your PATH
 
+Run::
+
+    cat << '    EOF' |  sed -e 's/^ *//' > ~/sw/private/python/pyrun
+    #!/bin/zsh
+    SCRIPT=$(readlink -f $0)
+    SCRIPTPATH=`dirname $SCRIPT`
+    PYSCRIPT=`cygpath -w $1`
+    exec $SCRIPTPATH/python.exe $PYSCRIPT ${@:2}
+    EOF
+    chmod +x ~/sw/private/python/pyrun
+
+This creates a pyrun executable that can be used as a shebang in python scripts
+you intend to run directly via cygwin.
 
 Basic dependencies
 --------------------
@@ -180,40 +211,38 @@ Run::
 SQLite
 ---------
 
+https://www.sqlite.org/download.html
+
 Put sqlite3*.h from the sqlite windows amalgamation in ~/sw/include
 
 APSW
 -----
 
-Download source from http://code.google.com/p/apsw/downloads/list and run 
+https://github.com/rogerbinns/apsw/releases
 
 python setup.py fetch --all --missing-checksum-ok build --enable-all-extensions install test
 
 OpenSSL
 --------
 
-Download and untar the openssl tarball.
-To install use a private prefix: --prefix=C:/cygwin64/home/kovid/sw/private/openssl
-
-The following *MUST BE RUN* in a Visual Studio Command prompt and not in a cygwin
-environment.
+https://www.openssl.org/source/
 
 For 32-bit::
-    perl Configure VC-WIN32 no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl
-    ms\do_ms.bat && nmake -f ms\ntdll.mak && nmake -f ms\ntdll.mak test && nmake -f ms\ntdll.mak install
+    winenv perl Configure VC-WIN32 no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl && \
+    winenv ms\\do_ms.bat && winenv nmake -f ms\\ntdll.mak && winenv nmake -f ms\\ntdll.mak test && winenv nmake -f ms\\ntdll.mak install
 
 For 64-bit::
-    perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl
-    ms\do_win64a.bat && nmake -f ms\ntdll.mak && nmake -f ms\ntdll.mak test && nmake -f ms\ntdll.mak install
+    winenv perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl && \
+    winenv ms\\do_win64a.bat && winenv nmake -f ms\\ntdll.mak && winenv nmake -f ms\\ntdll.mak test && winenv nmake -f ms\\ntdll.mak install
 
 ICU
 -------
 
 Download the win32 *source* .zip from http://www.icu-project.org/download
 
-Extract to C:\cygwin64\home\kovid\sw\private\icu
+Extract to `~/sw/private`
 
-The following must be run in the VS Command Prompt, not the cygwin ssh shell
+The following *must be run in the VS Command Prompt*, not the cygwin shell
 
 cd to <ICU>\source::
 
@@ -231,19 +260,18 @@ zlib
 http://www.zlib.net/
 
 Build with::
-    nmake -f win32/Makefile.msc
-    nmake -f win32/Makefile.msc test
+    winenv nmake -f win32/Makefile.msc && \
+    nmake -f win32/Makefile.msc test && \
     cp zlib1.dll* ~/sw/bin && cp zlib.lib zdll.* ~/sw/lib/ && cp zconf.h zlib.h ~/sw/include/
 
 jpeg-8
 -------
 
-Get the source code from: http://sourceforge.net/projects/libjpeg-turbo/files/
-
+Get the source code from: https://github.com/libjpeg-turbo/libjpeg-turbo/releases
 Run::
-    chmod +x cmakescripts/* && mkdir -p build && cd build 
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 ..
-    nmake
+    chmod +x cmakescripts/* && mkdir -p build && cd build && \
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_JPEG8=1 .. && \
+    nmake && \
     cp sharedlib/jpeg8.dll* ~/sw/bin/ && cp sharedlib/jpeg.lib ~/sw/lib/ && cp jconfig.h ../jerror.h ../jpeglib.h ../jmorecfg.h ~/sw/include
 
 libpng
@@ -254,8 +282,7 @@ http://www.libpng.org/pub/png/libpng.html
 
 Run::
     cmake -G "NMake Makefiles" -DPNG_SHARED=1 -DCMAKE_BUILD_TYPE=Release -DZLIB_INCLUDE_DIR=C:/cygwin64/home/kovid/sw/include -DZLIB_LIBRARY=C:/cygwin64/home/kovid/sw/lib/zdll.lib .
-    nmake
-    cp libpng*.dll ~/sw/bin/ && cp libpng*.lib ~/sw/lib/ && cp pnglibconf.h png.h pngconf.h ~/sw/include/
+    nmake && cp libpng*.dll ~/sw/bin/ && cp libpng*.lib ~/sw/lib/ && cp pnglibconf.h png.h pngconf.h ~/sw/include/
 
 freetype
 -----------
