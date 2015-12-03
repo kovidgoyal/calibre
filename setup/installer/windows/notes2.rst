@@ -318,20 +318,12 @@ libiconv
 ----------
 
 Run::
-    mkdir vs2008 && cd vs2008
-
-Then follow these instructions:
-http://www.codeproject.com/Articles/302012/How-to-Build-libiconv-with-Microsoft-Visual-Studio
-
-NOTE: Built as MT rather than MD so no manifest
-
-Change the type to Release and config to x64 or Win32 and Build solution and
-then::
-    cp "`find . -name '*.dll'`" ~/sw/bin/
-    cp "`find . -name '*.lib'`" ~/sw/lib/iconv.lib
-    cp "`find . -name iconv.h`" ~/sw/include/
-
-Information for using a static version of libiconv is at the link above.
+    git clone --depth 1 https://github.com/winlibs/libiconv.git
+    export PL=x64 (change to Win32 for 32 bit build)
+    winenv msbuild.exe MSVC14/libiconv.sln /t:Build /p:Platform=$PL /p:Configuration="Release"
+    cp ./MSVC14/x64/Release/libiconv.lib ~/sw/lib/iconv.lib
+    cp ./MSVC14/libiconv_dll/x64/Release/libiconv.dll ~/sw/lib/iconv.dll
+    cp ./source/include/iconv.h ~/sw/include/
 
 libxml2
 -------------
@@ -341,9 +333,9 @@ Get it from: ftp://xmlsoft.org/libxml2/
 Run::
     cd win32
     cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes
-    nmake /f Makefile.msvc
+    winenv nmake /f Makefile.msvc
     cd ..
-    mkdir -p ~/sw/include/libxml2/libxml && cp include/libxml/*.h ~/sw/include/libxml2/libxml/
+    rm -rf ~/sw/include/libxml2 && mkdir -p ~/sw/include/libxml2/libxml && cp include/libxml/*.h ~/sw/include/libxml2/libxml/
     find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
     find .  -name libxml2.lib -exec cp "{}" ~/sw/lib/ \;
 
@@ -355,8 +347,10 @@ Get it from: ftp://xmlsoft.org/libxml2/
 Run::
     cd win32
     cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include include=C:/cygwin64/home/kovid/sw/include/libxml2 lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes
-    nmake /f Makefile.msvc
-    mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt
+    sed -i 's/#define snprintf _snprintf//' ../libxslt/win32config.h
+    find . -name 'Makefile*' -exec sed -i 's|/OPT:NOWIN98||' {} \;
+    winenv nmake /f Makefile.msvc
+    rm -rf ~/sw/include/libxslt && mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt
     cd ..
     cp libxslt/*.h ~/sw/include/libxslt/
     cp libexslt/*.h ~/sw/include/libexslt/
