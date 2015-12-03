@@ -392,17 +392,17 @@ Build and install with::
 poppler
 -------------
 
-mkdir build
+http://poppler.freedesktop.org
 
-Run the cmake GUI which will find the various dependencies automatically.
-On 64 bit cmake might not let you choose Visual Studio 2008, in whcih case
-leave the source field blank, click configure choose Visual Studio 2008 and
-then enter the source field.
+Run::
+    sed -i 's/#define snprintf _snprintf/#include <algorithm>/' config.h.cmake
+    mkdir build && cd build
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DENABLE_CPP=0 ..
+    nmake (you will need to run this multiple times adding #include <algorithm>
+    to the start of every file where it errors out complaining that max is not
+    declared in the std namespace)
+    cp utils/*.exe* ~/sw/bin
 
-In cmake: disable GTK, Qt, openjpeg, cpp, lcms, gtk_tests, qt_tests. Enable
-jpeg, png and zlib::
-
-    cp build/utils/Release/*.exe ~/sw/bin
 
 podofo
 ----------
