@@ -409,28 +409,13 @@ podofo
 
 Download from http://podofo.sourceforge.net/download.html
 
-mkdir build
-
-Add the following three lines near the top of CMakeLists.txt
-SET(WANT_LIB64 FALSE)
-SET(PODOFO_BUILD_SHARED TRUE)
-SET(PODOFO_BUILD_STATIC FALSE)
-
-PoDoFo's CMakeLists.txt is pretty bad. Run the cmake-gui and fill in values for
-freetype2 and open ssl (choose any one .lib for the libcrypto variable, you
-will have to fix it manually in Visual Studio later anyway). Then generate the
-VisualStudio solution. In the solution. In the Solution got to
-Project->Properties->Linker->Input and add the second ssl library. And in
-C++->General add the openssl include dir.
-
-Now build only the project podofo_shared (release mode)
-
 Run::
+    mkdir build && cd build
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWANT_LIB64=FALSE -DPODOFO_BUILD_SHARED=TRUE -DPODOFO_BUILD_STATIC=False -DFREETYPE_INCLUDE_DIR="C:/cygwin64/home/kovid/sw/include/freetype2"  ..
+    nmake podofo_shared
+    rm -rf ~/sw/include/podofo && mkdir ~/sw/include/podofo && cp podofo_config.h ~/sw/include/podofo && cp -r ../src/* ~/sw/include/podofo/
     cp "`find . -name '*.dll'`" ~/sw/bin/
     cp "`find . -name '*.lib'`" ~/sw/lib/
-    mkdir ~/sw/include/podofo
-    cp build/podofo_config.h ~/sw/include/podofo
-    cp -r src/* ~/sw/include/podofo/
 
 
 ImageMagick
