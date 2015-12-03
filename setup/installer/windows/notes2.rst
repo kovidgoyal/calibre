@@ -289,43 +289,25 @@ freetype
 
 Get the .zip source from: http://download.savannah.gnu.org/releases/freetype/
 
-Edit *all copies* of the file ftoption.h and add to generate a .lib
-and a correct dll
+The following will build freetype both as a static (freetype262MT.lib) and as a dynamic library (freetype.dll and freetype.lib)
 
-#define FT_EXPORT(return_type) __declspec(dllexport) return_type 
-#define FT_EXPORT_DEF(return_type) __declspec(dllexport) return_type
-
-VS 2008 .sln file is present, open it
-
-    * If you are doing x64 build, click the Win32 dropdown, select
-      Configuration manager->Active solution platform -> New -> x64
-
-    * Change active build type to release multithreaded
-
-    * Project->Properties->Configuration Properties change configuration type
-      to dll and build solution
-
-cp "`find . -name freetype.dll`" ~/sw/bin/ && cp "`find . -name freetype.lib`" ~/sw/lib/
-
-Now change configuration back to static for .lib and build solution
-
-cp "`find . -name 'freetype*MT.lib'`" ~/sw/lib/
-cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal
-
-TODO: Test if this bloody thing actually works on 64 bit (apparently freetype
-assumes sizeof(long) == sizeof(ptr) which is not true in Win64. See for
-example: http://forum.openscenegraph.org/viewtopic.php?t=2880
+Run::
+    find . -name ftoption.h -exec sed -i.bak '/FT_BEGIN_HEADER/a #define FT_EXPORT(x) __declspec(dllexport) x\n#define FT_EXPORT_DEF(x) __declspec(dllexport) x' {} \;
+    winenv devenv builds/windows/vc2010/freetype.sln /upgrade
+    export PL=x64 (change to Win32 for 32 bit build)
+    winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded"
+    rm -f ~/sw/lib/freetype*; cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/ 
+    rm -rf ~/sw/include/freetype2 && mkdir ~/sw/include/freetype2 && cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal
+    sed -i.bak s/StaticLibrary/DynamicLibrary/ builds/windows/vc2010/freetype.vcxproj
+    winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded"
+    rm -f ~/sw/bin/freetype*; cp ./objs/vc2010/$PL/freetype*MT.dll ~/sw/bin/freetype.dll && cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/freetype.lib 
 
 expat
 --------
 
 Get from: http://sourceforge.net/projects/expat/files/expat/
 
-Apparently expat requires stdint.h which VS 2008 does not have. So we get our
-own.
-
 Run::
-    cd lib && wget http://msinttypes.googlecode.com/svn/trunk/stdint.h && cd ..
     mkdir -p build && cd build
     cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
     nmake
