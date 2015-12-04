@@ -228,11 +228,11 @@ OpenSSL
 https://www.openssl.org/source/
 
 For 32-bit::
-    winenv perl Configure VC-WIN32 no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl && \
+    winenv perl Configure VC-WIN32 enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl && \
     winenv ms\\do_ms.bat && winenv nmake -f ms\\ntdll.mak && winenv nmake -f ms\\ntdll.mak test && winenv nmake -f ms\\ntdll.mak install
 
 For 64-bit::
-    winenv perl Configure VC-WIN64A no-asm enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl && \
+    winenv perl Configure VC-WIN64A enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl && \
     winenv ms\\do_win64a.bat && winenv nmake -f ms\\ntdll.mak && winenv nmake -f ms\\ntdll.mak test && winenv nmake -f ms\\ntdll.mak install
 
 ICU
