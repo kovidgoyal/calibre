@@ -43,8 +43,8 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.nybooks.com/account/signin/')
         br.select_form(nr=2)
-        br['username'] = self.username
-        br['password'] = self.password
+        br['user_login'] = self.username
+        br['user_password'] = self.password
         br.submit()
         return br
 
