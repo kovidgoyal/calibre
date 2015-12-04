@@ -436,23 +436,21 @@ F7 for build solution.
 
 netifaces
 ------------
-
-Download the source tarball from http://alastairs-place.net/projects/netifaces/
+https://pypi.python.org/pypi/netifaces
 
 Run:: 
     python setup.py build
-    cp `find build/ -name '*.pyd'` /cygdrive/c/Python27/Lib/site-packages/
+    cp `find build/ -name '*.pyd'` ~/sw/private/python/Lib/site-packages/
 
 
 psutil
 --------
+https://pypi.python.org/pypi/psutil
 
-Download the source tarball
+Run::
 
-Run
-
-Python setup.py build
-cp -r build/lib.win*/* /cygdrive/c/Python27/Lib/site-packages/
+    python setup.py build
+    cp -r build/lib.win*/* ~/sw/private/python/Lib/site-packages/
 
 easylzma
 ----------
@@ -470,7 +468,9 @@ chmlib
 Download the zip source code from: http://www.jedrea.com/chmlib/
 Run::
     cd src && unzip ../ChmLib-ds6.zip
-Then open ChmLib.dsw in Visual Studio, change the configuration to Release
+    winenv devenv ChmLib.dsw /upgrade
+
+Then open ChmLib.sln in Visual Studio, change the configuration to Release
 (Win32|x64) and build solution, this will generate a static library in
 Release/ChmLib.lib
 
@@ -552,16 +552,16 @@ See libimobiledevice_notes.rst
 
 optipng
 ----------
-
+http://optipng.sourceforge.net/
 Compiling instructions::
 
     sed -i.bak 's/\$</%s/' src/libpng/scripts/makefile.vcwin32
-    nmake -f build/visualc.mk
+    winenv nmake -f build/visualc.mk
     cp src/optipng/optipng.exe* ~/sw/bin
 
 mozjpeg
 ----------
-
+https://github.com/mozilla/mozjpeg/releases
 Compiling instructions::
 
    mkdir -p build && cd build
