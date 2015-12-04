@@ -43,6 +43,11 @@ class SearchPanel:
                 event.preventDefault(), event.stopPropagation()
         )
 
+    def init(self):
+        tb = self.container.querySelector('input[name="search-books"]')
+        tb.focus()
+        tb.setSelectionRange(0, tb.value.length)
+
     @property
     def container(self):
         return document.getElementById(self.container_id)
