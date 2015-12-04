@@ -112,7 +112,10 @@ def interface_data(ctx, rd):
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     with db.safe_read_lock:
-        ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders))
+        try:
+            ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders))
+        except ParseException:
+            ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
         sf = db.field_metadata.ui_sortable_field_keys()
         sf.pop('ondevice', None)
         ans['sortable_fields'] = sorted(((
@@ -203,6 +206,8 @@ def get_books(ctx, rd):
         try:
             ans['search_result'] = search_result(ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders))
         except ParseException as err:
+            # This must not be translated as it is used by the front end to
+            # detect invalid search expressions
             raise HTTPBadRequest('Invalid search expression: %s' % as_unicode(err))
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)

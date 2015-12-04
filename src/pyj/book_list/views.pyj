@@ -253,7 +253,10 @@ class BooksView:
             boss.ui.close_panel()
             window.scrollTo(0, 0)
         elif end_type != 'abort':
-            error_dialog(_('Could not change search query'), xhr.error_html)
+            msg = xhr.error_html
+            if xhr.status == 400 and str.startswith(xhr.responseText, 'Invalid search expression:'):
+                msg = _('The search expression could not be parsed: ') + xhr.responseText
+            error_dialog(_('Could not change search query'), msg)
 
     def refresh(self):
         self.clear()
