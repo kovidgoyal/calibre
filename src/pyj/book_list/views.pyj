@@ -251,6 +251,7 @@ class BooksView:
             query = {'search':self.interface_data.search_result.query, 'library_id':self.interface_data.library_id}
             window.history.pushState(None, '', encode_query(query))
             boss.ui.close_panel()
+            self.update_fetching_status()
             window.scrollTo(0, 0)
         elif end_type != 'abort':
             msg = xhr.error_html
