@@ -1312,6 +1312,8 @@ class StoreAmazonFRKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
+# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonITKindleStore(StoreBase):
     name = 'Amazon IT Kindle'
     author = 'Charles Haley'
@@ -1322,6 +1324,8 @@ class StoreAmazonITKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
+# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonESKindleStore(StoreBase):
     name = 'Amazon ES Kindle'
     author = 'Charles Haley'
@@ -1332,6 +1336,8 @@ class StoreAmazonESKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
+# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     author = 'Charles Haley'
