@@ -401,6 +401,25 @@ from the value in the box</string>
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="series_increment">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>The amount by which to increment the series number for successive books. Only applicable when using force series numbers.</string>
+               </property>
+               <property name="prefix">
+                <string>+ </string>
+               </property>
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>1.000000000000000</double>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item row="9" column="0">
@@ -1173,8 +1192,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>212</width>
-                <height>66</height>
+                <width>922</width>
+                <height>244</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">

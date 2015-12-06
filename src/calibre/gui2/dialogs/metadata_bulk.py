@@ -55,7 +55,7 @@ def get_cover_data(stream, ext):  # {{{
 # }}}
 
 Settings = namedtuple('Settings', 'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
-                      'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value '
+                      'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
                       'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages restore_original comments')
 null = object()
 
@@ -253,7 +253,7 @@ class MyBlockingBusy(QDialog):  # {{{
             else:
                 def next_series_num(bid, i):
                     if args.do_series_restart:
-                        return sval + i
+                        return sval + (i * args.series_increment)
                     next_num = _get_next_series_num_for_list(sorted(sval.itervalues()), unwrap=False)
                     sval[bid] = next_num
                     return next_num
@@ -918,14 +918,15 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.remove_tags.update_items_cache(self.db.all_tags())
 
     def auto_number_changed(self, state):
+        self.series_start_number.setEnabled(bool(state))
+        self.series_increment.setEnabled(bool(state))
         if state:
             self.series_numbering_restarts.setEnabled(True)
-            self.series_start_number.setEnabled(True)
         else:
             self.series_numbering_restarts.setEnabled(False)
             self.series_numbering_restarts.setChecked(False)
-            self.series_start_number.setEnabled(False)
             self.series_start_number.setValue(1.0)
+            self.series_increment.setValue(1.0)
 
     def reject(self):
         self.save_state()
@@ -969,6 +970,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         do_autonumber = self.autonumber_series.isChecked()
         do_series_restart = self.series_numbering_restarts.isChecked()
         series_start_value = self.series_start_number.value()
+        series_increment = self.series_increment.value()
         do_remove_format = self.remove_format.currentIndex() > -1
         remove_format = unicode(self.remove_format.currentText())
         do_swap_ta = self.swap_title_and_author.isChecked()
@@ -1000,7 +1002,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         args = Settings(remove_all, remove, add, au, aus, do_aus, rating, pub, do_series,
                 do_autonumber, do_remove_format, remove_format, do_swap_ta,
                 do_remove_conv, do_auto_author, series, do_series_restart,
-                series_start_value, do_title_case, cover_action, clear_series, clear_pub,
+                series_start_value, series_increment, do_title_case, cover_action, clear_series, clear_pub,
                 pubdate, adddate, do_title_sort, languages, clear_languages,
                 restore_original, self.comments)
 
