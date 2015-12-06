@@ -43,11 +43,11 @@ Create a file ~/bin/winenv with the following::
     import os, subprocess, sys
     env = os.environ.copy()
     # Ensure windows based exes are used in preference to cygwin ones
-    parts = filter(lambda x: '\\cygwin64\\' not in x, env['PATH'].split(os.pathsep))
-    parts.insert(0, r'C:\cygwin64\home\kovid\sw\bin')
-    parts.insert(0, r'C:\cygwin64\home\kovid\sw\private\python')
+    parts = filter(lambda x: '\\cygwin64\\' not in x or '\\cygwin64\\home\\kovid\\sw\\' in x, env['PATH'].split(os.pathsep))
     env['PATH'] = os.pathsep.join(parts)
-    p = subprocess.Popen(sys.argv[1:], env=env)
+    args = sys.argv[1:]
+    if args[0].startswith('.'): args[0] = os.path.abspath(args[0])
+    p = subprocess.Popen(args, env=env)
     raise SystemExit(p.wait())
     EOF
     chmod +x ~/bin/winenv
@@ -476,7 +476,7 @@ Release/ChmLib.lib
 
 Qt
 --------
-Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_releases/qt/
+Download Qt (5.5.1) sourcecode (.zip) from: http://download.qt-project.org/official_releases/qt/
 
     * Extract it to C:\qt (the default location for building $SW/build) does
       not work as Qt's build system generates paths that are too long for
@@ -484,21 +484,15 @@ Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_rele
 
     * Make sure the folder containing the ICU dlls is in the PATH. ($SW/private/icu/source/lib)
 
-    * Edit qtwinextras/src/winextras/winshobjidl_p.h and comment out the
-      declaration of SHARDAPPIDINFOLINK (just replace the containing ifdef with
-      #if 0). This struct is already defined in the header files from the
-      windows sdk and this redefinition will cause a compiler error.
-
-    * VS 2008 does not have stdint.h which WebKit needs, so run the following::
-        wget -O qtwebkit/Source/ThirdParty/leveldb/include/stdint.h 'http://msinttypes.googlecode.com/svn/trunk/stdint.h'
-        cp qtwebkit/Source/ThirdParty/leveldb/include/stdint.h qtwebkit/Source/JavaScriptCore/os-win32
-
     * Slim down Qt by not building various things we dont need. Edit
       :file:`qtwebkit/Tools/qmake/mkspecs/features/configure.prf` and remove
       build_webkit2. Edit qt.pro and comment out the addModule() lines for
-      qtxmlpatterns, qtdeclarative, qtquick1, qttools, qtwebsockets, qtwebchannel,
-      qtwebengine. Change the addModule line for qtwebkit to depend on qtbase
-      instead of qtdeclarative anf remove qtwebchannel
+      qtxmlpatterns, qtdeclarative, qtquickcontrols, qtsensors, qtfeedback,
+      qtpim, qtwebsockets, qtwebchannel, qttools, qtwebkit-examples, qt3d,
+      qt-canvas3d, qtgraphicaleffects, qtscript, qtquick1, qtdocgallery,
+      qtwayland, qtenginio, qtwebengine, qtdoc. Change the addModule line for
+      qtwebkit to depend only on qtbase and qtmultimedia. Remove qtdeclarative
+      from all addModule() lines where is is an optional dependency.
 
     * Qt uses its own routine to locate and load "system libraries" including
       the openssl libraries needed for "Get Books". This means that we have to
@@ -521,10 +515,10 @@ Download Qt sourcecode (.zip) from: http://download.qt-project.org/official_rele
 Now, run configure and make (we have to make sure the windows perl and not cygwin perl is used)::
 
     chmod +x configure.bat qtbase/configure.* gnuwin32/bin/*
-    rm -rf build && mkdir -p build && cd build
-    PATH=`ls -d /cygdrive/c/Perl*/bin`:$PATH ../configure.bat -prefix $SW/private/qt -ltcg -opensource -release -platform win32-msvc2008 -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -icu -openssl -I $SW/private/openssl/include -L $SW/private/openssl/lib -I $SW/private/icu/source/common -I $SW/private/icu/source/i18n -L $SW/private/icu/source/lib -no-angle -opengl desktop
-    PATH=`ls -d /cygdrive/c/Perl*/bin`:/cygdrive/c/qt/gnuwin32/bin:$PATH nmake
-    rm -rf $SW/private/qt && nmake install
+    rm -rf build && mkdir build && cd build
+    winenv ../configure.bat -prefix C:/cygwin64/home/kovid/sw/private/qt -ltcg -opensource -release -platform win32-msvc2015 -mp -confirm-license -nomake examples -nomake tests -no-plugin-manifests -icu -openssl -I C:/cygwin64/home/kovid/sw/private/openssl/include -L C:/cygwin64/home/kovid/sw/private/openssl/lib -I C:/cygwin64/home/kovid/sw/private/icu/source/common -I C:/cygwin64/home/kovid/sw/private/icu/source/i18n -L C:/cygwin64/home/kovid/sw/private/icu/source/lib -no-angle -opengl desktop
+    PATH=/cygdrive/c/qt/gnuwin32/bin:$PATH winenv nmake
+    rm -rf ~/sw/private/qt && nmake install
 
 Add $SW/private/qt/bin to PATH
 
@@ -533,7 +527,7 @@ SIP
 
 Available from: http://www.riverbankcomputing.co.uk/software/sip/download ::
 
-    python configure.py -p win32-msvc2008 && nmake && nmake install
+    python configure.py -p win32-msvc2015 && winenv nmake && nmake install
 
 PyQt5
 ----------
@@ -541,8 +535,8 @@ PyQt5
 Compiling instructions::
 
     rm -rf build && mkdir build && cd build
-    python ../configure.py -c -j5 --no-designer-plugin --no-qml-plugin --verbose --confirm-license
-    nmake && rm -rf /cygdrive/c/Python27/Lib/site-packages/PyQt5 && nmake install
+    winenv python ../configure.py -c -j5 --no-designer-plugin --no-qml-plugin --verbose --confirm-license
+    winenv nmake && rm -rf ~/sw/private/python/Lib/site-packages/PyQt5 && nmake install
 
 
 libimobiledevice
