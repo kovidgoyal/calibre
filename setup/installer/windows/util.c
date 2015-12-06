@@ -1,6 +1,5 @@
 /*
  * Copyright 2009 Kovid Goyal
- * The memimporter code is taken from the py2exe project
  */
 
 #include "util.h"
@@ -17,102 +16,6 @@ void set_gui_app(char yes) { GUI_APP = yes; }
 char is_gui_app() { return GUI_APP; }
 
 int calibre_show_python_error(const wchar_t *preamble, int code);
-
-// memimporter {{{
-
-#include "MemoryModule.h"
-
-static char **DLL_Py_PackageContext = NULL;
-static PyObject **DLL_ImportError = NULL;
-static char module_doc[] =
-"Importer which can load extension modules from memory";
-
-
-static void *memdup(void *ptr, Py_ssize_t size)
-{
-	void *p = malloc(size);
-	if (p == NULL)
-		return NULL;
-	memcpy(p, ptr, size);
-	return p;
-}
-
-/*
-  Be sure to detect errors in FindLibrary - undetected errors lead to
-  very strange behaviour.
-*/
-static void* FindLibrary(char *name, PyObject *callback)
-{
-	PyObject *result;
-	char *p;
-	Py_ssize_t size;
-
-	if (callback == NULL)
-		return NULL;
-	result = PyObject_CallFunction(callback, "s", name);
-	if (result == NULL) {
-		PyErr_Clear();
-		return NULL;
-	}
-	if (-1 == PyString_AsStringAndSize(result, &p, &size)) {
-		PyErr_Clear();
-		Py_DECREF(result);
-		return NULL;
-	}
-	p = memdup(p, size);
-	Py_DECREF(result);
-	return p;
-}
-
-static PyObject *
-import_module(PyObject *self, PyObject *args)
-{
-	char *data;
-	int size;
-	char *initfuncname;
-	char *modname;
-	char *pathname;
-	HMEMORYMODULE hmem;
-	FARPROC do_init;
-
-	char *oldcontext;
-
-	/* code, initfuncname, fqmodulename, path */
-	if (!PyArg_ParseTuple(args, "s#sss:import_module",
-			      &data, &size,
-			      &initfuncname, &modname, &pathname))
-		return NULL;
-	hmem = MemoryLoadLibrary(data);
-	if (!hmem) {
-		PyErr_Format(*DLL_ImportError,
-			     "MemoryLoadLibrary() failed loading %s", pathname);
-		return NULL;
-	}
-	do_init = MemoryGetProcAddress(hmem, initfuncname);
-	if (!do_init) {
-		MemoryFreeLibrary(hmem);
-		PyErr_Format(*DLL_ImportError,
-			     "Could not find function %s in memory loaded pyd", initfuncname);
-		return NULL;
-	}
-
-    oldcontext = *DLL_Py_PackageContext;
-	*DLL_Py_PackageContext = modname;
-	do_init();
-	*DLL_Py_PackageContext = oldcontext;
-	if (PyErr_Occurred())
-		return NULL;
-	/* Retrieve from sys.modules */
-	return PyImport_ImportModule(modname);
-}
-
-static PyMethodDef methods[] = {
-	{ "import_module", import_module, METH_VARARGS,
-	  "import_module(code, initfunc, dllname[, finder]) -> module" },
-	{ NULL, NULL },		/* Sentinel */
-};
-
-// }}}
 
 static int _show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
     wchar_t *buf;
@@ -324,11 +227,6 @@ void initialize_interpreter(const char *basename, const char *module, const char
     if (!flag) ExitProcess(_show_error(L"Failed to get debug flag", L"", 1));
     //*flag = 1;
 
-    DLL_Py_PackageContext = (char**)GetProcAddress(dll, "_Py_PackageContext");
-    if (!DLL_Py_PackageContext) ExitProcess(_show_error(L"Failed to load _Py_PackageContext from dll", L"", 1));
-    DLL_ImportError = (PyObject**)GetProcAddress(dll, "PyExc_ImportError");
-    if (!DLL_ImportError) ExitProcess(_show_error(L"Failed to load PyExc_ImportError from dll", L"", 1));
-
     Py_SetProgramName(program_name);
     Py_SetPythonHome(python_home);
 
@@ -359,7 +257,6 @@ void initialize_interpreter(const char *basename, const char *module, const char
     }
     PySys_SetObject("argv", argv);
 
-	Py_InitModule3("_memimporter", methods, module_doc);
 
 }
 
@@ -502,7 +399,6 @@ wchar_t* get_temp_filename(const wchar_t *prefix) {
 
 void redirect_out_stream(FILE *stream) {
     FILE *f = NULL;
-    wchar_t *temp_file;
     errno_t err;
 
     err = freopen_s(&f, "NUL", "wt", stream);
