@@ -925,7 +925,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
             self.series_numbering_restarts.setEnabled(False)
             self.series_numbering_restarts.setChecked(False)
             self.series_start_number.setEnabled(False)
-            self.series_start_number.setValue(1)
+            self.series_start_number.setValue(1.0)
 
     def reject(self):
         self.save_state()

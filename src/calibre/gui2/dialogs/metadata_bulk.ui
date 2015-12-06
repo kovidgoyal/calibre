@@ -386,18 +386,18 @@ from the value in the box</string>
               </widget>
              </item>
              <item>
-              <widget class="QSpinBox" name="series_start_number">
+              <widget class="QDoubleSpinBox" name="series_start_number">
                <property name="enabled">
                 <bool>false</bool>
                </property>
                <property name="minimum">
-                <number>1</number>
+                <double>1.000000000000000</double>
                </property>
                <property name="maximum">
-                <number>99000000</number>
+                <double>99000000.000000000000000</double>
                </property>
                <property name="value">
-                <number>1</number>
+                <double>1.000000000000000</double>
                </property>
               </widget>
              </item>
