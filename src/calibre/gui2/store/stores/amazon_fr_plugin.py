@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 9 # Needed for dynamic plugin loading
+store_version = 10 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -27,8 +27,11 @@ class AmazonFRKindleStore(StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         s = SearchResult()
-        s.title = 'Amazon demanded that this<br>store be permanently closed.'
-        s.author = None
+        s.title = 'Amazon required that this<br>store be permanently closed.'
+        s.author = ''
+        s.price = ''
+        s.detail_item = ''
+        s.drm = SearchResult.DRM_UNKNOWN
         yield s
 
     def get_details(self, search_result, timeout):
