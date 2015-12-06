@@ -27,10 +27,10 @@ Cygwin
 This is needed for automation of the build process, and the ease of use of the
 unix shell (zsh). Install it by running: https://www.cygwin.com/setup-x86_64.exe
 
-In cygwin, install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl, patch
+In cygwin, install vim, dos2unix, rsync, openssh, unzip, wget, make, zsh, bash-completion, curl
 
 Run::
-    mkdir -p ~/sw/bin ~/sw/sources ~/sw/build ~/sw/lib ~/sw/private
+    mkdir -p ~/sw/bin ~/sw/sources ~/sw/build ~/sw/lib ~/sw/private ~/sw/include
 
 Edit /etc/passwd and replace all occurrences of /bin/bash with /bin/zsh
 
@@ -126,22 +126,21 @@ build script fails to mark its nasm as executable, and therefore errors out)
 First run::
     echo 'set PROGRAMFILES(x86)=%PROGRAMFILES% (x86)' > run.bat && \
     echo 'PCbuild\\build.bat -e --no-tkinter -c Release -p %1 -t Build "/p:PlatformToolset=v140"' >> run.bat && \
-    mkdir -p externals/nasm-2.11.06
+    mkdir -p externals/nasm-2.11.06 && \
     chmod +x run.bat 
 
 For 64-bit ::
 
     ./run.bat x64 || echo '\n\nPython compilation failed!'
     ./PCbuild/amd64/python.exe Lib/test/regrtest.py -u network,cpu,subprocess,urlfetch
+    ./PCbuild/amd64/python.exe /cygwin64/home/kovid/build/calibre/setup/installer/windows/install_python.py /cygwin64/home/kovid/sw/private
 
 For 32-bit::
 
     ./run.bat Win32 || echo '\n\nPython compilation failed!'
     ./PCbuild/python.exe Lib/test/regrtest.py -u network,cpu,subprocess,urlfetch
+    ./PCbuild/python.exe /cygwin64/home/kovid/build/calibre/setup/installer/windows/install_python.py /cygwin64/home/kovid/sw/private
 
-Install python as::
-
-    ./PCbuild/amd64/python.exe /cygwin64/home/kovid/build/calibre/setup/installer/windows/install_python.py /cygwin64/home/kovid/sw/private
 
 Make sure ~/sw/private/python is in your PATH
 
@@ -194,7 +193,9 @@ Miscellaneous python packages
 --------------------------------------
 
 Run::
-    ~/sw/private/python/Scripts/easy_install.exe --always-unzip -U python-dateutil dnspython mechanize pygments pyreadline cssutils pycrypto
+    ~/sw/private/python/Scripts/easy_install.exe --always-unzip -U python-dateutil dnspython mechanize pygments pyreadline pycrypto 
+    # cssutils install has a harmless error, so do it separately
+    ~/sw/private/python/Scripts/easy_install.exe --always-unzip -U cssutils
 
 pywin32
 ----------
@@ -203,8 +204,14 @@ Run::
 
     git clone --depth 1 https://github.com/kovidgoyal/pywin32.git
     chmod +x swig/swig.exe
-    python setup.py -q build --plat-name=(win32|win-amd64)  # Do this
-            # repeatedly until you stop getting .manifest file errors
+    export plat= win32 or win-amd64
+    python setup.py -q build --plat-name=$plat; && \
+    python setup.py -q build --plat-name=$plat; && \
+    python setup.py -q build --plat-name=$plat; && \
+    python setup.py -q build --plat-name=$plat; && \
+    python setup.py -q build --plat-name=$plat; && \
+    python setup.py -q build --plat-name=$plat;
+    # Do this repeatedly until you stop getting .manifest file errors
     python setup.py -q install
     rm ~/sw/private/python/Lib/site-packages/*.chm
 
@@ -281,13 +288,13 @@ Download the libpng .zip source file from:
 http://www.libpng.org/pub/png/libpng.html
 
 Run::
-    cmake -G "NMake Makefiles" -DPNG_SHARED=1 -DCMAKE_BUILD_TYPE=Release -DZLIB_INCLUDE_DIR=C:/cygwin64/home/kovid/sw/include -DZLIB_LIBRARY=C:/cygwin64/home/kovid/sw/lib/zdll.lib .
+    cmake -G "NMake Makefiles" -DPNG_SHARED=1 -DCMAKE_BUILD_TYPE=Release -DZLIB_INCLUDE_DIR=C:/cygwin64/home/kovid/sw/include -DZLIB_LIBRARY=C:/cygwin64/home/kovid/sw/lib/zdll.lib . && \
     nmake && cp libpng*.dll ~/sw/bin/ && cp libpng*.lib ~/sw/lib/ && cp pnglibconf.h png.h pngconf.h ~/sw/include/
 
 freetype
 -----------
 
-Get the .zip source from: http://download.savannah.gnu.org/releases/freetype/
+Get the source from: http://download.savannah.gnu.org/releases/freetype/
 
 The following will build freetype both as a static (freetype262MT.lib) and as a dynamic library (freetype.dll and freetype.lib)
 
@@ -297,7 +304,7 @@ Run::
     export PL=x64 (change to Win32 for 32 bit build)
     winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded"
     rm -f ~/sw/lib/freetype*; cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/ 
-    rm -rf ~/sw/include/freetype2 && cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal
+    rm -rf ~/sw/include/freetype2; cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal
     sed -i.bak s/StaticLibrary/DynamicLibrary/ builds/windows/vc2010/freetype.vcxproj
     winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded"
     rm -f ~/sw/bin/freetype*; cp ./objs/vc2010/$PL/freetype*MT.dll ~/sw/bin/freetype.dll && cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/freetype.lib 
@@ -308,10 +315,10 @@ expat
 Get from: http://sourceforge.net/projects/expat/files/expat/
 
 Run::
-    mkdir -p build && cd build
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ..
-    nmake
-    cp expat.dll ~/sw/bin/ && cp expat.lib ~/sw/lib/
+    mkdir -p build && cd build && \
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release .. && \
+    nmake && \
+    cp expat.dll ~/sw/bin/ && cp expat.lib ~/sw/lib/ && \
     cp ../lib/expat.h ../lib/expat_external.h ~/sw/include
 
 libiconv
@@ -320,9 +327,9 @@ libiconv
 Run::
     git clone --depth 1 https://github.com/winlibs/libiconv.git
     export PL=x64 (change to Win32 for 32 bit build)
-    winenv msbuild.exe MSVC14/libiconv.sln /t:Build /p:Platform=$PL /p:Configuration="Release"
-    cp ./MSVC14/x64/Release/libiconv.lib ~/sw/lib/iconv.lib
-    cp ./MSVC14/libiconv_dll/x64/Release/libiconv.dll ~/sw/lib/iconv.dll
+    winenv msbuild.exe MSVC14/libiconv.sln /t:Build /p:Platform=$PL /p:Configuration="Release" && \
+    cp ./MSVC14/x64/Release/libiconv.lib ~/sw/lib/iconv.lib && \
+    cp ./MSVC14/libiconv_dll/x64/Release/libiconv.dll ~/sw/lib/iconv.dll && \
     cp ./source/include/iconv.h ~/sw/include/
 
 libxml2
@@ -331,12 +338,12 @@ libxml2
 Get it from: ftp://xmlsoft.org/libxml2/
 
 Run::
-    cd win32
-    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes
-    winenv nmake /f Makefile.msvc
-    cd ..
-    rm -rf ~/sw/include/libxml2 && mkdir -p ~/sw/include/libxml2/libxml && cp include/libxml/*.h ~/sw/include/libxml2/libxml/
-    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
+    cd win32 && \
+    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes && \
+    winenv nmake /f Makefile.msvc && \
+    cd .. && \
+    rm -rf ~/sw/include/libxml2; mkdir -p ~/sw/include/libxml2/libxml && cp include/libxml/*.h ~/sw/include/libxml2/libxml/ && \
+    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \; && \
     find .  -name libxml2.lib -exec cp "{}" ~/sw/lib/ \;
 
 libxslt
@@ -345,16 +352,15 @@ libxslt
 Get it from: ftp://xmlsoft.org/libxml2/
 
 Run::
-    cd win32
-    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include include=C:/cygwin64/home/kovid/sw/include/libxml2 lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes
-    sed -i 's/#define snprintf _snprintf//' ../libxslt/win32config.h
-    find . -name 'Makefile*' -exec sed -i 's|/OPT:NOWIN98||' {} \;
-    winenv nmake /f Makefile.msvc
-    rm -rf ~/sw/include/libxslt && mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt
-    cd ..
-    cp libxslt/*.h ~/sw/include/libxslt/
-    cp libexslt/*.h ~/sw/include/libexslt/
-    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \;
+    cd win32 && \
+    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include include=C:/cygwin64/home/kovid/sw/include/libxml2 lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes &&\
+    sed -i 's/#define snprintf _snprintf//' ../libxslt/win32config.h && \
+    find . -name 'Makefile*' -exec sed -i 's|/OPT:NOWIN98||' {} \; && \
+    winenv nmake /f Makefile.msvc && \
+    rm -rf ~/sw/include/libxslt; mkdir -p ~/sw/include/libxslt ~/sw/include/libexslt && \
+    cd .. && \
+    cp libxslt/*.h ~/sw/include/libxslt/ && cp libexslt/*.h ~/sw/include/libexslt/ && \
+    find . -type f \( -name "*.dll" -o -name "*.dll.manifest" \)  -exec cp "{}" ~/sw/bin/ \; && \
     find .  -name 'lib*xslt.lib' -exec cp "{}" ~/sw/lib/ \;
 
 lxml
@@ -367,7 +373,7 @@ library_dirs() function to return::
 
     return ['C:/cygwin64/home/kovid/sw/lib']
 
-and the include_dirs() function to return
+and the include_dirs() function to return::
 
     return ['C:/cygwin64/home/kovid/sw/include/libxml2', 'C:/cygwin64/home/kovid/sw/include']
 
@@ -384,7 +390,7 @@ Edit setup.py setting the ROOT values, like this::
     SW = r'C:\cygwin64\home\kovid\sw'
     JPEG_ROOT = ZLIB_ROOT = FREETYPE_ROOT = (SW+r'\lib', SW+r'\include')
 
-Set zip_safe=False
+    Set zip_safe=False
 
 Build and install with::
     python setup.py install
@@ -394,14 +400,14 @@ poppler
 
 http://poppler.freedesktop.org
 
+Edit poppler/poppler-config.h.cmake removing the macro definition of fmax (it
+is present in VS 2015 and the macro def causes errors)
+
 Run::
-    sed -i 's/#define snprintf _snprintf/#include <algorithm>/' config.h.cmake
-    mkdir build && cd build
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DENABLE_CPP=0 ..
-    nmake (you will need to run this multiple times adding #include <algorithm>
-    to the start of every file where it errors out complaining that max is not
-    declared in the std namespace)
-    cp utils/*.exe* ~/sw/bin
+    sed -i 's/#define snprintf _snprintf/#include <algorithm>/' config.h.cmake && \
+    mkdir build && cd build && \
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DENABLE_CPP=0 .. && \
+    nmake && cp utils/*.exe* ~/sw/bin
 
 
 podofo
@@ -410,12 +416,11 @@ podofo
 Download from http://podofo.sourceforge.net/download.html
 
 Run::
-    mkdir build && cd build
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWANT_LIB64=FALSE -DPODOFO_BUILD_SHARED=TRUE -DPODOFO_BUILD_STATIC=False -DFREETYPE_INCLUDE_DIR="C:/cygwin64/home/kovid/sw/include/freetype2"  ..
-    nmake podofo_shared
-    rm -rf ~/sw/include/podofo && mkdir ~/sw/include/podofo && cp podofo_config.h ~/sw/include/podofo && cp -r ../src/* ~/sw/include/podofo/
-    cp "`find . -name '*.dll'`" ~/sw/bin/
-    cp "`find . -name '*.lib'`" ~/sw/lib/
+    mkdir build && cd build && \
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWANT_LIB64=FALSE -DPODOFO_BUILD_SHARED=TRUE -DPODOFO_BUILD_STATIC=False -DFREETYPE_INCLUDE_DIR="C:/cygwin64/home/kovid/sw/include/freetype2"  .. && \
+    nmake podofo_shared && \
+    rm -rf ~/sw/include/podofo; mkdir ~/sw/include/podofo && cp podofo_config.h ~/sw/include/podofo && cp -r ../src/* ~/sw/include/podofo/ && \
+    cp "`find . -name '*.dll'`" ~/sw/bin/ && cp "`find . -name '*.lib'`" ~/sw/lib/
 
 
 ImageMagick
@@ -439,8 +444,7 @@ netifaces
 https://pypi.python.org/pypi/netifaces
 
 Run:: 
-    python setup.py build
-    cp `find build/ -name '*.pyd'` ~/sw/private/python/Lib/site-packages/
+    python setup.py build && cp `find build/ -name '*.pyd'` ~/sw/private/python/Lib/site-packages/
 
 
 psutil
@@ -449,8 +453,7 @@ https://pypi.python.org/pypi/psutil
 
 Run::
 
-    python setup.py build
-    cp -r build/lib.win*/* ~/sw/private/python/Lib/site-packages/
+    python setup.py build && cp -r build/lib.win*/psutil ~/sw/private/python/Lib/site-packages/
 
 easylzma
 ----------
@@ -506,6 +509,7 @@ Download Qt (5.5.1) sourcecode (.zip) from: http://download.qt-project.org/offic
  #if !defined(QT_BOOTSTRAPPED)
      if (!onlySystemDirectory)
 -        searchOrder << QFileInfo(qAppFileName()).path();
++        searchOrder << (QFileInfo(qAppFileName()).path().replace(QLatin1Char('/'), QLatin1Char('\\')) + QString::fromLatin1("\\app\\DLLs\\"));
 +        searchOrder << (QFileInfo(qAppFileName()).path().replace(QLatin1Char('/'), QLatin1Char('\\')) + QString::fromLatin1("\\DLLs\\"));
  #endif
      searchOrder << qSystemDirectory();
@@ -549,8 +553,8 @@ optipng
 http://optipng.sourceforge.net/
 Compiling instructions::
 
-    sed -i.bak 's/\$</%s/' src/libpng/scripts/makefile.vcwin32
-    winenv nmake -f build/visualc.mk
+    sed -i.bak 's/\$</%s/' src/libpng/scripts/makefile.vcwin32 && \
+    winenv nmake -f build/visualc.mk && \
     cp src/optipng/optipng.exe* ~/sw/bin
 
 mozjpeg
@@ -558,10 +562,10 @@ mozjpeg
 https://github.com/mozilla/mozjpeg/releases
 Compiling instructions::
 
-   mkdir -p build && cd build
-   cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_TURBOJPEG:BOOL=FALSE ..
-   nmake
-   cp jpegtran-static.exe ~/sw/bin/jpegtran-calibre.exe
+   mkdir -p build && cd build && \
+   cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DWITH_TURBOJPEG:BOOL=FALSE .. && \
+   nmake && \
+   cp jpegtran-static.exe ~/sw/bin/jpegtran-calibre.exe && \
    cp cjpeg-static.exe ~/sw/bin/cjpeg-calibre.exe
 
 calibre
