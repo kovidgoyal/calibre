@@ -17,7 +17,7 @@ below exactly.
 Microsoft Visual Studio 
 ----------------------------------------
 
-1) Install Visual Studio 2015 Community Edition
+1) Install Visual Studio 2015 Community Edition **Update 1**
 2) If you are building 64bit, remember to use the 64bit version of the visual
 studio command prompt.
 
