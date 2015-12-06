@@ -15,7 +15,8 @@ from setup.build_environment import (
     msvc, win_inc, win_lib, magick_inc_dirs, magick_lib_dirs, magick_libs,
     chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs, icu_lib_dirs, ft_libs,
     ft_lib_dirs, ft_inc_dirs, cpu_count, is64bit, glib_flags, fontconfig_flags,
-    openssl_inc_dirs, openssl_lib_dirs, zlib_inc_dirs, zlib_lib_dirs, zlib_libs)
+    openssl_inc_dirs, openssl_lib_dirs, zlib_inc_dirs, zlib_lib_dirs, zlib_libs,
+    qmakespec)
 from setup.parallel_build import create_job, parallel_build
 isunix = islinux or isosx or isbsd
 
@@ -633,7 +634,7 @@ class Build(Command):
         cwd = os.getcwdu()
         qmc = []
         if iswindows:
-            qmc += ['-spec', 'win32-msvc2008']
+            qmc += ['-spec', qmakespec]
         fext = 'dll' if iswindows else 'dylib' if isosx else 'so'
         name = '%s%s.%s' % ('release/' if iswindows else 'lib', sip['target'], fext)
         try:
@@ -642,7 +643,7 @@ class Build(Command):
                 self.check_call([QMAKE] + qmc + [proname])
                 self.check_call([make]+([] if iswindows else ['-j%d'%(cpu_count or 1)]))
                 shutil.copy2(os.path.realpath(name), dest)
-                if iswindows:
+                if iswindows and os.path.exists(name + '.manifest'):
                     shutil.copy2(name + '.manifest', dest + '.manifest')
 
         finally:

@@ -26,7 +26,6 @@ if iswindows:
         if 'SDK' in p:
             MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
     MT = os.path.join(SDK, 'Bin', 'mt.exe')
-    os.environ['QMAKESPEC'] = os.environ.get('QMAKESPEC', 'win32-msvc2008')
 
 QMAKE = 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
@@ -85,13 +84,14 @@ def consolidate(envvar, default):
 
 qraw = subprocess.check_output([QMAKE, '-query']).decode('utf-8')
 def readvar(name):
-    return re.search('%s:(.+)$' % name, qraw, flags=re.M).group(1).strip()
+    return re.search('^%s:(.+)$' % name, qraw, flags=re.M).group(1).strip()
 
 
 pyqt = {x:readvar(y) for x, y in (
     ('inc', 'QT_INSTALL_HEADERS'), ('lib', 'QT_INSTALL_LIBS')
 )}
 qt = {x:readvar(y) for x, y in {'libs':'QT_INSTALL_LIBS', 'plugins':'QT_INSTALL_PLUGINS'}.iteritems()}
+qmakespec = readvar('QMAKE_SPEC') if iswindows else None
 
 pyqt['sip_bin'] = os.environ.get('SIP_BIN', 'sip')
 
@@ -173,8 +173,11 @@ if iswindows:
     zlib_libs = ['zlib']
 
     md = glob.glob(os.path.join(prefix, 'build', 'ImageMagick-*'))[-1]
-    magick_inc_dirs = [md]
-    magick_lib_dirs = [os.path.join(magick_inc_dirs[0], 'VisualMagick', 'lib')]
+    if os.path.exists(os.path.join(md, 'ImageMagick/wand/MagickWand.h')):
+        magick_inc_dirs = [os.path.join(md, 'ImageMagick')]
+    else:
+        magick_inc_dirs = [md]
+    magick_lib_dirs = [os.path.join(md, 'VisualMagick', 'lib')]
     magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
