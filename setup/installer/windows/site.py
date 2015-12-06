@@ -7,67 +7,39 @@ __docformat__ = 'restructuredtext en'
 
 import sys
 import os
-import zipimport
-import _memimporter
+import imp
 
-DEBUG_ZIPIMPORT = False
+class PydImporter(object):
 
-class ZipExtensionImporter(zipimport.zipimporter):
-    '''
-    Taken, with thanks, from the py2exe source code
-    '''
+    __slots__ = ('items', 'description')
 
-    def __init__(self, *args, **kwargs):
-        zipimport.zipimporter.__init__(self, *args, **kwargs)
-        # We know there are no dlls in the zip file, so dont set findproc
-        # (performance optimization)
-        #_memimporter.set_find_proc(self.locate_dll_image)
+    def __init__(self):
+        self.items = None
+        self.description = ('.pyd', 'rb', imp.C_EXTENSION)
 
     def find_module(self, fullname, path=None):
-        result = zipimport.zipimporter.find_module(self, fullname, path)
-        if result:
-            return result
-        fullname = fullname.replace(".", "\\")
-        if (fullname + '.pyd') in self._files:
-            return self
-        return None
-
-    def locate_dll_image(self, name):
-        # A callback function for_memimporter.import_module.  Tries to
-        # locate additional dlls.  Returns the image as Python string,
-        # or None if not found.
-        if name in self._files:
-            return self.get_data(name)
-        return None
+        if self.items is None:
+            dlls_dir = os.path.join(sys.app_dir, 'DLLs')
+            items = self.items = {}
+            for x in os.listdir(dlls_dir):
+                lx = x.lower()
+                if lx.endswith(b'.pyd'):
+                    items[lx[:-4]] = os.path.abspath(os.path.join(dlls_dir, x))
+        return self if fullname.lower() in self.items else None
 
     def load_module(self, fullname):
-        if sys.modules.has_key(fullname):
-            mod = sys.modules[fullname]
-            if DEBUG_ZIPIMPORT:
-                sys.stderr.write("import %s # previously loaded from zipfile %s\n" % (fullname, self.archive))
-            return mod
+        m = sys.modules.get(fullname)
+        if m is not None:
+            return m
         try:
-            return zipimport.zipimporter.load_module(self, fullname)
-        except zipimport.ZipImportError:
-            pass
-        initname = "init" + fullname.split(".")[-1] # name of initfunction
-        filename = fullname.replace(".", "\\")
-        path = filename + '.pyd'
-        if path in self._files:
-            if DEBUG_ZIPIMPORT:
-                sys.stderr.write("# found %s in zipfile %s\n" % (path, self.archive))
-            code = self.get_data(path)
-            mod = _memimporter.import_module(code, initname, fullname, path)
-            mod.__file__ = "%s\\%s" % (self.archive, path)
-            mod.__loader__ = self
-            if DEBUG_ZIPIMPORT:
-                sys.stderr.write("import %s # loaded from zipfile %s\n" % (fullname, mod.__file__))
-            return mod
-        raise zipimport.ZipImportError, "can't find module %s" % fullname
-
-    def __repr__(self):
-        return "<%s object %r>" % (self.__class__.__name__, self.archive)
-
+            path = self.items[fullname.lower()]
+        except KeyError:
+            raise ImportError('The native code module %s seems to have disappeared from self.items' % fullname)
+        package, name = fullname.rpartition(b'.')[::2]
+        m = imp.load_module(fullname, None, path, self.description)  # This inserts the module into sys.modules itself
+        m.__loader__ = self
+        m.__package__ = package or None
+        return m
 
 def abs__file__():
     """Set all module __file__ attribute to an absolute path"""
@@ -92,15 +64,11 @@ def aliasmbcs():
 
 def add_calibre_vars():
     sys.resources_location = os.path.join(sys.app_dir, 'resources')
-    sys.extensions_location = os.path.join(sys.app_dir, 'plugins2')
+    sys.extensions_location = os.path.join(sys.app_dir, 'DLLs')
 
     dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
     if dv and os.path.exists(dv):
         sys.path.insert(0, os.path.abspath(dv))
-
-def makepath(*paths):
-    dir = os.path.abspath(os.path.join(*paths))
-    return dir, os.path.normcase(dir)
 
 def run_entry_point():
     bname, mod, func = sys.calibre_basename, sys.calibre_module, sys.calibre_function
@@ -113,7 +81,7 @@ def main():
     sys.setdefaultencoding('utf-8')
     aliasmbcs()
 
-    sys.path_hooks.insert(0, ZipExtensionImporter)
+    sys.meta_path.insert(0, PydImporter())
     sys.path_importer_cache.clear()
 
     import linecache
@@ -130,5 +98,3 @@ def main():
     sys.path.append(os.path.join(sys.app_dir, 'DLLs'))
 
     return run_entry_point()
-
-
