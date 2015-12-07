@@ -39,7 +39,7 @@ Run::
 Create a file ~/bin/winenv with the following::
 
     cat << '    EOF' |  sed -e 's/^ *//' > ~/bin/winenv
-    #!pyrun
+    #!pycygrun
     import os, subprocess, sys
     env = os.environ.copy()
     # Ensure windows based exes are used in preference to cygwin ones
@@ -143,20 +143,6 @@ For 32-bit::
 
 
 Make sure ~/sw/private/python is in your PATH
-
-Run::
-
-    cat << '    EOF' |  sed -e 's/^ *//' > ~/sw/private/python/pyrun
-    #!/bin/zsh
-    SCRIPT=$(readlink -f $0)
-    SCRIPTPATH=`dirname $SCRIPT`
-    PYSCRIPT=`cygpath -w $1`
-    exec $SCRIPTPATH/python.exe $PYSCRIPT ${@:2}
-    EOF
-    chmod +x ~/sw/private/python/pyrun
-
-This creates a pyrun executable that can be used as a shebang in python scripts
-you intend to run directly via cygwin.
 
 Basic dependencies
 --------------------

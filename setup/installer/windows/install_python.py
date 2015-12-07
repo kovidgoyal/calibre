@@ -9,6 +9,7 @@ import re
 import shutil
 import os
 import glob
+import stat
 
 known_extensions = {
     'bz2.pyd',
@@ -128,6 +129,16 @@ def main():
         if num != 1:
             raise SystemExit('Failed to patch mimetypes.py')
         f.write(raw)
+    pycgrun = os.path.join(install_dir, 'pycygrun')
+    with open(pycgrun, 'wb') as f:
+        f.write(b'''\
+#!/bin/zsh
+SCRIPT=$(readlink -f $0)
+SCRIPTPATH=`dirname $SCRIPT`
+PYSCRIPT=`cygpath -w $1`
+exec $SCRIPTPATH/python.exe $PYSCRIPT ${@:2}
+''')
+    os.chmod(pycgrun, stat.S_IRWXU)
 
     print('python installed to:', install_dir)
 
