@@ -47,7 +47,13 @@ def main():
     os.chdir(os.path.dirname(cwd))
 
     # Clear out install_dir, preserving site-packages
+    has_sp = False
     if os.path.exists(install_dir):
+        sp_dir = os.path.join(install_dir, 'Lib', 'site-packages')
+        has_sp = os.path.exists(sp_dir)
+        if has_sp:
+            sp_temp = os.path.join(install_dir, 'site-packages')
+            os.rename(sp_dir, sp_temp)
         for x in os.listdir(install_dir):
             if x != 'site-packages':
                 path = os.path.join(install_dir, x)
@@ -111,6 +117,9 @@ def main():
 
     shutil.copytree('Lib', os.path.join(install_dir, 'Lib'),
                     ignore=ignore_in_lib)
+    if has_sp:
+        shutil.rmtree(sp_dir)
+        os.rename(sp_temp, sp_dir)
 
     with open(os.path.join(install_dir, 'Lib', 'mimetypes.py'), 'r+b') as f:
         raw = f.read()
