@@ -544,7 +544,7 @@ Compiling instructions::
 
     sed -i.bak 's/\$</%s/' src/libpng/scripts/makefile.vcwin32 && \
     winenv nmake -f build/visualc.mk && \
-    cp src/optipng/optipng.exe* ~/sw/bin
+    cp src/optipng/optipng.exe ~/sw/bin/optipng-calibre.exe
 
 mozjpeg
 ----------
