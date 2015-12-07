@@ -19,7 +19,7 @@ class PydImporter(object):
 
     def find_module(self, fullname, path=None):
         if self.items is None:
-            dlls_dir = os.path.join(sys.app_dir, 'DLLs')
+            dlls_dir = os.path.join(sys.app_dir, 'app', 'DLLs')
             items = self.items = {}
             for x in os.listdir(dlls_dir):
                 lx = x.lower()
@@ -63,8 +63,9 @@ def aliasmbcs():
             encodings.aliases.aliases[enc] = 'mbcs'
 
 def add_calibre_vars():
-    sys.resources_location = os.path.join(sys.app_dir, 'resources')
-    sys.extensions_location = os.path.join(sys.app_dir, 'DLLs')
+    sys.new_app_layout = 1
+    sys.resources_location = os.path.join(sys.app_dir, 'app', 'resources')
+    sys.extensions_location = os.path.join(sys.app_dir, 'app', 'DLLs')
 
     dv = os.environ.get('CALIBRE_DEVELOP_FROM', None)
     if dv and os.path.exists(dv):
@@ -95,6 +96,6 @@ def main():
     add_calibre_vars()
 
     # Needed for pywintypes to be able to load its DLL
-    sys.path.append(os.path.join(sys.app_dir, 'DLLs'))
+    sys.path.append(os.path.join(sys.app_dir, 'app', 'DLLs'))
 
     return run_entry_point()
