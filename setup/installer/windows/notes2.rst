@@ -490,7 +490,7 @@ Download Qt (5.5.1) sourcecode (.zip) from: http://download.qt-project.org/offic
     * Slim down Qt by not building various things we dont need. Edit
       :file:`qtwebkit/Tools/qmake/mkspecs/features/configure.prf` and remove
       build_webkit2. Edit qt.pro and comment out the addModule() lines for
-      qtxmlpatterns, qtdeclarative, qtquickcontrols, qtsensors, qtfeedback,
+      qtxmlpatterns, qtdeclarative, qtquickcontrols, qtfeedback,
       qtpim, qtwebsockets, qtwebchannel, qttools, qtwebkit-examples, qt3d,
       qt-canvas3d, qtgraphicaleffects, qtscript, qtquick1, qtdocgallery,
       qtwayland, qtenginio, qtwebengine, qtdoc. Change the addModule line for
