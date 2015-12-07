@@ -5,24 +5,28 @@
 #define UNICODE
 #define WINDOWS_LEAN_AND_MEAN
 #include<windows.h>
-#include<stdio.h>
+#include<strsafe.h>
+
+size_t mystrlen(const wchar_t *buf) {
+    size_t ans = 0;
+    if (FAILED(StringCbLengthW(buf, 500, &ans))) return 0;
+    return ans;
+}
 
 static int show_error(const wchar_t *preamble, const wchar_t *msg, const int code) {
     wchar_t *buf;
     buf = (wchar_t*)LocalAlloc(LMEM_ZEROINIT, sizeof(wchar_t)*
-            (wcslen(msg) + wcslen(preamble) + 80));
+            (mystrlen(msg) + mystrlen(preamble) + 80));
+    if (!buf) {
+        MessageBox(NULL, preamble, NULL, MB_OK|MB_ICONERROR);
+        return code;
+    }
 
-    _snwprintf_s(buf, 
-        LocalSize(buf) / sizeof(wchar_t), _TRUNCATE,
-        L"%s\r\n  %s (Error Code: %d)\r\n", 
-        preamble, msg, code);
-
-#ifdef GUI_APP
     MessageBeep(MB_ICONERROR);
-    MessageBox(NULL, buf, NULL, MB_OK|MB_ICONERROR);
-#else
-    wprintf_s(L"%s\n", buf);
-#endif
+    if (FAILED(StringCbPrintfW(buf, LocalSize(buf), L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code)))
+        MessageBox(NULL, preamble, NULL, MB_OK|MB_ICONERROR);
+    else
+        MessageBox(NULL, buf, NULL, MB_OK|MB_ICONERROR);
     LocalFree(buf);
     return code;
 }
