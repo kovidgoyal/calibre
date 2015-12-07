@@ -2,18 +2,25 @@
  * Copyright 2009 Kovid Goyal
  */
 
-#include "util.h"
+#define UNICODE
 
+#define _WIN32_WINNT 0x0502 
+#define WINDOWS_LEAN_AND_MEAN
+
+#include <windows.h>
+#include <Python.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <Shellapi.h>
 #include <delayimp.h>
 #include <io.h>
 #include <fcntl.h>
 
 
-static char GUI_APP = 0;
+static int GUI_APP = 0;
 static char python_dll[] = PYDLL;
 
-void set_gui_app(char yes) { GUI_APP = yes; }
-char is_gui_app() { return GUI_APP; }
+void set_gui_app(int yes) { GUI_APP = yes; }
 
 int calibre_show_python_error(const wchar_t *preamble, int code);
 
@@ -118,12 +125,12 @@ void load_python_dll() {
     size_t l;
 
     app_dir = get_app_dir();
-    l = strlen(app_dir)+20;
+    l = strlen(app_dir)+25;
     dll_dir = (char*) calloc(l, sizeof(char));
     qt_plugin_dir = (char*) calloc(l, sizeof(char));
     if (!dll_dir || !qt_plugin_dir) ExitProcess(_show_error(L"Out of memory", L"", 1));
-    _snprintf_s(dll_dir, l, _TRUNCATE, "%sDLLs", app_dir);
-    _snprintf_s(qt_plugin_dir, l, _TRUNCATE, "%sqt_plugins", app_dir);
+    _snprintf_s(dll_dir, l, _TRUNCATE, "%s\\app\\DLLs", app_dir);
+    _snprintf_s(qt_plugin_dir, l, _TRUNCATE, "%s\\app\\qt_plugins", app_dir);
     free(app_dir);
 
     _putenv_s("QT_PLUGIN_PATH", qt_plugin_dir);
@@ -196,7 +203,7 @@ void initialize_interpreter(const char *basename, const char *module, const char
     buf[strlen(buf)-1] = '\0';
 
     _snprintf_s(python_home, MAX_PATH, _TRUNCATE, "%s", buf);
-    _snprintf_s(path, MAX_PATH, _TRUNCATE, "%s\\pylib.zip", buf);
+    _snprintf_s(path, MAX_PATH, _TRUNCATE, "%s\\app\\pylib.zip", buf);
     free(buf);
 
 
@@ -337,9 +344,27 @@ int calibre_show_python_error(const wchar_t *preamble, int code) {
     return _show_error(preamble, L"", code);
 }
 
-int execute_python_entrypoint(const char *basename, const char *module, const char *function) {
+void redirect_out_stream(FILE *stream) {
+    FILE *f = NULL;
+    errno_t err;
+
+    err = freopen_s(&f, "NUL", "wt", stream);
+    if (err != 0) {
+        ExitProcess(show_last_error_crt(L"Failed to redirect stdout/stderr to NUL. This indicates a corrupted Windows install.\r\n You should contact Microsoft for assistance and/or follow the steps described here:\r\n http://bytes.com/topic/net/answers/264804-compile-error-null-device-missing"));
+    }
+}
+
+__declspec(dllexport) int __cdecl
+execute_python_entrypoint(const char *basename, const char *module, const char *function, int is_gui_app) {
     PyObject *site, *main, *res;
     int ret = 0;
+
+    if (is_gui_app) {
+        // Redirect stdout and stderr to NUL so that python does not fail writing to them
+        redirect_out_stream(stdout);
+        redirect_out_stream(stderr);
+    }
+    set_gui_app(is_gui_app);
 
     load_python_dll();
     initialize_interpreter(basename, module, function);
@@ -397,12 +422,4 @@ wchar_t* get_temp_filename(const wchar_t *prefix) {
      return szTempName;
 }
 
-void redirect_out_stream(FILE *stream) {
-    FILE *f = NULL;
-    errno_t err;
 
-    err = freopen_s(&f, "NUL", "wt", stream);
-    if (err != 0) {
-        ExitProcess(show_last_error_crt(L"Failed to redirect stdout/stderr to NUL. This indicates a corrupted Windows install.\r\n You should contact Microsoft for assistance and/or follow the steps described here:\r\n http://bytes.com/topic/net/answers/264804-compile-error-null-device-missing"));
-    }
-}
