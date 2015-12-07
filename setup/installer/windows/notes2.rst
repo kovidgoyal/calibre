@@ -307,7 +307,7 @@ Run::
     rm -rf ~/sw/include/freetype2; cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal
     sed -i.bak s/StaticLibrary/DynamicLibrary/ builds/windows/vc2010/freetype.vcxproj
     winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded"
-    rm -f ~/sw/bin/freetype*; cp ./objs/vc2010/$PL/freetype*MT.dll ~/sw/bin/freetype.dll && cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/freetype.lib 
+    rm -f ~/sw/bin/freetype*; cp ./objs/vc2010/$PL/freetype*MT.dll ~/sw/bin/ && cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/freetype.lib 
 
 expat
 --------
