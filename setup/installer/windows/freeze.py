@@ -575,7 +575,7 @@ class Win32Freeze(Command, WixMixIn):
         dll = self.j(self.obj_dir, 'calibre-launcher.dll')
         ver = '.'.join(__version__.split('.')[:2])
         if self.newer(dll, objects):
-            cmd = [msvc.linker, '/DLL', '/VERSION:'+ver, '/OUT:'+dll,
+            cmd = [msvc.linker, '/DLL', '/VERSION:'+ver, '/LTCG', '/OUT:'+dll,
                    '/nologo', '/MACHINE:'+machine] + dlflags + objects + \
                 [self.embed_resources(dll),
                 '/LIBPATH:%s/libs'%self.python_base,
@@ -605,10 +605,10 @@ class Win32Freeze(Command, WixMixIn):
                     self.run_builder(cmd)
                 exe = self.j(self.base, bname+'.exe')
                 lib = dll.replace('.dll', '.lib')
-                u32 = ['user32.lib'] if typ == 'gui' else []
+                u32 = ['user32.lib']
                 if self.newer(exe, [dest, lib, self.rc_template, __file__]):
                     self.info('Linking', bname)
-                    cmd = [msvc.linker] + ['/MACHINE:'+machine,
+                    cmd = [msvc.linker] + ['/MACHINE:'+machine, '/LTCG',
                             '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:'+subsys,
                             '/LIBPATH:%s/libs'%self.python_base, '/RELEASE',
                             '/OUT:'+exe] + u32 + dlflags + [self.embed_resources(exe),
