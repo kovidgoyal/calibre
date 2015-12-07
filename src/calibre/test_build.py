@@ -209,8 +209,9 @@ def test_tokenizer():
     from tinycss.tokenizer import c_tokenize_flat
     if c_tokenize_flat is None:
         raise ValueError('tinycss C tokenizer not loaded')
-    from tinycss.tests.main import run_tests
-    run_tests(for_build=True)
+    import tinycss.tests.main as m
+    if getattr(m, '__file__', None) and os.path.exists(m.__file__):
+        m.run_tests(for_build=True)
     print('tinycss tokenizer OK!')
 
 def test_netifaces():
