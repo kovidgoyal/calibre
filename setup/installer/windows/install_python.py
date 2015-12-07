@@ -10,6 +10,7 @@ import shutil
 import os
 import glob
 import stat
+import errno
 
 known_extensions = {
     'bz2.pyd',
@@ -56,7 +57,7 @@ def main():
             sp_temp = os.path.join(install_dir, 'site-packages')
             os.rename(sp_dir, sp_temp)
         for x in os.listdir(install_dir):
-            if x != 'site-packages':
+            if x not in ('Scripts', 'site-packages', 'sip.exe'):
                 path = os.path.join(install_dir, x)
                 (shutil.rmtree if os.path.isdir(path) else os.remove)(path)
     else:
@@ -99,7 +100,11 @@ def main():
         shutil.copy2(x, include_dir)
 
     # Make the Scripts dir
-    os.mkdir(os.path.join(install_dir, 'Scripts'))
+    try:
+        os.mkdir(os.path.join(install_dir, 'Scripts'))
+    except EnvironmentError as err:
+        if err.errno != errno.EEXIST:
+            raise
 
     # Copy the python modules in Lib
     ignored_dirs = frozenset('pydoc_data test tests lib2to3 ensurepip'.split())
