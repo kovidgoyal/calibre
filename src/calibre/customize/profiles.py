@@ -776,21 +776,6 @@ class NookColorOutput(NookOutput):
     comic_screen_size         = (594, 900)
     dpi                       = 169
 
-class BambookOutput(OutputProfile):
-
-    author      = 'Li Fanxi'
-    name        = 'Sanda Bambook'
-    short_name  = 'bambook'
-    description = _('This profile is intended for the Sanda Bambook.')
-
-    # Screen size is for full screen display
-    screen_size               = (580, 780)
-    # Comic size is for normal display
-    comic_screen_size         = (540, 700)
-    dpi                       = 168.451
-    fbase                     = 12
-    fsizes                    = [10, 12, 14, 16]
-
 class PocketBook900Output(OutputProfile):
 
     author = 'Chris Lockfort'
@@ -821,7 +806,7 @@ output_profiles = [
     iPad3Output, KoboReaderOutput, TabletOutput, SamsungGalaxy,
     SonyReaderLandscapeOutput, KindleDXOutput, IlliadOutput, NookHD,
     IRexDR1000Output, IRexDR800Output, JetBook5Output, NookOutput,
-    BambookOutput, NookColorOutput, PocketBook900Output,
+    NookColorOutput, PocketBook900Output,
     PocketBookPro912Output, GenericEink, GenericEinkLarge, GenericEinkHD,
     KindleFireOutput, KindlePaperWhiteOutput, KindleVoyageOutput,
     KindlePaperWhite3Output
