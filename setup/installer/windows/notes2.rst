@@ -321,17 +321,6 @@ Run::
     cp expat.dll ~/sw/bin/ && cp expat.lib ~/sw/lib/ && \
     cp ../lib/expat.h ../lib/expat_external.h ~/sw/include
 
-libiconv
-----------
-
-Run::
-    git clone --depth 1 https://github.com/winlibs/libiconv.git
-    export PL=x64 (change to Win32 for 32 bit build)
-    winenv msbuild.exe MSVC14/libiconv.sln /t:Build /p:Platform=$PL /p:Configuration="Release" && \
-    cp ./MSVC14/x64/Release/libiconv.lib ~/sw/lib/iconv.lib && \
-    cp ./MSVC14/libiconv_dll/x64/Release/libiconv.dll ~/sw/lib/iconv.dll && \
-    cp ./source/include/iconv.h ~/sw/include/
-
 libxml2
 -------------
 
@@ -339,7 +328,7 @@ Get it from: ftp://xmlsoft.org/libxml2/
 
 Run::
     cd win32 && \
-    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes && \
+    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=no && \
     winenv nmake /f Makefile.msvc && \
     cd .. && \
     rm -rf ~/sw/include/libxml2; mkdir -p ~/sw/include/libxml2/libxml && cp include/libxml/*.h ~/sw/include/libxml2/libxml/ && \
@@ -353,7 +342,7 @@ Get it from: ftp://xmlsoft.org/libxml2/
 
 Run::
     cd win32 && \
-    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include include=C:/cygwin64/home/kovid/sw/include/libxml2 lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=yes &&\
+    cscript.exe configure.js include=C:/cygwin64/home/kovid/sw/include include=C:/cygwin64/home/kovid/sw/include/libxml2 lib=C:/cygwin64/home/kovid/sw/lib prefix=C:/cygwin64/home/kovid/sw zlib=yes iconv=no &&\
     sed -i 's/#define snprintf _snprintf//' ../libxslt/win32config.h && \
     find . -name 'Makefile*' -exec sed -i 's|/OPT:NOWIN98||' {} \; && \
     winenv nmake /f Makefile.msvc && \
