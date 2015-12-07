@@ -404,7 +404,7 @@
    <item row="7" column="0" colspan="3">
     <widget class="QCheckBox" name="opt_embed_all_fonts">
      <property name="text">
-      <string>&amp;Embed referenced fonts</string>
+      <string>&amp;Embed all fonts in document</string>
      </property>
     </widget>
    </item>
