@@ -428,7 +428,7 @@ https://pypi.python.org/pypi/psutil
 
 Run::
 
-    python setup.py build && cp -r build/lib.win*/psutil ~/sw/private/python/Lib/site-packages/
+    python setup.py build && rm -rf  ~/sw/private/python/Lib/site-packages/psutil && cp -r build/lib.win*/psutil ~/sw/private/python/Lib/site-packages/
 
 easylzma
 ----------
