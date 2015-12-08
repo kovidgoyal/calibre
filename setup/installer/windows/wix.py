@@ -11,7 +11,7 @@ import os, shutil, subprocess, sys
 from setup import __appname__, __version__, basenames
 from setup.build_environment import is64bit
 
-WIXP = r'C:\Program Files (x86)\WiX Toolset v3.8'
+WIXP = r'C:\Program Files (x86)\WiX Toolset v3.10'
 if is64bit:
     UPGRADE_CODE = '5DD881FF-756B-4097-9D82-8C0F11D521EA'
 else:
