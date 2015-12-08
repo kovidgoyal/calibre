@@ -26,7 +26,8 @@ if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
 
 def eject_exe():
-    return os.path.join(os.path.dirname(sys.executable), 'calibre-eject.exe')
+    base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
+    return os.path.join(base, 'calibre-eject.exe')
 
 class USBDevice:
 
