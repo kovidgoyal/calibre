@@ -536,8 +536,14 @@ class FileList(QTreeWidget):
             name_map = {n:change_name(n, num + i) for i, n in enumerate(names)}
             self.bulk_rename_requested.emit(name_map)
 
+    @property
+    def selected_names(self):
+        ans = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
+        ans.discard('')
+        return ans
+
     def request_delete(self):
-        names = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
+        names = self.selected_names
         bad = names & current_container().names_that_must_not_be_removed
         if bad:
             return error_dialog(self, _('Cannot delete'),

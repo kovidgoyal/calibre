@@ -1,0 +1,65 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+
+from elementmaker import E
+from gettext import gettext as _
+from widgets import create_button, BUTTON_VPADDING
+from book_list.globals import get_boss
+
+sp_counter = 0
+
+class SearchPanel:
+
+    def __init__(self, interface_data, book_list_container):
+        nonlocal sp_counter
+        sp_counter += 1
+        self.container_id = 'search-panel-' + sp_counter
+        self.interface_data = interface_data
+        style = ''
+        div = E.div(
+            id=self.container_id, style='display:none',
+            E.style(style, type='text/css'),
+            E.div(style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-bottom: 0.5ex"),  # search input container
+            E.div(
+                E.div(),
+                E.div()
+            )
+        )
+        book_list_container.appendChild(div)
+
+        # Build search input
+        search_container = div.firstChild.nextSibling
+        search_container.appendChild(E.div(style="display: flex; width: 100%;",
+            E.input(
+                type='text', autocomplete='on', autosave='search', inputmode='latin', name='search-books',
+                title=_('Search for books'), placeholder=_('Enter the search query'), spellcheck='false',
+                style=str.format("flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em", BUTTON_VPADDING)
+            ),
+            create_button(_('Search'), icon='search', action=self.execute_search.bind(self), tooltip=_('Do the search'))
+        ))
+        search_container.firstChild.firstChild.addEventListener('keypress', def(event):
+            if event.keyCode == 13:
+                self.execute_search()
+                event.preventDefault(), event.stopPropagation()
+        )
+
+    def init(self):
+        tb = self.container.querySelector('input[name="search-books"]')
+        tb.focus()
+        tb.setSelectionRange(0, tb.value.length)
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    @property
+    def is_visible(self):
+        self.container.style.display == 'block'
+
+    @is_visible.setter
+    def is_visible(self, val):
+        self.container.style.display = 'block' if val else 'none'
+
+    def execute_search(self):
+        text = self.container.querySelector('input[name="search-books"]').value or ''
+        get_boss().ui.books_view.change_search(text)

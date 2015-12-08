@@ -14,6 +14,7 @@
         self = this;
         self.retries = 0;
         self.interval = 100;
+        self.disable = false;
 
         self.reconnect = function() {
             self.ws = new WebSocket(url);
@@ -22,6 +23,11 @@
                 self.retries = 0;
                 self.interval = 100;
                 console.log('Connected to reloading WebSocket server at port: ' + autoreload_port);
+                window.addEventListener('beforeunload', function (event) {
+                    console.log('Shutting down connection to reload server, before page unload');
+                    self.disable = true;
+                    self.ws.close();
+                });
             };
 
             self.ws.onmessage = function(event) {
@@ -30,6 +36,7 @@
             };
 
             self.ws.onclose = function(event) {
+                if (self.disabled) return;
                 console.log('Connection to reload server closed with code: ' + event.code + ' and reason: ' + event.reason);
                 self.retries += 1;
                 if (self.retries < MAX_RETRIES) {

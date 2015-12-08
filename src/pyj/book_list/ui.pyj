@@ -2,16 +2,12 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from book_list.globals import get_boss
-from book_list.theme import get_color
+from book_list.search import SearchPanel
 from book_list.top_bar import TopBar
 from book_list.views import BooksView
 from book_list.item_list import ItemsView, create_item
-from dom import set_css
-from elementmaker import E
 from gettext import gettext as _
-from modals import create_modal_container
 from utils import debounce
-from widgets import get_widget_css
 
 class BarState:
 
@@ -33,6 +29,8 @@ class UIState:
     def __init__(self, top_bar_state=None, main_panel=None, panel_data=None, is_cacheable=True):
         self.top_bar_state = top_bar_state
         self.main_panel = main_panel or get_boss().ui.items_view
+        if type(self.main_panel) == 'string':
+            self.main_panel = getattr(get_boss().ui, self.main_panel)
         self.panel_data = panel_data
         self.is_cacheable = is_cacheable
 
@@ -75,28 +73,38 @@ create_panel = {
         data = get_boss().ui.books_view.sort_panel_data(create_item)
         return UIState(ClosePanelBar(_('Sort books')), panel_data=data, is_cacheable=False)
     ,
+
+    'booklist-search': def search_panel():
+        return UIState(ClosePanelBar(_('Search for books')), main_panel='search_panel')
+    ,
 }
 
 
 class UI:
 
-    def __init__(self, interface_data):
-        document.head.appendChild(E.style(get_widget_css()))
-        set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
-        create_modal_container()
+    def __init__(self, interface_data, book_list_container):
         self.states, self.panels = [], []
-        self.top_bar = TopBar()
-        self.books_view = BooksView(interface_data)
-        self.items_view = ItemsView(interface_data)
-        ibs = BarState(run_animation=True)
+        self.top_bar = TopBar(book_list_container)
+        self.books_view = BooksView(interface_data, book_list_container)
+        self.items_view = ItemsView(interface_data, book_list_container)
+        self.search_panel = SearchPanel(interface_data, book_list_container)
+        ibs = BarState(run_animation=True, title=def():
+            q = self.books_view.interface_data['search_result']['query']
+            if q:
+                return {'title': _('Books matching') + '::  ' + q, 'title_tooltip':_('Click to clear this search'),
+                        'title_action':def():
+                    self.books_view.change_search('')
+                }
+            return {'title': 'calibre'}
+        )
         ibs.add_button(icon_name='sort-amount-desc', tooltip=_('Sort books'), action=show_panel_action('booklist-sort-menu'))
-        ibs.add_button(icon_name='search', tooltip=_('Search for books'))
+        ibs.add_button(icon_name='search', tooltip=_('Search for books'), action=show_panel_action('booklist-search'))
         ibs.add_button(icon_name='ellipsis-v', tooltip=_('More actions'), action=show_panel_action('more-actions-menu'))
         self.states.append(UIState(ibs, self.books_view))
         self.apply_state(self.states[0])
         ibs.left_state.run_animation = False
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
-        self.panels = v'[self.books_view, self.items_view]'
+        self.panels = [self.books_view, self.items_view, self.search_panel]
 
     def on_resize(self):
         pass
@@ -122,3 +130,8 @@ class UI:
     def show_panel(self, state):
         self.states.append(state)
         self.apply_state(self.states[-1])
+
+    def refresh_books_view(self):
+        self.books_view.refresh()
+        if len(self.states) == 1:
+            self.top_bar.refresh_left()

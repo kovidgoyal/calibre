@@ -687,7 +687,6 @@ from calibre.devices.misc import (
     COBY, EX124G, WAYTEQ, WOXTER, POCKETBOOK626, SONYDPTS1)
 from calibre.devices.folder_device.driver import FOLDER_DEVICE_FOR_CONFIG
 from calibre.devices.kobo.driver import KOBO, KOBOTOUCH
-from calibre.devices.bambook.driver import BAMBOOK
 from calibre.devices.boeye.driver import BOEYE_BEX, BOEYE_BDX
 from calibre.devices.smart_device_app.driver import SMART_DEVICE_APP
 from calibre.devices.mtp.driver import MTP_DEVICE
@@ -752,7 +751,6 @@ plugins += [
     PDNOVEL_KOBO,
     LUMIREAD,
     ALURATEK_COLOR,
-    BAMBOOK,
     TREKSTOR,
     EEEREADER,
     NEXTBOOK,
@@ -1288,6 +1286,8 @@ class StoreAmazonCAKindleStore(StoreBase):
     formats = ['KINDLE']
     # affiliate = True
 
+# Remove this plugin definition in Jan 2016 because of Amazon demand.  We leave
+# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
     author = 'Charles Haley'
@@ -1298,6 +1298,8 @@ class StoreAmazonDEKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
+# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonFRKindleStore(StoreBase):
     name = 'Amazon FR Kindle'
     author = 'Charles Haley'
@@ -1308,6 +1310,8 @@ class StoreAmazonFRKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
+# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonITKindleStore(StoreBase):
     name = 'Amazon IT Kindle'
     author = 'Charles Haley'
@@ -1318,6 +1322,8 @@ class StoreAmazonITKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
+# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonESKindleStore(StoreBase):
     name = 'Amazon ES Kindle'
     author = 'Charles Haley'
@@ -1328,6 +1334,8 @@ class StoreAmazonESKindleStore(StoreBase):
     formats = ['KINDLE']
     affiliate = True
 
+# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
+# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
     author = 'Charles Haley'

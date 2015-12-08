@@ -71,7 +71,7 @@ class EPUBOutput(OutputFormatPlugin):
             help=_('Split all HTML files larger than this size (in KB). '
                 'This is necessary as most EPUB readers cannot handle large '
                 'file sizes. The default of %defaultKB is the size required '
-                'for Adobe Digital Editions.')
+                'for Adobe Digital Editions. Set to 0 to disable size based splitting.')
         ),
 
         OptionRecommendation(name='no_default_epub_cover', recommended_value=False,

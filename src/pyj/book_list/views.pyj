@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from ajax import ajax_send
+from ajax import ajax_send, encode_query
 from dom import set_css, build_rule, clear
 from elementmaker import E
 from gettext import gettext as _
@@ -17,7 +17,7 @@ bv_counter = 0
 
 class BooksView:
 
-    def __init__(self, interface_data):
+    def __init__(self, interface_data, book_list_container):
         nonlocal bv_counter
         bv_counter += 1
         self.interface_data = interface_data
@@ -35,7 +35,7 @@ class BooksView:
             E.div(),
             E.div()
         )
-        document.body.appendChild(div)
+        book_list_container.appendChild(div)
         self.set_view_mode(get_session_data().get('view_mode'))
         self.create_more_button(div)
 
@@ -207,6 +207,7 @@ class BooksView:
         return ans
 
     def change_sort(self, field, order):
+        self.abort_get_more_books()
         key = 'sort-order-for-' + field
         sd = get_session_data()
         order = order or sd.get(key, 'asc')
@@ -230,6 +231,33 @@ class BooksView:
             window.scrollTo(0, 0)
         elif end_type != 'abort':
             error_dialog(_('Could not change sort order'), xhr.error_html)
+
+    def change_search(self, query):
+        self.abort_get_more_books()
+        query = query or ''
+        sd = get_session_data()
+        data = {'search':query, 'sort':sd.get('sort'), 'library_id':self.interface_data.library_id}
+        ajax_progress_dialog('interface-data/get-books', self.search_change_completed.bind(self), _(
+            'Fetching data from server, please wait') + '…', query=data)
+
+    def search_change_completed(self, end_type, xhr, ev):
+        if end_type == 'load':
+            boss = get_boss()
+            try:
+                data = JSON.parse(xhr.responseText)
+                boss.change_books(data)
+            except Exception as err:
+                return error_dialog(_('Could not change search query'), err + '', details=err.stack)
+            query = {'search':self.interface_data.search_result.query, 'library_id':self.interface_data.library_id}
+            window.history.pushState(None, '', encode_query(query))
+            boss.ui.close_panel()
+            self.update_fetching_status()
+            window.scrollTo(0, 0)
+        elif end_type != 'abort':
+            msg = xhr.error_html
+            if xhr.status == 400 and str.startswith(xhr.responseText, 'Invalid search expression:'):
+                msg = _('The search expression could not be parsed: ') + xhr.responseText
+            error_dialog(_('Could not change search query'), msg)
 
     def refresh(self):
         self.clear()

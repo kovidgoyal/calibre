@@ -3,10 +3,12 @@
 
 from ajax import ajax
 from elementmaker import E
+from gettext import gettext as _
 from session import UserSessionData
+from utils import parse_url_params
+
 from book_list.boss import Boss
 from book_list.globals import set_boss, set_session_data
-from gettext import gettext as _
 
 def on_library_loaded(end_type, xhr, ev):
     p = document.getElementById('page_load_progress')
@@ -35,10 +37,14 @@ def load_book_list():
     query = {k:temp.get(k) for k in str.split(
         'library_id sort partition_method collapse_at dont_collapse sort_tags_by'
     )}
+    url_query = parse_url_params()
+    for key in url_query:
+        query[key] = url_query[key]
     ajax('interface-data/init', on_library_loaded, on_library_load_progress, query=query).send()
 
 def on_load():
     if window.calibre_entry_point == 'book list':
+        print('calibre loaded at:', Date().toString())
         load_book_list()
 
 # We wait for all page elements to load, since this is a single page app

@@ -13,8 +13,6 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.utils.smtp import config as email_config
 from calibre.utils.config import tweaks
 from calibre.constants import iswindows, isosx, get_osx_version
-from calibre.customize.ui import is_disabled
-from calibre.devices.bambook.driver import BAMBOOK
 from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.gui2 import info_dialog, question_dialog
 from calibre.library.server import server_config as content_server_config
@@ -23,7 +21,6 @@ class ShareConnMenu(QMenu):  # {{{
 
     connect_to_folder = pyqtSignal()
     connect_to_itunes = pyqtSignal()
-    connect_to_bambook = pyqtSignal()
 
     config_email = pyqtSignal()
     toggle_server = pyqtSignal()
@@ -46,16 +43,6 @@ class ShareConnMenu(QMenu):  # {{{
         self.connect_to_itunes_action = mitem
         itunes_ok = iswindows or (isosx and get_osx_version() < (10, 9, 0))
         mitem.setVisible(itunes_ok)
-        mitem = self.addAction(QIcon(I('devices/bambook.png')), _('Connect to Bambook'))
-        mitem.setEnabled(True)
-        mitem.triggered.connect(lambda x : self.connect_to_bambook.emit())
-        self.connect_to_bambook_action = mitem
-        bambook_visible = False
-        if not is_disabled(BAMBOOK):
-            device_ip = BAMBOOK.settings().extra_customization
-            if device_ip:
-                bambook_visible = True
-        self.connect_to_bambook_action.setVisible(bambook_visible)
 
         self.addSeparator()
         self.toggle_server_action = \
@@ -76,7 +63,7 @@ class ShareConnMenu(QMenu):  # {{{
             r = parent.keyboard.register_shortcut
             prefix = 'Share/Connect Menu '
             gr = ConnectShareAction.action_spec[0]
-            for attr in ('folder', 'bambook', 'itunes'):
+            for attr in ('folder', 'itunes'):
                 if not (iswindows or isosx) and attr == 'itunes':
                     continue
                 ac = getattr(self, 'connect_to_%s_action'%attr)
@@ -165,7 +152,6 @@ class ShareConnMenu(QMenu):  # {{{
     def set_state(self, device_connected, device):
         self.connect_to_folder_action.setEnabled(not device_connected)
         self.connect_to_itunes_action.setEnabled(not device_connected)
-        self.connect_to_bambook_action.setEnabled(not device_connected)
 
 
 # }}}
@@ -206,7 +192,6 @@ class ConnectShareAction(InterfaceAction):
         self.qaction.setMenu(self.share_conn_menu)
         self.share_conn_menu.connect_to_folder.connect(self.gui.connect_to_folder)
         self.share_conn_menu.connect_to_itunes.connect(self.gui.connect_to_itunes)
-        self.share_conn_menu.connect_to_bambook.connect(self.gui.connect_to_bambook)
 
     def location_selected(self, loc):
         enabled = loc == 'library'

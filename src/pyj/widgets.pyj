@@ -6,6 +6,8 @@ from elementmaker import E
 
 from book_list.theme import get_color
 
+BUTTON_VPADDING = '0.5ex'
+
 def create_button(text, icon=None, action=None, tooltip=None):
     cls = ''
     if icon:
@@ -19,7 +21,7 @@ def create_button(text, icon=None, action=None, tooltip=None):
 create_button.style = build_rule('button.calibre-push-button',
     border_radius='1em', background_clip='padding-box', background_color=get_color('button-start'),
     background_image=str.format('linear-gradient(to bottom, {}, {})', get_color('button-start'), get_color('button-end')),
-    padding='1ex 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit'
+    padding=BUTTON_VPADDING + ' 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit'
 )
 create_button.style += build_rule('button.calibre-push-button:hover', transform='scale(1.2)')
 create_button.style += build_rule('button.calibre-push-button:active', transform='scale(2)')

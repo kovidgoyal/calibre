@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt5.Qt import QDialog, Qt, QListWidgetItem, QColor, QIcon
+from PyQt5.Qt import QDialog, Qt, QColor
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
@@ -48,7 +48,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                         'text':_('Column built from other columns, behaves like tags'), 'is_multiple':True},
                 }
 
-    def __init__(self, parent, editing, standard_colheads, standard_colnames):
+    def __init__(self, parent, current_row, current_key, standard_colheads, standard_colnames):
         QDialog.__init__(self, parent)
         Ui_QCreateCustomColumn.__init__(self)
         self.setupUi(self)
@@ -77,7 +77,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.composite_sort_by.addItem(sort_by)
 
         self.parent = parent
-        self.editing_col = editing
+        self.parent.cc_column_key = None
+        self.editing_col = current_row is not None
         self.standard_colheads = standard_colheads
         self.standard_colnames = standard_colnames
         self.column_type_box.setMaxVisibleItems(len(self.column_types))
@@ -96,12 +97,12 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.setWindowTitle(_('Edit a custom column'))
         self.heading_label.setText(_('Edit a custom column'))
         self.shortcuts.setVisible(False)
-        idx = parent.opt_columns.currentRow()
+        idx = current_row
         if idx < 0:
             self.simple_error(_('No column selected'),
                     _('No column has been selected'))
             return
-        col = unicode(parent.opt_columns.item(idx).data(Qt.UserRole) or '')
+        col = current_key
         if col not in parent.custcols:
             self.simple_error('', _('Selected column is not a user-defined column'))
             return
@@ -159,8 +160,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                   'An Oblique Approach</b></big> [Belisarius [1]]". The template '
                   '<pre>&lt;a href="http://www.beam-ebooks.de/ebook/{identifiers'
                   ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
-                  'will generate a link to the book on the Beam ebooks site.')
-                        + '</p>')
+                  'will generate a link to the book on the Beam ebooks site.') + '</p>')
         self.exec_()
 
     def shortcut_activated(self, url):
@@ -325,20 +325,14 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'colnum':None,
                     'is_multiple':is_multiple,
                 }
-            item = QListWidgetItem(col_heading, self.parent.opt_columns)
-            item.setData(Qt.UserRole, (key))
-            item.setData(Qt.DecorationRole, (QIcon(I('column.png'))))
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            item.setCheckState(Qt.Checked)
+            self.parent.cc_column_key = key
         else:
-            idx = self.parent.opt_columns.currentRow()
-            item = self.parent.opt_columns.item(idx)
-            item.setText(col_heading)
             self.parent.custcols[self.orig_column_name]['label'] = col
             self.parent.custcols[self.orig_column_name]['name'] = col_heading
             self.parent.custcols[self.orig_column_name]['display'].update(display_dict)
             self.parent.custcols[self.orig_column_name]['*edited'] = True
             self.parent.custcols[self.orig_column_name]['*must_restart'] = True
+            self.parent.cc_column_key = key
         QDialog.accept(self)
 
     def reject(self):

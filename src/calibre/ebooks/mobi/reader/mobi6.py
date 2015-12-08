@@ -38,6 +38,7 @@ class MobiReader(object):
         self.log = log
         self.debug = debug
         self.embedded_mi = None
+        self.warned_about_trailing_entry_corruption = False
         self.base_css_rules = textwrap.dedent('''
                 body { text-align: justify }
 
@@ -740,11 +741,20 @@ class MobiReader(object):
         flags = self.book_header.extra_flags >> 1
         while flags:
             if flags & 1:
-                num += sizeof_trailing_entry(data, size - num)
+                try:
+                    num += sizeof_trailing_entry(data, size - num)
+                except IndexError:
+                    self.warn_about_trailing_entry_corruption()
+                    return 0
             flags >>= 1
         if self.book_header.extra_flags & 1:
             num += (ord(data[size - num - 1]) & 0x3) + 1
         return num
+
+    def warn_about_trailing_entry_corruption(self):
+        if not self.warned_about_trailing_entry_corruption:
+            self.warned_about_trailing_entry_corruption = True
+            self.log.warn('The trailing data entries in this MOBI file are corrupted, you might see corrupted text in the output')
 
     def text_section(self, index):
         data = self.sections[index][0]

@@ -13,9 +13,10 @@ class TopBar:
     SPACING = '0.75em'
     VSPACING = '0.5ex'
 
-    def __init__(self):
+    def __init__(self, book_list_container):
         nonlocal bar_counter
         bar_counter += 1
+        self.current_left_data = {}
         self.bar_id, self.dummy_bar_id = 'top-bar-' + bar_counter, 'dummy-top-bar-' + bar_counter
         self.throbber_name = self.bar_id + '-throbber'
         style = create_keyframes(self.throbber_name, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
@@ -28,6 +29,8 @@ class TopBar:
         style += build_rule(sel + ':hover', transform='scale(1.5)')
         style += build_rule(sel + ':active', transform='scale(2)')
         style += build_rule(sel + ':focus', outline='none')
+        style += build_rule(sel + '.top-bar-title:hover', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
+        style += build_rule(sel + '.top-bar-title:active', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
         for bid in self.dummy_bar_id, self.bar_id:
             bar = E.div(
                 id=bid,
@@ -42,7 +45,7 @@ class TopBar:
                 font_size=get_font_size('title'), user_select='none',
                 color=get_color('bar-foreground'), background_color=get_color('bar-background')
             )
-            document.body.appendChild(bar)
+            book_list_container.appendChild(bar)
 
     @property
     def bar(self):
@@ -53,15 +56,23 @@ class TopBar:
         return document.getElementById(self.dummy_bar_id)
 
     def set_left(self, title='calibre', icon_name='heart', action=None, tooltip='', run_animation=False):
+        self.current_left_data = {'title':title, 'icon_name':icon_name, 'action':action, 'tooltip':tooltip}
         if icon_name == 'heart':
             if not tooltip:
                 tooltip = _('Donate to support calibre development')
 
+        title_action = title_tooltip = None
+        if callable(title):
+            data = title()
+            title, title_action, title_tooltip = data.title, data.title_action, data.title_tooltip
+
         for bar in self.bar, self.dummy_bar:
             left = bar.firstChild
             clear(left)
+            title_elem = 'a' if callable(title_action) else 'span'
             left.appendChild(E.a(title=tooltip, E.i(class_='fa fa-' + icon_name + ' fa-fw')))
-            left.appendChild(E.span(title, style=str.format('margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}', self.SPACING, self.VSPACING)))
+            left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title', style=str.format(
+                'margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle', self.SPACING, self.VSPACING)))
             if bar is self.bar:
                 a = left.firstChild
                 if icon_name == 'heart':
@@ -74,6 +85,14 @@ class TopBar:
                     a.setAttribute('target', 'donate-to-calibre')
                 if action is not None:
                     a.addEventListener('click', def(event): event.preventDefault(), action();)
+
+                if callable(title_action):
+                    a = a.nextSibling
+                    a.addEventListener('click', def(event): event.preventDefault(), title_action();)
+
+    def refresh_left(self):
+        kw = self.current_left_data
+        self.set_left(**kw)
 
     def add_button(self, icon_name=None, action=None, tooltip=''):
         if not icon_name:

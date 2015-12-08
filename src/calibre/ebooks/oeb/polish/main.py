@@ -14,6 +14,7 @@ from functools import partial
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.stats import StatsCollector
 from calibre.ebooks.oeb.polish.subset import subset_all_fonts
+from calibre.ebooks.oeb.polish.images import compress_images
 from calibre.ebooks.oeb.polish.embed import embed_all_fonts
 from calibre.ebooks.oeb.polish.cover import set_cover
 from calibre.ebooks.oeb.polish.replace import smarten_punctuation
@@ -31,6 +32,7 @@ ALL_OPTS = {
     'remove_jacket':False,
     'smarten_punctuation':False,
     'remove_unused_css':False,
+    'compress_images': False,
 }
 
 CUSTOMIZATION = {
@@ -103,6 +105,12 @@ created from production templates can have a large number of extra CSS rules
 that dont match any actual content. These extra rules can slow down readers
 that need to parse them all.</p>
 '''),
+
+'compress_images': _('''\
+<p>Losslessly compress images in the book, to reduce the filesize, without
+affecting image quality.</p>
+'''),
+
 }
 
 def hfix(name, raw):
@@ -203,6 +211,12 @@ def polish_one(ebook, opts, report, customization=None):
             changed = True
         report('')
 
+    if opts.compress_images:
+        rt(_('Losslessly compressing images'))
+        if compress_images(ebook, report)[0]:
+            changed = True
+        report('')
+
     return changed
 
 
@@ -265,6 +279,7 @@ def option_parser():
     o('--remove-jacket', help=CLI_HELP['remove_jacket'])
     o('--smarten-punctuation', '-p', help=CLI_HELP['smarten_punctuation'])
     o('--remove-unused-css', '-u', help=CLI_HELP['remove_unused_css'])
+    o('--compress-images', '-i', help=CLI_HELP['compress_images'])
 
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 

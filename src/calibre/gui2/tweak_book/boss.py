@@ -418,11 +418,8 @@ class Boss(QObject):
         completion_worker().clear_caches('names')
 
     def add_file(self):
-        if current_container() is None:
-            return error_dialog(self.gui, _('No open book'), _(
-                'You must first open a book to tweak, before trying to create new files'
-                ' in it.'), show=True)
-
+        if not self.ensure_book(_('You must first open a book to tweak, before trying to create new files in it.')):
+            return
         self.commit_dirty_opf()
         d = NewFileDialog(self.gui)
         if d.exec_() != d.Accepted:
@@ -453,10 +450,8 @@ class Boss(QObject):
         completion_worker().clear_caches('names')
 
     def add_files(self):
-        if current_container() is None:
-            return error_dialog(self.gui, _('No open book'), _(
-                'You must first open a book to tweak, before trying to create new files'
-                ' in it.'), show=True)
+        if not self.ensure_book(_('You must first open a book to tweak, before trying to create new files in it.')):
+            return
 
         files = choose_files(self.gui, 'tweak-book-bulk-import-files', _('Choose files'))
         if files:
@@ -498,10 +493,15 @@ class Boss(QObject):
         finally:
             d.import_requested.disconnect()
 
-    def edit_toc(self):
+    def ensure_book(self, msg):
         if current_container() is None:
-            return error_dialog(self.gui, _('No book opened'), _(
-                'You must open a book before trying to edit the Table of Contents.'), show=True)
+            error_dialog(self.gui, _('No book open'), msg, show=True)
+            return False
+        return True
+
+    def edit_toc(self):
+        if not self.ensure_book(_('You must open a book before trying to edit the Table of Contents.')):
+            return
         self.add_savepoint(_('Before: Edit Table of Contents'))
         d = TOCEditor(title=self.current_metadata.title, parent=self.gui)
         if d.exec_() != d.Accepted:
@@ -1193,9 +1193,8 @@ class Boss(QObject):
         self.gui.image_browser.raise_()
 
     def show_reports(self):
-        if current_container() is None:
-            return error_dialog(self.gui, _('No book open'), _(
-                'You must first open a book in order to see the report.'), show=True)
+        if not self.ensure_book(_('You must first open a book in order to see the report.')):
+            return
         self.gui.reports.refresh()
         self.gui.reports.show()
         self.gui.reports.raise_()
@@ -1209,10 +1208,31 @@ class Boss(QObject):
         self.edit_file_requested(name, None, mt)
 
     def check_external_links(self):
-        if current_container() is None:
-            return error_dialog(self.gui, _('No book open'), _(
-                'You must first open a book in order to check links.'), show=True)
-        self.gui.check_external_links.show()
+        if self.ensure_book(_('You must first open a book in order to check links.')):
+            self.gui.check_external_links.show()
+
+    def compress_images(self):
+        if not self.ensure_book(_('You must first open a book in order to compress images.')):
+            return
+        from calibre.gui2.tweak_book.polish import show_report, CompressImages, CompressImagesProgress
+        d = CompressImages(self.gui)
+        if d.exec_() == d.Accepted:
+            with BusyCursor():
+                self.add_savepoint(_('Before: compress images'))
+                d = CompressImagesProgress(names=d.names, jpeg_quality=d.jpeg_quality, parent=self.gui)
+                if d.exec_() != d.Accepted:
+                    self.rewind_savepoint()
+                    return
+                changed, report = d.result
+                if changed is None and report:
+                    self.rewind_savepoint()
+                    return error_dialog(self.gui, _('Unexpected error'), _(
+                        'Failed to compress images, click "Show details" for more information'), det_msg=report, show=True)
+                if changed:
+                    self.apply_container_update_to_gui()
+                else:
+                    self.rewind_savepoint()
+            show_report(changed, self.current_metadata.title, report, self.gui, self.show_current_diff)
 
     def sync_editor_to_preview(self, name, sourceline_address):
         editor = self.edit_file(name, 'html')
@@ -1304,10 +1324,9 @@ class Boss(QObject):
         return self.edit_file(name, syntax)
 
     def quick_open(self):
+        if not self.ensure_book(_('No book is currently open. You must first open a book to edit.')):
+            return
         c = current_container()
-        if c is None:
-            return error_dialog(self.gui, _('No open book'), _(
-                'No book is currently open. You must first open a book to edit.'), show=True)
         files = [name for name, mime in c.mime_map.iteritems() if c.exists(name) and syntax_from_mime(name, mime) is not None]
         d = QuickOpen(files, parent=self.gui)
         if d.exec_() == d.Accepted and d.selected_result is not None:

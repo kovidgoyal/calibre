@@ -7,12 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import copy, re
+import copy
 from functools import partial
 from future_builtins import map
 
 from calibre.ebooks.metadata import author_to_author_sort
-from calibre.library.field_metadata import TagsIcons
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key, collation_order
 
@@ -22,11 +21,12 @@ class Tag(object):
 
     __slots__ = ('name', 'original_name', 'id', 'count', 'state', 'is_hierarchical',
             'is_editable', 'is_searchable', 'id_set', 'avg_rating', 'sort',
-            'use_sort_as_name', 'tooltip', 'icon', 'category')
+            'use_sort_as_name', 'category', 'search_expression', 'original_categories')
 
     def __init__(self, name, id=None, count=0, state=0, avg=0, sort=None,
-                 tooltip=None, icon=None, category=None, id_set=None,
-                 is_editable=True, is_searchable=True, use_sort_as_name=False):
+                 category=None, id_set=None, search_expression=None,
+                 is_editable=True, is_searchable=True, use_sort_as_name=False,
+                 original_categories=None):
         self.name = self.original_name = name
         self.id = id
         self.count = count
@@ -38,20 +38,12 @@ class Tag(object):
         self.avg_rating = avg/2.0 if avg is not None else 0
         self.sort = sort
         self.use_sort_as_name = use_sort_as_name
-        if tooltip is None:
-            tooltip = '(%s:%s)'%(category, name)
-        if self.avg_rating > 0:
-            if tooltip:
-                tooltip = tooltip + ': '
-            tooltip = _('%(tt)sAverage rating is %(rating)3.1f')%dict(
-                    tt=tooltip, rating=self.avg_rating)
-        self.tooltip = tooltip
-        self.icon = icon
         self.category = category
+        self.search_expression = search_expression
+        self.original_categories = None
 
     def __unicode__(self):
-        return u'%s:%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state,
-                                  self.category, self.tooltip)
+        return u'%s:%s:%s:%s:%s'%(self.name, self.count, self.id, self.state, self.category)
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -67,18 +59,9 @@ def find_categories(field_metadata):
               cat['display'].get('make_category', False)):
             yield (category, cat['is_multiple'].get('cache_to_list', None), True)
 
-def create_tag_class(category, fm, icon_map):
+def create_tag_class(category, fm):
     cat = fm[category]
     dt = cat['datatype']
-    icon = None
-    label = fm.key_to_label(category)
-    if icon_map:
-        if not fm.is_custom_field(category):
-            if category in icon_map:
-                icon = icon_map[label]
-        else:
-            icon = icon_map['custom:']
-            icon_map[category] = icon
     is_editable = category not in {'news', 'rating', 'languages', 'formats',
                                    'identifiers'} and dt != 'composite'
 
@@ -91,8 +74,8 @@ def create_tag_class(category, fm, icon_map):
     else:
         use_sort_as_name = False
 
-    return partial(Tag, use_sort_as_name=use_sort_as_name, icon=icon,
-                        is_editable=is_editable, category=category)
+    return partial(Tag, use_sort_as_name=use_sort_as_name,
+                   is_editable=is_editable, category=category)
 
 def clean_user_categories(dbcache):
     user_cats = dbcache.pref('user_categories', {})
@@ -129,10 +112,7 @@ def sort_categories(items, sort, first_letter_sort=False):
     items.sort(key=key)
     return items
 
-def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
-                   first_letter_sort=False):
-    if icon_map is not None and type(icon_map) != TagsIcons:
-        raise TypeError('icon_map passed to get_categories must be of type TagIcons')
+def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False):
     if sort not in CATEGORY_SORTS:
         raise ValueError('sort ' + sort + ' not a valid value')
 
@@ -153,7 +133,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
     bids = None
 
     for category, is_multiple, is_composite in find_categories(fm):
-        tag_class = create_tag_class(category, fm, icon_map)
+        tag_class = create_tag_class(category, fm)
         if is_composite:
             if bids is None:
                 bids = dbcache._all_book_ids() if book_ids is None else book_ids
@@ -181,7 +161,7 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
         for x in tuple(categories['rating']):
             if r.name == x.name and r.id != x.id:
                 r.id_set |= x.id_set
-                r.count = r.count + x.count
+                r.count = len(r.id_set)
                 categories['rating'].remove(x)
                 break
 
@@ -198,7 +178,6 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
         for sc in gst[c]:
             for t in categories.get(sc, ()):
                 user_categories[c].append([t.name, sc, 0])
-    gst_icon = icon_map['gst'] if icon_map else None
 
     if user_categories:
         # We want to use same node in the user category as in the source
@@ -211,7 +190,6 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
             taglist[c] = dict(map(lambda t:(icu_lower(t.name), t), items))
 
         # Add the category values to the user categories
-        tt_pattern = re.compile(':.*?\)')
         for user_cat in sorted(user_categories.iterkeys(), key=sort_key):
             items = []
             names_seen = {}
@@ -222,38 +200,44 @@ def get_categories(dbcache, sort='name', book_ids=None, icon_map=None,
                     if user_cat_is_gst:
                         # for gst items, make copy and consolidate the tags by name.
                         if n in names_seen:
+                            # We must combine this node into a previous one with
+                            # the same name ignoring case. As part of the process,
+                            # remember the source categories and correct the
+                            # average rating
                             t = names_seen[n]
                             other_tag = taglist[label][n]
                             t.id_set |= other_tag.id_set
-                            t.count += other_tag.count
-                            t.tooltip = t.tooltip.replace(')', ', ' + label + ')')
+                            t.count = len(t.id_set)
+                            t.original_categories.add(other_tag.category)
+
+                            total_rating = 0
+                            count = 0
+                            for id_ in t.id_set:
+                                rating = book_rating_map.get(id_, 0)
+                                if rating:
+                                    total_rating += rating/2
+                                    count += 1
+                            if total_rating and count:
+                                t.avg_rating = total_rating/count
                         else:
-                            t = copy.copy(taglist[label][n])
-                            t.tooltip = tt_pattern.sub(')', t.tooltip)
-                            t.icon = gst_icon
+                            # Must deepcopy so we don't share the id_set between nodes
+                            t = copy.deepcopy(taglist[label][n])
+                            t.original_categories = {t.category}
                             names_seen[n] = t
                             items.append(t)
                     else:
                         items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
-            # Not a problem if we accumulate entries in the icon map
-            if icon_map is not None:
-                icon_map[cat_name] = icon_map['user:']
             categories[cat_name] = sort_categories(items, sort)
 
     # ### Finally, the saved searches category ####
     items = []
-    icon = None
-    if icon_map and 'search' in icon_map:
-        icon = icon_map['search']
     queries = dbcache._search_api.saved_searches.queries
     for srch in sorted(queries, key=sort_key):
-        items.append(Tag(srch, tooltip=queries[srch], sort=srch, icon=icon,
+        items.append(Tag(srch, sort=srch, search_expression=queries[srch],
                          category='search', is_editable=False))
     if len(items):
         categories['search'] = items
 
     return categories
-
-

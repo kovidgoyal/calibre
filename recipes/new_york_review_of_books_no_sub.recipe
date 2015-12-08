@@ -13,6 +13,11 @@ from calibre.web.feeds.news import BasicNewsRecipe
 def find_header(tag):
     return tag.name == 'header' and tag.parent['class'] == 'article'
 
+def absurl(url):
+    if url.startswith('/'):
+        url = 'http://www.nybooks.com' + url
+    return url
+
 class NewYorkReviewOfBooks(BasicNewsRecipe):
 
     title = u'New York Review of Books (no subscription)'
@@ -52,7 +57,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         sidebar = soup.find('div', attrs={'class':'issue_cover'})
         if sidebar is not None:
             img = sidebar.find('img', src=True)
-            self.cover_url = 'http://www.nybooks.com' + img['src']
+            self.cover_url = absurl(img['src'])
             self.log('Found cover at:', self.cover_url)
 
         # Find date
@@ -72,7 +77,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
                 title = self.tag_to_string(h2).strip()
                 author = self.tag_to_string(div.find('div', attrs={'class':'author'})).strip()
                 title = title + u' (%s)'%author
-                url = 'http://www.nybooks.com' + h2.find('a', href=True)['href']
+                url = absurl(h2.find('a', href=True)['href'])
                 desc = ''
                 for p in div.findAll('p', attrs={'class':lambda x: x and 'quiet' in x}):
                     desc += self.tag_to_string(p)
@@ -83,4 +88,3 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
                     'description':desc})
 
         return [('Current Issue', articles)]
-

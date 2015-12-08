@@ -20,12 +20,13 @@ from ctypes import (
     c_char, c_char_p, c_int, c_long, c_ubyte, c_uint, c_ulonglong, c_void_p,
     POINTER, string_at, Structure)
 
-from calibre.constants import DEBUG, islinux, isosx, iswindows
+from calibre.constants import DEBUG, isosx, iswindows
 from calibre.devices.idevice.parse_xml import XmlPropertyListParser
 from calibre.devices.usbms.driver import debug_print
 
 
 class libiMobileDeviceException(Exception):
+
     def __init__(self, value):
         self.value = value
 
@@ -34,6 +35,7 @@ class libiMobileDeviceException(Exception):
 
 
 class libiMobileDeviceIOException(Exception):
+
     def __init__(self, value):
         self.value = value
 
@@ -42,6 +44,7 @@ class libiMobileDeviceIOException(Exception):
 
 
 class AFC_CLIENT_T(Structure):
+
     '''
     http://www.libimobiledevice.org/docs/html/structafc__client__private.html
     '''
@@ -74,6 +77,7 @@ class AFC_CLIENT_T(Structure):
 
 
 class HOUSE_ARREST_CLIENT_T(Structure):
+
     '''
     http://www.libimobiledevice.org/docs/html/structhouse__arrest__client__private.html
     '''
@@ -94,6 +98,7 @@ class HOUSE_ARREST_CLIENT_T(Structure):
 
 
 class IDEVICE_T(Structure):
+
     '''
     http://www.libimobiledevice.org/docs/html/structidevice__private.html
     '''
@@ -104,6 +109,7 @@ class IDEVICE_T(Structure):
 
 
 class INSTPROXY_CLIENT_T(Structure):
+
     '''
     http://www.libimobiledevice.org/docs/html/structinstproxy__client__private.html
     '''
@@ -129,6 +135,7 @@ class INSTPROXY_CLIENT_T(Structure):
 
 
 class LOCKDOWND_CLIENT_T(Structure):
+
     '''
     http://www.libimobiledevice.org/docs/html/structlockdownd__client__private.html
     '''
@@ -152,6 +159,7 @@ class LOCKDOWND_CLIENT_T(Structure):
 
 
 class LOCKDOWND_SERVICE_DESCRIPTOR(Structure):
+
     '''
     from libimobiledevice/include/libimobiledevice/lockdown.h
     '''
@@ -162,6 +170,7 @@ class LOCKDOWND_SERVICE_DESCRIPTOR(Structure):
 
 
 class libiMobileDevice():
+
     '''
     Wrapper for libiMobileDevice
     '''
@@ -323,7 +332,7 @@ class libiMobileDevice():
         if self.device_mounted:
             self._afc_client_free()
             self._house_arrest_client_free()
-            #self._lockdown_goodbye()
+            # self._lockdown_goodbye()
             self._idevice_free()
             self.device_mounted = False
         else:
@@ -332,7 +341,7 @@ class libiMobileDevice():
     def dismount_ios_media_folder(self):
         if self.device_mounted:
             self._afc_client_free()
-            #self._lockdown_goodbye()
+            # self._lockdown_goodbye()
             self._idevice_free()
             self.device_mounted = False
 
@@ -438,10 +447,10 @@ class libiMobileDevice():
         return self._afc_read_directory(path, get_stats=get_stats)
 
     def load_library(self):
-        if islinux:
-            env = "linux"
-            self.lib = cdll.LoadLibrary('libimobiledevice.so.5')
-            self.plist_lib = cdll.LoadLibrary('libplist.so.3')
+        if iswindows:
+            env = "Windows"
+            self.lib = cdll.LoadLibrary('libimobiledevice.dll')
+            self.plist_lib = cdll.LoadLibrary('libplist.dll')
         elif isosx:
             env = "OS X"
 
@@ -458,11 +467,13 @@ class libiMobileDevice():
                 self.plist_lib = cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), path))
             else:
                 self.plist_lib = cdll.LoadLibrary(path)
-        elif iswindows:
-            env = "Windows"
-            self.lib = cdll.LoadLibrary('libimobiledevice.dll')
-            self.plist_lib = cdll.LoadLibrary('libplist.dll')
-
+        else:
+            env = "linux"
+            try:
+                self.lib = cdll.LoadLibrary('libimobiledevice.so.5')
+            except EnvironmentError:
+                self.lib = cdll.LoadLibrary('libimobiledevice.so')
+            self.plist_lib = cdll.LoadLibrary('libplist.so.3')
         self._log_location(env)
         self._log(" libimobiledevice loaded from '{0}'".format(self.lib._name))
         self._log(" libplist loaded from '{0}'".format(self.plist_lib._name))
@@ -506,7 +517,7 @@ class libiMobileDevice():
                 self._instproxy_client_options_free()
                 self._instproxy_client_free()
 
-                if not app_name in self.installed_apps:
+                if app_name not in self.installed_apps:
                     self._log(" {0} not installed on this iDevice".format(repr(app_name)))
                     self.disconnect_idevice()
                 else:
@@ -1388,7 +1399,7 @@ class libiMobileDevice():
                     device_list.append(devices[index].contents.value)
                 index += 1
             self._log(" {0}".format(repr(device_list)))
-        #self.lib.idevice_device_list_free()
+        # self.lib.idevice_device_list_free()
         return device_list
 
     def _idevice_new(self):
@@ -1458,8 +1469,8 @@ class libiMobileDevice():
             raise libiMobileDeviceException(error_description)
         else:
             # Get the number of apps
-            #app_count = self.lib.plist_array_get_size(apps)
-            #self._log("       app_count: {0}".format(app_count))
+            # app_count = self.lib.plist_array_get_size(apps)
+            # self._log("       app_count: {0}".format(app_count))
 
             # Convert the app plist to xml
             xml = POINTER(c_void_p)()
@@ -1628,7 +1639,7 @@ class libiMobileDevice():
         self._log_location()
 
         lockdownd_client_t = POINTER(LOCKDOWND_CLIENT_T)()
-        #SERVICE_NAME = create_string_buffer('calibre')
+        # SERVICE_NAME = create_string_buffer('calibre')
         SERVICE_NAME = c_void_p()
         error = self.lib.lockdownd_client_new_with_handshake(byref(self.device),
                                                              byref(lockdownd_client_t),
@@ -1719,7 +1730,6 @@ class libiMobileDevice():
         return device_name
 
     def _lockdown_get_value(self, requested_items=[]):
-
         '''
         Retrieves a preferences plist using an optional domain and/or key name.
 
@@ -1937,4 +1947,3 @@ class libiMobileDevice():
 
     def __null(self, *args, **kwargs):
         pass
-

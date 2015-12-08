@@ -12,8 +12,10 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import cStringIO, os, ctypes
+import cStringIO, os, ctypes, shutil, sys
+from calibre import CurrentDir
 from calibre.constants import plugins, iswindows, islinux, isosx
+from calibre.ptempfile import TemporaryDirectory
 
 def test_dlls():
     import win32api
@@ -207,9 +209,28 @@ def test_tokenizer():
     from tinycss.tokenizer import c_tokenize_flat
     if c_tokenize_flat is None:
         raise ValueError('tinycss C tokenizer not loaded')
-    from tinycss.tests.main import run_tests
-    run_tests(for_build=True)
+    import tinycss.tests.main as m
+    if getattr(m, '__file__', None) and os.path.exists(m.__file__):
+        m.run_tests(for_build=True)
     print('tinycss tokenizer OK!')
+
+def test_executables():
+    from calibre.utils.ipc.launch import Worker
+    if getattr(sys, 'frozen', False):
+        w = Worker({})
+        if not os.path.exists(w.executable):
+            raise SystemExit('calibre-parallel (%s) does not exist' % w.executable)
+        if not os.path.exists(w.gui_executable):
+            raise SystemExit('calibre-parallel-gui (%s) does not exist' % w.gui_executable)
+        if iswindows:
+            from calibre.devices.usbms.device import eject_exe
+            if not os.path.exists(eject_exe()):
+                raise SystemExit('calibre-eject.exe (%s) does not exist' % eject_exe())
+        from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
+        if not os.path.exists(PDFTOHTML):
+            raise SystemExit('pdftohtml (%s) does not exist' % PDFTOHTML)
+
+        print('executables OK!')
 
 def test_netifaces():
     import netifaces
@@ -239,10 +260,28 @@ def test_markdown():
     sanitize_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
     print('Markdown OK!')
 
+def test_image_compression():
+    from calibre.utils.img import optimize_png, optimize_jpeg, encode_jpeg
+    with TemporaryDirectory() as tdir, CurrentDir(tdir):
+        shutil.copyfile(I('devices/kindle.jpg'), 'test.jpg')
+        ret = optimize_jpeg('test.jpg')
+        if ret is not None:
+            raise SystemExit(ret)
+        ret = encode_jpeg('test.jpg')
+        if ret is not None:
+            raise SystemExit(ret)
+        shutil.copyfile(I('lt.png'), 'test.png')
+        ret = optimize_png('test.png')
+        if ret is not None:
+            raise SystemExit(ret)
+    print('Image compression OK!')
+
 def test():
     if iswindows:
         test_dlls()
     test_plugins()
+    test_executables()
+    test_image_compression()
     test_lzma()
     test_dukpy()
     test_spell()

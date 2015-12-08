@@ -13,7 +13,7 @@ from calibre import prepare_string_for_xml, as_unicode
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import get_db, search_result
 from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
-from calibre.srv.metadata import book_as_json, categories_as_json
+from calibre.srv.metadata import book_as_json, categories_as_json, icon_map
 from calibre.srv.routes import endpoint, json
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
@@ -90,8 +90,7 @@ def interface_data(ctx, rd):
     Return the data needed to create the server main UI
 
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
-              &sort_tags_by=name&partition_method=first letter&collapse_at=25&
-              &dont_collapse=
+              &search=''&extra_books=''
     '''
     ans = {'username':rd.username}
     ans['library_map'], ans['default_library'] = ctx.library_map
@@ -113,18 +112,28 @@ def interface_data(ctx, rd):
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     with db.safe_read_lock:
-        ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
+        try:
+            ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders))
+        except ParseException:
+            ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
         sf = db.field_metadata.ui_sortable_field_keys()
         sf.pop('ondevice', None)
         ans['sortable_fields'] = sorted(((
             sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
                                         key=lambda (field, name):sort_key(name))
         ans['field_metadata'] = db.field_metadata.all_metadata()
-        ans['categories'] = categories_as_json(ctx, rd, db)
+        ans['icon_map'] = icon_map()
         mdata = ans['metadata'] = {}
-        for book_id in ans['search_result']['book_ids']:
-            data = book_as_json(db, book_id)
-            mdata[book_id] = data
+        try:
+            extra_books = set(int(x) for x in rd.query.get('extra_books', '').split(','))
+        except Exception:
+            extra_books = ()
+        for coll in (ans['search_result']['book_ids'], extra_books):
+            for book_id in coll:
+                if book_id not in mdata:
+                    data = book_as_json(db, book_id)
+                    if data is not None:
+                        mdata[book_id] = data
 
     return ans
 
@@ -155,7 +164,8 @@ def more_books(ctx, rd):
         mdata = ans['metadata'] = {}
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)
-            mdata[book_id] = data
+            if data is not None:
+                mdata[book_id] = data
 
     return ans
 
@@ -196,8 +206,21 @@ def get_books(ctx, rd):
         try:
             ans['search_result'] = search_result(ctx, rd, db, searchq, num, 0, ','.join(sorts), ','.join(orders))
         except ParseException as err:
+            # This must not be translated as it is used by the front end to
+            # detect invalid search expressions
             raise HTTPBadRequest('Invalid search expression: %s' % as_unicode(err))
         for book_id in ans['search_result']['book_ids']:
             data = book_as_json(db, book_id)
-            mdata[book_id] = data
+            if data is not None:
+                mdata[book_id] = data
     return ans
+
+@endpoint('/interface-data/tag-browser', postprocess=json)
+def tag_browser(ctx, rd):
+    '''
+    Get the Tag Browser serialized as JSON
+    Optional: ?library_id=<default library>&sort_tags_by=name&partition_method=first letter
+              &collapse_at=25&dont_collapse=
+    '''
+    db, library_id = get_library_data(ctx, rd.query)[:2]
+    return categories_as_json(ctx, rd, db)

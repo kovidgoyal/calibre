@@ -33,11 +33,14 @@
    </item>
    <item row="5" column="1">
     <widget class="QSpinBox" name="opt_flow_size">
+     <property name="specialValueText">
+      <string>Disabled</string>
+     </property>
      <property name="suffix">
       <string> KB</string>
      </property>
      <property name="minimum">
-      <number>25</number>
+      <number>0</number>
      </property>
      <property name="maximum">
       <number>1000000</number>

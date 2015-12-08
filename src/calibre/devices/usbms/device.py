@@ -25,6 +25,10 @@ from calibre.utils.filenames import ascii_filename as sanitize
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
 
+def eject_exe():
+    base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
+    return os.path.join(base, 'calibre-eject.exe')
+
 class USBDevice:
 
     def __init__(self, dev):
@@ -918,8 +922,7 @@ class Device(DeviceConfig, DevicePlugin):
 
         def do_it2(drives):
             import win32process
-            EJECT = os.path.join(os.path.dirname(sys.executable), 'calibre-eject.exe')
-            subprocess.Popen([EJECT] + drives, creationflags=win32process.CREATE_NO_WINDOW).wait()
+            subprocess.Popen([eject_exe()] + drives, creationflags=win32process.CREATE_NO_WINDOW).wait()
 
         t = Thread(target=do_it2, args=[drives])
         t.daemon = True

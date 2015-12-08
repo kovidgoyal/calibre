@@ -192,11 +192,12 @@ class WritingTest(BaseTest):
         for c in (cache, cache2):
             for i, val in {1:'A Series One', 2:'A Series One', 3:'Series'}.iteritems():
                 self.assertEqual(c.field_for('series', i), val)
+            cs_indices = {1:c.field_for('#series_index', 1), 3:c.field_for('#series_index', 3)}
             for i in (1, 2, 3):
                 self.assertEqual(c.field_for('#series', i), 'Series')
             for i, val in {1:2, 2:1, 3:3}.iteritems():
                 self.assertEqual(c.field_for('series_index', i), val)
-            for i, val in {1:1, 2:0, 3:1}.iteritems():
+            for i, val in {1:cs_indices[1], 2:0, 3:cs_indices[3]}.iteritems():
                 self.assertEqual(c.field_for('#series_index', i), val)
         del cache2
 

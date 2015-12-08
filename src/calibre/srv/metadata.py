@@ -4,15 +4,21 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import os
 from copy import copy
 from collections import namedtuple
 from datetime import datetime, time
+from functools import partial
+from threading import Lock
 
+from calibre.constants import config_dir
 from calibre.db.categories import Tag
 from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
-from calibre.utils.config import tweaks
+from calibre.utils.config import tweaks, JSONConfig
 from calibre.utils.formatter import EvalFormatter
+from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.icu import collation_order
+from calibre.library.field_metadata import category_icon_map
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked id au_map'.split())
 
@@ -27,11 +33,13 @@ def encode_datetime(dateval):
         return None
     return isoformat(dateval)
 
+empty_val = ((), '', {})
+
 def add_field(field, db, book_id, ans, field_metadata):
     datatype = field_metadata.get('datatype')
     if datatype is not None:
         val = db._field_for(field, book_id)
-        if val is not None and val != ():
+        if val is not None and val not in empty_val:
             if datatype == 'datetime':
                 val = encode_datetime(val)
                 if val is None:
@@ -42,6 +50,8 @@ def book_as_json(db, book_id):
     db = db.new_api
     with db.safe_read_lock:
         ans = {'formats':db._formats(book_id)}
+        if not ans['formats'] and not db.has_id(book_id):
+            return None
         fm = db.field_metadata
         for field in fm.all_field_keys():
             if field not in IGNORED_FIELDS:
@@ -79,7 +89,9 @@ def category_item_as_json(x, clear_rating=False):
     for k in _include_fields:
         val = getattr(x, k)
         if val is not None:
-            ans[k] = val
+            if k == 'original_categories':
+                val = tuple(val)
+            ans[k] = val.copy() if isinstance(val, set) else val
     if x.use_sort_as_name:
         ans['name'] = ans['sort']
     if x.original_name != ans['name']:
@@ -91,6 +103,47 @@ def category_item_as_json(x, clear_rating=False):
 
 CategoriesSettings = namedtuple(
     'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by template using_hierarchy grouped_search_terms hidden_categories')
+
+class GroupedSearchTerms(object):
+
+    __slots__ = ('keys', 'vals', 'hash')
+
+    def __init__(self, src):
+        self.keys = frozenset(src)
+        self.hash = hash(self.keys)
+        # We dont need to store values since this is used as part of a key for
+        # a cache and if the values have changed the cache will be invalidated
+        # for other reasons anyway (last_modified() will have changed on the
+        # db)
+
+    def __contains__(self, val):
+        return val in self.keys
+
+    def __hash__(self):
+        return self.hash
+
+    def __eq__(self, other):
+        try:
+            return self.keys == other.keys
+        except AttributeError:
+            return False
+
+_icon_map = None
+_icon_map_lock = Lock()
+
+def icon_map():
+    global _icon_map
+    with _icon_map_lock:
+        if _icon_map is None:
+            _icon_map = category_icon_map.copy()
+            custom_icons = JSONConfig('gui').get('tags_browser_category_icons', {})
+            for k, v in custom_icons.iteritems():
+                if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
+                    _icon_map[k] = '_' + v
+            _icon_map['file_type_icons'] = {
+                k:'mimetypes/%s.png' % v for k, v in EXT_MAP.iteritems()
+            }
+        return _icon_map
 
 def categories_settings(query, db):
     dont_collapse = frozenset(query.get('dont_collapse', '').split(','))
@@ -111,9 +164,11 @@ def categories_settings(query, db):
             collapse_model = 'partition'
         template = tweaks['categories_collapsed_%s_template' % sort_by]
     using_hierarchy = frozenset(db.pref('categories_using_hierarchy', []))
-    hidden_categories = db.pref('tag_browser_hidden_categories', set())
+    hidden_categories = frozenset(db.pref('tag_browser_hidden_categories', set()))
     return CategoriesSettings(
-        dont_collapse, collapse_model, collapse_at, sort_by, template, using_hierarchy, db.pref('grouped_search_terms', {}), hidden_categories)
+        dont_collapse, collapse_model, collapse_at, sort_by, template,
+        using_hierarchy, GroupedSearchTerms(db.pref('grouped_search_terms', {})),
+        hidden_categories)
 
 def create_toplevel_tree(category_data, items, field_metadata, opts):
     # Create the basic tree, containing all top level categories , user
@@ -157,8 +212,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts):
                     )
                     node_id_map[last_category_node] = category_node_map[path] = node = {'id':last_category_node, 'children':[]}
                     category_nodes.append(last_category_node)
-                    if not is_gst:
-                        recount_nodes.append(node)
+                    recount_nodes.append(node)
                     current_root['children'].append(node)
                     current_root = node
                 else:
@@ -173,6 +227,7 @@ def create_toplevel_tree(category_data, items, field_metadata, opts):
             category_node_map[category] = node_id_map[last_category_node] = node = {'id':last_category_node, 'children':[]}
             root['children'].append(node)
             category_nodes.append(last_category_node)
+            recount_nodes.append(node)
 
     return root, node_id_map, category_nodes, recount_nodes
 
@@ -251,7 +306,8 @@ def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is
 
 def process_category_node(
         category_node, items, category_data, eval_formatter, field_metadata,
-        opts, tag_map, hierarchical_tags, node_to_tag_map, collapse_nodes):
+        opts, tag_map, hierarchical_tags, node_to_tag_map, collapse_nodes,
+        intermediate_nodes, hierarchical_items):
     category = items[category_node['id']]['category']
     category_items = category_data[category]
     cat_len = len(category_items)
@@ -313,6 +369,7 @@ def process_category_node(
         ):  # A non-hierarchical leaf item in a non-hierarchical category
             node, item = create_tag_node(tag, node_parent)
             category_child_map[item['name'], item['category']] = node
+            intermediate_nodes[tag.category, tag.original_name] = node
         else:
             orig_node_parent = node_parent
             for i, component in enumerate(components):
@@ -327,19 +384,34 @@ def process_category_node(
                 cm_key = component, tag.category
                 if cm_key in child_map:
                     node_parent = child_map[cm_key]
-                    items[node_parent['id']]['is_hierarchical'] = 3 if tag.category == 'search' else 5
+                    node_id = node_parent['id']
+                    item = items[node_id]
+                    item['is_hierarchical'] = 3 if tag.category == 'search' else 5
+                    if tag.id_set is not None:
+                        item['id_set'] |= tag.id_set
+                    hierarchical_items.add(node_id)
                     hierarchical_tags.add(id(node_to_tag_map[node_parent['id']]))
                 else:
                     if i < len(components) - 1:  # Non-leaf node
-                        t = copy(tag)
-                        t.original_name, t.count = '.'.join(components[:i+1]), 0
-                        t.is_editable, t.is_searchable = False, category == 'search'
-                        node_parent, item = create_tag_node(t, node_parent)
-                        hierarchical_tags.add(id(t))
+                        original_name = '.'.join(components[:i+1])
+                        inode = intermediate_nodes.get((tag.category, original_name), None)
+                        if inode is None:
+                            t = copy(tag)
+                            t.original_name, t.count = original_name, 0
+                            t.is_editable, t.is_searchable = False, category == 'search'
+                            node_parent, item = create_tag_node(t, node_parent)
+                            hierarchical_tags.add(id(t))
+                            intermediate_nodes[tag.category, original_name] = node_parent
+                        else:
+                            item = items[inode['id']]
+                            ch = node_parent['children']
+                            node_parent = {'id':inode['id'], 'children':[]}
+                            ch.append(node_parent)
                     else:
                         node_parent, item = create_tag_node(tag, node_parent)
                         if not is_user_category:
                             item['original_name'] = tag.name
+                        intermediate_nodes[tag.category, tag.original_name] = node_parent
                     item['name'] = component
                     item['is_hierarchical'] = 3 if tag.category == 'search' else 5
                     hierarchical_tags.add(id(tag))
@@ -353,10 +425,10 @@ def iternode_descendants(node):
         for x in iternode_descendants(child):
             yield x
 
-def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts):
+def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts, book_rating_map):
     eval_formatter = EvalFormatter()
     tag_map, hierarchical_tags, node_to_tag_map = {}, set(), {}
-    first, later, collapse_nodes = [], [], []
+    first, later, collapse_nodes, intermediate_nodes, hierarchical_items = [], [], [], {}, set()
     # User categories have to be processed after normal categories as they can
     # reference hierarchical nodes that were created only during processing of
     # normal categories
@@ -370,10 +442,20 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
             process_category_node(
                 cnode, items, category_data, eval_formatter, field_metadata,
                 opts, tag_map, hierarchical_tags, node_to_tag_map,
-                collapse_nodes)
+                collapse_nodes, intermediate_nodes, hierarchical_items)
 
     # Do not store id_set in the tag items as it is a lot of data, with not
-    # much use. Instead only update the counts based on id_set
+    # much use. Instead only update the ratings and counts based on id_set
+    for item_id in hierarchical_items:
+        item = items[item_id]
+        total = count = 0
+        for book_id in item['id_set']:
+            rating = book_rating_map.get(book_id, 0)
+            if rating:
+                total += rating/2.0
+                count += 1
+        item['avg_rating'] = float(total)/count if count else 0
+
     for item_id, item in tag_map.itervalues():
         id_len = len(item.pop('id_set', ()))
         if id_len:
@@ -383,13 +465,14 @@ def fillout_tree(root, items, node_id_map, category_nodes, category_data, field_
         item = items[node['id']]
         item['count'] = sum(1 for _ in iternode_descendants(node))
 
-def render_categories(field_metadata, opts, category_data):
+def render_categories(opts, db, category_data):
     items = {}
-    root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, field_metadata, opts)
-    fillout_tree(root, items, node_id_map, category_nodes, category_data, field_metadata, opts)
+    with db.safe_read_lock:
+        root, node_id_map, category_nodes, recount_nodes = create_toplevel_tree(category_data, items, db.field_metadata, opts)
+        fillout_tree(root, items, node_id_map, category_nodes, category_data, db.field_metadata, opts, db.fields['rating'].book_value_map)
     for node in recount_nodes:
         item = items[node['id']]
-        item['count'] = sum(1 for x in iternode_descendants(node) if not items[x['id']].get('is_user_category', False))
+        item['count'] = sum(1 for x in iternode_descendants(node) if not items[x['id']].get('is_category', False))
     if opts.hidden_categories:
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
@@ -398,8 +481,7 @@ def render_categories(field_metadata, opts, category_data):
 
 def categories_as_json(ctx, rd, db):
     opts = categories_settings(rd.query, db)
-    category_data = ctx.get_categories(rd, db, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
-    render_categories(db.field_metadata, opts, category_data)
+    return ctx.get_tag_browser(rd, db, opts, partial(render_categories, opts))
 
 # Test tag browser {{{
 
@@ -408,8 +490,11 @@ def dump_categories_tree(data):
     ans, indent = [], '  '
     def dump_node(node, level=0):
         item = items[node['id']]
+        rating = item.get('avg_rating', None) or 0
+        if rating:
+            rating = ',rating=%.1f' % rating
         try:
-            ans.append(indent*level + item['name'] + ' [count=%s]' % (item['count'],))
+            ans.append(indent*level + item['name'] + ' [count=%s%s]' % (item['count'], rating or ''))
         except KeyError:
             print(item)
             raise
@@ -441,7 +526,7 @@ def test_tag_browser(library_path=None):
     opts = categories_settings({}, db)
     # opts = opts._replace(hidden_categories={'publisher'})
     category_data = db.get_categories(sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
-    data = render_categories(db.field_metadata, opts, category_data)
+    data = render_categories(opts, db, category_data)
     srv_data = dump_categories_tree(data)
     from calibre.gui2 import Application, gprefs
     from calibre.gui2.tag_browser.model import TagsModel
@@ -455,6 +540,9 @@ def test_tag_browser(library_path=None):
     m = TagsModel(None, prefs)
     m.set_database(olddb, opts.hidden_categories)
     m_data = dump_tags_model(m)
+    if m_data == srv_data:
+        print('No differences found in the two Tag Browser implementations')
+        raise SystemExit(0)
     from calibre.gui2.tweak_book.diff.main import Diff
     d = Diff(show_as_window=True)
     d.string_diff(m_data, srv_data, left_name='GUI', right_name='server')

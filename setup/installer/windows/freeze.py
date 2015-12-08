@@ -315,8 +315,14 @@ class Win32Freeze(Command, WixMixIn):
 
         self.info('\tAdding misc binary deps')
         bindir = os.path.join(SW, 'bin')
-        for x in ('pdftohtml', 'pdfinfo', 'pdftoppm'):
+        for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'jpegtran-calibre', 'cjpeg-calibre'):
             shutil.copy2(os.path.join(bindir, x+'.exe'), self.base)
+        for x in ('', '.manifest'):
+            fname = 'optipng.exe' + x
+            src = os.path.join(bindir, fname)
+            shutil.copy2(src, self.base)
+            src = os.path.join(self.base, fname)
+            os.rename(src, src.replace('.exe', '-calibre.exe'))
         for pat in ('*.dll',):
             for f in glob.glob(os.path.join(bindir, pat)):
                 ok = True

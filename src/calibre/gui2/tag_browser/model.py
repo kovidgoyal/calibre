@@ -19,7 +19,7 @@ from calibre.gui2 import gprefs, config, error_dialog, file_icon_provider
 from calibre.db.categories import Tag
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key, lower, strcmp, collation_order
-from calibre.library.field_metadata import TagsIcons, category_icon_map
+from calibre.library.field_metadata import category_icon_map
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.utils.formatter import EvalFormatter
 
@@ -41,13 +41,16 @@ class TagTreeItem(object):  # {{{
     CATEGORY = 0
     TAG      = 1
     ROOT     = 2
+    category_custom_icons = {}
+    file_icon_provider = None
 
-    def __init__(self, data=None, category_icon=None, icon_map=None,
+    def __init__(self, data=None, is_category=False, icon_map=None,
                  parent=None, tooltip=None, category_key=None, temporary=False):
+        if self.file_icon_provider is None:
+            self.file_icon_provider = TagTreeItem.file_icon_provider = file_icon_provider().icon_from_ext
         self.parent = parent
         self.children = []
         self.blank = QIcon()
-        self.id_set = set()
         self.is_gst = False
         self.boxed = False
         self.icon_state_map = list(icon_map)
@@ -57,10 +60,10 @@ class TagTreeItem(object):  # {{{
         if data is None:
             self.type = self.ROOT
         else:
-            self.type = self.TAG if category_icon is None else self.CATEGORY
+            self.type = self.CATEGORY if is_category else self.TAG
 
         if self.type == self.CATEGORY:
-            self.name, self.icon = data, category_icon
+            self.name = data
             self.py_name = data
             self.category_key = category_key
             self.temporary = temporary
@@ -69,14 +72,28 @@ class TagTreeItem(object):  # {{{
                             ['news', 'search', 'identifiers', 'languages'],
                    is_searchable=category_key not in ['search'])
         elif self.type == self.TAG:
-            self.icon_state_map[0] = data.icon
             self.tag = data
+            self.cached_average_rating = None
+            self.cached_item_count = None
 
-        self.tooltip = (tooltip + ' ') if tooltip else ''
+        self.tooltip = tooltip or ''
 
     def break_cycles(self):
         del self.parent
         del self.children
+
+    def ensure_icon(self):
+        if self.icon_state_map[0] is not None:
+            return
+        if self.type == self.TAG:
+            if self.tag.category == 'formats':
+                fmt = self.tag.original_name.replace('ORIGINAL_', '')
+                cc = self.file_icon_provider(fmt)
+            else:
+                cc = self.category_custom_icons.get(self.tag.category, None)
+        elif self.type == self.CATEGORY:
+            cc = self.category_custom_icons.get(self.category_key, None)
+        self.icon_state_map[0] = cc or QIcon()
 
     def __str__(self):
         if self.type == self.ROOT:
@@ -96,6 +113,33 @@ class TagTreeItem(object):  # {{{
         child.parent = self
         self.children.append(child)
 
+    @property
+    def average_rating(self):
+        if self.type != self.TAG:
+            return 0
+        if not self.tag.is_hierarchical:
+            return self.tag.avg_rating
+        if not self.children:
+            return self.tag.avg_rating  # leaf node, avg_rating is correct
+        if self.cached_average_rating is None:
+            raise ValueError('Must compute average rating for tag ' + self.tag.original_name)
+        return self.cached_average_rating
+
+    @property
+    def item_count(self):
+        if not self.tag.is_hierarchical or not self.children:
+            return self.tag.count
+        if self.cached_item_count is not None:
+            return self.cached_item_count
+
+        def child_item_set(node):
+            s = node.tag.id_set.copy()
+            for child in node.children:
+                s |= child_item_set(child)
+            return s
+        self.cached_item_count = len(child_item_set(self))
+        return self.cached_item_count
+
     def data(self, role):
         if role == Qt.UserRole:
             return self
@@ -111,31 +155,29 @@ class TagTreeItem(object):  # {{{
         if role == Qt.EditRole:
             return (self.py_name)
         if role == Qt.DecorationRole:
-            if self.tag.state:
-                return self.icon_state_map[self.tag.state]
-            return self.icon
+            if not self.tag.state:
+                self.ensure_icon()
+            return self.icon_state_map[self.tag.state]
         if role == Qt.FontRole:
             return bf()
-        if role == Qt.ToolTipRole and self.tooltip is not None:
-            return (self.tooltip)
+        if role == Qt.ToolTipRole:
+            return self.tooltip
         if role == DRAG_IMAGE_ROLE:
-            return self.icon
+            self.ensure_icon()
+            return self.icon_state_map[0]
         return None
 
     def tag_data(self, role):
         tag = self.tag
         if tag.use_sort_as_name:
             name = tag.sort
-            tt_author = True
         else:
             if not tag.is_hierarchical:
                 name = tag.original_name
             else:
                 name = tag.name
-            tt_author = False
         if role == Qt.DisplayRole:
-            count = len(self.id_set)
-            count = count if count > 0 else tag.count
+            count = self.item_count
             if count == 0:
                 return ('%s'%(name))
             else:
@@ -143,25 +185,32 @@ class TagTreeItem(object):  # {{{
         if role == Qt.EditRole:
             return (tag.original_name)
         if role == Qt.DecorationRole:
+            if not tag.state:
+                self.ensure_icon()
             return self.icon_state_map[tag.state]
         if role == Qt.ToolTipRole:
-            if tt_author:
-                if tag.tooltip is not None:
-                    return ('(%s) %s'%(tag.name, tag.tooltip))
-                else:
-                    return (tag.name)
-            if tag.tooltip:
-                return (self.tooltip + tag.tooltip)
+            tt = [self.tooltip] if self.tooltip else []
+            if tag.original_categories:
+                tt.append('%s:%s' % (','.join(tag.original_categories), tag.original_name))
             else:
-                return (self.tooltip)
+                tt.append('%s:%s' % (tag.category, tag.original_name))
+            ar = self.average_rating
+            if ar:
+                tt.append(_('Average rating for books in this category: %.1f') % ar)
+            elif self.type == self.TAG and ar is not None:
+                tt.append(_('Books in this category are unrated'))
+            if self.type == self.TAG and self.tag.category == 'search':
+                tt.append(_('Search expression:') + ' ' + self.tag.search_expression)
+            return '\n'.join(tt)
         if role == DRAG_IMAGE_ROLE:
+            self.ensure_icon()
             return self.icon_state_map[0]
         return None
 
     def dump_data(self):
-        fmt = '%s [count=%s]'
+        fmt = '%s [count=%s%s]'
         if self.type == self.CATEGORY:
-            return fmt % (self.py_name, len(self.child_tags()))
+            return fmt % (self.py_name, len(self.child_tags()), '')
         tag = self.tag
         if tag.use_sort_as_name:
             name = tag.sort
@@ -170,9 +219,11 @@ class TagTreeItem(object):  # {{{
                 name = tag.original_name
             else:
                 name = tag.name
-        count = len(self.id_set)
-        count = count if count > 0 else tag.count
-        return fmt % (name, count,)
+        count = self.item_count
+        rating = self.average_rating
+        if rating:
+            rating = ',rating=%.1f' % rating
+        return fmt % (name, count, rating or '')
 
     def toggle(self, set_to=None):
         '''
@@ -231,11 +282,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         self.prefs = prefs
         self.node_map = {}
         self.category_nodes = []
-        iconmap = {}
-        for key in category_icon_map:
-            iconmap[key] = QIcon(I(category_icon_map[key]))
-        self.category_icon_map = TagsIcons(iconmap)
-        self.category_custom_icons = dict()
+        self.category_custom_icons = {}
         for k, v in self.prefs['tags_browser_category_icons'].iteritems():
             icon = QIcon(os.path.join(config_dir, 'tb_icons', v))
             if len(icon.availableSizes()) > 0:
@@ -354,9 +401,9 @@ class TagsModel(QAbstractItemModel):  # {{{
                 tt = _(u'The lookup/search name is "{0}"{1}').format(key, cust_desc)
 
             if self.category_custom_icons.get(key, None) is None:
-                self.category_custom_icons[key] = (
-                    self.category_icon_map['gst'] if is_gst else
-                    self.category_icon_map.get(key, self.category_icon_map['custom:']))
+                self.category_custom_icons[key] = QIcon(I(
+                    category_icon_map['gst'] if is_gst else
+                    category_icon_map.get(key, category_icon_map['custom:'])))
 
             if key.startswith('@'):
                 path_parts = [p for p in key.split('.')]
@@ -368,7 +415,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     if path not in category_node_map:
                         node = self.create_node(parent=last_category_node,
                                    data=p[1:] if i == 0 else p,
-                                   category_icon=self.category_custom_icons[key],
+                                   is_category=True,
                                    tooltip=tt if path == key else path,
                                    category_key=path,
                                    icon_map=self.icon_state_map)
@@ -388,7 +435,7 @@ class TagsModel(QAbstractItemModel):  # {{{
             else:
                 node = self.create_node(parent=self.root_item,
                                    data=self.categories[key],
-                                   category_icon=self.category_custom_icons[key],
+                                   is_category=True,
                                    tooltip=tt, category_key=key,
                                    icon_map=self.icon_state_map)
                 node.is_gst = False
@@ -428,7 +475,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                 components = [name]
             return components
 
-        def process_one_node(category, collapse_model, state_map):  # {{{
+        def process_one_node(category, collapse_model, book_rating_map, state_map):  # {{{
             collapse_letter = None
             key = category.category_key
             is_gst = category.is_gst
@@ -474,10 +521,6 @@ class TagsModel(QAbstractItemModel):  # {{{
                 key not in self.db.prefs.get('categories_using_hierarchy', []) or
                 config['sort_tags_by'] != 'name')
 
-            is_formats = key == 'formats'
-            if is_formats:
-                fip = file_icon_provider().icon_from_ext
-
             for idx,tag in enumerate(data[key]):
                 components = None
                 if clear_rating:
@@ -518,7 +561,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                             else:
                                 sub_cat = self.create_node(parent=category, data=name,
                                      tooltip=None, temporary=True,
-                                     category_icon=category.icon,
+                                     is_category=True,
                                      category_key=category.category_key,
                                      icon_map=self.icon_state_map)
                                 sub_cat.tag.is_searchable = False
@@ -533,7 +576,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                             collapse_letter = cl
                             sub_cat = self.create_node(parent=category,
                                      data=collapse_letter,
-                                     category_icon=category.icon,
+                                     is_category=True,
                                      tooltip=None, temporary=True,
                                      category_key=category.category_key,
                                      icon_map=self.icon_state_map)
@@ -553,17 +596,8 @@ class TagsModel(QAbstractItemModel):  # {{{
                 if (not tag.is_hierarchical) and (in_uc or
                         (fm['is_custom'] and fm['display'].get('is_names', False)) or
                         not category_is_hierarchical or len(components) == 1):
-                    if is_formats:
-                        try:
-                            tag.icon = fip(tag.name.replace('ORIGINAL_', ''))
-                        except Exception:
-                            tag.icon = self.category_custom_icons[key]
-                    else:
-                        tag.icon = self.category_custom_icons[key]
                     n = self.create_node(parent=node_parent, data=tag, tooltip=tt,
                                     icon_map=self.icon_state_map)
-                    if tag.id_set is not None:
-                        n.id_set |= tag.id_set
                     category_child_map[tag.name, tag.category] = n
                 else:
                     for i,comp in enumerate(components):
@@ -576,8 +610,11 @@ class TagsModel(QAbstractItemModel):  # {{{
                                             if t.type != TagTreeItem.CATEGORY])
                         if (comp,tag.category) in child_map:
                             node_parent = child_map[(comp,tag.category)]
-                            node_parent.tag.is_hierarchical = \
-                                '5state' if tag.category != 'search' else '3state'
+                            t = node_parent.tag
+                            t.is_hierarchical = '5state' if tag.category != 'search' else '3state'
+                            if tag.id_set is not None and t.id_set is not None:
+                                t.id_set = t.id_set | tag.id_set
+                            intermediate_nodes[t.original_name, t.category] = t
                         else:
                             if i < len(components)-1:
                                 original_name = '.'.join(components[:i+1])
@@ -592,29 +629,36 @@ class TagsModel(QAbstractItemModel):  # {{{
                                         t.is_editable = False
                                     else:
                                         t.is_searchable = t.is_editable = False
-                                    intermediate_nodes[(original_name, tag.category)] = t
+                                    intermediate_nodes[original_name, tag.category] = t
                             else:
                                 t = tag
                                 if not in_uc:
                                     t.original_name = t.name
-                                intermediate_nodes[(t.original_name, tag.category)] = t
+                                intermediate_nodes[t.original_name, t.category] = t
                             t.is_hierarchical = \
                                 '5state' if t.category != 'search' else '3state'
                             t.name = comp
-                            t.icon = self.category_custom_icons[key]
                             node_parent = self.create_node(parent=node_parent, data=t,
                                             tooltip=tt, icon_map=self.icon_state_map)
                             child_map[(comp,tag.category)] = node_parent
-                        # This id_set must not be None
-                        node_parent.id_set |= tag.id_set
+
+                        # Correct the average rating for the node
+                        total = count = 0
+                        for book_id in t.id_set:
+                            rating = book_rating_map.get(book_id, 0)
+                            if rating:
+                                total += rating/2.0
+                                count += 1
+                        node_parent.cached_average_rating = float(total)/count if total and count else 0
             return
         # }}}
 
         # Build the entire node tree. Note that category_nodes is in field
         # metadata order so the user categories will be at the end
-        for category in self.category_nodes:
-            process_one_node(category, collapse_model,
-                             state_map.get(category.category_key, {}))
+        with self.db.new_api.safe_read_lock:  # needed as we read from book_value_map
+            for category in self.category_nodes:
+                process_one_node(category, collapse_model, self.db.new_api.fields['rating'].book_value_map,
+                                state_map.get(category.category_key, {}))
 
         # Fix up the node tree, reordering as needed and deleting undisplayed nodes
         new_children = []
@@ -910,13 +954,12 @@ class TagsModel(QAbstractItemModel):  # {{{
         # Get the categories
         try:
             data = self.db.new_api.get_categories(sort=sort,
-                    icon_map=self.category_icon_map,
                     book_ids=self.get_book_ids_to_use(),
                     first_letter_sort=self.collapse_model == 'first letter')
         except:
             import traceback
             traceback.print_exc()
-            data = self.db.new_api.get_categories(sort=sort, icon_map=self.category_icon_map,
+            data = self.db.new_api.get_categories(sort=sort,
                     first_letter_sort=self.collapse_model == 'first letter')
             self.restriction_error.emit()
 
@@ -958,6 +1001,7 @@ class TagsModel(QAbstractItemModel):  # {{{
     def create_node(self, *args, **kwargs):
         node = TagTreeItem(*args, **kwargs)
         self.node_map[id(node)] = node
+        node.category_custom_icons = self.category_custom_icons
         return node
 
     def get_node(self, idx):

@@ -45,7 +45,7 @@
         <x>0</x>
         <y>0</y>
         <width>944</width>
-        <height>578</height>
+        <height>576</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -119,7 +119,7 @@
            <item row="10" column="0">
             <widget class="QLabel" name="label_9">
              <property name="text">
-              <string>&amp;Published:</string>
+              <string>P&amp;ublished:</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -309,6 +309,12 @@ for e.g., EPUB to EPUB, calibre saves the original EPUB
             <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
               <widget class="QCheckBox" name="auto_author_sort">
+               <property name="toolTip">
+                <string>This will cause the author sort field to be automatically updated
+ based on the authors field for each selected book. Note that if
+ you use the control above to set authors in bulk, the author sort
+ field is updated anyway, regardless of the value of this checkbox.</string>
+               </property>
                <property name="text">
                 <string>A&amp;utomatically set author sort</string>
                </property>
@@ -380,18 +386,37 @@ from the value in the box</string>
               </widget>
              </item>
              <item>
-              <widget class="QSpinBox" name="series_start_number">
+              <widget class="QDoubleSpinBox" name="series_start_number">
                <property name="enabled">
                 <bool>false</bool>
                </property>
                <property name="minimum">
-                <number>1</number>
+                <double>1.000000000000000</double>
                </property>
                <property name="maximum">
-                <number>99000000</number>
+                <double>99000000.000000000000000</double>
                </property>
                <property name="value">
-                <number>1</number>
+                <double>1.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="series_increment">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
+               <property name="toolTip">
+                <string>The amount by which to increment the series number for successive books. Only applicable when using force series numbers.</string>
+               </property>
+               <property name="prefix">
+                <string>+ </string>
+               </property>
+               <property name="minimum">
+                <double>0.010000000000000</double>
+               </property>
+               <property name="value">
+                <double>1.000000000000000</double>
                </property>
               </widget>
              </item>
@@ -1167,8 +1192,8 @@ not multiple and the destination field is multiple</string>
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>204</width>
-                <height>65</height>
+                <width>922</width>
+                <height>244</height>
                </rect>
               </property>
               <layout class="QGridLayout" name="testgrid">

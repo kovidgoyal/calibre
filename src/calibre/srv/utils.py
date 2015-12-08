@@ -466,3 +466,6 @@ class ReadOnlyFileBuffer(object):
     def getvalue(self):
         return self.mv
 
+    def close(self):
+        pass
+

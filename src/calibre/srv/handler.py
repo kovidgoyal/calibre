@@ -6,12 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
-from binascii import hexlify
+import os, json
 from collections import OrderedDict
 from importlib import import_module
 from threading import Lock
 
+from calibre import force_unicode, filesystem_encoding
 from calibre.db.cache import Cache
 from calibre.db.legacy import create_backend, LibraryDatabase
 from calibre.srv.auth import AuthController
@@ -36,7 +36,7 @@ class LibraryBroker(object):
             seen.add(path)
             if not LibraryDatabase.exists_at(path):
                 continue
-            bname = library_id = hexlify(os.path.basename(path).encode('utf-8')).decode('ascii')
+            bname = library_id = force_unicode(os.path.basename(path), filesystem_encoding)
             c = 0
             while library_id in self.lmap:
                 c += 1
@@ -46,6 +46,7 @@ class LibraryBroker(object):
             self.lmap[library_id] = path
         self.category_caches = {lid:OrderedDict() for lid in self.lmap}
         self.search_caches = {lid:OrderedDict() for lid in self.lmap}
+        self.tag_browser_caches = {lid:OrderedDict() for lid in self.lmap}
 
     def get(self, library_id=None):
         with self.lock:
@@ -121,6 +122,25 @@ class Context(object):
             if old is None or old[0] <= db.last_modified():
                 categories = db.get_categories(book_ids=restrict_to_ids, sort=sort, first_letter_sort=first_letter_sort)
                 cache[key] = old = (utcnow(), categories)
+                if len(cache) > self.CATEGORY_CACHE_SIZE:
+                    cache.popitem(last=False)
+            else:
+                cache[key] = old
+            return old[1]
+
+    def get_tag_browser(self, data, db, opts, render, restrict_to_ids=None):
+        if restrict_to_ids is None:
+            restrict_to_ids = self.allowed_book_ids(data, db)
+        key = (restrict_to_ids, opts)
+        with self.lock:
+            cache = self.library_broker.category_caches[db.server_library_id]
+            old = cache.pop(key, None)
+            if old is None or old[0] <= db.last_modified():
+                categories = db.get_categories(book_ids=restrict_to_ids, sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
+                data = json.dumps(render(db, categories), ensure_ascii=False)
+                if isinstance(data, type('')):
+                    data = data.encode('utf-8')
+                cache[key] = old = (utcnow(), data)
                 if len(cache) > self.CATEGORY_CACHE_SIZE:
                     cache.popitem(last=False)
             else:

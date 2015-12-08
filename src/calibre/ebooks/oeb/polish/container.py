@@ -864,11 +864,8 @@ class Container(object):  # {{{
         path = self.name_to_abspath(name)
         return os.path.getsize(path)
 
-    def open(self, name, mode='rb'):
-        ''' Open the file pointed to by name for direct read/write. Note that
-        this will commit the file if it is dirtied and remove it from the parse
-        cache. You must finish with this file before accessing the parsed
-        version of it again, or bad things will happen. '''
+    def get_file_path_for_processing(self, name, allow_modification=True):
+        ''' Similar to open() except that it returns a file path, instead of an open file object. '''
         if name in self.dirtied:
             self.commit_item(name)
         self.parsed_cache.pop(name, False)
@@ -877,13 +874,20 @@ class Container(object):  # {{{
         if not os.path.exists(base):
             os.makedirs(base)
         else:
-            if self.cloned and mode not in {'r', 'rb'} and os.path.exists(path) and nlinks_file(path) > 1:
+            if self.cloned and allow_modification and os.path.exists(path) and nlinks_file(path) > 1:
                 # Decouple this file from its links
                 temp = path + 'xxx'
                 shutil.copyfile(path, temp)
                 os.unlink(path)
                 os.rename(temp, path)
-        return open(path, mode)
+        return path
+
+    def open(self, name, mode='rb'):
+        ''' Open the file pointed to by name for direct read/write. Note that
+        this will commit the file if it is dirtied and remove it from the parse
+        cache. You must finish with this file before accessing the parsed
+        version of it again, or bad things will happen. '''
+        return open(self.get_file_path_for_processing(name, mode not in {'r', 'rb'}), mode)
 
     def commit(self, outpath=None, keep_parsed=False):
         '''

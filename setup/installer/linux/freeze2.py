@@ -67,7 +67,9 @@ arch = 'x86_64' if is64bit else 'i686'
 
 def binary_includes():
     return [
-    j(SW, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm')] + [
+    j(SW, 'bin', x) for x in ('pdftohtml', 'pdfinfo', 'pdftoppm', 'optipng')] + [
+
+    j(SW, 'private', 'mozjpeg', 'bin', x) for x in ('jpegtran', 'cjpeg')] + [
 
     j(SW, 'lib', 'lib' + x) for x in (
         'usb-1.0.so.0', 'mtp.so.9', 'expat.so.1', 'sqlite3.so.0',
@@ -384,7 +386,10 @@ class LinuxFreeze(Command):
                 except:
                     print ('WARNING: Failed to set default libc locale, using en_US.UTF-8')
                     locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
-                enc = locale.getdefaultlocale()[1]
+                try:
+                    enc = locale.getdefaultlocale()[1]
+                except Exception:
+                    enc = None
                 if not enc:
                     enc = locale.nl_langinfo(locale.CODESET)
                 if not enc or enc.lower() == 'ascii':
