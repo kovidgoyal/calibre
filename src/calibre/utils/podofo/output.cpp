@@ -9,13 +9,19 @@
 
 using namespace PoDoFo;
 
+#define NUKE(x) { Py_XDECREF(x); x = NULL; }
+
 class pyerr : public std::exception {
 };
 
 class OutputDevice : public PdfOutputDevice {
 
     private:
-        PyObject *file;
+        PyObject *tell_func;
+        PyObject *seek_func;
+        PyObject *read_func;
+        PyObject *write_func;
+        PyObject *flush_func;
         size_t written;
 
         void update_written() {
@@ -25,8 +31,17 @@ class OutputDevice : public PdfOutputDevice {
         }
 
     public:
-        OutputDevice(PyObject *f) : file(f), written(0) { Py_XINCREF(file); }
-        ~OutputDevice() { Py_XDECREF(file); file = NULL; }
+        OutputDevice(PyObject *file) : tell_func(0), seek_func(0), read_func(0), write_func(0), flush_func(0), written(0) { 
+#define GA(f, a) { if((f = PyObject_GetAttrString(file, a)) == NULL) throw pyerr(); }
+            GA(tell_func, "tell");
+            GA(seek_func, "seek");
+            GA(read_func, "read");
+            GA(write_func, "write");
+            GA(flush_func, "flush");
+        }
+        ~OutputDevice() { 
+            NUKE(tell_func); NUKE(seek_func); NUKE(read_func); NUKE(write_func); NUKE(flush_func);
+        }
 
         size_t GetLength() const { return written; }
 
@@ -87,11 +102,13 @@ class OutputDevice : public PdfOutputDevice {
         }
 
         size_t Read( char* pBuffer, size_t lLen ) {
-            PyObject *ret;
+            PyObject *ret, *temp;
             char *buf = NULL;
             Py_ssize_t len = 0;
 
-            ret = PyObject_CallMethod(file, (char*)"read", (char*)"n", static_cast<Py_ssize_t>(lLen));
+            if ((temp = PyInt_FromSize_t(lLen)) == NULL) throw pyerr();
+            ret = PyObject_CallFunctionObjArgs(read_func, temp, NULL);
+            NUKE(temp);
             if (ret != NULL) {
                 if (PyBytes_AsStringAndSize(ret, &buf, &len) != -1) {
                     memcpy(pBuffer, buf, len);
@@ -109,8 +126,10 @@ class OutputDevice : public PdfOutputDevice {
         }
 
         void Seek(size_t offset) {
-            PyObject *ret;
-            ret = PyObject_CallMethod(file, (char*)"seek", (char*)"n", static_cast<Py_ssize_t>(offset));
+            PyObject *ret, *temp;
+            if ((temp = PyInt_FromSize_t(offset)) == NULL) throw pyerr();
+            ret = PyObject_CallFunctionObjArgs(seek_func, temp, NULL);
+            NUKE(temp);
             if (ret == NULL) {
                 if (PyErr_Occurred() == NULL)
                     PyErr_SetString(PyExc_Exception, "Failed to seek in python file object");
@@ -123,7 +142,7 @@ class OutputDevice : public PdfOutputDevice {
             PyObject *ret;
             unsigned long ans;
 
-            ret = PyObject_CallMethod(file, (char*)"tell", NULL);
+            ret = PyObject_CallFunctionObjArgs(tell_func, NULL);
             if (ret == NULL) {
                 if (PyErr_Occurred() == NULL)
                     PyErr_SetString(PyExc_Exception, "Failed to call tell() on python file object");
@@ -142,9 +161,14 @@ class OutputDevice : public PdfOutputDevice {
         }
 
         void Write(const char* pBuffer, size_t lLen) {
-            PyObject *ret;
+            PyObject *ret, *temp = NULL;
 
-            ret = PyObject_CallMethod(file, (char*)"write", (char*)"s#", pBuffer, (int)lLen);
+            temp = PyBytes_FromStringAndSize(pBuffer, static_cast<Py_ssize_t>(lLen));
+            if (temp == NULL) throw pyerr();
+
+            ret = PyObject_CallFunctionObjArgs(write_func, temp, NULL);
+            NUKE(temp);
+
             if (ret == NULL) {
                 if (PyErr_Occurred() == NULL)
                     PyErr_SetString(PyExc_Exception, "Failed to call write() on python file object");
@@ -155,7 +179,7 @@ class OutputDevice : public PdfOutputDevice {
         }
 
         void Flush() {
-            Py_XDECREF(PyObject_CallMethod(file, (char*)"flush", NULL));
+            Py_XDECREF(PyObject_CallFunctionObjArgs(flush_func, NULL));
         }
 
 };
