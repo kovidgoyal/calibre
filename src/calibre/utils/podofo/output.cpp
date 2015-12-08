@@ -52,16 +52,7 @@ class OutputDevice : public PdfOutputDevice {
 #ifdef _MSC_VER
             return _vscprintf(pszFormat, args);
 #else
-            char *buf;
-            int res, len=1024;
-            while(true) {
-                buf = new (std::nothrow) char[len+1];
-                if (buf == NULL) { PyErr_NoMemory(); throw pyerr(); }
-                res = vsnprintf(buf, len, pszFormat, args);
-                delete[] buf;
-                if (res >= 0) return res + 1;
-                len *= 2;
-            }
+            return vsnprintf(NULL, 0, pszFormat, args);
 #endif
         }
 
