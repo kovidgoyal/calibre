@@ -340,31 +340,39 @@ RAR_current_item(RARArchive *self, PyObject *args) {
 
     if (*(fh.FileNameW)) {
         filename = wchar_to_unicode(fh.FileNameW);
+        if (!filename) return NULL;
     } else {
         Py_INCREF(filename);
     }
+    PyObject *tret = PyDict_New();
+    PyObject *temp = NULL;
+    if(!tret) goto error;
+    if (!(temp = Py_BuildValue("s#", fh.FileName, fh.NameSize))) goto error;
+    if (PyDict_SetItemString(tret, "filename", temp) != 0) goto error;
+    Py_DECREF(temp); temp = NULL;
+#define AVAL(name, code, val) {if (!(temp = Py_BuildValue(code, (val)))) goto error; if (PyDict_SetItemString(tret, name, temp) != 0) goto error; Py_DECREF(temp); temp = NULL;}
+    AVAL("arcname", "s", self->archive->FileName);
+    AVAL("filenamew", "N", filename);
+    AVAL("flags", "H", fh.Flags);
+    AVAL("pack_size", "I", fh.PackSize);
+    AVAL("pack_size_high", "I", fh.HighPackSize);
+    AVAL("unpack_size", "I", fh.UnpSize);
+    AVAL("unpack_size_high", "I", fh.HighUnpSize);
+    AVAL("host_os", "b", fh.HostOS);
+    AVAL("file_crc", "I", fh.FileCRC);
+    AVAL("file_time", "I", fh.FileTime);
+    AVAL("unpack_ver", "b", fh.UnpVer);
+    AVAL("method", "b", fh.Method);
+    AVAL("file_attr", "I", fh.FileAttr);
+    AVAL("is_directory", "O", (self->archive->IsArcDir()) ? Py_True : Py_False);
+    AVAL("is_symlink", "O", (IsLink(fh.FileAttr)) ? Py_True : Py_False);
+    AVAL("is_label", "O", (self->archive->IsArcLabel()) ? Py_True : Py_False);
+    AVAL("has_password", "O", ((fh.Flags & LHD_PASSWORD) != 0) ? Py_True : Py_False);
 
-    return Py_BuildValue("{s:s, s:s#, s:N, s:H, s:I, s:I, s:I, s:I, s:b, s:I, s:I, s:b, s:b, s:I, s:O, s:O, s:O, s:O}",
-            "arcname", self->archive->FileName
-            ,"filename", fh.FileName, fh.NameSize
-            ,"filenamew", filename
-            ,"flags", fh.Flags
-            ,"pack_size", fh.PackSize
-            ,"pack_size_high", fh.HighPackSize
-            ,"unpack_size", fh.UnpSize
-            ,"unpack_size_high", fh.HighUnpSize
-            ,"host_os", fh.HostOS
-            ,"file_crc", fh.FileCRC
-            ,"file_time", fh.FileTime
-            ,"unpack_ver", fh.UnpVer
-            ,"method", fh.Method
-            ,"file_attr", fh.FileAttr
-            ,"is_directory", (self->archive->IsArcDir()) ? Py_True : Py_False
-            ,"is_symlink", (IsLink(fh.FileAttr)) ? Py_True : Py_False
-            ,"has_password", ((fh.Flags & LHD_PASSWORD) != 0) ? Py_True : Py_False
-            ,"is_label", (self->archive->IsArcLabel()) ? Py_True : Py_False
-    );
-
+    return tret;
+error:
+    Py_XDECREF(tret); Py_XDECREF(temp); Py_XDECREF(filename);
+    return NULL;
 }
 
 static File unrar_dummy_output = File();
