@@ -62,6 +62,8 @@ class Win32Freeze(Command, WixMixIn):
             help='Keep human readable site.py')
         parser.add_option('--verbose', default=0, action="count",
                 help="Be more verbose")
+        parser.add_option('--no-installer', default=False, action='store_true',
+                         help='Dont build the installer')
         if not parser.has_option('--dont-strip'):
             parser.add_option('-x', '--dont-strip', default=False,
                 action='store_true', help='Dont strip the generated binaries (no-op on windows)')
@@ -89,11 +91,13 @@ class Win32Freeze(Command, WixMixIn):
         self.install_site_py()
         self.archive_lib_dir()
         self.copy_crt()
-        # self.create_installer()
+        if opts.no_installer:
+            return
+        self.create_installer()
         if not is64bit:
             self.build_portable()
             self.build_portable_installer()
-        # self.sign_installers()
+        self.sign_installers()
 
     def initbase(self):
         if self.e(self.base):
