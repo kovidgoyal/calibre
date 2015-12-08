@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, textwrap, errno
+import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, textwrap, errno, stat
 
 from setup import (Command, modules, functions, basenames, __version__,
     __appname__)
@@ -88,6 +88,7 @@ class Win32Freeze(Command, WixMixIn):
         self.embed_manifests()
         self.install_site_py()
         self.archive_lib_dir()
+        self.copy_crt()
         # self.create_installer()
         if not is64bit:
             self.build_portable()
@@ -109,9 +110,6 @@ class Win32Freeze(Command, WixMixIn):
 
     def freeze(self):
         shutil.copy2(self.j(self.src_root, 'LICENSE'), self.base)
-
-        # self.info('Adding CRT')
-        # shutil.copytree(CRT, self.j(self.base, os.path.basename(CRT)))
 
         self.info('Adding resources...')
         tgt = self.j(self.app_base, 'resources')
@@ -704,3 +702,23 @@ class Win32Freeze(Command, WixMixIn):
                     zf.writestr(zinfo, f.read())
 
         self.zf_names.add(name)
+
+    def copy_crt(self):
+        self.info('Copying CRT...')
+        plat = ('x64' if is64bit else 'x86')
+        vc_path = os.path.join(r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist', plat, 'Microsoft.VC140.CRT')
+        if not os.path.exists(vc_path):
+            raise SystemExit('Visual Studio redistributable CRT not found')
+        sdk_path = os.path.join(r'C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs', plat)
+        if not os.path.exists(sdk_path):
+            raise SystemExit('Windows 10 redistributable CRT not found')
+        for dll in glob.glob(os.path.join(sdk_path, '*.dll')):
+            shutil.copy2(dll, self.dll_dir)
+        for dll in glob.glob(os.path.join(vc_path, '*.dll')):
+            bname = os.path.basename(dll)
+            if not bname.startswith('vccorlib') and not bname.startswith('concrt'):
+                # Those two DLLs are not required vccorlib is for the CORE CLR
+                # I think concrt is the concurrency runtime for C++ which I believe
+                # nothing in calibre currently uses
+                shutil.copy(dll, self.dll_dir)
+                os.chmod(os.path.join(self.dll_dir, dll), stat.S_IRWXU)
