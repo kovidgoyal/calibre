@@ -1,105 +1,265 @@
 /* CSS for the mobile version of the content server webpage */
 
-.body {
-    font-family: sans-serif;
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    color: #000000;
+    font-size: 100%;
+    line-height: 1.3em;
+    margin: 0;
+    padding: 0;
+    padding-top: 52px;
 }
 
-.navigation table.buttons {
-    width: 100%;
-}
-
-.navigation .button {
-    width: 50%;
-}
-
-.button a, .button:visited a {
-    padding: 0.5em;
-    font-size: larger;
-    border: 1px solid black;
-    text-color: black;
+a {
+    color: #14729b;
     text-decoration: none;
-    margin-right: 0.5em;
-    background-color: #ddd;
-    border-top: 1px solid ThreeDLightShadow;
-    border-right: 1px solid ButtonShadow;
-    border-bottom: 1px solid ButtonShadow;
-    border-left: 1 px solid ThreeDLightShadow;
-    -moz-border-radius: 0.25em;
-    -webkit-border-radius: 0.25em;
 }
 
-.button:hover a {
-    border-top: 1px solid #666;
-    border-right: 1px solid #CCC;
-    border-bottom: 1 px solid #CCC;
-    border-left: 1 px solid #666;
-
-
+/* Navigation Bar */
+#nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border-bottom: 1px solid #d0d0d0;
 }
-
-div.navigation {
-    padding-bottom: 1em;
-    clear: both;
-}
-
-#search_box {
-    border: 1px solid #393;
-    -moz-border-radius: 0.5em;
-    -webkit-border-radius: 0.5em;
-    padding: 1em;
-    margin-bottom: 0.5em;
-    float: right;
-}
-
-#listing {
-    width: 100%;
-    border-collapse: collapse;
-}
-#listing td {
-    padding: 0.25em;
-    vertical-align: middle;
-}
-
-#listing td.thumbnail {
-    height: 60px;
-    width: 60px;
-}
-
-#listing tr:nth-child(even) {
-
-    background: #eee;
-}
-
-#listing .button a{
-    display: inline-block;
-    width: 2.5em;
-    padding-left: 0em;
-    padding-right: 0em;
-    overflow: hidden;
-    text-align: center;
-    text-decoration: none;
-    vertical-align: middle;
-}
-
-#logo {
+#nav .logo {
     float: left;
-}
-
-#spacer {
-    clear: both;
-}
-
-.data-container {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.first-line {
-    font-size: larger;
+    height: 32px;
+    padding: 10px;
+    line-height: 32px;
+    vertical-align: top;
+    color: #505050;
     font-weight: bold;
 }
+#nav .logo img {
+    height: 32px;
+    width: auto;
+    margin-right: 10px;
+}
+#nav .logo span {
+    display: inline-block;
+    vertical-align: top;
+}
 
-.second-line {
-    margin-top: 0.75ex;
+#search {
     display: block;
+    margin-left: 52px;
+    padding: 5px 10px;
+}
+#search form {
+    margin: 0;
+    padding: 0;
+}
+#search_query {
+    border: none;
+    border-bottom: 1px solid #c0c0c0;
+    border-radius: 0;
+    color: #505050;
+    font-size: 1em;
+    line-height: 1.4em;
+    padding: 0.4em 0.1em;
+    width: 100%;
+    margin: 0;
+}
+#search_query:focus {
+    border-color: #158cba;
+    outline: none;
+}
+#search_query::-webkit-input-placeholder {
+    color: #909090;
+    font-style: italic;
+}
+#search input[type=submit] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+}
+
+/* Book Lists*/
+#listing {
+    border-top: 1px solid #e0e0e0;
+}
+#listing.empty {
+    padding: 5em 1em;
+    text-align: center;
+    background: #f7f7f7;
+    color: #606060;
+}
+#listing.empty .empty-suggestion {
+    margin-top: 1.5em;
+    font-size: 0.8em;
+
+}
+
+.book {
+    padding: 0.7em;
+    border-bottom: 1px solid #e0e0e0;
+    overflow: hidden;
+}
+
+.book_thumbnail {
+    float: left;
+    width: 5em;
+    height: 7em;
+    overflow: hidden;
+}
+.book_thumbnail img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.book_info {
+    margin-left: 6em;
+}
+
+.book_title {
+    margin-bottom: 0.7em;
+}
+.book_title h1 {
+    font-size: 1em;
+    margin: 0;
+    margin-bottom: 0.1em;
+}
+.book_author {
+    margin: 0;
+    font-size: 0.8em;
+}
+
+.book_downloads {
+
+}
+
+.book_downloads .btn {
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-right: 0.7em;
+    background: #5c6c7c;
+}
+.book_downloads .btn:hover {
+    background: #4f5f6e;
+}
+.book_downloads .btn:first-child {
+    background: #158cba;
+}
+.book_downloads .btn:first-child:hover {
+    background: #31b0d5;
+}
+.book_downloads .btn:last-child {
+    margin-right: 0;
+}
+
+.btn, a.btn {
+    display: inline-block;
+    padding: 0.5em 0.8em 0.5em 0.8em;
+    text-decoration: none;
+    color: #ffffff;
+    background: #606060;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    margin: 0;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    white-space: nowrap;
+    font-size: 15px;
+    -webkit-user-select: none;
+}
+
+
+/* Next/Prev Page */
+.navigation {
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    background: #f0f0f0;
+    overflow: hidden;
+}
+.navigation_left, .navigation_right {
+    float: left;
+    box-sizing: border-box;
+    width: 50%;
+    margin: 0;
+    min-height: 2.7em;
+}
+.navigation_left {
+    border-right: 1px solid #e0e0e0;
+}
+.navigation a {
+    box-sizing: border-box;
+    font-size: 0.8em;
+    line-height: 1.5em;
+    text-transform: uppercase;
+    font-weight: bold;
+
+    display: block;
+    text-align: center;
+    padding: 0.9em 0 0.8em 0;
+    text-decoration: none;
+    color: #158cba;
+    background: #f0f0f0;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    margin: 0;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    white-space: nowrap;
+    -webkit-user-select: none;
+}
+a.navigation_first {
+    float: left;
+    width: 3em;
+    border-right: 1px solid #e0e0e0;
+}
+a.navigation_next {
+    margin-right: 3em;
+}
+a.navigation_prev {
+    margin-left: 3em;
+}
+a.navigation_last {
+    float: right;
+    width: 3em;
+    border-left: 1px solid #e0e0e0;
+}
+
+
+/* Search Results */
+.page-title {
+    padding: 1em 0.7em;
+    background: #f7f7f7;
+}
+.page-title h1 {
+    font-size: 1.2em;
+    line-height: 1.4em;
+    font-style: normal;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+}
+.page-title .subtitle {
+    font-size: 0.8em;
+    font-style: normal;
+    color: #606060;
+}
+
+
+
+.prompt-desktop-version {
+    padding: 5em 1em 2em 1em;
+    font-size: 0.8em;
+    text-align: center;
+}
+.prompt-desktop-version a {
+    color: #14729b;
+    text-decoration: none;
 }
