@@ -189,16 +189,16 @@ pywin32
 Run::
 
     git clone --depth 1 https://github.com/kovidgoyal/pywin32.git
-    chmod +x swig/swig.exe
-    export plat= win32 or win-amd64
-    python setup.py -q build --plat-name=$plat; && \
-    python setup.py -q build --plat-name=$plat; && \
-    python setup.py -q build --plat-name=$plat; && \
-    python setup.py -q build --plat-name=$plat; && \
-    python setup.py -q build --plat-name=$plat; && \
+    chmod +x swig/swig.exe && \
+    export plat=`python -c "import sys; sys.stdout.write('win-amd64' if sys.maxsize > 2**32 else 'win32')"`
+    python setup.py -q build --plat-name=$plat; \
+    python setup.py -q build --plat-name=$plat; \
+    python setup.py -q build --plat-name=$plat; \
+    python setup.py -q build --plat-name=$plat; \
+    python setup.py -q build --plat-name=$plat; \
     python setup.py -q build --plat-name=$plat;
     # Do this repeatedly until you stop getting .manifest file errors
-    python setup.py -q install
+    python setup.py -q install && \
     rm ~/sw/private/python/Lib/site-packages/*.chm
 
 SQLite
@@ -221,7 +221,7 @@ OpenSSL
 https://www.openssl.org/source/
 
 For 32-bit::
-    winenv perl Configure VC-WIN32 enable-static-engine --prefix=C:/cygwin64/home/kovid/sw/private/openssl && \
+    winenv perl Configure VC-WIN32 enable-static-engine no-asm --prefix=C:/cygwin64/home/kovid/sw/private/openssl && \
     winenv ms\\do_ms.bat && winenv nmake -f ms\\ntdll.mak && winenv nmake -f ms\\ntdll.mak test && winenv nmake -f ms\\ntdll.mak install
 
 For 64-bit::
@@ -282,17 +282,19 @@ freetype
 
 Get the source from: http://download.savannah.gnu.org/releases/freetype/
 
-The following will build freetype both as a static (freetype262MT.lib) and as a dynamic library (freetype.dll and freetype.lib)
+The following will build freetype both as a static (freetype262MT.lib) and as a dynamic library (freetype262MT.dll and freetype.lib)
+(Note that you might have to manually run Retarget Solution in Visual Studio,
+the devenv command below to upgrade the solution does not always work fully).
 
 Run::
-    find . -name ftoption.h -exec sed -i.bak '/FT_BEGIN_HEADER/a #define FT_EXPORT(x) __declspec(dllexport) x\n#define FT_EXPORT_DEF(x) __declspec(dllexport) x' {} \;
-    winenv devenv builds/windows/vc2010/freetype.sln /upgrade
-    export PL=x64 (change to Win32 for 32 bit build)
-    winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded"
-    rm -f ~/sw/lib/freetype*; cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/ 
-    rm -rf ~/sw/include/freetype2; cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal
-    sed -i.bak s/StaticLibrary/DynamicLibrary/ builds/windows/vc2010/freetype.vcxproj
-    winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded"
+    find . -name ftoption.h -exec sed -i.bak '/FT_BEGIN_HEADER/a #define FT_EXPORT(x) __declspec(dllexport) x\n#define FT_EXPORT_DEF(x) __declspec(dllexport) x' {} \; && \
+    winenv devenv builds/windows/vc2010/freetype.sln /upgrade && \
+    export PL=`python -c "import sys; sys.stdout.write('x64' if sys.maxsize > 2**32 else 'Win32')"` && \
+    winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded" && \
+    rm -f ~/sw/lib/freetype*; cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/ && \
+    rm -rf ~/sw/include/freetype2; cp -rf include ~/sw/include/freetype2 && rm -rf ~/sw/include/freetype2/internal && \
+    sed -i.bak s/StaticLibrary/DynamicLibrary/ builds/windows/vc2010/freetype.vcxproj && \
+    winenv msbuild.exe builds/windows/vc2010/freetype.sln /t:Build /p:Platform=$PL /p:Configuration="Release Multithreaded" && \
     rm -f ~/sw/bin/freetype*; cp ./objs/vc2010/$PL/freetype*MT.dll ~/sw/bin/ && cp ./objs/vc2010/$PL/freetype*MT.lib ~/sw/lib/freetype.lib 
 
 expat
@@ -343,14 +345,19 @@ lxml
 
 Get the source from: http://pypi.python.org/pypi/lxml
 
-Change the include dirs and lib dirs by editing setupinfo.py and changing the
-library_dirs() function to return::
+Edit setupinfo.py and change the include dirs and lib dirs
+
+Change library_dirs() function to return::
 
     return ['C:/cygwin64/home/kovid/sw/lib']
 
 and the include_dirs() function to return::
 
     return ['C:/cygwin64/home/kovid/sw/include/libxml2', 'C:/cygwin64/home/kovid/sw/include']
+
+Change the libraries() function to not return iconv as a required library::
+
+    return libs = ['libxslt', 'libexslt', 'libxml2']
 
 Run::
     python setup.py install
@@ -421,8 +428,11 @@ This is only needed to build the portable installer.
 
 Get it from http://lloyd.github.com/easylzma/ (use the trunk version)
 
-Run cmake and build the Visual Studio solution (generates CLI tools and dll and
-static lib automatically)
+Run::
+    git clone git://github.com/lloyd/easylzma && \
+    mkdir -p build && cd build && \
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release .. && \
+    nmake 
 
 chmlib
 -------
@@ -469,7 +479,6 @@ Download Qt (5.5.1) sourcecode (.zip) from: http://download.qt-project.org/offic
      if (!onlySystemDirectory)
 -        searchOrder << QFileInfo(qAppFileName()).path();
 +        searchOrder << (QFileInfo(qAppFileName()).path().replace(QLatin1Char('/'), QLatin1Char('\\')) + QString::fromLatin1("\\app\\DLLs\\"));
-+        searchOrder << (QFileInfo(qAppFileName()).path().replace(QLatin1Char('/'), QLatin1Char('\\')) + QString::fromLatin1("\\DLLs\\"));
  #endif
      searchOrder << qSystemDirectory();
  
@@ -497,19 +506,25 @@ PyQt5
 
 Compiling instructions::
 
-    rm -rf build && mkdir build && cd build
-    winenv python ../configure.py -c -j5 --no-designer-plugin --no-qml-plugin --verbose --confirm-license
+    rm -rf build && mkdir build && cd build && \
+    winenv python ../configure.py -c -j5 --no-designer-plugin --no-qml-plugin --verbose --confirm-license && \
     winenv nmake && rm -rf ~/sw/private/python/Lib/site-packages/PyQt5 && nmake install
 
 libplist
 ------------
 
+Note for the 32-bit build the below instructions (for libplist, libusbmuxd and
+libimobiledevice) did not work, instead I had to
+open the solution in Visual Studio and build it their after choose Release|x86.
+Also the library directory for the libplist project had to be adjuested for
+32-bit other libcnary.lib was not being found. 
+
 Run::
     git clone --depth 1 https://github.com/kovidgoyal/libplist.git && \
     export PLAT=`python -c "import sys; sys.stdout.write('x64' if sys.maxsize > 2**32 else 'x86')"` && \
     cd libplist && winenv msbuild VisualStudio/libplist/libplist.sln /t:Build /p:Platform=$PLAT /p:Configuration="Release" && \
-    cp VisualStudio/libplist/$PLAT/Release/libplist.dll ~/sw/bin && \
-    cp VisualStudio/libplist/$PLAT/Release/libplist.lib ~/sw/lib && \
+    cp `find . -name libplist.dll` ~/sw/bin && \
+    cp `find . -name libplist.lib` ~/sw/lib && \
     cp -r include/plist ~/sw/include
 
 libusbmuxd
@@ -519,8 +534,8 @@ Run::
     git clone --depth 1 https://github.com/kovidgoyal/libusbmuxd.git && \
     export PLAT=`python -c "import sys; sys.stdout.write('x64' if sys.maxsize > 2**32 else 'x86')"` && \
     cd libusbmuxd && winenv msbuild VisualStudio/libusbmuxd/libusbmuxd.sln /t:Build /p:Platform=$PLAT /p:Configuration="Release" && \ 
-    cp VisualStudio/libusbmuxd/$PLAT/Release/libusbmuxd.dll ~/sw/bin && \
-    cp VisualStudio/libusbmuxd/$PLAT/Release/libusbmuxd.lib ~/sw/lib && \
+    cp `find . -name libusbmuxd.dll` ~/sw/bin && \
+    cp `find . -name libusbmuxd.lib` ~/sw/lib && \
     cp include/*.h ~/sw/include
 
 libimobiledevice
@@ -530,7 +545,7 @@ Run::
     git clone --depth 1 https://github.com/kovidgoyal/libimobiledevice.git && \
     export PLAT=`python -c "import sys; sys.stdout.write('x64' if sys.maxsize > 2**32 else 'x86')"` && \
     cd libimobiledevice && winenv msbuild VisualStudio/libimobiledevice/libimobiledevice.sln /t:Build /p:Platform=$PLAT /p:Configuration="Release" && \ 
-    cp VisualStudio/libimobiledevice/$PLAT/Release/libimobiledevice.dll ~/sw/bin 
+    cp `find . -name libimobiledevice.dll` ~/sw/bin 
 
 optipng
 ----------
@@ -564,6 +579,6 @@ and copy it to windows.
 Run::
 
     python setup.py build
-    python setup.py win32_freeze
+    python setup.py -OO win32_freeze --no-ice
 
 This will create the .msi in the dist directory.
