@@ -501,11 +501,36 @@ Compiling instructions::
     winenv python ../configure.py -c -j5 --no-designer-plugin --no-qml-plugin --verbose --confirm-license
     winenv nmake && rm -rf ~/sw/private/python/Lib/site-packages/PyQt5 && nmake install
 
+libplist
+------------
+
+Run::
+    git clone --depth 1 https://github.com/kovidgoyal/libplist.git && \
+    export PLAT=`python -c "import sys; sys.stdout.write('x64' if sys.maxsize > 2**32 else 'x86')"` && \
+    cd libplist && winenv msbuild VisualStudio/libplist/libplist.sln /t:Build /p:Platform=$PLAT /p:Configuration="Release" && \
+    cp VisualStudio/libplist/$PLAT/Release/libplist.dll ~/sw/bin && \
+    cp VisualStudio/libplist/$PLAT/Release/libplist.lib ~/sw/lib && \
+    cp -r include/plist ~/sw/include
+
+libusbmuxd
+---------------
+
+Run::
+    git clone --depth 1 https://github.com/kovidgoyal/libusbmuxd.git && \
+    export PLAT=`python -c "import sys; sys.stdout.write('x64' if sys.maxsize > 2**32 else 'x86')"` && \
+    cd libusbmuxd && winenv msbuild VisualStudio/libusbmuxd/libusbmuxd.sln /t:Build /p:Platform=$PLAT /p:Configuration="Release" && \ 
+    cp VisualStudio/libusbmuxd/$PLAT/Release/libusbmuxd.dll ~/sw/bin && \
+    cp VisualStudio/libusbmuxd/$PLAT/Release/libusbmuxd.lib ~/sw/lib && \
+    cp include/*.h ~/sw/include
 
 libimobiledevice
-------------------
+---------------------
 
-See libimobiledevice_notes.rst
+Run::
+    git clone --depth 1 https://github.com/kovidgoyal/libimobiledevice.git && \
+    export PLAT=`python -c "import sys; sys.stdout.write('x64' if sys.maxsize > 2**32 else 'x86')"` && \
+    cd libimobiledevice && winenv msbuild VisualStudio/libimobiledevice/libimobiledevice.sln /t:Build /p:Platform=$PLAT /p:Configuration="Release" && \ 
+    cp VisualStudio/libimobiledevice/$PLAT/Release/libimobiledevice.dll ~/sw/bin 
 
 optipng
 ----------
