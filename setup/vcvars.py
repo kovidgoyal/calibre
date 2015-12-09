@@ -24,7 +24,7 @@ def remove_dups(variable):
     return os.pathsep.join(new_list)
 
 def query_process(cmd):
-    if 'PROGRAMFILES(x86)' not in os.environ:
+    if plat == 'amd64' and 'PROGRAMFILES(x86)' not in os.environ:
         os.environ['PROGRAMFILES(x86)'] = os.environ['PROGRAMFILES'] + ' (x86)'
     result = {}
     popen = subprocess.Popen(cmd, stdout=subprocess.PIPE,

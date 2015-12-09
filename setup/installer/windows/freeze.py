@@ -421,7 +421,7 @@ class Win32Freeze(Command, WixMixIn):
             self.info('Linking', exe)
             cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:'+machine,
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
-                    '/LIBPATH:'+(LZMA+r'\lib\Release'),
+                    '/LIBPATH:'+(LZMA+r'\lib'),
                     '/RELEASE', '/MANIFEST', '/MANIFESTUAC:level="asInvoker" uiAccess="false"',
                     '/ENTRY:wWinMainCRTStartup',
                     '/OUT:'+exe, self.embed_resources(exe,
