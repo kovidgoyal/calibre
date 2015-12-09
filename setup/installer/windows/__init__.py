@@ -30,7 +30,7 @@ class WinBase(VMInstaller):
 class Win32(WinBase):
 
     description = 'Build 32bit windows binary installer'
-    VM_NAME = 'win32-build'
+    VM_NAME = 'w32-build'
 
     def do_dl(self, installer, errmsg):
         subprocess.check_call(('scp',
@@ -52,6 +52,6 @@ class Win64(WinBase):
 
     description = 'Build 64bit windows binary installer'
 
-    VM_NAME = 'win64-build'
+    VM_NAME = 'w64-build'
     IS_64_BIT = True
 
