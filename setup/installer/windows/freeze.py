@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, textwrap, errno, stat
+import sys, os, shutil, glob, py_compile, subprocess, re, zipfile, time, errno, stat
 
 from setup import (Command, modules, functions, basenames, __version__,
     __appname__)
@@ -41,6 +41,37 @@ DESCRIPTIONS = {
         'calibre-eject' : 'Helper program for ejecting connected reader devices',
         'calibre-file-dialog' : 'Helper program to show file open/save dialogs',
 }
+
+# https://msdn.microsoft.com/en-us/library/windows/desktop/dn481241(v=vs.85).aspx
+SUPPORTED_OS = {
+    'vista': '{e2011457-1546-43c5-a5fe-008deee3d3f0}',
+    'w7'   : '{35138b9a-5d96-4fbd-8e2d-a2440225f93a}',
+    'w8'   : '{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}',
+    'w81'  : '{1f676c76-80e1-4239-95bb-83d0f6d0da78}',
+    'w10'  : '{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}',
+}
+
+EXE_MANIFEST = '''\
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+  <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+    <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+        <security>
+            <requestedPrivileges>
+                <requestedExecutionLevel level="asInvoker" uiAccess="false" />
+            </requestedPrivileges>
+        </security>
+    </trustInfo>
+    <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+      <application>
+          <supportedOS Id="{vista}"/>
+          <supportedOS Id="{w7}"/>
+          <supportedOS Id="{w8}"/>
+          <supportedOS Id="{w81}"/>
+          <supportedOS Id="{w10}"/>
+      </application>
+    </compatibility>
+  </assembly>
+'''.format(**SUPPORTED_OS)
 
 def walk(dir):
     ''' A nice interface to os.walk '''
@@ -419,10 +450,13 @@ class Win32Freeze(Command, WixMixIn):
         exe = self.j('dist', 'calibre-portable-installer-%s.exe'%VERSION)
         if self.newer(exe, [obj, xobj]):
             self.info('Linking', exe)
+            manifest = exe + '.manifest'
+            with open(manifest, 'wb') as f:
+                f.write(EXE_MANIFEST)
             cmd = [msvc.linker] + ['/INCREMENTAL:NO', '/MACHINE:'+machine,
                     '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:WINDOWS',
                     '/LIBPATH:'+(LZMA+r'\lib'),
-                    '/RELEASE', '/MANIFEST', '/MANIFESTUAC:level="asInvoker" uiAccess="false"',
+                    '/RELEASE', '/MANIFEST:EMBED', '/MANIFESTINPUT:' + manifest,
                     '/ENTRY:wWinMainCRTStartup',
                     '/OUT:'+exe, self.embed_resources(exe,
                         desc='Calibre Portable Installer', extra_data=zf,
@@ -430,31 +464,6 @@ class Win32Freeze(Command, WixMixIn):
                     xobj, obj, 'User32.lib', 'Shell32.lib', 'easylzma_s.lib',
                     'Ole32.lib', 'Shlwapi.lib', 'Kernel32.lib', 'Psapi.lib']
             self.run_builder(cmd)
-            manifest = exe + '.manifest'
-            with open(manifest, 'r+b') as f:
-                raw = f.read()
-                f.seek(0)
-                f.truncate()
-                # TODO: Add the windows 8 GUID to the compatibility section
-                # after windows 8 is released, see:
-                # http://msdn.microsoft.com/en-us/library/windows/desktop/hh848036(v=vs.85).aspx
-                raw = raw.replace(b'</assembly>', textwrap.dedent(
-                    b'''\
-                    <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
-                      <application>
-                        <!--The ID below indicates app support for Windows Vista -->
-                        <supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"/>
-                        <!--The ID below indicates app support for Windows 7 -->
-                        <supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
-                      </application>
-                    </compatibility>
-                  </assembly>
-                    '''))
-                f.write(raw)
-
-            self.run_builder([MT, '-manifest', manifest,
-                '-outputresource:%s;1'%exe])
-            os.remove(manifest)
 
         os.remove(zf)
 
@@ -550,8 +559,11 @@ class Win32Freeze(Command, WixMixIn):
                 cmd = [msvc.cc] + cflags + ['/Fo'+obj, ftype + src]
                 self.run_builder(cmd, show_output=True)
             exe = self.j(self.dll_dir, name)
+            mf = exe + '.manifest'
+            with open(mf, 'wb') as f:
+                f.write(EXE_MANIFEST)
             cmd = [msvc.linker] + ['/MACHINE:'+machine,
-                    '/SUBSYSTEM:'+subsys, '/RELEASE',
+                    '/SUBSYSTEM:'+subsys, '/RELEASE', '/MANIFEST:EMBED', '/MANIFESTINPUT:'+mf,
                     '/OUT:'+exe] + [self.embed_resources(exe), obj] + libs
             self.run_builder(cmd)
         base = self.j(self.src_root, 'setup', 'installer', 'windows')
@@ -610,9 +622,13 @@ class Win32Freeze(Command, WixMixIn):
                 u32 = ['user32.lib']
                 if self.newer(exe, [dest, lib, self.rc_template, __file__]):
                     self.info('Linking', bname)
+                    mf = dest + '.manifest'
+                    with open(mf, 'wb') as f:
+                        f.write(EXE_MANIFEST)
                     cmd = [msvc.linker] + ['/MACHINE:'+machine, '/LTCG',
                             '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:'+subsys,
                             '/LIBPATH:%s/libs'%self.python_base, '/RELEASE',
+                            '/MANIFEST:EMBED', '/MANIFESTINPUT:' + mf,
                             '/OUT:'+exe] + u32 + dlflags + [self.embed_resources(exe),
                             dest, lib]
                     self.run_builder(cmd)
