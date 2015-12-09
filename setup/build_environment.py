@@ -19,13 +19,9 @@ if iswindows:
     msvc.initialize()
     NMAKE = msvc.find_exe('nmake.exe')
     RC = msvc.find_exe('rc.exe')
-    SDK = os.environ.get('WINSDK', r'C:\Program Files\Microsoft SDKs\Windows\v7.0')
+    MT = msvc.find_exe('mt.exe')
     win_inc = os.environ['include'].split(';')
     win_lib = os.environ['lib'].split(';')
-    for p in win_inc:
-        if 'SDK' in p:
-            MT = os.path.join(os.path.dirname(p), 'bin', 'mt.exe')
-    MT = os.path.join(SDK, 'Bin', 'mt.exe')
 
 QMAKE = 'qmake'
 for x in ('qmake-qt5', 'qt5-qmake', 'qmake'):
