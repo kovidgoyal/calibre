@@ -128,6 +128,7 @@ def parse_outline(raw, output_dir):
         from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
         outline = outline[0]
         toc = TOC()
+        count = [0]
 
         def process_node(node, toc):
             for child in node.iterdescendants('*'):
@@ -137,10 +138,12 @@ def parse_outline(raw, output_dir):
                 else:
                     page = child.get('page', '1')
                     toc.add(child.text, 'index.html', page)
+                    count[0] += 1
         process_node(outline, toc)
-        root = create_ncx(toc, (lambda x:x), 'pdftohtml', 'en', 'pdftohtml')
-        with open(os.path.join(output_dir, 'toc.ncx'), 'wb') as f:
-            f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
+        if count[0] > 2:
+            root = create_ncx(toc, (lambda x:x), 'pdftohtml', 'en', 'pdftohtml')
+            with open(os.path.join(output_dir, 'toc.ncx'), 'wb') as f:
+                f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
 
 
 def flip_image(img, flip):
