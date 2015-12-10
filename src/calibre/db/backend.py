@@ -13,7 +13,7 @@ from functools import partial
 
 import apsw
 
-from calibre import isbytestring, force_unicode, prints
+from calibre import isbytestring, force_unicode, prints, as_unicode
 from calibre.constants import (iswindows, filesystem_encoding,
         preferred_encoding)
 from calibre.ptempfile import PersistentTemporaryFile, TemporaryFile
@@ -1704,13 +1704,15 @@ class DB(object):
         for loc in old_dirs:
             try:
                 shutil.rmtree(loc)
-            except EnvironmentError:
-                pass
+            except EnvironmentError as e:
+                if os.path.exists(loc):
+                    prints('Failed to delete:', loc, 'with error:', as_unicode(e))
         for loc in old_files:
             try:
                 os.remove(loc)
-            except EnvironmentError:
-                pass
+            except EnvironmentError as e:
+                if e.errno != errno.ENOENT:
+                    prints('Failed to delete:', loc, 'with error:', as_unicode(e))
         try:
             os.rmdir(odir)
         except EnvironmentError:
