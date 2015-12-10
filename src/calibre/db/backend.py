@@ -28,7 +28,8 @@ from calibre.utils.config import to_json, from_json, prefs, tweaks
 from calibre.utils.date import utcfromtimestamp, parse_date
 from calibre.utils.filenames import (
     is_case_sensitive, samefile, hardlink_file, ascii_filename,
-    WindowsAtomicFolderMove, atomic_rename, remove_dir_if_empty)
+    WindowsAtomicFolderMove, atomic_rename, remove_dir_if_empty,
+    copytree_using_links, copyfile_using_links)
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
@@ -1666,41 +1667,39 @@ class DB(object):
         items = items.intersection(paths)
         return items, path_map
 
-    def move_library_to(self, all_paths, newloc, progress=lambda x: x):
+    def move_library_to(self, all_paths, newloc, progress=(lambda item_name, item_count, total: None), abort=None):
         if not os.path.exists(newloc):
             os.makedirs(newloc)
         old_dirs, old_files = set(), set()
         items, path_map = self.get_top_level_move_items(all_paths)
-        for x in items:
+        total = len(items) + 1
+        for i, x in enumerate(items):
+            if abort is not None and abort.is_set():
+                return
             src = os.path.join(self.library_path, x)
             dest = os.path.join(newloc, path_map[x])
             if os.path.isdir(src):
                 if os.path.exists(dest):
                     shutil.rmtree(dest)
-                shutil.copytree(src, dest)
+                copytree_using_links(src, dest, dest_is_parent=False)
                 old_dirs.add(src)
             else:
                 if os.path.exists(dest):
                     os.remove(dest)
-                shutil.copyfile(src, dest)
+                copyfile_using_links(src, dest, dest_is_dir=False)
                 old_files.add(src)
             x = path_map[x]
             if not isinstance(x, unicode):
                 x = x.decode(filesystem_encoding, 'replace')
-            progress(x)
+            progress(x, i+1, total)
 
         dbpath = os.path.join(newloc, os.path.basename(self.dbpath))
-        opath, odir = self.dbpath, self.library_path
+        odir = self.library_path
         self.conn.close()
         self.library_path, self.dbpath = newloc, dbpath
         if self._conn is not None:
             self._conn.close()
         self._conn = None
-        self.conn
-        try:
-            os.unlink(opath)
-        except:
-            pass
         for loc in old_dirs:
             try:
                 shutil.rmtree(loc)
@@ -1717,6 +1716,8 @@ class DB(object):
             os.rmdir(odir)
         except EnvironmentError:
             pass
+        self.conn  # Connect to the moved metadata.db
+        progress(_('Completed'), total, total)
 
     def restore_book(self, book_id, path, formats):
         self.execute('UPDATE books SET path=? WHERE id=?', (path.replace(os.sep, '/'), book_id))

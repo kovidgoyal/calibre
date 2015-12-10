@@ -1938,11 +1938,17 @@ class Cache(object):
         return self.backend.get_top_level_move_items(all_paths)
 
     @write_api
-    def move_library_to(self, newloc, progress=None):
-        if progress is None:
-            progress = lambda x:x
+    def move_library_to(self, newloc, progress=None, abort=None):
+        def progress_callback(item_name, item_count, total):
+            try:
+                if progress is not None:
+                    progress(item_name, item_count, total)
+            except Exception:
+                import traceback
+                traceback.print_exc()
+
         all_paths = {self._field_for('path', book_id).partition('/')[0] for book_id in self._all_book_ids()}
-        self.backend.move_library_to(all_paths, newloc, progress=progress)
+        self.backend.move_library_to(all_paths, newloc, progress=progress_callback, abort=abort)
 
     @read_api
     def saved_search_names(self):

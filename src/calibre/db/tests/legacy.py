@@ -417,6 +417,7 @@ class LegacyTest(BaseTest):
             'books_in_old_database', 'sizeof_old_database',  # unused
             'migrate_old',  # no longer supported
             'remove_unused_series',  # superseded by clean API
+            'move_library_to',  # API changed, no code uses old API
 
             # Internal API
             'clean_user_categories',  'cleanup_tags',  'books_list_filter', 'conn', 'connect', 'construct_file_name',
@@ -802,4 +803,3 @@ class LegacyTest(BaseTest):
         ))
         db.close()
     # }}}
-

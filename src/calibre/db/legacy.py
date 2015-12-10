@@ -917,7 +917,6 @@ for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
         return func
     setattr(LibraryDatabase, meth, MT(getter(meth)))
 
-LibraryDatabase.move_library_to = MT(lambda self, newloc, progress=None:self.new_api.move_library_to(newloc, progress=progress))
 LibraryDatabase.saved_search_names = MT(lambda self:self.new_api.saved_search_names())
 LibraryDatabase.saved_search_lookup = MT(lambda self, x:self.new_api.saved_search_lookup(x))
 LibraryDatabase.saved_search_set_all = MT(lambda self, smap:self.new_api.saved_search_set_all(smap))
