@@ -606,16 +606,16 @@ class Win32Freeze(Command, WixMixIn):
             subsys = 'WINDOWS' if typ == 'gui' else 'CONSOLE'
             for mod, bname, func in zip(modules[typ], basenames[typ],
                     functions[typ]):
-                xflags = list(cflags) + ['/MT']
+                cflags  = '/c /EHsc /MT /W3 /O1 /nologo /D_UNICODE /DUNICODE /GS-'.split()
                 if typ == 'gui':
-                    xflags += ['/DGUI_APP=']
+                    cflags += ['/DGUI_APP=']
 
-                xflags += ['/DMODULE="%s"'%mod, '/DBASENAME="%s"'%bname,
+                cflags += ['/DMODULE="%s"'%mod, '/DBASENAME="%s"'%bname,
                     '/DFUNCTION="%s"'%func]
                 dest = self.j(self.obj_dir, bname+'.obj')
-                if self.newer(dest, [src]):
+                if self.newer(dest, [src, __file__]):
                     self.info('Compiling', bname)
-                    cmd = [msvc.cc] + xflags + dflags + ['/Tc'+src, '/Fo'+dest]
+                    cmd = [msvc.cc] + cflags + dflags + ['/Tc'+src, '/Fo'+dest]
                     self.run_builder(cmd)
                 exe = self.j(self.base, bname+'.exe')
                 lib = dll.replace('.dll', '.lib')
@@ -625,10 +625,11 @@ class Win32Freeze(Command, WixMixIn):
                     mf = dest + '.manifest'
                     with open(mf, 'wb') as f:
                         f.write(EXE_MANIFEST)
-                    cmd = [msvc.linker] + ['/MACHINE:'+machine, '/LTCG',
+                    cmd = [msvc.linker] + ['/MACHINE:'+machine, '/NODEFAULTLIB', '/ENTRY:start_here',
                             '/LIBPATH:'+self.obj_dir, '/SUBSYSTEM:'+subsys,
                             '/LIBPATH:%s/libs'%self.python_base, '/RELEASE',
                             '/MANIFEST:EMBED', '/MANIFESTINPUT:' + mf,
+                            'user32.lib', 'kernel32.lib',
                             '/OUT:'+exe] + u32 + dlflags + [self.embed_resources(exe),
                             dest, lib]
                     self.run_builder(cmd)

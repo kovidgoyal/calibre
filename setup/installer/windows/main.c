@@ -7,7 +7,7 @@
 #include<windows.h>
 #include<strsafe.h>
 
-size_t mystrlen(const wchar_t *buf) {
+static size_t mystrlen(const wchar_t *buf) {
     size_t ans = 0;
     if (FAILED(StringCbLengthW(buf, 500, &ans))) return 0;
     return ans;
@@ -23,15 +23,13 @@ static int show_error(const wchar_t *preamble, const wchar_t *msg, const int cod
     }
 
     MessageBeep(MB_ICONERROR);
-    if (FAILED(StringCbPrintfW(buf, LocalSize(buf), L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code)))
-        MessageBox(NULL, preamble, NULL, MB_OK|MB_ICONERROR);
-    else
-        MessageBox(NULL, buf, NULL, MB_OK|MB_ICONERROR);
+    wsprintf(buf, L"%s\r\n  %s (Error Code: %d)\r\n", preamble, msg, code);
+    MessageBox(NULL, buf, NULL, MB_OK|MB_ICONERROR);
     LocalFree(buf);
     return code;
 }
 
-int show_last_error(wchar_t *preamble) {
+static int show_last_error(wchar_t *preamble) {
     wchar_t *msg = NULL;
     DWORD dw = GetLastError(); 
     int ret;
@@ -55,11 +53,12 @@ int show_last_error(wchar_t *preamble) {
 typedef int (__cdecl *ENTRYPROC)(const char*, const char*, const char*, int); 
 
 static ENTRYPROC load_launcher_dll() {
-    wchar_t buf[MAX_PATH] = {0};
+    wchar_t buf[MAX_PATH];  // Cannot use a zero initializer for the array as it generates an implicit call to memset()
     wchar_t drive[4] = L"\0\0\0";
-    DWORD sz; 
-    HMODULE dll;
-    ENTRYPROC entrypoint;
+    int i = 0;
+    DWORD sz = 0; 
+    HMODULE dll = 0;
+    ENTRYPROC entrypoint = 0;
 
     if ((sz = GetModuleFileNameW(NULL, buf, MAX_PATH)) >= MAX_PATH - 30)
         ExitProcess(show_error(L"Installation directory path too long", L"", 1));
@@ -84,19 +83,14 @@ static ENTRYPROC load_launcher_dll() {
     return entrypoint;
 }
 
+int __stdcall start_here() {
+    int ret = 0;
 #ifdef GUI_APP
-
-int WINAPI                                                                                                      
-wWinMain(HINSTANCE Inst, HINSTANCE PrevInst, wchar_t *CmdLine, int CmdShow) {
+    // This should really be returning the value set in the WM_QUIT message, but I cannot be bothered figuring out how to get that.
     load_launcher_dll()(BASENAME, MODULE, FUNCTION, 1);
-
-    return 0; // This should really be returning the value set in the WM_QUIT message, but I cannot be bothered figuring out how to get that.
-}
-
 #else
-
-int wmain(int argc, wchar_t *argv) {
-    return load_launcher_dll()(BASENAME, MODULE, FUNCTION, 0);
-}
-
+    ret = load_launcher_dll()(BASENAME, MODULE, FUNCTION, 0);
 #endif
+    ExitProcess(ret);
+    return ret;
+}
