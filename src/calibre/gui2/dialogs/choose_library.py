@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
@@ -31,10 +32,12 @@ class ProgressDialog(PD):
         return
 
     def progressed(self, item_name, count, total):
-        if self.max == 0:
-            self.max = total
+        self.max = total
         self.value = count
         self.set_msg(item_name)
+
+    def show_new_progress(self, *args):
+        self.on_progress_update.emit(*args)
 
 class ChooseLibrary(QDialog, Ui_Dialog):
 
@@ -129,13 +132,13 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             # move library
             self.db.prefs.disable_setting = True
             abort_move = Event()
-            pd = ProgressDialog(_('Moving library, please wait...'), max=0, min=0, icon='lt.png', parent=self.parent())
+            pd = ProgressDialog(_('Moving library, please wait...'), _('Scanning...'), max=0, min=0, icon='lt.png', parent=self)
             pd.canceled_signal.connect(abort_move.set)
             self.parent().library_view.model().stop_metadata_backup()
             move_error = []
             def do_move():
                 try:
-                    self.db.new_api.move_library_to(loc, abort=abort_move, progress=pd.on_progress_update.emit)
+                    self.db.new_api.move_library_to(loc, abort=abort_move, progress=pd.show_new_progress)
                 except Exception:
                     import traceback
                     move_error.append(traceback.format_exc())
@@ -178,6 +181,6 @@ class ChooseLibrary(QDialog, Ui_Dialog):
                     _('%s is not an existing folder')%loc, show=True)
         if not self.check_action(action, loc):
             return
-        QDialog.accept(self)
         self.location.save_history()
         self.perform_action(action, loc)
+        QDialog.accept(self)  # Must be after perform action otherwise the progress dialog is not updated on windows
