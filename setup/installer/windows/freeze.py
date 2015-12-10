@@ -730,11 +730,14 @@ class Win32Freeze(Command, WixMixIn):
         vc_path = os.path.join(r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist', plat, 'Microsoft.VC140.CRT')
         if not os.path.exists(vc_path):
             raise SystemExit('Visual Studio redistributable CRT not found')
-        sdk_path = os.path.join(r'C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs', plat)
-        if not os.path.exists(sdk_path):
-            raise SystemExit('Windows 10 redistributable CRT not found')
-        for dll in glob.glob(os.path.join(sdk_path, '*.dll')):
-            shutil.copy2(dll, self.dll_dir)
+        # I cannot get app local deployment of the UCRT to work. Things left to
+        # try: try dlls from the windows sdk standalone, try manually loading
+        # ucrtbase.dll and some api dlls before loading the launcher.
+        # sdk_path = os.path.join(r'C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs', plat)
+        # if not os.path.exists(sdk_path):
+        #     raise SystemExit('Windows 10 redistributable CRT not found')
+        # for dll in glob.glob(os.path.join(sdk_path, '*.dll')):
+        #     shutil.copy2(dll, self.dll_dir)
         for dll in glob.glob(os.path.join(vc_path, '*.dll')):
             bname = os.path.basename(dll)
             if not bname.startswith('vccorlib') and not bname.startswith('concrt'):
