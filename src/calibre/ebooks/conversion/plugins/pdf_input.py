@@ -67,5 +67,12 @@ class PDFInput(InputFormatPlugin):
         log.debug('Rendering manifest...')
         with open(u'metadata.opf', 'wb') as opffile:
             opf.render(opffile)
+        if os.path.exists(u'toc.ncx'):
+            ncxid = opf.manifest.id_for_path('toc.ncx')
+            if ncxid:
+                with open(u'metadata.opf', 'r+b') as f:
+                    raw = f.read().replace(b'<spine', b'<spine toc="%s"' % bytes(ncxid))
+                    f.seek(0)
+                    f.write(raw)
 
         return os.path.join(os.getcwdu(), u'metadata.opf')

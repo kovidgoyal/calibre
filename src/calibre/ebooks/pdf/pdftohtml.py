@@ -85,10 +85,6 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
         logf.flush()
         logf.close()
         out = open(logf.name, 'rb').read().strip()
-        try:
-            os.remove(pdfsrc)
-        except:
-            pass
         if ret != 0:
             raise ConversionError(b'return code: %d\n%s' % (ret, out))
         if out:
@@ -106,7 +102,46 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
                 i.truncate()
                 # versions of pdftohtml >= 0.20 output self closing <br> tags, this
                 # breaks the pdf heuristics regexps, so replace them
-                i.write(raw.replace(b'<br/>', b'<br>'))
+                raw = raw.replace(b'<br/>', b'<br>')
+                raw = re.sub(br'<a\s+name=(\d+)', br'<a id="\1"', raw, flags=re.I)
+                i.write(raw)
+
+            cmd = [exe, b'-f', b'1', '-l', '1', b'-xml', b'-i', b'-enc', b'UTF-8', b'-noframes', b'-p', b'-nomerge',
+                    b'-nodrm', b'-q', b'-stdout', a(pdfsrc)]
+            p = popen(cmd, stdout=subprocess.PIPE)
+            raw = p.stdout.read().strip()
+            if p.wait() == 0 and raw:
+                parse_outline(raw, output_dir)
+
+            if isbsd:
+                cmd.remove(b'-nodrm')
+
+        try:
+            os.remove(pdfsrc)
+        except:
+            pass
+
+def parse_outline(raw, output_dir):
+    from lxml import etree
+    outline = etree.fromstring(raw).xpath('(//outline)[1]')
+    if outline:
+        from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
+        outline = outline[0]
+        toc = TOC()
+
+        def process_node(node, toc):
+            for child in node.iterdescendants('*'):
+                if child.tag == 'outline':
+                    parent = toc.children[-1] if toc.children else toc
+                    process_node(child, parent)
+                else:
+                    page = child.get('page', '1')
+                    toc.add(child.text, 'index.html', page)
+        process_node(outline, toc)
+        root = create_ncx(toc, (lambda x:x), 'pdftohtml', 'en', 'pdftohtml')
+        with open(os.path.join(output_dir, 'toc.ncx'), 'wb') as f:
+            f.write(etree.tostring(root, pretty_print=True, with_tail=False, encoding='utf-8', xml_declaration=True))
+
 
 def flip_image(img, flip):
     from calibre.utils.magick import Image
