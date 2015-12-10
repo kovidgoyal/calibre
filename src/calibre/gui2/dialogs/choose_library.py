@@ -20,10 +20,12 @@ from calibre import isbytestring, patheq, force_unicode
 class ProgressDialog(PD):
 
     on_progress_update = pyqtSignal(object, object, object)
+    finished_moving = pyqtSignal()
 
     def __init__(self, *args, **kwargs):
         PD.__init__(self, *args, **kwargs)
         self.on_progress_update.connect(self.progressed, type=Qt.QueuedConnection)
+        self.finished_moving.connect(self.accept, type=Qt.QueuedConnection)
 
     def reject(self):
         return
@@ -133,12 +135,12 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             move_error = []
             def do_move():
                 try:
-                    self.db.new_api.move_library_to(loc, abort=abort_move, progress2=pd.on_progress_update.emit)
+                    self.db.new_api.move_library_to(loc, abort=abort_move, progress=pd.on_progress_update.emit)
                 except Exception:
                     import traceback
                     move_error.append(traceback.format_exc())
                 finally:
-                    pd.accept()
+                    pd.finished_moving.emit()
 
             t = Thread(name='MoveLibrary', target=do_move)
             QTimer.singleShot(0, t.start)
