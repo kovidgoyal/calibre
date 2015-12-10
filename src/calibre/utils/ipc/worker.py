@@ -43,9 +43,6 @@ PARALLEL_FUNCS = {
     'gui_catalog'     :
     ('calibre.gui2.convert.gui_conversion', 'gui_catalog', 'notification'),
 
-    'move_library'     :
-    ('calibre.library.move', 'move_library', 'notification'),
-
     'arbitrary' :
     ('calibre.utils.ipc.worker', 'arbitrary', None),
 

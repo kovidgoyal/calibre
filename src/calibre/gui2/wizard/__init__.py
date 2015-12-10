@@ -7,14 +7,12 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, traceback, re
-from Queue import Empty, Queue
 from contextlib import closing
 
 
 from PyQt5.Qt import (QWizard, QWizardPage, QPixmap, Qt, QAbstractListModel,
-    QItemSelectionModel, QObject, QTimer, pyqtSignal, QItemSelection, QDir)
-from calibre import __appname__, patheq
-from calibre.library.move import MoveLibrary
+    QItemSelectionModel, pyqtSignal, QItemSelection, QDir)
+from calibre import __appname__
 from calibre.constants import (filesystem_encoding, iswindows, plugins,
         isportable)
 from calibre.gui2.wizard.send_email import smtp_prefs
@@ -28,7 +26,6 @@ from calibre.utils.localization import localize_user_manual_link
 
 from calibre.utils.config import dynamic, prefs
 from calibre.gui2 import choose_dir, error_dialog
-from calibre.gui2.dialogs.progress import ProgressDialog
 
 if iswindows:
     winutil = plugins['winutil'][0]
@@ -578,104 +575,6 @@ class DevicePage(QWizardPage, DeviceUI):
             return StanzaPage.ID
         return FinishPage.ID
 
-class MoveMonitor(QObject):
-
-    def __init__(self, worker, rq, callback, parent):
-        QObject.__init__(self, parent)
-        self.worker = worker
-        self.rq = rq
-        self.callback = callback
-        self.parent = parent
-
-        self.worker.start()
-        self.dialog = ProgressDialog(_('Moving library...'), '',
-                max=self.worker.total, parent=parent)
-        self.dialog.button_box.setDisabled(True)
-        self.dialog.setModal(True)
-        self.dialog.show()
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.check)
-        self.timer.start(200)
-
-    def check(self):
-        if self.worker.is_alive():
-            self.update()
-        else:
-            self.timer.stop()
-            self.dialog.hide()
-            if self.worker.failed:
-                error_dialog(self.parent, _('Failed to move library'),
-                    _('Failed to move library'), self.worker.details, show=True)
-                return self.callback(None)
-            else:
-                return self.callback(self.worker.to)
-
-    def update(self):
-        try:
-            title = self.rq.get_nowait()[-1]
-            self.dialog.value += 1
-            self.dialog.set_msg(_('Copied') + ' '+title)
-        except Empty:
-            pass
-
-
-class Callback(object):
-
-    def __init__(self, callback):
-        self.callback = callback
-
-    def __call__(self, newloc):
-        if newloc is not None:
-            prefs['library_path'] = newloc
-        self.callback(newloc)
-
-_mm = None
-def move_library(oldloc, newloc, parent, callback_on_complete):
-    from calibre.db.legacy import LibraryDatabase
-    callback = Callback(callback_on_complete)
-    try:
-        if not os.path.exists(os.path.join(newloc, 'metadata.db')):
-            if oldloc and os.access(os.path.join(oldloc, 'metadata.db'), os.R_OK):
-                # Move old library to new location
-                try:
-                    db = LibraryDatabase(oldloc)
-                except:
-                    return move_library(None, newloc, parent,
-                        callback)
-                else:
-                    rq = Queue()
-                    m = MoveLibrary(oldloc, newloc,
-                            len(db.get_top_level_move_items()[0]), rq)
-                    global _mm
-                    _mm = MoveMonitor(m, rq, callback, parent)
-                    return
-            else:
-                # Create new library at new location
-                db = LibraryDatabase(newloc)
-                callback(newloc)
-                return
-
-        # Try to load existing library at new location
-        try:
-            LibraryDatabase(newloc)
-        except Exception as err:
-            det = traceback.format_exc()
-            error_dialog(parent, _('Invalid database'),
-                _('<p>An invalid library already exists at '
-                    '%(loc)s, delete it before trying to move the '
-                    'existing library.<br>Error: %(err)s')%dict(loc=newloc,
-                        err=str(err)), det, show=True)
-            callback(None)
-            return
-        else:
-            callback(newloc)
-            return
-    except Exception as err:
-        det = traceback.format_exc()
-        error_dialog(parent, _('Could not move library'),
-                unicode(err), det, show=True)
-    callback(None)
-
 class LibraryPage(QWizardPage, LibraryUI):
 
     ID = 1
@@ -828,21 +727,17 @@ class LibraryPage(QWizardPage, LibraryUI):
             ans = False
         return ans
 
-    def commit(self, completed):
-        oldloc = prefs['library_path']
+    def commit(self):
         newloc = unicode(self.location.text())
         try:
             dln = self.default_library_name
             if (dln and os.path.exists(dln) and not os.listdir(dln) and newloc != dln):
                 os.rmdir(dln)
-        except:
+        except Exception:
             pass
         if not os.path.exists(newloc):
-            os.mkdir(newloc)
-        if not patheq(oldloc, newloc):
-            move_library(oldloc, newloc, self.wizard(), completed)
-            return True
-        return False
+            os.makedirs(newloc)
+        prefs['library_path'] = newloc
 
     def nextId(self):
         return DevicePage.ID
@@ -931,14 +826,8 @@ class Wizard(QWizard):
     def accept(self):
         pages = map(self.page, self.visitedPages())
         for page in pages:
-            if page is not self.library_page:
-                page.commit()
-
-        if not self.library_page.commit(self.completed):
-            self.completed(None)
-
-    def completed(self, newloc):
-        return QWizard.accept(self)
+            page.commit()
+        QWizard.accept(self)
 
     def set_finish_text(self, *args):
         bt = unicode("<em>" + self.buttonText(self.FinishButton) + "</em>").replace('&', '')
