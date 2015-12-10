@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, errno
 
 from PyQt5.Qt import QDialog
 
@@ -122,6 +122,12 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             return error_dialog(self, _('No location'), _('No location selected'),
                     show=True)
         loc = os.path.abspath(text)
+        if action == 'move':
+            try:
+                os.makedirs(loc)
+            except EnvironmentError as e:
+                if e.errno != errno.EEXIST:
+                    raise
         if not loc or not os.path.exists(loc) or not os.path.isdir(loc):
             return error_dialog(self, _('Bad location'),
                     _('%s is not an existing folder')%loc, show=True)
