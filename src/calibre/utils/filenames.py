@@ -549,13 +549,15 @@ def copyfile(src, dest):
 
 def get_hardlink_function(src, dest):
     if iswindows:
-        import win32file
+        import win32file, win32api
+        root = dest[0] + b':'
         try:
-            dt = win32file.GetDriveType(dest[:2])
+            is_suitable = win32file.GetDriveType(root) not in (win32file.DRIVE_REMOTE, win32file.DRIVE_CDROM)
+            # See https://msdn.microsoft.com/en-us/library/windows/desktop/aa364993(v=vs.85).aspx
+            supports_hard_links = win32api.GetVolumeInformation(root + os.sep)[3] & 0x00400000
         except Exception:
-            dt = win32file.DRIVE_UNKNOWN
-        hardlink = None if dt in (win32file.DRIVE_REMOTE, win32file.DRIVE_CDROM) else windows_fast_hardlink
-        hardlink = None if src[0].lower() != dest[0].lower() else hardlink
+            supports_hard_links = is_suitable = False
+        hardlink = windows_fast_hardlink if is_suitable and supports_hard_links and src[0].lower() == dest[0].lower() else None
     else:
         hardlink = os.link
     return hardlink
