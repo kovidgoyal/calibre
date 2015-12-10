@@ -1669,7 +1669,7 @@ class DB(object):
     def move_library_to(self, all_paths, newloc, progress=lambda x: x):
         if not os.path.exists(newloc):
             os.makedirs(newloc)
-        old_dirs = set()
+        old_dirs, old_files = set(), set()
         items, path_map = self.get_top_level_move_items(all_paths)
         for x in items:
             src = os.path.join(self.library_path, x)
@@ -1683,13 +1683,14 @@ class DB(object):
                 if os.path.exists(dest):
                     os.remove(dest)
                 shutil.copyfile(src, dest)
+                old_files.add(src)
             x = path_map[x]
             if not isinstance(x, unicode):
                 x = x.decode(filesystem_encoding, 'replace')
             progress(x)
 
         dbpath = os.path.join(newloc, os.path.basename(self.dbpath))
-        opath = self.dbpath
+        opath, odir = self.dbpath, self.library_path
         self.conn.close()
         self.library_path, self.dbpath = newloc, dbpath
         if self._conn is not None:
@@ -1703,8 +1704,17 @@ class DB(object):
         for loc in old_dirs:
             try:
                 shutil.rmtree(loc)
-            except:
+            except EnvironmentError:
                 pass
+        for loc in old_files:
+            try:
+                os.remove(loc)
+            except EnvironmentError:
+                pass
+        try:
+            os.rmdir(odir)
+        except EnvironmentError:
+            pass
 
     def restore_book(self, book_id, path, formats):
         self.execute('UPDATE books SET path=? WHERE id=?', (path.replace(os.sep, '/'), book_id))

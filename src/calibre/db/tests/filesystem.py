@@ -108,6 +108,7 @@ class FilesystemTest(BaseTest):
         all_ids = cache.all_book_ids()
         fmt1 = cache.format(1, 'FMT1')
         cov = cache.cover(1)
+        odir = cache.backend.library_path
         with TemporaryDirectory('moved_lib') as tdir:
             cache.move_library_to(tdir)
             self.assertIn('moved_lib', cache.backend.library_path)
@@ -117,6 +118,8 @@ class FilesystemTest(BaseTest):
             cache.reload_from_db()
             self.assertEqual(all_ids, cache.all_book_ids())
             cache.backend.close()
+            self.assertFalse(os.path.exists(odir))
+            os.mkdir(odir)  # needed otherwise tearDown() fails
 
     def test_long_filenames(self):
         ' Test long file names '
