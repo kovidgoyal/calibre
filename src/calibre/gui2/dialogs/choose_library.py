@@ -6,15 +6,33 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, errno
+from threading import Thread, Event
 
-from PyQt5.Qt import QDialog
+from PyQt5.Qt import QDialog, QTimer, Qt, pyqtSignal
 
 from calibre.gui2.dialogs.choose_library_ui import Ui_Dialog
+from calibre.gui2.dialogs.progress import ProgressDialog as PD
 from calibre.gui2 import error_dialog, choose_dir
 from calibre.constants import (filesystem_encoding, iswindows,
         get_portable_base)
 from calibre import isbytestring, patheq, force_unicode
-from calibre.gui2.wizard import move_library
+
+class ProgressDialog(PD):
+
+    on_progress_update = pyqtSignal(object, object, object)
+
+    def __init__(self, *args, **kwargs):
+        PD.__init__(self, *args, **kwargs)
+        self.on_progress_update.connect(self.progressed, type=Qt.QueuedConnection)
+
+    def reject(self):
+        return
+
+    def progressed(self, item_name, count, total):
+        if self.max == 0:
+            self.max = total
+        self.value = count
+        self.set_msg(item_name)
 
 class ChooseLibrary(QDialog, Ui_Dialog):
 
@@ -106,10 +124,35 @@ class ChooseLibrary(QDialog, Ui_Dialog):
         if ac in ('new', 'existing'):
             self.callback(loc, copy_structure=self.copy_structure.isChecked())
         else:
+            # move library
             self.db.prefs.disable_setting = True
-            self.library_renamed = True
-            move_library(self.db.library_path, loc, self.parent(),
-                    self.callback)
+            abort_move = Event()
+            pd = ProgressDialog(_('Moving library, please wait...'), max=0, min=0, icon='lt.png', parent=self.parent())
+            pd.canceled_signal.connect(abort_move.set)
+            self.parent().library_view.model().stop_metadata_backup()
+            move_error = []
+            def do_move():
+                try:
+                    self.db.new_api.move_library_to(loc, abort=abort_move, progress2=pd.on_progress_update.emit)
+                except Exception:
+                    import traceback
+                    move_error.append(traceback.format_exc())
+                finally:
+                    pd.accept()
+
+            t = Thread(name='MoveLibrary', target=do_move)
+            QTimer.singleShot(0, t.start)
+            pd.exec_()
+            if abort_move.is_set():
+                self.callback(self.db.library_path)
+                return
+            if move_error:
+                error_dialog(self.parent(), _('Failed to move library'), _(
+                    'There was an error while moving the library. The operation has been aborted. Click'
+                    ' "Show details" for details.'), det_msg=move_error[0], show=True)
+                self.callback(self.db.library_path)
+                return
+            self.callback(loc, library_renamed=True)
 
     def accept(self):
         action = 'move'

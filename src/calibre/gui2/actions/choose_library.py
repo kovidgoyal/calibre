@@ -585,12 +585,11 @@ class ChooseLibraryAction(InterfaceAction):
         self.pre_choose_dialog_location = location
         c = ChooseLibrary(db, self.choose_library_callback, self.gui)
         c.exec_()
-        self.choose_dialog_library_renamed = getattr(c, 'library_renamed', False)
 
-    def choose_library_callback(self, newloc, copy_structure=False):
+    def choose_library_callback(self, newloc, copy_structure=False, library_renamed=False):
         self.gui.library_moved(newloc, copy_structure=copy_structure,
                 allow_rebuild=True)
-        if getattr(self, 'choose_dialog_library_renamed', False):
+        if library_renamed:
             self.stats.rename(self.pre_choose_dialog_location, prefs['library_path'])
         self.build_menus()
         self.gui.iactions['Copy To Library'].build_menus()
