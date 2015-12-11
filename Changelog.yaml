@@ -20,6 +20,45 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.46.0
+  date: 2015-12-11
+
+  new features:
+    - title: "PDF Input: Add support for PDF outlines (bookmarks), if present, they are used as the metadata Table of Contents."
+      tickets: [1524522]
+
+    - title: "Book polishing: Add tool to losslessly compress images in the book in order to reduce its filesize, without affecting image quality"
+
+    - title: "Edit Book: Add a new tool to compress images in the book losslessly, accessed from the Tools menu"
+
+    - title: "Kobo driver: add support for new Kobo firmware"
+      tickets: [1524742]
+
+    - title: "Bulk metadata edit dialog: Allow entering fractional numbers into the series number start with control."
+      tickets: [1523253]
+
+    - title: "Speed up moving libraries by using hardlinks instead of file copies when moving to a location on the same filesystem"
+
+    - title: "Get Books: Disable the Amazon EU stores, at Amazon's request"
+
+  bug fixes:
+    - title: "Fix moving libraries via calibre leaving behind a copy of the metadata_db_prefs_backup.json file in the original library folder"
+
+    - title: "MOBI Input: Warn about corrupted trailing data entries, instead of aborting. Getting some, even partially corrupted text is better than no text."
+      tickets: [1521830]
+
+    - title: "Book details: Fix single value custom text column not clickable."
+      tickets: [1521004]
+
+    - title: "Saving to disk: Fix custom date column being rendered in GMT instead of the local time zone when used in a save to disk template."
+      tickets: [1520895]
+
+  improved recipes:
+    - New York Review of Books
+    - Caravan Magazine
+    - heise
+
+
 - version: 2.45.0
   date: 2015-11-27
 
