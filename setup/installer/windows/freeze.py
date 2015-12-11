@@ -730,14 +730,17 @@ class Win32Freeze(Command, WixMixIn):
         vc_path = os.path.join(r'C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\redist', plat, 'Microsoft.VC140.CRT')
         if not os.path.exists(vc_path):
             raise SystemExit('Visual Studio redistributable CRT not found')
-        # I cannot get app local deployment of the UCRT to work. Things left to
-        # try: try dlls from the windows sdk standalone, try manually loading
-        # ucrtbase.dll and some api dlls before loading the launcher.
-        # sdk_path = os.path.join(r'C:\Program Files (x86)\Windows Kits\10\Redist\ucrt\DLLs', plat)
-        # if not os.path.exists(sdk_path):
-        #     raise SystemExit('Windows 10 redistributable CRT not found')
-        # for dll in glob.glob(os.path.join(sdk_path, '*.dll')):
-        #     shutil.copy2(dll, self.dll_dir)
+        # We cannot use the Universal CRT DLLs that come with Visual Studio, as
+        # they are broken. Have to use the ones from the Standalone SDK for Windows 10.
+        # However, I dont want to install this SDK, incase it messes things up,
+        # so the below path points to dlls I got from installing the SDK in a
+        # different VM. To re-create just copy the api-ms*.dll and ucrtbase.dll
+        # files from a previous calibre install.
+        sdk_path = os.path.join(SW, '..', 'ucrt', 'DLLs', plat)
+        if not os.path.exists(sdk_path):
+            raise SystemExit('Windows 10 Universal CRT redistributable not found')
+        for dll in glob.glob(os.path.join(sdk_path, '*.dll')):
+            shutil.copy2(dll, self.dll_dir)
         for dll in glob.glob(os.path.join(vc_path, '*.dll')):
             bname = os.path.basename(dll)
             if not bname.startswith('vccorlib') and not bname.startswith('concrt'):
