@@ -78,6 +78,8 @@ static ENTRYPROC load_launcher_dll() {
         show_last_error(L"Failed to set DLL directory");
         return NULL;
     }
+    // Have to load ucrtbase manually first, otherwise loading fails on systems where the
+    // Universal CRT is not installed.
     if (!LoadLibraryW(L"ucrtbase.dll")) {
         show_last_error(L"Unable to find ucrtbase.dll. You should install all Windows updates on your computer to get this file.");
         return NULL;
