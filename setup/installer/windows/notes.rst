@@ -578,7 +578,8 @@ and copy it to windows.
 
 Run::
 
-    python setup.py build
-    python setup.py -OO win32_freeze --no-ice
+    python setup.py build 
+    python setup.py -OO win32_freeze --no-ice --no-installer
 
-This will create the .msi in the dist directory.
+This will create a relocatable calibre windows build in build/winfrozen. Simply
+run build/winfrozen/calibre.exe to start calibre.
