@@ -433,7 +433,7 @@ class Win32Freeze(Command, WixMixIn):
             cflags  = '/c /EHsc /MT /W4 /Ox /nologo /D_UNICODE /DUNICODE /DPSAPI_VERSION=1'.split()
             cflags.append(r'/I%s\include'%LZMA)
             cflags.append('/DUNCOMPRESSED_SIZE=%d'%usz)
-            if self.newer(obj, [src]):
+            if self.newer(obj, [src, __file__]):
                 self.info('Compiling', obj)
                 cmd = [msvc.cc] + cflags + ['/Fo'+obj, src]
                 self.run_builder(cmd)
@@ -448,7 +448,7 @@ class Win32Freeze(Command, WixMixIn):
         cc(xsrc, xobj)
 
         exe = self.j('dist', 'calibre-portable-installer-%s.exe'%VERSION)
-        if self.newer(exe, [obj, xobj]):
+        if self.newer(exe, [obj, xobj, __file__]):
             self.info('Linking', exe)
             manifest = exe + '.manifest'
             with open(manifest, 'wb') as f:
