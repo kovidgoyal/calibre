@@ -54,7 +54,7 @@ typedef int (__cdecl *ENTRYPROC)(const char*, const char*, const char*, int);
 
 static ENTRYPROC load_launcher_dll() {
     wchar_t buf[MAX_PATH];  // Cannot use a zero initializer for the array as it generates an implicit call to memset()
-    wchar_t drive[4] = L"\0\0\0";
+    wchar_t *dll_point = NULL;
     int i = 0;
     DWORD sz = 0; 
     HMODULE dll = 0;
@@ -66,16 +66,14 @@ static ENTRYPROC load_launcher_dll() {
     }
 
     while (sz > 0) {
-        if (buf[sz] == L'\\' || buf[sz] == L'/') break;
+        if (buf[sz] == L'\\' || buf[sz] == L'/') { dll_point = buf + sz + 1; break; }
         sz--;
     }
-    if (sz <= 0) {
+    if (dll_point == NULL) {
         show_error(L"Executable path has no path separators", L"", 1);
         return NULL;
     }
-    buf[sz+1] = L'a'; buf[sz+2] = L'p'; buf[sz+3] = L'p'; buf[sz+4] = L'\\';
-    buf[sz+5] = L'D'; buf[sz+6] = L'L'; buf[sz+7] = L'L'; buf[sz+8] = L's';
-    buf[sz+9] = 0; buf[sz+10] = 0;
+    wsprintf(dll_point, L"%s\0\0", L"app\\DLLs");
     if (SetDllDirectoryW(buf) == 0) {
         show_last_error(L"Failed to set DLL directory");
         return NULL;
