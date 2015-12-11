@@ -508,9 +508,13 @@ class Win32Freeze(Command, WixMixIn):
 
     def sign_installers(self):
         self.info('Signing installers...')
-        files = glob.glob(self.j('dist', '*.msi')) + glob.glob(self.j('dist',
-                                                                      '*.exe'))
-        if not files:
+        installers = set()
+        for f in glob.glob(self.j('dist', '*')):
+            if f.rpartition('.')[-1].lower() in {'exe', 'msi'}:
+                installers.add(f)
+            else:
+                os.remove(f)
+        if not installers:
             raise ValueError('No installers found')
         args = ['signtool.exe', 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
             'calibre - E-book management', '/du',
@@ -519,7 +523,7 @@ class Win32Freeze(Command, WixMixIn):
         def runcmd(cmd):
             for timeserver in ('http://sha256timestamp.ws.symantec.com/sha256/timestamp', 'http://timestamp.comodoca.com/rfc3161',):
                 try:
-                    subprocess.check_call(cmd + [timeserver] + files)
+                    subprocess.check_call(cmd + [timeserver] + list(installers))
                     break
                 except subprocess.CalledProcessError:
                     print ('Signing failed, retrying with different timestamp server')
