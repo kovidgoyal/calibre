@@ -105,6 +105,12 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
         if p.wait() != 0:
             return raw
         else:
+            try:
+                sz = os.path.getsize(outfile)
+            except EnvironmentError:
+                sz = 0
+            if sz < 1:
+                return raw
             shutil.copystat(file_path, outfile)
             atomic_rename(outfile, file_path)
     finally:
