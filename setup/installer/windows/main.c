@@ -98,13 +98,14 @@ static ENTRYPROC load_launcher_dll() {
 int __stdcall start_here() {
     int ret = 0;
     ENTRYPROC entrypoint = load_launcher_dll();
-    if (!entrypoint) return 1;
+    if (entrypoint) {
 #ifdef GUI_APP
-    // This should really be returning the value set in the WM_QUIT message, but I cannot be bothered figuring out how to get that.
-    entrypoint(BASENAME, MODULE, FUNCTION, 1);
+        // This should really be returning the value set in the WM_QUIT message, but I cannot be bothered figuring out how to get that.
+        entrypoint(BASENAME, MODULE, FUNCTION, 1);
 #else
-    ret = entrypoint(BASENAME, MODULE, FUNCTION, 0);
+        ret = entrypoint(BASENAME, MODULE, FUNCTION, 0);
 #endif
+    } else ret = 1;
     ExitProcess(ret);
     return ret;
 }
