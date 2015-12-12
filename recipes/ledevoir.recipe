@@ -9,8 +9,6 @@ __description__   = 'Canadian Paper '
 http://www.ledevoir.com/
 '''
 
-import re
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ledevoir(BasicNewsRecipe):
@@ -36,17 +34,14 @@ class ledevoir(BasicNewsRecipe):
     compress_news_images = True
     compress_news_images_auto_size = 4
 
-    filterDuplicates = False
     url_list = []
 
     remove_javascript     = True
     no_stylesheets        = True
 
-    preprocess_regexps = [(re.compile(r'(title|alt)=".*?>.*?"', re.DOTALL), lambda m: '')]
-
     keep_only_tags  = [
-                        #dict(name='div', attrs={'id':'article_detail'}),
-                        #dict(name='div', attrs={'id':'colonne_principale'}),
+                        # dict(name='div', attrs={'id':'article_detail'}),
+                        # dict(name='div', attrs={'id':'colonne_principale'}),
                         dict(name='article', attrs={'id':'article', 'class':'clearfix'}),
                         dict(name='article', attrs={'id':'article', 'class':'clearfix portrait'})
                     ]
@@ -83,57 +78,12 @@ class ledevoir(BasicNewsRecipe):
                        (u'Art de vivre', 'http://www.ledevoir.com/rss/section/art-de-vivre.xml?id=50')
                      ]
 
-    extra_css = '''
-                h1 {color:#1C1E7C;font-family:Times,Georgia,serif;font-size:1.85em;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:bold;line-height:1.2em;margin:0 0 5px;}
-                h2 {color:#333333;font-family:Times,Georgia,serif;font-size:1.5em;font-size-adjust:none;font-stretch:normal;font-style:normal;font-variant:normal;font-weight:normal;line-height:1.2em;margin:0 0 5px;}
-                h3 {color:#4D4D4D;font-family:Arial,Helvetica,sans-serif; font-size:15px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px;}
-                h4 {color:#333333; font-family:Arial,Helvetica,sans-serif;font-size:13px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; }
-                h5 {color:#333333; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; line-height:14px; text-transform:uppercase;}
-                .specs {line-height:1em;margin:1px 0;}
-                .specs span.auteur {font:0.85em/1.1em Arial, Verdana, sans-serif;color:#787878;}
-                .specs span.auteur a,
-                .specs span.auteur span {text-transform:uppercase;color:#787878;}
-                .specs .date {font:0.85em/1.1em Arial, Verdana, sans-serif;color:#787878;}
-                ul#ariane {list-style-type:none;margin:0;padding:5px 0 8px 0;font:0.85em/1.2em Arial, Verdana, sans-serif;color:#2E2E2E;border-bottom:10px solid #fff;}
-                ul#ariane li {display:inline;}
-                ul#ariane a {color:#2E2E2E;text-decoration:underline;}
-                .credit {color:#787878;font-size:0.71em;line-height:1.1em;font-weight:bold;}
-                .texte {font-size:1.15em;line-height:1.4em;margin-bottom:17px;}
-                '''
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('http://www.ledevoir.com')
-            br.select_form(nr=0)
-            br['login_popup[courriel]'] = self.username
-            br['login_popup[password]'] = self.password
+            br.select_form(nr=1)
+            br['login[courriel]'] = self.username
+            br['login[password]'] = self.password
             br.submit()
         return br
-
-    def print_version(self, url):
-        if self.filterDuplicates:
-            if url in self.url_list:
-                return
-        self.url_list.append(url)
-        return url
-
-'''
-    def postprocess_html(self, soup, first):
-        #process all the images. assumes that the new html has the correct path
-        if first == 0:
-          return soup
-
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
-             iurl = tag['src']
-             img = Image()
-             img.open(iurl)
-        #     width, height = img.size
-        #     print 'img is: ', iurl, 'width is: ', width, 'height is: ', height
-             if img < 0:
-                raise RuntimeError('Out of memory')
-             img.set_compression_quality(30)
-             img.save(iurl)
-        return soup
-'''
-
-
