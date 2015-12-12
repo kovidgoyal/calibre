@@ -1258,7 +1258,7 @@ class StoreAmazonKindleStore(StoreBase):
 
     headquarters = 'US'
     formats = ['KINDLE']
-    affiliate = True
+    affiliate = False
 
 class StoreSonyStore(StoreBase):
     name = 'SONY Reader Store'

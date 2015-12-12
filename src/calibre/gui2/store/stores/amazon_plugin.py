@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 9  # Needed for dynamic plugin loading
+store_version = 10  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
-import random
 from contextlib import closing
 
 from lxml import html
@@ -218,14 +217,9 @@ class AmazonKindleStore(StorePlugin):
         The best (I use the term lightly here) solution is to open Amazon.com
         in the users default browser and set the affiliate id as part of the url.
         '''
-        aff_id = {'tag': 'josbl0e-cpb-20'}
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            aff_id['tag'] = 'calibrebs-20'
-        store_link = 'http://www.amazon.com/Kindle-eBooks/b/?ie=UTF&node=1286228011&ref_=%(tag)s&ref=%(tag)s&tag=%(tag)s&linkCode=ur2&camp=1789&creative=390957' % aff_id  # noqa
+        store_link = 'http://www.amazon.com/Kindle-eBooks'
         if detail_item:
-            aff_id['asin'] = detail_item
-            store_link = 'http://www.amazon.com/dp/%(asin)s/?tag=%(tag)s' % aff_id
+            store_link = 'http://www.amazon.com/dp/%s' % detail_item
         open_url(QUrl(store_link))
 
     def search(self, query, max_results=10, timeout=60):
