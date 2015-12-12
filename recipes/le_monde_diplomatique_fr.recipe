@@ -11,6 +11,11 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.web.feeds import feeds_from_index
 
+def absurl(url):
+    if url.startswith('/'):
+        url = 'http://www.monde-diplomatique.fr' + url
+    return url
+
 class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
     title                  = u'Le Monde diplomatique.fr'
     __author__             = 'Gaëtan Lehmann'
@@ -44,12 +49,11 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
       dict(name='div', attrs={'class':'espace'})]
 
     conversion_options     = {
-                              'comments'        : description
-                             ,'tags'            : category
-                             ,'language'        : language
-                             ,'publisher'       : publisher
-                             ,'linearize_tables': True
-                          }
+        'comments'        : description,
+        'tags'            : category,
+        'publisher'       : publisher,
+        'linearize_tables': True
+    }
 
     remove_empty_feeds     = True
 
@@ -60,45 +64,43 @@ class LeMondeDiplomatiqueSiteWeb(BasicNewsRecipe):
     def parse_index_valise(self):
         articles = []
         soup = self.index_to_soup('http://www.monde-diplomatique.fr/carnet/')
-        cnt = soup.find('ul',attrs={'class':'hermetique liste'})
+        cnt = soup.find('ul',attrs={'class':'liste double'})
         for item in cnt.findAll('li'):
             description = ''
-            feed_link = item.find('a')
+            feed_link = item.find('a', href=True)
+            title = self.tag_to_string(item.find('h3'))
             desc = item.find('div',attrs={'class':'intro'})
             date = item.find('div',attrs={'class':'dates_auteurs'})
             if desc:
                 description = desc.string
-            if feed_link and feed_link.has_key('href'):
-                url   = 'http://www.monde-diplomatique.fr' + feed_link['href']
-                title = self.tag_to_string(feed_link)
+            if feed_link:
                 articles.append({
-                                  'title'      :title
-                                 ,'date'       :date.string.strip()
-                                 ,'url'        :url
-                                 ,'description':description
-                                })
+                    'title'      :title,
+                    'date'       :self.tag_to_string(date),
+                    'url'        :absurl(feed_link['href']),
+                    'description':description
+                })
         return [("La valise diplomatique", articles)]
 
     def parse_index_cartes(self):
         articles = []
         soup = self.index_to_soup('http://www.monde-diplomatique.fr/cartes/')
-        cnt = soup.find('div',attrs={'class':'decale hermetique'})
-        for item in cnt.findAll('div',attrs={'class':re.compile('grid_3 filet hombre_demi')}):
-            feed_link = item.find('a',attrs={'class':'couve'})
-            h3 = item.find('h3')
-            authorAndDate = item.find('div',attrs={'class':'dates_auteurs'})
-            author_date = authorAndDate.string.strip().split(', ')
+        cnt = soup.find('ul',attrs={'class':'liste_vignettes hautcartes'})
+        for li in cnt.findAll('li'):
+            feed_link = li.find('a', href=True)
+            h3 = li.find('h3')
+            authorAndDate = li.find('div',attrs={'class':'dates_auteurs'})
+            author_date = self.tag_to_string(authorAndDate).split(', ')
             author = author_date[0]
             date = author_date[-1]
-            if feed_link and feed_link.has_key('href'):
-                url   = 'http://www.monde-diplomatique.fr' + feed_link['href']
+            if feed_link:
                 title = self.tag_to_string(h3)
                 articles.append({
-                                  'title'      :title
-                                 ,'date'       :date
-                                 ,'url'        :url
-                                 ,'description': author
-                                })
+                    'title'      :title,
+                    'date'       :date,
+                    'url'        :absurl(feed_link['href']),
+                    'description': author
+                })
         return [("Cartes", articles)]
 
     def parse_feeds(self):
