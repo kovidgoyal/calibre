@@ -9,7 +9,7 @@ from functools import partial
 from threading import Thread, Event
 from Queue import Queue, Empty
 
-from calibre import detect_ncpus, human_readable
+from calibre import detect_ncpus, human_readable, force_unicode, filesystem_encoding
 
 class Worker(Thread):
 
@@ -82,6 +82,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, progr
     queue.join()
     before_total = after_total = 0
     for name, (ok, res) in results.iteritems():
+        name = force_unicode(name, filesystem_encoding)
         if ok:
             before, after = res
             if before != after:

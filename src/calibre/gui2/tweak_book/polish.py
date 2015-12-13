@@ -15,7 +15,7 @@ from PyQt5.Qt import (
     QProgressBar, pyqtSignal
 )
 
-from calibre import human_readable, fit_image
+from calibre import human_readable, fit_image, force_unicode
 from calibre.ebooks.oeb.polish.main import CUSTOMIZATION
 from calibre.gui2.tweak_book import tprefs, current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog
@@ -56,7 +56,8 @@ def get_customization(action, name, parent):
 
 def format_report(title, report):
     from calibre.ebooks.markdown import markdown
-    return markdown('# %s\n\n'%title + '\n\n'.join(report), output_format='html4')
+    report = [force_unicode(line) for line in report]
+    return markdown('# %s\n\n'%force_unicode(title) + '\n\n'.join(report), output_format='html4')
 
 def show_report(changed, title, report, parent, show_current_diff):
     report = format_report(title, report)
