@@ -13,7 +13,7 @@ from calibre.gui2 import error_dialog
 class ShowTemplateTesterAction(InterfaceAction):
 
     name = 'Template tester'
-    action_spec = (_('Template tester'), 'debug.png', None, '')
+    action_spec = (_('Template tester'), 'debug.png', None, ())
     dont_add_to = frozenset(['context-menu-device'])
     action_type = 'current'
 
