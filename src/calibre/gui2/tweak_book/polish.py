@@ -61,6 +61,7 @@ def format_report(title, report):
 def show_report(changed, title, report, parent, show_current_diff):
     report = format_report(title, report)
     d = QDialog(parent)
+    d.setWindowTitle(_('Action report'))
     d.l = QVBoxLayout()
     d.setLayout(d.l)
     d.e = QTextBrowser(d)
