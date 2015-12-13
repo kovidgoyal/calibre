@@ -12,6 +12,7 @@ from io import BytesIO
 
 from calibre.constants import iswindows
 from calibre.db.tests.base import BaseTest
+from calibre.ptempfile import TemporaryDirectory
 
 class FilesystemTest(BaseTest):
 
@@ -142,3 +143,11 @@ class FilesystemTest(BaseTest):
         cache.set_field('title', {3:title})
         fpath = cache.format_abspath(3, 'TXT')
         self.assertEqual(sorted([os.path.basename(fpath)]), sorted(os.listdir(os.path.dirname(fpath))))
+
+    def test_export_import(self):
+        from calibre.utils.exim import Exporter
+        cache = self.init_cache()
+        for part_size in (1024, 100, 1):
+            with TemporaryDirectory('export_lib') as tdir:
+                exporter = Exporter(tdir, part_size=part_size)
+                cache.export_library('l', exporter)

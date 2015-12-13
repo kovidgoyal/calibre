@@ -1295,7 +1295,7 @@ class DB(object):
         except EnvironmentError:
             pass  # Cover doesn't exist
 
-    def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False):
+    def copy_cover_to(self, path, dest, windows_atomic_move=None, use_hardlink=False, report_file_size=None):
         path = os.path.abspath(os.path.join(self.library_path, path, 'cover.jpg'))
         if windows_atomic_move is not None:
             if not isinstance(dest, basestring):
@@ -1318,6 +1318,10 @@ class DB(object):
 
                 with f:
                     if hasattr(dest, 'write'):
+                        if report_file_size is not None:
+                            f.seek(0, os.SEEK_END)
+                            report_file_size(f.tell())
+                            f.seek(0)
                         shutil.copyfileobj(f, dest)
                         if hasattr(dest, 'flush'):
                             dest.flush()
@@ -1375,7 +1379,7 @@ class DB(object):
                 save_cover_data_to(data, path)
 
     def copy_format_to(self, book_id, fmt, fname, path, dest,
-                       windows_atomic_move=None, use_hardlink=False):
+                       windows_atomic_move=None, use_hardlink=False, report_file_size=None):
         path = self.format_abspath(book_id, fmt, fname, path)
         if path is None:
             return False
@@ -1396,6 +1400,10 @@ class DB(object):
         else:
             if hasattr(dest, 'write'):
                 with lopen(path, 'rb') as f:
+                    if report_file_size is not None:
+                        f.seek(0, os.SEEK_END)
+                        report_file_size(f.tell())
+                        f.seek(0)
                     shutil.copyfileobj(f, dest)
                 if hasattr(dest, 'flush'):
                     dest.flush()
@@ -1723,4 +1731,17 @@ class DB(object):
         self.execute('UPDATE books SET path=? WHERE id=?', (path.replace(os.sep, '/'), book_id))
         vals = [(book_id, fmt, size, name) for fmt, size, name in formats]
         self.executemany('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)', vals)
+
+    def backup_database(self, path):
+        # We have to open a new connection to self.dbpath, until this issue is fixed:
+        # https://github.com/rogerbinns/apsw/issues/199
+        dest_db = apsw.Connection(path)
+        source = apsw.Connection(self.dbpath)
+        with dest_db.backup('main', source, 'main') as b:
+            while not b.done:
+                b.step(100)
+        source.close()
+        dest_db.cursor().execute('DELETE FROM metadata_dirtied; VACUUM;')
+        dest_db.close()
+
     # }}}

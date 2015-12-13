@@ -684,7 +684,7 @@ class Cache(object):
         return self.backend.cover_last_modified(path)
 
     @read_api
-    def copy_cover_to(self, book_id, dest, use_hardlink=False):
+    def copy_cover_to(self, book_id, dest, use_hardlink=False, report_file_size=None):
         '''
         Copy the cover to the file like object ``dest``. Returns False
         if no cover exists or dest is the same file as the current cover.
@@ -697,11 +697,11 @@ class Cache(object):
         except AttributeError:
             return False
 
-        return self.backend.copy_cover_to(path, dest,
-                                              use_hardlink=use_hardlink)
+        return self.backend.copy_cover_to(path, dest, use_hardlink=use_hardlink,
+                                          report_file_size=report_file_size)
 
     @read_api
-    def copy_format_to(self, book_id, fmt, dest, use_hardlink=False):
+    def copy_format_to(self, book_id, fmt, dest, use_hardlink=False, report_file_size=None):
         '''
         Copy the format ``fmt`` to the file like object ``dest``. If the
         specified format does not exist, raises :class:`NoSuchFormat` error.
@@ -717,7 +717,7 @@ class Cache(object):
             raise NoSuchFormat('Record %d has no %s file'%(book_id, fmt))
 
         return self.backend.copy_format_to(book_id, fmt, name, path, dest,
-                                               use_hardlink=use_hardlink)
+                                               use_hardlink=use_hardlink, report_file_size=report_file_size)
 
     @read_api
     def format_abspath(self, book_id, fmt):
@@ -2096,4 +2096,37 @@ class Cache(object):
             if report_progress is not None:
                 report_progress(i+1, len(book_ids), mi)
 
+    @read_api
+    def export_library(self, library_key, exporter, progress=None):
+        from binascii import hexlify
+        key_prefix = hexlify(library_key)
+        book_ids = self._all_book_ids()
+        total = len(book_ids) + 1
+        format_metadata = {}
+        if progress is not None:
+            progress('metadata.db', 0, total)
+        pt = PersistentTemporaryFile('-export.db')
+        pt.close()
+        self.backend.backup_database(pt.name)
+        dbkey = key_prefix + ':::' + 'metadata.db'
+        with lopen(pt.name, 'rb') as f:
+            exporter.add_file(f, dbkey)
+        os.remove(pt.name)
+        metadata = {'format_data':format_metadata, 'metadata.db':dbkey}
+        for i, book_id in enumerate(book_ids):
+            if progress is not None:
+                progress(self._field_for('title', book_id), i + 1, total)
+            format_metadata[book_id] = {}
+            for fmt in self._formats(book_id):
+                key = '%s:%s:%s' % (key_prefix, book_id, fmt)
+                format_metadata[book_id][fmt] = key
+                with exporter.start_file(key) as dest:
+                    self._copy_format_to(book_id, fmt, dest, report_file_size=dest.ensure_space)
+            cover_key = '%s:%s:%s' % (key_prefix, book_id, '.cover')
+            with exporter.start_file(cover_key) as dest:
+                if not self.copy_cover_to(book_id, dest, report_file_size=dest.ensure_space):
+                    dest.discard()
+        exporter.set_metadata(library_key, metadata)
+        if progress is not None:
+            progress(_('Completed'), total, total)
     # }}}
