@@ -86,7 +86,8 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
                 cwd = cwd.encode('mbcs')
         stdin = subprocess.PIPE if as_filter else None
         stderr = subprocess.PIPE if as_filter else subprocess.STDOUT
-        p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=stderr, stdin=stdin)
+        creationflags = 0x08 if iswindows else 0
+        p = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=stderr, stdin=stdin, creationflags=creationflags)
         stderr = p.stderr if as_filter else p.stdout
         if as_filter:
             src = input_data or open(file_path, 'rb')
