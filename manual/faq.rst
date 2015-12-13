@@ -481,7 +481,7 @@ antivirus program.
 
 .. note::
     Microsoft/Google/Gmx can disable your account if you use it to send large
-    amounts of email. So, when using Hotmail/Gmail to send mail calibre automatically
+    amounts of email. So, when using these services to send mail calibre automatically
     restricts itself to sending one book every five minutes. If you don't mind
     risking your account being blocked you can reduce this wait interval by going
     to Preferences->Tweaks in calibre.
