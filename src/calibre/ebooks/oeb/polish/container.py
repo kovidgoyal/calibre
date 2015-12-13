@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, logging, sys, hashlib, uuid, re, shutil, unicodedata, errno
+import os, logging, sys, hashlib, uuid, re, shutil, unicodedata, errno, time
 from collections import defaultdict
 from io import BytesIO
 from urlparse import urlparse
@@ -17,6 +17,7 @@ from lxml import etree
 from cssutils import replaceUrls, getUrls
 
 from calibre import CurrentDir
+from calibre.constants import iswindows
 from calibre.customize.ui import (plugin_for_input_format, plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
@@ -878,7 +879,13 @@ class Container(object):  # {{{
                 # Decouple this file from its links
                 temp = path + 'xxx'
                 shutil.copyfile(path, temp)
-                os.unlink(path)
+                try:
+                    os.unlink(path)
+                except EnvironmentError:
+                    if not iswindows:
+                        raise
+                    time.sleep(1)  # Wait for whatever has locked the file to release it
+                    os.unlink(path)
                 os.rename(temp, path)
         return path
 
