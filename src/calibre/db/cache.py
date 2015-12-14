@@ -1320,6 +1320,24 @@ class Cache(object):
             self._reload_from_db()
             raise
 
+    def _do_add_format(self, book_id, fmt, stream, name=None):
+        path = self._field_for('path', book_id)
+        if path is None:
+            # Theoretically, this should never happen, but apparently it
+            # does: http://www.mobileread.com/forums/showthread.php?t=233353
+            self._update_path({book_id}, mark_as_dirtied=False)
+            path = self._field_for('path', book_id)
+
+        path = path.replace('/', os.sep)
+        title = self._field_for('title', book_id, default_value=_('Unknown'))
+        try:
+            author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
+        except IndexError:
+            author = _('Unknown')
+
+        size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name)
+        return size, fname
+
     @api
     def add_format(self, book_id, fmt, stream_or_path, replace=True, run_hooks=True, dbapi=None):
         '''
@@ -1343,28 +1361,14 @@ class Cache(object):
             self.format_metadata_cache[book_id].pop(fmt, None)
             try:
                 name = self.fields['formats'].format_fname(book_id, fmt)
-            except:
+            except Exception:
                 name = None
 
             if name and not replace:
                 return False
 
-            path = self._field_for('path', book_id)
-            if path is None:
-                # Theoretically, this should never happen, but apparently it
-                # does: http://www.mobileread.com/forums/showthread.php?t=233353
-                self._update_path({book_id}, mark_as_dirtied=False)
-                path = self._field_for('path', book_id)
-
-            path = path.replace('/', os.sep)
-            title = self._field_for('title', book_id, default_value=_('Unknown'))
-            try:
-                author = self._field_for('authors', book_id, default_value=(_('Unknown'),))[0]
-            except IndexError:
-                author = _('Unknown')
             stream = stream_or_path if hasattr(stream_or_path, 'read') else lopen(stream_or_path, 'rb')
-
-            size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name)
+            size, fname = self._do_add_format(book_id, fmt, stream, name)
             del stream
 
             max_size = self.fields['formats'].table.update_fmt(book_id, fmt, fname, size, self.backend)
@@ -2112,7 +2116,7 @@ class Cache(object):
         with lopen(pt.name, 'rb') as f:
             exporter.add_file(f, dbkey)
         os.remove(pt.name)
-        metadata = {'format_data':format_metadata, 'metadata.db':dbkey}
+        metadata = {'format_data':format_metadata, 'metadata.db':dbkey, 'total':total}
         for i, book_id in enumerate(book_ids):
             if progress is not None:
                 progress(self._field_for('title', book_id), i + 1, total)
@@ -2126,7 +2130,43 @@ class Cache(object):
             with exporter.start_file(cover_key) as dest:
                 if not self.copy_cover_to(book_id, dest, report_file_size=dest.ensure_space):
                     dest.discard()
+                else:
+                    format_metadata[book_id]['.cover'] = cover_key
         exporter.set_metadata(library_key, metadata)
+        exporter.commit()
         if progress is not None:
             progress(_('Completed'), total, total)
-    # }}}
+
+def import_library(library_key, importer, library_path, progress=None):
+    from calibre.db.backend import DB
+    metadata = importer.metadata[library_key]
+    total = metadata['total']
+    if progress is not None:
+        progress('metadata.db', 0, total)
+    with open(os.path.join(library_path, 'metadata.db'), 'wb') as f:
+        src = importer.start_file(metadata['metadata.db'], 'metadata.db for ' + library_path)
+        shutil.copyfileobj(src, f)
+        src.close()
+    cache = Cache(DB(library_path, load_user_formatter_functions=False))
+    cache.init()
+    format_data = {int(book_id):data for book_id, data in metadata['format_data'].iteritems()}
+    cache._update_path(set(format_data), mark_as_dirtied=False)
+    for i, (book_id, fmt_key_map) in enumerate(format_data.iteritems()):
+        title = cache._field_for('title', book_id)
+        if progress is not None:
+            progress(title, i + 1, total)
+        for fmt, fmtkey in fmt_key_map.iteritems():
+            if fmt == '.cover':
+                stream = importer.start_file(fmtkey, _('Cover for %s') % title)
+                path = cache._field_for('path', book_id).replace('/', os.sep)
+                cache.backend.set_cover(book_id, path, stream, no_processing=True)
+            else:
+                stream = importer.start_file(fmtkey, _('{0} format for {1}').format(fmt.upper(), title))
+                size, fname = cache._do_add_format(book_id, fmt, stream)
+                cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
+            stream.close()
+        cache.dump_metadata({book_id})
+    if progress is not None:
+        progress(_('Completed'), total, total)
+    return cache
+# }}}

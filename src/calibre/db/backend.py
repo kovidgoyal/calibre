@@ -1354,7 +1354,7 @@ class DB(object):
         with f:
             return True, f.read(), stat.st_mtime
 
-    def set_cover(self, book_id, path, data):
+    def set_cover(self, book_id, path, data, no_processing=False):
         path = os.path.abspath(os.path.join(self.library_path, path))
         if not os.path.exists(path):
             os.makedirs(path)
@@ -1372,11 +1372,15 @@ class DB(object):
                     time.sleep(0.2)
                     os.remove(path)
         else:
-            try:
-                save_cover_data_to(data, path)
-            except (IOError, OSError):
-                time.sleep(0.2)
-                save_cover_data_to(data, path)
+            if no_processing:
+                with open(path, 'wb') as f:
+                    f.write(data)
+            else:
+                try:
+                    save_cover_data_to(data, path)
+                except (IOError, OSError):
+                    time.sleep(0.2)
+                    save_cover_data_to(data, path)
 
     def copy_format_to(self, book_id, fmt, fname, path, dest,
                        windows_atomic_move=None, use_hardlink=False, report_file_size=None):

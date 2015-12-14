@@ -145,9 +145,17 @@ class FilesystemTest(BaseTest):
         self.assertEqual(sorted([os.path.basename(fpath)]), sorted(os.listdir(os.path.dirname(fpath))))
 
     def test_export_import(self):
-        from calibre.utils.exim import Exporter
+        from calibre.db.cache import import_library
+        from calibre.utils.exim import Exporter, Importer
         cache = self.init_cache()
-        for part_size in (1024, 100, 1):
-            with TemporaryDirectory('export_lib') as tdir:
+        for part_size in (1 << 30, 100, 1):
+            with TemporaryDirectory('export_lib') as tdir, TemporaryDirectory('import_lib') as idir:
                 exporter = Exporter(tdir, part_size=part_size)
                 cache.export_library('l', exporter)
+                importer = Importer(tdir)
+                ic = import_library('l', importer, idir)
+                self.assertEqual(cache.all_book_ids(), ic.all_book_ids())
+                for book_id in cache.all_book_ids():
+                    self.assertEqual(cache.cover(book_id), ic.cover(book_id), 'Covers not identical for book: %d' % book_id)
+                    for fmt in cache.formats(book_id):
+                        self.assertEqual(cache.format(book_id, fmt), ic.format(book_id, fmt))

@@ -58,6 +58,7 @@ class Exporter(object):
     VERSION = 1
     TAIL_FMT = b'!II?'  # part_num, version, is_last
     MDATA_SZ_FMT = b'!Q'
+    EXT = '.calibre-data'
 
     def __init__(self, path_to_export_dir, part_size=(1 << 30)):
         self.part_size = part_size
@@ -78,7 +79,7 @@ class Exporter(object):
 
     def new_part(self):
         self.parts.append(open(os.path.join(
-            self.base, 'part-{:04d}.calibre-data'.format(len(self.parts) + 1)), 'wb'))
+            self.base, 'part-{:04d}{}'.format(len(self.parts) + 1, self.EXT)), 'wb'))
 
     def commit_part(self, is_last=False):
         self.f.write(struct.pack(self.TAIL_FMT, len(self.parts), self.VERSION, is_last))
@@ -112,3 +113,74 @@ class Exporter(object):
 
     def start_file(self, key):
         return FileDest(key, self)
+
+class FileSource(object):
+
+    def __init__(self, f, size, digest, description, importer):
+        self.f, self.size, self.digest, self.description = f, size, digest, description
+        self.end = f.tell() + size
+        self.hasher = hashlib.sha1()
+        self.importer = importer
+
+    def read(self, size=None):
+        if size is not None and size < 1:
+            return b''
+        left = self.end - self.f.tell()
+        amt = min(left, size or left)
+        if amt < 1:
+            return b''
+        ans = self.f.read(amt)
+        self.hasher.update(ans)
+        return ans
+
+    def close(self):
+        if self.hasher.hexdigest() != self.digest:
+            self.importer.corrupted_files.append(self.description)
+        self.hasher = self.f = None
+
+class Importer(object):
+
+    def __init__(self, path_to_export_dir):
+        self.corrupted_files = []
+        part_map = {}
+        tail_size = struct.calcsize(Exporter.TAIL_FMT)
+        for name in os.listdir(path_to_export_dir):
+            if name.lower().endswith(Exporter.EXT):
+                path = os.path.join(path_to_export_dir, name)
+                with open(path, 'rb') as f:
+                    f.seek(-tail_size, os.SEEK_END)
+                    raw = f.read()
+                if len(raw) != tail_size:
+                    raise ValueError('The exported data in %s is not valid, tail too small' % name)
+                part_num, version, is_last = struct.unpack(Exporter.TAIL_FMT, raw)
+                if version > Exporter.VERSION:
+                    raise ValueError('The exported data in %s is not valid, version (%d) is higher than maximum supported version.' % (
+                        name, version))
+                part_map[part_num] =  path, is_last
+        nums = sorted(part_map)
+        if not nums:
+            raise ValueError('No exported data found in: %s' % path_to_export_dir)
+        if nums[0] != 1:
+            raise ValueError('The first part of this exported data set is missing')
+        if not part_map[nums[-1]][1]:
+            raise ValueError('The last part of this exported data set is missing')
+        if len(nums) != nums[-1]:
+            raise ValueError('There are some parts of the exported data set missing')
+        self.part_map = {num:path for num, (path, is_last) in part_map.iteritems()}
+        msf = struct.calcsize(Exporter.MDATA_SZ_FMT)
+        offset = tail_size + msf
+        with self.part(nums[-1]) as f:
+            f.seek(-offset, os.SEEK_END)
+            sz, = struct.unpack(Exporter.MDATA_SZ_FMT, f.read(msf))
+            f.seek(- sz - offset, os.SEEK_END)
+            self.metadata = json.loads(f.read(sz))
+            self.file_metadata = self.metadata['file_metadata']
+
+    def part(self, num):
+        return lopen(self.part_map[num], 'rb')
+
+    def start_file(self, key, description):
+        partnum, pos, size, digest = self.file_metadata[key]
+        f = self.part(partnum)
+        f.seek(pos)
+        return FileSource(f, size, digest, description, self)
