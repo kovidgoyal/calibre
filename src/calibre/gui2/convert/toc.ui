@@ -68,7 +68,7 @@
    <item row="7" column="0">
     <widget class="QLabel" name="label_16">
      <property name="text">
-      <string>Chapter &amp;threshold</string>
+      <string>Chapter &amp;threshold:</string>
      </property>
      <property name="buddy">
       <cstring>opt_toc_threshold</cstring>
