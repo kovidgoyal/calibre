@@ -152,6 +152,7 @@ class FilesystemTest(BaseTest):
             with TemporaryDirectory('export_lib') as tdir, TemporaryDirectory('import_lib') as idir:
                 exporter = Exporter(tdir, part_size=part_size)
                 cache.export_library('l', exporter)
+                exporter.commit()
                 importer = Importer(tdir)
                 ic = import_library('l', importer, idir)
                 self.assertEqual(cache.all_book_ids(), ic.all_book_ids())
@@ -159,3 +160,4 @@ class FilesystemTest(BaseTest):
                     self.assertEqual(cache.cover(book_id), ic.cover(book_id), 'Covers not identical for book: %d' % book_id)
                     for fmt in cache.formats(book_id):
                         self.assertEqual(cache.format(book_id, fmt), ic.format(book_id, fmt))
+                        self.assertEqual(cache.format_metadata(book_id, fmt)['mtime'], cache.format_metadata(book_id, fmt)['mtime'])

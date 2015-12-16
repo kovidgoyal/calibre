@@ -1320,7 +1320,7 @@ class Cache(object):
             self._reload_from_db()
             raise
 
-    def _do_add_format(self, book_id, fmt, stream, name=None):
+    def _do_add_format(self, book_id, fmt, stream, name=None, mtime=None):
         path = self._field_for('path', book_id)
         if path is None:
             # Theoretically, this should never happen, but apparently it
@@ -1335,7 +1335,7 @@ class Cache(object):
         except IndexError:
             author = _('Unknown')
 
-        size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name)
+        size, fname = self.backend.add_format(book_id, fmt, stream, title, author, path, name, mtime=mtime)
         return size, fname
 
     @api
@@ -2122,9 +2122,10 @@ class Cache(object):
                 progress(self._field_for('title', book_id), i + 1, total)
             format_metadata[book_id] = {}
             for fmt in self._formats(book_id):
+                mdata = self.format_metadata(book_id, fmt)
                 key = '%s:%s:%s' % (key_prefix, book_id, fmt)
                 format_metadata[book_id][fmt] = key
-                with exporter.start_file(key) as dest:
+                with exporter.start_file(key, mtime=mdata.get('mtime')) as dest:
                     self._copy_format_to(book_id, fmt, dest, report_file_size=dest.ensure_space)
             cover_key = '%s:%s:%s' % (key_prefix, book_id, '.cover')
             with exporter.start_file(cover_key) as dest:
@@ -2133,7 +2134,6 @@ class Cache(object):
                 else:
                     format_metadata[book_id]['.cover'] = cover_key
         exporter.set_metadata(library_key, metadata)
-        exporter.commit()
         if progress is not None:
             progress(_('Completed'), total, total)
 
@@ -2162,7 +2162,7 @@ def import_library(library_key, importer, library_path, progress=None):
                 cache.backend.set_cover(book_id, path, stream, no_processing=True)
             else:
                 stream = importer.start_file(fmtkey, _('{0} format for {1}').format(fmt.upper(), title))
-                size, fname = cache._do_add_format(book_id, fmt, stream)
+                size, fname = cache._do_add_format(book_id, fmt, stream, mtime=stream.mtime)
                 cache.fields['formats'].table.update_fmt(book_id, fmt, fname, size, cache.backend)
             stream.close()
         cache.dump_metadata({book_id})

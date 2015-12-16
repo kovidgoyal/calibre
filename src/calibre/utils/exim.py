@@ -4,7 +4,15 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import os, json, struct, hashlib
+import os, json, struct, hashlib, sys
+from binascii import hexlify
+
+from calibre.constants import config_dir
+from calibre.utils.config import prefs
+from calibre.utils.filenames import samefile
+
+
+# Export {{{
 
 def send_file(from_obj, to_obj, chunksize=1<<20):
     m = hashlib.sha1()
@@ -18,11 +26,12 @@ def send_file(from_obj, to_obj, chunksize=1<<20):
 
 class FileDest(object):
 
-    def __init__(self, key, exporter):
+    def __init__(self, key, exporter, mtime=None):
         self.exporter, self.key = exporter, key
         self.hasher = hashlib.sha1()
         self.start_pos = exporter.f.tell()
         self._discard = False
+        self.mtime = None
 
     def discard(self):
         self._discard = True
@@ -43,7 +52,7 @@ class FileDest(object):
         if not self._discard:
             size = self.exporter.f.tell() - self.start_pos
             digest = type('')(self.hasher.hexdigest())
-            self.exporter.file_metadata[self.key] = (len(self.exporter.parts), self.start_pos, size, digest)
+            self.exporter.file_metadata[self.key] = (len(self.exporter.parts), self.start_pos, size, digest, self.mtime)
         del self.exporter, self.hasher
 
     def __enter__(self):
@@ -87,8 +96,11 @@ class Exporter(object):
         self.parts[-1] = self.f.name
 
     def ensure_space(self, size):
-        if size + self.f.tell() < self.part_size:
-            return
+        try:
+            if size + self.f.tell() < self.part_size:
+                return
+        except AttributeError:
+            raise RuntimeError('This exporter has already been commited, cannot add to it')
         self.commit_part()
         self.new_part()
 
@@ -109,15 +121,82 @@ class Exporter(object):
         pos = self.f.tell()
         digest = send_file(fileobj, self.f)
         size = self.f.tell() - pos
-        self.file_metadata[key] = (len(self.parts), pos, size, digest)
+        mtime = os.fstat(fileobj.fileno()).st_mtime
+        self.file_metadata[key] = (len(self.parts), pos, size, digest, mtime)
 
-    def start_file(self, key):
-        return FileDest(key, self)
+    def start_file(self, key, mtime=None):
+        return FileDest(key, self, mtime=mtime)
+
+    def export_dir(self, path, dir_key):
+        pkey = hexlify(dir_key)
+        self.metadata[dir_key] = files = []
+        for dirpath, dirnames, filenames in os.walk(path):
+            for fname in filenames:
+                fpath = os.path.join(dirpath, fname)
+                rpath = os.path.relpath(fpath, path).replace(os.sep, '/')
+                key = '%s:%s' % (pkey, rpath)
+                with lopen(fpath, 'rb') as f:
+                    self.add_file(f, key)
+                files.append((key, rpath))
+
+def all_known_libraries():
+    from calibre.gui2 import gprefs
+    paths = set(gprefs.get('library_usage_stats', ()))
+    if prefs['library_path']:
+        paths.add(prefs['library_path'])
+    added = set()
+    for path in paths:
+        mdb = os.path.join(path)
+        if os.path.isdir(path) and os.path.exists(mdb):
+            seen = False
+            for c in added:
+                if samefile(mdb, c):
+                    seen = True
+                    break
+            if not seen:
+                added.add(path)
+    return added
+
+def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None):
+    from calibre.db.cache import Cache
+    from calibre.db.backend import DB
+    if library_paths is None:
+        library_paths = all_known_libraries()
+    dbmap = dbmap or {}
+    dbmap = {os.path.normace(os.path.abspath(k)):v for k, v in dbmap.iteritems()}
+    exporter = Exporter(destdir)
+    exporter.metadata['libraries'] = libraries = []
+    total = len(library_paths) + 2
+    for i, lpath in enumerate(library_paths):
+        if progress1 is not None:
+            progress1(i + 1, total, lpath)
+        key = os.path.normcase(os.path.abspath(lpath))
+        db, closedb = dbmap.get(lpath), False
+        if db is None:
+            db = Cache(DB(lpath, load_user_formatter_functions=False))
+            db.init()
+            closedb = True
+        else:
+            db = db.new_api
+        db.export_library(key, exporter, progress=progress2)
+        if closedb:
+            db.close()
+        libraries.append(key)
+    if progress1 is not None:
+        progress1(total - 1, total, _('Settings and plugins'))
+    exporter.export_dir(config_dir, 'config_dir')
+    exporter.commit()
+    if progress1 is not None:
+        progress1(total, total, _('Completed'))
+# }}}
+
+# Import {{{
 
 class FileSource(object):
 
-    def __init__(self, f, size, digest, description, importer):
+    def __init__(self, f, size, digest, description, mtime, importer):
         self.f, self.size, self.digest, self.description = f, size, digest, description
+        self.mtime = mtime
         self.end = f.tell() + size
         self.hasher = hashlib.sha1()
         self.importer = importer
@@ -180,7 +259,11 @@ class Importer(object):
         return lopen(self.part_map[num], 'rb')
 
     def start_file(self, key, description):
-        partnum, pos, size, digest = self.file_metadata[key]
+        partnum, pos, size, digest, mtime = self.file_metadata[key]
         f = self.part(partnum)
         f.seek(pos)
-        return FileSource(f, size, digest, description, self)
+        return FileSource(f, size, digest, description, mtime, self)
+# }}}
+
+if __name__ == '__main__':
+    export(sys.argv[-1], progress1=print, progress2=print)

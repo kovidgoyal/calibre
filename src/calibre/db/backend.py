@@ -1446,7 +1446,7 @@ class DB(object):
                         if wam is not None:
                             wam.close_handles()
 
-    def add_format(self, book_id, fmt, stream, title, author, path, current_name):
+    def add_format(self, book_id, fmt, stream, title, author, path, current_name, mtime=None):
         fmt = ('.' + fmt.lower()) if fmt else ''
         fname = self.construct_file_name(book_id, title, author, len(fmt))
         path = os.path.join(self.library_path, path)
@@ -1475,8 +1475,12 @@ class DB(object):
             with lopen(dest, 'wb') as f:
                 shutil.copyfileobj(stream, f)
                 size = f.tell()
+            if mtime is not None:
+                os.utime(dest, (mtime, mtime))
         elif os.path.exists(dest):
             size = os.path.getsize(dest)
+            if mtime is not None:
+                os.utime(dest, (mtime, mtime))
 
         return size, fname
 
