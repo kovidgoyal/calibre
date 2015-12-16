@@ -374,8 +374,8 @@ class ConfigProxy(object):
         return self.__config.get_option(key).help
 
 
-def _prefs():
-    c = Config('global', 'calibre wide preferences')
+def create_global_prefs(conf_obj=None):
+    c = Config('global', 'calibre wide preferences') if conf_obj is None else conf_obj
     c.add_opt('database_path',
               default=os.path.expanduser('~/library1.db'),
               help=_('Path to the database in which books are stored'))
@@ -442,7 +442,7 @@ def _prefs():
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
 
-prefs = ConfigProxy(_prefs())
+prefs = ConfigProxy(create_global_prefs())
 if prefs['installation_uuid'] is None:
     import uuid
     prefs['installation_uuid'] = str(uuid.uuid4())

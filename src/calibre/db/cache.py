@@ -2150,11 +2150,11 @@ def import_library(library_key, importer, library_path, progress=None):
     cache = Cache(DB(library_path, load_user_formatter_functions=False))
     cache.init()
     format_data = {int(book_id):data for book_id, data in metadata['format_data'].iteritems()}
-    cache._update_path(set(format_data), mark_as_dirtied=False)
     for i, (book_id, fmt_key_map) in enumerate(format_data.iteritems()):
         title = cache._field_for('title', book_id)
         if progress is not None:
             progress(title, i + 1, total)
+        cache._update_path((book_id,), mark_as_dirtied=False)
         for fmt, fmtkey in fmt_key_map.iteritems():
             if fmt == '.cover':
                 stream = importer.start_file(fmtkey, _('Cover for %s') % title)

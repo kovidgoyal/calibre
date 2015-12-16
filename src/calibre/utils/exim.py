@@ -4,11 +4,13 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import os, json, struct, hashlib, sys
+import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
 from binascii import hexlify
+from collections import Counter
 
-from calibre.constants import config_dir
-from calibre.utils.config import prefs
+from calibre.constants import config_dir, iswindows
+from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
+from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
 
 
@@ -135,16 +137,24 @@ class Exporter(object):
                 fpath = os.path.join(dirpath, fname)
                 rpath = os.path.relpath(fpath, path).replace(os.sep, '/')
                 key = '%s:%s' % (pkey, rpath)
-                with lopen(fpath, 'rb') as f:
-                    self.add_file(f, key)
+                try:
+                    with lopen(fpath, 'rb') as f:
+                        self.add_file(f, key)
+                except EnvironmentError:
+                    if not iswindows:
+                        raise
+                    time.sleep(1)
+                    with lopen(fpath, 'rb') as f:
+                        self.add_file(f, key)
                 files.append((key, rpath))
 
 def all_known_libraries():
     from calibre.gui2 import gprefs
-    paths = set(gprefs.get('library_usage_stats', ()))
+    lus = gprefs.get('library_usage_stats', ())
+    paths = set(lus)
     if prefs['library_path']:
         paths.add(prefs['library_path'])
-    added = set()
+    added = {}
     for path in paths:
         mdb = os.path.join(path, 'metadata.db')
         if os.path.exists(mdb):
@@ -152,7 +162,7 @@ def all_known_libraries():
                 if samefile(mdb, os.path.join(c, 'metadata.db')):
                     break
             else:
-                added.add(path)
+                added[path] = lus.get(path, 1)
     return added
 
 def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None):
@@ -163,11 +173,11 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
     dbmap = dbmap or {}
     dbmap = {os.path.normace(os.path.abspath(k)):v for k, v in dbmap.iteritems()}
     exporter = Exporter(destdir)
-    exporter.metadata['libraries'] = libraries = []
+    exporter.metadata['libraries'] = libraries = {}
     total = len(library_paths) + 2
-    for i, lpath in enumerate(library_paths):
+    for i, (lpath, count) in enumerate(library_paths.iteritems()):
         if progress1 is not None:
-            progress1(i + 1, total, lpath)
+            progress1(lpath, i + 1, total)
         key = os.path.normcase(os.path.abspath(lpath))
         db, closedb = dbmap.get(lpath), False
         if db is None:
@@ -179,13 +189,13 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
         db.export_library(key, exporter, progress=progress2)
         if closedb:
             db.close()
-        libraries.append(key)
+        libraries[key] = count
     if progress1 is not None:
-        progress1(total - 1, total, _('Settings and plugins'))
+        progress1(_('Settings and plugins'), total-1, total)
     exporter.export_dir(config_dir, 'config_dir')
     exporter.commit()
     if progress1 is not None:
-        progress1(total, total, _('Completed'))
+        progress1(_('Completed'), total, total)
 # }}}
 
 # Import {{{
@@ -261,6 +271,84 @@ class Importer(object):
         f = self.part(partnum)
         f.seek(pos)
         return FileSource(f, size, digest, description, mtime, self)
+
+    def export_config(self, base_dir, library_usage_stats):
+        for key, relpath in self.metadata['config_dir']:
+            f = self.start_file(key, relpath)
+            path = os.path.join(base_dir, relpath.replace('/', os.sep))
+            try:
+                with lopen(path, 'wb') as dest:
+                    shutil.copyfileobj(f, dest)
+            except EnvironmentError:
+                os.makedirs(os.path.dirname(path))
+                with lopen(path, 'wb') as dest:
+                    shutil.copyfileobj(f, dest)
+            f.close()
+        gpath = os.path.join(base_dir, 'global.py')
+        try:
+            with lopen(gpath, 'rb') as f:
+                raw = f.read()
+        except EnvironmentError:
+            raw = b''
+        try:
+            lpath = library_usage_stats.most_common(1)[0][0]
+        except Exception:
+            lpath = None
+        c = create_global_prefs(StringConfig(raw, 'calibre wide preferences'))
+        c.set('installation_uuid', str(uuid.uuid4()))
+        c.set('library_path', lpath)
+        raw = c.src
+        if not isinstance(raw, bytes):
+            raw = raw.encode('utf-8')
+        with lopen(gpath, 'wb') as f:
+            f.write(raw)
+        gprefs = JSONConfig('gui', base_path=base_dir)
+        gprefs['library_usage_stats'] = dict(library_usage_stats)
+
+def import_data(importer, library_path_map, config_location=None, progress1=None, progress2=None):
+    from calibre.db.cache import import_library
+    config_location = config_location or config_dir
+    total = len(library_path_map) + 2
+    library_usage_stats = Counter()
+    for i, (library_key, dest) in enumerate(library_path_map.iteritems()):
+        if progress1 is not None:
+            progress1(dest, i + 1, total)
+        try:
+            os.makedirs(dest)
+        except EnvironmentError as err:
+            if err.errno != errno.EEXIST:
+                raise
+        if not os.path.isdir(dest):
+            raise ValueError('%s is not a directory' % dest)
+        import_library(library_key, importer, dest, progress=progress2).close()
+        library_usage_stats[dest] = importer.metadata['libraries'].get(library_key, 1)
+    if progress1 is not None:
+        progress1(_('Settings and plugins'), total - 1, total)
+
+    base_dir = tempfile.mkdtemp(dir=os.path.dirname(config_location))
+    importer.export_config(base_dir, library_usage_stats)
+    if os.path.exists(config_location):
+        shutil.rmtree(config_location, ignore_errors=True)
+        if os.path.exists(config_location):
+            try:
+                shutil.rmtree(config_location)
+            except EnvironmentError:
+                if not iswindows:
+                    raise
+                time.sleep(1)
+                shutil.rmtree(config_location)
+    os.rename(base_dir, config_location)
+
+    if progress1 is not None:
+        progress1(_('Completed'), total, total)
+
+def test_import(export_dir='/t/ex', import_dir='/t/imp'):
+    importer = Importer(export_dir)
+    if os.path.exists(import_dir):
+        shutil.rmtree(import_dir)
+    os.mkdir(import_dir)
+    import_data(importer, {k:os.path.join(import_dir, os.path.basename(k)) for k in importer.metadata['libraries'] if 'largelib' not in k},
+                config_location=os.path.join(import_dir, 'calibre-config'), progress1=print, progress2=print)
 # }}}
 
 if __name__ == '__main__':
