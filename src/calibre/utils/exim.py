@@ -146,14 +146,12 @@ def all_known_libraries():
         paths.add(prefs['library_path'])
     added = set()
     for path in paths:
-        mdb = os.path.join(path)
-        if os.path.isdir(path) and os.path.exists(mdb):
-            seen = False
+        mdb = os.path.join(path, 'metadata.db')
+        if os.path.exists(mdb):
             for c in added:
-                if samefile(mdb, c):
-                    seen = True
+                if samefile(mdb, os.path.join(c, 'metadata.db')):
                     break
-            if not seen:
+            else:
                 added.add(path)
     return added
 
