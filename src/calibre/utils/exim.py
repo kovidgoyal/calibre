@@ -165,7 +165,7 @@ def all_known_libraries():
                 added[path] = lus.get(path, 1)
     return added
 
-def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None):
+def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None, abort=None):
     from calibre.db.cache import Cache
     from calibre.db.backend import DB
     if library_paths is None:
@@ -174,10 +174,12 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
     dbmap = {os.path.normace(os.path.abspath(k)):v for k, v in dbmap.iteritems()}
     exporter = Exporter(destdir)
     exporter.metadata['libraries'] = libraries = {}
-    total = len(library_paths) + 2
+    total = len(library_paths) + 1
     for i, (lpath, count) in enumerate(library_paths.iteritems()):
+        if abort is not None and abort.is_set():
+            return
         if progress1 is not None:
-            progress1(lpath, i + 1, total)
+            progress1(lpath, i, total)
         key = os.path.normcase(os.path.abspath(lpath))
         db, closedb = dbmap.get(lpath), False
         if db is None:
@@ -186,12 +188,14 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
             closedb = True
         else:
             db = db.new_api
-        db.export_library(key, exporter, progress=progress2)
+        db.export_library(key, exporter, progress=progress2, abort=abort)
         if closedb:
             db.close()
         libraries[key] = count
     if progress1 is not None:
         progress1(_('Settings and plugins'), total-1, total)
+    if abort is not None and abort.is_set():
+        return
     exporter.export_dir(config_dir, 'config_dir')
     exporter.commit()
     if progress1 is not None:
@@ -305,14 +309,16 @@ class Importer(object):
         gprefs = JSONConfig('gui', base_path=base_dir)
         gprefs['library_usage_stats'] = dict(library_usage_stats)
 
-def import_data(importer, library_path_map, config_location=None, progress1=None, progress2=None):
+def import_data(importer, library_path_map, config_location=None, progress1=None, progress2=None, abort=None):
     from calibre.db.cache import import_library
     config_location = config_location or config_dir
-    total = len(library_path_map) + 2
+    total = len(library_path_map) + 1
     library_usage_stats = Counter()
     for i, (library_key, dest) in enumerate(library_path_map.iteritems()):
+        if abort is not None and abort.is_set():
+            return
         if progress1 is not None:
-            progress1(dest, i + 1, total)
+            progress1(dest, i, total)
         try:
             os.makedirs(dest)
         except EnvironmentError as err:
@@ -320,11 +326,13 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
                 raise
         if not os.path.isdir(dest):
             raise ValueError('%s is not a directory' % dest)
-        import_library(library_key, importer, dest, progress=progress2).close()
+        import_library(library_key, importer, dest, progress=progress2, abort=abort).close()
         library_usage_stats[dest] = importer.metadata['libraries'].get(library_key, 1)
     if progress1 is not None:
         progress1(_('Settings and plugins'), total - 1, total)
 
+    if abort is not None and abort.is_set():
+        return
     base_dir = tempfile.mkdtemp(dir=os.path.dirname(config_location))
     importer.export_config(base_dir, library_usage_stats)
     if os.path.exists(config_location):

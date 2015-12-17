@@ -2101,7 +2101,7 @@ class Cache(object):
                 report_progress(i+1, len(book_ids), mi)
 
     @read_api
-    def export_library(self, library_key, exporter, progress=None):
+    def export_library(self, library_key, exporter, progress=None, abort=None):
         from binascii import hexlify
         key_prefix = hexlify(library_key)
         book_ids = self._all_book_ids()
@@ -2118,6 +2118,8 @@ class Cache(object):
         os.remove(pt.name)
         metadata = {'format_data':format_metadata, 'metadata.db':dbkey, 'total':total}
         for i, book_id in enumerate(book_ids):
+            if abort is not None and abort.is_set():
+                return
             if progress is not None:
                 progress(self._field_for('title', book_id), i + 1, total)
             format_metadata[book_id] = {}
@@ -2137,12 +2139,14 @@ class Cache(object):
         if progress is not None:
             progress(_('Completed'), total, total)
 
-def import_library(library_key, importer, library_path, progress=None):
+def import_library(library_key, importer, library_path, progress=None, abort=None):
     from calibre.db.backend import DB
     metadata = importer.metadata[library_key]
     total = metadata['total']
     if progress is not None:
         progress('metadata.db', 0, total)
+    if abort is not None and abort.is_set():
+        return
     with open(os.path.join(library_path, 'metadata.db'), 'wb') as f:
         src = importer.start_file(metadata['metadata.db'], 'metadata.db for ' + library_path)
         shutil.copyfileobj(src, f)
@@ -2151,6 +2155,8 @@ def import_library(library_key, importer, library_path, progress=None):
     cache.init()
     format_data = {int(book_id):data for book_id, data in metadata['format_data'].iteritems()}
     for i, (book_id, fmt_key_map) in enumerate(format_data.iteritems()):
+        if abort is not None and abort.is_set():
+            return
         title = cache._field_for('title', book_id)
         if progress is not None:
             progress(title, i + 1, total)

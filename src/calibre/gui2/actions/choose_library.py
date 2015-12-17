@@ -10,11 +10,10 @@ from functools import partial
 
 from PyQt5.Qt import (QMenu, Qt, QInputDialog, QToolButton, QDialog,
         QDialogButtonBox, QGridLayout, QLabel, QLineEdit, QIcon, QSize,
-        QCoreApplication, pyqtSignal, QVBoxLayout, QTimer)
+        QCoreApplication, pyqtSignal, QVBoxLayout, QTimer, QAction)
 
 from calibre import isbytestring, sanitize_file_name_unicode
-from calibre.constants import (filesystem_encoding, iswindows,
-        get_portable_base)
+from calibre.constants import (filesystem_encoding, iswindows, get_portable_base, isportable)
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
@@ -208,6 +207,8 @@ class ChooseLibraryAction(InterfaceAction):
     def genesis(self):
         self.count_changed(0)
         self.action_choose = self.menuless_qaction
+        self.action_exim = ac = QAction(_('Export/Import all calibre data'), self.gui)
+        ac.triggered.connect(self.exim_data)
 
         self.stats = LibraryUsageStats()
         self.popup_type = (QToolButton.InstantPopup if len(self.stats.stats) > 1 else
@@ -233,6 +234,7 @@ class ChooseLibraryAction(InterfaceAction):
             self.choose_menu.addAction(ac)
             self.delete_menu = QMenu(_('Remove library'))
             self.delete_menu_action = self.choose_menu.addMenu(self.delete_menu)
+            self.choose_menu.addAction(self.action_exim)
         else:
             self.choose_menu.addAction(ac)
 
@@ -280,6 +282,17 @@ class ChooseLibraryAction(InterfaceAction):
 
     def pick_random(self, *args):
         self.gui.iactions['Pick Random Book'].pick_random()
+
+    def exim_data(self):
+        if isportable:
+            return error_dialog(self.gui, _('Cannot export/import'), _(
+                'You are running calibre portable, all calibre data is already in the'
+                ' calibre portable folder. Export/Import is unavailable.'), show=True)
+        if self.gui.job_manager.has_jobs():
+            return error_dialog(self.gui, _('Cannot Export/Import'),
+                    _('Cannot export/import data while there are running jobs.'), show=True)
+        from calibre.gui2.dialogs.exim import EximDialog
+        EximDialog(parent=self.gui).exec_()
 
     def library_name(self):
         db = self.gui.library_view.model().db
