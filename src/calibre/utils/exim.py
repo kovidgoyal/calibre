@@ -66,7 +66,7 @@ class FileDest(object):
 
 class Exporter(object):
 
-    VERSION = 1
+    VERSION = 0
     TAIL_FMT = b'!II?'  # part_num, version, is_last
     MDATA_SZ_FMT = b'!Q'
     EXT = '.calibre-data'
