@@ -292,7 +292,10 @@ class ChooseLibraryAction(InterfaceAction):
             return error_dialog(self.gui, _('Cannot Export/Import'),
                     _('Cannot export/import data while there are running jobs.'), show=True)
         from calibre.gui2.dialogs.exim import EximDialog
-        EximDialog(parent=self.gui).exec_()
+        d = EximDialog(parent=self.gui)
+        if d.exec_() == d.Accepted:
+            if d.restart_needed:
+                self.gui.iactions['Restart'].restart()
 
     def library_name(self):
         db = self.gui.library_view.model().db

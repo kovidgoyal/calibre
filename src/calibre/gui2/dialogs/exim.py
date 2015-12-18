@@ -11,13 +11,15 @@ import os, stat
 from PyQt5.Qt import (
     QSize, QStackedLayout, QWidget, QVBoxLayout, QLabel, QPushButton,
     QListWidget, QListWidgetItem, QIcon, Qt, pyqtSignal, QGridLayout,
-    QProgressBar, QDialog, QDialogButtonBox
+    QProgressBar, QDialog, QDialogButtonBox, QScrollArea, QLineEdit, QFrame
 )
 
-from calibre import human_readable
-from calibre.gui2 import choose_dir, error_dialog
+from calibre import human_readable, as_unicode
+from calibre.constants import iswindows
+from calibre.db.legacy import LibraryDatabase
+from calibre.gui2 import choose_dir, error_dialog, question_dialog
 from calibre.gui2.widgets2 import Dialog
-from calibre.utils.exim import all_known_libraries, export
+from calibre.utils.exim import all_known_libraries, export, Importer, import_data
 from calibre.utils.icu import numeric_sort_key
 
 def disk_usage(path_to_dir, abort=None):
@@ -37,6 +39,32 @@ def disk_usage(path_to_dir, abort=None):
         except EnvironmentError:
             pass
     return ans
+
+class ImportLocation(QWidget):
+
+    def __init__(self, lpath, parent=None):
+        QWidget.__init__(self, parent)
+        self.l = l = QGridLayout(self)
+        self.la = la = QLabel(_('Previous location: ') + lpath)
+        la.setWordWrap(True)
+        self.lpath = lpath
+        l.addWidget(la, 0, 0, 1, -1)
+        self.le = le = QLineEdit(self)
+        le.setPlaceholderText(_('Location to import this library to'))
+        l.addWidget(le, 1, 0)
+        self.b = b = QPushButton(QIcon(I('document_open.png')), _('Select &folder'), self)
+        b.clicked.connect(self.select_folder)
+        l.addWidget(b, 1, 1)
+        self.lpath = lpath
+
+    def select_folder(self):
+        path = choose_dir(self, _('Choose a folder for this library'), 'select-folder-for-imported-library')
+        if path is not None:
+            self.le.setText(path)
+
+    @property
+    def path(self):
+        return self.le.text().strip()
 
 class RunAction(QDialog):
 
@@ -119,6 +147,7 @@ class EximDialog(Dialog):
     def __init__(self, parent=None, initial_panel=None):
         self.initial_panel = initial_panel
         self.abort_disk_usage = Event()
+        self.restart_needed = False
         Dialog.__init__(self, _('Export/Import all calibre data'), 'exim-calibre', parent=parent)
 
     def sizeHint(self):
@@ -151,6 +180,7 @@ class EximDialog(Dialog):
         l.addWidget(b), l.addStretch(20)
 
         self.setup_export_panel()
+        self.setup_import_panel()
         self.show_panel(self.initial_panel)
 
     def export_lib_text(self, lpath, size=None):
@@ -178,9 +208,6 @@ class EximDialog(Dialog):
             i.setSelected(True)
         self.update_disk_usage.connect((
             lambda i, sz: self.lib_list.item(i).setText(self.export_lib_text(self.lib_list.item(i).data(Qt.UserRole), sz))), type=Qt.QueuedConnection)
-        t = Thread(name='GetLibSizes', target=self.get_lib_sizes)
-        t.daemon = True
-        t.start()
 
     def get_lib_sizes(self):
         for i in xrange(self.lib_list.count()):
@@ -192,6 +219,93 @@ class EximDialog(Dialog):
                 traceback.print_exc()
             self.update_disk_usage.emit(i, sz)
 
+    def setup_import_panel(self):
+        self.import_panel = w = QWidget(self)
+        self.stack.addWidget(w)
+        w.stack = s = QStackedLayout(w)
+        self.ig = w = QWidget()
+        s.addWidget(w)
+        w.l = l = QVBoxLayout(w)
+        w.la = la = QLabel(_('Specify the folder containing the previously exported calibre data that you'
+                             ' wish to import.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.export_dir_button = b = QPushButton(QIcon(I('document_open.png')), _('Choose &folder'), self)
+        b.clicked.connect(self.select_import_folder)
+        l.addWidget(b), l.addStretch()
+
+        self.select_libraries_panel = w = QScrollArea(self)
+        w.setWidgetResizable(True)
+        s.addWidget(w)
+        self.slp = w = QWidget(self)
+        self.select_libraries_panel.setWidget(w)
+        w.l = l = QVBoxLayout(w)
+        w.la = la = QLabel(_('Specify locations for the libraries you want to import. A location must be an empty folder'
+                             ' on your computer. If you leave any blank, those libraries will not be imported.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+
+    def select_import_folder(self):
+        path = choose_dir(self, _('Select folder with exported data'),
+                          'choose-export-folder-for-import')
+        if path is None:
+            return
+        try:
+            self.importer = Importer(path)
+        except Exception as e:
+            import traceback
+            return error_dialog(self, _('Not valid'), _(
+                'The folder {0} is not valid: {1}').format(path, as_unicode(e)), det_msg=traceback.format_exc(), show=True)
+        self.setup_select_libraries_panel()
+        self.import_panel.stack.setCurrentIndex(1)
+
+    def setup_select_libraries_panel(self):
+        self.imported_lib_widgets = []
+        self.frames = []
+        l = self.slp.layout()
+        for lpath in sorted(self.importer.metadata['libraries'], key=lambda x:numeric_sort_key(os.path.basename(x))):
+            f = QFrame(self)
+            self.frames.append(f)
+            l.addWidget(f)
+            f.setFrameShape(f.HLine)
+            w = ImportLocation(lpath, self.slp)
+            l.addWidget(w)
+            self.imported_lib_widgets.append(w)
+        l.addStretch()
+
+    def validate_import(self):
+        if self.import_panel.stack.currentIndex() == 0:
+            error_dialog(self, _('No folder selected'), _(
+                'You must select a folder containing the previously exported data that you wish to import'), show=True)
+            return False
+        else:
+            blanks = []
+            for w in self.imported_lib_widgets:
+                newloc = w.path
+                if not newloc:
+                    blanks.append(w.lpath)
+                    continue
+                if iswindows and len(newloc) > LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT:
+                    error_dialog(self, _('Too long'),
+                        _('Path to library ({0}) too long. Must be less than'
+                        ' {1} characters.').format(newloc, LibraryDatabase.WINDOWS_LIBRARY_PATH_LIMIT), show=True)
+                    return False
+                if not os.path.isdir(newloc):
+                    error_dialog(self, _('Not a folder'), _('%s is not a folder')%newloc, show=True)
+                    return False
+                if os.listdir(newloc):
+                    error_dialog(self, _('Folder not empty'), _('%s is not an empty folder')%newloc, show=True)
+                    return False
+            if blanks:
+                if len(blanks) == len(self.imported_lib_widgets):
+                    error_dialog(self, _('No libraries selected'), _(
+                        'You must specify the location for at least one library'), show=True)
+                    return False
+                if not question_dialog(self, _('Some libraries ignored'), _(
+                        'You have chosen not to import some libraries. Proceed anyway?')):
+                    return False
+        return True
+
     def show_panel(self, which):
         self.validate = self.run_action = lambda : True
         if which is None:
@@ -200,6 +314,12 @@ class EximDialog(Dialog):
             if which == 'export':
                 self.validate = self.validate_export
                 self.run_action = self.run_export_action
+                t = Thread(name='GetLibSizes', target=self.get_lib_sizes)
+                t.daemon = True
+                t.start()
+            else:
+                self.validate = self.validate_import
+                self.run_action = self.run_import_action
             self.bb.setStandardButtons(self.bb.Ok | self.bb.Cancel)
         self.stack.setCurrentIndex({'export':1, 'import':2}.get(which, 0))
 
@@ -220,17 +340,26 @@ class EximDialog(Dialog):
         dbmap = {}
         gui = get_gui()
         if gui is not None:
-            db = gui.current_db.new_api
-            dbmap[db.library_path] = db
+            db = gui.current_db
+            dbmap[db.library_path] = db.new_api
         return RunAction(_('Exporting all calibre data...'), _(
             'Failed to export data.'), partial(export, self.export_dir, library_paths=library_paths, dbmap=dbmap),
                       parent=self).exec_() == Dialog.Accepted
+
+    def run_import_action(self):
+        library_path_map = {}
+        for w in self.imported_lib_widgets:
+            if w.path:
+                library_path_map[w.lpath] = w.path
+        return RunAction(_('Importing all calibre data...'), _(
+            'Failed to import data.'), partial(import_data, self.importer, library_path_map), parent=self).exec_() == Dialog.Accepted
 
     def accept(self):
         if not self.validate():
             return
         self.abort_disk_usage.set()
         if self.run_action():
+            self.restart_needed = self.stack.currentIndex() == 2
             Dialog.accept(self)
 
     def reject(self):
@@ -240,6 +369,6 @@ class EximDialog(Dialog):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    d = EximDialog(initial_panel='export')
+    d = EximDialog(initial_panel='import')
     d.exec_()
     del app

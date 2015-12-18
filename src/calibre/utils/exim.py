@@ -150,7 +150,7 @@ class Exporter(object):
 
 def all_known_libraries():
     from calibre.gui2 import gprefs
-    lus = gprefs.get('library_usage_stats', ())
+    lus = gprefs.get('library_usage_stats', {})
     paths = set(lus)
     if prefs['library_path']:
         paths.add(prefs['library_path'])
@@ -312,6 +312,7 @@ class Importer(object):
 def import_data(importer, library_path_map, config_location=None, progress1=None, progress2=None, abort=None):
     from calibre.db.cache import import_library
     config_location = config_location or config_dir
+    config_location = os.path.abspath(os.path.realpath(config_location))
     total = len(library_path_map) + 1
     library_usage_stats = Counter()
     for i, (library_key, dest) in enumerate(library_path_map.iteritems()):
@@ -335,17 +336,22 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
         return
     base_dir = tempfile.mkdtemp(dir=os.path.dirname(config_location))
     importer.export_config(base_dir, library_usage_stats)
-    if os.path.exists(config_location):
-        shutil.rmtree(config_location, ignore_errors=True)
-        if os.path.exists(config_location):
-            try:
-                shutil.rmtree(config_location)
-            except EnvironmentError:
-                if not iswindows:
-                    raise
-                time.sleep(1)
-                shutil.rmtree(config_location)
+    if os.path.lexists(config_location):
+        if os.path.islink(config_location) or os.path.isfile(config_location):
+            os.remove(config_location)
+        else:
+            shutil.rmtree(config_location, ignore_errors=True)
+            if os.path.exists(config_location):
+                try:
+                    shutil.rmtree(config_location)
+                except EnvironmentError:
+                    if not iswindows:
+                        raise
+                    time.sleep(1)
+                    shutil.rmtree(config_location)
     os.rename(base_dir, config_location)
+    from calibre.gui2 import gprefs
+    gprefs.refresh()
 
     if progress1 is not None:
         progress1(_('Completed'), total, total)
