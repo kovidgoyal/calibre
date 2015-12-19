@@ -58,7 +58,7 @@ class ImportLocation(QWidget):
         self.lpath = lpath
 
     def select_folder(self):
-        path = choose_dir(self, _('Choose a folder for this library'), 'select-folder-for-imported-library')
+        path = choose_dir(self, 'select-folder-for-imported-library', _('Choose a folder for this library'))
         if path is not None:
             self.le.setText(path)
 
@@ -246,8 +246,7 @@ class EximDialog(Dialog):
         l.addWidget(la)
 
     def select_import_folder(self):
-        path = choose_dir(self, _('Select folder with exported data'),
-                          'choose-export-folder-for-import')
+        path = choose_dir(self, 'choose-export-folder-for-import', _('Select folder with exported data'))
         if path is None:
             return
         try:
