@@ -245,8 +245,9 @@ class Importer(object):
                     raise ValueError('The exported data in %s is not valid, tail too small' % name)
                 part_num, version, is_last = struct.unpack(Exporter.TAIL_FMT, raw)
                 if version > Exporter.VERSION:
-                    raise ValueError('The exported data in %s is not valid, version (%d) is higher than maximum supported version.' % (
-                        name, version))
+                    raise ValueError('The exported data in %s is not valid,'
+                                     ' version (%d) is higher than maximum supported version.'
+                                     ' You might need to upgrade calibre first.' % (name, version))
                 part_map[part_num] =  path, is_last
         nums = sorted(part_map)
         if not nums:
