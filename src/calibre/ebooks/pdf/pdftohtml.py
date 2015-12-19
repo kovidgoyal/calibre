@@ -9,10 +9,12 @@ import errno, os, sys, subprocess, shutil, re
 from functools import partial
 
 from calibre.ebooks import ConversionError, DRMError
+from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import (isosx, iswindows, islinux, isbsd,
             filesystem_encoding)
 from calibre import CurrentDir
+from calibre.utils.cleantext import clean_ascii_chars
 
 PDFTOHTML = 'pdftohtml'
 popen = subprocess.Popen
@@ -123,6 +125,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
 
 def parse_outline(raw, output_dir):
     from lxml import etree
+    raw = clean_ascii_chars(xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0])
     outline = etree.fromstring(raw).xpath('(//outline)[1]')
     if outline:
         from calibre.ebooks.oeb.polish.toc import TOC, create_ncx
