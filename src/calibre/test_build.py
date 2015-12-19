@@ -79,6 +79,8 @@ def test_plugins():
     print ('Loaded all plugins successfully!')
 
 def test_lxml():
+    from calibre.utils.cleantext import test_clean_xml_chars
+    test_clean_xml_chars()
     from lxml import etree
     raw = '<a/>'
     root = etree.fromstring(raw)

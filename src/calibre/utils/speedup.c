@@ -316,6 +316,43 @@ error:
 	return Py_BuildValue("NII", ans, state, codep);
 }
 
+static PyObject*
+clean_xml_chars(PyObject *self, PyObject *text) {
+#if PY_VERSION_HEX >= 0x03030000 
+#error Not implemented for python >= 3.3
+#endif
+    Py_UNICODE *buf = NULL, ch;
+    PyUnicodeObject *ans = NULL;
+    Py_ssize_t i = 0, j = 0;
+    if (!PyUnicode_Check(text)) {
+        PyErr_SetString(PyExc_TypeError, "A unicode string is required");
+        return NULL;
+    }
+    ans = (PyUnicodeObject*) PyUnicode_FromUnicode(NULL, PyUnicode_GET_SIZE(text));
+    if (ans == NULL) return PyErr_NoMemory();
+    buf = ans->str;
+
+    for (; i < PyUnicode_GET_SIZE(text); i++) {
+        ch = PyUnicode_AS_UNICODE(text)[i];
+#ifdef Py_UNICODE_WIDE
+        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xe000 <= ch && ch <= 0xfffd) || (0xffff < ch && ch <= 0x10ffff)) 
+            buf[j++] = ch;
+#else
+        if ((0x20 <= ch && ch <= 0xd7ff && ch != 0x7f) || ch == 9 || ch == 10 || ch == 13 || (0xd000 <= ch && ch <= 0xfffd)) {
+            if (0xd800 <= ch && ch <= 0xdfff) {
+                // Test for valid surrogate pair
+                if (ch <= 0xdbff && i + 1 < PyUnicode_GET_SIZE(text) && 0xdc00 <= PyUnicode_AS_UNICODE(text)[i + 1] && PyUnicode_AS_UNICODE(text)[i+1] <= 0xdfff) {
+                    buf[j++] = ch; buf[j++] = PyUnicode_AS_UNICODE(text)[++i];
+                }
+            } else 
+                buf[j++] = ch;
+        }
+#endif
+    }
+    ans->length = j;
+    return (PyObject*)ans;
+}
+
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
         "parse_date()\n\nParse ISO dates faster."
@@ -350,6 +387,10 @@ static PyMethodDef speedup_methods[] = {
 	{"utf8_decode", utf8_decode, METH_VARARGS,
 		"utf8_decode(data, [, state=0, codep=0)\n\nDecode an UTF-8 bytestring, using a strict UTF-8 decoder, that unlike python does not allow orphaned surrogates. Returns a unicode object and the state."
 	},
+
+    {"clean_xml_chars", clean_xml_chars, METH_O,
+        "clean_xml_chars(unicode_object)\n\nRemove codepoints in unicode_object that are not allowed in XML"
+    },
 
     {NULL, NULL, 0, NULL}
 };

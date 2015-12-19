@@ -4,6 +4,17 @@ __docformat__ = 'restructuredtext en'
 
 import re, htmlentitydefs
 from future_builtins import map
+from calibre.constants import plugins, preferred_encoding
+
+try:
+    _ncxc = plugins['speedup'][0].clean_xml_chars
+except AttributeError:
+    native_clean_xml_chars = None
+else:
+    def native_clean_xml_chars(x):
+        if isinstance(x, bytes):
+            x = x.decode(preferred_encoding)
+        return _ncxc(x)
 
 _ascii_pat = None
 
@@ -32,8 +43,15 @@ def allowed(x):
     x = ord(x)
     return (x != 127 and (31 < x < 0xd7ff or x in (9, 10, 13))) or (0xe000 < x < 0xfffd) or (0x10000 < x < 0x10ffff)
 
-def clean_xml_chars(unicode_string):
+def py_clean_xml_chars(unicode_string):
     return u''.join(filter(allowed, unicode_string))
+
+clean_xml_chars = native_clean_xml_chars or py_clean_xml_chars
+
+def test_clean_xml_chars():
+    raw = u'asd\x02a\U00010437x\ud801b\udffe\ud802'
+    if native_clean_xml_chars(raw) != u'asda\U00010437xb':
+        raise ValueError('Failed to XML clean: %r' % raw)
 
 
 # Fredrik Lundh: http://effbot.org/zone/re-sub.htm#unescape-html
