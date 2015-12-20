@@ -1276,15 +1276,32 @@ class StoreSonyAUStore(StoreSonyStore):
     actual_plugin = 'calibre.gui2.store.stores.sony_au_plugin:SonyStore'
     headquarters = 'AU'
 
+class StoreAmazonAUKindleStore(StoreBase):
+    name = 'Amazon AU Kindle'
+    author = u'Kovid Goyal'
+    description = u'Kindle books from Amazon.'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_au_plugin:AmazonKindleStore'
+
+    headquarters = 'AU'
+    formats = ['KINDLE']
+
 class StoreAmazonCAKindleStore(StoreBase):
     name = 'Amazon CA Kindle'
-    author = u'Tomasz Długosz'
+    author = u'Kovid Goyal'
     description = u'Kindle books from Amazon.'
-    actual_plugin = 'calibre.gui2.store.stores.amazon_ca_plugin:AmazonCAKindleStore'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_ca_plugin:AmazonKindleStore'
 
     headquarters = 'CA'
     formats = ['KINDLE']
-    # affiliate = True
+
+class StoreAmazonINKindleStore(StoreBase):
+    name = 'Amazon IN Kindle'
+    author = u'Kovid Goyal'
+    description = u'Kindle books from Amazon.'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_in_plugin:AmazonKindleStore'
+
+    headquarters = 'IN'
+    formats = ['KINDLE']
 
 # Remove this plugin definition in Jan 2016 because of Amazon demand.  We leave
 # it here until then so users have a chance to see wny the store is gone.
@@ -1750,7 +1767,9 @@ plugins += [
     StoreBubokPublishingStore,
     StoreBubokPortugalStore,
     StoreAmazonKindleStore,
+    StoreAmazonAUKindleStore,
     StoreAmazonCAKindleStore,
+    StoreAmazonINKindleStore,
     StoreAmazonDEKindleStore,
     StoreAmazonESKindleStore,
     StoreAmazonFRKindleStore,
