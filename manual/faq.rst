@@ -679,27 +679,51 @@ Can I have a column showing the formats or the ISBN?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Yes, you can. Follow the instructions in the answer above for adding custom columns.
 
-How do I move my calibre library from one computer to another?
+How do I move my calibre data from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Simply copy the calibre library folder from the old to the new computer. You can
-find out what the library folder is by clicking the calibre icon in the
-toolbar. The very first item is the path to the library folder. Now on the new
-computer, start calibre for the first time. It will run the Welcome Wizard asking
-you for the location of the calibre library. Point it to the previously copied
-folder. If the computer you are transferring to already has a calibre
-installation, then the Welcome wizard wont run. In that case, right-click the
-calibre icon in the tooolbar and point it to the newly copied directory. You will
-now have two calibre libraries on your computer and you can switch between them
-by clicking the calibre icon on the toolbar. Transferring your library in this
-manner preserver all your metadata, tags, custom columns, etc.
 
-Note that if you are transferring between different types of computers (for
-example Windows to OS X) then after doing the above you should also right-click
-the calibre icon on the tool bar, select Library Maintenance and run the Check
-Library action. It will warn you about any problems in your library, which you
-should fix by hand.
+You can export all calibre data (books, settings and plugins) and
+them import it on another computer. First let use see how to export the data:
 
-.. note:: A calibre library is just a folder which contains all the book files and their metadata. All the metadata is stored in a single file called metadata.db, in the top level folder. If this file gets corrupted, you may see an empty list of books in calibre. In this case you can ask calibre to restore your books by doing a right-click on the calibre icon in the toolbar and selecting Library Maintenance->Restore database
+  * Right click the calibre icon in the main calibre toolbar and select
+    :guilabel:`Export/Import all calibre data`. Then click the button labelled
+    :guilabel:`Export all your calibre data`. You will see a list of all your
+    calibre libraries. Click OK and choose an empty folder somewhere on your
+    computer. The exported data will be saved in this folder. Simply copy this
+    folder to your new computer and follow the instructions below to import the
+    data.
+
+  * Install calibre on your new computer and run through the Welcome Wizard, it
+    does not matter what you do there, as you will be importing your old
+    settings in the next step. You will now have an empty calibre, with just
+    the :guilabel:`Getting Started` guide in your library. Once again, right
+    click the calibre button and choose :guilabel:`Export/Import all calibre
+    data`. The click the button labelled :guilabel:`Import previously exported
+    data`. Select the folder with the exported data that you copied over
+    earlier. You will now have a list of libraries you can import. Go through
+    the list one by one, and select the new location for each library (a
+    location is just an empty folder somewhere on your computer). Click OK.
+    After the import completes, calibre will restart, with all your old
+    libraries, settings and calibre plugins.
+
+
+.. note:: This import/export functionality is only available from calibre
+    version 2.47 onwards. If you have an older version of calibre, or if you
+    encounter problems with the import/export, you can just copy over your
+    calibre library folder manually, as descibed in the next paragraph.
+
+    Simply copy the calibre library folder from the old to the new computer. You can
+    find out what the library folder is by clicking the calibre icon in the
+    toolbar. The very first item is the path to the library folder. Now on the new
+    computer, start calibre for the first time. It will run the Welcome Wizard asking
+    you for the location of the calibre library. Point it to the previously copied
+    folder. If the computer you are transferring to already has a calibre
+    installation, then the Welcome wizard wont run. In that case, right-click the
+    calibre icon in the tooolbar and point it to the newly copied directory. You will
+    now have two calibre libraries on your computer and you can switch between them
+    by clicking the calibre icon on the toolbar. Transferring your library in this
+    manner preserver all your metadata, tags, custom columns, etc.
+
 
 The list of books in calibre is blank!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
