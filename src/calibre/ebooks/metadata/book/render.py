@@ -190,6 +190,13 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                 search_href('publisher', mi.publisher), _('Click to see books with {0}: {1}').format(metadata['name'], a(mi.publisher)),
                 a(item_data('publisher', mi.publisher, book_id)), p(mi.publisher))
             ans.append((field, row % (name, val)))
+        elif field == 'title':
+            # otherwise title gets metadata['datatype'] == 'text'
+            # treatment below with a click to search link (which isn't
+            # too bad), and a right-click 'Delete' option to delete
+            # the title (which is bad).
+            val = mi.format_field(field)[-1]
+            ans.append((field, row % (name, val)))
         else:
             val = mi.format_field(field)[-1]
             if val is None:
