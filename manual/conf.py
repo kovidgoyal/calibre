@@ -113,8 +113,7 @@ html_theme = 'classic'
 html_theme_options = {'stickysidebar':'true', 'relbarbgcolor':'black'}
 # Put the quick search box on top
 html_sidebars = {
-        '**' : ['searchbox.html', 'localtoc.html', 'relations.html',
-            'sourcelink.html'],
+        '**' : ['searchbox.html', 'localtoc.html', 'relations.html']
 }
 
 # The favicon
