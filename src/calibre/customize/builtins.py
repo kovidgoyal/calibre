@@ -1303,65 +1303,50 @@ class StoreAmazonINKindleStore(StoreBase):
     headquarters = 'IN'
     formats = ['KINDLE']
 
-# Remove this plugin definition in Jan 2016 because of Amazon demand.  We leave
-# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonDEKindleStore(StoreBase):
     name = 'Amazon DE Kindle'
-    author = 'Charles Haley'
+    author = 'Kovid Goyal'
     description = u'Kindle Bücher von Amazon.'
-    actual_plugin = 'calibre.gui2.store.stores.amazon_de_plugin:AmazonDEKindleStore'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_de_plugin:AmazonKindleStore'
 
     headquarters = 'DE'
     formats = ['KINDLE']
-    affiliate = True
 
-# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
-# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonFRKindleStore(StoreBase):
     name = 'Amazon FR Kindle'
-    author = 'Charles Haley'
+    author = 'Kovid Goyal'
     description = u'Tous les ebooks Kindle'
-    actual_plugin = 'calibre.gui2.store.stores.amazon_fr_plugin:AmazonFRKindleStore'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_fr_plugin:AmazonKindleStore'
 
     headquarters = 'FR'
     formats = ['KINDLE']
-    affiliate = True
 
-# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
-# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonITKindleStore(StoreBase):
     name = 'Amazon IT Kindle'
-    author = 'Charles Haley'
+    author = 'Kovid Goyal'
     description = u'eBook Kindle a prezzi incredibili'
-    actual_plugin = 'calibre.gui2.store.stores.amazon_it_plugin:AmazonITKindleStore'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_it_plugin:AmazonKindleStore'
 
     headquarters = 'IT'
     formats = ['KINDLE']
-    affiliate = True
 
-# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
-# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonESKindleStore(StoreBase):
     name = 'Amazon ES Kindle'
-    author = 'Charles Haley'
+    author = 'Kovid Goyal'
     description = u'eBook Kindle en España'
-    actual_plugin = 'calibre.gui2.store.stores.amazon_es_plugin:AmazonESKindleStore'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_es_plugin:AmazonKindleStore'
 
     headquarters = 'ES'
     formats = ['KINDLE']
-    affiliate = True
 
-# Remove this plugin definition in Jan 2016 because of Amazon demand. We leave
-# it here until then so users have a chance to see wny the store is gone.
 class StoreAmazonUKKindleStore(StoreBase):
     name = 'Amazon UK Kindle'
-    author = 'Charles Haley'
+    author = 'Kovid Goyal'
     description = u'Kindle books from Amazon\'s UK web site. Also, includes French language ebooks.'
-    actual_plugin = 'calibre.gui2.store.stores.amazon_uk_plugin:AmazonUKKindleStore'
+    actual_plugin = 'calibre.gui2.store.stores.amazon_uk_plugin:AmazonKindleStore'
 
     headquarters = 'UK'
     formats = ['KINDLE']
-    affiliate = True
 
 class StoreArchiveOrgStore(StoreBase):
     name = 'Archive.org'
