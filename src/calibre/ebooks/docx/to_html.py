@@ -629,7 +629,7 @@ class Convert(object):
             elif self.namespace.is_tag(child, 'w:footnoteReference') or self.namespace.is_tag(child, 'w:endnoteReference'):
                 anchor, name = self.footnotes.get_ref(child)
                 if anchor and name:
-                    l = SUP(A(name, href='#' + anchor, title=name), id='back_%s' % anchor)
+                    l = A(SUP(name, id='back_%s' % anchor), href='#' + anchor, title=name)
                     l.set('class', 'noteref')
                     text.add_elem(l)
                     ans.append(text.elem)
