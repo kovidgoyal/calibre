@@ -177,7 +177,7 @@ The ``prefs`` object is now available throughout the plugin code by a simple::
 You can see the ``prefs`` object being used in main.py:
 
 .. literalinclude:: plugin_examples/interface_demo/main.py
-    :pyobject: DemoDialog.config
+    :lines: 151-
 
 
 Edit Book plugins
