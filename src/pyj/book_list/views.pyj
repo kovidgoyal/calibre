@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from ajax import ajax_send, encode_query
+from ajax import ajax_send
 from dom import set_css, build_rule, clear
 from elementmaker import E
 from gettext import gettext as _
@@ -232,13 +232,13 @@ class BooksView:
         elif end_type != 'abort':
             error_dialog(_('Could not change sort order'), xhr.error_html)
 
-    def change_search(self, query):
+    def change_search(self, query, push_state=True):
         self.abort_get_more_books()
         query = query or ''
         sd = get_session_data()
         data = {'search':query, 'sort':sd.get('sort'), 'library_id':self.interface_data.library_id}
         ajax_progress_dialog('interface-data/get-books', self.search_change_completed.bind(self), _(
-            'Fetching data from server, please wait') + '…', query=data)
+            'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'push_state':push_state})
 
     def search_change_completed(self, end_type, xhr, ev):
         if end_type == 'load':
@@ -248,9 +248,9 @@ class BooksView:
                 boss.change_books(data)
             except Exception as err:
                 return error_dialog(_('Could not change search query'), err + '', details=err.stack)
-            query = {'search':self.interface_data.search_result.query, 'library_id':self.interface_data.library_id}
-            window.history.pushState(None, '', encode_query(query))
             boss.ui.close_all_panels()
+            if xhr.extra_data_for_callback.push_state:
+                boss.push_state()
             self.update_fetching_status()
             window.scrollTo(0, 0)
         elif end_type != 'abort':

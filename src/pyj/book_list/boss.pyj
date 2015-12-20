@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from ajax import encode_query
 from dom import set_css
 from elementmaker import E
 from modals import error_dialog, create_modal_container
@@ -21,6 +22,7 @@ class Boss:
         self.interface_data = interface_data
         self.current_library_id = interface_data['default_library']
         self.current_library_name = interface_data['library_map'][self.current_library_id]
+        self.current_mode = 'book_list'
         self.update_window_title()
         div = E.div(id='book-list-container')
         document.body.appendChild(div)
@@ -51,7 +53,7 @@ class Boss:
         if mode == 'book_list':
             search = data.search or ''
             if search != self.ui.books_view.interface_data.search_result.query:
-                self.ui.books_view.change_search(search)
+                self.ui.books_view.change_search(search, push_state=False)
 
     def change_books(self, data):
         data.search_result.sort = str.split(data.search_result.sort, ',')[:2].join(',')
@@ -63,3 +65,16 @@ class Boss:
         self.interface_data.metadata = data.metadata
         self.interface_data.search_result = data.search_result
         self.ui.refresh_books_view()
+
+    def push_state(self):
+        query = {}
+        if self.current_mode != 'book_list':
+            query.current_mode = self.current_mode
+        idata = self.interface_data
+        if idata.library_id != idata.default_library:
+            query.library_id = idata.library_id
+        sq = idata.search_result.query
+        if sq:
+            query.search = sq
+        query = encode_query(query) or '?'
+        window.history.pushState(None, '', query)

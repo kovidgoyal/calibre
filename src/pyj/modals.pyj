@@ -215,7 +215,7 @@ def progress_dialog(msg, on_close=None):
     # Call close() once the task being performed is finished
     return create_progress_dialog(msg, on_close)
 
-def ajax_progress_dialog(path, on_complete, msg, **kw):
+def ajax_progress_dialog(path, on_complete, msg, extra_data_for_callback=None, **kw):
     pd = None
     def on_complete_callback(event_type, xhr, ev):
         nonlocal pd
@@ -225,6 +225,7 @@ def ajax_progress_dialog(path, on_complete, msg, **kw):
     def on_progress_callback(loaded, total, xhr):
         pd.update_progress(loaded, total)
     xhr = ajax(path, on_complete_callback, on_progress=on_progress_callback, **kw)
+    xhr.extra_data_for_callback = extra_data_for_callback
     pd = progress_dialog(msg, xhr.abort.bind(xhr))
     xhr.send()
     return xhr, pd
