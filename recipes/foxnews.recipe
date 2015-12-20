@@ -35,13 +35,9 @@ class FoxNews(BasicNewsRecipe):
 
     remove_attributes = ['xmlns','lang']
 
-    remove_tags=[
-                  dict(attrs={'class':['user-control','logo','ad-300x250','url-description']})
-                 ,dict(name=['meta','base','link','iframe','object','embed'])
-                ]
-
-    keep_only_tags=[dict(attrs={'id':'article-print'})]
-    remove_tags_after =dict(attrs={'class':'url-description'})
+    keep_only_tags = [
+        dict(itemprop=['headline', 'articleBody']),
+    ]
 
     feeds = [
               (u'Latest Headlines', u'http://feeds.foxnews.com/foxnews/latest'        )
@@ -54,26 +50,3 @@ class FoxNews(BasicNewsRecipe):
              ,(u'Entertainment'   , u'http://feeds.foxnews.com/foxnews/entertainment' )
             ]
 
-    def print_version(self, url):
-        return url + 'print'
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            limg = item.find('img')
-            if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
-            else:
-               if limg:
-                  item.name = 'div'
-                  item.attrs = []
-               else:
-                   str = self.tag_to_string(item)
-                   item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'
-        return soup
-        
