@@ -29,6 +29,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="opt_docx_no_supsub_in_css">
+     <property name="text">
+      <string>Use top and bottom as vertical-align values in stylesheet, instead of superscript and subscript</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

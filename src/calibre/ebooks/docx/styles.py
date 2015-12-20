@@ -432,7 +432,7 @@ class Styles(object):
         h = hash(frozenset(css.iteritems()))
         return self.classes.get(h, (None, None))[0]
 
-    def generate_css(self, dest_dir, docx, notes_nopb):
+    def generate_css(self, dest_dir, docx, notes_nopb, nosupsub):
         ef = self.fonts.embed_fonts(dest_dir, docx)
 
         s = '''\
@@ -469,8 +469,13 @@ class Styles(object):
             p.index-entry { text-indent: 0pt; }
             p.index-entry a:visited { color: blue }
             p.index-entry a:hover { color: red }
-
             '''
+
+        if nosupsub:
+            s = s + '''\
+               sup { vertical-align: top }
+               sub { vertical-align: bottom }
+               '''
 
         prefix = textwrap.dedent(s) % (self.body_font_family, self.body_font_size, self.body_color)
         if ef:

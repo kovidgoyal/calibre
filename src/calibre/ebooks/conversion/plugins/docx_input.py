@@ -21,12 +21,13 @@ class DOCXInput(InputFormatPlugin):
                    'turns off that behavior.')),
         OptionRecommendation(name='docx_no_pagebreaks_between_notes', recommended_value=False,
             help=_('Do not insert a page break after every endnote.')),
-
+        OptionRecommendation(name='docx_no_supsub_in_css', recommended_value=False,
+            help=_('Use top and bottom vertical-align values in stylesheet, instead of superscript and subscript.')),
     }
 
     recommendations = set([('page_breaks_before', '/', OptionRecommendation.MED)])
 
     def convert(self, stream, options, file_ext, log, accelerators):
         from calibre.ebooks.docx.to_html import Convert
-        return Convert(stream, detect_cover=not options.docx_no_cover, log=log, notes_nopb=options.docx_no_pagebreaks_between_notes)()
+        return Convert(stream, detect_cover=not options.docx_no_cover, log=log, notes_nopb=options.docx_no_pagebreaks_between_notes, nosupsub=options.docx_no_supsub_in_css)()
 
