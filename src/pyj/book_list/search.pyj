@@ -39,6 +39,7 @@ class SearchPanel:
         ))
         search_container.firstChild.firstChild.addEventListener('keypress', def(event):
             if event.keyCode == 13:
+                self.container.querySelector('button').focus()
                 self.execute_search()
                 event.preventDefault(), event.stopPropagation()
         )
