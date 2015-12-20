@@ -121,6 +121,12 @@ class UI:
             self.states.pop()
             self.apply_state(self.states[-1])
 
+    def close_all_panels(self):
+        if len(self.states) > 1:
+            while len(self.states) > 1:
+                self.states.pop()
+        self.apply_state(self.states[-1])
+
     def replace_panel(self, state):
         if len(self.states) > 1:
             self.states.pop()
