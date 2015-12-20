@@ -47,7 +47,8 @@ class Boss:
 
     def onpopstate(self, ev):
         data = parse_url_params()
-        if not data.mode or data.mode == 'book_list':
+        mode = data.mode or 'book_list'
+        if mode == 'book_list':
             search = data.search or ''
             if search != self.ui.books_view.interface_data.search_result.query:
                 self.ui.books_view.change_search(search)
