@@ -499,19 +499,6 @@ antivirus program.
     account, simply create a new free email account with GMX or Hotmail
     and use it only for calibre.
 
-Why is my device not detected in linux?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-calibre needs your linux kernel to have been setup correctly to detect devices. If your devices are not detected, perform the following tests::
-
-    grep SYSFS_DEPRECATED /boot/config-`uname -r`
-
-You should see something like ``CONFIG_SYSFS_DEPRECATED_V2 is not set``.
-Also, ::
-
-    grep CONFIG_SCSI_MULTI_LUN /boot/config-`uname -r`
-
-must return ``CONFIG_SCSI_MULTI_LUN=y``. If you don't see either, you have to recompile your kernel with the correct settings.
 
 My device is getting mounted read-only in linux, so calibre cannot connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
