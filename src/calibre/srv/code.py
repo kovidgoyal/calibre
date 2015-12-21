@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re
+import re, hashlib
 from functools import partial
 from threading import Lock
 from json import load as load_json_file
@@ -215,7 +215,7 @@ def get_books(ctx, rd):
                 mdata[book_id] = data
     return ans
 
-@endpoint('/interface-data/tag-browser', postprocess=json)
+@endpoint('/interface-data/tag-browser')
 def tag_browser(ctx, rd):
     '''
     Get the Tag Browser serialized as JSON
@@ -223,4 +223,9 @@ def tag_browser(ctx, rd):
               &collapse_at=25&dont_collapse=
     '''
     db, library_id = get_library_data(ctx, rd.query)[:2]
-    return categories_as_json(ctx, rd, db)
+    etag = '%s||%s||%s' % (db.last_modified(), rd.username, library_id)
+    etag = hashlib.sha1(etag.encode('utf-8')).hexdigest()
+    def generate():
+        db, library_id = get_library_data(ctx, rd.query)[:2]
+        return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db))
+    return rd.etagged_dynamic_response(etag, generate)
