@@ -17,7 +17,7 @@ from calibre.srv.utils import http_date
 default_methods = frozenset(('HEAD', 'GET'))
 
 def json(ctx, rd, endpoint, output):
-    rd.outheaders['Content-Type'] = 'application/json; charset=UTF-8'
+    rd.outheaders.set('Content-Type', 'application/json; charset=UTF-8', replace_all=True)
     if isinstance(output, bytes):
         ans = output  # Assume output is already UTF-8 encoded json
     else:
