@@ -32,7 +32,8 @@ class SearchPanel:
         search_button = create_button(_('Search'), icon='search', action=self.execute_search.bind(self), tooltip=_('Do the search'))
         search_container.appendChild(E.div(style="display: flex; width: 100%;",
             E.input(
-                type='text', autocomplete='on', autosave='search', inputmode='latin', name='search-books',
+                type='search', autosave='search-for-books-in-main-calibre-booklist', name='search-books',
+                autocomplete='on', inputmode='latin',
                 title=_('Search for books'), placeholder=_('Enter the search query'), spellcheck='false',
                 style=str.format("flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em", BUTTON_VPADDING)
             ),
@@ -47,7 +48,9 @@ class SearchPanel:
 
     def init(self):
         tb = self.container.querySelector('input[name="search-books"]')
-        tb.focus()
+        # We dont focus the search box because on mobile that will cause the
+        # keyboard to popup and obscure the rest of the page
+        # tb.focus()
         tb.setSelectionRange(0, tb.value.length)
 
     @property
