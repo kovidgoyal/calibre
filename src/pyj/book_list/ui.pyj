@@ -26,118 +26,103 @@ class ClosePanelBar(BarState):
 
 class UIState:
 
-    def __init__(self, top_bar_state=None, main_panel=None, panel_data=None, is_cacheable=True):
+    def __init__(self, top_bar_state=None, main_panel=None, panel_data=None):
         self.top_bar_state = top_bar_state
-        self.main_panel = main_panel or get_boss().ui.items_view
-        if type(self.main_panel) == 'string':
-            self.main_panel = getattr(get_boss().ui, self.main_panel)
+        self.main_panel = main_panel
         self.panel_data = panel_data
-        self.is_cacheable = is_cacheable
 
     def add_button(self, **kw):
         self.top_bar_state.add_button(**kw)
-
-panels = {}
-
-def panel(key):
-    ans = panels[key]
-    if not ans:
-        ans = create_panel[key]()
-        if ans.is_cacheable:
-            panels[key] = ans
-    return ans
 
 def close_panel():
     get_boss().ui.close_panel()
 
 def replace_panel_action(replacement):
     return def():
-        get_boss().ui.replace_panel(panel(replacement))
+        get_boss().ui.replace_panel(replacement)
 
 def show_panel_action(key):
     return def():
-        get_boss().ui.show_panel(panel(key))
+        get_boss().ui.show_panel(key)
 
-create_panel = {
-    'more-actions-menu': def more_actions_menu():
-        return UIState(ClosePanelBar(_('More actions')), panel_data=[
-        create_item(_('Book List Mode'), replace_panel_action('booklist-mode-menu'), _('Change how the list of books is displayed')),
-    ])
-    ,
 
-    'booklist-mode-menu': def booklist_mode_menu():
-        return UIState(ClosePanelBar(_('Book List Mode')), panel_data=[])
-    ,
-
-    'booklist-sort-menu': def change_booklist_sort():
-        data = get_boss().ui.books_view.sort_panel_data(create_item)
-        return UIState(ClosePanelBar(_('Sort books')), panel_data=data, is_cacheable=False)
-    ,
-
-    'booklist-search': def search_panel():
-        return UIState(ClosePanelBar(_('Search for books')), main_panel='search_panel')
-    ,
-}
-
+def create_book_view_top_bar_state(books_view):
+    ibs = BarState(run_animation=True, title=def():
+        q = books_view.interface_data['search_result']['query']
+        if q:
+            return {'title': _('Books matching') + '::  ' + q, 'title_tooltip':_('Click to clear this search'),
+                    'title_action':def():
+                books_view.change_search('')
+            }
+        return {'title': 'calibre'}
+    )
+    ibs.add_button(icon_name='sort-amount-desc', tooltip=_('Sort books'), action=show_panel_action('booklist-sort-menu'))
+    ibs.add_button(icon_name='search', tooltip=_('Search for books'), action=show_panel_action('booklist-search'))
+    ibs.add_button(icon_name='ellipsis-v', tooltip=_('More actions'), action=show_panel_action('more-actions-menu'))
+    return ibs
 
 class UI:
 
+    ROOT_PANEL = 'books'
+
     def __init__(self, interface_data, book_list_container):
-        self.states, self.panels = [], []
         self.top_bar = TopBar(book_list_container)
         self.books_view = BooksView(interface_data, book_list_container)
         self.items_view = ItemsView(interface_data, book_list_container)
         self.search_panel = SearchPanel(interface_data, book_list_container)
-        ibs = BarState(run_animation=True, title=def():
-            q = self.books_view.interface_data['search_result']['query']
-            if q:
-                return {'title': _('Books matching') + '::  ' + q, 'title_tooltip':_('Click to clear this search'),
-                        'title_action':def():
-                    self.books_view.change_search('')
-                }
-            return {'title': 'calibre'}
-        )
-        ibs.add_button(icon_name='sort-amount-desc', tooltip=_('Sort books'), action=show_panel_action('booklist-sort-menu'))
-        ibs.add_button(icon_name='search', tooltip=_('Search for books'), action=show_panel_action('booklist-search'))
-        ibs.add_button(icon_name='ellipsis-v', tooltip=_('More actions'), action=show_panel_action('more-actions-menu'))
-        self.states.append(UIState(ibs, self.books_view))
-        self.apply_state(self.states[0])
-        ibs.left_state.run_animation = False
-        window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
         self.panels = [self.books_view, self.items_view, self.search_panel]
+        self.panel_map = {self.ROOT_PANEL: UIState(create_book_view_top_bar_state(self.books_view), main_panel=self.books_view)}
+        self.current_panel = self.ROOT_PANEL
+        window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
+
+        self.panel_map['more-actions-menu'] = UIState(ClosePanelBar(_('More actions')), panel_data=[
+            create_item(_('Book List Mode'), replace_panel_action('booklist-mode-menu'), _('Change how the list of books is displayed')),
+        ])
+
+        self.panel_map['booklist-mode-menu'] = UIState(ClosePanelBar(_('Book List Mode')), panel_data=[])
+
+        self.panel_map['booklist-sort-menu'] = UIState(ClosePanelBar(_('Sort books')), panel_data=def():
+            return self.books_view.sort_panel_data(create_item)
+        )
+
+        self.panel_map['booklist-search'] = UIState(ClosePanelBar(_('Search for books')), main_panel=self.search_panel)
 
     def on_resize(self):
         pass
 
-    def apply_state(self, state):
+    def apply_state(self):
+        state = self.panel_map[self.current_panel]
         self.top_bar.apply_state(state.top_bar_state.left_state, state.top_bar_state.buttons)
+        if self.current_panel == self.ROOT_PANEL:
+            # only run the beating heart animation once
+            state.top_bar_state.left_state.run_animation = False
+        main_panel = state.main_panel or self.items_view
         for panel in self.panels:
-            panel.is_visible = panel is state.main_panel
-        if callable(state.main_panel.init):
-            state.main_panel.init(state.panel_data)
+            panel.is_visible = panel is main_panel
+        if callable(main_panel.init):
+            panel_data = state.panel_data() if callable(state.panel_data) else state.panel_data
+            main_panel.init(panel_data)
 
     def close_panel(self):
-        if len(self.states) > 1:
-            self.states.pop()
-            self.apply_state(self.states[-1])
+        if get_boss().has_history:
+            window.history.back()
+        else:
+            self.show_panel(self.ROOT_PANEL)
 
-    def close_all_panels(self):
-        if len(self.states) > 1:
-            while len(self.states) > 1:
-                self.states.pop()
-        self.apply_state(self.states[-1])
+    def replace_panel(self, panel_name, force=False):
+        if force or panel_name != self.current_panel:
+            self.current_panel = panel_name or self.ROOT_PANEL
+            self.apply_state()
+        get_boss().push_state(replace=True)
 
-    def replace_panel(self, state):
-        if len(self.states) > 1:
-            self.states.pop()
-            self.states.append(state)
-            self.apply_state(self.states[-1])
-
-    def show_panel(self, state):
-        self.states.append(state)
-        self.apply_state(self.states[-1])
+    def show_panel(self, panel_name, push_state=True, force=False):
+        if force or panel_name != self.current_panel:
+            self.current_panel = panel_name or self.ROOT_PANEL
+            self.apply_state()
+        if push_state:
+            get_boss().push_state()
 
     def refresh_books_view(self):
         self.books_view.refresh()
-        if len(self.states) == 1:
+        if self.current_panel == self.ROOT_PANEL:
             self.top_bar.refresh_left()

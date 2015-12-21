@@ -227,18 +227,18 @@ class BooksView:
                 boss.change_books(data)
             except Exception as err:
                 return error_dialog(_('Could not change sort order'), err + '', details=err.stack)
-            boss.ui.close_panel()
+            boss.ui.show_panel(boss.ui.ROOT_PANEL)
             window.scrollTo(0, 0)
         elif end_type != 'abort':
             error_dialog(_('Could not change sort order'), xhr.error_html)
 
-    def change_search(self, query, push_state=True):
+    def change_search(self, query, push_state=True, panel_to_show=None):
         self.abort_get_more_books()
         query = query or ''
         sd = get_session_data()
         data = {'search':query, 'sort':sd.get('sort'), 'library_id':self.interface_data.library_id}
         ajax_progress_dialog('interface-data/get-books', self.search_change_completed.bind(self), _(
-            'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'push_state':push_state})
+            'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'push_state':push_state, 'panel_to_show': panel_to_show})
 
     def search_change_completed(self, end_type, xhr, ev):
         if end_type == 'load':
@@ -248,10 +248,9 @@ class BooksView:
                 boss.change_books(data)
             except Exception as err:
                 return error_dialog(_('Could not change search query'), err + '', details=err.stack)
-            boss.ui.close_all_panels()
-            if xhr.extra_data_for_callback.push_state:
-                boss.push_state()
             self.update_fetching_status()
+            ed = xhr.extra_data_for_callback
+            boss.ui.show_panel(ed.panel_to_show or boss.ui.ROOT_PANEL, push_state=ed.push_state)
             window.scrollTo(0, 0)
         elif end_type != 'abort':
             msg = xhr.error_html

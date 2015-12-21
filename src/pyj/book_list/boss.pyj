@@ -9,13 +9,14 @@ from gettext import gettext as _
 from widgets import get_widget_css
 from utils import parse_url_params
 
-from book_list.globals import get_session_data
+from book_list.globals import get_session_data, set_boss
 from book_list.theme import get_color
 from book_list.ui import UI
 
 class Boss:
 
     def __init__(self, interface_data):
+        set_boss(self)
         document.head.appendChild(E.style(get_widget_css()))
         set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
         create_modal_container()
@@ -28,9 +29,19 @@ class Boss:
         document.body.appendChild(div)
         self.ui = UI(interface_data, div)
         window.onerror = self.onerror.bind(self)
+        self.history_count = 0
+        self.ui.apply_state()  # Render the book list
+        data = parse_url_params()
+        if not data.mode or data.mode == 'book_list':
+            if data.panel != self.ui.current_panel:
+                self.ui.show_panel(data.panel, push_state=False)
         setTimeout(def():
             window.onpopstate = self.onpopstate.bind(self)
         , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
+
+    @property
+    def has_history(self):
+        return self.history_count > 0
 
     def update_window_title(self):
         document.title = 'calibre :: ' + self.current_library_name
@@ -50,10 +61,13 @@ class Boss:
     def onpopstate(self, ev):
         data = parse_url_params()
         mode = data.mode or 'book_list'
+        self.history_count -= 1
         if mode == 'book_list':
             search = data.search or ''
+            if data.panel != self.ui.current_panel:
+                self.ui.show_panel(data.panel, push_state=False)
             if search != self.ui.books_view.interface_data.search_result.query:
-                self.ui.books_view.change_search(search, push_state=False)
+                self.ui.books_view.change_search(search, push_state=False, panel_to_show=data.panel)
 
     def change_books(self, data):
         data.search_result.sort = str.split(data.search_result.sort, ',')[:2].join(',')
@@ -66,9 +80,12 @@ class Boss:
         self.interface_data.search_result = data.search_result
         self.ui.refresh_books_view()
 
-    def push_state(self):
+    def push_state(self, replace=False):
         query = {}
-        if self.current_mode != 'book_list':
+        if self.current_mode == 'book_list':
+            if self.ui.current_panel != self.ui.ROOT_PANEL:
+                query.panel = self.ui.current_panel
+        else:
             query.current_mode = self.current_mode
         idata = self.interface_data
         if idata.library_id != idata.default_library:
@@ -77,4 +94,8 @@ class Boss:
         if sq:
             query.search = sq
         query = encode_query(query) or '?'
-        window.history.pushState(None, '', query)
+        if replace:
+            window.history.replaceState(None, '', query)
+        else:
+            window.history.pushState(None, '', query)
+            self.history_count += 1

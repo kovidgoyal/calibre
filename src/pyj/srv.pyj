@@ -8,7 +8,7 @@ from session import UserSessionData
 from utils import parse_url_params
 
 from book_list.boss import Boss
-from book_list.globals import set_boss, set_session_data
+from book_list.globals import set_session_data
 
 def on_library_loaded(end_type, xhr, ev):
     p = document.getElementById('page_load_progress')
@@ -17,8 +17,7 @@ def on_library_loaded(end_type, xhr, ev):
         interface_data = JSON.parse(xhr.responseText)
         sd = UserSessionData(interface_data['username'], interface_data['user_session_data'])
         set_session_data(sd)
-        boss = Boss(interface_data)
-        set_boss(boss)
+        Boss(interface_data)
     else:
         p = E.p(style='color:red; font-weight: bold; font-size:1.5em')
         if xhr.status == 401:
