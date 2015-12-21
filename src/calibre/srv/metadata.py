@@ -102,7 +102,8 @@ def category_item_as_json(x, clear_rating=False):
     return ans
 
 CategoriesSettings = namedtuple(
-    'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by template using_hierarchy grouped_search_terms hidden_categories')
+    'CategoriesSettings', 'dont_collapse collapse_model collapse_at sort_by'
+    ' template using_hierarchy grouped_search_terms hidden_categories hide_empty_categories')
 
 class GroupedSearchTerms(object):
 
@@ -168,7 +169,7 @@ def categories_settings(query, db):
     return CategoriesSettings(
         dont_collapse, collapse_model, collapse_at, sort_by, template,
         using_hierarchy, GroupedSearchTerms(db.pref('grouped_search_terms', {})),
-        hidden_categories)
+        hidden_categories, query.get('hide_empty_categories') == 'yes')
 
 def create_toplevel_tree(category_data, items, field_metadata, opts):
     # Create the basic tree, containing all top level categories , user
@@ -477,6 +478,8 @@ def render_categories(opts, db, category_data):
         # We have to remove hidden categories after all processing is done as
         # items from a hidden category could be in a user category
         root['children'] = filter((lambda child:items[child['id']]['category'] not in opts.hidden_categories), root['children'])
+    if opts.hide_empty_categories:
+        root['children'] = filter((lambda child:items[child['id']]['count'] > 0), root['children'])
     return {'root':root, 'item_map': items}
 
 def categories_as_json(ctx, rd, db):
@@ -525,6 +528,7 @@ def test_tag_browser(library_path=None):
     db = olddb.new_api
     opts = categories_settings({}, db)
     # opts = opts._replace(hidden_categories={'publisher'})
+    opts = opts._replace(hide_empty_categories=True)
     category_data = db.get_categories(sort=opts.sort_by, first_letter_sort=opts.collapse_model == 'first letter')
     data = render_categories(opts, db, category_data)
     srv_data = dump_categories_tree(data)
@@ -535,6 +539,7 @@ def test_tag_browser(library_path=None):
         'tags_browser_collapse_at':opts.collapse_at,
         'tags_browser_partition_method': opts.collapse_model,
         'tag_browser_dont_collapse': opts.dont_collapse,
+        'tag_browser_hide_empty_categories': opts.hide_empty_categories,
     }
     app = Application([])
     m = TagsModel(None, prefs)

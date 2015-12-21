@@ -220,7 +220,7 @@ def tag_browser(ctx, rd):
     '''
     Get the Tag Browser serialized as JSON
     Optional: ?library_id=<default library>&sort_tags_by=name&partition_method=first letter
-              &collapse_at=25&dont_collapse=
+              &collapse_at=25&dont_collapse=&hide_empty_categories=
     '''
     db, library_id = get_library_data(ctx, rd.query)[:2]
     etag = '%s||%s||%s' % (db.last_modified(), rd.username, library_id)

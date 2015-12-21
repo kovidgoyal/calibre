@@ -13,6 +13,7 @@ defaults = {
     'collapse_at': 25,  # number of items at which sub-groups are created, 0 to disable
     'dont_collapse': '',  # comma separated list of category names
     'sort_tags_by': 'name', # other choices: popularity, rating
+    'hide_empty_categories': 'no',
 }
 
 def storage_available(which):
