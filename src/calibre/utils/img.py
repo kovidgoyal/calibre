@@ -66,7 +66,10 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
     cwd = os.path.dirname(file_path)
-    fd, outfile = tempfile.mkstemp(dir=cwd)
+    ext = os.path.splitext(file_path)[1]
+    if not ext or len(ext) > 10 or not ext.startswith('.'):
+        ext = '.jpg'
+    fd, outfile = tempfile.mkstemp(dir=cwd, suffix=ext)
     try:
         if as_filter:
             outf = os.fdopen(fd, 'wb')
