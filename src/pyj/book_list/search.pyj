@@ -29,17 +29,18 @@ class SearchPanel:
 
         # Build search input
         search_container = div.firstChild.nextSibling
+        search_button = create_button(_('Search'), icon='search', action=self.execute_search.bind(self), tooltip=_('Do the search'))
         search_container.appendChild(E.div(style="display: flex; width: 100%;",
             E.input(
                 type='text', autocomplete='on', autosave='search', inputmode='latin', name='search-books',
                 title=_('Search for books'), placeholder=_('Enter the search query'), spellcheck='false',
                 style=str.format("flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em", BUTTON_VPADDING)
             ),
-            create_button(_('Search'), icon='search', action=self.execute_search.bind(self), tooltip=_('Do the search'))
+            search_button
         ))
         search_container.firstChild.firstChild.addEventListener('keypress', def(event):
             if event.keyCode == 13:
-                self.container.querySelector('button').focus()
+                search_button.focus()
                 self.execute_search()
                 event.preventDefault(), event.stopPropagation()
         )
