@@ -159,6 +159,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     'calibre')])
         r('book_list_tooltips', gprefs)
         r('tag_browser_old_look', gprefs, restart_required=True)
+        r('tag_browser_hide_empty_categories', gprefs)
         r('bd_show_cover', gprefs)
         r('bd_overlay_cover_size', gprefs)
         r('cover_grid_width', gprefs)

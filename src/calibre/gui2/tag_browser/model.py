@@ -665,6 +665,8 @@ class TagsModel(QAbstractItemModel):  # {{{
         for node in self.root_item.children:
             key = node.category_key
             if key in self.row_map:
+                if self.prefs['tag_browser_hide_empty_categories'] and len(node.child_tags()) == 0:
+                    continue;
                 if self.hidden_categories:
                     if key in self.hidden_categories:
                         continue

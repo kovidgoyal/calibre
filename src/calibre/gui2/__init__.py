@@ -115,6 +115,7 @@ defs['auto_add_auto_convert'] = True
 defs['auto_add_everything'] = False
 defs['ui_style'] = 'calibre' if iswindows or isosx else 'system'
 defs['tag_browser_old_look'] = False
+defs['tag_browser_hide_empty_categories'] = False
 defs['book_list_tooltips'] = True
 defs['bd_show_cover'] = True
 defs['bd_overlay_cover_size'] = False
