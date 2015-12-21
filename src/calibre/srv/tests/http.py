@@ -316,6 +316,25 @@ class TestHTTP(BaseTest):
             self.ae(str(len(raw)), r.getheader('Calibre-Uncompressed-Length'))
             self.ae(r.status, httplib.OK), self.ae(zlib.decompress(r.read(), 16+zlib.MAX_WBITS), raw)
 
+            # Test dynamic etagged content
+            num_calls = [0]
+            def edfunc():
+                num_calls[0] += 1
+                return b'data'
+            server.change_handler(lambda conn:conn.etagged_dynamic_response("xxx", edfunc))
+            conn = server.connect()
+            conn.request('GET', '/an_etagged_path')
+            r = conn.getresponse()
+            self.ae(r.status, httplib.OK), self.ae(r.read(), b'data')
+            etag = r.getheader('ETag')
+            self.ae(etag, b'"xxx"')
+            self.ae(r.getheader('Content-Length'), '4')
+            conn.request('GET', '/an_etagged_path', headers={'If-None-Match':etag})
+            r = conn.getresponse()
+            self.ae(r.status, httplib.NOT_MODIFIED)
+            self.ae(r.read(), b'')
+            self.ae(num_calls[0], 1)
+
             # Test getting a filesystem file
             for use_sendfile in (True, False):
                 server.change_handler(lambda conn: f)

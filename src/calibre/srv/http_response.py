@@ -230,6 +230,15 @@ class RequestData(object):  # {{{
         tuple(map(lambda x:etag.update(string(x)), etag_parts))
         return ETaggedFile(output, etag.hexdigest())
 
+    def etagged_dynamic_response(self, etag, func, content_type='text/html; charset=UTF-8'):
+        ' A response that is generated only if the etag does not match '
+        ct = self.outheaders.get('Content-Type')
+        if not ct:
+            self.outheaders.set('Content-Type', content_type, replace_all=True)
+        if not etag.endswith('"'):
+            etag = '"%s"' % etag
+        return ETaggedDynamicOutput(func, etag)
+
     def read(self, size=-1):
         return self.request_body_file.read(size)
 
@@ -286,7 +295,7 @@ def filesystem_file_output(output, outheaders, stat_result):
     self.use_sendfile = True
     return self
 
-def dynamic_output(output, outheaders):
+def dynamic_output(output, outheaders, etag=None):
     if isinstance(output, bytes):
         data = output
     else:
@@ -294,9 +303,17 @@ def dynamic_output(output, outheaders):
         ct = outheaders.get('Content-Type')
         if not ct:
             outheaders.set('Content-Type', 'text/plain; charset=UTF-8', replace_all=True)
-    ans = ReadableOutput(ReadOnlyFileBuffer(data))
+    ans = ReadableOutput(ReadOnlyFileBuffer(data), etag=etag)
     ans.accept_ranges = False
     return ans
+
+class ETaggedDynamicOutput(object):
+
+    def __init__(self, func, etag):
+        self.func, self.etag = func, etag
+
+    def __call__(self):
+        return self.func()
 
 class GeneratedOutput(object):
 
@@ -550,6 +567,16 @@ class HTTPConnection(HTTPRequest):
         self.simple_response(httplib.INTERNAL_SERVER_ERROR)
 
     def finalize_output(self, output, request, is_http1):
+        none_match = parse_if_none_match(request.inheaders.get('If-None-Match', ''))
+        if isinstance(output, ETaggedDynamicOutput):
+            matched = '*' in none_match or (output.etag and output.etag in none_match)
+            if matched:
+                if self.method in ('GET', 'HEAD'):
+                    self.send_not_modified(output.etag)
+                else:
+                    self.simple_response(httplib.PRECONDITION_FAILED)
+                return
+
         opts = self.opts
         outheaders = request.outheaders
         stat_result = file_metadata(output)
@@ -567,6 +594,8 @@ class HTTPConnection(HTTPRequest):
             output = ReadableOutput(output)
         elif isinstance(output, StaticOutput):
             output = ReadableOutput(ReadOnlyFileBuffer(output.data), etag=output.etag, content_length=output.content_length)
+        elif isinstance(output, ETaggedDynamicOutput):
+            output = dynamic_output(output(), outheaders, etag=output.etag)
         else:
             output = GeneratedOutput(output)
         ct = outheaders.get('Content-Type', '').partition(';')[0]
@@ -587,7 +616,6 @@ class HTTPConnection(HTTPRequest):
         for header in ('Accept-Ranges', 'Content-Encoding', 'Transfer-Encoding', 'ETag', 'Content-Length'):
             outheaders.pop('header', all=True)
 
-        none_match = parse_if_none_match(request.inheaders.get('If-None-Match', ''))
         matched = '*' in none_match or (output.etag and output.etag in none_match)
         if matched:
             if self.method in ('GET', 'HEAD'):
