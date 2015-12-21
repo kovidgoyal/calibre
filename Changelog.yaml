@@ -20,6 +20,32 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.47.0
+  date: 2015-12-21
+
+  new features:
+    - title: "A new tool to easily export and import all calibre data -- books, settings and plugins"
+      description: "Right click the calibre icon in the main calibre toolbar and choose \"Export/import all calibre data\" to run this tool. It is useful if you want to move to a new computer or duplicate your calibre setup on a second computer, with minimal effort. This tool is very new, so if you run into problems, please report bugs. You can always use the old manual method of copying library folders as a fallback."
+      type: major
+
+    - title: "Get Books: Add plugins for Amazon Australia and Amazon India. Also restore the Amazon EU plugins."
+      tickets: [1526089]
+
+  bug fixes:
+    - title: "PDF Input: Fix conversion of PDF documents that contain ASCII control codes in their outlines not working."
+      tickets: [1527697]
+
+    - title: "Edit book: Fix image compression utilities opening a new console per invocation on windows"
+
+    - title: "Image compression: If the compression tools return a zero byte image ignore it and use the original image"
+
+    - title: "Fix a regression that caused book titles in the Book Details panel to become clickable"
+
+  improved recipes:
+    - Fox News
+    - Le Devoir
+    - Le Monde diplomatique.fr
+
 - version: 2.46.0
   date: 2015-12-11
 
