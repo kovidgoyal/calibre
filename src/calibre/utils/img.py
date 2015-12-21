@@ -109,12 +109,14 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
         if p.wait() != 0:
             return raw
         else:
+            if as_filter:
+                outw.join(60.0)
             try:
                 sz = os.path.getsize(outfile)
             except EnvironmentError:
                 sz = 0
             if sz < 1:
-                return raw
+                return '%s returned a zero size image' % cmd[0]
             shutil.copystat(file_path, outfile)
             atomic_rename(outfile, file_path)
     finally:
@@ -148,3 +150,19 @@ def encode_jpeg(file_path, quality=80):
     if not img.save(buf, 'PPM'):
         raise ValueError('Failed to export image to PPM')
     return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data()))
+
+def test():
+    from calibre.ptempfile import TemporaryDirectory
+    from calibre import CurrentDir
+    with TemporaryDirectory() as tdir, CurrentDir(tdir):
+        shutil.copyfile(I('devices/kindle.jpg'), 'test.jpg')
+        ret = optimize_jpeg('test.jpg')
+        if ret is not None:
+            raise SystemExit('optimize_jpeg failed: %s' % ret)
+        ret = encode_jpeg('test.jpg')
+        if ret is not None:
+            raise SystemExit('encode_jpeg failed: %s' % ret)
+        shutil.copyfile(I('lt.png'), 'test.png')
+        ret = optimize_png('test.png')
+        if ret is not None:
+            raise SystemExit('optimize_png failed: %s' % ret)
