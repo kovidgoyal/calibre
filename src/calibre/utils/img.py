@@ -110,7 +110,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             return raw
         else:
             if as_filter:
-                outw.join(60.0)
+                outw.join(60.0), inw.join(60.0)
             try:
                 sz = os.path.getsize(outfile)
             except EnvironmentError:
