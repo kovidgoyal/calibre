@@ -125,6 +125,11 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
         except EnvironmentError as err:
             if err.errno != errno.ENOENT:
                 raise
+        try:
+            os.remove(outfile + '.bak')  # optipng creates these files
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise
 
 def optimize_jpeg(file_path):
     exe = get_exe_path('jpegtran')
