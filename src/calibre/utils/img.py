@@ -159,6 +159,7 @@ def encode_jpeg(file_path, quality=80):
 def test():
     from calibre.ptempfile import TemporaryDirectory
     from calibre import CurrentDir
+    from glob import glob
     with TemporaryDirectory() as tdir, CurrentDir(tdir):
         shutil.copyfile(I('devices/kindle.jpg'), 'test.jpg')
         ret = optimize_jpeg('test.jpg')
@@ -171,3 +172,5 @@ def test():
         ret = optimize_png('test.png')
         if ret is not None:
             raise SystemExit('optimize_png failed: %s' % ret)
+        if glob('*.bak'):
+            raise SystemExit('Spurious .bak files left behind')
