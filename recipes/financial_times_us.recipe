@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
-__copyright__ = '2010-2013, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2010-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
-www.ft.com/intl/international-edition
+www.ft.com/international-edition
 '''
 
 from calibre.ptempfile import PersistentTemporaryFile
@@ -26,9 +26,8 @@ class FinancialTimes(BasicNewsRecipe):
     articles_are_obfuscated = True
     temp_files              = []
     masthead_url          = 'http://im.media.ft.com/m/img/masthead_main.jpg'
-    LOGIN                 = 'https://registration.ft.com/registration/barrier/login'
-    LOGIN2                = 'http://media.ft.com/h/subs3.html'
-    INDEX                 = 'http://www.ft.com/intl/international-edition'
+    LOGIN                 = 'https://accounts.ft.com/login?location=http%3A%2F%2Fwww.ft.com%2Fhome%2Fuk'
+    INDEX                 = 'http://www.ft.com/international-edition'
     PREFIX                = 'http://www.ft.com'
 
     conversion_options = {
@@ -44,8 +43,8 @@ class FinancialTimes(BasicNewsRecipe):
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
-            br.select_form(name='loginForm')
-            br['username'] = self.username
+            br.select_form(name='login')
+            br['email'   ] = self.username
             br['password'] = self.password
             br.submit()
         return br
@@ -58,6 +57,8 @@ class FinancialTimes(BasicNewsRecipe):
                      ,dict(name=['meta','iframe','base','object','embed','link'])
                      ,dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']})
                      ,dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()})
+                     ,dict(name='div', attrs={'class':lambda x: x and 'ft-new-story-tools-box' in x.split()})
+                     ,dict(name='div', attrs={'class':['railMiniVideo','ftbf-syndicationIndicator']})
                   ]
     remove_attributes = ['width','height','lang']
 
