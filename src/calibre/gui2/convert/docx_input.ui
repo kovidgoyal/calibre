@@ -29,9 +29,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QCheckBox" name="opt_docx_no_supsub_in_css">
+    <widget class="QCheckBox" name="opt_docx_inline_subsup">
      <property name="text">
-      <string>Use top and bottom as vertical-align values in stylesheet, instead of superscript and subscript</string>
+      <string>Render superscripts and subscripts so that they do not affect the line height.</string>
      </property>
     </widget>
    </item>
