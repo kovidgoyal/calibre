@@ -63,7 +63,7 @@ is_footnote_link = (node, url, linked_to_anchors) ->
     [x, num] = [node, 3]
     while x and num > 0
         style = window.getComputedStyle(x)
-        if style.verticalAlign in ['sub', 'super']
+        if style.verticalAlign in ['sub', 'super', 'top', 'bottom']
             return true
         x = x.parentNode
         num -= 1
@@ -72,7 +72,7 @@ is_footnote_link = (node, url, linked_to_anchors) ->
     children = (x for x in node.childNodes when x.nodeType == Node.ELEMENT_NODE)
     if children.length == 1
         style = window.getComputedStyle(children[0])
-        if style.verticalAlign in ['sub', 'super']
+        if style.verticalAlign in ['sub', 'super', 'top', 'bottom']
             return true
 
     eid = node.getAttribute('id') or node.getAttribute('name')
