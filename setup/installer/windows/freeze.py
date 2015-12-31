@@ -558,14 +558,18 @@ class Win32Freeze(Command, WixMixIn):
         args = ['signtool.exe', 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
             'calibre - E-book management', '/du',
             'http://calibre-ebook.com', '/tr']
-        for timeserver in ('http://timestamp.geotrust.com/tsa', 'http://timestamp.comodoca.com/rfc3161',):
-            try:
-                subprocess.check_call(args + [timeserver] + files)
-                break
-            except subprocess.CalledProcessError:
-                print ('Signing failed, retrying with different timestamp server')
-        else:
-            raise SystemExit('Signing failed')
+
+        def runcmd(cmd):
+            for timeserver in ('http://timestamp.geotrust.com/tsa', 'http://timestamp.comodoca.com/rfc3161',):
+                try:
+                    subprocess.check_call(cmd + [timeserver] + files)
+                    break
+                except subprocess.CalledProcessError:
+                    print ('Signing failed, retrying with different timestamp server')
+            else:
+                raise SystemExit('Signing failed')
+
+        runcmd(args)
 
     def add_dir_to_zip(self, zf, path, prefix=''):
         '''
