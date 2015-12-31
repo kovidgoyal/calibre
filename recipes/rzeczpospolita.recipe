@@ -15,7 +15,6 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
 
     no_stylesheets = True
     remove_javascript = True
-    encoding = 'utf-8'
     # Seems to work best, but YMMV
     simultaneous_downloads = 5
 
