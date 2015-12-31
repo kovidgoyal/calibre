@@ -51,39 +51,40 @@ def register_text_editor_actions(_reg, palette):
             editor_toolbar_actions[s][args[3]] = ac
         return ac
 
-    ac = reg('format-text-bold', _('&Bold'), ('format_text', 'bold'), 'format-text-bold', 'Ctrl+B', _('Make the selected text bold'))
+    ac = reg('format-text-bold.png', _('&Bold'), ('format_text', 'bold'), 'format-text-bold', 'Ctrl+B', _('Make the selected text bold'))
     ac.setToolTip(_('<h3>Bold</h3>Make the selected text bold'))
-    ac = reg('format-text-italic', _('&Italic'), ('format_text', 'italic'), 'format-text-italic', 'Ctrl+I', _('Make the selected text italic'))
+    ac = reg('format-text-italic.png', _('&Italic'), ('format_text', 'italic'), 'format-text-italic', 'Ctrl+I', _('Make the selected text italic'))
     ac.setToolTip(_('<h3>Italic</h3>Make the selected text italic'))
-    ac = reg('format-text-underline', _('&Underline'), ('format_text', 'underline'), 'format-text-underline', (), _('Underline the selected text'))
+    ac = reg('format-text-underline.png', _('&Underline'), ('format_text', 'underline'), 'format-text-underline', (), _('Underline the selected text'))
     ac.setToolTip(_('<h3>Underline</h3>Underline the selected text'))
-    ac = reg('format-text-strikethrough', _('&Strikethrough'), ('format_text', 'strikethrough'),
+    ac = reg('format-text-strikethrough.png', _('&Strikethrough'), ('format_text', 'strikethrough'),
              'format-text-strikethrough', (), _('Draw a line through the selected text'))
     ac.setToolTip(_('<h3>Strikethrough</h3>Draw a line through the selected text'))
-    ac = reg('format-text-superscript', _('&Superscript'), ('format_text', 'superscript'),
+    ac = reg('format-text-superscript.png', _('&Superscript'), ('format_text', 'superscript'),
              'format-text-superscript', (), _('Make the selected text a superscript'))
     ac.setToolTip(_('<h3>Superscript</h3>Set the selected text slightly smaller and above the normal line'))
-    ac = reg('format-text-subscript', _('&Subscript'), ('format_text', 'subscript'),
+    ac = reg('format-text-subscript.png', _('&Subscript'), ('format_text', 'subscript'),
              'format-text-subscript', (), _('Make the selected text a subscript'))
     ac.setToolTip(_('<h3>Subscript</h3>Set the selected text slightly smaller and below the normal line'))
-    ac = reg('format-text-color', _('&Color'), ('format_text', 'color'), 'format-text-color', (), _('Change text color'))
+    ac = reg('format-text-color.png', _('&Color'), ('format_text', 'color'), 'format-text-color', (), _('Change text color'))
     ac.setToolTip(_('<h3>Color</h3>Change the color of the selected text'))
-    ac = reg('format-fill-color', _('&Background Color'), ('format_text', 'background-color'),
+    ac = reg('format-fill-color.png', _('&Background Color'), ('format_text', 'background-color'),
              'format-text-background-color', (), _('Change background color of text'))
     ac.setToolTip(_('<h3>Background Color</h3>Change the background color of the selected text'))
-    ac = reg('format-justify-left', _('Align &left'), ('format_text', 'justify_left'), 'format-text-justify-left', (), _('Align left'))
+    ac = reg('format-justify-left.png', _('Align &left'), ('format_text', 'justify_left'), 'format-text-justify-left', (), _('Align left'))
     ac.setToolTip(_('<h3>Align left</h3>Align the paragraph to the left'))
-    ac = reg('format-justify-center', _('&Center'), ('format_text', 'justify_center'), 'format-text-justify-center', (), _('Center'))
+    ac = reg('format-justify-center.png', _('&Center'), ('format_text', 'justify_center'), 'format-text-justify-center', (), _('Center'))
     ac.setToolTip(_('<h3>Center</h3>Center the paragraph'))
-    ac = reg('format-justify-right', _('Align &right'), ('format_text', 'justify_right'), 'format-text-justify-right', (), _('Align right'))
+    ac = reg('format-justify-right.png', _('Align &right'), ('format_text', 'justify_right'), 'format-text-justify-right', (), _('Align right'))
     ac.setToolTip(_('<h3>Align right</h3>Align the paragraph to the right'))
-    ac = reg('format-justify-fill', _('&Justify'), ('format_text', 'justify_justify'), 'format-text-justify-fill', (), _('Justify'))
+    ac = reg('format-justify-fill.png', _('&Justify'), ('format_text', 'justify_justify'), 'format-text-justify-fill', (), _('Justify'))
     ac.setToolTip(_('<h3>Justify</h3>Align the paragraph to both the left and right margins'))
 
-    ac = reg('view-image', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (), _('Insert an image into the text'), syntaxes=('html', 'css'))
+    ac = reg('view-image.png', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (),
+             _('Insert an image into the text'), syntaxes=('html', 'css'))
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
 
-    ac = reg('insert-link', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'), syntaxes=('html',))
+    ac = reg('insert-link.png', _('Insert &hyperlink'), ('insert_hyperlink',), 'insert-hyperlink', (), _('Insert hyperlink'), syntaxes=('html',))
     ac.setToolTip(_('<h3>Insert hyperlink</h3>Insert a hyperlink into the text'))
 
     ac = reg(create_icon('/*', divider=1, fill=None), _('Smart &comment'), ('smart_comment',), 'editor-smart-comment', ('Ctrl+`',), _(
@@ -104,7 +105,7 @@ def register_text_editor_actions(_reg, palette):
         ac = reg(None, text, ('change_case', transform), 'transform-case-' + transform, (), desc, syntaxes=())
         ac.setToolTip(desc)
 
-    ac = reg('code', _('Insert &tag'), ('insert_tag',), 'insert-tag', ('Ctrl+<'), _('Insert tag'), syntaxes=('html', 'xml'))
+    ac = reg('code.png', _('Insert &tag'), ('insert_tag',), 'insert-tag', ('Ctrl+<'), _('Insert tag'), syntaxes=('html', 'xml'))
     ac.setToolTip(_('<h3>Insert tag</h3>Insert a tag, if some text is selected the tag will be inserted around the selected text'))
 
     editor_toolbar_actions['html']['fix-html-current'] = actions['fix-html-current']

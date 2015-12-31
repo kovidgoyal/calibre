@@ -127,15 +127,15 @@ class EditorWidget(QWebView):  # {{{
                 ac.triggered.connect(self.remove_format_cleanup,
                         type=Qt.QueuedConnection)
 
-        self.action_color = QAction(QIcon(I('format-text-color')), _('Foreground color'),
+        self.action_color = QAction(QIcon(I('format-text-color.png')), _('Foreground color'),
                 self)
         self.action_color.triggered.connect(self.foreground_color)
 
-        self.action_background = QAction(QIcon(I('format-fill-color')),
+        self.action_background = QAction(QIcon(I('format-fill-color.png')),
                 _('Background color'), self)
         self.action_background.triggered.connect(self.background_color)
 
-        self.action_block_style = QAction(QIcon(I('format-text-heading')),
+        self.action_block_style = QAction(QIcon(I('format-text-heading.png')),
                 _('Style text block'), self)
         self.action_block_style.setToolTip(
                 _('Style the selected text block'))
@@ -163,7 +163,7 @@ class EditorWidget(QWebView):  # {{{
         self.action_insert_link.triggered.connect(self.insert_link)
         self.pageAction(QWebPage.ToggleBold).changed.connect(self.update_link_action)
         self.action_insert_link.setEnabled(False)
-        self.action_clear = QAction(QIcon(I('edit-clear')), _('Clear'), self)
+        self.action_clear = QAction(QIcon(I('edit-clear.png')), _('Clear'), self)
         self.action_clear.triggered.connect(self.clear_text)
 
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
