@@ -3,56 +3,48 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class NewYorkTimesBookReview(BasicNewsRecipe):
     title          = u'New York Times Book Review'
     language       = 'en'
-    description    = 'The New York Times Sunday Book Review. Best downloaded on Fridays to avoid the ads that the New York Times shows of the first few days of the week.'  # noqa
+    description    = 'The New York Times Sunday Book Review'
     __author__     = 'Kovid Goyal'
 
     no_stylesheets = True
     no_javascript = True
-    auto_cleanup = True
-    #keep_only_tags = [dict(id='article'), dict(id=lambda x:x and x.startswith('entry-'))]
-    # remove_tags = [
-        #dict(attrs={'class':['articleBottomExtra', 'shareToolsBox', 'singleAd']}),
-        #dict(attrs={'class':lambda x: x and ('shareTools' in x or 'enlargeThis' in x)}),
-    #]
+    ignore_duplicate_articles = {'title', 'url'}
+    encoding = 'utf-8'
+
+    keep_only_tags = [
+        dict(id=['story-heading', 'story-meta-footer']),
+        dict(itemprop=['associatedMedia', 'articleBody', 'reviewBody']),
+    ]
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.nytimes.com/pages/books/review/index.html')
 
         # Find TOC
-        toc = soup.find('div', id='main').find(
-            'div', attrs={'class':'abColumn'})
-        feeds = []
-        articles = []
-        section_title = 'Features'
-        for x in toc.findAll(['div', 'h3', 'h6'], attrs={'class':['story', 'sectionHeader', 'ledeStory']}):
-            if x['class'] == 'sectionHeader':
-                if articles:
-                    feeds.append((section_title, articles))
-                section_title = self.tag_to_string(x)
-                articles = []
-                self.log('Found section:', section_title)
-                continue
-            if x['class'] in {'story', 'ledeStory'}:
-                tt = 'h3' if x['class'] == 'story' else 'h1'
-                try:
-                    a = x.find(tt).find('a', href=True)
-                except AttributeError:
-                    continue
+        toc = soup.find('div', attrs={'class':'rank'})
+        main_articles, articles = [], []
+        feeds = [('Features', main_articles), ('Latest', articles)]
+        for h2 in toc.findAll('h2', attrs={'class':'headline'}):
+            a = h2.find('a', href=True)
+            if a is not None:
                 title = self.tag_to_string(a)
-                url = a['href'] + '&pagewanted=all'
-                self.log('\tFound article:', title, url)
+                url = a['href']
                 desc = ''
-                byline = x.find('h6', attrs={'class':'byline'})
-                if byline is not None:
-                    desc = self.tag_to_string(byline)
-                summary = x.find('p', attrs={'class':'summary'})
-                if summary is not None:
-                    desc += self.tag_to_string(summary)
+                p = h2.findNextSibling('p', attrs={'class':'summary'})
+                if p:
+                    desc = self.tag_to_string(p)
+                main_articles.append({'title':title, 'url':url, 'description':desc})
+                self.log('Found:', title, 'at', url)
                 if desc:
-                    self.log('\t\t', desc)
-                articles.append({'title':title, 'url':url, 'date':'',
-                    'description':desc})
+                    self.log('\t', desc)
+        for li in soup.find(id='latest-panel').find('ol').findAll('li'):
+            a = li.find('a', attrs={'class':'story-link'}, href=True)
+            url = a['href']
+            m = a.find(attrs={'class':'story-meta'})
+            title = self.tag_to_string(m.find('h2'))
+            desc = self.tag_to_string(m.find(attrs={'class':'summary'}))
+            articles.append({'title':title, 'url':url, 'description':desc})
+            self.log('Found:', title, 'at', url)
+            if desc:
+                self.log('\t', desc)
 
         return feeds
-
-
