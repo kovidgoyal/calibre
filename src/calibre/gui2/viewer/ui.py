@@ -21,6 +21,7 @@ from calibre.gui2.viewer.documentview import DocumentView
 from calibre.gui2.viewer.bookmarkmanager import BookmarkManager
 from calibre.gui2.viewer.toc import TOCView, TOCSearch
 from calibre.gui2.viewer.footnote import FootnotesView
+from calibre.utils.localization import is_rtl
 
 class DoubleSpinBox(QDoubleSpinBox):  # {{{
 
@@ -85,7 +86,7 @@ class Metadata(QWebView):  # {{{
         from calibre.ebooks.metadata.book.render import mi_to_html
 
         def render_data(mi, use_roman_numbers=True, all_fields=False):
-            return mi_to_html(mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font())
+            return mi_to_html(mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font(), rtl=is_rtl())
 
         mi = opf.to_book_metadata()
         html = render_html(mi, self.css, True, self, render_data_func=render_data)

@@ -23,6 +23,7 @@ from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata.book.render import mi_to_html
 from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font)
 from calibre.utils.config import tweaks
+from calibre.utils.localization import is_rtl
 
 def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=None):  # {{{
     table, comment_fields = (render_data_func or render_data)(mi, all_fields=all_fields,
@@ -100,7 +101,7 @@ def get_field_list(fm, use_defaults=False):
 def render_data(mi, use_roman_numbers=True, all_fields=False):
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata))
     field_list = [(x, all_fields or display) for x, display in field_list]
-    return mi_to_html(mi, field_list=field_list, use_roman_numbers=use_roman_numbers,
+    return mi_to_html(mi, field_list=field_list, use_roman_numbers=use_roman_numbers, rtl=is_rtl(),
                       rating_font=rating_font(), default_author_link=gprefs.get('default_author_link'))
 
 # }}}

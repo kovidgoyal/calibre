@@ -81,6 +81,9 @@ def get_lang():
         lang = 'en'
     return lang
 
+def is_rtl():
+    return get_lang()[:2].lower() in {'he', 'ar'}
+
 def get_lc_messages_path(lang):
     hlang = None
     if zf_exists():

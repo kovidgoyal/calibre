@@ -53,7 +53,7 @@ def search_href(search_term, value):
 def item_data(field_name, value, book_id):
     return hexlify(cPickle.dumps((field_name, value, book_id), -1))
 
-def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif'):
+def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif', rtl=False):
     if field_list is None:
         field_list = get_field_list(mi)
     ans = []
@@ -263,4 +263,5 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
     ans = [u'<tr id="%s" class="%s">%s</tr>'%(fieldl.replace('#', '_'),
         classname(fieldl), html) for fieldl, html in ans]
     # print '\n'.join(ans)
-    return u'<table class="fields">%s</table>'%(u'\n'.join(ans)), comment_fields
+    direction = 'rtl' if rtl else 'ltr'
+    return u'<table class="fields" dir="%s">%s</table>'%(direction, u'\n'.join(ans)), comment_fields
