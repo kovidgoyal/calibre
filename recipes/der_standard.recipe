@@ -8,7 +8,6 @@ __copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
 import re
 import random
 from calibre.web.feeds.news import BasicNewsRecipe
-from time import strftime
 
 class DerStandardRecipe(BasicNewsRecipe):
     title = u'derStandard'
