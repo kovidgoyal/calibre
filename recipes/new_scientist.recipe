@@ -25,7 +25,6 @@ newscientist.com
 '''
 
 import re
-import urllib
 from calibre.utils.magick import Image
 from calibre.web.feeds.news import BasicNewsRecipe
 
