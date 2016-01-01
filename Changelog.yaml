@@ -6,7 +6,7 @@
 # Also, each release can have new and improved recipes.
 
 # - version: ?.?.?
-#   date: 2015-??-??
+#   date: 2016-??-??
 #
 #   new features:
 #     - title: 
@@ -19,6 +19,40 @@
 #
 #   new recipes:
 #     - title: 
+
+- version: 2.48.0
+  date: 2016-01-01
+
+  new features:
+    - title: "Driver for Energy Ereader Screenlight."
+      tickets: [1529108]
+
+    - title: "DOCX Input: Add option to have superscripts/subscripts converted so that they do not affect the line height of the line containing them."
+      tickets: [1528055]
+
+    - title: "New option to hide empty categories in Tag Browser (Preferences->Look & Feel->Tag Browser)"
+
+  bug fixes:
+    - title: "Image compression: Fix spurious zero byte .bak files being created when compressing png images inside epub files"
+
+    - title: "Image compression: Fix bug that could cause zero byte images files/or file in use errors when compressing images"
+
+    - title: "Fix some icons not being themeable"
+      tickets: [1529501]
+
+    - title: "E-book viewer: When using heuristics to detect footnote links check for vertical-align set to top and bottom as well as sub and super"
+
+    - title: "Book details panel: Display data in right-to-left format when the calibre interface language is set to a right-to-left language such as Hebrew or Arabic"
+
+  improved recipes:
+    - Rzeczpospolita
+    - New York Times Book Review
+    - der Standard
+    - More Intelligent Life
+    - Reader's Digest
+    - Financial Times
+    - New Scientist
+
 
 - version: 2.47.0
   date: 2015-12-21
