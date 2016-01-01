@@ -45,6 +45,14 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
 
     c = color_to_string(QApplication.palette().color(QPalette.Normal,
                     QPalette.WindowText))
+    
+    from calibre.utils.localization import get_lang
+    lang_list = ["he","arb"]
+
+    lang = 'style="text-align:left"'
+    if get_lang() in lang_list:
+        lang = 'style="text-align:right" dir="rtl"'
+
     templ = u'''\
     <html>
         <head>
@@ -60,11 +68,12 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
             %s
         </style>
         </head>
-        <body>
-        %%s
-        </body>
-    <html>
-    '''%(f, fam, c, css)
+    '''%(f, fam,c,css)
+
+    templ = templ+'''<body %s>%%s</body><html>'''
+    templ = templ%(lang)
+    
+    
     comments = u''
     if comment_fields:
         comments = '\n'.join(u'<div>%s</div>' % x for x in comment_fields)
