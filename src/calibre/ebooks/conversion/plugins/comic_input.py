@@ -232,9 +232,10 @@ class ComicInput(InputFormatPlugin):
     def create_wrappers(self, pages):
         from calibre.ebooks.oeb.base import XHTML_NS
         wrappers = []
-        WRAPPER = textwrap.dedent('''\
+        WRAPPER = textwrap.dedent(u'''\
         <html xmlns="%s">
             <head>
+                <meta charset="utf-8"/>
                 <title>Page #%d</title>
                 <style type="text/css">
                     @page { margin:0pt; padding: 0pt}
@@ -253,7 +254,8 @@ class ComicInput(InputFormatPlugin):
         for i, page in enumerate(pages):
             wrapper = WRAPPER%(XHTML_NS, i+1, os.path.basename(page), i+1)
             page = os.path.join(dir, u'page_%d.xhtml'%(i+1))
-            open(page, 'wb').write(wrapper)
+            with open(page, 'wb') as f:
+                f.write(wrapper.encode('utf-8'))
             wrappers.append(page)
         return wrappers
 

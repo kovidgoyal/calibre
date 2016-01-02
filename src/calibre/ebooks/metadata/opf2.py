@@ -1493,7 +1493,10 @@ class OPFCreator(Metadata):
         manifest = E.manifest()
         if self.manifest is not None:
             for ref in self.manifest:
-                item = E.item(id=str(ref.id), href=ref.href())
+                href = ref.href()
+                if isinstance(href, bytes):
+                    href = href.decode('utf-8')
+                item = E.item(id=str(ref.id), href=href)
                 item.set('media-type', ref.mime_type)
                 manifest.append(item)
         spine = E.spine()
