@@ -579,7 +579,7 @@ The Table of Contents View
 The Table of Contents view shows you the current table of contents in the book.
 Double clicking on any entry opens the place that entry points to in an editor.
 You can right click to edit the Table of Contents, refresh the view or
-expand/collapse all items. Access this view via :guilabel:`Views->Table of
+expand/collapse all items. Access this view via :guilabel:`View->Table of
 Contents`.
 
 Checking the spelling of words in the book
