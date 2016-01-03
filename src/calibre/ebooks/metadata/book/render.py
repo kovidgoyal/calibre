@@ -264,4 +264,5 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
         classname(fieldl), html) for fieldl, html in ans]
     # print '\n'.join(ans)
     direction = 'rtl' if rtl else 'ltr'
-    return u'<table class="fields" dir="%s">%s</table>'%(direction, u'\n'.join(ans)), comment_fields
+    margin = 'left' if rtl else 'right'
+    return u'<table class="fields" style="direction: %s; margin-%s:auto">%s</table>'%(direction, margin, u'\n'.join(ans)), comment_fields
