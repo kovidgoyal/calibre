@@ -645,7 +645,7 @@ def run_installer(install_dir, isolated, bin_dir, share_dir):
         prints(destdir, 'is not a valid install location. Choose', end='')
         prints('a location like /opt or /usr/local')
         return 1
-    destdir = os.path.join(destdir, 'calibre')
+    destdir = os.path.realpath(os.path.join(destdir, 'calibre'))
     if os.path.exists(destdir):
         if not os.path.isdir(destdir):
             prints(destdir, 'exists and is not a directory. Choose a location like /opt or /usr/local')
