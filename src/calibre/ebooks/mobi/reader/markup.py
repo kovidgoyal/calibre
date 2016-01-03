@@ -334,7 +334,7 @@ def handle_media_queries(raw):
             return '@media screen {'
         return m.group()
 
-    return re.sub(r'@media\s[^{]*{', replace, raw)
+    return re.sub(r'@media\s[^{]*?[{;]', replace, raw)
 
 def expand_mobi8_markup(mobi8_reader, resource_map, log):
     # First update all internal links that are based on offsets
