@@ -16,7 +16,7 @@ from PyQt5.Qt import QObject, Qt, pyqtSignal
 
 from calibre import prints, as_unicode
 from calibre.constants import DEBUG
-from calibre.customize.ui import run_plugins_on_postimport
+from calibre.customize.ui import run_plugins_on_postimport, run_plugins_on_postadd
 from calibre.db.adding import find_books_in_directory
 from calibre.db.utils import find_identical_books
 from calibre.ebooks.metadata.book.base import Metadata
@@ -375,7 +375,7 @@ class Adder(QObject):
             [a('\t' + f) for f in paths]
             a(_('With error:')), a(traceback.format_exc())
             return
-        self.add_formats(book_id, paths, mi)
+        self.add_formats(book_id, paths, mi, is_an_add=True)
         try:
             if self.add_formats_to_existing:
                 self.db.update_data_for_find_identical_books(book_id, self.find_identical_books_data)
@@ -388,8 +388,9 @@ class Adder(QObject):
         if DEBUG:
             prints('Added', mi.title, 'to db in: %.1f' % (time.time() - st))
 
-    def add_formats(self, book_id, paths, mi, replace=True):
+    def add_formats(self, book_id, paths, mi, replace=True, is_an_add=False):
         fmap = {p.rpartition(os.path.extsep)[-1].lower():p for p in paths}
+        fmt_map = {}
         for fmt, path in fmap.iteritems():
             # The onimport plugins have already been run by the read metadata
             # worker
@@ -398,11 +399,14 @@ class Adder(QObject):
             try:
                 if self.db.add_format(book_id, fmt, path, run_hooks=False, replace=replace):
                     run_plugins_on_postimport(self.dbref(), book_id, fmt)
+                    fmt_map[fmt.lower()] = path
             except Exception:
                 a = self.report.append
                 a(''), a('-' * 70)
                 a(_('Failed to add the file {0} to the book: {1}').format(path, mi.title))
                 a(_('With error:')), a(traceback.format_exc())
+        if is_an_add:
+            run_plugins_on_postadd(self.dbref(), book_id, fmt_map)
 
     def process_duplicates(self):
         if self.duplicates:

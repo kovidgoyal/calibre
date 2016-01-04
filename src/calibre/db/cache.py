@@ -15,7 +15,7 @@ from future_builtins import zip
 
 from calibre import isbytestring, as_unicode
 from calibre.constants import iswindows, preferred_encoding
-from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport
+from calibre.customize.ui import run_plugins_on_import, run_plugins_on_postimport, run_plugins_on_postadd
 from calibre.db import SPOOL_SIZE, _get_next_series_num_for_list
 from calibre.db.categories import get_categories
 from calibre.db.locking import create_locks, DowngradeLockError, SafeReadLock
@@ -1544,6 +1544,7 @@ class Cache(object):
         as per the simple duplicate detection heuristic used by :meth:`has_book`.
         '''
         duplicates, ids = [], []
+        fmt_map = {}
         for mi, format_map in books:
             book_id = self.create_book_entry(mi, add_duplicates=add_duplicates, apply_import_tags=apply_import_tags, preserve_uuid=preserve_uuid)
             if book_id is None:
@@ -1551,7 +1552,9 @@ class Cache(object):
             else:
                 ids.append(book_id)
                 for fmt, stream_or_path in format_map.iteritems():
-                    self.add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks)
+                    if self.add_format(book_id, fmt, stream_or_path, dbapi=dbapi, run_hooks=run_hooks):
+                        fmt_map[fmt.lower()] = getattr(stream_or_path, 'name', stream_or_path) or '<stream>'
+            run_plugins_on_postadd(dbapi or self, book_id, fmt_map)
         return ids, duplicates
 
     @write_api

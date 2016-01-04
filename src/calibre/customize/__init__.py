@@ -179,8 +179,7 @@ class Plugin(object):  # {{{
             help_text = self.customization_help(gui=True)
             help_text = QLabel(help_text, config_dialog)
             help_text.setWordWrap(True)
-            help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse
-                    | Qt.LinksAccessibleByKeyboard)
+            help_text.setTextInteractionFlags(Qt.LinksAccessibleByMouse | Qt.LinksAccessibleByKeyboard)
             help_text.setOpenExternalLinks(True)
             v.addWidget(help_text)
             sc = plugin_customization(self)
@@ -366,6 +365,21 @@ class FileTypePlugin(Plugin):  # {{{
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
         :param db: Library database.
+        '''
+        pass  # Default implementation does nothing
+
+    def postadd(self, book_id, fmt_map, db):
+        '''
+        Called post add, i.e. after a book has been added to the db. Note that
+        this is different from :meth:`postimport`, which is called after a single book file
+        has been added to a book. postadd() is called only when an entire book record
+        with possibly more than one book file has been created for the first time.
+        This is useful if you wish to modify the book record in the database when the
+        book is first added to calibre.
+
+        :param book_id: Database id of the added book.
+        :param fmt_map: Map of file format to path from which the file format was added
+        :param db: Library database
         '''
         pass  # Default implementation does nothing
 
