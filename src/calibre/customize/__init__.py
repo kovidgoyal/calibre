@@ -326,7 +326,8 @@ class FileTypePlugin(Plugin):  # {{{
     on_import      = False
 
     #: If True, this plugin is run after books are added
-    #: to the database
+    #: to the database. In this case the postimport and postadd
+    #: methods of the plugin are called.
     on_postimport  = False
 
     #: If True, this plugin is run just before a conversion
@@ -360,7 +361,10 @@ class FileTypePlugin(Plugin):  # {{{
 
     def postimport(self, book_id, book_format, db):
         '''
-        Called post import, i.e., after the book file has been added to the database.
+        Called post import, i.e., after the book file has been added to the database. Note that
+        this is different from :meth:`postadd` which is called when the book record is created for
+        the first time. This method is called whenever a new file is added to a book record. It is
+        useful for modifying the book record based on the contents of the newly added file.
 
         :param book_id: Database id of the added book.
         :param book_format: The file type of the book that was added.
@@ -378,7 +382,10 @@ class FileTypePlugin(Plugin):  # {{{
         book is first added to calibre.
 
         :param book_id: Database id of the added book.
-        :param fmt_map: Map of file format to path from which the file format was added
+        :param fmt_map: Map of file format to path from which the file format
+            was added. Note that this might or might not point to an actual
+            existing file, as sometimes files are added as streams. In which case
+            it might be a dummy value or an on-existent path.
         :param db: Library database
         '''
         pass  # Default implementation does nothing
