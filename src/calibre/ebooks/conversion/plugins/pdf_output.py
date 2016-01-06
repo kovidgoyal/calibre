@@ -66,7 +66,7 @@ class PDFOutput(OutputFormatPlugin):
             'are %s') % PAPER_SIZES),
         OptionRecommendation(name='custom_size', recommended_value=None,
             help=_('Custom size of the document. Use the form widthxheight '
-            'EG. `123x321` to specify the width and height. '
+            'e.g. `123x321` to specify the width and height. '
             'This overrides any specified paper-size.')),
         OptionRecommendation(name='preserve_cover_aspect_ratio',
             recommended_value=False,
