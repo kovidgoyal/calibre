@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5 # Needed for dynamic plugin loading
+store_version = 6 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -63,7 +63,7 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                 formats = ', '.join(data.xpath('.//div[@class="ikony"]/span/text()'))
                 if formats in ['MP3','']:
                     continue
-                cover_url = ''.join(data.xpath('.//a[@class="cover"]/img/@src'))
+                cover_url = ''.join(data.xpath('.//a[@class="cover"]/img/@data-src'))
                 title = ''.join(data.xpath('.//h3/a/@title'))
                 title = re.sub('eBook.', '', title)
                 author = ''.join(data.xpath('.//p[@class="author"]//text()'))
@@ -73,7 +73,7 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = 'http://ebookpoint.pl' + re.sub('72x9', '65x8',cover_url)
+                s.cover_url = re.sub('72x9', '65x8',cover_url)
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = re.sub(r'\.',',',price)

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5 # Needed for dynamic plugin loading
+store_version = 6 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -45,36 +45,36 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=12, timeout=60):
-        url = 'http://virtualo.pl/?q=' + urllib.quote(query) + '&f=format_id:4,6,3'
+        url = 'http://virtualo.pl/?q=' + urllib.quote(query)
 
         br = browser()
-        no_drm_pattern = re.compile(r'Znak wodny|Brak')
+        no_drm_pattern = re.compile(r'Watermark|Brak')
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@id="content"]//div[@class="list_box list_box_border"]'):
+            for data in doc.xpath('//div[@id="content"]//li[@class="product "]'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//div[@class="list_middle_left"]//a/@href')).split(r'?q=')[0]
+                id = ''.join(data.xpath('.//div[@class="title"]//a/@href')).split(r'?q=')[0]
                 if not id:
                     continue
 
-                price = ''.join(data.xpath('.//span[@class="price"]/text() | .//span[@class="price abbr"]/text()'))
-                cover_url = ''.join(data.xpath('.//div[@class="list_middle_left"]//a//img/@src'))
-                title = ''.join(data.xpath('.//div[@class="list_title list_text_left"]/a/text()'))
-                author = ', '.join(data.xpath('.//div[@class="list_authors list_text_left"]/a/text()'))
-                formats = [ form.split('-')[-1] for form in data.xpath('.//div[@style="width:55%;float:left;text-align:left;height:18px;"]//a/span/div[1]/@class')]
-                nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@style="width:45%;float:right;text-align:right;height:18px;"]//span[@class="prompt_preview"]/text()')))
+                price = ''.join(data.xpath('.//div[@class="information"]//div[@class="price"]/text()'))
+                cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
+                title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
+                author = ', '.join(data.xpath('.//div[@class="information"]//div[@class="authors"]/a/text()'))
+                formats = [ form.strip() for form in data.xpath('.//div[@class="information"]//div[@class="format"]/a/text()')]
+                nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@class="protection"]/text()')))
 
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = cover_url.split('.jpg')[0] + '.jpg'
+                s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
-                s.price = price + ' zł'
+                s.price = price.strip()
                 s.detail_item = 'http://virtualo.pl' + id.strip().split('http://')[0]
                 s.formats = ', '.join(formats).upper()
                 s.drm = SearchResult.DRM_UNLOCKED if nodrm else SearchResult.DRM_LOCKED
