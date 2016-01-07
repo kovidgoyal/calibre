@@ -7,11 +7,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import os
+
 from calibre.ebooks.mobi import MAX_THUMB_DIMEN, MAX_THUMB_SIZE
 from calibre.ebooks.mobi.utils import (rescale_image, mobify_image,
         write_font_record)
 from calibre.ebooks import generate_masthead
 from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
+from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.imghdr import what
 
 PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # noqa
@@ -38,8 +41,22 @@ class Resources(object):
     def process_image(self, data):
         if not self.process_images:
             return data
-        return (mobify_image(data) if self.opts.mobi_keep_original_images else
-                rescale_image(data))
+        func = mobify_image if self.opts.mobi_keep_original_images else rescale_image
+        try:
+            return func(data)
+        except Exception:
+            from calibre.utils.magick.draw import identify_data
+            if 'png' != identify_data(data)[-1].lower():
+                raise
+            with PersistentTemporaryFile(suffix='.png') as pt:
+                pt.write(data)
+            try:
+                from calibre.utils.img import optimize_png
+                optimize_png(pt.name)
+                data = open(pt.name, 'rb').read()
+            finally:
+                os.remove(pt.name)
+            return func(data)
 
     def add_resources(self, add_fonts):
         oeb = self.oeb
