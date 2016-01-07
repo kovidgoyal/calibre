@@ -576,7 +576,7 @@ def main():
             os.chdir(WORKDIR)
         else:
             raise
-    if not singleinstance():
+    if os.geteuid() == 0 and not singleinstance():
         print('Another instance of plugins-mirror is running', file=sys.stderr)
         raise SystemExit(1)
     open('log', 'w').close()
