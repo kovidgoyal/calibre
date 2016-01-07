@@ -495,7 +495,7 @@ def singleinstance():
 
 def update_stats():
     log = olog = 'stats.log'
-    if not os.path.exists(log):
+    if os.geteuid() != 0 or not os.path.exists(log):
         return {}
     stats = {}
     if IS_PRODUCTION:
