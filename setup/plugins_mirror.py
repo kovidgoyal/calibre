@@ -496,7 +496,7 @@ def singleinstance():
 def update_stats():
     log = olog = 'stats.log'
     if not os.path.exists(log):
-        return
+        return {}
     stats = {}
     if IS_PRODUCTION:
         try:
