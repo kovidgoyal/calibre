@@ -495,7 +495,7 @@ def singleinstance():
 
 def update_stats():
     log = olog = 'stats.log'
-    if os.geteuid() != 0 or not os.path.exists(log):
+    if not os.path.exists(log):
         return {}
     stats = {}
     if IS_PRODUCTION:
@@ -505,6 +505,8 @@ def update_stats():
         except EnvironmentError as err:
             if err.errno != errno.ENOENT:
                 raise
+        if os.geteuid() != 0:
+            return stats
         log = 'rotated-' + log
         os.rename(olog, log)
         subprocess.check_call(['/usr/sbin/nginx', '-s', 'reopen'])
