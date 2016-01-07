@@ -39,3 +39,10 @@ def index_of(needle, haystack, lang='en'):
         it.set_text(haystack)
         return it.index(needle)
 
+def count_words(text, lang='en'):
+    with _lock:
+        it = _iterators.get(lang, None)
+        if it is None:
+            it = _iterators[lang] = _icu.BreakIterator(_icu.UBRK_WORD, lang_as_iso639_1(lang) or lang)
+        it.set_text(text)
+        return len(it.split2())
