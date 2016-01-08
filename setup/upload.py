@@ -260,7 +260,9 @@ class UploadToServer(Command):  # {{{
         check_call(['scp', src_file + '.asc', 'code:/srv/code/signatures/'])
         check_call('ssh code /usr/local/bin/update-calibre-code.py'.split())
         check_call(('ssh code /apps/update-calibre-version.py ' + __version__).split())
-        check_call('ssh main /usr/local/bin/update-calibre-code.py && /apps/static/generate.py'.split())
+        check_call((
+            'ssh main /usr/local/bin/update-calibre-version.py %s && /usr/local/bin/update-calibre-code.py && /apps/static/generate.py' % __version__
+        ).split())
 # }}}
 
 # Testing {{{
