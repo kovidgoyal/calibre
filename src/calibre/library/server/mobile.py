@@ -170,7 +170,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
     return HTML(
         HEAD(
             TITLE(__appname__ + ' Library'),
-            LINK(rel='icon', href='http://calibre-ebook.com/favicon.ico',
+            LINK(rel='icon', href='//calibre-ebook.com/favicon.ico',
                 type='image/x-icon'),
             LINK(rel='stylesheet', type='text/css',
                 href=prefix+'/mobile/style.css'),

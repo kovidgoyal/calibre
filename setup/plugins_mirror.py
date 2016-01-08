@@ -372,7 +372,7 @@ def fetch_plugins(old_index):
     return ans
 
 def plugin_to_index(plugin, count):
-    title = '<h3><img src="http://icons.iconarchive.com/icons/oxygen-icons.org/oxygen/32/Apps-preferences-plugin-icon.png"><a href=%s title="Plugin forum thread">%s</a></h3>' % (  # noqa
+    title = '<h3><img src="//icons.iconarchive.com/icons/oxygen-icons.org/oxygen/32/Apps-preferences-plugin-icon.png"><a href=%s title="Plugin forum thread">%s</a></h3>' % (  # noqa
         quoteattr(plugin['thread_url']), escape(plugin['name']))
     released = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).strftime('%e %b, %Y').lstrip()
     details = [
@@ -416,7 +416,7 @@ def create_index(index, raw_stats):
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>Index of calibre plugins</title>
-<link rel="icon" type="image/x-icon" href="http://calibre-ebook.com/favicon.ico" />
+<link rel="icon" type="image/x-icon" href="//calibre-ebook.com/favicon.ico" />
 <style type="text/css">
 body { background-color: #eee; }
 a { text-decoration: none }
@@ -432,7 +432,7 @@ h1 { text-align: center }
 </style>
 </head>
 <body>
-<h1><img src="http://manual.calibre-ebook.com/_static/logo.png">Index of calibre plugins</h1>
+<h1><img src="//manual.calibre-ebook.com/_static/logo.png">Index of calibre plugins</h1>
 <div style="text-align:center"><a href="stats.html">Download counts for all plugins</a></div>
 %s
 </body>
@@ -455,7 +455,7 @@ h1 { text-align: center }
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>Stats for calibre plugins</title>
-<link rel="icon" type="image/x-icon" href="http://calibre-ebook.com/favicon.ico" />
+<link rel="icon" type="image/x-icon" href="//calibre-ebook.com/favicon.ico" />
 <style type="text/css">
 body { background-color: #eee; }
 h1 img, h3 img { vertical-align: middle; margin-right: 0.5em; }
@@ -463,7 +463,7 @@ h1 { text-align: center }
 </style>
 </head>
 <body>
-<h1><img src="http://manual.calibre-ebook.com/_static/logo.png">Stats for calibre plugins</h1>
+<h1><img src="//manual.calibre-ebook.com/_static/logo.png">Stats for calibre plugins</h1>
 <table>
 <tr><th>Plugin</th><th>Total downloads</th></tr>
 %s
@@ -537,7 +537,7 @@ def check_for_qt5_incompatibility():
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><title>Stats for porting of calibre plugins to Qt 5</title>
-<link rel="icon" type="image/x-icon" href="http://calibre-ebook.com/favicon.ico" />
+<link rel="icon" type="image/x-icon" href="//calibre-ebook.com/favicon.ico" />
 <style type="text/css">
 body { background-color: #eee; }
 h1 img, h3 img { vertical-align: middle; margin-right: 0.5em; }
@@ -545,7 +545,7 @@ h1 { text-align: center }
 </style>
 </head>
 <body>
-<h1><img src="http://manual.calibre-ebook.com/_static/logo.png">Stats for porting of calibre plugins to Qt 5</h1>
+<h1><img src="//manual.calibre-ebook.com/_static/logo.png">Stats for porting of calibre plugins to Qt 5</h1>
 <p>Number of Qt 5 compatible plugins: %s<br>Number of Qt 5 incompatible plugins: %s<br>Percentage of plugins ported: %.0f%%</p>
 <h2>Plugins that have been ported</h2>
 <ul>
