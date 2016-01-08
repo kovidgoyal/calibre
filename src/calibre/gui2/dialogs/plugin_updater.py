@@ -24,7 +24,7 @@ from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url, g
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
 
-SERVER = 'http://plugins.calibre-ebook.com/'
+SERVER = 'https://plugins.calibre-ebook.com/'
 INDEX_URL = '%splugins.json.bz2' % SERVER
 FILTER_ALL = 0
 FILTER_INSTALLED = 1
@@ -217,8 +217,7 @@ class DisplayPlugin(object):
         return filter_text in icu_lower(self.name)  # case-insensitive filtering
 
     def is_upgrade_available(self):
-        return self.is_installed() and (self.installed_version < self.available_version
-                or self.is_deprecated)
+        return self.is_installed() and (self.installed_version < self.available_version or self.is_deprecated)
 
     def is_valid_platform(self):
         if iswindows:
@@ -842,4 +841,3 @@ class PluginUpdaterDialog(SizePersistedDialog):
         with PersistentTemporaryFile('.zip') as pt:
             pt.write(raw)
         return pt.name
-
