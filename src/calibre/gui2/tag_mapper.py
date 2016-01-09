@@ -14,7 +14,7 @@ from PyQt5.Qt import (
     QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu
 )
 
-from calibre.ebooks.metadata.tag_mapper import map_tags
+from calibre.ebooks.metadata.tag_mapper import map_tags, compile_pat
 from calibre.gui2 import error_dialog, elided_text, Application, question_dialog
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
@@ -60,6 +60,7 @@ class RuleEdit(QWidget):
         h.addWidget(q)
         for action, text in self.MATCH_TYPE_MAP.iteritems():
             q.addItem(text, action)
+        q.currentIndexChanged.connect(self.update_state)
         self.la2 = la = QLabel(':\xa0')
         h.addWidget(la)
         self.query = q = QLineEdit(self)
@@ -83,7 +84,7 @@ class RuleEdit(QWidget):
         replace = self.action.currentData() == 'replace'
         self.la3.setVisible(replace), self.replace.setVisible(replace)
         tt = _('A comma separated list of tags')
-        if 'pattern' in self.match_type.currentData():
+        if 'matches' in self.match_type.currentData():
             tt = _('A regular expression')
         self.query.setToolTip(tt)
 
@@ -114,6 +115,13 @@ class RuleEdit(QWidget):
             error_dialog(self, _('Query required'), _(
                 'You must provide a value for the tag to match'), show=True)
             return False
+        if 'matches' in rule['match_type']:
+            try:
+                compile_pat(rule['query'])
+            except Exception:
+                error_dialog(self, _('Query invalid'), _(
+                    '%s is not a valid regular expression') % rule['query'], show=True)
+                return False
         return True
 
 class RuleEditDialog(Dialog):

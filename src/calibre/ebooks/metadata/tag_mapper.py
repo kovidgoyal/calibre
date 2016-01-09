@@ -10,6 +10,9 @@ from collections import deque
 REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
 
 
+def compile_pat(pat):
+    return regex.compile(pat, flags=REGEX_FLAGS)
+
 def matcher(rule):
     mt = rule['match_type']
     if mt == 'one_of':
@@ -21,11 +24,11 @@ def matcher(rule):
         return lambda x: x not in tags
 
     if mt == 'matches':
-        pat = regex.compile(rule['query'], flags=REGEX_FLAGS)
+        pat = compile_pat(rule['query'])
         return lambda x: pat.match(x) is not None
 
     if mt == 'not_matches':
-        pat = regex.compile(rule['query'], flags=REGEX_FLAGS)
+        pat = compile_pat(rule['query'])
         return lambda x: pat.match(x) is None
 
     return lambda x: False
