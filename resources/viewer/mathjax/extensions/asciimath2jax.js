@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/asciimath2jax.js
@@ -11,7 +14,7 @@
  *  
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2012 Design Science, Inc.
+ *  Copyright (c) 2012-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,11 +30,11 @@
  */
 
 MathJax.Extension.asciimath2jax = {
-  version: "2.0",
+  version: "2.6.0",
   config: {
     delimiters: [['`','`']],   // The star/stop delimiter pairs for asciimath code
 
-    skipTags: ["script","noscript","style","textarea","pre","code"],
+    skipTags: ["script","noscript","style","textarea","pre","code","annotation","annotation-xml"],
                                // The names of the tags whose contents will not be
                                // scanned for math delimiters
 
@@ -75,7 +78,10 @@ MathJax.Extension.asciimath2jax = {
     }
     this.start = new RegExp(starts.sort(this.sortLength).join("|"),"g");
     this.skipTags = new RegExp("^("+config.skipTags.join("|")+")$","i");
-    this.ignoreClass = new RegExp("(^| )("+config.ignoreClass+")( |$)");
+    var ignore = [];
+    if (MathJax.Hub.config.preRemoveClass) {ignore.push(MathJax.Hub.config.preRemoveClass)}
+    if (config.ignoreClass) {ignore.push(config.ignoreClass)}
+    this.ignoreClass = (ignore.length ? new RegExp("(^| )("+ignore.join("|")+")( |$)") : /^$/);
     this.processClass = new RegExp("(^| )("+config.processClass+")( |$)");
     return true;
   },
@@ -201,9 +207,9 @@ MathJax.Extension.asciimath2jax = {
   },
   
   createPreview: function (mode,asciimath) {
-    var preview;
-    if (this.config.preview === "AsciiMath") {preview = [this.filterPreview(asciimath)]}
-    else if (this.config.preview instanceof Array) {preview = this.config.preview}
+    var preview = this.config.preview;
+    if (preview === "none") return;
+    if (preview === "AsciiMath") {preview = [this.filterPreview(asciimath)]}
     if (preview) {
       preview = MathJax.HTML.Element("span",{className:MathJax.Hub.config.preRemoveClass},preview);
       this.insertNode(preview);
@@ -224,5 +230,10 @@ MathJax.Extension.asciimath2jax = {
   
 };
 
+// We register the preprocessors with the following priorities:
+// - mml2jax.js: 5
+// - jsMath2jax.js: 8
+// - asciimath2jax.js, tex2jax.js: 10 (default)
+// See issues 18 and 484 and the other *2jax.js files.
 MathJax.Hub.Register.PreProcessor(["PreProcess",MathJax.Extension.asciimath2jax]);
 MathJax.Ajax.loadComplete("[MathJax]/extensions/asciimath2jax.js");

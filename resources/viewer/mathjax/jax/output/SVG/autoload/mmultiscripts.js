@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/jax/output/SVG/autoload/mmultiscripts.js
@@ -6,7 +9,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2011-2012 Design Science, Inc.
+ *  Copyright (c) 2011-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,14 +25,14 @@
  */
 
 MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
-  var VERSION = "2.0";
+  var VERSION = "2.6.0";
   var MML = MathJax.ElementJax.mml,
       SVG = MathJax.OutputJax.SVG;
   
   MML.mmultiscripts.Augment({
     toSVG: function (HW,D) {
-      var svg = this.SVG(); this.SVGhandleSpace();
-      var scale = this.SVGgetScale();
+      this.SVGgetStyles();
+      var svg = this.SVG(), scale = this.SVGgetScale(svg); this.SVGhandleSpace(svg);
       var base = (this.data[this.base] ? this.SVGdataStretched(this.base,HW,D) : SVG.BBOX.G().Clean());
       var x_height = SVG.TeX.x_height * scale,
           s = SVG.TeX.scriptspace * scale * .75;  // FIXME: .75 can be removed when IC is right?
@@ -89,20 +92,27 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       svg.Clean();
       this.SVGhandleColor(svg);
       this.SVGsaveData(svg);
+      var data = this.SVGdata;
+      data.dx = dx; data.s = s; data.u = u, data.v = v; data.delta = delta;      
       return svg;
     },
     SVGgetScripts: function (s) {
       var sup, sub, BOX = [];
       var i = 1, m = this.data.length, W = 0;
       for (var k = 0; k < 4; k += 2) {
-        while (i < m && this.data[i].type !== "mprescripts") {
+        while (i < m && (this.data[i]||{}).type !== "mprescripts") {
+          var box = [null,null,null,null];
           for (var j = k; j < k+2; j++) {
-            if (this.data[i] && this.data[i].type !== "none") {
+            if (this.data[i] && this.data[i].type !== "none" && this.data[i].type !== "mprescripts") {
               if (!BOX[j]) {BOX[j] = SVG.BBOX.G()}
-              BOX[j].Add(this.data[i].toSVG().With({x:W}));
+              box[j] = this.data[i].toSVG();
             }
-            i++;
+            if ((this.data[i]||{}).type !== "mprescripts") i++;
           }
+          var isPre = (k === 2);
+          if (isPre) W += Math.max((box[k]||{w:0}).w,(box[k+1]||{w:0}).w);
+          if (box[k])   BOX[k].Add(box[k].With({x:W-(isPre?box[k].w:0)}));
+          if (box[k+1]) BOX[k+1].Add(box[k+1].With({x:W-(isPre?box[k+1].w:0)}));
           sub = BOX[k]||{w:0}; sup = BOX[k+1]||{w:0};
           sub.w = sup.w = W = Math.max(sub.w,sup.w);
         }

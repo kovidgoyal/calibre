@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/TeX/boldsymbol.js
@@ -7,7 +10,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2009-2012 Design Science, Inc.
+ *  Copyright (c) 2009-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +26,7 @@
  */
 
 MathJax.Extension["TeX/boldsymbol"] = {
-  version: "2.0"
+  version: "2.6.0"
 };
 
 MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
@@ -41,7 +44,7 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
   BOLDVARIANT["-tex-caligraphic"]    = "-tex-caligraphic-bold";
   BOLDVARIANT["-tex-oldstyle"]       = "-tex-oldstyle-bold";
   
-  TEXDEF.macros.boldsymbol = 'Boldsymbol';
+  TEXDEF.Add({macros: {boldsymbol: 'Boldsymbol'}},null,true);
   
   TEX.Parse.Augment({
     mmlToken: function (token) {
@@ -67,60 +70,6 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
   
   MathJax.Hub.Startup.signal.Post("TeX boldsymbol Ready");
 
-});
-
-MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
-  var HTMLCSS = MathJax.OutputJax["HTML-CSS"];
-  var FONTS = HTMLCSS.FONTDATA.FONTS;
-  var VARIANT = HTMLCSS.FONTDATA.VARIANT;
-
-  if (HTMLCSS.fontInUse === "TeX") {
-    FONTS["MathJax_Caligraphic-bold"] = "Caligraphic/Bold/Main.js";
-
-    VARIANT["-tex-caligraphic-bold"] =
-      {fonts:["MathJax_Caligraphic-bold","MathJax_Main-bold","MathJax_Main","MathJax_Math","MathJax_Size1"],
-       offsetA: 0x41, variantA: "bold-italic"};
-    VARIANT["-tex-oldstyle-bold"] =
-      {fonts:["MathJax_Caligraphic-bold","MathJax_Main-bold","MathJax_Main","MathJax_Math","MathJax_Size1"]};
-
-    if (HTMLCSS.msieCheckGreek && HTMLCSS.Font.testFont({
-      family:"MathJax_Greek", weight:"bold", style:"italic", testString: HTMLCSS.msieCheckGreek
-    })) {
-      VARIANT["bold-italic"].offsetG = 0x391; VARIANT["bold-italic"].variantG = "-Greek-Bold-Italic";
-      VARIANT["-Greek-Bold-Italic"] = {fonts:["MathJax_Greek-bold-italic"]};
-      FONTS["MathJax_Greek-bold-italic"] = "Greek/BoldItalic/Main.js";
-    }
-    
-    if (MathJax.Hub.Browser.isChrome && !MathJax.Hub.Browser.versionAtLeast("5.0")) {
-      VARIANT["-tex-caligraphic-bold"].remap = {0x54: [0xE2F0,"-WinChrome"]};
-    }
-    
-  } else if (HTMLCSS.fontInUse === "STIX") {
-    VARIANT["-tex-caligraphic-bold"] = {
-      fonts:["STIXGeneral-bold-italic","STIXNonUnicode-bold-italic","STIXNonUnicode","STIXGeneral","STIXSizeOneSym"],
-      offsetA: 0xE247, noLowerCase: 1
-    };
-    VARIANT["-tex-oldstyle-bold"] = {
-      fonts:["STIXGeneral-bold","STIXNonUnicode-bold","STIXGeneral","STIXSizeOneSym"], offsetN: 0xE263,
-      remap: {0xE264: 0xE267, 0xE265: 0xE26B, 0xE266: 0xE26F, 0xE267: 0xE273,
-              0xE268: 0xE277, 0xE269: 0xE27B, 0xE26A: 0xE27F, 0xE26B: 0xE283,
-              0xE26C: 0xE287}
-    };
-  }
-});
-
-MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
-  var SVG = MathJax.OutputJax.SVG;
-  var FONTS = SVG.FONTDATA.FONTS;
-  var VARIANT = SVG.FONTDATA.VARIANT;
-
-  FONTS["MathJax_Caligraphic-bold"] = "Caligraphic/Bold/Main.js";
-
-  VARIANT["-tex-caligraphic-bold"] =
-    {fonts:["MathJax_Caligraphic-bold","MathJax_Main-bold","MathJax_Main","MathJax_Math","MathJax_Size1"],
-     offsetA: 0x41, variantA: "bold-italic"};
-  VARIANT["-tex-oldstyle-bold"] =
-    {fonts:["MathJax_Caligraphic-bold","MathJax_Main-bold","MathJax_Main","MathJax_Math","MathJax_Size1"]};
 });
 
 MathJax.Ajax.loadComplete("[MathJax]/extensions/TeX/boldsymbol.js");

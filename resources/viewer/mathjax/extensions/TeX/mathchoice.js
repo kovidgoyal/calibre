@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/TeX/mathchoice.js
@@ -6,7 +9,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2009-2012 Design Science, Inc.
+ *  Copyright (c) 2009-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,16 +25,15 @@
  */
 
 MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
-  var VERSION = "2.0";
+  var VERSION = "2.6.0";
 
   var MML = MathJax.ElementJax.mml;
   var TEX = MathJax.InputJax.TeX;
   var TEXDEF = TEX.Definitions;
   
-  TEXDEF.macros.mathchoice = 'MathChoice';
+  TEXDEF.Add({macros: {mathchoice: 'MathChoice'}},null,true);
 
   TEX.Parse.Augment({
-
     MathChoice: function (name) {
       var D  = this.ParseArg(name),
           T  = this.ParseArg(name),
@@ -39,20 +41,29 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
           SS = this.ParseArg(name);
       this.Push(MML.TeXmathchoice(D,T,S,SS));
     }
-
   });
   
   MML.TeXmathchoice = MML.mbase.Subclass({
-    type: "TeXmathchoice",
+    type: "TeXmathchoice", notParent: true,
     choice: function () {
-      var values = this.getValues("displaystyle","scriptlevel");
-      if (values.scriptlevel > 0) {return Math.min(3,values.scriptlevel + 1)}
-      return (values.displaystyle ? 0 : 1);
+      if (this.selection != null) return this.selection;
+      if (this.choosing) return 2; // prevent infinite loops:  see issue #1151
+      this.choosing = true;
+      var selection = 0, values = this.getValues("displaystyle","scriptlevel");
+      if (values.scriptlevel > 0) {selection = Math.min(3,values.scriptlevel+1)}
+        else {selection = (values.displaystyle ? 0 : 1)}
+      // only cache the result if we are actually in place in a <math> tag.
+      var node = this.inherit; while (node && node.type !== "math") node = node.inherit;
+      if (node) this.selection = selection;
+      this.choosing = false;
+      return selection;
     },
-    setTeXclass: function (prev) {return this.Core().setTeXclass(prev)},
-    isSpacelike: function () {return this.Core().isSpacelike()},
-    isEmbellished: function () {return this.Core().isEmbellished()},
-    Core: function () {return this.data[this.choice()]},
+    selected: function () {return this.data[this.choice()]},
+    setTeXclass: function (prev) {return this.selected().setTeXclass(prev)},
+    isSpacelike: function () {return this.selected().isSpacelike()},
+    isEmbellished: function () {return this.selected().isEmbellished()},
+    Core: function () {return this.selected()},
+    CoreMO: function () {return this.selected().CoreMO()},
     toHTML: function (span) {
       span = this.HTMLcreateSpan(span);
       span.bbox = this.Core().toHTML(span).bbox;
@@ -68,7 +79,25 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
       }
       return span;
     },
-    toSVG: function () {return this.Core().toSVG()}
+    toSVG: function () {
+      var svg = this.Core().toSVG();
+      this.SVGsaveData(svg);
+      return svg;
+    },
+    toCommonHTML: function (node) {
+      node = this.CHTMLcreateNode(node);
+      this.CHTMLhandleStyle(node);
+      this.CHTMLhandleColor(node);
+      this.CHTMLaddChild(node,this.choice(),{});
+      return node;
+    },
+    toPreviewHTML: function(span) {
+      span = this.PHTMLcreateSpan(span);
+      this.PHTMLhandleStyle(span);
+      this.PHTMLhandleColor(span);
+      this.PHTMLaddChild(span,this.choice(),{});
+      return span;
+    }
   });
   
   MathJax.Hub.Startup.signal.Post("TeX mathchoice Ready");

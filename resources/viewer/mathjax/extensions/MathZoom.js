@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/MathZoom.js
@@ -7,7 +10,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2010-2012 Design Science, Inc.
+ *  Copyright (c) 2010-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +26,7 @@
  */
 
 (function (HUB,HTML,AJAX,HTMLCSS,nMML) {
-  var VERSION = "2.0";
+  var VERSION = "2.6.0";
   
   var CONFIG = HUB.CombineConfig("MathZoom",{
     styles: {
@@ -37,6 +40,9 @@
         "text-align":"left", "text-indent":0, "text-transform":"none",
         "line-height":"normal", "letter-spacing":"normal", "word-spacing":"normal",
         "word-wrap":"normal", "white-space":"nowrap", "float":"none",
+        "-webkit-box-sizing":"content-box",          // Android ≤ 2.3, iOS ≤ 4
+        "-moz-box-sizing":"content-box",             // Firefox ≤ 28
+        "box-sizing":"content-box",                  // Chrome, Firefox 29+, IE 8+, Opera, Safari 5.1
         "box-shadow":"5px 5px 15px #AAAAAA",         // Opera 10.5 and IE9
         "-webkit-box-shadow":"5px 5px 15px #AAAAAA", // Safari 3 and Chrome
         "-moz-box-shadow":"5px 5px 15px #AAAAAA",    // Forefox 3.5
@@ -51,6 +57,11 @@
         position:"absolute", left:0, top:0, "z-index":300, display:"inline-block",
         width:"100%", height:"100%", border:0, padding:0, margin:0,
         "background-color":"white", opacity:0, filter:"alpha(opacity=0)"
+      },
+      
+      "#MathJax_ZoomFrame": {
+        position:"relative", display:"inline-block",
+        height:0, width:0
       },
       
       "#MathJax_ZoomEventTrap": {
@@ -98,7 +109,7 @@
     //  Zoom on double click
     //
     DblClick: function (event,math) {
-      if (this.settings.zoom === "Double-Click") {return this.Zoom(event,math)}
+      if (this.settings.zoom === "Double-Click" || this.settings.zoom === "DoubleClick") {return this.Zoom(event,math)}
     },
     
     //
@@ -129,27 +140,26 @@
       //
       //  Create the DOM elements for the zoom box
       //
-      var Mw = Math.floor(.85*document.body.clientWidth),
-          Mh = Math.floor(.85*Math.max(document.body.clientHeight,document.documentElement.clientHeight));
+      var container = this.findContainer(math);
+      var Mw = Math.floor(.85*container.clientWidth),
+          Mh = Math.max(document.body.clientHeight,document.documentElement.clientHeight);
+      if (this.getOverflow(container) !== "visible") {Mh = Math.min(container.clientHeight,Mh)}
+      Mh = Math.floor(.85*Mh);
       var div = HTML.Element(
-        "span",{
-            style: {position:"relative", display:"inline-block", height:0, width:0},
-            id:"MathJax_ZoomFrame"
-        },[
+        "span",{id:"MathJax_ZoomFrame"},[
           ["span",{id:"MathJax_ZoomOverlay", onmousedown:this.Remove}],
           ["span",{
             id:"MathJax_Zoom", onclick:this.Remove,
-            style:{
-              visibility:"hidden", fontSize:this.settings.zscale,
-              "max-width":Mw+"px", "max-height":Mh+"px"
-            }
+            style:{visibility:"hidden", fontSize:this.settings.zscale}
           },[["span",{style:{display:"inline-block", "white-space":"nowrap"}}]]
         ]]
       );
       var zoom = div.lastChild, span = zoom.firstChild, overlay = div.firstChild;
-      math.parentNode.insertBefore(div,math);
+      math.parentNode.insertBefore(div,math); math.parentNode.insertBefore(math,div); // put div after math
       if (span.addEventListener) {span.addEventListener("mousedown",this.Remove,true)}
-      
+      var eW = zoom.offsetWidth || zoom.clientWidth; Mw -= eW; Mh -= eW;
+      zoom.style.maxWidth = Mw+"px"; zoom.style.maxHeight = Mh+"px";
+
       if (this.msieTrapEventBug) {
         var trap = HTML.Element("span",{id:"MathJax_ZoomEventTrap", onmousedown:this.Remove});
         div.insertBefore(trap,zoom);
@@ -182,7 +192,8 @@
         if (zoom.offsetWidth  > Mw) {zoom.style.width  = Mw+"px"; zoom.style.height = (bbox.zH+this.scrollSize)+"px"}
       }
       if (this.operaPositionBug) {zoom.style.width = Math.min(Mw,bbox.zW)+"px"}  // Opera gets width as 0?
-      if (zoom.offsetWidth < Mw && zoom.offsetHeight < Mh) {zoom.style.overflow = "visible"}
+      if (zoom.offsetWidth > eW && zoom.offsetWidth-eW < Mw && zoom.offsetHeight-eW < Mh)
+         {zoom.style.overflow = "visible"}  // don't show scroll bars if we don't need to
       this.Position(zoom,bbox);
       if (this.msieTrapEventBug) {
         trap.style.height = zoom.clientHeight+"px"; trap.style.width = zoom.clientWidth+"px";
@@ -214,8 +225,10 @@
     //  Set the position of the zoom box and overlay
     //
     Position: function (zoom,bbox) {
+      zoom.style.display = "none"; // avoids getting excessive width in Resize()
       var XY = this.Resize(), x = XY.x, y = XY.y, W = bbox.mW;
-      var dx = -Math.floor((zoom.offsetWidth-W)/2), dy = bbox.Y;
+      zoom.style.display = "";
+      var dx = -W-Math.floor((zoom.offsetWidth-W)/2), dy = bbox.Y;
       zoom.style.left = Math.max(dx,10-x)+"px"; zoom.style.top = Math.max(dy,10-y)+"px";
       if (!ZOOM.msiePositionBug) {ZOOM.SetWH()} // refigure overlay width/height
     },
@@ -225,23 +238,60 @@
     //
     Resize: function (event) {
       if (ZOOM.onresize) {ZOOM.onresize(event)}
-      var x = 0, y = 0, obj,
-          div = document.getElementById("MathJax_ZoomFrame"),
+      var div = document.getElementById("MathJax_ZoomFrame"),
           overlay = document.getElementById("MathJax_ZoomOverlay");
+      var xy = ZOOM.getXY(div), obj = ZOOM.findContainer(div);
+      if (ZOOM.getOverflow(obj) !== "visible") {
+        overlay.scroll_parent = obj;  // Save this for future reference.
+        var XY = ZOOM.getXY(obj);     // Remove container position
+        xy.x -= XY.x; xy.y -= XY.y;
+        XY = ZOOM.getBorder(obj);     // Remove container border
+        xy.x -= XY.x; xy.y -= XY.y;
+      }
+      overlay.style.left = (-xy.x)+"px"; overlay.style.top = (-xy.y)+"px";
+      if (ZOOM.msiePositionBug) {setTimeout(ZOOM.SetWH,0)} else {ZOOM.SetWH()}
+      return xy;
+    },
+    SetWH: function () {
+      var overlay = document.getElementById("MathJax_ZoomOverlay");
+      if (!overlay) return;
+      overlay.style.display = "none"; // so scrollWidth/Height will be right below
+      var doc = overlay.scroll_parent || document.documentElement || document.body;
+      overlay.style.width = doc.scrollWidth + "px";
+      overlay.style.height = Math.max(doc.clientHeight,doc.scrollHeight) + "px";
+      overlay.style.display = "";
+    },
+    findContainer: function (obj) {
+      obj = obj.parentNode;
+      while (obj.parentNode && obj !== document.body && ZOOM.getOverflow(obj) === "visible")
+        {obj = obj.parentNode}
+      return obj;
+    },
+    //
+    //  Look up CSS properties (use getComputeStyle if available, or currentStyle if not)
+    //
+    getOverflow: (window.getComputedStyle ?
+      function (obj) {return getComputedStyle(obj).overflow} :
+      function (obj) {return (obj.currentStyle||{overflow:"visible"}).overflow}),
+    getBorder: function (obj) {
+      var size = {thin: 1, medium: 2, thick: 3};
+      var style = (window.getComputedStyle ? getComputedStyle(obj) : 
+                     (obj.currentStyle || {borderLeftWidth:0,borderTopWidth:0}));
+      var x = style.borderLeftWidth, y = style.borderTopWidth;
+      if (size[x]) {x = size[x]} else {x = parseInt(x)}
+      if (size[y]) {y = size[y]} else {y = parseInt(y)}
+      return {x:x, y:y};
+    },
+    //
+    //  Get the position of an element on the page
+    //
+    getXY: function (div) {
+      var x = 0, y = 0, obj;
       obj = div; while (obj.offsetParent) {x += obj.offsetLeft; obj = obj.offsetParent}
       if (ZOOM.operaPositionBug) {div.style.border = "1px solid"}  // to get vertical position right
       obj = div; while (obj.offsetParent) {y += obj.offsetTop; obj = obj.offsetParent}
       if (ZOOM.operaPositionBug) {div.style.border = ""}
-      overlay.style.left = (-x)+"px"; overlay.style.top = (-y)+"px";
-      if (ZOOM.msiePositionBug) {setTimeout(ZOOM.SetWH,0)} else {ZOOM.SetWH()}
       return {x:x, y:y};
-    },
-    SetWH: function () {
-      var overlay = document.getElementById("MathJax_ZoomOverlay");
-      overlay.style.width = overlay.style.height = "1px"; // so scrollWidth/Height will be right below
-      var doc = document.documentElement || document.body;
-      overlay.style.width = doc.scrollWidth + "px";
-      overlay.style.height = Math.max(doc.clientHeight,doc.scrollHeight) + "px";
     },
     
     //
@@ -250,8 +300,8 @@
     Remove: function (event) {
       var div = document.getElementById("MathJax_ZoomFrame");
       if (div) {
-        var JAX = MathJax.OutputJax[div.nextSibling.jaxID];
-        var jax = JAX.getJaxFromMath(div.nextSibling);
+        var JAX = MathJax.OutputJax[div.previousSibling.jaxID];
+        var jax = JAX.getJaxFromMath(div.previousSibling);
         HUB.signal.Post(["math unzoomed",jax]);
         div.parentNode.removeChild(div);
         div = document.getElementById("MathJax_ZoomTracker");

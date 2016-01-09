@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/TeX/action.js
@@ -16,7 +19,7 @@
  *  
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2011-2012 Design Science, Inc.
+ *  Copyright (c) 2011-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,7 +35,7 @@
  */
 
 MathJax.Extension["TeX/action"] = {
-  version: "2.0"
+  version: "2.6.0"
 };
   
 MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
@@ -42,9 +45,13 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
   //
   //  Set up control sequenecs
   //
-  TEX.Definitions.macros.toggle  = 'Toggle';
-  TEX.Definitions.macros.mathtip = 'Mathtip';
-  TEX.Definitions.macros.texttip = ['Macro','\\mathtip{#1}{\\text{#2}}',2];
+  TEX.Definitions.Add({
+    macros: {
+      toggle:  'Toggle',
+      mathtip: 'Mathtip',
+      texttip: ['Macro','\\mathtip{#1}{\\text{#2}}',2]
+    }
+  },null,true);
 
   TEX.Parse.Augment({
 

@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/jax/output/SVG/fonts/TeX/fontdata.js
@@ -7,7 +10,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2011-2012 Design Science, Inc.
+ *  Copyright (c) 2011-2015 The MathJax Consortium
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,8 +25,8 @@
  *  limitations under the License.
  */
 
-(function (SVG,MML,AJAX) {
-  var VERSION = "2.0";
+(function (SVG,MML,AJAX,HUB) {
+  var VERSION = "2.6.0";
   
   var MAIN   = "MathJax_Main",
       BOLD   = "MathJax_Main-bold",
@@ -35,6 +38,8 @@
       SIZE4  = "MathJax_Size4";
   var H = "H", V = "V", EXTRAH = {load:"extra", dir:H}, EXTRAV = {load:"extra", dir:V};
   var STDHW = [[1000,MAIN],[1200,SIZE1],[1800,SIZE2],[2400,SIZE3],[3000,SIZE4]];
+  var ARROWREP = [0x2212,MAIN,0,0,0,0,.1];   // add depth for arrow extender
+  var DARROWREP = [0x3D,MAIN,0,0,0,0,.1];    // add depth for arrow extender
 
   SVG.Augment({
     FONTDATA: {
@@ -61,7 +66,8 @@
         "MathJax_SansSerif-bold":   "SansSerif/Bold/Main.js",
         "MathJax_SansSerif-italic": "SansSerif/Italic/Main.js",
         "MathJax_Script":           "Script/Regular/Main.js",
-        "MathJax_Typewriter":       "Typewriter/Regular/Main.js"
+        "MathJax_Typewriter":       "Typewriter/Regular/Main.js",
+        "MathJax_Caligraphic-bold": "Caligraphic/Bold/Main.js"
       },
       
       VARIANT: {
@@ -69,12 +75,18 @@
                    offsetG: 0x03B1, variantG: "italic",
                    remap: {0x391:0x41, 0x392:0x42, 0x395:0x45, 0x396:0x5A, 0x397:0x48,
                            0x399:0x49, 0x39A:0x4B, 0x39C:0x4D, 0x39D:0x4E, 0x39F:0x4F,
-                           0x3A1:0x50, 0x3A4:0x54, 0x3A7:0x58, 0x29F8:[0x002F,"italic"]}},
+                           0x3A1:0x50, 0x3A4:0x54, 0x3A7:0x58,
+                           0x2216:[0x2216,"-TeX-variant"],  // \smallsetminus
+                           0x210F:[0x210F,"-TeX-variant"],  // \hbar
+                           0x2032:[0x27,"sans-serif-italic"],  // HACK: a smaller prime
+                           0x29F8:[0x002F,MML.VARIANT.ITALIC]}},
         "bold":   {fonts:[BOLD,SIZE1,AMS], bold:true,
                    offsetG: 0x03B1, variantG: "bold-italic",
                    remap: {0x391:0x41, 0x392:0x42, 0x395:0x45, 0x396:0x5A, 0x397:0x48,
                            0x399:0x49, 0x39A:0x4B, 0x39C:0x4D, 0x39D:0x4E, 0x39F:0x4F,
                            0x3A1:0x50, 0x3A4:0x54, 0x3A7:0x58, 0x29F8:[0x002F,"bold-italic"],
+                           0x219A:"\u2190\u0338", 0x219B:"\u2192\u0338", 0x21AE:"\u2194\u0338",
+                           0x21CD:"\u21D0\u0338", 0x21CE:"\u21D4\u0338", 0x21CF:"\u21D2\u0338",
                            0x2204:"\u2203\u0338", 0x2224:"\u2223\u0338", 0x2226:"\u2225\u0338",
                            0x2241:"\u223C\u0338", 0x2247:"\u2245\u0338", 
                            0x226E:"<\u0338", 0x226F:">\u0338",
@@ -111,8 +123,20 @@
                    remap: {0x391:0x41, 0x392:0x42, 0x395:0x45, 0x396:0x5A, 0x397:0x48,
                            0x399:0x49, 0x39A:0x4B, 0x39C:0x4D, 0x39D:0x4E, 0x39F:0x4F,
                            0x3A1:0x50, 0x3A4:0x54, 0x3A7:0x58}},
+        "-TeX-variant": {fonts:[AMS,MAIN,SIZE1],   // HACK: to get larger prime for \prime
+                   remap: {
+                     0x2268: 0xE00C, 0x2269: 0xE00D, 0x2270: 0xE011, 0x2271: 0xE00E,
+                     0x2A87: 0xE010, 0x2A88: 0xE00F, 0x2224: 0xE006, 0x2226: 0xE007,
+                     0x2288: 0xE016, 0x2289: 0xE018, 0x228A: 0xE01A, 0x228B: 0xE01B,
+                     0x2ACB: 0xE017, 0x2ACC: 0xE019, 0x03DC: 0xE008, 0x03F0: 0xE009,
+                     0x2216:[0x2216,MML.VARIANT.NORMAL], // \setminus
+                     0x210F:[0x210F,MML.VARIANT.NORMAL]  // \hslash
+                   }},
         "-largeOp": {fonts:[SIZE2,SIZE1,MAIN]},
-        "-smallOp": {fonts:[SIZE1,MAIN]}
+        "-smallOp": {fonts:[SIZE1,MAIN]},
+        "-tex-caligraphic-bold": {fonts:["MathJax_Caligraphic-bold","MathJax_Main-bold","MathJax_Main","MathJax_Math","MathJax_Size1"], bold:true,
+                                  offsetA: 0x41, variantA: "bold-italic"},
+        "-tex-oldstyle-bold": {fonts:["MathJax_Caligraphic-bold","MathJax_Main-bold","MathJax_Main","MathJax_Math","MathJax_Size1"], bold:true}
       },
       
       RANGES: [
@@ -140,12 +164,15 @@
         0x2022: 0x2219, 0x2044: 0x2F,   // bullet, fraction slash
         0x2305: 0x22BC, 0x2306: 0x2A5E, // barwedge, doublebarwedge
         0x25AA: 0x25A0, 0x25B4: 0x25B2, // blacksquare, blacktriangle
-        0x25B5: 0x25B3, 0x25BE: 0x25BC, // triangle, blacktriangledown
-        0x25BF: 0x25BD, 0x25C2: 0x25C0, // triangledown, blacktriangleleft
+        0x25B5: 0x25B3, 0x25B8: 0x25B6, // triangle, blacktriangleright
+        0x25BE: 0x25BC, 0x25BF: 0x25BD, // blacktriangledown, triangledown
+        0x25C2: 0x25C0,                 // blacktriangleleft
         0x2329: 0x27E8, 0x232A: 0x27E9, // langle, rangle
         0x3008: 0x27E8, 0x3009: 0x27E9, // langle, rangle
         0x2758: 0x2223,                 // VerticalSeparator
         0x2A2F: 0xD7,                   // cross product
+
+        0x25FB: 0x25A1, 0x25FC: 0x25A0, // square, blacksquare
 
         //
         //  Letter-like symbols (that appear elsewhere)
@@ -157,7 +184,7 @@
         0x210D: [0x0048,MML.VARIANT.DOUBLESTRUCK],
         0x210E: [0x0068,MML.VARIANT.ITALIC],
         0x2110: [0x004A,MML.VARIANT.SCRIPT],
-        0x2111: [0x004A,MML.VARIANT.FRAKTUR],
+        0x2111: [0x0049,MML.VARIANT.FRAKTUR],
         0x2112: [0x004C,MML.VARIANT.SCRIPT],
         0x2115: [0x004E,MML.VARIANT.DOUBLESTRUCK],
         0x2119: [0x0050,MML.VARIANT.DOUBLESTRUCK],
@@ -185,9 +212,10 @@
         //  
         0x2204: "\u2203\u0338",    // \not\exists
         0x220C: "\u220B\u0338",    // \not\ni
-        0x2244: "\u2243\u0338",    // \not\cong
+        0x2244: "\u2243\u0338",    // \not\simeq
         0x2249: "\u2248\u0338",    // \not\approx
         0x2262: "\u2261\u0338",    // \not\equiv
+        0x226D: "\u224D\u0338",    // \not\asymp
         0x2274: "\u2272\u0338",    // \not\lesssim
         0x2275: "\u2273\u0338",    // \not\gtrsim
         0x2278: "\u2276\u0338",    // \not\lessgtr
@@ -197,15 +225,21 @@
         0x22E2: "\u2291\u0338",    // \not\sqsubseteq
         0x22E3: "\u2292\u0338",    // \not\sqsupseteq
 
+        0x2A0C: "\u222C\u222C",    // quadruple integral
+
         0x2033: "\u2032\u2032",        // double prime
         0x2034: "\u2032\u2032\u2032",  // triple prime
         0x2036: "\u2035\u2035",        // double back prime
         0x2037: "\u2035\u2035\u2035",  // trile back prime
-        0x2057: "\u2032\u2032\u2032\u2032"  // quadruple prime
+        0x2057: "\u2032\u2032\u2032\u2032",  // quadruple prime
+        0x20DB: "...",                 // combining three dots above (only works with mover/under)
+        0x20DC: "...."                 // combining four dots above (only works with mover/under)
       },
       
       REMAPACCENT: {
-        "\u2192":"\u20D7"
+        "\u2192":"\u20D7",
+        "\u2032":"'",
+        "\u2035":"`"
       },
       REMAPACCENTUNDER: {
       },
@@ -339,7 +373,7 @@
         },
         0x2190: // left arrow
         {
-          dir: H, HW: [[1000,MAIN]], stretch: {left:[0x2190,MAIN],rep:[0x2212,MAIN], fuzz:300}
+          dir: H, HW: [[1000,MAIN]], stretch: {left:[0x2190,MAIN], rep:ARROWREP, fuzz:300}
         },
         0x2191: // \uparrow
         {
@@ -347,7 +381,7 @@
         },
         0x2192: // right arrow
         {
-          dir: H, HW: [[1000,MAIN]], stretch: {rep:[0x2212,MAIN], right:[0x2192,MAIN], fuzz:300}
+          dir: H, HW: [[1000,MAIN]], stretch: {rep:ARROWREP, right:[0x2192,MAIN], fuzz:300}
         },
         0x2193: // \downarrow
         {
@@ -356,7 +390,7 @@
         0x2194: // left-right arrow
         {
           dir: H, HW: [[1000,MAIN]],
-          stretch: {left:[0x2190,MAIN],rep:[0x2212,MAIN], right:[0x2192,MAIN], fuzz:300}
+          stretch: {left:[0x2190,MAIN], rep:ARROWREP, right:[0x2192,MAIN], fuzz:300}
         },
         0x2195: // \updownarrow
         {
@@ -365,7 +399,7 @@
         },
         0x21D0: // left double arrow
         {
-          dir: H, HW: [[1000,MAIN]], stretch: {left:[0x21D0,MAIN],rep:[0x3D,MAIN], fuzz:300}
+          dir: H, HW: [[1000,MAIN]], stretch: {left:[0x21D0,MAIN], rep:DARROWREP, fuzz:300}
         },
         0x21D1: // \Uparrow
         {
@@ -373,7 +407,7 @@
         },
         0x21D2: // right double arrow
         {
-          dir: H, HW: [[1000,MAIN]], stretch: {rep:[0x3D,MAIN], right:[0x21D2,MAIN], fuzz:300}
+          dir: H, HW: [[1000,MAIN]], stretch: {rep:DARROWREP, right:[0x21D2,MAIN], fuzz:300}
         },
         0x21D3: // \Downarrow
         {
@@ -382,7 +416,7 @@
         0x21D4: // left-right double arrow
         {
           dir: H, HW: [[1000,MAIN]],
-          stretch: {left:[0x21D0,MAIN],rep:[0x3D,MAIN], right:[0x21D2,MAIN], fuzz:300}
+          stretch: {left:[0x21D0,MAIN], rep:DARROWREP, right:[0x21D2,MAIN], fuzz:300}
         },
         0x21D5: // \Updownarrow
         {
@@ -391,7 +425,7 @@
         },
         0x2212: // horizontal line
         {
-          dir: H, HW: [[611,MAIN]], stretch: {rep:[0x2212,MAIN], fuzz:300}
+          dir: H, HW: [[778,MAIN]], stretch: {rep:[0x2212,MAIN], fuzz:300}
         },
         0x221A: // \surd
         {
@@ -444,12 +478,12 @@
         0x23DE: // horizontal brace down
         {
           dir: H, HW: [],
-          stretch: {left:[0xE150,SIZE4], mid:[[0xE153,0xE152],SIZE4], right:[0xE151,SIZE4], rep:[0xE154,SIZE4]}
+          stretch: {min:.9, left:[0xE150,SIZE4], mid:[[0xE153,0xE152],SIZE4], right:[0xE151,SIZE4], rep:[0xE154,SIZE4]}
         },
         0x23DF: // horizontal brace up
         {
           dir: H, HW: [],
-          stretch: {left:[0xE152,SIZE4], mid:[[0xE151,0xE150],SIZE4], right:[0xE153,SIZE4], rep:[0xE154,SIZE4]}
+          stretch: {min:.9, left:[0xE152,SIZE4], mid:[[0xE151,0xE150],SIZE4], right:[0xE153,SIZE4], rep:[0xE154,SIZE4]}
         },
         0x27E8: // \langle
         {
@@ -531,6 +565,9 @@
         0x295F: EXTRAH, // rightwards harpoon with barb down from bar
         0x2960: EXTRAV, // up harpoon with barb left from bar
         0x2961: EXTRAV, // down harpoon with barb left from bar
+        0x2312: {alias: 0x23DC, dir:H}, // arc
+        0x2322: {alias: 0x23DC, dir:H}, // frown
+        0x2323: {alias: 0x23DD, dir:H}, // smile
         0x27F5: {alias: 0x2190, dir:H}, // long left arrow
         0x27F6: {alias: 0x2192, dir:H}, // long right arrow
         0x27F7: {alias: 0x2194, dir:H}, // long left-right arrow
@@ -545,13 +582,6 @@
     }
   });
 
-  
-  MathJax.Hub.Register.StartupHook("TeX Jax Ready", function () {
-    var TEX = MathJax.InputJax.TeX;
-    TEX.Definitions.mathchar0mi.ell  = ['2113',{mathvariant: MML.VARIANT.NORMAL}];
-    TEX.Definitions.mathchar0mi.hbar = ['210F',{mathvariant: MML.VARIANT.NORMAL}];
-    TEX.Definitions.mathchar0mi.S    = ['00A7',{mathvariant: MML.VARIANT.SCRIPT}];
-  });
   
   SVG.FONTDATA.FONTS['MathJax_Main'] = {
     directory: 'Main/Regular',
@@ -1533,20 +1563,43 @@
 
   SVG.FONTDATA.FONTS['MathJax_Main'][0x22EE][0]  += 400;  // adjust height for \vdots
   SVG.FONTDATA.FONTS['MathJax_Main'][0x22F1][0]  += 700;  // adjust height for \ddots
-  SVG.FONTDATA.FONTS['MathJax_Main'][0x2212][1]  += 100;  // adjust depth of minus (used as arrow extender)
-  SVG.FONTDATA.FONTS['MathJax_Main'][0x003D][1]  += 100;  // adjust depth of = (used as arrow extender)
 
-  MathJax.Hub.Register.LoadHook(SVG.fontDir+"/Size4/Regular/Main.js",function () {
-    SVG.FONTDATA.FONTS['MathJax_Size4'][0xE154][0] += 200;  // adjust height for brace extender
-    SVG.FONTDATA.FONTS['MathJax_Size4'][0xE154][1] += 200;  // adjust depth for brace extender
+  //
+  //  Add some spacing characters (more will come later)
+  //
+  MathJax.Hub.Insert(SVG.FONTDATA.FONTS['MathJax_Main'],{
+    0x2000: [0,0,500,0,0,{space:1}],     // en quad
+    0x2001: [0,0,1000,0,0,{space:1}],    // em quad
+    0x2002: [0,0,500,0,0,{space:1}],     // en space
+    0x2003: [0,0,1000,0,0,{space:1}],    // em space
+    0x2004: [0,0,333,0,0,{space:1}],     // 3-per-em space
+    0x2005: [0,0,250,0,0,{space:1}],     // 4-per-em space
+    0x2006: [0,0,167,0,0,{space:1}],     // 6-per-em space
+    0x2009: [0,0,167,0,0,{space:1}],     // thin space
+    0x200A: [0,0,83,0,0,{space:1}],      // hair space
+    0x200B: [0,0,0,0,0,{space:1}],       // zero-width space
+    0xEEE0: [0,0,-575,0,0,{space:1}],
+    0xEEE1: [0,0,-300,0,0,{space:1}],
+    0xEEE8: [0,0,25,0,0,{space:1}]
+  });
+
+  HUB.Register.StartupHook("SVG Jax Require",function () {
+    HUB.Register.LoadHook(SVG.fontDir+"/Size4/Regular/Main.js",function () {
+      SVG.FONTDATA.FONTS['MathJax_Size4'][0xE154][0] += 200;  // adjust height for brace extender
+      SVG.FONTDATA.FONTS['MathJax_Size4'][0xE154][1] += 200;  // adjust depth for brace extender
+    });
+    
+    SVG.FONTDATA.FONTS['MathJax_Main'][0x2245][2] -= 222; // fix incorrect right bearing in font
+    HUB.Register.LoadHook(SVG.fontDir+"/Main/Bold/MathOperators.js",function () {
+      SVG.FONTDATA.FONTS['MathJax_Main-bold'][0x2245][2] -= 106; // fix incorrect right bearing in font
+    });
+
+    HUB.Register.LoadHook(SVG.fontDir+"/Typewriter/Regular/BasicLatin.js",function () {
+      SVG.FONTDATA.FONTS['MathJax_Typewriter'][0x20][2] += 275; // fix incorrect width
+    });
+
+    AJAX.loadComplete(SVG.fontDir + "/fontdata.js");
   });
   
-  SVG.FONTDATA.FONTS['MathJax_Main'][0x2245][2] -= 222; // fix incorrect right bearing in font
-  MathJax.Hub.Register.LoadHook(SVG.fontDir+"/Main/Bold/MathOperators.js",function () {
-    SVG.FONTDATA.FONTS['MathJax_Main-bold'][0x2245][2] -= 106; // fix incorrect right bearing in font
-  });
-
-  AJAX.loadComplete(SVG.fontDir + "/fontdata.js");
-  
-})(MathJax.OutputJax.SVG,MathJax.ElementJax.mml,MathJax.Ajax);
+})(MathJax.OutputJax.SVG,MathJax.ElementJax.mml,MathJax.Ajax,MathJax.Hub);
 

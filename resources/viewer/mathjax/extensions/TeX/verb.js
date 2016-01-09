@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/TeX/verb.js
@@ -7,7 +10,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2009-2012 Design Science, Inc.
+ *  Copyright (c) 2009-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +26,7 @@
  */
 
 MathJax.Extension["TeX/verb"] = {
-  version: "2.0"
+  version: "2.6.0"
 };
 
 MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
@@ -32,7 +35,7 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
   var TEX = MathJax.InputJax.TeX;
   var TEXDEF = TEX.Definitions;
   
-  TEXDEF.macros.verb = 'Verb';
+  TEXDEF.Add({macros: {verb: 'Verb'}},null,true);
 
   TEX.Parse.Augment({
 
@@ -41,11 +44,11 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
      */
     Verb: function (name) {
       var c = this.GetNext(); var start = ++this.i;
-      if (c == "" ) {TEX.Error(name+" requires an argument")}
+      if (c == "" ) {TEX.Error(["MissingArgFor","Missing argument for %1",name])}
       while (this.i < this.string.length && this.string.charAt(this.i) != c) {this.i++}
-      if (this.i == this.string.length) 
-        {TEX.Error("Can't find closing delimiter for "+name)}
-      var text = this.string.slice(start,this.i); this.i++;
+      if (this.i == this.string.length)
+        {TEX.Error(["NoClosingDelim","Can't find closing delimiter for %1", name])}
+      var text = this.string.slice(start,this.i).replace(/ /g,"\u00A0"); this.i++;
       this.Push(MML.mtext(text).With({mathvariant:MML.VARIANT.MONOSPACE}));
     }
     

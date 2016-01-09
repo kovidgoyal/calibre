@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/tex2jax.js
@@ -8,7 +11,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2009-2012 Design Science, Inc.
+ *  Copyright (c) 2009-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,7 +27,7 @@
  */
 
 MathJax.Extension.tex2jax = {
-  version: "2.0",
+  version: "2.6.0",
   config: {
     inlineMath: [              // The start/stop pairs for in-line math
 //    ['$','$'],               //  (comment out any you don't want, or add your own, but
@@ -40,7 +43,7 @@ MathJax.Extension.tex2jax = {
                                // balanced within math delimiters (allows for nested
                                // dollar signs).  Set to false to get pre-v2.0 compatibility.
 
-    skipTags: ["script","noscript","style","textarea","pre","code"],
+    skipTags: ["script","noscript","style","textarea","pre","code","annotation","annotation-xml"],
                                // The names of the tags whose contents will not be
                                // scanned for math delimiters
 
@@ -107,7 +110,10 @@ MathJax.Extension.tex2jax = {
     if (config.processRefs)         {parts.push("\\\\(eq)?ref\\{[^}]*\\}")}
     this.start = new RegExp(parts.join("|"),"g");
     this.skipTags = new RegExp("^("+config.skipTags.join("|")+")$","i");
-    this.ignoreClass = new RegExp("(^| )("+config.ignoreClass+")( |$)");
+    var ignore = [];
+    if (MathJax.Hub.config.preRemoveClass) {ignore.push(MathJax.Hub.config.preRemoveClass)};
+    if (config.ignoreClass) {ignore.push(config.ignoreClass)}
+    this.ignoreClass = (ignore.length ? new RegExp("(^| )("+ignore.join("|")+")( |$)") : /^$/);
     this.processClass = new RegExp("(^| )("+config.processClass+")( |$)");
     return (parts.length > 0);
   },
@@ -271,9 +277,9 @@ MathJax.Extension.tex2jax = {
   },
   
   createPreview: function (mode,tex) {
-    var preview;
-    if (this.config.preview === "TeX") {preview = [this.filterPreview(tex)]}
-    else if (this.config.preview instanceof Array) {preview = this.config.preview}
+    var preview = this.config.preview;
+    if (preview === "none") return;
+    if (preview === "TeX") {preview = [this.filterPreview(tex)]}
     if (preview) {
       preview = MathJax.HTML.Element("span",{className:MathJax.Hub.config.preRemoveClass},preview);
       this.insertNode(preview);
@@ -294,5 +300,10 @@ MathJax.Extension.tex2jax = {
   
 };
 
+// We register the preprocessors with the following priorities:
+// - mml2jax.js: 5
+// - jsMath2jax.js: 8
+// - asciimath2jax.js, tex2jax.js: 10 (default)
+// See issues 18 and 484 and the other *2jax.js files.
 MathJax.Hub.Register.PreProcessor(["PreProcess",MathJax.Extension.tex2jax]);
 MathJax.Ajax.loadComplete("[MathJax]/extensions/tex2jax.js");

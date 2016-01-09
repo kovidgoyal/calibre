@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/FontWarnings.js
@@ -67,7 +70,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2010-2012 Design Science, Inc.
+ *  Copyright (c) 2010-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -83,7 +86,10 @@
  */
 
 (function (HUB,HTML) {
-  var VERSION = "2.0";
+  var VERSION = "2.6.0";
+
+  var STIXURL = "http://www.stixfonts.org/";
+  var MATHJAXURL = "https://github.com/mathjax/MathJax/tree/master/fonts/HTML-CSS/TeX/otf";
   
   var CONFIG = HUB.CombineConfig("FontWarnings",{
     //
@@ -110,33 +116,37 @@
     //  The messages for the various situations
     //
     Message: {
+
       webFont: [
         ["closeBox"],
-        "MathJax is using web-based fonts to display the mathematics ",
-        "on this page.  These take time to download, so the page would ",
-        "render faster if you installed math fonts directly in your ",
-        "system's font folder.",
+        ["webFont",
+          "MathJax is using web-based fonts to display the mathematics "+
+          "on this page.  These take time to download, so the page would "+
+          "render faster if you installed math fonts directly in your "+
+          "system's font folder."],
         ["fonts"]
       ],
 
       imageFonts: [
         ["closeBox"],
-        "MathJax is using its image fonts rather than local or web-based fonts. ",
-        "This will render slower than usual, and the mathematics may not print ",
-        "at the full resolution of your printer.",
+        ["imageFonts",
+          "MathJax is using its image fonts rather than local or web-based fonts. "+
+          "This will render slower than usual, and the mathematics may not print "+
+          "at the full resolution of your printer."],
         ["fonts"],
-        ["webfonts"]
+        ["webFonts"]
       ],
       
       noFonts: [
         ["closeBox"],
-        "MathJax is unable to locate a font to use to display ",
-        "its mathematics, and image fonts are not available, so it ",
-        "is falling back on generic unicode characters in hopes that ",
-        "your browser will be able to display them.  Some characters ",
-        "may not show up properly, or possibly not at all.",
+        ["noFonts",
+          "MathJax is unable to locate a font to use to display "+
+          "its mathematics, and image fonts are not available, so it "+
+          "is falling back on generic unicode characters in hopes that "+
+          "your browser will be able to display them.  Some characters "+
+          "may not show up properly, or possibly not at all."],
         ["fonts"],
-        ["webfonts"]
+        ["webFonts"]
       ]
     },
     
@@ -168,34 +178,40 @@
         [["span",{style:{position:"relative", bottom:".2em"}},["x"]]]
       ]],
       
-      webfonts: [
+      webFonts: [
         ["p"],
-        "Most modern browsers allow for fonts to be downloaded over the web. ",
-        "Updating to a more recent version of your browser (or changing browsers) ",
-        "could improve the quality of the mathematics on this page."
+        ["webFonts",
+          "Most modern browsers allow for fonts to be downloaded over the web. "+
+          "Updating to a more recent version of your browser (or changing "+
+          "browsers) could improve the quality of the mathematics on this page."
+        ]
       ],
-      
+ 
       fonts: [
         ["p"],
-        "MathJax can use either the ",
-        ["a",{href:"http://www.stixfonts.org/",target:"_blank"},"STIX fonts"],
-        " or the ",
-        ["a",{href:"http://www.mathjax.org/help-v2/fonts/",target:"_blank"},["MathJax TeX fonts"]],
-        ".  Download and install either one to improve your MathJax experience."
+        ["fonts",
+          "MathJax can use either the [STIX fonts](%1) or the [MathJax TeX fonts](%2).  " +
+           "Download and install one of those fonts to improve your MathJax experience.",
+           STIXURL,MATHJAXURL
+        ]
       ],
-      
-      STIXfonts: [
-        ["p"],
-        "This page is designed to use the ",
-        ["a",{href:"http://www.stixfonts.org/",target:"_blank"},"STIX fonts"],
-        ".  Download and install those fonts to improve your MathJax experience."
-      ],
-      
+ 
+       STIXfonts: [
+         ["p"],
+         ["STIXPage",
+           "This page is designed to use the [STIX fonts](%1).  " +
+           "Download and install those fonts to improve your MathJax experience.",
+           STIXURL
+         ]
+       ],
+
       TeXfonts: [
         ["p"],
-        "This page is designed to use the ",
-        ["a",{href:"http://www.mathjax.org/help-v2/fonts/",target:"_blank"},["MathJax TeX fonts"]],
-        ".  Download and install those fonts to improve your MathJax experience."
+        ["TeXPage",
+          "This page is designed to use the [MathJax TeX fonts](%1).  " +
+          "Download and install those fonts to improve your MathJax experience.",
+          MATHJAXURL
+        ]
       ]
       
     },
@@ -225,16 +241,26 @@
     if (HUB.Browser.isMSIE) {
       if (CONFIG.messageStyle.position === "fixed") {
         MathJax.Message.Init();  // make sure MathJax_MSIE_frame exists
-        frame = document.getElementById("MathJax_MSIE_Frame");
-        CONFIG.messageStyle.position = "absolute";
+        frame = document.getElementById("MathJax_MSIE_Frame") || frame;
+        if (frame !== document.body) {CONFIG.messageStyle.position = "absolute"}
       }
     } else {delete CONFIG.messageStyle.filter}
     CONFIG.messageStyle.maxWidth = (document.body.clientWidth-75) + "px";
     var i = 0; while (i < data.length) {
-      if (data[i] instanceof Array && CONFIG.HTML[data[i][0]])
-        {data.splice.apply(data,[i,1].concat(CONFIG.HTML[data[i][0]]))} else {i++}
+      if (data[i] instanceof Array) {
+        if (data[i].length === 1 && CONFIG.HTML[data[i][0]]) {
+          data.splice.apply(data,[i,1].concat(CONFIG.HTML[data[i][0]]));
+        } else if (typeof data[i][1] === "string") {
+          var message = MathJax.Localization.lookupPhrase(["FontWarnings",data[i][0]],data[i][1]);
+          message = MathJax.Localization.processMarkdown(message,data[i].slice(2),"FontWarnings");
+          data.splice.apply(data,[i,1].concat(message));
+          i += message.length;
+        } else {i++}
+      } else {i++}
     }
-    DATA.div = HTMLCSS.addElement(frame,"div",{id:"MathJax_FontWarning",style:CONFIG.messageStyle},data);
+    DATA.div = HTMLCSS.addElement(frame,"div",
+      {id:"MathJax_FontWarning",style:CONFIG.messageStyle},data);
+    MathJax.Localization.setCSS(DATA.div);
     if (CONFIG.removeAfter) {
       HUB.Register.StartupHook("End",function () 
          {DATA.timer = setTimeout(FADEOUT,CONFIG.removeAfter)});
@@ -276,7 +302,8 @@
         if (message.match(/- Web-Font/)) {if (localFonts) {MSG = "webFont"}}
         else if (message.match(/- using image fonts/)) {MSG = "imageFonts"}
         else if (message.match(/- no valid font/)) {MSG = "noFonts"}
-        if (MSG && CONFIG.Message[MSG]) {CREATEMESSAGE(CONFIG.Message[MSG])}
+        if (MSG && CONFIG.Message[MSG])
+          {MathJax.Localization.loadDomain("FontWarnings",[CREATEMESSAGE,CONFIG.Message[MSG]])}
       }
     });
   }

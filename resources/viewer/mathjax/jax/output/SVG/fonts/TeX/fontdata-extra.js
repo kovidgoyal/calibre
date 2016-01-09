@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/jax/output/SVG/fonts/TeX/fontdata-extra.js
@@ -6,7 +9,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2011-2012 Design Science, Inc.
+ *  Copyright (c) 2011-2015 The MathJax Consortium
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,6 +25,7 @@
  */
 
 (function (SVG) {
+  var VERSION = "2.6.0";
   
   var DELIMITERS = SVG.FONTDATA.DELIMITERS;
 
@@ -48,12 +52,12 @@
     0x21A4: // left arrow from bar
     {
       dir: H, HW: [],
-      stretch: {left:[0x2190,MAIN], rep:[0x2212,MAIN], right:[0x2223,SIZE1,0,-.05,.9]}
+      stretch: {min:1, left:[0x2190,MAIN], rep:[0x2212,MAIN], right:[0x2223,SIZE1,0,-.05,.9]}
     },
     0x21A5: // up arrow from bar
     {
       dir: V, HW: [],
-      stretch: {bot:[0x22A5,BOLD,0,0,.75], ext:[0x23D0,SIZE1], top:[0x2191,SIZE1]}
+      stretch: {min:.6, bot:[0x22A5,BOLD,0,0,.75], ext:[0x23D0,SIZE1], top:[0x2191,SIZE1]}
     },
     0x21A6: // right arrow from bar
     {
@@ -63,7 +67,7 @@
     0x21A7: // down arrow from bar
     {
       dir: V, HW: [],
-      stretch: {top:[0x22A4,BOLD,0,0,.75], ext:[0x23D0,SIZE1], bot:[0x2193,SIZE1]}
+      stretch: {min:.6, top:[0x22A4,BOLD,0,0,.75], ext:[0x23D0,SIZE1], bot:[0x2193,SIZE1]}
     },
     0x21B0: // up arrow with top leftwards
     {
@@ -128,12 +132,12 @@
     0x23B4: // top square bracket
     {
       dir: H, HW: [],
-      stretch: {left:[0x250C,AMS,0,-.1], rep:[0x2212,MAIN,0,.325], right:[0x2510,AMS,0,-.1]}
+      stretch: {min:.5, left:[0x250C,AMS,0,-.1], rep:[0x2212,MAIN,0,.325], right:[0x2510,AMS,0,-.1]}
     },
     0x23B5: // bottom square bracket
     {
       dir: H, HW: [],
-      stretch: {left:[0x2514,AMS,0,.26], rep:[0x2212,MAIN,0,0,0,.25], right:[0x2518,AMS,0,.26]}
+      stretch: {min:.5, left:[0x2514,AMS,0,.26], rep:[0x2212,MAIN,0,0,0,.25], right:[0x2518,AMS,0,.26]}
     },
     0x23DC: // top paren
     {
@@ -148,82 +152,82 @@
     0x23E0: // top tortoise shell
     {
       dir: H, HW: [],
-      stretch: {left:[0x2CA,MAIN,-.1], rep:[0x2C9,MAIN,0,.13], right:[0x2CB,MAIN], fullExtenders:true}
+      stretch: {min:1.25, left:[0x2CA,MAIN,-.1], rep:[0x2C9,MAIN,-.05,.13], right:[0x2CB,MAIN], fullExtenders:true}
     },
     0x23E1: // bottom tortoise shell
     {
       dir: H, HW: [],
-      stretch: {left:[0x2CB,MAIN,-.1,.1], rep:[0x2C9,MAIN], right:[0x2CA,MAIN,-.1,.1], fullExtenders:true}
+      stretch: {min:1.5, left:[0x2CB,MAIN,-.1,.1], rep:[0x2C9,MAIN,-.1], right:[0x2CA,MAIN,-.1,.1], fullExtenders:true}
     },
     0x2906: // leftwards double arrow from bar
     {
       dir: H, HW: [],
-      stretch: {left:[0x21D0,MAIN], rep:[0x3D,MAIN], right:[0x2223,SIZE1,0,-.1]}
+      stretch: {min:1, left:[0x21D0,MAIN], rep:[0x3D,MAIN], right:[0x2223,SIZE1,0,-.1]}
     },
     0x2907: // rightwards double arrow from bar
     {
       dir: H, HW: [],
-      stretch: {left:[0x22A8,AMS,0,-.12], rep:[0x3D,MAIN], right:[0x21D2,MAIN]}
+      stretch: {min:.7, left:[0x22A8,AMS,0,-.12], rep:[0x3D,MAIN], right:[0x21D2,MAIN]}
     },
     0x294E: // left barb up right barb up harpoon
     {
       dir: H, HW: [],
-      stretch: {left:[0x21BC,MAIN], rep:[0x2212,MAIN], right:[0x21C0,MAIN]}
+      stretch: {min:.5, left:[0x21BC,MAIN], rep:[0x2212,MAIN], right:[0x21C0,MAIN]}
     },
     0x294F: // up barb right down barb right harpoon
     {
       dir: V, HW: [],
-      stretch: {top:[0x21BE,AMS,.12,0,1.1], ext:[0x23D0,SIZE1], bot:[0x21C2,AMS,.12,0,1.1]}
+      stretch: {min:.5, top:[0x21BE,AMS,.12,0,1.1], ext:[0x23D0,SIZE1], bot:[0x21C2,AMS,.12,0,1.1]}
     },
     0x2950: // left barb dow right barb down harpoon
     {
       dir: H, HW: [],
-      stretch: {left:[0x21BD,MAIN], rep:[0x2212,MAIN], right:[0x21C1,MAIN]}
+      stretch: {min:.5, left:[0x21BD,MAIN], rep:[0x2212,MAIN], right:[0x21C1,MAIN]}
     },
     0x2951: // up barb left down barb left harpoon
     {
       dir: V, HW: [],
-      stretch: {top:[0x21BF,AMS,.12,0,1.1], ext:[0x23D0,SIZE1], bot:[0x21C3,AMS,.12,0,1.1]}
+      stretch: {min:.5, top:[0x21BF,AMS,.12,0,1.1], ext:[0x23D0,SIZE1], bot:[0x21C3,AMS,.12,0,1.1]}
     },
     0x295A: // leftwards harpoon with barb up from bar
     {
       dir: H, HW: [],
-      stretch: {left:[0x21BC,MAIN], rep:[0x2212,MAIN], right:[0x2223,SIZE1,0,-.05,.9]}
+      stretch: {min:1, left:[0x21BC,MAIN], rep:[0x2212,MAIN], right:[0x2223,SIZE1,0,-.05,.9]}
     },
     0x295B: // rightwards harpoon with barb up from bar
     {
       dir: H, HW: [],
-      stretch: {left:[0x2223,SIZE1,-.09,-.05,.9], rep:[0x2212,MAIN], right:[0x21C0,MAIN]}
+      stretch: {min:1, left:[0x2223,SIZE1,-.05,-.05,.9], rep:[0x2212,MAIN], right:[0x21C0,MAIN]}
     },
     0x295C: // up harpoon with barb right from bar
     {
       dir: V, HW: [],
-      stretch: {bot:[0x22A5,BOLD,0,0,.75], ext:[0x23D0,SIZE1], top:[0x21BE,AMS,.12,0,1.1]}
+      stretch: {min:.7, bot:[0x22A5,BOLD,0,0,.75], ext:[0x23D0,SIZE1], top:[0x21BE,AMS,.12,0,1.1]}
     },
     0x295D: // down harpoon with barb right from bar
     {
       dir: V, HW: [],
-      stretch: {top:[0x22A4,BOLD,0,0,.75], ext:[0x23D0,SIZE1], bot:[0x21C2,AMS,.12,0,1.1]}
+      stretch: {min:.7, top:[0x22A4,BOLD,0,0,.75], ext:[0x23D0,SIZE1], bot:[0x21C2,AMS,.12,0,1.1]}
     },
     0x295E: // leftwards harpoon with barb down from bar
     {
       dir: H, HW: [],
-      stretch: {left:[0x21BD,MAIN], rep:[0x2212,MAIN], right:[0x2223,SIZE1,0,-.05,.9]}
+      stretch: {min:1, left:[0x21BD,MAIN], rep:[0x2212,MAIN], right:[0x2223,SIZE1,0,-.05,.9]}
     },
     0x295F: // rightwards harpoon with barb down from bar
     {
       dir: H, HW: [],
-      stretch: {left:[0x2223,SIZE1,-.09,-.05,.9], rep:[0x2212,MAIN], right:[0x21C1,MAIN]}
+      stretch: {min:1, left:[0x2223,SIZE1,-.05,-.05,.9], rep:[0x2212,MAIN], right:[0x21C1,MAIN]}
     },
     0x2960: // up harpoon with barb left from bar
     {
       dir: V, HW: [],
-      stretch: {bot:[0x22A5,BOLD,0,0,.75], ext:[0x23D0,SIZE1], top:[0x21BF,AMS,.12,0,1.1]}
+      stretch: {min:.7, bot:[0x22A5,BOLD,0,0,.75], ext:[0x23D0,SIZE1], top:[0x21BF,AMS,.12,0,1.1]}
     },
     0x2961: // down harpoon with barb left from bar
     {
       dir: V, HW: [],
-      stretch: {top:[0x22A4,BOLD,0,0,.75], ext:[0x23D0,SIZE1], bot:[0x21C3,AMS,.12,0,1.1]}
+      stretch: {min:.7, top:[0x22A4,BOLD,0,0,.75], ext:[0x23D0,SIZE1], bot:[0x21C3,AMS,.12,0,1.1]}
     }
   };
   

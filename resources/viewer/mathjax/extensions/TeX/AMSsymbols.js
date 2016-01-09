@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/TeX/AMSsymbols.js
@@ -6,7 +9,7 @@
  *  
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2009-2012 Design Science, Inc.
+ *  Copyright (c) 2009-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +25,7 @@
  */
 
 MathJax.Extension["TeX/AMSsymbols"] = {
-  version: "2.0"
+  version: "2.6.0"
 };
 
 MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
@@ -55,22 +58,22 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
       daleth:                 '2138',
 
       // Miscellaneous symbols
-//    hbar:                   '0127',  // in MathJax_Main
+//    hbar:                   '0127',  // in TeX/jax.js
       backprime:              ['2035',{variantForm: true}],
-      hslash:                 ['210F',{variantForm: true}],
+      hslash:                 '210F',
       varnothing:             ['2205',{variantForm: true}],
-      blacktriangle:          '25B2',
-      triangledown:           '25BD',
-      blacktriangledown:      '25BC',
-      square:                 '25A1',
-      Box:                    '25A1',
-      blacksquare:            '25A0',
+      blacktriangle:          '25B4',
+      triangledown:           ['25BD',{variantForm: true}],
+      blacktriangledown:      '25BE',
+      square:                 '25FB',
+      Box:                    '25FB',
+      blacksquare:            '25FC',
       lozenge:                '25CA',
       Diamond:                '25CA',
       blacklozenge:           '29EB',
       circledS:               ['24C8',{mathvariant: MML.VARIANT.NORMAL}],
       bigstar:                '2605',
-//    angle:                  '2220',  // in MathJax_Main
+//    angle:                  '2220',  // in TeX/jax.js
       sphericalangle:         '2222',
       measuredangle:          '2221',
       nexists:                '2204',
@@ -93,7 +96,7 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
       // Binary operators
       dotplus:                '2214',
       ltimes:                 '22C9',
-      smallsetminus:          ['2216',{variantForm: true}],
+      smallsetminus:          '2216',
       rtimes:                 '22CA',
       Cap:                    '22D2',
       doublecap:              '22D2',
@@ -113,7 +116,7 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
       boxdot:                 '22A1',
       circledcirc:            '229A',
       boxplus:                '229E',
-      centerdot:              '22C5',
+      centerdot:              ['22C5',{variantForm: true}],
       divideontimes:          '22C7',
       intercal:               '22BA',
 
@@ -177,9 +180,9 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
       vDash:                  '22A8',
       Vdash:                  '22A9',
       Vvdash:                 '22AA',
-      smallsmile:             '2323',
+      smallsmile:             ['2323',{variantForm: true}],
       shortmid:               ['2223',{variantForm: true}],
-      smallfrown:             '2322',
+      smallfrown:             ['2322',{variantForm: true}],
       shortparallel:          ['2225',{variantForm: true}],
       bumpeq:                 '224F',
       between:                '226C',
@@ -187,8 +190,8 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
       pitchfork:              '22D4',
       varpropto:              '221D',
       backepsilon:            '220D',
-      blacktriangleleft:      '25C0',
-      blacktriangleright:     '25B6',
+      blacktriangleleft:      '25C2',
+      blacktriangleright:     '25B8',
       therefore:              '2234',
       because:                '2235',
       eqsim:                  '2242',
@@ -343,59 +346,4 @@ MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
 
 });
 
-MathJax.Hub.Register.StartupHook("HTML-CSS Jax Ready",function () {
-  var HTMLCSS = MathJax.OutputJax["HTML-CSS"];
-  var VARIANT = HTMLCSS.FONTDATA.VARIANT;
-  if (HTMLCSS.fontInUse === "TeX") {
-    VARIANT["-TeX-variant"] = {
-      fonts: ["MathJax_AMS","MathJax_Main","MathJax_Size1"],
-      remap: {0x2268: 0xE00C, 0x2269: 0xE00D, 0x2270: 0xE011, 0x2271: 0xE00E,
-              0x2A87: 0xE010, 0x2A88: 0xE00F, 0x2224: 0xE006, 0x2226: 0xE007,
-              0x2288: 0xE016, 0x2289: 0xE018, 0x228A: 0xE01A, 0x228B: 0xE01B,
-              0x2ACB: 0xE017, 0x2ACC: 0xE019, 0x03DC: 0xE008, 0x03F0: 0xE009}
-    };
-    if (HTMLCSS.msieIE6) {
-      MathJax.Hub.Insert(VARIANT["-TeX-variant"].remap,{
-        0x2190:[0xE2C1,"-WinIE6"], 0x2192:[0xE2C0,"-WinIE6"],
-        0x2223:[0xE2C2,"-WinIE6"], 0x2225:[0xE2C3,"-WinIE6"],
-        0x223C:[0xE2C4,"-WinIE6"], 0x25B3:[0xE2D3,"-WinIE6"]
-      });
-    }
-  }
-  if (HTMLCSS.fontInUse === "STIX") {
-    MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
-      var TEXDEF = MathJax.InputJax.TeX.Definitions;
-      TEXDEF.mathchar0mi.varnothing = '2205';
-      TEXDEF.mathchar0mi.hslash = '210F';
-      TEXDEF.mathchar0mi.blacktriangle = '25B4';
-      TEXDEF.mathchar0mi.blacktriangledown = '25BE';
-      TEXDEF.mathchar0mi.square = '25FB';
-      TEXDEF.mathchar0mi.blacksquare = '25FC';
-      TEXDEF.mathchar0mi.vartriangle = ['25B3',{mathsize:"71%"}];
-      TEXDEF.mathchar0mi.triangledown = ['25BD',{mathsize:"71%"}];
-      TEXDEF.mathchar0mo.blacktriangleleft = '25C2';
-      TEXDEF.mathchar0mo.blacktriangleright = '25B8';
-      TEXDEF.mathchar0mo.smallsetminus = '2216';
-      MathJax.Hub.Insert(VARIANT["-STIX-variant"],{
-        remap: {0x2A87: 0xE010, 0x2A88: 0xE00F, 0x2270: 0xE011, 0x2271: 0xE00E,
-                0x22E0: 0xE04B, 0x22E1: 0xE04F, 0x2288: 0xE016, 0x2289: 0xE018}
-      });
-    });
-  }
-  
-});
-
-MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
-  var SVG = MathJax.OutputJax.SVG;
-  var VARIANT = SVG.FONTDATA.VARIANT;
-
-  VARIANT["-TeX-variant"] = {
-    fonts: ["MathJax_AMS","MathJax_Main","MathJax_Size1"],
-    remap: {0x2268: 0xE00C, 0x2269: 0xE00D, 0x2270: 0xE011, 0x2271: 0xE00E,
-            0x2A87: 0xE010, 0x2A88: 0xE00F, 0x2224: 0xE006, 0x2226: 0xE007,
-            0x2288: 0xE016, 0x2289: 0xE018, 0x228A: 0xE01A, 0x228B: 0xE01B,
-            0x2ACB: 0xE017, 0x2ACC: 0xE019, 0x03DC: 0xE008, 0x03F0: 0xE009}
-  };
-});
-  
 MathJax.Ajax.loadComplete("[MathJax]/extensions/TeX/AMSsymbols.js");

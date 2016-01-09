@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/jax/output/SVG/autoload/multiline.js
@@ -6,7 +9,7 @@
  *
  *  ---------------------------------------------------------------------
  *  
- *  Copyright (c) 2011-2012 Design Science, Inc.
+ *  Copyright (c) 2011-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,7 +25,7 @@
  */
 
 MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
-  var VERSION = "2.0";
+  var VERSION = "2.6.0";
   var MML = MathJax.ElementJax.mml,
       SVG = MathJax.OutputJax.SVG,
       BBOX = SVG.BBOX;
@@ -37,7 +40,7 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
     badbreak:    [+200],
     auto:           [0],
     
-    toobig:        500,
+    toobig:        800,
     nestfactor:    400,
     spacefactor:  -100,
     spaceoffset:     2,
@@ -83,14 +86,17 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       //
       //  Start with a fresh SVG element
       //  and make it full width if we are breaking to a specific width
+      //    in the top-level math element
       //
       svg = this.SVG();
-      if (SVG.linebreakWidth < SVG.BIGDIMEN) {svg.w = SVG.linebreakWidth}
-        else {svg.w = SVG.cwidth/SVG.em * 1000}
+      if (isTop && parent.type !== "mtd") {
+        if (SVG.linebreakWidth < SVG.BIGDIMEN) {svg.w = SVG.linebreakWidth}
+          else {svg.w = SVG.cwidth}
+      }
 
       var state = {
             n: 0, Y: 0,
-            scale: this.SVGgetScale(),
+            scale: this.scale || 1,
             isTop: isTop,
             values: {},
             VALUES: VALUES
@@ -109,7 +115,7 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       //  Break the expression at its best line breaks
       //
       while (this.SVGbetterBreak(end,state) && 
-             (end.scanW >= SVG.linebreakWidth || end.penalty == PENALTY.newline)) {
+             (end.scanW >= SVG.linebreakWidth || end.penalty === PENALTY.newline)) {
         this.SVGaddLine(svg,start,end.index,state,end.values,broken);
         start = end.index.slice(0); broken = true;
         align = this.SVGgetAlign(state,end.values);
@@ -149,31 +155,39 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       //  Get the current breakpoint position and other data
       //
       var index = info.index.slice(0), i = info.index.shift(),
-          m = this.data.length, W, scanW = info.W,
-          broken = (info.index.length > 0), better = false;
-      if (i == null) {i = -1}; if (!broken) {i++; info.W += info.w};
-      info.w = 0; info.nest++;
+          m = this.data.length, W, w, scanW, broken = (info.index.length > 0), better = false;
+      if (i == null) {i = -1}; if (!broken) {i++; info.W += info.w; info.w = 0}
+      scanW = info.scanW = info.W; info.nest++;
       //
       //  Look through the line for breakpoints,
       //    (as long as we are not too far past the breaking width)
       //
-      while (i < m && info.W < 1.33*SVG.linebreakWidth) {
+      while (i < m && info.scanW < 1.33*SVG.linebreakWidth) {
         if (this.data[i]) {
           if (this.data[i].SVGbetterBreak(info,state)) {
-            better = true; index = [i].concat(info.index); W = info.W;
-            if (info.penalty === PENALTY.newline) {info.index = index; info.nest--; return true}
+            better = true; index = [i].concat(info.index); W = info.W; w = info.w;
+            if (info.penalty === PENALTY.newline) {
+              info.index = index;
+              if (info.nest) {info.nest--}
+              return true;
+            }
           }
-          if (!broken) {
-            var svg = this.data[i].SVGdata;
-            scanW += svg.w + svg.x; if (svg.X) {scanW += svg.X}
-            info.W = info.scanW = scanW;
-          }
+          scanW = (broken ? info.scanW : this.SVGaddWidth(i,info,scanW));
         }
         info.index = []; i++; broken = false;
       }
-      info.nest--; info.index = index;
+      if (info.nest) {info.nest--}
+      info.index = index;
       if (better) {info.W = W}
       return better;
+    },
+    SVGaddWidth: function (i,info,scanW) {
+      if (this.data[i]) {
+        var svg = this.data[i].SVGdata;
+        scanW += svg.w + svg.x; if (svg.X) {scanW += svg.X}
+        info.W = info.scanW = scanW; info.w = 0;
+      }
+      return scanW;
     },
     
     /****************************************************************/
@@ -197,24 +211,18 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       var align = this.SVGgetAlign(state,values),
           shift = this.SVGgetShift(state,values,align);
       //
-      //  Add in space for the shift
-      //
-      if (shift) {
-        if (align === MML.INDENTALIGN.LEFT)  {line.x = shift} else
-        if (align === MML.INDENTALIGN.RIGHT) {line.w += shift; line.r = line.w}
-      }
-      //
       //  Set the Y offset based on previous depth, leading, and current height
       //
       if (state.n > 0) {
         var LHD = SVG.FONTDATA.baselineskip * state.scale;
-        var leading = (state.values.lineleading == null ? state.VALUES : state.values).lineleading;
+        var leading = (state.values.lineleading == null ? state.VALUES : state.values).lineleading * state.scale;
         state.Y -= Math.max(LHD,state.d + line.h + leading);
       }
       //
       //  Place the new line
       //
-      svg.Align(line,align,0,state.Y);
+      if (line.w + shift > svg.w) svg.w = line.w + shift;
+      svg.Align(line,align,0,state.Y,shift);
       //
       //  Save the values needed for the future
       //
@@ -235,14 +243,18 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       return align;
     },
     SVGgetShift: function (state,values,align) {
-      if (align === MML.INDENTALIGN.CENTER) {return 0}
       var cur = values, prev = state.values, def = state.VALUES, shift;
       if (state.n === 0)     {shift = cur.indentshiftfirst || prev.indentshiftfirst || def.indentshiftfirst}
       else if (state.isLast) {shift = prev.indentshiftlast || def.indentshiftlast}
       else                   {shift = prev.indentshift || def.indentshift}
       if (shift === MML.INDENTSHIFT.INDENTSHIFT) {shift = prev.indentshift || def.indentshift}
-      if (shift === "auto" || shift === "") {shift = (state.isTSop ? this.displayIndent : "0")}
-      return SVG.length2em(shift,0);
+      if (shift === "auto" || shift === "") {shift = "0"}
+      shift = SVG.length2em(shift,1,SVG.cwidth);
+      if (state.isTop && this.displayIndent !== "0") {
+        var indent = SVG.length2em(this.displayIndent,1,SVG.cwidth);
+        shift += (align === MML.INDENTALIGN.RIGHT ? -indent: indent);
+      }
+      return shift;
     },
     
     /****************************************************************/
@@ -303,8 +315,8 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
 
     /****************************************************************/
     //
-    //  Move an element from its original span to its new location in
-    //    a split element or the new line's span
+    //  Move an element from its original position to its new location in
+    //    a split element or the new line's position
     //
     SVGmove: function (line,state,values) {
       // FIXME:  handle linebreakstyle === "duplicate"
@@ -314,17 +326,232 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
            (state.last && values.linebreakstyle === MML.LINEBREAKSTYLE.AFTER)) {
         //
         //  Recreate output
-        //  Remove padding (if first, remove at right, if last remove at left)
+        //  Remove padding (if first, remove at leftt, if last remove at right)
         //  Add to line
         //
         var svg = this.toSVG(this.SVGdata.HW,this.SVGdata.D);
-        if (state.last) {svg.x = 0}
-        if (state.first || state.nextIsFirst) {delete state.nextIsFirst; if (svg.X) {svg.X = 0}}
+        if (state.first || state.nextIsFirst) {svg.x = 0}
+        if (state.last && svg.X) {svg.X = 0}
         line.Add(svg,line.w,0,true);
-      } else if (state.first) {state.nextIsFirst = true} else {delete state.nextIsFirst}
+      }
+      if (state.first && svg && svg.w === 0) {state.nextIsFirst = true}
+        else {delete state.nextIsFirst}
     }
   });
       
+  /**************************************************************************/
+
+  MML.mfenced.Augment({
+    SVGbetterBreak: function (info,state) {
+      //
+      //  Get the current breakpoint position and other data
+      //
+      var index = info.index.slice(0), i = info.index.shift(),
+          m = this.data.length, W, w, scanW, broken = (info.index.length > 0), better = false;
+      if (i == null) {i = -1}; if (!broken) {i++; info.W += info.w; info.w = 0}
+      scanW = info.scanW = info.W; info.nest++;
+      //
+      //  Create indices that include the delimiters and separators
+      //
+      if (!this.dataI) {
+        this.dataI = [];
+        if (this.data.open) {this.dataI.push("open")}
+        if (m) {this.dataI.push(0)}
+        for (var j = 1; j < m; j++) {
+          if (this.data["sep"+j]) {this.dataI.push("sep"+j)}
+          this.dataI.push(j);
+        }
+        if (this.data.close) {this.dataI.push("close")}
+      }
+      m = this.dataI.length;
+      //
+      //  Look through the line for breakpoints, including the open, close, and separators
+      //    (as long as we are not too far past the breaking width)
+      //
+      while (i < m && info.scanW < 1.33*SVG.linebreakWidth) {
+        var k = this.dataI[i];
+        if (this.data[k]) {
+          if (this.data[k].SVGbetterBreak(info,state)) {
+            better = true; index = [i].concat(info.index); W = info.W; w = info.w;
+            if (info.penalty === PENALTY.newline) {
+              info.index = index;
+              if (info.nest) {info.nest--}
+              return true;
+            }
+          }
+          scanW = (broken ? info.scanW : this.SVGaddWidth(i,info,scanW));
+        }
+        info.index = []; i++; broken = false;
+      }
+      if (info.nest) {info.nest--}
+      info.index = index;
+      if (better) {info.W = W; info.w = w}
+      return better;
+    },
+
+    SVGmoveLine: function (start,end,svg,state,values) {
+      var i = start[0], j = end[0];
+      if (i == null) {i = -1}; if (j == null) {j = this.dataI.length-1}
+      if (i === j && start.length > 1) {
+        //
+        //  If starting and ending in the same element move the subpiece to the new line
+        //
+        this.data[this.dataI[i]].SVGmoveSlice(start.slice(1),end.slice(1),svg,state,values,"paddingLeft");
+      } else {
+        //
+        //  Otherwise, move the remainder of the initial item
+        //  and any others (including open and separators) up to the last one
+        //
+        var last = state.last; state.last = false; var k = this.dataI[i];
+        while (i < j) {
+          if (this.data[k]) {
+            if (start.length <= 1) {this.data[k].SVGmove(svg,state,values)}
+              else {this.data[k].SVGmoveSlice(start.slice(1),[],svg,state,values,"paddingLeft")}
+          }
+          i++; k = this.dataI[i]; state.first = false; start = [];
+        }
+        //
+        //  If the last item is complete, move it
+        //
+        state.last = last;
+        if (this.data[k]) {
+          if (end.length <= 1) {this.data[k].SVGmove(svg,state,values)}
+            else {this.data[k].SVGmoveSlice([],end.slice(1),svg,state,values,"paddingRight")}
+        }
+      }
+    }
+    
+  });
+  
+  /**************************************************************************/
+
+  MML.msubsup.Augment({
+    SVGbetterBreak: function (info,state) {
+      if (!this.data[this.base]) {return false}
+      //
+      //  Get the current breakpoint position and other data
+      //
+      var index = info.index.slice(0), i = info.index.shift(),
+          W, w, scanW, broken = (info.index.length > 0), better = false;
+      if (!broken) {info.W += info.w; info.w = 0}
+      scanW = info.scanW = info.W;
+      //
+      //  Record the width of the base and the super- and subscripts
+      //
+      if (i == null) {this.SVGdata.dw = this.SVGdata.w - this.data[this.base].SVGdata.w}
+      //
+      //  Check if the base can be broken
+      //
+      if (this.data[this.base].SVGbetterBreak(info,state)) {
+        better = true; index = [this.base].concat(info.index); W = info.W; w = info.w;
+        if (info.penalty === PENALTY.newline) {better = broken = true}
+      }
+      //
+      //  Add in the base if it is unbroken, and add the scripts
+      //
+      if (!broken) {this.SVGaddWidth(this.base,info,scanW)}
+      info.scanW += this.SVGdata.dw; info.W = info.scanW;
+      info.index = []; if (better) {info.W = W; info.w = w; info.index = index}
+      return better;
+    },
+    
+    SVGmoveLine: function (start,end,svg,state,values) {
+      //
+      //  Move the proper part of the base
+      //
+      if (this.data[this.base]) {
+        if (start.length > 1) {
+          this.data[this.base].SVGmoveSlice(start.slice(1),end.slice(1),svg,state,values,"paddingLeft");
+        } else {
+          if (end.length <= 1) {this.data[this.base].SVGmove(svg,state,values)}
+            else {this.data[this.base].SVGmoveSlice([],end.slice(1),svg,state,values,"paddingRight")}
+        }
+      }
+      //
+      //  If this is the end, check for super and subscripts, and move those
+      //  by moving the stack that contains them, and shifting by the amount of the
+      //  base that has been removed.  Remove the empty base box from the stack.
+      //
+      if (end.length === 0) {
+        var sup = this.data[this.sup], sub = this.data[this.sub], w = svg.w, data;
+        if (sup) {data = sup.SVGdata||{}; svg.Add(sup.toSVG(),w+(data.dx||0),data.dy)}
+        if (sub) {data = sub.SVGdata||{}; svg.Add(sub.toSVG(),w+(data.dx||0),data.dy)}
+      }
+    }
+
+  });
+  
+  /**************************************************************************/
+
+  MML.mmultiscripts.Augment({
+    SVGbetterBreak: function (info,state) {
+      if (!this.data[this.base]) {return false}
+      //
+      //  Get the current breakpoint position and other data
+      //
+      var index = info.index.slice(0); info.index.shift();
+      var W, w, scanW, broken = (info.index.length > 0), better = false;
+      if (!broken) {info.W += info.w; info.w = 0}
+      info.scanW = info.W;
+      //
+      //  The width of the postscripts
+      //
+      var dw = this.SVGdata.w - this.data[this.base].SVGdata.w - this.SVGdata.dx;
+      //
+      //  Add in the prescripts
+      //  
+      info.scanW += this.SVGdata.dx; scanW = info.scanW;
+      //
+      //  Check if the base can be broken (but don't break between prescripts and base)
+      //
+      if (this.data[this.base].SVGbetterBreak(info,state)) {
+        better = true; index = [this.base].concat(info.index); W = info.W; w = info.w;
+        if (info.penalty === PENALTY.newline) {better = broken = true}
+      }
+      //
+      //  Add in the base if it is unbroken, and add the postscripts
+      //
+      if (!broken) {this.SVGaddWidth(this.base,info,scanW)}
+      info.scanW += dw; info.W = info.scanW;
+      info.index = []; if (better) {info.W = W; info.w = w; info.index = index}
+      return better;
+    },
+    
+    SVGmoveLine: function (start,end,svg,state,values) {
+      var dx, data = this.SVGdata;
+      //
+      //  If this is the start, move the prescripts, if any.
+      //
+      if (start.length < 1) {
+        this.scriptBox = this.SVGgetScripts(this.SVGdata.s);
+        var presub = this.scriptBox[2], presup = this.scriptBox[3]; dx = svg.w + data.dx;
+        if (presup) {svg.Add(presup,dx+data.delta-presup.w,data.u)}
+        if (presub) {svg.Add(presub,dx-presub.w,-data.v)}
+      }
+      //
+      //  Move the proper part of the base
+      //
+      if (this.data[this.base]) {
+        if (start.length > 1) {
+          this.data[this.base].SVGmoveSlice(start.slice(1),end.slice(1),svg,state,values,"paddingLeft");
+        } else {
+          if (end.length <= 1) {this.data[this.base].SVGmove(svg,state,values)}
+            else {this.data[this.base].SVGmoveSlice([],end.slice(1),svg,state,values,"paddingRight")}
+        }
+      }
+      //
+      //  If this is the end, move the postscripts, if any.
+      //
+      if (end.length === 0) {
+        var sub = this.scriptBox[0], sup = this.scriptBox[1]; dx = svg.w + data.s;
+        if (sup) {svg.Add(sup,dx,data.u)}
+        if (sub) {svg.Add(sub,dx-data.delta,-data.v)}
+        delete this.scriptBox;
+      }
+    }
+
+  });
+  
   /**************************************************************************/
 
   MML.mo.Augment({
@@ -332,6 +559,7 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
     //  Override the method for checking line breaks to properly handle <mo>
     //
     SVGbetterBreak: function (info,state) {
+      if (info.values && info.values.last === this) {return false}
       var values = this.getValues(
         "linebreak","linebreakstyle","lineleading","linebreakmultchar",
         "indentalign","indentshift",
@@ -346,14 +574,16 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       //  mrows for nesting, but can leave these unbalanced.
       //
       if (values.texClass === MML.TEXCLASS.OPEN) {info.nest++}
-      if (values.texClass === MML.TEXCLASS.CLOSE) {info.nest--}
+      if (values.texClass === MML.TEXCLASS.CLOSE && info.nest) {info.nest--}
       //
       //  Get the default penalty for this location
       //
-      var W = info.W, mo = (info.embellished||this); delete info.embellished;
+      var W = info.scanW, mo = info.embellished; delete info.embellished;
+      if (!mo || !mo.SVGdata) {mo = this}
       var svg = mo.SVGdata, w = svg.w + svg.x;
       if (values.linebreakstyle === MML.LINEBREAKSTYLE.AFTER) {W += w; w = 0}
-      if (W - info.shift === 0) {return false} // don't break at zero width (FIXME?)
+      if (W - info.shift === 0 && values.linebreak !== MML.LINEBREAK.NEWLINE)
+        {return false} // don't break at zero width (FIXME?)
       var offset = SVG.linebreakWidth - W;
       // adjust offest for explicit first-line indent and align
       if (state.n === 0 && (values.indentshiftfirst !== state.VALUES.indentshiftfirst ||
@@ -385,7 +615,8 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       //
       if (penalty >= info.penalty) {return false}
       info.penalty = penalty; info.values = values; info.W = W; info.w = w;
-      values.lineleading = SVG.length2em(values.lineleading,state.VALUES.lineleading);
+      values.lineleading = SVG.length2em(values.lineleading,1,state.VALUES.lineleading);
+      values.last = this;
       return true;
     }
   });
@@ -397,12 +628,18 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
     //  Override the method for checking line breaks to properly handle <mspace>
     //
     SVGbetterBreak: function (info,state) {
+      if (info.values && info.values.last === this) {return false}
       var values = this.getValues("linebreak");
+      var linebreakValue = values.linebreak;
+      if (!linebreakValue || this.hasDimAttr()) {
+        // The MathML spec says that the linebreak attribute should be ignored
+        // if any dimensional attribute is set.
+        linebreakValue = MML.LINEBREAK.AUTO;
+      }
       //
       //  Get the default penalty for this location
       //
-      var W = info.W, svg = this.SVGdata, w = svg.w + svg.x;
-      if (values.linebreakstyle === MML.LINEBREAKSTYLE.AFTER) {W += w; w = 0}
+      var W = info.scanW, svg = this.SVGdata, w = svg.w + svg.x;
       if (W - info.shift === 0) {return false} // don't break at zero width (FIXME?)
       var offset = SVG.linebreakWidth - W;
       //
@@ -413,9 +650,10 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       //  Get the penalty for this type of break and
       //    use it to modify the default penalty
       //
-      var linebreak = PENALTY[values.linebreak||MML.LINEBREAK.AUTO];
-      if (values.linebreak === MML.LINEBREAK.AUTO && w >= PENALTY.spacelimit*1000)
-        {linebreak = [(w+PENALTY.spaceoffset)*PENALTY.spacefactor]}
+      var linebreak = PENALTY[linebreakValue];
+      if (linebreakValue === MML.LINEBREAK.AUTO && w >= PENALTY.spacelimit*1000 &&
+          !this.mathbackground && !this.backrgound)
+        {linebreak = [(w/1000+PENALTY.spaceoffset)*PENALTY.spacefactor]}
       if (!(linebreak instanceof Array)) {
         //  for breaks past the width, don't modify penalty
         if (offset >= 0) {penalty = linebreak * info.nest}
@@ -426,7 +664,8 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
       //
       if (penalty >= info.penalty) {return false}
       info.penalty = penalty; info.values = values; info.W = W; info.w = w;
-      values.lineleading = state.VALUES.lineleading; values.linebreakstyle = "before";
+      values.lineleading = state.VALUES.lineleading;
+      values.linebreakstyle = "before"; values.last = this;
       return true;
     }
   });
@@ -455,24 +694,6 @@ MathJax.Hub.Register.StartupHook("SVG Jax Ready",function () {
     SVGmoveLine: function (start,end,svg,state,values) {
       return this.Core().SVGmoveSlice(start,end,svg,state,values);
     },
-    /* 
-     * //
-     * //  Split and move the hit boxes as well
-     * //
-     * SVGmoveSlice: function (start,end,svg,state,values,padding) {
-     *   var hitbox = document.getElementById("MathJax-HitBox-"+this.spanID+SVG.idPostfix);
-     *   if (hitbox) {hitbox.parentNode.removeChild(hitbox)}
-     *   var slice = this.SUPER(arguments).SVGmoveSlice.apply(this,arguments);
-     *   if (end.length === 0) {
-     *     span = this.SVGspanElement(); var n = 0;
-     *     while (span) {
-     *       hitbox = this.SVGhandleHitBox(span,"-Continue-"+n);
-     *       span = span.nextMathJaxSpan; n++;
-     *     }
-     *   }
-     *   return slice;
-     * }
-     */
   });
   
   //

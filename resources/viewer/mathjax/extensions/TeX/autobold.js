@@ -1,3 +1,6 @@
+/* -*- Mode: Javascript; indent-tabs-mode:nil; js-indent-level: 2 -*- */
+/* vim: set ts=2 et sw=2 tw=80: */
+
 /*************************************************************
  *
  *  MathJax/extensions/TeX/autobold.js
@@ -5,7 +8,9 @@
  *  Adds \boldsymbol around mathematics that appears in a section
  *  of an HTML page that is in bold.
  *  
- *  Copyright (c) 2009-2012 Design Science, Inc.
+ *  ---------------------------------------------------------------------
+ * 
+ *  Copyright (c) 2009-2015 The MathJax Consortium
  * 
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,7 +26,7 @@
  */
 
 MathJax.Extension["TeX/autobold"] = {
-  version: "2.0"
+  version: "2.6.0"
 };
 
 MathJax.Hub.Register.StartupHook("TeX Jax Ready",function () {
