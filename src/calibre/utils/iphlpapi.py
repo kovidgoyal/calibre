@@ -346,7 +346,7 @@ def adapters():
 Route = namedtuple('Route', 'destination gateway netmask interface metric flags')
 
 def routes():
-    """Get a collection of the available routes."""
+    ''' A list of routes on this machine '''
     ans = []
     adapter_map = {a.if_index:a.name for a in adapters()}
     with _get_forward_table() as p_forward_table:
