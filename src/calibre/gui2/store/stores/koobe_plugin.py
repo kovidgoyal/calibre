@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4  # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2013, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2013-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -71,11 +71,11 @@ class KoobeStore(BasicStoreConfig, StorePlugin):
                     counter -= 1
 
                     s = SearchResult()
-                    s.cover_url =  'http://koobe.pl/' + cover_url
+                    s.cover_url =  'http://www.koobe.pl/' + cover_url
                     s.title = title.strip()
                     s.author = author.strip()
                     s.price = price
-                    s.detail_item = 'http://koobe.pl' + id[1:]
+                    s.detail_item = 'http://www.koobe.pl' + id[1:]
                     s.formats = formats.upper()
                     s.drm = SearchResult.DRM_UNLOCKED
 
