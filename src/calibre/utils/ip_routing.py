@@ -26,7 +26,7 @@ def get_addresses_for_interface(name, family='AF_INET'):
 
 if iswindows:
 
-    def get_default_route_src_address():
+    def get_default_route_src_address_external():
         # Use -6 for IPv6 addresses
         raw = subprocess.check_output('route -4 print 0.0.0.0'.split(), creationflags=0x08).decode('utf-8', 'replace')
         in_table = False
@@ -43,6 +43,15 @@ if iswindows:
             else:
                 if parts == 'Network Destination Netmask Gateway Interface Metric'.split():
                     in_table = True
+
+    def get_default_route_src_address_api():
+        from calibre.utils.iphlpapi import routes
+        for route in routes():
+            if route.interface and route.destination == '0.0.0.0':
+                for addr in get_addresses_for_interface(route.interface):
+                    return addr
+
+    get_default_route_src_address = get_default_route_src_address_api
 
 
 elif isosx:
