@@ -57,12 +57,14 @@ elif isosx:
                 return addr
 else:
 
-    def get_default_route_src_address(to='1.1.1.1'):
-        # Use -6 for IPv6 addresses
-        raw = subprocess.check_output(('ip -4 route get ' + to).split()).decode('utf-8')
-        m = re.search('^%s\s+via\s+%s\s+.+?src\s+(.+)' % (to, get_address_of_default_gateway()), raw, flags=re.MULTILINE)
-        if m is not None:
-            return m.group(1)
+    def get_default_route_src_address():
+        # Use /proc/net/ipv6_route for IPv6 addresses
+        raw = open('/proc/net/route', 'rb').read().decode('utf-8')
+        for line in raw.splitlines():
+            parts = line.split()
+            if parts[1] == '00000000':
+                for addr in get_addresses_for_interface(parts[0]):
+                    return addr
 
 if __name__ == '__main__':
     print(get_default_route_src_address())
