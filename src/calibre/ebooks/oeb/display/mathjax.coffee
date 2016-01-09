@@ -74,6 +74,7 @@ class MathJax
         if script != null or document.getElementsByTagName('math').length > 0
             this.math_present = true
             this.load_mathjax(user_config)
+        return this.math_present
 
     after_resize: () ->
         if not this.math_present or this.hub == null

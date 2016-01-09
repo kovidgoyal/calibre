@@ -108,6 +108,7 @@ class Document(QWebPage):  # {{{
         self.js_loader = JavaScriptLoader(
                     dynamic_coffeescript=self.debug_javascript)
         self.in_fullscreen_mode = False
+        self.math_present = False
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
@@ -232,7 +233,7 @@ class Document(QWebPage):  # {{{
     @property
     def hyphenatable(self):
         # Qt fails to render soft hyphens correctly on windows xp
-        return not isxp and self.hyphenate and getattr(self, 'loaded_lang', '')
+        return not isxp and self.hyphenate and getattr(self, 'loaded_lang', '') and not self.math_present
 
     @pyqtSlot()
     def init_hyphenate(self):
@@ -257,6 +258,7 @@ class Document(QWebPage):  # {{{
         self.javascript('window.paged_display.read_document_margins()')
         self.set_bottom_padding(0)
         self.fit_images()
+        self.math_present = self.javascript('window.mathjax.check_for_math()', bool)
         self.init_hyphenate()
         self.javascript('full_screen.save_margins()')
         if self.in_fullscreen_mode:
@@ -267,7 +269,6 @@ class Document(QWebPage):  # {{{
         evaljs = self.mainFrame().evaluateJavaScript
         for pl in self.all_viewer_plugins:
             pl.run_javascript(evaljs)
-        self.javascript('window.mathjax.check_for_math()')
         self.first_load = False
 
     def colors(self):
