@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import socket, time, re
 from threading import Thread
 from Queue import Queue, Empty
+from urllib import unquote
 
 
 from calibre import as_unicode, random_user_agent
@@ -332,7 +333,7 @@ class Worker(Thread):  # Get details {{{
             self.log.exception('Error parsing ratings for url: %r'%self.url)
 
         try:
-            mi.comments = self.parse_comments(root)
+            mi.comments = self.parse_comments(root, raw)
         except:
             self.log.exception('Error parsing comments for url: %r'%self.url)
 
@@ -502,7 +503,7 @@ class Worker(Thread):  # Get details {{{
         desc = re.sub(r'(?s)<!--.*?-->', '', desc)
         return sanitize_comments_html(desc)
 
-    def parse_comments(self, root):
+    def parse_comments(self, root, raw):
         ans = ''
         ns = tuple(self.selector('#bookDescription_feature_div noscript'))
         if ns:
@@ -522,6 +523,21 @@ class Worker(Thread):  # Get details {{{
         desc = root.xpath('//div[@id="productDescription"]/*[@class="content"]')
         if desc:
             ans += self._render_comments(desc[0])
+        else:
+            # Idiot chickens from amazon strike again. This data is now stored
+            # in a JS variable inside a script tag URL encoded.
+            m = re.search(b'var\s+iframeContent\s*=\s*"([^"]+)"', raw)
+            if m is not None:
+                try:
+                    text = unquote(m.group(1)).decode('utf-8')
+                    nr = html5lib.parse(text, treebuilder='lxml', namespaceHTMLElements=False)
+                    desc = nr.xpath('//div[@id="productDescription"]/*[@class="content"]')
+                    if desc:
+                        ans += self._render_comments(desc[0])
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
+
         return ans
 
     def parse_series(self, root):
