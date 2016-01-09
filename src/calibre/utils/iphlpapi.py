@@ -322,6 +322,7 @@ def _get_adapters():
 Adapter = namedtuple('Adapter', 'name if_index if_index6 friendly_name status transmit_speed receive_speed')
 
 def adapters():
+    ''' A list of adapters on this machine '''
     ans = []
     smap = {1:'up', 2:'down', 3:'testing', 4:'unknown', 5:'dormant', 6:'not-present', 7:'lower-layer-down'}
     with _get_adapters() as p_adapters_list:
