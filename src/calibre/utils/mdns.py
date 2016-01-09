@@ -89,7 +89,11 @@ _ext_ip = None
 def get_external_ip():
     global _ext_ip
     if _ext_ip is None:
-        _ext_ip = _get_external_ip()
+        from calibre.utils.ip_routing import get_default_route_src_address
+        try:
+            _ext_ip = get_default_route_src_address()
+        except Exception:
+            _ext_ip = _get_external_ip()
     return _ext_ip
 
 def start_server():
