@@ -12,8 +12,8 @@ import ssl, socket
 from contextlib import closing
 
 is64bit = platform.architecture()[0] == '64bit'
-url = 'http://code.calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
-url = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', url)
+DLURL = 'https://calibre-ebook.com/dist/linux'+('64' if is64bit else '32')
+DLURL = os.environ.get('CALIBRE_INSTALLER_LOCAL_URL', DLURL)
 py3 = sys.version_info[0] > 2
 enc = getattr(sys.stdout, 'encoding', 'utf-8') or 'utf-8'
 if enc.lower() == 'ascii':
@@ -273,7 +273,7 @@ def do_download(dest):
         offset = os.path.getsize(dest)
 
     # Get content length and check if range is supported
-    rq = urllib.urlopen(url)
+    rq = urllib.urlopen(DLURL)
     headers = rq.info()
     size = int(headers['content-length'])
     accepts_ranges = headers.get('accept-ranges', None) == 'bytes'
