@@ -12,6 +12,9 @@ from contextlib import contextmanager
 
 from calibre.constants import is64bit
 
+# Wraps (part of) the IPHelper API, useful to enumerate the network routes and
+# adapters on the local machine
+
 class GUID(ctypes.Structure):
     _fields_ = [
         ("data1", wintypes.DWORD),
