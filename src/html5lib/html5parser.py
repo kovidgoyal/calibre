@@ -155,10 +155,17 @@ class HTMLParser(object):
     def isHTMLIntegrationPoint(self, element):
         if (element.name == "annotation-xml" and
                 element.namespace == namespaces["mathml"]):
-            return ("encoding" in element.attributes and
-                    element.attributes["encoding"].translate(
-                        asciiUpper2Lower) in
-                    ("text/html", "application/xhtml+xml"))
+            try:
+                return ("encoding" in element.attributes and
+                        element.attributes["encoding"].translate(
+                            asciiUpper2Lower) in
+                        ("text/html", "application/xhtml+xml"))
+            except TypeError:
+                # This happens for some documents, for some reason
+                # lxml refuses to store a unicode representation of the
+                # encoding attribute.
+                return element.attributes["encoding"].lower().decode('utf-8', 'replace') in (
+                    "text/html", "application/xhtml+xml")
         else:
             return (element.namespace, element.name) in htmlIntegrationPointElements
 
