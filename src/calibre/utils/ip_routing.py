@@ -62,7 +62,7 @@ else:
         raw = open('/proc/net/route', 'rb').read().decode('utf-8')
         for line in raw.splitlines():
             parts = line.split()
-            if parts[1] == '00000000':
+            if len(parts) > 1 and parts[1] == '00000000':
                 for addr in get_addresses_for_interface(parts[0]):
                     return addr
 
