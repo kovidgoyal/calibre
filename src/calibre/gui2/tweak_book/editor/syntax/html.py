@@ -28,7 +28,7 @@ from html5lib.constants import cdataElements, rcdataElements
 cdata_tags = cdataElements | rcdataElements
 normal_pat = re.compile(r'[^<>&]+')
 entity_pat = re.compile(r'&#{0,1}[a-zA-Z0-9]{1,8};')
-tag_name_pat = re.compile(r'/{0,1}[a-zA-Z0-9:]+')
+tag_name_pat = re.compile(r'/{0,1}[a-zA-Z0-9:-]+')
 space_chars = ' \t\r\n\u000c'
 attribute_name_pat = re.compile(r'''[^%s"'/><=]+''' % space_chars)
 self_closing_pat = re.compile(r'/\s*>')
