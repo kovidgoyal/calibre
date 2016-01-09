@@ -28,6 +28,15 @@ class AllAllowed(object):
     def __contains__(self, x):
         return x not in self.disallowed
 
+
+def allowed_formats():
+    ' Return an object that can be used to test if a format (lowercase) is allowed for auto-adding '
+    if gprefs['auto_add_everything']:
+        allowed = AllAllowed()
+    else:
+        allowed = AUTO_ADDED - frozenset(gprefs['blocked_auto_formats'])
+    return allowed
+
 class Worker(Thread):
 
     def __init__(self, path, callback):
@@ -37,10 +46,7 @@ class Worker(Thread):
         self.wake_up = Event()
         self.path, self.callback = path, callback
         self.staging = set()
-        if gprefs['auto_add_everything']:
-            self.allowed = AllAllowed()
-        else:
-            self.allowed = AUTO_ADDED - frozenset(gprefs['blocked_auto_formats'])
+        self.allowed = allowed_formats()
 
     def run(self):
         self.tdir = PersistentTemporaryDirectory('_auto_adder')
