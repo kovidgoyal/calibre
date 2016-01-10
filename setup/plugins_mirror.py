@@ -372,7 +372,7 @@ def fetch_plugins(old_index):
     return ans
 
 def plugin_to_index(plugin, count):
-    title = '<h3><img src="//icons.iconarchive.com/icons/oxygen-icons.org/oxygen/32/Apps-preferences-plugin-icon.png"><a href=%s title="Plugin forum thread">%s</a></h3>' % (  # noqa
+    title = '<h3><img src="/plugin-icon.png"><a href=%s title="Plugin forum thread">%s</a></h3>' % (  # noqa
         quoteattr(plugin['thread_url']), escape(plugin['name']))
     released = datetime(*tuple(map(int, re.split(r'\D', plugin['last_modified'])))[:6]).strftime('%e %b, %Y').lstrip()
     details = [
