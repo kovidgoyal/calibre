@@ -225,7 +225,8 @@ class UploadUserManual(Command):  # {{{
         for host in ('download', 'files'):
             check_call(' '.join(['rsync', '-zrl', '--progress',
                 srcdir, '%s:/srv/manual/' % host]), shell=True)
-            check_call(('ssh %s chown -R http:http /srv/manual' % host).split())
+            if host == 'download':
+                check_call(('ssh %s chown -R http:http /srv/manual' % host).split())
 # }}}
 
 class UploadDemo(Command):  # {{{
