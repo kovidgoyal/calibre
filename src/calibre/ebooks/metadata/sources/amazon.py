@@ -534,9 +534,8 @@ class Worker(Thread):  # Get details {{{
                     desc = nr.xpath('//div[@id="productDescription"]/*[@class="content"]')
                     if desc:
                         ans += self._render_comments(desc[0])
-                except Exception:
-                    import traceback
-                    traceback.print_exc()
+                except Exception as e:
+                    self.log.warn('Parsing of obfuscated product description failed with error: %s' % as_unicode(e))
 
         return ans
 
