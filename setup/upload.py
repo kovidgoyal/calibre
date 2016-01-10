@@ -222,11 +222,8 @@ class UploadUserManual(Command):  # {{{
             self.build_plugin_example(x)
 
         srcdir = self.j(gettempdir(), 'user-manual-build', 'en', 'html') + '/'
-        for host in ('download', 'files'):
-            check_call(' '.join(['rsync', '-zrl', '--progress',
-                srcdir, '%s:/srv/manual/' % host]), shell=True)
-            if host == 'download':
-                check_call(('ssh %s chown -R http:http /srv/manual' % host).split())
+        check_call(' '.join(['rsync', '-zrl', '--info=progress2', srcdir, 'main:/srv/manual/']), shell=True)
+        check_call('ssh main chown -R http:http /srv/manual'.split())
 # }}}
 
 class UploadDemo(Command):  # {{{
