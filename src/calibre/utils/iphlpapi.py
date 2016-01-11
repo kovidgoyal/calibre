@@ -292,6 +292,8 @@ def _get_forward_table():
                 break
             else:
                 raise OSError('Unable to get IP forward table. Error: %s' % err)
+        if p_forward_table is None:
+            raise OSError('Failed to get IP routing table, table appears to be changing rapidly')
     finally:
         if p_forward_table is not None:
             HeapFree(heap, 0, p_forward_table)
@@ -317,6 +319,8 @@ def _get_adapters():
                 addresses = ctypes.cast(buf, ctypes.POINTER(IP_ADAPTER_ADDRESSES))
             else:
                 raise OSError('Failed to determine size for adapters table with error: %s' % err)
+        if addresses is None:
+            raise OSError('Failed to get adapter addresses, table appears to be changing rapidly')
     finally:
         if addresses is not None:
             HeapFree(heap, 0, addresses)
