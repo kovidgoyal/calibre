@@ -1,4 +1,7 @@
 #!/usr/bin/env  python2
+##
+## Last Edited:  2016-01-11 Carlos Alves <carlos@carlosalves.info>
+##
 
 __license__   = 'GPL v3'
 __author__ = '2010, Gustavo Azambuja <hola at gazambuja.com>'
@@ -18,8 +21,7 @@ class General(BasicNewsRecipe):
     timefmt        = '[%a, %d %b, %Y]'
     use_embedded_content  = False
     recursion             = 2
-    encoding = 'iso-8859-1'
-    masthead_url          = 'http://www.elpais.com.uy/Images/09/cabezal/logo_PDEP.png'
+    encoding = 'utf-8'
     publication_type      = 'newspaper'
     remove_javascript = True
     no_stylesheets = True
@@ -27,8 +29,10 @@ class General(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 200
     keep_only_tags = [
-                      dict(name='h1'),
-                      dict(name='div', attrs={'id':'Contenido'})
+                      dict(name='div', attrs={'class':'title'}),
+                      dict(name='div', attrs={'class':'pc'}),
+                      dict(name='div', attrs={'class':'image'}),
+                      dict(name='div', attrs={'class':'article-content'})
                       ]
 
     conversion_options = {
@@ -58,16 +62,15 @@ class General(BasicNewsRecipe):
            (u'Nacional', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=nacional'),
            (u'Internacional', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=internacional'),
            (u'Espectaculos', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=espectaculos'),
-           (u'Deportes', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=deportes'),
            (u'Ciudades', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=ciudades'),
            (u'Economia', u'http://www.elpais.com.uy/formatos/rss/index.asp?seccion=economia')
         ]
 
     def get_cover_url(self):
 		cover_url = None
-		index = 'http://www.elpais.com.uy'
+		index = 'http://www.elpais.com.uy/impresa/'
 		soup = self.index_to_soup(index)
-		link_item = soup.find('div',attrs={'class':'boxmedio box257'})
+		link_item = soup.find('div',attrs={'class':'box-dotted-white'})
 		print link_item
 		if link_item:
 			cover_url = 'http://www.elpais.com.uy'+link_item.img['src']

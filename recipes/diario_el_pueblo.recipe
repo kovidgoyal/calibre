@@ -1,7 +1,17 @@
 #!/usr/bin/env  python2
-
+##
+## Title:        Diario El Pueblo News and Sports Calibre Recipe
+## Contact:      Carlos Alves - <carlos@carlosalves.info>
+##
+## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+## Copyright:    Carlos Alves - <carlos@carlosalves.info>
+##
+## Written:      September 2013
+## Last Edited:  2016-01-11
+##
 __license__   = 'GPL v3'
-__author__ = '2013, Carlos Alves <carlosalves90@gmail.com>'
+__author__ = '2013, Carlos Alves <carlos@carlosalves.info>'
+
 '''
 diarioelpueblo.com.uy
 '''

@@ -1,4 +1,7 @@
 #!/usr/bin/env  python2
+##
+## Last Edited:  2016-01-11 Carlos Alves <carlos@carlosalves.info>
+##
 
 __license__   = 'GPL v3'
 __author__ = '2010, Gustavo Azambuja <hola at gazambuja.com>'
@@ -22,7 +25,12 @@ class Noticias(BasicNewsRecipe):
 
     oldest_article        = 2
     max_articles_per_feed = 100
-    keep_only_tags = [dict(name='div', attrs={'class':'tef-md tef-md-seccion-sociedad'})]
+    remove_tags_after  = dict(name='article')
+    keep_only_tags = [
+                dict(name='h3', attrs={'class':'title'}),
+                dict(name='div', attrs={'class':'copete'}),
+                dict(name='article', attrs={'class':'texto'})
+                     ]
     remove_tags = [
              dict(name=['object','link'])
                   ]
@@ -40,7 +48,7 @@ class Noticias(BasicNewsRecipe):
         ]
 
     def get_cover_url(self):
-		return 'http://www.180.com.uy/tplef/img/logo.gif'
+		pass
 
 
     def preprocess_html(self, soup):
