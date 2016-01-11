@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 ##
-## Last Edited:  2013-09-29 Carlos Alves <carlosalves90@gmail.com>
+## Last Edited:  2016-01-11 Carlos Alves <carlos@carlosalves.info>
 ##
 
 __license__   = 'GPL v3'
@@ -29,7 +29,8 @@ class Noticias(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 100
     keep_only_tags = [
-             dict(name='div', attrs={'class':'story collapsed'})
+             dict(name='h1', attrs={'class':'detail-title newDetailTextChange'}),
+             dict(name='div', attrs={'class':'cuerpo air newDetailTextChange'})
              ]
     remove_tags = [
              dict(name='div', attrs={'class':['fecha', 'copyright', 'story_right']}),
@@ -47,9 +48,11 @@ class Noticias(BasicNewsRecipe):
                 p {font-family:Arial,Helvetica,sans-serif;}
                 '''
     feeds = [
-           (u'Portada', u'http://elobservador.com.uy/rss/portada/'),
+           (u'Portada', u'http://www.elobservador.com.uy/rss/home.xml'),
         ]
 
+    def get_cover_url(self):
+        return 'http://css.elobservador.com.uy/css/181/images/logo.svg'
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
