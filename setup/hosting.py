@@ -312,31 +312,31 @@ def upload_to_servers(files, version):  # {{{
     finally:
         os.chdir(cwd)
 
-    for server, rdir in {'files':'/srv/download/'}.iteritems():
-        print('Uploading to server:', server)
-        server = '%s.calibre-ebook.com' % server
-        # Copy the generated index files
-        print ('Copying generated index')
-        check_call(['rsync', '-hza', '-e', 'ssh -x', '--include', '*.html',
-                    '--filter', '-! */', base, 'root@%s:%s' % (server, rdir)])
-        # Copy the release files
-        rdir = '%s%s/' % (rdir, version)
-        for x in files:
-            start = time.time()
-            print ('Uploading', x)
-            for i in range(5):
-                try:
-                    check_call(['rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
-                    'root@%s:%s'%(server, rdir)])
-                except KeyboardInterrupt:
-                    raise SystemExit(1)
-                except:
-                    print ('\nUpload failed, trying again in 30 seconds')
-                    time.sleep(30)
-                else:
-                    break
-            print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
-
+    # for server, rdir in {'files':'/srv/download/'}.iteritems():
+    #     print('Uploading to server:', server)
+    #     server = '%s.calibre-ebook.com' % server
+    #     # Copy the generated index files
+    #     print ('Copying generated index')
+    #     check_call(['rsync', '-hza', '-e', 'ssh -x', '--include', '*.html',
+    #                 '--filter', '-! */', base, 'root@%s:%s' % (server, rdir)])
+    #     # Copy the release files
+    #     rdir = '%s%s/' % (rdir, version)
+    #     for x in files:
+    #         start = time.time()
+    #         print ('Uploading', x)
+    #         for i in range(5):
+    #             try:
+    #                 check_call(['rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
+    #                 'root@%s:%s'%(server, rdir)])
+    #             except KeyboardInterrupt:
+    #                 raise SystemExit(1)
+    #             except:
+    #                 print ('\nUpload failed, trying again in 30 seconds')
+    #                 time.sleep(30)
+    #             else:
+    #                 break
+    #         print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
+    #
 # }}}
 
 def upload_to_dbs(files, version):  # {{{
