@@ -1,10 +1,12 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+from ajax import ajax
+from dom import clear
 from elementmaker import E
 from gettext import gettext as _
-from widgets import create_button, BUTTON_VPADDING
-from book_list.globals import get_boss
+from widgets import create_button, BUTTON_VPADDING, create_spinner
+from book_list.globals import get_boss, get_session_data
 
 sp_counter = 0
 
@@ -22,7 +24,7 @@ class SearchPanel:
             E.div(style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-bottom: 0.5ex"),  # search input container
             E.div(
                 E.div(),
-                E.div()
+                E.div(style="display:none")
             )
         )
         book_list_container.appendChild(div)
@@ -40,11 +42,21 @@ class SearchPanel:
             search_button
         ))
         search_container.firstChild.firstChild.addEventListener('keypress', def(event):
-            if event.keyCode == 13:
+            if event.keyCode == 13:  # Enter
                 search_button.focus()
                 self.execute_search()
                 event.preventDefault(), event.stopPropagation()
         )
+
+        # Build loading panel
+        loading_panel = div.lastChild.firstChild
+        loading_panel.appendChild(E.div(
+            create_spinner(), '\xa0' + _('Fetching data for the tag browser, please wait') + '…',
+            style='margin-left:auto; margin-right:auto; font-size: 1.5rem; font-weight; bold; text-align:center; margin-top:30vh')
+        )
+        self.initial_load_started = False
+        self.currently_loading = None
+        self.tag_browser_data = None
 
     def init(self):
         tb = self.container.querySelector('input[name="search-books"]')
@@ -52,6 +64,44 @@ class SearchPanel:
         # keyboard to popup and obscure the rest of the page
         # tb.focus()
         tb.setSelectionRange(0, tb.value.length)
+        if not self.initial_load_started:
+            self.refresh()
+
+    def refresh(self):
+        if self.currently_loading is not None:
+            return
+        self.initial_load_started = True
+        sd = get_session_data()
+        query = {'library_id': self.interface_data.library_id}
+        for k in str.split('sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'):
+            query[k] = sd.get(k) + ''
+        self.currently_loading = ajax('interface-data/tag-browser', self.on_data_fetched.bind(self), query=query, bypass_cache=False)
+        self.currently_loading.send()
+
+    def on_data_fetched(self, end_type, xhr, ev):
+        self.currently_loading = None
+        if end_type == 'abort':
+            return
+        parent = self.container.lastChild
+        if parent.lastChild.style.display == 'none':
+            parent.firstChild.style.display = 'none'
+            parent.lastChild.style.display = 'block'
+        container = parent.lastChild
+        clear(container)
+
+        def show_error(error_html):
+            ediv = E.div()
+            container.appendChild(ediv)
+            ediv.innerHTML = '<h3>' + _('Failed to load tag browser data') + '</h3>' + error_html
+
+        if end_type == 'load':
+            try:
+                self.tag_browser_data = JSON.parse(xhr.responseText)
+            except Exception as err:
+                show_error(err + '')
+            container.innerHTML = 'Loaded'
+        else:
+            show_error(xhr.error_html)
 
     @property
     def container(self):
