@@ -420,15 +420,18 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         gc.collect()
 
         if show_gui and self.gui_debug is not None:
-            info_dialog(self, _('Debug mode'), '<p>' +
-                    _('You have started calibre in debug mode. After you '
-                        'quit calibre, the debug log will be available in '
-                        'the file: %s<p>The '
-                        'log will be displayed automatically.')%self.gui_debug, show=True)
+            QTimer.singleShot(10, self.show_gui_debug_msg)
 
         self.iactions['Connect Share'].check_smartdevice_menus()
         QTimer.singleShot(1, self.start_smartdevice)
         QTimer.singleShot(100, self.update_toggle_to_tray_action)
+
+    def show_gui_debug_msg(self):
+        info_dialog(self, _('Debug mode'), '<p>' +
+                _('You have started calibre in debug mode. After you '
+                    'quit calibre, the debug log will be available in '
+                    'the file: %s<p>The '
+                    'log will be displayed automatically.')%self.gui_debug, show=True)
 
     def esc(self, *args):
         self.clear_button.click()
