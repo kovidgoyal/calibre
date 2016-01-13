@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4 # Needed for dynamic plugin loading
+store_version = 5 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2012-2014, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2012-2015, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -44,27 +44,19 @@ class PublioStore(BasicStoreConfig, StorePlugin):
         while counter:
             with closing(br.open('http://www.publio.pl/szukaj,strona' + str(page) + '.html?q=' + urllib.quote(query) + '&sections=EMAGAZINE&sections=MINIBOOK&sections=EBOOK', timeout=timeout)) as f:
                 doc = html.fromstring(f.read())
-                for data in doc.xpath('//div[@class="item"]'):
+                for data in doc.xpath('//div[@class="product-tile"]'):
                     if counter <= 0:
                         break
 
-                    id = ''.join(data.xpath('.//div[@class="img"]/a/@href'))
+                    id = ''.join(data.xpath('.//a[@class="product-tile-cover"]/@href'))
                     if not id:
                         continue
 
-                    cover_url = ''.join(data.xpath('.//div[@class="img"]/a/img/@data-original'))
-                    title = ''.join(data.xpath('.//div[@class="img"]/a/@title'))
-                    title2 = ''.join(data.xpath('.//div[@class="desc"]/h5//text()'))
-                    if title2:
-                        title = title + '. ' + title2
-                    if (''.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[last()]/span/text()')).strip() == "Seria:"):
-                        series = ''.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[last()]/a/@title'))
-                        title = title + ' (seria ' + series + ')'
-                    author = ', '.join(data.xpath('./div[@class="desc"]/div[@class="detailShortList"]/div[@class="row"][1]/a/@title'))
-                    price = ''.join(data.xpath('.//div[@class="priceBox tk-museo-slab"]/ins/text()'))
-                    if not price:
-                        price = ''.join(data.xpath('.//div[@class="priceBox tk-museo-slab"]/text()')).strip()
-                    formats = ', '.join([x.strip() for x in data.xpath('.//div[@class="formats"]/a/text()')])
+                    cover_url = ''.join(data.xpath('.//img[@class="product-tile-cover-photo"]/@src'))
+                    title = ''.join(data.xpath('.//h3[@class="product-tile-title"]/a/text()'))
+                    author = ', '.join(data.xpath('.//span[@class="product-tile-author"]/a/text()'))
+                    price = ''.join(data.xpath('.//div[@class="product-tile-price-wrapper "]/a/ins/text()'))
+                    #formats = ', '.join([x.strip() for x in data.xpath('.//div[@class="formats"]/a/text()')])
 
                     counter -= 1
 
@@ -74,8 +66,8 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     s.author = author
                     s.price = price
                     s.detail_item = 'http://www.publio.pl' + id.strip()
-                    s.drm = SearchResult.DRM_LOCKED if 'DRM' in formats else SearchResult.DRM_UNLOCKED
-                    s.formats = formats.replace(' DRM','').strip()
+                    #s.drm = SearchResult.DRM_LOCKED if 'DRM' in formats else SearchResult.DRM_UNLOCKED
+                    #s.formats = formats.replace(' DRM','').strip()
 
                     yield s
                 if not doc.xpath('boolean(//a[@class="next"])'):
