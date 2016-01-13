@@ -227,7 +227,6 @@ class EPUBInput(InputFormatPlugin):
 
         self.removed_cover = self.rationalize_cover(opf, log)
 
-        self.optimize_opf_parsing = opf
         for x in opf.itermanifest():
             if x.get('media-type', '') == 'application/x-dtbook+xml':
                 raise ValueError(

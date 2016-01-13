@@ -45,6 +45,46 @@ def write_oebbook(oeb, path):
         if f.endswith('.opf'):
             return f
 
+def extract_book(pathtoebook, tdir, log=None, view_kepub=False, processed=False, only_input_plugin=False):
+    from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
+    from calibre.utils.logging import default_log
+    log = log or default_log
+    plumber = Plumber(pathtoebook, tdir, log, view_kepub=view_kepub)
+    plumber.setup_options()
+    if pathtoebook.lower().endswith('.opf'):
+        plumber.opts.dont_package = True
+    if hasattr(plumber.opts, 'no_process'):
+        plumber.opts.no_process = True
+
+    plumber.input_plugin.for_viewer = True
+    with plumber.input_plugin, open(plumber.input, 'rb') as inf:
+        pathtoopf = plumber.input_plugin(inf,
+            plumber.opts, plumber.input_fmt, log, {}, tdir)
+
+        if not only_input_plugin:
+            # Run the HTML preprocess/parsing from the conversion pipeline as
+            # well
+            if (processed or plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'} and
+                    not hasattr(pathtoopf, 'manifest')):
+                if hasattr(pathtoopf, 'manifest'):
+                    pathtoopf = write_oebbook(pathtoopf, tdir)
+                pathtoopf = create_oebbook(log, pathtoopf, plumber.opts)
+
+        if hasattr(pathtoopf, 'manifest'):
+            pathtoopf = write_oebbook(pathtoopf, tdir)
+
+    book_format = os.path.splitext(pathtoebook)[1][1:].upper()
+    if getattr(plumber.input_plugin, 'is_kf8', False):
+        fs = ':joint' if getattr(plumber.input_plugin, 'mobi_is_joint', False) else ''
+        book_format = 'KF8' + fs
+    return book_format, pathtoopf, plumber.input_fmt
+
+def run_extract_book(*args, **kwargs):
+    from calibre.utils.ipc.simple_worker import fork_job
+    ans = fork_job('calibre.ebooks.oeb.iterator.book', 'extract_book', args=args, kwargs=kwargs, timeout=3000, no_output=True)
+    return ans['result']
+
+
 class EbookIterator(BookmarksMixin):
 
     CHARACTERS_PER_PAGE = 1000
@@ -93,45 +133,12 @@ class EbookIterator(BookmarksMixin):
         ''' Convert an ebook file into an exploded OEB book suitable for
         display in viewers/preprocessing etc. '''
 
-        from calibre.ebooks.conversion.plumber import Plumber, create_oebbook
-
         self.delete_on_exit = []
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
-        plumber = Plumber(self.pathtoebook, self.base, self.log, view_kepub=view_kepub)
-        plumber.setup_options()
-        if self.pathtoebook.lower().endswith('.opf'):
-            plumber.opts.dont_package = True
-        if hasattr(plumber.opts, 'no_process'):
-            plumber.opts.no_process = True
-
-        plumber.input_plugin.for_viewer = True
-        with plumber.input_plugin, open(plumber.input, 'rb') as inf:
-            self.pathtoopf = plumber.input_plugin(inf,
-                plumber.opts, plumber.input_fmt, self.log,
-                {}, self.base)
-
-            if not only_input_plugin:
-                # Run the HTML preprocess/parsing from the conversion pipeline as
-                # well
-                if (processed or plumber.input_fmt.lower() in {'pdb', 'pdf', 'rb'} and
-                        not hasattr(self.pathtoopf, 'manifest')):
-                    if hasattr(self.pathtoopf, 'manifest'):
-                        self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
-                    self.pathtoopf = create_oebbook(self.log, self.pathtoopf,
-                            plumber.opts)
-
-            if hasattr(self.pathtoopf, 'manifest'):
-                self.pathtoopf = write_oebbook(self.pathtoopf, self.base)
-
-        self.book_format = os.path.splitext(self.pathtoebook)[1][1:].upper()
-        if getattr(plumber.input_plugin, 'is_kf8', False):
-            fs = ':joint' if getattr(plumber.input_plugin, 'mobi_is_joint', False) else ''
-            self.book_format = 'KF8' + fs
-
-        self.opf = getattr(plumber.input_plugin, 'optimize_opf_parsing', None)
-        if self.opf is None:
-            self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
+        self.book_format, self.pathtoopf, input_fmt = run_extract_book(
+            self.pathtoebook, self.base, only_input_plugin=only_input_plugin, view_kepub=view_kepub, processed=processed)
+        self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
         self.language = self.opf.language
         if self.language:
             self.language = self.language.lower()
@@ -140,7 +147,7 @@ class EbookIterator(BookmarksMixin):
         self.spine = []
         Spiny = partial(SpineItem, read_anchor_map=read_anchor_map, read_links=read_links,
                 run_char_count=run_char_count, from_epub=self.book_format == 'EPUB')
-        is_comic = plumber.input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'}
+        is_comic = input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'}
         for i in ordered:
             spath = i.path
             mt = None
@@ -220,5 +227,3 @@ class EbookIterator(BookmarksMixin):
                 os.remove(x)
             except:
                 pass
-
-

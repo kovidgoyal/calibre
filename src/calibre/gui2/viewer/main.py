@@ -17,7 +17,6 @@ from calibre.gui2 import (
     Application, ORG_NAME, APP_UID, choose_files, info_dialog, error_dialog,
     open_url, setup_gui_option_parser)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
-from calibre.ebooks import DRMError
 from calibre.constants import islinux, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.customize.ui import available_input_formats
@@ -33,6 +32,7 @@ dprefs.defaults['word_lookups'] = {}
 class Worker(Thread):
 
     def run(self):
+        from calibre.utils.ipc.simple_worker import WorkerError
         try:
             Thread.run(self)
             self.exception = self.traceback = None
@@ -41,6 +41,9 @@ class Worker(Thread):
                 'This ebook is corrupted and cannot be opened. If you '
                 'downloaded it from somewhere, try downloading it again.')
             self.traceback = ''
+        except WorkerError as err:
+            self.exception = Exception(_('Failed to read book, {0} click "Show Details" for more information').format(self.path_to_ebook))
+            self.traceback = err.orig_tb
         except Exception as err:
             self.exception = err
             self.traceback = traceback.format_exc()
@@ -863,19 +866,21 @@ class EbookViewer(MainWindow):
         self.history.clear()
         self.open_progress_indicator(_('Loading ebook...'))
         worker = Worker(target=partial(self.iterator.__enter__, view_kepub=True))
+        worker.path_to_ebook = pathtoebook
         worker.start()
         while worker.isAlive():
             worker.join(0.1)
             QApplication.processEvents()
         if worker.exception is not None:
-            if isinstance(worker.exception, DRMError):
+            tb = worker.traceback
+            if tb.strip().splitlines()[-1].startswith('DRMError:'):
                 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
                 DRMErrorMessage(self).exec_()
             else:
                 r = getattr(worker.exception, 'reason', worker.exception)
                 error_dialog(self, _('Could not open ebook'),
                         as_unicode(r) or _('Unknown error'),
-                        det_msg=worker.traceback, show=True)
+                        det_msg=tb, show=True)
             self.close_progress_indicator()
         else:
             self.metadata.show_opf(self.iterator.opf,
