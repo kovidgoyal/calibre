@@ -291,8 +291,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def restore_defaults(self):
         opts = config('').parse()
         self.load_options(opts)
-        from calibre.gui2.viewer.main import dprefs
+        from calibre.gui2.viewer.main import dprefs, vprefs
         self.word_lookups = dprefs.defaults['word_lookups']
+        self.opt_singleinstance.setChecked(vprefs.defaults['singleinstance'])
 
     def load_options(self, opts):
         self.opt_remember_window_size.setChecked(opts.remember_window_size)
@@ -344,6 +345,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
             setattr(self, 'current_%s_color'%x, getattr(opts, '%s_color'%x))
         self.update_sample_colors()
         self.opt_show_controls.setChecked(opts.show_controls)
+        from calibre.gui2.viewer.main import vprefs
+        self.opt_singleinstance.setChecked(bool(vprefs['singleinstance']))
 
     def change_color(self, which, reset=False):
         if reset:
@@ -429,5 +432,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('show_controls', self.opt_show_controls.isChecked())
         for x in ('top', 'bottom', 'side'):
             c.set(x+'_margin', int(getattr(self, 'opt_%s_margin'%x).value()))
-        from calibre.gui2.viewer.main import dprefs
+        from calibre.gui2.viewer.main import dprefs, vprefs
         dprefs['word_lookups'] = self.word_lookups
+        vprefs['singleinstance'] = self.opt_singleinstance.isChecked()

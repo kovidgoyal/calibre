@@ -11,7 +11,7 @@ from threading import Thread
 
 from calibre.constants import iswindows, get_windows_username, islinux
 
-ADDRESS = None
+ADDRESS = VADDRESS = None
 
 def eintr_retry_call(func, *args, **kwargs):
     while True:
@@ -48,10 +48,39 @@ def gui_socket_address():
                 ADDRESS = os.path.join(tmp, user+'-calibre-gui.socket')
     return ADDRESS
 
+
+def viewer_socket_address():
+    global VADDRESS
+    if VADDRESS is None:
+        if iswindows:
+            VADDRESS = r'\\.\pipe\CalibreViewer'
+            try:
+                user = get_windows_username()
+            except:
+                user = None
+            if user:
+                from calibre.utils.filenames import ascii_filename
+                user = ascii_filename(user).replace(' ', '_')
+                if user:
+                    VADDRESS += '-' + user[:100] + 'x'
+        else:
+            user = os.environ.get('USER', '')
+            if not user:
+                user = os.path.basename(os.path.expanduser('~'))
+            if islinux:
+                VADDRESS = (u'\0%s-calibre-viewer.socket' % user).encode('ascii')
+            else:
+                from tempfile import gettempdir
+                tmp = gettempdir()
+                VADDRESS = os.path.join(tmp, user+'-calibre-viewer.socket')
+    return VADDRESS
+
+
 class RC(Thread):
 
-    def __init__(self, print_error=True):
+    def __init__(self, print_error=True, socket_address=None):
         self.print_error = print_error
+        self.socket_address = socket_address or gui_socket_address()
         Thread.__init__(self)
         self.conn = None
         self.daemon = True
@@ -60,11 +89,9 @@ class RC(Thread):
         from multiprocessing.connection import Client
         self.done = False
         try:
-            self.conn = Client(gui_socket_address())
+            self.conn = Client(self.socket_address)
             self.done = True
         except:
             if self.print_error:
                 import traceback
                 traceback.print_exc()
-
-

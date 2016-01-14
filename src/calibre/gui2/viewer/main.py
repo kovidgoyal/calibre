@@ -8,7 +8,7 @@ from collections import namedtuple
 
 from PyQt5.Qt import (
     QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime,
-    QPropertyAnimation, QUrl, QInputDialog, QAction, QModelIndex)
+    QPropertyAnimation, QUrl, QInputDialog, QAction, QModelIndex, pyqtSignal)
 
 from calibre.gui2.viewer.ui import Main as MainWindow
 from calibre.gui2.viewer.toc import TOC
@@ -20,14 +20,17 @@ from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.constants import islinux, filesystem_encoding
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.customize.ui import available_input_formats
-from calibre import as_unicode, force_unicode, isbytestring
+from calibre import as_unicode, force_unicode, isbytestring, prints
 from calibre.ptempfile import reset_base_dir
+from calibre.utils.ipc import viewer_socket_address, RC
 from calibre.utils.zipfile import BadZipfile
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1, get_lang
 
 vprefs = JSONConfig('viewer')
+vprefs.defaults['singleinstance'] = False
 dprefs = JSONConfig('viewer_dictionaries')
 dprefs.defaults['word_lookups'] = {}
+singleinstance_name = 'calibre_viewer'
 
 class Worker(Thread):
 
@@ -70,6 +73,19 @@ def lookup_website(lang):
     wm = dprefs['word_lookups']
     return wm.get(lang, default_lookup_website(lang))
 
+def listen(self):
+    while True:
+        try:
+            conn = self.listener.accept()
+        except Exception:
+            break
+        try:
+            self.msg_from_anotherinstance.emit(conn.recv())
+            conn.close()
+        except Exception as e:
+            prints('Failed to read message from other instance with error: %s' % as_unicode(e))
+    self.listener = None
+
 class EbookViewer(MainWindow):
 
     STATE_VERSION = 2
@@ -78,13 +94,20 @@ class EbookViewer(MainWindow):
     PAGED_MODE_TT = _('Switch to flow mode - where the text is not broken up '
             'into pages')
     AUTOSAVE_INTERVAL = 10  # seconds
+    msg_from_anotherinstance = pyqtSignal(object)
 
     def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None,
-                 start_in_fullscreen=False, continue_reading=False):
+                 start_in_fullscreen=False, continue_reading=False, listener=None):
         MainWindow.__init__(self, debug_javascript)
         self.view.magnification_changed.connect(self.magnification_changed)
         self.closed = False
         self.show_toc_on_open = False
+        self.listener = listener
+        if listener is not None:
+            t = Thread(name='ConnListener', target=listen, args=(self,))
+            t.daemon = True
+            t.start()
+            self.msg_from_anotherinstance.connect(self.another_instance_wants_to_talk, type=Qt.QueuedConnection)
         self.current_book_has_toc = False
         self.iterator          = None
         self.current_page      = None
@@ -271,6 +294,8 @@ class EbookViewer(MainWindow):
             self.action_full_screen.trigger()
             return False
         self.save_state()
+        if self.listener is not None:
+            self.listener.close()
         return True
 
     def quit(self):
@@ -858,6 +883,14 @@ class EbookViewer(MainWindow):
             except:
                 traceback.print_exc()
 
+    def another_instance_wants_to_talk(self, msg):
+        try:
+            path, open_at = msg
+        except Exception:
+            return
+        self.load_ebook(path, open_at=open_at)
+        self.raise_()
+
     def load_ebook(self, pathtoebook, open_at=None, reopen_at=None):
         if self.iterator is not None:
             self.save_current_position()
@@ -1080,6 +1113,40 @@ View an ebook.
     setup_gui_option_parser(parser)
     return parser
 
+def create_listener():
+    if islinux:
+        from calibre.utils.ipc.server import LinuxListener as Listener
+    else:
+        from multiprocessing.connection import Listener
+    return Listener(address=viewer_socket_address())
+
+
+def ensure_single_instance(args, open_at):
+    try:
+        from calibre.utils.lock import singleinstance
+        si = singleinstance(singleinstance_name)
+    except Exception:
+        import traceback
+        error_dialog(None, _('Cannot start viewer'), _(
+            'Failed to start viewer, single instance locking failed. Click "Show Details" for more information'),
+                    det_msg=traceback.format_exc(), show=True)
+        raise SystemExit(1)
+    if not si:
+        if len(args) > 1:
+            t = RC(print_error=True, socket_address=viewer_socket_address())
+            t.start()
+            t.join(3.0)
+            if t.is_alive() or t.conn is None:
+                error_dialog(None, _('Connect talk to viewer'), _(
+                    'Unable to connect to existing viewer window, try restarting it.'), show=True)
+                raise SystemExit(1)
+            t.conn.send((os.path.abspath(args[1]), open_at))
+            t.conn.close()
+            prints('Opened book in existing viewer instance')
+        raise SystemExit(0)
+    listener = create_listener()
+    return listener
+
 
 def main(args=sys.argv):
     # Ensure viewer can continue to function if GUI is closed
@@ -1089,15 +1156,25 @@ def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     open_at = float(opts.open_at.replace(',', '.')) if opts.open_at else None
+    listener = None
     override = 'calibre-ebook-viewer' if islinux else None
     app = Application(args, override_program_name=override, color_prefs=vprefs)
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
     QApplication.setOrganizationName(ORG_NAME)
     QApplication.setApplicationName(APP_UID)
+
+    if vprefs['singleinstance']:
+        try:
+            listener = ensure_single_instance(args, open_at)
+        except Exception as e:
+            import traceback
+            error_dialog(None, _('Failed to start viewer'), as_unicode(e), det_msg=traceback.format_exc(), show=True)
+            raise SystemExit(1)
+
     main = EbookViewer(args[1] if len(args) > 1 else None,
             debug_javascript=opts.debug_javascript, open_at=open_at, continue_reading=opts.continue_reading,
-                       start_in_fullscreen=opts.full_screen)
+                       start_in_fullscreen=opts.full_screen, listener=listener)
     app.installEventFilter(main)
     # This is needed for paged mode. Without it, the first document that is
     # loaded will have extra blank space at the bottom, as
@@ -1115,4 +1192,3 @@ def main(args=sys.argv):
 
 if __name__ == '__main__':
     sys.exit(main())
-
