@@ -6,20 +6,14 @@ manner.
 '''
 
 import sys, os, re
-from threading import RLock
+from threading import Lock
 from collections import namedtuple
 
 from calibre import prints, as_unicode
 from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
         isnetbsd)
 
-osx_scanner = win_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
-
-if iswindows:
-    try:
-        win_scanner = plugins['winutil'][0].get_usb_devices
-    except:
-        raise RuntimeError('Failed to load the winutil plugin: %s'%plugins['winutil'][1])
+osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 
 class Drive(str):
 
@@ -38,10 +32,15 @@ def drivecmp(a, b):
 class WinPNPScanner(object):
 
     def __init__(self):
-        self.scanner = None
         if iswindows:
-            self.scanner = plugins['winutil'][0].get_removable_drives
-            self.lock = RLock()
+            self.lock = Lock()
+
+    @property
+    def scanner(self):
+        if iswindows:
+            from calibre.devices.winusb import get_removable_drives
+            return get_removable_drives
+        return None
 
     def drive_is_ok(self, letter, debug=False):
         import win32api, win32file
@@ -88,7 +87,7 @@ class WinPNPScanner(object):
             if debug:
                 import traceback
                 traceback.print_exc()
-        remove = set([])
+        remove = set()
         for letter in drives:
             if not self.drive_is_ok(letter, debug=debug):
                 remove.add(letter)
@@ -313,6 +312,8 @@ if isnetbsd:
 class DeviceScanner(object):
 
     def __init__(self, *args):
+        if iswindows:
+            from calibre.devices.winusb import get_usb_devices as win_scanner
         self.scanner = (win_scanner if iswindows else osx_scanner if isosx else
                 freebsd_scanner if isfreebsd else netbsd_scanner if isnetbsd
                 else linux_scanner if islinux else libusb_scanner)

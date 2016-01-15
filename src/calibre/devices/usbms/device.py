@@ -901,9 +901,8 @@ class Device(DeviceConfig, DevicePlugin):
         pass
 
     def eject_windows(self):
-        from calibre.constants import plugins
+        from calibre.devices.winusb import eject_drive
         from threading import Thread
-        winutil, winutil_err = plugins['winutil']
         drives = []
         for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
             x = getattr(self, x, None)
@@ -913,7 +912,7 @@ class Device(DeviceConfig, DevicePlugin):
         def do_it(drives):
             for d in drives:
                 try:
-                    winutil.eject_drive(bytes(d)[0])
+                    eject_drive(d)
                 except Exception as e:
                     try:
                         prints("Eject failed:", as_unicode(e))
