@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.49.0
+  date: 2016-01-15
+
+  new features:
+    - title: "E-book viewer: Add an option to allow only a single book to be viewed at a time. Trying to view a second book will cause it to replace the currently viewed book."
+      tickets: [1526504]
+
+    - title: "Kobo driver: Add support for the new firmware 3.19.5761"
+
+    - title: "Linux build: Update bundled version of Qt to 5.5.1"
+
+  bug fixes:
+    - title: "Fix splash screen getting stuck on OSX when restarting calibre in debug mode"
+
+    - title: "Get Books: Update plugins for various Polish language book stores to handle changes to the website"
+
+    - title: "Amazon metadata download: Handle a change in the amazon website that prevented review metadata from being downloaded"
+
+    - title: "Better algorithm for guessing the 'external' network interface that is displayed to the user"
+
+    - title: "Tag Mapper: Do not allow the user to create rules with invalid regular expressions"
+
+    - title: "E-book viewer: Disallow hyphenation in documents that use mathematical typesetting as the hyphenation breaks that typesetting"
+
+    - title: "E-book viewer: Fix some non-ASCII characters not display in embedded MathML."
+      tickets: [1532323]
+
+    - title: "Download calibre plugins securely using HTTPS"
+
+    - title: "MOBI Output: Try to autofix corrupted PNG images in the input document."
+      tickets: [1531738]
+
+    - title: "Nook Glowlight Plus: Send files by default to the NOOK/My Files folder."
+      tickets: [1531394]
+
+    - title: "E-book viewer: Fix failure to view comic files that contain non-ASCII characters int heir internal filenames."
+      tickets: [1530517]
+
+  improved recipes:
+    - Echo Online
+    - Various Uruguayan news sources
+    - Economic and Political Weekly
+    - Tagesanzeiger
+
+  new recipes:
+    - title: LaRed21 
+      author: Carlos Alves
+
 - version: 2.48.0
   date: 2016-01-01
 
