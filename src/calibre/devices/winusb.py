@@ -626,6 +626,8 @@ if __name__ == '__main__':
     pprint(get_usb_devices())
     print('Is connected:', is_usb_device_connected(0x1949, 0x4))
     pprint(get_all_removable_drives())
+    rd = get_removable_drives()
     pprint(get_removable_drives())
     pprint(get_drive_letters_for_device(0x1949, 0x4))
-    eject_drive('E')
+    for drive in rd:
+        eject_drive(drive)
