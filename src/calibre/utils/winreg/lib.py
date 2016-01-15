@@ -125,7 +125,7 @@ def convert_registry_data(raw, size, dtype):
     if dtype == win32con.REG_QWORD:
         if size == 0:
             return 0
-        return ctypes.cast(raw, ctypes.POINTER(types.QWORD)).contents.value
+        return ctypes.cast(raw, ctypes.POINTER(ctypes.c_uint64)).contents.value
     raise ValueError('Unsupported data type: %r' % dtype)
 
 try:
