@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-import os, string, _winreg as winreg, re, time
+import os, string, _winreg as winreg, re, time, errno
 from contextlib import contextmanager
 from ctypes import (
     Structure, POINTER, c_ubyte, windll, byref, c_void_p, WINFUNCTYPE,
@@ -13,7 +13,7 @@ from ctypes import (
     wstring_at, addressof, create_unicode_buffer, string_at, c_uint64 as QWORD)
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE
 
-from calibre.utils.winreg.lib import Key, HKEY_LOCAL_MACHINE, winerror
+from calibre.utils.winreg.lib import Key, HKEY_LOCAL_MACHINE
 
 # Data and function type definitions {{{
 
@@ -482,7 +482,7 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
         with Key(open_at='SYSTEM\\CurrentControlSet\\Enum\\USB\\VID_%04X&PID_%04X' % (vid, pid), root=HKEY_LOCAL_MACHINE) as key:
             available_uuids = {uuid.lower() for uuid in key.iterkeynames()}
     except WindowsError as err:
-        if err.errno != winerror.ERROR_FILE_NOT_FOUND:
+        if err.errno != errno.ENOENT:
             raise
         return ans
     if not available_uuids:
