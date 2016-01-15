@@ -1128,7 +1128,7 @@ def ensure_single_instance(args, open_at):
     except Exception:
         import traceback
         error_dialog(None, _('Cannot start viewer'), _(
-            'Failed to start viewer, single instance locking failed. Click "Show Details" for more information'),
+            'Failed to start viewer, could not insure only a single instance of the viewer is running. Click "Show Details" for more information'),
                     det_msg=traceback.format_exc(), show=True)
         raise SystemExit(1)
     if not si:
@@ -1137,8 +1137,8 @@ def ensure_single_instance(args, open_at):
             t.start()
             t.join(3.0)
             if t.is_alive() or t.conn is None:
-                error_dialog(None, _('Connect talk to viewer'), _(
-                    'Unable to connect to existing viewer window, try restarting it.'), show=True)
+                error_dialog(None, _('Connect to viewer failed'), _(
+                    'Unable to connect to existing viewer window, try restarting the viewer.'), show=True)
                 raise SystemExit(1)
             t.conn.send((os.path.abspath(args[1]), open_at))
             t.conn.close()
