@@ -660,13 +660,26 @@ def devinst_from_device_number(drive_letter, device_number):
                 return devinfo.DevInst
 # }}}
 
-if __name__ == '__main__':
+
+def develop(vendor_id=0x1949, product_id=0x4, do_eject=False):
     from pprint import pprint
     pprint(get_usb_devices())
-    print('Is connected:', is_usb_device_connected(0x1949, 0x4))
+    print()
+    print('Is device connected:', is_usb_device_connected(vendor_id, product_id))
+    print('\nAll removable drives:')
     pprint(get_all_removable_drives())
-    rd = get_removable_drives()
+    print('\nRemovable drives:')
+    rd = get_removable_drives(debug=True)
     pprint(rd)
-    pprint(get_drive_letters_for_device(0x1949, 0x4, debug=True))
-    for drive in rd:
-        eject_drive(drive)
+    print('\nDrive letters for vid=0x%x, pid=0x%x:' % (vendor_id, product_id))
+    pprint(get_drive_letters_for_device(vendor_id, product_id, debug=True))
+    if do_eject:
+        for drive in rd:
+            eject_drive(drive)
+
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        vendor_id, product_id = map(lambda x:int(x, 16), sys.argv[-2:])
+    else:
+        vendor_id, product_id = 0x1949, 0x4
+    develop(vendor_id, product_id)
