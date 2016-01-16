@@ -24,7 +24,8 @@ class TagEditor(QDialog, Ui_TagEditor):
             # Assume that if given a key then it is a custom column
             try:
                 self.is_names = db.field_metadata[key]['display'].get('is_names', False)
-                self.sep = '&'
+                if self.is_names:
+                    self.sep = '&'
             except Exception:
                 pass
             key = db.field_metadata.key_to_label(key)
