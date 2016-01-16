@@ -13,6 +13,7 @@ from ctypes import (
     wstring_at, addressof, create_unicode_buffer, string_at, c_uint64 as QWORD)
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE
 
+from calibre.constants import is64bit
 from calibre.utils.winreg.lib import Key, HKEY_LOCAL_MACHINE
 
 # Data and function type definitions {{{
@@ -371,7 +372,9 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
     if buf is None:
         buf = create_string_buffer(512)
     detail = cast(buf, PSP_DEVICE_INTERFACE_DETAIL_DATA)
-    detail.contents.cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA)
+    # See http://stackoverflow.com/questions/10728644/properly-declare-sp-device-interface-detail-data-for-pinvoke
+    # for why cbSize needs to be hardcoded below
+    detail.contents.cbSize = 8 if is64bit else 6
     required_size = DWORD(0)
     devinfo = SP_DEVINFO_DATA()
     devinfo.cbSize = sizeof(devinfo)
@@ -381,7 +384,7 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
             if err == ERROR_INSUFFICIENT_BUFFER:
                 buf = create_string_buffer(required_size + 50)
                 detail = cast(buf, PSP_DEVICE_INTERFACE_DETAIL_DATA)
-                detail.contents.cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA)
+                detail.contents.cbSize = 8 if is64bit else 6
                 continue
             raise WinError(err)
         break
