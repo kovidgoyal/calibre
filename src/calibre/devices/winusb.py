@@ -253,7 +253,7 @@ def bool_err_check(result, func, args):
 
 def config_err_check(result, func, args):
     if result != CR_CODES['CR_SUCCESS']:
-        raise WindowsError((result, 'The cfgmgr32 function failed with err: %s' % CR_CODE_NAMES.get(result, result)))
+        raise WindowsError(result, 'The cfgmgr32 function failed with err: %s' % CR_CODE_NAMES.get(result, result))
     return args
 
 GetLogicalDrives = cwrap('GetLogicalDrives', DWORD, errcheck=bool_err_check, lib=kernel32)
@@ -275,9 +275,12 @@ SetupDiGetDeviceRegistryProperty = cwrap(
     'SetupDiGetDeviceRegistryPropertyW', BOOL, HDEVINFO, PSP_DEVINFO_DATA, DWORD, POINTER(DWORD), POINTER(BYTE), DWORD, POINTER(DWORD))
 
 CM_Get_Parent = cwrap('CM_Get_Parent', CONFIGRET, POINTER(DEVINST), DEVINST, ULONG, errcheck=config_err_check)
+CM_Get_Child = cwrap('CM_Get_Child', CONFIGRET, POINTER(DEVINST), DEVINST, ULONG, errcheck=config_err_check)
+CM_Get_Sibling = cwrap('CM_Get_Sibling', CONFIGRET, POINTER(DEVINST), DEVINST, ULONG, errcheck=config_err_check)
 CM_Get_Device_ID_Size = cwrap('CM_Get_Device_ID_Size', CONFIGRET, POINTER(ULONG), DEVINST, ULONG)
 CM_Get_Device_ID = cwrap('CM_Get_Device_IDW', CONFIGRET, DEVINST, LPWSTR, ULONG, ULONG)
 CM_Request_Device_Eject = cwrap('CM_Request_Device_EjectW', CONFIGRET, DEVINST, c_void_p, LPWSTR, ULONG, ULONG, errcheck=config_err_check)
+
 # }}}
 
 # Utility functions {{{
@@ -286,6 +289,32 @@ def get_device_set(guid=byref(GUID_DEVINTERFACE_VOLUME), enumerator=None, flags=
     dev_list = SetupDiGetClassDevs(guid, enumerator, None, flags)
     yield dev_list
     SetupDiDestroyDeviceInfoList(dev_list)
+
+
+def iterchildren(parent_devinst):
+    child = DEVINST(0)
+    NO_MORE = CR_CODES['CR_NO_SUCH_DEVINST']
+    try:
+        CM_Get_Child(byref(child), parent_devinst, 0)
+    except WindowsError as err:
+        if err.winerror == NO_MORE:
+            return
+        raise
+    yield child
+    while True:
+        try:
+            CM_Get_Sibling(byref(child), child, 0)
+        except WindowsError as err:
+            if err.winerror == NO_MORE:
+                break
+            raise
+        yield child
+
+def iterdescendants(parent_devinst):
+    for child in iterchildren(parent_devinst):
+        yield child
+        for gc in iterdescendants(child):
+            yield gc
 
 def get_all_removable_drives():
     mask = GetLogicalDrives()
