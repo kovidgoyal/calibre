@@ -513,6 +513,8 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
                     found_at = i - 1
                     break
     if found_at is None:
+        if debug:
+            print('Could not find device matching vid=0x%x pid=0x%x: %r' % (vendor_id, product_id))
         return ans
 
     # Get the device ids for all descendants of the found device
@@ -521,7 +523,7 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
         devid, wbuf = get_device_id(devinst, buf=wbuf)
         device_ids.add(devid.upper().replace(os.sep, '#'))
     if debug:
-        print('Device ids: %r' % device_ids)
+        print('Device ids for vid=0x%x pid=0x%x: %r' % (vendor_id, product_id, device_ids))
     if not device_ids:
         return ans
 
@@ -546,6 +548,8 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
                 if q in devpath:
                     matched = True
                     break
+            if debug:
+                print('Found volume with device path: %s Matches a device_id: %s' % (devpath, matched))
             if matched:
                 drive_letter = drive_letter_from_volume_devpath(devpath, drive_map)
                 if drive_letter:
