@@ -13,6 +13,8 @@ from ctypes import (
     wstring_at, addressof, create_unicode_buffer, string_at, c_uint64 as QWORD)
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE
 
+from calibre import prints
+
 is64bit = sys.maxsize > (1 << 32)
 
 # Data and function type definitions {{{
@@ -315,7 +317,7 @@ def iterdescendants(parent_devinst):
         for gc in iterdescendants(child):
             yield gc
 
-def get_all_removable_drives():
+def get_all_removable_drives(allow_fixed=False):
     mask = GetLogicalDrives()
     ans = {}
     buf = create_unicode_buffer(100)
@@ -323,7 +325,10 @@ def get_all_removable_drives():
         drive_present = bool(mask & 0b1)
         mask >>= 1
         drive_root = drive_letter + ':' + os.sep
-        if drive_present and GetDriveType(drive_root) == DRIVE_REMOVABLE:  # Removable, present drive
+        if not drive_present:
+            continue
+        drive_type = GetDriveType(drive_root)
+        if drive_type == DRIVE_REMOVABLE or (allow_fixed and drive_type == DRIVE_FIXED):  # Removable, present drive
             try:
                 GetVolumeNameForVolumeMountPoint(drive_root, buf, len(buf))
             except WindowsError:
@@ -437,12 +442,28 @@ def drive_letter_from_volume_devpath(devpath, drive_map):
         return drive_map.get(pbuf.value)
 
 def get_removable_drives(debug=False):
-    drive_map = get_all_removable_drives()
+    pbuf = create_unicode_buffer(512)
+    mask = GetLogicalDrives()
+    drives = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
+    if debug:
+        prints('Drive type map: %s' % drives)
+    drive_map = {}
+    for letter, drive_type in drives.iteritems():
+        # We need to allow both removable and fixed drives because some windows
+        # 10 machines that have been upgraded from a previous windows release
+        # mark USB drives as fixed. The fixed drives will only be added if
+        # "USBSTOR" in present in the volume device path, indicating that the drives,
+        # are, in fact, USB drives.
+        if drive_type in (DRIVE_REMOVABLE, DRIVE_FIXED):
+            try:
+                GetVolumeNameForVolumeMountPoint(letter + ':' + os.sep, pbuf, len(pbuf))
+            except WindowsError:
+                continue
+            drive_map[pbuf.value] = letter
     if not drive_map:
         raise NoRemovableDrives('No removable drives found!')
 
     buf = None
-    pbuf = create_unicode_buffer(512)
     ans = {}
     with get_device_set() as dev_list:
         interface_data = SP_DEVICE_INTERFACE_DATA()
@@ -471,8 +492,11 @@ def get_removable_drives(debug=False):
             candidates.append(devpath)
 
             drive_letter = drive_letter_from_volume_devpath(devpath, drive_map)
-            if drive_letter:
+            drive_type = drives.get(drive_letter)
+            if drive_type == DRIVE_REMOVABLE or (drive_type == DRIVE_FIXED and 'usbstor' in devpath.lower()):
                 ans[drive_letter] = candidates
+            if debug:
+                prints('Found volume with device path:', devpath, ' Drive letter:', drive_letter)
         return ans
 # }}}
 
@@ -514,7 +538,7 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
                     break
     if found_at is None:
         if debug:
-            print('Could not find device matching vid=0x%x pid=0x%x: %r' % (vendor_id, product_id))
+            prints('Could not find device matching vid=0x%x pid=0x%x: %r' % (vendor_id, product_id))
         return ans
 
     # Get the device ids for all descendants of the found device
@@ -523,11 +547,11 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
         devid, wbuf = get_device_id(devinst, buf=wbuf)
         device_ids.add(devid.upper().replace(os.sep, '#'))
     if debug:
-        print('Device ids for vid=0x%x pid=0x%x: %r' % (vendor_id, product_id, device_ids))
+        prints('Device ids for vid=0x%x pid=0x%x: %r' % (vendor_id, product_id, device_ids))
     if not device_ids:
         return ans
 
-    drive_map = get_all_removable_drives()
+    drive_map = get_all_removable_drives(allow_fixed=True)
     if not drive_map:
         raise NoRemovableDrives('No removable drives found!')
 
@@ -549,7 +573,7 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
                     matched = True
                     break
             if debug:
-                print('Found volume with device path: %s Matches a device_id: %s' % (devpath, matched))
+                prints('Found volume with device path: %s Matches a device_id: %s' % (devpath, matched))
             if matched:
                 drive_letter = drive_letter_from_volume_devpath(devpath, drive_map)
                 if drive_letter:
@@ -667,7 +691,7 @@ def develop(vendor_id=0x1949, product_id=0x4, do_eject=False):
     print()
     print('Is device connected:', is_usb_device_connected(vendor_id, product_id))
     print('\nAll removable drives:')
-    pprint(get_all_removable_drives())
+    pprint(get_all_removable_drives(allow_fixed=False))
     print('\nRemovable drives:')
     rd = get_removable_drives(debug=True)
     pprint(rd)
