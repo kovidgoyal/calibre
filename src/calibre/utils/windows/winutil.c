@@ -187,6 +187,7 @@ winutil_set_debug(PyObject *self, PyObject *args) {
 	return Py_None;
 }
 
+/*  Obsolete device code {{{ */
 static LPWSTR
 get_registry_property(HDEVINFO hDevInfo, DWORD index, DWORD property, BOOL *iterate) {
     /* Get the property specified by `property` from the registry for the
@@ -771,6 +772,7 @@ winutil_is_usb_device_connected(PyObject *self, PyObject *args) {
     Py_INCREF(ans);
     return ans;
 }
+/* }}} */
 
 static int
 gettmarg(PyObject *args, struct tm *p)
