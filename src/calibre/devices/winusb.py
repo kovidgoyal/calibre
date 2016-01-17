@@ -494,7 +494,7 @@ def get_removable_drives(debug=False):  # {{{
             if drive_type == DRIVE_REMOVABLE or (drive_type == DRIVE_FIXED and 'usbstor' in devpath.lower()):
                 ans[drive_letter] = candidates
             if debug:
-                prints('Found volume with device path:', devpath, ' Drive letter:', drive_letter)
+                prints('Found volume with device path:', devpath, ' Drive letter:', drive_letter, 'Is removable:', drive_letter in ans)
         return ans
 # }}}
 
