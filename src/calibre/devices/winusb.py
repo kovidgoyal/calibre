@@ -444,28 +444,14 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
 # }}}
 
 def get_removable_drives(debug=False):  # {{{
-    pbuf = create_unicode_buffer(512)
-    mask = GetLogicalDrives()
-    drives = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
+    drive_map = get_all_removable_drives(allow_fixed=False)
     if debug:
-        prints('Drive type map: %s' % drives)
-    drive_map = {}
-    for letter, drive_type in drives.iteritems():
-        # We need to allow both removable and fixed drives because some windows
-        # 10 machines that have been upgraded from a previous windows release
-        # mark USB drives as fixed. The fixed drives will only be added if
-        # "USBSTOR" in present in the volume device path, indicating that the drives,
-        # are, in fact, USB drives.
-        if drive_type in (DRIVE_REMOVABLE, DRIVE_FIXED):
-            try:
-                GetVolumeNameForVolumeMountPoint(letter + ':' + os.sep, pbuf, len(pbuf))
-            except WindowsError:
-                continue
-            drive_map[pbuf.value] = letter
+        prints('Drive map: %s' % drive_map)
     if not drive_map:
         raise NoRemovableDrives('No removable drives found!')
 
     buf = None
+    pbuf = create_unicode_buffer(512)
     ans = {}
     with get_device_set() as dev_list:
         interface_data = SP_DEVICE_INTERFACE_DATA()
@@ -494,8 +480,7 @@ def get_removable_drives(debug=False):  # {{{
             candidates.append(devpath)
 
             drive_letter = drive_letter_from_volume_devpath(devpath, drive_map)
-            drive_type = drives.get(drive_letter)
-            if drive_type == DRIVE_REMOVABLE or (drive_type == DRIVE_FIXED and 'usbstor' in devpath.lower()):
+            if drive_letter:
                 ans[drive_letter] = candidates
             if debug:
                 prints('Found volume with device path:', devpath, ' Drive letter:', drive_letter, 'Is removable:', drive_letter in ans)
