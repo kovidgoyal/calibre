@@ -5,13 +5,14 @@ __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>, '\
                 '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 '''Read meta information from fb2 files'''
 
-import os, random, datetime
+import os, random
 from functools import partial
 from string import ascii_letters, digits
 from base64 import b64encode
 
 from lxml import etree
 
+from calibre.utils.date import parse_only_date
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
@@ -265,7 +266,7 @@ def _parse_pubdate(root, mi, ctx):
     year = ctx.XPath('number(//fb:publish-info/fb:year/text())')(root)
     if float.is_integer(year):
         # only year is available, so use 2nd of June
-        mi.pubdate = datetime.date(int(year), 6, 2)
+        mi.pubdate = parse_only_date(type(u'')(int(year)))
 
 def _parse_language(root, mi, ctx):
     language = ctx.XPath('string(//fb:title-info/fb:lang/text())')(root)
