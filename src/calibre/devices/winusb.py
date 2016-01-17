@@ -531,7 +531,7 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, debug=False): 
                     break
     if found_at is None:
         if debug:
-            prints('Could not find device matching vid=0x%x pid=0x%x: %r' % (vendor_id, product_id))
+            prints('Could not find device matching vid=0x%x pid=0x%x' % (vendor_id, product_id))
         return ans
 
     # Get the device ids for all descendants of the found device
