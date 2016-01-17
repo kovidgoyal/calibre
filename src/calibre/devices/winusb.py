@@ -13,7 +13,7 @@ from ctypes import (
     wstring_at, addressof, create_unicode_buffer, string_at, c_uint64 as QWORD)
 from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE
 
-from calibre import prints
+from calibre import prints, as_unicode
 
 is64bit = sys.maxsize > (1 << 32)
 
@@ -539,12 +539,22 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, debug=False): 
         return ans
 
     # Get the device ids for all descendants of the found device
-    sn_map = get_storage_number_map()
+    sn_map = get_storage_number_map(debug=debug)
+    if debug:
+        prints('Storage number map:', sn_map)
     for devinst in iterdescendants(devinfo.DevInst):
         devid, wbuf = get_device_id(devinst, buf=wbuf)
-        drive_letter = find_drive(devinst.value, sn_map)
-        if drive_letter:
-            ans.append(drive_letter)
+        try:
+            drive_letter = find_drive(devinst.value, sn_map, debug=debug)
+        except Exception as err:
+            if debug:
+                prints('Failed to get drive letter for: %s with error: %s' % (devid, as_unicode(err)))
+        else:
+            if drive_letter:
+                ans.append(drive_letter)
+            if debug:
+                prints('Drive letter for: %s is: %s' % (devid, drive_letter))
+
     return ans
 
 _devid_pat = None
@@ -563,20 +573,25 @@ def get_storage_number(devpath):
         CloseHandle(handle)
     return sdn.DeviceNumber
 
-def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED)):
+def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=False):
     mask = GetLogicalDrives()
     type_map = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
     drives = (letter for letter, dt in type_map.iteritems() if dt in drive_types)
     ans = {}
     for letter in drives:
         try:
-            ans[get_storage_number('\\\\.\\' + letter + ':')] = letter
-        except WindowsError:
+            sn = get_storage_number('\\\\.\\' + letter + ':')
+            if debug and sn in ans:
+                prints('Duplicate storage number for drives: %s and %s' % (letter, ans[sn]))
+            ans[sn] = letter
+        except WindowsError as err:
+            if debug:
+                prints('Failed to get storage number for drive: %s with error: %s' % (letter, as_unicode(err)))
             continue
     return ans
 
 
-def find_drive(devinst, storage_number_map):
+def find_drive(devinst, storage_number_map, debug=False):
     buf = None
     interface_data = SP_DEVICE_INTERFACE_DATA()
     interface_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA)
@@ -588,10 +603,7 @@ def find_drive(devinst, storage_number_map):
                 break
             buf, devinfo, devpath = get_device_interface_detail_data(dev_list, byref(interface_data), buf=buf)
             if devinfo.DevInst == devinst:
-                try:
-                    storage_number = get_storage_number(devpath)
-                except WindowsError:
-                    continue
+                storage_number = get_storage_number(devpath)
                 drive_letter = storage_number_map.get(storage_number)
                 if drive_letter:
                     return drive_letter
