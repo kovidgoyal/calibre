@@ -228,7 +228,9 @@ for line in '''\
             code = CR_CODES[code]
         CR_CODES[name] = code
         CR_CODE_NAMES[code] = name
-
+CM_GET_DEVICE_INTERFACE_LIST_PRESENT = 0
+CM_GET_DEVICE_INTERFACE_LIST_ALL_DEVICES = 1
+CM_GET_DEVICE_INTERFACE_LIST_BITS = 1
 setupapi = windll.setupapi
 cfgmgr = windll.CfgMgr32
 kernel32 = windll.Kernel32
@@ -285,6 +287,7 @@ CM_Get_Sibling = cwrap('CM_Get_Sibling', CONFIGRET, POINTER(DEVINST), DEVINST, U
 CM_Get_Device_ID_Size = cwrap('CM_Get_Device_ID_Size', CONFIGRET, POINTER(ULONG), DEVINST, ULONG)
 CM_Get_Device_ID = cwrap('CM_Get_Device_IDW', CONFIGRET, DEVINST, LPWSTR, ULONG, ULONG)
 CM_Request_Device_Eject = cwrap('CM_Request_Device_EjectW', CONFIGRET, DEVINST, c_void_p, LPWSTR, ULONG, ULONG, errcheck=config_err_check)
+CM_Get_Device_Interface_List = cwrap('CM_Get_Device_Interface_ListW', CONFIGRET, POINTER(GUID), LPCWSTR, LPWSTR, ULONG, ULONG, errcheck=config_err_check)
 
 # }}}
 
@@ -505,7 +508,7 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, debug=False): 
     can be either None, in which case it is not tested, or it must be a list or
     set like object containing bcds.
     '''
-    rbuf = buf = wbuf = None
+    rbuf = wbuf = None
     ans = []
 
     # First search for a device matching the specified USB ids
@@ -536,42 +539,12 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, debug=False): 
         return ans
 
     # Get the device ids for all descendants of the found device
-    device_ids = set()
+    sn_map = get_storage_number_map()
     for devinst in iterdescendants(devinfo.DevInst):
         devid, wbuf = get_device_id(devinst, buf=wbuf)
-        device_ids.add(devid.upper().replace(os.sep, '#'))
-    if debug:
-        prints('Device ids for vid=0x%x pid=0x%x: %r' % (vendor_id, product_id, device_ids))
-    if not device_ids:
-        return ans
-
-    drive_map = get_all_removable_drives(allow_fixed=True)
-    if not drive_map:
-        raise NoRemovableDrives('No removable drives found!')
-
-    # Now look for volumes whose device path contains one of the child device
-    # ids we found earlier
-    with get_device_set() as dev_list:
-        interface_data = SP_DEVICE_INTERFACE_DATA()
-        interface_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA)
-        i = -1
-        while True:
-            i += 1
-            if not SetupDiEnumDeviceInterfaces(dev_list, None, byref(GUID_DEVINTERFACE_VOLUME), i, byref(interface_data)):
-                break
-            buf, devinfo, devpath = get_device_interface_detail_data(dev_list, byref(interface_data), buf)
-            devpath = devpath.upper()
-            matched = False
-            for q in device_ids:
-                if q in devpath:
-                    matched = True
-                    break
-            if debug:
-                prints('Found volume with device path: %s Matches a device_id: %s' % (devpath, matched))
-            if matched:
-                drive_letter = drive_letter_from_volume_devpath(devpath, drive_map)
-                if drive_letter:
-                    ans.append(drive_letter)
+        drive_letter = find_drive(devinst.value, sn_map)
+        if drive_letter:
+            ans.append(drive_letter)
     return ans
 
 _devid_pat = None
@@ -580,6 +553,48 @@ def devid_pat():
     if _devid_pat is None:
         _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9]{4})', re.I)
     return _devid_pat
+
+def get_storage_number(devpath):
+    sdn = STORAGE_DEVICE_NUMBER()
+    handle = CreateFile(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
+    try:
+        DeviceIoControl(handle, IOCTL_STORAGE_GET_DEVICE_NUMBER, None, 0, byref(sdn), sizeof(STORAGE_DEVICE_NUMBER), None, None)
+    finally:
+        CloseHandle(handle)
+    return sdn.DeviceNumber
+
+def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED)):
+    mask = GetLogicalDrives()
+    type_map = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
+    drives = (letter for letter, dt in type_map.iteritems() if dt in drive_types)
+    ans = {}
+    for letter in drives:
+        try:
+            ans[get_storage_number('\\\\.\\' + letter + ':')] = letter
+        except WindowsError:
+            continue
+    return ans
+
+
+def find_drive(devinst, storage_number_map):
+    buf = None
+    interface_data = SP_DEVICE_INTERFACE_DATA()
+    interface_data.cbSize = sizeof(SP_DEVICE_INTERFACE_DATA)
+    with get_device_set(guid=byref(GUID_DEVINTERFACE_DISK)) as dev_list:
+        i = -1
+        while True:
+            i += 1
+            if not SetupDiEnumDeviceInterfaces(dev_list, None, byref(GUID_DEVINTERFACE_DISK), i, byref(interface_data)):
+                break
+            buf, devinfo, devpath = get_device_interface_detail_data(dev_list, byref(interface_data), buf=buf)
+            if devinfo.DevInst == devinst:
+                try:
+                    storage_number = get_storage_number(devpath)
+                except WindowsError:
+                    continue
+                drive_letter = storage_number_map.get(storage_number)
+                if drive_letter:
+                    return drive_letter
 
 # }}}
 
