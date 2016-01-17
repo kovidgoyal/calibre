@@ -17,6 +17,9 @@ from calibre import prints
 
 is64bit = sys.maxsize > (1 << 32)
 
+class NoRemovableDrives(WindowsError):
+    pass
+
 # Data and function type definitions {{{
 
 class GUID(Structure):
@@ -351,6 +354,17 @@ def get_device_id(devinst, buf=None):
         break
     return wstring_at(buf), buf
 
+def drive_letter_from_volume_devpath(devpath, drive_map):
+    pbuf = create_unicode_buffer(512)
+    if not devpath.endswith(os.sep):
+        devpath += os.sep
+    try:
+        GetVolumeNameForVolumeMountPoint(devpath, pbuf, len(pbuf))
+    except WindowsError:
+        pass
+    else:
+        return drive_map.get(pbuf.value)
+
 def expand_environment_strings(src):
     sz = ExpandEnvironmentStrings(src, None, 0)
     while True:
@@ -425,23 +439,7 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
 
 # }}}
 
-# get_removable_drives() {{{
-
-class NoRemovableDrives(WindowsError):
-    pass
-
-def drive_letter_from_volume_devpath(devpath, drive_map):
-    pbuf = create_unicode_buffer(512)
-    if not devpath.endswith(os.sep):
-        devpath += os.sep
-    try:
-        GetVolumeNameForVolumeMountPoint(devpath, pbuf, len(pbuf))
-    except WindowsError:
-        pass
-    else:
-        return drive_map.get(pbuf.value)
-
-def get_removable_drives(debug=False):
+def get_removable_drives(debug=False):  # {{{
     pbuf = create_unicode_buffer(512)
     mask = GetLogicalDrives()
     drives = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
@@ -500,17 +498,12 @@ def get_removable_drives(debug=False):
         return ans
 # }}}
 
-# get_drive_letters_for_device() {{{
-
-_devid_pat = None
-def devid_pat():
-    global _devid_pat
-    if _devid_pat is None:
-        _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9]{4})', re.I)
-    return _devid_pat
-
-
-def get_drive_letters_for_device(vendor_id, product_id, debug=False):
+def get_drive_letters_for_device(vendor_id, product_id, bcd=None, debug=False):  # {{{
+    '''
+    Get the drive letters for a connected device with the specieid USB ids. bcd
+    can be either None, in which case it is not tested, or it must be a list or
+    set like object containing bcds.
+    '''
     rbuf = buf = wbuf = None
     ans = []
 
@@ -533,7 +526,7 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
                     vid, pid, rev = map(lambda x:int(x, 16), m.group(1, 2, 3))
                 except Exception:
                     continue
-                if vid == vendor_id and pid == product_id:
+                if vid == vendor_id and pid == product_id and (bcd is None or rev in bcd):
                     found_at = i - 1
                     break
     if found_at is None:
@@ -579,6 +572,13 @@ def get_drive_letters_for_device(vendor_id, product_id, debug=False):
                 if drive_letter:
                     ans.append(drive_letter)
     return ans
+
+_devid_pat = None
+def devid_pat():
+    global _devid_pat
+    if _devid_pat is None:
+        _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9]{4})', re.I)
+    return _devid_pat
 
 # }}}
 
