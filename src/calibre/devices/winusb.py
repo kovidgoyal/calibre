@@ -526,7 +526,7 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, debug=False): 
                     vid, pid, rev = map(lambda x:int(x, 16), m.group(1, 2, 3))
                 except Exception:
                     continue
-                if vid == vendor_id and pid == product_id and (bcd is None or rev in bcd):
+                if vid == vendor_id and pid == product_id and (bcd is None or (bcd and rev in bcd)):
                     found_at = i - 1
                     break
     if found_at is None:
@@ -685,7 +685,7 @@ def devinst_from_device_number(drive_letter, device_number):
 # }}}
 
 
-def develop(vendor_id=0x1949, product_id=0x4, do_eject=False):
+def develop(vendor_id=0x1949, product_id=0x4, bcd=None, do_eject=False):
     from pprint import pprint
     pprint(get_usb_devices())
     print()
@@ -696,14 +696,14 @@ def develop(vendor_id=0x1949, product_id=0x4, do_eject=False):
     rd = get_removable_drives(debug=True)
     pprint(rd)
     print('\nDrive letters for vid=0x%x, pid=0x%x:' % (vendor_id, product_id))
-    pprint(get_drive_letters_for_device(vendor_id, product_id, debug=True))
+    pprint(get_drive_letters_for_device(vendor_id, product_id, bcd=bcd, debug=True))
     if do_eject:
         for drive in rd:
             eject_drive(drive)
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        vendor_id, product_id = map(lambda x:int(x, 16), sys.argv[-2:])
+        vendor_id, product_id, bcd = map(lambda x:int(x, 16), sys.argv[-3:])
     else:
-        vendor_id, product_id = 0x1949, 0x4
-    develop(vendor_id, product_id)
+        vendor_id, product_id, bcd = 0x1949, 0x4, 0x100
+    develop(vendor_id, product_id, (bcd,))
