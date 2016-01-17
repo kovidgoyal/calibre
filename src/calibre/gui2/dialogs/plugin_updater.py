@@ -23,8 +23,9 @@ from calibre.customize.ui import (
 from calibre.gui2 import error_dialog, question_dialog, info_dialog, open_url, gprefs
 from calibre.gui2.preferences.plugins import ConfigWidget
 from calibre.utils.date import UNDEFINED_DATE, format_date
+from calibre.utils.https import get_https_resource_securely
 
-SERVER = 'https://plugins.calibre-ebook.com/'
+SERVER = 'https://code.calibre-ebook.com/plugins/'
 INDEX_URL = '%splugins.json.bz2' % SERVER
 FILTER_ALL = 0
 FILTER_INSTALLED = 1
@@ -56,9 +57,8 @@ def filter_not_installed_plugins(display_plugin):
 def read_available_plugins(raise_error=False):
     import json, bz2
     display_plugins = []
-    br = browser()
     try:
-        raw = br.open_novisit(INDEX_URL).read()
+        raw = get_https_resource_securely(INDEX_URL)
         if not raw:
             return
         raw = json.loads(bz2.decompress(raw))
@@ -836,8 +836,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
 
     def _download_zip(self, plugin_zip_url):
         from calibre.ptempfile import PersistentTemporaryFile
-        br = browser(user_agent='%s %s' % (__appname__, __version__))
-        raw = br.open_novisit(plugin_zip_url).read()
+        raw = get_https_resource_securely(plugin_zip_url, headers={'User-Agent':'%s %s' % (__appname__, __version__)})
         with PersistentTemporaryFile('.zip') as pt:
             pt.write(raw)
         return pt.name
