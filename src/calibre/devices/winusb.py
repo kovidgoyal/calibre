@@ -386,8 +386,9 @@ def iterancestors(devinst):
 def get_storage_number(devpath):
     sdn = STORAGE_DEVICE_NUMBER()
     handle = CreateFile(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
+    bytes_returned = DWORD(0)
     try:
-        DeviceIoControl(handle, IOCTL_STORAGE_GET_DEVICE_NUMBER, None, 0, byref(sdn), sizeof(STORAGE_DEVICE_NUMBER), None, None)
+        DeviceIoControl(handle, IOCTL_STORAGE_GET_DEVICE_NUMBER, None, 0, byref(sdn), sizeof(STORAGE_DEVICE_NUMBER), byref(bytes_returned), None)
     finally:
         CloseHandle(handle)
     return sdn.as_tuple()
