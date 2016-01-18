@@ -115,6 +115,7 @@ def reread_filetype_plugins():
     global _on_postimport
     global _on_preprocess
     global _on_postprocess
+    global _on_postadd
     _on_import           = defaultdict(list)
     _on_postimport       = defaultdict(list)
     _on_preprocess       = defaultdict(list)
