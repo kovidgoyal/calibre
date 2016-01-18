@@ -275,7 +275,7 @@ if iswindows:
     extensions.extend([
         Extension('winutil',
                 ['calibre/utils/windows/winutil.c'],
-                libraries=['shell32', 'setupapi', 'wininet'],
+                libraries=['shell32', 'wininet'],
                 cflags=['/X']
                 ),
         Extension('wpd',
