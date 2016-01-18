@@ -513,25 +513,6 @@ def get_storage_number(devpath):
         CloseHandle(handle)
     return sdn.as_tuple()
 
-def get_all_removable_drives(allow_fixed=False):
-    mask = GetLogicalDrives()
-    ans = {}
-    buf = create_unicode_buffer(100)
-    for drive_letter in string.ascii_uppercase:
-        drive_present = bool(mask & 0b1)
-        mask >>= 1
-        drive_root = drive_letter + ':' + os.sep
-        if not drive_present:
-            continue
-        drive_type = GetDriveType(drive_root)
-        if drive_type == DRIVE_REMOVABLE or (allow_fixed and drive_type == DRIVE_FIXED):  # Removable, present drive
-            try:
-                GetVolumeNameForVolumeMountPoint(drive_root, buf, len(buf))
-            except WindowsError:
-                continue
-            ans[buf.value] = drive_letter
-    return ans
-
 def get_device_id(devinst, buf=None):
     if buf is None:
         buf = create_unicode_buffer(512)
@@ -697,40 +678,13 @@ def scan_usb_devices():
 
 # }}}
 
-def get_removable_drives(debug=False):  # {{{
-    drive_map = get_all_removable_drives(allow_fixed=False)
-    if debug:
-        prints('Drive map: %s' % drive_map)
-    if not drive_map:
-        raise NoRemovableDrives('No removable drives found!')
-
-    ans, buf = {}, None
-    for devinfo, devpath in DeviceSet().interfaces():
-        candidates = []
-        # Get the devpaths for all parents of this device. This is not
-        # actually necessary on Vista+, so we simply ignore any windows API
-        # failures.
-        for parent in iterancestors(devinfo.DevInst):
-            try:
-                devid, buf = get_device_id(parent, buf=buf)
-            except WindowsError:
-                break
-            candidates.append(devid)
-        candidates.append(devpath)
-
-        drive_letter = drive_letter_from_volume_devpath(devpath, drive_map)
-        if drive_letter:
-            ans[drive_letter] = candidates
-        if debug:
-            prints('Found volume with device path:', devpath, ' Drive letter:', drive_letter, 'Is removable:', drive_letter in ans)
-    return ans
-# }}}
-
 def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False):  # {{{
     '''
-    Get the drive letters for a connected device (usbdev must be a USBDevice
-    instance). The drive letters are sorted by storage number, which (I think)
-    corresponds to the order they are exported by the firmware.
+    Get the drive letters for a connected device. The drive letters are sorted
+    by storage number, which (I think) corresponds to the order they are
+    exported by the firmware.
+
+    :param usbdevice: As returned by :function:`scan_usb_devices`
     '''
     ans = {'pnp_id_map': {}, 'drive_letters':[], 'readonly_drives':set()}
     sort_map = {}
@@ -799,10 +753,6 @@ def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=Fal
 
 # }}}
 
-def get_usb_devices():  # {{{
-    return list(x.devid for x in iterusbdevices())
-# }}}
-
 def is_usb_device_connected(vendor_id, product_id):  # {{{
     for usbdev in iterusbdevices():
         if usbdev.vendor_id == vendor_id and usbdev.product_id == product_id:
@@ -811,6 +761,7 @@ def is_usb_device_connected(vendor_id, product_id):  # {{{
 # }}}
 
 def eject_drive(drive_letter):  # {{{
+    ' Eject the disk that corresponds to the specified drive letter '
     drive_letter = type('')(drive_letter)[0]
     volume_access_path = '\\\\.\\' + drive_letter + ':'
     try:
@@ -845,6 +796,11 @@ def eject_drive(drive_letter):  # {{{
 # }}}
 
 def get_usb_info(usbdev, debug=False):  # {{{
+    '''
+    The USB info (manufacturer/product names and serial number) Requires communication with the hub the device is connected to.
+
+    :param usbdev: A usb device as returned by :function:`scan_usb_devices`
+    '''
     ans = {}
     try:
         parent = next(iterancestors(usbdev.devinst))
@@ -955,13 +911,8 @@ def is_readonly(drive_letter):  # {{{
 def develop(do_eject=False):  # {{{
     from calibre.customize.ui import device_plugins
     usb_devices = scan_usb_devices()
+    drive_letters = set()
     pprint(usb_devices)
-    print()
-    print('\nAll removable drives:')
-    pprint(get_all_removable_drives(allow_fixed=False))
-    print('\nRemovable drives:')
-    rd = get_removable_drives(debug=True)
-    pprint(rd)
     print()
     devplugins = list(sorted(device_plugins(), cmp=lambda
             x,y:cmp(x.__class__.__name__, y.__class__.__name__)))
@@ -976,13 +927,15 @@ def develop(do_eject=False):  # {{{
             print('Potentially connected device: %s at %s' % (dev.get_gui_name(), usbdev))
             print()
             print('Drives for this device:')
-            pprint(get_drive_letters_for_device(usbdev, debug=True))
+            data = get_drive_letters_for_device(usbdev, debug=True)
+            pprint(data)
+            drive_letters |= set(data['drive_letters'])
             print()
             print('Is device connected:', is_usb_device_connected(*usbdev[:2]))
             print()
             print('Device USB data:', get_usb_info(usbdev, debug=True))
     if do_eject:
-        for drive in rd:
+        for drive in drive_letters:
             eject_drive(drive)
 
 def drives_for(vendor_id, product_id=None):

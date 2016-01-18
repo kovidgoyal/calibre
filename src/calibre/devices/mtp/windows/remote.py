@@ -58,14 +58,14 @@ def main():
     # run()
     # return
 
-    from calibre.devices.winusb import get_usb_devices
+    from calibre.devices.winusb import scan_usb_devices
     from calibre.devices.mtp.driver import MTP_DEVICE
     dev = MTP_DEVICE(None)
     dev.startup()
     print (dev.wpd, dev.wpd_error)
 
     try:
-        devices = get_usb_devices()
+        devices = scan_usb_devices()
         pnp_id = dev.detect_managed_devices(devices)
         if not pnp_id:
             raise ValueError('Failed to detect device')
