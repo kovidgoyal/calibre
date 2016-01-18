@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Device drivers.
 '''
 
-import sys, time, pprint, operator
+import sys, time, pprint
 from functools import partial
 from StringIO import StringIO
 
@@ -66,7 +66,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
     import textwrap
     from calibre.customize.ui import device_plugins, disabled_device_plugins
     from calibre.debug import print_basic_debug_info
-    from calibre.devices.scanner import DeviceScanner, win_pnp_drives
+    from calibre.devices.scanner import DeviceScanner
     from calibre.constants import iswindows, isosx
     from calibre import prints
     oldo, olde = sys.stdout, sys.stderr
@@ -101,12 +101,6 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
                     d[i] = hex(d[i])
         out('USB devices on system:')
         out(pprint.pformat(devices))
-        if iswindows:
-            drives = win_pnp_drives(debug=True)
-            out('Drives detected:')
-            for drive in sorted(drives.keys(),
-                    key=operator.attrgetter('order')):
-                prints(u'\t(%d)'%drive.order, drive, '~', drives[drive])
 
         ioreg = None
         if isosx:
@@ -125,7 +119,8 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
             out('\nNo disabled plugins')
         found_dev = False
         for dev in devplugins:
-            if not dev.MANAGES_DEVICE_PRESENCE: continue
+            if not dev.MANAGES_DEVICE_PRESENCE:
+                continue
             out('Looking for devices of type:', dev.__class__.__name__)
             if dev.debug_managed_device_detection(s.devices, buf):
                 found_dev = True
@@ -135,7 +130,8 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
         if not found_dev:
             out('Looking for devices...')
             for dev in devplugins:
-                if dev.MANAGES_DEVICE_PRESENCE: continue
+                if dev.MANAGES_DEVICE_PRESENCE:
+                    continue
                 connected, det = s.is_device_connected(dev, debug=True)
                 if connected:
                     out('\t\tDetected possible device', dev.__class__.__name__)
@@ -152,6 +148,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
             out(' ')
             for dev, det in connected_devices:
                 out('Trying to open', dev.name, '...', end=' ')
+                dev.do_device_debug = True
                 try:
                     dev.reset(detected_device=det)
                     dev.open(det, None)
@@ -161,6 +158,7 @@ def debug(ioreg_to_tmp=False, buf=None, plugins=None,
                     errors[dev] = traceback.format_exc()
                     out('failed')
                     continue
+                dev.do_device_debug = False
                 success = True
                 if hasattr(dev, '_main_prefix'):
                     out('Main memory:', repr(dev._main_prefix))

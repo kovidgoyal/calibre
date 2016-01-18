@@ -3,8 +3,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from collections import namedtuple
 
-from calibre.customize import Plugin
+from calibre import prints
 from calibre.constants import iswindows
+from calibre.customize import Plugin
 
 class DevicePlugin(Plugin):
     """
@@ -130,58 +131,6 @@ class DevicePlugin(Plugin):
         return cls.name
 
     # Device detection {{{
-    def test_bcd_windows(self, device_id, bcd):
-        if bcd is None or len(bcd) == 0:
-            return True
-        for c in bcd:
-            rev = 'rev_%4.4x'%c
-            # Bug in winutil.get_usb_devices sometimes converts a to :
-            if rev in device_id or rev.replace('a', ':') in device_id:
-                return True
-        return False
-
-    def print_usb_device_info(self, info):
-        try:
-            print '\t', repr(info)
-        except:
-            import traceback
-            traceback.print_exc()
-
-    def is_usb_connected_windows(self, devices_on_system, debug=False,
-            only_presence=False):
-
-        def id_iterator():
-            if hasattr(self.VENDOR_ID, 'keys'):
-                for vid in self.VENDOR_ID:
-                    vend = self.VENDOR_ID[vid]
-                    for pid in vend:
-                        bcd = vend[pid]
-                        yield vid, pid, bcd
-            else:
-                vendors = self.VENDOR_ID if hasattr(self.VENDOR_ID, '__len__') else [self.VENDOR_ID]
-                products = self.PRODUCT_ID if hasattr(self.PRODUCT_ID, '__len__') else [self.PRODUCT_ID]
-                for vid in vendors:
-                    for pid in products:
-                        yield vid, pid, self.BCD
-
-        for vendor_id, product_id, bcd in id_iterator():
-            vid, pid = 'vid_%4.4x'%vendor_id, 'pid_%4.4x'%product_id
-            vidd, pidd = 'vid_%i'%vendor_id, 'pid_%i'%product_id
-            for device_id in devices_on_system:
-                if (vid in device_id or vidd in device_id) and \
-                   (pid in device_id or pidd in device_id) and \
-                   self.test_bcd_windows(device_id, bcd):
-                        if debug:
-                            self.print_usb_device_info(device_id)
-                        if only_presence or self.can_handle_windows(device_id, debug=debug):
-                            try:
-                                bcd = int(device_id.rpartition(
-                                            'rev_')[-1].replace(':', 'a'), 16)
-                            except:
-                                bcd = None
-                            return True, (vendor_id, product_id, bcd, None, None, None)
-        return False, None
-
     def test_bcd(self, bcdDevice, bcd):
         if bcd is None or len(bcd) == 0:
             return True
@@ -190,15 +139,13 @@ class DevicePlugin(Plugin):
                 return True
         return False
 
-    def is_usb_connected_generic(self, devices_on_system, debug=False,
-            only_presence=False):
+    def is_usb_connected(self, devices_on_system, debug=False, only_presence=False):
         '''
         Return True, device_info if a device handled by this plugin is currently connected.
 
         :param devices_on_system: List of devices currently connected
 
         '''
-
         vendors_on_system = {x[0] for x in devices_on_system}
         vendors = set(self.VENDOR_ID) if hasattr(self.VENDOR_ID, '__len__') else {self.VENDOR_ID}
         if hasattr(self.VENDOR_ID, 'keys'):
@@ -208,6 +155,7 @@ class DevicePlugin(Plugin):
         else:
             products = self.PRODUCT_ID if hasattr(self.PRODUCT_ID, '__len__') else [self.PRODUCT_ID]
 
+        ch = self.can_handle_windows if iswindows else self.can_handle
         for vid in vendors_on_system.intersection(vendors):
             for dev in devices_on_system:
                 cvid, pid, bcd = dev[:3]
@@ -225,12 +173,10 @@ class DevicePlugin(Plugin):
                             cbcd = self.BCD
                         if self.test_bcd(bcd, cbcd):
                             if debug:
-                                self.print_usb_device_info(dev)
-                            if self.can_handle(dev, debug=debug):
+                                prints(dev)
+                            if ch(dev, debug=debug):
                                 return True, dev
         return False, None
-
-    is_usb_connected = is_usb_connected_windows if iswindows else is_usb_connected_generic
 
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
         '''

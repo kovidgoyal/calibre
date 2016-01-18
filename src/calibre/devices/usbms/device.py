@@ -188,37 +188,6 @@ class Device(DeviceConfig, DevicePlugin):
     def windows_filter_pnp_id(self, pnp_id):
         return False
 
-    def windows_match_device(self, pnp_id, attr):
-        device_id = getattr(self, attr)
-
-        def test_vendor():
-            vendors = [self.VENDOR_NAME] if isinstance(self.VENDOR_NAME,
-                    basestring) else self.VENDOR_NAME
-            for v in vendors:
-                if 'VEN_'+str(v).upper() in pnp_id:
-                    return True
-            return False
-
-        if device_id is None or not test_vendor():
-            return False
-
-        if self.windows_filter_pnp_id(pnp_id):
-            return False
-
-        if hasattr(device_id, 'search'):
-            return device_id.search(pnp_id) is not None
-
-        if isinstance(device_id, basestring):
-            device_id = [device_id]
-
-        for x in device_id:
-            x = x.upper()
-
-            if 'PROD_' + x in pnp_id:
-                return True
-
-        return False
-
     def windows_sort_drives(self, drives):
         '''
         Called to disambiguate main memory and storage card for devices that
@@ -227,80 +196,43 @@ class Device(DeviceConfig, DevicePlugin):
         '''
         return drives
 
-    def can_handle_windows(self, device_id, debug=False):
-        from calibre.devices.scanner import win_pnp_drives
-        drives = win_pnp_drives()
-        for pnp_id in drives.values():
-            if self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM'):
-                return True
-            if debug:
-                print '\tNo match found in:', pnp_id
-        return False
-
     def open_windows(self):
-        from calibre.devices.scanner import win_pnp_drives, drivecmp
+        from calibre.devices.scanner import drive_is_ok
+        from calibre.devices.winusb import get_drive_letters_for_device
+        usbdev = self.device_being_opened
+        debug = DEBUG or getattr(self, 'do_device_debug', False)
+        try:
+            dlmap = get_drive_letters_for_device(usbdev, debug=debug)
+        except Exception:
+            dlmap = []
 
-        time.sleep(5)
+        if not dlmap['drive_letters']:
+            time.sleep(7)
+            dlmap = get_drive_letters_for_device(usbdev, debug=debug)
+
+        filtered = set()
+        for dl in dlmap['drive_letters']:
+            pnp_id = dlmap['pnp_id_map'][dl]
+            if self.windows_filter_pnp_id(pnp_id):
+                filtered.add(dl)
+                if debug:
+                    prints('Ignoring the drive %s because of a PNP filter on %s' % (dl, pnp_id))
+        dlmap['drive_letters'] = [dl for dl in dlmap['drive_letters'] if dl not in filtered]
+        filtered = set()
+        for dl in dlmap['drive_letters']:
+            if not drive_is_ok(dl, debug=debug):
+                filtered.add(dl)
+                if debug:
+                    prints('Ignoring the drive %s because failed to get free space for it' % dl)
+        dlmap['drive_letters'] = [dl for dl in dlmap['drive_letters'] if dl not in filtered]
+
+        if not dlmap['drive_letters']:
+            raise DeviceError(_('Unable to detect any disk drives for the device: %s. Try rebooting') % self.get_gui_name())
+
         drives = {}
-        seen = set()
-        prod_pat = re.compile(r'PROD_(.+?)&')
-        dup_prod_id = False
 
-        def check_for_dups(pnp_id):
-            try:
-                match = prod_pat.search(pnp_id)
-                if match is not None:
-                    prodid = match.group(1)
-                    if prodid in seen:
-                        return True
-                    else:
-                        seen.add(prodid)
-            except:
-                pass
-            return False
-
-        for drive, pnp_id in win_pnp_drives().items():
-            if self.windows_match_device(pnp_id, 'WINDOWS_CARD_A_MEM') and \
-                    not drives.get('carda', False):
-                drives['carda'] = drive
-                dup_prod_id |= check_for_dups(pnp_id)
-            elif self.windows_match_device(pnp_id, 'WINDOWS_CARD_B_MEM') and \
-                    not drives.get('cardb', False):
-                drives['cardb'] = drive
-                dup_prod_id |= check_for_dups(pnp_id)
-            elif self.windows_match_device(pnp_id, 'WINDOWS_MAIN_MEM') and \
-                    not drives.get('main', False):
-                drives['main'] = drive
-                dup_prod_id |= check_for_dups(pnp_id)
-
-            if 'main' in drives.keys() and 'carda' in drives.keys() and \
-                    'cardb' in drives.keys():
-                break
-
-        # This is typically needed when the device has the same
-        # WINDOWS_MAIN_MEM and WINDOWS_CARD_A_MEM in which case
-        # if the device is connected without a card, the above
-        # will incorrectly identify the main mem as carda
-        # See for example the driver for the Nook
-        if drives.get('carda', None) is not None and \
-                drives.get('main', None) is None:
-            drives['main'] = drives.pop('carda')
-
-        if drives.get('main', None) is None:
-            raise DeviceError(
-                _('Unable to detect the %s disk drive. Try rebooting.') %
-                self.__class__.__name__)
-
-        # Sort drives by their PNP drive numbers if the CARD and MAIN
-        # MEM strings are identical
-        if dup_prod_id or \
-                self.WINDOWS_MAIN_MEM in (self.WINDOWS_CARD_A_MEM,
-                self.WINDOWS_CARD_B_MEM) or \
-                self.WINDOWS_CARD_A_MEM == self.WINDOWS_CARD_B_MEM:
-            letters = sorted(drives.values(), cmp=drivecmp)
-            drives = {}
-            for which, letter in zip(['main', 'carda', 'cardb'], letters):
-                drives[which] = letter
+        for drive_letter, which in zip(dlmap['drive_letters'], 'main carda cardb'.split()):
+            drives[which] = drive_letter + ':\\'
 
         drives = self.windows_sort_drives(drives)
         self._main_prefix = drives.get('main')
@@ -880,11 +812,7 @@ class Device(DeviceConfig, DevicePlugin):
                     time.sleep(2)
                     self.open_freebsd()
             if iswindows:
-                try:
-                    self.open_windows()
-                except DeviceError:
-                    time.sleep(7)
-                    self.open_windows()
+                self.open_windows()
             if isosx:
                 try:
                     self.open_osx()

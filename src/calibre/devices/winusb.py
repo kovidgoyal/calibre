@@ -970,7 +970,7 @@ def develop(do_eject=False):  # {{{
     for dev in devplugins:
         if dev.MANAGES_DEVICE_PRESENCE:
             continue
-        connected, usbdev = dev.is_usb_connected_generic(usb_devices, debug=True)
+        connected, usbdev = dev.is_usb_connected(usb_devices, debug=True)
         if connected:
             print('\n')
             print('Potentially connected device: %s at %s' % (dev.get_gui_name(), usbdev))

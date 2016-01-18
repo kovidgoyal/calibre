@@ -5,9 +5,9 @@ Device scanner that fetches list of devices on system ina  platform dependent
 manner.
 '''
 
-import sys, os, re
-from threading import Lock
+import sys, os, time
 from collections import namedtuple
+from threading import Lock
 
 from calibre import prints, as_unicode
 from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
@@ -15,93 +15,26 @@ from calibre.constants import (iswindows, isosx, plugins, islinux, isfreebsd,
 
 osx_scanner = linux_scanner = freebsd_scanner = netbsd_scanner = None
 
-class Drive(str):
+if iswindows:
+    drive_ok_lock = Lock()
 
-    def __new__(self, val, order=0):
-        typ = str.__new__(self, val)
-        typ.order = order
-        return typ
-
-def drivecmp(a, b):
-    ans = cmp(getattr(a, 'order', 0), getattr(b, 'order', 0))
-    if ans == 0:
-        ans = cmp(a, b)
-    return ans
-
-
-class WinPNPScanner(object):
-
-    def __init__(self):
-        if iswindows:
-            self.lock = Lock()
-
-    @property
-    def scanner(self):
-        if iswindows:
-            from calibre.devices.winusb import get_removable_drives
-            return get_removable_drives
-        return None
-
-    def drive_is_ok(self, letter, debug=False):
+    def drive_is_ok(letter, max_tries=10, debug=False):
         import win32api, win32file
-        with self.lock:
+        with drive_ok_lock:
             oldError = win32api.SetErrorMode(1)  # SEM_FAILCRITICALERRORS = 1
             try:
-                ans = True
-                try:
-                    win32file.GetDiskFreeSpaceEx(letter+':\\')
-                except Exception as e:
-                    if debug:
-                        prints('Unable to get free space for drive:', letter)
-                        prints(as_unicode(e))
-                    ans = False
-                return ans
+                for i in xrange(max_tries):
+                    try:
+                        win32file.GetDiskFreeSpaceEx(letter+':\\')
+                        return True
+                    except Exception as e:
+                        if i >= max_tries - 1 and debug:
+                            prints('Unable to get free space for drive:', letter)
+                            prints(as_unicode(e))
+                        time.sleep(0.2)
+                return False
             finally:
                 win32api.SetErrorMode(oldError)
-
-    def drive_order(self, pnp_id):
-        order = 0
-        match = re.search(r'REV_.*?&(\d+)#', pnp_id)
-        if match is None:
-            # Windows XP
-            # On the Nook Color this is the last digit
-            #
-            # USBSTOR\DISK&VEN_B&N&PROD_EBOOK_DISK&REV_0100\7&13EAFDB8&0&2004760017462009&1
-            # USBSTOR\DISK&VEN_B&N&PROD_EBOOK_DISK&REV_0100\7&13EAFDB8&0&2004760017462009&0
-            #
-            match = re.search(r'REV_.*&(\d+)', pnp_id)
-        if match is not None:
-            order = int(match.group(1))
-        return order
-
-    def __call__(self, debug=False):
-        # import traceback
-        # traceback.print_stack()
-
-        if self.scanner is None:
-            return {}
-        try:
-            drives = self.scanner(debug)
-        except:
-            drives = {}
-            if debug:
-                import traceback
-                traceback.print_exc()
-        remove = set()
-        for letter in drives:
-            if not self.drive_is_ok(letter, debug=debug):
-                remove.add(letter)
-        for letter in remove:
-            drives.pop(letter)
-        ans = {}
-        for key, val in drives.items():
-            val = [x.upper() for x in val]
-            val = [x for x in val if 'USBSTOR' in x]
-            if val:
-                ans[Drive(key+':\\', order=self.drive_order(val[-1]))] = val[-1]
-        return ans
-
-win_pnp_drives = WinPNPScanner()
 
 _USBDevice = namedtuple('USBDevice',
     'vendor_id product_id bcd manufacturer product serial')
@@ -313,7 +246,7 @@ class DeviceScanner(object):
 
     def __init__(self, *args):
         if iswindows:
-            from calibre.devices.winusb import get_usb_devices as win_scanner
+            from calibre.devices.winusb import scan_usb_devices as win_scanner
         self.scanner = (win_scanner if iswindows else osx_scanner if isosx else
                 freebsd_scanner if isfreebsd else netbsd_scanner if isnetbsd
                 else linux_scanner if islinux else libusb_scanner)
@@ -326,8 +259,7 @@ class DeviceScanner(object):
         self.devices = self.scanner()
 
     def is_device_connected(self, device, debug=False, only_presence=False):
-        ''' If only_presence is True don't perform any expensive checks (used
-        only in windows)'''
+        ''' If only_presence is True don't perform any expensive checks '''
         return device.is_usb_connected(self.devices, debug=debug,
                 only_presence=only_presence)
 
@@ -352,25 +284,6 @@ def test_for_mem_leak():
             gc.collect()
         usedmem = memory(startmem)
         prints('Memory used in %d repetitions of scan(): %.5f KB'%(reps,
-            1024*usedmem))
-        prints('Differences in python object counts:')
-        diff_hists(h1, gc_histogram())
-        prints()
-
-    if not iswindows:
-        return
-
-    for reps in (1, 10, 100, 1000):
-        for i in xrange(3):
-            gc.collect()
-        h1 = gc_histogram()
-        startmem = memory()
-        for i in xrange(reps):
-            win_pnp_drives()
-        for i in xrange(3):
-            gc.collect()
-        usedmem = memory(startmem)
-        prints('Memory used in %d repetitions of pnp_scan(): %.5f KB'%(reps,
             1024*usedmem))
         prints('Differences in python object counts:')
         diff_hists(h1, gc_histogram())
