@@ -706,6 +706,12 @@ def develop(do_eject=False):  # {{{
         for drive in rd:
             eject_drive(drive)
 
+def drives_for(vendor_id, product_id):
+    for usbdev in iterusbdevices():
+        if usbdev.vendor_id == vendor_id and usbdev.product_id == product_id:
+            print('Drives for: {}'.format(usbdev))
+            pprint(get_drive_letters_for_device(usbdev, debug=True))
+
 if __name__ == '__main__':
     develop()
 # }}}
