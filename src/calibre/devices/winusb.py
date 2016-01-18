@@ -21,9 +21,6 @@ from calibre import prints, as_unicode
 
 is64bit = sys.maxsize > (1 << 32)
 
-class NoRemovableDrives(WindowsError):
-    pass
-
 # Data and function type definitions {{{
 
 class GUID(Structure):
