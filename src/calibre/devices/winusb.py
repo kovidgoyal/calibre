@@ -573,7 +573,7 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, storage_number
                     devid = 'Unknown'
             try:
                 storage_number = get_storage_number(devpath)
-            except Exception as err:
+            except WindowsError as err:
                 if debug:
                     prints('Failed to get storage number for: %s with error: %s' % (devid, as_unicode(err)))
                 continue
@@ -641,39 +641,35 @@ def is_usb_device_connected(vendor_id, product_id):  # {{{
 def eject_drive(drive_letter):  # {{{
     drive_letter = type('')(drive_letter)[0]
     volume_access_path = '\\\\.\\' + drive_letter + ':'
-    devinst = devinst_from_device_number(drive_letter, get_storage_number(volume_access_path).number)
-    if devinst is None:
-        raise ValueError('Could not find device instance number from drive letter: %s' % drive_letter)
+    try:
+        sn = get_storage_number(volume_access_path)[:2]
+    except WindowsError:
+        return True
+    for devinfo, devpath in DeviceSet(guid=GUID_DEVINTERFACE_DISK).interfaces(ignore_errors=True):
+        try:
+            dsn = get_storage_number(devpath)[:2]
+        except WindowsError:
+            continue
+        if dsn == sn:
+            break
+    else:
+        return False
+
     parent = DEVINST(0)
-    CM_Get_Parent(byref(parent), devinst, 0)
+    CM_Get_Parent(byref(parent), devinfo.DevInst, 0)
     max_tries = 3
     while max_tries >= 0:
         max_tries -= 1
         try:
             CM_Request_Device_Eject(parent, None, None, 0, 0)
         except WindowsError:
+            if max_tries < 0:
+                raise
             time.sleep(0.5)
             continue
-        return
-    raise ValueError('Failed to eject drive %s after three tries' % drive_letter)
+        return True
+    return False
 
-def devinst_from_device_number(drive_letter, device_number):
-    drive_root = drive_letter + ':' + os.sep
-    buf = create_unicode_buffer(512)
-    drive_type = GetDriveType(drive_root)
-    QueryDosDevice(drive_letter + ':', buf, len(buf))
-    is_floppy = '\\floppy' in buf.value.lower()
-    if drive_type == DRIVE_REMOVABLE:
-        guid = GUID_DEVINTERFACE_FLOPPY if is_floppy else GUID_DEVINTERFACE_DISK
-    elif drive_type == DRIVE_FIXED:
-        guid = GUID_DEVINTERFACE_DISK
-    elif drive_type == DRIVE_CDROM:
-        guid = GUID_DEVINTERFACE_CDROM
-    else:
-        raise ValueError('Unknown drive_type: %d' % drive_type)
-    for devinfo, devpath in DeviceSet(guid=guid).interfaces(ignore_errors=True):
-        if get_storage_number(devpath).number == device_number:
-            return devinfo.DevInst
 # }}}
 
 def develop(vendor_id=0x1949, product_id=0x4, bcd=None, do_eject=False):  # {{{
