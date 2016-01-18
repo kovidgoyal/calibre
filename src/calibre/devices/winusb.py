@@ -734,6 +734,7 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
     return ans
 
 def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=False):
+    ' Get a mapping of drive letters to storage numbers for all drives on system (of the specified types) '
     mask = GetLogicalDrives()
     type_map = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
     drives = (letter for letter, dt in type_map.iteritems() if dt in drive_types)
