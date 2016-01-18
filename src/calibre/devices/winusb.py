@@ -669,8 +669,7 @@ def devinst_from_device_number(drive_letter, device_number):
             return devinfo.DevInst
 # }}}
 
-
-def develop(vendor_id=0x1949, product_id=0x4, bcd=None, do_eject=False):
+def develop(vendor_id=0x1949, product_id=0x4, bcd=None, do_eject=False):  # {{{
     from pprint import pprint
     pprint(get_usb_devices())
     print()
@@ -692,3 +691,4 @@ if __name__ == '__main__':
     else:
         vendor_id, product_id, bcd = 0x1949, 0x4, 0x100
     develop(vendor_id, product_id, (bcd,))
+# }}}
