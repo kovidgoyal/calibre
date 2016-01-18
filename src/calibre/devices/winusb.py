@@ -354,6 +354,18 @@ def iterdescendants(parent_devinst):
         for gc in iterdescendants(child):
             yield gc
 
+def iterancestors(devinst):
+    NO_MORE = CR_CODES['CR_NO_SUCH_DEVINST']
+    parent = DEVINST(devinst)
+    while True:
+        try:
+            CM_Get_Parent(byref(parent), parent, 0)
+        except WindowsError as err:
+            if err.winerror == NO_MORE:
+                break
+            raise
+        yield parent.value
+
 def get_all_removable_drives(allow_fixed=False):
     mask = GetLogicalDrives()
     ans = {}
@@ -486,14 +498,9 @@ def get_removable_drives(debug=False):  # {{{
         # Get the devpaths for all parents of this device. This is not
         # actually necessary on Vista+, so we simply ignore any windows API
         # failures.
-        parent = DEVINST(devinfo.DevInst)
-        while True:
+        for parent in iterancestors(devinfo.DevInst):
             try:
-                CM_Get_Parent(byref(parent), parent, 0)
-            except WindowsError:
-                break
-            try:
-                devid, buf = get_device_id(parent.value, buf=buf)
+                devid, buf = get_device_id(parent, buf=buf)
             except WindowsError:
                 break
             candidates.append(devid)
