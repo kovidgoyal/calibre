@@ -514,7 +514,17 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
 
 # Enumerate USB devices {{{
 
-USBDevice = namedtuple('USBDevice', 'vendor_id product_id bcd devid devinst')
+_USBDevice = namedtuple('USBDevice', 'vendor_id product_id bcd devid devinst')
+
+class USBDevice(_USBDevice):
+
+    def __repr__(self):
+        def r(x):
+            if x is None:
+                return 'None'
+            return '0x%x' % x
+        return 'USBDevice(vendor_id=%s product_id=%s bcd=%s devid=%s devinst=%s)' % (
+            r(self.vendor_id), r(self.product_id), r(self.bcd), self.devid, self.devinst)
 
 def iterusbdevices():
     buf = None
