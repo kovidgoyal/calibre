@@ -697,7 +697,7 @@ def develop(do_eject=False):  # {{{
             continue
         connected, usbdev = dev.is_usb_connected_generic(usb_devices, debug=True)
         if connected:
-            print('Potentially connected device: %s at %s' % (dev.gui_name, usbdev))
+            print('Potentially connected device: %s at %s' % (dev.get_gui_name(), usbdev))
             print('Drives for this device:')
             pprint(get_drive_letters_for_device(usbdev, debug=True))
             print('Is device connected:', is_usb_device_connected(*usbdev[:2]))
