@@ -338,7 +338,7 @@ def iterchildren(parent_devinst):
         if err.winerror == NO_MORE:
             return
         raise
-    yield child
+    yield child.value
     while True:
         try:
             CM_Get_Sibling(byref(child), child, 0)
@@ -346,7 +346,7 @@ def iterchildren(parent_devinst):
             if err.winerror == NO_MORE:
                 break
             raise
-        yield child
+        yield child.value
 
 def iterdescendants(parent_devinst):
     for child in iterchildren(parent_devinst):
@@ -493,7 +493,7 @@ def get_removable_drives(debug=False):  # {{{
             except WindowsError:
                 break
             try:
-                devid, buf = get_device_id(parent, buf=buf)
+                devid, buf = get_device_id(parent.value, buf=buf)
             except WindowsError:
                 break
             candidates.append(devid)
@@ -541,10 +541,12 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, debug=False): 
     for devinst in iterdescendants(devinfo.DevInst):
         devid, wbuf = get_device_id(devinst, buf=wbuf)
         try:
-            drive_letter = find_drive(devinst.value, sn_map, debug=debug)
+            drive_letter = find_drive(devinst, sn_map, debug=debug)
         except Exception as err:
             if debug:
                 prints('Failed to get drive letter for: %s with error: %s' % (devid, as_unicode(err)))
+                import traceback
+                traceback.print_exc()
         else:
             if drive_letter:
                 ans.append(drive_letter)
