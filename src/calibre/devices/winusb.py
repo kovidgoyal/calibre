@@ -936,9 +936,11 @@ def develop(do_eject=False):  # {{{
         for drive in rd:
             eject_drive(drive)
 
-def drives_for(vendor_id, product_id):
-    for usbdev in iterusbdevices():
-        if usbdev.vendor_id == vendor_id and usbdev.product_id == product_id:
+def drives_for(vendor_id, product_id=None):
+    usb_devices = scan_usb_devices()
+    pprint(usb_devices)
+    for usbdev in usb_devices:
+        if usbdev.vendor_id == vendor_id and (product_id is None or usbdev.product_id == product_id):
             print('Drives for: {}'.format(usbdev))
             pprint(get_drive_letters_for_device(usbdev, debug=True))
             print('USB info:', get_usb_info(usbdev, debug=True))
