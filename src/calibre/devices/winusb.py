@@ -533,12 +533,14 @@ def get_removable_drives(debug=False):  # {{{
 
 def get_drive_letters_for_device(vendor_id, product_id, bcd=None, storage_number_map=None, debug=False):  # {{{
     '''
-    Get the drive letters for a connected device with the specieid USB ids. bcd
+    Get the drive letters for a connected device with the specified USB ids. bcd
     can be either None, in which case it is not tested, or it must be a list or
-    set like object containing bcds.
+    set like object containing bcds. The drive letters are sorted by storage number,
+    which (I think) corresponds to the order they are exported by the firmware.
     '''
     rbuf = None
-    ans = []
+    ans = {'pnp_id_map': {}, 'drive_letters':[]}
+    sort_map = {}
 
     # First search for a device matching the specified USB ids
     for dev_list, devinfo in DeviceSet(enumerator='USB', flags=DIGCF_PRESENT | DIGCF_ALLCLASSES).devices():
@@ -581,9 +583,15 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, storage_number
                 prints('Storage number for %s: %s' % (devid, storage_number))
             if storage_number:
                 partitions = sn_map.get(storage_number[:2])
-                drive_letters = [x[1] for x in partitions or ()]
-                ans.extend(drive_letters)
-
+                drive_letters = []
+                for partition_number, dl in partitions or ():
+                    drive_letters.append(dl)
+                    sort_map[dl] = storage_number.number, partition_number
+                if drive_letters:
+                    for dl in drive_letters:
+                        ans['pnp_id_map'][dl] = devpath
+                        ans['drive_letters'].append(dl)
+    ans['drive_letters'].sort(key=sort_map.get)
     return ans
 
 _devid_pat = None
