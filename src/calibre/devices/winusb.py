@@ -813,17 +813,25 @@ def get_usb_info(usbdev, debug=False):  # {{{
     try:
         parent = next(iterancestors(usbdev.devinst))
     except StopIteration:
+        if debug:
+            prints('Cannot get USB info as device has no parent (was probably disconnected)')
         return ans
     for devinfo, parent_path in DeviceSet(guid=GUID_DEVINTERFACE_USB_HUB).interfaces():
         if devinfo.DevInst == parent:
             break
     else:
+        if debug:
+            prints('Cannot get USB info as parent of device is not a HUB')
         return ans
     for devlist, devinfo in DeviceSet(guid=GUID_DEVINTERFACE_USB_DEVICE).devices():
         if devinfo.DevInst == usbdev.devinst:
             device_port = get_device_registry_property(devlist, byref(devinfo), SPDRP_ADDRESS)[1]
             break
     else:
+        return ans
+    if not device_port:
+        if debug:
+            prints('Cannot get usb info as the SPDRP_ADDRESS property is not present int he registry (can happen with broken USB hub drivers)')
         return ans
     handle = CreateFile(parent_path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
     try:
@@ -838,10 +846,11 @@ def get_usb_info(usbdev, debug=False):  # {{{
                         buf, ans[name] = get_device_string(handle, device_port, index, buf=buf)
                     except WindowsError as err:
                         if debug:
-                            if err.winerror == ERROR_GEN_FAILURE:
-                                prints('Failed to read %s from device, try rebooting the device' % name)
-                            else:
-                                prints('Failed to read %s from device, with error: %s' % (name, as_unicode(err)))
+                            # Note that I have observed that this fails
+                            # randomly after some time of my Kindle being
+                            # connected. Disconnecting and reconnecting causes
+                            # it to start working again.
+                            prints('Failed to read %s from device, with error: [%d] %s' % (name, err.winerror, as_unicode(err)))
     finally:
         CloseHandle(handle)
     return ans
