@@ -635,7 +635,7 @@ def get_volume_information(drive_letter):
 
 # }}}
 
-# Enumerate USB devices {{{
+# def scan_usb_devices(): {{{
 
 _USBDevice = namedtuple('USBDevice', 'vendor_id product_id bcd devid devinst')
 
