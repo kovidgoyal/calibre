@@ -299,6 +299,15 @@ CM_Get_Device_Interface_List = cwrap('CM_Get_Device_Interface_ListW', CONFIGRET,
 # }}}
 
 # Utility functions {{{
+
+_devid_pat = None
+def devid_pat():
+    global _devid_pat
+    if _devid_pat is None:
+        _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9]{4})', re.I)
+    return _devid_pat
+
+
 class DeviceSet(object):
 
     def __init__(self, guid=GUID_DEVINTERFACE_VOLUME, enumerator=None, flags=DIGCF_PRESENT | DIGCF_DEVICEINTERFACE):
@@ -413,7 +422,7 @@ def get_device_id(devinst, buf=None):
             buf = create_unicode_buffer(devid_size.value)
             continue
         if ret != CR_CODES['CR_SUCCESS']:
-            raise WindowsError((result, 'The cfgmgr32 function failed with err: %s' % CR_CODE_NAMES.get(result, result)))
+            raise WindowsError((ret, 'The cfgmgr32 function failed with err: %s' % CR_CODE_NAMES.get(ret, ret)))
         break
     return wstring_at(buf), buf
 
@@ -593,13 +602,6 @@ def get_drive_letters_for_device(vendor_id, product_id, bcd=None, storage_number
                         ans['drive_letters'].append(dl)
     ans['drive_letters'].sort(key=sort_map.get)
     return ans
-
-_devid_pat = None
-def devid_pat():
-    global _devid_pat
-    if _devid_pat is None:
-        _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9]{4})', re.I)
-    return _devid_pat
 
 def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=False):
     mask = GetLogicalDrives()
