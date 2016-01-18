@@ -190,7 +190,7 @@ class DevicePlugin(Plugin):
                 return True
         return False
 
-    def is_usb_connected(self, devices_on_system, debug=False,
+    def is_usb_connected_generic(self, devices_on_system, debug=False,
             only_presence=False):
         '''
         Return True, device_info if a device handled by this plugin is currently connected.
@@ -198,12 +198,9 @@ class DevicePlugin(Plugin):
         :param devices_on_system: List of devices currently connected
 
         '''
-        if iswindows:
-            return self.is_usb_connected_windows(devices_on_system,
-                    debug=debug, only_presence=only_presence)
 
-        vendors_on_system = set([x[0] for x in devices_on_system])
-        vendors = self.VENDOR_ID if hasattr(self.VENDOR_ID, '__len__') else [self.VENDOR_ID]
+        vendors_on_system = {x[0] for x in devices_on_system}
+        vendors = set(self.VENDOR_ID) if hasattr(self.VENDOR_ID, '__len__') else {self.VENDOR_ID}
         if hasattr(self.VENDOR_ID, 'keys'):
             products = []
             for ven in self.VENDOR_ID:
@@ -211,28 +208,29 @@ class DevicePlugin(Plugin):
         else:
             products = self.PRODUCT_ID if hasattr(self.PRODUCT_ID, '__len__') else [self.PRODUCT_ID]
 
-        for vid in vendors:
-            if vid in vendors_on_system:
-                for dev in devices_on_system:
-                    cvid, pid, bcd = dev[:3]
-                    if cvid == vid:
-                        if pid in products:
-                            if hasattr(self.VENDOR_ID, 'keys'):
-                                try:
-                                    cbcd = self.VENDOR_ID[vid][pid]
-                                except KeyError:
-                                    # Vendor vid does not have product pid, pid
-                                    # exists for some other vendor in this
-                                    # device
-                                    continue
-                            else:
-                                cbcd = self.BCD
-                            if self.test_bcd(bcd, cbcd):
-                                if debug:
-                                    self.print_usb_device_info(dev)
-                                if self.can_handle(dev, debug=debug):
-                                    return True, dev
+        for vid in vendors_on_system.intersection(vendors):
+            for dev in devices_on_system:
+                cvid, pid, bcd = dev[:3]
+                if cvid == vid:
+                    if pid in products:
+                        if hasattr(self.VENDOR_ID, 'keys'):
+                            try:
+                                cbcd = self.VENDOR_ID[vid][pid]
+                            except KeyError:
+                                # Vendor vid does not have product pid, pid
+                                # exists for some other vendor in this
+                                # device
+                                continue
+                        else:
+                            cbcd = self.BCD
+                        if self.test_bcd(bcd, cbcd):
+                            if debug:
+                                self.print_usb_device_info(dev)
+                            if self.can_handle(dev, debug=debug):
+                                return True, dev
         return False, None
+
+    is_usb_connected = is_usb_connected_windows if iswindows else is_usb_connected_generic
 
     def detect_managed_devices(self, devices_on_system, force_refresh=False):
         '''
