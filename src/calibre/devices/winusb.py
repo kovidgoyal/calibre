@@ -9,10 +9,10 @@ import os, string, _winreg as winreg, re, time, sys
 from collections import namedtuple, defaultdict
 from operator import itemgetter
 from ctypes import (
-    Structure, POINTER, c_ubyte, windll, byref, c_void_p, WINFUNCTYPE,
+    Structure, POINTER, c_ubyte, windll, byref, c_void_p, WINFUNCTYPE, c_uint,
     WinError, get_last_error, sizeof, c_wchar, create_string_buffer, cast,
     wstring_at, addressof, create_unicode_buffer, string_at, c_uint64 as QWORD)
-from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE
+from ctypes.wintypes import DWORD, WORD, ULONG, LPCWSTR, HWND, BOOL, LPWSTR, UINT, BYTE, HANDLE, USHORT
 from pprint import pprint, pformat
 
 from calibre import prints, as_unicode
@@ -104,6 +104,57 @@ class SP_DEVICE_INTERFACE_DETAIL_DATA(Structure):
         ("DevicePath", c_wchar*ANYSIZE_ARRAY)
     ]
 
+UCHAR = c_ubyte
+
+class USB_DEVICE_DESCRIPTOR(Structure):
+    _fields_ = (
+        ('bLength', UCHAR),
+        ('bDescriptorType', UCHAR),
+        ('bcdUSB', USHORT),
+        ('bDeviceClass', UCHAR),
+        ('bDeviceSubClass', UCHAR),
+        ('bDeviceProtocol', UCHAR),
+        ('bMaxPacketSize0', UCHAR),
+        ('idVendor', USHORT),
+        ('idProduct', USHORT),
+        ('bcdDevice', USHORT),
+        ('iManufacturer', UCHAR),
+        ('iProduct', UCHAR),
+        ('iSerialNumber', UCHAR),
+        ('bNumConfigurations', UCHAR),
+    )
+
+class USB_ENDPOINT_DESCRIPTOR(Structure):
+    _fields_ = (
+        ('bLength', UCHAR),
+        ('bDescriptorType', UCHAR),
+        ('bEndpointAddress', UCHAR),
+        ('bmAttributes', UCHAR),
+        ('wMaxPacketSize', USHORT),
+        ('bInterval', UCHAR)
+    )
+
+class USB_PIPE_INFO(Structure):
+    _fields_ = (
+        ('EndpointDescriptor', USB_ENDPOINT_DESCRIPTOR),
+        ('ScheduleOffset', ULONG),
+    )
+
+class USB_NODE_CONNECTION_INFORMATION(Structure):
+    _fields_ = (
+        ('ConnectionIndex', ULONG),
+        ('DeviceDescriptor', USB_DEVICE_DESCRIPTOR),
+        ('CurrentConfigurationValue', UCHAR),
+        ('LowSpeed', BOOL),
+        ('DeviceIsHub', BOOL),
+        ('DeviceAddress', USHORT),
+        ('NumberOfOpenPipes', ULONG),
+        ('ConnectionStatus', c_uint),
+        ('PipeList', USB_PIPE_INFO*0),
+    )
+
+
+PUSB_DEVICE_DESCRIPTOR = POINTER(USB_DEVICE_DESCRIPTOR)
 PSP_DEVICE_INTERFACE_DETAIL_DATA = POINTER(SP_DEVICE_INTERFACE_DETAIL_DATA)
 PSP_DEVICE_INTERFACE_DATA = POINTER(SP_DEVICE_INTERFACE_DATA)
 INVALID_HANDLE_VALUE = c_void_p(-1).value
