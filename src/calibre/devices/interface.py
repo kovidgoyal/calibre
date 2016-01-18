@@ -228,7 +228,7 @@ class DevicePlugin(Plugin):
         """
         raise NotImplementedError()
 
-    def can_handle_windows(self, device_id, debug=False):
+    def can_handle_windows(self, usbdevice, debug=False):
         '''
         Optional method to perform further checks on a device to see if this driver
         is capable of handling it. If it is not it should return False. This method
@@ -237,15 +237,17 @@ class DevicePlugin(Plugin):
         returns True. This method is called only on windows. See also
         :meth:`can_handle`.
 
-        :param device_info: On windows a device ID string. On Unix a tuple of
-                            ``(vendor_id, product_id, bcd)``.
+        Note that for devices based on USBMS this method by default delegates
+        to :meth:`can_handle`.  So you only need to override :meth:`can_handle`
+        in your subclass of USBMS.
 
+        :param usbdevice: A usbdevice as returned by :func:`calibre.devices.winusb.scan_usb_devices`
         '''
         return True
 
     def can_handle(self, device_info, debug=False):
         '''
-        Unix version of :meth:`can_handle_windows`
+        Unix version of :meth:`can_handle_windows`.
 
         :param device_info: Is a tuple of (vid, pid, bcd, manufacturer, product,
                             serial number)

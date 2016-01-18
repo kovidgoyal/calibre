@@ -13,6 +13,7 @@ device. This class handles device detection.
 
 import os, subprocess, time, re, sys, glob
 from itertools import repeat
+from collections import namedtuple
 
 from calibre import prints, as_unicode
 from calibre.constants import DEBUG
@@ -24,6 +25,9 @@ from calibre.utils.filenames import ascii_filename as sanitize
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
+
+if iswindows:
+    usb_info_cache = {}
 
 def eject_exe():
     base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
@@ -195,6 +199,30 @@ class Device(DeviceConfig, DevicePlugin):
         For e.g.: The EB600
         '''
         return drives
+
+    def can_handle_windows(self, usbdevice, debug=False):
+        from calibre.devices.interface import DevicePlugin
+        if self.can_handle.im_func is DevicePlugin.can_handle.im_func:
+            # No custom can_handle implementation
+            return True
+        # Delegate to the unix can_handle function, creating a unix like
+        # USBDevice object
+        from calibre.devices.winusb import get_usb_info
+        dev = usb_info_cache.get(usbdevice)
+        if dev is None:
+            try:
+                data = get_usb_info(usbdevice, debug=debug)
+            except Exception:
+                time.sleep(0.1)
+                try:
+                    data = get_usb_info(usbdevice, debug=debug)
+                except Exception:
+                    data = {}
+            dev = usb_info_cache[usbdevice] = namedtuple(
+                'USBDevice', 'vendor_id product_id bcd manufacturer product serial')(
+                usbdevice.vendor_id, usbdevice.product_id, usbdevice.bcd,
+                data.get('manufacturer') or '', data.get('product') or '', data.get('serial_number') or '')
+        return self.can_handle(dev, debug=debug)
 
     def open_windows(self):
         from calibre.devices.scanner import drive_is_ok
