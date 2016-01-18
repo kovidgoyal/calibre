@@ -819,7 +819,7 @@ def get_usb_info(usbdev, debug=False):  # {{{
             break
     else:
         return ans
-    for devlist, devinfo, devpath in DeviceSet(guid=GUID_DEVINTERFACE_USB_DEVICE).interfaces(yield_devlist=True):
+    for devlist, devinfo in DeviceSet(guid=GUID_DEVINTERFACE_USB_DEVICE).devices():
         if devinfo.DevInst == usbdev.devinst:
             device_port = get_device_registry_property(devlist, byref(devinfo), SPDRP_ADDRESS)[1]
             break
