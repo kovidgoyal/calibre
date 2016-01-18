@@ -366,6 +366,15 @@ def iterancestors(devinst):
             raise
         yield parent.value
 
+def get_storage_number(devpath):
+    sdn = STORAGE_DEVICE_NUMBER()
+    handle = CreateFile(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
+    try:
+        DeviceIoControl(handle, IOCTL_STORAGE_GET_DEVICE_NUMBER, None, 0, byref(sdn), sizeof(STORAGE_DEVICE_NUMBER), None, None)
+    finally:
+        CloseHandle(handle)
+    return sdn.DeviceNumber
+
 def get_all_removable_drives(allow_fixed=False):
     mask = GetLogicalDrives()
     ans = {}
@@ -569,15 +578,6 @@ def devid_pat():
         _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9]{4})', re.I)
     return _devid_pat
 
-def get_storage_number(devpath):
-    sdn = STORAGE_DEVICE_NUMBER()
-    handle = CreateFile(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
-    try:
-        DeviceIoControl(handle, IOCTL_STORAGE_GET_DEVICE_NUMBER, None, 0, byref(sdn), sizeof(STORAGE_DEVICE_NUMBER), None, None)
-    finally:
-        CloseHandle(handle)
-    return sdn.DeviceNumber
-
 def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=False):
     mask = GetLogicalDrives()
     type_map = {letter:GetDriveType(letter + ':' + os.sep) for i, letter in enumerate(string.ascii_uppercase) if mask & (1 << i)}
@@ -634,13 +634,7 @@ def is_usb_device_connected(vendor_id, product_id):  # {{{
 def eject_drive(drive_letter):  # {{{
     drive_letter = type('')(drive_letter)[0]
     volume_access_path = '\\\\.\\' + drive_letter + ':'
-    sdn = STORAGE_DEVICE_NUMBER()
-    handle = CreateFile(volume_access_path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
-    try:
-        DeviceIoControl(handle, IOCTL_STORAGE_GET_DEVICE_NUMBER, None, 0, byref(sdn), sizeof(STORAGE_DEVICE_NUMBER), None, None)
-    finally:
-        CloseHandle(handle)
-    devinst = devinst_from_device_number(drive_letter, sdn.DeviceNumber)
+    devinst = devinst_from_device_number(drive_letter, get_storage_number(volume_access_path))
     if devinst is None:
         raise ValueError('Could not find device instance number from drive letter: %s' % drive_letter)
     parent = DEVINST(0)
@@ -659,7 +653,6 @@ def eject_drive(drive_letter):  # {{{
 def devinst_from_device_number(drive_letter, device_number):
     drive_root = drive_letter + ':' + os.sep
     buf = create_unicode_buffer(512)
-    sdn = STORAGE_DEVICE_NUMBER()
     drive_type = GetDriveType(drive_root)
     QueryDosDevice(drive_letter + ':', buf, len(buf))
     is_floppy = '\\floppy' in buf.value.lower()
@@ -672,12 +665,7 @@ def devinst_from_device_number(drive_letter, device_number):
     else:
         raise ValueError('Unknown drive_type: %d' % drive_type)
     for devinfo, devpath in DeviceSet(guid=guid).interfaces(ignore_errors=True):
-        handle = CreateFile(devpath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
-        try:
-            DeviceIoControl(handle, IOCTL_STORAGE_GET_DEVICE_NUMBER, None, 0, byref(sdn), sizeof(STORAGE_DEVICE_NUMBER), None, None)
-        finally:
-            CloseHandle(handle)
-        if sdn.DeviceNumber == device_number:
+        if get_storage_number(devpath) == device_number:
             return devinfo.DevInst
 # }}}
 
