@@ -408,7 +408,7 @@ _devid_pat = None
 def devid_pat():
     global _devid_pat
     if _devid_pat is None:
-        _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9]{4})', re.I)
+        _devid_pat = re.compile(r'VID_([a-f0-9]{4})&PID_([a-f0-9]{4})&REV_([a-f0-9:]{4})', re.I)
     return _devid_pat
 
 
@@ -646,6 +646,9 @@ class USBDevice(_USBDevice):
         return 'USBDevice(vendor_id=%s product_id=%s bcd=%s devid=%s devinst=%s)' % (
             r(self.vendor_id), r(self.product_id), r(self.bcd), self.devid, self.devinst)
 
+def parse_hex(x):
+    return int(x.replace(':', 'a'), 16)
+
 def iterusbdevices():
     buf = None
     pat = devid_pat()
@@ -658,7 +661,7 @@ def iterusbdevices():
                 yield USBDevice(None, None, None, devid, devinfo.DevInst)
             else:
                 try:
-                    vid, pid, bcd = map(lambda x:int(x, 16), m.group(1, 2, 3))
+                    vid, pid, bcd = map(parse_hex, m.group(1, 2, 3))
                 except Exception:
                     yield USBDevice(None, None, None, devid, devinfo.DevInst)
                 else:
