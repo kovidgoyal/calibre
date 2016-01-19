@@ -905,8 +905,8 @@ class EbookViewer(MainWindow):
             worker.join(0.1)
             QApplication.processEvents()
         if worker.exception is not None:
-            tb = worker.traceback
-            if tb.strip().splitlines()[-1].startswith('DRMError:'):
+            tb = worker.traceback.strip()
+            if tb and tb.splitlines()[-1].startswith('DRMError:'):
                 from calibre.gui2.dialogs.drm_error import DRMErrorMessage
                 DRMErrorMessage(self).exec_()
             else:
