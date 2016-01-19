@@ -121,10 +121,7 @@ class Device(DeviceConfig, DevicePlugin):
     def reset(self, key='-1', log_packets=False, report_progress=None,
             detected_device=None):
         self._main_prefix = self._card_a_prefix = self._card_b_prefix = None
-        try:
-            self.detected_device = USBDevice(detected_device)
-        except:  # On windows detected_device is None
-            self.detected_device = None
+        self.detected_device = None if detected_device is None else USBDevice(detected_device)
         self.set_progress_reporter(report_progress)
 
     def set_progress_reporter(self, report_progress):
