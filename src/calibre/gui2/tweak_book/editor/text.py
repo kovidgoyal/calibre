@@ -693,10 +693,11 @@ class TextEdit(PlainTextEdit):
             href = prepare_string_for_xml(href, True)
             if fullpage:
                 template =  '''\
+<div style="page-break-before:always; page-break-after:always; page-break-inside:avoid">\
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" \
 version="1.1" width="100%%" height="100%%" viewBox="0 0 1200 1600" preserveAspectRatio="{}">\
 <image width="1200" height="1600" xlink:href="%s"/>\
-</svg>'''.format('xMidYMid meet' if preserve_aspect_ratio else 'none')
+</svg></div>'''.format('xMidYMid meet' if preserve_aspect_ratio else 'none')
             else:
                 alt = _('Image')
                 template = '<img alt="{0}" src="%s" />'.format(alt)
