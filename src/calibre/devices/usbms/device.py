@@ -39,9 +39,14 @@ class USBDevice:
         self.idVendor = dev[0]
         self.idProduct = dev[1]
         self.bcdDevice = dev[2]
-        self.manufacturer = dev[3]
-        self.product = dev[4]
-        self.serial = dev[5]
+        if iswindows:
+            # Getting this information requires communicating with the device
+            # we only do that in the can_handle_windows() method, if needed.
+            self.manufacturer = self.serial = self.product = ''
+        else:
+            self.manufacturer = dev[3]
+            self.product = dev[4]
+            self.serial = dev[5]
 
     def match_serial(self, serial):
         return self.serial and self.serial == serial
