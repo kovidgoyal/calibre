@@ -775,7 +775,7 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
                 ans['readonly_drives'].add(dl)
         except WindowsError as err:
             if debug:
-                prints('Failed to get readonly status for drive: %s' % dl)
+                prints('Failed to get readonly status for drive: %s with error: %s' % (dl, as_unicode(err)))
 
     return ans
 
