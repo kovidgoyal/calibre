@@ -376,7 +376,8 @@ def config_err_check(result, func, args):
 GetLogicalDrives = cwrap('GetLogicalDrives', DWORD, errcheck=bool_err_check, lib=kernel32)
 GetDriveType = cwrap('GetDriveTypeW', UINT, LPCWSTR, lib=kernel32)
 GetVolumeNameForVolumeMountPoint = cwrap('GetVolumeNameForVolumeMountPointW', BOOL, LPCWSTR, LPWSTR, DWORD, errcheck=bool_err_check, lib=kernel32)
-GetVolumePathNamesForVolumeName = cwrap('GetVolumePathNamesForVolumeNameW', BOOL, LPCWSTR, LPWSTR, DWORD, POINTER(DWORD), errcheck=bool_err_check, lib=kernel32)
+GetVolumeInformation = cwrap(
+    'GetVolumeInformationW', BOOL, LPCWSTR, LPWSTR, DWORD, POINTER(DWORD), POINTER(DWORD), POINTER(DWORD), LPWSTR, DWORD, errcheck=bool_err_check, lib=kernel32)
 ExpandEnvironmentStrings = cwrap('ExpandEnvironmentStringsW', DWORD, LPCWSTR, LPWSTR, DWORD, errcheck=bool_err_check, lib=kernel32)
 CreateFile = cwrap('CreateFileW', HANDLE, LPCWSTR, DWORD, DWORD, c_void_p, DWORD, DWORD, HANDLE, errcheck=handle_err_check, lib=kernel32)
 DeviceIoControl = cwrap('DeviceIoControl', BOOL, HANDLE, DWORD, LPVOID, DWORD, LPVOID, DWORD, POINTER(DWORD), LPVOID, errcheck=bool_err_check, lib=kernel32)
@@ -398,7 +399,6 @@ CM_Get_Sibling = cwrap('CM_Get_Sibling', CONFIGRET, POINTER(DEVINST), DEVINST, U
 CM_Get_Device_ID_Size = cwrap('CM_Get_Device_ID_Size', CONFIGRET, POINTER(ULONG), DEVINST, ULONG)
 CM_Get_Device_ID = cwrap('CM_Get_Device_IDW', CONFIGRET, DEVINST, LPWSTR, ULONG, ULONG)
 CM_Request_Device_Eject = cwrap('CM_Request_Device_EjectW', CONFIGRET, DEVINST, c_void_p, LPWSTR, ULONG, ULONG, errcheck=config_err_check)
-CM_Get_Device_Interface_List = cwrap('CM_Get_Device_Interface_ListW', CONFIGRET, POINTER(GUID), LPCWSTR, LPWSTR, ULONG, ULONG, errcheck=config_err_check)
 
 # }}}
 
@@ -630,6 +630,31 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
         break
     return buf, devinfo, wstring_at(addressof(buf) + sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA._fields_[0][1]))
 
+def get_volume_information(drive_letter):
+    if not drive_letter.endswith('\\'):
+        drive_letter += ':\\'
+    fsname = create_unicode_buffer(255)
+    vname = create_unicode_buffer(500)
+    flags, serial_number, max_component_length = DWORD(0), DWORD(0), DWORD(0)
+    GetVolumeInformation(drive_letter, vname, len(vname), byref(serial_number), byref(max_component_length), byref(flags), fsname, len(fsname))
+    flags = flags.value
+    ans =  {
+        'name': vname.value,
+        'filesystem': fsname.value,
+        'serial_number': serial_number.value,
+        'max_component_length': max_component_length.value,
+    }
+
+    for name, num in {'FILE_CASE_PRESERVED_NAMES':0x00000002, 'FILE_CASE_SENSITIVE_SEARCH':0x00000001, 'FILE_FILE_COMPRESSION':0x00000010,
+              'FILE_NAMED_STREAMS':0x00040000, 'FILE_PERSISTENT_ACLS':0x00000008, 'FILE_READ_ONLY_VOLUME':0x00080000,
+              'FILE_SEQUENTIAL_WRITE_ONCE':0x00100000, 'FILE_SUPPORTS_ENCRYPTION':0x00020000, 'FILE_SUPPORTS_EXTENDED_ATTRIBUTES':0x00800000,
+              'FILE_SUPPORTS_HARD_LINKS':0x00400000, 'FILE_SUPPORTS_OBJECT_IDS':0x00010000, 'FILE_SUPPORTS_OPEN_BY_FILE_ID':0x01000000,
+              'FILE_SUPPORTS_REPARSE_POINTS':0x00000080, 'FILE_SUPPORTS_SPARSE_FILES':0x00000040, 'FILE_SUPPORTS_TRANSACTIONS':0x00200000,
+              'FILE_SUPPORTS_USN_JOURNAL':0x02000000, 'FILE_UNICODE_ON_DISK':0x00000004, 'FILE_VOLUME_IS_COMPRESSED':0x00008000,
+              'FILE_VOLUME_QUOTAS':0x00000020}.iteritems():
+        ans[name] = bool(num & flags)
+    return ans
+
 # }}}
 
 # Enumerate USB devices {{{
@@ -707,7 +732,7 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
     instance). The drive letters are sorted by storage number, which (I think)
     corresponds to the order they are exported by the firmware.
     '''
-    ans = {'pnp_id_map': {}, 'drive_letters':[]}
+    ans = {'pnp_id_map': {}, 'drive_letters':[], 'readonly_drives':set()}
     sort_map = {}
 
     sn_map = get_storage_number_map(debug=debug) if storage_number_map is None else storage_number_map
@@ -744,6 +769,14 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
                         ans['pnp_id_map'][dl] = devpath
                         ans['drive_letters'].append(dl)
     ans['drive_letters'].sort(key=sort_map.get)
+    for dl in ans['drive_letters']:
+        try:
+            if is_readonly(dl):
+                ans['readonly_drives'].add(dl)
+        except WindowsError as err:
+            if debug:
+                prints('Failed to get readonly status for drive: %s' % dl)
+
     return ans
 
 def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=False):
@@ -913,6 +946,10 @@ def get_device_languages(hub_handle, device_port, buf=None):
     data = cast(data.String, POINTER(USHORT*(sz//2)))
     return buf, filter(None, data.contents)
 
+# }}}
+
+def is_readonly(drive_letter):  # {{{
+    return get_volume_information(drive_letter)['FILE_READ_ONLY_VOLUME']
 # }}}
 
 def develop(do_eject=False):  # {{{
