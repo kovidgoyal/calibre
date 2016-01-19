@@ -222,6 +222,8 @@ class Device(DeviceConfig, DevicePlugin):
                 'USBDevice', 'vendor_id product_id bcd manufacturer product serial')(
                 usbdevice.vendor_id, usbdevice.product_id, usbdevice.bcd,
                 data.get('manufacturer') or '', data.get('product') or '', data.get('serial_number') or '')
+            if debug:
+                prints('USB Info for device: {}'.format(dev))
         return self.can_handle(dev, debug=debug)
 
     def open_windows(self):
