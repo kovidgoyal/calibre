@@ -238,9 +238,14 @@ class Device(DeviceConfig, DevicePlugin):
             time.sleep(7)
             dlmap = get_drive_letters_for_device(usbdev, debug=debug)
 
+        if debug:
+            from pprint import pformat
+            prints('Drive letters for {}'.format(usbdev))
+            prints(pformat(dlmap))
+
         filtered = set()
         for dl in dlmap['drive_letters']:
-            pnp_id = dlmap['pnp_id_map'][dl]
+            pnp_id = dlmap['pnp_id_map'][dl].upper()
             if self.windows_filter_pnp_id(pnp_id):
                 filtered.add(dl)
                 if debug:
