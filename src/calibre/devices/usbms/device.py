@@ -42,7 +42,7 @@ class USBDevice:
         if iswindows:
             # Getting this information requires communicating with the device
             # we only do that in the can_handle_windows() method, if needed.
-            self.manufacturer = self.serial = self.product = ''
+            self.manufacturer = self.serial = self.product = None
         else:
             self.manufacturer = dev[3]
             self.product = dev[4]
