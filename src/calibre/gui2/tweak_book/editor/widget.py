@@ -221,8 +221,8 @@ class Editor(QMainWindow):
         func = getattr(self.editor, action)
         func(*args)
 
-    def insert_image(self, href):
-        self.editor.insert_image(href)
+    def insert_image(self, href, fullpage=False, preserve_aspect_ratio=False):
+        self.editor.insert_image(href, fullpage=fullpage, preserve_aspect_ratio=preserve_aspect_ratio)
 
     def insert_hyperlink(self, href, text):
         self.editor.insert_hyperlink(href, text)

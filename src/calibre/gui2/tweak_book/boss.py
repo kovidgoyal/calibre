@@ -776,14 +776,14 @@ class Boss(QObject):
                 if rdata is None:
                     return
                 if rtype == 'image':
-                    chosen_name, chosen_image_is_external = rdata
+                    chosen_name, chosen_image_is_external, fullpage, preserve_ar = rdata
                     if chosen_image_is_external:
                         with open(chosen_image_is_external[1], 'rb') as f:
                             current_container().add_file(chosen_image_is_external[0], f.read())
                         self.refresh_file_list()
                         chosen_name = chosen_image_is_external[0]
                     href = current_container().name_to_href(chosen_name, edname)
-                    ed.insert_image(href)
+                    ed.insert_image(href, fullpage=fullpage, preserve_aspect_ratio=preserve_ar)
             elif action[0] == 'insert_hyperlink':
                 self.commit_all_editors_to_container()
                 d = InsertLink(current_container(), edname, initial_text=ed.get_smart_selection(), parent=self.gui)

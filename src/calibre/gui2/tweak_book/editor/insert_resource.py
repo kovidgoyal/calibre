@@ -11,10 +11,10 @@ from functools import partial
 
 from PyQt5.Qt import (
     QGridLayout, QSize, QListView, QStyledItemDelegate, QLabel, QPixmap,
-    QApplication, QSizePolicy, QAbstractListModel, Qt, QRect,
+    QApplication, QSizePolicy, QAbstractListModel, Qt, QRect, QCheckBox,
     QPainter, QModelIndex, QSortFilterProxyModel, QLineEdit, QToolButton,
     QIcon, QFormLayout, pyqtSignal, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
-    QMenu, QInputDialog)
+    QMenu, QInputDialog, QHBoxLayout)
 
 from calibre import fit_image
 from calibre.constants import plugins
@@ -226,7 +226,6 @@ class InsertImage(Dialog):
         l.addWidget(b, 2, 1)
         f.textChanged.connect(self.filter_changed)
 
-        l.addWidget(self.bb, 3, 0, 1, 2)
         if self.for_browsing:
             self.bb.clear()
             self.bb.addButton(self.bb.Close)
@@ -244,6 +243,19 @@ class InsertImage(Dialog):
             b.clicked.connect(self.paste_image)
             b.setIcon(QIcon(I('edit-paste.png')))
             b.setToolTip(_('Paste an image from the clipboard'))
+            self.fullpage = f = QCheckBox(_('Full page image'), self)
+            f.setToolTip(_('Insert the image so that it takes up an entire page when viewed in a reader'))
+            f.setChecked(tprefs['insert_full_screen_image'])
+            self.preserve_aspect_ratio = a = QCheckBox(_('Preserve aspect ratio'))
+            a.setToolTip(_('Preserve the aspect ratio of the inserted image when rendering it full paged'))
+            a.setChecked(tprefs['preserve_aspect_ratio_when_inserting_image'])
+            f.toggled.connect(lambda : (tprefs.set('insert_full_screen_image', f.isChecked()), a.setVisible(f.isChecked())))
+            a.toggled.connect(lambda : tprefs.set('preserve_aspect_ratio_when_inserting_image', a.isChecked()))
+            a.setVisible(f.isChecked())
+            h = QHBoxLayout()
+            l.addLayout(h, 3, 0, 1, -1)
+            h.addWidget(f), h.addStretch(10), h.addWidget(a)
+        l.addWidget(self.bb, 4, 0, 1, 2)
 
     def refresh(self):
         self.d.cover_cache.clear()
@@ -305,7 +317,7 @@ def get_resource_data(rtype, parent):
     if rtype == 'image':
         d = InsertImage(parent)
         if d.exec_() == d.Accepted:
-            return d.chosen_image, d.chosen_image_is_external
+            return d.chosen_image, d.chosen_image_is_external, d.fullpage.isChecked(), d.preserve_aspect_ratio.isChecked()
 
 def create_folder_tree(container):
     root = {}
