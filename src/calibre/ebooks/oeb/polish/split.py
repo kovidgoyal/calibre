@@ -377,8 +377,9 @@ def merge_html(container, names, master):
             if not isinstance(first_child, basestring):
                 break
         if isinstance(first_child, basestring):
-            # Empty document, ignore
-            continue
+            # body contained only text, no tags
+            first_child = body.makeelement(XHTML('p'))
+            first_child.text, children[0] = children[0], first_child
 
         amap = anchor_map[name]
         remove_name_attributes(root)
