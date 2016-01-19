@@ -10,7 +10,6 @@ __docformat__ = 'restructuredtext en'
 import socket, time, re
 from threading import Thread
 from Queue import Queue, Empty
-from urllib import unquote
 
 
 from calibre import as_unicode, random_user_agent
@@ -504,6 +503,7 @@ class Worker(Thread):  # Get details {{{
         return sanitize_comments_html(desc)
 
     def parse_comments(self, root, raw):
+        from urllib import unquote
         ans = ''
         ns = tuple(self.selector('#bookDescription_feature_div noscript'))
         if ns:
