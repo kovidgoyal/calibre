@@ -477,7 +477,7 @@ def merge(container, category, names, master):
     if len(names) < 2:
         raise AbortError('Must specify at least two files to be merged')
     if master not in names:
-        raise AbortError('The master file must be one of the files being merged')
+        raise AbortError('The master file (%s) must be one of the files being merged' % master)
 
     if category == 'text':
         merge_html(container, names, master)
