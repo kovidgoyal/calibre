@@ -75,7 +75,7 @@ extensions = [
 
     Extension('dukpy',
               ['duktape/%s.c' % x for x in 'errors context conversions proxy module duktape/duktape'.split()],
-              headers=['duktape/dukpy.h', 'duktape/duktape/duktape.h'],
+              headers=['duktape/dukpy.h', 'duktape/duktape/duk_config.h', 'duktape/duktape/duktape.h'],
               optimize_level=2,
               ),
 
