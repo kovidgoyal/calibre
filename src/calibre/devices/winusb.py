@@ -373,6 +373,7 @@ def config_err_check(result, func, args):
 GetLogicalDrives = cwrap('GetLogicalDrives', DWORD, errcheck=bool_err_check, lib=kernel32)
 GetDriveType = cwrap('GetDriveTypeW', UINT, LPCWSTR, lib=kernel32)
 GetVolumeNameForVolumeMountPoint = cwrap('GetVolumeNameForVolumeMountPointW', BOOL, LPCWSTR, LPWSTR, DWORD, errcheck=bool_err_check, lib=kernel32)
+GetVolumePathNamesForVolumeName = cwrap('GetVolumePathNamesForVolumeNameW', BOOL, LPCWSTR, LPWSTR, DWORD, LPDWORD, errcheck=bool_err_check, lib=kernel32)
 GetVolumeInformation = cwrap(
     'GetVolumeInformationW', BOOL, LPCWSTR, LPWSTR, DWORD, POINTER(DWORD), POINTER(DWORD), POINTER(DWORD), LPWSTR, DWORD, errcheck=bool_err_check, lib=kernel32)
 ExpandEnvironmentStrings = cwrap('ExpandEnvironmentStringsW', DWORD, LPCWSTR, LPWSTR, DWORD, errcheck=bool_err_check, lib=kernel32)
@@ -525,17 +526,6 @@ def get_device_id(devinst, buf=None):
         break
     return wstring_at(buf), buf
 
-def drive_letter_from_volume_devpath(devpath, drive_map):
-    pbuf = create_unicode_buffer(512)
-    if not devpath.endswith(os.sep):
-        devpath += os.sep
-    try:
-        GetVolumeNameForVolumeMountPoint(devpath, pbuf, len(pbuf))
-    except WindowsError:
-        pass
-    else:
-        return drive_map.get(pbuf.value)
-
 def expand_environment_strings(src):
     sz = ExpandEnvironmentStrings(src, None, 0)
     while True:
@@ -632,6 +622,22 @@ def get_volume_information(drive_letter):
               'FILE_VOLUME_QUOTAS':0x00000020}.iteritems():
         ans[name] = bool(num & flags)
     return ans
+
+def get_volume_pathnames(volume_id, buf=None):
+    if buf is None:
+        buf = create_unicode_buffer(512)
+    bufsize = DWORD(0)
+    while True:
+        try:
+            GetVolumePathNamesForVolumeName(volume_id, buf, len(buf), byref(bufsize))
+            break
+        except WindowsError as err:
+            if err.winerror == ERROR_MORE_DATA:
+                buf = create_unicode_buffer(bufsize.value + 10)
+                continue
+            raise
+    ans = wstring_at(buf, bufsize.value)
+    return buf, filter(None, ans.split('\0'))
 
 # }}}
 
@@ -748,6 +754,34 @@ def get_storage_number_map(drive_types=(DRIVE_REMOVABLE, DRIVE_FIXED), debug=Fal
         val.sort(key=itemgetter(0))
     return dict(ans)
 
+def get_storage_number_map_alt(debug=False):
+    ' Alternate implementation that works without needing to call GetDriveType() (which causes floppy drives to seek) '
+    wbuf = create_unicode_buffer(512)
+    ans = defaultdict(list)
+    for devinfo, devpath in DeviceSet().interfaces():
+        if not devpath.endswith(os.sep):
+            devpath += os.sep
+        GetVolumeNameForVolumeMountPoint(devpath, wbuf, len(wbuf))
+        vname = wbuf.value
+        wbuf, names = get_volume_pathnames(vname, buf=wbuf)
+        for name in names:
+            name = name.upper()
+            if len(name) == 3 and name.endswith(':\\') and name[0] in string.ascii_uppercase:
+                break
+        else:
+            if debug:
+                prints('Ignoring volume %s as it has no assigned drive letter. Mountpoints: %s' % (devpath, names))
+            continue
+        try:
+            sn = get_storage_number('\\\\.\\' + name[0] + ':')
+            ans[sn[:2]].append((sn[2], name[0]))
+        except WindowsError as err:
+            if debug:
+                prints('Failed to get storage number for drive: %s with error: %s' % (name[0], as_unicode(err)))
+            continue
+    for val in ans.itervalues():
+        val.sort(key=itemgetter(0))
+    return dict(ans)
 
 # }}}
 
