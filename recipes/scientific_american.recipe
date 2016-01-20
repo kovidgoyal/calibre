@@ -3,11 +3,15 @@ __license__   = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.date import now
+from css_selectors import Select
 
 def absurl(url):
     if url.startswith('/'):
         url = 'http://www.scientificamerican.com' + url
     return url
+
+keep_classes = {'article-header', 'article-content', 'article-media', 'article-author', 'article-text'}
+remove_classes = {'aside-banner', 'moreToExplore', 'article-footer'}
 
 class ScientificAmerican(BasicNewsRecipe):
     title                 = u'Scientific American'
@@ -24,13 +28,11 @@ class ScientificAmerican(BasicNewsRecipe):
     needs_subscription    = 'optional'
 
     keep_only_tags = [
-        dict(attrs={'class':['article-title', 'article-dek', 'article-author article-date', 'article-complementary', 'article-slatwallPayWall']}),
-        dict(attrs={'class':lambda x: x and 'article-content' in x.split()}),
+        dict(attrs={'class':lambda x: x and bool(set(x.split()).intersection(keep_classes))}),
     ]
     remove_tags = [
-        dict(attrs={'class':['article-footer']}),
+        dict(attrs={'class':lambda x: x and bool(set(x.split()).intersection(remove_classes))}),
         dict(id=['seeAlsoLinks']),
-        dict(attrs={'class':lambda x: x and 'moreToExplore' in x.split()}),
     ]
 
     def get_browser(self, *args):
@@ -46,55 +48,57 @@ class ScientificAmerican(BasicNewsRecipe):
     def parse_index(self):
         # Get the cover, date and issue URL
         root = self.index_to_soup('http://www.scientificamerican.com/sciammag/', as_tree=True)
-        for a in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' archiveIssues ')]/descendant-or-self::*/a[@class and contains(concat(' ', normalize-space(@class), ' '), ' cover ') and (@href)]'''):  # noqa
-            url = a.get('href')
+        select = Select(root)
+        for a in select('#sa_body .store-listing__img a[href]'):
+            url = absurl(a.get('href'))
             month = int(filter(None, url.split('/'))[-1].partition('-')[0])
             if month > now().month:
                 continue
-            self.cover_url = absurl(a.xpath('descendant-or-self::img[@src]')[0].get('src'))
-            root = self.index_to_soup(absurl(a.get('href')), as_tree=True)
-            for a in a.xpath('following-sibling::a[@href]'):
-                self.timefmt = self.tag_to_string(a).strip()
+            for source in a.xpath('descendant::source'):
+                self.cover_url = absurl(source.get('srcset').split()[0])
                 break
             break
         else:
             raise ValueError('The Scientific American website has changed, this recipe needs to be updated')
 
         # Now parse the actual issue to get the list of articles
+        select = Select(self.index_to_soup(url, as_tree=True))
         feeds = []
-        for i, div in enumerate(root.xpath('''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' toc-features ')] | descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' toc-departments ')]''')):  # noqa
+        for i, section in enumerate(select('#sa_body .toc-articles')):
             if i == 0:
-                feeds.append(('Features', list(self.parse_sciam_features(div))))
+                feeds.append(('Features', list(self.parse_sciam_features(select, section))))
             else:
-                feeds.extend(self.parse_sciam_departments(div))
+                feeds.extend(self.parse_sciam_departments(select, section))
 
         return feeds
 
-    def parse_sciam_features(self, div):
-        for h4 in div.xpath('''descendant-or-self::li/descendant-or-self::*/a[@href]/descendant-or-self::*/h4'''):
-            title = self.tag_to_string(h4)
-            a = h4.getparent()
-            url = absurl(a.get('href'))
+    def parse_sciam_features(self, select, section):
+        for article in select('article[data-article-title]', section):
+            title = article.get('data-article-title')
+            for a in select('a[href]', article):
+                url = absurl(a.get('href'))
+                break
             desc = ''
-            for span in a.xpath('following-sibling::span'):
-                desc = self.tag_to_string(span)
+            for p in select('p.t_body', article):
+                desc = self.tag_to_string(p)
                 break
             self.log('Found feature article: %s at %s' % (title, url))
             self.log('\t' + desc)
             yield {'title':title, 'url':url, 'description':desc}
 
-    def parse_sciam_departments(self, div):
+    def parse_sciam_departments(self, select, section):
         section_title, articles = 'Unknown', []
-        for x in div.xpath('''descendant-or-self::li/descendant-or-self::*/a[@href]/descendant-or-self::*/h3 | descendant-or-self::li/descendant-or-self::*/span[@class and contains(concat(' ', normalize-space(@class), ' '), ' deptTitle ')]/descendant-or-self::*/a[@href]'''):  # noqa
-            if x.tag == 'a':
+        for li in select('li[data-article-title]', section):
+            for span in select('span.department-title', li):
                 if articles:
-                    yield section_title, list(articles)
-                section_title = self.tag_to_string(x)
-                del articles[:]
+                    yield section_title, articles
+                section_title, articles = self.tag_to_string(span), []
                 self.log('\nFound section: %s' % section_title)
-            else:
-                title = self.tag_to_string(x)
-                a = x.getparent()
+                break
+            for a in select('h2 a[href]', li):
+                title = self.tag_to_string(a)
                 url = absurl(a.get('href'))
                 articles.append({'title':title, 'url':url, 'description':''})
                 self.log('\tFound article: %s at %s' % (title, url))
+        if articles:
+            yield section_title, articles
