@@ -313,7 +313,7 @@ class POCKETBOOK602(USBMS):
 
     VENDOR_ID   = [0x0525]
     PRODUCT_ID  = [0xa4a5]
-    BCD         = [0x0324, 0x0330]
+    BCD         = [0x0324, 0x0330, 0x0399]
 
     VENDOR_NAME = ['', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902',
