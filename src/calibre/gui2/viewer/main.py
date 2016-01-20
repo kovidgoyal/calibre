@@ -46,7 +46,7 @@ class Worker(Thread):
             self.traceback = ''
         except WorkerError as err:
             self.exception = Exception(_('Failed to read book, {0} click "Show Details" for more information').format(self.path_to_ebook))
-            self.traceback = err.orig_tb
+            self.traceback = err.orig_tb or as_unicode(err)
         except Exception as err:
             self.exception = err
             self.traceback = traceback.format_exc()
