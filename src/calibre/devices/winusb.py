@@ -761,9 +761,19 @@ def get_storage_number_map_alt(debug=False):
     for devinfo, devpath in DeviceSet().interfaces():
         if not devpath.endswith(os.sep):
             devpath += os.sep
-        GetVolumeNameForVolumeMountPoint(devpath, wbuf, len(wbuf))
+        try:
+            GetVolumeNameForVolumeMountPoint(devpath, wbuf, len(wbuf))
+        except WindowsError as err:
+            if debug:
+                prints('Failed to get volume id for drive: %s with error: %s' % (devpath, as_unicode(err)))
+            continue
         vname = wbuf.value
-        wbuf, names = get_volume_pathnames(vname, buf=wbuf)
+        try:
+            wbuf, names = get_volume_pathnames(vname, buf=wbuf)
+        except WindowsError as err:
+            if debug:
+                prints('Failed to get mountpoints for volume %s with error: %s' % (devpath, as_unicode(err)))
+            continue
         for name in names:
             name = name.upper()
             if len(name) == 3 and name.endswith(':\\') and name[0] in string.ascii_uppercase:
