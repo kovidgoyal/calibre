@@ -15,7 +15,7 @@ import os, subprocess, time, re, sys, glob
 from itertools import repeat
 from collections import namedtuple
 
-from calibre import prints, as_unicode
+from calibre import prints
 from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
 from calibre.devices.errors import DeviceError
@@ -867,7 +867,6 @@ class Device(DeviceConfig, DevicePlugin):
         pass
 
     def eject_windows(self):
-        from calibre.devices.winusb import eject_drive
         from threading import Thread
         drives = []
         for x in ('_main_prefix', '_card_a_prefix', '_card_b_prefix'):
@@ -876,20 +875,10 @@ class Device(DeviceConfig, DevicePlugin):
                 drives.append(x[0].upper())
 
         def do_it(drives):
-            for d in drives:
-                try:
-                    eject_drive(d)
-                except Exception as e:
-                    try:
-                        prints("Eject failed:", as_unicode(e))
-                    except:
-                        pass
-
-        def do_it2(drives):
             import win32process
             subprocess.Popen([eject_exe()] + drives, creationflags=win32process.CREATE_NO_WINDOW).wait()
 
-        t = Thread(target=do_it2, args=[drives])
+        t = Thread(target=do_it, args=[drives])
         t.daemon = True
         t.start()
         self.__save_win_eject_thread = t

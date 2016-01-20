@@ -5,7 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-import os, string, _winreg as winreg, re, time, sys
+import os, string, _winreg as winreg, re, sys
 from collections import namedtuple, defaultdict
 from operator import itemgetter
 from ctypes import (
@@ -792,41 +792,6 @@ def is_usb_device_connected(vendor_id, product_id):  # {{{
     return False
 # }}}
 
-def eject_drive(drive_letter):  # {{{
-    ' Eject the disk that corresponds to the specified drive letter '
-    drive_letter = type('')(drive_letter)[0]
-    volume_access_path = '\\\\.\\' + drive_letter + ':'
-    try:
-        sn = get_storage_number(volume_access_path)[:2]
-    except WindowsError:
-        return True
-    for devinfo, devpath in DeviceSet(guid=GUID_DEVINTERFACE_DISK).interfaces(ignore_errors=True):
-        try:
-            dsn = get_storage_number(devpath)[:2]
-        except WindowsError:
-            continue
-        if dsn == sn:
-            break
-    else:
-        return False
-
-    parent = DEVINST(0)
-    CM_Get_Parent(byref(parent), devinfo.DevInst, 0)
-    max_tries = 3
-    while max_tries >= 0:
-        max_tries -= 1
-        try:
-            CM_Request_Device_Eject(parent, None, None, 0, 0)
-        except WindowsError:
-            if max_tries < 0:
-                raise
-            time.sleep(0.5)
-            continue
-        return True
-    return False
-
-# }}}
-
 def get_usb_info(usbdev, debug=False):  # {{{
     '''
     The USB info (manufacturer/product names and serial number) Requires communication with the hub the device is connected to.
@@ -940,7 +905,7 @@ def is_readonly(drive_letter):  # {{{
     return get_volume_information(drive_letter)['FILE_READ_ONLY_VOLUME']
 # }}}
 
-def develop(do_eject=False):  # {{{
+def develop():  # {{{
     from calibre.customize.ui import device_plugins
     usb_devices = scan_usb_devices()
     drive_letters = set()
@@ -966,9 +931,6 @@ def develop(do_eject=False):  # {{{
             print('Is device connected:', is_usb_device_connected(*usbdev[:2]))
             print()
             print('Device USB data:', get_usb_info(usbdev, debug=True))
-    if do_eject:
-        for drive in drive_letters:
-            eject_drive(drive)
 
 def drives_for(vendor_id, product_id=None):
     usb_devices = scan_usb_devices()
