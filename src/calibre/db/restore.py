@@ -15,7 +15,7 @@ from calibre.db.backend import DB, DBPrefs
 from calibre.db.cache import Cache
 from calibre.constants import filesystem_encoding
 from calibre.utils.date import utcfromtimestamp
-from calibre import isbytestring
+from calibre import isbytestring, force_unicode
 
 NON_EBOOK_EXTENSIONS = frozenset([
         'jpg', 'jpeg', 'gif', 'png', 'bmp',
@@ -71,8 +71,8 @@ class Restore(Thread):
         if failures:
             ans += 'Failed to restore the books in the following folders:\n'
             for dirpath, tb in failures:
-                ans += '\t' + dirpath + ' with error:\n'
-                ans += '\n'.join('\t\t'+x for x in tb.splitlines())
+                ans += '\t' + force_unicode(dirpath, filesystem_encoding) + ' with error:\n'
+                ans += '\n'.join('\t\t'+force_unicode(x, filesystem_encoding) for x in tb.splitlines())
                 ans += '\n\n'
 
         if self.conflicting_custom_cols:
@@ -93,7 +93,7 @@ class Restore(Thread):
             ans += '\n\n'
             ans += 'The following folders were ignored:\n'
             for x in self.mismatched_dirs:
-                ans += '\t'+x+'\n'
+                ans += '\t' + force_unicode(x, filesystem_encoding) + '\n'
 
         return ans
 
