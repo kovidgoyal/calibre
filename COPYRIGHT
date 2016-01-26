@@ -1,5 +1,5 @@
 Files: *
-Copyright: Copyright (C) 2008-2015 Kovid Goyal <kovid@kovidgoyal.net>
+Copyright: Copyright (C) 2008-2016 Kovid Goyal <kovid@kovidgoyal.net>
 License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
@@ -310,7 +310,7 @@ License: BSD
  /usr/share/common-licenses/BSD on Debian systems.
 
 Files: src/odf/*
-Copyright: Copyright (C) 2006-2008 Søren Roug, European Environment Agency
+Copyright: Copyright (C) 2006-2008 SÃ¸ren Roug, European Environment Agency
 License: LGPL2.1+
  The full text of the LGPL is distributed as in
  /usr/share/common-licenses/LGPL-2.1 on Debian systems.
@@ -396,7 +396,7 @@ License: BSD
 
 Files: src/calibre/ebooks/metadata/*
 Copyright: 2008, Ashish Kulkarni <kulkarni.ashish@gmail.com>
-Copyright: Copyright (C) 2006 Søren Roug, European Environment Agency
+Copyright: Copyright (C) 2006 SÃ¸ren Roug, European Environment Agency
 License: GPL-3
  The full text of the GPL is distributed as in
  /usr/share/common-licenses/GPL-3 on Debian systems.
