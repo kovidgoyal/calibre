@@ -74,6 +74,7 @@ LINE_STYLES = {  # {{{
 # Read from XML {{{
 
 border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_color')
+border_edges = ('left', 'top', 'right', 'bottom', 'between')
 
 def read_single_border(parent, edge, XPath, get):
     color = style = width = padding = None
@@ -94,15 +95,12 @@ def read_single_border(parent, edge, XPath, get):
         if sz is not None:
             # we dont care about art borders (they are only used for page borders)
             try:
-                # WebKit needs at least 1pt to render borders
-                width = min(96, max(8, float(sz))) / 8
+                width = min(96, max(2, float(sz))) / 8
             except (ValueError, TypeError):
                 pass
-    if style == 'double' and width is not None and 0 < width < 3:
-        width = 3  # WebKit needs 3pts to render double borders
     return {p:v for p, v in zip(border_props, (padding, width, style, color))}
 
-def read_border(parent, dest, XPath, get, border_edges=('left', 'top', 'right', 'bottom'), name='pBdr'):
+def read_border(parent, dest, XPath, get, border_edges=border_edges, name='pBdr'):
     vals = {k % edge:inherit for edge in border_edges for k in border_props}
 
     for border in XPath('./w:' + name)(parent):
@@ -113,6 +111,22 @@ def read_border(parent, dest, XPath, get, border_edges=('left', 'top', 'right', 
 
     for key, val in vals.iteritems():
         setattr(dest, key, val)
+
+def border_to_css(edge, style, css):
+    bs = getattr(style, 'border_%s_style' % edge)
+    bc = getattr(style, 'border_%s_color' % edge)
+    bw = getattr(style, 'border_%s_width' % edge)
+    if isinstance(bw, (float, int, long)):
+        # WebKit needs at least 1pt to render borders and 3pt to render double borders
+        bw = max(bw, (3 if bs == 'double' else 1))
+    if bs is not inherit and bs is not None:
+        css['border-%s-style' % edge] = bs
+    if bc is not inherit and bc is not None:
+        css['border-%s-color' % edge] = bc
+    if bw is not inherit and bw is not None:
+        if isinstance(bw, (int, float, long)):
+            bw = '%.3gpt' % bw
+        css['border-%s-width' % edge] = bw
 
 def read_indent(parent, dest, XPath, get):
     padding_left = padding_right = text_indent = inherit
@@ -304,6 +318,7 @@ class ParagraphStyle(object):
         'border_top_width', 'border_top_style', 'border_top_color', 'padding_top',
         'border_right_width', 'border_right_style', 'border_right_color', 'padding_right',
         'border_bottom_width', 'border_bottom_style', 'border_bottom_color', 'padding_bottom',
+        'border_between_width', 'border_between_style', 'border_between_color', 'padding_between',
         'margin_left', 'margin_top', 'margin_right', 'margin_bottom',
 
         # Misc.
@@ -336,6 +351,7 @@ class ParagraphStyle(object):
             self.font_family = self.font_size = self.color = inherit
 
         self._css = None
+        self._border_key = None
 
     def update(self, other):
         for prop in self.all_properties:
@@ -362,13 +378,7 @@ class ParagraphStyle(object):
             if self.keepNext is True:
                 c['page-break-after'] = 'avoid'
             for edge in ('left', 'top', 'right', 'bottom'):
-                val = getattr(self, 'border_%s_width' % edge)
-                if val is not inherit:
-                    c['border-left-width'] = '%.3gpt' % val
-                for x in ('style', 'color'):
-                    val = getattr(self, 'border_%s_%s' % (edge, x))
-                    if val is not inherit:
-                        c['border-%s-%s' % (edge, x)] = val
+                border_to_css(edge, self, c)
                 val = getattr(self, 'padding_%s' % edge)
                 if val is not inherit:
                     c['padding-%s' % edge] = '%.3gpt' % val
@@ -388,3 +398,40 @@ class ParagraphStyle(object):
 
         return self._css
 
+    @property
+    def border_key(self):
+        if self._border_key is None:
+            k = []
+            for edge in border_edges:
+                for prop in border_props:
+                    prop = prop % edge
+                    k.append(getattr(self, prop))
+            self._border_key = tuple(k)
+        return self._border_key
+
+    def has_identical_borders(self, other_style):
+        return self.border_key == getattr(other_style, 'border_key', None)
+
+    def clear_borders(self):
+        for edge in border_edges[:-1]:
+            for prop in ('width', 'color', 'style'):
+                setattr(self, 'border_%s_%s' % (edge, prop), inherit)
+
+    def clone_border_styles(self):
+        style = ParagraphStyle(self.namespace)
+        for edge in border_edges[:-1]:
+            for prop in ('width', 'color', 'style'):
+                attr = 'border_%s_%s' % (edge, prop)
+                setattr(style, attr, getattr(self, attr))
+        return style
+
+    def apply_between_border(self):
+        for prop in ('width', 'color', 'style'):
+            setattr(self, 'border_bottom_%s' % prop, getattr(self, 'border_between_%s' % prop))
+
+    def has_visible_border(self):
+        for edge in border_edges[:-1]:
+            bw, bs = getattr(self, 'border_%s_width' % edge), getattr(self, 'border_%s_style' % edge)
+            if bw is not inherit and bw and bs is not inherit and bs != 'none':
+                return True
+        return False

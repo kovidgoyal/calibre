@@ -100,10 +100,12 @@ class Convert(object):
         self.images(relationships_by_id)
         self.layers = OrderedDict()
         self.framed = [[]]
+        self.frame_map = {}
         self.framed_map = {}
         self.anchor_map = {}
         self.link_map = defaultdict(list)
         self.link_source_map = {}
+        self.block_runs = []
         paras = []
 
         self.log.debug('Converting Word markup to HTML')
@@ -119,6 +121,7 @@ class Convert(object):
 
         self.read_block_anchors(doc)
         self.styles.apply_contextual_spacing(paras)
+        self.mark_block_runs(paras)
         # Apply page breaks at the start of every section, except the first
         # section (since that will be the start of the file)
         self.styles.apply_section_page_breaks(self.section_starts[1:])
@@ -147,6 +150,7 @@ class Convert(object):
                         dl[-1].append(p)
                         paras.append(wp)
                 self.styles.apply_contextual_spacing(paras)
+                self.mark_block_runs(paras)
 
         for p, wp in self.object_map.iteritems():
             if len(p) > 0 and not p.text and len(p[0]) > 0 and not p[0].text and p[0][0].get('class', None) == 'tab':
@@ -391,6 +395,7 @@ class Convert(object):
         self.object_map[dest] = p
         style = self.styles.resolve_paragraph(p)
         self.layers[p] = []
+        self.frame_map[p] = style.frame
         self.add_frame(dest, style.frame)
 
         current_anchor = None
@@ -679,6 +684,62 @@ class Convert(object):
             parent.insert(idx, frame)
             self.framed_map[frame] = css = style.css(self.page_map[self.object_map[paras[0]]])
             self.styles.register(css, 'frame')
+
+        if not self.block_runs:
+            return
+        rmap = {v:k for k, v in self.object_map.iteritems()}
+        for border_style, blocks in self.block_runs:
+            paras = tuple(rmap[p] for p in blocks)
+            parent = paras[0].getparent()
+            idx = parent.index(paras[0])
+            frame = DIV(*paras)
+            parent.insert(idx, frame)
+            self.framed_map[frame] = css = border_style.css
+            self.styles.register(css, 'frame')
+
+    def mark_block_runs(self, paras):
+
+        def process_run(run):
+            max_left = max_right = 0
+            has_visible_border = None
+            for p in run:
+                style = self.styles.resolve_paragraph(p)
+                if has_visible_border is None:
+                    has_visible_border = style.has_visible_border()
+                max_left, max_right = max(style.margin_left, max_left), max(style.margin_right, max_right)
+                if has_visible_border:
+                    style.margin_left = style.margin_right = inherit
+                if p is not run[0]:
+                    style.padding_top = 0
+                else:
+                    border_style = style.clone_border_styles()
+                    if has_visible_border:
+                        border_style.margin_top, style.margin_top = style.margin_top, inherit
+                if p is not run[-1]:
+                    style.padding_bottom = 0
+                else:
+                    if has_visible_border:
+                        border_style.margin_bottom, style.margin_bottom = style.margin_bottom, inherit
+                style.clear_borders()
+                if p is not run[-1]:
+                    style.apply_between_border()
+            if has_visible_border:
+                border_style.margin_left, border_style.margin_right = max_left,max_right
+                self.block_runs.append((border_style, run))
+
+        run = []
+        for p in paras:
+            if run and self.frame_map.get(p) == self.frame_map.get(run[-1]):
+                style = self.styles.resolve_paragraph(p)
+                last_style = self.styles.resolve_paragraph(run[-1])
+                if style.has_identical_borders(last_style):
+                    run.append(p)
+                    continue
+            if len(run) > 1:
+                process_run(run)
+            run = [p]
+        if len(run) > 1:
+            process_run(run)
 
 if __name__ == '__main__':
     import shutil

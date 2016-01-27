@@ -8,7 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from lxml.html.builder import TABLE, TR, TD
 
-from calibre.ebooks.docx.block_styles import inherit, read_shd as rs, read_border, binary_property, border_props, ParagraphStyle
+from calibre.ebooks.docx.block_styles import inherit, read_shd as rs, read_border, binary_property, border_props, ParagraphStyle, border_to_css
 from calibre.ebooks.docx.char_styles import RunStyle
 
 # Read from XML {{{
@@ -177,14 +177,10 @@ class Style(object):
     def convert_border(self):
         c = {}
         for x in edges:
-            for prop in border_props:
-                prop = prop % x
-                if prop.startswith('border'):
-                    val = getattr(self, prop)
-                    if val is not inherit:
-                        if isinstance(val, (int, float)):
-                            val = '%.3gpt' % val
-                        c[prop.replace('_', '-')] = val
+            border_to_css(x, self, c)
+            val = getattr(self, 'padding_%s' % x)
+            if val is not inherit:
+                c['padding-%s' % x] = '%.3gpt' % val
         return c
 
 class RowStyle(Style):
