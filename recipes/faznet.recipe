@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class FazNet(BasicNewsRecipe):
     title                 = 'FAZ.NET'
-    __author__            = 'Kovid Goyal, Darko Miletic, Armin Geller'  # AGe upd. V6 2014-10-24
+    __author__            = 'Kovid Goyal, Darko Miletic, Armin Geller'  # AGe upd. V7 2016-01-26
     description           = 'Frankfurter Allgemeine Zeitung'
     publisher             = 'Frankfurter Allgemeine Zeitung GmbH'
     category              = 'news, politics, Germany'
@@ -29,6 +29,7 @@ class FazNet(BasicNewsRecipe):
     remove_tags_after = [dict(name='div', attrs={'class':['ArtikelFooter']})]
     remove_tags = [
         dict(name='div', attrs={'class':['ArtikelFooter','clear']}),
+        dict(name='div', attrs={'id':['berndsbox','dertagbox']}), # AGe 2016-01-26
         dict(name='a', attrs={'title':['Vergrößern']}),  # AGe 2014-10-22
         dict(name='img', attrs={'class':['VideoCtrlIcon']}),  # AGe 2014-10-22
         dict(name='span', attrs={'class':['shareAutor']})  # AGe 2014-10-22
@@ -64,14 +65,20 @@ class FazNet(BasicNewsRecipe):
                     'Anzeige GoogleAdsBuehne', 'ThemenLinks', 'rechtehinweis',
                     'stageModule Ressortmodul Rubrikenkopf clearfix', 'VideoCtrlIcon',
                     'ArtikelAbbinder clearfix',
-                    'stageModule clearfix GETS;tk;artikel.empfehlungen.weitere-artikel;tp;content'):  # AGe 2014-10-22
+                    'stageModule clearfix GETS;tk;artikel.empfehlungen.weitere-artikel;tp;content',
+                    'ThemenLinks',
+                    ):  # AGe 2014-10-22
                 div = texttag.find(attrs={'class':cls})
+                if div is not None:
+                    div.extract()
+            for cls in (
+                    'berndsbox','dertagbox'): # AGe 2016-01-26
+                div = texttag.find(attrs={'id':cls})
                 if div is not None:
                     div.extract()
                 div = texttag.find(attrs={'title':'Vergrößern'})  # AGe 2014-10-22
                 if div is not None:
                     div.extract()
-
             newpos = len(texttag.contents)
             self.append_page(soup2,texttag,newpos)
             texttag.extract()
