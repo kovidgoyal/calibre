@@ -3,21 +3,22 @@
 ## Contact:      AprilHare, Darko Miletic <darko.miletic at gmail.com>
 ##
 ## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
-## Copyright:    2008-2010, AprilHare, Darko Miletic <darko.miletic at gmail.com>
+## Copyright:    2008-2016, AprilHare, Darko Miletic <darko.miletic at gmail.com>
 ##
 ## Written:      2008
-## Last Edited:  Dec 2015
+## Last Edited:  Jan 2016
 ##
 
 '''
 01-19-2012: Added GrayScale Image conversion and Duplicant article removals
 12-31-2015: Major rewrite due to massive changes in site structure
+01-27-2016: Added support for series index and minor cleanup
 '''
 
-__license__   = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
-__copyright__ = '2008-2015, AprilHare, Darko Miletic <darko.miletic at gmail.com>'
-__version__     = 'v0.6.0'
-__date__        = '2015-12-31'
+__license__     = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__copyright__   = '2008-2016, AprilHare, Darko Miletic <darko.miletic at gmail.com>'
+__version__     = 'v0.6.1'
+__date__        = '2016-01-27'
 __author__      = 'Darko Miletic'
 
 '''
@@ -25,6 +26,7 @@ newscientist.com
 '''
 
 import re
+import urllib
 from calibre.utils.magick import Image
 from calibre.web.feeds.news import BasicNewsRecipe
 
@@ -43,7 +45,7 @@ class NewScientist(BasicNewsRecipe):
     needs_subscription        = 'optional'
     remove_empty_feeds        = True
     ignore_duplicate_articles = {'url'}
-    compress_news_images      = True
+    compress_news_images      = False
     scale_news_images         = True
     resolve_internal_links    = True
     extra_css                 = """
@@ -58,10 +60,10 @@ class NewScientist(BasicNewsRecipe):
                                 """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
+                          'comment'   : description
+                        , 'tags'      : category
+                        , 'publisher' : publisher
+                        , 'language'  : language
                         }
     preprocess_regexps = [(re.compile(r'</title>.*?</head>', re.DOTALL|re.IGNORECASE),lambda match: '</title></head>')]
 
@@ -120,6 +122,14 @@ class NewScientist(BasicNewsRecipe):
         cover_item = soup.find('img', attrs={'class':'issue-new-magazine-cover'})
         if cover_item:
            cover_url = self.image_url_processor(None, cover_item['src'])
+        #Configure series and issue number
+        issue_nr = soup.find('div', attrs={'class':'magnavissue'})
+        if issue_nr:
+            if issue_nr.string is not None:
+                non_decimal = re.compile(r'[^\d.]+')
+                nr = non_decimal.sub('', issue_nr.string)
+                self.conversion_options.update({'series':'New Scientist'})
+                self.conversion_options.update({'series_index':nr})
         return cover_url
 
     # Converts images to Gray Scale
