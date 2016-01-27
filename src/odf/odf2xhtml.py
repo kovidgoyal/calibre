@@ -358,6 +358,7 @@ class ODF2XHTML(handler.ContentHandler):
     def __init__(self, generate_css=True, embedable=False):
         # Tags
         self.generate_css = generate_css
+        self.frame_stack = []
         self.elements = {
         (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
         (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
@@ -697,6 +698,7 @@ class ODF2XHTML(handler.ContentHandler):
     def s_draw_frame(self, tag, attrs):
         """ A <draw:frame> is made into a <div> in HTML which is then styled
         """
+        self.frame_stack.append([])
         anchor_type = attrs.get((TEXTNS,'anchor-type'),'notfound')
         htmltag = 'div'
         name = "G-" + attrs.get((DRAWNS,'style-name'), "")
@@ -729,6 +731,7 @@ class ODF2XHTML(handler.ContentHandler):
         """ End the <draw:frame>
         """
         self.closetag('div')
+        self.frame_stack.pop()
 
     def s_draw_fill_image(self, tag, attrs):
         name = attrs.get((DRAWNS,'name'), "NoName")
@@ -745,6 +748,10 @@ class ODF2XHTML(handler.ContentHandler):
     def s_draw_image(self, tag, attrs):
         """ A <draw:image> becomes an <img/> element
         """
+        if self.frame_stack:
+            if self.frame_stack[-1]:
+                return
+            self.frame_stack[-1].append('img')
         parent = self.tagstack.stackparent()
         anchor_type = parent.get((TEXTNS,'anchor-type'))
         imghref = attrs[(XLINKNS,"href")]
