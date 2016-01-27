@@ -97,13 +97,11 @@ def qimage_to_magick(img):
     fmt = get_pixel_map()
     if not img.hasAlphaChannel():
         if img.format() != img.Format_RGB32:
-            img = QImage(img)
-            img.setFormat(QImage.Format_RGB32)
+            img = img.convertToFormat(QImage.Format_RGB32)
         fmt = fmt.replace('A', 'P')
     else:
         if img.format() != img.Format_ARGB32:
-            img = QImage(img)
-            img.setFormat(img.Format_ARGB32)
+            img = img.convertToFormat(QImage.Format_ARGB32)
     raw = img.constBits().ascapsule()
     ans.constitute(img.width(), img.height(), fmt, raw)
     return ans
