@@ -476,7 +476,7 @@ class Convert(object):
                 wrapper = self.wrap_elems(spans, SPAN())
                 wrapper.set('class', cls)
 
-        if not dest.text and len(dest) == 0:
+        if not dest.text and len(dest) == 0 and not style.has_visible_border():
             # Empty paragraph add a non-breaking space so that it is rendered
             # by WebKit
             dest.text = NBSP
