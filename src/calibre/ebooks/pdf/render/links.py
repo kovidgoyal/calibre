@@ -16,7 +16,7 @@ from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UT
 class Destination(Array):
 
     def __init__(self, start_page, pos, get_pageref):
-        pnum = start_page + pos['column']
+        pnum = start_page + max(0, pos['column'])
         try:
             pref = get_pageref(pnum)
         except IndexError:
