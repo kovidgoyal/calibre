@@ -269,6 +269,7 @@ class EditMetadataAction(InterfaceAction):
                 id_map = {}
 
         restrict_to_failed = restrict_to_failed or bool(args and args[0])
+        restrict_to_failed = restrict_to_failed and bool(failed_ids)
         if restrict_to_failed:
             db.data.set_marked_ids(failed_ids)
 
