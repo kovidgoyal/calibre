@@ -58,3 +58,14 @@ def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)
     for name in names:
         if match.search(name):
             return name, zf.read(name)
+
+comic_exts = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+def name_ok(name):
+    return bool(name and not name.startswith('__MACOSX/') and name.rpartition('.')[-1].lower() in comic_exts)
+
+def extract_cover_image(filename):
+    with zipfile.ZipFile(filename) as zf:
+        for name in sorted(zf.namelist(), key=sort_key):
+            if name_ok(name):
+                return name, zf.read(name)

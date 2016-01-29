@@ -3,7 +3,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, glob, functools, re
+import os, glob, re
 from calibre import guess_type
 from calibre.customize import (FileTypePlugin, MetadataReaderPlugin,
     MetadataWriterPlugin, PreferencesPlugin, InterfaceActionBase, StoreBase)
@@ -143,14 +143,11 @@ class ComicMetadataReader(MetadataReaderPlugin):
             elif id_.startswith(b'PK'):
                 ftype = 'cbz'
         if ftype == 'cbr':
-            from calibre.utils.unrar import extract_first_alphabetically as extract_first
-            extract_first
+            from calibre.utils.unrar import extract_cover_image
         else:
-            from calibre.libunzip import extract_member
-            extract_first = functools.partial(extract_member,
-                    sort_alphabetically=True)
+            from calibre.libunzip import extract_cover_image
         from calibre.ebooks.metadata import MetaInformation
-        ret = extract_first(stream)
+        ret = extract_cover_image(stream)
         mi = MetaInformation(None, None)
         stream.seek(0)
         if ftype in {'cbr', 'cbz'}:

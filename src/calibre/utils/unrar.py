@@ -190,6 +190,12 @@ def extract_first_alphabetically(stream):
             {'png', 'jpg', 'jpeg', 'gif', 'webp'}], key=sort_key)
     return extract_member(stream, name=names_[0], match=None)
 
+def extract_cover_image(stream):
+    from calibre.libunzip import sort_key, name_ok
+    for name in sorted(names(stream), key=sort_key):
+        if name_ok(name):
+            return extract_member(stream, name=name, match=None)
+
 # Test normal RAR file {{{
 def test_basic():
 
