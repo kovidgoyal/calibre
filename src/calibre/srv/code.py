@@ -123,6 +123,7 @@ def interface_data(ctx, rd):
                                         key=lambda (field, name):sort_key(name))
         ans['field_metadata'] = db.field_metadata.all_metadata()
         ans['icon_map'] = icon_map()
+        ans['icon_path'] = ctx.url_for('/icon', which='')
         mdata = ans['metadata'] = {}
         try:
             extra_books = set(int(x) for x in rd.query.get('extra_books', '').split(','))

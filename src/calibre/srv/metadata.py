@@ -10,6 +10,7 @@ from collections import namedtuple
 from datetime import datetime, time
 from functools import partial
 from threading import Lock
+from urllib import quote
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag
@@ -140,7 +141,7 @@ def icon_map():
             custom_icons = JSONConfig('gui').get('tags_browser_category_icons', {})
             for k, v in custom_icons.iteritems():
                 if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
-                    _icon_map[k] = '_' + v
+                    _icon_map[k] = '_' + quote(v)
             _icon_map['file_type_icons'] = {
                 k:'mimetypes/%s.png' % v for k, v in EXT_MAP.iteritems()
             }

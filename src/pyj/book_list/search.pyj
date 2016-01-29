@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from ajax import ajax
-from dom import clear
+from dom import clear, set_css
 from elementmaker import E
 from gettext import gettext as _
 from widgets import create_button, BUTTON_VPADDING, create_spinner
@@ -17,6 +17,7 @@ class SearchPanel:
         sp_counter += 1
         self.container_id = 'search-panel-' + sp_counter
         self.interface_data = interface_data
+        self.tag_path = []
         style = ''
         div = E.div(
             id=self.container_id, style='display:none',
@@ -99,9 +100,45 @@ class SearchPanel:
                 self.tag_browser_data = JSON.parse(xhr.responseText)
             except Exception as err:
                 show_error(err + '')
-            container.innerHTML = 'Loaded'
+                return
+            self.render_tag_browser(container, clear_path=True)
         else:
             show_error(xhr.error_html)
+
+    def render_tag_browser(self, container, clear_path=False):
+        if clear_path:
+            self.tag_path = []
+        clear(container)
+        set_css(container, padding='1rem', display='flex', flex_wrap='wrap')
+        parent = self.tag_browser_data.root
+        detailed_child = None
+        for child_index, state in self.tag_path:
+            q = parent.children and parent.children[child_index]
+            if not q:
+                break
+            parent, detailed_child = q, state
+        if detailed_child is not None and parent.children[detailed_child]:
+            self.render_child_menu(container, parent.children[detailed_child])
+        else:
+            self.render_children(container, parent.children)
+
+    def icon_for_node(self, node):
+        ans = self.interface_data.icon_map[node.category] or 'column.png'
+        return self.interface_data.icon_path + '/' + ans
+
+    def render_children(self, container, children):
+        item_map = self.tag_browser_data.item_map
+
+        for child in children:
+            node = item_map[child.id]
+            div = E.div(
+                E.div(
+                    E.img(src=self.icon_for_node(node), style='vertical-align:middle; display:inline-block; max-height:4ex'),
+                    '\xa0' + node.name)
+            )
+            set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', padding='1ex', cursor='pointer')
+            set_css(div.firstChild, position='relative', top='50%', transform='translateY(-50%)', margin_left='0.5rem')
+            container.appendChild(div)
 
     @property
     def container(self):
