@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 __license__ = 'GPL v3'
-__copyright__ = '2015, Dale Furrow dkfurrow@gmail.com'
+__copyright__ = '2016, Dale Furrow dkfurrow@gmail.com'
 '''
 chron.com
 '''
@@ -10,7 +10,6 @@ import time
 from datetime import datetime, timedelta, date
 from lxml import html
 from calibre.web.feeds.recipes import BasicNewsRecipe
-from calibre.utils.date import dt_factory, local_tz
 
 
 class HoustonChronicle(BasicNewsRecipe):
@@ -24,8 +23,7 @@ class HoustonChronicle(BasicNewsRecipe):
     timefmt = '[%a, %d %b %Y]'
     timestampfmt = '%Y%m%d%H%M%S'
     ignore_duplicate_articles = {'url'}
-
-    base_url = 'http://www.chron.com'
+    extra_css = '.article_date {display: none}'
 
     oldest_web_article = 7.0
 
@@ -36,15 +34,16 @@ class HoustonChronicle(BasicNewsRecipe):
 
     pages = [('news', '/news/houston-texas/'),
              ('business', '/business/'),
-             ('opinion', '/opinion/'),
              ('sports', '/sports/')]
 
+    base_url = "http://www.chron.com"
+
+    xpath_str = """//div[contains(@class, 'news') or contains(@class, 'headline-list')]
+                  //*[self::h4 or self::h5]//a[contains(@class, 'hdn-analytics')]"""
+
     def get_links_from_section_page(self, section_url):
-        page_doc = html.parse(section_url)
-        els = page_doc.xpath("""//div[contains(@class, 'scp-item')
-        or @class='scp-feature' or contains(@class, 'simplelist')
-        or contains(@class, 'scp-blogpromo')]
-        //a[@href and not(@target) and not(child::img)]""")
+        page_doc = html.parse(self.base_url + section_url)
+        els = page_doc.xpath(self.xpath_str)
         element_list = []
         for el in els:
             link = el.get('href')
@@ -129,23 +128,24 @@ class HoustonChronicle(BasicNewsRecipe):
                     return True
             return False
 
-        link_list = self.get_links_from_section_page(self.base_url + page[1])
+        link_list = self.get_links_from_section_page(page[1])
         self.log('from section: ', page[0], " found ", len(link_list), " links")
         for link in link_list:
             try:
                 article_doc = html.parse(link[0])
                 description = self.get_article_description_from_doc(article_doc)
-                article_date = self.get_published_time_from_doc(article_doc)
-                if article_date is not None and description is not None and article_date.date() > self.earliest_date \
-                        and not title_excluded(link[1]):
-                    date_text = article_date.strftime('%a, %d %b')
-                    author = article_date.strftime(self.timestampfmt)
+                parsed_date = self.get_published_time_from_doc(article_doc)
+                if parsed_date is not None and description is not None and \
+                        parsed_date.date() > self.earliest_date and \
+                        not title_excluded(link[1]):
+                    intro_date = parsed_date.strftime('%d %b %H:%M') + " - "
                     articles.append({'title': link[1], 'url': link[0],
-                                     'description': description, 'date': date_text, 'author': author})
-                    self.log(page[0] + ": " + link[1] + ', from ' + date_text +
+                                     'description': intro_date + description,
+                                     'date': ""})
+                    self.log(page[0] + ": " + link[1] + ', from ' + intro_date +
                              " description of " + str(len(description)) + ' characters at ' + link[0])
                 else:
-                    if article_date is None:
+                    if parsed_date is None:
                         msg = " No Timestamp Found"
                     elif title_excluded(link[1]):
                         msg = " Title Excluded"
@@ -171,7 +171,7 @@ class HoustonChronicle(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         tags_to_exclude = [('class', "caption  staged"), ('style', "display:none")]
-        story_tag = soup.find(name='div', attrs={'class': 'article-content'})
+        story_tag = soup.find(name='div', attrs={'class': ['article-content', 'article-body']})
         blog_tag = soup.find(name='div', attrs={'id': re.compile('post-\d+')})
 
         def is_excluded(tag_to_check):
@@ -191,16 +191,17 @@ class HoustonChronicle(BasicNewsRecipe):
         base_tags = []
         if story_tag is not None:
             base_tags = story_tag.findAll(lambda this_tag: (this_tag.name == "p"
-                                          and not ('class', 'open') in this_tag.attrs
-                                          and not ('class', 'close') in this_tag.attrs)
-                                          or this_tag.name.startswith('h') or this_tag.name == 'table'
-                                          or (this_tag.name == 'li'
-                                              and ('class', 'hst-resgalleryitem') in this_tag.attrs))
+                                                            and not ('class', 'open') in this_tag.attrs
+                                                            and not ('class', 'close') in this_tag.attrs)
+                                                           or this_tag.name.startswith('h') or this_tag.name == 'table'
+                                                           or (this_tag.name == 'li'
+                                                               and ('class', 'hst-resgalleryitem') in this_tag.attrs))
         if blog_tag is not None:
             base_tags = blog_tag.findAll(lambda this_tag: (this_tag.name == "p" or this_tag.name.startswith('h'))
-                                         or (this_tag.name == "span"
-                                             and get_attr_startswith(this_tag.attrs, 'class', 'post'))
-                                         or (this_tag.name == 'img' and ('lazy-state', 'loaded') in this_tag.attrs))
+                                                          or (this_tag.name == "span"
+                                                              and get_attr_startswith(this_tag.attrs, 'class', 'post'))
+                                                          or (this_tag.name == 'img' and (
+                'lazy-state', 'loaded') in this_tag.attrs))
 
         self.log('content tags: ' + str(type(base_tags)) + str(len(base_tags)))
         all_tags = []
@@ -217,15 +218,3 @@ class HoustonChronicle(BasicNewsRecipe):
             if tag not in all_tags:
                 tag.extract()
         return soup
-
-    def populate_article_metadata(self, article, soup, first):
-        if not first:
-            return
-        try:
-            article.date = time.strptime(article.author, self.timestampfmt)
-            article.utctime = dt_factory(article.date, assume_utc=False, as_utc=False)
-            article.localtime = article.utctime.astimezone(local_tz)
-        except Exception as inst:
-            self.log('Exception: ', article.title)
-            self.log(type(inst))
-            self.log(inst)
