@@ -103,6 +103,7 @@ class EbookViewer(MainWindow):
         self.closed = False
         self.show_toc_on_open = False
         self.listener = listener
+        self.lookup_error_reported = {}
         if listener is not None:
             t = Thread(name='ConnListener', target=listen, args=(self,))
             t.daemon = True
@@ -352,11 +353,16 @@ class EbookViewer(MainWindow):
     def lookup(self, word):
         from urllib import quote
         word = quote(word.encode('utf-8'))
+        lang = canonicalize_lang(self.view.current_language) or get_lang() or 'en'
         try:
-            url = lookup_website(canonicalize_lang(self.view.current_language) or 'en').format(word=word)
+            url = lookup_website(lang).format(word=word)
         except Exception:
-            traceback.print_exc()
-            url = default_lookup_website(canonicalize_lang(self.view.current_language) or 'en').format(word=word)
+            if not self.lookup_error_reported.get(lang):
+                self.lookup_error_reported[lang] = True
+                error_dialog(self, _('Failed to use dictionary'), _(
+                    'Failed to use the custom dictionary for language: %s Falling back to default dictionary.') % lang,
+                             det_msg=traceback.format_exc(), show=True)
+            url = default_lookup_website(lang).format(word=word)
         open_url(url)
 
     def print_book(self):
