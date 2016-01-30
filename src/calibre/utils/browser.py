@@ -6,7 +6,7 @@ __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import copy, httplib, ssl
-from cookielib import CookieJar
+from cookielib import CookieJar, Cookie
 
 from mechanize import Browser as B, HTTPSHandler
 
@@ -63,6 +63,15 @@ class Browser(B):
     def copy_cookies_from_jsbrowser(self, jsbrowser):
         for cookie in jsbrowser.cookies:
             self.cookiejar.set_cookie(cookie)
+
+    def set_cookie(self, name, value, domain, path='/'):
+        self.cookiejar.set_cookie(Cookie(
+            None, name, value,
+            None, False,
+            domain, True, False,
+            path, True,
+            False, None, False, None, None, None
+        ))
 
     @property
     def cookiejar(self):
