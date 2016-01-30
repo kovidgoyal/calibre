@@ -262,12 +262,15 @@ class Py2App(object):
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x, is_id in self.get_dependencies(path_to_lib):
-            for y in (SW+'/lib/', SW+'/qt/lib/', SW+'/python/Python.framework/', SW+'/private/ssl/lib/'):
-                if x.startswith(y):
-                    if y == SW+'/python/Python.framework/':
-                        y = SW+'/python/'
-                    yield x, x[len(y):], is_id
-                    break
+            if x.startswith('@rpath/Qt'):
+                yield x, x[len('@rpath/'):], is_id
+            else:
+                for y in (SW+'/lib/', SW+'/python/Python.framework/', SW+'/private/ssl/lib/'):
+                    if x.startswith(y):
+                        if y == SW+'/python/Python.framework/':
+                            y = SW+'/python/'
+                        yield x, x[len(y):], is_id
+                        break
 
     @flush
     def change_dep(self, old_dep, new_dep, is_id, path_to_lib):

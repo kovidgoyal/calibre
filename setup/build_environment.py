@@ -182,6 +182,7 @@ if iswindows:
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
+    QT_DLLS += ['Qt5DBus']
     QT_FRAMEWORKS = [x.replace('5', '') for x in QT_DLLS]
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     podofo_inc = os.path.join(sw, 'include', 'podofo')
