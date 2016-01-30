@@ -7,39 +7,64 @@ __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 '''
 discovermagazine.com
 '''
-import re
+import re, json, cookielib
+import mechanize
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class DiscoverMagazine(BasicNewsRecipe):
 
     title      = 'Discover Magazine Monthly'
-    __author__ = 'Michael Marotta'
+    __author__ = 'Kovid Goyal'
     description = 'Monthly magazine version of Discover Magazine (not rss feed).'
     language = 'en'
     encoding = 'utf-8'
     simultaneous_downloads = 20
     tags = 'news, technology, science'
-    INDEX = 'http://www.discovermagazine.com'
+    INDEX = 'http://discovermagazine.com'
 
     keep_only_tags = [
         {'attrs':{'class':['headline', 'deck', 'belowDeck', 'mediaContainer', 'segment', 'cover']}},
     ]
     remove_tags = [dict(name='div', attrs={'class': ['ladder', 'mobile', 'popular', 'open', 'scistarter']})]
 
-    # Login stuff
+    # Login {{{
     needs_subscription = True
-    use_javascript_to_login = True
-    requires_version = (0, 9, 20)
 
-    def javascript_login(self, br, username, password):
-        br.visit('http://discovermagazine.com', timeout=120)
-        f = br.select_form('div.login.section div.form')
-        f['username'] = username
-        f['password'] = password
-        br.submit('input[id="signInButton"]', timeout=120)
-        br.run_for_a_time(20)
-        # br.show_browser()
-    # End login stuff
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        rq = mechanize.Request(
+            'https://secure.kalmbach.com/kserv/api/authentication/login', headers={
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Referer': 'http://discovermagazine.com',
+                'Accept': 'application/json, text/javascript, */*; q=0.01',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Origin': 'http://discovermagazine.com',
+            }, data=json.dumps(
+                {'appId': '2', 'email':self.username, 'password':self.password}))
+        br.set_debug_http(True)
+        br.open(rq)
+        data = json.loads(br.open(rq).read())
+        if not data.get('success'):
+            raise ValueError('Failed to login')
+        session_id = data['sessionId']
+        if hasattr(br, 'set_cookie'):
+            br.set_cookie('KSERV', session_id, 'discovermagazine.com')
+        else:
+            c = cookielib.Cookie(
+                None, 'KSERV', session_id,
+                None, False,
+                'discovermagazine.com', True, False,
+                '/', True,
+                False, None, False, None, None, None)
+            br.cookiejar.set_cookie(c)
+        res = br.open('http://discovermagazine.com')
+        br.set_debug_http(False)
+        raw = res.read()
+        if '>Logout<' not in raw:
+            raise ValueError('Failed to login')
+        return br
+
+    # End login }}}
 
     no_stylesheets = True
     preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
