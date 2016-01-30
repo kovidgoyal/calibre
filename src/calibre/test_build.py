@@ -173,11 +173,6 @@ def test_unrar():
     test_basic()
     fprint('Unrar OK!')
 
-def test_ssl():
-    import ssl
-    ssl
-    fprint('SSL OK!')
-
 def test_icu():
     fprint('Testing ICU')
     from calibre.utils.icu_test import test_build
@@ -269,6 +264,15 @@ def test_image_compression():
     test()
     fprint('Image compression OK!')
 
+def test_openssl():
+    import ssl
+    ssl.PROTOCOL_TLSv1_2
+    if isosx:
+        cafile = ssl.get_default_verify_paths().cafile
+        if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
+            raise ValueError('Mozilla CA certs not loaded')
+    fprint('SSL OK!')
+
 def test():
     if iswindows:
         test_dlls()
@@ -279,7 +283,7 @@ def test():
     test_dukpy()
     test_spell()
     test_lxml()
-    test_ssl()
+    test_openssl()
     test_sqlite()
     test_apsw()
     test_imaging()

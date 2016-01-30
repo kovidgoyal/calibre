@@ -112,9 +112,6 @@ extensions = [
     Extension('certgen',
         ['calibre/utils/certgen.c'],
         libraries=['libeay32'] if iswindows else ['crypto'],
-        # Apple has deprecated openssl in OSX, so we need this, until we
-        # build our own private copy of openssl
-        cflags=['-Wno-deprecated-declarations'] if isosx else [],
         inc_dirs=openssl_inc_dirs, lib_dirs=openssl_lib_dirs,
         ),
 

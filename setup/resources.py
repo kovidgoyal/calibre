@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json
+import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, urllib, errno
 from zlib import compress
 from itertools import chain
 
@@ -222,6 +222,33 @@ class Kakasi(Command):  # {{{
             shutil.rmtree(kakasi)
 # }}}
 
+class CACerts(Command):  # {{{
+
+    description = 'Get updated mozilla CA certificate bundle'
+    CA_PATH = os.path.join(Command.RESOURCES, 'mozilla-ca-certs.pem')
+
+    def run(self, opts):
+        try:
+            with open(self.CA_PATH, 'rb') as f:
+                raw = f.read()
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise
+            raw = b''
+        nraw = urllib.urlopen('https://curl.haxx.se/ca/cacert.pem').read()
+        if not nraw:
+            raise RuntimeError('Failed to download CA cert bundle')
+        if nraw != raw:
+            self.info('Updating Mozilla CA certificates')
+            with open(self.CA_PATH, 'wb') as f:
+                f.write(nraw)
+            self.verify_ca_certs()
+
+    def verify_ca_certs(self):
+        from calibre.utils.https import get_https_resource_securely
+        get_https_resource_securely('https://calibre-ebook.com', cacerts=self.b(self.CA_PATH))
+# }}}
+
 class Resources(Command):  # {{{
 
     description = 'Compile various needed calibre resources'
@@ -349,4 +376,3 @@ class Resources(Command):  # {{{
             if os.path.exists(x):
                 os.remove(x)
 # }}}
-

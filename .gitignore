@@ -21,6 +21,7 @@ resources/template-functions.json
 resources/editor-functions.json
 resources/user-manual-translation-stats.json
 resources/content-server/main.js
+resources/mozilla-ca-certs.pem
 icons/icns/*.iconset
 setup/installer/windows/calibre/build.log
 tags

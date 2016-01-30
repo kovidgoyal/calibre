@@ -196,6 +196,9 @@ elif isosx:
     ft_inc_dirs = [sw + '/include/freetype2']
     icu_inc_dirs = [sw + '/include']
     icu_lib_dirs = [sw + '/lib']
+    SSL = os.environ.get('OPENSSL_DIR', os.path.join(sw, 'private', 'ssl'))
+    openssl_inc_dirs = [os.path.join(SSL, 'include')]
+    openssl_lib_dirs = [os.path.join(SSL, 'lib')]
 else:
     QT_DLLS += ['Qt5DBus', 'Qt5XcbQpa']
     # PYQT_MODULES += ('QtDBus',)

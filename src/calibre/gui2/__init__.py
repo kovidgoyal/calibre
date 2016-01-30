@@ -1040,8 +1040,9 @@ def sanitize_env_vars():
     elif iswindows:
         env_vars = {k:None for k in 'MAGICK_HOME MAGICK_CONFIGURE_PATH MAGICK_CODER_MODULE_PATH MAGICK_FILTER_MODULE_PATH QT_PLUGIN_PATH'.split()}
     elif isosx:
-        env_vars = {k:None for k in
-                    'FONTCONFIG_FILE FONTCONFIG_PATH MAGICK_CONFIGURE_PATH MAGICK_CODER_MODULE_PATH MAGICK_FILTER_MODULE_PATH QT_PLUGIN_PATH'.split()}
+        env_vars = {k:None for k in (
+                    'FONTCONFIG_FILE FONTCONFIG_PATH MAGICK_CONFIGURE_PATH MAGICK_CODER_MODULE_PATH'
+                    ' MAGICK_FILTER_MODULE_PATH QT_PLUGIN_PATH SSL_CERT_FILE').split()}
     else:
         env_vars = {}
 

@@ -30,7 +30,8 @@ ENV = dict(
         MAGICK_CODER_FILTER_PATH=MAGICK_HOME+'/modules-Q16/filters',
         QT_PLUGIN_PATH='@executable_path/../MacOS/qt-plugins',
         PYTHONIOENCODING='UTF-8',
-        )
+        SSL_CERT_FILE='@executable_path/../Resources/resources/mozilla-ca-certs.pem',
+)
 
 
 info = warn = None
@@ -261,7 +262,7 @@ class Py2App(object):
     @flush
     def get_local_dependencies(self, path_to_lib):
         for x, is_id in self.get_dependencies(path_to_lib):
-            for y in (SW+'/lib/', SW+'/qt/lib/', SW+'/python/Python.framework/',):
+            for y in (SW+'/lib/', SW+'/qt/lib/', SW+'/python/Python.framework/', SW+'/private/ssl/lib/'):
                 if x.startswith(y):
                     if y == SW+'/python/Python.framework/':
                         y = SW+'/python/'
@@ -468,11 +469,15 @@ class Py2App(object):
 
     @flush
     def add_misc_libraries(self):
-        for x in ('usb-1.0.0', 'mtp.9', 'ltdl.7',
-                  'chm.0', 'sqlite3.0', 'icudata.53', 'icui18n.53', 'icuio.53', 'icuuc.53'):
+        for x in (
+                'usb-1.0.0', 'mtp.9', 'ltdl.7', 'chm.0', 'sqlite3.0',
+                'icudata.53', 'icui18n.53', 'icuio.53', 'icuuc.53',
+                'crypto.1.0.0', 'ssl.1.0.0'
+        ):
             info('\nAdding', x)
             x = 'lib%s.dylib'%x
-            shutil.copy2(join(SW, 'lib', x), self.frameworks_dir)
+            src = join(SW, 'private', 'ssl', 'lib', x) if ('ssl' in x or 'crypto' in x) else join(SW, 'lib', x)
+            shutil.copy2(src, self.frameworks_dir)
             dest = join(self.frameworks_dir, x)
             self.set_id(dest, self.FID+'/'+x)
             self.fix_dependencies_in_lib(dest)
