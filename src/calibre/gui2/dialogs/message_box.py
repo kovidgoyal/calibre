@@ -376,7 +376,7 @@ class JobError(QDialog):  # {{{
         d = QTextDocument()
         d.setHtml(self.msg_label.text())
         QApplication.clipboard().setText(
-                u'calibre, version %s (%s, isfrozen: %s)\n%s: %s\n\n%s' %
+                u'calibre, version %s (%s, embedded-python: %s)\n%s: %s\n\n%s' %
                 (__version__, sys.platform, isfrozen,
                     unicode(self.windowTitle()), unicode(d.toPlainText()),
                     unicode(self.det_msg.toPlainText())))
