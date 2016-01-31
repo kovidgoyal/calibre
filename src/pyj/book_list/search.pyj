@@ -62,6 +62,7 @@ class SearchPanel:
         self.initial_load_started = False
         self.currently_loading = None
         self.tag_browser_data = None
+        self.node_id_map = {}
 
     def init(self):
         tb = self.container.querySelector('input[name="search-books"]')
@@ -87,11 +88,12 @@ class SearchPanel:
         self.currently_loading = None
         if end_type == 'abort':
             return
+
         parent = self.container.lastChild
         if parent.lastChild.style.display == 'none':
             parent.firstChild.style.display = 'none'
             parent.lastChild.style.display = 'block'
-        container = parent.lastChild
+        container = self.tb_container
         clear(container)
 
         def show_error(error_html):
@@ -99,48 +101,58 @@ class SearchPanel:
             container.appendChild(ediv)
             ediv.innerHTML = '<h3>' + _('Failed to load tag browser data') + '</h3>' + error_html
 
+        def process_node(node):
+            self.node_id_map[node.id] = node
+            node.data = item_map[node.id]
+            for child in node.children:
+                child.parent = node
+                process_node(child)
+
         if end_type == 'load':
             try:
-                self.tag_browser_data = JSON.parse(xhr.responseText)
+                tag_browser_data = JSON.parse(xhr.responseText)
             except Exception as err:
                 show_error(err + '')
                 return
+            item_map = tag_browser_data['item_map']
+            self.tag_browser_data = tag_browser_data.root
+            process_node(self.tag_browser_data)
             self.render_tag_browser(container, clear_path=True)
         else:
             show_error(xhr.error_html)
 
-    def render_tag_browser(self, container, clear_path=False):
+    def node_for_path(self, path):
+        path = path or self.tag_path
+        ans = self.tag_browser_data
+        for child_index in path:
+            ans = ans.children[child_index]
+        return ans
+
+    def render_tag_browser(self, container=None, clear_path=False):
         if clear_path:
             self.tag_path = []
+        container = container or self.tb_container
         clear(container)
         set_css(container, padding='1rem', display='flex', flex_wrap='wrap')
-        parent = self.tag_browser_data.root
-        detailed_child = None
-        for child_index, state in self.tag_path:
-            q = parent.children and parent.children[child_index]
-            if not q:
-                break
-            parent, detailed_child = q, state
-        if detailed_child is not None and parent.children[detailed_child]:
-            self.render_child_menu(container, parent.children[detailed_child])
-        else:
-            self.render_children(container, parent.children)
+        self.render_children(container, self.node_for_path().children)
 
     def icon_for_node(self, node):
-        ans = self.interface_data.icon_map[node.category] or 'column.png'
+        ans = self.interface_data.icon_map[node.data.category] or 'column.png'
         return self.interface_data.icon_path + '/' + ans
 
     def render_children(self, container, children):
-        item_map = self.tag_browser_data.item_map
 
-        for child in children:
-            node = item_map[child.id]
+        def click_handler(func, i):
+            return def():
+                func.call(self, i)
+
+        for i, node in enumerate(children):
             div = E.div(
                     style="display:flex; align-items: stretch",
                     E.div(class_='tag-name',
                         style='border-right:solid 1px currentColor; padding: 1ex; display:block',
                         E.img(src=self.icon_for_node(node), style='vertical-align:middle; display:inline-block; max-height:4ex'),
-                        '\xa0' + node.name
+                        '\xa0' + node.data.name
                     ),
                     E.div(class_='tag-menu',
                         style='padding: 1ex; display:flex; align-items:center',
@@ -148,11 +160,31 @@ class SearchPanel:
                     )
             )
             set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
+            div.firstChild.addEventListener('click', click_handler(self.node_clicked, i))
             container.appendChild(div)
+
+    def search_expression_for_item(self, node):
+        pass
+
+    def node_clicked(self, i):
+        node = self.node_for_path().children[i]
+        if node.children and node.children.length:
+            self.tag_path.append(i)
+            self.render_tag_browser()
+        else:
+            self.execute_search(self.search_expression_for_item(node))
 
     @property
     def container(self):
         return document.getElementById(self.container_id)
+
+    @property
+    def tb_container(self):
+        return self.container.lastChild.lastChild
+
+    @property
+    def search_control(self):
+        return self.container.querySelector('input[name="search-books"]')
 
     @property
     def is_visible(self):
@@ -162,6 +194,6 @@ class SearchPanel:
     def is_visible(self, val):
         self.container.style.display = 'block' if val else 'none'
 
-    def execute_search(self):
-        text = self.container.querySelector('input[name="search-books"]').value or ''
+    def execute_search(self, text=''):
+        text = text or self.search_control.value or ''
         get_boss().ui.books_view.change_search(text)
