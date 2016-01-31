@@ -688,8 +688,7 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
 
     :param usbdevice: As returned by :function:`scan_usb_devices`
     '''
-    ans = {'pnp_id_map': {}, 'drive_letters':[], 'readonly_drives':set()}
-    sort_map = {}
+    ans = {'pnp_id_map': {}, 'drive_letters':[], 'readonly_drives':set(), 'sort_map':{}}
 
     sn_map = get_storage_number_map(debug=debug) if storage_number_map is None else storage_number_map
     if debug:
@@ -697,7 +696,29 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
         prints(pformat(sn_map))
     if not sn_map:
         return ans
+    devid, mi = (usbdev.devid or '').rpartition('&')[::2]
+    if mi.startswith('mi_'):
+        if debug:
+            prints('Iterating over all devices of composite device:', devid)
+        dl = ans['drive_letters']
+        for c in iterusbdevices():
+            if c.devid and c.devid.startswith(devid):
+                a = get_drive_letters_for_device_single(c, sn_map, debug=debug)
+                if debug:
+                    prints('Drive letters for:', c.devid, ':', a['drive_letters'])
+                for m in ('pnp_id_map', 'sort_map'):
+                    ans[m].update(a[m])
+                ans['readonly_drives'] |= a['readonly_drives']
+                for x in a['drive_letters']:
+                    if x not in dl:
+                        dl.append(x)
+        ans['drive_letters'].sort(key=ans['sort_map'].get)
+        return ans
+    else:
+        return get_drive_letters_for_device_single(usbdev, sn_map, debug=debug)
 
+def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False):  # {{{
+    ans = {'pnp_id_map': {}, 'drive_letters':[], 'readonly_drives':set(), 'sort_map':{}}
     descendants = frozenset(iterdescendants(usbdev.devinst))
     for devinfo, devpath in DeviceSet(GUID_DEVINTERFACE_DISK).interfaces():
         if devinfo.DevInst in descendants:
@@ -715,16 +736,16 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
             if debug:
                 prints('Storage number for %s: %s' % (devid, storage_number))
             if storage_number:
-                partitions = sn_map.get(storage_number[:2])
+                partitions = storage_number_map.get(storage_number[:2])
                 drive_letters = []
                 for partition_number, dl in partitions or ():
                     drive_letters.append(dl)
-                    sort_map[dl] = storage_number.number, partition_number
+                    ans['sort_map'][dl] = storage_number.number, partition_number
                 if drive_letters:
                     for dl in drive_letters:
                         ans['pnp_id_map'][dl] = devpath
                         ans['drive_letters'].append(dl)
-    ans['drive_letters'].sort(key=sort_map.get)
+    ans['drive_letters'].sort(key=ans['sort_map'].get)
     for dl in ans['drive_letters']:
         try:
             if is_readonly(dl):
