@@ -114,8 +114,9 @@ class SearchPanel:
             except Exception as err:
                 show_error(err + '')
                 return
-            item_map = tag_browser_data['item_map']
+            item_map = tag_browser_data.item_map
             self.tag_browser_data = tag_browser_data.root
+            self.node_id_map = {}
             process_node(self.tag_browser_data)
             self.render_tag_browser(container, clear_path=True)
         else:
