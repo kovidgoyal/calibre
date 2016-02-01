@@ -10,8 +10,6 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
     QDialogButtonBox, QPushButton, QApplication, QIcon, QMessageBox
 
-from calibre.constants import iswindows
-
 def step_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
     d.setWindowTitle(title)
@@ -60,11 +58,12 @@ class UserDefinedDevice(QDialog):
                 self.close()
                 return
             after = device_info()
-            new_drives = after['drive_set'] - before['drive_set']
             new_devices = after['device_set'] - before['device_set']
             res = ''
-            if (not iswindows or len(new_drives)) and len(new_devices) == 1:
+            if len(new_devices) == 1:
                 def fmtid(x):
+                    if isinstance(x, (int, long)):
+                        x = hex(x)
                     if not x.startswith('0x'):
                         x = '0x' + x
                     return x
@@ -76,20 +75,6 @@ class UserDefinedDevice(QDialog):
                             fmtid(after['device_details'][d][1]) + '\n'
                     res += _('USB Revision ID (in hex)') + ': ' + \
                             fmtid(after['device_details'][d][2]) + '\n'
-                if iswindows:
-                    # sort the drives by the order number
-                    for i,d in enumerate(sorted(new_drives,
-                                    key=lambda x: after['drive_details'][x][0])):
-                        if i == 0:
-                            res +=  _('Windows main memory vendor string') + ': ' + \
-                                    after['drive_details'][d][1] + '\n'
-                            res += _('Windows main memory ID string') + ': ' + \
-                                    after['drive_details'][d][2] + '\n'
-                        else:
-                            res +=  _('Windows card A vendor string') + ': ' + \
-                                    after['drive_details'][d][1] + '\n'
-                            res += _('Windows card A ID string') + ': ' + \
-                                    after['drive_details'][d][2] + '\n'
             trailer = _(
                     'Copy these values to the clipboard, paste them into an '
                     'editor, then enter them into the USER_DEVICE by '

@@ -34,41 +34,33 @@ class USER_DEFINED(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-        _('USB Vendor ID (in hex)') + ':::<p>' +
-            _('Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device') + '</p>',
-        _('USB Product ID (in hex)')+ ':::<p>' +
-            _('Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device') + '</p>',
-        _('USB Revision ID (in hex)')+ ':::<p>' +
-            _('Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device') + '</p>',
+        _('USB Vendor ID (in hex)') + ':::<p>' + _(
+            'Get this ID using Preferences -> Misc -> Get information to '
+            'set up the user-defined device') + '</p>',
+        _('USB Product ID (in hex)')+ ':::<p>' + _(
+            'Get this ID using Preferences -> Misc -> Get information to '
+            'set up the user-defined device') + '</p>',
+        _('USB Revision ID (in hex)')+ ':::<p>' + _(
+            'Get this ID using Preferences -> Misc -> Get information to '
+            'set up the user-defined device') + '</p>',
         '',
-        _('Windows main memory vendor string') + ':::<p>' +
-            _('This field is used only on windows. '
-              'Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device') + '</p>',
-        _('Windows main memory ID string') + ':::<p>' +
-            _('This field is used only on windows. '
-              'Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device') + '</p>',
-        _('Windows card A vendor string') + ':::<p>' +
-            _('This field is used only on windows. '
-              'Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device') + '</p>',
-        _('Windows card A ID string') + ':::<p>' +
-            _('This field is used only on windows. '
-              'Get this ID using Preferences -> Misc -> Get information to '
-              'set up the user-defined device') + '</p>',
-        _('Main memory folder') + ':::<p>' +
-            _('Enter the folder where the books are to be stored. This folder '
-              'is prepended to any send_to_device template') + '</p>',
-        _('Card A folder') + ':::<p>' +
-            _('Enter the folder where the books are to be stored. This folder '
-              'is prepended to any send_to_device template') + '</p>',
-        _('Swap main and card A') + ':::<p>' +
-            _('Check this box if the device\'s main memory is being seen as '
-              'card a and the card is being seen as main memory') + '</p>',
+        _('Unused (leave blank)') + ':::<p>' + _(
+            'This field is no longer used, leave it blank.') + '</p>',
+        _('Unused (leave blank)') + ':::<p>' + _(
+            'This field is no longer used, leave it blank.') + '</p>',
+        _('Unused (leave blank)') + ':::<p>' + _(
+            'This field is no longer used, leave it blank.') + '</p>',
+        _('Unused (leave blank)') + ':::<p>' + _(
+            'This field is no longer used, leave it blank.') + '</p>',
+        _('Main memory folder') + ':::<p>' + _(
+            'Enter the folder where the books are to be stored. This folder '
+            'is prepended to any send_to_device template') + '</p>',
+        _('Card A folder') + ':::<p>' + _(
+            'Enter the folder where the books are to be stored. This folder '
+            'is prepended to any send_to_device template') + '</p>',
+        _('Swap main and card A') + ':::<p>' + _(
+            'Check this box if the device\'s main memory is being seen as '
+            'card a and the card is being seen as main memory') + '</p>',
     ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
                 '0xffff',
