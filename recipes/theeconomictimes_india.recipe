@@ -16,7 +16,7 @@ class TheEconomicTimes(BasicNewsRecipe):
     oldest_article         = 1
     max_articles_per_feed  = 100
     no_stylesheets         = True
-    use_embedded_content   = False
+    #use_embedded_content   = False
     simultaneous_downloads = 1
     encoding               = 'utf-8'
     language               = 'en_IN'
@@ -24,20 +24,27 @@ class TheEconomicTimes(BasicNewsRecipe):
     masthead_url           = 'http://economictimes.indiatimes.com/photo/2676871.cms'
     extra_css              = """
                                  body{font-family: Arial,Helvetica,sans-serif}
-                                 .foto_mg{font-size: 60%; 
+                                 .foto_mg{font-size: 60%;
                                           font-weight: 700;}
                                  h1{font-size: 150%;}
                                  artdate{font-size: 60%}
                                  artag{font-size: 60%}
                                  div.storycontent{padding-top: 10px}
                              """
-    conversion_options     = {'comment'          : description, 
+    conversion_options     = {'comment'          : description,
                               'tags'             : category,
                               'publisher'        : publisher,
                               'language'         : language
                              }
-    remove_tags_before     = dict(name='h1')
-    remove_tags_after      = dict(name='div', attrs={'class':'storycontent'})
+    remove_tags_before     = dict(name='article')
+    remove_tags_after      = [dict(name='article')]
+    remove_tags			   = [dict(name='div', attrs={'class':'cmtLinks'}),
+                              dict(name='div', attrs={'class':'raltedTopics'}),
+                              dict(name='div', attrs={'class':'editorsPick'}),
+                              dict(name='div', attrs={'class':'articleImg etSpecial'}),
+                              dict(name='div', attrs={'class':'articleImg artAd'}),
+                              dict(name='div', attrs={'class':'appPromotion'})
+                             ]
     remove_attributes      = ['xmlns']
     feeds                  = [(u'Top Stories', u'http://economictimes.indiatimes.com/rssfeedstopstories.cms'),
                               (u'News', u'http://economictimes.indiatimes.com/News/rssfeeds/1715249553.cms'),
@@ -48,17 +55,17 @@ class TheEconomicTimes(BasicNewsRecipe):
                               (u'Opinion', u'http://economictimes.indiatimes.com/opinion/opinionshome/rssfeeds/897228639.cms'),
                               (u'Features', u'http://economictimes.indiatimes.com/Features/etfeatures/rssfeeds/1466318837.cms'),
                               (u'Environment', u'http://economictimes.indiatimes.com/rssfeeds/2647163.cms'),
-                              (u'NRI', u'http://economictimes.indiatimes.com/rssfeeds/7771250.cms')]
+                              (u'NRI', u'http://economictimes.indiatimes.com/rssfeeds/7771250.cms')
+                            ]
 
-
-
-    #Uses the mobile print version. For web print version use 'http://economictimes.indiatimes.com/articleshow/<article_id>?prtpage=1'
+    # Uses the mobile print version. For web print version use 'http://economictimes.indiatimes.com/articleshow/<article_id>?prtpage=1'
     def print_version(self, url):
         rest, sep, article_id = url.rpartition('/articleshow/')
-        return 'http://m.economictimes.com/PDAET/articleshow/' + article_id
+        # return 'http://m.economictimes.com/PDAET/articleshow/' + article_id
+        return 'http://economictimes.indiatimes.com/articleshow/' + article_id+ '?prtpage=1'
 
     def get_article_url(self, article):
-        rurl = article.get('guid',  None)
+        rurl = article.get('link',  None)
         if (rurl.find('/quickieslist/') > 0) or (rurl.find('/quickiearticleshow/') > 0):
             return None
         return rurl
