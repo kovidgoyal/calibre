@@ -717,7 +717,7 @@ def get_drive_letters_for_device(usbdev, storage_number_map=None, debug=False): 
     else:
         return get_drive_letters_for_device_single(usbdev, sn_map, debug=debug)
 
-def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False):  # {{{
+def get_drive_letters_for_device_single(usbdev, storage_number_map, debug=False):
     ans = {'pnp_id_map': {}, 'drive_letters':[], 'readonly_drives':set(), 'sort_map':{}}
     descendants = frozenset(iterdescendants(usbdev.devinst))
     for devinfo, devpath in DeviceSet(GUID_DEVINTERFACE_DISK).interfaces():
@@ -829,18 +829,14 @@ def get_usb_info(usbdev, debug=False):  # {{{
     :param usbdev: A usb device as returned by :function:`scan_usb_devices`
     '''
     ans = {}
-    try:
-        parent = next(iterancestors(usbdev.devinst))
-    except StopIteration:
-        if debug:
-            prints('Cannot get USB info as device has no parent (was probably disconnected)')
-        return ans
-    for devinfo, parent_path in DeviceSet(guid=GUID_DEVINTERFACE_USB_HUB).interfaces():
-        if devinfo.DevInst == parent:
+    hub_map = {devinfo.DevInst:path for devinfo, path in DeviceSet(guid=GUID_DEVINTERFACE_USB_HUB).interfaces()}
+    for parent in iterancestors(usbdev.devinst):
+        parent_path = hub_map.get(parent)
+        if parent_path is not None:
             break
     else:
         if debug:
-            prints('Cannot get USB info as parent of device is not a HUB')
+            prints('Cannot get USB info as parent of device is not a HUB or device has no parent (was probably disconnected)')
         return ans
     for devlist, devinfo in DeviceSet(guid=GUID_DEVINTERFACE_USB_DEVICE).devices():
         if devinfo.DevInst == usbdev.devinst:
@@ -850,7 +846,7 @@ def get_usb_info(usbdev, debug=False):  # {{{
         return ans
     if not device_port:
         if debug:
-            prints('Cannot get usb info as the SPDRP_ADDRESS property is not present int he registry (can happen with broken USB hub drivers)')
+            prints('Cannot get usb info as the SPDRP_ADDRESS property is not present in the registry (can happen with broken USB hub drivers)')
         return ans
     handle = CreateFile(parent_path, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, None, OPEN_EXISTING, 0, None)
     try:
