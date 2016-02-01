@@ -16,7 +16,7 @@ from future_builtins import zip
 from lxml import etree
 from cssutils import replaceUrls, getUrls
 
-from calibre import CurrentDir
+from calibre import CurrentDir, prepare_string_for_xml
 from calibre.constants import iswindows
 from calibre.customize.ui import (plugin_for_input_format, plugin_for_output_format)
 from calibre.ebooks.chardet import xml_to_unicode
@@ -1103,7 +1103,7 @@ class EpubContainer(Container):
                 package_id = val
                 break
         if package_id is not None:
-            for elem in self.opf_xpath('//*[@id=%r]'%package_id):
+            for elem in self.opf_xpath('//*[@id="%s"]'%prepare_string_for_xml(package_id, True)):
                 if elem.text:
                     raw_unique_identifier = elem.text
                     break
