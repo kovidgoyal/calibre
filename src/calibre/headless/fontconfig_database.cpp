@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2014 Digia Plc and/or its subsidiary(-ies).
-** Contact: http://www.qt-project.org/legal
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
 **
 ** This file is part of the plugins of the Qt Toolkit.
 **
@@ -10,9 +10,9 @@
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
 ** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and Digia. For licensing terms and
-** conditions see http://qt.digia.com/licensing. For further information
-** use the contact form at http://qt.digia.com/contact-us.
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
 **
 ** GNU Lesser General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU Lesser
@@ -23,8 +23,8 @@
 ** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
 ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
 **
-** In addition, as a special exception, Digia gives you certain additional
-** rights. These rights are described in the Digia Qt LGPL Exception
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
 ** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
 **
 ** $QT_END_LICENSE$
@@ -44,6 +44,9 @@
 #include <QtPlatformSupport/private/qfontenginemultifontconfig_p.h>
 #include <QtGui/private/qfontengine_ft_p.h>
 #include <QtGui/private/qguiapplication_p.h>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+#include <QtGui/private/qhighdpiscaling_p.h>
+#endif
 
 #include <QtGui/qguiapplication.h>
 
@@ -266,10 +269,20 @@ static const char *specialLanguages[] = {
     "sa", // Siddham
     "sd", // Khudawadi
     "mai", // Tirhuta
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+    "hoc", // WarangCiti
+    "", // Ahom
+    "", // AnatolianHieroglyphs
+    "", // Hatran
+    "", // Multani
+    "", // OldHungarian
+    ""  // SignWriting
+#else
     "hoc"  // WarangCiti
+#endif  // Qt >= 5.6.0
 #else
     "doi" // Takri
-#endif
+#endif // Qt >= 5.5.0
 
 };
 Q_STATIC_ASSERT(sizeof(specialLanguages) / sizeof(const char *) == QChar::ScriptCount);
@@ -587,6 +600,11 @@ QFontEngine::HintStyle defaultHintStyleFromMatch(QFont::HintingPreference hintin
     }
 
     // Removed by Kovid for headless QPA
+	
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+    if (QHighDpiScaling::isActive())
+        return QFontEngine::HintNone;
+#endif
 
     if (useXftConf) {
         void *hintStyleResource =
@@ -739,15 +757,19 @@ QStringList QFontconfigDatabase::fallbacksForFamily(const QString &family, QFont
     FcPatternDestroy(pattern);
 
     if (fontSet) {
+        QSet<QString> duplicates;
+        duplicates.reserve(fontSet->nfont + 1);
+        duplicates.insert(family.toCaseFolded());
         for (int i = 0; i < fontSet->nfont; i++) {
             FcChar8 *value = 0;
             if (FcPatternGetString(fontSet->fonts[i], FC_FAMILY, 0, &value) != FcResultMatch)
                 continue;
             //         capitalize(value);
-            QString familyName = QString::fromUtf8((const char *)value);
-            if (!fallbackFamilies.contains(familyName,Qt::CaseInsensitive) &&
-                familyName.compare(family, Qt::CaseInsensitive)) {
+            const QString familyName = QString::fromUtf8((const char *)value);
+            const QString familyNameCF = familyName.toCaseFolded();
+            if (!duplicates.contains(familyNameCF)) {
                 fallbackFamilies << familyName;
+                duplicates.insert(familyNameCF);
             }
         }
         FcFontSetDestroy(fontSet);
@@ -885,10 +907,8 @@ void QFontconfigDatabase::setupFontEngine(QFontEngineFT *engine, const QFontDef 
                 QGuiApplication::platformNativeInterface()->nativeResourceForScreen("antialiasingEnabled",
                                                                                     QGuiApplication::primaryScreen());
         int antialiasingEnabled = int(reinterpret_cast<qintptr>(antialiasResource));
-        if (antialiasingEnabled > 0) {
+        if (antialiasingEnabled > 0)
             antialias = antialiasingEnabled - 1;
-            forcedAntialiasSetting = true;
-        }
     }
 
     QFontEngine::GlyphFormat format;
@@ -964,5 +984,3 @@ void QFontconfigDatabase::setupFontEngine(QFontEngineFT *engine, const QFontDef 
 }
 
 QT_END_NAMESPACE
-
-
