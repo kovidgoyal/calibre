@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, time
 from collections import defaultdict
 from future_builtins import map
 
@@ -32,9 +32,18 @@ def metadata_extensions():
         _metadata_extensions =  frozenset(map(unicode, BOOK_EXTENSIONS)) | {'opf'}
     return _metadata_extensions
 
-def listdir(root):
-    for path in os.listdir(root):
-        yield os.path.abspath(os.path.join(root, path))
+def listdir(root, sort_by_mtime=False):
+    items = (os.path.join(root, x) for x in os.listdir(root))
+    if sort_by_mtime:
+        def safe_mtime(x):
+            try:
+                return os.path.getmtime(x)
+            except EnvironmentError:
+                return time.time()
+        items = sorted(items, key=safe_mtime)
+
+    for path in items:
+        yield path
 
 def find_books_in_directory(dirpath, single_book_per_directory):
     dirpath = os.path.abspath(dirpath)
@@ -49,7 +58,7 @@ def find_books_in_directory(dirpath, single_book_per_directory):
             yield list(formats.itervalues())
     else:
         books = defaultdict(dict)
-        for path in listdir(dirpath):
+        for path in listdir(dirpath, sort_by_mtime=True):
             key, ext = splitext(path)
             if ext in book_extentions and path_ok(path):
                 books[icu_lower(key) if isinstance(key, unicode) else key.lower()][ext] = path
