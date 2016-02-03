@@ -307,6 +307,7 @@ class Tester(Dialog):
         h.addWidget(b)
         self.result = la = QLabel(self)
         la.setWordWrap(True)
+        la.setText('<p>&nbsp;<br>&nbsp;</p>')
         l.addWidget(la)
         l.addWidget(self.bb)
 
