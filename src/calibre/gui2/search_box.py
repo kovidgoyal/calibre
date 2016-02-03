@@ -10,9 +10,10 @@ import re, time
 from functools import partial
 
 
-from PyQt5.Qt import QComboBox, Qt, QLineEdit, pyqtSlot, QDialog, \
-                     pyqtSignal, QCompleter, QAction, QKeySequence, QTimer, \
-                     QIcon, QMenu
+from PyQt5.Qt import (
+    QComboBox, Qt, QLineEdit, pyqtSlot, QDialog,
+    pyqtSignal, QCompleter, QAction, QKeySequence, QTimer,
+    QIcon, QMenu, QApplication, QKeyEvent)
 
 from calibre.gui2 import config, error_dialog, question_dialog, gprefs
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -40,7 +41,22 @@ class SearchLineEdit(QLineEdit):  # {{{
 
     def contextMenuEvent(self, ev):
         self.parent().normalize_state()
-        return QLineEdit.contextMenuEvent(self, ev)
+        menu = self.createStandardContextMenu()
+        menu.setAttribute(Qt.WA_DeleteOnClose)
+        for action in menu.actions():
+            if action.text().startswith(_('&Paste') + '\t'):
+                break
+        ac = menu.addAction(_('Paste and &search'))
+        ac.setEnabled(bool(QApplication.clipboard().text()))
+        ac.setIcon(QIcon(I('search.png')))
+        ac.triggered.connect(self.paste_and_search)
+        menu.insertAction(action, ac)
+        menu.exec_(ev.globalPos())
+
+    def paste_and_search(self):
+        self.paste()
+        ev = QKeyEvent(QKeyEvent.KeyPress, Qt.Key_Enter, Qt.NoModifier)
+        self.keyPressEvent(ev)
 
     @pyqtSlot()
     def paste(self, *args):
