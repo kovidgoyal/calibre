@@ -25,7 +25,7 @@ class DeviceDefaults(object):
                 # B&N devices
                 ({'vendor':0x2080}, {
                     'format_map': ['epub', 'pdf'],
-                    'send_to': ['NOOK/My Files', 'NOOK', 'Calibre_Companion', 'Books',
+                    'send_to': ['NOOK/My Books', 'NOOK/My Files', 'NOOK', 'Calibre_Companion', 'Books',
                     'eBooks/import', 'eBooks', 'sdcard/ebooks'],
                     }
                 ),
