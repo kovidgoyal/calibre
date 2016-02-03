@@ -297,3 +297,16 @@ def generate_masthead(title, output_path=None, width=600, height=60):
     from calibre.ebooks.covers import generate_masthead
     return generate_masthead(title, output_path=output_path, width=width, height=height, font_family=masthead_font_family)
 
+def escape_xpath_attr(value):
+    if '"' in value:
+        if "'" in value:
+            parts = re.split('("+)', value)
+            ans = []
+            for x in parts:
+                if x:
+                    q = "'" if '"' in x else '"'
+                    ans.append(q + x + q)
+            return 'concat(%s)' % ', '.join(ans)
+        else:
+            return "'%s'" % value
+    return '"%s"' % value

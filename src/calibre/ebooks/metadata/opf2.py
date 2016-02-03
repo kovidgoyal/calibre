@@ -13,6 +13,7 @@ from urlparse import urlparse
 
 from lxml import etree
 
+from calibre.ebooks import escape_xpath_attr
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
@@ -20,7 +21,7 @@ from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_is
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
 from calibre.utils.localization import get_lang, canonicalize_lang
-from calibre import prints, guess_type, prepare_string_for_xml
+from calibre import prints, guess_type
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 from calibre.utils.config import tweaks
 
@@ -1120,7 +1121,7 @@ class OPF(object):  # {{{
                 uuid_elem = self.root.attrib[attr]
                 break
         if uuid_elem:
-            matches = self.root.xpath('//*[@id="%s"]'%prepare_string_for_xml(uuid_elem, True))
+            matches = self.root.xpath('//*[@id=%s]'%escape_xpath_attr(uuid_elem))
             if matches:
                 for m in matches:
                     raw = m.text
