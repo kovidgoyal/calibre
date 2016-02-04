@@ -164,8 +164,63 @@ class SearchPanel:
             div.firstChild.addEventListener('click', click_handler(self.node_clicked, i))
             container.appendChild(div)
 
-    def search_expression_for_item(self, node):
-        pass
+    def search_expression_for_item(self, node, state):
+        item = node.data
+        if item.is_searchable is False or not state or state == 'clear':
+            return ''
+
+        search_state = {'plus':'true', 'plusplus':'.true', 'minus':'false', 'minusminus':'.false'}[state]
+
+        if item.is_category:
+            category = item.category
+
+            if item.is_first_letter:
+                letters_seen = {}
+                for child in node.children:
+                    if child.data.sort:
+                        letters_seen[child.data.sort[0]] = True
+                letters_seen = Object.keys(letters_seen)
+                if letters_seen.length:
+                    charclass = letters_seen.join('')
+                    if category == 'authors':
+                        expr = str.format(r'author_sort:"~(^[{0}])|(&\s*[{0}])"', charclass)
+                    elif category == 'series':
+                        expr = str.format(r'series_sort:"~^[{0}]"', charclass)
+                    else:
+                        expr = str.format(r'{0}:"~^[{1}]"', category, charclass)
+                else:
+                    expr = str.format('{}:false', category)
+
+            elif category == 'news':
+                expr = str.format('tags:"={}"', item.name)
+
+            else:
+                return str.format('{}:{}', category, search_state)
+
+            if 'false' in search_state:
+                expr = '(not ' + expr + ')'
+            return expr
+
+        category = 'tags' if item.category == 'news' else item.category
+        if item.name and item.name[0] == '★':
+            # Assume ratings
+            expr = str.format('{}:{}', category, item.name.length)
+        else:
+            fm = self.interface_data.field_metadata[item.category]
+            suffix = ':' if fm and fm.is_csp else ''
+            name = item.name or item.sort
+            if not name:
+                return ''
+            name = str.replace(name, '"', r'\"')
+            if name[0] == '.':
+                name = '.' + name
+            if search_state == 'plusplus' or search_state == 'minusminus':
+                name = '.' + name
+            expr = str.format('{}:"={}{}"', category, name, suffix)
+
+        if 'false' in search_state:
+            expr = '(not ' + expr + ')'
+        return expr
 
     def node_clicked(self, i):
         node = self.node_for_path().children[i]
@@ -173,7 +228,8 @@ class SearchPanel:
             self.tag_path.append(i)
             self.render_tag_browser()
         else:
-            self.execute_search(self.search_expression_for_item(node))
+            expr = self.search_expression_for_item(node, 'plus')
+            self.execute_search(expr)
 
     @property
     def container(self):

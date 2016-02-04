@@ -65,7 +65,7 @@ _include_fields = frozenset(Tag.__slots__) - frozenset({
 
 def category_as_json(items, category, display_name, count, tooltip=None, parent=None,
         is_editable=True, is_gst=False, is_hierarchical=False, is_searchable=True,
-        is_user_category=False):
+        is_user_category=False, is_first_letter=False):
     ans = {'category': category, 'name': display_name, 'is_category':True, 'count':count}
     if tooltip:
         ans['tooltip'] = tooltip
@@ -81,6 +81,8 @@ def category_as_json(items, category, display_name, count, tooltip=None, parent=
         ans['is_searchable'] = True
     if is_user_category:
         ans['is_user_category'] = True
+    if is_first_letter:
+        ans['is_first_letter'] = True
     item_id = 'c' + str(len(items))
     items[item_id] = ans
     return item_id
@@ -93,11 +95,13 @@ def category_item_as_json(x, clear_rating=False):
             if k == 'original_categories':
                 val = tuple(val)
             ans[k] = val.copy() if isinstance(val, set) else val
+    s = ans.get('sort')
     if x.use_sort_as_name:
-        ans['name'] = ans['sort']
+        ans['name'] = s
     if x.original_name != ans['name']:
         ans['original_name'] = x.original_name
-    ans.pop('sort', None)
+    if x.use_sort_as_name or not s or s == ans['name']:
+        ans.pop('sort', None)
     if clear_rating:
         del ans['avg_rating']
     return ans
@@ -300,7 +304,7 @@ def collapse_first_letter(collapse_nodes, items, category_node, cl_list, idx, is
         node_id = category_as_json(
             items, items[category_node['id']]['category'], collapse_letter, 0,
             parent=category_node['id'], is_editable=False, is_gst=is_gst,
-            is_hierarchical=category_is_hierarchical)
+            is_hierarchical=category_is_hierarchical, is_first_letter=True)
         node_parent = {'id':node_id, 'children':[]}
         category_node['children'].append(node_parent)
         collapse_nodes.append(node_parent)
