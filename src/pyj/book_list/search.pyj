@@ -70,8 +70,11 @@ class SearchPanel:
         # keyboard to popup and obscure the rest of the page
         # tb.focus()
         tb.setSelectionRange(0, tb.value.length)
+        self.tag_path = []
         if not self.initial_load_started:
             self.refresh()
+        else:
+            self.render_tag_browser()
 
     def refresh(self):
         if self.currently_loading is not None:
@@ -118,7 +121,7 @@ class SearchPanel:
             self.tag_browser_data = tag_browser_data.root
             self.node_id_map = {}
             process_node(self.tag_browser_data)
-            self.render_tag_browser(container, clear_path=True)
+            self.render_tag_browser(container)
         else:
             show_error(xhr.error_html)
 
@@ -129,9 +132,7 @@ class SearchPanel:
             ans = ans.children[child_index]
         return ans
 
-    def render_tag_browser(self, container=None, clear_path=False):
-        if clear_path:
-            self.tag_path = []
+    def render_tag_browser(self, container=None):
         container = container or self.tb_container
         clear(container)
         set_css(container, padding='1rem', display='flex', flex_wrap='wrap')
