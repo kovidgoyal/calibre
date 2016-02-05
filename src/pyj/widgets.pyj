@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from dom import build_rule
+from dom import build_rule, clear
 from elementmaker import E
 
 from book_list.theme import get_color
@@ -29,7 +29,65 @@ create_button.style += build_rule('button.calibre-push-button:active', transform
 def create_spinner():
     return E.i(class_='fa fa-spin fa-spinner')
 
+id_counter = 0
+
+class Breadcrumbs:
+
+    STYLE_RULES =  build_rule(
+        '.calibre-breadcrumbs',
+        user_select='none', white_space='nowrap', background_color=get_color('window-background2'),
+        z_index='-1', border_radius='10px', margin='1ex 1em', margin_bottom='0'
+    )
+
+    STYLE_RULES += build_rule(
+        '.calibre-breadcrumbs > li',
+        cursor='pointer', display='inline-block', line_height='26px', margin='0 9px 0 -10px',
+        padding='0.5ex 1rem', position='relative'
+    )
+
+    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:hover', color='red')
+
+    STYLE_RULES += build_rule('.calibre-breadcrumbs > li:active', color='red', transform='scale(1.5)')
+
+    STYLE_RULES += build_rule(
+        '.calibre-breadcrumbs > li:before, .calibre-breadcrumbs > li:after',
+        border_right='2px solid currentColor', content='""', display='block', height='50%',
+        position='absolute', left='0', top='0', right='0', transform='skewX(45deg)'
+    )
+
+    STYLE_RULES += build_rule(
+        '.calibre-breadcrumbs > li:after',
+        bottom='0', top='auto', transform='skewX(-45deg)'
+    )
+
+    STYLE_RULES += build_rule(
+        '.calibre-breadcrumbs > li:last-of-type:before, .calibre-breadcrumbs > li:last-of-type:after',
+        display='none')
+
+
+    def __init__(self, container):
+        nonlocal id_counter id_counter += 1
+        container.setAttribute('id', container.getAttribute('id') or ('calibre-breadcrumbs-' + id_counter))
+        container.classList.add('calibre-breadcrumbs')
+        clear(container)
+        self.container_id = container.getAttribute('id')
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    def reset(self):
+        clear(self.container)
+
+    def add_crumb(self, callback):
+        li = E.li()
+        if callback:
+            li.addEventListener('click', callback)
+        self.container.appendChild(li)
+        return li
+
 def get_widget_css():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
     ans += create_button.style
+    ans += Breadcrumbs.prototype.STYLE_RULES
     return ans

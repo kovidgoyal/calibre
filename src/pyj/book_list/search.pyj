@@ -5,7 +5,7 @@ from ajax import ajax
 from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
-from widgets import create_button, BUTTON_VPADDING, create_spinner
+from widgets import create_button, BUTTON_VPADDING, create_spinner, Breadcrumbs
 from book_list.globals import get_boss, get_session_data
 from book_list.theme import get_color
 
@@ -25,14 +25,6 @@ class SearchPanel:
         style += build_rule('#' + self.container_id + ' div.tag-menu:active', transform='scale(2)')
 
         # Breadcrumbs
-        style += build_rule('#' + self.container_id + ' ol.breadcrumbs', user_select='none', white_space='nowrap', background_color=get_color('window-background2'), z_index='-1', border_radius='10px', margin='1ex 1em', margin_bottom='0')
-        style += build_rule('#' + self.container_id + ' ol.breadcrumbs li', cursor='pointer', display='inline-block', line_height='26px', margin='0 9px 0 -10px', padding='0.5ex 1rem', position='relative')
-        style += build_rule('#' + self.container_id + ' ol.breadcrumbs li:hover', color='red')
-        style += build_rule('#' + self.container_id + ' ol.breadcrumbs li:active', transform='scale(1.5)', color='red')
-        style += build_rule(str.format('#{0} ol.breadcrumbs li:before, #{0} ol.breadcrumbs li:after', self.container_id),
-                            border_right='2px solid currentColor', content='""', display='block', height='50%', position='absolute', left='0', top='0', right='0', transform='skewX(45deg)')
-        style += build_rule('#' + self.container_id + ' ol.breadcrumbs li:after', bottom='0', top='auto', transform='skewX(-45deg)')
-        style += build_rule(str.format('#{0} ol.breadcrumbs li:last-of-type:before, #{0} ol.breadcrumbs li:last-of-type:after', self.container_id), display='none')
 
         div = E.div(
             id=self.container_id, style='display:none',
@@ -40,8 +32,8 @@ class SearchPanel:
             E.div(style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-bottom: 0.5ex"),  # search input container
             E.div(
                 E.div(),
-                E.ol(class_='breadcrumbs', style="display:none"),
-                E.div(style="display:none")
+                E.ol(style="display:none"), # breadcrumbs container
+                E.div(style="display:none") # tag browser container
             )
         )
         book_list_container.appendChild(div)
@@ -71,6 +63,7 @@ class SearchPanel:
             create_spinner(), '\xa0' + _('Fetching data for the tag browser, please wait') + '…',
             style='margin-left:auto; margin-right:auto; font-size: 1.5rem; font-weight; bold; text-align:center; margin-top:30vh')
         )
+        self.breadcrumbs = Breadcrumbs(self.breadcrumbs_container)
         self.initial_load_started = False
         self.currently_loading = None
         self.tag_browser_data = None
@@ -176,6 +169,7 @@ class SearchPanel:
             )
             set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
             div.firstChild.addEventListener('click', click_handler(self.node_clicked, i))
+            div.lastChild.addEventListener('click', click_handler(self.menu_clicked, i))
             container.appendChild(div)
 
     def render_breadcrumbs(self):
@@ -183,8 +177,8 @@ class SearchPanel:
         if not self.tag_path.length:
             container.style.display = 'none'
             return
-        clear(self.breadcrumbs_container)
         container.style.display = 'inline-block'
+        self.breadcrumbs.reset()
 
         def onclick(i):
             return def(ev):
@@ -194,12 +188,11 @@ class SearchPanel:
                 return True
 
         def create_breadcrumb(index=-1, item=None):
+            li = self.breadcrumbs.add_crumb(onclick(index))
             if item:
-                li = E.li(item.name)
+                li.appendChild(E.span(item.name))
             else:
-                li = E.li(E.i(class_='fa fa-home fa-lg'))
-            container.appendChild(li)
-            li.addEventListener('click', onclick(index))
+                li.appendChild(E.i(class_='fa fa-home fa-lg'))
 
         create_breadcrumb()
         parent = self.tag_browser_data
@@ -273,6 +266,10 @@ class SearchPanel:
         else:
             expr = self.search_expression_for_item(node, 'plus')
             self.execute_search(expr)
+
+    def menu_clicked(self, i):
+        node = self.node_for_path().children[i]
+        node
 
     @property
     def container(self):
