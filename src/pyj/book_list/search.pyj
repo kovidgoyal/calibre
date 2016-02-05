@@ -23,12 +23,24 @@ class SearchPanel:
         style += build_rule('#' + self.container_id + ' div.tag-menu:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
         style += build_rule('#' + self.container_id + ' div.tag-name:active', transform='scale(1.5)')
         style += build_rule('#' + self.container_id + ' div.tag-menu:active', transform='scale(2)')
+
+        # Breadcrumbs
+        style += build_rule('#' + self.container_id + ' ol.breadcrumbs', user_select='none', white_space='nowrap', box_shadow='0 0 5px 1px rgba(0, 0, 0, 0.35)', border_radius='10px', margin='1ex 1em', margin_bottom='0')
+        style += build_rule('#' + self.container_id + ' ol.breadcrumbs li', cursor='pointer', display='inline-block', line_height='26px', margin='0 9px 0 -10px', padding='0.5ex 1rem', position='relative')
+        style += build_rule('#' + self.container_id + ' ol.breadcrumbs li:hover', font_weight='bold', font_style='italic', color='red')
+        style += build_rule('#' + self.container_id + ' ol.breadcrumbs li:active', transform='scale(2)', color='red')
+        style += build_rule(str.format('#{0} ol.breadcrumbs li:before, #{0} ol.breadcrumbs li:after', self.container_id),
+                            border_right='2px solid currentColor', content='""', display='block', height='50%', position='absolute', left='0', top='0', right='0', z_index='-1', transform='skewX(45deg)')
+        style += build_rule('#' + self.container_id + ' ol.breadcrumbs li:after', bottom='0', top='auto', transform='skewX(-45deg)')
+        style += build_rule(str.format('#{0} ol.breadcrumbs li:last-of-type:before, #{0} ol.breadcrumbs li:last-of-type:after', self.container_id), display='none')
+
         div = E.div(
             id=self.container_id, style='display:none',
             E.style(style, type='text/css'),
             E.div(style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-bottom: 0.5ex"),  # search input container
             E.div(
                 E.div(),
+                E.ol(class_='breadcrumbs', style="display:none"),
                 E.div(style="display:none")
             )
         )
@@ -135,8 +147,9 @@ class SearchPanel:
     def render_tag_browser(self, container=None):
         container = container or self.tb_container
         clear(container)
-        set_css(container, padding='1rem', display='flex', flex_wrap='wrap')
+        set_css(container, padding='1ex 1em', display='flex', flex_wrap='wrap', margin_left='-0.5rem')
         self.render_children(container, self.node_for_path().children)
+        self.render_breadcrumbs()
 
     def icon_for_node(self, node):
         ans = self.interface_data.icon_map[node.data.category] or 'column.png'
@@ -164,6 +177,35 @@ class SearchPanel:
             set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
             div.firstChild.addEventListener('click', click_handler(self.node_clicked, i))
             container.appendChild(div)
+
+    def render_breadcrumbs(self):
+        container = self.breadcrumbs_container
+        if not self.tag_path.length:
+            container.style.display = 'none'
+            return
+        clear(self.breadcrumbs_container)
+        container.style.display = 'inline-block'
+
+        def onclick(i):
+            return def(ev):
+                self.tag_path = self.tag_path[:i+1]
+                self.render_tag_browser()
+                ev.preventDefault()
+                return True
+
+        def create_breadcrumb(index=-1, item=None):
+            if item:
+                li = E.li(item.name)
+            else:
+                li = E.li(E.i(class_='fa fa-home fa-lg'))
+            container.appendChild(li)
+            li.addEventListener('click', onclick(index))
+
+        create_breadcrumb()
+        parent = self.tag_browser_data
+        for i, index in enumerate(self.tag_path):
+            parent = parent.children[index]
+            create_breadcrumb(i, parent.data)
 
     def search_expression_for_item(self, node, state):
         item = node.data
@@ -235,6 +277,10 @@ class SearchPanel:
     @property
     def container(self):
         return document.getElementById(self.container_id)
+
+    @property
+    def breadcrumbs_container(self):
+        return self.tb_container.previousSibling
 
     @property
     def tb_container(self):
