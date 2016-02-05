@@ -13,8 +13,6 @@ from calibre.ebooks.metadata import (
     MetaInformation, string_to_authors, check_isbn, check_doi)
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
-#_isbn_pat = re.compile(r'ISBN[: ]*([-0-9Xx]+)')
-
 def get_tools():
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
     base = os.path.dirname(PDFTOHTML)
