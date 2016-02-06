@@ -158,8 +158,8 @@ class SearchPanel:
             div = E.div(
                     style="display:flex; align-items: stretch",
                     E.div(class_='tag-name',
-                        style='border-right:solid 1px currentColor; padding: 1ex; display:block',
-                        E.img(src=self.icon_for_node(node), style='vertical-align:middle; display:inline-block; max-height:4ex'),
+                        style='border-right:solid 1px currentColor; padding: 1ex; display:flex; align-items: center',
+                        E.img(src=self.icon_for_node(node), style='display:inline-block; max-height:2.5ex'),
                         '\xa0' + node.data.name
                     ),
                     E.div(class_='tag-menu',
