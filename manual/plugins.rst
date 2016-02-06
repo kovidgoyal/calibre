@@ -126,8 +126,6 @@ The base class for such devices is :class:`calibre.devices.usbms.driver.USBMS`. 
         PRODUCT_ID  = [0xb004]
         BCD         = [0x224]
 
-        VENDOR_NAME = 'ANDROID'
-        WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = '__UMS_COMPOSITE'
         THUMBNAIL_HEIGHT = 144
 
         EBOOK_DIR_MAIN = 'eBooks'
