@@ -658,7 +658,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def _put_file(self, infile, lpath, book_metadata, this_book, total_books):
         close_ = False
         if not hasattr(infile, 'read'):
-            infile, close_ = open(infile, 'rb'), True
+            infile, close_ = lopen(infile, 'rb'), True
         infile.seek(0, os.SEEK_END)
         length = infile.tell()
         book_metadata.size = length
@@ -783,7 +783,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         try:
             count = 0
             if os.path.exists(cache_file_name):
-                with open(cache_file_name, mode='rb') as fd:
+                with lopen(cache_file_name, mode='rb') as fd:
                     while True:
                         rec_len = fd.readline()
                         if len(rec_len) != 8:
@@ -820,7 +820,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
             count = 0
             prefix = os.path.join(cache_dir(),
                         'wireless_device_' + self.device_uuid + '_metadata_cache')
-            with open(prefix + '.tmp', mode='wb') as fd:
+            with lopen(prefix + '.tmp', mode='wb') as fd:
                 for key,book in self.device_book_cache.iteritems():
                     if (now_ - book['last_used']).days > self.PURGE_CACHE_ENTRIES_DAYS:
                         purged += 1
@@ -913,7 +913,7 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         from calibre.ebooks.metadata.meta import get_metadata
         from calibre.customize.ui import quick_metadata
         ext = temp_file_name.rpartition('.')[-1].lower()
-        with open(temp_file_name, 'rb') as stream:
+        with lopen(temp_file_name, 'rb') as stream:
             with quick_metadata:
                 return get_metadata(stream, stream_type=ext,
                         force_read_metadata=True,

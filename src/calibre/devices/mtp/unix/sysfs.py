@@ -28,7 +28,7 @@ class MTPDetect(object):
 
         def read(x):
             try:
-                with open(x, 'rb') as f:
+                with lopen(x, 'rb') as f:
                     return f.read()
             except EnvironmentError:
                 pass

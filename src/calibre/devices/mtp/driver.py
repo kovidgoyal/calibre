@@ -341,7 +341,7 @@ class MTP_DEVICE(BASE):
             if iswindows:
                 plen = len(base)
                 name = ''.join(shorten_components_to(245-plen, [name]))
-            with open(os.path.join(base, name), 'wb') as out:
+            with lopen(os.path.join(base, name), 'wb') as out:
                 try:
                     self.get_mtp_file(f, out)
                 except Exception as e:

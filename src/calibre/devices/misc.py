@@ -97,7 +97,7 @@ class PDNOVEL(USBMS):
     def upload_cover(self, path, filename, metadata, filepath):
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
-            with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
+            with lopen('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
                 fsync(coverfile)
 
@@ -116,7 +116,7 @@ class PDNOVEL_KOBO(PDNOVEL):
             dirpath = os.path.join(path, '.thumbnail')
             if not os.path.exists(dirpath):
                 os.makedirs(dirpath)
-            with open(os.path.join(dirpath, filename+'.jpg'), 'wb') as coverfile:
+            with lopen(os.path.join(dirpath, filename+'.jpg'), 'wb') as coverfile:
                 coverfile.write(coverdata[2])
                 fsync(coverfile)
 
@@ -189,7 +189,7 @@ class LUMIREAD(USBMS):
             pdir = os.path.dirname(cfilepath)
             if not os.path.exists(pdir):
                 os.makedirs(pdir)
-            with open(cfilepath+'.jpg', 'wb') as f:
+            with lopen(cfilepath+'.jpg', 'wb') as f:
                 f.write(metadata.thumbnail[-1])
                 fsync(f)
 
@@ -336,7 +336,7 @@ class NEXTBOOK(USBMS):
             thumbnail_dir = os.path.join(thumbnail_dir, relpath)
             if not os.path.exists(thumbnail_dir):
                 os.makedirs(thumbnail_dir)
-            with open(os.path.join(thumbnail_dir, filename+'.jpg'), 'wb') as f:
+            with lopen(os.path.join(thumbnail_dir, filename+'.jpg'), 'wb') as f:
                 f.write(metadata.thumbnail[-1])
                 fsync(f)
     '''

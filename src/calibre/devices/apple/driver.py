@@ -1516,7 +1516,7 @@ class ITUNES(DriverBase):
                         cover_data = cd.getvalue()
                         cd.close()
                     else:
-                        with open(metadata.cover, 'r+b') as cd:
+                        with lopen(metadata.cover, 'r+b') as cd:
                             cover_data = cd.read()
                 except:
                     self.problem_titles.append("'%s' by %s" % (metadata.title, authors_to_string(metadata.authors)))
@@ -1592,7 +1592,7 @@ class ITUNES(DriverBase):
                 elif iswindows:
                     ''' Write the data to a real file for Windows iTunes '''
                     tc = os.path.join(tempfile.gettempdir(), "cover.jpg")
-                    with open(tc, 'wb') as tmp_cover:
+                    with lopen(tc, 'wb') as tmp_cover:
                         tmp_cover.write(cover_data)
 
                     if lb_added:
@@ -2648,7 +2648,7 @@ class ITUNES(DriverBase):
             # Read the current storage path for iTunes media from the XML file
             media_dir = ''
             string = None
-            with open(self.iTunes.LibraryXMLPath, 'r') as xml:
+            with lopen(self.iTunes.LibraryXMLPath, 'r') as xml:
                 for line in xml:
                     if line.strip().startswith('<key>Music Folder'):
                         soup = BeautifulSoup(line)
@@ -2907,7 +2907,7 @@ class ITUNES(DriverBase):
         metadata_x = self._xform_metadata_via_plugboard(metadata, 'epub')
 
         # Refresh epub metadata
-        with open(fpath, 'r+b') as zfo:
+        with lopen(fpath, 'r+b') as zfo:
             if False:
                 try:
                     zf_opf = ZipFile(fpath, 'r')

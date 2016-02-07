@@ -392,7 +392,7 @@ class WEBOS(USBMS):
         if coverdata and coverdata[2]:
             cover = Image.open(cStringIO.StringIO(coverdata[2]))
         else:
-            coverdata = open(I('library.png'), 'rb').read()
+            coverdata = lopen(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (120,160), 'black')
             im = Image.open(cStringIO.StringIO(coverdata))
@@ -409,7 +409,7 @@ class WEBOS(USBMS):
         cover.save(data, 'JPEG')
         coverdata = data.getvalue()
 
-        with open(os.path.join(path, 'coverCache', filename + '-medium.jpg'), 'wb') as coverfile:
+        with lopen(os.path.join(path, 'coverCache', filename + '-medium.jpg'), 'wb') as coverfile:
             coverfile.write(coverdata)
             fsync(coverfile)
 
@@ -417,7 +417,7 @@ class WEBOS(USBMS):
         if coverdata and coverdata[2]:
             cover = Image.open(cStringIO.StringIO(coverdata[2]))
         else:
-            coverdata = open(I('library.png'), 'rb').read()
+            coverdata = lopen(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (52,69), 'black')
             im = Image.open(cStringIO.StringIO(coverdata))
@@ -432,7 +432,7 @@ class WEBOS(USBMS):
         cover2.save(data, 'JPEG')
         coverdata = data.getvalue()
 
-        with open(os.path.join(path, 'coverCache', filename +
+        with lopen(os.path.join(path, 'coverCache', filename +
             '-small.jpg'), 'wb') as coverfile:
             coverfile.write(coverdata)
             fsync(coverfile)

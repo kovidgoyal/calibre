@@ -122,7 +122,7 @@ class ALEX(N516):
         cdir = os.path.dirname(cpath)
         if not os.path.exists(cdir):
             os.makedirs(cdir)
-        with open(cpath, 'wb') as coverfile:
+        with lopen(cpath, 'wb') as coverfile:
             coverfile.write(cover)
             fsync(coverfile)
 

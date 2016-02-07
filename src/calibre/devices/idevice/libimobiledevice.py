@@ -252,7 +252,7 @@ class libiMobileDevice():
             self._log("file_size: {:,} bytes".format(file_size))
             if file_size > BUFFER_SIZE:
                 bytes_remaining = file_size
-                with open(src, 'rb') as f:
+                with lopen(src, 'rb') as f:
                     while bytes_remaining:
                         if bytes_remaining > BUFFER_SIZE:
                             self._log("copying {:,} byte chunk".format(BUFFER_SIZE))
@@ -266,7 +266,7 @@ class libiMobileDevice():
                             bytes_remaining = 0
                             self._log(" success: {0}".format(success))
             else:
-                with open(src, 'rb') as f:
+                with lopen(src, 'rb') as f:
                     content = bytearray(f.read())
                 success = self._afc_file_write(handle, content, mode='wb')
                 self._log(" success: {0}".format(success))

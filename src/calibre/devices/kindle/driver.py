@@ -428,7 +428,7 @@ class KINDLE2(KINDLE):
         return bl
 
     def kindle_update_booklist(self, bl, collections):
-        with open(collections, 'rb') as f:
+        with lopen(collections, 'rb') as f:
             collections = f.read()
         collections = json.loads(collections)
         path_map = {}
@@ -489,7 +489,7 @@ class KINDLE2(KINDLE):
         thumbfile = os.path.join(thumb_dir,
                 'thumbnail_{uuid}_{cdetype}_portrait.jpg'.format(
                     uuid=mh.exth.uuid, cdetype=mh.exth.cdetype))
-        with open(thumbfile, 'wb') as f:
+        with lopen(thumbfile, 'wb') as f:
             f.write(coverdata[2])
             fsync(f)
 

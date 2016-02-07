@@ -58,7 +58,7 @@ class NOOK(USBMS):
         if coverdata and coverdata[2]:
             cover = Image.open(cStringIO.StringIO(coverdata[2]))
         else:
-            coverdata = open(I('library.png'), 'rb').read()
+            coverdata = lopen(I('library.png'), 'rb').read()
 
             cover = Image.new('RGB', (96, 144), 'black')
             im = Image.open(cStringIO.StringIO(coverdata))
@@ -75,7 +75,7 @@ class NOOK(USBMS):
         cover.save(data, 'JPEG')
         coverdata = data.getvalue()
 
-        with open('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
+        with lopen('%s.jpg' % os.path.join(path, filename), 'wb') as coverfile:
             coverfile.write(coverdata)
             fsync(coverfile)
 

@@ -100,12 +100,12 @@ class XMLCache(object):
                 if not os.path.exists(path):
                     raise DeviceError(('The SONY XML cache %r does not exist. Try'
                         ' disconnecting and reconnecting your reader.')%repr(path))
-                with open(path, 'rb') as f:
+                with lopen(path, 'rb') as f:
                     raw = f.read()
             else:
                 raw = EMPTY_CARD_CACHE
                 if os.access(path, os.R_OK):
-                    with open(path, 'rb') as f:
+                    with lopen(path, 'rb') as f:
                         raw = f.read()
 
             self.roots[source_id] = etree.fromstring(xml_to_unicode(
@@ -120,14 +120,14 @@ class XMLCache(object):
         for source_id, path in ext_paths.items():
             if not os.path.exists(path):
                 try:
-                    with open(path, 'wb') as f:
+                    with lopen(path, 'wb') as f:
                         f.write(EMPTY_EXT_CACHE)
                         fsync(f)
                 except:
                     pass
             if os.access(path, os.W_OK):
                 try:
-                    with open(path, 'rb') as f:
+                    with lopen(path, 'rb') as f:
                         self.ext_roots[source_id] = etree.fromstring(
                                 xml_to_unicode(f.read(),
                                     strip_encoding_pats=True, assume_utf8=True,
@@ -725,7 +725,7 @@ class XMLCache(object):
                     xml_declaration=True)
             raw = raw.replace("<?xml version='1.0' encoding='UTF-8'?>",
                     '<?xml version="1.0" encoding="UTF-8"?>')
-            with open(path, 'wb') as f:
+            with lopen(path, 'wb') as f:
                 f.write(raw)
                 fsync(f)
 
@@ -737,7 +737,7 @@ class XMLCache(object):
                 continue
             raw = raw.replace("<?xml version='1.0' encoding='UTF-8'?>",
                     '<?xml version="1.0" encoding="UTF-8"?>')
-            with open(path, 'wb') as f:
+            with lopen(path, 'wb') as f:
                 f.write(raw)
                 fsync(f)
 

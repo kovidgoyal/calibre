@@ -111,7 +111,7 @@ class LinuxScanner(object):
             raise RuntimeError('DeviceScanner requires the /sys filesystem to work.')
 
         def read(f):
-            with open(f, 'rb') as s:
+            with lopen(f, 'rb') as s:
                 return s.read().strip()
 
         for x in os.listdir(self.base):

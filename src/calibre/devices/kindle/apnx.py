@@ -33,7 +33,7 @@ class APNXBuilder(object):
         apnx_meta = {'guid': str(uuid.uuid4()).replace('-', '')[:8], 'asin':
                 '', 'cdetype': 'EBOK', 'format': 'MOBI_7', 'acr': ''}
 
-        with open(mobi_file_path, 'rb') as mf:
+        with lopen(mobi_file_path, 'rb') as mf:
             ident = PdbHeaderReader(mf).identity()
             if ident != 'BOOKMOBI':
                 # Check that this is really a MOBI file.
@@ -41,7 +41,7 @@ class APNXBuilder(object):
             apnx_meta['acr'] = str(PdbHeaderReader(mf).name())
 
         # We'll need the PDB name, the MOBI version, and some metadata to make FW 3.4 happy with KF8 files...
-        with open(mobi_file_path, 'rb') as mf:
+        with lopen(mobi_file_path, 'rb') as mf:
             mh = MetadataHeader(mf, default_log)
             if mh.mobi_version == 8:
                 apnx_meta['format'] = 'MOBI_8'
@@ -85,7 +85,7 @@ class APNXBuilder(object):
         apnx = self.generate_apnx(pages, apnx_meta)
 
         # Write the APNX.
-        with open(apnx_path, 'wb') as apnxf:
+        with lopen(apnx_path, 'wb') as apnxf:
             apnxf.write(apnx)
             fsync(apnxf)
 
@@ -137,7 +137,7 @@ class APNXBuilder(object):
         pages = []
         count = 0
 
-        with open(mobi_file_path, 'rb') as mf:
+        with lopen(mobi_file_path, 'rb') as mf:
             phead = PdbHeaderReader(mf)
             r0 = phead.section_data(0)
             text_length = struct.unpack('>I', r0[4:8])[0]
@@ -173,7 +173,7 @@ class APNXBuilder(object):
         pages = []
         count = 0
 
-        with open(mobi_file_path, 'rb') as mf:
+        with lopen(mobi_file_path, 'rb') as mf:
             phead = PdbHeaderReader(mf)
             r0 = phead.section_data(0)
             text_length = struct.unpack('>I', r0[4:8])[0]

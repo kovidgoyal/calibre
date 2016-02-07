@@ -177,7 +177,7 @@ class KOBO(USBMS):
 
         # Determine the firmware version
         try:
-            with open(self.normalize_path(self._main_prefix + '.kobo/version'),
+            with lopen(self.normalize_path(self._main_prefix + '.kobo/version'),
                     'rb') as f:
                 self.fwversion = f.readline().split(',')[2]
         except:
@@ -1011,7 +1011,7 @@ class KOBO(USBMS):
                         fpath = self.normalize_path(fpath.replace('/', os.sep))
 
                         if os.path.exists(fpath):
-                            with open(cover, 'rb') as f:
+                            with lopen(cover, 'rb') as f:
                                 data = f.read()
 
                             # Return the data resized and in Grayscale if
@@ -1020,7 +1020,7 @@ class KOBO(USBMS):
                                     grayscale=uploadgrayscale,
                                     resize_to=resize, return_data=True)
 
-                            with open(fpath, 'wb') as f:
+                            with lopen(fpath, 'wb') as f:
                                 f.write(data)
                                 fsync(f)
 
@@ -1040,7 +1040,7 @@ class KOBO(USBMS):
         '''
         for idx, path in enumerate(paths):
             if path.find('kepub') >= 0:
-                with closing(open(path, 'rb')) as r:
+                with closing(lopen(path, 'rb')) as r:
                     tf = PersistentTemporaryFile(suffix='.epub')
                     shutil.copyfileobj(r, tf)
 #                    tf.write(r.read())
@@ -1451,7 +1451,7 @@ class KOBOTOUCH(KOBO):
 
         # Determine the firmware version
         try:
-            with open(self.normalize_path(self._main_prefix + '.kobo/version'), 'rb') as f:
+            with lopen(self.normalize_path(self._main_prefix + '.kobo/version'), 'rb') as f:
                 self.fwversion = f.readline().split(',')[2]
                 self.fwversion = tuple((int(x) for x in self.fwversion.split('.')))
         except:
@@ -2448,7 +2448,7 @@ class KOBOTOUCH(KOBO):
                                 fpath = path + ending
                                 fpath = self.normalize_path(fpath.replace('/', os.sep))
 
-                                with open(cover, 'rb') as f:
+                                with lopen(cover, 'rb') as f:
                                     data = f.read()
 
                                 if keep_cover_aspect:
@@ -2468,7 +2468,7 @@ class KOBOTOUCH(KOBO):
                                         grayscale=uploadgrayscale,
                                         resize_to=resize, return_data=True)
 
-                                with open(fpath, 'wb') as f:
+                                with lopen(fpath, 'wb') as f:
                                     f.write(data)
                                     fsync(f)
                 except Exception as e:
