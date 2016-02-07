@@ -14,6 +14,7 @@ defaults = {
     'dont_collapse': '',  # comma separated list of category names
     'sort_tags_by': 'name', # other choices: popularity, rating
     'hide_empty_categories': 'no',
+    'and_search_terms': False,  # how to add search terms to the search expression from the Tag Browser
 }
 
 def storage_available(which):

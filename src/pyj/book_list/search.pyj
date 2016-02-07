@@ -6,8 +6,9 @@ from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 from widgets import create_button, BUTTON_VPADDING, create_spinner, Breadcrumbs
+from modals import show_modal
 from book_list.globals import get_boss, get_session_data
-from book_list.theme import get_color
+from book_list.theme import get_color, get_font_size
 
 sp_counter = 0
 
@@ -155,12 +156,19 @@ class SearchPanel:
                 func.call(self, i)
 
         for i, node in enumerate(children):
+            data = node.data
+            tooltip = ''
+            if data.count is not undefined:
+                tooltip += '\n' + str.format(_('Number of books in this category: {}'), data.count)
+            if data.avg_rating is not undefined:
+                tooltip += '\n' + str.format(_('Average rating for books in this category: {:.1f}'), data.avg_rating)
             div = E.div(
+                    title=str.lstrip(tooltip),
                     style="display:flex; align-items: stretch",
                     E.div(class_='tag-name',
                         style='border-right:solid 1px currentColor; padding: 1ex; display:flex; align-items: center',
                         E.img(src=self.icon_for_node(node), style='display:inline-block; max-height:2.5ex'),
-                        '\xa0' + node.data.name
+                        '\xa0' + data.name
                     ),
                     E.div(class_='tag-menu',
                         style='padding: 1ex; display:flex; align-items:center',
@@ -244,7 +252,7 @@ class SearchPanel:
         else:
             fm = self.interface_data.field_metadata[item.category]
             suffix = ':' if fm and fm.is_csp else ''
-            name = item.name or item.sort
+            name = item.original_name or item.name or item.sort
             if not name:
                 return ''
             name = str.replace(name, '"', r'\"')
@@ -268,8 +276,71 @@ class SearchPanel:
             self.execute_search(expr)
 
     def menu_clicked(self, i):
-        node = self.node_for_path().children[i]
-        node
+
+        def create_details(container, hide_modal):
+            node = self.node_for_path().children[i]
+            data = node.data
+            name = data.original_name or data.name or data.sort
+            items = []
+            if data.count is not undefined:
+                items.append(_('Count: ') + data.count)
+            if data.avg_rating is not undefined:
+                items.append(str.format(_('Rating: {:.1f}'),  data.avg_rating))
+            suffix = ''
+            if items.length:
+                suffix = ' [' + items.join(' ') + ']'
+
+            style =  build_rule('#modal-container ul.tb-action-list > li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+            style += build_rule('#modal-container ul.tb-action-list > li:active', color='red', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+            title = E.h2(
+                style='display:flex; align-items: center; border-bottom: solid 1px currentColor; font-weight:bold; font-size:' + get_font_size('title'),
+                E.style(style),
+                E.img(src=self.icon_for_node(node), style='height:2ex'),
+                E.span('\xa0' + name + suffix)
+            )
+            container.appendChild(title)
+            container.appendChild(E.div(
+                style='margin-top:1ex; margin-bottom: 1ex',
+                _('Search for books based on this category (a search term will be added to the search box)')
+            ))
+
+            ul = E.ul(style='list-style:none; overflow:hidden', class_='tb-action-list')
+            container.appendChild(ul)
+            items = [
+                (_('Books matching this category'), 'plus'),
+                (_('Books that do not match this category'), 'minus'),
+            ]
+            if node.data.is_hierarchical == 5:
+                items.extend([
+                    (_('Books that match this category and all sub-categories'), 'plusplus'),
+                    (_('Books that do not match this category or any of its sub-categories'), 'minusminus'),
+                ])
+            for text, search_type in items:
+                li = E.li(
+                    style='display:flex; align-items: center; margin-bottom:0.5ex; padding: 0.5ex; cursor:pointer',
+                    E.img(src=str.format('{}/{}.png', self.interface_data.icon_path, search_type), style='max-height: 2.5ex'),
+                    E.span('\xa0' + text)
+                )
+                li.addEventListener('click', self.add_to_search.bind(self, node, search_type))
+                li.addEventListener('click', hide_modal)
+                ul.appendChild(li)
+            f = E.form(
+                    style='text-align:left; border-top: solid 1px currentColor; padding-top:1ex; margin-top:0.5ex; display:flex; align-items:center',
+                    E.span(_('Add to the search expression with:')),
+                    E.input(type='radio', name='expr_join', value='OR', checked=''),
+                    E.span('\xa0OR\xa0'),
+                    E.input(type='radio', name='expr_join', value='AND'),
+                    E.span('\xa0AND')
+            )
+            container.appendChild(f)
+            f.lastChild.previousSibling.addEventListener('change', def(ev):
+                get_session_data().set('and_search_terms', bool(ev.target.checked))
+            )
+        show_modal(create_details)
+
+    def add_to_search(self, node, search_type, anded):
+        if anded is undefined or anded is None:
+            anded = get_session_data().get('and_search_terms')
 
     @property
     def container(self):
