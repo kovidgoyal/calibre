@@ -181,7 +181,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
         ans = fpath = cpath
     else:
         fname = components[-1]
-        ans = open(os.path.join(cpath, fname), mode)
+        ans = lopen(os.path.join(cpath, fname), mode)
         # Ensure file and all its metadata is written to disk so that subsequent
         # listdir() has file name in it. I don't know if this is actually
         # necessary, but given the diversity of platforms, best to be safe.

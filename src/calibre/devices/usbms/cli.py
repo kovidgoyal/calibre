@@ -35,14 +35,14 @@ class CLI(object):
 
     def get_file(self, path, outfile, end_session=True):
         path = self.munge_path(path)
-        with open(path, 'rb') as src:
+        with lopen(path, 'rb') as src:
             shutil.copyfileobj(src, outfile)
 
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
         close = False
         if not hasattr(infile, 'read'):
-            infile, close = open(infile, 'rb'), True
+            infile, close = lopen(infile, 'rb'), True
         infile.seek(0)
         if os.path.isdir(path):
             path = os.path.join(path, infile.name)
@@ -60,7 +60,7 @@ class CLI(object):
                 dest.truncate()
                 shutil.copyfileobj(infile, dest)
             fsync(dest)
-            #if not check_transfer(infile, dest): raise Exception('Transfer failed')
+            # if not check_transfer(infile, dest): raise Exception('Transfer failed')
         if close:
             infile.close()
         return actual_path
@@ -100,6 +100,6 @@ class CLI(object):
     def touch(self, path, end_session=True):
         path = self.munge_path(path)
         if not os.path.exists(path):
-            open(path, 'w').close()
+            lopen(path, 'w').close()
         if not os.path.isdir(path):
             os.utime(path, None)
