@@ -10,9 +10,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class Engadget(BasicNewsRecipe):
     title                 = u'Engadget'
-    __author__            = 'Starson17'
+    __author__            = 'Starson17, modified'
     __version__           = 'v1.00'
-    __date__              = '02, July 2011'
+    __date__              = '02, January 2016'
     description           = 'Tech news'
     language              = 'en'
     oldest_article        = 7
@@ -21,18 +21,20 @@ class Engadget(BasicNewsRecipe):
     use_embedded_content  = False
     remove_javascript     = True
     remove_empty_feeds    = True
-    auto_cleanup = True
-
-    #keep_only_tags = [dict(name='div', attrs={'class':['post_content permalink ','post_content permalink alt-post-full']})]
-    #remove_tags = [dict(name='div', attrs={'class':['filed_under','post_footer']})]
-    #remove_tags_after =  [dict(name='div', attrs={'class':['post_footer']})]
+    compress_news_images = True
+    compress_news_images_auto_size = 8
+    scale_news_images_to_device = True
+    remove_attributes = ['class']
+    keep_only_tags = [
+        dict(name='img', attrs={'class':['stretch-img  hide@m-']}),
+        dict(name='div', attrs={'class':['article-text c-gray-1','o-title_mark@tp+ bc-gray-1 col-10-of-12@tl+']}),
+    ]
 
     feeds = [(u'Posts', u'http://www.engadget.com/rss.xml')]
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
-                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
+                    h2{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:small;}
                     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-        '''
-
+    '''
