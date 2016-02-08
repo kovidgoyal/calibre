@@ -25,7 +25,11 @@ class SearchPanel:
         style += build_rule('#' + self.container_id + ' div.tag-name:active', transform='scale(1.5)')
         style += build_rule('#' + self.container_id + ' div.tag-menu:active', transform='scale(2)')
 
-        # Breadcrumbs
+        # search items list
+        style += build_rule('#' + self.container_id + ' ul.search-items', margin_top='1ex', list_style_type='none', text_align='left')
+        style += build_rule('#' + self.container_id + ' ul.search-items > li', display='inline-block', cursor='pointer', background_color=get_color('window-background2'), border_radius='10px', padding='0.5ex', margin_right='1em')
+        style += build_rule('#' + self.container_id + ' ul.search-items > li:hover', color='red')
+        style += build_rule('#' + self.container_id + ' ul.search-items > li:active', transform='scale(1.5)')
 
         div = E.div(
             id=self.container_id, style='display:none',
@@ -57,6 +61,7 @@ class SearchPanel:
                 self.execute_search()
                 event.preventDefault(), event.stopPropagation()
         )
+        search_container.appendChild(E.ul(class_='search-items'))
 
         # Build loading panel
         loading_panel = div.lastChild.firstChild
@@ -69,14 +74,16 @@ class SearchPanel:
         self.currently_loading = None
         self.tag_browser_data = None
         self.node_id_map = {}
+        self.active_nodes = {}
 
     def init(self):
-        tb = self.container.querySelector('input[name="search-books"]')
+        tb = self.search_control
         # We dont focus the search box because on mobile that will cause the
         # keyboard to popup and obscure the rest of the page
         # tb.focus()
-        tb.setSelectionRange(0, tb.value.length)
+        tb.value = ''
         self.tag_path = []
+        self.active_nodes = {}
         if not self.initial_load_started:
             self.refresh()
         else:
@@ -126,6 +133,7 @@ class SearchPanel:
             item_map = tag_browser_data.item_map
             self.tag_browser_data = tag_browser_data.root
             self.node_id_map = {}
+            self.active_nodes = {}
             process_node(self.tag_browser_data)
             self.render_tag_browser(container)
         else:
@@ -277,6 +285,10 @@ class SearchPanel:
 
     def menu_clicked(self, i):
 
+        def add_to_search(node, search_type):
+            return def():
+                self.add_to_search(node, search_type)
+
         def create_details(container, hide_modal):
             node = self.node_for_path().children[i]
             data = node.data
@@ -321,7 +333,7 @@ class SearchPanel:
                     E.img(src=str.format('{}/{}.png', self.interface_data.icon_path, search_type), style='max-height: 2.5ex'),
                     E.span('\xa0' + text)
                 )
-                li.addEventListener('click', self.add_to_search.bind(self, node, search_type))
+                li.addEventListener('click', add_to_search(node, search_type))
                 li.addEventListener('click', hide_modal)
                 ul.appendChild(li)
             f = E.form(
@@ -332,15 +344,44 @@ class SearchPanel:
                     E.input(type='radio', name='expr_join', value='AND'),
                     E.span('\xa0AND')
             )
+            and_control = f.lastChild.previousSibling
+            and_control.checked = get_session_data().get('and_search_terms')
             container.appendChild(f)
-            f.lastChild.previousSibling.addEventListener('change', def(ev):
+            and_control.addEventListener('change', def(ev):
                 get_session_data().set('and_search_terms', bool(ev.target.checked))
+            )
+            f.firstChild.nextSibling.addEventListener('change', def(ev):
+                get_session_data().set('and_search_terms', not ev.target.checked)
             )
         show_modal(create_details)
 
     def add_to_search(self, node, search_type, anded):
         if anded is undefined or anded is None:
             anded = get_session_data().get('and_search_terms')
+        self.active_nodes[node.id] = [search_type, anded]
+        self.render_search_expression()
+
+    def render_search_expression(self):
+        def remove_expression(node_id):
+            return def():
+                v'delete self.active_nodes[node_id]'
+                self.render_search_expression()
+        parts = []
+        container = self.search_items_container
+        clear(container)
+        for node_id in Object.keys(self.active_nodes):
+            search_type, anded = self.active_nodes[node_id]
+            node = self.node_id_map[node_id]
+            expr = self.search_expression_for_item(node, search_type)
+            name = node.data.original_name or node.data.name or node.data.sort or ''
+            if expr:
+                c = E.li(E.i(class_='fa fa-remove'), '\xa0' + name)
+                container.appendChild(c)
+                c.addEventListener('click', remove_expression(node_id))
+                if parts.length:
+                    expr = ('and' if anded else 'or') + ' ' + expr
+                parts.push(expr)
+        self.search_control.value = parts.join(' ')
 
     @property
     def container(self):
@@ -357,6 +398,10 @@ class SearchPanel:
     @property
     def search_control(self):
         return self.container.querySelector('input[name="search-books"]')
+
+    @property
+    def search_items_container(self):
+        return self.container.firstChild.nextSibling.lastChild
 
     @property
     def is_visible(self):
