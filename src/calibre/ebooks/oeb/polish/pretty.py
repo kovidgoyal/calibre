@@ -176,7 +176,8 @@ def pretty_html_tree(container, root):
         # with all content. In this case we prettify the containing block tag
         # even if it has non block children.
         if (len(body) == 1 and not callable(body[0].tag) and isblock(body[0]) and
-                not has_only_blocks(body[0]) and barename(body[0].tag) != 'pre' and len(body[0]) > 0):
+                not has_only_blocks(body[0]) and barename(body[0].tag) not in (
+                    'pre', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6') and len(body[0]) > 0):
             pretty_block(body[0], level=2)
 
     if container is not None:
