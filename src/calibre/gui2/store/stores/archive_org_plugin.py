@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 2  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -25,19 +25,3 @@ class ArchiveOrgStore(BasicStoreConfig, OpenSearchOPDSStore):
             s.drm = SearchResult.DRM_UNLOCKED
             yield s
 
-    def get_details(self, search_result, timeout):
-        '''
-        The opensearch feed only returns a subset of formats that are available.
-        We want to get a list of all formats that the user can get.
-        '''
-        from calibre import browser
-        from contextlib import closing
-        from lxml import html
-
-        br = browser()
-        with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
-            idata = html.fromstring(nf.read())
-            formats = ', '.join(idata.xpath('//p[@id="dl" and @class="content"]//a/text()'))
-            search_result.formats = formats.upper()
-
-        return True
