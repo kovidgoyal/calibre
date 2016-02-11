@@ -85,20 +85,22 @@ class SearchPanel:
         self.tag_path = []
         self.active_nodes = {}
         if not self.initial_load_started:
+            self.initial_load_started = True
             self.refresh()
         else:
             self.render_tag_browser()
 
     def refresh(self):
         if self.currently_loading is not None:
-            return
-        self.initial_load_started = True
+            self.currently_loading.abort()
+            self.currently_loading = None
         sd = get_session_data()
         query = {'library_id': self.interface_data.library_id}
         for k in str.split('sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'):
             query[k] = sd.get(k) + ''
-        self.currently_loading = ajax('interface-data/tag-browser', self.on_data_fetched.bind(self), query=query, bypass_cache=False)
-        self.currently_loading.send()
+        xhr = ajax('interface-data/tag-browser', self.on_data_fetched.bind(self), query=query, bypass_cache=False)
+        xhr.send()
+        self.currently_loading = xhr
 
     def on_data_fetched(self, end_type, xhr, ev):
         self.currently_loading = None
@@ -382,6 +384,68 @@ class SearchPanel:
                     expr = ('and' if anded else 'or') + ' ' + expr
                 parts.push(expr)
         self.search_control.value = parts.join(' ')
+
+    def get_prefs(self):
+        return [
+            {
+                'name': 'sort_tags_by',
+                'text': _('Sort tags by'),
+                'choices': [('name', _('Name')), ('popularity', _('Popularity (number of books)')), ('rating', _('Average rating'))],
+                'tooltip': _('Change how the tags/authors/etc. are sorted in the Tag Browser'),
+            },
+
+            {
+                'name':'partition_method',
+                'text':_('Tags browser category partitioning method'),
+                'choices':[('first letter', _('First Letter')), ('disable', _('Disable')), ('partition', _('Partition'))],
+                'tooltip':_('Choose how tag browser subcategories are displayed when'
+                            ' there are more items than the limit. Select by first'
+                            ' letter to see an A, B, C list. Choose partitioned to'
+                            ' have a list of fixed-sized groups. Set to disabled'
+                            ' if you never want subcategories.'),
+            },
+
+            {
+                'name':'collapse_at',
+                'text':_('Collapse when more items than'),
+                'min': 5, 'max':10000, 'step':5,
+                'from_storage':int, 'to_storage':int,
+                'tooltip': _('If a Tag Browser category has more than this number of items, it is divided'
+                             ' up into subcategories. If the partition method is set to disable, this value is ignored.'),
+            },
+
+            {
+                'name': 'dont_collapse',
+                'text': _('Categories not to partition'),
+                'tooltip': _('A comma-separated list of categories in which items containing'
+                             ' periods are displayed in the tag browser trees. For example, if'
+                             " this box contains 'tags' then tags of the form 'Mystery.English'"
+                             " and 'Mystery.Thriller' will be displayed with English and Thriller"
+                             " both under 'Mystery'. If 'tags' is not in this box,"
+                             ' then the tags will be displayed each on their own line.'),
+            },
+
+            {
+                'name': 'hide_empty_categories',
+                'text': _('Hide empty categories (columns)'),
+                'from_storage': def(x): return x.toLowerCase() == 'yes';,
+                'to_storage': def(x): return 'yes' if x else 'no';,
+                'tooltip':_('When checked, calibre will automatically hide any category'
+                            ' (a column, custom or standard) that has no items to show. For example, some'
+                            ' categories might not have values when using virtual libraries. Checking this'
+                            ' box will cause these empty categories to be hidden.'),
+            },
+
+        ]
+
+    def apply_prefs(self):
+        container = self.tb_container
+        clear(container)
+        container.appendChild(E.div(
+            style='margin: 1ex 1em',
+            _('Reloading tag browser with updated settings, please wait...'))
+        )
+        self.refresh()
 
     @property
     def container(self):

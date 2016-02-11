@@ -6,6 +6,7 @@ from book_list.search import SearchPanel
 from book_list.top_bar import TopBar
 from book_list.views import BooksView
 from book_list.item_list import ItemsView, create_item
+from book_list.prefs import PrefsPanel
 from gettext import gettext as _
 from utils import debounce
 
@@ -20,9 +21,13 @@ class BarState:
 
 class ClosePanelBar(BarState):
 
-    def __init__(self, title, tooltip=''):
+    def __init__(self, title, tooltip='', close_callback=None):
         tooltip = tooltip or _('Close this panel')
-        BarState.__init__(self, title=title, tooltip=tooltip, action=close_panel, icon_name='times')
+        def action():
+            close_panel()
+            if close_callback is not None:
+                close_callback()
+        BarState.__init__(self, title=title, tooltip=tooltip, action=action, icon_name='times')
 
 class UIState:
 
@@ -69,8 +74,9 @@ class UI:
         self.top_bar = TopBar(book_list_container)
         self.books_view = BooksView(interface_data, book_list_container)
         self.items_view = ItemsView(interface_data, book_list_container)
+        self.prefs_panel = PrefsPanel(interface_data, book_list_container)
         self.search_panel = SearchPanel(interface_data, book_list_container)
-        self.panels = [self.books_view, self.items_view, self.search_panel]
+        self.panels = [self.books_view, self.items_view, self.search_panel, self.prefs_panel]
         self.panel_map = {self.ROOT_PANEL: UIState(create_book_view_top_bar_state(self.books_view), main_panel=self.books_view)}
         self.current_panel = self.ROOT_PANEL
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
@@ -84,8 +90,13 @@ class UI:
         self.panel_map['booklist-sort-menu'] = UIState(ClosePanelBar(_('Sort books')), panel_data=def():
             return self.books_view.sort_panel_data(create_item)
         )
+        self.panel_map['booklist-config-tb'] = UIState(
+            ClosePanelBar(_('Configure Tag Browser'), close_callback=self.search_panel.apply_prefs.bind(self.search_panel)),
+            main_panel=self.prefs_panel, panel_data=self.search_panel.get_prefs.bind(self.search_panel))
 
-        self.panel_map['booklist-search'] = UIState(ClosePanelBar(_('Search for books')), main_panel=self.search_panel)
+        bss = ClosePanelBar(_('Search for books'))
+        bss.add_button(icon_name='cogs', tooltip=_('Configure Tag Browser'), action=show_panel_action('booklist-config-tb'))
+        self.panel_map['booklist-search'] = UIState(bss, main_panel=self.search_panel)
 
     def on_resize(self):
         pass

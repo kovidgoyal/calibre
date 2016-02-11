@@ -1,0 +1,213 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from dom import clear
+from elementmaker import E
+from book_list.globals import get_session_data
+
+# from book_list.theme import get_font_size, get_color
+
+pp_counter = 0
+widget_counter = 0
+
+class ConfigItem:
+
+    def __init__(self, item_data):
+        nonlocal widget_counter
+        widget_counter += 1
+        self.widget_id = 'pref-widget-' + widget_counter
+        self.item_data = item_data
+        self.ignore_ui_value_changed = False
+
+    def initialize(self):
+        self.ignore_ui_value_changed = True
+        try:
+            self.to_ui(self.from_storage())
+        finally:
+            self.ignore_ui_value_changed = False
+        return self
+
+    @property
+    def container(self):
+        return document.getElementById(self.widget_id)
+
+    @property
+    def control(self):
+        return self.container.lastChild
+
+    def from_storage(self):
+        val = get_session_data().get(self.item_data.name)
+        if self.item_data.from_storage:
+            val = self.item_data.from_storage(val)
+        return val
+
+    def to_storage(self, val):
+        if self.item_data.to_storage:
+            val = self.item_data.to_storage(val)
+        get_session_data().set(self.item_data.name, val)
+
+    def defval(self):
+        return get_session_data().defval(self.item_data.name)
+
+    def ui_value_changed(self):
+        if self.ignore_ui_value_changed:
+            return
+        self.to_storage(self.from_ui())
+
+    def to_ui(self, val):
+        pass
+
+    def from_ui(self):
+        pass
+
+class Choices(ConfigItem):
+
+    def __init__(self, item_data, container, onfocus):
+        ConfigItem.__init__(self, item_data)
+        div = E.div(
+            id=self.widget_id,
+            E.span(item_data.text + ': ', style='white-space:pre'),
+            E.select(required='1')
+        )
+        container.appendChild(div)
+        select = div.lastChild
+        for choice, text in item_data.choices:
+            select.appendChild(E.option(text, value=choice))
+        select.addEventListener('change', self.ui_value_changed.bind(self))
+        select.addEventListener('focus', onfocus)
+
+    def to_ui(self, val):
+        self.control.value = val
+
+    def from_ui(self):
+        return self.control.value
+
+class CheckBox(ConfigItem):
+
+    def __init__(self, item_data, container, onfocus):
+        ConfigItem.__init__(self, item_data)
+        div = E.div(
+            id=self.widget_id,
+            E.input(type='checkbox'),
+            E.span(' ' + item_data.text, style='white-space:pre')
+        )
+        container.appendChild(div)
+        control = div.firstChild
+        control.addEventListener('change', self.ui_value_changed.bind(self))
+        control.addEventListener('focus', onfocus)
+
+    @property
+    def control(self):
+        return self.container.firstChild
+
+    def to_ui(self, val):
+        self.control.checked = bool(val)
+
+    def from_ui(self):
+        return bool(self.control.checked)
+
+class SpinBox(ConfigItem):
+
+    def __init__(self, item_data, container, onfocus):
+        ConfigItem.__init__(self, item_data)
+        div = E.div(
+            id=self.widget_id,
+            E.span(item_data.text + ': ', style='white-space:pre'),
+            E.input(type='number', step='any', min='1', max='100')
+        )
+        container.appendChild(div)
+        control = div.lastChild
+        for attr in str.split('min max step'):
+            val = item_data[attr]
+            if val is not undefined and val is not None:
+                control.setAttribute(attr, '' + val)
+        control.addEventListener('change', self.ui_value_changed.bind(self))
+        control.addEventListener('focus', onfocus)
+
+    def to_ui(self, val):
+        self.control.value = val
+
+    def from_ui(self):
+        return self.control.value
+
+class LineEdit(ConfigItem):
+
+    def __init__(self, item_data, container, onfocus):
+        ConfigItem.__init__(self, item_data)
+        div = E.div(
+            id=self.widget_id,
+            E.span(item_data.text + ': ', style='white-space:pre'),
+            E.input(type='text')
+        )
+        container.appendChild(div)
+        control = div.lastChild
+        control.addEventListener('change', self.ui_value_changed.bind(self))
+        control.addEventListener('focus', onfocus)
+
+    def to_ui(self, val):
+        self.control.value = val or ''
+
+    def from_ui(self):
+        return self.control.value or ''
+
+class PrefsPanel:
+
+    def __init__(self, interface_data, book_list_container):
+        nonlocal iv_counter
+        pp_counter += 1
+        self.container_id = 'prefs-panel-' + pp_counter
+        style = ''
+        div = E.div(
+            id=self.container_id, style='display:none',
+            E.style(style, type='text/css')
+        )
+        book_list_container.appendChild(div)
+        self.widgets = []
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    @property
+    def is_visible(self):
+        self.container.style.display == 'block'
+
+    @is_visible.setter
+    def is_visible(self, val):
+        self.container.style.display = 'block' if val else 'none'
+
+    def init(self, data):
+        c = self.container
+        clear(c)
+        self.widgets = []
+
+        def onfocus(name):
+            return def(ev):
+                c = self.container
+                div = c.querySelector(str.format('div[data-name="{}"]', name))
+                div.lastChild.style.display = 'block'
+
+        for item in data:
+            div = E.div(
+                style='margin-bottom:1ex; padding: 1ex 1em; border-bottom: solid 1px currentColor',
+                title=item.tooltip,
+                data_name=item.name,
+                E.div(),
+                E.div(
+                    item.tooltip or '',
+                    style='font-size:0.8rem; font-style: italic; margin-top:1ex; display:none'
+                )
+            )
+            c.appendChild(div)
+            val = get_session_data().get(item.name)
+            if item.from_storage:
+                val = item.from_storage(val)
+            if item.choices:
+                cls = Choices
+            elif val is True or val is False:
+                cls = CheckBox
+            elif type(val) == 'number':
+                cls = SpinBox
+            else:
+                cls = LineEdit
+            self.widgets.append((new cls(item, div.firstChild, onfocus(item.name))).initialize())

@@ -157,7 +157,7 @@ def categories_settings(query, db):
     if partition_method not in {'first letter', 'disable', 'partition'}:
         partition_method = 'first letter'
     try:
-        collapse_at = max(0, int(query.get('collapse_at', 25)))
+        collapse_at = max(0, int(float(query.get('collapse_at', 25))))
     except Exception:
         collapse_at = 25
     sort_by = query.get('sort_tags_by', 'name')
