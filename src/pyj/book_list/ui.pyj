@@ -90,13 +90,18 @@ class UI:
         self.panel_map['booklist-sort-menu'] = UIState(ClosePanelBar(_('Sort books')), panel_data=def():
             return self.books_view.sort_panel_data(create_item)
         )
-        self.panel_map['booklist-config-tb'] = UIState(
-            ClosePanelBar(_('Configure Tag Browser'), close_callback=self.search_panel.apply_prefs.bind(self.search_panel)),
-            main_panel=self.prefs_panel, panel_data=self.search_panel.get_prefs.bind(self.search_panel))
+        self.panel_map['booklist-config-tb'] = self.create_prefences_panel(
+            _('Configure Tag Browser'), close_callback=self.search_panel.apply_prefs.bind(self.search_panel),
+            panel_data=self.search_panel.get_prefs.bind(self.search_panel))
 
         bss = ClosePanelBar(_('Search for books'))
         bss.add_button(icon_name='cogs', tooltip=_('Configure Tag Browser'), action=show_panel_action('booklist-config-tb'))
         self.panel_map['booklist-search'] = UIState(bss, main_panel=self.search_panel)
+
+    def create_prefences_panel(self, title, close_callback=None, panel_data=None):
+        ans = UIState(ClosePanelBar(title), close_callback=close_callback, main_panel=self.prefs_panel, panel_data=panel_data)
+        ans.add_button(icon_name='refresh', tooltip=_('Restore default settings'), action=self.prefs_panel.reset_to_defaults.bind(self.prefs_panel))
+        return ans
 
     def on_resize(self):
         pass

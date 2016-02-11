@@ -120,6 +120,9 @@ class UserSessionData(SessionData):
                 self.set(key, saved_data[key])
         self.echo_changes = True
 
+    def defval(self, key):
+        return defaults[key]
+
     def get(self, key, defval):
         if defval is undefined:
             defval = defaults[key]
