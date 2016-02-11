@@ -84,6 +84,7 @@ class Choices(ConfigItem):
             select.appendChild(E.option(text, value=choice))
         select.addEventListener('change', self.ui_value_changed.bind(self))
         select.addEventListener('focus', onfocus)
+        div.addEventListener('click', onfocus)
 
     def to_ui(self, val):
         self.control.value = val
@@ -104,6 +105,7 @@ class CheckBox(ConfigItem):
         control = div.firstChild
         control.addEventListener('change', self.ui_value_changed.bind(self))
         control.addEventListener('focus', onfocus)
+        div.addEventListener('click', onfocus)
         div.lastChild.addEventListener('click', self.toggle.bind(self))
 
     @property
@@ -137,6 +139,7 @@ class SpinBox(ConfigItem):
                 control.setAttribute(attr, '' + val)
         control.addEventListener('change', self.ui_value_changed.bind(self))
         control.addEventListener('focus', onfocus)
+        div.addEventListener('click', onfocus)
 
     def to_ui(self, val):
         self.control.value = val
@@ -157,6 +160,7 @@ class LineEdit(ConfigItem):
         control = div.lastChild
         control.addEventListener('change', self.ui_value_changed.bind(self))
         control.addEventListener('focus', onfocus)
+        div.addEventListener('click', onfocus)
 
     def to_ui(self, val):
         self.control.value = val or ''
