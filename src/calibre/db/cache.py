@@ -601,7 +601,7 @@ class Cache(object):
     def get_metadata(self, book_id,
             get_cover=False, get_user_categories=True, cover_as_data=False):
         '''
-        Return metadata for the book identified by book_id as a :class:`Metadata` object.
+        Return metadata for the book identified by book_id as a :class:`calibre.ebooks.metadata.book.base.Metadata` object.
         Note that the list of formats is not verified. If get_cover is True,
         the cover is returned, either a path to temp file as mi.cover or if
         cover_as_data is True then as mi.cover_data.
