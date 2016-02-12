@@ -3,6 +3,7 @@
 
 boss = None
 session_data = None
+current_query = {}
 
 def get_boss():
     return boss
@@ -19,3 +20,10 @@ def set_session_data(sd):
 
 def get_session_data():
     return session_data
+
+def get_current_query():
+    return current_query
+
+def set_current_query(val):
+    nonlocal current_query
+    current_query = val

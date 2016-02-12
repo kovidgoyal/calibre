@@ -9,7 +9,7 @@ from gettext import gettext as _
 from widgets import get_widget_css
 from utils import parse_url_params
 
-from book_list.globals import get_session_data, set_boss
+from book_list.globals import get_session_data, set_boss, set_current_query
 from book_list.theme import get_color
 from book_list.ui import UI
 
@@ -30,8 +30,9 @@ class Boss:
         self.ui = UI(interface_data, div)
         window.onerror = self.onerror.bind(self)
         self.history_count = 0
-        self.ui.apply_state()  # Render the book list
         data = parse_url_params()
+        set_current_query(data)
+        self.ui.apply_state()  # Render the book list
         if not data.mode or data.mode == 'book_list':
             if data.panel != self.ui.current_panel:
                 self.ui.show_panel(data.panel, push_state=False)
@@ -60,6 +61,7 @@ class Boss:
 
     def onpopstate(self, ev):
         data = parse_url_params()
+        set_current_query(data)
         mode = data.mode or 'book_list'
         self.history_count -= 1
         if mode == 'book_list':
@@ -94,6 +96,7 @@ class Boss:
         if sq:
             query.search = sq
         query = encode_query(query) or '?'
+        set_current_query(query)
         if replace:
             window.history.replaceState(None, '', query)
         else:

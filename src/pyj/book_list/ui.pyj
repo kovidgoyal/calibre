@@ -126,17 +126,17 @@ class UI:
             self.show_panel(self.ROOT_PANEL)
 
     def replace_panel(self, panel_name, force=False):
+        get_boss().push_state(replace=True)
         if force or panel_name != self.current_panel:
             self.current_panel = panel_name or self.ROOT_PANEL
             self.apply_state()
-        get_boss().push_state(replace=True)
 
     def show_panel(self, panel_name, push_state=True, force=False):
+        if push_state:
+            get_boss().push_state()
         if force or panel_name != self.current_panel:
             self.current_panel = panel_name or self.ROOT_PANEL
             self.apply_state()
-        if push_state:
-            get_boss().push_state()
 
     def refresh_books_view(self):
         self.books_view.refresh()
