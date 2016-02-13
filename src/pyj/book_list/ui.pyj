@@ -104,7 +104,8 @@ class UI:
         bss.add_button(icon_name='cogs', tooltip=_('Configure Tag Browser'), action=show_panel_action('booklist-config-tb'))
         self.panel_map['booklist-search'] = UIState(bss, main_panel=self.search_panel)
 
-        self.panel_map['book-details'] = UIState(ClosePanelBar(_('Book Details')), main_panel=self.book_details_panel)
+        self.panel_map['book-details'] = bd = UIState(ClosePanelBar(_('Book Details')), main_panel=self.book_details_panel)
+        bd.add_button(icon_name='random', tooltip=_('Pick another random book'), action=self.book_details_panel.show_random.bind(self.book_details_panel))
 
     def create_prefences_panel(self, title, close_callback=None, panel_data=None):
         ans = UIState(ClosePanelBar(title), close_callback=close_callback, main_panel=self.prefs_panel, panel_data=panel_data)
@@ -113,6 +114,9 @@ class UI:
 
     def set_title(self, text):
         self.top_bar.set_title(text)
+
+    def set_button_visibility(self, icon_name, visible):
+        self.top_bar.set_button_visibility(icon_name, visible)
 
     def on_resize(self):
         pass

@@ -48,6 +48,10 @@ class BookDetailsPanel:
             self.render_book(book_id)
         else:
             self.fetch_metadata(book_id)
+        get_boss().ui.set_button_visibility('random', not book_id or book_id == '0')
+
+    def show_random(self):
+        self.fetch_metadata('0')
 
     def no_book(self, book_id):
         self.container.appendChild(E.div(

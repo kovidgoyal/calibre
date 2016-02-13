@@ -107,6 +107,13 @@ class TopBar:
                 if action is not None:
                     right.lastChild.addEventListener('click', def(event): event.preventDefault(), action();)
 
+    def set_button_visibility(self, icon_name, visible):
+        for bar in self.bar, self.dummy_bar:
+            right = bar.firstChild.nextSibling
+            elem = right.querySelector('i.fa.fa-fw.fa-' + icon_name)
+            if elem:
+                elem.parentNode.style.display = 'inline' if visible else 'none'
+
     def apply_state(self, left, buttons):
         self.set_left(**left)
         for bar in self.bar, self.dummy_bar:
