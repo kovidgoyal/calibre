@@ -114,3 +114,7 @@ class TopBar:
             clear(right)
         for button in buttons:
             self.add_button(**button)
+
+    def set_title(self, text):
+        for bar in self.bar, self.dummy_bar:
+            bar.firstChild.firstChild.nextSibling.textContent = text

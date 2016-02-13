@@ -216,6 +216,19 @@ def get_books(ctx, rd):
                 mdata[book_id] = data
     return ans
 
+@endpoint('/interface-data/book-metadata/{book_id}', postprocess=json, types={'book_id': int})
+def book_metadata(ctx, rd, book_id):
+    '''
+    Get metadata for the specified book
+
+    Optional: ?library_id=<default library>
+    '''
+    library_id, db = get_basic_query_data(ctx, rd.query)[:2]
+    data = book_as_json(db, book_id)
+    if data is None:
+        raise HTTPNotFound('No book with id: %d in library' % book_id)
+    return data
+
 @endpoint('/interface-data/tag-browser')
 def tag_browser(ctx, rd):
     '''

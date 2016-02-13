@@ -7,6 +7,7 @@ from book_list.top_bar import TopBar
 from book_list.views import BooksView
 from book_list.item_list import ItemsView, create_item
 from book_list.prefs import PrefsPanel
+from book_list.book_details import BookDetailsPanel
 from gettext import gettext as _
 from utils import debounce
 
@@ -76,7 +77,8 @@ class UI:
         self.items_view = ItemsView(interface_data, book_list_container)
         self.prefs_panel = PrefsPanel(interface_data, book_list_container)
         self.search_panel = SearchPanel(interface_data, book_list_container)
-        self.panels = [self.books_view, self.items_view, self.search_panel, self.prefs_panel]
+        self.book_details_panel = BookDetailsPanel(interface_data, book_list_container)
+        self.panels = [self.books_view, self.items_view, self.search_panel, self.prefs_panel, self.book_details_panel]
         self.panel_map = {self.ROOT_PANEL: UIState(create_book_view_top_bar_state(self.books_view), main_panel=self.books_view)}
         self.current_panel = self.ROOT_PANEL
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
@@ -98,10 +100,15 @@ class UI:
         bss.add_button(icon_name='cogs', tooltip=_('Configure Tag Browser'), action=show_panel_action('booklist-config-tb'))
         self.panel_map['booklist-search'] = UIState(bss, main_panel=self.search_panel)
 
+        self.panel_map['book-details'] = UIState(ClosePanelBar(_('Book Details')), main_panel=self.book_details_panel)
+
     def create_prefences_panel(self, title, close_callback=None, panel_data=None):
         ans = UIState(ClosePanelBar(title), close_callback=close_callback, main_panel=self.prefs_panel, panel_data=panel_data)
         ans.add_button(icon_name='refresh', tooltip=_('Restore default settings'), action=self.prefs_panel.reset_to_defaults.bind(self.prefs_panel))
         return ans
+
+    def set_title(self, text):
+        self.top_bar.set_title(text)
 
     def on_resize(self):
         pass
@@ -126,16 +133,20 @@ class UI:
             self.show_panel(self.ROOT_PANEL)
 
     def replace_panel(self, panel_name, force=False):
-        get_boss().push_state(replace=True)
-        if force or panel_name != self.current_panel:
+        action_needed = force or panel_name != self.current_panel
+        if action_needed:
             self.current_panel = panel_name or self.ROOT_PANEL
+        get_boss().push_state(replace=True)
+        if action_needed:
             self.apply_state()
 
-    def show_panel(self, panel_name, push_state=True, force=False):
-        if push_state:
-            get_boss().push_state()
-        if force or panel_name != self.current_panel:
+    def show_panel(self, panel_name, push_state=True, force=False, extra_query_data=None):
+        action_needed = force or panel_name != self.current_panel
+        if action_needed:
             self.current_panel = panel_name or self.ROOT_PANEL
+        if push_state:
+            get_boss().push_state(extra_query_data=extra_query_data)
+        if action_needed:
             self.apply_state()
 
     def refresh_books_view(self):

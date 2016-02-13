@@ -82,8 +82,11 @@ class Boss:
         self.interface_data.search_result = data.search_result
         self.ui.refresh_books_view()
 
-    def push_state(self, replace=False):
+    def push_state(self, replace=False, extra_query_data=None):
         query = {}
+        if extra_query_data:
+            for k in extra_query_data:
+                query[k] = extra_query_data[k]
         if self.current_mode == 'book_list':
             if self.ui.current_panel != self.ui.ROOT_PANEL:
                 query.panel = self.ui.current_panel
@@ -95,8 +98,8 @@ class Boss:
         sq = idata.search_result.query
         if sq:
             query.search = sq
-        query = encode_query(query) or '?'
         set_current_query(query)
+        query = encode_query(query) or '?'
         if replace:
             window.history.replaceState(None, '', query)
         else:
