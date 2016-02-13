@@ -101,13 +101,13 @@ class BookDetailsPanel:
         alt = str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & '))
         img = E.img(
             src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
-            style='max-width: 45vw; max-height: 93vh; display: block; width:auto; height:auto'
+            style='max-width: 45vw; max-height: 93vh; display: block; width:auto; height:auto; float:right'
         )
         img.onerror = self.on_img_err.bind(self)
         c = self.container
         c.appendChild(E.div(
-            style='display:flex; flex-wrap: wrap; align-items:flex-start; padding: 1ex 1em',
-            E.div(style='margin-right: 1em'),
+            style='display:block; padding: 1ex 1em',
+        E.div(style='margin-right: 1em; float:left'),
             img
         ))
 
