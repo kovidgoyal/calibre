@@ -62,6 +62,7 @@ class BookDetailsPanel:
             self.metadata_fetched(book_id, end_type, xhr, ev)
         self.is_fetching = ajax('interface-data/book-metadata/' + book_id, fetched,
                                      query={'library_id':self.interface_data.library_id})
+        self.is_fetching.send()
         self.container.appendChild(E.div(
             style='margin: 1ex 1em',
             create_spinner(), '\xa0' + _('Fetching metadata for the book, please wait') + '…',
