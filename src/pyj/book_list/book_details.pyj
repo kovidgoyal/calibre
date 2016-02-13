@@ -3,6 +3,7 @@
 
 from ajax import ajax
 from book_list.globals import get_current_query
+from book_list.theme import get_font_size
 from dom import clear
 from elementmaker import E
 from gettext import gettext as _
@@ -101,7 +102,7 @@ class BookDetailsPanel:
         alt = str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & '))
         img = E.img(
             src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
-            style='max-width: 45vw; max-height: 93vh; display: block; width:auto; height:auto; float:right'
+            style=str.format('max-width: calc(50vw - 3em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; float:right', get_font_size('title'))
         )
         img.onerror = self.on_img_err.bind(self)
         c = self.container
