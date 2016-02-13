@@ -67,6 +67,9 @@ def create_book_view_top_bar_state(books_view):
     ibs.add_button(icon_name='ellipsis-v', tooltip=_('More actions'), action=show_panel_action('more-actions-menu'))
     return ibs
 
+def random_book():
+    get_boss().ui.replace_panel('book-details', extra_query_data={'book-id':'0'})
+
 class UI:
 
     ROOT_PANEL = 'books'
@@ -85,6 +88,7 @@ class UI:
 
         self.panel_map['more-actions-menu'] = UIState(ClosePanelBar(_('More actions')), panel_data=[
             create_item(_('Book List Mode'), replace_panel_action('booklist-mode-menu'), _('Change how the list of books is displayed')),
+            create_item(_('A Random Book'), random_book, _('Choose a random book from your library')),
         ])
 
         self.panel_map['booklist-mode-menu'] = UIState(ClosePanelBar(_('Book List Mode')), panel_data=[])
@@ -132,11 +136,11 @@ class UI:
         else:
             self.show_panel(self.ROOT_PANEL)
 
-    def replace_panel(self, panel_name, force=False):
+    def replace_panel(self, panel_name, force=False, extra_query_data=None):
         action_needed = force or panel_name != self.current_panel
         if action_needed:
             self.current_panel = panel_name or self.ROOT_PANEL
-        get_boss().push_state(replace=True)
+        get_boss().push_state(replace=True, extra_query_data=extra_query_data)
         if action_needed:
             self.apply_state()
 

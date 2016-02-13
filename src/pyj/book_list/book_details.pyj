@@ -58,17 +58,15 @@ class BookDetailsPanel:
     def fetch_metadata(self, book_id):
         if self.is_fetching:
             self.is_fetching.abort()
-        def fetched(end_type, xhr, ev):
-            self.metadata_fetched(book_id, end_type, xhr, ev)
-        self.is_fetching = ajax('interface-data/book-metadata/' + book_id, fetched,
-                                     query={'library_id':self.interface_data.library_id})
+        self.is_fetching = ajax('interface-data/book-metadata/' + book_id, self.metadata_fetched.bind(self),
+                                query={'library_id':self.interface_data.library_id})
         self.is_fetching.send()
         self.container.appendChild(E.div(
             style='margin: 1ex 1em',
             create_spinner(), '\xa0' + _('Fetching metadata for the book, please wait') + '…',
         ))
 
-    def metadata_fetched(self, book_id, end_type, xhr, event):
+    def metadata_fetched(self, end_type, xhr, event):
         if self.is_fetching is None or self.is_fetching is not xhr:
             return  # Fetching was aborted
         self.is_fetching = None
@@ -80,6 +78,7 @@ class BookDetailsPanel:
                 error_dialog(_('Could not fetch metadata for book'), _('Server returned an invalid response'), err.stack or err.toString())
                 return
             clear(c)
+            book_id = data['id']
             self.interface_data.metadata[book_id] = data
             self.render_book(book_id)
         elif end_type != 'abort':
@@ -98,12 +97,13 @@ class BookDetailsPanel:
         alt = str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & '))
         img = E.img(
             src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
-            style='margin-left: 1em; max-width: 45vw; max-height: 95vh; display: block; width:auto; height:auto'
+            style='max-width: 45vw; max-height: 93vh; display: block; width:auto; height:auto'
         )
         img.onerror = self.on_img_err.bind(self)
         c = self.container
         c.appendChild(E.div(
-            E.div(),
+            style='display:flex; flex-wrap: wrap; align-items:flex-start; padding: 1ex 1em',
+            E.div(style='margin-right: 1em'),
             img
         ))
 

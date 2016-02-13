@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re, hashlib
+import re, hashlib, random
 from functools import partial
 from threading import Lock
 from json import load as load_json_file
@@ -216,17 +216,27 @@ def get_books(ctx, rd):
                 mdata[book_id] = data
     return ans
 
-@endpoint('/interface-data/book-metadata/{book_id}', postprocess=json, types={'book_id': int})
+@endpoint('/interface-data/book-metadata/{book_id=0}', postprocess=json)
 def book_metadata(ctx, rd, book_id):
     '''
-    Get metadata for the specified book
+    Get metadata for the specified book. If no book_id is specified, return metadata for a random book.
 
     Optional: ?library_id=<default library>
     '''
     library_id, db = get_basic_query_data(ctx, rd.query)[:2]
+    book_ids = ctx.allowed_book_ids(rd, db)
+    def notfound():
+        raise HTTPNotFound(_('No book with id: %d in library') % book_id)
+    if not book_ids:
+        notfound()
+    if not book_id:
+        book_id = random.choice(tuple(book_ids))
+    elif book_id not in book_ids:
+        notfound()
     data = book_as_json(db, book_id)
     if data is None:
-        raise HTTPNotFound('No book with id: %d in library' % book_id)
+        notfound()
+    data['id'] = book_id
     return data
 
 @endpoint('/interface-data/tag-browser')
