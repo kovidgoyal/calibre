@@ -21,7 +21,7 @@ from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.icu import collation_order
 from calibre.library.field_metadata import category_icon_map
 
-IGNORED_FIELDS = frozenset('cover ondevice path marked id au_map'.split())
+IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
 
 def encode_datetime(dateval):
     if dateval is None:
