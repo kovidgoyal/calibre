@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-import StringIO, traceback, sys, gc
+import StringIO, traceback, sys, gc, weakref
 
 from PyQt5.Qt import (QMainWindow, QTimer, QAction, QMenu, QMenuBar, QIcon,
                       pyqtSignal, QObject)
@@ -68,6 +68,18 @@ class GarbageCollector(QObject):
         for obj in gc.garbage:
             print (obj, repr(obj), type(obj))
 
+class ExceptionHandler(object):
+
+    def __init__(self, main_window):
+        self.wref = weakref.ref(main_window)
+
+    def __call__(self, type, value, tb):
+        mw = self.wref()
+        if mw is not None:
+            mw.unhandled_exception(type, value, tb)
+        else:
+            sys.__excepthook__(type, value, tb)
+
 class MainWindow(QMainWindow):
 
     ___menu_bar = None
@@ -114,6 +126,9 @@ class MainWindow(QMainWindow):
             self._gc.timer.blockSignals(not enabled)
         else:
             gc.enable() if enabled else gc.disable()
+
+    def set_exception_handler(self):
+        sys.excepthook = ExceptionHandler(self)
 
     def unhandled_exception(self, type, value, tb):
         if type == KeyboardInterrupt:

@@ -69,7 +69,7 @@ def _run(args, notify=None):
     Application.setOrganizationName(ORG_NAME)
     Application.setApplicationName(APP_UID)
     main = Main(opts, notify=notify)
-    sys.excepthook = main.unhandled_exception
+    main.set_exception_handler()
     main.show()
     if len(args) > 1:
         main.boss.open_book(args[1], edit_file=args[2:], clear_notify_data=False)

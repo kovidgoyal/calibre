@@ -312,7 +312,7 @@ def main(args=sys.argv, logger=None):
         opts = normalize_settings(parser, opts)
         stream = open(args[1], 'rb') if len(args) > 1 else None
         main = file_renderer(stream, opts, logger=logger)
-        sys.excepthook = main.unhandled_exception
+        main.set_exception_handler()
         main.show()
         main.render()
         main.activateWindow()

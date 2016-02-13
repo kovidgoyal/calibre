@@ -1187,8 +1187,7 @@ def main(args=sys.argv):
     # turn_off_internal_scrollbars does not take effect for the first
     # rendered document
     main.view.load_path(P('viewer/blank.html', allow_user_override=False))
-
-    sys.excepthook = main.unhandled_exception
+    main.set_exception_handler()
     main.show()
     if opts.raise_window:
         main.raise_()
