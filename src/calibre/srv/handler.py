@@ -36,7 +36,7 @@ class LibraryBroker(object):
             seen.add(path)
             if not LibraryDatabase.exists_at(path):
                 continue
-            bname = library_id = force_unicode(os.path.basename(path), filesystem_encoding)
+            bname = library_id = force_unicode(os.path.basename(path), filesystem_encoding).replace(' ', '_')
             c = 0
             while library_id in self.lmap:
                 c += 1
