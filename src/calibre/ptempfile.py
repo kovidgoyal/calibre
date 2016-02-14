@@ -9,7 +9,7 @@ import tempfile, os, atexit
 from future_builtins import map
 
 from calibre.constants import (__version__, __appname__, filesystem_encoding,
-        get_unicode_windows_env_var, iswindows, get_windows_temp_path)
+        get_unicode_windows_env_var, iswindows, get_windows_temp_path, isosx)
 
 def cleanup(path):
     try:
@@ -68,6 +68,28 @@ def reset_temp_folder_permissions():
         retcode = subprocess.Popen(['icacls.exe', parent, '/reset', '/Q', '/T']).wait()
         prints('Trying to reset permissions of temp folder', parent, 'return code:', retcode)
 
+
+_osx_cache_dir = None
+
+def osx_cache_dir():
+    global _osx_cache_dir
+    if _osx_cache_dir:
+        return _osx_cache_dir
+    if _osx_cache_dir is None:
+        _osx_cache_dir = False
+        import ctypes
+        libc = ctypes.CDLL(None)
+        buf = ctypes.create_string_buffer(512)
+        l = libc.confstr(65538, ctypes.byref(buf), len(buf))  # _CS_DARWIN_USER_CACHE_DIR = 65538
+        if 0 < l < len(buf):
+            try:
+                q = buf.value.decode('utf-8').rstrip(u'\0')
+            except ValueError:
+                pass
+            if q and os.path.isdir(q) and os.access(q, os.R_OK | os.W_OK | os.X_OK):
+                _osx_cache_dir = q
+                return q
+
 def base_dir():
     global _base_dir
     if _base_dir is not None and not os.path.exists(_base_dir):
@@ -89,14 +111,21 @@ def base_dir():
             if base is not None and iswindows:
                 base = get_unicode_windows_env_var('CALIBRE_TEMP_DIR')
             prefix = app_prefix(u'tmp_')
-            if base is None and iswindows:
-                # On windows, if the TMP env var points to a path that
-                # cannot be encoded using the mbcs encoding, then the
-                # python 2 tempfile algorithm for getting the temporary
-                # directory breaks. So we use the win32 api to get a
-                # unicode temp path instead. See
-                # https://bugs.launchpad.net/bugs/937389
-                base = get_windows_temp_path()
+            if base is None:
+                if iswindows:
+                    # On windows, if the TMP env var points to a path that
+                    # cannot be encoded using the mbcs encoding, then the
+                    # python 2 tempfile algorithm for getting the temporary
+                    # directory breaks. So we use the win32 api to get a
+                    # unicode temp path instead. See
+                    # https://bugs.launchpad.net/bugs/937389
+                    base = get_windows_temp_path()
+                elif isosx:
+                    # Use the cache dir rather than the temp dir for temp files as Apple
+                    # thinks deleting unused temp files is a good idea. See note under
+                    # _CS_DARWIN_USER_TEMP_DIR here
+                    # https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man3/confstr.3.html
+                    base = osx_cache_dir()
 
             _base_dir = tempfile.mkdtemp(prefix=prefix, dir=base)
             atexit.register(determined_remove_dir if iswindows else remove_dir, _base_dir)
