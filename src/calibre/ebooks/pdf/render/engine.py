@@ -245,13 +245,19 @@ class PdfEngine(QPaintEngine):
         gi = GlyphInfo(*self.qt_hack.get_glyphs(point, text_item))
         if not gi.indices:
             return
-        name = hash(gi.name)
-        if name not in self.fonts:
+        metrics = self.fonts.get(gi.name)
+        if metrics is None:
+            from calibre.utils.fonts.utils import get_all_font_names
             try:
-                self.fonts[name] = self.create_sfnt(text_item)
+                names = get_all_font_names(gi.name, True)
+                names = ' '.join('%s=%s'%(k, names[k]) for k in sorted(names))
+            except Exception:
+                names = 'Unknown'
+            self.debug('Loading font: %s' % names)
+            try:
+                self.fonts[gi.name] = metrics = self.create_sfnt(text_item)
             except UnsupportedFont:
                 return super(PdfEngine, self).drawTextItem(point, text_item)
-        metrics = self.fonts[name]
         for glyph_id in gi.indices:
             try:
                 metrics.glyph_map[glyph_id] = metrics.full_glyph_map[glyph_id]
