@@ -38,6 +38,8 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
                     self.log('\t', desc)
         for li in soup.find(id='latest-panel').find('ol').findAll('li'):
             a = li.find('a', attrs={'class':'story-link'}, href=True)
+            if a is None:
+                continue
             url = a['href']
             m = a.find(attrs={'class':'story-meta'})
             title = self.tag_to_string(m.find('h2'))
