@@ -27,7 +27,7 @@ def get_preferred_format(metadata, output_format, input_formats):
     formats = (metadata and metadata.formats) or v'[]'
     formats = [f.toUpperCase() for f in formats]
     input_formats = {x.toUpperCase():True for x in input_formats}
-    fmt = output_format
+    fmt = 'EPUB' if output_format == 'PDF' else output_format
     if formats.length and formats.indexOf(fmt) == -1:
         for q in sorted(formats, key=sort_formats_key):
             if input_formats[q]:
