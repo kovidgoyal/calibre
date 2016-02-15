@@ -1,0 +1,79 @@
+# coding=utf-8
+__license__   = 'GPL v3'
+__copyright__ = '2016, Hassan Williamson <haz at hazrpg.co.uk>'
+'''
+almasryalyoum.com
+'''
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+class AlMasryAlyoum(BasicNewsRecipe):
+    title                  = 'Al-Masry Alyoum (المصري اليوم)'
+    __author__             = 'Hassan Williamson'
+    description            = 'The Arabic version of the Al-Masry Alyoum (Egypt Independent) newspaper.'
+    language               = 'ar'
+    encoding               = 'utf8'
+    cover_url              = 'http://www.almasryalyoum.com/content/images/header_logo.png'
+    oldest_article         = 7
+    max_articles_per_feed  = 100
+    no_stylesheets         = True
+    #delay                 = 1
+    use_embedded_content   = False
+    publisher              = 'Al-Masry Alyoum'
+    category               = 'News'
+    publication_type       = 'newsportal'
+
+    extra_css              = ' body{ font-family: Verdana,Helvetica,Arial,sans-serif; direction: rtl; } .tit_2{ font-weight: bold; font-size: 2em; } .pinfo{ font-size: 1.3em; } .articleimg img{ max-width: 100%; } .imgauther{ display: block; font-size: 0.7em; } .caption{ font-size: 0.7em; } '
+
+    keep_only_tags    = [
+                            dict(name='div', attrs={'class':['article']})
+                        ]
+
+    remove_tags       = [
+                            dict(name='div', attrs={'class':['share_buttons_container']}),
+                            dict(name='div', attrs={'class':['min_related']}),
+                            dict(name='div', attrs={'id':['feedback']}),
+                            dict(name='div', attrs={'class':['news_SMSBox']}),
+                            dict(name='div', attrs={'class':['tags']}),
+                            dict(name='div', attrs={'class':['ads', 'y_logo_news']}),
+                            dict(name='div', attrs={'class':['ads']}),
+                            dict(name='div', attrs={'class':['option']}),
+                            dict(name='div', attrs={'class':['seealso']}),
+                            dict(name='div', attrs={'id':['comments']}),
+                        ]
+
+    remove_attributes = [
+                            'width','height','style'
+                        ]
+
+    feeds             = [
+                            (u'أخر الأخبار', 'http://www.almasryalyoum.com/rss/RssFeeds'),
+                            (u'الصفحة الرئيسية', 'http://www.almasryalyoum.com/rss/RssFeeds?homePage=true'),
+                            (u'أقلام وآراء', 'http://www.almasryalyoum.com/rss/RssFeeds?typeId=2&homePage=false'),
+                            (u'أخبار مصر', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=3'),
+                            (u'رياضة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=8'),
+                            (u'اقتصاد', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=4'),
+                            (u'حوادث', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=7'),
+                            (u'فنون', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=10'),
+                            (u'منوعاتنون', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=12'),
+                            (u'ثقافة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=6'),
+                            (u'علوم وتكنولوجيا', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=9'),
+                            (u'تحقيقات وحوارات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=5'),
+                            (u'المرأة', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=69'),
+                            (u'رأي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=2'),
+                            (u'وسط الناس', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=13'),
+                            (u'مركز المصري للدراسات و المعلومات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=56'),
+                            (u'مطبخ', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=81'),
+                            (u'برلمان مصر', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=78'),
+                            (u'تقارير', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=54'),
+                            (u'تحليلات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=60'),
+                            (u'عروض نقدية', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=61'),
+                            (u'دراسات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=62'),
+                            (u'كتاب المصري اليوم', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=65'),
+                            (u'فعاليات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=66'),
+                            (u'إسلامي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=75'),
+                            (u'مطبخي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=76'),
+                            (u'مسلسلاتيطبخي', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=77'),
+                            (u'رمضان زمان', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=82'),
+                            (u'تقارير', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=85'),
+                            (u'سيارات', 'http://www.almasryalyoum.com/rss/RssFeeds?sectionId=86'),
+                        ]
