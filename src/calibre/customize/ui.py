@@ -446,14 +446,14 @@ def plugin_for_input_format(fmt):
             return plugin
 
 def all_input_formats():
-    formats = set([])
+    formats = set()
     for plugin in input_format_plugins():
         for format in plugin.file_types:
             formats.add(format)
     return formats
 
 def available_input_formats():
-    formats = set([])
+    formats = set()
     for plugin in input_format_plugins():
         if not is_disabled(plugin):
             for format in plugin.file_types:

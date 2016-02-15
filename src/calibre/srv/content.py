@@ -269,4 +269,4 @@ def get(ctx, rd, what, book_id, library_id):
             try:
                 return book_fmt(ctx, rd, library_id, db, book_id, what.lower())
             except NoSuchFormat:
-                raise HTTPNotFound('No %r format for the book %r' % (what.lower(), book_id))
+                raise HTTPNotFound('No %s format for the book %r' % (what.lower(), book_id))

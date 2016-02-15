@@ -10,11 +10,13 @@ from threading import Lock
 from json import load as load_json_file
 
 from calibre import prepare_string_for_xml, as_unicode
+from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import get_db, search_result
 from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
 from calibre.srv.metadata import book_as_json, categories_as_json, icon_map
 from calibre.srv.routes import endpoint, json
+from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
 
@@ -92,7 +94,7 @@ def interface_data(ctx, rd):
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
               &search=''&extra_books=''
     '''
-    ans = {'username':rd.username}
+    ans = {'username':rd.username, 'output_format':prefs['output_format'].upper(), 'input_formats':tuple(x.upper() for x in available_input_formats())}
     ans['library_map'], ans['default_library'] = ctx.library_map
     ud = {}
     if rd.username:

@@ -9,9 +9,31 @@ from elementmaker import E
 from gettext import gettext as _
 from book_list.globals import get_boss
 from modals import error_dialog
-from widgets import create_spinner
+from widgets import create_spinner, create_button
 
 bd_counter = 0
+
+FORMAT_PRIORITIES = [
+    'EPUB', 'AZW3', 'DOCX', 'LIT', 'MOBI', 'ODT', 'RTF', 'MD', 'MARKDOWN', 'TXT', 'PDF'
+]
+
+def sort_formats_key(fmt):
+    ans = FORMAT_PRIORITIES.indexOf(fmt)
+    if ans < 0:
+        ans = FORMAT_PRIORITIES.length
+    return ans
+
+def get_preferred_format(metadata, output_format, input_formats):
+    formats = (metadata and metadata.formats) or v'[]'
+    formats = [f.toUpperCase() for f in formats]
+    input_formats = {x.toUpperCase():True for x in input_formats}
+    fmt = output_format
+    if formats.length and formats.indexOf(fmt) == -1:
+        for q in sorted(formats, key=sort_formats_key):
+            if input_formats[q]:
+                fmt = q
+                break
+    return fmt.toUpperCase()
 
 class BookDetailsPanel:
 
@@ -26,6 +48,7 @@ class BookDetailsPanel:
         )
         book_list_container.appendChild(div)
         self.interface_data = interface_data
+        self.current_book_id = None
 
     @property
     def container(self):
@@ -40,6 +63,7 @@ class BookDetailsPanel:
         self.container.style.display = 'block' if val else 'none'
 
     def init(self, data):
+        self.current_book_id = None
         c = self.container
         clear(c)
         book_id = get_current_query()['book-id']
@@ -96,6 +120,7 @@ class BookDetailsPanel:
             c.lastChild.lastChild.innerHTML = xhr.error_html
 
     def render_book(self, book_id):
+        self.current_book_id = int(book_id)
         metadata = self.interface_data.metadata[book_id]
         get_boss().ui.set_title(metadata.title)
         cover_url = str.format('get/cover/{}/{}', book_id, self.interface_data['library_id'])
@@ -108,10 +133,29 @@ class BookDetailsPanel:
         c = self.container
         c.appendChild(E.div(
             style='display:block; padding: 1ex 1em',
-        E.div(style='margin-right: 1em; float:left'),
+            E.div(style='margin-right: 1em; float:left', data_book_id='' + book_id),
             img
         ))
+        container = c.lastChild.firstChild
+        read_button = create_button(_('Read'), 'book', self.read_book.bind(self), _('Read this book'))
+        download_button = create_button(_('Download'), 'cloud-download', self.download_book.bind(self), str.format(
+            _('Download this book in the {} format'), self.preferred_format(book_id)))
+        row = E.div(read_button, '\xa0\xa0\xa0', download_button, style='margin-bottom: 1ex')
+        if not metadata.formats or not metadata.formats.length:
+            row.style.display = 'none'
+        container.appendChild(row)
 
     def on_img_err(self, err):
         img = err.target
         img.style.display = 'none'
+
+    def preferred_format(self, book_id):
+        return get_preferred_format(self.interface_data.metadata[book_id], self.interface_data['output_format'], self.interface_data['input_formats'])
+
+    def download_book(self):
+        book_id = self.current_book_id
+        fmt = self.preferred_format(book_id)
+        window.location = str.format('get/{}/{}/{}', fmt, book_id, self.interface_data.library_id)
+
+    def read_book(self):
+        pass
