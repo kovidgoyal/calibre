@@ -7,7 +7,7 @@ ahram.org.eg
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class AlAhram(BasicNewsRecipe):
-    title                  = 'Al-Ahram (الأهرام)'
+    title                  = u'Al-Ahram (الأهرام)'
     __author__             = 'Hassan Williamson'
     description            = 'The Arabic version of the Al-Ahram newspaper.'
     language               = 'ar'
