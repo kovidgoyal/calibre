@@ -60,7 +60,13 @@ def E(tag, *args, **kwargs):
 
     for attr in kwargs:
         vattr = str.replace(str.rstrip(attr, '_'), '_', '-')
-        ans.setAttribute(vattr, kwargs[attr])
+        val = kwargs[attr]
+        if callable(val):
+            if str.startswith(attr, 'on'):
+                attr = attr[2:]
+            ans.addEventListener(attr, val)
+        else:
+            ans.setAttribute(vattr, val)
 
     for arg in args:
         if type(arg) == 'string':
