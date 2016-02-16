@@ -239,7 +239,7 @@ def calibre_cover(title, author_string, series_string=None,
         if cleanup:
             os.remove(font_path)
 
-UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc|rem)$')
+UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc|rem|q)$')
 
 def unit_convert(value, base, font, dpi, body_font_size=12):
     ' Return value in pts'
@@ -277,6 +277,8 @@ def unit_convert(value, base, font, dpi, body_font_size=12):
             result = value * 28.346456693
         elif unit == 'rem':
             result = value * body_font_size
+        elif unit == 'q':
+            result = value * 0.708661417325
     return result
 
 def parse_css_length(value):
