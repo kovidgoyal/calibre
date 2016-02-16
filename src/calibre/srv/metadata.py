@@ -14,11 +14,14 @@ from urllib import quote
 
 from calibre.constants import config_dir
 from calibre.db.categories import Tag
+from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
 from calibre.utils.config import tweaks, JSONConfig
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.icu import collation_order
+from calibre.utils.localization import calibre_langcode_to_name
+from calibre.library.comments import comments_to_html
 from calibre.library.field_metadata import category_icon_map
 
 IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
@@ -45,6 +48,10 @@ def add_field(field, db, book_id, ans, field_metadata):
                 val = encode_datetime(val)
                 if val is None:
                     return
+            elif datatype == 'comments' or field == 'comments':
+                val = comments_to_html(val)
+            elif datatype == 'composite' and field_metadata['display'].get('contains_html'):
+                val = comments_to_html(val)
             ans[field] = val
 
 def book_as_json(db, book_id):
@@ -57,6 +64,12 @@ def book_as_json(db, book_id):
         for field in fm.all_field_keys():
             if field not in IGNORED_FIELDS:
                 add_field(field, db, book_id, ans, fm[field])
+        ids = ans.get('identifiers')
+        if ids:
+            ans['urls_from_identifiers'] = urls_from_identifiers(ids)
+        langs = ans.get('languages')
+        if langs:
+            ans['lang_names'] = {l:calibre_langcode_to_name(l) for l in langs}
     return ans
 
 _include_fields = frozenset(Tag.__slots__) - frozenset({

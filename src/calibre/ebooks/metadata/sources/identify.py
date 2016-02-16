@@ -522,7 +522,7 @@ def identify(log, abort,  # {{{
 # }}}
 
 def urls_from_identifiers(identifiers):  # {{{
-    identifiers = dict([(k.lower(), v) for k, v in identifiers.iteritems()])
+    identifiers = {k.lower():v for k, v in identifiers.iteritems()}
     ans = []
     for plugin in all_metadata_plugins():
         try:

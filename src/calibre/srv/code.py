@@ -94,7 +94,7 @@ def interface_data(ctx, rd):
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
               &search=''&extra_books=''
     '''
-    ans = {'username':rd.username, 'output_format':prefs['output_format'].upper(), 'input_formats':tuple(x.upper() for x in available_input_formats())}
+    ans = {'username':rd.username, 'output_format':prefs['output_format'].upper(), 'input_formats':{x.upper():True for x in available_input_formats()}}
     ans['library_map'], ans['default_library'] = ctx.library_map
     ud = {}
     if rd.username:
