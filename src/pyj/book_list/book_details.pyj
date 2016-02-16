@@ -114,7 +114,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
         for fmt in val:
             td = table.lastChild.lastChild
             td.appendChild(E.span(fmt, style='white-space: nowrap'))
-            if interface_data.input_formats[fmt]:
+            if interface_data.input_formats[fmt] or interface_data.input_formats[fmt.replace('ORIGINAL_', '')]:
                 td.lastChild.appendChild(E.a(
                     title=str.format(_('Read this book in the {} format'), fmt),
                     href='javascript:void(0)', style='padding-left: 1em',
