@@ -124,6 +124,7 @@ class UI:
         pass
 
     def apply_state(self):
+        window.scrollTo(0, 0)
         state = self.panel_map[self.current_panel]
         self.top_bar.apply_state(state.top_bar_state.left_state, state.top_bar_state.buttons)
         if self.current_panel == self.ROOT_PANEL:
