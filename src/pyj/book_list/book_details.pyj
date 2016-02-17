@@ -4,7 +4,7 @@
 from ajax import ajax
 from book_list.globals import get_current_query
 from book_list.theme import get_font_size
-from dom import clear
+from dom import clear, build_rule
 from elementmaker import E
 from gettext import gettext as _
 from book_list.globals import get_boss
@@ -218,10 +218,14 @@ class BookDetailsPanel:
         nonlocal bd_counter
         bd_counter += 1
         self.container_id = 'book-details-panel-' + bd_counter
-        style = ''
+        style = build_rule('#' + self.container_id + ' table.metadata td:first-of-type', font_weight='bold', padding_right='1em')
+        style += build_rule('#' + self.container_id + ' table.metadata a[href]', color='blue')
+        style += build_rule('#' + self.container_id + ' table.metadata a[href]:hover', color='red')
+        style += build_rule('#' + self.container_id + ' table.metadata a[href]:active', color='red', transform='scale(1.5)')
         div = E.div(
             id=self.container_id, style='display:none',
-            E.style(style, type='text/css')
+            E.style(style, type='text/css'),
+            E.div(),
         )
         book_list_container.appendChild(div)
         self.interface_data = interface_data
@@ -229,15 +233,15 @@ class BookDetailsPanel:
 
     @property
     def container(self):
-        return document.getElementById(self.container_id)
+        return document.getElementById(self.container_id).lastChild
 
     @property
     def is_visible(self):
-        self.container.style.display == 'block'
+        self.container.parentNode.style.display == 'block'
 
     @is_visible.setter
     def is_visible(self, val):
-        self.container.style.display = 'block' if val else 'none'
+        self.container.parentNode.style.display = 'block' if val else 'none'
 
     def init(self, data):
         self.current_book_id = None
@@ -321,7 +325,7 @@ class BookDetailsPanel:
         if not metadata.formats or not metadata.formats.length:
             row.style.display = 'none'
         container.appendChild(row)
-        md = E.div(style='max-width:500px')
+        md = E.div(style='max-width:500px; margin-bottom: 1ex')
         table = E.table(class_='metadata')
         container.appendChild(md)
         md.appendChild(table)
