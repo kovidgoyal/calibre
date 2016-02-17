@@ -681,7 +681,7 @@ them import it on another computer. First let use see how to export the data:
     settings in the next step. You will now have an empty calibre, with just
     the :guilabel:`Getting Started` guide in your library. Once again, right
     click the calibre button and choose :guilabel:`Export/Import all calibre
-    data`. The click the button labelled :guilabel:`Import previously exported
+    data`. Then click the button labelled :guilabel:`Import previously exported
     data`. Select the folder with the exported data that you copied over
     earlier. You will now have a list of libraries you can import. Go through
     the list one by one, and select the new location for each library (a
