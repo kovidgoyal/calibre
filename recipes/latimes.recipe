@@ -50,7 +50,7 @@ class LATimes(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img', attrs={'data-baseurl':True}):
-            img['src'] = img['data-baseurl']
+            img['src'] = img['data-baseurl'] + '/750'
         for div in soup.findAll(itemprop='articleBody'):
             div.extract()
             soup.find('body').append(div)
