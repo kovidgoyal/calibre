@@ -93,7 +93,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
         if is_html:
             table.lastChild.lastChild.innerHTML = val + ''
         else:
-            if join is None:
+            if not join:
                 add_val(val)
             else:
                 for v in val:
@@ -222,9 +222,18 @@ def render_metadata(mi, interface_data, table, field_list=None):
         if func:
             func(field, fm, name, val)
         else:
-            if datatype == 'text':
+            if datatype == 'text' or datatype == 'enumeration':
                 join = fm.is_multiple.list_to_ui if fm.is_multiple else None
                 add_row(name, val, join=join, is_searchable=field)
+            elif datatype == 'bool':
+                add_row(name, _('Yes') if val else _('No'))
+            elif datatype == 'int' or datatype == 'float':
+                fmt = (fm.display or {}).number_format
+                if fmt:
+                    val = str.format(fmt, val)
+                else:
+                    val += ''
+                add_row(name, val)
 
     for field in fields:
         fm = interface_data.field_metadata[field]
