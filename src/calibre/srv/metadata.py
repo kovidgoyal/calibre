@@ -24,7 +24,7 @@ from calibre.utils.localization import calibre_langcode_to_name
 from calibre.library.comments import comments_to_html
 from calibre.library.field_metadata import category_icon_map
 
-IGNORED_FIELDS = frozenset('cover ondevice path marked au_map'.split())
+IGNORED_FIELDS = frozenset('cover ondevice path marked au_map size'.split())
 
 def encode_datetime(dateval):
     if dateval is None:
