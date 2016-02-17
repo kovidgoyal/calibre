@@ -35,7 +35,7 @@ def get_preferred_format(metadata, output_format, input_formats):
                 break
     return fmt.toUpperCase()
 
-IGNORED_FIELDS = {'title', 'id', 'urls_from_identifiers', 'lang_names'}
+IGNORED_FIELDS = {'title', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified'}
 
 def allowed_fields(field):
     if str.endswith(field, '_index'):
