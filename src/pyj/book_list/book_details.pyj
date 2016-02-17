@@ -261,7 +261,7 @@ class BookDetailsPanel:
         nonlocal bd_counter
         bd_counter += 1
         self.container_id = 'book-details-panel-' + bd_counter
-        style = build_rule('#' + self.container_id + ' table.metadata td:first-of-type', font_weight='bold', padding_right='1em')
+        style = build_rule('#' + self.container_id + ' table.metadata td:first-of-type', font_weight='bold', padding_right='1em', white_space='nowrap')
         style += build_rule('#' + self.container_id + ' table.metadata a[href]', color='blue')
         style += build_rule('#' + self.container_id + ' table.metadata a[href]:hover', color='red')
         style += build_rule('#' + self.container_id + ' table.metadata a[href]:active', color='red', transform='scale(1.5)')
