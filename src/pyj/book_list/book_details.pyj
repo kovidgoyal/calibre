@@ -10,6 +10,7 @@ from gettext import gettext as _
 from book_list.globals import get_boss
 from modals import error_dialog
 from widgets import create_spinner, create_button
+from date import format_date
 
 bd_counter = 0
 
@@ -45,7 +46,7 @@ def allowed_fields(field):
         return False
     return True
 
-default_sort = {f:i+1 for i, f in enumerate(('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'identifiers', 'languages', 'publisher'))}
+default_sort = {f:i+1 for i, f in enumerate(('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'timestamp', 'pubdate', 'identifiers', 'languages', 'publisher', 'last_modified'))}
 default_sort['formats'] = 999
 
 def field_sorter(field_metadata):
@@ -168,6 +169,11 @@ def render_metadata(mi, interface_data, table, field_list=None):
                 if k is not val[-1]:
                     td.appendChild(document.createTextNode(', '))
 
+    def process_datetime(field, fm, name, val):
+        if val:
+            fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
+            add_row(name, format_date(val, fmt))
+
     def process_field(field, fm):
         name = fm.name or field
         datatype = fm.datatype
@@ -190,6 +196,8 @@ def render_metadata(mi, interface_data, table, field_list=None):
             func = process_publisher
         elif field == 'languages':
             func = process_languages
+        elif datatype == 'datetime':
+            func = process_datetime
         if func:
             func(field, fm, name, val)
         else:

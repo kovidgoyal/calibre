@@ -16,7 +16,7 @@ from calibre.srv.ajax import get_db, search_result
 from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
 from calibre.srv.metadata import book_as_json, categories_as_json, icon_map
 from calibre.srv.routes import endpoint, json
-from calibre.utils.config import prefs
+from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
 
@@ -94,7 +94,14 @@ def interface_data(ctx, rd):
     Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
               &search=''&extra_books=''
     '''
-    ans = {'username':rd.username, 'output_format':prefs['output_format'].upper(), 'input_formats':{x.upper():True for x in available_input_formats()}}
+    ans = {
+        'username':rd.username,
+        'output_format':prefs['output_format'].upper(),
+        'input_formats':{x.upper():True for x in available_input_formats()},
+        'gui_pubdate_display_format':tweaks['gui_pubdate_display_format'],
+        'gui_timestamp_display_format':tweaks['gui_timestamp_display_format'],
+        'gui_last_modified_display_format':tweaks['gui_last_modified_display_format'],
+    }
     ans['library_map'], ans['default_library'] = ctx.library_map
     ud = {}
     if rd.username:
