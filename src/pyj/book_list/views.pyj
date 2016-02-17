@@ -176,7 +176,7 @@ class BooksView:
         metadata = self.interface_data['metadata'][book_id]
         alt = str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & '))
         img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
-                style='max-width: 100%; max-height: 100%; display: block; width:auto; height:auto')
+                    style='max-width: 100%; max-height: 100%; display: block; width:auto; height:auto; border-radius: 10px')
         img.onerror = self.on_cover_grid_img_err.bind(self)
 
         ans = E.div(
