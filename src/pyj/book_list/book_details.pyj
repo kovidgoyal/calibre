@@ -11,6 +11,7 @@ from book_list.globals import get_boss
 from modals import error_dialog
 from widgets import create_spinner, create_button
 from date import format_date
+from utils import fmt_sidx
 
 bd_counter = 0
 
@@ -37,15 +38,6 @@ def get_preferred_format(metadata, output_format, input_formats):
 
 IGNORED_FIELDS = {'title', 'id', 'urls_from_identifiers', 'lang_names', 'last_modified'}
 
-def allowed_fields(field):
-    if str.endswith(field, '_index'):
-        return False
-    if str.startswith(field, '#'):
-        return True
-    if field in IGNORED_FIELDS or str.endswith(field, '_sort'):
-        return False
-    return True
-
 default_sort = {f:i+1 for i, f in enumerate(('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'timestamp', 'pubdate', 'identifiers', 'languages', 'publisher', 'last_modified'))}
 default_sort['formats'] = 999
 
@@ -69,6 +61,17 @@ def read_format(ev):
     get_boss().ui.book_details_panel.read_format(fmt)
 
 def render_metadata(mi, interface_data, table, field_list=None):
+    def allowed_fields(field):
+        if str.endswith(field, '_index'):
+            fm = interface_data.field_metadata[field[:-len('_index')]]
+            if fm and fm.datatype == 'series':
+                return False
+        if str.startswith(field, '#'):
+            return True
+        if field in IGNORED_FIELDS or str.endswith(field, '_sort'):
+            return False
+        return True
+
     fields = field_list or sorted(filter(allowed_fields, mi), key=field_sorter(interface_data.field_metadata))
     comments = []
 
@@ -177,6 +180,19 @@ def render_metadata(mi, interface_data, table, field_list=None):
             fmt = interface_data['gui_' + field + '_display_format'] or (fm['display'] or {}).date_format
             add_row(name, format_date(val, fmt))
 
+    def process_series(field, fm, name, val):
+        if val:
+            ifield = field + '_index'
+            try:
+                ival = float(mi[ifield])
+            except Exception:
+                ival = 1.0
+            ival = fmt_sidx(ival, use_roman=interface_data.use_roman_numerals_for_series_number)
+            table.appendChild(E.tr(E.td(name + ':'), E.td()))
+            table.lastChild.lastChild.appendChild(E.span(ival, _(' of '), E.a(
+                data_search=JSON.stringify([name, val]), onclick=execute_search,
+                title=str.format(_('Click to see books with {0}: {1}'), name, val), href='javascript: void(0)', val)))
+
     def process_field(field, fm):
         name = fm.name or field
         datatype = fm.datatype
@@ -201,6 +217,8 @@ def render_metadata(mi, interface_data, table, field_list=None):
             func = process_languages
         elif datatype == 'datetime':
             func = process_datetime
+        elif datatype == 'series':
+            func = process_series
         if func:
             func(field, fm, name, val)
         else:

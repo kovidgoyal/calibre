@@ -4,12 +4,13 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re, hashlib, random
+import re, hashlib, random, os
 from functools import partial
 from threading import Lock
 from json import load as load_json_file
 
 from calibre import prepare_string_for_xml, as_unicode
+from calibre.constants import config_dir
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import get_db, search_result
@@ -84,6 +85,21 @@ def get_basic_query_data(ctx, query):
         sorts, orders = ['timestamp'], ['desc']
     return library_id, db, sorts, orders
 
+_use_roman = None
+
+def get_use_roman():
+    global _use_roman
+    if _use_roman is None:
+        try:
+            with lopen(os.path.join(config_dir, 'gui.py'), 'rb') as f:
+                raw = f.read()
+        except EnvironmentError:
+            _use_roman = False
+        else:
+            m = re.search(br'use_roman_numerals_for_series_number\s*=\s*(True|False)', raw)
+            _use_roman = m is not None and m.group(1) == b'True'
+    return _use_roman
+
 DEFAULT_NUMBER_OF_BOOKS = 50
 
 @endpoint('/interface-data/init', postprocess=json)
@@ -101,6 +117,7 @@ def interface_data(ctx, rd):
         'gui_pubdate_display_format':tweaks['gui_pubdate_display_format'],
         'gui_timestamp_display_format':tweaks['gui_timestamp_display_format'],
         'gui_last_modified_display_format':tweaks['gui_last_modified_display_format'],
+        'use_roman_numerals_for_series_number': get_use_roman(),
     }
     ans['library_map'], ans['default_library'] = ctx.library_map
     ud = {}

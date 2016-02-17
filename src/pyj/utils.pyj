@@ -54,3 +54,30 @@ def parse_url_params(url=None, allow_multiple=False):
         else:
             ans[key] = val
     return ans
+
+_roman = list(zip(
+[1000,900,500,400,100,90,50,40,10,9,5,4,1],
+["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+))
+
+def roman(num):
+    if num <= 0 or num >= 4000 or int(num) != num:
+        return num + ''
+    result = []
+    for d, r in _roman:
+        while num >= d:
+            result.append(r)
+            num -= d
+    return result.join('')
+
+def fmt_sidx(val, fmt='{:.2f}', use_roman=True):
+    if val is undefined or val is None or val == '':
+        return '1'
+    if int(val) == float(val):
+        if use_roman:
+            return roman(val)
+        return int(val) + ''
+    return str.format(fmt, float(val))
+
+if __name__ == '__main__':
+    print(fmt_sidx(10), fmt_sidx(1.2))
