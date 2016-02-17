@@ -253,7 +253,7 @@ def utcfromtimestamp(stamp):
 def timestampfromdt(dt, assume_utc=True):
     return (as_utc(dt, assume_utc=assume_utc) - EPOCH).total_seconds()
 
-# Format date functions
+# Format date functions {{{
 
 def fd_format_hour(dt, ampm, hr):
     l = len(hr)
@@ -344,7 +344,9 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
         '(s{1,2})|(m{1,2})|(h{1,2})|(ap)|(AP)|(d{1,4}|M{1,4}|(?:yyyy|yy))',
         repl_func, format)
 
-# Clean date functions
+# }}}
+
+# Clean date functions {{{
 
 def cd_has_hour(tt, dt):
     tt['hour'] = dt.hour
@@ -409,6 +411,7 @@ def clean_date_for_sort(dt, fmt=None):
     re.sub('(s{1,2})|(m{1,2})|(h{1,2})|(d{1,4}|M{1,4}|(?:yyyy|yy))', repl_func, fmt)
     return dt.replace(year=tt['year'], month=tt['mon'], day=tt['day'], hour=tt['hour'],
                       minute=tt['min'], second=tt['sec'], microsecond=0)
+# }}}
 
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date
