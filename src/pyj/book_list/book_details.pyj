@@ -139,20 +139,21 @@ def render_metadata(mi, interface_data, table, field_list=None):
         add_row(name, val)
 
     def process_identifiers(field, fm, name, val):
-        if val and val.length:
-            table.appendChild(E.tr(E.td(name + ':'), E.td()))
-            url_map = {k:v'[text, url]' for text, k, val, url in mi.urls_from_identifiers or v'[]'}
-            td = table.lastChild.lastChild
+        if val:
             keys = Object.keys(val)
-            for k in keys:
-                idval = val[k]
-                x = url_map[k]
-                if isinstance(x, list) and x.length == 2:
-                    td.appendChild(E.a(title=str.format('{}:{}', k, idval), target='_new', href=x[1], x[0]))
-                else:
-                    td.appendChild(E.span(k, ':', idval))
-                if k is not keys[-1]:
-                    td.appendChild(document.createTextNode(', '))
+            if keys.length:
+                table.appendChild(E.tr(E.td(name + ':'), E.td()))
+                url_map = {k:v'[text, url]' for text, k, val, url in mi.urls_from_identifiers or v'[]'}
+                td = table.lastChild.lastChild
+                for k in keys:
+                    idval = val[k]
+                    x = url_map[k]
+                    if isinstance(x, list) and x.length == 2:
+                        td.appendChild(E.a(title=str.format('{}:{}', k, idval), target='_new', href=x[1], x[0]))
+                    else:
+                        td.appendChild(E.span(k, ':', idval))
+                    if k is not keys[-1]:
+                        td.appendChild(document.createTextNode(', '))
 
     def process_languages(field, fm, name, val):
         if val and val.length:
@@ -325,7 +326,7 @@ class BookDetailsPanel:
         if not metadata.formats or not metadata.formats.length:
             row.style.display = 'none'
         container.appendChild(row)
-        md = E.div(style='max-width:500px; margin-bottom: 1ex')
+        md = E.div(style='max-width:500px; margin-bottom: 2ex')
         table = E.table(class_='metadata')
         container.appendChild(md)
         md.appendChild(table)
