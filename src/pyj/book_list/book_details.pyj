@@ -74,20 +74,24 @@ def render_metadata(mi, interface_data, table, field_list=None):
 
     def add_row(name, val, is_searchable=False, is_html=False, join=None):
         def add_val(v):
-            v += ''
+            if not v.appendChild:
+                v += ''
             if is_searchable:
                 table.lastChild.lastChild.appendChild(E.a(
                     data_search=JSON.stringify([name, v]), onclick=execute_search,
                     title=str.format(_('Click to see books with {0}: {1}'), name, v), href='javascript: void(0)', v))
             else:
-                table.lastChild.lastChild.appendChild(document.createTextNode(val))
+                if v.appendChild:
+                    table.lastChild.lastChild.appendChild(v)
+                else:
+                    table.lastChild.lastChild.appendChild(document.createTextNode(v))
 
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
         if is_html:
             table.lastChild.lastChild.innerHTML = val + ''
         else:
             if join is None:
-                add_val(val + '')
+                add_val(val)
             else:
                 for v in val:
                     add_val(v)
@@ -133,11 +137,10 @@ def render_metadata(mi, interface_data, table, field_list=None):
                 td.appendChild(document.createTextNode(' '))
 
     def process_rating(field, fm, name, val):
-        try:
-            val = '★'.repeat(int(val // 2))
-        except Exception:
-            return
-        add_row(name, val)
+        stars = E.span()
+        for i in range(int(val) // 2):
+            stars.appendChild(E.i(class_='fa fa-star'))
+        add_row(name, stars)
 
     def process_identifiers(field, fm, name, val):
         if val:
