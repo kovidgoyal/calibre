@@ -127,15 +127,15 @@ class UI:
         window.scrollTo(0, 0)
         state = self.panel_map[self.current_panel]
         self.top_bar.apply_state(state.top_bar_state.left_state, state.top_bar_state.buttons)
-        if self.current_panel == self.ROOT_PANEL:
-            # only run the beating heart animation once
-            state.top_bar_state.left_state.run_animation = False
         main_panel = state.main_panel or self.items_view
         for panel in self.panels:
             panel.is_visible = panel is main_panel
         if callable(main_panel.init):
             panel_data = state.panel_data() if callable(state.panel_data) else state.panel_data
             main_panel.init(panel_data)
+        if self.current_panel == self.ROOT_PANEL:
+            # only run the beating heart animation once
+            window.setTimeout(def(): state.top_bar_state.left_state.run_animation = False;, 10)
 
     def close_panel(self):
         if get_boss().has_history:
