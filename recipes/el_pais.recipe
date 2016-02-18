@@ -9,8 +9,6 @@ __docformat__ = 'restructuredtext en'
 elpais.es
 '''
 
-from time import strftime
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ElPais(BasicNewsRecipe):
@@ -33,17 +31,10 @@ class ElPais(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
 
-    keep_only_tags = [ dict(name='div', attrs={'class':['cabecera_noticia_reportaje estirar','cabecera_noticia_opinion estirar','cabecera_noticia estirar','contenido_noticia','cuerpo_noticia','caja_despiece']})]
-
-    extra_css             = ' p{text-align: justify; font-size: 100%} body{ text-align: left; font-family: serif; font-size: 100% } h1{ font-family: sans-serif; font-size:200%; font-weight: bolder; text-align: justify; } h2{ font-family: sans-serif; font-size:150%; font-weight: 500; text-align: justify } h3{ font-family: sans-serif; font-size:125%; font-weight: 500; text-align: justify } img{margin-bottom: 0.4em} '
-
-    remove_tags    = [
-                        dict(name='div', attrs={'class':['zona_superior','pie_enlaces_inferiores','contorno_f','ampliar']}),
-                        dict(name='div', attrs={'class':['limpiar','mod_apoyo','borde_sup','votos estirar','info_complementa','info_relacionada','buscador_m','nav_ant_sig']}),
-                        dict(name='div', attrs={'id':['suscribirse suscrito','google_noticia','utilidades','coment','foros_not','pie','lomas','calendar']}),
-                        dict(name='p', attrs={'class':'nav_meses'}),
-                        dict(attrs={'class':['enlaces_m','miniaturas_m','nav_miniaturas_m']})
-                    ]
+    keep_only_tags = [
+        dict(name='h1'), dict(itemprop=['articleBody', 'image', 'caption']),
+        dict(attrs={'class':['articulo-subtitulos', 'articulo-apertura ']}),
+    ]
 
     feeds          = [
                         (u'Titulares de portada', u'http://www.elpais.com/rss/feed.html?feedId=1022'),
@@ -63,6 +54,10 @@ class ElPais(BasicNewsRecipe):
                         (u'Vi\xf1etas', u'http://www.elpais.com/rss/feed.html?feedId=17058')
                         ]
 
-    def get_cover_url(self):
-        return 'http://img5.kiosko.net/' + strftime("%Y/%m/%d") + '/es/elpais.750.jpg'
-
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', srcset=True):
+            try:
+                img['src'] = filter(None, img['srcset'].split())[0]
+            except IndexError:
+                continue
+        return soup
