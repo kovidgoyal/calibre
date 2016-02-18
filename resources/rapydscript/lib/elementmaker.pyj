@@ -36,27 +36,8 @@ svg_elements = {
 
 html5_tags = html_elements.union(mathml_elements).union(svg_elements)
 
-def _dummy_create_element(name):
-    return {
-        'name':name,
-        'children':[],
-        'attributes':{},
-        'setAttribute': def(name, val): this.attributes[name] = val;,
-        'appendChild': def(child): this.children.push(child);,
-    }
-
-def _dummy_create_text(value):
-    return value
-
-if type(document) == 'undefined':
-    create_element = _dummy_create_element
-    create_text_node = _dummy_create_text
-else:
-    create_element = def(name): return document.createElement(name)
-    create_text_node = def(val): return document.createTextNode(val)
-
-def E(tag, *args, **kwargs):
-    ans = create_element(tag)
+def _makeelement(tag, *args, **kwargs):
+    ans = this.createElement(tag)
 
     for attr in kwargs:
         vattr = str.replace(str.rstrip(attr, '_'), '_', '-')
@@ -70,14 +51,28 @@ def E(tag, *args, **kwargs):
 
     for arg in args:
         if type(arg) == 'string':
-            ans.appendChild(create_text_node(arg))
-        else:
-            ans.appendChild(arg)
+            arg = this.createTextNode(arg)
+        ans.appendChild(arg)
     return ans
 
-def bind_e(tag):
-    return def(*args, **kwargs):
-        return E(tag, *args, **kwargs)
+def maker_for_document(document):
+    # Create an elementmaker to be used with the specified document
+    E = _makeelement.bind(document)
+    for tag in html5_tags:
+        Object.defineProperty(E, tag, {'value':_makeelement.bind(document, tag)})
+    return E
 
-for tag in html5_tags:
-    Object.defineProperty(E, tag, {'value':bind_e(tag)})
+if type(document) == 'undefined':
+    E = maker_for_document({
+        'createTextNode': def(value): return value;,
+        'createElement': def(name):
+            return  {
+                'name':name,
+                'children':[],
+                'attributes':{},
+                'setAttribute': def(name, val): this.attributes[name] = val;,
+                'appendChild': def(child): this.children.push(child);,
+            }
+    })
+else:
+    E = maker_for_document(document)
