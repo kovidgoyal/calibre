@@ -3,7 +3,7 @@ import re
 
 
 def select_form(form):
-    return form.attrs.get('class', None) == 'user-login-form'
+    return form.attrs.get('id', None) == 'user-login'
 
 
 class ForeignAffairsRecipe(BasicNewsRecipe):
@@ -110,9 +110,16 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         return soup
 
     def get_browser(self):
+        import html5lib
+        from lxml import html
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('https://www.foreignaffairs.com/user?destination=user%3Fop%3Dlo')
+            # mechanize fails to parse the html correctly, so use html5lib to
+            # sanitize the html first
+            response = br.open('https://www.foreignaffairs.com/user?destination=user%3Fop%3Dlo')
+            root = html5lib.parse(response.get_data(), treebuilder='lxml', namespaceHTMLElements=False)
+            response.set_data(html.tostring(root))
+            br.set_response(response)
             br.select_form(predicate=select_form)
             br.form['name'] = self.username
             br.form['pass'] = self.password
