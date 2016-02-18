@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from book_list.globals import get_boss
+from book_list.globals import get_boss, get_session_data
 from book_list.search import SearchPanel
 from book_list.top_bar import TopBar
 from book_list.views import BooksView
@@ -10,6 +10,7 @@ from book_list.prefs import PrefsPanel
 from book_list.book_details import BookDetailsPanel
 from gettext import gettext as _
 from utils import debounce
+from modals import error_dialog, ajax_progress_dialog
 
 class BarState:
 
@@ -70,6 +71,17 @@ def create_book_view_top_bar_state(books_view):
 def random_book():
     get_boss().ui.replace_panel('book-details', extra_query_data={'book-id':'0'})
 
+def change_library_actions():
+    boss = get_boss()
+    interface_data = boss.interface_data
+    ans = []
+    ans.subtitle = _('Currently showing the library: ') + interface_data.library_map[interface_data.library_id]
+    for lid in sorted(interface_data.library_map):
+        if lid != interface_data.library_id:
+            library_name = interface_data.library_map[lid]
+            ans.append({'title':library_name, 'action':boss.ui.change_library.bind(boss.ui, lid)})
+    return ans
+
 class UI:
 
     ROOT_PANEL = 'books'
@@ -86,10 +98,18 @@ class UI:
         self.current_panel = self.ROOT_PANEL
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
 
-        self.panel_map['more-actions-menu'] = UIState(ClosePanelBar(_('More actions')), panel_data=[
+        num_of_libraries = len(interface_data.library_map)
+        actions = [
             create_item(_('Book List Mode'), replace_panel_action('booklist-mode-menu'), _('Change how the list of books is displayed')),
             create_item(_('A Random Book'), random_book, _('Choose a random book from your library')),
-        ])
+        ]
+        if num_of_libraries > 1:
+            actions.push(
+                create_item(_('Change Library'), replace_panel_action('booklist-change-library'), _('Choose a different library to display'))
+            )
+            self.panel_map['booklist-change-library'] = UIState(ClosePanelBar(_('Change Library')), panel_data=change_library_actions)
+
+        self.panel_map['more-actions-menu'] = UIState(ClosePanelBar(_('More actions')), panel_data=actions)
 
         self.panel_map['booklist-mode-menu'] = UIState(ClosePanelBar(_('Book List Mode')), panel_data=[])
 
@@ -164,3 +184,25 @@ class UI:
         self.books_view.refresh()
         if self.current_panel == self.ROOT_PANEL:
             self.top_bar.refresh_left()
+
+    def change_library(self, library_id):
+        data = {'search':'', 'sort':get_session_data().get_library_option(library_id, 'sort'), 'library_id':library_id}
+        ajax_progress_dialog('interface-data/get-books', self.library_changed.bind(self), _(
+            'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'library_id':library_id})
+
+    def library_changed(self, end_type, xhr, ev):
+        if end_type == 'load':
+            boss = get_boss()
+            boss.interface_data.library_id = xhr.extra_data_for_callback.library_id
+            try:
+                data = JSON.parse(xhr.responseText)
+                boss.change_books(data)
+            except Exception as err:
+                return error_dialog(_('Could not change library'), err + '', details=err.stack)
+            self.show_panel(self.ROOT_PANEL)
+            window.scrollTo(0, 0)
+        elif end_type != 'abort':
+            msg = xhr.error_html
+            error_dialog(_('Could not change library'), msg)
+
+

@@ -33,14 +33,22 @@ def on_library_load_progress(loaded, total):
 
 def load_book_list():
     temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
-    query = {k:temp.get(k) for k in str.split('library_id sort')}
+    query = {}
+    default_lib = window.calibre_default_library
+    v'delete window.calibre_default_library'
+    query.sort = temp.get_library_option(default_lib, 'sort')
+    library_id = temp.get('library_id')
+    if library_id:
+        query.library_id = library_id
     url_query = parse_url_params()
     for key in url_query:
         query[key] = url_query[key]
     ajax('interface-data/init', on_library_loaded, on_library_load_progress, query=query).send()
 
 def on_load():
-    if window.calibre_entry_point == 'book list':
+    ep = window.calibre_entry_point
+    v'delete window.calibre_entry_point'
+    if ep == 'book list':
         print('calibre loaded at:', Date().toString())
         load_book_list()
 

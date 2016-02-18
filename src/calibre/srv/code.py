@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import re, hashlib, random, os
 from functools import partial
 from threading import Lock
-from json import load as load_json_file
+from json import load as load_json_file, dumps as json_dumps
 
 from calibre import prepare_string_for_xml, as_unicode
 from calibre.constants import config_dir
@@ -53,9 +53,13 @@ def get_html(name, auto_reload_port, **replacements):
 
 @endpoint('', auth_required=False)
 def index(ctx, rd):
+    default_library = ctx.library_map[1]
     return rd.generate_static_output('/', partial(
         get_html, 'content-server/index.html', getattr(rd.opts, 'auto_reload_port', 0),
-        ENTRY_POINT='book list', LOADING_MSG=prepare_string_for_xml(_('Loading library, please wait'))))
+        ENTRY_POINT='book list',
+        LOADING_MSG=prepare_string_for_xml(_('Loading library, please wait')),
+        DEFAULT_LIBRARY=json_dumps(default_library)
+    ))
 
 def get_library_data(ctx, query):
     library_id = query.get('library_id')

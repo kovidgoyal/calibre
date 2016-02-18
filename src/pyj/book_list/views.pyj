@@ -240,7 +240,7 @@ class BooksView:
         self.abort_get_more_books()
         query = query or ''
         sd = get_session_data()
-        data = {'search':query, 'sort':sd.get('sort'), 'library_id':self.interface_data.library_id}
+        data = {'search':query, 'sort':sd.get_library_option(self.interface_data.library_id, 'sort'), 'library_id':self.interface_data.library_id}
         ajax_progress_dialog('interface-data/get-books', self.search_change_completed.bind(self), _(
             'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'push_state':push_state, 'panel_to_show': panel_to_show})
 

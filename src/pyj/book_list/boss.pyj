@@ -77,7 +77,7 @@ class Boss:
         sval = ''
         for field, order in zip(str.split(data.search_result.sort, ','), str.split(data.search_result.sort_order, ',')):
             sval += field + '.' + order + ','
-        get_session_data().set('sort', str.rstrip(sval, ','))
+        get_session_data().set_library_option(self.interface_data.library_id, 'sort', str.rstrip(sval, ','))
         self.interface_data.metadata = data.metadata
         self.interface_data.search_result = data.search_result
         self.ui.refresh_books_view()
