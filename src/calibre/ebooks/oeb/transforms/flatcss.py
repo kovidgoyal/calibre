@@ -194,11 +194,18 @@ class CSSFlattener(object):
         body_font_family = None
         if not family:
             return body_font_family, efi
-        from calibre.utils.fonts.scanner import font_scanner
+        from calibre.utils.fonts.scanner import font_scanner, NoFonts
         from calibre.utils.fonts.utils import panose_to_css_generic_family
-        faces = font_scanner.fonts_for_family(family)
+        try:
+            faces = font_scanner.fonts_for_family(family)
+        except NoFonts:
+            msg = (u'No embeddable fonts found for family: %r'%family)
+            if failure_critical:
+                raise ValueError(msg)
+            self.oeb.log.warn(msg)
+            return body_font_family, efi
         if not faces:
-            msg = (u'No embeddable fonts found for family: %r'%self.opts.embed_font_family)
+            msg = (u'No embeddable fonts found for family: %r'%family)
             if failure_critical:
                 raise ValueError(msg)
             self.oeb.log.warn(msg)
