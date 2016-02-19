@@ -158,7 +158,7 @@ You can get help on any individual feature of the converters by mousing over
 it in the GUI or running ``ebook-convert dummy.html .epub -h`` at a terminal.
 A good place to start is to look at the following demo file that demonstrates
 some of the advanced features
-`html-demo.zip <http://calibre-ebook.com/downloads/html-demo.zip>`_
+`html-demo.zip <https://calibre-ebook.com/downloads/html-demo.zip>`_
 
 
 Device Integration
@@ -195,7 +195,7 @@ We just need some information from you:
 
 Once you send us the output for a particular operating system, support for the device in that operating system
 will appear in the next release of calibre. To send us the output, open a bug report and attach the output to it.
-See `calibre bugs <http://calibre-ebook.com/bugs>`_.
+See `calibre bugs <https://calibre-ebook.com/bugs>`_.
 
 My device is not being detected by calibre?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -209,7 +209,7 @@ Follow these steps to find the problem:
       the 'Connect to iTunes' method in the 'Getting started' instructions in
       `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
     * Make sure you are running the latest version of calibre. The latest version
-      can always be downloaded from `the calibre website <http://calibre-ebook.com/download>`_.
+      can always be downloaded from `the calibre website <https://calibre-ebook.com/download>`_.
       You can tell what version of calibre you are currently running by looking
       at the bottom line of the main calibre window.
     * Ensure your operating system is seeing the device. That is, the device
@@ -647,7 +647,7 @@ Why doesn't calibre have a column for foo?
 calibre is designed to have columns for the most frequently and widely used
 fields. In addition, you can add any columns you like. Columns can be added via
 :guilabel:`Preferences->Interface->Add your own columns`.  Watch the tutorial
-`UI Power tips <http://calibre-ebook.com/demo#tutorials>`_ to learn how to
+`UI Power tips <https://calibre-ebook.com/demo#tutorials>`_ to learn how to
 create your own columns, or read `this blog post
 <http://blog.calibre-ebook.com/2011/11/calibre-custom-columns.html>`_.
 
@@ -808,7 +808,7 @@ There can be several causes for this:
 
     * If you are on Windows XP, or on a computer with a processor that does not
       support SSE2 (such as AMD processors from before 2003) try installing
-      calibre `version 1.48 <http://download.calibre-ebook.com/1.48.0/>`_. calibre
+      calibre `version 1.48 <https://download.calibre-ebook.com/1.48.0/>`_. calibre
       2.0 and newer use Qt 5 which is known to be incompatible with Windows XP
       machines, and requires SSE2. Simply un-install calibre and then install
       version 1.48, doing so will not affect your books/settings.
@@ -951,13 +951,13 @@ Downloading from the Internet can sometimes result in a corrupted download. If t
       the :guilabel:`Security` tab. Make sure that your user account has full control
       for this folder.
 
-If you still cannot get the installer to work and you are on Windows, you can use the `calibre portable install <http://calibre-ebook.com/download_portable>`_, which does not need an installer (it is just a zip file).
+If you still cannot get the installer to work and you are on Windows, you can use the `calibre portable install <https://calibre-ebook.com/download_portable>`_, which does not need an installer (it is just a zip file).
 
 My antivirus program claims calibre is a virus/trojan?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first thing to check is that you are downloading calibre from the official
-website: `<http://calibre-ebook.com/download>`_. Make sure you are clicking the
+website: `<https://calibre-ebook.com/download>`_. Make sure you are clicking the
 download links on the left, not the advertisements on the right. calibre is a
 very popular program and unscrupulous people try to setup websites offering it
 for download to fool the unwary.
@@ -983,7 +983,7 @@ If you want to backup the calibre configuration/plugins, you have to backup the 
 
 How do I use purchased EPUB books with calibre (or what do I do with .acsm files)?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Most purchased EPUB books have `DRM <http://drmfree.calibre-ebook.com/about#drm>`_. This prevents calibre from opening them. You can still use calibre to store and transfer them to your ebook reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with calibre will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" ebook. The ebook file will be stored in the folder "My Digital Editions", from where you can add it to calibre.
+Most purchased EPUB books have `DRM <https://drmfree.calibre-ebook.com/about#drm>`_. This prevents calibre from opening them. You can still use calibre to store and transfer them to your ebook reader. First, you must authorize your reader on a windows machine with Adobe Digital Editions. Once this is done, EPUB books transferred with calibre will work fine on your reader. When you purchase an epub book from a website, you will get an ".acsm" file. This file should be opened with Adobe Digital Editions, which will then download the actual ".epub" ebook. The ebook file will be stored in the folder "My Digital Editions", from where you can add it to calibre.
 
 I am getting a "Permission Denied" error?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1021,8 +1021,8 @@ current proxies used by calibre in Preferences->Miscellaneous.
 I want some feature added to calibre. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You have two choices:
- 1. Create a patch by hacking on calibre and send it to me for review and inclusion. See `Development <http://calibre-ebook.com/get-involved>`_.
- 2. `Open a bug requesting the feature <http://calibre-ebook.com/bugs>`_ . Remember that while you may think your feature request is extremely important/essential, calibre developers might not agree. Fortunately, calibre is open source, which means you always have the option of implementing your feature yourself, or hiring someone to do it for you. Furthermore, calibre has a comprehensive plugin architecture, so you might be able to develop your feature as a plugin, see :ref:`pluginstutorial`.
+ 1. Create a patch by hacking on calibre and send it to me for review and inclusion. See `Development <https://calibre-ebook.com/get-involved>`_.
+ 2. `Open a bug requesting the feature <https://calibre-ebook.com/bugs>`_ . Remember that while you may think your feature request is extremely important/essential, calibre developers might not agree. Fortunately, calibre is open source, which means you always have the option of implementing your feature yourself, or hiring someone to do it for you. Furthermore, calibre has a comprehensive plugin architecture, so you might be able to develop your feature as a plugin, see :ref:`pluginstutorial`.
 
 Why doesn't calibre have an automatic update?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1035,7 +1035,7 @@ For many reasons:
     turn off the update notification, on the update notification itself.
 
   * calibre downloads currently use `about 100TB of bandwidth a month
-    <http://calibre-ebook.com/dynamic/downloads>`_. Implementing automatic
+    <https://calibre-ebook.com/dynamic/downloads>`_. Implementing automatic
     updates would greatly increase that and end up costing thousands of dollars
     a month, which someone has to pay.
 
@@ -1053,12 +1053,12 @@ For many reasons:
 
 How is calibre licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-calibre is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute calibre as long as you make the source code available. So if you want to put calibre on a CD with your product, you must also put the calibre source code on the CD. The source code is available `for download <http://download.calibre-ebook.com>`_. You are free to use the results of conversions from calibre however you want. You cannot use either code or libraries from calibre in your software without making your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
+calibre is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute calibre as long as you make the source code available. So if you want to put calibre on a CD with your product, you must also put the calibre source code on the CD. The source code is available `for download <https://download.calibre-ebook.com>`_. You are free to use the results of conversions from calibre however you want. You cannot use either code or libraries from calibre in your software without making your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
 
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A portable version of calibre is available `here <http://calibre-ebook.com/download_portable>`_.
+A portable version of calibre is available `here <https://calibre-ebook.com/download_portable>`_.
 
 How do I run parts of calibre like news download and the content server on my own linux server?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
