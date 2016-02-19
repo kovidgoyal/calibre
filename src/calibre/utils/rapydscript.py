@@ -104,7 +104,8 @@ def compile_srv():
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with open(fname, 'rb') as f:
         raw = compile_pyj(f.read(), fname)
-    with open(P('content-server/main.js', allow_user_override=False), 'wb') as f:
+    base = P('content-server', allow_user_override=False)
+    with open(os.path.join(base, 'main.js'), 'wb') as f:
         f.write(raw.encode('utf-8'))
 
 # }}}
