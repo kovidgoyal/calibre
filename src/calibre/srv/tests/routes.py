@@ -68,6 +68,10 @@ class TestRouter(BaseTest):
         def quoting(ctx, dest, x):
             pass
 
+        @endpoint('/get/{a}/{b=None}')
+        def get(ctx, dest, a, b):
+            pass
+
         for x in locals().itervalues():
             if getattr(x, 'is_endpoint', False):
                 router.add(x)
@@ -98,3 +102,4 @@ class TestRouter(BaseTest):
 
         self.ae(router.url_for('/needs quoting', x='a/b c'), '/needs quoting/a%2Fb%20c')
         self.ae(router.url_for(None), '/')
+        self.ae(router.url_for('/get', a='1', b='xxx'), '/get/1/xxx')
