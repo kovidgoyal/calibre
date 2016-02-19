@@ -11,9 +11,12 @@ from calibre.srv.routes import endpoint
 
 @endpoint('/browse/{+rest=""}')
 def browse(ctx, rd, rest):
-    raise HTTPRedirect(ctx.url_for('') or '/')
+    raise HTTPRedirect(ctx.url_for(None))
 
 @endpoint('/mobile/{+rest=""}')
 def mobile(ctx, rd, rest):
-    raise HTTPRedirect(ctx.url_for('') or '/')
+    raise HTTPRedirect(ctx.url_for(None))
 
+@endpoint('/stanza/{+rest=""}')
+def stanza(ctx, rd, rest):
+    raise HTTPRedirect(ctx.url_for('/opds'))

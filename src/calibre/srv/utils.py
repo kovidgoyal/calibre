@@ -19,6 +19,7 @@ from binascii import hexlify, unhexlify
 
 from calibre import prints
 from calibre.constants import iswindows
+from calibre.srv.errors import HTTPNotFound
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
 from calibre.utils.socket_inheritance import set_socket_inherit
@@ -469,3 +470,38 @@ class ReadOnlyFileBuffer(object):
     def close(self):
         pass
 
+def get_db(ctx, library_id):
+    db = ctx.get_library(library_id)
+    if db is None:
+        raise HTTPNotFound('Library %r not found' % library_id)
+    return db
+
+def get_library_data(ctx, query):
+    library_id = query.get('library_id')
+    library_map, default_library = ctx.library_map
+    if library_id not in library_map:
+        library_id = default_library
+    db = get_db(ctx, library_id)
+    return db, library_id, library_map, default_library
+
+class Offsets(object):
+    'Calculate offsets for a paginated view'
+
+    def __init__(self, offset, delta, total):
+        if offset < 0:
+            offset = 0
+        if offset >= total:
+            raise HTTPNotFound('Invalid offset: %r'%offset)
+        last_allowed_index = total - 1
+        last_current_index = offset + delta - 1
+        self.slice_upper_bound = offset+delta
+        self.offset = offset
+        self.next_offset = last_current_index + 1
+        if self.next_offset > last_allowed_index:
+            self.next_offset = -1
+        self.previous_offset = self.offset - delta
+        if self.previous_offset < 0:
+            self.previous_offset = 0
+        self.last_offset = last_allowed_index - delta
+        if self.last_offset < 0:
+            self.last_offset = 0

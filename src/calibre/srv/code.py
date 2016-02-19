@@ -13,10 +13,11 @@ from calibre import prepare_string_for_xml, as_unicode
 from calibre.constants import config_dir
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
-from calibre.srv.ajax import get_db, search_result
+from calibre.srv.ajax import search_result
 from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
 from calibre.srv.metadata import book_as_json, categories_as_json, icon_map
 from calibre.srv.routes import endpoint, json
+from calibre.srv.utils import get_library_data
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
@@ -60,14 +61,6 @@ def index(ctx, rd):
         LOADING_MSG=prepare_string_for_xml(_('Loading library, please wait')),
         DEFAULT_LIBRARY=json_dumps(default_library)
     ))
-
-def get_library_data(ctx, query):
-    library_id = query.get('library_id')
-    library_map, default_library = ctx.library_map
-    if library_id not in library_map:
-        library_id = default_library
-    db = get_db(ctx, library_id)
-    return db, library_id, library_map, default_library
 
 def get_basic_query_data(ctx, query):
     db, library_id, library_map, default_library = get_library_data(ctx, query)

@@ -1,4 +1,4 @@
-Remove tweak to control interface to listen on
+Remove all *content_server_* and server_listen_on tweaks 
 
 Rewrite server integration with nginx/apache section
 

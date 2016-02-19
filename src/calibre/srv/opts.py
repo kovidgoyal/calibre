@@ -70,6 +70,16 @@ raw_options = (
     'Advertise the OPDS feeds via the BonJour service, so that OPDS based'
     ' reading apps can detect and connect to the server automatically.',
 
+    'Maximum number of books in OPDS feeds',
+    'max_opds_items', 30,
+    'The maximum number of books that the server will return in a single'
+    ' OPDS acquisition feed.',
+
+    'Maximum number of ungrouped items in OPDS feeds',
+    'max_opds_ungrouped_items', 100,
+    'Group items in categories such as author/tags by first letter when'
+    ' there are more than this number of items. Set to zero to disable.',
+
     'The interface on which to listen for connections',
     'listen_on', '0.0.0.0',
     'The default is to listen on all available interfaces. You can change this to, for'

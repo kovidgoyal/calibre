@@ -18,7 +18,7 @@ from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint, json
 from calibre.srv.content import get as get_content, icon as get_icon
-from calibre.srv.utils import http_date, custom_fields_to_display, encode_name, decode_name
+from calibre.srv.utils import http_date, custom_fields_to_display, encode_name, decode_name, get_db
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
 from calibre.utils.icu import numeric_sort_key as sort_key
@@ -38,12 +38,6 @@ def get_pagination(query, num=100, offset=0):
     except:
         raise HTTPNotFound("Invalid offset")
     return num, offset
-
-def get_db(ctx, library_id):
-    db = ctx.get_library(library_id)
-    if db is None:
-        raise HTTPNotFound('Library %r not found' % library_id)
-    return db
 
 def category_icon(category, meta):  # {{{
     if category in category_icon_map:
