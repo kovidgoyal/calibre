@@ -2,45 +2,30 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid at kovidgoyal.net>'
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
+
+def absurl(x):
+    if x.startswith('/'):
+        x = 'http://www.outlookindia.com' + x
+    return x
 
 class OutlookIndia(BasicNewsRecipe):
 
     title          = 'Outlook India'
-    __author__     = 'Kovid Goyal and Sujata Raman'
+    __author__     = 'Kovid Goyal'
     description    = 'Weekly news and current affairs in India'
     no_stylesheets = True
     encoding       = 'utf-8'
     language = 'en_IN'
+    ignore_duplicate_articles = {'title', 'url'}
 
-    extra_css = '''
-                 body{font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-                .fspheading{color:#AF0E25 ; font-family:"Times New Roman",Times,serif; font-weight:bold ; font-size:large; }
-                .fspauthor{color:#AF0E25; font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-                .fspintro{color:#666666; font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-                .fspchannelhome{font-family:Arial,Helvetica,sans-serif; font-size:x-small;}
-                .fspphotocredit{color:##999999; font-family:Arial,Helvetica,sans-serif; font-size:xx-small;}
-                '''
     keep_only_tags = [
-                      dict(
-                          name='div',
-                          attrs={'id':[
-                              "ctl00_cphpagemiddle_reparticle_ctl00_divfullstorytext",
-                              "ctl00_cphpagemiddle_reparticle_ctl00_divartpic",
-                              "ctl00_cphpagemiddle_reparticle_ctl00_divfspheading",
-                              "ctl00_cphpagemiddle_reparticle_ctl00_divartpiccaption",
-                              "ctl00_cphpagemiddle_reparticle_ctl00_divartpiccredit",
-                              "ctl00_cphpagemiddle_reparticle_ctl00_divfspintro",
-                              "ctl00_cphpagemiddle_reparticle_ctl00_divartbyline",
-                              "ctl00_cphpagemiddle_divglitteratiregulars",
-                              "ctl00_cphpagemiddle_divcartoon",
-                              "feedbackslatestfirst",
-                              "ctl00_cphpagemiddle_divregulars",
-                              "ctl00_cphpagemiddle_divquotes"]}),
-                    ]
+        dict(name='h1'),
+        dict(attrs={'class':['sub_head', 'magzine_stry_image', 'mainContent']}),
+        dict(attrs={'class':lambda x: x and set(x.split()).intersection({'writter', 'covr_wr'})}),
+    ]
     remove_tags = [
-        dict(name=['script','object','hr']),
+        dict(name='meta'),
     ]
 
     def get_browser(self):
@@ -52,44 +37,26 @@ class OutlookIndia(BasicNewsRecipe):
         br.set_cookiejar(None)
         return br
 
+    def preprocess_raw_html(self, raw_html, url):
+        import html5lib
+        from lxml import html
+        root = html5lib.parse(raw_html, treebuilder='lxml', namespaceHTMLElements=False)
+        return html.tostring(root)
+
     def parse_index(self):
-        soup = self.index_to_soup('http://www.outlookindia.com/issues.aspx')
-        # find cover pic
-        cover = soup.find('img', attrs={'id':"ctl00_cphpagemiddle_dlissues_ctl00_imgcoverpic"}, src=True)
-        if cover is not None:
-
-            self.cover_url = cover['src']
-
-        # end find cover pic
-        # find current issue
-        div = soup.find('div', attrs={'class':re.compile('cententcellpadding')})
-        soup = self.index_to_soup(div.find('a')['href'])
-        # end find current issue
+        soup = self.index_to_soup('http://www.outlookindia.com/magazine')
+        for img in soup.findAll('img', src=lambda x: x and 'Latest-Cover.jpg' in x):
+            self.cover_url = absurl(img['src'])
+            self.log('Found cover:', self.cover_url)
 
         articles = []
-        for a in soup.findAll('a', href=True, attrs={'class':['contentpgsubheadinglink',"contentpgtext",]}) + \
-                soup.findAll('a', href=True, attrs={'id':["ctl00_cphpageleft_hlglitterati","ctl00_cphpageleft_hlposcape",]}):
-            if a['href'].startswith('http:'):
-                continue  # Clarification type article, has different markup
-            url = 'http://www.outlookindia.com/' + a['href']
+        for a in soup.findAll('a', href=lambda x: x and x.startswith('/magazine/story/')):
+            url = absurl(a['href'])
             title = self.tag_to_string(a)
+            desc = ''
+            div = a.parent.findNextSibling(attrs={'class':'descriptn'})
+            if div is not None:
+                desc = self.tag_to_string(div)
             self.log('Found article:', title, 'at', url)
-            articles.append({'title':title, 'date':'', 'url':url, 'description':''})
-        if articles:
-            return [('Current Issue', articles)]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        return self.adeify_images(soup)
-
-    def postrocess_html(self, soup, first):
-
-            for item in soup.findAll(align="left"):
-                del item['align']
-
-            for tag in soup.findAll(name=['table', 'tr','td','tbody','ul','li','font','span']):
-                tag.name = 'div'
-
-            return soup
-
+            articles.append({'title':title, 'url':url, 'description':desc})
+        return [('Current Issue', articles)]
