@@ -245,10 +245,11 @@ def get(ctx, rd, what, book_id, library_id):
             sz = rd.query.get('sz')
             w, h = 60, 80
             if sz is None:
-                try:
-                    w, h = map(int, rest.split('_'))
-                except Exception:
-                    pass
+                if rest:
+                    try:
+                        w, h = map(int, rest.split('_'))
+                    except Exception:
+                        pass
             elif sz == 'full':
                 w = h = None
             elif 'x' in sz:
