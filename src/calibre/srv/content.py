@@ -10,6 +10,7 @@ import os
 from binascii import hexlify
 from io import BytesIO
 from threading import Lock
+from future_builtins import map
 
 from calibre import fit_image
 from calibre.constants import config_dir, iswindows
@@ -226,8 +227,13 @@ def icon(ctx, rd, which):
         return ans
 
 
-@endpoint('/get/{what}/{book_id}/{library_id=None}', types={'book_id':int})
+@endpoint('/get/{what}/{book_id}/{library_id=None}')
 def get(ctx, rd, what, book_id, library_id):
+    book_id, rest = book_id.partition('_')[::2]
+    try:
+        book_id = int(book_id)
+    except Exception:
+        raise HTTPNotFound('Book with id %r does not exist' % book_id)
     db = ctx.get_library(library_id)
     if db is None:
         raise HTTPNotFound('Library %r not found' % library_id)
@@ -239,7 +245,10 @@ def get(ctx, rd, what, book_id, library_id):
             sz = rd.query.get('sz')
             w, h = 60, 80
             if sz is None:
-                pass
+                try:
+                    w, h = map(int, rest.split('_'))
+                except Exception:
+                    pass
             elif sz == 'full':
                 w = h = None
             elif 'x' in sz:
