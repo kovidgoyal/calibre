@@ -21,7 +21,7 @@ from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.library.save_to_disk import find_plugboard
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import http_date
+from calibre.srv.utils import http_date, get_db
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import timestampfromdt
 from calibre.utils.img import scale_image, image_from_data
@@ -234,7 +234,7 @@ def get(ctx, rd, what, book_id, library_id):
         book_id = int(book_id)
     except Exception:
         raise HTTPNotFound('Book with id %r does not exist' % book_id)
-    db = ctx.get_library(library_id)
+    db = get_db(ctx, rd, library_id)
     if db is None:
         raise HTTPNotFound('Library %r not found' % library_id)
     with db.safe_read_lock:

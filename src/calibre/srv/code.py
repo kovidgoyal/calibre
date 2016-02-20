@@ -54,7 +54,7 @@ def get_html(name, auto_reload_port, **replacements):
 
 @endpoint('', auth_required=False)
 def index(ctx, rd):
-    default_library = ctx.library_map[1]
+    default_library = ctx.library_info(rd)[1]
     return rd.generate_static_output('/', partial(
         get_html, 'content-server/index.html', getattr(rd.opts, 'auto_reload_port', 0),
         ENTRY_POINT='book list',
@@ -62,11 +62,11 @@ def index(ctx, rd):
         DEFAULT_LIBRARY=json_dumps(default_library)
     ))
 
-def get_basic_query_data(ctx, query):
-    db, library_id, library_map, default_library = get_library_data(ctx, query)
+def get_basic_query_data(ctx, rd):
+    db, library_id, library_map, default_library = get_library_data(ctx, rd)
     skeys = db.field_metadata.sortable_field_keys()
     sorts, orders = [], []
-    for x in query.get('sort', '').split(','):
+    for x in rd.query.get('sort', '').split(','):
         if x:
             s, o = x.rpartition('.')[::2]
             if o and not s:
@@ -116,7 +116,7 @@ def interface_data(ctx, rd):
         'gui_last_modified_display_format':tweaks['gui_last_modified_display_format'],
         'use_roman_numerals_for_series_number': get_use_roman(),
     }
-    ans['library_map'], ans['default_library'] = ctx.library_map
+    ans['library_map'], ans['default_library'] = ctx.library_info(rd)
     ud = {}
     if rd.username:
         # Override session data with stored values for the authenticated user,
@@ -128,7 +128,7 @@ def interface_data(ctx, rd):
         usort = ud.get('sort')
         if usort:
             rd.query.set('sort', usort)
-    ans['library_id'], db, sorts, orders = get_basic_query_data(ctx, rd.query)
+    ans['library_id'], db, sorts, orders = get_basic_query_data(ctx, rd)
     ans['user_session_data'] = ud
     try:
         num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
@@ -169,7 +169,7 @@ def more_books(ctx, rd):
 
     Optional: ?num=50&library_id=<default library>
     '''
-    db, library_id = get_library_data(ctx, rd.query)[:2]
+    db, library_id = get_library_data(ctx, rd)[:2]
 
     try:
         num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
@@ -217,13 +217,13 @@ def get_books(ctx, rd):
 
     Optional: ?library_id=<default library>&num=50&sort=timestamp.desc&search=''
     '''
-    library_id, db, sorts, orders = get_basic_query_data(ctx, rd.query)
+    library_id, db, sorts, orders = get_basic_query_data(ctx, rd)
     try:
         num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
     searchq = rd.query.get('search', '')
-    db = get_library_data(ctx, rd.query)[0]
+    db = get_library_data(ctx, rd)[0]
     ans = {}
     mdata = ans['metadata'] = {}
     with db.safe_read_lock:
@@ -246,7 +246,7 @@ def book_metadata(ctx, rd, book_id):
 
     Optional: ?library_id=<default library>
     '''
-    library_id, db = get_basic_query_data(ctx, rd.query)[:2]
+    library_id, db = get_basic_query_data(ctx, rd)[:2]
     book_ids = ctx.allowed_book_ids(rd, db)
     def notfound():
         raise HTTPNotFound(_('No book with id: %d in library') % book_id)
@@ -268,10 +268,10 @@ def tag_browser(ctx, rd):
     Optional: ?library_id=<default library>&sort_tags_by=name&partition_method=first letter
               &collapse_at=25&dont_collapse=&hide_empty_categories=
     '''
-    db, library_id = get_library_data(ctx, rd.query)[:2]
+    db, library_id = get_library_data(ctx, rd)[:2]
     etag = '%s||%s||%s' % (db.last_modified(), rd.username, library_id)
     etag = hashlib.sha1(etag.encode('utf-8')).hexdigest()
     def generate():
-        db, library_id = get_library_data(ctx, rd.query)[:2]
+        db, library_id = get_library_data(ctx, rd)[:2]
         return json(ctx, rd, tag_browser, categories_as_json(ctx, rd, db))
     return rd.etagged_dynamic_response(etag, generate)

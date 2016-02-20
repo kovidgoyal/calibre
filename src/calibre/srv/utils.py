@@ -470,18 +470,18 @@ class ReadOnlyFileBuffer(object):
     def close(self):
         pass
 
-def get_db(ctx, library_id):
-    db = ctx.get_library(library_id)
+def get_db(ctx, rd, library_id):
+    db = ctx.get_library(rd, library_id)
     if db is None:
         raise HTTPNotFound('Library %r not found' % library_id)
     return db
 
-def get_library_data(ctx, query):
-    library_id = query.get('library_id')
-    library_map, default_library = ctx.library_map
+def get_library_data(ctx, rd):
+    library_id = rd.query.get('library_id')
+    library_map, default_library = ctx.library_info(rd)
     if library_id not in library_map:
         library_id = default_library
-    db = get_db(ctx, library_id)
+    db = get_db(ctx, rd, library_id)
     return db, library_id, library_map, default_library
 
 class Offsets(object):

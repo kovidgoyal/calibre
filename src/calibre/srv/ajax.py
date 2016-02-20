@@ -150,7 +150,7 @@ def book(ctx, rd, book_id, library_id):
 
     If id_is_uuid is true then the book_id is assumed to be a book uuid instead.
     '''
-    db = get_db(ctx, library_id)
+    db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         id_is_uuid = rd.query.get('id_is_uuid', 'false')
         oid = book_id
@@ -189,7 +189,7 @@ def books(ctx, rd, library_id):
 
     If id_is_uuid is true then the book_id is assumed to be a book uuid instead.
     '''
-    db = get_db(ctx, library_id)
+    db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         id_is_uuid = rd.query.get('id_is_uuid', 'false')
         ids = rd.query.get('ids')
@@ -240,7 +240,7 @@ def categories(ctx, rd, library_id):
         }
 
     '''
-    db = get_db(ctx, library_id)
+    db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         ans = {}
         categories = ctx.get_categories(rd, db)
@@ -331,7 +331,7 @@ def category(ctx, rd, encoded_name, library_id):
     http://manual.calibre-ebook.com/sub_groups.html
     '''
 
-    db = get_db(ctx, library_id)
+    db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         num, offset = get_pagination(rd.query)
         sort, sort_order = rd.query.get('sort'), rd.query.get('sort_order')
@@ -461,7 +461,7 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 
     Optional: ?num=100&offset=0&sort=title&sort_order=asc&get_additional_fields=
     '''
-    db = get_db(ctx, library_id)
+    db = get_db(ctx, rd, library_id)
     with db.safe_read_lock:
         try:
             dname, ditem = map(decode_name, (encoded_category, encoded_item))
@@ -547,7 +547,7 @@ def search(ctx, rd, library_id):
 
     Optional: ?num=100&offset=0&sort=title&sort_order=asc&query=
     '''
-    db = get_db(ctx, library_id)
+    db = get_db(ctx, rd, library_id)
     query = rd.query.get('query')
     num, offset = get_pagination(rd.query)
     with db.safe_read_lock:
@@ -557,7 +557,7 @@ def search(ctx, rd, library_id):
 @endpoint('/ajax/library-info', postprocess=json)
 def library_info(ctx, rd):
     ' Return info about available libraries '
-    library_map, default_library = ctx.library_map
+    library_map, default_library = ctx.library_info(rd)
     return {'library_map':library_map, 'default_library':default_library}
 
 # }}}

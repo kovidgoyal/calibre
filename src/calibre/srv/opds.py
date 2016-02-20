@@ -328,7 +328,7 @@ class CategoryGroupFeed(NavFeed):
 class RequestContext(object):
 
     def __init__(self, ctx, rd):
-        self.db, self.library_id, self.library_map, self.default_library = get_library_data(ctx, rd.query)
+        self.db, self.library_id, self.library_map, self.default_library = get_library_data(ctx, rd)
         self.ctx, self.rd = ctx, rd
 
     def url_for(self, path, **kwargs):

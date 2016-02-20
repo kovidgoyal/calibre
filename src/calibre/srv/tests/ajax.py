@@ -25,7 +25,7 @@ class ContentTest(LibraryBaseTest):
     def test_ajax_book(self):  # {{{
         'Test /ajax/book'
         with self.create_server() as server:
-            db = server.handler.router.ctx.get_library()
+            db = server.handler.router.ctx.library_broker.get(None)
             conn = server.connect()
             request = partial(make_request, conn, prefix='/ajax/book')
 
@@ -50,7 +50,7 @@ class ContentTest(LibraryBaseTest):
     def test_ajax_categories(self):  # {{{
         'Test /ajax/categories and /ajax/search'
         with self.create_server() as server:
-            db = server.handler.router.ctx.get_library()
+            db = server.handler.router.ctx.library_broker.get(None)
             conn = server.connect()
             request = partial(make_request, conn)
 

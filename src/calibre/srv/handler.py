@@ -96,11 +96,12 @@ class Context(object):
     def finalize_session(self, endpoint, data, output):
         pass
 
-    def get_library(self, library_id=None):
+    def get_library(self, data, library_id=None):
+        # TODO: Restrict the libraries based on data.username
         return self.library_broker.get(library_id)
 
-    @property
-    def library_map(self):
+    def library_info(self, data):
+        # TODO: Restrict the libraries based on data.username
         return self.library_broker.library_map, self.library_broker.default_library
 
     def allowed_book_ids(self, data, db):
