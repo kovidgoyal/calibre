@@ -17,6 +17,6 @@ if os.path.exists('libmtp'):
 subprocess.check_call(['git', 'clone', 'git://git.code.sf.net/p/libmtp/code',
                        'libmtp'])
 for x in ('src/music-players.h', 'src/device-flags.h'):
-    with lopen(os.path.join(base, os.path.basename(x)), 'wb') as f:
+    with open(os.path.join(base, os.path.basename(x)), 'wb') as f:
         shutil.copyfileobj(open('libmtp/'+x), f)
 
