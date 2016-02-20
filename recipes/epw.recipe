@@ -63,7 +63,10 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
         for div in main.findAll(attrs={'class':lambda x: x and 'views-field-nothing' in x.split()}):
             title = self.tag_to_string(div)
             elems = div.findAll('a', href=True)
-            desc, title = map(self.tag_to_string, elems)
+            if len(elems) == 2:
+                desc, title = map(self.tag_to_string, elems)
+            else:
+                title, desc = self.tag_to_string(elems[0]), ''
             url = absurl(elems[-1]['href'])
             self.log('\t', title, url)
             self.log('\t\t', desc)
