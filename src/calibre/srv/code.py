@@ -4,20 +4,19 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re, hashlib, random, os
+import re, hashlib, random
 from functools import partial
 from threading import Lock
 from json import load as load_json_file, dumps as json_dumps
 
 from calibre import prepare_string_for_xml, as_unicode
-from calibre.constants import config_dir
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import search_result
 from calibre.srv.errors import HTTPNotFound, HTTPBadRequest
 from calibre.srv.metadata import book_as_json, categories_as_json, icon_map
 from calibre.srv.routes import endpoint, json
-from calibre.srv.utils import get_library_data
+from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
@@ -82,20 +81,6 @@ def get_basic_query_data(ctx, rd):
         sorts, orders = ['timestamp'], ['desc']
     return library_id, db, sorts, orders
 
-_use_roman = None
-
-def get_use_roman():
-    global _use_roman
-    if _use_roman is None:
-        try:
-            with lopen(os.path.join(config_dir, 'gui.py'), 'rb') as f:
-                raw = f.read()
-        except EnvironmentError:
-            _use_roman = False
-        else:
-            m = re.search(br'use_roman_numerals_for_series_number\s*=\s*(True|False)', raw)
-            _use_roman = m is not None and m.group(1) == b'True'
-    return _use_roman
 
 DEFAULT_NUMBER_OF_BOOKS = 50
 

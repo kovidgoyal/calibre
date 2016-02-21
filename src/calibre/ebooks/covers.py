@@ -53,6 +53,18 @@ authors = re(authors, ' &amp; ', '<br>');
 re(authors, '&amp;&amp;', '&amp;')
 '''
 Prefs = namedtuple('Prefs', ' '.join(sorted(cprefs.defaults)))
+
+_use_roman = None
+def get_use_roman():
+    global _use_roman
+    if _use_roman is None:
+        return config['use_roman_numerals_for_series_number']
+    return _use_roman
+
+def set_use_roman(val):
+    global _use_roman
+    _use_roman = bool(val)
+
 # }}}
 
 # Draw text {{{
@@ -255,7 +267,7 @@ def preserve_fields(obj, fields):
 def format_text(mi, prefs):
     with preserve_fields(mi, 'authors formatted_series_index'):
         mi.authors = [a for a in mi.authors if a != _('Unknown')]
-        mi.formatted_series_index = fmt_sidx(mi.series_index or 0, use_roman=config['use_roman_numerals_for_series_number'])
+        mi.formatted_series_index = fmt_sidx(mi.series_index or 0, use_roman=get_use_roman())
         return tuple(format_fields(mi, prefs))
 # }}}
 
