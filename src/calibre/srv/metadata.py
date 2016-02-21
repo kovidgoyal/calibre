@@ -16,7 +16,7 @@ from calibre.constants import config_dir
 from calibre.db.categories import Tag
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
-from calibre.utils.config import tweaks, JSONConfig
+from calibre.utils.config import tweaks
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.file_type_icons import EXT_MAP
 from calibre.utils.icu import collation_order
@@ -154,8 +154,9 @@ def icon_map():
     global _icon_map
     with _icon_map_lock:
         if _icon_map is None:
+            from calibre.gui2 import gprefs
             _icon_map = category_icon_map.copy()
-            custom_icons = JSONConfig('gui').get('tags_browser_category_icons', {})
+            custom_icons = gprefs.get('tags_browser_category_icons', {})
             for k, v in custom_icons.iteritems():
                 if os.access(os.path.join(config_dir, 'tb_icons', v), os.R_OK):
                     _icon_map[k] = '_' + quote(v)

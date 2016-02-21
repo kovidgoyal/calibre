@@ -237,4 +237,7 @@ def main(args=sys.argv):
     signal.signal(signal.SIGTERM, lambda s,f: server.stop())
     if not opts.daemonize and not iswindows:
         signal.signal(signal.SIGHUP, lambda s,f: server.stop())
+    # Needed for dynamic cover generation, which uses Qt for drawing
+    from calibre.gui2 import ensure_app, load_builtin_fonts
+    ensure_app(), load_builtin_fonts()
     server.serve_forever()

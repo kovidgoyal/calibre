@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import errno, socket, select, os, re
+import errno, socket, select, os
 from Cookie import SimpleCookie
 from contextlib import closing
 from urlparse import parse_qs
@@ -18,7 +18,7 @@ from urllib import quote as urlquote
 from binascii import hexlify, unhexlify
 
 from calibre import prints
-from calibre.constants import iswindows, config_dir
+from calibre.constants import iswindows
 from calibre.srv.errors import HTTPNotFound
 from calibre.utils.config_base import tweaks
 from calibre.utils.localization import get_translator
@@ -511,12 +511,6 @@ _use_roman = None
 def get_use_roman():
     global _use_roman
     if _use_roman is None:
-        try:
-            with lopen(os.path.join(config_dir, 'gui.py'), 'rb') as f:
-                raw = f.read()
-        except EnvironmentError:
-            _use_roman = False
-        else:
-            m = re.search(br'use_roman_numerals_for_series_number\s*=\s*(True|False)', raw)
-            _use_roman = m is not None and m.group(1) == b'True'
+        from calibre.gui2 import config
+        _use_roman = config['use_roman_numerals_for_series_number']
     return _use_roman

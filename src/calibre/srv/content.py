@@ -16,6 +16,7 @@ from functools import partial
 from calibre import fit_image
 from calibre.constants import config_dir, iswindows
 from calibre.db.errors import NoSuchFormat
+from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover, set_use_roman
 from calibre.ebooks.metadata import authors_to_string
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
@@ -28,7 +29,6 @@ from calibre.utils.date import timestampfromdt
 from calibre.utils.img import scale_image, image_from_data
 from calibre.utils.filenames import ascii_filename, atomic_rename
 from calibre.utils.shared_file import share_open
-from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
@@ -96,14 +96,9 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
             rd.outheaders['Tempfile'] = hexlify(fname.encode('utf-8'))
         return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
 
-
-def generate_cover_worker(width, height, opf, file_name, use_roman):
-    # We have to generate the cover in a worker as it depends on Qt and needs
-    # QApplication
-    from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover, set_use_roman
-    from calibre.ebooks.metadata.opf2 import OPF
-    set_use_roman(use_roman)
-    mi = OPF(BytesIO(opf), try_to_guess_cover=False, populate_spine=False).to_book_metadata()
+def write_generated_cover(db, book_id, width, height, destf):
+    mi = db.get_metadata(book_id)
+    set_use_roman(get_use_roman())
     if height is None:
         prefs = cprefs
     else:
@@ -111,17 +106,7 @@ def generate_cover_worker(width, height, opf, file_name, use_roman):
         prefs = override_prefs(cprefs)
         scale_cover(prefs, ratio)
     cdata = generate_cover(mi, prefs=prefs)
-    with share_open(file_name, 'w+b') as f:
-        f.write(cdata)
-
-
-def write_generated_cover(db, book_id, width, height, destf):
-    from calibre.ebooks.metadata.opf2 import metadata_to_opf
-    mi = metadata_to_opf(db.get_metadata(book_id))
-    try:
-        fork_job('calibre.srv.content', 'generate_cover_worker', args=(width, height, mi, destf.name, get_use_roman()), no_output=True)
-    except WorkerError as err:
-        raise Exception(err.orig_tb)
+    destf.write(cdata)
 
 def generated_cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     prefix = 'generated-cover'
