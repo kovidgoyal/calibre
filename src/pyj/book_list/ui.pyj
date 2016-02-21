@@ -126,8 +126,8 @@ class UI:
 
         self.panel_map['book-details'] = bd = UIState(ClosePanelBar(_('Book Details')), main_panel=self.book_details_panel)
         bd.add_button(icon_name='random', tooltip=_('Pick another random book'), action=self.book_details_panel.show_random.bind(self.book_details_panel))
-        bd.add_button(icon_name='book', tooltip=_('Read this book'), action=self.book_details_panel.read_book.bind(self.book_details_panel))
-        bd.add_button(icon_name='cloud-download', tooltip=_('Download this book'), action=self.book_details_panel.download_book.bind(self.book_details_panel))
+        # bd.add_button(icon_name='book', tooltip=_('Read this book'), action=self.book_details_panel.read_book.bind(self.book_details_panel))
+        # bd.add_button(icon_name='cloud-download', tooltip=_('Download this book'), action=self.book_details_panel.download_book.bind(self.book_details_panel))
 
     def create_prefences_panel(self, title, close_callback=None, panel_data=None):
         ans = UIState(ClosePanelBar(title), close_callback=close_callback, main_panel=self.prefs_panel, panel_data=panel_data)
