@@ -223,7 +223,16 @@ Follow these steps to find the problem:
 My device is non-standard or unusual. What can I do to connect to it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the :guilabel:`Connect to Folder` function found under the Connect/Share button, calibre provides a ``User Defined`` device plugin that can be used to connect to any USB device that shows up as a disk drive in your operating system. Note: on Windows, the device must have a drive letter for calibre to use it. See the device plugin ``Preferences -> Plugins -> Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get information to setup the user defined device`` for more information. Note that if you are using the user defined plugin for a device normally detected by a builtin calibre plugin, you must disable the builtin plugin first, so that your user defined plugin is used instead.
+In addition to the :guilabel:`Connect to Folder` function found under the
+:guilabel:`Connect/Share` button, calibre provides a ``User Defined`` device
+plugin that can be used to connect to any USB device that shows up as a disk
+drive in your operating system. Note: on Windows, the device must have a drive
+letter for calibre to use it. See the device plugin ``Preferences -> Plugins ->
+Device Plugins -> User Defined`` and ``Preferences -> Miscellaneous -> Get
+information to setup the user defined device`` for more information. Note that
+if you are using the user defined plugin for a device normally detected by a
+builtin calibre plugin, you must disable the builtin plugin first, so that your
+user defined plugin is used instead.
 
 How does calibre manage collections on my SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
