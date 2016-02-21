@@ -186,28 +186,34 @@ class Block(object):
             if hasattr(l, 'draw'):
                 # Etch effect for the text
                 painter.save()
+                painter.setRenderHints(QPainter.TextAntialiasing | QPainter.Antialiasing)
+                painter.save()
                 painter.setPen(QColor(255, 255, 255, 125))
                 l.draw(painter, QPointF(1, 1))
                 painter.restore()
                 l.draw(painter, QPointF())
+                painter.restore()
 
 def layout_text(prefs, img, title, subtitle, footer, max_height, style):
     width = img.width() - 2 * style.hmargin
     title, subtitle, footer = title, subtitle, footer
     title_font = QFont(prefs.title_font_family or 'Liberation Serif')
     title_font.setPixelSize(prefs.title_font_size)
+    title_font.setStyleStrategy(QFont.PreferAntialias)
     title_block = Block(title, width, title_font, img, max_height, style.TITLE_ALIGN)
     title_block.position = style.hmargin, style.vmargin
     subtitle_block = Block()
     if subtitle:
         subtitle_font = QFont(prefs.subtitle_font_family or 'Liberation Sans')
         subtitle_font.setPixelSize(prefs.subtitle_font_size)
+        subtitle_font.setStyleStrategy(QFont.PreferAntialias)
         gap = 2 * title_block.leading
         mh = max_height - title_block.height - gap
         subtitle_block = Block(subtitle, width, subtitle_font, img, mh, style.SUBTITLE_ALIGN)
         subtitle_block.position = style.hmargin, title_block.position.y + title_block.height + gap
 
     footer_font = QFont(prefs.footer_font_family or 'Liberation Serif')
+    footer_font.setStyleStrategy(QFont.PreferAntialias)
     footer_font.setPixelSize(prefs.footer_font_size)
     footer_block = Block(footer, width, footer_font, img, max_height, style.FOOTER_ALIGN)
     footer_block.position = style.hmargin, img.height() - style.vmargin - footer_block.height
@@ -582,7 +588,9 @@ def generate_masthead(title, output_path=None, width=600, height=60, as_qimage=F
     img = QImage(width, height, QImage.Format_ARGB32)
     img.fill(Qt.white)
     p = QPainter(img)
+    p.setRenderHints(QPainter.Antialiasing | QPainter.TextAntialiasing)
     f = QFont(font_family)
+    f.setStyleStrategy(QFont.PreferAntialias)
     f.setPixelSize((height * 3) // 4), f.setBold(True)
     p.setFont(f)
     p.drawText(img.rect(), Qt.AlignLeft | Qt.AlignVCenter, sanitize(title))
@@ -598,7 +606,7 @@ def generate_masthead(title, output_path=None, width=600, height=60, as_qimage=F
 def test(scale=0.25):
     from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
     app = QApplication([])
-    mi = Metadata('xxx', ['Kovid Goyal', 'John & Doe', 'Author'])
+    mi = Metadata('Unknown', ['Kovid Goyal', 'John & Doe', 'Author'])
     mi.series = 'A series of styles'
     m = QMainWindow()
     sa = QScrollArea(m)
