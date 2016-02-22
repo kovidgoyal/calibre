@@ -156,7 +156,7 @@ class RunStyle(object):
     }
 
     toggle_properties = {
-        'b', 'bCs', 'caps', 'emboss', 'i', 'iCs', 'imprint', 'shadow', 'smallCaps', 'strike', 'dstrike', 'vanish',
+        'b', 'bCs', 'caps', 'emboss', 'i', 'iCs', 'imprint', 'shadow', 'smallCaps', 'strike', 'vanish',
     }
 
     def __init__(self, namespace, rPr=None):
