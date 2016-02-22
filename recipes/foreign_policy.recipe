@@ -1,25 +1,83 @@
-__license__   = 'GPL v3'
-__copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
-'''
-www.foreignpolicy.com
-'''
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+__license__ = 'GPL v3'
+__copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
+
+from collections import defaultdict, OrderedDict
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class AdvancedUserRecipe1349086293(BasicNewsRecipe):
+class ForeignPolicy(BasicNewsRecipe):
     title          = u'Foreign Policy'
-    language = 'en'
-    __author__            = 'Darko Miletic'
+    language       = 'en'
+    __author__            = 'Kovid Goyal'
     description           = 'International News'
-    publisher             = 'Washingtonpost.Newsweek Interactive, LLC'
-    category              = 'news, politics, USA'
-    oldest_article = 31
-    max_articles_per_feed = 200
-    auto_cleanup = True
+    no_stylesheets = True
+    remove_javascript = True
 
-    feeds          = [(u'Foreign_Policy', u'http://www.foreignpolicy.com/node/feed')]
+    keep_only_tags = [
+        dict(name='h1'),
+        dict(name='p', attrs={'class':'dek'}),
+        dict(name='li', attrs={'class': 'author'}),
+        dict(attrs={'class':['feature', 'post-inner', 'inline_photo', 'infographic']}),
+        dict(attrs={'class':lambda x: x and set(x.split()).intersection({'wide_header_bg', 'wide_header_text'})}),
+    ]
+    remove_tags = [
+        dict(name=['meta', 'link']),
+        dict(attrs={'class':['fp-lightbox--overlay']}),
+        dict(attrs={'class':lambda x: x and 'share-links' in x}),
+    ]
 
-    def print_version(self, url):
-        return url + '?print=yes&hidecomments=yes&page=full'
+    def parse_index(self):
+        title_map = OrderedDict()
+        soup = self.index_to_soup('http://foreignpolicy.com/')
+        img = soup.find('img', alt='Current Issue', attrs={'data-issue_slug':True})
+        self.cover_url = img['src']
+        slug = img['data-issue_slug']
+        url = 'https://foreignpolicymag.wordpress.com/wp-admin/admin-ajax.php?action=mag_issue_request&issue_slug=' + slug
+        soup = self.index_to_soup(url)
+        ul = soup.find(id='mag-terms')
+        self.timefmt = ' ' + self.tag_to_string(ul.find('li'))
+        for li in ul.findAll('li', attrs={'data-cat':True}):
+            title_map[li['data-cat']] = self.tag_to_string(li)
+        feeds = defaultdict(list)
+        for ul in soup.findAll('ul', attrs={'data-cat':lambda x: x and x in title_map}):
+            sec = ul['data-cat']
+            self.log('\nFound section:', title_map[sec])
+            articles = []
+            for li in ul.findAll('li'):
+                a = li.find('a', href=True)
+                url = a['href']
+                title = self.tag_to_string(a)
+                desc = ''
+                dek = li.find(attrs={'class':'dek'})
+                if dek is not None:
+                    desc += self.tag_to_string(dek)
+                aut = li.find(attrs={'class':'author'})
+                if aut is not None:
+                    desc += ' by ' + self.tag_to_string(aut)
+                self.log('\t', title, ' at ', url)
+                if desc:
+                    self.log('\t\t', desc)
+                articles.append({'title':title, 'description':desc, 'url':url})
+            if articles:
+                feeds[sec].extend(articles)
 
+        return [(title_map[x], feeds[x]) for x in title_map if feeds[x]]
 
+    def preprocess_html(self, soup):
+        body = soup.find('body')
+        div = soup.find(attrs={'class':lambda x:x and 'wide_header_bg' in x.split()})
+        if div is not None:
+            div.extract()
+            body.insert(0, div)
+        div = soup.find(attrs={'class':lambda x:x and 'wide_header_text' in x.split()})
+        if div is not None:
+            div.extract()
+            body.insert(0, div)
+        for div in soup.findAll(id='footer-logo'):
+            div.parent.extract()
+        return soup
