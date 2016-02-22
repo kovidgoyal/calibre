@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, httplib, hashlib, uuid, time, struct, repr as reprlib
+import os, httplib, hashlib, uuid, struct, repr as reprlib
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
@@ -138,16 +138,14 @@ def get_ranges(headervalue, content_length):  # {{{
 # }}}
 
 # gzip transfer encoding  {{{
-def gzip_prefix(mtime=None):
+def gzip_prefix():
     # See http://www.gzip.org/zlib/rfc-gzip.html
-    if mtime is None:
-        mtime = time.time()
     return b''.join((
         b'\x1f\x8b',       # ID1 and ID2: gzip marker
         b'\x08',           # CM: compression method
         b'\x00',           # FLG: none set
-        # MTIME: 4 bytes
-        struct.pack(b"<L", int(mtime) & 0xFFFFFFFF),
+        # MTIME: 4 bytes, set to zero so as not to leak timezone information
+        b'\0\0\0\0',
         b'\x02',           # XFL: max compression, slowest algo
         b'\xff',           # OS: unknown
     ))
@@ -168,7 +166,7 @@ def compress_readable_output(src_file, compress_level=6):
         data = zobj.compress(data)
         if not prefix_written:
             prefix_written = True
-            data = gzip_prefix(time.time()) + data
+            data = gzip_prefix() + data
         yield data
     yield zobj.flush() + struct.pack(b"<L", crc) + struct.pack(b"<L", size)
 # }}}
