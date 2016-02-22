@@ -62,6 +62,8 @@ def find_tests():
     return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
 
 def run_tests(find_tests=find_tests):
+    from calibre.gui2 import ensure_app, load_builtin_fonts
+    ensure_app(), load_builtin_fonts()  # needed for dynamic cover generation
     parser = argparse.ArgumentParser()
     parser.add_argument('name', nargs='?', default=None,
                         help='The name of the test to run, for e.g. writing.WritingTest.many_many_basic or .many_many_basic for a shortcut')

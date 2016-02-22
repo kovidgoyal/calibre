@@ -147,7 +147,7 @@ class ContentTest(LibraryBaseTest):
             self.ae(data, db.cover(1))
             self.ae(r.getheader('Used-Cache'), 'yes')
             r, data = get('cover', 3)
-            self.ae(r.status, httplib.NOT_FOUND)
+            self.ae(r.status, httplib.OK)  # Auto generated cover
             r, data = get('thumb', 1)
             self.ae(r.status, httplib.OK)
             self.ae(identify_data(data), (60, 60, 'jpeg'))
