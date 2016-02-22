@@ -868,13 +868,18 @@ There are several possible things I know of, that can cause this:
     * Spybot - Search & Destroy blocks calibre from accessing its temporary files
       breaking viewing and converting of books.
 
-    * You are using a Wacom branded USB mouse. There is an incompatibility between
-      Wacom mice and the graphics toolkit calibre uses. Try using a non-Wacom
+    * You are using a Wacom branded USB mouse/tablet. There is an incompatibility between
+      Wacom drivers and the graphics toolkit calibre uses. Try using a non-Wacom
       mouse.
 
     * On some 64 bit versions of Windows there are security software/settings
       that prevent 64-bit calibre from working properly. If you are using the 64-bit
       version of calibre try switching to the 32-bit version.
+
+    * If the crash happens when you are trying to copy text from the calibre
+      e-book viewer, it is most likely caused by some clipboard
+      monitoring/managing application you have running. Turn it off and you
+      should be fine.
 
     * If the crashes happen specifically when you are using a file open dialog,
       like clicking on the Add Books button or the Save to Disk button, then
