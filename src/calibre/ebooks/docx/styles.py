@@ -189,12 +189,15 @@ class Styles(object):
         if val is not inherit:
             return val
         if attr in direct_formatting.toggle_properties:
-            val = False
-            for rs in parent_styles:
-                pval = getattr(rs, attr)
-                if pval is True:
-                    val ^= True
-            return val
+            # The spec (section 17.7.3) does not make sense, so we follow the behavior
+            # of Word, which seems to only consider the document default if the
+            # property has not been defined in any styles.
+            vals = [int(getattr(rs, attr)) for rs in parent_styles if rs is not self.default_character_style and getattr(rs, attr) is not inherit]
+            if vals:
+                return sum(vals) % 2 == 1
+            if self.default_character_style is not None:
+                return getattr(self.default_character_style, attr) is True
+            return False
         for rs in reversed(parent_styles):
             rval = getattr(rs, attr)
             if rval is not inherit:
