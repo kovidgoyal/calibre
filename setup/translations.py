@@ -84,6 +84,19 @@ class POT(Command):  # {{{
 
         return '\n'.join(ans)
 
+    def get_content_server_strings(self):
+        self.info('Generating translation template for content_server')
+        pottext = subprocess.check_output([
+            'rapydscript', 'gettext', '--package-name', __appname__, '--package-version', __version__,
+            '--bug-address', 'https://bugs.launchpad.net/calibre', self.j(self.SRC, 'pyj')
+        ])
+        tbase = self.j(self.TRANSLATIONS, 'content-server')
+        dest = self.j(tbase, 'content-server.pot')
+        with open(dest, 'wb') as f:
+            f.write(pottext)
+        self.upload_pot(dest, resource='content_server')
+        self.git(['add', dest])
+
     def get_user_manual_docs(self):
         self.info('Generating translation templates for user_manual')
         base = tempfile.mkdtemp()
@@ -118,6 +131,7 @@ class POT(Command):  # {{{
 
     def run(self, opts):
         require_git_master()
+        self.get_content_server_strings()
         self.get_user_manual_docs()
         pot_header = textwrap.dedent('''\
         # Translation template file..
