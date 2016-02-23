@@ -468,7 +468,7 @@ class ServerLoop(object):
                 (readable if conn.read_buffer.has_data else read_needed).append(s)
 
         for s, conn in remove:
-            self.log.debug('Closing connection because of extended inactivity')
+            self.log('Closing connection because of extended inactivity: %s' % conn.state_description)
             self.close(s, conn)
 
         if readable:
@@ -505,7 +505,7 @@ class ServerLoop(object):
                 if not conn.ready:
                     self.close(s, conn)
             except JobQueueFull:
-                self.log.exception('Server busy handling request: ' % conn.state_description)
+                self.log.exception('Server busy handling request: %s' % conn.state_description)
                 if conn.ready:
                     if conn.response_started:
                         self.close(s, conn)
