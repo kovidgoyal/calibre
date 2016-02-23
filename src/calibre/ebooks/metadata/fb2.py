@@ -227,7 +227,7 @@ def _parse_tags(root, mi, ctx):
 
 def _parse_series(root, mi, ctx):
     # calibri supports only 1 series: use the 1-st one
-    # pick up sequence but only from 1 secrion in prefered order
+    # pick up sequence but only from 1 secrion in preferred order
     # except <src-title-info>
     xp_ti = '//fb:title-info/fb:sequence[1]'
     xp_pi = '//fb:publish-info/fb:sequence[1]'
@@ -236,7 +236,10 @@ def _parse_series(root, mi, ctx):
     if elms_sequence:
         mi.series = elms_sequence[0].get('name', None)
         if mi.series:
-            mi.series_index = elms_sequence[0].get('number', None)
+            try:
+                mi.series_index = float('.'.join(elms_sequence[0].get('number', None).split()[:2]))
+            except Exception:
+                pass
 
 def _parse_isbn(root, mi, ctx):
     # some people try to put several isbn in this field, but it is not allowed.  try to stick to the 1-st one in this case
