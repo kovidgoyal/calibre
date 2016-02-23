@@ -1496,6 +1496,13 @@ class Cache(object):
         if not add_duplicates and self._has_book(mi):
             return
         series_index = (self._get_next_series_num_for(mi.series) if mi.series_index is None else mi.series_index)
+        try:
+            series_index = float(series_index)
+        except Exception:
+            try:
+                series_index = float(self._get_next_series_num_for(mi.series))
+            except Exception:
+                series_index = 1.0
         if not mi.authors:
             mi.authors = (_('Unknown'),)
         aus = mi.author_sort if mi.author_sort else self._author_sort_from_authors(mi.authors)
