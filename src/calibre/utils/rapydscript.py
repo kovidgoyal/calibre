@@ -117,7 +117,7 @@ def create_pot(source_files):
     ctx.g.gettext_options = {
         'package_name': __appname__,
         'package_version': __version__,
-        'bugs_address': 'kovid@kovidgoyal.net'
+        'bugs_address': 'https://bugs.launchpad.net/calibre'
     }
     ctx.eval('catalog = {}')
     for fname in source_files:

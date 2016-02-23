@@ -86,12 +86,11 @@ class POT(Command):  # {{{
 
     def get_content_server_strings(self):
         self.info('Generating translation template for content_server')
-        pottext = subprocess.check_output([
-            'rapydscript', 'gettext', '--package-name', __appname__, '--package-version', __version__,
-            '--bug-address', 'https://bugs.launchpad.net/calibre', self.j(self.SRC, 'pyj')
-        ])
-        tbase = self.j(self.TRANSLATIONS, 'content-server')
-        dest = self.j(tbase, 'content-server.pot')
+        from calibre import walk
+        from calibre.utils.rapydscript import create_pot
+        files = (f for f in walk(self.j(self.SRC, 'pyj')) if f.endswith('.pyj'))
+        pottext = create_pot(files).encode('utf-8')
+        dest = self.j(self.TRANSLATIONS, 'content-server', 'content-server.pot')
         with open(dest, 'wb') as f:
             f.write(pottext)
         self.upload_pot(dest, resource='content_server')
