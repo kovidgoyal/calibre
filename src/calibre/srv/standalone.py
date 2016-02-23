@@ -58,10 +58,11 @@ class Server(object):
 
     def __init__(self, libraries, opts):
         log = access_log = None
+        log_size = opts.max_log_size * 1024 * 1024
         if opts.log:
-            log = RotatingLog(opts.log, max_size=opts.max_log_size)
+            log = RotatingLog(opts.log, max_size=log_size)
         if opts.access_log:
-            access_log = RotatingLog(opts.access_log, max_size=opts.max_log_size)
+            access_log = RotatingLog(opts.access_log, max_size=log_size)
         self.handler = Handler(libraries, opts)
         plugins = []
         if opts.use_bonjour:
