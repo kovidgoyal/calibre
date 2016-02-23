@@ -347,7 +347,7 @@ class RotatingStream(object):
                 raise
 
     def rollover(self):
-        if self.max_size is None or self.current_pos <= self.max_size or self.filename in ('/dev/stdout', '/dev/stderr'):
+        if not self.max_size or self.current_pos <= self.max_size or self.filename in ('/dev/stdout', '/dev/stderr'):
             return
         self.stream.close()
         for i in xrange(self.history - 1, 0, -1):
