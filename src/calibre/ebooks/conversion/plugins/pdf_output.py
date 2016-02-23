@@ -51,7 +51,7 @@ class PDFOutput(OutputFormatPlugin):
     options = set([
         OptionRecommendation(name='override_profile_size', recommended_value=False,
             help=_('Normally, the PDF page size is set by the output profile'
-                   ' chosen under page options. This option will cause the '
+                   ' chosen under the page setup options. This option will cause the '
                    ' page size settings under PDF Output to override the '
                    ' size specified by the output profile.')),
         OptionRecommendation(name='unit', recommended_value='inch',
