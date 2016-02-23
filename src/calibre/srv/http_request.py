@@ -246,6 +246,7 @@ class HTTPRequest(Connection):
         line = self.readline(buf)
         if line is None:
             return
+        self.request_line = line.rstrip()
         if line == b'\r\n':
             # Ignore a single leading empty line, as per RFC 2616 sec 4.1
             if first:
@@ -272,7 +273,6 @@ class HTTPRequest(Connection):
         except HTTPSimpleResponse as e:
             return self.simple_response(e.http_code, e.message, close_after_response=False)
         self.header_line_too_long_error_code = httplib.REQUEST_ENTITY_TOO_LARGE
-        self.request_line = line.rstrip()
         self.set_state(READ, self.parse_header_line, HTTPHeaderParser(), Accumulator())
     # }}}
 

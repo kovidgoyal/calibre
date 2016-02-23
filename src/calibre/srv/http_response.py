@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, httplib, hashlib, uuid, struct, repr as reprlib
+import os, httplib, hashlib, uuid, struct, repr as reprlib, time
 from collections import namedtuple
 from io import BytesIO, DEFAULT_BUFFER_SIZE
 from itertools import chain, repeat, izip_longest
@@ -395,7 +395,9 @@ class HTTPConnection(HTTPRequest):
         buf = [(x + '\r\n').encode('ascii') for x in buf]
         if self.method != 'HEAD':
             buf.append(msg)
-        self.response_ready(ReadOnlyFileBuffer(b''.join(buf)))
+        response_data = b''.join(buf)
+        self.log_access(status_code=status_code, response_size=len(response_data))
+        self.response_ready(ReadOnlyFileBuffer(response_data))
 
     def prepare_response(self, inheaders, request_body_file):
         if self.method == 'TRACE':
@@ -420,7 +422,9 @@ class HTTPConnection(HTTPRequest):
             "Date: " + http_date(),
             "Content-Range: bytes */%d" % content_length,
         ]
-        self.response_ready(header_list_to_file(buf))
+        response_data = header_list_to_file(buf)
+        self.log_access(status_code=httplib.REQUESTED_RANGE_NOT_SATISFIABLE, response_size=response_data.sz)
+        self.response_ready(response_data)
 
     def send_not_modified(self, etag=None):
         buf = [
@@ -430,7 +434,9 @@ class HTTPConnection(HTTPRequest):
         ]
         if etag is not None:
             buf.append('ETag: ' + etag)
-        self.response_ready(header_list_to_file(buf))
+        response_data = header_list_to_file(buf)
+        self.log_access(status_code=httplib.NOT_MODIFIED, response_size=response_data.sz)
+        self.response_ready(response_data)
 
     def report_busy(self):
         self.simple_response(httplib.SERVICE_UNAVAILABLE)
@@ -482,7 +488,25 @@ class HTTPConnection(HTTPRequest):
                 x = x.decode('ascii')
             buf.append(x)
         buf.append('')
-        self.response_ready(ReadOnlyFileBuffer(b''.join((x + '\r\n').encode('ascii') for x in buf)), output=output)
+        response_data = ReadOnlyFileBuffer(b''.join((x + '\r\n').encode('ascii') for x in buf))
+        if self.access_log is not None:
+            sz = outheaders.get('Content-Length')
+            if sz is not None:
+                sz = int(sz) + response_data.sz
+            self.log_access(status_code=data.status_code, response_size=sz, username=data.username)
+        self.response_ready(response_data, output=output)
+
+    def log_access(self, status_code, response_size=None, username=None):
+        if self.access_log is None:
+            return
+        if not self.opts.log_not_found and status_code == httplib.NOT_FOUND:
+            return
+        line = '%s port-%s %s %s "%s" %s %s' % (
+            self.remote_addr, self.remote_port, username or '-',
+            time.strftime('%d/%b/%Y:%H:%M:%S %z'),
+            force_unicode(self.request_line or '', 'utf-8'),
+            status_code, ('-' if response_size is None else response_size))
+        self.access_log(line)
 
     def response_ready(self, header_file, output=None):
         self.response_started = True
@@ -612,7 +636,7 @@ class HTTPConnection(HTTPRequest):
             return self.send_range_not_satisfiable(output.content_length)
 
         for header in ('Accept-Ranges', 'Content-Encoding', 'Transfer-Encoding', 'ETag', 'Content-Length'):
-            outheaders.pop('header', all=True)
+            outheaders.pop(header, all=True)
 
         matched = '*' in none_match or (output.etag and output.etag in none_match)
         if matched:

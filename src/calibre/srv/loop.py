@@ -117,8 +117,8 @@ class ReadBuffer(object):  # {{{
 
 class Connection(object):  # {{{
 
-    def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, wakeup):
-        self.opts, self.pool, self.log, self.wakeup = opts, pool, log, wakeup
+    def __init__(self, socket, opts, ssl_context, tdir, addr, pool, log, access_log, wakeup):
+        self.opts, self.pool, self.log, self.wakeup, self.access_log = opts, pool, log, wakeup, access_log
         try:
             self.remote_addr = addr[0]
             self.remote_port = addr[1]
@@ -304,12 +304,16 @@ class ServerLoop(object):
         plugins=(),
         # A calibre logging object. If None, a default log that logs to
         # stdout is used
-        log=None
+        log=None,
+        # A calibre logging object for access logging, by default no access
+        # logging is performed
+        access_log=None
     ):
         self.ready = False
         self.handler = handler
         self.opts = opts or Options()
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
+        self.access_log = access_log
 
         ba = (self.opts.listen_on, int(self.opts.port))
         if not ba[0]:
@@ -558,7 +562,8 @@ class ServerLoop(object):
                 if sock is not None:
                     s = sock.fileno()
                     if s > -1:
-                        self.connection_map[s] = conn = self.handler(sock, self.opts, self.ssl_context, self.tdir, addr, self.pool, self.log, self.wakeup)
+                        self.connection_map[s] = conn = self.handler(
+                            sock, self.opts, self.ssl_context, self.tdir, addr, self.pool, self.log, self.access_log, self.wakeup)
                         if self.ssl_context is not None:
                             yield s, conn, RDWR
             elif s == control:

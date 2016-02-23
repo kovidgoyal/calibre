@@ -57,14 +57,16 @@ def daemonize():  # {{{
 class Server(object):
 
     def __init__(self, libraries, opts):
-        log = None
+        log = access_log = None
         if opts.log:
             log = RotatingLog(opts.log, max_size=opts.max_log_size)
+        if opts.access_log:
+            access_log = RotatingLog(opts.access_log, max_size=opts.max_log_size)
         self.handler = Handler(libraries, opts)
         plugins = []
         if opts.use_bonjour:
             plugins.append(BonJour())
-        self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log, plugins=plugins)
+        self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log, access_log=access_log, plugins=plugins)
         self.handler.set_log(self.loop.log)
         self.serve_forever = self.loop.serve_forever
         self.stop = self.loop.stop
@@ -181,7 +183,12 @@ program will be used.
     ))
     parser.add_option(
         '--log', default=None,
-        help=_('Path to log file for server log'))
+        help=_('Path to log file for server log. This log contains server information and errors, not access logs. By default it is written to stdout.'))
+    parser.add_option(
+        '--access-log', default=None,
+        help=_('Path to the access log file. This log contains information'
+               ' about clients connecting to the server and making requests. By'
+               ' default no access logging is done.'))
     parser.add_option('--daemonize', default=False, action='store_true',
         help=_('Run process in background as a daemon. No effect on Windows.'))
     parser.add_option('--pidfile', default=None,
