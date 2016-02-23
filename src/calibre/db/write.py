@@ -124,6 +124,10 @@ def adapt_identifiers(to_tuple, x):
             ans[k] = v
     return ans
 
+def adapt_series_index(x):
+    ret = adapt_number(float, x)
+    return 1.0 if ret is None else ret
+
 def get_adapter(name, metadata):
     dt = metadata['datatype']
     if dt == 'text':
@@ -160,7 +164,7 @@ def get_adapter(name, metadata):
     if name in {'timestamp', 'last_modified'}:
         return lambda x: ans(x) or UNDEFINED_DATE
     if name == 'series_index':
-        return lambda x: 1.0 if ans(x) is None else ans(x)
+        return adapt_series_index
     if name == 'languages':
         return partial(adapt_languages, ans)
     if name == 'identifiers':
@@ -499,8 +503,7 @@ class Writer(object):
             self.set_books_func = (self.set_books_for_enum if dt ==
                                    'enumeration' else many_one)
         else:
-            self.set_books_func = (one_one_in_books if field.metadata['table']
-                                   == 'books' else one_one_in_other)
+            self.set_books_func = (one_one_in_books if field.metadata['table'] == 'books' else one_one_in_other)
             if self.name in {'timestamp', 'uuid', 'sort'}:
                 self.accept_vals = bool
 
