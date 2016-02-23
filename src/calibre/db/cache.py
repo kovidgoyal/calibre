@@ -1247,9 +1247,9 @@ class Cache(object):
         if path_changed:
             self._update_path({book_id})
 
-        def protected_set_field(name, val, **kwargs):
+        def protected_set_field(name, val):
             try:
-                set_field(name, val, **kwargs)
+                set_field(name, val)
             except:
                 if ignore_errors:
                     traceback.print_exc()
