@@ -13,7 +13,7 @@ from base64 import b64encode
 from lxml import etree
 
 from calibre.utils.date import parse_only_date
-from calibre.utils.magick.draw import save_cover_data_to
+from calibre.utils.magick.draw import save_cover_data_to, identify_data
 from calibre import guess_type, guess_all_extensions, prints, force_unicode
 from calibre.ebooks.metadata import MetaInformation, check_isbn
 from calibre.ebooks.chardet import xml_to_unicode
@@ -210,8 +210,9 @@ def _parse_cover_data(root, imgid, mi, ctx):
         if mime_extensions:
             pic_data = elm_binary[0].text
             if pic_data:
-                mi.cover_data = (mime_extensions[0][1:],
-                        base64_decode(pic_data.strip()))
+                cdata = base64_decode(pic_data.strip())
+                fmt = identify_data(cdata)[-1]
+                mi.cover_data = (fmt, cdata)
         else:
             prints("WARNING: Unsupported coverpage mime-type '%s' (id=#%s)" % (mimetype, imgid))
 
