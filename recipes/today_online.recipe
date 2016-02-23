@@ -14,7 +14,7 @@ class AdvancedUserRecipe1276486274(BasicNewsRecipe):
     language = 'en_SG'
     temp_files = []
     articles_are_obfuscated = True
-    masthead_url = 'http://www.todayonline.com/App_Themes/Default/images/icons/TodayOnlineLogo.gif'
+    masthead_url = 'http://www.todayonline.com/sites/all/themes/today/logo.png'
     conversion_options = {'linearize_tables':True}
     extra_css = '''
                    .author{font-style: italic; font-size: small}
@@ -23,30 +23,31 @@ class AdvancedUserRecipe1276486274(BasicNewsRecipe):
                    .headerStrap{font-weight: bold; font-size: x-large; font-syle: italic}
                    .bodyText{font-size: 4px;font-family: Times New Roman;}
                 '''
+    feeds          = [
+                         (u'Hot News', u'http://www.todayonline.com/hot-news/feed'),
+                         (u'Singapore', u'http://www.todayonline.com/feed/singapore'),
+                         (u'World', u'http://www.todayonline.com/feed/world'),
+                         (u'Business', u'http://www.todayonline.com/feed/business'),
+                         (u'Tech', u'http://www.todayonline.com/feed/tech'),
+                         (u'Voices', u'http://www.todayonline.com/feed/voices'),
+                         (u'Commentary', u'http://www.todayonline.com/feed/Commentary'),
+                         (u'Daily Focus', u'http://www.todayonline.com/feed/daily-focus'),
+                         (u'Lifestyle', u'http://www.todayonline.com/feed/lifestyle'),
+                         ]
     keep_only_tags = [
-                                       dict(name='div', attrs={'id':['fullPrintBodyHolder']})
+                                       dict(name='div', attrs='print-content')
                         ]
-    remove_tags_after = [  dict(name='div', attrs={'class':'button'})]
-
 
     remove_tags = [
-                    dict(name='div', attrs={'class':['url','button']})
-                         ]
-    feeds          = [
-                         (u'Singapore', u'http://www.todayonline.com/RSS/Singapore'),
-                         (u'Hot News', u'http://www.todayonline.com/RSS/Hotnews'),
-                        (u'Today Online', u'http://www.todayonline.com/RSS/Todayonline'),
-                        (u'Voices', u'http://www.todayonline.com/RSS/Voices'),
-                        (u'Commentary', u'http://www.todayonline.com/RSS/Commentary'),
-                        (u'World', u'http://www.todayonline.com/RSS/World'),
-                        (u'Business', u'http://www.todayonline.com/RSS/Business'),
-                        (u'Column', u'http://www.todayonline.com/RSS/Columns'),
-                      ]
+                    dict(name='div', attrs={'class':['url','button']}),
+                    dict(name='div', attrs={'class':'node-type-print-edition'}),
+                    dict(name='div', attrs={'class':['field field-name-field-article-section field-type-taxonomy-term-reference field-label-hidden','field field-name-field-article-abstract field-type-text-long field-label-hidden','authoring']})
 
+                ]
     def get_obfuscated_article(self, url):
         br = self.get_browser()
         br.open(url)
-        response = br.follow_link(url_regex = r'/Print/', nr = 0)
+        response = br.follow_link(url_regex = r'/print/', nr = 0)
         html = response.read()
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(html)
@@ -55,5 +56,5 @@ class AdvancedUserRecipe1276486274(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
-           del item['style']
+            del item['style']
         return soup
