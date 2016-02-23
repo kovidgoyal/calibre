@@ -553,13 +553,10 @@ def search(ctx, rd, library_id):
     with db.safe_read_lock:
         return search_result(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'))
 
+# }}}
 
 @endpoint('/ajax/library-info', postprocess=json)
 def library_info(ctx, rd):
     ' Return info about available libraries '
     library_map, default_library = ctx.library_info(rd)
     return {'library_map':library_map, 'default_library':default_library}
-
-# }}}
-
-
