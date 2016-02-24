@@ -39,13 +39,16 @@ class RuleEdit(QWidget):
                 ('not_matches', _('does not match pattern'))
     ))
 
+    MSG = _('Create the rule below, the rule can be used to remove or replace tags')
+    SUBJECT = _('the tag, if it')
+    VALUE_ERROR = _('You must provide a value for the tag to match')
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
         self.h = h = QHBoxLayout()
 
-        self.la = la = QLabel(_(
-            'Create the rule below, the rule can be used to remove or replace tags'))
+        self.la = la = QLabel(self.MSG)
         la.setWordWrap(True)
         l.addWidget(la)
         l.addLayout(h)
@@ -54,7 +57,7 @@ class RuleEdit(QWidget):
         for action, text in self.ACTION_MAP.iteritems():
             a.addItem(text, action)
         a.currentIndexChanged.connect(self.update_state)
-        self.la1 = la = QLabel('\xa0' + _('the tag, if it') + '\xa0')
+        self.la1 = la = QLabel('\xa0' + self.SUBJECT + '\xa0')
         h.addWidget(la)
         self.match_type = q = QComboBox(self)
         h.addWidget(q)
@@ -72,6 +75,7 @@ class RuleEdit(QWidget):
         self.replace = r = QLineEdit(self)
         h.addWidget(r)
         l.addStretch(10)
+        self.la3.setVisible(False), self.replace.setVisible(False)
         self.update_state()
 
     def sizeHint(self):
@@ -112,8 +116,7 @@ class RuleEdit(QWidget):
     def validate(self):
         rule = self.rule
         if not rule['query']:
-            error_dialog(self, _('Query required'), _(
-                'You must provide a value for the tag to match'), show=True)
+            error_dialog(self, _('Query required'), self.VALUE_ERROR, show=True)
             return False
         if 'matches' in rule['match_type']:
             try:
@@ -126,12 +129,16 @@ class RuleEdit(QWidget):
 
 class RuleEditDialog(Dialog):
 
+    PREFS_NAME = 'edit-tag-mapper-rule'
+    DIALOG_TITLE = _('Edit rule')
+    RuleEditClass = RuleEdit
+
     def __init__(self, parent=None):
-        Dialog.__init__(self, _('Edit rule'), 'edit-tag-mapper-rule', parent=None)
+        Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=None)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
-        self.edit_widget = w = RuleEdit(self)
+        self.edit_widget = w = self.RuleEditClass(self)
         l.addWidget(w)
         l.addWidget(self.bb)
 
@@ -185,14 +192,19 @@ class Delegate(QStyledItemDelegate):
 
 class Rules(QWidget):
 
+    RuleItemClass = RuleItem
+    RuleEditDialogClass = RuleEditDialog
+
+    MSG = _('You can specify rules to filter/transform tags here. Click the "Add Rule" button'
+            ' below to get started. The rules will be processed in order for every tag until either a'
+            ' "remove" or a "keep" rule matches.')
+
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = l = QVBoxLayout(self)
 
         self.msg_label = la = QLabel(
-            '<p>' + _('You can specify rules to filter/transform tags here. Click the "Add Rule" button'
-            ' below to get started. The rules will be processed in order for every tag until either a'
-            ' "remove" or a "keep" rule matches.') + '<p>' + _(
+            '<p>' + self.MSG + '<p>' + _(
             'You can <b>change an existing rule</b> by double clicking it')
         )
         la.setWordWrap(True)
@@ -233,20 +245,20 @@ class Rules(QWidget):
         return QSize(800, 600)
 
     def add_rule(self):
-        d = RuleEditDialog(self)
+        d = self.RuleEditDialogClass(self)
         if d.exec_() == d.Accepted:
-            i = RuleItem(d.edit_widget.rule, self.rule_list)
+            i = self.RuleItemClass(d.edit_widget.rule, self.rule_list)
             self.rule_list.scrollToItem(i)
 
     def edit_rule(self):
         i = self.rule_list.currentItem()
         if i is not None:
-            d = RuleEditDialog(self)
+            d = self.RuleEditDialogClass(self)
             d.edit_widget.rule = i.data(Qt.UserRole)
             if d.exec_() == d.Accepted:
                 rule = d.edit_widget.rule
                 i.setData(DATA_ROLE, rule)
-                i.setData(RENDER_ROLE, RuleItem.text_from_rule(rule, self.rule_list))
+                i.setData(RENDER_ROLE, self.RuleItemClass.text_from_rule(rule, self.rule_list))
 
     def remove_rules(self):
         for item in self.rule_list.selectedItems():
@@ -282,23 +294,28 @@ class Rules(QWidget):
         self.rule_list.clear()
         for rule in rules:
             if 'action' in rule and 'match_type' in rule and 'query' in rule:
-                RuleItem(rule, self.rule_list)
+                self.RuleItemClass(rule, self.rule_list)
 
 class Tester(Dialog):
 
+    DIALOG_TITLE = _('Test tag mapper rules')
+    PREFS_NAME = 'test-tag-mapper-rules'
+    LABEL = _('Enter a comma separated list of &tags to test:')
+    PLACEHOLDER = _('Enter tags and click the Test button')
+    EMPTY_RESULT = '<p>&nbsp;<br>&nbsp;</p>'
+
     def __init__(self, rules, parent=None):
         self.rules = rules
-        Dialog.__init__(self, _('Test tag mapper rules'), 'test-tag-mapper-rules', parent=parent)
+        Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
         self.bb.setStandardButtons(self.bb.Close)
-        self.la = la = QLabel(_(
-            'Enter a comma separated list of &tags to test:'))
+        self.la = la = QLabel(self.LABEL)
         l.addWidget(la)
         self.tags = t = QLineEdit(self)
         la.setBuddy(t)
-        t.setPlaceholderText(_('Enter tags and click the Test button'))
+        t.setPlaceholderText(self.PLACEHOLDER)
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         h.addWidget(t)
@@ -307,25 +324,39 @@ class Tester(Dialog):
         h.addWidget(b)
         self.result = la = QLabel(self)
         la.setWordWrap(True)
-        la.setText('<p>&nbsp;<br>&nbsp;</p>')
+        la.setText(self.EMPTY_RESULT)
         l.addWidget(la)
         l.addWidget(self.bb)
 
+    @property
+    def value(self):
+        return self.tags.text()
+
     def do_test(self):
-        tags = [x.strip() for x in self.tags.text().split(',')]
+        tags = [x.strip() for x in self.value.split(',')]
         tags = map_tags(tags, self.rules)
         self.result.setText(_('<b>Resulting tags:</b> %s') % ', '.join(tags))
 
+    def sizeHint(self):
+        ans = Dialog.sizeHint(self)
+        ans.setWidth(ans.width() + 150)
+        return ans
 
 class RulesDialog(Dialog):
 
+    DIALOG_TITLE = _('Edit tag mapper rules')
+    PREFS_NAME = 'edit-tag-mapper-rules'
+    RulesClass = Rules
+    TesterClass = Tester
+    PREFS_OBJECT = tag_maps
+
     def __init__(self, parent=None):
         self.loaded_ruleset = None
-        Dialog.__init__(self, _('Edit tag mapper rules'), 'edit-tag-mapper-rules', parent=parent)
+        Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
 
     def setup_ui(self):
         self.l = l = QVBoxLayout(self)
-        self.edit_widget = w = Rules(self)
+        self.edit_widget = w = self.RulesClass(self)
         l.addWidget(w)
         l.addWidget(self.bb)
         self.save_button = b = self.bb.addButton(_('&Save'), self.bb.ActionRole)
@@ -362,33 +393,33 @@ class RulesDialog(Dialog):
                 self.loaded_ruleset = text
             rules = self.rules
             if rules:
-                tag_maps[text] = self.rules
-            elif text in tag_maps:
-                del tag_maps[text]
+                self.PREFS_OBJECT[text] = self.rules
+            elif text in self.PREFS_OBJECT:
+                del self.PREFS_OBJECT[text]
             self.build_load_menu()
 
     def build_load_menu(self):
         self.load_menu.clear()
-        if len(tag_maps):
-            for name, rules in tag_maps.iteritems():
+        if len(self.PREFS_OBJECT):
+            for name, rules in self.PREFS_OBJECT.iteritems():
                 self.load_menu.addAction(name).triggered.connect(partial(self.load_ruleset, name))
             self.load_menu.addSeparator()
             m = self.load_menu.addMenu(_('Delete saved rulesets'))
-            for name, rules in tag_maps.iteritems():
+            for name, rules in self.PREFS_OBJECT.iteritems():
                 m.addAction(name).triggered.connect(partial(self.delete_ruleset, name))
         else:
             self.load_menu.addAction(_('No saved rulesets available'))
 
     def load_ruleset(self, name):
-        self.rules = tag_maps[name]
+        self.rules = self.PREFS_OBJECT[name]
         self.loaded_ruleset = name
 
     def delete_ruleset(self, name):
-        del tag_maps[name]
+        del self.PREFS_OBJECT[name]
         self.build_load_menu()
 
     def test_rules(self):
-        Tester(self.rules, self).exec_()
+        self.TesterClass(self.rules, self).exec_()
 
 if __name__ == '__main__':
     app = Application([])
