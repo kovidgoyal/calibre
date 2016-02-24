@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, time
+import os, time, re
 from collections import defaultdict
 from future_builtins import map
 
@@ -21,6 +21,34 @@ def formats_ok(formats):
 
 def path_ok(path):
     return not os.path.isdir(path) and os.access(path, os.R_OK)
+
+def compile_glob(pat):
+    import fnmatch
+    return re.compile(fnmatch.translate(pat), flags=re.I)
+
+def compile_rule(rule):
+    mt = rule['match_type']
+    if 'with' in mt:
+        q = icu_lower(rule['query'])
+        if 'startswith' in mt:
+            func = lambda filename: icu_lower(filename).startswith(q)
+        else:
+            func = lambda filename: icu_lower(filename).endswith(q)
+    elif 'glob' in mt:
+        q = compile_glob(rule['query'])
+        func  = lambda filename: q.match(filename) is not None
+    else:
+        q = re.compile(rule['query'])
+        func  = lambda filename: q.match(filename) is not None
+    ans = func
+    if mt.startswith('not_'):
+        ans = lambda filename: not func(filename)
+    return ans, rule['action'] == 'add'
+
+def filter_filename(compiled_rules, filename):
+    for q, action in compiled_rules:
+        if q(filename):
+            return action
 
 _metadata_extensions = None
 
@@ -43,24 +71,30 @@ def listdir(root, sort_by_mtime=False):
         items = sorted(items, key=safe_mtime)
 
     for path in items:
-        yield path
+        if path_ok(path):
+            yield path
 
-def find_books_in_directory(dirpath, single_book_per_directory):
+def allow_path(path, ext, compiled_rules):
+    ans = filter_filename(compiled_rules, os.path.basename(path))
+    if ans is None:
+        ans = ext in metadata_extensions()
+    return ans
+
+def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(), listdir_impl=listdir):
     dirpath = os.path.abspath(dirpath)
-    book_extentions = metadata_extensions()
     if single_book_per_directory:
         formats = {}
-        for path in listdir(dirpath):
+        for path in listdir_impl(dirpath):
             key, ext = splitext(path)
-            if ext in book_extentions and path_ok(path):
+            if allow_path(path, ext, compiled_rules):
                 formats[ext] = path
         if formats_ok(formats):
             yield list(formats.itervalues())
     else:
         books = defaultdict(dict)
-        for path in listdir(dirpath, sort_by_mtime=True):
+        for path in listdir_impl(dirpath, sort_by_mtime=True):
             key, ext = splitext(path)
-            if ext in book_extentions and path_ok(path):
+            if allow_path(path, ext, compiled_rules):
                 books[icu_lower(key) if isinstance(key, unicode) else key.lower()][ext] = path
 
         for formats in books.itervalues():

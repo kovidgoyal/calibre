@@ -185,6 +185,13 @@ Title match ignores leading indefinite articles (&quot;the&quot;, &quot;a&quot;,
          </property>
         </widget>
        </item>
+       <item row="8" column="2">
+        <widget class="QPushButton" name="add_filter_rules_button">
+         <property name="text">
+          <string>Rules to &amp;filter added files</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_4">

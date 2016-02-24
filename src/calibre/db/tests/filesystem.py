@@ -161,3 +161,24 @@ class FilesystemTest(BaseTest):
                     for fmt in cache.formats(book_id):
                         self.assertEqual(cache.format(book_id, fmt), ic.format(book_id, fmt))
                         self.assertEqual(cache.format_metadata(book_id, fmt)['mtime'], cache.format_metadata(book_id, fmt)['mtime'])
+
+    def test_find_books_in_directory(self):
+        from calibre.db.adding import find_books_in_directory, compile_rule
+        strip = lambda files: frozenset({os.path.basename(x) for x in files})
+        def q(one, two):
+            one, two = {strip(a) for a in one}, {strip(b) for b in two}
+            self.assertEqual(one, two)
+        def r(action='ignore', match_type='startswith', query=''):
+            return {'action':action, 'match_type':match_type, 'query':query}
+        def c(*rules):
+            return tuple(map(compile_rule, rules))
+
+        files = ['added.epub', 'ignored.md', 'non-book.other']
+        q(['added.epub ignored.md'.split()], find_books_in_directory('', True, listdir_impl=lambda x: files))
+        q([['added.epub'], ['ignored.md']], find_books_in_directory('', False, listdir_impl=lambda x, **k: files))
+        for rules in (
+                c(r(query='ignored.'), r(action='add', match_type='endswith', query='.OTHER')),
+                c(r(match_type='glob', query='*.md'), r(action='add', match_type='matches', query=r'.+\.other$')),
+                c(r(match_type='not_startswith', query='IGnored.', action='add'), r(query='ignored.md')),
+        ):
+            q(['added.epub non-book.other'.split()], find_books_in_directory('', True, compiled_rules=rules, listdir_impl=lambda x: files))

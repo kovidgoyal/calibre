@@ -11,13 +11,14 @@ from threading import Thread
 from collections import OrderedDict
 from Queue import Empty
 from io import BytesIO
+from future_builtins import map
 
 from PyQt5.Qt import QObject, Qt, pyqtSignal
 
 from calibre import prints, as_unicode
 from calibre.constants import DEBUG
 from calibre.customize.ui import run_plugins_on_postimport, run_plugins_on_postadd
-from calibre.db.adding import find_books_in_directory
+from calibre.db.adding import find_books_in_directory, compile_rule
 from calibre.db.utils import find_identical_books
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
@@ -119,9 +120,16 @@ class Adder(QObject):
 
     def scan(self):
 
+        try:
+            compiled_rules = tuple(map(compile_rule, gprefs.get('add_filter_rules', ())))
+        except Exception:
+            compiled_rules = ()
+            import traceback
+            traceback.print_exc()
+
         def find_files(root):
             for dirpath, dirnames, filenames in os.walk(root):
-                for files in find_books_in_directory(dirpath, self.single_book_per_directory):
+                for files in find_books_in_directory(dirpath, self.single_book_per_directory, compiled_rules=compiled_rules):
                     if self.abort_scan:
                         return
                     self.file_groups[len(self.file_groups)] = files

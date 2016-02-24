@@ -9,11 +9,13 @@ __docformat__ = 'restructuredtext en'
 
 import os, tempfile, shutil, time
 from threading import Thread, Event
+from future_builtins import map
 
 from PyQt5.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer)
 
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.db.adding import filter_filename, compile_rule
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
@@ -47,6 +49,22 @@ class Worker(Thread):
         self.path, self.callback = path, callback
         self.staging = set()
         self.allowed = allowed_formats()
+        self.read_rules()
+
+    def read_rules(self):
+        try:
+            self.compiled_rules = tuple(map(compile_rule, gprefs.get('add_filter_rules', ())))
+        except Exception:
+            self.compiled_rules = ()
+            import traceback
+            traceback.print_exc()
+
+    def is_filename_allowed(self, filename):
+        allowed = filter_filename(self.compiled_rules, filename)
+        if allowed is None:
+            ext = os.path.splitext(filename)[1][1:].lower()
+            allowed = ext in self.allowed
+        return allowed
 
     def run(self):
         self.tdir = PersistentTemporaryDirectory('_auto_adder')
@@ -76,7 +94,7 @@ class Worker(Thread):
                     # Must have read and write permissions
                     os.access(os.path.join(self.path, x), os.R_OK|os.W_OK) and
                     # Must be a known ebook file type
-                    os.path.splitext(x)[1][1:].lower() in self.allowed
+                    self.is_filename_allowed(x)
                 ]
         data = {}
         # Give any in progress copies time to complete
@@ -148,6 +166,10 @@ class AutoAdder(QObject):
         elif path:
             prints(path,
                 'is not a valid directory to watch for new ebooks, ignoring')
+
+    def read_rules(self):
+        if hasattr(self, 'worker'):
+            self.worker.read_rules()
 
     def initialize(self):
         try:
