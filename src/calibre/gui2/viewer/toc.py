@@ -13,7 +13,7 @@ from functools import partial
 from PyQt5.Qt import (
     QStandardItem, QStandardItemModel, Qt, QFont, QTreeView, QWidget,
     QHBoxLayout, QToolButton, QIcon, QModelIndex, pyqtSignal, QMenu,
-    QStyledItemDelegate, QToolTip)
+    QStyledItemDelegate, QToolTip, QApplication)
 
 from calibre.ebooks.metadata.toc import TOC as MTOC
 from calibre.gui2 import error_dialog
@@ -93,6 +93,8 @@ class TOCView(QTreeView):
         m.addSeparator()
         m.addAction(_('Expand all items'), self.expandAll)
         m.addAction(_('Collapse all items'), self.collapseAll)
+        m.addSeparator()
+        m.addAction(_('Copy table of contents to clipboard'), self.copy_to_clipboard)
         m.exec_(self.mapToGlobal(pos))
 
     def keyPressEvent(self, event):
@@ -102,6 +104,10 @@ class TOCView(QTreeView):
         except AttributeError:
             pass
         return QTreeView.keyPressEvent(self, event)
+
+    def copy_to_clipboard(self):
+        m = self.model()
+        QApplication.clipboard().setText(getattr(m, 'as_plain_text', ''))
 
 class TOCSearch(QWidget):
 
@@ -383,3 +389,10 @@ class TOC(QStandardItemModel):
             index = self.indexFromItem(item)
             return index
         return QModelIndex()
+
+    @property
+    def as_plain_text(self):
+        lines = []
+        for item in self.all_items:
+            lines.append(' ' * (4 * item.depth) + (item.title or ''))
+        return '\n'.join(lines)
