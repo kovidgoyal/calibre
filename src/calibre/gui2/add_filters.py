@@ -104,7 +104,9 @@ class Rules(RulesBase):
 
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
-    MSG = _('You can specify rules to add/ignore files here. Click the "Add Rule" button'
+    MSG = _('You can specify rules to add/ignore files here. They will be used'
+            ' when recursively adding files from directories/archives and also'
+            ' when auto-adding. Click the "Add Rule" button'
             ' below to get started. The rules will be processed in order for every file until either an'
             ' "add" or an "ignore" rule matches. If no rules match, the file will be added only'
             ' if its file extension is of a known ebook type.')
