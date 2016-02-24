@@ -10,9 +10,11 @@ Command line interface to the calibre database.
 import sys, os, cStringIO, re
 import unicodedata
 from textwrap import TextWrapper
+from optparse import OptionValueError, OptionGroup
 
 from calibre import preferred_encoding, prints, isbytestring, patheq
 from calibre.constants import iswindows
+from calibre.db.adding import compile_rule
 from calibre.db.legacy import LibraryDatabase
 from calibre.utils.config import OptionParser, prefs, tweaks
 from calibre.ebooks.metadata.meta import get_metadata
@@ -48,10 +50,13 @@ def write_dirtied(db):
 def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group(_('GLOBAL OPTIONS'))
+    go.is_global_options = True
     go.add_option('--library-path', '--with-library', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
     go.add_option('--dont-notify-gui', default=False, action='store_true',
             help=_('Do not notify the running calibre GUI (if any) that the database has'
                 ' changed. Use with care, as it can lead to database corruption!'))
+    go.add_option('-h', '--help', help=_('show this help message and exit'), action='help')
+    go.add_option('--version', help=_("show program's version number and exit"), action='version')
 
     return parser
 
@@ -255,7 +260,7 @@ class DevNull(object):
 NULL = DevNull()
 
 def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
-        oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages):
+        oauthors, oisbn, otags, oseries, oseries_index, ocover, oidentifiers, olanguages, compiled_rules):
     orig = sys.stdout
     # sys.stdout = NULL
     try:
@@ -307,14 +312,15 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
             added_ids |= set(ids)
 
         dir_dups = []
+
         for dir in dirs:
             if recurse:
                 dir_dups.extend(db.recursive_import(dir,
                     single_book_per_directory=one_book_per_directory,
-                    added_ids=added_ids))
+                    added_ids=added_ids, compiled_rules=compiled_rules))
             else:
                 func = db.import_book_directory if one_book_per_directory else db.import_book_directory_multiple
-                dups = func(dir, added_ids=added_ids)
+                dups = func(dir, added_ids=added_ids, compiled_rules=compiled_rules)
                 if not dups:
                     dups = []
                 dir_dups.extend(dups)
@@ -362,10 +368,6 @@ Add the specified files as books to the database. You can also specify directori
 the directory related options below.
 '''
                             ))
-    parser.add_option('-1', '--one-book-per-directory', action='store_true', default=False,
-                      help=_('Assume that each directory has only a single logical book and that all files in it are different e-book formats of that book'))
-    parser.add_option('-r', '--recurse', action='store_true', default=False,
-                      help=_('Process directories recursively'))
     parser.add_option('-d', '--duplicates', action='store_true', default=False,
                       help=_('Add books to database even if they already exist. Comparison is done based on book titles.'))
     parser.add_option('-e', '--empty', action='store_true', default=False,
@@ -388,6 +390,33 @@ the directory related options below.
             help=_('Path to the cover to use for the added book'))
     parser.add_option('-l', '--languages', default=None,
             help=_('A comma separated list of languages (best to use ISO639 language codes, though some language names may also be recognized)'))
+
+    g = OptionGroup(parser, _('ADDING FROM DIRECTORIES'), _(
+        'Options to control the adding of books from directories. By default only files that have extensions of known e-book file types are added.'))
+    def filter_pat(option, opt, value, parser, action):
+        try:
+            getattr(parser.values, option.dest).append(compile_rule({'match_type':'glob', 'query':value, 'action':action}))
+        except Exception:
+            raise OptionValueError('%r is not a valid filename pattern' % value)
+
+    g.add_option('-1', '--one-book-per-directory', action='store_true', default=False,
+                      help=_('Assume that each directory has only a single logical book and that all files in it are different e-book formats of that book'))
+    g.add_option('-r', '--recurse', action='store_true', default=False,
+                      help=_('Process directories recursively'))
+    def fadd(opt, action, help):
+        g.add_option(
+            opt, action='callback', type='string', nargs=1, default=[],
+            callback=filter_pat, dest='filters', callback_args=(action,),
+            metavar=_('GLOB PATTERN'), help=help
+        )
+
+    fadd('--ignore', 'ignore', _(
+        'A filename (glob) pattern, files matching this pattern will be ignored when scanning directories for files.'
+        ' Can be specified multiple times for multiple patterns. For e.g.: *.pdf will ignore all pdf files'))
+    fadd('--add', 'add', _(
+        'A filename (glob) pattern, files matching this pattern will be added when scanning directories for files,'
+        ' even if they are not of a known ebook file type. Can be specified multiple times for multiple patterns.'))
+    parser.add_option_group(g)
 
     return parser
 
@@ -436,7 +465,7 @@ def command_add(args, dbpath):
         return 1
     do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory,
             opts.recurse, opts.duplicates, opts.title, aut, opts.isbn,
-            tags, opts.series, opts.series_index, opts.cover, identifiers, lcodes)
+            tags, opts.series, opts.series_index, opts.cover, identifiers, lcodes, opts.filters)
     return 0
 
 def do_remove(db, ids):

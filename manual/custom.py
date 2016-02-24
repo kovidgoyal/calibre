@@ -111,6 +111,11 @@ def generate_calibredb_help(preamble, app):
         lines += ['']
         lines += render_options('calibredb '+cmd, groups, False)
         lines += ['']
+        for group in parser.option_groups:
+            if not getattr(group, 'is_global_options', False):
+                lines.extend(render_options(
+                    'calibredb_' + cmd, [[group.title.capitalize(), group.description, group.option_list]], False, False, header_level='^'))
+        lines += ['']
 
     raw = preamble + '\n\n'+'.. contents::\n  :local:'+ '\n\n' + global_options+'\n\n'+'\n'.join(lines)
     update_cli_doc('calibredb', raw, app)
@@ -169,7 +174,7 @@ def update_cli_doc(name, raw, app):
             os.makedirs(p)
         open(path, 'wb').write(raw)
 
-def render_options(cmd, groups, options_header=True, add_program=True):
+def render_options(cmd, groups, options_header=True, add_program=True, header_level='~'):
     lines = ['']
     if options_header:
         lines = ['[options]', '-'*15, '']
@@ -177,7 +182,7 @@ def render_options(cmd, groups, options_header=True, add_program=True):
         lines += ['.. program:: '+cmd, '']
     for title, desc, options in groups:
         if title:
-            lines.extend([title, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'])
+            lines.extend([title, header_level * (len(title) + 4)])
             lines.append('')
         if desc:
             lines.extend([desc, ''])

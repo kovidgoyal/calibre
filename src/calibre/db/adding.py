@@ -102,11 +102,11 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
                 yield list(formats.itervalues())
 
 def import_book_directory_multiple(db, dirpath, callback=None,
-        added_ids=None):
+        added_ids=None, compiled_rules=()):
     from calibre.ebooks.metadata.meta import metadata_from_formats
 
     duplicates = []
-    for formats in find_books_in_directory(dirpath, False):
+    for formats in find_books_in_directory(dirpath, False, compiled_rules=compiled_rules):
         mi = metadata_from_formats(formats)
         if mi.title is None:
             continue
@@ -121,11 +121,11 @@ def import_book_directory_multiple(db, dirpath, callback=None,
                 break
     return duplicates
 
-def import_book_directory(db, dirpath, callback=None, added_ids=None):
+def import_book_directory(db, dirpath, callback=None, added_ids=None, compiled_rules=()):
     from calibre.ebooks.metadata.meta import metadata_from_formats
     dirpath = os.path.abspath(dirpath)
     formats = None
-    for formats in find_books_in_directory(dirpath, True):
+    for formats in find_books_in_directory(dirpath, True, compiled_rules=compiled_rules):
         break
     if not formats:
         return
@@ -141,14 +141,14 @@ def import_book_directory(db, dirpath, callback=None, added_ids=None):
         callback(mi.title)
 
 def recursive_import(db, root, single_book_per_directory=True,
-        callback=None, added_ids=None):
+        callback=None, added_ids=None, compiled_rules=()):
     root = os.path.abspath(root)
     duplicates  = []
     for dirpath in os.walk(root):
         res = (import_book_directory(db, dirpath[0], callback=callback,
-            added_ids=added_ids) if single_book_per_directory else
+            added_ids=added_ids, compiled_rules=compiled_rules) if single_book_per_directory else
             import_book_directory_multiple(db, dirpath[0],
-                callback=callback, added_ids=added_ids))
+                callback=callback, added_ids=added_ids, compiled_rules=compiled_rules))
         if res is not None:
             duplicates.extend(res)
         if callable(callback):

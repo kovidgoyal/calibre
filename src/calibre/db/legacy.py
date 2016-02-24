@@ -247,19 +247,18 @@ class LibraryDatabase(object):
             self.notify('add', book_ids)
         return book_ids[0]
 
-    def find_books_in_directory(self, dirpath, single_book_per_directory):
-        return find_books_in_directory(dirpath, single_book_per_directory)
+    def find_books_in_directory(self, dirpath, single_book_per_directory, compiled_rules=()):
+        return find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=compiled_rules)
 
-    def import_book_directory_multiple(self, dirpath, callback=None,
-            added_ids=None):
-        return import_book_directory_multiple(self, dirpath, callback=callback, added_ids=added_ids)
+    def import_book_directory_multiple(self, dirpath, callback=None, added_ids=None, compiled_rules=()):
+        return import_book_directory_multiple(self, dirpath, callback=callback, added_ids=added_ids, compiled_rules=compiled_rules)
 
-    def import_book_directory(self, dirpath, callback=None, added_ids=None):
-        return import_book_directory(self, dirpath, callback=callback, added_ids=added_ids)
+    def import_book_directory(self, dirpath, callback=None, added_ids=None, compiled_rules=()):
+        return import_book_directory(self, dirpath, callback=callback, added_ids=added_ids, compiled_rules=compiled_rules)
 
-    def recursive_import(self, root, single_book_per_directory=True,
-            callback=None, added_ids=None):
-        return recursive_import(self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids)
+    def recursive_import(self, root, single_book_per_directory=True, callback=None, added_ids=None, compiled_rules=()):
+        return recursive_import(
+            self, root, single_book_per_directory=single_book_per_directory, callback=callback, added_ids=added_ids, compiled_rules=compiled_rules)
 
     def add_catalog(self, path, title):
         book_id, new_book_added = add_catalog(self.new_api, path, title, dbapi=self)
