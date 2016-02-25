@@ -89,6 +89,13 @@ class Context(object):
         self.testing = testing
         self.lock = Lock()
         self.user_manager = UserManager(opts.userdb)
+        self.ignored_fields = frozenset(filter(None, (x.strip() for x in (opts.ignored_fields or '').split(','))))
+        self.displayed_fields = frozenset(filter(None, (x.strip() for x in (opts.displayed_fields or '').split(','))))
+
+    def is_field_displayable(self, field):
+        if self.displayed_fields and field not in self.displayed_fields:
+            return False
+        return field not in self.ignored_fields
 
     def init_session(self, endpoint, data):
         pass

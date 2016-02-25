@@ -124,9 +124,21 @@ raw_options = (
     _('Set the HTTP authentication mode used by the server. Set to "basic" is you are'
     ' putting this server behind an SSL proxy. Otherwise, leave it as "auto", which'
     ' will use "basic" if SSL is configured otherwise it will use "digest".'),
+
+    _('Ignored user-defined metadata fields'),
+    'ignored_fields', None,
+    _('Comma separated list of user-defined metadata fields that will not be displayed'
+      ' by the content server in the /opds and /mobile views.'),
+
+    _('Only display user-defined fields'),
+    'displayed_fields', None,
+    _('Comma separated list of user-defined metadata fields that will be displayed'
+      ' by the content server in the /opds and /mobile views. If you specify this'
+      ' option, any fields not in this list will not be displayed.'),
+
+
 )
 assert len(raw_options) % 4 == 0
-# TODO: Mark these strings for translation, once you finalize the option set
 
 options = []
 

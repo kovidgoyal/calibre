@@ -181,7 +181,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
         extra.append(_('SERIES: %(series)s [%(sidx)s]<br />')%
                 dict(series=xml(mi.series),
                 sidx=fmt_sidx(float(mi.series_index))))
-    for key in field_metadata.ignorable_field_keys():
+    for key in filter(request_context.ctx.is_field_displayable, field_metadata.ignorable_field_keys()):
         name, val = mi.format_field(key)
         if val:
             fm = field_metadata[key]
