@@ -34,7 +34,7 @@ class Context(object):
 
     def __init__(self, root):
         try:
-            self.fb_ns = root.nsmap[root.prefix]
+            self.fb_ns = root.nsmap[root.prefix] or NAMESPACES['fb2']
         except Exception:
             self.fb_ns = NAMESPACES['fb2']
         self.namespaces = {
