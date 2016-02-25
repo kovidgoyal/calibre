@@ -166,7 +166,10 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
 
     au = authors_to_string(mi.authors or [_('Unknown')])
     title = mi.title or _('Unknown')
-    fname = '%s - %s_%s.%s' % (title[:30], au[:30], book_id, fmt)
+    ext = fmt
+    if ext == 'kepub' and 'Kobo Touch' in rd.inheaders.get('User-Agent', ''):
+        ext = 'kepub.epub'
+    fname = '%s - %s_%s.%s' % (title[:30], au[:30], book_id, ext)
     fname = ascii_filename(fname).replace('"', '_')
     rd.outheaders['Content-Disposition'] = 'attachment; filename="%s"' % fname
 

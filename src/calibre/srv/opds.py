@@ -15,10 +15,10 @@ from lxml import etree, html
 from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__
+from calibre.db.view import sanitize_sort_field_name
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string
 from calibre.library.comments import comments_to_html
 from calibre import guess_type, prepare_string_for_xml as xml
-from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.date import as_utc, timestampfromdt
 
@@ -45,17 +45,13 @@ def atom(ctx, rd, endpoint, output):
         ans = etree.tostring(output, encoding='utf-8', xml_declaration=True, pretty_print=True)
     return ans
 
-def format_tag_string(tags, sep, no_tag_count=False, joinval=', '):
+def format_tag_string(tags, sep, joinval=', '):
     if tags:
         tlist = tags if sep is None else [t.strip() for t in tags.split(sep)]
     else:
         tlist = []
     tlist.sort(key=sort_key)
-    if no_tag_count:
-        return joinval.join(tlist) if tlist else ''
-    else:
-        return u'%s:&:%s'%(tweaks['max_content_server_tags_shown'],
-                     joinval.join(tlist)) if tlist else ''
+    return joinval.join(tlist) if tlist else ''
 
 # Vocabulary for building OPDS feeds {{{
 E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
@@ -176,7 +172,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
         rating = u''.join(repeat(u'\u2605', int(mi.rating/2.)))
         extra.append(_('RATING: %s<br />')%rating)
     if mi.tags:
-        extra.append(_('TAGS: %s<br />')%xml(format_tag_string(mi.tags, None, no_tag_count=True)))
+        extra.append(_('TAGS: %s<br />')%xml(format_tag_string(mi.tags, None)))
     if mi.series:
         extra.append(_('SERIES: %(series)s [%(sidx)s]<br />')%
                 dict(series=xml(mi.series),
@@ -191,7 +187,6 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
                              (xml(name),
                               xml(format_tag_string(val,
                                     fm['is_multiple']['ui_to_list'],
-                                    no_tag_count=True,
                                     joinval=fm['is_multiple']['list_to_ui']))))
             elif datatype == 'comments' or (fm['datatype'] == 'composite' and
                             fm['display'].get('contains_html', False)):
@@ -363,6 +358,7 @@ def get_acquisition_feed(rc, ids, offset, page_url, up_url, id_,
     if not ids:
         raise HTTPNotFound('No books found')
     with rc.db.safe_read_lock:
+        sort_by = sanitize_sort_field_name(rc.db.field_metadata, sort_by)
         items = rc.db.multisort([(sort_by, ascending)], ids)
         max_items = rc.opts.max_opds_items
         offsets = Offsets(offset, max_items, len(items))
