@@ -87,7 +87,7 @@ def get_metadata(stream):
     root = _get_fbroot(stream)
     ctx = Context(root)
     book_title = _parse_book_title(root, ctx)
-    authors = _parse_authors(root, ctx)
+    authors = _parse_authors(root, ctx) or [_('Unknown')]
 
     # fallback for book_title
     if book_title:
