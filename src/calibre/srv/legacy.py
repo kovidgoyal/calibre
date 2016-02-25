@@ -47,7 +47,7 @@ def html(ctx, rd, endpoint, output):
 
 def build_search_box(num, search, sort, order, ctx, field_metadata):  # {{{
     div = E.div(id='search_box')
-    form = E.form('Show ', method='get', action=ctx.url_for('/mobile'))
+    form = E.form(_('Show '), method='get', action=ctx.url_for('/mobile'))
     form.set('accept-charset', 'UTF-8')
 
     div.append(form)
@@ -62,7 +62,7 @@ def build_search_box(num, search, sort, order, ctx, field_metadata):  # {{{
     form.append(num_select)
 
     searchf = E.input(name='search', id='s', value=search if search else '')
-    searchf.tail = ' sorted by '
+    searchf.tail = _(' sorted by ')
     form.append(searchf)
 
     sort_select = E.select(name='sort')
@@ -82,10 +82,10 @@ def build_search_box(num, search, sort, order, ctx, field_metadata):  # {{{
         order_select.append(E.option(option, **kwargs))
     form.append(order_select)
 
-    form.append(E.input(id='go', type='submit', value='Search'))
+    form.append(E.input(id='go', type='submit', value=_('Search')))
 
     return div
-    # }}}
+# }}}
 
 def build_navigation(start, num, total, url_base):  # {{{
     end = min((start+num-1), total)
@@ -107,14 +107,27 @@ def build_navigation(start, num, total, url_base):  # {{{
             class_='buttons')
     return E.div(tagline, buttons, class_='navigation')
 
-    # }}}
+# }}}
 
-def build_index(books, num, search, sort, order, start, total, url_base, field_metadata, ctx):  # {{{
+
+def build_choose_library(ctx, library_map):
+    select = E.select(name='library_id')
+    for library_id, library_name in library_map.iteritems():
+        select.append(E.option(library_name, value=library_id))
+    return E.div(
+        E.form(
+            _('Change library to: '), select, ' ', E.input(type='submit', value=_('Change library')),
+            method='GET', action=ctx.url_for('/mobile'), accept_charset='UTF-8'
+        ),
+        id='choose_library')
+
+def build_index(books, num, search, sort, order, start, total, url_base, field_metadata, ctx, library_map, library_id):  # {{{
     logo = E.div(E.img(src=ctx.url_for('/static', what='calibre.png'), alt=__appname__), id='logo')
-
     search_box = build_search_box(num, search, sort, order, ctx, field_metadata)
     navigation = build_navigation(start, num, total, url_base)
     navigation2 = build_navigation(start, num, total, url_base)
+    if library_map:
+        choose_library = build_choose_library(ctx, library_map)
     books_table = E.table(id='listing')
 
     body = E.body(
@@ -129,7 +142,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, field_m
 
     for book in books:
         thumbnail = E.td(
-                E.img(type='image/jpeg', border='0', src=ctx.url_for('/get', what='thumb', book_id=book.id),
+                E.img(type='image/jpeg', border='0', src=ctx.url_for('/get', what='thumb', book_id=book.id, library_id=library_id),
                       class_='thumbnail')
         )
 
@@ -140,7 +153,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, field_m
             s = E.span(
                 E.a(
                     fmt.lower(),
-                    href=ctx.url_for('/get', what=fmt, book_id=book.id)
+                    href=ctx.url_for('/get', what=fmt, book_id=book.id, library_id=library_id)
                 ),
                 class_='button')
             s.tail = u''
@@ -170,13 +183,16 @@ def build_index(books, num, search, sort, order, start, total, url_base, field_m
 
         books_table.append(E.tr(thumbnail, data))
 
+    if library_map:
+        body.append(choose_library)
     body.append(E.div(
         E.a(_('Switch to the full interface (non-mobile interface)'),
             href=ctx.url_for(None),
             style="text-decoration: none; color: blue",
             title=_('The full interface gives you many more features, '
-                'but it may not work well on a small screen')),
-        style="text-align:center"))
+                    'but it may not work well on a small screen')),
+        style="text-align:center")
+    )
     return E.html(
         E.head(
             E.title(__appname__ + ' Library'),
@@ -214,9 +230,10 @@ def mobile(ctx, rd):
         books = [db.get_metadata(book_id) for book_id in book_ids[(start-1):(start-1)+num]]
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(db.last_modified()))
     order = 'ascending' if ascending else 'descending'
-    q = {b'search':search.encode('utf-8'), b'order':bytes(order), b'sort':sort_by.encode('utf-8'), b'num':bytes(num)}
+    q = {b'search':search.encode('utf-8'), b'order':bytes(order), b'sort':sort_by.encode('utf-8'), b'num':bytes(num), 'library_id':library_id}
     url_base = ctx.url_for('/mobile') + '?' + urlencode(q)
-    return build_index(books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx)
+    lm = {k:v for k, v in library_map.iteritems() if k != library_id}
+    return build_index(books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)
 # }}}
 
 @endpoint('/browse/{+rest=""}')
