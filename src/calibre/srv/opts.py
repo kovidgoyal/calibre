@@ -53,7 +53,7 @@ raw_options = (
     'compress_min_size', 1024,
     None,
 
-    _('Number of worker threads to use to process requests'),
+    _('Number of worker threads used to process requests'),
     'worker_count', 10,
     None,
 
@@ -106,7 +106,7 @@ raw_options = (
     _('Enable/disable logging of not found http requests'),
     'log_not_found', True,
     _('By default, the server logs all HTTP requests for resources that are not found.'
-    ' Tis can generate a lot of log spam, if your server is targeted by bots.'
+    ' This can generate a lot of log spam, if your server is targeted by bots.'
     ' Use this option to turn it off.'),
 
     _('Enable/disable password based authentication to access the server'),
