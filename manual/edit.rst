@@ -260,7 +260,7 @@ Automated tools
 Edit book has various tools to help with common tasks. These are
 accessed via the :guilabel:`Tools` menu.
 
-Edit the Table of Contents
+Editing the Table of Contents
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 There is a dedicated tool to ease editing of the Table of Contents. Launch it
@@ -289,8 +289,8 @@ will show you the location. Click OK once you are happy with the location.
     :alt: The Edit Table of Contents tool, how to change the location an entry points to
     :align: center
 
-Check Book
-^^^^^^^^^^^^^
+Checking the Book
+^^^^^^^^^^^^^^^^^^^^^
 
 The :guilabel:`Check Book` tool searches your book for problems that could
 prevent it working as intended on actual reader devices. Activate it via
@@ -336,8 +336,8 @@ Some of the checks performed are:
     * Various compatibility checks for known problems that can cause the book
       to malfunction on reader devices.
 
-Add a cover
-^^^^^^^^^^^^
+Adding a cover
+^^^^^^^^^^^^^^^
 
 You can easily add a cover to the book via :guilabel:`Tools->Add cover`. This
 allows you to either choose an existing image in the book as the cover or
@@ -384,7 +384,7 @@ that don't match any actual content. These extra rules can slow down readers
 that need to process them all. Accessed via :guilabel:`Tools->Remove unused CSS`.
 
 
-Fix HTML
+Fixing HTML
 ^^^^^^^^^^^
 
 This tool simply converts HTML that cannot be parsed as XML into well-formed
@@ -419,8 +419,8 @@ beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
     for example: `HTML Tidy <http://infohound.net/tidy/>`_.
 
 
-Insert inline Table of Contents
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Inserting an inline Table of Contents
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Normally in ebooks, the Table of Contents is separate from the main text and is
 typically accessed via a special Table of Contents button/menu in the ebook
@@ -432,7 +432,7 @@ If you use this tool multiple times, each invocation will cause the previously
 created inline Table of Contents to be replaced. The tool can be accessed via
 :guilabel:`Tools->Table of Contents->Insert inline Table of Contents`.
 
-Set Semantics
+Setting Semantics
 ^^^^^^^^^^^^^^^^^
 
 This tool is used to set *semantics* in EPUB files. Semantics are simply,
@@ -442,7 +442,7 @@ table of contents, etc. Simply choose the type of semantic information you want
 to specify and then select the location in the book the link should point to.
 This tool can be accessed via :guilabel:`Tools->Set semantics`.
 
-Filter style information
+Filtering style information
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This tool can be used to easily remove specified CSS style properties from the
