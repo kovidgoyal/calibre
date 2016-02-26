@@ -20,6 +20,46 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.52.0
+  date: 2016-02-26
+
+  new features:
+    - title: "Allow creating rules to ignore files when adding books based on the filename"
+      description: "Useful when using the auto-add feature or when adding in bulk. Preferences->Adding Books->Rules to filter added files"
+
+    - title: "calibredb add: Allow specifying filters to control adding of books from directories"
+
+    - title: "E-book viewer: Allow copying the Table of Contents to the clipboard by right clicking on it."
+      tickets: [1548791]
+
+  bug fixes:
+    - title: "FB2 metadata: Ignore invalid (unidentifiable) cover images."
+      tickets: [1548417]
+
+    - title: "FB2 metadata: Fix error when adding books with non-numeric series numbers."
+      tickets: [1548405]
+
+    - title: "DOCX Input: Fix handling of toggle properties such as bold/italic/strikethrough/etc. when specified as document defaults."
+      tickets: [1548187]
+
+    - title: "Conversion pipeline: Add support for the q CSS length unit"
+
+  improved recipes:
+    - AsiaOne
+    - Today Online - Singapore
+    - Foreign Policy
+    - Outlook India
+    - Economic and Political Weekly
+    - Foreign Affairs
+    - El Pais
+    - LA Times
+    - Al-Ahram
+    - New York Times Book Review
+
+  new recipes:
+    - title: Al-Masry Alyoum 
+      author: Hassan Williamson
+
 - version: 2.51.0
   date: 2016-02-12
 
