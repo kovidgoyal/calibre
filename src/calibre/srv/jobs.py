@@ -214,7 +214,6 @@ class JobsManager(object):
     def job_finished(self, job_id):
         with self.lock:
             self.finished_jobs[job_id] = job = self.jobs.pop(job_id)
-        self.update_max_block()
         self.prune_finished_jobs()
         if job.traceback and not job.was_aborted:
             logdata = job.read_log()
