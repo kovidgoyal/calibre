@@ -121,7 +121,7 @@ raw_options = (
 
     _('Choose the type of authentication used'),
     'auth_mode', Choices('auto', 'basic', 'digest'),
-    _('Set the HTTP authentication mode used by the server. Set to "basic" is you are'
+    _('Set the HTTP authentication mode used by the server. Set to "basic" if you are'
     ' putting this server behind an SSL proxy. Otherwise, leave it as "auto", which'
     ' will use "basic" if SSL is configured otherwise it will use "digest".'),
 
