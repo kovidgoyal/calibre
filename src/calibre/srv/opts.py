@@ -57,6 +57,18 @@ raw_options = (
     'worker_count', 10,
     None,
 
+    _('Maximum number of worker processes'),
+    'max_jobs', 0,
+    _('Worker processes are launched as needed and used for large jobs such as preparing'
+      ' a book for viewing, adding books, converting, etc. By default, the max.'
+      ' number of such processes is based on the number of CPU cores. You can'
+      ' control it by this setting.'),
+
+    _('Maximum time for worker processes'),
+    'max_job_time', 60,
+    _('Maximum amount of time worker processes are allowed to run (in minutes). Set'
+      ' to zero for no limit.'),
+
     _('The port on which to listen for connections'),
     'port', 8080,
     None,

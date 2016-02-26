@@ -16,6 +16,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.srv.errors import JobQueueFull
 from calibre.srv.pool import ThreadPool, PluginPool
 from calibre.srv.opts import Options
+from calibre.srv.jobs import JobsManager
 from calibre.srv.utils import (
     socket_errors_socket_closed, socket_errors_nonblocking, HandleInterrupt,
     socket_errors_eintr, start_cork, stop_cork, DESIRED_SEND_BUFFER_SIZE,
@@ -313,6 +314,7 @@ class ServerLoop(object):
         self.handler = handler
         self.opts = opts or Options()
         self.log = log or ThreadSafeLog(level=ThreadSafeLog.DEBUG)
+        self.jobs_manager = JobsManager(self.opts, self.log)
         self.access_log = access_log
 
         ba = (self.opts.listen_on, int(self.opts.port))
@@ -607,6 +609,7 @@ class ServerLoop(object):
         self.wakeup()
 
     def shutdown(self):
+        self.jobs_manager.shutdown()
         try:
             if getattr(self, 'socket', None):
                 self.socket.close()
@@ -620,6 +623,7 @@ class ServerLoop(object):
             pool.stop(wait_till)
             if pool.workers:
                 self.log.warn('Failed to shutdown %d workers in %s cleanly' % (len(pool.workers), pool.__class__.__name__))
+        self.jobs_manager.wait_for_shutdown(wait_till)
 
 class EchoLine(Connection):  # {{{
 

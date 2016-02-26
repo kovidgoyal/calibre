@@ -80,6 +80,7 @@ class Context(object):
 
     log = None
     url_for = None
+    jobs_manager = None
     CATEGORY_CACHE_SIZE = 25
     SEARCH_CACHE_SIZE = 100
 
@@ -91,6 +92,12 @@ class Context(object):
         self.user_manager = UserManager(opts.userdb)
         self.ignored_fields = frozenset(filter(None, (x.strip() for x in (opts.ignored_fields or '').split(','))))
         self.displayed_fields = frozenset(filter(None, (x.strip() for x in (opts.displayed_fields or '').split(','))))
+
+    def start_job(self, name, module, func, args=(), kwargs=None):
+        return self.jobs_manager.start_job(name, module, func, args, kwargs)
+
+    def job_status(self, job_id):
+        return self.jobs_manager.job_status(job_id)
 
     def is_field_displayable(self, field):
         if self.displayed_fields and field not in self.displayed_fields:
@@ -192,6 +199,9 @@ class Handler(object):
         self.router.ctx.log = log
         if self.auth_controller is not None:
             self.auth_controller.log = log
+
+    def set_jobs_manager(self, jobs_manager):
+        self.router.ctx.jobs_manager = jobs_manager
 
     def close(self):
         self.router.ctx.library_broker.close()

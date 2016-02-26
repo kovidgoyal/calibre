@@ -69,6 +69,7 @@ class Server(object):
             plugins.append(BonJour())
         self.loop = ServerLoop(create_http_handler(self.handler.dispatch), opts=opts, log=log, access_log=access_log, plugins=plugins)
         self.handler.set_log(self.loop.log)
+        self.handler.set_jobs_manager(self.loop.jobs_manager)
         self.serve_forever = self.loop.serve_forever
         self.stop = self.loop.stop
         _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
