@@ -563,7 +563,7 @@ class TextEdit(PlainTextEdit):
             formats = self.highlighter.parse_single_block(c.block())[0]
         pos = c.positionInBlock()
         for r in formats:
-            if r.start <= pos < r.start + r.length and r.format.property(SPELL_PROPERTY):
+            if r.start <= pos <= r.start + r.length and r.format.property(SPELL_PROPERTY):
                 return r.format.property(SPELL_LOCALE_PROPERTY)
 
     def recheck_word(self, word, locale):
@@ -583,7 +583,7 @@ class TextEdit(PlainTextEdit):
             return
         pos = cursor.positionInBlock()
         for r in cursor.block().layout().additionalFormats():
-            if r.start <= pos < r.start + r.length and r.format.property(SYNTAX_PROPERTY):
+            if r.start <= pos <= r.start + r.length and r.format.property(SYNTAX_PROPERTY):
                 return r
 
     def syntax_format_for_cursor(self, cursor):
