@@ -695,7 +695,10 @@ def main(args=sys.argv):
     if opts.disable_plugin is not None:
         disable_plugin(opts.disable_plugin.strip())
     if opts.list_plugins:
-        fmt = '%-15s%-20s%-15s%-15s%s'
+        type_len = name_len = 0
+        for plugin in initialized_plugins():
+            type_len, name_len = max(type_len, len(plugin.type)), max(name_len, len(plugin.name))
+        fmt = '%-{}s%-{}s%-15s%-15s%s'.format(type_len+1, name_len+1)
         print fmt%tuple(('Type|Name|Version|Disabled|Site Customization'.split('|')))
         print
         for plugin in initialized_plugins():
