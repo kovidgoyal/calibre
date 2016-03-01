@@ -481,10 +481,7 @@ class EditMetadataAction(InterfaceAction):
             for row in rows:
                 if row.row() < rows[0].row():
                     dest_row -= 1
-            ci = self.gui.library_view.model().index(dest_row, 0)
-            if ci.isValid():
-                self.gui.library_view.setCurrentIndex(ci)
-                self.gui.library_view.model().current_changed(ci, ci)
+            self.gui.library_view.set_current_row(dest_row)
 
     def add_formats(self, dest_id, src_books, replace=False):
         for src_book in src_books:
