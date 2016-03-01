@@ -155,7 +155,7 @@ from the OPF file, saving you that chore. However, references in other places
 are not removed, you can use the Check Book tool to easily find and
 remove/replace them.
 
-Export of files
+Exporting files
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can export a file from inside the book to somewhere else on your computer.
@@ -689,7 +689,7 @@ websites. The tool will try to visit every externally linked website, and
 if the visit fails, it will report all broken links in a convenient format for 
 you to fix.
 
-Arrange files into folders by type
+Arranging files into folders by type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Often when editing EPUB files that you get from somewhere, you will find that
