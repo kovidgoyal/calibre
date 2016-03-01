@@ -6,14 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import ssl, socket, re, sys
+import ssl, socket, re
 from contextlib import closing
 
 from calibre import get_proxies
 from calibre.constants import ispy3
-# On OS X PROTOCOL_TLSv1_2 is not available because the SSL library shipped
-# with OS X is too old
-has_ssl_verify = sys.version_info[:3] > (2, 7, 8)
+has_ssl_verify = hasattr(ssl, 'create_default_context') and hasattr(ssl, '_create_unverified_context')
 
 class HTTPError(ValueError):
 

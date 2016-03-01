@@ -20,7 +20,7 @@ if enc.lower() == 'ascii':
     enc = 'utf-8'
 calibre_version = signature = None
 urllib = __import__('urllib.request' if py3 else 'urllib', fromlist=1)
-has_ssl_verify = hasattr(ssl, 'PROTOCOL_TLSv1_2') and sys.version_info[:3] > (2, 7, 8)
+has_ssl_verify = hasattr(ssl, 'create_default_context')
 
 if py3:
     unicode = str
