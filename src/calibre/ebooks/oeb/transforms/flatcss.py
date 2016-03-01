@@ -523,10 +523,17 @@ class CSSFlattener(object):
     def flatten_head(self, item, href, global_href):
         html = item.data
         head = html.find(XHTML('head'))
+        def safe_lower(x):
+            try:
+                x = x.lower()
+            except Exception:
+                pass
+            return x
+
         for node in html.xpath('//*[local-name()="style" or local-name()="link"]'):
             if node.tag == XHTML('link') \
-               and node.get('rel', 'stylesheet') == 'stylesheet' \
-               and node.get('type', CSS_MIME) in OEB_STYLES:
+               and safe_lower(node.get('rel', 'stylesheet')) == 'stylesheet' \
+               and safe_lower(node.get('type', CSS_MIME)) in OEB_STYLES:
                 node.getparent().remove(node)
             elif node.tag == XHTML('style') \
                  and node.get('type', CSS_MIME) in OEB_STYLES:
