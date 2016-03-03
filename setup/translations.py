@@ -7,6 +7,7 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex, json, errno
+from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
 
@@ -382,9 +383,39 @@ class GetTranslations(Translations):  # {{{
         self.tx('pull -a')
         if self.is_modified:
             self.check_for_errors()
+            self.check_for_user_manual_errors()
             self.upload_to_vcs()
         else:
             print ('No translations were updated')
+
+    def check_for_user_manual_errors(self):
+        self.info('Checking user manual translations...')
+        srcbase = self.j(self.d(self.SRC), 'translations', 'manual')
+        import polib
+        changes = defaultdict(set)
+        for lang in os.listdir(srcbase):
+            if lang.startswith('en_') or lang == 'en':
+                continue
+            q = self.j(srcbase, lang)
+            if not os.path.isdir(q):
+                continue
+            for po in os.listdir(q):
+                if not po.endswith('.po'):
+                    continue
+                f = polib.pofile(os.path.join(q, po))
+                changed = False
+                for entry in f.translated_entries():
+                    if '`generated/en/' in entry.msgstr:
+                        changed = True
+                        entry.msgstr = entry.msgstr.replace('`generated/en/', '`generated/' + lang + '/')
+                        bname = os.path.splitext(po)[0]
+                        slug = 'user_manual_' + bname
+                        changes[slug].add(lang)
+                if changed:
+                    f.save()
+        for slug, languages in changes.iteritems():
+            print('Pushing fixes for languages: %s in %s' % (', '.join(languages), slug))
+            self.tx('push -r calibre.%s -t -l %s' % (slug, ','.join(languages)))
 
     def check_for_errors(self):
         errors = os.path.join(tempfile.gettempdir(), 'calibre-translation-errors')
