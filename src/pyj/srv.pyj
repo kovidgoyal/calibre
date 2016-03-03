@@ -3,7 +3,7 @@
 
 from ajax import ajax
 from elementmaker import E
-from gettext import gettext as _
+from gettext import gettext as _, install
 from session import UserSessionData
 from utils import parse_url_params
 
@@ -15,6 +15,8 @@ def on_library_loaded(end_type, xhr, ev):
     p.parentNode.removeChild(p)
     if end_type == 'load':
         interface_data = JSON.parse(xhr.responseText)
+        if interface_data.translations:
+            install(interface_data.translations)
         sd = UserSessionData(interface_data['username'], interface_data['user_session_data'])
         set_session_data(sd)
         Boss(interface_data)

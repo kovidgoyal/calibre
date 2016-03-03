@@ -215,6 +215,7 @@ class Translations(POT):  # {{{
         return locale, os.path.join(self.DEST, locale, 'messages.mo')
 
     def run(self, opts):
+        self.compile_content_server_translations()
         l = {}
         exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'))
              .read(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'), 'exec'), l, l)
@@ -257,6 +258,25 @@ class Translations(POT):  # {{{
         self.write_stats()
         self.freeze_locales()
         self.compile_user_manual_translations()
+
+    def compile_content_server_translations(self):
+        self.info('\nCompiling content-server translations')
+        from calibre.utils.rapydscript import msgfmt
+        from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
+        with ZipFile(self.j(self.RESOURCES, 'content-server', 'locales.zip'), 'w', ZIP_DEFLATED) as zf:
+            for src in glob.glob(os.path.join(self.TRANSLATIONS, 'content-server', '*.po')):
+                with open(src, 'rb') as f:
+                    po_data = f.read().decode('utf-8')
+                data = json.loads(msgfmt(po_data))
+                translated_entries = {k:v for k, v in data['entries'].iteritems() if v and sum(map(len, v))}
+                data['entries'] = translated_entries
+                if translated_entries:
+                    raw = json.dumps(data, ensure_ascii=False, sort_keys=True)
+                    if isinstance(raw, type(u'')):
+                        raw = raw.encode('utf-8')
+                    zi = ZipInfo(os.path.basename(src).rpartition('.')[0])
+                    zi.compress_type = ZIP_DEFLATED
+                    zf.writestr(zi, raw)
 
     def check_iso639(self, path):
         from calibre.utils.localization import langnames_to_langcodes

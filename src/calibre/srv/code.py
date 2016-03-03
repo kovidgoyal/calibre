@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re, hashlib, random
+import re, hashlib, random, zipfile
 from functools import partial
 from threading import Lock
 from json import load as load_json_file, dumps as json_dumps
@@ -19,6 +19,7 @@ from calibre.srv.routes import endpoint, json
 from calibre.srv.utils import get_library_data, get_use_roman
 from calibre.utils.config import prefs, tweaks
 from calibre.utils.icu import sort_key
+from calibre.utils.localization import get_lang
 from calibre.utils.search_query_parser import ParseException
 
 html_cache = {}
@@ -81,6 +82,22 @@ def get_basic_query_data(ctx, rd):
         sorts, orders = ['timestamp'], ['desc']
     return library_id, db, sorts, orders
 
+_cached_translations = None
+
+def get_translations():
+    global _cached_translations
+    if _cached_translations is None:
+        _cached_translations = False
+        with zipfile.ZipFile(P('content-server/locales.zip', allow_user_override=False), 'r') as zf:
+            names = set(zf.namelist())
+            lang = get_lang()
+            if lang not in names:
+                xlang = lang.split('_')[0].lower()
+                if xlang in names:
+                    lang = xlang
+            if lang in names:
+                _cached_translations = load_json_file(zf.open(lang, 'r'))
+    return _cached_translations
 
 DEFAULT_NUMBER_OF_BOOKS = 50
 
@@ -100,6 +117,7 @@ def interface_data(ctx, rd):
         'gui_timestamp_display_format':tweaks['gui_timestamp_display_format'],
         'gui_last_modified_display_format':tweaks['gui_last_modified_display_format'],
         'use_roman_numerals_for_series_number': get_use_roman(),
+        'translations': get_translations(),
     }
     ans['library_map'], ans['default_library'] = ctx.library_info(rd)
     ud = {}
