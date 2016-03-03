@@ -129,6 +129,8 @@ class Container(object):  # {{{
     book_type = 'oeb'
     #: If this container represents an unzipped book (a directory)
     is_dir = False
+    #: The mode used to parse HTML and CSS (polishing uses tweak_mode=False and the editor uses tweak_mode=True)
+    tweak_mode = False
 
     SUPPORTS_TITLEPAGES = True
     SUPPORTS_FILENAMES = True
@@ -138,7 +140,6 @@ class Container(object):  # {{{
         self.log = log
         self.html_preprocessor = HTMLPreProcessor()
         self.css_preprocessor = CSSPreProcessor()
-        self.tweak_mode = False
 
         self.parsed_cache = {}
         self.mime_map = {}
