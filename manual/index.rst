@@ -86,7 +86,7 @@ The Command Line Interface
 .. toctree::
    :maxdepth: 2
 
-   generated/|lang|/cli-index
+   generated/en/cli-index
 
 Setting up a calibre development environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -17,7 +17,7 @@ use the edited ebook as input for conversion into other formats in calibre.
 
 This document will refer mainly to the conversion settings as found in the
 conversion dialog, pictured below. All these settings are also available via
-command line interface to conversion, documented at :doc:`generated/|lang|/ebook-convert`. In
+command line interface to conversion, documented at :doc:`generated/en/ebook-convert`. In
 calibre, you can obtain help on any individual setting by holding your mouse over
 it, a tooltip will appear describing the setting.
 

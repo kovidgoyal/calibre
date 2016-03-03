@@ -19,7 +19,7 @@ Design philosophy
 calibre has its roots in the Unix world, which means that its design is highly modular.
 The modules interact with each other via well defined interfaces. This makes adding new features and fixing
 bugs in calibre very easy, resulting in a frenetic pace of development. Because of its roots, calibre has a
-comprehensive command line interface for all its functions, documented in :doc:`generated/|lang|/cli-index`.
+comprehensive command line interface for all its functions, documented in :doc:`generated/en/cli-index`.
 
 The modular design of calibre is expressed via ``Plugins``. There is a :ref:`tutorial <customize>` on writing calibre plugins.
 For example, adding support for a new device to calibre typically involves writing less than a 100 lines of code in the form of
