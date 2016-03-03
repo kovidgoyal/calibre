@@ -1141,13 +1141,19 @@ def command_remove_custom_column(args, dbpath):
 def saved_searches_option_parser():
     parser = get_parser(_(
     '''
-    %prog saved_searches [options] list
-    %prog saved_searches add name search
-    %prog saved_searches remove name
+    %prog saved_searches [options] (list|add|remove)
 
     Manage the saved searches stored in this database.
     If you try to add a query with a name that already exists, it will be
     replaced.
+
+    Syntax for adding:
+
+    %prog saved_searches add search_name search_expression
+
+    Syntax for removing:
+
+    %prog saved_searches remove search_name
     '''))
     return parser
 
