@@ -17,13 +17,13 @@ from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre import prints
 from calibre.utils.date import parse_date
 
-USAGE=_('%%prog ebook_file [' + _('options') + ']\n') + \
+USAGE=_('%prog ebook_file [options]\n') + \
 _('''
 Read/Write metadata from/to ebook files.
 
-Supported formats for reading metadata: %(read)s
+Supported formats for reading metadata: {0}
 
-Supported formats for writing metadata: %(write)s
+Supported formats for writing metadata: {1}
 
 Different file types support different kinds of metadata. If you try to set
 some metadata on a file type that does not support it, the metadata will be
@@ -103,7 +103,7 @@ def option_parser():
     for w in metadata_writers():
         writers = writers.union(set(w.file_types))
     ft, w = ', '.join(sorted(filetypes())), ', '.join(sorted(writers))
-    return config().option_parser(USAGE%dict(read=ft, write=w))
+    return config().option_parser(USAGE.format(ft, w))
 
 def do_set_metadata(opts, mi, stream, stream_type):
     mi = MetaInformation(mi)
