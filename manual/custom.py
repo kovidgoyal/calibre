@@ -177,7 +177,7 @@ def update_cli_doc(name, raw, app):
 def render_options(cmd, groups, options_header=True, add_program=True, header_level='~'):
     lines = ['']
     if options_header:
-        lines = ['.. include:: /cli-options-header.rst', '']
+        lines = [_('[options]'), '-'*40, '']
     if add_program:
         lines += ['.. program:: '+cmd, '']
     for title, desc, options in groups:
