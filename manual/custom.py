@@ -26,8 +26,9 @@ def source_read_handler(app, docname, source):
         src = re.sub(r'(\s+generated/)en/', r'\1' + app.config.language + '/', src)
     # Sphinx does not call source_read_handle for the .. include directive
     for m in reversed(tuple(include_pat.finditer(src))):
-        ss = [open(m.group(1).lstrip('/')).read().decode('utf-8')]
-        source_read_handler(app, m.group(1).partition('.')[0], ss)
+        included_doc_name = m.group(1).lstrip('/')
+        ss = [open(included_doc_name).read().decode('utf-8')]
+        source_read_handler(app, included_doc_name.partition('.')[0], ss)
         src = src[:m.start()] + ss[0] + src[m.end():]
     source[0] = src
 
