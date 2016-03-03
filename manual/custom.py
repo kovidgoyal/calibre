@@ -85,7 +85,7 @@ def generate_calibredb_help(preamble, app):
     global_parser = get_parser('')
     groups = []
     for grp in global_parser.option_groups:
-        groups.append((grp.title.capitalize(), grp.description, grp.option_list))
+        groups.append((grp.title, grp.description, grp.option_list))
 
     global_options = '\n'.join(render_options('calibredb', groups, False, False))
 
@@ -113,7 +113,7 @@ def generate_calibredb_help(preamble, app):
         for group in parser.option_groups:
             if not getattr(group, 'is_global_options', False):
                 lines.extend(render_options(
-                    'calibredb_' + cmd, [[group.title.capitalize(), group.description, group.option_list]], False, False, header_level='^'))
+                    'calibredb_' + cmd, [[group.title, group.description, group.option_list]], False, False, header_level='^'))
         lines += ['']
 
     raw = preamble + '\n\n'+'.. contents::\n  :local:'+ '\n\n' + global_options+'\n\n'+'\n'.join(lines)
