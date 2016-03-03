@@ -17,7 +17,7 @@ from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre import prints
 from calibre.utils.date import parse_date
 
-USAGE='%%prog ebook_file [' + _('options') + ']\n' + \
+USAGE=_('%%prog ebook_file [' + _('options') + ']\n') + \
 _('''
 Read/Write metadata from/to ebook files.
 

@@ -26,7 +26,7 @@ def source_read_handler(app, docname, source):
         src = re.sub(r'(\s+generated/)en/', r'\1' + app.config.language + '/', src)
     # Sphinx does not call source_read_handle for the .. include directive
     for m in reversed(tuple(include_pat.finditer(src))):
-        ss = [open(m.group(1)).read().decode('utf-8')]
+        ss = [open(m.group(1).lstrip('/')).read().decode('utf-8')]
         source_read_handler(app, m.group(1).partition('.')[0], ss)
         src = src[:m.start()] + ss[0] + src[m.end():]
     source[0] = src
@@ -176,7 +176,7 @@ def update_cli_doc(name, raw, app):
 def render_options(cmd, groups, options_header=True, add_program=True, header_level='~'):
     lines = ['']
     if options_header:
-        lines = ['[options]', '-'*15, '']
+        lines = ['.. include:: /cli-options-header.rst', '']
     if add_program:
         lines += ['.. program:: '+cmd, '']
     for title, desc, options in groups:

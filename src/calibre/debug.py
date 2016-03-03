@@ -28,7 +28,7 @@ You can also use %prog to run standalone scripts. To do that use it like this:
     {1}
 
 Everything after the -- is passed to the script.
-''').format('%prog [options]', '%prog myscript.py -- --option1 --option2 file1 file2 ...'))
+''').format(_('%prog [options]'), '%prog myscript.py -- --option1 --option2 file1 file2 ...'))
     parser.add_option('-c', '--command', help=_('Run python code.'))
     parser.add_option('-e', '--exec-file', help=_('Run the python code in file.'))
     parser.add_option('-f', '--subset-font', action='store_true', default=False,

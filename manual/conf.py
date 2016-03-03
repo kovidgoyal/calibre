@@ -41,9 +41,10 @@ source_suffix = '.rst'
 master_doc = 'index' if tags.has('online') else 'simple_index'  # noqa
 # kill the warning about index/simple_index not being in a toctree
 exclude_patterns = ['simple_index.rst'] if master_doc == 'index' else ['index.rst']
+exclude_patterns.append('cli-options-header.rst')
 if tags.has('gettext'):  # noqa
-    # Do not exclude simple_index as its string must be translated. This will
-    # generate a warning about simple_index not being in a toctree, just ignore
+    # Do not exclude anything as the strings must be translated. This will
+    # generate a warning about the documents not being in a toctree, just ignore
     # it.
     exclude_patterns = []
 

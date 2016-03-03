@@ -263,7 +263,7 @@ def tweak_polish(container, actions, customization=None):
 
 def option_parser():
     from calibre.utils.config import OptionParser
-    USAGE = '%prog [options] input_file [output_file]\n\n' + re.sub(
+    USAGE = _('%prog [options] input_file [output_file]\n\n') + re.sub(
         r'<.*?>', '', CLI_HELP['about'])
     parser = OptionParser(usage=USAGE)
     a = parser.add_option
