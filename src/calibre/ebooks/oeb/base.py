@@ -109,6 +109,8 @@ def itercsslinks(raw):
     for match in _css_import_re.finditer(raw):
         yield match.group(1), match.start(1)
 
+_link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster'}
+
 def iterlinks(root, find_links_in_css=True):
     '''
     Iterate over all links in a OEB Document.
@@ -116,7 +118,6 @@ def iterlinks(root, find_links_in_css=True):
     :param root: A valid lxml.etree element.
     '''
     assert etree.iselement(root)
-    link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster'}
 
     for el in root.iter():
         attribs = el.attrib
@@ -146,7 +147,7 @@ def iterlinks(root, find_links_in_css=True):
                     yield (el, 'archive', value, match.start())
         else:
             for attr in attribs:
-                if attr in link_attrs:
+                if attr in _link_attrs:
                     yield (el, attr, attribs[attr], 0)
 
         if not find_links_in_css:
