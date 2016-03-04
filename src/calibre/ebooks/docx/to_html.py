@@ -433,7 +433,9 @@ class Convert(object):
                 self.layers[p].append(x)
             elif x.tag.endswith('}bookmarkStart'):
                 anchor = self.namespace.get(x, 'w:name')
-                if anchor and anchor not in self.anchor_map:
+                if anchor and anchor not in self.anchor_map and anchor != '_GoBack':
+                    # _GoBack is a special bookmark inserted by Word 2010 for
+                    # the return to previous edit feature, we ignore it
                     old_anchor = current_anchor
                     self.anchor_map[anchor] = current_anchor = generate_anchor(anchor, frozenset(self.anchor_map.itervalues()))
                     if old_anchor is not None:
