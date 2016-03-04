@@ -91,6 +91,13 @@ class TOC(object):
     def __str__(self):
         return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
 
+    @property
+    def as_dict(self):
+        return {
+            'title':self.title, 'dest':self.dest, 'frag':self.frag, 'dest_exists':self.dest_exists, 'dest_error':self.dest_error,
+            'children':[c.as_dict for c in self.children]
+        }
+
 def child_xpath(tag, name):
     return tag.xpath('./*[calibre:lower-case(local-name()) = "%s"]'%name)
 
