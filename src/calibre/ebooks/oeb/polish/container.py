@@ -614,7 +614,7 @@ class Container(object):  # {{{
 
     @property
     def spine_items(self):
-        ''' An iterator yielding canonical name for every item in the
+        ''' An iterator yielding the path for every item in the
         books' spine. See also: :attr:`spine_iter` and :attr:`spine_items`. '''
         for name, linear in self.spine_names:
             yield self.name_path_map[name]
