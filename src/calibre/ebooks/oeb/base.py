@@ -242,20 +242,19 @@ def rewrite_links(root, link_repl_func, resolve_base_href=False):
                 repl = repl.decode('utf-8')
             el.text = '\n'+ clean_xml_chars(repl) + '\n'
 
-        if 'style' in el.attrib:
-            text = el.attrib['style']
-            if _css_url_re.search(text) is not None:
-                try:
-                    stext = parser.parseStyle(text, validate=False)
-                except:
-                    # Parsing errors are raised by cssutils
-                    continue
-                replaceUrls(stext, link_repl_func)
-                repl = stext.cssText.replace('\n', ' ').replace('\r',
-                        ' ')
-                if isbytestring(repl):
-                    repl = repl.decode('utf-8')
-                el.attrib['style'] = repl
+        text = el.get('style')
+        if text and _css_url_re.search(text) is not None:
+            try:
+                stext = parser.parseStyle(text, validate=False)
+            except Exception:
+                # Parsing errors are raised by cssutils
+                continue
+            replaceUrls(stext, link_repl_func)
+            repl = stext.cssText.replace('\n', ' ').replace('\r',
+                    ' ')
+            if isbytestring(repl):
+                repl = repl.decode('utf-8')
+            el.set('style', repl)
 
 
 types_map = get_types_map()
