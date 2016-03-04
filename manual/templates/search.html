@@ -10,7 +10,7 @@
 {% extends "layout.html" %}
 {% set title = _('Search') %}
 {% block extrahead %}
-    <link rel="stylesheet" href="http://www.google.com/cse/style/look/default.css" type="text/css" />
+    <link rel="stylesheet" href="https://www.google.com/cse/style/look/default.css" type="text/css" />
   {{ super() }}
 {% endblock %}
 {% block body %}
@@ -29,7 +29,7 @@
     containing fewer words won't appear in the result list.{% endtrans %}
   </p>
   <div id="cse" style="width: 100%;">Loading</div>
-<script src="http://www.google.com/jsapi" type="text/javascript"></script>
+<script src="https://www.google.com/jsapi" type="text/javascript"></script>
 <script type="text/javascript"> 
   google.load('search', '1');
   google.setOnLoadCallback(function() {
@@ -41,8 +41,7 @@
     var params = $.getQueryParameters();
     if (params.q) {
         var query = params.q[0];
-        $('input[name="search"]')[0].value = query;
-        $('input.gsc-search-button')[0].click();
+        customSearchControl.execute(query);
     }
   }, true);
 </script>
