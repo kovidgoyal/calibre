@@ -50,7 +50,7 @@ You can search for any text in the differences via the search bar at the
 bottom. You will need to specify which panel to search, the :guilabel:`Left` or
 the :guilabel:`Right`.
 
-How to launch the comparison tool
+Launching the comparison tool
 -----------------------------------
 
 The comparison tool is most useful when you have two versions of the same book
