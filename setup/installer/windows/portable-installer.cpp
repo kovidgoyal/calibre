@@ -504,20 +504,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     LPVOID cdata = NULL;
     DWORD csz = 0;
-    int ret = 0, argc;
+    int ret = 1, argc;
     HRESULT hr;
     LPWSTR tgt = NULL, dest = NULL, *argv, unpack_dir = NULL;
     BOOL existing = false, launch = false, automated = false;
     WCHAR buf[4*MAX_PATH] = {0}, mb_msg[4*MAX_PATH] = {0}, fdest[4*MAX_PATH] = {0};
 
-    if (!load_data(&cdata, &csz)) return 0;
+    if (!load_data(&cdata, &csz)) return ret;
 
     hr = CoInitialize(NULL);
-    if (FAILED(hr)) { show_error(L"Failed to initialize COM"); return 0; }
+    if (FAILED(hr)) { show_error(L"Failed to initialize COM"); return ret; }
 
     // Get the target directory for installation
     argv = CommandLineToArgvW(GetCommandLine(), &argc);
-    if (argv == NULL) { show_last_error(L"Failed to get command line"); return 0; }
+    if (argv == NULL) { show_last_error(L"Failed to get command line"); return ret; }
     if (argc > 1) {
         tgt = argv[1];
         automated = true;
@@ -578,17 +578,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     // Move files from temp dir to the install dir
     if (!move_program()) goto end;
 
-    _snwprintf_s(mb_msg, 4*MAX_PATH, _TRUNCATE, 
-        L"Calibre Portable successfully installed to %s. Launch calibre?",
-        fdest);
-    launch = MessageBox(NULL, mb_msg,
-        L"Success", MB_ICONINFORMATION | MB_YESNO | MB_TOPMOST) == IDYES;
+    ret = 0;
+    if (!automated) {
+        _snwprintf_s(mb_msg, 4*MAX_PATH, _TRUNCATE, 
+            L"Calibre Portable successfully installed to %s. Launch calibre?",
+            fdest);
+        launch = MessageBox(NULL, mb_msg,
+            L"Success", MB_ICONINFORMATION | MB_YESNO | MB_TOPMOST) == IDYES;
+    }
 
 end:
     if (unpack_dir != NULL) { SetCurrentDirectoryW(L".."); rmtree(unpack_dir); free(unpack_dir); }
     CoUninitialize();
     if (launch) launch_calibre();
-    return 0;
+    return ret;
 }
 
 
