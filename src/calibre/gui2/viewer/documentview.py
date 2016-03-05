@@ -12,7 +12,7 @@ from future_builtins import map
 from PyQt5.Qt import (
     QSize, QSizePolicy, QUrl, Qt, pyqtProperty, QPainter, QPalette, QBrush,
     QDialog, QColor, QPoint, QImage, QRegion, QIcon, QAction, QMenu,
-    pyqtSignal, QApplication, pyqtSlot, QKeySequence)
+    pyqtSignal, QApplication, pyqtSlot, QKeySequence, QMimeData)
 from PyQt5.QtWebKitWidgets import QWebPage, QWebView
 from PyQt5.QtWebKit import QWebSettings, QWebElement
 
@@ -696,6 +696,10 @@ class DocumentView(QWebView):  # {{{
         self.document.triggerAction(self.document.Copy)
         c = QApplication.clipboard()
         md = c.mimeData()
+        if iswindows:
+            nmd = QMimeData()
+            nmd.setHtml(md.html().replace(u'\u00ad', ''))
+            md = nmd
         md.setText(self.selected_text)
         QApplication.clipboard().setMimeData(md)
 
