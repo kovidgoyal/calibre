@@ -35,6 +35,15 @@ fetched_fields = ('title', 'title_sort', 'authors', 'author_sort', 'series',
                   'series_index', 'languages', 'publisher', 'tags', 'rating',
                   'comments', 'pubdate')
 
+class ScrollArea(QScrollArea):
+
+    def __init__(self, widget=None, parent=None):
+        QScrollArea.__init__(self, parent)
+        self.setFrameShape(self.NoFrame)
+        self.setWidgetResizable(True)
+        if widget is not None:
+            self.setWidget(widget)
+
 class MetadataSingleDialogBase(ResizableDialog):
 
     view_format = pyqtSignal(object, object)
@@ -84,15 +93,11 @@ class MetadataSingleDialogBase(ResizableDialog):
         bb.setStandardButtons(bb.Ok|bb.Cancel)
         bb.button(bb.Ok).setDefault(True)
 
-        self.scroll_area = QScrollArea(self)
-        self.scroll_area.setFrameShape(QScrollArea.NoFrame)
-        self.scroll_area.setWidgetResizable(True)
         self.central_widget = QTabWidget(self)
-        self.scroll_area.setWidget(self.central_widget)
 
         self.l = QVBoxLayout(self)
         self.setLayout(self.l)
-        self.l.addWidget(self.scroll_area)
+        self.l.addWidget(self.central_widget)
         ll = self.button_box_layout = QHBoxLayout()
         self.l.addLayout(ll)
         ll.addSpacing(10)
@@ -685,14 +690,14 @@ class MetadataSingleDialog(MetadataSingleDialogBase):  # {{{
         self.tabs = []
         self.labels = []
         self.tabs.append(QWidget(self))
-        self.central_widget.addTab(self.tabs[0], _("&Basic metadata"))
+        self.central_widget.addTab(ScrollArea(self.tabs[0], self), _("&Basic metadata"))
         self.tabs[0].l = l = QVBoxLayout()
         self.tabs[0].tl = tl = QGridLayout()
         self.tabs[0].setLayout(l)
         w = getattr(self, 'custom_metadata_widgets_parent', None)
         if w is not None:
             self.tabs.append(w)
-            self.central_widget.addTab(w, _('&Custom metadata'))
+            self.central_widget.addTab(ScrollArea(w, self), _('&Custom metadata'))
         l.addLayout(tl)
         l.addItem(QSpacerItem(10, 15, QSizePolicy.Expanding,
             QSizePolicy.Fixed))
@@ -835,12 +840,12 @@ class MetadataSingleDialogAlt1(MetadataSingleDialogBase):  # {{{
 
         self.on_drag_enter.connect(self.handle_drag_enter)
         self.tabs.append(DragTrackingWidget(self, self.on_drag_enter))
-        self.central_widget.addTab(self.tabs[0], _("&Metadata"))
+        self.central_widget.addTab(ScrollArea(self.tabs[0], self), _("&Metadata"))
         self.tabs[0].l = QGridLayout()
         self.tabs[0].setLayout(self.tabs[0].l)
 
         self.tabs.append(QWidget(self))
-        self.central_widget.addTab(self.tabs[1], _("&Cover and formats"))
+        self.central_widget.addTab(ScrollArea(self.tabs[1], self), _("&Cover and formats"))
         self.tabs[1].l = QGridLayout()
         self.tabs[1].setLayout(self.tabs[1].l)
 
@@ -983,7 +988,7 @@ class MetadataSingleDialogAlt2(MetadataSingleDialogBase):  # {{{
 
         self.central_widget.tabBar().setVisible(False)
         tab0 = QWidget(self)
-        self.central_widget.addTab(tab0, _("&Metadata"))
+        self.central_widget.addTab(ScrollArea(tab0, self), _("&Metadata"))
         l = QGridLayout()
         tab0.setLayout(l)
 
