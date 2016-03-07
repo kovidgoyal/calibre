@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time, shlex
+import os, subprocess, hashlib, shutil, glob, stat, sys, time
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
@@ -48,18 +48,26 @@ def installer_description(fname):
 
 def upload_signatures():
     tdir = mkdtemp()
-    for installer in installers():
-        if not os.path.exists(installer):
-            continue
-        with open(installer, 'rb') as f:
-            raw = f.read()
-        fingerprint = hashlib.sha512(raw).hexdigest()
-        fname = os.path.basename(installer+'.sha512')
-        with open(os.path.join(tdir, fname), 'wb') as f:
-            f.write(fingerprint)
-    check_call('scp %s/*.sha512 code:/srv/code/signatures/' % tdir, shell=True)
-    check_call(shlex.split('ssh code chown -R http:http /srv/code/signatures'))
-    shutil.rmtree(tdir)
+    scp = ['scp']
+    try:
+        for installer in installers():
+            if not os.path.exists(installer):
+                continue
+            sig = os.path.join(tdir, os.path.basename(installer+'.sig'))
+            scp.append(sig)
+            check_call([os.path.expanduser('~/kovid/env/private/gpg-as-kovid'), '--output', sig, '--detach-sig', installer])
+            with open(installer, 'rb') as f:
+                raw = f.read()
+            fingerprint = hashlib.sha512(raw).hexdigest()
+            sha512 = os.path.join(tdir, os.path.basename(installer+'.sha512'))
+            with open(sha512, 'wb') as f:
+                f.write(fingerprint)
+            scp.append(sha512)
+        for srv in 'code main'.split():
+            check_call(scp + ['{0}:/srv/{0}/signatures/'.format(srv)])
+            check_call(['ssh', srv, 'chown', '-R', 'http:http', '/srv/%s/signatures' % srv])
+    finally:
+        shutil.rmtree(tdir)
 
 class ReUpload(Command):  # {{{
 
