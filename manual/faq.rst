@@ -881,13 +881,17 @@ There are several possible things I know of, that can cause this:
       monitoring/managing application you have running. Turn it off and you
       should be fine.
 
-    * If the crashes happen specifically when you are using a file open dialog,
+    * If the crashes happen specifically when you are using a file dialog,
       like clicking on the Add Books button or the Save to Disk button, then
-      you may have an issue with the windows file open dialogs on your
-      computer.  Some calibre users have reported that uninstalling the SpiderOak
-      encrypted backup software also fixes these crashes. If you do not wish to
-      uninstall SpiderOak, you can also turn off "Enable OS integration" in the
-      SpiderOak preferences.
+      you have some software that has installed broken Shell extensions on your
+      computer. Known culprits include: *SpiderOak*, *odrive sync* and *Dell
+      Backup and Recovery*. If you have one of these, uninstall them and you
+      will be fine. You can also use the
+      `<http://www.nirsoft.net/utils/shexview.html> NirSoft Shell Extension
+      Viewer` utility to see what shell extensions are installed on your system
+      and disable them individually, if you dont want to uninstall the full program.
+      Remember to use "Restart Explorer" or reboot your computer after
+      disabling the shell extensions.
 
 If none of the above apply to you, then there is some other program on your
 computer that is interfering with calibre. First reboot your computer in safe
