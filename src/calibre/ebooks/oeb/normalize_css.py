@@ -191,10 +191,17 @@ SHORTHAND_DEFAULTS = {
     'list-style': 'inherit', 'font': 'inherit',
 }
 
+_safe_parser = None
+def safe_parser():
+    global _safe_parser
+    if _safe_parser is None:
+        import logging
+        _safe_parser = CSSParser(loglevel=logging.CRITICAL, validate=False)
+    return _safe_parser
+
 def normalize_filter_css(props):
-    import logging
     ans = set()
-    p = CSSParser(loglevel=logging.CRITICAL, validate=False)
+    p = safe_parser()
     for prop in props:
         n = normalizers.get(prop, None)
         ans.add(prop)
