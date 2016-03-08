@@ -19,7 +19,7 @@ from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml
-from calibre.gui2 import open_url, error_dialog, choose_files
+from calibre.gui2 import open_url, error_dialog, choose_files, gprefs
 from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
@@ -402,8 +402,7 @@ class EditorWidget(QWebView):  # {{{
         parent = self._parent()
         if hasattr(parent, 'toolbars_visible'):
             vis = parent.toolbars_visible
-            menu.addAction(_('%s toolbars') % (_('Hide') if vis else _('Show')),
-                           (parent.hide_toolbars if vis else parent.show_toolbars))
+            menu.addAction(_('%s toolbars') % (_('Hide') if vis else _('Show')), parent.toggle_toolbars)
         menu.exec_(ev.globalPos())
 
 # }}}
@@ -621,8 +620,11 @@ class Highlighter(QSyntaxHighlighter):
 
 class Editor(QWidget):  # {{{
 
-    def __init__(self, parent=None, one_line_toolbar=False):
+    toolbar_prefs_name = None
+
+    def __init__(self, parent=None, one_line_toolbar=False, toolbar_prefs_name=None):
         QWidget.__init__(self, parent)
+        self.toolbar_prefs_name = toolbar_prefs_name or self.toolbar_prefs_name
         self.toolbar1 = QToolBar(self)
         self.toolbar2 = QToolBar(self)
         self.toolbar3 = QToolBar(self)
@@ -657,6 +659,10 @@ class Editor(QWidget):  # {{{
         self.tabs.currentChanged[int].connect(self.change_tab)
         self.highlighter = Highlighter(self.code_edit.document())
         self.layout().setContentsMargins(0, 0, 0, 0)
+        if self.toolbar_prefs_name is not None:
+            hidden = gprefs.get(self.toolbar_prefs_name)
+            if hidden:
+                self.hide_toolbars()
 
         # toolbar1 {{{
         self.toolbar1.addAction(self.editor.action_undo)
@@ -754,6 +760,12 @@ class Editor(QWidget):  # {{{
         self.toolbar2.setVisible(True)
         self.toolbar3.setVisible(True)
 
+    def toggle_toolbars(self):
+        visible = self.toolbars_visible
+        getattr(self, ('hide' if visible else 'show') + '_toolbars')()
+        if self.toolbar_prefs_name is not None:
+            gprefs.set(self.toolbar_prefs_name, visible)
+
     @dynamic_property
     def toolbars_visible(self):
         def fget(self):
@@ -779,5 +791,3 @@ if __name__ == '__main__':
     set out to have an <em>affair</em>, <span style="font-style:italic; background-color:red">much</span> less a long-term, devoted one.</span>'''
     app.exec_()
     # print w.html
-
-

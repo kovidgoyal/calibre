@@ -233,7 +233,7 @@ class Comments(Base):
         self._box = QGroupBox(parent)
         self._box.setTitle('&'+self.col_metadata['name'])
         self._layout = QVBoxLayout()
-        self._tb = CommentsEditor(self._box)
+        self._tb = CommentsEditor(self._box, toolbar_prefs_name=u'metadata-comments-editor-widget-hidden-toolbars')
         self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         # self._tb.setTabChangesFocus(True)
         self._layout.addWidget(self._tb)

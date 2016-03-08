@@ -1206,6 +1206,7 @@ class Cover(ImageView):  # {{{
 class CommentsEdit(Editor, ToMetadataMixin):  # {{{
 
     FIELD_NAME = 'comments'
+    toolbar_prefs_name = 'metadata-comments-editor-widget-hidden-toolbars'
 
     @dynamic_property
     def current_val(self):
