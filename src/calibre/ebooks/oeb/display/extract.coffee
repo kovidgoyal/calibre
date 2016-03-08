@@ -158,6 +158,11 @@ class CalibreExtract
         is_footnote_container = is_epub_footnote(start_elem)
         for elem in get_parents_and_self(start_elem)
             elem.do_not_hide = true
+            style = window.getComputedStyle(elem)
+            if style.display == 'list-item' and style.listStyleType not in ['disc', 'circle', 'square']
+                # We cannot display list numbers since they will be
+                # incorrect as we are removing siblings of this element.
+                elem.style.listStyleType = 'none'
         for elem in document.body.getElementsByTagName('*')
             if in_note
                 if known_targets.hasOwnProperty(elem.getAttribute('id'))
