@@ -6,6 +6,8 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
+from functools import partial
+
 from cssutils.css import CSSRule
 from css_selectors import parse, SelectorSyntaxError
 
@@ -141,7 +143,7 @@ def remove_unused_css(container, report=None, remove_unused_classes=False):
             report(_('No unused class attributes found'))
     return num_of_removed_rules + num_of_removed_classes > 0
 
-def filter_declaration(style, properties):
+def filter_declaration(style, properties=()):
     changed = False
     for prop in properties:
         if style.removeProperty(prop) != '':
@@ -159,7 +161,7 @@ def filter_declaration(style, properties):
                     style.setProperty(prop, normalized[prop])
     return changed
 
-def filter_sheet(sheet, properties):
+def filter_sheet(sheet, properties=()):
     from cssutils.css import CSSRule
     changed = False
     remove = []
@@ -173,27 +175,21 @@ def filter_sheet(sheet, properties):
     return changed
 
 
-def filter_css(container, properties, names=()):
-    '''
-    Remove the specified CSS properties from all CSS rules in the book.
-
-    :param properties: Set of properties to remove. For example: :code:`{'font-family', 'color'}`.
-    :param names: The files from which to remove the properties. Defaults to all HTML and CSS files in the book.
-    '''
+def transform_css(container, transform_sheet=None, transform_style=None, names=()):
     if not names:
         types = OEB_STYLES | OEB_DOCS
         names = []
         for name, mt in container.mime_map.iteritems():
             if mt in types:
                 names.append(name)
-    properties = normalize_filter_css(properties)
+
     doc_changed = False
 
     for name in names:
         mt = container.mime_map[name]
         if mt in OEB_STYLES:
             sheet = container.parsed(name)
-            filtered = filter_sheet(sheet, properties)
+            filtered = transform_sheet(sheet)
             if filtered:
                 container.dirty(name)
                 doc_changed = True
@@ -201,9 +197,9 @@ def filter_css(container, properties, names=()):
             root = container.parsed(name)
             changed = False
             for style in root.xpath('//*[local-name()="style"]'):
-                if style.text and style.get('type', 'text/css') in {None, '', 'text/css'}:
+                if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
                     sheet = container.parse_css(style.text)
-                    if filter_sheet(sheet, properties):
+                    if transform_sheet(sheet):
                         changed = True
                         style.text = force_unicode(sheet.cssText, 'utf-8')
                         pretty_script_or_style(container, style)
@@ -211,7 +207,7 @@ def filter_css(container, properties, names=()):
                 text = elem.get('style', None)
                 if text:
                     style = container.parse_css(text, is_declaration=True)
-                    if filter_declaration(style, properties):
+                    if transform_style(style):
                         changed = True
                         if style.length == 0:
                             del elem.attrib['style']
@@ -222,6 +218,17 @@ def filter_css(container, properties, names=()):
                 doc_changed = True
 
     return doc_changed
+
+def filter_css(container, properties, names=()):
+    '''
+    Remove the specified CSS properties from all CSS rules in the book.
+
+    :param properties: Set of properties to remove. For example: :code:`{'font-family', 'color'}`.
+    :param names: The files from which to remove the properties. Defaults to all HTML and CSS files in the book.
+    '''
+    properties = normalize_filter_css(properties)
+    return transform_css(container, transform_sheet=partial(filter_sheet, properties=properties),
+                         transform_style=partial(filter_declaration, properties=properties), names=names)
 
 def _classes_in_selector(selector, classes):
     for attr in ('selector', 'subselector', 'parsed_tree'):
