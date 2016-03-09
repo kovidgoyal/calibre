@@ -10,7 +10,8 @@ from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QListWidgetItem
 )
 
-from calibre.ebooks.css_transform_rules import compile_pat, parse_length
+from calibre.ebooks.css_transform_rules import compile_pat, parse_css_length_or_number
+from calibre.ebooks.oeb.normalize_css import SHORTHAND_DEFAULTS
 from calibre.gui2 import error_dialog, elided_text
 from calibre.gui2.tag_mapper import RuleEditDialog as RuleEditDialogBase, Rules as RulesBase
 
@@ -27,13 +28,15 @@ class RuleEdit(QWidget):  # {{{
     ))
 
     MATCH_TYPE_MAP = OrderedDict((
-        ('==', _('is')),
+        ('is', _('is')),
+        ('*', _('is any value')),
+        ('matches', _('matches pattern')),
+        ('not_matches', _('does not match pattern'))
+        ('==', _('is the same length as')),
         ('<', _('is less than')),
         ('>', _('is greater than')),
         ('<=', _('is less than or equal to')),
         ('>=', _('is greater than or equal to')),
-        ('matches', _('matches pattern')),
-        ('not_matches', _('does not match pattern'))
     ))
 
     def __init__(self, parent=None):
@@ -55,7 +58,9 @@ class RuleEdit(QWidget):  # {{{
                 self.preamble = w = QLabel(_('If the &property:'))
             elif clause == '{property}':
                 self.property = w = QLineEdit(self)
-                w.setToolTip(_('The name of a CSS property, for example: font-size\n'))
+                w.setToolTip(_('The name of a CSS property, for example: font-size\n'
+                               'Do not use shorthand properties, they will not work.\n'
+                               'For instance use margin-top, not margin.'))
             elif clause == '{match_type}':
                 self.match_type = w = QComboBox(self)
                 for action, text in self.MATCH_TYPE_MAP.iteritems():
@@ -97,17 +102,20 @@ class RuleEdit(QWidget):  # {{{
         self.action_data.setVisible(r['action'] != 'remove')
         tt = _('The CSS property value')
         mt = r['match_type']
+        self.query.setVisible(mt != '*')
         if 'matches' in mt:
             tt = _('A regular expression')
         elif mt in '< > <= >='.split():
             tt = _('Either a CSS length, such as 10pt or a unit less number. If a unitless'
-                   ' number is used it will compared with the CSS value using whatever unit'
-                   ' the value has.')
+                   ' number is used it will be compared with the CSS value using whatever unit'
+                   ' the value has. Note that comparison automatically converts units, except'
+                   ' for relative units like percentage or em, for which comparison fails'
+                   ' if the units are different.')
         self.query.setToolTip(tt)
         tt = ''
         ac = r['action']
         if ac == 'append':
-            tt = _('CSS properties for to add to the rule that contains the matching style. You'
+            tt = _('CSS properties to add to the rule that contains the matching style. You'
                    ' can specify more than one property, separated by semi-colons, for example:'
                    ' color:red; font-weight: bold')
         elif ac in '+=*/':
@@ -117,7 +125,7 @@ class RuleEdit(QWidget):  # {{{
     @property
     def rule(self):
         return {
-            'property':self.property.text().strip(),
+            'property':self.property.text().strip().lower(),
             'match_type': self.match_type.currentData(),
             'query': self.query.text().strip(),
             'action': self.action.currentData(),
@@ -138,11 +146,20 @@ class RuleEdit(QWidget):  # {{{
 
     def validate(self):
         rule = self.rule
-        if not rule['query']:
+        mt = rule['match_type']
+        if not rule['property']:
+            error_dialog(self, _('Property required'), _(
+                'You must specify a CSS property to match'), show=True)
+            return False
+        if rule['property'] in SHORTHAND_DEFAULTS:
+            error_dialog(self, _('Shorthand property not allowed'), _(
+                '{0} is a shorthand property. Use the full form of the property,'
+                ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.'), show=True)
+            return False
+        if not rule['query'] and mt != '*':
             error_dialog(self, _('Query required'), _(
                 'You must specify a value for the CSS property to match'), show=True)
             return False
-        mt = rule['match_type']
         if 'matches' in mt:
             try:
                 compile_pat(rule['query'])
@@ -150,9 +167,11 @@ class RuleEdit(QWidget):  # {{{
                 error_dialog(self, _('Query invalid'), _(
                     '%s is not a valid regular expression') % rule['query'], show=True)
                 return False
-        elif mt in '< > <= >='.split():
+        elif mt in '< > <= >= =='.split():
             try:
-                parse_length(rule['query'])
+                num = parse_css_length_or_number(rule['query'])[0]
+                if num is None:
+                    raise Exception('not a number')
             except Exception:
                 error_dialog(self, _('Query invalid'), _(
                     '%s is not a valid length or number') % rule['query'], show=True)
