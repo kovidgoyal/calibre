@@ -54,7 +54,7 @@ class StyleDeclaration(object):
         seq = dec._tempSeq()
         for item in dec.seq:
             if item.value is parent_prop:
-                for c in props:
+                for c in sorted(props, key=operator.attrgetter('name')):
                     c.parent = dec
                     seq.append(c, 'Property')
             else:
@@ -109,7 +109,7 @@ def unit_convert(value, unit, dpi=96.0, body_font_size=12):
         result = value * 0.708661417325
     return result
 
-def parse_css_length_or_number(raw, default_unit='px'):
+def parse_css_length_or_number(raw, default_unit=None):
     if isinstance(raw, (int, long, float)):
         return raw, default_unit
     try:
@@ -135,7 +135,7 @@ def numeric_match(value, unit, pts, op, raw):
 
 def transform_number(val, op, raw):
     try:
-        v, u = parse_css_length_or_number(raw)
+        v, u = parse_css_length_or_number(raw, default_unit='')
     except Exception:
         return raw
     if v is None:
@@ -166,7 +166,7 @@ class Rule(object):
             else:
                 self.property_matches = lambda x: q.match(x) is not None
         else:
-            value, unit = parse_css_length_or_number(query, default_unit=None)
+            value, unit = parse_css_length_or_number(query)
             op = getattr(operator, operator_map[match_type])
             pts = unit_convert(value, unit)
             self.property_matches = partial(numeric_match, value, unit, pts, op)
@@ -193,18 +193,18 @@ class Rule(object):
 def test():  # {{{
     import unittest
 
+    def apply_rule(style, **rule):
+        r = Rule(**rule)
+        decl = StyleDeclaration(safe_parser().parseStyle(style))
+        r.process_declaration(decl)
+        return str(decl)
+
     class TestTransforms(unittest.TestCase):
         longMessage = True
         maxDiff = None
         ae = unittest.TestCase.assertEqual
 
         def test_matching(self):
-
-            def apply_rule(style, **rule):
-                r = Rule(**rule)
-                decl = StyleDeclaration(safe_parser().parseStyle(style))
-                r.process_declaration(decl)
-                return str(decl)
 
             def m(match_type='*', query=''):
                 self.ae(ecss, apply_rule(css, property=prop, match_type=match_type, query=query))
@@ -232,6 +232,37 @@ def test():  # {{{
             m('==', '4q')
             ecss = css.replace('; ', ';\n')
             m('==', '1pt')
+
+        def test_expansion(self):
+
+            def m(css, ecss, action='remove', action_data=''):
+                self.ae(ecss, apply_rule(css, property=prop, action=action, action_data=action_data))
+
+            prop = 'margin-top'
+            m('margin: 0', 'margin-bottom: 0;\nmargin-left: 0;\nmargin-right: 0')
+            m('margin: 0 !important', 'margin-bottom: 0 !important;\nmargin-left: 0 !important;\nmargin-right: 0 !important')
+            m('margin: 0', 'margin-bottom: 0;\nmargin-left: 0;\nmargin-right: 0;\nmargin-top: 1pt', 'change', '1pt')
+            prop = 'font-family'
+            m('font: 10em "Kovid Goyal", monospace', 'font-size: 10em;\nfont-style: normal;\nfont-variant: normal;\nfont-weight: normal;\nline-height: normal')
+
+        def test_append(self):
+            def m(css, ecss, action_data=''):
+                self.ae(ecss, apply_rule(css, property=prop, action='append', action_data=action_data))
+            prop = 'color'
+            m('color: red', 'color: red;\nmargin: 1pt;\nfont-weight: bold', 'margin: 1pt; font-weight: bold')
+
+        def test_change(self):
+            def m(css, ecss, action='change', action_data=''):
+                self.ae(ecss, apply_rule(css, property=prop, action=action, action_data=action_data))
+            prop = 'font-family'
+            m('font-family: a, b', 'font-family: "c c", d', action_data='"c c", d')
+            prop = 'line-height'
+            m('line-height: 1', 'line-height: 3', '*', '3')
+            m('line-height: 1em', 'line-height: 4em', '+', '3')
+            m('line-height: 1', 'line-height: 0', '-', '1')
+            m('line-height: 2', 'line-height: 1', '/', '2')
+            prop = 'border-top-width'
+            m('border-width: 1', 'border-bottom-width: 1;\nborder-left-width: 1;\nborder-right-width: 1;\nborder-top-width: 3', '*', '3')
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
     unittest.TextTestRunner(verbosity=4).run(tests)
