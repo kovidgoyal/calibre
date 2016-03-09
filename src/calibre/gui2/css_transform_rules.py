@@ -10,8 +10,7 @@ from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QListWidgetItem
 )
 
-from calibre.ebooks.css_transform_rules import compile_pat, parse_css_length_or_number
-from calibre.ebooks.oeb.normalize_css import SHORTHAND_DEFAULTS
+from calibre.ebooks.css_transform_rules import validate_rule
 from calibre.gui2 import error_dialog, elided_text
 from calibre.gui2.tag_mapper import RuleEditDialog as RuleEditDialogBase, Rules as RulesBase
 
@@ -146,51 +145,10 @@ class RuleEdit(QWidget):  # {{{
 
     def validate(self):
         rule = self.rule
-        mt = rule['match_type']
-        if not rule['property']:
-            error_dialog(self, _('Property required'), _(
-                'You must specify a CSS property to match'), show=True)
+        title, msg = validate_rule(rule)
+        if msg is not None and title is not None:
+            error_dialog(self, title, msg, show=True)
             return False
-        if rule['property'] in SHORTHAND_DEFAULTS:
-            error_dialog(self, _('Shorthand property not allowed'), _(
-                '{0} is a shorthand property. Use the full form of the property,'
-                ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.'), show=True)
-            return False
-        if not rule['query'] and mt != '*':
-            error_dialog(self, _('Query required'), _(
-                'You must specify a value for the CSS property to match'), show=True)
-            return False
-        if 'matches' in mt:
-            try:
-                compile_pat(rule['query'])
-            except Exception:
-                error_dialog(self, _('Query invalid'), _(
-                    '%s is not a valid regular expression') % rule['query'], show=True)
-                return False
-        elif mt in '< > <= >= =='.split():
-            try:
-                num = parse_css_length_or_number(rule['query'])[0]
-                if num is None:
-                    raise Exception('not a number')
-            except Exception:
-                error_dialog(self, _('Query invalid'), _(
-                    '%s is not a valid length or number') % rule['query'], show=True)
-                return False
-        ac, ad = rule['action'], rule['action_data']
-        if not ad and ac != 'remove':
-            msg = _('You must specify a number')
-            if ac == 'append':
-                msg = _('You must specify at least one CSS property to add')
-            elif ac == 'change':
-                msg = _('You must specify a value to change the property to')
-            error_dialog(self, _('No data'), msg, show=True)
-            return False
-        if ac in '+-*/':
-            try:
-                float(ad)
-            except Exception:
-                error_dialog(self, _('Invalid number'), _('%s is not a number') % ad, show=True)
-                return False
         return True
 # }}}
 

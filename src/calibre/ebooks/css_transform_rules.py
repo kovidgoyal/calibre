@@ -190,6 +190,46 @@ class Rule(object):
         declaration.changed = oval or changed
         return changed
 
+def validate_rule(rule):
+    mt = rule['match_type']
+    if not rule['property']:
+        return _('Property required'), _('You must specify a CSS property to match')
+    if rule['property'] in normalizers:
+        return _('Shorthand property not allowed'), _(
+            '{0} is a shorthand property. Use the full form of the property,'
+            ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.')
+    if not rule['query'] and mt != '*':
+        _('Query required'), _(
+            'You must specify a value for the CSS property to match')
+    if 'matches' in mt:
+        try:
+            compile_pat(rule['query'])
+        except Exception:
+            return _('Query invalid'), _(
+                '%s is not a valid regular expression') % rule['query']
+    elif mt in '< > <= >= =='.split():
+        try:
+            num = parse_css_length_or_number(rule['query'])[0]
+            if num is None:
+                raise Exception('not a number')
+        except Exception:
+            return _('Query invalid'), _(
+                '%s is not a valid length or number') % rule['query']
+    ac, ad = rule['action'], rule['action_data']
+    if not ad and ac != 'remove':
+        msg = _('You must specify a number')
+        if ac == 'append':
+            msg = _('You must specify at least one CSS property to add')
+        elif ac == 'change':
+            msg = _('You must specify a value to change the property to')
+        return _('No data'), msg
+    if ac in '+-*/':
+        try:
+            float(ad)
+        except Exception:
+            return _('Invalid number'), _('%s is not a number') % ad
+    return None, None
+
 def test():  # {{{
     import unittest
 
