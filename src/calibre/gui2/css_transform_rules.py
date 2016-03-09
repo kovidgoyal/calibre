@@ -28,10 +28,12 @@ class RuleEdit(QWidget):  # {{{
 
     MATCH_TYPE_MAP = OrderedDict((
         ('is', _('is')),
+        ('is_not', _('is not')),
         ('*', _('is any value')),
         ('matches', _('matches pattern')),
         ('not_matches', _('does not match pattern'))
         ('==', _('is the same length as')),
+        ('!=', _('is not the same length as')),
         ('<', _('is less than')),
         ('>', _('is greater than')),
         ('<=', _('is less than or equal to')),

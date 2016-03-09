@@ -87,7 +87,7 @@ class StyleDeclaration(object):
     def __str__(self):
         return force_unicode(self.css_declaration.cssText, 'utf-8')
 
-operator_map = {'==':'eq', '<=':'le', '<':'lt', '>=':'ge', '>':'gt', '-':'sub', '+': 'add', '*':'mul', '/':'truediv'}
+operator_map = {'==':'eq', '!=': 'ne', '<=':'le', '<':'lt', '>=':'ge', '>':'gt', '-':'sub', '+': 'add', '*':'mul', '/':'truediv'}
 
 def unit_convert(value, unit, dpi=96.0, body_font_size=12):
     result = None
@@ -157,6 +157,8 @@ class Rule(object):
             self.action_operator = partial(transform_number, float(self.action_data), getattr(operator, operator_map[self.action]))
         if match_type == 'is':
             self.property_matches = lambda x: x.lower() == query
+        elif match_type == 'is_not':
+            self.property_matches = lambda x: x.lower() != query
         elif match_type == '*':
             self.property_matches = lambda x: True
         elif 'matches' in match_type:
@@ -207,7 +209,7 @@ def validate_rule(rule):
         except Exception:
             return _('Query invalid'), _(
                 '%s is not a valid regular expression') % rule['query']
-    elif mt in '< > <= >= =='.split():
+    elif mt in '< > <= >= == !='.split():
         try:
             num = parse_css_length_or_number(rule['query'])[0]
             if num is None:
@@ -253,6 +255,7 @@ def test():  # {{{
             css, ecss = 'color: red; margin: 0', 'margin: 0'
             m('*')
             m('is', 'red')
+            m('is_not', 'blue')
             m('matches', 'R.d')
             m('not_matches', 'blue')
             ecss = css.replace('; ', ';\n')
@@ -262,6 +265,7 @@ def test():  # {{{
             css, ecss = 'color: red; margin-top: 10', 'color: red'
             m('*')
             m('==', '10')
+            m('!=', '11')
             m('<=', '10')
             m('>=', '10')
             m('<', '11')
