@@ -6,15 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 from PyQt5.Qt import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QSize
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit,
+    QPushButton, QSize, pyqtSignal, QMenu
 )
 
 from calibre.ebooks.css_transform_rules import (
-    validate_rule, safe_parser, compile_rules, transform_sheet, ACTION_MAP, MATCH_TYPE_MAP)
-from calibre.gui2 import error_dialog, elided_text
+    validate_rule, safe_parser, compile_rules, transform_sheet, ACTION_MAP, MATCH_TYPE_MAP, export_rules, import_rules)
+from calibre.gui2 import error_dialog, elided_text, choose_save_file, choose_files
 from calibre.gui2.tag_mapper import (
     RuleEditDialog as RuleEditDialogBase, Rules as RulesBase, RulesDialog as
-    RulesDialogBase, RuleItem as RuleItemBase)
+    RulesDialogBase, RuleItem as RuleItemBase, SaveLoadMixin)
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 
@@ -152,14 +153,19 @@ class RuleItem(RuleItemBase):  # {{{
 
     @staticmethod
     def text_from_rule(rule, parent):
-        query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
-        text = _(
-            'If the property <i>{property}</i> <b>{match_type}</b> <b>{query}</b><br>{action}').format(
-                property=rule['property'], action=ACTION_MAP[rule['action']],
-                match_type=MATCH_TYPE_MAP[rule['match_type']], query=query)
-        if rule['action_data']:
-            ad = elided_text(rule['action_data'], font=parent.font(), width=200, pos='right')
-            text += ' <code>%s</code>' % ad
+        try:
+            query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
+            text = _(
+                'If the property <i>{property}</i> <b>{match_type}</b> <b>{query}</b><br>{action}').format(
+                    property=rule['property'], action=ACTION_MAP[rule['action']],
+                    match_type=MATCH_TYPE_MAP[rule['match_type']], query=query)
+            if rule['action_data']:
+                ad = elided_text(rule['action_data'], font=parent.font(), width=200, pos='right')
+                text += ' <code>%s</code>' % ad
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            text = _('This rule is invalid, please remove it')
         return text
 # }}}
 
@@ -218,7 +224,7 @@ class Tester(Dialog):  # {{{
         return QSize(800, 600)
 # }}}
 
-class RulesDialog(RulesDialogBase):
+class RulesDialog(RulesDialogBase):  # {{{
 
     DIALOG_TITLE = _('Edit style transform rules')
     PREFS_NAME = 'edit-style-transform-rules'
@@ -230,6 +236,85 @@ class RulesDialog(RulesDialogBase):
         # multiple processes
         self.PREFS_OBJECT = JSONConfig('style-transform-rules')
         RulesDialogBase.__init__(self, *args, **kw)
+# }}}
+
+class RulesWidget(QWidget, SaveLoadMixin):  # {{{
+
+    changed = pyqtSignal()
+
+    def __init__(self, parent=None):
+        self.loaded_ruleset = None
+        QWidget.__init__(self, parent)
+        self.PREFS_OBJECT = JSONConfig('style-transform-rules')
+        l = QVBoxLayout(self)
+        self.rules_widget = w = Rules(self)
+        w.changed.connect(self.changed.emit)
+        l.addWidget(w)
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+        self.export_button = b = QPushButton(_('E&xport'), self)
+        b.setToolTip(_('Export these rules to a file'))
+        b.clicked.connect(self.export_rules)
+        h.addWidget(b)
+        self.import_button = b = QPushButton(_('&Import'), self)
+        b.setToolTip(_('Import previously exported rules'))
+        b.clicked.connect(self.import_rules)
+        h.addWidget(b)
+        self.test_button = b = QPushButton(_('&Test rules'), self)
+        b.clicked.connect(self.test_rules)
+        h.addWidget(b)
+        h.addStretch(10)
+        self.save_button = b = QPushButton(_('&Save'), self)
+        b.setToolTip(_('Save this ruleset for later re-use'))
+        b.clicked.connect(self.save_ruleset)
+        h.addWidget(b)
+        self.export_button = b = QPushButton(_('&Load'), self)
+        self.load_menu = QMenu(self)
+        b.setMenu(self.load_menu)
+        b.setToolTip(_('Load a previously saved ruleset'))
+        b.clicked.connect(self.load_ruleset)
+        h.addWidget(b)
+        self.build_load_menu()
+
+    def export_rules(self):
+        rules = self.rules_widget.rules
+        if not rules:
+            return error_dialog(self, _('No rules'), _(
+                'There are no rules to export'), show=True)
+        path = choose_save_file(self, 'export-style-transform-rules', _('Choose file for exported rules'), initial_filename='rules.txt')
+        if path:
+            raw = export_rules(rules)
+            with open(path, 'wb') as f:
+                f.write(raw)
+
+    def import_rules(self):
+        paths = choose_files(self, 'export-style-transform-rules', _('Choose file to import rules from'), select_only_single_file=True)
+        if paths:
+            with open(paths[0], 'rb') as f:
+                rules = import_rules(f.read())
+            self.rules_widget.rules = list(rules) + list(self.rules_widget.rules)
+            self.changed.emit()
+
+    def load_ruleset(self, name):
+        SaveLoadMixin.load_ruleset(self, name)
+        self.changed.emit()
+
+    def test_rules(self):
+        Tester(self.rules_widget.rules, self).exec_()
+
+    @property
+    def rules(self):
+        return self.rules_widget.rules
+
+    @rules.setter
+    def rules(self, val):
+        try:
+            self.rules_widget.rules = val or []
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            self.rules_widget.rules = []
+# }}}
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

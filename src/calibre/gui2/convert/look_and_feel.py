@@ -6,6 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+import json
+
 from PyQt5.Qt import Qt, QSize
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
@@ -40,7 +42,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
                     'insert_blank_line_size',
                     'input_encoding', 'filter_css', 'expand_css',
                     'asciiize', 'keep_ligatures',
-                    'linearize_tables']
+                    'linearize_tables', 'transform_css_rules']
                 )
         for val, text in [
                 ('original', _('Original')),
@@ -80,6 +82,8 @@ class LookAndFeelWidget(Widget, Ui_Form):
             val = unicode(g.text()).strip()
             val = [x.strip() for x in val.split(',' if ',' in val else ' ') if x.strip()]
             return ', '.join(val) or None
+        if g is self.opt_transform_css_rules:
+            return json.dumps(g.rules)
         return Widget.get_value_handler(self, g)
 
     def set_value_handler(self, g, val):
@@ -106,6 +110,9 @@ class LookAndFeelWidget(Widget, Ui_Form):
         if g is self.opt_extra_css:
             g.load_text(val or '', 'css')
             return True
+        if g is self.opt_transform_css_rules:
+            g.rules = json.loads(val) if val else []
+            return True
 
     def connect_gui_obj_handler(self, gui_obj, slot):
         if gui_obj is self.opt_filter_css:
@@ -113,6 +120,9 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 w = getattr(self, 'filter_css_%s'%key)
                 w.stateChanged.connect(slot)
             self.filter_css_others.textChanged.connect(slot)
+            return
+        if gui_obj is self.opt_transform_css_rules:
+            gui_obj.changed.connect(slot)
             return
         raise NotImplementedError()
 

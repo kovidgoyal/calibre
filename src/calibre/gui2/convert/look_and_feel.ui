@@ -475,6 +475,31 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_4">
+      <attribute name="title">
+       <string>Transform styles</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="RulesWidget" name="opt_transform_css_rules" native="true"/>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
@@ -494,6 +519,12 @@
    <class>TextEdit</class>
    <extends>QPlainTextEdit</extends>
    <header>calibre/gui2/tweak_book/editor/text.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RulesWidget</class>
+   <extends>QWidget</extends>
+   <header>calibre/gui2/css_transform_rules.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

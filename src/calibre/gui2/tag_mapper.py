@@ -11,7 +11,7 @@ from functools import partial
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon,
     QSize, QComboBox, QLineEdit, QListWidgetItem, QStyledItemDelegate,
-    QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu
+    QStaticText, Qt, QStyle, QToolButton, QInputDialog, QMenu, pyqtSignal
 )
 
 from calibre.ebooks.metadata.tag_mapper import map_tags, compile_pat
@@ -194,6 +194,7 @@ class Rules(QWidget):
 
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
+    changed = pyqtSignal()
 
     MSG = _('You can specify rules to filter/transform tags here. Click the "Add Rule" button'
             ' below to get started. The rules will be processed in order for every tag until either a'
@@ -249,6 +250,7 @@ class Rules(QWidget):
         if d.exec_() == d.Accepted:
             i = self.RuleItemClass(d.edit_widget.rule, self.rule_list)
             self.rule_list.scrollToItem(i)
+            self.changed.emit()
 
     def edit_rule(self):
         i = self.rule_list.currentItem()
@@ -259,10 +261,15 @@ class Rules(QWidget):
                 rule = d.edit_widget.rule
                 i.setData(DATA_ROLE, rule)
                 i.setData(RENDER_ROLE, self.RuleItemClass.text_from_rule(rule, self.rule_list))
+                self.changed.emit()
 
     def remove_rules(self):
+        changed = False
         for item in self.rule_list.selectedItems():
             self.rule_list.takeItem(self.rule_list.row(item))
+            changed = True
+        if changed:
+            self.changed.emit()
 
     def move_up(self):
         i = self.rule_list.currentItem()
@@ -272,6 +279,7 @@ class Rules(QWidget):
                 self.rule_list.takeItem(row)
                 self.rule_list.insertItem(row - 1, i)
                 self.rule_list.setCurrentItem(i)
+                self.changed.emit()
 
     def move_down(self):
         i = self.rule_list.currentItem()
@@ -281,6 +289,7 @@ class Rules(QWidget):
                 self.rule_list.takeItem(row)
                 self.rule_list.insertItem(row + 1, i)
                 self.rule_list.setCurrentItem(i)
+                self.changed.emit()
 
     @property
     def rules(self):
@@ -342,41 +351,7 @@ class Tester(Dialog):
         ans.setWidth(ans.width() + 150)
         return ans
 
-class RulesDialog(Dialog):
-
-    DIALOG_TITLE = _('Edit tag mapper rules')
-    PREFS_NAME = 'edit-tag-mapper-rules'
-    RulesClass = Rules
-    TesterClass = Tester
-    PREFS_OBJECT = tag_maps
-
-    def __init__(self, parent=None):
-        self.loaded_ruleset = None
-        Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
-
-    def setup_ui(self):
-        self.l = l = QVBoxLayout(self)
-        self.edit_widget = w = self.RulesClass(self)
-        l.addWidget(w)
-        l.addWidget(self.bb)
-        self.save_button = b = self.bb.addButton(_('&Save'), self.bb.ActionRole)
-        b.setToolTip(_('Save this ruleset for later re-use'))
-        b.clicked.connect(self.save_ruleset)
-        self.load_button = b = self.bb.addButton(_('&Load'), self.bb.ActionRole)
-        b.setToolTip(_('Load a previously saved ruleset'))
-        self.load_menu = QMenu(self)
-        b.setMenu(self.load_menu)
-        self.build_load_menu()
-        self.test_button = b = self.bb.addButton(_('&Test rules'), self.bb.ActionRole)
-        b.clicked.connect(self.test_rules)
-
-    @property
-    def rules(self):
-        return self.edit_widget.rules
-
-    @rules.setter
-    def rules(self, rules):
-        self.edit_widget.rules = rules
+class SaveLoadMixin(object):
 
     def save_ruleset(self):
         if not self.rules:
@@ -417,6 +392,42 @@ class RulesDialog(Dialog):
     def delete_ruleset(self, name):
         del self.PREFS_OBJECT[name]
         self.build_load_menu()
+
+class RulesDialog(Dialog, SaveLoadMixin):
+
+    DIALOG_TITLE = _('Edit tag mapper rules')
+    PREFS_NAME = 'edit-tag-mapper-rules'
+    RulesClass = Rules
+    TesterClass = Tester
+    PREFS_OBJECT = tag_maps
+
+    def __init__(self, parent=None):
+        self.loaded_ruleset = None
+        Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.edit_widget = w = self.RulesClass(self)
+        l.addWidget(w)
+        l.addWidget(self.bb)
+        self.save_button = b = self.bb.addButton(_('&Save'), self.bb.ActionRole)
+        b.setToolTip(_('Save this ruleset for later re-use'))
+        b.clicked.connect(self.save_ruleset)
+        self.load_button = b = self.bb.addButton(_('&Load'), self.bb.ActionRole)
+        b.setToolTip(_('Load a previously saved ruleset'))
+        self.load_menu = QMenu(self)
+        b.setMenu(self.load_menu)
+        self.build_load_menu()
+        self.test_button = b = self.bb.addButton(_('&Test rules'), self.bb.ActionRole)
+        b.clicked.connect(self.test_rules)
+
+    @property
+    def rules(self):
+        return self.edit_widget.rules
+
+    @rules.setter
+    def rules(self, rules):
+        self.edit_widget.rules = rules
 
     def test_rules(self):
         self.TesterClass(self.rules, self).exec_()
