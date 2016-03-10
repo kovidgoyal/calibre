@@ -50,6 +50,7 @@ from calibre.utils.config import JSONConfig
 from calibre.utils.icu import numeric_sort_key
 
 _diff_dialogs = []
+last_used_transform_rules = []
 
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
@@ -542,6 +543,34 @@ class Boss(QObject):
         if not changed:
             self.rewind_savepoint()
         show_report(changed, self.current_metadata.title, report, parent or self.gui, self.show_current_diff)
+
+    def transform_styles(self):
+        global last_used_transform_rules
+        if not self.ensure_book(_('You must first open a book in order to transform styles.')):
+            return
+        from calibre.gui2.css_transform_rules import RulesDialog
+        from calibre.ebooks.css_transform_rules import transform_container
+        d = RulesDialog(self.gui)
+        d.rules = last_used_transform_rules
+        ret = d.exec_()
+        last_used_transform_rules = d.rules
+        if ret != d.Accepted:
+            return
+        with BusyCursor():
+            self.add_savepoint(_('Before style transformation'))
+            try:
+                changed = transform_container(current_container(), last_used_transform_rules)
+            except:
+                self.rewind_savepoint()
+                raise
+            if changed:
+                self.apply_container_update_to_gui()
+        if not changed:
+            self.rewind_savepoint()
+            info_dialog(self.gui, _('No changes'), _(
+                'No styles were changed.'), show=True)
+            return
+        self.show_current_diff()
 
     def manage_fonts(self):
         self.commit_all_editors_to_container()

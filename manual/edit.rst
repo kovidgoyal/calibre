@@ -375,6 +375,21 @@ Note that the algorithm can sometimes generate incorrect results, especially
 when single quotes at the start of contractions are involved. Accessed via
 :guilabel:`Tools->Smarten punctuation`.
 
+Transforming CSS properties
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Create rules to transform the stying of the book. For example, create a rule
+to convert all red text to green or to double the font size of all text in the
+book or make text of a certain font family italic, etc.
+
+Creating the rules is simple, the rules follow a natural language format, that
+looks like:
+
+ * If the property *color* is *red* *change* it to *green*
+ * If the property *font-size* is *any value* *multiply* the value by *2*
+
+Accessed via :guilabel:`Tools->Transform styles`.
+
 Removing unused CSS rules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

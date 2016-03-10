@@ -392,6 +392,8 @@ class Main(MainWindow):
             'Check external links in the book'))
         self.action_compress_images = treg('compress-image.png', _('Compress &images losslessly'), self.boss.compress_images, 'compress-images', (), _(
             'Compress images losslessly'))
+        self.action_transform_styles = treg('wizard.png', _('Transform &styles'), self.boss.transform_styles, 'transform-styles', (), _(
+            'Transform styles used in the book'))
 
         def ereg(icon, text, target, sid, keys, description):
             return reg(icon, text, partial(self.boss.editor_action, target), sid, keys, description)
@@ -543,6 +545,7 @@ class Main(MainWindow):
         e.addAction(self.action_compress_images)
         e.addAction(self.action_smarten_punctuation)
         e.addAction(self.action_remove_unused_css)
+        e.addAction(self.action_transform_styles)
         e.addAction(self.action_fix_html_all)
         e.addAction(self.action_pretty_all)
         e.addAction(self.action_rationalize_folders)
