@@ -98,6 +98,15 @@ def option_recommendation_to_cli_option(add_option, rec):
         attrs.pop('type', '')
     if opt.name == 'read_metadata_from_opf':
         switches.append('--from-opf')
+    if opt.name == 'transform_css_rules':
+        attrs['help'] = _(
+            'Path to a file containing rules to transform the CSS styles'
+            ' in this book. The easiest way to create such a file is to'
+            ' use the wizard for creating rules in the calibre GUI. Access'
+            ' it in the "Look & Feel->Transform styles" section of the conversion'
+            ' dialog. Once you create the rules, you can use the Export button'
+            ' to save them to a file.'
+        )
     if opt.name in DEFAULT_TRUE_OPTIONS and rec.recommended_value is True:
         switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
@@ -176,7 +185,7 @@ def add_pipeline_options(parser, plumber):
                       'subset_embedded_fonts', 'embed_all_fonts',
                       'line_height', 'minimum_line_height',
                       'linearize_tables',
-                      'extra_css', 'filter_css', 'expand_css',
+                      'extra_css', 'filter_css', 'transform_css_rules', 'expand_css',
                       'smarten_punctuation', 'unsmarten_punctuation',
                       'margin_top', 'margin_left', 'margin_right',
                       'margin_bottom', 'change_justification',
@@ -349,6 +358,17 @@ def main(args=sys.argv):
             setattr(opts, x, abspath(getattr(opts, x)))
     if opts.search_replace:
         opts.search_replace = read_sr_patterns(opts.search_replace, log)
+    if opts.transform_css_rules:
+        from calibre.ebooks.css_transform_rules import import_rules, validate_rule
+        with open(opts.transform_css_rules, 'rb') as tcr:
+            opts.transform_css_rules = rules = list(import_rules(tcr.read()))
+            for rule in rules:
+                title, msg = validate_rule(rule)
+                if title and msg:
+                    log.error('Failed to parse CSS transform rules')
+                    log.error(title)
+                    log.error(msg)
+                    return 1
 
     recommendations = [(n.dest, getattr(opts, n.dest),
                         OptionRecommendation.HIGH)

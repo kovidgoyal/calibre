@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re, sys, shutil, pprint
+import os, re, sys, shutil, pprint, json
 from functools import partial
 
 from calibre.customize.conversion import OptionRecommendation, DummyReporter
@@ -353,6 +353,12 @@ OptionRecommendation(name='extra_css',
                 'This CSS will be appended to the style rules from '
                 'the source file, so it can be used to override those '
                 'rules.')
+        ),
+
+OptionRecommendation(name='transform_css_rules',
+            recommended_value=None, level=OptionRecommendation.LOW,
+            help=_('Rules for transforming the styles in this book. These'
+                   ' rules are applied after all other CSS processing is done.')
         ),
 
 OptionRecommendation(name='filter_css',
@@ -1153,12 +1159,18 @@ OptionRecommendation(name='search_replace',
         mobi_file_type = getattr(self.opts, 'mobi_file_type', 'old')
         needs_old_markup = (self.output_plugin.file_type == 'lit' or
                     (self.output_plugin.file_type == 'mobi' and mobi_file_type == 'old'))
+        transform_css_rules = ()
+        if self.opts.transform_css_rules:
+            transform_css_rules = self.opts.transform_css_rules
+            if isinstance(transform_css_rules, basestring):
+                transform_css_rules = json.loads(transform_css_rules)
         flattener = CSSFlattener(fbase=fbase, fkey=fkey,
                 lineh=line_height,
                 untable=needs_old_markup,
                 unfloat=needs_old_markup,
                 page_break_on_body=self.output_plugin.file_type in ('mobi',
                     'lit'),
+                transform_css_rules=transform_css_rules,
                 specializer=partial(self.output_plugin.specialize_css_for_output,
                     self.log, self.opts))
         flattener(self.oeb, self.opts)

@@ -4,13 +4,13 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from collections import OrderedDict
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QSize
 )
 
-from calibre.ebooks.css_transform_rules import validate_rule, safe_parser, compile_rules, transform_sheet
+from calibre.ebooks.css_transform_rules import (
+    validate_rule, safe_parser, compile_rules, transform_sheet, ACTION_MAP, MATCH_TYPE_MAP)
 from calibre.gui2 import error_dialog, elided_text
 from calibre.gui2.tag_mapper import (
     RuleEditDialog as RuleEditDialogBase, Rules as RulesBase, RulesDialog as
@@ -20,29 +20,6 @@ from calibre.utils.config import JSONConfig
 
 class RuleEdit(QWidget):  # {{{
 
-    ACTION_MAP = OrderedDict((
-        ('remove', _('Remove the property')),
-        ('append', _('Add extra properties')),
-        ('change', _('Change the value to')),
-        ('*', _('Multiply the value by')),
-        ('/', _('Divide the value by')),
-        ('+', _('Add to the value')),
-        ('-', _('Subtract from the value')),
-    ))
-
-    MATCH_TYPE_MAP = OrderedDict((
-        ('is', _('is')),
-        ('is_not', _('is not')),
-        ('*', _('is any value')),
-        ('matches', _('matches pattern')),
-        ('not_matches', _('does not match pattern')),
-        ('==', _('is the same length as')),
-        ('!=', _('is not the same length as')),
-        ('<', _('is less than')),
-        ('>', _('is greater than')),
-        ('<=', _('is less than or equal to')),
-        ('>=', _('is greater than or equal to')),
-    ))
     MSG = _('Create the rule below, the rule can be used to transform style properties')
 
     def __init__(self, parent=None):
@@ -69,7 +46,7 @@ class RuleEdit(QWidget):  # {{{
                                'For instance use margin-top, not margin.'))
             elif clause == '{match_type}':
                 self.match_type = w = QComboBox(self)
-                for action, text in self.MATCH_TYPE_MAP.iteritems():
+                for action, text in MATCH_TYPE_MAP.iteritems():
                     w.addItem(text, action)
                 w.currentIndexChanged.connect(self.update_state)
             elif clause == '{query}':
@@ -89,7 +66,7 @@ class RuleEdit(QWidget):  # {{{
         for clause in parts:
             if clause == '{action}':
                 self.action = w = QComboBox(self)
-                for action, text in self.ACTION_MAP.iteritems():
+                for action, text in ACTION_MAP.iteritems():
                     w.addItem(text, action)
                 w.currentIndexChanged.connect(self.update_state)
             elif clause == '{action_data}':
@@ -178,8 +155,8 @@ class RuleItem(RuleItemBase):  # {{{
         query = elided_text(rule['query'], font=parent.font(), width=200, pos='right')
         text = _(
             'If the property <i>{property}</i> <b>{match_type}</b> <b>{query}</b><br>{action}').format(
-                property=rule['property'], action=RuleEdit.ACTION_MAP[rule['action']],
-                match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
+                property=rule['property'], action=ACTION_MAP[rule['action']],
+                match_type=MATCH_TYPE_MAP[rule['match_type']], query=query)
         if rule['action_data']:
             ad = elided_text(rule['action_data'], font=parent.font(), width=200, pos='right')
             text += ' <code>%s</code>' % ad

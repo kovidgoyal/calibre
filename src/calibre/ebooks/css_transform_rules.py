@@ -5,6 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from functools import partial
+from collections import OrderedDict
 import operator
 
 from cssutils.css import Property, CSSRule
@@ -192,7 +193,42 @@ class Rule(object):
         declaration.changed = oval or changed
         return changed
 
+ACTION_MAP = OrderedDict((
+    ('remove', _('Remove the property')),
+    ('append', _('Add extra properties')),
+    ('change', _('Change the value to')),
+    ('*', _('Multiply the value by')),
+    ('/', _('Divide the value by')),
+    ('+', _('Add to the value')),
+    ('-', _('Subtract from the value')),
+))
+
+MATCH_TYPE_MAP = OrderedDict((
+    ('is', _('is')),
+    ('is_not', _('is not')),
+    ('*', _('is any value')),
+    ('matches', _('matches pattern')),
+    ('not_matches', _('does not match pattern')),
+    ('==', _('is the same length as')),
+    ('!=', _('is not the same length as')),
+    ('<', _('is less than')),
+    ('>', _('is greater than')),
+    ('<=', _('is less than or equal to')),
+    ('>=', _('is greater than or equal to')),
+))
+
+allowed_keys = frozenset('property match_type query action action_data'.split())
+
 def validate_rule(rule):
+    keys = frozenset(rule)
+    extra = keys - allowed_keys
+    if extra:
+        return _('Unknown keys'), _(
+            'The rule has unknown keys: %s') % ', '.join(extra)
+    missing = allowed_keys - keys
+    if missing:
+        return _('Missing keys'), _(
+            'The rule has missing keys: %s') % ', '.join(missing)
     mt = rule['match_type']
     if not rule['property']:
         return _('Property required'), _('You must specify a CSS property to match')
@@ -203,6 +239,9 @@ def validate_rule(rule):
     if not rule['query'] and mt != '*':
         _('Query required'), _(
             'You must specify a value for the CSS property to match')
+    if mt not in MATCH_TYPE_MAP:
+        return _('Unknown match type'), _(
+            'The match type %s is not known') % mt
     if 'matches' in mt:
         try:
             compile_pat(rule['query'])
@@ -218,6 +257,9 @@ def validate_rule(rule):
             return _('Query invalid'), _(
                 '%s is not a valid length or number') % rule['query']
     ac, ad = rule['action'], rule['action_data']
+    if ac not in ACTION_MAP:
+        return _('Unknown action type'), _(
+            'The action type %s is not known') % mt
     if not ad and ac != 'remove':
         msg = _('You must specify a number')
         if ac == 'append':
@@ -258,6 +300,47 @@ def transform_container(container, serialized_rules, names=()):
         transform_style=partial(transform_declaration, rules), names=names
     )
 
+def rule_to_text(rule):
+    def get(prop):
+        return rule.get(prop) or ''
+    text = _(
+        'If the property {property} {match_type} {query}\n{action}').format(
+            property=get('property'), action=ACTION_MAP[rule['action']],
+            match_type=MATCH_TYPE_MAP[rule['match_type']], query=get('query'))
+    if get('action_data'):
+        text += get('action_data')
+    return text
+
+def export_rules(serialized_rules):
+    lines = []
+    for rule in serialized_rules:
+        lines.extend('# ' + l for l in rule_to_text(rule).splitlines())
+        lines.extend('%s: %s' % (k, v.replace('\n', ' ')) for k, v in rule.iteritems() if k in allowed_keys)
+        lines.append('')
+    return '\n'.join(lines).encode('utf-8')
+
+def import_rules(raw_data):
+    pat = regex.compile('\s*(\S+)\s*:\s*(.+)', flags=regex.VERSION1)
+    current_rule = {}
+
+    def sanitize(r):
+        return {k:(r.get(k) or '') for k in allowed_keys}
+
+    for line in raw_data.decode('utf-8').splitlines():
+        if not line.strip():
+            if current_rule:
+                yield sanitize(current_rule)
+            current_rule = {}
+            continue
+        if line.lstrip().startswith('#'):
+            continue
+        m = pat.match(line)
+        if m is not None:
+            k, v = m.group(1).lower(), m.group(2)
+            if k in allowed_keys:
+                current_rule[k] = v
+    if current_rule:
+        yield sanitize(current_rule)
 
 def test():  # {{{
     import unittest
@@ -334,6 +417,10 @@ def test():  # {{{
             m('line-height: 2', 'line-height: 1', '/', '2')
             prop = 'border-top-width'
             m('border-width: 1', 'border-bottom-width: 1;\nborder-left-width: 1;\nborder-right-width: 1;\nborder-top-width: 3', '*', '3')
+
+        def test_export_import(self):
+            rule = {'property':'a', 'match_type':'*', 'query':'some text', 'action':'remove', 'action_data':'color: red; a: b'}
+            self.ae(rule, next(import_rules(export_rules([rule]))))
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
     unittest.TextTestRunner(verbosity=4).run(tests)
