@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import cStringIO, sys
 from binascii import hexlify, unhexlify
 from functools import partial
+from threading import Thread
 
 from PyQt5.Qt import QWidget, pyqtSignal, QDialog, Qt, QLabel, \
         QLineEdit, QDialogButtonBox, QGridLayout, QCheckBox
@@ -18,6 +19,18 @@ from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2.dialogs.test_email_ui import Ui_Dialog as TE_Dialog
 from calibre.gui2 import error_dialog, question_dialog
+
+class EmailWorker(Thread):
+    def __init__(self, fun, to, cb, *args, **kwargs):
+        self.to = to
+        self.cb = cb
+        self.fun = fun
+        super(EmailWorker, self).__init__(*args, **kwargs)
+
+    def run(self):
+        self.fun(self.to)
+        self.cb()
+
 
 class TestEmail(QDialog, TE_Dialog):
 
@@ -29,6 +42,7 @@ class TestEmail(QDialog, TE_Dialog):
         self.test_func = parent.test_email_settings
         self.test_button.clicked.connect(self.test)
         self.from_.setText(unicode(self.from_.text())%opts.from_)
+        parent.test_email_signal.connect(self.log.appendPlainText)
         if pa:
             self.to.setText(pa)
         if opts.relay_host:
@@ -39,13 +53,10 @@ class TestEmail(QDialog, TE_Dialog):
     def test(self, *args):
         self.log.setPlainText(_('Sending...'))
         self.test_button.setEnabled(False)
-        try:
-            tb = self.test_func(unicode(self.to.text()))
-            if not tb:
-                tb = _('Mail successfully sent')
-            self.log.setPlainText(tb)
-        finally:
-            self.test_button.setEnabled(True)
+        th = EmailWorker(self.test_func,
+                         unicode(self.to.text()),
+                         lambda: self.test_button.setEnabled(True))
+        th.start()
 
 class RelaySetup(QDialog):
 
@@ -108,6 +119,7 @@ class RelaySetup(QDialog):
 class SendEmail(QWidget, Ui_Form):
 
     changed_signal = pyqtSignal()
+    test_email_signal = pyqtSignal(str)
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -176,9 +188,11 @@ class SendEmail(QWidget, Ui_Form):
             import traceback
             tb = traceback.format_exc()
             tb += '\n\nLog:\n' + buf.getvalue()
+        else:
+            tb = _('Mail successfully sent')
         finally:
             sys.stdout, sys.stderr = oout, oerr
-        return tb
+        self.test_email_signal.emit(tb)
 
     def create_service_relay(self, service, *args):
         service = {
