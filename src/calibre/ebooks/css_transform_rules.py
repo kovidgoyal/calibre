@@ -175,7 +175,7 @@ class Rule(object):
 
     def process_declaration(self, declaration):
         oval, declaration.changed = declaration.changed, False
-        for prop, parent_prop in declaration:
+        for prop, parent_prop in tuple(declaration):
             if prop.name == self.property_name and self.property_matches(prop.value):
                 if self.action == 'remove':
                     declaration.remove_property(prop, parent_prop)
