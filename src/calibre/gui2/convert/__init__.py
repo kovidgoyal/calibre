@@ -11,7 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import (QWidget, QSpinBox, QDoubleSpinBox, QLineEdit, QTextEdit,
     QCheckBox, QComboBox, Qt, QIcon, pyqtSignal, QLabel, QFontComboBox, QFont,
-    QFontInfo)
+    QFontInfo, QPlainTextEdit)
 
 from calibre.customize.conversion import OptionRecommendation
 from calibre.ebooks.conversion.config import (
@@ -143,7 +143,7 @@ class Widget(QWidget):
             return ret
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             return g.value()
-        elif isinstance(g, (QLineEdit, QTextEdit)):
+        elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
             func = getattr(g, 'toPlainText', getattr(g, 'text', None))()
             ans = unicode(func)
             if self.STRIP_TEXT_FIELDS:
@@ -189,7 +189,7 @@ class Widget(QWidget):
         from calibre.gui2.convert.regex_builder import RegexEdit
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             g.valueChanged.connect(f)
-        elif isinstance(g, (QLineEdit, QTextEdit)):
+        elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
             g.textChanged.connect(f)
         elif isinstance(g, QComboBox):
             g.editTextChanged.connect(f)

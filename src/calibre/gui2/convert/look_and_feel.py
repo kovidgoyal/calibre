@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from PyQt5.Qt import Qt
+from PyQt5.Qt import Qt, QSize
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -61,6 +61,7 @@ class LookAndFeelWidget(Widget, Ui_Form):
         self.opt_unsmarten_punctuation.stateChanged.connect(
                 lambda state: state != Qt.Unchecked and
                 self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
+        self.opt_extra_css.size_hint = QSize(400, 300)
 
     def get_value_handler(self, g):
         if g is self.opt_change_justification:
@@ -101,6 +102,9 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 else:
                     w.setChecked(False)
             self.filter_css_others.setText(', '.join(items))
+            return True
+        if g is self.opt_extra_css:
+            g.load_text(val or '', 'css')
             return True
 
     def connect_gui_obj_handler(self, gui_obj, slot):
