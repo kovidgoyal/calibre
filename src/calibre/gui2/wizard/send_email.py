@@ -9,43 +9,70 @@ __docformat__ = 'restructuredtext en'
 import cStringIO, sys
 from binascii import hexlify, unhexlify
 from functools import partial
+from threading import Thread
 
-from PyQt5.Qt import QWidget, pyqtSignal, QDialog, Qt, QLabel, \
-        QLineEdit, QDialogButtonBox, QGridLayout, QCheckBox
+from PyQt5.Qt import (
+    QWidget, pyqtSignal, QDialog, Qt, QLabel, QLineEdit, QDialogButtonBox,
+    QGridLayout, QCheckBox, QIcon, QVBoxLayout, QPushButton, QPlainTextEdit,
+    QHBoxLayout)
 
 from calibre import prints
 from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
-from calibre.gui2.dialogs.test_email_ui import Ui_Dialog as TE_Dialog
 from calibre.gui2 import error_dialog, question_dialog
 
-class TestEmail(QDialog, TE_Dialog):
+class TestEmail(QDialog):
+
+    test_done = pyqtSignal(object)
 
     def __init__(self, pa, parent):
         QDialog.__init__(self, parent)
-        TE_Dialog.__init__(self)
-        self.setupUi(self)
-        opts = smtp_prefs().parse()
         self.test_func = parent.test_email_settings
-        self.test_button.clicked.connect(self.test)
-        self.from_.setText(unicode(self.from_.text())%opts.from_)
+        self.setWindowTitle(_("Test email settings"))
+        self.setWindowIcon(QIcon(I('config.ui')))
+        l = QVBoxLayout(self)
+        opts = smtp_prefs().parse()
+        self.from_ = la = QLabel(_("Send test mail from %s to:")%opts.from_)
+        l.addWidget(la)
+        self.to = le = QLineEdit(self)
         if pa:
             self.to.setText(pa)
+        self.test_button = b = QPushButton(_('&Test'), self)
+        b.clicked.connect(self.start_test)
+        self.test_done.connect(self.on_test_done, type=Qt.QueuedConnection)
+        self.h = h = QHBoxLayout()
+        h.addWidget(le), h.addWidget(b)
+        l.addLayout(h)
         if opts.relay_host:
-            self.label.setText(_('Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption')%
+            self.la = la = QLabel(_('Using: %(un)s:%(pw)s@%(host)s:%(port)s and %(enc)s encryption')%
                     dict(un=opts.relay_username, pw=unhexlify(opts.relay_password).decode('utf-8'),
                         host=opts.relay_host, port=opts.relay_port, enc=opts.encryption))
+            l.addWidget(la)
+        self.log = QPlainTextEdit(self)
+        l.addWidget(self.log)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Close)
+        bb.rejected.connect(self.reject), bb.accepted.connect(self.accept)
+        l.addWidget(bb)
 
-    def test(self, *args):
-        self.log.setPlainText(_('Sending...'))
+    def start_test(self, *args):
+        self.log.setPlainText(_('Sending mail, please wait...'))
         self.test_button.setEnabled(False)
+        t = Thread(target=self.run_test, name='TestEmailSending')
+        t.daemon = True
+        t.start()
+
+    def run_test(self):
         try:
-            tb = self.test_func(unicode(self.to.text()))
-            if not tb:
-                tb = _('Mail successfully sent')
-            self.log.setPlainText(tb)
-        finally:
+            tb = self.test_func(unicode(self.to.text())) or _('Mail successfully sent')
+        except Exception:
+            import traceback
+            tb = traceback.format_exc()
+        self.test_done.emit(tb)
+
+    def on_test_done(self, txt):
+        if self.isVisible():
             self.test_button.setEnabled(True)
+            self.log.setPlainText(txt)
 
 class RelaySetup(QDialog):
 
