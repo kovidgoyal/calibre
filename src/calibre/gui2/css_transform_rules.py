@@ -7,12 +7,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 from collections import OrderedDict
 
 from PyQt5.Qt import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QListWidgetItem
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QLineEdit, QPushButton, QSize
 )
 
-from calibre.ebooks.css_transform_rules import validate_rule
+from calibre.ebooks.css_transform_rules import validate_rule, safe_parser, compile_rules, transform_sheet
 from calibre.gui2 import error_dialog, elided_text
-from calibre.gui2.tag_mapper import RuleEditDialog as RuleEditDialogBase, Rules as RulesBase
+from calibre.gui2.tag_mapper import (
+    RuleEditDialog as RuleEditDialogBase, Rules as RulesBase, RulesDialog as
+    RulesDialogBase, RuleItem as RuleItemBase)
+from calibre.gui2.widgets2 import Dialog
+from calibre.utils.config import JSONConfig
 
 class RuleEdit(QWidget):  # {{{
 
@@ -31,7 +35,7 @@ class RuleEdit(QWidget):  # {{{
         ('is_not', _('is not')),
         ('*', _('is any value')),
         ('matches', _('matches pattern')),
-        ('not_matches', _('does not match pattern'))
+        ('not_matches', _('does not match pattern')),
         ('==', _('is the same length as')),
         ('!=', _('is not the same length as')),
         ('<', _('is less than')),
@@ -39,6 +43,7 @@ class RuleEdit(QWidget):  # {{{
         ('<=', _('is less than or equal to')),
         ('>=', _('is greater than or equal to')),
     ))
+    MSG = _('Create the rule below, the rule can be used to transform style properties')
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -66,11 +71,13 @@ class RuleEdit(QWidget):  # {{{
                 self.match_type = w = QComboBox(self)
                 for action, text in self.MATCH_TYPE_MAP.iteritems():
                     w.addItem(text, action)
+                w.currentIndexChanged.connect(self.update_state)
             elif clause == '{query}':
                 self.query = w = QLineEdit(self)
             h.addWidget(w)
             if clause is not parts[-1]:
                 h.addWidget(QLabel('\xa0'))
+        self.preamble.setBuddy(self.property)
 
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)
@@ -84,6 +91,7 @@ class RuleEdit(QWidget):  # {{{
                 self.action = w = QComboBox(self)
                 for action, text in self.ACTION_MAP.iteritems():
                     w.addItem(text, action)
+                w.currentIndexChanged.connect(self.update_state)
             elif clause == '{action_data}':
                 self.action_data = w = QLineEdit(self)
             h.addWidget(w)
@@ -142,8 +150,10 @@ class RuleEdit(QWidget):  # {{{
                 idx = 0
             c.setCurrentIndex(idx)
         sc('action'), sc('match_type')
+        self.property.setText(unicode(rule.get('property', '')).strip())
         self.query.setText(unicode(rule.get('query', '')).strip())
         self.action_data.setText(unicode(rule.get('action_data', '')).strip())
+        self.update_state()
 
     def validate(self):
         rule = self.rule
@@ -161,7 +171,7 @@ class RuleEditDialog(RuleEditDialogBase):  # {{{
     RuleEditClass = RuleEdit
 # }}}
 
-class RuleItem(QListWidgetItem):  # {{{
+class RuleItem(RuleItemBase):  # {{{
 
     @staticmethod
     def text_from_rule(rule, parent):
@@ -176,10 +186,82 @@ class RuleItem(QListWidgetItem):  # {{{
         return text
 # }}}
 
-class Rules(RulesBase):
+class Rules(RulesBase):  # {{{
 
     RuleItemClass = RuleItem
     RuleEditDialogClass = RuleEditDialog
 
     MSG = _('You can specify rules to transform styles here. Click the "Add Rule" button'
             ' below to get started.')
+# }}}
+
+class Tester(Dialog):  # {{{
+
+    DIALOG_TITLE = _('Test style transform rules')
+    PREFS_NAME = 'test-style-transform-rules'
+    LABEL = _('Enter a CSS stylesheet below to test')
+
+    def __init__(self, rules, parent=None):
+        self.rules = compile_rules(rules)
+        Dialog.__init__(self, self.DIALOG_TITLE, self.PREFS_NAME, parent=parent)
+
+    def setup_ui(self):
+        from calibre.gui2.tweak_book.editor.text import TextEdit
+        self.l = l = QVBoxLayout(self)
+        self.bb.setStandardButtons(self.bb.Close)
+        self.la = la = QLabel(self.LABEL)
+        l.addWidget(la)
+        self.css = t = TextEdit(self)
+        t.load_text('/* %s */\n' % _('Enter CSS rules below and click the Test button'), 'css')
+        la.setBuddy(t)
+        c = t.textCursor()
+        c.movePosition(c.End)
+        t.setTextCursor(c)
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+        h.addWidget(t)
+        self.test_button = b = QPushButton(_('&Test'), self)
+        b.clicked.connect(self.do_test)
+        h.addWidget(b)
+        self.result = la = TextEdit(self)
+        la.setReadOnly(True)
+        l.addWidget(la)
+        l.addWidget(self.bb)
+
+    @property
+    def value(self):
+        return self.css.toPlainText()
+
+    def do_test(self):
+        decl = safe_parser().parseString(self.value)
+        transform_sheet(self.rules, decl)
+        self.result.load_text('/* %s */\n\n%s' % (_('Resulting stylesheet'), decl.cssText), 'css')
+
+    def sizeHint(self):
+        return QSize(800, 600)
+# }}}
+
+class RulesDialog(RulesDialogBase):
+
+    DIALOG_TITLE = _('Edit style transform rules')
+    PREFS_NAME = 'edit-style-transform-rules'
+    RulesClass = Rules
+    TesterClass = Tester
+
+    def __init__(self, *args, **kw):
+        # This has to be loaded on instantiation as it can be shared by
+        # multiple processes
+        self.PREFS_OBJECT = JSONConfig('style-transform-rules')
+        RulesDialogBase.__init__(self, *args, **kw)
+
+if __name__ == '__main__':
+    from calibre.gui2 import Application
+    app = Application([])
+    d = RulesDialog()
+    d.rules = [
+        {'property':'color', 'match_type':'*', 'query':'', 'action':'change', 'action_data':'green'},
+    ]
+    d.exec_()
+    from pprint import pprint
+    pprint(d.rules)
+    del d, app

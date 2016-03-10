@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 from functools import partial
 import operator
 
-from cssutils.css import Property
+from cssutils.css import Property, CSSRule
 import regex
 
 from calibre import force_unicode
@@ -199,7 +199,7 @@ def validate_rule(rule):
     if rule['property'] in normalizers:
         return _('Shorthand property not allowed'), _(
             '{0} is a shorthand property. Use the full form of the property,'
-            ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.')
+            ' for example, instead of font, use font-family, instead of margin, use margin-top, etc.').format(rule['property'])
     if not rule['query'] and mt != '*':
         _('Query required'), _(
             'You must specify a value for the CSS property to match')
@@ -231,6 +231,33 @@ def validate_rule(rule):
         except Exception:
             return _('Invalid number'), _('%s is not a number') % ad
     return None, None
+
+def compile_rules(serialized_rules):
+    return [Rule(**r) for r in serialized_rules]
+
+def transform_declaration(compiled_rules, decl):
+    decl = StyleDeclaration(decl)
+    changed = False
+    for rule in compiled_rules:
+        if rule.process_declaration(decl):
+            changed = True
+    return changed
+
+def transform_sheet(compiled_rules, sheet):
+    changed = False
+    for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+        if transform_declaration(compiled_rules, rule.style):
+            changed = True
+    return changed
+
+def transform_container(container, serialized_rules, names=()):
+    from calibre.ebooks.oeb.polish.css import transform_css
+    rules = compile_rules(serialized_rules)
+    return transform_css(
+        container, transform_sheet=partial(transform_sheet, rules),
+        transform_style=partial(transform_declaration, rules), names=names
+    )
+
 
 def test():  # {{{
     import unittest
