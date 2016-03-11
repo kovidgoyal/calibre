@@ -55,7 +55,7 @@ def upload_signatures():
                 continue
             sig = os.path.join(tdir, os.path.basename(installer+'.sig'))
             scp.append(sig)
-            check_call([os.path.expanduser('~/kovid/env/private/gpg-as-kovid'), '--output', sig, '--detach-sig', installer])
+            check_call([os.path.expanduser('~/work/env/private/gpg-as-kovid'), '--output', sig, '--detach-sig', installer])
             with open(installer, 'rb') as f:
                 raw = f.read()
             fingerprint = hashlib.sha512(raw).hexdigest()
