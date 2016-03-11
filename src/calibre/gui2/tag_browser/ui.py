@@ -111,10 +111,10 @@ class TagBrowserMixin(object):  # {{{
         d = TagCategories(self, db, on_category,
                           book_ids=self.tags_view.model().get_book_ids_to_use())
         if d.exec_() == d.Accepted:
-            db.new_api.set_pref('user_categories', d.categories)
+            # Order is important. The categories must be removed before setting
+            # the preference because setting the pref recomputes the dynamic categories
             db.field_metadata.remove_user_categories()
-            for k in d.categories:
-                db.field_metadata.add_user_category('@' + k, k)
+            db.new_api.set_pref('user_categories', d.categories)
             db.new_api.refresh_search_locations()
             self.tags_view.recount()
 
