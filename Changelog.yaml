@@ -20,6 +20,37 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.53.0
+  date: 2016-03-11
+
+  new features:
+    - title: "Edit Book: A new tool to transform book styling using easy to create rules."
+      description: "For example, you can create rules to change colors in the book or to double the font size of all text in the book, etc. For details, see https://manual.calibre-ebook.com/edit.html#transforming-css-properties"
+      type: major
+
+    - title: "Conversion: Allow creating rules to transform styles during conversion, as above. Available in the conversion dialog at 'Look & Feel->Transform style'"
+
+    - title: "Edit metadata dialog: Make the hide toolbars right click menu action persistent. Also fix very large number of custom fields causing the basic metadata tab to not be aligned properly"
+
+    - title: "Portable Installer: Do not ask to launch calibre when running an automated install. Automated installs will now never launch calibre."
+
+  bug fixes:
+    - title: "E-book viewer: Hide list numbers for popup footnotes when the footnotes are use <ol> as the number are likely to be incorrect."
+
+    - title: "DOCX Input: Ignore the hidden bookmark Word 2010 inserts to enable the go to last edit feature."
+      tickets: [1552972]
+
+    - title: "Fix keyboard focus lost after merging book records"
+      tickets: [1550520] 
+
+    - title: "E-book viewer: Handle <![CDATA[ escapes correctly."
+      tickets: [1550966]
+
+    - title: "Edit Book: Fix spelling correction suggestions not being shown when using the context menu key with the cursor at the end of the word"
+
+  improved recipes:
+    - Mediapart
+
 - version: 2.52.0
   date: 2016-02-26
 
