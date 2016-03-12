@@ -378,7 +378,7 @@ when single quotes at the start of contractions are involved. Accessed via
 Transforming CSS properties
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Create rules to transform the stying of the book. For example, create a rule
+Create rules to transform the styling of the book. For example, create a rule
 to convert all red text to green or to double the font size of all text in the
 book or make text of a certain font family italic, etc.
 

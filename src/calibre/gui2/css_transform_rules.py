@@ -93,7 +93,7 @@ class RuleEdit(QWidget):  # {{{
         if 'matches' in mt:
             tt = _('A regular expression')
         elif mt in '< > <= >='.split():
-            tt = _('Either a CSS length, such as 10pt or a unit less number. If a unitless'
+            tt = _('Either a CSS length, such as 10pt or a unit less number. If a unit less'
                    ' number is used it will be compared with the CSS value using whatever unit'
                    ' the value has. Note that comparison automatically converts units, except'
                    ' for relative units like percentage or em, for which comparison fails'
