@@ -37,7 +37,7 @@ class TopBar:
                 E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.5em;"),
                 E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
             )
-            if bid == self.bar_id:
+            if bid is self.bar_id:
                 set_css(bar, position='fixed', left='0', top='0', z_index='1')
                 bar.appendChild(E.style(style, type='text/css'))
             set_css(bar,
@@ -57,7 +57,7 @@ class TopBar:
 
     def set_left(self, title='calibre', icon_name='heart', action=None, tooltip='', run_animation=False):
         self.current_left_data = {'title':title, 'icon_name':icon_name, 'action':action, 'tooltip':tooltip}
-        if icon_name == 'heart':
+        if icon_name is 'heart':
             if not tooltip:
                 tooltip = _('Donate to support calibre development')
 
@@ -75,7 +75,7 @@ class TopBar:
                 'margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle', self.SPACING, self.VSPACING)))
             if bar is self.bar:
                 a = left.firstChild
-                if icon_name == 'heart':
+                if icon_name is 'heart':
                     set_css(a,
                         animation_name=self.throbber_name, animation_duration='1s', animation_timing_function='ease-in-out',
                         animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'

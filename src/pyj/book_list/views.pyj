@@ -54,12 +54,12 @@ class BooksView:
         self.update_fetching_status()
 
     def set_view_mode(self, mode='cover_grid'):
-        if self.mode == mode:
+        if self.mode is mode:
             return
         if mode not in v"['cover_grid']":
             mode = 'cover_grid'
         self.mode = mode
-        if mode == 'cover_grid':
+        if mode is 'cover_grid':
             self.render_book = self.cover_grid_item.bind(self)
             self.init_grid = self.init_cover_grid.bind(self)
         self.clear()
@@ -75,7 +75,7 @@ class BooksView:
 
     @property
     def is_visible(self):
-        self.container.style.display == 'block'
+        self.container.style.display is 'block'
 
     @is_visible.setter
     def is_visible(self, val):
@@ -136,7 +136,7 @@ class BooksView:
             return  # Fetching was aborted
         self.is_fetching = None
         self.update_fetching_status()
-        if end_type == 'load':
+        if end_type is 'load':
             try:
                 data = JSON.parse(xhr.responseText)
                 for key in data.metadata:
@@ -147,7 +147,7 @@ class BooksView:
                 self.interface_data.search_result = data.search_result
             except Exception as err:
                 error_dialog(_('Could not get more books'), _('Server returned an invalid response'), err.stack or err.toString())
-        elif end_type != 'abort':
+        elif end_type is not 'abort':
             error_dialog(_('Could not get more books'), xhr.error_html)
 
     # Cover grid {{{
@@ -194,16 +194,16 @@ class BooksView:
     def sort_panel_data(self, create_item):
         current_sorted_field = str.partition(self.interface_data.search_result.sort, ',')[0]
         current_sorted_field_order = str.partition(self.interface_data.search_result.sort_order, ',')[0]
-        new_sort_order = 'desc' if current_sorted_field_order == 'asc' else 'asc'
-        if current_sorted_field == 'date':
+        new_sort_order = 'desc' if current_sorted_field_order is 'asc' else 'asc'
+        if current_sorted_field is 'date':
             current_sorted_field = 'timestamp'
         ans = []
         ans.subtitle = _('Change how the list of books is sorted')
         for field, name in self.interface_data.sortable_fields:
             subtitle = icon_name = None
-            if field == current_sorted_field:
+            if field is current_sorted_field:
                 subtitle = _('Reverse current sort order')
-                icon_name = 'sort-amount-asc' if current_sorted_field_order == 'asc' else 'sort-amount-desc'
+                icon_name = 'sort-amount-asc' if current_sorted_field_order is 'asc' else 'sort-amount-desc'
                 action = self.change_sort.bind(self, field, new_sort_order)
             else:
                 action = self.change_sort.bind(self, field, None)
@@ -215,7 +215,7 @@ class BooksView:
         key = 'sort-order-for-' + field
         sd = get_session_data()
         order = order or sd.get(key, 'asc')
-        order = 'asc' if order == 'asc' else 'desc'
+        order = 'asc' if order is 'asc' else 'desc'
         sd.set(key, order)
         sr = self.interface_data.search_result
         sort = field + '.' + order + ',' + sr.sort + '.' + sr.order
@@ -224,7 +224,7 @@ class BooksView:
             'Fetching data from server, please wait') + '…', query=data)
 
     def sort_change_completed(self, end_type, xhr, ev):
-        if end_type == 'load':
+        if end_type is 'load':
             boss = get_boss()
             try:
                 data = JSON.parse(xhr.responseText)
@@ -233,7 +233,7 @@ class BooksView:
                 return error_dialog(_('Could not change sort order'), err + '', details=err.stack)
             boss.ui.show_panel(boss.ui.ROOT_PANEL)
             window.scrollTo(0, 0)
-        elif end_type != 'abort':
+        elif end_type is not 'abort':
             error_dialog(_('Could not change sort order'), xhr.error_html)
 
     def change_search(self, query, push_state=True, panel_to_show=None):
@@ -245,7 +245,7 @@ class BooksView:
             'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'push_state':push_state, 'panel_to_show': panel_to_show})
 
     def search_change_completed(self, end_type, xhr, ev):
-        if end_type == 'load':
+        if end_type is 'load':
             boss = get_boss()
             try:
                 data = JSON.parse(xhr.responseText)
@@ -256,9 +256,9 @@ class BooksView:
             ed = xhr.extra_data_for_callback
             boss.ui.show_panel(ed.panel_to_show or boss.ui.ROOT_PANEL, push_state=ed.push_state)
             window.scrollTo(0, 0)
-        elif end_type != 'abort':
+        elif end_type is not 'abort':
             msg = xhr.error_html
-            if xhr.status == 400 and str.startswith(xhr.responseText, 'Invalid search expression:'):
+            if xhr.status is 400 and str.startswith(xhr.responseText, 'Invalid search expression:'):
                 msg = _('The search expression could not be parsed: ') + xhr.responseText
             error_dialog(_('Could not change search query'), msg)
 

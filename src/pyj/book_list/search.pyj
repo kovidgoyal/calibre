@@ -56,7 +56,7 @@ class SearchPanel:
             search_button
         ))
         search_container.firstChild.firstChild.addEventListener('keypress', def(event):
-            if event.keyCode == 13:  # Enter
+            if event.keyCode is 13:  # Enter
                 search_button.focus()
                 self.execute_search()
                 event.preventDefault(), event.stopPropagation()
@@ -104,11 +104,11 @@ class SearchPanel:
 
     def on_data_fetched(self, end_type, xhr, ev):
         self.currently_loading = None
-        if end_type == 'abort':
+        if end_type is 'abort':
             return
 
         parent = self.container.lastChild
-        if parent.lastChild.style.display == 'none':
+        if parent.lastChild.style.display is 'none':
             parent.firstChild.style.display = 'none'
             parent.lastChild.style.display = 'block'
         container = self.tb_container
@@ -126,7 +126,7 @@ class SearchPanel:
                 child.parent = node
                 process_node(child)
 
-        if end_type == 'load':
+        if end_type is 'load':
             try:
                 tag_browser_data = JSON.parse(xhr.responseText)
             except Exception as err:
@@ -220,7 +220,7 @@ class SearchPanel:
 
     def search_expression_for_item(self, node, state):
         item = node.data
-        if item.is_searchable is False or not state or state == 'clear':
+        if item.is_searchable is False or not state or state is 'clear':
             return ''
 
         search_state = {'plus':'true', 'plusplus':'.true', 'minus':'false', 'minusminus':'.false'}[state]
@@ -236,16 +236,16 @@ class SearchPanel:
                 letters_seen = Object.keys(letters_seen)
                 if letters_seen.length:
                     charclass = letters_seen.join('')
-                    if category == 'authors':
+                    if category is 'authors':
                         expr = str.format(r'author_sort:"~(^[{0}])|(&\s*[{0}])"', charclass)
-                    elif category == 'series':
+                    elif category is 'series':
                         expr = str.format(r'series_sort:"~^[{0}]"', charclass)
                     else:
                         expr = str.format(r'{0}:"~^[{1}]"', category, charclass)
                 else:
                     expr = str.format('{}:false', category)
 
-            elif category == 'news':
+            elif category is 'news':
                 expr = str.format('tags:"={}"', item.name)
 
             else:
@@ -255,8 +255,8 @@ class SearchPanel:
                 expr = '(not ' + expr + ')'
             return expr
 
-        category = 'tags' if item.category == 'news' else item.category
-        if item.name and item.name[0] == '★':
+        category = 'tags' if item.category is 'news' else item.category
+        if item.name and item.name[0] is '★':
             # Assume ratings
             expr = str.format('{}:{}', category, item.name.length)
         else:
@@ -266,9 +266,9 @@ class SearchPanel:
             if not name:
                 return ''
             name = str.replace(name, '"', r'\"')
-            if name[0] == '.':
+            if name[0] is '.':
                 name = '.' + name
-            if search_state == 'plusplus' or search_state == 'minusminus':
+            if search_state is 'plusplus' or search_state is 'minusminus':
                 name = '.' + name
             expr = str.format('{}:"={}{}"', category, name, suffix)
 
@@ -324,7 +324,7 @@ class SearchPanel:
                 (_('Books matching this category'), 'plus'),
                 (_('Books that do not match this category'), 'minus'),
             ]
-            if node.data.is_hierarchical == 5:
+            if node.data.is_hierarchical is 5:
                 items.extend([
                     (_('Books that match this category and all sub-categories'), 'plusplus'),
                     (_('Books that do not match this category or any of its sub-categories'), 'minusminus'),
@@ -428,7 +428,7 @@ class SearchPanel:
             {
                 'name': 'hide_empty_categories',
                 'text': _('Hide empty categories (columns)'),
-                'from_storage': def(x): return x.toLowerCase() == 'yes';,
+                'from_storage': def(x): return x.toLowerCase() is 'yes';,
                 'to_storage': def(x): return 'yes' if x else 'no';,
                 'tooltip':_('When checked, calibre will automatically hide any category'
                             ' (a column, custom or standard) that has no items to show. For example, some'
@@ -469,7 +469,7 @@ class SearchPanel:
 
     @property
     def is_visible(self):
-        self.container.style.display == 'block'
+        self.container.style.display is 'block'
 
     @is_visible.setter
     def is_visible(self, val):

@@ -77,7 +77,7 @@ def change_library_actions():
     ans = []
     ans.subtitle = _('Currently showing the library: ') + interface_data.library_map[interface_data.library_id]
     for lid in sorted(interface_data.library_map):
-        if lid != interface_data.library_id:
+        if lid is not interface_data.library_id:
             library_name = interface_data.library_map[lid]
             ans.append({'title':library_name, 'action':boss.ui.change_library.bind(boss.ui, lid)})
     return ans
@@ -153,7 +153,7 @@ class UI:
         if callable(main_panel.init):
             panel_data = state.panel_data() if callable(state.panel_data) else state.panel_data
             main_panel.init(panel_data)
-        if self.current_panel == self.ROOT_PANEL:
+        if self.current_panel is self.ROOT_PANEL:
             # only run the beating heart animation once
             window.setTimeout(def(): state.top_bar_state.left_state.run_animation = False;, 10)
 
@@ -164,7 +164,7 @@ class UI:
             self.show_panel(self.ROOT_PANEL)
 
     def replace_panel(self, panel_name, force=False, extra_query_data=None):
-        action_needed = force or panel_name != self.current_panel
+        action_needed = force or panel_name is not self.current_panel
         if action_needed:
             self.current_panel = panel_name or self.ROOT_PANEL
         get_boss().push_state(replace=True, extra_query_data=extra_query_data)
@@ -172,7 +172,7 @@ class UI:
             self.apply_state()
 
     def show_panel(self, panel_name, push_state=True, force=False, extra_query_data=None):
-        action_needed = force or panel_name != self.current_panel
+        action_needed = force or panel_name is not self.current_panel
         if action_needed:
             self.current_panel = panel_name or self.ROOT_PANEL
         if push_state:
@@ -182,7 +182,7 @@ class UI:
 
     def refresh_books_view(self):
         self.books_view.refresh()
-        if self.current_panel == self.ROOT_PANEL:
+        if self.current_panel is self.ROOT_PANEL:
             self.top_bar.refresh_left()
 
     def change_library(self, library_id):
@@ -191,7 +191,7 @@ class UI:
             'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'library_id':library_id})
 
     def library_changed(self, end_type, xhr, ev):
-        if end_type == 'load':
+        if end_type is 'load':
             boss = get_boss()
             boss.interface_data.library_id = xhr.extra_data_for_callback.library_id
             try:
@@ -201,7 +201,7 @@ class UI:
                 return error_dialog(_('Could not change library'), err + '', details=err.stack)
             self.show_panel(self.ROOT_PANEL)
             window.scrollTo(0, 0)
-        elif end_type != 'abort':
+        elif end_type is not 'abort':
             msg = xhr.error_html
             error_dialog(_('Could not change library'), msg)
 

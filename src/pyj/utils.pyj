@@ -22,7 +22,7 @@ def debounce(func, wait, immediate=False):
             func.apply(context, args)
 
 def to_utf8(string):
-    if type(TextEncoder) == 'function':
+    if type(TextEncoder) is 'function':
         return TextEncoder('utf-8').encode(string)
     escstr = encodeURIComponent(string)
     binstr = escstr.replace(/%([0-9A-F]{2})/g, def(match, p1):
@@ -61,7 +61,7 @@ _roman = list(zip(
 ))
 
 def roman(num):
-    if num <= 0 or num >= 4000 or int(num) != num:
+    if num <= 0 or num >= 4000 or int(num) is not num:
         return num + ''
     result = []
     for d, r in _roman:
@@ -71,13 +71,13 @@ def roman(num):
     return result.join('')
 
 def fmt_sidx(val, fmt='{:.2f}', use_roman=True):
-    if val is undefined or val is None or val == '':
+    if val is undefined or val is None or val is '':
         return '1'
-    if int(val) == float(val):
+    if int(val) is float(val):
         if use_roman:
             return roman(val)
         return int(val) + ''
     return str.format(fmt, float(val))
 
-if __name__ == '__main__':
+if __name__ is '__main__':
     print(fmt_sidx(10), fmt_sidx(1.2))

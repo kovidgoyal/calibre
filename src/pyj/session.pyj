@@ -39,7 +39,7 @@ class FakeStorage:
         return self.data[key]
 
     def setItem(self, key, value):
-        if type(value) != 'string':
+        if type(value) is not 'string':
             value = JSON.stringify(value)
         self.data[key] = value
 
@@ -153,7 +153,7 @@ class UserSessionData(SessionData):
     def push_to_server(self):
         if self.has_changes:
             ajax_send('interface-data/set-session-data', self.changes, def(end_type, xhr, ev):
-                if end_type != 'load':
+                if end_type is not 'load':
                     console.error('Failed to send session data to server: ' + xhr.error_html)
             )
             self.changes = {}

@@ -6,9 +6,9 @@ UNDEFINED_DATE = Date('0101-01-01T00:00:00+00:00')
 def is_date_undefined(date):
     dy, uy = date.getUTCFullYear(), UNDEFINED_DATE.getUTCFullYear()
     return dy < uy or (
-            dy == uy and
-            date.getUTCMonth() == UNDEFINED_DATE.getUTCMonth() and
-            date.getUTCDate() == UNDEFINED_DATE.getUTCDate())
+            dy is uy and
+            date.getUTCMonth() is UNDEFINED_DATE.getUTCMonth() and
+            date.getUTCDate() is UNDEFINED_DATE.getUTCDate())
 
 # format_date() {{{
 
@@ -38,51 +38,51 @@ def fd_format_hour(dt, ampm, hr, as_utc):
     h = dt.getUTCHours() if as_utc else dt.getHours()
     if ampm:
         h = h % 12
-    return h.toString() if hr.length == 1 else str.format('{:02d}', h)
+    return h.toString() if hr.length is 1 else str.format('{:02d}', h)
 
 def fd_format_minute(dt, ampm, min, as_utc):
     m = dt.getUTCMinutes() if as_utc else dt.getMinutes()
-    return m.toString() if min.length == 1 else str.format('{:02d}', m)
+    return m.toString() if min.length is 1 else str.format('{:02d}', m)
 
 def fd_format_second(dt, ampm, min, as_utc):
     s = dt.getUTCSeconds() if as_utc else dt.getSeconds()
-    return s.toString() if min.length == 1 else str.format('{:02d}', s)
+    return s.toString() if min.length is 1 else str.format('{:02d}', s)
 
 def fd_format_ampm(dt, ampm, ap, as_utc):
     h = dt.getUTCHours() if as_utc else dt.getHours()
     ans = 'am' if h < 12 else 'pm'
-    return ans if ap == 'ap' else ans.toUpperCase()
+    return ans if ap is 'ap' else ans.toUpperCase()
 
 def fd_format_day(dt, ampm, dy, as_utc):
     d = dt.getUTCDate() if as_utc else dt.getDate()
-    if dy.length == 1:
+    if dy.length is 1:
         return d.toString()
-    if dy.length == 2:
+    if dy.length is 2:
         return str.format('{:02d}', d)
     if supports_locales:
-        options = {'weekday': ('short' if dy.length == 3 else 'long')}
+        options = {'weekday': ('short' if dy.length is 3 else 'long')}
         if as_utc:
             options['timeZone'] = 'UTC'
         return dt.toLocaleString(undefined, options)
     w = dt.getUTCDay() if as_utc else dt.getDay()
-    return lcdata['abday' if dy.length == 3 else 'day'][(w + 1) % 7]
+    return lcdata['abday' if dy.length is 3 else 'day'][(w + 1) % 7]
 
 def fd_format_month(dt, ampm, mo, as_utc):
     m = dt.getUTCMonth() if as_utc else dt.getMonth()
-    if mo.length == 1:
+    if mo.length is 1:
         return (m + 1).toString()
-    if mo.length == 2:
+    if mo.length is 2:
         return str.format('{:02d}', m + 1)
     if supports_locales:
         options = {'month': {1:'numeric', 2:'2-digit', 3:'short', 4:'long'}[mo.length] or 'long'}
         if as_utc:
             options['timeZone'] = 'UTC'
         return dt.toLocaleString(undefined, options)
-    return lcdata['abmon' if mo.length == 3 else 'mon'][m]
+    return lcdata['abmon' if mo.length is 3 else 'mon'][m]
 
 def fd_format_year(dt, ampm, yr, as_utc):
     y = dt.getUTCFullYear() if as_utc else dt.getFullYear()
-    if yr.length == 2:
+    if yr.length is 2:
         return str.format('{:02d}', y % 100)
     return str.format('{:04d}', y)
 
@@ -99,13 +99,13 @@ fd_function_index = {
 
 def test_fd(date, fmt, ans):
     q = format_date(date, fmt, as_utc=True)
-    if q != ans:
-        raise Exception(str.format('Failed to format {} with {}: {} != {}', date, fmt, q, ans))
+    if q is not ans:
+        raise Exception(str.format('Failed to format {} with {}: {} is not {}', date, fmt, q, ans))
 
 def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
     fmt = fmt or 'dd MMM yyyy'
     ampm = 'ap' in fmt.toLowerCase()
-    if type(date) == 'string':
+    if type(date) is 'string':
         date = Date(date)
     date = date or Date()
     if is_date_undefined(date):
@@ -121,7 +121,7 @@ def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
     )
 # }}}
 
-if __name__ == '__main__':
+if __name__ is '__main__':
     test_fd('1101-01-01T09:00:00+00:00', 'hh h', '09 9')
     test_fd('1101-01-01T09:05:01+00:00', 'hh h mm m ss s ap AP yy yyyy', '09 9 05 5 01 1 am AM 01 1101')
     test_fd('2001-01-02T09:00:00+00:00', 'M MM MMM MMMM', '1 01 Jan January')

@@ -34,7 +34,7 @@ class ItemsView:
 
     @property
     def is_visible(self):
-        self.container.style.display == 'block'
+        self.container.style.display is 'block'
 
     @is_visible.setter
     def is_visible(self, val):

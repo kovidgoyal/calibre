@@ -13,7 +13,7 @@ from book_list.globals import set_session_data
 def on_library_loaded(end_type, xhr, ev):
     p = document.getElementById('page_load_progress')
     p.parentNode.removeChild(p)
-    if end_type == 'load':
+    if end_type is 'load':
         interface_data = JSON.parse(xhr.responseText)
         if interface_data.translations:
             install(interface_data.translations)
@@ -22,7 +22,7 @@ def on_library_loaded(end_type, xhr, ev):
         Boss(interface_data)
     else:
         p = E.p(style='color:red; font-weight: bold; font-size:1.5em')
-        if xhr.status == 401:
+        if xhr.status is 401:
             p.innerHTML = _('You are not authorized to view this site')
         else:
             p.innerHTML = xhr.error_html
@@ -50,7 +50,7 @@ def load_book_list():
 def on_load():
     ep = window.calibre_entry_point
     v'delete window.calibre_entry_point'
-    if ep == 'book list':
+    if ep is 'book list':
         print('calibre loaded at:', Date().toString())
         load_book_list()
 

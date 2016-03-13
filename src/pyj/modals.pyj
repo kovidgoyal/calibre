@@ -82,12 +82,12 @@ class ModalContainer:
         return modal_id
 
     def hide_modal(self, modal_id):
-        if self.current_modal is not None and self.current_modal.id == modal_id:
+        if self.current_modal is not None and self.current_modal.id is modal_id:
             self.clear_current_modal()
         else:
             doomed_modal = None
             for i, modal in enumerate(self.modals):
-                if modal.id == modal_id:
+                if modal.id is modal_id:
                     doomed_modal = i
                     break
             if doomed_modal is not None:
@@ -102,7 +102,7 @@ class ModalContainer:
             except:
                 self.current_modal = None
                 raise
-            if c.style.display == 'none':
+            if c.style.display is 'none':
                 set_css(c, display='block')
             c.firstChild.lastChild.style.visibility = 'visible' if self.current_modal.show_close else 'hidden'
 
@@ -110,7 +110,7 @@ class ModalContainer:
         self.current_modal = None
         c = self.modal_container
         clear(c.firstChild.firstChild)
-        if self.modals.length == 0:
+        if self.modals.length is 0:
             set_css(c, display='none')
         else:
             self.update()

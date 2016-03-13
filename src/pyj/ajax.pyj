@@ -39,9 +39,9 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
     xhr.error_html = ''
 
     def set_error(event):
-        if event == 'timeout':
+        if event is 'timeout':
             xhr.error_html = str.format(_('Failed to communicate with "{}", timed out after: {} seconds'), xhr.request_path, timeout/1000)
-        elif event == 'abort':
+        elif event is 'abort':
             xhr.error_html = str.format(_('Failed to communicate with "{}", aborted'), xhr.request_path)
         else:
             rtext = xhr.responseText or ''
@@ -60,9 +60,9 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
                 on_progress(ev.loaded, ul, xhr)
 
     def complete_callback(end_type, ev):
-        if xhr.status != ok_code and end_type == 'load':
+        if xhr.status is not ok_code and end_type is 'load':
             end_type = 'error'
-        if end_type != 'load':
+        if end_type is not 'load':
             set_error(end_type)
         on_complete(end_type, xhr, ev)
 

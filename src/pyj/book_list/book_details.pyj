@@ -28,8 +28,8 @@ def sort_formats_key(fmt):
 def get_preferred_format(metadata, output_format, input_formats):
     formats = (metadata and metadata.formats) or v'[]'
     formats = [f.toUpperCase() for f in formats]
-    fmt = 'EPUB' if output_format == 'PDF' else output_format
-    if formats.length and formats.indexOf(fmt) == -1:
+    fmt = 'EPUB' if output_format is 'PDF' else output_format
+    if formats.length and formats.indexOf(fmt) is -1:
         for q in sorted(formats, key=sort_formats_key):
             if input_formats[q]:
                 fmt = q
@@ -64,7 +64,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
     def allowed_fields(field):
         if str.endswith(field, '_index'):
             fm = interface_data.field_metadata[field[:-len('_index')]]
-            if fm and fm.datatype == 'series':
+            if fm and fm.datatype is 'series':
                 return False
         if str.startswith(field, '#'):
             return True
@@ -155,7 +155,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
                 for k in keys:
                     idval = val[k]
                     x = url_map[k]
-                    if isinstance(x, list) and x.length == 2:
+                    if isinstance(x, list) and x.length is 2:
                         td.appendChild(E.a(title=str.format('{}:{}', k, idval), target='_new', href=x[1], x[0]))
                     else:
                         td.appendChild(E.span(k, ':', idval))
@@ -197,37 +197,37 @@ def render_metadata(mi, interface_data, table, field_list=None):
         name = fm.name or field
         datatype = fm.datatype
         val = mi[field]
-        if field == 'comments' or datatype == 'comments':
+        if field is 'comments' or datatype is 'comments':
             comments[field] = val
             return
         func = None
-        if datatype == 'composite':
+        if datatype is 'composite':
             func = process_composite
-        elif field == 'formats':
+        elif field is 'formats':
             func = process_formats
-        elif datatype == 'rating':
+        elif datatype is 'rating':
             func = process_rating
-        elif field == 'identifiers':
+        elif field is 'identifiers':
             func = process_identifiers
-        elif field == 'authors':
+        elif field is 'authors':
             func = process_authors
-        elif field == 'publisher':
+        elif field is 'publisher':
             func = process_publisher
-        elif field == 'languages':
+        elif field is 'languages':
             func = process_languages
-        elif datatype == 'datetime':
+        elif datatype is 'datetime':
             func = process_datetime
-        elif datatype == 'series':
+        elif datatype is 'series':
             func = process_series
         if func:
             func(field, fm, name, val)
         else:
-            if datatype == 'text' or datatype == 'enumeration':
+            if datatype is 'text' or datatype is 'enumeration':
                 join = fm.is_multiple.list_to_ui if fm.is_multiple else None
                 add_row(name, val, join=join, is_searchable=field)
-            elif datatype == 'bool':
+            elif datatype is 'bool':
                 add_row(name, _('Yes') if val else _('No'))
-            elif datatype == 'int' or datatype == 'float':
+            elif datatype is 'int' or datatype is 'float':
                 fmt = (fm.display or {}).number_format
                 if fmt:
                     val = str.format(fmt, val)
@@ -251,7 +251,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
         div = E.div()
         div.innerHTML = comment
         table.parentNode.appendChild(div)
-        if i == 0:
+        if i is 0:
             div.style.marginTop = '2ex'
 
 
@@ -280,7 +280,7 @@ class BookDetailsPanel:
 
     @property
     def is_visible(self):
-        self.container.parentNode.style.display == 'block'
+        self.container.parentNode.style.display is 'block'
 
     @is_visible.setter
     def is_visible(self, val):
@@ -297,7 +297,7 @@ class BookDetailsPanel:
             self.render_book(book_id)
         else:
             self.fetch_metadata(book_id)
-        get_boss().ui.set_button_visibility('random', not book_id or book_id == '0')
+        get_boss().ui.set_button_visibility('random', not book_id or book_id is '0')
 
     def show_random(self):
         self.fetch_metadata('0')
@@ -324,7 +324,7 @@ class BookDetailsPanel:
             return  # Fetching was aborted
         self.is_fetching = None
         c = self.container
-        if end_type == 'load':
+        if end_type is 'load':
             try:
                 data = JSON.parse(xhr.responseText)
             except Exception as err:
@@ -334,7 +334,7 @@ class BookDetailsPanel:
             book_id = data['id']
             self.interface_data.metadata[book_id] = data
             self.render_book(book_id)
-        elif end_type != 'abort':
+        elif end_type is not 'abort':
             clear(c)
             c.appendChild(E.div(
                 style='margin: 1ex 1em',
