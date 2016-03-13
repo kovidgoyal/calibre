@@ -13,10 +13,10 @@ from collections import OrderedDict
 
 from PyQt5.Qt import (QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout,
         QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout,
-        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox)
+        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox, QSize)
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
-from calibre.gui2 import config as gconf, error_dialog
+from calibre.gui2 import config as gconf, error_dialog, gprefs
 from calibre.web.feeds.recipes.model import RecipeModel
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import utcnow
@@ -238,6 +238,13 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.go_button.clicked.connect(self.search.do_search)
         self.clear_search_button.clicked.connect(self.search.clear_clicked)
 
+        geom = gprefs.get('scheduler_dialog_geometry')
+        if geom is not None:
+            self.restoreGeometry(geom)
+
+    def sizeHint(self):
+        return QSize(800, 600)
+
     def set_pw_echo_mode(self, state):
         self.password.setEchoMode(self.password.Normal
                 if state == Qt.Checked else self.password.Password)
@@ -286,7 +293,15 @@ class SchedulerDialog(QDialog, Ui_Dialog):
     def accept(self):
         if not self.commit():
             return False
+        self.save_geometry()
         return QDialog.accept(self)
+
+    def reject(self):
+        self.save_geometry()
+        return QDialog.reject(self)
+
+    def save_geometry(self):
+        gprefs.set('scheduler_dialog_geometry', bytearray(self.saveGeometry()))
 
     def download_clicked(self, *args):
         self.commit()
