@@ -140,12 +140,6 @@
               </item>
               <item>
                <widget class="QStackedWidget" name="schedule_stack">
-                <property name="maximumSize">
-                 <size>
-                  <width>16777215</width>
-                  <height>75</height>
-                 </size>
-                </property>
                </widget>
               </item>
               <item>
