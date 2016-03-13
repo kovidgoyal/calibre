@@ -96,11 +96,17 @@ class Worker(Thread):
                     # Must be a known ebook file type
                     self.is_filename_allowed(x)
                 ]
-        data = {}
+        data = []
         # Give any in progress copies time to complete
         time.sleep(2)
 
-        for fname in files:
+        def safe_mtime(x):
+            try:
+                return os.path.getmtime(os.path.join(self.path, x))
+            except EnvironmentError:
+                return time.time()
+
+        for fname in sorted(files, key=safe_mtime):
             f = os.path.join(self.path, fname)
 
             # Try opening the file for reading, if the OS prevents us, then at
@@ -141,7 +147,7 @@ class Worker(Thread):
                 with open(opfpath, 'wb') as f:
                     f.write(metadata_to_opf(mi))
             self.staging.add(fname)
-            data[fname] = tdir
+            data.append((fname, tdir))
         if data:
             self.callback(data)
 
@@ -208,7 +214,7 @@ class AutoAdder(QObject):
         duplicates = []
         added_ids = set()
 
-        for fname, tdir in data.iteritems():
+        for fname, tdir in data:
             paths = [os.path.join(self.worker.path, fname)]
             sz = os.path.join(tdir, 'size.txt')
             try:
@@ -277,7 +283,7 @@ class AutoAdder(QObject):
                 num = len(ids)
                 count += num
 
-        for tdir in data.itervalues():
+        for fname, tdir in data:
             try:
                 shutil.rmtree(tdir)
             except:
