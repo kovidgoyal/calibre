@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, re, math, errno
+import sys, os, re, math, errno, uuid
 from collections import OrderedDict, defaultdict
 
 from lxml import html
@@ -105,6 +105,7 @@ class Convert(object):
         self.anchor_map = {}
         self.link_map = defaultdict(list)
         self.link_source_map = {}
+        self.toc_anchor = None
         self.block_runs = []
         paras = []
 
@@ -364,9 +365,13 @@ class Convert(object):
         opf.create_spine(['index.html'])
         if self.cover_image is not None:
             opf.guide.set_cover(self.cover_image)
+        def process_guide(E, guide):
+            if self.toc_anchor is not None:
+                guide.append(E.reference(
+                    href='index.html#' + self.toc_anchor, title=_('Table of Contents'), type='toc'))
         toc_file = os.path.join(self.dest_dir, 'toc.ncx')
         with open(os.path.join(self.dest_dir, 'metadata.opf'), 'wb') as of, open(toc_file, 'wb') as ncx:
-            opf.render(of, ncx, 'toc.ncx')
+            opf.render(of, ncx, 'toc.ncx', process_guide=process_guide)
         if os.path.getsize(toc_file) == 0:
             os.remove(toc_file)
         return os.path.join(self.dest_dir, 'metadata.opf')
@@ -413,7 +418,7 @@ class Convert(object):
                 except AttributeError:
                     break
 
-        for x in self.namespace.descendants(p, 'w:r', 'w:bookmarkStart', 'w:hyperlink'):
+        for x in self.namespace.descendants(p, 'w:r', 'w:bookmarkStart', 'w:hyperlink', 'w:instrText'):
             if p_parent(x) is not p:
                 continue
             if x.tag.endswith('}r'):
@@ -445,6 +450,16 @@ class Convert(object):
                                 self.anchor_map[a] = current_anchor
             elif x.tag.endswith('}hyperlink'):
                 current_hyperlink = x
+            elif x.tag.endswith('}instrText') and x.text and x.text.strip().startswith('TOC '):
+                old_anchor = current_anchor
+                anchor = str(uuid.uuid4())
+                self.anchor_map[anchor] = current_anchor = generate_anchor('toc', frozenset(self.anchor_map.itervalues()))
+                self.toc_anchor = current_anchor
+                if old_anchor is not None:
+                    # The previous anchor was not applied to any element
+                    for a, t in tuple(self.anchor_map.iteritems()):
+                        if t == old_anchor:
+                            self.anchor_map[a] = current_anchor
 
         m = re.match(r'heading\s+(\d+)$', style.style_name or '', re.IGNORECASE)
         if m is not None:

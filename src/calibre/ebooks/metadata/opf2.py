@@ -1396,7 +1396,7 @@ class OPFCreator(Metadata):
         self.guide.set_basedir(self.base_path)
 
     def render(self, opf_stream=sys.stdout, ncx_stream=None,
-               ncx_manifest_entry=None, encoding=None):
+               ncx_manifest_entry=None, encoding=None, process_guide=None):
         if encoding is None:
             encoding = 'utf-8'
         toc = getattr(self, 'toc', None)
@@ -1519,6 +1519,8 @@ class OPFCreator(Metadata):
                 if ref.title:
                     item.set('title', ref.title)
                 guide.append(item)
+        if process_guide is not None:
+            process_guide(E, guide)
 
         serialize_user_metadata(metadata, self.get_all_user_metadata(False))
 
