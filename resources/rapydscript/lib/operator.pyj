@@ -5,7 +5,7 @@ div = __div__ = def(x, y): return x / y
 
 lt = __lt__ = def(x, y): return x < y
 le = __le__ = def(x, y): return x <= y
-eq = __eq__ = def(x, y): return x == y
-ne = __ne__ = def(x, y): return x != y
+eq = __eq__ = def(x, y): return x is y
+ne = __ne__ = def(x, y): return x is not y
 ge = __ge__ = def(x, y): return x >= y
 gt = __gt__ = def(x, y): return x > y

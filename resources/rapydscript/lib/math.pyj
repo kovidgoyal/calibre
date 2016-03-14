@@ -32,11 +32,11 @@ def copysign(x, y):
 def fabs(x):
     return Math.abs(x)
 def factorial(x):
-    if Math.abs(int(x)) != x:
+    if Math.abs(int(x)) is not x:
         raise ValueError("factorial() only accepts integral values")
     factorial.cache = []
     r = def(n):
-        if n == 0 or n == 1:
+        if n is 0 or n is 1:
             return 1
         if not factorial.cache[n]:
             factorial.cache[n] = r(n-1) * n
@@ -103,7 +103,7 @@ def log1p(x):
     if x < 0 or x > 1:
         return Math.log(1 + x)
     for i in range(1, n):
-        if i % 2 == 0:
+        if i % 2 is 0:
             ret -= Math.pow(x, i) / i
         else:
             ret += Math.pow(x, i) / i
@@ -114,9 +114,9 @@ def log10(x):
     # I didn't find a more accurate algorithm so I'm using the basic implementation
     return Math.log(x)/Math.LN10
 def pow(x, y):
-    if x < 0 and int(y) != y:
+    if x < 0 and int(y) is not y:
         raise ValueError('math domain error')
-    if isnan(y) and x == 1:
+    if isnan(y) and x is 1:
         return 1
     return Math.pow(x, y)
 def sqrt(x):

@@ -505,7 +505,7 @@ def _get_plural_forms_function(plural_forms_string):
 
 _gettext = def(text): return text
 
-_ngettext = def(text, plural, n): return text if n == 1 else plural
+_ngettext = def(text, plural, n): return text if n is 1 else plural
 
 def gettext(text):
     return _gettext(text)
@@ -542,8 +542,8 @@ class Translations:
             m = t['entries']
             if Object.prototype.hasOwnProperty.call(m, text):
                 idx = t['func'](n)
-                return m[text][idx] or (text if n == 1 else plural)
-        return text if n == 1 else plural
+                return m[text][idx] or (text if n is 1 else plural)
+        return text if n is 1 else plural
 
     def install(self):
         nonlocal _gettext, _ngettext

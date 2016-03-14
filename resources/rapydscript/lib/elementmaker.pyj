@@ -50,7 +50,7 @@ def _makeelement(tag, *args, **kwargs):
             ans.setAttribute(vattr, val)
 
     for arg in args:
-        if type(arg) == 'string':
+        if type(arg) is 'string':
             arg = this.createTextNode(arg)
         ans.appendChild(arg)
     return ans
@@ -62,7 +62,7 @@ def maker_for_document(document):
         Object.defineProperty(E, tag, {'value':_makeelement.bind(document, tag)})
     return E
 
-if type(document) == 'undefined':
+if type(document) is 'undefined':
     E = maker_for_document({
         'createTextNode': def(value): return value;,
         'createElement': def(name):
