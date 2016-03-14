@@ -58,7 +58,7 @@ class Container(ContainerBase):
             'spine':[name for name, is_linear in self.spine_names],
             'link_uid': uuid4(),
             'is_comic': input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'},
-            'manifest': list(set(self.name_path_map) - excluded_names),
+            'manifest': {name:os.path.getsize(self.name_path_map[name]) for name in set(self.name_path_map) - excluded_names},
         }
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
