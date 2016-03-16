@@ -8,7 +8,7 @@ from hashlib import sha1
 from functools import partial
 from threading import RLock
 from cPickle import dumps
-import errno, os, tempfile, shutil
+import errno, os, tempfile, shutil, time
 
 from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
@@ -21,12 +21,18 @@ cache_lock = RLock()
 queued_jobs = {}
 failed_jobs = {}
 
+def abspath(x):
+    x = os.path.abspath(x)
+    if iswindows and not x.startswith('\\\\?\\'):
+        x = '\\\\?\\' + os.path.abspath(x)
+    return x
+
 _books_cache_dir = None
 def books_cache_dir():
     global _books_cache_dir
     if _books_cache_dir:
         return _books_cache_dir
-    base = os.path.abspath(os.path.join(cache_dir(), 'srvb'))
+    base = abspath(os.path.join(cache_dir(), 'srvb'))
     for d in 'sf':
         try:
             os.makedirs(os.path.join(base, d))
@@ -68,6 +74,24 @@ def queue_job(ctx, copy_format_to, bhash, fmt, book_id):
     queued_jobs[bhash] = job_id
     return job_id
 
+last_final_clean_time = 0
+
+def clean_final(interval=24 * 60 * 60):
+    global last_final_clean_time
+    now = time.time()
+    if now - last_final_clean_time < interval:
+        return
+    last_final_clean_time = now
+    fdir = os.path.join(books_cache_dir(), 'f')
+    for x in os.listdir(fdir):
+        try:
+            tm = os.path.getmtime(fdir, x,  'calibre-book-manifest.json')
+        except EnvironmentError:
+            continue
+        if now - tm >= interval:
+            # This book has not been accessed for a long time, delete it
+            safe_remove(x)
+
 def job_done(job):
     with cache_lock:
         book_hash, pathtoebook, tdir = job.data
@@ -78,6 +102,7 @@ def job_done(job):
             safe_remove(tdir, False)
         else:
             try:
+                clean_final()
                 dest = os.path.join(books_cache_dir(), 'f', book_hash)
                 safe_remove(dest, False)
                 os.rename(tdir, dest)
@@ -96,9 +121,7 @@ def book_manifest(ctx, rd, book_id, fmt):
             raise HTTPNotFound('No %s format for the book %s in the library: %s' % (fm, book_id, library_id))
         bhash = book_hash(db.library_id, book_id, fmt, fm)
         with cache_lock:
-            mpath = os.path.join(books_cache_dir(), 'f', bhash, 'calibre-book-manifest.json')
-            if iswindows:
-                mpath = '\\\\?\\' + os.path.abspath(mpath)
+            mpath = abspath(os.path.join(books_cache_dir(), 'f', bhash, 'calibre-book-manifest.json'))
             try:
                 os.utime(mpath, None)
                 return lopen(mpath, 'rb')
@@ -116,8 +139,8 @@ def book_manifest(ctx, rd, book_id, fmt):
 
 @endpoint('/book-file/{book_hash}/{name}')
 def book_file(ctx, rd, book_hash, name):
-    base = os.path.join(books_cache_dir, 'f')
-    mpath = os.path.abspath(os.path.join(book_hash, name))
+    base = abspath(os.path.join(books_cache_dir, 'f'))
+    mpath = abspath(os.path.join(book_hash, name))
     if not mpath.startswith(base):
         raise HTTPNotFound('No book file with hash: %s and name: %s' % (book_hash, name))
     try:
