@@ -50,7 +50,8 @@ class Container(ContainerBase):
         ContainerBase.__init__(self, tdir, opfpath, log)
         excluded_names = {
             name for name, mt in self.mime_map.iteritems() if
-            name == self.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/')
+            name == self.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
+            name == 'mimetype'
         }
         self.book_render_data = data = {
             'version': RENDER_VERSION,
