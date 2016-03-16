@@ -15,7 +15,7 @@ from calibre import detect_ncpus, force_unicode
 from calibre.utils.monotonic import monotonic
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
-StartEvent = namedtuple('StartEvent', 'job_id name module function args kwargs')
+StartEvent = namedtuple('StartEvent', 'job_id name module function args kwargs callback data')
 DoneEvent = namedtuple('DoneEvent', 'job_id')
 
 class Job(Thread):
@@ -29,6 +29,7 @@ class Job(Thread):
         self.job_name = start_event.name
         self.job_id = start_event.job_id
         self.func = partial(fork_job, start_event.module, start_event.function, start_event.args, start_event.kwargs, abort=self.abort_event)
+        self.data, self.callback = start_event.data, start_event.callback
         self.result = self.traceback = None
         self.done = False
         self.start_time = monotonic()
@@ -53,6 +54,10 @@ class Job(Thread):
     @property
     def was_aborted(self):
         return self.done and self.result is None and self.abort_event.is_set()
+
+    @property
+    def failed(self):
+        return bool(self.traceback) or self.was_aborted
 
     def remove_log(self):
         lp, self.log_path = self.log_path, None
@@ -95,7 +100,7 @@ class JobsManager(object):
         self.shutting_down = False
         self.event_loop = None
 
-    def start_job(self, name, module, func, args=(), kwargs=None):
+    def start_job(self, name, module, func, args=(), kwargs=None, job_done_callback=None, job_data=None):
         with self.lock:
             if self.shutting_down:
                 return None
@@ -104,7 +109,7 @@ class JobsManager(object):
                 t.daemon = True
                 t.start()
             job_id = next(self.job_id)
-            self.events.put(StartEvent(job_id, name, module, func, args, kwargs or {}))
+            self.events.put(StartEvent(job_id, name, module, func, args, kwargs or {}, job_done_callback, job_data))
             self.waiting_job_ids.add(job_id)
             return job_id
 
@@ -214,6 +219,12 @@ class JobsManager(object):
     def job_finished(self, job_id):
         with self.lock:
             self.finished_jobs[job_id] = job = self.jobs.pop(job_id)
+            if job.callback is not None:
+                try:
+                    job.callback(job)
+                except Exception:
+                    import traceback
+                    self.log.error('Error running callback for job: %s:\n%s' % (job.name, traceback.format_exc()))
         self.prune_finished_jobs()
         if job.traceback and not job.was_aborted:
             logdata = job.read_log()

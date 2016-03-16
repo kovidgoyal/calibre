@@ -20,6 +20,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.logging import default_log
 
+RENDER_VERSION = 1
 
 def encode_component(x):
     return x.replace(',', ',c').replace('|', ',p')
@@ -41,10 +42,9 @@ def decode_url(x):
 
 class Container(ContainerBase):
 
-    RENDER_VERSION = 1
     tweak_mode = True
 
-    def __init__(self, path_to_ebook, tdir, log=None):
+    def __init__(self, path_to_ebook, tdir, log=None, book_hash=None):
         log = log or default_log
         book_fmt, opfpath, input_fmt = extract_book(path_to_ebook, tdir, log=log)
         ContainerBase.__init__(self, tdir, opfpath, log)
@@ -53,10 +53,11 @@ class Container(ContainerBase):
             name == self.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/')
         }
         self.book_render_data = data = {
-            'version': self.RENDER_VERSION,
+            'version': RENDER_VERSION,
             'toc':get_toc(self).as_dict,
             'spine':[name for name, is_linear in self.spine_names],
             'link_uid': uuid4(),
+            'book_hash': book_hash,
             'is_comic': input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'},
             'manifest': {name:os.path.getsize(self.name_path_map[name]) for name in set(self.name_path_map) - excluded_names},
         }
@@ -132,6 +133,9 @@ class Container(ContainerBase):
             comment.getparent().remove(comment)
         escape_cdata(root)
         return tostring(root, encoding='utf-8', xml_declaration=True, with_tail=False, doctype='<!DOCTYPE html>')
+
+def render(pathtoebook, output_dir, book_hash=None):
+    Container(pathtoebook, output_dir, book_hash=book_hash)
 
 if __name__ == '__main__':
     c = Container(sys.argv[-2], sys.argv[-1])

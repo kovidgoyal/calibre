@@ -18,7 +18,7 @@ default_methods = frozenset(('HEAD', 'GET'))
 
 def json(ctx, rd, endpoint, output):
     rd.outheaders.set('Content-Type', 'application/json; charset=UTF-8', replace_all=True)
-    if isinstance(output, bytes):
+    if isinstance(output, bytes) or hasattr(output, 'fileno'):
         ans = output  # Assume output is already UTF-8 encoded json
     else:
         ans = jsonlib.dumps(output, ensure_ascii=False)

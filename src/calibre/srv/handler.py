@@ -93,8 +93,8 @@ class Context(object):
         self.ignored_fields = frozenset(filter(None, (x.strip() for x in (opts.ignored_fields or '').split(','))))
         self.displayed_fields = frozenset(filter(None, (x.strip() for x in (opts.displayed_fields or '').split(','))))
 
-    def start_job(self, name, module, func, args=(), kwargs=None):
-        return self.jobs_manager.start_job(name, module, func, args, kwargs)
+    def start_job(self, name, module, func, args=(), kwargs=None, job_done_callback=None, job_data=None):
+        return self.jobs_manager.start_job(name, module, func, args, kwargs, job_done_callback, job_data)
 
     def job_status(self, job_id):
         return self.jobs_manager.job_status(job_id)
@@ -188,7 +188,7 @@ class Handler(object):
             prefer_basic_auth = {'auto':has_ssl, 'basic':True}.get(opts.auth_mode, 'digest')
             self.auth_controller = AuthController(user_credentials=ctx.user_manager, prefer_basic_auth=prefer_basic_auth)
         self.router = Router(ctx=ctx, url_prefix=opts.url_prefix, auth_controller=self.auth_controller)
-        for module in ('content', 'ajax', 'code', 'legacy', 'opds'):
+        for module in ('content', 'ajax', 'code', 'legacy', 'opds', 'books'):
             module = import_module('calibre.srv.' + module)
             self.router.load_routes(vars(module).itervalues())
         self.router.finalize()
