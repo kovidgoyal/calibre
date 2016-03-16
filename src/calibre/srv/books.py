@@ -44,7 +44,7 @@ def books_cache_dir():
 
 
 def book_hash(library_uuid, book_id, fmt, fmt_metadata):
-    raw = dumps((library_uuid, book_id, fmt.upper(), fmt_metadata['size']), RENDER_VERSION)
+    raw = dumps((library_uuid, book_id, fmt.upper(), fmt_metadata['size'], fmt_metadata['mtime']), RENDER_VERSION)
     return sha1(raw).hexdigest().decode('ascii')
 
 staging_cleaned = False
@@ -85,7 +85,7 @@ def clean_final(interval=24 * 60 * 60):
     fdir = os.path.join(books_cache_dir(), 'f')
     for x in os.listdir(fdir):
         try:
-            tm = os.path.getmtime(fdir, x,  'calibre-book-manifest.json')
+            tm = os.path.getmtime(os.path.join(fdir, x,  'calibre-book-manifest.json'))
         except EnvironmentError:
             continue
         if now - tm >= interval:
