@@ -53,6 +53,7 @@ class Container(ContainerBase):
             name == self.opf_name or mt == guess_type('a.ncx') or name.startswith('META-INF/') or
             name == 'mimetype'
         }
+
         self.book_render_data = data = {
             'version': RENDER_VERSION,
             'toc':get_toc(self).as_dict,
@@ -60,12 +61,15 @@ class Container(ContainerBase):
             'link_uid': uuid4(),
             'book_hash': book_hash,
             'is_comic': input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'},
-            'manifest': {name:os.path.getsize(self.name_path_map[name]) for name in set(self.name_path_map) - excluded_names},
         }
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
             self.parsed(name), self.dirty(name)
+        self.virtualized_names = set()
         self.virtualize_resources()
+        def manifest_data(name):
+            return {'size':os.path.getsize(self.name_path_map[name]), 'is_virtualized': name in self.virtualized_names}
+        data['manifest'] = {name:manifest_data(name) for name in set(self.name_path_map) - excluded_names},
         self.commit()
         for name in excluded_names:
             os.remove(self.name_path_map[name])
@@ -105,7 +109,9 @@ class Container(ContainerBase):
         for name, mt in self.mime_map.iteritems():
             if mt in OEB_STYLES:
                 replaceUrls(self.parsed(name), partial(link_replacer, name))
+                self.virtualized_names.add(name)
             elif mt in OEB_DOCS:
+                self.virtualized_names.add(name)
                 root = self.parsed(name)
                 rewrite_links(root, partial(link_replacer, name))
                 for a in link_xpath(root):
@@ -117,6 +123,7 @@ class Container(ContainerBase):
                         a.set('target', '_blank')
                     changed.add(name)
             elif mt == 'image/svg+xml':
+                self.virtualized_names.add(name)
                 changed = False
                 xlink = XLINK('href')
                 for elem in xlink_xpath(self.parsed(name)):
