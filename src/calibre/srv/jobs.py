@@ -228,7 +228,7 @@ class JobsManager(object):
         self.prune_finished_jobs()
         if job.traceback and not job.was_aborted:
             logdata = job.read_log()
-            self.log.error('The job: %s failed:\n%s\n%s' % (job.name, logdata, job.traceback))
+            self.log.error('The job: %s failed:\n%s\n%s' % (job.job_name, logdata, job.traceback))
         job.remove_log()
         self.start_waiting_jobs()
 
