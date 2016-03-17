@@ -43,8 +43,8 @@ def books_cache_dir():
     return base
 
 
-def book_hash(library_uuid, book_id, fmt, fmt_metadata):
-    raw = dumps((library_uuid, book_id, fmt.upper(), fmt_metadata['size'], fmt_metadata['mtime']), RENDER_VERSION)
+def book_hash(library_uuid, book_id, fmt, size, mtime):
+    raw = dumps((library_uuid, book_id, fmt.upper(), size, mtime), RENDER_VERSION)
     return sha1(raw).hexdigest().decode('ascii')
 
 staging_cleaned = False
@@ -58,7 +58,7 @@ def safe_remove(x, is_file=None):
         pass
 
 
-def queue_job(ctx, copy_format_to, bhash, fmt, book_id):
+def queue_job(ctx, copy_format_to, bhash, fmt, book_id, size, mtime):
     global staging_cleaned
     tdir = os.path.join(books_cache_dir(), 's')
     if not staging_cleaned:
@@ -69,7 +69,7 @@ def queue_job(ctx, copy_format_to, bhash, fmt, book_id):
     with os.fdopen(fd, 'wb') as f:
         copy_format_to(f)
     tdir = tempfile.mkdtemp('', '', tdir)
-    job_id = ctx.start_job('Render book %s (%s)' % (book_id, fmt), 'calibre.srv.render_book', 'render', args=(pathtoebook, tdir, bhash),
+    job_id = ctx.start_job('Render book %s (%s)' % (book_id, fmt), 'calibre.srv.render_book', 'render', args=(pathtoebook, tdir, (size, mtime)),
                            job_done_callback=job_done, job_data=(bhash, pathtoebook, tdir))
     queued_jobs[bhash] = job_id
     return job_id
@@ -94,32 +94,35 @@ def clean_final(interval=24 * 60 * 60):
 
 def job_done(job):
     with cache_lock:
-        book_hash, pathtoebook, tdir = job.data
-        queued_jobs.pop(book_hash, None)
+        bhash, pathtoebook, tdir = job.data
+        queued_jobs.pop(bhash, None)
         safe_remove(pathtoebook)
         if job.failed:
-            failed_jobs[book_hash] = (job.was_aborted, job.traceback)
+            failed_jobs[bhash] = (job.was_aborted, job.traceback)
             safe_remove(tdir, False)
         else:
             try:
                 clean_final()
-                dest = os.path.join(books_cache_dir(), 'f', book_hash)
+                dest = os.path.join(books_cache_dir(), 'f', bhash)
                 safe_remove(dest, False)
                 os.rename(tdir, dest)
             except Exception:
                 import traceback
-                failed_jobs[book_hash] = (False, traceback.format_exc())
+                failed_jobs[bhash] = (False, traceback.format_exc())
 
 @endpoint('/book-manifest/{book_id}/{fmt}', postprocess=json, types={'book_id':int})
 def book_manifest(ctx, rd, book_id, fmt):
     db, library_id = get_library_data(ctx, rd)[:2]
     if plugin_for_input_format(fmt) is None:
         raise HTTPNotFound('The format %s cannot be viewed' % fmt.upper())
+    if book_id not in ctx.allowed_book_ids(rd, db):
+        raise HTTPNotFound('No book with id: %s in library: %s' % (book_id, library_id))
     with db.safe_read_lock:
         fm = db.format_metadata(book_id, fmt)
         if not fm:
             raise HTTPNotFound('No %s format for the book %s in the library: %s' % (fm, book_id, library_id))
-        bhash = book_hash(db.library_id, book_id, fmt, fm)
+        size, mtime = map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple())*10))
+        bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
         with cache_lock:
             mpath = abspath(os.path.join(books_cache_dir(), 'f', bhash, 'calibre-book-manifest.json'))
             try:
@@ -133,19 +136,23 @@ def book_manifest(ctx, rd, book_id, fmt):
                 return {'aborted':x[0], 'traceback':x[1], 'job_status':'finished'}
             job_id = queued_jobs.get(bhash)
             if job_id is None:
-                job_id = queue_job(ctx, partial(db.copy_format_to, book_id, fmt), bhash, fmt, book_id)
+                job_id = queue_job(ctx, partial(db.copy_format_to, book_id, fmt), bhash, fmt, book_id, size, mtime)
     status, result, tb, aborted = ctx.job_status(job_id)
     return {'aborted': aborted, 'traceback':tb, 'job_status':status, 'job_id':job_id}
 
-@endpoint('/book-file/{book_hash}/{name}')
-def book_file(ctx, rd, book_hash, name):
-    base = abspath(os.path.join(books_cache_dir, 'f'))
-    mpath = abspath(os.path.join(book_hash, name))
+@endpoint('/book-file/{book_id}/{fmt}/{size}/{mtime}/{+name}', types={'book_id':int, 'size':int, 'mtime':int})
+def book_file(ctx, rd, book_id, fmt, size, mtime, name):
+    db, library_id = get_library_data(ctx, rd)[:2]
+    if book_id not in ctx.allowed_book_ids(rd, db):
+        raise HTTPNotFound('No book with id: %s in library: %s' % (book_id, library_id))
+    bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
+    base = abspath(os.path.join(books_cache_dir(), 'f'))
+    mpath = abspath(os.path.join(base, bhash, name))
     if not mpath.startswith(base):
-        raise HTTPNotFound('No book file with hash: %s and name: %s' % (book_hash, name))
+        raise HTTPNotFound('No book file with hash: %s and name: %s' % (bhash, name))
     try:
-        return rd.filesystem_file_with_custom_etag(lopen(mpath, 'rb'), book_hash, name)
+        return rd.filesystem_file_with_custom_etag(lopen(mpath, 'rb'), bhash, name)
     except EnvironmentError as e:
         if e.errno != errno.ENOENT:
             raise
-        raise HTTPNotFound('No book file with hash: %s and name: %s' % (book_hash, name))
+        raise HTTPNotFound('No book file with hash: %s and name: %s' % (bhash, name))
