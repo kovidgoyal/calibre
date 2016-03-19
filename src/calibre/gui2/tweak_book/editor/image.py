@@ -159,6 +159,7 @@ class Editor(QMainWindow):
             return self.get_raw_data()
         def fset(self, val):
             self.canvas.load_image(val)
+            self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
         return property(fget=fget, fset=fset)
 
     def replace_data(self, raw, only_if_different=True):
