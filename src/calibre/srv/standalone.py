@@ -231,7 +231,7 @@ def main(args=sys.argv):
         from calibre.srv.auto_reload import auto_reload, NoAutoReload
         try:
             from calibre.utils.logging import default_log
-            return auto_reload(default_log)
+            return auto_reload(default_log, listen_on=opts.listen_on)
         except NoAutoReload as e:
             raise SystemExit(e.message)
     opts.auto_reload_port=int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))

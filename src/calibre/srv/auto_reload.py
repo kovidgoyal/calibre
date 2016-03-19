@@ -347,12 +347,12 @@ class ReloadServer(Thread):
 
     daemon = True
 
-    def __init__(self):
+    def __init__(self, listen_on):
         Thread.__init__(self, name='ReloadServer')
         self.reload_handler = ReloadHandler()
         self.loop = ServerLoop(
             create_http_handler(websocket_handler=self.reload_handler),
-            opts=Options(shutdown_timeout=0.1, listen_on='127.0.0.1', port=0))
+            opts=Options(shutdown_timeout=0.1, listen_on=(listen_on or '127.0.0.1'), port=0))
         self.loop.LISTENING_MSG = None
         self.notify_reload = self.reload_handler.notify_reload
         self.ping = self.reload_handler.ping
@@ -376,7 +376,7 @@ class ReloadServer(Thread):
         self.join(self.loop.opts.shutdown_timeout)
 # }}}
 
-def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
+def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True, listen_on=None):
     if Watcher is None:
         raise NoAutoReload('Auto-reload is not supported on this operating system')
     fpath = os.path.abspath(__file__)
@@ -388,7 +388,7 @@ def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True):
     dirs = find_dirs_to_watch(fpath, dirs, add_default_dirs)
     log('Auto-restarting server on changes press Ctrl-C to quit')
     log('Watching %d directory trees for changes' % len(dirs))
-    with ReloadServer() as server, Worker(cmd, log, server) as worker:
+    with ReloadServer(listen_on) as server, Worker(cmd, log, server) as worker:
         w = Watcher(dirs, worker, log)
         worker.wakeup = w.wakeup
         try:
