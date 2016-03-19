@@ -5,13 +5,15 @@ from gettext import gettext as _
 from modals import error_dialog
 
 def upgrade_schema(idb, old_version, new_version):
-    if old_version < 2:
+    print('upgrade_schema:', old_version, new_version)
+    if not idb.objectStoreNames.contains('books'):
         idb.createObjectStore('books', {'keyPath':'key'})
+    if not idb.objectStoreNames.contains('files'):
         idb.createObjectStore('files')
 
-class DB:
+DB_NAME = 'calibre-books-db-test'  # TODO: Remove test suffix
 
-    DB_NAME = 'calibre-read-books-db-test'  # TODO: Remove test suffix
+class DB:
 
     def __init__(self, idb, interface_data):
         self.interface_data = interface_data
@@ -25,7 +27,7 @@ class DB:
                 console.log(event)
 
         idb.onversionchange = def(event):
-            self.db.close()
+            idb.close()
             error_dialog(_('Database upgraded!'), _(
                 'A newer version of calibre is available, please click the reload button in your browser.'))
 
@@ -46,11 +48,11 @@ class DB:
     def do_op(self, stores, data, error_msg, proceed, op='get', store=None):
         store = store or stores[0]
         if op is 'get':
-            transaction = self.idb.transaction(transaction)
+            transaction = self.idb.transaction(stores)
             req = transaction.objectStore(store).get(data)
             req.onsuccess = def(event): proceed(req.result)
         elif op is 'put':
-            transaction = self.idb.transaction(transaction, 'readwrite')
+            transaction = self.idb.transaction(stores, 'readwrite')
             req = transaction.objectStore(store).put(data)
             req.onsuccess = proceed
         req.onerror = def(event):
@@ -58,7 +60,10 @@ class DB:
 
     def get_book(self, book_id, fmt, metadata, proceed):
         fmt = fmt.toUpperCase()
-        key = [self.interface_data.library_id, book_id, fmt]
+        # The key has to be a JavaScript array as otherwise it cannot be stored
+        # into indexed db, because the RapydScript list has properties that
+        # refer to non-serializable objects like functions.
+        key = v'[self.interface_data.library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
             proceed(result or {
                 'key':key,
@@ -74,6 +79,7 @@ class DB:
     def save_manifest(self, book, manifest, proceed):
         book.manifest = manifest
         book.metadata = manifest.metadata
+        book.book_hash = manifest.book_hash.hash
         v'delete manifest["metadata"]'
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
@@ -81,7 +87,9 @@ def create_db(ui, interface_data):
     if not window.indexedDB:
         ui.db = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.')
         return
-    request = window.indexedDB.open(DB.DB_NAME, 2)
+    request = window.indexedDB.open(DB_NAME, 1)
+    request.onblocked = def(event):
+        alert(_('Please close all other tabs with a calibre book open'))
     request.onerror = def(event):
         ui.db = _('You must allow calibre to use IndexedDB storage in your browser to read books')
     request.onsuccess = def(event):
