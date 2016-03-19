@@ -23,7 +23,7 @@ class PDFInput(InputFormatPlugin):
             'be unwrapped. Valid values are a decimal between 0 and 1. The '
             'default is 0.45, just below the median line length.')),
         OptionRecommendation(name='new_pdf_engine', recommended_value=False,
-            help=_('Use the new PDF conversion engine.'))
+            help=_('Use the new PDF conversion engine. Currently not operational.'))
     ])
 
     def convert_new(self, stream, accelerators):
