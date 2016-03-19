@@ -15,12 +15,14 @@
         self.retries = 0;
         self.interval = 100;
         self.disable = false;
+        self.opened_at_least_once = false;
 
         self.reconnect = function() {
             self.ws = new WebSocket(url);
 
             self.ws.onopen = function(event) {
                 self.retries = 0;
+                self.opened_at_least_once = true;
                 self.interval = 100;
                 console.log('Connected to reloading WebSocket server at port: ' + autoreload_port);
                 window.addEventListener('beforeunload', function (event) {
@@ -36,7 +38,7 @@
             };
 
             self.ws.onclose = function(event) {
-                if (self.disabled) return;
+                if (self.disable || !self.opened_at_least_once) return;
                 console.log('Connection to reload server closed with code: ' + event.code + ' and reason: ' + event.reason);
                 self.retries += 1;
                 if (self.retries < MAX_RETRIES) {
