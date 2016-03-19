@@ -24,7 +24,8 @@ class ReadUI:
             return
         self.start_load(book_id, fmt, metadata)
 
-    def db_initialized(self):
+    def db_initialized(self, db):
+        self.db = db
         if self.pending_load is not None:
             pl, self.pending_load = self.pending_load, None
             self.start_load(*pl)
@@ -41,7 +42,7 @@ class ReadUI:
         if not book.manifest or book.manifest.version != RENDER_VERSION:
             self.get_manifest(book)
             return
-        self.download_book(book)
+        self.display_book(book) if book.is_complete else self.download_book(book)
 
     def get_manifest(self, book):
         library_id, book_id, fmt = book.key
@@ -73,4 +74,7 @@ class ReadUI:
         self.db.save_manifest(book, manifest, self.download_book.bind(self, book))
 
     def download_book(self, book):
+        pass
+
+    def display_book(self, book):
         pass

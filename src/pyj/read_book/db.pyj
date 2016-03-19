@@ -15,9 +15,12 @@ DB_NAME = 'calibre-books-db-test'  # TODO: Remove test suffix
 
 class DB:
 
-    def __init__(self, idb, interface_data):
-        self.interface_data = interface_data
+    def __init__(self, idb, ui, supports_blobs):
+        self.interface_data = ui.interface_data
         self.idb = idb
+        self.supports_blobs = supports_blobs
+        if not supports_blobs:
+            print('IndexedDB does not support Blob storage, using base64 encoding instead')
 
         idb.onerror = def(event):
             self.display_error(None, event)
@@ -80,6 +83,8 @@ class DB:
         book.manifest = manifest
         book.metadata = manifest.metadata
         book.book_hash = manifest.book_hash.hash
+        book.is_complete = False
+        book.stores_blobs = True
         v'delete manifest["metadata"]'
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
@@ -88,12 +93,25 @@ def create_db(ui, interface_data):
         ui.db = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.')
         return
     request = window.indexedDB.open(DB_NAME, 1)
-    request.onblocked = def(event):
-        alert(_('Please close all other tabs with a calibre book open'))
-    request.onerror = def(event):
-        ui.db = _('You must allow calibre to use IndexedDB storage in your browser to read books')
-    request.onsuccess = def(event):
-        ui.db = DB(event.target.result, interface_data)
-        ui.db_initialized()
+
     request.onupgradeneeded = def(event):
         upgrade_schema(event.target.result, event.oldVersion, event.newVersion)
+
+    request.onblocked = def(event):
+        alert(_('Please close all other tabs with a calibre book open'))
+
+    request.onerror = def(event):
+        ui.db = _('You must allow calibre to use IndexedDB storage in your browser to read books')
+
+    request.onsuccess = def(event):
+        blob = Blob(['test'], {'type':"text/plain"})
+        idb = event.target.result
+        try:
+            req = idb.transaction(['files'], 'readwrite').objectStore('files').put(blob, ':-test-blob-:')
+        except Exception:
+            ui.db_initialized(DB(idb, ui, False))
+            return
+        req.onsuccess = def(event):
+            ui.db_initialized(DB(idb, ui, True))
+        req.onerror = def(event):
+            ui.db_initialized(DB(idb, ui, False))
