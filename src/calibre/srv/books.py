@@ -8,10 +8,11 @@ from hashlib import sha1
 from functools import partial
 from threading import RLock
 from cPickle import dumps
-import errno, os, tempfile, shutil, time
+import errno, os, tempfile, shutil, time, json as jsonlib
 
 from calibre.constants import cache_dir, iswindows
 from calibre.customize.ui import plugin_for_input_format
+from calibre.srv.metadata import book_as_json
 from calibre.srv.render_book import RENDER_VERSION
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint, json
@@ -69,8 +70,9 @@ def queue_job(ctx, copy_format_to, bhash, fmt, book_id, size, mtime):
     with os.fdopen(fd, 'wb') as f:
         copy_format_to(f)
     tdir = tempfile.mkdtemp('', '', tdir)
-    job_id = ctx.start_job('Render book %s (%s)' % (book_id, fmt), 'calibre.srv.render_book', 'render', args=(pathtoebook, tdir, (size, mtime)),
-                           job_done_callback=job_done, job_data=(bhash, pathtoebook, tdir))
+    job_id = ctx.start_job('Render book %s (%s)' % (book_id, fmt), 'calibre.srv.render_book', 'render', args=(
+        pathtoebook, tdir, {'size':size, 'mtime':mtime, 'hash':bhash}),
+        job_done_callback=job_done, job_data=(bhash, pathtoebook, tdir))
     queued_jobs[bhash] = job_id
     return job_id
 
@@ -127,7 +129,10 @@ def book_manifest(ctx, rd, book_id, fmt):
             mpath = abspath(os.path.join(books_cache_dir(), 'f', bhash, 'calibre-book-manifest.json'))
             try:
                 os.utime(mpath, None)
-                return lopen(mpath, 'rb')
+                with lopen(mpath, 'rb') as f:
+                    ans = jsonlib.load(f)
+                ans['metadata'] = book_as_json(db, book_id)
+                return ans
             except EnvironmentError as e:
                 if e.errno != errno.ENOENT:
                     raise

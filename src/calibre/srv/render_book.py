@@ -20,7 +20,7 @@ from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.short_uuid import uuid4
 from calibre.utils.logging import default_log
 
-RENDER_VERSION = 1
+RENDER_VERSION = 1  # Also change this in read_book.ui.pyj
 
 def encode_component(x):
     return x.replace(',', ',c').replace('|', ',p')

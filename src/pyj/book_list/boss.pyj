@@ -12,6 +12,7 @@ from utils import parse_url_params
 from book_list.globals import get_session_data, set_boss, set_current_query
 from book_list.theme import get_color
 from book_list.ui import UI
+from read_book.ui import ReadUI
 
 class Boss:
 
@@ -28,6 +29,9 @@ class Boss:
         div = E.div(id='book-list-container')
         document.body.appendChild(div)
         self.ui = UI(interface_data, div)
+        div = E.div(id='read-book-container', style="display:none")
+        document.body.appendChild(div)
+        self.read_ui = ReadUI(interface_data, div)
         window.onerror = self.onerror.bind(self)
         self.history_count = 0
         data = parse_url_params()
@@ -36,9 +40,19 @@ class Boss:
         if not data.mode or data.mode is 'book_list':
             if data.panel is not self.ui.current_panel:
                 self.ui.show_panel(data.panel, push_state=False)
+        elif data.mode is 'read_book':
+            self.current_mode = data.mode
+            self.apply_mode()
+            self.read_book(int(data.book_id), data.fmt)
         setTimeout(def():
             window.onpopstate = self.onpopstate.bind(self)
         , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
+
+    def apply_mode(self, mode):
+        mode = mode or self.current_mode
+        divid = 'read-book-container' if mode is 'read_book' else 'book-list-container'
+        for x in ['book-list-container', 'read-book-container']:
+            document.getElementById(x).style.display = 'block' if x is divid else 'none'
 
     @property
     def has_history(self):
@@ -62,14 +76,23 @@ class Boss:
     def onpopstate(self, ev):
         data = parse_url_params()
         set_current_query(data)
-        mode = data.mode or 'book_list'
+        self.current_mode = mode = data.mode or 'book_list'
         self.history_count -= 1
+        self.apply_mode()
         if mode is 'book_list':
             search = data.search or ''
             if data.panel is not self.ui.current_panel:
                 self.ui.show_panel(data.panel, push_state=False)
             if search is not self.ui.books_view.interface_data.search_result.query:
                 self.ui.books_view.change_search(search, push_state=False, panel_to_show=data.panel)
+        elif mode is 'read_book':
+            self.read_book(int(data.book_id), data.fmt)
+
+    def read_book(self, book_id, fmt, metadata):
+        self.current_mode = 'read_book'
+        self.apply_mode()
+        self.push_state(extra_query_data={'book_id':book_id, 'fmt':fmt})
+        self.read_ui.load_book(book_id, fmt, metadata)
 
     def change_books(self, data):
         data.search_result.sort = str.split(data.search_result.sort, ',')[:2].join(',')
@@ -84,20 +107,20 @@ class Boss:
 
     def push_state(self, replace=False, extra_query_data=None):
         query = {}
+        idata = self.interface_data
         if extra_query_data:
             for k in extra_query_data:
                 query[k] = extra_query_data[k]
         if self.current_mode is 'book_list':
             if self.ui.current_panel is not self.ui.ROOT_PANEL:
                 query.panel = self.ui.current_panel
+            sq = idata.search_result.query
+            if sq:
+                query.search = sq
         else:
-            query.current_mode = self.current_mode
-        idata = self.interface_data
+            query.mode = self.current_mode
         if idata.library_id is not idata.default_library:
             query.library_id = idata.library_id
-        sq = idata.search_result.query
-        if sq:
-            query.search = sq
         set_current_query(query)
         query = encode_query(query) or '?'
         if replace:

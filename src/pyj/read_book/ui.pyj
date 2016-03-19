@@ -1,0 +1,76 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from ajax import ajax
+from gettext import gettext as _
+from modals import error_dialog
+from read_book.db import create_db
+
+RENDER_VERSION = 1  # Also change this in render_book.py
+
+class ReadUI:
+
+    def __init__(self, interface_data, container):
+        self.interface_data = interface_data
+        self.db = None
+        self.current_metadata = None
+        self.manifest_xhr = None
+        create_db(self, interface_data)
+        self.pending_load = None
+
+    def load_book(self, book_id, fmt, metadata):
+        if self.db is None:
+            self.pending_load = [book_id, fmt, metadata]
+            return
+        self.start_load(book_id, fmt, metadata)
+
+    def db_initialized(self):
+        if self.pending_load is not None:
+            pl, self.pending_load = self.pending_load, None
+            self.start_load(*pl)
+
+    def start_load(self, book_id, fmt, metadata):
+        if type(self.db) is 'string':
+            error_dialog(_('Cannot read book'), self.db)
+            return
+        metadata = metadata or self.interface_data.metadata[book_id]
+        self.current_metadata = metadata or {'title':_('Current Book')}
+        self.db.get_book(book_id, fmt, metadata, self.got_book.bind(self))
+
+    def got_book(self, book):
+        if not book.manifest or book.manifest.version != RENDER_VERSION:
+            self.get_manifest(book)
+            return
+        self.download_book(book)
+
+    def get_manifest(self, book):
+        library_id, book_id, fmt = book.key
+        if self.manifest_xhr:
+            self.manifest_xhr.abort()
+        query = {'library_id': library_id}
+        self.manifest_xhr = ajax(('book-manifest/' + encodeURIComponent(book_id) + '/' + encodeURIComponent(fmt)),
+                                 self.got_manifest.bind(self, book), query=query)
+        self.manifest_xhr.send()
+
+    def got_manifest(self, book, end_type, xhr, ev):
+        self.manifest_xhr = None
+        if end_type is 'abort':
+            return
+        if end_type is not 'load':
+            return error_dialog(_('Failed to load book manifest'), str.format(
+                _('Could not open {title} as book manifest failed to load, click "Show Details" for more information.'), title=self.current_metadata.title),
+                                xhr.error_html)
+        try:
+            manifest = JSON.parse(xhr.responseText)
+        except Exception as err:
+            return error_dialog(_('Failed to load book manifest'), str.format(
+                _('The manifest for {title} is not valid'), title=self.current_metadata.title),
+                                err.stack or err.toString())
+        if manifest.version != RENDER_VERSION:
+            return error_dialog(_('calibre upgraded!'), _(
+                'A newer version of calibre is available, please click the reload button in your browser.'))
+        self.current_metadata = manifest.metadata
+        self.db.save_manifest(book, manifest, self.download_book.bind(self, book))
+
+    def download_book(self, book):
+        pass

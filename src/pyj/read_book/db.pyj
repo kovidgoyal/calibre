@@ -1,0 +1,91 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from gettext import gettext as _
+from modals import error_dialog
+
+def upgrade_schema(idb, old_version, new_version):
+    if old_version < 2:
+        idb.createObjectStore('books', {'keyPath':'key'})
+        idb.createObjectStore('files')
+
+class DB:
+
+    DB_NAME = 'calibre-read-books-db-test'  # TODO: Remove test suffix
+
+    def __init__(self, idb, interface_data):
+        self.interface_data = interface_data
+        self.idb = idb
+
+        idb.onerror = def(event):
+            self.display_error(None, event)
+            if console.dir:
+                console.dir(event)
+            else:
+                console.log(event)
+
+        idb.onversionchange = def(event):
+            self.db.close()
+            error_dialog(_('Database upgraded!'), _(
+                'A newer version of calibre is available, please click the reload button in your browser.'))
+
+    def display_error(self, msg, event):
+        if event.already_displayed_by_calibre:
+            return
+        event.already_displayed_by_calibre = True
+        msg = msg or _(
+            'There was an error while interacting with the'
+            ' database used to store books for offline reading. Click "Show details" for more information.')
+        desc = event.target
+        if desc.error and desc.error.toString:
+            desc = desc.error.toString()
+        elif desc.errorCode:
+            desc = desc.errorCode
+        error_dialog(_('Cannot read book'), msg, desc)
+
+    def do_op(self, stores, data, error_msg, proceed, op='get', store=None):
+        store = store or stores[0]
+        if op is 'get':
+            transaction = self.idb.transaction(transaction)
+            req = transaction.objectStore(store).get(data)
+            req.onsuccess = def(event): proceed(req.result)
+        elif op is 'put':
+            transaction = self.idb.transaction(transaction, 'readwrite')
+            req = transaction.objectStore(store).put(data)
+            req.onsuccess = proceed
+        req.onerror = def(event):
+            self.display_error(error_msg, event)
+
+    def get_book(self, book_id, fmt, metadata, proceed):
+        fmt = fmt.toUpperCase()
+        key = [self.interface_data.library_id, book_id, fmt]
+        self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
+            proceed(result or {
+                'key':key,
+                'is_complete':False,
+                'stores_blobs': True,
+                'book_hash':None,
+                'last_read': Date(),
+                'metadata': metadata,
+                'manifest': None,
+            })
+        )
+
+    def save_manifest(self, book, manifest, proceed):
+        book.manifest = manifest
+        book.metadata = manifest.metadata
+        v'delete manifest["metadata"]'
+        self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
+
+def create_db(ui, interface_data):
+    if not window.indexedDB:
+        ui.db = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.')
+        return
+    request = window.indexedDB.open(DB.DB_NAME, 2)
+    request.onerror = def(event):
+        ui.db = _('You must allow calibre to use IndexedDB storage in your browser to read books')
+    request.onsuccess = def(event):
+        ui.db = DB(event.target.result, interface_data)
+        ui.db_initialized()
+    request.onupgradeneeded = def(event):
+        upgrade_schema(event.target.result, event.oldVersion, event.newVersion)

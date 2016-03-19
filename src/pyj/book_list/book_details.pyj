@@ -393,7 +393,7 @@ class BookDetailsPanel:
         self.download_format(fmt)
 
     def read_format(self, fmt):
-        pass
+        get_boss().read_book(self.current_book_id, fmt, self.interface_data.metadata[self.current_book_id])
 
     def read_book(self):
         book_id = self.current_book_id
