@@ -167,19 +167,31 @@ class ReadUI:
             pbar.setAttribute('value', x + '')
             progress.lastChild.textContent = str.format(_('Downloaded {0}, {1} left'), human_readable(x), human_readable(total - x))
 
+        def on_stored(err):
+            files_left.discard(this)
+            if err:
+                failed_files.append([this, err])
+            if len(files_left):
+                return
+            if failed_files.length:
+                det = [str.format('<h4>{}</h4><div>{}</div><hr>', fname, err_html) for fname, err_html in failed_files].join('')
+                self.show_error(_('Could not download book'), _(
+                    'Failed to download some book data, click "Show details" for more information'), det)
+                return
+            self.db.finish_book(book, self.display_book.bind(self, book))
+
         def on_complete(end_type, xhr, ev):
             self.downloads_in_progress.remove(xhr)
-            files_left.discard(this)
             progress_track[this] = files[this].size
             update_progress()
             if end_type is 'abort':
+                files_left.discard(this)
                 return
             if end_type is 'load':
-                self.db.store_file(book, fname, xhr)
+                self.db.store_file(book, this, xhr, on_stored.bind(this))
             else:
                 failed_files.append([this, xhr.error_html])
-            if len(files_left):
-                return
+                files_left.discard(this)
 
         def on_progress(loaded):
             progress_track[this] = loaded
@@ -187,6 +199,9 @@ class ReadUI:
 
         for fname in files_left:
             xhr = ajax(base_path + encodeURIComponent(fname), on_complete.bind(fname), on_progress=on_progress.bind(fname), query=query, progress_totals_needed=False)
+            xhr.responseType = 'text'
+            if not book.manifest.files[name].is_virtualized:
+                xhr.responseType = 'blob' if self.db.supports_blobs else 'arraybuffer'
             xhr.send()
             self.downloads_in_progress.append(xhr)
 

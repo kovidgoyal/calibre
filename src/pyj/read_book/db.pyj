@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from gettext import gettext as _
+from utils import base64encode
 
 def upgrade_schema(idb, old_version, new_version):
     print('upgrade_schema:', old_version, new_version)
@@ -9,6 +10,16 @@ def upgrade_schema(idb, old_version, new_version):
         idb.createObjectStore('books', {'keyPath':'key'})
     if not idb.objectStoreNames.contains('files'):
         idb.createObjectStore('files')
+
+def file_store_name(book, name):
+    return book.book_hash + ' ' + name
+
+def get_error_details(event):
+    desc = event.target
+    if desc.error and desc.error.toString:
+        desc = desc.error.toString()
+    elif desc.errorCode:
+        desc = desc.errorCode
 
 DB_NAME = 'calibre-books-db-test'  # TODO: Remove test suffix
 
@@ -41,12 +52,7 @@ class DB:
         msg = msg or _(
             'There was an error while interacting with the'
             ' database used to store books for offline reading. Click "Show details" for more information.')
-        desc = event.target
-        if desc.error and desc.error.toString:
-            desc = desc.error.toString()
-        elif desc.errorCode:
-            desc = desc.errorCode
-        self.show_error(_('Cannot read book'), msg, desc)
+        self.show_error(_('Cannot read book'), msg, get_error_details(event))
 
     def do_op(self, stores, data, error_msg, proceed, op='get', store=None):
         store = store or stores[0]
@@ -71,7 +77,7 @@ class DB:
             proceed(result or {
                 'key':key,
                 'is_complete':False,
-                'b64_encoded_files': v'[]',
+                'stored_files': {},
                 'book_hash':None,
                 'last_read': Date(),
                 'metadata': metadata,
@@ -83,14 +89,27 @@ class DB:
         book.manifest = manifest
         book.metadata = manifest.metadata
         book.book_hash = manifest.book_hash.hash
-        book.is_complete = False
-        book.b64_encoded_files = v'[]'
+        book.stored_files = {}
         book.is_complete = False
         v'delete manifest["metadata"]'
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
-    def store_file(self, book, fname, xhr):
-        pass
+    def store_file(self, book, name, xhr, proceed):
+        store_as_text = xhr.responseType is 'text'
+        fname = file_store_name(book, name)
+        needs_encoding = not store_as_text and not self.supports_blobs
+        book.stored_files[fname] = {'encoded':needs_encoding, 'mimetype':book.manifest.files[name].mimetype, 'store_as_text':store_as_text}
+        data = xhr.response
+        if needs_encoding:
+            data = base64encode(Uint8Array(data))
+        req = self.idb.transaction(['files'], 'readwrite').objectStore('files').put(data, fname)
+        req.onsuccess = def(event): proceed()
+        req.onerror = def(event):
+            proceed(str.format(_('Failed to store book data ({0}) with error: {1}'), name, get_error_details(event)))
+
+    def finish_book(self, book, proceed):
+        book.is_complete = True
+        self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
 def create_db(ui, interface_data):
     if not window.indexedDB:

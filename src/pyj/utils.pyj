@@ -34,6 +34,24 @@ def to_utf8(string):
     )
     return ua
 
+def base64encode(bytes):
+    # Convert an array of bytes into a base-64 encoded string
+    l = bytes.length
+    remainder = l % 3
+    main_length = l - remainder
+    encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    ans = v'[]'
+    for v'var i = 0; i < main_length; i += 3':
+        chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2]
+        ans.push(encodings[(chunk & 16515072) >> 18], encodings[(chunk & 258048) >> 12], encodings[(chunk & 4032) >> 6], encodings[chunk & 63])
+    if remainder is 1:
+        chunk = bytes[main_length]
+        ans.push(encodings[(chunk & 252) >> 2], encodings[(chunk & 3) << 4], '=', '=')
+    elif remainder is 2:
+        chunk = (bytes[main_length] << 8) | bytes[main_length + 1]
+        ans.push(encodings[(chunk & 64512) >> 10], encodings[(chunk & 1008) >> 4], encodings[(chunk & 15) << 2], '=')
+    return ans.join('')
+
 def parse_url_params(url=None, allow_multiple=False):
     url = url or window.location.href
     qs = url.indexOf('?')
@@ -96,3 +114,4 @@ def human_readable(size, sep=' '):
 if __name__ is '__main__':
     print(fmt_sidx(10), fmt_sidx(1.2))
     print(list(map(human_readable, [1, 1024.0, 1025, 1024*1024*2.3])))
+    print(base64encode(list(range(256))))
