@@ -4,6 +4,7 @@
 from ajax import ajax, encode_query
 from elementmaker import E
 from gettext import gettext as _
+from book_list.globals import get_boss
 from modals import error_dialog
 from utils import human_readable
 from read_book.db import create_db
@@ -97,6 +98,7 @@ class ReadUI:
         self.current_book_id = book_id
         metadata = metadata or self.interface_data.metadata[book_id]
         self.current_metadata = metadata or {'title':_('Book id #') + book_id}
+        get_boss().update_window_title()
         self.init_ui()
         if type(self.db) is 'string':
             self.show_error(_('Cannot read book'), self.db)

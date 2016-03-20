@@ -53,13 +53,17 @@ class Boss:
         divid = 'read-book-container' if mode is 'read_book' else 'book-list-container'
         for x in ['book-list-container', 'read-book-container']:
             document.getElementById(x).style.display = 'block' if x is divid else 'none'
+        self.update_window_title()
 
     @property
     def has_history(self):
         return self.history_count > 0
 
     def update_window_title(self):
-        document.title = 'calibre :: ' + self.current_library_name
+        if self.current_mode is 'book_list':
+            document.title = 'calibre :: ' + self.current_library_name
+        elif self.current_mode is 'read_book':
+            document.title = self.read_ui.current_metadata.title
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
         try:
