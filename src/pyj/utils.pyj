@@ -79,5 +79,20 @@ def fmt_sidx(val, fmt='{:.2f}', use_roman=True):
         return int(val) + ''
     return str.format(fmt, float(val))
 
+def human_readable(size, sep=' '):
+    divisor, suffix = 1, "B"
+    for i, candidate in enumerate(('B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB')):
+        if size < (1 << ((i + 1) * 10)):
+            divisor, suffix = (1 << (i * 10)), candidate
+            break
+    size = (float(size)/divisor) + ''
+    pos = str.find(size, ".")
+    if pos > -1:
+        size = size[:pos + 2]
+    if str.endswith(size, '.0'):
+        size = size[:-2]
+    return size + sep + suffix
+
 if __name__ is '__main__':
     print(fmt_sidx(10), fmt_sidx(1.2))
+    print(list(map(human_readable, [1, 1024.0, 1025, 1024*1024*2.3])))

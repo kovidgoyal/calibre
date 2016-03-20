@@ -1,9 +1,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from ajax import ajax
+from ajax import ajax, encode_query
+from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
+from utils import human_readable
 from read_book.db import create_db
 
 RENDER_VERSION = 1  # Also change this in render_book.py
@@ -13,10 +15,71 @@ class ReadUI:
     def __init__(self, interface_data, container):
         self.interface_data = interface_data
         self.db = None
-        self.current_metadata = None
+        self.current_metadata = {'title': _('Unknown book')}
+        self.current_book_id = None
         self.manifest_xhr = None
         create_db(self, interface_data)
         self.pending_load = None
+        self.downloads_in_progress = []
+        self.progress_id = 'book-load-progress'
+        self.display_id = 'book-iframe-container'
+        self.error_id = 'book-global-error-container'
+        self.stacked_widgets = [self.progress_id, self.display_id, self.error_id]
+
+        container.appendChild(E.div(
+            id=self.progress_id, style='display:none; text-align: center',
+            E.h3(style='margin-top:30vh; margin-bottom: 1ex;'),
+            E.progress(style='margin: 1ex'),
+            E.div(style='margin: 1ex')
+        ))
+
+        container.appendChild(E.div(
+            id=self.error_id, style='display:none; text-align: center',
+            E.h2(_('Could not open book'), style='margin: 1ex; margin-top: 30vh;'),
+            E.div(style='margin: 1ex', E.a()),
+        ))
+
+        container.appendChild(E.div(
+            id=self.display_id, style='display:none',
+        ))
+
+    def show_stack(self, name):
+        ans = None
+        for w in self.stacked_widgets:
+            d = document.getElementById(w)
+            v = 'none'
+            if name is w:
+                ans = d
+                v = 'block'
+            d.style.display = v
+        return ans
+
+    def show_error(self, title, msg, details):
+        div = self.show_stack(self.error_id)
+        error_dialog(title, msg, details)
+        a = div.lastChild.firstChild
+        if self.current_book_id:
+            a.setAttribute('href', encode_query({
+                'library_id':self.interface_data.library_id,
+                'book-id': (self.current_book_id + ''),
+                'panel':'book-details'
+            }))
+            a.textContent = str.format(_(
+                'Click to go back to the details page for: {}'), self.current_metadata.title)
+        else:
+            a.textContent = ''
+            a.setAttribute('href', '')
+
+    def init_ui(self):
+        div = self.show_stack(self.progress_id)
+        if self.current_metadata:
+            div.firstChild.textContent = str.format(_(
+                'Downloading {0} for offline reading, please wait...'), self.current_metadata.title)
+        else:
+            div.firstChild.textContent = ''
+        pr = div.firstChild.nextSibling
+        pr.removeAttribute('value'), pr.removeAttribute('max')
+        div.lastChild.textContent = _('Downloading book manifest...')
 
     def load_book(self, book_id, fmt, metadata):
         if self.db is None:
@@ -31,18 +94,22 @@ class ReadUI:
             self.start_load(*pl)
 
     def start_load(self, book_id, fmt, metadata):
-        if type(self.db) is 'string':
-            error_dialog(_('Cannot read book'), self.db)
-            return
+        self.current_book_id = book_id
         metadata = metadata or self.interface_data.metadata[book_id]
-        self.current_metadata = metadata or {'title':_('Current Book')}
+        self.current_metadata = metadata or {'title':_('Book id #') + book_id}
+        self.init_ui()
+        if type(self.db) is 'string':
+            self.show_error(_('Cannot read book'), self.db)
+            return
         self.db.get_book(book_id, fmt, metadata, self.got_book.bind(self))
 
     def got_book(self, book):
-        if not book.manifest or book.manifest.version != RENDER_VERSION:
+        if not book.manifest or book.manifest.version != RENDER_VERSION or not book.is_complete:
+            # We re-download the manifest when the book is not complete to ensure we have the
+            # correct manifest, even though doing so is not strictly necessary
             self.get_manifest(book)
-            return
-        self.display_book(book) if book.is_complete else self.download_book(book)
+        else:
+            self.display_book(book)
 
     def get_manifest(self, book):
         library_id, book_id, fmt = book.key
@@ -58,23 +125,70 @@ class ReadUI:
         if end_type is 'abort':
             return
         if end_type is not 'load':
-            return error_dialog(_('Failed to load book manifest'), str.format(
+            return self.show_error(_('Failed to load book manifest'), str.format(
                 _('Could not open {title} as book manifest failed to load, click "Show Details" for more information.'), title=self.current_metadata.title),
                                 xhr.error_html)
         try:
             manifest = JSON.parse(xhr.responseText)
         except Exception as err:
-            return error_dialog(_('Failed to load book manifest'), str.format(
+            return self.show_error(_('Failed to load book manifest'), str.format(
                 _('The manifest for {title} is not valid'), title=self.current_metadata.title),
                                 err.stack or err.toString())
         if manifest.version != RENDER_VERSION:
-            return error_dialog(_('calibre upgraded!'), _(
+            return self.show_error(_('calibre upgraded!'), _(
                 'A newer version of calibre is available, please click the reload button in your browser.'))
         self.current_metadata = manifest.metadata
         self.db.save_manifest(book, manifest, self.download_book.bind(self, book))
 
     def download_book(self, book):
-        pass
+        files = book.manifest.files
+        total = 0
+        for name in files:
+            total += files[name].size
+        files_left = set(book.manifest.files)
+        failed_files = []
+        for xhr in self.downloads_in_progress:
+            xhr.abort()
+        self.downloads_in_progress = []
+        progress = document.getElementById(self.progress_id)
+        pbar = progress.firstChild.nextSibling
+        library_id, book_id, fmt = book.key
+        base_path = str.format(
+            'book-file/{}/{}/{}/{}/', encodeURIComponent(book_id), encodeURIComponent(fmt),
+            encodeURIComponent(book.manifest.book_hash.size), encodeURIComponent(book.manifest.book_hash.mtime))
+        query = {'library_id': library_id}
+        progress_track = {}
+        pbar.setAttribute('max', total + '')
+
+        def update_progress():
+            x = 0
+            for name in progress_track:
+                x += progress_track[name]
+            pbar.setAttribute('value', x + '')
+            progress.lastChild.textContent = str.format(_('Downloaded {0}, {1} left'), human_readable(x), human_readable(total - x))
+
+        def on_complete(end_type, xhr, ev):
+            self.downloads_in_progress.remove(xhr)
+            files_left.discard(this)
+            progress_track[this] = files[this].size
+            update_progress()
+            if end_type is 'abort':
+                return
+            if end_type is 'load':
+                self.db.store_file(book, fname, xhr)
+            else:
+                failed_files.append([this, xhr.error_html])
+            if len(files_left):
+                return
+
+        def on_progress(loaded):
+            progress_track[this] = loaded
+            update_progress()
+
+        for fname in files_left:
+            xhr = ajax(base_path + encodeURIComponent(fname), on_complete.bind(fname), on_progress=on_progress.bind(fname), query=query, progress_totals_needed=False)
+            xhr.send()
+            self.downloads_in_progress.append(xhr)
 
     def display_book(self, book):
-        pass
+        self.show_stack(self.display_id)

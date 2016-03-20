@@ -18,7 +18,7 @@ def encode_query(query):
             has_query = True
     return path
 
-def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=30*1000, ok_code=200):
+def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', query=None, timeout=30*1000, ok_code=200, progress_totals_needed=True):
     # Run an AJAX request. on_complete must be a function that accepts three
     # arguments: end_type, xhr, ev where end_type is one of 'abort', 'error',
     # 'load', 'timeout'. In case end_type is anything other than 'load' you can
@@ -51,6 +51,9 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
         if ev.lengthComputable:
             on_progress(ev.loaded, ev.total, xhr)
         elif ev.loaded:
+            if not progress_totals_needed:
+                on_progress(ev.loaded, undefined, xhr)
+                return
             ul = xhr.getResponseHeader('Calibre-Uncompressed-Length')
             if ul:
                 try:

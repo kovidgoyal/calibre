@@ -69,7 +69,7 @@ class Container(ContainerBase):
         self.virtualize_resources()
         def manifest_data(name):
             return {'size':os.path.getsize(self.name_path_map[name]), 'is_virtualized': name in self.virtualized_names}
-        data['manifest'] = {name:manifest_data(name) for name in set(self.name_path_map) - excluded_names},
+        data['files'] = {name:manifest_data(name) for name in set(self.name_path_map) - excluded_names}
         self.commit()
         for name in excluded_names:
             os.remove(self.name_path_map[name])

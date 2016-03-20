@@ -2,7 +2,6 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from gettext import gettext as _
-from modals import error_dialog
 
 def upgrade_schema(idb, old_version, new_version):
     print('upgrade_schema:', old_version, new_version)
@@ -21,6 +20,7 @@ class DB:
         self.supports_blobs = supports_blobs
         if not supports_blobs:
             print('IndexedDB does not support Blob storage, using base64 encoding instead')
+        self.show_error = ui.show_error.bind(ui)
 
         idb.onerror = def(event):
             self.display_error(None, event)
@@ -31,7 +31,7 @@ class DB:
 
         idb.onversionchange = def(event):
             idb.close()
-            error_dialog(_('Database upgraded!'), _(
+            ui.show_error(_('Database upgraded!'), _(
                 'A newer version of calibre is available, please click the reload button in your browser.'))
 
     def display_error(self, msg, event):
@@ -46,7 +46,7 @@ class DB:
             desc = desc.error.toString()
         elif desc.errorCode:
             desc = desc.errorCode
-        error_dialog(_('Cannot read book'), msg, desc)
+        self.show_error(_('Cannot read book'), msg, desc)
 
     def do_op(self, stores, data, error_msg, proceed, op='get', store=None):
         store = store or stores[0]
@@ -71,7 +71,7 @@ class DB:
             proceed(result or {
                 'key':key,
                 'is_complete':False,
-                'stores_blobs': True,
+                'b64_encoded_files': v'[]',
                 'book_hash':None,
                 'last_read': Date(),
                 'metadata': metadata,
@@ -84,9 +84,13 @@ class DB:
         book.metadata = manifest.metadata
         book.book_hash = manifest.book_hash.hash
         book.is_complete = False
-        book.stores_blobs = True
+        book.b64_encoded_files = v'[]'
+        book.is_complete = False
         v'delete manifest["metadata"]'
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
+
+    def store_file(self, book, fname, xhr):
+        pass
 
 def create_db(ui, interface_data):
     if not window.indexedDB:
