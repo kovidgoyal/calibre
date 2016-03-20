@@ -8,7 +8,7 @@ html_elements = {
     'command', 'datagrid', 'datalist', 'dd', 'del', 'details', 'dfn',
     'dialog', 'dir', 'div', 'dl', 'dt', 'em', 'event-source', 'fieldset',
     'figcaption', 'figure', 'footer', 'font', 'form', 'header', 'h1',
-    'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'img', 'input', 'ins',
+    'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'iframe', 'img', 'input', 'ins',
     'keygen', 'kbd', 'label', 'legend', 'li', 'm', 'map', 'menu', 'meter',
     'multicol', 'nav', 'nextid', 'ol', 'output', 'optgroup', 'option',
     'p', 'pre', 'progress', 'q', 's', 'samp', 'script', 'section', 'select',
