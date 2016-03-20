@@ -2,7 +2,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class crnews(BasicNewsRecipe):
     __author__     = 'Douglas Delgado'
-    title          = u'La Nacion'
+    title          = u'La Nacion Costa Rica'
     publisher      = 'GRUPO NACION GN, S. A.'
     description    = 'Diario de circulacion nacional de Costa Rica. Recipe creado por Douglas Delgado (doudelgado@gmail.com) para su uso con Calibre por Kovid Goyal'
     category       = 'Spanish, Entertainment'
