@@ -90,6 +90,10 @@ class LocalLink(BadLink):
              ' book is read on any computer other than the one it was created on.'
              ' Either fix or remove the link.')
 
+class EmptyLink(BadLink):
+
+    HELP = _('This link is empty. This is almost always a mistake. Either fill in the link destination or remove the link tag.')
+
 class UnreferencedResource(BadLink):
 
     HELP = _('This file is included in the book but not referred to by any document in the spine.'
@@ -278,6 +282,8 @@ def check_links(container):
     for name, mt in container.mime_map.iteritems():
         if mt in OEB_DOCS or mt in OEB_STYLES or mt in xml_types:
             for href, lnum, col in container.iterlinks(name):
+                if not href:
+                    a(EmptyLink(_('The link is empty'), name, lnum, col))
                 try:
                     tname = container.href_to_name(href, name)
                 except ValueError:
