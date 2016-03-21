@@ -158,63 +158,49 @@ class AES:
                                   U3[(tt >>  8) & 0xFF] ^
                                   U4[ tt        & 0xFF])
 
-    def encrypt(self, plaintext, ciphertext, offset):
-        rounds = self._Ke.length - 1
+    def _crypt(self, plaintext, ciphertext, offset, encrypt):
+        if encrypt:
+            R1 = T1; R2 = T2; R3 = T3; R4 = T4
+            o1 = 1; o3 = 3
+            SB = S
+            K = self._Ke
+        else:
+            R1 = T5; R2 = T6; R3 = T7; R4 = T8
+            o1 = 3; o3 = 1
+            SB = Si
+            K = self._Kd
+        rounds = K.length - 1
         a = self.working_mem[0]
         t = self.working_mem[1]
 
         # convert plaintext to (ints ^ key)
         convert_to_int32(plaintext, t, offset, 16)
         for v'var i = 0; i < 4; i++':
-            t[i] ^= self._Ke[0][i]
+            t[i] ^= K[0][i]
 
         # apply round transforms
         for v'var r = 1; r < rounds; r++':
             for v'var i = 0; i < 4; i++':
-                a[i] = (T1[(t[i] >> 24) & 0xff] ^
-                        T2[(t[(i + 1) % 4] >> 16) & 0xff] ^
-                        T3[(t[(i + 2) % 4] >>  8) & 0xff] ^
-                        T4[ t[(i + 3) % 4]        & 0xff] ^
-                        self._Ke[r][i])
+                a[i] = (R1[(t[i] >> 24) & 0xff] ^
+                        R2[(t[(i + o1) % 4] >> 16) & 0xff] ^
+                        R3[(t[(i +  2) % 4] >>  8) & 0xff] ^
+                        R4[ t[(i + o3) % 4]        & 0xff] ^
+                        K[r][i])
             t.set(a)
 
         # the last round is special
         for v'var i = 0; i < 4; i++':
-            tt = self._Ke[rounds][i]
-            ciphertext[offset + 4 * i] = (S[(t[i] >> 24) & 0xff] ^ (tt >> 24)) & 0xff
-            ciphertext[offset + 4 * i + 1] = (S[(t[(i + 1) % 4] >> 16) & 0xff] ^ (tt >> 16)) & 0xff
-            ciphertext[offset + 4 * i + 2] = (S[(t[(i + 2) % 4] >>  8) & 0xff] ^ (tt >>  8)) & 0xff
-            ciphertext[offset + 4 * i + 3] = (S[ t[(i + 3) % 4]        & 0xff] ^  tt       ) & 0xff
+            tt = K[rounds][i]
+            ciphertext[offset + 4 * i] = (SB[(t[i] >> 24) & 0xff] ^ (tt >> 24)) & 0xff
+            ciphertext[offset + 4 * i + 1] = (SB[(t[(i + o1) % 4] >> 16) & 0xff] ^ (tt >> 16)) & 0xff
+            ciphertext[offset + 4 * i + 2] = (SB[(t[(i +  2) % 4] >>  8) & 0xff] ^ (tt >>  8)) & 0xff
+            ciphertext[offset + 4 * i + 3] = (SB[ t[(i + o3) % 4]        & 0xff] ^  tt       ) & 0xff
 
+    def encrypt(self, plaintext, ciphertext, offset):
+        return self._crypt(plaintext, ciphertext, offset, True)
 
     def decrypt(self, ciphertext, plaintext, offset):
-        rounds = self._Kd.length - 1
-        a = self.working_mem[0]
-        t = self.working_mem[1]
-
-        # convert plaintext to (ints ^ key)
-        convert_to_int32(ciphertext, t, offset, 16)
-        for v'var i = 0; i < 4; i++':
-            t[i] ^= self._Kd[0][i]
-
-        # apply round transforms
-        for v'var r = 1; r < rounds; r++':
-            for v'var i = 0; i < 4; i++':
-                a[i] = (T5[(t[i] >> 24) & 0xff] ^
-                        T6[(t[(i + 3) % 4] >> 16) & 0xff] ^
-                        T7[(t[(i + 2) % 4] >>  8) & 0xff] ^
-                        T8[ t[(i + 1) % 4]        & 0xff] ^
-                        self._Kd[r][i])
-            t.set(a)
-
-        # the last round is special
-        for v'var i = 0; i < 4; i++':
-            tt = self._Kd[rounds][i]
-            plaintext[offset + 4 * i] = (Si[(t[ i         ] >> 24) & 0xff] ^ (tt >> 24)) & 0xff
-            plaintext[offset + 4 * i + 1] = (Si[(t[(i + 3) % 4] >> 16) & 0xff] ^ (tt >> 16)) & 0xff
-            plaintext[offset + 4 * i + 2] = (Si[(t[(i + 2) % 4] >>  8) & 0xff] ^ (tt >>  8)) & 0xff
-            plaintext[offset + 4 * i + 3] = (Si[ t[(i + 1) % 4]        & 0xff] ^  tt       ) & 0xff
-
+        return self._crypt(ciphertext, plaintext, offset, False)
 
 def random_bytes_insecure(sz):
     ans = Uint8Array(sz)
