@@ -228,7 +228,7 @@ def generate_key(sz):
     return random_bytes(sz)
 
 def generate_tag(sz):
-    return random_bytes(sz or 16)
+    return random_bytes(sz or 32)
 
 def typed_array_as_js(x):
     name = x.constructor.name or 'Uint8Array'
