@@ -46,7 +46,9 @@ def _makeelement(tag, *args, **kwargs):
             if str.startswith(attr, 'on'):
                 attr = attr[2:]
             ans.addEventListener(attr, val)
-        else:
+        elif val is True:
+            ans.setAttribute(vattr, vattr)
+        elif val is not False:
             ans.setAttribute(vattr, val)
 
     for arg in args:
