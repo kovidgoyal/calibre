@@ -253,6 +253,11 @@ class CBC:
         return {'iv':first_iv, 'cipherbytes':outputbytes}
 
     def encrypt(self, plaintext, tag):
+        # Encrypt the plaintext (a string) returning an object that contains
+        # the used initialization vector and the encrypted bytes (as
+        # Uint8Arrays). If the optional tag (a string) is present, it is also
+        # encrypted along with plaintext.It can be used to ensure message integrity.
+        # See the __main__ block at the bottom of this file for example usage.
         return self.encrypt_bytes(string_to_bytes(plaintext), string_to_bytes(tag) if tag else Uint8Array(0))
 
     def decrypt(self, output_from_encrypt, tag):
@@ -281,7 +286,6 @@ if __name__ == '__main__':
     crypted = cbc.encrypt(text)
     decrypted = cbc.decrypt(crypted)
     print('Roundtrip:', 'OK' if text is decrypted else 'FAILED')
-    crypted = cbc.encrypt(text, 'secret')
-    decrypted = cbc.decrypt(crypted, 'secret')
+    crypted = cbc.encrypt(text, 'secret-tag')
+    decrypted = cbc.decrypt(crypted, 'secret-tag')
     print('Roundtrip with tag:', 'OK' if text is decrypted else 'FAILED')
-
