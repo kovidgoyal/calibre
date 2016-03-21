@@ -1,6 +1,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+# Internal API {{{
+
 def string_to_bytes_encoder(string):
     return TextEncoder('utf-8').encode(string + '')
 
@@ -218,6 +220,7 @@ def random_bytes_secure(sz):
 random_bytes = random_bytes_secure if type(window) is not 'undefined' and window.crypto and type(window.crypto.getRandomValues) is 'function' else random_bytes_insecure
 if random_bytes is random_bytes_insecure:
     print('WARNING: Using insecure RNG for AES')
+# }}}
 
 def generate_key(sz):
     if not number_of_rounds[sz]:
@@ -225,7 +228,11 @@ def generate_key(sz):
     return random_bytes(sz)
 
 def generate_tag(sz):
-    return String.fromCharCode.apply(None, random_bytes(sz or 16))
+    return random_bytes(sz or 16)
+
+def typed_array_as_js(x):
+    name = x.constructor.name or 'Uint8Array'
+    return '(new ' + name + '(' + JSON.stringify(Array.prototype.slice.call(x)) + '))'
 
 class CBC:
 
@@ -235,7 +242,7 @@ class CBC:
 
     @property
     def key_as_js(self):
-        return '(new Uint8Array(' + JSON.stringify(Array.prototype.slice.call(self.key)) + '))'
+        return typed_array_as_js(self.key)
 
     def encrypt_bytes(self, bytes, tag_bytes):
         iv = first_iv = random_bytes(16)
@@ -265,10 +272,19 @@ class CBC:
         # Uint8Arrays). If the optional tag (a string) is present, it is also
         # encrypted along with plaintext.It can be used to ensure message integrity.
         # See the __main__ block at the bottom of this file for example usage.
-        return self.encrypt_bytes(string_to_bytes(plaintext), string_to_bytes(tag) if tag else Uint8Array(0))
+        if not tag:
+            tag = Uint8Array(0)
+        elif type(tag) is 'string':
+            tag = string_to_bytes(tag)
+        return self.encrypt_bytes(string_to_bytes(plaintext), tag)
 
     def decrypt(self, output_from_encrypt, tag):
-        tag_bytes = string_to_bytes(tag) if tag else Uint8Array(0)
+        if not tag:
+            tag_bytes = Uint8Array(0)
+        elif type(tag) is 'string':
+            tag_bytes = string_to_bytes(tag)
+        else:
+            tag_bytes = tag
         iv, inputbytes = output_from_encrypt.iv, output_from_encrypt.cipherbytes
         offset = 0
         outputbytes = Uint8Array(inputbytes.length)
