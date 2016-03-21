@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import json
 
-from PyQt5.Qt import Qt, QSize
+from PyQt5.Qt import Qt
 
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
@@ -63,7 +63,6 @@ class LookAndFeelWidget(Widget, Ui_Form):
         self.opt_unsmarten_punctuation.stateChanged.connect(
                 lambda state: state != Qt.Unchecked and
                 self.opt_smarten_punctuation.setCheckState(Qt.Unchecked))
-        self.opt_extra_css.size_hint = QSize(400, 300)
 
     def get_value_handler(self, g):
         if g is self.opt_change_justification:
@@ -106,9 +105,6 @@ class LookAndFeelWidget(Widget, Ui_Form):
                 else:
                     w.setChecked(False)
             self.filter_css_others.setText(', '.join(items))
-            return True
-        if g is self.opt_extra_css:
-            g.load_text(val or '', 'css')
             return True
         if g is self.opt_transform_css_rules:
             g.rules = json.loads(val) if val else []

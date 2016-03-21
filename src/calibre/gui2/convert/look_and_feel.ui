@@ -374,7 +374,7 @@
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
-           <widget class="TextEdit" name="opt_extra_css"/>
+           <widget class="QPlainTextEdit" name="opt_extra_css"/>
           </item>
          </layout>
         </widget>
@@ -514,11 +514,6 @@
    <class>FontFamilyChooser</class>
    <extends>QWidget</extends>
    <header>calibre/gui2/font_family_chooser.h</header>
-  </customwidget>
-  <customwidget>
-   <class>TextEdit</class>
-   <extends>QPlainTextEdit</extends>
-   <header>calibre/gui2/tweak_book/editor/text.h</header>
   </customwidget>
   <customwidget>
    <class>RulesWidget</class>

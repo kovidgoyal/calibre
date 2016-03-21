@@ -215,10 +215,10 @@ class Widget(QWidget):
             return
         if isinstance(g, (QSpinBox, QDoubleSpinBox)):
             g.setValue(val)
-        elif isinstance(g, (QLineEdit, QTextEdit)):
+        elif isinstance(g, (QLineEdit, QTextEdit, QPlainTextEdit)):
             if not val:
                 val = ''
-            getattr(g, 'setPlainText', g.setText)(val)
+            getattr(g, 'setPlainText', getattr(g, 'setText', None))(val)
             getattr(g, 'setCursorPosition', lambda x: x)(0)
         elif isinstance(g, QFontComboBox):
             g.setCurrentFont(QFont(val or ''))
