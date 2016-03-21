@@ -15,6 +15,9 @@ def string_to_bytes_slow(string):
     )
     return ua
 
+def as_hex(bytes):
+    return [str.format('{:02x}', x) for x in bytes].join(' ')
+
 def bytes_to_string_decoder(bytes, offset):
     offset = offset or 0
     if offset:
@@ -79,9 +82,8 @@ def convert_to_int32(bytes, output, offset, length):
 class AES:
 
     def __init__(self, key):
-        self.key = key
         self.working_mem = [Uint32Array(4), Uint32Array(4)]
-        rounds = number_of_rounds[self.key.length]
+        rounds = number_of_rounds[key.length]
         if not rounds:
             raise ValueError('invalid key size (must be length 16, 24 or 32)')
 
@@ -96,11 +98,11 @@ class AES:
             self._Kd.push(Uint32Array(4))
 
         round_key_count = (rounds + 1) * 4
-        KC = self.key.length / 4
+        KC = key.length / 4
 
         # convert the key into ints
-        tk = Uint32Array(self.key.length / 4)
-        convert_to_int32(self.key, tk)
+        tk = Uint32Array(KC)
+        convert_to_int32(key, tk)
 
         # copy values into round key arrays
         index = 0
@@ -222,13 +224,18 @@ def generate_key(sz):
         raise ValueError('Invalid key size, must be: 16, 24 or 32')
     return random_bytes(sz)
 
-def as_hex(bytes):
-    return [str.format('{:02x}', x) for x in bytes].join(' ')
+def generate_tag(sz):
+    return String.fromCharCode.apply(None, random_bytes(sz or 16))
 
 class CBC:
 
     def __init__(self, key):
-        self.aes = AES(key or generate_key(32))
+        self.key = key or generate_key(32)
+        self.aes = AES(self.key)
+
+    @property
+    def key_as_js(self):
+        return '(new Uint8Array(' + JSON.stringify(Array.prototype.slice.call(self.key)) + '))'
 
     def encrypt_bytes(self, bytes, tag_bytes):
         iv = first_iv = random_bytes(16)
@@ -286,6 +293,7 @@ if __name__ == '__main__':
     crypted = cbc.encrypt(text)
     decrypted = cbc.decrypt(crypted)
     print('Roundtrip:', 'OK' if text is decrypted else 'FAILED')
-    crypted = cbc.encrypt(text, 'secret-tag')
-    decrypted = cbc.decrypt(crypted, 'secret-tag')
+    secret_tag = generate_tag()
+    crypted = cbc.encrypt(text, secret_tag)
+    decrypted = cbc.decrypt(crypted, secret_tag)
     print('Roundtrip with tag:', 'OK' if text is decrypted else 'FAILED')
