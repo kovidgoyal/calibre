@@ -173,7 +173,7 @@ class AES:
                                   U3[(tt >>  8) & 0xFF] ^
                                   U4[ tt        & 0xFF])
 
-    def _crypt(self, plaintext, ciphertext, offset, encrypt):
+    def _crypt(self, ciphertext, offset, encrypt):
         if encrypt:
             R1 = T1; R2 = T2; R3 = T3; R4 = T4
             o1 = 1; o3 = 3
@@ -188,8 +188,7 @@ class AES:
         a = self.working_mem[0]
         t = self.working_mem[1]
 
-        # convert plaintext to (ints ^ key)
-        convert_to_int32(plaintext, t, offset, 16)
+        # XOR plaintext with key
         for v'var i = 0; i < 4; i++':
             t[i] ^= K[0][i]
 
@@ -212,10 +211,21 @@ class AES:
             ciphertext[offset + 4 * i + 3] = (SB[ t[(i + o3) % 4]        & 0xff] ^  tt       ) & 0xff
 
     def encrypt(self, plaintext, ciphertext, offset):
-        return self._crypt(plaintext, ciphertext, offset, True)
+        convert_to_int32(plaintext, self.working_mem[1], offset, 16)
+        return self._crypt(ciphertext, offset, True)
+
+    def encrypt32(self, plaintext, ciphertext, offset):
+        self.working_mem[1].set(plaintext)
+        return self._crypt(ciphertext, offset, True)
 
     def decrypt(self, ciphertext, plaintext, offset):
-        return self._crypt(ciphertext, plaintext, offset, False)
+        convert_to_int32(ciphertext, self.working_mem[1], offset, 16)
+        return self._crypt(plaintext, offset, False)
+
+    def decrypt32(self, ciphertext, plaintext, offset):
+        self.working_mem[1].set(ciphertext)
+        return self._crypt(plaintext, offset, False)
+# }}}
 
 def random_bytes_insecure(sz):
     ans = Uint8Array(sz)
