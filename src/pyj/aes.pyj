@@ -309,18 +309,18 @@ class CBC(ModeOfOperation):
 
 class Counter:
 
-    def __init__(self, initial_value):
-        self.bytes = Uint8Array(16)
-        if not initial_value:
-            self.set_value(1)
-        elif type(initial_value) is 'number':
+    def __init__(self, initial_value, number_of_bytes=16):
+        self.number_of_bytes = number_of_bytes
+        self.bytes = Uint8Array(number_of_bytes)
+        initial_value = initial_value or 1
+        if type(initial_value) is 'number':
             self.set_value(initial_value)
         else:
             self.bytes.set(initial_value)
 
     def set_value(self, value):
         c = self.bytes
-        for v'var index = 15; index >= 0; index--':
+        for v'var index = self.number_of_bytes; index >= 0; index--':
             c[index] = value % 256
             value >>= 8
 
@@ -329,7 +329,7 @@ class Counter:
 
     def increment(self):
         c = self.bytes
-        for v'var i = 15; i >= 0; i--':
+        for v'var i = self.number_of_bytes; i >= 0; i--':
             if c[i] is 255:
                 c[i] = 0
             else:
