@@ -1,6 +1,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+# globals: crypto
+
 # Internal API {{{
 
 def string_to_bytes_encoder(string):
@@ -23,7 +25,7 @@ def as_hex(bytes):
 def bytes_to_string_decoder(bytes, offset):
     offset = offset or 0
     if offset:
-        bytes = bytes.slice(offset)
+        bytes = bytes.subarray(offset)
     return TextDecoder('utf-8').decode(bytes)
 
 def bytes_to_string_slow(bytes, offset):
@@ -214,10 +216,10 @@ def random_bytes_insecure(sz):
 
 def random_bytes_secure(sz):
     ans = Uint8Array(sz)
-    window.crypto.getRandomValues(ans)
+    crypto.getRandomValues(ans)
     return ans
 
-random_bytes = random_bytes_secure if type(window) is not 'undefined' and window.crypto and type(window.crypto.getRandomValues) is 'function' else random_bytes_insecure
+random_bytes = random_bytes_secure if type(crypto) is not 'undefined' and type(crypto.getRandomValues) is 'function' else random_bytes_insecure
 if random_bytes is random_bytes_insecure:
     print('WARNING: Using insecure RNG for AES')
 # }}}
@@ -302,7 +304,7 @@ class CBC(ModeOfOperation):
                 raise ValueError('Corrupt message')
         mlen = outputbytes.length - 1 - padsz - tag_bytes.length
         mstart = 1 + tag_bytes.length
-        outputbytes = outputbytes.slice(mstart, mstart + mlen)
+        outputbytes = outputbytes.subarray(mstart, mstart + mlen)
         return bytes_to_string(outputbytes)
 
 class Counter:
