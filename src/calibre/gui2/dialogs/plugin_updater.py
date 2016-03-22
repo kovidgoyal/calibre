@@ -430,7 +430,14 @@ class PluginUpdaterDialog(SizePersistedDialog):
         self._initialize_controls()
         self._create_context_menu()
 
-        display_plugins = read_available_plugins()
+        try:
+            display_plugins = read_available_plugins(raise_error=True)
+        except Exception:
+            display_plugins = []
+            import traceback
+            error_dialog(self.gui, _('Update Check Failed'),
+                        _('Unable to reach the plugin index page.'),
+                        det_msg=traceback.format_exc(), show=True)
 
         if display_plugins:
             self.model = DisplayPluginModel(display_plugins)
@@ -443,9 +450,6 @@ class PluginUpdaterDialog(SizePersistedDialog):
             self.filter_combo.setCurrentIndex(initial_filter)
             self._select_and_focus_view()
         else:
-            error_dialog(self.gui, _('Update Check Failed'),
-                        _('Unable to reach the plugin index page.'),
-                        det_msg=INDEX_URL, show=True)
             self.filter_combo.setEnabled(False)
         # Cause our dialog size to be restored from prefs or created on first usage
         self.resize_dialog()
