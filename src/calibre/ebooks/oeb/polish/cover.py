@@ -258,7 +258,10 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
     from calibre.ebooks.conversion.config import load_defaults
     from calibre.ebooks.oeb.transforms.cover import CoverManager
 
-    ext = cover_path.rpartition('.')[-1].lower()
+    try:
+        ext = cover_path.rpartition('.')[-1].lower()
+    except Exception:
+        ext = 'jpeg'
     cname, tname = 'cover.' + ext, 'titlepage.xhtml'
     recommended_folders = get_recommended_folders(container, (cname, tname))
 
@@ -273,8 +276,12 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         raster_cover_item = container.generate_item(cname, id_prefix='cover')
         raster_cover = container.href_to_name(raster_cover_item.get('href'), container.opf_name)
 
-        with lopen(cover_path, 'rb') as src, container.open(raster_cover, 'wb') as dest:
-            shutil.copyfileobj(src, dest)
+        with container.open(raster_cover, 'wb') as dest:
+            if callable(cover_path):
+                cover_path('write_image', dest)
+            else:
+                with lopen(cover_path, 'rb') as src:
+                    shutil.copyfileobj(src, dest)
     if options is None:
         opts = load_defaults('epub_output')
         keep_aspect = opts.get('preserve_cover_aspect_ratio', False)
@@ -286,19 +293,22 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         style = 'style="height: 100%%"'
         templ = CoverManager.NONSVG_TEMPLATE.replace('__style__', style)
     else:
-        width, height = 600, 800
-        try:
-            if existing_image:
-                width, height = identify_data(container.raw_data(existing_image, decode=False))[:2]
-            else:
-                width, height = identify(cover_path)[:2]
-        except:
-            container.log.exception("Failed to get width and height of cover")
-        ar = 'xMidYMid meet' if keep_aspect else 'none'
-        templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
-        templ = templ.replace('__viewbox__', '0 0 %d %d'%(width, height))
-        templ = templ.replace('__width__', str(width))
-        templ = templ.replace('__height__', str(height))
+        if callable(cover_path):
+            templ = CoverManager.SVG_TEMPLATE
+        else:
+            width, height = 600, 800
+            try:
+                if existing_image:
+                    width, height = identify_data(container.raw_data(existing_image, decode=False))[:2]
+                else:
+                    width, height = identify(cover_path)[:2]
+            except:
+                container.log.exception("Failed to get width and height of cover")
+            ar = 'xMidYMid meet' if keep_aspect else 'none'
+            templ = CoverManager.SVG_TEMPLATE.replace('__ar__', ar)
+            templ = templ.replace('__viewbox__', '0 0 %d %d'%(width, height))
+            templ = templ.replace('__width__', str(width))
+            templ = templ.replace('__height__', str(height))
     folder = recommended_folders[tname]
     if folder:
         tname = folder + '/' + tname
@@ -412,5 +422,6 @@ def set_epub_cover(container, cover_path, report, options=None):
         if s is not None and s != d}
     if link_sub:
         replace_links(container, link_sub, frag_map=lambda x, y:None)
+    return raster_cover, titlepage
 
 

@@ -8,6 +8,7 @@ from book_list.globals import get_boss
 from modals import error_dialog
 from utils import human_readable
 from read_book.db import create_db
+from read_book.view import View
 
 RENDER_VERSION = 1  # Also change this in render_book.py
 
@@ -43,6 +44,7 @@ class ReadUI:
         container.appendChild(E.div(
             id=self.display_id, style='display:none',
         ))
+        self.view = View(container.lastChild)
 
     def show_stack(self, name):
         ans = None
@@ -145,6 +147,7 @@ class ReadUI:
     def download_book(self, book):
         files = book.manifest.files
         total = 0
+        cover_total_updated = False
         for name in files:
             total += files[name].size
         files_left = set(book.manifest.files)
@@ -161,6 +164,7 @@ class ReadUI:
         query = {'library_id': library_id}
         progress_track = {}
         pbar.setAttribute('max', total + '')
+        raster_cover_name = book.manifest.raster_cover_name
 
         def update_progress():
             x = 0
@@ -190,22 +194,34 @@ class ReadUI:
                 files_left.discard(this)
                 return
             if end_type is 'load':
-                self.db.store_file(book, this, xhr, on_stored.bind(this))
+                self.db.store_file(book, this, xhr, on_stored.bind(this), this is raster_cover_name)
             else:
                 failed_files.append([this, xhr.error_html])
                 files_left.discard(this)
 
-        def on_progress(loaded):
+        def on_progress(loaded, ftotal):
+            nonlocal total, cover_total_updated
+            if this is raster_cover_name and not cover_total_updated:
+                cover_total_updated = True
+                total = total - files[raster_cover_name].size + ftotal
+                pbar.setAttribute('max', total + '')
             progress_track[this] = loaded
             update_progress()
 
-        for fname in files_left:
-            xhr = ajax(base_path + encodeURIComponent(fname), on_complete.bind(fname), on_progress=on_progress.bind(fname), query=query, progress_totals_needed=False)
+        def start_download(fname, path):
+            xhr = ajax(path, on_complete.bind(fname), on_progress=on_progress.bind(fname), query=query, progress_totals_needed=False)
             xhr.responseType = 'text'
             if not book.manifest.files[name].is_virtualized:
                 xhr.responseType = 'blob' if self.db.supports_blobs else 'arraybuffer'
             xhr.send()
             self.downloads_in_progress.append(xhr)
+
+        if raster_cover_name:
+            start_download(raster_cover_name, 'get/cover/' + book_id + '/' + encodeURIComponent(library_id))
+
+        for fname in files_left:
+            if fname is not raster_cover_name:
+                start_download(fname, base_path + encodeURIComponent(fname))
 
     def display_book(self, book):
         self.show_stack(self.display_id)

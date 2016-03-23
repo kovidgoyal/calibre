@@ -1,0 +1,30 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from elementmaker import E
+from gettext import gettext as _
+
+LOADING_DOC = '''
+<p>{}</p>
+'''
+class View:
+
+    def __init__(self, container):
+        self.iframe_id = 'read-book-iframe'
+        container.appendChild(
+            E.iframe(
+                id=self.iframe_id,
+                seamless=True,
+                sandbox='allow-popups allow-scripts',
+            )
+        )
+        self.show_loading()
+
+    @property
+    def iframe(self):
+        return document.getElementById(self.iframe_id)
+
+    def show_loading(self):
+        iframe = self.iframe
+        iframe.setAttribute('srcdoc', str.format(LOADING_DOC, _(
+            'Loading, please wait...')))
