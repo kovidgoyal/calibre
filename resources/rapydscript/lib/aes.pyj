@@ -1,5 +1,5 @@
 # vim:fileencoding=utf-8
-# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+# License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 # globals: crypto
 
@@ -19,8 +19,10 @@ def string_to_bytes_slow(string):
     )
     return ua
 
-def as_hex(bytes):
-    return [str.format('{:02x}', x) for x in bytes].join(' ')
+def as_hex(array, sep=''):
+    num = array.BYTES_PER_ELEMENT or 1
+    fmt = '{:0' + num * 2 + 'x}'
+    return [str.format(fmt, x) for x in array].join(sep)
 
 def bytes_to_string_decoder(bytes, offset):
     offset = offset or 0
@@ -48,8 +50,8 @@ string_to_bytes = string_to_bytes_encoder if type(TextEncoder) is 'function' els
 bytes_to_string = bytes_to_string_decoder if type(TextDecoder) is 'function' else bytes_to_string_slow
 
 def increment_counter(c):
-    # c is a Uint8Array
-    for v'var i = c.length; i >= 0; i--':
+    # c must be a Uint8Array of length 16
+    for v'var i = 15; i >= 12; i--':
         if c[i] is 255:
             c[i] = 0
         else:
@@ -257,7 +259,12 @@ def random_bytes_secure(sz):
 
 random_bytes = random_bytes_secure if type(crypto) is not 'undefined' and type(crypto.getRandomValues) is 'function' else random_bytes_insecure
 if random_bytes is random_bytes_insecure:
-    print('WARNING: Using insecure RNG for AES')
+    try:
+        noderandom = require('crypto').randomBytes
+        random_bytes = def(sz):
+            return Uint8Array(noderandom(sz))
+    except:
+        print('WARNING: Using insecure RNG for AES')
 
 class ModeOfOperation:  # {{{
 
@@ -363,6 +370,7 @@ class GaloisField:  # {{{
         return z
 
     def ghash(self, x, y):
+        # Corresponds to the XOR + mult_H operation from the paper
         z = self.wmem
         z[0] = y[0] ^ x[0]
         z[1] = y[1] ^ x[1]
@@ -388,17 +396,14 @@ def typed_array_as_js(x):
 
 class CBC(ModeOfOperation):  # {{{
 
-    def encrypt_bytes(self, bytes, tag_bytes):
-        iv = first_iv = random_bytes(16)
-        mlen = bytes.length + tag_bytes.length + 1
-        padsz = 16 - (mlen % 16)
+    def encrypt_bytes(self, bytes, tag_bytes, iv):
+        iv = first_iv = iv or random_bytes(16)
+        mlen = bytes.length + tag_bytes.length
+        padsz = (16 - (mlen % 16)) % 16
         inputbytes = Uint8Array(mlen + padsz)
-        inputbytes[0] = padsz
         if tag_bytes.length:
-            inputbytes.set(tag_bytes, 1)
-        inputbytes.set(bytes, 1 + tag_bytes.length)
-        if padsz:
-            inputbytes.set(random_bytes(padsz), 1 + tag_bytes.length + bytes.length)
+            inputbytes.set(tag_bytes)
+        inputbytes.set(bytes, tag_bytes.length)
 
         offset = 0
         outputbytes = Uint8Array(inputbytes.length)
@@ -411,16 +416,9 @@ class CBC(ModeOfOperation):  # {{{
         return {'iv':first_iv, 'cipherbytes':outputbytes}
 
     def encrypt(self, plaintext, tag):
-        # Encrypt the plaintext (a string) returning an object that contains
-        # the used initialization vector and the encrypted bytes (as
-        # Uint8Arrays). If the optional tag (a string) is present, it is also
-        # encrypted along with plaintext.It can be used to ensure message integrity.
-        # See the __main__ block at the bottom of this file for example usage.
         return self.encrypt_bytes(string_to_bytes(plaintext), self.tag_as_bytes(tag))
 
-    def decrypt(self, output_from_encrypt, tag):
-        tag_bytes = self.tag_as_bytes(tag)
-        iv, inputbytes = output_from_encrypt.iv, output_from_encrypt.cipherbytes
+    def decrypt_bytes(self, inputbytes, tag_bytes, iv):
         offset = 0
         outputbytes = Uint8Array(inputbytes.length)
         for v'var block = 0; block < inputbytes.length; block += 16':
@@ -429,14 +427,15 @@ class CBC(ModeOfOperation):  # {{{
                 iv, offset = inputbytes, block - 16
             for v'var i = 0; i < 16; i++':
                 outputbytes[block + i] ^= iv[offset + i]
-        padsz = outputbytes[0]
         for v'var i = 0; i < tag_bytes.length; i++':
-            if tag_bytes[i] != outputbytes[i+1]:
+            if tag_bytes[i] != outputbytes[i]:
                 raise ValueError('Corrupt message')
-        mlen = outputbytes.length - 1 - padsz - tag_bytes.length
-        mstart = 1 + tag_bytes.length
-        outputbytes = outputbytes.subarray(mstart, mstart + mlen)
-        return bytes_to_string(outputbytes)
+        outputbytes = outputbytes.subarray(tag_bytes.length)
+        return outputbytes
+
+    def decrypt(self, output_from_encrypt, tag):
+        ans = self.decrypt_bytes(output_from_encrypt.cipherbytes, self.tag_as_bytes(tag), output_from_encrypt.iv)
+        return str.rstrip(bytes_to_string(ans), '\0')
 # }}}
 
 class CTR(ModeOfOperation):  # {{{
@@ -446,22 +445,22 @@ class CTR(ModeOfOperation):  # {{{
     # using it for bi-directional messaging it is best to use a different
     # secret key for each direction
 
-    def __init__(self, key, counter):
+    def __init__(self, key, iv):
         ModeOfOperation.__init__(self, key)
         self.wmem = Uint8Array(16)
-        self.counter_block = Uint8Array(16)
+        self.counter_block = Uint8Array(iv or 16)
+        if self.counter_block.length != 16:
+            raise ValueError('iv must be 16 bytes long')
         self.counter_index = 16
 
     def _crypt(self, bytes):
-        for v'var i = 0; i < bytes.length; i++':
+        for v'var i = 0; i < bytes.length; i++, self.counter_index++':
             if self.counter_index is 16:
                 self.counter_index = 0
                 self.aes.encrypt(self.counter_block, self.wmem, 0)
                 increment_counter(self.counter_block)
             bytes[i] ^= self.wmem[self.counter_index]
-            self.counter_index += 1
         self.counter_index = 16
-        increment_counter(self.counter_block)
 
     def encrypt(self, plaintext, tag):
         outbytes = string_to_bytes(plaintext)
@@ -499,7 +498,7 @@ class CTR(ModeOfOperation):  # {{{
         return bytes_to_string(b, offset)
 # }}}
 
-class GCM(ModeOfOperation):
+class GCM(ModeOfOperation):  # {{{
 
     # See http://web.cs.ucdavis.edu/~rogaway/ocb/gcm.pdf
 
@@ -514,7 +513,7 @@ class GCM(ModeOfOperation):
         # Working memory
         self.J0 = Uint32Array(4)
         self.wmem = Uint32Array(4)
-        self.out_block = Uint8Array(16)
+        self.byte_block = Uint8Array(16)
 
     def _create_j0(self, iv):
         J0 = self.J0
@@ -532,54 +531,76 @@ class GCM(ModeOfOperation):
             J0 = self.galois.ghash(J0, tmp)
         return J0
 
-    def _crypt(self, iv, bytes, additional_data, decrypt):
+    def _start(self, iv, additional_data):
         J0 = self._create_j0(iv)
         # Generate initial counter block
         in_block = J0.slice(0)
         in_block[3] = (in_block[3] + 1) & 0xFFFFFFFF  # increment counter
-        outbytes = Uint8Array(bytes.length)
-        ghash = self.galois.ghash.bind(self.galois)
 
         # Process additional_data
-        overflow = additional_data.length % 16
-        if overflow:
-            t = Uint8Array(additional_data.length + 16 - overflow)
-            t.set(additional_data)
-            additional_data = t
         S = Uint32Array(4)
-        while additional_data.length:
-            additional_data = additional_data.subarray(4)
-            convert_to_int32(additional_data, self.wmem, 0, 16)
-            S = ghash(S, self.wmem)
+        overflow = additional_data.length % 16
+        for v'var i = 0; i < additional_data.length - overflow; i += 16':
+            convert_to_int32(additional_data, self.wmem, i, 16)
+            S = self.galois.ghash(S, self.wmem)
+        if overflow:
+            self.byte_block.fill(0)
+            self.byte_block.set(additional_data.subarray(additional_data.length - overflow))
+            convert_to_int32(self.byte_block, self.wmem)
+            S = self.galois.ghash(S, self.wmem)
+        return J0, in_block, S
 
-        # Create the ciphertext, encrypting block by block
-        for v'var pos = 0; pos < bytes.length; pos += 16':
-            self.aes.encrypt32(in_block, self.out_block, 0)
-            num = min(16, bytes.length - pos)  # noqa: unused-local
-            for v'var i = 0; i < num; i++':
-                outbytes[pos + i] = bytes[pos+i] ^ self.out_block[i]
-            convert_to_int32(self.out_block, self.wmem)
-            S = ghash(S, self.wmem)
-            in_block[3] = (in_block[3] + 1) & 0xFFFFFFFF  # increment counter
-
+    def _finish(self, iv, J0, adata_len, S, outbytes):
         # Mix the lengths into S
         lengths = Uint32Array(4)
-        lengths.set(from_64_to_32(additional_data.length * 8))
-        lengths.set(from_64_to_32(bytes.length * 8))
-        S = ghash(S, lengths)
+        lengths.set(from_64_to_32(adata_len * 8))
+        lengths.set(from_64_to_32(outbytes.length * 8), 2)
+        S = self.galois.ghash(S, lengths)
 
         # Create the tag
-        self.aes.encrypt32(J0, self.out_block, 0)
-        convert_to_int32(self.out_block, self.wmem)
+        self.aes.encrypt32(J0, self.byte_block, 0)
+        convert_to_int32(self.byte_block, self.wmem)
         tag = Uint32Array(4)
         for v'var i = 0; i < S.length; i++':
             tag[i] = S[i] ^ self.wmem[i]
         return {'iv':iv, 'cipherbytes':outbytes, 'tag':tag}
 
+    def _crypt(self, iv, bytes, additional_data, decrypt):
+        ghash = self.galois.ghash.bind(self.galois)
+        outbytes = Uint8Array(bytes.length)
+        J0, in_block, S = self._start(iv, additional_data)
+        bb = self.byte_block
+        enc = self.aes.encrypt32.bind(self.aes)
+        hash_bytes = bytes if decrypt else outbytes
+
+        # Create the ciphertext, encrypting block by block
+        for v'var i = 0, counter_index = 16; i < bytes.length; i++, counter_index++':
+            if counter_index is 16:
+                # Encrypt counter and increment it
+                enc(in_block, bb, 0)
+                in_block[3] = (in_block[3] + 1) & 0xFFFFFFFF  # increment counter
+                counter_index = 0
+            # Output is XOR of encrypted counter with input
+            outbytes[i] = bytes[i] ^ bb[counter_index]
+            if counter_index is 15:
+                # We have completed a block, update the hash
+                convert_to_int32(hash_bytes, self.wmem, i - 15, 16)
+                S = ghash(S, self.wmem)
+
+        # Check if we have a last partial block
+        overflow = outbytes.length % 16
+        if overflow:
+            # partial output block
+            bb.fill(0)
+            bb.set(hash_bytes.subarray(hash_bytes.length - overflow))
+            convert_to_int32(bb, self.wmem)
+            S = ghash(S, self.wmem)
+
+        return self._finish(iv, J0, additional_data.length, S, outbytes)
 
     def encrypt(self, plaintext, tag):
         iv = random_bytes(12)
-        return self._crypt(iv, string_to_bytes(plaintext), self.tag_as_bytes(tag))
+        return self._crypt(iv, string_to_bytes(plaintext), self.tag_as_bytes(tag), False)
 
     def decrypt(self, output_from_encrypt, tag):
         if output_from_encrypt.tag.length != 4:
@@ -588,31 +609,4 @@ class GCM(ModeOfOperation):
         if ans.tag != output_from_encrypt.tag:
             raise ValueError('Corrupted message')
         return bytes_to_string(ans.cipherbytes)
-
-if __name__ == '__main__':
-    text = 'testing a basic roundtrip ø̄ū'
-
-    cbc = CBC()
-    crypted = cbc.encrypt(text)
-    decrypted = cbc.decrypt(crypted)
-    print('CBC Roundtrip:', 'OK' if text is decrypted else 'FAILED')
-    secret_tag = generate_tag()
-    crypted = cbc.encrypt(text, secret_tag)
-    decrypted = cbc.decrypt(crypted, secret_tag)
-    print('CBC Roundtrip with tag:', 'OK' if text is decrypted else 'FAILED')
-
-    ctr = CTR()
-    crypted = ctr.encrypt(text)
-    decrypted = ctr.decrypt(crypted)
-    print('CTR Roundtrip:', 'OK' if text is decrypted else 'FAILED')
-    crypted = ctr.encrypt(text, secret_tag)
-    decrypted = ctr.decrypt(crypted, secret_tag)
-    print('CTR Roundtrip with tag:', 'OK' if text is decrypted else 'FAILED')
-
-    gcm = GCM()
-    crypted = gcm.encrypt(text)
-    decrypted = gcm.decrypt(crypted)
-    print('GCM Roundtrip:', 'OK' if text is decrypted else 'FAILED')
-    crypted = gcm.encrypt(text, secret_tag)
-    decrypted = gcm.decrypt(crypted, secret_tag)
-    print('GCM Roundtrip with tag:', 'OK' if text is decrypted else 'FAILED')
+# }}}
