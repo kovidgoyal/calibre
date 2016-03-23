@@ -34,7 +34,7 @@ def set_azw3_cover(container, cover_path, report, options=None):
     container.insert_into_xml(guide, guide.makeelement(
         OPF('reference'), href=href, type='cover'))
     if not existing_image:
-        with open(cover_path, 'rb') as src, container.open(name, 'wb') as dest:
+        with lopen(cover_path, 'rb') as src, container.open(name, 'wb') as dest:
             shutil.copyfileobj(src, dest)
     container.dirty(container.opf_name)
     report(_('Cover updated') if found else _('Cover inserted'))
