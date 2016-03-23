@@ -273,7 +273,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         raster_cover_item = container.generate_item(cname, id_prefix='cover')
         raster_cover = container.href_to_name(raster_cover_item.get('href'), container.opf_name)
 
-        with open(cover_path, 'rb') as src, container.open(raster_cover, 'wb') as dest:
+        with lopen(cover_path, 'rb') as src, container.open(raster_cover, 'wb') as dest:
             shutil.copyfileobj(src, dest)
     if options is None:
         opts = load_defaults('epub_output')
