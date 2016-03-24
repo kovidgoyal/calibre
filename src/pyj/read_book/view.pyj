@@ -11,13 +11,13 @@ LOADING_DOC = '''
 <head>
 <script type="text/javascript" id="bootstrap" data-key="__KEY__">
 __SCRIPT__
-</script>
+end_script
 </head>
 <body>
 __BS__
 </body>
 </html>
-'''
+'''.replace('end_script', '<' + '/script>')  # cannot have a closing script tag as this is embedded inside a script tag in index.html
 
 class View:
 
@@ -35,13 +35,16 @@ class View:
         self.src_doc = None
         self.iframe_ready = False
         self.pending_spine_load = None
+        self.create_src_doc()
         window.addEventListener('message', self.handle_message.bind(self), False)
 
     @property
     def iframe(self):
         return document.getElementById(iframe_id)
 
-    def create_src_doc(self, iframe_script):
+    def create_src_doc(self):
+        iframe_script = self.ui.interface_data.main_js.replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
+        self.ui.interface_data.main_js = None
         self.src_doc = self.iframe.srcdoc = LOADING_DOC.replace(
             '__SCRIPT__', iframe_script).replace(
             '__BS__', _('Bootstrapping book reader...')).replace(

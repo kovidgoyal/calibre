@@ -20,8 +20,7 @@ resources/builtin_recipes.zip
 resources/template-functions.json
 resources/editor-functions.json
 resources/user-manual-translation-stats.json
-resources/content-server/main.js
-resources/content-server/iframe.js
+resources/content-server/index-generated.html
 resources/content-server/locales.zip
 resources/mozilla-ca-certs.pem
 icons/icns/*.iconset

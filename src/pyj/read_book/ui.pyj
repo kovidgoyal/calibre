@@ -93,8 +93,6 @@ class ReadUI:
 
     def db_initialized(self, db):
         self.db = db
-        if type(self.db) is not 'string':
-            self.view.create_src_doc(self.db.iframe_script)
         if self.pending_load is not None:
             pl, self.pending_load = self.pending_load, None
             self.start_load(*pl)

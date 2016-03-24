@@ -1,7 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from ajax import ajax
 from gettext import gettext as _
 from utils import base64encode, base64decode
 
@@ -24,17 +23,14 @@ def get_error_details(event):
     elif desc.errorCode:
         desc = desc.errorCode
 
-IFRAME_SCRIPT_HASH = "__IFRAME_SCRIPT_HASH__"
-
 DB_NAME = 'calibre-books-db-testing'  # TODO: Remove test suffix and change version back to 1
 DB_VERSION = 1
 
 class DB:
 
-    def __init__(self, idb, ui, supports_blobs, iframe_script):
+    def __init__(self, idb, ui, supports_blobs):
         self.interface_data = ui.interface_data
         self.idb = idb
-        self.iframe_script = iframe_script
         self.supports_blobs = supports_blobs
         if not supports_blobs:
             print('IndexedDB does not support Blob storage, using base64 encoding instead')
@@ -192,29 +188,9 @@ def create_db(ui, interface_data):
             req = idb.transaction(['files'], 'readwrite').objectStore('files').put(blob, ':-test-blob-:')
         except Exception:
             print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
-            create_db_stage2(idb, ui, interface_data, False)
-            return
+            return ui.db_initialized(DB(idb, ui, False))
         req.onsuccess = def(event):
-            create_db_stage2(idb, ui, interface_data, True)
+            ui.db_initialized(DB(idb, ui, True))
         req.onerror = def(event):
             print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
-            create_db_stage2(idb, ui, interface_data, False)
-
-def create_db_stage2(idb, ui, interface_data, supports_blobs):
-    req = idb.transaction(['objects']).objectStore('objects').get('iframe.js')
-    req.onerror = def(event):
-        ui.db_initialized(_('Failed to initialize books database: ') + get_error_details(event))
-    req.onsuccess = def(event):
-        s = event.result
-        if s and s.script_hash is IFRAME_SCRIPT_HASH:
-            return ui.db_initialized(DB(idb, ui, supports_blobs, s.src))
-        ajax('static/iframe.js', def(end_type, xhr, event):
-            if end_type != 'load':
-                return ui.db_initialized('<div>' + _('Failed to load book reader script') + '</div>' + xhr.error_html)
-            obj = {'key':'iframe.js', 'script_hash': IFRAME_SCRIPT_HASH, 'src':xhr.responseText}
-            req = idb.transaction(['objects'], 'readwrite').objectStore('objects').put(obj)
-            req.onerror = def(event):
-                ui.db_initialized(_('Failed to store book reader script in database: ') + get_error_details(event))
-            req.onsuccess = def(event):
-                ui.db_initialized(DB(idb, ui, supports_blobs, obj.src))
-        ).send()
+            ui.db_initialized(DB(idb, ui, False))

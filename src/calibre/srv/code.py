@@ -4,12 +4,10 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import re, hashlib, random, zipfile
-from functools import partial
-from threading import Lock
-from json import load as load_json_file, dumps as json_dumps
+import hashlib, random, zipfile
+from json import load as load_json_file
 
-from calibre import prepare_string_for_xml, as_unicode
+from calibre import as_unicode
 from calibre.customize.ui import available_input_formats
 from calibre.db.view import sanitize_sort_field_name
 from calibre.srv.ajax import search_result
@@ -22,45 +20,18 @@ from calibre.utils.icu import sort_key
 from calibre.utils.localization import get_lang
 from calibre.utils.search_query_parser import ParseException
 
-html_cache = {}
-cache_lock = Lock()
-autoreload_js = None
 POSTABLE = frozenset({'GET', 'POST', 'HEAD'})
-
-def get_html(name, auto_reload_port, **replacements):
-    global autoreload_js
-    key = (name, auto_reload_port, tuple(replacements.iteritems()))
-    with cache_lock:
-        try:
-            return html_cache[key]
-        except KeyError:
-            with lopen(P(name), 'rb') as f:
-                raw = f.read()
-            for k, val in key[-1]:
-                if isinstance(val, type('')):
-                    val = val.encode('utf-8')
-                if isinstance(k, type('')):
-                    k = k.encode('utf-8')
-                raw = raw.replace(k, val)
-            if auto_reload_port > 0:
-                if autoreload_js is None:
-                    autoreload_js = P('content-server/autoreload.js', data=True, allow_user_override=False).replace(
-                        b'AUTORELOAD_PORT', bytes(str(auto_reload_port)))
-                raw = re.sub(
-                    br'(<\s*/\s*head\s*>)', br'<script type="text/javascript">%s</script>\1' % autoreload_js,
-                    raw, flags=re.IGNORECASE)
-            html_cache[key] = raw
-            return raw
 
 @endpoint('', auth_required=False)
 def index(ctx, rd):
-    default_library = ctx.library_info(rd)[1]
-    return rd.generate_static_output('/', partial(
-        get_html, 'content-server/index.html', getattr(rd.opts, 'auto_reload_port', 0),
-        ENTRY_POINT='book list',
-        LOADING_MSG=prepare_string_for_xml(_('Loading library, please wait')),
-        DEFAULT_LIBRARY=json_dumps(default_library)
-    ))
+    return lopen(P('content-server/index-generated.html'), 'rb')
+
+@endpoint('/auto-reload', auth_required=False)
+def auto_reload(ctx, rd):
+    auto_reload_port = getattr(rd.opts, 'auto_reload_port', 0)
+    if auto_reload_port > 0:
+        rd.outheaders.set('Calibre-Auto-Reload-Port', type('')(auto_reload_port), replace_all=True)
+    return lopen(P('content-server/autoreload.js'), 'rb')
 
 def get_basic_query_data(ctx, rd):
     db, library_id, library_map, default_library = get_library_data(ctx, rd)

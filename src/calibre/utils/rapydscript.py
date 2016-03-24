@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, atexit, errno, subprocess, glob, shutil, json, hashlib, re
+import os, sys, atexit, errno, subprocess, glob, shutil, json, re
 from io import BytesIO
 from threading import local
 from functools import partial
@@ -105,17 +105,13 @@ def compile_srv():
     with lopen(rb, 'rb') as f:
         rv = str(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
     base = P('content-server', allow_user_override=False)
-    fname = os.path.join(rapydscript_dir, 'reader.pyj')
-    with lopen(fname, 'rb') as f:
-        reader = compile_pyj(f.read(), fname)
-    sha = hashlib.sha1(reader).hexdigest()
-    with lopen(os.path.join(base, 'iframe.js'), 'wb') as f:
-        f.write(reader.encode('utf-8'))
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with lopen(fname, 'rb') as f:
-        raw = compile_pyj(f.read(), fname).replace("__IFRAME_SCRIPT_HASH__", sha).replace('__RENDER_VERSION__', rv)
-    with lopen(os.path.join(base, 'main.js'), 'wb') as f:
-        f.write(raw.encode('utf-8'))
+        js = compile_pyj(f.read(), fname).replace('__RENDER_VERSION__', rv).encode('utf-8')
+    with lopen(os.path.join(base, 'index.html'), 'rb') as f:
+        html = f.read().replace(b'MAIN_JS', js)
+    with lopen(os.path.join(base, 'index-generated.html'), 'wb') as f:
+        f.write(html)
 
 # }}}
 

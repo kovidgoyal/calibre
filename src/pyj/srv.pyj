@@ -9,16 +9,22 @@ from utils import parse_url_params
 
 from book_list.boss import Boss
 from book_list.globals import set_session_data
+from read_book.iframe import init
 
 def on_library_loaded(end_type, xhr, ev):
     p = document.getElementById('page_load_progress')
     p.parentNode.removeChild(p)
     if end_type is 'load':
         interface_data = JSON.parse(xhr.responseText)
+        interface_data.main_js = main_js
+        script = document.getElementById('main_js')
+        if script:
+            script.parentNode.removeChild(script)  # Free up some memory
         if interface_data.translations:
             install(interface_data.translations)
-        sd = UserSessionData(interface_data['username'], interface_data['user_session_data'])
+        sd = UserSessionData(interface_data.username, interface_data.user_session_data)
         set_session_data(sd)
+        sd.set('library_id', interface_data.library_id)
         Boss(interface_data)
     else:
         p = E.p(style='color:red; font-weight: bold; font-size:1.5em')
@@ -36,25 +42,36 @@ def on_library_load_progress(loaded, total):
 def load_book_list():
     temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
     query = {}
-    default_lib = window.calibre_default_library
-    v'delete window.calibre_default_library'
-    query.sort = temp.get_library_option(default_lib, 'sort')
     library_id = temp.get('library_id')
     if library_id:
         query.library_id = library_id
+        query.sort = temp.get_library_option(library_id, 'sort')
     url_query = parse_url_params()
     for key in url_query:
         query[key] = url_query[key]
     ajax('interface-data/init', on_library_loaded, on_library_load_progress, query=query).send()
 
 def on_load():
-    ep = window.calibre_entry_point
-    v'delete window.calibre_entry_point'
-    if ep is 'book list':
-        print('calibre loaded at:', Date().toString())
-        load_book_list()
+    print('calibre loaded at:', Date().toString())
+    load_book_list()
 
-# We wait for all page elements to load, since this is a single page app
-# with a largely empty starting document, we can use this to preload any resources
-# we know are going to be needed immediately.
-window.addEventListener('load', on_load)
+is_running_in_iframe = False  # Changed before script is loaded in the iframe
+
+if is_running_in_iframe:
+    init()
+else:
+    main_js = document.scripts[0].textContent
+    # We wait for all page elements to load, since this is a single page app
+    # with a largely empty starting document, we can use this to preload any resources
+    # we know are going to be needed immediately.
+    window.addEventListener('load', on_load)
+
+    ajax('auto-reload', def(end_type, xhr, event):
+        if end_type is 'load':
+            port = xhr.getResponseHeader('Calibre-Auto-Reload-Port')
+            if port:
+                src = xhr.responseText.replace('AUTORELOAD_PORT', port)
+                eval(src)
+    , bypass_cache=False).send()
+
+
