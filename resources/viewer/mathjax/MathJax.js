@@ -45,9 +45,9 @@ if (window.MathJax) {window.MathJax = {AuthorConfig: window.MathJax}}
 
 // MathJax.isPacked = true; // This line is uncommented by the packer.
 
-MathJax.version = "2.6.0";
-MathJax.fileversion = "2.6.0";
-MathJax.cdnVersion = "2.6.0";  // specifies a revision to break caching
+MathJax.version = "2.6.1";
+MathJax.fileversion = "2.6.1";
+MathJax.cdnVersion = "2.6.1";  // specifies a revision to break caching
 MathJax.cdnFileVersions = {};  // can be used to specify revisions for individual files
 
 /**********************************************************/
@@ -1880,7 +1880,7 @@ MathJax.Hub = {
     showMathMenu: true,      // attach math context menu to typeset math?
     showMathMenuMSIE: true,  // separtely determine if MSIE should have math menu
                              //  (since the code for that is a bit delicate)
-
+    
     menuSettings: {
       zoom: "None",        //  when to do MathZoom
       CTRL: false,         //    require CTRL for MathZoom?
@@ -1889,13 +1889,16 @@ MathJax.Hub = {
       Shift: false,        //    require Shift?
       discoverable: false, //  make math menu discoverable on hover?
       zscale: "200%",      //  the scaling factor for MathZoom
-      renderer: "",        //  set when Jax are loaded
+      renderer: null,      //  set when Jax are loaded
       font: "Auto",        //  what font HTML-CSS should use
       context: "MathJax",  //  or "Browser" for pass-through to browser menu
-      locale: "en",        //  the language to use for messages
+      locale: null,        //  the language to use for messages
       mpContext: false,    //  true means pass menu events to MathPlayer in IE
       mpMouse: false,      //  true means pass mouse events to MathPlayer in IE
       texHints: true,      //  include class names for TeXAtom elements
+      FastPreview: null,   //  use PreviewHTML output as preview?
+      assistiveMML: null,  //  include hidden MathML for screen readers?
+      inTabOrder: true,    //  set to false if math elements should be included in the tabindex
       semantics: false     //  add semantics tag with original form in MathML output
     },
     
@@ -2126,6 +2129,7 @@ MathJax.Hub = {
           if (script.MathJax.state !== STATE.PENDING) {this.scriptAction[action](script)}
         }
         if (!script.MathJax) {script.MathJax = {state: STATE.PENDING}}
+        if (script.MathJax.error) delete script.MathJax.error;
         if (script.MathJax.state !== STATE.PROCESSED) {state.scripts.push(script)}
       }
     }
@@ -2349,7 +2353,8 @@ MathJax.Hub = {
     if (err.line||err.lineNumber) message += "\n"+LOCALIZE("ErrorLine","line: %1",err.line||err.lineNumber);
     message += "\n\n"+LOCALIZE("ErrorTips","Debugging tips: use %1, inspect %2 in the browser console","'unpacked/MathJax.js'","'MathJax.Hub.lastError'");
     script.MathJax.error = MathJax.OutputJax.Error.Jax(message,script);
-
+    if (script.MathJax.elementJax)
+      script.MathJax.error.inputID = script.MathJax.elementJax.inputID;
     //
     //  Create the [Math Processing Error] span
     //
@@ -2358,28 +2363,23 @@ MathJax.Hub = {
     var error = MathJax.HTML.Element("span", {
       className:"MathJax_Error", jaxID:"Error", isMathJax:true,
       id: script.MathJax.error.inputID+"-Frame"
-    },errorText);
+    },[["span",null,errorText]]);
     //
     //  Attach the menu events
     //
-    if (MathJax.Extension.MathEvents) {
-      var EVENT = MathJax.Extension.MathEvents.Event;
+    MathJax.Ajax.Require("[MathJax]/extensions/MathEvents.js",function () {
+      var EVENT = MathJax.Extension.MathEvents.Event,
+          HUB = MathJax.Hub;
       error.oncontextmenu = EVENT.Menu;
       error.onmousedown = EVENT.Mousedown;
       error.onkeydown = EVENT.Keydown;
-      error.tabIndex = 0;
-    } else {
-      MathJax.Ajax.Require("[MathJax]/extensions/MathEvents.js",function () {
-        var EVENT = MathJax.Extension.MathEvents.Event;
-        error.oncontextmenu = EVENT.Menu;
-        error.onmousedown = EVENT.Mousedown;
-        error.keydown = EVENT.Keydown;
-        error.tabIndex = 0;
-      });
-    }
+      error.tabIndex = HUB.getTabOrder(HUB.getJaxFor(script));
+    });
     //
     //  Insert the error into the page and remove any preview
     //
+    var node = document.getElementById(error.id);
+    if (node) node.parentNode.removeChild(node);
     script.parentNode.insertBefore(error,script);
     if (script.MathJax.preview) {script.MathJax.preview.innerHTML = ""}
     //
@@ -2460,6 +2460,10 @@ MathJax.Hub = {
       }
     }}
     return dst;
+  },
+
+  getTabOrder: function(script) {
+    return this.config.menuSettings.inTabOrder ? 0 : -1;
   },
 
   // Old browsers (e.g. Internet Explorer <= 8) do not support trim().

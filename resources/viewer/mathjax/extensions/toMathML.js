@@ -26,7 +26,7 @@
  */
 
 MathJax.Hub.Register.LoadHook("[MathJax]/jax/element/mml/jax.js",function () {
-  var VERSION = "2.6.0";
+  var VERSION = "2.6.1";
   
   var MML = MathJax.ElementJax.mml,
       SETTINGS = MathJax.Hub.config.menuSettings;
@@ -78,7 +78,10 @@ MathJax.Hub.Register.LoadHook("[MathJax]/jax/element/mml/jax.js",function () {
       var CLASS = []; if (this["class"]) {CLASS.push(this["class"])}
       if (this.isa(MML.TeXAtom) && SETTINGS.texHints) {
         var TEXCLASS = ["ORD","OP","BIN","REL","OPEN","CLOSE","PUNCT","INNER","VCENTER"][this.texClass];
-        if (TEXCLASS) {CLASS.push("MJX-TeXAtom-"+TEXCLASS)}
+        if (TEXCLASS) {
+          CLASS.push("MJX-TeXAtom-"+TEXCLASS)
+          if (TEXCLASS === "OP" && !this.movablelimits) CLASS.push("MJX-fixedlimits");
+        }
       }
       if (this.mathvariant && this.toMathMLvariants[this.mathvariant])
         {CLASS.push("MJX"+this.mathvariant)}
@@ -186,8 +189,15 @@ MathJax.Hub.Register.LoadHook("[MathJax]/jax/element/mml/jax.js",function () {
   MML.munderover.Augment({
     toMathML: function (space) {
       var tag = this.type;
-      if (this.data[this.under] == null) {tag = "mover"}
-      if (this.data[this.over] == null)  {tag = "munder"}
+      var base = this.data[this.base];
+      if (base && base.isa(MML.TeXAtom) && base.movablelimits && !base.Get("displaystyle")) {
+        type = "msubsup";
+        if (this.data[this.under] == null) {tag = "msup"}
+        if (this.data[this.over] == null)  {tag = "msub"}
+      } else {
+        if (this.data[this.under] == null) {tag = "mover"}
+        if (this.data[this.over] == null)  {tag = "munder"}
+      }
       var attr = this.toMathMLattributes();
       delete this.data[0].inferred;
       var data = [];

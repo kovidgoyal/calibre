@@ -1264,6 +1264,8 @@
         {if (mo.defaults.hasOwnProperty(id) && mi[id] != null) {mo[id] = mi[id]}}
       for (id in MML.copyAttributes)
         {if (MML.copyAttributes.hasOwnProperty(id) && mi[id] != null) {mo[id] = mi[id]}}
+      mo.lspace = mo.rspace = "0";  // prevent mo from having space in NativeMML
+      mo.useMMLspacing &= ~(mo.SPACE_ATTR.lspace | mo.SPACE_ATTR.rspace);  // don't count these explicit settings
       return mo;
     },
     
@@ -1367,6 +1369,7 @@
       }
       op.movesupsub = (limits ? true : false);
       op.Core().movablelimits = false;
+      if (op.movablelimits) op.movablelimits = false;
     },
     
     Over: function (name,open,close) {
@@ -1452,10 +1455,12 @@
     
     Overset: function (name) {
       var top = this.ParseArg(name), base = this.ParseArg(name);
+      if (base.movablelimits) base.movablelimits = false;
       this.Push(MML.mover(base,top));
     },
     Underset: function (name) {
       var bot = this.ParseArg(name), base = this.ParseArg(name);
+      if (base.movablelimits) base.movablelimits = false;
       this.Push(MML.munder(base,bot));
     },
     
@@ -2021,7 +2026,6 @@
     
     /*
      *  Break up a string into text and math blocks
-     *  @@@ FIXME:  pass environment to TEX.Parse? @@@
      */
     InternalMath: function (text,level) {
       var def = (this.stack.env.font ? {mathvariant: this.stack.env.font} : {});
@@ -2031,7 +2035,7 @@
           c = text.charAt(i++);
           if (c === '$') {
             if (match === '$' && braces === 0) {
-              mml.push(MML.TeXAtom(TEX.Parse(text.slice(k,i-1),{}).mml().With(def)));
+              mml.push(MML.TeXAtom(TEX.Parse(text.slice(k,i-1),{}).mml()));
               match = ''; k = i;
             } else if (match === '') {
               if (k < i-1) mml.push(this.InternalText(text.slice(k,i-1),def));
@@ -2057,7 +2061,7 @@
                 if (k < i-2) mml.push(this.InternalText(text.slice(k,i-2),def));
                 match = ')'; k = i;
               } else if (c === ')' && match === ')' && braces === 0) {
-                mml.push(MML.TeXAtom(TEX.Parse(text.slice(k,i-2),{}).mml().With(def)));
+                mml.push(MML.TeXAtom(TEX.Parse(text.slice(k,i-2),{}).mml()));
                 match = ''; k = i;
               } else if (c.match(/[${}\\]/) && match === '')  {
                 i--; text = text.substr(0,i-1) + text.substr(i); // remove \ from \$, \{, \}, or \\

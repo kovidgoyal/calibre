@@ -76,7 +76,7 @@
       var mml, type = node.nodeName.toLowerCase().replace(/^[a-z]+:/,"");
       var match = (CLASS.match(/(^| )MJX-TeXAtom-([^ ]*)/));
       if (match) {
-        mml = this.TeXAtom(match[2]);
+        mml = this.TeXAtom(match[2],match[2] === "OP" && !CLASS.match(/MJX-fixedlimits/));
       } else if (!(MML[type] && MML[type].isa && MML[type].isa(MML.mbase))) {
         MathJax.Hub.signal.Post(["MathML Jax - unknown node type",type]);
         return MML.Error(_("UnknownNodeType","Unknown node type: %1",type));
@@ -88,9 +88,9 @@
       if (MATHML.config.useMathMLspacing) {mml.useMMLspacing = 0x08}
       return mml;
     },
-    TeXAtom: function (mclass) {
+    TeXAtom: function (mclass,movablelimits) {
       var mml = MML.TeXAtom().With({texClass:MML.TEXCLASS[mclass]});
-      if (mml.texClass === MML.TEXCLASS.OP) {mml.movesupsub = mml.movablelimits = true}
+      if (movablelimits) {mml.movesupsub = mml.movablelimits = true}
       return mml;
     },
     CheckClass: function (mml,CLASS) {

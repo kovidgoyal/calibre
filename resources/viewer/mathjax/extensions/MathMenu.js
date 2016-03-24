@@ -27,7 +27,7 @@
  */
 
 (function (HUB,HTML,AJAX,CALLBACK,OUTPUT) {
-  var VERSION = "2.6.0";
+  var VERSION = "2.6.1";
 
   var SIGNAL = MathJax.Callback.Signal("menu");  // signal for menu events
 
@@ -544,18 +544,12 @@
       MENU.FocusNode(menu);
     },
     Activate: function(event, menu) {
-      var jaxs = MENU.AllNodes();
-      for (var j = 0, jax; jax = jaxs[j]; j++) {
-        jax.tabIndex = -1;
-      }
+      MENU.UnsetTabIndex();
       MENU.posted = true;
     },
     Unfocus: function() {
       MENU.ActiveNode().tabIndex = -1;
-      var jaxs = MENU.AllNodes();
-      for (var j = 0, jax; jax = jaxs[j]; j++) {
-        jax.tabIndex = 0;
-      }
+      MENU.SetTabIndex();
       MENU.FocusNode(MENU.CurrentNode());
       MENU.posted = false;
     },
@@ -576,6 +570,26 @@
     },
     Left: function(event, menu) {
       MENU.MoveHorizontal(event, menu, function(x) {return x - 1;});
+    },
+    UnsetTabIndex: function () {
+      var jaxs = MENU.AllNodes();
+      for (var j = 0, jax; jax = jaxs[j]; j++) {
+        if (jax.tabIndex > 0) {
+          jax.oldTabIndex = jax.tabIndex;
+        }
+        jax.tabIndex = -1;
+      }
+    },
+    SetTabIndex: function () {
+      var jaxs = MENU.AllNodes();
+      for (var j = 0, jax; jax = jaxs[j]; j++) {
+        if (jax.oldTabIndex !== undefined) {
+          jax.tabIndex = jax.oldTabIndex
+          delete jax.oldTabIndex;
+        } else {
+          jax.tabIndex = HUB.getTabOrder(jax);
+        }
+      }
     },
 
     //TODO: Move to utility class.
@@ -1328,6 +1342,9 @@
     }
   };
   
+  /*
+   *  Toggle assistive MML settings
+   */
   MENU.AssistiveMML = function (item,restart) {
     var AMML = MathJax.Extension.AssistiveMML;
     if (!AMML) {
@@ -1526,15 +1543,16 @@
         ),
         ITEM.RULE(),
         ITEM.SUBMENU(["Renderer","Math Renderer"],    {hidden:!CONFIG.showRenderer},
-          ITEM.RADIO("HTML-CSS",   "renderer", {action: MENU.Renderer}),
-          ITEM.RADIO("Common HTML","renderer", {action: MENU.Renderer, value:"CommonHTML"}),
-          ITEM.RADIO("Fast HTML",  "renderer", {action: MENU.Renderer, value:"PreviewHTML"}),
-          ITEM.RADIO("MathML",     "renderer", {action: MENU.Renderer, value:"NativeMML"}),
-          ITEM.RADIO("SVG",        "renderer", {action: MENU.Renderer}),
-          ITEM.RADIO("PlainSource","renderer", {action: MENU.Renderer, value:"PlainSource"}),
+          ITEM.RADIO(["HTML-CSS","HTML-CSS"],       "renderer", {action: MENU.Renderer}),
+          ITEM.RADIO(["CommonHTML","Common HTML"],  "renderer", {action: MENU.Renderer, value:"CommonHTML"}),
+          ITEM.RADIO(["PreviewHTML","Preview HTML"],"renderer", {action: MENU.Renderer, value:"PreviewHTML"}),
+          ITEM.RADIO(["MathML","MathML"],           "renderer", {action: MENU.Renderer, value:"NativeMML"}),
+          ITEM.RADIO(["SVG","SVG"],                 "renderer", {action: MENU.Renderer}),
+          ITEM.RADIO(["PlainSource","Plain Source"],"renderer", {action: MENU.Renderer, value:"PlainSource"}),
           ITEM.RULE(),
-          ITEM.CHECKBOX("Fast Preview", "FastPreview"),
-          ITEM.CHECKBOX("Assistive MathML", "assistiveMML", {action:MENU.AssistiveMML})
+          ITEM.CHECKBOX(["FastPreview","Fast Preview"], "FastPreview"),
+          ITEM.CHECKBOX(["AssistiveMML","Assistive MathML"], "assistiveMML", {action:MENU.AssistiveMML}),
+          ITEM.CHECKBOX(["InTabOrder","Include in Tab Order"], "inTabOrder")
         ),
         ITEM.SUBMENU("MathPlayer",  {hidden:!HUB.Browser.isMSIE || !CONFIG.showMathPlayer,
                                                     disabled:!HUB.Browser.hasMathPlayer},
@@ -1561,7 +1579,7 @@
           ITEM.RADIO(["NeoEulerWeb","Neo Euler (web)"], "font", {action: MENU.Font})
         ),
         ITEM.SUBMENU(["ContextMenu","Contextual Menu"],    {hidden:!CONFIG.showContext},
-          ITEM.RADIO("MathJax", "context"),
+          ITEM.RADIO(["MathJax","MathJax"], "context"),
           ITEM.RADIO(["Browser","Browser"], "context")
         ),
         ITEM.COMMAND(["Scale","Scale All Math ..."],MENU.Scale),
