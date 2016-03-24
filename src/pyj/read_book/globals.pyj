@@ -1,0 +1,12 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+_boss = None
+
+def set_boss(b):
+    nonlocal _boss
+    _boss = b
+
+def get_boss():
+    return _boss
+

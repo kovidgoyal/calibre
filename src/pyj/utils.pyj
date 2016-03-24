@@ -52,6 +52,17 @@ def base64encode(bytes):
         ans.push(encodings[(chunk & 64512) >> 10], encodings[(chunk & 1008) >> 4], encodings[(chunk & 15) << 2], '=')
     return ans.join('')
 
+def base64decode(string):
+    # convert the output of base64encode back into an array of bytes (Uint8Array)
+    if type(window) is not 'undefined':
+        chars = window.atob(string)
+    else:
+        chars = new Buffer(string, 'base64').toString('binary')  # noqa: undef
+    ans = Uint8Array(chars.length)
+    for i in range(ans.length):
+        ans[i] = chars.charCodeAt(i)
+    return ans
+
 def parse_url_params(url=None, allow_multiple=False):
     url = url or window.location.href
     qs = url.indexOf('?')
@@ -114,4 +125,3 @@ def human_readable(size, sep=' '):
 if __name__ is '__main__':
     print(fmt_sidx(10), fmt_sidx(1.2))
     print(list(map(human_readable, [1, 1024.0, 1025, 1024*1024*2.3])))
-    print(base64encode(list(range(256))))

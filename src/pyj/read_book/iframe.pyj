@@ -1,0 +1,42 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from aes import GCM
+from read_book.globals import set_boss
+
+class Boss:
+
+    def __init__(self, gcm):
+        self.gcm = gcm
+        self.ready_sent = False
+        window.addEventListener('message', self.handle_message.bind(self), False)
+        window.addEventListener('load', def():
+            if not self.ready_sent:
+                self.send_message({'action':'ready'})
+                self.ready_sent = True
+        )
+        set_boss(self)
+
+    def handle_message(self, event):
+        if event.source is not window.parent:
+            return
+        try:
+            data = JSON.parse(self.gcm.decrypt(event.data))
+        except Exception as e:
+            print('Could not process message from parent:')
+            console.log(e)
+        if data.action is 'load':
+            pass
+
+    def send_message(self, data):
+        data = self.gcm.encrypt(JSON.stringify(data))
+        window.parent.postMessage(data, '*')
+
+
+def init():
+    script = document.getElementById('bootstrap')
+    gcm = GCM(eval(script.getAttribute('data-key')))
+    script.removeAttribute('data-key')
+    script.parentNode.removeChild(script)
+    script = None
+    Boss(gcm)

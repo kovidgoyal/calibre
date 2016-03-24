@@ -3,28 +3,82 @@
 
 from elementmaker import E
 from gettext import gettext as _
+from read_book.resources import ResourceManager, secret_key_as_js, iframe_id, decrypt_message
 
 LOADING_DOC = '''
-<p>{}</p>
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript" id="bootstrap" data-key="__KEY__">
+__SCRIPT__
+</script>
+</head>
+<body>
+__BS__
+</body>
+</html>
 '''
+
 class View:
 
-    def __init__(self, container):
-        self.iframe_id = 'read-book-iframe'
+    def __init__(self, container, ui):
+        self.ui = ui
+        self.resource_manager = ResourceManager()
+        self.virtualized_resources = {}
         container.appendChild(
             E.iframe(
-                id=self.iframe_id,
+                id=iframe_id,
                 seamless=True,
                 sandbox='allow-popups allow-scripts',
             )
         )
-        self.show_loading()
+        self.src_doc = None
+        self.iframe_ready = False
+        self.pending_spine_load = None
+        window.addEventListener('message', self.handle_message.bind(self), False)
 
     @property
     def iframe(self):
-        return document.getElementById(self.iframe_id)
+        return document.getElementById(iframe_id)
 
-    def show_loading(self):
-        iframe = self.iframe
-        iframe.setAttribute('srcdoc', str.format(LOADING_DOC, _(
-            'Loading, please wait...')))
+    def create_src_doc(self, iframe_script):
+        self.src_doc = self.iframe.srcdoc = LOADING_DOC.replace(
+            '__SCRIPT__', iframe_script).replace(
+            '__BS__', _('Bootstrapping book reader...')).replace(
+            '__KEY__', 'new ' + secret_key_as_js)
+
+    def init_iframe(self, iframe_script):
+        self.iframe.srcdoc = self.src_doc
+
+    def handle_message(self, event):
+        if event.source is not self.iframe.contentWindow:
+            return
+        try:
+            data = decrypt_message(event.data)
+        except Exception as e:
+            print('Could not process message from iframe:')
+            console.log(e)
+        if data.action is 'ready':
+            self.iframe_ready = True
+            if self.pending_spine_load:
+                self.show_spine_item_stage2()
+
+    def show_loading(self, title):
+        return  # TODO: Implement this
+
+    def display_book(self, book):
+        self.book = book
+        self.show_loading(book.metadata.title)
+        self.ui.db.update_last_read_time(book)
+        # TODO: Check for last open position of book
+        name = book.manifest.spine[0]
+        self.resource_manager.new_root(self.ui.db, book, name, self.show_spine_item.bind(self))
+
+    def show_spine_item(self, resource_data):
+        # Re-init the iframe to ensure any changes made to the environment by the last spine item are lost
+        self.init_iframe()
+        # Now wait for frame to message that it is ready
+        self.pending_spine_load = resource_data
+
+    def show_spine_item_stage2(self):
+        pass

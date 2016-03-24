@@ -1,8 +1,9 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from ajax import ajax
 from gettext import gettext as _
-from utils import base64encode
+from utils import base64encode, base64decode
 
 def upgrade_schema(idb, old_version, new_version):
     print('upgrade_schema:', old_version, new_version)
@@ -10,6 +11,8 @@ def upgrade_schema(idb, old_version, new_version):
         idb.createObjectStore('books', {'keyPath':'key'})
     if not idb.objectStoreNames.contains('files'):
         idb.createObjectStore('files')
+    if not idb.objectStoreNames.contains('objects'):
+        idb.createObjectStore('objects', {'keyPath':'key'})
 
 def file_store_name(book, name):
     return book.book_hash + ' ' + name
@@ -21,13 +24,17 @@ def get_error_details(event):
     elif desc.errorCode:
         desc = desc.errorCode
 
-DB_NAME = 'calibre-books-db-test'  # TODO: Remove test suffix
+IFRAME_SCRIPT_HASH = "__IFRAME_SCRIPT_HASH__"
+
+DB_NAME = 'calibre-books-db-testing'  # TODO: Remove test suffix and change version back to 1
+DB_VERSION = 1
 
 class DB:
 
-    def __init__(self, idb, ui, supports_blobs):
+    def __init__(self, idb, ui, supports_blobs, iframe_script):
         self.interface_data = ui.interface_data
         self.idb = idb
+        self.iframe_script = iframe_script
         self.supports_blobs = supports_blobs
         if not supports_blobs:
             print('IndexedDB does not support Blob storage, using base64 encoding instead')
@@ -83,7 +90,8 @@ class DB:
                 'metadata': metadata,
                 'manifest': None,
                 'cover_width': None,
-                'cover_height': None
+                'cover_height': None,
+                'last_read_position': None,
             })
         )
 
@@ -143,11 +151,30 @@ class DB:
         book.is_complete = True
         self.do_op(['books'], book, _('Failed to write to the books database'), proceed, op='put')
 
+    def update_last_read_time(self, book):
+        book.last_read = Date()
+        self.do_op(['books'], book, _('Failed to write to the books database'), op='put')
+
+    def get_file(self, book, name, proceed):
+        key = file_store_name(book, name)
+        err = str.format(_(
+            'Failed to read the file {0} for the book {1} from the database'), name, book.metadata.title)
+        self.do_op(['files'], key, err, def (result):
+            if not result:
+                self.show_error(_('Cannot read book'), err)
+                return
+            fdata = book.stored_files[key]
+            mt = fdata.mimetype or 'application/octet-stream'
+            if fdata.encoded:
+                result = Blob([base64decode(fdata)], {'type':mt})
+            proceed(result, name, mt, book)
+        )
+
 def create_db(ui, interface_data):
     if not window.indexedDB:
-        ui.db = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.')
-        return
-    request = window.indexedDB.open(DB_NAME, 1)
+        return ui.db_initialized(_('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.'))
+
+    request = window.indexedDB.open(DB_NAME, DB_VERSION)
 
     request.onupgradeneeded = def(event):
         upgrade_schema(event.target.result, event.oldVersion, event.newVersion)
@@ -156,7 +183,7 @@ def create_db(ui, interface_data):
         alert(_('Please close all other tabs with a calibre book open'))
 
     request.onerror = def(event):
-        ui.db = _('You must allow calibre to use IndexedDB storage in your browser to read books')
+        ui.db_initialized(_('You must allow calibre to use IndexedDB storage in your browser to read books'))
 
     request.onsuccess = def(event):
         blob = Blob(['test'], {'type':"text/plain"})
@@ -164,9 +191,30 @@ def create_db(ui, interface_data):
         try:
             req = idb.transaction(['files'], 'readwrite').objectStore('files').put(blob, ':-test-blob-:')
         except Exception:
-            ui.db_initialized(DB(idb, ui, False))
+            print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
+            create_db_stage2(idb, ui, interface_data, False)
             return
         req.onsuccess = def(event):
-            ui.db_initialized(DB(idb, ui, True))
+            create_db_stage2(idb, ui, interface_data, True)
         req.onerror = def(event):
-            ui.db_initialized(DB(idb, ui, False))
+            print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
+            create_db_stage2(idb, ui, interface_data, False)
+
+def create_db_stage2(idb, ui, interface_data, supports_blobs):
+    req = idb.transaction(['objects']).objectStore('objects').get('iframe.js')
+    req.onerror = def(event):
+        ui.db_initialized(_('Failed to initialize books database: ') + get_error_details(event))
+    req.onsuccess = def(event):
+        s = event.result
+        if s and s.script_hash is IFRAME_SCRIPT_HASH:
+            return ui.db_initialized(DB(idb, ui, supports_blobs, s.src))
+        ajax('static/iframe.js', def(end_type, xhr, event):
+            if end_type != 'load':
+                return ui.db_initialized('<div>' + _('Failed to load book reader script') + '</div>' + xhr.error_html)
+            obj = {'key':'iframe.js', 'script_hash': IFRAME_SCRIPT_HASH, 'src':xhr.responseText}
+            req = idb.transaction(['objects'], 'readwrite').objectStore('objects').put(obj)
+            req.onerror = def(event):
+                ui.db_initialized(_('Failed to store book reader script in database: ') + get_error_details(event))
+            req.onsuccess = def(event):
+                ui.db_initialized(DB(idb, ui, supports_blobs, obj.src))
+        ).send()

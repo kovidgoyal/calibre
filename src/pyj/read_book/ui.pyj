@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+# globals: __RENDER_VERSION__
 
 from ajax import ajax, encode_query
 from elementmaker import E
@@ -10,7 +11,7 @@ from utils import human_readable
 from read_book.db import create_db
 from read_book.view import View
 
-RENDER_VERSION = 1  # Also change this in render_book.py
+RENDER_VERSION = __RENDER_VERSION__
 
 class ReadUI:
 
@@ -44,7 +45,7 @@ class ReadUI:
         container.appendChild(E.div(
             id=self.display_id, style='display:none',
         ))
-        self.view = View(container.lastChild)
+        self.view = View(container.lastChild, self)
 
     def show_stack(self, name):
         ans = None
@@ -92,6 +93,8 @@ class ReadUI:
 
     def db_initialized(self, db):
         self.db = db
+        if type(self.db) is not 'string':
+            self.view.create_src_doc(self.db.iframe_script)
         if self.pending_load is not None:
             pl, self.pending_load = self.pending_load, None
             self.start_load(*pl)
@@ -225,3 +228,4 @@ class ReadUI:
 
     def display_book(self, book):
         self.show_stack(self.display_id)
+        self.view.display_book(book)

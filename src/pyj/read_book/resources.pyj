@@ -1,0 +1,139 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from aes import GCM
+
+def decode_component(x):
+    x = str.replace(x,',p', '|')
+    return str.replace(x, ',c', ',')
+
+def decode_url(x):
+    parts = x.split(',,')
+    return decode_component(parts[0]), decode_component(parts[1] or '')
+
+secret_key = Uint8Array(32)
+window.crypto.getRandomValues(secret_key)
+secret_key_as_js = repr(secret_key)
+gcm = GCM(secret_key)
+iframe_id = 'read-book-iframe'
+
+def send_message(data):
+    data = gcm.encrypt(JSON.stringify(data))
+    document.getElementById(iframe_id).contentWindow.postMessage(data, '*')
+
+def decrypt_message(data):
+    return JSON.parse(gcm.decrypt(data))
+
+class Resource:
+
+    def __init__(self, name, mimetype, data, placeholder, parent):
+        self.name = name
+        self.placeholder = placeholder
+        if type(data) is 'string':
+            self.text = data
+            self.mimetype = mimetype
+        else:
+            if data:
+                self.url = window.URL.createObjectURL(data)
+        self.dependencies = []
+        self.append = self.dependencies.append.bind(self.dependencies)
+        self.remove = self.dependencies.remove.bind(self.dependencies)
+        self.parent = parent
+        if parent:
+            parent.append(self)
+
+    def transfer(self, parent):
+        self.parent.remove(self)
+        self.parent = parent
+        parent.append(self)
+
+    def free(self):
+        if self.url:
+            window.URL.revokeObjectURL(self.url)
+            self.url = None
+            for child in self.dependencies:
+                child.free()
+
+    def finalize(self):
+        if not self.text:
+            return
+        for child in self.dependencies:
+            child.finalize()
+            if child.placeholder and child.url:
+                self.text = str.replace(self.text, child.placeholder, child.url)
+        self.url = window.createObjectURL(Blob([self.text], {'type':self.mimetype}))
+        self.text = None
+
+    def find_match(self, name):
+        if self.name is name:
+            return self
+        for child in self.dependencies:
+            x = child.find_match(name)
+            if x:
+                return x
+
+class ResourceManager:
+
+    def __init__(self):
+        self.root_resource = Resource()
+        self.pending_resources = []
+
+    def new_root(self, db, book, root_name, proceed):
+        self.db = db
+        self.book = book
+        self.root_name = root_name
+        self.proceed = proceed
+        self.old_root_resource = self.root_resource
+        self.root_resource = Resource()
+        self.pending_resources = [{'name':root_name, 'parent':self.root_resource, 'placeholder':None}]
+        self.link_pat = RegExp(book.manifest.link_uid + r'\|([^|]+)\|', 'g')
+        self.do_one()
+
+    def do_one(self):
+        if not self.pending_resources.length:
+            self.root_resource.finalize()
+            self.old_root_resource.free()
+            self.old_root_resource = None
+            self.proceed(self.root_resource.dependencies[0].url)
+
+        r = self.pending_resources.pypop(0)
+        if self.root_resource.find_match(r.name):
+            return self.do_one()
+        oldr = self.old_root_resource.find_match(r.name)
+        if oldr:
+            oldr.transfer(r.parent)
+            return self.do_one()
+
+        self.db.get_file(self.book, r.name, self.got_one.bind(self, r))
+
+    def got_one(self, pending_resource, data, name, mimetype):
+        if name is self.root_name:
+            data = self.process_spine_item(data)
+            mimetype = 'application/xhtml+xml'
+        r = Resource(name, mimetype, data, pending_resource.placeholder, pending_resource.parent)
+        if type(data) is 'string':
+            self.find_virtualized_resources(data, r)
+        self.do_one()
+
+    def find_virtualized_resources(self, text, parent):
+        seen = set()
+        while True:
+            m = self.link_pat.exec(text)
+            if not m:
+                break
+            name = decode_url(m[1])[0]
+            if name in seen:
+                continue
+            seen.add(name)
+            self.pending_resources.push({'name':name, 'parent':parent, 'placeholder':m[0]})
+
+    def process_spine_item(self, text):
+        if self.root_name is self.book.manifest.title_page_name:
+            w = self.book.manifest.cover_width or 600
+            h = self.book.manifest.cover_height or 800
+            ar = 'xMidYMid meet' # or 'none'
+            text = str.replace(text, '__ar__', ar)
+            text = str.replace(text, '__viewbox__', '0 0 ' + w + ' ' + h)
+            text = str.replace(text, '__width__', w + '')
+            text = str.replace(text, '__height__', h + '')
+        return text
