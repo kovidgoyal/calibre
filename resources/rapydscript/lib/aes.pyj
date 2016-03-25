@@ -74,6 +74,18 @@ def convert_to_int32_pad(bytes):
     convert_to_int32(bytes, ans)
     return ans
 
+if not Uint8Array.prototype.fill:
+    Uint8Array.prototype.fill = Uint32Array.prototype.fill = def(val, start, end):
+        start = start or 0
+        if end is undefined:
+            end = this.length
+        if start < 0:
+            start += this.length
+        if end < 0:
+            end += this.length
+        for v'var i = start; i < end; i++':
+            this[i] = val
+
 def from_64_to_32(num):
   # convert 64-bit number to two BE Int32s
   ans = Uint32Array(2)
@@ -304,7 +316,7 @@ class GaloisField:  # {{{
 
     def multiply(self, x, y):
         z_i = Uint32Array(4)
-        v_i = y.slice(0)
+        v_i = Uint32Array(y)
         for v'var i = 0; i < 128; ++i':
             x_i = x[(i / 32) | 0] & (1 << (31 - i % 32))
             if x_i:
@@ -320,7 +332,7 @@ class GaloisField:  # {{{
         size = 1 << bits
         half = size >>> 1
         m = Array(size)
-        m[half] = mid.slice(0)
+        m[half] = Uint32Array(mid)
         i = half >>> 1
         while i > 0:
             m[i] = Uint32Array(4)
@@ -500,10 +512,18 @@ class CTR(ModeOfOperation):  # {{{
 
 class GCM(ModeOfOperation):  # {{{
 
+    # Note that this mode of operation requires the pair of (iv,
+    # secret key) to always be unique, for every message. Therefore, if you are
+    # using it for bi-directional messaging it is best to use a different
+    # secret key for each direction (you could also use random_key,
+    # but that has a non-zero probability of repeating keys).
     # See http://web.cs.ucdavis.edu/~rogaway/ocb/gcm.pdf
 
-    def __init__(self, key):
+    def __init__(self, key, random_iv=False):
         ModeOfOperation.__init__(self, key)
+        self.random_iv = random_iv
+        if not random_iv:
+            self.current_iv = Uint8Array(12)
 
         # Generate the hash subkey
         H = Uint8Array(16)
@@ -514,6 +534,17 @@ class GCM(ModeOfOperation):  # {{{
         self.J0 = Uint32Array(4)
         self.wmem = Uint32Array(4)
         self.byte_block = Uint8Array(16)
+
+    def increment_iv(self):
+        c = self.current_iv
+        for v'var i = 11; i >=0; i--':
+            if c[i] is 255:
+                if i is 0:
+                    raise ValueError('The GCM IV space is exhausted, cannot encrypt anymore messages with this key as doing so would cause the IV to repeat')
+                c[i] = 0
+            else:
+                c[i] += 1
+                break
 
     def _create_j0(self, iv):
         J0 = self.J0
@@ -534,7 +565,7 @@ class GCM(ModeOfOperation):  # {{{
     def _start(self, iv, additional_data):
         J0 = self._create_j0(iv)
         # Generate initial counter block
-        in_block = J0.slice(0)
+        in_block = Uint32Array(J0)
         in_block[3] = (in_block[3] + 1) & 0xFFFFFFFF  # increment counter
 
         # Process additional_data
@@ -599,7 +630,11 @@ class GCM(ModeOfOperation):  # {{{
         return self._finish(iv, J0, additional_data.length, S, outbytes)
 
     def encrypt(self, plaintext, tag):
-        iv = random_bytes(12)
+        if self.random_iv:
+            iv = random_bytes(12)
+        else:
+            self.increment_iv()
+            iv = self.current_iv
         return self._crypt(iv, string_to_bytes(plaintext), self.tag_as_bytes(tag), False)
 
     def decrypt(self, output_from_encrypt, tag):
