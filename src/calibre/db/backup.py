@@ -83,6 +83,17 @@ class MetadataBackup(Thread):
             self.db.clear_dirtied(book_id, sequence)
             return
 
+        cc_metadata = mi.get_all_user_metadata(False)
+        for key,custom_col in cc_metadata.iteritems():
+            try:
+                if custom_col.get('datatype') == 'composite':
+                    self.db.set_field(key, {book_id: custom_col.get('#value#')},
+                                      allow_case_change=False,
+                                      do_path_update=False,
+                                      mark_dirty=False)
+            except:
+                pass
+
         # Give the GUI thread a chance to do something. Python threads don't
         # have priorities, so this thread would naturally keep the processor
         # until some scheduling event happens. The wait makes such an event
