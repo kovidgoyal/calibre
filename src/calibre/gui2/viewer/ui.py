@@ -401,7 +401,7 @@ class Main(MainWindow):
         self.tool_bar.addSeparator()
 
         a('preferences', _('Preferences'), 'config.png')
-        a('metadata', _('Show book metadata'), 'dialog_information.png').setCheckable(True)
+        a('metadata', _('Show book metadata'), 'metadata.png').setCheckable(True)
         a('load_theme', _('Load a theme'), 'wizard.png', menu_name='themes', popup_mode=QToolButton.InstantPopup)
         self.tool_bar.addSeparator()
 
