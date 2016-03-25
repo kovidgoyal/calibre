@@ -12,11 +12,13 @@ from book_list.globals import set_session_data
 from read_book.iframe import init
 
 def on_library_loaded(end_type, xhr, ev):
+    nonlocal main_js
     p = document.getElementById('page_load_progress')
     p.parentNode.removeChild(p)
     if end_type is 'load':
         interface_data = JSON.parse(xhr.responseText)
         interface_data.main_js = main_js
+        main_js = None
         script = document.getElementById('main_js')
         if script:
             script.parentNode.removeChild(script)  # Free up some memory
