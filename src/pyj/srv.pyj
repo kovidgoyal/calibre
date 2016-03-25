@@ -60,7 +60,7 @@ is_running_in_iframe = False  # Changed before script is loaded in the iframe
 if is_running_in_iframe:
     init()
 else:
-    main_js = document.scripts[0].textContent
+    main_js = (document.currentScript or document.scripts[0]).textContent
     # We wait for all page elements to load, since this is a single page app
     # with a largely empty starting document, we can use this to preload any resources
     # we know are going to be needed immediately.
