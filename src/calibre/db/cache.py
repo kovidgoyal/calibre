@@ -1020,7 +1020,8 @@ class Cache(object):
             self.backend.executemany('INSERT OR IGNORE INTO metadata_dirtied (book) VALUES (?)', book_ids)
 
     @write_api
-    def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True):
+    def set_field(self, name, book_id_to_val_map, allow_case_change=True, do_path_update=True,
+                  mark_dirty=True):
         '''
         Set the values of the field specified by ``name``. Returns the set of all book ids that were affected by the change.
 
@@ -1064,7 +1065,8 @@ class Cache(object):
         if dirtied and update_path and do_path_update:
             self._update_path(dirtied, mark_as_dirtied=False)
 
-        self._mark_as_dirty(dirtied)
+        if mark_dirty:
+            self._mark_as_dirty(dirtied)
 
         return dirtied
 
