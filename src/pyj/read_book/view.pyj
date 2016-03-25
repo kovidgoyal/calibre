@@ -3,7 +3,8 @@
 
 from elementmaker import E
 from gettext import gettext as _
-from read_book.resources import ResourceManager, encrypt_message, iframe_id, decrypt_message, secret
+from read_book.globals import messenger, iframe_id
+from read_book.resources import ResourceManager
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -59,7 +60,7 @@ class View:
 
     def send_message(self, data):
         if self.encrypted_communications:
-            data = encrypt_message(data)
+            data = messenger.encrypt(data)
         self.iframe.contentWindow.postMessage(data, '*')
 
     def handle_message(self, event):
@@ -68,7 +69,7 @@ class View:
         data = event.data
         if self.encrypted_communications:
             try:
-                data = decrypt_message(data)
+                data = messenger.decrypt(data)
             except Exception as e:
                 print('Could not process message from iframe:')
                 console.log(e)
@@ -80,7 +81,8 @@ class View:
             print('Unknown action in message from iframe to parent: ' + data.action)
 
     def on_iframe_ready(self, data):
-        self.send_message({'action':'keys', 'secret':secret})
+        messenger.reset()
+        self.send_message({'action':'keys', 'secret':messenger.secret})
         self.iframe_ready = True
         if self.pending_spine_load:
             self.show_spine_item_stage2()

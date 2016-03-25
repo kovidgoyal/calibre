@@ -1,6 +1,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from aes import GCM
+
 _boss = None
 
 def set_boss(b):
@@ -10,3 +12,21 @@ def set_boss(b):
 def get_boss():
     return _boss
 
+class Messenger:
+
+    def __init__(self):
+        self.secret = Uint8Array(64)
+
+    def reset(self):
+        window.crypto.getRandomValues(self.secret)
+        self.gcm_to_iframe = GCM(self.secret.subarray(0, 32))
+        self.gcm_from_iframe = GCM(self.secret.subarray(32))
+
+    def encrypt(self, data):
+        return self.gcm_to_iframe.encrypt(JSON.stringify(data))
+
+    def decrypt(self, data):
+        return JSON.parse(self.gcm_from_iframe.decrypt(data))
+
+messenger = Messenger()
+iframe_id = 'read-book-iframe'
