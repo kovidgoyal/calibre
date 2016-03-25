@@ -72,6 +72,6 @@ else:
             if port:
                 src = xhr.responseText.replace('AUTORELOAD_PORT', port)
                 eval(src)
-    , bypass_cache=False).send()
+    ).send()  # We must bypass cache as otherwise we could get stale port info
 
 
