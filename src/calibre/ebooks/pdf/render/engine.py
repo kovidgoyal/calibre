@@ -87,6 +87,7 @@ class PdfEngine(QPaintEngine):
         self.fonts = {}
         self.current_page_num = 1
         self.current_page_inited = False
+        self.content_written_to_current_page = False
         self.qt_hack, err = plugins['qt_hack']
         if err:
             raise RuntimeError('Failed to load qt_hack with err: %s'%err)
@@ -107,6 +108,7 @@ class PdfEngine(QPaintEngine):
         return self.graphics.current_state.do_stroke
 
     def init_page(self):
+        self.content_written_to_current_page = False
         self.pdf.transform(self.pdf_system)
         self.pdf.apply_fill(color=(1, 1, 1))  # QPainter has a default background brush of white
         self.graphics.reset()
@@ -127,12 +129,14 @@ class PdfEngine(QPaintEngine):
                 return False
         return True
 
-    def end_page(self):
+    def end_page(self, is_last_page=False):
         if self.current_page_inited:
             self.pdf.restore_stack()
-            self.pdf.end_page()
+            drop_page = is_last_page and not self.content_written_to_current_page
+            self.pdf.end_page(drop_page=drop_page)
             self.current_page_inited = False
-            self.current_page_num += 1
+            self.current_page_num += 0 if drop_page else 1
+        return self.content_written_to_current_page
 
     def end(self):
         try:
@@ -156,6 +160,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawTiledPixmap(self, rect, pixmap, point):
+        self.content_written_to_current_page = 'drawTiledPixmap'
         self.apply_graphics_state()
         brush = QBrush(pixmap)
         bl = rect.topLeft()
@@ -170,6 +175,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawPixmap(self, rect, pixmap, source_rect):
+        self.content_written_to_current_page = 'drawPixmap'
         self.apply_graphics_state()
         source_rect = source_rect.toRect()
         pixmap = (pixmap if source_rect == pixmap.rect() else
@@ -182,6 +188,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawImage(self, rect, image, source_rect, flags=Qt.AutoColor):
+        self.content_written_to_current_page = 'drawImage'
         self.apply_graphics_state()
         source_rect = source_rect.toRect()
         image = (image if source_rect == image.rect() else
@@ -197,6 +204,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawPath(self, path):
+        self.content_written_to_current_page = 'drawPath'
         self.apply_graphics_state()
         p = convert_path(path)
         fill_rule = {Qt.OddEvenFill:'evenodd',
@@ -206,6 +214,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawPoints(self, points):
+        self.content_written_to_current_page = 'drawPoints'
         self.apply_graphics_state()
         p = Path()
         for point in points:
@@ -220,6 +229,8 @@ class PdfEngine(QPaintEngine):
             for rect in rects:
                 self.resolve_fill(rect)
                 bl = rect.topLeft()
+                if self.do_stroke or self.do_fill:
+                    self.content_written_to_current_page = 'drawRects'
                 self.pdf.draw_rect(bl.x(), bl.y(), rect.width(), rect.height(),
                                 stroke=self.do_stroke, fill=self.do_fill)
 
@@ -240,6 +251,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawTextItem(self, point, text_item):
+        self.content_written_to_current_page = 'drawTextItem'
         # return super(PdfEngine, self).drawTextItem(point, text_item)
         self.apply_graphics_state()
         gi = GlyphInfo(*self.qt_hack.get_glyphs(point, text_item))
@@ -274,6 +286,7 @@ class PdfEngine(QPaintEngine):
 
     @store_error
     def drawPolygon(self, points, mode):
+        self.content_written_to_current_page = 'drawPolygon'
         self.apply_graphics_state()
         if not points:
             return

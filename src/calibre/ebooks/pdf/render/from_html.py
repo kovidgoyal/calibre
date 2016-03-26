@@ -393,7 +393,7 @@ class PDFWriter(QObject):
                 nsl = int(evaljs('paged_display.next_screen_location()'))
             except (TypeError, ValueError):
                 break
-            self.doc.end_page()
+            self.doc.end_page(nsl <= 0)
             if nsl <= 0:
                 break
             evaljs('window.scrollTo(%d, 0); paged_display.position_header_footer();'%nsl)
