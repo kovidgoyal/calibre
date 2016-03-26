@@ -5,15 +5,16 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import sys, re, os, json
+from collections import defaultdict
+from itertools import count
 from functools import partial
 from future_builtins import map
 from urlparse import urlparse
 
 from cssutils import replaceUrls
-from lxml.etree import Comment, tostring
 
 from calibre.ebooks.oeb.base import (
-    OEB_DOCS, escape_cdata, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML)
+    OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS)
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import set_epub_cover, find_cover_image
@@ -72,11 +73,16 @@ class Container(ContainerBase):
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
             self.parsed(name), self.dirty(name)
-        self.inject_script(data['spine'])
         self.virtualized_names = set()
         self.virtualize_resources()
         def manifest_data(name):
-            return {'size':os.path.getsize(self.name_path_map[name]), 'is_virtualized': name in self.virtualized_names, 'mimetype':self.mime_map.get(name)}
+            mt = (self.mime_map.get(name) or 'application/octet-stream').lower()
+            return {
+                'size':os.path.getsize(self.name_path_map[name]),
+                'is_virtualized': name in self.virtualized_names,
+                'mimetype':mt,
+                'is_html': mt in OEB_DOCS
+            }
         data['files'] = {name:manifest_data(name) for name in set(self.name_path_map) - excluded_names}
         self.commit()
         for name in excluded_names:
@@ -100,20 +106,6 @@ class Container(ContainerBase):
         titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
         self.dirty(self.opf_name)
         return raster_cover_name, titlepage_name
-
-    def inject_script(self, spine):
-        src = 'injected-script-' + self.book_render_data['link_uid']
-        for name in spine:
-            root = self.parsed(name)
-            head = tuple(root.iterchildren(XHTML('head')))
-            head = head[0] if head else root.makeelement(XHTML('head'))
-            root.insert(0, head)
-            script = root.makeelement(XHTML('script'))
-            script.set('type', 'text/javascript')
-            script.set('src', src)
-            script.set('data-secret', 'secret-key-' + self.book_render_data['link_uid'])
-            head.insert(0, script)
-            self.dirty(name)
 
     def virtualize_resources(self):
 
@@ -146,6 +138,7 @@ class Container(ContainerBase):
             return url
 
         for name, mt in self.mime_map.iteritems():
+            mt = mt.lower()
             if mt in OEB_STYLES:
                 replaceUrls(self.parsed(name), partial(link_replacer, name))
                 self.virtualized_names.add(name)
@@ -157,7 +150,8 @@ class Container(ContainerBase):
                     href = a.get('href')
                     if href.startswith(link_uid):
                         a.set('href', 'javascript:void(0)')
-                        a.set('data-' + link_uid, href.split('|')[1])
+                        parts = decode_url(href.split('|')[1])
+                        a.set('data-' + link_uid, json.dumps({'name':parts[0], 'frag':parts[1]}, ensure_ascii=False))
                     else:
                         a.set('target', '_blank')
                     changed.add(name)
@@ -171,15 +165,60 @@ class Container(ContainerBase):
         tuple(map(self.dirty, changed))
 
     def serialize_item(self, name):
-        mt = self.mime_map[name]
+        mt = (self.mime_map[name] or '').lower()
         if mt not in OEB_DOCS:
             return ContainerBase.serialize_item(self, name)
-        # Normalize markup
         root = self.parsed(name)
-        for comment in tuple(root.iterdescendants(Comment)):
-            comment.getparent().remove(comment)
-        escape_cdata(root)
-        return tostring(root, encoding='utf-8', xml_declaration=True, with_tail=False, doctype='<!DOCTYPE html>')
+        return json.dumps(html_as_dict(root), ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+
+def split_name(name):
+    l, r = name.partition('}')[::2]
+    if r:
+        return l[1:], r
+    return None, l
+
+def serialize_elem(elem, nsmap):
+    ns, name = split_name(elem.tag)
+    attribs = []
+    ans = {'n':name}
+    if elem.text:
+        ans['te'] = elem.text
+    if elem.tail:
+        ans['ta'] = elem.tail
+    if ns:
+        ns = nsmap[ns]
+        if ns:
+            ans['ns'] = ns
+    for attr, val in elem.items():
+        attr_ns, aname = split_name(attr)
+        s = {'n':aname, 'v':val}
+        if attr_ns:
+            attr_ns = nsmap[attr_ns]
+            if attr_ns:
+                s['ns'] = attr_ns
+        attribs.append(s)
+    if attribs:
+        ans['a'] = attribs
+    return ans
+
+def html_as_dict(root):
+    nsmap = defaultdict(count().next)
+    nsmap[XHTML_NS]
+    tags = [serialize_elem(root, nsmap)]
+    tree = {'t':0}
+    stack = [(root, tree)]
+    while stack:
+        elem, node = stack.pop()
+        for i, child in enumerate(elem.iterchildren('*')):
+            if i == 0:
+                node['c'] = []
+            cnode = serialize_elem(child, nsmap)
+            tags.append(cnode)
+            tree_node = {'t':len(tags) - 1}
+            node['c'].append(tree_node)
+            stack.append((child, tree_node))
+    ns_map = [ns for ns, nsnum in sorted(nsmap.iteritems(), key=lambda x: x[1])]
+    return {'ns_map':ns_map, 'tag_map':tags, 'tree':tree}
 
 def render(pathtoebook, output_dir, book_hash=None):
     Container(pathtoebook, output_dir, book_hash=book_hash)
