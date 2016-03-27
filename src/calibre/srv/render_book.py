@@ -4,7 +4,8 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import sys, re, os, json
+import sys, os, json
+from base64 import standard_b64encode, standard_b64decode
 from collections import defaultdict
 from itertools import count
 from functools import partial
@@ -28,19 +29,19 @@ RENDER_VERSION = 1
 BLANK_JPEG = b'\xff\xd8\xff\xdb\x00C\x00\x03\x02\x02\x02\x02\x02\x03\x02\x02\x02\x03\x03\x03\x03\x04\x06\x04\x04\x04\x04\x04\x08\x06\x06\x05\x06\t\x08\n\n\t\x08\t\t\n\x0c\x0f\x0c\n\x0b\x0e\x0b\t\t\r\x11\r\x0e\x0f\x10\x10\x11\x10\n\x0c\x12\x13\x12\x10\x13\x0f\x10\x10\x10\xff\xc9\x00\x0b\x08\x00\x01\x00\x01\x01\x01\x11\x00\xff\xcc\x00\x06\x00\x10\x10\x05\xff\xda\x00\x08\x01\x01\x00\x00?\x00\xd2\xcf \xff\xd9'  # noqa
 
 def encode_component(x):
-    return x.replace(',', ',c').replace('|', ',p')
+    return standard_b64encode(x.encode('utf-8')).decode('ascii')
 
 def decode_component(x):
-    return x.replace(',p', '|').replace(',c', ',')
+    return standard_b64decode(x).decode('utf-8')
 
 def encode_url(name, frag=''):
     name = encode_component(name)
     if frag:
-        name += ',,' + encode_component(frag)
+        name += '#' + encode_component(frag)
     return name
 
 def decode_url(x):
-    parts = list(map(decode_component, re.split(',,', x, 1)))
+    parts = list(map(decode_component, x.split('#', 1)))
     if len(parts) == 1:
         parts.append('')
     return parts
