@@ -249,7 +249,7 @@
         test = script.previousSibling; div = test.previousSibling;
         jax = script.MathJax.elementJax; if (!jax) continue;
         ex = test.firstChild.offsetHeight/60;
-        cwidth = div.previousSibling.firstChild.offsetWidth;
+        cwidth = div.previousSibling.firstChild.offsetWidth / this.config.scale * 100;
         if (relwidth) {maxwidth = cwidth}
         if (ex === 0 || ex === "NaN") {
           // can't read width, so move to hidden div for processing
