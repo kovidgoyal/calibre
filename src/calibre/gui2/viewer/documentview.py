@@ -172,6 +172,8 @@ class Document(QWebPage):  # {{{
         self.enable_page_flip = self.page_flip_duration > 0.1
         self.font_magnification_step = opts.font_magnification_step
         self.wheel_flips_pages = opts.wheel_flips_pages
+        self.wheel_scroll_fraction = opts.wheel_scroll_fraction
+        self.line_scroll_fraction = opts.line_scroll_fraction
         self.tap_flips_pages = opts.tap_flips_pages
         self.line_scrolling_stops_on_pagebreaks = opts.line_scrolling_stops_on_pagebreaks
         screen_width = QApplication.desktop().screenGeometry().width()
@@ -1298,10 +1300,12 @@ class DocumentView(QWebView):  # {{{
         num_degrees_h = event.angleDelta().x() // 8
         vertical = abs(num_degrees) > abs(num_degrees_h)
         scroll_amount = ((num_degrees if vertical else num_degrees_h)/ 120.0) * .2 * -1 * 8
-        if vertical:
-            self.scroll_by(0, self.document.viewportSize().height() * scroll_amount)
-        else:
-            self.scroll_by(self.document.viewportSize().width() * scroll_amount, 0)
+        dim = self.document.viewportSize().height() if vertical else self.document.viewportSize().width()
+        amt =  dim * scroll_amount
+        mult = -1 if amt < 0 else 1
+        if self.document.wheel_scroll_fraction != 100:
+            amt = mult * max(1, abs(int(amt * self.document.wheel_scroll_fraction / 100.)))
+        self.scroll_by(0, amt) if vertical else self.scroll_by(amt, 0)
 
         if self.manager is not None:
             self.manager.scrolled(self.scroll_fraction)
@@ -1341,7 +1345,8 @@ class DocumentView(QWebView):  # {{{
                         self.document.at_bottom):
                     self.manager.next_document()
                 else:
-                    self.scroll_by(y=15)
+                    amt = int((self.document.line_scroll_fraction / 100.) * 15)
+                    self.scroll_by(y=amt)
         elif key == 'Up':
             if self.document.in_paged_mode:
                 self.paged_col_scroll(forward=False, scroll_past_end=not
@@ -1351,17 +1356,20 @@ class DocumentView(QWebView):  # {{{
                         self.document.at_top):
                     self.manager.previous_document()
                 else:
-                    self.scroll_by(y=-15)
+                    amt = int((self.document.line_scroll_fraction / 100.) * 15)
+                    self.scroll_by(y=-amt)
         elif key == 'Left':
             if self.document.in_paged_mode:
                 self.paged_col_scroll(forward=False)
             else:
-                self.scroll_by(x=-15)
+                amt = int((self.document.line_scroll_fraction / 100.) * 15)
+                self.scroll_by(x=-amt)
         elif key == 'Right':
             if self.document.in_paged_mode:
                 self.paged_col_scroll()
             else:
-                self.scroll_by(x=15)
+                amt = int((self.document.line_scroll_fraction / 100.) * 15)
+                self.scroll_by(x=amt)
         elif key == 'Back':
             if self.manager is not None:
                 self.manager.back(None)

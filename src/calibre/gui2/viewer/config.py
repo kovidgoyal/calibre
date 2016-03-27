@@ -55,6 +55,10 @@ def config(defaults=None):
             help=_('Copy bookmarks to the ebook file for easy sharing, if possible'))
     c.add_opt('wheel_flips_pages', default=False,
             help=_('Have the mouse wheel turn pages'))
+    c.add_opt('wheel_scroll_fraction', default=100,
+            help=_('Control how much the mouse wheel scrolls by in flow mode'))
+    c.add_opt('line_scroll_fraction', default=100,
+            help=_('Control how much the arrow keys scroll by in flow mode'))
     c.add_opt('tap_flips_pages', default=True,
             help=_('Tapping on the screen turns pages'))
     c.add_opt('line_scrolling_stops_on_pagebreaks', default=False,
@@ -300,6 +304,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.opt_remember_current_page.setChecked(opts.remember_current_page)
         self.opt_copy_bookmarks_to_file.setChecked(opts.copy_bookmarks_to_file)
         self.opt_wheel_flips_pages.setChecked(opts.wheel_flips_pages)
+        self.opt_wheel_scroll_fraction.setValue(opts.wheel_scroll_fraction)
+        self.opt_line_scroll_fraction.setValue(opts.line_scroll_fraction)
         self.opt_tap_flips_pages.setChecked(opts.tap_flips_pages)
         self.opt_page_flip_duration.setValue(opts.page_flip_duration)
         fms = opts.font_magnification_step
@@ -407,6 +413,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('remember_current_page', self.opt_remember_current_page.isChecked())
         c.set('copy_bookmarks_to_file', self.opt_copy_bookmarks_to_file.isChecked())
         c.set('wheel_flips_pages', self.opt_wheel_flips_pages.isChecked())
+        c.set('wheel_scroll_fraction', self.opt_wheel_scroll_fraction.value())
+        c.set('line_scroll_fraction', self.opt_line_scroll_fraction.value())
         c.set('tap_flips_pages', self.opt_tap_flips_pages.isChecked())
         c.set('page_flip_duration', self.opt_page_flip_duration.value())
         c.set('font_magnification_step',
