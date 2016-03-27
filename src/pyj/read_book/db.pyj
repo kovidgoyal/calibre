@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from gettext import gettext as _
-from utils import base64encode, base64decode
+from encodings import base64encode, base64decode
 
 def upgrade_schema(idb, old_version, new_version):
     print('upgrade_schema:', old_version, new_version)
