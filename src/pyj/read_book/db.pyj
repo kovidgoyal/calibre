@@ -77,6 +77,7 @@ class DB:
         # refer to non-serializable objects like functions.
         key = v'[self.interface_data.library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
+            # result = None  # uncomment this to force book reloading
             proceed(result or {
                 'key':key,
                 'is_complete':False,
