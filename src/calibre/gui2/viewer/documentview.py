@@ -258,7 +258,8 @@ class Document(QWebPage):  # {{{
         self.javascript('window.paged_display.read_document_margins()')
         self.set_bottom_padding(0)
         self.fit_images()
-        self.math_present = self.javascript('window.mathjax.check_for_math()', bool)
+        w = 1 if iswindows else 0
+        self.math_present = self.javascript('window.mathjax.check_for_math(%d)' % w, bool)
         self.init_hyphenate()
         self.javascript('full_screen.save_margins()')
         if self.in_fullscreen_mode:

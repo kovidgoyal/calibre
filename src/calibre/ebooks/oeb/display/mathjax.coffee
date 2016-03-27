@@ -23,23 +23,24 @@ class MathJax
         this.pending_cfi = null
         this.hub = null
 
-    load_mathjax: (user_config) ->
+    load_mathjax: (user_config, is_windows) ->
         if this.base == null
             log('You must specify the path to the MathJax installation before trying to load MathJax')
             return null
 
         script = document.createElement('script')
+        scale = if is_windows then 160 else 100
 
         script.type = 'text/javascript'
         script.src = 'file://' + this.base + '/MathJax.js'
-        script.text = user_config + '''
+        script.text = user_config + ('''
         MathJax.Hub.signal.Interest(function (message) {if (String(message).match(/error/i)) {console.log(message)}});
         MathJax.Hub.Config({
             positionToHash: false,
             showMathMenu: false,
             extensions: ["tex2jax.js", "asciimath2jax.js", "mml2jax.js"],
             jax: ["input/TeX","input/MathML","input/AsciiMath","output/SVG"],
-            SVG : { linebreaks : { automatic : true } },
+            SVG : { linebreaks : { automatic : true }, scale: __scale__ },
             TeX: {
                 extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
             }
@@ -47,7 +48,7 @@ class MathJax
         MathJax.Hub.Startup.onload();
         MathJax.Hub.Register.StartupHook("End", window.mathjax.load_finished);
         window.mathjax.hub = MathJax.Hub
-        '''
+        ''').replace('__scale__', scale)
         document.head.appendChild(script)
 
     load_finished: () =>
@@ -58,7 +59,7 @@ class MathJax
             this.pending_cfi = null
             window.cfi.scroll_to(cfi, callback)
 
-    check_for_math: () ->
+    check_for_math: (is_windows) ->
         script = null
         this.math_present = false
         this.math_loaded = false
@@ -73,7 +74,7 @@ class MathJax
 
         if script != null or document.getElementsByTagName('math').length > 0
             this.math_present = true
-            this.load_mathjax(user_config)
+            this.load_mathjax(user_config, is_windows)
         return this.math_present
 
     after_resize: () ->
