@@ -15,7 +15,7 @@ from urlparse import urlparse
 from cssutils import replaceUrls
 
 from calibre.ebooks.oeb.base import (
-    OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS)
+    OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF)
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import set_epub_cover, find_cover_image
@@ -97,6 +97,7 @@ class Container(ContainerBase):
                 if action == 'write_image':
                     data.write(BLANK_JPEG)
             return set_epub_cover(self, cover_path, (lambda *a: None))
+        from calibre.ebooks.oeb.transforms.cover import CoverManager
         raster_cover_name = find_cover_image(self, strict=True)
         if raster_cover_name is None:
             item = self.generate_item(name='cover.jpeg', id_prefix='cover')
@@ -105,6 +106,13 @@ class Container(ContainerBase):
             dest.write(BLANK_JPEG)
         item = self.generate_item(name='titlepage.html', id_prefix='titlepage')
         titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
+        templ = CoverManager.SVG_TEMPLATE
+        raw = templ % self.name_to_href(raster_cover_name, titlepage_name)
+        with self.open(titlepage_name, 'wb') as f:
+            f.write(raw.encode('utf-8'))
+        spine = self.opf_xpath('//opf:spine')[0]
+        ref = spine.makeelement(OPF('itemref'), idref=item.get('id'))
+        self.insert_into_xml(spine, ref, index=0)
         self.dirty(self.opf_name)
         return raster_cover_name, titlepage_name
 
