@@ -299,6 +299,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates, otitle,
                 mi.series_index = oseries_index
             if ocover:
                 mi.cover = ocover
+                mi.cover_data = (None, None)
 
             formats.append(format)
             metadata.append(mi)
