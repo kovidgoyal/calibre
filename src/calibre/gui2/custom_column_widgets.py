@@ -349,7 +349,7 @@ class Text(Base):
         if self.col_metadata['is_multiple']:
             self.setter(val)
         else:
-            self.widgets[1].show_initial_value(val)
+            self.widgets[1].setText(val)
         self.initial_val = self.current_val
 
     def setter(self, val):
@@ -428,7 +428,7 @@ class Series(Base):
         val = self.normalize_db_val(val)
         self.name_widget.blockSignals(True)
         self.name_widget.update_items_cache(values)
-        self.name_widget.show_initial_value(val)
+        self.name_widget.setText(val)
         self.name_widget.blockSignals(False)
         self.initial_val, self.initial_index = self.current_val
 
@@ -1048,7 +1048,7 @@ class BulkText(BulkBase):
             self.initial_val = val = self.normalize_db_val(val)
             self.ignore_change_signals = True
             self.main_widget.blockSignals(True)
-            self.main_widget.show_initial_value(val)
+            self.main_widget.setText(val)
             self.main_widget.blockSignals(False)
             self.ignore_change_signals = False
 
