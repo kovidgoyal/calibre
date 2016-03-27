@@ -210,9 +210,9 @@ class ReadUI:
             update_progress()
 
         def start_download(fname, path):
-            xhr = ajax(path, on_complete.bind(fname), on_progress=on_progress.bind(fname), query=query, progress_totals_needed=False)
+            xhr = ajax(path, on_complete.bind(fname), on_progress=on_progress.bind(fname), query=query, progress_totals_needed=fname is raster_cover_name)
             xhr.responseType = 'text'
-            if not book.manifest.files[name].is_virtualized:
+            if not book.manifest.files[fname].is_virtualized:
                 xhr.responseType = 'blob' if self.db.supports_blobs else 'arraybuffer'
             xhr.send()
             self.downloads_in_progress.append(xhr)
