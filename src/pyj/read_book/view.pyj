@@ -4,7 +4,7 @@
 from elementmaker import E
 from gettext import gettext as _
 from read_book.globals import messenger, iframe_id
-from read_book.resources import ResourceManager
+from read_book.resources import load_resources
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -15,7 +15,9 @@ __SCRIPT__
 end_script
 </head>
 <body>
+<div style="font-family: sans-serif; font-size:larger; font-weight: bold; margin-top:48vh; text-align:center">
 __BS__
+</div>
 </body>
 </html>
 '''.replace('end_script', '<' + '/script>')  # cannot have a closing script tag as this is embedded inside a script tag in index.html
@@ -24,8 +26,7 @@ class View:
 
     def __init__(self, container, ui):
         self.ui = ui
-        self.resource_manager = ResourceManager()
-        self.virtualized_resources = {}
+        self.loaded_resources = {}
         container.appendChild(
             E.iframe(
                 id=iframe_id,
@@ -41,6 +42,7 @@ class View:
         window.addEventListener('message', self.handle_message.bind(self), False)
         self.handlers = {
             'ready': self.on_iframe_ready.bind(self),
+            'error': self.on_iframe_error.bind(self),
         }
 
     @property
@@ -51,8 +53,8 @@ class View:
         iframe_script = self.ui.interface_data.main_js.replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
         self.ui.interface_data.main_js = None
         self.src_doc = self.iframe.srcdoc = LOADING_DOC.replace(
-            '__SCRIPT__', iframe_script).replace(
-            '__BS__', _('Bootstrapping book reader...'))
+            '__BS__', _('Bootstrapping book reader...')).replace(
+            '__SCRIPT__', iframe_script)
 
     def init_iframe(self, iframe_script):
         self.encrypted_communications = False
@@ -82,10 +84,15 @@ class View:
 
     def on_iframe_ready(self, data):
         messenger.reset()
-        self.send_message({'action':'keys', 'secret':messenger.secret})
+        self.send_message({'action':'initialize', 'secret':messenger.secret, 'translations':self.ui.interface_data.translations})
         self.iframe_ready = True
         if self.pending_spine_load:
-            self.show_spine_item_stage2()
+            data = self.pending_spine_load
+            self.pending_spine_load = None
+            self.show_spine_item_stage2(data)
+
+    def on_iframe_error(self, data):
+        self.ui.show_error((data.title or _('There was an error processing the book')), data.msg, data.details)
 
     def show_loading(self, title):
         return  # TODO: Implement this
@@ -96,13 +103,16 @@ class View:
         self.ui.db.update_last_read_time(book)
         # TODO: Check for last open position of book
         name = book.manifest.spine[0]
-        self.resource_manager.new_root(self.ui.db, book, name, self.show_spine_item.bind(self))
+        load_resources(self.ui.db, book, name, self.loaded_resources, self.show_spine_item.bind(self, name))
 
-    def show_spine_item(self, resource_data):
+    def show_spine_item(self, name, resource_data):
+        self.loaded_resources = resource_data
         # Re-init the iframe to ensure any changes made to the environment by the last spine item are lost
         self.init_iframe()
         # Now wait for frame to message that it is ready
-        self.pending_spine_load = resource_data
+        self.pending_spine_load = [name, resource_data]
 
-    def show_spine_item_stage2(self):
-        pass
+    def show_spine_item_stage2(self, x):
+        name, resource_data = x
+        self.send_message({'action':'display', 'resource_data':resource_data, 'book':self.book, 'name':name})
+        self.encrypted_communications = True

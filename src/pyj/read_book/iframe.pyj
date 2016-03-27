@@ -2,7 +2,9 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
 from aes import GCM
+from gettext import install
 from read_book.globals import set_boss
+from read_book.resources import finalize_resources
 
 class Boss:
 
@@ -17,7 +19,8 @@ class Boss:
         )
         set_boss(self)
         self.handlers = {
-            'keys':self.create_gcm.bind(self),
+            'initialize':self.initialize.bind(self),
+            'display': self.display.bind(self),
         }
 
     def handle_message(self, event):
@@ -33,12 +36,24 @@ class Boss:
                 return
         func = self.handlers[data.action]
         if func:
-            func(data)
+            try:
+                func(data)
+            except Exception as e:
+                console.log('Error in iframe message handler:')
+                console.log(e)
+                self.send_message({'action':'error', 'details':e.stack, 'msg':e.toString()})
         else:
             print('Unknown action in message to iframe from parent: ' + data.action)
 
-    def create_gcm(self, data):
+    def initialize(self, data):
         self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
+        install(data.translations)
+
+    def display(self, data):
+        self.encrypted_communications = True
+        self.book = data.book
+        root_data = finalize_resources(self.book, data.name, data.resource_data)
+        root_data
 
     def send_message(self, data):
         if self.encrypted_communications:

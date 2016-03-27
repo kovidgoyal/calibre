@@ -37,14 +37,12 @@ def decode_component(x):
 def encode_url(name, frag=''):
     name = encode_component(name)
     if frag:
-        name += '#' + encode_component(frag)
+        name += '#' + frag
     return name
 
 def decode_url(x):
-    parts = list(map(decode_component, x.split('#', 1)))
-    if len(parts) == 1:
-        parts.append('')
-    return parts
+    parts = x.split('#', 1)
+    return decode_component(parts[0]), parts[1] or ''
 
 class Container(ContainerBase):
 
