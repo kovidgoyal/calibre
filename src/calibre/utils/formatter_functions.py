@@ -744,7 +744,7 @@ class BuiltinFormatsModtimes(BuiltinFormatterFunction):
                   'list of colon_separated items representing modification times '
                   'for the formats of a book. The date_format parameter '
                   'specifies how the date is to be formatted. See the '
-                  'date_format function for details. You can use the select '
+                  'format_date function for details. You can use the select '
                   'function to get the mod time for a specific '
                   'format. Note that format names are always uppercase, '
                   'as in EPUB.'
