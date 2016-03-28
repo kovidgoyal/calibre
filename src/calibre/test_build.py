@@ -136,7 +136,7 @@ def test_qt():
     if len(QFontDatabase().families()) < 5:
         raise RuntimeError('The QPA headless plugin is not able to locate enough system fonts via fontconfig')
     fmts = set(map(unicode, QImageReader.supportedImageFormats()))
-    testf = set(['jpg', 'png', 'mng', 'svg', 'ico', 'gif'])
+    testf = set(['jpg', 'png', 'svg', 'ico', 'gif'])
     if testf.intersection(fmts) != testf:
         raise RuntimeError(
             "Qt doesn't seem to be able to load its image plugins")
