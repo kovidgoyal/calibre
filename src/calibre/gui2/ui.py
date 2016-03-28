@@ -878,7 +878,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         return True
 
     def shutdown(self, write_settings=True):
+        get_gui().show_shutdown_message(_('Shutting down'))
+
+        from calibre.customize.ui import available_library_closed_plugins
+        if available_library_closed_plugins():
+            get_gui().show_shutdown_message(
+                _('Running database shutdown plugins. This could take a few seconds...'))
+
         self.grid_view.shutdown()
+        db = None
         try:
             db = self.library_view.model().db
             cf = db.clean
@@ -908,10 +916,20 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if mb is not None:
             mb.stop()
 
-        self.hide_windows()
+        if db is not None:
+            db.close()
+
+        # This happens again later. Don't do it here because it hides the
+        # shutdown messages
+        # self.hide_windows()
         try:
             try:
                 if self.content_server is not None:
+                    # If the content server has any sockets being closed then
+                    # this can take quite a long time (minutes). Tell the user that it is
+                    # happening.
+                    get_gui().show_shutdown_message(
+                        _('Shutting down the content server. This could take a while ...'))
                     s = self.content_server
                     self.content_server = None
                     s.exit()

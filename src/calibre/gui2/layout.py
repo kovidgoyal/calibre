@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt5.Qt import (QIcon, Qt, QWidget, QSize,
-    pyqtSignal, QToolButton, QMenu, QAction,
+    pyqtSignal, QToolButton, QMenu, QAction, QCoreApplication,
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
 
@@ -306,8 +306,34 @@ class MainWindowMixin(object):  # {{{
         l = self.centralwidget.layout()
         l.addWidget(self.search_bar)
 
+
+
+    def show_shutdown_message(self, message):
+        msgs = getattr(self, 'shutdown_messages', None)
+        if msgs is None:
+            msgs = self.shutdown_messages = []
+        msgs.append(message)
+
+        smw = QWidget()
+        sml = QVBoxLayout()
+        smw.setLayout(sml)
+
+        # Construct the widget containing all the messages to date. Add stretch
+        # to make it vertically centered.
+        sml.addStretch()
+        for msg in msgs:
+            sml.addWidget(QLabel(msg), alignment=Qt.AlignHCenter)
+        sml.addStretch()
+
+        # The next line is needed to prevent the main widget from being garbage
+        # collected just in case more processing is required (and it is). As we
+        # are shutting down, the memory leak isn't of concern
+        if getattr(self, 'saved_central_widget', None) is None:
+            self.saved_central_widget = self.centralWidget
+
+        # Show the shutdown messages
+        self.setCentralWidget(smw)
+        # Force processing the events needed to show the message
+        QCoreApplication.processEvents()
+
 # }}}
-
-
-
-
