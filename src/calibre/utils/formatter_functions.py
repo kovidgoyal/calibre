@@ -1072,7 +1072,9 @@ class BuiltinAnd(BuiltinFormatterFunction):
     __doc__ = doc = _('and(value, value, ...) -- '
             'returns the string "1" if all values are not empty, otherwise '
             'returns the empty string. This function works well with test or '
-            'first_non_empty. You can have as many values as you want.')
+            'first_non_empty. You can have as many values as you want. '
+            'When more than one value is present it will return "1" only if '
+            'all the values are not empty.')
 
     def evaluate(self, formatter, kwargs, mi, locals, *args):
         i = 0
