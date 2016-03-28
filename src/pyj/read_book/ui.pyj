@@ -47,6 +47,9 @@ class ReadUI:
         ))
         self.view = View(container.lastChild, self)
 
+    def on_resize(self):
+        self.view.on_resize()
+
     def show_stack(self, name):
         ans = None
         for w in self.stacked_widgets:

@@ -9,7 +9,6 @@ from book_list.item_list import ItemsView, create_item
 from book_list.prefs import PrefsPanel
 from book_list.book_details import BookDetailsPanel
 from gettext import gettext as _
-from utils import debounce
 from modals import error_dialog, ajax_progress_dialog
 
 class BarState:
@@ -96,7 +95,6 @@ class UI:
         self.panels = [self.books_view, self.items_view, self.search_panel, self.prefs_panel, self.book_details_panel]
         self.panel_map = {self.ROOT_PANEL: UIState(create_book_view_top_bar_state(self.books_view), main_panel=self.books_view)}
         self.current_panel = self.ROOT_PANEL
-        window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
 
         num_of_libraries = len(interface_data.library_map)
         actions = [

@@ -28,10 +28,15 @@ class View:
         self.ui = ui
         self.loaded_resources = {}
         container.appendChild(
-            E.iframe(
-                id=iframe_id,
-                seamless=True,
-                sandbox='allow-popups allow-scripts',
+            E.div(style='width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',
+                  E.div(style='display: flex; flex-direction: column; align-items: stretch; flex-grow:2',
+                    E.iframe(
+                        id=iframe_id,
+                        seamless=True,
+                        sandbox='allow-popups allow-scripts',
+                        style='flex-grow: 2',
+                    )
+                )
             )
         )
         self.src_doc = None
@@ -93,6 +98,9 @@ class View:
 
     def on_iframe_error(self, data):
         self.ui.show_error((data.title or _('There was an error processing the book')), data.msg, data.details)
+
+    def on_resize(self):
+        pass
 
     def show_loading(self, title):
         return  # TODO: Implement this

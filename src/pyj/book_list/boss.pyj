@@ -7,7 +7,7 @@ from elementmaker import E
 from modals import error_dialog, create_modal_container
 from gettext import gettext as _
 from widgets import get_widget_css
-from utils import parse_url_params
+from utils import parse_url_params, debounce
 
 from book_list.globals import get_session_data, set_boss, set_current_query
 from book_list.theme import get_color
@@ -47,6 +47,11 @@ class Boss:
         setTimeout(def():
             window.onpopstate = self.onpopstate.bind(self)
         , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
+        window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
+
+    def on_resize(self):
+        self.ui.on_resize()
+        self.read_ui.on_resize()
 
     def apply_mode(self, mode):
         mode = mode or self.current_mode
