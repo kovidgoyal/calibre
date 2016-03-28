@@ -54,9 +54,12 @@ def get_cover_data(stream, ext):  # {{{
     return cdata, area
 # }}}
 
-Settings = namedtuple('Settings', 'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
-                      'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
-                      'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages restore_original comments')
+Settings = namedtuple('Settings',
+    'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
+    'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
+    'do_title_case cover_action clear_series clear_pub pubdate adddate do_title_sort languages clear_languages '
+    'restore_original comments generate_cover_settings')
+
 null = object()
 
 class MyBlockingBusy(QDialog):  # {{{
@@ -179,7 +182,7 @@ class MyBlockingBusy(QDialog):  # {{{
             from calibre.ebooks.covers import generate_cover
             for book_id in self.ids:
                 mi = self.db.get_metadata(book_id, index_is_id=True)
-                cdata = generate_cover(mi)
+                cdata = generate_cover(mi, prefs=args.generate_cover_settings)
                 cache.set_cover({book_id:cdata})
         elif args.cover_action == 'fromfmt':
             for book_id in self.ids:
@@ -382,7 +385,16 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.languages.init_langs(self.db)
         self.languages.setEditText('')
         self.authors.setFocus(Qt.OtherFocusReason)
+        self.generate_cover_settings = None
+        self.button_config_cover_gen.setVisible(False)
+        self.button_config_cover_gen.clicked.connect(self.customize_cover_generation)
         self.exec_()
+
+    def customize_cover_generation(self):
+        from calibre.gui2.covers import CoverSettingsDialog
+        d = CoverSettingsDialog(parent=self)
+        if d.exec_() == d.Accepted:
+            self.generate_cover_settings = d.prefs_for_rendering
 
     def set_comments(self):
         from calibre.gui2.dialogs.comments_dialog import CommentsDialog
@@ -1004,7 +1016,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                 do_remove_conv, do_auto_author, series, do_series_restart,
                 series_start_value, series_increment, do_title_case, cover_action, clear_series, clear_pub,
                 pubdate, adddate, do_title_sort, languages, clear_languages,
-                restore_original, self.comments)
+                restore_original, self.comments, self.generate_cover_settings)
 
         self.set_field_calls = defaultdict(dict)
         bb = MyBlockingBusy(args, self.ids, self.db, self.refresh_books,
