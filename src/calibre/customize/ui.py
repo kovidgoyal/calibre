@@ -255,6 +255,13 @@ def available_library_closed_plugins():
             if not is_disabled(plugin):
                 plugin.site_customization = customization.get(plugin.name, '')
                 yield plugin
+
+def has_library_closed_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, LibraryClosedPlugin):
+            if not is_disabled(plugin):
+                return True
+    return False
 # }}}
 
 # Store Plugins # {{{

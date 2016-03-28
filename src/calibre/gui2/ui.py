@@ -880,8 +880,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def shutdown(self, write_settings=True):
         get_gui().show_shutdown_message(_('Shutting down'))
 
-        from calibre.customize.ui import available_library_closed_plugins
-        if available_library_closed_plugins():
+        from calibre.customize.ui import has_library_closed_plugins
+        if has_library_closed_plugins():
             get_gui().show_shutdown_message(
                 _('Running database shutdown plugins. This could take a few seconds...'))
 

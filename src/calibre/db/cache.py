@@ -2017,7 +2017,7 @@ class Cache(object):
         for plugin in available_library_closed_plugins():
             try:
                 plugin.run(self)
-            except:
+            except Exception:
                 import traceback
                 traceback.print_exc()
         self.backend.close()

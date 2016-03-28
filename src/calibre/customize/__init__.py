@@ -789,8 +789,8 @@ class LibraryClosedPlugin(Plugin):  # {{{
     '''
     type = _('Library Closed')
 
-    # minimum version 2 because it requires the new db
-    minimum_calibre_version = (2, 0, 0)
+    # minimum version 2.54 because that is when support was added
+    minimum_calibre_version = (2, 54, 0)
 
     def run(self, db):
         '''
