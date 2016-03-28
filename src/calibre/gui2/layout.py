@@ -304,36 +304,25 @@ class MainWindowMixin(object):  # {{{
                 pass  # PyQt5 seems to be missing this property
 
         l = self.centralwidget.layout()
+
+        # Add in the widget for the shutdown messages. It is invisible until a
+        # message is shown
+        smw = self.shutdown_message_widget = QLabel('')
+        smw.setMinimumHeight(200)
+        smw.setAlignment(Qt.AlignCenter)
+        self.shutdown_message_widget.setVisible(False)
+        l.addWidget(smw)
+
+        # And now, start adding the real widgets
         l.addWidget(self.search_bar)
 
 
-
     def show_shutdown_message(self, message):
-        msgs = getattr(self, 'shutdown_messages', None)
-        if msgs is None:
-            msgs = self.shutdown_messages = []
-        msgs.append(message)
-
-        smw = QWidget()
-        sml = QVBoxLayout()
-        smw.setLayout(sml)
-
-        # Construct the widget containing all the messages to date. Add stretch
-        # to make it vertically centered.
-        sml.addStretch()
-        for msg in msgs:
-            sml.addWidget(QLabel(msg), alignment=Qt.AlignHCenter)
-        sml.addStretch()
-
-        # The next line is needed to prevent the main widget from being garbage
-        # collected just in case more processing is required (and it is). As we
-        # are shutting down, the memory leak isn't of concern
-        if getattr(self, 'saved_central_widget', None) is None:
-            self.saved_central_widget = self.centralWidget
-
-        # Show the shutdown messages
-        self.setCentralWidget(smw)
+        smw = self.shutdown_message_widget
+        smw.setVisible(True)
+        txt = smw.text()
+        txt += '\n' + message
+        smw.setText(txt)
         # Force processing the events needed to show the message
         QCoreApplication.processEvents()
-
 # }}}
