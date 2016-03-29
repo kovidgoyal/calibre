@@ -700,7 +700,7 @@ class Device(DeviceConfig, DevicePlugin):
                         d.product == objif.GetProperty('usb.product') and \
                         d.serial == objif.GetProperty('usb.serial'):
                     midpath = manager.FindDeviceStringMatch('info.parent', path)
-                    dpaths = manager.FindDeviceStringMatch('storage.originating_device', midpath[0])
+                    dpaths = manager.FindDeviceStringMatch('storage.originating_device', path) + manager.FindDeviceStringMatch('storage.originating_device', midpath[0])
                     for dpath in dpaths:
                         # devif = dbus.Interface(bus.get_object('org.freedesktop.Hal', dpath), 'org.freedesktop.Hal.Device')
                         try:
