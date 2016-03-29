@@ -878,7 +878,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         return True
 
     def shutdown(self, write_settings=True):
+        self.show_shutdown_message(_('Shutting down'))
+
+        from calibre.customize.ui import has_library_closed_plugins
+        if has_library_closed_plugins():
+            self.show_shutdown_message(
+                _('Running database shutdown plugins. This could take a few seconds...'))
+
         self.grid_view.shutdown()
+        db = None
         try:
             db = self.library_view.model().db
             cf = db.clean
@@ -908,10 +916,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if mb is not None:
             mb.stop()
 
-        self.hide_windows()
+        if db is not None:
+            db.close()
+
         try:
             try:
                 if self.content_server is not None:
+                    # If the content server has any sockets being closed then
+                    # this can take quite a long time (minutes). Tell the user that it is
+                    # happening.
+                    self.show_shutdown_message(
+                        _('Shutting down the content server. This could take a while ...'))
                     s = self.content_server
                     self.content_server = None
                     s.exit()
@@ -919,15 +934,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 pass
         except KeyboardInterrupt:
             pass
+        self.hide_windows()
+        # Do not report any errors that happen after the shutdown
+        sys.excepthook = sys.__excepthook__
         if self._spare_pool is not None:
             self._spare_pool.shutdown()
         from calibre.db.delete_service import shutdown
         shutdown()
         time.sleep(2)
         self.istores.join()
-        self.hide_windows()
-        # Do not report any errors that happen after the shutdown
-        sys.excepthook = sys.__excepthook__
         return True
 
     def run_wizard(self, *args):

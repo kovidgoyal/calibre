@@ -2013,6 +2013,13 @@ class Cache(object):
 
     @write_api
     def close(self):
+        from calibre.customize.ui import available_library_closed_plugins
+        for plugin in available_library_closed_plugins():
+            try:
+                plugin.run(self)
+            except Exception:
+                import traceback
+                traceback.print_exc()
         self.backend.close()
 
     @write_api

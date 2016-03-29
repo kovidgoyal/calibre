@@ -781,3 +781,25 @@ class EditBookToolPlugin(Plugin):  # {{{
 
 # }}}
 
+class LibraryClosedPlugin(Plugin):  # {{{
+    '''
+    LibraryClosedPlugins are run when a library is closed, either at shutdown,
+    when the library is changed, or when a library is used in some other way.
+    At the moment these plugins won't be called by the CLI functions.
+    '''
+    type = _('Library Closed')
+
+    # minimum version 2.54 because that is when support was added
+    minimum_calibre_version = (2, 54, 0)
+
+    def run(self, db):
+        '''
+        The db will be a reference to the new_api (db.cache.py).
+
+        The plugin must run to completion. It must not use the GUI, threads, or
+        any signals.
+        '''
+        raise NotImplementedError('LibraryClosedPlugin '
+                'run method must be overridden in subclass')
+# }}}
+

@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt5.Qt import (QIcon, Qt, QWidget, QSize,
-    pyqtSignal, QToolButton, QMenu, QAction,
+    pyqtSignal, QToolButton, QMenu, QAction, QCoreApplication,
     QObject, QVBoxLayout, QSizePolicy, QLabel, QHBoxLayout, QActionGroup)
 
 
@@ -304,10 +304,25 @@ class MainWindowMixin(object):  # {{{
                 pass  # PyQt5 seems to be missing this property
 
         l = self.centralwidget.layout()
+
+        # Add in the widget for the shutdown messages. It is invisible until a
+        # message is shown
+        smw = self.shutdown_message_widget = QLabel('')
+        smw.setMinimumHeight(200)
+        smw.setAlignment(Qt.AlignCenter)
+        self.shutdown_message_widget.setVisible(False)
+        l.addWidget(smw)
+
+        # And now, start adding the real widgets
         l.addWidget(self.search_bar)
 
+
+    def show_shutdown_message(self, message):
+        smw = self.shutdown_message_widget
+        smw.setVisible(True)
+        txt = smw.text()
+        txt += '\n' + message
+        smw.setText(txt)
+        # Force processing the events needed to show the message
+        QCoreApplication.processEvents()
 # }}}
-
-
-
-
