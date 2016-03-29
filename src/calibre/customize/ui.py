@@ -9,7 +9,8 @@ from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
                               InterfaceActionBase as InterfaceAction,
                               PreferencesPlugin, platform, InvalidPlugin,
-                              StoreBase as Store, ViewerPlugin, EditBookToolPlugin)
+                              StoreBase as Store, ViewerPlugin, EditBookToolPlugin,
+                              LibraryClosedPlugin)
 from calibre.customize.conversion import InputFormatPlugin, OutputFormatPlugin
 from calibre.customize.zipplugin import loader
 from calibre.customize.profiles import InputProfile, OutputProfile
@@ -244,6 +245,23 @@ def preferences_plugins():
             if not is_disabled(plugin):
                 plugin.site_customization = customization.get(plugin.name, '')
                 yield plugin
+# }}}
+
+# Library Closed Plugins # {{{
+def available_library_closed_plugins():
+    customization = config['plugin_customization']
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, LibraryClosedPlugin):
+            if not is_disabled(plugin):
+                plugin.site_customization = customization.get(plugin.name, '')
+                yield plugin
+
+def has_library_closed_plugins():
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, LibraryClosedPlugin):
+            if not is_disabled(plugin):
+                return True
+    return False
 # }}}
 
 # Store Plugins # {{{
