@@ -228,11 +228,14 @@ class Reporter:  # {{{
         except ValueError:
             prints('Downloading', fname)
             self.pb = None
+        self.last_percent = 0
 
     def __call__(self, blocks, block_size, total_size):
         percent = (blocks*block_size)/float(total_size)
         if self.pb is None:
-            prints('Downloaded {0:%}'.format(percent))
+            if percent - self.last_percent > 0.05:
+                self.last_percent = percent
+                prints('Downloaded {0:%}'.format(percent))
         else:
             try:
                 self.pb.update(percent)
