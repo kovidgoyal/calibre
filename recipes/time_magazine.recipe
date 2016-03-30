@@ -1,4 +1,4 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
@@ -10,7 +10,9 @@ time.com
 '''
 
 from calibre.web.feeds.jsnews import JavascriptRecipe
+from calibre.ptempfile import PersistentTemporaryFile
 from lxml import html
+import json
 
 # Keep the login method as standalone, so it can be easily tested
 def do_login(browser, username, password):
@@ -27,14 +29,6 @@ def do_login(browser, username, password):
         raise ValueError(
             'Failed to login to time.com, check your username and password and try again in a little while.')
 
-def evaljs(elem, js):
-    # Need this to work with both PyQt4 and PyQt5
-    ret = elem.evaluateJavaScript(js)
-    try:
-        return unicode(ret.toString())
-    except AttributeError:
-        return unicode(ret)
-
 class Time(JavascriptRecipe):
     title                 = u'Time'
     __author__            = 'Kovid Goyal'
@@ -45,61 +39,67 @@ class Time(JavascriptRecipe):
 
     no_stylesheets        = True
     remove_javascript     = True
-    keep_only_tags = ['.article-viewport .full-article']
-    remove_tags = ['.read-more-list', '.read-more-inline', '.article-footer', '.subscribe', '.tooltip', '#first-visit']
+    time_initial_phase = True
 
     def do_login(self, browser, username, password):
         do_login(browser, username, password)
 
-    def get_time_cover(self, browser):
-        selector = '#rail-articles img.magazine-thumb'
-        cover = browser.css_select(selector)
-        # URL for large cover
-        cover_url = evaljs(cover, 'this.src')
-        cover_url = cover_url.partition('?')[0] + '?w=814'
-        return browser.get_resource(cover_url)
+    def print_version(self, url):
+        return self.turl_map[url]
 
     def get_publication_data(self, browser):
+        # raw = open('/t/time.html', 'rb').read().decode('utf-8')
         browser.visit('http://time.com/magazine')
-        ans = {}
         raw = browser.html
-        root = html.fromstring(raw)
 
+        root = html.fromstring(raw)
+        self.time_initial_phase = False
         dates = ''.join(root.xpath('//*[@class="rail-article-magazine-issue"]/date/text()'))
         if dates:
             self.timefmt = ' [%s]'%dates
 
-        parent = root.xpath('//section[@id="rail-articles"]')[0]
+        for script in root.iterdescendants('script'):
+            if script.text and script.text.startswith('Time.bootstrap ='):
+                data = json.loads(script.text.partition('=')[2].lstrip())
+                break
+        else:
+            raise ValueError('The time website has changed, this recipe needs to be rewritten')
+        data = data['magazine']['us'][0]
+        self.turl_map = {}
+        ans = {}
         articles = []
-        for h3 in parent.xpath(
-                'descendant::h3[contains(@class, "rail-article-title")]'):
-            title = html.tostring(h3[0], encoding=unicode, method='text').strip()
-            a = h3.xpath('descendant::a[@href]')[0]
-            url = a.get('href')
-            h2 = h3.xpath('following-sibling::h2[@class="rail-article-excerpt"]')
-            desc = ''
-            if h2:
-                desc = html.tostring(h2[0], encoding=unicode, method='text').strip()
-            if title.strip() == 'In the Latest Issue':
+        for article in data['articles']:
+            title = article.get('friendly_title') or article.get('short_title')
+            if title == 'In the Latest Issue':
                 continue
-            self.log('\nFound article:', title)
-            self.log('\t' + desc)
-            articles.append({'title':title, 'url':url, 'date':'', 'description':desc})
+            url = article['shortlink']
+            desc = article.get('excerpt') or ''
+            self.log(title, ' at ', url)
+            self.log('\t', desc)
+            try:
+                cover_url = article['hero']['src']['large']
+            except Exception:
+                cover_url = ''
+            authors = ''
+            for aut in article.get('authors') or ():
+                authors += '<p>' + aut.get('bio') + '</p>'
+            articles.append({'title':title, 'url':url, 'desc':desc})
+            text = '<html><head><meta charset="utf-8"></head><body><h1>{}</h1>{}<div><img src={}></div><div>{}</div></body></html>'.format(
+                title, authors, cover_url, article['content'])
+            with PersistentTemporaryFile('-time-recipe.html') as f:
+                f.write(text.encode('utf-8'))
+            self.turl_map[url] = 'file:///' + f.name
+        # from pprint import pprint
+        # pprint(data['hero'])
 
+        ans['cover'] = browser.get_resource(data['hero']['src']['large'])
         ans['index'] = [('Articles', articles)]
-        ans['cover'] = self.get_time_cover(browser)
         return ans
 
     def load_complete(self, browser, url, rl):
-        browser.wait_for_element('footer.article-footer')
+        if self.time_initial_phase:
+            browser.wait_for_element('footer.article-footer')
         return True
-
-    def postprocess_html(self, article, root, url, recursion_level):
-        # get rid of the first visit div which for some reason remove_tags is
-        # not removing
-        for div in root.xpath('//*[@id="first-visit"]'):
-            div.getparent().remove(div)
-        return root
 
 if __name__ == '__main__':
     # Test the login
