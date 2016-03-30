@@ -1201,7 +1201,7 @@ class BuiltinListEquals(BuiltinFormatterFunction):
             'otherwise return no_val. The items are determined by splitting '
             'each list using the appropriate separator character (sep1 or '
             'sep2). The order of items in the lists is not relevant. '
-            'The compare is case insensitive.')
+            'The comparison is case insensitive.')
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, sep1, list2, sep2, yes_val, no_val):
         s1 = set([icu_lower(l.strip()) for l in list1.split(sep1) if l.strip()])
