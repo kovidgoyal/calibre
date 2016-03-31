@@ -105,6 +105,16 @@ is_epub_footnote = (node) ->
         return true
     return false
 
+block_tags = ['p', 'div', 'li', 'td', 'h1', 'h2', 'h2', 'h3', 'h4', 'h5', 'h6', 'body']
+block_display_styles = ['block', 'list-item', 'table-cell', 'table']
+
+get_note_container = (node) ->
+    until node.tagName.toLowerCase() in block_tags or is_epub_footnote(node) or getComputedStyle(node).display in block_display_styles
+        node = node.parentNode
+        if not node
+            break
+    return node
+
 get_parents_and_self = (node) ->
     ans = []
     while node and node isnt document.body
@@ -124,8 +134,14 @@ hide_children = (node) ->
         if child.nodeType == Node.ELEMENT_NODE
             if child.do_not_hide
                 hide_children(child)
+                delete child.do_not_hide
             else
                 child.style.display = 'none'
+
+unhide_tree = (elem) ->
+    elem.do_not_hide = true
+    for c in elem.getElementsByTagName('*')
+        c.do_not_hide = true
 
 class CalibreExtract
     # This class is a namespace to expose functions via the
@@ -154,8 +170,7 @@ class CalibreExtract
         start_elem = document.getElementById(target)
         if not start_elem
             return
-        in_note = false
-        is_footnote_container = is_epub_footnote(start_elem)
+        start_elem = get_note_container(start_elem)
         for elem in get_parents_and_self(start_elem)
             elem.do_not_hide = true
             style = window.getComputedStyle(elem)
@@ -163,31 +178,32 @@ class CalibreExtract
                 # We cannot display list numbers since they will be
                 # incorrect as we are removing siblings of this element.
                 elem.style.listStyleType = 'none'
-        for elem in document.body.getElementsByTagName('*')
-            if in_note
-                if known_targets.hasOwnProperty(elem.getAttribute('id'))
-                    in_note = false
-                    continue
-                pb = get_page_break(elem)
-                if pb['before']
-                    in_note = false
-                else if pb['after']
-                    in_note = false
+        if is_epub_footnote(start_elem)
+            unhide_tree(start_elem)
+        else
+            # Try to detect natural boundaries based on markup for this note
+            found_note_start = false
+            for elem in document.body.getElementsByTagName('*')
+                if found_note_start
+                    eid = elem.getAttribute('id')
+                    if eid != target and known_targets.hasOwnProperty(eid) and get_note_container(elem) != start_elem
+                        console.log('Breaking footnote on anchor: ' + elem.getAttribute('id'))
+                        delete get_note_container(elem).do_not_hide
+                        break
+                    pb = get_page_break(elem)
+                    if pb['before']
+                        console.log('Breaking footnote on page break before')
+                        break
+                    if pb['after']
+                        unhide_tree(elem)
+                        console.log('Breaking footnote on page break after')
+                        break
                     elem.do_not_hide = true
-                    for child in elem.getElementsByTagName('*')
-                        child.do_not_hide = true
-                else
-                    elem.do_not_hide = true
-            else
-                if elem is start_elem
-                    in_note = not is_footnote_container and not get_page_break(elem)['after']
-                    if not in_note
-                        for child in elem.getElementsByTagName('*')
-                            child.do_not_hide = true
+                else if elem is start_elem
+                    found_note_start = true
+
         hide_children(document.body)
         location.hash = '#' + target
 
 if window?
     window.calibre_extract = new CalibreExtract()
-
-
