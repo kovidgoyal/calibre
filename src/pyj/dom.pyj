@@ -46,8 +46,9 @@ def build_rule(selector, **kw):
     ans.push('}')
     return ans.join('\n') + '\n'
 
-def clear(*nodes):
-    for node in nodes:
+def clear():
+    for v'var i = 0; i < arguments.length; i++':
+        node = arguments[i]
         while node.firstChild:
             node.removeChild(node.firstChild)
 
