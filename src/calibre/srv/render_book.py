@@ -15,7 +15,7 @@ from urlparse import urlparse
 from cssutils import replaceUrls
 
 from calibre.ebooks.oeb.base import (
-    OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF)
+    OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF, XHTML)
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import set_epub_cover, find_cover_image
@@ -188,6 +188,8 @@ boolean_attributes = frozenset('allowfullscreen,async,autofocus,autoplay,checked
 
 def serialize_elem(elem, nsmap):
     ns, name = split_name(elem.tag)
+    if name.lower() in {'img', 'script', 'link', 'image', 'style'}:
+        name = name.lower()
     ans = {'n':name}
     if elem.text:
         ans['x'] = elem.text
@@ -200,12 +202,12 @@ def serialize_elem(elem, nsmap):
     attribs = []
     for attr, val in elem.items():
         attr_ns, aname = split_name(attr)
-        al = attr.lower()
+        al = aname.lower()
         if not attr_ns and al in boolean_attributes:
             if val and val.lower() in (al, ''):
                 attribs.append([al, al])
             continue
-        attrib = [attr, val]
+        attrib = [aname, val]
         if attr_ns:
             attr_ns = nsmap[attr_ns]
             if attr_ns:
@@ -215,22 +217,53 @@ def serialize_elem(elem, nsmap):
         ans['a'] = attribs
     return ans
 
+def ensure_head(root):
+    # Make sure we have only a single <head>
+    heads = list(root.iterchildren(XHTML('head')))
+    if len(heads) != 1:
+        if not heads:
+            root.insert(0, root.makeelement(XHTML('head')))
+            return
+        head = heads[0]
+        for eh in heads[1:]:
+            for child in eh.iterchildren('*'):
+                head.append(child)
+
+def ensure_body(root):
+    # Make sure we have only a single <body>
+    bodies = list(root.iterchildren(XHTML('body')))
+    if len(bodies) != 1:
+        if not bodies:
+            root.append(root.makeelement(XHTML('body')))
+            return
+        body = bodies[0]
+        for b in bodies[1:]:
+            div = root.makeelement(XHTML('div'))
+            div.attrib.update(b.attrib)
+            div.text = b.text
+            for child in b:
+                div.append(child)
+            body.append(div)
+
 def html_as_dict(root):
+    ensure_head(root), ensure_body(root)
+    for child in tuple(root.iterchildren('*')):
+        if child.tag.partition('}')[-1] not in ('head', 'body'):
+            root.remove(child)
+    root.text = root.tail = None
     nsmap = defaultdict(count().next)
     nsmap[XHTML_NS]
     tags = [serialize_elem(root, nsmap)]
-    tree = {'t':0}
+    tree = [0]
     stack = [(root, tree)]
     while stack:
         elem, node = stack.pop()
         for i, child in enumerate(elem.iterchildren('*')):
-            if i == 0:
-                node['c'] = []
             cnode = serialize_elem(child, nsmap)
             tags.append(cnode)
-            tree_node = {'t':len(tags) - 1}
-            node['c'].append(tree_node)
-            stack.append((child, tree_node))
+            child_tree_node = [len(tags)-1]
+            node.append(child_tree_node)
+            stack.append((child, child_tree_node))
     ns_map = [ns for ns, nsnum in sorted(nsmap.iteritems(), key=lambda x: x[1])]
     return {'ns_map':ns_map, 'tag_map':tags, 'tree':tree}
 

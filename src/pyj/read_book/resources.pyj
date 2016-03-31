@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from dom import clear
 from encodings import base64decode, utf8_decode
 
 JSON_XHTML_MIMETYPE = 'application/calibre+xhtml+json'
@@ -142,3 +143,94 @@ def finalize_resources(book, root_name, resource_data):
             v'delete resource_data[name]'
 
     return root_data
+
+js_types = set('text/javascript text/ecmascript application/javascript application/ecmascript'.split(' '))
+resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}
+
+def apply_attributes(src, elem, ns_map):
+    attributes = src.a
+    if not attributes:
+        return
+    for a in attributes:
+        if a[2]:
+            elem.setAttributeNS(ns_map[a[2]], a[0], a[1])
+        else:
+            elem.setAttribute(a[0], a[1])
+
+def process_stack(stack, tag_map, ns_map, load_required, onload):
+    while stack.length:
+        node, parent = stack.pop()
+        src = tag_map[node[0]]
+        if src.s:
+            elem = document.createElementNS(ns_map[src.s], src.n)
+        else:
+            elem = document.createElement(src.n)
+        loadable = False
+        if src.n in resource_tag_names:
+            attr = resource_tag_names[src.n]
+            if attr.indexOf(':') != -1:
+                attr = attr.replace('xlink:', '')
+            for a in (src.a or v'[]'):
+                if a[0] is attr:
+                    loadable = str.startswith(a[1], 'blob:')
+                    break
+        if loadable:
+            load_required.add(node[0])
+            elem.addEventListener('load', onload.bind(node[0]))
+            elem.addEventListener('error', onload.bind(node[0]))
+
+        apply_attributes(src, elem, ns_map)
+        parent.appendChild(elem)
+        if src.x:
+            if src.n is 'script' and (elem.getAttribute('type') or 'text/javascript').toLowerCase() in js_types:
+                elem.text = src.x
+            else:
+                elem.appendChild(document.createTextNode(src.x))
+        if src.l:
+            parent.appendChild(document.createTextNode(src.l))
+        for v'var i = node.length - 1; i >= 1; i--':  # noqa: unused-local
+            stack.push(v'[node[i], elem]')
+
+def unserialize_html(serialized_data, proceed):
+    tag_map = serialized_data.tag_map
+    tree = serialized_data.tree
+    ns_map = serialized_data.ns_map
+    html = tag_map[0]
+    apply_attributes(html, document.documentElement, ns_map)
+    head, body = tree[1], tree[2]  # noqa: unused-local
+    clear(document.head, document.body)
+    load_required = set()
+    proceeded = False
+
+    def hangcheck():
+        nonlocal proceeded
+        if not proceeded:
+            proceeded = True
+            proceed()
+
+    def onload():
+        nonlocal proceeded
+        load_required.discard(this)
+        if not load_required.length:
+            proceeded = True
+            proceed()
+
+    stack = v'[]'
+    for v'var i = head.length - 1; i >= 1; i--':
+        stack.push(v'[head[i], document.head]')
+    process_stack(stack, tag_map, ns_map, load_required, onload)
+    bnode = tag_map[body[0]]
+    apply_attributes(bnode, document.body, ns_map)
+    if bnode.x:
+        document.body.appendChild(document.createTextNode(bnode.x))
+    for v'var i = body.length - 1; i >= 1; i--':  # noqa: unused-local
+        stack.push(v'[body[i], document.body]')
+    process_stack(stack, tag_map, ns_map, load_required, onload)
+    ev = document.createEvent('Event')
+    ev.initEvent('DOMContentLoaded', True, True)
+    document.dispatchEvent(ev)
+    if load_required.length:
+        setTimeout(hangcheck, 5000)
+    else:
+        proceed = True
+        proceed()

@@ -4,7 +4,7 @@
 from aes import GCM
 from gettext import install
 from read_book.globals import set_boss
-from read_book.resources import finalize_resources
+from read_book.resources import finalize_resources, unserialize_html
 
 class Boss:
 
@@ -53,7 +53,10 @@ class Boss:
         self.encrypted_communications = True
         self.book = data.book
         root_data = finalize_resources(self.book, data.name, data.resource_data)
-        root_data
+        unserialize_html(root_data, self.content_loaded.bind(self))
+
+    def content_loaded(self):
+        print('Content loaded')
 
     def send_message(self, data):
         if self.encrypted_communications:
