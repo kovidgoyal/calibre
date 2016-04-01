@@ -10,6 +10,7 @@ LOADING_DOC = '''
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script type="text/javascript" id="bootstrap">
 __SCRIPT__
 end_script
