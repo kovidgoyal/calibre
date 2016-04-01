@@ -102,7 +102,7 @@ def finalize_resources(book, root_name, resource_data):
             elif unresolved_deps:
                 unresolved_deps.add(dname)
         for index, sz, repl in reversed(replacements):
-            text = text[:index] + repl + text[index:]
+            text = text[:index] + repl + text[index + sz:]
         return unresolved_deps, text
 
     unresolved_deps_map = {}
