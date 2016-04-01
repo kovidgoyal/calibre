@@ -188,8 +188,11 @@ boolean_attributes = frozenset('allowfullscreen,async,autofocus,autoplay,checked
 
 def serialize_elem(elem, nsmap):
     ns, name = split_name(elem.tag)
+    nl = name.lower()
+    if nl == 'meta':
+        return  # Filter out <meta> tags as they have unknown side-effects
     if name.lower() in {'img', 'script', 'link', 'image', 'style'}:
-        name = name.lower()
+        name = nl
     ans = {'n':name}
     if elem.text:
         ans['x'] = elem.text
@@ -260,10 +263,11 @@ def html_as_dict(root):
         elem, node = stack.pop()
         for i, child in enumerate(elem.iterchildren('*')):
             cnode = serialize_elem(child, nsmap)
-            tags.append(cnode)
-            child_tree_node = [len(tags)-1]
-            node.append(child_tree_node)
-            stack.append((child, child_tree_node))
+            if cnode is not None:
+                tags.append(cnode)
+                child_tree_node = [len(tags)-1]
+                node.append(child_tree_node)
+                stack.append((child, child_tree_node))
     ns_map = [ns for ns, nsnum in sorted(nsmap.iteritems(), key=lambda x: x[1])]
     return {'ns_map':ns_map, 'tag_map':tags, 'tree':tree}
 
