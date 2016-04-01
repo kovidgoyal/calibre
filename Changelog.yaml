@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.54.0
+  date: 2016-04-01
+
+  new features:
+    - title: "Edit metadata in bulk dialog: Allow configuring the types of generated covers."
+      tickets: [1559257]
+
+    - title: "E-book viewer: Make the detection of note boundaries for popup footnotes a little more robust"
+
+    - title: "E-book viewer: Add options to control the amount the mouse wheel and arrow keys scroll by in flow mode"
+
+    - title: "When running the content server do not hide the main calibre window during shutdown until the content server has stopped. Show a shutting down message in the window so that the user knows what is happening."
+
+    - title: "Edit Book: Check Book: Add a check for empty links"
+
+    - title: "DOCX Input: When the document has a Table of Contents created using the Word Table of Contents tool, keep a reference to it in the metadata.  This is useful when converting to old style MOBI and you want to precisely control placement of the ToC."
+      tickets: [1556983]
+
+  bug fixes:
+    - title: "Fix auto-mounting of some types of devices not working on FreeBSD"
+
+    - title: "calibredb add: Fix the --cover option not working if the book being added has its own cover."
+      tickets: [1562507]
+
+    - title: "E-book viewer: Fix mathematics being typeset at too small a font size on windows"
+
+    - title: "PDF Output: Fix occasional blank pages erroneously inserted in the text (at the end of an internal html file)."
+      tickets: [1559855]
+
+    - title: "Book details panel: Fix url:file:// identifiers not becoming links"
+
+    - title: "Fix fetch news dialog not rendering properly on HiDPI screens"
+
+    - title: "Fix a hard to trigger crash introduced in the previous release when using the conversion dialog"
+      tickets: [1557147]
+
+  improved recipes:
+    - Nature News
+    - TIME Magazine
+    - Folha de Sao Paolo
+    - Endgadget
+    - MSNBC
+    - The New York Times Book Review
+
+  new recipes:
+    - title: Magyar Nemzet and Mult Kor
+      author: pofa
+
 - version: 2.53.0
   date: 2016-03-11
 
