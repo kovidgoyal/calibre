@@ -4341,35 +4341,37 @@ class CatalogBuilder(object):
         cover_crc = hex(zlib.crc32(data))
 
         # Test cache for uuid
-        zf = _open_archive()
-        if zf is not None:
-            with zf:
-                try:
-                    zf.getinfo(title['uuid'] + cover_crc)
-                except:
-                    pass
-                else:
-                    # uuid found in cache with matching crc
-                    thumb_data = zf.read(title['uuid'] + cover_crc)
-                    with open(os.path.join(image_dir, thumb_file), 'wb') as f:
-                        f.write(thumb_data)
-                    return
-
-        # Save thumb for catalog. If invalid data, error returns to generate_thumbnails()
-        thumb_data = thumbnail(data,
-                width=self.thumb_width, height=self.thumb_height)[-1]
-        with open(os.path.join(image_dir, thumb_file), 'wb') as f:
-            f.write(thumb_data)
-
-        # Save thumb to archive
-        if zf is not None:
-            # Ensure that the read succeeded
-            # If we failed to open the zip file for reading,
-            # we dont know if it contained the thumb or not
-            zf = _open_archive('a')
+        uuid = title.get('uuid')
+        if uuid:
+            zf = _open_archive()
             if zf is not None:
                 with zf:
-                    zf.writestr(title['uuid'] + cover_crc, thumb_data)
+                    try:
+                        zf.getinfo(uuid + cover_crc)
+                    except:
+                        pass
+                    else:
+                        # uuid found in cache with matching crc
+                        thumb_data = zf.read(uuid + cover_crc)
+                        with open(os.path.join(image_dir, thumb_file), 'wb') as f:
+                            f.write(thumb_data)
+                        return
+
+            # Save thumb for catalog. If invalid data, error returns to generate_thumbnails()
+            thumb_data = thumbnail(data,
+                    width=self.thumb_width, height=self.thumb_height)[-1]
+            with open(os.path.join(image_dir, thumb_file), 'wb') as f:
+                f.write(thumb_data)
+
+            # Save thumb to archive
+            if zf is not None:
+                # Ensure that the read succeeded
+                # If we failed to open the zip file for reading,
+                # we dont know if it contained the thumb or not
+                zf = _open_archive('a')
+                if zf is not None:
+                    with zf:
+                        zf.writestr(uuid + cover_crc, thumb_data)
 
     def generate_thumbnails(self):
         """ Generate a thumbnail cover for each book.
