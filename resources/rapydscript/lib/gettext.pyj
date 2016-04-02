@@ -518,30 +518,33 @@ def install(translation_data):
     t.install()
     return t
 
+has_prop = Object.prototype.hasOwnProperty
+
 class Translations:
 
     def __init__(self, translation_data):
         translation_data = translation_data or {}
-        translation_data['func'] = _get_plural_forms_function(translation_data['plural_forms'])
-        self.translations = v'[translation_data]'
+        func = _get_plural_forms_function(translation_data['plural_forms'])
+        self.translations = [[translation_data, func]]
         self.language = translation_data['language']
 
     def add_fallback(self, fallback):
-        fallback['func'] = _get_plural_forms_function(fallback['plural_forms'])
-        self.translations.push(fallback or {})
+        fallback = fallback or {}
+        func = _get_plural_forms_function(fallback['plural_forms'])
+        self.translations.push([fallback, func])
 
     def gettext(self, text):
         for t in self.translations:
-            m = t['entries']
-            if Object.prototype.hasOwnProperty.call(m, text):
+            m = t[0]['entries']
+            if has_prop.call(m, text):
                 return m[text][0]
         return text
 
     def ngettext(self, text, plural, n):
         for t in self.translations:
-            m = t['entries']
-            if Object.prototype.hasOwnProperty.call(m, text):
-                idx = t['func'](n)
+            m = t[0]['entries']
+            if has_prop.call(m, text):
+                idx = t[1](n)
                 return m[text][idx] or (text if n is 1 else plural)
         return text if n is 1 else plural
 
