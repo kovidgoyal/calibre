@@ -1,0 +1,22 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import AutomaticNewsRecipe
+
+class BasicUserRecipe1458545330(AutomaticNewsRecipe):
+    title          = 'Kitekintő'
+    __author__     = 'pofa'
+    language = 'hu'
+    oldest_article = 1
+    max_articles_per_feed = 50
+    auto_cleanup   = True
+
+    feeds          = [
+        ('Kárpát-medence', 'http://kitekinto.hu/karpat-medence/rss/'),
+        ('Europa környéke', 'http://kitekinto.hu/europa/rss/'),
+        ('Közel-Kelet', 'http://kitekinto.hu/iszlam/rss/'),
+        ('Észak-Amerika', 'http://kitekinto.hu/amerika/rss/'),
+        ('Latin-Amerika', 'http://kitekinto.hu/latin-amerika/rss/'),
+        ('Kelet-Ázsia', 'http://kitekinto.hu/kelet-azsia/rss/'),
+        ('Afrika', 'http://kitekinto.hu/afrika/rss/'),
+    ]
