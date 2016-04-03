@@ -109,12 +109,13 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.resizeColumnsToContents()
         self.opt_columns.resizeRowsToContents()
 
-    def setup_row(self, field_metadata, row, col):
+    def setup_row(self, field_metadata, row, col, oldkey=None):
         item = QTableWidgetItem(col)
         self.opt_columns.setItem(row, 1, item)
 
+        print('fff', oldkey, col)
         if col.startswith('#'):
-            fm = self.custcols[col]
+            fm = self.custcols[oldkey if oldkey is not None else col]
         else:
             fm = field_metadata[col]
 
@@ -127,7 +128,9 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             if fm['is_multiple']:
                 dt = '*' + dt
             coltype = self.column_desc[dt]
-        item = QTableWidgetItem(coltype)
+        coltype_info = (coltype if oldkey is None else
+                          ' ' + _('(lookup name was {0}) {1}'.format(oldkey, coltype)))
+        item = QTableWidgetItem(coltype_info);
         self.opt_columns.setItem(row, 2, item)
 
         desc = fm['display'].get('description', "")
@@ -210,7 +213,8 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         CreateCustomColumn(self, row, key, model.orig_headers, ALL_COLUMNS)
         if self.cc_column_key is None:
             return
-        self.setup_row(self.field_metadata, row, self.cc_column_key)
+        self.setup_row(self.field_metadata, row, self.cc_column_key,
+                       None if self.cc_column_key == key else key)
         self.changed_signal.emit()
 
     def apply_custom_column_changes(self):
