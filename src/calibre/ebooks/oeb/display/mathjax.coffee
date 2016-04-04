@@ -74,8 +74,32 @@ class MathJax
 
         if script != null or document.getElementsByTagName('math').length > 0
             this.math_present = true
+            this.remove_math_fallbacks()
             this.load_mathjax(user_config, is_windows)
         return this.math_present
+
+    remove_math_fallbacks: () ->
+        # localName no longer exists in Chrome >= 46 so you will need to
+        # investigate a proper solution for this in modern browsers. Probably
+        # use document.evaluate() and node.tagName? IE does not support
+        # document.evaluate() but Edge may or may not, you will need to
+        # experiment
+        for sw in document.getElementsByTagName("epub:switch")
+            non_math = []
+            found_math = false
+            c = sw.firstChild
+            while c
+                if c.localName == 'epub:case'
+                    if c.getAttribute('required-namespace') == "http://www.w3.org/1998/Math/MathML"
+                        found_math = c
+                    else
+                        non_math.push(c)
+                else if c.localName == 'epub:default'
+                    non_math.push(c)
+                c = c.nextSibling
+            if found_math
+                for c in non_math
+                    c.style.display = 'none'
 
     after_resize: () ->
         if not this.math_present or this.hub == null
