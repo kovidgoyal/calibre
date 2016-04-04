@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
 # License: BSD Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-# globals: _$rapyd$_str
+# globals: ρσ_str
 
 def strings():
     string_funcs = set((
@@ -17,4 +17,4 @@ def strings():
     if exclude:
         string_funcs = string_funcs.difference(set(exclude))
     for name in string_funcs:
-        String.prototype[name] = _$rapyd$_str.prototype[name]
+        String.prototype[name] = ρσ_str.prototype[name]

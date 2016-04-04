@@ -15,19 +15,19 @@
 
 # please don't mess with this from the outside
 
-_$rapyd$_seed_state = {
+ρσ_seed_state = {
     'key': [],
     'key_i': 0,
     'key_j': 0
 }
 
-_$rapyd$_get_random_byte = def():
-    _$rapyd$_seed_state.key_i = (_$rapyd$_seed_state.key_i + 1) % 256
-    _$rapyd$_seed_state.key_j = (_$rapyd$_seed_state.key_j + _$rapyd$_seed_state.key[_$rapyd$_seed_state.key_i]) % 256
-    _$rapyd$_seed_state.key[_$rapyd$_seed_state.key_i], _$rapyd$_seed_state.key[_$rapyd$_seed_state.key_j] = \
-            _$rapyd$_seed_state.key[_$rapyd$_seed_state.key_j], _$rapyd$_seed_state.key[_$rapyd$_seed_state.key_i]
-    return _$rapyd$_seed_state.key[(_$rapyd$_seed_state.key[_$rapyd$_seed_state.key_i] + \
-            _$rapyd$_seed_state.key[_$rapyd$_seed_state.key_j]) % 256]
+ρσ_get_random_byte = def():
+    ρσ_seed_state.key_i = (ρσ_seed_state.key_i + 1) % 256
+    ρσ_seed_state.key_j = (ρσ_seed_state.key_j + ρσ_seed_state.key[ρσ_seed_state.key_i]) % 256
+    ρσ_seed_state.key[ρσ_seed_state.key_i], ρσ_seed_state.key[ρσ_seed_state.key_j] = \
+            ρσ_seed_state.key[ρσ_seed_state.key_j], ρσ_seed_state.key[ρσ_seed_state.key_i]
+    return ρσ_seed_state.key[(ρσ_seed_state.key[ρσ_seed_state.key_i] + \
+            ρσ_seed_state.key[ρσ_seed_state.key_j]) % 256]
 
 def seed(x=Date().getTime()):
     if type(x) is 'number':
@@ -35,18 +35,18 @@ def seed(x=Date().getTime()):
     elif type(x) is not 'string':
         raise TypeError("unhashable type: '" + type(x) + "'")
     for i in range(256):
-        _$rapyd$_seed_state.key[i] = i
+        ρσ_seed_state.key[i] = i
     j = 0
     for i in range(256):
-        j = (j + _$rapyd$_seed_state.key[i] + x.charCodeAt(i % x.length)) % 256
-        _$rapyd$_seed_state.key[i], _$rapyd$_seed_state.key[j] = _$rapyd$_seed_state.key[j], _$rapyd$_seed_state.key[i]
+        j = (j + ρσ_seed_state.key[i] + x.charCodeAt(i % x.length)) % 256
+        ρσ_seed_state.key[i], ρσ_seed_state.key[j] = ρσ_seed_state.key[j], ρσ_seed_state.key[i]
 seed()
 
 def random():
     n = 0
     m = 1
     for i in range(8):
-        n += _$rapyd$_get_random_byte() * m
+        n += ρσ_get_random_byte() * m
         m *= 256
     return n / 18446744073709551616
 

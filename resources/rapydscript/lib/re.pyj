@@ -3,7 +3,7 @@
 # Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 # Copyright: 2013, Alexander Tsepkov
 
-# globals: _$rapyd$_iterator_symbol, _$rapyd$_list_decorate
+# globals: ρσ_iterator_symbol, ρσ_list_decorate
 
 # basic implementation of Python's 're' library
 
@@ -381,7 +381,7 @@ class RegexObject:
 
     def findall(self, string):
         self._pattern.lastIndex = 0
-        return _$rapyd$_list_decorate(string.match(self._pattern) or v'[]')
+        return ρσ_list_decorate(string.match(self._pattern) or v'[]')
 
     def finditer(self, string):
         pat = RegExp(this._pattern.source, this._modifiers)  # We have to do this since lastIndex is mutable
@@ -389,7 +389,7 @@ class RegexObject:
             '_string':string,
             '_r': pat,
             '_self': self,
-            _$rapyd$_iterator_symbol: def (): return this;,
+            ρσ_iterator_symbol: def (): return this;,
             'next': def ():
                 m = this._r.exec(this._string)
                 if m is None:
