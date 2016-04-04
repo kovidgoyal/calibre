@@ -142,7 +142,7 @@ class DB:
         req = self.idb.transaction(['files'], 'readwrite').objectStore('files').put(data, fname)
         req.onsuccess = def(event): proceed()
         req.onerror = def(event):
-            proceed(str.format(_('Failed to store book data ({0}) with error: {1}'), name, get_error_details(event)))
+            proceed(_('Failed to store book data ({0}) with error: {1}').format(name, get_error_details(event)))
 
     def finish_book(self, book, proceed):
         book.is_complete = True
@@ -154,8 +154,8 @@ class DB:
 
     def get_file(self, book, name, proceed):
         key = file_store_name(book, name)
-        err = str.format(_(
-            'Failed to read the file {0} for the book {1} from the database'), name, book.metadata.title)
+        err = _(
+            'Failed to read the file {0} for the book {1} from the database').format(name, book.metadata.title)
         self.do_op(['files'], key, err, def (result):
             if not result:
                 self.show_error(_('Cannot read book'), err)

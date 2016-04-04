@@ -71,8 +71,8 @@ class ReadUI:
                 'book-id': (self.current_book_id + ''),
                 'panel':'book-details'
             }))
-            a.textContent = str.format(_(
-                'Click to go back to the details page for: {}'), self.current_metadata.title)
+            a.textContent = _(
+                'Click to go back to the details page for: {}').format(self.current_metadata.title)
         else:
             a.textContent = ''
             a.setAttribute('href', '')
@@ -80,8 +80,8 @@ class ReadUI:
     def init_ui(self):
         div = self.show_stack(self.progress_id)
         if self.current_metadata:
-            div.firstChild.textContent = str.format(_(
-                'Downloading {0} for offline reading, please wait...'), self.current_metadata.title)
+            div.firstChild.textContent = _(
+                'Downloading {0} for offline reading, please wait...').format(self.current_metadata.title)
         else:
             div.firstChild.textContent = ''
         pr = div.firstChild.nextSibling
@@ -133,14 +133,14 @@ class ReadUI:
         if end_type is 'abort':
             return
         if end_type is not 'load':
-            return self.show_error(_('Failed to load book manifest'), str.format(
-                _('Could not open {title} as book manifest failed to load, click "Show Details" for more information.'), title=self.current_metadata.title),
+            return self.show_error(_('Failed to load book manifest'),
+                _('Could not open {title} as book manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
                                 xhr.error_html)
         try:
             manifest = JSON.parse(xhr.responseText)
         except Exception as err:
-            return self.show_error(_('Failed to load book manifest'), str.format(
-                _('The manifest for {title} is not valid'), title=self.current_metadata.title),
+            return self.show_error(_('Failed to load book manifest'),
+                _('The manifest for {title} is not valid').format(title=self.current_metadata.title),
                                 err.stack or err.toString())
         if manifest.version != RENDER_VERSION:
             return self.show_error(_('calibre upgraded!'), _(
@@ -162,8 +162,7 @@ class ReadUI:
         progress = document.getElementById(self.progress_id)
         pbar = progress.firstChild.nextSibling
         library_id, book_id, fmt = book.key
-        base_path = str.format(
-            'book-file/{}/{}/{}/{}/', encodeURIComponent(book_id), encodeURIComponent(fmt),
+        base_path = 'book-file/{}/{}/{}/{}/'.format(encodeURIComponent(book_id), encodeURIComponent(fmt),
             encodeURIComponent(book.manifest.book_hash.size), encodeURIComponent(book.manifest.book_hash.mtime))
         query = {'library_id': library_id}
         progress_track = {}
@@ -175,7 +174,7 @@ class ReadUI:
             for name in progress_track:
                 x += progress_track[name]
             pbar.setAttribute('value', x + '')
-            progress.lastChild.textContent = str.format(_('Downloaded {0}, {1} left'), human_readable(x), human_readable(total - x))
+            progress.lastChild.textContent = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
 
         def on_stored(err):
             files_left.discard(this)
@@ -184,7 +183,7 @@ class ReadUI:
             if len(files_left):
                 return
             if failed_files.length:
-                det = [str.format('<h4>{}</h4><div>{}</div><hr>', fname, err_html) for fname, err_html in failed_files].join('')
+                det = ['<h4>{}</h4><div>{}</div><hr>'.format(fname, err_html) for fname, err_html in failed_files].join('')
                 self.show_error(_('Could not download book'), _(
                     'Failed to download some book data, click "Show details" for more information'), det)
                 return

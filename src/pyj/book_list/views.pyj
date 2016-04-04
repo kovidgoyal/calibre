@@ -172,16 +172,16 @@ class BooksView:
         set_css(div, border='dashed 1px currentColor', border_radius='10px')
 
     def cover_grid_item(self, book_id):
-        cover_url = str.format('get/thumb/{}/{}?sz={}x{}', book_id, self.interface_data['library_id'], THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
+        cover_url = 'get/thumb/{}/{}?sz={}x{}'.format(book_id, self.interface_data['library_id'], THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
         metadata = self.interface_data['metadata'][book_id]
-        alt = str.format(_('{} by {}'), metadata['title'], metadata['authors'].join(' & '))
+        alt = _('{} by {}').format(metadata['title'], metadata['authors'].join(' & '))
         img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
                     style='max-width: 100%; max-height: 100%; display: block; width:auto; height:auto; border-radius: 10px')
         img.onerror = self.on_cover_grid_img_err.bind(self)
 
         ans = E.div(
-            style=str.format(('margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around;'
-                              'width: 21vw; height: 28vw; max-width: {}px; max-height: {}px; min-width: {}px; min-height: {}px; cursor:pointer'),
+            style=('margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around;'
+                    'width: 21vw; height: 28vw; max-width: {}px; max-height: {}px; min-width: {}px; min-height: {}px; cursor:pointer').format(
                              THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH // 2, THUMBNAIL_MAX_HEIGHT // 2),
             data_book_id=str(book_id),
             img
@@ -192,8 +192,8 @@ class BooksView:
     # }}}
 
     def sort_panel_data(self, create_item):
-        current_sorted_field = str.partition(self.interface_data.search_result.sort, ',')[0]
-        current_sorted_field_order = str.partition(self.interface_data.search_result.sort_order, ',')[0]
+        current_sorted_field = self.interface_data.search_result.sort.partition(',')[0]
+        current_sorted_field_order = self.interface_data.search_result.sort_order.partition(',')[0]
         new_sort_order = 'desc' if current_sorted_field_order is 'asc' else 'asc'
         if current_sorted_field is 'date':
             current_sorted_field = 'timestamp'
@@ -258,7 +258,7 @@ class BooksView:
             window.scrollTo(0, 0)
         elif end_type is not 'abort':
             msg = xhr.error_html
-            if xhr.status is 400 and str.startswith(xhr.responseText, 'Invalid search expression:'):
+            if xhr.status is 400 and xhr.responseText.startswith('Invalid search expression:'):
                 msg = _('The search expression could not be parsed: ') + xhr.responseText
             error_dialog(_('Could not change search query'), msg)
 

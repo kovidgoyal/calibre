@@ -71,8 +71,8 @@ class TopBar:
             clear(left)
             title_elem = 'a' if callable(title_action) else 'span'
             left.appendChild(E.a(title=tooltip, E.i(class_='fa fa-' + icon_name + ' fa-fw')))
-            left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title', style=str.format(
-                'margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle', self.SPACING, self.VSPACING)))
+            left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
+                style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(self.SPACING, self.VSPACING)))
             if bar is self.bar:
                 a = left.firstChild
                 if icon_name is 'heart':

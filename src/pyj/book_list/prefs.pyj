@@ -133,7 +133,7 @@ class SpinBox(ConfigItem):
         )
         container.appendChild(div)
         control = div.lastChild
-        for attr in str.split('min max step'):
+        for attr in 'min max step'.split(' '):
             val = item_data[attr]
             if val is not undefined and val is not None:
                 control.setAttribute(attr, '' + val)
@@ -202,7 +202,7 @@ class PrefsPanel:
         def onfocus(name):
             return def(ev):
                 c = self.container
-                div = c.querySelector(str.format('div[data-name="{}"]', name))
+                div = c.querySelector('div[data-name="{}"]'.format(name))
                 div.lastChild.style.display = 'block'
 
         for item in data:

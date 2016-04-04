@@ -51,7 +51,7 @@ class SearchPanel:
                 type='search', autosave='search-for-books-in-main-calibre-booklist', name='search-books',
                 autocomplete='on', inputmode='latin',
                 title=_('Search for books'), placeholder=_('Enter the search query'), spellcheck='false',
-                style=str.format("flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em", BUTTON_VPADDING)
+                style="flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em".format(BUTTON_VPADDING)
             ),
             search_button
         ))
@@ -96,7 +96,7 @@ class SearchPanel:
             self.currently_loading = None
         sd = get_session_data()
         query = {'library_id': self.interface_data.library_id}
-        for k in str.split('sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'):
+        for k in 'sort_tags_by partition_method collapse_at dont_collapse hide_empty_categories'.split(' '):
             query[k] = sd.get(k) + ''
         xhr = ajax('interface-data/tag-browser', self.on_data_fetched.bind(self), query=query, bypass_cache=False)
         xhr.send()
@@ -169,11 +169,11 @@ class SearchPanel:
             data = node.data
             tooltip = ''
             if data.count is not undefined:
-                tooltip += '\n' + str.format(_('Number of books in this category: {}'), data.count)
+                tooltip += '\n' + _('Number of books in this category: {}').format(data.count)
             if data.avg_rating is not undefined:
-                tooltip += '\n' + str.format(_('Average rating for books in this category: {:.1f}'), data.avg_rating)
+                tooltip += '\n' + _('Average rating for books in this category: {:.1f}').format(data.avg_rating)
             div = E.div(
-                    title=str.lstrip(tooltip),
+                    title=tooltip.lstrip(),
                     style="display:flex; align-items: stretch",
                     E.div(class_='tag-name',
                         style='border-right:solid 1px currentColor; padding: 1ex; display:flex; align-items: center',
@@ -237,19 +237,19 @@ class SearchPanel:
                 if letters_seen.length:
                     charclass = letters_seen.join('')
                     if category is 'authors':
-                        expr = str.format(r'author_sort:"~(^[{0}])|(&\s*[{0}])"', charclass)
+                        expr = r'author_sort:"~(^[{0}])|(&\s*[{0}])"'.format(charclass)
                     elif category is 'series':
-                        expr = str.format(r'series_sort:"~^[{0}]"', charclass)
+                        expr = r'series_sort:"~^[{0}]"'.format(charclass)
                     else:
-                        expr = str.format(r'{0}:"~^[{1}]"', category, charclass)
+                        expr = r'{0}:"~^[{1}]"'.format(category, charclass)
                 else:
-                    expr = str.format('{}:false', category)
+                    expr = '{}:false'.format(category)
 
             elif category is 'news':
-                expr = str.format('tags:"={}"', item.name)
+                expr = 'tags:"={}"'.format(item.name)
 
             else:
-                return str.format('{}:{}', category, search_state)
+                return '{}:{}'.format(category, search_state)
 
             if 'false' in search_state:
                 expr = '(not ' + expr + ')'
@@ -258,7 +258,7 @@ class SearchPanel:
         category = 'tags' if item.category is 'news' else item.category
         if item.name and item.name[0] is '★':
             # Assume ratings
-            expr = str.format('{}:{}', category, item.name.length)
+            expr = '{}:{}'.format(category, item.name.length)
         else:
             fm = self.interface_data.field_metadata[item.category]
             suffix = ':' if fm and fm.is_csp else ''
@@ -270,7 +270,7 @@ class SearchPanel:
                 name = '.' + name
             if search_state is 'plusplus' or search_state is 'minusminus':
                 name = '.' + name
-            expr = str.format('{}:"={}{}"', category, name, suffix)
+            expr = '{}:"={}{}"'.format(category, name, suffix)
 
         if 'false' in search_state:
             expr = '(not ' + expr + ')'
@@ -299,7 +299,7 @@ class SearchPanel:
             if data.count is not undefined:
                 items.append(_('Count: ') + data.count)
             if data.avg_rating is not undefined:
-                items.append(str.format(_('Rating: {:.1f}'),  data.avg_rating))
+                items.append(_('Rating: {:.1f}').format(data.avg_rating))
             suffix = ''
             if items.length:
                 suffix = ' [' + items.join(' ') + ']'
@@ -332,7 +332,7 @@ class SearchPanel:
             for text, search_type in items:
                 li = E.li(
                     style='display:flex; align-items: center; margin-bottom:0.5ex; padding: 0.5ex; cursor:pointer',
-                    E.img(src=str.format('{}/{}.png', self.interface_data.icon_path, search_type), style='max-height: 2.5ex'),
+                    E.img(src='{}/{}.png'.format(self.interface_data.icon_path, search_type), style='max-height: 2.5ex'),
                     E.span('\xa0' + text)
                 )
                 li.addEventListener('click', add_to_search(node, search_type))

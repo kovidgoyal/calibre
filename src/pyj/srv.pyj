@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import initialize  # noqa: unused-import
 from ajax import ajax
 from elementmaker import E
 from gettext import gettext as _, install

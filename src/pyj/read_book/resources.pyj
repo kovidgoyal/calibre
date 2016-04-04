@@ -42,10 +42,10 @@ def load_resources(db, book, root_name, previous_resources, proceed):
             w = book.manifest.cover_width or 600
             h = book.manifest.cover_height or 800
             ar = 'xMidYMid meet' # or 'none'
-            data = str.replace(data, '__ar__', ar)
-            data = str.replace(data, '__viewbox__', '0 0 ' + w + ' ' + h)
-            data = str.replace(data, '__width__', w + '')
-            data = str.replace(data, '__height__', h + '')
+            data = data.replace('__ar__', ar)
+            data = data.replace('__viewbox__', '0 0 ' + w + ' ' + h)
+            data = data.replace('__width__', w + '')
+            data = data.replace('__height__', h + '')
         ans[name] = v'[data, mimetype]'
         if type(data) is 'string':
             find_virtualized_resources(data)
@@ -131,7 +131,7 @@ def finalize_resources(book, root_name, resource_data):
             break
         if not resolved.length:
             unresolved = [name for name in resource_data if name not in blob_url_map]
-            print(str.format('ERROR: Could not resolve all dependencies of {} because of a cyclic dependency. Remaining deps: {}', root_name, unresolved))
+            print('ERROR: Could not resolve all dependencies of {} because of a cyclic dependency. Remaining deps: {}'.format(root_name, unresolved))
             # Add the items anyway, without resolving remaining deps
             for name in resource_data:
                 if name not in blob_url_map:
@@ -172,7 +172,7 @@ def process_stack(stack, tag_map, ns_map, load_required, onload):
                 attr = attr.replace('xlink:', '')
             for a in (src.a or v'[]'):
                 if a[0] is attr:
-                    loadable = str.startswith(a[1], 'blob:')
+                    loadable = a[1].startswith('blob:')
                     break
         if loadable:
             load_required.add(node[0])

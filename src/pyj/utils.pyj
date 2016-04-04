@@ -32,7 +32,7 @@ def parse_url_params(url=None, allow_multiple=False):
         return ans
     pairs = q.replace(/\+/g, " ").split("&")
     for pair in pairs:
-        key, val = str.partition(pair, '=')[::2]
+        key, val = pair.partition('=')[::2]
         key, val = decodeURIComponent(key), decodeURIComponent(val)
         if allow_multiple:
             if not Object.prototype.hasOwnProperty.call(ans, key):
@@ -64,7 +64,7 @@ def fmt_sidx(val, fmt='{:.2f}', use_roman=True):
         if use_roman:
             return roman(val)
         return int(val) + ''
-    return str.format(fmt, float(val))
+    return fmt.format(float(val))
 
 def human_readable(size, sep=' '):
     divisor, suffix = 1, "B"
@@ -73,10 +73,10 @@ def human_readable(size, sep=' '):
             divisor, suffix = (1 << (i * 10)), candidate
             break
     size = (float(size)/divisor) + ''
-    pos = str.find(size, ".")
+    pos = size.find(".")
     if pos > -1:
         size = size[:pos + 2]
-    if str.endswith(size, '.0'):
+    if size.endswith('.0'):
         size = size[:-2]
     return size + sep + suffix
 

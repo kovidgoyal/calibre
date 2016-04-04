@@ -73,8 +73,8 @@ class Boss:
     def onerror(self, msg, script_url, line_number, column_number, error_object):
         console.log(error_object)
         try:
-            fname = str.rpartition(script_url, '/')[-1] or script_url
-            msg = msg + '<br><span style="font-size:smaller">' + str.format('Error at {}:{}:{}', fname, line_number, column_number or '') + '</span>'
+            fname = script_url.rpartition('/')[-1] or script_url
+            msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
             details = ''
             if error_object and error_object.stack:
                 details = error_object.stack
@@ -105,12 +105,12 @@ class Boss:
         self.read_ui.load_book(book_id, fmt, metadata)
 
     def change_books(self, data):
-        data.search_result.sort = str.split(data.search_result.sort, ',')[:2].join(',')
-        data.search_result.sort_order = str.split(data.search_result.sort_order, ',')[:2].join(',')
+        data.search_result.sort = data.search_result.sort.split(',')[:2].join(',')
+        data.search_result.sort_order = data.search_result.sort_order.split(',')[:2].join(',')
         sval = ''
-        for field, order in zip(str.split(data.search_result.sort, ','), str.split(data.search_result.sort_order, ',')):
+        for field, order in zip(data.search_result.sort.split(','), data.search_result.sort_order.split(',')):
             sval += field + '.' + order + ','
-        get_session_data().set_library_option(self.interface_data.library_id, 'sort', str.rstrip(sval, ','))
+        get_session_data().set_library_option(self.interface_data.library_id, 'sort', sval.rstrip(','))
         self.interface_data.metadata = data.metadata
         self.interface_data.search_result = data.search_result
         self.ui.refresh_books_view()
