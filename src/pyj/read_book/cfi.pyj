@@ -1,0 +1,590 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+#  Based on code originally written by Peter Sorotkin
+#  http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js
+#
+#  Improvements with respect to that code:
+#  1. Works on all browsers (WebKit, Firefox and IE >= 9)
+#  2. Works for content in elements that are scrollable (i.e. have their own scrollbars)
+#  3. Much more comprehensive testing/error handling
+#  4. Properly encodes/decodes assertions
+#  5. Handles points in the padding of elements consistently
+#  6. Has a utility method to calculate the CFI for the current viewport position robustly
+#
+#  Tested on: Firefox 9, IE 9, Chromium 16, Qt WebKit 2.1
+#  The main entry points are:
+#    at(x, y): Maps a point to a CFI, if possible
+#    at_current(): Returns the CFI corresponding to the current viewport scroll location
+#
+#    scroll_to(cfi): which scrolls the browser to a point corresponding to the
+#                    given cfi, and returns the x and y co-ordinates of the point.
+
+
+# CFI escaping {{{
+escape_pat = /[\[\],^();~@!-]/g
+unescape_pat = /[\^](.)/g
+
+def escape_for_cfi(raw):
+    return (raw or '').replace(escape_pat, '^$&')
+
+def unescape_from_cfi(raw):
+    return (raw or '').replace(unescape_pat, '$1')
+# }}}
+
+def fstr(d):  # {{{
+    # Convert a timestamp floating point number to a string
+    ans = ''
+    if d < 0:
+        ans = '-'
+        d = -d
+    n = Math.floor(d)
+    ans += n
+    n = Math.round((d-n)*100)
+    if n is not 0:
+        ans += "." + (n/10 if (n % 10 is 0) else n)
+    return ans
+# }}}
+
+def get_current_time(target): # {{{
+    return fstr(target.currentTime or 0)
+# }}}
+
+def window_scroll_pos(w):  # {{{
+    w = w or window
+    return w.pageXOffset, w.pageYOffset
+# }}}
+
+def viewport_to_document(x, y, doc):  # {{{
+    doc = doc or window.document
+    while doc is not window.document:
+        # we are in a frame
+        frame = doc.defaultView.frameElement
+        rect = frame.getBoundingClientRect()
+        x += rect.left
+        y += rect.top
+        doc = frame.ownerDocument
+    wx, wy = window_scroll_pos(doc.defaultView)
+    x += wx
+    y += wy
+    return x, y
+# }}}
+
+# Convert point to character offset {{{
+def range_has_point(range_, x, y):
+    rects = range_.getClientRects()
+    for v'var i = 0; i < rects.length; i++':
+        rect = rects[i]
+        if (rect.left <= x <= rect.right) and (rect.top <= y <= rect.bottom):
+            return True
+    return False
+
+def offset_in_text_node(node, range_, x, y):
+    limits = v'[0, node.nodeValue.length]'
+    while limits[0] is not limits[1]:
+        pivot = Math.floor( (limits[0] + limits[1]) / 2 )
+        lr = v'[limits[0], pivot]'
+        rr = v'[pivot+1, limits[1]]'
+        range_.setStart(node, pivot)
+        range_.setEnd(node, pivot+1)
+        if range_has_point(range_, x, y):
+            return pivot
+        range_.setStart(node, rr[0])
+        range_.setEnd(node, rr[1])
+        if range_has_point(range_, x, y):
+            limits = rr
+            continue
+        range_.setStart(node, lr[0])
+        range_.setEnd(node, lr[1])
+        if range_has_point(range_, x, y):
+            limits = lr
+            continue
+        break
+    return limits[0]
+
+def find_offset_for_point(x, y, node, cdoc):
+    range_ = cdoc.createRange()
+    child = node.firstChild
+    while child:
+        if Node.TEXT_NODE <= child.nodeType <= Node.ENTITY_NODE and child.nodeValue and child.nodeValue.length:
+            range_.setStart(child, 0)
+            range_.setEnd(child, child.nodeValue.length)
+            if range_has_point(range_, x, y):
+                return v'[child, offset_in_text_node(child, range_, x, y)]'
+        child = child.nextSibling
+
+    # The point must be after the last bit of text/in the padding/border, we dont know
+    # how to get a good point in this case
+    raise ValueError(str.format("Point ({}, {}) is in the padding/border of the node, so cannot calculate offset", x, y))
+
+# }}}
+
+def set_current_time(target, val):  # {{{
+    if target.currentTime is undefined:
+        return
+    if target.readyState is 4 or target.readyState is "complete":
+        target.currentTime = val + 0
+    else:
+        target.addEventListener("canplay", def(): target.currentTime = val;, False)
+# }}}
+
+def encode(doc, node, offset, tail):  # {{{
+    cfi = tail or ""
+
+    # Handle the offset, if any
+    if node.nodeType is Node.ELEMENT_NODE:
+        if type(offset) is 'number':
+            node = node.childNodes.item(offset)
+    elif Node.TEXT_NODE <= node.nodeType <= Node.ENTITY_NODE:
+        offset = offset or 0
+        while True:
+            p = node.previousSibling
+            if not p or p.nodeType > Node.COMMENT_NODE:
+                break
+            # log("previous sibling:"+ p + " " + p?.nodeType + " length: " + p?.nodeValue?.length)
+            if p.nodeType not in v'[Node.ATTRIBUTE_NODE, Node.COMMENT_NODE]' and p.nodeValue and p.nodeValue.length:
+                offset += p.nodeValue.length
+            node = p
+        cfi = ":" + offset + cfi
+    else: # Not handled
+        print(str.format("Offsets for nodes of type {} are not handled", node.nodeType))
+
+    # Construct the path to node from root
+    while node is not doc:
+        p = node.parentNode
+        if not p:
+            if node.nodeType == Node.DOCUMENT_NODE:  # Document node (iframe)
+                win = node.defaultView
+                if win.frameElement:
+                    node = win.frameElement
+                    cfi = "!" + cfi
+                    continue
+            break
+        # Find position of node in parent
+        index = 0
+        child = p.firstChild
+        while True:
+            index |= 1 # Increment index by 1 if it is even
+            if child.nodeType is Node.ELEMENT_NODE:
+                index += 1
+            if child is node:
+                break
+            child = child.nextSibling
+
+        # Add id assertions for robustness where possible
+        id = node.getAttribute('id') if node.getAttribute else None
+        idspec = ('[' + escape_for_cfi(id) + ']') if id else ''
+        cfi = '/' + index + idspec + cfi
+        node = p
+
+    return cfi
+# }}}
+
+def decode(cfi, doc): # {{{
+    doc = doc or window.document
+    simple_node_regex = ///
+        ^/(\d+)          # The node count
+          (\[[^\]]*\])?  # The optional id assertion
+    ///
+    error = None
+    node = doc
+
+    while cfi.length > 0 and not error:
+        r = cfi.match(simple_node_regex)
+        if r: # Path step
+            target = parseInt(r[1])
+            assertion = r[2]
+            if assertion:
+                assertion = unescape_from_cfi(assertion.slice(1, assertion.length-1))
+            index = 0
+            child = node.firstChild
+
+            while True:
+                if not child:
+                    if assertion: # Try to use the assertion to find the node
+                        child = doc.getElementById(assertion)
+                        if child:
+                            node = child
+                    if not child:
+                        error = "No matching child found for CFI: " + cfi
+                    cfi = cfi.substr(r[0].length)
+                    break
+                index |= 1 # Increment index by 1 if it is even
+                if child.nodeType is 1:
+                    index += 1
+                if index is target:
+                    cfi = cfi.substr(r[0].length)
+                    node = child
+                    if assertion and node.id is not assertion:
+                        # The found child does not match the id assertion,
+                        # trust the id assertion if an element with that id
+                        # exists
+                        child = doc.getElementById(assertion)
+                        if child:
+                            node = child
+                    break
+                child = child.nextSibling
+
+        else if cfi[0] is '!': # Indirection
+            if node.contentDocument:
+                node = node.contentDocument
+                cfi = cfi.substr(1)
+            else:
+                error = "Cannot reference " + node.nodeName + "'s content: " + cfi
+        else:
+            break
+
+    if error:
+        print(error)
+        return None
+
+    point = {}
+    error = None
+    offset = None
+
+    r = cfi.match(/^:(\d+)/)
+    if r:
+        # Character offset
+        offset = parseInt(r[1])
+        cfi = cfi.substr(r[0].length)
+
+    r = cfi.match(/^~(-?\d+(\.\d+)?)/)
+    if r:
+        # Temporal offset
+        point.time = r[1] - 0 # Coerce to number
+        cfi = cfi.substr(r[0].length)
+
+    r = cfi.match(/^@(-?\d+(\.\d+)?):(-?\d+(\.\d+)?)/)
+    if r:
+        # Spatial offset
+        point.x = r[1] - 0 # Coerce to number
+        point.y = r[3] - 0 # Coerce to number
+        cfi = cfi.substr(r[0].length)
+
+    r = cfi.match(/^\[([^\]]+)\]/)
+    if r:
+        assertion = r[1]
+        cfi = cfi.substr(r[0].length)
+        r = assertion.match(/;s=([ab])$/)
+        if r:
+            if r.index > 0 and assertion[r.index - 1] is not '^':
+                assertion = assertion.substr(0, r.index)
+                point.forward = (r[1] is 'a')
+            assertion = unescape_from_cfi(assertion)
+            # TODO: Handle text assertion
+
+    # Find the text node that contains the offset
+    if node and node.parentNode:
+        node.parentNode.normalize()
+    if offset is not None:
+        while True:
+            l = node.nodeValue.length
+            if offset < l or (not point.forward and offset is l):
+                break
+            next = False
+            while True:
+                nn = node.nextSibling
+                if not nn:
+                    break
+                if Node.TEXT_NODE <= nn.nodeType <= Node.ENTITY_NODE and nn.nodeValue and nn.nodeValue.length:
+                    next = nn
+                    break
+                node = nn
+            if not next:
+                if offset > l:
+                    error = "Offset out of range: " + offset
+                    offset = l
+                break
+            node = next
+            offset -= l
+        point.offset = offset
+
+    point.node = node
+    if error:
+        point.error = error
+    else if cfi.length > 0:
+        point.error = "Undecoded CFI: " + cfi
+
+    print(point.error)
+
+    return point
+
+# }}}
+
+def at(x, y, doc):  # {{{
+    # x, y are in viewport co-ordinates
+    doc = doc or window.document
+    cdoc = doc
+    target = None
+    tail = ''
+    offset = None
+    name = None
+
+    # Drill down into iframes, etc.
+    while True:
+        target = cdoc.elementFromPoint(x, y)
+        if not target or target is cdoc.documentElement or target is cdoc.body:
+            # We ignore both html and body even though body could
+            # have text nodes under it as performance is very poor if body
+            # has large margins/padding (for e.g. in fullscreen mode)
+            # A possible solution for this is to wrap all text node
+            # children of body in <span> but that is seriously ugly and
+            # might have side effects. Lets do this only if there are lots of
+            # books in the wild that actually have text children of body,
+            # and even in this case it might be better to change the input
+            # plugin to prevent this from happening.
+            # log("No element at (#{ x }, #{ y })")
+            return None
+
+        name = target.localName
+        if name not in {'iframe', 'embed', 'object'}:
+            break
+
+        cd = target.contentDocument
+        if not cd:
+            break
+
+        # We have an embedded document, transforms x, y into the co-prd
+        # system of the embedded document's viewport
+        rect = target.getBoundingClientRect()
+        x -= rect.left
+        y -= rect.top
+        cdoc = cd
+
+    (target.parentNode or target).normalize()
+
+    if name in {'audio', 'video'}:
+        tail = "~" + get_current_time(target)
+
+    if name in {'img', 'video'}:
+        rect = target.getBoundingClientRect()
+        px = ((x - rect.left)*100)/target.offsetWidth
+        py = ((y - rect.top)*100)/target.offsetHeight
+        tail = str.format('{}@{}:{}', tail, fstr(px), fstr(py))
+    else if name is not 'audio':
+        # Get the text offset
+        # We use a custom function instead of caretRangeFromPoint as
+        # caretRangeFromPoint does weird things when the point falls in the
+        # padding of the element
+        target, offset = find_offset_for_point(x, y, target, cdoc)
+
+    return encode(doc, target, offset, tail)
+# }}}
+
+def point(cfi, doc):  # {{{
+    doc = doc or window.document
+    r = decode(cfi, doc)
+    if not r:
+        return None
+    node = r.node
+    ndoc = node.ownerDocument
+    if not ndoc:
+        print(str.format("CFI node has no owner document: {} {}", cfi, node))
+        return None
+
+    x = None
+    y = None
+    range_ = None
+
+    if type(r.offset) is "number":
+        # Character offset
+        range_ = ndoc.createRange()
+        if r.forward:
+            try_list = [{'start':0, 'end':0, 'a':0.5}, {'start':0, 'end':1, 'a':1}, {'start':-1, 'end':0, 'a':0}]
+        else:
+            try_list = [{'start':0, 'end':0, 'a':0.5}, {'start':-1, 'end':0, 'a':0}, {'start':0, 'end':1, 'a':1}]
+        a = None
+        rects = None
+        node_len = node.nodeValue.length
+        offset = r.offset
+        for v'var i = 0; i < 2; i++':
+            # Try reducing the offset by 1 if we get no match as if it refers to the position after the
+            # last character we wont get a match with getClientRects
+            offset = r.offset - i
+            if offset < 0:
+                offset = 0
+            k = 0
+            while (not rects or not rects.length) and k < try_list.length:
+                t = try_list[k]
+                k += 1
+                start_offset = offset + t.start
+                end_offset = offset + t.end
+                a = t.a
+                if start_offset < 0 or end_offset >= node_len:
+                    continue
+                range_.setStart(node, start_offset)
+                range_.setEnd(node, end_offset)
+                rects = range_.getClientRects()
+
+        if not rects or not rects.length:
+            print(str.format("Could not find caret position: rects: {} offset: {}", rects, r.offset))
+            return None
+
+    else:
+        x, y = r.x, r.y
+
+    return {'x':x, 'y':y, 'node':r.node, 'time':r.time, 'range':range_, 'a':a}
+
+# }}}
+
+def scroll_to(cfi, callback, doc):  # {{{
+    doc = doc or window.doc
+    # TODO: Port MathJax support
+    if window.mathjax and window.mathjax.math_present and not window.mathjax.math_loaded:
+        window.mathjax.pending_cfi = v'[cfi, callback]'
+        return
+    point_ = point(cfi, doc)
+    if not point_:
+        print("No point found for cfi: " + cfi)
+        return
+    if type(point_.time) is 'number':
+        set_current_time(point_.node, point_.time)
+
+    if point_.range is not None:
+        # Character offset
+        r = point_.range
+        so, eo, sc, ec = r.startOffset, r.endOffset, r.startContainer, r.endContainer
+        node = r.startContainer
+        ndoc = node.ownerDocument
+        span = ndoc.createElement('span')
+        span.setAttribute('style', 'border-width: 0; padding: 0; margin: 0')
+        r.surroundContents(span)
+        span.scrollIntoView()
+        fn = def():
+            # Remove the span and get the new position now that scrolling
+            # has (hopefully) completed
+            #
+            # In WebKit, the boundingrect of the span is wrong in some
+            # situations, whereas in IE resetting the range causes it to
+            # loose bounding info. So we use the range's rects unless they
+            # are absent, in which case we use the span's rect
+            #
+            rect = span.getBoundingClientRect()
+
+            # Remove the span we inserted
+            p = span.parentNode
+            for node in span.childNodes:
+                span.removeChild(node)
+                p.insertBefore(node, span)
+            p.removeChild(span)
+            p.normalize()
+
+            # Reset the range to what it was before the span was added
+            r.setStart(sc, so)
+            r.setEnd(ec, eo)
+            rects = r.getClientRects()
+            if rects.length > 0:
+                rect = rects[0]
+
+            x = (point_.a*rect.left + (1-point_.a)*rect.right)
+            y = (rect.top + rect.bottom)/2
+            x, y = viewport_to_document(x, y, ndoc)
+            if callback:
+                callback(x, y)
+    else:
+        node = point_.node
+        node.scrollIntoView()
+
+        fn = def():
+            r = node.getBoundingClientRect()
+            x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
+            if type(point_.x) is 'number' and node.offsetWidth:
+                x += (point_.x*node.offsetWidth)/100
+            if type(point_.y) is 'number' and node.offsetHeight:
+                y += (point_.y*node.offsetHeight)/100
+            window.scrollTo(x, y)
+            if callback:
+                callback(x, y)
+
+    setTimeout(fn, 10)
+
+# }}}
+
+def at_point(ox, oy):  # {{{
+    # The CFI at the specified point. Different to at() in that this method
+    # returns null if there is an error, and also calculates a point from
+    # the CFI and returns null if the calculated point is far from the
+    # original point.
+
+    def dist(p1, p2):
+        Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
+
+    try:
+        cfi = window.cfi.at(ox, oy)
+        point = window.cfi.point(cfi)
+    except Exception:
+        cfi = None
+
+
+    if cfi:
+        if point.range is not None:
+            r = point.range
+            rect = r.getClientRects()[0]
+
+            x = (point.a*rect.left + (1-point.a)*rect.right)
+            y = (rect.top + rect.bottom)/2
+            x, y = viewport_to_document(x, y, r.startContainer.ownerDocument)
+        else:
+            node = point.node
+            r = node.getBoundingClientRect()
+            x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
+            if type(point.x) is 'number' and node.offsetWidth:
+                x += (point.x*node.offsetWidth)/100
+            if type(point.y) is 'number' and node.offsetHeight:
+                y += (point.y*node.offsetHeight)/100
+
+        if dist(viewport_to_document(ox, oy), v'[x, y]') > 50:
+            cfi = None
+
+    return cfi
+# }}}
+
+def at_current():  # {{{
+    winx, winy = window_scroll_pos()
+    winw, winh = window.innerWidth, window.innerHeight
+    max = Math.max
+    winw = max(winw, 400)
+    winh = max(winh, 600)
+    deltay = Math.floor(winh/50)
+    deltax = Math.floor(winw/25)
+    miny = max(-winy, -winh)
+    maxy = winh
+    minx = max(-winx, -winw)
+    maxx = winw
+
+    def x_loop(cury):
+        for direction in v'[-1, 1]':
+            delta = deltax * direction
+            curx = 0
+            while not ((direction < 0 and curx < minx) or (direction > 0 and curx > maxx)):
+                cfi = at_point(curx, cury)
+                if cfi:
+                    return cfi
+                curx += delta
+
+    for direction in v'[-1, 1]':
+        delta = deltay * direction
+        cury = 0
+        while not( (direction < 0 and cury < miny) or (direction > 0 and cury > maxy) ):
+            cfi = x_loop(cury, -1)
+            if cfi:
+                return cfi
+            cury += delta
+
+    # Use a spatial offset on the html element, since we could not find a
+    # normal CFI
+    x, y = window_scroll_pos()
+    de = document.documentElement
+    rect = de.getBoundingClientRect()
+    px = (x*100)/rect.width
+    py = (y*100)/rect.height
+    cfi = str.format("/2@{}:{}", fstr(px), fstr(py))
+
+    return cfi
+
+# }}}
+
+if __name__ is '__main__':
+    t = 'a^!,1'
+    if unescape_from_cfi(escape_for_cfi(t)) is not t:
+        raise Exception('Failed to properly roundtrip cfi')
