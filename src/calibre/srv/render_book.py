@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import sys, os, json
 from base64 import standard_b64encode, standard_b64decode
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from itertools import count
 from functools import partial
 from future_builtins import map
@@ -15,7 +15,7 @@ from urlparse import urlparse
 from cssutils import replaceUrls
 
 from calibre.ebooks.oeb.base import (
-    OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF, XHTML)
+    OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF, XHTML, EPUB_NS)
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import set_epub_cover, find_cover_image
@@ -186,9 +186,41 @@ def split_name(name):
 
 boolean_attributes = frozenset('allowfullscreen,async,autofocus,autoplay,checked,compact,controls,declare,default,defaultchecked,defaultmuted,defaultselected,defer,disabled,enabled,formnovalidate,hidden,indeterminate,inert,ismap,itemscope,loop,multiple,muted,nohref,noresize,noshade,novalidate,nowrap,open,pauseonexit,readonly,required,reversed,scoped,seamless,selected,sortable,truespeed,typemustmatch,visible'.split(','))  # noqa
 
+EPUB_TYPE_MAP = {k:'doc-' + k for k in (
+    'abstract acknowledgements afterword appendix biblioentry bibliography biblioref chapter colophon conclusion cover credit'
+    ' credits dedication epigraph epilogue errata footnote footnotes forward glossary glossref index introduction noteref notice'
+    ' pagebreak pagelist part preface prologue pullquote qna locator subtitle title toc').split(' ')}
+for k in 'figure term definition directory list list-item table row cell'.split(' '):
+    EPUB_TYPE_MAP[k] = k
+
+EPUB_TYPE_MAP['help'] = 'doc-tip'
+
+def map_epub_type(epub_type, attribs, elem):
+    val = EPUB_TYPE_MAP.get(epub_type.lower())
+    if val:
+        role = None
+        in_attribs = None
+        for i, x in enumerate(attribs):
+            if x[0] == 'role':
+                role = x[1]
+                in_attribs = i
+                break
+        else:
+            role = elem.get('role')
+        roles = OrderedDict([(k, True) for k in role.split()]) if role else OrderedDict()
+        if val not in roles:
+            roles[val] = True
+        role = ' '.join(roles.iterkeys())
+        if in_attribs is None:
+            attribs.append(['role', role])
+        else:
+            attribs[i] = ['role', role]
+
 def serialize_elem(elem, nsmap):
     ns, name = split_name(elem.tag)
     nl = name.lower()
+    if ns == EPUB_NS:
+        ns, name = None, 'epub-' + name
     if nl == 'meta':
         return  # Filter out <meta> tags as they have unknown side-effects
     if name.lower() in {'img', 'script', 'link', 'image', 'style'}:
@@ -209,6 +241,9 @@ def serialize_elem(elem, nsmap):
         if not attr_ns and al in boolean_attributes:
             if val and val.lower() in (al, ''):
                 attribs.append([al, al])
+            continue
+        if attr_ns == EPUB_NS and al == 'type':
+            map_epub_type(val, attribs, elem)
             continue
         attrib = [aname, val]
         if attr_ns:
