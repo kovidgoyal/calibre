@@ -17,7 +17,7 @@ def create_link_pat(book):
     return RegExp(book.manifest.link_uid + r'\|([^|]+)\|', 'g')
 
 def load_resources(db, book, root_name, previous_resources, proceed):
-    ans = {}
+    ans = Object.create(None)
     pending_resources = v'[root_name]'
     link_pat = create_link_pat(book)
 
@@ -28,12 +28,12 @@ def load_resources(db, book, root_name, previous_resources, proceed):
             proceed(ans)
             return
         name = pending_resources.shift()
-        if name in ans:
+        if ans[name]:
             return setTimeout(do_one, 0)
-        if name in previous_resources:
+        if previous_resources[name]:
             ans[name] = data = previous_resources[name]
-            if type(data) is 'string':
-                find_virtualized_resources(data)
+            if type(data[0]) is 'string':
+                find_virtualized_resources(data[0])
             return setTimeout(do_one, 0)
         db.get_file(book, name, got_one)
 
@@ -54,6 +54,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
     def find_virtualized_resources(text):
         seen = set()
         already_pending = {x.name for x in pending_resources}
+        link_pat.lastIndex = 0
         while True:
             m = link_pat.exec(text)
             if not m:
@@ -67,7 +68,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
     do_one()
 
 def finalize_resources(book, root_name, resource_data):
-    blob_url_map = {}
+    blob_url_map = Object.create(None)
     root_data = None
     link_pat = create_link_pat(book)
 
@@ -89,17 +90,18 @@ def finalize_resources(book, root_name, resource_data):
     def replace_deps(text):
         replacements = v'[]'
         unresolved_deps = set()
+        link_pat.lastIndex = 0
         while True:
             m = link_pat.exec(text)
             if not m:
                 break
             dname, frag = decode_url(m[1])
-            if dname in blob_url_map:
+            if blob_url_map[dname]:
                 rtext = blob_url_map[dname]
                 if frag:
                     rtext += '#' + frag
                 replacements.push(v'[m.index, m[0].length, rtext]')
-            elif unresolved_deps:
+            else:
                 unresolved_deps.add(dname)
         for index, sz, repl in reversed(replacements):
             text = text[:index] + repl + text[index + sz:]
@@ -111,14 +113,16 @@ def finalize_resources(book, root_name, resource_data):
         deps = unresolved_deps_map[name]
         if not deps or not deps.length:
             return False
-        deps = [x for x in deps if x not in blob_url_map]
-        return deps.length > 0
+        for x in deps:
+            if not blob_url_map[x]:
+                return True
+        return False
 
     while True:
         resolved = v'[]'
         num = 0
         for name in resource_data:
-            if name not in blob_url_map:
+            if not blob_url_map[name]:
                 num += 1
                 text, mimetype = resource_data[name]
                 if not has_unresolvable_deps(name):
@@ -130,11 +134,11 @@ def finalize_resources(book, root_name, resource_data):
         if not num:
             break
         if not resolved.length:
-            unresolved = [name for name in resource_data if name not in blob_url_map]
+            unresolved = [name for name in resource_data if not blob_url_map[name]]
             print('ERROR: Could not resolve all dependencies of {} because of a cyclic dependency. Remaining deps: {}'.format(root_name, unresolved))
             # Add the items anyway, without resolving remaining deps
             for name in resource_data:
-                if name not in blob_url_map:
+                if not blob_url_map[name]:
                     text, mimetype = resource_data[name]
                     text = replace_deps(text)[1]
                     add_virtualized_resource(name, text, mimetype)

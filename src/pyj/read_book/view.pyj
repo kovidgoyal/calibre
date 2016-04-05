@@ -115,7 +115,7 @@ class View:
         self.show_loading(book.metadata.title)
         self.ui.db.update_last_read_time(book)
         # TODO: Check for last open position of book
-        self.show_name(book.manifest.spine[0])
+        self.show_name(book.manifest.spine[1])
 
     def show_name(self, name, initial_scroll_fraction=0):
         self.currently_showing = {'name':name, 'cfi':None, 'initial_scroll_fraction':initial_scroll_fraction}
