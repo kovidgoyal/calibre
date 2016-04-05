@@ -16,7 +16,7 @@ def setup_flow_indicators(style):
     nonlocal flow_previous_indicator, flow_next_indicator
     sel = 'flow-indicator-' + uid
     flow_previous_indicator = E.div(
-        style='left:0; top:0;', '⬅ ' + _('prev page'), title=_('Go to the previous page'),
+        style='right:0; top:0;', '⬅ ' + _('prev page'), title=_('Go to the previous page'),
         onclick=def():
             get_boss().send_message('next_spine_item', previous=True)
     )
@@ -33,7 +33,7 @@ def setup_flow_indicators(style):
     update_flow_mode_scroll_indicators()
     style.push(build_rule(
         '.' + sel, position='fixed', z_index='2147483647', padding='1ex 1em', margin='1em', border_radius='8px',
-        background_color='rgba(255, 255, 255, 0.7)', color='blue', cursor='pointer', font_size='larger', font_family='sans-serif',
+        background_color='#eee', color='#0070FF', cursor='pointer', font_size='larger', font_family='sans-serif',
         transition='opacity 0.5s ease-in', opacity='0'
     ))
     style.push(build_rule('.' + sel + ':hover', color='red'))
