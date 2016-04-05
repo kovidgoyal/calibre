@@ -30,6 +30,27 @@ def base64decode(string):
         ans[i] = chars.charCodeAt(i)
     return ans
 
+def hexlify(bytes):
+    ans = v'[]'
+    for v'var i = 0; i < bytes.length; i++':
+        x = bytes[i].toString(16)
+        if x.length is 1:
+            x = '0' + x
+        ans.push(x)
+    return ans.join('')
+
+def unhexlify(string):
+    num = string.length // 2
+    if num * 2 is not string.length:
+        raise ValueError('string length is not a multiple of two')
+    ans = Uint8Array(num)
+    for v'var i = 0; i < num; i++':
+        x = parseInt(string[i*2:i*2+2], 16)
+        if isNaN(x):
+            raise ValueError('string is not hex-encoded')
+        ans[i] = x
+    return ans
+
 utf8_decoder_table = v'''[
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 00..1f
   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, // 20..3f
