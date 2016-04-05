@@ -1,0 +1,14 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from read_book.globals import iframe_id
+
+class Overlay:
+
+    def __init__(self, view):
+        self.view = view
+
+    @property
+    def container(self):
+        return document.getElementById(iframe_id).nextSibling
+

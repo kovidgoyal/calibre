@@ -1,7 +1,8 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from aes import GCM
+from aes import GCM, random_bytes
+from encodings import hexlify
 
 _boss = None
 
@@ -30,3 +31,20 @@ class Messenger:
 
 messenger = Messenger()
 iframe_id = 'read-book-iframe'
+uid = 'calibre-' + hexlify(random_bytes(12))
+
+_layout_mode = 'flow'
+def current_layout_mode():
+    return _layout_mode
+
+def set_layout_mode(val):
+    nonlocal _layout_mode
+    _layout_mode = val
+
+_current_spine_item = None
+def current_spine_item():
+    return _current_spine_item
+
+def set_current_spine_item(val):
+    nonlocal _current_spine_item
+    _current_spine_item = val

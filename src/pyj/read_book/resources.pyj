@@ -232,5 +232,5 @@ def unserialize_html(serialized_data, proceed):
     if load_required.length:
         setTimeout(hangcheck, 5000)
     else:
-        proceed = True
+        proceeded = True
         proceed()

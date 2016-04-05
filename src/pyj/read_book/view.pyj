@@ -1,10 +1,12 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from __python__ import bound_methods
 from elementmaker import E
 from gettext import gettext as _
 from read_book.globals import messenger, iframe_id
 from read_book.resources import load_resources
+from read_book.overlay import Overlay
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -29,27 +31,28 @@ class View:
         self.ui = ui
         self.loaded_resources = {}
         container.appendChild(
-            E.div(style='width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',
-                  E.div(style='display: flex; flex-direction: column; align-items: stretch; flex-grow:2',
-                    E.iframe(
-                        id=iframe_id,
-                        seamless=True,
-                        sandbox='allow-popups allow-scripts',
-                        style='flex-grow: 2',
+            E.div(style='width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
+                  E.div(style='display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
+                    E.div(style='flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
+                        E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2'),
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none'),  # overlay container
                     )
                 )
             )
         )
+        self.overlay = Overlay(self)
         self.src_doc = None
         self.iframe_ready = False
         self.pending_spine_load = None
         self.encrypted_communications = False
         self.create_src_doc()
-        window.addEventListener('message', self.handle_message.bind(self), False)
+        window.addEventListener('message', self.handle_message, False)
         self.handlers = {
-            'ready': self.on_iframe_ready.bind(self),
-            'error': self.on_iframe_error.bind(self),
+            'ready': self.on_iframe_ready,
+            'error': self.on_iframe_error,
+            'next_spine_item': self.on_next_spine_item,
         }
+        self.currently_showing = {'spine':0, 'cfi':None}
 
     @property
     def iframe(self):
@@ -66,7 +69,8 @@ class View:
         self.encrypted_communications = False
         self.iframe.srcdoc = self.src_doc
 
-    def send_message(self, data):
+    def send_message(self, action, **data):
+        data.action = action
         if self.encrypted_communications:
             data = messenger.encrypt(data)
         self.iframe.contentWindow.postMessage(data, '*')
@@ -90,7 +94,7 @@ class View:
 
     def on_iframe_ready(self, data):
         messenger.reset()
-        self.send_message({'action':'initialize', 'secret':messenger.secret, 'translations':self.ui.interface_data.translations})
+        self.send_message('initialize', 'secret'=messenger.secret, 'translations'=self.ui.interface_data.translations)
         self.iframe_ready = True
         if self.pending_spine_load:
             data = self.pending_spine_load
@@ -111,17 +115,34 @@ class View:
         self.show_loading(book.metadata.title)
         self.ui.db.update_last_read_time(book)
         # TODO: Check for last open position of book
-        name = book.manifest.spine[0]
-        load_resources(self.ui.db, book, name, self.loaded_resources, self.show_spine_item.bind(self, name))
+        self.show_name(book.manifest.spine[0])
 
-    def show_spine_item(self, name, resource_data):
+    def show_name(self, name, initial_scroll_fraction=0):
+        self.currently_showing = {'name':name, 'cfi':None, 'initial_scroll_fraction':initial_scroll_fraction}
+        load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
+
+    def on_next_spine_item(self, data):
+        spine = self.book.manifest.spine
+        idx = spine.indexOf(self.currently_showing.name)
+        if data.previous:
+            if idx is 0:
+                return
+            idx = max(idx - 1, 0)
+            self.show_name(spine[idx], initial_scroll_fraction=1)
+        else:
+            if idx is spine.length - 1:
+                return
+            idx = min(spine.length - 1, idx + 1)
+            self.show_name(spine[idx])
+
+    def show_spine_item(self, resource_data):
         self.loaded_resources = resource_data
         # Re-init the iframe to ensure any changes made to the environment by the last spine item are lost
         self.init_iframe()
         # Now wait for frame to message that it is ready
-        self.pending_spine_load = [name, resource_data]
+        self.pending_spine_load = resource_data
 
-    def show_spine_item_stage2(self, x):
-        name, resource_data = x
-        self.send_message({'action':'display', 'resource_data':resource_data, 'book':self.book, 'name':name})
+    def show_spine_item_stage2(self, resource_data):
+        self.send_message('display', resource_data=resource_data, book=self.book, name=self.currently_showing.name,
+                          initial_scroll_fraction=self.currently_showing.initial_scroll_fraction)
         self.encrypted_communications = True

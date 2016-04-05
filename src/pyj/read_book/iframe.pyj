@@ -1,27 +1,32 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods
 
 from aes import GCM
+from elementmaker import E
 from gettext import install
-from read_book.globals import set_boss
+from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item
 from read_book.resources import finalize_resources, unserialize_html
+from read_book.flow_mode import setup_flow_indicators, update_flow_mode_scroll_indicators, flow_change_mode, flow_to_scroll_fraction
+from utils import debounce
 
 class Boss:
 
     def __init__(self):
         self.ready_sent = False
         self.encrypted_communications = False
-        window.addEventListener('message', self.handle_message.bind(self), False)
+        window.addEventListener('message', self.handle_message, False)
         window.addEventListener('load', def():
             if not self.ready_sent:
-                self.send_message({'action':'ready'})
+                self.send_message('ready')
                 self.ready_sent = True
         )
         set_boss(self)
         self.handlers = {
-            'initialize':self.initialize.bind(self),
-            'display': self.display.bind(self),
+            'initialize':self.initialize,
+            'display': self.display,
         }
+        self.last_window_ypos = 0
 
     def handle_message(self, event):
         if event.source is not window.parent:
@@ -41,24 +46,43 @@ class Boss:
             except Exception as e:
                 console.log('Error in iframe message handler:')
                 console.log(e)
-                self.send_message({'action':'error', 'details':e.stack, 'msg':e.toString()})
+                self.send_message('error', details=e.stack, msg=e.toString())
         else:
             print('Unknown action in message to iframe from parent: ' + data.action)
 
     def initialize(self, data):
         self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
-        install(data.translations)
+        if data.translations:
+            install(data.translations)
 
     def display(self, data):
         self.encrypted_communications = True
         self.book = data.book
+        spine = self.book.manifest.spine
+        index = spine.indexOf(data.name)
+        set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_scroll_fraction':data.initial_scroll_fraction})
         root_data = finalize_resources(self.book, data.name, data.resource_data)
-        unserialize_html(root_data, self.content_loaded.bind(self))
+        unserialize_html(root_data, self.content_loaded)
 
     def content_loaded(self):
-        print('Content loaded')
+        window.addEventListener('scroll', debounce(self.onscroll, 15))
+        style = v'[]'
+        setup_flow_indicators(style)
+        document.head.appendChild(E.style(type='text/css', style.join('\n')))
+        flow_change_mode()
+        csi = current_spine_item()
+        if csi.initial_scroll_fraction:
+            if current_layout_mode() is 'flow':
+                flow_to_scroll_fraction(csi.initial_scroll_fraction)
 
-    def send_message(self, data):
+    def onscroll(self, evt):
+        if evt.view and evt.view is not window.top:
+            return
+        self.last_window_ypos = window.pageYOffset
+        update_flow_mode_scroll_indicators()
+
+    def send_message(self, action, **data):
+        data.action = action
         if self.encrypted_communications:
             data = self.gcm_to_parent.encrypt(JSON.stringify(data))
         window.parent.postMessage(data, '*')

@@ -1,0 +1,60 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from dom import build_rule
+from elementmaker import E
+from gettext import gettext as _
+from read_book.globals import current_layout_mode, current_spine_item, uid, get_boss
+
+flow_previous_indicator = flow_next_indicator = None
+
+def document_height():
+    html = document.documentElement
+    return max(document.body.scrollHeight, document.body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight)
+
+def setup_flow_indicators(style):
+    nonlocal flow_previous_indicator, flow_next_indicator
+    sel = 'flow-indicator-' + uid
+    flow_previous_indicator = E.div(
+        style='left:0; top:0;', '⬅ ' + _('prev page'), title=_('Go to the previous page'),
+        onclick=def():
+            get_boss().send_message('next_spine_item', previous=True)
+    )
+    flow_next_indicator = E.div(
+        style='right:0; bottom:0;', _('next page') + ' ➡', title=_('Go to the next page'),
+        onclick=def():
+            get_boss().send_message('next_spine_item', previous=False)
+    )
+    for c in [flow_next_indicator, flow_previous_indicator]:
+        c.setAttribute('class', sel)
+        document.body.appendChild(c)
+    document.body.appendChild(flow_previous_indicator)
+    document.body.appendChild(flow_next_indicator)
+    update_flow_mode_scroll_indicators()
+    style.push(build_rule(
+        '.' + sel, position='fixed', z_index='2147483647', padding='1ex 1em', margin='1em', border_radius='8px',
+        background_color='rgba(255, 255, 255, 0.7)', color='blue', cursor='pointer', font_size='larger', font_family='sans-serif',
+        transition='opacity 0.5s ease-in', opacity='0'
+    ))
+    style.push(build_rule('.' + sel + ':hover', color='red'))
+
+def update_flow_mode_scroll_indicators():
+    if not flow_previous_indicator or current_layout_mode() is not 'flow':
+        return
+    near_top = window.pageYOffset < 25
+    near_bottom = abs(window.pageYOffset + window.innerHeight - document_height()) < 25
+    csi = current_spine_item()
+    p = near_top and not csi.is_first
+    n = near_bottom and not csi.is_last
+    flow_previous_indicator.style.visibility = 'visible' if p else 'hidden'
+    flow_next_indicator.style.visibility = 'visible' if n else 'hidden'
+    flow_previous_indicator.style.opacity = '1' if p else '0'
+    flow_next_indicator.style.opacity = '1' if n else '0'
+
+def flow_change_mode():
+    if flow_previous_indicator:
+        d = 'block' if current_layout_mode() is 'flow' else 'none'
+        flow_previous_indicator.style.display = flow_next_indicator.style.display = d
+
+def flow_to_scroll_fraction(frac):
+    window.scrollTo(0, document_height() * frac)
