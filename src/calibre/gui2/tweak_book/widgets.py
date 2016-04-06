@@ -745,7 +745,7 @@ class InsertSemantics(Dialog):
             'foreword': _('Foreword'),
             'loi': _('List of Illustrations'),
             'lot': _('List of Tables'),
-            'notes:': _('Notes'),
+            'notes': _('Notes'),
             'preface': _('Preface'),
             'text': _('Text'),
         }
