@@ -132,6 +132,13 @@ class FilesystemTest(BaseTest):
         fpath = cache.format_abspath(1, cache.formats(1)[0])
         self.assertLessEqual(len(fpath), len(cache.backend.library_path) + cache.backend.PATH_LIMIT * 4)
 
+    def test_reserved_names(self):
+        ' Test that folders are not created with a windows reserve name '
+        cache = self.init_cache()
+        cache.set_field('authors', {1:'con'})
+        p = cache.field_for('path', 1).replace(os.sep, '/').split('/')
+        self.assertNotIn('con', p)
+
     def test_fname_change(self):
         ' Test the changing of the filename but not the folder name '
         cache = self.init_cache()

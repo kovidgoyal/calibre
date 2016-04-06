@@ -47,6 +47,7 @@ Differences in semantics from pysqlite:
 '''
 CUSTOM_DATA_TYPES = frozenset(['rating', 'text', 'comments', 'datetime',
     'int', 'float', 'bool', 'series', 'composite', 'enumeration'])
+WINDOWS_RESERVED_NAMES = frozenset('CON PRN AUX NUL COM1 COM2 COM3 COM4 COM5 COM6 COM7 COM8 COM9 LPT1 LPT2 LPT3 LPT4 LPT5 LPT6 LPT7 LPT8 LPT9'.split())
 
 
 class DynamicFilter(object):  # {{{
@@ -1139,6 +1140,8 @@ class DB(object):
         if not author:
             author = ascii_filename(_('Unknown')).decode(
                     'ascii', 'replace')
+        if author.upper() in WINDOWS_RESERVED_NAMES:
+            author += 'w'
         return '%s/%s%s' % (author, title, book_id)
 
     def construct_file_name(self, book_id, title, author, extlen):
