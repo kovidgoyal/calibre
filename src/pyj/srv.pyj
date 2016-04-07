@@ -63,7 +63,10 @@ is_running_in_iframe = False  # Changed before script is loaded in the iframe
 if is_running_in_iframe:
     init()
 else:
-    main_js = (document.currentScript or document.scripts[0]).textContent
+    script = document.currentScript or document.scripts[0]
+    main_js = script.textContent
+    script.parentNode.removeChild(script) # save some memory
+    script = undefined
     # We wait for all page elements to load, since this is a single page app
     # with a largely empty starting document, we can use this to preload any resources
     # we know are going to be needed immediately.
@@ -76,5 +79,3 @@ else:
                 src = xhr.responseText.replace('AUTORELOAD_PORT', port)
                 eval(src)
     ).send()  # We must bypass cache as otherwise we could get stale port info
-
-
