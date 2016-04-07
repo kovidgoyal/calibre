@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-from dom import build_rule
+from dom import build_rule, svgicon
 from elementmaker import E
 
 from book_list.theme import get_font_size, get_color
@@ -63,10 +63,9 @@ class ItemsView:
         for item in items:
             ic = ''
             if has_icons:
-                ic = 'fa fa-fw '
                 if item.icon_name:
-                    ic += ' fa-' + item.icon_name
-                ic = E.span('\xa0', class_=ic)
+                    ic = svgicon(item.icon_name)
+                ic = E.span(ic, '\xa0')
             ul.appendChild(E.li(E.a(href='javascript:void(0)',
                 E.div(ic, item.title, class_='item-title')
             )))

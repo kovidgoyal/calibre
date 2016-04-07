@@ -4,7 +4,7 @@
 from ajax import ajax
 from book_list.globals import get_current_query
 from book_list.theme import get_font_size
-from dom import clear, build_rule
+from dom import clear, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
 from book_list.globals import get_boss
@@ -126,13 +126,13 @@ def render_metadata(mi, interface_data, table, field_list=None):
                 td.lastChild.appendChild(E.a(
                     title=_('Read this book in the {} format').format(fmt),
                     href='javascript:void(0)', style='padding-left: 1em',
-                    E.i(class_='fa fa-book'),
+                    svgicon('book'),
                     onclick=read_format, data_format=fmt
                 ))
             td.lastChild.appendChild(E.a(
                 title=_('Download the {} format of this book').format(fmt),
                 href='javascript:void(0)', style='padding-left: 1em',
-                E.i(class_='fa fa-cloud-download'),
+                svgicon('cloud-download'),
                 onclick=download_format, data_format=fmt
             ))
             if fmt is not val[-1]:
@@ -142,7 +142,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
     def process_rating(field, fm, name, val):
         stars = E.span()
         for i in range(int(val) // 2):
-            stars.appendChild(E.i(class_='fa fa-star'))
+            stars.appendChild(svgicon('star'))
         add_row(name, stars)
 
     def process_identifiers(field, fm, name, val):

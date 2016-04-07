@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from book_list.theme import get_color, get_font_size
-from dom import set_css, clear, create_keyframes, build_rule
+from dom import set_css, clear, create_keyframes, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
 
@@ -70,7 +70,7 @@ class TopBar:
             left = bar.firstChild
             clear(left)
             title_elem = 'a' if callable(title_action) else 'span'
-            left.appendChild(E.a(title=tooltip, E.i(class_='fa fa-' + icon_name + ' fa-fw')))
+            left.appendChild(E.a(title=tooltip, svgicon(icon_name)))
             left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
                 style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(self.SPACING, self.VSPACING)))
             if bar is self.bar:
@@ -101,16 +101,17 @@ class TopBar:
             right = bar.firstChild.nextSibling
             right.appendChild(E.a(
                 style="margin-left: " + self.SPACING,
-                title=tooltip, E.i(class_='fa fa-' + icon_name + ' fa-fw')
+                title=tooltip, svgicon(icon_name),
             ))
             if bar is self.bar:
+                right.lastChild.setAttribute('id', 'top-bar-icon-' + icon_name)
                 if action is not None:
                     right.lastChild.addEventListener('click', def(event): event.preventDefault(), action();)
 
     def set_button_visibility(self, icon_name, visible):
         for bar in self.bar, self.dummy_bar:
             right = bar.firstChild.nextSibling
-            elem = right.querySelector('i.fa.fa-fw.fa-' + icon_name)
+            elem = right.querySelector('#top-bar-icon-' + icon_name)
             if elem:
                 elem.parentNode.style.display = 'inline' if visible else 'none'
 

@@ -28,7 +28,7 @@ class ClosePanelBar(BarState):
             close_panel()
             if close_callback is not None:
                 close_callback()
-        BarState.__init__(self, title=title, tooltip=tooltip, action=action, icon_name='times')
+        BarState.__init__(self, title=title, tooltip=tooltip, action=action, icon_name='close')
 
 class UIState:
 

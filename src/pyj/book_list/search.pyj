@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 from ajax import ajax
-from dom import clear, set_css, build_rule
+from dom import clear, set_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
 from widgets import create_button, BUTTON_VPADDING, create_spinner, Breadcrumbs
@@ -182,7 +182,7 @@ class SearchPanel:
                     ),
                     E.div(class_='tag-menu',
                         style='padding: 1ex; display:flex; align-items:center',
-                        E.div(E.i(class_='fa fa-angle-down'))
+                        E.div(svgicon('angle-down'))
                     )
             )
             set_css(div, max_width='45vw', border='solid 1px currentColor', border_radius='20px', margin='0.5rem', cursor='pointer', overflow='hidden', user_select='none')
@@ -210,7 +210,7 @@ class SearchPanel:
             if item:
                 li.appendChild(E.span(item.name))
             else:
-                li.appendChild(E.i(class_='fa fa-home fa-lg'))
+                li.appendChild(svgicon('home'))
 
         create_breadcrumb()
         parent = self.tag_browser_data
@@ -377,7 +377,7 @@ class SearchPanel:
             expr = self.search_expression_for_item(node, search_type)
             name = node.data.original_name or node.data.name or node.data.sort or ''
             if expr:
-                c = E.li(E.i(class_='fa fa-remove'), '\xa0' + name)
+                c = E.li(svgicon('remove'), '\xa0' + name)
                 container.appendChild(c)
                 c.addEventListener('click', remove_expression(node_id))
                 if parts.length:

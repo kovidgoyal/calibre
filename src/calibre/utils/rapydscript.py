@@ -100,6 +100,10 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
 def compile_srv():
     d = os.path.dirname
     base = d(d(d(d(os.path.abspath(__file__)))))
+    iconf = os.path.join(base, 'imgsrc', 'srv', 'generate.py')
+    g = {'__file__': iconf}
+    execfile(iconf, g)
+    icons = g['merge']().encode('utf-8')
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
     with lopen(rb, 'rb') as f:
@@ -109,7 +113,7 @@ def compile_srv():
     with lopen(fname, 'rb') as f:
         js = compile_pyj(f.read(), fname).replace('__RENDER_VERSION__', rv).encode('utf-8')
     with lopen(os.path.join(base, 'index.html'), 'rb') as f:
-        html = f.read().replace(b'MAIN_JS', js)
+        html = f.read().replace(b'MAIN_JS', js).replace(b'ICONS', icons)
     with lopen(os.path.join(base, 'index-generated.html'), 'wb') as f:
         f.write(html)
 
