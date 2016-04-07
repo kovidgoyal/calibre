@@ -43,7 +43,7 @@ class View:
         self.overlay = Overlay(self)
         self.src_doc = None
         self.iframe_ready = False
-        self.pending_spine_load = None
+        self.pending_load = None
         self.encrypted_communications = False
         self.create_src_doc()
         window.addEventListener('message', self.handle_message, False)
@@ -97,9 +97,9 @@ class View:
         messenger.reset()
         self.send_message('initialize', 'secret'=messenger.secret, 'translations'=self.ui.interface_data.translations)
         self.iframe_ready = True
-        if self.pending_spine_load:
-            data = self.pending_spine_load
-            self.pending_spine_load = None
+        if self.pending_load:
+            data = self.pending_load
+            self.pending_load = None
             self.show_spine_item_stage2(data)
 
     def on_iframe_error(self, data):
@@ -119,7 +119,9 @@ class View:
         self.show_name(book.manifest.spine[1])
 
     def show_name(self, name, initial_scroll_fraction=None, cfi=None):
-        self.currently_showing = {'name':name, 'cfi':cfi, 'initial_scroll_fraction':initial_scroll_fraction}
+        if self.currently_showing.loading:
+            return
+        self.currently_showing = {'name':name, 'cfi':cfi, 'initial_scroll_fraction':initial_scroll_fraction, 'loading':True}
         load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
 
     def goto_doc_boundary(self, data):
@@ -144,10 +146,11 @@ class View:
         self.loaded_resources = resource_data
         # Re-init the iframe to ensure any changes made to the environment by the last spine item are lost
         self.init_iframe()
-        # Now wait for frame to message that it is ready
-        self.pending_spine_load = resource_data
+        # Now wait for iframe to message that it is ready
+        self.pending_load = resource_data
 
     def show_spine_item_stage2(self, resource_data):
+        self.currently_showing.loading = False
         self.send_message('display', resource_data=resource_data, book=self.book, name=self.currently_showing.name,
                           initial_scroll_fraction=self.currently_showing.initial_scroll_fraction)
         self.encrypted_communications = True
