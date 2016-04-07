@@ -80,6 +80,14 @@ def human_readable(size, sep=' '):
         size = size[:-2]
     return size + sep + suffix
 
+def document_height():
+    html = document.documentElement
+    return max(document.body.scrollHeight, document.body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight)
+
+def document_width():
+    html = document.documentElement
+    return max(document.body.scrollWidth, document.body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth)
+
 if __name__ is '__main__':
     print(fmt_sidx(10), fmt_sidx(1.2))
     print(list(map(human_readable, [1, 1024.0, 1025, 1024*1024*2.3])))

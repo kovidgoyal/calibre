@@ -51,6 +51,7 @@ class View:
             'ready': self.on_iframe_ready,
             'error': self.on_iframe_error,
             'next_spine_item': self.on_next_spine_item,
+            'goto_doc_boundary': self.goto_doc_boundary,
         }
         self.currently_showing = {'spine':0, 'cfi':None}
 
@@ -117,9 +118,13 @@ class View:
         # TODO: Check for last open position of book
         self.show_name(book.manifest.spine[1])
 
-    def show_name(self, name, initial_scroll_fraction=0):
-        self.currently_showing = {'name':name, 'cfi':None, 'initial_scroll_fraction':initial_scroll_fraction}
+    def show_name(self, name, initial_scroll_fraction=None, cfi=None):
+        self.currently_showing = {'name':name, 'cfi':cfi, 'initial_scroll_fraction':initial_scroll_fraction}
         load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
+
+    def goto_doc_boundary(self, data):
+        name = self.book.manifest.spine[0 if data.start else self.book.manifest.spine.length - 1]
+        self.show_name(name, initial_scroll_fraction=0 if data.start else 1)
 
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine
@@ -127,12 +132,12 @@ class View:
         if data.previous:
             if idx is 0:
                 return
-            idx = max(idx - 1, 0)
+            idx = min(spine.length - 1, max(idx - 1, 0))
             self.show_name(spine[idx], initial_scroll_fraction=1)
         else:
             if idx is spine.length - 1:
                 return
-            idx = min(spine.length - 1, idx + 1)
+            idx = max(0, min(spine.length - 1, idx + 1))
             self.show_name(spine[idx])
 
     def show_spine_item(self, resource_data):

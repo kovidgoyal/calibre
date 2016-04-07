@@ -1,60 +1,99 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
-from dom import build_rule
-from elementmaker import E
-from gettext import gettext as _
-from read_book.globals import current_layout_mode, current_spine_item, uid, get_boss
-
-flow_previous_indicator = flow_next_indicator = None
-
-def document_height():
-    html = document.documentElement
-    return max(document.body.scrollHeight, document.body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight)
-
-def setup_flow_indicators(style):
-    nonlocal flow_previous_indicator, flow_next_indicator
-    sel = 'flow-indicator-' + uid
-    flow_previous_indicator = E.div(
-        style='right:0; top:0;', '⬅ ' + _('prev page'), title=_('Go to the previous page'),
-        onclick=def():
-            get_boss().send_message('next_spine_item', previous=True)
-    )
-    flow_next_indicator = E.div(
-        style='right:0; bottom:0;', _('next page') + ' ➡', title=_('Go to the next page'),
-        onclick=def():
-            get_boss().send_message('next_spine_item', previous=False)
-    )
-    for c in [flow_next_indicator, flow_previous_indicator]:
-        c.setAttribute('class', sel)
-        document.body.appendChild(c)
-    document.body.appendChild(flow_previous_indicator)
-    document.body.appendChild(flow_next_indicator)
-    update_flow_mode_scroll_indicators()
-    style.push(build_rule(
-        '.' + sel, position='fixed', z_index='2147483647', padding='1ex 1em', margin='1em', border_radius='8px',
-        background_color='#eee', color='#0070FF', cursor='pointer', font_size='larger', font_family='sans-serif',
-        transition='opacity 0.5s ease-in', opacity='0'
-    ))
-    style.push(build_rule('.' + sel + ':hover', color='red'))
-
-def update_flow_mode_scroll_indicators():
-    if not flow_previous_indicator or current_layout_mode() is not 'flow':
-        return
-    near_top = window.pageYOffset < 25
-    near_bottom = abs(window.pageYOffset + window.innerHeight - document_height()) < 25
-    csi = current_spine_item()
-    p = near_top and not csi.is_first
-    n = near_bottom and not csi.is_last
-    flow_previous_indicator.style.visibility = 'visible' if p else 'hidden'
-    flow_next_indicator.style.visibility = 'visible' if n else 'hidden'
-    flow_previous_indicator.style.opacity = '1' if p else '0'
-    flow_next_indicator.style.opacity = '1' if n else '0'
-
-def flow_change_mode():
-    if flow_previous_indicator:
-        d = 'block' if current_layout_mode() is 'flow' else 'none'
-        flow_previous_indicator.style.display = flow_next_indicator.style.display = d
+from read_book.globals import get_boss
+from keycodes import get_key
+from utils import document_height, document_width
 
 def flow_to_scroll_fraction(frac):
     window.scrollTo(0, document_height() * frac)
+
+def check_for_scroll_end(func):
+    return def ():
+        before = window.pageYOffset
+        func.apply(this, arguments)
+        if window.pageYOffset is before:
+            get_boss().send_message('next_spine_item', previous=window.pageYOffset < 5)
+            return False
+        return True
+
+@check_for_scroll_end
+def scroll_by(y):
+    window.scrollBy(0, y)
+
+def flow_onwheel(evt):
+    dx = dy = 0
+    if evt.deltaY:
+        if evt.deltaMode is evt.DOM_DELTA_PIXEL:
+            dy = evt.deltaY
+        elif evt.deltaMode is evt.DOM_DELTA_LINE:
+            dy = 15 * evt.deltaY
+        if evt.deltaMode is evt.DOM_DELTA_PAGE:
+            dy = (window.innerHeight - 30) * evt.deltaY
+    if evt.deltaX:
+        if evt.deltaMode is evt.DOM_DELTA_PIXEL:
+            dx = evt.deltaX
+        elif evt.deltaMode is evt.DOM_DELTA_LINE:
+            dx = 15 * evt.deltaX
+        else:
+            dx = (window.innerWidth - 30) * evt.deltaX
+    if dx:
+        window.scrollBy(dx, 0)
+    elif dy:
+        scroll_by(dy)
+
+smooth_y_data = {'last_event_at':0, 'up': False, 'timer':None, 'source':'wheel', 'pixels_per_ms': 0.2, 'scroll_interval':10, 'stop_scrolling_after':100}
+
+def do_y_scroll():
+    if scroll_by((-1 if smooth_y_data.up else 1) * smooth_y_data.pixels_per_ms * smooth_y_data.scroll_interval):
+        if Date.now() - smooth_y_data.last_event_at < smooth_y_data.stop_scrolling_after:
+            smooth_y_data.timer = setTimeout(do_y_scroll, smooth_y_data.scroll_interval)
+
+def smooth_y_scroll(up):
+    clearTimeout(smooth_y_data.timer)
+    smooth_y_data.last_event_at = Date.now()
+    smooth_y_data.up = up
+    do_y_scroll()
+
+@check_for_scroll_end
+def goto_start():
+    window.scrollTo(window.pageXOffset, 0)
+
+@check_for_scroll_end
+def goto_end():
+    window.scrollTo(window.pageXOffset, document_height())
+
+@check_for_scroll_end
+def scroll_by_page(up):
+    h = window.innerHeight - 10
+    window.scrollBy(0, -h if up else h)
+
+def flow_onkeydown(evt):
+    handled = False
+    key = get_key(evt)
+    if key is 'up' or key is 'down':
+        handled = True
+        if evt.ctrlKey:
+            goto_start() if key is 'up' else goto_end()
+        else:
+            smooth_y_scroll(key is 'up')
+    elif key is 'left' or key is 'right':
+        handled = True
+        if evt.ctrlKey:
+            window.scrollTo(0 if key is 'left' else document_width(), window.pageYOffset)
+        else:
+            window.scrollBy(-15 if key is 'left' else 15, 0)
+    elif key is 'home' or key is 'end':
+        handled = True
+        if evt.ctrlKey:
+            get_boss().send_message('goto_doc_boundary', start=key is 'home')
+        else:
+            if key is 'home':
+                window.scrollTo(window.pageXOffset, 0)
+            else:
+                window.scrollTo(window.pageXOffset, document_height())
+    elif key is 'pageup' or key is 'pagedown' or key is 'space':
+        handled = True
+        scroll_by_page(key is 'pageup')
+    if handled:
+        evt.preventDefault()

@@ -3,11 +3,10 @@
 from __python__ import bound_methods
 
 from aes import GCM
-from elementmaker import E
 from gettext import install
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item
 from read_book.resources import finalize_resources, unserialize_html
-from read_book.flow_mode import setup_flow_indicators, update_flow_mode_scroll_indicators, flow_change_mode, flow_to_scroll_fraction
+from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown
 from utils import debounce
 
 class Boss:
@@ -65,21 +64,30 @@ class Boss:
         unserialize_html(root_data, self.content_loaded)
 
     def content_loaded(self):
-        window.addEventListener('scroll', debounce(self.onscroll, 15))
-        style = v'[]'
-        setup_flow_indicators(style)
-        document.head.appendChild(E.style(type='text/css', style.join('\n')))
-        flow_change_mode()
+        document.documentElement.style.overflow = 'hidden'
+        window.addEventListener('scroll', debounce(self.update_cfi, 1000))
+        window.addEventListener('resize', debounce(self.onresize, 500))
+        window.addEventListener('wheel', self.onwheel)
+        window.addEventListener('keydown', self.onkeydown)
         csi = current_spine_item()
-        if csi.initial_scroll_fraction:
+        if csi.initial_scroll_fraction is not None:
             if current_layout_mode() is 'flow':
                 flow_to_scroll_fraction(csi.initial_scroll_fraction)
 
-    def onscroll(self, evt):
-        if evt.view and evt.view is not window.top:
-            return
-        self.last_window_ypos = window.pageYOffset
-        update_flow_mode_scroll_indicators()
+    def update_cfi(self):
+        pass  # TODO: Update CFI
+
+    def onresize(self):
+        self.update_cfi()
+
+    def onwheel(self, evt):
+        evt.preventDefault()
+        if current_layout_mode() is 'flow':
+            flow_onwheel(evt)
+
+    def onkeydown(self, evt):
+        if current_layout_mode() is 'flow':
+            flow_onkeydown(evt)
 
     def send_message(self, action, **data):
         data.action = action
