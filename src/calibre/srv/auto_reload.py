@@ -253,7 +253,7 @@ class Worker(object):
     def ping_thread(self):
         while True:
             self.server.ping()
-            time.sleep(0.9 * self.connection_timeout)
+            time.sleep(30)
 
     def __enter__(self):
         self.restart()
@@ -341,7 +341,7 @@ class ReloadHandler(DummyHandler):
             for connref in self.connections.itervalues():
                 conn = connref()
                 if conn is not None and conn.ready:
-                    conn.send_websocket_ping()
+                    conn.send_websocket_message('ping')
 
 
 class ReloadServer(Thread):

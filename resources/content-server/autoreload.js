@@ -33,7 +33,7 @@
             };
 
             self.ws.onmessage = function(event) {
-                console.log('Received mesasge from reload server: ' + event.data);
+                if (event.data !== 'ping') console.log('Received mesasge from reload server: ' + event.data);
                 if (event.data === 'reload') window.location.reload(true);
             };
 
