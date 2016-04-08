@@ -566,7 +566,7 @@ def get_device_registry_property(dev_list, p_devinfo, property_type=SPDRP_HARDWA
         if not SetupDiGetDeviceRegistryProperty(dev_list, p_devinfo, property_type, byref(data_type), cast(buf, POINTER(BYTE)), len(buf), byref(required_size)):
             err = get_last_error()
             if err == ERROR_INSUFFICIENT_BUFFER:
-                buf = create_string_buffer(required_size)
+                buf = create_string_buffer(required_size.value)
                 continue
             if err == ERROR_INVALID_DATA:
                 break
@@ -589,7 +589,7 @@ def get_device_interface_detail_data(dev_list, p_interface_data, buf=None):
         if not SetupDiGetDeviceInterfaceDetail(dev_list, p_interface_data, detail, len(buf), byref(required_size), byref(devinfo)):
             err = get_last_error()
             if err == ERROR_INSUFFICIENT_BUFFER:
-                buf = create_string_buffer(required_size + 50)
+                buf = create_string_buffer(required_size.value + 50)
                 detail = cast(buf, PSP_DEVICE_INTERFACE_DETAIL_DATA)
                 detail.contents.cbSize = 8 if is64bit else 6
                 continue
