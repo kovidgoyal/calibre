@@ -150,6 +150,16 @@ def finalize_resources(book, root_name, resource_data):
 
 js_types = set('text/javascript text/ecmascript application/javascript application/ecmascript'.split(' '))
 resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}
+ns_rmap = {'http://www.w3.org/2000/svg':'svg', 'http://www.w3.org/1999/xlink':'xlink', 'http://www.w3.org/1998/Math/MathML':'math', 'http://www.w3.org/XML/1998/namespace': 'xml'}
+ns_count = 0
+
+def get_prefix(ns):
+    nonlocal ns_count
+    ans = ns_rmap[ns]
+    if not ans:
+        ns_rmap[ns] = ans = 'ns' + ns_count
+        ns_count += 1
+    return ans + ':'
 
 def apply_attributes(src, elem, ns_map):
     attributes = src.a
@@ -157,7 +167,8 @@ def apply_attributes(src, elem, ns_map):
         return
     for a in attributes:
         if a[2]:
-            elem.setAttributeNS(ns_map[a[2]], a[0], a[1])
+            ns = ns_map[a[2]]
+            elem.setAttributeNS(ns, get_prefix(ns) + a[0], a[1])
         else:
             elem.setAttribute(a[0], a[1])
 
