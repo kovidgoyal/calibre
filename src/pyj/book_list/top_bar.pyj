@@ -103,15 +103,15 @@ class TopBar:
                 style="margin-left: " + self.SPACING,
                 title=tooltip, svgicon(icon_name),
             ))
+            right.lastChild.setAttribute('id', ('top' if bar is self.bar else 'dummy') + '-bar-icon-' + icon_name)
             if bar is self.bar:
-                right.lastChild.setAttribute('id', 'top-bar-icon-' + icon_name)
                 if action is not None:
                     right.lastChild.addEventListener('click', def(event): event.preventDefault(), action();)
 
     def set_button_visibility(self, icon_name, visible):
         for bar in self.bar, self.dummy_bar:
             right = bar.firstChild.nextSibling
-            elem = right.querySelector('#top-bar-icon-' + icon_name)
+            elem = right.querySelector('#{}-bar-icon-{}'.format(('top' if bar is self.bar else 'dummy'), icon_name))
             if elem:
                 elem.parentNode.style.display = 'inline' if visible else 'none'
 
