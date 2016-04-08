@@ -94,6 +94,8 @@ class OCFReader(OCF):
         except KeyError:
             raise EPubException("missing OCF container.xml file")
         self.opf_path = self.container[OPF.MIMETYPE]
+        if not self.opf_path:
+            raise EPubException("missing OPF package file entry in container")
         try:
             with closing(self.open(self.opf_path)) as f:
                 self.opf = OPF(f, self.root, populate_spine=False)
