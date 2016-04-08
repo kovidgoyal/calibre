@@ -35,6 +35,7 @@ _re_cache_map = {}
 _re_cache_items = v'[]'
 
 error = SyntaxError  # This is the error JS throws for invalid regexps
+has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
 
 def _expand(groups, repl, group_name_map):
     i = 0
@@ -68,7 +69,7 @@ def _expand(groups, repl, group_name_map):
             return '\\'
         if '"\''.indexOf(q) is not -1:
             return q
-        if _ASCII_CONTROL_CHARS.hasOwnProperty(q):
+        if _ASCII_CONTROL_CHARS[q]:
             return String.fromCharCode(_ASCII_CONTROL_CHARS[q])
         if '0' <= q <= '9':
             ans = read_digits(Number.MAX_VALUE, _NUM_PAT, 10, Number.MAX_VALUE, q)
@@ -81,7 +82,7 @@ def _expand(groups, repl, group_name_map):
                 i += m[0].length
                 gn = m[1]
                 if isNaN(parseInt(gn, 10)):
-                    if not Object.prototype.hasOwnProperty.call(group_name_map, gn):
+                    if not has_prop(group_name_map, gn):
                         return ''
                     gn = group_name_map[gn][-1]
                 return groups[gn] or ''
@@ -112,7 +113,7 @@ def _expand(groups, repl, group_name_map):
                 return '\\N{' + name
             next()
             key = (name or '').toLowerCase()
-            if not name or not Object.prototype.hasOwnProperty.call(_ALIAS_MAP, key):
+            if not name or not has_prop(_ALIAS_MAP, key):
                 return '\\N{' + name + '}'
             code = _ALIAS_MAP[key]
             if code <= 0xFFFF:
@@ -177,7 +178,7 @@ def transform_regex(source, flags):
                     flgs = source[pos+1:close]
                     for v'var i = 0; i < flgs.length; i++':
                         q = flgs[i]  # noqa:undef
-                        if not flag_map.hasOwnProperty(q):
+                        if not has_prop(flag_map, q):
                             raise SyntaxError('Invalid flag: ' + q)
                         flags |= flag_map[q]
                     pos = close + 1
@@ -194,7 +195,7 @@ def transform_regex(source, flags):
                         if close is -1:
                             raise SyntaxError('Named group not closed, expecting >')
                         name = source[pos+1:close]
-                        if not Object.prototype.hasOwnProperty.call(group_map, name):
+                        if not has_prop(group_map, name):
                             group_map[name] = v'[]'
                         group_map[name].push(v'++group_count')
                         pos = close + 1
@@ -206,7 +207,7 @@ def transform_regex(source, flags):
                         if not isNaN(parseInt(name, 10)):
                             ans += '\\' + name
                         else:
-                            if not Object.prototype.hasOwnProperty.call(group_map, name):
+                            if not has_prop(group_map, name):
                                 raise SyntaxError('Invalid back-reference. The named group: ' + name + ' has not yet been defined.')
                             ans += '\\' + group_map[name][-1]
                         pos = close + 1
@@ -265,7 +266,7 @@ class MatchObject:
     def _group_number(self, g):
         if type(g) is 'number':
             return g
-        if Object.prototype.hasOwnProperty.call(self.re.group_name_map, g):
+        if has_prop(self.re.group_name_map, g):
             return self.re.group_name_map[g][-1]
         return g
 
@@ -274,7 +275,7 @@ class MatchObject:
         if type(q) is 'number' and -1 < q < self._groups.length:
             val = self._groups[q]
         else:
-            if Object.prototype.hasOwnProperty.call(self.re.group_name_map, q):
+            if has_prop(self.re.group_name_map, q):
                 val = self._groups[self.re.group_name_map[q][-1]]
         if val is undefined:
             val = defval
@@ -317,7 +318,7 @@ class MatchObject:
         ans = {}
         for v"var i = 0; i < names.length; i++":
             name = names[i]  # noqa:undef
-            if Object.prototype.hasOwnProperty.call(gnm, name):
+            if has_prop(gnm, name):
                 val = self._groups[gnm[name][-1]]
                 if val is undefined:
                     val = defval
@@ -326,7 +327,7 @@ class MatchObject:
 
     def captures(self, group_name):
         ans = []
-        if not Object.prototype.hasOwnProperty.call(self.re.group_name_map, group_name):
+        if not has_prop(self.re.group_name_map, group_name):
             return ans
         groups = self.re.group_name_map[group_name]
         for v'var i = 0; i < groups.length; i++':
@@ -384,18 +385,17 @@ class RegexObject:
         return ρσ_list_decorate(string.match(self._pattern) or v'[]')
 
     def finditer(self, string):
-        pat = RegExp(this._pattern.source, this._modifiers)  # We have to do this since lastIndex is mutable
-        return {
-            '_string':string,
-            '_r': pat,
-            '_self': self,
-            ρσ_iterator_symbol: def (): return this;,
-            'next': def ():
-                m = this._r.exec(this._string)
-                if m is None:
-                    return {'done':True}
-                return {'done':False, 'value':MatchObject(this._self, m, 0, None)}
-        }
+        # We have to copy pat since lastIndex is mutable
+        pat = RegExp(this._pattern.source, this._modifiers)  # noqa: unused-local
+        ans = v"{'_string':string, '_r':pat, '_self':self}"
+        ans[ρσ_iterator_symbol] = def():
+            return this
+        ans['next'] = def():
+            m = this._r.exec(this._string)
+            if m is None:
+                return v"{'done':true}"
+            return v"{'done':false, 'value':new MatchObject(this._self, m, 0, null)}"
+        return ans
 
     def subn(self, repl, string, count=0):
         expand = _expand
@@ -426,7 +426,7 @@ def _get_from_cache(pattern, flags):
     if isinstance(pattern, RegExp):
         pattern = pattern.source
     key = JSON.stringify(v'[pattern, flags]')
-    if Object.prototype.hasOwnProperty.call(_re_cache_map, key):
+    if has_prop(_re_cache_map, key):
         return _re_cache_map[key]
     if _re_cache_items.length >= 100:
         v'delete _re_cache_map[_re_cache_items.shift()]'
