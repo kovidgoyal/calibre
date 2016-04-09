@@ -15,6 +15,11 @@ defaults = {
     'sort_tags_by': 'name', # other choices: popularity, rating
     'hide_empty_categories': 'no',
     'and_search_terms': False,  # how to add search terms to the search expression from the Tag Browser
+
+    # Book reader settings
+    'margin_side': 20,
+    'margin_top': 20,
+    'margin_bottom': 20,
 }
 
 def storage_available(which):
