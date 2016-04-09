@@ -104,6 +104,8 @@ def compile_srv():
     g = {'__file__': iconf}
     execfile(iconf, g)
     icons = g['merge']().encode('utf-8')
+    with lopen(os.path.join(base, 'resources', 'content-server', 'reset.css'), 'rb') as f:
+        reset = f.read()
     rapydscript_dir = os.path.join(base, 'src', 'pyj')
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
     with lopen(rb, 'rb') as f:
@@ -113,7 +115,7 @@ def compile_srv():
     with lopen(fname, 'rb') as f:
         js = compile_pyj(f.read(), fname).replace('__RENDER_VERSION__', rv).encode('utf-8')
     with lopen(os.path.join(base, 'index.html'), 'rb') as f:
-        html = f.read().replace(b'MAIN_JS', js).replace(b'ICONS', icons)
+        html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
     with lopen(os.path.join(base, 'index-generated.html'), 'wb') as f:
         f.write(html)
 
