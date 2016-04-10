@@ -168,6 +168,7 @@ class ReadUI:
         progress_track = {}
         pbar.setAttribute('max', total + '')
         raster_cover_name = book.manifest.raster_cover_name
+        raster_cover_size = 0
 
         def update_progress():
             x = 0
@@ -191,7 +192,7 @@ class ReadUI:
 
         def on_complete(end_type, xhr, ev):
             self.downloads_in_progress.remove(xhr)
-            progress_track[this] = files[this].size
+            progress_track[this] = raster_cover_size if this is raster_cover_name else files[this].size
             update_progress()
             if end_type is 'abort':
                 files_left.discard(this)
@@ -203,10 +204,11 @@ class ReadUI:
                 files_left.discard(this)
 
         def on_progress(loaded, ftotal):
-            nonlocal total, cover_total_updated
+            nonlocal total, cover_total_updated, raster_cover_size
             if this is raster_cover_name and not cover_total_updated:
+                raster_cover_size = ftotal
                 cover_total_updated = True
-                total = total - files[raster_cover_name].size + ftotal
+                total = total - files[raster_cover_name].size + raster_cover_size
                 pbar.setAttribute('max', total + '')
             progress_track[this] = loaded
             update_progress()
