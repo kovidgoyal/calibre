@@ -16,10 +16,18 @@ from PyQt5.Qt import (
 
 from calibre.ebooks.metadata.tag_mapper import map_tags, compile_pat
 from calibre.gui2 import error_dialog, elided_text, Application, question_dialog
+from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 
 tag_maps = JSONConfig('tag-map-rules')
+
+class QueryEdit(QLineEdit):
+
+    def contextMenuEvent(self, ev):
+        menu = self.createStandardContextMenu()
+        self.parent().specialise_context_menu(menu)
+        menu.exec_(ev.globalPos())
 
 class RuleEdit(QWidget):
 
@@ -66,8 +74,13 @@ class RuleEdit(QWidget):
         q.currentIndexChanged.connect(self.update_state)
         self.la2 = la = QLabel(':\xa0')
         h.addWidget(la)
-        self.query = q = QLineEdit(self)
+        self.query = q = QueryEdit(self)
         h.addWidget(q)
+        self.tag_editor_button = b = QToolButton(self)
+        b.setIcon(QIcon(I('chapters.png')))
+        b.setToolTip(_('Edit the list of tags with the tag editor'))
+        h.addWidget(b), b.clicked.connect(self.edit_tags)
+        b.setVisible(self.can_use_tag_editor)
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)
         self.la3 = la = QLabel(_('with the tag:') + '\xa0')
@@ -84,13 +97,29 @@ class RuleEdit(QWidget):
         a.setWidth(a.width() + 100)
         return a
 
+    @property
+    def can_use_tag_editor(self):
+        return self.SUBJECT is RuleEdit.SUBJECT and 'matches' not in self.match_type.currentData() and get_gui() is not None
+
     def update_state(self):
         replace = self.action.currentData() == 'replace'
         self.la3.setVisible(replace), self.replace.setVisible(replace)
         tt = _('A comma separated list of tags')
-        if 'matches' in self.match_type.currentData():
+        is_match = 'matches' in self.match_type.currentData()
+        self.tag_editor_button.setVisible(self.can_use_tag_editor)
+        if is_match:
             tt = _('A regular expression')
         self.query.setToolTip(tt)
+
+    def specialise_context_menu(self, menu):
+        if self.can_use_tag_editor:
+            menu.addAction(_('Use the tag editor to edit the list of tags'), self.edit_tags)
+
+    def edit_tags(self):
+        from calibre.gui2.dialogs.tag_editor import TagEditor
+        d = TagEditor(self, get_gui().current_db, current_tags=filter(None, [x.strip() for x in self.query.text().split(',')]))
+        if d.exec_() == d.Accepted:
+            self.query.setText(', '.join(d.tags))
 
     @property
     def rule(self):

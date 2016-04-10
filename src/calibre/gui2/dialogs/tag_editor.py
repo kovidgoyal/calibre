@@ -12,7 +12,7 @@ from calibre.utils.icu import sort_key, primary_contains
 
 class TagEditor(QDialog, Ui_TagEditor):
 
-    def __init__(self, window, db, id_=None, key=None):
+    def __init__(self, window, db, id_=None, key=None, current_tags=None):
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
         self.setupUi(self)
@@ -40,6 +40,8 @@ class TagEditor(QDialog, Ui_TagEditor):
                 tags = self.db.get_custom(self.index, label=key)
         else:
             tags = []
+        if current_tags is not None:
+            tags = sorted(set(current_tags), key=sort_key)
         if tags:
             if not self.is_names:
                 tags.sort(key=sort_key)
@@ -56,10 +58,10 @@ class TagEditor(QDialog, Ui_TagEditor):
             all_tags = [tag for tag in self.db.all_custom(label=key)]
         else:
             all_tags = [tag for tag in self.db.all_tags()]
-        all_tags = list(set(all_tags))
-        all_tags.sort(key=sort_key)
+        all_tags = sorted(set(all_tags), key=sort_key)
+        q = set(tags)
         for tag in all_tags:
-            if tag not in tags:
+            if tag not in q:
                 self.available_tags.addItem(tag)
 
         self.apply_button.clicked.connect(lambda: self.apply_tags())
@@ -92,7 +94,6 @@ class TagEditor(QDialog, Ui_TagEditor):
 
     def edit_box_changed(self, which):
         gprefs['tag_editor_last_filter'] = which
-
 
     def delete_tags(self, item=None):
         confirms, deletes = [], []
@@ -230,5 +231,6 @@ if __name__ == '__main__':
     from calibre.library import db
     db = db()
     app = Application([])
-    d = TagEditor(None, db, key='#authors', id_=tuple(db.new_api.all_book_ids())[0])
-    d.exec_()
+    d = TagEditor(None, db, current_tags='a b c'.split())
+    if d.exec_() == d.Accepted:
+        print(d.tags)
