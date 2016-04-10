@@ -433,6 +433,13 @@ class VLTabs(QTabBar):  # {{{
             for x in hidden:
                 s.addAction(x, partial(self.restore, x))
         m.addAction(_('Hide virtual library tabs'), self.disable_bar)
+        i = self.tabAt(ev.pos())
+        if i > -1:
+            vl = unicode(self.tabData(i) or '')
+            if vl:
+                m.addSeparator()
+                m.addAction(_('Edit "%s"') % vl, partial(self.gui.do_create_edit, name=vl))
+                m.addAction(_('Delete "%s"') % vl, partial(self.gui.remove_vl_triggered, name=vl))
         m.exec_(ev.globalPos())
 
     def sort_alphabetically(self):
