@@ -7,19 +7,23 @@ __docformat__ = 'restructuredtext en'
 
 import json
 
+from collections import defaultdict
 from threading import Thread
 from functools import partial
 
 from PyQt5.Qt import (
     QApplication, QFont, QFontInfo, QFontDialog, QColorDialog, QPainter,
     QAbstractListModel, Qt, QIcon, QKeySequence, QColor, pyqtSignal, QCursor,
-    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout)
+    QWidget, QSizePolicy, QBrush, QPixmap, QSize, QPushButton, QVBoxLayout,
+    QTableWidget, QTableWidgetItem, QLabel, QFormLayout, QLineEdit
+)
 
 from calibre import human_readable
+from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.look_feel_ui import Ui_Form
-from calibre.gui2 import config, gprefs, qt_app, open_local_file, question_dialog
+from calibre.gui2 import config, gprefs, qt_app, open_local_file, question_dialog, error_dialog
 from calibre.utils.localization import (available_translations,
     get_language, get_lang)
 from calibre.utils.config import prefs
@@ -27,6 +31,7 @@ from calibre.utils.icu import sort_key
 from calibre.gui2.book_details import get_field_list
 from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
+from calibre.gui2.widgets2 import Dialog
 
 class BusyCursor(object):
 
@@ -35,6 +40,115 @@ class BusyCursor(object):
 
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
+
+# IdLinksEditor {{{
+
+class IdLinksRuleEdit(Dialog):
+
+    def __init__(self, key='', name='', template='', parent=None):
+        title = _('Edit rule') if key else _('Create a new rule')
+        Dialog.__init__(self, title=title, name='id-links-rule-editor', parent=parent)
+        self.key.setText(key), self.nw.setText(name), self.template.setText(template or 'http://example.com/{id}')
+
+    @property
+    def rule(self):
+        return self.key.text().lower(), self.nw.text(), self.template.text()
+
+    def setup_ui(self):
+        self.l = l = QFormLayout(self)
+        l.setFieldGrowthPolicy(l.AllNonFixedFieldsGrow)
+        l.addRow(QLabel(_(
+            'The key of the identifier, for example, in isbn:XXX, they key is isbn')))
+        self.key = k = QLineEdit(self)
+        l.addRow(_('&Key:'), k)
+        l.addRow(QLabel(_(
+            'The name that will appear in the book details panel')))
+        self.nw = n = QLineEdit(self)
+        l.addRow(_('&Name:'), n)
+        la = QLabel(_(
+            'The template used to create the link. The placeholder {id} in the template will be replaced with the actual identifier value.'))
+        la.setWordWrap(True)
+        l.addRow(la)
+        self.template = t = QLineEdit(self)
+        l.addRow(_('&Template:'), t)
+        t.selectAll()
+        t.setFocus(Qt.OtherFocusReason)
+        l.addWidget(self.bb)
+
+    def accept(self):
+        r = self.rule
+        for i, which in enumerate([_('Key'), _('Name'), _('Template')]):
+            if not r[i]:
+                return error_dialog(self, _('Value needed'), _(
+                    'The %s field cannot be empty') % which, show=True)
+        Dialog.accept(self)
+
+class IdLinksEditor(Dialog):
+
+    def __init__(self, parent=None):
+        Dialog.__init__(self, title=_('Create rules for identifiers'), name='id-links-rules-editor', parent=parent)
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self.la = la = QLabel(_(
+            'Create rules to convert identifiers into links.'))
+        la.setWordWrap(True)
+        l.addWidget(la)
+        items = []
+        for k, lx in msprefs['id_link_rules'].iteritems():
+            for n, t in lx:
+                items.append((k, n, t))
+        items.sort(key=lambda x:sort_key(x[1]))
+        self.table = t = QTableWidget(len(items), 3, self)
+        t.setHorizontalHeaderLabels([_('Key'), _('Name'), _('Template')])
+        for r, (key, val, template) in enumerate(items):
+            t.setItem(r, 0, QTableWidgetItem(key))
+            t.setItem(r, 1, QTableWidgetItem(val))
+            t.setItem(r, 2, QTableWidgetItem(template))
+        l.addWidget(t)
+        t.horizontalHeader().setSectionResizeMode(2, t.horizontalHeader().Stretch)
+        self.cb = b = QPushButton(QIcon(I('plus.png')), _('&Add rule'), self)
+        b.clicked.connect(lambda : self.edit_rule())
+        self.bb.addButton(b, self.bb.ActionRole)
+        self.rb = b = QPushButton(QIcon(I('minus.png')), _('&Remove rule'), self)
+        b.clicked.connect(lambda : self.remove_rule())
+        self.bb.addButton(b, self.bb.ActionRole)
+        self.eb = b = QPushButton(QIcon(I('modified.png')), _('&Edit rule'), self)
+        b.clicked.connect(lambda : self.edit_rule(self.table.currentRow()))
+        self.bb.addButton(b, self.bb.ActionRole)
+        l.addWidget(self.bb)
+
+    def sizeHint(self):
+        return QSize(700, 550)
+
+    def accept(self):
+        rules = defaultdict(list)
+        for r in range(self.table.rowCount()):
+            def item(c):
+                return self.table.item(r, c).text()
+            rules[item(0)].append([item(1), item(2)])
+        msprefs['id_link_rules'] = dict(rules)
+        Dialog.accept(self)
+
+    def edit_rule(self, r=-1):
+        key = name = template = ''
+        if r > -1:
+            key, name, template = map(lambda c: self.table.item(r, c).text(), range(3))
+        d = IdLinksRuleEdit(key, name, template, self)
+        if d.exec_() == d.Accepted:
+            if r < 0:
+                self.table.setRowCount(self.table.rowCount() + 1)
+                r = self.table.rowCount() - 1
+            rule = d.rule
+            for c in range(3):
+                self.table.setItem(r, c, QTableWidgetItem(rule[c]))
+            self.table.scrollToItem(self.table.item(r, 0))
+
+    def remove_rule(self):
+        r = self.table.currentRow()
+        if r > -1:
+            self.table.removeRow(r)
+# }}}
 
 class DisplayedFields(QAbstractListModel):  # {{{
 
@@ -178,6 +292,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
         r('book_list_extra_row_spacing', gprefs)
         self.cover_browser_title_template_button.clicked.connect(self.edit_cb_title_template)
+        self.id_links_button.clicked.connect(self.edit_id_link_rules)
 
         def get_esc_lang(l):
             if l == 'en':
@@ -308,6 +423,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             self.commit_icon_theme = d.commit_changes
             self.icon_theme_title = d.new_theme_title or _('Default icons')
             self.icon_theme.setText(_('Icon theme: <b>%s</b>') % self.icon_theme_title)
+            self.changed_signal.emit()
+
+    def edit_id_link_rules(self):
+        if IdLinksEditor(self).exec_() == Dialog.Accepted:
             self.changed_signal.emit()
 
     @property
@@ -519,5 +638,3 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     test_widget('Interface', 'Look & Feel')
-
-

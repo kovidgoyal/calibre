@@ -14,6 +14,7 @@ from threading import Thread
 from io import BytesIO
 from operator import attrgetter
 from urlparse import urlparse
+from urllib import quote
 
 from calibre.customize.ui import metadata_plugins, all_metadata_plugins
 from calibre.ebooks.metadata import check_issn
@@ -25,6 +26,7 @@ from calibre.utils.date import utc_tz, as_utc
 from calibre.utils.html2text import html2text
 from calibre.utils.icu import lower
 from calibre.utils.date import UNDEFINED_DATE
+from calibre.utils.formatter import EvalFormatter
 
 # Download worker {{{
 class Worker(Thread):
@@ -477,9 +479,9 @@ def identify(log, abort,  # {{{
                 if f == 'series':
                     result.series_index = dummy.series_index
             result.relevance_in_source = i
-            result.has_cached_cover_url = (plugin.cached_cover_url_is_reliable
-                    and plugin.get_cached_cover_url(result.identifiers) is not
-                    None)
+            result.has_cached_cover_url = (
+                plugin.cached_cover_url_is_reliable and
+                plugin.get_cached_cover_url(result.identifiers) is not None)
             result.identify_plugin = plugin
             if msprefs['txt_comments']:
                 if plugin.has_html_comments and result.comments:
@@ -524,6 +526,20 @@ def identify(log, abort,  # {{{
 def urls_from_identifiers(identifiers):  # {{{
     identifiers = {k.lower():v for k, v in identifiers.iteritems()}
     ans = []
+    rules = msprefs['id_link_rules']
+    if rules:
+        formatter = EvalFormatter()
+        for k, val in identifiers.iteritems():
+            vals = {'id':quote(val)}
+            items = rules.get(k) or ()
+            for name, template in items:
+                try:
+                    url = formatter.safe_format(template, vals, '', vals)
+                except Exception:
+                    import traceback
+                    traceback.format_exc()
+                    continue
+                ans.append((name, k, val, url))
     for plugin in all_metadata_plugins():
         try:
             for id_type, id_val, url in plugin.get_book_urls(identifiers):

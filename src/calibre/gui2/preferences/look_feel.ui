@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>820</width>
+    <width>843</width>
     <height>546</height>
    </rect>
   </property>
@@ -661,7 +661,7 @@ A value of zero means calculate automatically.</string>
        <string>Book Details</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_12">
-       <item row="2" column="1">
+       <item row="3" column="1">
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>Note that &lt;b&gt;comments&lt;/b&gt; will always be displayed at the end, regardless of the position you assign here.</string>
@@ -671,7 +671,7 @@ A value of zero means calculate automatically.</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0" rowspan="2">
+       <item row="3" column="0" rowspan="2">
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Select displayed metadata</string>
@@ -801,6 +801,13 @@ Manage Authors. You can use the values {author} and
          </item>
         </layout>
        </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="QPushButton" name="id_links_button">
+         <property name="text">
+          <string>Create rules to convert &amp;identifiers into links</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_2">
@@ -900,14 +907,14 @@ then the tags will be displayed each on their own line.</string>
        </item>
        <item row="8" column="0" colspan="2">
         <widget class="QCheckBox" name="opt_tag_browser_hide_empty_categories">
-         <property name="text">
-          <string>Hi&amp;de empty categories (columns) in the tag browser</string>
-         </property>
          <property name="toolTip">
           <string>When checked, calibre will automatically hide any category
  (a column, custom or standard) that has no items to show. For example, some
  categories might not have values when using virtual libraries. Checking this
  box will cause these empty categories to be hidden.</string>
+         </property>
+         <property name="text">
+          <string>Hi&amp;de empty categories (columns) in the tag browser</string>
          </property>
         </widget>
        </item>
@@ -956,7 +963,7 @@ if you never want subcategories</string>
        <item row="5" column="1">
         <widget class="QLineEdit" name="opt_cover_browser_title_template">
          <property name="toolTip">
-			 <string>The template used to generate the text below the covers. Uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.</string>
+          <string>The template used to generate the text below the covers. Uses the same syntax as save templates. Defaults to just the book title. Note that this setting is per-library, which means that you have to set it again for every different calibre library you use.</string>
          </property>
         </widget>
        </item>
