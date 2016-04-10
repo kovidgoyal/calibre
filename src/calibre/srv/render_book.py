@@ -139,8 +139,11 @@ class Container(ContainerBase):
             url, frag = purl.path, purl.fragment
             name = self.href_to_name(url, base)
             if name:
-                frag = urlunquote(frag)
-                url = resource_template.format(encode_url(name, frag))
+                if self.has_name(name):
+                    frag = urlunquote(frag)
+                    url = resource_template.format(encode_url(name, frag))
+                else:
+                    url = 'link-to-missing-item-' + name
                 changed.add(base)
             return url
 
