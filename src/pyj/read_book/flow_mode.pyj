@@ -13,7 +13,7 @@ def check_for_scroll_end(func):
         before = window.pageYOffset
         func.apply(this, arguments)
         if window.pageYOffset is before:
-            get_boss().send_message('next_spine_item', previous=window.pageYOffset < 5)
+            get_boss().send_message('next_spine_item', previous=arguments[0] < 0)
             return False
         return True
 
@@ -56,17 +56,13 @@ def smooth_y_scroll(up):
     do_y_scroll()
 
 @check_for_scroll_end
-def goto_start():
+def goto_boundary(y):
     window.scrollTo(window.pageXOffset, 0)
 
 @check_for_scroll_end
-def goto_end():
-    window.scrollTo(window.pageXOffset, document_height())
-
-@check_for_scroll_end
-def scroll_by_page(up):
+def scroll_by_page(y):
     h = window.innerHeight - 10
-    window.scrollBy(0, -h if up else h)
+    window.scrollBy(0, -h if y < 0 else h)
 
 def flow_onkeydown(evt):
     handled = False
@@ -74,7 +70,7 @@ def flow_onkeydown(evt):
     if key is 'up' or key is 'down':
         handled = True
         if evt.ctrlKey:
-            goto_start() if key is 'up' else goto_end()
+            goto_boundary(-1 if key is 'up' else 1)
         else:
             smooth_y_scroll(key is 'up')
     elif key is 'left' or key is 'right':
@@ -94,6 +90,6 @@ def flow_onkeydown(evt):
                 window.scrollTo(window.pageXOffset, document_height())
     elif key is 'pageup' or key is 'pagedown' or key is 'space':
         handled = True
-        scroll_by_page(key is 'pageup')
+        scroll_by_page(-1 if key is 'pageup' else 1)
     if handled:
         evt.preventDefault()
