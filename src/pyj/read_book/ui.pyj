@@ -112,7 +112,7 @@ class ReadUI:
         self.db.get_book(book_id, fmt, metadata, self.got_book.bind(self))
 
     def got_book(self, book):
-        if not book.manifest or book.manifest.version != RENDER_VERSION or not book.is_complete:
+        if not book.manifest or book.manifest.version is not RENDER_VERSION or not book.is_complete:
             # We re-download the manifest when the book is not complete to ensure we have the
             # correct manifest, even though doing so is not strictly necessary
             self.get_manifest(book)
@@ -142,7 +142,7 @@ class ReadUI:
             return self.show_error(_('Failed to load book manifest'),
                 _('The manifest for {title} is not valid').format(title=self.current_metadata.title),
                                 err.stack or err.toString())
-        if manifest.version != RENDER_VERSION:
+        if manifest.version is not RENDER_VERSION:
             return self.show_error(_('calibre upgraded!'), _(
                 'A newer version of calibre is available, please click the reload button in your browser.'))
         self.current_metadata = manifest.metadata
