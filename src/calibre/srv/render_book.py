@@ -11,6 +11,7 @@ from itertools import count
 from functools import partial
 from future_builtins import map
 from urlparse import urlparse
+from urllib import quote
 
 from cssutils import replaceUrls
 
@@ -143,7 +144,7 @@ class Container(ContainerBase):
                     frag = urlunquote(frag)
                     url = resource_template.format(encode_url(name, frag))
                 else:
-                    url = 'link-to-missing-item-' + name
+                    url = 'missing:' + quote(name)
                 changed.add(base)
             return url
 
