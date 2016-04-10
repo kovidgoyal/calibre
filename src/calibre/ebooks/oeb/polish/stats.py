@@ -191,6 +191,7 @@ class StatsCollector(object):
         must_use_qt()
         self.parser = CSSParser(loglevel=logging.CRITICAL, log=logging.getLogger('calibre.css'))
         self.first_letter_pat = regex.compile(r'^[\p{Ps}\p{Ps}\p{Pe}\p{Pi}\p{Pf}\p{Po}]+', regex.VERSION1 | regex.UNICODE)
+        self.capitalize_pat = regex.compile(r'[\p{L}\p{N}]', regex.VERSION1 | regex.UNICODE)
 
         self.loop = QEventLoop()
         self.view = QWebView()
@@ -337,6 +338,16 @@ class StatsCollector(object):
         for font in font_usage:
             text = set()
             for t in font['text']:
+                tt = font['text-transform']
+                if tt != 'none':
+                    if tt == 'uppercase':
+                        t = icu_upper(t)
+                    elif tt == 'lowercase':
+                        t = icu_lower(t)
+                    elif tt == 'capitalize':
+                        m = self.capitalize_pat.search(t)
+                        if m is not None:
+                            t += icu_upper(m.group())
                 text |= frozenset(t)
             text.difference_update(exclude)
             if not text:
@@ -374,4 +385,5 @@ if __name__ == '__main__':
     from calibre.utils.logging import default_log
     default_log.filter_level = default_log.DEBUG
     ebook = get_container(sys.argv[-1], default_log)
-    print (StatsCollector(ebook, do_embed=True).font_stats)
+    from pprint import pprint
+    pprint(StatsCollector(ebook, do_embed=True).font_stats)
