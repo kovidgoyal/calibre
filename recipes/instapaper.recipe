@@ -62,11 +62,8 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
             soup = self.index_to_soup(feedurl)
             for item in soup.findAll('a', attrs={'class': 'article_title'}):
                 articles.append({
-                        'url': item['href'],
+                        'url': 'https://www.instapaper.com' + item['href'],
                         'title': item['title']
                 })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds
-
-    def print_version(self, url):
-        return 'https://www.instapaper.com' + url
