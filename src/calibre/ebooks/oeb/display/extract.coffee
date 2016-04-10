@@ -75,7 +75,9 @@ is_footnote_link = (node, url, linked_to_anchors) ->
     if children.length == 1
         style = window.getComputedStyle(children[0])
         if style.display in ['inline', 'inline-block'] and style.verticalAlign in ['sub', 'super', 'top', 'bottom']
-            return true
+            text_children = (x for x in node.childNodes when x.nodeType == Node.TEXT_NODE and x.nodeValue and /\S+/.test(x.nodeValue))
+            if not text_children.length
+                return true
 
     eid = node.getAttribute('id') or node.getAttribute('name')
     if eid and linked_to_anchors.hasOwnProperty(eid)
