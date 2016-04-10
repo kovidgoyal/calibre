@@ -42,7 +42,7 @@ def encode_url(name, frag=''):
 
 def decode_url(x):
     parts = x.split('#', 1)
-    return decode_component(parts[0]), parts[1] or ''
+    return decode_component(parts[0]), (parts[1] or '') if len(parts) > 1 else ''
 
 class Container(ContainerBase):
 
