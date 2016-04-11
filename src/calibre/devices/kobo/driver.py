@@ -145,6 +145,49 @@ class KOBO(USBMS):
     OPT_SHOW_RECOMMENDATIONS = 5
     OPT_SUPPORT_NEWER_FIRMWARE = 6
 
+    def __init__(self, *args, **kwargs):
+        USBMS.__init__(self, *args, **kwargs)
+        self.plugboards = self.plugboard_func = None
+        self._prefs = None
+#          self.device_defaults = DeviceDefaults()
+        self.current_device_defaults = {}
+        self.device_defaults_key = self.name
+
+    @property
+    def prefs(self):
+        from calibre.utils.config import JSONConfig
+#         debug_print("KOBO:prefs - start")
+        if self._prefs is None:
+            self._prefs = p = JSONConfig(self.device_defaults_key + '_devices')
+#             debug_print("KOBO:prefs - self._prefs=", self._prefs)
+            if p == {}:
+                old_settings = super(KOBO, self).settings()
+                p[self.device_defaults_key] = self.migrate_old_settings(old_settings)
+#                 debug_print("KOBO:prefs - Old settings self._prefs=", self._prefs)
+            p.defaults['format_map'] = self.FORMATS
+            p.defaults['save_template'] = KOBO._default_save_template()
+            p.defaults['use_subdirs'] = True
+            p.defaults['read_metadata'] = True
+            p.defaults['use_author_sort'] = False
+            
+            p.defaults['collections_columns'] = ''
+            p.defaults['create_collections'] = False
+            p.defaults['delete_empty_collections'] = False
+            
+            p.defaults['upload_covers'] = False
+            p.defaults['upload_grayscale'] = False
+            
+            p.defaults['show_expired_books'] = False
+            p.defaults['show_previews'] = False
+            p.defaults['show_recommendations'] = False
+            p.defaults['support_newer_firmware'] = False
+                        
+            p.defaults['extra_customization'] = self.EXTRA_CUSTOMIZATION_DEFAULT
+            debug_print("KOBO:prefs - finish self._prefs=", self._prefs)
+
+        return self._prefs
+
+    
     def initialize(self):
         USBMS.initialize(self)
         self.dbversion = 7
@@ -311,7 +354,7 @@ class KOBO(USBMS):
                     'BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s') % dict(expiry=' and ContentType = 6)'
                     if opts.extra_customization[self.OPT_SHOW_EXPIRED_BOOK_RECORDS] else ')',
                     previews=' and Accessibility <> 6'
-                    if opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False else '',
+                    if not self.show_previews else '',
                     recomendations=' and IsDownloaded in (\'true\', 1)'
                     if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] == False else '')
             elif self.dbversion >= 16 and self.dbversion < 33:
@@ -709,7 +752,7 @@ class KOBO(USBMS):
 #        debug_print("KOBO:book_from_path - title=%s"%title)
         from calibre.ebooks.metadata import MetaInformation
 
-        if cls.settings().read_metadata or cls.MUST_READ_METADATA:
+        if cls.read_metadata or cls.MUST_READ_METADATA:
             mi = cls.metadata_from_path(cls.normalize_path(os.path.join(prefix, lpath)))
         else:
             from calibre.ebooks.metadata.meta import metadata_from_filename
@@ -898,11 +941,14 @@ class KOBO(USBMS):
 #        debug_print('Finished update_device_database_collections', collections_attributes)
 
     def get_collections_attributes(self):
-        collections = []
-        opts = self.settings()
-        if opts.extra_customization and len(opts.extra_customization[self.OPT_COLLECTIONS]) > 0:
-            collections = [x.lower().strip() for x in opts.extra_customization[self.OPT_COLLECTIONS].split(',')]
+        collections = [x.lower().strip() for x in self.collections_columns.split(',')]
         return collections
+
+    @property
+    def collections_columns(self):
+        opts = self.settings()
+        return opts.extra_customization[self.OPT_COLLECTIONS]
+        
 
     def sync_booklists(self, booklists, end_session=True):
         debug_print('KOBO:sync_booklists - start')
@@ -1044,6 +1090,50 @@ class KOBO(USBMS):
 #                    tf.write(r.read())
                     paths[idx] = tf.name
         return paths
+
+    def config_widget(self):
+        # TODO: Cleanup the following
+        self.current_friendly_name = self.gui_name
+ 
+        from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig
+        return TabbedDeviceConfig(self.settings(), self.FORMATS, self.SUPPORTS_SUB_DIRS,
+                    self.MUST_READ_METADATA, self.SUPPORTS_USE_AUTHOR_SORT,
+                    self.EXTRA_CUSTOMIZATION_MESSAGE, self,
+                    extra_customization_choices=self.EXTRA_CUSTOMIZATION_CHOICES)
+
+    def migrate_old_settings(self, old_settings):
+
+        OPT_COLLECTIONS    = 0
+        OPT_UPLOAD_COVERS  = 1
+        OPT_UPLOAD_GRAYSCALE_COVERS  = 2
+        OPT_SHOW_EXPIRED_BOOK_RECORDS = 3
+        OPT_SHOW_PREVIEWS = 4
+        OPT_SHOW_RECOMMENDATIONS = 5
+        OPT_SUPPORT_NEWER_FIRMWARE = 6
+
+        
+        p = {}
+        p['format_map'] = old_settings.format_map
+        p['save_template'] = old_settings.save_template
+        p['use_subdirs'] = old_settings.use_subdirs
+        p['read_metadata'] = old_settings.read_metadata
+        p['use_author_sort'] = old_settings.use_author_sort
+        p['extra_customization'] = old_settings.extra_customization
+        
+        p['collections_columns'] = old_settings.extra_customization[OPT_COLLECTIONS]
+        
+        p['upload_covers'] = old_settings.extra_customization[OPT_UPLOAD_COVERS]
+        p['upload_grayscale'] = old_settings.extra_customization[OPT_UPLOAD_GRAYSCALE_COVERS]
+ 
+        p['show_expired_books'] = old_settings.extra_customization[OPT_SHOW_EXPIRED_BOOK_RECORDS]
+        p['show_previews'] = old_settings.extra_customization[OPT_SHOW_PREVIEWS]
+        p['show_recommendations'] = old_settings.extra_customization[OPT_SHOW_RECOMMENDATIONS]
+        
+        p['support_newer_firmware'] = old_settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
+        
+        return p
+
+
 
     def create_annotations_path(self, mdata, device_path=None):
         if device_path:
@@ -1286,84 +1376,10 @@ class KOBOTOUCH(KOBO):
     KOBO_EXTRA_CSSFILE = 'kobo_extra.css'
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
-            _('The Kobo from firmware V2.0.0 supports bookshelves.'
-                ' These are created on the Kobo. ' +
-                'Specify a tags type column for automatic management.'),
-            _('Create Bookshelves') +
-            ':::'+_('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.'),
-            _('Delete Empty Bookshelves') +
-            ':::'+_('Delete any empty bookshelves from the Kobo when syncing is finished. This is only for firmware V2.0.0 or later.'),
-            _('Upload covers for books') +
-            ':::'+_('Upload cover images from the calibre library when sending books to the device.'),
-            _('Upload Black and White Covers'),
-            _('Keep cover aspect ratio') +
-            ':::'+_('When uploading covers, do not change the aspect ratio when resizing for the device.'
-                    ' This is for firmware versions 2.3.1 and later.'),
-            _('Show archived books') +
-            ':::'+_('Archived books are listed on the device but need to be downloaded to read.'
-                    ' Use this option to show these books and match them with books in the calibre library.'),
-            _('Show Previews') +
-            ':::'+_('Kobo previews are included on the Touch and some other versions'
-                ' by default they are no longer displayed as there is no good reason to '
-                'see them.  Enable if you wish to see/delete them.'),
-            _('Show Recommendations') +
-            ':::'+_('Kobo shows recommendations on the device.  In some cases these have '
-                'files but in other cases they are just pointers to the web site to buy. '
-                'Enable if you wish to see/delete them.'),
-            _('Set Series information') +
-            ':::'+_('The book lists on the Kobo devices can display series information. '
-                    'This is not read by the device from the sideloaded books. '
-                    'Series information can only be added to the device after the book has been processed by the device. '
-                    'Enable if you wish to set series information.'),
-            _('Modify CSS') +
-            ':::'+_('This allows addition of user CSS rules and removal of some CSS. '
-                    'When sending a book, the driver adds the contents of {0} to all stylesheets in the ePub. '
-                    'This file is searched for in the root directory of the main memory of the device. '
-                    'As well as this, if the file contains settings for the "orphans" or "widows", '
-                    'these are removed for all styles in the original stylesheet.').format(KOBO_EXTRA_CSSFILE),
-            _('Attempt to support newer firmware') +
-            ':::'+_('Kobo routinely updates the firmware and the '
-                'database version.  With this option Calibre will attempt '
-                'to perform full read-write functionality - Here be Dragons!! '
-                'Enable only if you are comfortable with restoring your kobo '
-                'to factory defaults and testing software. '
-                'This driver supports firmware V2.x.x and DBVersion up to ') + unicode(supported_dbversion),
-            _('Title to test when debugging') +
-            ':::'+_('Part of title of a book that can be used when doing some tests for debugging. '
-                    'The test is to see if the string is contained in the title of a book. '
-                    'The better the match, the less extraneous output.'),
-            ]
-
+                                   ]
     EXTRA_CUSTOMIZATION_DEFAULT = [
-            u'',
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            u''
-            ]
-
-    OPT_COLLECTIONS                 = 0
-    OPT_CREATE_BOOKSHELVES          = 1
-    OPT_DELETE_BOOKSHELVES          = 2
-    OPT_UPLOAD_COVERS               = 3
-    OPT_UPLOAD_GRAYSCALE_COVERS     = 4
-    OPT_KEEP_COVER_ASPECT_RATIO     = 5
-    OPT_SHOW_ARCHIVED_BOOK_RECORDS  = 6
-    OPT_SHOW_PREVIEWS               = 7
-    OPT_SHOW_RECOMMENDATIONS        = 8
-    OPT_UPDATE_SERIES_DETAILS       = 9
-    OPT_MODIFY_CSS                  = 10
-    OPT_SUPPORT_NEWER_FIRMWARE      = 11
-    OPT_DEBUGGING_TITLE             = 12
-
+                                   ]
+    
     opts = None
 
     TIMESTAMP_STRING = "%Y-%m-%dT%H:%M:%SZ"
@@ -1415,6 +1431,15 @@ class KOBOTOUCH(KOBO):
 # ' - N3_FULL.parsed':[(600,800),0, 99,],           # Used for screensaver if "Full screen" is checked.
 #                          }
 
+    def __init__(self, *args, **kwargs):
+        KOBO.__init__(self, *args, **kwargs)
+        self.plugboards = self.plugboard_func = None
+        self._prefs = None
+#          self.device_defaults = DeviceDefaults()
+        self.current_device_defaults = {}
+        self.device_defaults_key = self.name
+
+
     def initialize(self):
         super(KOBOTOUCH, self).initialize()
         self.bookshelvelist = []
@@ -1426,6 +1451,7 @@ class KOBOTOUCH(KOBO):
     def books(self, oncard=None, end_session=True):
         debug_print("KoboTouch:books - oncard='%s'"%oncard)
         from calibre.ebooks.metadata.meta import path_to_ext
+        self.debugging_title = self.get_debugging_title()
 
         dummy_bl = self.booklist_class(None, None, None)
 
@@ -1467,11 +1493,11 @@ class KOBOTOUCH(KOBO):
 
         opts = self.settings()
         debug_print("KoboTouch:books - opts.extra_customization=", opts.extra_customization)
+        debug_print("KoboTouch:books - driver options=", self)
         debug_print("KoboTouch:books - prefs['manage_device_metadata']=", prefs['manage_device_metadata'])
-        if opts.extra_customization:
-            debugging_title = opts.extra_customization[self.OPT_DEBUGGING_TITLE]
-            debug_print("KoboTouch:books - set_debugging_title to '%s'" % debugging_title)
-            bl.set_debugging_title(debugging_title)
+        debugging_title = self.debugging_title
+        debug_print("KoboTouch:books - set_debugging_title to '%s'" % debugging_title)
+        bl.set_debugging_title(debugging_title)
         debug_print("KoboTouch:books - length bl=%d"%len(bl))
         need_sync = self.parse_metadata_cache(bl, prefix, self.METADATA_CACHE)
         debug_print("KoboTouch:books - length bl after sync=%d"%len(bl))
@@ -1658,7 +1684,7 @@ class KOBOTOUCH(KOBO):
         def get_bookshelvesforbook(connection, ContentID):
 #            debug_print("KoboTouch:get_bookshelvesforbook - " + ContentID)
             bookshelves = []
-            if not self.supports_bookshelves():
+            if not self.supports_bookshelves:
                 return bookshelves
 
             cursor = connection.cursor()
@@ -1717,32 +1743,30 @@ class KOBOTOUCH(KOBO):
                     "    %(previews)s %(recomendations)s )"
                     " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) and ContentType = 6)") % \
                         dict(
-                             expiry="" if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else "and IsDownloaded in ('true', 1)",
-                             previews=" or (Accessibility in (6) and ___UserID <> '')" if opts.extra_customization[self.OPT_SHOW_PREVIEWS] else "",
-                             recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if opts.extra_customization[
-                                                  self.OPT_SHOW_RECOMMENDATIONS] else ""
+                             expiry="" if self.show_archived_books else "and IsDownloaded in ('true', 1)",
+                             previews=" or (Accessibility in (6) and ___UserID <> '')" if self.show_previews else "",
+                             recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if self.show_recommendations else ""
                              )
             elif self.supports_series():
                 where_clause = (" where BookID is Null "
                     " and ((Accessibility = -1 and IsDownloaded in ('true', 1)) or (Accessibility in (1,2)) %(previews)s %(recomendations)s )"
                     " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)") % \
                         dict(
-                             expiry=" and ContentType = 6" if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else "",
-                             previews=" or (Accessibility in (6) and ___UserID <> '')" if opts.extra_customization[self.OPT_SHOW_PREVIEWS] else "",
-                             recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if opts.extra_customization[
-                                                  self.OPT_SHOW_RECOMMENDATIONS] else ""
+                             expiry=" and ContentType = 6" if self.show_archived_books else "",
+                             previews=" or (Accessibility in (6) and ___UserID <> '')" if self.show_previews else "",
+                             recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if self.show_recommendations else ""
                              )
             elif self.dbversion >= 33:
                 where_clause = (' where BookID is Null %(previews)s %(recomendations)s and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)') % \
                         dict(
-                             expiry=' and ContentType = 6' if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else '',
-                             previews=' and Accessibility <> 6' if opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False else '',
-                             recomendations=' and IsDownloaded in (\'true\', 1)' if opts.extra_customization[self.OPT_SHOW_RECOMMENDATIONS] == False else ''
+                             expiry=' and ContentType = 6' if self.show_archived_books else '',
+                             previews=' and Accessibility <> 6' if not self.show_previews else '',
+                             recomendations=' and IsDownloaded in (\'true\', 1)' if not self.show_recommendations else ''
                              )
             elif self.dbversion >= 16:
                 where_clause = (' where BookID is Null '
                     'and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)') % \
-                        dict(expiry=' and ContentType = 6' if opts.extra_customization[self.OPT_SHOW_ARCHIVED_BOOK_RECORDS] else '')
+                        dict(expiry=' and ContentType = 6' if self.show_archived_books else '')
             else:
                 where_clause = ' where BookID is Null'
 
@@ -1943,7 +1967,7 @@ class KOBOTOUCH(KOBO):
 
                         self.set_filesize_in_device_database(connection, contentID, fname)
 
-                        if not self.copying_covers():
+                        if not self.upload_covers:
                             imageID = self.imageid_from_contentid(contentID)
                             self.delete_images(imageID, fname)
                     connection.commit()
@@ -2148,7 +2172,6 @@ class KOBOTOUCH(KOBO):
             "Closed":       3,
             "Shortlist":    4,
             "Archived":     5,
-            # "Preview":99, # Unsupported as we don't want to change it
             }
 
         # Define lists for the ReadStatus
@@ -2163,33 +2186,16 @@ class KOBOTOUCH(KOBO):
             "Recommendation":4,
             "Deleted":1,
             }
-
-        # specialshelveslist = {
-        #     "Shortlist":1,
-        #     "Wishlist":2,
-        #     }
 #        debug_print('KoboTouch:update_device_database_collections - collections_attributes=', collections_attributes)
 
-        opts = self.settings()
-        if opts.extra_customization:
-            create_bookshelves      = opts.extra_customization[self.OPT_CREATE_BOOKSHELVES] and self.supports_bookshelves()
-            delete_empty_shelves    = opts.extra_customization[self.OPT_DELETE_BOOKSHELVES] and self.supports_bookshelves()
-            update_series_details   = opts.extra_customization[self.OPT_UPDATE_SERIES_DETAILS] and self.supports_series()
-            debugging_title         = opts.extra_customization[self.OPT_DEBUGGING_TITLE]
-            debug_print("KoboTouch:update_device_database_collections - set_debugging_title to '%s'" % debugging_title)
-            booklists.set_debugging_title(debugging_title)
-        else:
-            delete_empty_shelves    = False
-            create_bookshelves      = False
-            update_series_details   = False
+        create_bookshelves      = self.create_bookshelves
+        delete_empty_shelves    = self.delete_empty_shelves
+        update_series_details   = self.update_series_details
+        debugging_title         = self.get_debugging_title()
+        debug_print("KoboTouch:update_device_database_collections - set_debugging_title to '%s'" % debugging_title)
+        booklists.set_debugging_title(debugging_title)
 
-        opts = self.settings()
-        if opts.extra_customization:
-            create_bookshelves = opts.extra_customization[self.OPT_CREATE_BOOKSHELVES] and self.supports_bookshelves()
-            delete_empty_shelves = opts.extra_customization[self.OPT_DELETE_BOOKSHELVES] and self.supports_bookshelves()
-        else:
-            delete_empty_shelves = False
-        bookshelf_attribute = len(collections_attributes)
+        bookshelf_attribute = len(collections_attributes) > 0
 
         collections = booklists.get_collections(collections_attributes) if bookshelf_attribute else None
 #        debug_print('KoboTouch:update_device_database_collections - Collections:', collections)
@@ -2200,13 +2206,12 @@ class KOBOTOUCH(KOBO):
         # and the removal of the last book would not occur
 
         import sqlite3 as sqlite
-        with closing(sqlite.connect(self.normalize_path(self._main_prefix +
-            '.kobo/KoboReader.sqlite'))) as connection:
+        with closing(sqlite.connect(self.device_database_path())) as connection:
 
             # return bytestrings if the content cannot the decoded as unicode
             connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
-            if collections:
+            if self.manage_collections and collections:
 #                debug_print("KoboTouch:update_device_database_collections - length collections=" + unicode(len(collections)))
 
                 # Need to reset the collections outside the particular loops
@@ -2248,7 +2253,7 @@ class KOBOTOUCH(KOBO):
                             ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
                             book.contentID = self.contentid_from_path(book.path, ContentType)
 
-                        if category in self.bookshelvelist and self.supports_bookshelves():
+                        if category in self.bookshelvelist and self.supports_bookshelves:
                             if show_debug:
                                 debug_print('        length book.device_collections=%d'%len(book.device_collections))
                             if category not in book.device_collections:
@@ -2265,7 +2270,7 @@ class KOBOTOUCH(KOBO):
                             if show_debug:
                                 debug_print('        Have an older version shortlist - %s'%book.title)
                             # Manage FavouritesIndex/Shortlist
-                            if not self.supports_bookshelves():
+                            if not self.supports_bookshelves:
                                 if show_debug:
                                     debug_print('            and about to set it - %s'%book.title)
                                 self.set_favouritesindex(connection, book.contentID)
@@ -2293,7 +2298,7 @@ class KOBOTOUCH(KOBO):
                     self.reset_favouritesindex(connection, oncard)
 
             # Set the series info and cleanup the bookshelves only if the firmware supports them and the user has set the options.
-            if (self.supports_bookshelves() or self.supports_series()) and (bookshelf_attribute or update_series_details):
+            if (self.supports_bookshelves and self.manage_collections or self.supports_series()) and (bookshelf_attribute or update_series_details):
                 debug_print("KoboTouch:update_device_database_collections - managing bookshelves and series.")
 
                 self.series_set  = 0
@@ -2306,7 +2311,7 @@ class KOBOTOUCH(KOBO):
                             debug_print("KoboTouch:update_device_database_collections - book.title=%s" % book.title)
                         if update_series_details:
                             self.set_series(connection, book)
-                        if bookshelf_attribute:
+                        if self.manage_collections and bookshelf_attribute:
                             if show_debug:
                                 debug_print("KoboTouch:update_device_database_collections - about to remove a book from shelves book.title=%s" % book.title)
                             self.remove_book_from_device_bookshelves(connection, book)
@@ -2341,8 +2346,7 @@ class KOBOTOUCH(KOBO):
         debug_print("KoboTouch:upload_cover - path='%s' filename='%s' "%(path, filename))
         debug_print("        filepath='%s' "%(filepath))
 
-        opts = self.settings()
-        if not self.copying_covers():
+        if not self.upload_covers:
             # Building thumbnails disabled
 #            debug_print('KoboTouch: not uploading cover')
             return
@@ -2351,14 +2355,9 @@ class KOBOTOUCH(KOBO):
         if self._card_a_prefix and os.path.abspath(path).startswith(os.path.abspath(self._card_a_prefix)) and not self.supports_covers_on_sdcard():
             return
 
-        if not opts.extra_customization[self.OPT_UPLOAD_GRAYSCALE_COVERS]:
-            uploadgrayscale = False
-        else:
-            uploadgrayscale = True
-
 #        debug_print('KoboTouch: uploading cover')
         try:
-            self._upload_cover(path, filename, metadata, filepath, uploadgrayscale, self.keep_cover_aspect())
+            self._upload_cover(path, filename, metadata, filepath, self.upload_grayscale, self.keep_cover_aspect)
         except Exception as e:
             debug_print('KoboTouch: FAILED to upload cover=%s Exception=%s'%(filepath, str(e)))
 
@@ -2589,7 +2588,7 @@ class KOBOTOUCH(KOBO):
 #        debug_print('KoboTouch:get_bookshelflist')
         bookshelves = []
 
-        if not self.supports_bookshelves():
+        if not self.supports_bookshelves:
             return bookshelves
 
         query = 'SELECT Name FROM Shelf WHERE _IsDeleted = "false"'
@@ -2691,7 +2690,7 @@ class KOBOTOUCH(KOBO):
 
     def remove_from_bookshelves(self, connection, oncard, ContentID=None, bookshelves=None):
         debug_print('KoboTouch:remove_from_bookshelf ContentID=', ContentID)
-        if not self.supports_bookshelves():
+        if not self.supports_bookshelves:
             return
         query = 'DELETE FROM ShelfContent'
 
@@ -2762,10 +2761,71 @@ class KOBOTOUCH(KOBO):
         if show_debug:
             debug_print("KoboTouch:set_series - end")
 
+    def config_widget(self):
+        # TODO: Cleanup the following
+        self.current_friendly_name = self.gui_name
+ 
+        from calibre.devices.kobo.kobotouch_config import KOBOTOUCHConfig
+        return KOBOTOUCHConfig(self.settings(), self.FORMATS, 
+                               self.SUPPORTS_SUB_DIRS, self.MUST_READ_METADATA,
+                               self.SUPPORTS_USE_AUTHOR_SORT, self.EXTRA_CUSTOMIZATION_MESSAGE, 
+                               self, extra_customization_choices=self.EXTRA_CUSTOMIZATION_CHOICES
+                               )
+
+    @classmethod
+    def get_pref(cls, key):
+        ''' Get the setting named key. First looks for a device specific setting.
+        If that is not found looks for a device default and if that is not
+        found uses the global default.'''
+#         debug_print("KoboTouch::get_prefs - key=", key, "cls=", cls)
+        opts = cls.settings()
+        try:
+            return getattr(opts, key)
+        except:
+            debug_print("KoboTouch::get_prefs - probably an extra_customization")
+        return None
+
+    @classmethod
+    def save_settings(cls, config_widget):
+        config_widget.commit()
+
+
+    @classmethod
+    def save_template(cls):
+        return cls.settings().save_template
+
+    @classmethod
+    def _config(cls):
+        c = super(KOBOTOUCH, cls)._config()
+        
+        c.add_opt('manage_collections', default=True)
+        c.add_opt('collections_columns', default='')
+        c.add_opt('create_collections', default=False)
+        c.add_opt('delete_empty_collections', default=False)
+        
+        c.add_opt('upload_covers', default=False)
+        c.add_opt('keep_cover_aspect', default=False)
+        c.add_opt('upload_grayscale', default=False)
+        
+        c.add_opt('show_archived_books', default=False)
+        c.add_opt('show_previews', default=False)
+        c.add_opt('show_recommendations', default=False)
+        
+        c.add_opt('update_series', default=True)
+        c.add_opt('update_device_metadata', default=True)
+
+        c.add_opt('modify_css', default=False)
+
+        c.add_opt('support_newer_firmware', default=False)
+        c.add_opt('debugging_title', default='')
+        
+        return c
+
+
     @classmethod
     def settings(cls):
         opts = cls._config().parse()
-        if isinstance(cls.EXTRA_CUSTOMIZATION_DEFAULT, list):
+        if isinstance(cls.EXTRA_CUSTOMIZATION_DEFAULT, list) and len(cls.EXTRA_CUSTOMIZATION_DEFAULT) > 0:
             if opts.extra_customization is None:
                 opts.extra_customization = []
             if not isinstance(opts.extra_customization, list):
@@ -2782,6 +2842,10 @@ class KOBOTOUCH(KOBO):
                     else:
                         extra_customization.append(opts.extra_customization[i - extra_options_offset])
                 opts.extra_customization = extra_customization
+        if opts.extra_customization:
+            opts = cls.migrate_old_settings(opts)
+        
+        cls.opts = opts    
         return opts
 
     def isAura(self):
@@ -2827,23 +2891,72 @@ class KOBOTOUCH(KOBO):
         self.__class__.gui_name = device_name
         return device_name
 
-    def copying_covers(self):
-        opts = self.settings()
-        return opts.extra_customization[self.OPT_UPLOAD_COVERS] or opts.extra_customization[self.OPT_KEEP_COVER_ASPECT_RATIO]
+    @property
+    def manage_collections(self):
+        return self.get_pref('manage_collections')
+    @property
+    def create_collections(self):
+        return self.get_pref('create_collections')
+    @property
+    def collections_columns(self):
+        return self.get_pref('collections_columns')
+    @property
+    def delete_empty_collections(self):
+        return self.get_pref('delete_empty_collections')
 
+    @property
+    def upload_covers(self):
+        return self.get_pref('upload_covers')
+    @property
     def keep_cover_aspect(self):
-        opts = self.settings()
-        return opts.extra_customization[self.OPT_KEEP_COVER_ASPECT_RATIO]
+        return self.upload_covers and self.get_pref('keep_cover_aspect')
+    @property
+    def upload_grayscale(self):
+        return self.upload_covers and self.get_pref('upload_grayscale')
 
     def modifying_epub(self):
         return self.modifying_css()
 
     def modifying_css(self):
-        opts = self.settings()
-        return opts.extra_customization[self.OPT_MODIFY_CSS]
+        return self.get_pref('modify_css')
 
+    @property
+    def create_bookshelves(self):
+        return self.get_pref('create_collections') and self.supports_bookshelves
+    @property
+    def delete_empty_shelves(self):
+        return self.get_pref('delete_empty_collections') and self.supports_bookshelves
+    @property
+    def update_device_metadata(self):
+        return self.get_pref('update_device_metadata')
+    @property
+    def update_series_details(self):
+        return self.update_device_metadata and self.get_pref('update_series') and self.supports_series()
+
+    @classmethod
+    def get_debugging_title(cls):
+        debugging_title = cls.get_pref('debugging_title')
+        if not debugging_title: # Make sure the value is set to prevent rereading the settings.
+            debugging_title = '' 
+        return debugging_title
+
+    @property
     def supports_bookshelves(self):
         return self.dbversion >= self.min_supported_dbversion
+
+    @property
+    def show_archived_books(self):
+        return self.get_pref('show_archived_books')
+    @property
+    def show_previews(self):
+        return self.get_pref('show_previews')
+    @property
+    def show_recommendations(self):
+        return self.get_pref('show_recommendations')
+
+    @property
+    def read_metadata(self):
+        return self.get_pref('read_metadata')
 
     def supports_series(self):
         return self.dbversion >= self.min_dbversion_series
@@ -2869,8 +2982,7 @@ class KOBOTOUCH(KOBO):
 #        debug_print("KoboTouch:modify_database_check - self.fwversion > self.max_supported_fwversion=", self.fwversion > self.max_supported_fwversion)
         if self.dbversion > self.supported_dbversion or self.fwversion > self.max_supported_fwversion:
             # Unsupported database
-            opts = self.settings()
-            if not opts.extra_customization[self.OPT_SUPPORT_NEWER_FIRMWARE]:
+            if not self.get_pref('support_newer_firmware'):
                 debug_print('The database has been upgraded past supported version')
                 self.report_progress(1.0, _('Removing books from device...'))
                 from calibre.devices.errors import UserFeedback
@@ -2899,23 +3011,79 @@ class KOBOTOUCH(KOBO):
         else:
             # Supported database version
             return True
-
+        
     @classmethod
-    def is_debugging_title(cls, title):
+    def migrate_old_settings(cls, settings):
+        debug_print("KoboTouch::migrate_old_settings - start")
+        
+        count_options = 0
+        OPT_COLLECTIONS                 = count_options
+        count_options += 1
+        OPT_CREATE_BOOKSHELVES          = count_options
+        count_options += 1
+        OPT_DELETE_BOOKSHELVES          = count_options
+        count_options += 1
+        OPT_UPLOAD_COVERS               = count_options
+        count_options += 1
+        OPT_UPLOAD_GRAYSCALE_COVERS     = count_options
+        count_options += 1
+        OPT_KEEP_COVER_ASPECT_RATIO     = count_options
+        count_options += 1
+        OPT_SHOW_ARCHIVED_BOOK_RECORDS  = count_options
+        count_options += 1
+        OPT_SHOW_PREVIEWS               = count_options
+        count_options += 1
+        OPT_SHOW_RECOMMENDATIONS        = count_options
+        count_options += 1
+        OPT_UPDATE_SERIES_DETAILS       = count_options
+        count_options += 1
+        OPT_MODIFY_CSS                  = count_options
+        count_options += 1
+        OPT_SUPPORT_NEWER_FIRMWARE      = count_options
+        count_options += 1
+        OPT_DEBUGGING_TITLE             = count_options
+
+        if len(settings.extra_customization) >= count_options:
+            debug_print("KoboTouch::migrate_old_settings - settings need to be migrated")
+            settings.manage_collections = True
+            settings.collections_columns = settings.extra_customization[OPT_COLLECTIONS]
+            debug_print("KoboTouch::migrate_old_settings - settings.collections_columns=", settings.collections_columns)
+            settings.create_collections = settings.extra_customization[OPT_CREATE_BOOKSHELVES]
+            settings.delete_empty_collections = settings.extra_customization[OPT_DELETE_BOOKSHELVES]
+            
+            settings.upload_covers = settings.extra_customization[OPT_UPLOAD_COVERS]
+            settings.keep_cover_aspect = settings.extra_customization[OPT_KEEP_COVER_ASPECT_RATIO]
+            settings.upload_grayscale = settings.extra_customization[OPT_UPLOAD_GRAYSCALE_COVERS]
+     
+            settings.show_archived_books = settings.extra_customization[OPT_SHOW_ARCHIVED_BOOK_RECORDS]
+            settings.show_previews = settings.extra_customization[OPT_SHOW_PREVIEWS]
+            settings.show_recommendations = settings.extra_customization[OPT_SHOW_RECOMMENDATIONS]
+            
+            settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
+            settings.update_metadata = settings.update_series
+    
+            settings.modify_css = settings.extra_customization[OPT_MODIFY_CSS]
+    
+            settings.support_newer_firmware = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
+            settings.debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
+            settings.extra_customization = settings.extra_customization[count_options + 1:]
+
+        return settings
+
+
+    def is_debugging_title(self, title):
         if not DEBUG:
             return False
-#        debug_print("KoboTouch:is_debugging - title=", title)
-        is_debugging = False
-        opts = cls.settings()
+#         debug_print("KoboTouch:is_debugging - title=", title)
 
-        if opts.extra_customization:
-            debugging_title = opts.extra_customization[cls.OPT_DEBUGGING_TITLE]
-            is_debugging = len(debugging_title) > 0 and title.lower().find(debugging_title.lower()) >= 0 or len(title) == 0
+        if not self.debugging_title and not self.debugging_title == '':
+            self.debugging_title = self.get_debugging_title()
+        is_debugging = len(self.debugging_title) > 0 and title.lower().find(self.debugging_title.lower()) >= 0 or len(title) == 0
 
         return is_debugging
 
     def dump_bookshelves(self, connection):
-        if not (DEBUG and self.supports_bookshelves() and False):
+        if not (DEBUG and self.supports_bookshelves and False):
             return
 
         debug_print('KoboTouch:dump_bookshelves - start')
@@ -2952,3 +3120,29 @@ class KOBOTOUCH(KOBO):
         cursor.close()
         debug_print('KoboTouch:dump_bookshelves - end')
 
+    def __str__(self, *args, **kwargs):
+        options = ', '.join(['%s: %s' % (x.name, self.get_pref(x.name)) for x in self._config().preferences])
+        return u"Driver:%s, Options - %s" % (self.name, options)
+
+if __name__ == '__main__':
+    dev = KOBOTOUCH(None)
+    dev.startup()
+    try:
+        dev.initialize()
+        from calibre.devices.scanner import DeviceScanner
+        scanner = DeviceScanner()
+        scanner.scan()
+        devs = scanner.devices
+#         debug_print("unit test: devs.__class__=", devs.__class__)
+#         debug_print("unit test: devs.__class__=", devs.__class__.__name__)
+        debug_print("unit test: devs=", devs)
+        debug_print("unit test: dev=", dev)
+    #         cd = dev.detect_managed_devices(devs)
+    #         if cd is None:
+    #             raise ValueError('Failed to detect KOBOTOUCH device')
+        dev.set_progress_reporter(prints)
+#         dev.open(cd, None)
+#         dev.filesystem_cache.dump()
+        print ('Prefix for main memory:', dev.dbversion)
+    finally:
+        dev.shutdown()
