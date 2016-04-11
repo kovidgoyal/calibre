@@ -14,12 +14,16 @@ from urlparse import urlparse
 from urllib import quote
 
 from cssutils import replaceUrls
+from cssutils.css import CSSRule
 
+from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.base import (
     OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF, XHTML, EPUB_NS)
 from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import set_epub_cover, find_cover_image
+from calibre.ebooks.oeb.polish.css import transform_css
+from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.utils.short_uuid import uuid4
@@ -44,6 +48,44 @@ def encode_url(name, frag=''):
 def decode_url(x):
     parts = x.split('#', 1)
     return decode_component(parts[0]), (parts[1] if len(parts) > 1 else '')
+
+absolute_units = frozenset('px mm cm pt in pc q'.split())
+length_factors = {'mm':2.8346456693, 'cm':28.346456693, 'in': 72, 'pc': 12, 'q':0.708661417325}
+
+def convert_fontsize(length, unit, base_font_size=16.0, dpi=96.0):
+    ' Convert font size to rem so that font size scaling works. Assumes the document has the specified base font size in px '
+    if unit == 'px':
+        return length/base_font_size
+    pt_to_px = dpi / 72.0
+    pt_to_rem = pt_to_px / base_font_size
+    return length * length_factors.get(unit, 1) * pt_to_rem
+
+def transform_declaration(decl):
+    decl = StyleDeclaration(decl)
+    changed = False
+    for prop, parent_prop in tuple(decl):
+        if prop.name in {'page-break-before', 'page-break-after', 'page-break-inside'}:
+            changed = True
+            name = prop.name.partition('-')[2]
+            for prefix in ('', '-webkit-column-'):
+                # Note that Firefox does not support break-after at all
+                # https://bugzil.la/549114
+                decl.set_property(prefix + name, prop.value, prop.priority)
+            decl.remove_property(prop, parent_prop)
+        elif prop.name == 'font-size':
+            l, unit = parse_css_length(prop.value)
+            if unit in absolute_units:
+                changed = True
+                l = convert_fontsize(l, unit)
+                decl.change_property(prop, parent_prop, str(l) + 'rem')
+    return changed
+
+def transform_sheet(sheet):
+    changed = False
+    for rule in sheet.cssRules.rulesOfType(CSSRule.STYLE_RULE):
+        if transform_declaration(rule.style):
+            changed = True
+    return changed
 
 class Container(ContainerBase):
 
@@ -73,6 +115,7 @@ class Container(ContainerBase):
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
             self.parsed(name), self.dirty(name)
+        self.transform_css()
         self.virtualized_names = set()
         self.virtualize_resources()
         def manifest_data(name):
@@ -114,6 +157,9 @@ class Container(ContainerBase):
         self.insert_into_xml(spine, ref, index=0)
         self.dirty(self.opf_name)
         return raster_cover_name, titlepage_name
+
+    def transform_css(self):
+        transform_css(self, transform_sheet=transform_sheet, transform_style=transform_declaration)
 
     def virtualize_resources(self):
 
@@ -314,4 +360,4 @@ def render(pathtoebook, output_dir, book_hash=None):
     Container(pathtoebook, output_dir, book_hash=book_hash)
 
 if __name__ == '__main__':
-    c = Container(sys.argv[-2], sys.argv[-1])
+    render(sys.argv[-2], sys.argv[-1])

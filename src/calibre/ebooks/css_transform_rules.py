@@ -83,7 +83,15 @@ class StyleDeclaration(object):
         if props:
             self.changed = True
             for prop in props:
-                self.css_declaration.setProperty(Property(prop.name, prop.value, prop.literalpriority, self.css_declaration))
+                self.css_declaration.setProperty(Property(prop.name, prop.value, prop.literalpriority, parent=self.css_declaration))
+
+    def set_property(self, name, value, priority='', replace=True):
+        # Note that this does not handle shorthand properties, so you must
+        # call remove_property() yourself in that case
+        self.changed = True
+        if replace:
+            self.css_declaration.removeProperty(name)
+        self.css_declaration.setProperty(Property(name, value, priority, parent=self.css_declaration))
 
     def __str__(self):
         return force_unicode(self.css_declaration.cssText, 'utf-8')
