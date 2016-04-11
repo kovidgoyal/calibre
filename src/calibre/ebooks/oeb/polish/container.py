@@ -100,8 +100,94 @@ def href_to_name(href, root, base=None):
     fullpath = os.path.join(base, *href.split('/'))
     return abspath_to_name(fullpath, root)
 
+class ContainerBase(object):  # {{{
+    '''
+    A base class that implements just the parsing methods. Useful to create
+    virtual containers for testing.
+    '''
 
-class Container(object):  # {{{
+    #: The mode used to parse HTML and CSS (polishing uses tweak_mode=False and the editor uses tweak_mode=True)
+    tweak_mode = False
+
+    def __init__(self, log):
+        self.log = log
+        self.parsed_cache = {}
+        self.mime_map = {}
+        self.encoding_map = {}
+        self.html_preprocessor = HTMLPreProcessor()
+        self.css_preprocessor = CSSPreProcessor()
+
+    def guess_type(self, name):
+        ' Return the expected mimetype for the specified file name based on its extension. '
+        # epubcheck complains if the mimetype for text documents is set to
+        # text/html in EPUB 2 books. Sigh.
+        ans = guess_type(name)
+        if ans == 'text/html':
+            ans = 'application/xhtml+xml'
+        return ans
+
+    def decode(self, data, normalize_to_nfc=True):
+        """
+        Automatically decode ``data`` into a ``unicode`` object.
+
+        :param normalize_to_nfc: Normalize returned unicode to the NFC normal form as is required by both the EPUB and AZW3 formats.
+        """
+        def fix_data(d):
+            return d.replace('\r\n', '\n').replace('\r', '\n')
+        if isinstance(data, unicode):
+            return fix_data(data)
+        bom_enc = None
+        if data[:4] in {b'\0\0\xfe\xff', b'\xff\xfe\0\0'}:
+            bom_enc = {b'\0\0\xfe\xff':'utf-32-be',
+                       b'\xff\xfe\0\0':'utf-32-le'}[data[:4]]
+            data = data[4:]
+        elif data[:2] in {b'\xff\xfe', b'\xfe\xff'}:
+            bom_enc = {b'\xff\xfe':'utf-16-le', b'\xfe\xff':'utf-16-be'}[data[:2]]
+            data = data[2:]
+        elif data[:3] == b'\xef\xbb\xbf':
+            bom_enc = 'utf-8'
+            data = data[3:]
+        if bom_enc is not None:
+            try:
+                self.used_encoding = bom_enc
+                return fix_data(data.decode(bom_enc))
+            except UnicodeDecodeError:
+                pass
+        try:
+            self.used_encoding = 'utf-8'
+            return fix_data(data.decode('utf-8'))
+        except UnicodeDecodeError:
+            pass
+        data, self.used_encoding = xml_to_unicode(data)
+        if normalize_to_nfc:
+            data = unicodedata.normalize('NFC', data)
+        return fix_data(data)
+
+    def parse_xml(self, data):
+        data, self.used_encoding = xml_to_unicode(
+            data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
+        data = unicodedata.normalize('NFC', data)
+        return etree.fromstring(data, parser=RECOVER_PARSER)
+
+    def parse_xhtml(self, data, fname='<string>', force_html5_parse=False):
+        if self.tweak_mode:
+            return parse_html_tweak(data, log=self.log, decoder=self.decode, force_html5_parse=force_html5_parse)
+        else:
+            try:
+                return parse_html(
+                    data, log=self.log, decoder=self.decode,
+                    preprocessor=self.html_preprocessor, filename=fname,
+                    non_html_file_tags={'ncx'})
+            except NotHTML:
+                return self.parse_xml(data)
+
+    def parse_css(self, data, fname='<string>', is_declaration=False):
+        return parse_css(data, fname=fname, is_declaration=is_declaration, decode=self.decode, log_level=logging.WARNING,
+                         css_preprocessor=(None if self.tweak_mode else self.css_preprocessor))
+# }}}
+
+
+class Container(ContainerBase):  # {{{
 
     '''
     A container represents an Open EBook as a directory full of files and an
@@ -129,23 +215,16 @@ class Container(object):  # {{{
     book_type = 'oeb'
     #: If this container represents an unzipped book (a directory)
     is_dir = False
-    #: The mode used to parse HTML and CSS (polishing uses tweak_mode=False and the editor uses tweak_mode=True)
-    tweak_mode = False
 
     SUPPORTS_TITLEPAGES = True
     SUPPORTS_FILENAMES = True
 
     def __init__(self, rootpath, opfpath, log, clone_data=None):
+        ContainerBase.__init__(self, log)
         self.root = clone_data['root'] if clone_data is not None else os.path.abspath(rootpath)
-        self.log = log
-        self.html_preprocessor = HTMLPreProcessor()
-        self.css_preprocessor = CSSPreProcessor()
 
-        self.parsed_cache = {}
-        self.mime_map = {}
         self.name_path_map = {}
         self.dirtied = set()
-        self.encoding_map = {}
         self.pretty_print = set()
         self.cloned = False
         self.cache_names = ('parsed_cache', 'mime_map', 'name_path_map', 'encoding_map', 'dirtied', 'pretty_print')
@@ -201,15 +280,6 @@ class Container(object):  # {{{
                 name:os.path.join(dest_dir, os.path.relpath(path, self.root))
                 for name, path in self.name_path_map.iteritems()}
         }
-
-    def guess_type(self, name):
-        ' Return the expected mimetype for the specified file name based on its extension. '
-        # epubcheck complains if the mimetype for text documents is set to
-        # text/html in EPUB 2 books. Sigh.
-        ans = guess_type(name)
-        if ans == 'text/html':
-            ans = 'application/xhtml+xml'
-        return ans
 
     def add_name_to_manifest(self, name):
         ' Add an entry to the manifest for a file with the specified name. Returns the manifest id. '
@@ -417,43 +487,6 @@ class Container(object):  # {{{
         :meth:`abspath_to_name` for that.'''
         return relpath(path, base or self.root)
 
-    def decode(self, data, normalize_to_nfc=True):
-        """
-        Automatically decode ``data`` into a ``unicode`` object.
-
-        :param normalize_to_nfc: Normalize returned unicode to the NFC normal form as is required by both the EPUB and AZW3 formats.
-        """
-        def fix_data(d):
-            return d.replace('\r\n', '\n').replace('\r', '\n')
-        if isinstance(data, unicode):
-            return fix_data(data)
-        bom_enc = None
-        if data[:4] in {b'\0\0\xfe\xff', b'\xff\xfe\0\0'}:
-            bom_enc = {b'\0\0\xfe\xff':'utf-32-be',
-                       b'\xff\xfe\0\0':'utf-32-le'}[data[:4]]
-            data = data[4:]
-        elif data[:2] in {b'\xff\xfe', b'\xfe\xff'}:
-            bom_enc = {b'\xff\xfe':'utf-16-le', b'\xfe\xff':'utf-16-be'}[data[:2]]
-            data = data[2:]
-        elif data[:3] == b'\xef\xbb\xbf':
-            bom_enc = 'utf-8'
-            data = data[3:]
-        if bom_enc is not None:
-            try:
-                self.used_encoding = bom_enc
-                return fix_data(data.decode(bom_enc))
-            except UnicodeDecodeError:
-                pass
-        try:
-            self.used_encoding = 'utf-8'
-            return fix_data(data.decode('utf-8'))
-        except UnicodeDecodeError:
-            pass
-        data, self.used_encoding = xml_to_unicode(data)
-        if normalize_to_nfc:
-            data = unicodedata.normalize('NFC', data)
-        return fix_data(data)
-
     def ok_to_be_unmanifested(self, name):
         return name in self.names_that_need_not_be_manifested
 
@@ -471,24 +504,6 @@ class Container(object):  # {{{
     def names_that_must_not_be_changed(self):
         ' Set of names that must never be renamed. Depends on the ebook file format. '
         return set()
-
-    def parse_xml(self, data):
-        data, self.used_encoding = xml_to_unicode(
-            data, strip_encoding_pats=True, assume_utf8=True, resolve_entities=True)
-        data = unicodedata.normalize('NFC', data)
-        return etree.fromstring(data, parser=RECOVER_PARSER)
-
-    def parse_xhtml(self, data, fname='<string>', force_html5_parse=False):
-        if self.tweak_mode:
-            return parse_html_tweak(data, log=self.log, decoder=self.decode, force_html5_parse=force_html5_parse)
-        else:
-            try:
-                return parse_html(
-                    data, log=self.log, decoder=self.decode,
-                    preprocessor=self.html_preprocessor, filename=fname,
-                    non_html_file_tags={'ncx'})
-            except NotHTML:
-                return self.parse_xml(data)
 
     def parse(self, path, mime):
         with open(path, 'rb') as src:
@@ -513,10 +528,6 @@ class Container(object):  # {{{
         if decode and (mime in OEB_STYLES or mime in OEB_DOCS or mime == 'text/plain' or mime[-4:] in {'+xml', '/xml'}):
             ans = self.decode(ans, normalize_to_nfc=normalize_to_nfc)
         return ans
-
-    def parse_css(self, data, fname='<string>', is_declaration=False):
-        return parse_css(data, fname=fname, is_declaration=is_declaration, decode=self.decode, log_level=logging.WARNING,
-                         css_preprocessor=(None if self.tweak_mode else self.css_preprocessor))
 
     def parsed(self, name):
         ''' Return a parsed representation of the file specified by name. For
