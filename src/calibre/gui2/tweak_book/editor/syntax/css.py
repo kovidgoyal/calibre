@@ -120,7 +120,7 @@ content_tokens = [(re.compile(k), v, n) for k, v, n in [
 
     (r'\#[a-zA-Z0-9]{1,6}', 'number', 'hexnumber'),
 
-    (r'[\.-]?[0-9]*[\.]?[0-9]+(em|px|pt|pc|in|mm|cm|ex|s|rem)\b', 'number', 'dimension'),
+    (r'[\.-]?[0-9]*[\.]?[0-9]+(em|px|pt|pc|in|mm|cm|ex|q|rem)\b', 'number', 'dimension'),
 
     (r'[\.-]?[0-9]*[\.]?[0-9]+%(?=$|[ \n\t\f\r;}{()\[\]])', 'number', 'dimension'),
 
