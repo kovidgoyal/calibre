@@ -46,11 +46,20 @@ class Tyzden(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'detail__title article__title'}),
         dict(name='div', attrs={'class': 'article'}),
     ]
+    extra_css = """.detail__content h2::before {
+        color: #000;
+        content: ".";
+        display: inline;
+    }
+
+    .highlight {
+        color: #bf1f10;
+    }"""
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.base_url + '/' + self.piano_param)
-        br.set_cookie('pianovisitkey=""')
+        br.set_cookie('pianovisitkey', '', '.tyzden.sk')
         if self.username is not None and self.password is not None:
             br.select_form(nr=2)
             br['username'] = self.username
@@ -81,4 +90,3 @@ class Tyzden(BasicNewsRecipe):
         for title, section in self.find_sections():
             feeds.append((title, list(self.find_articles(section))))
         return feeds
-
