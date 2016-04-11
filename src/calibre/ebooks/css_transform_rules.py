@@ -37,15 +37,14 @@ class StyleDeclaration(object):
     def __iter__(self):
         dec = self.css_declaration
         for p in all_properties(dec):
-            if isinstance(p, Property):
-                n = normalizers.get(p.name)
-                if n is None:
-                    yield p, None
-                else:
-                    if p not in self.expanded_properties:
-                        self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in n(p.name, p.propertyValue).iteritems()]
-                    for ep in self.expanded_properties[p]:
-                        yield ep, p
+            n = normalizers.get(p.name)
+            if n is None:
+                yield p, None
+            else:
+                if p not in self.expanded_properties:
+                    self.expanded_properties[p] = [Property(k, v, p.literalpriority) for k, v in n(p.name, p.propertyValue).iteritems()]
+                for ep in self.expanded_properties[p]:
+                    yield ep, p
 
     def expand_property(self, parent_prop):
         props = self.expanded_properties.pop(parent_prop, None)
