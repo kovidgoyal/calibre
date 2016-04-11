@@ -338,7 +338,7 @@ class StatsCollector(object):
         for font in font_usage:
             text = set()
             for t in font['text']:
-                tt = font['text-transform']
+                tt = (font['text-transform'] or '').lower()
                 if tt != 'none':
                     if tt == 'uppercase':
                         t = icu_upper(t)
@@ -348,6 +348,9 @@ class StatsCollector(object):
                         m = self.capitalize_pat.search(t)
                         if m is not None:
                             t += icu_upper(m.group())
+                fv = (font['font-variant'] or '').lower()
+                if fv in {'smallcaps', 'small-caps', 'all-small-caps', 'petite-caps', 'all-petite-caps', 'unicase'}:
+                    t += icu_upper(t)  # for renderers that try to fake small-caps by using small normal caps
                 text |= frozenset(t)
             text.difference_update(exclude)
             if not text:

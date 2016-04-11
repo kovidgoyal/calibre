@@ -27,6 +27,7 @@ font_dict = (style, computed=false) ->
         'font-style':style.getPropertyValue('font-style'),
         'font-stretch':style.getPropertyValue('font-stretch'),
         'text-transform':style.getPropertyValue('text-transform'),
+        'font-variant':style.getPropertyValue('font-variant'),
     }
 
 font_usage = (node) ->
