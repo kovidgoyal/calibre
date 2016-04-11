@@ -482,12 +482,14 @@ class EditMetadataAction(InterfaceAction):
                 if row.row() < rows[0].row():
                     dest_row -= 1
             self.gui.library_view.set_current_row(dest_row)
+        cr = self.gui.library_view.currentIndex().row()
+        self.gui.library_view.model().refresh_ids((dest_id,), cr)
 
     def add_formats(self, dest_id, src_books, replace=False):
         for src_book in src_books:
             if src_book:
                 fmt = os.path.splitext(src_book)[-1].replace('.', '').upper()
-                with open(src_book, 'rb') as f:
+                with lopen(src_book, 'rb') as f:
                     self.gui.library_view.model().db.add_format(dest_id, fmt, f, index_is_id=True,
                             notify=False, replace=replace)
 
