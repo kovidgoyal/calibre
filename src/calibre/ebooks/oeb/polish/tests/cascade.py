@@ -10,7 +10,7 @@ from functools import partial
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
-from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_property, resolve_styles, DEFAULTS
+from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_property, resolve_styles, DEFAULTS, resolve_pseudo_property
 from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.logging import Log, Stream
@@ -72,11 +72,21 @@ class CascadeTest(BaseTest):
                 val = type('')(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
-        def get_maps(html, styles=None):
+        def test_pseudo_property(select, pseudo_style_map, selector, prop, name, val=None):
+            elem = next(select(selector))
+            ans = resolve_pseudo_property(elem, prop, name, pseudo_style_map)
+            if val is None:
+                val = type('')(DEFAULTS[name])
+            self.assertEqual(val, ans.cssText)
+
+        def get_maps(html, styles=None, pseudo=False):
             html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
             c = VirtualContainer({'index.html':html, 'styles.css':styles or 'body { color: red; font-family: "Kovid Goyal", sans-serif }'})
             style_map, pseudo_style_map, select = resolve_styles(c, 'index.html')
-            tp = partial(test_property, select, style_map)
+            if pseudo:
+                tp = partial(test_pseudo_property, select, pseudo_style_map)
+            else:
+                tp = partial(test_property, select, style_map)
             return tp
 
         t = get_maps('<p style="margin:11pt"><b>x</b>xx</p>')
@@ -104,3 +114,12 @@ class CascadeTest(BaseTest):
         t('p', 'color', 'blue')
         t = get_maps('<p>xxx</p><style>p {color: blue}</style>', 'p {color: red; margin:11pt}')
         t('p', 'margin-top', '11pt')
+        t = get_maps('<p></p>', 'p:before { content: "xxx" }', True)
+        t('p', 'before', 'content', '"xxx"')
+        t = get_maps('<p></p>', 'body p:before { content: "xxx" } p:before { content: "yyy" }', True)
+        t('p', 'before', 'content', '"xxx"')
+        t = get_maps('<p></p>', "p:before { content: 'xxx' } p:first-letter { font-weight: bold }", True)
+        t('p', 'before', 'content', '"xxx"')
+        t('p', 'first-letter', 'font-weight', 'bold')
+        t = get_maps('<p></p>', 'p:before { content: xxx }', True)
+        t('p', 'before', 'content', 'xxx')

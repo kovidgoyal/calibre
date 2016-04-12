@@ -137,6 +137,12 @@ def resolve_declarations(decls):
         ans[name] = first_val
     return ans
 
+def resolve_pseudo_declarations(decls):
+    groups = defaultdict(list)
+    for d in decls:
+        groups[d.pseudo_element].append(d)
+    return {k:resolve_declarations(v) for k, v in groups.iteritems()}
+
 def resolve_styles(container, name, select=None, sheet_callback=None):
     root = container.parsed(name)
     select = select or Select(root, ignore_inappropriate_pseudo_classes=True)
@@ -200,7 +206,7 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
             x.sort(key=itemgetter(0), reverse=True)
 
     style_map = {elem:resolve_declarations(x) for elem, x in style_map.iteritems()}
-    pseudo_style_map = {elem:resolve_declarations(x) for elem, x in pseudo_style_map.iteritems()}
+    pseudo_style_map = {elem:resolve_pseudo_declarations(x) for elem, x in pseudo_style_map.iteritems()}
 
     return style_map, pseudo_style_map, select
 
@@ -229,4 +235,14 @@ def resolve_property(elem, name, style_map):
             if val is not None:
                 return val
         q = q.getparent() if inheritable else None
+    return defvals().get(name)
+
+def resolve_pseudo_property(elem, prop, name, pseudo_style_map):
+    style_map = pseudo_style_map.get(elem)
+    if style_map is not None:
+        prop_map = style_map.get(prop)
+        if prop_map is not None:
+            val = prop_map.get(name)
+            if val is not None:
+                return val
     return defvals().get(name)
