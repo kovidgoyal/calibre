@@ -305,21 +305,22 @@ class MainWindowMixin(object):  # {{{
 
         l = self.centralwidget.layout()
 
-        # Add in the widget for the shutdown messages. It is invisible until a
-        # message is shown
-        smw = self.shutdown_message_widget = QLabel('')
-        smw.setMinimumHeight(200)
-        smw.setAlignment(Qt.AlignCenter)
-        self.shutdown_message_widget.setVisible(False)
-        l.addWidget(smw)
-
         # And now, start adding the real widgets
         l.addWidget(self.search_bar)
 
+        # Add in the widget for the shutdown messages. It is invisible until a
+        # message is shown
+        smw = self.shutdown_message_widget = QLabel(self)
+        smw.setAlignment(Qt.AlignCenter)
+        smw.setVisible(False)
+        smw.setAutoFillBackground(True)
+        smw.setStyleSheet('QLabel { background-color: rgba(200, 200, 200, 200); color: black }')
 
     def show_shutdown_message(self, message):
         smw = self.shutdown_message_widget
+        smw.setGeometry(0, 0, self.width(), self.height())
         smw.setVisible(True)
+        smw.raise_()
         txt = smw.text()
         txt += '\n' + message
         smw.setText(txt)
