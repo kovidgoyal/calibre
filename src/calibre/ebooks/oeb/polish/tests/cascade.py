@@ -10,7 +10,7 @@ from functools import partial
 
 from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
-from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_property, resolve_styles, DEFAULTS, resolve_pseudo_property
+from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, DEFAULTS
 from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.logging import Log, Stream
@@ -65,16 +65,16 @@ class CascadeTest(BaseTest):
 
     def test_resolve_styles(self):
 
-        def test_property(select, style_map, selector, name, val=None):
+        def test_property(select, resolve_property, selector, name, val=None):
             elem = next(select(selector))
-            ans = resolve_property(elem, name, style_map)
+            ans = resolve_property(elem, name)
             if val is None:
                 val = type('')(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
-        def test_pseudo_property(select, pseudo_style_map, selector, prop, name, val=None):
+        def test_pseudo_property(select, resolve_pseudo_property, selector, prop, name, val=None):
             elem = next(select(selector))
-            ans = resolve_pseudo_property(elem, prop, name, pseudo_style_map)
+            ans = resolve_pseudo_property(elem, prop, name)
             if val is None:
                 val = type('')(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
@@ -82,11 +82,11 @@ class CascadeTest(BaseTest):
         def get_maps(html, styles=None, pseudo=False):
             html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
             c = VirtualContainer({'index.html':html, 'styles.css':styles or 'body { color: red; font-family: "Kovid Goyal", sans-serif }'})
-            style_map, pseudo_style_map, select = resolve_styles(c, 'index.html')
+            resolve_property, resolve_pseudo_property, select = resolve_styles(c, 'index.html')
             if pseudo:
-                tp = partial(test_pseudo_property, select, pseudo_style_map)
+                tp = partial(test_pseudo_property, select, resolve_pseudo_property)
             else:
-                tp = partial(test_property, select, style_map)
+                tp = partial(test_property, select, resolve_property)
             return tp
 
         t = get_maps('<p style="margin:11pt"><b>x</b>xx</p>')
