@@ -108,6 +108,7 @@ class Values(tuple):
 
     @property
     def cssText(self):
+        ' This will return either a string or a tuple of strings '
         if len(self) == 1:
             return self[0].cssText
         return tuple(x.cssText for x in self)
@@ -136,7 +137,7 @@ def resolve_declarations(decls):
         ans[name] = first_val
     return ans
 
-def resolve_styles(container, name, select=None):
+def resolve_styles(container, name, select=None, sheet_callback=None):
     root = container.parsed(name)
     select = select or Select(root, ignore_inappropriate_pseudo_classes=True)
     style_map = defaultdict(list)
@@ -145,6 +146,8 @@ def resolve_styles(container, name, select=None):
     pseudo_pat = re.compile(ur':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
 
     def process_sheet(sheet, sheet_name):
+        if sheet_callback is not None:
+            sheet_callback(sheet, sheet_name)
         for rule, sheet_name, rule_index in iterrules(container, sheet_name, rules=sheet, rule_index_counter=rule_index_counter, rule_type='STYLE_RULE'):
             for selector in rule.selectorList:
                 text = selector.selectorText

@@ -74,7 +74,7 @@ class CascadeTest(BaseTest):
 
         def get_maps(html, styles=None):
             html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
-            c = VirtualContainer({'index.html':html, 'styles.css':styles or 'body { color: red }'})
+            c = VirtualContainer({'index.html':html, 'styles.css':styles or 'body { color: red; font-family: "Kovid Goyal", sans-serif }'})
             style_map, pseudo_style_map, select = resolve_styles(c, 'index.html')
             tp = partial(test_property, select, style_map)
             return tp
@@ -87,6 +87,20 @@ class CascadeTest(BaseTest):
         t('b', 'margin-top')
         t('body', 'display', 'block')
         t('b', 'display', 'inline')
+        t('body', 'font-family', ('"Kovid Goyal"', 'sans-serif'))
         for e in ('body', 'p', 'b'):
             for prop in 'background-color text-indent'.split():
                 t(e, prop)
+
+        t = get_maps('<p>xxx</p><style>p {color: blue}</style>', 'p {color: red}')
+        t('p', 'color', 'blue')
+        t = get_maps('<p style="color: blue">xxx</p>', 'p {color: red}')
+        t('p', 'color', 'blue')
+        t = get_maps('<p style="color: blue">xxx</p>', 'p {color: red !important}')
+        t('p', 'color', 'red')
+        t = get_maps('<p id="p">xxx</p>', '#p { color: blue } p {color: red}')
+        t('p', 'color', 'blue')
+        t = get_maps('<p>xxx</p>', 'p {color: red; color: blue}')
+        t('p', 'color', 'blue')
+        t = get_maps('<p>xxx</p><style>p {color: blue}</style>', 'p {color: red; margin:11pt}')
+        t('p', 'margin-top', '11pt')
