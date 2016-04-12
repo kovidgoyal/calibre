@@ -878,7 +878,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         return True
 
     def shutdown(self, write_settings=True):
-        self.show_shutdown_message(_('Shutting down'))
+        self.show_shutdown_message()
 
         from calibre.customize.ui import has_library_closed_plugins
         if has_library_closed_plugins():
