@@ -31,7 +31,7 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'none', 'cue-after': 'none', 'cue-before': 'none', 'cursor':
             'auto', 'direction': 'ltr', 'display': 'inline', 'elevation':
             'level', 'empty-cells': 'show', 'float': 'none', 'font-family':
-            'serif', 'font-size': 'medium', 'font-style': 'normal',
+            'serif', 'font-size': 'medium', 'font-stretch': 'normal', 'font-style': 'normal',
             'font-variant': 'normal', 'font-weight': 'normal', 'height':
             'auto', 'left': 'auto', 'letter-spacing': 'normal', 'line-height':
             'normal', 'list-style-image': 'none', 'list-style-position':
