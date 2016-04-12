@@ -37,8 +37,9 @@ class BrandEins(BasicNewsRecipe):
     keep_only_tags = dict(name='div', attrs={'id':'content'})
 
     # remove share image from articles
-    remove_tags  = [dict(name='img', attrs={'class':'share-instruction'}),
-                    dict(name='div', attrs={'class':'articleAuthor'})]
+    remove_tags  = [dict(name='div', attrs={'class':'advertisement rectangle desktop'}),
+                    dict(name='h3', attrs={'class':'sharing-headline'}),
+                    dict(name='div', attrs={'class':'sharing-links'})]
 
     remove_tags_before = dict(name='div', attrs={'class':'innerContent typeArticle'})
     remove_tags_after = dict(name='div', attrs={'id':'socialshareprivacy'})
