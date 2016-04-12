@@ -316,14 +316,12 @@ class MainWindowMixin(object):  # {{{
         smw.setAutoFillBackground(True)
         smw.setStyleSheet('QLabel { background-color: rgba(200, 200, 200, 200); color: black }')
 
-    def show_shutdown_message(self, message):
+    def show_shutdown_message(self, message=''):
         smw = self.shutdown_message_widget
         smw.setGeometry(0, 0, self.width(), self.height())
         smw.setVisible(True)
         smw.raise_()
-        txt = smw.text()
-        txt += '\n' + message
-        smw.setText(txt)
+        smw.setText(_('<h2>Shutting down</h2><div>') + message)
         # Force processing the events needed to show the message
         QCoreApplication.processEvents()
 # }}}
