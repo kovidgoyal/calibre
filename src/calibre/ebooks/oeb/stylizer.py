@@ -50,7 +50,6 @@ FONT_SIZE_NAMES = {
     'xx-small', 'x-small', 'small', 'medium', 'large', 'x-large', 'xx-large'
 }
 
-ALL_MEDIA_TYPES = frozenset('all aural braille handheld print projection screen tty tv embossed amzn-mobi amzn-kf8'.split())
 ALLOWED_MEDIA_TYPES = frozenset({'screen', 'all', 'aural', 'amzn-kf8'})
 IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome -webkit-min-device-pixel-ratio resolution min-resolution max-resolution scan grid'.split())  # noqa
 

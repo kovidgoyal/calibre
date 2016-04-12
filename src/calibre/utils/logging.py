@@ -27,6 +27,10 @@ class Stream(object):
     def flush(self):
         self.stream.flush()
 
+    def prints(self, level, *args, **kwargs):
+        self._prints(*args, **kwargs)
+
+
 class ANSIStream(Stream):
 
     def __init__(self, stream=sys.stdout):

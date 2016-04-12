@@ -186,7 +186,6 @@ class ContainerBase(object):  # {{{
                          css_preprocessor=(None if self.tweak_mode else self.css_preprocessor))
 # }}}
 
-
 class Container(ContainerBase):  # {{{
 
     '''

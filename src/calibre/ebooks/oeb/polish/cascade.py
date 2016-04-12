@@ -29,39 +29,54 @@ def html_css_stylesheet(container):
     return _html_css_stylesheet
 
 def media_allowed(media):
+    if not media or not media.mediaText:
+        return True
     return media_ok(media.mediaText)
 
-def iterrules(container, rules, sheet_name, media_rule_ok=media_allowed, rule_index_counter=None, rule_type=None):
+def iterrules(container, sheet_name, rules=None, media_rule_ok=media_allowed, rule_index_counter=None, rule_type=None, importing=None):
     ''' Iterate over all style rules in the specified sheet. Import and Media rules are
     automatically resolved. Yields (rule, sheet_name, rule_number).
 
-    :param rules: List of CSSRules or a CSSStyleSheet instance
+    :param rules: List of CSSRules or a CSSStyleSheet instance or None in which case it is read from container using sheet_name
     :param sheet_name: The name of the sheet in the container (in case of inline style sheets, the name of the html file)
     :param media_rule_ok: A function to test if a @media rule is allowed
     :param rule_index_counter: A counter object, rule numbers will be calculated by incrementing the counter.
-    :param rule_type: Only yield rules of this type (by default all rules are yielded
+    :param rule_type: Only yield rules of this type, where type is a string type name, see cssutils.css.CSSRule for the names (by default all rules are yielded)
     :return: (CSSRule object, the name of the sheet from which it comes, rule index - a monotonically increasing number)
     '''
 
     rule_index_counter = rule_index_counter or count()
-    riter = partial(iterrules, container, rule_index_counter=rule_index_counter, media_rule_ok=media_rule_ok, rule_type=rule_type)
+    if importing is None:
+        importing = set()
+    importing.add(sheet_name)
+    riter = partial(iterrules, container, rule_index_counter=rule_index_counter, media_rule_ok=media_rule_ok, rule_type=rule_type, importing=importing)
+    if rules is None:
+        rules = container.parsed(sheet_name)
+    if rule_type is not None:
+        rule_type = getattr(CSSRule, rule_type)
 
     for rule in rules:
         if rule.type == CSSRule.IMPORT_RULE:
-            name = container.href_to_name(rule.href, sheet_name)
-            if container.has_name(name):
-                csheet = container.parsed(name)
-                if isinstance(csheet, CSSStyleSheet):
-                    for cr in riter(csheet, name):
-                        yield cr
+            if media_rule_ok(rule.media):
+                name = container.href_to_name(rule.href, sheet_name)
+                if container.has_name(name):
+                    if name in importing:
+                        container.log.error('Recursive import of {} from {}, ignoring'.format(name, sheet_name))
+                    else:
+                        csheet = container.parsed(name)
+                        if isinstance(csheet, CSSStyleSheet):
+                            for cr in riter(name, rules=csheet):
+                                yield cr
         elif rule.type == CSSRule.MEDIA_RULE:
             if media_rule_ok(rule.media):
-                for cr in riter(rule.cssRules, sheet_name):
+                for cr in riter(sheet_name, rules=rule.cssRules):
                     yield cr
 
         elif rule_type is None or rule.type == rule_type:
             num = next(rule_index_counter)
             yield rule, sheet_name, num
+
+    importing.discard(sheet_name)
 
 StyleDeclaration = namedtuple('StyleDeclaration', 'index declaration pseudo_element')
 Specificity = namedtuple('Specificity', 'is_style num_id num_class num_elem rule_index')
@@ -123,7 +138,7 @@ def resolve_styles(container, name):
     pseudo_pat = re.compile(ur':{1,2}(%s)' % ('|'.join(INAPPROPRIATE_PSEUDO_CLASSES)), re.I)
 
     def process_sheet(sheet, sheet_name):
-        for rule, sheet_name, rule_index in iterrules(container, sheet, sheet_name, rule_index_counter=rule_index_counter, rule_type=CSSRule.STYLE_RULE):
+        for rule, sheet_name, rule_index in iterrules(container, sheet_name, rules=sheet, rule_index_counter=rule_index_counter, rule_type=CSSRule.STYLE_RULE):
             for selector in rule.selectorList:
                 text = selector.selectorText
                 try:
