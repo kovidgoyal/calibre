@@ -4,12 +4,13 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 __license__ = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2016, Kovid Goyal <kovid at kovidgoyal.net>'
+
+from functools import partial
 
 from calibre.constants import iswindows
-
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
-from calibre.ebooks.oeb.polish.cascade import iterrules
+from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_property, resolve_styles, DEFAULTS
 from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.logging import Log, Stream
@@ -61,3 +62,31 @@ class CascadeTest(BaseTest):
         get_rules({'x/one.css':'@media xyz { body { color: red; } }'}, l=0)
         c = get_rules({'x/one.css':'@import "../two.css";', 'two.css':'@import "x/one.css"; body { color: red; }'})[1]
         self.assertIn('Recursive import', c.log_stream.getvalue().decode('utf-8'))
+
+    def test_resolve_styles(self):
+
+        def test_property(select, style_map, selector, name, val=None):
+            elem = next(select(selector))
+            ans = resolve_property(elem, name, style_map)
+            if val is None:
+                val = type('')(DEFAULTS[name])
+            self.assertEqual(val, ans.cssText)
+
+        def get_maps(html, styles=None):
+            html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
+            c = VirtualContainer({'index.html':html, 'styles.css':styles or 'body { color: red }'})
+            style_map, pseudo_style_map, select = resolve_styles(c, 'index.html')
+            tp = partial(test_property, select, style_map)
+            return tp
+
+        t = get_maps('<p style="margin:11pt"><b>x</b>xx</p>')
+        t('body', 'color', 'red')
+        t('p', 'color', 'red')
+        t('b', 'font-weight', 'bold')
+        t('p', 'margin-top', '11pt')
+        t('b', 'margin-top')
+        t('body', 'display', 'block')
+        t('b', 'display', 'inline')
+        for e in ('body', 'p', 'b'):
+            for prop in 'background-color text-indent'.split():
+                t(e, prop)
