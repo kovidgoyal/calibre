@@ -208,7 +208,7 @@ def resolve_styles(container, name, select=None, sheet_callback=None):
     style_map = {elem:resolve_declarations(x) for elem, x in style_map.iteritems()}
     pseudo_style_map = {elem:resolve_pseudo_declarations(x) for elem, x in pseudo_style_map.iteritems()}
 
-    return partial(resolve_property, style_map), partial(resolve_pseudo_property, pseudo_style_map), select
+    return partial(resolve_property, style_map), partial(resolve_pseudo_property, style_map, pseudo_style_map), select
 
 _defvals = None
 
@@ -237,12 +237,14 @@ def resolve_property(style_map, elem, name):
         q = q.getparent() if inheritable else None
     return defvals().get(name)
 
-def resolve_pseudo_property(pseudo_style_map, elem, prop, name):
-    style_map = pseudo_style_map.get(elem)
-    if style_map is not None:
-        prop_map = style_map.get(prop)
+def resolve_pseudo_property(style_map, pseudo_style_map, elem, prop, name):
+    sub_map = pseudo_style_map.get(elem)
+    if sub_map is not None:
+        prop_map = sub_map.get(prop)
         if prop_map is not None:
             val = prop_map.get(name)
             if val is not None:
                 return val
+    if name in INHERITED:
+        return resolve_property(style_map, elem, name)
     return defvals().get(name)
