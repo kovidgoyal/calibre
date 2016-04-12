@@ -237,10 +237,14 @@ def resolve_property(style_map, elem, name):
         q = q.getparent() if inheritable else None
     return defvals().get(name)
 
-def resolve_pseudo_property(style_map, pseudo_style_map, elem, prop, name):
+def resolve_pseudo_property(style_map, pseudo_style_map, elem, prop, name, abort_on_missing=False):
     sub_map = pseudo_style_map.get(elem)
+    if abort_on_missing and sub_map is None:
+        return None
     if sub_map is not None:
         prop_map = sub_map.get(prop)
+        if abort_on_missing and prop_map is None:
+            return None
         if prop_map is not None:
             val = prop_map.get(name)
             if val is not None:

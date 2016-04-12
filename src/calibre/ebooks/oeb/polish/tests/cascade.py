@@ -72,9 +72,13 @@ class CascadeTest(BaseTest):
                 val = type('')(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
 
-        def test_pseudo_property(select, resolve_pseudo_property, selector, prop, name, val=None):
+        def test_pseudo_property(select, resolve_pseudo_property, selector, prop, name, val=None, abort_on_missing=False):
             elem = next(select(selector))
-            ans = resolve_pseudo_property(elem, prop, name)
+            ans = resolve_pseudo_property(elem, prop, name, abort_on_missing=abort_on_missing)
+            if abort_on_missing:
+                if val is None:
+                    self.assertTrue(ans is None)
+                    return
             if val is None:
                 val = type('')(DEFAULTS[name])
             self.assertEqual(val, ans.cssText)
@@ -125,4 +129,5 @@ class CascadeTest(BaseTest):
         t('p', 'before', 'content', 'xxx')
         t('p', 'before', 'margin-top', '0')
         t('p', 'before', 'font-weight', 'bold')
-        t('p', 'first-letter', 'content', 'normal')
+        t('p', 'first-letter', 'content')
+        t('p', 'first-letter', 'content', abort_on_missing=True)
