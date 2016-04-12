@@ -1,4 +1,6 @@
 #!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals
 
 __license__   = 'GPL v3'
 __copyright__ = '2016, Aimylios'
@@ -11,15 +13,15 @@ import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Handelsblatt(BasicNewsRecipe):
-    title            = u'Handelsblatt'
-    __author__       = 'Aimylios'  # based on the work of malfi and Hegi
-    description      = u'RSS-Feeds von Handelsblatt.com'
-    publisher        = 'Verlagsgruppe Handelsblatt GmbH'
-    category         = 'news, politics, business, economy, Germany'
-    publication_type = 'newspaper'
-    language         = 'de'
+    title              = 'Handelsblatt'
+    __author__         = 'Aimylios'  # based on the work of malfi and Hegi
+    description        = 'RSS-Feeds von Handelsblatt.com'
+    publisher          = 'Verlagsgruppe Handelsblatt GmbH'
+    publication_type   = 'newspaper'
+    needs_subscription = 'optional'
+    language           = 'de'
+    encoding           = 'utf-8'
 
-    encoding                  = 'utf8'
     oldest_article            = 4
     max_articles_per_feed     = 30
     simultaneous_downloads    = 20
@@ -32,56 +34,65 @@ class Handelsblatt(BasicNewsRecipe):
                           'publisher'           : publisher}
 
     # uncomment this to reduce file size
-    #  compress_news_images = True
+    # compress_news_images          = True
+    # compress_news_images_max_size = 16
 
     cover_source = 'https://kaufhaus.handelsblatt.com/downloads/handelsblatt-epaper-p1951.html'
     masthead_url = 'http://www.handelsblatt.com/images/logo_handelsblatt/11002806/7-formatOriginal.png'
 
     feeds = [
-              (u'Top-Themen', u'http://www.handelsblatt.com/contentexport/feed/top-themen'),
-              (u'Politik', u'http://www.handelsblatt.com/contentexport/feed/politik'),
-              (u'Unternehmen', u'http://www.handelsblatt.com/contentexport/feed/unternehmen'),
-              (u'Finanzen', u'http://www.handelsblatt.com/contentexport/feed/finanzen'),
-              (u'Technologie', u'http://www.handelsblatt.com/contentexport/feed/technologie'),
-              (u'Panorama', u'http://www.handelsblatt.com/contentexport/feed/panorama'),
-              (u'Sport', u'http://www.handelsblatt.com/contentexport/feed/sport')
-            ]
+        ('Top-Themen', 'http://www.handelsblatt.com/contentexport/feed/top-themen'),
+        ('Politik', 'http://www.handelsblatt.com/contentexport/feed/politik'),
+        ('Unternehmen', 'http://www.handelsblatt.com/contentexport/feed/unternehmen'),
+        ('Finanzen', 'http://www.handelsblatt.com/contentexport/feed/finanzen'),
+        ('Technologie', 'http://www.handelsblatt.com/contentexport/feed/technologie'),
+        ('Panorama', 'http://www.handelsblatt.com/contentexport/feed/panorama'),
+        ('Sport', 'http://www.handelsblatt.com/contentexport/feed/sport')
+    ]
 
     keep_only_tags = [dict(name='div', attrs={'class':['vhb-article-container']})]
 
     remove_tags = [
-                    dict(name='span', attrs={'class':['vhb-media', 'vhb-colon']}),
-                    dict(name='small', attrs={'class':['vhb-credit']}),
-                    dict(name='aside', attrs={'class':['vhb-article-element vhb-left',
-                                                       'vhb-article-element vhb-left vhb-teasergallery',
-                                                       'vhb-article-element vhb-left vhb-shorttexts']}),
-                    dict(name='article', attrs={'class':['vhb-imagegallery vhb-teaser', 'vhb-teaser vhb-type-video']}),
-                    dict(name='div', attrs={'class':['fb-post']}),
-                    dict(name='blockquote', attrs={'class':['twitter-tweet']}),
-                    dict(name='a', attrs={'class':['twitter-follow-button']})
-                  ]
+        dict(name='span', attrs={'class':['vhb-colon', 'vhb-label-premium']}),
+        dict(name='aside', attrs={'class':['vhb-article-element vhb-left',
+                                           'vhb-article-element vhb-left vhb-teasergallery',
+                                           'vhb-article-element vhb-left vhb-shorttexts']}),
+        dict(name='article', attrs={'class':['vhb-imagegallery vhb-teaser',
+                                             'vhb-teaser vhb-type-video']}),
+        dict(name='small', attrs={'class':['vhb-credit']}),
+        dict(name='div', attrs={'class':['white_content', 'fb-post']}),
+        dict(name='a', attrs={'class':['twitter-follow-button']}),
+        dict(name='blockquote')
+    ]
 
     preprocess_regexps = [
-                           # Insert ". " after "Place" in <span class="hcf-location-mark">Place</span>
-                           (re.compile(r'(<span class="hcf-location-mark">[^<]+)(</span>)',
-                           re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + '.&nbsp;' + match.group(2)),
-                           # Insert ": " after "Title" in <em itemtype="text" itemprop="name" class="vhb-title">Title</em>
-                           (re.compile(r'(<em itemtype="text" itemprop="name" class="vhb-title">[^<]+)(</em>)',
-                           re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + ':&nbsp;' + match.group(2))
-                         ]
+        # Insert ". " after "Place" in <span class="hcf-location-mark">Place</span>
+        (re.compile(r'(<span class="hcf-location-mark">[^<]+)(</span>)',
+        re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + '.&nbsp;' + match.group(2)),
+        # Insert ": " after "Title" in <em itemtype="text" itemprop="name" class="vhb-title">Title</em>
+        (re.compile(r'(<em itemtype="text" itemprop="name" class="vhb-title">[^<]+)(</em>)',
+        re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + ':&nbsp;' + match.group(2))
+    ]
 
     extra_css = 'h2 {text-align: left} \
                  h3 {font-size: 1em; text-align: left} \
                  h4 {font-size: 1em; text-align: left; margin-bottom: 0em} \
                  em {font-style: normal; font-weight: bold} \
                  .vhb-subline {font-size: 0.6em; text-transform: uppercase} \
-                 .vhb-article-caption {float: left; padding-right: 0.2em} \
-                 .vhb-article-author-cell ul {list-style-type: none; margin: 0em} \
                  .vhb-teaser-head {margin-top: 1em; margin-bottom: 1em} \
                  .vhb-caption-wrapper {font-size: 0.6em} \
                  .hcf-location-mark {font-weight: bold} \
-                 .panel-link {color: black; text-decoration: none} \
                  .panel-body p {margin-top: 0em}'
+
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        if self.username is not None and self.password is not None:
+            br.open('https://profil.vhb.de/sso/login?service=http://www.handelsblatt.com')
+            br.select_form(nr=0)
+            br['username'] = self.username
+            br['password'] = self.password
+            br.submit()
+        return br
 
     def get_cover_url(self):
         soup = self.index_to_soup(self.cover_source)
@@ -99,13 +110,27 @@ class Handelsblatt(BasicNewsRecipe):
         if article_container is None:
             self.abort_article()
         else:
+            # remove all local hyperlinks
+            for a in soup.findAll('a', {'href':True}):
+                if a['href'] and a['href'][0] in ['/', '#']:
+                    a.replaceWith(a.renderContents())
             return soup
 
     def postprocess_html(self, soup, first_fetch):
+        # convert lists of author(s) and date(s) into simple text
+        for cap in soup.findAll('div', {'class':re.compile('.*vhb-article-caption')}):
+            cap.replaceWith(cap.renderContents())
+        for row in soup.findAll('div', {'class':'vhb-article-author-row'}):
+            for ul in row.findAll('ul'):
+                entry = ''
+                for li in ul.findAll(lambda tag: tag.name == 'li' and not tag.attrs):
+                    entry = entry + li.renderContents() + ', '
+                for li in ul.findAll(lambda tag: tag.name == 'li' and tag.attrs):
+                    entry = entry + li.renderContents() + '<br/>'
+                ul.parent.replaceWith(entry)
         # make sure that all figure captions (including the source) are shown
         # without linebreaks by using the alternative text given within <img/>
         # instead of the original text (which is oddly formatted)
-        article_figures = soup.findAll('figure', {'class':'vhb-image'})
-        for fig in article_figures:
+        for fig in soup.findAll('figure', {'class':'vhb-image'}):
             fig.find('div', {'class':'vhb-caption'}).replaceWith(fig.find('img')['alt'])
         return soup
