@@ -12,6 +12,7 @@ from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, DEFAULTS
 from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
+from calibre.ebooks.oeb.polish.stats import StatsCollector, font_keys, normalize_font_properties, prepare_font_rule
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.logging import Log, Stream
 
@@ -44,6 +45,12 @@ class VirtualContainer(ContainerBase):
             else:
                 self.parsed_cache[name] = self.files[name]
         return self.parsed_cache[name]
+
+    @property
+    def spine_names(self):
+        for name in sorted(self.mime_map):
+            if self.mime_map[name] in OEB_DOCS:
+                yield name, True
 
 class CascadeTest(BaseTest):
 
@@ -131,3 +138,65 @@ class CascadeTest(BaseTest):
         t('p', 'before', 'font-weight', 'bold')
         t('p', 'first-letter', 'content')
         t('p', 'first-letter', 'content', abort_on_missing=True)
+
+    def test_font_stats(self):
+        embeds = '@font-face { font-family: X; src: url(X.otf) }\n@font-face { font-family: X; src: url(XB.otf); font-weight: bold }'
+        def get_stats(html, *fonts):
+            styles = []
+            html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
+            files = {'index.html':html, 'X.otf':b'xxx', 'XB.otf': b'xbxb'}
+            for font in fonts:
+                styles.append('@font-face {')
+                for k, v in font.iteritems():
+                    if k == 'src':
+                        files[v] = b'xxx'
+                        v = 'url(%s)' % v
+                    styles.append('%s : %s;' % (k, v))
+                styles.append('}\n')
+            html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)
+            files['styles.css'] = embeds + '\n'.join(styles)
+            c = VirtualContainer(files)
+            return StatsCollector(c, do_embed=True)
+
+        def font(family, weight=None, style=None):
+            f = {}
+            if weight is not None:
+                f['font-weight'] = weight
+            if style is not None:
+                f['font-style'] = style
+            f = normalize_font_properties(f)
+            f['font-family'] = [family]
+            return f
+
+        def font_rule(src, *args, **kw):
+            ans = font(*args, **kw)
+            ans['font-family'] = list(map(icu_lower, ans['font-family']))
+            prepare_font_rule(ans)
+            ans['src'] = src
+            return ans
+
+        def fkey(*args, **kw):
+            f = font(*args, **kw)
+            f['font-family'] = icu_lower(f['font-family'][0])
+            return frozenset((k, v) for k, v in f.iteritems() if k in font_keys)
+
+        def fu(text, *args, **kw):
+            key = fkey(*args, **kw)
+            val = font(*args, **kw)
+            val['text'] = set(text)
+            val['font-family'] = val['font-family'][0]
+            return key, val
+
+        s = get_stats('<p style="font-family: X">abc<b>d\nef</b><i>ghi</i></p><p style="font-family: U">u</p>')
+        # The normal font must include ghi as it will be used to simulate
+        # italic by most rendering engines when the italic font is missing
+        self.assertEqual(s.font_stats, {'XB.otf':set('def'), 'X.otf':set('abcghi')})
+        self.assertEqual(s.font_spec_map, {'index.html':set('XU')})
+        self.assertEqual(s.all_font_rules, {'X.otf':font_rule('X.otf', 'X'), 'XB.otf':font_rule('XB.otf', 'X', 'bold')})
+        self.assertEqual(set(s.font_rule_map), {'index.html'})
+        self.assertEqual(s.font_rule_map['index.html'], [font_rule('X.otf', 'X'), font_rule('XB.otf', 'X', 'bold')])
+        self.assertEqual(set(s.font_usage_map), {'index.html'})
+        self.assertEqual(s.font_usage_map['index.html'], dict([fu('abc', 'X'), fu('def', 'X', weight='bold'), fu('ghi', 'X', style='italic'), fu('u', 'U')]))
+
+        s = get_stats('<p style="font-family: X; text-transform:uppercase">abc</p><b style="font-family: X; font-variant: small-caps">d\nef</b>')
+        self.assertEqual(s.font_stats, {'XB.otf':set('defDEF'), 'X.otf':set('ABC')})
