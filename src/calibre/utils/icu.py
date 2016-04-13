@@ -231,11 +231,7 @@ primary_startswith = _make_func(_strcmp_template, 'primary_startswith', collator
 
 safe_chr = _icu.chr
 
-try:
-    ord_string = _icu.ord_string
-except AttributeError:
-    # People running from source
-    ord_string = lambda x: tuple(map(ord, x))
+ord_string = _icu.ord_string
 
 def character_name(string):
     try:
