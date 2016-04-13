@@ -344,6 +344,20 @@ class CSSFlattener(object):
         if 'align' in node.attrib:
             if tag != 'img':
                 cssdict['text-align'] = node.attrib['align']
+                if cssdict['text-align'] == 'center':
+                    # align=center causes tables to be center aligned,
+                    # which text-align does not. And the ever trustworthy Word
+                    # uses this construct in its HTML output. See
+                    # https://bugs.launchpad.net/bugs/1569583
+                    if tag == 'table':
+                        if 'margin-left' not in cssdict and 'margin-right' not in cssdict:
+                            cssdict['margin-left'] = cssdict['margin-right'] = 'auto'
+                    else:
+                        for table in node.iterchildren(XHTML("table")):
+                            ts = stylizer.style(table)
+                            if ts.get('margin-left') is None and ts.get('margin-right') is None:
+                                ts.set('margin-left', 'auto')
+                                ts.set('margin-right', 'auto')
             else:
                 val = node.attrib['align']
                 if val in ('middle', 'bottom', 'top'):
