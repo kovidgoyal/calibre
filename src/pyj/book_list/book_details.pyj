@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+import traceback
 from ajax import ajax
 from book_list.globals import get_current_query
 from book_list.theme import get_font_size
@@ -241,10 +242,9 @@ def render_metadata(mi, interface_data, table, field_list=None):
             continue
         try:
             process_field(field, fm)
-        except Exception as err:
+        except Exception:
             print('Failed to render metadata field: ' + field)
-            print(err.toString())
-            print(err.stack)
+            traceback.print_exc()
 
     for i, field in enumerate(sorted(comments)):
         comment = comments[field]

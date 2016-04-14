@@ -2,6 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods
 
+import traceback
 from aes import GCM
 from gettext import install
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item
@@ -45,7 +46,7 @@ class Boss:
             except Exception as e:
                 console.log('Error in iframe message handler:')
                 console.log(e)
-                self.send_message('error', details=e.stack, msg=e.toString())
+                self.send_message('error', details=traceback.format_exc(), msg=e.toString())
         else:
             print('Unknown action in message to iframe from parent: ' + data.action)
 

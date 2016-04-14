@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import traceback
 from ajax import encode_query
 from dom import set_css
 from elementmaker import E
@@ -76,8 +77,8 @@ class Boss:
             fname = script_url.rpartition('/')[-1] or script_url
             msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
             details = ''
-            if error_object and error_object.stack:
-                details = error_object.stack
+            if error_object:
+                details = traceback.format_exception(error_object).join('')
             error_dialog(_('Unhandled error'), msg, details)
             return True
         except:

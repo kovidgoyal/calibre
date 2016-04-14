@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import traceback
 from ajax import ajax_send
 from dom import set_css, build_rule, clear
 from elementmaker import E
@@ -145,8 +146,8 @@ class BooksView:
                     raise Exception('No books ids object in search result from server')
                 self.render_ids(data.search_result.book_ids)
                 self.interface_data.search_result = data.search_result
-            except Exception as err:
-                error_dialog(_('Could not get more books'), _('Server returned an invalid response'), err.stack or err.toString())
+            except Exception:
+                error_dialog(_('Could not get more books'), _('Server returned an invalid response'), traceback.format_exc())
         elif end_type is not 'abort':
             error_dialog(_('Could not get more books'), xhr.error_html)
 
@@ -230,7 +231,7 @@ class BooksView:
                 data = JSON.parse(xhr.responseText)
                 boss.change_books(data)
             except Exception as err:
-                return error_dialog(_('Could not change sort order'), err + '', details=err.stack)
+                return error_dialog(_('Could not change sort order'), err + '', details=traceback.format_exc())
             boss.ui.show_panel(boss.ui.ROOT_PANEL)
             window.scrollTo(0, 0)
         elif end_type is not 'abort':
@@ -251,7 +252,7 @@ class BooksView:
                 data = JSON.parse(xhr.responseText)
                 boss.change_books(data)
             except Exception as err:
-                return error_dialog(_('Could not change search query'), err + '', details=err.stack)
+                return error_dialog(_('Could not change search query'), err + '', details=traceback.format_exc())
             self.update_fetching_status()
             ed = xhr.extra_data_for_callback
             boss.ui.show_panel(ed.panel_to_show or boss.ui.ROOT_PANEL, push_state=ed.push_state)

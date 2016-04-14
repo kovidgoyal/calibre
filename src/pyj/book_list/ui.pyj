@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
+import traceback
 from book_list.globals import get_boss, get_session_data
 from book_list.search import SearchPanel
 from book_list.top_bar import TopBar
@@ -196,7 +197,7 @@ class UI:
                 data = JSON.parse(xhr.responseText)
                 boss.change_books(data)
             except Exception as err:
-                return error_dialog(_('Could not change library'), err + '', details=err.stack)
+                return error_dialog(_('Could not change library'), err + '', details=traceback.format_exc())
             self.show_panel(self.ROOT_PANEL)
             window.scrollTo(0, 0)
         elif end_type is not 'abort':
