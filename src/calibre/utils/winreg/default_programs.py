@@ -69,6 +69,8 @@ def check_allowed():
         raise NotAllowed('Not allowed to create associations for portable installs')
     if sys.getwindowsversion()[:2] < (6, 2):
         raise NotAllowed('Not allowed to create associations for windows versions older than Windows 8')
+    if b'CALIBRE_NO_DEFAULT_PROGRAMS' in os.environ:
+        raise NotAllowed('Disabled by the CALIBRE_NO_DEFAULT_PROGRAMS environment variable')
 
 def create_prog_id(ext, prog_id, ext_map, exe):
     with Key(r'Software\Classes\%s' % prog_id) as key:
