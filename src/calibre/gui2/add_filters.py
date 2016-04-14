@@ -50,6 +50,7 @@ class RuleEdit(RuleEditBase):
             tt = _('A case-insensitive filename pattern, for example: {0} or {1}').format('*.pdf', 'number-?.epub')
         else:
             tt = _('A regular expression')
+        self.regex_help.setVisible('matches' in q)
         self.query.setToolTip(tt)
 
     @property

@@ -14,10 +14,11 @@ from calibre.ebooks.css_transform_rules import (
     validate_rule, safe_parser, compile_rules, transform_sheet, ACTION_MAP, MATCH_TYPE_MAP, export_rules, import_rules)
 from calibre.gui2 import error_dialog, elided_text, choose_save_file, choose_files
 from calibre.gui2.tag_mapper import (
-    RuleEditDialog as RuleEditDialogBase, Rules as RulesBase, RulesDialog as
-    RulesDialogBase, RuleItem as RuleItemBase, SaveLoadMixin)
+    RuleEdit as RE, RuleEditDialog as RuleEditDialogBase, Rules as RulesBase,
+    RulesDialog as RulesDialogBase, RuleItem as RuleItemBase, SaveLoadMixin)
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
+from calibre.utils.localization import localize_user_manual_link
 
 class RuleEdit(QWidget):  # {{{
 
@@ -76,6 +77,13 @@ class RuleEdit(QWidget):  # {{{
             if clause is not parts[-1]:
                 h.addWidget(QLabel('\xa0'))
 
+        self.regex_help = la = QLabel('<p>' + RE.REGEXP_HELP_TEXT % localize_user_manual_link(
+        'http://manual.calibre-ebook.com/regexp.html'))
+        la.setOpenExternalLinks(True)
+        la.setWordWrap(True)
+        l.addWidget(la)
+        l.addStretch(10)
+
         self.update_state()
 
     def sizeHint(self):
@@ -108,6 +116,7 @@ class RuleEdit(QWidget):  # {{{
         elif ac in '+=*/':
             tt = _('A number')
         self.action_data.setToolTip(tt)
+        self.regex_help.setVisible('matches' in mt)
 
     @property
     def rule(self):

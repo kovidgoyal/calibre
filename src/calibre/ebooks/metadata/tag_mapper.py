@@ -31,6 +31,10 @@ def matcher(rule):
         pat = compile_pat(rule['query'])
         return lambda x: pat.match(x) is None
 
+    if mt == 'has':
+        s = rule['query']
+        return lambda x: s in x
+
     return lambda x: False
 
 
@@ -82,6 +86,14 @@ def apply_rules(tag, rules):
                     break
                 if ac == 'upper':
                     ans.append(icu_upper(tag))
+                    break
+                if ac == 'split':
+                    stags = filter(None, [x.strip() for x in tag.split(rule['replace'])])
+                    if stags:
+                        if stags[0] == tag:
+                            ans.append(tag)
+                        else:
+                            tags.extendleft(reversed(stags))
                     break
         else:  # no rule matched, default keep
             ans.append(tag)
@@ -141,6 +153,10 @@ def test():
     run([rule('replace', 't1', 't2'), rule('replace', 't2', 't1')], 't1,t2', 't1,t2')
     run(rule('replace', 'a', 'A'), 'a,b', 'A,b')
     run(rule('replace', 'a,b', 'A,B'), 'a,b', 'A,B')
+    run(rule('split', '/', '/', 'has'), 'a/b/c,d', 'a,b,c,d')
+    run(rule('split', '/', '/', 'has'), '/,d', 'd')
+    run(rule('split', '/', '/', 'has'), '/a/', 'a')
+    run(rule('split', 'a,b', '/'), 'a,b', 'a,b')
 
 if __name__ == '__main__':
     test()

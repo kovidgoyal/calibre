@@ -7,6 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 
 from collections import OrderedDict
 from functools import partial
+import textwrap
 
 from PyQt5.Qt import (
     QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QListWidget, QIcon,
@@ -19,6 +20,7 @@ from calibre.gui2 import error_dialog, elided_text, Application, question_dialog
 from calibre.gui2.ui import get_gui
 from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
+from calibre.utils.localization import localize_user_manual_link
 
 tag_maps = JSONConfig('tag-map-rules')
 
@@ -38,18 +40,30 @@ class RuleEdit(QWidget):
                 ('capitalize', _('Capitalize')),
                 ('lower', _('Lower-case')),
                 ('upper', _('Upper-case')),
+                ('split', _('Split')),
     ))
 
     MATCH_TYPE_MAP = OrderedDict((
                 ('one_of', _('is one of')),
                 ('not_one_of', _('is not one of')),
                 ('matches', _('matches pattern')),
-                ('not_matches', _('does not match pattern'))
+                ('not_matches', _('does not match pattern')),
+                ('has', _('contains')),
     ))
 
     MSG = _('Create the rule below, the rule can be used to remove or replace tags')
     SUBJECT = _('the tag, if it')
     VALUE_ERROR = _('You must provide a value for the tag to match')
+    REPLACE_TEXT = _('with the tag:')
+    SPLIT_TEXT = _('on the character:')
+    SPLIT_TOOLTIP = _(
+        'The character on which to split tags. Note that technically you can specify'
+        ' a sub-string, not just a single character. Then splitting will happen on the sub-string.')
+    REPLACE_TOOLTIP = _(
+        'What to replace the tag with. Note that if you use a pattern to match'
+        ' tags, you can replace with parts of the matched pattern. See '
+        ' the User Manual on how to use regular expressions for details.')
+    REGEXP_HELP_TEXT = _('For help with regex pattern matching, see the <a href="%s">User Manual</a>')
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
@@ -83,10 +97,16 @@ class RuleEdit(QWidget):
         b.setVisible(self.can_use_tag_editor)
         self.h2 = h = QHBoxLayout()
         l.addLayout(h)
-        self.la3 = la = QLabel(_('with the tag:') + '\xa0')
+        self.la3 = la = QLabel(self.REPLACE_TEXT + '\xa0')
         h.addWidget(la)
         self.replace = r = QLineEdit(self)
         h.addWidget(r)
+        self.regex_help = la = QLabel('<p>' + self.REGEXP_HELP_TEXT % localize_user_manual_link(
+        'http://manual.calibre-ebook.com/regexp.html'))
+        la.setOpenExternalLinks(True)
+        la.setWordWrap(True)
+        l.addWidget(la)
+        la.setVisible(False)
         l.addStretch(10)
         self.la3.setVisible(False), self.replace.setVisible(False)
         self.update_state()
@@ -102,14 +122,22 @@ class RuleEdit(QWidget):
         return self.SUBJECT is RuleEdit.SUBJECT and 'matches' not in self.match_type.currentData() and get_gui() is not None
 
     def update_state(self):
-        replace = self.action.currentData() == 'replace'
-        self.la3.setVisible(replace), self.replace.setVisible(replace)
+        a = self.action.currentData()
+        replace = a == 'replace'
+        split = a == 'split'
+        self.la3.setVisible(replace or split), self.replace.setVisible(replace or split)
         tt = _('A comma separated list of tags')
-        is_match = 'matches' in self.match_type.currentData()
+        m = self.match_type.currentData()
+        is_match = 'matches' in m
         self.tag_editor_button.setVisible(self.can_use_tag_editor)
         if is_match:
             tt = _('A regular expression')
+        elif m == 'has':
+            tt = _('Tags that contain this string will match')
+        self.regex_help.setVisible(is_match)
+        self.la3.setText((self.SPLIT_TEXT if split else self.REPLACE_TEXT) + '\xa0')
         self.query.setToolTip(tt)
+        self.replace.setToolTip(textwrap.fill(self.SPLIT_TOOLTIP if split else self.REPLACE_TOOLTIP))
 
     def specialise_context_menu(self, menu):
         if self.can_use_tag_editor:
@@ -188,6 +216,8 @@ class RuleItem(QListWidgetItem):
                 action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
         if rule['action'] == 'replace':
             text += '<br>' + _('with the tag:') + ' <b>%s</b>' % rule['replace']
+        if rule['action'] == 'split':
+            text += '<br>' + _('on the character:') + ' <b>%s</b>' % rule['replace']
         return text
 
     def __init__(self, rule, parent):
@@ -467,6 +497,7 @@ if __name__ == '__main__':
     d.rules = [
         {'action':'remove', 'query':'moose', 'match_type':'one_of', 'replace':''},
         {'action':'replace', 'query':'moose', 'match_type':'one_of', 'replace':'xxxx'},
+        {'action':'split', 'query':'/', 'match_type':'has', 'replace':'/'},
     ]
     d.exec_()
     from pprint import pprint
