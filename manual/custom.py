@@ -198,13 +198,21 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
             help = help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default))
             help = mark_options(help)
             opt = opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')
-            opt = '.. cmdoption:: '+opt
+            opt = '.. option:: '+opt
             lines.extend([opt, '', '    '+help, ''])
     return lines
 
 def mark_options(raw):
     raw = re.sub(r'(\s+)--(\s+)', r'\1``--``\2', raw)
-    raw = re.sub(r'(--[|()a-zA-Z0-9_=,-]+)', r':option:`\1`', raw)
+    def sub(m):
+        opt = m.group()
+        a, b = opt.partition('=')[::2]
+        if a in ('--option1', '--option2'):
+            return m.group()
+        a = ':option:`' + a + '`'
+        b = (' = ``' + b + '``') if b else ''
+        return a + b
+    raw = re.sub(r'(--[|()a-zA-Z0-9_=,-]+)', sub, raw)
     return raw
 
 def cli_docs(app):

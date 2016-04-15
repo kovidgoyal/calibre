@@ -291,7 +291,13 @@ The best way to develop new recipes is to use the command line interface. Create
 
     ebook-convert myrecipe.recipe .epub --test -vv --debug-pipeline debug
 
-The command :command:`ebook-convert` will download all the webpages and save them to the EPUB file :file:`myrecipe.epub`. The :option:`-vv` makes ebook-convert spit out a lot of information about what it is doing. The :option:`--test` makes it download only a couple of articles from at most two feeds. In addition, ebook-convert will put the downloaded HTML into the ``debug/input`` directory, where ``debug`` is the directory you specified in the :option:`--debug-pipeline` option. 
+The command :command:`ebook-convert` will download all the webpages and save
+them to the EPUB file :file:`myrecipe.epub`. The ``-vv`` option makes
+ebook-convert spit out a lot of information about what it is doing. The
+:option:`ebook-convert-recipe-input --test` option makes it download only a couple of articles from at most two
+feeds. In addition, ebook-convert will put the downloaded HTML into the
+``debug/input`` directory, where ``debug`` is the directory you specified in
+the :option:`ebook-convert --debug-pipeline` option. 
 
 Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`debug/input/index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate ebooks in different formats as shown below::
 
