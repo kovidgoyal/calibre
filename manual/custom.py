@@ -196,6 +196,8 @@ def render_options(cmd, groups, options_header=True, add_program=True, header_le
                 y.get_opt_string())):
             help = opt.help if opt.help else ''
             help = help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default))
+            help = help.replace('"', r'\ ``"``\ ')
+            help = help.replace("'", r"\ ``'``\ ")
             help = mark_options(help)
             opt = opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')
             opt = '.. option:: '+opt
