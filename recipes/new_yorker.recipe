@@ -19,9 +19,8 @@ class NewYorker(BasicNewsRecipe):
 
     url_list = []
     language = 'en'
-    __author__ = 'Krittika Goyal'
+    __author__ = 'Kovid Goyal'
     no_stylesheets = True
-    auto_cleanup = True
     timefmt =  ' [%b %d]'
     encoding = 'utf-8'
     extra_css = '''
@@ -30,6 +29,14 @@ class NewYorker(BasicNewsRecipe):
                 .caption { font-size: xx-small; font-style: italic; font-weight: normal; }
                 '''
     needs_subscription = 'optional'
+    keep_only_tags = [
+        dict(itemprop=['headline', 'alternativeHeadline', 'author', 'articleBody']),
+    ]
+    remove_tags = [
+        dict(attrs={'class':lambda x: x and set(x.split()).intersection({'content-ad-wrapper', 'social-hover'})}),
+        dict(id=['newsletter-signup']),
+
+    ]
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.newyorker.com/magazine?intcid=magazine')
@@ -69,6 +76,13 @@ class NewYorker(BasicNewsRecipe):
                 'description':desc})
 
         return feeds
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img'):
+            ds = img['data-src']
+            if ds:
+                img['src'] = ds
+        return soup
 
     # The New Yorker changes the content it delivers based on cookies, so the
     # following ensures that we send no cookies
