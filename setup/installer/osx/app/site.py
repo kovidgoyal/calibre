@@ -181,16 +181,23 @@ def setup_asl():
         return
     if asl_log_descriptor(cl, msg, ASL_LEVEL_NOTICE, sys.stderr.fileno(), ASL_LOG_DESCRIPTOR_WRITE) != 0:
         return
+    return True
+
+def nuke_stdout():
+    # Redirect stdout, stdin and stderr to /dev/null
+    from calibre.constants import plugins
+    plugins['speedup'][0].detach(os.devnull)
 
 def main():
     global __file__
+    asl_ok = True
 
     if sys.calibre_is_gui_app and not (
             sys.stdout.isatty() or sys.stderr.isatty() or sys.stdin.isatty()):
         try:
-            setup_asl()
+            asl_ok = setup_asl()
         except:
-            pass  # Failure to log to Console.app is not critical
+            asl_ok = False
 
     # Needed on OS X <= 10.8, which passes -psn_... as a command line arg when
     # starting via launch services
@@ -206,4 +213,10 @@ def main():
     add_calibre_vars(base)
     addsitedir(sys.site_packages)
 
+    if not asl_ok:
+        try:
+            nuke_stdout()
+        except Exception:
+            import traceback
+            traceback.print_exc()
     return run_entry_point()
