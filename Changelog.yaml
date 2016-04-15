@@ -20,6 +20,63 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.55.0
+  date: 2016-04-15
+
+  new features:
+    - title: "Allow creation of rules to convert arbitrary identifiers into clickable links in the book details panel (Prefrences->Look & Feel->Book details)"
+
+    - title: "Tag mapper: A new rule type 'split' allows you to easily split tags on a character"
+
+    - title: "Make the shutting down message an overlay so it is less disruptive"
+
+    - title: "Allow right clicking on Virtual Library tabs to edit/delete the virtual library."
+      tickets: [1568306]
+
+    - title: "Tag mapper: Add a button to edit the list of tags in a tag mapper rule using the tag editor dialog."
+      tickets: [1568376]
+
+  bug fixes:
+    - title: "Conversion: Fix the obsolete HTML align=center markup (produced by Microsoft Word) not working for tables."
+      tickets: [1569583]
+
+    - title: "Font subsetting: When font-variant: small-caps is used include the capital letters as well, in case either the font or the renderer do not support OpenType smcp."
+      tickets: [1568555]
+
+    - title: "Font subsetting: Implement support for text-transform."
+      tickets: [1568555]
+
+    - title: "Fix the target book entry in the book list not being refreshed after merging books. Only matters if you have a column based on book formats."
+      tickets: [1568091]
+
+    - title: "E-book viewer: Fix a link that has some text along with a superscript/subscript being incorrectly detected as a footnote link"
+
+    - title: "Fix device detection on windows failing if the registry entries for the device contain a very long item."
+      tickets: [1567569]
+
+    - title: "Edit Book: Fix an extra colon being added when setting the 'notes' semantic"
+
+    - title: "Ensure that author folder names are never windows reserved names"
+
+    - title: "E-book viewer: When displaying an EPUB 3 document that uses epub:switch to provide a fallback for MathML content, prevent both the MathML and fallback from being shown together."
+
+    - title: "PDF Output: When displaying an EPUB 3 document that uses epub:switch to provide a fallback for MathML content, prevent both the MathML and fallback from being rendered together."
+
+    - title: "Fix exception in custom column preferences when the column lookup key is changed"
+
+    - title: "Catalog generation: Do not crash is a book in the library has no uuid."
+      tickets: [1565242]
+
+  improved recipes:
+    - Brand Eins
+    - Handelsblatt
+    - tyzden
+    - Newsweek
+
+  new recipes:
+    - title: Kitekinto 
+      author: pofa
+
 - version: 2.54.0
   date: 2016-04-01
 
