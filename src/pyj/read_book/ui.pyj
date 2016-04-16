@@ -144,6 +144,7 @@ class ReadUI:
                 _('The manifest for {title} is not valid').format(title=self.current_metadata.title),
                 traceback.format_exc())
         if manifest.version is not RENDER_VERSION:
+            print('calibre upgraded: RENDER_VERSION={} manifest.version={}'.format(RENDER_VERSION, manifest.version))
             return self.show_error(_('calibre upgraded!'), _(
                 'A newer version of calibre is available, please click the reload button in your browser.'))
         self.current_metadata = manifest.metadata
