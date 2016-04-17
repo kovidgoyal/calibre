@@ -1117,7 +1117,7 @@ class BuiltinListUnion(BuiltinFormatterFunction):
     category = 'List manipulation'
     __doc__ = doc = _('list_union(list1, list2, separator) -- '
             'return a list made by merging the items in list1 and list2, '
-            'removing duplicate items using a case-insensitive compare. If '
+            'removing duplicate items using a case-insensitive comparison. If '
             'items differ in case, the one in list1 is used. '
             'The items in list1 and list2 are separated by separator, as are '
             'the items in the returned list.')
@@ -1141,7 +1141,7 @@ class BuiltinListDifference(BuiltinFormatterFunction):
     category = 'List manipulation'
     __doc__ = doc = _('list_difference(list1, list2, separator) -- '
             'return a list made by removing from list1 any item found in list2, '
-            'using a case-insensitive compare. The items in list1 and list2 '
+            'using a case-insensitive comparison. The items in list1 and list2 '
             'are separated by separator, as are the items in the returned list.')
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
@@ -1162,7 +1162,7 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
     category = 'List manipulation'
     __doc__ = doc = _('list_intersection(list1, list2, separator) -- '
             'return a list made by removing from list1 any item not found in list2, '
-            'using a case-insensitive compare. The items in list1 and list2 '
+            'using a case-insensitive comparison. The items in list1 and list2 '
             'are separated by separator, as are the items in the returned list.')
 
     def evaluate(self, formatter, kwargs, mi, locals, list1, list2, separator):
