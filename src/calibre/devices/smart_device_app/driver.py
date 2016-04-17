@@ -1563,14 +1563,13 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
         self.plugboard_func = pb_func
 
     @synchronous('sync_lock')
-    def set_library_info_extended(self, library_name, library_uuid, field_metadata, other_info):
+    def set_library_info(self, library_name, library_uuid, field_metadata):
         self._debug(library_name, library_uuid)
         if self.can_accept_library_info:
             self._call_client('SET_LIBRARY_INFO',
                                     {'libraryName' : library_name,
                                      'libraryUuid': library_uuid,
-                                     'fieldMetadata': field_metadata.all_metadata(),
-                                     'otherInfo': other_info},
+                                     'fieldMetadata': field_metadata.all_metadata()},
                                     print_debug_info=True)
 
     @synchronous('sync_lock')

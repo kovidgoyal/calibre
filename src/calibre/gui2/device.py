@@ -477,14 +477,7 @@ class DeviceManager(Thread):  # {{{
 
     def _set_library_information(self, library_name, library_uuid, field_metadata):
         '''Give the device the current library information'''
-        # Try both the new and the old API. This helps with device drivers that
-        # are user-installed plugins built around the old Interface class
         self.device.set_library_info(library_name, library_uuid, field_metadata)
-
-        other_info = {}
-        from calibre.ebooks.metadata.sources.prefs import msprefs
-        other_info['id_link_rules'] = msprefs.get('id_link_rules', {})
-        self.device.set_library_info_extended(library_name, library_uuid, field_metadata, other_info)
 
     def set_library_information(self, done, library_name, library_uuid,
                                  field_metadata, add_as_step_to_job=None):

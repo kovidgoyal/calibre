@@ -597,21 +597,11 @@ class DevicePlugin(Plugin):
         '''
         device_prefs.set_overrides()
 
-    # A driver should implement at most one of the set_library_info methods
     def set_library_info(self, library_name, library_uuid, field_metadata):
         '''
         Implement this method if you want information about the current calibre
         library. This method is called at startup and when the calibre library
         changes while connected.
-        '''
-        pass
-
-    def set_library_info_extended(self, library_name, library_uuid, field_metadata, other_info):
-        '''
-        Implement this method if you want information about the current calibre
-        library. This method is called at startup and when the calibre library
-        changes while connected. The fourth parameter of this method is a dict
-        of other information, currently containing only the identifier patterns
         '''
         pass
 
