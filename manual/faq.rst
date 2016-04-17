@@ -855,18 +855,11 @@ There are several possible things I know of, that can cause this:
       you don't notice it and so you think calibre has frozen. Disconnect your
       second monitor and restart calibre.
 
-    * If you use RoboForm, it is known to cause calibre to crash. Add calibre to
-      the blacklist of programs inside RoboForm to fix this. Or uninstall
-      RoboForm.
-
-    * The Logitech SetPoint Settings application causes random crashes in
-      calibre when it is open. Close it before starting calibre.
-
-    * Constant Guard Protection by Xfinity causes crashes in calibre. You have to
-      manually allow calibre in it or uninstall Constant Guard Protection.
-
-    * Spybot - Search & Destroy blocks calibre from accessing its temporary files
-      breaking viewing and converting of books.
+    * The following programs have been reported to cause crashes in calibre: If
+      you are running any of these, close them before starting calibre, or
+      uninstall them:
+      *RoboForm*, *Logitech SetPoint Settings*, *Constant Guard Protection by
+      Xfinity*, *Spybot*, *Killer Network Manager*, *Nahimic UI Interface*.
 
     * You are using a Wacom branded USB mouse/tablet. There is an incompatibility between
       Wacom drivers and the graphics toolkit calibre uses. Try using a non-Wacom
