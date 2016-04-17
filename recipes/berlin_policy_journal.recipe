@@ -1,0 +1,100 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals
+
+__license__   = 'GPL v3'
+__copyright__ = '2016, Aimylios'
+
+'''
+berlinpolicyjournal.com
+'''
+
+import re, time
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class BerlinPolicyJournal(BasicNewsRecipe):
+    title            = 'Berlin Policy Journal'
+    __author__       = 'Aimylios'
+    description      = 'Articles from berlinpolicyjournal.com'
+    publisher        = 'Deutsche Gesellschaft für Auswärtige Politik e.V.'
+    publication_type = 'magazine'
+    language         = 'en_DE'
+
+    oldest_article         = 75
+    max_articles_per_feed  = 30
+    simultaneous_downloads = 10
+    no_stylesheets         = True
+    remove_javascript      = True
+
+    conversion_options = {'smarten_punctuation' : True,
+                          'publisher'           : publisher}
+
+    # uncomment this to reduce file size
+    # compress_news_images          = True
+    # compress_news_images_max_size = 16
+
+    INDEX        = 'http://berlinpolicyjournal.com/'
+    FRONTPAGE    = INDEX + 'page/'
+    cover_source = INDEX
+    masthead_url = INDEX + 'IP/wp-content/uploads/2015/04/logo_bpj_header.gif'
+
+    keep_only_tags = [dict(name='article')]
+
+    remove_tags = [
+        dict(name='div', attrs={'class':['hidden', 'meta-count', 'meta-share']}),
+        dict(name='span', attrs={'class':'ava-auth'}),
+        dict(name='img', attrs={'alt':re.compile("_store_120px_width$")}),
+        dict(name='img', attrs={'alt':re.compile("^bpj_app_")}),
+        dict(name='img', attrs={'alt':re.compile("^BPJ-Montage_")}),
+        dict(name='footer'),
+        dict(name='br')
+    ]
+
+    remove_attributes = ['sizes', 'width', 'height', 'align']
+
+    extra_css = 'h1 {font-size: 1.6em; text-align: left} \
+                 .entry-subtitle {font-style: italic; margin-bottom: 1em} \
+                 .wp-caption-text {font-size: 0.6em; margin-top: 0em}'
+
+    def get_cover_url(self):
+        soup = self.index_to_soup(self.cover_source)
+        img_div = soup.find('div', id='text-2')
+        self.cover_url = img_div.find('img', src=True)['src']
+        return self.cover_url
+
+    def parse_index(self):
+        articles = {}
+        for i in range(1,5):
+            soup = self.index_to_soup(self.FRONTPAGE + str(i))
+            for div in soup.findAll('div', attrs={'class':'post-box-big'}):
+                timestamp = time.strptime(div.find('time')['datetime'], '%Y-%m-%dT%H:%M:%S+00:00')
+                article_age = time.time() - time.mktime(timestamp)
+                if article_age <= self.oldest_article*24*3600:
+                    category = self.tag_to_string(div.findAll('a', attrs={'rel':'category'})[-1])
+                    if category not in articles:
+                        articles[category] = []
+                    article_title = self.tag_to_string(div.find('h3', attrs={'class':'entry-title'}).a)
+                    article_url   = div.find('h3', attrs={'class':'entry-title'}).a['href']
+                    article_date  = unicode(time.strftime(' [%a, %d %b %H:%M]', timestamp))
+                    article_desc  = self.tag_to_string(div.find('div', attrs={'class':'i-summary'}).p)
+                    articles[category].append({'title':article_title,
+                                               'url':article_url,
+                                               'date':article_date,
+                                               'description':article_desc})
+        feeds = []
+        for feed in articles:
+            if '/' in feed:
+                feeds.insert(0, (feed, articles[feed]))
+            else:
+                feeds.append((feed, articles[feed]))
+        return feeds
+
+    def postprocess_html(self, soup, first_fetch):
+        # clean up formatting of author(s) and date
+        div = soup.find('div', {'class':'meta-info'})
+        authors = ''
+        for entry in div.findAll('span', {'class':'entry-author'}):
+            authors = authors + entry.a.span.renderContents().strip() + ', '
+        date = div.find('time').renderContents().strip()
+        div.replaceWith('<div>' + authors[:-2] + ' (' + date + ')<br/></div>')
+        return soup
