@@ -305,7 +305,7 @@ The following functions are available in addition to those described in single-f
                     field('title')
                 )
 
-    * ``formats_modtimes(date_format)`` -- return a comma-separated list of colon-separated items representing modification times for the formats of a book. The date_format parameter specifies how the date is to be formatted. See the date_format function for details. You can use the select function to get the mod time for a specific format. Note that format names are always uppercase, as in EPUB.
+    * ``formats_modtimes(format_string)`` -- return a comma-separated list of colon-separated items representing modification times for the formats of a book. The format_string parameter specifies how the date is to be formatted. See the `format_date()` function for details. You can use the select function to get the mod time for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_paths()`` -- return a comma-separated list of colon-separated items representing full path to the formats of a book. You can use the select function to get the path for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``formats_sizes()`` -- return a comma-separated list of colon-separated items representing sizes in bytes of the formats of a book. You can use the select function to get the size for a specific format. Note that format names are always uppercase, as in EPUB.
     * ``has_cover()`` -- return ``Yes`` if the book has a cover, otherwise return the empty string
