@@ -1566,10 +1566,15 @@ class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     def set_library_info(self, library_name, library_uuid, field_metadata):
         self._debug(library_name, library_uuid)
         if self.can_accept_library_info:
+            other_info = {}
+            from calibre.ebooks.metadata.sources.prefs import msprefs
+            other_info['id_link_rules'] = msprefs.get('id_link_rules', {})
+
             self._call_client('SET_LIBRARY_INFO',
                                     {'libraryName' : library_name,
                                      'libraryUuid': library_uuid,
-                                     'fieldMetadata': field_metadata.all_metadata()},
+                                     'fieldMetadata': field_metadata.all_metadata(),
+                                     'otherInfo': other_info},
                                     print_debug_info=True)
 
     @synchronous('sync_lock')
