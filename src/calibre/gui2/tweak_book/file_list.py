@@ -312,7 +312,7 @@ class FileList(QTreeWidget):
                 return
 
             parts = name.split('/')
-            text = parts[-1]
+            text = parts.pop()
             while text in seen and parts:
                 text = parts.pop() + '/' + text
             seen[text] = item
