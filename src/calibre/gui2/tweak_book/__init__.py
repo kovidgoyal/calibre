@@ -73,6 +73,7 @@ d['editor_accepts_drops'] = True
 d['toolbar_icon_size'] = 24
 d['insert_full_screen_image'] = False
 d['preserve_aspect_ratio_when_inserting_image'] = False
+d['file_list_shows_full_pathname'] = False
 del d
 
 ucase_map = {l:string.ascii_uppercase[i] for i, l in enumerate(string.ascii_lowercase)}
