@@ -36,13 +36,11 @@ class View:
             E.div(style='width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                   E.div(style='display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
                     E.div(style='flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
-                        E.div(style='width:{}px; height:100%'.format(sd.get('margin_side', 20)), id='book-left-margin'),
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
-                            E.div(style='height:{}px; width:100%'.format(sd.get('margin_top', 20)), id='book-top-margin'),
+                            E.div(style='height:{}px; width:100%; padding: 0 {}px'.format(sd.get('margin_top', 20), sd.get('margin_side', 20)), id='book-top-margin'),
                             E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2'),
-                            E.div(style='height:{}px; width:100%'.format(sd.get('margin_bottom', 20)), id='book-bottom-margin'),
+                            E.div(style='height:{}px; width:100%; padding: 0 {}px'.format(sd.get('margin_top', 20), sd.get('margin_side', 20)), id='book-bottom-margin'),
                         ),
-                        E.div(style='width:{}px; height:100%'.format(sd.get('margin_side', 20)), id='book-right-margin'),
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # overlay
                     )
                 )
@@ -67,15 +65,17 @@ class View:
     def iframe(self):
         return document.getElementById(iframe_id)
 
-    def set_margins(self, margin_side=None, margin_top=None, margin_bottom=None):
+    def set_margins(self, margin_top=None, margin_bottom=None, margin_side=None):
         sd = get_session_data()
         margin_side = sd.get('margin_side') if margin_side is None else margin_side
         margin_top = sd.get('margin_top') if margin_top is None else margin_top
         margin_bottom = sd.get('margin_bottom') if margin_bottom is None else margin_bottom
-        document.getElementById('book-left-margin').style.width = margin_side + 'px'
-        document.getElementById('book-right-margin').style.width = margin_side + 'px'
-        document.getElementById('book-top-margin').style.height = margin_top + 'px'
-        document.getElementById('book-bottom-margin').style.height = margin_bottom + 'px'
+        t = document.getElementById('book-top-margin')
+        t.style.height = margin_top + 'px'
+        t.style.paddingLeft = t.style.paddingRight = margin_side + 'px'
+        b = document.getElementById('book-bottom-margin')
+        b.style.height = margin_bottom + 'px'
+        b.style.paddingLeft = b.style.paddingRight = margin_side + 'px'
 
     def create_src_doc(self):
         iframe_script = self.ui.interface_data.main_js.replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
@@ -113,7 +113,7 @@ class View:
 
     def on_iframe_ready(self, data):
         messenger.reset()
-        self.send_message('initialize', 'secret'=messenger.secret, 'translations'=self.ui.interface_data.translations)
+        self.send_message('initialize', secret=messenger.secret, translations=self.ui.interface_data.translations)
         self.iframe_ready = True
         if self.pending_load:
             data = self.pending_load
@@ -139,7 +139,12 @@ class View:
     def show_name(self, name, initial_scroll_fraction=None, cfi=None):
         if self.currently_showing.loading:
             return
-        self.currently_showing = {'name':name, 'cfi':cfi, 'initial_scroll_fraction':initial_scroll_fraction, 'loading':True}
+        sd = get_session_data()
+        settings={
+            'margin_side': 0 if name is self.book.manifest.title_page_name else sd.get('margin_side'),
+            'read_mode': sd.get('read_mode'),
+        }
+        self.currently_showing = {'name':name, 'cfi':cfi, 'settings':settings, 'initial_scroll_fraction':initial_scroll_fraction, 'loading':True}
         self.set_margins(0, 0, 0) if name is self.book.manifest.title_page_name else self.set_margins()
         load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
 
@@ -170,6 +175,9 @@ class View:
 
     def show_spine_item_stage2(self, resource_data):
         self.currently_showing.loading = False
-        self.send_message('display', resource_data=resource_data, book=self.book, name=self.currently_showing.name,
-                          initial_scroll_fraction=self.currently_showing.initial_scroll_fraction)
+        self.send_message('display',
+            resource_data=resource_data, book=self.book, name=self.currently_showing.name,
+            initial_scroll_fraction=self.currently_showing.initial_scroll_fraction,
+            settings=self.currently_showing.settings,
+        )
         self.encrypted_communications = True

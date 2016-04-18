@@ -5,9 +5,10 @@ from __python__ import bound_methods
 import traceback
 from aes import GCM
 from gettext import install
-from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item
+from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
 from read_book.resources import finalize_resources, unserialize_html
-from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown
+from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
+from read_book.settings import apply_settings
 from utils import debounce
 
 class Boss:
@@ -60,6 +61,8 @@ class Boss:
         self.book = data.book
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
+        set_layout_mode('flow' or data.settings.read_mode)  # TODO: Change this
+        apply_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_scroll_fraction':data.initial_scroll_fraction})
         root_data = finalize_resources(self.book, data.name, data.resource_data)
         unserialize_html(root_data, self.content_loaded)
@@ -70,6 +73,8 @@ class Boss:
         window.addEventListener('resize', debounce(self.onresize, 500))
         window.addEventListener('wheel', self.onwheel)
         window.addEventListener('keydown', self.onkeydown)
+        if current_layout_mode() is 'flow':
+            flow_layout()
         csi = current_spine_item()
         if csi.initial_scroll_fraction is not None:
             if current_layout_mode() is 'flow':

@@ -1,9 +1,11 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 
+from dom import set_css
 from read_book.globals import get_boss
 from keycodes import get_key
 from utils import document_height, document_width
+from read_book.settings import opts
 
 def flow_to_scroll_fraction(frac):
     window.scrollTo(0, document_height() * frac)
@@ -93,3 +95,7 @@ def flow_onkeydown(evt):
         scroll_by_page(-1 if key is 'pageup' else 1)
     if handled:
         evt.preventDefault()
+
+def layout(is_single_page):
+    set_css(document.body, margin='0', border_width='0', padding='0 {}px'.format(opts.margin_side))
+
