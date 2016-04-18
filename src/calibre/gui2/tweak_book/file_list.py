@@ -304,17 +304,21 @@ class FileList(QTreeWidget):
             return category
 
         def set_display_name(name, item):
-            if name in processed:
-                # We have an exact duplicate (can happen if there are
-                # duplicates in the spine)
-                item.setText(0, processed[name].text(0))
-                item.setText(1, processed[name].text(1))
-                return
+            if tprefs['file_list_shows_full_pathname']:
+                text = name
+            else:
+                if name in processed:
+                    # We have an exact duplicate (can happen if there are
+                    # duplicates in the spine)
+                    item.setText(0, processed[name].text(0))
+                    item.setText(1, processed[name].text(1))
+                    return
 
-            parts = name.split('/')
-            text = parts.pop()
-            while text in seen and parts:
-                text = parts.pop() + '/' + text
+                parts = name.split('/')
+                text = parts.pop()
+                while text in seen and parts:
+                    text = parts.pop() + '/' + text
+
             seen[text] = item
             item.setText(0, text)
             item.setText(1, hexlify(sort_key(text)))

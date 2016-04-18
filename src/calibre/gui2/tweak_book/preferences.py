@@ -321,6 +321,14 @@ class MainWindowSettings(BasicSettings):
         ))
         l.addRow(nd)
 
+        nd = self('file_list_shows_full_pathname')
+        nd.setText(_('Show full file pathnames in Files Browser'))
+        nd.setToolTip('<p>' + _(
+            'Showing the full file pathnames is useful when editing books that contain'
+            ' directories or the same file name more than once.'
+        ))
+        l.addRow(nd)
+
 class PreviewSettings(BasicSettings):
 
     def __init__(self, parent=None):

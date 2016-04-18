@@ -169,6 +169,7 @@ class Boss(QObject):
         if ret == p.Accepted:
             setup_cssutils_serialization()
             self.gui.apply_settings()
+            self.refresh_file_list()
         if ret == p.Accepted or p.dictionaries_changed:
             for ed in editors.itervalues():
                 ed.apply_settings(dictionaries_changed=p.dictionaries_changed)
