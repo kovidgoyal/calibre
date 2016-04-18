@@ -15,6 +15,12 @@ simple_vendor_prefixes = {
     'transition': v"['webkit', 'moz', 'o']",
     'filter': v"['webkit']",
     'user-select': v"['webkit', 'moz', 'ms']",
+    'break-before': v"['webkit-column']",
+    'break-after': v"['webkit-column']",
+    'break-inside': v"['webkit-column']",
+    'column-gap': v"['webkit', 'moz']",
+    'column-width': v"['webkit', 'moz']",
+    'column-rule': v"['webkit', 'moz']",
 }
 
 def set_css(elem, **kw):
