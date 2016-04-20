@@ -9,14 +9,14 @@ from threading import Thread
 
 from PyQt5.Qt import Qt, QDialog, QGridLayout, QVBoxLayout, QFont, QLabel, \
                      pyqtSignal, QDialogButtonBox, QInputDialog, QLineEdit, \
-                     QDateTime, QCompleter
+                     QDateTime, QCompleter, QCoreApplication, QSize
 
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.ebooks.metadata import string_to_authors, authors_to_string, title_sort
 from calibre.ebooks.metadata.book.formatter import SafeFormat
 from calibre.gui2.custom_column_widgets import populate_metadata_page
-from calibre.gui2 import error_dialog, ResizableDialog, UNDEFINED_QDATETIME, \
+from calibre.gui2 import error_dialog, UNDEFINED_QDATETIME, \
     gprefs, question_dialog, FunctionDispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.metadata.basic_widgets import CalendarWidget
@@ -292,7 +292,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
 # }}}
 
-class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
+class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
     s_r_functions = {''              : lambda x: x,
                             _('Lower Case') : lambda x: icu_lower(x),
@@ -311,8 +311,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
                         ]
 
     def __init__(self, window, rows, model, tab, refresh_books):
-        ResizableDialog.__init__(self, window)
-        Ui_MetadataBulkDialog.__init__(self)
+        QDialog.__init__(self, window)
+        self.setupUi(self)
         self.model = model
         self.db = model.db
         self.refresh_book_list.setChecked(gprefs['refresh_book_list_on_bulk_edit'])
@@ -380,6 +380,8 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         geom = gprefs.get('bulk_metadata_window_geometry', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        else:
+            self.resize(self.sizeHint())
         ct = gprefs.get('bulk_metadata_window_tab', 0)
         self.central_widget.setCurrentIndex(ct)
         self.languages.init_langs(self.db)
@@ -389,6 +391,12 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
         self.button_config_cover_gen.setVisible(False)
         self.button_config_cover_gen.clicked.connect(self.customize_cover_generation)
         self.exec_()
+
+    def sizeHint(self):
+        desktop = QCoreApplication.instance().desktop()
+        geom = desktop.availableGeometry(self)
+        nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
+        return QSize(nw, nh)
 
     def customize_cover_generation(self):
         from calibre.gui2.covers import CoverSettingsDialog
@@ -942,7 +950,7 @@ class MetadataBulkDialog(ResizableDialog, Ui_MetadataBulkDialog):
 
     def reject(self):
         self.save_state()
-        ResizableDialog.reject(self)
+        QDialog.reject(self)
 
     def accept(self):
         self.save_state()

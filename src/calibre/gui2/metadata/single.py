@@ -11,13 +11,13 @@ import os, errno
 from datetime import datetime
 
 from PyQt5.Qt import (Qt, QVBoxLayout, QHBoxLayout, QWidget, QPushButton,
-        QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont,
+        QGridLayout, pyqtSignal, QDialogButtonBox, QScrollArea, QFont, QCoreApplication,
         QTabWidget, QIcon, QToolButton, QSplitter, QGroupBox, QSpacerItem,
-        QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut)
+        QSizePolicy, QFrame, QSize, QKeySequence, QMenu, QShortcut, QDialog)
 
 from calibre.constants import isosx
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
-from calibre.gui2 import ResizableDialog, error_dialog, gprefs, pixmap_to_data
+from calibre.gui2 import error_dialog, gprefs, pixmap_to_data
 from calibre.gui2.metadata.basic_widgets import (TitleEdit, AuthorsEdit,
     AuthorSortEdit, TitleSortEdit, SeriesEdit, SeriesIndexEdit, IdentifiersEdit,
     RatingEdit, PublisherEdit, TagsEdit, FormatsManager, Cover, CommentsEdit,
@@ -44,7 +44,7 @@ class ScrollArea(QScrollArea):
         if widget is not None:
             self.setWidget(widget)
 
-class MetadataSingleDialogBase(ResizableDialog):
+class MetadataSingleDialogBase(QDialog):
 
     view_format = pyqtSignal(object, object)
     cc_two_column = tweaks['metadata_single_use_2_cols_for_custom_fields']
@@ -59,11 +59,10 @@ class MetadataSingleDialogBase(ResizableDialog):
         self.metadata_before_fetch = None
         self.editing_multiple = editing_multiple
         self.comments_edit_state_at_apply = {}
-        ResizableDialog.__init__(self, parent)
+        QDialog.__init__(self, parent)
+        self.setupUi()
 
     def setupUi(self, *args):  # {{{
-        self.resize(990, 670)
-
         self.download_shortcut = QShortcut(self)
         self.download_shortcut.setKey(QKeySequence('Ctrl+D',
             QKeySequence.PortableText))
@@ -116,7 +115,15 @@ class MetadataSingleDialogBase(ResizableDialog):
         geom = gprefs.get('metasingle_window_geometry3', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        else:
+            self.resize(self.sizeHint())
     # }}}
+
+    def sizeHint(self):
+        desktop = QCoreApplication.instance().desktop()
+        geom = desktop.availableGeometry(self)
+        nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
+        return QSize(nw, nh)
 
     def create_basic_metadata_widgets(self):  # {{{
         self.basic_metadata_widgets = []
@@ -584,11 +591,11 @@ class MetadataSingleDialogBase(ResizableDialog):
                     yes_icon='dot_red.png', no_icon='dot_green.png',
                     default_yes=False, skip_dialog_name='edit-metadata-single-confirm-ok-on-multiple'):
                 return self.do_one(delta=1, apply_changes=False)
-        ResizableDialog.accept(self)
+        QDialog.accept(self)
 
     def reject(self):
         self.save_state()
-        ResizableDialog.reject(self)
+        QDialog.reject(self)
 
     def save_state(self):
         try:

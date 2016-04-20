@@ -776,16 +776,15 @@ def decouple(prefix):
 
 class ResizableDialog(QDialog):
 
+    # This class is present only for backwards compat with third party plugins
+    # that might use it. Do not use it in new code.
+
     def __init__(self, *args, **kwargs):
         QDialog.__init__(self, *args)
         self.setupUi(self)
         desktop = QCoreApplication.instance().desktop()
         geom = desktop.availableGeometry(self)
-        nh, nw = geom.height()-25, geom.width()-10
-        if nh < 0:
-            nh = max(800, self.height())
-        if nw < 0:
-            nw = max(600, self.height())
+        nh, nw = max(550, geom.height()-25), max(700, geom.width()-10)
         nh = min(self.height(), nh)
         nw = min(self.width(), nw)
         self.resize(nw, nh)

@@ -8,9 +8,9 @@ __docformat__ = 'restructuredtext en'
 
 import cPickle, shutil
 
-from PyQt5.Qt import QAbstractListModel, Qt, QFont, QModelIndex
+from PyQt5.Qt import QAbstractListModel, Qt, QFont, QModelIndex, QDialog, QCoreApplication, QSize
 
-from calibre.gui2 import ResizableDialog, gprefs
+from calibre.gui2 import gprefs
 from calibre.ebooks.conversion.config import (GuiRecommendations, save_specifics,
         load_specifics)
 from calibre.gui2.convert.single_ui import Ui_Dialog
@@ -127,7 +127,7 @@ def get_input_format_for_book(db, book_id, pref):
     return input_format, input_formats
 
 
-class Config(ResizableDialog, Ui_Dialog):
+class Config(QDialog, Ui_Dialog):
     '''
     Configuration dialog for single book conversion. If accepted, has the
     following important attributes
@@ -142,7 +142,8 @@ class Config(ResizableDialog, Ui_Dialog):
 
     def __init__(self, parent, db, book_id,
             preferred_input_format=None, preferred_output_format=None):
-        ResizableDialog.__init__(self, parent)
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
         self.opt_individual_saved_settings.setVisible(False)
         self.db, self.book_id = db, book_id
 
@@ -162,6 +163,14 @@ class Config(ResizableDialog, Ui_Dialog):
         geom = gprefs.get('convert_single_dialog_geom', None)
         if geom:
             self.restoreGeometry(geom)
+        else:
+            self.resize(self.sizeHint())
+
+    def sizeHint(self):
+        desktop = QCoreApplication.instance().desktop()
+        geom = desktop.availableGeometry(self)
+        nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
+        return QSize(nw, nh)
 
     def restore_defaults(self):
         delete_specifics(self.db, self.book_id)
@@ -277,17 +286,17 @@ class Config(ResizableDialog, Ui_Dialog):
             recs['gui_preferred_input_format'] = self.input_format
             save_specifics(self.db, self.book_id, recs)
         self.break_cycles()
-        ResizableDialog.accept(self)
+        QDialog.accept(self)
 
     def reject(self):
         self.break_cycles()
-        ResizableDialog.reject(self)
+        QDialog.reject(self)
 
     def done(self, r):
         if self.isVisible():
             gprefs['convert_single_dialog_geom'] = \
                 bytearray(self.saveGeometry())
-        return ResizableDialog.done(self, r)
+        return QDialog.done(self, r)
 
     def break_cycles(self):
         for i in range(self.stack.count()):

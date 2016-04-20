@@ -8,12 +8,14 @@ __docformat__ = 'restructuredtext en'
 
 import os, sys, importlib
 
+from PyQt5.Qt import QDialog, QCoreApplication, QSize
+
 from calibre.customize.ui import config
 from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
-from calibre.gui2 import dynamic, ResizableDialog, info_dialog
+from calibre.gui2 import dynamic, info_dialog
 from calibre.customize.ui import catalog_plugins
 
-class Catalog(ResizableDialog, Ui_Dialog):
+class Catalog(QDialog, Ui_Dialog):
 
     ''' Catalog Dialog builder'''
 
@@ -22,7 +24,8 @@ class Catalog(ResizableDialog, Ui_Dialog):
         from calibre import prints as info
         from PyQt5.uic import compileUi
 
-        ResizableDialog.__init__(self, parent)
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
         self.dbspec, self.ids = dbspec, ids
 
         # Display the number of books we've been passed
@@ -124,6 +127,14 @@ class Catalog(ResizableDialog, Ui_Dialog):
         geom = dynamic.get('catalog_window_geom', None)
         if geom is not None:
             self.restoreGeometry(bytes(geom))
+        else:
+            self.resize(self.sizeHint())
+
+    def sizeHint(self):
+        desktop = QCoreApplication.instance().desktop()
+        geom = desktop.availableGeometry(self)
+        nh, nw = max(300, geom.height()-50), max(400, geom.width()-70)
+        return QSize(nw, nh)
 
     def show_plugin_tab(self, idx):
         cf = unicode(self.format.currentText()).lower()
@@ -180,7 +191,7 @@ class Catalog(ResizableDialog, Ui_Dialog):
 
     def accept(self):
         self.save_catalog_settings()
-        return ResizableDialog.accept(self)
+        return QDialog.accept(self)
 
     def help(self):
         '''
@@ -207,4 +218,4 @@ class Catalog(ResizableDialog, Ui_Dialog):
 
     def reject(self):
         dynamic.set('catalog_window_geom', bytearray(self.saveGeometry()))
-        ResizableDialog.reject(self)
+        QDialog.reject(self)

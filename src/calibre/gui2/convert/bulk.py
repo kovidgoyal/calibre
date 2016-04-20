@@ -6,11 +6,10 @@ __docformat__ = 'restructuredtext en'
 
 import shutil
 
-from PyQt5.Qt import QModelIndex
+from PyQt5.Qt import QModelIndex, QDialog
 
 from calibre.gui2.convert.single import (Config, sort_formats_by_preference,
     GroupModel, gprefs, get_output_formats)
-from calibre.gui2 import ResizableDialog
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.heuristics import HeuristicsWidget
 from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
@@ -26,7 +25,8 @@ class BulkConfig(Config):
 
     def __init__(self, parent, db, preferred_output_format=None,
             has_saved_settings=True):
-        ResizableDialog.__init__(self, parent)
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
 
         self.setup_output_formats(db, preferred_output_format)
         self.db = db
@@ -59,6 +59,8 @@ class BulkConfig(Config):
         geom = gprefs.get('convert_bulk_dialog_geom', None)
         if geom:
             self.restoreGeometry(geom)
+        else:
+            self.resize(self.sizeHint())
 
     def setup_pipeline(self, *args):
         oidx = self.groups.currentIndex().row()
@@ -132,12 +134,12 @@ class BulkConfig(Config):
             x = w.commit(save_defaults=False)
             recs.update(x)
         self._recommendations = recs
-        ResizableDialog.accept(self)
+        QDialog.accept(self)
 
     def done(self, r):
         if self.isVisible():
             gprefs['convert_bulk_dialog_geom'] = \
                 bytearray(self.saveGeometry())
-        return ResizableDialog.done(self, r)
+        return QDialog.done(self, r)
 
 
