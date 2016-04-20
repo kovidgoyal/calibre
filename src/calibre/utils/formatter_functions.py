@@ -28,8 +28,7 @@ class FormatterFunctions(object):
     error_function_body = ('def evaluate(self, formatter, kwargs, mi, locals):\n'
                        '\treturn "' +
                             _('Duplicate user function name {0}. '
-                              'Change the name or ensure that the functions are identical')
-                                       + '"')
+                              'Change the name or ensure that the functions are identical') + '"')
 
     def __init__(self):
         self._builtins = {}
