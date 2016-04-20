@@ -375,8 +375,9 @@ class Device(DeviceConfig, DevicePlugin):
                     if d.match_numbers(vid, pid, bcd):
                         matches.append(path)
         if not matches:
+            from pprint import pformat
             raise DeviceError(
-             'Could not detect BSD names for %s. Try rebooting.' % self.name)
+                'Could not detect BSD names for %s. Try rebooting.\nOutput from osx_get_usb_drives():\n%s' % (self.name, pformat(drives)))
 
         pat = re.compile(r'(?P<m>\d+)([a-z]+(?P<p>\d+)){0,1}')
         def nums(x):
@@ -700,7 +701,8 @@ class Device(DeviceConfig, DevicePlugin):
                         d.product == objif.GetProperty('usb.product') and \
                         d.serial == objif.GetProperty('usb.serial'):
                     midpath = manager.FindDeviceStringMatch('info.parent', path)
-                    dpaths = manager.FindDeviceStringMatch('storage.originating_device', path) + manager.FindDeviceStringMatch('storage.originating_device', midpath[0])
+                    dpaths = manager.FindDeviceStringMatch(
+                        'storage.originating_device', path) + manager.FindDeviceStringMatch('storage.originating_device', midpath[0])
                     for dpath in dpaths:
                         # devif = dbus.Interface(bus.get_object('org.freedesktop.Hal', dpath), 'org.freedesktop.Hal.Device')
                         try:
