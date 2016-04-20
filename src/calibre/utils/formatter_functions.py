@@ -417,7 +417,7 @@ class BuiltinTest(BuiltinFormatterFunction):
     arg_count = 3
     category = 'If-then-else'
     __doc__ = doc = _('test(val, text if not empty, text if empty) -- return `text if not '
-            'empty` if the field is not empty, otherwise return `text if empty`')
+            'empty` if val is not empty, otherwise return `text if empty`')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, value_if_set, value_not_set):
         if val:
@@ -430,7 +430,7 @@ class BuiltinContains(BuiltinFormatterFunction):
     arg_count = 4
     category = 'If-then-else'
     __doc__ = doc = _('contains(val, pattern, text if match, text if not match) -- checks '
-            'if field contains matches for the regular expression `pattern`. '
+            'if val contains matches for the regular expression `pattern`. '
             'Returns `text if match` if matches are found, otherwise it returns '
             '`text if no match`')
 
@@ -446,9 +446,9 @@ class BuiltinSwitch(BuiltinFormatterFunction):
     arg_count = -1
     category = 'Iterating over values'
     __doc__ = doc = _('switch(val, pattern, value, pattern, value, ..., else_value) -- '
-            'for each `pattern, value` pair, checks if the field matches '
+            'for each `pattern, value` pair, checks if `val` matches '
             'the regular expression `pattern` and if so, returns that '
-            '`value`. If no pattern matches, then else_value is returned. '
+            '`value`. If no pattern matches, then `else_value` is returned. '
             'You can have as many `pattern, value` pairs as you want')
 
     def evaluate(self, formatter, kwargs, mi, locals, val, *args):
@@ -565,7 +565,7 @@ class BuiltinRe(BuiltinFormatterFunction):
     name = 're'
     arg_count = 3
     category = 'String manipulation'
-    __doc__ = doc = _('re(val, pattern, replacement) -- return the field after applying '
+    __doc__ = doc = _('re(val, pattern, replacement) -- return val after applying '
             'the regular expression. All instances of `pattern` are replaced '
             'with `replacement`. As in all of calibre, these are '
             'python-compatible regular expressions')
@@ -637,8 +637,8 @@ class BuiltinShorten(BuiltinFormatterFunction):
     arg_count = 4
     category = 'String manipulation'
     __doc__ = doc = _('shorten(val, left chars, middle text, right chars) -- Return a '
-            'shortened version of the field, consisting of `left chars` '
-            'characters from the beginning of the field, followed by '
+            'shortened version of val, consisting of `left chars` '
+            'characters from the beginning of val, followed by '
             '`middle text`, followed by `right chars` characters from '
             'the end of the string. `Left chars` and `right chars` must be '
             'integers. For example, assume the title of the book is '
@@ -952,7 +952,7 @@ class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
     arg_count = 1
     category = 'String case changes'
-    __doc__ = doc = _('uppercase(val) -- return value of the field in upper case')
+    __doc__ = doc = _('uppercase(val) -- return val in upper case')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.upper()
@@ -961,7 +961,7 @@ class BuiltinLowercase(BuiltinFormatterFunction):
     name = 'lowercase'
     arg_count = 1
     category = 'String case changes'
-    __doc__ = doc = _('lowercase(val) -- return value of the field in lower case')
+    __doc__ = doc = _('lowercase(val) -- return val in lower case')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.lower()
@@ -970,7 +970,7 @@ class BuiltinTitlecase(BuiltinFormatterFunction):
     name = 'titlecase'
     arg_count = 1
     category = 'String case changes'
-    __doc__ = doc = _('titlecase(val) -- return value of the field in title case')
+    __doc__ = doc = _('titlecase(val) -- return val in title case')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return titlecase(val)
@@ -979,7 +979,7 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
     name = 'capitalize'
     arg_count = 1
     category = 'String case changes'
-    __doc__ = doc = _('capitalize(val) -- return value of the field capitalized')
+    __doc__ = doc = _('capitalize(val) -- return val capitalized')
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return capitalize(val)
