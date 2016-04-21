@@ -25,6 +25,7 @@ from calibre.utils.filenames import ascii_filename as sanitize
 
 if isosx:
     usbobserver, usbobserver_err = plugins['usbobserver']
+    osx_sanitize_name_pat = re.compile(r'[.-]')
 
 if iswindows:
     usb_info_cache = {}
@@ -55,8 +56,16 @@ class USBDevice:
         return self.idVendor == vid and self.idProduct == pid and self.bcdDevice == bcd
 
     def match_strings(self, vid, pid, bcd, man, prod):
-        return self.match_numbers(vid, pid, bcd) and \
-                self.manufacturer == man and self.product == prod
+        if not self.match_numbers(vid, pid, bcd):
+            return False
+        if man == self.manufacturer and prod == self.product:
+            return True
+        # As of OS X 10.11.4 Apple started mangling the names returned via the
+        # IOKit registry. See
+        # http://www.mobileread.com/forums/showthread.php?t=273213
+        m = osx_sanitize_name_pat.sub('_', (self.manufacturer or ''))
+        p = osx_sanitize_name_pat.sub('_', (self.product or ''))
+        return m == man and p == prod
 
 class Device(DeviceConfig, DevicePlugin):
 
@@ -365,15 +374,17 @@ class Device(DeviceConfig, DevicePlugin):
             for path, vid, pid, bcd, ven, prod, serial in drives:
                 if d.match_serial(serial):
                     matches.append(path)
+        if not matches and d.manufacturer and d.product:
+            for path, vid, pid, bcd, man, prod, serial in drives:
+                if d.match_strings(vid, pid, bcd, man, prod):
+                    matches.append(path)
         if not matches:
-            if d.manufacturer and d.product:
-                for path, vid, pid, bcd, man, prod, serial in drives:
-                    if d.match_strings(vid, pid, bcd, man, prod):
-                        matches.append(path)
-            else:
-                for path, vid, pid, bcd, man, prod, serial in drives:
-                    if d.match_numbers(vid, pid, bcd):
-                        matches.append(path)
+            # Since Apple started mangling the names stored in the IOKit
+            # registry, we cannot trust match_strings() so fallback to matching
+            # on just numbers. See http://www.mobileread.com/forums/showthread.php?t=273213
+            for path, vid, pid, bcd, man, prod, serial in drives:
+                if d.match_numbers(vid, pid, bcd):
+                    matches.append(path)
         if not matches:
             from pprint import pformat
             raise DeviceError(
