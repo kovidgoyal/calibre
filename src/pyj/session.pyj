@@ -21,6 +21,8 @@ defaults = {
     'margin_top': 20,
     'margin_bottom': 20,
     'read_mode': 'paged',
+    'max_text_height': 0,
+    'max_text_width': 0,
 }
 
 def storage_available(which):

@@ -65,11 +65,17 @@ class View:
     def iframe(self):
         return document.getElementById(iframe_id)
 
-    def set_margins(self, margin_top=None, margin_bottom=None, margin_side=None):
+    def set_margins(self, no_margins):
         sd = get_session_data()
-        margin_side = sd.get('margin_side') if margin_side is None else margin_side
-        margin_top = sd.get('margin_top') if margin_top is None else margin_top
-        margin_bottom = sd.get('margin_bottom') if margin_bottom is None else margin_bottom
+        margin_side = 0 if no_margins else sd.get('margin_side')
+        margin_top = 0 if no_margins else sd.get('margin_top')
+        margin_bottom = 0 if no_margins else sd.get('margin_bottom')
+        max_text_height = sd.get('max_text_height')
+        th = window.innerWidth - margin_top - margin_bottom
+        if not no_margins and max_text_height > 100 and th > max_text_height:
+            extra = (th - max_text_height) // 2
+            margin_top += extra
+            margin_bottom += extra
         t = document.getElementById('book-top-margin')
         t.style.height = margin_top + 'px'
         t.style.paddingLeft = t.style.paddingRight = margin_side + 'px'
@@ -143,9 +149,11 @@ class View:
         settings={
             'margin_side': 0 if name is self.book.manifest.title_page_name else sd.get('margin_side'),
             'read_mode': sd.get('read_mode'),
+            'max_text_width':sd.get('max_text_width'),
+            'max_text_height':sd.get('max_text_height'),
         }
         self.currently_showing = {'name':name, 'cfi':cfi, 'settings':settings, 'initial_scroll_fraction':initial_scroll_fraction, 'loading':True}
-        self.set_margins(0, 0, 0) if name is self.book.manifest.title_page_name else self.set_margins()
+        self.set_margins(name is self.book.manifest.title_page_name)
         load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
 
     def goto_doc_boundary(self, data):

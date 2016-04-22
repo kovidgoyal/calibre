@@ -6,8 +6,8 @@ opts = {}
 def apply_settings(settings):
     settings = settings or {}
     opts.cols_per_screen = max(1, settings.cols_per_screen or 1)
-    opts.max_col_width = max(0, settings.max_col_width or 0)
-    opts.max_col_height = max(0, settings.max_col_height or 0)
+    opts.max_text_width = max(0, settings.max_text_width or 0)
+    opts.max_text_height = max(0, settings.max_text_height or 0)
     opts.fit_images = False if settings.fit_images is False else True
     opts.margin_side = max(0, settings.margin_side or 0)
 

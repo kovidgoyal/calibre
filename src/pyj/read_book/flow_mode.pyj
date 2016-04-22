@@ -97,5 +97,9 @@ def flow_onkeydown(evt):
         evt.preventDefault()
 
 def layout(is_single_page):
-    set_css(document.body, margin='0', border_width='0', padding='0 {}px'.format(opts.margin_side))
+    ms = opts.margin_side
+    tw = window.innerWidth - 2 * ms
+    if opts.max_text_width > 100 and tw > opts.max_text_width:
+        ms += (tw - opts.max_text_width) // 2
+    set_css(document.body, margin='0', border_width='0', padding='0 {}px'.format(ms))
 
