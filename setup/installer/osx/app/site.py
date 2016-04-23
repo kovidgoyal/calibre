@@ -125,64 +125,6 @@ def add_calibre_vars(base):
     if dv and os.path.exists(dv):
         sys.path.insert(0, os.path.abspath(dv))
 
-def setup_asl():
-    # On Mac OS X 10.8 or later the contents of stdout and stderr
-    # do not end up in Console.app
-    # This function detects if "asl_log_descriptor" is available
-    # (introduced in 10.8), and if it is configures ASL to redirect
-    # all writes to stdout/stderr to Console.app
-    import ctypes
-    try:
-        syslib = ctypes.CDLL("/usr/lib/libSystem.dylib")
-    except EnvironmentError:
-        import ctypes.util
-        syslib = ctypes.CDLL(ctypes.util.find_library('System'))
-
-    asl_log_descriptor_proto = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_int, ctypes.c_int, ctypes.c_uint32)
-    try:
-        asl_log_descriptor = asl_log_descriptor_proto(('asl_log_descriptor', syslib), ((1, 'asl'), (1, 'msg'), (1, 'level'), (1, 'descriptor'), (1, 'fd_type')))
-    except AttributeError:
-        # OS X < 10.8 no need to redirect
-        return
-    asl_open_proto = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint32)
-    asl_open = asl_open_proto(('asl_open', syslib), ((1, "ident"), (1, "facility"), (1, 'opts')))
-    asl_new_proto = ctypes.CFUNCTYPE(ctypes.c_void_p, ctypes.c_uint32)
-    asl_new = asl_new_proto(('asl_new', syslib), ((1, "type"),))
-    asl_set_proto = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_char_p, ctypes.c_char_p)
-    asl_set = asl_set_proto(('asl_set', syslib), ((1, "msg"), (1, "key"), (1, "value")))
-
-    CONSOLE = b'com.apple.console'
-    # Taken from asl.h
-    ASL_OPT_NO_DELAY = 2
-    ASL_TYPE_MSG = 0
-    ASL_KEY_FACILITY = b'Facility'
-    ASL_KEY_LEVEL = b'Level'
-    ASL_KEY_READ_UID = b'ReadUID'
-    ASL_STRING_NOTICE = b'Notice'
-    ASL_LEVEL_NOTICE = 4
-    ASL_LOG_DESCRIPTOR_WRITE = 2
-
-    cl = asl_open(ident=getattr(sys, 'calibre_basename', b'calibre'), facility=CONSOLE, opts=ASL_OPT_NO_DELAY)
-    if cl is None:
-        return
-
-    # Create an ASL template message for the STDOUT/STDERR redirection.
-    msg = asl_new(ASL_TYPE_MSG)
-    if msg is None:
-        return
-    if asl_set(msg, ASL_KEY_FACILITY, CONSOLE) != 0:
-        return
-    if asl_set(msg, ASL_KEY_LEVEL, ASL_STRING_NOTICE) != 0:
-        return
-    if asl_set(msg, ASL_KEY_READ_UID, bytes('%d' % os.getuid())) != 0:
-        return
-    # Redirect the STDOUT/STDERR file descriptors to ASL
-    if asl_log_descriptor(cl, msg, ASL_LEVEL_NOTICE, sys.stdout.fileno(), ASL_LOG_DESCRIPTOR_WRITE) != 0:
-        return
-    if asl_log_descriptor(cl, msg, ASL_LEVEL_NOTICE, sys.stderr.fileno(), ASL_LOG_DESCRIPTOR_WRITE) != 0:
-        return
-    return True
-
 def nuke_stdout():
     # Redirect stdout, stdin and stderr to /dev/null
     from calibre.constants import plugins
@@ -190,14 +132,6 @@ def nuke_stdout():
 
 def main():
     global __file__
-    asl_ok = True
-
-    if sys.calibre_is_gui_app and not (
-            sys.stdout.isatty() or sys.stderr.isatty() or sys.stdin.isatty()):
-        try:
-            asl_ok = setup_asl()
-        except:
-            asl_ok = False
 
     # Needed on OS X <= 10.8, which passes -psn_... as a command line arg when
     # starting via launch services
@@ -213,10 +147,8 @@ def main():
     add_calibre_vars(base)
     addsitedir(sys.site_packages)
 
-    if not asl_ok:
-        try:
-            nuke_stdout()
-        except Exception:
-            import traceback
-            traceback.print_exc()
+    if sys.calibre_is_gui_app and not (
+            sys.stdout.isatty() or sys.stderr.isatty() or sys.stdin.isatty()):
+        nuke_stdout()
+
     return run_entry_point()
