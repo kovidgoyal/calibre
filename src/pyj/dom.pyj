@@ -67,9 +67,9 @@ def create_keyframes(animation_name, *frames):
         ans.push('}')
     return ans.join('\n') + '\n'
 
-def svgicon(name):
+def svgicon(name, height, width):
     ans = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-    ans.setAttribute('style', 'fill: currentColor; height: 2ex; width: 2ex; vertical-align: text-top')
+    ans.setAttribute('style', 'fill: currentColor; height: {}; width: {}; vertical-align: text-top'.format(height ? '2ex', width ? '2ex'))
     u = document.createElementNS('http://www.w3.org/2000/svg', 'use')
     u.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + name)
     ans.appendChild(u)

@@ -210,7 +210,7 @@ class SearchPanel:
             if item:
                 li.appendChild(E.span(item.name))
             else:
-                li.appendChild(svgicon('home'))
+                li.appendChild(svgicon('home', '2.2ex', '2.2ex'))
 
         create_breadcrumb()
         parent = self.tag_browser_data

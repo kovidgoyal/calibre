@@ -35,7 +35,7 @@ def parse_url_params(url=None, allow_multiple=False):
         key, val = pair.partition('=')[::2]
         key, val = decodeURIComponent(key), decodeURIComponent(val)
         if allow_multiple:
-            if not Object.prototype.hasOwnProperty.call(ans, key):
+            if ans[key] is undefined:
                 ans[key] = []
             ans[key].append(val)
         else:
