@@ -59,7 +59,7 @@ class GoogleImages(Source):
 
         return []
 
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:25.0) Gecko/20100101 Firefox/25.0'
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'
 
 def find_image_urls(br, ans):
     import urlparse
@@ -75,10 +75,10 @@ def find_image_urls(br, ans):
 
 def search(title, author, size, timeout, debug=False):
     import time
-    from calibre.web.jsbrowser.browser import Browser, LoadWatcher, Timeout
+    from calibre.web.jsbrowser.browser import Browser, Timeout
     ans = []
     start_time = time.time()
-    br = Browser(user_agent=USER_AGENT, enable_developer_tools=debug)
+    br = Browser(user_agent=USER_AGENT, enable_developer_tools=debug, headless=not debug)
     br.visit('https://www.google.com/advanced_image_search')
     f = br.select_form('form[action="/search"]')
     f['as_q'] = '%s %s'%(title, author)
@@ -90,8 +90,7 @@ def search(title, author, size, timeout, debug=False):
 
     # Loop until the page finishes loading or at least five image urls are
     # found
-    lw = LoadWatcher(br.page, br)
-    while lw.is_loading and len(ans) < 5:
+    while len(ans) < 5:
         br.run_for_a_time(0.2)
         find_image_urls(br, ans)
         if time.time() - start_time > timeout:
@@ -112,6 +111,7 @@ def test():
     from threading import Event
     from calibre.utils.logging import default_log
     p = GoogleImages(None)
+    p.log = default_log
     rq = Queue()
     p.download_cover(default_log, rq, Event(), title='The Heroes',
                      authors=('Joe Abercrombie',))
