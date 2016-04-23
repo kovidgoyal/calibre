@@ -211,7 +211,7 @@ class Container(ContainerBase):
                         a.set('data-' + link_uid, json.dumps({'name':parts[0], 'frag':parts[1]}, ensure_ascii=False))
                     else:
                         a.set('target', '_blank')
-                        a.set('rel', 'noopener')
+                        a.set('rel', 'noopener noreferrer')
                     changed.add(name)
             elif mt == 'image/svg+xml':
                 self.virtualized_names.add(name)
