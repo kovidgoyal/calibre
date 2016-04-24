@@ -96,6 +96,10 @@ class Time(JavascriptRecipe):
         ans['index'] = [('Articles', articles)]
         return ans
 
+    def preprocess_stage1(self, article, browser, url, recursion_level):
+        for img in browser.css_select('img[data-lazy-src]', all=True):
+            img.setAttribute('src', img.attribute('data-lazy-src'))
+
     def load_complete(self, browser, url, rl):
         if self.time_initial_phase:
             browser.wait_for_element('footer.article-footer')
