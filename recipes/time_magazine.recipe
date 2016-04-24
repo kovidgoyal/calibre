@@ -1,73 +1,59 @@
 #!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-
-__license__   = 'GPL v3'
-__copyright__ = '2013, Kovid Goyal <kovid@kovidgoyal.net>'
-
-'''
-time.com
-'''
-
-from calibre.web.feeds.jsnews import JavascriptRecipe
-from calibre.ptempfile import PersistentTemporaryFile
-from lxml import html
 import json
+from calibre.constants import iswindows
+from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryFile
 
-# Keep the login method as standalone, so it can be easily tested
-def do_login(browser, username, password):
-    from calibre.web.jsbrowser.browser import Timeout
-    browser.visit(
-        'http://subscription-assets.time.com/prod/assets/themes/magazines/SUBS/templates/velocity/site/td-pcslogin/login.html')
-    form = browser.select_form('#sign-in-form')
-    form['username'] = username
-    form['password'] = password
-    browser.submit('#sign-in-button')
-    try:
-        browser.wait_for_element('body.is-signed-in', timeout=180)
-    except Timeout:
-        raise ValueError(
-            'Failed to login to time.com, check your username and password and try again in a little while.')
 
-class Time(JavascriptRecipe):
-    title                 = u'Time'
-    __author__            = 'Kovid Goyal'
-    description           = 'Weekly US magazine.'
-    language              = 'en'
-    needs_subscription    = True
-    requires_version      = (0, 9, 35)
+class TimeMagazine(BasicNewsRecipe):
 
-    no_stylesheets        = True
-    remove_javascript     = True
-    time_initial_phase = True
+    title = 'TIME Magazine'
+    __author__ = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal'
+    description = 'Weekly US magazine.'
+    language = 'en'
+    needs_subscription = True
+    no_stylesheets = True
+    remove_javascript = True
 
-    def do_login(self, browser, username, password):
-        do_login(browser, username, password)
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        # self.time_magazine_page = open('/t/raw.html').read()
+        # return br
+        base = 'http://subscription-assets.time.com/prod/assets/themes/magazines/SUBS/templates/velocity/site/td-pcslogin/'
+        url = base + 'login.html'
+        br.open(url)
+        br.select_form(nr=0)
+        br.form.action = 'https://auth.time.com/login.php?rurl={}&turl={}'.format(
+            url, 'http://time.com/magazine')
+        br['username'] = self.username
+        br['password'] = self.password
+        r = br.submit()
+        # print(111111, r.geturl())
+        self.time_magazine_page = r.read()
+        return br
 
-    def print_version(self, url):
-        return self.turl_map[url]
-
-    def get_publication_data(self, browser):
-        # raw = open('/t/time.html', 'rb').read().decode('utf-8')
-        browser.visit('http://time.com/magazine')
-        raw = browser.html
-
-        root = html.fromstring(raw)
-        self.time_initial_phase = False
-        dates = ''.join(root.xpath('//*[@class="rail-article-magazine-issue"]/date/text()'))
-        if dates:
-            self.timefmt = ' [%s]'%dates
-
+    def parse_index(self):
+        import html5lib
+        root = html5lib.parse(
+            self.time_magazine_page, treebuilder='lxml', namespaceHTMLElements=False).getroot()
         for script in root.iterdescendants('script'):
             if script.text and script.text.startswith('Time.bootstrap ='):
                 data = json.loads(script.text.partition('=')[2].lstrip())
                 break
         else:
-            raise ValueError('The time website has changed, this recipe needs to be rewritten')
+            raise ValueError(
+                'The TIME website has changed, this recipe needs to be rewritten')
         data = data['magazine']['us'][0]
-        self.turl_map = {}
-        ans = {}
+        self.timefmt = ' [%s]' % data['title'].split('|')[0].strip()
+        self.cover_url = data['hero']['src']['large']
         articles = []
+        self.turl_map = {}
         for article in data['articles']:
             title = article.get('friendly_title') or article.get('short_title')
             if title == 'In the Latest Issue' or 'content' not in article:
@@ -83,32 +69,21 @@ class Time(JavascriptRecipe):
             authors = ''
             for aut in article.get('authors') or ():
                 authors += '<p>' + aut.get('bio') + '</p>'
-            articles.append({'title':title, 'url':url, 'desc':desc})
-            text = '<html><head><meta charset="utf-8"></head><body><h1>{}</h1>{}<div><img src={}></div><div>{}</div></body></html>'.format(
+            articles.append({'title': title, 'url': url, 'desc': desc})
+            text = '<html><head><meta charset="utf-8"></head><body><h1>{}</h1>{}<div><img src="{}"></div><div>{}</div></body></html>'.format(
                 title, authors, cover_url, article['content'])
             with PersistentTemporaryFile('-time-recipe.html') as f:
                 f.write(text.encode('utf-8'))
-            self.turl_map[url] = 'file:///' + f.name
-        # from pprint import pprint
-        # pprint(data['hero'])
+            name = ('/' if iswindows else '') + f.name
+            self.turl_map[url] = 'file://' + name
+        return [('Articles', articles)]
 
-        ans['cover'] = browser.get_resource(data['hero']['src']['large'])
-        ans['index'] = [('Articles', articles)]
-        return ans
+    def print_version(self, url):
+        return self.turl_map[url]
 
-    def preprocess_stage1(self, article, browser, url, recursion_level):
-        for img in browser.css_select('img[data-lazy-src]', all=True):
-            img.setAttribute('src', img.attribute('data-lazy-src'))
-
-    def load_complete(self, browser, url, rl):
-        if self.time_initial_phase:
-            browser.wait_for_element('footer.article-footer')
-        return True
-
-if __name__ == '__main__':
-    # Test the login
-    import sys
-    from calibre import jsbrowser
-    br = jsbrowser(default_timeout=120)
-    do_login(br, sys.argv[-2], sys.argv[-1])
-    br.show_browser()
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-lazy-src':True}):
+            img['src'] = img['data-lazy-src']
+        for img in soup.findAll('img', src=lambda x: not x):
+            img.extract()
+        return soup
