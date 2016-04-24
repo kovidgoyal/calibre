@@ -288,7 +288,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.system_tray_icon.activated.connect(self.system_tray_icon_activated)
         self.quit_action.triggered[bool].connect(self.quit)
         self.donate_action.triggered[bool].connect(self.donate)
-        self.minimize_action = QAction(_('Minimize the window'), self)
+        self.minimize_action = QAction(_('Minimize the calibre window'), self)
         self.addAction(self.minimize_action)
         self.keyboard.register_shortcut('minimize calibre', self.minimize_action.text(),
                 default_keys=(), action=self.minimize_action)
