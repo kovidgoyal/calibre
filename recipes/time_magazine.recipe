@@ -70,7 +70,7 @@ class Time(JavascriptRecipe):
         articles = []
         for article in data['articles']:
             title = article.get('friendly_title') or article.get('short_title')
-            if title == 'In the Latest Issue':
+            if title == 'In the Latest Issue' or 'content' not in article:
                 continue
             url = article['shortlink']
             desc = article.get('excerpt') or ''
