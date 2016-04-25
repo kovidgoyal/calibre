@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
 
 #  Based on code originally written by Peter Sorotkin
 #  http://code.google.com/p/epub-revision/source/browse/trunk/src/samples/cfi/epubcfi.js

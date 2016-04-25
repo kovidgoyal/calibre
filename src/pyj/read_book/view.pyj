@@ -1,7 +1,7 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import bound_methods, hash_literals
 
-from __python__ import bound_methods
 from book_list.globals import get_session_data
 from elementmaker import E
 from gettext import gettext as _

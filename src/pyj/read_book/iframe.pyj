@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import bound_methods
+from __python__ import bound_methods, hash_literals
 
 import traceback
 from aes import GCM

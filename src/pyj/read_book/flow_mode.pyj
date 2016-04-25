@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
 
 from dom import set_css
 from read_book.globals import get_boss

@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
 
 def debounce(func, wait, immediate=False):
     # Returns a function, that, as long as it continues to be invoked, will not

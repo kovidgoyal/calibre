@@ -518,7 +518,7 @@ def install(translation_data):
     t.install()
     return t
 
-has_prop = Object.prototype.hasOwnProperty
+has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
 
 class Translations:
 
@@ -536,14 +536,14 @@ class Translations:
     def gettext(self, text):
         for t in self.translations:
             m = t[0]['entries']
-            if has_prop.call(m, text):
+            if has_prop(m, text):
                 return m[text][0]
         return text
 
     def ngettext(self, text, plural, n):
         for t in self.translations:
             m = t[0]['entries']
-            if has_prop.call(m, text):
+            if has_prop(m, text):
                 idx = t[1](n)
                 return m[text][idx] or (text if n is 1 else plural)
         return text if n is 1 else plural
