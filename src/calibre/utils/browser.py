@@ -60,10 +60,6 @@ class Browser(B):
         B.set_cookiejar(self, *args, **kwargs)
         self._clone_actions['set_cookiejar'] = ('set_cookiejar', args, kwargs)
 
-    def copy_cookies_from_jsbrowser(self, jsbrowser):
-        for cookie in jsbrowser.cookies:
-            self.cookiejar.set_cookie(cookie)
-
     def set_cookie(self, name, value, domain, path='/'):
         self.cookiejar.set_cookie(Cookie(
             None, name, value,
