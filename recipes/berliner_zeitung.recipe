@@ -1,44 +1,46 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-'''Calibre recipe to convert the RSS feeds of the Berliner Zeitung to an ebook.'''
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
 
-class SportsIllustratedRecipe(BasicNewsRecipe) :
-    __author__    = 'a.peter'
-    __copyright__ = 'a.peter'
-    __license__   = 'GPL v3'
+class BerlinerZeitung(BasicNewsRecipe) :
+    title         = 'Berliner Zeitung'
+    __author__    = 'Kovid Goyal'
     language      = 'de'
     description   = 'Berliner Zeitung RSS'
-    version       = 4
-    title         = u'Berliner Zeitung'
     timefmt       = ' [%d.%m.%Y]'
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
 
-    #oldest_article = 7.0
+    # oldest_article = 7.0
     no_stylesheets = True
     remove_javascript = True
     use_embedded_content = False
     publication_type = 'newspaper'
 
-    remove_tags_before = dict(name='div', attrs={'class':'newstype'})
-    remove_tags_after = [dict(id='article_text')]
+    keep_only_tags = [
+        classes('dm_article_body dm_article_header'),
+    ]
+    remove_tags = [
+        classes('dm_article_share'),
+    ]
 
-    feeds = [(u'Startseite', u'http://www.berliner-zeitung.de/home/10808950,10808950,view,asFeed.xml'),
-             (u'Politik', u'http://www.berliner-zeitung.de/home/10808018,10808018,view,asFeed.xml'),
-             (u'Wirtschaft', u'http://www.berliner-zeitung.de/home/10808230,10808230,view,asFeed.xml'),
-             (u'Berlin', u'http://www.berliner-zeitung.de/home/10809148,10809148,view,asFeed.xml'),
-             (u'Brandenburg', u'http://www.berliner-zeitung.de/home/10809312,10809312,view,asFeed.xml'),
-             (u'Wissenschaft', u'http://www.berliner-zeitung.de/home/10808894,10808894,view,asFeed.xml'),
-             (u'Digital', u'http://www.berliner-zeitung.de/home/10808718,10808718,view,asFeed.xml'),
-             (u'Kultur', u'http://www.berliner-zeitung.de/home/10809150,10809150,view,asFeed.xml'),
-             (u'Panorama', u'http://www.berliner-zeitung.de/home/10808334,10808334,view,asFeed.xml'),
-             (u'Sport', u'http://www.berliner-zeitung.de/home/10808794,10808794,view,asFeed.xml'),
-             (u'Hertha', u'http://www.berliner-zeitung.de/home/10808800,10808800,view,asFeed.xml'),
-             (u'Union', u'http://www.berliner-zeitung.de/home/10808802,10808802,view,asFeed.xml'),
-             (u'Verkehr', u'http://www.berliner-zeitung.de/home/10809298,10809298,view,asFeed.xml'),
-             (u'Polizei', u'http://www.berliner-zeitung.de/home/10809296,10809296,view,asFeed.xml'),
-             (u'Meinung', u'http://www.berliner-zeitung.de/home/10808020,10808020,view,asFeed.xml')]
-
-    def get_masthead_url(self):
-        return 'http://www.berliner-zeitung.de/image/view/10810244,7040611,data,logo.png'
-
-    def print_version(self, url):
-        return url.replace('.html', ',view,printVersion.html')
+    feeds = [x.split() for x in [
+        'Berlin http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23699382-asYahooFeed.xml',
+        'Brandenburg http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23699570-asYahooFeed.xml',
+        'Politik http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23699614-asYahooFeed.xml',
+        'Wirtschaft http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23699644-asYahooFeed.xml',
+        'Sport http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23699874-asYahooFeed.xml',
+        'Kultur http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23700020-asYahooFeed.xml',
+        'Panorama http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23700178-asYahooFeed.xml',
+        'Wissen http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23700222-asYahooFeed.xml',
+        'Digital http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23700594-asYahooFeed.xml',
+        'Ratgeber http://www.berliner-zeitung.de/blueprint/servlet/xml/berliner-zeitung/23700190-asYahooFeed.xml',
+    ]]

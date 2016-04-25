@@ -1,34 +1,33 @@
-from calibre.web.feeds.news import BasicNewsRecipe
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+from calibre.web.feeds.recipes import BasicNewsRecipe
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
 
 class TagesspiegelRss(BasicNewsRecipe):
-    title          = u'Der Tagesspiegel'
+    title          = 'Der Tagesspiegel'
+    __author__     = 'Kovid Goyal'
     oldest_article = 1
     max_articles_per_feed = 100
     language = 'de'
     publication_type = 'newspaper'
-    auto_cleanup = True
     no_stylesheets = True
     remove_stylesheets = True
     remove_javascript = True
-    remove_empty_feeds = True
     encoding = 'utf-8'
     use_embedded_content = False
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
 
-    extra_css = '''
-                .hcf-overline{color:#990000; font-family:Arial,Helvetica,sans-serif;font-size:xx-small;display:block}
-                .hcf-teaser{font-family:Verdana,Arial,Helvetica;font-size:x-small;margin-top:0}
-                h1{font-family:Arial,Helvetica,sans-serif;font-size:large;clear:right;}
-                .hcf-caption{color:#666666; font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
-                .hcf-copyright{color:#666666; font-family:Arial,Helvetica,sans-serif;font-size:xx-small;}
-                .hcf-article{font-family:Arial,Helvetica;font-size:x-small}
-                .quote{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:x-small}
-                .quote .cite{font-family:Georgia,Palatino,Palatino Linotype,FreeSerif,serif;font-size:xx-small}
-                .hcf-inline-left{float:left;margin-right:15px;position:relative;}
-                .hcf-inline-right{float:right;margin-right:15px;position:relative;}
-                .hcf-smart-box{font-family: Arial, Helvetica, sans-serif; font-size: xx-small; margin: 0px 15px 8px 0px; width: 300px;}
-                '''
-
-    remove_tags = [{'class':'hcf-header'}, {'class':'hcf-atlas'}, {'class':'hcf-colon'}, {'class':'hcf-date hcf-separate'}]
+    keep_only_tags = [
+        classes('ts-lead ts-article-body ts-intro ts-title ts-authors')
+    ]
 
     feeds          = [
         (u'Politik', u'http://www.tagesspiegel.de/contentexport/feed/politik'),
@@ -41,21 +40,6 @@ class TagesspiegelRss(BasicNewsRecipe):
         (u'Medien', u'http://www.tagesspiegel.de/contentexport/feed/medien'),
         (u'Wissen', u'http://www.tagesspiegel.de/contentexport/feed/wissen')
     ]
-
-    def print_version(self, url):
-        # print url
-        u = url.find('0L0Stagesspiegel0Bde')
-        u = 'http://www.tagesspiegel.de' + url[u + 20:]
-        u = u.replace('0C', '/')
-        u = u.replace('0E', '-')
-        u = u.replace('A', '')
-        u = u.replace('0B', '.')
-        u = u.replace('.html/story01.htm', '.html')
-        url = u.split('/')
-        url[-1] = 'v_print,%s?p='%url[-1]
-        u = '/'.join(url)
-        # print u
-        return u
 
     def get_masthead_url(self):
         return 'http://www.tagesspiegel.de/images/tsp_logo/3114/6.png'
