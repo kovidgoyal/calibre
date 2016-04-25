@@ -1,5 +1,14 @@
-from calibre.web.feeds.jsnews import JavascriptRecipe
-from calibre.web.jsbrowser.browser import NotAFile
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
+import html5lib
+from lxml import html
+
+from calibre.web.feeds.news import BasicNewsRecipe
 
 def CSSSelect(expr):
     expr = {
@@ -17,58 +26,70 @@ def CSSSelect(expr):
     from lxml.etree import XPath
     return XPath(expr)
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
-class WSJ(JavascriptRecipe):
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'
 
-    title = 'Wall Street Journal (free)'
+
+class WSJ(BasicNewsRecipe):
+
+    title = 'The Wall Street Journal'
     __author__ = 'Kovid Goyal'
-    description = '''News and current affairs. This recipe only fetches complete
-    versions of the articles that are available free on the wsj.com website.
-    To get the rest of the articles, subscribe to the WSJ and use the other WSJ
-    recipe.'''
-
+    description = 'News and current affairs'
     language = 'en'
 
     compress_news_images = True
-    compress_news_images_auto_size = 5
-    max_articles_per_feed = 1000
+    compress_news_images_auto_size = 7
+
     timefmt = ' [%a, %b %d, %Y]'
     no_stylesheets = True
     ignore_duplicate_articles = {'url'}
     remove_attributes = ['style', 'data-scrim']
+    WSJ_ITP = 'http://online.wsj.com/itp/today'
 
-    keep_only_tags = (
-        'h1',  # 'h2.subhead', 'h2.subHed.deck',
-        'span[itemprop=author][rel=author]',
-        'article#article-contents', 'article#articleBody',
-        'div#article_story_body', 'header.article_header',
-        # Parallax formatting
-        'div#ncTitleArea', 'section.nc-exp-artbody',
-        # Error conditions, login required and page not found
-        'div#snippet-ad-login', 'div.wsj-snippet-body', 'div.wsj-snippet-login', 'div.errorNotFound',
-    )
+    keep_only_tags = [
+        dict(classes('wsj-article-headline-wrap article_header')),
+        dict(name='span', itemprop='author', rel='author'),
+        dict(name='article', id='article-contents articleBody'.split()),
+        dict(name='div', id='article_story_body ncTitleArea snipper-ad-login'.split()),
+        dict(classes('nc-exp-artbody errorNotFound')),
+        dict(attrs={'data-module-zone': 'article_snippet'}),
+    ]
 
-    remove_tags = (
-        '.insetButton', '.insettipBox', '.author-info', '.media-object-video',
-        '.article_tools', 'span[data-country-code][data-ticker-code]',
-        'div.nc-exp-artmeta',
-    )
+    remove_tags = [
+        classes('insetButton insettipBox author-info media-object-video article_tools nc-exp-artmeta category'),
+        dict(name='span', attrs={
+             'data-country-code': True, 'data-ticker-code': True}),
+        dict(name='meta link'.split()),
+    ]
 
-    def preprocess_stage2(self, article, browser, url, recursion_level):
+    def preprocess_raw_html(self, raw_html, url):
+        root = html5lib.parse(raw_html, treebuilder='lxml', namespaceHTMLElements=False)
+        raw_html = html.tostring(root)
+        # open('/t/art.html', 'w').write(raw_html)
+        return raw_html
+
+    def preprocess_soup(self, soup):
         # Slideshow and expandable images need to be processed here to
         # set the src attribute correctly
         found = 0
-        for img in browser.css_select('img[data-in-base-data-lazy]', all=True):
-            img.setAttribute('src', img.attribute('data-in-base-data-lazy'))
+        for img in soup.findAll('img', attrs={'data-in-base-data-lazy': True}):
+            img['src'] = img['data-in-base-data-lazy']
             found += 1
-        for img in browser.css_select('img[data-enlarge]', all=True):
-            img.setAttribute('src', img.attribute('data-enlarge'))
+        for img in soup.findAll('img', attrs={'data-enlarge': True}):
+            img['src'] = img['data-enlarge']
             found += 1
         if found:
-            self.log.debug('Found %d dynamic images in:' % found, url)
+            self.log.debug('Found %d dynamic images in:' % found)
+        return soup
 
-    def get_publication_data(self, browser):
-        return self.get_wsj_index(browser)
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self, user_agent=USER_AGENT)
+        self.wsj_itp_page = br.open(self.WSJ_ITP).read()
+        return br
 
     def abs_wsj_url(self, href):
         if not href.startswith('http'):
@@ -76,7 +97,7 @@ class WSJ(JavascriptRecipe):
         return href
 
     def wsj_find_articles(self, url, ahed=False):
-        root = self.index_to_soup(url)
+        root = self.index_to_soup(url, as_tree=True)
 
         for x in CSSSelect('div.whatsNews-simple')(root):
             x.getparent().remove(x)
@@ -106,6 +127,7 @@ class WSJ(JavascriptRecipe):
 
             self.log('\tFound article:', title)
             self.log('\t\t', desc)
+
         if ahed:
             for h2 in root.xpath('//li[@class="ahed_listitem"]/h2'):
                 a = h2.xpath('descendant::a')[0]
@@ -122,7 +144,7 @@ class WSJ(JavascriptRecipe):
         return articles
 
     def wsj_find_wn_articles(self, url):
-        root = self.index_to_soup(url)
+        root = self.index_to_soup(url, as_tree=True)
         articles = []
 
         whats_news = CSSSelect('div.whatsNews-simple.whatsNews-itp')(root)
@@ -159,23 +181,18 @@ class WSJ(JavascriptRecipe):
         if articles:
             feeds.append((title, articles))
 
-    def get_wsj_index(self, browser):
+    def parse_index(self):
         # return self.test_wsj_index()
-        ans = {}
-        root = self.index_to_soup('http://online.wsj.com/itp/today')
+        root = self.index_to_soup(self.wsj_itp_page, as_tree=True)
         for span in CSSSelect('span.date-date')(root):
             if span.text:
                 self.timefmt = span.text
                 break
         for a in CSSSelect('div.itpSectionHeaderPdf a[href]')(root):
-            href = a.get('href')
-            try:
-                ans['cover'] = browser.download_file(href)
-            except NotAFile:
-                break
+            self.cover_url = a.get('href')
             break
 
-        feeds = ans['index'] = []
+        feeds = []
         for a in CSSSelect('div.itpHeader ul.tab a[href]')(root):
             if '/itp/' not in a.get('href', ''):
                 continue
@@ -191,10 +208,10 @@ class WSJ(JavascriptRecipe):
                 title = self.tag_to_string(a)
                 url = self.abs_wsj_url(a.get('href'))
                 self.wsj_add_feed(feeds, title, url)
-        return ans
+        return feeds
 
     def test_wsj_index(self):
-        return {'index': [
+        return [
             ('Testing', [
                 {'title': 'Article One',
                  'url': 'http://online.wsj.com/articles/the-end-of-the-impulse-shopper-1416872108'},  # noqa
@@ -203,4 +220,4 @@ class WSJ(JavascriptRecipe):
                 {'title': 'Article Three',
                  'url': 'http://online.wsj.com/article/SB10634695869867284248804580297251334393676.html'},  # noqa
             ]),
-        ]}
+        ]
