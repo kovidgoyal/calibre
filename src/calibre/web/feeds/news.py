@@ -920,8 +920,11 @@ class BasicNewsRecipe(Recipe):
 
     def _postprocess_html(self, soup, first_fetch, job_info):
         if self.no_stylesheets:
-            for link in list(soup.findAll('link', type=re.compile('css')))+list(soup.findAll('style')):
-                link.extract()
+            for link in soup.findAll('link'):
+                if (link.get('type') or '').lower() == 'text/css' and (link.get('rel') or '').lower() == 'stylesheet':
+                    link.extract()
+            for style in soup.findAll('style'):
+                soup.extract()
         head = soup.find('head')
         if not head:
             head = soup.find('body')
