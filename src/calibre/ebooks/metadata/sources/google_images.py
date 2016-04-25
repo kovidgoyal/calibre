@@ -69,7 +69,7 @@ class GoogleImages(Source):
             sz = 'isz:lt,islt:%s,' % sz
         url = 'https://www.google.com/search?as_st=y&tbm=isch&as_q={}&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images&tbs={}iar:t,ift:jpg'.format(q, sz)
         log('Search URL: ' + url)
-        raw = br.open(url).read()
+        raw = br.open(url).read().decode('utf-8')
         root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml', namespaceHTMLElements=False)
         for div in root.xpath('//div[@class="rg_meta"]'):
             try:
