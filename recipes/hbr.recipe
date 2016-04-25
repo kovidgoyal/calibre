@@ -1,18 +1,22 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
 from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
+from mechanize import Request
+from urllib import urlencode
+import json
 
 class HBR(BasicNewsRecipe):
 
     title = 'Harvard Business Review'
     description = 'To subscribe go to http://hbr.harvardbusiness.org'
     needs_subscription = True
-    __author__ = 'Kovid Goyal and Sujata Raman'
+    __author__ = 'Kovid Goyal'
     timefmt                = ' [%B %Y]'
     language = 'en'
     no_stylesheets = True
-
-    LOGIN_URL = 'https://hbr.org/login?request_url=/'
-    LOGOUT_URL = 'https://hbr.org/logout?request_url=/'
 
     keep_only_tags = [
         dict(attrs={'class':['article-hed', 'byline']}),
@@ -21,16 +25,22 @@ class HBR(BasicNewsRecipe):
     remove_tags = [
         dict(name='personalization-placement'),
     ]
-    use_javascript_to_login = True
 
-    def javascript_login(self, br, username, password):
-        br.visit('https://hbr.org/sign-in')
-        br.run_for_a_time(15)
-        f = br.select_form('sign-in form')
-        f['login-email'] = username
-        f['login-password'] = password
-        br.submit('[js-target="submit-sign-in"]', wait_for_load=False)
-        br.run_for_a_time(15)
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        # br.set_debug_http(True)
+        br.open('https://hbr.org/sign-in')
+        rq = Request('https://hbr.org/authenticate', headers={
+            'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+            'Referer': 'https://hbr.org/sign-in',
+            'X-Requested-With': 'XMLHttpRequest',
+        }, data=urlencode({'username':self.username, 'password':self.password}))
+        r = br.open(rq)
+        raw = r.read()
+        data = json.loads(raw)
+        if data['code'] != 200 or data["message"] != "Authentication Successful":
+            raise ValueError('Failed to log in check username/password')
+        return br
 
     def hbr_parse_toc(self, url):
         root = self.index_to_soup(url, as_tree=True)
