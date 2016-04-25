@@ -1,8 +1,13 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from calibre.web.feeds.jsnews import JavascriptRecipe
+import html5lib, json, re
+from calibre.web.feeds.news import BasicNewsRecipe
 
-class Forbes(JavascriptRecipe):
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
+
+class Forbes(BasicNewsRecipe):
     title          = u'Forbes'
     description    = 'Business and Financial News'
     __author__     = 'Kovid Goyal'
@@ -10,16 +15,20 @@ class Forbes(JavascriptRecipe):
     max_articles_per_feed = 20
     language = 'en'
     encoding = 'utf-8'
-
-    recursions = 9
-    links_from_selectors = ('a.article-pagination-next',)
-    keep_only_tags = ('h1.article-headline', 'div.article-body-content',)
-    remove_tags = ('div.vestpocket', 'div.article-print-bar', 'div.article-comment', 'p.previous-page')
-
     no_stylesheets = True
+    ignore_duplicate_articles = {'title', 'url'}
+    remove_empty_feeds = True
 
-    cover_url  = u'http://www.forbes.com/media/current_covers/forbes_120_160.gif'
-
+    extra_css = '''
+    div.fb-captioned-img {
+        font-size: smaller;
+        margin-top: 1em; margin-bottom: 1em;
+    }
+    div.fb-captioned-img img {
+        display:block;
+        margin-left: auto; margin-right: auto;
+    }
+    '''
     feeds          = [
         (u'Latest', u'http://www.forbes.com/news/index.xml'),
         (u'Most Popular', u'http://www.forbes.com/feeds/popstories.xml'),
@@ -29,29 +38,37 @@ class Forbes(JavascriptRecipe):
         (u'Leadership', u'http://www.forbes.com/leadership/index.xml'),
     ]
 
-    def load_complete(self, browser, url, recursion_level):
-        browser.wait_for_element('h1.article-headline')
-        # browser.wait_for_element('div.article-injected-body')
-        return True
+    def get_browser(self):
+        br = BasicNewsRecipe.get_browser(self)
+        br.set_cookie('dailyWelcomeCookie', 'true', '.forbes.com')
+        br.set_cookie('welcomeAd', 'true', '.forbes.com')
+        return br
 
-    def get_publication_data(self, browser):
-        # return {'index':[('Test', [{'title':'Test Article', 'url':'http://www.forbes.com/sites/stevekeen/2015/08/26/why-china-had-to-crash-part-1/'}])]}  # noqa
-        index = []
-        for feed in self.parse_feeds():
-            articles = []
-            for article in feed.articles:
-                articles.append({'title':article.title, 'url':article.url, 'description':article.text_summary})
-            if articles:
-                index.append((feed.title, articles))
-        return {'index':index}
+    def preprocess_raw_html(self, raw, url):
+        root = html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml')
+        for script in root.xpath('//script'):
+            if script.text and script.text.startswith('try {'):
+                idx = script.text.find('fbs_settings.content = {')
+                if idx > -1:
+                    text = script.text.partition('=')[2].lstrip()
+                    ridx = text.rfind('} catch(err)')
+                    text = text[:ridx].rstrip().rstrip(';')
+                    data = json.loads(text)
+                    # from pprint import pformat
+                    # print(pformat(data), file=open('/t/data.py', 'w'))
+                    break
+        else:
+            raise ValueError('Failed to find serialized JSON content')
+        title = data['brandVoiceTitle']
+        body = data['body']
+        def cap(m):
+            val = m.group()
+            if val.startswith('[/'):
+                return '</div>'
+            return '<div class="fb-captioned-img">'
+        body = re.sub(r'\[/?caption[^\]]*\]', cap, body)
+        return '''<html><head><title>{0}</title></head><body><h1>{0}</h1><div>{1}</div></body></html>'''.format(title, body)
 
-    def preprocess_stage2(self, article, browser, url, recursion_level):
-        mf = browser.page.mainFrame()
-        if recursion_level > 0:
-            for sel in ('div.contrib-group', 'h1.article-headline'):
-                for elem in mf.findAllElements(sel):
-                    if not elem.isNull():
-                        elem.removeFromDocument()
-        for elem in mf.findAllElements('div.article-pagination'):
-            if not elem.isNull():
-                elem.removeFromDocument()
+    # def parse_index(self):
+    #     return [('Articles', [{'title':'Test', 'url':
+    #         'http://www.forbes.com/sites/hamdiraini/2016/04/25/bazin-seeks-startups-to-accelerate-accorhotels-transformation/'}])]
