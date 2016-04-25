@@ -13,8 +13,8 @@ def classes(classes):
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 
-class E1834(BasicNewsRecipe):
-    title = '1834'
+class E1843(BasicNewsRecipe):
+    title = '1843'
     __author__ = 'Kovid Goyal'
     language = 'en'
     no_stylesheets = True
