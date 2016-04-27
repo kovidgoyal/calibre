@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 10  # Needed for dynamic plugin loading
+store_version = 11  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2014, Tomasz Długosz <tomek3d@gmail.com>'
@@ -11,29 +11,66 @@ import urllib
 from base64 import b64encode
 
 from lxml import html
+from mechanize import Request
 
 from PyQt5.Qt import QUrl
 
-from calibre import url_slash_cleaner
+from calibre import url_slash_cleaner, browser
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-from calibre.ebooks.chardet import strip_encoding_declarations
-from calibre.utils.ipc.simple_worker import fork_job, WorkerError
+def search(query, max_results=10, timeout=60):
+    url = 'http://woblink.com/publication/ajax?mode=none&query=' + urllib.quote_plus(query.encode('utf-8'))
+    if max_results > 10:
+        if max_results > 20:
+            url += '&limit=30'
+        else:
+            url += '&limit=20'
+    br = browser(user_agent='CalibreCrawler/1.0')
+    br.set_handle_gzip(True)
+    rq = Request(url, headers={
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Referrer':'http://woblink.com/ebooki-kategorie',
+        'Cache-Control':'max-age=0',
+    }, data=urllib.urlencode({
+        'nw_filtry_filtr_zakrescen_formularz[min]':'0',
+        'nw_filtry_filtr_zakrescen_formularz[max]':'350',
+    }))
+    r = br.open(rq)
+    raw = r.read()
+    doc = html.fromstring('<html><body>' + raw.decode('utf-8') + '</body></html>')
+    counter = max_results
 
-js_browser = '''
-from calibre.web.jsbrowser.browser import Browser, Timeout
-import urllib
+    for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka "]'):
+        if counter <= 0:
+            break
 
-def get_results(url, timeout):
-    browser = Browser(default_timeout=timeout, user_agent='CalibreCrawler/1.0')
-    browser.visit(url)
-    browser.wait_for_element('#nw_kontent_main')
-    return browser.html
-    '''
+        id = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/@href'))
+        if not id:
+            continue
+
+        cover_url = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/img/@src'))
+        title = ''.join(data.xpath('.//h3[@class="nw_katalog_lista_ksiazka_detale_tytul"]/a[1]/text()'))
+        author = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_autor"]/a/text()'))
+        price = ''.join(data.xpath('.//div[@class="nw_opcjezakupu_cena"]/text()'))
+        formats = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_format"]/span/text()'))
+
+        s = SearchResult()
+        s.cover_url = 'http://woblink.com' + cover_url
+        s.title = title.strip()
+        s.author = author.strip()
+        s.price = price + ' zł'
+        s.detail_item = id.strip()
+        s.formats = formats
+
+        counter -= 1
+        s.drm = SearchResult.DRM_LOCKED if 'DRM' in formats else SearchResult.DRM_UNLOCKED
+        yield s
+
 
 class WoblinkStore(BasicStoreConfig, StorePlugin):
 
@@ -56,49 +93,9 @@ class WoblinkStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://woblink.com/ebooki-kategorie?query=' + urllib.quote_plus(query.encode('utf-8'))
-        if max_results > 10:
-            if max_results > 20:
-                url += '&limit=30'
-            else:
-                url += '&limit=20'
+        for s in search(query, max_results, timeout):
+            yield s
 
-        counter = max_results
-
-        try:
-            results = fork_job(js_browser,'get_results', (url, timeout,), module_is_source_code=True)
-        except WorkerError as e:
-            raise Exception('Could not get results: %s'%e.orig_tb)
-        doc = html.fromstring(strip_encoding_declarations(results['result']))
-        for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka "]'):
-            if counter <= 0:
-                break
-
-            id = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/@href'))
-            if not id:
-                continue
-
-            cover_url = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/img/@src'))
-            title = ''.join(data.xpath('.//h3[@class="nw_katalog_lista_ksiazka_detale_tytul"]/a[1]/text()'))
-            author = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_autor"]/a/text()'))
-            price = ''.join(data.xpath('.//div[@class="nw_opcjezakupu_cena"]/text()'))
-            formats = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_format"]/span/text()'))
-
-            s = SearchResult()
-            s.cover_url = 'http://woblink.com' + cover_url
-            s.title = title.strip()
-            s.author = author.strip()
-            s.price = price + ' zł'
-            s.detail_item = id.strip()
-            s.formats = formats
-
-            if 'DRM' in formats:
-                s.drm = SearchResult.DRM_LOCKED
-
-                counter -= 1
-                yield s
-            else:
-                s.drm = SearchResult.DRM_UNLOCKED
-
-                counter -= 1
-                yield s
+if __name__ == '__main__':
+    from pprint import pprint
+    pprint(list(search('Franciszek')))
