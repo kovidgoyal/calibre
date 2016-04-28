@@ -442,7 +442,7 @@ def current_cfi():
                 while curx < right - side_margin:
                     cfi = cfi_at_point(curx-window.pageXOffset, cury-window.pageYOffset)
                     if cfi:
-                        print('Viewport cfi:', cfi)
+                        # print('Viewport cfi:', cfi)
                         return cfi
                     curx += deltax
                 cury += deltay
@@ -451,6 +451,6 @@ def current_cfi():
             ans = cfi_at_current() or None
         except:
             traceback.print_exc()
-    if ans:
-        print('Viewport cfi:', ans)
+    # if ans:
+    #     print('Viewport cfi:', ans)
     return ans
