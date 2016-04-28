@@ -67,6 +67,8 @@ class GoogleImages(Source):
             sz = 'isz:l,'
         else:
             sz = 'isz:lt,islt:%s,' % sz
+        # See https://www.google.com/advanced_image_search to understand this
+        # URL scheme
         url = 'https://www.google.com/search?as_st=y&tbm=isch&as_q={}&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images&tbs={}iar:t,ift:jpg'.format(q, sz)
         log('Search URL: ' + url)
         raw = br.open(url).read().decode('utf-8')
