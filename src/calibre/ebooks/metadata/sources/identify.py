@@ -567,11 +567,12 @@ def urls_from_identifiers(identifiers):  # {{{
         ans.append((issn, 'issn', issn,
             'http://www.worldcat.org/issn/'+issn))
     for k, url in identifiers.iteritems():
-        if url and re.match(r'ur[il]\d*$', k) is not None and url.partition(':')[0].lower() in {'http', 'file', 'https'}:
+        if url and re.match(r'ur[il]\d*$', k) is not None:
             url = url[:8].replace('|', ':') + url[8:].replace('|', ',')
-            parts = urlparse(url)
-            name = parts.netloc or parts.path
-            ans.append((name, k, url, url))
+            if url.partition(':')[0].lower() in {'http', 'file', 'https'}:
+                parts = urlparse(url)
+                name = parts.netloc or parts.path
+                ans.append((name, k, url, url))
     return ans
 # }}}
 
