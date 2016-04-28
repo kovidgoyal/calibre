@@ -2,6 +2,8 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
+from encodings import hexlify
+
 def debounce(func, wait, immediate=False):
     # Returns a function, that, as long as it continues to be invoked, will not
     # be triggered. The function will be called after it stops being called for
@@ -88,6 +90,43 @@ def document_height():
 def document_width():
     html = document.documentElement
     return max(document.body.scrollWidth, document.body.offsetWidth, html.clientWidth, html.scrollWidth, html.offsetWidth)
+
+_data_ns = None
+
+def data_ns(name):
+    nonlocal _data_ns
+    if _data_ns is None:
+        rand = Uint8Array(12)
+        window.crypto.getRandomValues(rand)
+        _data_ns = 'data-' + hexlify(rand) + '-'
+    return _data_ns + name
+
+def get_elem_data(elem, name, defval):
+    ans = elem.getAttribute(data_ns(name))
+    if ans is None:
+        return defval ? None
+    return JSON.parse(ans)
+
+def set_elem_data(elem, name, val):
+    elem.setAttribute(data_ns(name), JSON.stringify(val))
+
+def viewport_to_document(x, y, doc):
+    # Convert x, y from the viewport (window) co-ordinate system to the
+    # document (body) co-ordinate system
+    doc = doc or window.document
+    topdoc = window.top.document
+    while doc is not topdoc:
+        # We are in a frame
+        frame = doc.defaultView.frameElement
+        rect = frame.getBoundingClientRect()
+        x += rect.left
+        y += rect.top
+        doc = frame.ownerDocument
+    win = doc.defaultView
+    wx, wy = win.pageXOffset, win.pageYOffset
+    x += wx
+    y += wy
+    return x, y
 
 if __name__ is '__main__':
     print(fmt_sidx(10), fmt_sidx(1.2))

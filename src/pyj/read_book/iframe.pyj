@@ -8,6 +8,7 @@ from gettext import install
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
+from read_book.paged_mode import layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction
 from read_book.settings import apply_settings
 from utils import debounce
 
@@ -75,10 +76,14 @@ class Boss:
         window.addEventListener('keydown', self.onkeydown)
         if current_layout_mode() is 'flow':
             flow_layout()
+        else:
+            paged_layout()
         csi = current_spine_item()
         if csi.initial_scroll_fraction is not None:
             if current_layout_mode() is 'flow':
                 flow_to_scroll_fraction(csi.initial_scroll_fraction)
+            else:
+                paged_scroll_to_fraction(csi.initial_scroll_fraction)
 
     def update_cfi(self):
         pass  # TODO: Update CFI
