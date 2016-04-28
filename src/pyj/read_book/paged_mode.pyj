@@ -437,7 +437,7 @@ def current_cfi():
             deltax = page_width // 25
             deltay = window.innerHeight // 25
             cury = 0
-            while cury < window.innerHeight - this.effective_margin_bottom:
+            while cury < window.innerHeight:
                 curx = left + side_margin
                 while curx < right - side_margin:
                     cfi = cfi_at_point(curx-window.pageXOffset, cury-window.pageYOffset)
