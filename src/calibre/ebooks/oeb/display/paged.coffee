@@ -249,6 +249,13 @@ class PagedDisplay
             this.is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > body_width and document.body.scrollWidth < 2 * body_width
             if is_single_page
                 this.is_full_screen_layout = true
+            # Prevent the TAB key from shifting focus as it causes partial
+            # scrolling
+            document.documentElement.addEventListener('keydown', (evt) ->
+                if evt.keyCode == 9
+                    evt.preventDefault()
+            )
+
 
         ncols = document.body.scrollWidth / this.page_width
         if ncols != Math.floor(ncols) and not this.is_full_screen_layout
