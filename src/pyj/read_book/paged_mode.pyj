@@ -48,7 +48,7 @@ def create_page_div(elem):
 _in_paged_mode = False
 def in_paged_mode():
     return _in_paged_mode
-col_width = page_width = screen_width = side_margin = page_height = margin_top = margin_bottom = 0
+col_width = page_width = screen_width = side_margin = page_height = margin_top = margin_bottom = cols_per_screen = 0
 is_full_screen_layout = False
 
 def column_at(xpos):
@@ -100,7 +100,7 @@ def fit_images():
 
 
 def layout(is_single_page):
-    nonlocal _in_paged_mode, col_width, page_width, page_height, side_margin, screen_width, margin_top, margin_bottom, is_full_screen_layout
+    nonlocal _in_paged_mode, col_width, page_width, page_height, side_margin, screen_width, margin_top, margin_bottom, is_full_screen_layout, cols_per_screen
     body_style = window.getComputedStyle(document.body)
     first_layout = False
     if not _in_paged_mode:
@@ -122,7 +122,7 @@ def layout(is_single_page):
     # side_margin (it may be less if the window width is not a
     # multiple of n*(col_width+2*side_margin).
 
-    n = opts.cols_per_screen
+    n = cols_per_screen = opts.cols_per_screen
     adjust = ww - (ww // n) * n
     # Ensure that the margins are large enough that the adjustment does not
     # cause them to become negative semidefinite
@@ -137,7 +137,7 @@ def layout(is_single_page):
         col_width = max(100, ((ww - adjust)/n) - 2*sm)
     page_width = col_width + 2*sm
     side_margin = sm
-    screen_width = page_width * opts.cols_per_screen
+    screen_width = page_width * n
 
     set_css(document.body, column_gap=2*sm + 'px', column_width=col_width + 'px', column_rule='0px inset blue',
         min_width='0', max_width='none', min_height='0', max_height='none',
@@ -276,7 +276,7 @@ def column_boundaries():
     # Return the column numbers at the left edge and after the right edge
     # of the viewport
     l = column_at(window.pageXOffset + 10)
-    return l, l + opts.cols_per_screen
+    return l, l + cols_per_screen
 
 def current_pos(frac):
     # The current scroll position as a fraction between 0 and 1
@@ -300,10 +300,10 @@ def next_screen_location():
         return -1
     cc = current_column_location()
     ans = cc + screen_width
-    if opts.cols_per_screen > 1:
+    if cols_per_screen > 1:
         width_left = document.body.scrollWidth - (window.pageXOffset + window.innerWidth)
         pages_left = width_left / page_width
-        if Math.ceil(pages_left) < opts.cols_per_screen:
+        if Math.ceil(pages_left) < cols_per_screen:
             return -1  # Only blank, dummy pages left
     limit = document.body.scrollWidth - window.innerWidth
     if ans > limit:
