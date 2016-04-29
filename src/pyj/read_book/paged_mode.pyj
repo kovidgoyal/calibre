@@ -6,6 +6,7 @@ from dom import set_css
 from elementmaker import E
 from keycodes import get_key
 from read_book.cfi import scroll_to as cfi_scroll_to, at_point as cfi_at_point, at_current as cfi_at_current
+from read_book.globals import get_boss
 from read_book.settings import opts
 import traceback
 from utils import get_elem_data, set_elem_data, viewport_to_document
@@ -102,8 +103,8 @@ def fit_images():
 def layout(is_single_page):
     nonlocal _in_paged_mode, col_width, page_width, page_height, side_margin, screen_width, margin_top, margin_bottom, is_full_screen_layout, cols_per_screen
     body_style = window.getComputedStyle(document.body)
-    first_layout = False
-    if not _in_paged_mode:
+    first_layout = not _in_paged_mode
+    if first_layout:
         handle_rtl_body(body_style)
         # Check if the current document is a full screen layout like
         # cover, if so we treat it specially.
@@ -138,6 +139,7 @@ def layout(is_single_page):
     page_width = col_width + 2*sm
     side_margin = sm
     screen_width = page_width * n
+    page_height = window.innerHeight
 
     set_css(document.body, column_gap=2*sm + 'px', column_width=col_width + 'px', column_rule='0px inset blue',
         min_width='0', max_width='none', min_height='0', max_height='none',
@@ -179,7 +181,7 @@ def layout(is_single_page):
         # anyway and if it is >= 2*body_width it can't be a full screen
         # layout
         body_width = document.body.offsetWidth + 2 * sm
-        is_full_screen_layout = (only_img or has_svg) and single_screen and document.body.scrollWidth > body_width and document.body.scrollWidth < 2 * body_width
+        is_full_screen_layout = (only_img or has_svg) and single_screen and (document.body.scrollWidth <= body_width or (body_width < document.body.scrollWidth < 2 * body_width))
         if is_single_page:
             is_full_screen_layout = True
 
@@ -454,3 +456,12 @@ def current_cfi():
     # if ans:
     #     print('Viewport cfi:', ans)
     return ans
+
+def onwheel(evt):
+    if evt.deltaY:
+        backward = evt.deltaY < 0
+        x = previous_col_location() if backward else next_col_location()
+        if x is -1:
+            get_boss().send_message('next_spine_item', previous=backward)
+        else:
+            scroll_to_xpos(x)
