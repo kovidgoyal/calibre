@@ -39,14 +39,9 @@ def load_resources(db, book, root_name, previous_resources, proceed):
         db.get_file(book, name, got_one)
 
     def got_one(data, name, mimetype):
-        if name is book.manifest.title_page_name:
-            w = book.manifest.cover_width or 600
-            h = book.manifest.cover_height or 800
-            ar = 'xMidYMid meet' # or 'none'
-            data = data.replace('__ar__', ar)
-            data = data.replace('__viewbox__', '0 0 ' + w + ' ' + h)
-            data = data.replace('__width__', w + '')
-            data = data.replace('__height__', h + '')
+        if False and name is book.manifest.title_page_name:
+            # Enable to have cover image not preserve aspect ratio
+            data = data.replace('width: auto', 'width: 100%')
         ans[name] = v'[data, mimetype]'
         if type(data) is 'string':
             find_virtualized_resources(data)

@@ -16,6 +16,7 @@ from urllib import quote
 from cssutils import replaceUrls
 from cssutils.css import CSSRule
 
+from calibre import prepare_string_for_xml
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.base import (
     OEB_DOCS, OEB_STYLES, rewrite_links, XPath, urlunquote, XLINK, XHTML_NS, OPF, XHTML, EPUB_NS)
@@ -134,12 +135,18 @@ class Container(ContainerBase):
             f.write(json.dumps(self.book_render_data, ensure_ascii=False).encode('utf-8'))
 
     def create_cover_page(self, input_fmt):
+        templ = '''
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+        <head><style>
+        html, body, img { height: 100%%; display: block; margin: 0; padding: 0; border-width: 0; }
+        img { width: auto; margin-left:auto; margin-right: auto; }
+        </style></head><body><img src="%s"/></body></html>
+        '''
         if input_fmt == 'epub':
             def cover_path(action, data):
                 if action == 'write_image':
                     data.write(BLANK_JPEG)
-            return set_epub_cover(self, cover_path, (lambda *a: None))
-        from calibre.ebooks.oeb.transforms.cover import CoverManager
+            return set_epub_cover(self, cover_path, (lambda *a: None), options={'template':templ})
         raster_cover_name = find_cover_image(self, strict=True)
         if raster_cover_name is None:
             item = self.generate_item(name='cover.jpeg', id_prefix='cover')
@@ -148,8 +155,7 @@ class Container(ContainerBase):
             dest.write(BLANK_JPEG)
         item = self.generate_item(name='titlepage.html', id_prefix='titlepage')
         titlepage_name = self.href_to_name(item.get('href'), self.opf_name)
-        templ = CoverManager.SVG_TEMPLATE
-        raw = templ % self.name_to_href(raster_cover_name, titlepage_name)
+        raw = templ % prepare_string_for_xml(self.name_to_href(raster_cover_name, titlepage_name), True)
         with self.open(titlepage_name, 'wb') as f:
             f.write(raw.encode('utf-8'))
         spine = self.opf_xpath('//opf:spine')[0]

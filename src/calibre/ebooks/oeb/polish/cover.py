@@ -294,7 +294,7 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
         templ = CoverManager.NONSVG_TEMPLATE.replace('__style__', style)
     else:
         if callable(cover_path):
-            templ = CoverManager.SVG_TEMPLATE
+            templ = (options or {}).get('template', CoverManager.SVG_TEMPLATE)
         else:
             width, height = 600, 800
             try:
