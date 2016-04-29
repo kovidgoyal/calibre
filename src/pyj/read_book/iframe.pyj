@@ -95,6 +95,8 @@ class Boss:
         pass  # TODO: Update CFI
 
     def onresize(self):
+        if current_layout_mode() is not 'flow':
+            self.do_layout()
         self.update_cfi()
 
     def onwheel(self, evt):
