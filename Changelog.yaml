@@ -20,11 +20,52 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.56.0
+  date: 2016-04-29
+
+  new features:
+    - title: "Edit Book: Add an option to show full file paths in the Files Browser instead of just the file name (in Preferences->Main window)"
+
+    - title: "Allow creating a keyboard shortcut to minimize the calibre window (Preferences->Keyboard->Miscellaneous)."
+      tickets: [1573775]
+
+  bug fixes:
+    - title: "Fix the Google Images based cover download plugin not working because of changes to Google's image search service"
+
+    - title: "E-book viewer: Prevent the TAB key from causing partial scrolling in paged mode."
+      tickets: [1571304]
+
+    - title: "Book details panel: Fix regression in previous release that broke url:http|... style identifiers"
+
+    - title: "OS X: Redirect stdout/stderr to /dev/null instead of ASL since ASL is flaky on some OS X machines. This should prevent errors in third party plugins that print a lot of debug messages even when not in debug mode"
+
+    - title: "Fix for OS X upgrade 10.11.4 breaking detection of Kobo devices on some systems"
+
+    - title: "Edit Book: Fix filename being duplicated in the Files Browser when multiple files with the same name are present."
+
+    - title: "PDF Output: Make fix for blank page at end of HTML file also work when headers/footers are specified"
+
+  improved recipes:
+    - Forbes
+    - Wall Street Journal
+    - Berliner Zeitung 
+    - Tagesspiegel
+    - TIME
+    - Foreign Affairs
+    - New Yorker
+
+  new recipes:
+    - title: "1843" 
+      author: Kovid Goyal
+
+    - title: Berlin Policy Journal 
+      author: Aimylios
+
 - version: 2.55.0
   date: 2016-04-15
 
   new features:
-    - title: "Allow creation of rules to convert arbitrary identifiers into clickable links in the book details panel (Prefrences->Look & Feel->Book details)"
+    - title: "Allow creation of rules to convert arbitrary identifiers into clickable links in the book details panel (Preferences->Look & Feel->Book details)"
 
     - title: "Tag mapper: A new rule type 'split' allows you to easily split tags on a character"
 
