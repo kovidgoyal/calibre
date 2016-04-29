@@ -90,6 +90,10 @@ class ReadUI:
         pr.removeAttribute('value'), pr.removeAttribute('max')
         div.lastChild.textContent = _('Downloading book manifest...')
 
+    def show_progress_message(self, msg):
+        div = document.getElementById(self.progress_id)
+        div.lastChild.textContent = msg or ''
+
     def load_book(self, book_id, fmt, metadata):
         if self.db is None:
             self.pending_load = [book_id, fmt, metadata]
@@ -144,12 +148,28 @@ class ReadUI:
             return self.show_error(_('Failed to load book manifest'),
                 _('The manifest for {title} is not valid').format(title=self.current_metadata.title),
                 traceback.format_exc())
-        if manifest.version is not RENDER_VERSION:
-            print('calibre upgraded: RENDER_VERSION={} manifest.version={}'.format(RENDER_VERSION, manifest.version))
-            return self.show_error(_('calibre upgraded!'), _(
-                'A newer version of calibre is available, please click the reload button in your browser.'))
-        self.current_metadata = manifest.metadata
-        self.db.save_manifest(book, manifest, self.download_book.bind(self, book))
+        if manifest.version is not undefined:
+            if manifest.version is not RENDER_VERSION:
+                print('calibre upgraded: RENDER_VERSION={} manifest.version={}'.format(RENDER_VERSION, manifest.version))
+                return self.show_error(_('calibre upgraded!'), _(
+                    'A newer version of calibre is available, please click the reload button in your browser.'))
+            self.current_metadata = manifest.metadata
+            self.db.save_manifest(book, manifest, self.download_book.bind(self, book))
+            return
+        # Book is still being processed
+        msg = _('Downloading book manifest...')
+        if manifest.job_status is 'finished':
+            if manifest.aborted:
+                return self.show_error(_('Failed to prepare book for reading'), _('Preparation of book for reading was aborted because it took too long'))
+            if manifest.traceback:
+                return self.show_error(_('Failed to prepare book for reading'), _(
+                    'There was an error processing the book, click "Show details" for more information'), manifest.traceback or '')
+        elif manifest.job_status is 'waiting':
+            msg = _('Book is queued for processing on the server...')
+        elif manifest.job_status is 'running':
+            msg = _('Book is being prepared for reading on the server...')
+        self.show_progress_message(msg)
+        setTimeout(self.get_manifest.bind(self, book), 100)
 
     def download_book(self, book):
         files = book.manifest.files
