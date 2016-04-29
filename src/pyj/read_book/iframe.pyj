@@ -65,6 +65,16 @@ class Boss:
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
         set_layout_mode('flow' if FORCE_FLOW_MODE else data.settings.read_mode)
+        if current_layout_mode() is 'flow':
+            self.do_layout = flow_layout
+            self.handle_wheel = flow_onwheel
+            self.handle_keydown = flow_onkeydown
+            self.to_scroll_fraction = flow_to_scroll_fraction
+        else:
+            self.do_layout = paged_layout
+            self.handle_wheel = paged_onwheel
+            self.handle_keydown = paged_onkeydown
+            self.to_scroll_fraction = paged_scroll_to_fraction
         apply_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_scroll_fraction':data.initial_scroll_fraction})
         root_data = finalize_resources(self.book, data.name, data.resource_data)
@@ -76,16 +86,10 @@ class Boss:
         window.addEventListener('resize', debounce(self.onresize, 500))
         window.addEventListener('wheel', self.onwheel)
         window.addEventListener('keydown', self.onkeydown)
-        if current_layout_mode() is 'flow':
-            flow_layout()
-        else:
-            paged_layout()
+        self.do_layout()
         csi = current_spine_item()
         if csi.initial_scroll_fraction is not None:
-            if current_layout_mode() is 'flow':
-                flow_to_scroll_fraction(csi.initial_scroll_fraction)
-            else:
-                paged_scroll_to_fraction(csi.initial_scroll_fraction)
+            self.to_scroll_fraction(csi.initial_scroll_fraction)
 
     def update_cfi(self):
         pass  # TODO: Update CFI
@@ -95,16 +99,10 @@ class Boss:
 
     def onwheel(self, evt):
         evt.preventDefault()
-        if current_layout_mode() is 'flow':
-            flow_onwheel(evt)
-        else:
-            paged_onwheel(evt)
+        self.handle_wheel(evt)
 
     def onkeydown(self, evt):
-        if current_layout_mode() is 'flow':
-            flow_onkeydown(evt)
-        else:
-            paged_onkeydown(evt)
+        self.handle_keydown(evt)
 
     def send_message(self, action, **data):
         data.action = action
