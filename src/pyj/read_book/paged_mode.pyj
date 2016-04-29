@@ -49,12 +49,15 @@ def create_page_div(elem):
 _in_paged_mode = False
 def in_paged_mode():
     return _in_paged_mode
-col_width = page_width = screen_width = side_margin = page_height = margin_top = margin_bottom = cols_per_screen = 0
+col_width = screen_width = screen_height = cols_per_screen = gap = col_and_gap = 0
 is_full_screen_layout = False
 
 def column_at(xpos):
-    # Return the number of the column that contains xpos
-    return xpos // page_width
+    # Return the (zero-based) number of the column that contains xpos
+    sw = document.body.scrollWidth
+    if xpos >= sw - col_and_gap:
+        xpos = sw - col_width + 10
+    return (xpos + gap) // col_and_gap
 
 def fit_images():
     # Ensure no images are wider than the available width in a column. Note
@@ -62,7 +65,7 @@ def fit_images():
     # force a relayout if the render tree is dirty.
     images = []
     vimages = []
-    maxh = page_height
+    maxh = screen_height
     for img in document.getElementsByTagName('img'):
         previously_limited = get_elem_data(img, 'width-limited', False)
         data = get_elem_data(img, 'img-data', None)
@@ -71,11 +74,10 @@ def fit_images():
             data = {'left':br.left, 'right':br.right, 'height':br.height, 'display': img.style.display}
             set_elem_data(img, 'img-data', data)
         left = viewport_to_document(br.left, 0, img.ownerDocument)[0]
-        col = column_at(left) * page_width
-        rleft = left - col - side_margin
+        col = column_at(left) * col_and_gap
+        rleft = left - col
         width  = br.right - br.left
         rright = rleft + width
-        col_width = page_width - 2*side_margin
         if previously_limited or rright > col_width:
             images.push([img, col_width - rleft])
         previously_limited = get_elem_data(img, 'height-limited', False)
@@ -101,7 +103,7 @@ def fit_images():
 
 
 def layout(is_single_page):
-    nonlocal _in_paged_mode, col_width, page_width, page_height, side_margin, screen_width, margin_top, margin_bottom, is_full_screen_layout, cols_per_screen
+    nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
     body_style = window.getComputedStyle(document.body)
     first_layout = not _in_paged_mode
     if first_layout:
@@ -116,35 +118,25 @@ def layout(is_single_page):
                 num -= 1
                 create_page_div()
 
-    ww = window.innerWidth
-
-    # Calculate the column width so that cols_per_screen columns fit in the
-    # window in such a way the right margin of the last column is <=
-    # side_margin (it may be less if the window width is not a
-    # multiple of n*(col_width+2*side_margin).
-
     n = cols_per_screen = opts.cols_per_screen
-    adjust = ww - (ww // n) * n
-    # Ensure that the margins are large enough that the adjustment does not
-    # cause them to become negative semidefinite
-    sm = max(2*adjust, opts.margin_side)
-    # Minimum column width, for the cases when the window is too
-    # narrow
-    col_width = max(100, ((ww - adjust)/n) - 2*sm)
-    if opts.max_col_width > 0 and col_width > opts.max_col_width:
-        # Increase the side margin to ensure that col_width is no larger
-        # than opts.max_col_width
-        sm += Math.ceil( (col_width - opts.max_col_width) / 2*n )
-        col_width = max(100, ((ww - adjust)/n) - 2*sm)
-    page_width = col_width + 2*sm
-    side_margin = sm
-    screen_width = page_width * n
-    page_height = window.innerHeight
+    # Calculate the column width so that cols_per_screen columns fit exactly in
+    # the window width, with their separator margins
+    ww = col_width = screen_width = window.innerWidth
+    gap = 0
+    if n > 1:
+        # Adjust the side margin so that the window width satisfies
+        # col_width * n + (n-1) * 2 * side_margin = window_width
+        sm = opts.margin_side or 0
+        gap = 2*sm + ((ww + 2*sm) % n)  # Ensure ww + gap is a multiple of n
+        col_width = ((ww + gap) // n) - gap
 
-    set_css(document.body, column_gap=2*sm + 'px', column_width=col_width + 'px', column_rule='0px inset blue',
+    screen_height = window.innerHeight
+    col_and_gap = col_width + gap
+
+    set_css(document.body, column_gap=gap + 'px', column_width=col_width + 'px', column_rule='0px inset blue',
         min_width='0', max_width='none', min_height='0', max_height='none',
-        margin='0', border_width='0', padding='0 ' + sm + 'px',
-        width=(window.innerWidth - 2*sm) + 'px', height=window.innerHeight + 'px'
+        margin='0', border_width='0', padding='0',
+        width=screen_width + 'px', height=screen_height + 'px'
     )
     # Without this, webkit bleeds the margin of the first block(s) of body
     # above the columns, which causes them to effectively be added to the
@@ -176,12 +168,7 @@ def layout(is_single_page):
         # with height=100% overflow the first column
         has_svg = document.getElementsByTagName('svg').length > 0
         only_img = document.getElementsByTagName('img').length is 1 and document.getElementsByTagName('div').length < 3 and document.getElementsByTagName('p').length < 2
-        # We only set full_screen_layout if scrollWidth is in (body_width,
-        # 2*body_width) as if it is <= body_width scrolling will work
-        # anyway and if it is >= 2*body_width it can't be a full screen
-        # layout
-        body_width = document.body.offsetWidth + 2 * sm
-        is_full_screen_layout = (only_img or has_svg) and single_screen and (document.body.scrollWidth <= body_width or (body_width < document.body.scrollWidth < 2 * body_width))
+        is_full_screen_layout = (only_img or has_svg) and single_screen and (document.body.scrollWidth < 2*ww + 10)
         if is_single_page:
             is_full_screen_layout = True
 
@@ -191,21 +178,24 @@ def layout(is_single_page):
                 evt.preventDefault()
         )
 
-    # Ensure the body width is an exact multiple of the column widths so that
-    # the browser does not adjust the column widths
-    # body_width = ncols * col_width + (ncols-1) * 2 * sm
-    ncols = document.body.scrollWidth / page_width
-    if ncols is not Math.floor(ncols) and not is_full_screen_layout:
-        set_css(document.body, width=Math.floor(ncols) * page_width - 2 * sm)
-
+    ncols = (document.body.scrollWidth + gap) / col_and_gap
+    if ncols is not Math.floor(ncols):
+        n = Math.floor(ncols)
+        dw = (n*col_width + (n-1)*gap)
+        document.body.width = dw + 'px'
+        print('WARNING: column layout broken', {'col_with':col_width, 'gap':gap, 'scrollWidth':document.body.scrollWidth, 'ncols':ncols, 'delta':document.body.scrollWidth - dw})
     _in_paged_mode = True
     fit_images()
-    return sm
+    return gap
 
-def scroll_to_fraction(frac):
-    # Scroll to the position represented by frac (number between 0 and 1)
-    xpos = Math.floor(document.body.scrollWidth * frac)
-    scroll_to_xpos(xpos)
+def scroll_to_column(number, animated=False, notify=False, duration=1000):
+    pos = number * col_and_gap
+    limit = document.body.scrollWidth - screen_width
+    pos = min(pos, limit)
+    if animated:
+        animated_scroll(pos, duration=1000, notify=notify)
+    else:
+        window.scrollTo(pos, 0)
 
 def scroll_to_xpos(xpos, animated=False, notify=False, duration=1000):
     # Scroll so that the column containing xpos is the left most column in
@@ -216,16 +206,12 @@ def scroll_to_xpos(xpos, animated=False, notify=False, duration=1000):
     if is_full_screen_layout:
         window.scrollTo(0, 0)
         return
-    pos = Math.floor(xpos/page_width) * page_width
-    limit = document.body.scrollWidth - screen_width
-    pos = min(pos, limit)
-    if animated:
-        animated_scroll(pos, duration=1000, notify=notify)
-    else:
-        window.scrollTo(pos, 0)
+    scroll_to_column(column_at(xpos), animated=animated, notify=notify, duration=duration)
 
-def scroll_to_column(number):
-    scroll_to_xpos(number * page_width + 10)
+def scroll_to_fraction(frac):
+    # Scroll to the position represented by frac (number between 0 and 1)
+    xpos = Math.floor(document.body.scrollWidth * frac)
+    scroll_to_xpos(xpos)
 
 current_scroll_animation = None
 
@@ -267,11 +253,11 @@ def column_location(elem):
     else:
         left, top = viewport_to_document(br.left, br.top, elem.ownerDocument)
     c = column_at(left)
-    width = min(br.right, (c+1)*page_width) - br.left
+    width = min(br.right, (c+1)*col_and_gap) - br.left
     if br.bottom < br.top:
         br.bottom = window.innerHeight
     height = min(br.bottom, window.innerHeight) - br.top
-    left -= c*page_width
+    left -= c * col_and_gap
     return {'column':c, 'left':left, 'top':top, 'width':width, 'height':height}
 
 def column_boundaries():
@@ -292,8 +278,8 @@ def current_column_location():
     # visible in the viewport
     if is_full_screen_layout:
         return 0
-    x = window.pageXOffset + max(10, side_margin)
-    return Math.floor(x/page_width) * page_width
+    c = column_at(window.pageXOffset + 10)
+    return c * col_and_gap
 
 def next_screen_location():
     # The position to scroll to for the next screen (which could contain
@@ -303,9 +289,10 @@ def next_screen_location():
     cc = current_column_location()
     ans = cc + screen_width
     if cols_per_screen > 1:
-        width_left = document.body.scrollWidth - (window.pageXOffset + window.innerWidth)
-        pages_left = width_left / page_width
-        if Math.ceil(pages_left) < cols_per_screen:
+        current_col = column_at(window.pageXOffset + 10)
+        ncols = (document.body.scrollWidth + gap) // col_and_gap
+        cols_left = ncols - (current_col + cols_per_screen)
+        if cols_left < cols_per_screen:
             return -1  # Only blank, dummy pages left
     limit = document.body.scrollWidth - window.innerWidth
     if ans > limit:
@@ -332,7 +319,7 @@ def next_col_location():
     if is_full_screen_layout:
         return -1
     cc = current_column_location()
-    ans = cc + page_width
+    ans = cc + col_and_gap
     limit = document.body.scrollWidth - window.innerWidth
     if ans > limit:
         ans = limit if window.pageXOffset < limit else -1
@@ -345,7 +332,7 @@ def previous_col_location():
     if is_full_screen_layout:
         return -1
     cc = current_column_location()
-    ans = cc - page_width
+    ans = cc - col_and_gap
     if ans < 0:
         ans = 0 if window.pageXOffset > 0 else -1
     return ans
@@ -390,7 +377,7 @@ def jump_to_anchor(name):
         else:
             left = br.left
         scroll_to_xpos(viewport_to_document(
-            left+side_margin, elem.scrollTop, elem.ownerDocument)[0])
+            left+2, elem.scrollTop, elem.ownerDocument)[0])
 
 def snap_to_selection():
     # Ensure that the viewport is positioned at the start of the column
@@ -430,18 +417,18 @@ def current_cfi():
     #     return ans
     if in_paged_mode:
         c = current_column_location()
-        for x in c, c-page_width, c+page_width:
+        for x in c, c - col_and_gap, c + col_and_gap:
             # Try the current column, the previous column and the next
             # column. Each column is tried from top to bottom.
-            left, right = x, x + page_width
+            left, right = x, x + col_and_gap
             if left < 0 or right > document.body.scrollWidth:
                 continue
-            deltax = page_width // 25
+            deltax = col_and_gap // 25
             deltay = window.innerHeight // 25
             cury = 0
             while cury < window.innerHeight:
-                curx = left + side_margin
-                while curx < right - side_margin:
+                curx = left
+                while curx < right - gap:
                     cfi = cfi_at_point(curx-window.pageXOffset, cury-window.pageYOffset)
                     if cfi:
                         # print('Viewport cfi:', cfi)
@@ -465,3 +452,33 @@ def onwheel(evt):
             get_boss().send_message('next_spine_item', previous=backward)
         else:
             scroll_to_xpos(x)
+
+def onkeydown(evt):
+    handled = False
+    key = get_key(evt)
+    if key is 'up' or key is 'down':
+        handled = True
+        if evt.ctrlKey:
+            goto_boundary(-1 if key is 'up' else 1)
+        else:
+            smooth_y_scroll(key is 'up')
+    elif key is 'left' or key is 'right':
+        handled = True
+        if evt.ctrlKey:
+            window.scrollTo(0 if key is 'left' else document_width(), window.pageYOffset)
+        else:
+            window.scrollBy(-15 if key is 'left' else 15, 0)
+    elif key is 'home' or key is 'end':
+        handled = True
+        if evt.ctrlKey:
+            get_boss().send_message('goto_doc_boundary', start=key is 'home')
+        else:
+            if key is 'home':
+                window.scrollTo(0, 0)
+            else:
+                window.scrollTo(document.body.scrollWidth, 0)
+    elif key is 'pageup' or key is 'pagedown' or key is 'space':
+        handled = True
+        scroll_by_page(-1 if key is 'pageup' else 1)
+    if handled:
+        evt.preventDefault()

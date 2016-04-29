@@ -8,9 +8,11 @@ from gettext import install
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
-from read_book.paged_mode import layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction
+from read_book.paged_mode import layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction, onwheel as paged_onwheel, onkeydown as paged_onkeydown
 from read_book.settings import apply_settings
 from utils import debounce
+
+FORCE_FLOW_MODE = False
 
 class Boss:
 
@@ -62,7 +64,7 @@ class Boss:
         self.book = data.book
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
-        set_layout_mode('flow' or data.settings.read_mode)  # TODO: Change this
+        set_layout_mode('flow' if FORCE_FLOW_MODE else data.settings.read_mode)
         apply_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_scroll_fraction':data.initial_scroll_fraction})
         root_data = finalize_resources(self.book, data.name, data.resource_data)
@@ -95,10 +97,14 @@ class Boss:
         evt.preventDefault()
         if current_layout_mode() is 'flow':
             flow_onwheel(evt)
+        else:
+            paged_onwheel(evt)
 
     def onkeydown(self, evt):
         if current_layout_mode() is 'flow':
             flow_onkeydown(evt)
+        else:
+            paged_onkeydown(evt)
 
     def send_message(self, action, **data):
         data.action = action
