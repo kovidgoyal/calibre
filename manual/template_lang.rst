@@ -258,7 +258,7 @@ The following functions are available in addition to those described in single-f
 
     * ``first_non_empty(value, value, ...)`` -- returns the first value that is not empty. If all values are empty, then the empty value is returned. You can have as many values as you want.
 
-    * ``format_date(x, format_string)`` -- format the value, which must be a date
+    * ``format_date(val, format_string)`` -- format the value, which must be a date
       field, using the format_string, returning a string. The formatting codes
       are::
 
