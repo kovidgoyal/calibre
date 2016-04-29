@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 11  # Needed for dynamic plugin loading
+store_version = 12  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2014, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -45,7 +45,7 @@ def search(query, max_results=10, timeout=60):
     doc = html.fromstring('<html><body>' + raw.decode('utf-8') + '</body></html>')
     counter = max_results
 
-    for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka "]'):
+    for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka " or @class="nw_katalog_lista_ksiazka promocja"]'):
         if counter <= 0:
             break
 
@@ -56,7 +56,7 @@ def search(query, max_results=10, timeout=60):
         cover_url = ''.join(data.xpath('.//div[@class="nw_katalog_lista_ksiazka_okladka nw_okladka"]/a[1]/img/@src'))
         title = ''.join(data.xpath('.//h3[@class="nw_katalog_lista_ksiazka_detale_tytul"]/a[1]/text()'))
         author = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_autor"]/a/text()'))
-        price = ''.join(data.xpath('.//div[@class="nw_opcjezakupu_cena"]/text()'))
+        price = ''.join(data.xpath('.//div[@class="nw_opcjezakupu_cena"]/span[2]/text()'))
         formats = ', '.join(data.xpath('.//p[@class="nw_katalog_lista_ksiazka_detale_format"]/span/text()'))
 
         s = SearchResult()
