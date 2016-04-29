@@ -8,7 +8,11 @@ http://www.theaustralian.news.com.au/
 '''
 
 from calibre import browser
-from calibre.web.feeds.jsnews import JavascriptRecipe
+try:
+    from calibre.web.feeds.jsnews import JavascriptRecipe
+except ImportError:
+    # Allow compiling of recipes to work until this recipe is ported
+    from calibre.web.feeds.news import BasicNewsRecipe as JavascriptRecipe
 from calibre.web.feeds import feed_from_xml
 
 class DailyTelegraph(JavascriptRecipe):
