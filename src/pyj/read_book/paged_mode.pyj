@@ -9,7 +9,7 @@ from read_book.cfi import scroll_to as cfi_scroll_to, at_point as cfi_at_point, 
 from read_book.globals import get_boss
 from read_book.settings import opts
 import traceback
-from utils import get_elem_data, set_elem_data, viewport_to_document
+from utils import get_elem_data, set_elem_data, viewport_to_document, document_width
 
 def first_child(parent):
     c = parent.firstChild
@@ -178,18 +178,21 @@ def layout(is_single_page):
                 evt.preventDefault()
         )
 
+    # Some browser engine, WebKit at least, adjust column widths to please
+    # themselves, unless the container width is an exact multiple, so we check
+    # for that and manually set the container widths.
     def check_column_widths():
         ncols = (document.body.scrollWidth + gap) / col_and_gap
         if ncols is not Math.floor(ncols):
             n = Math.floor(ncols)
-            dw = (n*col_width + (n-1)*gap)
+            dw = n*col_width + (n-1)*gap
             data = {'col_with':col_width, 'gap':gap, 'scrollWidth':document.body.scrollWidth, 'ncols':ncols, 'desired_width':dw}
             return data
     data = check_column_widths()
     if data:
         dw = data.desired_width
-        set_css(document.body, max_width=dw + 'px', min_width=dw + 'px')
-        set_css(document.documentElement, max_width=dw + 'px', min_width=dw + 'px')
+        for elem in document.documentElement, document.body:
+            set_css(elem, max_width=dw + 'px', min_width=dw + 'px')
     data = check_column_widths()
     if data:
         print('WARNING: column layout broken', data)
@@ -463,21 +466,31 @@ def onwheel(evt):
         else:
             scroll_to_xpos(x)
 
+def scroll_by_page(backward, by_screen):
+    if by_screen:
+        pos = previous_screen_location() if backward else next_screen_location()
+    else:
+        pos = previous_col_location() if backward else next_col_location()
+    if pos is -1:
+        get_boss().send_message('next_spine_item', previous=backward)
+    else:
+        scroll_to_xpos(pos)
+
 def onkeydown(evt):
     handled = False
     key = get_key(evt)
     if key is 'up' or key is 'down':
         handled = True
         if evt.ctrlKey:
-            goto_boundary(-1 if key is 'up' else 1)
+            window.scrollTo(0 if key is 'left' else document_width(), 0)
         else:
-            smooth_y_scroll(key is 'up')
+            scroll_by_page(key is 'up', True)
     elif key is 'left' or key is 'right':
         handled = True
         if evt.ctrlKey:
-            window.scrollTo(0 if key is 'left' else document_width(), window.pageYOffset)
+            window.scrollTo(0 if key is 'left' else document_width(), 0)
         else:
-            window.scrollBy(-15 if key is 'left' else 15, 0)
+            scroll_by_page(key is 'left', False)
     elif key is 'home' or key is 'end':
         handled = True
         if evt.ctrlKey:
@@ -486,9 +499,9 @@ def onkeydown(evt):
             if key is 'home':
                 window.scrollTo(0, 0)
             else:
-                window.scrollTo(document.body.scrollWidth, 0)
+                window.scrollTo(document_width(), 0)
     elif key is 'pageup' or key is 'pagedown' or key is 'space':
         handled = True
-        scroll_by_page(-1 if key is 'pageup' else 1)
+        scroll_by_page(key is 'pageup', True)
     if handled:
         evt.preventDefault()
