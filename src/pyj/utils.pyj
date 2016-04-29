@@ -114,7 +114,7 @@ def viewport_to_document(x, y, doc):
     # Convert x, y from the viewport (window) co-ordinate system to the
     # document (body) co-ordinate system
     doc = doc or window.document
-    topdoc = window.top.document
+    topdoc = window.document
     while doc is not topdoc:
         # We are in a frame
         frame = doc.defaultView.frameElement
