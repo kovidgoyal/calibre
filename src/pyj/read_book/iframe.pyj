@@ -4,7 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from aes import GCM
-from gettext import install
+from gettext import install, gettext as _
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
@@ -50,7 +50,7 @@ class Boss:
             except Exception as e:
                 console.log('Error in iframe message handler:')
                 console.log(e)
-                self.send_message('error', details=traceback.format_exc(), msg=e.toString())
+                self.send_message('error', title=_('Error in message handler'), details=traceback.format_exc(), msg=e.toString())
         else:
             print('Unknown action in message to iframe from parent: ' + data.action)
 
@@ -58,6 +58,18 @@ class Boss:
         self.gcm_from_parent, self.gcm_to_parent = GCM(data.secret.subarray(0, 32)), GCM(data.secret.subarray(32))
         if data.translations:
             install(data.translations)
+        window.onerror = self.onerror
+
+    def onerror(self, msg, script_url, line_number, column_number, error_object):
+        console.log(error_object)
+        try:
+            fname = script_url.rpartition('/')[-1] or script_url
+            msg = msg + '<br><span style="font-size:smaller">' + 'Error at {}:{}:{}'.format(fname, line_number, column_number or '') + '</span>'
+            details = traceback.format_exception(error_object).join('') if error_object else ''
+            self.send_message('error', title=_('Unhandled error'), details=details, msg=msg)
+            return True
+        except:
+            console.log('There was an error in the iframe unhandled exception handler')
 
     def display(self, data):
         self.encrypted_communications = True
@@ -127,6 +139,7 @@ class Boss:
         try:
             data = JSON.parse(evt.currentTarget.getAttribute(link_attr))
         except:
+            print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget.getAttribute(link_attr)))
             return
         name, frag = data.name, data.frag
         if name is current_spine_item().name:
