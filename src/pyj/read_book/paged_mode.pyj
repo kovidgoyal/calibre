@@ -361,6 +361,9 @@ def jump_to_anchor(name):
             elem = elems[0]
     if not elem:
         return
+    scroll_to_elem(elem)
+
+def scroll_to_elem(elem):
     # TODO: Re-enable this once you have added mathjax support
     # if window.mathjax?.math_present
     #     # MathJax links to children of SVG tags and scrollIntoView doesn't

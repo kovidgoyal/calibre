@@ -8,7 +8,7 @@ from gettext import install
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
-from read_book.paged_mode import layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction, onwheel as paged_onwheel, onkeydown as paged_onkeydown
+from read_book.paged_mode import layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction, onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem
 from read_book.settings import apply_settings
 from utils import debounce
 
@@ -76,11 +76,12 @@ class Boss:
             self.handle_keydown = paged_onkeydown
             self.to_scroll_fraction = paged_scroll_to_fraction
         apply_settings(data.settings)
-        set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_scroll_fraction':data.initial_scroll_fraction})
+        set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
         root_data = finalize_resources(self.book, data.name, data.resource_data)
         unserialize_html(root_data, self.content_loaded)
 
     def content_loaded(self):
+        self.connect_links()
         document.documentElement.style.overflow = 'hidden'
         window.addEventListener('scroll', debounce(self.update_cfi, 1000))
         window.addEventListener('resize', debounce(self.onresize, 500))
@@ -88,8 +89,12 @@ class Boss:
         window.addEventListener('keydown', self.onkeydown)
         self.do_layout()
         csi = current_spine_item()
-        if csi.initial_scroll_fraction is not None:
-            self.to_scroll_fraction(csi.initial_scroll_fraction)
+        if csi.initial_position:
+            ipos = csi.initial_position
+            if ipos.type is 'frac':
+                self.to_scroll_fraction(ipos.frac)
+            elif ipos.type is 'anchor':
+                self.scroll_to_anchor(ipos.anchor)
 
     def update_cfi(self):
         pass  # TODO: Update CFI
@@ -112,6 +117,32 @@ class Boss:
             data = self.gcm_to_parent.encrypt(JSON.stringify(data))
         window.parent.postMessage(data, '*')
 
+    def connect_links(self):
+        link_attr = 'data-' + self.book.manifest.link_uid
+        for a in document.body.querySelectorAll('a[{}]'.format(link_attr)):
+            a.addEventListener('click', self.link_activated)
+
+    def link_activated(self, evt):
+        link_attr = 'data-' + self.book.manifest.link_uid
+        try:
+            data = JSON.parse(evt.currentTarget.getAttribute(link_attr))
+        except:
+            return
+        name, frag = data.name, data.frag
+        if name is current_spine_item().name:
+            self.scroll_to_anchor(frag)
+        else:
+            self.send_message('scroll_to_anchor', name=name, frag=frag)
+
+    def scroll_to_anchor(self, frag):
+        if frag:
+            elem = document.getElementById(frag)
+            if not elem:
+                c = document.getElementsByName(frag)
+                if c and c.length:
+                    elem = c[0]
+            if elem:
+                scroll_to_elem(elem)
 
 def init():
     script = document.getElementById('bootstrap')
