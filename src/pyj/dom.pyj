@@ -25,6 +25,8 @@ simple_vendor_prefixes = {
 }
 
 def set_css(elem, **kw):
+    if type(elem) is 'string':
+        elem = document.querySelector(elem)
     s = elem.style
     if s:
         for prop in kw:
