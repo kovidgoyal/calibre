@@ -126,8 +126,8 @@ def layout(is_single_page):
     if n > 1:
         # Adjust the side margin so that the window width satisfies
         # col_width * n + (n-1) * 2 * side_margin = window_width
-        sm = opts.margin_side or 0
-        gap = 2*sm + ((ww + 2*sm) % n)  # Ensure ww + gap is a multiple of n
+        sm = opts.margin_left + opts.margin_right
+        gap = sm + ((ww + sm) % n)  # Ensure ww + gap is a multiple of n
         col_width = ((ww + gap) // n) - gap
 
     screen_height = window.innerHeight

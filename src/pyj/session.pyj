@@ -18,12 +18,14 @@ defaults = {
     'and_search_terms': False,  # how to add search terms to the search expression from the Tag Browser
 
     # Book reader settings
-    'margin_side': 20,
+    'margin_right': 20,
+    'margin_left': 20,
     'margin_top': 20,
     'margin_bottom': 20,
     'read_mode': 'paged',
     'max_text_height': 0,
     'max_text_width': 0,
+    'cols_per_screen': 1,
 }
 
 def storage_available(which):

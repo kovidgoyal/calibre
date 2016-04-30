@@ -3,6 +3,7 @@
 from __python__ import bound_methods, hash_literals
 
 from book_list.globals import get_session_data
+from dom import set_css
 from elementmaker import E
 from gettext import gettext as _
 from read_book.globals import messenger, iframe_id
@@ -36,11 +37,13 @@ class View:
             E.div(style='width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                   E.div(style='display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
                     E.div(style='flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
+                        E.div(style='width:{}px; height:100%'.format(sd.get('margin_left', 20)), id='book-left-margin'),
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
-                            E.div(style='height:{}px; width:100%; padding: 0 {}px'.format(sd.get('margin_top', 20), sd.get('margin_side', 20)), id='book-top-margin'),
+                            E.div(style='height:{}px; width:100%; padding: 0'.format(sd.get('margin_top', 20)), id='book-top-margin'),
                             E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2'),
-                            E.div(style='height:{}px; width:100%; padding: 0 {}px'.format(sd.get('margin_top', 20), sd.get('margin_side', 20)), id='book-bottom-margin'),
+                            E.div(style='height:{}px; width:100%; padding: 0'.format(sd.get('margin_bottom', 20)), id='book-bottom-margin'),
                         ),
+                        E.div(style='width:{}px; height:100%'.format(sd.get('margin_right', 20)), id='book-right-margin'),
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # overlay
                     )
                 )
@@ -67,21 +70,26 @@ class View:
 
     def set_margins(self, no_margins):
         sd = get_session_data()
-        margin_side = 0 if no_margins else sd.get('margin_side')
+        margin_left = 0 if no_margins else sd.get('margin_left')
+        margin_right = 0 if no_margins else sd.get('margin_right')
         margin_top = 0 if no_margins else sd.get('margin_top')
         margin_bottom = 0 if no_margins else sd.get('margin_bottom')
         max_text_height = sd.get('max_text_height')
-        th = window.innerWidth - margin_top - margin_bottom
+        th = window.innerHeight - margin_top - margin_bottom
         if not no_margins and max_text_height > 100 and th > max_text_height:
             extra = (th - max_text_height) // 2
             margin_top += extra
             margin_bottom += extra
-        t = document.getElementById('book-top-margin')
-        t.style.height = margin_top + 'px'
-        t.style.paddingLeft = t.style.paddingRight = margin_side + 'px'
-        b = document.getElementById('book-bottom-margin')
-        b.style.height = margin_bottom + 'px'
-        b.style.paddingLeft = b.style.paddingRight = margin_side + 'px'
+        max_text_width = sd.get('max_text_width')
+        tw = window.innerWidth - margin_left - margin_right
+        if not no_margins and max_text_width > 100 and tw > max_text_width:
+            extra = (tw - max_text_width) // 2
+            margin_left += extra
+            margin_right += extra
+        set_css(document.getElementById('book-top-margin'), height=margin_top + 'px')
+        set_css(document.getElementById('book-bottom-margin'), height=margin_bottom + 'px')
+        set_css(document.getElementById('book-left-margin'), width=margin_left + 'px')
+        set_css(document.getElementById('book-right-margin'), width=margin_right + 'px')
 
     def create_src_doc(self):
         iframe_script = self.ui.interface_data.main_js.replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
@@ -147,10 +155,10 @@ class View:
             return
         sd = get_session_data()
         settings={
-            'margin_side': 0 if name is self.book.manifest.title_page_name else sd.get('margin_side'),
+            'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),
+            'margin_right': 0 if name is self.book.manifest.title_page_name else sd.get('margin_right'),
             'read_mode': sd.get('read_mode'),
-            'max_text_width':sd.get('max_text_width'),
-            'max_text_height':sd.get('max_text_height'),
+            'cols_per_screen': sd.get('cols_per_screen'),
         }
         self.currently_showing = {'name':name, 'cfi':cfi, 'settings':settings, 'initial_scroll_fraction':initial_scroll_fraction, 'loading':True}
         self.set_margins(name is self.book.manifest.title_page_name)
