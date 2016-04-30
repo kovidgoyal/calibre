@@ -978,15 +978,19 @@ class Manifest(object):
                         return None
                     data = self._loader(getattr(self, 'html_input_href',
                         self.href))
+                try:
+                    mt = self.media_type.lower()
+                except Exception:
+                    mt = 'application/octet-stream'
                 if not isinstance(data, basestring):
                     pass  # already parsed
-                elif self.media_type.lower() in OEB_DOCS:
+                elif mt in OEB_DOCS:
                     data = self._parse_xhtml(data)
-                elif self.media_type.lower()[-4:] in ('+xml', '/xml'):
+                elif mt[-4:] in ('+xml', '/xml'):
                     data = self._parse_xml(data)
-                elif self.media_type.lower() in OEB_STYLES:
+                elif mt in OEB_STYLES:
                     data = self._parse_css(data)
-                elif self.media_type.lower() == 'text/plain':
+                elif mt == 'text/plain':
                     self.oeb.log.warn('%s contains data in TXT format'%self.href,
                             'converting to HTML')
                     data = self._parse_txt(data)
