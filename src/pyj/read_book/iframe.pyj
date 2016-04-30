@@ -139,7 +139,7 @@ class Boss:
         try:
             data = JSON.parse(evt.currentTarget.getAttribute(link_attr))
         except:
-            print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget.getAttribute(link_attr)))
+            print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget?.getAttribute?(link_attr)))
             return
         name, frag = data.name, data.frag
         if name is current_spine_item().name:
