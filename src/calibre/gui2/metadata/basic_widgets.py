@@ -1242,6 +1242,7 @@ class RatingEdit(make_undoable(QSpinBox), ToMetadataMixin):  # {{{
         self.setWhatsThis(self.TOOLTIP)
         self.setMaximum(5)
         self.setSuffix(' ' + _('stars'))
+        self.setSpecialValueText(_('Not rated'))
 
     @dynamic_property
     def current_val(self):

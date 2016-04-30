@@ -189,6 +189,7 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         sb.setMinimum(0)
         sb.setMaximum(5)
         sb.setSuffix(' ' + _('stars'))
+        sb.setSpecialValueText(_('Not rated'))
         return sb
 
     def get_required_width(self, editor, style, fm):

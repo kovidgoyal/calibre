@@ -134,7 +134,7 @@ class Rating(Int):
         w = self.widgets[1]
         w.setRange(0, 5)
         w.setSuffix(' '+_('star(s)'))
-        w.setSpecialValueText(_('Unrated'))
+        w.setSpecialValueText(_('Not rated'))
 
     def setter(self, val):
         if val is None:
@@ -794,7 +794,7 @@ class BulkRating(BulkBase):
         self.make_widgets(parent, QSpinBox)
         self.main_widget.setRange(0, 5)
         self.main_widget.setSuffix(' '+_('star(s)'))
-        self.main_widget.setSpecialValueText(_('Unrated'))
+        self.main_widget.setSpecialValueText(_('Not rated'))
         self.main_widget.setSingleStep(1)
 
     def setter(self, val):
