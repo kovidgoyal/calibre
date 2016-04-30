@@ -44,10 +44,7 @@ class SafeLocalTimeZone(tzlocal):
         # Here is a more stable implementation:
         #
         try:
-            timestamp = ((dt.toordinal() - EPOCHORDINAL) * 86400
-                        + dt.hour * 3600
-                        + dt.minute * 60
-                        + dt.second)
+            timestamp = ((dt.toordinal() - EPOCHORDINAL) * 86400 + dt.hour * 3600 + dt.minute * 60 + dt.second)
             return time.localtime(timestamp+time.timezone).tm_isdst
         except ValueError:
             pass
@@ -122,14 +119,14 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     :param as_utc: If True, return a UTC datetime
 
     :param default: Missing fields are filled in from default. If None, the
-    current date is used.
+    current month and year are used.
     '''
     from dateutil.parser import parse
     if not date_string:
         return UNDEFINED_DATE
     if default is None:
         func = datetime.utcnow if assume_utc else datetime.now
-        default = func().replace(hour=0, minute=0, second=0, microsecond=0,
+        default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0,
                 tzinfo=_utc_tz if assume_utc else _local_tz)
     dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
     if dt.tzinfo is None:
