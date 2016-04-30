@@ -379,7 +379,7 @@ class Editor(QFrame):  # {{{
         l.addWidget(self.header, 0, 0, 1, 2)
 
         self.use_default = QRadioButton('')
-        self.use_custom = QRadioButton(_('Custom'))
+        self.use_custom = QRadioButton(_('&Custom'))
         l.addWidget(self.use_default, 1, 0, 1, 3)
         l.addWidget(self.use_custom, 2, 0, 1, 3)
         self.use_custom.toggled.connect(self.custom_toggled)
@@ -393,7 +393,7 @@ class Editor(QFrame):  # {{{
             setattr(self, 'label%d'%which, la)
             button = QPushButton(_('None'), self)
             button.clicked.connect(partial(self.capture_clicked, which=which))
-            button.keyPressEvent = partial(self.key_press_event, which=which)
+            button.installEventFilter(self)
             setattr(self, 'button%d'%which, button)
             clear = QToolButton(self)
             clear.setIcon(QIcon(I('clear_left.png')))
@@ -427,7 +427,7 @@ class Editor(QFrame):  # {{{
         if not current:
             current = _('None')
 
-        self.use_default.setText(_('Default: %(deflt)s [Currently not conflicting: %(curr)s]')%
+        self.use_default.setText(_('&Default: %(deflt)s [Currently not conflicting: %(curr)s]')%
                 dict(deflt=default, curr=current))
 
         if shortcut['set_to_default']:
@@ -453,6 +453,17 @@ class Editor(QFrame):  # {{{
     def clear_clicked(self, which=0):
         button = getattr(self, 'button%d'%which)
         button.setText(_('None'))
+
+    def eventFilter(self, obj, event):
+        if self.capture and obj in (self.button1, self.button2):
+            t = event.type()
+            if t == event.ShortcutOverride:
+                event.accept()
+                return True
+            if t == event.KeyPress:
+                self.key_press_event(event, 1 if obj is self.button1 else 2)
+                return True
+        return QFrame.eventFilter(self, obj, event)
 
     def key_press_event(self, ev, which=0):
         if self.capture == 0:
