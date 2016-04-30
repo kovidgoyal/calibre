@@ -8,45 +8,85 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt5.Qt import QAbstractListModel, Qt, QKeySequence, QListView, \
-        QHBoxLayout, QWidget, QApplication, QStyledItemDelegate, QStyle, \
-        QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent
+from PyQt5.Qt import (
+    QAbstractListModel, Qt, QKeySequence, QListView, QVBoxLayout, QLabel,
+    QHBoxLayout, QWidget, QApplication, QStyledItemDelegate, QStyle, QIcon,
+    QTextDocument, QRectF, QFrame, QSize, QFont, QKeyEvent, QRadioButton, QPushButton, QToolButton
+)
 
 from calibre.gui2 import error_dialog
 from calibre.utils.config import XMLConfig
 from calibre.utils.icu import sort_key
-from calibre.gui2.shortcuts_ui import Ui_Frame
 
 DEFAULTS = Qt.UserRole
 DESCRIPTION = Qt.UserRole + 1
 CUSTOM = Qt.UserRole + 2
 KEY = Qt.UserRole + 3
 
-class Customize(QFrame, Ui_Frame):
+class Customize(QFrame):
 
     def __init__(self, index, dup_check, parent=None):
         QFrame.__init__(self, parent)
-        self.setupUi(self)
-        self.data_model = index.model()
+        self.setFrameShape(self.StyledPanel)
+        self.setFrameShadow(self.Raised)
         self.setFocusPolicy(Qt.StrongFocus)
         self.setAutoFillBackground(True)
+        self.l = l = QVBoxLayout(self)
+        self.header = la = QLabel(self)
+        la.setWordWrap(True)
+        l.addWidget(la)
+        self.default_shortcuts = QRadioButton(_("&Default"), self)
+        self.custom = QRadioButton(_("&Custom"), self)
         self.custom.toggled.connect(self.custom_toggled)
-        self.custom_toggled(False)
+        l.addWidget(self.default_shortcuts)
+        l.addWidget(self.custom)
+        for which in 1, 2:
+            la = QLabel(_("&Shortcut:") if which == 1 else _("&Alternate shortcut:"))
+            setattr(self, 'label%d' % which, la)
+            h = QHBoxLayout()
+            l.addLayout(h)
+            h.setContentsMargins(25, -1, -1, -1)
+            h.addWidget(la)
+            b = QPushButton(_("Click to change"), self)
+            la.setBuddy(b)
+            b.clicked.connect(partial(self.capture_clicked, which=which))
+            b.installEventFilter(self)
+            setattr(self, 'button%d' % which, b)
+            h.addWidget(b)
+            c = QToolButton(self)
+            c.setIcon(QIcon(I('clear_left.png')))
+            c.setToolTip(_('Clear'))
+            h.addWidget(c)
+            c.clicked.connect(partial(self.clear_clicked, which=which))
+            setattr(self, 'clear%d' % which, c)
+        self.data_model = index.model()
         self.capture = 0
         self.key = None
         self.shorcut1 = self.shortcut2 = None
         self.dup_check = dup_check
-        for x in (1, 2):
-            button = getattr(self, 'button%d'%x)
-            button.clicked.connect(partial(self.capture_clicked, which=x))
-            button.keyPressEvent = partial(self.key_press_event, which=x)
-            clear = getattr(self, 'clear%d'%x)
-            clear.clicked.connect(partial(self.clear_clicked, which=x))
+        self.custom_toggled(False)
+
+    def eventFilter(self, obj, event):
+        if self.capture == 0 or obj not in (self.button1, self.button2):
+            return QFrame.eventFilter(self, obj, event)
+        t = event.type()
+        if t == event.ShortcutOverride:
+            event.accept()
+            return True
+        if t == event.KeyPress:
+            self.key_press_event(event, 1 if obj is self.button1 else 2)
+            return True
+        return QFrame.eventFilter(self, obj, event)
+
+    def clear_button(self, which):
+        b = getattr(self, 'button%d' % which)
+        s = getattr(self, 'shortcut%d' % which, None)
+        b.setText(_('None') if s is None else s.toString(QKeySequence.NativeText))
+        b.setFont(QFont())
 
     def clear_clicked(self, which=0):
-        button = getattr(self, 'button%d'%which)
-        button.setText(_('None'))
         setattr(self, 'shortcut%d'%which, None)
+        self.clear_button(which)
 
     def custom_toggled(self, checked):
         for w in ('1', '2'):
@@ -55,6 +95,8 @@ class Customize(QFrame, Ui_Frame):
 
     def capture_clicked(self, which=1):
         self.capture = which
+        for w in 1, 2:
+            self.clear_button(w)
         button = getattr(self, 'button%d'%which)
         button.setText(_('Press a key...'))
         button.setFocus(Qt.OtherFocusReason)
@@ -68,13 +110,10 @@ class Customize(QFrame, Ui_Frame):
                 Qt.Key_Shift, Qt.Key_Control, Qt.Key_Alt, Qt.Key_Meta,
                 Qt.Key_AltGr, Qt.Key_CapsLock, Qt.Key_NumLock, Qt.Key_ScrollLock):
             return QWidget.keyPressEvent(self, ev)
-        button = getattr(self, 'button%d'%which)
-        font = QFont()
-        button.setFont(font)
         sequence = QKeySequence(code|(int(ev.modifiers())&~Qt.KeypadModifier))
-        button.setText(sequence.toString(QKeySequence.NativeText))
-        self.capture = 0
         setattr(self, 'shortcut%d'%which, sequence)
+        self.clear_button(which)
+        self.capture = 0
         dup_desc = self.dup_check(sequence, self.key)
         if dup_desc is not None:
             error_dialog(self, _('Already assigned'),
