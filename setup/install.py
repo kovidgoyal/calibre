@@ -327,7 +327,7 @@ class Bootstrap(Command):
 
     description = 'Bootstrap a fresh checkout of calibre from git to a state where it can be installed. Requires various development tools/libraries/headers'
     TRANSLATIONS_REPO = 'https://github.com/kovidgoyal/calibre-translations.git'
-    sub_commands = 'cacerts build iso639 iso3166 translations gui resources mathjax'.split()
+    sub_commands = 'cacerts build iso639 iso3166 translations gui mathjax resources'.split()
 
     def pre_sub_commands(self, opts):
         tdir = self.j(self.d(self.SRC), 'translations')

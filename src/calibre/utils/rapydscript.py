@@ -110,10 +110,16 @@ def compile_srv():
     rb = os.path.join(base, 'src', 'calibre', 'srv', 'render_book.py')
     with lopen(rb, 'rb') as f:
         rv = str(int(re.search(br'^RENDER_VERSION\s+=\s+(\d+)', f.read(), re.M).group(1)))
+    try:
+        mathjax_version = P('content-server/mathjax.version', data=True, allow_user_override=False).decode('utf-8')
+    except EnvironmentError as e:
+        if e.errno != errno.ENOENT:
+            raise
+        mathjax_version = '0'
     base = P('content-server', allow_user_override=False)
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_pyj(f.read(), fname).replace('__RENDER_VERSION__', rv).encode('utf-8')
+        js = compile_pyj(f.read(), fname).replace('__RENDER_VERSION__', rv).replace('__MATHJAX_VERSION__', mathjax_version).encode('utf-8')
     with lopen(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
     with lopen(os.path.join(base, 'index-generated.html'), 'wb') as f:
@@ -311,7 +317,7 @@ def main(args=sys.argv):
         description='RapydScript compiler and REPL. If passed input on stdin, it is compiled and written to stdout. Otherwise a REPL is started.')
     parser.add_argument('--version', action='version',
             version='Using RapydScript compiler version: '+ver)
-    parser.add_argument('--show-js', action='store_true', help='Have the REPL output compiled javascript before executing it')
+    parser.add_argument('--show-js', action='store_true', help='Have the REPL output the compiled javascript before executing it')
     parser.add_argument('--libdir', help='Where to look for imported modules')
     parser.add_argument('--omit-baselib', action='store_true', default=False, help='Omit the RapydScript base library')
     parser.add_argument('--no-private-scope', action='store_true', default=False, help='Do not wrap the output in its own private scope')
