@@ -228,6 +228,9 @@ class RequestData(object):  # {{{
         tuple(map(lambda x:etag.update(string(x)), etag_parts))
         return ETaggedFile(output, etag.hexdigest())
 
+    def filesystem_file_with_constant_etag(self, output, etag_as_hexencoded_string):
+        return ETaggedFile(output, etag_as_hexencoded_string)
+
     def etagged_dynamic_response(self, etag, func, content_type='text/html; charset=UTF-8'):
         ' A response that is generated only if the etag does not match '
         ct = self.outheaders.get('Content-Type')

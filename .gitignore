@@ -22,6 +22,7 @@ resources/editor-functions.json
 resources/user-manual-translation-stats.json
 resources/content-server/index-generated.html
 resources/content-server/locales.zip
+resources/content-server/mathjax.zip.xz
 resources/mozilla-ca-certs.pem
 icons/icns/*.iconset
 setup/installer/windows/calibre/build.log
