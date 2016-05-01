@@ -53,13 +53,13 @@ class GoogleImages(Source):
 
     def get_image_urls(self, title, author, log, abort, timeout):
         from calibre.utils.cleantext import clean_ascii_chars
-        from urllib import quote_plus
+        from urllib import urlencode
         import html5lib
         import json
         from collections import OrderedDict
         ans = OrderedDict()
         br = self.browser
-        q = quote_plus('%s %s'%(title, author))
+        q = urlencode({'as_q': ('%s %s'%(title, author)).encode('utf-8')}).decode('utf-8')
         sz = self.prefs['size']
         if sz == 'any':
             sz = ''
@@ -69,7 +69,7 @@ class GoogleImages(Source):
             sz = 'isz:lt,islt:%s,' % sz
         # See https://www.google.com/advanced_image_search to understand this
         # URL scheme
-        url = 'https://www.google.com/search?as_st=y&tbm=isch&as_q={}&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images&tbs={}iar:t,ift:jpg'.format(q, sz)
+        url = 'https://www.google.com/search?as_st=y&tbm=isch&{}&as_epq=&as_oq=&as_eq=&cr=&as_sitesearch=&safe=images&tbs={}iar:t,ift:jpg'.format(q, sz)
         log('Search URL: ' + url)
         raw = br.open(url).read().decode('utf-8')
         root = html5lib.parse(clean_ascii_chars(raw), treebuilder='lxml', namespaceHTMLElements=False)
