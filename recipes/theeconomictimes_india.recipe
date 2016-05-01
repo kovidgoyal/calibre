@@ -9,14 +9,14 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheEconomicTimes(BasicNewsRecipe):
     title                  = 'The Economic Times India'
-    __author__             = 'Karthik K, Darko Miletic'
+    __author__             = 'Karthik, Darko Miletic'
     description            = 'Financial news from India'
     publisher              = 'economictimes.indiatimes.com'
     category               = 'news, finances, politics, India'
     oldest_article         = 1
     max_articles_per_feed  = 100
     no_stylesheets         = True
-    #use_embedded_content   = False
+    use_embedded_content   = False
     simultaneous_downloads = 1
     encoding               = 'utf-8'
     language               = 'en_IN'
@@ -38,6 +38,11 @@ class TheEconomicTimes(BasicNewsRecipe):
                              }
     remove_tags_before     = dict(name='article')
     remove_tags_after      = [dict(name='article')]
+    keep_only_tags		  = [dict(name='h1', attrs={'class':'title'}),
+                               dict(name='div', attrs={'class':'bylineFull'}),
+                               dict(name='div', attrs={'class':'articleImg'}),
+                               dict(name='div', attrs={'class':'artText'})
+                              ]
     remove_tags			   = [dict(name='div', attrs={'class':'cmtLinks'}),
                               dict(name='div', attrs={'class':'raltedTopics'}),
                               dict(name='div', attrs={'class':'editorsPick'}),
@@ -45,6 +50,7 @@ class TheEconomicTimes(BasicNewsRecipe):
                               dict(name='div', attrs={'class':'articleImg artAd'}),
                               dict(name='div', attrs={'class':'appPromotion'})
                              ]
+
     remove_attributes      = ['xmlns']
     feeds                  = [(u'Top Stories', u'http://economictimes.indiatimes.com/rssfeedstopstories.cms'),
                               (u'News', u'http://economictimes.indiatimes.com/News/rssfeeds/1715249553.cms'),
