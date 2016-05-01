@@ -249,10 +249,19 @@ class CACerts(Command):  # {{{
         get_https_resource_securely('https://calibre-ebook.com', cacerts=self.b(self.CA_PATH))
 # }}}
 
+class RapydScript(Command):  # {{{
+
+    description = 'Compile RapydScript to JavaScript'
+
+    def run(self, opts):
+        from calibre.utils.rapydscript import compile_srv
+        compile_srv()
+# }}}
+
 class Resources(Command):  # {{{
 
     description = 'Compile various needed calibre resources'
-    sub_commands = ['kakasi', 'coffee']
+    sub_commands = ['kakasi', 'coffee', 'rapydscript']
 
     def run(self, opts):
         scripts = {}
