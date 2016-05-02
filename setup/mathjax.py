@@ -62,7 +62,7 @@ class MathJax(Command):
         from calibre.ptempfile import SpooledTemporaryFile
         t = SpooledTemporaryFile()
         with ZipFile(t, 'w', ZIP_STORED) as zf:
-            self.add_tree(zf, self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/STIX-Web/woff')
+            self.add_tree(zf, self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY)
             self.add_tree(zf, self.j(src, 'unpacked', 'extensions'), 'extensions')
             self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'element'), 'jax/element')
             self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'input'), 'jax/input')
