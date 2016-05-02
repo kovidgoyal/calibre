@@ -26,6 +26,8 @@ def load_resources(db, book, root_name, previous_resources, proceed):
         if not pending_resources.length:
             for k in previous_resources:
                 v'delete previous_resources[k]'
+            if book.manifest.files[root_name].has_maths:
+                return load_mathjax(db, book, ans, proceed)
             proceed(ans)
             return
         name = pending_resources.shift()
@@ -63,10 +65,26 @@ def load_resources(db, book, root_name, previous_resources, proceed):
 
     do_one()
 
+mathjax_data = None
+
+def load_mathjax(db, book, resource_data, proceed):
+    if mathjax_data is None:
+        db.get_mathjax_files(def(data):
+            nonlocal mathjax_data
+            mathjax_data = data
+            resource_data['..mathjax-files..'] = data
+            proceed(resource_data)
+        )
+    else:
+        resource_data['..mathjax-files..'] = mathjax_data
+        proceed(resource_data)
+
 def finalize_resources(book, root_name, resource_data):
     blob_url_map = Object.create(None)
     root_data = None
     link_pat = create_link_pat(book)
+    mathjax = resource_data['..mathjax-files..']
+    v'delete resource_data["..mathjax-files.."]'
 
     # Resolve the non virtualized resources immediately
     for name in resource_data:
@@ -142,7 +160,7 @@ def finalize_resources(book, root_name, resource_data):
         for name in resolved:
             v'delete resource_data[name]'
 
-    return root_data
+    return root_data, mathjax
 
 js_types = set('text/javascript text/ecmascript application/javascript application/ecmascript'.split(' '))
 resource_tag_names = {'script':'src', 'link':'href', 'img':'src', 'image':'xlink:href'}

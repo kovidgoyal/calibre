@@ -6,6 +6,7 @@ import traceback
 from aes import GCM
 from gettext import install, gettext as _
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
+from read_book.mathjax import apply_mathjax
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
 from read_book.paged_mode import layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction, onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem
@@ -89,10 +90,14 @@ class Boss:
             self.to_scroll_fraction = paged_scroll_to_fraction
         apply_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
-        root_data = finalize_resources(self.book, data.name, data.resource_data)
+        root_data, self.mathjax = finalize_resources(self.book, data.name, data.resource_data)
         unserialize_html(root_data, self.content_loaded)
 
     def content_loaded(self):
+        if self.mathjax:
+            mj = self.mathjax
+            self.mathjax = None
+            return apply_mathjax(mj, self.content_loaded)
         self.connect_links()
         document.documentElement.style.overflow = 'hidden'
         window.addEventListener('scroll', debounce(self.update_cfi, 1000))
