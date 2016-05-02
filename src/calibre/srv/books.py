@@ -189,7 +189,7 @@ def manifest_as_json():
         ans = ans.encode('utf-8')
     return ans
 
-@endpoint('/mathjax/{+which=""}')
+@endpoint('/mathjax/{+which=""}', auth_required=False)
 def mathjax(ctx, rd, which):
     manifest = get_mathjax_manifest(rd.tdir)
     if not which:
