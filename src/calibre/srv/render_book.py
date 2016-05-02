@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import sys, os, json
+import sys, os, json, re
 from base64 import standard_b64encode, standard_b64decode
 from collections import defaultdict, OrderedDict
 from itertools import count
@@ -88,6 +88,34 @@ def transform_sheet(sheet):
             changed = True
     return changed
 
+def check_for_maths(root):
+    for x in root.iterdescendants('{*}math'):
+        return True
+    for s in root.iterdescendants(XHTML('script')):
+        if s.get('type') == 'text/x-mathjax-config':
+            return True
+    return False
+
+def get_length(root):
+    strip_space = re.compile(r'\s+')
+    ans = 0
+    def count(elem):
+        num = 0
+        tname = elem.tag.rpartition('}')[-1].lower()
+        if elem.text and tname not in 'script style':
+            num += len(strip_space.sub(elem.text, ''))
+        if elem.tail:
+            num += len(strip_space.sub(elem.tail, ''))
+        if tname in 'img svg':
+            num += 2000
+        return num
+
+    for body in root.iterdescendants(XHTML('body')):
+        ans += count(body)
+        for elem in body.iterdescendants('*'):
+            ans += count(elem)
+    return ans
+
 class Container(ContainerBase):
 
     tweak_mode = True
@@ -112,6 +140,9 @@ class Container(ContainerBase):
             'is_comic': input_fmt.lower() in {'cbc', 'cbz', 'cbr', 'cb7'},
             'raster_cover_name': raster_cover_name,
             'title_page_name': titlepage_name,
+            'has_maths': False,
+            'total_length': 0,
+            'spine_length': 0,
         }
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
@@ -121,12 +152,22 @@ class Container(ContainerBase):
         self.virtualize_resources()
         def manifest_data(name):
             mt = (self.mime_map.get(name) or 'application/octet-stream').lower()
-            return {
+            ans = {
                 'size':os.path.getsize(self.name_path_map[name]),
                 'is_virtualized': name in self.virtualized_names,
                 'mimetype':mt,
-                'is_html': mt in OEB_DOCS
+                'is_html': mt in OEB_DOCS,
             }
+            if ans['is_html']:
+                root = self.parsed(name)
+                ans['length'] = l = get_length(root)
+                self.book_render_data['total_length'] += l
+                if name in data['spine']:
+                    self.book_render_data['spine_length'] += l
+                ans['has_maths'] = hm = check_for_maths(root)
+                if hm:
+                    self.book_render_data['has_maths'] = True
+            return ans
         data['files'] = {name:manifest_data(name) for name in set(self.name_path_map) - excluded_names}
         self.commit()
         for name in excluded_names:
