@@ -46,7 +46,7 @@ def ajax(path, on_complete, on_progress=None, bypass_cache=True, method='GET', q
             xhr.error_html = str.format(_('Failed to communicate with "{}", aborted'), xhr.request_path)
         else:
             rtext = xhr.responseText or ''
-            xhr.error_html = str.format(_('Failed to communicate with "{}", with status: [{}] {}<br>{}'), xhr.request_path, xhr.status, xhr.statusText, rtext[:200])
+            xhr.error_html = str.format(_('Failed to communicate with "{}", with status: [{}] {}<br><br>{}'), xhr.request_path, xhr.status, xhr.statusText, rtext[:200])
 
     def progress_callback(ev):
         if ev.lengthComputable:
