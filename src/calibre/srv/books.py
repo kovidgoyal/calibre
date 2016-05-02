@@ -124,7 +124,7 @@ def book_manifest(ctx, rd, book_id, fmt):
     with db.safe_read_lock:
         fm = db.format_metadata(book_id, fmt)
         if not fm:
-            raise HTTPNotFound('No %s format for the book %s in the library: %s' % (fmt, book_id, library_id))
+            raise HTTPNotFound('No %s format for the book (id:%s) in the library: %s' % (fmt, book_id, library_id))
         size, mtime = map(int, (fm['size'], time.mktime(fm['mtime'].utctimetuple())*10))
         bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
         with cache_lock:
