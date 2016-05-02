@@ -21,7 +21,7 @@ class MathJax(Command):
     description = 'Create the MathJax bundle'
     MATH_JAX_VERSION = '2.6.1'
     MATH_JAX_URL = 'https://github.com/mathjax/MathJax/archive/%s.zip' % MATH_JAX_VERSION
-    FONT_FAMILY = 'STIX-Web'
+    FONT_FAMILY = 'TeX'
 
     def add_options(self, parser):
         parser.add_option('--path-to-mathjax', help='Path to the MathJax source code')
@@ -37,18 +37,9 @@ class MathJax(Command):
                 if os.path.isdir(q):
                     return q
 
-    def patch_jax(self, raw):
-        self.info('Patching HTML-CSS jax web font loader...')
-        nraw = raw.replace(b'dir+"/"+fullname', b'AJAX.fileURL(dir+"/"+fullname)')
-        if nraw == raw:
-            raise SystemExit('Failed to path the HTML-CSS jax font loading code')
-        return nraw
-
     def add_file(self, zf, path, name):
         with open(path, 'rb') as f:
             raw = f.read()
-        if name == 'jax/output/HTML-CSS/jax.js':
-            raw = self.patch_jax(raw)
         self.h.update(raw)
         zi = ZipInfo(name)
         zi.external_attr = 0o444 << 16L
@@ -75,7 +66,7 @@ class MathJax(Command):
             self.add_tree(zf, self.j(src, 'unpacked', 'extensions'), 'extensions')
             self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'element'), 'jax/element')
             self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'input'), 'jax/input')
-            self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'output', 'HTML-CSS'), 'jax/output/HTML-CSS', ignore=self.ignore_fonts)
+            self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'output', 'CommonHTML'), 'jax/output/CommonHTML', ignore=self.ignore_fonts)
             self.add_file(zf, self.j(src, 'unpacked', 'MathJax.js'), 'MathJax.js')
 
             zf.comment = self.h.hexdigest()
