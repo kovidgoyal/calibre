@@ -199,7 +199,11 @@ class ReadUI:
             for name in progress_track:
                 x += progress_track[name]
             pbar.setAttribute('value', x + '')
-            progress.lastChild.textContent = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
+            if x is total:
+                msg = _('Downloaded {}, saving to disk, this may take a few seconds...').format(human_readable(total))
+            else:
+                msg = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
+            progress.lastChild.textContent = msg
 
         def show_failure():
             det = ['<h4>{}</h4><div>{}</div><hr>'.format(fname, err_html) for fname, err_html in failed_files].join('')
@@ -312,7 +316,11 @@ class ReadUI:
             for name in progress_track:
                 x += progress_track[name]
             pbar.setAttribute('value', x + '')
-            progress.lastChild.textContent = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
+            if x is total:
+                msg = _('Downloaded {}, saving to disk, this may take a few seconds...').format(human_readable(total))
+            else:
+                msg = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
+            progress.lastChild.textContent = msg
 
         def on_progress(loaded, ftotal):
             progress_track[this] = loaded

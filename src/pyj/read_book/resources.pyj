@@ -28,8 +28,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
                 v'delete previous_resources[k]'
             if book.manifest.files[root_name].has_maths:
                 return load_mathjax(db, book, ans, proceed)
-            proceed(ans)
-            return
+            return proceed(ans)
         name = pending_resources.shift()
         if ans[name]:
             return setTimeout(do_one, 0)
