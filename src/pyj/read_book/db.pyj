@@ -155,6 +155,9 @@ class DB:
         req.onerror = def(event):
             proceed(_('Failed to store book data ({0}) with error: {1}').format(name, get_error_details(event)))
 
+    def clear_mathjax(self, proceed):
+        self.idb.transaction(['mathjax'], 'readwrite').objectStore('mathjax').clear().onsuccess = proceed
+
     def store_mathjax_file(self, name, xhr, proceed):
         data = xhr.response
         if not self.supports_blobs:

@@ -261,7 +261,9 @@ class ReadUI:
             if mathjax_info.version is MATHJAX_VERSION:
                 return proceed()
             print('Upgrading MathJax, previous version:', mathjax_info.version)
-            self.get_mathjax_manifest(mathjax_info, proceed)
+            self.db.clear_mathjax(def():
+                self.get_mathjax_manifest(mathjax_info, proceed)
+            )
         )
 
     def get_mathjax_manifest(self, mathjax_info, proceed):
