@@ -141,7 +141,7 @@ class ReadUI:
             return
         if end_type is not 'load':
             return self.show_error(_('Failed to load book manifest'),
-                _('Could not open {title} as book manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
+                _('Could not open {title} as the book manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
                                 xhr.error_html)
         try:
             manifest = JSON.parse(xhr.responseText)
@@ -201,6 +201,11 @@ class ReadUI:
             pbar.setAttribute('value', x + '')
             progress.lastChild.textContent = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
 
+        def show_failure():
+            det = ['<h4>{}</h4><div>{}</div><hr>'.format(fname, err_html) for fname, err_html in failed_files].join('')
+            self.show_error(_('Could not download book'), _(
+                'Failed to download some book data, click "Show details" for more information'), det)
+
         def on_stored(err):
             files_left.discard(this)
             if err:
@@ -208,10 +213,7 @@ class ReadUI:
             if len(files_left):
                 return
             if failed_files.length:
-                det = ['<h4>{}</h4><div>{}</div><hr>'.format(fname, err_html) for fname, err_html in failed_files].join('')
-                self.show_error(_('Could not download book'), _(
-                    'Failed to download some book data, click "Show details" for more information'), det)
-                return
+                return show_failure()
             self.db.finish_book(book, self.display_book.bind(self, book))
 
         def on_complete(end_type, xhr, ev):
@@ -226,6 +228,8 @@ class ReadUI:
             else:
                 failed_files.append([this, xhr.error_html])
                 files_left.discard(this)
+                if not len(files_left):
+                    show_failure()
 
         def on_progress(loaded, ftotal):
             nonlocal total, cover_total_updated, raster_cover_size
@@ -252,6 +256,112 @@ class ReadUI:
             if fname is not raster_cover_name:
                 start_download(fname, base_path + encodeURIComponent(fname))
 
+    def ensure_maths(self, proceed):
+        self.db.get_mathjax_info(def(mathjax_info):
+            if mathjax_info.version is MATHJAX_VERSION:
+                return proceed()
+            print('Upgrading MathJax, previous version:', mathjax_info.version)
+            self.get_mathjax_manifest(mathjax_info, proceed)
+        )
+
+    def get_mathjax_manifest(self, mathjax_info, proceed):
+        ajax('mathjax', def(end_type, xhr, event):
+            if end_type is 'abort':
+                return
+            if end_type is not 'load':
+                return self.show_error(_('Failed to load MathJax manifest'),
+                    _('Could not open {title} as the MathJax manifest failed to load, click "Show Details" for more information.').format(title=self.current_metadata.title),
+                                    xhr.error_html)
+            try:
+                manifest = JSON.parse(xhr.responseText)
+            except Exception:
+                return self.show_error(_('Failed to load MathJax manifest'),
+                    _('The MathJax manifest is not valid'), traceback.format_exc())
+            if manifest.etag is not MATHJAX_VERSION:
+                print('calibre upgraded: MATHJAX_VERSION={} manifest.etag={}'.format(MATHJAX_VERSION, manifest.etag))
+                return self.show_error(_('calibre upgraded!'), _(
+                    'A newer version of calibre is available, please click the reload button in your browser.'))
+            mathjax_info.version = manifest.etag
+            mathjax_info.files = manifest.files
+            self.download_mathjax(mathjax_info, proceed)
+        ).send()
+
+    def download_mathjax(self, mathjax_info, proceed):
+        files = mathjax_info.files
+        total = 0
+        progress_track = {}
+        files_left = set()
+        failed_files = []
+        for key in files:
+            total += files[key]
+            progress_track[key] = 0
+            files_left.add(key)
+        progress = document.getElementById(self.progress_id)
+        progress.firstChild.textContent = _(
+            'Downloading MathJax to render mathematics in this book...')
+        pbar = progress.firstChild.nextSibling
+        pbar.setAttribute('max', total + '')
+        for xhr in self.downloads_in_progress:
+            xhr.abort()
+        self.downloads_in_progress = []
+
+        def update_progress():
+            x = 0
+            for name in progress_track:
+                x += progress_track[name]
+            pbar.setAttribute('value', x + '')
+            progress.lastChild.textContent = _('Downloaded {0}, {1} left').format(human_readable(x), human_readable(total - x))
+
+        def on_progress(loaded, ftotal):
+            progress_track[this] = loaded
+            update_progress()
+
+        def show_failure():
+            det = ['<h4>{}</h4><div>{}</div><hr>'.format(fname, err_html) for fname, err_html in failed_files].join('')
+            self.show_error(_('Could not download MathJax'), _(
+                'Failed to download some MathJax data, click "Show details" for more information'), det)
+
+        def on_complete(end_type, xhr, ev):
+            self.downloads_in_progress.remove(xhr)
+            progress_track[this] = files[this]
+            update_progress()
+            if end_type is 'abort':
+                files_left.discard(this)
+                return
+            if end_type is 'load':
+                self.db.store_mathjax_file(this, xhr, on_stored.bind(this))
+            else:
+                failed_files.append([this, xhr.error_html])
+                files_left.discard(this)
+                if not len(files_left):
+                    show_failure()
+
+        def on_stored(err):
+            files_left.discard(this)
+            if err:
+                failed_files.append([this, err])
+            if len(files_left):
+                return
+            if failed_files.length:
+                return show_failure()
+            self.db.finish_mathjax(mathjax_info, proceed)
+
+        def start_download(name):
+            path = 'mathjax/' + name
+            xhr = ajax(path, on_complete.bind(name), on_progress=on_progress.bind(name), progress_totals_needed=False)
+            xhr.responseType = 'blob' if self.db.supports_blobs else 'arraybuffer'
+            xhr.send()
+            self.downloads_in_progress.push(xhr)
+
+        for fname in files_left:
+            start_download(fname)
+
     def display_book(self, book):
+        if book.manifest.has_maths:
+            self.ensure_maths(self.display_book_stage2.bind(self, book))
+        else:
+            self.display_book_stage2(book)
+
+    def display_book_stage2(self, book):
         self.show_stack(self.display_id)
         self.view.display_book(book)
