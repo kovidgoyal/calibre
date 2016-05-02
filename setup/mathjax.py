@@ -62,12 +62,10 @@ class MathJax(Command):
         from calibre.ptempfile import SpooledTemporaryFile
         t = SpooledTemporaryFile()
         with ZipFile(t, 'w', ZIP_STORED) as zf:
-            self.add_tree(zf, self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY)
-            self.add_tree(zf, self.j(src, 'unpacked', 'extensions'), 'extensions')
-            self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'element'), 'jax/element')
-            self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'input'), 'jax/input')
-            self.add_tree(zf, self.j(src, 'unpacked', 'jax', 'output', 'CommonHTML'), 'jax/output/CommonHTML', ignore=self.ignore_fonts)
             self.add_file(zf, self.j(src, 'unpacked', 'MathJax.js'), 'MathJax.js')
+            self.add_tree(zf, self.j(src, 'fonts', 'HTML-CSS', self.FONT_FAMILY, 'woff'), 'fonts/HTML-CSS/%s/woff' % self.FONT_FAMILY)
+            for d in 'extensions jax/element jax/input jax/output/CommonHTML'.split():
+                self.add_tree(zf, self.j(src, 'unpacked', *d.split('/')), d)
 
             zf.comment = self.h.hexdigest()
         t.seek(0)
