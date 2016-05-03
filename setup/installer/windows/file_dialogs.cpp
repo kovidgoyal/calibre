@@ -16,10 +16,10 @@
 #define REPORTERR(x) { PRINTERR(x); ret = 1; goto error; }
 #define CALLCOM(x, err) hr = x; if(FAILED(hr)) REPORTERR(err)
 
-int show_dialog(HWND parent, bool save_dialog, LPWSTR title, bool multiselect, bool confirm_overwrite, bool only_dirs, bool no_symlinks) {
+int show_dialog(HWND parent, bool save_dialog, LPWSTR title, LPWSTR folder, bool multiselect, bool confirm_overwrite, bool only_dirs, bool no_symlinks) {
 	int ret = 0;
 	IFileDialog *pfd = NULL;
-	IShellItem *psiResult = NULL;
+	IShellItem *result = NULL, *folder_item = NULL;
 	DWORD options;
 	HRESULT hr = S_OK;
 	hr = CoInitialize(NULL);
@@ -42,11 +42,16 @@ int show_dialog(HWND parent, bool save_dialog, LPWSTR title, bool multiselect, b
 	}
 	CALLCOM(pfd->SetOptions(options), "Failed to set options")
 	if (title != NULL) { CALLCOM(pfd->SetTitle(title), "Failed to set title") }
+	if (folder != NULL) { 
+		hr = SHCreateItemFromParsingName(folder, NULL, IID_IShellItem, reinterpret_cast<void **>(&folder_item));
+		// Failure to set initial folder is not critical
+		if (SUCCEEDED(hr)) pfd->SetFolder(folder_item);
+	}
 	hr = pfd->Show(parent);
 	if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) goto error;
 	if (FAILED(hr)) REPORTERR("Failed to show dialog")
 
-	CALLCOM(pfd->GetResult(&psiResult), "Failed to get dialog result")
+	CALLCOM(pfd->GetResult(&result), "Failed to get dialog result")
 
 error:
 	if(pfd) pfd->Release();
@@ -99,7 +104,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	HWND parent = NULL;
 	bool save_dialog = false, multiselect = false, confirm_overwrite = false, only_dirs = false, no_symlinks = false;
 	unsigned short len = 0;
-	LPWSTR title = NULL;
+	LPWSTR title = NULL, folder = NULL;
 
 	SETBINARY(stdout); SETBINARY(stdin); SETBINARY(stderr);
 	// The calibre executables call SetDllDirectory, we unset it here just in
@@ -120,6 +125,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 		else if CHECK_KEY("TITLE") { READSTR(title) }
 
+		else if CHECK_KEY("FOLDER") { READSTR(folder) }
+
 		else if CHECK_KEY("SAVE_AS") { READBOOL(save_dialog) }
 
 		else if CHECK_KEY("MULTISELECT") { READBOOL(multiselect) }
@@ -136,5 +143,5 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		}
 	}
 
-	return show_dialog(parent, save_dialog, title, multiselect, confirm_overwrite, only_dirs, no_symlinks);
+	return show_dialog(parent, save_dialog, title, folder, multiselect, confirm_overwrite, only_dirs, no_symlinks);
 }

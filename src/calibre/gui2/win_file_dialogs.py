@@ -13,6 +13,13 @@ is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
 HELPER = os.path.join(base, 'calibre-file-dialogs.exe')
 
+try:
+    from calibre.constants import filesystem_encoding
+    from calibre.utils.filenames import expanduser
+except ImportError:
+    filesystem_encoding = 'utf-8'
+    expanduser = os.path.expanduser
+
 def get_hwnd(widget=None):
     ewid = None
     if widget is not None:
@@ -61,12 +68,21 @@ class Loop(QEventLoop):
         QEventLoop.__init__(self)
         self.dialog_closed.connect(self.exit, type=Qt.QueuedConnection)
 
-def run_file_dialog(parent=None, title=None, allow_multiples=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False):
+def run_file_dialog(
+        parent=None, title=None, initial_folder=None,
+        allow_multiples=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False
+):
     data = []
     if parent is not None:
         data.append(serialize_hwnd(get_hwnd(parent)))
     if title is not None:
         data.append(serialize_string('TITLE', title))
+    if initial_folder is not None:
+        if isinstance(initial_folder, bytes):
+            initial_folder = initial_folder.decode(filesystem_encoding)
+        initial_folder = os.path.abspath(expanduser(initial_folder))
+        if os.path.isdir(initial_folder):
+            data.append(serialize_string('FOLDER', initial_folder))
     if no_symlinks:
         data.append(serialize_binary('NO_SYMLINKS', no_symlinks))
     if save_as:
@@ -96,7 +112,7 @@ if __name__ == '__main__':
     q = QMainWindow()
 
     def clicked():
-        print(run_file_dialog(b, 'Testing dialogs', only_dirs=True)), sys.stdout.flush()
+        print(run_file_dialog(b, 'Testing dialogs', '~')), sys.stdout.flush()
 
     b = QPushButton('click me')
     b.clicked.connect(clicked)
