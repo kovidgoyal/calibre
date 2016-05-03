@@ -81,7 +81,7 @@ if __name__ == '__main__':
     q = QMainWindow()
 
     def clicked():
-        print(run_file_dialog(b)), sys.stdout.flush()
+        print(run_file_dialog(b, 'Testing dialogs')), sys.stdout.flush()
 
     b = QPushButton('click me')
     b.clicked.connect(clicked)
