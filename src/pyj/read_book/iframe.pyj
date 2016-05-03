@@ -94,17 +94,18 @@ class Boss:
         unserialize_html(root_data, self.content_loaded)
 
     def content_loaded(self):
-        if self.mathjax:
-            mj = self.mathjax
-            self.mathjax = None
-            return apply_mathjax(mj, self.content_loaded)
-        self.connect_links()
         document.documentElement.style.overflow = 'hidden'
+        self.do_layout()
+        if self.mathjax:
+            return apply_mathjax(self.mathjax, self.book.manifest.link_uid, self.content_loaded_stage2)
+        self.content_loaded_stage2()
+
+    def content_loaded_stage2(self):
+        self.connect_links()
         window.addEventListener('scroll', debounce(self.update_cfi, 1000))
         window.addEventListener('resize', debounce(self.onresize, 500))
         window.addEventListener('wheel', self.onwheel)
         window.addEventListener('keydown', self.onkeydown)
-        self.do_layout()
         csi = current_spine_item()
         if csi.initial_position:
             ipos = csi.initial_position
@@ -147,6 +148,8 @@ class Boss:
             print('WARNING: Failed to parse link data {}, ignoring'.format(evt.currentTarget?.getAttribute?(link_attr)))
             return
         name, frag = data.name, data.frag
+        if not name:
+            name = current_spine_item().name
         if name is current_spine_item().name:
             self.scroll_to_anchor(frag)
         else:
