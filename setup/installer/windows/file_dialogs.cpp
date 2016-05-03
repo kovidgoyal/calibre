@@ -9,6 +9,8 @@
 #include <Shobjidl.h>
 #include <stdio.h>
 #include <string.h>
+#include <io.h>
+#include <fcntl.h>
 
 #define PRINTERR(x) fprintf(stderr, x); fflush(stderr);
 #define REPORTERR(x) { PRINTERR(x); ret = 1; goto error; }
@@ -76,6 +78,7 @@ bool read_string(unsigned short sz, LPWSTR* ans) {
 #define READ(x, y) if (!read_bytes((x), (y))) return 1;
 #define CHECK_KEY(x) (key_size == sizeof(x) - 1 && memcmp(buf, x, sizeof(x) - 1) == 0)
 #define READSTR(x) READ(sizeof(unsigned short), buf); if(!read_string(*((unsigned short*)buf), &x)) return 1;
+#define SETBINARY(x) if(_setmode(_fileno(x), _O_BINARY) == -1) { PRINTERR("Failed to set binary mode"); return 1; }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
 	char buf[257];
@@ -84,6 +87,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	bool save_dialog = false;
 	unsigned short len = 0;
 	LPWSTR title = NULL;
+
+	SETBINARY(stdout); SETBINARY(stdin); SETBINARY(stderr);
+	// The calibre executables call SetDllDirectory, we unset it here just in
+	// case it interferes with some idiotic shell extension or the other
+	SetDllDirectory(NULL);
 
 	while(!feof(stdin)) {
 		memset(buf, 0, sizeof(buf));
