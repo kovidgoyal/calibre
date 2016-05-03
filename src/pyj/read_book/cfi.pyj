@@ -430,10 +430,6 @@ def point(cfi, doc):  # {{{
 
 def scroll_to(cfi, callback, doc):  # {{{
     doc = doc or window.doc
-    # TODO: Port MathJax support
-    if window.mathjax and window.mathjax.math_present and not window.mathjax.math_loaded:
-        window.mathjax.pending_cfi = v'[cfi, callback]'
-        return
     point_ = point(cfi, doc)
     if not point_:
         print("No point found for cfi: " + cfi)
