@@ -24,10 +24,11 @@ class MathJax(Command):
 
     def add_options(self, parser):
         parser.add_option('--path-to-mathjax', help='Path to the MathJax source code')
+        parser.add_option('--mathjax-url', default=self.MATH_JAX_URL, help='URL to MathJax source archive in zip format')
 
-    def download_mathjax_release(self, tdir):
-        self.info('Downloading MathJax:', self.MATH_JAX_URL)
-        filename = urlretrieve(self.MATH_JAX_URL)[0]
+    def download_mathjax_release(self, tdir, url):
+        self.info('Downloading MathJax:', url)
+        filename = urlretrieve(url)[0]
         with ZipFile(filename) as zf:
             zf.extractall(tdir)
             return os.path.join(tdir, 'MathJax-master')
@@ -56,7 +57,7 @@ class MathJax(Command):
         self.h = sha1()
         tdir = mkdtemp('calibre-mathjax-build')
         try:
-            src = opts.path_to_mathjax or self.download_mathjax_release(tdir)
+            src = opts.path_to_mathjax or self.download_mathjax_release(tdir, opts.mathjax_url)
             self.info('Compressing MathJax...')
             t = SpooledTemporaryFile()
             with ZipFile(t, 'w', ZIP_STORED) as zf:
