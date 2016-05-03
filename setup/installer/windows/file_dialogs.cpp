@@ -25,7 +25,10 @@ int show_dialog(HWND parent, bool save_dialog, LPWSTR title) {
 	hr = CoInitialize(NULL);
 	if (FAILED(hr)) { PRINTERR("Failed to initialize COM"); return 1; }
 
-	CALLCOM(CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, (save_dialog ? IID_IFileSaveDialog : IID_IFileOpenDialog), reinterpret_cast<LPVOID*>(&pfd)), "Failed to create COM object for file dialog")
+	CALLCOM(CoCreateInstance((save_dialog ? CLSID_FileSaveDialog : CLSID_FileOpenDialog),
+				NULL, CLSCTX_INPROC_SERVER, (save_dialog ? IID_IFileSaveDialog : IID_IFileOpenDialog),
+				reinterpret_cast<LPVOID*>(&pfd)),
+		"Failed to create COM object for file dialog")
 	CALLCOM(pfd->GetOptions(&dwFlags), "Failed to get options")
 	dwFlags |= FOS_FORCEFILESYSTEM;
 	CALLCOM(pfd->SetOptions(dwFlags), "Failed to set options")
@@ -106,6 +109,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		}
 
 		else if CHECK_KEY("TITLE") { READSTR(title) }
+
+		else if CHECK_KEY("SAVE_AS") { READ(1, buf); save_dialog = !!buf[0]; }
 
 		else {
 			PRINTERR("Unknown key");

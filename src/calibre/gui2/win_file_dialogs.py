@@ -26,6 +26,10 @@ def serialize_hwnd(hwnd):
         return b''
     return struct.pack(b'=' + (b'B4sQ' if is64bit else b'I'), 4, b'HWND', int(hwnd))
 
+def serialize_binary(key, val):
+    key = key.encode('ascii') if not isinstance(key, bytes) else key
+    return struct.pack(b'=B%ssB' % len(key), len(key), key, int(val))
+
 def serialize_string(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
     val = type('')(val).encode('utf-8')
@@ -57,12 +61,14 @@ class Loop(QEventLoop):
         QEventLoop.__init__(self)
         self.dialog_closed.connect(self.exit, type=Qt.QueuedConnection)
 
-def run_file_dialog(parent=None, title=None):
+def run_file_dialog(parent=None, title=None, save_as=False):
     data = []
     if parent is not None:
         data.append(serialize_hwnd(get_hwnd(parent)))
     if title is not None:
         data.append(serialize_string('TITLE', title))
+    if save_as:
+        data.append(serialize_binary('SAVE_AS', save_as))
     loop = Loop()
     h = Helper(subprocess.Popen(
         [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
@@ -81,7 +87,7 @@ if __name__ == '__main__':
     q = QMainWindow()
 
     def clicked():
-        print(run_file_dialog(b, 'Testing dialogs')), sys.stdout.flush()
+        print(run_file_dialog(b, 'Testing dialogs', True)), sys.stdout.flush()
 
     b = QPushButton('click me')
     b.clicked.connect(clicked)
