@@ -16,10 +16,10 @@
 #define REPORTERR(x) { PRINTERR(x); ret = 1; goto error; }
 #define CALLCOM(x, err) hr = x; if(FAILED(hr)) REPORTERR(err)
 
-int show_dialog(HWND parent, bool save_dialog, LPWSTR title, LPWSTR folder, bool multiselect, bool confirm_overwrite, bool only_dirs, bool no_symlinks) {
+int show_dialog(HWND parent, bool save_dialog, LPWSTR title, LPWSTR folder, LPWSTR filename, LPWSTR save_path, bool multiselect, bool confirm_overwrite, bool only_dirs, bool no_symlinks) {
 	int ret = 0;
 	IFileDialog *pfd = NULL;
-	IShellItem *result = NULL, *folder_item = NULL;
+	IShellItem *result = NULL, *folder_item = NULL, *save_path_item = NULL;
 	DWORD options;
 	HRESULT hr = S_OK;
 	hr = CoInitialize(NULL);
@@ -35,6 +35,11 @@ int show_dialog(HWND parent, bool save_dialog, LPWSTR title, LPWSTR folder, bool
 	if (save_dialog) {
 		options |= FOS_NOREADONLYRETURN;
 		if (confirm_overwrite) options |= FOS_OVERWRITEPROMPT;
+		if (save_path != NULL) {
+			hr = SHCreateItemFromParsingName(save_path, NULL, IID_IShellItem, reinterpret_cast<void **>(&save_path_item));
+			// Failure to set initial save path is not critical
+			if (SUCCEEDED(hr)) ((IFileSaveDialog*)pfd)->SetSaveAsItem(save_path_item);
+		}
 	} else {
 		if (multiselect) options |= FOS_ALLOWMULTISELECT;
 		if (only_dirs) options |= FOS_PICKFOLDERS;
@@ -47,6 +52,7 @@ int show_dialog(HWND parent, bool save_dialog, LPWSTR title, LPWSTR folder, bool
 		// Failure to set initial folder is not critical
 		if (SUCCEEDED(hr)) pfd->SetFolder(folder_item);
 	}
+	if (filename != NULL) pfd->SetFileName(filename); // Failure is not critical
 	hr = pfd->Show(parent);
 	if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) goto error;
 	if (FAILED(hr)) REPORTERR("Failed to show dialog")
@@ -104,7 +110,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	HWND parent = NULL;
 	bool save_dialog = false, multiselect = false, confirm_overwrite = false, only_dirs = false, no_symlinks = false;
 	unsigned short len = 0;
-	LPWSTR title = NULL, folder = NULL;
+	LPWSTR title = NULL, folder = NULL, filename = NULL, save_path = NULL;
 
 	SETBINARY(stdout); SETBINARY(stdin); SETBINARY(stderr);
 	// The calibre executables call SetDllDirectory, we unset it here just in
@@ -127,6 +133,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 		else if CHECK_KEY("FOLDER") { READSTR(folder) }
 
+		else if CHECK_KEY("FILENAME") { READSTR(filename) }
+
+		else if CHECK_KEY("SAVE_PATH") { READSTR(save_path) }
+
 		else if CHECK_KEY("SAVE_AS") { READBOOL(save_dialog) }
 
 		else if CHECK_KEY("MULTISELECT") { READBOOL(multiselect) }
@@ -143,5 +153,5 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		}
 	}
 
-	return show_dialog(parent, save_dialog, title, folder, multiselect, confirm_overwrite, only_dirs, no_symlinks);
+	return show_dialog(parent, save_dialog, title, folder, filename, save_path, multiselect, confirm_overwrite, only_dirs, no_symlinks);
 }

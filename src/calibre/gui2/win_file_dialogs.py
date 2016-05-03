@@ -68,8 +68,23 @@ class Loop(QEventLoop):
         QEventLoop.__init__(self)
         self.dialog_closed.connect(self.exit, type=Qt.QueuedConnection)
 
+def process_path(x):
+    if isinstance(x, bytes):
+        x = x.decode(filesystem_encoding)
+    return os.path.abspath(expanduser(x))
+
+def select_initial_dir(q):
+    while q:
+        c = os.path.dirname(q)
+        if c == q:
+            break
+        if os.path.exists(c):
+            return c
+        q = c
+    return expanduser('~')
+
 def run_file_dialog(
-        parent=None, title=None, initial_folder=None,
+        parent=None, title=None, initial_folder=None, filename=None, save_path=None,
         allow_multiples=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False
 ):
     data = []
@@ -77,23 +92,34 @@ def run_file_dialog(
         data.append(serialize_hwnd(get_hwnd(parent)))
     if title is not None:
         data.append(serialize_string('TITLE', title))
-    if initial_folder is not None:
-        if isinstance(initial_folder, bytes):
-            initial_folder = initial_folder.decode(filesystem_encoding)
-        initial_folder = os.path.abspath(expanduser(initial_folder))
-        if os.path.isdir(initial_folder):
-            data.append(serialize_string('FOLDER', initial_folder))
     if no_symlinks:
         data.append(serialize_binary('NO_SYMLINKS', no_symlinks))
     if save_as:
         data.append(serialize_binary('SAVE_AS', save_as))
         if confirm_overwrite:
             data.append(serialize_binary('CONFIRM_OVERWRITE', confirm_overwrite))
+        if save_path is not None:
+            save_path = process_path(save_path)
+            if os.path.exists(save_path):
+                data.append(serialize_string('SAVE_PATH', save_path))
+            else:
+                if not initial_folder:
+                    initial_folder = select_initial_dir(save_path)
+                if not filename:
+                    filename = os.path.basename(save_path)
     else:
         if allow_multiples:
             data.append(serialize_binary('MULTISELECT', allow_multiples))
         if only_dirs:
             data.append(serialize_binary('ONLY_DIRS', only_dirs))
+    if initial_folder is not None:
+        initial_folder = process_path(initial_folder)
+        if os.path.isdir(initial_folder):
+            data.append(serialize_string('FOLDER', initial_folder))
+    if filename:
+        if isinstance(filename, bytes):
+            filename = filename.decode(filesystem_encoding)
+        data.append(serialize_string('FILENAME', filename))
     loop = Loop()
     h = Helper(subprocess.Popen(
         [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
@@ -112,7 +138,7 @@ if __name__ == '__main__':
     q = QMainWindow()
 
     def clicked():
-        print(run_file_dialog(b, 'Testing dialogs', '~')), sys.stdout.flush()
+        print(run_file_dialog(b, 'Testing dialogs', save_as=True, save_path='~/xxx.fdgdfg')), sys.stdout.flush()
 
     b = QPushButton('click me')
     b.clicked.connect(clicked)
