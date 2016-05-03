@@ -16,11 +16,11 @@
 #define REPORTERR(x) { PRINTERR(x); ret = 1; goto error; }
 #define CALLCOM(x, err) hr = x; if(FAILED(hr)) REPORTERR(err)
 
-int show_dialog(HWND parent, bool save_dialog, LPWSTR title) {
+int show_dialog(HWND parent, bool save_dialog, LPWSTR title, bool multiselect, bool confirm_overwrite, bool only_dirs, bool no_symlinks) {
 	int ret = 0;
 	IFileDialog *pfd = NULL;
 	IShellItem *psiResult = NULL;
-	DWORD dwFlags;
+	DWORD options;
 	HRESULT hr = S_OK;
 	hr = CoInitialize(NULL);
 	if (FAILED(hr)) { PRINTERR("Failed to initialize COM"); return 1; }
@@ -29,9 +29,18 @@ int show_dialog(HWND parent, bool save_dialog, LPWSTR title) {
 				NULL, CLSCTX_INPROC_SERVER, (save_dialog ? IID_IFileSaveDialog : IID_IFileOpenDialog),
 				reinterpret_cast<LPVOID*>(&pfd)),
 		"Failed to create COM object for file dialog")
-	CALLCOM(pfd->GetOptions(&dwFlags), "Failed to get options")
-	dwFlags |= FOS_FORCEFILESYSTEM;
-	CALLCOM(pfd->SetOptions(dwFlags), "Failed to set options")
+	CALLCOM(pfd->GetOptions(&options), "Failed to get options")
+	options |= FOS_PATHMUSTEXIST | FOS_FORCESHOWHIDDEN;
+	if (no_symlinks) options |= FOS_NODEREFERENCELINKS;
+	if (save_dialog) {
+		options |= FOS_NOREADONLYRETURN;
+		if (confirm_overwrite) options |= FOS_OVERWRITEPROMPT;
+	} else {
+		if (multiselect) options |= FOS_ALLOWMULTISELECT;
+		if (only_dirs) options |= FOS_PICKFOLDERS;
+		options |= FOS_FILEMUSTEXIST;
+	}
+	CALLCOM(pfd->SetOptions(options), "Failed to set options")
 	if (title != NULL) { CALLCOM(pfd->SetTitle(title), "Failed to set title") }
 	hr = pfd->Show(parent);
 	if (hr == HRESULT_FROM_WIN32(ERROR_CANCELLED)) goto error;
@@ -82,12 +91,13 @@ bool read_string(unsigned short sz, LPWSTR* ans) {
 #define CHECK_KEY(x) (key_size == sizeof(x) - 1 && memcmp(buf, x, sizeof(x) - 1) == 0)
 #define READSTR(x) READ(sizeof(unsigned short), buf); if(!read_string(*((unsigned short*)buf), &x)) return 1;
 #define SETBINARY(x) if(_setmode(_fileno(x), _O_BINARY) == -1) { PRINTERR("Failed to set binary mode"); return 1; }
+#define READBOOL(x)  READ(1, buf); x = !!buf[0]; 
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
 	char buf[257];
 	size_t key_size = 0;
 	HWND parent = NULL;
-	bool save_dialog = false;
+	bool save_dialog = false, multiselect = false, confirm_overwrite = false, only_dirs = false, no_symlinks = false;
 	unsigned short len = 0;
 	LPWSTR title = NULL;
 
@@ -110,7 +120,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 		else if CHECK_KEY("TITLE") { READSTR(title) }
 
-		else if CHECK_KEY("SAVE_AS") { READ(1, buf); save_dialog = !!buf[0]; }
+		else if CHECK_KEY("SAVE_AS") { READBOOL(save_dialog) }
+
+		else if CHECK_KEY("MULTISELECT") { READBOOL(multiselect) }
+
+		else if CHECK_KEY("CONFIRM_OVERWRITE") { READBOOL(confirm_overwrite) }
+
+		else if CHECK_KEY("ONLY_DIRS") { READBOOL(only_dirs) }
+
+		else if CHECK_KEY("NO_SYMLINKS") { READBOOL(no_symlinks) }
 
 		else {
 			PRINTERR("Unknown key");
@@ -118,5 +136,5 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 		}
 	}
 
-	return show_dialog(parent, save_dialog, title);
+	return show_dialog(parent, save_dialog, title, multiselect, confirm_overwrite, only_dirs, no_symlinks);
 }

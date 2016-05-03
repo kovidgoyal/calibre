@@ -61,14 +61,23 @@ class Loop(QEventLoop):
         QEventLoop.__init__(self)
         self.dialog_closed.connect(self.exit, type=Qt.QueuedConnection)
 
-def run_file_dialog(parent=None, title=None, save_as=False):
+def run_file_dialog(parent=None, title=None, allow_multiples=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False):
     data = []
     if parent is not None:
         data.append(serialize_hwnd(get_hwnd(parent)))
     if title is not None:
         data.append(serialize_string('TITLE', title))
+    if no_symlinks:
+        data.append(serialize_binary('NO_SYMLINKS', no_symlinks))
     if save_as:
         data.append(serialize_binary('SAVE_AS', save_as))
+        if confirm_overwrite:
+            data.append(serialize_binary('CONFIRM_OVERWRITE', confirm_overwrite))
+    else:
+        if allow_multiples:
+            data.append(serialize_binary('MULTISELECT', allow_multiples))
+        if only_dirs:
+            data.append(serialize_binary('ONLY_DIRS', only_dirs))
     loop = Loop()
     h = Helper(subprocess.Popen(
         [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
@@ -87,7 +96,7 @@ if __name__ == '__main__':
     q = QMainWindow()
 
     def clicked():
-        print(run_file_dialog(b, 'Testing dialogs', True)), sys.stdout.flush()
+        print(run_file_dialog(b, 'Testing dialogs', only_dirs=True)), sys.stdout.flush()
 
     b = QPushButton('click me')
     b.clicked.connect(clicked)
