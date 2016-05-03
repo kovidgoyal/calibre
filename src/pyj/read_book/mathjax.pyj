@@ -23,6 +23,8 @@ def monkeypatch(mathjax_files):
             return name
         ans = get_url(mathjax_files, name)
         if ans is name and not name.startswith('blob:'):
+            if ans.endswith('.eot') or ans.endswith('.otf'):
+                return ''
             print('WARNING: Failed to resolve MathJax file:', name)
         return ans
     window.MathJax.Ajax.fileURL = file_url
