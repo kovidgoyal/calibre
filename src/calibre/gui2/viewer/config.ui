@@ -133,7 +133,7 @@ QToolBox::tab:hover {
               <number>8</number>
              </property>
              <property name="maximum">
-              <number>40</number>
+              <number>100</number>
              </property>
             </widget>
            </item>
@@ -156,7 +156,7 @@ QToolBox::tab:hover {
               <number>8</number>
              </property>
              <property name="maximum">
-              <number>50</number>
+              <number>100</number>
              </property>
             </widget>
            </item>
