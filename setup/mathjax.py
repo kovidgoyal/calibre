@@ -7,12 +7,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, shutil
 from urllib import urlretrieve
 from zipfile import ZipFile, ZIP_STORED, ZipInfo
 from hashlib import sha1
+from tempfile import mkdtemp, SpooledTemporaryFile
 
-from lzma.xz import compress
 
 from setup import Command
 
@@ -41,22 +41,23 @@ class MathJax(Command):
         zf.writestr(zi, raw)
 
     def add_tree(self, zf, base, prefix, ignore=lambda n:False):
-        from calibre import walk
-        for f in walk(base):
-            name = prefix + '/' + os.path.relpath(f, base).replace(os.sep, '/')
-            if not ignore(name):
-                self.add_file(zf, f, name)
+        for dirpath, dirnames, filenames in os.walk(base):
+            for fname in filenames:
+                f = os.path.join(dirpath, fname)
+                name = prefix + '/' + os.path.relpath(f, base).replace(os.sep, '/')
+                if not ignore(name):
+                    self.add_file(zf, f, name)
 
     def ignore_fonts(self, name):
         return '/fonts/' in name and self.FONT_FAMILY not in name
 
     def run(self, opts):
-        from calibre.ptempfile import TemporaryDirectory
+        from lzma.xz import compress
         self.h = sha1()
-        with TemporaryDirectory() as tdir:
+        tdir = mkdtemp('calibre-mathjax-build')
+        try:
             src = opts.path_to_mathjax or self.download_mathjax_release(tdir)
             self.info('Compressing MathJax...')
-            from calibre.ptempfile import SpooledTemporaryFile
             t = SpooledTemporaryFile()
             with ZipFile(t, 'w', ZIP_STORED) as zf:
                 self.add_file(zf, self.j(src, 'unpacked', 'MathJax.js'), 'MathJax.js')
@@ -70,3 +71,5 @@ class MathJax(Command):
                 compress(t, f, level=9)
             with open(self.j(self.RESOURCES, 'content-server', 'mathjax.version'), 'wb') as f:
                 f.write(zf.comment)
+        finally:
+            shutil.rmtree(tdir)
