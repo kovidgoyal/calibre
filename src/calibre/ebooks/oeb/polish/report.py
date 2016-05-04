@@ -15,7 +15,7 @@ from calibre.ebooks.oeb.base import XPath, xml2text
 from calibre.ebooks.oeb.polish.container import OEB_DOCS, OEB_STYLES, OEB_FONTS
 from calibre.ebooks.oeb.polish.spell import get_all_words
 from calibre.utils.icu import numeric_sort_key, ord_string, safe_chr
-from calibre.utils.magick.draw import identify
+from calibre.utils.imghdr import identify
 from css_selectors import Select, SelectorError
 
 File = namedtuple('File', 'name dir basename size category')
@@ -50,7 +50,7 @@ def safe_img_data(container, name, mt):
     if 'svg' in mt:
         return 0, 0
     try:
-        width, height, fmt = identify(container.name_to_abspath(name))
+        fmt, width, height = identify(container.name_to_abspath(name))
     except Exception:
         width = height = 0
     return width, height

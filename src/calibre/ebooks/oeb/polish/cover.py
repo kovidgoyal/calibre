@@ -11,7 +11,7 @@ import shutil, re, os
 
 from calibre.ebooks.oeb.base import OPF, OEB_DOCS, XPath, XLINK, xml2text
 from calibre.ebooks.oeb.polish.replace import replace_links, get_recommended_folders
-from calibre.utils.magick.draw import identify, identify_data
+from calibre.utils.imghdr import identify
 
 def set_azw3_cover(container, cover_path, report, options=None):
     existing_image = options is not None and options.get('existing_image', False)
@@ -299,9 +299,10 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
             width, height = 600, 800
             try:
                 if existing_image:
-                    width, height = identify_data(container.raw_data(existing_image, decode=False))[:2]
+                    width, height = identify(container.raw_data(existing_image, decode=False))[1:]
                 else:
-                    width, height = identify(cover_path)[:2]
+                    with lopen(cover_path, 'rb') as csrc:
+                        width, height = identify(csrc)[1:]
             except:
                 container.log.exception("Failed to get width and height of cover")
             ar = 'xMidYMid meet' if keep_aspect else 'none'
