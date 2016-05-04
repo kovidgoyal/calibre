@@ -12,16 +12,16 @@ from urllib import url2pathname, quote
 from httplib import responses
 from base64 import b64decode
 
-from calibre import browser, relpath, unicode_path, fit_image
+from calibre import browser, relpath, unicode_path
 from calibre.constants import filesystem_encoding, iswindows
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.utils.config import OptionParser
 from calibre.utils.logging import Log
-from calibre.utils.magick import Image
-from calibre.utils.magick.draw import identify_data, thumbnail
+from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
+from calibre.web.fetch.utils import rescale_image
 
 class AbortArticle(Exception):
     pass
@@ -349,41 +349,7 @@ class RecursiveFetcher(object):
                         ns.replaceWith(src.replace(m.group(1), stylepath))
 
     def rescale_image(self, data):
-        orig_w, orig_h, ifmt = identify_data(data)
-        orig_data = data  # save it in case compression fails
-        if self.scale_news_images is not None:
-            wmax, hmax = self.scale_news_images
-            scale, new_w, new_h = fit_image(orig_w, orig_h, wmax, hmax)
-            if scale:
-                data = thumbnail(data, new_w, new_h, compression_quality=95)[-1]
-                orig_w = new_w
-                orig_h = new_h
-        if self.compress_news_images_max_size is None:
-            if self.compress_news_images_auto_size is None:  # not compressing
-                return data
-            else:
-                maxsizeb = (orig_w * orig_h)/self.compress_news_images_auto_size
-        else:
-            maxsizeb = self.compress_news_images_max_size * 1024
-        scaled_data = data  # save it in case compression fails
-        if len(scaled_data) <= maxsizeb:  # no compression required
-            return scaled_data
-
-        img = Image()
-        quality = 95
-        img.load(data)
-        while len(data) >= maxsizeb and quality >= 5:
-            quality -= 5
-            img.set_compression_quality(quality)
-            data = img.export('jpg')
-
-        if len(data) >= len(scaled_data):  # compression failed
-            return orig_data if len(orig_data) <= len(scaled_data) else scaled_data
-
-        if len(data) >= len(orig_data):  # no improvement
-            return orig_data
-
-        return data
+        return rescale_image(data, self.scale_news_images, self.compress_news_images_max_size, self.compress_news_images_auto_size)
 
     def process_images(self, soup, baseurl):
         diskpath = unicode_path(os.path.join(self.current_dir, 'images'))
@@ -430,19 +396,16 @@ class RecursiveFetcher(object):
                 tag['src'] = imgpath
             else:
                 try:
+                    # Ensure image is valid
+                    img = image_from_data(data)
                     if itype not in {'png', 'jpg', 'jpeg'}:
-                        itype = 'png' if itype == 'gif' else 'jpg'
-                        im = Image()
-                        im.load(data)
-                        data = im.export(itype)
+                        itype = 'png' if itype == 'gif' else 'jpeg'
+                        data = image_to_data(img, fmt=itype)
                     if self.compress_news_images and itype in {'jpg','jpeg'}:
                         try:
-                            data = self.rescale_image(data)
-                        except:
+                            data = self.rescale_image(img)
+                        except Exception:
                             self.log.exception('failed to compress image '+iurl)
-                            identify_data(data)
-                    else:
-                        identify_data(data)
                     # Moon+ apparently cannot handle .jpeg files
                     if itype == 'jpeg':
                         itype = 'jpg'
@@ -452,7 +415,7 @@ class RecursiveFetcher(object):
                     with open(imgpath, 'wb') as x:
                         x.write(data)
                     tag['src'] = imgpath
-                except:
+                except Exception:
                     traceback.print_exc()
                     continue
 
