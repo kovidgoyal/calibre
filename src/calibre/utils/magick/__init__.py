@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 from calibre.constants import plugins, filesystem_encoding
+from calibre.utils.imghdr import what
 
 _magick, _merr = plugins['magick']
 
@@ -132,21 +133,18 @@ class Image(_magick.Image):  # {{{
         if not data:
             raise ValueError('Cannot open image from empty data string')
         data = bytes(data)
+        fmt = what(None, data)
+        if fmt not in {'gif', 'png', 'jpeg', 'jpeg2000', 'webp'}:
+            raise ValueError('Unsupported image format: %s' % fmt)
         return _magick.Image.load(self, data)
 
     def open(self, path_or_file):
-        if not hasattr(path_or_file, 'read') and \
-            path_or_file.lower().endswith('.wmf'):
-            # Special handling for WMF files as ImageMagick seems
-            # to hang while reading them from a blob on linux
-            if isinstance(path_or_file, unicode):
-                path_or_file = path_or_file.encode(filesystem_encoding)
-            return _magick.Image.read(self, path_or_file)
         data = path_or_file
         if hasattr(data, 'read'):
             data = data.read()
         else:
-            data = open(data, 'rb').read()
+            with lopen(data, 'rb') as f:
+                data = f.read()
         if not data:
             raise ValueError('%r is an empty file'%path_or_file)
         self.load(data)
