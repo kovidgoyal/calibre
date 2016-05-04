@@ -142,10 +142,7 @@ def identify_data(data):
     or raises an Exception if data is not an image.
     '''
     img = Image()
-    img.identify(data)
-    width, height = img.size
-    fmt = img.format
-    return (width, height, fmt)
+    return img.identify(data)
 
 def identify(path):
     '''
