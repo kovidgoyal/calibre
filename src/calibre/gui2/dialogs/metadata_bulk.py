@@ -24,7 +24,7 @@ from calibre.utils.config import dynamic, JSONConfig
 from calibre.utils.titlecase import titlecase
 from calibre.utils.icu import sort_key, capitalize
 from calibre.utils.config import prefs, tweaks
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import identify
 from calibre.utils.date import qt_to_dt
 from calibre.db import _get_next_series_num_for_list
 
@@ -43,7 +43,7 @@ def get_cover_data(stream, ext):  # {{{
         elif mi.cover_data[1] is not None:
             cdata = mi.cover_data[1]
         if cdata:
-            width, height, fmt = identify_data(cdata)
+            fmt, width, height = identify(cdata)
             area = width*height
     except:
         cdata = area = None
