@@ -22,7 +22,7 @@ from calibre.utils.date import format_date, is_date_undefined, now as nowf, as_l
 from calibre.utils.filenames import ascii_text, shorten_components_to
 from calibre.utils.formatter import TemplateFormatter
 from calibre.utils.icu import capitalize, collation_order, sort_key
-from calibre.utils.magick.draw import thumbnail
+from calibre.utils.img import scale_image
 from calibre.utils.zipfile import ZipFile
 
 class Formatter(TemplateFormatter):
@@ -4336,7 +4336,7 @@ class CatalogBuilder(object):
                 pass
 
         # Generate crc for current cover
-        with open(title['cover'], 'rb') as f:
+        with lopen(title['cover'], 'rb') as f:
             data = f.read()
         cover_crc = hex(zlib.crc32(data))
 
@@ -4358,9 +4358,9 @@ class CatalogBuilder(object):
                         return
 
             # Save thumb for catalog. If invalid data, error returns to generate_thumbnails()
-            thumb_data = thumbnail(data,
+            thumb_data = scale_image(data,
                     width=self.thumb_width, height=self.thumb_height)[-1]
-            with open(os.path.join(image_dir, thumb_file), 'wb') as f:
+            with lopen(os.path.join(image_dir, thumb_file), 'wb') as f:
                 f.write(thumb_data)
 
             # Save thumb to archive
