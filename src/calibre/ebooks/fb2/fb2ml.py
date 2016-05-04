@@ -16,8 +16,8 @@ from lxml import etree
 
 from calibre import prepare_string_for_xml
 from calibre.constants import __appname__, __version__
-from calibre.utils.magick import Image
 from calibre.utils.localization import lang_as_iso639_1
+from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
 
 class FB2MLizer(object):
@@ -296,10 +296,7 @@ class FB2MLizer(object):
             if item.media_type in OEB_RASTER_IMAGES:
                 try:
                     if item.media_type != 'image/jpeg':
-                        im = Image()
-                        im.load(item.data)
-                        im.set_compression_quality(70)
-                        imdata = im.export('jpg')
+                        imdata = save_cover_data_to(item.data, compression_quality=70)
                         raw_data = b64encode(imdata)
                     else:
                         raw_data = b64encode(item.data)
