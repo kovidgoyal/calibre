@@ -12,12 +12,11 @@ from collections import OrderedDict
 import cherrypy
 
 from calibre.constants import filesystem_encoding, config_dir
-from calibre import (isbytestring, force_unicode, fit_image,
-        prepare_string_for_xml, sanitize_file_name2)
+from calibre import (isbytestring, force_unicode, prepare_string_for_xml, sanitize_file_name2)
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.config import prefs, JSONConfig
 from calibre.utils.icu import sort_key
-from calibre.utils.magick import Image
+from calibre.utils.img import scale_image
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.field_metadata import category_icon_map
@@ -333,14 +332,7 @@ class BrowseServer(object):
                     data = I(name, data=True)
                 except:
                     raise cherrypy.HTTPError(404, 'no icon named: %r'%name)
-            img = Image()
-            img.load(data)
-            width, height = img.size
-            scaled, width, height = fit_image(width, height, 48, 48)
-            if scaled:
-                img.size = (width, height)
-
-            self.__browse_icon_cache__[name] = img.export('png')
+            self.__browse_icon_cache__[name] = scale_image(data, 48, 48, as_png=True)[-1]
         return self.__browse_icon_cache__[name]
 
     def browse_toplevel(self):

@@ -9,13 +9,12 @@ import re, os, posixpath
 
 import cherrypy
 
-from calibre import fit_image, guess_type
+from calibre import guess_type
 from calibre.utils.date import fromtimestamp, as_utc
+from calibre.utils.img import save_cover_data_to, scale_image
 from calibre.library.caches import SortKeyGenerator
 from calibre.library.save_to_disk import find_plugboard
 from calibre.ebooks.metadata import authors_to_string
-from calibre.utils.magick.draw import (save_cover_data_to, Image,
-        thumbnail as generate_thumbnail)
 from calibre.utils.filenames import ascii_filename
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.utils.config import tweaks
@@ -181,19 +180,9 @@ class ContentServer(object):
                     quality = 50
                 elif quality > 99:
                     quality = 99
-                return generate_thumbnail(cover, width=thumb_width,
-                        height=thumb_height, compression_quality=quality)[-1]
+                return scale_image(cover, thumb_width, thumb_height, compression_quality=quality)[-1]
 
-            img = Image()
-            img.load(cover)
-            width, height = img.size
-            scaled, width, height = fit_image(width, height,
-                thumb_width if thumbnail else self.max_cover_width,
-                thumb_height if thumbnail else self.max_cover_height)
-            if not scaled:
-                return cover
-            return save_cover_data_to(img, 'img.jpg', return_data=True,
-                    resize_to=(width, height))
+            return save_cover_data_to(cover, None, minify_to=(self.max_cover_width, self.max_cover_height))
         except Exception as err:
             import traceback
             cherrypy.log.error('Failed to generate cover:')
