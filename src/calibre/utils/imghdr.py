@@ -5,18 +5,22 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from struct import unpack, error
+import os
+from calibre.srv.utils import ReadOnlyFileBuffer
 
 """ Recognize image file formats and sizes based on their first few bytes."""
+
+HSIZE = 120
 
 def what(file, h=None):
     ' Recognize image headers '
     if h is None:
         if isinstance(file, basestring):
             with lopen(file, 'rb') as f:
-                h = f.read(150)
+                h = f.read(HSIZE)
         else:
             location = file.tell()
-            h = file.read(150)
+            h = file.read(HSIZE)
             file.seek(location)
     if isinstance(h, bytes):
         h = memoryview(h)
@@ -30,78 +34,55 @@ def what(file, h=None):
         return 'jpeg'
     return None
 
-HSIZE = 200
-
-def identify(stream_or_data):
+def identify(src):
     ''' Recognize file format and sizes. Returns format, width, height. width
     and height will be -1 if not found and fmt will be None if the image is not
-    recognized. `stream_or_data` can be a unicode string, in which case it is
-    assumed to be a filename, or a file-like object, or a bytestring. '''
+    recognized. '''
     width = height = -1
 
-    if isinstance(stream_or_data, type('')):
-        with lopen(stream_or_data, 'rb') as sf:
-            head = sf.read(HSIZE)
-    elif isinstance(stream_or_data, bytes):
-        head = stream_or_data
+    if isinstance(src, type('')):
+        stream = lopen(src, 'rb')
+    elif isinstance(src, bytes):
+        stream = ReadOnlyFileBuffer(src)
     else:
-        pos = stream_or_data.tell()
-        head = stream_or_data.read(HSIZE)
-        stream_or_data.seek(pos)
+        stream = src
 
-    if isinstance(head, bytes):
-        head = memoryview(head)
-
+    pos = stream.tell()
+    head = stream.read(HSIZE)
+    stream.seek(pos)
     fmt = what(None, head)
 
     if fmt in {'jpeg', 'gif', 'png', 'jpeg2000'}:
         size = len(head)
-        if size >= 10 and head[:6] in (b'GIF87a', b'GIF89a'):
-            # GIF
-            try:
-                width, height = unpack(b"<hh", head[6:10])
-            except error:
-                return fmt, width, height
-        elif size >= 16 and head[:8] == b'\211PNG\r\n\032\n':
+        if fmt == 'png':
             # PNG
             s = head[16:24] if size >= 24 and head[12:16] == b'IHDR' else head[8:16]
             try:
                 width, height = unpack(b">LL", s)
             except error:
                 return fmt, width, height
-        elif head[:2] == b'\xff\xd8':
+        elif fmt == 'jpeg':
             # JPEG
+            pos = stream.tell()
             try:
-                width, height = jpeg_dimension(head)
+                height, width = jpeg_dimensions(stream)
             except Exception:
                 return fmt, width, height
-        elif size >= 56 and head[:12] == b'\x00\x00\x00\x0cjP  \r\n\x87\n':
+            finally:
+                stream.seek(pos)
+        elif fmt == 'gif':
+            # GIF
+            try:
+                width, height = unpack(b"<HH", head[6:10])
+            except error:
+                return fmt, width, height
+        elif size >= 56 and fmt == 'jpeg2000':
             # JPEG2000
             try:
                 height, width = unpack(b'>LL', head[48:56])
             except error:
                 return fmt, width, height
     return fmt, width, height
-
-
-def jpeg_dimension(head):
-    pos = ftype = 0
-    size = 2
-    while not 0xc0 <= ftype <= 0xcf:
-        pos += size
-        byte = head[pos]
-        pos += 1
-        while byte == b'\xff':
-            byte = head[pos]
-            pos += 1
-        ftype = ord(byte)
-        size = unpack(b'>H', head[pos:pos+2])[0] - 2
-        pos += 2
-    # We are at a SOFn block
-    pos += 1
-    height, width = unpack(b'>HH', head[pos:pos+4])
-    return width, height
-
 
 # ---------------------------------#
 # Subroutines per image file type #
@@ -119,6 +100,47 @@ def test_jpeg(h):
         q = h[:32].tobytes()
         if b'JFIF' in q or b'8BIM' in q:
             return 'jpeg'
+
+def jpeg_dimensions(stream):
+    # A JPEG marker is two bytes of the form 0xff x where 0 < x < 0xff
+    # See section B.1.1.2 of https://www.w3.org/Graphics/JPEG/itu-t81.pdf
+    # We read the dimensions from the first SOFn section we come across
+    stream.seek(2, os.SEEK_CUR)
+
+    def read(n):
+        ans = stream.read(n)
+        if len(ans) != n:
+            raise ValueError('Truncated JPEG data')
+        return ans
+
+    x = b''
+    while True:
+        # Find next marker
+        while x != b'\xff':
+            x = read(1)
+        # Soak up padding
+        marker = b'\xff'
+        while marker == b'\xff':
+            marker = read(1)
+        q = ord(marker[0])  # [0] needed for memoryview
+        if 0xc0 <= q <= 0xcf and q != 0xc4 and q != 0xcc:
+            # SOFn marker
+            stream.seek(3, os.SEEK_CUR)
+            return unpack(b'>HH', read(4))
+        elif 0xd8 <= q <= 0xda:
+            break  # start of image, end of image, start of scan, no point
+        elif q == 0:
+            return -1, -1  # Corrupted JPEG
+        elif q == 0x01 or 0xd0 <= q <= 0xd7:
+            # Standalone marker
+            continue
+        else:
+            # skip this section
+            size = unpack(b'>H', read(2))[0]
+            stream.seek(size - 2, os.SEEK_CUR)
+        # standalone marker, keep going
+
+    return -1, -1
 
 tests.append(test_jpeg)
 
