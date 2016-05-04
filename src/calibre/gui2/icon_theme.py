@@ -17,7 +17,7 @@ from PyQt5.Qt import (
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
     pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap,
     QGridLayout, QStyledItemDelegate, QModelIndex, QApplication, QStaticText,
-    QStyle, QPen, QColor, QPainter
+    QStyle, QPen
 )
 
 from calibre import walk, fit_image, human_readable
@@ -31,7 +31,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.https import get_https_resource_securely, HTTPError
 from calibre.utils.icu import numeric_sort_key as sort_key
-from calibre.utils.img import image_from_data, image_to_data
+from calibre.utils.img import image_from_data, Canvas
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
@@ -153,29 +153,26 @@ def default_cover_icons(cols=5):
 def create_cover(report, icons=(), cols=5, size=60, padding=8):
     icons = icons or tuple(default_cover_icons(cols))
     rows = int(math.ceil(len(icons) / cols))
-    canvas = QImage(cols * (size + padding), rows * (size + padding), QImage.Format_RGB32)
-    canvas.fill(QColor('#eeeeee'))
-    p = QPainter(canvas)
-    y = -size - padding // 2
-    x = 0
-    for i, icon in enumerate(icons):
-        if i % cols == 0:
-            y += padding + size
-            x = padding // 2
-        else:
-            x += size + padding
-        if report and icon in report.name_map:
-            ipath = os.path.join(report.path, report.name_map[icon])
-        else:
-            ipath = I(icon, allow_user_override=False)
-        with lopen(ipath, 'rb') as f:
-            img = image_from_data(f.read())
-        scaled, nwidth, nheight = fit_image(img.width(), img.height(), size, size)
-        img = img.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-        dx = (size - nwidth) // 2
-        p.drawImage(x + dx, y, img)
-    p.end()
-    return image_to_data(canvas)
+    with Canvas(cols * (size + padding), rows * (size + padding), bgcolor='#eee') as canvas:
+        y = -size - padding // 2
+        x = 0
+        for i, icon in enumerate(icons):
+            if i % cols == 0:
+                y += padding + size
+                x = padding // 2
+            else:
+                x += size + padding
+            if report and icon in report.name_map:
+                ipath = os.path.join(report.path, report.name_map[icon])
+            else:
+                ipath = I(icon, allow_user_override=False)
+            with lopen(ipath, 'rb') as f:
+                img = image_from_data(f.read())
+            scaled, nwidth, nheight = fit_image(img.width(), img.height(), size, size)
+            img = img.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            dx = (size - nwidth) // 2
+            canvas.compose(img, x + dx, y)
+    return canvas.export()
 
 def verify_theme(report):
     must_use_qt()

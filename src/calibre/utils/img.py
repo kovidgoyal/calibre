@@ -168,6 +168,26 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     p.end()
     return nimg
 
+class Canvas(object):
+
+    def __init__(self, width, height, bgcolor='#ffffff'):
+        self.img = QImage(width, height, QImage.Format_RGB32)
+        self.img.fill(QColor(bgcolor))
+
+    def __enter__(self):
+        self.painter = QPainter(self.img)
+        return self
+
+    def __exit__(self, *args):
+        self.painter.end()
+
+    def compose(self, img, x=0, y=0):
+        img = image_from_data(img)
+        self.painter.drawImage(x, y, img)
+
+    def export(self, fmt='JPEG', compression_quality=95):
+        return image_to_data(self.img, compression_quality=compression_quality, fmt=fmt)
+
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
     cwd = os.path.dirname(file_path)
