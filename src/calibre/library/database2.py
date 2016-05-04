@@ -38,7 +38,7 @@ from calibre.utils.config import prefs, tweaks, from_json, to_json
 from calibre.utils.icu import sort_key, strcmp, lower
 from calibre.utils.search_query_parser import saved_searches, set_saved_searches
 from calibre.ebooks import check_ebook_format
-from calibre.utils.magick.draw import save_cover_data_to
+from calibre.utils.img import save_cover_data_to
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db import _get_next_series_num_for_list, _get_series_values, get_data_as_dict

@@ -12,7 +12,7 @@ from io import BytesIO
 from calibre.ebooks.metadata.epub import get_metadata
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.srv.tests.base import LibraryBaseTest
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import identify
 from calibre.utils.shared_file import share_open, test as test_share_open
 
 class ContentTest(LibraryBaseTest):
@@ -49,7 +49,7 @@ class ContentTest(LibraryBaseTest):
                 if sz is None:
                     self.ae(data, raw)
                 else:
-                    self.ae(sz, identify_data(data)[0])
+                    self.ae(sz, identify(data)[1])
                 test_response(r)
                 conn.request('GET', url, headers={'If-None-Match':r.getheader('ETag')})
                 r = conn.getresponse()
@@ -150,14 +150,14 @@ class ContentTest(LibraryBaseTest):
             self.ae(r.status, httplib.OK)  # Auto generated cover
             r, data = get('thumb', 1)
             self.ae(r.status, httplib.OK)
-            self.ae(identify_data(data), (60, 60, 'jpeg'))
+            self.ae(identify(data), ('jpeg', 60, 60))
             self.ae(r.getheader('Used-Cache'), 'no')
             r, data = get('thumb', 1)
             self.ae(r.status, httplib.OK)
             self.ae(r.getheader('Used-Cache'), 'yes')
             r, data = get('thumb', 1, q='sz=100')
             self.ae(r.status, httplib.OK)
-            self.ae(identify_data(data), (100, 100, 'jpeg'))
+            self.ae(identify(data), ('jpeg', 100, 100))
             self.ae(r.getheader('Used-Cache'), 'no')
             r, data = get('thumb', 1, q='sz=100x100')
             self.ae(r.status, httplib.OK)
@@ -165,7 +165,7 @@ class ContentTest(LibraryBaseTest):
             change_cover(1, 1)
             r, data = get('thumb', 1, q='sz=100')
             self.ae(r.status, httplib.OK)
-            self.ae(identify_data(data), (100, 100, 'jpeg'))
+            self.ae(identify(data), ('jpeg', 100, 100))
             self.ae(r.getheader('Used-Cache'), 'no')
 
             # Test file sharing in cache
