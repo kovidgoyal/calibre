@@ -151,14 +151,12 @@ def parse_outline(raw, output_dir):
 
 
 def flip_image(img, flip):
-    from calibre.utils.magick import Image
-    im = Image()
-    im.open(img)
-    if b'x' in flip:
-        im.flip(True)
-    if b'y' in flip:
-        im.flip()
-    im.save(img)
+    from calibre.utils.img import flip_image, image_and_format_from_data, image_to_data
+    with lopen(img, 'r+b') as f:
+        img, fmt = image_and_format_from_data(f.read())
+        img = flip_image(img, horizontal=b'x' in flip, vertical=b'y' in flip)
+        f.seek(0), f.truncate()
+        f.write(image_to_data(img, fmt=fmt))
 
 def flip_images(raw):
     for match in re.finditer(b'<IMG[^>]+/?>', raw, flags=re.I):

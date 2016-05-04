@@ -188,6 +188,9 @@ class Canvas(object):
     def export(self, fmt='JPEG', compression_quality=95):
         return image_to_data(self.img, compression_quality=compression_quality, fmt=fmt)
 
+def flip_image(img, horizontal=False, vertical=False):
+    return image_from_data(img).mirrored(horizontal, vertical)
+
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
     cwd = os.path.dirname(file_path)
