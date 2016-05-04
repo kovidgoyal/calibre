@@ -23,6 +23,19 @@ def get_exe_path(name):
         return name
     return os.path.join(base, name)
 
+_qimage_pixel_map = None
+
+def get_pixel_map():
+    ' Get the order of pixels in QImage (RGBA or BGRA usually) '
+    global _qimage_pixel_map
+    if _qimage_pixel_map is None:
+        i = QImage(1, 1, QImage.Format_ARGB32)
+        i.fill(QColor(0, 1, 2, 3))
+        raw = bytearray(i.constBits().asstring(4))
+        _qimage_pixel_map = {c:raw.index(x) for c, x in zip('RGBA', b'\x00\x01\x02\x03')}
+        _qimage_pixel_map = ''.join(sorted(_qimage_pixel_map, key=_qimage_pixel_map.get))
+    return _qimage_pixel_map
+
 def image_from_data(data):
     if isinstance(data, QImage):
         return data
