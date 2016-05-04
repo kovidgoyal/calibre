@@ -8,7 +8,8 @@ import os, json, struct, hashlib, sys, errno, tempfile, time, shutil, uuid
 from binascii import hexlify
 from collections import Counter
 
-from calibre.constants import config_dir, iswindows
+from calibre import prints
+from calibre.constants import config_dir, iswindows, filesystem_encoding
 from calibre.utils.config_base import prefs, StringConfig, create_global_prefs
 from calibre.utils.config import JSONConfig
 from calibre.utils.filenames import samefile
@@ -364,6 +365,49 @@ def test_import(export_dir='/t/ex', import_dir='/t/imp'):
     os.mkdir(import_dir)
     import_data(importer, {k:os.path.join(import_dir, os.path.basename(k)) for k in importer.metadata['libraries'] if 'largelib' not in k},
                 config_location=os.path.join(import_dir, 'calibre-config'), progress1=print, progress2=print)
+
+def cli_report(*args, **kw):
+    try:
+        prints(*args, **kw)
+    except EnvironmentError:
+        pass
+
+def run_exporter():
+    export_dir = raw_input('Enter path to an empty folder (all exported data will be saved inside it): ').decode(filesystem_encoding)
+    if not os.path.exists(export_dir):
+        os.makedirs(export_dir)
+    if not os.path.isdir(export_dir):
+        raise SystemExit('%s is not a folder' % export_dir)
+    if os.listdir(export_dir):
+        raise SystemExit('%s is not empty' % export_dir)
+    library_paths = {}
+    for lpath, lus in all_known_libraries().iteritems():
+        if raw_input('Export the library %s [y/n]: ' % lpath) == b'y':
+            library_paths[lpath] = lus
+    if library_paths:
+        export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=library_paths)
+    else:
+        raise SystemExit('No libraries selected for export')
+
+def run_importer():
+    export_dir = raw_input('Enter path to folder containing previously exported data: ').decode(filesystem_encoding)
+    if not os.path.isdir(export_dir):
+        raise SystemExit('%s is not a folder' % export_dir)
+    try:
+        importer = Importer(export_dir)
+    except ValueError as err:
+        raise SystemExit(err.message)
+
+    import_dir = raw_input('Enter path to an empty folder (all libraries will be created inside this folder): ').decode(filesystem_encoding)
+    if not os.path.exists(import_dir):
+        os.makedirs(import_dir)
+    if not os.path.isdir(import_dir):
+        raise SystemExit('%s is not a folder' % import_dir)
+    if os.listdir(import_dir):
+        raise SystemExit('%s is not empty' % import_dir)
+    import_data(importer, {
+        k:os.path.join(import_dir, os.path.basename(k)) for k in importer.metadata['libraries']}, progress1=cli_report, progress2=cli_report)
+
 # }}}
 
 if __name__ == '__main__':

@@ -66,6 +66,10 @@ Everything after the -- is passed to the script.
             'editing tools, and then rebuilds the file from the edited HTML. '
             'Makes no additional changes to the HTML, unlike a full calibre '
             'conversion).'))
+    parser.add_option('--export-all-calibre-data', default=False, action='store_true',
+        help=_('Export all calibre data (books/settings/plugins)'))
+    parser.add_option('--import-calibre-data', default=False, action='store_true',
+        help=_('Import previously exported calibre data'))
     parser.add_option('-s', '--shutdown-running-calibre', default=False,
             action='store_true',
             help=_('Cause a running calibre instance, if any, to be'
@@ -284,6 +288,12 @@ def main(args=sys.argv):
     elif opts.new_server:
         from calibre.srv.standalone import main
         main(args)
+    elif opts.export_all_calibre_data:
+        from calibre.utils.exim import run_exporter
+        run_exporter()
+    elif opts.import_calibre_data:
+        from calibre.utils.exim import run_importer
+        run_importer()
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'py', 'recipe'}:
         run_script(args[1], args[2:])
     elif len(args) >= 2 and args[1].rpartition('.')[-1] in {'mobi', 'azw', 'azw3', 'docx', 'odt'}:
