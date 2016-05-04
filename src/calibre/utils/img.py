@@ -82,6 +82,13 @@ def image_to_data(img, compression_quality=95, fmt='JPEG'):
 def resize_image(img, width, height):
     return img.scaled(int(width), int(height), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
 
+def resize_to_fit(img, width, height):
+    img = image_from_data(img)
+    resize_needed, nw, nh = fit_image(img.width(), img.height(), width, height)
+    if resize_needed:
+        resize_image(img, nw, nh)
+    return resize_needed, img
+
 def scale_image(data, width=60, height=80, compression_quality=70, as_png=False, preserve_aspect_ratio=True):
     ''' Scale an image, returning it as either JPEG or PNG data (bytestring).
     Transparency is alpha blended with white when converting to JPEG. Is thread

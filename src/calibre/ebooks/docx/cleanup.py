@@ -181,9 +181,10 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
             img = img[0]
             path = os.path.join(dest_dir, img.get('src'))
             if os.path.exists(path) and before_count(root, img, limit=10) < 5:
-                from calibre.utils.magick.draw import identify
+                from calibre.utils.imghdr import identify
                 try:
-                    width, height, fmt = identify(path)
+                    with lopen(path, 'rb') as imf:
+                        fmt, width, height = identify(imf)
                 except:
                     width, height, fmt = 0, 0, None  # noqa
                 del fmt

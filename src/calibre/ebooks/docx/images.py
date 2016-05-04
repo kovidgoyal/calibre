@@ -10,12 +10,11 @@ import os
 
 from lxml.html.builder import IMG, HR
 
-from calibre import fit_image
 from calibre.constants import iswindows
 from calibre.ebooks.docx.names import barename
 from calibre.utils.filenames import ascii_filename
+from calibre.utils.img import resize_to_fit, image_to_data
 from calibre.utils.imghdr import what
-from calibre.utils.magick import Image
 
 class LinkedImageNotFound(ValueError):
 
@@ -156,14 +155,11 @@ class Images(object):
         return name
 
     def resize_image(self, raw, base, max_width, max_height):
-        img = Image()
-        img.load(raw)
-        resized, nwidth, nheight = fit_image(img.size[0], img.size[1], max_width, max_height)
+        resized, img = resize_to_fit(raw, max_width, max_height)
         if resized:
-            img.size = (nwidth, nheight)
             base, ext = os.path.splitext(base)
             base = base + '-%dx%d%s' % (max_width, max_height, ext)
-            raw = img.export(ext[1:])
+            raw = image_to_data(img, fmt=ext[1:])
         return raw, base, resized
 
     def generate_filename(self, rid, base=None, rid_map=None, max_width=None, max_height=None):
