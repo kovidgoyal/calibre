@@ -7,10 +7,11 @@ from __future__ import (unicode_literals, division, absolute_import,
 import os, subprocess, errno, shutil, tempfile
 from threading import Thread
 
-from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QPainter
+from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QPainter, QImageReader, QColor
 
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows
+from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 
 def get_exe_path(name):
@@ -30,18 +31,37 @@ def image_from_data(data):
         raise ValueError('Not a valid image')
     return i
 
+def image_and_format_from_data(data):
+    ba = QByteArray(data)
+    buf = QBuffer(ba)
+    buf.open(QBuffer.ReadOnly)
+    r = QImageReader(buf)
+    fmt = bytes(r.format()).decode('utf-8')
+    return r.read(), fmt
+
+def add_borders(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
+    nimg = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format_RGB32)
+    nimg.fill(QColor(border_color))
+    p = QPainter(nimg)
+    p.drawImage(left, top, img)
+    p.end()
+    return nimg
+
+def blend_image(img, bgcolor='#ffffff'):
+    nimg = QImage(img.size(), QImage.Format_RGB32)
+    nimg.fill(QColor(bgcolor))
+    p = QPainter(nimg)
+    p.drawImage(0, 0, img)
+    p.end()
+    return nimg
+
 def image_to_data(img, compression_quality=95, fmt='JPEG'):
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     fmt = fmt.upper()
     if img.hasAlphaChannel() and fmt in 'JPEG JPG'.split():
-        nimg = QImage(img.size(), QImage.Format_RGB32)
-        nimg.fill(Qt.white)
-        p = QPainter(nimg)
-        p.drawImage(0, 0, img)
-        p.end()
-        img = nimg
+        img = blend_image(img)
     if not img.save(buf, fmt, quality=compression_quality):
         raise ValueError('Failed to export image as ' + fmt)
     return ba.data()
@@ -64,6 +84,61 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
     fmt = 'PNG' if as_png else 'JPEG'
     w, h = img.width(), img.height()
     return w, h, image_to_data(img, compression_quality=compression_quality, fmt=fmt)
+
+def normalize_format_name(fmt):
+    fmt = fmt.lower()
+    if fmt == 'jpg':
+        fmt = 'jpeg'
+    return fmt
+
+def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
+        border_color='#ffffff', fmt='jpg'):
+    img = image_from_data(img_data)
+    img = add_borders(img, left=left, top=top, right=right, bottom=bottom, border_color=border_color)
+    return image_to_data(img, fmt=fmt)
+
+def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None):
+    '''
+    Saves image in data to path, in the format specified by the path
+    extension. Removes any transparency. If there is no transparency and no
+    resize and the input and output image formats are the same, no changes are
+    made.
+
+    :param data: Image data as bytestring
+    :param path: If None img data is returned, in JPEG format
+    :param compression_quality: The quality of the image after compression.
+        Number between 1 and 100. 1 means highest compression, 100 means no
+        compression (lossless).
+    :param bgcolor: The color for transparent pixels. Must be specified in hex.
+    :param resize_to: A tuple (width, height) or None for no resizing
+    :param minify_to: A tuple (width, height) to specify maximum target size.
+        The image will be resized to fit into this target size. If None the
+        value from the tweak is used.
+    '''
+    img, fmt = image_and_format_from_data(data)
+    orig_fmt = normalize_format_name(fmt)
+    if path is None:
+        fmt = 'jpeg'
+    else:
+        fmt = os.path.splitext(path)[1]
+        fmt = normalize_format_name(fmt[1:])
+    changed = fmt != orig_fmt
+    if resize_to is not None:
+        changed = True
+        img = img.scaled(resize_to[0], resize_to[1], Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    owidth, oheight = img.width(), img.height()
+    nwidth, nheight = tweaks['maximum_cover_size'] if minify_to is None else minify_to
+    scaled, nwidth, nheight = fit_image(owidth, oheight, nwidth, nheight)
+    if scaled:
+        changed = True
+        img = img.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    if img.hasAlphaChannel():
+        changed = True
+        img = blend_image(img, bgcolor)
+    if path is None:
+        return image_to_data(img, compression_quality, fmt) if changed else data
+    with lopen(path, 'wb') as f:
+        f.write(image_to_data(img, compression_quality, fmt))
 
 
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):

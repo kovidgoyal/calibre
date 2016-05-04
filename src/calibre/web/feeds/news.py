@@ -27,7 +27,7 @@ from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.magick.draw import save_cover_data_to, add_borders_to_image
+from calibre.utils.img import save_cover_data_to, add_borders_to_image
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
 
