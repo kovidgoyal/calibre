@@ -57,23 +57,12 @@ def create_bmp_from_dib(raw):
     return b''.join(parts) + raw
 
 def to_png(bmp):
-    # ImageMagick does not convert some bmp files correctly, while Qt does,
-    # so try Qt first. See for instance:
-    # https://bugs.launchpad.net/calibre/+bug/934167
-    # ImageMagick bug report:
-    # http://www.imagemagick.org/discourse-server/viewtopic.php?f=3&t=20350
     from PyQt5.Qt import QImage, QByteArray, QBuffer
     i = QImage()
-    if i.loadFromData(bmp):
-        ba = QByteArray()
-        buf = QBuffer(ba)
-        buf.open(QBuffer.WriteOnly)
-        i.save(buf, 'png')
-        return bytes(ba.data())
-
-    from calibre.utils.magick import Image
-    img = Image()
-    img.load(bmp)
-    return img.export('png')
-
-
+    if not i.loadFromData(bmp):
+        raise ValueError('Invalid image data')
+    ba = QByteArray()
+    buf = QBuffer(ba)
+    buf.open(QBuffer.WriteOnly)
+    i.save(buf, 'png')
+    return bytes(ba.data())
