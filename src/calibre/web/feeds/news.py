@@ -23,6 +23,7 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser, RecursiveFetcher, AbortArticle
+from calibre.web.fetch.utils import prepare_masthead_image
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
@@ -1374,22 +1375,7 @@ class BasicNewsRecipe(Recipe):
                 width=self.MI_WIDTH, height=self.MI_HEIGHT)
 
     def prepare_masthead_image(self, path_to_image, out_path):
-        from calibre import fit_image
-        from calibre.utils.magick import Image, create_canvas
-
-        img = Image()
-        img.open(path_to_image)
-        width, height = img.size
-        scaled, nwidth, nheight = fit_image(width, height, self.MI_WIDTH, self.MI_HEIGHT)
-        img2 = create_canvas(width, height)
-        frame = create_canvas(self.MI_WIDTH, self.MI_HEIGHT)
-        img2.compose(img)
-        if scaled:
-            img2.size = (nwidth, nheight, 'LanczosFilter', 0.5)
-        left = int((self.MI_WIDTH - nwidth)/2.0)
-        top = int((self.MI_HEIGHT - nheight)/2.0)
-        frame.compose(img2, left, top)
-        frame.save(out_path)
+        prepare_masthead_image(path_to_image, out_path, self.MI_WIDTH, self.MI_HEIGHT)
 
     def create_opf(self, feeds, dir=None):
         if dir is None:

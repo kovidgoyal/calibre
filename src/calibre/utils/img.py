@@ -140,6 +140,18 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
     with lopen(path, 'wb') as f:
         f.write(image_to_data(img, compression_quality, fmt))
 
+def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
+    w, h = img.width(), img.height()
+    scaled, nw, nh = fit_image(w, h, width, height)
+    if scaled:
+        img = img.scaled(nw, nh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        w, h = nw, nh
+    nimg = QImage(width, height, QImage.Format_RGB32)
+    nimg.fill(QColor(bgcolor))
+    p = QPainter(nimg)
+    p.drawImage((width - w)//2, (height - h)//2, img)
+    p.end()
+    return nimg
 
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
