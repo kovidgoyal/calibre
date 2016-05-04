@@ -17,7 +17,7 @@ from lxml import etree
 from calibre.ebooks.oeb.base import urlunquote
 from calibre.ebooks.docx.images import pt_to_emu
 from calibre.utils.filenames import ascii_filename
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import identify
 
 Image = namedtuple('Image', 'rid fname width height fmt item')
 
@@ -50,11 +50,11 @@ class ImagesManager(object):
             if item is None or not isinstance(item.data, bytes):
                 return
             try:
-                width, height, fmt = identify_data(item.data)
+                fmt, width, height = identify(item.data)
             except Exception:
                 self.log.warning('Replacing corrupted image with blank: %s' % href)
                 item.data = I('blank.png', data=True, allow_user_override=False)
-                width, height, fmt = identify_data(item.data)
+                fmt, width, height = identify(item.data)
             image_fname = 'media/' + self.create_filename(href, fmt)
             image_rid = self.document_relationships.add_image(image_fname)
             self.images[href] = Image(image_rid, image_fname, width, height, fmt, item)
