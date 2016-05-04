@@ -20,7 +20,8 @@ class RescaleImages(object):
         self.rescale()
 
     def rescale(self):
-        from calibre.utils.magick.draw import Image
+        from PIL import Image
+        from io import BytesIO
 
         is_image_collection = getattr(self.opts, 'is_image_collection', False)
 
@@ -44,49 +45,32 @@ class RescaleImages(object):
                     # Probably an svg image
                     continue
                 try:
-                    img = Image()
-                    img.load(raw)
-                except:
+                    img = Image.open(BytesIO(raw))
+                except Exception:
                     continue
                 width, height = img.size
 
                 try:
-                    if self.check_colorspaces and img.colorspace == 'CMYKColorspace':
-                        # We cannot do an imagemagick conversion of CMYK to RGB as
-                        # ImageMagick inverts colors if you just set the colorspace
-                        # to rgb. See for example: https://bugs.launchpad.net/bugs/1246710
-                        from PyQt5.Qt import QImage
-                        from calibre.gui2 import pixmap_to_data
-                        qimg = QImage()
-                        qimg.loadFromData(raw)
-                        if not qimg.isNull():
-                            raw = item.data = pixmap_to_data(qimg, format=ext, quality=95)
-                            img = Image()
-                            img.load(raw)
-                            self.log.warn(
-                                'The image %s is in the CMYK colorspace, converting it '
-                                'to RGB as Adobe Digital Editions cannot display CMYK' % item.href)
-                        else:
-                            self.log.warn(
-                                'The image %s is in the CMYK colorspace, you should convert'
-                                ' it to sRGB as Adobe Digital Editions cannot render CMYK' % item.href)
+                    if self.check_colorspaces and img.mode == 'CMYK':
+                        self.log.warn(
+                            'The image %s is in the CMYK colorspace, converting it '
+                            'to RGB as Adobe Digital Editions cannot display CMYK' % item.href)
+                        img = img.convert('RGB')
                 except Exception:
-                    pass
+                    self.log.exception('Failed to convert image %s from CMYK to RGB' % item.href)
 
-                scaled, new_width, new_height = fit_image(width, height,
-                        page_width, page_height)
+                scaled, new_width, new_height = fit_image(width, height, page_width, page_height)
                 if scaled:
                     new_width = max(1, new_width)
                     new_height = max(1, new_height)
                     self.log('Rescaling image from %dx%d to %dx%d'%(
                         width, height, new_width, new_height), item.href)
+                    img.resize((new_width, new_height))
+                    buf = BytesIO()
                     try:
-                        img.size = (new_width, new_height)
-                        data = img.export(ext.lower())
-                    except KeyboardInterrupt:
-                        raise
-                    except:
+                        img.save(buf, ext)
+                    except Exception:
                         self.log.exception('Failed to rescale image')
                     else:
-                        item.data = data
+                        item.data = buf.getvalue()
                         item.unload_data_from_memory()
