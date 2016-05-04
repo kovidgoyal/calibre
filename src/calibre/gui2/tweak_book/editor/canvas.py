@@ -12,7 +12,7 @@ from functools import wraps
 from PyQt5.Qt import (
     QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QTransform,
     QPointF, QPen, pyqtSignal, QUndoCommand, QUndoStack, QIcon, QImage,
-    QByteArray, QImageWriter)
+    QImageWriter)
 
 from calibre import fit_image
 from calibre.gui2 import error_dialog, pixmap_to_data
@@ -20,8 +20,8 @@ from calibre.gui2.dnd import (
     IMAGE_EXTENSIONS, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
 from calibre.gui2.tweak_book import capitalize
 from calibre.utils.config_base import tweaks
-from calibre.utils.magick import Image
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import identify
+from calibre.utils.magick import qimage_to_magick
 
 def painter(func):
     @wraps(func)
@@ -80,48 +80,6 @@ def get_selection_rect(img, sr, target):
     bottom_border = (abs(target.bottom() - sr.bottom())/target.height()) * img.height()
     return left_border, top_border, img.width() - left_border - right_border, img.height() - top_border - bottom_border
 
-_qimage_pixel_map = None
-def get_pixel_map():
-    ' Get the order of pixels in QImage (RGBA or BGRA usually) '
-    global _qimage_pixel_map
-    if _qimage_pixel_map is None:
-        i = QImage(1, 1, QImage.Format_ARGB32)
-        i.fill(QColor(0, 1, 2, 3))
-        raw = bytearray(i.constBits().asstring(4))
-        _qimage_pixel_map = {c:raw.index(x) for c, x in zip('RGBA', b'\x00\x01\x02\x03')}
-        _qimage_pixel_map = ''.join(sorted(_qimage_pixel_map, key=_qimage_pixel_map.get))
-    return _qimage_pixel_map
-
-def qimage_to_magick(img):
-    ans = Image()
-    fmt = get_pixel_map()
-    if not img.hasAlphaChannel():
-        if img.format() != img.Format_RGB32:
-            img = img.convertToFormat(QImage.Format_RGB32)
-        fmt = fmt.replace('A', 'P')
-    else:
-        if img.format() != img.Format_ARGB32:
-            img = img.convertToFormat(QImage.Format_ARGB32)
-    raw = img.constBits().ascapsule()
-    ans.constitute(img.width(), img.height(), fmt, raw)
-    return ans
-
-def magick_to_qimage(img):
-    fmt = get_pixel_map()
-    # ImageMagick can only output raw data in some formats that can be
-    # read into QImage directly, if the QImage format is not one of those, use
-    # PNG
-    if fmt in {'RGBA', 'BGRA'}:
-        w, h = img.size
-        img.depth = 8  # QImage expects 8bpp
-        raw = img.export(fmt)
-        i = QImage(raw, w, h, QImage.Format_ARGB32)
-        del raw  # According to the documentation, raw is supposed to not be deleted, but it works, so make it explicit
-        return i
-    else:
-        raw = img.export('PNG')
-        return QImage.fromData(QByteArray(raw), 'PNG')
-
 class Trim(Command):
 
     ''' Remove the areas of the image outside the current selection. '''
@@ -143,7 +101,7 @@ class AutoTrim(Trim):
         img = canvas.current_image
         i = qimage_to_magick(img)
         i.trim(tweaks['cover_trim_fuzz_value'])
-        return magick_to_qimage(i)
+        return i.to_qimage()
 
 class Rotate(Command):
 
@@ -180,7 +138,7 @@ class Sharpen(Command):
         img = canvas.current_image
         i = qimage_to_magick(img)
         getattr(i, self.FUNC)(0.0, self.sigma)
-        return magick_to_qimage(i)
+        return i.to_qimage()
 
 class Blur(Sharpen):
 
@@ -195,7 +153,7 @@ class Despeckle(Command):
         img = canvas.current_image
         i = qimage_to_magick(img)
         i.despeckle()
-        return magick_to_qimage(i)
+        return i.to_qimage()
 
 class Replace(Command):
 
@@ -312,7 +270,7 @@ class Canvas(QWidget):
     def load_image(self, data):
         self.is_valid = False
         try:
-            fmt = identify_data(data)[-1].encode('ascii')
+            fmt = identify(data)[0].encode('ascii')
         except Exception:
             fmt = b''
         self.original_image_format = fmt.decode('ascii').lower()
