@@ -30,7 +30,7 @@ from calibre.utils.filenames import (
     is_case_sensitive, samefile, hardlink_file, ascii_filename,
     WindowsAtomicFolderMove, atomic_rename, remove_dir_if_empty,
     copytree_using_links, copyfile_using_links)
-from calibre.utils.magick.draw import save_cover_data_to
+from calibre.utils.img import save_cover_data_to
 from calibre.utils.formatter_functions import load_user_template_functions
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
@@ -1376,7 +1376,7 @@ class DB(object):
                     os.remove(path)
         else:
             if no_processing:
-                with open(path, 'wb') as f:
+                with lopen(path, 'wb') as f:
                     f.write(data)
             else:
                 try:
