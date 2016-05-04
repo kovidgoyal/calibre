@@ -14,7 +14,7 @@ from calibre.ebooks.oeb.base import OPF, DC
 from calibre.ebooks.oeb.polish.container import get_container, OEB_DOCS
 from calibre.ebooks.oeb.polish.check.links import check_links, UnreferencedResource
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree, pretty_opf
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import identify
 
 class EPUBHelpBuilder(EpubBuilder):
     name = 'myepub'
@@ -40,7 +40,9 @@ class EPUBHelpBuilder(EpubBuilder):
         for img in root.xpath('//*[local-name() = "img" and (@class = "float-right-img" or @class = "float-left-img")]'):
             if 'style' not in img.attrib:
                 imgname = container.href_to_name(img.get('src'), name)
-                width, height, fmt = identify_data(container.raw_data(imgname))
+                fmt, width, height = identify(container.raw_data(imgname))
+                if width == -1:
+                    raise ValueError('Failed to read size of: %s' % imgname)
                 img.set('style', 'width: %dpx; height: %dpx' % (width, height))
 
     def fix_opf(self, container):
