@@ -228,10 +228,9 @@ class SNBOutput(OutputFormatPlugin):
             snbFile.Output(output_path)
 
     def HandleImage(self, imageData, imagePath):
-        from calibre.utils.magick import Image
-        img = Image()
-        img.load(imageData)
-        (x,y) = img.size
+        from calibre.utils.img import image_from_data, resize_image, image_to_data
+        img = image_from_data(imageData)
+        x, y = img.width(), img.height()
         if self.opts:
             if self.opts.snb_full_screen:
                 SCREEN_X, SCREEN_Y = self.opts.output_profile.screen_size
@@ -248,8 +247,9 @@ class SNBOutput(OutputFormatPlugin):
             # TODO : intelligent image rotation
             #     img = img.rotate(90)
             #     x,y = y,x
-            img.size = (x / scale, y / scale)
-        img.save(imagePath)
+            img = resize_image(img, x / scale, y / scale)
+        with lopen(imagePath, 'wb') as f:
+            f.write(image_to_data(img, fmt=imagePath.rpartition('.')[-1]))
 
 if __name__ == '__main__':
     from calibre.ebooks.oeb.reader import OEBReader
