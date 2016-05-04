@@ -79,6 +79,8 @@ def image_to_data(img, compression_quality=95, fmt='JPEG'):
         raise ValueError('Failed to export image as ' + fmt)
     return ba.data()
 
+def resize_image(img, width, height):
+    return img.scaled(int(width), int(height), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
 
 def scale_image(data, width=60, height=80, compression_quality=70, as_png=False, preserve_aspect_ratio=True):
     ''' Scale an image, returning it as either JPEG or PNG data (bytestring).
