@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#from __future__ import (unicode_literals, division, absolute_import, print_function)
+# from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__   = 'GPL v3'
 __copyright__ = '20011, John Schember <john@nachtimwald.com>'
@@ -14,9 +14,9 @@ from collections import OrderedDict
 
 from calibre import CurrentDir
 from calibre.ebooks.pdb.formatreader import FormatReader
-from calibre.ptempfile import TemporaryFile
-from calibre.utils.magick import Image, create_canvas
 from calibre.ebooks.compression.palmdoc import decompress_doc
+from calibre.utils.imghdr import identify
+from calibre.utils.img import save_cover_data_to, Canvas, image_from_data
 
 DATATYPE_PHTML = 0
 DATATYPE_PHTML_COMPRESSED = 1
@@ -376,7 +376,7 @@ class Reader(FormatReader):
 
         # Images.
         # Cache the image sizes in case they are used by a composite image.
-        image_sizes = {}
+        images = set()
         if not os.path.exists(os.path.join(output_dir, 'images/')):
             os.makedirs(os.path.join(output_dir, 'images/'))
         with CurrentDir(os.path.join(output_dir, 'images/')):
@@ -393,15 +393,9 @@ class Reader(FormatReader):
                         elif self.header_record.compression == 2:
                             idata = zlib.decompress(section_data)
                     try:
-                        with TemporaryFile(suffix='.palm') as itn:
-                            with open(itn, 'wb') as itf:
-                                itf.write(idata)
-                            im = Image()
-                            im.read(itn)
-                            image_sizes[uid] = im.size
-                            im.set_compression_quality(70)
-                            im.save('%s.jpg' % uid)
-                            self.log.debug('Wrote image with uid %s to images/%s.jpg' % (uid, uid))
+                        save_cover_data_to(idata, '%s.jpg' % uid, compression_quality=70)
+                        images.add(uid)
+                        self.log.debug('Wrote image with uid %s to images/%s.jpg' % (uid, uid))
                     except Exception as e:
                         self.log.error('Failed to write image with uid %s: %s' % (uid, e))
                 else:
@@ -418,11 +412,9 @@ class Reader(FormatReader):
                         row_width = 0
                         col_height = 0
                         for col in row:
-                            if col not in image_sizes:
+                            if col not in images:
                                 raise Exception('Image with uid: %s missing.' % col)
-                            im = Image()
-                            im.read('%s.jpg' % col)
-                            w, h = im.size
+                            w, h = identify(lopen('%s.jpg' % col, 'rb'))[1:]
                             row_width += w
                             if col_height < h:
                                 col_height = h
@@ -431,22 +423,21 @@ class Reader(FormatReader):
                         height += col_height
                     # Create a new image the total size of all image
                     # parts. Put the parts into the new image.
-                    canvas = create_canvas(width, height)
-                    y_off = 0
-                    for row in section_data.layout:
-                        x_off = 0
-                        largest_height = 0
-                        for col in row:
-                            im = Image()
-                            im.read('%s.jpg' % col)
-                            canvas.compose(im, x_off, y_off)
-                            w, h = im.size
-                            x_off += w
-                            if largest_height < h:
-                                largest_height = h
-                        y_off += largest_height
-                    canvas.set_compression_quality(70)
-                    canvas.save('%s.jpg' % uid)
+                    with Canvas(width, height) as canvas:
+                        y_off = 0
+                        for row in section_data.layout:
+                            x_off = 0
+                            largest_height = 0
+                            for col in row:
+                                im = image_from_data(lopen('%s.jpg' % col, 'rb').read())
+                                canvas.compose(im, x_off, y_off)
+                                w, h = im.width(), im.height()
+                                x_off += w
+                                if largest_height < h:
+                                    largest_height = h
+                            y_off += largest_height
+                    with lopen('%s.jpg' % uid) as out:
+                        out.write(canvas.export(compression_quality=70))
                     self.log.debug('Wrote composite image with uid %s to images/%s.jpg' % (uid, uid))
                 except Exception as e:
                     self.log.error('Failed to write composite image with uid %s: %s' % (uid, e))
