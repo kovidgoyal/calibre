@@ -235,6 +235,12 @@ class Image(_magick.Image):  # {{{
         _magick.Image.quantize(self, number_colors, colorspace, treedepth, dither,
                 measure_error)
 
+    def identify(self, data):
+        fmt = what(None, data)
+        if fmt not in {'gif', 'png', 'jpeg', 'jpeg2000', 'webp'}:
+            raise ValueError('Unsupported image format: %s' % fmt)
+        return _magick.Image.identify(self, data)
+
     def trim(self, fuzz):
         try:
             _magick.Image.remove_border(self, fuzz)

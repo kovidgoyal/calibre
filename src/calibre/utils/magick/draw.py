@@ -141,9 +141,6 @@ def identify_data(data):
     (width, height, format)
     or raises an Exception if data is not an image.
     '''
-    if data.startswith(b'<?xml'):
-        # ImageMagick segfaults when trying to identify SVG images
-        raise ValueError('Identifying svg images is not supported')
     img = Image()
     img.identify(data)
     width, height = img.size
@@ -156,7 +153,8 @@ def identify(path):
     (width, height, format)
     or raises an Exception.
     '''
-    data = open(path, 'rb').read()
+    with lopen(path, 'rb') as f:
+        data = f.read()
     return identify_data(data)
 
 def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
