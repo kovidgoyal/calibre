@@ -963,7 +963,7 @@ class KOBO(USBMS):
             debug_print('FAILED to upload cover', filepath)
 
     def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale):
-        from calibre.utils.magick.draw import save_cover_data_to
+        from calibre.utils.img import save_cover_data_to
         if metadata.cover:
             cover = self.normalize_path(metadata.cover.replace('/', os.sep))
 
@@ -1016,9 +1016,7 @@ class KOBO(USBMS):
 
                             # Return the data resized and in Grayscale if
                             # required
-                            data = save_cover_data_to(data, 'dummy.jpg',
-                                    grayscale=uploadgrayscale,
-                                    resize_to=resize, return_data=True)
+                            data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize)
 
                             with lopen(fpath, 'wb') as f:
                                 f.write(data)
@@ -2390,7 +2388,8 @@ class KOBOTOUCH(KOBO):
         return path
 
     def _upload_cover(self, path, filename, metadata, filepath, uploadgrayscale, keep_cover_aspect=False):
-        from calibre.utils.magick.draw import save_cover_data_to, identify_data
+        from calibre.utils.img import save_cover_data_to
+        from calibre.utils.imghdr import identify
         debug_print("KoboTouch:_upload_cover - filename='%s' uploadgrayscale='%s' "%(filename, uploadgrayscale))
 
         if metadata.cover:
@@ -2455,7 +2454,7 @@ class KOBOTOUCH(KOBO):
                                     if isFullsize:
                                         resize = None
                                     else:
-                                        width, height, fmt = identify_data(data)
+                                        fmt, width, height = identify(data)
                                         cover_aspect = width / height
                                         if cover_aspect > 1:
                                             resize = (resize[0], int(resize[0] / cover_aspect))
@@ -2464,9 +2463,7 @@ class KOBOTOUCH(KOBO):
 
                                 # Return the data resized and in Grayscale if
                                 # required
-                                data = save_cover_data_to(data, 'dummy.jpg',
-                                        grayscale=uploadgrayscale,
-                                        resize_to=resize, return_data=True)
+                                data = save_cover_data_to(data, grayscale=uploadgrayscale, resize_to=resize)
 
                                 with lopen(fpath, 'wb') as f:
                                     f.write(data)
