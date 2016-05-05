@@ -62,24 +62,31 @@ QImage* remove_borders(const QImage &image, double fuzz) {
 	buf = new int[3*(MAX(width, height)+1)];
 	fuzz /= 255;
 
+    Py_BEGIN_ALLOW_THREADS;
 	top_border = read_border_row(img, width, height, buf, fuzz, true);
-	if (top_border >= height - 1) goto end;
-	bottom_border = read_border_row(img, width, height, buf, fuzz, false);
-	if (bottom_border >= height - 1) goto end;
-	transpose.rotate(90);
-	timg = img.transformed(transpose);
-	if (timg.isNull()) { PyErr_NoMemory(); goto end; }
-	left_border = read_border_row(timg, height, width, buf, fuzz, true);
-	if (left_border >= width - 1) goto end;
-	right_border = read_border_row(timg, height, width, buf, fuzz, false);
-	if (right_border >= width - 1) goto end;
-	if (left_border || right_border || top_border || bottom_border) {
-        // printf("111111 l=%d t=%d r=%d b=%d\n", left_border, top_border, right_border, bottom_border);
-		img = img.copy(left_border, top_border, width - left_border - right_border, height - top_border - bottom_border);
-		if (img.isNull()) { PyErr_NoMemory(); goto end; }
-	}
+    if (top_border < height - 1) {
+        bottom_border = read_border_row(img, width, height, buf, fuzz, false);
+        if (bottom_border < height - 1) {
+            transpose.rotate(90);
+            timg = img.transformed(transpose);
+            if (timg.isNull()) PyErr_NoMemory(); 
+            else {
+                left_border = read_border_row(timg, height, width, buf, fuzz, true);
+                if (left_border < width - 1) {
+                    right_border = read_border_row(timg, height, width, buf, fuzz, false);
+                    if (right_border < width - 1) {
+                        if (left_border || right_border || top_border || bottom_border) {
+                            // printf("111111 l=%d t=%d r=%d b=%d\n", left_border, top_border, right_border, bottom_border);
+                            img = img.copy(left_border, top_border, width - left_border - right_border, height - top_border - bottom_border);
+                            if (img.isNull()) PyErr_NoMemory();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Py_END_ALLOW_THREADS;
 
-end:
 	delete[] buf;
 	if (!PyErr_Occurred()) ans = new QImage(img);
 	return ans;
@@ -91,6 +98,7 @@ QImage* grayscale(const QImage &image) {
     int r = 0, gray = 0, width = img.width(), height = img.height();
 
     ENSURE32(img, NULL);
+    Py_BEGIN_ALLOW_THREADS;
     for (r = 0; r < height; r++) {
 		row = reinterpret_cast<QRgb*>(img.scanLine(r));
         for (pixel = row; pixel < row + width; pixel++) {
@@ -98,6 +106,7 @@ QImage* grayscale(const QImage &image) {
             *pixel = QColor(gray, gray, gray).rgba();
         }
     }
+    Py_END_ALLOW_THREADS;
 	if (!PyErr_Occurred()) ans = new QImage(img);
 	return ans;
 }
