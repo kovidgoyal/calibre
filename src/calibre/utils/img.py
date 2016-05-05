@@ -119,7 +119,7 @@ def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
     img = add_borders(img, left=left, top=top, right=right, bottom=bottom, border_color=border_color)
     return image_to_data(img, fmt=fmt)
 
-def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None):
+def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
@@ -139,11 +139,7 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
     '''
     img, fmt = image_and_format_from_data(data)
     orig_fmt = normalize_format_name(fmt)
-    if path is None:
-        fmt = 'jpeg'
-    else:
-        fmt = os.path.splitext(path)[1]
-        fmt = normalize_format_name(fmt[1:])
+    fmt = normalize_format_name('jpeg' if path is None else os.path.splitext(path)[1][1:])
     changed = fmt != orig_fmt
     if resize_to is not None:
         changed = True
@@ -157,10 +153,14 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
     if img.hasAlphaChannel():
         changed = True
         img = blend_image(img, bgcolor)
+    if grayscale:
+        changed = True
+        if not img.allGray():
+            img = img.convertToFormat(QImage.Format_Grayscale8)
     if path is None:
         return image_to_data(img, compression_quality, fmt) if changed else data
     with lopen(path, 'wb') as f:
-        f.write(image_to_data(img, compression_quality, fmt))
+        f.write(image_to_data(img, compression_quality, fmt) if changed else data)
 
 def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     w, h = img.width(), img.height()
