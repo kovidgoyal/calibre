@@ -38,18 +38,20 @@ unsigned int read_border_row(const QImage &img, const unsigned int width, const 
 	return ans;
 }
 
+#define ENSURE32(img) \
+	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) { \
+		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32); \
+		if (img.isNull()) { PyErr_NoMemory(); return NULL; } \
+	} \
+
 QImage* remove_borders(const QImage &image, double fuzz) {
 	int *buf = NULL;
 	QImage* ans = NULL, img = image, timg;
 	QTransform transpose;
-	transpose.rotate(90);
 	unsigned int width = img.width(), height = img.height();
 	unsigned int top_border = 0, bottom_border = 0, left_border = 0, right_border = 0;
 
-	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) {
-		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
-		if (img.isNull()) { PyErr_NoMemory(); return NULL; }
-	}
+    ENSURE32(img)
 	buf = new int[3*(MAX(width, height)+1)];
 	fuzz /= 255;
 
@@ -57,6 +59,7 @@ QImage* remove_borders(const QImage &image, double fuzz) {
 	if (top_border >= height - 1) goto end;
 	bottom_border = read_border_row(img, width, height, buf, fuzz, false);
 	if (bottom_border >= height - 1) goto end;
+	transpose.rotate(90);
 	timg = img.transformed(transpose);
 	if (timg.isNull()) { PyErr_NoMemory(); goto end; }
 	left_border = read_border_row(timg, height, width, buf, fuzz, true);
@@ -71,6 +74,23 @@ QImage* remove_borders(const QImage &image, double fuzz) {
 
 end:
 	delete[] buf;
+	if (!PyErr_Occurred()) ans = new QImage(img);
+	return ans;
+}
+
+QImage* grayscale(const QImage &image) {
+    QImage img = image, *ans = NULL;
+    QRgb *row = NULL, *pixel = NULL;
+    int r = 0, gray = 0, width = img.width(), height = img.height();
+
+    ENSURE32(img);
+    for (r = 0; r < height; r++) {
+		row = reinterpret_cast<QRgb*>(img.scanLine(r));
+        for (pixel = row; pixel < row + width; pixel++) {
+            gray = qGray(*pixel);
+            *pixel = QColor(gray, gray, gray).rgba();
+        }
+    }
 	if (!PyErr_Occurred()) ans = new QImage(img);
 	return ans;
 }

@@ -120,6 +120,13 @@ def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
     img = add_borders(img, left=left, top=top, right=right, bottom=bottom, border_color=border_color)
     return image_to_data(img, fmt=fmt)
 
+def to_grayscale(img):
+    if hasattr(QImage, 'Format_Grayscale8'):
+        return img.convertToFormat(QImage.Format_Grayscale8)
+    if imageops is not None:
+        return imageops.grayscale(img)
+    return img
+
 def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False):
     '''
     Saves image in data to path, in the format specified by the path
@@ -155,9 +162,9 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
         changed = True
         img = blend_image(img, bgcolor)
     if grayscale:
-        changed = True
         if not img.allGray():
-            img = img.convertToFormat(QImage.Format_Grayscale8)
+            changed = True
+            img = to_grayscale(img)
     if path is None:
         return image_to_data(img, compression_quality, fmt) if changed else data
     with lopen(path, 'wb') as f:

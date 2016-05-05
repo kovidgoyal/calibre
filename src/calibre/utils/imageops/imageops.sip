@@ -16,3 +16,11 @@ QImage* remove_borders(const QImage &image, double fuzz);
 			if (sipRes == NULL) return NULL;
 		} catch (std::bad_alloc) { PyErr_NoMemory(); return NULL; }
 %End
+
+QImage* grayscale(const QImage &image);
+%MethodCode
+		try {
+			sipRes = grayscale(*a0);
+			if (sipRes == NULL) return NULL;
+		} catch (std::bad_alloc) { PyErr_NoMemory(); return NULL; }
+%End
