@@ -46,7 +46,7 @@ QImage* remove_borders(const QImage &image, double fuzz) {
 	unsigned int width = img.width(), height = img.height();
 	unsigned int top_border = 0, bottom_border = 0, left_border = 0, right_border = 0;
 
-	if (img.format() != QImage::Format_RGB32) {
+	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) {
 		img = img.convertToFormat(QImage::Format_RGB32);
 		if (img.isNull()) { PyErr_NoMemory(); return NULL; }
 	}
