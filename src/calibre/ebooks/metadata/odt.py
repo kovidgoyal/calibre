@@ -30,7 +30,7 @@ from odf.opendocument import load as odLoad
 from odf.draw import Image as odImage, Frame as odFrame
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.img import identify
 from calibre.utils.date import parse_date
 from calibre.utils.localization import canonicalize_lang
 
@@ -236,8 +236,8 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
         except KeyError:
             continue
         try:
-            width, height, fmt = identify_data(raw)
-        except:
+            fmt, width, height = identify(bytes(raw))
+        except Exception:
             continue
         imgnum += 1
         if opfmeta and frm.getAttribute('name').lower() == u'opf.cover':
@@ -259,8 +259,8 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
             if not cover_data:
                 raw = zin.read(cover_href)
                 try:
-                    width, height, fmt = identify_data(raw)
-                except:
+                    fmt, width, height = identify(bytes(raw))
+                except Exception:
                     pass
                 else:
                     cover_data = (fmt, raw)

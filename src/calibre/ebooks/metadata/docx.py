@@ -13,7 +13,7 @@ from lxml import etree
 
 from calibre.ebooks.docx.container import DOCX
 from calibre.ebooks.docx.writer.container import update_doc_props, xml2str
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import identify
 
 def get_cover(docx):
     doc = docx.document
@@ -26,7 +26,7 @@ def get_cover(docx):
         if rid in rid_map:
             try:
                 raw = docx.read(rid_map[rid])
-                width, height, fmt = identify_data(raw)
+                fmt, width, height = identify(bytes(raw))
             except Exception:
                 continue
             if 0.8 <= height/width <= 1.8 and height*width >= 160000:

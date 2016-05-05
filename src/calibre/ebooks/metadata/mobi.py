@@ -467,7 +467,7 @@ def get_metadata(stream):
     from calibre.ptempfile import TemporaryDirectory
     from calibre.ebooks.mobi.reader.headers import MetadataHeader
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
-    from calibre.utils.magick.draw import save_cover_data_to
+    from calibre.utils.img import save_cover_data_to
     from calibre import CurrentDir
 
     stream.seek(0)
@@ -517,7 +517,7 @@ def get_metadata(stream):
             data = ''
     if data and what(None, data) in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
         try:
-            mi.cover_data = ('jpg', save_cover_data_to(data, 'cover.jpg', return_data=True))
+            mi.cover_data = ('jpg', save_cover_data_to(data))
         except Exception:
             log.exception('Failed to read MOBI cover')
     return mi
