@@ -202,12 +202,12 @@ class Pocket(BasicNewsRecipe):
         This override adds time to the cover
         """
         try:
-            from calibre.ebooks import calibre_cover
+            from calibre.ebooks.covers import calibre_cover2
             title = self.title if isinstance(self.title, unicode) else \
                 self.title.decode('utf-8', 'replace')
             date = strftime(self.timefmt)
             time = strftime('[%I:%M %p]')
-            img_data = calibre_cover(title, date, time)
+            img_data = calibre_cover2(title, date, time)
             cover_file.write(img_data)
             cover_file.flush()
         except:

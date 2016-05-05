@@ -106,13 +106,13 @@ class ALEX(N516):
         return os.path.join(base, 'covers', name)
 
     def upload_cover(self, path, filename, metadata, filepath):
-        from calibre.ebooks import calibre_cover
+        from calibre.ebooks.covers import calibre_cover2
         from calibre.utils.img import scale_image
         coverdata = getattr(metadata, 'thumbnail', None)
         if coverdata and coverdata[2]:
             cover = coverdata[2]
         else:
-            cover = calibre_cover(metadata.get('title', _('Unknown')),
+            cover = calibre_cover2(metadata.get('title', _('Unknown')),
                     metadata.get('authors', _('Unknown')))
 
         cover = scale_image(cover, width=self.THUMBNAIL_HEIGHT,

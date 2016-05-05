@@ -90,20 +90,20 @@ def get_gui():
 
 def add_quick_start_guide(library_view, refresh_cover_browser=None):
     from calibre.ebooks.metadata.meta import get_metadata
-    from calibre.ebooks import calibre_cover
+    from calibre.ebooks.covers import calibre_cover2
     from calibre.utils.zipfile import safe_replace
     from calibre.utils.localization import get_lang, canonicalize_lang
     from calibre.ptempfile import PersistentTemporaryFile
     l = canonicalize_lang(get_lang()) or 'eng'
     gprefs['quick_start_guide_added'] = True
-    imgbuf = BytesIO(calibre_cover(_('Quick Start Guide'), '', author_size=8))
+    imgbuf = BytesIO(calibre_cover2(_('Quick Start Guide'), ''))
     try:
-        with open(P('quick_start/%s.epub' % l), 'rb') as src:
+        with lopen(P('quick_start/%s.epub' % l), 'rb') as src:
             buf = BytesIO(src.read())
     except EnvironmentError as err:
         if err.errno != errno.ENOENT:
             raise
-        with open(P('quick_start/eng.epub'), 'rb') as src:
+        with lopen(P('quick_start/eng.epub'), 'rb') as src:
             buf = BytesIO(src.read())
     safe_replace(buf, 'images/cover.jpg', imgbuf)
     buf.seek(0)

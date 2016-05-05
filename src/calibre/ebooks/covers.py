@@ -535,7 +535,7 @@ def create_cover(title, authors, series=None, series_index=1, prefs=None, as_qim
         prefs or cprefs, title_template=d['title_template'], subtitle_template=d['subtitle_template'], footer_template=d['footer_template'])
     return generate_cover(mi, prefs=prefs, as_qimage=as_qimage)
 
-def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qimage=False):
+def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qimage=False, logo_path=None):
     init_environment()
     title, subtitle, footer = '<b>' + escape_formatting(title), '<i>' + escape_formatting(series_string), '<b>' + escape_formatting(author_string)
     prefs = prefs or cprefs
@@ -555,7 +555,7 @@ def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qim
             height = title_block.height + subtitle_block.height + extra_spacing + title_block.leading
             top += height + 25
             bottom = footer_block.position.y - 50
-            logo = QImage(I('library.png'))
+            logo = QImage(logo_path or I('library.png'))
             pwidth, pheight = rect.width(), bottom - top
             scaled, width, height = fit_image(logo.width(), logo.height(), pwidth, pheight)
             x, y = (pwidth - width) // 2, (pheight - height) // 2
@@ -576,6 +576,19 @@ def calibre_cover2(title, author_string='', series_string='', prefs=None, as_qim
     img.setText('Generated cover', '%s %s' % (__appname__, __version__))
     if as_qimage:
         return img
+    return pixmap_to_data(img)
+
+def message_image(text, width=500, height=400, font_size=20):
+    init_environment()
+    img = QImage(width, height, QImage.Format_ARGB32)
+    img.fill(Qt.white)
+    p = QPainter(img)
+    f = QFont()
+    f.setPixelSize(font_size)
+    p.setFont(f)
+    r = img.rect().adjusted(10, 10, -10, -10)
+    p.drawText(r, Qt.AlignJustify | Qt.AlignVCenter | Qt.TextWordWrap, text)
+    p.end()
     return pixmap_to_data(img)
 
 def scale_cover(prefs, scale):
