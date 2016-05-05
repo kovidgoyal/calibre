@@ -29,6 +29,8 @@ def get_cover(docx):
                 fmt, width, height = identify(bytes(raw))
             except Exception:
                 continue
+            if width < 0 or height < 0:
+                continue
             if 0.8 <= height/width <= 1.8 and height*width >= 160000:
                 return (fmt, raw)
 

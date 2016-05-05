@@ -259,7 +259,7 @@ def read_cover(stream, zin, mi, opfmeta, extract_cover):
             if not cover_data:
                 raw = zin.read(cover_href)
                 try:
-                    fmt, width, height = identify(bytes(raw))
+                    fmt = identify(bytes(raw))[0]
                 except Exception:
                     pass
                 else:
