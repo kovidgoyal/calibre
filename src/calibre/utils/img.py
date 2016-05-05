@@ -10,9 +10,10 @@ from threading import Thread
 from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QPainter, QImageReader, QColor
 
 from calibre import fit_image, force_unicode
-from calibre.constants import iswindows
+from calibre.constants import iswindows, plugins
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
+imageops, imageops_err = plugins['imageops']
 
 def get_exe_path(name):
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
@@ -197,6 +198,12 @@ class Canvas(object):
 
 def flip_image(img, horizontal=False, vertical=False):
     return image_from_data(img).mirrored(horizontal, vertical)
+
+def remove_borders(img, fuzz=None):
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
+    return imageops.remove_borders(image_from_data(img), max(0, fuzz))
 
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)

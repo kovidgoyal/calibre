@@ -239,6 +239,13 @@ extensions = [
                 sip_files=['calibre/gui2/progress_indicator/QProgressIndicator.sip']
                 ),
 
+    Extension('imageops',
+                ['calibre/utils/imageops/imageops.cpp'],
+                inc_dirs=['calibre/utils/imageops'],
+                headers=['calibre/utils/imageops/imageops.h'],
+                sip_files=['calibre/utils/imageops/imageops.sip']
+                ),
+
     Extension('qt_hack',
                 ['calibre/ebooks/pdf/render/qt_hack.cpp'],
                 inc_dirs=['calibre/ebooks/pdf/render'],
