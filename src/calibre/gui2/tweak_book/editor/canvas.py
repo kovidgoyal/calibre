@@ -19,8 +19,8 @@ from calibre.gui2 import error_dialog, pixmap_to_data
 from calibre.gui2.dnd import (
     IMAGE_EXTENSIONS, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
 from calibre.gui2.tweak_book import capitalize
-from calibre.utils.config_base import tweaks
 from calibre.utils.imghdr import identify
+from calibre.utils.img import remove_borders
 from calibre.utils.magick import qimage_to_magick
 
 def painter(func):
@@ -98,10 +98,7 @@ class AutoTrim(Trim):
     TEXT = _('Auto-trim image')
 
     def __call__(self, canvas):
-        img = canvas.current_image
-        i = qimage_to_magick(img)
-        i.trim(tweaks['cover_trim_fuzz_value'])
-        return i.to_qimage()
+        return remove_borders(canvas.current_image)
 
 class Rotate(Command):
 

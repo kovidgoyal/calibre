@@ -200,10 +200,15 @@ def flip_image(img, horizontal=False, vertical=False):
     return image_from_data(img).mirrored(horizontal, vertical)
 
 def remove_borders(img, fuzz=None):
+    ''' Try to auto-detect and remove any borders from the image. Returns
+    the image itself if no borders could be removed. `fuzz` is a measure of
+    what colors are considered identical (must be a number between 0 and 255 in
+    absolute intensity units). Default is from a tweak whose default value is 10. '''
     if imageops is None:
         raise RuntimeError(imageops_err)
     fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
-    return imageops.remove_borders(image_from_data(img), max(0, fuzz))
+    ans = imageops.remove_borders(image_from_data(img), max(0, fuzz))
+    return ans if ans.size() != img.size() else img
 
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)

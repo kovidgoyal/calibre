@@ -15,7 +15,7 @@ from io import BytesIO
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.utils.img import save_cover_data_to
+from calibre.utils.img import save_cover_data_to, remove_borders, image_to_data, image_from_data
 from calibre.utils.imghdr import identify
 
 class Worker(Thread):
@@ -61,11 +61,10 @@ def process_result(log, result):
     plugin, data = result
     try:
         if getattr(plugin, 'auto_trim_covers', False):
-            from calibre.utils.magick import Image
-            im = Image()
-            im.load(data)
-            im.trim(10)
-            data = im.export('JPEG')
+            img = image_from_data(data)
+            nimg = remove_borders(img)
+            if nimg is not img:
+                data = image_to_data(nimg)
         fmt, width, height = identify(data)
         if width < 0 or height < 0:
             raise ValueError('Could not read cover image dimensions')

@@ -1105,15 +1105,15 @@ class Cover(ImageView):  # {{{
         self.current_val = None
 
     def trim_cover(self, *args):
-        from calibre.utils.magick import Image
         cdata = self.current_val
         if not cdata:
             return
-        im = Image()
-        im.load(cdata)
-        im.trim(tweaks['cover_trim_fuzz_value'])
-        self.current_val = im.export('png')
-        self.cdata_before_trim = cdata
+        from calibre.utils.img import remove_borders, image_to_data, image_from_data
+        img = image_from_data(cdata)
+        nimg = remove_borders(img)
+        if nimg is not img:
+            self.cdata_before_trim = cdata
+            self.current_val = image_to_data(nimg, fmt='png')
 
     def manual_trim_cover(self):
         cdata = self.current_val

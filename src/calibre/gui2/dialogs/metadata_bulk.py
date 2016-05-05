@@ -200,15 +200,15 @@ class MyBlockingBusy(QDialog):  # {{{
                     if covers:
                         cache.set_cover({book_id:covers[-1][0]})
         elif args.cover_action == 'trim':
-            from calibre.utils.magick import Image
+            from calibre.utils.img import remove_borders, image_to_data, image_from_data
             for book_id in self.ids:
                 cdata = cache.cover(book_id)
                 if cdata:
-                    im = Image()
-                    im.load(cdata)
-                    im.trim(tweaks['cover_trim_fuzz_value'])
-                    cdata = im.export('jpg')
-                    cache.set_cover({book_id:cdata})
+                    img = image_from_data(cdata)
+                    nimg = remove_borders(img)
+                    if nimg is not img:
+                        cdata = image_to_data(nimg)
+                        cache.set_cover({book_id:cdata})
         elif args.cover_action == 'clone':
             cdata = None
             for book_id in self.ids:
