@@ -7,6 +7,10 @@
 %Import QtGui/QtGuimod.sip
 %ModuleCode
 #include <imageops.h>
+#define CATCH \
+		} catch (std::bad_alloc &) { PyErr_NoMemory(); return NULL; \
+        } catch (std::exception &exc) { PyErr_SetString(PyExc_RuntimeError, exc.what()); return NULL; \
+        } catch (...) { PyErr_SetString(PyExc_RuntimeError, "unknown error"); return NULL;} 
 %End
 
 QImage* remove_borders(const QImage &image, double fuzz);
@@ -14,7 +18,7 @@ QImage* remove_borders(const QImage &image, double fuzz);
 		try {
 			sipRes = remove_borders(*a0, a1);
 			if (sipRes == NULL) return NULL;
-		} catch (std::bad_alloc) { PyErr_NoMemory(); return NULL; }
+        CATCH
 %End
 
 QImage* grayscale(const QImage &image);
@@ -22,5 +26,5 @@ QImage* grayscale(const QImage &image);
 		try {
 			sipRes = grayscale(*a0);
 			if (sipRes == NULL) return NULL;
-		} catch (std::bad_alloc) { PyErr_NoMemory(); return NULL; }
+        CATCH
 %End
