@@ -17,7 +17,7 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.config_base import tweaks
 from calibre.utils.date import parse_only_date
 from calibre.utils.localization import canonicalize_lang
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import identify
 
 class InvalidKFX(ValueError):
     pass
@@ -313,10 +313,10 @@ def read_metadata_kfx(stream, read_cover=True):
     if read_cover and m[COVER_KEY]:
         try:
             data = base64.standard_b64decode(m[COVER_KEY])
-            w, h, fmt = identify_data(data)
+            fmt, w, h = identify(bytes(data))
         except Exception:
             w, h, fmt = 0, 0, None
-        if fmt and w and h:
+        if fmt and w > -1 and h > -1:
             mi.cover_data = (fmt, data)
 
     return mi

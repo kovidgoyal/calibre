@@ -40,17 +40,16 @@ def encode_thumbnail(thumbnail):
     '''
     Encode the image part of a thumbnail, then return the 3 part tuple
     '''
-    from calibre.utils.magick import Image
-
+    from calibre.utils.imghdr import identify
     if thumbnail is None:
         return None
     if not isinstance(thumbnail, (tuple, list)):
         try:
-            img = Image()
-            img.load(thumbnail)
-            width, height = img.size
+            width, height = identify(bytes(thumbnail))[1:]
+            if width < 0 or height < 0:
+                return None
             thumbnail = (width, height, thumbnail)
-        except:
+        except Exception:
             return None
     return (thumbnail[0], thumbnail[1], b64encode(str(thumbnail[2])))
 

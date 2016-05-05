@@ -10,7 +10,7 @@ from urllib import unquote
 
 from lxml import etree
 from calibre import guess_type
-from calibre.utils.magick.draw import identify_data
+from calibre.utils.imghdr import identify
 
 class CoverManager(object):
 
@@ -115,10 +115,10 @@ class CoverManager(object):
             if x.href == urlnormalize(href):
                 try:
                     raw = x.data
-                    return identify_data(raw)[:2]
-                except:
-                    self.log.exception('Failed to read image dimensions')
-        return None, None
+                    return identify(raw)[1:]
+                except Exception:
+                    self.log.exception('Failed to read cover image dimensions')
+        return -1, -1
 
     def insert_cover(self):
         from calibre.ebooks.oeb.base import urldefrag
@@ -132,7 +132,7 @@ class CoverManager(object):
             if href is None:
                 return
             width, height = self.inspect_cover(href)
-            if width is None or height is None:
+            if width == -1 or height == -1:
                 self.log.warning('Failed to read cover dimensions')
                 width, height = 600, 800
             # if self.preserve_aspect_ratio:
