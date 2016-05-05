@@ -6,9 +6,16 @@
  */
 
 #include "imageops.h"
+#include <stdexcept>
+
 #define SQUARE(x) (x)*(x)
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
 #define DISTANCE(r, g, b) (SQUARE(r - red_average) + SQUARE(g - green_average) + SQUARE(b - blue_average))
+#define M_EPSILON 1.0e-6
+#define M_SQ2PI 2.50662827463100024161235523934010416269302368164062
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 unsigned int read_border_row(const QImage &img, const unsigned int width, const unsigned int height, int *reds, const double fuzz, const bool top) {
 	unsigned int r = 0, c = 0, start = 0, delta = top ? 1 : -1, ans = 0;
@@ -38,10 +45,10 @@ unsigned int read_border_row(const QImage &img, const unsigned int width, const 
 	return ans;
 }
 
-#define ENSURE32(img) \
+#define ENSURE32(img, ret) \
 	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) { \
 		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32); \
-		if (img.isNull()) { PyErr_NoMemory(); return NULL; } \
+		if (img.isNull()) { PyErr_NoMemory(); return ret; } \
 	} \
 
 QImage* remove_borders(const QImage &image, double fuzz) {
@@ -51,7 +58,7 @@ QImage* remove_borders(const QImage &image, double fuzz) {
 	unsigned int width = img.width(), height = img.height();
 	unsigned int top_border = 0, bottom_border = 0, left_border = 0, right_border = 0;
 
-    ENSURE32(img)
+    ENSURE32(img, NULL)
 	buf = new int[3*(MAX(width, height)+1)];
 	fuzz /= 255;
 
@@ -83,7 +90,7 @@ QImage* grayscale(const QImage &image) {
     QRgb *row = NULL, *pixel = NULL;
     int r = 0, gray = 0, width = img.width(), height = img.height();
 
-    ENSURE32(img);
+    ENSURE32(img, NULL);
     for (r = 0; r < height; r++) {
 		row = reinterpret_cast<QRgb*>(img.scanLine(r));
         for (pixel = row; pixel < row + width; pixel++) {
@@ -93,4 +100,122 @@ QImage* grayscale(const QImage &image) {
     }
 	if (!PyErr_Occurred()) ans = new QImage(img);
 	return ans;
+}
+
+#define CONVOLVE_ACC(weight, pixel) \
+    r+=((weight))*(qRed((pixel))); g+=((weight))*(qGreen((pixel))); \
+    b+=((weight))*(qBlue((pixel)));
+
+QImage convolve(QImage &img, int matrix_size, float *matrix) {
+    int i, x, y, w, h, matrix_x, matrix_y;
+    int edge = matrix_size/2;
+    QRgb *dest, *src, *s, **scanblock;
+    float *m, *normalize_matrix, normalize, r, g, b;
+
+    if(!(matrix_size % 2))
+        throw std::out_of_range("Convolution kernel width must be an odd number");
+
+    w = img.width();
+    h = img.height();
+    if(w < 3 || h < 3) return img;
+
+    ENSURE32(img, img);
+
+    QImage buffer = QImage(w, h, img.format());
+    scanblock = new QRgb* [matrix_size];
+    normalize_matrix = new float[matrix_size*matrix_size];
+    Py_BEGIN_ALLOW_THREADS;
+
+    // create normalized matrix
+    normalize = 0.0;
+    for(i=0; i < matrix_size*matrix_size; ++i)
+        normalize += matrix[i];
+    if(std::abs(normalize) <=  M_EPSILON)
+        normalize = 1.0;
+    normalize = 1.0/normalize;
+    for(i=0; i < matrix_size*matrix_size; ++i)
+        normalize_matrix[i] = normalize*matrix[i];
+
+    // apply
+
+    for(y=0; y < h; ++y){
+        src = (QRgb *)img.scanLine(y);
+        dest = (QRgb *)buffer.scanLine(y);
+        // Read in scanlines to pixel neighborhood. If the scanline is outside
+        // the image use the top or bottom edge.
+        for(x=y-edge, i=0; x <= y+edge; ++i, ++x){
+            scanblock[i] = (QRgb *)
+                img.scanLine((x < 0) ? 0 : (x > h-1) ? h-1 : x);
+        }
+        // Now we are about to start processing scanlines. First handle the
+        // part where the pixel neighborhood extends off the left edge.
+        for(x=0; x-edge < 0 ; ++x){
+            r = g = b = 0.0;
+            m = normalize_matrix;
+            for(matrix_y = 0; matrix_y < matrix_size; ++matrix_y){
+                s = scanblock[matrix_y];
+                matrix_x = -edge;
+                while(x+matrix_x < 0){
+                    CONVOLVE_ACC(*m, *s);
+                    ++matrix_x; ++m;
+                }
+                while(matrix_x <= edge){
+                    CONVOLVE_ACC(*m, *s);
+                    ++matrix_x; ++m; ++s;
+                }
+            }
+            r = r < 0.0 ? 0.0 : r > 255.0 ? 255.0 : r+0.5;
+            g = g < 0.0 ? 0.0 : g > 255.0 ? 255.0 : g+0.5;
+            b = b < 0.0 ? 0.0 : b > 255.0 ? 255.0 : b+0.5;
+            *dest++ = qRgba((unsigned char)r, (unsigned char)g,
+                            (unsigned char)b, qAlpha(*src++));
+        }
+        // Okay, now process the middle part where the entire neighborhood
+        // is on the image.
+        for(; x+edge < w; ++x){
+            m = normalize_matrix;
+            r = g = b = 0.0;
+            for(matrix_y = 0; matrix_y < matrix_size; ++matrix_y){
+                s = scanblock[matrix_y] + (x-edge);
+                for(matrix_x = -edge; matrix_x <= edge; ++matrix_x, ++m, ++s){
+                    CONVOLVE_ACC(*m, *s);
+                }
+            }
+            r = r < 0.0 ? 0.0 : r > 255.0 ? 255.0 : r+0.5;
+            g = g < 0.0 ? 0.0 : g > 255.0 ? 255.0 : g+0.5;
+            b = b < 0.0 ? 0.0 : b > 255.0 ? 255.0 : b+0.5;
+            *dest++ = qRgba((unsigned char)r, (unsigned char)g,
+                            (unsigned char)b, qAlpha(*src++));
+        }
+        // Finally process the right part where the neighborhood extends off
+        // the right edge of the image
+        for(; x < w; ++x){
+            r = g = b = 0.0;
+            m = normalize_matrix;
+            for(matrix_y = 0; matrix_y < matrix_size; ++matrix_y){
+                s = scanblock[matrix_y];
+                s += x-edge;
+                matrix_x = -edge;
+                while(x+matrix_x < w){
+                    CONVOLVE_ACC(*m, *s);
+                    ++matrix_x, ++m, ++s;
+                }
+                --s;
+                while(matrix_x <= edge){
+                    CONVOLVE_ACC(*m, *s);
+                    ++matrix_x, ++m;
+                }
+            }
+            r = r < 0.0 ? 0.0 : r > 255.0 ? 255.0 : r+0.5;
+            g = g < 0.0 ? 0.0 : g > 255.0 ? 255.0 : g+0.5;
+            b = b < 0.0 ? 0.0 : b > 255.0 ? 255.0 : b+0.5;
+            *dest++ = qRgba((unsigned char)r, (unsigned char)g,
+                            (unsigned char)b, qAlpha(*src++));
+        }
+    }
+    Py_END_ALLOW_THREADS;
+
+    delete[] scanblock;
+    delete[] normalize_matrix;
+    return buffer;
 }
