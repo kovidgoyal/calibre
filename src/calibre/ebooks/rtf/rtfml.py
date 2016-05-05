@@ -15,7 +15,8 @@ import cStringIO
 from lxml import etree
 
 from calibre.ebooks.metadata import authors_to_string
-from calibre.utils.magick.draw import save_cover_data_to, identify_data
+from calibre.utils.img import save_cover_data_to
+from calibre.utils.imghdr import identify
 
 TAGS = {
     'b': '\\b',
@@ -177,8 +178,8 @@ class RTFMLizer(object):
         return text
 
     def image_to_hexstring(self, data):
-        data = save_cover_data_to(data, 'cover.jpg', return_data=True)
-        width, height = identify_data(data)[:2]
+        data = save_cover_data_to(data)
+        width, height = identify(data)[1:]
 
         raw_hex = ''
         for char in data:
