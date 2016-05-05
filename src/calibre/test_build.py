@@ -12,7 +12,7 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import cStringIO, os, ctypes, sys
+import os, ctypes, sys
 from calibre.constants import plugins, iswindows, islinux, isosx
 
 def fprint(*args, **kwargs):
@@ -150,12 +150,6 @@ def test_qt():
     fprint('Qt OK!')
 
 def test_imaging():
-    from calibre.ebooks import calibre_cover
-    data = calibre_cover('test', 'ok')
-    if len(data) > 1000:
-        fprint('ImageMagick OK!')
-    else:
-        raise RuntimeError('ImageMagick choked!')
     from PIL import Image
     try:
         import _imaging, _imagingmath, _imagingft
@@ -163,7 +157,7 @@ def test_imaging():
     except ImportError:
         from PIL import _imaging, _imagingmath, _imagingft
     _imaging, _imagingmath, _imagingft
-    i = Image.open(cStringIO.StringIO(data))
+    i = Image.open(I('lt.png', allow_user_override=False))
     if i.size < (20, 20):
         raise RuntimeError('PIL choked!')
     fprint('PIL OK!')
@@ -196,10 +190,9 @@ def test_wpd():
     fprint('WPD OK!')
 
 def test_magick():
-    from calibre.utils.magick import create_canvas
+    from calibre.utils.magick import create_canvas, qimage_to_magick
     i = create_canvas(100, 100)
-    from calibre.gui2.tweak_book.editor.canvas import qimage_to_magick, magick_to_qimage
-    img = magick_to_qimage(i)
+    img = i.to_qimage()
     i = qimage_to_magick(img)
     fprint('magick OK!')
 
