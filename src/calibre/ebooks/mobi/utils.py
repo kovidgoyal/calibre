@@ -11,7 +11,7 @@ import struct, string, zlib, os
 from collections import OrderedDict
 from io import BytesIO
 
-from calibre.utils.magick.draw import Image, save_cover_data_to, thumbnail
+from calibre.utils.img import save_cover_data_to, scale_image, image_to_data, image_from_data, resize_image
 from calibre.utils.imghdr import what
 from calibre.ebooks import normalize
 from tinycss.color3 import parse_color_string
@@ -148,34 +148,27 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
             width, height = dimen
         else:
             width = height = dimen
-        data = thumbnail(data, width=width, height=height,
-                compression_quality=90)[-1]
+        data = scale_image(data, width=width, height=height, compression_quality=90)[-1]
     else:
         # Replace transparent pixels with white pixels and convert to JPEG
-        data = save_cover_data_to(data, 'img.jpg', return_data=True)
+        data = save_cover_data_to(data)
     if len(data) <= maxsizeb:
         return data
-    orig_data = data
-    img = Image()
-    quality = 95
-
-    img.load(data)
-    while len(data) >= maxsizeb and quality >= 10:
+    orig_data = data  # save it in case compression fails
+    quality = 90
+    while len(data) > maxsizeb and quality >= 5:
+        data = image_to_data(image_from_data(orig_data), compression_quality=quality)
         quality -= 5
-        img.set_compression_quality(quality)
-        data = img.export('jpg')
     if len(data) <= maxsizeb:
         return data
     orig_data = data
 
     scale = 0.9
-    while len(data) >= maxsizeb and scale >= 0.05:
-        img = Image()
-        img.load(orig_data)
-        w, h = img.size
-        img.size = (int(scale*w), int(scale*h))
-        img.set_compression_quality(quality)
-        data = img.export('jpg')
+    while len(data) > maxsizeb and scale >= 0.05:
+        img = image_from_data(data)
+        w, h = img.width(), img.height()
+        img = resize_image(img, int(scale*w), int(scale*h))
+        data = image_to_data(img, compression_quality=quality)
         scale -= 0.05
     return data
 
@@ -391,9 +384,11 @@ def mobify_image(data):
     fmt = what(None, data)
 
     if fmt == 'png':
-        im = Image()
-        im.load(data)
-        data = im.export('gif')
+        from PIL import Image
+        im = Image.open(BytesIO(data))
+        buf = BytesIO()
+        im.save(buf, 'gif')
+        data = buf.getvalue()
     return data
 
 # Font records {{{

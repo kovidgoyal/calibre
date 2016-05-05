@@ -13,7 +13,7 @@ from threading import Event
 
 from calibre import prints
 from calibre.utils.config import OptionParser
-from calibre.utils.magick.draw import save_cover_data_to
+from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre.ebooks.metadata.sources.base import create_log

@@ -45,15 +45,14 @@ class Resources(object):
         try:
             return func(data)
         except Exception:
-            from calibre.utils.magick.draw import identify_data
-            if 'png' != identify_data(data)[-1].lower():
+            if 'png' != what(None, data):
                 raise
             with PersistentTemporaryFile(suffix='.png') as pt:
                 pt.write(data)
             try:
                 from calibre.utils.img import optimize_png
                 optimize_png(pt.name)
-                data = open(pt.name, 'rb').read()
+                data = lopen(pt.name, 'rb').read()
             finally:
                 os.remove(pt.name)
             return func(data)

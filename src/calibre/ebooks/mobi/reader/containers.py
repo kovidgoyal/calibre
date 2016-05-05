@@ -8,17 +8,10 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from struct import unpack_from, error
 
-from calibre.utils.magick.draw import identify_data
 from calibre.utils.imghdr import what
 
 def find_imgtype(data):
-    imgtype = what(None, data)
-    if imgtype is None:
-        try:
-            imgtype = identify_data(data)[2]
-        except Exception:
-            imgtype = 'unknown'
-    return imgtype
+    return what(None, data) or 'unknown'
 
 class Container(object):
 

@@ -21,7 +21,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.mobi.reader.headers import BookHeader
-from calibre.utils.magick.draw import save_cover_data_to
+from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import what
 
 class TopazError(ValueError):
@@ -863,7 +863,7 @@ class MobiReader(object):
 
             path = os.path.join(output_dir, '%05d.jpg' % image_index)
             try:
-                if what(None, data) not in {'jpg', 'jpeg', 'gif', 'png', 'bmp', 'webp'}:
+                if what(None, data) not in {'jpg', 'jpeg', 'gif', 'png', 'bmp'}:
                     continue
                 save_cover_data_to(data, path, minify_to=(10000, 10000))
             except Exception:
