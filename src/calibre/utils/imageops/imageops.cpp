@@ -47,7 +47,7 @@ QImage* remove_borders(const QImage &image, double fuzz) {
 	unsigned int top_border = 0, bottom_border = 0, left_border = 0, right_border = 0;
 
 	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) {
-		img = img.convertToFormat(QImage::Format_RGB32);
+		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
 		if (img.isNull()) { PyErr_NoMemory(); return NULL; }
 	}
 	buf = new int[3*(MAX(width, height)+1)];
