@@ -45,20 +45,20 @@ unsigned int read_border_row(const QImage &img, const unsigned int width, const 
 	return ans;
 }
 
-#define ENSURE32(img, ret) \
+#define ENSURE32(img) \
 	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) { \
 		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32); \
-		if (img.isNull()) { PyErr_NoMemory(); return ret; } \
+		if (img.isNull()) { PyErr_NoMemory(); return img; } \
 	} \
 
-QImage* remove_borders(const QImage &image, double fuzz) {
+QImage remove_borders(const QImage &image, double fuzz) {
 	int *buf = NULL;
-	QImage* ans = NULL, img = image, timg;
+	QImage img = image, timg;
 	QTransform transpose;
 	unsigned int width = img.width(), height = img.height();
 	unsigned int top_border = 0, bottom_border = 0, left_border = 0, right_border = 0;
 
-    ENSURE32(img, NULL)
+    ENSURE32(img)
 	buf = new int[3*(MAX(width, height)+1)];
 	fuzz /= 255;
 
@@ -88,16 +88,15 @@ QImage* remove_borders(const QImage &image, double fuzz) {
     Py_END_ALLOW_THREADS;
 
 	delete[] buf;
-	if (!PyErr_Occurred()) ans = new QImage(img);
-	return ans;
+    return img;
 }
 
-QImage* grayscale(const QImage &image) {
-    QImage img = image, *ans = NULL;
+QImage grayscale(const QImage &image) {
+    QImage img = image;
     QRgb *row = NULL, *pixel = NULL;
     int r = 0, gray = 0, width = img.width(), height = img.height();
 
-    ENSURE32(img, NULL);
+    ENSURE32(img);
     Py_BEGIN_ALLOW_THREADS;
     for (r = 0; r < height; r++) {
 		row = reinterpret_cast<QRgb*>(img.scanLine(r));
@@ -107,8 +106,7 @@ QImage* grayscale(const QImage &image) {
         }
     }
     Py_END_ALLOW_THREADS;
-	if (!PyErr_Occurred()) ans = new QImage(img);
-	return ans;
+	return img;
 }
 
 #define CONVOLVE_ACC(weight, pixel) \
@@ -128,7 +126,7 @@ QImage convolve(QImage &img, int matrix_size, float *matrix) {
     h = img.height();
     if(w < 3 || h < 3) return img;
 
-    ENSURE32(img, img);
+    ENSURE32(img);
 
     QImage buffer = QImage(w, h, img.format());
     scanblock = new QRgb* [matrix_size];

@@ -10,6 +10,6 @@
 #include <QImage>
 #include <Python.h>
 
-QImage* remove_borders(const QImage &image, double fuzz);
-QImage* grayscale(const QImage &image);
+QImage remove_borders(const QImage &image, double fuzz);
+QImage grayscale(const QImage &image);
 
