@@ -8,6 +8,7 @@
 %ModuleCode
 #include <imageops.h>
 #define IMAGEOPS_PREFIX \
+            if (a0->isNull()) { PyErr_SetString(PyExc_ValueError, "Cannot operate on null QImage"); return NULL; } \
             try {
 #define IMAGEOPS_SUFFIX \
         } catch (std::out_of_range &exc) { PyErr_SetString(PyExc_ValueError, exc.what()); return NULL; \
