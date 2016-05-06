@@ -66,6 +66,8 @@ def overlay(img, canvas=None, left=0, top=0):
         canvas = QImage(img.size(), QImage.Format_RGB32)
         canvas.fill(Qt.white)
     if imageops is None:
+        # This is for people running from source who have not updated the
+        # binary and so do not have the imageops module
         from PyQt5.Qt import QPainter
         from calibre.gui2 import ensure_app
         ensure_app()
