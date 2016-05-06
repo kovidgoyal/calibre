@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include "imageops.h"
 #include <QColor>
+#include <cmath>
 
 #define SQUARE(x) (x)*(x)
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
@@ -245,16 +246,16 @@ int default_convolve_matrix_size(const float radius, const float sigma, const bo
     if(sigma == 0.0) throw std::out_of_range("Zero sigma is invalid for convolution");
 
     if(radius > 0.0)
-        return((int)(2.0*std::ceil(radius)+1.0));
+        return((int)(2.0*ceil(radius)+1.0));
 
     Py_BEGIN_ALLOW_THREADS;
     matrix_size = 5;
     do{
         normalize = 0.0;
         for(i=(-matrix_size/2); i <= (matrix_size/2); ++i)
-            normalize += std::exp(-((float) i*i)/sigma2) / sigmaSQ2PI;
+            normalize += exp(-((float) i*i)/sigma2) / sigmaSQ2PI;
         i = matrix_size/2;
-        value = std::exp(-((float) i*i)/sigma2) / sigmaSQ2PI / normalize;
+        value = exp(-((float) i*i)/sigma2) / sigmaSQ2PI / normalize;
         matrix_size += 2;
     } while((int)(max*value) > 0);
 
