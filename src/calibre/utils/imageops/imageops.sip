@@ -14,7 +14,7 @@
             sipRes = new QImage(ans); \
         } catch (std::out_of_range &exc) { PyErr_SetString(PyExc_ValueError, exc.what()); return NULL; \
         } catch (std::bad_alloc &) { PyErr_NoMemory(); return NULL; \
-        } catch (std::exception &exc) { PyErr_SetString(PyExc_RuntimeError, exc.what()); return NULL; \
+        } catch (std::exception &exc) { PyErr_SetString(PyExc_Exception, exc.what()); return NULL; \
         } catch (...) { PyErr_SetString(PyExc_RuntimeError, "unknown error"); return NULL;} 
 %End
 
