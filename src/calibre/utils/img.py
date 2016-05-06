@@ -84,10 +84,15 @@ def blend_image(img, bgcolor='#ffffff'):
     overlay(img, nimg)
     return nimg
 
-def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=True):
-    ''' Serialize image to bytestring in the specified format.
-    compression_quality is for JPEG and goes from 0 to 100.
-    png_compression_level is for PNG and goes from 0-9 '''
+def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
+    '''
+    Serialize image to bytestring in the specified format.
+
+    :param compression_quality: is for JPEG and goes from 0 to 100. 100 being lowest compression, highest image quality
+    :param png_compression_level: is for PNG and goes from 0-9. 9 being highest compression.
+    :param jpeg_optimized: Turns on the 'optimize' option for libjpeg which losslessly reduce file size
+    :param jpeg_progressive: Turns on the 'progressive scan' option for libjpeg which allows JPEG images to be downloaded in streaming fashion
+    '''
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
