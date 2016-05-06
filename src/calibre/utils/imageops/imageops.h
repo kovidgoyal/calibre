@@ -13,4 +13,5 @@
 QImage remove_borders(const QImage &image, double fuzz);
 QImage grayscale(const QImage &image);
 QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality=true);
+QImage gaussian_blur(const QImage &img, const float radius, const float sigma);
 

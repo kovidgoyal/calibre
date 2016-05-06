@@ -38,3 +38,10 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
 			ans = gaussian_sharpen(*a0, a1, a2, a3);
         IMAGEOPS_SUFFIX
 %End
+
+QImage gaussian_blur(const QImage &img, const float radius, const float sigma);
+%MethodCode
+        IMAGEOPS_PREFIX
+			ans = gaussian_blur(*a0, a1, a2);
+        IMAGEOPS_SUFFIX
+%End

@@ -19,6 +19,12 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+typedef struct
+{
+    float red, green, blue, alpha;
+} FloatPixel;
+
+
 // Remove borders (auto-trim) {{{
 unsigned int read_border_row(const QImage &img, const unsigned int width, const unsigned int height, int *reds, const double fuzz, const bool top) {
 	unsigned int r = 0, c = 0, start = 0, delta = top ? 1 : -1, ans = 0;
@@ -138,6 +144,7 @@ QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     ENSURE32(img);
 
     QImage buffer = QImage(w, h, img.format());
+    if (buffer.isNull()) throw std::bad_alloc();
     scanblock = new QRgb* [matrix_size];
     normalize_matrix = new float[matrix_size*matrix_size];
     Py_BEGIN_ALLOW_THREADS;
@@ -266,7 +273,7 @@ int default_convolve_matrix_size(const float radius, const float sigma, const bo
 
 // }}}
 
-QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality) {
+QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality) {  // {{{
     int matrix_size = default_convolve_matrix_size(radius, sigma, high_quality);
     int len = matrix_size*matrix_size;
     float alpha, *matrix = new float[len];
@@ -276,6 +283,7 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
     int half = matrix_size/2;
     int x, y, i=0, j=half;
     float normalize=0.0;
+    Py_BEGIN_ALLOW_THREADS;
     for(y=(-half); y <= half; ++y, --j){
         for(x=(-half); x <= half; ++x, ++i){
             alpha = std::exp(-((float)x*x+y*y)/sigma2);
@@ -285,7 +293,187 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
     }
 
     matrix[i/2]=(-2.0)*normalize;
+    Py_END_ALLOW_THREADS;
     QImage result(convolve(img, matrix_size, matrix));
     delete[] matrix;
     return(result);
+} // }}}
+
+// gaussian_blur() {{{
+float* get_blur_kernel(int &kernel_width, const float sigma)
+{
+#define KernelRank 3
+
+    float alpha, normalize, *kernel;
+    int bias;
+    long i;
+
+    if(sigma == 0.0) throw std::out_of_range("Zero sigma value is invalid for gaussian_blur");
+    if(kernel_width == 0) kernel_width = 3;
+
+    kernel = new float[kernel_width+1];
+    Py_BEGIN_ALLOW_THREADS;
+    memset(kernel, 0, (kernel_width+1)*sizeof(float));
+    bias = KernelRank*kernel_width/2;
+    for(i=(-bias); i <= bias; ++i){
+        alpha = std::exp(-((float) i*i)/(2.0*KernelRank*KernelRank*sigma*sigma));
+        kernel[(i+bias)/KernelRank] += alpha/(M_SQ2PI*sigma);
+    }
+
+    normalize = 0;
+    for(i=0; i < kernel_width; ++i)
+        normalize += kernel[i];
+    for(i=0; i < kernel_width; ++i)
+        kernel[i] /= normalize;
+    Py_END_ALLOW_THREADS;
+    return(kernel);
 }
+
+void blur_scan_line(const float *kernel, const int kern_width, const QRgb *source, QRgb *destination, const int columns, const int offset) {
+    FloatPixel aggregate, zero;
+    float scale;
+    const float *k;
+    QRgb *dest;
+    const QRgb *src;
+    int i, x;
+
+    memset(&zero, 0, sizeof(FloatPixel));
+    if(kern_width > columns){
+        Py_BEGIN_ALLOW_THREADS;
+        for(dest=destination, x=0; x < columns; ++x, dest+=offset){
+            aggregate = zero;
+            scale = 0.0;
+            k = kernel;
+            src = source;
+            for(i=0; i < columns; ++k, src+=offset){
+                if((i >= (x-kern_width/2)) && (i <= (x+kern_width/2))){
+                    aggregate.red += (*k)*qRed(*src);
+                    aggregate.green += (*k)*qGreen(*src);
+                    aggregate.blue += (*k)*qBlue(*src);
+                    aggregate.alpha += (*k)*qAlpha(*src);
+                }
+
+                if(((i+kern_width/2-x) >= 0) && ((i+kern_width/2-x) < kern_width))
+                    scale += kernel[i+kern_width/2-x];
+            }
+            scale = 1.0/scale;
+            *dest = qRgba((unsigned char)(scale*(aggregate.red+0.5)),
+                            (unsigned char)(scale*(aggregate.green+0.5)),
+                            (unsigned char)(scale*(aggregate.blue+0.5)),
+                            (unsigned char)(scale*(aggregate.alpha+0.5)));
+        }
+        Py_END_ALLOW_THREADS;
+        return;
+    }
+
+    Py_BEGIN_ALLOW_THREADS;
+    // blur
+    for(dest=destination, x=0; x < kern_width/2; ++x, dest+=offset){
+        aggregate = zero; // put this stuff in loop initializer once tested
+        scale = 0.0;
+        k = kernel+kern_width/2-x;
+        src = source;
+        for(i=kern_width/2-x; i < kern_width; ++i, ++k, src+=offset){
+            aggregate.red += (*k)*qRed(*src);
+            aggregate.green += (*k)*qGreen(*src);
+            aggregate.blue += (*k)*qBlue(*src);
+            aggregate.alpha += (*k)*qAlpha(*src);
+            scale += (*k);
+        }
+        scale = 1.0/scale;
+        *dest = qRgba((unsigned char)(scale*(aggregate.red+0.5)),
+                        (unsigned char)(scale*(aggregate.green+0.5)),
+                        (unsigned char)(scale*(aggregate.blue+0.5)),
+                        (unsigned char)(scale*(aggregate.alpha+0.5)));
+    }
+    for(; x < (columns-kern_width/2); ++x, dest+=offset){
+        aggregate = zero;
+        k = kernel;
+        src = source+((x-kern_width/2)*offset);
+        for(i=0; i < kern_width; ++i, ++k, src+=offset){
+            aggregate.red += (*k)*qRed(*src);
+            aggregate.green += (*k)*qGreen(*src);
+            aggregate.blue += (*k)*qBlue(*src);
+            aggregate.alpha += (*k)*qAlpha(*src);
+        }
+        *dest = qRgba((unsigned char)(aggregate.red+0.5),
+                        (unsigned char)(aggregate.green+0.5),
+                        (unsigned char)(aggregate.blue+0.5),
+                        (unsigned char)(aggregate.alpha+0.5));
+    }
+    for(; x < columns; ++x, dest+=offset){
+        aggregate = zero;
+        scale = 0;
+        k = kernel;
+        src = source+((x-kern_width/2)*offset);
+        for(i=0; i < (columns-x+kern_width/2); ++i, ++k, src+=offset){
+            aggregate.red += (*k)*qRed(*src);
+            aggregate.green += (*k)*qGreen(*src);
+            aggregate.blue += (*k)*qBlue(*src);
+            aggregate.alpha += (*k)*qAlpha(*src);
+            scale += (*k);
+        }
+        scale = 1.0/scale;
+        *dest = qRgba((unsigned char)(scale*(aggregate.red+0.5)),
+                        (unsigned char)(scale*(aggregate.green+0.5)),
+                        (unsigned char)(scale*(aggregate.blue+0.5)),
+                        (unsigned char)(scale*(aggregate.alpha+0.5)));
+    }
+    Py_END_ALLOW_THREADS;
+}
+
+QImage gaussian_blur(const QImage &image, const float radius, const float sigma) {
+    int kern_width, x, y, w, h;
+    QRgb *src;
+    QImage img(image);
+    float *k = NULL;
+
+    if(sigma == 0.0) throw std::out_of_range("Zero sigma is invalid for convolution");
+
+    // figure out optimal kernel width
+    if(radius > 0){
+        kern_width = (int)(2*std::ceil(radius)+1);
+        k = get_blur_kernel(kern_width, sigma);
+    }
+    else{
+        float *last_kernel = NULL;
+        kern_width = 3;
+        k = get_blur_kernel(kern_width, sigma);
+        while((long)(255*k[0]) > 0){
+            if(last_kernel != NULL)
+                delete[] last_kernel;
+            last_kernel = k;
+            kern_width += 2;
+            k = get_blur_kernel(kern_width, sigma);
+        }
+        if(last_kernel != NULL){
+            delete[] k;
+            kern_width -= 2;
+            k = last_kernel;
+        }
+    }
+
+    if(kern_width < 3) throw std::out_of_range("blur radius too small");
+    ENSURE32(img);
+
+    // allocate destination image
+    w = img.width();
+    h = img.height();
+    QImage buffer(w, h, img.format());
+    if (buffer.isNull()) throw std::bad_alloc();
+
+    //blur image rows
+    for(y=0; y < h; ++y)
+        blur_scan_line(k, kern_width, reinterpret_cast<const QRgb *>(img.constScanLine(y)),
+                                   reinterpret_cast<QRgb *>(buffer.scanLine(y)), img.width(), 1);
+
+    // blur image columns
+    src = reinterpret_cast<QRgb *>(buffer.scanLine(0));
+    for(x=0; x < w; ++x)
+        blur_scan_line(k, kern_width, src+x, src+x, img.height(),
+                                   img.width());
+    // finish up
+    delete[] k;
+    return(buffer);
+}
+// }}}
