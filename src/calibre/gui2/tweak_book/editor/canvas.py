@@ -21,7 +21,10 @@ from calibre.gui2.dnd import (
     IMAGE_EXTENSIONS, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
 from calibre.gui2.tweak_book import capitalize
 from calibre.utils.imghdr import identify
-from calibre.utils.img import remove_borders, gaussian_sharpen, gaussian_blur, image_to_data, despeckle, normalize
+from calibre.utils.img import (
+    remove_borders, gaussian_sharpen, gaussian_blur, image_to_data, despeckle,
+    normalize, oil_paint
+)
 
 def painter(func):
     @wraps(func)
@@ -141,6 +144,17 @@ class Blur(Sharpen):
 
     def __call__(self, canvas):
         return gaussian_blur(canvas.current_image, sigma=self.sigma)
+
+class Oilify(Command):
+
+    TEXT = _('Make image look like an oil painting')
+
+    def __init__(self, radius, canvas):
+        self.radius = radius
+        Command.__init__(self, canvas)
+
+    def __call__(self, canvas):
+        return oil_paint(canvas.current_image, radius=self.radius)
 
 class Despeckle(Command):
 
@@ -378,6 +392,11 @@ class Canvas(QWidget):
     @imageop
     def normalize_image(self):
         self.undo_stack.push(Normalize(self))
+        return True
+
+    @imageop
+    def oilify_image(self, radius=4.0):
+        self.undo_stack.push(Oilify(radius, self))
         return True
 
     # The selection rectangle {{{

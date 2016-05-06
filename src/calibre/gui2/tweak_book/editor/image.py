@@ -274,6 +274,7 @@ class Editor(QMainWindow):
         m.addAction(_('Blur image'), self.blur_image)
         m.addAction(_('De-speckle image'), self.canvas.despeckle_image)
         m.addAction(_('Improve contrast (normalize image)'), self.canvas.normalize_image)
+        m.addAction(_('Make image look like an oil painting'), self.oilify_image)
 
         self.info_bar = b = self.addToolBar(_('Image information bar'))
         b.setObjectName('image_info_bar')
@@ -321,6 +322,12 @@ class Editor(QMainWindow):
             'The standard deviation for the Gaussian blur operation (higher means more blurring)'), value=3, min=1, max=20)
         if ok:
             self.canvas.blur_image(sigma=val)
+
+    def oilify_image(self):
+        val, ok = QInputDialog.getDouble(self, _('Oilify image'), _(
+            'The strength of the operation (higher numbers have larger effects)'), value=4, min=0.1, max=20)
+        if ok:
+            self.canvas.oilify_image(radius=val)
 
 def launch_editor(path_to_edit, path_is_raw=False):
     app = QApplication([])
