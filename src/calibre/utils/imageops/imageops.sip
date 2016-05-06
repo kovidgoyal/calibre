@@ -43,3 +43,10 @@ QImage gaussian_blur(const QImage &img, const float radius, const float sigma);
 			sipRes = new QImage(gaussian_blur(*a0, a1, a2));
         IMAGEOPS_SUFFIX
 %End
+
+QImage despeckle(const QImage &image);
+%MethodCode
+        IMAGEOPS_PREFIX
+			sipRes = new QImage(despeckle(*a0));
+        IMAGEOPS_SUFFIX
+%End

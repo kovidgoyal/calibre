@@ -477,3 +477,102 @@ QImage gaussian_blur(const QImage &image, const float radius, const float sigma)
     return(buffer);
 }
 // }}}
+
+// despeckle() {{{
+
+inline void hull(const int x_offset, const int y_offset, const int w, const int h, unsigned char *f, unsigned char *g, const int polarity) {
+    int x, y, v;
+    unsigned char *p, *q, *r, *s;
+    p = f+(w+2); q = g+(w+2);
+    r = p+(y_offset*(w+2)+x_offset);
+    for(y=0; y < h; ++y, ++p, ++q, ++r){
+        ++p; ++q; ++r;
+        if(polarity > 0){
+            for(x=w; x > 0; --x, ++p, ++q, ++r){
+                v = (*p);
+                if((int)*r >= (v+2)) v += 1;
+                *q = (unsigned char)v;
+            }
+        }
+        else{
+            for(x=w; x > 0; --x, ++p, ++q, ++r){
+                v = (*p);
+                if((int)*r <= (v-2)) v -= 1;
+                *q = (unsigned char)v;
+            }
+        }
+    }
+    p = f+(w+2); q = g+(w+2);
+    r = q+(y_offset*(w+2)+x_offset); s = q-(y_offset*(w+2)+x_offset);
+    for(y=0; y < h; ++y, ++p, ++q, ++r, ++s){
+        ++p; ++q; ++r; ++s;
+        if(polarity > 0){
+            for(x=w; x > 0; --x, ++p, ++q, ++r, ++s){
+                v = (*q);
+                if(((int)*s >= (v+2)) && ((int)*r > v)) v+=1;
+                *p = (unsigned char)v;
+            }
+        }
+        else{
+            for(x=w; x > 0; --x, ++p, ++q, ++r, ++s){
+                v = (int)(*q);
+                if (((int)*s <= (v-2)) && ((int)*r < v)) v -= 1;
+                *p = (unsigned char)v;
+            }
+        }
+    }
+}
+
+#define DESPECKLE_CHANNEL(c, e) \
+    (void)memset(pixels, 0, length); \
+    j = w+2; \
+    for(y=0; y < h; ++y, ++j){ \
+        src = reinterpret_cast<const QRgb *>(img.constScanLine(y)); \
+        ++j; \
+        for(x=w-1; x >= 0; --x, ++src, ++j) \
+            pixels[j] = c(*src); \
+    } \
+    (void)memset(buffer, 0, length); \
+    for(i=0; i < 4; ++i){ \
+        hull(X[i], Y[i], w, h, pixels, buffer, 1); \
+        hull(-X[i], -Y[i], w, h, pixels, buffer, 1); \
+        hull(-X[i], -Y[i], w, h, pixels, buffer, -1); \
+        hull(X[i], Y[i], w, h, pixels, buffer, -1); \
+    } \
+    j = w+2; \
+    for(y=0; y < h; ++y, ++j){ \
+        dest = reinterpret_cast<QRgb *>(img.scanLine(y)); \
+        ++j; \
+        for(x=w-1; x >= 0; --x, ++dest, ++j) \
+            *dest = e; \
+    }
+
+QImage despeckle(const QImage &image) {  
+    int length, x, y, j, i;
+    QRgb *dest;
+    const QRgb *src;
+    QImage img(image);
+    unsigned char *buffer, *pixels;
+    int w = img.width();
+    int h = img.height();
+
+    static const int
+        X[4]= {0, 1, 1,-1},
+        Y[4]= {1, 0, 1, 1};
+
+    ENSURE32(img);
+    length = (img.width()+2)*(img.height()+2);
+    pixels = new unsigned char[length];
+    buffer = new unsigned char[length];
+
+    Py_BEGIN_ALLOW_THREADS;
+    DESPECKLE_CHANNEL(qRed, qRgba(pixels[j], qGreen(*dest), qBlue(*dest), qAlpha(*dest)))
+    DESPECKLE_CHANNEL(qGreen, qRgba(qRed(*dest), pixels[j], qBlue(*dest), qAlpha(*dest)))
+    DESPECKLE_CHANNEL(qBlue, qRgba(qRed(*dest), qGreen(*dest), pixels[j], qAlpha(*dest)))
+    Py_END_ALLOW_THREADS;
+
+    delete[] pixels;
+    delete[] buffer;
+    return(img);
+}
+// }}}
