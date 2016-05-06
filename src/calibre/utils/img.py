@@ -84,7 +84,7 @@ def blend_image(img, bgcolor='#ffffff'):
     overlay(img, nimg)
     return nimg
 
-def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9):
+def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=True):
     ''' Serialize image to bytestring in the specified format.
     compression_quality is for JPEG and goes from 0 to 100.
     png_compression_level is for PNG and goes from 0-9 '''
@@ -92,10 +92,16 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     fmt = fmt.upper()
+    is_jpeg = fmt in ('JPG', 'JPEG')
     w = QImageWriter(buf, fmt.encode('ascii'))
-    if img.hasAlphaChannel() and fmt in 'JPEG JPG'.split():
-        img = blend_image(img)
-    if fmt == 'PNG':
+    if is_jpeg:
+        if img.hasAlphaChannel():
+            img = blend_image(img)
+        if jpeg_optimized and hasattr(QImageWriter, 'setOptimizedWrite'):
+            w.setOptimizedWrite(True)
+        if jpeg_progressive and hasattr(QImageWriter, 'setProgressiveScanWrite'):
+            w.setProgressiveScanWrite(True)
+    elif fmt == 'PNG':
         cl = min(9, max(0, png_compression_level))
         w.setQuality(10 * (9-cl))
     else:
