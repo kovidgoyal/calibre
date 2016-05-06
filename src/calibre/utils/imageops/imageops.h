@@ -16,4 +16,4 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
 QImage gaussian_blur(const QImage &img, const float radius, const float sigma);
 QImage despeckle(const QImage &image);
 void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned int top);
-
+QImage normalize(const QImage &image);

@@ -10,6 +10,7 @@
 #include <QColor>
 #include <cmath>
 
+// Macros {{{
 #define SQUARE(x) (x)*(x)
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
 #define MIN(x, y) ((x) < (y)) ? (x) : (y)
@@ -24,12 +25,36 @@
 		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32); \
 		if (img.isNull()) throw std::bad_alloc(); \
 	} \
+// }}}
 
+// Structs {{{
 typedef struct
 {
     float red, green, blue, alpha;
 } FloatPixel;
 
+typedef struct
+{
+    quint32 red, green, blue, alpha;
+} IntegerPixel;
+
+typedef struct
+{
+    quint16 red, green, blue, alpha;
+} ShortPixel;
+
+typedef struct
+{
+    // Yes, a normal pixel can be used instead but this is easier to read
+    // and no shifts to get components.
+    quint8 red, green, blue, alpha;
+} CharPixel;
+
+typedef struct
+{
+    quint32 red, green, blue, alpha;
+} HistogramListItem;
+// }}}
 
 // Remove borders (auto-trim) {{{
 unsigned int read_border_row(const QImage &img, const unsigned int width, const unsigned int height, int *reds, const double fuzz, const bool top) {
@@ -633,4 +658,127 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
         Py_END_ALLOW_THREADS;
     }
 
+} // }}}
+
+QImage normalize(const QImage &image) { // {{{
+    IntegerPixel intensity;
+    HistogramListItem *histogram;
+    CharPixel *normalize_map;
+    ShortPixel high, low;
+    uint threshold_intensity;
+    int i, count;
+    QRgb pixel, *dest;
+    unsigned char r, g, b;
+    QImage img(image);
+
+    ENSURE32(img);
+
+    count = img.width()*img.height();
+    histogram = new HistogramListItem[256];
+    normalize_map = new CharPixel[256];
+    Py_BEGIN_ALLOW_THREADS;
+
+    // form histogram
+    memset(histogram, 0, 256*sizeof(HistogramListItem));
+    dest = (QRgb *)img.bits();
+
+    for(i=0; i < count; ++i){
+        pixel = *dest++;
+        histogram[qRed(pixel)].red++;
+        histogram[qGreen(pixel)].green++;
+        histogram[qBlue(pixel)].blue++;
+        histogram[qAlpha(pixel)].alpha++;
+    }
+
+    // find the histogram boundaries by locating the .01 percent levels.
+    threshold_intensity = count/1000;
+
+    memset(&intensity, 0, sizeof(IntegerPixel));
+    for(low.red=0; low.red < 256; ++low.red){
+        intensity.red += histogram[low.red].red;
+        if(intensity.red > threshold_intensity)
+            break;
+    }
+    memset(&intensity, 0, sizeof(IntegerPixel));
+    for(high.red=256; high.red >= 1; --high.red){
+        intensity.red += histogram[high.red-1].red;
+        if(intensity.red > threshold_intensity)
+            break;
+    }
+    memset(&intensity, 0, sizeof(IntegerPixel));
+    for(low.green=low.red; low.green < high.red; ++low.green){
+        intensity.green += histogram[low.green].green;
+        if(intensity.green > threshold_intensity)
+            break;
+    }
+    memset(&intensity, 0, sizeof(IntegerPixel));
+    for(high.green=high.red; high.green != low.red; --high.green){
+        intensity.green += histogram[high.green].green;
+        if(intensity.green > threshold_intensity)
+            break;
+    }
+    memset(&intensity, 0, sizeof(IntegerPixel));
+    for(low.blue=low.green; low.blue < high.green; ++low.blue){
+        intensity.blue += histogram[low.blue].blue;
+        if(intensity.blue > threshold_intensity)
+            break;
+    }
+    memset(&intensity, 0, sizeof(IntegerPixel));
+    for(high.blue=high.green; high.blue != low.green; --high.blue){
+        intensity.blue += histogram[high.blue].blue;
+        if(intensity.blue > threshold_intensity)
+            break;
+    }
+
+    delete[] histogram;
+
+    // stretch the histogram to create the normalized image mapping.
+    for(i=0; i < 256; i++){
+        if(i < low.red)
+            normalize_map[i].red = 0;
+        else{
+            if(i > high.red)
+                normalize_map[i].red = 255;
+            else if(low.red != high.red)
+                normalize_map[i].red = (255*(i-low.red))/
+                    (high.red-low.red);
+        }
+
+        if(i < low.green)
+            normalize_map[i].green = 0;
+        else{
+            if(i > high.green)
+                normalize_map[i].green = 255;
+            else if(low.green != high.green)
+                normalize_map[i].green = (255*(i-low.green))/
+                    (high.green-low.green);
+        }
+
+        if(i < low.blue)
+            normalize_map[i].blue = 0;
+        else{
+            if(i > high.blue)
+                normalize_map[i].blue = 255;
+            else if(low.blue != high.blue)
+                normalize_map[i].blue = (255*(i-low.blue))/
+                    (high.blue-low.blue);
+        }
+    }
+
+    // write
+    dest = reinterpret_cast<QRgb *>(img.bits());
+    for(i=0; i < count; ++i){
+        pixel = *dest;
+        r = (low.red != high.red) ? normalize_map[qRed(pixel)].red :
+            qRed(pixel);
+        g = (low.green != high.green) ? normalize_map[qGreen(pixel)].green :
+            qGreen(pixel);
+        b = (low.blue != high.blue) ?  normalize_map[qBlue(pixel)].blue :
+            qBlue(pixel);
+        *dest++ = qRgba(r, g, b, qAlpha(pixel));
+    }
+
+    delete[] normalize_map;
+    Py_END_ALLOW_THREADS;
+    return img;
 } // }}}

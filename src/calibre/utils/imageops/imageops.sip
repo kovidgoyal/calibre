@@ -58,3 +58,10 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
             overlay(*a0, *a1, a2, a3);
         IMAGEOPS_SUFFIX
 %End
+
+QImage normalize(const QImage &image);
+%MethodCode
+        IMAGEOPS_PREFIX
+			sipRes = new QImage(normalize(*a0));
+        IMAGEOPS_SUFFIX
+%End
