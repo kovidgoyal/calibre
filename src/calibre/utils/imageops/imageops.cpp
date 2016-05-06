@@ -50,7 +50,7 @@ unsigned int read_border_row(const QImage &img, const unsigned int width, const 
 #define ENSURE32(img) \
 	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) { \
 		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32); \
-		if (img.isNull()) { PyErr_NoMemory(); return img; } \
+		if (img.isNull()) throw std::bad_alloc(); \
 	} \
 
 QImage remove_borders(const QImage &image, double fuzz) {
@@ -59,6 +59,7 @@ QImage remove_borders(const QImage &image, double fuzz) {
 	QTransform transpose;
 	unsigned int width = img.width(), height = img.height();
 	unsigned int top_border = 0, bottom_border = 0, left_border = 0, right_border = 0;
+    bool bad_alloc = false;
 
     ENSURE32(img)
 	buf = new int[3*(MAX(width, height)+1)];
@@ -71,7 +72,7 @@ QImage remove_borders(const QImage &image, double fuzz) {
         if (bottom_border < height - 1) {
             transpose.rotate(90);
             timg = img.transformed(transpose);
-            if (timg.isNull()) PyErr_NoMemory(); 
+            if (timg.isNull()) bad_alloc = true; 
             else {
                 left_border = read_border_row(timg, height, width, buf, fuzz, true);
                 if (left_border < width - 1) {
@@ -80,7 +81,7 @@ QImage remove_borders(const QImage &image, double fuzz) {
                         if (left_border || right_border || top_border || bottom_border) {
                             // printf("111111 l=%d t=%d r=%d b=%d\n", left_border, top_border, right_border, bottom_border);
                             img = img.copy(left_border, top_border, width - left_border - right_border, height - top_border - bottom_border);
-                            if (img.isNull()) PyErr_NoMemory();
+                            if (img.isNull()) bad_alloc = true;
                         }
                     }
                 }
@@ -90,6 +91,7 @@ QImage remove_borders(const QImage &image, double fuzz) {
     Py_END_ALLOW_THREADS;
 
 	delete[] buf;
+    if (bad_alloc) throw std::bad_alloc();
     return img;
 }
 // }}}
