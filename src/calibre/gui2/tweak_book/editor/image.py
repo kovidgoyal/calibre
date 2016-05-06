@@ -273,6 +273,7 @@ class Editor(QMainWindow):
         m.addAction(_('Sharpen image'), self.sharpen_image)
         m.addAction(_('Blur image'), self.blur_image)
         m.addAction(_('De-speckle image'), self.canvas.despeckle_image)
+        m.addAction(_('Improve contrast (normalize image)'), self.canvas.normalize_image)
 
         self.info_bar = b = self.addToolBar(_('Image information bar'))
         b.setObjectName('image_info_bar')

@@ -21,7 +21,7 @@ from calibre.gui2.dnd import (
     IMAGE_EXTENSIONS, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
 from calibre.gui2.tweak_book import capitalize
 from calibre.utils.imghdr import identify
-from calibre.utils.img import remove_borders, gaussian_sharpen, gaussian_blur, image_to_data, despeckle
+from calibre.utils.img import remove_borders, gaussian_sharpen, gaussian_blur, image_to_data, despeckle, normalize
 
 def painter(func):
     @wraps(func)
@@ -148,6 +148,13 @@ class Despeckle(Command):
 
     def __call__(self, canvas):
         return despeckle(canvas.current_image)
+
+class Normalize(Command):
+
+    TEXT = _('Normalize image')
+
+    def __call__(self, canvas):
+        return normalize(canvas.current_image)
 
 class Replace(Command):
 
@@ -366,6 +373,11 @@ class Canvas(QWidget):
     @imageop
     def despeckle_image(self):
         self.undo_stack.push(Despeckle(self))
+        return True
+
+    @imageop
+    def normalize_image(self):
+        self.undo_stack.push(Normalize(self))
         return True
 
     # The selection rectangle {{{
