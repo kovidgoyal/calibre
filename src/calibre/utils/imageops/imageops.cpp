@@ -255,7 +255,7 @@ int default_convolve_matrix_size(const float radius, const float sigma, const bo
         for(i=(-matrix_size/2); i <= (matrix_size/2); ++i)
             normalize += exp(-((float) i*i)/sigma2) / sigmaSQ2PI;
         i = matrix_size/2;
-        value = exp(-((float) i*i)/sigma2) / sigmaSQ2PI / normalize;
+        value = std::exp(-((float) i*i)/sigma2) / sigmaSQ2PI / normalize;
         matrix_size += 2;
     } while((int)(max*value) > 0);
 
