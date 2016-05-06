@@ -57,7 +57,7 @@ typedef struct
 // }}}
 
 // Remove borders (auto-trim) {{{
-unsigned int read_border_row(const QImage &img, const unsigned int width, const unsigned int height, int *reds, const double fuzz, const bool top) {
+static unsigned int read_border_row(const QImage &img, const unsigned int width, const unsigned int height, int *reds, const double fuzz, const bool top) {
 	unsigned int r = 0, c = 0, start = 0, delta = top ? 1 : -1, ans = 0;
 	const QRgb *row = NULL, *pixel = NULL;
     int *greens = NULL, *blues = NULL;
@@ -151,7 +151,7 @@ QImage grayscale(const QImage &image) { // {{{
     r+=((weight))*(qRed((pixel))); g+=((weight))*(qGreen((pixel))); \
     b+=((weight))*(qBlue((pixel)));
 
-QImage convolve(const QImage &image, int matrix_size, float *matrix) {
+static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     int i, x, y, w, h, matrix_x, matrix_y;
     int edge = matrix_size/2;
     QRgb *dest, *s, **scanblock;
@@ -268,7 +268,7 @@ QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     return buffer;
 }
 
-int default_convolve_matrix_size(const float radius, const float sigma, const bool quality) {
+static int default_convolve_matrix_size(const float radius, const float sigma, const bool quality) {
     int i, matrix_size;
     float normalize, value;
     float sigma2 = sigma*sigma*2.0;
@@ -325,7 +325,7 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
 } // }}}
 
 // gaussian_blur() {{{
-float* get_blur_kernel(int &kernel_width, const float sigma)
+static float* get_blur_kernel(int &kernel_width, const float sigma)
 {
 #define KernelRank 3
 
@@ -354,7 +354,7 @@ float* get_blur_kernel(int &kernel_width, const float sigma)
     return(kernel);
 }
 
-void blur_scan_line(const float *kernel, const int kern_width, const QRgb *source, QRgb *destination, const int columns, const int offset) {
+static void blur_scan_line(const float *kernel, const int kern_width, const QRgb *source, QRgb *destination, const int columns, const int offset) {
     FloatPixel aggregate, zero;
     float scale;
     const float *k;
@@ -505,7 +505,7 @@ QImage gaussian_blur(const QImage &image, const float radius, const float sigma)
 
 // despeckle() {{{
 
-inline void hull(const int x_offset, const int y_offset, const int w, const int h, unsigned char *f, unsigned char *g, const int polarity) {
+static inline void hull(const int x_offset, const int y_offset, const int w, const int h, unsigned char *f, unsigned char *g, const int polarity) {
     int x, y, v;
     unsigned char *p, *q, *r, *s;
     p = f+(w+2); q = g+(w+2);
@@ -783,7 +783,7 @@ QImage normalize(const QImage &image) { // {{{
     return img;
 } // }}}
 
-QImage oil_paint(const QImage &image, const float radius, const bool high_quality) {
+QImage oil_paint(const QImage &image, const float radius, const bool high_quality) {  // {{{
     int matrix_size = default_convolve_matrix_size(radius, 0.5, high_quality);
     int i, x, y, w, h, matrix_x, matrix_y;
     int edge = matrix_size/2;
@@ -895,5 +895,4 @@ QImage oil_paint(const QImage &image, const float radius, const bool high_qualit
     delete[] scanblock;
     Py_END_ALLOW_THREADS;
     return(buffer);
-}
-
+} // }}}
