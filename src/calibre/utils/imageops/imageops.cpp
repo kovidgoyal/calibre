@@ -117,12 +117,13 @@ QImage grayscale(const QImage &image) { // {{{
     r+=((weight))*(qRed((pixel))); g+=((weight))*(qGreen((pixel))); \
     b+=((weight))*(qBlue((pixel)));
 
-QImage convolve(QImage &img, int matrix_size, float *matrix) {
+QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     int i, x, y, w, h, matrix_x, matrix_y;
     int edge = matrix_size/2;
     QRgb *dest, *s, **scanblock;
     const QRgb *src = NULL;
     float *m, *normalize_matrix, normalize, r, g, b;
+    QImage img(image);
 
     if(!(matrix_size % 2))
         throw std::out_of_range("Convolution kernel width must be an odd number");
@@ -231,6 +232,57 @@ QImage convolve(QImage &img, int matrix_size, float *matrix) {
     delete[] normalize_matrix;
     return buffer;
 }
+
+int default_convolve_matrix_size(const float radius, const float sigma, const bool quality) {
+    int i, matrix_size;
+    float normalize, value;
+    float sigma2 = sigma*sigma*2.0;
+    float sigmaSQ2PI = M_SQ2PI*sigma;
+    int max = quality ? 65535 : 255;
+
+    if(sigma == 0.0) throw std::out_of_range("Zero sigma is invalid for convolution");
+
+    if(radius > 0.0)
+        return((int)(2.0*std::ceil(radius)+1.0));
+
+    Py_BEGIN_ALLOW_THREADS;
+    matrix_size = 5;
+    do{
+        normalize = 0.0;
+        for(i=(-matrix_size/2); i <= (matrix_size/2); ++i)
+            normalize += std::exp(-((float) i*i)/sigma2) / sigmaSQ2PI;
+        i = matrix_size/2;
+        value = std::exp(-((float) i*i)/sigma2) / sigmaSQ2PI / normalize;
+        matrix_size += 2;
+    } while((int)(max*value) > 0);
+
+    matrix_size-=4;
+    Py_END_ALLOW_THREADS;
+    return(matrix_size);
+}
+
 // }}}
 
+QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality=true) {
+    int matrix_size = default_convolve_matrix_size(radius, sigma, high_quality);
+    int len = matrix_size*matrix_size;
+    float alpha, *matrix = new float[len];
+    float sigma2 = sigma*sigma*2.0;
+    float sigmaPI2 = 2.0*M_PI*sigma*sigma;
 
+    int half = matrix_size/2;
+    int x, y, i=0, j=half;
+    float normalize=0.0;
+    for(y=(-half); y <= half; ++y, --j){
+        for(x=(-half); x <= half; ++x, ++i){
+            alpha = std::exp(-((float)x*x+y*y)/sigma2);
+            matrix[i] = alpha/sigmaPI2;
+            normalize += matrix[i];
+        }
+    }
+
+    matrix[i/2]=(-2.0)*normalize;
+    QImage result(convolve(img, matrix_size, matrix));
+    delete[] matrix;
+    return(result);
+}
