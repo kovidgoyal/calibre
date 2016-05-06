@@ -7,10 +7,10 @@
 %Import QtGui/QtGuimod.sip
 %ModuleCode
 #include <imageops.h>
-#define PREFIX \
+#define IMAGEOPS_PREFIX \
             QImage ans; \
             try {
-#define SUFFIX \
+#define IMAGEOPS_SUFFIX \
 			if (PyErr_Occurred()) return NULL; \
             sipRes = new (std::nothrow) QImage(ans); \
             if (sipRes == NULL) return PyErr_NoMemory(); \
@@ -22,14 +22,14 @@
 
 QImage* remove_borders(const QImage &image, double fuzz);
 %MethodCode
-        PREFIX
+        IMAGEOPS_PREFIX
 			ans = remove_borders(*a0, a1);
-        SUFFIX
+        IMAGEOPS_SUFFIX
 %End
 
 QImage* grayscale(const QImage &image);
 %MethodCode
-        PREFIX
+        IMAGEOPS_PREFIX
 			ans = grayscale(*a0);
-        SUFFIX
+        IMAGEOPS_SUFFIX
 %End

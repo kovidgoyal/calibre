@@ -5,8 +5,9 @@
  * Distributed under terms of the GPL3 license.
  */
 
-#include "imageops.h"
 #include <stdexcept>
+#include "imageops.h"
+#include <QColor>
 
 #define SQUARE(x) (x)*(x)
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
