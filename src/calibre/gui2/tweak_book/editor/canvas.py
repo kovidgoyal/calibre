@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, weakref
 from functools import wraps
+from io import BytesIO
 
 from PyQt5.Qt import (
     QWidget, QPainter, QColor, QApplication, Qt, QPixmap, QRectF, QTransform,
@@ -20,8 +21,7 @@ from calibre.gui2.dnd import (
     IMAGE_EXTENSIONS, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
 from calibre.gui2.tweak_book import capitalize
 from calibre.utils.imghdr import identify
-from calibre.utils.img import remove_borders
-from calibre.utils.magick import qimage_to_magick
+from calibre.utils.img import remove_borders, gaussian_sharpen, gaussian_blur, image_to_data, despeckle
 
 def painter(func):
     @wraps(func)
@@ -132,25 +132,22 @@ class Sharpen(Command):
         Command.__init__(self, canvas)
 
     def __call__(self, canvas):
-        img = canvas.current_image
-        i = qimage_to_magick(img)
-        getattr(i, self.FUNC)(0.0, self.sigma)
-        return i.to_qimage()
+        return gaussian_sharpen(canvas.current_image, sigma=self.sigma)
 
 class Blur(Sharpen):
 
     TEXT = _('Blur image')
     FUNC = 'blur'
 
+    def __call__(self, canvas):
+        return gaussian_blur(canvas.current_image, sigma=self.sigma)
+
 class Despeckle(Command):
 
     TEXT = _('De-speckle image')
 
     def __call__(self, canvas):
-        img = canvas.current_image
-        i = qimage_to_magick(img)
-        i.despeckle()
-        return i.to_qimage()
+        return despeckle(canvas.current_image)
 
 class Replace(Command):
 
@@ -292,7 +289,15 @@ class Canvas(QWidget):
             return self.original_image_data
         fmt = self.original_image_format or 'JPEG'
         if fmt.lower() not in set(map(lambda x:bytes(x).decode('ascii'), QImageWriter.supportedImageFormats())):
-            return qimage_to_magick(self.current_image).export(fmt)
+            if fmt.lower() == 'gif':
+                data = image_to_data(self.current_image, fmt='PNG')
+                from PIL import Image
+                i = Image.open(data)
+                buf = BytesIO()
+                i.save(buf, 'gif')
+                return buf.getvalue()
+            else:
+                raise ValueError('Cannot save %s format images' % fmt)
         return pixmap_to_data(self.current_image, format=fmt, quality=90)
 
     def copy(self):
