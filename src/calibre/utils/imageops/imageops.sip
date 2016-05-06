@@ -51,3 +51,10 @@ QImage despeckle(const QImage &image);
 			sipRes = new QImage(despeckle(*a0));
         IMAGEOPS_SUFFIX
 %End
+
+void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned int top);
+%MethodCode
+        IMAGEOPS_PREFIX
+            overlay(*a0, *a1, a2, a3);
+        IMAGEOPS_SUFFIX
+%End

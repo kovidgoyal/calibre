@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import os, subprocess, errno, shutil, tempfile
 from threading import Thread
 
-from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QPainter, QImageReader, QColor
+from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor
 
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows, plugins
@@ -54,19 +54,32 @@ def image_and_format_from_data(data):
     return r.read(), fmt
 
 def add_borders(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
+    if not (left > 0 or right > 0 or top > 0 or bottom > 0):
+        return img
     nimg = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format_RGB32)
     nimg.fill(QColor(border_color))
-    p = QPainter(nimg)
-    p.drawImage(left, top, img)
-    p.end()
+    overlay(img, nimg, left, top)
     return nimg
+
+def overlay(img, canvas=None, left=0, top=0):
+    if canvas is None:
+        canvas = QImage(img.size(), QImage.Format_RGB32)
+        canvas.fill(Qt.white)
+    if imageops is None:
+        from PyQt5.Qt import QPainter
+        from calibre.gui2 import ensure_app
+        ensure_app()
+        p = QPainter(canvas)
+        p.drawImage(left, top, img)
+        p.end()
+    else:
+        imageops.overlay(img, canvas, left, top)
+    return canvas
 
 def blend_image(img, bgcolor='#ffffff'):
     nimg = QImage(img.size(), QImage.Format_RGB32)
     nimg.fill(QColor(bgcolor))
-    p = QPainter(nimg)
-    p.drawImage(0, 0, img)
-    p.end()
+    overlay(img, nimg)
     return nimg
 
 def image_to_data(img, compression_quality=95, fmt='JPEG'):
@@ -178,9 +191,7 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
         w, h = nw, nh
     nimg = QImage(width, height, QImage.Format_RGB32)
     nimg.fill(QColor(bgcolor))
-    p = QPainter(nimg)
-    p.drawImage((width - w)//2, (height - h)//2, img)
-    p.end()
+    overlay(img, nimg, (width - w)//2, (height - h)//2)
     return nimg
 
 class Canvas(object):
@@ -190,15 +201,14 @@ class Canvas(object):
         self.img.fill(QColor(bgcolor))
 
     def __enter__(self):
-        self.painter = QPainter(self.img)
         return self
 
     def __exit__(self, *args):
-        self.painter.end()
+        pass
 
     def compose(self, img, x=0, y=0):
         img = image_from_data(img)
-        self.painter.drawImage(x, y, img)
+        overlay(img, self.img, x, y)
 
     def export(self, fmt='JPEG', compression_quality=95):
         return image_to_data(self.img, compression_quality=compression_quality, fmt=fmt)

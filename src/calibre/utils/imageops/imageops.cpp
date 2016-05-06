@@ -12,12 +12,18 @@
 
 #define SQUARE(x) (x)*(x)
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
+#define MIN(x, y) ((x) < (y)) ? (x) : (y)
 #define DISTANCE(r, g, b) (SQUARE(r - red_average) + SQUARE(g - green_average) + SQUARE(b - blue_average))
 #define M_EPSILON 1.0e-6
 #define M_SQ2PI 2.50662827463100024161235523934010416269302368164062
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
+#define ENSURE32(img) \
+	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) { \
+		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32); \
+		if (img.isNull()) throw std::bad_alloc(); \
+	} \
 
 typedef struct
 {
@@ -53,12 +59,6 @@ unsigned int read_border_row(const QImage &img, const unsigned int width, const 
 	}
 	return ans;
 }
-
-#define ENSURE32(img) \
-	if (img.format() != QImage::Format_RGB32 && img.format() != QImage::Format_ARGB32) { \
-		img = img.convertToFormat(img.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32); \
-		if (img.isNull()) throw std::bad_alloc(); \
-	} \
 
 QImage remove_borders(const QImage &image, double fuzz) {
 	int *buf = NULL;
@@ -576,3 +576,57 @@ QImage despeckle(const QImage &image) {
     return(img);
 }
 // }}}
+
+// overlay() {{{ 
+static inline unsigned int BYTE_MUL(unsigned int x, unsigned int a) {
+    quint64 t = (((quint64(x)) | ((quint64(x)) << 24)) & 0x00ff00ff00ff00ff) * a;
+    t = (t + ((t >> 8) & 0xff00ff00ff00ff) + 0x80008000800080) >> 8;
+    t &= 0x00ff00ff00ff00ff;
+    return ((unsigned int)(t)) | ((unsigned int)(t >> 24));
+}
+
+void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned int top) { 
+    QImage img(image);
+    unsigned int cw = canvas.width(), ch = canvas.height(), iw = img.width(), ih = img.height(), r, c, right = 0, bottom = 0, height, width, s;
+    const QRgb* src;
+    QRgb* dest;
+
+    ENSURE32(canvas)
+    if (canvas.isNull() || cw < 1 || ch < 1) throw std::out_of_range("The canvas cannot be a null image");
+    if (canvas.hasAlphaChannel()) throw std::out_of_range("The canvas must not have transparent pixels");
+
+    left = MIN(cw - 1, left);
+    top = MIN(ch - 1, top);
+    right = MIN(left + iw, cw);
+    bottom = MIN(top + ih, ch);
+    height = bottom - top; width = right - left;
+
+    if (img.hasAlphaChannel()) {
+        if (img.format() != QImage::Format_ARGB32_Premultiplied) {
+            img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+            if (img.isNull()) throw std::bad_alloc();
+        }
+        for (r = 0; r < height; r++) {
+            src = reinterpret_cast<const QRgb*>(img.constScanLine(r));
+            dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + top));
+            for (c = 0; c < width; c++) {
+                // Optimized Alpha blending, taken from qt_blend_argb32_on_argb32
+                // Since the canvas has no transparency
+                // the composite pixel is: canvas*(1-alpha) + src * alpha
+                // but src is pre-multiplied, so it is:
+                // canvas*(1-alpha) + src 
+                s = src[c];
+                if (s >= 0xff000000) dest[left+c] = s;
+                else if (s != 0) dest[left+c] = s + BYTE_MUL(dest[left+c], qAlpha(~s));
+            }
+        }
+    } else {
+        ENSURE32(img);
+        for (r = 0; r < bottom; r++) {
+            src = reinterpret_cast<const QRgb*>(img.constScanLine(r));
+            dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + top));
+            memcpy(dest + left, src, (right - left) * sizeof(QRgb));
+        }
+    }
+
+} // }}}
