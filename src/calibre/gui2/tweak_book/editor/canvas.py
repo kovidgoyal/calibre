@@ -311,7 +311,7 @@ class Canvas(QWidget):
         fmt = self.original_image_format or 'JPEG'
         if fmt.lower() not in set(map(lambda x:bytes(x).decode('ascii'), QImageWriter.supportedImageFormats())):
             if fmt.lower() == 'gif':
-                data = image_to_data(self.current_image, fmt='PNG')
+                data = image_to_data(self.current_image, fmt='PNG', png_compression_level=0)
                 from PIL import Image
                 i = Image.open(data)
                 buf = BytesIO()
