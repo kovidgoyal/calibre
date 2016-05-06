@@ -56,10 +56,10 @@ def image_and_format_from_data(data):
 def add_borders(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
     if not (left > 0 or right > 0 or top > 0 or bottom > 0):
         return img
-    nimg = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format_RGB32)
-    nimg.fill(QColor(border_color))
-    overlay(img, nimg, left, top)
-    return nimg
+    canvas = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format_RGB32)
+    canvas.fill(QColor(border_color))
+    overlay(img, canvas, left, top)
+    return canvas
 
 def overlay(img, canvas=None, left=0, top=0):
     if canvas is None:
@@ -79,10 +79,10 @@ def overlay(img, canvas=None, left=0, top=0):
     return canvas
 
 def blend_image(img, bgcolor='#ffffff'):
-    nimg = QImage(img.size(), QImage.Format_RGB32)
-    nimg.fill(QColor(bgcolor))
-    overlay(img, nimg)
-    return nimg
+    canvas = QImage(img.size(), QImage.Format_RGB32)
+    canvas.fill(QColor(bgcolor))
+    overlay(img, canvas)
+    return canvas
 
 def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
     '''
@@ -211,10 +211,10 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     if scaled:
         img = img.scaled(nw, nh, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
         w, h = nw, nh
-    nimg = QImage(width, height, QImage.Format_RGB32)
-    nimg.fill(QColor(bgcolor))
-    overlay(img, nimg, (width - w)//2, (height - h)//2)
-    return nimg
+    canvas = QImage(width, height, QImage.Format_RGB32)
+    canvas.fill(QColor(bgcolor))
+    overlay(img, canvas, (width - w)//2, (height - h)//2)
+    return canvas
 
 class Canvas(object):
 
