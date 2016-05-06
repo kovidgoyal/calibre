@@ -17,3 +17,4 @@ QImage gaussian_blur(const QImage &img, const float radius, const float sigma);
 QImage despeckle(const QImage &image);
 void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned int top);
 QImage normalize(const QImage &image);
+QImage oil_paint(const QImage &image, const float radius=-1, const bool high_quality=true);

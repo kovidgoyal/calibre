@@ -244,6 +244,11 @@ def despeckle(img):
         raise RuntimeError(imageops_err)
     return imageops.despeckle(image_from_data(img))
 
+def oil_paint(img, radius=-1, high_quality=True):
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    return imageops.oil_paint(image_from_data(img), radius, high_quality)
+
 def normalize(img):
     if imageops is None:
         raise RuntimeError(imageops_err)

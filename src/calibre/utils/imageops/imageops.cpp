@@ -782,3 +782,118 @@ QImage normalize(const QImage &image) { // {{{
     Py_END_ALLOW_THREADS;
     return img;
 } // }}}
+
+QImage oil_paint(const QImage &image, const float radius, const bool high_quality) {
+    int matrix_size = default_convolve_matrix_size(radius, 0.5, high_quality);
+    int i, x, y, w, h, matrix_x, matrix_y;
+    int edge = matrix_size/2;
+    unsigned int max, value;
+    QRgb *dest, *s, **scanblock;
+    QImage img(image);
+
+    w = img.width();
+    h = img.height();
+    if(w < 3 || h < 3) throw std::out_of_range("Image is too small");
+
+    ENSURE32(img);
+    QImage buffer(w, h, img.format());
+
+    scanblock = new QRgb* [matrix_size];
+    unsigned int *histogram = new unsigned int[256];
+    Py_BEGIN_ALLOW_THREADS;
+
+    for(y=0; y < h; ++y){
+        dest = reinterpret_cast<QRgb *>(buffer.scanLine(y));
+        // Read in scanlines to pixel neighborhood. If the scanline is outside
+        // the image use the top or bottom edge.
+        for(x=y-edge, i=0; x <= y+edge; ++i, ++x)
+            scanblock[i] = reinterpret_cast<QRgb *>(img.scanLine((x < 0) ? 0 : (x > h-1) ? h-1 : x));
+
+        // Now we are about to start processing scanlines. First handle the
+        // part where the pixel neighborhood extends off the left edge.
+        for(x=0; x-edge < 0 ; ++x){
+            (void)memset(histogram, 0, 256*sizeof(unsigned int));
+            max = 0;
+            for(matrix_y = 0; matrix_y < matrix_size; ++matrix_y){
+                s = scanblock[matrix_y];
+                matrix_x = -edge;
+                while(x+matrix_x < 0){
+                    value = qGray(*s);
+                    histogram[value]++;
+                    if(histogram[value] > max){
+                        max = histogram[value];
+                        *dest = *s;
+                    }
+                    ++matrix_x;
+                }
+                while(matrix_x <= edge){
+                    value = qGray(*s);
+                    histogram[value]++;
+                    if(histogram[value] > max){
+                        max = histogram[value];
+                        *dest = *s;
+                    }
+                    ++matrix_x; ++s;
+                }
+            }
+            ++dest;
+        }
+
+        // Okay, now process the middle part where the entire neighborhood
+        // is on the image.
+        for(; x+edge < w; ++x){
+            (void)memset(histogram, 0, 256*sizeof(unsigned int));
+            max = 0;
+            for(matrix_y = 0; matrix_y < matrix_size; ++matrix_y){
+                s = scanblock[matrix_y] + (x-edge);
+                for(matrix_x = -edge; matrix_x <= edge; ++matrix_x, ++s){
+                    value = qGray(*s);
+                    histogram[value]++;
+                    if(histogram[value] > max){
+                        max = histogram[value];
+                        *dest = *s;
+                    }
+                }
+            }
+            ++dest;
+        }
+
+        // Finally process the right part where the neighborhood extends off
+        // the right edge of the image
+        for(; x < w; ++x){
+            (void)memset(histogram, 0, 256*sizeof(unsigned int));
+            max = 0;
+            for(matrix_y = 0; matrix_y < matrix_size; ++matrix_y){
+                s = scanblock[matrix_y];
+                s += x-edge;
+                matrix_x = -edge;
+                while(x+matrix_x < w){
+                    value = qGray(*s);
+                    histogram[value]++;
+                    if(histogram[value] > max){
+                        max = histogram[value];
+                        *dest = *s;
+                    }
+                    ++matrix_x, ++s;
+                }
+                --s;
+                while(matrix_x <= edge){
+                    value = qGray(*s);
+                    histogram[value]++;
+                    if(histogram[value] > max){
+                        max = histogram[value];
+                        *dest = *s;
+                    }
+                    ++matrix_x;
+                }
+            }
+            ++dest;
+        }
+    }
+
+    delete[] histogram;
+    delete[] scanblock;
+    Py_END_ALLOW_THREADS;
+    return(buffer);
+}
+

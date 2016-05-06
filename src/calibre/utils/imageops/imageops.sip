@@ -65,3 +65,10 @@ QImage normalize(const QImage &image);
 			sipRes = new QImage(normalize(*a0));
         IMAGEOPS_SUFFIX
 %End
+
+QImage oil_paint(const QImage &image, const float radius=-1, const bool high_quality=true);
+%MethodCode
+        IMAGEOPS_PREFIX
+			sipRes = new QImage(oil_paint(*a0, a1, a2));
+        IMAGEOPS_SUFFIX
+%End
