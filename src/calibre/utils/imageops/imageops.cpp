@@ -606,6 +606,7 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
             img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
             if (img.isNull()) throw std::bad_alloc();
         }
+        Py_BEGIN_ALLOW_THREADS;
         for (r = 0; r < height; r++) {
             src = reinterpret_cast<const QRgb*>(img.constScanLine(r));
             dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + top));
@@ -620,13 +621,16 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
                 else if (s != 0) dest[left+c] = s + BYTE_MUL(dest[left+c], qAlpha(~s));
             }
         }
+        Py_END_ALLOW_THREADS;
     } else {
         ENSURE32(img);
+        Py_BEGIN_ALLOW_THREADS;
         for (r = 0; r < bottom; r++) {
             src = reinterpret_cast<const QRgb*>(img.constScanLine(r));
             dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + top));
             memcpy(dest + left, src, (right - left) * sizeof(QRgb));
         }
+        Py_END_ALLOW_THREADS;
     }
 
 } // }}}
