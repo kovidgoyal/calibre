@@ -107,11 +107,10 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
             w.setOptimizedWrite(True)
         if jpeg_progressive and hasattr(QImageWriter, 'setProgressiveScanWrite'):
             w.setProgressiveScanWrite(True)
+        w.setQuality(compression_quality)
     elif fmt == 'PNG':
         cl = min(9, max(0, png_compression_level))
         w.setQuality(10 * (9-cl))
-    else:
-        w.setQuality(compression_quality)
     if not w.write(img):
         raise ValueError('Failed to export image as ' + fmt + ' with error: ' + w.errorString())
     return ba.data()
