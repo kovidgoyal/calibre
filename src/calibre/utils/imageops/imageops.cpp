@@ -117,7 +117,8 @@ QImage grayscale(const QImage &image) {
 QImage convolve(QImage &img, int matrix_size, float *matrix) {
     int i, x, y, w, h, matrix_x, matrix_y;
     int edge = matrix_size/2;
-    QRgb *dest, *src, *s, **scanblock;
+    QRgb *dest, *s, **scanblock;
+    const QRgb *src = NULL;
     float *m, *normalize_matrix, normalize, r, g, b;
 
     if(!(matrix_size % 2))
@@ -147,7 +148,7 @@ QImage convolve(QImage &img, int matrix_size, float *matrix) {
     // apply
 
     for(y=0; y < h; ++y){
-        src = (QRgb *)img.scanLine(y);
+        src = reinterpret_cast<const QRgb*>(img.constScanLine(y));
         dest = (QRgb *)buffer.scanLine(y);
         // Read in scanlines to pixel neighborhood. If the scanline is outside
         // the image use the top or bottom edge.
