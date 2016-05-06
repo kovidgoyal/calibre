@@ -31,3 +31,10 @@ QImage* grayscale(const QImage &image);
 			ans = grayscale(*a0);
         IMAGEOPS_SUFFIX
 %End
+
+QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality=true);
+%MethodCode
+        IMAGEOPS_PREFIX
+			ans = gaussian_sharpen(*a0, a1, a2, a3);
+        IMAGEOPS_SUFFIX
+%End

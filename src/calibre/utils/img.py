@@ -217,6 +217,11 @@ def remove_borders(img, fuzz=None):
     ans = imageops.remove_borders(image_from_data(img), max(0, fuzz))
     return ans if ans.size() != img.size() else img
 
+def gaussian_sharpen(img, radius=0, sigma=3, high_quality=True):
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    return imageops.gaussian_sharpen(image_from_data(img), max(0, radius), sigma, high_quality)
+
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
     cwd = os.path.dirname(file_path)

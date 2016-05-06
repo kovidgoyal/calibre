@@ -266,7 +266,7 @@ int default_convolve_matrix_size(const float radius, const float sigma, const bo
 
 // }}}
 
-QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality=true) {
+QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality) {
     int matrix_size = default_convolve_matrix_size(radius, sigma, high_quality);
     int len = matrix_size*matrix_size;
     float alpha, *matrix = new float[len];
