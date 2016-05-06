@@ -18,6 +18,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// Remove borders (auto-trim) {{{
 unsigned int read_border_row(const QImage &img, const unsigned int width, const unsigned int height, int *reds, const double fuzz, const bool top) {
 	unsigned int r = 0, c = 0, start = 0, delta = top ? 1 : -1, ans = 0;
 	const QRgb *row = NULL, *pixel = NULL;
@@ -91,8 +92,9 @@ QImage remove_borders(const QImage &image, double fuzz) {
 	delete[] buf;
     return img;
 }
+// }}}
 
-QImage grayscale(const QImage &image) {
+QImage grayscale(const QImage &image) { // {{{
     QImage img = image;
     QRgb *row = NULL, *pixel = NULL;
     int r = 0, gray = 0, width = img.width(), height = img.height();
@@ -108,8 +110,9 @@ QImage grayscale(const QImage &image) {
     }
     Py_END_ALLOW_THREADS;
 	return img;
-}
+} // }}}
 
+// Convolution {{{
 #define CONVOLVE_ACC(weight, pixel) \
     r+=((weight))*(qRed((pixel))); g+=((weight))*(qGreen((pixel))); \
     b+=((weight))*(qBlue((pixel)));
@@ -228,3 +231,6 @@ QImage convolve(QImage &img, int matrix_size, float *matrix) {
     delete[] normalize_matrix;
     return buffer;
 }
+// }}}
+
+
