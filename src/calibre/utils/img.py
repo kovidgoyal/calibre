@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import os, subprocess, errno, shutil, tempfile
 from threading import Thread
 
-from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter
+from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform
 
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows, plugins
@@ -237,6 +237,11 @@ class Canvas(object):
 
 def flip_image(img, horizontal=False, vertical=False):
     return image_from_data(img).mirrored(horizontal, vertical)
+
+def rotate_image(img, degrees):
+    t = QTransform()
+    t.rotate(degrees)
+    return image_from_data(img).transformed(t)
 
 def remove_borders(img, fuzz=None):
     ''' Try to auto-detect and remove any borders from the image. Returns
