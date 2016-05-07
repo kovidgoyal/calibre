@@ -14,7 +14,7 @@ from collections import OrderedDict
 class BrandEins(BasicNewsRecipe):
 
     title       = u'brand eins'
-    __author__  = 'Nikolas Mangold-Takao'
+    __author__  = 'Nikolas Mangold-Takao, Thomas Schlenkhoff'
     language    = 'de'
     description = u'brand eins beschreibt den momentanen Wandel in Wirtschaft und Gesellschaft.'
     publisher   = u'brand eins Verlag GmbH & Co. oHG'
@@ -37,9 +37,11 @@ class BrandEins(BasicNewsRecipe):
     keep_only_tags = dict(name='div', attrs={'id':'content'})
 
     # remove share image from articles
-    remove_tags  = [dict(name='div', attrs={'class':'advertisement rectangle desktop'}),
+    remove_tags  = [dict(name='div', attrs={'id':'oms_gpt_billboard'}),
+                    dict(name='div', attrs={'id':'oms_gpt_rectangle'}),
                     dict(name='h3', attrs={'class':'sharing-headline'}),
-                    dict(name='div', attrs={'class':'sharing-links'})]
+                    dict(name='div', attrs={'class':'sharing-links'}),
+                    dict(name='aside', attrs={'class':'articleAside'})]
 
     remove_tags_before = dict(name='div', attrs={'class':'innerContent typeArticle'})
     remove_tags_after = dict(name='div', attrs={'id':'socialshareprivacy'})
@@ -72,9 +74,10 @@ class BrandEins(BasicNewsRecipe):
             self.log('- ', year, month, title, link.get('href'))
 
             # Issue 1 (most recent) has only few articles online,
-            # Issue 2 (2nd recent) is not completely online.
-            # Issue 3 (3rd recent) is completely online, hence i == 2
-            if issue == "" and i == 2:
+            # Issue 2 and 3 (2nd and 3rd recent) is not completely online.
+            # Issue 4 (4th recent) is completely online, hence i == 3
+
+            if issue == "" and i == 3:
                 issue = yyyymm
             i+=1
 
@@ -107,15 +110,12 @@ class BrandEins(BasicNewsRecipe):
 
     def get_cover_url(self):
         # the index does not contain a usable cover, but the 'Welt in Zahlen'-article contains it
-        cover_article = "{}/{}".format(self.issue_url, 'die-welt-in-zahlen.html')
+        cover_article = "{}{}".format(self.issue_url, 'die-welt-in-zahlen.html')
         self.log('Cover article URL: %s' % cover_article)
         soup = self.index_to_soup(cover_article)
-        cover_meta = soup.find('meta', attrs={'property':'og:image'})
-        if cover_meta:
-            return cover_meta['content']
-        else:
-            self.log('ERROR: Could not return cover url')
+        img = soup.find('section', 'asideSection no-content').find('img')
+        self.log('Found cover image url: %s' % img['src'])
+        return (self.PREFIX + img['src'])
 
     def preprocess_raw_html(self, raw_html, url):
         return raw_html.replace('<p>• ', '<p>')
-
