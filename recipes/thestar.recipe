@@ -4,6 +4,10 @@ __copyright__ = '2009-2013, Darko Miletic <darko.miletic at gmail.com>'
 www.thestar.com
 '''
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
+
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheTorontoStar(BasicNewsRecipe):
@@ -17,28 +21,24 @@ class TheTorontoStar(BasicNewsRecipe):
     use_embedded_content  = False
     delay                 = 2
     publisher             = 'The Toronto Star'
-    category              = "Toronto Star,Canada's largest daily newspaper,breaking news,classifieds,careers,GTA,Toronto Maple Leafs,sports,Toronto,news,editorial,The Star,Ontario,information,columnists,business,entertainment,births,deaths,automotive,rentals,weather,archives,Torstar,technology,Joseph Atkinson"
     encoding              = 'utf-8'
     masthead_url          = 'http://www.thestar.com/etc/designs/thestar/images/general/logoLrg.png'
 
-    conversion_options = {
-                             'comments'    : description
-                            ,'tags'        : category
-                            ,'publisher'   : publisher
-                         }
-
-    remove_tags_before = dict(name='div',attrs={'class':'article-headline'})
+    keep_only_tags = [
+        classes('article__headline article__subheadline article__body'),
+    ]
+    remove_tags = [
+        dict(name=['button', 'style']),
+        classes('share-toolbar__primary newsletter-box'),
+    ]
 
     feeds          = [
-                        (u'News'         , u'http://www.thestar.com/feeds.articles.news.rss'           )
-                       ,(u'Opinion'      , u'http://www.thestar.com/feeds.articles.opinion.rss'        )
-                       ,(u'Business'     , u'http://www.thestar.com/feeds.articles.business.rss'       )
-                       ,(u'Sports'       , u'http://www.thestar.com/feeds.articles.sports.rss'         )
-                       ,(u'Entertainment', u'http://www.thestar.com/feeds.articles.entertainment.rss'  )
-                       ,(u'Living'       , u'http://www.thestar.com/feeds.articles.life.rss'           )
-                       ,(u'Travel'       , u'http://www.thestar.com/feeds.articles.life.travel.rss'    )
+                       (u'News'         , u'http://www.thestar.com/feeds.articles.news.rss')
+                       ,(u'Opinion'      , u'http://www.thestar.com/feeds.articles.opinion.rss')
+                       ,(u'Business'     , u'http://www.thestar.com/feeds.articles.business.rss')
+                       ,(u'Sports'       , u'http://www.thestar.com/feeds.articles.sports.rss')
+                       ,(u'Entertainment', u'http://www.thestar.com/feeds.articles.entertainment.rss')
+                       ,(u'Living'       , u'http://www.thestar.com/feeds.articles.life.rss')
+                       ,(u'Travel'       , u'http://www.thestar.com/feeds.articles.life.travel.rss')
                        ,(u'Technology'   , u'http://www.thestar.com/feeds.articles.life.technology.rss')
                      ]
-
-    def print_version(self, url):
-        return url.replace('.html', '.print.html')
