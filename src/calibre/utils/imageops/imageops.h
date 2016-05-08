@@ -19,3 +19,11 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
 QImage normalize(const QImage &image);
 QImage oil_paint(const QImage &image, const float radius=-1, const bool high_quality=true);
 QImage quantize(const QImage &image, unsigned int maximum_colors=256, bool dither=true);
+
+class ScopedGILRelease {
+public:
+    inline ScopedGILRelease() { this->thread_state = PyEval_SaveThread(); }
+    inline ~ScopedGILRelease() { PyEval_RestoreThread(this->thread_state); this->thread_state = NULL; }
+private:
+    PyThreadState * thread_state;
+};

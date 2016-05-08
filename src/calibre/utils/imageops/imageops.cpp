@@ -87,6 +87,7 @@ static unsigned int read_border_row(const QImage &img, const unsigned int width,
 }
 
 QImage remove_borders(const QImage &image, double fuzz) {
+    ScopedGILRelease PyGILRelease;
 	int *buf = NULL;
 	QImage img = image, timg;
 	QTransform transpose;
@@ -100,7 +101,6 @@ QImage remove_borders(const QImage &image, double fuzz) {
 	buf = vbuf.data();
 	fuzz /= 255;
 
-    Py_BEGIN_ALLOW_THREADS;
 	top_border = read_border_row(img, width, height, buf, fuzz, true);
     if (top_border < height - 1) {
         bottom_border = read_border_row(img, width, height, buf, fuzz, false);
@@ -123,7 +123,6 @@ QImage remove_borders(const QImage &image, double fuzz) {
             }
         }
     }
-    Py_END_ALLOW_THREADS;
 
     if (bad_alloc) throw std::bad_alloc();
     return img;
@@ -131,12 +130,12 @@ QImage remove_borders(const QImage &image, double fuzz) {
 // }}}
 
 QImage grayscale(const QImage &image) { // {{{
+    ScopedGILRelease PyGILRelease;
     QImage img = image;
     QRgb *row = NULL, *pixel = NULL;
     int r = 0, gray = 0, width = img.width(), height = img.height();
 
     ENSURE32(img);
-    Py_BEGIN_ALLOW_THREADS;
     for (r = 0; r < height; r++) {
 		row = reinterpret_cast<QRgb*>(img.scanLine(r));
         for (pixel = row; pixel < row + width; pixel++) {
@@ -144,7 +143,6 @@ QImage grayscale(const QImage &image) { // {{{
             *pixel = QColor(gray, gray, gray).rgba();
         }
     }
-    Py_END_ALLOW_THREADS;
 	return img;
 } // }}}
 
@@ -178,7 +176,6 @@ static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     scanblock = buf1.data();
     buf2.resize(matrix_size * matrix_size);
     normalize_matrix = buf2.data();
-    Py_BEGIN_ALLOW_THREADS;
 
     // create normalized matrix
     normalize = 0.0;
@@ -267,7 +264,6 @@ static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
                             (unsigned char)b, qAlpha(*src++));
         }
     }
-    Py_END_ALLOW_THREADS;
 
     return buffer;
 }
@@ -284,7 +280,6 @@ static int default_convolve_matrix_size(const float radius, const float sigma, c
     if(radius > 0.0)
         return((int)(2.0*ceil(radius)+1.0));
 
-    Py_BEGIN_ALLOW_THREADS;
     matrix_size = 5;
     do{
         normalize = 0.0;
@@ -296,13 +291,13 @@ static int default_convolve_matrix_size(const float radius, const float sigma, c
     } while((int)(max*value) > 0);
 
     matrix_size-=4;
-    Py_END_ALLOW_THREADS;
     return(matrix_size);
 }
 
 // }}}
 
 QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality) {  // {{{
+    ScopedGILRelease PyGILRelease;
     int matrix_size = default_convolve_matrix_size(radius, sigma, high_quality);
     int len = matrix_size*matrix_size;
     QVector<float> buf = QVector<float>(len);
@@ -313,7 +308,6 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
     int half = matrix_size/2;
     int x, y, i=0, j=half;
     float normalize=0.0;
-    Py_BEGIN_ALLOW_THREADS;
     for(y=(-half); y <= half; ++y, --j){
         for(x=(-half); x <= half; ++x, ++i){
             alpha = std::exp(-((float)x*x+y*y)/sigma2);
@@ -323,14 +317,12 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
     }
 
     matrix[i/2]=(-2.0)*normalize;
-    Py_END_ALLOW_THREADS;
     QImage result(convolve(img, matrix_size, matrix));
     return(result);
 } // }}}
 
 // gaussian_blur() {{{
-static void get_blur_kernel(int &kernel_width, const float sigma, QVector<float> &kernel)
-{
+static void get_blur_kernel(int &kernel_width, const float sigma, QVector<float> &kernel) {
 #define KernelRank 3
 
     float alpha, normalize;
@@ -341,7 +333,6 @@ static void get_blur_kernel(int &kernel_width, const float sigma, QVector<float>
     if(kernel_width == 0) kernel_width = 3;
     kernel.resize(kernel_width + 1);
 
-    Py_BEGIN_ALLOW_THREADS;
     kernel.fill(0);
     bias = KernelRank*kernel_width/2;
     for(i=(-bias); i <= bias; ++i){
@@ -354,7 +345,6 @@ static void get_blur_kernel(int &kernel_width, const float sigma, QVector<float>
         normalize += kernel[i];
     for(i=0; i < kernel_width; ++i)
         kernel[i] /= normalize;
-    Py_END_ALLOW_THREADS;
 }
 
 static void blur_scan_line(const float* kernel, const int kern_width, const QRgb *source, QRgb *destination, const int columns, const int offset) {
@@ -367,7 +357,6 @@ static void blur_scan_line(const float* kernel, const int kern_width, const QRgb
 
     memset(&zero, 0, sizeof(FloatPixel));
     if(kern_width > columns){
-        Py_BEGIN_ALLOW_THREADS;
         for(dest=destination, x=0; x < columns; ++x, dest+=offset){
             aggregate = zero;
             scale = 0.0;
@@ -390,11 +379,9 @@ static void blur_scan_line(const float* kernel, const int kern_width, const QRgb
                             (unsigned char)(scale*(aggregate.blue+0.5)),
                             (unsigned char)(scale*(aggregate.alpha+0.5)));
         }
-        Py_END_ALLOW_THREADS;
         return;
     }
 
-    Py_BEGIN_ALLOW_THREADS;
     // blur
     for(dest=destination, x=0; x < kern_width/2; ++x, dest+=offset){
         aggregate = zero; // put this stuff in loop initializer once tested
@@ -447,10 +434,10 @@ static void blur_scan_line(const float* kernel, const int kern_width, const QRgb
                         (unsigned char)(scale*(aggregate.blue+0.5)),
                         (unsigned char)(scale*(aggregate.alpha+0.5)));
     }
-    Py_END_ALLOW_THREADS;
 }
 
 QImage gaussian_blur(const QImage &image, const float radius, const float sigma) {
+    ScopedGILRelease PyGILRelease;
     int kern_width, x, y, w, h;
     QRgb *src;
     QImage img(image);
@@ -570,6 +557,7 @@ static inline void hull(const int x_offset, const int y_offset, const int w, con
     }
 
 QImage despeckle(const QImage &image) {  
+    ScopedGILRelease PyGILRelease;
     int length, x, y, j, i;
     QRgb *dest;
     const QRgb *src;
@@ -585,11 +573,9 @@ QImage despeckle(const QImage &image) {
     length = (img.width()+2)*(img.height()+2);
     QVector<unsigned char> pixels(length), buffer(length);
 
-    Py_BEGIN_ALLOW_THREADS;
     DESPECKLE_CHANNEL(qRed, qRgba(pixels[j], qGreen(*dest), qBlue(*dest), qAlpha(*dest)))
     DESPECKLE_CHANNEL(qGreen, qRgba(qRed(*dest), pixels[j], qBlue(*dest), qAlpha(*dest)))
     DESPECKLE_CHANNEL(qBlue, qRgba(qRed(*dest), qGreen(*dest), pixels[j], qAlpha(*dest)))
-    Py_END_ALLOW_THREADS;
 
     return(img);
 }
@@ -604,6 +590,7 @@ static inline unsigned int BYTE_MUL(unsigned int x, unsigned int a) {
 }
 
 void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned int top) { 
+    ScopedGILRelease PyGILRelease;
     QImage img(image);
     unsigned int cw = canvas.width(), ch = canvas.height(), iw = img.width(), ih = img.height(), r, c, right = 0, bottom = 0, height, width, s;
     const QRgb* src;
@@ -624,7 +611,6 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
             img = img.convertToFormat(QImage::Format_ARGB32_Premultiplied);
             if (img.isNull()) throw std::bad_alloc();
         }
-        Py_BEGIN_ALLOW_THREADS;
         for (r = 0; r < height; r++) {
             src = reinterpret_cast<const QRgb*>(img.constScanLine(r));
             dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + top));
@@ -639,21 +625,19 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
                 else if (s != 0) dest[left+c] = s + BYTE_MUL(dest[left+c], qAlpha(~s));
             }
         }
-        Py_END_ALLOW_THREADS;
     } else {
         ENSURE32(img);
-        Py_BEGIN_ALLOW_THREADS;
         for (r = 0; r < bottom; r++) {
             src = reinterpret_cast<const QRgb*>(img.constScanLine(r));
             dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + top));
             memcpy(dest + left, src, (right - left) * sizeof(QRgb));
         }
-        Py_END_ALLOW_THREADS;
     }
 
 } // }}}
 
 QImage normalize(const QImage &image) { // {{{
+    ScopedGILRelease PyGILRelease;
     IntegerPixel intensity;
     HistogramListItem histogram[256] = {{0, 0, 0, 0}};
     CharPixel normalize_map[256] = {{0, 0, 0, 0}};
@@ -667,7 +651,6 @@ QImage normalize(const QImage &image) { // {{{
     ENSURE32(img);
 
     count = img.width()*img.height();
-    Py_BEGIN_ALLOW_THREADS;
 
     // form histogram
     dest = (QRgb *)img.bits();
@@ -766,11 +749,11 @@ QImage normalize(const QImage &image) { // {{{
         *dest++ = qRgba(r, g, b, qAlpha(pixel));
     }
 
-    Py_END_ALLOW_THREADS;
     return img;
 } // }}}
 
 QImage oil_paint(const QImage &image, const float radius, const bool high_quality) {  // {{{
+    ScopedGILRelease PyGILRelease;
     int matrix_size = default_convolve_matrix_size(radius, 0.5, high_quality);
     int i, x, y, w, h, matrix_x, matrix_y;
     int edge = matrix_size/2;
@@ -789,7 +772,6 @@ QImage oil_paint(const QImage &image, const float radius, const bool high_qualit
 
     buf.resize(matrix_size);
     scanblock = buf.data();
-    Py_BEGIN_ALLOW_THREADS;
 
     for(y=0; y < h; ++y){
         dest = reinterpret_cast<QRgb *>(buffer.scanLine(y));
@@ -880,6 +862,5 @@ QImage oil_paint(const QImage &image, const float radius, const bool high_qualit
         }
     }
 
-    Py_END_ALLOW_THREADS;
     return(buffer);
 } // }}}

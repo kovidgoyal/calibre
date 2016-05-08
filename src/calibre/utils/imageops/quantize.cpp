@@ -135,6 +135,7 @@ public:
 };
 
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
+    ScopedGILRelease PyGILRelease;
     size_t depth = 0;
     int iwidth = image.width(), iheight = image.height(), r, c;
     QImage img(image), ans(iwidth, iheight, QImage::Format_Indexed8);
