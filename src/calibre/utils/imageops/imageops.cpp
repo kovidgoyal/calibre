@@ -170,7 +170,7 @@ static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
 
     ENSURE32(img);
 
-    QImage buffer = QImage(w, h, img.format());
+    QImage buffer(w, h, img.format());
     if (buffer.isNull()) throw std::bad_alloc();
     buf1.resize(matrix_size);
     scanblock = buf1.data();
