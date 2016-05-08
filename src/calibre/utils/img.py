@@ -279,6 +279,11 @@ def normalize(img):
         raise RuntimeError(imageops_err)
     return imageops.normalize(image_from_data(img))
 
+def quantize(img, num_of_colors=256, dither=True):
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    return imageops.quantize(image_from_data(img), num_of_colors, dither)
+
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
     cwd = os.path.dirname(file_path)

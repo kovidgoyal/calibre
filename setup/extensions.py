@@ -240,7 +240,7 @@ extensions = [
                 ),
 
     Extension('imageops',
-                ['calibre/utils/imageops/imageops.cpp'],
+                ['calibre/utils/imageops/imageops.cpp', 'calibre/utils/imageops/quantize.cpp'],
                 inc_dirs=['calibre/utils/imageops'],
                 headers=['calibre/utils/imageops/imageops.h'],
                 sip_files=['calibre/utils/imageops/imageops.sip']
