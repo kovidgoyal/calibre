@@ -18,6 +18,7 @@
 typedef unsigned __int64 uint64_t;
 typedef __int64 int64_t;
 typedef unsigned __int32 uint32_t;
+#define UINT64_MAX _UI64_MAX
 #ifndef log2
 static inline double log2(double x) { return log(x) / log((double)2) ; }
 #endif
@@ -32,8 +33,11 @@ static const unsigned char BIT_MASK[8] = { 1 << 7, 1 << 6, 1 << 5, 1 << 4, 1 << 
 static inline size_t get_index(const uint32_t r, const uint32_t g, const uint32_t b, const size_t level) {
     return ((((r & BIT_MASK[level]) >> (7 - level)) << 2) | (((g & BIT_MASK[level]) >> (7 - level)) << 1) | ((b & BIT_MASK[level]) >> (7 - level)));
 }
+template <typename T> static inline T euclidean_distance(T r1, T g1, T b1, T r2, T g2, T b2) {
+    return r1 * r1 + r2 * r2 + g1 * g1 + g2 * g2 + b1 * b1 + b2 * b2 - 2 * (r1 * r2 + g1 * g2 + b1 * b2);
+}
 
-template <class T> class Pool {
+template <class T> class Pool {  // {{{
 private:
     QVector<T> nodes;
     T *first_available;
@@ -62,7 +66,7 @@ public:
         node->next_available_in_pool = this->first_available;
         this->first_available = node;
     }
-};
+}; // }}}
 
 class Node {
     friend class Pool<Node>;
@@ -73,6 +77,9 @@ private:
     uint64_t red_sum;
     uint64_t green_sum;
     uint64_t blue_sum;
+    unsigned char red_avg;
+    unsigned char green_avg;
+    unsigned char blue_avg;
     Node* next_reducible_node;
     Node *next_available_in_pool;
     Node* children[MAX_DEPTH];
@@ -82,7 +89,7 @@ public:
 // Disable the new behavior warning caused by children() below
 #pragma warning( push )
 #pragma warning (disable: 4351)
-    Node() : is_leaf(false), index(0), pixel_count(0), red_sum(0), green_sum(0), blue_sum(0), next_reducible_node(NULL), next_available_in_pool(NULL), children() {}
+    Node() : is_leaf(false), index(0), pixel_count(0), red_sum(0), green_sum(0), blue_sum(0), red_avg(0), green_avg(0), blue_avg(0), next_reducible_node(NULL), next_available_in_pool(NULL), children() {}
 #pragma warning ( pop )
 #endif
 
@@ -152,15 +159,29 @@ public:
         node->is_leaf = true; *leaf_count += 1;
     }
 
-    void set_palette_colors(QRgb *color_table, unsigned char *index) {
+    void set_palette_colors(QRgb *color_table, unsigned char *index, bool compute_parent_averages) {
         int i;
+        Node *child;
         if (this->is_leaf) {
-#define AVG_COLOR(x) ((int) ((double)this->x / (double)this->pixel_count))
-            color_table[*index] = qRgb(AVG_COLOR(red_sum), AVG_COLOR(green_sum), AVG_COLOR(blue_sum)); 
+#define AVG_COLOR(x) ((unsigned char) ((double)this->x / (double)this->pixel_count))
+            this->red_avg = AVG_COLOR(red_sum); this->green_avg = AVG_COLOR(green_sum); this->blue_avg = AVG_COLOR(blue_sum);
+            color_table[*index] = qRgb(this->red_avg, this->green_avg, this->blue_avg); 
             this->index = (*index)++;
         } else {
             for (i = 0; i < MAX_DEPTH; i++) {
-                if (this->children[i] != NULL) this->children[i]->set_palette_colors(color_table, index);
+                child = this->children[i];
+                if (child != NULL) {
+                    child->set_palette_colors(color_table, index, compute_parent_averages);
+                    if (compute_parent_averages) {
+                        this->pixel_count += child->pixel_count;
+                        this->red_sum     += child->pixel_count * child->red_avg; 
+                        this->green_sum   += child->pixel_count * child->green_avg;
+                        this->blue_sum    += child->pixel_count * child->blue_avg;
+                    }
+                }
+            }
+            if (compute_parent_averages) {
+                this->red_avg = AVG_COLOR(red_sum); this->green_avg = AVG_COLOR(green_sum); this->blue_avg = AVG_COLOR(blue_sum);
             }
         }
     }
@@ -171,8 +192,59 @@ public:
         if (this->children[index] == NULL) throw std::out_of_range("Something bad happened: could not follow tree for color");
         return this->children[index]->index_for_color(r, g, b, level + 1);
     }
+
+    unsigned char index_for_nearest_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t level) {
+        if (this->is_leaf) return this->index;
+        size_t index = get_index(r, g, b, level);
+        if (this->children[index] == NULL) {
+            uint64_t min_distance = UINT64_MAX, distance;
+            for(size_t i = 0; i < MAX_DEPTH; i++) {
+                Node *child = this->children[i];
+                if (child != NULL) {
+                    distance = euclidean_distance<uint64_t>(r, g, b, child->red_avg, child->green_avg, child->blue_avg);
+                    if (distance < min_distance) { min_distance = distance; index = i; }
+                }
+            }
+        }
+        return this->children[index]->index_for_nearest_color(r, g, b, level + 1);
+    }
+
 };
 
+static inline void propagate_error(QRgb* line, int c, unsigned char mult, int red_error, int green_error, int blue_error) {
+    QRgb pixel = *(line + c);
+#define PROPERR(w, e) MAX(0, MIN((w(pixel) + ((mult * e) >> 4)), 255))
+    *(line + c) = qRgb(PROPERR(qRed, red_error), PROPERR(qGreen, green_error), PROPERR(qBlue, blue_error));
+}
+
+static void dither_image(QImage &img, QImage &ans, QVector<QRgb> &color_table, Node &root) {
+    QRgb *mline = NULL, *sline = NULL, pixel = 0, new_pixel = 0;
+    unsigned char *bits = NULL, index = 0;
+    int red_error = 0, green_error = 0, blue_error = 0, iheight = img.height(), iwidth = img.width(), r = 0, c = 0;
+
+    for (r = 0; r < iheight; r++) {
+        mline = reinterpret_cast<QRgb*>(img.scanLine(r));
+        sline = r + 1 < iheight ? reinterpret_cast<QRgb*>(img.scanLine(r+1)) : NULL;
+        bits = ans.scanLine(r);
+        for (c = 0; c < iwidth; c++) {
+            pixel = *(mline + c);
+            index = root.index_for_nearest_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
+            *(bits + c) = index;
+            new_pixel = color_table[index];
+            red_error = qRed(pixel) - qRed(new_pixel);
+            green_error = qGreen(pixel) - qGreen(new_pixel);
+            blue_error = qBlue(pixel) - qBlue(new_pixel);
+            if (c + 1 < iwidth) {
+                propagate_error(mline, c + 1, 7, red_error, green_error, blue_error);
+                if (sline != NULL) propagate_error(sline, c + 1, 1, red_error, green_error, blue_error);
+            }
+            if (sline != NULL) {
+                propagate_error(sline, c, 5, red_error, green_error, blue_error);
+                if (c > 1) propagate_error(sline, c - 1, 3, red_error, green_error, blue_error);
+            }
+        }
+    }
+}
 
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     ScopedGILRelease PyGILRelease;
@@ -180,12 +252,11 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     int iwidth = image.width(), iheight = image.height(), r, c;
     QImage img(image), ans(iwidth, iheight, QImage::Format_Indexed8);
     unsigned int leaf_count = 0;
-    unsigned char index = 0;
+    unsigned char index = 0, *bits;
     Node* reducible_nodes[MAX_DEPTH + 1] = {0};
     Node root = Node();
     QVector<QRgb> color_table = QVector<QRgb>(MAX_COLORS);
     const QRgb* line = NULL;
-    unsigned char *bits = NULL;
 
     root.check_compiler();
 
@@ -216,15 +287,19 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
 
     if (leaf_count > maximum_colors) throw std::out_of_range("Leaf count > max colors, something bad happened");
     color_table.resize(leaf_count);
-    root.set_palette_colors(color_table.data(), &index);
+    root.set_palette_colors(color_table.data(), &index, dither);
     ans.setColorTable(color_table);
 
-    for (r = 0; r < iheight; r++) {
-        line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
-        bits = ans.scanLine(r);
-        for (c = 0; c < iwidth; c++) {
-            const QRgb pixel = *(line + c);
-            *(bits + c) = root.index_for_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
+    if (dither) {
+        dither_image(img, ans, color_table, root);
+    } else {
+        for (r = 0; r < iheight; r++) {
+            line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
+            bits = ans.scanLine(r);
+            for (c = 0; c < iwidth; c++) {
+                const QRgb pixel = *(line + c);
+                *(bits + c) = root.index_for_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
+            }
         }
     }
 
