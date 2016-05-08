@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include "imageops.h"
 #include <QColor>
+#include <QVector>
 #include <cmath>
 
 // Macros {{{
@@ -92,9 +93,11 @@ QImage remove_borders(const QImage &image, double fuzz) {
 	unsigned int width = img.width(), height = img.height();
 	unsigned int top_border = 0, bottom_border = 0, left_border = 0, right_border = 0;
     bool bad_alloc = false;
+    QVector<int> vbuf = QVector<int>();
 
     ENSURE32(img)
-	buf = new int[3*(MAX(width, height)+1)];
+    vbuf.resize(3*(MAX(width, height)+1));
+	buf = vbuf.data();
 	fuzz /= 255;
 
     Py_BEGIN_ALLOW_THREADS;
@@ -122,7 +125,6 @@ QImage remove_borders(const QImage &image, double fuzz) {
     }
     Py_END_ALLOW_THREADS;
 
-	delete[] buf;
     if (bad_alloc) throw std::bad_alloc();
     return img;
 }
@@ -158,6 +160,8 @@ static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     const QRgb *src = NULL;
     float *m, *normalize_matrix, normalize, r, g, b;
     QImage img(image);
+    QVector<QRgb*> buf1 = QVector<QRgb*>(matrix_size);
+    QVector<float> buf2 = QVector<float>(matrix_size * matrix_size);
 
     if(!(matrix_size % 2))
         throw std::out_of_range("Convolution kernel width must be an odd number");
@@ -170,8 +174,10 @@ static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
 
     QImage buffer = QImage(w, h, img.format());
     if (buffer.isNull()) throw std::bad_alloc();
-    scanblock = new QRgb* [matrix_size];
-    normalize_matrix = new float[matrix_size*matrix_size];
+    buf1.resize(matrix_size);
+    scanblock = buf1.data();
+    buf2.resize(matrix_size * matrix_size);
+    normalize_matrix = buf2.data();
     Py_BEGIN_ALLOW_THREADS;
 
     // create normalized matrix
@@ -263,8 +269,6 @@ static QImage convolve(const QImage &image, int matrix_size, float *matrix) {
     }
     Py_END_ALLOW_THREADS;
 
-    delete[] scanblock;
-    delete[] normalize_matrix;
     return buffer;
 }
 
@@ -301,7 +305,8 @@ static int default_convolve_matrix_size(const float radius, const float sigma, c
 QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma, const bool high_quality) {  // {{{
     int matrix_size = default_convolve_matrix_size(radius, sigma, high_quality);
     int len = matrix_size*matrix_size;
-    float alpha, *matrix = new float[len];
+    QVector<float> buf = QVector<float>(len);
+    float alpha, *matrix = buf.data();
     float sigma2 = sigma*sigma*2.0;
     float sigmaPI2 = 2.0*M_PI*sigma*sigma;
 
@@ -320,25 +325,24 @@ QImage gaussian_sharpen(const QImage &img, const float radius, const float sigma
     matrix[i/2]=(-2.0)*normalize;
     Py_END_ALLOW_THREADS;
     QImage result(convolve(img, matrix_size, matrix));
-    delete[] matrix;
     return(result);
 } // }}}
 
 // gaussian_blur() {{{
-static float* get_blur_kernel(int &kernel_width, const float sigma)
+static void get_blur_kernel(int &kernel_width, const float sigma, QVector<float> &kernel)
 {
 #define KernelRank 3
 
-    float alpha, normalize, *kernel;
+    float alpha, normalize;
     int bias;
     long i;
 
     if(sigma == 0.0) throw std::out_of_range("Zero sigma value is invalid for gaussian_blur");
     if(kernel_width == 0) kernel_width = 3;
+    kernel.resize(kernel_width + 1);
 
-    kernel = new float[kernel_width+1];
     Py_BEGIN_ALLOW_THREADS;
-    memset(kernel, 0, (kernel_width+1)*sizeof(float));
+    kernel.fill(0);
     bias = KernelRank*kernel_width/2;
     for(i=(-bias); i <= bias; ++i){
         alpha = std::exp(-((float) i*i)/(2.0*KernelRank*KernelRank*sigma*sigma));
@@ -351,10 +355,9 @@ static float* get_blur_kernel(int &kernel_width, const float sigma)
     for(i=0; i < kernel_width; ++i)
         kernel[i] /= normalize;
     Py_END_ALLOW_THREADS;
-    return(kernel);
 }
 
-static void blur_scan_line(const float *kernel, const int kern_width, const QRgb *source, QRgb *destination, const int columns, const int offset) {
+static void blur_scan_line(const float* kernel, const int kern_width, const QRgb *source, QRgb *destination, const int columns, const int offset) {
     FloatPixel aggregate, zero;
     float scale;
     const float *k;
@@ -451,30 +454,25 @@ QImage gaussian_blur(const QImage &image, const float radius, const float sigma)
     int kern_width, x, y, w, h;
     QRgb *src;
     QImage img(image);
-    float *k = NULL;
+    QVector<float> kernel;
 
     if(sigma == 0.0) throw std::out_of_range("Zero sigma is invalid for convolution");
 
     // figure out optimal kernel width
     if(radius > 0){
         kern_width = (int)(2*std::ceil(radius)+1);
-        k = get_blur_kernel(kern_width, sigma);
+        get_blur_kernel(kern_width, sigma, kernel);
     }
     else{
         float *last_kernel = NULL;
         kern_width = 3;
-        k = get_blur_kernel(kern_width, sigma);
-        while((long)(255*k[0]) > 0){
-            if(last_kernel != NULL)
-                delete[] last_kernel;
-            last_kernel = k;
+        get_blur_kernel(kern_width, sigma, kernel);
+        while((long)(255*kernel[0]) > 0){
             kern_width += 2;
-            k = get_blur_kernel(kern_width, sigma);
+            get_blur_kernel(kern_width, sigma, kernel);
         }
         if(last_kernel != NULL){
-            delete[] k;
             kern_width -= 2;
-            k = last_kernel;
         }
     }
 
@@ -489,16 +487,15 @@ QImage gaussian_blur(const QImage &image, const float radius, const float sigma)
 
     //blur image rows
     for(y=0; y < h; ++y)
-        blur_scan_line(k, kern_width, reinterpret_cast<const QRgb *>(img.constScanLine(y)),
+        blur_scan_line(kernel.data(), kern_width, reinterpret_cast<const QRgb *>(img.constScanLine(y)),
                                    reinterpret_cast<QRgb *>(buffer.scanLine(y)), img.width(), 1);
 
     // blur image columns
     src = reinterpret_cast<QRgb *>(buffer.scanLine(0));
     for(x=0; x < w; ++x)
-        blur_scan_line(k, kern_width, src+x, src+x, img.height(),
+        blur_scan_line(kernel.data(), kern_width, src+x, src+x, img.height(),
                                    img.width());
     // finish up
-    delete[] k;
     return(buffer);
 }
 // }}}
@@ -549,7 +546,7 @@ static inline void hull(const int x_offset, const int y_offset, const int w, con
 }
 
 #define DESPECKLE_CHANNEL(c, e) \
-    (void)memset(pixels, 0, length); \
+    pixels.fill(0); \
     j = w+2; \
     for(y=0; y < h; ++y, ++j){ \
         src = reinterpret_cast<const QRgb *>(img.constScanLine(y)); \
@@ -557,12 +554,12 @@ static inline void hull(const int x_offset, const int y_offset, const int w, con
         for(x=w-1; x >= 0; --x, ++src, ++j) \
             pixels[j] = c(*src); \
     } \
-    (void)memset(buffer, 0, length); \
+    buffer.fill(0); \
     for(i=0; i < 4; ++i){ \
-        hull(X[i], Y[i], w, h, pixels, buffer, 1); \
-        hull(-X[i], -Y[i], w, h, pixels, buffer, 1); \
-        hull(-X[i], -Y[i], w, h, pixels, buffer, -1); \
-        hull(X[i], Y[i], w, h, pixels, buffer, -1); \
+        hull(X[i], Y[i], w, h, pixels.data(), buffer.data(), 1); \
+        hull(-X[i], -Y[i], w, h, pixels.data(), buffer.data(), 1); \
+        hull(-X[i], -Y[i], w, h, pixels.data(), buffer.data(), -1); \
+        hull(X[i], Y[i], w, h, pixels.data(), buffer.data(), -1); \
     } \
     j = w+2; \
     for(y=0; y < h; ++y, ++j){ \
@@ -577,7 +574,6 @@ QImage despeckle(const QImage &image) {
     QRgb *dest;
     const QRgb *src;
     QImage img(image);
-    unsigned char *buffer, *pixels;
     int w = img.width();
     int h = img.height();
 
@@ -587,8 +583,7 @@ QImage despeckle(const QImage &image) {
 
     ENSURE32(img);
     length = (img.width()+2)*(img.height()+2);
-    pixels = new unsigned char[length];
-    buffer = new unsigned char[length];
+    QVector<unsigned char> pixels(length), buffer(length);
 
     Py_BEGIN_ALLOW_THREADS;
     DESPECKLE_CHANNEL(qRed, qRgba(pixels[j], qGreen(*dest), qBlue(*dest), qAlpha(*dest)))
@@ -596,8 +591,6 @@ QImage despeckle(const QImage &image) {
     DESPECKLE_CHANNEL(qBlue, qRgba(qRed(*dest), qGreen(*dest), pixels[j], qAlpha(*dest)))
     Py_END_ALLOW_THREADS;
 
-    delete[] pixels;
-    delete[] buffer;
     return(img);
 }
 // }}}
@@ -662,8 +655,8 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
 
 QImage normalize(const QImage &image) { // {{{
     IntegerPixel intensity;
-    HistogramListItem *histogram;
-    CharPixel *normalize_map;
+    HistogramListItem histogram[256] = {{0, 0, 0, 0}};
+    CharPixel normalize_map[256] = {{0, 0, 0, 0}};
     ShortPixel high, low;
     uint threshold_intensity;
     int i, count;
@@ -674,12 +667,9 @@ QImage normalize(const QImage &image) { // {{{
     ENSURE32(img);
 
     count = img.width()*img.height();
-    histogram = new HistogramListItem[256];
-    normalize_map = new CharPixel[256];
     Py_BEGIN_ALLOW_THREADS;
 
     // form histogram
-    memset(histogram, 0, 256*sizeof(HistogramListItem));
     dest = (QRgb *)img.bits();
 
     for(i=0; i < count; ++i){
@@ -730,8 +720,6 @@ QImage normalize(const QImage &image) { // {{{
             break;
     }
 
-    delete[] histogram;
-
     // stretch the histogram to create the normalized image mapping.
     for(i=0; i < 256; i++){
         if(i < low.red)
@@ -778,7 +766,6 @@ QImage normalize(const QImage &image) { // {{{
         *dest++ = qRgba(r, g, b, qAlpha(pixel));
     }
 
-    delete[] normalize_map;
     Py_END_ALLOW_THREADS;
     return img;
 } // }}}
@@ -788,8 +775,10 @@ QImage oil_paint(const QImage &image, const float radius, const bool high_qualit
     int i, x, y, w, h, matrix_x, matrix_y;
     int edge = matrix_size/2;
     unsigned int max, value;
+    unsigned int histogram[256] = {0};
     QRgb *dest, *s, **scanblock;
     QImage img(image);
+    QVector<QRgb*> buf = QVector<QRgb*>(matrix_size);
 
     w = img.width();
     h = img.height();
@@ -798,8 +787,8 @@ QImage oil_paint(const QImage &image, const float radius, const bool high_qualit
     ENSURE32(img);
     QImage buffer(w, h, img.format());
 
-    scanblock = new QRgb* [matrix_size];
-    unsigned int *histogram = new unsigned int[256];
+    buf.resize(matrix_size);
+    scanblock = buf.data();
     Py_BEGIN_ALLOW_THREADS;
 
     for(y=0; y < h; ++y){
@@ -891,8 +880,6 @@ QImage oil_paint(const QImage &image, const float radius, const bool high_qualit
         }
     }
 
-    delete[] histogram;
-    delete[] scanblock;
     Py_END_ALLOW_THREADS;
     return(buffer);
 } // }}}
