@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import os, subprocess, errno, shutil, tempfile
+import os, subprocess, errno, shutil, tempfile, sys
 from threading import Thread
 
 from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform
@@ -390,3 +390,32 @@ def test():
             raise SystemExit('optimize_png failed: %s' % ret)
         if glob('*.bak'):
             raise SystemExit('Spurious .bak files left behind')
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    infile = args.pop(0)
+    img = image_from_data(lopen(infile, 'rb').read())
+    func = globals()[args[0]]
+    kw = {}
+    args.pop(0)
+    outf = None
+    while args:
+        k = args.pop(0)
+        if '=' in k:
+            n, v = k.partition('=')[::2]
+            try:
+                v = int(v)
+            except Exception:
+                try:
+                    v = float(v)
+                except Exception:
+                    pass
+            kw[n] = v
+        else:
+            outf = k
+    if outf is None:
+        bn = os.path.basename(infile)
+        outf = bn.rpartition('.')[0] + '.' + '-output' + bn.rpartition('.')[-1]
+    img = func(img, **kw)
+    with lopen(outf, 'wb') as f:
+        f.write(image_to_data(img))
