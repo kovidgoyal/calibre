@@ -29,11 +29,43 @@ static inline double log2(double x) { return log(x) / log((double)2) ; }
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
 #define MIN(x, y) ((x) < (y)) ? (x) : (y)
 static const unsigned char BIT_MASK[8] = { 1 << 7, 1 << 6, 1 << 5, 1 << 4, 1 << 3, 1 << 2, 1 << 1, 1 };
-static inline size_t get_index(const u_int32_t r, const uint32_t g, const u_int32_t b, const size_t level) {
+static inline size_t get_index(const uint32_t r, const uint32_t g, const uint32_t b, const size_t level) {
     return ((((r & BIT_MASK[level]) >> (7 - level)) << 2) | (((g & BIT_MASK[level]) >> (7 - level)) << 1) | ((b & BIT_MASK[level]) >> (7 - level)));
 }
 
+template <class T> class Pool {
+private:
+    QVector<T> nodes;
+    T *first_available;
+
+public:
+    Pool<T>(size_t size) : nodes(size), first_available(nodes.data()) {
+        for (size_t i = 0; i < size - 1; i++) this->nodes[i].next_available_in_pool = &this->nodes[i+1];
+    }
+
+    T* checkout() {
+        T *ans = this->first_available;
+        if (ans == NULL) throw std::out_of_range("Something bad happened: ran out of nodes in the pool");
+        this->first_available = ans->next_available_in_pool;
+        if (this->first_available == NULL) {
+            // Grow the pool
+            int size = this->nodes.size();
+            this->nodes.resize(2*size);
+            this->first_available = &this->nodes[size];
+            for (int i = size; i < 2*size - 1; i++) this->nodes[i].next_available_in_pool = &this->nodes[i+1];
+        }
+        return ans;
+    }
+
+    void relinquish(T *node) {
+        node->reset();
+        node->next_available_in_pool = this->first_available;
+        this->first_available = node;
+    }
+};
+
 class Node {
+    friend class Pool<Node>;
 private:
     bool is_leaf;
     unsigned char index;
@@ -42,6 +74,7 @@ private:
     uint64_t green_sum;
     uint64_t blue_sum;
     Node* next_reducible_node;
+    Node *next_available_in_pool;
     Node* children[MAX_DEPTH];
 
 public:
@@ -49,20 +82,26 @@ public:
 // Disable the new behavior warning caused by children() below
 #pragma warning( push )
 #pragma warning (disable: 4351)
-    Node() : is_leaf(false), index(0), pixel_count(0), red_sum(0), green_sum(0), blue_sum(0), next_reducible_node(NULL), children() {}
+    Node() : is_leaf(false), index(0), pixel_count(0), red_sum(0), green_sum(0), blue_sum(0), next_reducible_node(NULL), next_available_in_pool(NULL), children() {}
 #pragma warning ( pop )
 #endif
 
-    ~Node() {
-        for (size_t i = 0; i < MAX_DEPTH; i++) { delete this->children[i]; this->children[i] = NULL; }
+    void reset() {
+        this->is_leaf = false;
+        this->pixel_count = 0;
+        this->red_sum = 0;
+        this->green_sum = 0;
+        this->blue_sum = 0;
+        this->next_reducible_node = NULL;
+        for (size_t i = 0; i < MAX_DEPTH; i++) this->children[i] = NULL;
     }
 
     void check_compiler() {
         if (this->children[0] != NULL) throw std::runtime_error("Compiler failed to default initialize children");
     }
 
-    inline Node* create_child(const size_t level, const size_t depth, unsigned int *leaf_count, Node **reducible_nodes) {
-        Node *c = new Node();
+    inline Node* create_child(const size_t level, const size_t depth, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
+        Node *c = node_pool.checkout();
         if (level == depth) { 
             c->is_leaf = true;
             (*leaf_count)++;
@@ -73,7 +112,7 @@ public:
         return c;
     }
 
-    void add_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t depth, const size_t level, unsigned int *leaf_count, Node **reducible_nodes) {
+    void add_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t depth, const size_t level, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
         if (this->is_leaf) {
             this->pixel_count++;
             this->red_sum += r;
@@ -81,12 +120,12 @@ public:
             this->blue_sum += b;
         } else {
             size_t index = get_index(r, g, b, level);
-            if (this->children[index] == NULL) this->children[index] = this->create_child(level, depth, leaf_count, reducible_nodes);
-            this->children[index]->add_color(r, g, b, depth, level + 1, leaf_count, reducible_nodes);
+            if (this->children[index] == NULL) this->children[index] = this->create_child(level, depth, leaf_count, reducible_nodes, node_pool);
+            this->children[index]->add_color(r, g, b, depth, level + 1, leaf_count, reducible_nodes, node_pool);
         }
     }
 
-    void reduce(const size_t depth, unsigned int *leaf_count, Node **reducible_nodes) {
+    void reduce(const size_t depth, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
         size_t i = 0;
         Node *node = NULL;
 
@@ -106,7 +145,7 @@ public:
                 node->green_sum += node->children[i]->green_sum;
                 node->blue_sum += node->children[i]->blue_sum;
                 node->pixel_count += node->children[i]->pixel_count;
-                delete node->children[i]; node->children[i] = NULL;
+                node_pool.relinquish(node->children[i]); node->children[i] = NULL;
                 (*leaf_count)--;
             }
         }
@@ -134,6 +173,7 @@ public:
     }
 };
 
+
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     ScopedGILRelease PyGILRelease;
     size_t depth = 0;
@@ -156,6 +196,10 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     // by iterating over the color table rather than the pixels
     if (img.format() != QImage::Format_RGB32) img = img.convertToFormat(QImage::Format_RGB32);
     if (img.isNull()) throw std::bad_alloc();
+    // There can be at-most 8*(maximum_colors + 1) nodes, since we reduce the
+    // tree after each color is added Use an extra eight node just in case
+    // there is an off-by-one error somewhere :)
+    Pool<Node> node_pool((2 + maximum_colors) * 8);  
 
     depth = (size_t)log2(maximum_colors);
     depth = MAX(2, MIN(depth, MAX_DEPTH));
@@ -164,9 +208,9 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
         line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
         for (c = 0; c < iwidth; c++) {
             const QRgb pixel = *(line + c);
-            root.add_color(qRed(pixel), qGreen(pixel), qBlue(pixel), depth, 0, &leaf_count, reducible_nodes);
+            root.add_color(qRed(pixel), qGreen(pixel), qBlue(pixel), depth, 0, &leaf_count, reducible_nodes, node_pool);
             while (leaf_count > maximum_colors)
-                root.reduce(depth, &leaf_count, reducible_nodes);
+                root.reduce(depth, &leaf_count, reducible_nodes, node_pool);
         }
     }
 
