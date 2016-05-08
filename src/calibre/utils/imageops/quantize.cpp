@@ -221,12 +221,17 @@ static void dither_image(QImage &img, QImage &ans, QVector<QRgb> &color_table, N
     QRgb *mline = NULL, *sline = NULL, pixel = 0, new_pixel = 0;
     unsigned char *bits = NULL, index = 0;
     int red_error = 0, green_error = 0, blue_error = 0, iheight = img.height(), iwidth = img.width(), r = 0, c = 0;
+    bool is_odd = false;
+    int start = 0, delta = 0;
 
     for (r = 0; r < iheight; r++) {
         mline = reinterpret_cast<QRgb*>(img.scanLine(r));
         sline = r + 1 < iheight ? reinterpret_cast<QRgb*>(img.scanLine(r+1)) : NULL;
         bits = ans.scanLine(r);
-        for (c = 0; c < iwidth; c++) {
+        is_odd = r & 1;
+        start = is_odd ? iwidth - 1 : 0;
+        delta = is_odd ? -1 : 1;
+        for (c = start; 0 < (is_odd ? c : iwidth - c); c += delta) {
             pixel = *(mline + c);
             index = root.index_for_nearest_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
             *(bits + c) = index;
@@ -234,13 +239,13 @@ static void dither_image(QImage &img, QImage &ans, QVector<QRgb> &color_table, N
             red_error = qRed(pixel) - qRed(new_pixel);
             green_error = qGreen(pixel) - qGreen(new_pixel);
             blue_error = qBlue(pixel) - qBlue(new_pixel);
-            if (c + 1 < iwidth) {
-                propagate_error(mline, c + 1, 7, red_error, green_error, blue_error);
-                if (sline != NULL) propagate_error(sline, c + 1, 1, red_error, green_error, blue_error);
+            if (0 < (is_odd ? c : iwidth - c - 1)) {
+                propagate_error(mline, c + delta, 7, red_error, green_error, blue_error);
+                if (sline != NULL) propagate_error(sline, c + delta, 1, red_error, green_error, blue_error);
             }
             if (sline != NULL) {
                 propagate_error(sline, c, 5, red_error, green_error, blue_error);
-                if (c > 1) propagate_error(sline, c - 1, 3, red_error, green_error, blue_error);
+                if (0 < (is_odd ? iwidth - c - 1 : c)) propagate_error(sline, c - delta, 3, red_error, green_error, blue_error);
             }
         }
     }
