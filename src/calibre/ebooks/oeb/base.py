@@ -352,7 +352,7 @@ def escape_cdata(root):
     pat = re.compile(r'[<>&]')
     for elem in root.iterdescendants('{%s}style' % XHTML_NS, '{%s}script' % XHTML_NS):
         if elem.text and pat.search(elem.text) is not None:
-            elem.text = etree.CDATA(elem.text)
+            elem.text = etree.CDATA(elem.text.replace(']]>', r'\]\]\>'))
 
 def serialize(data, media_type, pretty_print=False):
     if isinstance(data, etree._Element):
