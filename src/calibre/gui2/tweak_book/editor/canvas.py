@@ -22,8 +22,8 @@ from calibre.gui2.dnd import (
 from calibre.gui2.tweak_book import capitalize
 from calibre.utils.imghdr import identify
 from calibre.utils.img import (
-    remove_borders, gaussian_sharpen, gaussian_blur, image_to_data, despeckle,
-    normalize, oil_paint
+    remove_borders_from_image, gaussian_sharpen_image, gaussian_blur_image, image_to_data, despeckle_image,
+    normalize_image, oil_paint_image
 )
 
 def painter(func):
@@ -101,7 +101,7 @@ class AutoTrim(Trim):
     TEXT = _('Auto-trim image')
 
     def __call__(self, canvas):
-        return remove_borders(canvas.current_image)
+        return remove_borders_from_image(canvas.current_image)
 
 class Rotate(Command):
 
@@ -135,7 +135,7 @@ class Sharpen(Command):
         Command.__init__(self, canvas)
 
     def __call__(self, canvas):
-        return gaussian_sharpen(canvas.current_image, sigma=self.sigma)
+        return gaussian_sharpen_image(canvas.current_image, sigma=self.sigma)
 
 class Blur(Sharpen):
 
@@ -143,7 +143,7 @@ class Blur(Sharpen):
     FUNC = 'blur'
 
     def __call__(self, canvas):
-        return gaussian_blur(canvas.current_image, sigma=self.sigma)
+        return gaussian_blur_image(canvas.current_image, sigma=self.sigma)
 
 class Oilify(Command):
 
@@ -154,21 +154,21 @@ class Oilify(Command):
         Command.__init__(self, canvas)
 
     def __call__(self, canvas):
-        return oil_paint(canvas.current_image, radius=self.radius)
+        return oil_paint_image(canvas.current_image, radius=self.radius)
 
 class Despeckle(Command):
 
     TEXT = _('De-speckle image')
 
     def __call__(self, canvas):
-        return despeckle(canvas.current_image)
+        return despeckle_image(canvas.current_image)
 
 class Normalize(Command):
 
     TEXT = _('Normalize image')
 
     def __call__(self, canvas):
-        return normalize(canvas.current_image)
+        return normalize_image(canvas.current_image)
 
 class Replace(Command):
 

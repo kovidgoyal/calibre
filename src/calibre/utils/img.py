@@ -56,7 +56,8 @@ def image_and_format_from_data(data):
     fmt = bytes(r.format()).decode('utf-8')
     return r.read(), fmt
 
-def add_borders(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
+def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
+    img = image_from_data(img)
     if not (left > 0 or right > 0 or top > 0 or bottom > 0):
         return img
     canvas = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format_RGB32)
@@ -171,13 +172,7 @@ def normalize_format_name(fmt):
         fmt = 'jpeg'
     return fmt
 
-def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
-        border_color='#ffffff', fmt='jpg'):
-    img = image_from_data(img_data)
-    img = add_borders(img, left=left, top=top, right=right, bottom=bottom, border_color=border_color)
-    return image_to_data(img, fmt=fmt)
-
-def to_grayscale(img):
+def grayscale_image(img):
     if imageops is not None:
         return imageops.grayscale(img)
     return img
@@ -219,7 +214,7 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
     if grayscale:
         if not img.allGray():
             changed = True
-            img = to_grayscale(img)
+            img = grayscale_image(img)
     if path is None:
         return image_to_data(img, compression_quality, fmt) if changed else data
     with lopen(path, 'wb') as f:
@@ -263,7 +258,7 @@ def rotate_image(img, degrees):
     t.rotate(degrees)
     return image_from_data(img).transformed(t)
 
-def remove_borders(img, fuzz=None):
+def remove_borders_from_image(img, fuzz=None):
     ''' Try to auto-detect and remove any borders from the image. Returns
     the image itself if no borders could be removed. `fuzz` is a measure of
     what colors are considered identical (must be a number between 0 and 255 in
@@ -274,32 +269,32 @@ def remove_borders(img, fuzz=None):
     ans = imageops.remove_borders(image_from_data(img), max(0, fuzz))
     return ans if ans.size() != img.size() else img
 
-def gaussian_sharpen(img, radius=0, sigma=3, high_quality=True):
+def gaussian_sharpen_image(img, radius=0, sigma=3, high_quality=True):
     if imageops is None:
         raise RuntimeError(imageops_err)
     return imageops.gaussian_sharpen(image_from_data(img), max(0, radius), sigma, high_quality)
 
-def gaussian_blur(img, radius=-1, sigma=3):
+def gaussian_blur_image(img, radius=-1, sigma=3):
     if imageops is None:
         raise RuntimeError(imageops_err)
     return imageops.gaussian_blur(image_from_data(img), max(0, radius), sigma)
 
-def despeckle(img):
+def despeckle_image(img):
     if imageops is None:
         raise RuntimeError(imageops_err)
     return imageops.despeckle(image_from_data(img))
 
-def oil_paint(img, radius=-1, high_quality=True):
+def oil_paint_image(img, radius=-1, high_quality=True):
     if imageops is None:
         raise RuntimeError(imageops_err)
     return imageops.oil_paint(image_from_data(img), radius, high_quality)
 
-def normalize(img):
+def normalize_image(img):
     if imageops is None:
         raise RuntimeError(imageops_err)
     return imageops.normalize(image_from_data(img))
 
-def quantize(img, max_colors=256, dither=True, palette=''):
+def quantize_image(img, max_colors=256, dither=True, palette=''):
     ''' Quantize the image to contain a maximum of `max_colors` colors. By
     default a palette is chosen automatically, if you want to use a fixed
     palette, then pass in a list of color names in the `palette` variable. If
@@ -434,12 +429,12 @@ def test():  # {{{
         if glob('*.bak'):
             raise SystemExit('Spurious .bak files left behind')
     img = image_from_data(I('devices/kindle.jpg', data=True, allow_user_override=False))
-    quantize(img)
-    oil_paint(img)
-    gaussian_sharpen(img)
-    gaussian_blur(img)
-    despeckle(img)
-    remove_borders(img)
+    quantize_image(img)
+    oil_paint_image(img)
+    gaussian_sharpen_image(img)
+    gaussian_blur_image(img)
+    despeckle_image(img)
+    remove_borders_from_image(img)
 # }}}
 
 if __name__ == '__main__':  # {{{
