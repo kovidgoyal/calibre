@@ -20,7 +20,7 @@ class Spiegel_ger(BasicNewsRecipe):
     lang                  = 'de-DE'
     no_stylesheets        = True
     use_embedded_content  = False
-    encoding              = 'cp1252'
+    encoding              = 'UTF-8'  # AGe 2016-05-09 old: cp1252
     keep_only_tags        = [
         dict(name='h2', attrs={'class':'article-title'}),
         dict(id=['js-article-top-wide-asset', 'js-article-column']),
