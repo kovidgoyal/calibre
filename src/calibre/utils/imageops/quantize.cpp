@@ -311,7 +311,7 @@ static inline void calculate_error(QRgb new_pixel, QRgb old_pixel, DoublePixel &
     error.blue = CERR(qBlue);
 }
 
-static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_table, Node &root) {
+static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_table, Node &root, bool src_is_indexed) {
     const QRgb *line = NULL;
     QRgb pixel = 0, new_pixel = 0;
     unsigned char *bits = NULL, index = 0;
@@ -321,16 +321,18 @@ static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_ta
     DoublePixel error = {0, 0, 0};
     const DoublePixel zero = {0, 0, 0};
     QVector<DoublePixel> err1(iwidth), err2(iwidth), *line1 = NULL, *line2 = NULL;
+    const QVector<QRgb> src_color_table = img.colorTable();
 
     for (r = 0; r < iheight; r++) {
         line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
+        const unsigned char *src_line = img.constScanLine(r);
         bits = ans.scanLine(r);
         is_odd = r & 1;
         if (is_odd) { start = iwidth - 1; delta = -1; line1 = &err2; line2 = &err1; }
         else { start = 0; delta = 1; line1 = &err1; line2 = &err2; }
         line2->fill(zero);
         for (c = start; 0 < (is_odd ? c + 1 : iwidth - c); c += delta) {
-            pixel = *(line + c);
+            pixel = src_is_indexed ? src_color_table.at(*(src_line + c)) : *(line + c);
             new_pixel = apply_error(pixel, (*line1)[c]);
             index = root.index_for_nearest_color(qRed(new_pixel), qGreen(new_pixel), qBlue(new_pixel), 0);
             *(bits + c) = index;
@@ -373,13 +375,37 @@ inline unsigned int read_colors(const QVector<QRgb> &color_table, Node &root, si
     return leaf_count;
 }
 
+inline void reduce_tree(Node &root, size_t depth, unsigned int *leaf_count, unsigned int maximum_colors, Node **reducible_nodes, Pool<Node> &node_pool) {
+    while (*leaf_count > maximum_colors + 7)
+        root.reduce(depth, leaf_count, reducible_nodes, node_pool);
+    if (*leaf_count > maximum_colors) {
+        root.reduce_least_common_leaves(*leaf_count - maximum_colors, node_pool);
+        *leaf_count = maximum_colors;
+    }
+}
+
+static void write_image(const QImage &img, QImage &ans, Node &root, bool src_is_indexed) {
+    int iheight = img.height(), iwidth = img.width(), r = 0, c = 0;
+    QVector<QRgb> src_color_table = img.colorTable();
+
+    for (r = 0; r < iheight; r++) {
+        const QRgb *line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
+        const unsigned char *src_line = img.constScanLine(r);
+        unsigned char *bits = ans.scanLine(r);
+        for (c = 0; c < iwidth; c++) {
+            const QRgb pixel = src_is_indexed ? src_color_table.at(*(src_line + c)) : *(line + c);
+            *(bits + c) = root.index_for_nearest_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
+        }
+    }
+}
+
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     ScopedGILRelease PyGILRelease;
     size_t depth = 0;
-    int iwidth = image.width(), iheight = image.height(), r, c;
+    int iwidth = image.width(), iheight = image.height();
     QImage img(image), ans(iwidth, iheight, QImage::Format_Indexed8);
     unsigned int leaf_count = 0;
-    unsigned char index = 0, *bits;
+    unsigned char index = 0;
     Node* reducible_nodes[MAX_DEPTH + 1] = {0};
     Node root = Node();
     QVector<QRgb> color_table = QVector<QRgb>(MAX_COLORS);
@@ -403,29 +429,13 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     if (img.format() == QImage::Format_RGB32) leaf_count = read_colors(img, root, depth, reducible_nodes, node_pool);
     else leaf_count = read_colors(img.colorTable(), root, depth, reducible_nodes, node_pool);
 
-    while (leaf_count > maximum_colors + 7)
-        root.reduce(depth, &leaf_count, reducible_nodes, node_pool);
-    if (leaf_count > maximum_colors) {
-        root.reduce_least_common_leaves(leaf_count - maximum_colors, node_pool);
-        leaf_count = maximum_colors;
-    }
-
+    reduce_tree(root, depth, &leaf_count, maximum_colors, reducible_nodes, node_pool);
     color_table.resize(leaf_count);
     root.set_palette_colors(color_table.data(), &index, dither);
     ans.setColorTable(color_table);
 
-    if (dither) {
-        dither_image(img, ans, color_table, root);
-    } else {
-        for (r = 0; r < iheight; r++) {
-            const QRgb *line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
-            bits = ans.scanLine(r);
-            for (c = 0; c < iwidth; c++) {
-                const QRgb pixel = *(line + c);
-                *(bits + c) = root.index_for_nearest_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
-            }
-        }
-    }
+    if (dither) dither_image(img, ans, color_table, root, img.format() != QImage::Format_RGB32);
+    else write_image(img, ans, root, img.format() != QImage::Format_RGB32);
 
     return ans;
 }
