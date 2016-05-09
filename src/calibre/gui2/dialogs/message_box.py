@@ -189,10 +189,9 @@ class ViewLog(QDialog):  # {{{
         self.unique_name = unique_name or 'view-log-dialog'
         self.finished.connect(self.dialog_closing)
         self.resize(QSize(700, 500))
-        geom = gprefs.get(self.unique_name, None)
-        if geom is not None:
+        self.geom = gprefs.get(self.unique_name, None)
+        if self.geom is not None:
             self.restoreGeometry(self.geom)
-        self.resize_dialog()
 
         self.setModal(False)
         self.setWindowTitle(title)
