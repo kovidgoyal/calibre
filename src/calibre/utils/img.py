@@ -146,6 +146,20 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
     w, h = img.width(), img.height()
     return w, h, image_to_data(img, compression_quality=compression_quality, fmt=fmt)
 
+def crop_image(img, x, y, width, height):
+    '''
+    Return the specified section of the image.
+
+    :param x, y: The top left corner of the crop box
+    :param width, height: The width and height of the crop box. Note that if
+    the crop box exceeds the source images dimensions, width and height will be
+    auto-truncated.
+    '''
+    img = image_from_data(img)
+    width = min(width, img.width() - x)
+    height = min(height, img.height() - y)
+    return img.copy(x, y, width, height)
+
 def normalize_format_name(fmt):
     fmt = fmt.lower()
     if fmt == 'jpg':
