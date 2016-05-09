@@ -58,13 +58,7 @@ public:
         T *ans = this->first_available;
         if (ans == NULL) throw std::out_of_range("Something bad happened: ran out of nodes in the pool");
         this->first_available = ans->next_available_in_pool;
-        if (this->first_available == NULL) {
-            // Grow the pool
-            int size = this->nodes.size();
-            this->nodes.resize(2*size);
-            this->first_available = &this->nodes[size];
-            for (int i = size; i < 2*size - 1; i++) this->nodes[i].next_available_in_pool = &this->nodes[i+1];
-        }
+        if (this->first_available == NULL) throw std::out_of_range("Memory Pool is exhausted, this should never happen");
         return ans;
     }
 
