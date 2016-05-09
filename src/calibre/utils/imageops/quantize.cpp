@@ -312,6 +312,8 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     Node root = Node();
     QVector<QRgb> color_table = QVector<QRgb>(MAX_COLORS);
     const QRgb* line = NULL;
+    // Increasing this number improves quality but also increases running time and memory consumption
+    static const size_t MAX_LEAVES = 2000;
 
     root.check_compiler();
 
@@ -322,10 +324,8 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     // by iterating over the color table rather than the pixels
     if (img.format() != QImage::Format_RGB32) img = img.convertToFormat(QImage::Format_RGB32);
     if (img.isNull()) throw std::bad_alloc();
-    // There can be at-most 8*(maximum_colors + 1) nodes, since we reduce the
-    // tree after each color is added Use an extra eight node just in case
-    // there is an off-by-one error somewhere :)
-    Pool<Node> node_pool((2 + maximum_colors) * 8);  
+    // There can be no more than MAX_LEAVES * 8 nodes. Add 1 in case there is an off by 1 error somewhere.
+    Pool<Node> node_pool((MAX_LEAVES + 1) * 8);  
 
     depth = (size_t)log2(maximum_colors);
     depth = MAX(2, MIN(depth, MAX_DEPTH));
@@ -335,12 +335,13 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
         for (c = 0; c < iwidth; c++) {
             const QRgb pixel = *(line + c);
             root.add_color(qRed(pixel), qGreen(pixel), qBlue(pixel), depth, 0, &leaf_count, reducible_nodes, node_pool);
-            while (leaf_count > maximum_colors)
+            while (leaf_count > MAX_LEAVES)
                 root.reduce(depth, &leaf_count, reducible_nodes, node_pool);
         }
     }
+    while (leaf_count > maximum_colors)
+        root.reduce(depth, &leaf_count, reducible_nodes, node_pool);
 
-    if (leaf_count > maximum_colors) throw std::out_of_range("Leaf count > max colors, something bad happened");
     color_table.resize(leaf_count);
     root.set_palette_colors(color_table.data(), &index, dither);
     ans.setColorTable(color_table);
