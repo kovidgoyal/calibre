@@ -282,9 +282,14 @@ def quantize(img, max_colors=256, dither=True, palette=''):
     default a palette is chosen automatically, if you want to use a fixed
     palette, then pass in a list of color names in the `palette` variable. If
     you, specify a palette `max_colors` is ignored. Note that it is possible
-    for the actual number of colors used to be less than max_colors.
+    for the actual number of colors used to be less than max_colors. Also, if
+    the input image is already indexed and has fewer than max_colors, this function
+    will do nothing.
 
-    For example: palette='red green blue #eee' '''
+    :param max_colors: Max. number of colors in the auto-generated palette. Must be between 2 and 256.
+    :param dither: Whether to use dithering or not. dithering is almost always a good thing.
+    :param palette: Use a manually specified palette instead. For example: palette='red green blue #eee'
+    '''
     if imageops is None:
         raise RuntimeError(imageops_err)
     img = image_from_data(img)
