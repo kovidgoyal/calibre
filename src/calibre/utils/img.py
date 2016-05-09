@@ -15,6 +15,9 @@ from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 imageops, imageops_err = plugins['imageops']
 
+class NotImage(ValueError):
+    pass
+
 def get_exe_path(name):
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
     base = os.path.dirname(PDFTOHTML)
@@ -42,7 +45,7 @@ def image_from_data(data):
         return data
     i = QImage()
     if not i.loadFromData(data):
-        raise ValueError('Not a valid image')
+        raise NotImage('Not a valid image')
     return i
 
 def image_and_format_from_data(data):
