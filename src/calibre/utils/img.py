@@ -411,6 +411,8 @@ if __name__ == '__main__':
         k = args.pop(0)
         if '=' in k:
             n, v = k.partition('=')[::2]
+            if v in ('True', 'False'):
+                v = True if v == 'True' else False
             try:
                 v = int(v)
             except Exception:
@@ -426,4 +428,4 @@ if __name__ == '__main__':
         outf = bn.rpartition('.')[0] + '.' + '-output' + bn.rpartition('.')[-1]
     img = func(img, **kw)
     with lopen(outf, 'wb') as f:
-        f.write(image_to_data(img))
+        f.write(image_to_data(img, fmt=outf.rpartition('.')[-1]))
