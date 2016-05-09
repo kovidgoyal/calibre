@@ -28,7 +28,7 @@ from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now as nowf
 from calibre.utils.icu import numeric_sort_key
-from calibre.utils.img import save_cover_data_to, add_borders_to_image
+from calibre.utils.img import save_cover_data_to, add_borders_to_image, image_to_data
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
 
@@ -1276,10 +1276,10 @@ class BasicNewsRecipe(Recipe):
             if not cdata:
                 return
             if self.cover_margins[0] or self.cover_margins[1]:
-                cdata = add_borders_to_image(cdata,
+                cdata = image_to_data(add_borders_to_image(cdata,
                             left=self.cover_margins[0],right=self.cover_margins[0],
                             top=self.cover_margins[1],bottom=self.cover_margins[1],
-                            border_color=self.cover_margins[2])
+                            border_color=self.cover_margins[2]))
 
             cpath = os.path.join(self.output_dir, 'cover.jpg')
             save_cover_data_to(cdata, cpath)

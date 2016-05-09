@@ -15,7 +15,7 @@ from io import BytesIO
 from calibre.customize.ui import metadata_plugins
 from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.prefs import msprefs
-from calibre.utils.img import save_cover_data_to, remove_borders, image_to_data, image_from_data
+from calibre.utils.img import save_cover_data_to, remove_borders_from_image, image_to_data, image_from_data
 from calibre.utils.imghdr import identify
 
 class Worker(Thread):
@@ -62,7 +62,7 @@ def process_result(log, result):
     try:
         if getattr(plugin, 'auto_trim_covers', False):
             img = image_from_data(data)
-            nimg = remove_borders(img)
+            nimg = remove_borders_from_image(img)
             if nimg is not img:
                 data = image_to_data(nimg)
         fmt, width, height = identify(data)

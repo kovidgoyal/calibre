@@ -1108,9 +1108,9 @@ class Cover(ImageView):  # {{{
         cdata = self.current_val
         if not cdata:
             return
-        from calibre.utils.img import remove_borders, image_to_data, image_from_data
+        from calibre.utils.img import remove_borders_from_image, image_to_data, image_from_data
         img = image_from_data(cdata)
-        nimg = remove_borders(img)
+        nimg = remove_borders_from_image(img)
         if nimg is not img:
             self.cdata_before_trim = cdata
             self.current_val = image_to_data(nimg, fmt='png')
