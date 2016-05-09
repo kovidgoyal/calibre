@@ -6,6 +6,9 @@
  * See https://www.microsoft.com/msj/archive/S3F1.aspx for a simple to follow
  * writeup on this algorithm
  *
+ * The implementation below is more sophisticated than the writeup. In particular, it tracks
+ * total error on each leaf node and uses a memory pool to improve performance.
+ *
  * Distributed under terms of the GPL3 license.
  */
 
@@ -39,6 +42,7 @@ template <typename T> static inline T euclidean_distance(T r1, T g1, T b1, T r2,
 }
 struct SumPixel { uint64_t red; uint64_t green; uint64_t blue; };
 struct DoublePixel { double red; double green; double blue; };
+template <typename T> static inline void iadd(T &self, T &other) { self.red += other.red; self.green += other.green; self.blue += other.blue; }
 
 template <class T> class Pool {  // {{{
 private:
@@ -79,6 +83,7 @@ private:
     uint64_t pixel_count;
     SumPixel sum;
     DoublePixel avg;
+    SumPixel error_sum;
     Node* next_reducible_node;
     Node *next_available_in_pool;
     Node* children[MAX_DEPTH];
@@ -88,7 +93,7 @@ public:
 // Disable the new behavior warning caused by children() below
 #pragma warning( push )
 #pragma warning (disable: 4351)
-    Node() : is_leaf(false), index(0), pixel_count(0), sum(), avg(), next_reducible_node(NULL), next_available_in_pool(NULL), children() {}
+    Node() : is_leaf(false), index(0), pixel_count(0), sum(), avg(), error_sum(), next_reducible_node(NULL), next_available_in_pool(NULL), children() {}
 #pragma warning ( pop )
 #endif
 
@@ -97,12 +102,15 @@ public:
         this->pixel_count = 0;
         this->sum.red = 0; this->sum.green = 0; this->sum.blue = 0;
         this->avg.red = 0; this->avg.green = 0; this->avg.blue = 0;
+        this->error_sum.red = 0; this->error_sum.green = 0; this->error_sum.blue = 0;
         this->next_reducible_node = NULL;
         for (size_t i = 0; i < MAX_DEPTH; i++) this->children[i] = NULL;
     }
 
     void check_compiler() {
         if (this->children[0] != NULL) throw std::runtime_error("Compiler failed to default initialize children");
+        if (this->sum.red != 0) throw std::runtime_error("Compiler failed to default initialize sum");
+        if (this->avg.red != 0) throw std::runtime_error("Compiler failed to default initialize avg");
     }
 
     inline Node* create_child(const size_t level, const size_t depth, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
@@ -117,12 +125,22 @@ public:
         return c;
     }
 
+    inline void update_average() {
+        this->avg.red = (double)this->sum.red / (double)this->pixel_count;
+        this->avg.green = (double)this->sum.green / (double)this->pixel_count;
+        this->avg.blue = (double)this->sum.blue / (double)this->pixel_count;
+    }
+
     void add_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t depth, const size_t level, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
         if (this->is_leaf) {
             this->pixel_count++;
             this->sum.red += r;
             this->sum.green += g;
             this->sum.blue += b;
+            this->update_average();
+            this->error_sum.red   += (r > this->avg.red) ? r - this->avg.red : this->avg.red - r;
+            this->error_sum.green += (g > this->avg.green) ? g - this->avg.green : this->avg.green - g;
+            this->error_sum.blue  += (b > this->avg.blue) ? b - this->avg.blue : this->avg.blue - b;
         } else {
             size_t index = get_index(r, g, b, level);
             if (this->children[index] == NULL) this->children[index] = this->create_child(level, depth, leaf_count, reducible_nodes, node_pool);
@@ -130,30 +148,54 @@ public:
         }
     }
 
+    inline uint64_t total_error() const {
+        Node *child = NULL;
+        uint64_t ans = 0;
+        for (int i = 0; i < MAX_DEPTH; i++) {
+            if ((child = this->children[i]) != NULL) 
+                ans += child->error_sum.red + child->error_sum.green + child->error_sum.blue;
+        }
+        return ans;
+    }
+
+    inline Node* find_best_reducible_node(Node *head) {
+        uint64_t err = UINT64_MAX,e = 0;
+        Node *q = head, *ans = head;
+        while (q != NULL) {
+            if ((e = q->total_error()) < err) { ans = q; err = e; }
+            q = q->next_reducible_node;
+        }
+        return ans;
+    }
+
     void reduce(const size_t depth, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
         size_t i = 0;
-        Node *node = NULL;
+        Node *node = NULL, *child = NULL, *q = NULL;
 
         // Find the deepest level containing at least one reducible node
         for (i=depth - 1; i > 0 && reducible_nodes[i] == NULL; i--);
-
-        // Reduce the node most recently added to the list at level i
-        // Could make this smarter by walking the linked list and choosing a
-        // node that has the least number of pixels or by storing error info
-        // on the nodes and using that
-        node = reducible_nodes[i];
-        reducible_nodes[i] = node->next_reducible_node;
+        // Find the reducible node at this level that has the least total error
+        node = find_best_reducible_node(reducible_nodes[i]);
+        // Remove the found node from the linked list
+        if (node == reducible_nodes[i]) reducible_nodes[i] = node->next_reducible_node;
+        else {
+            q = reducible_nodes[i];
+            while (q != NULL) {
+                if (q->next_reducible_node == node) { q->next_reducible_node = node->next_reducible_node; break; }
+                q = q->next_reducible_node;
+            }
+        }
 
         for (i = 0; i < MAX_DEPTH; i++) {
-            if (node->children[i] != NULL) {
-                node->sum.red += node->children[i]->sum.red;
-                node->sum.green += node->children[i]->sum.green;
-                node->sum.blue += node->children[i]->sum.blue;
+            if ((child = node->children[i]) != NULL) {
+                iadd<SumPixel>(node->sum, child->sum);
+                iadd<SumPixel>(node->error_sum, child->error_sum);
                 node->pixel_count += node->children[i]->pixel_count;
                 node_pool.relinquish(node->children[i]); node->children[i] = NULL;
                 (*leaf_count)--;
             }
         }
+        node->update_average();
         node->is_leaf = true; *leaf_count += 1;
     }
 
