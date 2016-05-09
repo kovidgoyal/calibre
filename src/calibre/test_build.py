@@ -131,14 +131,15 @@ def test_image_formats():
     # Must be run before QApplication is constructed
     # Test that the image formats are available without a QApplication being
     # constructed
-    from calibre.utils.img import image_from_data, image_to_data
+    from calibre.utils.img import image_from_data, image_to_data, test
     data = I('blank.png', allow_user_override=False, data=True)
     img = image_from_data(data)
     image_from_data(P('catalog/mastheadImage.gif', allow_user_override=False, data=True))
     for fmt in 'png bmp jpeg'.split():
         d = image_to_data(img, fmt=fmt)
         image_from_data(d)
-
+    # Run the imaging tests
+    test()
 
 def test_qt():
     test_image_formats()

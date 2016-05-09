@@ -287,6 +287,8 @@ def quantize(img, num_of_colors=256, dither=True):
         img = blend_image(img)
     return imageops.quantize(img, num_of_colors, dither)
 
+# Optimization of images {{{
+
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
     cwd = os.path.dirname(file_path)
@@ -379,13 +381,14 @@ def encode_jpeg(file_path, quality=80):
     if not img.save(buf, 'PPM'):
         raise ValueError('Failed to export image to PPM')
     return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data()))
+# }}}
 
-def test():
+def test():  # {{{
     from calibre.ptempfile import TemporaryDirectory
     from calibre import CurrentDir
     from glob import glob
     with TemporaryDirectory() as tdir, CurrentDir(tdir):
-        shutil.copyfile(I('devices/kindle.jpg'), 'test.jpg')
+        shutil.copyfile(I('devices/kindle.jpg', allow_user_override=False), 'test.jpg')
         ret = optimize_jpeg('test.jpg')
         if ret is not None:
             raise SystemExit('optimize_jpeg failed: %s' % ret)
@@ -398,8 +401,16 @@ def test():
             raise SystemExit('optimize_png failed: %s' % ret)
         if glob('*.bak'):
             raise SystemExit('Spurious .bak files left behind')
+    img = image_from_data(I('devices/kindle.jpg', data=True, allow_user_override=False))
+    quantize(img)
+    oil_paint(img)
+    gaussian_sharpen(img)
+    gaussian_blur(img)
+    despeckle(img)
+    remove_borders(img)
+# }}}
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # {{{
     args = sys.argv[1:]
     infile = args.pop(0)
     img = image_from_data(lopen(infile, 'rb').read())
@@ -429,3 +440,4 @@ if __name__ == '__main__':
     img = func(img, **kw)
     with lopen(outf, 'wb') as f:
         f.write(image_to_data(img, fmt=outf.rpartition('.')[-1]))
+# }}}
