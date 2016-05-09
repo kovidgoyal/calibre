@@ -16,6 +16,7 @@
 #include <cmath>
 #include <stdio.h>
 #include <QVector>
+#include <QStringList>
 #include "imageops.h"
 
 // Increasing this number improves quality but also increases running time and memory consumption
@@ -24,7 +25,6 @@ static const size_t MAX_LEAVES = 2000;
 #ifdef _MSC_VER
 typedef unsigned __int64 uint64_t;
 typedef __int64 int64_t;
-typedef unsigned __int32 uint32_t;
 #define UINT64_MAX _UI64_MAX
 #ifndef log2
 static inline double log2(double x) { return log(x) / log((double)2) ; }
@@ -37,7 +37,7 @@ static inline double log2(double x) { return log(x) / log((double)2) ; }
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
 #define MIN(x, y) ((x) < (y)) ? (x) : (y)
 static const unsigned char BIT_MASK[8] = { 1 << 7, 1 << 6, 1 << 5, 1 << 4, 1 << 3, 1 << 2, 1 << 1, 1 };
-static inline size_t get_index(const uint32_t r, const uint32_t g, const uint32_t b, const size_t level) {
+static inline unsigned char get_index(const unsigned char r, const unsigned char g, const unsigned char b, const size_t level) {
     return ((((r & BIT_MASK[level]) >> (7 - level)) << 2) | (((g & BIT_MASK[level]) >> (7 - level)) << 1) | ((b & BIT_MASK[level]) >> (7 - level)));
 }
 template <typename T> static inline T euclidean_distance(T r1, T g1, T b1, T r2, T g2, T b2) {
@@ -130,7 +130,7 @@ public:
         this->avg.blue = (double)this->sum.blue / (double)this->pixel_count;
     }
 
-    void add_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t depth, const size_t level, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
+    void add_color(const unsigned char r, const unsigned char g, const unsigned char b, const size_t depth, const size_t level, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
         if (this->is_leaf) {
             this->pixel_count++;
             this->sum.red += r;
@@ -141,7 +141,7 @@ public:
             this->error_sum.green += (g > this->avg.green) ? g - this->avg.green : this->avg.green - g;
             this->error_sum.blue  += (b > this->avg.blue) ? b - this->avg.blue : this->avg.blue - b;
         } else {
-            size_t index = get_index(r, g, b, level);
+            unsigned char index = get_index(r, g, b, level);
             if (this->children[index] == NULL) this->children[index] = this->create_child(level, depth, leaf_count, reducible_nodes, node_pool);
             this->children[index]->add_color(r, g, b, depth, level + 1, leaf_count, reducible_nodes, node_pool);
         }
@@ -273,10 +273,10 @@ public:
         }
     } // }}}
 
-    unsigned char index_for_nearest_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t level) { // {{{
+    unsigned char index_for_nearest_color(const unsigned char r, const unsigned char g, const unsigned char b, const size_t level) { // {{{
         /* Returns the color palette index for the nearest color to (r, g, b) */
         if (this->is_leaf) return this->index;
-        size_t index = get_index(r, g, b, level);
+        unsigned char index = get_index(r, g, b, level);
         if (this->children[index] == NULL) {
             uint64_t min_distance = UINT64_MAX, distance;
             for(size_t i = 0; i < MAX_DEPTH; i++) {
@@ -367,7 +367,7 @@ inline unsigned int read_colors(const QImage &img, Node &root, size_t depth, Nod
 inline unsigned int read_colors(const QVector<QRgb> &color_table, Node &root, size_t depth, Node **reducible_nodes, Pool<Node> &node_pool) {
     unsigned int leaf_count = 0;
     for (int i = 0; i < color_table.size(); i++) {
-        const QRgb pixel = color_table.at(i);
+        const QRgb pixel = color_table[i];
         root.add_color(qRed(pixel), qGreen(pixel), qBlue(pixel), depth, 0, &leaf_count, reducible_nodes, node_pool);
         while (leaf_count > MAX_LEAVES)
             root.reduce(depth, &leaf_count, reducible_nodes, node_pool);
@@ -399,9 +399,9 @@ static void write_image(const QImage &img, QImage &ans, Node &root, bool src_is_
     }
 }
 
-QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
+QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, const QVector<QRgb> &palette) {
     ScopedGILRelease PyGILRelease;
-    size_t depth = 0;
+    size_t depth = MAX_DEPTH;
     int iwidth = image.width(), iheight = image.height();
     QImage img(image), ans(iwidth, iheight, QImage::Format_Indexed8);
     unsigned int leaf_count = 0;
@@ -422,12 +422,17 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     }
     // There can be no more than MAX_LEAVES * 8 nodes. Add 1 in case there is an off by 1 error somewhere.
     Pool<Node> node_pool((MAX_LEAVES + 1) * 8);  
-
-    depth = (size_t)log2(maximum_colors);
-    depth = MAX(2, MIN(depth, MAX_DEPTH));
-
-    if (img.format() == QImage::Format_RGB32) leaf_count = read_colors(img, root, depth, reducible_nodes, node_pool);
-    else leaf_count = read_colors(img.colorTable(), root, depth, reducible_nodes, node_pool);
+    if (palette.size() > 0) {
+        // Quantizing to fixed palette
+        leaf_count = read_colors(palette, root, depth, reducible_nodes, node_pool);
+        maximum_colors = MAX(2, MIN(MAX_COLORS, leaf_count));
+    } else if (img.format() == QImage::Format_RGB32) {
+        depth = (size_t)log2(maximum_colors);
+        depth = MAX(2, MIN(depth, MAX_DEPTH));
+        leaf_count = read_colors(img, root, depth, reducible_nodes, node_pool);
+    } else {
+        leaf_count = read_colors(img.colorTable(), root, depth, reducible_nodes, node_pool);
+    }
 
     reduce_tree(root, depth, &leaf_count, maximum_colors, reducible_nodes, node_pool);
     color_table.resize(leaf_count);

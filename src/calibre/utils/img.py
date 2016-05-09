@@ -279,13 +279,18 @@ def normalize(img):
         raise RuntimeError(imageops_err)
     return imageops.normalize(image_from_data(img))
 
-def quantize(img, colors=256, dither=True):
+def quantize(img, colors=256, dither=True, palette=''):
+    ''' Quantize the image to contain a maximum of `colors` colors. By default a palette is chosen automatically,
+    if you want to use a fixed palette, then pass in a list of color names in the `palette` variable. If you,
+    specify a palette `colors` is ignored. For example: palette='red green blue #eee' '''
     if imageops is None:
         raise RuntimeError(imageops_err)
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
-    return imageops.quantize(img, colors, dither)
+    if palette and isinstance(palette, basestring):
+        palette = palette.split()
+    return imageops.quantize(img, colors, dither, [QColor(x).rgb() for x in palette])
 
 # Optimization of images {{{
 
