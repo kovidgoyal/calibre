@@ -3,7 +3,8 @@
  * Copyright (C) 2016 Kovid Goyal <kovid at kovidgoyal.net>
  *
  * octree based image quantization. 
- * Based on https://www.microsoft.com/msj/archive/S3F1.aspx
+ * See https://www.microsoft.com/msj/archive/S3F1.aspx for a simple to follow
+ * writeup on this algorithm
  *
  * Distributed under terms of the GPL3 license.
  */
@@ -212,6 +213,7 @@ public:
 
 };
 
+// Image Dithering  {{{
 static inline void propagate_error(QVector<DoublePixel> &error_line, int c, unsigned char mult, DoublePixel &error) {
     error_line[c].red   += error.red * mult;
     error_line[c].green += error.green * mult;
@@ -263,6 +265,7 @@ static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_ta
         }
     }
 }
+// }}}
 
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
     ScopedGILRelease PyGILRelease;
