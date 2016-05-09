@@ -279,13 +279,13 @@ def normalize(img):
         raise RuntimeError(imageops_err)
     return imageops.normalize(image_from_data(img))
 
-def quantize(img, num_of_colors=256, dither=True):
+def quantize(img, colors=256, dither=True):
     if imageops is None:
         raise RuntimeError(imageops_err)
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
-    return imageops.quantize(img, num_of_colors, dither)
+    return imageops.quantize(img, colors, dither)
 
 # Optimization of images {{{
 
