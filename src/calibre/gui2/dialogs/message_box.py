@@ -191,7 +191,7 @@ class ViewLog(QDialog):  # {{{
         self.resize(QSize(700, 500))
         geom = gprefs.get(self.unique_name, None)
         if geom is not None:
-            self.restoreGeometry(self.geom)
+            self.restoreGeometry(geom)
         self.resize_dialog()
 
         self.setModal(False)
