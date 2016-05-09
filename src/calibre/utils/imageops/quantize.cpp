@@ -203,8 +203,6 @@ public:
         int i;
         Node *child;
         if (this->is_leaf) {
-#define AVG_COLOR(x) ((unsigned char) ((double)this->sum.x / (double)this->pixel_count))
-            this->avg.red = AVG_COLOR(red); this->avg.green = AVG_COLOR(green); this->avg.blue = AVG_COLOR(blue);
             color_table[*index] = qRgb(this->avg.red, this->avg.green, this->avg.blue); 
             this->index = (*index)++;
         } else {
@@ -220,9 +218,7 @@ public:
                     }
                 }
             }
-            if (compute_parent_averages) {
-                this->avg.red = AVG_COLOR(red); this->avg.green = AVG_COLOR(green); this->avg.blue = AVG_COLOR(blue);
-            }
+            if (compute_parent_averages) this->update_average();
         }
     }
 
