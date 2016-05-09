@@ -160,6 +160,11 @@ def crop_image(img, x, y, width, height):
     height = min(height, img.height() - y)
     return img.copy(x, y, width, height)
 
+def clone_image(img):
+    ''' Returns a shallow copy of the image. However, the underlying data buffer
+    will be automatically copied-on-write '''
+    return QImage(img)
+
 def normalize_format_name(fmt):
     fmt = fmt.lower()
     if fmt == 'jpg':
