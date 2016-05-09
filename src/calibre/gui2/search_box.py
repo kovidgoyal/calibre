@@ -334,6 +334,7 @@ class SavedSearchBox(QComboBox):  # {{{
         QComboBox.clear(self)
         self.initialize_saved_search_names()
         self.setEditText('')
+        self.setToolTip(self.tool_tip_text)
         self.line_edit.home(False)
 
     def key_pressed(self, event):
@@ -525,9 +526,9 @@ class SavedSearchBoxMixin(object):  # {{{
         # self.saved_searches_changed()
         self.saved_search.initialize(self.search, colorize=True,
                 help_text=_('Saved Searches'))
-        self.saved_search.setToolTip(
-            _('Choose saved search or enter name for new saved search'))
-        self.saved_search.setStatusTip(self.saved_search.toolTip())
+        self.saved_search.tool_tip_text=_('Choose saved search or enter name for new saved search')
+        self.saved_search.setToolTip(self.saved_search.tool_tip_text)
+        self.saved_search.setStatusTip(self.saved_search.tool_tip_text)
         for x in ('copy', 'save'):
             b = getattr(self, x+'_search_button')
             b.setStatusTip(b.toolTip())

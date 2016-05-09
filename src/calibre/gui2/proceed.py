@@ -20,7 +20,8 @@ from calibre.gui2.dialogs.message_box import ViewLog
 Question = namedtuple('Question', 'payload callback cancel_callback '
         'title msg html_log log_viewer_title log_is_file det_msg '
         'show_copy_button checkbox_msg checkbox_checked action_callback '
-        'action_label action_icon focus_action show_det show_ok icon')
+        'action_label action_icon focus_action show_det show_ok icon '
+        'log_viewer_unique_name')
 
 class Icon(QWidget):
 
@@ -306,7 +307,7 @@ class ProceedQuestion(QWidget):
             msg, det_msg='', show_copy_button=False, cancel_callback=None,
             log_is_file=False, checkbox_msg=None, checkbox_checked=False,
             action_callback=None, action_label=None, action_icon=None, focus_action=False,
-            show_det=False, show_ok=False, icon=None, **kw):
+            show_det=False, show_ok=False, icon=None, log_viewer_unique_name=None, **kw):
         '''
         A non modal popup that notifies the user that a background task has
         been completed. This class guarantees that only a single popup is
@@ -341,12 +342,13 @@ class ProceedQuestion(QWidget):
         :param show_det: If True, the Detailed message will be shown initially
         :param show_ok: If True, OK will be shown instead of YES/NO
         :param icon: The icon to be used for this popop (defaults to question mark). Can be either a QIcon or a string to be used with I()
+        :log_viewer_unique_name: If set, ViewLog will remember/reuse its size for this name in calibre.gui2.gprefs
         '''
         question = Question(
             payload, callback, cancel_callback, title, msg, html_log,
             log_viewer_title, log_is_file, det_msg, show_copy_button,
             checkbox_msg, checkbox_checked, action_callback, action_label,
-            action_icon, focus_action, show_det, show_ok, icon)
+            action_icon, focus_action, show_det, show_ok, icon, log_viewer_unique_name)
         self.questions.append(question)
         self.show_question()
 
@@ -358,7 +360,7 @@ class ProceedQuestion(QWidget):
                 with open(log, 'rb') as f:
                     log = f.read().decode('utf-8')
             self.log_viewer = ViewLog(q.log_viewer_title, log,
-                        parent=self)
+                        parent=self, unique_name=q.log_viewer_unique_name)
 
     def paintEvent(self, ev):
         painter = QPainter(self)
