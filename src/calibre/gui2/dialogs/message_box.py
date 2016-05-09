@@ -12,6 +12,7 @@ from PyQt5.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
     QLabel, QPlainTextEdit, QTextDocument, QCheckBox, pyqtSignal)
 
 from calibre.constants import __version__, isfrozen
+from calibre.gui2 import gprefs
 
 class MessageBox(QDialog):  # {{{
 
@@ -167,7 +168,7 @@ class MessageBox(QDialog):  # {{{
 
 class ViewLog(QDialog):  # {{{
 
-    def __init__(self, title, html, parent=None):
+    def __init__(self, title, html, parent=None, unique_name=None):
         QDialog.__init__(self, parent)
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -184,8 +185,16 @@ class ViewLog(QDialog):  # {{{
         self.copy_button.setIcon(QIcon(I('edit-copy.png')))
         self.copy_button.clicked.connect(self.copy_to_clipboard)
         l.addWidget(self.bb)
+
+        if unique_name:
+            self.unique_name = "ViewLog_size_"+unique_name
+        else:
+            self.unique_name = None
+        self.geom = gprefs.get(self.unique_name, None)
+        self.finished.connect(self.dialog_closing)
+        self.resize_dialog()
+
         self.setModal(False)
-        self.resize(QSize(700, 500))
         self.setWindowTitle(title)
         self.setWindowIcon(QIcon(I('debug.png')))
         self.show()
@@ -193,6 +202,17 @@ class ViewLog(QDialog):  # {{{
     def copy_to_clipboard(self):
         txt = self.tb.toPlainText()
         QApplication.clipboard().setText(txt)
+
+    def resize_dialog(self):
+        if self.geom is None:
+            self.resize(QSize(700, 500))
+        else:
+            self.restoreGeometry(self.geom)
+
+    def dialog_closing(self, result):
+        if self.unique_name:
+            self.geom = bytearray(self.saveGeometry())
+            gprefs[self.unique_name] = self.geom
 # }}}
 
 _proceed_memory = []
