@@ -416,10 +416,10 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, c
     maximum_colors = MAX(2, MIN(MAX_COLORS, maximum_colors));
     if (img.colorCount() > 0 && (size_t)img.colorCount() <= maximum_colors) return img; // Image is already quantized
     if (img.hasAlphaChannel()) throw std::out_of_range("Cannot quantize image with transparency");
-    if (fmt != QImage::Format_RGB32 && fmt != QImage::Format_Indexed8 && fmt != 24) { // 24 = QImage::Format_Grayscale8
+    if (fmt != QImage::Format_RGB32 && fmt != QImage::Format_Indexed8) { 
         img = img.convertToFormat(QImage::Format_RGB32); 
         if (img.isNull()) throw std::bad_alloc();
-    } else if (fmt == 24) img = img.convertToFormat(QImage::Format_Indexed8);
+    } 
     // There can be no more than MAX_LEAVES * 8 nodes. Add 1 in case there is an off by 1 error somewhere.
     Pool<Node> node_pool((MAX_LEAVES + 1) * 8);  
     if (palette.size() > 0) {

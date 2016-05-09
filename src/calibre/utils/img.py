@@ -156,8 +156,6 @@ def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
     return image_to_data(img, fmt=fmt)
 
 def to_grayscale(img):
-    if hasattr(QImage, 'Format_Grayscale8'):
-        return img.convertToFormat(QImage.Format_Grayscale8)
     if imageops is not None:
         return imageops.grayscale(img)
     return img
