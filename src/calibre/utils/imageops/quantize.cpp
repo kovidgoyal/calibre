@@ -81,9 +81,9 @@ private:
     SumPixel sum;
     DoublePixel avg;
     SumPixel error_sum;
-    Node* next_reducible_node;
+    Node *next_reducible_node;
     Node *next_available_in_pool;
-    Node* children[MAX_DEPTH];
+    Node *children[MAX_DEPTH];
 
 public:
 #ifdef _MSC_VER
