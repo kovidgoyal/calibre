@@ -213,9 +213,9 @@ public:
 };
 
 static inline void propagate_error(QVector<DoublePixel> &error_line, int c, unsigned char mult, DoublePixel &error) {
-    error_line[c].red   = error.red * mult;
-    error_line[c].green = error.green * mult;
-    error_line[c].blue  = error.blue * mult;
+    error_line[c].red   += error.red * mult;
+    error_line[c].green += error.green * mult;
+    error_line[c].blue  += error.blue * mult;
 }
 
 static inline QRgb apply_error(QRgb pixel, DoublePixel &error) {
@@ -250,7 +250,7 @@ static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_ta
         line1 = is_odd ? &err2 : &err1;
         line2 = is_odd ? &err1 : &err2;
         line2->fill(zero);
-        for (c = start; 0 < (is_odd ? c : iwidth - c); c += delta) {
+        for (c = start; 0 < (is_odd ? c + 1 : iwidth - c); c += delta) {
             pixel = *(line + c);
             new_pixel = apply_error(pixel, (*line1)[c]);
             index = root.index_for_nearest_color(qRed(new_pixel), qGreen(new_pixel), qBlue(new_pixel), 0);
