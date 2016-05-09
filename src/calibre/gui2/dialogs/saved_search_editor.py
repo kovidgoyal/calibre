@@ -37,6 +37,7 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
     def populate_search_list(self):
         self.search_name_box.blockSignals(True)
         self.search_name_box.clear()
+        self.search_name_box.addItem('')
         for name in sorted(self.searches.keys(), key=sort_key):
             self.search_name_box.addItem(name)
         self.search_names = set([icu_lower(n) for n in self.searches.keys()])
@@ -88,6 +89,7 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
         if self.current_search_name in self.searches:
             self.searches[new_search_name] = self.searches[self.current_search_name]
             del self.searches[self.current_search_name]
+            self.current_search_name = None
             self.populate_search_list()
             self.select_search(new_search_name)
         return True

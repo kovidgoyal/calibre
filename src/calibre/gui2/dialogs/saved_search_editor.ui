@@ -123,7 +123,7 @@
      <item row="0" column="5">
       <widget class="QToolButton" name="add_search_button">
        <property name="toolTip">
-        <string>Add the new saved search</string>
+        <string>Add a new, empty saved search with the name entered</string>
        </property>
        <property name="text">
         <string>...</string>
