@@ -245,10 +245,8 @@ static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_ta
         line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
         bits = ans.scanLine(r);
         is_odd = r & 1;
-        start = is_odd ? iwidth - 1 : 0;
-        delta = is_odd ? -1 : 1;
-        line1 = is_odd ? &err2 : &err1;
-        line2 = is_odd ? &err1 : &err2;
+        if (is_odd) { start = iwidth - 1; delta = -1; line1 = &err2; line2 = &err1; }
+        else { start = 0; delta = 1; line1 = &err1; line2 = &err2; }
         line2->fill(zero);
         for (c = start; 0 < (is_odd ? c + 1 : iwidth - c); c += delta) {
             pixel = *(line + c);
