@@ -36,6 +36,7 @@ static inline size_t get_index(const uint32_t r, const uint32_t g, const uint32_
 template <typename T> static inline T euclidean_distance(T r1, T g1, T b1, T r2, T g2, T b2) {
     return r1 * r1 + r2 * r2 + g1 * g1 + g2 * g2 + b1 * b1 + b2 * b2 - 2 * (r1 * r2 + g1 * g2 + b1 * b2);
 }
+struct DoublePixel { double red; double green; double blue; };
 
 template <class T> class Pool {  // {{{
 private:
@@ -211,42 +212,56 @@ public:
 
 };
 
-static inline void propagate_error(QRgb* line, int c, unsigned char mult, int red_error, int green_error, int blue_error) {
-    QRgb pixel = *(line + c);
-#define PROPERR(w, e) MAX(0, MIN((w(pixel) + ((mult * e) >> 4)), 255))
-    *(line + c) = qRgb(PROPERR(qRed, red_error), PROPERR(qGreen, green_error), PROPERR(qBlue, blue_error));
+static inline void propagate_error(QVector<DoublePixel> &error_line, int c, unsigned char mult, DoublePixel &error) {
+    error_line[c].red   = error.red * mult;
+    error_line[c].green = error.green * mult;
+    error_line[c].blue  = error.blue * mult;
 }
 
-static void dither_image(QImage &img, QImage &ans, QVector<QRgb> &color_table, Node &root) {
-    QRgb *mline = NULL, *sline = NULL, pixel = 0, new_pixel = 0;
+static inline QRgb apply_error(QRgb pixel, DoublePixel &error) {
+#define AERR(w, i) MAX(0, MIN((int)(w(pixel) + error.i), 255))
+    return qRgb(AERR(qRed, red), AERR(qGreen, green), AERR(qBlue, blue));
+}
+
+static inline void calculate_error(QRgb new_pixel, QRgb old_pixel, DoublePixel &error) {
+#define CERR(w) ((double)(w(old_pixel) - w(new_pixel)))/16.0
+    error.red = CERR(qRed);
+    error.green = CERR(qGreen);
+    error.blue = CERR(qBlue);
+}
+
+static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_table, Node &root) {
+    const QRgb *line = NULL;
+    QRgb pixel = 0, new_pixel = 0;
     unsigned char *bits = NULL, index = 0;
-    int red_error = 0, green_error = 0, blue_error = 0, iheight = img.height(), iwidth = img.width(), r = 0, c = 0;
+    int iheight = img.height(), iwidth = img.width(), r = 0, c = 0;
     bool is_odd = false;
     int start = 0, delta = 0;
+    DoublePixel error = {0, 0, 0};
+    const DoublePixel zero = {0, 0, 0};
+    QVector<DoublePixel> err1(iwidth), err2(iwidth), *line1 = NULL, *line2 = NULL;
 
     for (r = 0; r < iheight; r++) {
-        mline = reinterpret_cast<QRgb*>(img.scanLine(r));
-        sline = r + 1 < iheight ? reinterpret_cast<QRgb*>(img.scanLine(r+1)) : NULL;
+        line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
         bits = ans.scanLine(r);
         is_odd = r & 1;
         start = is_odd ? iwidth - 1 : 0;
         delta = is_odd ? -1 : 1;
+        line1 = is_odd ? &err2 : &err1;
+        line2 = is_odd ? &err1 : &err2;
+        line2->fill(zero);
         for (c = start; 0 < (is_odd ? c : iwidth - c); c += delta) {
-            pixel = *(mline + c);
-            index = root.index_for_nearest_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
+            pixel = *(line + c);
+            new_pixel = apply_error(pixel, (*line1)[c]);
+            index = root.index_for_nearest_color(qRed(new_pixel), qGreen(new_pixel), qBlue(new_pixel), 0);
             *(bits + c) = index;
-            new_pixel = color_table[index];
-            red_error = qRed(pixel) - qRed(new_pixel);
-            green_error = qGreen(pixel) - qGreen(new_pixel);
-            blue_error = qBlue(pixel) - qBlue(new_pixel);
+            calculate_error(color_table[index], pixel, error);
             if (0 < (is_odd ? c : iwidth - c - 1)) {
-                propagate_error(mline, c + delta, 7, red_error, green_error, blue_error);
-                if (sline != NULL) propagate_error(sline, c + delta, 1, red_error, green_error, blue_error);
+                propagate_error(*line1, c + delta, 7, error);
+                propagate_error(*line2, c + delta, 1, error);
             }
-            if (sline != NULL) {
-                propagate_error(sline, c, 5, red_error, green_error, blue_error);
-                if (0 < (is_odd ? iwidth - c - 1 : c)) propagate_error(sline, c - delta, 3, red_error, green_error, blue_error);
-            }
+            propagate_error(*line2, c, 5, error);
+            if (0 < (is_odd ? iwidth - c - 1 : c)) propagate_error(*line2, c - delta, 3, error);
         }
     }
 }
