@@ -629,7 +629,7 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
         for (r = 0; r < height; r++) {
             src = reinterpret_cast<const QRgb*>(img.constScanLine(r));
             dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + top));
-            memcpy(dest + left, src, (right - left) * sizeof(QRgb));
+            memcpy(dest + left, src, width * sizeof(QRgb));
         }
     }
 
