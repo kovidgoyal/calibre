@@ -162,9 +162,26 @@ public:
         return ans;
     }
 
+    inline unsigned int merge(Pool<Node> &node_pool) {
+        unsigned int num = 0, i;
+        Node *child = NULL;
+        for (i = 0; i < MAX_DEPTH; i++) {
+            if ((child = this->children[i]) != NULL) {
+                iadd<SumPixel>(this->sum, child->sum);
+                iadd<SumPixel>(this->error_sum, child->error_sum);
+                this->pixel_count += this->children[i]->pixel_count;
+                node_pool.relinquish(this->children[i]); this->children[i] = NULL;
+                num ++;
+            }
+        }
+        this->update_average();
+        this->is_leaf = true;
+        return num;
+    }
+
     void reduce(const size_t depth, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
         size_t i = 0;
-        Node *node = NULL, *child = NULL, *q = NULL;
+        Node *node = NULL, *q = NULL;
 
         // Find the deepest level containing at least one reducible node
         for (i=depth - 1; i > 0 && reducible_nodes[i] == NULL; i--);
@@ -179,18 +196,48 @@ public:
                 q = q->next_reducible_node;
             }
         }
+        *leaf_count -= node->merge(node_pool) - 1;
+    }
 
-        for (i = 0; i < MAX_DEPTH; i++) {
-            if ((child = node->children[i]) != NULL) {
-                iadd<SumPixel>(node->sum, child->sum);
-                iadd<SumPixel>(node->error_sum, child->error_sum);
-                node->pixel_count += node->children[i]->pixel_count;
-                node_pool.relinquish(node->children[i]); node->children[i] = NULL;
-                (*leaf_count)--;
+    void find_least_used_leaf(uint64_t *pixel_count, Node **ans, Node **parent) {
+        if (this->is_leaf) {
+            if (this->pixel_count < *pixel_count) { *pixel_count = this->pixel_count; *ans = this; }
+        } else {
+            Node *child = NULL;
+            for (int i = 0; i < MAX_DEPTH; i++) {
+                if ((child = this->children[i]) != NULL) {
+                    child->find_least_used_leaf(pixel_count, ans, parent);
+                    if (*ans == child) *parent = this;
+                }
             }
         }
-        node->update_average();
-        node->is_leaf = true; *leaf_count += 1;
+    }
+
+    inline unsigned int number_of_children() {
+        unsigned int ans = 0;
+        for(int i = 0; i < MAX_DEPTH; i++) {
+            if (this->children[i] != NULL) ans++;
+        }
+        return ans;
+    }
+
+    void reduce_least_common_leaves(const unsigned int num, Pool<Node> &node_pool) {
+        unsigned int left = num;
+        Node *leaf = NULL, *parent = NULL;
+        uint64_t pixel_count = UINT64_MAX;
+
+        while (left > 0) {
+            leaf = NULL; parent = NULL; pixel_count = UINT64_MAX;
+            this->find_least_used_leaf(&pixel_count, &leaf, &parent);
+            if (parent->number_of_children() == 1) {
+                parent->merge(node_pool);
+            } else {
+                for(int i = 0; i < MAX_DEPTH; i++) {
+                    if (parent->children[i] == leaf) { node_pool.relinquish(leaf); parent->children[i] = NULL; break; }
+                }
+                left--;
+            }
+        }
     }
 
     void set_palette_colors(QRgb *color_table, unsigned char *index, bool compute_parent_averages) {
@@ -214,13 +261,6 @@ public:
             }
             if (compute_parent_averages) this->update_average();
         }
-    }
-
-    unsigned char index_for_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t level) const {
-        if (this->is_leaf) return this->index;
-        size_t index = get_index(r, g, b, level);
-        if (this->children[index] == NULL) throw std::out_of_range("Something bad happened: could not follow tree for color");
-        return this->children[index]->index_for_color(r, g, b, level + 1);
     }
 
     unsigned char index_for_nearest_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t level) {
@@ -333,8 +373,12 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
                 root.reduce(depth, &leaf_count, reducible_nodes, node_pool);
         }
     }
-    while (leaf_count > maximum_colors)
+    while (leaf_count > maximum_colors + 7)
         root.reduce(depth, &leaf_count, reducible_nodes, node_pool);
+    if (leaf_count > maximum_colors) {
+        root.reduce_least_common_leaves(leaf_count - maximum_colors, node_pool);
+        leaf_count = maximum_colors;
+    }
 
     color_table.resize(leaf_count);
     root.set_palette_colors(color_table.data(), &index, dither);
@@ -348,7 +392,7 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither) {
             bits = ans.scanLine(r);
             for (c = 0; c < iwidth; c++) {
                 const QRgb pixel = *(line + c);
-                *(bits + c) = root.index_for_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
+                *(bits + c) = root.index_for_nearest_color(qRed(pixel), qGreen(pixel), qBlue(pixel), 0);
             }
         }
     }
