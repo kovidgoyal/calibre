@@ -626,7 +626,7 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
         }
     } else {
         ENSURE32(img);
-        for (r = 0; r < bottom; r++) {
+        for (r = 0; r < height; r++) {
             src = reinterpret_cast<const QRgb*>(img.constScanLine(r));
             dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + top));
             memcpy(dest + left, src, (right - left) * sizeof(QRgb));
