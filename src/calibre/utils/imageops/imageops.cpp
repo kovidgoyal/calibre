@@ -7,7 +7,6 @@
 
 #include <stdexcept>
 #include "imageops.h"
-#include <QColor>
 #include <QVector>
 #include <cmath>
 
@@ -140,7 +139,7 @@ QImage grayscale(const QImage &image) { // {{{
 		row = reinterpret_cast<QRgb*>(img.scanLine(r));
         for (pixel = row; pixel < row + width; pixel++) {
             gray = qGray(*pixel);
-            *pixel = QColor(gray, gray, gray).rgba();
+            *pixel = qRgb(gray, gray, gray);
         }
     }
 	return img;
