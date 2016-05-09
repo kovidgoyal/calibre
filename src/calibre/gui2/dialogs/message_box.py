@@ -186,10 +186,7 @@ class ViewLog(QDialog):  # {{{
         self.copy_button.clicked.connect(self.copy_to_clipboard)
         l.addWidget(self.bb)
 
-        if unique_name:
-            self.unique_name = "ViewLog_size_"+unique_name
-        else:
-            self.unique_name = None
+        self.unique_name = unique_name or 'view-log-dialog'
         self.geom = gprefs.get(self.unique_name, None)
         self.finished.connect(self.dialog_closing)
         self.resize_dialog()
