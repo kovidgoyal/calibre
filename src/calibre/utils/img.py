@@ -156,8 +156,6 @@ def add_borders_to_image(img_data, left=0, top=0, right=0, bottom=0,
     return image_to_data(img, fmt=fmt)
 
 def to_grayscale(img):
-    if hasattr(QImage, 'Format_Grayscale8'):
-        return img.convertToFormat(QImage.Format_Grayscale8)
     if imageops is not None:
         return imageops.grayscale(img)
     return img
@@ -279,10 +277,17 @@ def normalize(img):
         raise RuntimeError(imageops_err)
     return imageops.normalize(image_from_data(img))
 
-def quantize(img, colors=256, dither=True, palette=''):
-    ''' Quantize the image to contain a maximum of `colors` colors. By default a palette is chosen automatically,
-    if you want to use a fixed palette, then pass in a list of color names in the `palette` variable. If you,
-    specify a palette `colors` is ignored. For example: palette='red green blue #eee' '''
+def quantize(img, max_colors=256, dither=True, palette=''):
+    ''' Quantize the image to contain a maximum of `max_colors` colors. By
+    default a palette is chosen automatically, if you want to use a fixed
+    palette, then pass in a list of color names in the `palette` variable. If
+    you, specify a palette `max_colors` is ignored. Note that it is possible
+    for the actual number of colors used to be less than max_colors.
+
+    :param max_colors: Max. number of colors in the auto-generated palette. Must be between 2 and 256.
+    :param dither: Whether to use dithering or not. dithering is almost always a good thing.
+    :param palette: Use a manually specified palette instead. For example: palette='red green blue #eee'
+    '''
     if imageops is None:
         raise RuntimeError(imageops_err)
     img = image_from_data(img)
@@ -290,7 +295,7 @@ def quantize(img, colors=256, dither=True, palette=''):
         img = blend_image(img)
     if palette and isinstance(palette, basestring):
         palette = palette.split()
-    return imageops.quantize(img, colors, dither, [QColor(x).rgb() for x in palette])
+    return imageops.quantize(img, max_colors, dither, [QColor(x).rgb() for x in palette])
 
 # Optimization of images {{{
 

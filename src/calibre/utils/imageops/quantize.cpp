@@ -41,7 +41,7 @@ static inline unsigned char get_index(const unsigned char r, const unsigned char
     return ((((r & BIT_MASK[level]) >> (7 - level)) << 2) | (((g & BIT_MASK[level]) >> (7 - level)) << 1) | ((b & BIT_MASK[level]) >> (7 - level)));
 }
 template <typename T> static inline T euclidean_distance(T r1, T g1, T b1, T r2, T g2, T b2) {
-    return r1 * r1 + r2 * r2 + g1 * g1 + g2 * g2 + b1 * b1 + b2 * b2 - 2 * (r1 * r2 + g1 * g2 + b1 * b2);
+    return (r1 * r1) + (r2 * r2) + (g1 * g1) + (g2 * g2) + (b1 * b1) + (b2 * b2) - 2 * (r1 * r2 + g1 * g2 + b1 * b2);
 }
 struct SumPixel { uint64_t red; uint64_t green; uint64_t blue; };
 struct DoublePixel { double red; double green; double blue; };
@@ -81,9 +81,9 @@ private:
     SumPixel sum;
     DoublePixel avg;
     SumPixel error_sum;
-    Node* next_reducible_node;
+    Node *next_reducible_node;
     Node *next_available_in_pool;
-    Node* children[MAX_DEPTH];
+    Node *children[MAX_DEPTH];
 
 public:
 #ifdef _MSC_VER
@@ -207,46 +207,6 @@ public:
         *leaf_count -= node->merge(node_pool) - 1;
     }
 
-    void find_least_used_leaf(uint64_t *pixel_count, Node **ans, Node **parent) {
-        if (this->is_leaf) {
-            if (this->pixel_count < *pixel_count) { *pixel_count = this->pixel_count; *ans = this; }
-        } else {
-            Node *child = NULL;
-            for (int i = 0; i < MAX_DEPTH; i++) {
-                if ((child = this->children[i]) != NULL) {
-                    child->find_least_used_leaf(pixel_count, ans, parent);
-                    if (*ans == child) *parent = this;
-                }
-            }
-        }
-    }
-
-    inline unsigned int number_of_children() {
-        unsigned int ans = 0;
-        for(int i = 0; i < MAX_DEPTH; i++) {
-            if (this->children[i] != NULL) ans++;
-        }
-        return ans;
-    }
-
-    void reduce_least_common_leaves(const unsigned int num, Pool<Node> &node_pool) {
-        unsigned int left = num;
-        Node *leaf = NULL, *parent = NULL;
-        uint64_t pixel_count = UINT64_MAX;
-
-        while (left > 0) {
-            leaf = NULL; parent = NULL; pixel_count = UINT64_MAX;
-            this->find_least_used_leaf(&pixel_count, &leaf, &parent);
-            if (parent->number_of_children() == 1) {
-                parent->merge(node_pool);
-            } else {
-                for(int i = 0; i < MAX_DEPTH; i++) {
-                    if (parent->children[i] == leaf) { node_pool.relinquish(leaf); parent->children[i] = NULL; break; }
-                }
-                left--;
-            }
-        }
-    }
     // }}}
 
     void set_palette_colors(QRgb *color_table, unsigned char *index, bool compute_parent_averages) {  // {{{
@@ -275,13 +235,13 @@ public:
 
     unsigned char index_for_nearest_color(const unsigned char r, const unsigned char g, const unsigned char b, const size_t level) { // {{{
         /* Returns the color palette index for the nearest color to (r, g, b) */
+        Node *child;
         if (this->is_leaf) return this->index;
         unsigned char index = get_index(r, g, b, level);
         if (this->children[index] == NULL) {
             uint64_t min_distance = UINT64_MAX, distance;
             for(size_t i = 0; i < MAX_DEPTH; i++) {
-                Node *child = this->children[i];
-                if (child != NULL) {
+                if ((child = this->children[i]) != NULL) {
                     distance = euclidean_distance<uint64_t>(r, g, b, child->avg.red, child->avg.green, child->avg.blue);
                     if (distance < min_distance) { min_distance = distance; index = i; }
                 }
@@ -313,7 +273,7 @@ static inline void calculate_error(QRgb new_pixel, QRgb old_pixel, DoublePixel &
 
 static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_table, Node &root, bool src_is_indexed) {
     const QRgb *line = NULL;
-    QRgb pixel = 0, new_pixel = 0;
+    QRgb pixel = 0, err_pixel = 0;
     unsigned char *bits = NULL, index = 0;
     int iheight = img.height(), iwidth = img.width(), r = 0, c = 0;
     bool is_odd = false;
@@ -333,8 +293,8 @@ static void dither_image(const QImage &img, QImage &ans, QVector<QRgb> &color_ta
         line2->fill(zero);
         for (c = start; 0 < (is_odd ? c + 1 : iwidth - c); c += delta) {
             pixel = src_is_indexed ? src_color_table.at(*(src_line + c)) : *(line + c);
-            new_pixel = apply_error(pixel, (*line1)[c]);
-            index = root.index_for_nearest_color(qRed(new_pixel), qGreen(new_pixel), qBlue(new_pixel), 0);
+            err_pixel = apply_error(pixel, (*line1)[c]);
+            index = root.index_for_nearest_color(qRed(err_pixel), qGreen(err_pixel), qBlue(err_pixel), 0);
             *(bits + c) = index;
             calculate_error(color_table[index], pixel, error);
             if (0 < (is_odd ? c : iwidth - c - 1)) {
@@ -376,12 +336,8 @@ inline unsigned int read_colors(const QVector<QRgb> &color_table, Node &root, si
 }
 
 inline void reduce_tree(Node &root, size_t depth, unsigned int *leaf_count, unsigned int maximum_colors, Node **reducible_nodes, Pool<Node> &node_pool) {
-    while (*leaf_count > maximum_colors + 7)
+    while (*leaf_count > maximum_colors)
         root.reduce(depth, leaf_count, reducible_nodes, node_pool);
-    if (*leaf_count > maximum_colors) {
-        root.reduce_least_common_leaves(*leaf_count - maximum_colors, node_pool);
-        *leaf_count = maximum_colors;
-    }
 }
 
 static void write_image(const QImage &img, QImage &ans, Node &root, bool src_is_indexed) {
@@ -414,12 +370,11 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, c
     root.check_compiler();
 
     maximum_colors = MAX(2, MIN(MAX_COLORS, maximum_colors));
-    if (img.colorCount() > 0 && (size_t)img.colorCount() <= maximum_colors) return img; // Image is already quantized
     if (img.hasAlphaChannel()) throw std::out_of_range("Cannot quantize image with transparency");
-    if (fmt != QImage::Format_RGB32 && fmt != QImage::Format_Indexed8 && fmt != 24) { // 24 = QImage::Format_Grayscale8
+    if (fmt != QImage::Format_RGB32 && fmt != QImage::Format_Indexed8) { 
         img = img.convertToFormat(QImage::Format_RGB32); 
         if (img.isNull()) throw std::bad_alloc();
-    } else if (fmt == 24) img = img.convertToFormat(QImage::Format_Indexed8);
+    } 
     // There can be no more than MAX_LEAVES * 8 nodes. Add 1 in case there is an off by 1 error somewhere.
     Pool<Node> node_pool((MAX_LEAVES + 1) * 8);  
     if (palette.size() > 0) {
