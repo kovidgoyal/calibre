@@ -370,7 +370,6 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, c
     root.check_compiler();
 
     maximum_colors = MAX(2, MIN(MAX_COLORS, maximum_colors));
-    if (img.colorCount() > 0 && (size_t)img.colorCount() <= maximum_colors) return img; // Image is already quantized
     if (img.hasAlphaChannel()) throw std::out_of_range("Cannot quantize image with transparency");
     if (fmt != QImage::Format_RGB32 && fmt != QImage::Format_Indexed8) { 
         img = img.convertToFormat(QImage::Format_RGB32); 
