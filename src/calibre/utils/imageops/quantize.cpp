@@ -37,6 +37,7 @@ static inline size_t get_index(const uint32_t r, const uint32_t g, const uint32_
 template <typename T> static inline T euclidean_distance(T r1, T g1, T b1, T r2, T g2, T b2) {
     return r1 * r1 + r2 * r2 + g1 * g1 + g2 * g2 + b1 * b1 + b2 * b2 - 2 * (r1 * r2 + g1 * g2 + b1 * b2);
 }
+struct SumPixel { uint64_t red; uint64_t green; uint64_t blue; };
 struct DoublePixel { double red; double green; double blue; };
 
 template <class T> class Pool {  // {{{
@@ -76,12 +77,8 @@ private:
     bool is_leaf;
     unsigned char index;
     uint64_t pixel_count;
-    uint64_t red_sum;
-    uint64_t green_sum;
-    uint64_t blue_sum;
-    unsigned char red_avg;
-    unsigned char green_avg;
-    unsigned char blue_avg;
+    SumPixel sum;
+    DoublePixel avg;
     Node* next_reducible_node;
     Node *next_available_in_pool;
     Node* children[MAX_DEPTH];
@@ -91,16 +88,15 @@ public:
 // Disable the new behavior warning caused by children() below
 #pragma warning( push )
 #pragma warning (disable: 4351)
-    Node() : is_leaf(false), index(0), pixel_count(0), red_sum(0), green_sum(0), blue_sum(0), red_avg(0), green_avg(0), blue_avg(0), next_reducible_node(NULL), next_available_in_pool(NULL), children() {}
+    Node() : is_leaf(false), index(0), pixel_count(0), sum(), avg(), next_reducible_node(NULL), next_available_in_pool(NULL), children() {}
 #pragma warning ( pop )
 #endif
 
     void reset() {
         this->is_leaf = false;
         this->pixel_count = 0;
-        this->red_sum = 0;
-        this->green_sum = 0;
-        this->blue_sum = 0;
+        this->sum.red = 0; this->sum.green = 0; this->sum.blue = 0;
+        this->avg.red = 0; this->avg.green = 0; this->avg.blue = 0;
         this->next_reducible_node = NULL;
         for (size_t i = 0; i < MAX_DEPTH; i++) this->children[i] = NULL;
     }
@@ -124,9 +120,9 @@ public:
     void add_color(const uint32_t r, const uint32_t g, const uint32_t b, const size_t depth, const size_t level, unsigned int *leaf_count, Node **reducible_nodes, Pool<Node> &node_pool) {
         if (this->is_leaf) {
             this->pixel_count++;
-            this->red_sum += r;
-            this->green_sum += g;
-            this->blue_sum += b;
+            this->sum.red += r;
+            this->sum.green += g;
+            this->sum.blue += b;
         } else {
             size_t index = get_index(r, g, b, level);
             if (this->children[index] == NULL) this->children[index] = this->create_child(level, depth, leaf_count, reducible_nodes, node_pool);
@@ -150,9 +146,9 @@ public:
 
         for (i = 0; i < MAX_DEPTH; i++) {
             if (node->children[i] != NULL) {
-                node->red_sum += node->children[i]->red_sum;
-                node->green_sum += node->children[i]->green_sum;
-                node->blue_sum += node->children[i]->blue_sum;
+                node->sum.red += node->children[i]->sum.red;
+                node->sum.green += node->children[i]->sum.green;
+                node->sum.blue += node->children[i]->sum.blue;
                 node->pixel_count += node->children[i]->pixel_count;
                 node_pool.relinquish(node->children[i]); node->children[i] = NULL;
                 (*leaf_count)--;
@@ -165,9 +161,9 @@ public:
         int i;
         Node *child;
         if (this->is_leaf) {
-#define AVG_COLOR(x) ((unsigned char) ((double)this->x / (double)this->pixel_count))
-            this->red_avg = AVG_COLOR(red_sum); this->green_avg = AVG_COLOR(green_sum); this->blue_avg = AVG_COLOR(blue_sum);
-            color_table[*index] = qRgb(this->red_avg, this->green_avg, this->blue_avg); 
+#define AVG_COLOR(x) ((unsigned char) ((double)this->sum.x / (double)this->pixel_count))
+            this->avg.red = AVG_COLOR(red); this->avg.green = AVG_COLOR(green); this->avg.blue = AVG_COLOR(blue);
+            color_table[*index] = qRgb(this->avg.red, this->avg.green, this->avg.blue); 
             this->index = (*index)++;
         } else {
             for (i = 0; i < MAX_DEPTH; i++) {
@@ -176,14 +172,14 @@ public:
                     child->set_palette_colors(color_table, index, compute_parent_averages);
                     if (compute_parent_averages) {
                         this->pixel_count += child->pixel_count;
-                        this->red_sum     += child->pixel_count * child->red_avg; 
-                        this->green_sum   += child->pixel_count * child->green_avg;
-                        this->blue_sum    += child->pixel_count * child->blue_avg;
+                        this->sum.red     += child->pixel_count * child->avg.red; 
+                        this->sum.green   += child->pixel_count * child->avg.green;
+                        this->sum.blue    += child->pixel_count * child->avg.blue;
                     }
                 }
             }
             if (compute_parent_averages) {
-                this->red_avg = AVG_COLOR(red_sum); this->green_avg = AVG_COLOR(green_sum); this->blue_avg = AVG_COLOR(blue_sum);
+                this->avg.red = AVG_COLOR(red); this->avg.green = AVG_COLOR(green); this->avg.blue = AVG_COLOR(blue);
             }
         }
     }
@@ -203,7 +199,7 @@ public:
             for(size_t i = 0; i < MAX_DEPTH; i++) {
                 Node *child = this->children[i];
                 if (child != NULL) {
-                    distance = euclidean_distance<uint64_t>(r, g, b, child->red_avg, child->green_avg, child->blue_avg);
+                    distance = euclidean_distance<uint64_t>(r, g, b, child->avg.red, child->avg.green, child->avg.blue);
                     if (distance < min_distance) { min_distance = distance; index = i; }
                 }
             }
