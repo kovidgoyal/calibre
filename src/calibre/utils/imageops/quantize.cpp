@@ -12,12 +12,12 @@
  * Distributed under terms of the GPL3 license.
  */
 
-#include <algorithm>
+#include "imageops.h"
+#include <stdexcept>
 #include <cmath>
 #include <stdio.h>
 #include <QVector>
 #include <QStringList>
-#include "imageops.h"
 
 // Increasing this number improves quality but also increases running time and memory consumption
 static const size_t MAX_LEAVES = 2000;
@@ -31,6 +31,9 @@ static inline double log2(double x) { return log(x) / log((double)2) ; }
 #endif
 #else
 #include <stdint.h>
+#ifndef UINT64_MAX
+#define UINT64_MAX 18446744073709551615ULL
+#endif
 #endif
 #define MAX_DEPTH 8
 #define MAX_COLORS 256

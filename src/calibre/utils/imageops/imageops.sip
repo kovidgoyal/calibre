@@ -7,6 +7,7 @@
 %Import QtGui/QtGuimod.sip
 %ModuleCode
 #include <imageops.h>
+#include <stdexcept>
 #define IMAGEOPS_PREFIX \
             if (a0->isNull()) { PyErr_SetString(PyExc_ValueError, "Cannot operate on null QImage"); return NULL; } \
             try {

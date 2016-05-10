@@ -5,8 +5,8 @@
  * Distributed under terms of the GPL3 license.
  */
 
-#include <stdexcept>
 #include "imageops.h"
+#include <stdexcept>
 #include <QVector>
 #include <cmath>
 

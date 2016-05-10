@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include <QImage>
 #include <Python.h>
+#include <QImage>
 
 QImage remove_borders(const QImage &image, double fuzz);
 QImage grayscale(const QImage &image);
