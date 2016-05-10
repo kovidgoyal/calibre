@@ -1035,13 +1035,12 @@ def sanitize_env_vars():
     is needed to prevent library conflicts when launching external utilities.'''
 
     if islinux and isfrozen:
-        env_vars = {'LD_LIBRARY_PATH':'/lib', 'QT_PLUGIN_PATH':'/lib/qt_plugins', 'MAGICK_CODER_MODULE_PATH':None, 'MAGICK_CODER_FILTER_PATH':None}
+        env_vars = {'LD_LIBRARY_PATH':'/lib', 'QT_PLUGIN_PATH':'/lib/qt_plugins'}
     elif iswindows:
-        env_vars = {k:None for k in 'MAGICK_HOME MAGICK_CONFIGURE_PATH MAGICK_CODER_MODULE_PATH MAGICK_FILTER_MODULE_PATH QT_PLUGIN_PATH'.split()}
+        env_vars = {k:None for k in 'QT_PLUGIN_PATH'.split()}
     elif isosx:
         env_vars = {k:None for k in (
-                    'FONTCONFIG_FILE FONTCONFIG_PATH MAGICK_CONFIGURE_PATH MAGICK_CODER_MODULE_PATH'
-                    ' MAGICK_FILTER_MODULE_PATH QT_PLUGIN_PATH SSL_CERT_FILE').split()}
+                    'FONTCONFIG_FILE FONTCONFIG_PATH QT_PLUGIN_PATH SSL_CERT_FILE').split()}
     else:
         env_vars = {}
 

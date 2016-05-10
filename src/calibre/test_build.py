@@ -204,13 +204,6 @@ def test_wpd():
         wpd.uninit()
     fprint('WPD OK!')
 
-def test_magick():
-    from calibre.utils.magick import create_canvas, qimage_to_magick
-    i = create_canvas(100, 100)
-    img = i.to_qimage()
-    i = qimage_to_magick(img)
-    fprint('magick OK!')
-
 def test_tokenizer():
     fprint('Testing tinycss tokenizer')
     from tinycss.tokenizer import c_tokenize_flat
@@ -301,7 +294,6 @@ def test():
     test_qt()
     test_html5lib()
     test_regex()
-    test_magick()
     test_tokenizer()
     test_netifaces()
     test_psutil()
