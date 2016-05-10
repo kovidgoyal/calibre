@@ -15,7 +15,6 @@ from setup.build_environment import (
 from setup.installer.windows.wix import WixMixIn
 
 OPENSSL_DIR = os.environ.get('OPENSSL_DIR', os.path.join(SW, 'private', 'openssl'))
-IMAGEMAGICK = os.path.join(SW, 'build', 'ImageMagick-*\\VisualMagick\\bin')
 LZMA = os.path.join(SW, *('private/easylzma/build/easylzma-0.0.8'.split('/')))
 QT_DIR = subprocess.check_output([QMAKE, '-query', 'QT_INSTALL_PREFIX']).decode('utf-8').strip()
 
