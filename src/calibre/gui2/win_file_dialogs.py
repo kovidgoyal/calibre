@@ -44,6 +44,17 @@ def serialize_string(key, val):
         raise ValueError('%s is too long' % key)
     return struct.pack(b'=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
 
+def serialize_file_types(file_types):
+    key = b"FILE_TYPES"
+    buf = [struct.pack(b'=B%dsH' % len(key), len(key), key, len(file_types))]
+    def add(x):
+        x = x.encode('utf-8').replace(b'\0', b'')
+        buf.append(struct.pack(b'=H%ds' % len(x), len(x), x))
+    for name, extensions in file_types:
+        add(name or _('Files'))
+        add('; '.join('*.' + ext.lower() for ext in extensions))
+    return b''.join(buf)
+
 class Helper(Thread):
 
     def __init__(self, process, data, callback):
@@ -85,7 +96,8 @@ def select_initial_dir(q):
 
 def run_file_dialog(
         parent=None, title=None, initial_folder=None, filename=None, save_path=None,
-        allow_multiples=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False
+        allow_multiple=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False,
+        file_types=()
 ):
     data = []
     if parent is not None:
@@ -108,8 +120,8 @@ def run_file_dialog(
                 if not filename:
                     filename = os.path.basename(save_path)
     else:
-        if allow_multiples:
-            data.append(serialize_binary('MULTISELECT', allow_multiples))
+        if allow_multiple:
+            data.append(serialize_binary('MULTISELECT', allow_multiple))
         if only_dirs:
             data.append(serialize_binary('ONLY_DIRS', only_dirs))
     if initial_folder is not None:
@@ -120,6 +132,12 @@ def run_file_dialog(
         if isinstance(filename, bytes):
             filename = filename.decode(filesystem_encoding)
         data.append(serialize_string('FILENAME', filename))
+    if only_dirs:
+        file_types = ()  # file types not allowed for dir only dialogs
+    elif not file_types:
+        file_types = [(_('All files'), ('*',))]
+    if file_types:
+        data.append(serialize_file_types(file_types))
     loop = Loop()
     h = Helper(subprocess.Popen(
         [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
@@ -130,15 +148,22 @@ def run_file_dialog(
         raise Exception('File dialog failed: ' + h.stderrdata.decode('utf-8'))
     if not h.stdoutdata:
         return ()
-    return tuple(x.decode('utf-8') for x in h.stdoutdata.split(b'\0'))
+    ans = tuple(filter(None, (os.path.abspath(x.decode('utf-8')) for x in h.stdoutdata.split(b'\0'))))
+    if len(ans) > 1:
+        ans = ans[:-1]  # For some reason windows returns the initial folder as well, as the last item
+    return ans
 
 if __name__ == '__main__':
     HELPER = sys.argv[-1]
     app = QApplication([])
     q = QMainWindow()
+    _ = lambda x: x
 
     def clicked():
-        print(run_file_dialog(b, 'Testing dialogs', save_as=True, save_path='~/xxx.fdgdfg')), sys.stdout.flush()
+        print(run_file_dialog(
+            b, 'Testing dialogs', only_dirs=False, allow_multiple=True, initial_folder=expanduser('~/build/calibre'),
+            file_types=[('YAML files', ['yaml']), ('All files', '*')]))
+        sys.stdout.flush()
 
     b = QPushButton('click me')
     b.clicked.connect(clicked)
