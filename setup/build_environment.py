@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, glob, re, sys, sysconfig
+import os, subprocess, re, sys, sysconfig
 from distutils.spawn import find_executable
 
 from setup import isosx, iswindows, is64bit, islinux
@@ -172,13 +172,6 @@ if iswindows:
     zlib_lib_dirs = [sw_lib_dir]
     zlib_libs = ['zlib']
 
-    md = glob.glob(os.path.join(prefix, 'build', 'ImageMagick-*'))[-1]
-    if os.path.exists(os.path.join(md, 'ImageMagick/wand/MagickWand.h')):
-        magick_inc_dirs = [os.path.join(md, 'ImageMagick')]
-    else:
-        magick_inc_dirs = [md]
-    magick_lib_dirs = [os.path.join(md, 'VisualMagick', 'lib')]
-    magick_libs = ['CORE_RL_wand_', 'CORE_RL_magick_']
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
@@ -187,9 +180,6 @@ elif isosx:
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     podofo_inc = os.path.join(sw, 'include', 'podofo')
     podofo_lib = os.path.join(sw, 'lib')
-    magick_inc_dirs = consolidate('MAGICK_INC', sw + '/include/ImageMagick-6')
-    magick_lib_dirs = consolidate('MAGICK_LIB', sw + '/lib')
-    magick_libs = ['MagickWand-6.Q16', 'MagickCore-6.Q16']
     png_inc_dirs = consolidate('PNG_INC_DIR', sw + '/include')
     png_lib_dirs = consolidate('PNG_LIB_DIR', sw + '/lib')
     png_libs = ['png12']
@@ -206,16 +196,11 @@ else:
     # Include directories
     png_inc_dirs = pkgconfig_include_dirs('libpng', 'PNG_INC_DIR',
         '/usr/include')
-    magick_inc_dirs = pkgconfig_include_dirs('MagickWand', 'MAGICK_INC', '/usr/include/ImageMagick')
 
     # Library directories
     png_lib_dirs = pkgconfig_lib_dirs('libpng', 'PNG_LIB_DIR', '/usr/lib')
-    magick_lib_dirs = pkgconfig_lib_dirs('MagickWand', 'MAGICK_LIB', '/usr/lib')
 
     # Libraries
-    magick_libs = pkgconfig_libs('MagickWand', '', '')
-    if not magick_libs:
-        magick_libs = ['MagickWand', 'MagickCore']
     png_libs = ['png']
     ft_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR',
             '/usr/include/freetype2')
@@ -228,14 +213,6 @@ else:
         podofo_inc = os.path.join(sw, 'include', 'podofo')
         podofo_lib = os.path.join(sw, 'lib')
 
-
-magick_error = None
-if not magick_inc_dirs or not os.path.exists(os.path.join(magick_inc_dirs[0],
-    'wand')):
-    magick_error = ('ImageMagick not found on your system. '
-            'Try setting the environment variables MAGICK_INC '
-            'and MAGICK_LIB to help calibre locate the include and library '
-            'files.')
 
 podofo_lib = os.environ.get('PODOFO_LIB_DIR', podofo_lib)
 podofo_inc = os.environ.get('PODOFO_INC_DIR', podofo_inc)
