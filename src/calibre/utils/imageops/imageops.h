@@ -19,6 +19,9 @@ void overlay(const QImage &image, QImage &canvas, unsigned int left, unsigned in
 QImage normalize(const QImage &image);
 QImage oil_paint(const QImage &image, const float radius=-1, const bool high_quality=true);
 QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, const QVector<QRgb> &palette);
+bool has_transparent_pixels(const QImage &image);
+QImage set_opacity(const QImage &image, double alpha);
+QImage texture_image(const QImage &image, const QImage &texturei);
 
 class ScopedGILRelease {
 public:

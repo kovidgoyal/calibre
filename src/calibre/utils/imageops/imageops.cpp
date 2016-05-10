@@ -863,3 +863,82 @@ QImage oil_paint(const QImage &image, const float radius, const bool high_qualit
 
     return(buffer);
 } // }}}
+
+bool has_transparent_pixels(const QImage &image) {  // {{{
+    QImage img(image);
+    QImage::Format fmt = img.format();
+    if (!img.hasAlphaChannel()) return false;
+    if (fmt != QImage::Format_ARGB32 && fmt != QImage::Format_ARGB32_Premultiplied) {
+        img = img.convertToFormat(QImage::Format_ARGB32);
+        if (img.isNull()) throw std::bad_alloc();
+    }
+    int w = image.width(), h = image.height();
+    for (int r = 0; r < h; r++) {
+        const QRgb *line = reinterpret_cast<const QRgb*>(img.constScanLine(r));
+        for (int c = 0; c < w; c++) {
+            if (qAlpha(*(line + c)) != 0xff) return true;
+        }
+    }
+    return false;
+} // }}}
+
+QImage set_opacity(const QImage &image, double alpha) {  // {{{
+    QImage img(image);
+    QImage::Format fmt = img.format();
+    if (fmt != QImage::Format_ARGB32) {
+        img = img.convertToFormat(QImage::Format_ARGB32);
+        if (img.isNull()) throw std::bad_alloc();
+    }
+    int w = image.width(), h = image.height();
+    for (int r = 0; r < h; r++) {
+        QRgb *line = reinterpret_cast<QRgb*>(img.scanLine(r));
+        for (int c = 0; c < w; c++) {
+            QRgb pixel = *(line + c);
+            *(line + c) = qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), qAlpha(pixel) * alpha);
+        }
+    }
+    return img;
+} // }}}
+
+QImage texture_image(const QImage &image, const QImage &texturei) {  // {{{
+    QImage canvas(image);
+    QImage texture(texturei);
+    if (texture.isNull()) throw std::out_of_range("Cannot use null texture image");
+    if (canvas.isNull()) throw std::out_of_range("Cannot use null canvas image");
+
+    ENSURE32(canvas); ENSURE32(texture);
+    int x = 0, y = 0, cw = canvas.width(), ch = canvas.height(), tw = texture.width(), th = texture.height();
+    const bool overwrite = !texturei.hasAlphaChannel();
+
+    if (!overwrite) {
+        if (texture.format() != QImage::Format_ARGB32_Premultiplied) {
+            texture = texture.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+            if (texture.isNull()) throw std::bad_alloc();
+        }
+    }
+
+    while (y < ch) {
+        int ylimit = MIN(th, ch - y);
+        x = 0;
+        while (x < cw) {
+            for (int r = 0; r < ylimit; r++) {
+                const QRgb *src = reinterpret_cast<const QRgb*>(texture.constScanLine(r));
+                QRgb *dest = reinterpret_cast<QRgb*>(canvas.scanLine(r + y)) + x;
+                int xlimit = MIN(tw, cw - x);
+                if (overwrite) {
+                    memcpy(dest, src, xlimit * sizeof(QRgb));
+                } else {
+                    for (int c = 0; c < xlimit; c++) {
+                        // See the overlay function() for an explanation of the alpha blending code below
+                        QRgb s = src[c];
+                        if (s >= 0xff000000) dest[c] = s;
+                        else if (s != 0) dest[c] = s + BYTE_MUL(dest[c], qAlpha(~s));
+                    }
+                }
+            }
+            x += tw;
+        }
+        y += th;
+    }
+    return canvas;
+} // }}}

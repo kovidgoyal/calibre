@@ -27,18 +27,8 @@ def get_exe_path(name):
         return name
     return os.path.join(base, name)
 
-_qimage_pixel_map = None
-
-def get_pixel_map():
-    ' Get the order of pixels in QImage (RGBA or BGRA usually) '
-    global _qimage_pixel_map
-    if _qimage_pixel_map is None:
-        i = QImage(1, 1, QImage.Format_ARGB32)
-        i.fill(QColor(0, 1, 2, 3))
-        raw = bytearray(i.constBits().asstring(4))
-        _qimage_pixel_map = {c:raw.index(x) for c, x in zip('RGBA', b'\x00\x01\x02\x03')}
-        _qimage_pixel_map = ''.join(sorted(_qimage_pixel_map, key=_qimage_pixel_map.get))
-    return _qimage_pixel_map
+def null_image():
+    return QImage()
 
 def image_from_data(data):
     if isinstance(data, QImage):
@@ -47,6 +37,21 @@ def image_from_data(data):
     if not i.loadFromData(data):
         raise NotImage('Not a valid image')
     return i
+
+def image_from_path(path):
+    with lopen(path, 'rb') as f:
+        return image_from_data(f.read())
+
+def image_from_x(x):
+    if isinstance(x, type('')):
+        return image_from_path(x)
+    if hasattr(x, 'read'):
+        return image_from_data(x.read())
+    if isinstance(x, (bytes, QImage)):
+        return image_from_data(x)
+    if isinstance(x, bytearray):
+        return image_from_data(bytes(x))
+    raise TypeError('Unknown image src type: %s' % type(x))
 
 def image_and_format_from_data(data):
     ba = QByteArray(data)
@@ -62,10 +67,10 @@ def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#f
         return img
     canvas = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format_RGB32)
     canvas.fill(QColor(border_color))
-    overlay(img, canvas, left, top)
+    overlay_image(img, canvas, left, top)
     return canvas
 
-def overlay(img, canvas=None, left=0, top=0):
+def overlay_image(img, canvas=None, left=0, top=0):
     if canvas is None:
         canvas = QImage(img.size(), QImage.Format_RGB32)
         canvas.fill(Qt.white)
@@ -85,7 +90,7 @@ def overlay(img, canvas=None, left=0, top=0):
 def blend_image(img, bgcolor='#ffffff'):
     canvas = QImage(img.size(), QImage.Format_RGB32)
     canvas.fill(QColor(bgcolor))
-    overlay(img, canvas)
+    overlay_image(img, canvas)
     return canvas
 
 def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
@@ -118,6 +123,12 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     if not w.write(img):
         raise ValueError('Failed to export image as ' + fmt + ' with error: ' + w.errorString())
     return ba.data()
+
+def save_image(img, path, **kw):
+    fmt = path.rpartition('.')[-1]
+    kw['fmt'] = kw.get('fmt', fmt)
+    with lopen(path, 'wb') as f:
+        f.write(image_to_data(image_from_data(img), **kw))
 
 def resize_image(img, width, height):
     return img.scaled(int(width), int(height), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
@@ -174,10 +185,18 @@ def normalize_format_name(fmt):
 
 def grayscale_image(img):
     if imageops is not None:
-        return imageops.grayscale(img)
+        return imageops.grayscale(image_from_data(img))
     return img
 
-def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False):
+def set_image_opacity(img, alpha=0.5):
+    ''' Change the opacity of `img`. Note that the alpha value is multiplied to
+    any existing alpha values, so you cannot use this function to convert a
+    semi-transparent image to an opaque one. For that use `blend_image()`. '''
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    return imageops.set_opacity(image_from_data(img), alpha)
+
+def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False, data_fmt='jpeg'):
     '''
     Saves image in data to path, in the format specified by the path
     extension. Removes any transparency. If there is no transparency and no
@@ -186,6 +205,7 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
 
     :param data: Image data as bytestring
     :param path: If None img data is returned, in JPEG format
+    :param data_fmt: The fmt to return data in when path is None. Defaults to JPEG
     :param compression_quality: The quality of the image after compression.
         Number between 1 and 100. 1 means highest compression, 100 means no
         compression (lossless).
@@ -197,7 +217,7 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
     '''
     img, fmt = image_and_format_from_data(data)
     orig_fmt = normalize_format_name(fmt)
-    fmt = normalize_format_name('jpeg' if path is None else os.path.splitext(path)[1][1:])
+    fmt = normalize_format_name(data_fmt if path is None else os.path.splitext(path)[1][1:])
     changed = fmt != orig_fmt
     if resize_to is not None:
         changed = True
@@ -228,7 +248,7 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
         w, h = nw, nh
     canvas = QImage(width, height, QImage.Format_RGB32)
     canvas.fill(QColor(bgcolor))
-    overlay(img, canvas, (width - w)//2, (height - h)//2)
+    overlay_image(img, canvas, (width - w)//2, (height - h)//2)
     return canvas
 
 class Canvas(object):
@@ -245,13 +265,27 @@ class Canvas(object):
 
     def compose(self, img, x=0, y=0):
         img = image_from_data(img)
-        overlay(img, self.img, x, y)
+        overlay_image(img, self.img, x, y)
 
     def export(self, fmt='JPEG', compression_quality=95):
         return image_to_data(self.img, compression_quality=compression_quality, fmt=fmt)
 
+def create_canvas(width, height, bgcolor='#ffffff'):
+    img = QImage(width, height, QImage.Format_RGB32)
+    img.fill(QColor(bgcolor))
+    return img
+
 def flip_image(img, horizontal=False, vertical=False):
     return image_from_data(img).mirrored(horizontal, vertical)
+
+def image_has_transparent_pixels(img):
+    ' Return True iff the image has at least one semi-transparent pixel '
+    img = image_from_data(img)
+    if img.isNull():
+        return False
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    return imageops.has_transparent_pixels(img)
 
 def rotate_image(img, degrees):
     t = QTransform()
@@ -313,6 +347,14 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
     if palette and isinstance(palette, basestring):
         palette = palette.split()
     return imageops.quantize(img, max_colors, dither, [QColor(x).rgb() for x in palette])
+
+def texture_image(canvas, texture):
+    ' Repeatedly tile the image `texture` across and down the image `canvas` '
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    if canvas.hasAlphaChannel():
+        canvas = blend_image(canvas)
+    return imageops.texture_image(canvas, texture)
 
 # Optimization of images {{{
 
