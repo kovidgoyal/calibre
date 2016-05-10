@@ -148,9 +148,7 @@ def run_file_dialog(
         raise Exception('File dialog failed: ' + h.stderrdata.decode('utf-8'))
     if not h.stdoutdata:
         return ()
-    ans = tuple(filter(None, (os.path.abspath(x.decode('utf-8')) for x in h.stdoutdata.split(b'\0'))))
-    if len(ans) > 1:
-        ans = ans[:-1]  # For some reason windows returns the initial folder as well, as the last item
+    ans = tuple((os.path.abspath(x.decode('utf-8')) for x in h.stdoutdata.split(b'\0') if x))
     return ans
 
 if __name__ == '__main__':
