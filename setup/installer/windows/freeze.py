@@ -17,7 +17,6 @@ from setup.installer.windows.wix import WixMixIn
 
 OPENSSL_DIR = os.environ.get('OPENSSL_DIR', os.path.join(SW, 'private', 'openssl'))
 SW               = r'C:\cygwin64\home\kovid\sw'
-IMAGEMAGICK = os.path.join(SW, 'build', 'ImageMagick-*\\VisualMagick\\bin')
 CRT = r'C:\Microsoft.VC90.CRT'
 LZMA = os.path.join(SW, *('private/easylzma/build/easylzma-0.0.8'.split('/')))
 QT_DIR = subprocess.check_output([QMAKE, '-query', 'QT_INSTALL_PREFIX']).decode('utf-8').strip()
@@ -337,18 +336,6 @@ class Win32Freeze(Command, WixMixIn):
             msrc = self.j(bindir, x+'.manifest')
             if os.path.exists(msrc):
                 shutil.copy2(msrc, self.dll_dir)
-
-        # Copy ImageMagick
-        impath = glob.glob(IMAGEMAGICK)[-1]
-        for pat in ('*.dll', '*.xml'):
-            for f in glob.glob(self.j(impath, pat)):
-                ok = True
-                for ex in ('magick++', 'x11.dll', 'xext.dll'):
-                    if ex in f.lower():
-                        ok = False
-                if not ok:
-                    continue
-                shutil.copy2(f, self.dll_dir)
 
     def embed_manifests(self):
         self.info('Embedding remaining manifests...')
@@ -685,10 +672,6 @@ class Win32Freeze(Command, WixMixIn):
                         # from files
                         'unrar.pyd', 'wpd.pyd', 'podofo.pyd', 'imageops.pyd',
                         'progress_indicator.pyd', 'hunspell.pyd',
-                        # As per this https://bugs.launchpad.net/bugs/1087816
-                        # on some systems magick.pyd fails to load from memory
-                        # on 64 bit
-                        'magick.pyd',
                         # dupypy crashes when loaded from the zip file
                         'dukpy.pyd',
                         }:

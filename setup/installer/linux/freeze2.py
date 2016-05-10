@@ -76,8 +76,7 @@ def binary_includes():
         'podofo.so.0.9.3', 'z.so.1', 'bz2.so.1.0', 'poppler.so.56',
         'iconv.so.2', 'xml2.so.2', 'xslt.so.1', 'jpeg.so.8', 'png16.so.16', 'webp.so.5',
         'exslt.so.0', 'imobiledevice.so.5', 'usbmuxd.so.4', 'plist.so.3',
-        'MagickCore-6.Q16.so.2', 'MagickWand-6.Q16.so.2', 'ssl.so.1.0.0',
-        'crypto.so.1.0.0', 'readline.so.6', 'chm.so.0', 'icudata.so.53',
+        'ssl.so.1.0.0', 'crypto.so.1.0.0', 'readline.so.6', 'chm.so.0', 'icudata.so.53',
         'icui18n.so.53', 'icuuc.so.53', 'icuio.so.53', 'python%s.so.1.0' % py_ver,
         'gcrypt.so.20', 'gpg-error.so.0', 'gobject-2.0.so.0', 'glib-2.0.so.0',
         'gthread-2.0.so.0', 'gmodule-2.0.so.0', 'gio-2.0.so.0', 'dbus-glib-1.so.2',
@@ -197,11 +196,6 @@ class LinuxFreeze(Command):
         os.mkdir(dest)
         for x in QT_PLUGINS:
             shutil.copytree(self.j(base, x), self.j(dest, x))
-
-        im = glob.glob(SW + '/lib/ImageMagick-*')[-1]
-        self.magick_base = os.path.basename(im)
-        dest = self.j(self.lib_dir, self.magick_base)
-        shutil.copytree(im, dest, ignore=shutil.ignore_patterns('*.a'))
 
     def copy_python(self):
         self.info('Copying python...')
@@ -328,7 +322,7 @@ class LinuxFreeze(Command):
         functions['console'].append('main')
         c_launcher = '/tmp/calibre-c-launcher'
         lsrc = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'launcher.c')
-        cmd = ['gcc', '-O2', '-DMAGICK_BASE="%s"' % self.magick_base, '-o', c_launcher, lsrc, ]
+        cmd = ['gcc', '-O2', '-o', c_launcher, lsrc, ]
         self.info('Compiling launcher')
         self.run_builder(cmd, verbose=False)
 

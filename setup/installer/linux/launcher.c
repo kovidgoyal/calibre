@@ -36,11 +36,6 @@ int main(int argc, char **argv) {
     else snprintf(buf, PATHLEN, "%s/qt_plugins:%s", lib, ldp);
     SET("QT_PLUGIN_PATH", buf);
 
-    memset(buf, 0, PATHLEN); snprintf(buf, PATHLEN, "%s/%s/modules-Q16/coders", lib, MAGICK_BASE);
-    SET("MAGICK_CODER_MODULE_PATH", buf)
-    memset(buf, 0, PATHLEN); snprintf(buf, PATHLEN, "%s/%s/modules-Q16/filters", lib, MAGICK_BASE);
-    SET("MAGICK_CODER_FILTER_PATH", buf)
-
     memset(buf, 0, PATHLEN);
     ldp = getenv("LD_LIBRARY_PATH");
     if (ldp == NULL) strncpy(buf, lib, PATHLEN);
