@@ -36,7 +36,7 @@ def get_hwnd(widget=None):
 def serialize_hwnd(hwnd):
     if hwnd is None:
         return b''
-    return struct.pack(b'=' + (b'B4sQ' if is64bit else b'I'), 4, b'HWND', int(hwnd))
+    return struct.pack(b'=B4s' + (b'Q' if is64bit else b'I'), 4, b'HWND', int(hwnd))
 
 def serialize_binary(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
