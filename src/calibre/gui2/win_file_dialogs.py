@@ -13,12 +13,17 @@ is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
 HELPER = os.path.join(base, 'calibre-file-dialogs.exe')
 
+def is_ok():
+    return os.path.exists(HELPER)
+
 try:
     from calibre.constants import filesystem_encoding
     from calibre.utils.filenames import expanduser
+    from calibre.utils.config import dynamic
 except ImportError:
     filesystem_encoding = 'utf-8'
     expanduser = os.path.expanduser
+    dynamic = {}
 
 def get_hwnd(widget=None):
     ewid = None
@@ -52,6 +57,8 @@ def serialize_file_types(file_types):
         buf.append(struct.pack(b'=H%ds' % len(x), len(x), x))
     for name, extensions in file_types:
         add(name or _('Files'))
+        if isinstance(extensions, basestring):
+            extensions = extensions.split()
         add('; '.join('*.' + ext.lower() for ext in extensions))
     return b''.join(buf)
 
@@ -100,9 +107,10 @@ def run_file_dialog(
         file_types=()
 ):
     data = []
+    parent = parent or None
     if parent is not None:
         data.append(serialize_hwnd(get_hwnd(parent)))
-    if title is not None:
+    if title:
         data.append(serialize_string('TITLE', title))
     if no_symlinks:
         data.append(serialize_binary('NO_SYMLINKS', no_symlinks))
@@ -150,6 +158,61 @@ def run_file_dialog(
         return ()
     ans = tuple((os.path.abspath(x.decode('utf-8')) for x in h.stdoutdata.split(b'\0') if x))
     return ans
+
+def get_initial_folder(name, title, default_dir='~', no_save_dir=False):
+    name = name or 'dialog_' + title
+    if no_save_dir:
+        initial_folder = expanduser(default_dir)
+    else:
+        initial_folder = dynamic.get(name, expanduser(default_dir))
+    if not initial_folder or not os.path.isdir(initial_folder):
+        initial_folder = select_initial_dir(initial_folder)
+    return name, initial_folder
+
+def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
+    name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
+    ans = run_file_dialog(window, title, only_dirs=True, initial_folder=initial_folder)
+    if ans:
+        ans = ans[0]
+        if not no_save_dir:
+            dynamic.set(name, ans)
+        return ans
+
+def choose_files(window, name, title,
+                 filters=(), all_files=True, select_only_single_file=False, default_dir=u'~'):
+    name, initial_folder = get_initial_folder(name, title, default_dir)
+    file_types = list(filters)
+    if all_files:
+        file_types.append((_('All files'), ['*']))
+    ans = run_file_dialog(window, title, allow_multiple=not select_only_single_file, initial_folder=initial_folder, file_types=file_types)
+    if ans:
+        dynamic.set(name, os.path.dirname(ans[0]))
+        return ans
+    return None
+
+def choose_images(window, name, title, select_only_single_file=True,
+                  formats=('png', 'gif', 'jpg', 'jpeg', 'svg')):
+    file_types = [(_('Images'), list(formats))]
+    return choose_files(window, name, title, select_only_single_file=select_only_single_file, filters=file_types)
+
+def choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
+    no_save_dir = False
+    default_dir = '~'
+    filename = initial_filename
+    if initial_path is not None:
+        no_save_dir = True
+        default_dir = select_initial_dir(initial_path)
+        filename = os.path.basename(initial_path)
+    file_types = list(filters)
+    if all_files:
+        file_types.append((_('All files'), ['*']))
+    name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
+    ans = run_file_dialog(window, title, save_as=True, initial_folder=initial_folder, filename=filename, file_types=file_types)
+    if ans:
+        ans = ans[0]
+        if not no_save_dir:
+            dynamic.set(name, ans)
+        return ans
 
 def test():
     p = subprocess.Popen([HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
