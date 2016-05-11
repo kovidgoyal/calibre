@@ -101,17 +101,12 @@ def test_fsevents():
     fprint('macfsevents OK!')
 
 def test_winutil():
-    from calibre.devices.scanner import win_pnp_drives
     from calibre.constants import plugins
     winutil = plugins['winutil'][0]
-    try:
-        matches = win_pnp_drives.scanner()
-    except winutil.DriveError:
-        fprint('No removable drives found, skipping win_pnp_drives test!')
-        return
-    if len(matches) < 1:
-        raise RuntimeError('win_pnp_drives returned no drives')
-    fprint('win_pnp_drives OK!')
+    for x in winutil.argv():
+        if not isinstance(x, unicode):
+            raise ValueError('argv() not returning unicode string')
+    fprint('winutil OK!')
 
 def test_sqlite():
     import sqlite3
