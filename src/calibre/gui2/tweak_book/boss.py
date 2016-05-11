@@ -1037,8 +1037,10 @@ class Boss(QObject):
             return error_dialog(self.gui, _('Cannot save a copy'), _(
                 'Saving a copy of a folder based book is not supported'), show=True)
         ext = c.path_to_ebook.rpartition('.')[-1]
-        path = choose_save_file(self.gui, 'tweak_book_save_copy', _(
-            'Choose path'), filters=[(_('Book (%s)') % ext.upper(), [ext.lower()])], all_files=False)
+        path = choose_save_file(
+            self.gui, 'tweak_book_save_copy', _('Choose path'),
+            initial_filename=self.current_metadata.title + '.' + ext,
+            filters=[(_('Book (%s)') % ext.upper(), [ext.lower()])], all_files=False)
         if not path:
             return
         tdir = self.mkdtemp(prefix='save-copy-')
