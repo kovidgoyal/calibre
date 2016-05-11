@@ -403,7 +403,7 @@ class RecursiveFetcher(object):
                         data = image_to_data(img, fmt=itype)
                     if self.compress_news_images and itype in {'jpg','jpeg'}:
                         try:
-                            data = self.rescale_image(img)
+                            data = self.rescale_image(data)
                         except Exception:
                             self.log.exception('failed to compress image '+iurl)
                     # Moon+ apparently cannot handle .jpeg files
