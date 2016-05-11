@@ -41,6 +41,7 @@ DESCRIPTIONS = {
         'calibre-parallel': 'calibre worker process',
         'calibre-smtp' : 'Command line interface for sending books via email',
         'calibre-eject' : 'Helper program for ejecting connected reader devices',
+        'calibre-file-dialogs' : 'Helper program to show file open/save dialogs',
 }
 
 def walk(dir):
@@ -129,7 +130,7 @@ class Win32Freeze(Command, WixMixIn):
 
         self.initbase()
         self.build_launchers()
-        self.build_eject()
+        self.build_utils()
         self.add_plugins()
         self.freeze()
         self.embed_manifests()
@@ -579,20 +580,23 @@ class Win32Freeze(Command, WixMixIn):
         finally:
             os.chdir(cwd)
 
-    def build_eject(self):
-        self.info('Building calibre-eject.exe')
+    def build_utils(self):
+        def build(src, name, subsys='CONSOLE', libs='setupapi.lib'.split()):
+            self.info('Building '+name)
+            obj = self.j(self.obj_dir, self.b(src)+'.obj')
+            cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
+            if self.newer(obj, src):
+                ftype = '/T' + ('c' if src.endswith('.c') else 'p')
+                cmd = [msvc.cc] + cflags + ['/Fo'+obj, ftype + src]
+                self.run_builder(cmd, show_output=True)
+            exe = self.j(self.base, name)
+            cmd = [msvc.linker] + ['/MACHINE:'+machine,
+                    '/SUBSYSTEM:'+subsys, '/RELEASE',
+                    '/OUT:'+exe] + [self.embed_resources(exe), obj] + libs
+            self.run_builder(cmd)
         base = self.j(self.src_root, 'setup', 'installer', 'windows')
-        src = self.j(base, 'eject.c')
-        obj = self.j(self.obj_dir, self.b(src)+'.obj')
-        cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
-        if self.newer(obj, src):
-            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
-            self.run_builder(cmd, show_output=True)
-        exe = self.j(self.base, 'calibre-eject.exe')
-        cmd = [msvc.linker] + ['/MACHINE:'+machine,
-                '/SUBSYSTEM:CONSOLE', '/RELEASE',
-                '/OUT:'+exe] + [self.embed_resources(exe), obj, 'setupapi.lib']
-        self.run_builder(cmd)
+        build(self.j(base, 'file_dialogs.cpp'), 'calibre-file-dialogs.exe', 'WINDOWS', 'Ole32.lib Shell32.lib'.split())
+        build(self.j(base, 'eject.c'), 'calibre-eject.exe')
 
     def build_launchers(self, debug=False):
         if not os.path.exists(self.obj_dir):
