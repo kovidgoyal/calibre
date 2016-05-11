@@ -151,8 +151,18 @@ def run_file_dialog(
     ans = tuple((os.path.abspath(x.decode('utf-8')) for x in h.stdoutdata.split(b'\0') if x))
     return ans
 
+def test():
+    p = subprocess.Popen([HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    echo = '\U0001f431 Hello world!'
+    stdout, stderr = p.communicate(serialize_string('ECHO', echo))
+    if p.wait() != 0:
+        raise Exception('File dialog failed: ' + stderr.decode('utf-8'))
+    if stdout.decode('utf-8') != echo:
+        raise RuntimeError('Unexpected response: %s' % stdout.decode('utf-8'))
+
 if __name__ == '__main__':
     HELPER = sys.argv[-1]
+    test()
     app = QApplication([])
     q = QMainWindow()
     _ = lambda x: x

@@ -94,7 +94,7 @@ static void print_com_error(HRESULT hr, const char *msg) {
     int sz = 0;
     const char *buf = to_utf8(emsg, &sz);
     if (buf == NULL) { fprintf(stderr, "%s", msg); }
-    else { fprintf(stderr, "%s: (HRESULT=0x%x) %s\n", msg, hr, emsg); }
+    else { fprintf(stderr, "%s: (HRESULT=0x%x) %s\n", msg, hr, buf); }
     fflush(stderr);
 }
 
@@ -188,7 +188,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	HWND parent = NULL;
 	bool save_dialog = false, multiselect = false, confirm_overwrite = false, only_dirs = false, no_symlinks = false;
 	unsigned short len = 0;
-	LPWSTR title = NULL, folder = NULL, filename = NULL, save_path = NULL;
+	LPWSTR title = NULL, folder = NULL, filename = NULL, save_path = NULL, echo = NULL;
     COMDLG_FILTERSPEC *file_types = NULL;
     UINT num_file_types = 0;
 
@@ -208,7 +208,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 			READ(sizeof(HWND), buf);
 			if (sizeof(HWND) == 8) parent = (HWND)*((__int64*)buf);
 			else if (sizeof(HWND) == 4) parent = (HWND)*((__int32*)buf);
-			else { fprintf(stderr, "Unknown pointer size: %d", sizeof(HWND)); fflush(stderr); return 1;}
+			else { fprintf(stderr, "Unknown pointer size: %zd", sizeof(HWND)); fflush(stderr); return 1;}
 		}
 
 		else if CHECK_KEY("TITLE") { READSTR(title) }
@@ -231,11 +231,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
         else if CHECK_KEY("FILE_TYPES") { file_types = read_file_types(&num_file_types); if (file_types == NULL) return 1; }
 
+        else if CHECK_KEY("ECHO") { READSTR(echo) }
+
 		else {
 			PRINTERR("Unknown key");
 			return 1;
 		}
 	}
+
+    if (echo != NULL) { 
+        int echo_sz = 0;
+        char *echo_buf = to_utf8(echo, &echo_sz);
+        fprintf(stdout, "%s", echo_buf); 
+        return 0; 
+    }
 
 	return show_dialog(parent, save_dialog, title, folder, filename, save_path, multiselect, confirm_overwrite, only_dirs, no_symlinks, file_types, num_file_types);
 }

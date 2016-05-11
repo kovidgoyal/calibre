@@ -177,6 +177,11 @@ def test_imaging():
         raise RuntimeError('PIL choked!')
     fprint('PIL OK!')
 
+def test_file_dialog_helper():
+    from calibre.gui2.win_file_dialogs import test
+    test()
+    print('File dialog helper OK!')
+
 def test_unrar():
     from calibre.utils.unrar import test_basic
     test_basic()
@@ -304,6 +309,7 @@ def test():
     if iswindows:
         test_wpd()
         test_winutil()
+        test_file_dialog_helper()
     else:
         test_terminal()
     if isosx:
