@@ -7,7 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import sys, subprocess, struct, os
 from threading import Thread
 
-from PyQt5.Qt import QMainWindow, QApplication, QPushButton, pyqtSignal, QEventLoop, Qt
+from PyQt5.Qt import pyqtSignal, QEventLoop, Qt
 
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
@@ -106,6 +106,9 @@ def run_file_dialog(
         allow_multiple=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False,
         file_types=()
 ):
+    from calibre.gui2 import sanitize_env_vars
+    with sanitize_env_vars():
+        env = os.environ.copy()
     data = []
     parent = parent or None
     if parent is not None:
@@ -148,7 +151,7 @@ def run_file_dialog(
         data.append(serialize_file_types(file_types))
     loop = Loop()
     h = Helper(subprocess.Popen(
-        [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
+        [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, env=env),
                data, loop.dialog_closed.emit)
     h.start()
     loop.exec_(QEventLoop.ExcludeUserInputEvents)
@@ -222,22 +225,3 @@ def test():
         raise Exception('File dialog failed: ' + stderr.decode('utf-8'))
     if stdout.decode('utf-8') != echo:
         raise RuntimeError('Unexpected response: %s' % stdout.decode('utf-8'))
-
-if __name__ == '__main__':
-    HELPER = sys.argv[-1]
-    test()
-    app = QApplication([])
-    q = QMainWindow()
-    _ = lambda x: x
-
-    def clicked():
-        print(run_file_dialog(
-            b, 'Testing dialogs', only_dirs=False, allow_multiple=True, initial_folder=expanduser('~/build/calibre'),
-            file_types=[('YAML files', ['yaml']), ('All files', '*')]))
-        sys.stdout.flush()
-
-    b = QPushButton('click me')
-    b.clicked.connect(clicked)
-    q.setCentralWidget(b)
-    q.show()
-    app.exec_()
