@@ -17,7 +17,6 @@ from setup.installer.windows.wix import WixMixIn
 
 OPENSSL_DIR = os.environ.get('OPENSSL_DIR', os.path.join(SW, 'private', 'openssl'))
 SW               = r'C:\cygwin64\home\kovid\sw'
-IMAGEMAGICK = os.path.join(SW, 'build', 'ImageMagick-*\\VisualMagick\\bin')
 CRT = r'C:\Microsoft.VC90.CRT'
 LZMA = os.path.join(SW, *('private/easylzma/build/easylzma-0.0.8'.split('/')))
 QT_DIR = subprocess.check_output([QMAKE, '-query', 'QT_INSTALL_PREFIX']).decode('utf-8').strip()
@@ -42,6 +41,7 @@ DESCRIPTIONS = {
         'calibre-parallel': 'calibre worker process',
         'calibre-smtp' : 'Command line interface for sending books via email',
         'calibre-eject' : 'Helper program for ejecting connected reader devices',
+        'calibre-file-dialogs' : 'Helper program to show file open/save dialogs',
 }
 
 def walk(dir):
@@ -130,7 +130,7 @@ class Win32Freeze(Command, WixMixIn):
 
         self.initbase()
         self.build_launchers()
-        self.build_eject()
+        self.build_utils()
         self.add_plugins()
         self.freeze()
         self.embed_manifests()
@@ -337,18 +337,6 @@ class Win32Freeze(Command, WixMixIn):
             msrc = self.j(bindir, x+'.manifest')
             if os.path.exists(msrc):
                 shutil.copy2(msrc, self.dll_dir)
-
-        # Copy ImageMagick
-        impath = glob.glob(IMAGEMAGICK)[-1]
-        for pat in ('*.dll', '*.xml'):
-            for f in glob.glob(self.j(impath, pat)):
-                ok = True
-                for ex in ('magick++', 'x11.dll', 'xext.dll'):
-                    if ex in f.lower():
-                        ok = False
-                if not ok:
-                    continue
-                shutil.copy2(f, self.dll_dir)
 
     def embed_manifests(self):
         self.info('Embedding remaining manifests...')
@@ -592,20 +580,23 @@ class Win32Freeze(Command, WixMixIn):
         finally:
             os.chdir(cwd)
 
-    def build_eject(self):
-        self.info('Building calibre-eject.exe')
+    def build_utils(self):
+        def build(src, name, subsys='CONSOLE', libs='setupapi.lib'.split()):
+            self.info('Building '+name)
+            obj = self.j(self.obj_dir, self.b(src)+'.obj')
+            cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
+            if self.newer(obj, src):
+                ftype = '/T' + ('c' if src.endswith('.c') else 'p')
+                cmd = [msvc.cc] + cflags + ['/Fo'+obj, ftype + src]
+                self.run_builder(cmd, show_output=True)
+            exe = self.j(self.base, name)
+            cmd = [msvc.linker] + ['/MACHINE:'+machine,
+                    '/SUBSYSTEM:'+subsys, '/RELEASE',
+                    '/OUT:'+exe] + [self.embed_resources(exe), obj] + libs
+            self.run_builder(cmd)
         base = self.j(self.src_root, 'setup', 'installer', 'windows')
-        src = self.j(base, 'eject.c')
-        obj = self.j(self.obj_dir, self.b(src)+'.obj')
-        cflags  = '/c /EHsc /MD /W3 /Ox /nologo /D_UNICODE'.split()
-        if self.newer(obj, src):
-            cmd = [msvc.cc] + cflags + ['/Fo'+obj, '/Tc'+src]
-            self.run_builder(cmd, show_output=True)
-        exe = self.j(self.base, 'calibre-eject.exe')
-        cmd = [msvc.linker] + ['/MACHINE:'+machine,
-                '/SUBSYSTEM:CONSOLE', '/RELEASE',
-                '/OUT:'+exe] + [self.embed_resources(exe), obj, 'setupapi.lib']
-        self.run_builder(cmd)
+        build(self.j(base, 'file_dialogs.cpp'), 'calibre-file-dialogs.exe', 'WINDOWS', 'Ole32.lib Shell32.lib'.split())
+        build(self.j(base, 'eject.c'), 'calibre-eject.exe')
 
     def build_launchers(self, debug=False):
         if not os.path.exists(self.obj_dir):
@@ -685,10 +676,6 @@ class Win32Freeze(Command, WixMixIn):
                         # from files
                         'unrar.pyd', 'wpd.pyd', 'podofo.pyd', 'imageops.pyd',
                         'progress_indicator.pyd', 'hunspell.pyd',
-                        # As per this https://bugs.launchpad.net/bugs/1087816
-                        # on some systems magick.pyd fails to load from memory
-                        # on 64 bit
-                        'magick.pyd',
                         # dupypy crashes when loaded from the zip file
                         'dukpy.pyd',
                         }:

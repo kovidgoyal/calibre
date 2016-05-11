@@ -925,7 +925,7 @@ class BasicNewsRecipe(Recipe):
                 if (link.get('type') or '').lower() == 'text/css' and (link.get('rel') or '').lower() == 'stylesheet':
                     link.extract()
             for style in soup.findAll('style'):
-                soup.extract()
+                style.extract()
         head = soup.find('head')
         if not head:
             head = soup.find('body')

@@ -4314,8 +4314,7 @@ class CatalogBuilder(object):
         """ Create thumbnail of cover or return previously cached thumb.
 
         Test thumb archive for currently cached cover. Return cached version, or create
-        and cache new version. Uses calibre.utils.magick.draw to generate thumbnail from
-        cover.
+        and cache new version.
 
         Args:
          title (dict): book metadata

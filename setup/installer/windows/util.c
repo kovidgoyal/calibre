@@ -223,10 +223,6 @@ void load_python_dll() {
     _snprintf_s(qt_plugin_dir, l, _TRUNCATE, "%sqt_plugins", app_dir);
     free(app_dir);
 
-    _putenv_s("MAGICK_HOME", dll_dir);
-    _putenv_s("MAGICK_CONFIGURE_PATH", dll_dir);
-    _putenv_s("MAGICK_CODER_MODULE_PATH", dll_dir);
-    _putenv_s("MAGICK_FILTER_MODULE_PATH", dll_dir);
     _putenv_s("QT_PLUGIN_PATH", qt_plugin_dir);
 
     if (!SetDllDirectoryA(dll_dir)) ExitProcess(show_last_error(L"Failed to set DLL directory."));

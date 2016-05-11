@@ -101,17 +101,12 @@ def test_fsevents():
     fprint('macfsevents OK!')
 
 def test_winutil():
-    from calibre.devices.scanner import win_pnp_drives
     from calibre.constants import plugins
     winutil = plugins['winutil'][0]
-    try:
-        matches = win_pnp_drives.scanner()
-    except winutil.DriveError:
-        fprint('No removable drives found, skipping win_pnp_drives test!')
-        return
-    if len(matches) < 1:
-        raise RuntimeError('win_pnp_drives returned no drives')
-    fprint('win_pnp_drives OK!')
+    for x in winutil.argv():
+        if not isinstance(x, unicode):
+            raise ValueError('argv() not returning unicode string')
+    fprint('winutil OK!')
 
 def test_sqlite():
     import sqlite3
@@ -177,6 +172,11 @@ def test_imaging():
         raise RuntimeError('PIL choked!')
     fprint('PIL OK!')
 
+def test_file_dialog_helper():
+    from calibre.gui2.win_file_dialogs import test
+    test()
+    print('File dialog helper OK!')
+
 def test_unrar():
     from calibre.utils.unrar import test_basic
     test_basic()
@@ -203,13 +203,6 @@ def test_wpd():
     else:
         wpd.uninit()
     fprint('WPD OK!')
-
-def test_magick():
-    from calibre.utils.magick import create_canvas, qimage_to_magick
-    i = create_canvas(100, 100)
-    img = i.to_qimage()
-    i = qimage_to_magick(img)
-    fprint('magick OK!')
 
 def test_tokenizer():
     fprint('Testing tinycss tokenizer')
@@ -301,7 +294,6 @@ def test():
     test_qt()
     test_html5lib()
     test_regex()
-    test_magick()
     test_tokenizer()
     test_netifaces()
     test_psutil()
@@ -312,6 +304,7 @@ def test():
     if iswindows:
         test_wpd()
         test_winutil()
+        test_file_dialog_helper()
     else:
         test_terminal()
     if isosx:

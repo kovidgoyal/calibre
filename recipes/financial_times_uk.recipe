@@ -35,7 +35,7 @@ class FinancialTimes(BasicNewsRecipe):
         if self.username is not None and self.password is not None:
             br.open(self.LOGIN)
             br.select_form(name='login')
-            br['email'   ] = self.username
+            br['email'] = self.username
             br['password'] = self.password
             br.submit()
         return br
@@ -45,7 +45,7 @@ class FinancialTimes(BasicNewsRecipe):
                      ]
     remove_tags = [
         dict(name='div', attrs={'id':'floating-con'}),
-        dict(name=['meta','iframe','base','object','embed','link']),
+        dict(name=['meta','iframe','base','object','embed','link', 'style']),
         dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']}),
         dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()}),
         dict(name='div', attrs={'class':lambda x: x and 'ft-new-story-tools-box' in x.split()}),

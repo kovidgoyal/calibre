@@ -130,7 +130,6 @@ class Plugins(collections.Mapping):
                 'pictureflow',
                 'lzx',
                 'msdes',
-                'magick',
                 'podofo',
                 'cPalmdoc',
                 'progress_indicator',

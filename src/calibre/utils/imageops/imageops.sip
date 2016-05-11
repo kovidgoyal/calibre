@@ -7,6 +7,7 @@
 %Import QtGui/QtGuimod.sip
 %ModuleCode
 #include <imageops.h>
+#include <stdexcept>
 #define IMAGEOPS_PREFIX \
             if (a0->isNull()) { PyErr_SetString(PyExc_ValueError, "Cannot operate on null QImage"); return NULL; } \
             try {
@@ -76,5 +77,26 @@ QImage quantize(const QImage &image, unsigned int maximum_colors, bool dither, c
 %MethodCode
         IMAGEOPS_PREFIX
 			sipRes = new QImage(quantize(*a0, a1, a2, *a3));
+        IMAGEOPS_SUFFIX
+%End
+
+bool has_transparent_pixels(const QImage &image);
+%MethodCode
+        IMAGEOPS_PREFIX
+			sipRes = has_transparent_pixels(*a0);
+        IMAGEOPS_SUFFIX
+%End
+
+QImage set_opacity(const QImage &image, double alpha);
+%MethodCode
+        IMAGEOPS_PREFIX
+			sipRes = new QImage(set_opacity(*a0, a1));
+        IMAGEOPS_SUFFIX
+%End
+
+QImage texture_image(const QImage &image, const QImage &texturei);
+%MethodCode
+        IMAGEOPS_PREFIX
+			sipRes = new QImage(texture_image(*a0, *a1));
         IMAGEOPS_SUFFIX
 %End

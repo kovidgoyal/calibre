@@ -21,13 +21,9 @@ from setup.build_environment import sw as SW, QT_FRAMEWORKS, QT_PLUGINS, PYQT_MO
 from setup.installer.osx.app.sign import current_dir, sign_app
 
 LICENSE = open('LICENSE', 'rb').read()
-MAGICK_HOME='@executable_path/../Frameworks/ImageMagick'
 ENV = dict(
         FONTCONFIG_PATH='@executable_path/../Resources/fonts',
         FONTCONFIG_FILE='@executable_path/../Resources/fonts/fonts.conf',
-        MAGICK_CONFIGURE_PATH=MAGICK_HOME+'/config-Q16',
-        MAGICK_CODER_MODULE_PATH=MAGICK_HOME+'/modules-Q16/coders',
-        MAGICK_CODER_FILTER_PATH=MAGICK_HOME+'/modules-Q16/filters',
         QT_PLUGIN_PATH='@executable_path/../MacOS/qt-plugins',
         PYTHONIOENCODING='UTF-8',
         SSL_CERT_FILE='@executable_path/../Resources/resources/mozilla-ca-certs.pem',
@@ -199,7 +195,6 @@ class Py2App(object):
             self.add_poppler()
             self.add_imaging_libs()
             self.add_fontconfig()
-            self.add_imagemagick()
             self.add_misc_libraries()
 
             self.add_resources()
@@ -453,22 +448,6 @@ class Py2App(object):
         <dir>/usr/share/fonts</dir>
         ''')
         open(fc, 'wb').write(raw)
-
-    @flush
-    def add_imagemagick(self):
-        info('\nAdding ImageMagick')
-        for x in ('Wand-6', 'Core-6'):
-            self.install_dylib(os.path.join(SW, 'lib', 'libMagick%s.Q16.2.dylib'%x))
-        idir = glob.glob(os.path.join(SW, 'lib', 'ImageMagick-*'))[-1]
-        dest = os.path.join(self.frameworks_dir, 'ImageMagick')
-        if os.path.exists(dest):
-            shutil.rmtree(dest)
-        shutil.copytree(idir, dest, True)
-        for x in os.walk(dest):
-            for f in x[-1]:
-                if f.endswith('.so'):
-                    f = join(x[0], f)
-                    self.fix_dependencies_in_lib(f)
 
     @flush
     def add_misc_libraries(self):
