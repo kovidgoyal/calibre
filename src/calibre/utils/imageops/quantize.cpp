@@ -22,13 +22,11 @@
 // Increasing this number improves quality but also increases running time and memory consumption
 static const size_t MAX_LEAVES = 2000;
 
-#ifdef _MSC_VER
+#if defined _MSC_VER && _MSC_VER < 1700
 typedef unsigned __int64 uint64_t;
 typedef __int64 int64_t;
 #define UINT64_MAX _UI64_MAX
-#ifndef log2
 static inline double log2(double x) { return log(x) / log((double)2) ; }
-#endif
 #else
 #include <stdint.h>
 #ifndef UINT64_MAX
@@ -56,8 +54,8 @@ private:
     T *first_available;
 
 public:
-    Pool<T>(size_t size) : nodes(size), first_available(nodes.data()) {
-        for (size_t i = 0; i < size - 1; i++) this->nodes[i].next_available_in_pool = &this->nodes[i+1];
+    Pool<T>(int size) : nodes(size), first_available(nodes.data()) {
+        for (int i = 0; i < size - 1; i++) this->nodes[i].next_available_in_pool = &this->nodes[i+1];
     }
 
     T* checkout() {
@@ -243,7 +241,7 @@ public:
         unsigned char index = get_index(r, g, b, level);
         if (this->children[index] == NULL) {
             uint64_t min_distance = UINT64_MAX, distance;
-            for(size_t i = 0; i < MAX_DEPTH; i++) {
+            for(unsigned char i = 0; i < MAX_DEPTH; i++) {
                 if ((child = this->children[i]) != NULL) {
                     distance = euclidean_distance<uint64_t>(r, g, b, child->avg.red, child->avg.green, child->avg.blue);
                     if (distance < min_distance) { min_distance = distance; index = i; }
