@@ -44,8 +44,9 @@ class FinancialTimes(BasicNewsRecipe):
                         dict(name='div' , attrs={'class':['master-row editorialSection']})
                      ]
     remove_tags = [
+        dict(name='style', attrs={'id':'antiClickjack'}),
         dict(name='div', attrs={'id':'floating-con'}),
-        dict(name=['meta','iframe','base','object','embed','link', 'style']),
+        dict(name=['meta','iframe','base','object','embed','link']),
         dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']}),
         dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()}),
         dict(name='div', attrs={'class':lambda x: x and 'ft-new-story-tools-box' in x.split()}),
