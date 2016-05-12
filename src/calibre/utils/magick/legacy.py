@@ -141,7 +141,7 @@ class Image(object):
         if fmt.lower() == 'gif':
             data = image_to_data(self.img, fmt='PNG', png_compression_level=0)
             from PIL import Image
-            i = Image.open(data)
+            i = Image.open(BytesIO(data))
             buf = BytesIO()
             i.save(buf, 'gif')
             return buf.getvalue()
