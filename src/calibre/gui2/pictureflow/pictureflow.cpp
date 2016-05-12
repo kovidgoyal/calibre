@@ -641,7 +641,7 @@ static QImage prepareSurface(QImage srcimg, int w, int h, bool doReflections, bo
     if (doReflections) {
         // create the reflection
         ht = hs - h;
-        for(x = 0; x < w; x++)
+        for(x = 0; x < w; x++) {
             for(y = 0; y < ht; y++)
             {
                 color = img.pixel(x, img.height()-y-1);
@@ -652,6 +652,7 @@ static QImage prepareSurface(QImage srcimg, int w, int h, bool doReflections, bo
                 b = qBlue(color)  * a / 256 * (ht - y) / ht * 3/5;
                 result.setPixel(h+y, x, qRgb(r, g, b));
             }
+        }
     }
 
     return result;
