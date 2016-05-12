@@ -546,3 +546,21 @@ class SONYDPTS1(USBMS):
     VENDOR_NAME = ['SONY']
     WINDOWS_MAIN_MEM = ['DPT-S1']
     WINDOWS_CARD_A_MEM = ['DPT-S1__SD']
+
+class CERVANTES(USBMS):
+
+    name = 'Bq Cervantes Device Interface'
+    gui_name = 'Bq Cervantes'
+    description    = _('Communicate with the Bq Cervantes')
+    author         = 'Kovid Goyal'
+    supported_platforms = ['windows', 'osx', 'linux']
+    formats = ['epub', 'fb2', 'mobi', 'doc', 'rtf', 'pdf', 'txt']
+    VENDOR_ID   = [0x2a47]
+    PRODUCT_ID  = [0xad78]
+    BCD         = [0x0110]
+
+    EBOOK_DIR_MAIN = 'Books'
+    SCAN_FROM_ROOT = True
+    SUPPORTS_SUB_DIRS = True
+
+
