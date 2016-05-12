@@ -603,10 +603,18 @@ void PictureFlowPrivate::resetSlides()
   }
 }
 
-static QImage prepareSurface(QImage srcimg, int w, int h, bool doReflections, bool preserveAspectRatio)
+static inline quint16 qConvertRgb32To16(uint c)
+{
+   return (((c) >> 3) & 0x001f)
+       | (((c) >> 5) & 0x07e0)
+       | (((c) >> 8) & 0xf800);
+}
+
+static QImage prepareSurface(QImage srcimg, const int w, const int h, bool doReflections, bool preserveAspectRatio)
 {
     // slightly larger, to accommodate for the reflection
-    int hs = int(h * REFLECTION_FACTOR), left = 0, top = 0, a = 0, r = 0, g = 0, b = 0, ht, x, y, bpp;
+    int hs = int(h * REFLECTION_FACTOR), left = 0, top = 0, ht, x, y, bpp;
+    double alpha = 0;
     QImage img = (preserveAspectRatio) ? QImage(w, h, srcimg.format()) : srcimg.scaled(w, h, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     QRgb color;
 
@@ -634,23 +642,22 @@ static QImage prepareSurface(QImage srcimg, int w, int h, bool doReflections, bo
     // transpose the image, this is to speed-up the rendering
     // because we process one column at a time
     // (and much better and faster to work row-wise, i.e in one scanline)
-    for(x = 0; x < w; x++)
-        for(y = 0; y < h; y++)
-            result.setPixel(y, x, img.pixel(x, y));
+    for(x = 0; x < w; x++) {
+        quint16* line = reinterpret_cast<quint16*>(result.scanLine(x));
+        for(y = 0; y < h; y++) {
+            line[y] = qConvertRgb32To16(img.pixel(x, y));
+        }
+    }
 
     if (doReflections) {
         // create the reflection
         ht = hs - h;
         for(x = 0; x < w; x++) {
-            for(y = 0; y < ht; y++)
-            {
-                color = img.pixel(x, img.height()-y-1);
-                //QRgb565 color = img.scanLine(img.height()-y-1) + x*sizeof(QRgb565); //img.pixel(x, img.height()-y-1);
-                a = qAlpha(color);
-                r = qRed(color)   * a / 256 * (ht - y) / ht * 3/5;
-                g = qGreen(color) * a / 256 * (ht - y) / ht * 3/5;
-                b = qBlue(color)  * a / 256 * (ht - y) / ht * 3/5;
-                result.setPixel(h+y, x, qRgb(r, g, b));
+            quint16* line = reinterpret_cast<quint16*>(result.scanLine(x));
+            for(y = 0; y < ht; y++) {
+                color = img.pixel(x, h-y-1);
+                alpha = (qAlpha(color) / 256.0) * ((ht - y) / (double)ht * 3/5.0);
+                line[h+y] = qConvertRgb32To16(qRgb(qRed(color)*alpha, qGreen(color)*alpha, qBlue(color)*alpha));
             }
         }
     }
