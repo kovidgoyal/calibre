@@ -434,6 +434,7 @@ class EditMetadataAction(InterfaceAction):
         dest_id, src_ids = self.books_to_merge(rows)
         mi = self.gui.current_db.new_api.get_proxy_metadata(dest_id)
         title = mi.title
+        hpos = self.gui.library_view.horizontalScrollBar().value()
         if safe_merge:
             if not confirm_merge('<p>'+_(
                 'Book formats and metadata from the selected books '
@@ -484,6 +485,7 @@ class EditMetadataAction(InterfaceAction):
             self.gui.library_view.set_current_row(dest_row)
         cr = self.gui.library_view.currentIndex().row()
         self.gui.library_view.model().refresh_ids((dest_id,), cr)
+        self.gui.library_view.horizontalScrollBar().setValue(hpos)
 
     def add_formats(self, dest_id, src_books, replace=False):
         for src_book in src_books:
