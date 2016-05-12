@@ -12,7 +12,7 @@ from calibre.utils.img import (
     overlay_image, rotate_image, quantize_image, remove_borders_from_image,
     add_borders_to_image, gaussian_blur_image, create_canvas, despeckle_image,
     image_to_data, flip_image, image_has_transparent_pixels, set_image_opacity,
-    gaussian_sharpen_image, texture_image
+    gaussian_sharpen_image, texture_image, grayscale_image
 )
 from calibre.utils.imghdr import identify
 
@@ -54,6 +54,15 @@ class Image(object):
 
     def to_qimage(self):
         return clone_image(self.img)
+
+    @dynamic_property
+    def type(self):
+        def fget(self):
+            return 'TrueColorType'
+        def fset(self, t):
+            if t == 'GrayscaleType':
+                self.img = grayscale_image(self.img)
+        return property(fget=fget, fset=fset)
 
     @dynamic_property
     def format(self):
