@@ -58,10 +58,14 @@ class Image(object):
     @dynamic_property
     def type(self):
         def fget(self):
+            if len(self.img.colorTable()) > 0:
+                return 'PaletteType'
             return 'TrueColorType'
         def fset(self, t):
             if t == 'GrayscaleType':
                 self.img = grayscale_image(self.img)
+            elif t == 'PaletteType':
+                self.img = quantize_image(self.img)
         return property(fget=fget, fset=fset)
 
     @dynamic_property
