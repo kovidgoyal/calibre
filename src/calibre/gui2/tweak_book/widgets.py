@@ -670,6 +670,8 @@ class InsertLink(Dialog):
             ac = self.anchor_cache[name] = []
             for item in set(root.xpath('//*[@id]')) | set(root.xpath('//h:a[@name]', namespaces={'h':XHTML_NS})):
                 frag = item.get('id', None) or item.get('name')
+                if not frag:
+                    continue
                 text = lead_text(item, num_words=4)
                 ac.append((text, frag))
             ac.sort(key=lambda text_frag: primary_sort_key(text_frag[0]))
