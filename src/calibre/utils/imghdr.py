@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from struct import unpack, error
 import os
-from calibre.srv.utils import ReadOnlyFileBuffer
+from calibre.utils.speedups import ReadOnlyFileBuffer
 
 """ Recognize image file formats and sizes based on their first few bytes."""
 
