@@ -625,7 +625,7 @@ static QImage prepareSurface(QImage srcimg, int w, int h, bool doReflections, bo
         result.setText(OFFSET_KEY, QString::number(left));
         result.setText(WIDTH_KEY, QString::number(temp.width()));
         for (y = 0; y < temp.height(); y++) {
-            const uchar *src = temp.scanLine(y);
+            const uchar *src = temp.constScanLine(y);
             uchar *dest = img.scanLine(top + y) + (bpp * left);
             memcpy(dest, src, x);
         }
