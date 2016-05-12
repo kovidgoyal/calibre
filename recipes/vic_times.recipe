@@ -61,7 +61,6 @@ class TimesColonist(BasicNewsRecipe):
 
     masthead_url = 'http://www.timescolonist.com/gmg/img/global/logoTimesColonist.png'
 
-
     url_list = []
     language = 'en_CA'
     __author__ = 'Nick Redding'
@@ -111,18 +110,6 @@ class TimesColonist(BasicNewsRecipe):
             self.log("\nCover unavailable")
             cover = None
         return cover
-
-    def prepare_masthead_image(self, path_to_image, out_path):
-        if self.Kindle_Fire:
-            from calibre.utils.magick import Image, create_canvas
-            img = Image()
-            img.open(path_to_image)
-            width, height = img.size
-            img2 = create_canvas(width, height)
-            img2.compose(img)
-            img2.save(out_path)
-        else:
-            BasicNewsRecipe.prepare_masthead_image(path_to_image, out_path)
 
     def fixChars(self,string):
         # Replace lsquo (\x91)

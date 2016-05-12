@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 import datetime, re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
-from calibre.utils.magick import Image
 
 class AdvancedUserRecipe1282101454(BasicNewsRecipe):
     now = datetime.datetime.now()
@@ -115,15 +114,3 @@ class AdvancedUserRecipe1282101454(BasicNewsRecipe):
             meta_idx = meta.parent.contents.index(meta)
             meta.parent.insert(meta_idx + 1, tag)
 
-    # Starson17 'Convert Images to Grayscale'
-    def postprocess_html(self, soup, first):
-        # process all the images
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
-            iurl = tag['src']
-            img = Image()
-            img.open(iurl)
-            if img < 0:
-                raise RuntimeError('Out of memory')
-            img.type = "GrayscaleType"
-            img.save(iurl)
-        return soup

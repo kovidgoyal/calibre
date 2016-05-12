@@ -4,7 +4,6 @@ __license__ = 'GPL v3'
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.utils.magick import Image
 
 class sportowefakty(BasicNewsRecipe):
     title          = u'SportoweFakty'
@@ -20,10 +19,10 @@ class sportowefakty(BasicNewsRecipe):
     no_stylesheets=True
     ignore_duplicate_articles = {'title', 'url'}
 
-    keep_only_tags = [dict(attrs = {'class' : 'box-article'})]
+    keep_only_tags = [dict(attrs={'class' : 'box-article'})]
     remove_tags =[]
-    remove_tags.append(dict(attrs = {'class' : re.compile(r'^newsStream')}))
-    remove_tags.append(dict(attrs = {'target' : '_blank'}))
+    remove_tags.append(dict(attrs={'class' : re.compile(r'^newsStream')}))
+    remove_tags.append(dict(attrs={'target' : '_blank'}))
 
     feeds          = [
                       (u'Piłka Nożna', u'http://www.sportowefakty.pl/pilka-nozna/index.rss'),
@@ -58,13 +57,3 @@ class sportowefakty(BasicNewsRecipe):
                     alink.replaceWith(tstr)
             return soup
 
-    def postprocess_html(self, soup, first):
-        for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
-            iurl = tag['src']
-            img = Image()
-            img.open(iurl)
-            if img < 0:
-                raise RuntimeError('Out of memory')
-            img.type = "GrayscaleType"
-            img.save(iurl)
-        return soup

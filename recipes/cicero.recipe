@@ -1,7 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class BasicUserRecipe1316245412(BasicNewsRecipe):
-    #from calibre.utils.magick import Image, PixelWand
     title = u'Cicero Online'
     description = u'Magazin f\xfcr politische Kultur (RSS Version)'
     publisher = 'Ringier Publishing GmbH'
