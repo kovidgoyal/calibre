@@ -13,10 +13,18 @@ from calibre import fit_image, force_unicode
 from calibre.constants import iswindows, plugins
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
+
+# Utilitis {{{
 imageops, imageops_err = plugins['imageops']
 
 class NotImage(ValueError):
     pass
+
+def normalize_format_name(fmt):
+    fmt = fmt.lower()
+    if fmt == 'jpg':
+        fmt = 'jpeg'
+    return fmt
 
 def get_exe_path(name):
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
@@ -26,11 +34,16 @@ def get_exe_path(name):
     if not base:
         return name
     return os.path.join(base, name)
+# }}}
+
+# Loading images {{{
 
 def null_image():
+    ' Create an invalid image. For internal use. '
     return QImage()
 
 def image_from_data(data):
+    ' Create an image object from data, which should be a bytestring. '
     if isinstance(data, QImage):
         return data
     i = QImage()
@@ -39,10 +52,12 @@ def image_from_data(data):
     return i
 
 def image_from_path(path):
+    ' Load an image from the specified path. '
     with lopen(path, 'rb') as f:
         return image_from_data(f.read())
 
 def image_from_x(x):
+    ' Create an image from a bytestring or a path or a file like object. '
     if isinstance(x, type('')):
         return image_from_path(x)
     if hasattr(x, 'read'):
@@ -54,45 +69,16 @@ def image_from_x(x):
     raise TypeError('Unknown image src type: %s' % type(x))
 
 def image_and_format_from_data(data):
+    ' Create an image object from the specified data which should be a bytsestring and also return the format of the image '
     ba = QByteArray(data)
     buf = QBuffer(ba)
     buf.open(QBuffer.ReadOnly)
     r = QImageReader(buf)
     fmt = bytes(r.format()).decode('utf-8')
     return r.read(), fmt
+# }}}
 
-def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
-    img = image_from_data(img)
-    if not (left > 0 or right > 0 or top > 0 or bottom > 0):
-        return img
-    canvas = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format_RGB32)
-    canvas.fill(QColor(border_color))
-    overlay_image(img, canvas, left, top)
-    return canvas
-
-def overlay_image(img, canvas=None, left=0, top=0):
-    if canvas is None:
-        canvas = QImage(img.size(), QImage.Format_RGB32)
-        canvas.fill(Qt.white)
-    left, top = int(left), int(top)
-    if imageops is None:
-        # This is for people running from source who have not updated the
-        # binary and so do not have the imageops module
-        from PyQt5.Qt import QPainter
-        from calibre.gui2 import ensure_app
-        ensure_app()
-        p = QPainter(canvas)
-        p.drawImage(left, top, img)
-        p.end()
-    else:
-        imageops.overlay(img, canvas, left, top)
-    return canvas
-
-def blend_image(img, bgcolor='#ffffff'):
-    canvas = QImage(img.size(), QImage.Format_RGB32)
-    canvas.fill(QColor(bgcolor))
-    overlay_image(img, canvas)
-    return canvas
+# Saving images {{{
 
 def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
     '''
@@ -126,76 +112,13 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     return ba.data()
 
 def save_image(img, path, **kw):
+    ''' Save image to the specified path. Image format is taken from the file
+    extension. You can pass the same keyword arguments as for the
+    `image_to_data()` function. '''
     fmt = path.rpartition('.')[-1]
     kw['fmt'] = kw.get('fmt', fmt)
     with lopen(path, 'wb') as f:
         f.write(image_to_data(image_from_data(img), **kw))
-
-def resize_image(img, width, height):
-    return img.scaled(int(width), int(height), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-
-def resize_to_fit(img, width, height):
-    img = image_from_data(img)
-    resize_needed, nw, nh = fit_image(img.width(), img.height(), width, height)
-    if resize_needed:
-        resize_image(img, nw, nh)
-    return resize_needed, img
-
-def scale_image(data, width=60, height=80, compression_quality=70, as_png=False, preserve_aspect_ratio=True):
-    ''' Scale an image, returning it as either JPEG or PNG data (bytestring).
-    Transparency is alpha blended with white when converting to JPEG. Is thread
-    safe and does not require a QApplication. '''
-    # We use Qt instead of ImageMagick here because ImageMagick seems to use
-    # some kind of memory pool, causing memory consumption to sky rocket.
-    img = image_from_data(data)
-    if preserve_aspect_ratio:
-        scaled, nwidth, nheight = fit_image(img.width(), img.height(), width, height)
-        if scaled:
-            img = img.scaled(nwidth, nheight, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-    else:
-        if img.width() != width or img.height() != height:
-            img = img.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-    fmt = 'PNG' if as_png else 'JPEG'
-    w, h = img.width(), img.height()
-    return w, h, image_to_data(img, compression_quality=compression_quality, fmt=fmt)
-
-def crop_image(img, x, y, width, height):
-    '''
-    Return the specified section of the image.
-
-    :param x, y: The top left corner of the crop box
-    :param width, height: The width and height of the crop box. Note that if
-    the crop box exceeds the source images dimensions, width and height will be
-    auto-truncated.
-    '''
-    img = image_from_data(img)
-    width = min(width, img.width() - x)
-    height = min(height, img.height() - y)
-    return img.copy(x, y, width, height)
-
-def clone_image(img):
-    ''' Returns a shallow copy of the image. However, the underlying data buffer
-    will be automatically copied-on-write '''
-    return QImage(img)
-
-def normalize_format_name(fmt):
-    fmt = fmt.lower()
-    if fmt == 'jpg':
-        fmt = 'jpeg'
-    return fmt
-
-def grayscale_image(img):
-    if imageops is not None:
-        return imageops.grayscale(image_from_data(img))
-    return img
-
-def set_image_opacity(img, alpha=0.5):
-    ''' Change the opacity of `img`. Note that the alpha value is multiplied to
-    any existing alpha values, so you cannot use this function to convert a
-    semi-transparent image to an opaque one. For that use `blend_image()`. '''
-    if imageops is None:
-        raise RuntimeError(imageops_err)
-    return imageops.set_opacity(image_from_data(img), alpha)
 
 def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False, data_fmt='jpeg'):
     '''
@@ -240,8 +163,12 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
         return image_to_data(img, compression_quality, fmt) if changed else data
     with lopen(path, 'wb') as f:
         f.write(image_to_data(img, compression_quality, fmt) if changed else data)
+# }}}
+
+# Overlaying images {{{
 
 def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
+    ' Blend the `img` onto a canvas with the specified background color and size '
     w, h = img.width(), img.height()
     scaled, nw, nh = fit_image(w, h, width, height)
     if scaled:
@@ -272,9 +199,135 @@ class Canvas(object):
         return image_to_data(self.img, compression_quality=compression_quality, fmt=fmt)
 
 def create_canvas(width, height, bgcolor='#ffffff'):
+    'Create a blank canvas of the specified size and color '
     img = QImage(width, height, QImage.Format_RGB32)
     img.fill(QColor(bgcolor))
     return img
+
+
+def overlay_image(img, canvas=None, left=0, top=0):
+    ' Overlay the `img` onto the canvas at the specified position '
+    if canvas is None:
+        canvas = QImage(img.size(), QImage.Format_RGB32)
+        canvas.fill(Qt.white)
+    left, top = int(left), int(top)
+    if imageops is None:
+        # This is for people running from source who have not updated the
+        # binary and so do not have the imageops module
+        from PyQt5.Qt import QPainter
+        from calibre.gui2 import ensure_app
+        ensure_app()
+        p = QPainter(canvas)
+        p.drawImage(left, top, img)
+        p.end()
+    else:
+        imageops.overlay(img, canvas, left, top)
+    return canvas
+
+def texture_image(canvas, texture):
+    ' Repeatedly tile the image `texture` across and down the image `canvas` '
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    if canvas.hasAlphaChannel():
+        canvas = blend_image(canvas)
+    return imageops.texture_image(canvas, texture)
+
+def blend_image(img, bgcolor='#ffffff'):
+    ' Used to convert images that have semi-transparent pixels to opaque by blending with the specified color '
+    canvas = QImage(img.size(), QImage.Format_RGB32)
+    canvas.fill(QColor(bgcolor))
+    overlay_image(img, canvas)
+    return canvas
+# }}}
+
+# Image borders {{{
+
+def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
+    img = image_from_data(img)
+    if not (left > 0 or right > 0 or top > 0 or bottom > 0):
+        return img
+    canvas = QImage(img.width() + left + right, img.height() + top + bottom, QImage.Format_RGB32)
+    canvas.fill(QColor(border_color))
+    overlay_image(img, canvas, left, top)
+    return canvas
+
+def remove_borders_from_image(img, fuzz=None):
+    ''' Try to auto-detect and remove any borders from the image. Returns
+    the image itself if no borders could be removed. `fuzz` is a measure of
+    what colors are considered identical (must be a number between 0 and 255 in
+    absolute intensity units). Default is from a tweak whose default value is 10. '''
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
+    ans = imageops.remove_borders(image_from_data(img), max(0, fuzz))
+    return ans if ans.size() != img.size() else img
+# }}}
+
+# Cropping/scaling of images {{{
+
+def resize_image(img, width, height):
+    return img.scaled(int(width), int(height), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+
+def resize_to_fit(img, width, height):
+    img = image_from_data(img)
+    resize_needed, nw, nh = fit_image(img.width(), img.height(), width, height)
+    if resize_needed:
+        resize_image(img, nw, nh)
+    return resize_needed, img
+
+def clone_image(img):
+    ''' Returns a shallow copy of the image. However, the underlying data buffer
+    will be automatically copied-on-write '''
+    return QImage(img)
+
+def scale_image(data, width=60, height=80, compression_quality=70, as_png=False, preserve_aspect_ratio=True):
+    ''' Scale an image, returning it as either JPEG or PNG data (bytestring).
+    Transparency is alpha blended with white when converting to JPEG. Is thread
+    safe and does not require a QApplication. '''
+    # We use Qt instead of ImageMagick here because ImageMagick seems to use
+    # some kind of memory pool, causing memory consumption to sky rocket.
+    img = image_from_data(data)
+    if preserve_aspect_ratio:
+        scaled, nwidth, nheight = fit_image(img.width(), img.height(), width, height)
+        if scaled:
+            img = img.scaled(nwidth, nheight, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    else:
+        if img.width() != width or img.height() != height:
+            img = img.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    fmt = 'PNG' if as_png else 'JPEG'
+    w, h = img.width(), img.height()
+    return w, h, image_to_data(img, compression_quality=compression_quality, fmt=fmt)
+
+def crop_image(img, x, y, width, height):
+    '''
+    Return the specified section of the image.
+
+    :param x, y: The top left corner of the crop box
+    :param width, height: The width and height of the crop box. Note that if
+    the crop box exceeds the source images dimensions, width and height will be
+    auto-truncated.
+    '''
+    img = image_from_data(img)
+    width = min(width, img.width() - x)
+    height = min(height, img.height() - y)
+    return img.copy(x, y, width, height)
+
+# }}}
+
+# Image transformations {{{
+
+def grayscale_image(img):
+    if imageops is not None:
+        return imageops.grayscale(image_from_data(img))
+    return img
+
+def set_image_opacity(img, alpha=0.5):
+    ''' Change the opacity of `img`. Note that the alpha value is multiplied to
+    any existing alpha values, so you cannot use this function to convert a
+    semi-transparent image to an opaque one. For that use `blend_image()`. '''
+    if imageops is None:
+        raise RuntimeError(imageops_err)
+    return imageops.set_opacity(image_from_data(img), alpha)
 
 def flip_image(img, horizontal=False, vertical=False):
     return image_from_data(img).mirrored(horizontal, vertical)
@@ -292,17 +345,6 @@ def rotate_image(img, degrees):
     t = QTransform()
     t.rotate(degrees)
     return image_from_data(img).transformed(t)
-
-def remove_borders_from_image(img, fuzz=None):
-    ''' Try to auto-detect and remove any borders from the image. Returns
-    the image itself if no borders could be removed. `fuzz` is a measure of
-    what colors are considered identical (must be a number between 0 and 255 in
-    absolute intensity units). Default is from a tweak whose default value is 10. '''
-    if imageops is None:
-        raise RuntimeError(imageops_err)
-    fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
-    ans = imageops.remove_borders(image_from_data(img), max(0, fuzz))
-    return ans if ans.size() != img.size() else img
 
 def gaussian_sharpen_image(img, radius=0, sigma=3, high_quality=True):
     if imageops is None:
@@ -349,13 +391,7 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
         palette = palette.split()
     return imageops.quantize(img, max_colors, dither, [QColor(x).rgb() for x in palette])
 
-def texture_image(canvas, texture):
-    ' Repeatedly tile the image `texture` across and down the image `canvas` '
-    if imageops is None:
-        raise RuntimeError(imageops_err)
-    if canvas.hasAlphaChannel():
-        canvas = blend_image(canvas)
-    return imageops.texture_image(canvas, texture)
+# }}}
 
 # Optimization of images {{{
 
