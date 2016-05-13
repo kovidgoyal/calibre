@@ -74,6 +74,7 @@ def overlay_image(img, canvas=None, left=0, top=0):
     if canvas is None:
         canvas = QImage(img.size(), QImage.Format_RGB32)
         canvas.fill(Qt.white)
+    left, top = int(left), int(top)
     if imageops is None:
         # This is for people running from source who have not updated the
         # binary and so do not have the imageops module
