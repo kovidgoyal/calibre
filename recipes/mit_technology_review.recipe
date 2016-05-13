@@ -7,8 +7,18 @@ __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 '''
 technologyreview.com
 '''
-import re
 from calibre.web.feeds.news import BasicNewsRecipe
+
+def absurl(x):
+    if x.startswith('//'):
+        x = 'http:' + x
+    elif not x.startswith('http'):
+        x = "http://www.technologyreview.com" + x
+    return x
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
 
 class MitTechnologyReview(BasicNewsRecipe):
 
@@ -22,52 +32,33 @@ class MitTechnologyReview(BasicNewsRecipe):
     encoding = 'utf-8'
     simultaneous_downloads = 20
     tags = 'news, technology, science'
+    no_stylesheets = True
 
     keep_only_tags = [
-        {'attrs':{'class':['body', 'intro', 'article-magazine', 'byline', 'view-byline', 'sticky-wrap', 'body hack']}},
+        classes('article-topper__topic article-topper__title article-topper__media-wrap article-body__content'),
     ]
-    remove_tags        = [
-        {'name': ['meta', 'link', 'noscript', 'clearfix', 'flag']},
+    remove_tags = [
+        classes('l-article-list'),
     ]
-    no_stylesheets = True
-    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
-
-    extra_css = 'body { font-family: helvetica, sans-serif; } \
-                 h2 { text-align: left; font-size: 1em; font-weight: bold; }}'
 
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
         # find cover
-        self.cover_url = soup.find('li', attrs={'class':'cover'}).find('img', src=True)['src']
+        self.cover_url = absurl(soup.find('a', attrs={'class':'magazine-topper__cover'}).find('img', src=True)['src'])
         # parse articles
-        col = soup.find(attrs={'class':'view-content'})
-        current_section, current_articles = None, []
-        feeds = []
-        for tag in col.findAll(name=['section', 'a'], attrs={'class':['content-block in-this-issue no-border', None]}):
-            if tag.name == 'section':
-                if current_section and current_articles:
-                    feeds.append((current_section, current_articles))
-                current_section = self.tag_to_string(tag.find('h2'))[15:].capitalize()
-                current_articles = []
-                self.log('Found section:', current_section)
-            elif current_section:
-                a=tag  # since tag itself is a <a> tag use it directly instead of using find
-                if a is not None:
-                    if self.tag_to_string(a.h2) == "":
-                        title = self.tag_to_string(a.h1)
-                    else:
-                        title = self.tag_to_string(a.h2) + ": " + self.tag_to_string(a.h1)
-                    if "http://www.technologyreview.com" in a['href']:
-                        url = a['href']
-                    else:
-                        url = "http://www.technologyreview.com" + a['href']
-                    if title and url:
-                        p = tag.find('p', attrs={'class':'columns-off'})
-                        desc = self.tag_to_string(p) if p is not None else ''
-                        current_articles.append({'title':title, 'url':url, 'description':desc})
-                        self.log('\tArticle:', title, '[%s]' % url)
-                        self.log('\t\t', desc)
-        if current_section and current_articles:
-            feeds.append((current_section, current_articles))
-        return feeds
+        current_articles = []
+        for div in soup.findAll(attrs={'class':lambda x: x in
+            'magazine-features-item__top-title magazine-features-item-title author-tz__title feed-tz__title'.split()}):
+            a = div.find('a', href=True)
+            title = self.tag_to_string(a).strip()
+            href = absurl(a['href'])
+            if href and title:
+                current_articles.append({'title':title, 'url':href})
+                self.log(title, '[%s]' % href)
+        return [('Articles', current_articles)]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll(srcset=True):
+            img['src'] = absurl(img['srcset'].split()[0])
+            del img['srcset']
+        return soup
