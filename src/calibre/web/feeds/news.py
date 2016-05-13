@@ -922,7 +922,7 @@ class BasicNewsRecipe(Recipe):
     def _postprocess_html(self, soup, first_fetch, job_info):
         if self.no_stylesheets:
             for link in soup.findAll('link'):
-                if (link.get('type') or '').lower() == 'text/css' and (link.get('rel') or '').lower() == 'stylesheet':
+                if (link.get('type') or 'text/css').lower() == 'text/css' and (link.get('rel') or 'stylesheet').lower() == 'stylesheet':
                     link.extract()
             for style in soup.findAll('style'):
                 style.extract()
