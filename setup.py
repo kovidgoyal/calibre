@@ -1,25 +1,27 @@
 #!/usr/bin/env python2
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import with_statement
+from __future__ import print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, optparse
+import sys, os
+
+def check_version_info():
+    vi = sys.version_info
+    if vi[0] == 2 and vi[1:3] >= (7, 9):
+        return None
+    raise SystemExit('calibre requires python >= 2.7.9 and < 3')
+check_version_info()
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 import setup.commands as commands
 from setup import prints, get_warnings
 
-def check_version_info():
-    vi = sys.version_info
-    if vi[0] == 2 and vi[1] > 6:
-        return None
-    return 'calibre requires python >= 2.7 and < 3'
-
 def option_parser():
+    import optparse
     parser = optparse.OptionParser()
     parser.add_option('-c', '--clean', default=False, action='store_true',
             help=('Instead of running the command delete all files generated '
@@ -40,23 +42,23 @@ def clean_backups():
 
 def main(args=sys.argv):
     if len(args) == 1 or args[1] in ('-h', '--help'):
-        print 'Usage: python', args[0], 'command', '[options]'
-        print '\nWhere command is one of:'
-        print
+        print('Usage: python', args[0], 'command', '[options]')
+        print('\nWhere command is one of:')
+        print()
         for x in sorted(commands.__all__):
-            print '%-20s -'%x,
+            print('%-20s -'%x, end=' ')
             c = getattr(commands, x)
             desc = getattr(c, 'short_description', c.description)
-            print desc
+            print(desc)
 
-        print '\nTo get help on a particular command, run:'
-        print '\tpython', args[0], 'command -h'
+        print('\nTo get help on a particular command, run:')
+        print('\tpython', args[0], 'command -h')
         return 1
 
     command = args[1]
     if command not in commands.__all__:
-        print command, 'is not a recognized command.'
-        print 'Valid commands:', ', '.join(commands.__all__)
+        print (command, 'is not a recognized command.')
+        print ('Valid commands:', ', '.join(commands.__all__))
         return 1
 
     command = getattr(commands, command)
@@ -86,12 +88,12 @@ def main(args=sys.argv):
 
     warnings = get_warnings()
     if warnings:
-        print
+        print()
         prints('There were', len(warnings), 'warning(s):')
-        print
+        print()
         for args, kwargs in warnings:
             prints('*', *args, **kwargs)
-            print
+            print()
 
     return 0
 
