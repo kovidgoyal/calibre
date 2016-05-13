@@ -969,7 +969,7 @@ class SpellCheck(Dialog):
         self.user_dictionaries_missing_label = la = QLabel(_(
             'You have no active user dictionaries. You must'
             ' choose at least one active user dictionary via'
-            ' Preferences->Editor->Manage spelling dictionaries'))
+            ' Preferences->Editor->Manage spelling dictionaries'), self)
         la.setWordWrap(True)
         self.initialize_user_dictionaries()
         d.setMinimumContentsLength(25)
