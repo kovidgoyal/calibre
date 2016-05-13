@@ -12,7 +12,7 @@ from calibre.utils.img import (
     overlay_image, rotate_image, quantize_image, remove_borders_from_image,
     add_borders_to_image, gaussian_blur_image, create_canvas, despeckle_image,
     image_to_data, flip_image, image_has_transparent_pixels, set_image_opacity,
-    gaussian_sharpen_image, texture_image
+    gaussian_sharpen_image, texture_image, grayscale_image
 )
 from calibre.utils.imghdr import identify
 
@@ -54,6 +54,19 @@ class Image(object):
 
     def to_qimage(self):
         return clone_image(self.img)
+
+    @dynamic_property
+    def type(self):
+        def fget(self):
+            if len(self.img.colorTable()) > 0:
+                return 'PaletteType'
+            return 'TrueColorType'
+        def fset(self, t):
+            if t == 'GrayscaleType':
+                self.img = grayscale_image(self.img)
+            elif t == 'PaletteType':
+                self.img = quantize_image(self.img)
+        return property(fget=fget, fset=fset)
 
     @dynamic_property
     def format(self):
@@ -132,7 +145,7 @@ class Image(object):
         if fmt.lower() == 'gif':
             data = image_to_data(self.img, fmt='PNG', png_compression_level=0)
             from PIL import Image
-            i = Image.open(data)
+            i = Image.open(BytesIO(data))
             buf = BytesIO()
             i.save(buf, 'gif')
             return buf.getvalue()

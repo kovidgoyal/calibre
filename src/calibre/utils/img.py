@@ -437,7 +437,7 @@ def optimize_png(file_path):
     return run_optimizer(file_path, cmd)
 
 def encode_jpeg(file_path, quality=80):
-    from calibre.srv.utils import ReadOnlyFileBuffer
+    from calibre.utils.speedups import ReadOnlyFileBuffer
     quality = max(0, min(100, int(quality)))
     exe = get_exe_path('cjpeg')
     cmd = [exe] + '-optimize -progressive -maxmemory 100M -quality'.split() + [str(quality)]

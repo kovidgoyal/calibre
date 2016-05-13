@@ -49,7 +49,6 @@ class CanWestPaper(BasicNewsRecipe):
         (u'Health',u'/health/index.html')
         ]
 
-
     # un-comment the following six lines for the Vancouver Province
    # title = u'Vancouver Province'
    # url_prefix = 'http://www.theprovince.com'
@@ -120,7 +119,8 @@ class CanWestPaper(BasicNewsRecipe):
     keep_only_tags = [dict(name='div', attrs={'id':re.compile('story')})]
 
     remove_tags = [{'class':'comments'},{'class':'comment-intro'},{'class':'storytab'},
-                   dict(name='div', attrs={'class':'section_title'}),dict(name='div', attrs={'class':'sharebar'}),dict(name='div', attrs={'class':'navbar'}),dict(name='div', attrs={'class':'morelinks'}),
+                   dict(name='div', attrs={'class':'section_title'}),dict(name='div', attrs={'class':'sharebar'}),dict(
+                       name='div', attrs={'class':'navbar'}),dict(name='div', attrs={'class':'morelinks'}),
                    dict(name='h2', attrs={'id':'photocredit'}),
                    dict(name='div', attrs={'class':'viewmore'}),dict(name='li', attrs={'class':'email'}),
                    dict(name='div', attrs={'class':'story_tool_hr'}),dict(name='div', attrs={'class':'clear'}),
@@ -129,7 +129,6 @@ class CanWestPaper(BasicNewsRecipe):
                    dict(name='div', attrs={'id':'soundoff'}),
                    dict(name='div', attrs={'id':re.compile('flyer')}),
                    dict(name='li', attrs={'class':'print'}),dict(name='li', attrs={'class':'share'}),dict(name='ul', attrs={'class':'bullet'})]
-
 
     def get_cover_url(self):
         from datetime import timedelta, date
@@ -152,18 +151,6 @@ class CanWestPaper(BasicNewsRecipe):
             self.log("\nCover unavailable")
             cover = None
         return cover
-
-    def prepare_masthead_image(self, path_to_image, out_path):
-        if self.Kindle_Fire:
-            from calibre.utils.magick import Image, create_canvas
-            img = Image()
-            img.open(path_to_image)
-            width, height = img.size
-            img2 = create_canvas(width, height)
-            img2.compose(img)
-            img2.save(out_path)
-        else:
-            BasicNewsRecipe.prepare_masthead_image(self, path_to_image, out_path)
 
     def fixChars(self,string):
         # Replace lsquo (\x91)
@@ -211,16 +198,15 @@ class CanWestPaper(BasicNewsRecipe):
                     a.replaceWith(a.renderContents().decode('cp1252','replace'))
         return soup
 
-
     def preprocess_html(self,soup):
-        #delete empty id attributes--they screw up the TOC for unknown reasons
+        # delete empty id attributes--they screw up the TOC for unknown reasons
         divtags = soup.findAll('div',attrs={'id':''})
         if divtags:
             for div in divtags:
                 del(div['id'])
 
         pgall = soup.find('div',attrs={'id':'storyphoto'})
-        if pgall is not None: # photo gallery perhaps
+        if pgall is not None:  # photo gallery perhaps
             if (soup.find('div',attrs={'id':'storycontent'}) is None):
                 allpics = Tag(soup,'div')
                 first_img = pgall.find('div','storyimage')
@@ -245,13 +231,10 @@ class CanWestPaper(BasicNewsRecipe):
             pg.extract()
         return self.strip_anchors(soup)
 
-
-
     def parse_index(self):
 
         articles = {}
         ans = []
-
 
         def handle_article(adiv,key):
             if adiv.name=='h1' or adiv.name=='h3':
@@ -301,7 +284,7 @@ class CanWestPaper(BasicNewsRecipe):
             try:
                 soup = self.index_to_soup(self.url_prefix+keyurl)
             except:
-                print("Section: "+key+' NOT FOUND');
+                print("Section: "+key+' NOT FOUND')
                 return
             ans.append(key)
             mainsoup = soup.find('div','bodywrapper')
@@ -309,9 +292,9 @@ class CanWestPaper(BasicNewsRecipe):
             if footer is not None:
                 footer.extract()
             for wdiv in mainsoup.findAll(attrs={'class':['genericfeature']}):
-               wdiv.extract()
+                wdiv.extract()
             for wdiv in mainsoup.findAll(attrs={'class':['headline','featurecontent']}):
-               handle_article(wdiv,key)
+                handle_article(wdiv,key)
 
         for (k,url) in self.postmedia_index_pages:
             parse_web_index(k,url)

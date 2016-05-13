@@ -17,7 +17,8 @@ from calibre import as_unicode
 from calibre.constants import plugins
 from calibre.srv.loop import ServerLoop, HandleInterrupt, WRITE, READ, RDWR, Connection
 from calibre.srv.http_response import HTTPConnection, create_http_handler
-from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE, ReadOnlyFileBuffer
+from calibre.srv.utils import DESIRED_SEND_BUFFER_SIZE
+from calibre.utils.speedups import ReadOnlyFileBuffer
 speedup, err = plugins['speedup']
 if not speedup:
     raise RuntimeError('Failed to load speedup module with error: ' + err)

@@ -22,7 +22,8 @@ from calibre.srv.http_request import HTTPRequest, read_headers
 from calibre.srv.sendfile import file_metadata, sendfile_to_socket_async, CannotSendfile, SendfileInterrupted
 from calibre.srv.utils import (
     MultiDict, http_date, HTTP1, HTTP11, socket_errors_socket_closed,
-    sort_q_values, get_translator_for_lang, Cookie, ReadOnlyFileBuffer)
+    sort_q_values, get_translator_for_lang, Cookie)
+from calibre.utils.speedups import ReadOnlyFileBuffer
 from calibre.utils.monotonic import monotonic
 
 Range = namedtuple('Range', 'start stop size')
