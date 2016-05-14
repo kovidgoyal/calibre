@@ -7,18 +7,20 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
-from PyQt5.Qt import QDialog, QApplication
+from PyQt5.Qt import (
+    QDialog, QApplication, QIcon, QVBoxLayout, QHBoxLayout, QDialogButtonBox,
+    QPlainTextEdit, QPushButton, QLabel, QLineEdit
+)
 
-from calibre.gui2.dialogs.add_from_isbn_ui import Ui_Dialog
 from calibre.ebooks.metadata import check_isbn
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs, question_dialog, error_dialog
 
-class AddFromISBN(QDialog, Ui_Dialog):
+class AddFromISBN(QDialog):
 
     def __init__(self, parent=None):
         QDialog.__init__(self, parent)
-        self.setupUi(self)
+        self.setup_ui()
 
         path = r'C:\Users\kovid\e-books\some_book.epub' if iswindows else \
                 '/Users/kovid/e-books/some_book.epub'
@@ -29,6 +31,39 @@ class AddFromISBN(QDialog, Ui_Dialog):
         self.set_tags = []
         self.paste_button.clicked.connect(self.paste)
         self.add_tags.setText(', '.join(gprefs.get('add from ISBN tags', [])))
+
+    def setup_ui(self):
+        self.resize(678, 430)
+        self.setWindowTitle(_("Add books by ISBN"))
+        self.setWindowIcon(QIcon(I('add_book.png')))
+        self.l = l = QVBoxLayout(self)
+        self.h = h = QHBoxLayout()
+        l.addLayout(h)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel, self)
+        l.addWidget(bb), bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
+        self.ll = l = QVBoxLayout()
+        h.addLayout(l)
+        self.isbn_box = i = QPlainTextEdit(self)
+        l.addWidget(i)
+        self.paste_button = b = QPushButton(_("&Paste from clipboard"), self)
+        l.addWidget(b), b.clicked.connect(self.paste)
+        self.lll = l  = QVBoxLayout()
+        h.addLayout(l)
+        self.label = la = QLabel(_(
+            "<p>Enter a list of ISBNs in the box to the left, one per line. calibre will automatically"
+            " create entries for books based on the ISBN and download metadata and covers for them.</p>\n"
+            "<p>Any invalid ISBNs in the list will be ignored.</p>\n"
+            "<p>You can also specify a file that will be added with each ISBN. To do this enter the full"
+            " path to the file after a <code>>></code>.  For example:</p>\n"
+            "<p><code>9788842915232 >> %s</code></p>"), self)
+        l.addWidget(la), la.setWordWrap(True)
+        l.addSpacing(20)
+        self.la2 = la = QLabel(_("&Tags to set on created book entries:"), self)
+        l.addWidget(la)
+        self.add_tags = le = QLineEdit(self)
+        la.setBuddy(le)
+        l.addWidget(le)
+        l.addStretch(10)
 
     def paste(self, *args):
         app = QApplication.instance()
