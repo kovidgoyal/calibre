@@ -10,12 +10,17 @@ from threading import Thread
 from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform
 
 from calibre import fit_image, force_unicode
-from calibre.constants import iswindows, plugins
+from calibre.constants import iswindows, plugins, get_version
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 
 # Utilitis {{{
 imageops, imageops_err = plugins['imageops']
+if imageops is None:
+    if '*' in get_version():
+        raise RuntimeError('You are running from source, which requires the new binary module, imageops. You can'
+                           ' get it by installing the betas from: http://www.mobileread.com/forums/showthread.php?t=274030')
+    raise RuntimeError(imageops_err)
 
 class NotImage(ValueError):
     pass
@@ -211,23 +216,11 @@ def overlay_image(img, canvas=None, left=0, top=0):
         canvas = QImage(img.size(), QImage.Format_RGB32)
         canvas.fill(Qt.white)
     left, top = int(left), int(top)
-    if imageops is None:
-        # This is for people running from source who have not updated the
-        # binary and so do not have the imageops module
-        from PyQt5.Qt import QPainter
-        from calibre.gui2 import ensure_app
-        ensure_app()
-        p = QPainter(canvas)
-        p.drawImage(left, top, img)
-        p.end()
-    else:
-        imageops.overlay(img, canvas, left, top)
+    imageops.overlay(img, canvas, left, top)
     return canvas
 
 def texture_image(canvas, texture):
     ' Repeatedly tile the image `texture` across and down the image `canvas` '
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     if canvas.hasAlphaChannel():
         canvas = blend_image(canvas)
     return imageops.texture_image(canvas, texture)
@@ -256,8 +249,6 @@ def remove_borders_from_image(img, fuzz=None):
     the image itself if no borders could be removed. `fuzz` is a measure of
     what colors are considered identical (must be a number between 0 and 255 in
     absolute intensity units). Default is from a tweak whose default value is 10. '''
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
     ans = imageops.remove_borders(image_from_data(img), max(0, fuzz))
     return ans if ans.size() != img.size() else img
@@ -317,16 +308,12 @@ def crop_image(img, x, y, width, height):
 # Image transformations {{{
 
 def grayscale_image(img):
-    if imageops is not None:
-        return imageops.grayscale(image_from_data(img))
     return img
 
 def set_image_opacity(img, alpha=0.5):
     ''' Change the opacity of `img`. Note that the alpha value is multiplied to
     any existing alpha values, so you cannot use this function to convert a
     semi-transparent image to an opaque one. For that use `blend_image()`. '''
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     return imageops.set_opacity(image_from_data(img), alpha)
 
 def flip_image(img, horizontal=False, vertical=False):
@@ -337,8 +324,6 @@ def image_has_transparent_pixels(img):
     img = image_from_data(img)
     if img.isNull():
         return False
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     return imageops.has_transparent_pixels(img)
 
 def rotate_image(img, degrees):
@@ -347,28 +332,18 @@ def rotate_image(img, degrees):
     return image_from_data(img).transformed(t)
 
 def gaussian_sharpen_image(img, radius=0, sigma=3, high_quality=True):
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     return imageops.gaussian_sharpen(image_from_data(img), max(0, radius), sigma, high_quality)
 
 def gaussian_blur_image(img, radius=-1, sigma=3):
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     return imageops.gaussian_blur(image_from_data(img), max(0, radius), sigma)
 
 def despeckle_image(img):
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     return imageops.despeckle(image_from_data(img))
 
 def oil_paint_image(img, radius=-1, high_quality=True):
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     return imageops.oil_paint(image_from_data(img), radius, high_quality)
 
 def normalize_image(img):
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     return imageops.normalize(image_from_data(img))
 
 def quantize_image(img, max_colors=256, dither=True, palette=''):
@@ -382,8 +357,6 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
     :param dither: Whether to use dithering or not. dithering is almost always a good thing.
     :param palette: Use a manually specified palette instead. For example: palette='red green blue #eee'
     '''
-    if imageops is None:
-        raise RuntimeError(imageops_err)
     img = image_from_data(img)
     if img.hasAlphaChannel():
         img = blend_image(img)
