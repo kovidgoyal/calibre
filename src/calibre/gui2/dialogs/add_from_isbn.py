@@ -9,7 +9,7 @@ import os
 
 from PyQt5.Qt import (
     QDialog, QApplication, QIcon, QVBoxLayout, QHBoxLayout, QDialogButtonBox,
-    QPlainTextEdit, QPushButton, QLabel, QLineEdit
+    QPlainTextEdit, QPushButton, QLabel, QLineEdit, Qt, QKeySequence
 )
 
 from calibre.ebooks.metadata import check_isbn
@@ -40,6 +40,7 @@ class AddFromISBN(QDialog):
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel, self)
+        bb.button(bb.Ok).setShortcut(QKeySequence(Qt.Key_O | Qt.ALT))
         l.addWidget(bb), bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.ll = l = QVBoxLayout()
         h.addLayout(l)
