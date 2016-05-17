@@ -228,7 +228,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                 except Exception:
                     st = field
                 all_vals = mi.get(field)
-                if field == 'tags':
+                if not metadata.get('display', {}).get('is_names', False):
                     all_vals = sorted(all_vals, key=sort_key)
                 links = ['<a href="%s" title="%s" data-item="%s">%s</a>' % (
                     search_href(st, x), _('Click to see books with {0}: {1}').format(

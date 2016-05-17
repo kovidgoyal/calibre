@@ -46,7 +46,7 @@ class Economist(BasicNewsRecipe):
             dict(name=['script', 'noscript', 'title', 'iframe', 'cf_floatingcontent']),
             dict(attrs={'class':['dblClkTrk', 'ec-article-info',
                 'share_inline_header', 'related-items',
-                                 'main-content-container']}),
+                                 'main-content-container', 'ec-topic-widget']}),
             {'class': lambda x: x and 'share-links-header' in x},
     ]
     keep_only_tags = [dict(name='article')]

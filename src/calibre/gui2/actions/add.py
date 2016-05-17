@@ -407,7 +407,7 @@ class AddAction(InterfaceAction):
     def add_from_isbn(self, *args):
         from calibre.gui2.dialogs.add_from_isbn import AddFromISBN
         d = AddFromISBN(self.gui)
-        if d.exec_() == d.Accepted:
+        if d.exec_() == d.Accepted and d.books:
             self.add_isbns(d.books, add_tags=d.set_tags)
 
     def add_books(self, *args):
