@@ -954,9 +954,11 @@ class EbookViewer(MainWindow):
             self.current_title = title
             self.setWindowTitle(title + ' [%s]'%self.iterator.book_format + ' - ' + self.base_window_title)
             self.pos.setMaximum(sum(self.iterator.pages))
-            self.pos.setSuffix(' / %d'%sum(self.iterator.pages))
+            self.total_pages = sum(self.iterator.pages)
+            self.pos.setMaximum(self.total_pages)
+            self.pos.setSuffix(' / %d'%self.total_pages)
             self.vertical_scrollbar.setMinimum(100)
-            self.vertical_scrollbar.setMaximum(100*sum(self.iterator.pages))
+            self.vertical_scrollbar.setMaximum(100*self.total_pages)
             self.vertical_scrollbar.setSingleStep(10)
             self.vertical_scrollbar.setPageStep(100)
             self.set_vscrollbar_value(1)
@@ -990,6 +992,21 @@ class EbookViewer(MainWindow):
             page = self.current_page.start_page + frac*float(self.current_page.pages-1)
             self.pos.set_value(page)
             self.set_vscrollbar_value(page)
+            # self.view.document.page_indicator_opts
+            # 0 - No Chapter Indicator
+            # 1 - Book Delta
+            # 2 - Chapter
+            # 3 - Chapter Delta
+            # 4 - Chapter Delta and Book Delta
+            po = self.view.document.page_indicator_opts
+            if po == 1:
+                self.pos.setSuffix(" / {0:.1f}".format(chEnd - page))
+            elif po == 2:
+                self.pos.setSuffix(" / {0:.1f} / {1:.1f}".format(chEnd, self.total_pages));
+            elif po == 3:
+                self.pos.setSuffix(" / {0:.1f} / {1:.1f}".format(chEnd - page, self.total_pages));
+            elif po == 4:
+                self.pos.setSuffix(" / {0:.1f} / {1:.1f}".format(chEnd - page, self.total_pages - page));            
 
     def scrolled(self, frac, onload=False):
         self.set_page_number(frac)

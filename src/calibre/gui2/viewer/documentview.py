@@ -194,6 +194,7 @@ class Document(QWebPage):  # {{{
         self.remember_current_page = opts.remember_current_page
         self.copy_bookmarks_to_file = opts.copy_bookmarks_to_file
         self.search_online_url = opts.search_online_url or 'https://www.google.com/search?q={text}'
+        self.page_indicator_opts = opts.page_indicator_opts
 
     def fit_images(self):
         if self.do_fit_images and not self.in_paged_mode:

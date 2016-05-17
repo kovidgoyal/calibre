@@ -867,6 +867,45 @@ You must enter the search URL for the search engine, with the placeholder
             </widget>
            </item>
            <item row="9" column="0">
+             <widget class="QLabel" name="label_31">
+              <property name="text">
+               <string>Misc. Page Indicator Options:</string>
+              </property>
+              <property name="buddy">
+               <cstring></cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="9" column="1">
+             <widget class="QComboBox" name="page_indicator_opts">
+              <item>
+               <property name="text">
+                <string>Do Not Show Chapter Indicator</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Show Book Indicator as Delta</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Show Chapter Indicator</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Show Chapter indicator as Delta</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Show Chapter and Book Indicator as Delta</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           <item row="10" column="0">
             <widget class="QPushButton" name="clear_search_history_button">
              <property name="text">
               <string>Clear search history</string>
