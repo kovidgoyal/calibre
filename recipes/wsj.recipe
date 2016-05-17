@@ -93,6 +93,7 @@ class WSJ(BasicNewsRecipe):
     def get_browser(self):
         # To understand the signin logic read signin.js from
         # https://id.wsj.com/access/pages/wsj/us/signin.html
+        # This is the same login servie as used by Barrons
         br = BasicNewsRecipe.get_browser(self, user_agent=USER_AGENT)
         # self.wsj_itp_page = open('/t/raw.html').read()
         # return br
