@@ -704,7 +704,7 @@ QToolBox::tab:hover {
             <item row="1" column="1">
              <widget class="QSpinBox" name="opt_line_scroll_fraction">
               <property name="toolTip">
-               <string>This is a percentage, by making it less than 100 you can decrease the amount thearrow keys scroll by, by making it more than 100 you can increase the scroll amount.</string>
+               <string>This is a percentage, by making it less than 100 you can decrease the amount the arrow keys scroll by, by making it more than 100 you can increase the scroll amount.</string>
               </property>
               <property name="suffix">
                <string> %</string>
