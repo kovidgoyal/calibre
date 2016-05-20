@@ -40,9 +40,7 @@ class FinancialTimes(BasicNewsRecipe):
             br.submit()
         return br
 
-    keep_only_tags = [
-                        dict(name='div' , attrs={'class':['master-row editorialSection']})
-                     ]
+    keep_only_tags = [dict(name='div', attrs={'class':['fullstory fullstoryHeader','fullstory fullstoryBody','ft-story-header','ft-story-body','index-detail']})]
     remove_tags = [
         dict(name='style', attrs={'id':'antiClickjack'}),
         dict(name='div', attrs={'id':'floating-con'}),
