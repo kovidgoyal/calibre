@@ -5,20 +5,29 @@ from __python__ import bound_methods, hash_literals
 import traceback
 from aes import GCM
 from gettext import install, gettext as _
+from read_book.cfi import at_current, scroll_to as scroll_to_cfi
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
 from read_book.mathjax import apply_mathjax
 from read_book.resources import finalize_resources, unserialize_html
-from read_book.flow_mode import flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
-from read_book.paged_mode import layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction, onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem
+from read_book.flow_mode import (
+    flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
+)
+from read_book.paged_mode import (
+    layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction,
+    onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
+    jump_to_cfi as paged_jump_to_cfi
+)
 from read_book.settings import apply_settings
 from utils import debounce
 
 FORCE_FLOW_MODE = False
 
-class Boss:
+class IframeBoss:
 
     def __init__(self):
         self.ready_sent = False
+        self.last_cfi = None
+        self.replace_history_on_next_cfi_update = True
         self.encrypted_communications = False
         window.addEventListener('message', self.handle_message, False)
         window.addEventListener('load', def():
@@ -83,13 +92,16 @@ class Boss:
             self.handle_wheel = flow_onwheel
             self.handle_keydown = flow_onkeydown
             self.to_scroll_fraction = flow_to_scroll_fraction
+            self.jump_to_cfi = scroll_to_cfi
         else:
             self.do_layout = paged_layout
             self.handle_wheel = paged_onwheel
             self.handle_keydown = paged_onkeydown
             self.to_scroll_fraction = paged_scroll_to_fraction
+            self.jump_to_cfi = paged_jump_to_cfi
         apply_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
+        self.last_cfi = None
         root_data, self.mathjax = finalize_resources(self.book, data.name, data.resource_data)
         unserialize_html(root_data, self.content_loaded)
 
@@ -109,13 +121,26 @@ class Boss:
         csi = current_spine_item()
         if csi.initial_position:
             ipos = csi.initial_position
+            self.replace_history_on_next_cfi_update = ipos.replace_history
             if ipos.type is 'frac':
                 self.to_scroll_fraction(ipos.frac)
             elif ipos.type is 'anchor':
                 self.scroll_to_anchor(ipos.anchor)
+            elif ipos.type is 'cfi':
+                self.jump_to_cfi(ipos.cfi)
+        self.update_cfi()
 
     def update_cfi(self):
-        pass  # TODO: Update CFI
+        cfi = at_current()
+        if cfi:
+            spine = self.book.manifest.spine
+            index = spine.indexOf(current_spine_item().name)
+            if index > -1:
+                cfi = 'epubcfi(/{}{})'.format(2*(index+1), cfi)
+                if cfi != self.last_cfi:
+                    self.last_cfi = cfi
+                    self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update)
+                    self.replace_history_on_next_cfi_update = True
 
     def onresize(self):
         if current_layout_mode() is not 'flow':
@@ -151,6 +176,7 @@ class Boss:
         if not name:
             name = current_spine_item().name
         if name is current_spine_item().name:
+            self.replace_history_on_next_cfi_update = False
             self.scroll_to_anchor(frag)
         else:
             self.send_message('scroll_to_anchor', name=name, frag=frag)
@@ -168,4 +194,4 @@ class Boss:
 def init():
     script = document.getElementById('bootstrap')
     script.parentNode.removeChild(script)  # free up some memory
-    Boss()
+    IframeBoss()
