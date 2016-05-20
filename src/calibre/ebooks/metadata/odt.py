@@ -30,7 +30,7 @@ from odf.opendocument import load as odLoad
 from odf.draw import Image as odImage, Frame as odFrame
 
 from calibre.ebooks.metadata import MetaInformation, string_to_authors, check_isbn
-from calibre.utils.img import identify
+from calibre.utils.imghdr import identify
 from calibre.utils.date import parse_date
 from calibre.utils.localization import canonicalize_lang
 
