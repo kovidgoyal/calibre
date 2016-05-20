@@ -397,9 +397,9 @@ def snap_to_selection():
         # selection
         scroll_to_xpos(left+5)
 
-def jump_to_cfi(cfi, job_id=-1):
+def jump_to_cfi(cfi):
     # Jump to the position indicated by the specified conformal fragment
-    # indicator (requires the cfi.coffee library). When in paged mode, the
+    # indicator. When in paged mode, the
     # scroll is performed so that the column containing the position
     # pointed to by the cfi is the left most column in the viewport
     cfi_scroll_to(cfi, def(x, y):
@@ -407,8 +407,6 @@ def jump_to_cfi(cfi, job_id=-1):
             scroll_to_xpos(x)
         else:
             window.scrollTo(0, y)
-        # if window.py_bridge
-        #     window.py_bridge.jump_to_cfi_finished(job_id)
     )
 
 def current_cfi():
@@ -472,7 +470,7 @@ def onkeydown(evt):
             window.scrollTo(0 if key is 'left' else document_width(), 0)
         else:
             scroll_by_page(key is 'up', True)
-    elif key is 'left' or key is 'right':
+    elif (key is 'left' or key is 'right') and not evt.altKey:
         handled = True
         if evt.ctrlKey:
             window.scrollTo(0 if key is 'left' else document_width(), 0)

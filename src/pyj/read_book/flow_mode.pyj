@@ -75,7 +75,7 @@ def flow_onkeydown(evt):
             goto_boundary(-1 if key is 'up' else 1)
         else:
             smooth_y_scroll(key is 'up')
-    elif key is 'left' or key is 'right':
+    elif (key is 'left' or key is 'right') and not evt.altKey:
         handled = True
         if evt.ctrlKey:
             window.scrollTo(0 if key is 'left' else document_width(), window.pageYOffset)
