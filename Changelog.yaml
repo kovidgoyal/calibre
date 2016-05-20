@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title: 
 
-- version: 2.57.0
+- version: 2.57.1
   date: 2016-05-20
 
   new features:
@@ -61,6 +61,8 @@
 
     - title: "Preferences->Keyboard: Fix unable to use Alt+A and Alt+S as custom shortcuts."
       tickets: [1576721]
+
+    - title: "Version 2.57.1 is a hotfix to fix a regression that broke conversion of ODT files in 2.57.0"
 
   improved recipes:
     - Folha de Sao Paolo
