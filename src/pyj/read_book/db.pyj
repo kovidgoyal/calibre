@@ -94,7 +94,7 @@ class DB:
                 'manifest': None,
                 'cover_width': None,
                 'cover_height': None,
-                'last_read_position': None,
+                'last_read_position': {},
             })
         )
 

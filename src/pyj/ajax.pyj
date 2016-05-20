@@ -4,6 +4,17 @@ from __python__ import hash_literals
 
 from gettext import gettext as _
 
+def encode_query_component(x):
+    ans = encodeURIComponent(x)
+    # The following exceptions are to make epubcfi() look better
+    ans = ans.replace(/%2[fF]/g, '/')
+    ans = ans.replace(/%40/g, '@')
+    ans = ans.replace(/%5[bB]/g, '[')
+    ans = ans.replace(/%5[dD]/g, ']')
+    ans = ans.replace(/%5[eE]/g, '^')
+    ans = ans.replace(/%3[aA]/g, ':')
+    return ans
+
 def encode_query(query):
     if not query:
         return ''
@@ -15,7 +26,7 @@ def encode_query(query):
             val = query[k]
             if val is undefined or val is None:
                 continue
-            path += ('&' if has_query else '?') + encodeURIComponent(k) + '=' + encodeURIComponent(val.toString())
+            path += ('&' if has_query else '?') + encodeURIComponent(k) + '=' + encode_query_component(val.toString())
             has_query = True
     return path
 

@@ -554,7 +554,7 @@ class CERVANTES(USBMS):
     description    = _('Communicate with the Bq Cervantes')
     author         = 'Kovid Goyal'
     supported_platforms = ['windows', 'osx', 'linux']
-    formats = ['epub', 'fb2', 'mobi', 'doc', 'rtf', 'pdf', 'txt']
+    FORMATS = ['epub', 'fb2', 'mobi', 'doc', 'rtf', 'pdf', 'txt']
     VENDOR_ID   = [0x2a47]
     PRODUCT_ID  = [0xad78]
     BCD         = [0x0110]

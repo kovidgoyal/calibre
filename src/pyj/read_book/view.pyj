@@ -2,13 +2,14 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from book_list.globals import get_session_data
+from book_list.globals import get_session_data, get_boss
 from dom import set_css
 from elementmaker import E
 from gettext import gettext as _
 from read_book.globals import messenger, iframe_id
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
+from utils import parse_url_params, username_key
 
 LOADING_DOC = '''
 <!DOCTYPE html>
@@ -63,8 +64,9 @@ class View:
             'next_spine_item': self.on_next_spine_item,
             'goto_doc_boundary': self.goto_doc_boundary,
             'scroll_to_anchor': self.on_scroll_to_anchor,
+            'update_cfi': self.on_update_cfi,
         }
-        self.currently_showing = {'spine':0, 'cfi':None}
+        self.currently_showing = {}
 
     @property
     def iframe(self):
@@ -149,10 +151,28 @@ class View:
         self.book = book
         self.show_loading(book.metadata.title)
         self.ui.db.update_last_read_time(book)
-        # TODO: Check for last open position of book
-        self.show_name(book.manifest.spine[1])
+        pos = {'replace_history':True}
+        unkey = username_key(self.ui.interface_data.username)
+        name = book.manifest.spine[0]
+        cfi = None
+        q = parse_url_params()
+        if q.bookpos and q.bookpos.startswith('epubcfi(/'):
+            cfi = q.bookpos
+        elif book.last_read_position and book.last_read_position[unkey]:
+            cfi = book.last_read_position[unkey]
+        if cfi and cfi.startswith('epubcfi(/'):
+            cfi = cfi[len('epubcfi(/'):-1]
+            snum, rest = cfi.partition('/')[::2]
+            try:
+                snum = int(snum)
+            except Exception:
+                print('Invalid spine number in CFI:', snum)
+            if type(snum) == 'number':
+                name = book.manifest.spine[(int(snum) // 2) - 1] or name
+                pos.type, pos.cfi = 'cfi', '/' + rest
+        self.show_name(name, initial_position=pos)
 
-    def show_name(self, name, initial_position=None, cfi=None):
+    def show_name(self, name, initial_position=None):
         if self.currently_showing.loading:
             return
         sd = get_session_data()
@@ -162,16 +182,21 @@ class View:
             'read_mode': sd.get('read_mode'),
             'cols_per_screen': sd.get('cols_per_screen'),
         }
-        self.currently_showing = {'name':name, 'cfi':cfi, 'settings':settings, 'initial_position':initial_position, 'loading':True}
+        initial_position = initial_position or {'replace_history':False}
+        self.currently_showing = {'name':name, 'settings':settings, 'initial_position':initial_position, 'loading':True}
+        spine = self.book.manifest.spine
+        idx = spine.indexOf(name)
+        if idx > -1:
+            self.currently_showing.bookpos = 'epubcfi(/{})'.format(2 * (idx +1))
         self.set_margins(name is self.book.manifest.title_page_name)
         load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
 
     def goto_doc_boundary(self, data):
         name = self.book.manifest.spine[0 if data.start else self.book.manifest.spine.length - 1]
-        self.show_name(name, initial_position={'type':'frac', 'frac':0 if data.start else 1})
+        self.show_name(name, initial_position={'type':'frac', 'frac':0 if data.start else 1, 'replace_history':False})
 
     def on_scroll_to_anchor(self, data):
-        self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag})
+        self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
 
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine
@@ -180,12 +205,21 @@ class View:
             if idx is 0:
                 return
             idx = min(spine.length - 1, max(idx - 1, 0))
-            self.show_name(spine[idx], initial_position={'type':'frac', 'frac':1})
+            self.show_name(spine[idx], initial_position={'type':'frac', 'frac':1, 'replace_history':True})
         else:
             if idx is spine.length - 1:
                 return
             idx = max(0, min(spine.length - 1, idx + 1))
-            self.show_name(spine[idx])
+            self.show_name(spine[idx], initial_position={'type':'frac', 'frac':0, 'replace_history':True})
+
+    def on_update_cfi(self, data):
+        self.currently_showing.bookpos = data.cfi
+        get_boss().push_state(replace=data.replace_history)
+        unkey = username_key(self.ui.interface_data.username)
+        if not self.book.last_read_position:
+            self.book.last_read_position = {}
+        self.book.last_read_position[unkey] = data.cfi
+        self.ui.db.update_last_read_time(self.book)
 
     def show_spine_item(self, resource_data):
         self.loaded_resources = resource_data

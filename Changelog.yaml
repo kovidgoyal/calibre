@@ -20,6 +20,69 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.57.1
+  date: 2016-05-20
+
+  new features:
+    - title: "Driver for the Bq Cervantes 3"
+
+    - title: 'A new "Ornamental" cover design for the "Generate cover" feature'
+
+    - title: "Windows: Use a helper process that does not load any calibre DLLs to display file open/save dialogs. This should fix most crashes caused by poorly designed windows shell extensions."
+
+    - title: "Allow pressing Alt+O as a shortcut for click the OK button in the Add from ISBN dialog."
+      tickets: [1578692]
+
+    - title: "Remove the calibre dependency on ImageMagick -- reduces calibre install size by ~ 15MB"
+
+    - title: "Edit book: Add a new image filter: Normalize -- to improve the contrast in images"
+
+    - title: "Edit book: Add a filter to make images look like oil paintings"
+
+    - title: "Use 'Not rated' for zero stars in all rating spin boxes"
+
+  bug fixes:
+    - title: "Edit Book: Fix a crash in the Insert Link tool if one of the HTML files contains an empty id."
+      tickets: [1580928]
+
+    - title: "Fix tag like custom columns not sorted when displayed in the Book Details panel."
+      tickets: [1578688]
+
+    - title: "Fix transient window shown during Edit Book startup"
+
+    - title: "Preserve booklist horizontal scroll position when merging books."
+      tickets: [1579637]
+
+    - title: "Google Images metadata download plugin: Fix error when searching for books with non-English characters in the title or author names."
+      tickets: [1577036]
+
+    - title: "Template language: Fix an error formatting dates when the underlying date does not have a day."
+      tickets: [1576742]
+
+    - title: "Preferences->Keyboard: Fix unable to use Alt+A and Alt+S as custom shortcuts."
+      tickets: [1576721]
+
+    - title: "Version 2.57.1 is a hotfix to fix a regression that broke conversion of ODT files in 2.57.0"
+
+  improved recipes:
+    - Folha de Sao Paolo
+    - Barrons
+    - Economist
+    - Deutsche Welle (English and Spanish editions)
+    - Die Presse
+    - MIT Technology Review
+    - Financial Times UK
+    - Telegraph UK
+    - The Guardian
+    - Spiegel Online
+    - Brand Eins
+    - Focus.de
+    - The Toronto Star
+    - The Atlantic
+    - Capital.de
+    - The Times of India
+    - The Economic Times India
+
 - version: 2.56.0
   date: 2016-04-29
 

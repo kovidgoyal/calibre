@@ -96,10 +96,19 @@ class ReadUI:
         div.lastChild.textContent = msg or ''
 
     def load_book(self, book_id, fmt, metadata):
+        self.base_url_data = {'book_id':book_id, 'fmt':fmt}
         if self.db is None:
             self.pending_load = [book_id, fmt, metadata]
             return
         self.start_load(book_id, fmt, metadata)
+
+    @property
+    def url_data(self):
+        ans = {'book_id':self.base_url_data.book_id, 'fmt': self.base_url_data.fmt}
+        bookpos = self.view.currently_showing.bookpos
+        if bookpos:
+            ans.bookpos = bookpos
+        return ans
 
     def db_initialized(self, db):
         self.db = db
