@@ -1010,8 +1010,7 @@ class EbookViewer(MainWindow):
             if self.page_anchors is not None:
                 for pa in self.page_anchors:
                     if pa >= page:
-                        if pa < last_page:
-                            chEnd = pa
+                        chEnd = pa
                         break
             if chEnd == None:
                 chEnd = last_page
