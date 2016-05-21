@@ -1008,13 +1008,16 @@ class EbookViewer(MainWindow):
             last_page = self.current_page.start_page + self.current_page.pages - 1
             chEnd = None
             if self.page_anchors is not None:
-                for pa in self.page_anchors:
-                    if pa >= page:
-                        if pa < last_page:
-                            chEnd = pa
-                        break
-            if chEnd == None:
+                if len(self.page_anchors) > 0:
+                    for idx, pa in enumerate(self.page_anchors):
+                        if pa >= page:
+                            if idx >= 1:
+                                chEnd = self.page_anchors[idx - 1]
+                            break
+                chEnd = self.page_anchors[0]
+            if page > chEnd:
                 chEnd = last_page
+            self.pos.set_value(page)
             self.pos.set_value(page)
             self.set_vscrollbar_value(page)
             # self.view.document.page_indicator_opts
