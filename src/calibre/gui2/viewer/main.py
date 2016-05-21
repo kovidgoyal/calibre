@@ -112,6 +112,7 @@ class EbookViewer(MainWindow):
         self.current_book_has_toc = False
         self.iterator          = None
         self.current_page      = None
+        self.page_anchors      = None
         self.pending_search    = None
         self.pending_search_dir= None
         self.pending_anchor    = None
@@ -665,6 +666,12 @@ class EbookViewer(MainWindow):
             return -1
         self.current_page = self.iterator.spine[index]
         self.current_index = index
+        d = self.view.document
+        sp = self.current_page.start_page
+        total_cols = float(d.scroll_width) / d.page_width
+        self.page_anchors = map(lambda ap:
+                ap[0] * total_cols ** -1 * (self.current_page.pages - 1) + sp,
+                sorted(d.anchor_positions.values()))
         self.set_page_number(self.view.scroll_fraction)
         QTimer.singleShot(100, self.update_indexing_state)
         if self.pending_search is not None:
@@ -1004,20 +1011,21 @@ class EbookViewer(MainWindow):
 
     def set_page_number(self, frac):
         if getattr(self, 'current_page', None) is not None:
-            page = self.current_page.start_page + frac * float(self.current_page.pages - 1)
-            last_page = self.current_page.start_page + self.current_page.pages - 1
+            page = self.current_page.start_page + \
+                    frac * float(self.current_page.pages - 1)
             chEnd = None
             if self.page_anchors is not None:
-                if len(self.page_anchors) > 0:
+                if len(self.page_anchors) == 1:
+                    chEnd = self.page_anchors[0]
+                elif len(self.page_anchors) > 1:
                     for idx, pa in enumerate(self.page_anchors):
                         if pa >= page:
                             if idx >= 1:
                                 chEnd = self.page_anchors[idx - 1]
                             break
-                chEnd = self.page_anchors[0]
-            if page > chEnd:
-                chEnd = last_page
-            self.pos.set_value(page)
+            if chEnd is None or page > chEnd:
+                chEnd = self.current_page.start_page + \
+                        self.current_page.pages - 1
             self.pos.set_value(page)
             self.set_vscrollbar_value(page)
             # self.view.document.page_indicator_opts
