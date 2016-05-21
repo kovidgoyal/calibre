@@ -639,6 +639,20 @@ class EbookViewer(MainWindow):
         else:
             open_url(url)
 
+    def compute_page_anchors(self):
+    	page_anchors = []
+	    for idx_e in self.current_page.index_entries:
+	        if idx_e.start_anchor is not None:
+	            we = self.view.document.mainFrame().findFirstElement(
+	                    "#%s" % idx_e.start_anchor)
+	            if we is not None:
+	                g = we.geometry()
+	                cs = self.view.document.mainFrame().contentsSize()
+	                f = float(g.left()) / float(cs.width()) * \
+	                        self.iterator.pages[self.current_index]
+	            page_anchors.append(f + self.current_page.start_page)
+	    self.page_anchors = page_anchors
+
     def load_started(self):
         self.open_progress_indicator(_('Loading flow...'))
 
@@ -669,6 +683,7 @@ class EbookViewer(MainWindow):
             self.pending_bookmark = None
         if self.pending_restore:
             self.view.document.page_position.restore()
+	    self.comput_page_anchors
         return self.current_index
 
     def goto_next_section(self):
@@ -989,7 +1004,17 @@ class EbookViewer(MainWindow):
 
     def set_page_number(self, frac):
         if getattr(self, 'current_page', None) is not None:
-            page = self.current_page.start_page + frac*float(self.current_page.pages-1)
+            page = self.current_page.start_page + frac * float(self.current_page.pages - 1)
+            last_page = self.current_page.start_page + self.current_page.pages - 1
+            chEnd = None
+            if self.page_anchors is not None:
+                for pa in self.page_anchors:
+                    if pa >= page:
+                        if pa < last_page:
+                            chEnd = pa
+                        break
+            if chEnd == None:
+                chEnd = last_page
             self.pos.set_value(page)
             self.set_vscrollbar_value(page)
             # self.view.document.page_indicator_opts
