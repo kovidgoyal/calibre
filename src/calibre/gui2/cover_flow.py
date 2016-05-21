@@ -13,6 +13,7 @@ from PyQt5.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
         QStackedLayout, QLabel, QByteArray, pyqtSignal, QKeySequence, QFont)
 
 from calibre import plugins
+from calibre.constants import islinux
 from calibre.gui2 import (config, available_height, available_width, gprefs,
         rating_font)
 
@@ -170,8 +171,10 @@ if pictureflow is not None:
 
         def contextMenuEvent(self, event):
             if self.context_menu is not None:
+                from calibre.gui2.main_window import clone_menu
                 self.context_menu_requested.emit()
-                self.context_menu.popup(event.globalPos())
+                m = clone_menu(self.context_menu) if islinux else self.context_menu
+                m.popup(event.globalPos())
                 event.accept()
 
         def sizeHint(self):
