@@ -142,6 +142,15 @@ class TabbedDeviceConfig(QTabWidget):
 
         self.setCurrentIndex(0)
 
+    def addDeviceTab(self, tab, label):
+        '''
+        This is used to add a new tab for the device config. The new tab will always be added
+        as immediately before the "Extra Customization" tab.
+        '''
+        extra_tab_pos = self.indexOf(self.extra_tab)
+        self.insertTab(extra_tab_pos, tab, label)
+
+
     def __getattr__(self, attr_name):
         "If the object doesn't have an attribute, then check each tab."
         try:
@@ -243,16 +252,16 @@ class DeviceConfigTab(QWidget): # {{{
         QWidget.__init__(self)
         self.parent = parent
         
-        self.widgets = []
+        self.device_widgets = []
 
-    def add_widget(self, widget):
-        self.widgets.append(widget)
+    def addDeviceWidget(self, widget):
+        self.device_widgets.append(widget)
         
     def __getattr__(self, attr_name):
         try:
             return super(DeviceConfigTab, self).__getattr__(attr_name)
         except AttributeError as ae:
-            for awidget in self.widgets:
+            for awidget in self.device_widgets:
                 try:
                     return getattr(awidget, attr_name)
                 except AttributeError:

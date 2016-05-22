@@ -51,9 +51,8 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         self.tab1 = Tab1Config(self, self.device)
         self.tab2 = Tab2Config(self, self.device)
 
-        extra_tab_pos = self.indexOf(self.extra_tab)
-        last_tab_pos = self.insertTab(extra_tab_pos, self.tab1, _("Collections, Covers && Uploads"))
-        last_tab_pos = self.insertTab(last_tab_pos + 1,  self.tab2, _('Metadata && Advanced'))
+        self.addDeviceTab(self.tab1, _("Collections, Covers && Uploads"))
+        self.addDeviceTab(self.tab2, _('Metadata, On Device && Advanced'))
 
 
     def get_pref(self, key):
@@ -133,15 +132,15 @@ class Tab1Config(DeviceConfigTab): # {{{
         
         self.collections_options = CollectionsGroupBox(self, device)
         self.l.addWidget(self.collections_options)
-        self.add_widget(self.collections_options)
+        self.addDeviceWidget(self.collections_options)
         
         self.covers_options = CoversGroupBox(self, device)
         self.l.addWidget(self.covers_options)
-        self.add_widget(self.covers_options)
+        self.addDeviceWidget(self.covers_options)
         
         self.book_uploads_options = BookUploadsGroupBox(self, device)
         self.l.addWidget(self.book_uploads_options)
-        self.add_widget(self.book_uploads_options)
+        self.addDeviceWidget(self.book_uploads_options)
 # }}}
        
 class Tab2Config(DeviceConfigTab): # {{{
@@ -154,15 +153,15 @@ class Tab2Config(DeviceConfigTab): # {{{
         
         self.metadata_options = MetadataGroupBox(self, device)
         self.l.addWidget(self.metadata_options)
-        self.add_widget(self.metadata_options)
+        self.addDeviceWidget(self.metadata_options)
         
         self.device_list_options = DeviceListGroupBox(self, device)
         self.l.addWidget(self.device_list_options)
-        self.add_widget(self.device_list_options)
+        self.addDeviceWidget(self.device_list_options)
         
         self.advanced_options = AdvancedGroupBox(self, device)
         self.l.addWidget(self.advanced_options)
-        self.add_widget(self.advanced_options)
+        self.addDeviceWidget(self.advanced_options)
 # }}}
 
 
@@ -204,19 +203,15 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.options_layout.setObjectName("options_layout")
         self.setLayout(self.options_layout)
         
-        self.manage_collections_checkbox = create_checkbox(
-                        _("Manage Collections"), 
-                        _('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.'), 
-                        device.get_pref('manage_collections')
-                        )
-        self.manage_collections_checkbox.clicked.connect(self.manage_collections_checkbox_clicked)
+        self.setCheckable(True)
+        self.setChecked(device.get_pref('manage_collections'))
+        self.setToolTip(wrap_msg(_('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.')))
         
         self.collections_columns_label = QLabel(_('Collections Columns'))
         self.collections_columns_edit = QLineEdit(self)
         self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports bookshelves.'
                 ' These are created on the Kobo. ' +
                 'Specify a tags type column for automatic management.'))
-        debug_print("CollectionsGroupBox::__init__ - device.settings()=", device.settings())
         self.collections_columns_edit.setText(device.get_pref('collections_columns'))
         
         self.create_collections_checkbox = create_checkbox(
@@ -230,18 +225,16 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                          device.get_pref('delete_empty_collections')
                          )
 
-        self.options_layout.addWidget(self.manage_collections_checkbox,       0, 0, 1, 1)
         self.options_layout.addWidget(self.collections_columns_label,         1, 0, 1, 1)
         self.options_layout.addWidget(self.collections_columns_edit,          1, 1, 1, 1)
-        self.options_layout.addWidget(self.create_collections_checkbox,       2, 0, 1, 1)
-        self.options_layout.addWidget(self.delete_empty_collections_checkbox, 2, 1, 1, 1)
+        self.options_layout.addWidget(self.create_collections_checkbox,       2, 0, 1, 2)
+        self.options_layout.addWidget(self.delete_empty_collections_checkbox, 3, 0)#, 1, 2)
         self.options_layout.setRowStretch(5, 1)
 
-        self.manage_collections_checkbox_clicked(self.manage_collections)
 
     @property
     def manage_collections(self):
-        return self.manage_collections_checkbox.isChecked()
+        return self.isChecked()
 
     @property
     def collections_columns(self):
@@ -255,29 +248,20 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
     def delete_empty_collections(self):
         return self.delete_empty_collections_checkbox.isChecked()
 
-    def manage_collections_checkbox_clicked(self, checked):
-        self.collections_columns_label.setEnabled(checked)
-        self.collections_columns_edit.setEnabled(checked)
-        self.create_collections_checkbox.setEnabled(checked)
-        self.delete_empty_collections_checkbox.setEnabled(checked)
-
 
 class CoversGroupBox(DeviceOptionsGroupBox):
     
     def __init__(self, parent, device):
         super(CoversGroupBox, self).__init__(parent, device)
-        self.setTitle(_("Covers"))
+        self.setTitle(_("Upload covers"))
 
         self.options_layout = QGridLayout()
         self.options_layout.setObjectName("options_layout")
         self.setLayout(self.options_layout)
         
-        self.upload_covers_checkbox = create_checkbox(
-                             _("Upload covers for books"), 
-                             _('Upload cover images from the calibre library when sending books to the device.'), 
-                             device.get_pref('upload_covers')
-                             )
-        self.upload_covers_checkbox.clicked.connect(self.upload_covers_checkbox_clicked)
+        self.setCheckable(True)
+        self.setChecked(device.get_pref('upload_covers'))
+        self.setToolTip(wrap_msg(_('Upload cover images from the calibre library when sending books to the device.')))
         
         self.upload_grayscale_checkbox = create_checkbox(
                              _('Upload Black and White Covers'),
@@ -291,16 +275,13 @@ class CoversGroupBox(DeviceOptionsGroupBox):
                                ' This is for firmware versions 2.3.1 and later.'),
                              device.get_pref('keep_cover_aspect'))
 
-        self.options_layout.addWidget(self.upload_covers_checkbox,        0, 0, 1, 2)
         self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    1, 0, 1, 1)
-        self.options_layout.addWidget(self.upload_grayscale_checkbox,     1, 1, 1, 1)
-        self.options_layout.setRowStretch(2, 1)
+        self.options_layout.addWidget(self.upload_grayscale_checkbox,     2, 0, 1, 1)
+        self.options_layout.setRowStretch(3, 1)
         
-        self.upload_covers_checkbox_clicked(self.upload_covers)
-
     @property
     def upload_covers(self):
-        return self.upload_covers_checkbox.isChecked()
+        return self.isChecked()
 
     @property
     def upload_grayscale(self):
@@ -309,10 +290,6 @@ class CoversGroupBox(DeviceOptionsGroupBox):
     @property
     def keep_cover_aspect(self):
         return self.keep_cover_aspect_checkbox.isChecked()
-
-    def upload_covers_checkbox_clicked(self, checked):
-        self.upload_grayscale_checkbox.setEnabled(checked)
-        self.keep_cover_aspect_checkbox.setEnabled(checked)
 
 
 class DeviceListGroupBox(DeviceOptionsGroupBox):
@@ -349,9 +326,9 @@ class DeviceListGroupBox(DeviceOptionsGroupBox):
                              )
 
         self.options_layout.addWidget(self.show_recommendations_checkbox, 0, 0, 1, 1)
-        self.options_layout.addWidget(self.show_archived_books_checkbox,  0, 1, 1, 1)
-        self.options_layout.addWidget(self.show_previews_checkbox,        1, 0, 1, 1)
-        self.options_layout.setRowStretch(1, 1)
+        self.options_layout.addWidget(self.show_archived_books_checkbox,  1, 0, 1, 1)
+        self.options_layout.addWidget(self.show_previews_checkbox,        2, 0, 1, 1)
+        self.options_layout.setRowStretch(3, 1)
 
     @property
     def show_recommendations(self):
@@ -405,7 +382,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.support_newer_firmware_checkbox,   0, 0, 1, 2)
         self.options_layout.addWidget(self.debugging_title_label,             1, 0, 1, 1)
         self.options_layout.addWidget(self.debugging_title_edit,              1, 1, 1, 1)
-        self.options_layout.setRowStretch(1, 2)
+        self.options_layout.setRowStretch(2, 2)
 
     @property
     def support_newer_firmware(self):
@@ -420,21 +397,17 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
 
     def __init__(self, parent, device):
         super(MetadataGroupBox, self).__init__(parent, device)
-        self.setTitle(_("Metadata Options"))
+        self.setTitle(_("Update metadata on the device"))
 
         self.options_layout = QGridLayout()
         self.options_layout.setObjectName("options_layout")
         self.setLayout(self.options_layout)
         
-        self.update_device_metadata_checkbox = create_checkbox(
-                             _("Update metadata on the device"),
-                             _('Update the metadata on the device when it is connected. '
-                               'Be careful when doing this as it will take time and could make the initial connection take a long time.'),
-                             device.get_pref('update_device_metadata')
-                             )
-        self.options_layout.addWidget(self.update_device_metadata_checkbox, 0, 0, 1, 2)
-        self.update_device_metadata_checkbox.clicked.connect(self.update_device_metadata_checkbox_clicked)
-        
+        self.setCheckable(True)
+        self.setChecked(device.get_pref('update_device_metadata'))
+        self.setToolTip(wrap_msg(_('Update the metadata on the device when it is connected. '
+                               'Be careful when doing this as it will take time and could make the initial connection take a long time.')))
+                
         self.update_series_checkbox = create_checkbox(
                              _("Set Series information"),
                              _('The book lists on the Kobo devices can display series information. '
@@ -443,7 +416,7 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
                                'Enable if you wish to set series information.'),
                              device.get_pref('update_series')
                              )
-        self.options_layout.addWidget(self.update_series_checkbox, 1, 0, 1, 2)
+        self.options_layout.addWidget(self.update_series_checkbox, 0, 0, 1, 1)
         self.options_layout.setRowStretch(1, 1)
 
     @property
@@ -452,11 +425,8 @@ class MetadataGroupBox(DeviceOptionsGroupBox):
     
     @property
     def update_device_metadata(self):
-        return self.update_series_checkbox.isChecked()
+        return self.isChecked()
     
-    def update_device_metadata_checkbox_clicked(self, checked):
-        self.update_series_checkbox.setEnabled(checked)
-
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
