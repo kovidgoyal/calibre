@@ -530,7 +530,7 @@ def urls_from_identifiers(identifiers):  # {{{
     if rules:
         formatter = EvalFormatter()
         for k, val in identifiers.iteritems():
-            vals = {'id':quote(val)}
+            vals = {'id':quote(val if isinstance(val, bytes) else val.encode('utf-8')).decode('ascii')}
             items = rules.get(k) or ()
             for name, template in items:
                 try:
