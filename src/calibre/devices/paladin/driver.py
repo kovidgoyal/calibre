@@ -1,30 +1,20 @@
-#!/usr/bin/env python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-
-__license__   = 'GPL v3'
-__copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
-__docformat__ = 'restructuredtext en'
-
 '''
 Device driver for the Paladin devices
 '''
 
-import os, time, re, sys
-import apsw
+import os, time, sys
 from contextlib import closing
-from datetime import date
 
-from calibre import fsync
 from calibre.devices.mime import mime_type_ext
 from calibre.devices.errors import DeviceError
 from calibre.devices.usbms.driver import USBMS, debug_print
-from calibre.devices.usbms.device import USBDevice
-from calibre.devices.usbms.books import CollectionsBookList
-from calibre.devices.usbms.books import BookList
-from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
-from calibre.constants import islinux
+from calibre.devices.usbms.books import CollectionsBookList, BookList
 
 DBPATH = 'paladin/database/books.db'
 
@@ -35,13 +25,13 @@ class ImageWrapper(object):
 class PALADIN(USBMS):
     name           = 'Paladin Device Interface'
     gui_name       = 'Paladin eLibrary'
-    description    = _('Communicate with the Paladin range of readers')
-    author         = 'Kovid Goyal & David Hobley'
+    description    = _('Communicate with the Paladin readers')
+    author         = 'David Hobley'
     supported_platforms = ['windows', 'osx', 'linux']
     path_sep = '/'
     booklist_class = CollectionsBookList
 
-    FORMATS      = ['epub', 'pdf']  
+    FORMATS      = ['epub', 'pdf']
     CAN_SET_METADATA = ['collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
 
@@ -49,32 +39,29 @@ class PALADIN(USBMS):
     PRODUCT_ID   = [0x0010]
     BCD          = None
 
-    VENDOR_NAME        = 'ONYX'
-
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_USE_AUTHOR_SORT = True
     MUST_READ_METADATA = True
     EBOOK_DIR_MAIN   = 'paladin/books'
 
+    EXTRA_CUSTOMIZATION_MESSAGE = [
+        _(
+            'Comma separated list of metadata fields '
+            'to turn into collections on the device. Possibilities include: '
+        ) + 'series, tags, authors',
+    ]
+    EXTRA_CUSTOMIZATION_DEFAULT = [
+        ', '.join(['series', 'tags']),
+    ]
     OPT_COLLECTIONS    = 0
 
     plugboards = None
     plugboard_func = None
-    
+
     device_offset = None
 
-    def can_handle(self, devinfo, debug=False):
-        if islinux:
-            dev = USBDevice(devinfo)
-            main, carda, cardb = self.find_device_nodes(detected_device=dev)
-            if main is None and carda is None and cardb is None:
-                if debug:
-                    print ('\tPALADIN: Appears to be in non data mode'
-                            ' or was ejected, ignoring')
-                return False
-        return True
-
     def books(self, oncard=None, end_session=True):
+        import apsw
         dummy_bl = BookList(None, None, None)
 
         if (
@@ -176,6 +163,7 @@ class PALADIN(USBMS):
         debug_print('PALADIN: finished sync_booklists')
 
     def update_device_database(self, booklist, collections_attributes, oncard):
+        import apsw
         debug_print('PALADIN: starting update_device_database')
 
         plugboard = None
@@ -218,7 +206,7 @@ class PALADIN(USBMS):
             debug_print("Removing Orphaned Book Records")
 
             cursor.close()
-        except:
+        except Exception:
             import traceback
             tb = traceback.format_exc()
             raise DeviceError((('The Paladin database is corrupted. '
@@ -228,15 +216,6 @@ class PALADIN(USBMS):
                     ' deleting this file will cause your reader to forget '
                     ' any notes/highlights, etc.')%dbpath)+' Underlying error:'
                     '\n'+tb)
-
-    def get_lastrowid(self, cursor):
-        # SQLite3 + Python has a fun issue on 32-bit systems with integer overflows.
-        # Issue a SQL query instead, getting the value as a string, and then converting to a long python int manually.
-        query = 'SELECT last_insert_rowid()'
-        cursor.execute(query)
-        row = cursor.next()
-
-        return long(row[0])
 
     def get_database_min_id(self, source_id):
         sequence_min = 0L
@@ -274,7 +253,7 @@ class PALADIN(USBMS):
             # Get existing books
             query = 'SELECT filename, _id FROM books'
             cursor.execute(query)
-        except:
+        except Exception:
             import traceback
             tb = traceback.format_exc()
             raise DeviceError((('The Paladin database is corrupted. '
@@ -327,6 +306,7 @@ class PALADIN(USBMS):
     def update_device_books(self, connection, booklist, source_id, plugboard,
             dbpath):
         from calibre.ebooks.metadata.meta import path_to_ext
+        from calibre.ebooks.metadata import authors_to_sort_string, authors_to_string
         opts = self.settings()
 
         db_books = self.read_device_books(connection, source_id, dbpath)
@@ -350,7 +330,7 @@ class PALADIN(USBMS):
                         author = authors_to_sort_string(newmi.authors)
                 else:
                     author = authors_to_string(newmi.authors)
-            except:
+            except Exception:
                 author = _('Unknown')
             title = newmi.title or _('Unknown')
 
@@ -370,7 +350,7 @@ class PALADIN(USBMS):
                         book.get('series', None), book.get('series_index', sys.maxint), lpath,
                         book.mime or mime_type_ext(path_to_ext(lpath)))
                 cursor.execute(query, t)
-                book.bookId = self.get_lastrowid(cursor)
+                book.bookId = connection.last_insert_rowid()
                 debug_print('Inserted New Book: (%u) '%book.bookId + book.title)
             else:
                 query = '''
@@ -410,7 +390,7 @@ class PALADIN(USBMS):
             # Get existing collections
             query = 'SELECT _id, tagname FROM tags'
             cursor.execute(query)
-        except:
+        except Exception:
             import traceback
             tb = traceback.format_exc()
             raise DeviceError((('The Paladin database is corrupted. '
@@ -498,7 +478,7 @@ class PALADIN(USBMS):
                     query = 'INSERT INTO tags (tagname) VALUES (?)'
                     t = (collection,)
                     cursor.execute(query, t)
-                    db_collections[collection] = self.get_lastrowid(cursor)
+                    db_collections[collection] = connection.last_insert_rowid()
                     debug_print('Inserted New Collection: (%u) '%db_collections[collection] + collection)
 
                 # Get existing books in collection
@@ -535,8 +515,7 @@ class PALADIN(USBMS):
                                 'WHERE book_id = ? AND tag_id = ? ')
                         t = (bookId, db_collections[collection],)
                         cursor.execute(query, t)
-                        debug_print('Deleted Book From Collection: ' + bookPath
-                                + ' -> ' + collection)
+                        debug_print('Deleted Book From Collection: ' + bookPath + ' -> ' + collection)
 
                 db_collections[collection] = None
 
