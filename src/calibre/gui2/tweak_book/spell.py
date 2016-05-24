@@ -360,7 +360,7 @@ class ManageUserDictionaries(Dialog):
         words = set(filter(None, [x.strip() for x in unicode(w.toPlainText()).splitlines()]))
         lang = lc[0]
         words = {(w, lang) for w in words} - self.current_dictionary.words
-        if dictionaries.add_to_user_dictionary(self.current_dictionary.name, words, None):
+        if dictionaries.add_to_user_dictionary(self.current_dictionary.name, words, DictionaryLocale(lang, None)):
             dictionaries.clear_caches()
             self.show_current_dictionary()
             self.dictionaries_changed = True
