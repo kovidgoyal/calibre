@@ -391,6 +391,7 @@ class TextEdit(PlainTextEdit):
             c.setPosition(c.anchor() + idx)
             c.setPosition(c.position() + string_length(word), c.KeepAnchor)
             if self.smarts.verify_for_spellcheck(c, self.highlighter):
+                self.highlighter.join()  # Ensure highlighting is finished
                 locale = self.spellcheck_locale_for_cursor(c)
                 if not lang or not locale or (locale and lang == locale.langcode):
                     self.setTextCursor(c)
