@@ -391,10 +391,12 @@ class TextEdit(PlainTextEdit):
             c.setPosition(c.anchor() + idx)
             c.setPosition(c.position() + string_length(word), c.KeepAnchor)
             if self.smarts.verify_for_spellcheck(c, self.highlighter):
-                self.setTextCursor(c)
-                if center_on_cursor:
-                    self.centerCursor()
-                return True
+                locale = self.spellcheck_locale_for_cursor(c)
+                if not lang or (locale and lang == locale.langcode):
+                    self.setTextCursor(c)
+                    if center_on_cursor:
+                        self.centerCursor()
+                    return True
             c.setPosition(c.position())
             c.movePosition(c.End, c.KeepAnchor)
 
