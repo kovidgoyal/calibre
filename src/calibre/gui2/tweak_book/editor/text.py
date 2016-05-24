@@ -392,7 +392,7 @@ class TextEdit(PlainTextEdit):
             c.setPosition(c.position() + string_length(word), c.KeepAnchor)
             if self.smarts.verify_for_spellcheck(c, self.highlighter):
                 locale = self.spellcheck_locale_for_cursor(c)
-                if not lang or (locale and lang == locale.langcode):
+                if not lang or not locale or (locale and lang == locale.langcode):
                     self.setTextCursor(c)
                     if center_on_cursor:
                         self.centerCursor()
