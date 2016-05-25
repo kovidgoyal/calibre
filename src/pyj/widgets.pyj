@@ -27,8 +27,8 @@ create_button.style = build_rule('button.calibre-push-button',
 create_button.style += build_rule('button.calibre-push-button:hover', transform='scale(1.2)')
 create_button.style += build_rule('button.calibre-push-button:active', transform='scale(2)')
 
-def create_spinner():
-    ans = svgicon('cog')
+def create_spinner(height, width):
+    ans = svgicon('cog', height, width)
     ans.classList.add('spin')
     return ans
 
