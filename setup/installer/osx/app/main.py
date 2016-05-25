@@ -603,7 +603,7 @@ class Py2App(object):
                     except:
                         self.warn('WARNING: Failed to byte-compile', y)
 
-    def create_app_clone(self, name, specialise_plist):
+    def create_app_clone(self, name, specialise_plist, remove_doc_types=True):
         info('\nCreating ' + name)
         cc_dir = os.path.join(self.contents_dir, name, 'Contents')
         exe_dir = join(cc_dir, 'MacOS')
@@ -614,7 +614,8 @@ class Py2App(object):
             if x == 'Info.plist':
                 plist = plistlib.readPlist(join(self.contents_dir, x))
                 specialise_plist(plist)
-                plist.pop('CFBundleDocumentTypes')
+                if remove_doc_types:
+                    plist.pop('CFBundleDocumentTypes')
                 exe = plist['CFBundleExecutable']
                 # We cannot symlink the bundle executable as if we do,
                 # codesigning fails
@@ -642,7 +643,8 @@ class Py2App(object):
 
     @flush
     def create_gui_apps(self):
-        def specialise_plist(launcher, plist):
+        from calibre.customize.ui import all_input_formats
+        def specialise_plist(launcher, remove_types, plist):
             plist['CFBundleDisplayName'] = plist['CFBundleName'] = {
                 'ebook-viewer':'E-book Viewer', 'ebook-edit':'Edit Book', 'calibre-debug': 'calibre (debug)',
             }[launcher]
@@ -650,8 +652,14 @@ class Py2App(object):
             if launcher != 'calibre-debug':
                 plist['CFBundleIconFile'] = launcher + '.icns'
             plist['CFBundleIdentifier'] = 'com.calibre-ebook.' + launcher
+            if not remove_types:
+                input_formats = sorted(all_input_formats())
+                e = plist['CFBundleDocumentTypes'][0]
+                exts = 'epub azw3'.split() if launcher == 'ebook-edit' else input_formats
+                e['CFBundleTypeExtensions'] = exts
         for launcher in ('ebook-viewer', 'ebook-edit', 'calibre-debug'):
-            self.create_app_clone(launcher + '.app', partial(specialise_plist, launcher))
+            remove_types = launcher == 'calibre-debug'
+            self.create_app_clone(launcher + '.app', partial(specialise_plist, launcher, remove_types), remove_doc_types=remove_types)
 
     @flush
     def copy_site(self):

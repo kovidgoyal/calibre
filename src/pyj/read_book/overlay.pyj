@@ -1,15 +1,69 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+from __python__ import hash_literals, bound_methods
 
-from read_book.globals import iframe_id
+from dom import clear, set_css
+from elementmaker import E
+from book_list.theme import get_color
+from widgets import create_spinner
+
+class LoadingMessage:  # {{{
+
+    def __init__(self, msg):
+        self.msg = msg or ''
+
+    def show(self, container):
+        container.style.backgroundColor = get_color('window-background')
+        container.appendChild(
+            E.div(
+                style='text-align:center',
+                E.div(create_spinner('100px', '100px')),
+                E.h2()
+        ))
+        container.firstChild.lastChild.innerHTML = self.msg
+        set_css(container.firstChild, position='relative', top='50%', transform='translateY(-50%)')
+# }}}
 
 class Overlay:
 
     def __init__(self, view):
         self.view = view
+        c = self.clear_container()
+        c.addEventListener('click', self.container_clicked)
+        self.panels = []
+
+    def clear_container(self):
+        c = self.container
+        clear(c)
+        c.style.backgroundColor = 'transparent'
+        return c
 
     @property
     def container(self):
-        return document.getElementById(iframe_id).nextSibling
+        return document.getElementById('book-overlay')
 
+    def container_clicked(self, evt):
+        if self.panels.length and type(self.panels[-1].onclick) is 'function':
+            self.panels[-1].onclick(evt)
+
+    def show_loading_message(self, msg):
+        lm = LoadingMessage(msg)
+        self.panels.push(lm)
+        self.show_current_panel()
+
+    def hide_loading_message(self):
+        if self.panels.length and isinstance(self.panels[-1], LoadingMessage):
+            self.hide_current_panel()
+
+    def hide_current_panel(self):
+        self.panels.pop()
+        if self.panels.length:
+            self.show_current_panel()
+        else:
+            self.container.style.display = 'none'
+
+    def show_current_panel(self):
+        c = self.clear_container()
+        c.style.display = 'block'
+        if self.panels.length:
+            self.panels[-1].show(c)

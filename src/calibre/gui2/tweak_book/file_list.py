@@ -166,6 +166,7 @@ class FileList(QTreeWidget):
 
     def __init__(self, parent=None):
         QTreeWidget.__init__(self, parent)
+        self.categories = {}
         self.ordered_selected_indexes = False
         pi = plugins['progress_indicator'][0]
         if hasattr(pi, 'set_no_activate_on_click'):
@@ -260,6 +261,8 @@ class FileList(QTreeWidget):
         self.current_edited_name = None
 
     def build(self, container, preserve_state=True):
+        if container is None:
+            return
         if preserve_state:
             state = self.get_state()
         self.clear()

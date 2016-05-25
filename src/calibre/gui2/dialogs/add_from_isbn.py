@@ -9,7 +9,7 @@ import os
 
 from PyQt5.Qt import (
     QDialog, QApplication, QIcon, QVBoxLayout, QHBoxLayout, QDialogButtonBox,
-    QPlainTextEdit, QPushButton, QLabel, QLineEdit, Qt, QKeySequence
+    QPlainTextEdit, QPushButton, QLabel, QLineEdit, Qt
 )
 
 from calibre.ebooks.metadata import check_isbn
@@ -29,8 +29,6 @@ class AddFromISBN(QDialog):
         self.isbns = []
         self.books = []
         self.set_tags = []
-        self.paste_button.clicked.connect(self.paste)
-        self.add_tags.setText(', '.join(gprefs.get('add from ISBN tags', [])))
 
     def setup_ui(self):
         self.resize(678, 430)
@@ -40,11 +38,12 @@ class AddFromISBN(QDialog):
         self.h = h = QHBoxLayout()
         l.addLayout(h)
         self.bb = bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel, self)
-        bb.button(bb.Ok).setShortcut(QKeySequence(Qt.Key_O | Qt.ALT))
+        bb.button(bb.Ok).setText(_('&OK'))
         l.addWidget(bb), bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
         self.ll = l = QVBoxLayout()
         h.addLayout(l)
         self.isbn_box = i = QPlainTextEdit(self)
+        i.setFocus(Qt.OtherFocusReason)
         l.addWidget(i)
         self.paste_button = b = QPushButton(_("&Paste from clipboard"), self)
         l.addWidget(b), b.clicked.connect(self.paste)
@@ -62,6 +61,7 @@ class AddFromISBN(QDialog):
         self.la2 = la = QLabel(_("&Tags to set on created book entries:"), self)
         l.addWidget(la)
         self.add_tags = le = QLineEdit(self)
+        le.setText(', '.join(gprefs.get('add from ISBN tags', [])))
         la.setBuddy(le)
         l.addWidget(le)
         l.addStretch(10)

@@ -7,7 +7,7 @@ from threading import Thread
 from collections import namedtuple
 
 from PyQt5.Qt import (
-    QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime,
+    QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime, QObject,
     QPropertyAnimation, QUrl, QInputDialog, QAction, QModelIndex, pyqtSignal)
 
 from calibre.gui2.viewer.ui import Main as MainWindow
@@ -97,7 +97,7 @@ class EbookViewer(MainWindow):
     msg_from_anotherinstance = pyqtSignal(object)
 
     def __init__(self, pathtoebook=None, debug_javascript=False, open_at=None,
-                 start_in_fullscreen=False, continue_reading=False, listener=None):
+                 start_in_fullscreen=False, continue_reading=False, listener=None, file_events=()):
         MainWindow.__init__(self, debug_javascript)
         self.view.magnification_changed.connect(self.magnification_changed)
         self.closed = False
@@ -184,11 +184,14 @@ class EbookViewer(MainWindow):
         self.set_bookmarks([])
         self.load_theme_menu()
 
+        file_events.got_file.connect(self.load_ebook)
         if pathtoebook is not None:
             f = functools.partial(self.load_ebook, pathtoebook, open_at=open_at)
             QTimer.singleShot(50, f)
         elif continue_reading:
             QTimer.singleShot(50, self.continue_reading)
+        else:
+            QTimer.singleShot(50, file_events.flush)
         self.window_mode_changed = None
         self.toggle_toolbar_action = QAction(_('Show/hide controls'), self)
         self.toggle_toolbar_action.setCheckable(True)
@@ -227,6 +230,10 @@ class EbookViewer(MainWindow):
         t.setSingleShot(True), t.setInterval(3000)
         t.timeout.connect(self.hide_cursor)
         t.start()
+
+    def process_file_events(self):
+        if self.file_events:
+            self.load_ebook(self.file_events[-1])
 
     def eventFilter(self, obj, ev):
         if ev.type() == ev.MouseMove:
@@ -1153,6 +1160,24 @@ def ensure_single_instance(args, open_at):
     listener = create_listener()
     return listener
 
+class EventAccumulator(QObject):
+
+    got_file = pyqtSignal(object)
+
+    def __init__(self):
+        QObject.__init__(self)
+        self.events = []
+
+    def __call__(self, paths):
+        for path in paths:
+            if os.path.exists(path):
+                self.events.append(path)
+                self.got_file.emit(path)
+
+    def flush(self):
+        if self.events:
+            self.got_file.emit(self.events[-1])
+            self.events = []
 
 def main(args=sys.argv):
     # Ensure viewer can continue to function if GUI is closed
@@ -1164,7 +1189,9 @@ def main(args=sys.argv):
     open_at = float(opts.open_at.replace(',', '.')) if opts.open_at else None
     listener = None
     override = 'calibre-ebook-viewer' if islinux else None
+    acc = EventAccumulator()
     app = Application(args, override_program_name=override, color_prefs=vprefs)
+    app.file_event_hook = acc
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
     QApplication.setOrganizationName(ORG_NAME)
@@ -1180,7 +1207,7 @@ def main(args=sys.argv):
 
     main = EbookViewer(args[1] if len(args) > 1 else None,
             debug_javascript=opts.debug_javascript, open_at=open_at, continue_reading=opts.continue_reading,
-                       start_in_fullscreen=opts.full_screen, listener=listener)
+                       start_in_fullscreen=opts.full_screen, listener=listener, file_events=acc)
     app.installEventFilter(main)
     # This is needed for paged mode. Without it, the first document that is
     # loaded will have extra blank space at the bottom, as

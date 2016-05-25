@@ -65,6 +65,7 @@ class View:
             'goto_doc_boundary': self.goto_doc_boundary,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'update_cfi': self.on_update_cfi,
+            'content_loaded': self.on_content_loaded,
         }
         self.currently_showing = {}
 
@@ -144,12 +145,17 @@ class View:
     def on_resize(self):
         pass
 
-    def show_loading(self, title):
-        return  # TODO: Implement this
+    def show_loading(self):
+        title = self.book.metadata.title
+        name = self.currently_showing.name
+        self.overlay.show_loading_message(_(
+            'Loading <i>{name}</i> from <i>{title}</i>, please wait...').format(name=name, title=title))
+
+    def hide_loading(self):
+        self.overlay.hide_loading_message()
 
     def display_book(self, book):
         self.book = book
-        self.show_loading(book.metadata.title)
         self.ui.db.update_last_read_time(book)
         pos = {'replace_history':True}
         unkey = username_key(self.ui.interface_data.username)
@@ -184,6 +190,7 @@ class View:
         }
         initial_position = initial_position or {'replace_history':False}
         self.currently_showing = {'name':name, 'settings':settings, 'initial_position':initial_position, 'loading':True}
+        self.show_loading()
         spine = self.book.manifest.spine
         idx = spine.indexOf(name)
         if idx > -1:
@@ -236,3 +243,6 @@ class View:
             settings=self.currently_showing.settings,
         )
         self.encrypted_communications = True
+
+    def on_content_loaded(self):
+        self.hide_loading()

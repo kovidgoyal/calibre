@@ -15,6 +15,7 @@ from PyQt5.Qt import (
     QIcon, QItemSelection, QMimeData, QDrag, QStyle, QPoint, QUrl, QHeaderView,
     QStyleOptionHeader, QItemSelectionModel, QSize, QFontMetrics)
 
+from calibre.constants import islinux
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
     TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
@@ -818,11 +819,13 @@ class BooksView(QTableView):  # {{{
         self.edit_collections_action = edit_collections_action
 
     def contextMenuEvent(self, event):
+        from calibre.gui2.main_window import clone_menu
         sac = self.gui.iactions['Sort By']
         sort_added = tuple(ac for ac in self.context_menu.actions() if ac is sac.qaction)
         if sort_added:
             sac.update_menu()
-        self.context_menu.popup(event.globalPos())
+        m = clone_menu(self.context_menu) if islinux else self.context_menu
+        m.popup(event.globalPos())
         event.accept()
     # }}}
 

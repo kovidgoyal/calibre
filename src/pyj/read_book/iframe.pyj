@@ -129,6 +129,7 @@ class IframeBoss:
             elif ipos.type is 'cfi':
                 self.jump_to_cfi(ipos.cfi)
         self.update_cfi()
+        self.send_message('content_loaded')
 
     def update_cfi(self):
         cfi = at_current()

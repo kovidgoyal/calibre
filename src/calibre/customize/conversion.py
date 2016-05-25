@@ -318,7 +318,7 @@ class OutputFormatPlugin(Plugin):
     def convert(self, oeb_book, output, input_plugin, opts, log):
         '''
         Render the contents of `oeb_book` (which is an instance of
-        :class:`calibre.ebooks.oeb.OEBBook` to the file specified by output.
+        :class:`calibre.ebooks.oeb.OEBBook`) to the file specified by output.
 
         :param output: Either a file like object or a string. If it is a string
                        it is the path to a directory that may or may not exist. The output
