@@ -46,8 +46,6 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         self.extra_customization_message = extra_customization_message
         self.extra_customization_choices = extra_customization_choices
 
-        self.current_device_key = device.device_defaults_key
-
         self.tab1 = Tab1Config(self, self.device)
         self.tab2 = Tab2Config(self, self.device)
 
@@ -116,8 +114,6 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         
         p['support_newer_firmware'] = self.support_newer_firmware
         p['debugging_title'] = self.debugging_title
-        
-        p['extra_customization'] = self.extra_tab.extra_customization()
         
         return p
 
@@ -228,8 +224,8 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.options_layout.addWidget(self.collections_columns_label,         1, 0, 1, 1)
         self.options_layout.addWidget(self.collections_columns_edit,          1, 1, 1, 1)
         self.options_layout.addWidget(self.create_collections_checkbox,       2, 0, 1, 2)
-        self.options_layout.addWidget(self.delete_empty_collections_checkbox, 3, 0)#, 1, 2)
-        self.options_layout.setRowStretch(5, 1)
+        self.options_layout.addWidget(self.delete_empty_collections_checkbox, 3, 0, 1, 2)
+        self.options_layout.setRowStretch(4, 1)
 
 
     @property
@@ -275,9 +271,9 @@ class CoversGroupBox(DeviceOptionsGroupBox):
                                ' This is for firmware versions 2.3.1 and later.'),
                              device.get_pref('keep_cover_aspect'))
 
-        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    1, 0, 1, 1)
-        self.options_layout.addWidget(self.upload_grayscale_checkbox,     2, 0, 1, 1)
-        self.options_layout.setRowStretch(3, 1)
+        self.options_layout.addWidget(self.keep_cover_aspect_checkbox,    0, 0, 1, 1)
+        self.options_layout.addWidget(self.upload_grayscale_checkbox,     1, 0, 1, 1)
+        self.options_layout.setRowStretch(2, 1)
         
     @property
     def upload_covers(self):

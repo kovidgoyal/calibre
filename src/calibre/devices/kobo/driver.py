@@ -148,44 +148,6 @@ class KOBO(USBMS):
     def __init__(self, *args, **kwargs):
         USBMS.__init__(self, *args, **kwargs)
         self.plugboards = self.plugboard_func = None
-        self._prefs = None
-#          self.device_defaults = DeviceDefaults()
-        self.current_device_defaults = {}
-        self.device_defaults_key = self.name
-
-    @property
-    def prefs(self):
-        from calibre.utils.config import JSONConfig
-#         debug_print("KOBO:prefs - start")
-        if self._prefs is None:
-            self._prefs = p = JSONConfig(self.device_defaults_key + '_devices')
-#             debug_print("KOBO:prefs - self._prefs=", self._prefs)
-            if p == {}:
-                old_settings = super(KOBO, self).settings()
-                p[self.device_defaults_key] = self.migrate_old_settings(old_settings)
-#                 debug_print("KOBO:prefs - Old settings self._prefs=", self._prefs)
-            p.defaults['format_map'] = self.FORMATS
-            p.defaults['save_template'] = KOBO._default_save_template()
-            p.defaults['use_subdirs'] = True
-            p.defaults['read_metadata'] = True
-            p.defaults['use_author_sort'] = False
-            
-            p.defaults['collections_columns'] = ''
-            p.defaults['create_collections'] = False
-            p.defaults['delete_empty_collections'] = False
-            
-            p.defaults['upload_covers'] = False
-            p.defaults['upload_grayscale'] = False
-            
-            p.defaults['show_expired_books'] = False
-            p.defaults['show_previews'] = False
-            p.defaults['show_recommendations'] = False
-            p.defaults['support_newer_firmware'] = False
-                        
-            p.defaults['extra_customization'] = self.EXTRA_CUSTOMIZATION_DEFAULT
-            debug_print("KOBO:prefs - finish self._prefs=", self._prefs)
-
-        return self._prefs
 
     
     def initialize(self):
@@ -1111,7 +1073,6 @@ class KOBO(USBMS):
         OPT_SHOW_RECOMMENDATIONS = 5
         OPT_SUPPORT_NEWER_FIRMWARE = 6
 
-        
         p = {}
         p['format_map'] = old_settings.format_map
         p['save_template'] = old_settings.save_template
@@ -1434,11 +1395,6 @@ class KOBOTOUCH(KOBO):
     def __init__(self, *args, **kwargs):
         KOBO.__init__(self, *args, **kwargs)
         self.plugboards = self.plugboard_func = None
-        self._prefs = None
-#          self.device_defaults = DeviceDefaults()
-        self.current_device_defaults = {}
-        self.device_defaults_key = self.name
-
 
     def initialize(self):
         super(KOBOTOUCH, self).initialize()

@@ -164,14 +164,6 @@ class TabbedDeviceConfig(QTabWidget):
                     pass
         raise ae
 
-    def get_pref(self, key):
-        debug_print("get_pref - self.device.prefs", self.device.prefs)
-        p = self.device.prefs.get(self.current_device_key, {})
-        if not p:
-            self.device.prefs[self.current_device_key] = p
-        debug_print("get_pref - self.device.get_pref(key)", self.device.get_pref(key))
-        return self.device.get_pref(key)
-
     @property
     def device(self):
         return self._device()
@@ -217,26 +209,11 @@ class TabbedDeviceConfig(QTabWidget):
     def commit(self):
         debug_print("TabbedDeviceConfig::commit: start")
         p = self.device._configProxy()
-        debug_print("commit: starting setting=%s" % (p, ))
-
-        f = self.formats.format_map
-        debug_print("commit: self.formats.format_map=", self.formats.format_map)
-        debug_print("commit: self.device.prefs['format_map']=", self.device.prefs['format_map'])
-        if f and f != self.device.prefs['format_map']:
-            p['format_map'] = f
-
-        f = self.use_subdirs()
-        if f != self.get_pref('use_subdirs'):
-            p['use_subdirs'] = f
-
-        f = self.read_metadata()
-        if f != self.get_pref('read_metadata'):
-            p['read_metadata'] = f
         
-        t = self.template.template
-        if t and t != self.device.prefs['save_template']:
-            p['save_template'] = t
-        
+        p['format_map'] = self.formats.format_map
+        p['use_subdirs'] = self.use_subdirs()
+        p['read_metadata'] = self.read_metadata()
+        p['save_template'] = self.template.template
         p['extra_customization'] = self.extra_tab.extra_customization()
 
         return p
