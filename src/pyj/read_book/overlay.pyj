@@ -78,6 +78,8 @@ class MainOverlay:  # {{{
         add_button('cloud-download', _('Get last read position and annotations from the server'))
         add_button('trash', _('Delete this book from the device'))
         add_button()
+        add_button('search', _('Search for text in this book'))
+        add_button()
         add_button('Aa', _('Change text size'), text_button=True)
         add_button('cogs', _('Configure the book reader'))
         add_button()
