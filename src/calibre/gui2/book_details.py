@@ -21,7 +21,7 @@ from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata.book.render import mi_to_html
-from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font)
+from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font, NO_URL_FORMATTING)
 from calibre.utils.config import tweaks
 from calibre.utils.localization import is_rtl
 
@@ -110,7 +110,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
     p = view.page()
     mf = p.mainFrame()
     r = mf.hitTestContent(ev.pos())
-    url = unicode(r.linkUrl().toString(QUrl.None)).strip()
+    url = unicode(r.linkUrl().toString(NO_URL_FORMATTING)).strip()
     menu = p.createStandardContextMenu()
     ca = view.pageAction(p.Copy)
     for action in list(menu.actions()):
@@ -478,7 +478,7 @@ class BookInfo(QWebView):
         self._link_clicked = True
         if unicode(link.scheme()) in ('http', 'https'):
             return open_url(link)
-        link = unicode(link.toString(QUrl.None))
+        link = unicode(link.toString(NO_URL_FORMATTING))
         self.link_clicked.emit(link)
 
     def turnoff_scrollbar(self, *args):
