@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import clear, set_css
+from dom import clear, set_css, element
 from elementmaker import E
 from book_list.theme import get_color
 from widgets import create_spinner
@@ -44,13 +44,13 @@ class MainOverlay:  # {{{
             set_css(E.div(
                 onclick=def (evt):evt.stopPropagation();,
                 E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis'),
-                E.div(self.date_formatter.format(Date()), style='max-width: 9%; text-overflow: ellipsis'),
+                E.div(self.date_formatter.format(Date()), data_time='1', style='max-width: 9%; text-overflow: ellipsis'),
             ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor')
         ), background_color=get_color('window-background')))
         self.timer = setInterval(self.update_time, 1000)
 
     def update_time(self):
-        document.getElementById(self.container_id).firstChild.firstChild.lastChild.textContent = self.date_formatter.format(Date())
+        element(self.container_id, '[data-time]').textContent = self.date_formatter.format(Date())
 
     def on_hide(self):
         clearInterval(self.timer)
