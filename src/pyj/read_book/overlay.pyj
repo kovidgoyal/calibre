@@ -2,10 +2,11 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import clear, set_css, element
+from dom import clear, set_css, element, svgicon, build_rule
 from elementmaker import E
 from book_list.theme import get_color
 from widgets import create_spinner
+from gettext import gettext as _
 
 class LoadingMessage:  # {{{
 
@@ -40,14 +41,52 @@ class MainOverlay:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        container.appendChild(set_css(E.div(
-            set_css(E.div(
+        container.appendChild(set_css(E.div(  # top section
+
+            set_css(E.div(  # top row
                 onclick=def (evt):evt.stopPropagation();,
-                E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis'),
+                E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis; font-weight: bold'),
                 E.div(self.date_formatter.format(Date()), data_time='1', style='max-width: 9%; text-overflow: ellipsis'),
-            ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor')
-        ), background_color=get_color('window-background')))
+            ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor'),
+
+            set_css(E.div(class_='button-row'  # button row
+            ), display='flex', align_items='center', flex_wrap='wrap', padding='0 0.5rem', border_bottom='solid 1px currentColor')
+
+        ), user_select='none', background_color=get_color('window-background')))
+
         self.timer = setInterval(self.update_time, 1000)
+        button_row = container.querySelector('.button-row')
+
+        def add_button(icon, title, action, text_button=False):
+            if not icon:
+                button_row.appendChild(set_css(E.div(), border_left='solid 1px currentColor', width='1px', align_self='stretch'))
+                return
+            if text_button:
+                icon = E.span(icon, style='font-size: 175%; font-weight: bold')
+            else:
+                icon = svgicon(icon, '3.5ex', '3.5ex')
+            button_row.appendChild(set_css(E.div(
+                icon, title=title, onclick=action),
+                cursor='pointer', padding='0.5ex 0', margin='0 0.5rem',
+            ))
+
+        add_button('home', _('Return to list of books'))
+        add_button('arrow-left', _('Back'))
+        add_button('arrow-right', _('Forward'))
+        add_button()
+        add_button('refresh', _('Reload this book from the server'))
+        add_button('cloud-download', _('Get last read position and annotations from the server'))
+        add_button('trash', _('Delete this book from the device'))
+        add_button()
+        add_button('Aa', _('Change text size'), text_button=True)
+        add_button('cogs', _('Configure the book reader'))
+        add_button()
+
+        sel = '#{} .button-row '.format(self.container_id)
+        container.appendChild(E.style(
+            build_rule(sel + '> div:hover', transform='scale(1.5)'),
+            build_rule(sel + '> div:active', transform='scale(2)')
+        ))
 
     def update_time(self):
         element(self.container_id, '[data-time]').textContent = self.date_formatter.format(Date())
