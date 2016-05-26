@@ -42,6 +42,7 @@ def set_css(elem, **kw):
                         s.removeProperty('-' + prefix + '-' + name)
                     else:
                         s.setProperty('-' + prefix + '-' + name, val)
+    return elem
 
 def build_rule(selector, **kw):
     ans = v'[selector + " { "]'
