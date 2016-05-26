@@ -22,6 +22,41 @@ class LoadingMessage:  # {{{
         ))
         container.firstChild.lastChild.innerHTML = self.msg
         set_css(container.firstChild, position='relative', top='50%', transform='translateY(-50%)')
+
+    def on_container_click(self, evt):
+        pass  # Dont allow panel to be closed by a click
+# }}}
+
+class MainOverlay:  # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+        if window.Intl?.DateTimeFormat:
+            self.date_formatter = window.Intl.DateTimeFormat(undefined, {'hour':'numeric', 'minute':'numeric'})
+        else:
+            self.date_formatter = {'format': def(date):
+                return '{}:{}'.format(date.getHours(), date.getMinutes())
+            }
+
+    def show(self, container):
+        self.container_id = container.getAttribute('id')
+        top_row = E.div(
+            E.div(
+                E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis'),
+                E.div(self.date_formatter.format(Date()), style='max-width: 9%; text-overflow: ellipsis'),
+                onclick=def (evt):evt.stopPropagation();,
+                style='font-size: smaller; padding: 0.5ex 1rem; border-bottom: solid 1px currentColor'
+            )
+        )
+        set_css(top_row.firstChild, background_color=get_color('window-background'), display='flex', justify_content='space-between', align_items='baseline')
+        container.appendChild(top_row)
+        self.timer = setInterval(self.update_time, 1000)
+
+    def update_time(self):
+        document.getElementById(self.container_id).firstChild.firstChild.lastChild.textContent = self.date_formatter.format(Date())
+
+    def on_hide(self):
+        clearInterval(self.timer)
 # }}}
 
 class Overlay:
@@ -36,6 +71,7 @@ class Overlay:
         c = self.container
         clear(c)
         c.style.backgroundColor = 'transparent'
+        c.style.color = get_color('window-foreground')
         return c
 
     @property
@@ -43,8 +79,10 @@ class Overlay:
         return document.getElementById('book-overlay')
 
     def container_clicked(self, evt):
-        if self.panels.length and type(self.panels[-1].onclick) is 'function':
-            self.panels[-1].onclick(evt)
+        if self.panels.length and type(self.panels[-1].on_container_click) is 'function':
+            self.panels[-1].on_container_click(evt)
+        else:
+            self.hide_current_panel()
 
     def show_loading_message(self, msg):
         lm = LoadingMessage(msg)
@@ -56,7 +94,9 @@ class Overlay:
             self.hide_current_panel()
 
     def hide_current_panel(self):
-        self.panels.pop()
+        p = self.panels.pop()
+        if p and callable(p.on_hide):
+            p.on_hide()
         if self.panels.length:
             self.show_current_panel()
         else:
@@ -67,3 +107,7 @@ class Overlay:
         c.style.display = 'block'
         if self.panels.length:
             self.panels[-1].show(c)
+
+    def show(self):
+        self.panels = [MainOverlay(self)]
+        self.show_current_panel()
