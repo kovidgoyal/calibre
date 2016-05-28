@@ -28,6 +28,8 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import DEBUG
 from calibre.utils.config_base import prefs
 
+from cssutils.css import CSSRule
+
 EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'
 
@@ -1878,8 +1880,26 @@ class KOBOTOUCH(KOBO):
                 except Exception as e:
                     debug_print("KoboTouch:get_extra_css: Problem parsing extra CSS file {0}".format(extra_css_path))
                     debug_print("KoboTouch:get_extra_css: Exception {0}".format(e))
+
+        # create dictionary of features enabled in kobo extra css
+        self.extra_css_options = {}
+        if extra_sheet:
+            # search extra_css for @page rule
+            self.extra_css_options['has_atpage'] = len(self.get_extra_css_rules(extra_sheet, CSSRule.PAGE_RULE)) > 0
+                
+            # search extra_css for style rule(s) containing widows or orphans
+            self.extra_css_options['has_widows_orphans'] = len(self.get_extra_css_rules_widow_orphan(extra_sheet)) > 0
+            debug_print('KoboTouch:get_extra_css - CSS options:', self.extra_css_options)
+
         return extra_sheet
 
+    def get_extra_css_rules(self, sheet, css_rule):
+        return [r for r in sheet.cssRules.rulesOfType(css_rule)]
+        
+    def get_extra_css_rules_widow_orphan(self, sheet):
+        return [r for r in self.get_extra_css_rules(sheet, CSSRule.STYLE_RULE) 
+                    if (r.style['widows'] or r.style['orphans'])]
+    
     def upload_books(self, files, names, on_card=None, end_session=True,
                      metadata=None):
         debug_print('KoboTouch:upload_books - %d books'%(len(files)))
@@ -1934,7 +1954,7 @@ class KOBOTOUCH(KOBO):
 
         return result
 
-    def _modify_epub(self, file, metadata, container=None):
+    def _modify_epub(self, book_file, metadata, container=None):
         debug_print("KoboTouch:_modify_epub:Processing {0} - {1}".format(metadata.author_sort, metadata.title))
 
         # Currently only modifying CSS, so if no stylesheet, don't do anything
@@ -1942,58 +1962,95 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:_modify_epub: no CSS file")
             return True
 
-        commit_container = False
+        container, commit_container = self.create_container(book_file, metadata, container)
         if not container:
-            commit_container = True
-            try:
-                from calibre.ebooks.oeb.polish.container import get_container
-                debug_print("KoboTouch:_modify_epub: creating container")
-                container = get_container(file)
-                container.css_preprocessor = DummyCSSPreProcessor()
-            except Exception as e:
-                debug_print("KoboTouch:_modify_epub: exception from get_container {0} - {1}".format(metadata.author_sort, metadata.title))
-                debug_print("KoboTouch:_modify_epub: exception is: {0}".format(e))
-                return False
-        else:
-            debug_print("KoboTouch:_modify_epub: received container")
-
+            return False
+        
         from calibre.ebooks.oeb.base import OEB_STYLES
+
+        is_dirty = False
         for cssname, mt in container.mime_map.iteritems():
             if mt in OEB_STYLES:
                 newsheet = container.parsed(cssname)
                 oldrules = len(newsheet.cssRules)
-                # remove any existing @page rules in epub css
-                # if css to be appended contains an @page rule
-                if self.extra_sheet and len([r for r in self.extra_sheet if r.type == r.PAGE_RULE]):
-                    page_rules = [r for r in newsheet if r.type == r.PAGE_RULE]
-                    if len(page_rules) > 0:
-                        debug_print("KoboTouch:_modify_epub:Removing existing @page rules")
-                        for rule in page_rules:
-                            rule.style = ''
-                # remove any existing widow/orphan settings in epub css
-                # if css to be appended contains a widow/orphan rule or we there is no extra CSS file
-                if (len([r for r in self.extra_sheet if r.type == r.STYLE_RULE
-                    and (r.style['widows'] or r.style['orphans'])]) > 0):
-                    widow_orphan_rules = [r for r in newsheet if r.type == r.STYLE_RULE
-                        and (r.style['widows'] or r.style['orphans'])]
-                    if len(widow_orphan_rules) > 0:
-                        debug_print("KoboTouch:_modify_epub:Removing existing widows/orphans attribs")
-                        for rule in widow_orphan_rules:
-                            rule.style.removeProperty('widows')
-                            rule.style.removeProperty('orphans')
-                # append all rules from kobo extra css stylesheet
-                for addrule in [r for r in self.extra_sheet.cssRules]:
-                    newsheet.insertRule(addrule, len(newsheet.cssRules))
-                debug_print("KoboTouch:_modify_epub:CSS rules {0} -> {1} ({2})".format(oldrules, len(newsheet.cssRules), cssname))
-                container.dirty(cssname)
+
+                # future css mods may be epub/kepub specific, so pass file extension arg
+                fileext = os.path.splitext(book_file)[-1].lower()
+                debug_print("KoboTouch:_modify_epub: Modifying {0}".format(cssname))
+                if self._modify_stylesheet(newsheet, fileext):
+                    debug_print("KoboTouch:_modify_epub:CSS rules {0} -> {1} ({2})".format(oldrules, len(newsheet.cssRules), cssname))
+                    container.dirty(cssname)
+                    is_dirty = True
 
         if commit_container:
             debug_print("KoboTouch:_modify_epub: committing container.")
-            os.unlink(file)
-            container.commit(file)
+            self.commit_container(container, is_dirty)
 
         return True
 
+    def _modify_stylesheet(self, sheet, fileext, is_dirty=False):
+        
+        #if fileext in (EPUB_EXT, KEPUB_EXT):
+            
+        # if kobo extra css contains a @page rule
+        # remove any existing @page rules in epub css
+        if self.extra_css_options.get('has_atpage', False):
+            page_rules = self.get_extra_css_rules(sheet, CSSRule.PAGE_RULE)
+            if len(page_rules) > 0:
+                debug_print("KoboTouch:_modify_stylesheet: Removing existing @page rules")
+                for rule in page_rules:
+                    rule.style = ''
+                is_dirty = True
+        
+        # if kobo extra css contains any widow/orphan style rules
+        # remove any existing widow/orphan settings in epub css
+        if self.extra_css_options.get('has_widows_orphans', False):
+            widow_orphan_rules = self.get_extra_css_rules_widow_orphan(sheet)
+            if len(widow_orphan_rules) > 0:
+                debug_print("KoboTouch:_modify_stylesheet: Removing existing widows/orphans attribs")
+                for rule in widow_orphan_rules:
+                    rule.style.removeProperty('widows')
+                    rule.style.removeProperty('orphans')
+                is_dirty = True
+                
+        # append all rules from kobo extra css
+        debug_print("KoboTouch:_modify_stylesheet: Append all kobo extra css rules")
+        for extra_rule in [r for r in self.extra_sheet.cssRules]:
+            sheet.insertRule(extra_rule)
+            is_dirty = True
+        
+        return is_dirty
+
+    def create_container(self, book_file, metadata, container=None):
+        # create new container if not received, else pass through
+        if not container:
+            commit_container = True
+            try:
+                from calibre.ebooks.oeb.polish.container import get_container
+                debug_print("KoboTouch:create_container: try to create new container")
+                container = get_container(book_file)
+                container.css_preprocessor = DummyCSSPreProcessor()
+            except Exception as e:
+                debug_print("KoboTouch:create_container: exception from get_container {0} - {1}".format(metadata.author_sort, metadata.title))
+                debug_print("KoboTouch:create_container: exception is: {0}".format(e))
+        else:
+            commit_container = False
+            debug_print("KoboTouch:create_container: received container")
+        return container, commit_container
+    
+    def commit_container(self, container, is_dirty=True):
+        # commit container if changes have been made
+        if is_dirty:
+            debug_print("KoboTouch:commit_container: commit container.")
+            container.commit()
+            
+        # Clean-up-AYGO prevents build-up of TEMP exploded epub/kepub files
+        debug_print("KoboTouch:commit_container: removing container temp files.")
+        try:
+            shutil.rmtree(container.root)
+        except:
+            pass
+        
     def delete_via_sql(self, ContentID, ContentType):
         imageId = super(KOBOTOUCH, self).delete_via_sql(ContentID, ContentType)
 
