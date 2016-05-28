@@ -1055,6 +1055,7 @@ class KOBO(USBMS):
                     paths[idx] = tf.name
         return paths
 
+    @classmethod
     def config_widget(self):
         # TODO: Cleanup the following
         self.current_friendly_name = self.gui_name
@@ -2774,6 +2775,7 @@ class KOBOTOUCH(KOBO):
         if show_debug:
             debug_print("KoboTouch:set_series - end")
 
+    @classmethod
     def config_widget(self):
         # TODO: Cleanup the following
         self.current_friendly_name = self.gui_name
