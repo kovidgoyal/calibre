@@ -2016,7 +2016,7 @@ class KOBOTOUCH(KOBO):
                 
         # append all rules from kobo extra css
         debug_print("KoboTouch:_modify_stylesheet: Append all kobo extra css rules")
-        for extra_rule in [r for r in self.extra_sheet.cssRules]:
+        for extra_rule in self.extra_sheet.cssRules:
             sheet.insertRule(extra_rule)
             is_dirty = True
         
@@ -2797,7 +2797,7 @@ class KOBOTOUCH(KOBO):
         try:
             return getattr(opts, key)
         except:
-            debug_print("KoboTouch::get_prefs - probably an extra_customization")
+            debug_print("KoboTouch::get_prefs - probably an extra_customization:", key)
         return None
 
     @classmethod
