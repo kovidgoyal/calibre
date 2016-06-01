@@ -39,6 +39,9 @@ def serialize_hwnd(hwnd):
         return b''
     return struct.pack(b'=B4s' + (b'Q' if is64bit else b'I'), 4, b'HWND', int(hwnd))
 
+def serialize_secret(secret):
+    return struct.pack(b'=B6s32s', 6, b'SECRET', secret)
+
 def serialize_binary(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
     return struct.pack(b'=B%ssB' % len(key), len(key), key, int(val))
@@ -110,8 +113,9 @@ def run_file_dialog(
     from calibre.gui2 import sanitize_env_vars
     with sanitize_env_vars():
         env = os.environ.copy()
+    secret = os.urandom(32)
     pipename = '\\\\.\\pipe\\%s' % uuid4()
-    data = [serialize_string('PIPENAME', pipename)]
+    data = [serialize_string('PIPENAME', pipename), serialize_secret(secret)]
     parent = parent or None
     if parent is not None:
         data.append(serialize_hwnd(get_hwnd(parent)))
@@ -165,9 +169,11 @@ def run_file_dialog(
         except Exception:
             x = repr(x)
         return x
+    def get_errors():
+        return decode(h.stdoutdata) + ' ' + decode(h.stderrdata)
 
     if h.rc != 0:
-        raise Exception('File dialog failed: ' + decode(h.stdoutdata) + ' ' + decode(h.stderrdata))
+        raise Exception('File dialog failed: ' + get_errors())
     server.join(2)
     if server.is_alive():
         raise Exception('Timed out waiting for read from pipe to complete')
@@ -175,7 +181,12 @@ def run_file_dialog(
         raise Exception(server.err_msg)
     if not server.data:
         return ()
-    ans = tuple((os.path.abspath(x.decode('utf-8')) for x in server.data.split(b'\0') if x))
+    parts = list(filter(None, server.data.split(b'\0')))
+    if len(parts) < 2:
+        return ()
+    if parts[0] != secret:
+        raise Exception('File dialog failed, incorrect secret received: ' + get_errors())
+    ans = tuple((os.path.abspath(x.decode('utf-8')) for x in parts[1:]))
     return ans
 
 def get_initial_folder(name, title, default_dir='~', no_save_dir=False):
@@ -289,16 +300,20 @@ class PipeServer(Thread):
 def test(helper=HELPER):
     pipename = '\\\\.\\pipe\\%s' % uuid4()
     echo = '\U0001f431 Hello world!'
-    data = serialize_string('PIPENAME', pipename) + serialize_string('ECHO', echo)
+    secret = os.urandom(32)
+    data = serialize_string('PIPENAME', pipename) +  serialize_string('ECHO', echo) + serialize_secret(secret)
     server = PipeServer(pipename)
     p = subprocess.Popen([helper], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate(data)
     if p.wait() != 0:
-        raise Exception('File dialog failed: ' + stderr.decode('utf-8'))
+        raise Exception('File dialog failed: ' + stdout.decode('utf-8') + ' ' + stderr.decode('utf-8'))
     if server.err_msg is not None:
         raise RuntimeError(server.err_msg)
     server.join(2)
-    q = server.data[:-1].decode('utf-8')
+    parts = filter(None, server.data.split(b'\0'))
+    if parts[0] != secret:
+        raise RuntimeError('Did not get back secret: %r != %r' % (secret, parts[0]))
+    q = parts[1].decode('utf-8')
     if q != echo:
         raise RuntimeError('Unexpected response: %r' % server.data)
 
