@@ -286,6 +286,9 @@ class Editor(QMainWindow):
     def find(self, *args, **kwargs):
         return self.editor.find(*args, **kwargs)
 
+    def find_text(self, *args, **kwargs):
+        return self.editor.find_text(*args, **kwargs)
+
     def find_spell_word(self, *args, **kwargs):
         return self.editor.find_spell_word(*args, **kwargs)
 

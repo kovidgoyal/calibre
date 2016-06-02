@@ -114,6 +114,7 @@ class Boss(QObject):
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
+        self.gui.text_search.find_text.connect(self.find_text)
         self.gui.preview.sync_requested.connect(self.sync_editor_to_preview)
         self.gui.preview.split_start_requested.connect(self.split_start_requested)
         self.gui.preview.split_requested.connect(self.split_requested)
@@ -866,6 +867,10 @@ class Boss(QObject):
             if text and text.strip():
                 self.gui.central.pre_fill_search(text)
 
+    def show_text_search(self):
+        self.gui.text_search_dock.show()
+        self.gui.text_search.find.setFocus(Qt.OtherFocusReason)
+
     def search_action_triggered(self, action, overrides=None):
         ss = self.gui.saved_searches.isVisible()
         trigger_saved_search = ss and (not self.gui.central.search_panel.isVisible() or self.gui.saved_searches.has_focus())
@@ -908,6 +913,18 @@ class Boss(QObject):
             ed.editor.setFocus(Qt.OtherFocusReason)
         else:
             self.gui.saved_searches.setFocus(Qt.OtherFocusReason)
+
+    def find_text(self, state):
+        from calibre.gui2.tweak_book.text_search import run_text_search
+        searchable_names = self.gui.file_list.searchable_names
+        ed = self.gui.central.current_editor
+        name = editor_name(ed)
+        if not validate_search_request(name, searchable_names, getattr(ed, 'has_marked_text', False), state, self.gui):
+            return
+        ret = run_text_search(state, ed, name, searchable_names, self.gui, self.show_editor, self.edit_file)
+        ed = ret is True and self.gui.central.current_editor
+        if getattr(ed, 'has_line_numbers', False):
+            ed.editor.setFocus(Qt.OtherFocusReason)
 
     def find_word(self, word, locations):
         # Go to a word from the spell check dialog

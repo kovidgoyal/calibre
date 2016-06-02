@@ -1181,7 +1181,7 @@ def initialize_search_request(state, action, current_editor, current_editor_name
     editor = None
     where = state['where']
     files = OrderedDict()
-    do_all = state['wrap'] or action in {'replace-all', 'count'}
+    do_all = state.get('wrap') or action in {'replace-all', 'count'}
     marked = False
     if where == 'current':
         editor = current_editor

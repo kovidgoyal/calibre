@@ -368,6 +368,48 @@ class TextEdit(PlainTextEdit):
             self.saved_matches[save_match] = (pat, m)
         return True
 
+    def find_text(self, pat, wrap=False, complete=False):
+        reverse = pat.flags & regex.REVERSE
+        c = self.textCursor()
+        c.clearSelection()
+        if complete:
+            # Search the entire text
+            c.movePosition(c.End if reverse else c.Start)
+        pos = c.Start if reverse else c.End
+        if wrap and not complete:
+            pos = c.End if reverse else c.Start
+        c.movePosition(pos, c.KeepAnchor)
+        if hasattr(self.smarts, 'find_text'):
+            found, start, end = self.smarts.find_text(pat, c)
+            if not found:
+                return False
+        else:
+            raw = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+            m = pat.search(raw)
+            if m is None:
+                return False
+            start, end = m.span()
+            if start == end:
+                return False
+        if wrap and not complete:
+            if reverse:
+                textpos = c.anchor()
+                start, end = textpos + end, textpos + start
+        else:
+            if reverse:
+                # Put the cursor at the start of the match
+                start, end = end, start
+            else:
+                textpos = c.anchor()
+                start, end = textpos + start, textpos + end
+        c.clearSelection()
+        c.setPosition(start)
+        c.setPosition(end, c.KeepAnchor)
+        self.setTextCursor(c)
+        # Center search result on screen
+        self.centerCursor()
+        return True
+
     def find_spell_word(self, original_words, lang, from_cursor=True, center_on_cursor=True):
         c = self.textCursor()
         c.setPosition(c.position())
