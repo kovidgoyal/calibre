@@ -380,6 +380,7 @@ class TextEdit(PlainTextEdit):
             pos = c.End if reverse else c.Start
         c.movePosition(pos, c.KeepAnchor)
         if hasattr(self.smarts, 'find_text'):
+            self.highlighter.join()
             found, start, end = self.smarts.find_text(pat, c)
             if not found:
                 return False

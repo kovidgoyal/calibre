@@ -166,7 +166,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
         for fname, syntax in files.iteritems():
             ed = editors.get(fname, None)
             if ed is not None:
-                if ed.find_text(pat, complete=True, save_match='gui'):
+                if ed.find_text(pat, complete=True):
                     show_editor(fname)
                     return True
             else:
@@ -182,3 +182,33 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
 
     msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(search['find']) + '</pre>')
     return error_dialog(gui_parent, _('Not found'), msg, show=True)
+
+def find_text_in_chunks(pat, chunks):
+    text = ''.join(x[0] for x in chunks)
+    m = pat.search(text)
+    if m is None:
+        return -1, -1
+    start, after = m.span()
+
+    def contains(clen, pt):
+        return offset <= pt < offset + clen
+
+    offset = 0
+    start_pos = end_pos = None
+
+    for chunk, chunk_start in chunks:
+        clen = len(chunk)
+        if offset + clen < start:
+            offset += clen
+            continue  # this chunk ends before start
+        if start_pos is None:
+            if contains(clen, start):
+                start_pos = chunk_start + (start - offset)
+        if start_pos is not None:
+            if contains(clen, after-1):
+                end_pos = chunk_start + (after - offset)
+                return start_pos, end_pos
+        offset += clen
+        if offset > after:
+            break  # the next chunk starts after end
+    return -1, -1
