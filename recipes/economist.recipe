@@ -49,7 +49,7 @@ class Economist(BasicNewsRecipe):
                                  'main-content-container', 'ec-topic-widget']}),
             {'class': lambda x: x and 'share-links-header' in x},
     ]
-    keep_only_tags = [dict(name='article')]
+    keep_only_tags = [dict(name='article', id=lambda x: not x)]
     no_stylesheets = True
     preprocess_regexps = [(re.compile('</html>.*', re.DOTALL),
         lambda x:'</html>')]
@@ -78,6 +78,7 @@ class Economist(BasicNewsRecipe):
         return self.economist_parse_index()
 
     def economist_parse_index(self):
+        # return [('Articles', [{'title':'test', 'url':'http://www.economist.com/news/americas/21699494-guide-cutting-corners-way-jos'}])]
         soup = self.index_to_soup(self.INDEX)
         div = soup.find('div', attrs={'class':'issue-image'})
         if div is not None:
