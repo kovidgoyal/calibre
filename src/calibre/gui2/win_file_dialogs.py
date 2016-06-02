@@ -75,7 +75,7 @@ class Helper(Thread):
         self.data = data
         self.daemon = True
         self.rc = 0
-        self.stdoutdata = None
+        self.stdoutdata = self.stderrdata = b''
 
     def run(self):
         self.stdoutdata, self.stderrdata = self.process.communicate(b''.join(self.data))
@@ -171,6 +171,10 @@ def run_file_dialog(
         return x
     def get_errors():
         return decode(h.stdoutdata) + ' ' + decode(h.stderrdata)
+    from calibre import prints
+    from calibre.constants import DEBUG
+    if DEBUG:
+        prints('stdout+stderr from file dialog helper:', type('')([h.stdoutdata, h.stderrdata]))
 
     if h.rc != 0:
         raise Exception('File dialog failed: ' + get_errors())
@@ -182,6 +186,8 @@ def run_file_dialog(
     if not server.data:
         return ()
     parts = list(filter(None, server.data.split(b'\0')))
+    if DEBUG:
+        prints('piped data from file dialog helper:', type('')(parts))
     if len(parts) < 2:
         return ()
     if parts[0] != secret:
