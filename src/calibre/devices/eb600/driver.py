@@ -52,8 +52,8 @@ class EB600(USBMS):
 class TOLINO(EB600):
 
     name = 'Tolino Shine Device Interface'
-    gui_name = 'Tolino Shine'
-    description    = _('Communicate with the Tolino Shine and Vision readers')
+    gui_name = 'tolino shine'
+    description    = _('Communicate with the tolino shine and vision readers')
     FORMATS = ['epub', 'pdf', 'txt']
     PRODUCT_ID  = EB600.PRODUCT_ID + [0x6033, 0x6052, 0x6053]
     BCD         = [0x226, 0x9999]
@@ -64,7 +64,7 @@ class TOLINO(EB600):
         _('Swap main and card A') +
         ':::' +
         _('Check this box if the device\'s main memory is being seen as card a and the card '
-            'is being seen as main memory. Some Tolino devices may need this option.'),
+            'is being seen as main memory. Some tolino devices may need this option.'),
     ]
 
     EXTRA_CUSTOMIZATION_DEFAULT = [
@@ -110,7 +110,7 @@ class TOLINO(EB600):
         return names
 
     def post_open_callback(self):
-        # The Tolino Vision only handles books inside the Books folder
+        # The tolino vision only handles books inside the Books folder
         product_id, bcd = self.device_being_opened[1], self.device_being_opened[2]
         is_tolino = product_id in (0x6033, 0x6052, 0x6053) or (product_id == 0x1688 and bcd == 0x226)
         self.ebook_dir_for_upload = 'Books' if is_tolino else ''
