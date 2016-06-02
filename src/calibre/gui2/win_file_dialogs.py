@@ -113,7 +113,7 @@ def run_file_dialog(
     from calibre.gui2 import sanitize_env_vars
     with sanitize_env_vars():
         env = os.environ.copy()
-    secret = os.urandom(32)
+    secret = os.urandom(32).replace(b'\0', b' ')
     pipename = '\\\\.\\pipe\\%s' % uuid4()
     data = [serialize_string('PIPENAME', pipename), serialize_secret(secret)]
     parent = parent or None
@@ -306,7 +306,7 @@ class PipeServer(Thread):
 def test(helper=HELPER):
     pipename = '\\\\.\\pipe\\%s' % uuid4()
     echo = '\U0001f431 Hello world!'
-    secret = os.urandom(32)
+    secret = os.urandom(32).replace(b'\0', b' ')
     data = serialize_string('PIPENAME', pipename) +  serialize_string('ECHO', echo) + serialize_secret(secret)
     server = PipeServer(pipename)
     p = subprocess.Popen([helper], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
