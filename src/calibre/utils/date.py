@@ -6,11 +6,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, time
+import re
 from datetime import datetime, time as dtime, timedelta, MINYEAR, MAXYEAR
 from functools import partial
 
-from dateutil.tz import tzlocal, tzutc, EPOCHORDINAL
+from dateutil.tz import tzlocal, tzutc
 
 from calibre import strftime
 from calibre.constants import iswindows, isosx, plugins
@@ -19,34 +19,11 @@ from calibre.utils.localization import lcdata
 class SafeLocalTimeZone(tzlocal):
 
     def _isdst(self, dt):
-        # We can't use mktime here. It is unstable when deciding if
-        # the hour near to a change is DST or not.
-        #
-        # timestamp = time.mktime((dt.year, dt.month, dt.day, dt.hour,
-        #                         dt.minute, dt.second, dt.weekday(), 0, -1))
-        # return time.localtime(timestamp).tm_isdst
-        #
-        # The code above yields the following result:
-        #
-        # >>> import tz, datetime
-        # >>> t = tz.tzlocal()
-        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        # 'BRDT'
-        # >>> datetime.datetime(2003,2,16,0,tzinfo=t).tzname()
-        # 'BRST'
-        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        # 'BRST'
-        # >>> datetime.datetime(2003,2,15,22,tzinfo=t).tzname()
-        # 'BRDT'
-        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        # 'BRDT'
-        #
-        # Here is a more stable implementation:
-        #
+        # This method in tzlocal raises ValueError if dt is out of range.
+        # In such cases, just assume that dt is not DST.
         try:
-            timestamp = ((dt.toordinal() - EPOCHORDINAL) * 86400 + dt.hour * 3600 + dt.minute * 60 + dt.second)
-            return time.localtime(timestamp+time.timezone).tm_isdst
-        except ValueError:
+            tzlocal._isdst(self, dt)
+        except Exception:
             pass
         return False
 
