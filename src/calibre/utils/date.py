@@ -108,6 +108,13 @@ def is_date_undefined(qt_or_dt):
             d.month == UNDEFINED_DATE.month and
             d.day == UNDEFINED_DATE.day)
 
+_iso_pat = None
+def iso_pat():
+    global _iso_pat
+    if _iso_pat is None:
+        _iso_pat = re.compile(r'\d{4}-\d{2}-\d{2}')
+    return _iso_pat
+
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     '''
     Parse a date/time string into a timezone aware datetime object. The timezone
@@ -128,7 +135,10 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         func = datetime.utcnow if assume_utc else datetime.now
         default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0,
                 tzinfo=_utc_tz if assume_utc else _local_tz)
-    dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
+    if iso_pat().match(date_string):
+        dt = parse(date_string, default=default)
+    else:
+        dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
