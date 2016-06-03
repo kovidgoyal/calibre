@@ -20,6 +20,36 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.58.0
+  date: 2016-06-02
+
+  new features:
+    - title: "Edit Book: A text search tool to conveniently search for text even if it crosses multiple HTML tags (Search->Search ignoring HTML markup)"
+
+    - title: "OSX: Allow drag and drop of file onto viewer dock icon to view file"
+
+  bug fixes:
+    - title: "Workaround for incompatibility between Qt 5.5+ and Ubuntu that caused the context menu for the book list to flicker."
+      tickets: [1534936]
+
+    - title: "Windows: Workaround for explorer shell extensions on windows that write to stdout"
+
+    - title: "Edit Book: When jumping to next occurrence of a word, take language into account"
+
+    - title: "Edit Book: Fix import of words into user dictionary not working"
+
+    - title: "Fix use of non-ascii characters in identifiers causing an error when identifier rules are used."
+      tickets: [1584470]
+
+    - title: "Fix a regression that caused the paste from clipboard button to paste two times in the Add books from ISBN dialog"
+
+    - title: "Fix for incompatibility with PyQt 5.6"
+
+  improved recipes:
+    - Denver Post
+    - Financial Times
+    - bild.de
+
 - version: 2.57.1
   date: 2016-05-20
 
