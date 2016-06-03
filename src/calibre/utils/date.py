@@ -112,7 +112,7 @@ _iso_pat = None
 def iso_pat():
     global _iso_pat
     if _iso_pat is None:
-        _iso_pat = re.compile(r'\d{4}-\d{2}-\d{2}')
+        _iso_pat = re.compile(r'\d{4}-\d{1,2}-\d{1,2}')
     return _iso_pat
 
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
