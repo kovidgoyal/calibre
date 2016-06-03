@@ -10,25 +10,13 @@ import re
 from datetime import datetime, time as dtime, timedelta, MINYEAR, MAXYEAR
 from functools import partial
 
-from dateutil.tz import tzlocal, tzutc
-
 from calibre import strftime
 from calibre.constants import iswindows, isosx, plugins
+from calibre.utils.iso8601 import utc_tz, local_tz
 from calibre.utils.localization import lcdata
 
-class SafeLocalTimeZone(tzlocal):
-
-    def _isdst(self, dt):
-        # This method in tzlocal raises ValueError if dt is out of range.
-        # In such cases, just assume that dt is not DST.
-        try:
-            tzlocal._isdst(self, dt)
-        except Exception:
-            pass
-        return False
-
-utc_tz = _utc_tz = tzutc()
-local_tz = _local_tz = SafeLocalTimeZone()
+_utc_tz = utc_tz
+_local_tz = local_tz
 
 # When parsing ambiguous dates that could be either dd-MM Or MM-dd use the
 # user's locale preferences
