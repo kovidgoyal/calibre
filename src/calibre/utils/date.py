@@ -135,7 +135,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         func = datetime.utcnow if assume_utc else datetime.now
         default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0,
                 tzinfo=_utc_tz if assume_utc else _local_tz)
-    if iso_pat().match(date_string):
+    if iso_pat().match(date_string) is not None:
         dt = parse(date_string, default=default)
     else:
         dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
