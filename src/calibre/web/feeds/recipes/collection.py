@@ -14,7 +14,7 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import force_unicode
-from calibre.utils.date import parse_date, now as nowf, utcnow, tzlocal, \
+from calibre.utils.date import parse_date, now as nowf, utcnow, local_tz, \
         isoformat, fromordinal
 from calibre.utils.recycle_bin import delete_file
 
@@ -420,14 +420,14 @@ class SchedulerConfig(object):
             return utcnow() - ld > timedelta(sch)
         elif typ == 'day/time':
             now = nowf()
-            ld_local = ld.astimezone(tzlocal())
+            ld_local = ld.astimezone(local_tz)
             day, hour, minute = sch
             return is_weekday(day, now) and \
                     not was_downloaded_already_today(ld_local, now) and \
                     is_time(now, hour, minute)
         elif typ == 'days_of_week':
             now = nowf()
-            ld_local = ld.astimezone(tzlocal())
+            ld_local = ld.astimezone(local_tz)
             days, hour, minute = sch
             have_day = False
             for day in days:
@@ -439,7 +439,7 @@ class SchedulerConfig(object):
                     is_time(now, hour, minute)
         elif typ == 'days_of_month':
             now = nowf()
-            ld_local = ld.astimezone(tzlocal())
+            ld_local = ld.astimezone(local_tz)
             days, hour, minute = sch
             have_day = now.day in days
             return have_day and \
