@@ -102,7 +102,7 @@ speedup_pdf_float(PyObject *self, PyObject *args) {
         if (buf != NULL) {
             free_buf = (void*)buf;
             if (precision > 0) {
-                l = strlen(buf) - 1;
+                l = (int)(strlen(buf) - 1);
                 while (l > 0 && buf[l] == '0') l--;
                 if (buf[l] == ',' || buf[l] == '.') buf[l] = 0;
                 else buf[l+1] = 0;
