@@ -675,13 +675,13 @@ class Smarts(NullSmarts):
     def find_text(self, pat, cursor):
         from calibre.gui2.tweak_book.text_search import find_text_in_chunks
         chunks = []
-        c = QTextCursor(cursor)
-        c.setPosition(0)
-        in_text = True
-        block = c.block()
 
         cstart = min(cursor.position(), cursor.anchor())
         cend = max(cursor.position(), cursor.anchor())
+        c = QTextCursor(cursor)
+        c.setPosition(cstart)
+        block = c.block()
+        in_text = find_tag_definition(block, 0)[0] is None
 
         def append(text, start):
             after = start + len(text)
@@ -694,7 +694,7 @@ class Smarts(NullSmarts):
                     text = text[extra:]
                 chunks.append((text, start + max(extra, 0)))
 
-        while block.isValid() and block.position() <= cend and block.position() + block.length() > cstart:
+        while block.isValid() and block.position() <= cend:
             boundaries = sorted(block.userData().tags, key=get_offset)
             if not boundaries:
                 # Add the whole line

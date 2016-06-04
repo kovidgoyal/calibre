@@ -392,17 +392,8 @@ class TextEdit(PlainTextEdit):
             start, end = m.span()
             if start == end:
                 return False
-        if wrap and not complete:
-            if reverse:
-                textpos = c.anchor()
-                start, end = textpos + end, textpos + start
-        else:
-            if reverse:
-                # Put the cursor at the start of the match
-                start, end = end, start
-            else:
-                textpos = c.anchor()
-                start, end = textpos + start, textpos + end
+        if reverse:
+            start, end = end, start
         c.clearSelection()
         c.setPosition(start)
         c.setPosition(end, c.KeepAnchor)
