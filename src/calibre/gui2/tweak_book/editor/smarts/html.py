@@ -116,7 +116,7 @@ def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
 def find_tag_definition(block, offset):
     ''' Return the <tag | > definition, if any that (block, offset) is inside. '''
     block, boundary = next_tag_boundary(block, offset, forward=False)
-    if not boundary.is_start:
+    if not boundary or not boundary.is_start:
         return None, False
     tag_start = boundary
     closing = tag_start.closing
