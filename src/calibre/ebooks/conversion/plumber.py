@@ -773,7 +773,7 @@ OptionRecommendation(name='search_replace',
         # plugins.
         for w in ('input_options', 'output_options',
                 'all_format_options'):
-            temp = set([])
+            temp = set()
             for x in getattr(self, w):
                 temp.add(x.clone())
             setattr(self, w, temp)
