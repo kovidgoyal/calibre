@@ -12,7 +12,7 @@ from functools import partial
 
 from calibre import strftime
 from calibre.constants import iswindows, isosx, plugins
-from calibre.utils.iso8601 import utc_tz, local_tz
+from calibre.utils.iso8601 import utc_tz, local_tz, UNDEFINED_DATE
 from calibre.utils.localization import lcdata
 
 _utc_tz = utc_tz
@@ -53,7 +53,6 @@ else:
     except:
         parse_date_day_first = False
 
-UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 DEFAULT_DATE = datetime(2000,1,1, tzinfo=utc_tz)
 EPOCH = datetime(1970, 1, 1, tzinfo=_utc_tz)
 

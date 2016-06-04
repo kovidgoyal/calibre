@@ -29,9 +29,12 @@ class SafeLocalTimeZone(tzlocal):
 utc_tz = tzutc()
 local_tz = SafeLocalTimeZone()
 del tzutc, tzlocal
+UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 
 if hasattr(speedup, 'parse_iso8601'):  # For people running from source without updated binaries
-    def parse_iso8601(date_string, assume_utc=True, as_utc=True):
+    def parse_iso8601(date_string, assume_utc=False, as_utc=True):
+        if not date_string:
+            return UNDEFINED_DATE
         dt, aware, tzseconds = speedup.parse_iso8601(date_string)
         tz = utc_tz if assume_utc else local_tz
         if aware:  # timezone was specified
@@ -133,7 +136,9 @@ else:
             minutes = -minutes
         return tzoffset(description, 3600*hours + 60*minutes)
 
-    def parse_iso8601(date_string, assume_utc=True, as_utc=True):
+    def parse_iso8601(date_string, assume_utc=False, as_utc=True):
+        if not date_string:
+            return UNDEFINED_DATE
         if isinstance(date_string, bytes):
             date_string = date_string.decode('ascii')
         m = iso_pat().match(date_string)
