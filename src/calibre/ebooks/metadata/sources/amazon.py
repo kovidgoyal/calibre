@@ -879,6 +879,8 @@ class Amazon(Source):
         if mi.tags and docase:
             mi.tags = list(map(fixcase, mi.tags))
         mi.isbn = check_isbn(mi.isbn)
+        if mi.series and docase:
+            mi.series = fixcase(mi.series)
 
     def get_website_domain(self, domain):
         udomain = domain
