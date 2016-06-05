@@ -25,7 +25,7 @@ def get_download_url():
             else 'osx' if isosx else 'linux')
     if which == 'windows' and is64bit:
         which += '64'
-    return 'http://calibre-ebook.com/download_' + which
+    return 'https://calibre-ebook.com/download_' + which
 
 def get_newest_version():
     try:
