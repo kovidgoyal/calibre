@@ -943,7 +943,7 @@ class Amazon(Source):
 
         def title_ok(title):
             title = title.lower()
-            bad = ['bulk pack', '[audiobook]', '[audio cd]', '(a book companion)', '( slipcase with door )']
+            bad = ['bulk pack', '[audiobook]', '[audio cd]', '(a book companion)', '( slipcase with door )', ': free sampler']
             if self.domain == 'com':
                 bad.extend(['(%s edition)' % x for x in ('spanish', 'german')])
             for x in bad:
