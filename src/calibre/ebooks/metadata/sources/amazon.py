@@ -605,27 +605,27 @@ class Worker(Thread):  # Get details {{{
 
         imgs = root.xpath('//img[(@id="prodImage" or @id="original-main-image" or @id="main-image" or @id="main-image-nonjs") and @src]')
         if not imgs:
-            imgs = root.xpath('//div[@class="main-image-inner-wrapper"]/img[@src]')
-            if not imgs:
-                imgs = root.xpath('//div[@id="main-image-container"]//img[@src]')
-                if not imgs:
-                    imgs = root.xpath('//div[@id="mainImageContainer"]//img[@data-a-dynamic-image]')
-                    for img in imgs:
-                        try:
-                            idata = json.loads(img.get('data-a-dynamic-image'))
-                        except Exception:
-                            imgs = ()
-                        else:
-                            mwidth = 0
-                            try:
-                                url = None
-                                for iurl, (width, height) in idata.iteritems():
-                                    if width > mwidth:
-                                        mwidth = width
-                                        url = iurl
-                                return url
-                            except Exception:
-                                pass
+            imgs = (
+                root.xpath('//div[@class="main-image-inner-wrapper"]/img[@src]') or
+                root.xpath('//div[@id="main-image-container" or @id="ebooks-main-image-container"]//img[@src]') or
+                root.xpath('//div[@id="mainImageContainer"]//img[@data-a-dynamic-image]')
+            )
+            for img in imgs:
+                try:
+                    idata = json.loads(img.get('data-a-dynamic-image'))
+                except Exception:
+                    imgs = ()
+                else:
+                    mwidth = 0
+                    try:
+                        url = None
+                        for iurl, (width, height) in idata.iteritems():
+                            if width > mwidth:
+                                mwidth = width
+                                url = iurl
+                        return url
+                    except Exception:
+                        pass
 
         for img in imgs:
             src = img.get('src')
