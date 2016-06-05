@@ -549,15 +549,47 @@ class Worker(Thread):  # Get details {{{
 
     def parse_series(self, root):
         ans = (None, None)
-        desc = root.xpath('//div[@id="ps-content"]/div[@class="buying"]')
-        if desc:
-            raw = self.tostring(desc[0], method='text', encoding=unicode)
-            raw = re.sub(r'\s+', ' ', raw)
-            match = self.series_pat.search(raw)
-            if match is not None:
-                s, i = match.group('series'), float(match.group('index'))
-                if s:
-                    ans = (s, i)
+
+        # This is found on the paperback/hardback pages for books on amazon.com
+        series = root.xpath('//div[@data-feature-name="seriesTitle"]')
+        if series:
+            series = series[0]
+            spans = series.xpath('./span')
+            if spans:
+                raw = self.tostring(spans[0], encoding=unicode, method='text', with_tail=False).strip()
+                m = re.search('\s+([0-9.]+)$', raw.strip())
+                if m is not None:
+                    series_index = float(m.group(1))
+                    s = series.xpath('./a[@id="series-page-link"]')
+                    if s:
+                        series = self.tostring(s[0], encoding=unicode, method='text', with_tail=False).strip()
+                        if series:
+                            ans = (series, series_index)
+        # This is found on Kindle edition pages on amazon.com
+        if ans == (None, None):
+            for span in root.xpath('//div[@id="aboutEbooksSection"]//li/span'):
+                text = (span.text or '').strip()
+                m = re.match('Book\s+([0-9.]+)', text)
+                if m is not None:
+                    series_index = float(m.group(1))
+                    a = span.xpath('./a[@href]')
+                    if a:
+                        series = self.tostring(a[0], encoding=unicode, method='text', with_tail=False).strip()
+                        if series:
+                            ans = (series, series_index)
+        if ans == (None, None):
+            desc = root.xpath('//div[@id="ps-content"]/div[@class="buying"]')
+            if desc:
+                raw = self.tostring(desc[0], method='text', encoding=unicode)
+                raw = re.sub(r'\s+', ' ', raw)
+                match = self.series_pat.search(raw)
+                if match is not None:
+                    s, i = match.group('series'), float(match.group('index'))
+                    if s:
+                        ans = (s, i)
+        if ans[0]:
+            ans = (re.sub(r'\s+Series$', '', ans[0]).strip(), ans[1])
+            ans = (re.sub(r'\(.+?\s+Series\)$', '', ans[0]).strip(), ans[1])
         return ans
 
     def parse_tags(self, root):
@@ -838,6 +870,10 @@ class Amazon(Source):
             (mi.is_null('language') and self.domain in {'com', 'uk'})
         )
         if mi.title and docase:
+            # Remove series information from title
+            m = re.search(r'\S+\s+(\(.+?\s+Book\s+\d+\))$', mi.title)
+            if m is not None:
+                mi.title = mi.title.replace(m.group(1), '').strip()
             mi.title = fixcase(mi.title)
         mi.authors = fixauthors(mi.authors)
         if mi.tags and docase:
@@ -1155,8 +1191,18 @@ class Amazon(Source):
 if __name__ == '__main__':  # tests {{{
     # To run these test use: calibre-debug src/calibre/ebooks/metadata/sources/amazon.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            isbn_test, title_test, authors_test, comments_test)
+            isbn_test, title_test, authors_test, comments_test, series_test)
     com_tests = [  # {{{
+
+            (   # Paperback with series
+                {'identifiers':{'amazon':'1423146786'}},
+                [title_test('The Heroes of Olympus, Book Five The Blood of Olympus', exact=True), series_test('Heroes of Olympus', 5)]
+            ),
+
+            (   # Kindle edition with series
+                {'identifiers':{'amazon':'B0085UEQDO'}},
+                [title_test('Three Parts Dead', exact=True), series_test('Craft Sequence', 1)]
+            ),
 
             (   # A kindle edition that does not appear in the search results when searching by ASIN
                 {'identifiers':{'amazon':'B004JHY6OG'}},
