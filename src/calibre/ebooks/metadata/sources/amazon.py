@@ -987,6 +987,9 @@ class Amazon(Source):
             for x in bad:
                 if x in title:
                     return False
+            if title and title[0] in '[{' and re.search(r'\(\s*author\s*\)', title) is not None:
+                # Bad entries in the catalog
+                return False
             return True
 
         for a in root.xpath(r'//li[starts-with(@id, "result_")]//a[@href and contains(@class, "s-access-detail-page")]'):
