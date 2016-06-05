@@ -12,12 +12,15 @@ from threading import Thread
 from Queue import Queue, Empty
 
 
-from calibre import as_unicode, random_user_agent
+from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
         fixauthors)
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
+
+class CaptchaError(Exception):
+    pass
 
 def parse_details_page(url, log, timeout, browser, domain):
     from calibre.utils.cleantext import clean_ascii_chars
@@ -299,6 +302,8 @@ class Worker(Thread):  # Get details {{{
 
     def parse_details(self, raw, root):
         asin = parse_asin(root, self.log, self.url)
+        if not asin and root.xpath('//form[@action="/errors/validateCaptcha"]'):
+            raise CaptchaError('Amazon returned a CAPTCHA page, probably because you downloaded too many books. Wait for some time and try again.')
         if self.testing:
             import tempfile, uuid
             with tempfile.NamedTemporaryFile(prefix=(asin or str(uuid.uuid4()))+ '_',
@@ -764,9 +769,7 @@ class Amazon(Source):
 
     @property
     def user_agent(self):
-        # Pass in an index to random_user_agent() to test with a particular
-        # user agent
-        return random_user_agent()
+        return 'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0;  rv:11.0) like Gecko'
 
     def save_settings(self, *args, **kwargs):
         Source.save_settings(self, *args, **kwargs)
@@ -985,6 +988,8 @@ class Amazon(Source):
                             url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
                         matches.append(url)
                     break
+        if not matches and root.xpath('//form[@action="/errors/validateCaptcha"]'):
+            raise CaptchaError('Amazon returned a CAPTCHA page, probably because you downloaded too many books. Wait for some time and try again.')
 
         # Keep only the top 5 matches as the matches are sorted by relevance by
         # Amazon so lower matches are not likely to be very relevant
