@@ -308,3 +308,26 @@ def get_windows_user_locale_name():
         return None
     return u'_'.join(buf.value.split(u'-')[:2])
 
+number_formats = None
+
+def get_windows_number_formats():
+    global number_formats
+    if number_formats is None:
+        import ctypes
+        from ctypes.wintypes import DWORD
+        k32 = ctypes.windll.kernel32
+        n = 25
+        buf = ctypes.create_unicode_buffer(u'\0'*n)
+        k32.GetNumberFormatEx.argtypes = [ctypes.c_wchar_p, DWORD, ctypes.c_wchar_p, ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_int]
+        if k32.GetNumberFormatEx(None, 0, u'123456.7', None, buf, n) == 0:
+            raise ctypes.WinError()
+        src = buf.value
+        thousands_sep, decimal_point = u',.'
+        idx = src.find(u'3')
+        if idx > -1 and src[idx+1] != u'4':
+            thousands_sep = src[idx+1]
+        idx = src.find(u'6')
+        if idx > -1 and src[idx+1] != u'7':
+            decimal_point = src[idx+1]
+        number_formats = (thousands_sep, decimal_point)
+    return number_formats
