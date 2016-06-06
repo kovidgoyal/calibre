@@ -311,6 +311,8 @@ def get_windows_user_locale_name():
 number_formats = None
 
 def get_windows_number_formats():
+    # This can be changed to use localeconv() once we switch to Visual Studio
+    # 2015 as localeconv() in that version has unicode variants for all strings.
     global number_formats
     if number_formats is None:
         import ctypes
