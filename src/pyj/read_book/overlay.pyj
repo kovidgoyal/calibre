@@ -5,6 +5,7 @@ from __python__ import hash_literals, bound_methods
 from dom import clear, set_css, element, svgicon, build_rule
 from elementmaker import E
 from book_list.theme import get_color
+from book_list.globals import get_boss
 from widgets import create_spinner
 from gettext import gettext as _
 
@@ -76,9 +77,9 @@ class MainOverlay:  # {{{
                 cursor='pointer', padding='0.5ex 0', margin='0 0.5rem',
             ))
 
-        add_button('home', _('Return to list of books'))
-        add_button('arrow-left', _('Back'))
-        add_button('arrow-right', _('Forward'))
+        add_button('home', _('Return to list of books'), self.return_to_book_list)
+        add_button('arrow-left', _('Back'), self.back)
+        add_button('arrow-right', _('Forward'), self.forward)
         add_button()
         add_button('refresh', _('Reload this book from the server'))
         add_button('cloud-download', _('Get last read position and annotations from the server'))
@@ -105,6 +106,18 @@ class MainOverlay:  # {{{
 
     def on_hide(self):
         clearInterval(self.timer)
+
+    def return_to_book_list(self):
+        view = self.overlay.view
+        book_id = view.book.key[1]
+        get_boss().return_to_book_list(book_id)
+
+    def back(self):
+        window.history.back()
+
+    def forward(self):
+        window.history.forward()
+
 # }}}
 
 class Overlay:

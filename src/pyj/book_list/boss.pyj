@@ -111,6 +111,13 @@ class Boss:
         self.apply_mode()
         self.read_ui.load_book(book_id, fmt, metadata)
 
+    def return_to_book_list(self, book_id):
+        # Note that book_id could refer to a deleted book, that is, a book no
+        # longer in local storage
+        self.current_mode = 'book_list'
+        self.apply_mode()
+        self.push_state()
+
     def change_books(self, data):
         data.search_result.sort = data.search_result.sort.split(',')[:2].join(',')
         data.search_result.sort_order = data.search_result.sort_order.split(',')[:2].join(',')
