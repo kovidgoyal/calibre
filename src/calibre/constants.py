@@ -321,6 +321,7 @@ def get_windows_number_formats():
         n = 25
         buf = ctypes.create_unicode_buffer(u'\0'*n)
         k32.GetNumberFormatEx.argtypes = [ctypes.c_wchar_p, DWORD, ctypes.c_wchar_p, ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_int]
+        k32.GetNumberFormatEx.restype = ctypes.c_int
         if k32.GetNumberFormatEx(None, 0, u'123456.7', None, buf, n) == 0:
             raise ctypes.WinError()
         src = buf.value
