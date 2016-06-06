@@ -8,14 +8,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from locale import atof
 from threading import Lock
 from collections import defaultdict, Counter
 from functools import partial
 
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY, null
 from calibre.db.write import Writer
-from calibre.db.utils import force_to_bool
+from calibre.db.utils import force_to_bool, atof
 from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
