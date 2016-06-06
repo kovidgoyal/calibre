@@ -323,11 +323,13 @@ def get_windows_number_formats():
             raise ctypes.WinError()
         src = buf.value
         thousands_sep, decimal_point = u',.'
-        idx = src.find(u'3')
-        if idx > -1 and src[idx+1] != u'4':
-            thousands_sep = src[idx+1]
         idx = src.find(u'6')
         if idx > -1 and src[idx+1] != u'7':
             decimal_point = src[idx+1]
+            src = src[:idx]
+        for c in src:
+            if c not in u'123456':
+                thousands_sep = c
+                break
         number_formats = (thousands_sep, decimal_point)
     return number_formats
