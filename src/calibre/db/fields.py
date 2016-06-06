@@ -8,7 +8,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-from locale import atof
+from locale import localeconv
 from threading import Lock
 from collections import defaultdict, Counter
 from functools import partial
@@ -191,6 +191,35 @@ class OneToOneField(Field):
         for book_id in candidates:
             yield cbm.get(book_id, default_value), {book_id}
 
+def local_atof(string, func=float):
+    """
+    Parses a string as a float according to the locale settings. This is a
+    clone of python's locale.atof, changed to handle non-unicode separator
+    characters. Note that if the incoming string is formatted using comma and
+    period then it will parse correctly even if the locale strings are different
+    """
+    #First, get rid of the grouping
+    ts = localeconv()['thousands_sep']
+    if ts:
+        try:
+            string = string.replace(ts, '')
+        except UnicodeDecodeError:
+            # Windows (at least) returns 0xA0 (non-breaking space) as the thousands
+            # separator. Attempt to convert the sep to unicode from latin_1 in case
+            # we are in that situation
+            ts = unicode(ts, 'latin_1')
+            string = string.replace(ts, '')
+    #next, replace the decimal point with a dot
+    dd = localeconv()['decimal_point']
+    if dd:
+        try:
+            string = string.replace(dd, '.')
+        except UnicodeDecodeError:
+            dd = unicode(dd, 'latin_1')
+            string = string.replace(dd, '.')
+    #finally, parse the string
+    return func(string)
+
 class CompositeField(OneToOneField):
 
     is_composite = True
@@ -238,7 +267,7 @@ class CompositeField(OneToOneField):
             if val and val.endswith('B'):
                 p = 1 << (10 * self.SIZE_SUFFIX_MAP.get(val[-2:-1], 0))
                 val = val[:(-2 if p > 1 else -1)].strip()
-            val = atof(val) * p
+            val = local_atof(val) * p
         except (TypeError, AttributeError, ValueError, KeyError):
             val = 0.0
         return val
