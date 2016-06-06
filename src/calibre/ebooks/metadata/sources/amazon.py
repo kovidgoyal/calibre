@@ -881,6 +881,10 @@ class Amazon(Source):
         mi.isbn = check_isbn(mi.isbn)
         if mi.series and docase:
             mi.series = fixcase(mi.series)
+        if mi.title and mi.series:
+            for pat in (r':\s*Book\s+\d+\s+of\s+%s$', r'\(%s\)$'):
+                pat = pat % re.escape(mi.series)
+                mi.title = re.sub(pat, '', mi.title, flags=re.I)
 
     def get_website_domain(self, domain):
         udomain = domain
