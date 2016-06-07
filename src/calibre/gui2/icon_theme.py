@@ -6,21 +6,23 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, errno, json, importlib, math, httplib, bz2, shutil
+import os, errno, json, importlib, math, httplib, bz2, shutil, sys
+from itertools import count
 from io import BytesIO
 from future_builtins import map
 from Queue import Queue, Empty
-from threading import Thread
+from threading import Thread, Event
+from multiprocessing.pool import ThreadPool
 
 from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
     pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap,
     QGridLayout, QStyledItemDelegate, QModelIndex, QApplication, QStaticText,
-    QStyle, QPen
+    QStyle, QPen, QProgressDialog
 )
 
-from calibre import walk, fit_image, human_readable
+from calibre import walk, fit_image, human_readable, detect_ncpus as cpu_count
 from calibre.constants import cache_dir, config_dir
 from calibre.customize.ui import interface_actions
 from calibre.gui2 import must_use_qt, gprefs, choose_dir, error_dialog, choose_save_file, question_dialog
@@ -31,7 +33,7 @@ from calibre.utils.date import utcnow
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.https import get_https_resource_securely, HTTPError
 from calibre.utils.icu import numeric_sort_key as sort_key
-from calibre.utils.img import image_from_data, Canvas
+from calibre.utils.img import image_from_data, Canvas, optimize_png, optimize_jpeg
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.utils.filenames import atomic_rename
 from lzma.xz import compress, decompress
@@ -282,22 +284,104 @@ class ThemeCreateDialog(Dialog):
                 'You must specify an author for this icon theme'), show=True)
         return Dialog.accept(self)
 
-def create_themeball(report):
+class Compress(QProgressDialog):
+
+    update_signal = pyqtSignal(object, object)
+
+    def __init__(self, report, parent=None):
+        total = 2 + len(report.name_map)
+        QProgressDialog.__init__(self, _('Losslessly optimizing images, please wait...'), _('&Abort'), 0, total, parent)
+        self.setWindowTitle(self.labelText())
+        self.setWindowIcon(QIcon(I('lt.png')))
+        self.setMinimumDuration(0)
+        self.update_signal.connect(self.do_update, type=Qt.QueuedConnection)
+        self.raw = self.prefix = None
+        self.abort = Event()
+        self.canceled.connect(self.abort.set)
+        self.t = Thread(name='CompressIcons', target=self.run_compress, args=(report,))
+        self.t.daemon = False
+        self.t.start()
+
+    def do_update(self, num, message):
+        if num < 0:
+            return self.onerror(_('Optimizing images failed, click "Show details" for more information'), message)
+        self.setValue(num)
+        self.setLabelText(message)
+
+    def onerror(self, msg, details):
+        error_dialog(self, _('Compression failed'), msg, det_msg=details, show=True)
+        self.close()
+
+    def onprogress(self, num, msg):
+        self.update_signal.emit(num, msg)
+        return not self.wasCanceled()
+
+    def run_compress(self, report):
+        try:
+            self.raw, self.prefix = create_themeball(report, self.onprogress, self.abort)
+        except Exception:
+            import traceback
+            self.update_signal.emit(-1, traceback.format_exc())
+        else:
+            self.update_signal.emit(self.maximum(), '')
+
+def create_themeball(report, progress=None, abort=None):
+    pool = ThreadPool(processes=cpu_count())
     buf = BytesIO()
+    num = count()
+    error_occurred = Event()
+
+    def optimize(name):
+        if abort is not None and abort.is_set():
+            return
+        if error_occurred.is_set():
+            return
+        try:
+            i = next(num)
+            if progress is not None:
+                progress(i, _('Optimizing %s') % name)
+            srcpath = os.path.join(report.path, name)
+            ext = srcpath.rpartition('.')[-1].lower()
+            if ext == 'png':
+                optimize_png(srcpath)
+            elif ext in ('jpg', 'jpeg'):
+                optimize_jpeg(srcpath)
+        except Exception:
+            return sys.exc_info()
+
+    errors = tuple(filter(None, pool.map(optimize, tuple(report.name_map.iterkeys()))))
+    pool.close(), pool.join()
+    if abort is not None and abort.is_set():
+        return
+    if errors:
+        e = errors[0]
+        raise e[0], e[1], e[2]
+
+    if progress is not None:
+        progress(next(num), _('Creating theme file'))
     with ZipFile(buf, 'w') as zf:
-        for name, path in report.name_map.iteritems():
-            with open(os.path.join(report.path, name), 'rb') as f:
+        for name in report.name_map:
+            srcpath = os.path.join(report.path, name)
+            with lopen(srcpath, 'rb') as f:
                 zf.writestr(name, f.read(), compression=ZIP_STORED)
     buf.seek(0)
     out = BytesIO()
+    if abort is not None and abort.is_set():
+        return None, None
+    if progress is not None:
+        progress(next(num), _('Compressing theme file'))
     compress(buf, out, level=9)
     buf = BytesIO()
     prefix = report.name
+    if abort is not None and abort.is_set():
+        return None, None
     with ZipFile(buf, 'w') as zf:
-        with open(os.path.join(report.path, THEME_METADATA), 'rb') as f:
+        with lopen(os.path.join(report.path, THEME_METADATA), 'rb') as f:
             zf.writestr(prefix + '/' + THEME_METADATA, f.read())
         zf.writestr(prefix + '/' + THEME_COVER, create_cover(report))
         zf.writestr(prefix + '/' + 'icons.zip.xz', out.getvalue(), compression=ZIP_STORED)
+    if progress is not None:
+        progress(next(num), _('Finished'))
     return buf.getvalue(), prefix
 
 
@@ -312,12 +396,16 @@ def create_theme(folder=None, parent=None):
     if d.exec_() != d.Accepted:
         return
     d.save_metadata()
-    raw, prefix = create_themeball(d.report)
+    d = Compress(d.report, parent=parent)
+    d.exec_()
+    if d.wasCanceled() or d.raw is None:
+        return
+    raw, prefix = d.raw, d.prefix
     dest = choose_save_file(parent, 'create-icon-theme-dest', _(
         'Choose destination for icon theme'),
         [(_('ZIP files'), ['zip'])], initial_filename=prefix + '.zip')
     if dest:
-        with open(dest, 'wb') as f:
+        with lopen(dest, 'wb') as f:
             f.write(raw)
 
 # }}}
