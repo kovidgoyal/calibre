@@ -882,9 +882,12 @@ class Amazon(Source):
         if mi.series and docase:
             mi.series = fixcase(mi.series)
         if mi.title and mi.series:
-            for pat in (r':\s*Book\s+\d+\s+of\s+%s$', r'\(%s\)$'):
+            for pat in (r':\s*Book\s+\d+\s+of\s+%s$', r'\(%s\)$', r':\s*%s\s+Book\s+\d+$'):
                 pat = pat % re.escape(mi.series)
-                mi.title = re.sub(pat, '', mi.title, flags=re.I)
+                q = re.sub(pat, '', mi.title, flags=re.I).strip()
+                if q and q != mi.title:
+                    mi.title = q
+                    break
 
     def get_website_domain(self, domain):
         udomain = domain
