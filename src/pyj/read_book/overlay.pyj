@@ -6,7 +6,7 @@ from dom import clear, set_css, element, svgicon, build_rule
 from elementmaker import E
 from book_list.theme import get_color
 from book_list.globals import get_boss
-from widgets import create_spinner
+from widgets import create_spinner, create_button
 from gettext import gettext as _
 
 class LoadingMessage:  # {{{
@@ -15,6 +15,7 @@ class LoadingMessage:  # {{{
         self.msg = msg or ''
 
     def show(self, container):
+        self.container_id = container.getAttribute('id')
         container.style.backgroundColor = get_color('window-background')
         container.appendChild(
             E.div(
@@ -25,8 +26,61 @@ class LoadingMessage:  # {{{
         container.firstChild.lastChild.innerHTML = self.msg
         set_css(container.firstChild, position='relative', top='50%', transform='translateY(-50%)')
 
+    def set_msg(self, msg):
+        self.msg = msg
+        container = document.getElementById(self.container_id)
+        container.firstChild.lastChild.innerHTML = self.msg
+
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
+# }}}
+
+class DeleteBook:  # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def show(self, container):
+        self.container_id = container.getAttribute('id')
+        set_css(container, display='flex', justify_content='center', flex_direction='column', background_color=get_color('window-background'))
+        container.appendChild(
+            E.div(style='margin:1ex 1em',
+                E.h2(_('Are you sure you want to remove this book from local storage? You will have to re-download it from calibre if you want to read it again.')),
+                E.div(style='display:flex; justify-content:flex-end',
+                    create_button(_('Delete book'), 'trash', action=self.delete_book, highlight=True),
+                    E.span('\xa0'),
+                    create_button(_('Cancel'), action=self.cancel),
+                )
+            )
+        )
+
+    def show_working(self):
+        container = document.getElementById(self.container_id)
+        clear(container)
+        container.appendChild(
+            E.div(
+                style='text-align:center',
+                E.div(create_spinner('100px', '100px')),
+                E.h2()
+        ))
+        container.lastChild.lastChild.innerHTML = _('Deleting local book copy, please wait...')
+
+    def on_container_click(self, evt):
+        pass  # Dont allow panel to be closed by a click
+
+    def delete_book(self):
+        view = self.overlay.view
+        view.ui.db.delete_book(view.book, def(book, errmsg):
+            self.overlay.hide_current_panel()
+            if errmsg:
+                view.ui.show_error(_('Failed to delete book'), _('Failed to delete book from local storage, click "Show details" for more information.'), errmsg)
+            else:
+                book_id = book.key[1]
+                get_boss().return_to_book_list(book_id)
+        )
+
+    def cancel(self):
+        self.overlay.hide_current_panel()
 # }}}
 
 class MainOverlay:  # {{{
@@ -83,7 +137,7 @@ class MainOverlay:  # {{{
         add_button()
         add_button('refresh', _('Reload this book from the server'))
         add_button('cloud-download', _('Get last read position and annotations from the server'))
-        add_button('trash', _('Delete this book from the device'))
+        add_button('trash', _('Delete this book from the device'), self.overlay.delete_book)
         add_button()
         add_button('search', _('Search for text in this book'))
         add_button()
@@ -133,6 +187,7 @@ class Overlay:
         clear(c)
         c.style.backgroundColor = 'transparent'
         c.style.color = get_color('window-foreground')
+        c.style.display = 'block'
         return c
 
     @property
@@ -165,10 +220,18 @@ class Overlay:
 
     def show_current_panel(self):
         c = self.clear_container()
-        c.style.display = 'block'
         if self.panels.length:
             self.panels[-1].show(c)
 
     def show(self):
         self.panels = [MainOverlay(self)]
+        self.show_current_panel()
+
+    def hide(self):
+        while self.panels.length:
+            self.hide_current_panel()
+
+    def delete_book(self):
+        self.hide_current_panel()
+        self.panels = [DeleteBook(self)]
         self.show_current_panel()

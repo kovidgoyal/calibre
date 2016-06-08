@@ -2,14 +2,14 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import build_rule, clear, svgicon, create_keyframes
+from dom import build_rule, clear, svgicon, create_keyframes, set_css
 from elementmaker import E
 
 from book_list.theme import get_color
 
 BUTTON_VPADDING = '0.5ex'
 
-def create_button(text, icon=None, action=None, tooltip=None):
+def create_button(text, icon=None, action=None, tooltip=None, highlight=False):
     ic = ''
     if icon:
         ic = svgicon(icon)
@@ -17,6 +17,8 @@ def create_button(text, icon=None, action=None, tooltip=None):
     ans = E.button(ic, text, class_='calibre-push-button', type='button', title=tooltip or '')
     if action is not None:
         ans.addEventListener('click', def(event): event.preventDefault(), action(event);)
+    if highlight:
+        set_css(ans, font_size='larger', font_weight='bold')
     return ans
 
 create_button.style = build_rule('button.calibre-push-button',

@@ -211,6 +211,24 @@ class DB:
             else:
                 proceed(data)
 
+    def delete_book(self, book, proceed):
+        c = self.idb.transaction(['books', 'files'], 'readwrite')
+        files = c.objectStore('files')
+        books = c.objectStore('books')
+        filenames = Object.keys(book.stored_files)
+        c.oncomplete = def(event):
+            proceed(book)
+        c.onerror = def (event):
+            proceed(book, c.error.toString())
+
+        def next_step():
+            if filenames.length:
+                r = files.delete(filenames.pop())
+                r.onsuccess = next_step
+            else:
+                books.delete(book.key)
+        next_step()
+
 def create_db(ui, interface_data):
     if not window.indexedDB:
         return ui.db_initialized(_('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.'))
