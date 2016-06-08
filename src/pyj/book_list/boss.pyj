@@ -115,8 +115,8 @@ class Boss:
         # Note that book_id could refer to a deleted book, that is, a book no
         # longer in local storage
         self.current_mode = 'book_list'
+        self.ui.show_panel(self.ui.ROOT_PANEL, force=True)
         self.apply_mode()
-        self.push_state()
 
     def change_books(self, data):
         data.search_result.sort = data.search_result.sort.split(',')[:2].join(',')

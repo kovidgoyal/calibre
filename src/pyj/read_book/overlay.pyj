@@ -69,6 +69,7 @@ class DeleteBook:  # {{{
         pass  # Dont allow panel to be closed by a click
 
     def delete_book(self):
+        self.show_working()
         view = self.overlay.view
         view.ui.db.delete_book(view.book, def(book, errmsg):
             self.overlay.hide_current_panel()
