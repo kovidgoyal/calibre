@@ -37,17 +37,22 @@ class LoadingMessage:  # {{{
 
 class DeleteBook:  # {{{
 
-    def __init__(self, overlay):
+    def __init__(self, overlay, question, ok_icon, ok_text, reload_book):
         self.overlay = overlay
+        self.question = question or _(
+            'Are you sure you want to remove this book from local storage? You will have to re-download it from calibre if you want to read it again.')
+        self.ok_icon = ok_icon or 'trash'
+        self.ok_text = ok_text or _('Delete book')
+        self.reload_book = reload_book
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
         set_css(container, display='flex', justify_content='center', flex_direction='column', background_color=get_color('window-background'))
         container.appendChild(
             E.div(style='margin:1ex 1em',
-                E.h2(_('Are you sure you want to remove this book from local storage? You will have to re-download it from calibre if you want to read it again.')),
+                E.h2(self.question),
                 E.div(style='display:flex; justify-content:flex-end',
-                    create_button(_('Delete book'), 'trash', action=self.delete_book, highlight=True),
+                    create_button(self.ok_text, self.ok_icon, action=self.delete_book, highlight=True),
                     E.span('\xa0'),
                     create_button(_('Cancel'), action=self.cancel),
                 )
@@ -77,7 +82,10 @@ class DeleteBook:  # {{{
                 view.ui.show_error(_('Failed to delete book'), _('Failed to delete book from local storage, click "Show details" for more information.'), errmsg)
             else:
                 book_id = book.key[1]
-                get_boss().return_to_book_list(book_id)
+                if self.reload_book:
+                    get_boss().reload_book()
+                else:
+                    get_boss().return_to_book_list(book_id)
         )
 
     def cancel(self):
@@ -136,7 +144,7 @@ class MainOverlay:  # {{{
         add_button('arrow-left', _('Back'), self.back)
         add_button('arrow-right', _('Forward'), self.forward)
         add_button()
-        add_button('refresh', _('Reload this book from the server'))
+        add_button('refresh', _('Reload this book from the server'), self.overlay.reload_book)
         add_button('cloud-download', _('Get last read position and annotations from the server'))
         add_button('trash', _('Delete this book from the device'), self.overlay.delete_book)
         add_button()
@@ -235,4 +243,9 @@ class Overlay:
     def delete_book(self):
         self.hide_current_panel()
         self.panels = [DeleteBook(self)]
+        self.show_current_panel()
+
+    def reload_book(self):
+        self.hide_current_panel()
+        self.panels = [DeleteBook(self, _('Are you sure you want to reload this book?'), 'refresh', _('Reload book'), True)]
         self.show_current_panel()

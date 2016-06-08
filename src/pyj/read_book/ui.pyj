@@ -102,6 +102,11 @@ class ReadUI:
             return
         self.start_load(book_id, fmt, metadata)
 
+    def reload_book(self):
+        book_id = self.base_url_data.book_id
+        metadata = self.metadata or self.interface_data.metadata[book_id]
+        self.load_book(book_id, self.base_url_data.fmt, metadata)
+
     @property
     def url_data(self):
         ans = {'book_id':self.base_url_data.book_id, 'fmt': self.base_url_data.fmt}

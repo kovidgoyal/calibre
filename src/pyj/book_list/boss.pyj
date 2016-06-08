@@ -111,6 +111,9 @@ class Boss:
         self.apply_mode()
         self.read_ui.load_book(book_id, fmt, metadata)
 
+    def reload_book(self):
+        self.read_ui.reload_book()
+
     def return_to_book_list(self, book_id):
         # Note that book_id could refer to a deleted book, that is, a book no
         # longer in local storage
