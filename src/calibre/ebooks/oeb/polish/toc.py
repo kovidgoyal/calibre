@@ -93,10 +93,15 @@ class TOC(object):
 
     @property
     def as_dict(self):
-        return {
-            'title':self.title, 'dest':self.dest, 'frag':self.frag, 'dest_exists':self.dest_exists, 'dest_error':self.dest_error,
+        ans = {
+            'title':self.title, 'dest':self.dest, 'frag':self.frag,
             'children':[c.as_dict for c in self.children]
         }
+        if self.dest_exists is not None:
+            ans['dest_exists'] = self.dest_exists
+        if self.dest_error is not None:
+            ans['dest_error'] = self.dest_error
+        return ans
 
 def child_xpath(tag, name):
     return tag.xpath('./*[calibre:lower-case(local-name()) = "%s"]'%name)
