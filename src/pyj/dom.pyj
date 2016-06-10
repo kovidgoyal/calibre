@@ -71,12 +71,19 @@ def create_keyframes(animation_name, *frames):
         ans.push('}')
     return ans.join('\n') + '\n'
 
+def change_icon_image(icon_element, new_name):
+    if new_name:
+        icon_element.firstChild.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + new_name)
+    else:
+        icon_element.firstChild.removeAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href')
+
 def svgicon(name, height, width):
     ans = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     ans.setAttribute('style', 'fill: currentColor; height: {}; width: {}; vertical-align: text-top'.format(height ? '2ex', width ? '2ex'))
     u = document.createElementNS('http://www.w3.org/2000/svg', 'use')
-    u.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + name)
     ans.appendChild(u)
+    if name:
+        ans.firstChild.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#icon-' + name)
     return ans
 
 def element(elem_id, child_selector):

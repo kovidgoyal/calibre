@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import build_rule, clear, svgicon, create_keyframes, set_css
+from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image
 from elementmaker import E
 
 from book_list.theme import get_color
@@ -93,6 +93,53 @@ class Breadcrumbs:
             li.addEventListener('click', callback)
         self.container.appendChild(li)
         return li
+
+def create_tree(root, populate_data, onclick):
+    container = E.div()
+    set_css(container, overflow='auto')
+
+    def toggle_node(li):
+        if li.dataset.treeState is 'closed':
+            li.dataset.treeState = 'open'
+            li.lastChild.style.display = 'block'
+            change_icon_image(li.firstChild.firstChild, 'caret-down')
+        else:
+            li.dataset.treeState = 'closed'
+            li.lastChild.style.display = 'none'
+            change_icon_image(li.firstChild.firstChild, 'caret-right')
+
+    def process_node(node, parent_container, level):
+        if node.children?.length:
+            ul = E.div()
+            parent_container.appendChild(ul)
+            for child in node.children:
+                icon = 'caret-right' if child.children?.length else None
+                li = E.div(style='display:flex; flex-direction:column; margin: 1ex 1em; margin-left: {}em'.format(level+1),
+                    E.div(style='display:flex; align-items: center',
+                        svgicon(icon),
+                        E.span('\xa0'),
+                        E.a(
+                            href='javascript: void(0)',
+                            onclick=def (event):
+                                if onclick:
+                                    onclick(event.currentTarget.parentNode.parentNode)
+                        ),
+                    ),
+                    E.div(style='display:none'),
+                    data_tree_state='closed',
+                )
+                ul.appendChild(li)
+                populate_data(child, li, li.firstChild.lastChild)
+                if icon:
+                    set_css(li.firstChild.firstChild, cursor='pointer')
+                    li.firstChild.firstChild.addEventListener('click', def(event):
+                        toggle_node(event.currentTarget.parentNode.parentNode)
+                    )
+                    process_node(child, li.lastChild, level + 1)
+
+    if root:
+        process_node(root, container, 0)
+    return container
 
 def get_widget_css():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
