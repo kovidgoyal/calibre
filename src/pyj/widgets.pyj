@@ -95,7 +95,7 @@ class Breadcrumbs:
         return li
 
 def create_tree(root, populate_data, onclick):
-    container = E.div()
+    container = E.div(class_='simple-tree')
     set_css(container, overflow='auto')
 
     def toggle_node(li):
@@ -122,7 +122,7 @@ def create_tree(root, populate_data, onclick):
                             href='javascript: void(0)',
                             onclick=def (event):
                                 if onclick:
-                                    onclick(event.currentTarget.parentNode.parentNode)
+                                    onclick(event, event.currentTarget.parentNode.parentNode)
                         ),
                     ),
                     E.div(style='display:none'),
@@ -141,9 +141,15 @@ def create_tree(root, populate_data, onclick):
         process_node(root, container, 0)
     return container
 
+create_tree.style = '''
+div.simple-tree a:hover { color: red; }
+div.simple-tree a:active { transform: scale(1.5); }
+'''
+
 def get_widget_css():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
     ans += create_button.style
     ans += create_spinner.style
     ans += Breadcrumbs.STYLE_RULES
+    ans += create_tree.style
     return ans

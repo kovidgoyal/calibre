@@ -8,6 +8,7 @@ from book_list.theme import get_color
 from book_list.globals import get_boss
 from widgets import create_spinner, create_button
 from gettext import gettext as _
+from read_book.toc import create_toc_panel
 
 class LoadingMessage:  # {{{
 
@@ -117,7 +118,7 @@ class MainOverlay:  # {{{
             ), display='flex', align_items='center', flex_wrap='wrap', padding='0 0.5rem', border_bottom='solid 1px currentColor'),
 
             set_css(E.ul(class_='item-list', # list of items
-               E.li(_('Table of Contents')),
+               E.li(_('Table of Contents'), onclick=self.overlay.show_toc),
                E.li(_('Bookmarks')),
                E.li(_('Go to a specific location in the book')),
             ), list_style_type='none'),
@@ -181,6 +182,23 @@ class MainOverlay:  # {{{
     def forward(self):
         window.history.forward()
 
+# }}}
+
+class TOCOverlay: # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def on_container_click(self, evt):
+        pass  # Dont allow panel to be closed by a click
+
+    def show(self, container):
+        container.style.backgroundColor = get_color('window-background')
+        create_toc_panel(self.overlay.view.book, container, self.handle_activate)
+
+    def handle_activate(self, dest, frag):
+        self.overlay.hide()
+        self.overlay.view.goto_named_destination(dest, frag)
 # }}}
 
 class Overlay:
@@ -248,4 +266,9 @@ class Overlay:
     def reload_book(self):
         self.hide_current_panel()
         self.panels = [DeleteBook(self, _('Are you sure you want to reload this book?'), 'refresh', _('Reload book'), True)]
+        self.show_current_panel()
+
+    def show_toc(self):
+        self.hide_current_panel()
+        self.panels.push(TOCOverlay(self))
         self.show_current_panel()

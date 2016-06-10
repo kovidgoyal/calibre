@@ -1,0 +1,21 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from widgets import create_tree
+
+def create_toc_tree(toc, onclick):
+
+    def populate_data(node, li, a):
+        li.dataset.tocDest = node.dest or ''
+        li.dataset.tocFrag = node.frag or ''
+        a.textContent = node.title or ''
+
+    return create_tree(toc, populate_data, onclick)
+
+def create_toc_panel(book, container, onclick):
+    def handle_click(event, li):
+        if event.button is 0:
+            onclick(li.dataset.tocDest, li.dataset.tocFrag)
+    toc_panel = create_toc_tree(book.manifest.toc, handle_click)
+    container.appendChild(toc_panel)

@@ -39,6 +39,7 @@ class IframeBoss:
         self.handlers = {
             'initialize':self.initialize,
             'display': self.display,
+            'scroll_to_anchor': self.on_scroll_to_anchor,
         }
         self.last_window_ypos = 0
 
@@ -104,6 +105,13 @@ class IframeBoss:
         self.last_cfi = None
         root_data, self.mathjax = finalize_resources(self.book, data.name, data.resource_data)
         unserialize_html(root_data, self.content_loaded)
+
+    def on_scroll_to_anchor(self, data):
+        frag = data.frag
+        if frag:
+            self.scroll_to_anchor(frag)
+        else:
+            self.to_scroll_fraction(0.0)
 
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
