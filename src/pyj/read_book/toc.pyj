@@ -2,6 +2,9 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
+from dom import set_css, svgicon
+from elementmaker import E
+from gettext import gettext as _
 from widgets import create_tree
 
 def create_toc_tree(toc, onclick):
@@ -13,9 +16,16 @@ def create_toc_tree(toc, onclick):
 
     return create_tree(toc, populate_data, onclick)
 
-def create_toc_panel(book, container, onclick):
+def create_toc_panel(book, container, onclick, onclose):
+    container.appendChild(E.div(
+        style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
+        E.h2(_('Table of Contents')),
+        E.div(svgicon('close'), onclick=def(event):event.preventDefault(), event.stopPropagation(), onclose(event);, style='cursor: pointer', class_='simple-link'),
+    ))
     def handle_click(event, li):
         if event.button is 0:
             onclick(li.dataset.tocDest, li.dataset.tocFrag)
     toc_panel = create_toc_tree(book.manifest.toc, handle_click)
+    set_css(container, display='flex', flex_direction='column')
+    set_css(toc_panel, flex_grow='10')
     container.appendChild(toc_panel)

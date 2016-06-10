@@ -120,6 +120,7 @@ def create_tree(root, populate_data, onclick):
                         E.span('\xa0'),
                         E.a(
                             href='javascript: void(0)',
+                            class_='simple-link',
                             onclick=def (event):
                                 if onclick:
                                     onclick(event, event.currentTarget.parentNode.parentNode)
@@ -141,15 +142,10 @@ def create_tree(root, populate_data, onclick):
         process_node(root, container, 0)
     return container
 
-create_tree.style = '''
-div.simple-tree a:hover { color: red; }
-div.simple-tree a:active { transform: scale(1.5); }
-'''
-
 def get_widget_css():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
+    ans += '.simple-link:hover { color: red; } .simple-tree:active { transform: scale(1.5) }\n'
     ans += create_button.style
     ans += create_spinner.style
     ans += Breadcrumbs.STYLE_RULES
-    ans += create_tree.style
     return ans

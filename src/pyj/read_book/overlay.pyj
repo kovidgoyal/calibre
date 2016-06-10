@@ -97,6 +97,7 @@ class MainOverlay:  # {{{
 
     def __init__(self, overlay):
         self.overlay = overlay
+        self.timer = None
         if window.Intl?.DateTimeFormat:
             self.date_formatter = window.Intl.DateTimeFormat(undefined, {'hour':'numeric', 'minute':'numeric'})
         else:
@@ -125,6 +126,7 @@ class MainOverlay:  # {{{
 
         ), user_select='none', background_color=get_color('window-background')))
 
+        self.on_hide()
         self.timer = setInterval(self.update_time, 1000)
         button_row = container.querySelector('.button-row')
 
@@ -169,7 +171,9 @@ class MainOverlay:  # {{{
         element(self.container_id, '[data-time]').textContent = self.date_formatter.format(Date())
 
     def on_hide(self):
-        clearInterval(self.timer)
+        if self.timer is not None:
+            clearInterval(self.timer)
+        self.timer = None
 
     def return_to_book_list(self):
         view = self.overlay.view
@@ -194,7 +198,7 @@ class TOCOverlay: # {{{
 
     def show(self, container):
         container.style.backgroundColor = get_color('window-background')
-        create_toc_panel(self.overlay.view.book, container, self.handle_activate)
+        create_toc_panel(self.overlay.view.book, container, self.handle_activate, self.overlay.hide_current_panel)
 
     def handle_activate(self, dest, frag):
         self.overlay.hide()
@@ -246,6 +250,8 @@ class Overlay:
             self.container.style.display = 'none'
 
     def show_current_panel(self):
+        if self.panels.length > 1 and callable(self.panels[-2].on_hide):
+            self.panels[-2].on_hide()
         c = self.clear_container()
         if self.panels.length:
             self.panels[-1].show(c)
@@ -269,6 +275,5 @@ class Overlay:
         self.show_current_panel()
 
     def show_toc(self):
-        self.hide_current_panel()
         self.panels.push(TOCOverlay(self))
         self.show_current_panel()
