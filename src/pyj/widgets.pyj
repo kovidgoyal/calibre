@@ -7,6 +7,7 @@ from elementmaker import E
 
 from book_list.theme import get_color
 
+# Button {{{
 BUTTON_VPADDING = '0.5ex'
 
 def create_button(text, icon=None, action=None, tooltip=None, highlight=False):
@@ -28,7 +29,9 @@ create_button.style = build_rule('button.calibre-push-button',
 )
 create_button.style += build_rule('button.calibre-push-button:hover', transform='scale(1.2)')
 create_button.style += build_rule('button.calibre-push-button:active', transform='scale(2)')
+# }}}
 
+# Spinner {{{
 def create_spinner(height, width):
     ans = svgicon('cog', height, width)
     ans.classList.add('spin')
@@ -36,6 +39,10 @@ def create_spinner(height, width):
 
 create_spinner.style  = build_rule('.spin', animation='spin 2s infinite linear')
 create_spinner.style += create_keyframes('spin', 'from { transform: rotate(0deg); } to { transform: rotate(359deg);}')
+
+# }}}
+
+# Breadcrumbs {{{
 
 id_counter = 0
 
@@ -93,6 +100,9 @@ class Breadcrumbs:
             li.addEventListener('click', callback)
         self.container.appendChild(li)
         return li
+# }}}
+
+# Simple Tree {{{
 
 def create_tree(root, populate_data, onclick):
     container = E.div(class_='simple-tree')
@@ -123,6 +133,8 @@ def create_tree(root, populate_data, onclick):
                             class_='simple-link',
                             onclick=def (event):
                                 if onclick:
+                                    if event.button is 0:
+                                        event.preventDefault(), event.stopPropagation()
                                     onclick(event, event.currentTarget.parentNode.parentNode)
                         ),
                     ),
@@ -141,10 +153,11 @@ def create_tree(root, populate_data, onclick):
     if root:
         process_node(root, container, 0)
     return container
+# }}}
 
 def get_widget_css():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
-    ans += '.simple-link:hover { color: red; } .simple-tree:active { transform: scale(1.5) }\n'
+    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: red } .simple-tree:active { transform: scale(1.5) }\n'
     ans += create_button.style
     ans += create_spinner.style
     ans += Breadcrumbs.STYLE_RULES

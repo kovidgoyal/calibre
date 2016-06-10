@@ -20,7 +20,7 @@ def create_toc_panel(book, container, onclick, onclose):
     container.appendChild(E.div(
         style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
         E.h2(_('Table of Contents')),
-        E.div(svgicon('close'), onclick=def(event):event.preventDefault(), event.stopPropagation(), onclose(event);, style='cursor: pointer', class_='simple-link'),
+        E.div(svgicon('close'), onclick=def(event):event.preventDefault(), event.stopPropagation(), onclose(event);, class_='simple-link'),
     ))
     def handle_click(event, li):
         if event.button is 0:
