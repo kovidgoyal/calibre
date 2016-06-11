@@ -49,9 +49,8 @@ class SearchPanel:
         search_button = create_button(_('Search'), icon='search', action=self.execute_search.bind(self), tooltip=_('Do the search'))
         search_container.appendChild(E.div(style="display: flex; width: 100%;",
             E.input(
-                type='search', autosave='search-for-books-in-main-calibre-booklist', name='search-books',
-                autocomplete='on', inputmode='latin',
-                title=_('Search for books'), placeholder=_('Enter the search query'), spellcheck='false',
+                type='search', name='search-books',
+                title=_('Search for books'), placeholder=_('Enter the search query'),
                 style="flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em".format(BUTTON_VPADDING), onkeydown=self.on_input_keydown.bind(self),
             ),
             search_button

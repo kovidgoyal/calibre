@@ -58,9 +58,8 @@ def create_toc_panel(book, container, onclick, onclose):
     container.appendChild(E.div(
         style='margin: 1ex 1em; display: flex;',
         E.input(
-            type='search', autosave='search-toc-in-calibre-book-reader', name='toc-serach',
-            autocomplete='on', inputmode='latin',
-            title=_('Search Table of Contents'), placeholder=_('Search Table of Contents'), spellcheck='false',
+            type='search', name='toc-serach',
+            title=_('Search Table of Contents'), placeholder=_('Search Table of Contents'),
             style="flex-grow: 10; margin-right: 0.5em", onkeydown=on_input_keydown,
         ),
         E.div(class_='simple-link', svgicon('search'), onclick=on_search_click)
