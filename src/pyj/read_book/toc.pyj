@@ -5,7 +5,8 @@ from __python__ import hash_literals
 from dom import set_css, svgicon
 from elementmaker import E
 from gettext import gettext as _
-from widgets import create_tree
+from modals import error_dialog
+from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
 
 def create_toc_tree(toc, onclick):
 
@@ -15,6 +16,30 @@ def create_toc_tree(toc, onclick):
         a.textContent = node.title or ''
 
     return create_tree(toc, populate_data, onclick)
+
+def do_search(text, container):
+    a = find_text_in_tree(container, text)
+    if not text:
+        return
+    if not a:
+        return error_dialog(_('No matches found'), _(
+            'The text "{}" was not found in the Table of Contents').format(text))
+    scroll_tree_item_into_view(a)
+
+def on_input_keydown(event):
+    if event.keyCode is 13:  # Enter
+        event.preventDefault(), event.stopPropagation()
+        text = event.target.value
+        event.target.nextSibling.focus()
+        container = event.target.parentNode.parentNode.firstChild.nextSibling
+        do_search(text, container)
+
+def on_search_click(event):
+    if event.button is 0:
+        event.preventDefault(), event.stopPropagation()
+        text = event.currentTarget.previousSibling.value
+        container = event.currentTarget.parentNode.parentNode.firstChild.nextSibling
+        do_search(text, container)
 
 def create_toc_panel(book, container, onclick, onclose):
     container.appendChild(E.div(
@@ -29,3 +54,14 @@ def create_toc_panel(book, container, onclick, onclose):
     set_css(container, display='flex', flex_direction='column')
     set_css(toc_panel, flex_grow='10')
     container.appendChild(toc_panel)
+
+    container.appendChild(E.div(
+        style='margin: 1ex 1em; display: flex;',
+        E.input(
+            type='search', autosave='search-toc-in-calibre-book-reader', name='toc-serach',
+            autocomplete='on', inputmode='latin',
+            title=_('Search Table of Contents'), placeholder=_('Search Table of Contents'), spellcheck='false',
+            style="flex-grow: 10; margin-right: 0.5em", onkeydown=on_input_keydown,
+        ),
+        E.div(class_='simple-link', svgicon('search'), onclick=on_search_click)
+    ))

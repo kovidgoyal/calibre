@@ -130,7 +130,7 @@ def create_tree(root, populate_data, onclick):
                         E.span('\xa0'),
                         E.a(
                             href='javascript: void(0)',
-                            class_='simple-link',
+                            class_='simple-link tree-item-title',
                             onclick=def (event):
                                 if onclick:
                                     if event.button is 0:
@@ -138,7 +138,7 @@ def create_tree(root, populate_data, onclick):
                                     onclick(event, event.currentTarget.parentNode.parentNode)
                         ),
                     ),
-                    E.div(style='display:none'),
+                    E.div(style='display:none', data_tree_subtree_container='1'),
                     data_tree_state='closed',
                 )
                 ul.appendChild(li)
@@ -153,11 +153,58 @@ def create_tree(root, populate_data, onclick):
     if root:
         process_node(root, container, 0)
     return container
+
+def find_text_in_tree(container, q):
+    q = q.lower()
+    last_match = container.querySelector('a[data-tree-last-match]')
+    if last_match:
+        last_match.parentNode.style.backgroundColor = 'transparent'
+        last_match.parentNode.style.borderRadius = '0'
+        lm = last_match.getAttribute('data-tree-last-match')
+        last_match.removeAttribute('data-tree-last-match')
+        if lm is not q:
+            last_match = None
+    if not q:
+        return
+    before = []
+    seen = False
+    ans = None
+
+    for a in container.querySelectorAll('a.tree-item-title'):
+        if a is last_match:
+            seen = True
+        else:
+            if a.textContent.lower().indexOf(q) != -1:
+                if seen:
+                    ans = a
+                    break
+                if last_match is None:
+                    ans = a
+                    break
+                before.push(a)
+    if not ans and before.length:
+        ans = before[0]
+    ans = ans or last_match
+    if ans:
+        ans.dataset.treeLastMatch = q
+    if ans:
+        ans.parentNode.style.backgroundColor = get_color('tree-highlight-item')
+        ans.parentNode.style.borderRadius = '5px'
+        ans = ans.parentNode.parentNode
+    return ans
+
+def scroll_tree_item_into_view(item):
+    p = item.parentNode?.parentNode
+    while p and p.getAttribute('data-tree-subtree-container'):
+        p.style.display = 'block'
+        p = p.parentNode?.parentNode?.parentNode
+    item.scrollIntoView()
+
 # }}}
 
 def get_widget_css():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
-    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: red } .simple-tree:active { transform: scale(1.5) }\n'
+    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: red } .simple-link:active { transform: scale(1.5) }\n'
     ans += create_button.style
     ans += create_spinner.style
     ans += Breadcrumbs.STYLE_RULES

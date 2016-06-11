@@ -24,6 +24,9 @@ def get_color(name):
         'list-hover-background': DARK,
         'list-hover-foreground': LIGHT,
 
+        # Tree colors
+        'tree-highlight-item': LIGHT_DARKER,
+
         # Button colors
         'button-start': DARK,
         'button-end': '#49423B',
