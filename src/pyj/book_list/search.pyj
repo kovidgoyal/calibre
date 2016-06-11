@@ -6,7 +6,7 @@ from ajax import ajax
 from dom import clear, set_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
-from widgets import create_button, BUTTON_VPADDING, create_spinner, Breadcrumbs
+from widgets import create_button, create_spinner, Breadcrumbs
 from modals import show_modal
 from book_list.globals import get_boss, get_session_data
 from book_list.theme import get_color, get_font_size
@@ -51,7 +51,7 @@ class SearchPanel:
             E.input(
                 type='search', name='search-books',
                 title=_('Search for books'), placeholder=_('Enter the search query'),
-                style="flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em".format(BUTTON_VPADDING), onkeydown=self.on_input_keydown.bind(self),
+                style="flex-grow: 10; margin-right: 0.5em", onkeydown=self.on_input_keydown.bind(self),
             ),
             search_button
         ))

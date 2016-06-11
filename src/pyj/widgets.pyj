@@ -8,27 +8,27 @@ from elementmaker import E
 from book_list.theme import get_color
 
 # Button {{{
-BUTTON_VPADDING = '0.5ex'
 
 def create_button(text, icon=None, action=None, tooltip=None, highlight=False):
     ic = ''
     if icon:
         ic = svgicon(icon)
         text = '\xa0' + text
-    ans = E.button(ic, text, class_='calibre-push-button', type='button', title=tooltip or '')
+    ans = E.a(ic, E.span(text), class_='calibre-push-button', href='javascript: void(0)', title=tooltip or '')
     if action is not None:
         ans.addEventListener('click', def(event): event.preventDefault(), action(event);)
     if highlight:
         set_css(ans, font_size='larger', font_weight='bold')
     return ans
 
-create_button.style = build_rule('button.calibre-push-button',
+create_button.style = build_rule('a.calibre-push-button',
     border_radius='1em', background_clip='padding-box', background_color=get_color('button-start'),
     background_image='linear-gradient(to bottom, {}, {})'.format(get_color('button-start'), get_color('button-end')),
-    padding=BUTTON_VPADDING + ' 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit'
+    padding='0.5ex 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit', display='inline-flex', align_items='center',
+    box_shadow='0px 2px 1px rgba(50, 50, 50, 0.75)',
 )
-create_button.style += build_rule('button.calibre-push-button:hover', transform='scale(1.2)')
-create_button.style += build_rule('button.calibre-push-button:active', transform='scale(2)')
+create_button.style += build_rule('a.calibre-push-button:hover', transform='scale(1.2)')
+create_button.style += build_rule('a.calibre-push-button:active', transform='scale(2)')
 # }}}
 
 # Spinner {{{

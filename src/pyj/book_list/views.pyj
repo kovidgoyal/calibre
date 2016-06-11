@@ -48,7 +48,7 @@ class BooksView:
         ))
         more.lastChild.setAttribute('rel', 'next')
         set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto')
-        set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', width='100%', text_align='center')
+        set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', text_align='center', display='flex')
         more.appendChild(E.div(
             create_spinner(), '\xa0' + _('Fetching metadata for more books, please wait') + '…',
             style='margin-left:auto; margin-right:auto; display:none')
