@@ -114,7 +114,7 @@ class TopBar:
             right = bar.firstChild.nextSibling
             elem = right.querySelector('#{}-bar-icon-{}'.format(('top' if bar is self.bar else 'dummy'), icon_name))
             if elem:
-                elem.style.display = 'inline' if visible else 'none'
+                elem.style.display = 'inline-block' if visible else 'none'
 
     def apply_state(self, left, buttons):
         self.set_left(**left)
