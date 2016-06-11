@@ -179,13 +179,8 @@ class PagedDisplay
         # above the columns, which causes them to effectively be added to the
         # page margins (the margin collapse algorithm)
         bs.setProperty('-webkit-margin-collapse', 'separate')
-        # Remove any webkit specified default margin from the first child of body
-        # Otherwise, you could end up with an effective negative margin, I dont
-        # understand exactly why, but see:
-        # https://bugs.launchpad.net/calibre/+bug/1082640 for an example
         c = first_child(document.body)
         if c != null
-            c.style.setProperty('-webkit-margin-before', '0')
             # Remove page breaks on the first few elements to prevent blank pages
             # at the start of a chapter
             c.style.setProperty('-webkit-column-break-before', 'avoid')
