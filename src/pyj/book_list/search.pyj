@@ -52,16 +52,10 @@ class SearchPanel:
                 type='search', autosave='search-for-books-in-main-calibre-booklist', name='search-books',
                 autocomplete='on', inputmode='latin',
                 title=_('Search for books'), placeholder=_('Enter the search query'), spellcheck='false',
-                style="flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em".format(BUTTON_VPADDING)
+                style="flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em".format(BUTTON_VPADDING), onkeypress=self.on_input_keypress.bind(self),
             ),
             search_button
         ))
-        search_container.firstChild.firstChild.addEventListener('keypress', def(event):
-            if event.keyCode is 13:  # Enter
-                search_button.focus()
-                self.execute_search()
-                event.preventDefault(), event.stopPropagation()
-        )
         search_container.appendChild(E.ul(class_='search-items'))
 
         # Build loading panel
@@ -76,6 +70,12 @@ class SearchPanel:
         self.tag_browser_data = None
         self.node_id_map = {}
         self.active_nodes = {}
+
+    def on_input_keypress(self, event):
+        if event.keyCode is 13:  # Enter
+            event.preventDefault(), event.stopPropagation()
+            event.target.nextSibling.focus()
+            self.execute_search()
 
     def init(self):
         tb = self.search_control
