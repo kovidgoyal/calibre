@@ -52,7 +52,7 @@ class SearchPanel:
                 type='search', autosave='search-for-books-in-main-calibre-booklist', name='search-books',
                 autocomplete='on', inputmode='latin',
                 title=_('Search for books'), placeholder=_('Enter the search query'), spellcheck='false',
-                style="flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em".format(BUTTON_VPADDING), onkeypress=self.on_input_keypress.bind(self),
+                style="flex-grow: 10; padding: {} 0.5em; margin-right: 0.5em".format(BUTTON_VPADDING), onkeydown=self.on_input_keydown.bind(self),
             ),
             search_button
         ))
@@ -71,7 +71,7 @@ class SearchPanel:
         self.node_id_map = {}
         self.active_nodes = {}
 
-    def on_input_keypress(self, event):
+    def on_input_keydown(self, event):
         if event.keyCode is 13:  # Enter
             event.preventDefault(), event.stopPropagation()
             event.target.nextSibling.focus()
