@@ -29,7 +29,7 @@ class SaveTemplate(QWidget, Ui_Form):
         variables = sorted(FORMAT_ARG_DESCS.keys())
         if name == 'send_to_device':
             self.help_label.setText(self.orig_help_text + _(
-                '. This setting can be overridden for <b>individual devices</b>,'
+                ' This setting can be overridden for <b>individual devices</b>,'
                 ' by clicking the device icon and choosing "Configure this device".'))
         rows = []
         for var in variables:
