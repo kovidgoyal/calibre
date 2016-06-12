@@ -215,6 +215,7 @@ class Container(ContainerBase):
         resource_template = link_uid + '|{}|'
         xlink_xpath = XPath('//*[@xl:href]')
         link_xpath = XPath('//h:a[@href]')
+        res_link_xpath = XPath('//h:link[@href]')
 
         def link_replacer(base, url):
             if url.startswith('#'):
@@ -249,6 +250,14 @@ class Container(ContainerBase):
             elif mt in OEB_DOCS:
                 self.virtualized_names.add(name)
                 root = self.parsed(name)
+                for link in res_link_xpath(root):
+                    ltype = (link.get('type') or 'text/css').lower()
+                    rel = (link.get('rel') or 'stylesheet').lower()
+                    if ltype != 'text/css' or rel != 'stylesheet':
+                        # This link will not be loaded by the browser anyway
+                        # and will causes the resource load check to hang
+                        link.attrib.clear()
+                        changed.add(name)
                 rewrite_links(root, partial(link_replacer, name))
                 for a in link_xpath(root):
                     href = a.get('href')
