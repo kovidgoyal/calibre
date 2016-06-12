@@ -14,7 +14,6 @@
 #define SQUARE(x) (x)*(x)
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
 #define MIN(x, y) ((x) < (y)) ? (x) : (y)
-#define DISTANCE(r, g, b) (SQUARE(r - red_average) + SQUARE(g - green_average) + SQUARE(b - blue_average))
 #define M_EPSILON 1.0e-6
 #define M_SQ2PI 2.50662827463100024161235523934010416269302368164062
 #ifndef M_PI
@@ -57,11 +56,12 @@ typedef struct
 // }}}
 
 // Remove borders (auto-trim) {{{
-static unsigned int read_border_row(const QImage &img, const unsigned int width, const unsigned int height, int *reds, const double fuzz, const bool top) {
+static unsigned int read_border_row(const QImage &img, const unsigned int width, const unsigned int height, double *reds, const double fuzz, const bool top) {
 	unsigned int r = 0, c = 0, start = 0, delta = top ? 1 : -1, ans = 0;
 	const QRgb *row = NULL, *pixel = NULL;
-    int *greens = NULL, *blues = NULL;
+    double *greens = NULL, *blues = NULL;
 	double red_average = 0, green_average = 0, blue_average = 0, distance = 0, first_red = 0, first_green = 0, first_blue = 0;
+#define DISTANCE(r, g, b) (SQUARE(r - red_average) + SQUARE(g - green_average) + SQUARE(b - blue_average))
 
     greens = reds + width + 1; blues = greens + width + 1;
 	start = top ? 0 : height - 1;
@@ -70,12 +70,12 @@ static unsigned int read_border_row(const QImage &img, const unsigned int width,
 		row = reinterpret_cast<const QRgb*>(img.constScanLine(r));
         red_average = 0; green_average = 0; blue_average = 0;
 		for (c = 0, pixel = row; c < width; c++, pixel++) {
-            reds[c] = qRed(*pixel); greens[c] = qGreen(*pixel); blues[c] = qBlue(*pixel); 
+            reds[c] = qRed(*pixel) / 255.0; greens[c] = qGreen(*pixel) / 255.0; blues[c] = qBlue(*pixel) / 255.0; 
             red_average += reds[c]; green_average += greens[c]; blue_average += blues[c];
 		}
         red_average /= MAX(1, width); green_average /= MAX(1, width); blue_average /= MAX(1, width);
         distance = 0;
-        for (c = 0; c < width && distance <= fuzz; c++) 
+        for (c = 0; c < width && distance <= fuzz; c++)
             distance = MAX(distance, DISTANCE(reds[c], greens[c], blues[c]));
         if (distance > fuzz) break;  // row is not homogeneous
         if (r == start) { first_red = red_average; first_green = green_average; first_blue = blue_average; }
@@ -87,18 +87,18 @@ static unsigned int read_border_row(const QImage &img, const unsigned int width,
 
 QImage remove_borders(const QImage &image, double fuzz) {
     ScopedGILRelease PyGILRelease;
-	int *buf = NULL;
+	double *buf = NULL;
 	QImage img = image, timg;
 	QTransform transpose;
 	unsigned int width = img.width(), height = img.height();
 	unsigned int top_border = 0, bottom_border = 0, left_border = 0, right_border = 0;
     bool bad_alloc = false;
-    QVector<int> vbuf = QVector<int>();
+    QVector<double> vbuf = QVector<double>();
 
     ENSURE32(img)
     vbuf.resize(3*(MAX(width, height)+1));
 	buf = vbuf.data();
-	fuzz /= 255;
+	fuzz /= 255.0;
 
 	top_border = read_border_row(img, width, height, buf, fuzz, true);
     if (top_border < height - 1) {
