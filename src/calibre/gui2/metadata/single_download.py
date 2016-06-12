@@ -904,7 +904,7 @@ class CoversWidget(QWidget):  # {{{
         if self.continue_processing:
             self.covers_view.clear_failed()
 
-        if self.worker.error is not None:
+        if self.worker.error and self.worker.error.strip():
             error_dialog(self, _('Download failed'),
                     _('Failed to download any covers, click'
                         ' "Show details" for details.'),
