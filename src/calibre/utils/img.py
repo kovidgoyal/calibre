@@ -250,7 +250,8 @@ def remove_borders_from_image(img, fuzz=None):
     what colors are considered identical (must be a number between 0 and 255 in
     absolute intensity units). Default is from a tweak whose default value is 10. '''
     fuzz = tweaks['cover_trim_fuzz_value'] if fuzz is None else fuzz
-    ans = imageops.remove_borders(image_from_data(img), max(0, fuzz))
+    img = image_from_data(img)
+    ans = imageops.remove_borders(img, max(0, fuzz))
     return ans if ans.size() != img.size() else img
 # }}}
 
