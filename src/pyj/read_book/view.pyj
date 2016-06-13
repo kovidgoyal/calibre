@@ -157,6 +157,7 @@ class View:
     def display_book(self, book):
         self.book = book
         self.ui.db.update_last_read_time(book)
+        self.loaded_resources = {}
         pos = {'replace_history':True}
         unkey = username_key(self.ui.interface_data.username)
         name = book.manifest.spine[0]

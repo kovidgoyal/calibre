@@ -95,17 +95,17 @@ class ReadUI:
         div = document.getElementById(self.progress_id)
         div.lastChild.textContent = msg or ''
 
-    def load_book(self, book_id, fmt, metadata):
+    def load_book(self, book_id, fmt, metadata, force_reload):
         self.base_url_data = {'book_id':book_id, 'fmt':fmt}
         if self.db is None:
-            self.pending_load = [book_id, fmt, metadata]
+            self.pending_load = [book_id, fmt, metadata, force_reload]
             return
-        self.start_load(book_id, fmt, metadata)
+        self.start_load(book_id, fmt, metadata, force_reload)
 
     def reload_book(self):
         book_id = self.base_url_data.book_id
         metadata = self.metadata or self.interface_data.metadata[book_id]
-        self.load_book(book_id, self.base_url_data.fmt, metadata)
+        self.load_book(book_id, self.base_url_data.fmt, metadata, True)
 
     @property
     def url_data(self):
@@ -121,7 +121,7 @@ class ReadUI:
             pl, self.pending_load = self.pending_load, None
             self.start_load(*pl)
 
-    def start_load(self, book_id, fmt, metadata):
+    def start_load(self, book_id, fmt, metadata, force_reload):
         self.current_book_id = book_id
         metadata = metadata or self.interface_data.metadata[book_id]
         self.current_metadata = metadata or {'title':_('Book id #') + book_id}
@@ -130,21 +130,23 @@ class ReadUI:
         if type(self.db) is 'string':
             self.show_error(_('Cannot read book'), self.db)
             return
-        self.db.get_book(book_id, fmt, metadata, self.got_book.bind(self))
+        self.db.get_book(book_id, fmt, metadata, self.got_book.bind(self, force_reload))
 
-    def got_book(self, book):
+    def got_book(self, force_reload, book):
         if not book.manifest or book.manifest.version is not RENDER_VERSION or not book.is_complete:
             # We re-download the manifest when the book is not complete to ensure we have the
             # correct manifest, even though doing so is not strictly necessary
-            self.get_manifest(book)
+            self.get_manifest(book, force_reload)
         else:
             self.display_book(book)
 
-    def get_manifest(self, book):
+    def get_manifest(self, book, force_reload):
         library_id, book_id, fmt = book.key
         if self.manifest_xhr:
             self.manifest_xhr.abort()
         query = {'library_id': library_id}
+        if force_reload:
+            query.force_reload = '1'
         self.manifest_xhr = ajax(('book-manifest/' + encodeURIComponent(book_id) + '/' + encodeURIComponent(fmt)),
                                  self.got_manifest.bind(self, book), query=query)
         self.manifest_xhr.send()

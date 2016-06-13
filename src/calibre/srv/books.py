@@ -117,6 +117,7 @@ def job_done(job):
 @endpoint('/book-manifest/{book_id}/{fmt}', postprocess=json, types={'book_id':int})
 def book_manifest(ctx, rd, book_id, fmt):
     db, library_id = get_library_data(ctx, rd)[:2]
+    force_reload = rd.query.get('force_reload') == '1'
     if plugin_for_input_format(fmt) is None:
         raise HTTPNotFound('The format %s cannot be viewed' % fmt.upper())
     if book_id not in ctx.allowed_book_ids(rd, db):
@@ -129,6 +130,8 @@ def book_manifest(ctx, rd, book_id, fmt):
         bhash = book_hash(db.library_id, book_id, fmt, size, mtime)
         with cache_lock:
             mpath = abspath(os.path.join(books_cache_dir(), 'f', bhash, 'calibre-book-manifest.json'))
+            if force_reload:
+                safe_remove(mpath, True)
             try:
                 os.utime(mpath, None)
                 with lopen(mpath, 'rb') as f:
