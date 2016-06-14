@@ -303,35 +303,45 @@ class Container(ContainerBase):  # {{{
         all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
         return href in all_hrefs
 
-    def add_file(self, name, data, media_type=None, spine_index=None):
+    def add_file(self, name, data, media_type=None, spine_index=None, modify_name_if_needed=False):
         ''' Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
         (if the file is a text document) '''
-        if self.has_name(name):
-            raise ValueError('A file with the name %s already exists' % name)
         if '..' in name:
             raise ValueError('Names are not allowed to have .. in them')
-        href = self.name_to_href(name, self.opf_name)
         all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
-        if href in all_hrefs:
-            raise ValueError('An item with the href %s already exists in the manifest' % href)
+        href = self.name_to_href(name, self.opf_name)
+        if self.has_name(name) or href in all_hrefs:
+            if not modify_name_if_needed:
+                raise ValueError(('A file with the name %s already exists' % name) if self.has_name(name) else
+                                 ('An item with the href %s already exists in the manifest' % href))
+            base, ext = name.rpartition('.')[::2]
+            c = 0
+            while True:
+                c += 1
+                q = '%s-%d.%s' % (base, c, ext)
+                href = self.name_to_href(q, self.opf_name)
+                if not self.has_name(q) and href not in all_hrefs:
+                    name = q
+                    break
         path = self.name_to_abspath(name)
         base = os.path.dirname(path)
         if not os.path.exists(base):
             os.makedirs(base)
-        with open(path, 'wb') as f:
+        with lopen(path, 'wb') as f:
             f.write(data)
         mt = media_type or self.guess_type(name)
         self.name_path_map[name] = path
         self.mime_map[name] = mt
         if self.ok_to_be_unmanifested(name):
-            return
+            return name
         item_id = self.add_name_to_manifest(name)
         if mt in OEB_DOCS:
             manifest = self.opf_xpath('//opf:manifest')[0]
             spine = self.opf_xpath('//opf:spine')[0]
             si = manifest.makeelement(OPF('itemref'), idref=item_id)
             self.insert_into_xml(spine, si, index=spine_index)
+        return name
 
     def rename(self, current_name, new_name):
         ''' Renames a file from current_name to new_name. It automatically
