@@ -12,6 +12,7 @@ from book_list.prefs import PrefsPanel
 from book_list.book_details import BookDetailsPanel
 from gettext import gettext as _
 from modals import error_dialog, ajax_progress_dialog
+from popups import install_event_filters
 
 class BarState:
 
@@ -88,6 +89,7 @@ class UI:
     ROOT_PANEL = 'books'
 
     def __init__(self, interface_data, book_list_container):
+        install_event_filters()
         self.top_bar = TopBar(book_list_container)
         self.books_view = BooksView(interface_data, book_list_container)
         self.items_view = ItemsView(interface_data, book_list_container)
