@@ -8,9 +8,22 @@ from dom import set_css, clear, build_rule, svgicon
 from gettext import gettext as _
 from book_list.theme import get_color, get_font_size
 from popups import MODAL_Z_INDEX
+from widgets import add_extra_css
 
 modal_container = None
 modal_count = 0
+
+add_extra_css(def():
+    style = build_rule(
+        '#modal-container > div > a:hover',
+        color=get_color('dialog-foreground') + ' !important',
+        background_color=get_color('dialog-background') + ' !important'
+    )
+    style += build_rule(
+        '#modal-container a.dialog-simple-link:hover', color='red !important'
+    )
+    return style
+)
 
 class Modal:
 
@@ -27,16 +40,6 @@ class ModalContainer:
             E.div(  # popup
                 E.div(),  # content area
                 E.a(svgicon('close'), title=_('Close'))
-            ),
-            E.style(
-                build_rule(
-                    '#modal-container > div > a:hover',
-                    color=get_color('dialog-foreground') + ' !important',
-                    background_color=get_color('dialog-background') + ' !important'
-                ) +
-                build_rule(
-                    '#modal-container a.dialog-simple-link:hover', color='red !important'
-                )
             )
         )
         document.body.appendChild(div)

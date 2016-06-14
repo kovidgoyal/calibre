@@ -6,12 +6,33 @@ from ajax import ajax
 from dom import clear, set_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
-from widgets import create_button, create_spinner, Breadcrumbs
+from widgets import create_button, create_spinner, Breadcrumbs, add_extra_css
 from modals import show_modal
 from book_list.globals import get_boss, get_session_data
 from book_list.theme import get_color, get_font_size
 
 sp_counter = 0
+CLASS_NAME = 'book-search-panel'
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+
+    style =  build_rule(sel + ' div.tag-name:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+    style += build_rule(sel + ' div.tag-menu:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+    style += build_rule(sel + ' div.tag-name:active', transform='scale(1.5)')
+    style += build_rule(sel + ' div.tag-menu:active', transform='scale(2)')
+
+    # search items list
+    style += build_rule(sel + ' ul.search-items', margin_top='1ex', list_style_type='none', text_align='left')
+    style += build_rule(sel + ' ul.search-items > li', display='inline-block', cursor='pointer', background_color=get_color('window-background2'), border_radius='10px', padding='0.5ex', margin_right='1em')
+    style += build_rule(sel + ' ul.search-items > li:hover', color='red')
+    style += build_rule(sel + ' ul.search-items > li:active', transform='scale(1.5)')
+
+    # Actions popup
+    style +=  build_rule('#modal-container ul.tb-action-list > li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+    style += build_rule('#modal-container ul.tb-action-list > li:active', color='red', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
+
+    return style
+)
 
 class SearchPanel:
 
@@ -21,20 +42,9 @@ class SearchPanel:
         self.container_id = 'search-panel-' + sp_counter
         self.interface_data = interface_data
         self.tag_path = []
-        style =  build_rule('#' + self.container_id + ' div.tag-name:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
-        style += build_rule('#' + self.container_id + ' div.tag-menu:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
-        style += build_rule('#' + self.container_id + ' div.tag-name:active', transform='scale(1.5)')
-        style += build_rule('#' + self.container_id + ' div.tag-menu:active', transform='scale(2)')
-
-        # search items list
-        style += build_rule('#' + self.container_id + ' ul.search-items', margin_top='1ex', list_style_type='none', text_align='left')
-        style += build_rule('#' + self.container_id + ' ul.search-items > li', display='inline-block', cursor='pointer', background_color=get_color('window-background2'), border_radius='10px', padding='0.5ex', margin_right='1em')
-        style += build_rule('#' + self.container_id + ' ul.search-items > li:hover', color='red')
-        style += build_rule('#' + self.container_id + ' ul.search-items > li:active', transform='scale(1.5)')
 
         div = E.div(
-            id=self.container_id, style='display:none',
-            E.style(style, type='text/css'),
+            id=self.container_id, style='display:none', class_=CLASS_NAME,
             E.div(style="text-align:center; padding:1ex 1em; border-bottom: solid 1px currentColor; margin-bottom: 0.5ex"),  # search input container
             E.div(
                 E.div(),
@@ -45,7 +55,7 @@ class SearchPanel:
         book_list_container.appendChild(div)
 
         # Build search input
-        search_container = div.firstChild.nextSibling
+        search_container = div.firstChild
         search_button = create_button(_('Search'), icon='search', action=self.execute_search.bind(self), tooltip=_('Do the search'))
         search_container.appendChild(E.div(style="display: flex; width: 100%;",
             E.input(
@@ -304,11 +314,8 @@ class SearchPanel:
             if items.length:
                 suffix = ' [' + items.join(' ') + ']'
 
-            style =  build_rule('#modal-container ul.tb-action-list > li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
-            style += build_rule('#modal-container ul.tb-action-list > li:active', color='red', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
             title = E.h2(
                 style='display:flex; align-items: center; border-bottom: solid 1px currentColor; font-weight:bold; font-size:' + get_font_size('title'),
-                E.style(style),
                 E.img(src=self.icon_for_node(node), style='height:2ex'),
                 E.span('\xa0' + name + suffix)
             )
@@ -465,7 +472,7 @@ class SearchPanel:
 
     @property
     def search_items_container(self):
-        return self.container.firstChild.nextSibling.lastChild
+        return self.container.firstChild.lastChild
 
     @property
     def is_visible(self):

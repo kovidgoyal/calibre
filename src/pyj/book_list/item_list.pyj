@@ -4,10 +4,23 @@ from __python__ import hash_literals
 
 from dom import build_rule, svgicon
 from elementmaker import E
+from widgets import add_extra_css
 
 from book_list.theme import get_font_size, get_color
 
 iv_counter = 0
+CLASS_NAME = 'generic-items-list'
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = ''
+    style += build_rule(sel + 'li', padding='1em', border_bottom='solid 1px ' + get_color('window-foreground'), border_top='solid 1px ' + get_color('window-background'), cursor='pointer', list_style='none')
+    style += build_rule(sel + '.item-title', font_size=get_font_size('item-list-title'))
+    style += build_rule(sel + ' .item-subtitle', font_size=get_font_size('item-list-subtitle'), font_style='italic')
+    style += build_rule(sel + ' li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'), border_top_color=get_color('list-hover-foreground'))
+    style += build_rule(sel + ' li:active', transform='scale(1, 1.5)')
+    return style
+)
 
 class ItemsView:
 
@@ -15,17 +28,8 @@ class ItemsView:
         nonlocal iv_counter
         iv_counter += 1
         self.container_id = 'items-view-' + iv_counter
-        style = ''
-        cid = '#' + self.container_id
-        style += build_rule(cid + ' li', padding='1em', border_bottom='solid 1px ' + get_color('window-foreground'), border_top='solid 1px ' + get_color('window-background'), cursor='pointer', list_style='none')
-        style += build_rule(cid + ' .item-title', font_size=get_font_size('item-list-title'))
-        style += build_rule(cid + ' .item-subtitle', font_size=get_font_size('item-list-subtitle'), font_style='italic')
-        style += build_rule(cid + ' li:hover', color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'), border_top_color=get_color('list-hover-foreground'))
-        style += build_rule(cid + ' li:active', transform='scale(1, 1.5)')
-        self.base_style = style
         div = E.div(
-            id=self.container_id, style='display:none',
-            E.style(style, type='text/css')
+            id=self.container_id, style='display:none', class_=CLASS_NAME,
         )
         book_list_container.appendChild(div)
 

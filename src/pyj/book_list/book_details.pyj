@@ -11,7 +11,7 @@ from elementmaker import E
 from gettext import gettext as _
 from book_list.globals import get_boss
 from modals import error_dialog
-from widgets import create_spinner, create_button
+from widgets import create_spinner, create_button, add_extra_css
 from date import format_date
 from utils import fmt_sidx
 
@@ -121,6 +121,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
 
     def process_formats(field, fm, name, val):
         table.appendChild(E.tr(E.td(name + ':'), E.td()))
+        # TODO: Change this to have the read/download options in a popup
         for fmt in val:
             td = table.lastChild.lastChild
             td.appendChild(E.span(fmt, style='white-space: nowrap'))
@@ -255,6 +256,16 @@ def render_metadata(mi, interface_data, table, field_list=None):
         if i is 0:
             div.style.marginTop = '2ex'
 
+CLASS_NAME = 'book-details-panel'
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style  = build_rule(sel + 'table.metadata td:first-of-type', font_weight='bold', padding_right='1em', white_space='nowrap')
+    style += build_rule(sel + 'table.metadata a[href]', color='blue')
+    style += build_rule(sel + 'table.metadata a[href]:hover', color='red')
+    style += build_rule(sel + 'table.metadata a[href]:active', color='red', transform='scale(1.5)')
+    return style
+)
 
 class BookDetailsPanel:
 
@@ -262,13 +273,8 @@ class BookDetailsPanel:
         nonlocal bd_counter
         bd_counter += 1
         self.container_id = 'book-details-panel-' + bd_counter
-        style = build_rule('#' + self.container_id + ' table.metadata td:first-of-type', font_weight='bold', padding_right='1em', white_space='nowrap')
-        style += build_rule('#' + self.container_id + ' table.metadata a[href]', color='blue')
-        style += build_rule('#' + self.container_id + ' table.metadata a[href]:hover', color='red')
-        style += build_rule('#' + self.container_id + ' table.metadata a[href]:active', color='red', transform='scale(1.5)')
         div = E.div(
-            id=self.container_id, style='display:none',
-            E.style(style, type='text/css'),
+            id=self.container_id, style='display:none', class_=CLASS_NAME,
             E.div(),
         )
         book_list_container.appendChild(div)

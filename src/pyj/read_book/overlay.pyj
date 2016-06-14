@@ -6,7 +6,7 @@ from dom import clear, set_css, element, svgicon, build_rule
 from elementmaker import E
 from book_list.theme import get_color
 from book_list.globals import get_boss
-from widgets import create_spinner, create_button
+from widgets import create_spinner, create_button, add_extra_css
 from gettext import gettext as _
 from read_book.toc import create_toc_panel
 
@@ -93,7 +93,21 @@ class DeleteBook:  # {{{
         self.overlay.hide_current_panel()
 # }}}
 
-class MainOverlay:  # {{{
+# MainOverlay {{{
+
+MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
+
+add_extra_css(def():
+    sel = '.' + MAIN_OVERLAY_TS_CLASS + ' '
+    style = build_rule(sel + '.button-row > div:hover', transform='scale(1.5)')
+    style += build_rule(sel + '.button-row > div:active', transform='scale(2)')
+    style += build_rule(sel + '.item-list > li', padding='1ex 1rem', border_bottom='solid 1px currentColor', cursor='pointer')
+    style += build_rule(sel + '.item-list > li:hover', color=get_color('window-background'), background_color=get_color('window-foreground'))
+    style += build_rule(sel + '.item-list > li:active', transform='scaleY(2)')
+    return style
+)
+
+class MainOverlay:
 
     def __init__(self, overlay):
         self.overlay = overlay
@@ -107,7 +121,7 @@ class MainOverlay:  # {{{
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
-        container.appendChild(set_css(E.div(  # top section
+        container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
 
             set_css(E.div(  # top row
@@ -156,16 +170,6 @@ class MainOverlay:  # {{{
         add_button('Aa', _('Change text size'), text_button=True)
         add_button('cogs', _('Configure the book reader'))
         add_button()
-
-        sel = '#{} .button-row '.format(self.container_id)
-        sel2 = '#{} .item-list'.format(self.container_id)
-        container.appendChild(E.style(
-            build_rule(sel + '> div:hover', transform='scale(1.5)'),
-            build_rule(sel + '> div:active', transform='scale(2)'),
-            build_rule(sel2 + '> li', padding='1ex 1rem', border_bottom='solid 1px currentColor', cursor='pointer'),
-            build_rule(sel2 + '> li:hover', color=get_color('window-background'), background_color=get_color('window-foreground')),
-            build_rule(sel2 + '> li:active', transform='scaleY(2)'),
-        ))
 
     def update_time(self):
         element(self.container_id, '[data-time]').textContent = self.date_formatter.format(Date())
