@@ -96,6 +96,24 @@ def check_for_maths(root):
             return True
     return False
 
+def extract(elem):
+    p = elem.getparent()
+    if p is not None:
+        idx = p.index(elem)
+        p.remove(elem)
+        if elem.tail:
+            if idx > 0:
+                p[idx-1].tail = (p[idx-1].tail or '') + elem.tail
+            else:
+                p.text = (p.text or '') + elem.tail
+
+def has_ancestor(elem, q):
+    while elem is not None:
+        elem = elem.getparent()
+        if elem is q:
+            return True
+    return False
+
 def get_length(root):
     strip_space = re.compile(r'\s+')
     ans = 0
@@ -207,6 +225,26 @@ class Container(ContainerBase):
 
     def transform_css(self):
         transform_css(self, transform_sheet=transform_sheet, transform_style=transform_declaration)
+        # Firefox flakes out sometimes when dynamically creating <style> tags,
+        # so convert them to external stylesheets to ensure they never fail
+        style_xpath = XPath('//h:style')
+        for name, mt in tuple(self.mime_map.iteritems()):
+            mt = mt.lower()
+            if mt in OEB_DOCS:
+                head = ensure_head(self.parsed(name))
+                for style in style_xpath(self.parsed(name)):
+                    if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
+                        in_head = has_ancestor(style, head)
+                        if not in_head:
+                            extract(style)
+                            head.append(style)
+                        css = style.text
+                        style.clear()
+                        style.tag = XHTML('link')
+                        style.set('type', 'text/css')
+                        style.set('rel', 'stylesheet')
+                        sname = self.add_file(name + '.css', css.encode('utf-8'), modify_name_if_needed=True)
+                        style.set('href', self.name_to_href(sname, name))
 
     def virtualize_resources(self):
 
@@ -368,11 +406,14 @@ def ensure_head(root):
     if len(heads) != 1:
         if not heads:
             root.insert(0, root.makeelement(XHTML('head')))
-            return
+            return root[0]
         head = heads[0]
         for eh in heads[1:]:
             for child in eh.iterchildren('*'):
                 head.append(child)
+            extract(eh)
+        return head
+    return heads[0]
 
 def ensure_body(root):
     # Make sure we have only a single <body>
@@ -391,7 +432,7 @@ def ensure_body(root):
             body.append(div)
 
 def html_as_dict(root):
-    ensure_head(root), ensure_body(root)
+    ensure_body(root)
     for child in tuple(root.iterchildren('*')):
         if child.tag.partition('}')[-1] not in ('head', 'body'):
             root.remove(child)
