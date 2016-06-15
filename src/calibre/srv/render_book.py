@@ -24,6 +24,7 @@ from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import set_epub_cover, find_cover_image
 from calibre.ebooks.oeb.polish.css import transform_css
+from calibre.ebooks.oeb.polish.utils import extract
 from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -95,17 +96,6 @@ def check_for_maths(root):
         if s.get('type') == 'text/x-mathjax-config':
             return True
     return False
-
-def extract(elem):
-    p = elem.getparent()
-    if p is not None:
-        idx = p.index(elem)
-        p.remove(elem)
-        if elem.tail:
-            if idx > 0:
-                p[idx-1].tail = (p[idx-1].tail or '') + elem.tail
-            else:
-                p.text = (p.text or '') + elem.tail
 
 def has_ancestor(elem, q):
     while elem is not None:

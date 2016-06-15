@@ -205,3 +205,14 @@ def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entiti
     parts = (x if x.startswith('<') else f(x) for x in parts)
     return ''.join(parts)
 
+def extract(elem):
+    ''' Remove an element from the tree, keeping elem.tail '''
+    p = elem.getparent()
+    if p is not None:
+        idx = p.index(elem)
+        p.remove(elem)
+        if elem.tail:
+            if idx > 0:
+                p[idx-1].tail = (p[idx-1].tail or '') + elem.tail
+            else:
+                p.text = (p.text or '') + elem.tail
