@@ -218,6 +218,10 @@ class EPUBInput(InputFormatPlugin):
                 raise DRMError(os.path.basename(path))
         self.encrypted_fonts = self._encrypted_font_uris
 
+        epub3_nav = opf.epub3_nav
+        if epub3_nav is not None:
+            self.convert_epub3_nav(epub3_nav, opf, log)
+
         if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1])+'/'
             for elem in opf.itermanifest():
@@ -252,10 +256,64 @@ class EPUBInput(InputFormatPlugin):
         if len(list(opf.iterspine())) == 0:
             raise ValueError('No valid entries in the spine of this EPUB')
 
-        with open('content.opf', 'wb') as nopf:
+        with lopen('content.opf', 'wb') as nopf:
             nopf.write(opf.render())
 
         return os.path.abspath(u'content.opf')
+
+    def convert_epub3_nav(self, nav_path, opf, log):
+        from lxml import etree
+        from calibre.ebooks.chardet import xml_to_unicode
+        from calibre.ebooks.oeb.polish.parsing import parse
+        from calibre.ebooks.oeb.base import EPUB_NS, XHTML, NCX_MIME, NCX
+        from calibre.ebooks.oeb.polish.toc import first_child
+        from tempfile import NamedTemporaryFile
+        with lopen(nav_path, 'rb') as f:
+            raw = f.read()
+        raw = xml_to_unicode(raw, strip_encoding_pats=True, assume_utf8=True)[0]
+        root = parse(raw, log=log)
+        ncx = etree.fromstring('<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="eng"><navMap/></ncx>')
+        navmap = ncx[0]
+        et = '{%s}type' % EPUB_NS
+        bn = os.path.basename(nav_path)
+
+        def add_from_li(li, parent):
+            href = text = None
+            for x in li.iterchildren(XHTML('a'), XHTML('span')):
+                text = etree.tostring(x, method='text', encoding=unicode, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
+                href = x.get('href')
+                if href:
+                    if href.startswith('#'):
+                        href = bn + href
+                break
+            np = parent.makeelement(NCX('navPoint'))
+            parent.append(np)
+            np.append(np.makeelement(NCX('navLabel')))
+            np[0].append(np.makeelement(NCX('text')))
+            np[0][0].text = text
+            if href:
+                np.append(np.makeelement(NCX('content'), attrib={'src':href}))
+            return np
+
+        def process_nav_node(node, toc_parent):
+            for li in node.iterchildren(XHTML('li')):
+                child = add_from_li(li, toc_parent)
+                ol = first_child(li, XHTML('ol'))
+                if child is not None and ol is not None:
+                    process_nav_node(ol, child)
+
+        for nav in root.iterdescendants(XHTML('nav')):
+            if nav.get(et) == 'toc':
+                ol = first_child(nav, XHTML('ol'))
+                if ol is not None:
+                    process_nav_node(ol, navmap)
+                    break
+
+        with NamedTemporaryFile(suffix='.ncx', dir=os.path.dirname(nav_path), delete=False) as f:
+            f.write(etree.tostring(ncx, encoding='utf-8'))
+        ncx_id = opf.add_path_to_manifest(f.name, NCX_MIME)
+        for spine in opf.root.xpath('//*[local-name()="spine"]'):
+            spine.set('toc', ncx_id)
 
     def postprocess_book(self, oeb, opts, log):
         rc = getattr(self, 'removed_cover', None)

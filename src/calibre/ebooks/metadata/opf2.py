@@ -219,17 +219,20 @@ class ManifestItem(Resource):  # {{{
 
 class Manifest(ResourceCollection):  # {{{
 
+    def append_from_opf_manifest_item(self, item, dir):
+        self.append(ManifestItem.from_opf_manifest_item(item, dir))
+        id = item.get('id', '')
+        if not id:
+            id = 'id%d'%self.next_id
+        self[-1].id = id
+        self.next_id += 1
+
     @staticmethod
     def from_opf_manifest_element(items, dir):
         m = Manifest()
         for item in items:
             try:
-                m.append(ManifestItem.from_opf_manifest_item(item, dir))
-                id = item.get('id', '')
-                if not id:
-                    id = 'id%d'%m.next_id
-                m[-1].id = id
-                m.next_id += 1
+                m.append_from_opf_manifest_item(item, dir)
             except ValueError:
                 continue
         return m
@@ -660,7 +663,6 @@ class OPF(object):  # {{{
                 for item in self.manifest:
                     if 'toc' in item.href().lower():
                         toc = item.path
-
             if toc is None:
                 return
             self.toc = TOC(base_path=self.base_dir)
@@ -721,18 +723,17 @@ class OPF(object):  # {{{
         return [i.get('id') for i in items]
 
     def add_path_to_manifest(self, path, media_type):
-        has_path = False
         path = os.path.abspath(path)
         for i in self.itermanifest():
             xpath = os.path.join(self.base_dir, *(i.get('href', '').split('/')))
             if os.path.abspath(xpath) == path:
-                has_path = True
-                break
-        if not has_path:
-            href = os.path.relpath(path, self.base_dir).replace(os.sep, '/')
-            item = self.create_manifest_item(href, media_type)
-            manifest = self.manifest_ppath(self.root)[0]
-            manifest.append(item)
+                return i.get('id')
+        href = os.path.relpath(path, self.base_dir).replace(os.sep, '/')
+        item = self.create_manifest_item(href, media_type)
+        manifest = self.manifest_ppath(self.root)[0]
+        manifest.append(item)
+        self.manifest.append_from_opf_manifest_item(item, self.basedir)
+        return item.get('id')
 
     def iterspine(self):
         return self.spine_path(self.root)
@@ -1183,6 +1184,20 @@ class OPF(object):  # {{{
                     mt = item.get('media-type', '')
                     if mt and 'xml' not in mt and 'html' not in mt:
                         return item.get('href', None)
+
+    @property
+    def epub3_nav(self):
+        if self.package_version >= 3.0:
+            for item in self.itermanifest():
+                props = (item.get('properties') or '').lower().split()
+                if 'nav' in props:
+                    mt = item.get('media-type') or ''
+                    if 'html' in mt.lower():
+                        mid = item.get('id')
+                        if mid:
+                            path = self.manifest.path_for_id(mid)
+                            if path and os.path.exists(path):
+                                return path
 
     @dynamic_property
     def cover(self):
