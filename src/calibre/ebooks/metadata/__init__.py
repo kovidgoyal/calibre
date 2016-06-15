@@ -7,11 +7,25 @@ __docformat__ = 'restructuredtext en'
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
 import os, sys, re
+from collections import namedtuple
+
 from urlparse import urlparse
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints
 
 from calibre.utils.config_base import tweaks
+
+OPFVersion = namedtuple('OPFVersion', 'major minor patch')
+
+def parse_opf_version(raw):
+    try:
+        v = list(map(int, raw.split('.')))
+    except Exception:
+        v = [2, 0, 0]
+    while len(v) < 3:
+        v.append(0)
+    v = v[:3]
+    return OPFVersion(*v)
 
 try:
     _author_pat = re.compile(tweaks['authors_split_regex'])

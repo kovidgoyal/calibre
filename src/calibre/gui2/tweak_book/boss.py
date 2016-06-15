@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.polish.css import filter_css
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
-from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc, create_inline_toc
+from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, create_inline_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url, choose_dir
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -397,11 +397,12 @@ class Boss(QObject):
         if not editors:
             self.gui.preview.clear()
             self.gui.live_css.clear()
-        if remove_names_from_toc(current_container(), spine_names + list(other_items)):
+        changed = remove_names_from_toc(current_container(), spine_names + list(other_items))
+        if changed:
             self.gui.toc_view.update_if_visible()
-            toc = find_existing_toc(current_container())
-            if toc and toc in editors:
-                editors[toc].replace_data(c.raw_data(toc))
+            for toc in changed:
+                if toc and toc in editors:
+                    editors[toc].replace_data(c.raw_data(toc))
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
 
@@ -514,6 +515,7 @@ class Boss(QObject):
             self.set_modified()
             self.update_editors_from_container()
             self.gui.toc_view.update_if_visible()
+            self.gui.file_list.build(current_container())
 
     def insert_inline_toc(self):
         self.commit_all_editors_to_container()

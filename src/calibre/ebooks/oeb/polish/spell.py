@@ -15,7 +15,7 @@ from calibre.spell.dictionary import parse_lang_code
 from calibre.ebooks.oeb.base import barename
 from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES, get_container
 from calibre.ebooks.oeb.polish.parsing import parse
-from calibre.ebooks.oeb.polish.toc import find_existing_toc
+from calibre.ebooks.oeb.polish.toc import find_existing_ncx_toc, find_existing_nav_toc
 
 _patterns = None
 
@@ -177,9 +177,10 @@ def group_sort(locations):
 
 def get_checkable_file_names(container):
     file_names = [name for name, linear in container.spine_names] + [container.opf_name]
-    toc = find_existing_toc(container)
-    if toc is not None and container.exists(toc):
-        file_names.append(toc)
+    for f in (find_existing_ncx_toc, find_existing_nav_toc):
+        toc = f(container)
+        if toc is not None and container.exists(toc) and toc not in file_names:
+            file_names.append(toc)
     return file_names, toc
 
 def get_all_words(container, book_locale, get_word_count=False):

@@ -24,6 +24,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
     ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font_data)
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, CSSPreProcessor as cssp
+from calibre.ebooks.metadata import parse_opf_version
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.mobi.tweak import set_cover
@@ -586,6 +587,11 @@ class Container(ContainerBase):  # {{{
             return ''
 
     @property
+    def opf_version_parsed(self):
+        ' The version set on the OPF\'s <package> element as a tuple of integers '
+        return parse_opf_version(self.opf_version)
+
+    @property
     def manifest_id_map(self):
         ' Mapping of manifest id to canonical names '
         return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
@@ -599,6 +605,14 @@ class Container(ContainerBase):  # {{{
             ans[item.get('media-type').lower()].append(self.href_to_name(
                 item.get('href'), self.opf_name))
         return {mt:tuple(v) for mt, v in ans.iteritems()}
+
+    def manifest_items_with_property(self, property_name):
+        ' All manifest items that have the specified property '
+        q = property_name.lower()
+        for item in self.opf_xpath('//opf:manifest/opf:item[@href and @properties]'):
+            props = (item.get('properties') or '').lower().split()
+            if q in props:
+                yield self.href_to_name(item.get('href'), self.opf_name)
 
     @property
     def guide_type_map(self):
