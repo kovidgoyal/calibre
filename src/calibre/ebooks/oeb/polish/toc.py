@@ -157,7 +157,7 @@ def parse_ncx(container, ncx_name):
 def add_from_li(container, li, parent, nav_name):
     dest = frag = text = None
     for x in li.iterchildren(XHTML('a'), XHTML('span')):
-        text = etree.tostring(x, method='text', encoding=unicode, with_tail=False) or ' '.join('descendant-or-self::*/@title')
+        text = etree.tostring(x, method='text', encoding=unicode, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
         href = x.get('href')
         if href:
             dest = nav_name if href.startswith('#') else container.href_to_name(href, base=nav_name)
