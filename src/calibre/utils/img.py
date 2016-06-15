@@ -309,7 +309,7 @@ def crop_image(img, x, y, width, height):
 # Image transformations {{{
 
 def grayscale_image(img):
-    return img
+    return imageops.grayscale(image_from_data(img))
 
 def set_image_opacity(img, alpha=0.5):
     ''' Change the opacity of `img`. Note that the alpha value is multiplied to
