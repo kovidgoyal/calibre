@@ -21,7 +21,7 @@ from calibre import __version__
 from calibre.ebooks.oeb.base import (
     XPath, uuid_id, xml2text, NCX, NCX_NS, XML, XHTML, XHTML_NS, serialize, EPUB_NS)
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
-from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ebooks.oeb.polish.utils import guess_type, extract
 from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
 from calibre.translations.dynamic import translate
@@ -154,13 +154,13 @@ def parse_ncx(container, ncx_name):
             break
     return toc_root
 
-def add_from_li(container, li, parent, ncx_name):
+def add_from_li(container, li, parent, nav_name):
     dest = frag = text = None
     for x in li.iterchildren(XHTML('a'), XHTML('span')):
         text = etree.tostring(x, method='text', encoding=unicode, with_tail=False) or ' '.join('descendant-or-self::*/@title')
         href = x.get('href')
         if href:
-            dest = container.href_to_name(href, base=ncx_name)
+            dest = nav_name if href.startswith('#') else container.href_to_name(href, base=nav_name)
             frag = urlparse(href).fragment or None
         break
     return parent.add(text or None, dest or None, frag or None)
@@ -553,7 +553,7 @@ def commit_nav_toc(container, toc, lang=None):
     et = '{%s}type' % EPUB_NS
     navs = [n for n in root.iterdescendants(XHTML('nav')) if n.get(et) == 'toc']
     for x in navs[1:]:
-        x.getparent().remove(x)
+        extract(x)
     if navs:
         nav = navs[0]
         tail = nav.tail
@@ -594,6 +594,10 @@ def commit_nav_toc(container, toc, lang=None):
                 process_node(ol, child)
     process_node(rnode, toc)
     pretty_xml_tree(rnode)
+    for li in rnode.iterdescendants(XHTML('li')):
+        if len(li) == 1:
+            li.text = None
+            li[0].tail = None
     container.replace(tocname, root)
 
 def commit_toc(container, toc, lang=None, uid=None):
