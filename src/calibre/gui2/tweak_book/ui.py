@@ -49,7 +49,7 @@ from calibre.utils.icu import character_name, sort_key
 from calibre.utils.localization import localize_user_manual_link
 
 def open_donate():
-    open_url(QUrl('http://calibre-ebook.com/donate'))
+    open_url(QUrl('https://calibre-ebook.com/donate'))
 
 class Central(QStackedWidget):  # {{{
 

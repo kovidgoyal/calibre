@@ -270,7 +270,7 @@ class PDFStream(object):
         self.compress = compress
         self.write_line(PDFVER)
         self.write_line(b'%íì¦"')
-        creator = ('%s %s [http://calibre-ebook.com]'%(__appname__,
+        creator = ('%s %s [https://calibre-ebook.com]'%(__appname__,
                                     __version__))
         self.write_line('%% Created by %s'%creator)
         self.objects = IndirectObjects()

@@ -476,7 +476,7 @@ class CoverSettingsWidget(QWidget):
         mi.tags = [_('Tag One'), _('Tag Two')]
         mi.publisher = _('Some publisher')
         mi.rating = 4
-        mi.identifiers = {'isbn':'123456789', 'url': 'http://calibre-ebook.com'}
+        mi.identifiers = {'isbn':'123456789', 'url': 'https://calibre-ebook.com'}
         mi.languages = ['eng', 'fra']
         mi.pubdate = mi.timestamp = now()
         return mi

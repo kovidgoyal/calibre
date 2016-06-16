@@ -324,7 +324,7 @@ class PDFWriter(QObject):  # {{{
         self.append_doc(self.combine_queue[-1])
 
         try:
-            self.doc.creator = u'%s %s [http://calibre-ebook.com]'%(
+            self.doc.creator = u'%s %s [https://calibre-ebook.com]'%(
                     __appname__, __version__)
             self.doc.title = self.metadata.title
             self.doc.author = self.metadata.author
@@ -356,7 +356,7 @@ class ImagePDFWriter(object):  # {{{
                 raw = x.read()
             doc = get_podofo().PDFDoc()
             doc.load(raw)
-            doc.creator = u'%s %s [http://calibre-ebook.com]'%(
+            doc.creator = u'%s %s [https://calibre-ebook.com]'%(
                     __appname__, __version__)
             doc.title = self.metadata.title
             doc.author = self.metadata.author

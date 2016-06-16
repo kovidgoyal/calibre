@@ -1459,7 +1459,7 @@ class OPFCreator(Metadata):
                 fa['file-as'] = self.author_sort
             a(DC_ELEM('creator', author, opf_attrs=fa))
         a(DC_ELEM('contributor', '%s (%s) [%s]'%(__appname__, __version__,
-            'http://calibre-ebook.com'), opf_attrs={'role':'bkp',
+            'https://calibre-ebook.com'), opf_attrs={'role':'bkp',
                 'file-as':__appname__}))
         a(DC_ELEM('identifier', str(self.application_id),
             opf_attrs={'scheme':__appname__},
@@ -1561,7 +1561,7 @@ def metadata_to_opf(mi, as_string=True, default_lang=None):
 
     if not mi.book_producer:
         mi.book_producer = __appname__ + ' (%s) '%__version__ + \
-            '[http://calibre-ebook.com]'
+            '[https://calibre-ebook.com]'
 
     if not mi.languages:
         lang = (get_lang().replace('_', '-').partition('-')[0] if default_lang
