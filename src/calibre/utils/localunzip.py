@@ -283,7 +283,10 @@ class LocalZipFile(object):
                 if header.filename in names:
                     zi = ZipInfo(header.filename)
                     zi.compress_type = header.compression_method
-                    ztemp.writestr(zi, replacements[header.filename].read())
+                    r = replacements[header.filename]
+                    if not isinstance(r, bytes):
+                        r = r.read()
+                    ztemp.writestr(zi, r)
                     found.add(header.filename)
                 else:
                     ztemp.writestr(header.filename, self.read(header.filename,
