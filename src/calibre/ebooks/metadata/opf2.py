@@ -14,9 +14,9 @@ from urlparse import urlparse
 from lxml import etree
 
 from calibre.ebooks import escape_xpath_attr
-from calibre.ebooks.chardet import xml_to_unicode
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.metadata.utils import parse_opf
 from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
@@ -502,7 +502,6 @@ def dump_dict(cats):
 class OPF(object):  # {{{
 
     MIMETYPE         = 'application/oebps-package+xml'
-    PARSER           = etree.XMLParser(recover=True)
     NAMESPACES       = {
                         None: "http://www.idpf.org/2007/opf",
                         'dc': "http://purl.org/dc/elements/1.1/",
@@ -564,21 +563,11 @@ class OPF(object):  # {{{
                                 formatter=json.loads, renderer=dump_dict)
 
     def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True,
-            populate_spine=True, try_to_guess_cover=True):
-        if not hasattr(stream, 'read'):
-            stream = open(stream, 'rb')
-        raw = stream.read()
-        if not raw:
-            raise ValueError('Empty file: '+getattr(stream, 'name', 'stream'))
+            populate_spine=True, try_to_guess_cover=True, preparsed_opf=None, read_toc=True):
         self.try_to_guess_cover = try_to_guess_cover
         self.basedir  = self.base_dir = basedir
         self.path_to_html_toc = self.html_toc_fragment = None
-        raw, self.encoding = xml_to_unicode(raw, strip_encoding_pats=True,
-                resolve_entities=True, assume_utf8=True)
-        raw = raw[raw.find('<'):]
-        self.root     = etree.fromstring(raw, self.PARSER)
-        if self.root is None:
-            raise ValueError('Not an OPF file')
+        self.root = parse_opf(stream) if preparsed_opf is None else preparsed_opf
         try:
             self.package_version = float(self.root.get('version', None))
         except (AttributeError, TypeError, ValueError):
@@ -603,7 +592,10 @@ class OPF(object):  # {{{
         guide = self.guide_path(self.root)
         self.guide = Guide.from_opf_guide(guide, basedir) if guide else None
         self.cover_data = (None, None)
-        self.find_toc()
+        if read_toc:
+            self.find_toc()
+        else:
+            self.toc = None
         self.read_user_metadata()
 
     def read_user_metadata(self):

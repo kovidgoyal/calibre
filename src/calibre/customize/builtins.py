@@ -292,12 +292,12 @@ class DocXMetadataReader(MetadataReaderPlugin):
 class OPFMetadataReader(MetadataReaderPlugin):
 
     name        = 'Read OPF metadata'
-    file_types  = set(['opf'])
+    file_types  = {'opf'}
     description = _('Read metadata from %s files')%'OPF'
 
     def get_metadata(self, stream, ftype):
-        from calibre.ebooks.metadata.opf2 import OPF
-        return OPF(stream, os.getcwdu()).to_book_metadata()
+        from calibre.ebooks.metadata.opf import get_metadata
+        return get_metadata(stream)[0]
 
 class PDBMetadataReader(MetadataReaderPlugin):
 
