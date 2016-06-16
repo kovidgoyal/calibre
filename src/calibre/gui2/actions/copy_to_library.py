@@ -16,6 +16,7 @@ from PyQt5.Qt import (
     QFormLayout, QCheckBox, QWidget, QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget)
 
 from calibre.constants import isosx
+from calibre.db.utils import find_identical_books
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2 import (error_dialog, Dispatcher, warning_dialog, gprefs,
         info_dialog, choose_dir)
@@ -105,6 +106,7 @@ class Worker(Thread):  # {{{
         self.auto_merged_ids = {}
         self.add_duplicates = add_duplicates
         self.duplicate_ids = {}
+        self.check_for_duplicates = not add_duplicates and (prefs['add_formats_to_existing'] or prefs['check_for_dupes_on_ctl'])
 
     def run(self):
         try:
@@ -130,6 +132,8 @@ class Worker(Thread):  # {{{
         from calibre.db.legacy import LibraryDatabase
         newdb = LibraryDatabase(self.loc, is_second_db=True)
         with closing(newdb):
+            if self.check_for_duplicates:
+                self.find_identical_books_data = newdb.new_api.data_for_find_identical_books()
             self._doit(newdb)
         newdb.break_cycles()
         del newdb
@@ -154,11 +158,10 @@ class Worker(Thread):  # {{{
                 if p:
                     paths.append(p)
             try:
-                if not self.add_duplicates:
-                    if prefs['add_formats_to_existing'] or prefs['check_for_dupes_on_ctl']:
-                        # Scanning for dupes can be slow on a large library so
-                        # only do it if the option is set
-                        identical_book_list = newdb.find_identical_books(mi)
+                if self.check_for_duplicates:
+                    # Scanning for dupes can be slow on a large library so
+                    # only do it if the option is set
+                    identical_book_list = find_identical_books(mi, self.find_identical_books_data)
                     if identical_book_list:  # books with same author and nearly same title exist in newdb
                         if prefs['add_formats_to_existing']:
                             self.automerge_book(x, mi, identical_book_list, paths, newdb)
@@ -193,6 +196,8 @@ class Worker(Thread):  # {{{
                 co = self.db.conversion_options(x, 'PIPE')
                 if co is not None:
                     newdb.set_conversion_options(new_book_id, 'PIPE', co)
+                if self.check_for_duplicates:
+                    newdb.new_api.update_data_for_find_identical_books(new_book_id, self.find_identical_books_data)
                 self.processed.add(x)
             finally:
                 for path in paths:
