@@ -276,24 +276,28 @@ class LocalZipFile(object):
         replacements = {name:datastream}
         replacements.update(extra_replacements)
         names = frozenset(replacements.keys())
-        found = set([])
+        found = set()
+
+        def rbytes(name):
+            r = replacements[name]
+            if not isinstance(r, bytes):
+                r = r.read()
+            return r
+
         with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
             ztemp = ZipFile(temp, 'w')
             for offset, header in self.file_info.itervalues():
                 if header.filename in names:
                     zi = ZipInfo(header.filename)
                     zi.compress_type = header.compression_method
-                    r = replacements[header.filename]
-                    if not isinstance(r, bytes):
-                        r = r.read()
-                    ztemp.writestr(zi, r)
+                    ztemp.writestr(zi, rbytes(header.filename))
                     found.add(header.filename)
                 else:
                     ztemp.writestr(header.filename, self.read(header.filename,
                         spool_size=0))
             if add_missing:
                 for name in names - found:
-                    ztemp.writestr(name, replacements[name].read())
+                    ztemp.writestr(name, rbytes(name))
             ztemp.close()
             zipstream = self.stream
             temp.seek(0)
