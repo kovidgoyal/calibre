@@ -277,7 +277,7 @@ def test_openssl():
 def test_crt():
     from ctypes.util import find_msvcrt
     if not find_msvcrt():
-        raise SystemExit('find_msvcrt() failed')
+        raise ValueError('find_msvcrt() failed')
     fprint('CRT OK!')
 
 def test():
