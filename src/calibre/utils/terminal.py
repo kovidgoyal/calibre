@@ -158,9 +158,9 @@ def crt():
     # We use the C runtime bundled with the calibre windows build
     global _crt
     if _crt is None:
-        import glob, ctypes
-        d = os.path.join(os.path.dirname(sys.executable), '*.CRT', 'msvcr*.dll')
-        _crt = ctypes.CDLL(glob.glob(d)[0])
+        import ctypes
+        from ctypes.util import find_msvcrt
+        _crt = ctypes.CDLL(find_msvcrt())
     return _crt
 
 class ColoredStream(Detect):
