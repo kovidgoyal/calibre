@@ -16,7 +16,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import get_metadata as get_metadata_from_opf
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.ptempfile import TemporaryDirectory, PersistentTemporaryFile
+from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir, walk
 from calibre.constants import isosx
 from calibre.utils.localization import lang_as_iso639_1
@@ -119,6 +119,9 @@ class OCFReader(OCF):
                 self._encryption_meta_cached = Encryption(None)
         return self._encryption_meta_cached
 
+    def read_bytes(self, name):
+        return self.open(name).read()
+
 
 class OCFZipReader(OCFReader):
     def __init__(self, stream, mode='r', root=None):
@@ -142,6 +145,9 @@ class OCFZipReader(OCFReader):
         if isinstance(self.archive, LocalZipFile):
             return self.archive.open(name)
         return StringIO(self.archive.read(name))
+
+    def read_bytes(self, name):
+        return self.archive.read(name)
 
 def get_zip_reader(stream, root=None):
     try:
@@ -232,8 +238,8 @@ def get_metadata(stream, extract_cover=True):
     """ Return metadata as a :class:`Metadata` object """
     stream.seek(0)
     reader = get_zip_reader(stream)
-    opfstream = reader.open(reader.opf_path)
-    mi, ver, raster_cover, first_spine_item = get_metadata_from_opf(opfstream)
+    opfbytes = reader.read_bytes(reader.opf_path)
+    mi, ver, raster_cover, first_spine_item = get_metadata_from_opf(opfbytes)
     if extract_cover:
         base = posixpath.dirname(reader.opf_path)
         if raster_cover:
@@ -253,12 +259,9 @@ def get_metadata(stream, extract_cover=True):
 def get_quick_metadata(stream):
     return get_metadata(stream, False)
 
-def _write_new_cover(new_cdata, cpath):
+def serialize_cover_data(new_cdata, cpath):
     from calibre.utils.img import save_cover_data_to
-    new_cover = PersistentTemporaryFile(suffix=os.path.splitext(cpath)[1])
-    new_cover.close()
-    save_cover_data_to(new_cdata, new_cover.name)
-    return new_cover
+    return save_cover_data_to(new_cdata, data_fmt=os.path.splitext(cpath)[1][1:])
 
 def normalize_languages(opf_languages, mi_languages):
     ' Preserve original country codes and use 2-letter lang codes where possible '
@@ -314,7 +317,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
             new_cdata = open(mi.cover, 'rb').read()
         except:
             pass
-    new_cover = cpath = None
+    cpath = None
     if new_cdata and raster_cover:
         try:
             cpath = posixpath.join(posixpath.dirname(reader.opf_path),
@@ -322,8 +325,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
             cover_replacable = not reader.encryption_meta.is_encrypted(cpath) and \
                     os.path.splitext(cpath)[1].lower() in ('.png', '.jpg', '.jpeg')
             if cover_replacable:
-                new_cover = _write_new_cover(new_cdata, cpath)
-                replacements[cpath] = open(new_cover.name, 'rb')
+                replacements[cpath] = serialize_cover_data(new_cdata, cpath)
         except Exception:
             import traceback
             traceback.print_exc()
@@ -331,7 +333,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
     update_metadata(reader.opf, mi, apply_null=apply_null,
                     update_timestamp=update_timestamp, force_identifiers=force_identifiers)
 
-    newopf = StringIO(reader.opf.render())
+    newopf = reader.opf.render()
     if isinstance(reader.archive, LocalZipFile):
         reader.archive.safe_replace(reader.container[OPF.MIMETYPE], newopf,
             extra_replacements=replacements)
