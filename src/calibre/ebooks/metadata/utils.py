@@ -20,10 +20,15 @@ PARSER = etree.XMLParser(recover=True, no_network=True)
 OPFVersion = namedtuple('OPFVersion', 'major minor patch')
 
 def parse_opf_version(raw):
+    parts = (raw or '').split('.')
+    try:
+        major = int(parts[0])
+    except Exception:
+        return OPFVersion(2, 0, 0)
     try:
         v = list(map(int, raw.split('.')))
     except Exception:
-        v = [2, 0, 0]
+        v = [major, 0, 0]
     while len(v) < 3:
         v.append(0)
     v = v[:3]
