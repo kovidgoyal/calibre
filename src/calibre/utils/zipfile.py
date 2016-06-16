@@ -1476,7 +1476,10 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
             if isinstance(obj.filename, unicode):
                 obj.flag_bits |= 0x16  # Set isUTF-8 bit
             if obj.filename in names:
-                ztemp.writestr(obj, replacements[obj.filename].read())
+                r = replacements[obj.filename]
+                if not isinstance(r, bytes):
+                    r = r.read()
+                ztemp.writestr(obj, r)
                 found.add(obj.filename)
             else:
                 ztemp.writestr(obj, z.read_raw(obj), raw_bytes=True)
