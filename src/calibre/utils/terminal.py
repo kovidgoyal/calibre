@@ -146,6 +146,8 @@ class Detect(object):
             while text:
                 t, text = text[:chunk], text[chunk:]
                 wt = c_wchar_p(t)
+                # Use the fact that len(t) == wcslen(wt) in python 2.7 on
+                # windows where the python unicode type uses UTF-16
                 if not self.write_console(self.file_handle, wt, len(t), byref(written), None):
                     # Older versions of windows can fail to write large strings
                     # to console with WriteConsoleW (seen it happen on Win XP)
