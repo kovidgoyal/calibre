@@ -104,15 +104,13 @@ class Detect(object):
                 import msvcrt
                 self.msvcrt = msvcrt
                 self.file_handle = msvcrt.get_osfhandle(self.stream.fileno())
-                from ctypes import windll, wintypes, byref, c_wchar_p, c_size_t, POINTER, WinDLL
+                from ctypes import windll, wintypes, byref, POINTER, WinDLL
                 mode = wintypes.DWORD(0)
                 f = windll.kernel32.GetConsoleMode
                 f.argtypes, f.restype = [wintypes.HANDLE, POINTER(wintypes.DWORD)], wintypes.BOOL
                 if f(self.file_handle, byref(mode)):
                     # Stream is a console
                     self.set_console = windll.kernel32.SetConsoleTextAttribute
-                    self.wcslen = crt().wcslen
-                    self.wcslen.argtypes, self.wcslen.restype = [c_wchar_p], c_size_t
                     self.write_console = WinDLL('kernel32', use_last_error=True).WriteConsoleW
                     self.write_console.argtypes = [wintypes.HANDLE, wintypes.c_wchar_p, wintypes.DWORD, POINTER(wintypes.DWORD), wintypes.LPVOID]
                     self.write_console.restype = wintypes.BOOL
@@ -128,8 +126,9 @@ class Detect(object):
             chunk = len(text)
             while text:
                 t, text = text[:chunk], text[chunk:]
+                t = t.partition('\0')[0]
                 wt = c_wchar_p(t)
-                if not self.write_console(self.file_handle, wt, self.wcslen(wt), byref(written), None):
+                if not self.write_console(self.file_handle, wt, len(t), byref(written), None):
                     # Older versions of windows can fail to write large strings
                     # to console with WriteConsoleW (seen it happen on Win XP)
                     import ctypes, winerror
@@ -152,16 +151,6 @@ class Detect(object):
                         continue
                     if not ignore_errors:
                         raise ctypes.WinError(err)
-
-_crt = None
-def crt():
-    # We use the C runtime bundled with the calibre windows build
-    global _crt
-    if _crt is None:
-        import ctypes
-        from ctypes.util import find_msvcrt
-        _crt = ctypes.CDLL(find_msvcrt())
-    return _crt
 
 class ColoredStream(Detect):
 

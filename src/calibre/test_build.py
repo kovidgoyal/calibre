@@ -274,12 +274,6 @@ def test_openssl():
             raise ValueError('Mozilla CA certs not loaded')
     fprint('SSL OK!')
 
-def test_crt():
-    from ctypes.util import find_msvcrt
-    if not find_msvcrt():
-        raise ValueError('find_msvcrt() failed')
-    fprint('CRT OK!')
-
 def test():
     if iswindows:
         test_dlls()
@@ -311,7 +305,6 @@ def test():
         test_wpd()
         test_winutil()
         test_file_dialog_helper()
-        test_crt()
     else:
         test_terminal()
     if isosx:
