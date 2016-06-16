@@ -16,7 +16,7 @@ from lxml import etree
 from calibre.ebooks import escape_xpath_attr
 from calibre.constants import __appname__, __version__, filesystem_encoding
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata.utils import parse_opf
+from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf as _pretty_print
 from calibre.ebooks.metadata import string_to_authors, MetaInformation, check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.date import parse_date, isoformat
@@ -37,11 +37,6 @@ class PrettyPrint(object):
         global pretty_print_opf
         pretty_print_opf = False
 pretty_print = PrettyPrint()
-
-def _pretty_print(root):
-    from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree
-    pretty_opf(root)
-    pretty_xml_tree(root)
 
 class Resource(object):  # {{{
 
