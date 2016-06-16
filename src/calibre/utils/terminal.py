@@ -202,6 +202,7 @@ class ColoredStream(Detect):
             return
         if self.isansi:
             self.stream.write(RESET)
+            self.stream.flush()
         elif self.set_console is not None:
             self.set_console(self.file_handle, self.default_console_text_attributes)
 
