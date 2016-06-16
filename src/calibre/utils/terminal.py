@@ -141,10 +141,10 @@ class Detect(object):
         if self.is_console:
             from ctypes import wintypes, byref, c_wchar_p
             written = wintypes.DWORD(0)
+            text = text.replace('\0', '')
             chunk = len(text)
             while text:
                 t, text = text[:chunk], text[chunk:]
-                t = t.partition('\0')[0]
                 wt = c_wchar_p(t)
                 if not self.write_console(self.file_handle, wt, len(t), byref(written), None):
                     # Older versions of windows can fail to write large strings
