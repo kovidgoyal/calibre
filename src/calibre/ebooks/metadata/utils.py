@@ -9,6 +9,8 @@ from future_builtins import map
 from lxml import etree
 
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.oeb.base import OPF
+from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.spell import parse_lang_code
 from calibre.utils.localization import lang_as_iso639_1
 
@@ -48,3 +50,26 @@ def normalize_languages(opf_languages, mi_languages):
         return lc
     return list(map(norm, mi_languages))
 
+def ensure_unique(template, existing):
+    b, e = template.rpartition('.')[::2]
+    if e:
+        e = '.' + e
+    q = template
+    c = 0
+    while q in existing:
+        c += 1
+        q = '%s-%d%s' % (b, c, e)
+    return q
+
+def create_manifest_item(root, href_template, id_template, media_type=None):
+    all_ids = frozenset(root.xpath('//*/@id'))
+    all_hrefs = frozenset(root.xpath('//*/@href'))
+    href = ensure_unique(href_template, all_hrefs)
+    item_id = ensure_unique(id_template, all_ids)
+    manifest = root.find(OPF('manifest'))
+    if manifest is not None:
+        i = manifest.makeelement(OPF('item'))
+        i.set('href', href), i.set('id', item_id)
+        i.set('media-type', media_type or guess_type(href_template))
+        manifest.append(i)
+        return i
