@@ -16,6 +16,7 @@ from Queue import Queue, Empty
 from calibre import browser
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
 
@@ -333,6 +334,8 @@ def check_links(container):
         elif mt in OEB_DOCS and name not in spine_docs:
             a(UnreferencedDoc(name))
         elif (mt in OEB_FONTS or mt.partition('/')[0] in {'image', 'audio', 'video'}) and name not in spine_resources and name != cover_name:
+            if mt.partition('/')[0] == 'image' and name == get_raster_cover_name(container):
+                continue
             a(UnreferencedResource(name))
         else:
             continue
