@@ -5,9 +5,8 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
-from calibre.ebooks.metadata import parse_opf_version
 from calibre.ebooks.metadata.opf2 import OPF, pretty_print
-from calibre.ebooks.metadata.utils import parse_opf, normalize_languages, create_manifest_item
+from calibre.ebooks.metadata.utils import parse_opf, normalize_languages, create_manifest_item, parse_opf_version
 from calibre.ebooks.metadata import MetaInformation
 
 class DummyFile(object):

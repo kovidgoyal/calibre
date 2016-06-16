@@ -4,6 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from collections import namedtuple
 from future_builtins import map
 
 from lxml import etree
@@ -15,6 +16,18 @@ from calibre.spell import parse_lang_code
 from calibre.utils.localization import lang_as_iso639_1
 
 PARSER = etree.XMLParser(recover=True, no_network=True)
+
+OPFVersion = namedtuple('OPFVersion', 'major minor patch')
+
+def parse_opf_version(raw):
+    try:
+        v = list(map(int, raw.split('.')))
+    except Exception:
+        v = [2, 0, 0]
+    while len(v) < 3:
+        v.append(0)
+    v = v[:3]
+    return OPFVersion(*v)
 
 def parse_opf(stream_or_path):
     stream = stream_or_path
