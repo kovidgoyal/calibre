@@ -106,4 +106,5 @@ class CompletionPopup:
         cs.top = 'auto' if upwards else y + 'px'
         cs.bottom = y + 'px' if upwards else 'auto'
         cs.width = width + 'px'
+        cs.maxHeight = ((y if upwards else window.innerHeight - y) - 10) + 'px'
         show_popup(self.container_id, *self.associated_widget_ids)
