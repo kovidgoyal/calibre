@@ -113,8 +113,7 @@ COVER_TYPES = {
     'other.ms-coverimage', 'other.ms-thumbimage-standard',
     'other.ms-thumbimage', 'thumbimagestandard', 'cover'}
 
-def find_cover_image(container, strict=False):
-    'Find a raster image marked as a cover in the OPF'
+def find_cover_image2(container, strict=False):
     manifest_id_map = container.manifest_id_map
     mm = container.mime_map
     for meta in container.opf_xpath('//opf:meta[@name="cover" and @content]'):
@@ -145,6 +144,18 @@ def find_cover_image(container, strict=False):
 
     if largest_cover[0]:
         return largest_cover[0]
+
+def find_cover_image3(container):
+    for name in container.manifest_items_with_property('cover-image'):
+        return name
+
+def find_cover_image(container, strict=False):
+    'Find a raster image marked as a cover in the OPF'
+    ver = container.opf_version_parsed
+    if ver.major < 3:
+        return find_cover_image2(container, strict=strict)
+    else:
+        return find_cover_image3(container)
 
 def get_guides(container):
     guides = container.opf_xpath('//opf:guide')
