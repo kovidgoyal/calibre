@@ -57,6 +57,8 @@ def set_metadata_opf2(root, cover_prefix, mi, opf_version, cover_data=None, appl
                 m = opf.create_metadata_element('meta', is_dc=False)
                 m.set('name', 'cover'), m.set('content', i.get('id'))
             else:
+                for x in opf.root.xpath('//*[local-name()="item" and contains(@properties, "cover-image")]'):
+                    x.set('properties', x.get('properties').replace('cover-image', '').strip())
                 i.set('properties', 'cover-image')
             raster_cover = name
 
