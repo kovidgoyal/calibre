@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, sys, os, time
+import re, sys, time
 from collections import namedtuple
 from functools import partial
 
@@ -126,20 +126,14 @@ CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in HELP.iteritems()}
 # }}}
 
 def update_metadata(ebook, new_opf):
-    from calibre.ebooks.metadata.opf2 import OPF
-    from calibre.ebooks.metadata.epub import update_metadata
-    opfpath = ebook.name_to_abspath(ebook.opf_name)
+    from calibre.ebooks.metadata.opf import get_metadata, set_metadata
     with ebook.open(ebook.opf_name, 'r+b') as stream, open(new_opf, 'rb') as ns:
-        opf = OPF(stream, basedir=os.path.dirname(opfpath), populate_spine=False,
-                  unquote_urls=False)
-        mi = OPF(ns, unquote_urls=False,
-                      populate_spine=False).to_book_metadata()
+        mi = get_metadata(ns)[0]
         mi.cover, mi.cover_data = None, (None, None)
-
-        update_metadata(opf, mi, apply_null=True, update_timestamp=True)
+        opfbytes = set_metadata(stream, mi, apply_null=True, update_timestamp=True)[0]
         stream.seek(0)
         stream.truncate()
-        stream.write(opf.render())
+        stream.write(opfbytes)
 
 def polish_one(ebook, opts, report, customization=None):
     rt = lambda x: report('\n### ' + x)

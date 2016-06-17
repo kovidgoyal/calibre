@@ -276,7 +276,7 @@ def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_ide
             pass
 
     opfbytes, ver, raster_cover = set_metadata_opf(
-        reader.read_bytes(reader.opf_path), posixpath.dirname(reader.opf_path), mi,
+        reader.read_bytes(reader.opf_path), mi, cover_prefix=posixpath.dirname(reader.opf_path),
         cover_data=new_cdata, apply_null=apply_null, update_timestamp=update_timestamp, force_identifiers=force_identifiers)
     cpath = None
     replacements = {}

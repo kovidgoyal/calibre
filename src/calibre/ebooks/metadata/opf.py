@@ -64,7 +64,7 @@ def set_metadata_opf2(root, cover_prefix, mi, opf_version, cover_data=None, appl
     with pretty_print:
         return opf.render(), raster_cover
 
-def set_metadata(stream, cover_prefix, mi, cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
+def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
     if isinstance(stream, bytes):
         stream = DummyFile(stream)
     root = parse_opf(stream)
