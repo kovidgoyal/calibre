@@ -10,10 +10,12 @@ import unittest
 from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
-    parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers, read_metadata
+    parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
+    read_metadata, set_identifiers, XPath
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>'''  # noqa
+default_refines = defaultdict(list)
 
 class TestOPF3(unittest.TestCase):
 
@@ -33,8 +35,11 @@ class TestOPF3(unittest.TestCase):
             self.ae(expand_prefix(raw, reserved_prefixes), expanded)
 
     def test_identifiers(self):
-        def idt(val, scheme=None):
-            return '<dc:identifier {scheme}>{val}</dc:identifier>'.format(scheme=('opf:scheme="%s"'%scheme if scheme else ''), val=val)
+        def idt(val, scheme=None, iid=''):
+            return '<dc:identifier id="{id}" {scheme}>{val}</dc:identifier>'.format(scheme=('opf:scheme="%s"'%scheme if scheme else ''), val=val, id=iid)
+        def ri(root):
+            return dict(read_identifiers(root, reserved_prefixes, default_refines))
+
         for m, result in (
                 (idt('abc', 'ISBN'), {}),
                 (idt('isbn:9780230739581'), {'isbn':['9780230739581']}),
@@ -45,10 +50,18 @@ class TestOPF3(unittest.TestCase):
                 (idt('url:http://x'), {'url':['http://x']}),
                 (idt('a:1')+idt('a:2'), {'a':['1', '2']}),
         ):
-            self.ae(result, dict(read_identifiers(self.get_opf(m), reserved_prefixes, defaultdict(list))))
+            self.ae(result, ri(self.get_opf(m)))
         mi = read_metadata(self.get_opf(
             metadata=idt('a:1')+idt('a:2')+idt('calibre:x')+idt('uuid:y')))
         self.ae(mi.application_id, 'x')
+
+        root = self.get_opf(metadata=idt('i:1', iid='uid') + idt('r:1') + idt('o:1'))
+        set_identifiers(root, reserved_prefixes, default_refines, {'i':'2', 'o':'2'})
+        self.ae({'i':['2', '1'], 'r':['1'], 'o':['2']}, ri(root))
+        self.ae(1, len(XPath('//dc:identifier[@id="uid"]')(root)))
+        root = self.get_opf(metadata=idt('i:1', iid='uid') + idt('r:1') + idt('o:1'))
+        set_identifiers(root, reserved_prefixes, default_refines, {'i':'2', 'o':'2'}, force_identifiers=True)
+        self.ae({'i':['2', '1'], 'o':['2']}, ri(root))
 
 class TestRunner(unittest.main):
 

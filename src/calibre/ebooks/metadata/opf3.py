@@ -11,8 +11,8 @@ from lxml import etree
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.utils import parse_opf
-from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF
+from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
+from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
 
 # Utils {{{
 # http://www.idpf.org/epub/vocab/package/pfx/
@@ -119,6 +119,32 @@ def read_identifiers(root, prefixes, refines):
             if scheme and val:
                 ans[scheme].append(val)
     return ans
+
+def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=False):
+    uid = root.get('unique-identifier')
+    package_identifier = None
+    for ident in XPath('./opf:metadata/dc:identifier')(root):
+        if uid is not None and uid == ident.get('id'):
+            package_identifier = ident
+            continue
+        val = (ident.text or '').strip()
+        if not val:
+            ident.getparent().remove(ident)
+            continue
+        scheme, val = parse_identifier(ident, val, refines)
+        if not scheme or not val or force_identifiers or scheme in new_identifiers:
+            ident.getparent().remove(ident)
+            continue
+    metadata = XPath('./opf:metadata')(root)[0]
+    for scheme, val in new_identifiers.iteritems():
+        ident = metadata.makeelement(DC('identifier'))
+        ident.text = '%s:%s' % (scheme, val)
+        if package_identifier is None:
+            metadata.append(ident)
+        else:
+            p = package_identifier.getparent()
+            p.insert(p.index(package_identifier), ident)
+
 # }}}
 
 def read_metadata(root):
@@ -138,6 +164,18 @@ def read_metadata(root):
 def get_metadata(stream):
     root = parse_opf(stream)
     return read_metadata(root)
+
+def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
+    prefixes, refines = read_prefixes(root), read_refines(root)
+    set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
+    pretty_print_opf(root)
+
+def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
+    root = parse_opf(stream)
+    return apply_metadata(
+        root, mi, cover_prefix=cover_prefix, cover_data=cover_data,
+        apply_null=apply_null, update_timestamp=update_timestamp,
+        force_identifiers=force_identifiers)
 
 if __name__ == '__main__':
     import sys
