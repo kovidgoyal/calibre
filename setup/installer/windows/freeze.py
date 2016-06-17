@@ -545,7 +545,7 @@ class Win32Freeze(Command, WixMixIn):
             raise ValueError('No installers found')
         args = ['signtool.exe', 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
             'calibre - E-book management', '/du',
-            'http://calibre-ebook.com', '/tr']
+            'https://calibre-ebook.com', '/tr']
 
         def runcmd(cmd):
             for timeserver in ('http://timestamp.geotrust.com/tsa', 'http://timestamp.comodoca.com/rfc3161',):

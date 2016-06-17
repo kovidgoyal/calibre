@@ -32,7 +32,7 @@
 #
 # More information on the Environment Variables used by Calibre can
 # be found at:
-#       http://manual.calibre-ebook.com/customize.html#environment-variables
+#       https://manual.calibre-ebook.com/customize.html#environment-variables
 #
 # NOTE: It is quite possible to have both Windows and Linux binaries on the same
 #       USB stick but set up to use the same calibre settings otherwise.
@@ -182,7 +182,7 @@ else
 		#
 		# -- More information on setting up a development environment can
 		# -- be found at:
-		# --       http://manual.calibre-ebook.com/develop.html#develop
+		# --       https://manual.calibre-ebook.com/develop.html#develop
 		################################################################
 
 		# SRC_DIR="$\(pwd)/CalibreSource/src"
@@ -255,7 +255,7 @@ else
 		##################################################################
 		# -- Set and export any other environment variables needed. More
 		# -- information can be found at:
-		#        http://manual.calibre-ebook.com/customize.html#environment-variables
+		#        https://manual.calibre-ebook.com/customize.html#environment-variables
 		##################################################################
 
 		# some other example variables calibre recognizes:

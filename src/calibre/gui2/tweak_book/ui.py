@@ -480,7 +480,7 @@ class Main(MainWindow):
                 'Close all tabs except the current tab'))
         self.action_help = treg(
             'help.png', _('User &Manual'), lambda : open_url(QUrl(localize_user_manual_link(
-                'http://manual.calibre-ebook.com/edit.html'))), 'user-manual', 'F1', _(
+                'https://manual.calibre-ebook.com/edit.html'))), 'user-manual', 'F1', _(
                 'Show User Manual'))
         self.action_browse_images = treg(
             'view-image.png', _('&Browse images in book'), self.boss.browse_images, 'browse-images', (), _(

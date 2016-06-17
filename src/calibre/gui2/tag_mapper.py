@@ -102,7 +102,7 @@ class RuleEdit(QWidget):
         self.replace = r = QLineEdit(self)
         h.addWidget(r)
         self.regex_help = la = QLabel('<p>' + self.REGEXP_HELP_TEXT % localize_user_manual_link(
-        'http://manual.calibre-ebook.com/regexp.html'))
+        'https://manual.calibre-ebook.com/regexp.html'))
         la.setOpenExternalLinks(True)
         la.setWordWrap(True)
         l.addWidget(la)

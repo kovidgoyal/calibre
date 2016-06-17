@@ -78,7 +78,7 @@ class RuleEdit(QWidget):  # {{{
                 h.addWidget(QLabel('\xa0'))
 
         self.regex_help = la = QLabel('<p>' + RE.REGEXP_HELP_TEXT % localize_user_manual_link(
-        'http://manual.calibre-ebook.com/regexp.html'))
+        'https://manual.calibre-ebook.com/regexp.html'))
         la.setOpenExternalLinks(True)
         la.setWordWrap(True)
         l.addWidget(la)

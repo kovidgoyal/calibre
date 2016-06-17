@@ -477,7 +477,7 @@ class StanzaPage(QWizardPage, StanzaUI):
         self.setupUi(self)
         try:
             self.instructions.setText(self.instructions.text() % localize_user_manual_link(
-                'http://manual.calibre-ebook.com/faq.html#how-do-i-use-calibre-with-my-ipad-iphone-ipod-touch'))
+                'https://manual.calibre-ebook.com/faq.html#how-do-i-use-calibre-with-my-ipad-iphone-ipod-touch'))
         except TypeError:
             pass  # user manual link was already replaced
         self.instructions.setOpenExternalLinks(True)
@@ -750,7 +750,7 @@ class FinishPage(QWizardPage, FinishUI):
         QWizardPage.__init__(self)
         self.setupUi(self)
         try:
-            self.um_label.setText(self.um_label.text() % localize_user_manual_link('http://manual.calibre-ebook.com'))
+            self.um_label.setText(self.um_label.text() % localize_user_manual_link('https://manual.calibre-ebook.com'))
         except TypeError:
             pass  # link already localized
 

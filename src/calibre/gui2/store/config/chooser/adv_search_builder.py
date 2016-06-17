@@ -21,7 +21,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
         try:
             self.sh_label.setText(self.sh_label.text() % localize_user_manual_link(
-                'http://manual.calibre-ebook.com/gui.html#the-search-interface'))
+                'https://manual.calibre-ebook.com/gui.html#the-search-interface'))
         except TypeError:
             pass  # link already localized
 

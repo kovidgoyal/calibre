@@ -20,7 +20,7 @@ class HelpAction(InterfaceAction):
         self.qaction.triggered.connect(self.show_help)
 
     def show_help(self, *args):
-        open_url(QUrl(localize_user_manual_link('http://manual.calibre-ebook.com')))
+        open_url(QUrl(localize_user_manual_link('https://manual.calibre-ebook.com')))
 
 
 

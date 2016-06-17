@@ -380,7 +380,7 @@ class AjaxServer(object):
         :param sort_order: asc or desc
 
         To learn how to create subcategories see
-        http://manual.calibre-ebook.com/sub_groups.html
+        https://manual.calibre-ebook.com/sub_groups.html
         '''
         try:
             num = int(num)

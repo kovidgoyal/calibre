@@ -328,7 +328,7 @@ def category(ctx, rd, encoded_name, library_id):
     :param sort_order: asc or desc
 
     To learn how to create subcategories see
-    http://manual.calibre-ebook.com/sub_groups.html
+    https://manual.calibre-ebook.com/sub_groups.html
     '''
 
     db = get_db(ctx, rd, library_id)

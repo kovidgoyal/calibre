@@ -29,7 +29,7 @@ class PluginWidget(Widget, Ui_Form):
         self.db, self.book_id = db, book_id
         try:
             self.hf_label.setText(self.hf_label.text() % localize_user_manual_link(
-                'http://manual.calibre-ebook.com/conversion.html#converting-to-pdf'))
+                'https://manual.calibre-ebook.com/conversion.html#converting-to-pdf'))
         except TypeError:
             pass  # link already localized
 

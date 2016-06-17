@@ -815,7 +815,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         Display help file
         '''
-        open_url(QUrl(localize_user_manual_link('http://manual.calibre-ebook.com/catalogs.html')))
+        open_url(QUrl(localize_user_manual_link('https://manual.calibre-ebook.com/catalogs.html')))
 
 class CheckableTableWidgetItem(QTableWidgetItem):
 

@@ -20,7 +20,7 @@ class WizardWidget(QWidget, Ui_Form):
         self.setupUi(self)
         try:
             self.example_label.setText(self.example_label.text() % localize_user_manual_link(
-                'http://manual.calibre-ebook.com/xpath.html'))
+                'https://manual.calibre-ebook.com/xpath.html'))
         except TypeError:
             pass
 

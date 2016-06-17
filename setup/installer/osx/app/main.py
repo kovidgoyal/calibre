@@ -386,7 +386,7 @@ class Py2App(object):
                 NSAppleScriptEnabled=False,
                 NSHumanReadableCopyright=time.strftime('Copyright %Y, Kovid Goyal'),
                 CFBundleGetInfoString=('calibre, an E-book management '
-                'application. Visit http://calibre-ebook.com for details.'),
+                'application. Visit https://calibre-ebook.com for details.'),
                 CFBundleIconFile='calibre.icns',
                 NSHighResolutionCapable=True,
                 LSApplicationCategoryType='public.app-category.productivity',

@@ -36,7 +36,7 @@ class SearchDialog(QDialog, Ui_Dialog):
     def __init__(self, parent, db):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        self.um_label.setText(self.um_label.text() % localize_user_manual_link('http://manual.calibre-ebook.com/gui.html#the-search-interface'))
+        self.um_label.setText(self.um_label.text() % localize_user_manual_link('https://manual.calibre-ebook.com/gui.html#the-search-interface'))
         for val, text in [(0, '')] + [(i, strftime('%B', date(2010, i, 1).timetuple())) for i in xrange(1, 13)]:
             self.date_month.addItem(text, val)
         for val, text in [('today', _('Today')), ('yesterday', _('Yesterday')), ('thismonth', _('This month'))]:

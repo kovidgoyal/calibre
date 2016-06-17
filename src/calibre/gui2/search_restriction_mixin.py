@@ -152,7 +152,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
 
             <p>More information and examples are available in the
             <a href="%s">User Manual</a>.</p>
-            ''') % localize_user_manual_link('http://manual.calibre-ebook.com/virtual_libraries.html'))
+            ''') % localize_user_manual_link('https://manual.calibre-ebook.com/virtual_libraries.html'))
         hl.setWordWrap(True)
         hl.setOpenExternalLinks(True)
         hl.setFrameStyle(hl.StyledPanel)

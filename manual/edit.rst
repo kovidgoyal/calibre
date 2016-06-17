@@ -27,7 +27,7 @@ Basic workflow
 
 .. note::
     A video tour of the calibre editor is available `here
-    <http://calibre-ebook.com/demo#tutorials>`_.
+    <https://calibre-ebook.com/demo#tutorials>`_.
 
 When you first open a book with the Edit book tool, you will be presented with
 a list of files on the left. These are the individual HTML files, stylesheets,

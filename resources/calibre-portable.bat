@@ -31,10 +31,10 @@ REM folder structure then it can be used 'as is' without modification.
 REM
 REM More information on the Environment Variables used by Calibre can
 REM be found at:
-REM	http://manual.calibre-ebook.com/customize.html#environment-variables
+REM	https://manual.calibre-ebook.com/customize.html#environment-variables
 REM
 REM The documentation for this file in the Calibre manual can be found at:
-REM	http://manual.calibre-ebook.com/portable.html
+REM	https://manual.calibre-ebook.com/portable.html
 REM
 REM CHANGE HISTORY
 REM ¬¬¬¬¬¬¬¬¬¬¬¬¬¬
@@ -115,7 +115,7 @@ REM number that is displayed at the bottom of the Calibre main screen.
 REM
 REM More information on setting up a development environment can
 REM be found at:
-REM	http://manual.calibre-ebook.com/develop.html#develop
+REM	https://manual.calibre-ebook.com/develop.html#develop
 REM --------------------------------------------------------------
 
 IF EXIST CalibreSource\src (

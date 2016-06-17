@@ -18,7 +18,7 @@ class FontKeyChooser(QDialog, Ui_Dialog):
         self.setupUi(self)
         try:
             self.wh_label.setText(self.wh_label.text() % localize_user_manual_link(
-                'http://manual.calibre-ebook.com/conversion.html#font-size-rescaling'))
+                'https://manual.calibre-ebook.com/conversion.html#font-size-rescaling'))
         except TypeError:
             pass  # link already localized
 
