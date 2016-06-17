@@ -42,6 +42,7 @@ ZIP_MAX_COMMENT = (1 << 16) - 1
 ZIP_STORED = 0
 ZIP_DEFLATED = 8
 # Other ZIP compression methods not supported
+# For a list see: http://www.winzip.com/wz54.htm
 
 # Below are some formats and associated data for reading/writing headers using
 # the struct module.  The names and structures of headers/records are those used
@@ -721,7 +722,7 @@ class ZipFile:
                 raise RuntimeError(
                       "Compression requires the (missing) zlib module")
         else:
-            raise RuntimeError("That compression method is not supported")
+            raise RuntimeError("The compression method %s is not supported" % compression)
 
         self._allowZip64 = allowZip64
         self._didModify = False
@@ -1171,7 +1172,7 @@ class ZipFile:
                   "Compression requires the (missing) zlib module")
         if zinfo.compress_type not in (ZIP_STORED, ZIP_DEFLATED):
             raise RuntimeError(
-                  "That compression method is not supported")
+                  "The compression method %s is not supported" % zinfo.compress_type)
         if zinfo.file_size > ZIP64_LIMIT:
             if not self._allowZip64:
                 raise LargeZipFile("Filesize would require ZIP64 extensions")
@@ -1469,19 +1470,26 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
     replacements.update(extra_replacements)
     names = frozenset(replacements.keys())
     found = set([])
+
+    def rbytes(name):
+        r = replacements[name]
+        if not isinstance(r, bytes):
+            r = r.read()
+        return r
+
     with SpooledTemporaryFile(max_size=100*1024*1024) as temp:
         ztemp = ZipFile(temp, 'w')
         for obj in z.infolist():
             if isinstance(obj.filename, unicode):
                 obj.flag_bits |= 0x16  # Set isUTF-8 bit
             if obj.filename in names:
-                ztemp.writestr(obj, replacements[obj.filename].read())
+                ztemp.writestr(obj, rbytes(obj.filename))
                 found.add(obj.filename)
             else:
                 ztemp.writestr(obj, z.read_raw(obj), raw_bytes=True)
         if add_missing:
             for name in names - found:
-                ztemp.writestr(name, replacements[name].read())
+                ztemp.writestr(name, rbytes(name))
         ztemp.close()
         z.close()
         temp.seek(0)

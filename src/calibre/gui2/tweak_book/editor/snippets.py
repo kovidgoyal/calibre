@@ -451,7 +451,7 @@ class EditSnippet(QWidget):
         self.heading = la = QLabel('<h2>\xa0')
         add_row(la)
         self.helpl = la = QLabel(_('For help with snippets, see the <a href="%s">User Manual</a>') %
-                                 localize_user_manual_link('http://manual.calibre-ebook.com/snippets.html'))
+                                 localize_user_manual_link('https://manual.calibre-ebook.com/snippets.html'))
         la.setOpenExternalLinks(True)
         add_row(la)
 

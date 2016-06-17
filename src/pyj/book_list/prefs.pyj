@@ -175,10 +175,8 @@ class PrefsPanel:
         nonlocal iv_counter
         pp_counter += 1
         self.container_id = 'prefs-panel-' + pp_counter
-        style = ''
         div = E.div(
             id=self.container_id, style='display:none',
-            E.style(style, type='text/css')
         )
         book_list_container.appendChild(div)
         self.widgets = []

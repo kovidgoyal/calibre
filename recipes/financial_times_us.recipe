@@ -49,9 +49,15 @@ class FinancialTimes(BasicNewsRecipe):
             br.submit()
         return br
 
-    keep_only_tags = [dict(name='div', attrs={'class':['fullstory fullstoryHeader','fullstory fullstoryBody','ft-story-header','ft-story-body','index-detail']})]
+    keep_only_tags = [
+                      dict(name='p'  , attrs={'class':lambda x: x and 'lastUpdated' in x.split()}),
+                      dict(name='div', attrs={'class':lambda x: x and 'syndicationHeadline' in x.split()}),
+                      dict(name='p'  , attrs={'class':lambda x: x and 'byline' in x.split()}),
+                      dict(name='div', attrs={'class':['fullstory fullstoryBody','ft-story-header','ft-story-body','index-detail']})
+    ]
     remove_tags = [
-                      dict(name='div', attrs={'id':'floating-con'})
+                      dict(name='style', attrs={'id':'antiClickjack'})
+                     ,dict(name='div', attrs={'id':'floating-con'})
                      ,dict(name=['meta','iframe','base','object','embed','link'])
                      ,dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']})
                      ,dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()})

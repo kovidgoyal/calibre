@@ -616,7 +616,7 @@ newer. Just add the file to calibre and click convert (make sure you are running
 the latest version of calibre as support for ``.docx`` files is very new).
 
 .. note::
-    There is a `demo .docx file <http://calibre-ebook.com/downloads/demos/demo.docx>`_
+    There is a `demo .docx file <https://calibre-ebook.com/downloads/demos/demo.docx>`_
     that demonstrates the capabilities of the calibre conversion engine. Just
     download it and convert it to EPUB or AZW3 to see what calibre can do.
 

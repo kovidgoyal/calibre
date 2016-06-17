@@ -26,7 +26,7 @@ from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.gui2 import error_dialog, open_url
+from calibre.gui2 import error_dialog, open_url, NO_URL_FORMATTING
 from calibre.gui2.tweak_book import current_container, editors, tprefs, actions, TOP
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
@@ -221,7 +221,7 @@ class NetworkAccessManager(QNetworkAccessManager):
         self.cache.setMaximumCacheSize(0)
 
     def createRequest(self, operation, request, data):
-        url = unicode(request.url().toString(QUrl.None))
+        url = unicode(request.url().toString(NO_URL_FORMATTING))
         if operation == self.GetOperation and url.startswith('file://'):
             path = url[7:]
             if iswindows and path.startswith('/'):
@@ -418,7 +418,7 @@ class WebView(QWebView):
         p = self.page()
         mf = p.mainFrame()
         r = mf.hitTestContent(ev.pos())
-        url = unicode(r.linkUrl().toString(QUrl.None)).strip()
+        url = unicode(r.linkUrl().toString(NO_URL_FORMATTING)).strip()
         ca = self.pageAction(QWebPage.Copy)
         if ca.isEnabled():
             menu.addAction(ca)

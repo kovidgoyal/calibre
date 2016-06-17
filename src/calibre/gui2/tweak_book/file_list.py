@@ -355,6 +355,7 @@ class FileList(QTreeWidget):
 
         cannot_be_renamed = container.names_that_must_not_be_changed
         ncx_mime = guess_type('a.ncx')
+        nav_items = frozenset(container.manifest_items_with_property('nav'))
 
         def create_item(name, linear=None):
             imt = container.mime_map.get(name, guess_type(name))
@@ -381,7 +382,7 @@ class FileList(QTreeWidget):
             if name in container.opf_name:
                 emblems.append('metadata.png')
                 tooltips.append(_('This file contains all the metadata and book structure information'))
-            if imt == ncx_mime:
+            if imt == ncx_mime or name in nav_items:
                 emblems.append('toc.png')
                 tooltips.append(_('This file contains the metadata table of contents'))
             if name not in manifested_names and not container.ok_to_be_unmanifested(name):

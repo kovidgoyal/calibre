@@ -25,7 +25,7 @@ def get_download_url():
             else 'osx' if isosx else 'linux')
     if which == 'windows' and is64bit:
         which += '64'
-    return 'http://calibre-ebook.com/download_' + which
+    return 'https://calibre-ebook.com/download_' + which
 
 def get_newest_version():
     try:
@@ -112,7 +112,7 @@ class UpdateNotification(QDialog):
             ver = ver[:-2]
         self.label = QLabel(('<p>'+
             _('New version <b>%(ver)s</b> of %(app)s is available for download. '
-            'See the <a href="http://calibre-ebook.com/whats-new'
+            'See the <a href="https://calibre-ebook.com/whats-new'
             '">new features</a>.'))%dict(
                 app=__appname__, ver=ver))
         self.label.setOpenExternalLinks(True)

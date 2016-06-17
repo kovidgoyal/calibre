@@ -7,12 +7,13 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, errno, cPickle, sys, re
+from locale import localeconv
 from collections import OrderedDict, namedtuple
 from future_builtins import map
 from threading import Lock
 
 from calibre import as_unicode, prints
-from calibre.constants import cache_dir
+from calibre.constants import cache_dir, get_windows_number_formats, iswindows
 
 def force_to_bool(val):
     if isinstance(val, (str, unicode)):
@@ -356,5 +357,20 @@ class ThumbnailCache(object):
             if hasattr(self, 'total_size'):
                 self._apply_size()
 
-
-
+number_separators = None
+def atof(string):
+    # Python 2.x does not handle unicode number separators correctly, so we
+    # have to implement our own
+    global number_separators
+    if number_separators is None:
+        if iswindows:
+            number_separators = get_windows_number_formats()
+        else:
+            lc = localeconv()
+            t, d = lc['thousands_sep'], lc['decimal_point']
+            if isinstance(t, bytes):
+                t = t.decode('utf-8', 'ignore') or ','
+            if isinstance(d, bytes):
+                d = d.decode('utf-8', 'ignore') or '.'
+            number_separators = t, d
+    return float(string.replace(number_separators[1], '.').replace(number_separators[0], ''))

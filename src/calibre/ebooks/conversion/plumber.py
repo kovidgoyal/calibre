@@ -773,7 +773,7 @@ OptionRecommendation(name='search_replace',
         # plugins.
         for w in ('input_options', 'output_options',
                 'all_format_options'):
-            temp = set([])
+            temp = set()
             for x in getattr(self, w):
                 temp.add(x.clone())
             setattr(self, w, temp)
@@ -831,13 +831,16 @@ OptionRecommendation(name='search_replace',
         if help is not None:
             return help.replace('%default', str(rec.recommended_value))
 
+    def merge_plugin_recs(self, plugin):
+        for name, val, level in plugin.recommendations:
+            rec = self.get_option_by_name(name)
+            if rec is not None and rec.level <= level:
+                rec.recommended_value = val
+                rec.level = level
+
     def merge_plugin_recommendations(self):
         for source in (self.input_plugin, self.output_plugin):
-            for name, val, level in source.recommendations:
-                rec = self.get_option_by_name(name)
-                if rec is not None and rec.level <= level:
-                    rec.recommended_value = val
-                    rec.level = level
+            self.merge_plugin_recs(source)
 
     def merge_ui_recommendations(self, recommendations):
         '''

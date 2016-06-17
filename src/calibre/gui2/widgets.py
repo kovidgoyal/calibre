@@ -67,7 +67,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
         self.setupUi(self)
         try:
             self.help_label.setText(self.help_label.text() % localize_user_manual_link(
-                'http://manual.calibre-ebook.com/regexp.html'))
+                'https://manual.calibre-ebook.com/regexp.html'))
         except TypeError:
             pass  # link already localized
 

@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (2, 57, 1)
+numeric_version = (2, 59, 0)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -308,3 +308,31 @@ def get_windows_user_locale_name():
         return None
     return u'_'.join(buf.value.split(u'-')[:2])
 
+number_formats = None
+
+def get_windows_number_formats():
+    # This can be changed to use localeconv() once we switch to Visual Studio
+    # 2015 as localeconv() in that version has unicode variants for all strings.
+    global number_formats
+    if number_formats is None:
+        import ctypes
+        from ctypes.wintypes import DWORD
+        k32 = ctypes.windll.kernel32
+        n = 25
+        buf = ctypes.create_unicode_buffer(u'\0'*n)
+        k32.GetNumberFormatEx.argtypes = [ctypes.c_wchar_p, DWORD, ctypes.c_wchar_p, ctypes.c_void_p, ctypes.c_wchar_p, ctypes.c_int]
+        k32.GetNumberFormatEx.restype = ctypes.c_int
+        if k32.GetNumberFormatEx(None, 0, u'123456.7', None, buf, n) == 0:
+            raise ctypes.WinError()
+        src = buf.value
+        thousands_sep, decimal_point = u',.'
+        idx = src.find(u'6')
+        if idx > -1 and src[idx+1] != u'7':
+            decimal_point = src[idx+1]
+            src = src[:idx]
+        for c in src:
+            if c not in u'123456':
+                thousands_sep = c
+                break
+        number_formats = (thousands_sep, decimal_point)
+    return number_formats

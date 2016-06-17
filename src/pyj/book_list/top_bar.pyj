@@ -6,41 +6,42 @@ from book_list.theme import get_color, get_font_size
 from dom import set_css, clear, create_keyframes, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
+from widgets import add_extra_css
 
 bar_counter = 0
+CLASS_NAME = 'main-top-bar'
+SPACING = '0.75em'
+VSPACING = '0.5ex'
+THROBBER_NAME = 'top-bar-throbber'
+
+add_extra_css(def():
+    sel = '.' + CLASS_NAME + ' '
+    style = ''
+    style += create_keyframes(THROBBER_NAME, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
+    style += build_rule(sel + 'a', display='inline-block', vertical_align='middle', overflow='hidden', cursor='pointer', color=get_color('bar-foreground'), background='none', padding_top=VSPACING, padding_bottom=VSPACING)
+    style += build_rule(sel + 'a:hover', transform='scale(1.5)')
+    style += build_rule(sel + 'a:active', transform='scale(2)')
+    style += build_rule(sel + 'a:focus', outline='none')
+    style += build_rule(sel + 'a.top-bar-title:hover', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
+    style += build_rule(sel + 'a.top-bar-title:active', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
+    return style
+)
 
 class TopBar:
-
-    SPACING = '0.75em'
-    VSPACING = '0.5ex'
 
     def __init__(self, book_list_container):
         nonlocal bar_counter
         bar_counter += 1
         self.current_left_data = {}
         self.bar_id, self.dummy_bar_id = 'top-bar-' + bar_counter, 'dummy-top-bar-' + bar_counter
-        self.throbber_name = self.bar_id + '-throbber'
-        style = create_keyframes(self.throbber_name, 'from { transform: scale(1); } 50% { transform: scale(0.5); } to { transform: scale(1); }')
-        for sel in (self.dummy_bar_id, self.bar_id):
-            sel = '#' + sel + ' a'
-            style += build_rule(
-                sel, display='inline-block', vertical_align='middle', overflow='hidden', cursor='pointer',
-                color=get_color('bar-foreground'), background='none', padding_top=self.VSPACING, padding_bottom=self.VSPACING
-            )
-        style += build_rule(sel + ':hover', transform='scale(1.5)')
-        style += build_rule(sel + ':active', transform='scale(2)')
-        style += build_rule(sel + ':focus', outline='none')
-        style += build_rule(sel + '.top-bar-title:hover', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
-        style += build_rule(sel + '.top-bar-title:active', transform='scale(1)', color=get_color('bar-highlight'), font_style='italic')
         for bid in self.dummy_bar_id, self.bar_id:
             bar = E.div(
-                id=bid,
+                id=bid, class_=CLASS_NAME,
                 E.div(style="white-space:nowrap; overflow:hidden; text-overflow: ellipsis; padding-left: 0.5em;"),
                 E.div(style="white-space:nowrap; text-align:right; padding-right: 0.5em;")
             )
             if bid is self.bar_id:
                 set_css(bar, position='fixed', left='0', top='0', z_index='1')
-                bar.appendChild(E.style(style, type='text/css'))
             set_css(bar,
                 width='100%', display='flex', flex_direction='row', flex_wrap='wrap', justify_content='space-between',
                 font_size=get_font_size('title'), user_select='none',
@@ -73,12 +74,12 @@ class TopBar:
             title_elem = 'a' if callable(title_action) else 'span'
             left.appendChild(E.a(title=tooltip, svgicon(icon_name)))
             left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
-                style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(self.SPACING, self.VSPACING)))
+                style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING)))
             if bar is self.bar:
                 a = left.firstChild
                 if icon_name is 'heart':
                     set_css(a,
-                        animation_name=self.throbber_name, animation_duration='1s', animation_timing_function='ease-in-out',
+                        animation_name=THROBBER_NAME, animation_duration='1s', animation_timing_function='ease-in-out',
                         animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'
                     )
                     set_css(a.firstChild, color=get_color('heart'))
@@ -101,7 +102,7 @@ class TopBar:
         for bar in self.bar, self.dummy_bar:
             right = bar.firstChild.nextSibling
             right.appendChild(E.a(
-                style="margin-left: " + self.SPACING,
+                style="margin-left: " + SPACING,
                 title=tooltip, svgicon(icon_name),
             ))
             right.lastChild.setAttribute('id', ('top' if bar is self.bar else 'dummy') + '-bar-icon-' + icon_name)
@@ -114,7 +115,7 @@ class TopBar:
             right = bar.firstChild.nextSibling
             elem = right.querySelector('#{}-bar-icon-{}'.format(('top' if bar is self.bar else 'dummy'), icon_name))
             if elem:
-                elem.parentNode.style.display = 'inline' if visible else 'none'
+                elem.style.display = 'inline-block' if visible else 'none'
 
     def apply_state(self, left, buttons):
         self.set_left(**left)

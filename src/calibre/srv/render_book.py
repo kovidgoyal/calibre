@@ -24,6 +24,7 @@ from calibre.ebooks.oeb.iterator.book import extract_book
 from calibre.ebooks.oeb.polish.container import Container as ContainerBase
 from calibre.ebooks.oeb.polish.cover import set_epub_cover, find_cover_image
 from calibre.ebooks.oeb.polish.css import transform_css
+from calibre.ebooks.oeb.polish.utils import extract
 from calibre.ebooks.css_transform_rules import StyleDeclaration
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
@@ -93,6 +94,13 @@ def check_for_maths(root):
         return True
     for s in root.iterdescendants(XHTML('script')):
         if s.get('type') == 'text/x-mathjax-config':
+            return True
+    return False
+
+def has_ancestor(elem, q):
+    while elem is not None:
+        elem = elem.getparent()
+        if elem is q:
             return True
     return False
 
@@ -207,6 +215,26 @@ class Container(ContainerBase):
 
     def transform_css(self):
         transform_css(self, transform_sheet=transform_sheet, transform_style=transform_declaration)
+        # Firefox flakes out sometimes when dynamically creating <style> tags,
+        # so convert them to external stylesheets to ensure they never fail
+        style_xpath = XPath('//h:style')
+        for name, mt in tuple(self.mime_map.iteritems()):
+            mt = mt.lower()
+            if mt in OEB_DOCS:
+                head = ensure_head(self.parsed(name))
+                for style in style_xpath(self.parsed(name)):
+                    if style.text and (style.get('type') or 'text/css').lower() == 'text/css':
+                        in_head = has_ancestor(style, head)
+                        if not in_head:
+                            extract(style)
+                            head.append(style)
+                        css = style.text
+                        style.clear()
+                        style.tag = XHTML('link')
+                        style.set('type', 'text/css')
+                        style.set('rel', 'stylesheet')
+                        sname = self.add_file(name + '.css', css.encode('utf-8'), modify_name_if_needed=True)
+                        style.set('href', self.name_to_href(sname, name))
 
     def virtualize_resources(self):
 
@@ -215,6 +243,7 @@ class Container(ContainerBase):
         resource_template = link_uid + '|{}|'
         xlink_xpath = XPath('//*[@xl:href]')
         link_xpath = XPath('//h:a[@href]')
+        res_link_xpath = XPath('//h:link[@href]')
 
         def link_replacer(base, url):
             if url.startswith('#'):
@@ -249,6 +278,14 @@ class Container(ContainerBase):
             elif mt in OEB_DOCS:
                 self.virtualized_names.add(name)
                 root = self.parsed(name)
+                for link in res_link_xpath(root):
+                    ltype = (link.get('type') or 'text/css').lower()
+                    rel = (link.get('rel') or 'stylesheet').lower()
+                    if ltype != 'text/css' or rel != 'stylesheet':
+                        # This link will not be loaded by the browser anyway
+                        # and will causes the resource load check to hang
+                        link.attrib.clear()
+                        changed.add(name)
                 rewrite_links(root, partial(link_replacer, name))
                 for a in link_xpath(root):
                     href = a.get('href')
@@ -359,11 +396,14 @@ def ensure_head(root):
     if len(heads) != 1:
         if not heads:
             root.insert(0, root.makeelement(XHTML('head')))
-            return
+            return root[0]
         head = heads[0]
         for eh in heads[1:]:
             for child in eh.iterchildren('*'):
                 head.append(child)
+            extract(eh)
+        return head
+    return heads[0]
 
 def ensure_body(root):
     # Make sure we have only a single <body>
@@ -382,7 +422,7 @@ def ensure_body(root):
             body.append(div)
 
 def html_as_dict(root):
-    ensure_head(root), ensure_body(root)
+    ensure_body(root)
     for child in tuple(root.iterchildren('*')):
         if child.tag.partition('}')[-1] not in ('head', 'body'):
             root.remove(child)

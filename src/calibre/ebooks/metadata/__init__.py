@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 Provides abstraction for metadata reading.writing from a variety of ebook formats.
 """
 import os, sys, re
+
 from urlparse import urlparse
 
 from calibre import relpath, guess_type, remove_bracketed_text, prints

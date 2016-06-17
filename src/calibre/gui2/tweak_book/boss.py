@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.polish.css import filter_css
 from calibre.ebooks.oeb.polish.pretty import fix_all_html, pretty_all
 from calibre.ebooks.oeb.polish.replace import rename_files, replace_file, get_recommended_folders, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge, AbortError, multisplit
-from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, find_existing_toc, create_inline_toc
+from calibre.ebooks.oeb.polish.toc import remove_names_from_toc, create_inline_toc
 from calibre.ebooks.oeb.polish.utils import link_stylesheets, setup_cssutils_serialization as scs
 from calibre.gui2 import error_dialog, choose_files, question_dialog, info_dialog, choose_save_file, open_url, choose_dir
 from calibre.gui2.dialogs.confirm_delete import confirm
@@ -114,6 +114,7 @@ class Boss(QObject):
         self.gui.central.current_editor_changed.connect(self.apply_current_editor_state)
         self.gui.central.close_requested.connect(self.editor_close_requested)
         self.gui.central.search_panel.search_triggered.connect(self.search)
+        self.gui.text_search.find_text.connect(self.find_text)
         self.gui.preview.sync_requested.connect(self.sync_editor_to_preview)
         self.gui.preview.split_start_requested.connect(self.split_start_requested)
         self.gui.preview.split_requested.connect(self.split_requested)
@@ -396,11 +397,12 @@ class Boss(QObject):
         if not editors:
             self.gui.preview.clear()
             self.gui.live_css.clear()
-        if remove_names_from_toc(current_container(), spine_names + list(other_items)):
+        changed = remove_names_from_toc(current_container(), spine_names + list(other_items))
+        if changed:
             self.gui.toc_view.update_if_visible()
-            toc = find_existing_toc(current_container())
-            if toc and toc in editors:
-                editors[toc].replace_data(c.raw_data(toc))
+            for toc in changed:
+                if toc and toc in editors:
+                    editors[toc].replace_data(c.raw_data(toc))
         if c.opf_name in editors:
             editors[c.opf_name].replace_data(c.raw_data(c.opf_name))
 
@@ -513,6 +515,7 @@ class Boss(QObject):
             self.set_modified()
             self.update_editors_from_container()
             self.gui.toc_view.update_if_visible()
+            self.gui.file_list.build(current_container())
 
     def insert_inline_toc(self):
         self.commit_all_editors_to_container()
@@ -866,6 +869,10 @@ class Boss(QObject):
             if text and text.strip():
                 self.gui.central.pre_fill_search(text)
 
+    def show_text_search(self):
+        self.gui.text_search_dock.show()
+        self.gui.text_search.find.setFocus(Qt.OtherFocusReason)
+
     def search_action_triggered(self, action, overrides=None):
         ss = self.gui.saved_searches.isVisible()
         trigger_saved_search = ss and (not self.gui.central.search_panel.isVisible() or self.gui.saved_searches.has_focus())
@@ -908,6 +915,18 @@ class Boss(QObject):
             ed.editor.setFocus(Qt.OtherFocusReason)
         else:
             self.gui.saved_searches.setFocus(Qt.OtherFocusReason)
+
+    def find_text(self, state):
+        from calibre.gui2.tweak_book.text_search import run_text_search
+        searchable_names = self.gui.file_list.searchable_names
+        ed = self.gui.central.current_editor
+        name = editor_name(ed)
+        if not validate_search_request(name, searchable_names, getattr(ed, 'has_marked_text', False), state, self.gui):
+            return
+        ret = run_text_search(state, ed, name, searchable_names, self.gui, self.show_editor, self.edit_file)
+        ed = ret is True and self.gui.central.current_editor
+        if getattr(ed, 'has_line_numbers', False):
+            ed.editor.setFocus(Qt.OtherFocusReason)
 
     def find_word(self, word, locations):
         # Go to a word from the spell check dialog

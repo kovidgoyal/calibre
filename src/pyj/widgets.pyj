@@ -2,31 +2,36 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import build_rule, clear, svgicon, create_keyframes
+from dom import build_rule, clear, svgicon, create_keyframes, set_css, change_icon_image
 from elementmaker import E
 
 from book_list.theme import get_color
 
-BUTTON_VPADDING = '0.5ex'
+# Button {{{
 
-def create_button(text, icon=None, action=None, tooltip=None):
+def create_button(text, icon=None, action=None, tooltip=None, highlight=False):
     ic = ''
     if icon:
         ic = svgicon(icon)
         text = '\xa0' + text
-    ans = E.button(ic, text, class_='calibre-push-button', type='button', title=tooltip or '')
+    ans = E.a(ic, E.span(text), class_='calibre-push-button', href='javascript: void(0)', title=tooltip or '')
     if action is not None:
         ans.addEventListener('click', def(event): event.preventDefault(), action(event);)
+    if highlight:
+        set_css(ans, font_size='larger', font_weight='bold')
     return ans
 
-create_button.style = build_rule('button.calibre-push-button',
+create_button.style = build_rule('a.calibre-push-button',
     border_radius='1em', background_clip='padding-box', background_color=get_color('button-start'),
     background_image='linear-gradient(to bottom, {}, {})'.format(get_color('button-start'), get_color('button-end')),
-    padding=BUTTON_VPADDING + ' 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit'
+    padding='0.5ex 1em', color=get_color('button-text'), cursor='pointer', font_size='inherit', display='inline-flex', align_items='center',
+    box_shadow='0px 2px 1px rgba(50, 50, 50, 0.75)',
 )
-create_button.style += build_rule('button.calibre-push-button:hover', transform='scale(1.2)')
-create_button.style += build_rule('button.calibre-push-button:active', transform='scale(2)')
+create_button.style += build_rule('a.calibre-push-button:hover', transform='scale(1.2)')
+create_button.style += build_rule('a.calibre-push-button:active', transform='scale(2)')
+# }}}
 
+# Spinner {{{
 def create_spinner(height, width):
     ans = svgicon('cog', height, width)
     ans.classList.add('spin')
@@ -34,6 +39,10 @@ def create_spinner(height, width):
 
 create_spinner.style  = build_rule('.spin', animation='spin 2s infinite linear')
 create_spinner.style += create_keyframes('spin', 'from { transform: rotate(0deg); } to { transform: rotate(359deg);}')
+
+# }}}
+
+# Breadcrumbs {{{
 
 id_counter = 0
 
@@ -91,10 +100,119 @@ class Breadcrumbs:
             li.addEventListener('click', callback)
         self.container.appendChild(li)
         return li
+# }}}
+
+# Simple Tree {{{
+
+def create_tree(root, populate_data, onclick):
+    container = E.div(class_='simple-tree')
+    set_css(container, overflow='auto')
+
+    def toggle_node(li):
+        if li.dataset.treeState is 'closed':
+            li.dataset.treeState = 'open'
+            li.lastChild.style.display = 'block'
+            change_icon_image(li.firstChild.firstChild, 'caret-down')
+        else:
+            li.dataset.treeState = 'closed'
+            li.lastChild.style.display = 'none'
+            change_icon_image(li.firstChild.firstChild, 'caret-right')
+
+    def process_node(node, parent_container, level):
+        if node.children?.length:
+            ul = E.div()
+            parent_container.appendChild(ul)
+            for child in node.children:
+                icon = 'caret-right' if child.children?.length else None
+                li = E.div(style='display:flex; flex-direction:column; margin: 1ex 1em; margin-left: {}em'.format(level+1),
+                    E.div(style='display:flex; align-items: center',
+                        svgicon(icon),
+                        E.span('\xa0'),
+                        E.a(
+                            href='javascript: void(0)',
+                            class_='simple-link tree-item-title',
+                            onclick=def (event):
+                                if onclick:
+                                    if event.button is 0:
+                                        event.preventDefault(), event.stopPropagation()
+                                    onclick(event, event.currentTarget.parentNode.parentNode)
+                        ),
+                    ),
+                    E.div(style='display:none', data_tree_subtree_container='1'),
+                    data_tree_state='closed',
+                )
+                ul.appendChild(li)
+                populate_data(child, li, li.firstChild.lastChild)
+                if icon:
+                    set_css(li.firstChild.firstChild, cursor='pointer')
+                    li.firstChild.firstChild.addEventListener('click', def(event):
+                        toggle_node(event.currentTarget.parentNode.parentNode)
+                    )
+                    process_node(child, li.lastChild, level + 1)
+
+    if root:
+        process_node(root, container, 0)
+    return container
+
+def find_text_in_tree(container, q):
+    q = q.lower()
+    last_match = container.querySelector('a[data-tree-last-match]')
+    if last_match:
+        last_match.parentNode.style.backgroundColor = 'transparent'
+        last_match.parentNode.style.borderRadius = '0'
+        lm = last_match.getAttribute('data-tree-last-match')
+        last_match.removeAttribute('data-tree-last-match')
+        if lm is not q:
+            last_match = None
+    if not q:
+        return
+    before = []
+    seen = False
+    ans = None
+
+    for a in container.querySelectorAll('a.tree-item-title'):
+        if a is last_match:
+            seen = True
+        else:
+            if a.textContent.lower().indexOf(q) != -1:
+                if seen:
+                    ans = a
+                    break
+                if last_match is None:
+                    ans = a
+                    break
+                before.push(a)
+    if not ans and before.length:
+        ans = before[0]
+    ans = ans or last_match
+    if ans:
+        ans.dataset.treeLastMatch = q
+    if ans:
+        ans.parentNode.style.backgroundColor = get_color('tree-highlight-item')
+        ans.parentNode.style.borderRadius = '5px'
+        ans = ans.parentNode.parentNode
+    return ans
+
+def scroll_tree_item_into_view(item):
+    p = item.parentNode?.parentNode
+    while p and p.getAttribute('data-tree-subtree-container'):
+        p.style.display = 'block'
+        p = p.parentNode?.parentNode?.parentNode
+    item.scrollIntoView()
+
+# }}}
+
+extra_css = []
+
+def add_extra_css(func):
+    extra_css.push(func)
 
 def get_widget_css():
     ans = 'a, button:focus { outline: none }; a, button::-moz-focus-inner { border: 0 }\n'
+    ans += '.simple-link { cursor: pointer } .simple-link:hover { color: red } .simple-link:active { transform: scale(1.5) }\n'
     ans += create_button.style
     ans += create_spinner.style
     ans += Breadcrumbs.STYLE_RULES
+    for func in extra_css:
+        ans += '\n' + func()
     return ans

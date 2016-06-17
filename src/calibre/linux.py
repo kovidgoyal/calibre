@@ -1075,7 +1075,7 @@ def write_appdata(key, entry, base, translators):
         E.id(key + '.desktop', type='desktop'),
         E.licence('CC0'),
         E.description(),
-        E.url('http://calibre-ebook.com', type='homepage'),
+        E.url('https://calibre-ebook.com', type='homepage'),
         E.screenshots(),
     )
     for w, h, url in entry['screenshots']:

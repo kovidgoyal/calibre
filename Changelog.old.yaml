@@ -752,7 +752,7 @@
   new features:
     - title: "Virtual Libraries: Easily partition your large calibre library into smaller 'virtual' libraries"
       type: major
-      description: "A virtual library is a way to tell calibre to open only a subset of a normal library. For example, you might want to only work with books by a certain author, or books having only a certain tag. To use this feature, click the button labeled 'Virtual Library' to the left of the search bar. For details, see http://manual.calibre-ebook.com/virtual_libraries.html. This feature used to be called 'Search restriction', the new virtual libraries are easier to use, but otherwise fulfil the same function."
+      description: "A virtual library is a way to tell calibre to open only a subset of a normal library. For example, you might want to only work with books by a certain author, or books having only a certain tag. To use this feature, click the button labeled 'Virtual Library' to the left of the search bar. For details, see https://manual.calibre-ebook.com/virtual_libraries.html. This feature used to be called 'Search restriction', the new virtual libraries are easier to use, but otherwise fulfil the same function."
 
     - title: "Book details panel: Allow copying of links in the book details panel by right clicking on them."
       tickets: [1171963]
@@ -1304,7 +1304,7 @@
     - title: "E-book viewer: Add an option to change the minimum font size."
       tickets: [1122333]
  
-    - title: "PDF Output: Add support for converting documents with math typesetting, as described here: http://manual.calibre-ebook.com/typesetting_math.html"
+    - title: "PDF Output: Add support for converting documents with math typesetting, as described here: https://manual.calibre-ebook.com/typesetting_math.html"
 
     - title: "Column coloring/icons: Add more conditions when using date based columns with reference to 'today'."
 
@@ -2512,7 +2512,7 @@
 
   new features:
     - title: "E-book viewer: Support the display of mathematics in e-books. Supports both embedded TeX and MathML"
-      description: "The calibre ebook viewer can now display embedded mathematics (symbols, equations, fractions, matrices, etc.) in EPUB and HTML ebooks. For details, see: http://manual.calibre-ebook.com/typesetting_math.html"
+      description: "The calibre ebook viewer can now display embedded mathematics (symbols, equations, fractions, matrices, etc.) in EPUB and HTML ebooks. For details, see: https://manual.calibre-ebook.com/typesetting_math.html"
       type: major
 
     - title: "Drivers for SONY PRS-T2, Freelander PD10 and Coolreader Tablet"
@@ -6839,7 +6839,7 @@
     - title: "FB2 Output: Option to set the FB2 genre explicitly."
       tickets: [743178]
 
-    - title: "Plugin developers: calibre now has a new plugin API, see http://manual.calibre-ebook.com/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
+    - title: "Plugin developers: calibre now has a new plugin API, see https://manual.calibre-ebook.com/creating_plugins.html. Your existing plugins should continue to work, but it would be good to test them to make sure."
   
   bug fixes:
     - title: "Fix text color in the search bar set to black instead of the system font color"
@@ -7224,7 +7224,7 @@
 
   new features:
     - title: "Tag Browser: Support the creation of nested User Categories"
-      description: "See http://manual.calibre-ebook.com/gui.html#tag-browser for details"
+      description: "See https://manual.calibre-ebook.com/gui.html#tag-browser for details"
       type: major
 
     - title: "Disable Kent District Library plugin to download series information. The website could not handle the load calibre's 2 million users put on it. You can manually re-enable it if you really want series information, but it is very slow"
@@ -10097,7 +10097,7 @@
       type: major
       description: >
         "You can now change the icons used in the User Interface and other static resources. Details on how to
-         do this are at: http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-etcetera"
+         do this are at: https://manual.calibre-ebook.com/customize.html#overriding-icons-templates-etcetera"
 
     - title: "Split the 'Send to device' button into two buttons, 'Connect/share' and 'Send to device'. The new 'Send to device' button will now only be available when a device is connected."
 
@@ -11176,7 +11176,7 @@
       type: major
       description : >
         "You can now save your frequently used searches and access them with a single click. For details
-        see http://manual.calibre-ebook.com/gui.html#search-sort"
+        see https://manual.calibre-ebook.com/gui.html#search-sort"
 
     - title: "Add searching by date/published date"
       tickets: [5244]

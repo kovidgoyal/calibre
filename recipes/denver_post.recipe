@@ -1,26 +1,33 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
+
 from calibre.web.feeds.news import BasicNewsRecipe
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
 class DenverPost(BasicNewsRecipe):
     title          = u'Denver Post'
     language       = 'en'
-    __author__     = 'Krittika Goyal'
-    oldest_article = 1 #days
+    __author__     = 'Kovid Goyal'
+    oldest_article = 1  # days
     max_articles_per_feed = 20
 
-    conversion_options = {'linearize_tables':True}
-
     no_stylesheets = True
-    #remove_tags_before = dict(name='h1', attrs={'class':'heading'})
-    #remove_tags_after  = dict(name='td', attrs={'class':'newptool1'})
+    use_embedded_content = False
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('subheadline byline header-features article-body'),
+    ]
     remove_tags = [
-       dict(name='iframe'),
-       dict(name='img', src=lambda x: not x or '/tracking/' in x),
-       dict(name='span', attrs={'fd-id':True}),
-       dict(name='div', attrs={'class':['articleOptions', 'articlePosition2']}),
-       #dict(name='div', attrs={'id':['qrformdiv', 'inSection', 'alpha-inner']}),
-       #dict(name='ul', attrs={'class':'article-tools'}),
-       #dict(name='ul', attrs={'class':'articleTools'}),
+        classes('related'),
+        dict(attrs={'data-config-video-id':True}),
     ]
 
     feeds          = [
@@ -40,18 +47,8 @@ class DenverPost(BasicNewsRecipe):
 ]
 
     def preprocess_html(self, soup):
-        story = soup.find(name='td', attrs={'class':'articleBox'})
-        #td = heading.findParent(name='td')
-        #td.extract()
-        story.extract()
-        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
-        body = soup.find(name='body')
-        body.insert(0, story)
-        story.name = 'div'
-
-        for img in soup.findAll(name='img', style='visibility:hidden;'):
-            del img['style']
-
-        for div in soup.findAll(id='caption', style=True):
-            del  div['style']
+        for img in soup.findAll('img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+            del img['height']
+            del img['width']
         return soup

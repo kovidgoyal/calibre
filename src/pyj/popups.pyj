@@ -1,0 +1,110 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from dom import set_css, ensure_id
+from elementmaker import E
+
+MODAL_Z_INDEX = 1000
+POPUP_Z_INDEX = MODAL_Z_INDEX + 1
+popup_count = 0
+
+shown_popups = set()
+associated_widgets = {}
+
+def element_contains_click_event(element, event):
+    r = element.getBoundingClientRect()
+    return r.left <= event.clientX <= r.right and r.top <= event.clientY <= r.bottom
+
+def check_for_open_popups(event):
+    if not shown_popups.length:
+        return False
+    for popup_id in shown_popups:
+        popup = document.getElementById(popup_id)
+        if element_contains_click_event(popup, event):
+            return False
+        w = associated_widgets[popup_id]
+        if w and w.length:
+            for wid in w:
+                widget = document.getElementById(wid)
+                if element_contains_click_event(widget, event):
+                    return False
+    return True
+
+def filter_clicks(event):
+    if check_for_open_popups(event):
+        event.stopPropagation(), event.preventDefault()
+        for popup in list(shown_popups):
+            hide_popup(popup.getAttribute('id'))
+
+def install_event_filters():
+    window.addEventListener('click', filter_clicks, True)
+
+def create_popup(parent, idprefix):
+    nonlocal popup_count
+    popup_count += 1
+    pid = (idprefix or 'popup') + '-' + popup_count
+    div = E.div(id=pid, style='display: none; position: absolute; z-index: {}'.format(POPUP_Z_INDEX))
+    parent = parent or document.body
+    parent.appendChild(div)
+    return pid
+
+def show_popup(popup_id, *associated_widget_ids):
+    elem = document.getElementById(popup_id)
+    elem.style.display = 'block'
+    shown_popups.add(popup_id)
+    associated_widgets[popup_id] = set()
+    for aid in associated_widget_ids:
+        associated_widgets[popup_id].add(aid)
+
+def hide_popup(popup_id):
+    elem = document.getElementById(popup_id)
+    elem.style.display = 'none'
+    shown_popups.discard(popup_id)
+    v'delete associated_widgets[popup_id]'
+
+class CompletionPopup:
+
+    def __init__(self, parent=None, max_items=25):
+        self.max_items = max_items
+        self.container_id = create_popup(parent)
+        self.items = []
+        c = self.container
+        set_css(c, user_select='none')
+        self.associated_widget_ids = set()
+        self.current_query, self.is_upwards = '', False
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    @property
+    def is_visible(self):
+        return self.container.style.display is not 'none'
+
+    def set_all_items(self, items):
+        self.items = items
+
+    def add_associated_widget(self, widget_or_id):
+        if type(widget_or_id) is not 'string':
+            widget_or_id = ensure_id(widget_or_id)
+        self.associated_widget_ids.add(widget_or_id)
+
+    def show_at_widget(self, w):
+        br = w.getBoundingClientRect()
+        if br.top > window.innerHeight - br.bottom:
+            y, upwards = br.top, True
+        else:
+            y, upwards = br.bottom, False
+        self.show_at(br.left, y, br.width, upwards)
+
+    def show_at(self, x, y, width, upwards):
+        self.is_upwards = upwards
+        c = self.container
+        cs = c.style
+        cs.left = x + 'px'
+        cs.top = 'auto' if upwards else y + 'px'
+        cs.bottom = y + 'px' if upwards else 'auto'
+        cs.width = width + 'px'
+        cs.maxHeight = ((y if upwards else window.innerHeight - y) - 10) + 'px'
+        show_popup(self.container_id, *self.associated_widget_ids)

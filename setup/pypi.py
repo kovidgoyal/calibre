@@ -18,7 +18,7 @@ class Metadata(object):
     version = __version__
     author = 'Kovid Goyal'
     author_email = 'kovid@kovidgoyal.net'
-    url = 'http://calibre-ebook.com'
+    url = 'https://calibre-ebook.com'
     description = 'E-book management application.'
     long_description = open('README.md', 'rb').read()
     license = 'GPL'
@@ -41,7 +41,7 @@ class Metadata(object):
 
 class PyPIRC(object):
 
-    DEFAULT_REPOSITORY = 'http://pypi.python.org/pypi'
+    DEFAULT_REPOSITORY = 'https://pypi.python.org/pypi'
     DEFAULT_REALM = 'pypi'
     RC = os.path.expanduser('~/.pypirc')
 

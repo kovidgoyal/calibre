@@ -19,7 +19,7 @@ from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml
-from calibre.gui2 import open_url, error_dialog, choose_files, gprefs
+from calibre.gui2 import open_url, error_dialog, choose_files, gprefs, NO_URL_FORMATTING
 from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
@@ -211,7 +211,7 @@ class EditorWidget(QWebView):  # {{{
             return
         url = self.parse_link(link)
         if url.isValid():
-            url = unicode(url.toString(QUrl.None))
+            url = unicode(url.toString(NO_URL_FORMATTING))
             self.setFocus(Qt.OtherFocusReason)
             if is_image:
                 self.exec_command('insertHTML',

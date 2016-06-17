@@ -1,116 +1,65 @@
 ﻿# -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2 # Needed for dynamic plugin loading
+store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013, Roman Mukhin <ramses_ru at hotmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import random
-import re
-import urllib2
-
+import urllib
 from contextlib import closing
-from lxml import etree, html
+
 from PyQt5.Qt import QUrl
+import html5lib
 
 from calibre import browser, url_slash_cleaner
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
-from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
-class OzonRUStore(BasicStoreConfig, StorePlugin):
-    shop_url = 'http://www.ozon.ru'
+shop_url = 'http://www.ozon.ru'
+
+def search(query, max_results=15, timeout=60):
+    url = 'http://www.ozon.ru/?context=search&text=%s&store=1,0&group=div_book' % urllib.quote_plus(query)
+
+    counter = max_results
+    br = browser()
+
+    with closing(br.open(url, timeout=timeout)) as f:
+        raw = xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True)[0]
+        root = html5lib.parse(raw, treebuilder='lxml', namespaceHTMLElements=False)
+        for tile in root.xpath('//*[@class="bShelfTile inline"]'):
+            if counter <= 0:
+                break
+            counter -= 1
+
+            s = SearchResult(store_name='OZON.ru')
+            s.detail_item = shop_url + tile.xpath('descendant::a[@class="eShelfTile_Link"]/@href')[0]
+            s.title = tile.xpath('descendant::span[@class="eShelfTile_ItemNameText"]/@title')[0]
+            s.author = tile.xpath('descendant::span[@class="eShelfTile_ItemPerson"]/@title')[0]
+            s.price = ''.join(tile.xpath('descendant::div[contains(@class, "eShelfTile_Price")]/text()'))
+            s.cover_url = 'http:' + tile.xpath('descendant::img/@data-original')[0]
+            s.price = format_price_in_RUR(s.price)
+            yield s
+
+class OzonRUStore(StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-
-        aff_id = '?partner=romuk'
-        # Use Kovid's affiliate id 30% of the time.
-        if random.randint(1, 10) in (1, 2, 3):
-            aff_id = '?partner=kovidgoyal'
-
-        url = self.shop_url + aff_id
-        detail_url = None
-        if detail_item:
-            # http://www.ozon.ru/context/detail/id/3037277/
-            detail_url = self.shop_url + '/context/detail/id/' + urllib2.quote(detail_item) + aff_id
-
+        url = detail_item or shop_url
         if external or self.config.get('open_external', False):
-            open_url(QUrl(url_slash_cleaner(detail_url if detail_url else url)))
+            open_url(QUrl(url_slash_cleaner(url)))
         else:
-            d = WebStoreDialog(self.gui, url, parent, detail_url)
+            d = WebStoreDialog(self.gui, shop_url, parent, url)
             d.setWindowTitle(self.name)
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
     def search(self, query, max_results=15, timeout=60):
-        search_url = self.shop_url + '/webservice/webservice.asmx/SearchWebService?'\
-                    'searchText=%s&searchContext=ebook' % urllib2.quote(query)
-        search_urls = [ search_url ]
-
-        xp_template = 'normalize-space(./*[local-name() = "{0}"]/text())'
-        counter = max_results
-        br = browser()
-
-        for url in search_urls:
-            with closing(br.open(url, timeout=timeout)) as f:
-                raw = xml_to_unicode(f.read(), strip_encoding_pats=True, assume_utf8=True)[0]
-                doc = etree.fromstring(raw)
-                for data in doc.xpath('//*[local-name()="SearchItems" or local-name()="ItemDetail"]'):
-                    if counter <= 0:
-                        break
-                    counter -= 1
-
-                    s = SearchResult()
-                    s.detail_item = data.xpath(xp_template.format('ID'))
-                    s.title = data.xpath(xp_template.format('Name'))
-                    s.author = data.xpath(xp_template.format('Author'))
-                    s.price = data.xpath(xp_template.format('Price'))
-                    s.cover_url = data.xpath(xp_template.format('Picture'))
-                    s.price = format_price_in_RUR(s.price)
-                    yield s
-
-    def get_details(self, search_result, timeout=60):
-        url = self.shop_url + '/context/detail/id/' + urllib2.quote(search_result.detail_item)
-        br = browser()
-
-        result = False
-        with closing(br.open(url, timeout=timeout)) as f:
-            raw = xml_to_unicode(f.read(), verbose=True)[0]
-            doc = html.fromstring(raw)
-
-            # example where we are going to find formats
-            # <div class="l">
-            #     <p>
-            #         Доступно:
-            #    </p>
-            # </div>
-            # <div class="l">
-            #     <p>.epub, .fb2.zip, .pdf</p>
-            # </div>
-            xpt = u'normalize-space(//div[contains(@id, "saleBlock")]//*[contains(normalize-space(text()), "Доступ")]/ancestor-or-self::div[1]/following-sibling::div[1]/*[1])'
-            formats = doc.xpath(xpt)
-            if formats:
-                result = True
-                search_result.drm = SearchResult.DRM_UNLOCKED
-                search_result.formats = ', '.join(_parse_ebook_formats(formats))
-                # unfortunately no direct links to download books (only buy link)
-                # search_result.downloads['BF2'] = self.shop_url + '/order/digitalorder.aspx?id=' + + urllib2.quote(search_result.detail_item)
-
-            #<p class="main-cost"><span class="main">215</span><span class="submain">00</span> руб.</p>
-            #<span itemprop="price" class="hidden">215.00</span>
-            #<meta itemprop="priceCurrency" content="RUR " />
-
-            # if the price not in the search result (the ID search case)
-            if not search_result.price:
-                price = doc.xpath(u'normalize-space(//*[@itemprop="price"]/text())')
-                search_result.price = format_price_in_RUR(price)
-
-        return result
+        for s in search(query, max_results=max_results, timeout=timeout):
+            yield s
 
 def format_price_in_RUR(price):
     '''
@@ -119,37 +68,10 @@ def format_price_in_RUR(price):
     @return: formatted price if possible otherwise original value
     @rtype: unicode
     '''
-    if price and re.match("^\d*?\.\d*?$", price):
-        try:
-            price = u'{:,.2F} руб.'.format(float(price))
-            price = price.replace(',', ' ').replace('.', ',', 1)
-        except:
-            pass
+    price = price.replace('\xa0', '').replace(',', '.').strip() + ' py6'
     return price
 
-def _parse_ebook_formats(formatsStr):
-    '''
-    Creates a list with displayable names of the formats
-
-    :param formatsStr: string with comma separated book formats
-           as it provided by ozon.ru
-    :return: a list with displayable book formats
-    '''
-
-    formatsUnstruct = formatsStr.lower()
-    formats = []
-    if 'epub' in formatsUnstruct:
-        formats.append('ePub')
-    if 'pdf' in formatsUnstruct:
-        formats.append('PDF')
-    if 'fb2' in formatsUnstruct:
-        formats.append('FB2')
-    if 'rtf' in formatsUnstruct:
-        formats.append('RTF')
-    if 'txt' in formatsUnstruct:
-        formats.append('TXT')
-    if 'djvu' in formatsUnstruct:
-        formats.append('DjVu')
-    if 'doc' in formatsUnstruct:
-        formats.append('DOC')
-    return formats
+if __name__ == '__main__':
+    import sys
+    for r in search(sys.argv[-1]):
+        print(r)

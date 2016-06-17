@@ -196,6 +196,13 @@ class QueueBulk(QProgressDialog):
                 combined_recs[item[0]] = item[1]
             save_specifics(self.db, book_id, combined_recs)
             lrecs = list(combined_recs.to_recommendations())
+            from calibre.customize.ui import plugin_for_output_format
+            op = plugin_for_output_format(self.output_format)
+            if op and op.recommendations:
+                prec = {x[0] for x in op.recommendations}
+                for i, r in enumerate(list(lrecs)):
+                    if r[0] in prec:
+                        lrecs[i] = (r[0], r[1], OptionRecommendation.HIGH)
 
             cover_file = create_cover_file(self.db, book_id)
 

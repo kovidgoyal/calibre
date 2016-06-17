@@ -306,7 +306,8 @@ def decode(cfi, doc): # {{{
     else if cfi.length > 0:
         point.error = "Undecoded CFI: " + cfi
 
-    print(point.error)
+    if point.error:
+        print(point.error)
 
     return point
 

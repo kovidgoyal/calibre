@@ -1,5 +1,6 @@
 #define UNICODE
 #include <Python.h>
+#include <datetime.h>
 
 #include <stdlib.h>
 #include <fcntl.h>
@@ -101,7 +102,7 @@ speedup_pdf_float(PyObject *self, PyObject *args) {
         if (buf != NULL) {
             free_buf = (void*)buf;
             if (precision > 0) {
-                l = strlen(buf) - 1;
+                l = (int)(strlen(buf) - 1);
                 while (l > 0 && buf[l] == '0') l--;
                 if (buf[l] == ',' || buf[l] == '.') buf[l] = 0;
                 else buf[l+1] = 0;
@@ -353,9 +354,95 @@ clean_xml_chars(PyObject *self, PyObject *text) {
     return (PyObject*)ans;
 }
 
+static PyObject *
+speedup_iso_8601(PyObject *self, PyObject *args) {
+    char *str = NULL, *c = NULL;
+    int year = 0, month = 0, day = 0, hour = 0, minute = 0, second = 0, usecond = 0, i = 0, tzhour = 1000, tzminute = 0, tzsign = 0;
+
+    if (!PyArg_ParseTuple(args, "s", &str)) return NULL;
+    c = str;
+
+#define RAISE(msg) return PyErr_Format(PyExc_ValueError, "%s is not a valid ISO 8601 datestring: %s", str, msg);
+#define CHAR_IS_DIGIT(c) (*c >= '0' && *c <= '9')
+#define READ_DECIMAL_NUMBER(max_digits, x, abort) \
+    for (i = 0; i < max_digits; i++) { \
+        if (CHAR_IS_DIGIT(c)) x = 10 * x + *c++ - '0'; \
+        else { abort; } \
+    }
+#define OPTIONAL_SEPARATOR(x) if(*c == x) c++;
+
+    // Ignore leading whitespace
+    while(*c == ' ' || *c == '\n' || *c == '\r' || *c == '\t' || *c == '\v' || *c == '\f') c++;
+
+    // Year
+    READ_DECIMAL_NUMBER(4, year, RAISE("No year specified"));
+    OPTIONAL_SEPARATOR('-');
+    // Month (optional)
+    READ_DECIMAL_NUMBER(2, month, break);
+    if (month == 0) month = 1; // YYYY format
+    else {
+        OPTIONAL_SEPARATOR('-');
+
+        // Day (optional)
+        READ_DECIMAL_NUMBER(2, day, break);
+    }
+    if (day == 0) day = 1; // YYYY-MM format
+    if (month > 12) RAISE("month greater than 12");
+
+    if (*c == 'T' || *c == ' ') // Time separator
+    {
+        c++;
+
+        // Hour
+        READ_DECIMAL_NUMBER(2, hour, RAISE("No hour specified"));
+        OPTIONAL_SEPARATOR(':');
+        // Minute (optional)
+        READ_DECIMAL_NUMBER(2, minute, break);
+        OPTIONAL_SEPARATOR(':');
+        // Second (optional)
+        READ_DECIMAL_NUMBER(2, second, break);
+
+        if (*c == '.' || *c == ',') // separator for microseconds
+        {
+            c++;
+            // Parse fraction of second up to 6 places
+            READ_DECIMAL_NUMBER(6, usecond, break);
+            // Omit excessive digits
+            while (CHAR_IS_DIGIT(c)) c++;
+            // If we break early, fully expand the usecond
+            while (i++ < 6) usecond *= 10;
+        }
+    }
+
+    switch(*c) {
+        case 'Z':
+            tzhour = 0; c++; break;
+        case '+':
+            tzsign = 1; c++; break;
+        case '-':
+            tzsign = -1; c++; break;
+        default:
+            break;
+    }
+
+    if (tzsign != 0) {
+        tzhour = 0;
+        READ_DECIMAL_NUMBER(2, tzhour, break);
+        OPTIONAL_SEPARATOR(':');
+        READ_DECIMAL_NUMBER(2, tzminute, break);
+    }
+
+    return Py_BuildValue("NOi", PyDateTime_FromDateAndTime(year, month, day, hour, minute, second, usecond), (tzhour == 1000) ? Py_False : Py_True, tzsign*60*(tzhour*60 + tzminute));
+}
+
+
 static PyMethodDef speedup_methods[] = {
     {"parse_date", speedup_parse_date, METH_VARARGS,
-        "parse_date()\n\nParse ISO dates faster."
+        "parse_date()\n\nParse ISO dates faster (specialized for dates stored in the calibre db)."
+    },
+
+    {"parse_iso8601", speedup_iso_8601, METH_VARARGS,
+        "parse_iso8601(datestring)\n\nParse ISO 8601 dates faster. More spec compliant than parse_date()"
     },
 
     {"pdf_float", speedup_pdf_float, METH_VARARGS,
@@ -403,6 +490,7 @@ initspeedup(void) {
     "Implementation of methods in C for speed."
     );
     if (m == NULL) return;
+    PyDateTime_IMPORT;
 #ifdef O_CLOEXEC
     PyModule_AddIntConstant(m, "O_CLOEXEC", O_CLOEXEC);
 #endif

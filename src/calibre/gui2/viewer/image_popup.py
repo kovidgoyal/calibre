@@ -11,7 +11,7 @@ from PyQt5.Qt import (QDialog, QPixmap, QUrl, QScrollArea, QLabel, QSizePolicy,
         QDialogButtonBox, QVBoxLayout, QPalette, QApplication, QSize, QIcon,
         Qt, QTransform)
 
-from calibre.gui2 import choose_save_file, gprefs
+from calibre.gui2 import choose_save_file, gprefs, NO_URL_FORMATTING
 
 class ImageView(QDialog):
 
@@ -102,7 +102,7 @@ class ImageView(QDialog):
         if geom is not None:
             self.restoreGeometry(geom)
         try:
-            self.current_image_name = unicode(self.current_url.toString(QUrl.None)).rpartition('/')[-1]
+            self.current_image_name = unicode(self.current_url.toString(NO_URL_FORMATTING)).rpartition('/')[-1]
         except AttributeError:
             self.current_image_name = self.current_url
         title = _('View Image: %s')%self.current_image_name

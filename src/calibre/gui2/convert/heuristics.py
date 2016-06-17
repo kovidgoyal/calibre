@@ -40,7 +40,7 @@ class HeuristicsWidget(Widget, Ui_Form):
         self.enable_heuristics(self.opt_enable_heuristics.checkState())
         try:
             self.help_label.setText(self.help_label.text() % localize_user_manual_link(
-                'http://manual.calibre-ebook.com/conversion.html#heuristic-processing'))
+                'https://manual.calibre-ebook.com/conversion.html#heuristic-processing'))
         except TypeError:
             pass  # link already localized
 

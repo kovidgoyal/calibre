@@ -24,6 +24,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
     ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font_data)
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, CSSPreProcessor as cssp
+from calibre.ebooks.metadata.utils import parse_opf_version
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
 from calibre.ebooks.mobi.tweak import set_cover
@@ -303,35 +304,45 @@ class Container(ContainerBase):  # {{{
         all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
         return href in all_hrefs
 
-    def add_file(self, name, data, media_type=None, spine_index=None):
+    def add_file(self, name, data, media_type=None, spine_index=None, modify_name_if_needed=False):
         ''' Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
         (if the file is a text document) '''
-        if self.has_name(name):
-            raise ValueError('A file with the name %s already exists' % name)
         if '..' in name:
             raise ValueError('Names are not allowed to have .. in them')
-        href = self.name_to_href(name, self.opf_name)
         all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
-        if href in all_hrefs:
-            raise ValueError('An item with the href %s already exists in the manifest' % href)
+        href = self.name_to_href(name, self.opf_name)
+        if self.has_name(name) or href in all_hrefs:
+            if not modify_name_if_needed:
+                raise ValueError(('A file with the name %s already exists' % name) if self.has_name(name) else
+                                 ('An item with the href %s already exists in the manifest' % href))
+            base, ext = name.rpartition('.')[::2]
+            c = 0
+            while True:
+                c += 1
+                q = '%s-%d.%s' % (base, c, ext)
+                href = self.name_to_href(q, self.opf_name)
+                if not self.has_name(q) and href not in all_hrefs:
+                    name = q
+                    break
         path = self.name_to_abspath(name)
         base = os.path.dirname(path)
         if not os.path.exists(base):
             os.makedirs(base)
-        with open(path, 'wb') as f:
+        with lopen(path, 'wb') as f:
             f.write(data)
         mt = media_type or self.guess_type(name)
         self.name_path_map[name] = path
         self.mime_map[name] = mt
         if self.ok_to_be_unmanifested(name):
-            return
+            return name
         item_id = self.add_name_to_manifest(name)
         if mt in OEB_DOCS:
             manifest = self.opf_xpath('//opf:manifest')[0]
             spine = self.opf_xpath('//opf:spine')[0]
             si = manifest.makeelement(OPF('itemref'), idref=item_id)
             self.insert_into_xml(spine, si, index=spine_index)
+        return name
 
     def rename(self, current_name, new_name):
         ''' Renames a file from current_name to new_name. It automatically
@@ -576,6 +587,11 @@ class Container(ContainerBase):  # {{{
             return ''
 
     @property
+    def opf_version_parsed(self):
+        ' The version set on the OPF\'s <package> element as a tuple of integers '
+        return parse_opf_version(self.opf_version)
+
+    @property
     def manifest_id_map(self):
         ' Mapping of manifest id to canonical names '
         return {item.get('id'):self.href_to_name(item.get('href'), self.opf_name)
@@ -589,6 +605,14 @@ class Container(ContainerBase):  # {{{
             ans[item.get('media-type').lower()].append(self.href_to_name(
                 item.get('href'), self.opf_name))
         return {mt:tuple(v) for mt, v in ans.iteritems()}
+
+    def manifest_items_with_property(self, property_name):
+        ' All manifest items that have the specified property '
+        q = property_name.lower()
+        for item in self.opf_xpath('//opf:manifest/opf:item[@href and @properties]'):
+            props = (item.get('properties') or '').lower().split()
+            if q in props:
+                yield self.href_to_name(item.get('href'), self.opf_name)
 
     @property
     def guide_type_map(self):

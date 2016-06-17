@@ -6,52 +6,17 @@ __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import re, time
+import re
 from datetime import datetime, time as dtime, timedelta, MINYEAR, MAXYEAR
 from functools import partial
 
-from dateutil.tz import tzlocal, tzutc, EPOCHORDINAL
-
 from calibre import strftime
 from calibre.constants import iswindows, isosx, plugins
+from calibre.utils.iso8601 import utc_tz, local_tz, UNDEFINED_DATE
 from calibre.utils.localization import lcdata
 
-class SafeLocalTimeZone(tzlocal):
-
-    def _isdst(self, dt):
-        # We can't use mktime here. It is unstable when deciding if
-        # the hour near to a change is DST or not.
-        #
-        # timestamp = time.mktime((dt.year, dt.month, dt.day, dt.hour,
-        #                         dt.minute, dt.second, dt.weekday(), 0, -1))
-        # return time.localtime(timestamp).tm_isdst
-        #
-        # The code above yields the following result:
-        #
-        # >>> import tz, datetime
-        # >>> t = tz.tzlocal()
-        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        # 'BRDT'
-        # >>> datetime.datetime(2003,2,16,0,tzinfo=t).tzname()
-        # 'BRST'
-        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        # 'BRST'
-        # >>> datetime.datetime(2003,2,15,22,tzinfo=t).tzname()
-        # 'BRDT'
-        # >>> datetime.datetime(2003,2,15,23,tzinfo=t).tzname()
-        # 'BRDT'
-        #
-        # Here is a more stable implementation:
-        #
-        try:
-            timestamp = ((dt.toordinal() - EPOCHORDINAL) * 86400 + dt.hour * 3600 + dt.minute * 60 + dt.second)
-            return time.localtime(timestamp+time.timezone).tm_isdst
-        except ValueError:
-            pass
-        return False
-
-utc_tz = _utc_tz = tzutc()
-local_tz = _local_tz = SafeLocalTimeZone()
+_utc_tz = utc_tz
+_local_tz = local_tz
 
 # When parsing ambiguous dates that could be either dd-MM Or MM-dd use the
 # user's locale preferences
@@ -88,7 +53,6 @@ else:
     except:
         parse_date_day_first = False
 
-UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
 DEFAULT_DATE = datetime(2000,1,1, tzinfo=utc_tz)
 EPOCH = datetime(1970, 1, 1, tzinfo=_utc_tz)
 
@@ -107,6 +71,13 @@ def is_date_undefined(qt_or_dt):
             d.year == UNDEFINED_DATE.year and
             d.month == UNDEFINED_DATE.month and
             d.day == UNDEFINED_DATE.day)
+
+_iso_pat = None
+def iso_pat():
+    global _iso_pat
+    if _iso_pat is None:
+        _iso_pat = re.compile(r'\d{4}[/.-]\d{1,2}[/.-]\d{1,2}')
+    return _iso_pat
 
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     '''
@@ -128,7 +99,10 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         func = datetime.utcnow if assume_utc else datetime.now
         default = func().replace(day=15, hour=0, minute=0, second=0, microsecond=0,
                 tzinfo=_utc_tz if assume_utc else _local_tz)
-    dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
+    if iso_pat().match(date_string) is not None:
+        dt = parse(date_string, default=default)
+    else:
+        dt = parse(date_string, default=default, dayfirst=parse_date_day_first)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)

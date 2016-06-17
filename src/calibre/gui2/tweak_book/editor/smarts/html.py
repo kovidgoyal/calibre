@@ -10,7 +10,7 @@ import sys, re
 from operator import itemgetter
 
 from cssutils import parseStyle
-from PyQt5.Qt import QTextEdit, Qt
+from PyQt5.Qt import QTextEdit, Qt, QTextCursor
 
 from calibre import prepare_string_for_xml, xml_entity_to_unicode
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
@@ -116,7 +116,7 @@ def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
 def find_tag_definition(block, offset):
     ''' Return the <tag | > definition, if any that (block, offset) is inside. '''
     block, boundary = next_tag_boundary(block, offset, forward=False)
-    if not boundary.is_start:
+    if not boundary or not boundary.is_start:
         return None, False
     tag_start = boundary
     closing = tag_start.closing
@@ -672,9 +672,62 @@ class Smarts(NullSmarts):
 
             return 'complete_names', (names_type, doc_name, c.root), query
 
+    def find_text(self, pat, cursor):
+        from calibre.gui2.tweak_book.text_search import find_text_in_chunks
+        chunks = []
+
+        cstart = min(cursor.position(), cursor.anchor())
+        cend = max(cursor.position(), cursor.anchor())
+        c = QTextCursor(cursor)
+        c.setPosition(cstart)
+        block = c.block()
+        in_text = find_tag_definition(block, 0)[0] is None
+
+        def append(text, start):
+            after = start + len(text)
+            if start <= cend and cstart < after:
+                extra = after - (cend + 1)
+                if extra > 0:
+                    text = text[:-extra]
+                extra = cstart - start
+                if extra > 0:
+                    text = text[extra:]
+                chunks.append((text, start + max(extra, 0)))
+
+        while block.isValid() and block.position() <= cend:
+            boundaries = sorted(block.userData().tags, key=get_offset)
+            if not boundaries:
+                # Add the whole line
+                if in_text:
+                    text = block.text()
+                    if text:
+                        append(text, block.position())
+            else:
+                start = block.position()
+                c.setPosition(start)
+                for b in boundaries:
+                    if in_text:
+                        c.setPosition(start + b.offset, c.KeepAnchor)
+                        if c.hasSelection():
+                            append(c.selectedText(), c.anchor())
+                    in_text = not b.is_start
+                    c.setPosition(start + b.offset + 1)
+                if in_text:
+                    # Add remaining text in block
+                    c.setPosition(block.position() + boundaries[-1].offset + 1)
+                    c.movePosition(c.EndOfBlock, c.KeepAnchor)
+                    if c.hasSelection():
+                        append(c.selectedText(), c.anchor())
+            block = block.next()
+        s, e = find_text_in_chunks(pat, chunks)
+        return s != -1 and e != -1, s, e
+
 if __name__ == '__main__':  # {{{
     from calibre.gui2.tweak_book.editor.widget import launch_editor
-    launch_editor('''\
+    if sys.argv[-1].endswith('.html'):
+        raw = lopen(sys.argv[-1], 'rb').read().decode('utf-8')
+    else:
+        raw = '''\
 <!DOCTYPE html>
 <html xml:lang="en" lang="en">
 <!--
@@ -703,5 +756,9 @@ if __name__ == '__main__':  # {{{
         <p>Some non-BMP unicode text:\U0001f431\U0001f431\U0001f431</p>
     </body>
 </html>
-''', path_is_raw=True, syntax='xml')
+'''
+    def callback(ed):
+        import regex
+        ed.find_text(regex.compile('A bold word'))
+    launch_editor(raw, path_is_raw=True, syntax='html', callback=callback)
 # }}}

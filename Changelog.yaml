@@ -20,6 +20,80 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.59.0
+  date: 2016-06-17
+
+  new features:
+    - title: "Amazon metadata download: Download the series information when available from amazon.com"
+
+    - title: "Amazon metadata download: Recognize common patterns of embedding the series name after the title and remove it automatically"
+
+    - title: "Edit Book: Add support for EPUB 3 to the Table of Contents tool. Now when editing EPUB 3 files using the tool will automatically generate both the EPUB 3 navigation document and the NCX table of contents for backwards compatibility."
+
+    - title: "EPUB Input: Implement reading of Table of Contents from EPUB 3 files that do not specify a fallback NCX ToC"
+
+    - title: "EPUB metadata: When setting a cover image for an EPUB file that has no metadata cover image defined, add the new cover image as a pure metadata cover instead of aborting."
+
+  bug fixes:
+    - title: "Fix crash on exit if any plugins have loaded code that raises exceptions during shutdown."
+      tickets: [1592414]
+
+    - title: "Copy to library: Speed up checking for duplicates when copying multiple books to a large library."
+      tickets: [1593027]
+
+    - title: "Get Books: Update Smashwords plugin for website changes."
+      tickets: [1590653]
+
+    - title: "Edit Book: Fix a bug in the new text search facility that could cause searches to fail when searching from the current cursor position instead of the top of the file."
+      tickets: [1588778]
+
+    - title: "Bulk conversion dialog: Fix page margin settings being ignored when converting to DOCX"
+
+    - title: "Make the default shortcut for remove books Backspace on OS X since many mac keyboards have no delete key and the backspace key is labelled as delete"
+
+    - title: "Edit Book: Check Book: Do not warn if a cover image is not referenced in the text"
+
+    - title: "E-book viewer: Fix a bug that could cause incorrect rendering of chapter titles in some rare circumstances."
+
+    - title: "Windows console output: Handle consoles with non black and white color scheme correctly"
+
+    - title: "Fix a regression in 2.57 that caused auto-removal of borders from covers to become much less proficient at detecting borders"
+
+    - title: "Fix a regression in 2.57 that broke grayscaling of images"
+
+  improved recipes:
+    - Technology Review (DE)
+
+- version: 2.58.0
+  date: 2016-06-02
+
+  new features:
+    - title: "Edit Book: A text search tool to conveniently search for text even if it crosses multiple HTML tags (Search->Search ignoring HTML markup)"
+
+    - title: "OSX: Allow drag and drop of file onto viewer dock icon to view file"
+
+  bug fixes:
+    - title: "Workaround for incompatibility between Qt 5.5+ and Ubuntu that caused the context menu for the book list to flicker."
+      tickets: [1534936]
+
+    - title: "Windows: Workaround for explorer shell extensions on windows that write to stdout"
+
+    - title: "Edit Book: When jumping to next occurrence of a word, take language into account"
+
+    - title: "Edit Book: Fix import of words into user dictionary not working"
+
+    - title: "Fix use of non-ascii characters in identifiers causing an error when identifier rules are used."
+      tickets: [1584470]
+
+    - title: "Fix a regression that caused the paste from clipboard button to paste two times in the Add books from ISBN dialog"
+
+    - title: "Fix for incompatibility with PyQt 5.6"
+
+  improved recipes:
+    - Denver Post
+    - Financial Times
+    - bild.de
+
 - version: 2.57.1
   date: 2016-05-20
 
@@ -1670,7 +1744,7 @@
 
   new features:
     - title: "Edit Book: Add support for snippets -- small pieces of text that are often re-used."
-      description: "You can now create your own snippets and insert them into the text with only a few keystrokes. The snippets include support for placeholders that you can jump between. See http://manual.calibre-ebook.com/snippets.html for details."
+      description: "You can now create your own snippets and insert them into the text with only a few keystrokes. The snippets include support for placeholders that you can jump between. See https://manual.calibre-ebook.com/snippets.html for details."
       type: major
 
   bug fixes:
@@ -1702,7 +1776,7 @@
 
   new features:
     - title: "Edit Book: Add auto-completion for links."
-      description: "Now as you type the filename in href or src attributes, a popup with possible completions is displayed. See http://manual.calibre-ebook.com/edit.html#auto-complete for details."
+      description: "Now as you type the filename in href or src attributes, a popup with possible completions is displayed. See https://manual.calibre-ebook.com/edit.html#auto-complete for details."
       type: major
 
     - title: "Edit Book Function mode: Add builtin functions to change case of text, ignoring HTML tags in the matched text"
@@ -1880,7 +1954,7 @@
 
   new features:
     - title: "Edit Book: Add a new 'function mode' for the Search and Replace tool"
-      description: "The function mode allows you to create python functions that run on the results of Search and Replace. This allows you to do arbitrarily powerful text processing. For example, you can automatically fix the case of text, automatically add section number to headings, and so on. For examples and documentation, see: http://manual.calibre-ebook.com/function_mode.html"
+      description: "The function mode allows you to create python functions that run on the results of Search and Replace. This allows you to do arbitrarily powerful text processing. For example, you can automatically fix the case of text, automatically add section number to headings, and so on. For examples and documentation, see: https://manual.calibre-ebook.com/function_mode.html"
       type: major
 
   bug fixes:
@@ -1924,7 +1998,7 @@
 
     - title: "Metadata download: Prioritize results that have the same language as the current calibre user interface language"
 
-    - title: "Edit Book: Make the CSS used for styling the generated HTML Table of Contents user customizable via http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
+    - title: "Edit Book: Make the CSS used for styling the generated HTML Table of Contents user customizable via https://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
 
   bug fixes:
     - title: "E-book viewer: Fix popup footnotes not working on windows"
@@ -2547,7 +2621,7 @@
 
     - title: "Comic Input: When sorting the pages inside a comic, recognize numbers, so that page2 sorts before page10"
 
-    - title: "Conversion: When inserting a metadata jacket, format the series number using roman numerals. This behavior can be disabled by using a custom jacket template, as described here: http://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
+    - title: "Conversion: When inserting a metadata jacket, format the series number using roman numerals. This behavior can be disabled by using a custom jacket template, as described here: https://manual.calibre-ebook.com/customize.html#overriding-icons-templates-et-cetera"
 
     - title: "Template language: New function author_links: for each author of a book returns the author link value entered in Manage Authors."
 
@@ -2589,7 +2663,7 @@
 
   new features:
     - title: "Edit Book: Add support for third party plugins to extend the editors functionality."
-      description: "The editor now supports plugins that can be used to extend its functionality. Documentation of the plugin API and an example plugin are at: http://manual.calibre-ebook.com/creating_plugins.html#edit-book-plugins"
+      description: "The editor now supports plugins that can be used to extend its functionality. Documentation of the plugin API and an example plugin are at: https://manual.calibre-ebook.com/creating_plugins.html#edit-book-plugins"
       type: major
 
     - title: "calibredb list: Add a --for-machine option that causes the output to be made in a form more easily parsed programmatically (it uses ASCII field and record separators)"
@@ -2924,7 +2998,7 @@
 
   new features:
     - title: "Edit Book: A 'Live CSS' tool that shows all the style rules for the tag you are currently editing."
-      description: "You can use it to easily jump to any style rules that affect the current tag. Enable it via View->Live CSS. See http://manual.calibre-ebook.com/edit.html#the-live-css-panel for details"
+      description: "You can use it to easily jump to any style rules that affect the current tag. Enable it via View->Live CSS. See https://manual.calibre-ebook.com/edit.html#the-live-css-panel for details"
       type: major
 
     - title: "Add an option to hide the book rating in the cover browser (Preferences->Look & Feel->Cover Browser)."
@@ -3693,7 +3767,7 @@
   new features:
     - title: "A new tool to compare ebook files, showing the differences in their underlying text, styles and images side by side"
       type: major
-      description: "The new compare tool is very useful in combination with the book editor. It allows you to see what changes have been made between checkpoints and what changes were made by automated tools. You can also compare different versions of the same ebook file. How to use each of these features is described below. Screenshots and help for using the new compare tool are at http://manual.calibre-ebook.com/diff.html"
+      description: "The new compare tool is very useful in combination with the book editor. It allows you to see what changes have been made between checkpoints and what changes were made by automated tools. You can also compare different versions of the same ebook file. How to use each of these features is described below. Screenshots and help for using the new compare tool are at https://manual.calibre-ebook.com/diff.html"
 
     - title: "Edit book: Add a tool to view the list of checkpoints and compare the current state of the book to the state at the specified checkpoint. To use it click View->Checkpoints"
 
@@ -3831,7 +3905,7 @@
   date: 2014-01-10
 
   new features:
-    - title: "Edit book: A new tool to insert special characters into the text, available via Edit->Insert special character. Supports all unicode characters (over 60,000 of them). See http://manual.calibre-ebook.com/edit.html#inserting-special-characters"
+    - title: "Edit book: A new tool to insert special characters into the text, available via Edit->Insert special character. Supports all unicode characters (over 60,000 of them). See https://manual.calibre-ebook.com/edit.html#inserting-special-characters"
 
     - title: "Edit book: When searching for text in the editor, center the found text on screen"
 
@@ -4041,7 +4115,7 @@
   new features:
     - title: "A new book editor, capable of editing files in the EPUB and AZW3 (Kindle) formats"
       type: major
-      description: "Right click on any book in calibre and choose 'Edit Book', to edit e-books in the EPUB and AZW3 formats. The new editor allows you to edit the HTML/CSS and images inside the ebooks in a seamless fashion, with live preview of your changes and many helpful automated tools for checking the book for errors, editing the table of contents, merging, splitting, bulk renaming and so on. See http://manual.calibre-ebook.com/edit.html for more details and help using the new editor. Note that the editor is a completely new codebase and is still being actively developed, so expect a few bugs and many new features in the near future. However, the editor as it stands is extremely useable and useful today. Note that it replaces the old 'Tweak Book' feature in calibre. If you want the old Tweak Book back, it has been renamed to 'Unpack Book', you can go to Preferences->Toolbars and add it back. Happy holidays!"
+      description: "Right click on any book in calibre and choose 'Edit Book', to edit e-books in the EPUB and AZW3 formats. The new editor allows you to edit the HTML/CSS and images inside the ebooks in a seamless fashion, with live preview of your changes and many helpful automated tools for checking the book for errors, editing the table of contents, merging, splitting, bulk renaming and so on. See https://manual.calibre-ebook.com/edit.html for more details and help using the new editor. Note that the editor is a completely new codebase and is still being actively developed, so expect a few bugs and many new features in the near future. However, the editor as it stands is extremely useable and useful today. Note that it replaces the old 'Tweak Book' feature in calibre. If you want the old Tweak Book back, it has been renamed to 'Unpack Book', you can go to Preferences->Toolbars and add it back. Happy holidays!"
 
     - title: "Edit metadata dialog: In the tag editor, allow easy filtering of the lists of available and applied tags."
 

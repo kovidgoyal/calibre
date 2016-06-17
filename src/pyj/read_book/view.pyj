@@ -157,6 +157,7 @@ class View:
     def display_book(self, book):
         self.book = book
         self.ui.db.update_last_read_time(book)
+        self.loaded_resources = {}
         pos = {'replace_history':True}
         unkey = username_key(self.ui.interface_data.username)
         name = book.manifest.spine[0]
@@ -204,6 +205,18 @@ class View:
 
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})
+
+    def goto_named_destination(self, name, frag):
+        if self.currently_showing.name is name:
+            self.send_message('scroll_to_anchor', frag=frag)
+        else:
+            spine = self.book.manifest.spine
+            idx = spine.indexOf(name)
+            if idx is -1:
+                self.ui.show_error(_('Destination does not exist'), _(
+                    'The file {} does not exist in this book').format(name))
+                return
+            self.show_name(name, initial_position={'type':'anchor', 'anchor':frag, 'replace_history':False})
 
     def on_next_spine_item(self, data):
         spine = self.book.manifest.spine

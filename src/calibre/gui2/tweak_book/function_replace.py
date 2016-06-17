@@ -233,7 +233,7 @@ class FunctionEditor(Dialog):
 
         self.la2 = la = QLabel(_(
             'For help with creating functions, see the <a href="%s">User Manual</a>') %
-            localize_user_manual_link('http://manual.calibre-ebook.com/function_mode.html'))
+            localize_user_manual_link('https://manual.calibre-ebook.com/function_mode.html'))
         la.setOpenExternalLinks(True)
         l.addWidget(la)
 

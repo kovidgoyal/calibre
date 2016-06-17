@@ -9,11 +9,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 
 from PyQt5.Qt import (
-     QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette, QUrl, QMenu,
+     QIcon, Qt, QSplitter, QListWidget, QTextBrowser, QPalette, QMenu,
      QListWidgetItem, pyqtSignal, QApplication, QStyledItemDelegate)
 
 from calibre.ebooks.oeb.polish.check.base import WARN, INFO, DEBUG, ERROR, CRITICAL
 from calibre.ebooks.oeb.polish.check.main import run_checks, fix_errors
+from calibre.gui2 import NO_URL_FORMATTING
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import BusyCursor
 
@@ -111,7 +112,7 @@ class Check(QSplitter):
             msg, _('Click to run a check on the book'), _('Run check')))
 
     def link_clicked(self, url):
-        url = unicode(url.toString(QUrl.None))
+        url = unicode(url.toString(NO_URL_FORMATTING))
         if url == 'activate:item':
             self.current_item_activated()
         elif url == 'run:check':

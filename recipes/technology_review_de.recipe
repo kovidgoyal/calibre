@@ -1,24 +1,66 @@
-from calibre.web.feeds.recipes import BasicNewsRecipe
-class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
 
-    title          = u'Technology Review'
-    __author__  = 'schuster'
-    remove_tags_before = dict(id='keywords')
-    remove_tags_after  = dict(id='kommentar')
-    remove_tags = [dict(attrs={'class':['navi_oben_pvg', 'navi_oben_tarifr', 'navi_oben_itm', 'navi_oben_eve', 'navi_oben_whi', 'navi_oben_abo', 'navi_oben_shop', 'navi_top_logo', 'navi_top_abschnitt', 'first']}),
-               dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']),
-               dict(name=['script', 'noscript', 'style'])]
-    oldest_article = 4
-    max_articles_per_feed = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
-    language               = 'de'
-    remove_javascript      = True
+__license__   = 'GPL v3'
+__copyright__ = '2010, Anton Gillert <atx at binaryninja.de>'
+
+'''
+Technology Review (deutsch) - heise.de/tr
+'''
+
+import re
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class TechnologyReviewDe(BasicNewsRecipe):
+    title       = 'Technology Review'
+    __author__  = 'Anton Gillert, schuster'
+    description = 'Technology news from Germany'
+    language    = 'de'
+
+    oldest_article        = 14
+    max_articles_per_feed = 50
+    use_embedded_content  = False
+    no_stylesheets        = True
+    remove_javascript     = True
+
+    masthead_url = 'http://1.f.ix.de/imgs/02/3/0/8/5/2/8/tr_logo-544bd18881c81263.png'
+
+    feeds = [
+        ('News', 'http://www.heise.de/tr/rss/news-atom.xml'),
+        ('Blog', 'http://www.heise.de/tr/rss/blog-atom.xml')
+    ]
+
+    keep_only_tags = [
+        dict(name='article')
+    ]
+
+    remove_tags = [
+        dict(name='nav'),
+        dict(name='figure', attrs={'class':'logo'}),
+        dict(name='hr')
+    ]
+
+    extra_css = '.bild_zentriert {font-size: 0.6em} \
+                 .source {font-size: 0.6em}'
+
+    def get_cover_url(self):
+        self.cover_url = ''
+        soup = self.index_to_soup('http://www.heise.de/tr/magazin/')
+        img = soup.find('img', alt=re.compile('Titelbild Technology Review'), src=True)
+        if img:
+            self.cover_url = 'http://www.heise.de' + img['src']
+        return self.cover_url
 
     def print_version(self, url):
-        return url  + '?view=print'
+        return url + '?view=print'
 
-
-    feeds          = [
-    (u'Technik News', u'http://www.heise.de/tr/news-atom.xml') ]
-
+    def preprocess_html(self, soup):
+        # remove style attributes
+        for item in soup.findAll(attrs={'style':True}):
+            del item['style']
+        # remove reference to article source
+        for p in soup.findAll('p'):
+            if 'URL dieses Artikels:' in self.tag_to_string(p):
+                p.extract()
+        return soup

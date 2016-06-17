@@ -16,10 +16,10 @@ from calibre import isbytestring
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
 def string_to_datetime(src):
-    from calibre.utils.date import parse_date
+    from calibre.utils.iso8601 import parse_iso8601
     if src != "None":
         try:
-            return parse_date(src)
+            return parse_iso8601(src)
         except Exception:
             pass
     return None

@@ -377,8 +377,8 @@ def from_json(obj):
         if obj['__class__'] == 'bytearray':
             return bytearray(base64.standard_b64decode(obj['__value__']))
         if obj['__class__'] == 'datetime.datetime':
-            from calibre.utils.date import parse_date
-            return parse_date(obj['__value__'], assume_utc=True)
+            from calibre.utils.iso8601 import parse_iso8601
+            return parse_iso8601(obj['__value__'], assume_utc=True)
     return obj
 
 class JSONConfig(XMLConfig):

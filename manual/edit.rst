@@ -27,7 +27,7 @@ Basic workflow
 
 .. note::
     A video tour of the calibre editor is available `here
-    <http://calibre-ebook.com/demo#tutorials>`_.
+    <https://calibre-ebook.com/demo#tutorials>`_.
 
 When you first open a book with the Edit book tool, you will be presented with
 a list of files on the left. These are the individual HTML files, stylesheets,
@@ -253,6 +253,15 @@ Function mode
 Function mode allows you to write arbitrarily powerful python functions that
 are run on every Find/replace. You can do pretty much any text manipulation you
 like in function mode. For more information, see :doc:`function_mode`.
+
+Search ignoring HTML tags
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There is also a dedicated tool for searching for text, ignoring any HTML tags
+in between. For example, if the book has the HTML ``Empahisis on a
+<i>word</i>.`` you can search for ``on a word`` and it will be found even
+though there is an ``<i>`` tag in the middle. Use this
+tool via the :guilabel:`Search->Search ignoring HTML markup` menu item.
 
 Automated tools
 -------------------

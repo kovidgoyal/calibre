@@ -229,11 +229,13 @@ def unserialize_html(serialized_data, proceed):
     clear(document.head, document.body)
     load_required = set()
     proceeded = False
+    hang_timeout = 5
 
     def hangcheck():
         nonlocal proceeded
         if not proceeded:
             proceeded = True
+            print('WARNING: All resources did not load in {} seconds, proceeding anyway ({} resources left)'.format(hang_timeout, load_required.length))
             proceed()
 
     def onload():
@@ -258,7 +260,7 @@ def unserialize_html(serialized_data, proceed):
     ev.initEvent('DOMContentLoaded', True, True)
     document.dispatchEvent(ev)
     if load_required.length:
-        setTimeout(hangcheck, 5000)
+        setTimeout(hangcheck, hang_timeout * 1000)
     else:
         proceeded = True
         proceed()

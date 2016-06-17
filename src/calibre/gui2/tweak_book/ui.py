@@ -36,6 +36,7 @@ from calibre.gui2.tweak_book.check import Check
 from calibre.gui2.tweak_book.check_links import CheckExternalLinks
 from calibre.gui2.tweak_book.spell import SpellCheck
 from calibre.gui2.tweak_book.search import SavedSearches
+from calibre.gui2.tweak_book.text_search import TextSearch
 from calibre.gui2.tweak_book.toc import TOCViewer
 from calibre.gui2.tweak_book.char_select import CharSelect
 from calibre.gui2.tweak_book.live_css import LiveCSS
@@ -48,7 +49,7 @@ from calibre.utils.icu import character_name, sort_key
 from calibre.utils.localization import localize_user_manual_link
 
 def open_donate():
-    open_url(QUrl('http://calibre-ebook.com/donate'))
+    open_url(QUrl('https://calibre-ebook.com/donate'))
 
 class Central(QStackedWidget):  # {{{
 
@@ -248,6 +249,7 @@ class Main(MainWindow):
         self.check_book = Check(self)
         self.spell_check = SpellCheck(parent=self)
         self.toc_view = TOCViewer(self)
+        self.text_search = TextSearch(self)
         self.saved_searches = SavedSearches(self)
         self.image_browser = InsertImage(self, for_browsing=True)
         self.reports = Reports(self)
@@ -450,6 +452,8 @@ class Main(MainWindow):
         self.action_go_to_line = reg(None, _('Go to &line'), self.boss.go_to_line_number, 'go-to-line-number', ('Ctrl+.',), _('Go to line number'))
         self.action_saved_searches = treg('folder_saved_search.png', _('Sa&ved searches'),
                                           self.boss.saved_searches, 'saved-searches', (), _('Show the saved searches dialog'))
+        self.action_text_search = treg('view.png', _('Search ignoring HTML markup'),
+                                          self.boss.show_text_search, 'text-search', (), _('Show the text search panel'))
 
         # Check Book actions
         group = _('Check Book')
@@ -476,7 +480,7 @@ class Main(MainWindow):
                 'Close all tabs except the current tab'))
         self.action_help = treg(
             'help.png', _('User &Manual'), lambda : open_url(QUrl(localize_user_manual_link(
-                'http://manual.calibre-ebook.com/edit.html'))), 'user-manual', 'F1', _(
+                'https://manual.calibre-ebook.com/edit.html'))), 'user-manual', 'F1', _(
                 'Show User Manual'))
         self.action_browse_images = treg(
             'view-image.png', _('&Browse images in book'), self.boss.browse_images, 'browse-images', (), _(
@@ -591,6 +595,8 @@ class Main(MainWindow):
         e.addSeparator()
         a(self.action_saved_searches)
         e.aboutToShow.connect(self.search_menu_about_to_show)
+        e.addSeparator()
+        a(self.action_text_search)
 
         if self.plugin_menu_actions:
             e = b.addMenu(_('&Plugins'))
@@ -710,6 +716,12 @@ class Main(MainWindow):
         self.addDockWidget(Qt.LeftDockWidgetArea, d)
         d.close()  # Hidden by default
 
+        d = create(_('Text Search'), 'text-search')
+        d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
+        d.setWidget(self.text_search)
+        self.addDockWidget(Qt.LeftDockWidgetArea, d)
+        d.close()  # Hidden by default
+
         d = create(_('Checkpoints'), 'checkpoints')
         d.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea | Qt.BottomDockWidgetArea | Qt.TopDockWidgetArea)
         self.checkpoints = CheckpointView(self.boss.global_undo, parent=d)
@@ -743,6 +755,7 @@ class Main(MainWindow):
         self.central.save_state()
         self.saved_searches.save_state()
         self.check_book.save_state()
+        self.text_search.save_state()
 
     def restore_state(self):
         geom = tprefs.get('main_window_geometry', None)

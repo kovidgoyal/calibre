@@ -853,7 +853,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         QApplication.instance().quit()
 
     def donate(self, *args):
-        open_url(QUrl('http://calibre-ebook.com/donate'))
+        open_url(QUrl('https://calibre-ebook.com/donate'))
 
     def confirm_quit(self):
         if self.job_manager.has_jobs():
@@ -941,7 +941,15 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             pass
         self.hide_windows()
         # Do not report any errors that happen after the shutdown
-        sys.excepthook = sys.__excepthook__
+        # We cannot restore the original excepthook as that causes PyQt to
+        # call abort() on unhandled exceptions
+        import traceback
+        def eh(t, v, tb):
+            try:
+                traceback.print_exception(t, v, tb, file=sys.stderr)
+            except:
+                pass
+        sys.excepthook = eh
         if self._spare_pool is not None:
             self._spare_pool.shutdown()
         from calibre.db.delete_service import shutdown

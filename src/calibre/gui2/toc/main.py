@@ -575,6 +575,7 @@ class TOCView(QWidget):  # {{{
 
     def __init__(self, parent, prefs):
         QWidget.__init__(self, parent)
+        self.toc_title = None
         self.prefs = prefs
         l = self.l = QGridLayout()
         self.setLayout(l)
@@ -748,6 +749,7 @@ class TOCView(QWidget):  # {{{
             self.item_view.hide_azw3_warning()
         self.toc = get_toc(self.ebook)
         self.toc_lang, self.toc_uid = self.toc.lang, self.toc.uid
+        self.toc_title = self.toc.toc_title
         self.blank = QIcon(I('blank.png'))
         self.ok = QIcon(I('ok.png'))
         self.err = QIcon(I('dot_red.png'))
@@ -972,6 +974,7 @@ class TOCEditor(QDialog):  # {{{
         tb = None
         try:
             toc = self.toc_view.create_toc()
+            toc.toc_title = getattr(self.toc_view, 'toc_title', None)
             commit_toc(self.ebook, toc, lang=self.toc_view.toc_lang,
                     uid=self.toc_view.toc_uid)
             self.ebook.commit()

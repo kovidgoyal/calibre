@@ -14,8 +14,8 @@ from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import force_unicode
-from calibre.utils.date import parse_date, now as nowf, utcnow, tzlocal, \
-        isoformat, fromordinal
+from calibre.utils.iso8601 import parse_iso8601
+from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, fromordinal, UNDEFINED_DATE
 from calibre.utils.recycle_bin import delete_file
 
 NS = 'http://calibre-ebook.com/recipe_collection'
@@ -292,8 +292,8 @@ class SchedulerConfig(object):
                     ld = x.get('last_downloaded', None)
                     if ld and last_downloaded is None:
                         try:
-                            last_downloaded = parse_date(ld)
-                        except:
+                            last_downloaded = parse_iso8601(ld)
+                        except Exception:
                             pass
                     self.root.remove(x)
                     break
@@ -397,7 +397,11 @@ class SchedulerConfig(object):
                     days = list(map(int, [x.strip() for x in
                         parts[0].split(',')]))
                     sch = [days, int(parts[1]), int(parts[2])]
-                return typ, sch, parse_date(recipe.get('last_downloaded'))
+                try:
+                    ld = parse_iso8601(recipe.get('last_downloaded'))
+                except Exception:
+                    ld = UNDEFINED_DATE
+                return typ, sch, ld
 
     def recipe_needs_to_be_downloaded(self, recipe):
         try:
@@ -420,14 +424,14 @@ class SchedulerConfig(object):
             return utcnow() - ld > timedelta(sch)
         elif typ == 'day/time':
             now = nowf()
-            ld_local = ld.astimezone(tzlocal())
+            ld_local = ld.astimezone(local_tz)
             day, hour, minute = sch
             return is_weekday(day, now) and \
                     not was_downloaded_already_today(ld_local, now) and \
                     is_time(now, hour, minute)
         elif typ == 'days_of_week':
             now = nowf()
-            ld_local = ld.astimezone(tzlocal())
+            ld_local = ld.astimezone(local_tz)
             days, hour, minute = sch
             have_day = False
             for day in days:
@@ -439,7 +443,7 @@ class SchedulerConfig(object):
                     is_time(now, hour, minute)
         elif typ == 'days_of_month':
             now = nowf()
-            ld_local = ld.astimezone(tzlocal())
+            ld_local = ld.astimezone(local_tz)
             days, hour, minute = sch
             have_day = now.day in days
             return have_day and \

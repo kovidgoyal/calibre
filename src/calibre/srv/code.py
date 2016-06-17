@@ -233,6 +233,7 @@ def book_metadata(ctx, rd, book_id):
     data = book_as_json(db, book_id)
     if data is None:
         notfound()
+    data['id'] = book_id  # needed for random book view (when book_id=0)
     return data
 
 @endpoint('/interface-data/tag-browser')

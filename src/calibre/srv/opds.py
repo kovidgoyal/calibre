@@ -229,7 +229,7 @@ class Feed(object):  # {{{
         self.root = \
             FEED(
                     TITLE(title or default_feed_title),
-                    AUTHOR(__appname__, uri='http://calibre-ebook.com'),
+                    AUTHOR(__appname__, uri='https://calibre-ebook.com'),
                     ID(id_),
                     ICON(request_context.ctx.url_for('/favicon.png')),
                     UPDATED(updated),

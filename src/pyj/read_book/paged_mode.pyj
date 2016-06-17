@@ -142,13 +142,8 @@ def layout(is_single_page):
     # above the columns, which causes them to effectively be added to the
     # page margins (the margin collapse algorithm)
     document.body.style.setProperty('-webkit-margin-collapse', 'separate')
-    # Remove any webkit specified default margin from the first child of body
-    # Otherwise, you could end up with an effective negative margin, I dont
-    # understand exactly why, but see:
-    # https://bugs.launchpad.net/calibre/+bug/1082640 for an example
     c = first_child(document.body)
     if c:
-        c.style.setProperty('-webkit-margin-before', '0')
         # Remove page breaks on the first few elements to prevent blank pages
         # at the start of a chapter
         set_css(c, break_before='avoid')

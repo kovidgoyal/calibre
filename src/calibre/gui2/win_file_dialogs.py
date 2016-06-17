@@ -6,12 +6,13 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import sys, subprocess, struct, os
 from threading import Thread
+from uuid import uuid4
 
 from PyQt5.Qt import pyqtSignal, QEventLoop, Qt
 
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
-HELPER = os.path.join(base, 'calibre-file-dialogs.exe')
+HELPER = os.path.join(base, 'calibre-file-dialog.exe')
 
 def is_ok():
     return os.path.exists(HELPER)
@@ -37,6 +38,9 @@ def serialize_hwnd(hwnd):
     if hwnd is None:
         return b''
     return struct.pack(b'=B4s' + (b'Q' if is64bit else b'I'), 4, b'HWND', int(hwnd))
+
+def serialize_secret(secret):
+    return struct.pack(b'=B6s32s', 6, b'SECRET', secret)
 
 def serialize_binary(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
@@ -71,7 +75,7 @@ class Helper(Thread):
         self.data = data
         self.daemon = True
         self.rc = 0
-        self.stdoutdata = None
+        self.stdoutdata = self.stderrdata = b''
 
     def run(self):
         self.stdoutdata, self.stderrdata = self.process.communicate(b''.join(self.data))
@@ -109,7 +113,9 @@ def run_file_dialog(
     from calibre.gui2 import sanitize_env_vars
     with sanitize_env_vars():
         env = os.environ.copy()
-    data = []
+    secret = os.urandom(32).replace(b'\0', b' ')
+    pipename = '\\\\.\\pipe\\%s' % uuid4()
+    data = [serialize_string('PIPENAME', pipename), serialize_secret(secret)]
     parent = parent or None
     if parent is not None:
         data.append(serialize_hwnd(get_hwnd(parent)))
@@ -150,16 +156,43 @@ def run_file_dialog(
     if file_types:
         data.append(serialize_file_types(file_types))
     loop = Loop()
+    server = PipeServer(pipename)
     h = Helper(subprocess.Popen(
         [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, env=env),
                data, loop.dialog_closed.emit)
     h.start()
     loop.exec_(QEventLoop.ExcludeUserInputEvents)
+    def decode(x):
+        x = x or b''
+        try:
+            x = x.decode('utf-8')
+        except Exception:
+            x = repr(x)
+        return x
+    def get_errors():
+        return decode(h.stdoutdata) + ' ' + decode(h.stderrdata)
+    from calibre import prints
+    from calibre.constants import DEBUG
+    if DEBUG:
+        prints('stdout+stderr from file dialog helper:', type('')([h.stdoutdata, h.stderrdata]))
+
     if h.rc != 0:
-        raise Exception('File dialog failed: ' + h.stderrdata.decode('utf-8'))
-    if not h.stdoutdata:
+        raise Exception('File dialog failed: ' + get_errors())
+    server.join(2)
+    if server.is_alive():
+        raise Exception('Timed out waiting for read from pipe to complete')
+    if server.err_msg:
+        raise Exception(server.err_msg)
+    if not server.data:
         return ()
-    ans = tuple((os.path.abspath(x.decode('utf-8')) for x in h.stdoutdata.split(b'\0') if x))
+    parts = list(filter(None, server.data.split(b'\0')))
+    if DEBUG:
+        prints('piped data from file dialog helper:', type('')(parts))
+    if len(parts) < 2:
+        return ()
+    if parts[0] != secret:
+        raise Exception('File dialog failed, incorrect secret received: ' + get_errors())
+    ans = tuple((os.path.abspath(x.decode('utf-8')) for x in parts[1:]))
     return ans
 
 def get_initial_folder(name, title, default_dir='~', no_save_dir=False):
@@ -217,11 +250,78 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
             dynamic.set(name, ans)
         return ans
 
-def test():
-    p = subprocess.Popen([HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+class PipeServer(Thread):
+
+    def __init__(self, pipename):
+        Thread.__init__(self, name='PipeServer')
+        self.daemon = True
+        import win32pipe, win32api, win32con
+        FILE_FLAG_FIRST_PIPE_INSTANCE = 0x00080000
+        PIPE_REJECT_REMOTE_CLIENTS = 0x00000008
+        self.pipe_handle = win32pipe.CreateNamedPipe(
+            pipename, win32pipe.PIPE_ACCESS_INBOUND | FILE_FLAG_FIRST_PIPE_INSTANCE,
+            win32pipe.PIPE_TYPE_BYTE | win32pipe.PIPE_READMODE_BYTE | win32pipe.PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
+            1, 8192, 8192, 0, None)
+        win32api.SetHandleInformation(self.pipe_handle, win32con.HANDLE_FLAG_INHERIT, 0)
+        self.err_msg = None
+        self.data = b''
+        self.start()
+
+    def run(self):
+        import win32pipe, win32file, winerror, win32api
+        def as_unicode(err):
+            try:
+                self.err_msg = type('')(err)
+            except Exception:
+                self.err_msg = repr(err)
+        try:
+            try:
+                rc = win32pipe.ConnectNamedPipe(self.pipe_handle)
+            except Exception as err:
+                as_unicode(err)
+                return
+
+            if rc != 0:
+                self.err_msg = 'Failed to connect to client over named pipe: 0x%x' % rc
+                return
+
+            while True:
+                try:
+                    hr, data = win32file.ReadFile(self.pipe_handle, 1024 * 50, None)
+                except Exception as err:
+                    if getattr(err, 'winerror', None) == winerror.ERROR_BROKEN_PIPE:
+                        break  # pipe was closed at the other end
+                    as_unicode(err)
+                    break
+                if hr not in (winerror.ERROR_MORE_DATA, 0):
+                    self.err_msg = 'ReadFile on pipe failed with hr=%d' % hr
+                    break
+                if not data:
+                    break
+                self.data += data
+        finally:
+            win32api.CloseHandle(self.pipe_handle)
+            self.pipe_handle = None
+
+def test(helper=HELPER):
+    pipename = '\\\\.\\pipe\\%s' % uuid4()
     echo = '\U0001f431 Hello world!'
-    stdout, stderr = p.communicate(serialize_string('ECHO', echo))
+    secret = os.urandom(32).replace(b'\0', b' ')
+    data = serialize_string('PIPENAME', pipename) +  serialize_string('ECHO', echo) + serialize_secret(secret)
+    server = PipeServer(pipename)
+    p = subprocess.Popen([helper], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = p.communicate(data)
     if p.wait() != 0:
-        raise Exception('File dialog failed: ' + stderr.decode('utf-8'))
-    if stdout.decode('utf-8') != echo:
-        raise RuntimeError('Unexpected response: %s' % stdout.decode('utf-8'))
+        raise Exception('File dialog failed: ' + stdout.decode('utf-8') + ' ' + stderr.decode('utf-8'))
+    if server.err_msg is not None:
+        raise RuntimeError(server.err_msg)
+    server.join(2)
+    parts = filter(None, server.data.split(b'\0'))
+    if parts[0] != secret:
+        raise RuntimeError('Did not get back secret: %r != %r' % (secret, parts[0]))
+    q = parts[1].decode('utf-8')
+    if q != echo:
+        raise RuntimeError('Unexpected response: %r' % server.data)
+
+if __name__ == '__main__':
+    test(sys.argv[-1])

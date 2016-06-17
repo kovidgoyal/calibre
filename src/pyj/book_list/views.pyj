@@ -4,10 +4,11 @@ from __python__ import hash_literals
 
 import traceback
 from ajax import ajax_send
-from dom import set_css, build_rule, clear
+from dom import set_css, clear, build_rule
 from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog, ajax_progress_dialog
+from widgets import add_extra_css
 
 from book_list.globals import get_session_data, get_boss
 from widgets import create_button, create_spinner
@@ -16,6 +17,16 @@ THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
 
 bv_counter = 0
+
+CLASS_NAME = 'books-main-list'
+
+def widget_css():
+    ans = ''
+    sel = '.' + CLASS_NAME + ' '
+    ans += build_rule(sel + '.cover_grid > div:hover', transform='scale(1.2)')
+    ans += build_rule(sel + '.cover_grid > div:active', transform='scale(2.0)')
+    return ans
+add_extra_css(widget_css)
 
 class BooksView:
 
@@ -29,11 +40,8 @@ class BooksView:
         # We have to apply the transform on the containing div not the img because of a bug in WebKit
         # that causes img aspect ratios to be messed up on window resize if the transform is specified
         # on the img itself
-        style = build_rule('#' + self.container_id + ' .cover_grid > div:hover', transform='scale(1.2)')
-        style += build_rule('#' + self.container_id + ' .cover_grid > div:active', transform='scale(2.0)')
         div = E.div(
-            id=self.container_id, style='display:block',
-            E.style(style),
+            id=self.container_id, style='display:block', class_=CLASS_NAME,
             E.div(),
             E.div()
         )
@@ -48,7 +56,7 @@ class BooksView:
         ))
         more.lastChild.setAttribute('rel', 'next')
         set_css(more.firstChild, display='block', margin_left='auto', margin_right='auto')
-        set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', width='100%', text_align='center')
+        set_css(more, font_size='1.5rem', padding_top='1.5rem', margin_bottom='1.5rem', text_align='center', display='flex')
         more.appendChild(E.div(
             create_spinner(), '\xa0' + _('Fetching metadata for more books, please wait') + '…',
             style='margin-left:auto; margin-right:auto; display:none')

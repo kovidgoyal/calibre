@@ -11,15 +11,17 @@ import re
 from urlparse import urlparse
 from collections import Counter, OrderedDict
 from functools import partial
+from future_builtins import map
 from operator import itemgetter
 
 from lxml import etree
 from lxml.builder import ElementMaker
 
 from calibre import __version__
-from calibre.ebooks.oeb.base import XPath, uuid_id, xml2text, NCX, NCX_NS, XML, XHTML, XHTML_NS, serialize
+from calibre.ebooks.oeb.base import (
+    XPath, uuid_id, xml2text, NCX, NCX_NS, XML, XHTML, XHTML_NS, serialize, EPUB_NS)
 from calibre.ebooks.oeb.polish.errors import MalformedMarkup
-from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ebooks.oeb.polish.utils import guess_type, extract
 from calibre.ebooks.oeb.polish.opf import set_guide_item, get_book_language
 from calibre.ebooks.oeb.polish.pretty import pretty_html_tree
 from calibre.translations.dynamic import translate
@@ -31,6 +33,8 @@ ns['lower-case'] = lambda c, x: x.lower() if hasattr(x, 'lower') else x
 
 
 class TOC(object):
+
+    toc_title = None
 
     def __init__(self, title=None, dest=None, frag=None):
         self.title, self.dest, self.frag = title, dest, frag
@@ -93,10 +97,15 @@ class TOC(object):
 
     @property
     def as_dict(self):
-        return {
-            'title':self.title, 'dest':self.dest, 'frag':self.frag, 'dest_exists':self.dest_exists, 'dest_error':self.dest_error,
+        ans = {
+            'title':self.title, 'dest':self.dest, 'frag':self.frag,
             'children':[c.as_dict for c in self.children]
         }
+        if self.dest_exists is not None:
+            ans['dest_exists'] = self.dest_exists
+        if self.dest_error is not None:
+            ans['dest_error'] = self.dest_error
+        return ans
 
 def child_xpath(tag, name):
     return tag.xpath('./*[calibre:lower-case(local-name()) = "%s"]'%name)
@@ -145,6 +154,47 @@ def parse_ncx(container, ncx_name):
             break
     return toc_root
 
+def add_from_li(container, li, parent, nav_name):
+    dest = frag = text = None
+    for x in li.iterchildren(XHTML('a'), XHTML('span')):
+        text = etree.tostring(x, method='text', encoding=unicode, with_tail=False).strip() or ' '.join(x.xpath('descendant-or-self::*/@title')).strip()
+        href = x.get('href')
+        if href:
+            dest = nav_name if href.startswith('#') else container.href_to_name(href, base=nav_name)
+            frag = urlparse(href).fragment or None
+        break
+    return parent.add(text or None, dest or None, frag or None)
+
+def first_child(parent, tagname):
+    try:
+        return next(parent.iterchildren(tagname))
+    except StopIteration:
+        return None
+
+def process_nav_node(container, node, toc_parent, nav_name):
+    for li in node.iterchildren(XHTML('li')):
+        child = add_from_li(container, li, toc_parent, nav_name)
+        ol = first_child(li, XHTML('ol'))
+        if child is not None and ol is not None:
+            process_nav_node(container, ol, child, nav_name)
+
+def parse_nav(container, nav_name):
+    root = container.parsed(nav_name)
+    toc_root = TOC()
+    toc_root.lang = toc_root.uid = None
+    et = '{%s}type' % EPUB_NS
+    for nav in root.iterdescendants(XHTML('nav')):
+        if nav.get(et) == 'toc':
+            ol = first_child(nav, XHTML('ol'))
+            if ol is not None:
+                process_nav_node(container, ol, toc_root, nav_name)
+                for h in nav.iterchildren(*map(XHTML, 'h1 h2 h3 h4 h5 h6'.split())):
+                    text = etree.tostring(h, method='text', encoding=unicode, with_tail=False) or h.get('title')
+                    if text:
+                        toc_root.toc_title = text
+                        break
+                break
+    return toc_root
 
 def verify_toc_destinations(container, toc):
     anchor_map = {}
@@ -176,30 +226,37 @@ def verify_toc_destinations(container, toc):
                 'The anchor %(a)s does not exist in file %(f)s')%dict(
                 a=item.frag, f=name)
 
-
-def find_existing_toc(container):
+def find_existing_ncx_toc(container):
     toc = container.opf_xpath('//opf:spine/@toc')
     if toc:
         toc = container.manifest_id_map.get(toc[0], None)
     if not toc:
         ncx = guess_type('a.ncx')
         toc = container.manifest_type_map.get(ncx, [None])[0]
-    if not toc:
-        return None
-    return toc
+    return toc or None
 
+def find_existing_nav_toc(container):
+    for name in container.manifest_items_with_property('nav'):
+        return name
 
-def get_toc(container, verify_destinations=True):
-    toc = find_existing_toc(container)
-    if toc is None or not container.has_name(toc):
+def get_x_toc(container, find_toc, parse_toc, verify_destinations=True):
+    def empty_toc():
         ans = TOC()
-        ans.lang = ans.uid = ans.toc_file_name = None
+        ans.lang = ans.uid = None
         return ans
-    ans = parse_ncx(container, toc)
-    ans.toc_file_name = toc
+    toc = find_toc(container)
+    ans = empty_toc() if toc is None or not container.has_name(toc) else parse_toc(container, toc)
+    ans.toc_file_name = toc if toc and container.has_name(toc) else None
     if verify_destinations:
         verify_toc_destinations(container, ans)
     return ans
+
+def get_toc(container, verify_destinations=True):
+    ver = container.opf_version_parsed
+    if ver.major < 3:
+        return get_x_toc(container, find_existing_ncx_toc, parse_ncx, verify_destinations=verify_destinations)
+    else:
+        return get_x_toc(container, find_existing_nav_toc, parse_nav, verify_destinations=verify_destinations)
 
 def ensure_id(elem):
     if elem.tag == XHTML('a'):
@@ -447,12 +504,13 @@ def create_ncx(toc, to_href, btitle, lang, uid):
     return ncx
 
 
-def commit_toc(container, toc, lang=None, uid=None):
-    tocname = find_existing_toc(container)
+def commit_ncx_toc(container, toc, lang=None, uid=None):
+    tocname = find_existing_ncx_toc(container)
     if tocname is None:
         item = container.generate_item('toc.ncx', id_prefix='toc')
-        tocname = container.href_to_name(item.get('href'),
-                                         base=container.opf_name)
+        tocname = container.href_to_name(item.get('href'), base=container.opf_name)
+        ncx_id = item.get('id')
+        [s.set('toc', ncx_id) for s in container.opf_xpath('//opf:spine')]
     if not lang:
         lang = get_lang()
         for l in container.opf_xpath('//dc:language'):
@@ -481,21 +539,91 @@ def commit_toc(container, toc, lang=None, uid=None):
     container.replace(tocname, root)
     container.pretty_print.add(tocname)
 
+def commit_nav_toc(container, toc, lang=None):
+    from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
+    tocname = find_existing_nav_toc(container)
+    if tocname is None:
+        item = container.generate_item('nav.html', id_prefix='nav')
+        item.set('properties', 'nav')
+        tocname = container.href_to_name(item.get('href'), base=container.opf_name)
+    try:
+        root = container.parsed(tocname)
+    except KeyError:
+        root = container.parse_xhtml(P('templates/new_nav.html', data=True).decode('utf-8'))
+    et = '{%s}type' % EPUB_NS
+    navs = [n for n in root.iterdescendants(XHTML('nav')) if n.get(et) == 'toc']
+    for x in navs[1:]:
+        extract(x)
+    if navs:
+        nav = navs[0]
+        tail = nav.tail
+        attrib = dict(nav.attrib)
+        nav.clear()
+        nav.attrib.update(attrib)
+        nav.tail = tail
+    else:
+        nav = root.makeelement(XHTML('nav'))
+        first_child(root, XHTML('body')).append(nav)
+    nav.set('{%s}type' % EPUB_NS, 'toc')
+    if toc.toc_title:
+        nav.append(nav.makeelement(XHTML('h1')))
+        nav[-1].text = toc.toc_title
+
+    rnode = nav.makeelement(XHTML('ol'))
+    nav.append(rnode)
+    to_href = partial(container.name_to_href, base=tocname)
+    spat = re.compile(r'\s+')
+
+    def process_node(xml_parent, toc_parent):
+        for child in toc_parent:
+            li = xml_parent.makeelement(XHTML('li'))
+            xml_parent.append(li)
+            title = child.title or ''
+            title = spat.sub(' ', title).strip()
+            a = li.makeelement(XHTML('a' if child.dest else 'span'))
+            a.text = title
+            li.append(a)
+            if child.dest:
+                href = to_href(child.dest)
+                if child.frag:
+                    href += '#'+child.frag
+                a.set('href', href)
+            if len(child):
+                ol = li.makeelement(XHTML('ol'))
+                li.append(ol)
+                process_node(ol, child)
+    process_node(rnode, toc)
+    pretty_xml_tree(rnode)
+    for li in rnode.iterdescendants(XHTML('li')):
+        if len(li) == 1:
+            li.text = None
+            li[0].tail = None
+    container.replace(tocname, root)
+
+def commit_toc(container, toc, lang=None, uid=None):
+    commit_ncx_toc(container, toc, lang=lang, uid=uid)
+    if container.opf_version_parsed.major > 2:
+        commit_nav_toc(container, toc, lang=lang)
+
 def remove_names_from_toc(container, names):
-    toc = get_toc(container)
-    if len(toc) == 0:
-        return False
-    remove = []
+    changed = []
     names = frozenset(names)
-    for node in toc.iterdescendants():
-        if node.dest in names:
-            remove.append(node)
-    if remove:
-        for node in reversed(remove):
-            node.remove_from_parent()
-        commit_toc(container, toc)
-        return True
-    return False
+    for find_toc, parse_toc, commit_toc in (
+            (find_existing_ncx_toc, parse_ncx, commit_ncx_toc),
+            (find_existing_nav_toc, parse_nav, commit_nav_toc),
+    ):
+        toc = get_x_toc(container, find_toc, parse_toc, verify_destinations=False)
+        if len(toc) > 0:
+            remove = []
+            for node in toc.iterdescendants():
+                if node.dest in names:
+                    remove.append(node)
+            if remove:
+                for node in reversed(remove):
+                    node.remove_from_parent()
+                commit_toc(container, toc)
+                changed.append(find_toc(container))
+    return changed
 
 def find_inline_toc(container):
     for name, linear in container.spine_names:

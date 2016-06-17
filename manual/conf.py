@@ -153,7 +153,7 @@ del sort_languages, get_language
 
 epub_author      = 'Kovid Goyal'
 epub_publisher   = 'Kovid Goyal'
-epub_identifier  = 'http://manual.calibre-ebook.com'
+epub_identifier  = 'https://manual.calibre-ebook.com'
 epub_scheme      = 'url'
 epub_uid         = 'S54a88f8e9d42455e9c6db000e989225f'
 epub_tocdepth    = 4
@@ -176,7 +176,7 @@ html_copy_source = True
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'calibredoc'
 
-html_use_opensearch = 'http://manual.calibre-ebook.com'
+html_use_opensearch = 'https://manual.calibre-ebook.com'
 
 html_show_sphinx = False
 

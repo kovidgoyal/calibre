@@ -1,0 +1,66 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals
+
+from dom import set_css, svgicon
+from elementmaker import E
+from gettext import gettext as _
+from modals import error_dialog
+from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
+
+def create_toc_tree(toc, onclick):
+
+    def populate_data(node, li, a):
+        li.dataset.tocDest = node.dest or ''
+        li.dataset.tocFrag = node.frag or ''
+        a.textContent = node.title or ''
+
+    return create_tree(toc, populate_data, onclick)
+
+def do_search(text, container):
+    a = find_text_in_tree(container, text)
+    if not text:
+        return
+    if not a:
+        return error_dialog(_('No matches found'), _(
+            'The text "{}" was not found in the Table of Contents').format(text))
+    scroll_tree_item_into_view(a)
+
+def on_input_keydown(event):
+    if event.keyCode is 13:  # Enter
+        event.preventDefault(), event.stopPropagation()
+        text = event.target.value
+        event.target.nextSibling.focus()
+        container = event.target.parentNode.parentNode.firstChild.nextSibling
+        do_search(text, container)
+
+def on_search_click(event):
+    if event.button is 0:
+        event.preventDefault(), event.stopPropagation()
+        text = event.currentTarget.previousSibling.value
+        container = event.currentTarget.parentNode.parentNode.firstChild.nextSibling
+        do_search(text, container)
+
+def create_toc_panel(book, container, onclick, onclose):
+    container.appendChild(E.div(
+        style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
+        E.h2(_('Table of Contents')),
+        E.div(svgicon('close'), onclick=def(event):event.preventDefault(), event.stopPropagation(), onclose(event);, class_='simple-link'),
+    ))
+    def handle_click(event, li):
+        if event.button is 0:
+            onclick(li.dataset.tocDest, li.dataset.tocFrag)
+    toc_panel = create_toc_tree(book.manifest.toc, handle_click)
+    set_css(container, display='flex', flex_direction='column')
+    set_css(toc_panel, flex_grow='10')
+    container.appendChild(toc_panel)
+
+    container.appendChild(E.div(
+        style='margin: 1ex 1em; display: flex;',
+        E.input(
+            type='search', name='toc-serach',
+            title=_('Search Table of Contents'), placeholder=_('Search Table of Contents'),
+            style="flex-grow: 10; margin-right: 0.5em", onkeydown=on_input_keydown,
+        ),
+        E.div(class_='simple-link', svgicon('search'), onclick=on_search_click)
+    ))

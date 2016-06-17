@@ -216,6 +216,19 @@ winutil_prepare_for_restart(PyObject *self, PyObject *args) {
 }
 
 static PyObject *
+winutil_get_max_stdio(PyObject *self, PyObject *args) {
+	return Py_BuildValue("i", _getmaxstdio());
+}
+ 
+static PyObject *
+winutil_set_max_stdio(PyObject *self, PyObject *args) {
+	int num = 0;
+	if (!PyArg_ParseTuple(args, "i", &num)) return NULL;
+	if (_setmaxstdio(num) == -1) return PyErr_SetFromErrno(PyExc_ValueError);
+	Py_RETURN_NONE;
+}
+ 
+static PyObject *
 winutil_strftime(PyObject *self, PyObject *args)
 {
 	PyObject *tup = NULL;
@@ -358,6 +371,14 @@ be a unicode string. Returns unicode strings."
 
     {"prepare_for_restart", winutil_prepare_for_restart, METH_VARARGS,
         "prepare_for_restart()\n\nRedirect output streams so that the child process does not lock the temp files"
+    },
+
+    {"getmaxstdio", winutil_get_max_stdio, METH_VARARGS,
+        "getmaxstdio()\n\nThe maximum number of open file handles."
+    },
+
+    {"setmaxstdio", winutil_set_max_stdio, METH_VARARGS,
+        "setmaxstdio(num)\n\nSet the maximum number of open file handles."
     },
 
     {NULL, NULL, 0, NULL}

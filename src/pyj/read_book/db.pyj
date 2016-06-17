@@ -5,8 +5,6 @@ from __python__ import hash_literals
 from gettext import gettext as _
 from encodings import base64encode, base64decode
 
-FORCE_BOOK_RELOAD = False # set to True to force book reloading
-
 def upgrade_schema(idb, old_version, new_version):
     print('upgrade_schema:', old_version, new_version)
     if not idb.objectStoreNames.contains('books'):
@@ -82,8 +80,6 @@ class DB:
         # refer to non-serializable objects like functions.
         key = v'[self.interface_data.library_id, book_id, fmt]'
         self.do_op(['books'], key, _('Failed to read from the books database'), def(result):
-            if FORCE_BOOK_RELOAD:
-                result = None
             proceed(result or {
                 'key':key,
                 'is_complete':False,
@@ -210,6 +206,24 @@ class DB:
                 cursor.continue()
             else:
                 proceed(data)
+
+    def delete_book(self, book, proceed):
+        c = self.idb.transaction(['books', 'files'], 'readwrite')
+        files = c.objectStore('files')
+        books = c.objectStore('books')
+        filenames = Object.keys(book.stored_files)
+        c.oncomplete = def(event):
+            proceed(book)
+        c.onerror = def (event):
+            proceed(book, c.error.toString())
+
+        def next_step():
+            if filenames.length:
+                r = files.delete(filenames.pop())
+                r.onsuccess = next_step
+            else:
+                books.delete(book.key)
+        next_step()
 
 def create_db(ui, interface_data):
     if not window.indexedDB:

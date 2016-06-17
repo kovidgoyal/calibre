@@ -41,7 +41,7 @@ DESCRIPTIONS = {
         'calibre-parallel': 'calibre worker process',
         'calibre-smtp' : 'Command line interface for sending books via email',
         'calibre-eject' : 'Helper program for ejecting connected reader devices',
-        'calibre-file-dialogs' : 'Helper program to show file open/save dialogs',
+        'calibre-file-dialog' : 'Helper program to show file open/save dialogs',
 }
 
 def walk(dir):
@@ -545,7 +545,7 @@ class Win32Freeze(Command, WixMixIn):
             raise ValueError('No installers found')
         args = ['signtool.exe', 'sign', '/a', '/fd', 'sha256', '/td', 'sha256', '/d',
             'calibre - E-book management', '/du',
-            'http://calibre-ebook.com', '/tr']
+            'https://calibre-ebook.com', '/tr']
 
         def runcmd(cmd):
             for timeserver in ('http://timestamp.geotrust.com/tsa', 'http://timestamp.comodoca.com/rfc3161',):
@@ -595,7 +595,7 @@ class Win32Freeze(Command, WixMixIn):
                     '/OUT:'+exe] + [self.embed_resources(exe), obj] + libs
             self.run_builder(cmd)
         base = self.j(self.src_root, 'setup', 'installer', 'windows')
-        build(self.j(base, 'file_dialogs.cpp'), 'calibre-file-dialogs.exe', 'WINDOWS', 'Ole32.lib Shell32.lib'.split())
+        build(self.j(base, 'file_dialogs.cpp'), 'calibre-file-dialog.exe', 'WINDOWS', 'Ole32.lib Shell32.lib'.split())
         build(self.j(base, 'eject.c'), 'calibre-eject.exe')
 
     def build_launchers(self, debug=False):
