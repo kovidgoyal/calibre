@@ -101,6 +101,7 @@ def parse_identifier(ident, val, refines):
     # Technically, we should be looking for refines that define the scheme, but
     # the IDioticPF created such a bad spec that they got their own
     # examples wrong, so I cannot be bothered doing this.
+    # http://www.idpf.org/epub/301/spec/epub-publications-errata/
 
     # Parse the value for the scheme
     if lval.startswith('urn:'):
