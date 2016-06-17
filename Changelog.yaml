@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.59.0
+  date: 2016-06-17
+
+  new features:
+    - title: "Amazon metadata download: Download the series information when available from amazon.com"
+
+    - title: "Amazon metadata download: Recognize common patterns of embedding the series name after the title and remove it automatically"
+
+    - title: "Edit Book: Add support for EPUB 3 to the Table of Contents tool. Now when editing EPUB 3 files using the tool will automatically generate both the EPUB 3 navigation document and the NCX table of contents for backwards compatibility."
+
+    - title: "EPUB Input: Implement reading of Table of Contents from EPUB 3 files that do not specify a fallback NCX ToC"
+
+    - title: "EPUB metadata: When setting a cover image for an EPUB file that has no metadata cover image defined, add the new cover image as a pure metadata cover instead of aborting."
+
+  bug fixes:
+    - title: "Fix crash on exit if any plugins have loaded code that raises exceptions during shutdown."
+      tickets: [1592414]
+
+    - title: "Copy to library: Speed up checking for duplicates when copying multiple books to a large library."
+      tickets: [1593027]
+
+    - title: "Get Books: Update Smashwords plugin for website changes."
+      tickets: [1590653]
+
+    - title: "Edit Book: Fix a bug in the new text search facility that could cause searches to fail when searching from the current cursor position instead of the top of the file."
+      tickets: [1588778]
+
+    - title: "Bulk conversion dialog: Fix page margin settings being ignored when converting to DOCX"
+
+    - title: "Make the default shortcut for remove books Backspace on OS X since many mac keyboards have no delete key and the backspace key is labelled as delete"
+
+    - title: "Edit Book: Check Book: Do not warn if a cover image is not referenced in the text"
+
+    - title: "E-book viewer: Fix a bug that could cause incorrect rendering of chapter titles in some rare circumstances."
+
+    - title: "Windows console output: Handle consoles with non black and white color scheme correctly"
+
+    - title: "Fix a regression in 2.57 that caused auto-removal of borders from covers to become much less proficient at detecting borders"
+
+    - title: "Fix a regression in 2.57 that broke grayscaling of images"
+
+  improved recipes:
+    - Technology Review (DE)
+
 - version: 2.58.0
   date: 2016-06-02
 
