@@ -522,7 +522,7 @@ class DirContainer(object):
         if path is None:
             path = self.opfname
         path = os.path.join(self.rootdir, self._unquote(path))
-        with open(path, 'rb') as f:
+        with lopen(path, 'rb') as f:
             return f.read()
 
     def write(self, path, data):
@@ -530,7 +530,7 @@ class DirContainer(object):
         dir = os.path.dirname(path)
         if not os.path.isdir(dir):
             os.makedirs(dir)
-        with open(path, 'wb') as f:
+        with lopen(path, 'wb') as f:
             return f.write(data)
 
     def exists(self, path):
