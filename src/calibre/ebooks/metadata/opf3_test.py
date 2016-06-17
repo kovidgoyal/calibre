@@ -11,7 +11,7 @@ from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
     parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
-    read_metadata, set_identifiers, XPath
+    read_metadata, set_identifiers, XPath, set_application_id
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>'''  # noqa
@@ -51,9 +51,12 @@ class TestOPF3(unittest.TestCase):
                 (idt('a:1')+idt('a:2'), {'a':['1', '2']}),
         ):
             self.ae(result, ri(self.get_opf(m)))
-        mi = read_metadata(self.get_opf(
-            metadata=idt('a:1')+idt('a:2')+idt('calibre:x')+idt('uuid:y')))
+        root = self.get_opf(metadata=idt('a:1')+idt('a:2')+idt('calibre:x')+idt('uuid:y'))
+        mi = read_metadata(root)
         self.ae(mi.application_id, 'x')
+        set_application_id(root, default_refines, 'y')
+        mi = read_metadata(root)
+        self.ae(mi.application_id, 'y')
 
         root = self.get_opf(metadata=idt('i:1', iid='uid') + idt('r:1') + idt('o:1'))
         set_identifiers(root, reserved_prefixes, default_refines, {'i':'2', 'o':'2'})
@@ -62,6 +65,10 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf(metadata=idt('i:1', iid='uid') + idt('r:1') + idt('o:1'))
         set_identifiers(root, reserved_prefixes, default_refines, {'i':'2', 'o':'2'}, force_identifiers=True)
         self.ae({'i':['2', '1'], 'o':['2']}, ri(root))
+        root = self.get_opf(metadata=idt('i:1', iid='uid') + idt('r:1') + idt('o:1'))
+        set_application_id(root, default_refines, 'y')
+        mi = read_metadata(root)
+        self.ae(mi.application_id, 'y')
 
 class TestRunner(unittest.main):
 

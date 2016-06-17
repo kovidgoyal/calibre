@@ -43,6 +43,12 @@ def regex(r, flags=0):
     except KeyError:
         _re_cache[(r, flags)] = ans = re.compile(r, flags)
         return ans
+
+def remove_element(e, refines):
+    e.getparent().remove(e)
+    for x in refines[e.get('id')]:
+        x.getparent().remove(x)
+    refines.pop(e.get('id'), None)
 # }}}
 
 # Prefixes {{{
@@ -133,12 +139,32 @@ def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=
             continue
         scheme, val = parse_identifier(ident, val, refines)
         if not scheme or not val or force_identifiers or scheme in new_identifiers:
-            ident.getparent().remove(ident)
+            remove_element(ident, refines)
             continue
     metadata = XPath('./opf:metadata')(root)[0]
     for scheme, val in new_identifiers.iteritems():
         ident = metadata.makeelement(DC('identifier'))
         ident.text = '%s:%s' % (scheme, val)
+        if package_identifier is None:
+            metadata.append(ident)
+        else:
+            p = package_identifier.getparent()
+            p.insert(p.index(package_identifier), ident)
+
+def set_application_id(root, refines, new_application_id=None):
+    uid = root.get('unique-identifier')
+    package_identifier = None
+    for ident in XPath('./opf:metadata/dc:identifier')(root):
+        is_package_id = uid is not None and uid == ident.get('id')
+        if is_package_id:
+            package_identifier = ident
+        val = (ident.text or '').strip()
+        if val.startswith('calibre:') and not is_package_id:
+            remove_element(ident, refines)
+    metadata = XPath('./opf:metadata')(root)[0]
+    if new_application_id:
+        ident = metadata.makeelement(DC('identifier'))
+        ident.text = 'calibre:%s' % new_application_id
         if package_identifier is None:
             metadata.append(ident)
         else:
