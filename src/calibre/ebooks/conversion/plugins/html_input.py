@@ -87,8 +87,8 @@ class HTMLInput(InputFormatPlugin):
             return self._is_case_sensitive
         if not path or not os.path.exists(path):
             return islinux or isbsd
-        self._is_case_sensitive = not (os.path.exists(path.lower())
-                and os.path.exists(path.upper()))
+        self._is_case_sensitive = not (os.path.exists(path.lower()) and
+                                       os.path.exists(path.upper()))
         return self._is_case_sensitive
 
     def create_oebbook(self, htmlpath, basedir, opts, log, mi):
@@ -96,7 +96,7 @@ class HTMLInput(InputFormatPlugin):
         from calibre.ebooks.conversion.plumber import create_oebbook
         from calibre.ebooks.oeb.base import (DirContainer,
             rewrite_links, urlnormalize, urldefrag, BINARY_MIME, OEB_STYLES,
-            xpath)
+            xpath, urlquote)
         from calibre import guess_type
         from calibre.ebooks.oeb.transforms.metadata import \
             meta_info_to_oeb_metadata
@@ -149,6 +149,8 @@ class HTMLInput(InputFormatPlugin):
                     href=ascii_filename(bname))
             htmlfile_map[path] = href
             item = oeb.manifest.add(id, href, 'text/html')
+            if path == htmlpath and '%' in path:
+                bname = urlquote(bname)
             item.html_input_href = bname
             oeb.spine.add(item, True)
 
@@ -168,7 +170,11 @@ class HTMLInput(InputFormatPlugin):
             path = f.path
             dpath = os.path.dirname(path)
             oeb.container = DirContainer(dpath, log, ignore_opf=True)
-            item = oeb.manifest.hrefs[htmlfile_map[path]]
+            href = htmlfile_map[path]
+            try:
+                item = oeb.manifest.hrefs[href]
+            except KeyError:
+                item = oeb.manifest.hrefs[urlnormalize(href)]
             rewrite_links(item.data, partial(self.resource_adder, base=dpath))
 
         for item in oeb.manifest.values():
