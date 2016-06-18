@@ -70,8 +70,10 @@ def normalize_languages(opf_languages, mi_languages):
 
 def ensure_unique(template, existing):
     b, e = template.rpartition('.')[::2]
-    if e:
+    if b and e:
         e = '.' + e
+    else:
+        b, e = template, ''
     q = template
     c = 0
     while q in existing:
