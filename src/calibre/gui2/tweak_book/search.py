@@ -1320,8 +1320,12 @@ def run_search(
         return no_replace(_(
                 'Currently selected text does not match the search query.'))
 
-    def count_message(action, count, show_diff=False):
-        msg = _('%(action)s %(num)s occurrences of %(query)s') % dict(num=count, query=errfind, action=action)
+    def count_message(replaced, count, show_diff=False):
+        if replaced:
+            msg = _('Performed the replacement at {num} occurrences of {query}')
+        else:
+            msg = _('Found {num} occurrences of {query}')
+        msg = msg.format(num=count, query=errfind)
         if show_diff and count > 0:
             d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False)
             d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
@@ -1376,7 +1380,7 @@ def run_search(
                 with current_container().open(n, 'wb') as f:
                     f.write(raw.encode('utf-8'))
         QApplication.restoreOverrideCursor()
-        count_message(_('Replaced') if replace else _('Found'), count, show_diff=replace)
+        count_message(replace, count, show_diff=replace)
         return count
 
     with BusyCursor():
@@ -1388,7 +1392,7 @@ def run_search(
             return do_find()
         if action == 'replace-all':
             if marked:
-                return count_message(_('Replaced'), sum(editor.all_in_marked(p, repl) for p, repl in searches))
+                return count_message(True, sum(editor.all_in_marked(p, repl) for p, repl in searches))
             add_savepoint(_('Before: Replace all'))
             count = do_all()
             if count == 0:
@@ -1398,7 +1402,7 @@ def run_search(
             return
         if action == 'count':
             if marked:
-                return count_message(_('Found'), sum(editor.all_in_marked(p) for p, __ in searches))
+                return count_message(False, sum(editor.all_in_marked(p) for p, __ in searches))
             return do_all(replace=False)
 
 if __name__ == '__main__':
