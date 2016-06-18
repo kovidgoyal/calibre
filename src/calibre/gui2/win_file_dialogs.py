@@ -111,8 +111,6 @@ def run_file_dialog(
         file_types=()
 ):
     from calibre.gui2 import sanitize_env_vars
-    with sanitize_env_vars():
-        env = os.environ.copy()
     secret = os.urandom(32).replace(b'\0', b' ')
     pipename = '\\\\.\\pipe\\%s' % uuid4()
     data = [serialize_string('PIPENAME', pipename), serialize_secret(secret)]
@@ -157,8 +155,9 @@ def run_file_dialog(
         data.append(serialize_file_types(file_types))
     loop = Loop()
     server = PipeServer(pipename)
-    h = Helper(subprocess.Popen(
-        [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE, env=env),
+    with sanitize_env_vars():
+        h = Helper(subprocess.Popen(
+            [HELPER], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE),
                data, loop.dialog_closed.emit)
     h.start()
     loop.exec_(QEventLoop.ExcludeUserInputEvents)
