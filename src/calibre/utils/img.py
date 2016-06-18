@@ -5,6 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import os, subprocess, errno, shutil, tempfile, sys
+from io import BytesIO
 from threading import Thread
 
 from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform
@@ -94,10 +95,20 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
     :param jpeg_optimized: Turns on the 'optimize' option for libjpeg which losslessly reduce file size
     :param jpeg_progressive: Turns on the 'progressive scan' option for libjpeg which allows JPEG images to be downloaded in streaming fashion
     '''
+    fmt = fmt.upper()
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
-    fmt = fmt.upper()
+    if fmt == 'GIF':
+        w = QImageWriter(buf, b'PNG')
+        w.setQuality(90)
+        if not w.write(img):
+            raise ValueError('Failed to export image as ' + fmt + ' with error: ' + w.errorString())
+        from PIL import Image
+        im = Image.open(BytesIO(ba.data()))
+        buf = BytesIO()
+        im.save(buf, 'gif')
+        return buf.getvalue()
     is_jpeg = fmt in ('JPG', 'JPEG')
     w = QImageWriter(buf, fmt.encode('ascii'))
     if is_jpeg:
@@ -488,6 +499,7 @@ def test():  # {{{
     gaussian_blur_image(img)
     despeckle_image(img)
     remove_borders_from_image(img)
+    image_to_data(img, fmt='GIF')
 # }}}
 
 if __name__ == '__main__':  # {{{
