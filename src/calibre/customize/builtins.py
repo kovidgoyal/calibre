@@ -436,9 +436,9 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
         set_metadata(stream, mi, apply_null=self.apply_null, force_identifiers=self.force_identifiers, add_missing_cover='disable-add-missing-cover' != q)
 
     def customization_help(self, gui=False):
-        return _('Enter {}disable-add-missing-cover{} below to have the EPUB metadata writer plugin not'
+        return _('Enter {0}{1}{2} below to have the EPUB metadata writer plugin not'
                  ' add cover images to EPUB files that have no existing cover image.').format(
-                     '<i>' if gui else '', '</i>' if gui else '')
+                     '<i>' if gui else '', 'disable-add-missing-cover', '</i>' if gui else '')
 
 class FB2MetadataWriter(MetadataWriterPlugin):
 
