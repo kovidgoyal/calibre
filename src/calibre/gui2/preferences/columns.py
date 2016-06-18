@@ -125,8 +125,12 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         else:
             dt = fm['datatype']
             if fm['is_multiple']:
-                dt = '*' + dt
-            coltype = self.column_desc[dt]
+                if col == 'authors' or fm.get('display', {}).get('is_names', False):
+                    coltype = _('Ampersand separated text, shown in the tag browser')
+                else:
+                    coltype = self.column_desc['*' + dt]
+            else:
+                coltype = self.column_desc[dt]
         coltype_info = (coltype if oldkey is None else
                           ' ' + _('(lookup name was {0}) {1}'.format(oldkey, coltype)))
         item = QTableWidgetItem(coltype_info)
