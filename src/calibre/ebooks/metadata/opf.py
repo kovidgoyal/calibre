@@ -25,7 +25,8 @@ def get_metadata(stream):
     opf = OPF(None, preparsed_opf=root, read_toc=False)
     return opf.to_book_metadata(), ver, opf.raster_cover, opf.first_spine_item()
 
-def set_metadata_opf2(root, cover_prefix, mi, opf_version, cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
+def set_metadata_opf2(root, cover_prefix, mi, opf_version,
+                      cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     mi = MetaInformation(mi)
     for x in ('guide', 'toc', 'manifest', 'spine'):
         setattr(mi, x, None)
@@ -45,7 +46,7 @@ def set_metadata_opf2(root, cover_prefix, mi, opf_version, cover_data=None, appl
     if update_timestamp and mi.timestamp is not None:
         opf.timestamp = mi.timestamp
     raster_cover = opf.raster_cover
-    if raster_cover is None and cover_data is not None:
+    if raster_cover is None and cover_data is not None and add_missing_cover:
         guide_raster_cover = opf.guide_raster_cover
         i = None
         if guide_raster_cover is not None:
@@ -71,11 +72,13 @@ def set_metadata_opf2(root, cover_prefix, mi, opf_version, cover_data=None, appl
     with pretty_print:
         return opf.render(), raster_cover
 
-def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
+def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     if isinstance(stream, bytes):
         stream = DummyFile(stream)
     root = parse_opf(stream)
     ver = parse_opf_version(root.get('version'))
     opfbytes, raster_cover = set_metadata_opf2(
-        root, cover_prefix, mi, ver, cover_data=cover_data, apply_null=apply_null, update_timestamp=update_timestamp, force_identifiers=force_identifiers)
+        root, cover_prefix, mi, ver, cover_data=cover_data,
+        apply_null=apply_null, update_timestamp=update_timestamp,
+        force_identifiers=force_identifiers, add_missing_cover=add_missing_cover)
     return opfbytes, ver, raster_cover

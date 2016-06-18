@@ -196,7 +196,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
     pretty_print_opf(root)
 
-def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
+def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     root = parse_opf(stream)
     return apply_metadata(
         root, mi, cover_prefix=cover_prefix, cover_data=cover_data,

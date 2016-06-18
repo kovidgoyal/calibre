@@ -383,12 +383,14 @@ def get_file_type_metadata(stream, ftype):
 def set_file_type_metadata(stream, mi, ftype, report_error=None):
     ftype = ftype.lower().strip()
     if ftype in _metadata_writers:
+        customization = config['plugin_customization']
         for plugin in _metadata_writers[ftype]:
             if not is_disabled(plugin):
                 with plugin:
                     try:
                         plugin.apply_null = apply_null_metadata.apply_null
                         plugin.force_identifiers = force_identifiers.force_identifiers
+                        plugin.site_customization = customization.get(plugin.name, '')
                         plugin.set_metadata(stream, mi, ftype.lower().strip())
                         break
                     except:
