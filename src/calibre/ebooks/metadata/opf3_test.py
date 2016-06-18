@@ -83,8 +83,9 @@ class TestOPF3(unittest.TestCase):
         self.ae(rt(root), 'xxx')
         self.ae(st(root, 'abc', 'cba'), 'abc')
         self.ae(read_title_sort(root, reserved_prefixes, read_refines(root)), 'cba')
-        root = self.get_opf('''<dc:title>yyy</dc:title><dc:title id='t'>xxx
+        root = self.get_opf('''<dc:title>yyy</dc:title><dc:title id='t'>x  xx
             </dc:title><meta refines='#t' property='title-type'>main</meta><meta name="calibre:title_sort" content="sorted"/>''')
+        self.ae(rt(root), 'x xx')
         self.ae(read_title_sort(root, reserved_prefixes, read_refines(root)), 'sorted')
         self.ae(st(root, 'abc'), 'abc')
     # }}}

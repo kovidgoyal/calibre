@@ -5,6 +5,7 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from collections import defaultdict
+from functools import wraps
 import re
 
 from lxml import etree
@@ -70,6 +71,17 @@ def ensure_id(root, elem):
         eid = ensure_unique('id', frozenset(XPath('//*/@id')(root)))
         elem.set('id', eid)
     return eid
+
+def normalize_whitespace(text):
+    if not text:
+        return text
+    return re.sub(r'\s+', ' ', text).strip()
+
+def simple_text(f):
+    @wraps(f)
+    def wrapper(*args, **kw):
+        return normalize_whitespace(f(*args, **kw))
+    return wrapper
 # }}}
 
 # Prefixes {{{
@@ -229,10 +241,12 @@ def find_main_title(root, refines, remove_blanks=False):
         main_title = first_title
     return main_title
 
+@simple_text
 def read_title(root, prefixes, refines):
     main_title = find_main_title(root, refines)
     return None if main_title is None else main_title.text.strip()
 
+@simple_text
 def read_title_sort(root, prefixes, refines):
     main_title = find_main_title(root, refines)
     if main_title is not None:
