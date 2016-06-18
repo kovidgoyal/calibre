@@ -46,10 +46,18 @@ def set_metadata_opf2(root, cover_prefix, mi, opf_version, cover_data=None, appl
         opf.timestamp = mi.timestamp
     raster_cover = opf.raster_cover
     if raster_cover is None and cover_data is not None:
-        if cover_prefix and not cover_prefix.endswith('/'):
-            cover_prefix += '/'
-        name = cover_prefix + 'cover.jpg'
-        i = create_manifest_item(opf.root, name, 'cover')
+        guide_raster_cover = opf.guide_raster_cover
+        i = None
+        if guide_raster_cover is not None:
+            i = guide_raster_cover
+            raster_cover = i.get('href')
+        else:
+            if cover_prefix and not cover_prefix.endswith('/'):
+                cover_prefix += '/'
+            name = cover_prefix + 'cover.jpg'
+            i = create_manifest_item(opf.root, name, 'cover')
+            if i is not None:
+                raster_cover = name
         if i is not None:
             if opf_version.major < 3:
                 [x.getparent().remove(x) for x in opf.root.xpath('//*[local-name()="meta" and @name="cover"]')]
@@ -59,7 +67,6 @@ def set_metadata_opf2(root, cover_prefix, mi, opf_version, cover_data=None, appl
                 for x in opf.root.xpath('//*[local-name()="item" and contains(@properties, "cover-image")]'):
                     x.set('properties', x.get('properties').replace('cover-image', '').strip())
                 i.set('properties', 'cover-image')
-            raster_cover = name
 
     with pretty_print:
         return opf.render(), raster_cover
