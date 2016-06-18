@@ -11,7 +11,8 @@ from lxml import etree
 
 from calibre.ebooks.metadata.opf3 import (
     parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
-    read_metadata, set_identifiers, XPath, set_application_id
+    read_metadata, set_identifiers, XPath, set_application_id, read_title,
+    read_refines, set_title, read_title_sort
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>'''  # noqa
@@ -24,7 +25,7 @@ class TestOPF3(unittest.TestCase):
     def get_opf(self, metadata=''):
         return etree.fromstring(TEMPLATE.format(metadata=metadata))
 
-    def test_prefix_parsing(self):
+    def test_prefix_parsing(self):  # {{{
         self.ae(parse_prefixes('foaf: http://xmlns.com/foaf/spec/\n dbp: http://dbpedia.org/ontology/'),
                 {'foaf':'http://xmlns.com/foaf/spec/', 'dbp': 'http://dbpedia.org/ontology/'})
         for raw, expanded in (
@@ -33,8 +34,9 @@ class TestOPF3(unittest.TestCase):
                 ('xxx', 'xxx'),
         ):
             self.ae(expand_prefix(raw, reserved_prefixes), expanded)
+    # }}}
 
-    def test_identifiers(self):
+    def test_identifiers(self):  # {{{
         def idt(val, scheme=None, iid=''):
             return '<dc:identifier id="{id}" {scheme}>{val}</dc:identifier>'.format(scheme=('opf:scheme="%s"'%scheme if scheme else ''), val=val, id=iid)
         def ri(root):
@@ -69,6 +71,25 @@ class TestOPF3(unittest.TestCase):
         set_application_id(root, default_refines, 'y')
         mi = read_metadata(root)
         self.ae(mi.application_id, 'y')
+    # }}}
+
+    def test_title(self):  # {{{
+        def rt(root):
+            return read_title(root, reserved_prefixes, read_refines(root))
+        def st(root, title, title_sort=None):
+            set_title(root, reserved_prefixes, read_refines(root), title, title_sort)
+            return rt(root)
+        root = self.get_opf('''<dc:title/><dc:title id='t'>xxx</dc:title>''')
+        self.ae(rt(root), 'xxx')
+        self.ae(st(root, 'abc', 'cba'), 'abc')
+        self.ae(read_title_sort(root, reserved_prefixes, read_refines(root)), 'cba')
+        root = self.get_opf('''<dc:title>yyy</dc:title><dc:title id='t'>xxx
+            </dc:title><meta refines='#t' property='title-type'>main</meta><meta name="calibre:title_sort" content="sorted"/>''')
+        self.ae(read_title_sort(root, reserved_prefixes, read_refines(root)), 'sorted')
+        self.ae(st(root, 'abc'), 'abc')
+    # }}}
+
+# Run tests {{{
 
 class TestRunner(unittest.main):
 
@@ -81,3 +102,4 @@ def run(verbosity=4):
 
 if __name__ == '__main__':
     run(verbosity=4)
+# }}}

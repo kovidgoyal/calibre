@@ -11,7 +11,7 @@ from lxml import etree
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
+from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
 
 # Utils {{{
@@ -44,11 +44,32 @@ def regex(r, flags=0):
         _re_cache[(r, flags)] = ans = re.compile(r, flags)
         return ans
 
-def remove_element(e, refines):
-    e.getparent().remove(e)
+def remove_refines(e, refines):
     for x in refines[e.get('id')]:
         x.getparent().remove(x)
     refines.pop(e.get('id'), None)
+
+def remove_element(e, refines):
+    remove_refines(e, refines)
+    e.getparent().remove(e)
+
+def properties_for_id(item_id, refines):
+    ans = {}
+    if item_id:
+        for elem in refines[item_id]:
+            key = elem.get('property')
+            if key:
+                val = (elem.text or '').strip()
+                if val:
+                    ans[key] = val
+    return ans
+
+def ensure_id(root, elem):
+    eid = elem.get('id')
+    if not eid:
+        eid = ensure_unique('id', frozenset(XPath('//*/@id')(root)))
+        elem.set('id', eid)
+    return eid
 # }}}
 
 # Prefixes {{{
@@ -73,6 +94,22 @@ def read_refines(root):
         if r.startswith('#'):
             ans[r[1:]].append(meta)
     return ans
+
+def refdef(prop, val, scheme=None):
+    return (prop, val, scheme)
+
+def set_refines(elem, existing_refines, *new_refines):
+    eid = ensure_id(elem.getroottree().getroot(), elem)
+    remove_refines(elem, existing_refines)
+    for ref in reversed(new_refines):
+        prop, val, scheme = ref
+        r = elem.makeelement(OPF('meta'))
+        r.set('refines', '#' + eid), r.set('property', prop)
+        r.text = val.strip()
+        if scheme:
+            r.set('scheme', scheme)
+        p = elem.getparent()
+        p.insert(p.index(elem)+1, r)
 # }}}
 
 # Identifiers {{{
@@ -173,6 +210,53 @@ def set_application_id(root, refines, new_application_id=None):
 
 # }}}
 
+# Title {{{
+
+def find_main_title(root, refines, remove_blanks=False):
+    first_title = main_title = None
+    for title in XPath('./opf:metadata/dc:title')(root):
+        if not title.text or not title.text.strip():
+            if remove_blanks:
+                remove_element(title, refines)
+            continue
+        if first_title is None:
+            first_title = title
+        props = properties_for_id(title.get('id'), refines)
+        if props.get('title-type') == 'main':
+            main_title = title
+            break
+    else:
+        main_title = first_title
+    return main_title
+
+def read_title(root, prefixes, refines):
+    main_title = find_main_title(root, refines)
+    return None if main_title is None else main_title.text.strip()
+
+def read_title_sort(root, prefixes, refines):
+    main_title = find_main_title(root, refines)
+    if main_title is not None:
+        fa = properties_for_id(main_title.get('id'), refines).get('file-as')
+        if fa:
+            return fa
+    # Look for OPF 2.0 style title_sort
+    for m in XPath('./opf:metadata/opf:meta[@name="calibre:title_sort"]')(root):
+        ans = m.get('content')
+        if ans:
+            return ans
+
+def set_title(root, prefixes, refines, title, title_sort=None):
+    main_title = find_main_title(root, refines, remove_blanks=True)
+    if main_title is None:
+        m = XPath('./opf:metadata')(root)[0]
+        main_title = m.makeelement('dc:title')
+        m.insert(0, main_title)
+    main_title.text = title or None
+    ts = [refdef('file-as', title_sort)] if title_sort else ()
+    set_refines(main_title, refines, refdef('title-type', 'main'), *ts)
+
+# }}}
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -184,6 +268,8 @@ def read_metadata(root):
         elif key != 'uuid':
             ids[key] = vals[0]
     ans.set_identifiers(ids)
+    ans.title = read_title(root, prefixes, refines) or ans.title
+    ans.title_sort = read_title_sort(root, prefixes, refines) or ans.title_sort
 
     return ans
 
@@ -194,6 +280,8 @@ def get_metadata(stream):
 def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
     prefixes, refines = read_prefixes(root), read_refines(root)
     set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
+    set_title(root, prefixes, refines, mi.title, mi.title_sort)
+
     pretty_print_opf(root)
 
 def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
