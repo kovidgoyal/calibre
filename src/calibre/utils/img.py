@@ -155,10 +155,14 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
         The image will be resized to fit into this target size. If None the
         value from the tweak is used.
     '''
-    img, fmt = image_and_format_from_data(data)
-    orig_fmt = normalize_format_name(fmt)
     fmt = normalize_format_name(data_fmt if path is None else os.path.splitext(path)[1][1:])
-    changed = fmt != orig_fmt
+    if isinstance(data, QImage):
+        img = data
+        changed = True
+    else:
+        img, orig_fmt = image_and_format_from_data(data)
+        orig_fmt = normalize_format_name(orig_fmt)
+        changed = fmt != orig_fmt
     if resize_to is not None:
         changed = True
         img = img.scaled(resize_to[0], resize_to[1], Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
