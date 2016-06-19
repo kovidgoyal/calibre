@@ -12,8 +12,9 @@ from lxml import etree
 
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique
+from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
+from calibre.utils.localization import canonicalize_lang
 
 # Utils {{{
 # http://www.idpf.org/epub/vocab/package/pfx/
@@ -30,6 +31,13 @@ reserved_prefixes = {
 
 _xpath_cache = {}
 _re_cache = {}
+
+def uniq(vals):
+    ''' Remove all duplicates from vals, while preserving order.  '''
+    vals = vals or ()
+    seen = set()
+    seen_add = seen.add
+    return list(x for x in vals if x not in seen and not seen_add(x))
 
 def XPath(x):
     try:
@@ -268,6 +276,36 @@ def set_title(root, prefixes, refines, title, title_sort=None):
     main_title.text = title or None
     ts = [refdef('file-as', title_sort)] if title_sort else ()
     set_refines(main_title, refines, refdef('title-type', 'main'), *ts)
+    for m in XPath('./opf:metadata/opf:meta[@name="calibre:title_sort"]')(root):
+        remove_element(m, refines)
+
+# }}}
+
+# Languages {{{
+def read_languages(root, prefixes, refines):
+    ans = []
+    for lang in XPath('./opf:metadata/dc:language')(root):
+        val = canonicalize_lang((lang.text or '').strip())
+        if val and val not in ans and val != 'und':
+            ans.append(val)
+    return uniq(ans)
+
+def set_languages(root, prefixes, refines, languages):
+    opf_languages = []
+    for lang in XPath('./opf:metadata/dc:language')(root):
+        remove_element(lang, refines)
+        val = (lang.text or '').strip()
+        if val:
+            opf_languages.append(val)
+    languages = filter(lambda x: x and x != 'und', normalize_languages(opf_languages, languages))
+    if not languages:
+        # EPUB spec says dc:language is required
+        languages = ['und']
+    metadata = XPath('./opf:metadata')(root)[0]
+    for lang in uniq(languages):
+        l = metadata.makeelement(DC('language'))
+        l.text = lang
+        metadata.append(l)
 
 # }}}
 
@@ -284,6 +322,7 @@ def read_metadata(root):
     ans.set_identifiers(ids)
     ans.title = read_title(root, prefixes, refines) or ans.title
     ans.title_sort = read_title_sort(root, prefixes, refines) or ans.title_sort
+    ans.languages = read_languages(root, prefixes, refines) or ans.languages
 
     return ans
 
@@ -295,6 +334,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     prefixes, refines = read_prefixes(root), read_refines(root)
     set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
     set_title(root, prefixes, refines, mi.title, mi.title_sort)
+    set_languages(root, prefixes, refines, mi.languages)
 
     pretty_print_opf(root)
 

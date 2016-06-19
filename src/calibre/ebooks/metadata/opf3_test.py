@@ -12,7 +12,7 @@ from lxml import etree
 from calibre.ebooks.metadata.opf3 import (
     parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
     read_metadata, set_identifiers, XPath, set_application_id, read_title,
-    read_refines, set_title, read_title_sort
+    read_refines, set_title, read_title_sort, read_languages, set_languages
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>'''  # noqa
@@ -90,6 +90,18 @@ class TestOPF3(unittest.TestCase):
         self.ae(st(root, 'abc'), 'abc')
     # }}}
 
+    def test_languages(self):  # {{{
+        def rl(root):
+            return read_languages(root, reserved_prefixes, read_refines(root))
+        def st(root, languages):
+            set_languages(root, reserved_prefixes, read_refines(root), languages)
+            return rl(root)
+        root = self.get_opf('''<dc:language>en-US</dc:language><dc:language>fr</dc:language>''')
+        self.ae(['eng', 'fra'], rl(root))
+        self.ae(st(root, ['de', 'de', 'es']), ['deu', 'spa'])
+        self.ae(st(root, []), [])
+
+    # }}}
 # Run tests {{{
 
 class TestRunner(unittest.main):
