@@ -1,9 +1,8 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
-from __future__ import unicode_literals
+# License: GPLv3 Copyright: 2016, Aimylios <aimylios at gmx.de>
 
-__license__   = 'GPL v3'
-__copyright__ = '2016, Aimylios'
+from __future__ import unicode_literals, division, absolute_import, print_function
 
 '''
 handelsblatt.com
@@ -20,11 +19,10 @@ class Handelsblatt(BasicNewsRecipe):
     publication_type   = 'newspaper'
     needs_subscription = 'optional'
     language           = 'de'
-    encoding           = 'utf-8'
 
-    oldest_article            = 4
+    oldest_article            = 2
     max_articles_per_feed     = 30
-    simultaneous_downloads    = 20
+    simultaneous_downloads    = 10
     no_stylesheets            = True
     remove_javascript         = True
     remove_empty_feeds        = True
@@ -50,7 +48,9 @@ class Handelsblatt(BasicNewsRecipe):
         ('Sport', 'http://www.handelsblatt.com/contentexport/feed/sport')
     ]
 
-    keep_only_tags = [dict(name='div', attrs={'class':['vhb-article-container']})]
+    keep_only_tags = [
+        dict(name='div', attrs={'class':['vhb-article-container']})
+    ]
 
     remove_tags = [
         dict(name='span', attrs={'class':['vhb-colon', 'vhb-label-premium']}),
@@ -60,25 +60,30 @@ class Handelsblatt(BasicNewsRecipe):
         dict(name='article', attrs={'class':['vhb-imagegallery vhb-teaser',
                                              'vhb-teaser vhb-type-video']}),
         dict(name='small', attrs={'class':['vhb-credit']}),
-        dict(name='div', attrs={'class':['white_content', 'fb-post']}),
+        dict(name='div', attrs={'class':['white_content', 'fb-post',
+                                         'opinary-widget-wrapper']}),
+        dict(name='div', attrs={'id':re.compile('dax-sentiment')}),
+        dict(name=['div', 'section'], attrs={'class':re.compile('slider')}),
         dict(name='a', attrs={'class':['twitter-follow-button']}),
-        dict(name='blockquote')
+        dict(name='img', attrs={'alt':re.compile('Kolumnenkabinet')}),
+        dict(name=['link', 'blockquote'])
     ]
 
     preprocess_regexps = [
         # Insert ". " after "Place" in <span class="hcf-location-mark">Place</span>
         (re.compile(r'(<span class="hcf-location-mark">[^<]+)(</span>)',
-        re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + '.&nbsp;' + match.group(2)),
+         re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + '. ' + match.group(2)),
         # Insert ": " after "Title" in <em itemtype="text" itemprop="name" class="vhb-title">Title</em>
         (re.compile(r'(<em itemtype="text" itemprop="name" class="vhb-title">[^<]+)(</em>)',
-        re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + ':&nbsp;' + match.group(2))
+         re.DOTALL|re.IGNORECASE), lambda match: match.group(1) + ': ' + match.group(2))
     ]
 
-    extra_css = 'h2 {text-align: left} \
+    extra_css = 'h2 {font-size: 1em; text-align: left} \
                  h3 {font-size: 1em; text-align: left} \
                  h4 {font-size: 1em; text-align: left; margin-bottom: 0em} \
                  em {font-style: normal; font-weight: bold} \
-                 .vhb-subline {font-size: 0.6em; text-transform: uppercase} \
+                 .vhb-subline {font-weight: normal; text-transform: uppercase} \
+                 .vhb-headline {font-size: 1.6em} \
                  .vhb-teaser-head {margin-top: 1em; margin-bottom: 1em} \
                  .vhb-caption-wrapper {font-size: 0.6em} \
                  .hcf-location-mark {font-weight: bold} \
@@ -109,28 +114,31 @@ class Handelsblatt(BasicNewsRecipe):
         article_container = soup.find('div', {'class':'vhb-article-container'})
         if article_container is None:
             self.abort_article()
-        else:
-            # remove all local hyperlinks
-            for a in soup.findAll('a', {'href':True}):
-                if a['href'] and a['href'][0] in ['/', '#']:
-                    a.replaceWith(a.renderContents())
-            return soup
+        return soup
 
     def postprocess_html(self, soup, first_fetch):
         # convert lists of author(s) and date(s) into simple text
-        for cap in soup.findAll('div', {'class':re.compile('.*vhb-article-caption')}):
-            cap.replaceWith(cap.renderContents())
+        for cap in soup.findAll('div', {'class':re.compile('vhb-article-caption')}):
+            cap.replaceWith(cap.renderContents().strip() + ' ')
         for row in soup.findAll('div', {'class':'vhb-article-author-row'}):
             for ul in row.findAll('ul'):
                 entry = ''
                 for li in ul.findAll(lambda tag: tag.name == 'li' and not tag.attrs):
-                    entry = entry + li.renderContents() + ', '
+                    entry = entry + self.tag_to_string(li).strip() + ', '
                 for li in ul.findAll(lambda tag: tag.name == 'li' and tag.attrs):
-                    entry = entry + li.renderContents() + '<br/>'
+                    entry = entry + self.tag_to_string(li) + '<br />'
                 ul.parent.replaceWith(entry)
+        # remove all local hyperlinks
+        for a in soup.findAll('a', {'href':True}):
+            if a['href'] and a['href'][0] in ['/', '#']:
+                a.replaceWith(a.renderContents())
         # make sure that all figure captions (including the source) are shown
         # without linebreaks by using the alternative text given within <img/>
         # instead of the original text (which is oddly formatted)
         for fig in soup.findAll('figure', {'class':'vhb-image'}):
             fig.find('div', {'class':'vhb-caption'}).replaceWith(fig.find('img')['alt'])
+        # clean up remainders of embedded content
+        for div in soup.findAll('div', {'style':True}):
+            if len(div.attrs) == 1:
+                del div['style']
         return soup
