@@ -53,12 +53,21 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>518</width>
-        <height>498</height>
+        <width>581</width>
+        <height>444</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
-       <property name="margin">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
        <item>
@@ -118,29 +127,28 @@
                 <item>
                  <widget class="QRadioButton" name="days_of_week">
                   <property name="text">
-                   <string>Days of  week</string>
+                   <string>&amp;Days of  week</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QRadioButton" name="days_of_month">
                   <property name="text">
-                   <string>Days of month</string>
+                   <string>Da&amp;ys of month</string>
                   </property>
                  </widget>
                 </item>
                 <item>
                  <widget class="QRadioButton" name="every_x_days">
                   <property name="text">
-                   <string>Every x days</string>
+                   <string>Every &amp;x days</string>
                   </property>
                  </widget>
                 </item>
                </layout>
               </item>
               <item>
-               <widget class="QStackedWidget" name="schedule_stack">
-               </widget>
+               <widget class="QStackedWidget" name="schedule_stack"/>
               </item>
               <item>
                <widget class="QLabel" name="last_downloaded">
@@ -316,31 +324,6 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QTreeView" name="recipes">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="showDropIndicator" stdset="0">
-      <bool>false</bool>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>16</width>
-       <height>16</height>
-      </size>
-     </property>
-     <property name="animated">
-      <bool>true</bool>
-     </property>
-     <property name="headerHidden">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0">
     <widget class="QLabel" name="count_label">
      <property name="text">
@@ -356,7 +339,7 @@
      <item>
       <widget class="QLabel" name="label_7">
        <property name="text">
-        <string>Delete downloaded news &amp;older than:</string>
+        <string>Delete downloaded &amp;news older than:</string>
        </property>
        <property name="buddy">
         <cstring>old_news</cstring>

@@ -13,7 +13,8 @@ from collections import OrderedDict
 
 from PyQt5.Qt import (QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout,
         QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout,
-        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox, QSize)
+        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox, QSize,
+        QTreeView, QSizePolicy)
 
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.gui2 import config as gconf, error_dialog, gprefs
@@ -29,6 +30,19 @@ def convert_day_time_schedule(val):
     if day_of_week == -1:
         return (tuple(xrange(7)), hour, minute)
     return ((day_of_week,), hour, minute)
+
+class RecipesView(QTreeView):
+
+    def __init__(self, parent):
+        QTreeView.__init__(self, parent)
+        self.setAnimated(True)
+        self.setHeaderHidden(True)
+        self.setObjectName('recipes')
+        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+    def currentChanged(self, current, previous):
+        QTreeView.currentChanged(self, current, previous)
+        self.parent().current_changed(current, previous)
 
 class Base(QWidget):
 
@@ -210,6 +224,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.recipe_model.searched.connect(self.search.search_done,
                 type=Qt.QueuedConnection)
         self.recipe_model.searched.connect(self.search_done)
+        self.recipes = RecipesView(self)
+        self.gridLayout.addWidget(self.recipes, 1, 0, 1, 1)
         self.recipes.setFocus(Qt.OtherFocusReason)
         self.commit_on_change = True
         self.previous_urn = None
@@ -220,7 +236,6 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 self.buttonBox.ActionRole)
         self.download_button.setIcon(QIcon(I('arrow-down.png')))
         self.download_button.setVisible(False)
-        self.recipes.currentChanged = self.current_changed
         for b, c in self.SCHEDULE_TYPES.iteritems():
             b = getattr(self, b)
             b.toggled.connect(self.schedule_type_selected)
