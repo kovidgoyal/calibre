@@ -1,5 +1,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
+
 class NewYorkTimesBookReview(BasicNewsRecipe):
     title          = u'New York Times Book Review'
     language       = 'en'
@@ -14,13 +18,11 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     keep_only_tags = [
         dict(id=['headline', 'story-meta-footer']),
         dict(itemprop=['associatedMedia', 'articleBody', 'reviewBody']),
-        dict(attrs={'class':'story-body'}),
+        classes('story-body'),
     ]
     remove_tags = [
         dict(id=['d-promo-realestate', 'books-update-email-promo']),
-        dict(attrs={'class':lambda x: x and 'skip-to-text-link' in x.split()}),
-        dict(attrs={'class':lambda x: x and 'story-meta-footer-sharetools' in x.split()}),
-        dict(attrs={'class':lambda x: x and 'story-footer-links' in x.split()}),
+        classes('skip-to-text-link story-meta-footer-sharetools story-footer-links'),
     ]
 
     def parse_index(self):
