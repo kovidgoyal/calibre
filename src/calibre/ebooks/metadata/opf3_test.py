@@ -12,7 +12,8 @@ from lxml import etree
 from calibre.ebooks.metadata.opf3 import (
     parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
     read_metadata, set_identifiers, XPath, set_application_id, read_title,
-    read_refines, set_title, read_title_sort, read_languages, set_languages
+    read_refines, set_title, read_title_sort, read_languages, set_languages,
+    read_authors, Author
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>'''  # noqa
@@ -102,6 +103,26 @@ class TestOPF3(unittest.TestCase):
         self.ae(st(root, []), [])
 
     # }}}
+
+    def test_authors(self):  # {{{
+        def rl(root):
+            return read_authors(root, reserved_prefixes, read_refines(root))
+        def st(root, languages):
+            set_languages(root, reserved_prefixes, read_refines(root), languages)
+            return rl(root)
+        root = self.get_opf('''<dc:creator>a  b</dc:creator>''')
+        self.ae([Author('a b', None)], rl(root))
+        for scheme in ('scheme="marc:relators"', ''):
+            root = self.get_opf('''<dc:creator>a  b</dc:creator><dc:creator id="1">c d</dc:creator>'''
+                                '''<meta refines="#1" property="role" %s>aut</meta>''' % scheme)
+            self.ae([Author('c d', None)], rl(root))
+        root = self.get_opf('''<dc:creator>a  b</dc:creator><dc:creator opf:role="aut">c d</dc:creator>''')
+        self.ae([Author('c d', None)], rl(root))
+        root = self.get_opf('''<dc:creator opf:file-as="b, a">a  b</dc:creator><dc:creator id="1">c d</dc:creator>
+                                <meta refines="#1" property="file-as">d, c</meta>''')
+        self.ae([Author('a b', 'b, a'), Author('c d', 'd, c')], rl(root))
+    # }}}
+
 # Run tests {{{
 
 class TestRunner(unittest.main):

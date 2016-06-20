@@ -4,13 +4,13 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from functools import wraps
 import re
 
 from lxml import etree
 
-from calibre.ebooks.metadata import check_isbn
+from calibre.ebooks.metadata import check_isbn, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
@@ -71,6 +71,26 @@ def properties_for_id(item_id, refines):
                 val = (elem.text or '').strip()
                 if val:
                     ans[key] = val
+    return ans
+
+def properties_for_id_with_scheme(item_id, prefixes, refines):
+    ans = {}
+    if item_id:
+        for elem in refines[item_id]:
+            key = elem.get('property')
+            if key:
+                val = (elem.text or '').strip()
+                if val:
+                    scheme = elem.get('scheme') or None
+                    scheme_ns = None
+                    if scheme is not None:
+                        p, r = scheme.partition(':')[::2]
+                        if p and r:
+                            ns = prefixes.get(p)
+                            if ns:
+                                scheme_ns = ns
+                                scheme = r
+                    ans[key] = (scheme_ns, scheme, val)
     return ans
 
 def ensure_id(root, elem):
@@ -306,6 +326,41 @@ def set_languages(root, prefixes, refines, languages):
         l = metadata.makeelement(DC('language'))
         l.text = lang
         metadata.append(l)
+# }}}
+
+# Creator/Contributor {{{
+
+Author = namedtuple('Author', 'name sort')
+
+def read_authors(root, prefixes, refines):
+    roled_authors, unroled_authors = [], []
+
+    def author(item, props, val):
+        aus = None
+        file_as = props.get('file-as')
+        if file_as:
+            aus = file_as[-1]
+        else:
+            aus = item.get(OPF('file-as')) or None
+        return Author(normalize_whitespace(val), normalize_whitespace(aus))
+
+    for item in XPath('./opf:metadata/dc:creator')(root):
+        val = (item.text or '').strip()
+        if val:
+            props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+            role = props.get('role')
+            opf_role = item.get(OPF('role'))
+            if role:
+                scheme_ns, scheme, role = role
+                if role.lower() == 'aut' and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
+                    roled_authors.append(author(item, props, val))
+            elif opf_role:
+                if opf_role.lower() == 'aut':
+                    roled_authors.append(author(item, props, val))
+            else:
+                unroled_authors.append(author(item, props, val))
+
+    return uniq(roled_authors or unroled_authors)
 
 # }}}
 
@@ -323,7 +378,11 @@ def read_metadata(root):
     ans.title = read_title(root, prefixes, refines) or ans.title
     ans.title_sort = read_title_sort(root, prefixes, refines) or ans.title_sort
     ans.languages = read_languages(root, prefixes, refines) or ans.languages
-
+    auts, aus = [], []
+    for a in read_authors(root, prefixes, refines):
+        auts.append(a.name), aus.append(a.sort)
+    ans.authors = auts or ans.authors
+    ans.author_sort = authors_to_string(aus) or ans.author_sort
     return ans
 
 def get_metadata(stream):
