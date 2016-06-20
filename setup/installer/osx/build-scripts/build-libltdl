@@ -1,0 +1,5 @@
+#!/bin/sh
+
+cd $SW/build/libtool*/libltdl && \
+./configure --prefix=$SW --disable-dependency-tracking --enable-ltdl-install && \
+make && make install

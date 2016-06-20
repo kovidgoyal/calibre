@@ -65,7 +65,7 @@ def save_cover_data_to(data, path, bgcolor='#ffffff', resize_to=None,
     if return_data:
         path = None
     if isinstance(data, Image):
-        data = Image.img
+        data = data.img
     return _save_cover_data_to(
         data, path, bgcolor=bgcolor, resize_to=resize_to, compression_quality=compression_quality, minify_to=minify_to, grayscale=grayscale, data_fmt=fmt)
 

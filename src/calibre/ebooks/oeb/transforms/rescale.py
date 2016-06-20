@@ -65,7 +65,7 @@ class RescaleImages(object):
                     new_height = max(1, new_height)
                     self.log('Rescaling image from %dx%d to %dx%d'%(
                         width, height, new_width, new_height), item.href)
-                    img.resize((new_width, new_height))
+                    img = img.resize((new_width, new_height))
                     buf = BytesIO()
                     try:
                         img.save(buf, ext)

@@ -4,15 +4,17 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-from collections import defaultdict
+from collections import defaultdict, namedtuple
+from functools import wraps
 import re
 
 from lxml import etree
 
-from calibre.ebooks.metadata import check_isbn
+from calibre.ebooks.metadata import check_isbn, authors_to_string
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf
+from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
+from calibre.utils.localization import canonicalize_lang
 
 # Utils {{{
 # http://www.idpf.org/epub/vocab/package/pfx/
@@ -30,6 +32,13 @@ reserved_prefixes = {
 _xpath_cache = {}
 _re_cache = {}
 
+def uniq(vals):
+    ''' Remove all duplicates from vals, while preserving order.  '''
+    vals = vals or ()
+    seen = set()
+    seen_add = seen.add
+    return list(x for x in vals if x not in seen and not seen_add(x))
+
 def XPath(x):
     try:
         return _xpath_cache[x]
@@ -44,11 +53,63 @@ def regex(r, flags=0):
         _re_cache[(r, flags)] = ans = re.compile(r, flags)
         return ans
 
-def remove_element(e, refines):
-    e.getparent().remove(e)
+def remove_refines(e, refines):
     for x in refines[e.get('id')]:
         x.getparent().remove(x)
     refines.pop(e.get('id'), None)
+
+def remove_element(e, refines):
+    remove_refines(e, refines)
+    e.getparent().remove(e)
+
+def properties_for_id(item_id, refines):
+    ans = {}
+    if item_id:
+        for elem in refines[item_id]:
+            key = elem.get('property')
+            if key:
+                val = (elem.text or '').strip()
+                if val:
+                    ans[key] = val
+    return ans
+
+def properties_for_id_with_scheme(item_id, prefixes, refines):
+    ans = {}
+    if item_id:
+        for elem in refines[item_id]:
+            key = elem.get('property')
+            if key:
+                val = (elem.text or '').strip()
+                if val:
+                    scheme = elem.get('scheme') or None
+                    scheme_ns = None
+                    if scheme is not None:
+                        p, r = scheme.partition(':')[::2]
+                        if p and r:
+                            ns = prefixes.get(p)
+                            if ns:
+                                scheme_ns = ns
+                                scheme = r
+                    ans[key] = (scheme_ns, scheme, val)
+    return ans
+
+def ensure_id(root, elem):
+    eid = elem.get('id')
+    if not eid:
+        eid = ensure_unique('id', frozenset(XPath('//*/@id')(root)))
+        elem.set('id', eid)
+    return eid
+
+def normalize_whitespace(text):
+    if not text:
+        return text
+    return re.sub(r'\s+', ' ', text).strip()
+
+def simple_text(f):
+    @wraps(f)
+    def wrapper(*args, **kw):
+        return normalize_whitespace(f(*args, **kw))
+    return wrapper
 # }}}
 
 # Prefixes {{{
@@ -73,6 +134,22 @@ def read_refines(root):
         if r.startswith('#'):
             ans[r[1:]].append(meta)
     return ans
+
+def refdef(prop, val, scheme=None):
+    return (prop, val, scheme)
+
+def set_refines(elem, existing_refines, *new_refines):
+    eid = ensure_id(elem.getroottree().getroot(), elem)
+    remove_refines(elem, existing_refines)
+    for ref in reversed(new_refines):
+        prop, val, scheme = ref
+        r = elem.makeelement(OPF('meta'))
+        r.set('refines', '#' + eid), r.set('property', prop)
+        r.text = val.strip()
+        if scheme:
+            r.set('scheme', scheme)
+        p = elem.getparent()
+        p.insert(p.index(elem)+1, r)
 # }}}
 
 # Identifiers {{{
@@ -173,6 +250,120 @@ def set_application_id(root, refines, new_application_id=None):
 
 # }}}
 
+# Title {{{
+
+def find_main_title(root, refines, remove_blanks=False):
+    first_title = main_title = None
+    for title in XPath('./opf:metadata/dc:title')(root):
+        if not title.text or not title.text.strip():
+            if remove_blanks:
+                remove_element(title, refines)
+            continue
+        if first_title is None:
+            first_title = title
+        props = properties_for_id(title.get('id'), refines)
+        if props.get('title-type') == 'main':
+            main_title = title
+            break
+    else:
+        main_title = first_title
+    return main_title
+
+@simple_text
+def read_title(root, prefixes, refines):
+    main_title = find_main_title(root, refines)
+    return None if main_title is None else main_title.text.strip()
+
+@simple_text
+def read_title_sort(root, prefixes, refines):
+    main_title = find_main_title(root, refines)
+    if main_title is not None:
+        fa = properties_for_id(main_title.get('id'), refines).get('file-as')
+        if fa:
+            return fa
+    # Look for OPF 2.0 style title_sort
+    for m in XPath('./opf:metadata/opf:meta[@name="calibre:title_sort"]')(root):
+        ans = m.get('content')
+        if ans:
+            return ans
+
+def set_title(root, prefixes, refines, title, title_sort=None):
+    main_title = find_main_title(root, refines, remove_blanks=True)
+    if main_title is None:
+        m = XPath('./opf:metadata')(root)[0]
+        main_title = m.makeelement('dc:title')
+        m.insert(0, main_title)
+    main_title.text = title or None
+    ts = [refdef('file-as', title_sort)] if title_sort else ()
+    set_refines(main_title, refines, refdef('title-type', 'main'), *ts)
+    for m in XPath('./opf:metadata/opf:meta[@name="calibre:title_sort"]')(root):
+        remove_element(m, refines)
+
+# }}}
+
+# Languages {{{
+def read_languages(root, prefixes, refines):
+    ans = []
+    for lang in XPath('./opf:metadata/dc:language')(root):
+        val = canonicalize_lang((lang.text or '').strip())
+        if val and val not in ans and val != 'und':
+            ans.append(val)
+    return uniq(ans)
+
+def set_languages(root, prefixes, refines, languages):
+    opf_languages = []
+    for lang in XPath('./opf:metadata/dc:language')(root):
+        remove_element(lang, refines)
+        val = (lang.text or '').strip()
+        if val:
+            opf_languages.append(val)
+    languages = filter(lambda x: x and x != 'und', normalize_languages(opf_languages, languages))
+    if not languages:
+        # EPUB spec says dc:language is required
+        languages = ['und']
+    metadata = XPath('./opf:metadata')(root)[0]
+    for lang in uniq(languages):
+        l = metadata.makeelement(DC('language'))
+        l.text = lang
+        metadata.append(l)
+# }}}
+
+# Creator/Contributor {{{
+
+Author = namedtuple('Author', 'name sort')
+
+def read_authors(root, prefixes, refines):
+    roled_authors, unroled_authors = [], []
+
+    def author(item, props, val):
+        aus = None
+        file_as = props.get('file-as')
+        if file_as:
+            aus = file_as[-1]
+        else:
+            aus = item.get(OPF('file-as')) or None
+        return Author(normalize_whitespace(val), normalize_whitespace(aus))
+
+    for item in XPath('./opf:metadata/dc:creator')(root):
+        val = (item.text or '').strip()
+        if val:
+            props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+            role = props.get('role')
+            opf_role = item.get(OPF('role'))
+            if role:
+                scheme_ns, scheme, role = role
+                if role.lower() == 'aut' and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
+                    roled_authors.append(author(item, props, val))
+            elif opf_role:
+                if opf_role.lower() == 'aut':
+                    roled_authors.append(author(item, props, val))
+            else:
+                unroled_authors.append(author(item, props, val))
+
+    return uniq(roled_authors or unroled_authors)
+
+# }}}
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -184,7 +375,14 @@ def read_metadata(root):
         elif key != 'uuid':
             ids[key] = vals[0]
     ans.set_identifiers(ids)
-
+    ans.title = read_title(root, prefixes, refines) or ans.title
+    ans.title_sort = read_title_sort(root, prefixes, refines) or ans.title_sort
+    ans.languages = read_languages(root, prefixes, refines) or ans.languages
+    auts, aus = [], []
+    for a in read_authors(root, prefixes, refines):
+        auts.append(a.name), aus.append(a.sort)
+    ans.authors = auts or ans.authors
+    ans.author_sort = authors_to_string(aus) or ans.author_sort
     return ans
 
 def get_metadata(stream):
@@ -194,9 +392,12 @@ def get_metadata(stream):
 def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
     prefixes, refines = read_prefixes(root), read_refines(root)
     set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
+    set_title(root, prefixes, refines, mi.title, mi.title_sort)
+    set_languages(root, prefixes, refines, mi.languages)
+
     pretty_print_opf(root)
 
-def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
+def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     root = parse_opf(stream)
     return apply_metadata(
         root, mi, cover_prefix=cover_prefix, cover_data=cover_data,

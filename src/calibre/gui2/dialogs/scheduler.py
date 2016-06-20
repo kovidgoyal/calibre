@@ -11,12 +11,16 @@ from datetime import timedelta
 import calendar, textwrap
 from collections import OrderedDict
 
-from PyQt5.Qt import (QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout,
-        QAction, QIcon, QMutex, QTimer, pyqtSignal, QWidget, QGridLayout,
-        QCheckBox, QTimeEdit, QLabel, QLineEdit, QDoubleSpinBox, QSize)
+from PyQt5.Qt import (
+    QDialog, Qt, QTime, QObject, QMenu, QHBoxLayout, QAction, QIcon, QMutex,
+    QTimer, pyqtSignal, QWidget, QGridLayout, QCheckBox, QTimeEdit, QLabel,
+    QLineEdit, QDoubleSpinBox, QSize, QTreeView, QSizePolicy, QToolButton,
+    QScrollArea, QFrame, QVBoxLayout, QTabWidget, QSpacerItem, QGroupBox,
+    QRadioButton, QStackedWidget, QSpinBox, QPushButton, QDialogButtonBox
+)
 
-from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.gui2 import config as gconf, error_dialog, gprefs
+from calibre.gui2.search_box import SearchBox2
 from calibre.web.feeds.recipes.model import RecipeModel
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import utcnow
@@ -30,6 +34,20 @@ def convert_day_time_schedule(val):
         return (tuple(xrange(7)), hour, minute)
     return ((day_of_week,), hour, minute)
 
+class RecipesView(QTreeView):
+
+    def __init__(self, parent):
+        QTreeView.__init__(self, parent)
+        self.setAnimated(True)
+        self.setHeaderHidden(True)
+        self.setObjectName('recipes')
+        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+
+    def currentChanged(self, current, previous):
+        QTreeView.currentChanged(self, current, previous)
+        self.parent().current_changed(current, previous)
+
+# Time/date widgets {{{
 class Base(QWidget):
 
     def __init__(self, parent=None):
@@ -178,9 +196,10 @@ class EveryXDays(Base):
     def schedule(self):
         schedule = self.interval.value()
         return 'interval', schedule
+# }}}
 
 
-class SchedulerDialog(QDialog, Ui_Dialog):
+class SchedulerDialog(QDialog):
 
     SCHEDULE_TYPES = OrderedDict([
             ('days_of_week', DaysOfWeek),
@@ -192,51 +211,160 @@ class SchedulerDialog(QDialog, Ui_Dialog):
 
     def __init__(self, recipe_model, parent=None):
         QDialog.__init__(self, parent)
-        self.setupUi(self)
+        self.commit_on_change = True
+        self.previous_urn = None
+
+        self.setWindowIcon(QIcon(I('scheduler.png')))
+        self.setWindowTitle(_("Schedule news download"))
+        self.l = l = QGridLayout(self)
+
+        # Left panel
+        self.h = h = QHBoxLayout()
+        l.addLayout(h, 0, 0, 1, 1)
+        self.search = s = SearchBox2(self)
+        self.search.initialize('scheduler_search_history')
+        self.search.setMinimumContentsLength(15)
+        self.go_button = b = QToolButton(self)
+        b.setText(_("Go"))
+        b.clicked.connect(self.search.do_search)
+        self.clear_search_button = cb = QToolButton(self)
+        self.clear_search_button.clicked.connect(self.search.clear_clicked)
+        cb.setIcon(QIcon(I('clear_left.png')))
+        h.addWidget(s), h.addWidget(b), h.addWidget(cb)
+        self.recipes = RecipesView(self)
+        l.addWidget(self.recipes, 1, 0, 1, 1)
         self.recipe_model = recipe_model
         self.recipe_model.do_refresh()
-        self.count_label.setText(
-            # NOTE: Number of news sources
-            _('%s news sources') % self.recipe_model.showing_count)
+        self.recipes.setModel(self.recipe_model)
+        self.recipes.setFocus(Qt.OtherFocusReason)
+        self.count_label = la = QLabel(_('%s news sources') % self.recipe_model.showing_count)
+        la.setAlignment(Qt.AlignCenter)
+        l.addWidget(la, 2, 0, 1, 1)
+        self.search.search.connect(self.recipe_model.search)
+        self.recipe_model.searched.connect(self.search.search_done, type=Qt.QueuedConnection)
+        self.recipe_model.searched.connect(self.search_done)
 
+        # Right Panel
+        self.scroll_area = sa = QScrollArea(self)
+        self.l.addWidget(sa, 0, 1, 2, 1)
+        sa.setFrameShape(QFrame.NoFrame)
+        sa.setWidgetResizable(True)
+        self.scroll_area_contents = sac = QWidget(self)
+        sa.setWidget(sac)
+        sac.v = v = QVBoxLayout(sac)
+        v.setContentsMargins(0, 0, 0, 0)
+        self.detail_box = QTabWidget(self)
+        self.detail_box.setVisible(False)
+        self.detail_box.setCurrentIndex(0)
+        v.addWidget(self.detail_box)
+        v.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        # First Tab (scheduling)
+        self.tab = QWidget()
+        self.detail_box.addTab(self.tab, _("&Schedule"))
+        self.tab.v = vt = QVBoxLayout(self.tab)
+        vt.setContentsMargins(0, 0, 0, 0)
+        self.blurb = la = QLabel('blurb')
+        la.setWordWrap(True), la.setOpenExternalLinks(True)
+        vt.addWidget(la)
+        vt.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        self.frame = f = QFrame(self.tab)
+        vt.addWidget(f)
+        f.setFrameShape(f.StyledPanel)
+        f.setFrameShadow(f.Raised)
+        f.v = vf = QVBoxLayout(f)
+        self.schedule = s = QCheckBox(_("&Schedule for download:"), f)
+        self.schedule.stateChanged[int].connect(self.toggle_schedule_info)
+        vf.addWidget(s)
+        f.h = h = QHBoxLayout()
+        vf.addLayout(h)
+        self.days_of_week = QRadioButton(_("&Days of  week"), f)
+        self.days_of_month = QRadioButton(_("Da&ys of month"), f)
+        self.every_x_days = QRadioButton(_("Every &x days"), f)
+        self.days_of_week.setChecked(True)
+        h.addWidget(self.days_of_week), h.addWidget(self.days_of_month), h.addWidget(self.every_x_days)
+        self.schedule_stack = ss = QStackedWidget(f)
         self.schedule_widgets = []
         for key in reversed(self.SCHEDULE_TYPES):
             self.schedule_widgets.insert(0, self.SCHEDULE_TYPES[key](self))
             self.schedule_stack.insertWidget(0, self.schedule_widgets[0])
-
-        self.search.initialize('scheduler_search_history')
-        self.search.setMinimumContentsLength(15)
-        self.search.search.connect(self.recipe_model.search)
-        self.recipe_model.searched.connect(self.search.search_done,
-                type=Qt.QueuedConnection)
-        self.recipe_model.searched.connect(self.search_done)
-        self.recipes.setFocus(Qt.OtherFocusReason)
-        self.commit_on_change = True
-        self.previous_urn = None
-
-        self.recipes.setModel(self.recipe_model)
-        self.detail_box.setVisible(False)
-        self.download_button = self.buttonBox.addButton(_('&Download now'),
-                self.buttonBox.ActionRole)
-        self.download_button.setIcon(QIcon(I('arrow-down.png')))
-        self.download_button.setVisible(False)
-        self.recipes.currentChanged = self.current_changed
+        vf.addWidget(ss)
+        self.last_downloaded = la = QLabel(f)
+        la.setWordWrap(True)
+        vf.addWidget(la)
+        vt.addItem(QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding))
+        self.account = acc = QGroupBox(self.tab)
+        acc.setTitle(_("&Account"))
+        vt.addWidget(acc)
+        acc.g = g = QGridLayout(acc)
+        acc.unla = la = QLabel(_("&Username:"))
+        self.username = un = QLineEdit(self)
+        la.setBuddy(un)
+        g.addWidget(la), g.addWidget(un, 0, 1)
+        acc.pwla = la = QLabel(_("&Password:"))
+        self.password = pw = QLineEdit(self)
+        pw.setEchoMode(QLineEdit.Password), la.setBuddy(pw)
+        g.addWidget(la), g.addWidget(pw, 1, 1)
+        self.show_password = spw = QCheckBox(_("&Show password"), self.account)
+        spw.stateChanged[int].connect(self.set_pw_echo_mode)
+        g.addWidget(spw, 2, 0, 1, 2)
+        self.rla = la = QLabel(_("For the scheduling to work, you must leave calibre running."))
+        vt.addWidget(la)
         for b, c in self.SCHEDULE_TYPES.iteritems():
             b = getattr(self, b)
             b.toggled.connect(self.schedule_type_selected)
             b.setToolTip(textwrap.dedent(c.HELP))
-        self.days_of_week.setChecked(True)
 
-        self.schedule.stateChanged[int].connect(self.toggle_schedule_info)
-        self.show_password.stateChanged[int].connect(self.set_pw_echo_mode)
-        self.download_button.clicked.connect(self.download_clicked)
-        self.download_all_button.clicked.connect(
-                self.download_all_clicked)
+        # Second tab (advanced settings)
+        self.tab2 = t2 = QWidget()
+        self.detail_box.addTab(self.tab2, _("&Advanced"))
+        self.tab2.g = g = QGridLayout(t2)
+        g.setContentsMargins(0, 0, 0, 0)
+        self.add_title_tag = tt = QCheckBox(_("Add &title as tag"), t2)
+        g.addWidget(tt, 0, 0, 1, 2)
+        t2.la = la = QLabel(_("&Extra tags:"))
+        self.custom_tags = ct = QLineEdit(self)
+        la.setBuddy(ct)
+        g.addWidget(la), g.addWidget(ct, 1, 1)
+        t2.la2 = la = QLabel(_("&Keep at most:"))
+        la.setToolTip(_("Maximum number of copies (issues) of this recipe to keep.  Set to 0 to keep all (disable)."))
+        self.keep_issues = ki = QSpinBox(t2)
+        tt.toggled['bool'].connect(self.keep_issues.setEnabled)
+        ki.setMaximum(100000), la.setBuddy(ki)
+        ki.setToolTip(_(
+            "<p>When set, this option will cause calibre to keep, at most, the specified number of issues"
+            " of this periodical. Every time a new issue is downloaded, the oldest one is deleted, if the"
+            " total is larger than this number.\n<p>Note that this feature only works if you have the"
+            " option to add the title as tag checked, above.\n<p>Also, the setting for deleting periodicals"
+            " older than a number of days, below, takes priority over this setting."))
+        ki.setSpecialValueText(_("all issues")), ki.setSuffix(_(" issues"))
+        g.addWidget(la), g.addWidget(ki, 2, 1)
+        si = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        g.addItem(si, 3, 1, 1, 1)
 
-        self.old_news.setValue(gconf['oldest_news'])
-
-        self.go_button.clicked.connect(self.search.do_search)
-        self.clear_search_button.clicked.connect(self.search.clear_clicked)
+        # Bottom area
+        self.hb = h = QHBoxLayout()
+        self.l.addLayout(h, 2, 1, 1, 1)
+        self.labt = la = QLabel(_("Delete downloaded &news older than:"))
+        self.old_news = on = QSpinBox(self)
+        on.setToolTip(_(
+            "<p>Delete downloaded news older than the specified number of days. Set to zero to disable.\n"
+            "<p>You can also control the maximum number of issues of a specific periodical that are kept"
+            " by clicking the Advanced tab for that periodical above."))
+        on.setSpecialValueText(_("never delete")), on.setSuffix(_(" days"))
+        on.setMaximum(1000), la.setBuddy(on)
+        on.setValue(gconf['oldest_news'])
+        h.addWidget(la), h.addWidget(on)
+        self.download_all_button = b = QPushButton(QIcon(I('news.png')), _("Download &all scheduled"), self)
+        b.setToolTip(_("Download all scheduled news sources at once"))
+        b.clicked.connect(self.download_all_clicked)
+        self.l.addWidget(b, 3, 0, 1, 1)
+        self.bb = bb = QDialogButtonBox(QDialogButtonBox.Save, self)
+        bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
+        self.download_button = b = bb.addButton(_('&Download now'), bb.ActionRole)
+        b.setIcon(QIcon(I('arrow-down.png'))), b.setVisible(False)
+        b.clicked.connect(self.download_clicked)
+        self.l.addWidget(bb, 3, 1, 1, 1)
 
         geom = gprefs.get('scheduler_dialog_geometry')
         if geom is not None:

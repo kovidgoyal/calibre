@@ -523,6 +523,9 @@ class RecursiveFetcher(object):
                         self.process_return_links(soup, newbaseurl)
                         self.log.debug('Recursion limit reached. Skipping links in', iurl)
 
+                    if newbaseurl and not newbaseurl.startswith('/'):
+                        for atag in soup.findAll('a', href=lambda x: x and x.startswith('/')):
+                            atag['href'] = urlparse.urljoin(newbaseurl, atag['href'], True)
                     if callable(self.postprocess_html_ext):
                         soup = self.postprocess_html_ext(soup,
                                 c==0 and recursion_level==0 and not getattr(self, 'called_first', False),

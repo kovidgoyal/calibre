@@ -523,6 +523,7 @@ class OPF(object):  # {{{
     pubdate_path    = XPath('descendant::*[re:match(name(), "date", "i")]')
     raster_cover_path = XPath('descendant::*[re:match(name(), "meta", "i") and ' +
             're:match(@name, "cover", "i") and @content]')
+    guide_cover_path = XPath('descendant::*[local-name()="guide"]/*[local-name()="reference" and re:match(@type, "cover", "i")]/@href')
     identifier_path = XPath('descendant::*[re:match(name(), "identifier", "i")]')
     application_id_path = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
@@ -1163,7 +1164,7 @@ class OPF(object):  # {{{
             for item in self.itermanifest():
                 if item.get('href', None) == cover_id:
                     mt = item.get('media-type', '')
-                    if mt and mt.startswith('image/'):
+                    if mt and 'xml' not in mt and 'html' not in mt:
                         return item.get('href', None)
         elif self.package_version >= 3.0:
             for item in self.itermanifest():
@@ -1172,6 +1173,19 @@ class OPF(object):  # {{{
                     mt = item.get('media-type', '')
                     if mt and 'xml' not in mt and 'html' not in mt:
                         return item.get('href', None)
+
+    @property
+    def guide_raster_cover(self):
+        covers = self.guide_cover_path(self.root)
+        if covers:
+            mt_map = {i.get('href'):i for i in self.itermanifest()}
+            for href in covers:
+                if href:
+                    i = mt_map.get(href)
+                    if i is not None:
+                        iid, mt = i.get('id'), i.get('media-type')
+                        if iid and mt and mt.lower() in {'image/png', 'image/jpeg', 'image/jpg', 'image/gif'}:
+                            return i
 
     @property
     def epub3_nav(self):
