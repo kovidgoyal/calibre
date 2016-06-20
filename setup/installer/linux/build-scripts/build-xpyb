@@ -1,0 +1,3 @@
+#!/bin/sh
+
+cd $SW/build/xpyb && ./autogen.sh && ./configure --prefix=$SW && make && make install

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd $SW/build/nasm* && \
+./configure --prefix=$SW && make -j2 && make install

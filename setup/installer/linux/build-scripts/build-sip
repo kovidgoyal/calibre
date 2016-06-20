@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd $SW/build/sip-* && \
+    python configure.py && make && make install

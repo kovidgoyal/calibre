@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cd $SW/build/chmlib* && \
+./configure --disable-dependency-tracking --prefix=$SW && make && make install

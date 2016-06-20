@@ -1,0 +1,3 @@
+#!/bin/sh
+
+cd $SW/build/psutil-* && python setup.py build && cp -r build/lib*/* $SW/lib/python2.7/site-packages/
