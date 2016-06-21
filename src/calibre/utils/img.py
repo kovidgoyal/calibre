@@ -15,7 +15,7 @@ from calibre.constants import iswindows, plugins, get_version
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 
-# Utilitis {{{
+# Utilities {{{
 imageops, imageops_err = plugins['imageops']
 if imageops is None:
     if '*' in get_version():
