@@ -10,7 +10,7 @@ import re
 
 from lxml import etree
 
-from calibre.ebooks.metadata import check_isbn, authors_to_string
+from calibre.ebooks.metadata import check_isbn, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
@@ -93,7 +93,15 @@ def properties_for_id_with_scheme(item_id, prefixes, refines):
                     ans[key] = (scheme_ns, scheme, val)
     return ans
 
-def ensure_id(root, elem):
+def getroot(elem):
+    while True:
+        q = elem.getparent()
+        if q is None:
+            return elem
+        elem = q
+
+def ensure_id(elem):
+    root = getroot(elem)
     eid = elem.get('id')
     if not eid:
         eid = ensure_unique('id', frozenset(XPath('//*/@id')(root)))
@@ -124,6 +132,15 @@ def read_prefixes(root):
 
 def expand_prefix(raw, prefixes):
     return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m:(prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2)), raw)
+
+def ensure_prefix(root, prefixes, prefix, value):
+    prefixes[prefix] = value
+    prefixes = {k:v for k, v in prefixes.iteritems() if reserved_prefixes.get(k) != v}
+    if prefixes:
+        root.set('prefix', ' '.join('%s: %s' % (k, v) for k, v in prefixes.iteritems()))
+    else:
+        root.attrib.pop('prefix', None)
+
 # }}}
 
 # Refines {{{
@@ -139,7 +156,7 @@ def refdef(prop, val, scheme=None):
     return (prop, val, scheme)
 
 def set_refines(elem, existing_refines, *new_refines):
-    eid = ensure_id(elem.getroottree().getroot(), elem)
+    eid = ensure_id(elem)
     remove_refines(elem, existing_refines)
     for ref in reversed(new_refines):
         prop, val, scheme = ref
@@ -362,6 +379,28 @@ def read_authors(root, prefixes, refines):
 
     return uniq(roled_authors or unroled_authors)
 
+def set_authors(root, prefixes, refines, authors):
+    ensure_prefix(root, prefixes, 'marc', reserved_prefixes['marc'])
+    for item in XPath('./opf:metadata/dc:creator')(root):
+        props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+        role = props.get('role')
+        opf_role = item.get(OPF('role'))
+        if (role and role.lower() != 'aut') or (opf_role and opf_role.lower() != 'aut'):
+            continue
+        remove_element(item, refines)
+    metadata = XPath('./opf:metadata')(root)[0]
+    for author in authors:
+        a = metadata.makeelement(DC('creator'))
+        aid = ensure_id(a)
+        a.text = author.name
+        metadata.append(a)
+        m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
+        m.text = 'aut'
+        metadata.append(m)
+        if author.sort:
+            m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'file-as'})
+            m.text = author.sort
+            metadata.append(m)
 # }}}
 
 def read_metadata(root):
@@ -394,6 +433,11 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
     set_title(root, prefixes, refines, mi.title, mi.title_sort)
     set_languages(root, prefixes, refines, mi.languages)
+    aus = string_to_authors(mi.author_sort or '')
+    authors = []
+    for i, aut in enumerate(mi.authors):
+        authors.append(Author(aut, aus[i] if i < len(aus) else None))
+    set_authors(root, prefixes, refines, authors)
 
     pretty_print_opf(root)
 
