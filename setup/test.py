@@ -8,7 +8,7 @@ import unittest
 
 from setup import Command
 
-TEST_MODULES = frozenset('srv db polish selectors opf css docx cfi matcher icu smartypants'.split())
+TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants'.split())
 
 def find_tests(which_tests=None):
     ans = []
@@ -22,9 +22,6 @@ def find_tests(which_tests=None):
     if not which_tests or 'polish' in which_tests:
         from calibre.ebooks.oeb.polish.tests.main import find_tests
         a(find_tests())
-    if not which_tests or 'selectors' in which_tests:
-        from css_selectors.tests import find_tests
-        a(find_tests())
     if not which_tests or 'opf' in which_tests:
         from calibre.ebooks.metadata.opf2 import suite
         a(suite())
@@ -37,6 +34,8 @@ def find_tests(which_tests=None):
         a(test_normalization(return_tests=True))
         from calibre.ebooks.css_transform_rules import test
         a(test(return_tests=True))
+        from css_selectors.tests import find_tests
+        a(find_tests())
     if not which_tests or 'docx' in which_tests:
         from calibre.ebooks.docx.fields import test_parse_fields
         a(test_parse_fields(return_tests=True))
