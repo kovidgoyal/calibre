@@ -83,8 +83,6 @@ class Test(Command):
                           ' can be run by specifying the name "something".')
 
     def run(self, opts):
-        from calibre.gui2 import ensure_app, load_builtin_fonts
-        ensure_app(), load_builtin_fonts()
         r = unittest.TextTestRunner
         tests = find_tests(which_tests=frozenset(opts.test_module))
         if opts.test_name:
