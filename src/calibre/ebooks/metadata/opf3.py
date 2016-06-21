@@ -133,8 +133,8 @@ def read_prefixes(root):
 def expand_prefix(raw, prefixes):
     return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m:(prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2)), raw)
 
-def ensure_prefix(root, prefixes, prefix, value):
-    prefixes[prefix] = value
+def ensure_prefix(root, prefixes, prefix, value=None):
+    prefixes[prefix] = value or reserved_prefixes[prefix]
     prefixes = {k:v for k, v in prefixes.iteritems() if reserved_prefixes.get(k) != v}
     if prefixes:
         root.set('prefix', ' '.join('%s: %s' % (k, v) for k, v in prefixes.iteritems()))
@@ -380,7 +380,7 @@ def read_authors(root, prefixes, refines):
     return uniq(roled_authors or unroled_authors)
 
 def set_authors(root, prefixes, refines, authors):
-    ensure_prefix(root, prefixes, 'marc', reserved_prefixes['marc'])
+    ensure_prefix(root, prefixes, 'marc')
     for item in XPath('./opf:metadata/dc:creator')(root):
         props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
         role = props.get('role')

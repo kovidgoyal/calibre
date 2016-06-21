@@ -13,7 +13,7 @@ from calibre.ebooks.metadata.opf3 import (
     parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
     read_metadata, set_identifiers, XPath, set_application_id, read_title,
     read_refines, set_title, read_title_sort, read_languages, set_languages,
-    read_authors, Author, set_authors
+    read_authors, Author, set_authors, ensure_prefix, read_prefixes
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>'''  # noqa
@@ -35,6 +35,10 @@ class TestOPF3(unittest.TestCase):
                 ('xxx', 'xxx'),
         ):
             self.ae(expand_prefix(raw, reserved_prefixes), expanded)
+        root = self.get_opf()
+        ensure_prefix(root, read_prefixes(root), 'calibre', 'https://calibre-ebook.com')
+        ensure_prefix(root, read_prefixes(root), 'marc', reserved_prefixes['marc'])
+        self.ae(parse_prefixes(root.get('prefix')), {'calibre': 'https://calibre-ebook.com'})
     # }}}
 
     def test_identifiers(self):  # {{{
