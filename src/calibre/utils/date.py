@@ -107,6 +107,14 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
+def fix_only_date(val):
+    n = val + timedelta(days=1)
+    if n.month > val.month:
+        val = val.replace(day=val.day-1)
+    if val.day == 1:
+        val = val.replace(day=2)
+    return val
+
 def parse_only_date(raw, assume_utc=True, as_utc=True):
     '''
     Parse a date string that contains no time information in a manner that
@@ -116,14 +124,7 @@ def parse_only_date(raw, assume_utc=True, as_utc=True):
     f = utcnow if assume_utc else now
     default = f().replace(hour=0, minute=0, second=0, microsecond=0,
             day=15)
-    ans = parse_date(raw, default=default, assume_utc=assume_utc, as_utc=as_utc)
-    n = ans + timedelta(days=1)
-    if n.month > ans.month:
-        ans = ans.replace(day=ans.day-1)
-    if ans.day == 1:
-        ans = ans.replace(day=2)
-    return ans
-
+    return fix_only_date(parse_date(raw, default=default, assume_utc=assume_utc, as_utc=as_utc))
 
 def strptime(val, fmt, assume_utc=False, as_utc=True):
     dt = datetime.strptime(val, fmt)

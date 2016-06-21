@@ -14,21 +14,11 @@ from calibre.ebooks.metadata import check_isbn, authors_to_string, string_to_aut
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
+from calibre.utils.date import parse_date as parse_date_, fix_only_date, is_date_undefined, isoformat
+from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import canonicalize_lang
 
 # Utils {{{
-# http://www.idpf.org/epub/vocab/package/pfx/
-reserved_prefixes = {
-    'dcterms':  'http://purl.org/dc/terms/',
-    'epubsc':   'http://idpf.org/epub/vocab/sc/#',
-    'marc':     'http://id.loc.gov/vocabulary/',
-    'media':    'http://www.idpf.org/epub/vocab/overlays/#',
-    'onix':     'http://www.editeur.org/ONIX/book/codelists/current.html#',
-    'rendition':'http://www.idpf.org/vocab/rendition/#',
-    'schema':   'http://schema.org/',
-    'xsd':      'http://www.w3.org/2001/XMLSchema#',
-}
-
 _xpath_cache = {}
 _re_cache = {}
 
@@ -122,6 +112,20 @@ def simple_text(f):
 
 # Prefixes {{{
 
+# http://www.idpf.org/epub/vocab/package/pfx/
+reserved_prefixes = {
+    'dcterms':  'http://purl.org/dc/terms/',
+    'epubsc':   'http://idpf.org/epub/vocab/sc/#',
+    'marc':     'http://id.loc.gov/vocabulary/',
+    'media':    'http://www.idpf.org/epub/vocab/overlays/#',
+    'onix':     'http://www.editeur.org/ONIX/book/codelists/current.html#',
+    'rendition':'http://www.idpf.org/vocab/rendition/#',
+    'schema':   'http://schema.org/',
+    'xsd':      'http://www.w3.org/2001/XMLSchema#',
+}
+
+CALIBRE_PREFIX = 'https://calibre-ebook.com'
+
 def parse_prefixes(x):
     return {m.group(1):m.group(2) for m in re.finditer(r'(\S+): \s*(\S+)', x)}
 
@@ -131,7 +135,7 @@ def read_prefixes(root):
     return ans
 
 def expand_prefix(raw, prefixes):
-    return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m:(prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2)), raw)
+    return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m:(prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2)), raw or '')
 
 def ensure_prefix(root, prefixes, prefix, value=None):
     prefixes[prefix] = value or reserved_prefixes[prefix]
@@ -437,6 +441,91 @@ def set_book_producers(root, prefixes, refines, producers):
         metadata.append(m)
 # }}}
 
+# Dates {{{
+
+def parse_date(raw, is_w3cdtf=False):
+    raw = raw.strip()
+    if is_w3cdtf:
+        ans = parse_iso8601(raw, assume_utc=True)
+        if 'T' not in raw and ' ' not in raw:
+            ans = fix_only_date(ans)
+    else:
+        ans = parse_date_(raw, assume_utc=True)
+        if ' ' not in raw and 'T' not in raw and (ans.hour, ans.minute, ans.second) == (0, 0, 0):
+            ans = fix_only_date(ans)
+    return ans
+
+def read_pubdate(root, prefixes, refines):
+    for date in XPath('./opf:metadata/dc:date')(root):
+        val = (date.text or '').strip()
+        if val:
+            try:
+                return parse_date(val)
+            except Exception:
+                continue
+
+def set_pubdate(root, prefixes, refines, val):
+    for date in XPath('./opf:metadata/dc:date')(root):
+        remove_element(date, refines)
+    if not is_date_undefined(val):
+        val = isoformat(val)
+        m = XPath('./opf:metadata')(root)[0]
+        d = m.makeelement(DC('date'))
+        d.text = val
+        m.append(d)
+
+def read_timestamp(root, prefixes, refines):
+    pq = '%s:timestamp' % CALIBRE_PREFIX
+    sq = '%s:w3cdtf' % reserved_prefixes['dcterms']
+    for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
+        val = (meta.text or '').strip()
+        if val:
+            prop = expand_prefix(meta.get('property'), prefixes)
+            if prop.lower() == pq:
+                scheme = expand_prefix(meta.get('scheme'), prefixes).lower()
+                try:
+                    return parse_date(val, is_w3cdtf=scheme == sq)
+                except Exception:
+                    continue
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:timestamp"]')(root):
+        val = meta.get('content')
+        if val:
+            try:
+                return parse_date(val, is_w3cdtf=True)
+            except Exception:
+                continue
+
+def set_timestamp(root, prefixes, refines, val):
+    ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
+    ensure_prefix(root, prefixes, 'dcterms')
+    pq = '%s:timestamp' % CALIBRE_PREFIX
+    for meta in XPath('./opf:metadata/opf:meta')(root):
+        prop = expand_prefix(meta.get('property'), prefixes)
+        if prop.lower() == pq or meta.get('name') == 'calibre:timestamp':
+            remove_element(meta, refines)
+    if not is_date_undefined(val):
+        val = isoformat(val)
+        m = XPath('./opf:metadata')(root)[0]
+        d = m.makeelement(OPF('meta'), attrib={'property':'calibre:timestamp', 'scheme':'dcterms:W3CDTF'})
+        d.text = val
+        m.append(d)
+
+
+def read_last_modified(root, prefixes, refines):
+    pq = '%s:modified' % reserved_prefixes['dcterms']
+    sq = '%s:w3cdtf' % reserved_prefixes['dcterms']
+    for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
+        val = (meta.text or '').strip()
+        if val:
+            prop = expand_prefix(meta.get('property'), prefixes)
+            if prop.lower() == pq:
+                scheme = expand_prefix(meta.get('scheme'), prefixes).lower()
+                try:
+                    return parse_date(val, is_w3cdtf=scheme == sq)
+                except Exception:
+                    continue
+# }}}
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -459,6 +548,15 @@ def read_metadata(root):
     bkp = read_book_producers(root, prefixes, refines)
     if bkp:
         ans.book_producer = bkp[0]
+    pd = read_pubdate(root, prefixes, refines)
+    if not is_date_undefined(pd):
+        ans.pubdate = pd
+    ts = read_timestamp(root, prefixes, refines)
+    if not is_date_undefined(ts):
+        ans.timestamp = ts
+    lm = read_last_modified(root, prefixes, refines)
+    if not is_date_undefined(lm):
+        ans.last_modified = lm
     return ans
 
 def get_metadata(stream):
@@ -475,6 +573,8 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     for i, aut in enumerate(mi.authors):
         authors.append(Author(aut, aus[i] if i < len(aus) else None))
     set_authors(root, prefixes, refines, authors)
+    set_pubdate(root, prefixes, refines, mi.pubdate)
+    set_timestamp(root, prefixes, refines, mi.timestamp)
 
     pretty_print_opf(root)
 
