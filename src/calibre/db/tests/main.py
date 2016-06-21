@@ -9,10 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import unittest, os, argparse, time, functools, importlib
 
-try:
-    import init_calibre  # noqa
-except ImportError:
-    pass
 
 def no_endl(f):
     @functools.wraps(f)
@@ -100,6 +96,10 @@ def run_tests(find_tests=find_tests):
     r(verbosity=4).run(tests)
 
 if __name__ == '__main__':
+    try:
+        import init_calibre  # noqa
+    except ImportError:
+        pass
     from calibre.utils.config_base import reset_tweaks_to_default
     from calibre.ebooks.metadata.book.base import reset_field_metadata
     reset_tweaks_to_default()

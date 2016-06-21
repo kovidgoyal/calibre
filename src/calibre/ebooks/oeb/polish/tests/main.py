@@ -7,11 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
-try:
-    import init_calibre  # noqa
-except ImportError:
-    pass
-
 import os, unittest, importlib
 
 def find_tests():
@@ -24,6 +19,11 @@ def find_tests():
     return unittest.TestSuite(suits)
 
 if __name__ == '__main__':
+    try:
+        import init_calibre  # noqa
+    except ImportError:
+        pass
+
     from calibre.db.tests.main import run_tests
     run_tests(find_tests=find_tests)
 
