@@ -15,6 +15,7 @@ from PyQt5.Qt import (
     QToolButton, QDialog, QGridLayout, QIcon, QLabel, QDialogButtonBox, QApplication,
     QFormLayout, QCheckBox, QWidget, QScrollArea, QVBoxLayout, Qt, QListWidgetItem, QListWidget)
 
+from calibre import as_unicode
 from calibre.constants import isosx
 from calibre.db.utils import find_identical_books
 from calibre.gui2.actions import InterfaceAction
@@ -107,6 +108,7 @@ class Worker(Thread):  # {{{
         self.add_duplicates = add_duplicates
         self.duplicate_ids = {}
         self.check_for_duplicates = not add_duplicates and (prefs['add_formats_to_existing'] or prefs['check_for_dupes_on_ctl'])
+        self.failed_books = {}
 
     def run(self):
         try:
@@ -140,71 +142,78 @@ class Worker(Thread):  # {{{
 
     def _doit(self, newdb):
         for i, x in enumerate(self.ids):
-            mi = self.db.get_metadata(x, index_is_id=True, get_cover=True,
-                    cover_as_data=True)
-            if not gprefs['preserve_date_on_ctl']:
-                mi.timestamp = now()
-            self.progress(i, mi.title)
-            fmts = self.db.formats(x, index_is_id=True)
-            if not fmts:
-                fmts = []
-            else:
-                fmts = fmts.split(',')
-            identical_book_list = set()
-            paths = []
-            for fmt in fmts:
-                p = self.db.format(x, fmt, index_is_id=True,
-                    as_path=True)
-                if p:
-                    paths.append(p)
             try:
-                if self.check_for_duplicates:
-                    # Scanning for dupes can be slow on a large library so
-                    # only do it if the option is set
-                    identical_book_list = find_identical_books(mi, self.find_identical_books_data)
-                    if identical_book_list:  # books with same author and nearly same title exist in newdb
-                        if prefs['add_formats_to_existing']:
-                            self.automerge_book(x, mi, identical_book_list, paths, newdb)
-                        else:  # Report duplicates for later processing
-                            self.duplicate_ids[x] = (mi.title, mi.authors)
-                        continue
+                self.do_one(i, x, newdb)
+            except Exception as err:
+                import traceback
+                err = as_unicode(err)
+                self.failed_books[x] = (err, as_unicode(traceback.format_exc()))
 
-                new_authors = {k for k, v in newdb.new_api.get_item_ids('authors', mi.authors).iteritems() if v is None}
-                new_book_id = newdb.import_book(mi, paths, notify=False, import_hooks=False,
-                    apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
-                    preserve_uuid=self.delete_after)
-                if new_authors:
-                    author_id_map = self.db.new_api.get_item_ids('authors', new_authors)
-                    sort_map, link_map = {}, {}
-                    for author, aid in author_id_map.iteritems():
-                        if aid is not None:
-                            adata = self.db.new_api.author_data((aid,)).get(aid)
-                            if adata is not None:
-                                aid = newdb.new_api.get_item_id('authors', author)
-                                if aid is not None:
-                                    asv = adata.get('sort')
-                                    if asv:
-                                        sort_map[aid] = asv
-                                    alv = adata.get('link')
-                                    if alv:
-                                        link_map[aid] = alv
-                    if sort_map:
-                        newdb.new_api.set_sort_for_authors(sort_map, update_books=False)
-                    if link_map:
-                        newdb.new_api.set_link_for_authors(link_map)
+    def do_one(self, num, book_id, newdb):
+        mi = self.db.get_metadata(book_id, index_is_id=True, get_cover=True, cover_as_data=True)
+        if not gprefs['preserve_date_on_ctl']:
+            mi.timestamp = now()
+        self.progress(num, mi.title)
+        fmts = self.db.formats(book_id, index_is_id=True)
+        if not fmts:
+            fmts = []
+        else:
+            fmts = fmts.split(',')
+        identical_book_list = set()
+        paths = []
+        for fmt in fmts:
+            p = self.db.format(book_id, fmt, index_is_id=True,
+                as_path=True)
+            if p:
+                paths.append(p)
+        try:
+            if self.check_for_duplicates:
+                # Scanning for dupes can be slow on a large library so
+                # only do it if the option is set
+                identical_book_list = find_identical_books(mi, self.find_identical_books_data)
+                if identical_book_list:  # books with same author and nearly same title exist in newdb
+                    if prefs['add_formats_to_existing']:
+                        self.automerge_book(book_id, mi, identical_book_list, paths, newdb)
+                    else:  # Report duplicates for later processing
+                        self.duplicate_ids[book_id] = (mi.title, mi.authors)
+                    return
 
-                co = self.db.conversion_options(x, 'PIPE')
-                if co is not None:
-                    newdb.set_conversion_options(new_book_id, 'PIPE', co)
-                if self.check_for_duplicates:
-                    newdb.new_api.update_data_for_find_identical_books(new_book_id, self.find_identical_books_data)
-                self.processed.add(x)
-            finally:
-                for path in paths:
-                    try:
-                        os.remove(path)
-                    except:
-                        pass
+            new_authors = {k for k, v in newdb.new_api.get_item_ids('authors', mi.authors).iteritems() if v is None}
+            new_book_id = newdb.import_book(mi, paths, notify=False, import_hooks=False,
+                apply_import_tags=tweaks['add_new_book_tags_when_importing_books'],
+                preserve_uuid=self.delete_after)
+            if new_authors:
+                author_id_map = self.db.new_api.get_item_ids('authors', new_authors)
+                sort_map, link_map = {}, {}
+                for author, aid in author_id_map.iteritems():
+                    if aid is not None:
+                        adata = self.db.new_api.author_data((aid,)).get(aid)
+                        if adata is not None:
+                            aid = newdb.new_api.get_item_id('authors', author)
+                            if aid is not None:
+                                asv = adata.get('sort')
+                                if asv:
+                                    sort_map[aid] = asv
+                                alv = adata.get('link')
+                                if alv:
+                                    link_map[aid] = alv
+                if sort_map:
+                    newdb.new_api.set_sort_for_authors(sort_map, update_books=False)
+                if link_map:
+                    newdb.new_api.set_link_for_authors(link_map)
+
+            co = self.db.conversion_options(book_id, 'PIPE')
+            if co is not None:
+                newdb.set_conversion_options(new_book_id, 'PIPE', co)
+            if self.check_for_duplicates:
+                newdb.new_api.update_data_for_find_identical_books(new_book_id, self.find_identical_books_data)
+            self.processed.add(book_id)
+        finally:
+            for path in paths:
+                try:
+                    os.remove(path)
+                except:
+                    pass
 
     def automerge_book(self, book_id, mi, identical_book_list, paths, newdb):
         self.auto_merged_ids[book_id] = _('%(title)s by %(author)s') % dict(title=mi.title, author=mi.format_field('authors')[1])
@@ -490,7 +499,7 @@ class CopyToLibraryAction(InterfaceAction):
             return
 
         self.gui.status_bar.show_message(donemsg %
-                dict(num=len(ids), loc=loc), 2000)
+                dict(num=len(self.worker.processed), loc=loc), 2000)
         if self.worker.auto_merged_ids:
             books = '\n'.join(self.worker.auto_merged_ids.itervalues())
             info_dialog(self.gui, _('Auto merged'),
@@ -511,6 +520,18 @@ class CopyToLibraryAction(InterfaceAction):
                     permanent=True)
             self.gui.iactions['Remove Books'].library_ids_deleted(
                     self.worker.processed, row)
+
+        if self.worker.failed_books:
+            def fmt_err(book_id):
+                err, tb = self.worker.failed_books[book_id]
+                title = db.title(book_id, index_is_id=True)
+                return _('Copying: {0} failed, with error:\n{1}').format(title, tb)
+            title, msg = _('Failed to copy some books'), _('Could not copy some books, click "Show Details" for more information.')
+            tb = '\n\n'.join(map(fmt_err, self.worker.failed_books))
+            tb = _('Failed to copy {0} book(s), see below for details').format(len(self.worker.failed_books)) + '\n\n' + tb
+            if len(ids) == len(self.worker.failed_books):
+                title, msg = _('Failed to copy books'), _('Could not copy any books, click "Show Details" for more information.')
+            error_dialog(self.gui, title, msg, det_msg=tb, show=True)
         return self.worker.duplicate_ids
 
     def cannot_do_dialog(self):
