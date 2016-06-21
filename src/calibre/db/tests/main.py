@@ -7,7 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import unittest, os, argparse, time, functools
+import unittest, os, argparse, time, functools, importlib
 
 try:
     import init_calibre  # noqa
@@ -59,7 +59,13 @@ class TestResult(unittest.TextTestResult):
                 self.stream.writeln('\nSlowest tests: %s' % ' '.join(slowest))
 
 def find_tests():
-    return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
+    base = os.path.dirname(os.path.abspath(__file__))
+    suits = []
+    for x in os.listdir(base):
+        if x.endswith('.py') and x != 'main.py':
+            m = importlib.import_module('calibre.db.tests.' + x.partition('.')[0])
+            suits.append(unittest.defaultTestLoader.loadTestsFromModule(m))
+    return unittest.TestSuite(suits)
 
 def run_tests(find_tests=find_tests):
     parser = argparse.ArgumentParser()

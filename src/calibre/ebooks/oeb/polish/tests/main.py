@@ -12,10 +12,16 @@ try:
 except ImportError:
     pass
 
-import os, unittest
+import os, unittest, importlib
 
 def find_tests():
-    return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
+    base = os.path.dirname(os.path.abspath(__file__))
+    suits = []
+    for x in os.listdir(base):
+        if x.endswith('.py') and x != 'main.py':
+            m = importlib.import_module('calibre.ebooks.oeb.polish.tests.' + x.partition('.')[0])
+            suits.append(unittest.defaultTestLoader.loadTestsFromModule(m))
+    return unittest.TestSuite(suits)
 
 if __name__ == '__main__':
     from calibre.db.tests.main import run_tests
