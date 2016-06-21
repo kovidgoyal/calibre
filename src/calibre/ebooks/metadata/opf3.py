@@ -401,6 +401,40 @@ def set_authors(root, prefixes, refines, authors):
             m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'file-as'})
             m.text = author.sort
             metadata.append(m)
+
+def read_book_producers(root, prefixes, refines):
+    ans = []
+    for item in XPath('./opf:metadata/dc:contributor')(root):
+        val = (item.text or '').strip()
+        if val:
+            props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+            role = props.get('role')
+            opf_role = item.get(OPF('role'))
+            if role:
+                scheme_ns, scheme, role = role
+                if role.lower() == 'bkp' and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
+                    ans.append(normalize_whitespace(val))
+            elif opf_role and opf_role.lower() == 'bkp':
+                ans.append(normalize_whitespace(val))
+    return ans
+
+def set_book_producers(root, prefixes, refines, producers):
+    for item in XPath('./opf:metadata/dc:contributor')(root):
+        props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+        role = props.get('role')
+        opf_role = item.get(OPF('role'))
+        if (role and role.lower() != 'bkp') or (opf_role and opf_role.lower() != 'bkp'):
+            continue
+        remove_element(item, refines)
+    metadata = XPath('./opf:metadata')(root)[0]
+    for bkp in producers:
+        a = metadata.makeelement(DC('contributor'))
+        aid = ensure_id(a)
+        a.text = bkp
+        metadata.append(a)
+        m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
+        m.text = 'bkp'
+        metadata.append(m)
 # }}}
 
 def read_metadata(root):
@@ -422,6 +456,9 @@ def read_metadata(root):
         auts.append(a.name), aus.append(a.sort)
     ans.authors = auts or ans.authors
     ans.author_sort = authors_to_string(aus) or ans.author_sort
+    bkp = read_book_producers(root, prefixes, refines)
+    if bkp:
+        ans.book_producer = bkp[0]
     return ans
 
 def get_metadata(stream):

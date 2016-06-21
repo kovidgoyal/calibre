@@ -13,7 +13,8 @@ from calibre.ebooks.metadata.opf3 import (
     parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
     read_metadata, set_identifiers, XPath, set_application_id, read_title,
     read_refines, set_title, read_title_sort, read_languages, set_languages,
-    read_authors, Author, set_authors, ensure_prefix, read_prefixes
+    read_authors, Author, set_authors, ensure_prefix, read_prefixes,
+    read_book_producers, set_book_producers
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>'''  # noqa
@@ -129,6 +130,22 @@ class TestOPF3(unittest.TestCase):
         self.ae(authors, st(root, authors))
         self.assertIsNone(root.get('prefix'))
     # }}}
+
+    def test_book_producer(self):  # {{{
+        def rl(root):
+            return read_book_producers(root, reserved_prefixes, read_refines(root))
+        def st(root, producers):
+            set_book_producers(root, reserved_prefixes, read_refines(root), producers)
+            return rl(root)
+        for scheme in ('scheme="marc:relators"', ''):
+            root = self.get_opf('''<dc:contributor>a  b</dc:contributor><dc:contributor id="1">c d</dc:contributor>'''
+                                '''<meta refines="#1" property="role" %s>bkp</meta>''' % scheme)
+            self.ae(['c d'], rl(root))
+        root = self.get_opf('''<dc:contributor>a  b</dc:contributor><dc:contributor opf:role="bkp">c d</dc:contributor>''')
+        self.ae(['c d'], rl(root))
+        self.ae('12'.split(), st(root, '12'.split()))
+    # }}}
+
 
 # Run tests {{{
 
