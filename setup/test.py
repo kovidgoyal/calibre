@@ -13,21 +13,24 @@ TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants
 def find_tests(which_tests=None):
     ans = []
     a = ans.append
-    if not which_tests or 'srv' in which_tests:
+    def ok(x):
+        return not which_tests or x in which_tests
+
+    if ok('srv'):
         from calibre.srv.tests.main import find_tests
         a(find_tests())
-    if not which_tests or 'db' in which_tests:
+    if ok('db'):
         from calibre.db.tests.main import find_tests
         a(find_tests())
-    if not which_tests or 'polish' in which_tests:
+    if ok('polish'):
         from calibre.ebooks.oeb.polish.tests.main import find_tests
         a(find_tests())
-    if not which_tests or 'opf' in which_tests:
+    if ok('opf'):
         from calibre.ebooks.metadata.opf2 import suite
         a(suite())
         from calibre.ebooks.metadata.opf3_test import suite
         a(suite())
-    if not which_tests or 'css' in which_tests:
+    if ok('css'):
         from tinycss.tests.main import find_tests
         a(find_tests())
         from calibre.ebooks.oeb.normalize_css import test_normalization
@@ -36,21 +39,21 @@ def find_tests(which_tests=None):
         a(test(return_tests=True))
         from css_selectors.tests import find_tests
         a(find_tests())
-    if not which_tests or 'docx' in which_tests:
+    if ok('docx'):
         from calibre.ebooks.docx.fields import test_parse_fields
         a(test_parse_fields(return_tests=True))
         from calibre.ebooks.docx.writer.utils import test_convert_color
         a(test_convert_color(return_tests=True))
-    if not which_tests or 'cfi' in which_tests:
+    if ok('cfi'):
         from calibre.ebooks.epub.cfi.tests import find_tests
         a(find_tests())
-    if not which_tests or 'matcher' in which_tests:
+    if ok('matcher'):
         from calibre.utils.matcher import test
         a(test(return_tests=True))
-    if not which_tests or 'icu' in which_tests:
+    if ok('icu'):
         from calibre.utils.icu_test import find_tests
         a(find_tests())
-    if not which_tests or 'smartypants' in which_tests:
+    if ok('smartypants'):
         from calibre.utils.smartypants import run_tests
         a(run_tests(return_tests=True))
 
