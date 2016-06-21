@@ -197,11 +197,13 @@ class TestICU(unittest.TestCase):
             fpos = index_of(needle, haystack)
             self.ae(pos, fpos, 'Failed to find index of %r in %r (%d != %d)' % (needle, haystack, pos, fpos))
 
+def find_tests():
+    return unittest.defaultTestLoader.loadTestsFromTestCase(TestICU)
+
 class TestRunner(unittest.main):
 
     def createTests(self):
-        tl = unittest.TestLoader()
-        self.test = tl.loadTestsFromTestCase(TestICU)
+        self.test = find_tests()
 
 def run(verbosity=4):
     TestRunner(verbosity=verbosity, exit=False)

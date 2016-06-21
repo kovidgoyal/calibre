@@ -349,7 +349,7 @@ def import_rules(raw_data):
     if current_rule:
         yield sanitize(current_rule)
 
-def test():  # {{{
+def test(return_tests=False):  # {{{
     import unittest
 
     def apply_rule(style, **rule):
@@ -430,6 +430,8 @@ def test():  # {{{
             self.ae(rule, next(import_rules(export_rules([rule]))))
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestTransforms)
+    if return_tests:
+        return tests
     unittest.TextTestRunner(verbosity=4).run(tests)
 
 if __name__ == '__main__':

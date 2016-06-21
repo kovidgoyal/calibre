@@ -220,7 +220,7 @@ class CScorer(object):
         for score, pos in izip(scores, positions):
             yield score, pos
 
-def test():
+def test(return_tests=False):
     import unittest
 
     class Test(unittest.TestCase):
@@ -250,6 +250,9 @@ def test():
             m = Matcher([raw], scorer=CScorer)
             positions = next(m(raw).itervalues())
             self.assertEqual(positions, (0, 1, (2 if sys.maxunicode >= 0x10ffff else 3)))
+
+    if return_tests:
+        return unittest.TestLoader().loadTestsFromTestCase(Test)
 
     class TestRunner(unittest.main):
 

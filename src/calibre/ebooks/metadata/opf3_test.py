@@ -174,11 +174,13 @@ class TestOPF3(unittest.TestCase):
 
 # Run tests {{{
 
+def suite():
+    return unittest.TestLoader().loadTestsFromTestCase(TestOPF3)
+
 class TestRunner(unittest.main):
 
     def createTests(self):
-        tl = unittest.TestLoader()
-        self.test = tl.loadTestsFromTestCase(TestOPF3)
+        self.test = suite()
 
 def run(verbosity=4):
     TestRunner(verbosity=verbosity, exit=False)
