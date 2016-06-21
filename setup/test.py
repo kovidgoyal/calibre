@@ -60,10 +60,33 @@ def find_tests(which_tests=None):
     tests = unittest.TestSuite(ans)
     return tests
 
+def filter_tests(suite, *names):
+    names = {x if x.startswith('test_') else 'test_' + x for x in names}
+    tests = []
+    for test in suite._tests:
+        if test.__class__.__name__ == 'ModuleImportFailure':
+            raise Exception('Failed to import a test module: %s' % test)
+        for s in test:
+            if s._testMethodName in names:
+                tests.append(s)
+    return unittest.TestSuite(tests)
+
 class Test(Command):
+
+    def add_options(self, parser):
+        parser.add_option('--test-module', default=[], action='append', type='choice', choices=list(TEST_MODULES),
+                          help='The test module to run (can be specified more than once for multiple modules). Choices: %s' % ', '.join(sorted(TEST_MODULES)))
+        parser.add_option('--test-verbosity', type=int, default=4, help='Test verbosity (0-4)')
+        parser.add_option('--test-name', default=[], action='append',
+                          help='The name of an individual test to run. Can be specified more than once for multiple tests. The name of the'
+                          ' test is the name of the test function without the leading test_. For example, the function test_something()'
+                          ' can be run by specifying the name "something".')
 
     def run(self, opts):
         from calibre.gui2 import ensure_app, load_builtin_fonts
         ensure_app(), load_builtin_fonts()
         r = unittest.TextTestRunner
-        r(verbosity=2).run(find_tests())
+        tests = find_tests(which_tests=frozenset(opts.test_module))
+        if opts.test_name:
+            tests = filter_tests(tests, *opts.test_name)
+        r(verbosity=opts.test_verbosity).run(tests)
