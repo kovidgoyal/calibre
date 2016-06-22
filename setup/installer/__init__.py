@@ -16,7 +16,7 @@ BASE_RSYNC = ['rsync', '-av', '--delete', '--force']
 EXCLUDES = []
 for x in [
     '/src/calibre/plugins', '/manual', '/translations', '/build', '/dist', '/imgsrc', '/format_docs'
-    '.bzr', '.git', '.build', '.svn',  '*.pyc', '*.pyo', '*.swp', '*.swo',]:
+    '.bzr', '.git', '.build', '.svn',  '*.pyc', '*.pyo', '*.swp', '*.swo', '*.pyj-cached']:
     EXCLUDES.extend(['--exclude', ('/calibre' + x) if x.startswith('/') else x])
 SAFE_EXCLUDES = ['"%s"'%x if '*' in x else x for x in EXCLUDES]
 
