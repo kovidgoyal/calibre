@@ -100,7 +100,7 @@ def filter_tests_by_module(suite, *names):
         return m in names
     return filter_tests(suite, q)
 
-def run_tests(find_tests, verbosity=4, result_class=TestResult):
+def run_tests(find_tests, verbosity=4):
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('name', nargs='?', default=None,
@@ -114,10 +114,10 @@ def run_tests(find_tests, verbosity=4, result_class=TestResult):
             tests = filter_tests_by_module(tests, args.name)
         if not tests._tests:
             raise SystemExit('No test named %s found' % args.name)
-    run_cli(tests, verbosity, result_class)
+    run_cli(tests, verbosity)
 
-def run_cli(suite, verbosity=4, result_class=TestResult):
+def run_cli(suite, verbosity=4):
     r = unittest.TextTestRunner
-    r.resultclass = result_class or unittest.TestResult
+    r.resultclass = unittest.TextTestResult if verbosity < 2 else TestResult
     init_env()
     r(verbosity=verbosity).run(suite)
