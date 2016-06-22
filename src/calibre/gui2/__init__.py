@@ -786,6 +786,15 @@ def decouple(prefix):
     from calibre.gui2.widgets import history
     history.decouple(prefix)
 
+_gui_prefs = gprefs
+
+def gui_prefs():
+    return _gui_prefs
+
+def set_gui_prefs(prefs):
+    global _gui_prefs
+    _gui_prefs = prefs
+
 class ResizableDialog(QDialog):
 
     # This class is present only for backwards compat with third party plugins

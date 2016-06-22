@@ -1378,6 +1378,7 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
         cv = self.current_val
         if cv != self.original_val:
             db.set_languages(id_, cv)
+        self.update_recently_used()
 # }}}
 
 # Identifiers {{{

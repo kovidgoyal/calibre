@@ -391,6 +391,7 @@ class LanguagesDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def setModelData(self, editor, model, index):
         val = ','.join(editor.lang_codes)
+        editor.update_recently_used()
         model.setData(index, (val), Qt.EditRole)
 # }}}
 

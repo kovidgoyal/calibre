@@ -434,8 +434,10 @@ class NewBook(Dialog):  # {{{
         self.fmt = fmt
 
     def accept(self):
-        tprefs.set('previous_new_book_authors', unicode(self.authors.text()))
-        tprefs.set('previous_new_book_lang', (self.languages.lang_codes or [get_lang()])[0])
+        with tprefs:
+            tprefs.set('previous_new_book_authors', unicode(self.authors.text()))
+            tprefs.set('previous_new_book_lang', (self.languages.lang_codes or [get_lang()])[0])
+            self.languages.update_recently_used()
         super(NewBook, self).accept()
 
     @property
