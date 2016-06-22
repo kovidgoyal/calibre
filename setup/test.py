@@ -60,26 +60,6 @@ def find_tests(which_tests=None):
     tests = unittest.TestSuite(ans)
     return tests
 
-def itertests(suite):
-    stack = [suite]
-    while stack:
-        suite = stack.pop()
-        for test in suite:
-            if isinstance(test, unittest.TestSuite):
-                stack.append(test)
-                continue
-            if test.__class__.__name__ == 'ModuleImportFailure':
-                raise Exception('Failed to import a test module: %s' % test)
-            yield test
-
-def filter_tests(suite, *names):
-    names = {x if x.startswith('test_') else 'test_' + x for x in names}
-    tests = []
-    for test in itertests(suite):
-        if test._testMethodName in names:
-            tests.append(test)
-    return unittest.TestSuite(tests)
-
 class Test(Command):
 
     def add_options(self, parser):
@@ -92,8 +72,8 @@ class Test(Command):
                           ' can be run by specifying the name "something".')
 
     def run(self, opts):
-        r = unittest.TextTestRunner
+        from calibre.utils.run_tests import run_cli, filter_tests_by_name
         tests = find_tests(which_tests=frozenset(opts.test_module))
         if opts.test_name:
-            tests = filter_tests(tests, *opts.test_name)
-        r(verbosity=opts.test_verbosity).run(tests)
+            tests = filter_tests_by_name(tests, *opts.test_name)
+        run_cli(tests, verbosity=opts.test_verbosity)
