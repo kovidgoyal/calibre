@@ -22,6 +22,7 @@ from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.monotonic import monotonic
+is_travis = os.environ.get('TRAVIS') == 'true'
 
 class LoopTest(BaseTest):
 
@@ -103,6 +104,7 @@ class LoopTest(BaseTest):
         with TestServer(lambda data:(data.path[0] + data.read()), listen_on='1.1.1.1', fallback_to_detected_interface=True, specialize=specialize) as server:
             self.assertNotEqual('1.1.1.1', server.address[0])
 
+    @skipIf(is_travis, 'Travis does not support BonJour')
     def test_bonjour(self):
         'Test advertising via BonJour'
         from calibre.srv.bonjour import BonJour
@@ -178,7 +180,7 @@ class LoopTest(BaseTest):
     def test_ssl(self):
         'Test serving over SSL'
         s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0)
-        s.bind(('localhost', 0))
+        s.bind(('localhost', 1338 if is_travis else 0))
         address = s.getsockname()[0]
         with TemporaryDirectory('srv-test-ssl') as tdir:
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
