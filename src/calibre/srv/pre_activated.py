@@ -33,6 +33,7 @@ if islinux:
 
     try:
         systemd = ctypes.CDLL(ctypes.util.find_library('systemd'))
+        systemd.sd_listen_fds
     except Exception:
         pass
     else:
