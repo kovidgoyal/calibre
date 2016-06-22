@@ -1240,7 +1240,7 @@ class InvalidMobi(InvalidBook):
 def do_explode(path, dest):
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
     from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
-    with open(path, 'rb') as stream:
+    with lopen(path, 'rb') as stream:
         mr = MobiReader(stream, default_log, None, None)
 
         with CurrentDir(dest):
