@@ -424,14 +424,20 @@ class SchedulerConfig(object):
             return utcnow() - ld > timedelta(sch)
         elif typ == 'day/time':
             now = nowf()
-            ld_local = ld.astimezone(local_tz)
+            try:
+                ld_local = ld.astimezone(local_tz)
+            except Exception:
+                return False
             day, hour, minute = sch
             return is_weekday(day, now) and \
                     not was_downloaded_already_today(ld_local, now) and \
                     is_time(now, hour, minute)
         elif typ == 'days_of_week':
             now = nowf()
-            ld_local = ld.astimezone(local_tz)
+            try:
+                ld_local = ld.astimezone(local_tz)
+            except Exception:
+                return False
             days, hour, minute = sch
             have_day = False
             for day in days:
@@ -443,7 +449,10 @@ class SchedulerConfig(object):
                     is_time(now, hour, minute)
         elif typ == 'days_of_month':
             now = nowf()
-            ld_local = ld.astimezone(local_tz)
+            try:
+                ld_local = ld.astimezone(local_tz)
+            except Exception:
+                return False
             days, hour, minute = sch
             have_day = now.day in days
             return have_day and \
