@@ -60,21 +60,30 @@ def find_tests(which_tests=None):
     tests = unittest.TestSuite(ans)
     return tests
 
+def itertests(suite):
+    stack = [suite]
+    while stack:
+        suite = stack.pop()
+        for test in suite:
+            if isinstance(test, unittest.TestSuite):
+                stack.append(test)
+                continue
+            if test.__class__.__name__ == 'ModuleImportFailure':
+                raise Exception('Failed to import a test module: %s' % test)
+            yield test
+
 def filter_tests(suite, *names):
     names = {x if x.startswith('test_') else 'test_' + x for x in names}
     tests = []
-    for test in suite._tests:
-        if test.__class__.__name__ == 'ModuleImportFailure':
-            raise Exception('Failed to import a test module: %s' % test)
-        for s in test:
-            if s._testMethodName in names:
-                tests.append(s)
+    for test in itertests(suite):
+        if test._testMethodName in names:
+            tests.append(test)
     return unittest.TestSuite(tests)
 
 class Test(Command):
 
     def add_options(self, parser):
-        parser.add_option('--test-module', default=[], action='append', type='choice', choices=list(TEST_MODULES),
+        parser.add_option('--test-module', default=[], action='append', type='choice', choices=sorted(map(str, TEST_MODULES)),
                           help='The test module to run (can be specified more than once for multiple modules). Choices: %s' % ', '.join(sorted(TEST_MODULES)))
         parser.add_option('--test-verbosity', type=int, default=4, help='Test verbosity (0-4)')
         parser.add_option('--test-name', default=[], action='append',
