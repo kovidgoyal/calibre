@@ -55,6 +55,8 @@ class Worker(object):
 
     @property
     def executable(self):
+        if hasattr(sys, 'running_from_setup'):
+            return [sys.executable, os.path.join(sys.setup_dir, 'run-calibre-worker.py')]
         e = self.exe_name
         if iswindows:
             return os.path.join(os.path.dirname(sys.executable),
@@ -73,7 +75,7 @@ class Worker(object):
 
     @property
     def gui_executable(self):
-        if isosx:
+        if isosx and not hasattr(sys, 'running_from_setup'):
             if self.job_name in {'ebook-viewer', 'ebook-edit'}:
                 return self.executable.replace('/console.app/', '/%s.app/' % self.job_name)
             return os.path.join(sys.binaries_path, self.exe_name)
@@ -181,7 +183,7 @@ class Worker(object):
         _cwd = cwd
         if priority is None:
             priority = prefs['worker_process_priority']
-        cmd = [exe]
+        cmd = [exe] if isinstance(exe, basestring) else exe
         args = {
                 'env' : env,
                 'cwd' : _cwd,
