@@ -129,6 +129,8 @@ def get_translator(bcp_47_code):
         lang = {'pt':'pt_BR', 'zh':'zh_CN'}.get(parts[0], parts[0])
         if lang not in available:
             lang = get_lang()
+            if lang not in available:
+                lang = 'en'
             found = False
     if lang == 'en':
         return found, lang, NullTranslations()
