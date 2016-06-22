@@ -331,7 +331,7 @@ class Bootstrap(Command):
 
     def add_options(self, parser):
         parser.add_option('--ephemeral', default=False, action='store_true',
-            help='Do not download all the history for the translation repo. Speeds up first time download but subsequent downloads will be slower.')
+            help='Do not download all history for the translations. Speeds up first time download but subsequent downloads will be slower.')
 
     def pre_sub_commands(self, opts):
         tdir = self.j(self.d(self.SRC), 'translations')
