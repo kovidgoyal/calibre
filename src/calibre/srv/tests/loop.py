@@ -180,7 +180,7 @@ class LoopTest(BaseTest):
     def test_ssl(self):
         'Test serving over SSL'
         s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0)
-        s.bind(('localhost', 1338 if is_travis else 0))
+        s.bind(('::1', 0))
         address = s.getsockname()[0]
         with TemporaryDirectory('srv-test-ssl') as tdir:
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
