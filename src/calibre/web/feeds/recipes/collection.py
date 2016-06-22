@@ -15,7 +15,7 @@ from lxml.builder import ElementMaker
 
 from calibre import force_unicode
 from calibre.utils.iso8601 import parse_iso8601
-from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, fromordinal, UNDEFINED_DATE
+from calibre.utils.date import now as nowf, utcnow, local_tz, isoformat, EPOCH, UNDEFINED_DATE
 from calibre.utils.recycle_bin import delete_file
 
 NS = 'http://calibre-ebook.com/recipe_collection'
@@ -298,7 +298,7 @@ class SchedulerConfig(object):
                     self.root.remove(x)
                     break
             if last_downloaded is None:
-                last_downloaded = fromordinal(1)
+                last_downloaded = EPOCH
             sr = E.scheduled_recipe({
                 'id' : recipe.get('id'),
                 'title': recipe.get('title'),
