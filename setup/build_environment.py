@@ -97,14 +97,15 @@ pyqt['sip_bin'] = os.environ.get('SIP_BIN', 'sip')
 
 from PyQt5.QtCore import PYQT_CONFIGURATION
 pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
-def get_sip_dir(q):
+def get_sip_dir():
+    q = os.environ.get('SIP_DIR', sys.prefix if iswindows else os.path.join(sys.prefix, 'share', 'sip'))
     for x in ('', 'Py2-PyQt5', 'PyQt5', 'sip/PyQt5'):
         base = os.path.join(q, x)
         if os.path.exists(os.path.join(base, 'QtWidgets')):
             return base
     raise EnvironmentError('Failed to find the location of the PyQt5 .sip files')
-pyqt['pyqt_sip_dir'] = get_sip_dir(sys.prefix if iswindows else os.path.join(sys.prefix, 'share', 'sip'))
-pyqt['sip_inc_dir'] = sysconfig.get_path('include')
+pyqt['pyqt_sip_dir'] = get_sip_dir()
+pyqt['sip_inc_dir'] = os.environ.get('SIP_INC_DIR', sysconfig.get_path('include'))
 
 glib_flags = subprocess.check_output([PKGCONFIG, '--libs', 'glib-2.0']).strip() if islinux else ''
 fontconfig_flags = subprocess.check_output([PKGCONFIG, '--libs', 'fontconfig']).strip() if islinux else ''
