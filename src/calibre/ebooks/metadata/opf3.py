@@ -825,24 +825,69 @@ def get_metadata(stream):
 
 def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
     prefixes, refines = read_prefixes(root), read_refines(root)
-    set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
-    set_title(root, prefixes, refines, mi.title, mi.title_sort)
-    set_languages(root, prefixes, refines, mi.languages)
+    current_mi = read_metadata(root)
+    if apply_null:
+        def ok(x):
+            return True
+    else:
+        def ok(x):
+            return not mi.is_null(x)
+    if ok('identifiers'):
+        set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
+    if ok('title'):
+        set_title(root, prefixes, refines, mi.title, mi.title_sort)
+    if ok('languages'):
+        set_languages(root, prefixes, refines, mi.languages)
+    if ok('book_producer'):
+        set_book_producers(root, prefixes, refines, (mi.book_producer,))
     aus = string_to_authors(mi.author_sort or '')
     authors = []
     for i, aut in enumerate(mi.authors):
         authors.append(Author(aut, aus[i] if i < len(aus) else None))
-    set_authors(root, prefixes, refines, authors)
-    set_pubdate(root, prefixes, refines, mi.pubdate)
-    set_timestamp(root, prefixes, refines, mi.timestamp)
-    set_comments(root, prefixes, refines, mi.comments)
-    set_publisher(root, prefixes, refines, mi.publisher)
-    set_tags(root, prefixes, refines, mi.tags)
-    set_rating(root, prefixes, refines, mi.rating)
-    set_series(root, prefixes, refines, mi.series, mi.series_index)
-    set_author_link_map(root, prefixes, refines, getattr(mi, 'author_link_map', None))
-    set_user_categories(root, prefixes, refines, getattr(mi, 'user_categories', None))
-    set_user_metadata(root, prefixes, refines, mi.get_all_user_metadata(False))
+    if authors or apply_null:
+        set_authors(root, prefixes, refines, authors)
+    if ok('pubdate'):
+        set_pubdate(root, prefixes, refines, mi.pubdate)
+    if update_timestamp and mi.timestamp is not None:
+        set_timestamp(root, prefixes, refines, mi.timestamp)
+    if ok('comments'):
+        set_comments(root, prefixes, refines, mi.comments)
+    if ok('publisher'):
+        set_publisher(root, prefixes, refines, mi.publisher)
+    if ok('tags'):
+        set_tags(root, prefixes, refines, mi.tags)
+    if ok('rating') and mi.rating > 0.1:
+        set_rating(root, prefixes, refines, mi.rating)
+    if ok('series'):
+        set_series(root, prefixes, refines, mi.series, mi.series_index or 1)
+    if ok('author_link_map'):
+        set_author_link_map(root, prefixes, refines, getattr(mi, 'author_link_map', None))
+    if ok('user_categories'):
+        set_user_categories(root, prefixes, refines, getattr(mi, 'user_categories', None))
+    new_user_metadata, current_user_metadata = mi.get_all_user_metadata(True), current_mi.get_all_user_metadata(True)
+    missing = object()
+    for key in tuple(new_user_metadata):
+        meta = new_user_metadata.get(key)
+        if meta is None:
+            if apply_null:
+                new_user_metadata[key] = None
+            continue
+        dt = meta.get('datatype')
+        if dt == 'text' and meta.get('is_multiple'):
+            val = mi.get(key, [])
+            if val or apply_null:
+                current_user_metadata[key] = meta
+        elif dt in {'int', 'float', 'bool'}:
+            val = mi.get(key, missing)
+            if val is missing:
+                if apply_null:
+                    current_user_metadata[key] = meta
+            elif apply_null or val is not None:
+                current_user_metadata[key] = meta
+        elif apply_null or not mi.is_null(key):
+            current_user_metadata[key] = meta
+
+    set_user_metadata(root, prefixes, refines, current_user_metadata)
 
     pretty_print_opf(root)
 
