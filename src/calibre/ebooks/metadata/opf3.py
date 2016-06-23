@@ -590,6 +590,44 @@ def set_tags(root, prefixes, refines, val):
                 m.append(c)
 # }}}
 
+# Rating {{{
+
+def read_rating(root, prefixes, refines):
+    pq = '%s:rating' % CALIBRE_PREFIX
+    for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
+        val = (meta.text or '').strip()
+        if val:
+            prop = expand_prefix(meta.get('property'), prefixes)
+            if prop.lower() == pq:
+                try:
+                    return float(val)
+                except Exception:
+                    continue
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:rating"]')(root):
+        val = meta.get('content')
+        if val:
+            try:
+                return float(val)
+            except Exception:
+                continue
+
+def set_rating(root, prefixes, refines, val):
+    pq = '%s:rating' % CALIBRE_PREFIX
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:rating"]')(root):
+        remove_element(meta, refines)
+    for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
+        prop = expand_prefix(meta.get('property'), prefixes)
+        if prop.lower() == pq:
+            remove_element(meta, refines)
+    if val:
+        ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
+    m = XPath('./opf:metadata')(root)[0]
+    if val:
+        d = m.makeelement(OPF('meta'), attrib={'property':'calibre:rating'})
+        d.text = '%.2g' % val
+        m.append(d)
+# }}}
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -624,6 +662,7 @@ def read_metadata(root):
     ans.comments = read_comments(root, prefixes, refines) or ans.comments
     ans.publisher = read_publisher(root, prefixes, refines) or ans.publisher
     ans.tags = read_tags(root, prefixes, refines) or ans.tags
+    ans.rating = read_rating(root, prefixes, refines) or ans.rating
     return ans
 
 def get_metadata(stream):
@@ -645,6 +684,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_comments(root, prefixes, refines, mi.comments)
     set_publisher(root, prefixes, refines, mi.publisher)
     set_tags(root, prefixes, refines, mi.tags)
+    set_rating(root, prefixes, refines, mi.rating)
 
     pretty_print_opf(root)
 
