@@ -360,6 +360,13 @@ def set_languages(root, prefixes, refines, languages):
 
 Author = namedtuple('Author', 'name sort')
 
+def is_relators_role(props, q):
+    role = props.get('role')
+    if role:
+        scheme_ns, scheme, role = role
+        return role.lower() == q and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators'))
+    return False
+
 def read_authors(root, prefixes, refines):
     roled_authors, unroled_authors = [], []
 
@@ -379,8 +386,7 @@ def read_authors(root, prefixes, refines):
             role = props.get('role')
             opf_role = item.get(OPF('role'))
             if role:
-                scheme_ns, scheme, role = role
-                if role.lower() == 'aut' and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
+                if is_relators_role(props, 'aut'):
                     roled_authors.append(author(item, props, val))
             elif opf_role:
                 if opf_role.lower() == 'aut':
@@ -394,9 +400,8 @@ def set_authors(root, prefixes, refines, authors):
     ensure_prefix(root, prefixes, 'marc')
     for item in XPath('./opf:metadata/dc:creator')(root):
         props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
-        role = props.get('role')
         opf_role = item.get(OPF('role'))
-        if (role and role.lower() != 'aut') or (opf_role and opf_role.lower() != 'aut'):
+        if (is_relators_role(props, 'aut')) or (opf_role and opf_role.lower() != 'aut'):
             continue
         remove_element(item, refines)
     metadata = XPath('./opf:metadata')(root)[0]
@@ -422,8 +427,7 @@ def read_book_producers(root, prefixes, refines):
             role = props.get('role')
             opf_role = item.get(OPF('role'))
             if role:
-                scheme_ns, scheme, role = role
-                if role.lower() == 'bkp' and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
+                if is_relators_role(props, 'bkp'):
                     ans.append(normalize_whitespace(val))
             elif opf_role and opf_role.lower() == 'bkp':
                 ans.append(normalize_whitespace(val))
@@ -432,9 +436,8 @@ def read_book_producers(root, prefixes, refines):
 def set_book_producers(root, prefixes, refines, producers):
     for item in XPath('./opf:metadata/dc:contributor')(root):
         props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
-        role = props.get('role')
         opf_role = item.get(OPF('role'))
-        if (role and role.lower() != 'bkp') or (opf_role and opf_role.lower() != 'bkp'):
+        if (is_relators_role(props, 'bkp')) or (opf_role and opf_role.lower() != 'bkp'):
             continue
         remove_element(item, refines)
     metadata = XPath('./opf:metadata')(root)[0]

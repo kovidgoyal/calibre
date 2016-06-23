@@ -24,6 +24,9 @@ from calibre.ebooks.metadata.opf3 import (
     read_author_link_map, read_user_categories, set_author_link_map, set_user_categories,
     apply_metadata
 )
+# This import is needed to prevent a test from running slowly
+from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree  # noqa
+
 read_author_link_map, read_user_categories, set_author_link_map, set_user_categories
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>''' % CALIBRE_PREFIX  # noqa
@@ -487,6 +490,21 @@ class TestOPF3(unittest.TestCase):
         compare_metadata(mi2, mi3)
         apply_metadata(root, mi3)
         compare_metadata(mi3, read_metadata(root))
+        mi3.tags = []
+        mi3.set('#tags', [])
+        mi3.set('#number', 0)
+        mi3.set('#commetns', '')
+        apply_metadata(root, mi3)
+        nmi = read_metadata(root)
+        self.assertEqual(mi2.tags, nmi.tags)
+        self.assertEqual(mi2.get('#tags'), nmi.get('#tags'))
+        self.assertEqual(mi2.get('#commetns'), nmi.get('#commetns'))
+        self.assertEqual(0, nmi.get('#number'))
+        apply_metadata(root, mi3, apply_null=True)
+        nmi = read_metadata(root)
+        self.assertFalse(nmi.tags)
+        self.assertFalse(nmi.get('#tags'))
+        self.assertFalse(nmi.get('#commetns'))
     # }}}
 
 # Run tests {{{
