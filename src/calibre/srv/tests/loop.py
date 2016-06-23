@@ -233,12 +233,16 @@ class LoopTest(BaseTest):
         class FakeLog(list):
             def error(self, *args):
                 self.append(' '.join(args))
-        jm = JobsManager(O(1, 5), FakeLog())
-        job_id = jm.start_job('simple test', 'calibre.srv.jobs', 'sleep_test', args=(1.0,))
-        job_id2 = jm.start_job('t2', 'calibre.srv.jobs', 'sleep_test', args=(3,))
-        jid = jm.start_job('err test', 'calibre.srv.jobs', 'error_test')
-        status = jm.job_status(job_id)[0]
         s = ('waiting', 'running')
+        jm = JobsManager(O(1, 5), FakeLog())
+        # Start jobs
+        job_id1 = jm.start_job('simple test', 'calibre.srv.jobs', 'sleep_test', args=(1.0,))
+        job_id2 = jm.start_job('t2', 'calibre.srv.jobs', 'sleep_test', args=(3,))
+        job_id3 = jm.start_job('err test', 'calibre.srv.jobs', 'error_test')
+
+        # Job 1
+        job_id = job_id1
+        status = jm.job_status(job_id)[0]
         self.assertIn(status, s)
         status2 = jm.job_status(job_id2)[0]
         self.assertEqual(status2, 'waiting')
@@ -249,17 +253,24 @@ class LoopTest(BaseTest):
         self.assertFalse(was_aborted)
         self.assertFalse(tb)
         self.assertEqual(result, 1.0)
-        status2 = jm.job_status(job_id2)[0]
-        time.sleep(0.01)
-        self.assertEqual(status2, 'running')
-        jm.abort_job(job_id2)
-        self.assertTrue(jm.wait_for_running_job(job_id2))
-        status, result, tb, was_aborted = jm.job_status(job_id2)
-        self.assertTrue(was_aborted)
+
+        # Job 2
+        job_id = job_id2
         while jm.job_status(job_id)[0] == 'waiting':
             time.sleep(0.01)
-        self.assertIn(jm.wait_for_running_job(jid), (True, None))
-        status, result, tb, was_aborted = jm.job_status(jid)
+        status2 = jm.job_status(job_id)[0]
+        self.assertEqual(status2, 'running')
+        jm.abort_job(job_id)
+        self.assertTrue(jm.wait_for_running_job(job_id))
+        status, result, tb, was_aborted = jm.job_status(job_id)
+        self.assertTrue(was_aborted)
+
+        # Job 3
+        job_id = job_id3
+        while jm.job_status(job_id)[0] == 'waiting':
+            time.sleep(0.01)
+        self.assertIn(jm.wait_for_running_job(job_id), (True, None))
+        status, result, tb, was_aborted = jm.job_status(job_id)
         self.assertEqual(status, 'finished')
         self.assertFalse(was_aborted)
         self.assertTrue(tb), self.assertIn('a testing error', tb)
