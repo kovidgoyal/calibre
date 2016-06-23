@@ -260,6 +260,7 @@ class LoopTest(BaseTest):
             time.sleep(0.01)
         self.assertIn(jm.wait_for_running_job(jid), (True, None))
         status, result, tb, was_aborted = jm.job_status(jid)
+        self.assertEqual(status, 'finished')
         self.assertFalse(was_aborted)
         self.assertTrue(tb), self.assertIn('a testing error', tb)
         jm.start_job('simple test', 'calibre.srv.jobs', 'sleep_test', args=(1.0,))
