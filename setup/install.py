@@ -329,12 +329,21 @@ class Bootstrap(Command):
     TRANSLATIONS_REPO = 'https://github.com/kovidgoyal/calibre-translations.git'
     sub_commands = 'build iso639 iso3166 translations gui resources cacerts mathjax'.split()
 
+    def add_options(self, parser):
+        parser.add_option('--ephemeral', default=False, action='store_true',
+            help='Do not download all history for the translations. Speeds up first time download but subsequent downloads will be slower.')
+
     def pre_sub_commands(self, opts):
         tdir = self.j(self.d(self.SRC), 'translations')
-        if os.path.exists(tdir):
-            subprocess.check_call(['git', 'pull'], cwd=tdir)
+        if opts.ephemeral:
+            if os.path.exists(tdir):
+                shutil.rmtree(tdir)
+            subprocess.check_call(['git', 'clone', '--depth=1', self.TRANSLATIONS_REPO, 'translations'], cwd=self.d(self.SRC))
         else:
-            subprocess.check_call(['git', 'clone', self.TRANSLATIONS_REPO, 'translations'], cwd=self.d(self.SRC))
+            if os.path.exists(tdir):
+                subprocess.check_call(['git', 'pull'], cwd=tdir)
+            else:
+                subprocess.check_call(['git', 'clone', self.TRANSLATIONS_REPO, 'translations'], cwd=self.d(self.SRC))
 
     def run(self, opts):
         self.info('\n\nAll done! You should now be able to run "%s setup.py install" to install calibre' % sys.executable)

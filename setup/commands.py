@@ -12,7 +12,7 @@ __all__ = [
         'gui',
         'develop', 'install',
         'kakasi', 'coffee', 'rapydscript', 'cacerts', 'resources',
-        'check',
+        'check', 'test',
         'sdist', 'bootstrap',
         'manual', 'tag_release',
         'pypi_register', 'pypi_upload', 'upload_to_server',
@@ -49,6 +49,9 @@ gui = GUI()
 
 from setup.check import Check
 check = Check()
+
+from setup.test import Test
+test = Test()
 
 from setup.resources import Resources, Kakasi, Coffee, CACerts, RapydScript
 resources = Resources()

@@ -6,25 +6,13 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest, sys, argparse, json
+import unittest, sys, argparse
 
 from lxml import etree, html
 
 from css_selectors.errors import SelectorSyntaxError, ExpressionError
 from css_selectors.parser import tokenize, parse
 from css_selectors.select import Select
-
-def run_webkit_selector(page, selector):
-    return json.loads(page.mainFrame().evaluateJavaScript(
-        '''
-        var nodes = document.querySelectorAll(%s);
-        var ans = [];
-        var i = 0;
-        for (var i = 0; i < nodes.length; i++)
-            ans.push(nodes[i].getAttribute("id"));
-        JSON.stringify(ans);
-        ''' % json.dumps(selector)
-    ) or '[]')
 
 class TestCSSSelectors(unittest.TestCase):
 
@@ -633,12 +621,12 @@ by William Shakespeare
             "Expected string or ident, got <DELIM '#' at 5>")
         assert get_error('[href]a') == (
             "Expected selector, got <IDENT 'a' at 6>")
-        assert get_error('[rel=stylesheet]') == None
+        assert get_error('[rel=stylesheet]') is None
         assert get_error('[rel:stylesheet]') == (
             "Operator expected, got <DELIM ':' at 4>")
         assert get_error('[rel=stylesheet') == (
             "Expected ']', got <EOF at 15>")
-        assert get_error(':lang(fr)') == None
+        assert get_error(':lang(fr)') is None
         assert get_error(':lang(fr') == (
             "Expected an argument, got <EOF at 8>")
         assert get_error(':contains("foo') == (
@@ -661,11 +649,6 @@ by William Shakespeare
         document = etree.fromstring(self.HTML_IDS)
         select = Select(document)
 
-        from PyQt5.Qt import QApplication, QWebPage
-        app = QApplication([])
-        w = QWebPage()
-        w.mainFrame().setHtml(self.HTML_IDS)
-
         def select_ids(selector):
             for elem in select(selector):
                 yield elem.get('id')
@@ -674,9 +657,6 @@ by William Shakespeare
             result = list(select_ids(main))
             for selector in selectors:
                 self.ae(list(select_ids(selector)), result)
-            if not kwargs.get('skip_webkit'):
-                wk = set(run_webkit_selector(w, main))
-                self.ae(set(result), wk, 'WebKit did not match result for: %r. Result: %r WebKit: %r' % (main, set(result), wk))
             return result
         all_ids = pcss('*')
         self.ae(all_ids[:6], [
@@ -761,8 +741,6 @@ by William Shakespeare
 
         select = Select(document, ignore_inappropriate_pseudo_classes=True)
         self.assertGreater(len(tuple(select('p:hover'))), 0)
-
-        del app
 
     def test_select_shakespeare(self):
         document = html.document_fromstring(self.HTML_SHAKESPEARE)

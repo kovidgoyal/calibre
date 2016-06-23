@@ -18,7 +18,7 @@ class Article(object):
         from lxml import html
         self.downloaded = False
         self.id = id
-        self._title = title.strip() if title else title
+        self._title = (title or _('Unknown')).strip()
         try:
             self._title = re.sub(r'&(\S+?);',
                 entity_to_unicode, self._title)

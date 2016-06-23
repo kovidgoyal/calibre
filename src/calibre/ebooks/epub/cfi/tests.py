@@ -90,6 +90,8 @@ class Tests(unittest.TestCase):
         ]:
             self.assertEqual(p.parse_path(raw), (path, leftover))
 
+def find_tests():
+    return unittest.TestLoader().loadTestsFromTestCase(Tests)
+
 if __name__ == '__main__':
-    suite = unittest.TestLoader().loadTestsFromTestCase(Tests)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    unittest.TextTestRunner(verbosity=2).run(find_tests())

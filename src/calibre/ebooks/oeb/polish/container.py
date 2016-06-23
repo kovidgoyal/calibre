@@ -281,7 +281,7 @@ class Container(ContainerBase):  # {{{
                 for name, path in self.name_path_map.iteritems()}
         }
 
-    def add_name_to_manifest(self, name):
+    def add_name_to_manifest(self, name, process_manifest_item=None):
         ' Add an entry to the manifest for a file with the specified name. Returns the manifest id. '
         all_ids = {x.get('id') for x in self.opf_xpath('//*[@id]')}
         c = 0
@@ -295,6 +295,8 @@ class Container(ContainerBase):  # {{{
                                     id=item_id, href=href)
         item.set('media-type', self.mime_map[name])
         self.insert_into_xml(manifest, item)
+        if process_manifest_item is not None:
+            process_manifest_item(item)
         self.dirty(self.opf_name)
         return item_id
 
@@ -304,7 +306,7 @@ class Container(ContainerBase):  # {{{
         all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
         return href in all_hrefs
 
-    def add_file(self, name, data, media_type=None, spine_index=None, modify_name_if_needed=False):
+    def add_file(self, name, data, media_type=None, spine_index=None, modify_name_if_needed=False, process_manifest_item=None):
         ''' Add a file to this container. Entries for the file are
         automatically created in the OPF manifest and spine
         (if the file is a text document) '''
@@ -336,7 +338,7 @@ class Container(ContainerBase):  # {{{
         self.mime_map[name] = mt
         if self.ok_to_be_unmanifested(name):
             return name
-        item_id = self.add_name_to_manifest(name)
+        item_id = self.add_name_to_manifest(name, process_manifest_item=process_manifest_item)
         if mt in OEB_DOCS:
             manifest = self.opf_xpath('//opf:manifest')[0]
             spine = self.opf_xpath('//opf:spine')[0]
@@ -1240,7 +1242,7 @@ class InvalidMobi(InvalidBook):
 def do_explode(path, dest):
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
     from calibre.ebooks.mobi.reader.mobi8 import Mobi8Reader
-    with open(path, 'rb') as stream:
+    with lopen(path, 'rb') as stream:
         mr = MobiReader(stream, default_log, None, None)
 
         with CurrentDir(dest):

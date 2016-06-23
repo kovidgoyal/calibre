@@ -316,6 +316,7 @@ class ManageUserDictionaries(Dialog):
         l.addRow(bb)
         if d.exec_() != d.Accepted:
             return
+        d.loc.update_recently_used()
         word = unicode(w.text())
         lang = (loc.lang_codes or [canonicalize_lang(get_lang())])[0]
         if not word:

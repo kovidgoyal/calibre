@@ -887,7 +887,7 @@ def _tokenize(str):
 
     return tokens
 
-def run_tests():
+def run_tests(return_tests=False):
     import unittest
     sp = smartyPants
 
@@ -929,6 +929,8 @@ def run_tests():
             self.assertEqual(sp('''"Isn't this fun?"'''), '''&#8220;Isn&#8217;t this fun?&#8221;''')
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestSmartypantsAllAttributes)
+    if return_tests:
+        return tests
     unittest.TextTestRunner(verbosity=4).run(tests)
 
 

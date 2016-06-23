@@ -33,7 +33,7 @@ class POT(Command):  # {{{
         kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)
         if hasattr(cmd, 'format'):
             cmd = shlex.split(cmd)
-        return subprocess.check_call(['tx'] + cmd, **kw)
+        return subprocess.check_call(['tx', '--traceback'] + cmd, **kw)
 
     def git(self, cmd, **kw):
         kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)

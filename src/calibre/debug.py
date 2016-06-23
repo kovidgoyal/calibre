@@ -182,7 +182,7 @@ def print_basic_debug_info(out=None):
         pass
     from calibre.customize.ui import has_external_plugins, initialized_plugins
     if has_external_plugins():
-        names = (p.name for p in initialized_plugins() if getattr(p, 'plugin_path', None) is not None)
+        names = ('{0} {1}'.format(p.name, p.version) for p in initialized_plugins() if getattr(p, 'plugin_path', None) is not None)
         out('Successfully initialized third party plugins:', ' && '.join(names))
 
 def run_debug_gui(logpath):

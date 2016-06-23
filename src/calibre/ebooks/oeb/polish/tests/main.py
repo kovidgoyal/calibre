@@ -6,19 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-
-try:
-    import init_calibre  # noqa
-except ImportError:
-    pass
-
-import os, unittest
+import os
+from calibre.utils.run_tests import find_tests_in_dir, run_tests
 
 def find_tests():
-    return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
+    base = os.path.dirname(os.path.abspath(__file__))
+    return find_tests_in_dir(base)
 
 if __name__ == '__main__':
-    from calibre.db.tests.main import run_tests
-    run_tests(find_tests=find_tests)
-
-
+    try:
+        import init_calibre  # noqa
+    except ImportError:
+        pass
+    run_tests(find_tests)

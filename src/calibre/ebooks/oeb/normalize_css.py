@@ -284,7 +284,7 @@ def condense_sheet(sheet):
         if rule.type == rule.STYLE_RULE:
             condense_rule(rule.style)
 
-def test_normalization():  # {{{
+def test_normalization(return_tests=False):  # {{{
     import unittest
     from cssutils import parseStyle
     from itertools import product
@@ -442,6 +442,8 @@ def test_normalization():  # {{{
             self.assertEqual(style.getProperty('border-left').value, vals.replace('red', 'green'))
 
     tests = unittest.defaultTestLoader.loadTestsFromTestCase(TestNormalization)
+    if return_tests:
+        return tests
     unittest.TextTestRunner(verbosity=4).run(tests)
 # }}}
 

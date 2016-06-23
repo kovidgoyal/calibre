@@ -10,6 +10,7 @@ from lxml import etree
 
 from calibre import prepare_string_for_xml as xml
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
+from calibre.ebooks.oeb.polish.toc import find_existing_nav_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.base import OPF, OPF2_NS, DC, DC11_NS, XHTML_MIME
 
@@ -99,6 +100,15 @@ class MissingNCXRef(BaseError):
                 changed = True
                 container.dirty(container.opf_name)
         return changed
+
+class MissingNav(BaseError):
+
+    HELP = _('This book has no Navigation document. According to the EPUB 3 specification, a navigation document'
+             ' is required. The Navigation document contains the Table of Contents. Use the Table of Contents'
+             ' tool to add a Table of Contents to this book.')
+
+    def __init__(self, name, lnum):
+        BaseError.__init__(self, _('Missing navigation document'), name, lnum)
 
 class MissingHref(BaseError):
 
@@ -230,6 +240,7 @@ class BadSpineMime(BaseError):
 
 def check_opf(container):
     errors = []
+    opf_version = container.opf_version_parsed
 
     if container.opf.tag != OPF('package'):
         err = BaseError(_('The OPF does not have the correct root element'), container.opf_name, container.opf.sourceline)
@@ -305,6 +316,10 @@ def check_opf(container):
                 ncx_id = rmap.get(ncx_name)
                 if ncx_id:
                     errors.append(MissingNCXRef(container.opf_name, spine.sourceline, ncx_id))
+
+    if opf_version.major > 2:
+        if find_existing_nav_toc(container) is None:
+            errors.append(MissingNav(container.opf_name, 0))
 
     covers = container.opf_xpath('/opf:package/opf:metadata/opf:meta[@name="cover"]')
     if len(covers) > 0:

@@ -11,7 +11,7 @@ import sys, os, importlib, time
 from PyQt5.Qt import QIcon
 
 from calibre.constants import islinux, iswindows
-from calibre.gui2 import Application, ORG_NAME, APP_UID, setup_gui_option_parser, decouple
+from calibre.gui2 import Application, ORG_NAME, APP_UID, setup_gui_option_parser, decouple, set_gui_prefs
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
 
@@ -60,7 +60,7 @@ def _run(args, notify=None):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    decouple('edit-book-')
+    decouple('edit-book-'), set_gui_prefs(tprefs)
     override = 'calibre-edit-book' if islinux else None
     app = Application(args, override_program_name=override, color_prefs=tprefs)
     app.file_event_hook = EventAccumulator()

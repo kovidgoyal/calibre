@@ -10,25 +10,15 @@ import re
 
 from lxml import etree
 
-from calibre.ebooks.metadata import check_isbn, authors_to_string
+from calibre.ebooks.metadata import check_isbn, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
+from calibre.utils.date import parse_date as parse_date_, fix_only_date, is_date_undefined, isoformat
+from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import canonicalize_lang
 
 # Utils {{{
-# http://www.idpf.org/epub/vocab/package/pfx/
-reserved_prefixes = {
-    'dcterms':  'http://purl.org/dc/terms/',
-    'epubsc':   'http://idpf.org/epub/vocab/sc/#',
-    'marc':     'http://id.loc.gov/vocabulary/',
-    'media':    'http://www.idpf.org/epub/vocab/overlays/#',
-    'onix':     'http://www.editeur.org/ONIX/book/codelists/current.html#',
-    'rendition':'http://www.idpf.org/vocab/rendition/#',
-    'schema':   'http://schema.org/',
-    'xsd':      'http://www.w3.org/2001/XMLSchema#',
-}
-
 _xpath_cache = {}
 _re_cache = {}
 
@@ -93,7 +83,15 @@ def properties_for_id_with_scheme(item_id, prefixes, refines):
                     ans[key] = (scheme_ns, scheme, val)
     return ans
 
-def ensure_id(root, elem):
+def getroot(elem):
+    while True:
+        q = elem.getparent()
+        if q is None:
+            return elem
+        elem = q
+
+def ensure_id(elem):
+    root = getroot(elem)
     eid = elem.get('id')
     if not eid:
         eid = ensure_unique('id', frozenset(XPath('//*/@id')(root)))
@@ -114,6 +112,20 @@ def simple_text(f):
 
 # Prefixes {{{
 
+# http://www.idpf.org/epub/vocab/package/pfx/
+reserved_prefixes = {
+    'dcterms':  'http://purl.org/dc/terms/',
+    'epubsc':   'http://idpf.org/epub/vocab/sc/#',
+    'marc':     'http://id.loc.gov/vocabulary/',
+    'media':    'http://www.idpf.org/epub/vocab/overlays/#',
+    'onix':     'http://www.editeur.org/ONIX/book/codelists/current.html#',
+    'rendition':'http://www.idpf.org/vocab/rendition/#',
+    'schema':   'http://schema.org/',
+    'xsd':      'http://www.w3.org/2001/XMLSchema#',
+}
+
+CALIBRE_PREFIX = 'https://calibre-ebook.com'
+
 def parse_prefixes(x):
     return {m.group(1):m.group(2) for m in re.finditer(r'(\S+): \s*(\S+)', x)}
 
@@ -123,7 +135,16 @@ def read_prefixes(root):
     return ans
 
 def expand_prefix(raw, prefixes):
-    return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m:(prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2)), raw)
+    return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m:(prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2)), raw or '')
+
+def ensure_prefix(root, prefixes, prefix, value=None):
+    prefixes[prefix] = value or reserved_prefixes[prefix]
+    prefixes = {k:v for k, v in prefixes.iteritems() if reserved_prefixes.get(k) != v}
+    if prefixes:
+        root.set('prefix', ' '.join('%s: %s' % (k, v) for k, v in prefixes.iteritems()))
+    else:
+        root.attrib.pop('prefix', None)
+
 # }}}
 
 # Refines {{{
@@ -139,7 +160,7 @@ def refdef(prop, val, scheme=None):
     return (prop, val, scheme)
 
 def set_refines(elem, existing_refines, *new_refines):
-    eid = ensure_id(elem.getroottree().getroot(), elem)
+    eid = ensure_id(elem)
     remove_refines(elem, existing_refines)
     for ref in reversed(new_refines):
         prop, val, scheme = ref
@@ -362,6 +383,147 @@ def read_authors(root, prefixes, refines):
 
     return uniq(roled_authors or unroled_authors)
 
+def set_authors(root, prefixes, refines, authors):
+    ensure_prefix(root, prefixes, 'marc')
+    for item in XPath('./opf:metadata/dc:creator')(root):
+        props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+        role = props.get('role')
+        opf_role = item.get(OPF('role'))
+        if (role and role.lower() != 'aut') or (opf_role and opf_role.lower() != 'aut'):
+            continue
+        remove_element(item, refines)
+    metadata = XPath('./opf:metadata')(root)[0]
+    for author in authors:
+        a = metadata.makeelement(DC('creator'))
+        aid = ensure_id(a)
+        a.text = author.name
+        metadata.append(a)
+        m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
+        m.text = 'aut'
+        metadata.append(m)
+        if author.sort:
+            m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'file-as'})
+            m.text = author.sort
+            metadata.append(m)
+
+def read_book_producers(root, prefixes, refines):
+    ans = []
+    for item in XPath('./opf:metadata/dc:contributor')(root):
+        val = (item.text or '').strip()
+        if val:
+            props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+            role = props.get('role')
+            opf_role = item.get(OPF('role'))
+            if role:
+                scheme_ns, scheme, role = role
+                if role.lower() == 'bkp' and (scheme_ns is None or (scheme_ns, scheme) == (reserved_prefixes['marc'], 'relators')):
+                    ans.append(normalize_whitespace(val))
+            elif opf_role and opf_role.lower() == 'bkp':
+                ans.append(normalize_whitespace(val))
+    return ans
+
+def set_book_producers(root, prefixes, refines, producers):
+    for item in XPath('./opf:metadata/dc:contributor')(root):
+        props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
+        role = props.get('role')
+        opf_role = item.get(OPF('role'))
+        if (role and role.lower() != 'bkp') or (opf_role and opf_role.lower() != 'bkp'):
+            continue
+        remove_element(item, refines)
+    metadata = XPath('./opf:metadata')(root)[0]
+    for bkp in producers:
+        a = metadata.makeelement(DC('contributor'))
+        aid = ensure_id(a)
+        a.text = bkp
+        metadata.append(a)
+        m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
+        m.text = 'bkp'
+        metadata.append(m)
+# }}}
+
+# Dates {{{
+
+def parse_date(raw, is_w3cdtf=False):
+    raw = raw.strip()
+    if is_w3cdtf:
+        ans = parse_iso8601(raw, assume_utc=True)
+        if 'T' not in raw and ' ' not in raw:
+            ans = fix_only_date(ans)
+    else:
+        ans = parse_date_(raw, assume_utc=True)
+        if ' ' not in raw and 'T' not in raw and (ans.hour, ans.minute, ans.second) == (0, 0, 0):
+            ans = fix_only_date(ans)
+    return ans
+
+def read_pubdate(root, prefixes, refines):
+    for date in XPath('./opf:metadata/dc:date')(root):
+        val = (date.text or '').strip()
+        if val:
+            try:
+                return parse_date(val)
+            except Exception:
+                continue
+
+def set_pubdate(root, prefixes, refines, val):
+    for date in XPath('./opf:metadata/dc:date')(root):
+        remove_element(date, refines)
+    if not is_date_undefined(val):
+        val = isoformat(val)
+        m = XPath('./opf:metadata')(root)[0]
+        d = m.makeelement(DC('date'))
+        d.text = val
+        m.append(d)
+
+def read_timestamp(root, prefixes, refines):
+    pq = '%s:timestamp' % CALIBRE_PREFIX
+    sq = '%s:w3cdtf' % reserved_prefixes['dcterms']
+    for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
+        val = (meta.text or '').strip()
+        if val:
+            prop = expand_prefix(meta.get('property'), prefixes)
+            if prop.lower() == pq:
+                scheme = expand_prefix(meta.get('scheme'), prefixes).lower()
+                try:
+                    return parse_date(val, is_w3cdtf=scheme == sq)
+                except Exception:
+                    continue
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:timestamp"]')(root):
+        val = meta.get('content')
+        if val:
+            try:
+                return parse_date(val, is_w3cdtf=True)
+            except Exception:
+                continue
+
+def set_timestamp(root, prefixes, refines, val):
+    ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
+    ensure_prefix(root, prefixes, 'dcterms')
+    pq = '%s:timestamp' % CALIBRE_PREFIX
+    for meta in XPath('./opf:metadata/opf:meta')(root):
+        prop = expand_prefix(meta.get('property'), prefixes)
+        if prop.lower() == pq or meta.get('name') == 'calibre:timestamp':
+            remove_element(meta, refines)
+    if not is_date_undefined(val):
+        val = isoformat(val)
+        m = XPath('./opf:metadata')(root)[0]
+        d = m.makeelement(OPF('meta'), attrib={'property':'calibre:timestamp', 'scheme':'dcterms:W3CDTF'})
+        d.text = val
+        m.append(d)
+
+
+def read_last_modified(root, prefixes, refines):
+    pq = '%s:modified' % reserved_prefixes['dcterms']
+    sq = '%s:w3cdtf' % reserved_prefixes['dcterms']
+    for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
+        val = (meta.text or '').strip()
+        if val:
+            prop = expand_prefix(meta.get('property'), prefixes)
+            if prop.lower() == pq:
+                scheme = expand_prefix(meta.get('scheme'), prefixes).lower()
+                try:
+                    return parse_date(val, is_w3cdtf=scheme == sq)
+                except Exception:
+                    continue
 # }}}
 
 def read_metadata(root):
@@ -383,6 +545,18 @@ def read_metadata(root):
         auts.append(a.name), aus.append(a.sort)
     ans.authors = auts or ans.authors
     ans.author_sort = authors_to_string(aus) or ans.author_sort
+    bkp = read_book_producers(root, prefixes, refines)
+    if bkp:
+        ans.book_producer = bkp[0]
+    pd = read_pubdate(root, prefixes, refines)
+    if not is_date_undefined(pd):
+        ans.pubdate = pd
+    ts = read_timestamp(root, prefixes, refines)
+    if not is_date_undefined(ts):
+        ans.timestamp = ts
+    lm = read_last_modified(root, prefixes, refines)
+    if not is_date_undefined(lm):
+        ans.last_modified = lm
     return ans
 
 def get_metadata(stream):
@@ -394,6 +568,13 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_identifiers(root, prefixes, refines, mi.identifiers, force_identifiers=force_identifiers)
     set_title(root, prefixes, refines, mi.title, mi.title_sort)
     set_languages(root, prefixes, refines, mi.languages)
+    aus = string_to_authors(mi.author_sort or '')
+    authors = []
+    for i, aut in enumerate(mi.authors):
+        authors.append(Author(aut, aus[i] if i < len(aus) else None))
+    set_authors(root, prefixes, refines, authors)
+    set_pubdate(root, prefixes, refines, mi.pubdate)
+    set_timestamp(root, prefixes, refines, mi.timestamp)
 
     pretty_print_opf(root)
 

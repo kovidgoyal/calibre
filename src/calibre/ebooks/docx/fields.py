@@ -224,7 +224,7 @@ class Fields(object):
         for idx, blocks in self.index_fields:
             polish_index_markup(idx, [rmap[b] for b in blocks])
 
-def test_parse_fields():
+def test_parse_fields(return_tests=False):
     import unittest
 
     class TestParseFields(unittest.TestCase):
@@ -249,6 +249,8 @@ def test_parse_fields():
             ae(r'\b \c 1', {'bookmark':None, 'columns-per-page': '1'})
 
     suite = unittest.TestLoader().loadTestsFromTestCase(TestParseFields)
+    if return_tests:
+        return suite
     unittest.TextTestRunner(verbosity=4).run(suite)
 
 if __name__ == '__main__':

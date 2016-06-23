@@ -184,19 +184,20 @@ class ParsingTests(BaseTest):
         self.assertIn('extra', root.nsmap, 'Extra namespace declaration on <html> tag not preserved')
 
 def timing():
-    import time, sys
+    import sys
     from calibre.ebooks.chardet import xml_to_unicode
+    from calibre.utils.monotonic import monotonic
     from html5lib import parse as vanilla
     filename = sys.argv[-1]
-    with open(filename, 'rb') as f:
+    with lopen(filename, 'rb') as f:
         raw = f.read()
     raw = xml_to_unicode(raw)[0]
 
     for name, f in (('calibre', partial(parse, line_numbers=False)), ('html5lib', vanilla), ('calibre-old', html5_parse)):
         timings = []
         for i in xrange(10):
-            st = time.time()
+            st = monotonic()
             f(raw)
-            timings.append(time.time() - st)
+            timings.append(monotonic() - st)
         avg = sum(timings)/len(timings)
         print ('Average time for %s: %.2g' % (name, avg))

@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from calibre.gui2 import gui_prefs
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.localization import lang_map
 from calibre.utils.icu import sort_key, lower
@@ -23,8 +24,10 @@ def get_lang_map():
 
 class LanguagesEdit(EditWithComplete):
 
-    def __init__(self, parent=None, db=None):
-        EditWithComplete.__init__(self, parent)
+    def __init__(self, parent=None, db=None, prefs=None):
+        self.prefs = prefs or gui_prefs()
+        self.refresh_recently_used()
+        EditWithComplete.__init__(self, parent, sort_func=self.sort_language_items_key)
 
         self.setSizeAdjustPolicy(self.AdjustToMinimumContentsLengthWithIcon)
         self.setMinimumContentsLength(20)
@@ -34,17 +37,28 @@ class LanguagesEdit(EditWithComplete):
         self.comma_rmap = {v:k for k, v in self.comma_map.iteritems()}
         self._rmap = {lower(v):k for k,v in self._lang_map.iteritems()}
         self.init_langs(db)
+        self.item_selected.connect(self.update_recently_used)
 
     def init_langs(self, db):
-        if db is not None:
-            pmap = {self._lang_map.get(x[1], x[1]):1 for x in
-                    db.get_languages_with_ids()}
-            all_items = sorted(self._lang_map.itervalues(),
-                key=lambda x: (-pmap.get(x, 0), sort_key(x)))
-        else:
-            all_items = sorted(self._lang_map.itervalues(),
-                key=lambda x: sort_key(x))
-        self.update_items_cache(all_items)
+        self.update_items_cache(self._lang_map.itervalues())
+
+    def refresh_recently_used(self):
+        recently_used = self.prefs.get('recently_used_languages') or ()
+        self.recently_used = {x:i for i, x in enumerate(recently_used) if x}
+
+    def update_recently_used(self):
+        recently_used = self.prefs.get('recently_used_languages') or []
+        vals = self.vals
+        for x in vals:
+            if x:
+                if x in recently_used:
+                    recently_used.remove(x)
+                recently_used.insert(0, x)
+        self.prefs.set('recently_used_languages', recently_used[:5])
+
+    def sort_language_items_key(self, val):
+        idx = self.recently_used.get(val, 100000)
+        return (idx, sort_key(val))
 
     @property
     def vals(self):

@@ -6,10 +6,16 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unittest, os, argparse
+import unittest, os, argparse, importlib
 
 def find_tests():
-    return unittest.defaultTestLoader.discover(os.path.dirname(os.path.abspath(__file__)), pattern='*.py')
+    base = os.path.dirname(os.path.abspath(__file__))
+    suits = []
+    for x in os.listdir(base):
+        if x.endswith('.py') and x != 'main.py':
+            m = importlib.import_module('tinycss.tests.' + x.partition('.')[0])
+            suits.append(unittest.defaultTestLoader.loadTestsFromModule(m))
+    return unittest.TestSuite(suits)
 
 def run_tests(find_tests=find_tests, for_build=False):
     if not for_build:
