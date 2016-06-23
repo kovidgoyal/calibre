@@ -4,7 +4,8 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import unittest, functools, time, os, importlib
+import unittest, functools, os, importlib
+from calibre.utils.monotonic import monotonic
 
 def no_endl(f):
     @functools.wraps(f)
@@ -29,14 +30,14 @@ class TestResult(unittest.TextTestResult):
         self.times = {}
 
     def startTest(self, test):
-        self.start_time[test] = time.time()
+        self.start_time[test] = monotonic()
         return super(TestResult, self).startTest(test)
 
     def stopTest(self, test):
         orig = self.stream.writeln
         self.stream.writeln = self.stream.write
         super(TestResult, self).stopTest(test)
-        elapsed = time.time()
+        elapsed = monotonic()
         elapsed -= self.start_time.get(test, elapsed)
         self.times[test] = elapsed
         self.stream.writeln = orig
