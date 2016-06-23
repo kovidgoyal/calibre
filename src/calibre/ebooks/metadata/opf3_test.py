@@ -17,8 +17,10 @@ from calibre.ebooks.metadata.opf3 import (
     read_book_producers, set_book_producers, read_timestamp, set_timestamp,
     read_pubdate, set_pubdate, CALIBRE_PREFIX, read_last_modified, read_comments,
     set_comments, read_publisher, set_publisher, read_tags, set_tags, read_rating,
-    set_rating, read_series, set_series
+    set_rating, read_series, set_series, read_user_metadata, set_user_metadata,
+    read_author_link_map, read_user_categories, set_author_link_map, set_user_categories
 )
+read_author_link_map, read_user_categories, set_author_link_map, set_user_categories
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>''' % CALIBRE_PREFIX  # noqa
 default_refines = defaultdict(list)
@@ -233,6 +235,34 @@ class TestOPF3(unittest.TestCase):
                             '<meta refines="#c02" property="group-position">2.1</meta>')
         self.ae(('yyy', 2.1), rt(root))
         self.ae(('zzz', 3.3), st(root, 'zzz', 3.3))
+    # }}}
+
+    def test_user_metadata(self):  # {{{
+        def rt(root, name):
+            f = globals()['read_' + name]
+            return f(root, read_prefixes(root), read_refines(root))
+        def st(root, name, val):
+            f = globals()['set_' + name]
+            f(root, read_prefixes(root), read_refines(root), val)
+            return rt(root, name)
+        for name in 'author_link_map user_categories'.split():
+            root = self.get_opf('''<meta name="calibre:%s" content='{"1":1}'/>''' % name)
+            self.ae({'1':1}, rt(root, name))
+            root = self.get_opf('''<meta name="calibre:%s" content='{"1":1}'/><meta property="calibre:%s">{"2":2}</meta>''' % (name, name))
+            self.ae({'2':2}, rt(root, name))
+            self.ae({'3':3}, st(root, name, {3:3}))
+        def ru(root):
+            return read_user_metadata(root, read_prefixes(root), read_refines(root))
+        def su(root, val):
+            set_user_metadata(root, read_prefixes(root), read_refines(root), val)
+            return ru(root)
+        root = self.get_opf('''<meta name="calibre:user_metadata:#a" content='{"1":1}'/>''')
+        self.ae({'#a': {'1': 1, 'is_multiple': {}}}, ru(root))
+        root = self.get_opf('''<meta name="calibre:user_metadata:#a" content='{"1":1}'/>'''
+                            '''<meta property="calibre:user_metadata">{"#b":{"2":2}}</meta>''')
+        self.ae({'#b': {'2': 2, 'is_multiple': {}}}, ru(root))
+        self.ae({'#c': {'3': 3, 'is_multiple': {}, 'is_multiple2': {}}}, su(root, {'#c':{'3':3}}))
+
     # }}}
 
 # Run tests {{{

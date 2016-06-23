@@ -7,14 +7,17 @@ from __future__ import (unicode_literals, division, absolute_import,
 from collections import defaultdict, namedtuple
 from functools import wraps
 from future_builtins import map
-import re
+import re, json
 
 from lxml import etree
 
+from calibre import prints
 from calibre.ebooks.metadata import check_isbn, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.book.json_codec import object_to_unicode, decode_is_multiple, encode_is_multiple
 from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
+from calibre.utils.config import from_json, to_json
 from calibre.utils.date import parse_date as parse_date_, fix_only_date, is_date_undefined, isoformat
 from calibre.utils.iso8601 import parse_iso8601
 from calibre.utils.localization import canonicalize_lang
@@ -29,6 +32,9 @@ def uniq(vals):
     seen = set()
     seen_add = seen.add
     return list(x for x in vals if x not in seen and not seen_add(x))
+
+def dump_dict(cats):
+    return json.dumps(object_to_unicode(cats or {}), ensure_ascii=False, skipkeys=True)
 
 def XPath(x):
     try:
@@ -666,6 +672,109 @@ def set_series(root, prefixes, refines, series, series_index):
         set_refines(d, refines, refdef('collection-type', 'series'), refdef('group-position', '%.2g' % series_index))
 # }}}
 
+# User metadata {{{
+
+def dict_reader(name, load=json.loads, try2=True):
+    pq = '%s:%s' % (CALIBRE_PREFIX, name)
+
+    def reader(root, prefixes, refines):
+        for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
+            val = (meta.text or '').strip()
+            if val:
+                prop = expand_prefix(meta.get('property'), prefixes)
+                if prop.lower() == pq:
+                    try:
+                        ans = load(val)
+                        if isinstance(ans, dict):
+                            return ans
+                    except Exception:
+                        continue
+        if try2:
+            for meta in XPath('./opf:metadata/opf:meta[@name="calibre:%s"]' % name)(root):
+                val = meta.get('content')
+                if val:
+                    try:
+                        ans = load(val)
+                        if isinstance(ans, dict):
+                            return ans
+                    except Exception:
+                        continue
+    return reader
+
+read_user_categories = dict_reader('user_categories')
+read_author_link_map = dict_reader('author_link_map')
+
+def dict_writer(name, serialize=dump_dict, remove2=True):
+    pq = '%s:%s' % (CALIBRE_PREFIX, name)
+
+    def writer(root, prefixes, refines, val):
+        if remove2:
+            for meta in XPath('./opf:metadata/opf:meta[@name="calibre:%s"]' % name)(root):
+                remove_element(meta, refines)
+        for meta in XPath('./opf:metadata/opf:meta[@property]')(root):
+            prop = expand_prefix(meta.get('property'), prefixes)
+            if prop.lower() == pq:
+                remove_element(meta, refines)
+        if val:
+            ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
+            m = XPath('./opf:metadata')(root)[0]
+            d = m.makeelement(OPF('meta'), attrib={'property':'calibre:%s' % name})
+            d.text = serialize(val)
+            m.append(d)
+    return writer
+
+set_user_categories = dict_writer('user_categories')
+set_author_link_map = dict_writer('author_link_map')
+
+def deserialize_user_metadata(val):
+    val = json.loads(val, object_hook=from_json)
+    ans = {}
+    for name, fm in val.iteritems():
+        decode_is_multiple(fm)
+        ans[name] = fm
+    return ans
+read_user_metadata3 = dict_reader('user_metadata', load=deserialize_user_metadata, try2=False)
+
+def read_user_metadata2(root):
+    ans = {}
+    for meta in XPath('./opf:metadata/opf:meta[starts-with(@name, "calibre:user_metadata:")]')(root):
+        name = meta.get('name')
+        name = ':'.join(name.split(':')[2:])
+        if not name or not name.startswith('#'):
+            continue
+        fm = meta.get('content')
+        try:
+            fm = json.loads(fm, object_hook=from_json)
+            decode_is_multiple(fm)
+            ans[name] = fm
+        except Exception:
+            prints('Failed to read user metadata:', name)
+            import traceback
+            traceback.print_exc()
+            continue
+    return ans
+
+def read_user_metadata(root, prefixes, refines):
+    return read_user_metadata3(root, prefixes, refines) or read_user_metadata2(root)
+
+def serialize_user_metadata(val):
+    return json.dumps(object_to_unicode(val), ensure_ascii=False, default=to_json, indent=2, sort_keys=True)
+
+set_user_metadata3 = dict_writer('user_metadata', serialize=serialize_user_metadata, remove2=False)
+
+def set_user_metadata(root, prefixes, refines, val):
+    for meta in XPath('./opf:metadata/opf:meta[starts-with(@name, "calibre:user_metadata:")]')(root):
+        remove_element(meta, refines)
+    if val:
+        nval = {}
+        for name, fm in val.items():
+            fm = fm.copy()
+            encode_is_multiple(fm)
+            nval[name] = fm
+        set_user_metadata3(root, prefixes, refines, nval)
+
+# }}}
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -704,6 +813,10 @@ def read_metadata(root):
     s, si = read_series(root, prefixes, refines)
     if s:
         ans.series, ans.series_index = s, si
+    ans.author_link_map = read_author_link_map(root, prefixes, refines) or ans.author_link_map
+    ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
+    for name, fm in (read_user_metadata(root, prefixes, refines) or {}).iteritems():
+        ans.set_user_metadata(name, fm)
     return ans
 
 def get_metadata(stream):
@@ -727,6 +840,9 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_tags(root, prefixes, refines, mi.tags)
     set_rating(root, prefixes, refines, mi.rating)
     set_series(root, prefixes, refines, mi.series, mi.series_index)
+    set_author_link_map(root, prefixes, refines, getattr(mi, 'author_link_map', None))
+    set_user_categories(root, prefixes, refines, getattr(mi, 'user_categories', None))
+    set_user_metadata(root, prefixes, refines, mi.get_all_user_metadata(False))
 
     pretty_print_opf(root)
 
