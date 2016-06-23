@@ -526,6 +526,27 @@ def read_last_modified(root, prefixes, refines):
                     continue
 # }}}
 
+# Comments {{{
+
+def read_comments(root, prefixes, refines):
+    ans = ''
+    for dc in XPath('./opf:metadata/dc:description')(root):
+        if dc.text:
+            ans += '\n' + dc.text.strip()
+    return ans.strip()
+
+def set_comments(root, prefixes, refines, val):
+    for dc in XPath('./opf:metadata/dc:description')(root):
+        remove_element(dc, refines)
+    m = XPath('./opf:metadata')(root)[0]
+    if val:
+        val = val.strip()
+        if val:
+            c = m.makeelement(DC('description'))
+            c.text = val
+            m.append(c)
+# }}}
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -557,6 +578,7 @@ def read_metadata(root):
     lm = read_last_modified(root, prefixes, refines)
     if not is_date_undefined(lm):
         ans.last_modified = lm
+    ans.comments = read_comments(root, prefixes, refines) or ans.comments
     return ans
 
 def get_metadata(stream):
@@ -575,6 +597,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_authors(root, prefixes, refines, authors)
     set_pubdate(root, prefixes, refines, mi.pubdate)
     set_timestamp(root, prefixes, refines, mi.timestamp)
+    set_comments(root, prefixes, refines, mi.comments)
 
     pretty_print_opf(root)
 
