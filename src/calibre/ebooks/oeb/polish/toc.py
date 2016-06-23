@@ -256,7 +256,10 @@ def get_toc(container, verify_destinations=True):
     if ver.major < 3:
         return get_x_toc(container, find_existing_ncx_toc, parse_ncx, verify_destinations=verify_destinations)
     else:
-        return get_x_toc(container, find_existing_nav_toc, parse_nav, verify_destinations=verify_destinations)
+        ans = get_x_toc(container, find_existing_nav_toc, parse_nav, verify_destinations=verify_destinations)
+        if len(ans) == 0:
+            ans = get_x_toc(container, find_existing_ncx_toc, parse_ncx, verify_destinations=verify_destinations)
+        return ans
 
 def ensure_id(elem):
     if elem.tag == XHTML('a'):
