@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from collections import defaultdict, namedtuple
 from functools import wraps
+from future_builtins import map
 import re
 
 from lxml import etree
@@ -567,6 +568,28 @@ def set_publisher(root, prefixes, refines, val):
             m.append(c)
 # }}}
 
+# Tags {{{
+
+def read_tags(root, prefixes, refines):
+    ans = []
+    for dc in XPath('./opf:metadata/dc:subject')(root):
+        if dc.text:
+            ans.extend(map(normalize_whitespace, dc.text.split(',')))
+    return uniq(filter(None, ans))
+
+def set_tags(root, prefixes, refines, val):
+    for dc in XPath('./opf:metadata/dc:subject')(root):
+        remove_element(dc, refines)
+    m = XPath('./opf:metadata')(root)[0]
+    if val:
+        val = uniq(filter(None, val))
+        for x in val:
+            c = m.makeelement(DC('subject'))
+            c.text = normalize_whitespace(x)
+            if c.text:
+                m.append(c)
+# }}}
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -600,6 +623,7 @@ def read_metadata(root):
         ans.last_modified = lm
     ans.comments = read_comments(root, prefixes, refines) or ans.comments
     ans.publisher = read_publisher(root, prefixes, refines) or ans.publisher
+    ans.tags = read_tags(root, prefixes, refines) or ans.tags
     return ans
 
 def get_metadata(stream):
@@ -620,6 +644,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_timestamp(root, prefixes, refines, mi.timestamp)
     set_comments(root, prefixes, refines, mi.comments)
     set_publisher(root, prefixes, refines, mi.publisher)
+    set_tags(root, prefixes, refines, mi.tags)
 
     pretty_print_opf(root)
 

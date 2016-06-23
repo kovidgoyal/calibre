@@ -16,7 +16,7 @@ from calibre.ebooks.metadata.opf3 import (
     read_authors, Author, set_authors, ensure_prefix, read_prefixes,
     read_book_producers, set_book_producers, read_timestamp, set_timestamp,
     read_pubdate, set_pubdate, CALIBRE_PREFIX, read_last_modified, read_comments,
-    set_comments, read_publisher, set_publisher
+    set_comments, read_publisher, set_publisher, read_tags, set_tags
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>''' % CALIBRE_PREFIX  # noqa
@@ -193,6 +193,17 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf('''<dc:publisher> one </dc:publisher><dc:publisher> xxx</dc:publisher>''')
         self.ae('one', rt(root))
         self.ae('<a>p</a>', st(root, '<a>p</a> '))
+    # }}}
+
+    def test_tags(self):  # {{{
+        def rt(root):
+            return read_tags(root, read_prefixes(root), read_refines(root))
+        def st(root, val):
+            set_tags(root, read_prefixes(root), read_refines(root), val)
+            return rt(root)
+        root = self.get_opf('''<dc:subject> one, two </dc:subject><dc:subject> xxx</dc:subject>''')
+        self.ae('one,two,xxx'.split(','), rt(root))
+        self.ae('1,2,3'.split(','), st(root, '1,2,3'.split(',')))
     # }}}
 
 # Run tests {{{
