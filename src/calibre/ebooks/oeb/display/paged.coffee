@@ -140,6 +140,13 @@ class PagedDisplay
             first_layout = true
             if not single_screen and this.cols_per_screen > 1
                 num = this.cols_per_screen - 1
+                elems = document.querySelectorAll('body > *')
+                if elems.length == 1
+                    # Workaround for the case when the content is wrapped in a
+                    # 100% height <div>. This causes the generated page divs to
+                    # not be in the correct location. See
+                    # https://bugs.launchpad.net/bugs/1594657 for an example.
+                    elems[0].style.height = 'auto'
                 while num > 0
                     num -= 1
                     create_page_div()
