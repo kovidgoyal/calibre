@@ -5,10 +5,13 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from collections import defaultdict
+from io import BytesIO
 import unittest
 
 from lxml import etree
 
+from calibre.ebooks.metadata.book import ALL_METADATA_FIELDS
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.opf3 import (
     parse_prefixes, reserved_prefixes, expand_prefix, read_identifiers,
     read_metadata, set_identifiers, XPath, set_application_id, read_title,
@@ -257,12 +260,226 @@ class TestOPF3(unittest.TestCase):
             set_user_metadata(root, read_prefixes(root), read_refines(root), val)
             return ru(root)
         root = self.get_opf('''<meta name="calibre:user_metadata:#a" content='{"1":1}'/>''')
-        self.ae({'#a': {'1': 1, 'is_multiple': {}}}, ru(root))
+        self.ae({'#a': {'1': 1, 'is_multiple': dict()}}, ru(root))
         root = self.get_opf('''<meta name="calibre:user_metadata:#a" content='{"1":1}'/>'''
                             '''<meta property="calibre:user_metadata">{"#b":{"2":2}}</meta>''')
-        self.ae({'#b': {'2': 2, 'is_multiple': {}}}, ru(root))
-        self.ae({'#c': {'3': 3, 'is_multiple': {}, 'is_multiple2': {}}}, su(root, {'#c':{'3':3}}))
+        self.ae({'#b': {'2': 2, 'is_multiple': dict()}}, ru(root))
+        self.ae({'#c': {'3': 3, 'is_multiple': {}, 'is_multiple2': dict()}}, su(root, {'#c':{'3':3}}))
 
+    # }}}
+
+    def test_against_opf2(self):  # {{{
+        # opf2 {{{
+        raw = '''<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="uuid_id" version="2.0">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:identifier opf:scheme="calibre" id="calibre_id">1698</dc:identifier>
+        <dc:identifier opf:scheme="uuid" id="uuid_id">27106d11-0721-44bc-bcdd-2840f31aaec0</dc:identifier>
+        <dc:title>DOCX Demo</dc:title>
+        <dc:creator opf:file-as="Goyal, Kovid" opf:role="aut">Kovid Goyal</dc:creator>
+        <dc:contributor opf:file-as="calibre" opf:role="bkp">calibre (2.57.1) [http://calibre-ebook.com]</dc:contributor>
+        <dc:date>2016-02-17T10:53:08+00:00</dc:date>
+        <dc:description>Demonstration of DOCX support in calibre</dc:description>
+        <dc:publisher>Kovid Goyal</dc:publisher>
+        <dc:identifier opf:scheme="K">xxx</dc:identifier>
+        <dc:language>eng</dc:language>
+        <dc:subject>calibre</dc:subject>
+        <dc:subject>conversion</dc:subject>
+        <dc:subject>docs</dc:subject>
+        <dc:subject>ebook</dc:subject>
+        <meta content="{&quot;Kovid Goyal&quot;: &quot;&quot;}" name="calibre:author_link_map"/>
+        <meta content="Demos" name="calibre:series"/>
+        <meta content="1" name="calibre:series_index"/>
+        <meta content="10" name="calibre:rating"/>
+        <meta content="2015-12-11T16:28:36+00:00" name="calibre:timestamp"/>
+        <meta content="DOCX Demo" name="calibre:title_sort"/>
+        <meta content="{&quot;crew.crow&quot;: [], &quot;crew.moose&quot;: [], &quot;crew&quot;: []}" name="calibre:user_categories"/>
+        <meta name="calibre:user_metadata:#number" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;Number&quot;,
+        &quot;rec_index&quot;: 29, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 12, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;:
+        {&quot;number_format&quot;: null}, &quot;search_terms&quot;:
+        [&quot;#number&quot;], &quot;is_editable&quot;: true,
+        &quot;datatype&quot;: &quot;int&quot;, &quot;link_column&quot;:
+        &quot;value&quot;, &quot;#value#&quot;: 31, &quot;is_custom&quot;:
+        true, &quot;label&quot;: &quot;number&quot;, &quot;table&quot;:
+        &quot;custom_column_12&quot;, &quot;is_multiple&quot;: null,
+        &quot;is_category&quot;: false}"/>
+        <meta name="calibre:user_metadata:#genre" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;Genre&quot;,
+        &quot;rec_index&quot;: 26, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 9, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;:
+        {&quot;use_decorations&quot;: 0}, &quot;search_terms&quot;:
+        [&quot;#genre&quot;], &quot;is_editable&quot;: true,
+        &quot;datatype&quot;: &quot;text&quot;, &quot;link_column&quot;:
+        &quot;value&quot;, &quot;#value#&quot;: &quot;Demos&quot;,
+        &quot;is_custom&quot;: true, &quot;label&quot;: &quot;genre&quot;,
+        &quot;table&quot;: &quot;custom_column_9&quot;,
+        &quot;is_multiple&quot;: null, &quot;is_category&quot;: true}"/>
+        <meta name="calibre:user_metadata:#commetns"
+        content="{&quot;kind&quot;: &quot;field&quot;, &quot;column&quot;:
+        &quot;value&quot;, &quot;is_csp&quot;: false, &quot;name&quot;:
+        &quot;My Comments&quot;, &quot;rec_index&quot;: 23,
+        &quot;#extra#&quot;: null, &quot;colnum&quot;: 13,
+        &quot;is_multiple2&quot;: {}, &quot;category_sort&quot;:
+        &quot;value&quot;, &quot;display&quot;: {}, &quot;search_terms&quot;:
+        [&quot;#commetns&quot;], &quot;is_editable&quot;: true,
+        &quot;datatype&quot;: &quot;comments&quot;, &quot;link_column&quot;:
+        &quot;value&quot;, &quot;#value#&quot;:
+        &quot;&lt;div&gt;&lt;b&gt;&lt;i&gt;Testing&lt;/i&gt;&lt;/b&gt; extra
+        &lt;font
+        color=\&quot;#aa0000\&quot;&gt;comments&lt;/font&gt;&lt;/div&gt;&quot;,
+        &quot;is_custom&quot;: true, &quot;label&quot;: &quot;commetns&quot;,
+        &quot;table&quot;: &quot;custom_column_13&quot;,
+        &quot;is_multiple&quot;: null, &quot;is_category&quot;: false}"/>
+        <meta name="calibre:user_metadata:#formats" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;Formats&quot;,
+        &quot;rec_index&quot;: 25, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 4, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;:
+        {&quot;composite_template&quot;: &quot;{formats}&quot;,
+        &quot;contains_html&quot;: false, &quot;use_decorations&quot;: 0,
+        &quot;composite_sort&quot;: &quot;text&quot;,
+        &quot;make_category&quot;: false}, &quot;search_terms&quot;:
+        [&quot;#formats&quot;], &quot;is_editable&quot;: true,
+        &quot;datatype&quot;: &quot;composite&quot;, &quot;link_column&quot;:
+        &quot;value&quot;, &quot;#value#&quot;: &quot;AZW3, DOCX, EPUB&quot;,
+        &quot;is_custom&quot;: true, &quot;label&quot;: &quot;formats&quot;,
+        &quot;table&quot;: &quot;custom_column_4&quot;,
+        &quot;is_multiple&quot;: null, &quot;is_category&quot;: false}"/>
+        <meta name="calibre:user_metadata:#rating" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;My Rating&quot;,
+        &quot;rec_index&quot;: 30, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 1, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;: {},
+        &quot;search_terms&quot;: [&quot;#rating&quot;],
+        &quot;is_editable&quot;: true, &quot;datatype&quot;:
+        &quot;rating&quot;, &quot;link_column&quot;: &quot;value&quot;,
+        &quot;#value#&quot;: 10, &quot;is_custom&quot;: true,
+        &quot;label&quot;: &quot;rating&quot;, &quot;table&quot;:
+        &quot;custom_column_1&quot;, &quot;is_multiple&quot;: null,
+        &quot;is_category&quot;: true}"/>
+        <meta name="calibre:user_metadata:#series" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;My Series2&quot;,
+        &quot;rec_index&quot;: 31, &quot;#extra#&quot;: 1.0,
+        &quot;colnum&quot;: 5, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;: {},
+        &quot;search_terms&quot;: [&quot;#series&quot;],
+        &quot;is_editable&quot;: true, &quot;datatype&quot;:
+        &quot;series&quot;, &quot;link_column&quot;: &quot;value&quot;,
+        &quot;#value#&quot;: &quot;s&quot;, &quot;is_custom&quot;: true,
+        &quot;label&quot;: &quot;series&quot;, &quot;table&quot;:
+        &quot;custom_column_5&quot;, &quot;is_multiple&quot;: null,
+        &quot;is_category&quot;: true}"/>
+        <meta name="calibre:user_metadata:#tags" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;My Tags&quot;,
+        &quot;rec_index&quot;: 33, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 11, &quot;is_multiple2&quot;:
+        {&quot;ui_to_list&quot;: &quot;,&quot;, &quot;cache_to_list&quot;:
+        &quot;|&quot;, &quot;list_to_ui&quot;: &quot;, &quot;},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;:
+        {&quot;is_names&quot;: false, &quot;description&quot;: &quot;A tag like
+        column for me&quot;}, &quot;search_terms&quot;: [&quot;#tags&quot;],
+        &quot;is_editable&quot;: true, &quot;datatype&quot;: &quot;text&quot;,
+        &quot;link_column&quot;: &quot;value&quot;, &quot;#value#&quot;:
+        [&quot;t1&quot;, &quot;t2&quot;], &quot;is_custom&quot;: true,
+        &quot;label&quot;: &quot;tags&quot;, &quot;table&quot;:
+        &quot;custom_column_11&quot;, &quot;is_multiple&quot;: &quot;|&quot;,
+        &quot;is_category&quot;: true}"/>
+        <meta name="calibre:user_metadata:#yesno" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;Yes/No&quot;,
+        &quot;rec_index&quot;: 34, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 7, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;: {},
+        &quot;search_terms&quot;: [&quot;#yesno&quot;],
+        &quot;is_editable&quot;: true, &quot;datatype&quot;: &quot;bool&quot;,
+        &quot;link_column&quot;: &quot;value&quot;, &quot;#value#&quot;: false,
+        &quot;is_custom&quot;: true, &quot;label&quot;: &quot;yesno&quot;,
+        &quot;table&quot;: &quot;custom_column_7&quot;,
+        &quot;is_multiple&quot;: null, &quot;is_category&quot;: false}"/>
+        <meta name="calibre:user_metadata:#myenum" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;My Enum&quot;,
+        &quot;rec_index&quot;: 28, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 6, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;:
+        {&quot;enum_colors&quot;: [], &quot;enum_values&quot;:
+        [&quot;One&quot;, &quot;Two&quot;, &quot;Three&quot;],
+        &quot;use_decorations&quot;: 0}, &quot;search_terms&quot;:
+        [&quot;#myenum&quot;], &quot;is_editable&quot;: true,
+        &quot;datatype&quot;: &quot;enumeration&quot;, &quot;link_column&quot;:
+        &quot;value&quot;, &quot;#value#&quot;: &quot;Two&quot;,
+        &quot;is_custom&quot;: true, &quot;label&quot;: &quot;myenum&quot;,
+        &quot;table&quot;: &quot;custom_column_6&quot;,
+        &quot;is_multiple&quot;: null, &quot;is_category&quot;: true}"/>
+        <meta name="calibre:user_metadata:#isbn" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;ISBN&quot;,
+        &quot;rec_index&quot;: 27, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 3, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;:
+        {&quot;composite_template&quot;:
+        &quot;{identifiers:select(isbn)}&quot;, &quot;contains_html&quot;:
+        false, &quot;use_decorations&quot;: 0, &quot;composite_sort&quot;:
+        &quot;text&quot;, &quot;make_category&quot;: false},
+        &quot;search_terms&quot;: [&quot;#isbn&quot;], &quot;is_editable&quot;:
+        true, &quot;datatype&quot;: &quot;composite&quot;,
+        &quot;link_column&quot;: &quot;value&quot;, &quot;#value#&quot;:
+        &quot;&quot;, &quot;is_custom&quot;: true, &quot;label&quot;:
+        &quot;isbn&quot;, &quot;table&quot;: &quot;custom_column_3&quot;,
+        &quot;is_multiple&quot;: null, &quot;is_category&quot;: false}"/>
+        <meta name="calibre:user_metadata:#authors" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;My Authors&quot;,
+        &quot;rec_index&quot;: 22, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 10, &quot;is_multiple2&quot;:
+        {&quot;ui_to_list&quot;: &quot;&amp;&quot;, &quot;cache_to_list&quot;:
+        &quot;|&quot;, &quot;list_to_ui&quot;: &quot; &amp; &quot;},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;:
+        {&quot;is_names&quot;: true}, &quot;search_terms&quot;:
+        [&quot;#authors&quot;], &quot;is_editable&quot;: true,
+        &quot;datatype&quot;: &quot;text&quot;, &quot;link_column&quot;:
+        &quot;value&quot;, &quot;#value#&quot;: [&quot;calibre, Kovid
+        Goyal&quot;], &quot;is_custom&quot;: true, &quot;label&quot;:
+        &quot;authors&quot;, &quot;table&quot;: &quot;custom_column_10&quot;,
+        &quot;is_multiple&quot;: &quot;|&quot;, &quot;is_category&quot;:
+        true}"/>
+        <meta name="calibre:user_metadata:#date" content="{&quot;kind&quot;:
+        &quot;field&quot;, &quot;column&quot;: &quot;value&quot;,
+        &quot;is_csp&quot;: false, &quot;name&quot;: &quot;My Date&quot;,
+        &quot;rec_index&quot;: 24, &quot;#extra#&quot;: null,
+        &quot;colnum&quot;: 2, &quot;is_multiple2&quot;: {},
+        &quot;category_sort&quot;: &quot;value&quot;, &quot;display&quot;:
+        {&quot;date_format&quot;: &quot;dd-MM-yyyy&quot;,
+        &quot;description&quot;: &quot;&quot;}, &quot;search_terms&quot;:
+        [&quot;#date&quot;], &quot;is_editable&quot;: true,
+        &quot;datatype&quot;: &quot;datetime&quot;, &quot;link_column&quot;:
+        &quot;value&quot;, &quot;#value#&quot;: {&quot;__value__&quot;:
+        &quot;2016-02-17T10:54:15+00:00&quot;, &quot;__class__&quot;:
+        &quot;datetime.datetime&quot;}, &quot;is_custom&quot;: true,
+        &quot;label&quot;: &quot;date&quot;, &quot;table&quot;:
+        &quot;custom_column_2&quot;, &quot;is_multiple&quot;: null,
+        &quot;is_category&quot;: false}"/>
+    </metadata>
+</package>'''  # }}}
+
+        mi2 = OPF(BytesIO(raw.encode('utf-8'))).to_book_metadata()
+        root = etree.fromstring(raw)
+        mi3 = read_metadata(root)
+        self.ae(mi2.get_all_user_metadata(False), mi3.get_all_user_metadata(False))
+        for field in ALL_METADATA_FIELDS:
+            if field in 'manifest uuid'.split():
+                continue
+            v2, v3 = getattr(mi2, field, None), getattr(mi3, field, None)
+            self.ae(v2, v3, '%s: %r != %r' % (field, v2, v3))
     # }}}
 
 # Run tests {{{
