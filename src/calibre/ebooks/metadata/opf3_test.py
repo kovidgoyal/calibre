@@ -21,7 +21,8 @@ from calibre.ebooks.metadata.opf3 import (
     read_pubdate, set_pubdate, CALIBRE_PREFIX, read_last_modified, read_comments,
     set_comments, read_publisher, set_publisher, read_tags, set_tags, read_rating,
     set_rating, read_series, set_series, read_user_metadata, set_user_metadata,
-    read_author_link_map, read_user_categories, set_author_link_map, set_user_categories
+    read_author_link_map, read_user_categories, set_author_link_map, set_user_categories,
+    apply_metadata
 )
 read_author_link_map, read_user_categories, set_author_link_map, set_user_categories
 
@@ -471,15 +472,21 @@ class TestOPF3(unittest.TestCase):
     </metadata>
 </package>'''  # }}}
 
+        def compare_metadata(mi2, mi3):
+            self.ae(mi2.get_all_user_metadata(False), mi3.get_all_user_metadata(False))
+            for field in ALL_METADATA_FIELDS:
+                if field in 'manifest uuid'.split():
+                    continue
+                v2, v3 = getattr(mi2, field, None), getattr(mi3, field, None)
+                self.ae(v2, v3, '%s: %r != %r' % (field, v2, v3))
+
         mi2 = OPF(BytesIO(raw.encode('utf-8'))).to_book_metadata()
         root = etree.fromstring(raw)
+        root.set('version', '3.0')
         mi3 = read_metadata(root)
-        self.ae(mi2.get_all_user_metadata(False), mi3.get_all_user_metadata(False))
-        for field in ALL_METADATA_FIELDS:
-            if field in 'manifest uuid'.split():
-                continue
-            v2, v3 = getattr(mi2, field, None), getattr(mi3, field, None)
-            self.ae(v2, v3, '%s: %r != %r' % (field, v2, v3))
+        compare_metadata(mi2, mi3)
+        apply_metadata(root, mi3)
+        compare_metadata(mi3, read_metadata(root))
     # }}}
 
 # Run tests {{{
