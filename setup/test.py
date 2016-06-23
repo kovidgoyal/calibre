@@ -62,6 +62,8 @@ def find_tests(which_tests=None):
 
 class Test(Command):
 
+    description = 'Run the calibre test suite'
+
     def add_options(self, parser):
         parser.add_option('--test-module', default=[], action='append', type='choice', choices=sorted(map(str, TEST_MODULES)),
                           help='The test module to run (can be specified more than once for multiple modules). Choices: %s' % ', '.join(sorted(TEST_MODULES)))
