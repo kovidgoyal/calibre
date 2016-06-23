@@ -546,7 +546,7 @@ def commit_nav_toc(container, toc, lang=None):
     from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
     tocname = find_existing_nav_toc(container)
     if tocname is None:
-        item = container.generate_item('nav.html', id_prefix='nav')
+        item = container.generate_item('nav.xhtml', id_prefix='nav')
         item.set('properties', 'nav')
         tocname = container.href_to_name(item.get('href'), base=container.opf_name)
     try:
