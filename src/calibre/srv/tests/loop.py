@@ -256,8 +256,11 @@ class LoopTest(BaseTest):
         self.assertTrue(jm.wait_for_running_job(job_id2))
         status, result, tb, was_aborted = jm.job_status(job_id2)
         self.assertTrue(was_aborted)
-        self.assertTrue(jm.wait_for_running_job(jid))
+        while jm.job_status(job_id)[0] == 'waiting':
+            time.sleep(0.01)
+        self.assertIn(jm.wait_for_running_job(jid), (True, None))
         status, result, tb, was_aborted = jm.job_status(jid)
+        self.assertFalse(was_aborted)
         self.assertTrue(tb), self.assertIn('a testing error', tb)
         jm.start_job('simple test', 'calibre.srv.jobs', 'sleep_test', args=(1.0,))
         jm.shutdown(), jm.wait_for_shutdown(monotonic() + 1)
