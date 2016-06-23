@@ -235,6 +235,9 @@ class LoopTest(BaseTest):
                 self.append(' '.join(args))
         s = ('waiting', 'running')
         jm = JobsManager(O(1, 5), FakeLog())
+        def job_status(jid):
+            return jm.job_status(jid)[0]
+
         # Start jobs
         job_id1 = jm.start_job('simple test', 'calibre.srv.jobs', 'sleep_test', args=(1.0,))
         job_id2 = jm.start_job('t2', 'calibre.srv.jobs', 'sleep_test', args=(3,))
@@ -244,9 +247,9 @@ class LoopTest(BaseTest):
         job_id = job_id1
         status = jm.job_status(job_id)[0]
         self.assertIn(status, s)
-        status2 = jm.job_status(job_id2)[0]
-        self.assertEqual(status2, 'waiting')
-        while jm.job_status(job_id)[0] in s:
+        for jid in (job_id2, job_id3):
+            self.assertEqual(job_status(jid), 'waiting')
+        while job_status(job_id) in s:
             time.sleep(0.01)
         status, result, tb, was_aborted = jm.job_status(job_id)
         self.assertEqual(status, 'finished')
@@ -256,18 +259,18 @@ class LoopTest(BaseTest):
 
         # Job 2
         job_id = job_id2
-        while jm.job_status(job_id)[0] == 'waiting':
+        while job_status(job_id) == 'waiting':
             time.sleep(0.01)
-        status2 = jm.job_status(job_id)[0]
-        self.assertEqual(status2, 'running')
+        self.assertEqual('running', job_status(job_id))
         jm.abort_job(job_id)
-        self.assertTrue(jm.wait_for_running_job(job_id))
+        self.assertIn(jm.wait_for_running_job(job_id), (True, None))
         status, result, tb, was_aborted = jm.job_status(job_id)
+        self.assertEqual('finished', status)
         self.assertTrue(was_aborted)
 
         # Job 3
         job_id = job_id3
-        while jm.job_status(job_id)[0] == 'waiting':
+        while job_status(job_id) == 'waiting':
             time.sleep(0.01)
         self.assertIn(jm.wait_for_running_job(job_id), (True, None))
         status, result, tb, was_aborted = jm.job_status(job_id)
