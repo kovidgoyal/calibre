@@ -547,6 +547,26 @@ def set_comments(root, prefixes, refines, val):
             m.append(c)
 # }}}
 
+# Publisher {{{
+
+@simple_text
+def read_publisher(root, prefixes, refines):
+    for dc in XPath('./opf:metadata/dc:publisher')(root):
+        if dc.text:
+            return dc.text
+
+def set_publisher(root, prefixes, refines, val):
+    for dc in XPath('./opf:metadata/dc:publisher')(root):
+        remove_element(dc, refines)
+    m = XPath('./opf:metadata')(root)[0]
+    if val:
+        val = val.strip()
+        if val:
+            c = m.makeelement(DC('publisher'))
+            c.text = normalize_whitespace(val)
+            m.append(c)
+# }}}
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -579,6 +599,7 @@ def read_metadata(root):
     if not is_date_undefined(lm):
         ans.last_modified = lm
     ans.comments = read_comments(root, prefixes, refines) or ans.comments
+    ans.publisher = read_publisher(root, prefixes, refines) or ans.publisher
     return ans
 
 def get_metadata(stream):
@@ -598,6 +619,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_pubdate(root, prefixes, refines, mi.pubdate)
     set_timestamp(root, prefixes, refines, mi.timestamp)
     set_comments(root, prefixes, refines, mi.comments)
+    set_publisher(root, prefixes, refines, mi.publisher)
 
     pretty_print_opf(root)
 

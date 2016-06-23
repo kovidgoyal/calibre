@@ -16,7 +16,7 @@ from calibre.ebooks.metadata.opf3 import (
     read_authors, Author, set_authors, ensure_prefix, read_prefixes,
     read_book_producers, set_book_producers, read_timestamp, set_timestamp,
     read_pubdate, set_pubdate, CALIBRE_PREFIX, read_last_modified, read_comments,
-    set_comments
+    set_comments, read_publisher, set_publisher
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>''' % CALIBRE_PREFIX  # noqa
@@ -181,6 +181,18 @@ class TestOPF3(unittest.TestCase):
             return rt(root)
         root = self.get_opf('''<dc:description>&lt;span&gt;one&lt;/span&gt;</dc:description><dc:description> xxx</dc:description>''')
         self.ae('<span>one</span>\nxxx', rt(root))
+        self.ae('<a>p</a>', st(root, '<a>p</a> '))
+    # }}}
+
+    def test_publisher(self):  # {{{
+        def rt(root):
+            return read_publisher(root, read_prefixes(root), read_refines(root))
+        def st(root, val):
+            set_publisher(root, read_prefixes(root), read_refines(root), val)
+            return rt(root)
+        root = self.get_opf('''<dc:publisher> one </dc:publisher><dc:publisher> xxx</dc:publisher>''')
+        self.ae('one', rt(root))
+        self.ae('<a>p</a>', st(root, '<a>p</a> '))
     # }}}
 
 # Run tests {{{
