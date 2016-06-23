@@ -17,7 +17,7 @@ from calibre.ebooks.metadata.opf3 import (
     read_book_producers, set_book_producers, read_timestamp, set_timestamp,
     read_pubdate, set_pubdate, CALIBRE_PREFIX, read_last_modified, read_comments,
     set_comments, read_publisher, set_publisher, read_tags, set_tags, read_rating,
-    set_rating
+    set_rating, read_series, set_series
 )
 
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>''' % CALIBRE_PREFIX  # noqa
@@ -218,6 +218,21 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf('''<meta name="calibre:rating" content="3"/><meta property="calibre:rating">5</meta>''')
         self.ae(5, rt(root))
         self.ae(1, st(root,1))
+    # }}}
+
+    def test_series(self):  # {{{
+        def rt(root):
+            return read_series(root, read_prefixes(root), read_refines(root))
+        def st(root, val, i):
+            set_series(root, read_prefixes(root), read_refines(root), val, i)
+            return rt(root)
+        root = self.get_opf('''<meta name="calibre:series" content="xxx"/><meta name="calibre:series_index" content="5"/>''')
+        self.ae(('xxx', 5), rt(root))
+        root = self.get_opf('''<meta name="calibre:series" content="xxx"/><meta name="calibre:series_index" content="5"/>'''
+                            '<meta property="belongs-to-collection" id="c02">yyy</meta><meta refines="#c02" property="collection-type">series</meta>'
+                            '<meta refines="#c02" property="group-position">2.1</meta>')
+        self.ae(('yyy', 2.1), rt(root))
+        self.ae(('zzz', 3.3), st(root, 'zzz', 3.3))
     # }}}
 
 # Run tests {{{

@@ -621,11 +621,49 @@ def set_rating(root, prefixes, refines, val):
             remove_element(meta, refines)
     if val:
         ensure_prefix(root, prefixes, 'calibre', CALIBRE_PREFIX)
-    m = XPath('./opf:metadata')(root)[0]
-    if val:
+        m = XPath('./opf:metadata')(root)[0]
         d = m.makeelement(OPF('meta'), attrib={'property':'calibre:rating'})
         d.text = '%.2g' % val
         m.append(d)
+# }}}
+
+# Series {{{
+
+def read_series(root, prefixes, refines):
+    series_index = 1.0
+    for meta in XPath('./opf:metadata/opf:meta[@property="belongs-to-collection" and @id]')(root):
+        val = (meta.text or '').strip()
+        if val:
+            props = properties_for_id(meta.get('id'), refines)
+            if props.get('collection-type') == 'series':
+                try:
+                    series_index = float(props.get('group-position').strip())
+                except Exception:
+                    pass
+                return normalize_whitespace(val), series_index
+    for si in XPath('./opf:metadata/opf:meta[@name="calibre:series_index"]/@content')(root):
+        try:
+            series_index = float(si)
+            break
+        except:
+            pass
+    for s in XPath('./opf:metadata/opf:meta[@name="calibre:series"]/@content')(root):
+        s = normalize_whitespace(s)
+        if s:
+            return s, series_index
+    return None, series_index
+
+def set_series(root, prefixes, refines, series, series_index):
+    for meta in XPath('./opf:metadata/opf:meta[@name="calibre:series" or @name="calibre:series_index"]')(root):
+        remove_element(meta, refines)
+    for meta in XPath('./opf:metadata/opf:meta[@property="belongs-to-collection"]')(root):
+        remove_element(meta, refines)
+    m = XPath('./opf:metadata')(root)[0]
+    if series:
+        d = m.makeelement(OPF('meta'), attrib={'property':'belongs-to-collection'})
+        d.text = series
+        m.append(d)
+        set_refines(d, refines, refdef('collection-type', 'series'), refdef('group-position', '%.2g' % series_index))
 # }}}
 
 def read_metadata(root):
@@ -663,6 +701,9 @@ def read_metadata(root):
     ans.publisher = read_publisher(root, prefixes, refines) or ans.publisher
     ans.tags = read_tags(root, prefixes, refines) or ans.tags
     ans.rating = read_rating(root, prefixes, refines) or ans.rating
+    s, si = read_series(root, prefixes, refines)
+    if s:
+        ans.series, ans.series_index = s, si
     return ans
 
 def get_metadata(stream):
@@ -685,6 +726,7 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
     set_publisher(root, prefixes, refines, mi.publisher)
     set_tags(root, prefixes, refines, mi.tags)
     set_rating(root, prefixes, refines, mi.rating)
+    set_series(root, prefixes, refines, mi.series, mi.series_index)
 
     pretty_print_opf(root)
 
