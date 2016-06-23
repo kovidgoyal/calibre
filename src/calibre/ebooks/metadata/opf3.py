@@ -256,25 +256,29 @@ def set_identifiers(root, prefixes, refines, new_identifiers, force_identifiers=
             p = package_identifier.getparent()
             p.insert(p.index(package_identifier), ident)
 
-def set_application_id(root, refines, new_application_id=None):
-    uid = root.get('unique-identifier')
-    package_identifier = None
-    for ident in XPath('./opf:metadata/dc:identifier')(root):
-        is_package_id = uid is not None and uid == ident.get('id')
-        if is_package_id:
-            package_identifier = ident
-        val = (ident.text or '').strip()
-        if val.startswith('calibre:') and not is_package_id:
-            remove_element(ident, refines)
-    metadata = XPath('./opf:metadata')(root)[0]
-    if new_application_id:
-        ident = metadata.makeelement(DC('identifier'))
-        ident.text = 'calibre:%s' % new_application_id
-        if package_identifier is None:
-            metadata.append(ident)
-        else:
-            p = package_identifier.getparent()
-            p.insert(p.index(package_identifier), ident)
+def identifier_writer(name):
+    def writer(root, prefixes, refines, ival=None):
+        uid = root.get('unique-identifier')
+        package_identifier = None
+        for ident in XPath('./opf:metadata/dc:identifier')(root):
+            is_package_id = uid is not None and uid == ident.get('id')
+            if is_package_id:
+                package_identifier = ident
+            val = (ident.text or '').strip()
+            if (val.startswith(name + ':') or ident.get(OPF('scheme')) == name) and not is_package_id:
+                remove_element(ident, refines)
+        metadata = XPath('./opf:metadata')(root)[0]
+        if ival:
+            ident = metadata.makeelement(DC('identifier'))
+            ident.text = '%s:%s' % (name, ival)
+            if package_identifier is None:
+                metadata.append(ident)
+            else:
+                p = package_identifier.getparent()
+                p.insert(p.index(package_identifier), ident)
+    return writer
+set_application_id = identifier_writer('calibre')
+set_uuid = identifier_writer('uuid')
 
 # }}}
 
@@ -786,7 +790,9 @@ def read_metadata(root):
     for key, vals in identifiers.iteritems():
         if key == 'calibre':
             ans.application_id = vals[0]
-        elif key != 'uuid':
+        elif key == 'uuid':
+            ans.uuid = vals[0]
+        else:
             ids[key] = vals[0]
     ans.set_identifiers(ids)
     ans.title = read_title(root, prefixes, refines) or ans.title
@@ -867,6 +873,11 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
         set_author_link_map(root, prefixes, refines, getattr(mi, 'author_link_map', None))
     if ok('user_categories'):
         set_user_categories(root, prefixes, refines, getattr(mi, 'user_categories', None))
+    # We ignore apply_null for the next two to match the behavior with opf2.py
+    if mi.application_id:
+        set_application_id(root, prefixes, refines, mi.application_id)
+    if mi.uuid:
+        set_uuid(root, prefixes, refines, mi.uuid)
     new_user_metadata, current_user_metadata = mi.get_all_user_metadata(True), current_mi.get_all_user_metadata(True)
     missing = object()
     for key in tuple(new_user_metadata):

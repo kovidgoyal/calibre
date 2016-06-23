@@ -74,7 +74,7 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf(metadata=idt('a:1')+idt('a:2')+idt('calibre:x')+idt('uuid:y'))
         mi = read_metadata(root)
         self.ae(mi.application_id, 'x')
-        set_application_id(root, default_refines, 'y')
+        set_application_id(root, {}, default_refines, 'y')
         mi = read_metadata(root)
         self.ae(mi.application_id, 'y')
 
@@ -86,7 +86,7 @@ class TestOPF3(unittest.TestCase):
         set_identifiers(root, read_prefixes(root), default_refines, {'i':'2', 'o':'2'}, force_identifiers=True)
         self.ae({'i':['2', '1'], 'o':['2']}, ri(root))
         root = self.get_opf(metadata=idt('i:1', iid='uid') + idt('r:1') + idt('o:1'))
-        set_application_id(root, default_refines, 'y')
+        set_application_id(root, {}, default_refines, 'y')
         mi = read_metadata(root)
         self.ae(mi.application_id, 'y')
     # }}}
@@ -478,23 +478,24 @@ class TestOPF3(unittest.TestCase):
         def compare_metadata(mi2, mi3):
             self.ae(mi2.get_all_user_metadata(False), mi3.get_all_user_metadata(False))
             for field in ALL_METADATA_FIELDS:
-                if field in 'manifest uuid'.split():
-                    continue
-                v2, v3 = getattr(mi2, field, None), getattr(mi3, field, None)
-                self.ae(v2, v3, '%s: %r != %r' % (field, v2, v3))
+                if field != 'manifest':
+                    v2, v3 = getattr(mi2, field, None), getattr(mi3, field, None)
+                    self.ae(v2, v3, '%s: %r != %r' % (field, v2, v3))
 
         mi2 = OPF(BytesIO(raw.encode('utf-8'))).to_book_metadata()
         root = etree.fromstring(raw)
         root.set('version', '3.0')
         mi3 = read_metadata(root)
         compare_metadata(mi2, mi3)
-        apply_metadata(root, mi3)
-        compare_metadata(mi3, read_metadata(root))
+        apply_metadata(root, mi3, force_identifiers=True)
+        nmi = read_metadata(root)
+        compare_metadata(mi3, nmi)
         mi3.tags = []
         mi3.set('#tags', [])
         mi3.set('#number', 0)
         mi3.set('#commetns', '')
-        apply_metadata(root, mi3)
+        apply_metadata(root, mi3, update_timestamp=True)
+        self.assertFalse(root.xpath('//*/@name'))
         nmi = read_metadata(root)
         self.assertEqual(mi2.tags, nmi.tags)
         self.assertEqual(mi2.get('#tags'), nmi.get('#tags'))
