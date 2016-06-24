@@ -78,6 +78,8 @@ class Test(Command):
 
     def run(self, opts):
         from calibre.utils.run_tests import run_cli, filter_tests_by_name
+        from calibre.gui2 import ensure_app
+        ensure_app()
         tests = find_tests(which_tests=frozenset(opts.test_module))
         if opts.test_name:
             tests = filter_tests_by_name(tests, *opts.test_name)

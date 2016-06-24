@@ -8,18 +8,11 @@ import os, subprocess, errno, shutil, tempfile, sys
 from io import BytesIO
 from threading import Thread
 
-from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform, QCoreApplication
-
+from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows, plugins, get_version
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
-
-# Ensure that Qt can load the imageformat plugins
-
-if QCoreApplication.instance() is None:
-    # We need a QCoreApplication() in order to load imageformat plugins
-    _core_app = QCoreApplication([])
 
 # Utilities {{{
 imageops, imageops_err = plugins['imageops']

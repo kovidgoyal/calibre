@@ -101,9 +101,6 @@ class BuildTest(unittest.TestCase):
         conn.close()
 
     def test_qt(self):
-        # Must be run before QApplication is constructed
-        # Test that the image formats are available without a QApplication being
-        # constructed
         from PyQt5.Qt import QImageReader, QNetworkAccessManager, QFontDatabase
         from calibre.utils.img import image_from_data, image_to_data, test
         fmts = set(map(unicode, QImageReader.supportedImageFormats()))
