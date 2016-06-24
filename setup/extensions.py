@@ -95,6 +95,7 @@ extensions = [
 
     Extension('monotonic',
         ['calibre/utils/monotonic.c'],
+        libraries=['rt'] if islinux else [],
         ),
 
     Extension('speedup',
