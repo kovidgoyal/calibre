@@ -6,5 +6,6 @@ env:
 
 before_install:
     - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
+    - python -c "from PyQt5.QtCore import QCoreApplication; print(QCoreApplication.libraryPaths())"
     - python setup.py bootstrap --ephemeral
 script: python setup.py test

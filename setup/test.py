@@ -4,9 +4,10 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import unittest
+import unittest, os
 
 from setup import Command
+is_travis = os.environ.get('TRAVIS') == 'true'
 
 TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build'.split())
 
@@ -78,8 +79,9 @@ class Test(Command):
 
     def run(self, opts):
         from calibre.utils.run_tests import run_cli, filter_tests_by_name
-        from calibre.gui2 import ensure_app
-        ensure_app()
+        if is_travis:
+            from calibre.gui2 import ensure_app
+            ensure_app()
         tests = find_tests(which_tests=frozenset(opts.test_module))
         if opts.test_name:
             tests = filter_tests_by_name(tests, *opts.test_name)
