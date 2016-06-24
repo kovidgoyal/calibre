@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, ssl, os, socket, time
+import httplib, ssl, os, socket, time, errno
 from collections import namedtuple
 from unittest import skipIf
 from glob import glob
@@ -179,8 +179,13 @@ class LoopTest(BaseTest):
     @skipIf(create_server_cert is None, 'certgen module not available')
     def test_ssl(self):
         'Test serving over SSL'
-        s = socket.socket(socket.AF_INET if is_travis else socket.AF_INET6, socket.SOCK_STREAM, 0)
-        s.bind(('localhost', 0))
+        try:
+            s = socket.socket(socket.AF_INET6, socket.SOCK_STREAM, 0)
+            s.bind(('localhost', 0))
+        except socket.error as err:
+            if err.errno == errno.EADDRNOTAVAIL:
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
+                s.bind(('localhost', 0))
         address = s.getsockname()[0]
         with TemporaryDirectory('srv-test-ssl') as tdir:
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
