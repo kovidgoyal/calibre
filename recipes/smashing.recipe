@@ -1,7 +1,6 @@
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
-import urllib
 
 class SmashingMagazine (BasicNewsRecipe):
     __author__ = 'Marc Busqué <marc@lamarciana.com>'
@@ -19,7 +18,13 @@ class SmashingMagazine (BasicNewsRecipe):
     encoding = 'utf8'
     cover_url = u'http://media.smashingmagazine.com/themes/smashingv4/images/logo.png'
     remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height', 'style']
-    extra_css = urllib.urlopen('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+
+    def get_extra_css(self):
+        if not self.extra_css:
+            br = self.get_browser()
+            self.extra_css = br.open_novisit(
+                'https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+        return self.extra_css
 
     feeds = [
           (u'Smashing Magazine', u'http://rss1.smashingmagazine.com/feed/'),
