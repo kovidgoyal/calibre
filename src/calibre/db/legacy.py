@@ -275,22 +275,16 @@ class LibraryDatabase(object):
     def add_format(self, index, fmt, stream, index_is_id=False, path=None, notify=True, replace=True, copy_function=None):
         ''' path and copy_function are ignored by the new API '''
         book_id = index if index_is_id else self.id(index)
-        try:
-            return self.new_api.add_format(book_id, fmt, stream, replace=replace, run_hooks=False, dbapi=self)
-        except:
-            raise
-        else:
-            self.notify('metadata', [book_id])
+        ret = self.new_api.add_format(book_id, fmt, stream, replace=replace, run_hooks=False, dbapi=self)
+        self.notify('metadata', [book_id])
+        return ret
 
     def add_format_with_hooks(self, index, fmt, fpath, index_is_id=False, path=None, notify=True, replace=True):
         ''' path is ignored by the new API '''
         book_id = index if index_is_id else self.id(index)
-        try:
-            return self.new_api.add_format(book_id, fmt, fpath, replace=replace, run_hooks=True, dbapi=self)
-        except:
-            raise
-        else:
-            self.notify('metadata', [book_id])
+        ret = self.new_api.add_format(book_id, fmt, fpath, replace=replace, run_hooks=True, dbapi=self)
+        self.notify('metadata', [book_id])
+        return ret
 
     # }}}
 
