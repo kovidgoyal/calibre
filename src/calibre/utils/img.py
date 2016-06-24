@@ -4,16 +4,28 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from future_builtins import map
 import os, subprocess, errno, shutil, tempfile, sys
 from io import BytesIO
 from threading import Thread
 
-from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform
+from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform, QCoreApplication, QProcessEnvironment
 
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows, plugins, get_version
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
+
+# Ensure that Qt can load the imageformat plugins
+
+if QCoreApplication.instance() is None:
+    # Normally constructing a QCoreApplication takes care of this, but if we
+    # are being used without a QCoreApplication, then we have to do it manually
+    if len(set(b'jpeg gif png'.split(b' ')).intersection(set(map(bytes, QImageReader.supportedImageFormats())))) != 3:
+        qpp = QProcessEnvironment.systemEnvironment().value('QT_PLUGIN_PATH')
+        if qpp:
+            for path in qpp.split(os.pathsep):
+                QCoreApplication.addLibraryPath(path)
 
 # Utilities {{{
 imageops, imageops_err = plugins['imageops']
