@@ -147,6 +147,7 @@ def comments(test, parse_function):
     markup = '<html><!-- -- ---><body/></html>'
     root = parse_function(markup)
     test.assertEqual(len(XPath('//h:body')(root)), 1, 'Failed to parse with comment containing dashes')
+    test.assertEqual(len(tuple(root.iterdescendants(etree.Comment))), 1)
 
 basic_checks = (nonvoid_cdata_elements, namespaces, space_characters,
                 case_insensitive_element_names, entities, comments,
