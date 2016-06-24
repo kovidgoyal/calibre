@@ -22,7 +22,7 @@ from calibre.ebooks.metadata.opf3 import (
     set_comments, read_publisher, set_publisher, read_tags, set_tags, read_rating,
     set_rating, read_series, set_series, read_user_metadata, set_user_metadata,
     read_author_link_map, read_user_categories, set_author_link_map, set_user_categories,
-    apply_metadata, raster_cover, ensure_is_only_raster_cover
+    apply_metadata, read_raster_cover, ensure_is_only_raster_cover
 )
 # This import is needed to prevent a test from running slowly
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree  # noqa
@@ -207,13 +207,13 @@ class TestOPF3(unittest.TestCase):
 
     def test_raster_cover(self):  # {{{
         def rt(root):
-            return raster_cover(root)
+            return read_raster_cover(root, read_prefixes(root), read_refines(root))
         root = self.get_opf('<meta name="cover" content="cover"/>', '<item id="cover" media-type="image/jpeg" href="x.jpg"/>')
         self.ae('x.jpg', rt(root))
         root = self.get_opf('<meta name="cover" content="cover"/>',
                             '<item id="cover" media-type="image/jpeg" href="x.jpg"/><item media-type="image/jpeg" href="y.jpg" properties="cover-image"/>')
         self.ae('y.jpg', rt(root))
-        ensure_is_only_raster_cover(root, 'x.jpg')
+        ensure_is_only_raster_cover(root, read_prefixes(root), read_refines(root), 'x.jpg')
         self.ae('x.jpg', rt(root))
         self.ae(['x.jpg'], root.xpath('//*[@properties="cover-image"]/@href'))
         self.assertFalse(root.xpath('//*[@name]'))
@@ -486,7 +486,7 @@ class TestOPF3(unittest.TestCase):
         &quot;label&quot;: &quot;date&quot;, &quot;table&quot;:
         &quot;custom_column_2&quot;, &quot;is_multiple&quot;: null,
         &quot;is_category&quot;: false}"/>
-    </metadata>
+    </metadata><manifest/>
 </package>'''  # }}}
 
         def compare_metadata(mi2, mi3):
@@ -520,6 +520,8 @@ class TestOPF3(unittest.TestCase):
         self.assertFalse(nmi.tags)
         self.assertFalse(nmi.get('#tags'))
         self.assertFalse(nmi.get('#commetns'))
+        self.assertIsNone(apply_metadata(root, mi3, cover_data=b'x', cover_prefix='xxx', add_missing_cover=False))
+        self.ae('xxx/cover.jpg', apply_metadata(root, mi3, cover_data=b'x', cover_prefix='xxx'))
     # }}}
 
 # Run tests {{{

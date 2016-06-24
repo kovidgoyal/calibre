@@ -15,7 +15,7 @@ from calibre import prints
 from calibre.ebooks.metadata import check_isbn, authors_to_string, string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import object_to_unicode, decode_is_multiple, encode_is_multiple
-from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages
+from calibre.ebooks.metadata.utils import parse_opf, pretty_print_opf, ensure_unique, normalize_languages, create_manifest_item
 from calibre.ebooks.oeb.base import OPF2_NSMAP, OPF, DC
 from calibre.utils.config import from_json, to_json
 from calibre.utils.date import parse_date as parse_date_, fix_only_date, is_date_undefined, isoformat
@@ -785,6 +785,44 @@ def set_user_metadata(root, prefixes, refines, val):
 
 # }}}
 
+# Covers {{{
+
+def read_raster_cover(root, prefixes, refines):
+
+    def get_href(item):
+        mt = item.get('media-type')
+        if mt and 'xml' not in mt and 'html' not in mt:
+            href = item.get('href')
+            if href:
+                return href
+
+    for item in items_with_property(root, 'cover-image'):
+        href = get_href(item)
+        if href:
+            return href
+
+    for item_id in XPath('./opf:metadata/opf:meta[@name="cover"]/@content')(root):
+        for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
+            if item.get('id') == item_id:
+                href = get_href(item)
+                if href:
+                    return href
+
+def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href):
+    for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
+        remove_element(item, refines)
+    for item in items_with_property(root, 'cover-image'):
+        prop = normalize_whitespace(item.get('properties').replace('cover-image', ''))
+        if prop:
+            item.set('properties', prop)
+        else:
+            del item.attrib['properties']
+    for item in XPath('./opf:manifest/opf:item')(root):
+        if item.get('href') == raster_cover_item_href:
+            item.set('properties', normalize_whitespace((item.get('properties') or '') + ' cover-image'))
+
+# }}}
+
 # Reading/setting Metadata objects {{{
 
 def read_metadata(root):
@@ -837,7 +875,7 @@ def get_metadata(stream):
     root = parse_opf(stream)
     return read_metadata(root)
 
-def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False):
+def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     prefixes, refines = read_prefixes(root), read_refines(root)
     current_mi = read_metadata(root)
     if apply_null:
@@ -907,8 +945,18 @@ def apply_metadata(root, mi, cover_prefix='', cover_data=None, apply_null=False,
             current_user_metadata[key] = meta
 
     set_user_metadata(root, prefixes, refines, current_user_metadata)
+    raster_cover = read_raster_cover(root, prefixes, refines)
+    if not raster_cover and cover_data and add_missing_cover:
+        if cover_prefix and not cover_prefix.endswith('/'):
+            cover_prefix += '/'
+        name = cover_prefix + 'cover.jpg'
+        i = create_manifest_item(root, name, 'cover')
+        if i is not None:
+            ensure_is_only_raster_cover(root, prefixes, refines, name)
+            raster_cover = name
 
     pretty_print_opf(root)
+    return raster_cover
 
 def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     root = parse_opf(stream)
@@ -918,44 +966,6 @@ def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False,
         force_identifiers=force_identifiers)
 # }}}
 
-# Covers {{{
-
-def raster_cover(root):
-
-    def get_href(item):
-        mt = item.get('media-type')
-        if mt and 'xml' not in mt and 'html' not in mt:
-            href = item.get('href')
-            if href:
-                return href
-
-    for item in items_with_property(root, 'cover-image'):
-        href = get_href(item)
-        if href:
-            return href
-
-    for item_id in XPath('./opf:metadata/opf:meta[@name="cover"]/@content')(root):
-        for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
-            if item.get('id') == item_id:
-                href = get_href(item)
-                if href:
-                    return href
-
-def ensure_is_only_raster_cover(root, raster_cover_item_href):
-    refines = read_refines(root)
-    for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
-        remove_element(item, refines)
-    for item in items_with_property(root, 'cover-image'):
-        prop = normalize_whitespace(item.get('properties').replace('cover-image', ''))
-        if prop:
-            item.set('properties', prop)
-        else:
-            del item.attrib['properties']
-    for item in XPath('./opf:manifest/opf:item')(root):
-        if item.get('href') == raster_cover_item_href:
-            item.set('properties', normalize_whitespace((item.get('properties') or '') + ' cover-image'))
-
-# }}}
 
 if __name__ == '__main__':
     import sys
