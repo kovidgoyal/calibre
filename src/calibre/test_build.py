@@ -103,6 +103,13 @@ class BuildTest(unittest.TestCase):
     def test_qt(self):
         from PyQt5.Qt import QImageReader, QNetworkAccessManager, QFontDatabase
         from calibre.utils.img import image_from_data, image_to_data, test
+        # Ensure that images can be read before QApplication is constructed.
+        # Note that this requires QCoreApplication.libraryPaths() to return the
+        # path to the Qt plugins which it always does in the frozen build,
+        # because the QT_PLUGIN_PATH env var is set. On non-frozen builds,
+        # it should just work because the hard-coded paths of the Qt
+        # installation should work. If they do not, then it is a distro
+        # problem.
         fmts = set(map(unicode, QImageReader.supportedImageFormats()))
         testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
