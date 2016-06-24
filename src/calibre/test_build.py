@@ -104,7 +104,11 @@ class BuildTest(unittest.TestCase):
         # Must be run before QApplication is constructed
         # Test that the image formats are available without a QApplication being
         # constructed
+        from PyQt5.Qt import QImageReader, QNetworkAccessManager, QFontDatabase
         from calibre.utils.img import image_from_data, image_to_data, test
+        fmts = set(map(unicode, QImageReader.supportedImageFormats()))
+        testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
+        self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
         data = I('blank.png', allow_user_override=False, data=True)
         img = image_from_data(data)
         image_from_data(P('catalog/mastheadImage.gif', allow_user_override=False, data=True))
@@ -115,13 +119,9 @@ class BuildTest(unittest.TestCase):
         test()
 
         from calibre.gui2 import Application
-        from PyQt5.Qt import QImageReader, QNetworkAccessManager, QFontDatabase
         os.environ.pop('DISPLAY', None)
         app = Application([], headless=islinux)
         self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
-        fmts = set(map(unicode, QImageReader.supportedImageFormats()))
-        testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
-        self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load its image plugins")
         na = QNetworkAccessManager()
         self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
         if not is_travis:
