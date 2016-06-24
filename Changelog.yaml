@@ -20,6 +20,50 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.60.0
+  date: 2016-06-24
+
+  new features:
+    - title: "Edit metadata: In the drop down list for languages, show the five most recently used languages first."
+      tickets: [1594089]
+
+    - title: "Edit Book: Check Book: Add a check for missing navigation documents in EPUB 3 books"
+
+    - title: "Kobo driver: Improved configuration dialog for the Kobo Touch device driver"
+
+    - title: "Copy to Library: Do not abort the copy process if only some books fail to copy, instead report which books failed and copy the rest."
+      tickets: [1594100]
+
+    - title: "News download: Make all relative links (those starting with /) absolute. Useful when reading on a device that supports web browsing."
+
+    - title: "EPUB metadata: Add an option to disable adding of cover images to EPUB files that declare no cover image in their metadata (Preferences->Plugins->Customize the Set EPUB metadata plugin)"
+
+  bug fixes:
+    - title: "ToC Editor: Fix ToC detection in EPUB 3 files with only an NCX and no nav not working"
+
+    - title: "E-book viewer: In paged mode, when the window is toggled between full screen and window, repeatedly, preserve the position more accurately."
+      tickets: [1595307]
+
+    - title: "E-book viewer: Fix incorrect page turning when multiple pages are displayed on screen for books that wrap all their content in a single 100% height tag."
+      tickets: [1594657]
+
+    - title: "Fix a regression that broke scheduling a new news download in timezones west of GMT"
+
+    - title: "Edit Book: Fix undocked windows not resizable on OS X"
+
+    - title: "Fix a regression in 2.57 that broke rescaling of images to fit the output profile screen size during conversion."
+      tickets: [1594098]
+
+    - title: "Fix for file dialogs not working on windows when non-ascii environment variables are present"
+
+    - title: "HTML Input: Fix error when converting HTML file with URL encoded filename."
+      tickets: [1593632]
+
+  improved recipes:
+    - Handelsblatt
+    - New York Times Book Review
+    - Antyweb
+
 - version: 2.59.0
   date: 2016-06-17
 
