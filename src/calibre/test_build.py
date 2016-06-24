@@ -14,7 +14,6 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 
 import os, ctypes, sys, unittest
 from calibre.constants import plugins, iswindows, islinux, isosx
-is_travis = os.environ.get('TRAVIS') == 'true'
 
 class BuildTest(unittest.TestCase):
 
@@ -60,8 +59,6 @@ class BuildTest(unittest.TestCase):
 
     def test_plugins(self):
         for name in plugins:
-            if is_travis and name in ('libusb', 'libmtp'):
-                continue
             mod, err = plugins[name]
             self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)
 
@@ -128,10 +125,9 @@ class BuildTest(unittest.TestCase):
         self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
         na = QNetworkAccessManager()
         self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
-        if not is_travis:
-            from PyQt5.QtWebKitWidgets import QWebView
-            QWebView()
-            del QWebView
+        from PyQt5.QtWebKitWidgets import QWebView
+        QWebView()
+        del QWebView
         del na
         del app
 

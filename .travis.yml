@@ -4,6 +4,11 @@ language: generic
 env:
     - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
 
+addons:
+    apt:
+        packages:
+            - libudev-dev
+
 before_install:
     - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
     - python setup.py bootstrap --ephemeral
