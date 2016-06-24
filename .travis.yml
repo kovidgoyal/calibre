@@ -7,6 +7,6 @@ env:
 before_install:
     - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
     - $QMAKE -query
-    - QT_DEBUG_PLUGINS=1 python -c "from PyQt5.Qt import QImageReader; fmts = map(str, QImageReader.supportedImageFormats()); print fmts; import sys; 'jpg' not in fmts and sys.exit(1)"
+    - python -c "import os, sys; os.environ['QT_DEBUG_PLUGINS']='1'; from PyQt5.Qt import *; print QLibraryInfo.location(QLibraryInfo.PluginsPath); fmts = map(str, QImageReader.supportedImageFormats()); print fmts; sys.exit('jpg' not in fmts)"
     - python setup.py bootstrap --ephemeral
 script: python setup.py test
