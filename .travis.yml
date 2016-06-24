@@ -1,20 +1,17 @@
-sudo: required
-dist: trusty
+sudo: false
 language: generic
+
+addons:
+  apt:
+    packages:
+        - libfontconfig1-dev
+        - libgl1-mesa-dev
+        - libxrender-dev
+
 env:
-    - PYTHONPATH=$HOME/sw/lib/python2.7/dist-packages:$PYTHONPATH PATH=$HOME/sw/bin:$PATH SIP_DIR=$HOME/sw/share/sip SIP_INC_DIR=$HOME/sw/include/python2.7
+    - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig
+
 before_install:
-    - sudo add-apt-repository -y ppa:fkrull/deadsnakes-python2.7
-    - sudo apt-get -qq update
-    - sudo apt-get install -qq -y python-dev python-imaging python-mechanize python-lxml python-dateutil python-cssutils python-dnspython poppler-utils libpodofo-dev libwmf-dev libchm-dev libicu-dev libmtp-dev python-netifaces python-psutil python-apsw python-dbus python-pygments qtbase5-private-dev libqt5webkit5-dev libqt5x11extras5-dev libqt5svg5-dev qt5-default libfontconfig1-dev libssl-dev libsqlite3-dev libudev-dev libxrender-dev libjpeg-progs
-    - curl https://download.calibre-ebook.com/travis/sw.tar.xz | tar xJ -C $HOME
+    - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
     - python setup.py bootstrap --ephemeral
 script: python setup.py test
-
-# Commands used to build optipng, sip and PyQt5 (as trusty has no python 2 PyQt packages)
-# optipng:
-# ./configure --prefix=/home/kovid/sw && make -j2 && make install
-# Sip: 
-# python configure.py -b ~/sw/bin -d ~/sw/lib/python2.7/dist-packages -e ~/sw/include/python2.7 -v ~/sw/share/sip && make -j2 && make install
-# PyQt (we cannot build the webkit module as Qt is too old):
-# python configure.py --verbose --confirm-license -c -j10  --no-designer-plugin --no-qml-plugin --no-docstrings --no-stubs --sip ~/sw/bin/sip --sip-incdir ~/sw/include/python2.7 -b ~/sw/bin -d ~/sw/lib/python2.7/dist-packages -v ~/sw/share/sip/PyQt5 --disable QtWebKit --disable=QtWebKitWidgets --disable=Qml --disable=QtQuick && make -j2 && make install
