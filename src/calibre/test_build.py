@@ -14,6 +14,7 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 
 import os, ctypes, sys, unittest
 from calibre.constants import plugins, iswindows, islinux, isosx
+is_travis = os.environ.get('TRAVIS') == 'true'
 
 class BuildTest(unittest.TestCase):
 
@@ -31,11 +32,12 @@ class BuildTest(unittest.TestCase):
     @unittest.skipUnless(islinux, 'DBUS only used on linux')
     def test_dbus(self):
         import dbus
-        bus = dbus.SystemBus()
-        self.assertTrue(bus.list_names(), 'Failed to list names on the system bus')
-        bus = dbus.SessionBus()
-        self.assertTrue(bus.list_names(), 'Failed to list names on the session bus')
-        del bus
+        if 'DISPLAY' in os.environ:
+            bus = dbus.SystemBus()
+            self.assertTrue(bus.list_names(), 'Failed to list names on the system bus')
+            bus = dbus.SessionBus()
+            self.assertTrue(bus.list_names(), 'Failed to list names on the session bus')
+            del bus
 
     def test_regex(self):
         import regex
@@ -58,6 +60,8 @@ class BuildTest(unittest.TestCase):
 
     def test_plugins(self):
         for name in plugins:
+            if is_travis and name in ('libusb', 'libmtp'):
+                continue
             mod, err = plugins[name]
             self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)
 
@@ -111,18 +115,19 @@ class BuildTest(unittest.TestCase):
         test()
 
         from calibre.gui2 import Application
-        from PyQt5.Qt import (QImageReader, QNetworkAccessManager, QFontDatabase)
-        from PyQt5.QtWebKitWidgets import QWebView
+        from PyQt5.Qt import QImageReader, QNetworkAccessManager, QFontDatabase
         os.environ.pop('DISPLAY', None)
         app = Application([], headless=islinux)
         self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
         fmts = set(map(unicode, QImageReader.supportedImageFormats()))
-        testf = set(['jpg', 'png', 'svg', 'ico', 'gif'])
+        testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load its image plugins")
-        QWebView()
-        del QWebView
         na = QNetworkAccessManager()
         self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
+        if not is_travis:
+            from PyQt5.QtWebKitWidgets import QWebView
+            QWebView()
+            del QWebView
         del na
         del app
 
@@ -194,10 +199,6 @@ class BuildTest(unittest.TestCase):
         Markdown(extensions=['extra'])
         from calibre.library.comments import sanitize_html
         sanitize_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
-
-    def test_image_compression(self):
-        from calibre.utils.img import test
-        test()
 
     def test_openssl(self):
         import ssl
