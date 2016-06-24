@@ -19,7 +19,7 @@ from calibre.utils.filenames import atomic_rename
 
 if QCoreApplication.instance() is None:
     # We need a QCoreApplication() in order to load imageformat plugins
-    _core_app = QCoreApplication()
+    _core_app = QCoreApplication([])
 
 # Utilities {{{
 imageops, imageops_err = plugins['imageops']
