@@ -24,7 +24,10 @@ from calibre.ptempfile import reset_base_dir
 from calibre.utils.ipc import viewer_socket_address, RC
 from calibre.utils.zipfile import BadZipfile
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1, get_lang
-from calibre.utils.monotonic import monotonic
+try:
+    from calibre.utils.monotonic import monotonic
+except RuntimeError:
+    from time import time as monotonic
 
 vprefs = JSONConfig('viewer')
 vprefs.defaults['singleinstance'] = False
