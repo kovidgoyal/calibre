@@ -22,22 +22,22 @@ from calibre.ebooks.metadata.opf3 import (
     set_comments, read_publisher, set_publisher, read_tags, set_tags, read_rating,
     set_rating, read_series, set_series, read_user_metadata, set_user_metadata,
     read_author_link_map, read_user_categories, set_author_link_map, set_user_categories,
-    apply_metadata
+    apply_metadata, raster_cover, ensure_is_only_raster_cover
 )
 # This import is needed to prevent a test from running slowly
 from calibre.ebooks.oeb.polish.pretty import pretty_opf, pretty_xml_tree  # noqa
 
 read_author_link_map, read_user_categories, set_author_link_map, set_user_categories
 
-TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata></package>''' % CALIBRE_PREFIX  # noqa
+TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata><manifest>{manifest}</manifest></package>''' % CALIBRE_PREFIX  # noqa
 default_refines = defaultdict(list)
 
 class TestOPF3(unittest.TestCase):
 
     ae = unittest.TestCase.assertEqual
 
-    def get_opf(self, metadata=''):
-        return etree.fromstring(TEMPLATE.format(metadata=metadata))
+    def get_opf(self, metadata='', manifest=''):
+        return etree.fromstring(TEMPLATE.format(metadata=metadata, manifest=manifest))
 
     def test_prefix_parsing(self):  # {{{
         self.ae(parse_prefixes('foaf: http://xmlns.com/foaf/spec/\n dbp: http://dbpedia.org/ontology/'),
@@ -203,6 +203,20 @@ class TestOPF3(unittest.TestCase):
         root = self.get_opf('''<dc:publisher> one </dc:publisher><dc:publisher> xxx</dc:publisher>''')
         self.ae('one', rt(root))
         self.ae('<a>p</a>', st(root, '<a>p</a> '))
+    # }}}
+
+    def test_raster_cover(self):  # {{{
+        def rt(root):
+            return raster_cover(root)
+        root = self.get_opf('<meta name="cover" content="cover"/>', '<item id="cover" media-type="image/jpeg" href="x.jpg"/>')
+        self.ae('x.jpg', rt(root))
+        root = self.get_opf('<meta name="cover" content="cover"/>',
+                            '<item id="cover" media-type="image/jpeg" href="x.jpg"/><item media-type="image/jpeg" href="y.jpg" properties="cover-image"/>')
+        self.ae('y.jpg', rt(root))
+        ensure_is_only_raster_cover(root, 'x.jpg')
+        self.ae('x.jpg', rt(root))
+        self.ae(['x.jpg'], root.xpath('//*[@properties="cover-image"]/@href'))
+        self.assertFalse(root.xpath('//*[@name]'))
     # }}}
 
     def test_tags(self):  # {{{

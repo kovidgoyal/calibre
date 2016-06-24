@@ -115,6 +115,9 @@ def simple_text(f):
     def wrapper(*args, **kw):
         return normalize_whitespace(f(*args, **kw))
     return wrapper
+
+def items_with_property(root, q):
+    return XPath("./opf:manifest/opf:item[@properties and contains(concat(' ', normalize-space(@properties), ' '), ' %s ')]" % q)(root)
 # }}}
 
 # Prefixes {{{
@@ -782,6 +785,8 @@ def set_user_metadata(root, prefixes, refines, val):
 
 # }}}
 
+# Reading/setting Metadata objects {{{
+
 def read_metadata(root):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
@@ -911,6 +916,46 @@ def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False,
         root, mi, cover_prefix=cover_prefix, cover_data=cover_data,
         apply_null=apply_null, update_timestamp=update_timestamp,
         force_identifiers=force_identifiers)
+# }}}
+
+# Covers {{{
+
+def raster_cover(root):
+
+    def get_href(item):
+        mt = item.get('media-type')
+        if mt and 'xml' not in mt and 'html' not in mt:
+            href = item.get('href')
+            if href:
+                return href
+
+    for item in items_with_property(root, 'cover-image'):
+        href = get_href(item)
+        if href:
+            return href
+
+    for item_id in XPath('./opf:metadata/opf:meta[@name="cover"]/@content')(root):
+        for item in XPath('./opf:manifest/opf:item[@id and @href and @media-type]')(root):
+            if item.get('id') == item_id:
+                href = get_href(item)
+                if href:
+                    return href
+
+def ensure_is_only_raster_cover(root, raster_cover_item_href):
+    refines = read_refines(root)
+    for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
+        remove_element(item, refines)
+    for item in items_with_property(root, 'cover-image'):
+        prop = normalize_whitespace(item.get('properties').replace('cover-image', ''))
+        if prop:
+            item.set('properties', prop)
+        else:
+            del item.attrib['properties']
+    for item in XPath('./opf:manifest/opf:item')(root):
+        if item.get('href') == raster_cover_item_href:
+            item.set('properties', normalize_whitespace((item.get('properties') or '') + ' cover-image'))
+
+# }}}
 
 if __name__ == '__main__':
     import sys
