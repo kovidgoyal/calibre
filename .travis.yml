@@ -4,12 +4,12 @@ language: generic
 addons:
   apt:
     packages:
-        - libfontconfig1-dev
-        - libgl1-mesa-dev
-        - libxrender-dev
+    - libfontconfig1-dev
+    - libgl1-mesa-dev
+    - libxrender-dev
 
 env:
-    - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig
+    - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig
 
 before_install:
     - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
