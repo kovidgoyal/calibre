@@ -7,6 +7,7 @@ env:
 before_install:
     - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
     - $QMAKE -query
+    - ldd $SW/qt/plugins/imageformats/libqjpeg.so
     - python -c "import os, sys; os.environ['QT_DEBUG_PLUGINS']='1'; from PyQt5.Qt import *; print QLibraryInfo.location(QLibraryInfo.PluginsPath); fmts = map(str, QImageReader.supportedImageFormats()); print fmts; sys.exit('jpg' not in fmts)"
     - python setup.py bootstrap --ephemeral
 script: python setup.py test
