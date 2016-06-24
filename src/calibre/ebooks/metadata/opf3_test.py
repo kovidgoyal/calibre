@@ -486,20 +486,22 @@ class TestOPF3(unittest.TestCase):
         &quot;label&quot;: &quot;date&quot;, &quot;table&quot;:
         &quot;custom_column_2&quot;, &quot;is_multiple&quot;: null,
         &quot;is_category&quot;: false}"/>
-    </metadata><manifest/>
+    </metadata><manifest><item href="start.html" media-type="text/html" id="m1"/></manifest><spine><itemref idref="m1"/></spine>
 </package>'''  # }}}
 
         def compare_metadata(mi2, mi3):
             self.ae(mi2.get_all_user_metadata(False), mi3.get_all_user_metadata(False))
             for field in ALL_METADATA_FIELDS:
-                if field != 'manifest':
+                if field not in 'manifest spine':
                     v2, v3 = getattr(mi2, field, None), getattr(mi3, field, None)
                     self.ae(v2, v3, '%s: %r != %r' % (field, v2, v3))
 
         mi2 = OPF(BytesIO(raw.encode('utf-8'))).to_book_metadata()
         root = etree.fromstring(raw)
         root.set('version', '3.0')
-        mi3 = read_metadata(root)
+        mi3, _, raster_cover, first_spine_item  = read_metadata(root, return_extra_data=True)
+        self.assertIsNone(raster_cover)
+        self.ae('start.html', first_spine_item)
         compare_metadata(mi2, mi3)
         apply_metadata(root, mi3, force_identifiers=True)
         nmi = read_metadata(root)

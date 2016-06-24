@@ -825,7 +825,13 @@ def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href)
 
 # Reading/setting Metadata objects {{{
 
-def read_metadata(root):
+def first_spine_item(root, prefixes, refines):
+    for i in XPath('./opf:spine/opf:itemref/@idref')(root):
+        for item in XPath('./opf:manifest/opf:item')(root):
+            if item.get('id') == i:
+                return item.get('href') or None
+
+def read_metadata(root, ver=None, return_extra_data=False):
     ans = Metadata(_('Unknown'), [_('Unknown')])
     prefixes, refines = read_prefixes(root), read_refines(root)
     identifiers = read_identifiers(root, prefixes, refines)
@@ -869,6 +875,8 @@ def read_metadata(root):
     ans.user_categories = read_user_categories(root, prefixes, refines) or ans.user_categories
     for name, fm in (read_user_metadata(root, prefixes, refines) or {}).iteritems():
         ans.set_user_metadata(name, fm)
+    if return_extra_data:
+        ans = ans, ver, read_raster_cover(root, prefixes, refines), first_spine_item(root, prefixes, refines)
     return ans
 
 def get_metadata(stream):
