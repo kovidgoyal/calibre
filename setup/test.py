@@ -4,10 +4,9 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import unittest, os
+import unittest
 
 from setup import Command
-is_travis = os.environ.get('TRAVIS') == 'true'
 
 TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build'.split())
 
