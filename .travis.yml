@@ -6,7 +6,7 @@ env:
 
 before_install:
     - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
-    - echo '[Paths]\nPrefix = ..' > $SW/qt/bin/qt.conf
+    - echo "[Paths]\nPrefix = .." > $SW/qt/bin/qt.conf
     - cat $SW/qt/bin/qt.conf
     - python setup.py bootstrap --ephemeral
 script: python setup.py test
