@@ -8,7 +8,7 @@ import unittest
 
 from setup import Command
 
-TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants'.split())
+TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build'.split())
 
 def find_tests(which_tests=None):
     ans = []
@@ -16,6 +16,9 @@ def find_tests(which_tests=None):
     def ok(x):
         return not which_tests or x in which_tests
 
+    if ok('build'):
+        from calibre.test_build import find_tests
+        a(find_tests())
     if ok('srv'):
         from calibre.srv.tests.main import find_tests
         a(find_tests())
