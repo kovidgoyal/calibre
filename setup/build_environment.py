@@ -90,7 +90,7 @@ def readvar(name):
 pyqt = {x:readvar(y) for x, y in (
     ('inc', 'QT_INSTALL_HEADERS'), ('lib', 'QT_INSTALL_LIBS')
 )}
-qt_vars = {x:readvar(y) for x, y in {'libs':'QT_INSTALL_LIBS', 'plugins':'QT_INSTALL_PLUGINS'}.iteritems()}
+qt = {x:readvar(y) for x, y in {'libs':'QT_INSTALL_LIBS', 'plugins':'QT_INSTALL_PLUGINS'}.iteritems()}
 qmakespec = readvar('QMAKE_SPEC') if iswindows else None
 
 pyqt['sip_bin'] = os.environ.get('SIP_BIN', 'sip')
