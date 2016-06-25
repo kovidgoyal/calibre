@@ -71,8 +71,12 @@ class Check(Command):
     def is_cache_valid(self, f, cache):
         return cache.get(f) == self.file_hash(f)
 
+    @property
+    def cache_file(self):
+        return self.j(build_cache_dir(), self.CACHE)
+
     def save_cache(self, cache):
-        with open(self.j(build_cache_dir(), self.CACHE), 'wb') as f:
+        with open(self.cache_file, 'wb') as f:
             json.dump(cache, f)
 
     def file_has_errors(self, f):
@@ -101,7 +105,7 @@ class Check(Command):
         self.wn_path = os.path.expanduser('~/work/srv/main/static')
         self.has_changelog_check = os.path.exists(self.wn_path)
         try:
-            cache = json.load(open(self.j(build_cache_dir(), self.CACHE), 'rb'))
+            cache = json.load(open(self.cache_file, 'rb'))
         except EnvironmentError as err:
             if err.errno != errno.ENOENT:
                 raise
@@ -122,3 +126,9 @@ class Check(Command):
         for err in errors:
             self.info('\t\t', str(err))
 
+    def clean(self):
+        try:
+            os.remove(self.cache_file)
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise
