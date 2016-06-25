@@ -217,8 +217,8 @@ class Translations(POT):  # {{{
     def run(self, opts):
         self.compile_content_server_translations()
         l = {}
-        exec(compile(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'))
-             .read(), os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py'), 'exec'), l, l)
+        lc_dataf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py')
+        exec(compile(open(lc_dataf, 'rb').read(), lc_dataf, 'exec'), l, l)
         lcdata = {k:{k1:v1 for k1, v1 in v} for k, v in l['data']}
         self.iso639_errors = []
         jobs = []
