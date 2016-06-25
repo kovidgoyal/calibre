@@ -13,6 +13,7 @@ from functools import partial
 
 from setup import Command, __appname__, __version__, require_git_master, build_cache_dir
 from setup.parallel_build import parallel_check_output
+is_travis = os.environ.get('TRAVIS') == 'true'
 
 def qt_sources():
     qtdir = '/usr/src/qt5'
@@ -358,7 +359,7 @@ class Translations(POT):  # {{{
     def compile_content_server_translations(self):
         self.info('Compiling content-server translations')
         from calibre.utils.rapydscript import msgfmt
-        from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZipInfo
+        from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZipInfo, ZIP_STORED
         with ZipFile(self.j(self.RESOURCES, 'content-server', 'locales.zip'), 'w', ZIP_DEFLATED) as zf:
             for src in glob.glob(os.path.join(self.TRANSLATIONS, 'content-server', '*.po')):
                 data, current_hash = self.hash_and_data(src)
@@ -381,7 +382,7 @@ class Translations(POT):  # {{{
                     self.write_cache(cdata, current_hash, src)
                 if raw:
                     zi = ZipInfo(os.path.basename(src).rpartition('.')[0])
-                    zi.compress_type = ZIP_DEFLATED
+                    zi.compress_type = ZIP_STORED if is_travis else ZIP_DEFLATED
                     zf.writestr(zi, raw)
 
     def check_iso639(self, raw, path):
