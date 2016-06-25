@@ -15,6 +15,7 @@ from Queue import Queue, Empty
 
 from duktape import Context, JSError, to_python
 from lzma.xz import compress, decompress
+from calibre import force_unicode
 from calibre.constants import cache_dir, __appname__, __version__
 from calibre.utils.terminal import ANSIStream
 
@@ -61,6 +62,9 @@ def compiler():
 class CompileFailure(ValueError):
     pass
 
+def default_lib_dir():
+    return P('rapydscript/lib', allow_user_override=False)
+
 def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False):
     if isinstance(data, bytes):
         data = data.decode('utf-8')
@@ -69,7 +73,7 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         'beautify':beautify,
         'private_scope':private_scope,
         'omit_baselib': omit_baselib,
-        'libdir': libdir or P('rapydscript/lib', allow_user_override=False),
+        'libdir': libdir or default_lib_dir(),
         'basedir': os.getcwdu() if not filename or filename == '<stdin>' else os.path.dirname(filename),
         'filename': filename,
     }
@@ -97,6 +101,48 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
         raise CompileFailure(result.stack)
     raise CompileFailure(repr(presult))
 
+has_external_compiler = None
+
+def detect_external_compiler():
+    from calibre.utils.filenames import find_executable_in_path
+    rs = find_executable_in_path('rapydscript')
+    try:
+        raw = subprocess.check_output([rs, '--version'])
+    except Exception:
+        raw = b''
+    if raw.startswith(b'rapydscript-ng '):
+        ver = raw.partition(b' ')[-1]
+        try:
+            ver = tuple(map(int, ver.split(b'.')))
+        except Exception:
+            ver = (0, 0, 0)
+        if ver >= (0, 7, 4):
+            return rs
+    return False
+
+def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=None, omit_baselib=False):
+    global has_external_compiler
+    if has_external_compiler is None:
+        has_external_compiler = detect_external_compiler()
+    if not has_external_compiler:
+        return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib)
+    args = ['--import-path', libdir or default_lib_dir()]
+    if not beautify:
+        args.append('--uglify')
+    if not private_scope:
+        args.append('--bare')
+    if omit_baselib:
+        args.append('--omit-baselib')
+    if not isinstance(data, bytes):
+        data = data.encode('utf-8')
+    if filename:
+        args.append('--filename-for-stdin'), args.append(filename)
+    p = subprocess.Popen([has_external_compiler, 'compile'] + args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    js, stderr = p.communicate(data)
+    if p.wait() != 0:
+        raise CompileFailure(force_unicode(stderr, 'utf-8'))
+    return js.decode('utf-8')
+
 def compile_srv():
     d = os.path.dirname
     base = d(d(d(d(os.path.abspath(__file__)))))
@@ -119,7 +165,7 @@ def compile_srv():
     base = P('content-server', allow_user_override=False)
     fname = os.path.join(rapydscript_dir, 'srv.pyj')
     with lopen(fname, 'rb') as f:
-        js = compile_pyj(f.read(), fname).replace('__RENDER_VERSION__', rv, 1).replace('__MATHJAX_VERSION__', mathjax_version, 1).encode('utf-8')
+        js = compile_fast(f.read(), fname).replace('__RENDER_VERSION__', rv, 1).replace('__MATHJAX_VERSION__', mathjax_version, 1).encode('utf-8')
     with lopen(os.path.join(base, 'index.html'), 'rb') as f:
         html = f.read().replace(b'RESET_STYLES', reset, 1).replace(b'ICONS', icons, 1).replace(b'MAIN_JS', js, 1)
     with lopen(os.path.join(base, 'index-generated.html'), 'wb') as f:
