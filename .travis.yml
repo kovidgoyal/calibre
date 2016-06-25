@@ -1,5 +1,5 @@
 sudo: false
-language: generic
+language: node_js
 nodejs:
     - 6
 
