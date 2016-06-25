@@ -5,6 +5,7 @@ nodejs:
 cache:
   directories:
     - node_modules
+    - .build-cache
 
 env:
     - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins

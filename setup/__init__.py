@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os, platform, subprocess, time
+import sys, re, os, platform, subprocess, time, errno
 
 is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
@@ -24,6 +24,15 @@ sys.extensions_location = os.path.join(SRC, 'calibre', 'plugins')
 sys.running_from_setup = True
 
 __version__ = __appname__ = modules = functions = basenames = scripts = None
+
+def build_cache_dir():
+    ans = os.path.join(os.path.dirname(SRC), '.build-cache')
+    try:
+        os.mkdir(ans)
+    except EnvironmentError as err:
+        if err.errno != errno.EEXIST:
+            raise
+    return ans
 
 def require_git_master():
     if subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD']).strip() != 'master':

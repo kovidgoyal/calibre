@@ -4,7 +4,7 @@
 *.pyj-cached
 .bzr
 .bzrignore
-.check-cache.pickle
+.build-cache
 src/calibre/plugins
 resources/images.qrc
 manual/generated
