@@ -260,7 +260,7 @@ class Translations(POT):  # {{{
 
         def stats_cache(src, data=None):
             cname = self.cache_name(src) + '.stats.json'
-            with open(self.j(build_cache_dir(), cname), ('rb' if data is None else 'wb')) as f:
+            with open(self.j(self.cache_dir, cname), ('rb' if data is None else 'wb')) as f:
                 if data is None:
                     return json.load(f)
                 json.dump(data, f)
