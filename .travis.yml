@@ -2,13 +2,16 @@ sudo: false
 language: node_js
 nodejs:
     - 6
+cache:
+  directories:
+    - node_modules
 
 env:
     - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
 
 before_install:
     - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
-    - git clone --depth 1 git://github.com/kovidgoyal/rapydscript-ng.git && ln -s `pwd`/rapydscript-ng/bin/rapydscript $SW/bin/rapydscript
-    - node --version && rapydscript --version
+    - npm install rapydscript-ng && ln -s `pwd`/rapydscript-ng/bin/rapydscript $SW/bin/rapydscript
+    - rapydscript --version
     - python setup.py bootstrap --ephemeral
 script: python setup.py test
