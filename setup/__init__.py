@@ -25,13 +25,18 @@ sys.running_from_setup = True
 
 __version__ = __appname__ = modules = functions = basenames = scripts = None
 
+_cache_dir_built = False
+
 def build_cache_dir():
+    global _cache_dir_built
     ans = os.path.join(os.path.dirname(SRC), '.build-cache')
-    try:
-        os.mkdir(ans)
-    except EnvironmentError as err:
-        if err.errno != errno.EEXIST:
-            raise
+    if not _cache_dir_built:
+        _cache_dir_built = True
+        try:
+            os.mkdir(ans)
+        except EnvironmentError as err:
+            if err.errno != errno.EEXIST:
+                raise
     return ans
 
 def require_git_master():
