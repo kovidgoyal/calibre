@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os, platform, subprocess
+import sys, re, os, platform, subprocess, time
 
 is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
@@ -172,12 +172,15 @@ class Command(object):
         self.info('*\n')
 
     def run_cmd(self, cmd, opts):
+        from setup.commands import command_names
         cmd.pre_sub_commands(opts)
         for scmd in cmd.sub_commands:
             self.run_cmd(scmd, opts)
 
+        st = time.time()
         self.running(cmd)
         cmd.run(opts)
+        self.info('* %s took %.1f seconds' % (command_names[cmd], time.time() - st))
 
     def run_all(self, opts):
         self.run_cmd(self, opts)
