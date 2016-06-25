@@ -65,6 +65,22 @@ class CompileFailure(ValueError):
 def default_lib_dir():
     return P('rapydscript/lib', allow_user_override=False)
 
+_cache_dir = None
+
+def module_cache_dir():
+    global _cache_dir
+    if _cache_dir is None:
+        d = os.path.dirname
+        base = d(d(d(d(abspath(__file__)))))
+        _cache_dir = os.path.join(base, '.build-cache', 'pyj')
+        try:
+            os.makedirs(_cache_dir)
+        except EnvironmentError as e:
+            if e.errno != errno.EEXIST:
+                raise
+    return _cache_dir
+
+
 def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, libdir=None, omit_baselib=False):
     if isinstance(data, bytes):
         data = data.decode('utf-8')
@@ -116,7 +132,7 @@ def detect_external_compiler():
             ver = tuple(map(int, ver.split(b'.')))
         except Exception:
             ver = (0, 0, 0)
-        if ver >= (0, 7, 4):
+        if ver >= (0, 7, 5):
             return rs
     return False
 
@@ -126,7 +142,7 @@ def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=
         has_external_compiler = detect_external_compiler()
     if not has_external_compiler:
         return compile_pyj(data, filename or '<stdin>', beautify, private_scope, libdir, omit_baselib)
-    args = ['--import-path', libdir or default_lib_dir()]
+    args = ['--cache-dir', module_cache_dir(), '--import-path', libdir or default_lib_dir()]
     if not beautify:
         args.append('--uglify')
     if not private_scope:
