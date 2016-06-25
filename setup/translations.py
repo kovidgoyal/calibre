@@ -216,6 +216,12 @@ class Translations(POT):  # {{{
 
     def run(self, opts):
         self.compile_content_server_translations()
+        self.compile_main_translations()
+        self.write_stats()
+        self.freeze_locales()
+        self.compile_user_manual_translations()
+
+    def compile_main_translations(self):
         l = {}
         lc_dataf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lc_data.py')
         exec(compile(open(lc_dataf, 'rb').read(), lc_dataf, 'exec'), l, l)
@@ -254,10 +260,6 @@ class Translations(POT):  # {{{
             for err in self.iso639_errors:
                 print (err)
             raise SystemExit(1)
-
-        self.write_stats()
-        self.freeze_locales()
-        self.compile_user_manual_translations()
 
     def compile_content_server_translations(self):
         self.info('\nCompiling content-server translations')
