@@ -6,5 +6,7 @@ env:
 
 before_install:
     - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
+    - git clone --depth 1 git://github.com/kovidgoyal/rapydscript-ng.git && ln -s `pwd`/rapydscript-ng/bin/rapydscript $SW/bin/rapydscript
+    - which rapydscript
     - python setup.py bootstrap --ephemeral
 script: python setup.py test
