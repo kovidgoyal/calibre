@@ -22,28 +22,26 @@ isunix = islinux or isosx or isbsd
 make = 'make' if isunix else NMAKE
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 
+def absolutize(paths):
+    return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep)) for x in paths]))
+
 class Extension(object):
 
-    @classmethod
-    def absolutize(cls, paths):
-        return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/',
-            os.sep)) for x in paths]))
-
     def __init__(self, name, sources, **kwargs):
-        self.name = name
-        self.needs_cxx = bool([1 for x in sources if os.path.splitext(x)[1] in
-            ('.cpp', '.c++', '.cxx')])
-        self.sources = self.absolutize(sources)
-        self.headers = self.absolutize(kwargs.get('headers', []))
-        self.sip_files = self.absolutize(kwargs.get('sip_files', []))
-        self.inc_dirs = self.absolutize(kwargs.get('inc_dirs', []))
-        self.lib_dirs = self.absolutize(kwargs.get('lib_dirs', []))
-        self.extra_objs = self.absolutize(kwargs.get('extra_objs', []))
-        self.error = kwargs.get('error', None)
-        self.libraries = kwargs.get('libraries', [])
-        self.cflags = kwargs.get('cflags', [])
-        self.ldflags = kwargs.get('ldflags', [])
-        self.optional = kwargs.get('optional', False)
+        self.data = d = {}
+        self.name = d['name'] = name
+        self.needs_cxx = d['needs_cxx'] = bool([1 for x in sources if os.path.splitext(x)[1] in ('.cpp', '.c++', '.cxx')])
+        self.sources = d['sources'] = absolutize(sources)
+        self.headers = d['headers'] = absolutize(kwargs.get('headers', []))
+        self.sip_files = d['sip_files'] = absolutize(kwargs.get('sip_files', []))
+        self.inc_dirs = d['inc_dirs'] = absolutize(kwargs.get('inc_dirs', []))
+        self.lib_dirs = d['lib_dirs'] = absolutize(kwargs.get('lib_dirs', []))
+        self.extra_objs = d['extra_objs'] = absolutize(kwargs.get('extra_objs', []))
+        self.error = d['error'] = kwargs.get('error', None)
+        self.libraries = d['libraries'] = kwargs.get('libraries', [])
+        self.cflags = d['cflags'] = kwargs.get('cflags', [])
+        self.ldflags = d['ldflags'] = kwargs.get('ldflags', [])
+        self.optional = d['options'] = kwargs.get('optional', False)
         of = kwargs.get('optimize_level', None)
         if of is None:
             of = '/Ox' if iswindows else '-O3'
@@ -51,10 +49,7 @@ class Extension(object):
             flag = '/O%d' if iswindows else '-O%d'
             of = flag % of
         self.cflags.insert(0, of)
-        self.qt_private_headers = kwargs.get('qt_private', [])
-
-    def preflight(self, obj_dir, compiler, linker, builder, cflags, ldflags):
-        pass
+        self.qt_private_headers = d['qt_private_headers'] = kwargs.get('qt_private', [])
 
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
@@ -451,7 +446,6 @@ class Build(Command):
         linker = msvc.linker if iswindows else compiler
         objects = []
         obj_dir = self.j(self.obj_dir, ext.name)
-        ext.preflight(obj_dir, compiler, linker, self, cflags, ldflags)
         einc = self.inc_dirs_to_cflags(ext.inc_dirs)
         if not os.path.exists(obj_dir):
             os.makedirs(obj_dir)
@@ -509,7 +503,7 @@ class Build(Command):
             return  # Dont have headless operation on these platforms
         from PyQt5.QtCore import QT_VERSION
         self.info('\n####### Building headless QPA plugin', '#'*7)
-        a = Extension.absolutize
+        a = absolutize
         headers = a([
             'calibre/headless/headless_backingstore.h',
             'calibre/headless/headless_integration.h',
