@@ -15,7 +15,7 @@ def check_version_info():
     raise SystemExit('calibre requires python >= 2.7.9 and < 3. Current python version: %s' % vi)
 check_version_info()
 
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import setup.commands as commands
 from setup import prints, get_warnings

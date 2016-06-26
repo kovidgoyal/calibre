@@ -27,6 +27,19 @@ __version__ = __appname__ = modules = functions = basenames = scripts = None
 
 _cache_dir_built = False
 
+def newer(targets, sources):
+    if isinstance(targets, basestring):
+        targets = [targets]
+    if isinstance(sources, basestring):
+        sources = [sources]
+    for f in targets:
+        if not os.path.exists(f):
+            return True
+    ttimes = map(lambda x: os.stat(x).st_mtime, targets)
+    stimes = map(lambda x: os.stat(x).st_mtime, sources)
+    newest_source, oldest_target = max(stimes), min(ttimes)
+    return newest_source > oldest_target
+
 def build_cache_dir():
     global _cache_dir_built
     ans = os.path.join(os.path.dirname(SRC), '.build-cache')
@@ -226,17 +239,7 @@ class Command(object):
         Return True if sources is newer that targets or if targets
         does not exist.
         '''
-        if isinstance(targets, basestring):
-            targets = [targets]
-        if isinstance(sources, basestring):
-            sources = [sources]
-        for f in targets:
-            if not os.path.exists(f):
-                return True
-        ttimes = map(lambda x: os.stat(x).st_mtime, targets)
-        stimes = map(lambda x: os.stat(x).st_mtime, sources)
-        newest_source, oldest_target = max(stimes), min(ttimes)
-        return newest_source > oldest_target
+        return newer(targets, sources)
 
     def info(self, *args, **kwargs):
         prints(*args, **kwargs)
