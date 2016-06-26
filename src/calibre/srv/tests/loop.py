@@ -186,6 +186,8 @@ class LoopTest(BaseTest):
             if err.errno == errno.EADDRNOTAVAIL:
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
                 s.bind(('localhost', 0))
+            else:
+                raise
         address = s.getsockname()[0]
         if is_travis and isosx:
             address = '::1'
