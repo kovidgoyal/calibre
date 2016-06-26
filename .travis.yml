@@ -1,4 +1,3 @@
-sudo: false
 language: node_js
 nodejs:
     - 6
@@ -7,12 +6,21 @@ cache:
     - node_modules
     - .build-cache
 
-env:
-    - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
+matrix:
+    include:
+        - os: linux
+          sudo: false
+          env:
+            - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
+        - os: osx
+          env:
+            # On OS X the frameworks/dylibs contain hard coded paths, so we have to re-create the paths in the VM exactly
+            - SWBASE=/Users/kovid SW=$SWBASE/sw PATH=$SW/bin:$SW/qt/bin:$SW/python/Python.framework/Versions/2.7/bin:$PWD/node_modules/.bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins MACOSX_DEPLOYMENT_TARGET=10.7
 
 before_install:
-    - curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME
-    - npm install rapydscript-ng && ln -s `pwd`/rapydscript-ng/bin/rapydscript $SW/bin/rapydscript
-    - rapydscript --version
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then curl https://download.calibre-ebook.com/travis/sw-linux.tar.xz | tar xJ -C $HOME; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo mkdir -p $SWBASE && sudo chown $USER $SWBASE; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl https://download.calibre-ebook.com/travis/sw-osx.tar.bz2 | tar xj -C $SWBASE; fi
+    - npm install --no-optional rapydscript-ng && echo $PATH && which rapydscript && rapydscript --version
     - python setup.py bootstrap --ephemeral
 script: python setup.py test
