@@ -243,7 +243,8 @@ def test(return_tests=False):
                 doit(str(i))
             gc.collect()
             used100 = memory() - start
-            self.assertLessEqual(used100, 2 * used10)
+            if used100 > 0 and used10 >= 0:
+                self.assertLessEqual(used100, 2 * used10)
 
         def test_non_bmp(self):
             raw = '_\U0001f431-'
