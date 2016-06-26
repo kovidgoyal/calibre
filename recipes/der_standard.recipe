@@ -1,10 +1,12 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals, division, absolute_import, print_function
 
 __license__   = 'GPL v3'
 __copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
 
 ''' http://www.derstandard.at - Austrian Newspaper '''
+
 import re
 import random
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -17,21 +19,17 @@ class DerStandardRecipe(BasicNewsRecipe):
     category = 'news, politics, nachrichten, Austria'
     use_embedded_content = False
     remove_empty_feeds = True
-    lang = 'de-AT'
     no_stylesheets = True
     encoding = 'utf-8'
-    language = 'de'
+    language = 'de_AT'
 
     oldest_article = 1
     max_articles_per_feed = 100
+    ignore_duplicate_articles = {'title', 'url'}
 
-    extra_css = '''
-                .artikelBody{font-family:Arial,Helvetica,sans-serif;}
-                .artikelLeft{font-family:Arial,Helvetica,sans-serif;font-size:x-small;}
-                h4{color:#404450;font-size:x-small;}
-                h6{color:#404450; font-size:x-small;}
-                '''
-    feeds          = [
+    masthead_url = 'http://images.derstandard.at/2012/06/19/derStandardat_1417x274.gif'
+
+    feeds = [
         (u'Newsroom', u'http://derStandard.at/?page=rss&ressort=Seite1'),
         (u'Inland', u'http://derstandard.at/?page=rss&ressort=InnenPolitik'),
         (u'International', u'http://derstandard.at/?page=rss&ressort=InternationalPolitik'),
@@ -54,16 +52,24 @@ class DerStandardRecipe(BasicNewsRecipe):
         (u'Automobil', u'http://derstandard.at/?page=rss&ressort=Automobil'),
         (u'dieStandard', u'http://dieStandard.at/?page=rss&ressort=diestandard'),
         (u'daStandard', u'http://daStandard.at/?page=rss&ressort=dastandard')
-                      ]
+    ]
 
     keep_only_tags = [
-                        dict(name='div', attrs={'class':["artikel","artikelLeft","artikelBody"]}) ,
-                         ]
+        dict(name='div', attrs={'class':re.compile('^artikel')})
+    ]
 
     remove_tags = [
-                    dict(name='link'), dict(name='meta'),dict(name='iframe'),dict(name='style'),
-                    dict(name='form',attrs={'name':'sitesearch'}), dict(name='hr'),
-                    dict(name='div', attrs={'class':["diashow"]})]
+        dict(name=['link', 'iframe', 'style', 'hr']),
+        dict(attrs={'class':['lookup-links', 'media-list']}),
+        dict(name='form',attrs={'name':'sitesearch'}),
+        dict(name='div', attrs={'class':['socialsharing', 'block video',
+                                         'blog-browsing section',
+                                         'diashow', 'supplemental']}),
+        dict(name='div', attrs={'id':'highlighted'})
+    ]
+
+    remove_attributes = ['width', 'height']
+
     preprocess_regexps = [
         (re.compile(r'\[[\d]*\]', re.DOTALL|re.IGNORECASE), lambda match: ''),
         (re.compile(r'bgcolor="#\w{3,6}"', re.DOTALL|re.IGNORECASE), lambda match: '')
@@ -72,10 +78,6 @@ class DerStandardRecipe(BasicNewsRecipe):
     filter_regexps = [r'/r[1-9]*']
 
     def get_article_url(self, article):
-        '''if the article links to a index page (ressort) or a picture gallery
-           (ansichtssache), don't add it'''
-        if ( article.link.count('ressort') > 0 or article.title.lower().count('ansichtssache') > 0 ):
-            return None
         matchObj = re.search( re.compile(r'/r'+'[1-9]*',flags=0), article.link,flags=0)
 
         if matchObj:
@@ -84,23 +86,17 @@ class DerStandardRecipe(BasicNewsRecipe):
         return article.link
 
     def preprocess_html(self, soup):
-        soup.html['xml:lang'] = self.lang
-        soup.html['lang']     = self.lang
-        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=' + self.encoding + '">'
-        soup.head.insert(0,mtag)
-
+        if soup.find('div', {'class':re.compile('^artikel')}) is None:
+            self.abort_article()
         for t in soup.findAll(['ul', 'li']):
             t.name = 'div'
         return soup
 
-    cover_re = re.compile('<img.*class="thumbnailBig.*src="(.*)" alt="issue"')
-
     def get_cover_url(self):
         base_url = 'https://epaper.derstandard.at/'
         url = base_url + 'shelf.act?s=' + str(random.random() * 10000)
-        br = self.clone_browser(self.browser)
-        html = br.open(url).read()
-        cover_match = self.cover_re.search(html)
-        if cover_match is not None:
-            cover_url = base_url + cover_match.group(1)
+        soup = self.index_to_soup(url)
+        img = soup.find('img', {'class':re.compile('^thumbnailBig'), 'src':True})
+        if img and img['src']:
+            cover_url = base_url + img['src']
             return cover_url
