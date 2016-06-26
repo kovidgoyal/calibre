@@ -50,9 +50,9 @@ class OutputDevice : public PdfOutputDevice {
             if( !pszFormat ) { PODOFO_RAISE_ERROR( ePdfError_InvalidHandle ); }
 
 #ifdef _MSC_VER
-            return _vscprintf(pszFormat, args);
+            return _vscprintf(pszFormat, args) + 1;
 #else
-            return vsnprintf(NULL, 0, pszFormat, args);
+            return vsnprintf(NULL, 0, pszFormat, args) + 1;
 #endif
         }
 
