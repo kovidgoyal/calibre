@@ -1,5 +1,8 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from __future__ import (unicode_literals, division, absolute_import, print_function)
+# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+from __future__ import (unicode_literals, division, absolute_import,
+                        print_function)
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2013 Roman Mukhin <ramses_ru at hotmail.com>'
@@ -9,20 +12,22 @@ __docformat__ = 'restructuredtext en'
 
 import re
 from Queue import Queue, Empty
+from lxml import etree, html
 
 from calibre import as_unicode
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source, Option
 from calibre.ebooks.metadata.book.base import Metadata
 
+
 class Ozon(Source):
     name = 'OZON.ru'
-    description = _('Downloads metadata and covers from OZON.ru')
+    description = _('Downloads metadata and covers from OZON.ru (updated)')
 
     capabilities = frozenset(['identify', 'cover'])
 
     touched_fields = frozenset(['title', 'authors', 'identifier:isbn', 'identifier:ozon',
-                               'publisher', 'pubdate', 'comments', 'series', 'rating', 'languages'])
+                                'publisher', 'pubdate', 'comments', 'series', 'rating', 'languages'])
     # Test purpose only, test function does not like when sometimes some filed are empty
     # touched_fields = frozenset(['title', 'authors', 'identifier:isbn', 'identifier:ozon',
     #                          'publisher', 'pubdate', 'comments'])
@@ -33,17 +38,18 @@ class Ozon(Source):
     ozon_url = 'http://www.ozon.ru'
 
     # match any ISBN10/13. From "Regular Expressions Cookbook"
-    isbnPattern = r'(?:ISBN(?:-1[03])?:? )?(?=[-0-9 ]{17}|'\
-             '[-0-9X ]{13}|[0-9X]{10})(?:97[89][- ]?)?[0-9]{1,5}[- ]?'\
-             '(?:[0-9]+[- ]?){2}[0-9X]'
+    isbnPattern = r'(?:ISBN(?:-1[03])?:? )?(?=[-0-9 ]{17}|' \
+                  '[-0-9X ]{13}|[0-9X]{10})(?:97[89][- ]?)?[0-9]{1,5}[- ]?' \
+                  '(?:[0-9]+[- ]?){2}[0-9X]'
     isbnRegex = re.compile(isbnPattern)
 
     optkey_strictmatch = 'strict_result_match'
     options = (
-            Option(optkey_strictmatch, 'bool', False,
-                _('Filter out less relevant hits from the search results'),
-                _('Improve search result by removing less relevant hits. It can be useful to refine the search when there are many matches')),
-            )
+        Option(optkey_strictmatch, 'bool', False,
+               _('Filter out less relevant hits from the search results'),
+               _(
+                   'Improve search result by removing less relevant hits. It can be useful to refine the search when there are many matches')),
+    )
 
     def get_book_url(self, identifiers):  # {{{
         import urllib2
@@ -54,6 +60,7 @@ class Ozon(Source):
             url = '{}/context/detail/id/{}'.format(self.ozon_url, urllib2.quote(ozon_id), _get_affiliateId())
             res = ('ozon', ozon_id, url)
         return res
+
     # }}}
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
@@ -65,25 +72,30 @@ class Ozon(Source):
         # for ozon.ru search we have to format ISBN with '-'
         isbn = _format_isbn(log, identifiers.get('isbn', None))
         if isbn and '-' not in isbn:
-            log.error("%s requires formatted ISBN for search. %s cannot be formated - removed. (only Russian ISBN format is supported now)"
-                      % (self.name, isbn))
+            log.error(
+                "%s requires formatted ISBN for search. %s cannot be formated - removed. (only Russian ISBN format is supported now)"
+                % (self.name, isbn))
             isbn = None
 
         ozonid = identifiers.get('ozon', None)
 
         qItems = set([ozonid, isbn])
 
-        unk = unicode(_('Unknown')).upper()
+        # Added Russian variant of 'Unknown'
+        unk = [unicode(_('Unknown')).upper(), unicode(_('Неизв.')).upper()]
 
-        if title and title != unk:
+        if title and title not in unk:
             qItems.add(title)
-        if authors and authors != [unk]:
-            qItems |= frozenset(authors)
+
+        if authors:
+            for auth in authors:
+                if auth.upper() not in unk:
+                    qItems.add(auth)
 
         qItems.discard(None)
         qItems.discard('')
-        qItems = map(_quoteString, qItems)
         searchText = u' '.join(qItems).strip()
+
         if isinstance(searchText, unicode):
             searchText = searchText.encode('utf-8')
         if not searchText:
@@ -92,12 +104,13 @@ class Ozon(Source):
         search_url += quote_plus(searchText)
         log.debug(u'search url: %r' % search_url)
         return search_url
+
     # }}}
 
     def identify(self, log, result_queue, abort, title=None, authors=None,
-            identifiers={}, timeout=90):  # {{{
-        from lxml import html
+                 identifiers={}, timeout=90):  # {{{
         from calibre.ebooks.chardet import xml_to_unicode
+        from HTMLParser import HTMLParser
 
         if not self.is_configured():
             return
@@ -110,66 +123,57 @@ class Ozon(Source):
         try:
             raw = self.browser.open_novisit(query).read()
 
+
         except Exception as e:
             log.exception(u'Failed to make identify query: %r' % query)
             return as_unicode(e)
 
         try:
             doc = html.fromstring(xml_to_unicode(raw, verbose=True)[0])
-            entries = doc.xpath(u'//div[@class="SearchResults"]//div[@itemprop="itemListElement"]')
+            entries_block = doc.xpath(u'//div[@class="bSearchResult"]')
 
-            if entries:
+            if entries_block:
+                entries = doc.xpath(u'//div[contains(@itemprop, "itemListElement")]')
                 # for entry in entries:
-                #    log.debug('entries %s' % etree.tostring(entry))
+                #   log.debug('entries %s' % entree.tostring(entry))
                 metadata = self.get_metadata(log, entries, title, authors, identifiers)
                 self.get_all_details(log, metadata, abort, result_queue, identifiers, timeout)
             else:
-                mainentry = doc.xpath(u'//div[contains(@class, "details-main")]')
-                if mainentry:
-                    metadata = self.get_metadata_from_detail(log, mainentry[0], title, authors, identifiers)
-                    ozon_id = unicode(metadata.identifiers['ozon'])
-                    self.get_all_details(log, [metadata], abort, result_queue, identifiers, timeout, {ozon_id : doc})
+                # Redirect page: trying to extract ozon_id from javascript data
+                h = HTMLParser()
+                entry_string = (h.unescape(unicode(etree.tostring(doc, pretty_print=True))))
+                id_title_pat = re.compile(u'products":\[{"id":(\d{7}),"name":"([а-яА-Я :\-0-9]+)')
+                # result containing ozon_id and entry_title
+                entry_info = re.search(id_title_pat, entry_string)
+                ozon_id = entry_info.group(1) if entry_info else None
+                entry_title = entry_info.group(2) if entry_info else None
+
+                if ozon_id:
+                    metadata = self.to_metadata_for_single_entry(log, ozon_id, entry_title, authors)
+                    identifiers['ozon'] = ozon_id
+                    self.get_all_details(log, [metadata], abort, result_queue, identifiers, timeout, cachedPagesDict={})
                 else:
-                    log.error('No SearchResults/itemListElement entries in Ozon.ru responce found')
+                    log.error('No SearchResults in Ozon.ru response found')
 
         except Exception as e:
             log.exception('Failed to parse identify results')
             return as_unicode(e)
+
     # }}}
 
-    def get_metadata_from_detail(self, log, entry, title, authors, identifiers):  # {{{
-        title = unicode(entry.xpath(u'normalize-space(.//h1[@itemprop="name"][1]/text())'))
-        # log.debug(u'Tile (from_detail): -----> %s' % title)
+    def to_metadata_for_single_entry(self, log, ozon_id, title, authors):  # {{{
 
-        author = unicode(entry.xpath(u'normalize-space(.//a[contains(@href, "person")][1]/text())'))
-        # log.debug(u'Author (from_detail): -----> %s' % author)
-
-        norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
-        mi = Metadata(title, norm_authors)
-
-        ozon_id = entry.xpath(u'substring-before(substring-after(normalize-space(//link[@rel="canonical"][contains(@href, "/context/detail/id/")][1]/@href), "id/"), "/")')
-        if ozon_id:
-            # log.debug(u'ozon_id (from_detail): -----> %s' % ozon_id)
-            mi.identifiers = {'ozon':ozon_id}
-
-        mi.ozon_cover_url = None
-        cover = entry.xpath(u'normalize-space(.//img[1]/@src)')
-        if cover:
-            mi.ozon_cover_url = _translateToBigCoverUrl(cover)
-            # log.debug(u'mi.ozon_cover_url  (from_detail): -----> %s' % mi.ozon_cover_url)
-
-        mi.rating = self.get_rating(entry)
-        # log.debug(u'mi.rating  (from_detail): -----> %s' % mi.rating)
-        if not mi.rating:
-            log.debug('No rating (from_detail) found. ozon_id:%s'%ozon_id)
+        # parsing javascript data from the redirect page
+        mi = Metadata(title, authors)
+        mi.identifiers = {'ozon': ozon_id}
 
         return mi
+
     # }}}
 
     def get_metadata(self, log, entries, title, authors, identifiers):  # {{{
         # some book titles have extra characters like this
-        # TODO: make a twick
-        # reRemoveFromTitle = None
+
         reRemoveFromTitle = re.compile(r'[?!:.,;+-/&%"\'=]')
 
         title = unicode(title).upper() if title else ''
@@ -177,6 +181,7 @@ class Ozon(Source):
             title = reRemoveFromTitle.sub('', title)
         authors = map(_normalizeAuthorNameWithInitials,
                       map(unicode.upper, map(unicode, authors))) if authors else None
+
         ozon_id = identifiers.get('ozon', None)
         # log.debug(u'ozonid: ', ozon_id)
 
@@ -200,8 +205,10 @@ class Ozon(Source):
             relevance = 0
             if title:
                 mititle = unicode(mi.title).upper() if mi.title else ''
+
                 if reRemoveFromTitle:
                     mititle = reRemoveFromTitle.sub('', mititle)
+
                 if title in mititle:
                     relevance += 3
                 elif mititle:
@@ -212,6 +219,8 @@ class Ozon(Source):
 
             if authors:
                 miauthors = map(unicode.upper, map(unicode, mi.authors)) if mi.authors else []
+                # log.debug('Authors %s vs miauthors %s'%(','.join(authors), ','.join(miauthors)))
+
                 if (in_authors(authors, miauthors)):
                     relevance += 3
                 elif u''.join(miauthors):
@@ -228,11 +237,13 @@ class Ozon(Source):
             if relevance < 0:
                 relevance = 0
             return relevance
+
         # }}}
 
         strict_match = self.prefs[self.optkey_strictmatch]
         metadata = []
         for entry in entries:
+
             mi = self.to_metadata(log, entry)
             relevance = calc_source_relevance(mi)
             # TODO findout which is really used
@@ -240,15 +251,19 @@ class Ozon(Source):
             mi.relevance_in_source = relevance
 
             if not strict_match or relevance > 0:
-                metadata.append(mi)
-                # log.debug(u'added metadata %s %s.'%(mi.title,  mi.authors))
+                # getting rid of a random book that shows up in results
+                if not (mi.title == 'Unknown'):
+                    metadata.append(mi)
+                    # log.debug(u'added metadata %s %s.'%(mi.title,  mi.authors))
             else:
                 log.debug(u'skipped metadata title: %s, authors: %s. (does not match the query - relevance score: %s)'
                           % (mi.title, u' '.join(mi.authors), relevance))
         return metadata
+
     # }}}
 
     def get_all_details(self, log, metadata, abort, result_queue, identifiers, timeout, cachedPagesDict={}):  # {{{
+
         req_isbn = identifiers.get('isbn', None)
 
         for mi in metadata:
@@ -258,7 +273,8 @@ class Ozon(Source):
                 ozon_id = mi.identifiers['ozon']
 
                 try:
-                    self.get_book_details(log, mi, timeout, cachedPagesDict[ozon_id] if cachedPagesDict and ozon_id in cachedPagesDict else None)
+                    self.get_book_details(log, mi, timeout, cachedPagesDict[
+                        ozon_id] if cachedPagesDict and ozon_id in cachedPagesDict else None)
                 except:
                     log.exception(u'Failed to get details for metadata: %s' % mi.title)
 
@@ -275,45 +291,54 @@ class Ozon(Source):
 
                 self.clean_downloaded_metadata(mi)
                 result_queue.put(mi)
+
             except:
                 log.exception(u'Failed to get details for metadata: %s' % mi.title)
+
     # }}}
 
     def to_metadata(self, log, entry):  # {{{
         title = unicode(entry.xpath(u'normalize-space(.//span[@itemprop="name"][1]/text())'))
-        # log.debug(u'Tile: -----> %s' % title)
+        # log.debug(u'Title: -----> %s' % title)
 
-        author = unicode(entry.xpath(u'normalize-space(.//a[contains(@href, "person")][1]/text())'))
+        author = unicode(entry.xpath(u'normalize-space(.//a[contains(@href, "person")])'))
         # log.debug(u'Author: -----> %s' % author)
 
         norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
         mi = Metadata(title, norm_authors)
 
-        ozon_id = entry.xpath(u'substring-before(substring-after(normalize-space(.//a[starts-with(@href, "/context/detail/id/")][1]/@href), "id/"), "/")')
+        ozon_id = entry.get('data-href').split('/')[-2]
+
         if ozon_id:
-            mi.identifiers = {'ozon':ozon_id}
+            mi.identifiers = {'ozon': ozon_id}
             # log.debug(u'ozon_id: -----> %s' % ozon_id)
 
         mi.ozon_cover_url = None
         cover = entry.xpath(u'normalize-space(.//img[1]/@src)')
-        # log.debug(u'cover: -----> %s' % cover)
+        log.debug(u'cover: -----> %s' % cover)
         if cover:
             mi.ozon_cover_url = _translateToBigCoverUrl(cover)
             # log.debug(u'mi.ozon_cover_url: -----> %s' % mi.ozon_cover_url)
 
         pub_year = None
-        if pub_year:
-            mi.pubdate = toPubdate(log, pub_year)
-            # log.debug('pubdate %s' % mi.pubdate)
+        pub_year_block = entry.xpath(u'.//div[@class="bOneTileProperty"]/text()')
+        year_pattern = re.compile('\d{4}')
+        if pub_year_block:
+            pub_year = re.search(year_pattern, pub_year_block[0])
+            if pub_year:
+                mi.pubdate = toPubdate(log, pub_year.group())
+        # log.debug('pubdate %s' % mi.pubdate)
 
-        mi.rating = self.get_rating(entry)
+        mi.rating = self.get_rating(log, entry)
         # if not mi.rating:
         #    log.debug('No rating found. ozon_id:%s'%ozon_id)
 
         return mi
+
     # }}}
 
-    def get_rating(self, entry):  # {{{
+    def get_rating(self, log, entry):  # {{{
+        # log.debug(entry)
         ozon_rating = None
         try:
             xp_rating_template = u'boolean(.//div[contains(@class, "bStars") and contains(@class, "%s")])'
@@ -335,6 +360,7 @@ class Ozon(Source):
         except:
             pass
         return ozon_rating
+
     # }}}
 
     def get_cached_cover_url(self, identifiers):  # {{{
@@ -347,9 +373,12 @@ class Ozon(Source):
         if ozon_id is not None:
             url = self.cached_identifier_to_cover_url(ozon_id)
         return url
+
     # }}}
 
-    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):  # {{{
+    def download_cover(self, log, result_queue, abort, title=None, authors=None, identifiers={}, timeout=30,
+                       get_best_cover=False):  # {{{
+
         cached_url = self.get_cached_cover_url(identifiers)
         if cached_url is None:
             log.debug('No cached cover found, running identify')
@@ -384,11 +413,10 @@ class Ozon(Source):
         except Exception as e:
             log.exception(u'Failed to download cover from: %s' % cached_url)
             return as_unicode(e)
+
     # }}}
 
     def get_book_details(self, log, metadata, timeout, cachedPage):  # {{{
-        from lxml import html, etree
-        from calibre.ebooks.chardet import xml_to_unicode
 
         if not cachedPage:
             url = self.get_book_url(metadata.get_identifiers())[2]
@@ -398,37 +426,58 @@ class Ozon(Source):
             fulldoc = html.fromstring(xml_to_unicode(raw, verbose=True)[0])
         else:
             fulldoc = cachedPage
-            # log.debug(u'book_details -> using cached page')
+            log.debug(u'book_details -> using cached page')
 
-        doc = fulldoc.xpath(u'//div[@id="PageContent"][1]')[0]
-
-        xpt_tmpl_base = u'.//text()[starts-with(translate(normalize-space(.), " \t", ""), "%s")]'
-        xpt_tmpl_a = u'normalize-space(' + xpt_tmpl_base + u'/following-sibling::a[1]/@title)'
+        fullString = etree.tostring(fulldoc)
+        doc = fulldoc.xpath(u'//div[@class="bDetailPage"][1]')[0]
 
         # series Серия/Серии
-        series = doc.xpath(xpt_tmpl_a % u'Сери')
-        if series:
-            metadata.series = series
-        # log.debug(u'Seria: ', metadata.series)
+        series_elem = doc.xpath(u'//div[contains(text(), "Сери")]')
+        if series_elem:
+            series_text_elem = series_elem[0].getnext()
+            metadata.series = series_text_elem.xpath(u'.//a/text()')[0]
+            log.debug(u'**Seria: ', metadata.series)
 
-        xpt_isbn = u'normalize-space(' + xpt_tmpl_base + u')'
-        isbn_str = doc.xpath(xpt_isbn % u'ISBN')
-        if isbn_str:
-            # log.debug(u'ISBNS: ', self.isbnRegex.findall(isbn_str))
-            all_isbns = [check_isbn(isbn) for isbn in self.isbnRegex.findall(isbn_str) if _verifyISBNIntegrity(log, isbn)]
-            if all_isbns:
-                metadata.all_isbns = all_isbns
-                metadata.isbn = all_isbns[0]
-        # log.debug(u'ISBN: ', metadata.isbn)
+        isbn = None
+        isbn_elem = doc.xpath(u'//div[contains(text(), "ISBN")]')
+        if isbn_elem:
+            isbn = isbn_elem[0].getnext().xpath(u'normalize-space(./text())')
+            metadata.identifiers['isbn'] = isbn
 
-        publishers = doc.xpath(xpt_tmpl_a % u'Издатель')
+        # get authors/editors if no authors are available
+        authors_joined = ','.join(metadata.authors)
+
+        if authors_joined == '' or authors_joined == "Unknown":
+            authors_from_detail = []
+            editor_elem = doc.xpath(u'//div[contains(text(), "Редактор")]')
+            if editor_elem:
+                editor = editor_elem[0].getnext().xpath(u'.//a/text()')[0]
+                authors_from_detail.append(editor + u' (ред.)')
+            authors_elem = doc.xpath(u'//div[contains(text(), "Автор")]')
+            if authors_elem:
+                authors = authors_elem[0].getnext().xpath(u'.//a/text()')  # list
+                authors_from_detail.extend(authors)
+            if len(authors_from_detail) > 0:
+                metadata.authors = authors_from_detail
+
+        cover = doc.xpath('.//img[contains(@class, "fullImage")]/@src')[0]
+        metadata.ozon_cover_url = _translateToBigCoverUrl(cover)
+
+        publishers = None
+        publishers_elem = doc.xpath(u'//div[contains(text(), "Издатель")]')
+        if publishers_elem:
+            publishers_elem = publishers_elem[0].getnext()
+            publishers = publishers_elem.xpath(u'.//a/text()')[0]
+
         if publishers:
             metadata.publisher = publishers
-        # log.debug(u'Publisher: ', metadata.publisher)
 
-        xpt_lang = u'substring-after(normalize-space(.//text()[contains(normalize-space(.), "%s")]), ":")'
         displ_lang = None
-        langs = doc.xpath(xpt_lang % u'Язык')
+        langs = None
+        langs_elem = doc.xpath(u'//div[contains(text(), "зык")]')
+        if langs_elem:
+            langs_elem = langs_elem[0].getnext()
+            langs = langs_elem.xpath(u'text()')[0].strip()
         if langs:
             lng_splt = langs.split(u',')
             if lng_splt:
@@ -437,38 +486,26 @@ class Ozon(Source):
         metadata.language = _translageLanguageToCode(displ_lang)
         # log.debug(u'Language: ', metadata.language)
 
-        # can be set before from xml search responce
+
+        # can be set before from xml search response
         if not metadata.pubdate:
-            xpt = u'substring-after(' + xpt_isbn + u',";")'
-            yearIn = doc.xpath(xpt % u'ISBN')
-            if yearIn:
-                matcher = re.search(r'\d{4}', yearIn)
-                if matcher:
-                    metadata.pubdate = toPubdate(log, matcher.group(0))
+            pubdate_elem = doc.xpath(u'//div[contains(text(), "Год выпуска")]')
+            if pubdate_elem:
+                pubYear = pubdate_elem[0].getnext().xpath(u'text()')[0].strip()
+                if pubYear:
+                    matcher = re.search(r'\d{4}', pubYear)
+                    if matcher:
+                        metadata.pubdate = toPubdate(log, matcher.group(0))
         # log.debug(u'Pubdate: ', metadata.pubdate)
 
-        # overwrite comments from HTML if any
-        xpt = u'.//*[@id="detail_description"]//*[contains(text(), "От производителя")]/../node()[not(self::comment())][not(self::br)][preceding::*[contains(text(), "От производителя")]]'  # noqa
-        from lxml.etree import ElementBase
-        comment_elem = doc.xpath(xpt)
-        if comment_elem:
-            comments = u''
-            for node in comment_elem:
-                if isinstance(node, ElementBase):
-                    comments += unicode(etree.tostring(node, encoding=unicode))
-                elif isinstance(node, basestring) and node.strip():
-                    comments += unicode(node) + u'\n'
-            if comments and (not metadata.comments or len(comments) > len(metadata.comments)):
-                metadata.comments = comments
-            else:
-                log.debug('HTML book description skipped in favor of search service xml response')
-        else:
-            log.debug('No book description found in HTML')
-    # }}}
 
-def _quoteString(strToQuote):  # {{{
-    return '"' + strToQuote + '"' if strToQuote and strToQuote.find(' ') != -1 else strToQuote
-# }}}
+        # comments, from Javascript data
+        beginning = fullString.find(u'FirstBlock')
+        end = fullString.find(u'}', beginning)
+        comments = unicode(fullString[beginning + 75:end - 1]).decode("unicode-escape")
+        metadata.comments = comments
+        # }}}
+
 
 def _verifyISBNIntegrity(log, isbn):  # {{{
     # Online ISBN-Check http://www.isbn-check.de/
@@ -476,6 +513,8 @@ def _verifyISBNIntegrity(log, isbn):  # {{{
     if not res:
         log.error(u'ISBN integrity check failed for "%s"' % isbn)
     return res is not None
+
+
 # }}}
 
 # TODO: make customizable
@@ -486,6 +525,8 @@ def _translateToBigCoverUrl(coverUrl):  # {{{
     if m:
         coverUrl = 'http://www.ozon.ru/multimedia/books_covers/' + m.group(1) + '.jpg'
     return coverUrl
+
+
 # }}}
 
 def _get_affiliateId():  # {{{
@@ -496,6 +537,8 @@ def _get_affiliateId():  # {{{
     if random.randint(1, 10) in (1, 2, 3):
         aff_id = 'kovidgoyal'
     return aff_id
+
+
 # }}}
 
 def _format_isbn(log, isbn):  # {{{
@@ -533,23 +576,27 @@ def _format_isbn(log, isbn):  # {{{
         else:
             log.error('cannot format ISBN %s. Fow now only russian ISBNs are supported' % isbn)
     return res
+
+
 # }}}
 
 def _translageLanguageToCode(displayLang):  # {{{
     displayLang = unicode(displayLang).strip() if displayLang else None
     langTbl = {None: 'ru',
-                u'Русский': 'ru',
-                u'Немецкий': 'de',
-                u'Английский': 'en',
-                u'Французский': 'fr',
-                u'Итальянский': 'it',
-                u'Испанский': 'es',
-                u'Китайский': 'zh',
-                u'Японский': 'ja',
-                u'Финский' : 'fi',
-                u'Польский' : 'pl',
-                u'Украинский' : 'uk', }
+               u'Русский': 'ru',
+               u'Немецкий': 'de',
+               u'Английский': 'en',
+               u'Французский': 'fr',
+               u'Итальянский': 'it',
+               u'Испанский': 'es',
+               u'Китайский': 'zh',
+               u'Японский': 'ja',
+               u'Финский': 'fi',
+               u'Польский': 'pl',
+               u'Украинский': 'uk',}
     return langTbl.get(displayLang, None)
+
+
 # }}}
 
 # [В.П. Колесников | Колесников В.П.]-> В. П. BКолесников
@@ -566,6 +613,8 @@ def _normalizeAuthorNameWithInitials(name):  # {{{
             d = matcher.groupdict()
             res = ' '.join(x for x in (d['fname'], d['mname'], d['lname']) if x)
     return res
+
+
 # }}}
 
 def toPubdate(log, yearAsString):  # {{{
@@ -577,59 +626,63 @@ def toPubdate(log, yearAsString):  # {{{
         except:
             log.error('cannot parse to date %s' % yearAsString)
     return res
+
+
 # }}}
 
 def _listToUnicodePrintStr(lst):  # {{{
     return u'[' + u', '.join(unicode(x) for x in lst) + u']'
+
+
 # }}}
 
 if __name__ == '__main__':  # tests {{{
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/ozon.py
     # comment some touched_fields before run thoses tests
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
-            title_test, authors_test, isbn_test)
+                                                      title_test, authors_test, isbn_test)
 
     test_identify_plugin(Ozon.name,
-        [
-#            (
-#                {'identifiers':{}, 'title':u'Норвежский язык: Практический курс',
-#                    'authors':[u'Колесников В.П.', u'Г.В. Шатков']},
-#                [title_test(u'Норвежский язык: Практический курс', exact=True),
-#                 authors_test([u'В. П. Колесников', u'Г. В. Шатков'])]
-#            ),
-             (
-                {'identifiers':{'isbn': '9785916572629'}},
-                [title_test(u'На все четыре стороны', exact=True),
-                 authors_test([u'А. А. Гилл'])]
-             ),
-             (
-                {'identifiers':{}, 'title':u'Der Himmel Kennt Keine Gunstlinge',
-                    'authors':[u'Erich Maria Remarque']},
-                [title_test(u'Der Himmel Kennt Keine Gunstlinge', exact=True),
-                 authors_test([u'Erich Maria Remarque'])]
-             ),
-             (
-                {'identifiers':{}, 'title':u'Метро 2033',
-                    'authors':[u'Дмитрий Глуховский']},
-                [title_test(u'Метро 2033', exact=False)]
-             ),
-             (
-                {'identifiers':{'isbn': '9785170727209'}, 'title':u'Метро 2033',
-                    'authors':[u'Дмитрий Глуховский']},
-                [title_test(u'Метро 2033', exact=True),
-                    authors_test([u'Дмитрий Глуховский']),
-                    isbn_test('9785170727209')]
-             ),
-             (
-                {'identifiers':{'isbn': '5-699-13613-4'}, 'title':u'Метро 2033',
-                    'authors':[u'Дмитрий Глуховский']},
-                [title_test(u'Метро 2033', exact=True),
-                 authors_test([u'Дмитрий Глуховский'])]
-             ),
-             (
-                {'identifiers':{}, 'title':u'Метро',
-                    'authors':[u'Глуховский']},
-                [title_test(u'Метро', exact=False)]
-             ),
-    ])
+                         [
+                             #            (
+                             #                {'identifiers':{}, 'title':u'Норвежский язык: Практический курс',
+                             #                    'authors':[u'Колесников В.П.', u'Г.В. Шатков']},
+                             #                [title_test(u'Норвежский язык: Практический курс', exact=True),
+                             #                 authors_test([u'В. П. Колесников', u'Г. В. Шатков'])]
+                             #            ),
+                             (
+                                 {'identifiers': {'isbn': '9785916572629'}},
+                                 [title_test(u'На все четыре стороны', exact=True),
+                                  authors_test([u'А. А. Гилл'])]
+                             ),
+                             (
+                                 {'identifiers': {}, 'title': u'Der Himmel Kennt Keine Gunstlinge',
+                                  'authors': [u'Erich Maria Remarque']},
+                                 [title_test(u'Der Himmel Kennt Keine Gunstlinge', exact=True),
+                                  authors_test([u'Erich Maria Remarque'])]
+                             ),
+                             (
+                                 {'identifiers': {}, 'title': u'Метро 2033',
+                                  'authors': [u'Дмитрий Глуховский']},
+                                 [title_test(u'Метро 2033', exact=False)]
+                             ),
+                             (
+                                 {'identifiers': {'isbn': '9785170727209'}, 'title': u'Метро 2033',
+                                  'authors': [u'Дмитрий Глуховский']},
+                                 [title_test(u'Метро 2033', exact=True),
+                                  authors_test([u'Дмитрий Глуховский']),
+                                  isbn_test('9785170727209')]
+                             ),
+                             (
+                                 {'identifiers': {'isbn': '5-699-13613-4'}, 'title': u'Метро 2033',
+                                  'authors': [u'Дмитрий Глуховский']},
+                                 [title_test(u'Метро 2033', exact=True),
+                                  authors_test([u'Дмитрий Глуховский'])]
+                             ),
+                             (
+                                 {'identifiers': {}, 'title': u'Метро',
+                                  'authors': [u'Глуховский']},
+                                 [title_test(u'Метро', exact=False)]
+                             ),
+                         ])
 # }}}
