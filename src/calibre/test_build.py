@@ -59,11 +59,24 @@ class BuildTest(unittest.TestCase):
         test_dictionaries()
 
     def test_plugins(self):
+        exclusions = set()
+        if is_travis:
+            if isosx:
+                # The compiler version on OS X is different between the
+                # machine on which the dependencies are built and the
+                # machine on which the calibre modules are built, which causes
+                # C++ name mangling incompatibilities preventing some modules
+                # from loading
+                exclusions.update(set('podofo'.split()))
+            else:
+                # libusb fails to initialize in the travis container
+                exclusions.update(set('libusb libmtp'.split()))
         for name in plugins:
-            if (is_travis and name in ('libusb', 'libmtp')):
-                # libusb fails to initialize on travis, so just check that the
-                # DLL can be loaded
-                ctypes.CDLL(os.path.join(sys.extensions_location, name + ('.dylib' if isosx else '.so')))
+            if name in exclusions:
+                if not isosx:
+                    # libusb fails to initialize on travis, so just check that the
+                    # DLL can be loaded
+                    ctypes.CDLL(os.path.join(sys.extensions_location, name + ('.dylib' if isosx else '.so')))
                 continue
             mod, err = plugins[name]
             self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)
@@ -191,6 +204,7 @@ class BuildTest(unittest.TestCase):
         import psutil
         psutil.Process(os.getpid())
 
+    @unittest.skipIf(is_travis and isosx, 'Currently there is a C++ ABI incompatibility until the osx-build machine is moved to OS X 10.9')
     def test_podofo(self):
         from calibre.utils.podofo import test_podofo as dotest
         dotest()

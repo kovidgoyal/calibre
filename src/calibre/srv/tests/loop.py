@@ -17,7 +17,7 @@ try:
 except ImportError:
     create_server_cert = None
 
-
+from calibre.constants import isosx
 from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
@@ -187,6 +187,8 @@ class LoopTest(BaseTest):
                 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
                 s.bind(('localhost', 0))
         address = s.getsockname()[0]
+        if is_travis and isosx:
+            address = '::1'
         with TemporaryDirectory('srv-test-ssl') as tdir:
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
             create_server_cert(address, ca_file, cert_file, key_file, key_size=1024)
