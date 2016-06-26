@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#!/usr/bin/env python2
 # Written by Martin v. Loewis <loewis@informatik.hu-berlin.de>
 
 """Generate binary message catalog from textual translation description.
@@ -33,7 +33,7 @@ import array
 __version__ = "1.1"
 
 MESSAGES = {}
-
+STATS = {'translated': 0, 'untranslated': 0}
 
 def usage(code, msg=''):
     print >> sys.stderr, __doc__
@@ -45,8 +45,13 @@ def usage(code, msg=''):
 def add(id, str, fuzzy):
     "Add a non-fuzzy translation to the dictionary."
     global MESSAGES
+    if not id:
+        return
     if not fuzzy and str:
         MESSAGES[id] = str
+        STATS['translated'] += 1
+    else:
+        STATS['untranslated'] += 1
 
 
 def generate():
@@ -193,12 +198,13 @@ def make(filename, outfile):
 
 def main():
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'hVo:',
-                                   ['help', 'version', 'output-file='])
+        opts, args = getopt.getopt(sys.argv[1:], 'hVso:',
+                                   ['help', 'version', 'statistics', 'output-file='])
     except getopt.error, msg:
         usage(1, msg)
 
     outfile = None
+    output_stats = False
     # parse options
     for opt, arg in opts:
         if opt in ('-h', '--help'):
@@ -208,6 +214,8 @@ def main():
             sys.exit(0)
         elif opt in ('-o', '--output-file'):
             outfile = arg
+        elif opt in ('-s', '--statistics'):
+            output_stats = True
     # do it
     if not args:
         print >> sys.stderr, 'No input file given'
@@ -215,7 +223,10 @@ def main():
         return
 
     for filename in args:
+        STATS['translated'] = STATS['untranslated'] = 0
         make(filename, outfile)
+        if output_stats:
+            print STATS['translated'], 'translated messages,', STATS['untranslated'], 'untranslated messages.'
 
 
 if __name__ == '__main__':

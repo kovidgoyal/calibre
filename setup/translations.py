@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex, json, errno, hashlib
+import os, tempfile, shutil, subprocess, glob, re, time, textwrap, cPickle, shlex, json, errno, hashlib, sys
 from collections import defaultdict
 from locale import normalize as normalize_locale
 from functools import partial
@@ -255,6 +255,7 @@ class Translations(POT):  # {{{
         self.compile_user_manual_translations()
 
     def compile_group(self, files, handle_stats=None, file_ok=None, action_per_file=None):
+        from calibre.constants import islinux
         jobs, ok_files = [], []
         hashmap = {}
 
@@ -279,7 +280,11 @@ class Translations(POT):  # {{{
             else:
                 if file_ok is None or file_ok(data, src):
                     self.info('\t' + os.path.relpath(src, self.j(self.d(self.SRC), 'translations')))
-                    jobs.append(['msgfmt', '--statistics', '-o', dest, src])
+                    if islinux:
+                        msgfmt = ['msgfmt']
+                    else:
+                        msgfmt = [sys.executable, self.j(self.SRC, 'calibre', 'translations', 'msgfmt.py')]
+                    jobs.append(msgfmt + ['--statistics', '-o', dest, src])
                     ok_files.append((src, dest))
                     hashmap[src] = current_hash
             if action_per_file is not None:
