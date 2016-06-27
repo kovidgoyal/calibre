@@ -18,6 +18,7 @@ class Stage1(Command):
 
     sub_commands = [
             'check',
+            'test',
             'cacerts',
             'pot',
             'build',
