@@ -9,7 +9,7 @@ reading. It is cross platform, running on Linux, Windows and OS X.
 
 For more information, see the [calibre About page](https://calibre-ebook.com/about)
 
-[![Build Status](https://travis-ci.org/kovidgoyal/calibre.svg)](https://travis-ci.org/kovidgoyal/calibre)
+[![Build Status](https://api.travis-ci.org/kovidgoyal/calibre.svg)](https://travis-ci.org/kovidgoyal/calibre)
 
 Screenshots
 -------------

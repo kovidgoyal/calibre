@@ -441,7 +441,7 @@ class RecursiveFetcher(object):
 
     def localize_link(self, tag, key, path):
         parts = urlparse.urlsplit(tag[key])
-        suffix = '#'+parts.fragment if parts.fragment else ''
+        suffix = ('#'+parts.fragment) if parts.fragment else ''
         tag[key] = path+suffix
 
     def process_return_links(self, soup, baseurl):

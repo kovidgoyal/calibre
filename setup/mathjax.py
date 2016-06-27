@@ -12,6 +12,7 @@ from urllib import urlretrieve
 from zipfile import ZipFile, ZIP_STORED, ZipInfo
 from hashlib import sha1
 from tempfile import mkdtemp, SpooledTemporaryFile
+is_travis = os.environ.get('TRAVIS') == 'true'
 
 
 from setup import Command
@@ -69,7 +70,7 @@ class MathJax(Command):
                 zf.comment = self.h.hexdigest()
             t.seek(0)
             with open(self.j(self.RESOURCES, 'content-server', 'mathjax.zip.xz'), 'wb') as f:
-                compress(t, f, level=9)
+                compress(t, f, level=1 if is_travis else 9)
             with open(self.j(self.RESOURCES, 'content-server', 'mathjax.version'), 'wb') as f:
                 f.write(zf.comment)
         finally:

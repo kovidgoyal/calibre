@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os, platform, subprocess
+import sys, re, os, platform, subprocess, time, errno
 
 is64bit = platform.architecture()[0] == '64bit'
 iswindows = re.search('win(32|64)', sys.platform)
@@ -24,6 +24,33 @@ sys.extensions_location = os.path.join(SRC, 'calibre', 'plugins')
 sys.running_from_setup = True
 
 __version__ = __appname__ = modules = functions = basenames = scripts = None
+
+_cache_dir_built = False
+
+def newer(targets, sources):
+    if isinstance(targets, basestring):
+        targets = [targets]
+    if isinstance(sources, basestring):
+        sources = [sources]
+    for f in targets:
+        if not os.path.exists(f):
+            return True
+    ttimes = map(lambda x: os.stat(x).st_mtime, targets)
+    stimes = map(lambda x: os.stat(x).st_mtime, sources)
+    newest_source, oldest_target = max(stimes), min(ttimes)
+    return newest_source > oldest_target
+
+def build_cache_dir():
+    global _cache_dir_built
+    ans = os.path.join(os.path.dirname(SRC), '.build-cache')
+    if not _cache_dir_built:
+        _cache_dir_built = True
+        try:
+            os.mkdir(ans)
+        except EnvironmentError as err:
+            if err.errno != errno.EEXIST:
+                raise
+    return ans
 
 def require_git_master():
     if subprocess.check_output(['git', 'symbolic-ref', '--short', 'HEAD']).strip() != 'master':
@@ -46,13 +73,13 @@ def require_clean_git():
 def initialize_constants():
     global __version__, __appname__, modules, functions, basenames, scripts
 
-    src = open('src/calibre/constants.py', 'rb').read()
+    src = open(os.path.join(SRC, 'calibre/constants.py'), 'rb').read()
     nv = re.search(r'numeric_version\s+=\s+\((\d+), (\d+), (\d+)\)', src)
     __version__ = '%s.%s.%s'%(nv.group(1), nv.group(2), nv.group(3))
     __appname__ = re.search(r'__appname__\s+=\s+(u{0,1})[\'"]([^\'"]+)[\'"]',
             src).group(2)
     epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).\
-            search(open('src/calibre/linux.py', 'rb').read()).group(1)
+            search(open(os.path.join(SRC, 'calibre/linux.py'), 'rb').read()).group(1)
     entry_points = eval(epsrc, {'__appname__': __appname__})
 
     def e2b(ep):
@@ -172,12 +199,15 @@ class Command(object):
         self.info('*\n')
 
     def run_cmd(self, cmd, opts):
+        from setup.commands import command_names
         cmd.pre_sub_commands(opts)
         for scmd in cmd.sub_commands:
             self.run_cmd(scmd, opts)
 
+        st = time.time()
         self.running(cmd)
         cmd.run(opts)
+        self.info('* %s took %.1f seconds' % (command_names[cmd], time.time() - st))
 
     def run_all(self, opts):
         self.run_cmd(self, opts)
@@ -209,17 +239,7 @@ class Command(object):
         Return True if sources is newer that targets or if targets
         does not exist.
         '''
-        if isinstance(targets, basestring):
-            targets = [targets]
-        if isinstance(sources, basestring):
-            sources = [sources]
-        for f in targets:
-            if not os.path.exists(f):
-                return True
-        ttimes = map(lambda x: os.stat(x).st_mtime, targets)
-        stimes = map(lambda x: os.stat(x).st_mtime, sources)
-        newest_source, oldest_target = max(stimes), min(ttimes)
-        return newest_source > oldest_target
+        return newer(targets, sources)
 
     def info(self, *args, **kwargs):
         prints(*args, **kwargs)

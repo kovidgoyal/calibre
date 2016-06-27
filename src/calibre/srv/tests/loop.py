@@ -17,7 +17,6 @@ try:
 except ImportError:
     create_server_cert = None
 
-
 from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
@@ -179,15 +178,13 @@ class LoopTest(BaseTest):
     @skipIf(create_server_cert is None, 'certgen module not available')
     def test_ssl(self):
         'Test serving over SSL'
-        s = socket.socket(socket.AF_INET if is_travis else socket.AF_INET6, socket.SOCK_STREAM, 0)
-        s.bind(('localhost', 0))
-        address = s.getsockname()[0]
+        address = '127.0.0.1'
         with TemporaryDirectory('srv-test-ssl') as tdir:
             cert_file, key_file, ca_file = map(lambda x:os.path.join(tdir, x), 'cka')
             create_server_cert(address, ca_file, cert_file, key_file, key_size=1024)
             ctx = ssl.create_default_context(cafile=ca_file)
-            with TestServer(lambda data:(data.path[0] + data.read()), ssl_certfile=cert_file, ssl_keyfile=key_file) as server:
-                conn = httplib.HTTPSConnection(server.address[0], server.address[1], strict=True, context=ctx)
+            with TestServer(lambda data:(data.path[0] + data.read()), ssl_certfile=cert_file, ssl_keyfile=key_file, listen_on=address, port=0) as server:
+                conn = httplib.HTTPSConnection(address, server.address[1], strict=True, context=ctx)
                 conn.request('GET', '/test', 'body')
                 r = conn.getresponse()
                 self.ae(r.status, httplib.OK)

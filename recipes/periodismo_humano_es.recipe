@@ -1,7 +1,6 @@
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
-import urllib
 
 class PeriodismoHumanoRecipe (BasicNewsRecipe):
     __author__ = 'Marc Busqué <marc@lamarciana.com>'
@@ -16,7 +15,13 @@ class PeriodismoHumanoRecipe (BasicNewsRecipe):
     language = u'es'
     tags = u'información, contrainformación, información alternativa'
     remove_empty_feeds = True
-    extra_css = urllib.urlopen('https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+
+    def get_extra_css(self):
+        if not self.extra_css:
+            br = self.get_browser()
+            self.extra_css = br.open_novisit(
+                'https://raw.githubusercontent.com/laMarciana/gutenweb/master/dist/gutenweb.css').read().replace('@charset "UTF-8";', '')
+        return self.extra_css
 
     feeds = [
           (u'Periodismo Humano', u'http://periodismohumano.com/feed'),

@@ -1,5 +1,8 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+
 from calibre.web.feeds.news import BasicNewsRecipe
-import re
 
 class KleineZeitungRecipe(BasicNewsRecipe):
     __license__  = 'GPL v3'
@@ -20,34 +23,48 @@ class KleineZeitungRecipe(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    # Feeds from http://www.kleinezeitung.at/allgemein/multimedia/102434/wichtige-news-immer-sofort-ueber-rss-feed-abrufen.story
-    feeds = []
-    feeds.append((u'Chronik', u'http://www.kleinezeitung.at/klon/rss/nachrichten'))
-    feeds.append((u'Wirtschaft', u'http://www.kleinezeitung.at/klon/rss/wirtschaft'))
-    feeds.append((u'Leute', u'http://www.kleinezeitung.at/klon/rss/leute'))
-    feeds.append((u'Sport', u'http://www.kleinezeitung.at/klon/rss/sport'))
-    feeds.append((u'Nachrichten aus der Steiermark', u'http://www.kleinezeitung.at/klon/rss/steiermark'))
-    feeds.append((u'Nachrichten aus Kaernten', u'http://www.kleinezeitung.at/klon/rss/kaernten'))
-    feeds.append((u'Multimedia-News', u'http://www.kleinezeitung.at/klon/rss/multimedia'))
-    feeds.append((u'Kino, Events & Tickets', u'http://www.kleinezeitung.at/klon/rss/events'))
+    masthead_url = 'https://cdn-kl.niceshops.com/images/logos/logo_kleine_invoice.jpg'
 
-    keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'article_body'}))
+    feeds = [
+        ('Nachrichten', 'http://www.kleinezeitung.at/rss/nachrichten'),
+        ('Politik', 'http://www.kleinezeitung.at/rss/politik'),
+        ('Wirtschaft', 'http://www.kleinezeitung.at/rss/wirtschaft'),
+        ('Österreich und die Welt', 'http://www.kleinezeitung.at/rss/chronik'),
+        ('Leben', 'http://www.kleinezeitung.at/rss/leben'),
+        ('Sport', 'http://www.kleinezeitung.at/rss/sport'),
+#        ('Ennstal', 'http://www.kleinezeitung.at/rss/rss_ennstal'),
+#        ('Graz & Umgebung', 'http://www.kleinezeitung.at/rss/rss_graz'),
+#        ('Leoben', 'http://www.kleinezeitung.at/rss/rss_leoben'),
+#        ('Murtal', 'http://www.kleinezeitung.at/rss/rss_murtal'),
+#        ('Mürztal', 'http://www.kleinezeitung.at/rss/rss_muerztal'),
+#        ('Oststeier', 'http://www.kleinezeitung.at/rss/rss_oststeier'),
+#        ('Süd & Südwest', 'http://www.kleinezeitung.at/rss/rss_suedsuedwest'),
+#        ('Südost & Süd', 'http://www.kleinezeitung.at/rss/rss_sueostsued'),
+#        ('Weiz', 'http://www.kleinezeitung.at/rss/rss_weiz'),
+#        ('Weststeier', 'http://www.kleinezeitung.at/rss/rss_weststeier'),
+#        ('Feldkirchen', 'http://www.kleinezeitung.at/rss/rss_feldkirchen'),
+#        ('Klagenfurt', 'http://www.kleinezeitung.at/rss/rss_klagenfurt'),
+#        ('Lavanttal', 'http://www.kleinezeitung.at/rss/rss_lavanttal'),
+#        ('Oberkärnten', 'http://www.kleinezeitung.at/rss/rss_oberkaernten'),
+#        ('Osttirol', 'http://www.kleinezeitung.at/rss/rss_osttirol'),
+#        ('St. Veit', 'http://www.kleinezeitung.at/rss/rss_stveit'),
+#        ('Villach', 'http://www.kleinezeitung.at/rss/rss_villach'),
+#        ('Völkermarkt', 'http://www.kleinezeitung.at/rss/rss_voelkermarkt')
+    ]
 
-    remove_tags = []
-    remove_tags.append(dict(name = 'a', attrs = {'id': 'comment_count'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class': re.compile('adv[0-9]+')}))
-    remove_tags.append(dict(name = 'div', attrs = {'class': 'art_info'}))
-    remove_tags.append(dict(name = 'div', attrs = {'id': re.compile('grafikoverlay_.*')}))
-    remove_tags.append(dict(name = 'a', attrs = {'class': 'zoom'}))
+    remove_tags_before = dict(attrs={'class':'hline'})
+    remove_tags_after = [dict(name='div', attrs={'class':'articletext'})]
+    remove_tags = [dict(name='hr')]
 
     extra_css = '''
-                body {font-family:verdana,arial,helvetica,geneva,sans-serif ;}
                 h1 {text-align: left;}
-                span {margin-left: 0.1em; margin-right: 0.1em;}
-                span.update {font-size: x-small; color: #666666}
-                span.update strong {font-weight: normal;}
-                p.intro {font-size: large;}
-                div.art_foto_big, div.art_foto {font-size: xx-small; color: #696969; margin-bottom: 0.5em;}
-                div.art_foto_big span.src {float: right;}
                 '''
+
+    def print_version(self, url):
+        main, sep, id = url.rpartition('/')
+        return main + '/print.do'
+
+    def preprocess_html(self, soup):
+        if soup.find('div', {'class':'articletext'}) is None:
+            self.abort_article()
+        return soup

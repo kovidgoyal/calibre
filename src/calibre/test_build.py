@@ -12,303 +12,241 @@ __docformat__ = 'restructuredtext en'
 Test a binary calibre build to ensure that all needed binary images/libraries have loaded.
 '''
 
-import os, ctypes, sys
+import os, ctypes, sys, unittest
 from calibre.constants import plugins, iswindows, islinux, isosx
+is_travis = os.environ.get('TRAVIS') == 'true'
 
-def fprint(*args, **kwargs):
-    print(*args, **kwargs)
-    sys.stdout.flush()
+class BuildTest(unittest.TestCase):
 
-def test_dlls():
-    import win32api
-    base = win32api.GetDllDirectory()
-    errors = []
-    for x in os.listdir(base):
-        if x.lower().endswith('.dll'):
-            try:
-                ctypes.WinDLL(os.path.join(base, x))
-            except Exception as err:
-                errors.append('Failed to load DLL %s with error: %s' % (x, err))
-                fprint(errors[-1])
-    if errors:
-        fprint('Loading %d dll(s) failed!' % len(errors))
-        raise SystemExit(1)
-    fprint('DLLs OK!')
+    @unittest.skipUnless(iswindows, 'DLL loading needs testing only on windows')
+    def test_dlls(self):
+        import win32api
+        base = win32api.GetDllDirectory()
+        for x in os.listdir(base):
+            if x.lower().endswith('.dll'):
+                try:
+                    ctypes.WinDLL(os.path.join(base, x))
+                except Exception as err:
+                    self.assertTrue(False, 'Failed to load DLL %s with error: %s' % (x, err))
 
+    @unittest.skipUnless(islinux, 'DBUS only used on linux')
+    def test_dbus(self):
+        import dbus
+        if 'DISPLAY' in os.environ:
+            bus = dbus.SystemBus()
+            self.assertTrue(bus.list_names(), 'Failed to list names on the system bus')
+            bus = dbus.SessionBus()
+            self.assertTrue(bus.list_names(), 'Failed to list names on the session bus')
+            del bus
 
-def test_dbus():
-    import dbus
-    bus = dbus.SystemBus()
-    if not bus.list_names():
-        raise ValueError('Failed to list names on the system bus')
-    bus = dbus.SessionBus()
-    if not bus.list_names():
-        raise ValueError('Failed to list names on the session bus')
-    del bus
-    fprint('dbus OK!')
+    def test_regex(self):
+        import regex
+        self.assertEqual(regex.findall(r'(?i)(a)(b)', 'ab cd AB 1a1b'), [('a', 'b'), ('A', 'B')])
 
-def test_regex():
-    import regex
-    if regex.findall(r'(?i)(a)(b)', 'ab cd AB 1a1b') != [('a', 'b'), ('A', 'B')]:
-        raise ValueError('regex module failed on a simple search')
-    fprint('regex OK!')
+    def test_lzma(self):
+        from lzma.xz import test_lzma2
+        test_lzma2()
 
-def test_lzma():
-    from lzma.xz import test_lzma2
-    test_lzma2()
-    fprint('lzma OK!')
+    def test_html5lib(self):
+        import html5lib.html5parser  # noqa
+        from html5lib import parse  # noqa
+        # Test that we are using the calibre version of html5lib
+        from calibre.ebooks.oeb.polish.parsing import parse_html5
+        parse_html5('<p>xxx')
 
-def test_html5lib():
-    import html5lib.html5parser  # noqa
-    from html5lib import parse  # noqa
-    fprint('html5lib OK!')
+    def test_spell(self):
+        from calibre.spell.dictionary import test_dictionaries
+        test_dictionaries()
 
-def test_spell():
-    from calibre.spell.dictionary import test_dictionaries
-    test_dictionaries()
-    fprint('hunspell OK!')
+    def test_plugins(self):
+        exclusions = set()
+        if is_travis:
+            if isosx:
+                # The compiler version on OS X is different between the
+                # machine on which the dependencies are built and the
+                # machine on which the calibre modules are built, which causes
+                # C++ name mangling incompatibilities preventing some modules
+                # from loading
+                exclusions.update(set('podofo'.split()))
+            else:
+                # libusb fails to initialize in the travis container
+                exclusions.update(set('libusb libmtp'.split()))
+        for name in plugins:
+            if name in exclusions:
+                if not isosx:
+                    # libusb fails to initialize on travis, so just check that the
+                    # DLL can be loaded
+                    ctypes.CDLL(os.path.join(sys.extensions_location, name + ('.dylib' if isosx else '.so')))
+                continue
+            mod, err = plugins[name]
+            self.assertFalse(err or not mod, 'Failed to load plugin: ' + name + ' with error:\n' + err)
 
-def test_plugins():
-    bad = []
-    for name in plugins:
-        mod, err = plugins[name]
-        if err or not mod:
-            bad.append((name, err))
-    if bad:
-        for name, err in bad:
-            fprint('Failed to load plugin:', name, 'with error:\n', err, '\n')
-        raise SystemExit(1)
-    fprint('Loaded all plugins successfully!')
+    def test_lxml(self):
+        from calibre.utils.cleantext import test_clean_xml_chars
+        test_clean_xml_chars()
+        from lxml import etree
+        raw = '<a/>'
+        root = etree.fromstring(raw)
+        self.assertEqual(etree.tostring(root), raw)
 
-def test_lxml():
-    from calibre.utils.cleantext import test_clean_xml_chars
-    test_clean_xml_chars()
-    from lxml import etree
-    raw = '<a/>'
-    root = etree.fromstring(raw)
-    if etree.tostring(root) == raw:
-        fprint('lxml OK!')
-    else:
-        raise RuntimeError('lxml failed')
+    def test_certgen(self):
+        from calibre.utils.certgen import create_key_pair
+        create_key_pair()
 
-def test_certgen():
-    from calibre.utils.certgen import create_key_pair
-    create_key_pair()
+    @unittest.skipUnless(isosx, 'FSEvents only present on OS X')
+    def test_fsevents(self):
+        from fsevents import Observer, Stream
+        del Observer, Stream
 
-def test_fsevents():
-    from fsevents import Observer, Stream
-    del Observer, Stream
-    fprint('macfsevents OK!')
+    @unittest.skipUnless(iswindows, 'winutil is windows only')
+    def test_winutil(self):
+        from calibre.constants import plugins
+        winutil = plugins['winutil'][0]
+        for x in winutil.argv():
+            self.assertTrue(isinstance(x, unicode), 'argv() not returning unicode string')
 
-def test_winutil():
-    from calibre.constants import plugins
-    winutil = plugins['winutil'][0]
-    for x in winutil.argv():
-        if not isinstance(x, unicode):
-            raise ValueError('argv() not returning unicode string')
-    fprint('winutil OK!')
+    def test_sqlite(self):
+        import sqlite3
+        conn = sqlite3.connect(':memory:')
+        from calibre.library.sqlite import load_c_extensions
+        self.assertTrue(load_c_extensions(conn, True), 'Failed to load sqlite extension')
 
-def test_sqlite():
-    import sqlite3
-    conn = sqlite3.connect(':memory:')
-    from calibre.library.sqlite import load_c_extensions
-    if not load_c_extensions(conn, True):
-        raise RuntimeError('Failed to load sqlite extension')
-    fprint('sqlite OK!')
+    def test_apsw(self):
+        import apsw
+        conn = apsw.Connection(':memory:')
+        conn.close()
 
-def test_apsw():
-    import apsw
-    conn = apsw.Connection(':memory:')
-    conn.close()
-    fprint('apsw OK!')
+    def test_qt(self):
+        from PyQt5.Qt import QImageReader, QNetworkAccessManager, QFontDatabase
+        from calibre.utils.img import image_from_data, image_to_data, test
+        # Ensure that images can be read before QApplication is constructed.
+        # Note that this requires QCoreApplication.libraryPaths() to return the
+        # path to the Qt plugins which it always does in the frozen build,
+        # because the QT_PLUGIN_PATH env var is set. On non-frozen builds,
+        # it should just work because the hard-coded paths of the Qt
+        # installation should work. If they do not, then it is a distro
+        # problem.
+        fmts = set(map(unicode, QImageReader.supportedImageFormats()))
+        testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
+        self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
+        data = I('blank.png', allow_user_override=False, data=True)
+        img = image_from_data(data)
+        image_from_data(P('catalog/mastheadImage.gif', allow_user_override=False, data=True))
+        for fmt in 'png bmp jpeg'.split():
+            d = image_to_data(img, fmt=fmt)
+            image_from_data(d)
+        # Run the imaging tests
+        test()
 
-def test_image_formats():
-    # Must be run before QApplication is constructed
-    # Test that the image formats are available without a QApplication being
-    # constructed
-    from calibre.utils.img import image_from_data, image_to_data, test
-    data = I('blank.png', allow_user_override=False, data=True)
-    img = image_from_data(data)
-    image_from_data(P('catalog/mastheadImage.gif', allow_user_override=False, data=True))
-    for fmt in 'png bmp jpeg'.split():
-        d = image_to_data(img, fmt=fmt)
-        image_from_data(d)
-    # Run the imaging tests
-    test()
+        from calibre.gui2 import Application
+        os.environ.pop('DISPLAY', None)
+        app = Application([], headless=islinux)
+        self.assertGreaterEqual(len(QFontDatabase().families()), 5, 'The QPA headless plugin is not able to locate enough system fonts via fontconfig')
+        na = QNetworkAccessManager()
+        self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
+        from PyQt5.QtWebKitWidgets import QWebView
+        QWebView()
+        del QWebView
+        del na
+        del app
 
-def test_qt():
-    test_image_formats()
-    from calibre.gui2 import Application
-    from PyQt5.Qt import (QImageReader, QNetworkAccessManager, QFontDatabase)
-    from PyQt5.QtWebKitWidgets import QWebView
-    os.environ.pop('DISPLAY', None)
-    app = Application([], headless=islinux)
-    if len(QFontDatabase().families()) < 5:
-        raise RuntimeError('The QPA headless plugin is not able to locate enough system fonts via fontconfig')
-    fmts = set(map(unicode, QImageReader.supportedImageFormats()))
-    testf = set(['jpg', 'png', 'svg', 'ico', 'gif'])
-    if testf.intersection(fmts) != testf:
-        raise RuntimeError(
-            "Qt doesn't seem to be able to load its image plugins")
-    QWebView()
-    del QWebView
-    na = QNetworkAccessManager()
-    if not hasattr(na, 'sslErrors'):
-        raise RuntimeError('Qt not compiled with openssl')
-    del na
-    del app
-    fprint('Qt OK!')
-
-def test_imaging():
-    from PIL import Image
-    try:
-        import _imaging, _imagingmath, _imagingft
+    def test_imaging(self):
+        from PIL import Image
+        try:
+            import _imaging, _imagingmath, _imagingft
+            _imaging, _imagingmath, _imagingft
+        except ImportError:
+            from PIL import _imaging, _imagingmath, _imagingft
         _imaging, _imagingmath, _imagingft
-    except ImportError:
-        from PIL import _imaging, _imagingmath, _imagingft
-    _imaging, _imagingmath, _imagingft
-    i = Image.open(I('lt.png', allow_user_override=False))
-    if i.size < (20, 20):
-        raise RuntimeError('PIL choked!')
-    fprint('PIL OK!')
+        i = Image.open(I('lt.png', allow_user_override=False))
+        self.assertGreaterEqual(i.size, (20, 20))
 
-def test_file_dialog_helper():
-    from calibre.gui2.win_file_dialogs import test
-    test()
-    print('File dialog helper OK!')
+    @unittest.skipUnless(iswindows, 'File dialog helper only used on windows')
+    def test_file_dialog_helper(self):
+        from calibre.gui2.win_file_dialogs import test
+        test()
 
-def test_unrar():
-    from calibre.utils.unrar import test_basic
-    test_basic()
-    fprint('Unrar OK!')
+    def test_unrar(self):
+        from calibre.utils.unrar import test_basic
+        test_basic()
 
-def test_icu():
-    fprint('Testing ICU')
-    from calibre.utils.icu_test import test_build
-    test_build()
-    fprint('ICU OK!')
+    @unittest.skipUnless(iswindows, 'WPD is windows only')
+    def test_wpd(self):
+        wpd = plugins['wpd'][0]
+        try:
+            wpd.init('calibre', 1, 1, 1)
+        except wpd.NoWPD:
+            pass
+        else:
+            wpd.uninit()
 
-def test_dukpy():
-    fprint('Testing dukpy')
-    from duktape import test_build
-    test_build()
-    fprint('dukpy OK!')
+    def test_tinycss_tokenizer(self):
+        from tinycss.tokenizer import c_tokenize_flat
+        self.assertIsNotNone(c_tokenize_flat, 'tinycss C tokenizer not loaded')
 
-def test_wpd():
-    wpd = plugins['wpd'][0]
-    try:
-        wpd.init('calibre', 1, 1, 1)
-    except wpd.NoWPD:
-        fprint('This computer does not have WPD')
-    else:
-        wpd.uninit()
-    fprint('WPD OK!')
-
-def test_tokenizer():
-    fprint('Testing tinycss tokenizer')
-    from tinycss.tokenizer import c_tokenize_flat
-    if c_tokenize_flat is None:
-        raise ValueError('tinycss C tokenizer not loaded')
-    import tinycss.tests.main as m
-    if getattr(m, '__file__', None) and os.path.exists(m.__file__):
-        m.run_tests(for_build=True)
-    fprint('tinycss tokenizer OK!')
-
-def test_executables():
-    from calibre.utils.ipc.launch import Worker
-    if getattr(sys, 'frozen', False):
+    @unittest.skipUnless(getattr(sys, 'frozen', False), 'Only makes sense to test executables in frozen builds')
+    def test_executables(self):
+        from calibre.utils.ipc.launch import Worker
+        from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
         w = Worker({})
-        if not os.path.exists(w.executable):
-            raise SystemExit('calibre-parallel (%s) does not exist' % w.executable)
-        if not os.path.exists(w.gui_executable):
-            raise SystemExit('calibre-parallel-gui (%s) does not exist' % w.gui_executable)
+        self.assertTrue(os.path.exists(w.executable), 'calibre-parallel (%s) does not exist' % w.executable)
+        self.assertTrue(os.path.exists(w.gui_executable), 'calibre-parallel-gui (%s) does not exist' % w.gui_executable)
+        self.assertTrue(os.path.exists(PDFTOHTML), 'pdftohtml (%s) does not exist' % PDFTOHTML)
         if iswindows:
             from calibre.devices.usbms.device import eject_exe
-            if not os.path.exists(eject_exe()):
-                raise SystemExit('calibre-eject.exe (%s) does not exist' % eject_exe())
-        from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
-        if not os.path.exists(PDFTOHTML):
-            raise SystemExit('pdftohtml (%s) does not exist' % PDFTOHTML)
+            self.assertTrue(os.path.exists(eject_exe()), 'calibre-eject.exe (%s) does not exist' % eject_exe())
 
-        fprint('executables OK!')
+    def test_netifaces(self):
+        import netifaces
+        self.assertGreaterEqual(netifaces.interfaces(), 1, 'netifaces could find no network interfaces')
 
-def test_netifaces():
-    import netifaces
-    if len(netifaces.interfaces()) < 1:
-        raise ValueError('netifaces could find no network interfaces')
-    fprint('netifaces OK!')
+    def test_psutil(self):
+        import psutil
+        psutil.Process(os.getpid())
 
-def test_psutil():
-    import psutil
-    psutil.Process(os.getpid())
-    fprint('psutil OK!')
+    @unittest.skipIf(is_travis and isosx, 'Currently there is a C++ ABI incompatibility until the osx-build machine is moved to OS X 10.9')
+    def test_podofo(self):
+        from calibre.utils.podofo import test_podofo as dotest
+        dotest()
 
-def test_podofo():
-    from calibre.utils.podofo import test_podofo as dotest
-    dotest()
-    fprint('podofo OK!')
+    @unittest.skipIf(iswindows, 'readline not available on windows')
+    def test_terminal(self):
+        import readline
+        del readline
 
-def test_terminal():
-    import readline
-    del readline
-    fprint('readline OK!')
+    def test_markdown(self):
+        from calibre.ebooks.markdown import Markdown
+        Markdown(extensions=['extra'])
+        from calibre.library.comments import sanitize_html
+        sanitize_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
 
-def test_markdown():
-    from calibre.ebooks.markdown import Markdown
-    Markdown(extensions=['extra'])
-    from calibre.library.comments import sanitize_html
-    sanitize_html(b'''<script>moo</script>xxx<img src="http://moo.com/x.jpg">''')
-    fprint('Markdown OK!')
+    def test_openssl(self):
+        import ssl
+        ssl.PROTOCOL_TLSv1_2
+        if isosx:
+            cafile = ssl.get_default_verify_paths().cafile
+            if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
+                self.assert_('Mozilla CA certs not loaded')
 
-def test_image_compression():
-    from calibre.utils.img import test
-    test()
-    fprint('Image compression OK!')
+def find_tests():
+    ans = unittest.defaultTestLoader.loadTestsFromTestCase(BuildTest)
+    from calibre.utils.icu_test import find_tests
+    import duktape.tests as dtests
+    ans.addTests(find_tests())
+    ans.addTests(unittest.defaultTestLoader.loadTestsFromModule(dtests))
+    from tinycss.tests.main import find_tests
+    ans.addTests(find_tests())
+    return ans
 
-def test_openssl():
-    import ssl
-    ssl.PROTOCOL_TLSv1_2
-    if isosx:
-        cafile = ssl.get_default_verify_paths().cafile
-        if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
-            raise ValueError('Mozilla CA certs not loaded')
-    fprint('SSL OK!')
+class TestRunner(unittest.main):
+
+    def createTests(self):
+        self.test = find_tests()
 
 def test():
-    if iswindows:
-        test_dlls()
-    test_plugins()
-    test_executables()
-    test_image_compression()
-    test_lzma()
-    test_dukpy()
-    test_spell()
-    test_lxml()
-    test_openssl()
-    test_sqlite()
-    test_apsw()
-    test_imaging()
-    test_unrar()
-    test_certgen()
-    test_icu()
-    test_qt()
-    test_html5lib()
-    test_regex()
-    test_tokenizer()
-    test_netifaces()
-    test_psutil()
-    test_podofo()
-    test_markdown()
-    if islinux:
-        test_dbus()
-    if iswindows:
-        test_wpd()
-        test_winutil()
-        test_file_dialog_helper()
-    else:
-        test_terminal()
-    if isosx:
-        test_fsevents()
+    result = TestRunner(verbosity=2, buffer=True, catchbreak=True, failfast=True, argv=sys.argv[:1], exit=False).result
+    if not result.wasSuccessful():
+        raise SystemExit(1)
 
 if __name__ == '__main__':
     test()

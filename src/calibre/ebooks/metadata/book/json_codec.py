@@ -69,7 +69,7 @@ def object_to_unicode(obj, enc=preferred_encoding):
     if isbytestring(obj):
         return dec(obj)
     if isinstance(obj, (list, tuple)):
-        return [dec(x) if isbytestring(x) else x for x in obj]
+        return [dec(x) if isbytestring(x) else object_to_unicode(x) for x in obj]
     if isinstance(obj, dict):
         ans = {}
         for k, v in obj.items():

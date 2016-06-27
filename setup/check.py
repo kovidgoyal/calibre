@@ -6,8 +6,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, cPickle, subprocess
-from setup import Command
+import sys, os, json, subprocess, errno, hashlib
+from setup import Command, build_cache_dir
 import __builtin__
 
 def set_builtins(builtins):
@@ -28,65 +28,107 @@ class Check(Command):
 
     description = 'Check for errors in the calibre source code'
 
-    CACHE = '.check-cache.pickle'
+    CACHE = 'check.json'
 
-    def get_files(self, cache):
+    def get_files(self):
         for x in os.walk(self.j(self.SRC, 'calibre')):
             for f in x[-1]:
                 y = self.j(x[0], f)
                 if x[0].endswith('calibre/ebooks/markdown'):
                     continue
-                mtime = os.stat(y).st_mtime
-                if cache.get(y, 0) == mtime:
-                    continue
                 if (f.endswith('.py') and f not in (
                         'feedparser.py', 'markdown.py') and
                         'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
-                    yield y, mtime
+                    yield y
                 if f.endswith('.coffee'):
-                    yield y, mtime
+                    yield y
 
         for x in os.walk(self.j(self.d(self.SRC), 'recipes')):
             for f in x[-1]:
                 f = self.j(x[0], f)
-                mtime = os.stat(f).st_mtime
-                if f.endswith('.recipe') and cache.get(f, 0) != mtime:
-                    yield f, mtime
+                if f.endswith('.recipe'):
+                    yield f
 
-    def run(self, opts):
-        cache = {}
-        if os.path.exists(self.CACHE):
-            cache = cPickle.load(open(self.CACHE, 'rb'))
-        for f, mtime in self.get_files(cache):
-            self.info('\tChecking', f)
-            errors = False
-            ext = os.path.splitext(f)[1]
-            if ext in {'.py', '.recipe'}:
-                p = subprocess.Popen(['flake8-python2', '--ignore=E,W', f])
-                if p.wait() != 0:
-                    errors = True
-            else:
-                from calibre.utils.serve_coffee import check_coffeescript
-                try:
-                    check_coffeescript(f)
-                except:
-                    errors = True
-            if errors:
-                cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
-                subprocess.call(['gvim', '-S',
-                                 self.j(self.SRC, '../session.vim'), '-f', f])
-                raise SystemExit(1)
-            cache[f] = mtime
-        cPickle.dump(cache, open(self.CACHE, 'wb'), -1)
-        wn_path = os.path.expanduser('~/work/srv/main/static')
-        if os.path.exists(wn_path):
-            sys.path.insert(0, wn_path)
-            self.info('\tChecking Changelog...')
+        for x in os.walk(self.j(self.SRC, 'pyj')):
+            for f in x[-1]:
+                f = self.j(x[0], f)
+                if f.endswith('.pyj'):
+                    yield f
+        if self.has_changelog_check:
+            yield self.j(self.d(self.SRC), 'Changelog.yaml')
+
+    def read_file(self, f):
+        with open(f, 'rb') as f:
+            return f.read()
+
+    def file_hash(self, f):
+        try:
+            return self.fhash_cache[f]
+        except KeyError:
+            self.fhash_cache[f] = ans = hashlib.sha1(self.read_file(f)).hexdigest()
+            return ans
+
+    def is_cache_valid(self, f, cache):
+        return cache.get(f) == self.file_hash(f)
+
+    @property
+    def cache_file(self):
+        return self.j(build_cache_dir(), self.CACHE)
+
+    def save_cache(self, cache):
+        with open(self.cache_file, 'wb') as f:
+            json.dump(cache, f)
+
+    def file_has_errors(self, f):
+        ext = os.path.splitext(f)[1]
+        if ext in {'.py', '.recipe'}:
+            p = subprocess.Popen(['flake8-python2', '--ignore=E,W', f])
+            return p.wait() != 0
+        elif ext == '.pyj':
+            p = subprocess.Popen(['rapydscript', 'lint', f])
+            return p.wait() != 0
+        elif ext == '.yaml':
+            sys.path.insert(0, self.wn_path)
             import whats_new
             whats_new.render_changelog(self.j(self.d(self.SRC), 'Changelog.yaml'))
-            sys.path.remove(wn_path)
+            sys.path.remove(self.wn_path)
+        else:
+            from calibre.utils.serve_coffee import check_coffeescript
+            try:
+                check_coffeescript(f)
+            except:
+                return True
+
+    def run(self, opts):
+        self.fhash_cache = {}
+        cache = {}
+        self.wn_path = os.path.expanduser('~/work/srv/main/static')
+        self.has_changelog_check = os.path.exists(self.wn_path)
+        try:
+            cache = json.load(open(self.cache_file, 'rb'))
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise
+        try:
+            for f in self.get_files():
+                if self.is_cache_valid(f, cache):
+                    continue
+                self.info('\tChecking', f)
+                if self.file_has_errors(f):
+                    subprocess.call(['gvim', '-S',
+                                    self.j(self.SRC, '../session.vim'), '-f', f])
+                    raise SystemExit(1)
+                cache[f] = self.file_hash(f)
+        finally:
+            self.save_cache(cache)
 
     def report_errors(self, errors):
         for err in errors:
             self.info('\t\t', str(err))
 
+    def clean(self):
+        try:
+            os.remove(self.cache_file)
+        except EnvironmentError as err:
+            if err.errno != errno.ENOENT:
+                raise

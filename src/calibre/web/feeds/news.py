@@ -162,6 +162,8 @@ class BasicNewsRecipe(Recipe):
     #: It will be inserted into `<style>` tags, just before the closing
     #: `</head>` tag thereby overriding all :term:`CSS` except that which is
     #: declared using the style attribute on individual :term:`HTML` tags.
+    #: Note that if you want to programmatically generate the extra_css override
+    #: the :meth:`get_extra_css()` method instead.
     #: For example::
     #:
     #:     extra_css = '.heading { font: serif x-large }'
@@ -399,6 +401,13 @@ class BasicNewsRecipe(Recipe):
         :param tag: The Tag from which the URL was derived
         '''
         raise NotImplementedError
+
+    def get_extra_css(self):
+        '''
+        By default returns `self.extra_css`. Override if you want to programmatically generate the
+        extra_css.
+        '''
+        return self.extra_css
 
     def get_cover_url(self):
         '''
@@ -932,7 +941,7 @@ class BasicNewsRecipe(Recipe):
         if not head:
             head = soup.find(True)
         style = BeautifulSoup(u'<style type="text/css" title="override_css">%s</style>'%(
-            self.template_css +'\n\n'+(self.extra_css if self.extra_css else ''))).find('style')
+            self.template_css +'\n\n'+(self.get_extra_css() or ''))).find('style')
         head.insert(len(head.contents), style)
         if first_fetch and job_info:
             url, f, a, feed_len = job_info
@@ -942,7 +951,7 @@ class BasicNewsRecipe(Recipe):
                                              not self.has_single_feed,
                                              url, __appname__,
                                              center=self.center_navbar,
-                                             extra_css=self.extra_css)
+                                             extra_css=self.get_extra_css() or '')
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
         if self.remove_javascript:
@@ -1021,7 +1030,7 @@ class BasicNewsRecipe(Recipe):
         templ = (templates.TouchscreenIndexTemplate if self.touchscreen else
                 templates.IndexTemplate)
         templ = templ(lang=self.lang_for_html)
-        css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
+        css = self.template_css + '\n\n' +(self.get_extra_css() or '')
         timefmt = self.timefmt
         return templ.generate(self.title, "mastheadImage.jpg", timefmt, feeds,
                               extra_css=css).render(doctype='xhtml')
@@ -1076,7 +1085,7 @@ class BasicNewsRecipe(Recipe):
         templ = (templates.TouchscreenFeedTemplate if self.touchscreen else
                     templates.FeedTemplate)
         templ = templ(lang=self.lang_for_html)
-        css = self.template_css + '\n\n' +(self.extra_css if self.extra_css else '')
+        css = self.template_css + '\n\n' +(self.get_extra_css() or '')
 
         return templ.generate(f, feeds, self.description_limiter,
                               extra_css=css).render(doctype='xhtml')

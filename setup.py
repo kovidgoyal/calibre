@@ -12,10 +12,10 @@ def check_version_info():
     vi = sys.version_info
     if vi[0] == 2 and vi[1:3] >= (7, 9):
         return None
-    raise SystemExit('calibre requires python >= 2.7.9 and < 3')
+    raise SystemExit('calibre requires python >= 2.7.9 and < 3. Current python version: %s' % vi)
 check_version_info()
 
-sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import setup.commands as commands
 from setup import prints, get_warnings

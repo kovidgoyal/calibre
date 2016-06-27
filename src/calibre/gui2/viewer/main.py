@@ -1,10 +1,9 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import traceback, os, sys, functools, time
+import traceback, os, sys, functools
 from functools import partial
 from threading import Thread
-from collections import namedtuple
 
 from PyQt5.Qt import (
     QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime, QObject,
@@ -17,7 +16,7 @@ from calibre.gui2 import (
     Application, ORG_NAME, APP_UID, choose_files, info_dialog, error_dialog,
     open_url, setup_gui_option_parser)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
-from calibre.constants import islinux, filesystem_encoding
+from calibre.constants import islinux, filesystem_encoding, DEBUG
 from calibre.utils.config import Config, StringConfig, JSONConfig
 from calibre.customize.ui import available_input_formats
 from calibre import as_unicode, force_unicode, isbytestring, prints
@@ -25,12 +24,48 @@ from calibre.ptempfile import reset_base_dir
 from calibre.utils.ipc import viewer_socket_address, RC
 from calibre.utils.zipfile import BadZipfile
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1, get_lang
+try:
+    from calibre.utils.monotonic import monotonic
+except RuntimeError:
+    from time import time as monotonic
 
 vprefs = JSONConfig('viewer')
 vprefs.defaults['singleinstance'] = False
 dprefs = JSONConfig('viewer_dictionaries')
 dprefs.defaults['word_lookups'] = {}
 singleinstance_name = 'calibre_viewer'
+
+class ResizeEvent(object):
+
+    INTERVAL = 20  # mins
+
+    def __init__(self, size_before, multiplier, last_loaded_path, page_number):
+        self.size_before, self.multiplier, self.last_loaded_path = size_before, multiplier, last_loaded_path
+        self.page_number = page_number
+        self.timestamp = monotonic()
+        self.finished_timestamp = 0
+        self.multiplier_after = self.last_loaded_path_after = self.page_number_after = None
+
+    def finished(self, size_after, multiplier, last_loaded_path, page_number):
+        self.size_after, self.multiplier_after = size_after, multiplier
+        self.last_loaded_path_after = last_loaded_path
+        self.page_number_after = page_number
+        self.finished_timestamp = monotonic()
+
+    def is_a_toggle(self, previous):
+        if self.finished_timestamp - previous.finished_timestamp > self.INTERVAL * 60:
+            # The second resize occurred too long after the first one
+            return False
+        if self.size_after != previous.size_before:
+            # The second resize is to a different size than the first one
+            return False
+        if self.multiplier_after != previous.multiplier or self.last_loaded_path_after != previous.last_loaded_path:
+            # A new file has been loaded or the text size multiplier has changed
+            return False
+        if self.page_number != previous.page_number_after:
+            # The use has scrolled between the two resizes
+            return False
+        return True
 
 class Worker(Thread):
 
@@ -100,6 +135,7 @@ class EbookViewer(MainWindow):
                  start_in_fullscreen=False, continue_reading=False, listener=None, file_events=()):
         MainWindow.__init__(self, debug_javascript)
         self.view.magnification_changed.connect(self.magnification_changed)
+        self.resize_events_stack = []
         self.closed = False
         self.show_toc_on_open = False
         self.listener = listener
@@ -123,7 +159,6 @@ class EbookViewer(MainWindow):
         self.existing_bookmarks= []
         self.selected_text     = None
         self.was_maximized     = False
-        self.page_position_on_footnote_toggle = []
         self.read_settings()
         self.autosave_timer = t = QTimer(self)
         t.setInterval(self.AUTOSAVE_INTERVAL * 1000), t.setSingleShot(True)
@@ -728,29 +763,12 @@ class EbookViewer(MainWindow):
         self.open_progress_indicator(_('Laying out %s')%self.current_title)
         self.view.load_path(path, pos=pos)
 
-    def footnote_visibility_changed(self, is_visible):
-        if self.view.document.in_paged_mode:
-            pp = namedtuple('PagePosition', 'time is_visible page_dimensions multiplier last_loaded_path page_number after_resize_page_number')
-            self.page_position_on_footnote_toggle.append(pp(
-                time.time(), is_visible, self.view.document.page_dimensions, self.view.multiplier,
-                self.view.last_loaded_path, self.view.document.page_number, None))
-
-    def pre_footnote_toggle_position(self):
-        num = len(self.page_position_on_footnote_toggle)
-        if self.view.document.in_paged_mode and num > 1 and num % 2 == 0:
-            two, one = self.page_position_on_footnote_toggle.pop(), self.page_position_on_footnote_toggle.pop()
-            if (
-                    time.time() - two.time < 1 and not two.is_visible and one.is_visible and
-                    one.last_loaded_path == two.last_loaded_path and two.last_loaded_path == self.view.last_loaded_path and
-                    one.page_dimensions == self.view.document.page_dimensions and one.multiplier == self.view.multiplier and
-                    one.after_resize_page_number == self.view.document.page_number
-            ):
-                return one.page_number
-
     def viewport_resize_started(self, event):
         if not self.resize_in_progress:
             # First resize, so save the current page position
             self.resize_in_progress = True
+            re = ResizeEvent(event.oldSize(), self.view.multiplier, self.view.last_loaded_path, self.view.document.page_number)
+            self.resize_events_stack.append(re)
             if not self.window_mode_changed:
                 # The special handling for window mode changed will already
                 # have saved page position, so only save it if this is not a
@@ -781,19 +799,24 @@ class EbookViewer(MainWindow):
         else:
             if self.isFullScreen():
                 self.relayout_fullscreen_labels()
+            self.view.document.page_position.restore()
+            self.update_page_number()
 
-            pre_footnote_pos = self.pre_footnote_toggle_position()
-            if pre_footnote_pos is not None:
-                self.view.document.page_number = pre_footnote_pos
-            else:
-                self.view.document.page_position.restore()
-                self.update_page_number()
-                if len(self.page_position_on_footnote_toggle) % 2 == 1:
-                    self.page_position_on_footnote_toggle[-1] = self.page_position_on_footnote_toggle[-1]._replace(
-                        after_resize_page_number=self.view.document.page_number)
         if self.pending_goto_page is not None:
             pos, self.pending_goto_page = self.pending_goto_page, None
             self.goto_page(pos, loaded_check=False)
+        else:
+            if self.resize_events_stack:
+                self.resize_events_stack[-1].finished(self.view.size(), self.view.multiplier, self.view.last_loaded_path, self.view.document.page_number)
+                if len(self.resize_events_stack) > 1:
+                    previous, current = self.resize_events_stack[-2:]
+                    if current.is_a_toggle(previous) and previous.page_number is not None and self.view.document.in_paged_mode:
+                        if DEBUG:
+                            print('Detected a toggle resize, restoring previous page')
+                        self.view.document.page_number = previous.page_number
+                        del self.resize_events_stack[-2:]
+                    else:
+                        del self.resize_events_stack[-2]
 
     def update_page_number(self):
         self.set_page_number(self.view.document.scroll_fraction)
@@ -905,6 +928,7 @@ class EbookViewer(MainWindow):
         self.raise_()
 
     def load_ebook(self, pathtoebook, open_at=None, reopen_at=None):
+        del self.resize_events_stack[:]
         if self.iterator is not None:
             self.save_current_position()
             self.iterator.__exit__()

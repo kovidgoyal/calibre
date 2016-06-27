@@ -9,7 +9,6 @@ from io import BytesIO
 from threading import Thread
 
 from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform
-
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows, plugins, get_version
 from calibre.utils.config_base import tweaks

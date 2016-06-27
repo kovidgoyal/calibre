@@ -1,9 +1,15 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
+
 '''
 kurier.at
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Kurier(BasicNewsRecipe):
@@ -15,13 +21,11 @@ class Kurier(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 100
     timeout               = 30
-    encoding              = None
     no_stylesheets        = True
     use_embedded_content  = False
     language              = 'de_AT'
     remove_empty_feeds    = True
     publication_type      = 'newspaper'
-    extra_css             = ' body{font-family: Verdana,Helvetica,sans-serif } img{margin-bottom: 0.4em} .bild_us{font-size: x-small} '
 
     conversion_options = {
                           'comment'   : description
@@ -30,22 +34,31 @@ class Kurier(BasicNewsRecipe):
                         , 'language'  : language
                         }
 
-    remove_tags = [ dict(attrs={'id':['artikel_expand_symbol2','imgzoom_close2']}), 
-                    dict(attrs={'class':['linkextern','functionsleiste','functions','social_positionierung','contenttabs','drucken','versenden','leserbrief','kommentieren','addthis_button']})
-                   ]
-    keep_only_tags    = [dict(attrs={'id':'content'})]
-    remove_tags_after = [dict(attrs={'id':'author'})]
-    remove_attributes = ['width','height']
-
     feeds = [
-               (u'Nachrichten', u'http://kurier.at/rss/nachrichten_nachrichten_rss.xml'   )
-              ,(u'Techno'     , u'http://kurier.at/rss/techno_techno_rss.xml'   )
-              ,(u'Wirtschaft' , u'http://kurier.at/rss/wirtschaft_wirtschaft_rss.xml'   )
-              ,(u'Kultur'     , u'http://kurier.at/rss/kultur_kultur_rss.xml'   )
-              ,(u'Freizeit'   , u'http://kurier.at/rss/freizeit_freizeit_rss.xml'   )
-              ,(u'Wetter'     , u'http://kurier.at/rss/oewetter_rss.xml'   )
-              ,(u'Sport'      , u'http://kurier.at/newsfeed/detail/sport_rss.xml'   )
-            ]
+        ('Politik', 'http://kurier.at/politik/xml/rss'),
+        ('Wirtschaft', 'http://kurier.at/wirtschaft/xml/rss'),
+        ('Chronik', 'http://kurier.at/chronik/xml/rss'),
+        ('Kultur', 'http://kurier.at/kultur/xml/rss'),
+        ('Leben', 'http://kurier.at/leben/xml/rss'),
+        ('Menschen', 'http://kurier.at/menschen/xml/rss'),
+        ('Sport', 'http://kurier.at/sport/xml/rss')
+    ]
+
+    keep_only_tags = [
+        dict(name='article', attrs={'class':re.compile('main-article')})
+    ]
+
+    remove_tags = [
+        dict(name='div', attrs={'class':'social-media-container'}),
+        dict(name='section', attrs={'class':'tags'}),
+        dict(name='section', attrs={'class':re.compile('comment-box')}),
+        dict(name='section', attrs={'class':re.compile('related-content')}),
+        dict(name='section', attrs={'class':re.compile('article-slider')}),
+        dict(name='section', attrs={'class':re.compile('commentcontainer')}),
+        dict(name='blockquote')
+    ]
+
+    remove_attributes = ['width','height']
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

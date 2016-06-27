@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, urllib, errno
+import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno, subprocess
 from zlib import compress
 from itertools import chain
 
@@ -235,7 +235,10 @@ class CACerts(Command):  # {{{
             if err.errno != errno.ENOENT:
                 raise
             raw = b''
-        nraw = urllib.urlopen('https://curl.haxx.se/ca/cacert.pem').read()
+        # We use curl here as on some OSes (OS X) when bootstrapping calibre,
+        # python will be unable to validate certificates until after cacerts is
+        # installed
+        nraw = subprocess.check_output(['curl', '-L', 'https://curl.haxx.se/ca/cacert.pem'])
         if not nraw:
             raise RuntimeError('Failed to download CA cert bundle')
         if nraw != raw:

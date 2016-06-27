@@ -552,6 +552,7 @@ class DocumentView(QWebView):  # {{{
     magnification_changed = pyqtSignal(object)
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern)
     gesture_handler = lambda s, e: False
+    last_loaded_path = None
 
     def initialize_view(self, debug_javascript=False):
         self.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform)

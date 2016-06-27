@@ -259,3 +259,4 @@ class View:
 
     def on_content_loaded(self):
         self.hide_loading()
+        # self.overlay.show()
