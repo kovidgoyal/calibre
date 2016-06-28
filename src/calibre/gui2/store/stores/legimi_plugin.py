@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6 # Needed for dynamic plugin loading
+store_version = 7 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2015, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -82,7 +82,7 @@ class LegimiStore(BasicStoreConfig, StorePlugin):
         br = browser()
         with closing(br.open(search_result.detail_item, timeout=timeout)) as nf:
             idata = html.fromstring(nf.read())
-            formatlist = idata.xpath('.//div[@id="fullBookFormats"]//span[@class="bookFormat"]/text()')
+            formatlist = idata.xpath('.//div[@class="bookFormatsBox clearfix"]//span[@class="bookFormat"]/text()')
             for x in formatlist:
                 if x.strip() not in formats:
                     formats.append(x.strip())
