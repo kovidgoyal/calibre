@@ -64,7 +64,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 1, 11)
+    version = (2, 2, 0)
 
     dbversion = 0
     fwversion = 0
@@ -910,6 +910,13 @@ class KOBO(USBMS):
     def collections_columns(self):
         opts = self.settings()
         return opts.extra_customization[self.OPT_COLLECTIONS]
+    @property
+    def read_metadata(self):
+        return self.settings().read_metadata
+    @property
+    def show_previews(self):
+        opts = self.settings()
+        return opts.extra_customization[self.OPT_SHOW_PREVIEWS] == False
 
 
     def sync_booklists(self, booklists, end_session=True):
