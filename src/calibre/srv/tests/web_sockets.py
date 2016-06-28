@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import socket, os, struct
+import socket, os, struct, errno
 from base64 import standard_b64encode
 from collections import deque, namedtuple
 from functools import partial
@@ -245,7 +245,14 @@ class WebSocketTest(BaseTest):
                 frags, q = [], b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5\xed\xa0\x80\x80\x65\x64\x69\x74\x65\x64'
                 for i, b in enumerate(q):
                     frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
-                simple_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
+                try:
+                    simple_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
+                except socket.error as err:
+                    if err.errno != errno.EPIPE:
+                        # This is raised on OS X occassionally, when the server
+                        # closes the connection before the client has finished
+                        # writing all data.
+                        raise
 
                 for q in (b'\xce', b'\xce\xba\xe1'):
                     simple_test([{'opcode':TEXT, 'payload':q}], close_code=INCONSISTENT_DATA, send_close=False)
