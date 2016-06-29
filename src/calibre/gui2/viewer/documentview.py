@@ -1243,7 +1243,8 @@ class DocumentView(QWebView):  # {{{
         painter.end()
 
     def wheelEvent(self, event):
-        if event.phase() != Qt.ScrollUpdate:
+        if event.phase() not in (Qt.ScrollUpdate, 0):
+            # 0 is Qt.NoScrollPhase which is not yet available in PyQt
             return
         mods = event.modifiers()
         num_degrees = event.angleDelta().y() // 8
