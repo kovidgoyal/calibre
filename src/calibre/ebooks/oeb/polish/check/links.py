@@ -16,6 +16,7 @@ from Queue import Queue, Empty
 from calibre import browser
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
+from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
@@ -148,6 +149,16 @@ class Unmanifested(BadLink):
             if self.name not in rmap:
                 container.add_name_to_manifest(self.name)
         return True
+
+class DanglingLink(BadLink):
+
+    def __init__(self, text, target_name, name, lnum, col):
+        BadLink.__init__(self, text, name, lnum, col)
+        self.INDIVIDUAL_FIX = _('Remove all references to %s from the HTML and CSS in the book') % target_name
+        self.target_name = target_name
+
+    def __call__(self, container):
+        return bool(remove_links_to(container, lambda name, *a: name == self.target_name))
 
 class Bookmarks(BadLink):
 
@@ -307,7 +318,7 @@ def check_links(container):
                         if cname is not None:
                             a(CaseMismatch(href, cname, name, lnum, col))
                         else:
-                            a(BadLink(_('The linked resource %s does not exist') % fl(href), name, lnum, col))
+                            a(DanglingLink(_('The linked resource %s does not exist') % fl(href), tname, name, lnum, col))
                 else:
                     purl = urlparse(href)
                     if purl.scheme == 'file':
