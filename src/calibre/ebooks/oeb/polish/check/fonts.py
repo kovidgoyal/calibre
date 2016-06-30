@@ -15,6 +15,7 @@ from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.ebooks.oeb.polish.fonts import change_font_family_value
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
 from calibre.utils.fonts.utils import get_all_font_names
+from tinycss.fonts3 import parse_font_family, parse_font, serialize_font_family, serialize_font
 
 class InvalidFont(BaseError):
 
@@ -33,10 +34,22 @@ def fix_property(prop, css_name, font_name):
 
 def fix_declaration(style, css_name, font_name):
     changed = False
-    for x in ('font-family', 'font'):
-        prop = style.getProperty(x)
-        if prop is not None:
-            changed |= fix_property(prop, css_name, font_name)
+    ff = style.getProperty('font-family')
+    if ff is not None:
+        fams = parse_font_family(ff.propertyValue.cssText)
+        nfams = [font_name if x == css_name else x for x in fams]
+        if fams != nfams:
+            ff.propertyValue.cssText = serialize_font_family(nfams)
+            changed = True
+    ff = style.getProperty('font')
+    if ff is not None:
+        props = parse_font(ff.propertyValue.cssText)
+        fams = props.get('font-family') or []
+        nfams = [font_name if x == css_name else x for x in fams]
+        if fams != nfams:
+            props['font-family'] = nfams
+            ff.propertyValue.cssText = serialize_font(props)
+            changed = True
     return changed
 
 def fix_sheet(sheet, css_name, font_name):
@@ -120,10 +133,9 @@ def check_fonts(container):
                     font_name = font_map.get(fname, None)
                     if font_name is None:
                         continue
-                    ff = rule.style.getPropertyCSSValue('font-family')
-                    if ff is not None and ff.length > 0:
-                        ff = getattr(ff.item(0), 'value', None)
-                        if ff is not None and ff != font_name:
-                            errors.append(FontAliasing(font_name, ff, name, line_offset))
+                    families = parse_font_family(rule.style.getPropertyValue('font-family'))
+                    if families:
+                        if families[0] != font_name:
+                            errors.append(FontAliasing(font_name, families[0], name, line_offset))
 
     return errors
