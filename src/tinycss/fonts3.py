@@ -8,6 +8,31 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 
 from tinycss.css21 import CSS21Parser, ParseError
+from .tokenizer import tokenize_grouped
+
+
+def parse_font_family(css_string):
+    families = []
+    current_family = ''
+    def commit():
+        families.append(current_family.strip())
+
+    for token in tokenize_grouped(css_string.strip()):
+        if token.type == 'STRING':
+            if current_family:
+                commit()
+            current_family = token.value
+        elif token.type == 'DELIM':
+            if token.value == ',':
+                if current_family:
+                    commit()
+                current_family = ''
+        elif token.type == 'IDENT':
+            current_family += ' ' + token.value
+    if current_family:
+        commit()
+    return families
+
 
 class FontFaceRule(object):
 
