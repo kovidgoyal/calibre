@@ -11,6 +11,7 @@ from collections import defaultdict
 
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
+from tinycss.fonts3 import parse_font_family
 
 def get_font_properties(rule, default=None):
     '''
@@ -27,7 +28,7 @@ def get_font_properties(rule, default=None):
             val = s.getProperty(q).propertyValue[0]
             val = getattr(val, g)
             if q == 'font-family':
-                val = [x.value for x in s.getProperty(q).propertyValue if hasattr(x.value, 'lower')]
+                val = parse_font_family(s.getProperty(q).propertyValue.cssText)
                 if val and val[0] == 'inherit':
                     val = None
         except (IndexError, KeyError, AttributeError, TypeError, ValueError):
@@ -272,8 +273,7 @@ class SubsetFonts(object):
                 'normal':['normal', 'oblique', 'italic']
             }.get(fs, ['italic', 'oblique', 'normal'])
         for q in order:
-            matches = [f for f in matching_set if f.get('font-style', 'normal')
-                    == q]
+            matches = [f for f in matching_set if f.get('font-style', 'normal') == q]
             if matches:
                 matching_set = matches
                 break
