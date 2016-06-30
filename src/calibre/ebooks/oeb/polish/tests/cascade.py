@@ -28,6 +28,7 @@ class VirtualContainer(ContainerBase):
         self.log_stream = s.stream
         log = Log()
         log.outputs = [s]
+        self.opf_version_parsed = (2, 0, 0)
         ContainerBase.__init__(self, log=log)
         self.mime_map = {k:self.guess_type(k) for k in files}
         self.files = files
