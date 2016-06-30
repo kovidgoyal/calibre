@@ -40,17 +40,18 @@ def parse_font_family_tokens(tokens):
 def parse_font_family(css_string):
     return parse_font_family_tokens(tokenize_grouped(type('')(css_string).strip()))
 
+def serialize_single_font_family(x):
+    xl = x.lower()
+    if xl in GENERIC_FAMILIES:
+        if xl == 'sansserif':
+            xl = 'sans-serif'
+        return xl
+    if SIMPLE_NAME_PAT.match(x) is not None:
+        return x
+    return '"%s"' % x.replace('"', r'\"')
+
 def serialize_font_family(families):
-    def one(x):
-        xl = x.lower()
-        if xl in GENERIC_FAMILIES:
-            if xl == 'sansserif':
-                xl = 'sans-serif'
-            return xl
-        if SIMPLE_NAME_PAT.match(x) is not None:
-            return x
-        return '"%s"' % x.replace('"', r'\"')
-    return ', '.join(map(one, families))
+    return ', '.join(map(serialize_single_font_family, families))
 
 GLOBAL_IDENTS = frozenset('inherit initial unset normal'.split())
 STYLE_IDENTS = frozenset('italic oblique'.split())
