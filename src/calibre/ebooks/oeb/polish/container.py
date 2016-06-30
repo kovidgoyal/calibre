@@ -618,6 +618,19 @@ class Container(ContainerBase):  # {{{
             if q in props:
                 yield self.href_to_name(item.get('href'), self.opf_name)
 
+    def manifest_items_of_type(self, predicate):
+        ''' The names of all manifest items whose media-type matches predicate.
+        `predicate` can be a set, a list, a string or a function taking a single
+        argument, which will be called with the media-type. '''
+        if isinstance(predicate, type('')):
+            predicate = predicate.__eq__
+        elif hasattr(predicate, '__contains__'):
+            predicate = predicate.__contains__
+        for mt, names in self.manifest_type_map.iteritems():
+            if predicate(mt):
+                for name in names:
+                    yield name
+
     @property
     def guide_type_map(self):
         ' Mapping of guide type to canonical name '
