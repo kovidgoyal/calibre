@@ -12,52 +12,21 @@ from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
-from calibre.ebooks.oeb.polish.fonts import change_font_family_value
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
+from calibre.ebooks.oeb.polish.fonts import change_font_in_declaration
 from calibre.utils.fonts.utils import get_all_font_names
-from tinycss.fonts3 import parse_font_family, parse_font, serialize_font_family, serialize_font
+from tinycss.fonts3 import parse_font_family
 
 class InvalidFont(BaseError):
 
     HELP = _('This font could not be processed. It most likely will'
              ' not work in an ebook reader, either')
 
-def fix_property(prop, css_name, font_name):
-    changed = False
-    ff = prop.propertyValue
-    for i in xrange(ff.length):
-        val = ff.item(i)
-        if hasattr(val.value, 'lower') and val.value.lower() == css_name.lower():
-            change_font_family_value(val, font_name)
-            changed = True
-    return changed
-
-def fix_declaration(style, css_name, font_name):
-    changed = False
-    ff = style.getProperty('font-family')
-    if ff is not None:
-        fams = parse_font_family(ff.propertyValue.cssText)
-        nfams = [font_name if x == css_name else x for x in fams]
-        if fams != nfams:
-            ff.propertyValue.cssText = serialize_font_family(nfams)
-            changed = True
-    ff = style.getProperty('font')
-    if ff is not None:
-        props = parse_font(ff.propertyValue.cssText)
-        fams = props.get('font-family') or []
-        nfams = [font_name if x == css_name else x for x in fams]
-        if fams != nfams:
-            props['font-family'] = nfams
-            ff.propertyValue.cssText = serialize_font(props)
-            changed = True
-    return changed
-
 def fix_sheet(sheet, css_name, font_name):
     changed = False
     for rule in sheet.cssRules:
         if rule.type in (CSSRule.FONT_FACE_RULE, CSSRule.STYLE_RULE):
-            if fix_declaration(rule.style, css_name, font_name):
-                changed = True
+            changed = change_font_in_declaration(rule.style, css_name, font_name) or changed
     return changed
 
 class FontAliasing(BaseError):
@@ -92,7 +61,7 @@ class FontAliasing(BaseError):
                             changed = True
                 for elem in container.parsed(name).xpath('//*[@style and contains(@style, "font-family")]'):
                     style = container.parse_css(elem.get('style'), is_declaration=True)
-                    if fix_declaration(style, self.css_name, self.font_name):
+                    if change_font_in_declaration(style, self.css_name, self.font_name):
                         elem.set('style', force_unicode(style.cssText, 'utf-8').replace('\n', ' '))
                         container.dirty(name)
                         changed = True
