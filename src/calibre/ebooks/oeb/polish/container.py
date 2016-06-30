@@ -125,6 +125,8 @@ class ContainerBase(object):  # {{{
         ans = guess_type(name)
         if ans == 'text/html':
             ans = 'application/xhtml+xml'
+        if ans in {'application/x-font-truetype', 'application/vnd.ms-opentype'} and self.opf_version_parsed[:2] > (3, 0):
+            return 'application/font-sfnt'
         return ans
 
     def decode(self, data, normalize_to_nfc=True):
