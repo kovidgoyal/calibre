@@ -15,7 +15,9 @@ def parse_font_family(css_string):
     families = []
     current_family = ''
     def commit():
-        families.append(current_family.strip())
+        val = current_family.strip()
+        if val:
+            families.append(val)
 
     for token in tokenize_grouped(css_string.strip()):
         if token.type == 'STRING':

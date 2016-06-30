@@ -42,6 +42,7 @@ class TestFonts3(BaseTest):
                 r'"X \"Y"': ['X "Y'],
                 'A B, C D, "E", serif': ['A B', 'C D', 'E', 'serif'],
                 '': [],
+                '"", a': ['a'],
         }.iteritems():
             self.ae(q, parse_font_family(raw))
         for single in ('serif', 'sans-serif', 'A B C'):
