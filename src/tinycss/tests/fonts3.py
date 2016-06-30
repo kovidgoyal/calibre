@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-from tinycss.fonts3 import CSSFonts3Parser, parse_font_family, parse_font
+from tinycss.fonts3 import CSSFonts3Parser, parse_font_family, parse_font, serialize_font
 from tinycss.tests import BaseTest
 
 class TestFonts3(BaseTest):
@@ -52,6 +52,7 @@ class TestFonts3(BaseTest):
         def t(raw, **kw):
             q = {('line' if k == 'height' else 'font') + '-' + k:v for k, v in kw.iteritems()}
             self.ae(q, parse_font(raw))
+            self.ae(q, parse_font(serialize_font(q)))
         t('caption', family=['sans-serif'])
         t('serif', family=['serif'])
         t('12pt/14pt sans-serif', size='12pt', height='14pt', family=['sans-serif'])

@@ -64,6 +64,24 @@ LEGACY_FONT_SPEC = frozenset('caption icon menu message-box small-caption status
 GENERIC_FAMILIES = frozenset('serif sans-serif sansserif cursive fantasy monospace'.split())
 SIMPLE_NAME_PAT = re.compile(r'[a-zA-Z][a-zA-Z0-9_-]*$')
 
+def serialize_font(font_dict):
+    ans = []
+    for x in 'style variant weight stretch'.split():
+        val = font_dict.get('font-' + x)
+        if val is not None:
+            ans.append(val)
+    val = font_dict.get('font-size')
+    if val is not None:
+        fs = val
+        val = font_dict.get('line-height')
+        if val is not None:
+            fs += '/' + val
+        ans.append(fs)
+    val = font_dict.get('font-family')
+    if val:
+        ans.append(serialize_font_family(val))
+    return ' '.join(ans)
+
 def parse_font(css_string):
     # See https://www.w3.org/TR/css-fonts-3/#font-prop
     style = variant = weight = stretch = size = height = None
