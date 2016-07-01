@@ -20,6 +20,38 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.61.0
+  date: 2016-07-01
+
+  new features:
+    - title: "Driver for FNAC (re-branded Bq) with new firmware."
+      tickets: [1596952, 1595924]
+
+    - title: "Edit Book: Check Book: Add an auto fix action to remove all links to a missing resource (such as a deleted stylesheet) automatically."
+      tickets: [1596048]
+
+  bug fixes:
+    - title: "Edit Book: Check Book: Fix incorrect handling of font family names with spaces in them that are not quoted."
+      tickets: [1596053]
+
+    - title: "E-book viewer: Fix Qt 5.7 breaking mouse wheel scrolling"
+
+    - title: "Kobo driver: Fix a regression in the last release that broke connecting to older devices"
+      tickets: [1596801] 
+
+    - title: "Get Books: Fix detection of book formats broken for the Legimi plugin by a website change"
+
+    - title: "Update builtin metadata source ozon.ru to handle website changes"
+
+    - title: "Font subsetting: Fix incorrect handling of fonts whose names are included in font rules without quotes"
+
+    - title: "Fix ebook-viewer broken when running the binary calibre release on systems with very old versions of glibc"
+
+  improved recipes:
+    - derStandard
+    - Kurier
+    - Kliene Zeitung
+
 - version: 2.60.0
   date: 2016-06-24
 
