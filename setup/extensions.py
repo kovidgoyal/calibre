@@ -408,7 +408,7 @@ class Build(Command):
             self.info('--no-compile specified, skipping compilation')
             return
         self.build_dir = os.path.abspath(opts.build_dir or os.path.join(os.path.dirname(SRC), 'build'))
-        self.output_dir = os.path.abspath(opts.output_dir or os.path.join(os.path.dirname(SRC), 'calibre', 'plugins'))
+        self.output_dir = os.path.abspath(opts.output_dir or os.path.join(SRC, 'calibre', 'plugins'))
         self.obj_dir = os.path.join(self.build_dir, 'objects')
         for x in (self.output_dir, self.obj_dir):
             if not os.path.exists(x):
