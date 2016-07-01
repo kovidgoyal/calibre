@@ -237,25 +237,28 @@ class WebSocketTest(BaseTest):
                     {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]},
                 ], close_code=PROTOCOL_ERROR, send_close=False)
 
+                def ic_test(*args, **kwargs):
+                    try:
+                        simple_test(*args, **kwargs)
+                    except socket.error as err:
+                        if err.errno not in (errno.EPIPE, errno.ECONNRESET):
+                            # This is raised on OS X occassionally, when the server
+                            # closes the connection before the client has finished
+                            # writing all data.
+                            raise
+
                 frags = []
                 for payload in (b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', b'\xed\xa0\x80', b'\x80\x65\x64\x69\x74\x65\x64'):
                     frags.append({'opcode':(CONTINUATION if frags else TEXT), 'fin':1 if len(frags) == 2 else 0, 'payload':payload})
-                simple_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
+                ic_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
 
                 frags, q = [], b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5\xed\xa0\x80\x80\x65\x64\x69\x74\x65\x64'
                 for i, b in enumerate(q):
                     frags.append({'opcode':(TEXT if i == 0 else CONTINUATION), 'fin':1 if i == len(q)-1 else 0, 'payload':b})
-                try:
-                    simple_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
-                except socket.error as err:
-                    if err.errno != errno.EPIPE:
-                        # This is raised on OS X occassionally, when the server
-                        # closes the connection before the client has finished
-                        # writing all data.
-                        raise
+                ic_test(frags, close_code=INCONSISTENT_DATA, send_close=False)
 
                 for q in (b'\xce', b'\xce\xba\xe1'):
-                    simple_test([{'opcode':TEXT, 'payload':q}], close_code=INCONSISTENT_DATA, send_close=False)
+                    ic_test([{'opcode':TEXT, 'payload':q}], close_code=INCONSISTENT_DATA, send_close=False)
 
             simple_test([
                 {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}
