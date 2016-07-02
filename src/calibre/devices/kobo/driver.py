@@ -64,7 +64,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 2, 0)
+    version = (2, 2, 1)
 
     dbversion = 0
     fwversion = 0
@@ -2801,9 +2801,10 @@ class KOBOTOUCH(KOBO):
         If that is not found looks for a device default and if that is not
         found uses the global default.'''
 #         debug_print("KoboTouch::get_prefs - key=", key, "cls=", cls)
-        opts = cls.settings()
+        if not cls.opts:
+            cls.opts = cls.settings()
         try:
-            return getattr(opts, key)
+            return getattr(cls.opts, key)
         except:
             debug_print("KoboTouch::get_prefs - probably an extra_customization:", key)
         return None
@@ -2841,6 +2842,7 @@ class KOBOTOUCH(KOBO):
 
         c.add_opt('support_newer_firmware', default=False)
         c.add_opt('debugging_title', default='')
+        c.add_opt('driver_version', default='') # Mainly for debugging purposes, but might use if need to migrate between versions.
 
         return c
 
@@ -2848,23 +2850,6 @@ class KOBOTOUCH(KOBO):
     @classmethod
     def settings(cls):
         opts = cls._config().parse()
-        if isinstance(cls.EXTRA_CUSTOMIZATION_DEFAULT, list) and len(cls.EXTRA_CUSTOMIZATION_DEFAULT) > 0:
-            if opts.extra_customization is None:
-                opts.extra_customization = []
-            if not isinstance(opts.extra_customization, list):
-                opts.extra_customization = [opts.extra_customization]
-            if len(cls.EXTRA_CUSTOMIZATION_DEFAULT) > len(opts.extra_customization):
-                extra_options_offset = 0
-                extra_customization = []
-                for i,d in enumerate(cls.EXTRA_CUSTOMIZATION_DEFAULT):
-                    if i >= len(opts.extra_customization) + extra_options_offset:
-                        extra_customization.append(d)
-                    elif d.__class__ != opts.extra_customization[i - extra_options_offset].__class__:
-                        extra_options_offset += 1
-                        extra_customization.append(d)
-                    else:
-                        extra_customization.append(opts.extra_customization[i - extra_options_offset])
-                opts.extra_customization = extra_customization
         if opts.extra_customization:
             opts = cls.migrate_old_settings(opts)
 
@@ -3038,6 +3023,7 @@ class KOBOTOUCH(KOBO):
     @classmethod
     def migrate_old_settings(cls, settings):
         debug_print("KoboTouch::migrate_old_settings - start")
+        debug_print("KoboTouch::migrate_old_settings - settings.extra_customization=", settings.extra_customization)
 
         count_options = 0
         OPT_COLLECTIONS                 = count_options
@@ -3067,6 +3053,8 @@ class KOBOTOUCH(KOBO):
         OPT_DEBUGGING_TITLE             = count_options
 
         if len(settings.extra_customization) >= count_options:
+            config = cls._config()
+            debug_print("KoboTouch::migrate_old_settings - config.preferences=", config.preferences)
             debug_print("KoboTouch::migrate_old_settings - settings need to be migrated")
             settings.manage_collections = True
             settings.collections_columns = settings.extra_customization[OPT_COLLECTIONS]
@@ -3085,10 +3073,16 @@ class KOBOTOUCH(KOBO):
             settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
             settings.update_metadata = settings.update_series
 
-            settings.modify_css = settings.extra_customization[OPT_MODIFY_CSS]
-
-            settings.support_newer_firmware = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
-            settings.debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
+            # Check if these are very old settings.
+            if len(settings.extra_customization) == count_options:
+                config = cls._config()
+                settings.modify_css = config.get_option('modify_css')
+                settings.support_newer_firmware = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE - 1]
+                settings.debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE - 1]
+            else:
+                settings.modify_css = settings.extra_customization[OPT_MODIFY_CSS]
+                settings.support_newer_firmware = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
+                settings.debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
             settings.extra_customization = settings.extra_customization[count_options + 1:]
 
         return settings
