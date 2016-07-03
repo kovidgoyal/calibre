@@ -237,15 +237,9 @@ def find_tests():
     ans.addTests(find_tests())
     return ans
 
-class TestRunner(unittest.main):
-
-    def createTests(self):
-        self.test = find_tests()
-
 def test():
-    result = TestRunner(verbosity=2, buffer=True, catchbreak=True, failfast=False, argv=sys.argv[:1], exit=False).result
-    if not result.wasSuccessful():
-        raise SystemExit(1)
+    from calibre.utils.run_tests import run_cli
+    run_cli(find_tests())
 
 if __name__ == '__main__':
     test()
