@@ -32,14 +32,12 @@ class BuildTest(unittest.TestCase):
     @unittest.skipUnless(islinux, 'DBUS only used on linux')
     def test_dbus(self):
         import dbus
-        bus = None
-        if 'DISPLAY' in os.environ:
+        if 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
             bus = dbus.SystemBus()
             self.assertTrue(bus.list_names(), 'Failed to list names on the system bus')
-        if 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
             bus = dbus.SessionBus()
             self.assertTrue(bus.list_names(), 'Failed to list names on the session bus')
-        del bus
+            del bus
 
     def test_regex(self):
         import regex
