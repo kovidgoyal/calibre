@@ -68,14 +68,13 @@ class BuildTest(unittest.TestCase):
                 # C++ name mangling incompatibilities preventing some modules
                 # from loading
                 exclusions.update(set('podofo'.split()))
-            else:
-                # libusb fails to initialize in the travis container
-                exclusions.update(set('libusb libmtp'.split()))
+        if islinux and (not os.path.exists('/dev/bus/usb') and not os.path.exists('/proc/bus/usb')):
+            # libusb fails to initialize in containers without USB subsystems
+            exclusions.update(set('libusb libmtp'.split()))
         for name in plugins:
             if name in exclusions:
-                if not isosx:
-                    # libusb fails to initialize on travis, so just check that the
-                    # DLL can be loaded
+                if name in ('libusb', 'libmtp'):
+                    # Just check that the DLL can be loaded
                     ctypes.CDLL(os.path.join(sys.extensions_location, name + ('.dylib' if isosx else '.so')))
                 continue
             mod, err = plugins[name]
@@ -244,7 +243,7 @@ class TestRunner(unittest.main):
         self.test = find_tests()
 
 def test():
-    result = TestRunner(verbosity=2, buffer=True, catchbreak=True, failfast=True, argv=sys.argv[:1], exit=False).result
+    result = TestRunner(verbosity=2, buffer=True, catchbreak=True, failfast=False, argv=sys.argv[:1], exit=False).result
     if not result.wasSuccessful():
         raise SystemExit(1)
 
