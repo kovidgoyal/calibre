@@ -148,6 +148,14 @@ def find_cover_image2(container, strict=False):
 def find_cover_image3(container):
     for name in container.manifest_items_with_property('cover-image'):
         return name
+    manifest_id_map = container.manifest_id_map
+    mm = container.mime_map
+    for meta in container.opf_xpath('//opf:meta[@name="cover" and @content]'):
+        item_id = meta.get('content')
+        name = manifest_id_map.get(item_id, None)
+        media_type = mm.get(name, None)
+        if is_raster_image(media_type):
+            return name
 
 def find_cover_image(container, strict=False):
     'Find a raster image marked as a cover in the OPF'
@@ -165,11 +173,13 @@ def get_guides(container):
         guides = container.opf_xpath('//opf:guide')
     return guides
 
+
 def mark_as_cover_epub(container, name):
     mmap = {v:k for k, v in container.manifest_id_map.iteritems()}
     if name not in mmap:
         raise ValueError('Cannot mark %s as cover as it is not in manifest' % name)
     mid = mmap[name]
+    ver = container.opf_version_parsed
 
     # Remove all entries from the opf that identify a raster image as cover
     for meta in container.opf_xpath('//opf:meta[@name="cover" and @content]'):
@@ -177,22 +187,25 @@ def mark_as_cover_epub(container, name):
     for ref in container.opf_xpath('//opf:guide/opf:reference[@href and @type]'):
         if ref.get('type').lower() not in COVER_TYPES:
             continue
-        name = container.href_to_name(ref.get('href'), container.opf_name)
-        mt = container.mime_map.get(name, None)
+        rname = container.href_to_name(ref.get('href'), container.opf_name)
+        mt = container.mime_map.get(rname, None)
         if is_raster_image(mt):
             container.remove_from_xml(ref)
 
-    # Add reference to image in <metadata>
-    for metadata in container.opf_xpath('//opf:metadata'):
-        m = metadata.makeelement(OPF('meta'), name='cover', content=mid)
-        container.insert_into_xml(metadata, m)
+    if ver.major < 3:
+        # Add reference to image in <metadata>
+        for metadata in container.opf_xpath('//opf:metadata'):
+            m = metadata.makeelement(OPF('meta'), name='cover', content=mid)
+            container.insert_into_xml(metadata, m)
 
-    # If no entry for titlepage exists in guide, insert one that points to this
-    # image
-    if not container.opf_xpath('//opf:guide/opf:reference[@type="cover"]'):
-        for guide in get_guides(container):
-            container.insert_into_xml(guide, guide.makeelement(
-                OPF('reference'), type='cover', href=container.name_to_href(name, container.opf_name)))
+        # If no entry for cover exists in guide, insert one that points to this
+        # image
+        if not container.opf_xpath('//opf:guide/opf:reference[@type="cover"]'):
+            for guide in get_guides(container):
+                container.insert_into_xml(guide, guide.makeelement(
+                    OPF('reference'), type='cover', href=container.name_to_href(name, container.opf_name)))
+    else:
+        container.apply_unique_properties(name, 'cover-image')
 
     container.dirty(container.opf_name)
 
@@ -202,6 +215,7 @@ def mark_as_titlepage(container, name, move_to_start=True):
 
     :param move_to_start: If True the HTML file is moved to the start of the spine
     '''
+    ver = container.opf_version_parsed
     if move_to_start:
         for item, q, linear in container.spine_iter:
             if name == q:
@@ -210,20 +224,29 @@ def mark_as_titlepage(container, name, move_to_start=True):
             item.set('linear', 'yes')
         if item.getparent().index(item) > 0:
             container.insert_into_xml(item.getparent(), item, 0)
-    for ref in container.opf_xpath('//opf:guide/opf:reference[@type="cover"]'):
-        ref.getparent().remove(ref)
+    if ver.major < 3:
+        for ref in container.opf_xpath('//opf:guide/opf:reference[@type="cover"]'):
+            ref.getparent().remove(ref)
 
-    for guide in get_guides(container):
-        container.insert_into_xml(guide, guide.makeelement(
-            OPF('reference'), type='cover', href=container.name_to_href(name, container.opf_name)))
+        for guide in get_guides(container):
+            container.insert_into_xml(guide, guide.makeelement(
+                OPF('reference'), type='cover', href=container.name_to_href(name, container.opf_name)))
+    else:
+        container.apply_unique_properties(name, 'calibre:title-page')
+
     container.dirty(container.opf_name)
 
 def find_cover_page(container):
     'Find a document marked as a cover in the OPF'
-    mm = container.mime_map
-    guide_type_map = container.guide_type_map
-    for ref_type, name in guide_type_map.iteritems():
-        if ref_type.lower() == 'cover' and mm.get(name, '').lower() in OEB_DOCS:
+    ver = container.opf_version_parsed
+    if ver.major < 3:
+        mm = container.mime_map
+        guide_type_map = container.guide_type_map
+        for ref_type, name in guide_type_map.iteritems():
+            if ref_type.lower() == 'cover' and mm.get(name, '').lower() in OEB_DOCS:
+                return name
+    else:
+        for name in container.manifest_items_with_property('calibre:title-page'):
             return name
 
 def find_cover_image_in_page(container, cover_page):
@@ -262,7 +285,7 @@ def clean_opf(container):
             name = gtm.get(typ, None)
             if name and name in container.name_path_map:
                 yield name
-
+    container.apply_unique_properties(None, 'cover-image', 'calibre:title-page')
     container.dirty(container.opf_name)
 
 def create_epub_cover(container, cover_path, existing_image, options=None):
@@ -345,14 +368,19 @@ def create_epub_cover(container, cover_path, existing_image, options=None):
     spine = container.opf_xpath('//opf:spine')[0]
     ref = spine.makeelement(OPF('itemref'), idref=titlepage_item.get('id'))
     container.insert_into_xml(spine, ref, index=0)
-    guide = container.opf_get_or_create('guide')
-    container.insert_into_xml(guide, guide.makeelement(
-        OPF('reference'), type='cover', title=_('Cover'),
-        href=container.name_to_href(titlepage, base=container.opf_name)))
-    metadata = container.opf_get_or_create('metadata')
-    meta = metadata.makeelement(OPF('meta'), name='cover')
-    meta.set('content', raster_cover_item.get('id'))
-    container.insert_into_xml(metadata, meta)
+    ver = container.opf_version_parsed
+    if ver.major < 3:
+        guide = container.opf_get_or_create('guide')
+        container.insert_into_xml(guide, guide.makeelement(
+            OPF('reference'), type='cover', title=_('Cover'),
+            href=container.name_to_href(titlepage, base=container.opf_name)))
+        metadata = container.opf_get_or_create('metadata')
+        meta = metadata.makeelement(OPF('meta'), name='cover')
+        meta.set('content', raster_cover_item.get('id'))
+        container.insert_into_xml(metadata, meta)
+    else:
+        container.apply_unique_properties(raster_cover, 'cover-image')
+        container.apply_unique_properties(titlepage, 'calibre:title-page')
 
     return raster_cover, titlepage
 
@@ -435,5 +463,3 @@ def set_epub_cover(container, cover_path, report, options=None):
     if link_sub:
         replace_links(container, link_sub, frag_map=lambda x, y:None)
     return raster_cover, titlepage
-
-

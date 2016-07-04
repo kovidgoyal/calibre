@@ -148,6 +148,8 @@ def expand_prefix(raw, prefixes):
     return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m:(prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2)), raw or '')
 
 def ensure_prefix(root, prefixes, prefix, value=None):
+    if prefixes is None:
+        prefixes = read_prefixes(root)
     prefixes[prefix] = value or reserved_prefixes[prefix]
     prefixes = {k:v for k, v in prefixes.iteritems() if reserved_prefixes.get(k) != v}
     if prefixes:
