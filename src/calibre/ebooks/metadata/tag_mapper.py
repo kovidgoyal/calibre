@@ -32,7 +32,7 @@ def matcher(rule):
         return lambda x: pat.match(x) is None
 
     if mt == 'has':
-        s = rule['query']
+        s = icu_lower(rule['query'])
         return lambda x: s in x
 
     return lambda x: False
@@ -153,6 +153,7 @@ def test():
     run([rule('replace', 't1', 't2'), rule('replace', 't2', 't1')], 't1,t2', 't1,t2')
     run(rule('replace', 'a', 'A'), 'a,b', 'A,b')
     run(rule('replace', 'a,b', 'A,B'), 'a,b', 'A,B')
+    run(rule('replace', 'L', 'T', 'has'), 'L', 'T')
     run(rule('split', '/', '/', 'has'), 'a/b/c,d', 'a,b,c,d')
     run(rule('split', '/', '/', 'has'), '/,d', 'd')
     run(rule('split', '/', '/', 'has'), '/a/', 'a')
