@@ -62,6 +62,8 @@ def find_tests(which_tests=None):
     if ok('misc'):
         from calibre.ebooks.metadata.tag_mapper import find_tests
         a(find_tests())
+        from calibre.utils.shared_file import find_tests
+        a(find_tests())
 
     tests = unittest.TestSuite(ans)
     return tests
