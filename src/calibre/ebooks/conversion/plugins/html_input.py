@@ -19,7 +19,7 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
 
 def sanitize_file_name(x):
-    return ascii_filename(x).replace(';', '_')
+    return re.sub(r'[?&=;]', '_', ascii_filename(x))
 
 class HTMLInput(InputFormatPlugin):
 
