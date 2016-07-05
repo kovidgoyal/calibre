@@ -62,7 +62,7 @@ def wrap_lines(match):
     else:
         return ital+' '
 
-def smarten_punctuation(html, log):
+def smarten_punctuation(html, log=None):
     from calibre.utils.smartypants import smartyPants
     from calibre.ebooks.chardet import substitute_entites
     from calibre.ebooks.conversion.utils import HeuristicProcessor
@@ -76,10 +76,6 @@ def smarten_punctuation(html, log):
     html = smartyPants(html)
     html = html.replace(start, '<!--')
     html = html.replace(stop, '-->')
-    # convert ellipsis to entities to prevent wrapping
-    html = re.sub(r'(?u)(?<=\w)\s?(\.\s?){2}\.', '&hellip;', html)
-    # convert double dashes to em-dash
-    html = re.sub(r'\s--\s', u'\u2014', html)
     return substitute_entites(html)
 
 class DocAnalysis(object):
