@@ -641,6 +641,7 @@ class Container(ContainerBase):  # {{{
         identified by name. You can pass None as the name to remove the
         property from all items. '''
         properties = frozenset(properties)
+        removed_names, added_names = [], []
         for p in properties:
             if p.startswith('calibre:'):
                 ensure_prefix(self.opf, None, 'calibre', CALIBRE_PREFIX)
@@ -653,6 +654,7 @@ class Container(ContainerBase):  # {{{
             for prop in properties:
                 if prop.lower() in lprops:
                     if name != iname:
+                        removed_names.append(iname)
                         props = [p for p in props if p.lower() != prop]
                         if props:
                             item.set('properties', ' '.join(props))
@@ -660,9 +662,11 @@ class Container(ContainerBase):  # {{{
                             del item.attrib['properties']
                 else:
                     if name == iname:
+                        added_names.append(iname)
                         props.append(prop)
                         item.set('properties', ' '.join(props))
         self.dirty(self.opf_name)
+        return removed_names, added_names
 
     @property
     def guide_type_map(self):

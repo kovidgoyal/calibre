@@ -11,9 +11,12 @@ import os
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.create import create_book
-from calibre.ebooks.oeb.polish.cover import find_cover_image, mark_as_cover
+from calibre.ebooks.oeb.polish.cover import (
+    find_cover_image, mark_as_cover, find_cover_page, mark_as_titlepage, clean_opf
+)
 from calibre.ebooks.oeb.polish.toc import get_toc
 from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
 
@@ -41,6 +44,8 @@ def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
     metadata = ''
     if meta_cover:
         metadata = '<meta name="cover" content="%s"/>' % meta_cover
+    if not spine:
+        spine = [x[0] for x in manifest if guess_type(x[0]) in OEB_DOCS]
     spine = ''.join('<itemref idref="%s"/>' % name for name in spine)
     guide = ''.join('<reference href="%s" type="%s"/>' % (name, typ) for name, typ in guide)
     opf = OPF_TEMPLATE.format(manifest=mo, ver='%d.0'%ver, metadata=metadata, spine=spine, guide=guide)
@@ -90,6 +95,7 @@ class Structure(BaseTest):
         self.assertEqual(toc.as_dict['children'][0]['title'], 'EPUB 3 nav')
 
     def test_epub3_covers(self):
+        # cover image
         c = self.create_epub([cmi('c.jpg')])
         self.assertIsNone(find_cover_image(c))
         c = self.create_epub([cmi('c.jpg')], meta_cover='c.jpg')
@@ -99,4 +105,23 @@ class Structure(BaseTest):
         mark_as_cover(c, 'd.jpg')
         self.assertEqual('d.jpg', find_cover_image(c))
         self.assertFalse(c.opf_xpath('//*/@name'))
+
+        # title page
+        c = self.create_epub([cmi('c.html'), cmi('a.html')])
+        self.assertIsNone(find_cover_page(c))
+        mark_as_titlepage(c, 'a.html', move_to_start=False)
+        self.assertEqual('a.html', find_cover_page(c))
+        self.assertEqual('c.html', next(c.spine_names)[0])
+        mark_as_titlepage(c, 'a.html', move_to_start=True)
+        self.assertEqual('a.html', find_cover_page(c))
+        self.assertEqual('a.html', next(c.spine_names)[0])
+
+        # clean opf of all cover information
+        c = self.create_epub([cmi('c.jpg', b'z', 'cover-image'), cmi('c.html', b'', 'calibre:title-page'), cmi('d.html')],
+                             meta_cover='c.jpg', guide=[('c.jpg', 'cover'), ('d.html', 'cover')])
+        self.assertEqual(set(clean_opf(c)), {'c.jpg', 'c.html', 'd.html'})
+        self.assertFalse(c.opf_xpath('//*/@name'))
+        self.assertFalse(c.opf_xpath('//*/@type'))
+        for prop in 'cover-image calibre:title-page'.split():
+            self.assertEqual([], list(c.manifest_items_with_property(prop)))
 

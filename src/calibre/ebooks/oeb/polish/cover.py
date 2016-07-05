@@ -285,7 +285,9 @@ def clean_opf(container):
             name = gtm.get(typ, None)
             if name and name in container.name_path_map:
                 yield name
-    container.apply_unique_properties(None, 'cover-image', 'calibre:title-page')
+    removed_names = container.apply_unique_properties(None, 'cover-image', 'calibre:title-page')[0]
+    for name in removed_names:
+        yield name
     container.dirty(container.opf_name)
 
 def create_epub_cover(container, cover_path, existing_image, options=None):
