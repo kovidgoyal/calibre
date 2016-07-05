@@ -301,10 +301,11 @@ class Spine(ResourceCollection):  # {{{
     def from_opf_spine_element(itemrefs, manifest):
         s = Spine(manifest)
         seen = set()
+        path_map = {i.id:i.path for i in s.manifest}
         for itemref in itemrefs:
             idref = itemref.get('idref', None)
             if idref is not None:
-                path = s.manifest.path_for_id(idref)
+                path = path_map.get(idref)
                 if path and path not in seen:
                     r = Spine.Item(lambda x:idref, path, is_path=True)
                     r.is_linear = itemref.get('linear', 'yes') == 'yes'
