@@ -6,6 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from io import BytesIO
 from itertools import count
+from functools import partial
 from zipfile import ZipFile, ZIP_STORED
 import os
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
@@ -96,18 +97,19 @@ class Structure(BaseTest):
 
     def test_epub3_covers(self):
         # cover image
-        c = self.create_epub([cmi('c.jpg')])
+        ce = partial(self.create_epub, ver=3)
+        c = ce([cmi('c.jpg')])
         self.assertIsNone(find_cover_image(c))
-        c = self.create_epub([cmi('c.jpg')], meta_cover='c.jpg')
+        c = ce([cmi('c.jpg')], meta_cover='c.jpg')
         self.assertEqual('c.jpg', find_cover_image(c))
-        c = self.create_epub([cmi('c.jpg', b'z', 'cover-image'), cmi('d.jpg')], meta_cover='d.jpg')
+        c = ce([cmi('c.jpg', b'z', 'cover-image'), cmi('d.jpg')], meta_cover='d.jpg')
         self.assertEqual('c.jpg', find_cover_image(c))
         mark_as_cover(c, 'd.jpg')
         self.assertEqual('d.jpg', find_cover_image(c))
         self.assertFalse(c.opf_xpath('//*/@name'))
 
         # title page
-        c = self.create_epub([cmi('c.html'), cmi('a.html')])
+        c = ce([cmi('c.html'), cmi('a.html')])
         self.assertIsNone(find_cover_page(c))
         mark_as_titlepage(c, 'a.html', move_to_start=False)
         self.assertEqual('a.html', find_cover_page(c))
@@ -117,7 +119,7 @@ class Structure(BaseTest):
         self.assertEqual('a.html', next(c.spine_names)[0])
 
         # clean opf of all cover information
-        c = self.create_epub([cmi('c.jpg', b'z', 'cover-image'), cmi('c.html', b'', 'calibre:title-page'), cmi('d.html')],
+        c = ce([cmi('c.jpg', b'z', 'cover-image'), cmi('c.html', b'', 'calibre:title-page'), cmi('d.html')],
                              meta_cover='c.jpg', guide=[('c.jpg', 'cover'), ('d.html', 'cover')])
         self.assertEqual(set(clean_opf(c)), {'c.jpg', 'c.html', 'd.html'})
         self.assertFalse(c.opf_xpath('//*/@name'))
@@ -125,3 +127,25 @@ class Structure(BaseTest):
         for prop in 'cover-image calibre:title-page'.split():
             self.assertEqual([], list(c.manifest_items_with_property(prop)))
 
+    def test_epub2_covers(self):
+        # cover image
+        ce = partial(self.create_epub, ver=2)
+        c = ce([cmi('c.jpg')])
+        self.assertIsNone(find_cover_image(c))
+        c = ce([cmi('c.jpg')], meta_cover='c.jpg')
+        self.assertEqual('c.jpg', find_cover_image(c))
+        c = ce([cmi('c.jpg'), cmi('d.jpg')], guide=[('c.jpg', 'cover')])
+        self.assertEqual('c.jpg', find_cover_image(c))
+        mark_as_cover(c, 'd.jpg')
+        self.assertEqual('d.jpg', find_cover_image(c))
+        self.assertEqual({'cover':'d.jpg'}, c.guide_type_map)
+
+        # title page
+        c = ce([cmi('c.html'), cmi('a.html')])
+        self.assertIsNone(find_cover_page(c))
+        mark_as_titlepage(c, 'a.html', move_to_start=False)
+        self.assertEqual('a.html', find_cover_page(c))
+        self.assertEqual('c.html', next(c.spine_names)[0])
+        mark_as_titlepage(c, 'a.html', move_to_start=True)
+        self.assertEqual('a.html', find_cover_page(c))
+        self.assertEqual('a.html', next(c.spine_names)[0])
