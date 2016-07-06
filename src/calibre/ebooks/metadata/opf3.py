@@ -117,7 +117,7 @@ def simple_text(f):
     return wrapper
 
 def items_with_property(root, q, prefixes):
-    q = expand_prefix(q, prefixes).lower()
+    q = expand_prefix(q, known_prefixes).lower()
     for item in XPath("./opf:manifest/opf:item[@properties]")(root):
         for prop in (item.get('properties') or '').lower().split():
             prop = expand_prefix(prop, prefixes)
@@ -142,6 +142,8 @@ reserved_prefixes = {
 }
 
 CALIBRE_PREFIX = 'https://calibre-ebook.com'
+known_prefixes = reserved_prefixes.copy()
+known_prefixes['calibre'] = CALIBRE_PREFIX
 
 def parse_prefixes(x):
     return {m.group(1):m.group(2) for m in re.finditer(r'(\S+): \s*(\S+)', x)}
