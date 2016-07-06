@@ -116,8 +116,14 @@ def simple_text(f):
         return normalize_whitespace(f(*args, **kw))
     return wrapper
 
-def items_with_property(root, q):
-    return XPath("./opf:manifest/opf:item[@properties and contains(concat(' ', normalize-space(@properties), ' '), ' %s ')]" % q)(root)
+def items_with_property(root, q, prefixes):
+    q = expand_prefix(q, prefixes)
+    for item in XPath("./opf:manifest/opf:item[@properties]")(root):
+        for prop in (item.get('properties') or '').split():
+            prop = expand_prefix(prop, prefixes)
+            if prop == q:
+                yield item
+
 # }}}
 
 # Prefixes {{{
@@ -798,7 +804,7 @@ def read_raster_cover(root, prefixes, refines):
             if href:
                 return href
 
-    for item in items_with_property(root, 'cover-image'):
+    for item in items_with_property(root, 'cover-image', prefixes):
         href = get_href(item)
         if href:
             return href
@@ -813,7 +819,7 @@ def read_raster_cover(root, prefixes, refines):
 def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href):
     for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
         remove_element(item, refines)
-    for item in items_with_property(root, 'cover-image'):
+    for item in items_with_property(root, 'cover-image', prefixes):
         prop = normalize_whitespace(item.get('properties').replace('cover-image', ''))
         if prop:
             item.set('properties', prop)
