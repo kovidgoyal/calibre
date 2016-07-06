@@ -1153,6 +1153,15 @@ class OPF(object):  # {{{
                             return cpath
 
     @property
+    def epub3_raster_cover(self):
+        for item in self.itermanifest():
+            props = set((item.get('properties') or '').lower().split())
+            if 'cover-image' in props:
+                mt = item.get('media-type', '')
+                if mt and 'xml' not in mt and 'html' not in mt:
+                    return item.get('href', None)
+
+    @property
     def raster_cover(self):
         covers = self.raster_cover_path(self.metadata)
         if covers:
@@ -1168,12 +1177,7 @@ class OPF(object):  # {{{
                     if mt and 'xml' not in mt and 'html' not in mt:
                         return item.get('href', None)
         elif self.package_version >= 3.0:
-            for item in self.itermanifest():
-                props = set((item.get('properties') or '').lower().split())
-                if 'cover-image' in props:
-                    mt = item.get('media-type', '')
-                    if mt and 'xml' not in mt and 'html' not in mt:
-                        return item.get('href', None)
+            return self.epub3_raster_cover
 
     @property
     def guide_raster_cover(self):
