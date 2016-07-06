@@ -24,7 +24,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
     ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font_data)
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, CSSPreProcessor as cssp
-from calibre.ebooks.metadata.opf3 import read_prefixes, expand_prefix, ensure_prefix, CALIBRE_PREFIX
+from calibre.ebooks.metadata.opf3 import read_prefixes, items_with_property, ensure_prefix, CALIBRE_PREFIX
 from calibre.ebooks.metadata.utils import parse_opf_version
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
@@ -614,14 +614,10 @@ class Container(ContainerBase):  # {{{
     def manifest_items_with_property(self, property_name):
         ' All manifest items that have the specified property '
         prefixes = read_prefixes(self.opf)
-        q = expand_prefix(property_name, prefixes).lower()
-        for item in self.opf_xpath('//opf:manifest/opf:item[@href and @properties]'):
-            props = (item.get('properties') or '').lower().split()
-            for p in props:
-                pq = expand_prefix(p, prefixes).lower()
-                if pq == q:
-                    yield self.href_to_name(item.get('href'), self.opf_name)
-                    break
+        for item in items_with_property(self.opf, property_name, prefixes):
+            href = item.get('href')
+            if href:
+                yield self.href_to_name(item.get('href'), self.opf_name)
 
     def manifest_items_of_type(self, predicate):
         ''' The names of all manifest items whose media-type matches predicate.

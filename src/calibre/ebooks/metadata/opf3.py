@@ -117,12 +117,13 @@ def simple_text(f):
     return wrapper
 
 def items_with_property(root, q, prefixes):
-    q = expand_prefix(q, prefixes)
+    q = expand_prefix(q, prefixes).lower()
     for item in XPath("./opf:manifest/opf:item[@properties]")(root):
-        for prop in (item.get('properties') or '').split():
+        for prop in (item.get('properties') or '').lower().split():
             prop = expand_prefix(prop, prefixes)
             if prop == q:
                 yield item
+                break
 
 # }}}
 
