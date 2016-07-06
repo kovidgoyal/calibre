@@ -120,7 +120,7 @@ class EPUBInput(InputFormatPlugin):
                             removed = titlepage_href
                         return removed
 
-    def rationalize_cover(self, opf, log):
+    def rationalize_cover2(self, opf, log):
         ''' Ensure that the cover information in the guide is correct. That
         means, at most one entry with type="cover" that points to a raster
         cover and at most one entry with type="titlepage" that points to an
@@ -266,7 +266,7 @@ class EPUBInput(InputFormatPlugin):
             for elem in opf.iterguide():
                 elem.set('href', delta+elem.get('href'))
 
-        f = self.rationalize_cover3 if opf.package_version >= 3.0 else self.rationalize_cover
+        f = self.rationalize_cover3 if opf.package_version >= 3.0 else self.rationalize_cover2
         self.removed_cover = f(opf, log)
 
         for x in opf.itermanifest():
