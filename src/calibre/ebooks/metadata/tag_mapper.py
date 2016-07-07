@@ -161,6 +161,7 @@ def find_tests():
             run(rule('split', '/', '/', 'has'), '/,d', 'd')
             run(rule('split', '/', '/', 'has'), '/a/', 'a')
             run(rule('split', 'a,b', '/'), 'a,b', 'a,b')
+            run(rule('split', 'a b', ' ', 'has'), 'a b', 'a,b')
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestTagMapper)
 
 if __name__ == '__main__':

@@ -24,6 +24,12 @@ from calibre.utils.localization import localize_user_manual_link
 
 tag_maps = JSONConfig('tag-map-rules')
 
+def intelligent_strip(action, val):
+    ans = val.strip()
+    if not ans and action == 'split':
+        ans = ' '
+    return ans
+
 class QueryEdit(QLineEdit):
 
     def contextMenuEvent(self, ev):
@@ -151,11 +157,12 @@ class RuleEdit(QWidget):
 
     @property
     def rule(self):
+        ac = self.action.currentData()
         return {
-            'action': self.action.currentData(),
+            'action': ac,
             'match_type': self.match_type.currentData(),
-            'query': self.query.text().strip(),
-            'replace': self.replace.text().strip(),
+            'query': intelligent_strip(ac, self.query.text()),
+            'replace': intelligent_strip(ac, self.replace.text()),
         }
 
     @rule.setter
@@ -167,8 +174,9 @@ class RuleEdit(QWidget):
                 idx = 0
             c.setCurrentIndex(idx)
         sc('action'), sc('match_type')
-        self.query.setText(unicode(rule.get('query', '')).strip())
-        self.replace.setText(unicode(rule.get('replace', '')).strip())
+        ac = self.action.currentData()
+        self.query.setText(intelligent_strip(ac, unicode(rule.get('query', ''))))
+        self.replace.setText(intelligent_strip(ac, unicode(rule.get('replace', ''))))
 
     def validate(self):
         rule = self.rule
