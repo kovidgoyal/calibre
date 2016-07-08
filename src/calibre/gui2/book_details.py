@@ -25,6 +25,16 @@ from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font,
 from calibre.utils.config import tweaks
 from calibre.utils.localization import is_rtl
 
+_css = None
+def css():
+    global _css
+    if _css is None:
+        _css = P('templates/book_details.css', data=True).decode('utf-8')
+        col = QApplication.instance().palette().color(QPalette.Link).name()
+        _css = _css.replace('LINK_COLOR', col)
+    return _css
+
+
 def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=None):  # {{{
     table, comment_fields = (render_data_func or render_data)(mi, all_fields=all_fields,
             use_roman_numbers=config['use_roman_numerals_for_series_number'])
@@ -422,7 +432,6 @@ class BookInfo(QWebView):
         self.setAcceptDrops(False)
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
-        self.css = P('templates/book_details.css', data=True).decode('utf-8')
         for x, icon in [
             ('remove_format', 'trash.png'), ('save_format', 'save.png'),
             ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png'),
@@ -485,7 +494,7 @@ class BookInfo(QWebView):
         self.page().mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
 
     def show_data(self, mi):
-        html = render_html(mi, self.css, self.vertical, self.parent())
+        html = render_html(mi, css(), self.vertical, self.parent())
         self.setHtml(html)
 
     def mouseDoubleClickEvent(self, ev):

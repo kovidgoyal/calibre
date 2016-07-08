@@ -75,21 +75,20 @@ class Metadata(QWebView):  # {{{
         palette = self.palette()
         palette.setBrush(QPalette.Base, Qt.transparent)
         self.page().setPalette(palette)
-        self.css = P('templates/book_details.css', data=True).decode('utf-8')
         self.setVisible(False)
 
     def update_layout(self):
         self.setGeometry(0, 0, self.parent().width(), self.parent().height())
 
     def show_opf(self, opf, ext=''):
-        from calibre.gui2.book_details import render_html
+        from calibre.gui2.book_details import render_html, css
         from calibre.ebooks.metadata.book.render import mi_to_html
 
         def render_data(mi, use_roman_numbers=True, all_fields=False):
             return mi_to_html(mi, use_roman_numbers=use_roman_numbers, rating_font=rating_font(), rtl=is_rtl())
 
         mi = opf.to_book_metadata()
-        html = render_html(mi, self.css, True, self, render_data_func=render_data)
+        html = render_html(mi, css(), True, self, render_data_func=render_data)
         self.setHtml(html)
 
     def setVisible(self, x):
