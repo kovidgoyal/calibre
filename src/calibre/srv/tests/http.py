@@ -391,7 +391,7 @@ class TestHTTP(BaseTest):
                 lf.seek(0)
                 data =  lf.read()
                 server.change_handler(lambda conn: lf)
-                conn = server.connect()
+                conn = server.connect(timeout=1)
                 conn.request('GET', '/test')
                 r = conn.getresponse()
                 self.ae(r.status, httplib.OK)
