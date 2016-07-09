@@ -398,14 +398,21 @@ class Build(Command):
                     ', '.join(choices)+'. Default:%default'))
         parser.add_option('--no-compile', default=False, action='store_true',
                 help='Skip compiling all C/C++ extensions.')
+        parser.add_option('--build-dir', default=None,
+            help='Path to directory in which to place object files during the build process, defaults to "build"')
+        parser.add_option('--output-dir', default=None,
+            help='Path to directory in which to place the built extensions. Defaults to src/calibre/plugins')
 
     def run(self, opts):
         if opts.no_compile:
             self.info('--no-compile specified, skipping compilation')
             return
-        self.obj_dir = os.path.join(os.path.dirname(SRC), 'build', 'objects')
-        if not os.path.exists(self.obj_dir):
-            os.makedirs(self.obj_dir)
+        self.build_dir = os.path.abspath(opts.build_dir or os.path.join(os.path.dirname(SRC), 'build'))
+        self.output_dir = os.path.abspath(opts.output_dir or os.path.join(SRC, 'calibre', 'plugins'))
+        self.obj_dir = os.path.join(self.build_dir, 'objects')
+        for x in (self.output_dir, self.obj_dir):
+            if not os.path.exists(x):
+                os.makedirs(x)
         for ext in extensions:
             if opts.only != 'all' and opts.only != ext.name:
                 continue
@@ -425,7 +432,7 @@ class Build(Command):
 
     def dest(self, ext):
         ex = '.pyd' if iswindows else '.so'
-        return os.path.join(SRC, 'calibre', 'plugins', getattr(ext, 'name', ext))+ex
+        return os.path.join(self.output_dir, getattr(ext, 'name', ext))+ex
 
     def inc_dirs_to_cflags(self, dirs):
         return ['-I'+x for x in dirs]
@@ -545,7 +552,7 @@ class Build(Command):
             ''').format(
                 headers=' '.join(headers), sources=' '.join(sources), others=' '.join(others), destdir=self.d(
                     target), glib=glib_flags, fontconfig=fontconfig_flags, freetype=' '.join(ft_inc_dirs))
-        bdir = self.j(self.d(self.SRC), 'build', 'headless')
+        bdir = self.j(self.build_dir, 'headless')
         if not os.path.exists(bdir):
             os.makedirs(bdir)
         pf = self.j(bdir, 'headless.pro')
@@ -580,7 +587,7 @@ class Build(Command):
         return {x:read(x) for x in ('target', 'sources', 'headers')}
 
     def build_pyqt_extension(self, ext, dest):
-        pyqt_dir = self.j(self.d(self.SRC), 'build', 'pyqt')
+        pyqt_dir = self.j(self.build_dir, 'pyqt')
         src_dir = self.j(pyqt_dir, ext.name)
         if not os.path.exists(src_dir):
             os.makedirs(src_dir)

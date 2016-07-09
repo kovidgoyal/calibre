@@ -301,10 +301,11 @@ class Spine(ResourceCollection):  # {{{
     def from_opf_spine_element(itemrefs, manifest):
         s = Spine(manifest)
         seen = set()
+        path_map = {i.id:i.path for i in s.manifest}
         for itemref in itemrefs:
             idref = itemref.get('idref', None)
             if idref is not None:
-                path = s.manifest.path_for_id(idref)
+                path = path_map.get(idref)
                 if path and path not in seen:
                     r = Spine.Item(lambda x:idref, path, is_path=True)
                     r.is_linear = itemref.get('linear', 'yes') == 'yes'
@@ -1152,6 +1153,15 @@ class OPF(object):  # {{{
                             return cpath
 
     @property
+    def epub3_raster_cover(self):
+        for item in self.itermanifest():
+            props = set((item.get('properties') or '').lower().split())
+            if 'cover-image' in props:
+                mt = item.get('media-type', '')
+                if mt and 'xml' not in mt and 'html' not in mt:
+                    return item.get('href', None)
+
+    @property
     def raster_cover(self):
         covers = self.raster_cover_path(self.metadata)
         if covers:
@@ -1167,12 +1177,7 @@ class OPF(object):  # {{{
                     if mt and 'xml' not in mt and 'html' not in mt:
                         return item.get('href', None)
         elif self.package_version >= 3.0:
-            for item in self.itermanifest():
-                props = set((item.get('properties') or '').lower().split())
-                if 'cover-image' in props:
-                    mt = item.get('media-type', '')
-                    if mt and 'xml' not in mt and 'html' not in mt:
-                        return item.get('href', None)
+            return self.epub3_raster_cover
 
     @property
     def guide_raster_cover(self):

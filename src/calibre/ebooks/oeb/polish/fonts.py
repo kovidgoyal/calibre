@@ -6,10 +6,9 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import re
-
 from calibre.ebooks.oeb.polish.container import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.normalize_css import normalize_font
+from tinycss.fonts3 import parse_font_family, parse_font, serialize_font_family, serialize_font
 
 def unquote(x):
     if x and len(x) > 1 and x[0] == x[-1] and x[0] in ('"', "'"):
@@ -25,7 +24,7 @@ def font_family_data_from_declaration(style, families):
             font_families = [unquote(x) for x in f]
     f = style.getProperty('font-family')
     if f is not None:
-        font_families = [x.value for x in f.propertyValue]
+        font_families = parse_font_family(f.propertyValue.cssText)
 
     for f in font_families:
         families[f] = families.get(f, False)
@@ -37,8 +36,8 @@ def font_family_data_from_sheet(sheet, families):
         elif rule.type == rule.FONT_FACE_RULE:
             ff = rule.style.getProperty('font-family')
             if ff is not None:
-                for f in ff.propertyValue:
-                    families[f.value] = True
+                for f in parse_font_family(ff.propertyValue.cssText):
+                    families[f] = True
 
 def font_family_data(container):
     families = {}
@@ -58,43 +57,30 @@ def font_family_data(container):
                     font_family_data_from_declaration(style, families)
     return families
 
-def change_font_family_value(cssvalue, new_name):
-    # If cssvalue.type == 'IDENT' cssutils will not serialize the font
-    # name properly (it will not enclose it in quotes). So we
-    # use the following hack (setting an internal property of the
-    # Value class)
-    cssvalue.value = new_name
-    cssvalue._type = 'STRING'
-
-def change_font_family_in_property(style, prop, old_name, new_name=None):
-    changed = False
-    families = {x.value for x in prop.propertyValue}
-    _dummy_family = 'd7d81cf1-1c8c-4993-b788-e1ab596c0f1f'
-    if new_name and new_name in families:
-        new_name = None  # new name already exists in this property, so simply remove old_name
-    for val in prop.propertyValue:
-        if val.value == old_name:
-            change_font_family_value(val, new_name or _dummy_family)
-            changed = True
-    if changed and not new_name:
-        # Remove dummy family, cssutils provides no clean way to do this, so we
-        # roundtrip via cssText
-        pat = re.compile(r'''['"]{0,1}%s['"]{0,1}\s*,{0,1}''' % _dummy_family)
-        repl = pat.sub('', prop.propertyValue.cssText).strip().rstrip(',').strip()
-        if repl:
-            prop.propertyValue.cssText = repl
-            if prop.name == 'font' and not prop.validate():
-                style.removeProperty(prop.name)  # no families left in font:
-        else:
-            style.removeProperty(prop.name)
-    return changed
-
 def change_font_in_declaration(style, old_name, new_name=None):
     changed = False
-    for x in ('font', 'font-family'):
-        prop = style.getProperty(x)
-        if prop is not None:
-            changed |= change_font_family_in_property(style, prop, old_name, new_name)
+    ff = style.getProperty('font-family')
+    if ff is not None:
+        fams = parse_font_family(ff.propertyValue.cssText)
+        nfams = filter(None, [new_name if x == old_name else x for x in fams])
+        if fams != nfams:
+            if nfams:
+                ff.propertyValue.cssText = serialize_font_family(nfams)
+            else:
+                style.removeProperty(ff.name)
+            changed = True
+    ff = style.getProperty('font')
+    if ff is not None:
+        props = parse_font(ff.propertyValue.cssText)
+        fams = props.get('font-family') or []
+        nfams = filter(None, [new_name if x == old_name else x for x in fams])
+        if fams != nfams:
+            props['font-family'] = nfams
+            if nfams:
+                ff.propertyValue.cssText = serialize_font(props)
+            else:
+                style.removeProperty(ff.name)
+            changed = True
     return changed
 
 def remove_embedded_font(container, sheet, rule, sheet_name):
@@ -118,7 +104,7 @@ def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
         elif rule.type == rule.FONT_FACE_RULE:
             ff = rule.style.getProperty('font-family')
             if ff is not None:
-                families = {x.value for x in ff.propertyValue}
+                families = {x for x in parse_font_family(ff.propertyValue.cssText)}
                 if old_name in families:
                     changed = True
                     removals.append(rule)

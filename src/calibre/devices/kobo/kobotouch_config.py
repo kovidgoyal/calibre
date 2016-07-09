@@ -113,6 +113,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
 
         p['support_newer_firmware'] = self.support_newer_firmware
         p['debugging_title'] = self.debugging_title
+        p['driver_version'] = '.'.join([unicode(i) for i in self.device.version])
 
         return p
 

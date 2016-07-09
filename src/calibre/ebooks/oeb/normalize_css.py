@@ -14,6 +14,7 @@ try:
 except ImportError:
     raise RuntimeError('You need cssutils >= 0.9.9 for calibre')
 from cssutils import profile as cssprofiles, CSSParser
+from tinycss.fonts3 import parse_font, serialize_font_family
 
 DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
             'background-color': 'transparent', 'background-image': 'none',
@@ -118,52 +119,19 @@ def normalize_font(cssvalue, font_family_as_list=False):
     composition = font_composition
     val = cssvalue.cssText
     if val == 'inherit':
-        return {k:'inherit' for k in composition}
-    if val in {'caption', 'icon', 'menu', 'message-box', 'small-caption', 'status-bar'}:
-        return {k:DEFAULTS[k] for k in composition}
-    if getattr(cssvalue, 'length', 1) < 2:
-        return {}  # Mandatory to define both font size and font family
-    style = {k:DEFAULTS[k] for k in composition}
-    families = []
-    vals = [x.cssText for x in cssvalue]
-    found_font_size = False
-    while vals:
-        text = vals.pop()
-        if not families and text == 'inherit':
-            families.append(text)
-            continue
-        if cssprofiles.validate('line-height', text):
-            if not vals or not cssprofiles.validate('font-size', vals[-1]):
-                if cssprofiles.validate('font-size', text):
-                    style['font-size'] = text
-                    found_font_size = True
-                    break
-                return {}  # must have font-size here
-            style['line-height'] = text
-            style['font-size'] = vals.pop()
-            found_font_size = True
-            break
-        if cssprofiles.validate('font-size', text):
-            style['font-size'] = text
-            found_font_size = True
-            break
-        if families == ['inherit']:
-            return {}  # Cannot have multiple font-families if the last one if inherit
-        families.insert(0, text)
-    if not families or not found_font_size:
-        return {}  # font-family required
-    style['font-family'] = families if font_family_as_list else ', '.join(families)
-    props = ['font-style', 'font-variant', 'font-weight']
-    while vals:
-        for i, prop in enumerate(tuple(props)):
-            if cssprofiles.validate(prop, vals[0]):
-                props.pop(i)
-                style[prop] = vals.pop(0)
-                break
-        else:
-            return {}  # unrecognized value
-
-    return style
+        ans = {k:'inherit' for k in composition}
+    elif val in {'caption', 'icon', 'menu', 'message-box', 'small-caption', 'status-bar'}:
+        ans = {k:DEFAULTS[k] for k in composition}
+    else:
+        ans = {k:DEFAULTS[k] for k in composition}
+        ans.update(parse_font(val))
+    if font_family_as_list:
+        if isinstance(ans['font-family'], basestring):
+            ans['font-family'] = [x.strip() for x in ans['font-family'].split(',')]
+    else:
+        if not isinstance(ans['font-family'], basestring):
+            ans['font-family'] = serialize_font_family(ans['font-family'])
+    return ans
 
 def normalize_border(name, cssvalue):
     style = normalizers['border-' + EDGES[0]]('border-' + EDGES[0], cssvalue)
@@ -300,15 +268,16 @@ def test_normalization(return_tests=False):  # {{{
                 return ans
 
             for raw, expected in {
-                'some_font': {}, 'none': {}, 'inherit':{k:'inherit' for k in font_composition},
+                'some_font': {'font-family':'some_font'}, 'inherit':{k:'inherit' for k in font_composition},
                 '1.2pt/1.4 A_Font': {'font-family':'A_Font', 'font-size':'1.2pt', 'line-height':'1.4'},
-                'bad font': {}, '10% serif': {'font-family':'serif', 'font-size':'10%'},
+                'bad font': {'font-family':'"bad font"'}, '10% serif': {'font-family':'serif', 'font-size':'10%'},
                 '12px "My Font", serif': {'font-family':'"My Font", serif', 'font-size': '12px'},
                 'normal 0.6em/135% arial,sans-serif': {'font-family': 'arial, sans-serif', 'font-size': '0.6em', 'line-height':'135%', 'font-style':'normal'},
                 'bold italic large serif': {'font-family':'serif', 'font-weight':'bold', 'font-style':'italic', 'font-size':'large'},
                 'bold italic small-caps larger/normal serif':
                 {'font-family':'serif', 'font-weight':'bold', 'font-style':'italic', 'font-size':'larger',
                  'line-height':'normal', 'font-variant':'small-caps'},
+                '2em A B': {'font-family': '"A B"', 'font-size': '2em'},
             }.iteritems():
                 val = tuple(parseStyle('font: %s' % raw, validate=False))[0].cssValue
                 style = normalizers['font']('font', val)

@@ -116,8 +116,17 @@ def simple_text(f):
         return normalize_whitespace(f(*args, **kw))
     return wrapper
 
-def items_with_property(root, q):
-    return XPath("./opf:manifest/opf:item[@properties and contains(concat(' ', normalize-space(@properties), ' '), ' %s ')]" % q)(root)
+def items_with_property(root, q, prefixes=None):
+    if prefixes is None:
+        prefixes = read_prefixes(root)
+    q = expand_prefix(q, known_prefixes).lower()
+    for item in XPath("./opf:manifest/opf:item[@properties]")(root):
+        for prop in (item.get('properties') or '').lower().split():
+            prop = expand_prefix(prop, prefixes)
+            if prop == q:
+                yield item
+                break
+
 # }}}
 
 # Prefixes {{{
@@ -135,6 +144,8 @@ reserved_prefixes = {
 }
 
 CALIBRE_PREFIX = 'https://calibre-ebook.com'
+known_prefixes = reserved_prefixes.copy()
+known_prefixes['calibre'] = CALIBRE_PREFIX
 
 def parse_prefixes(x):
     return {m.group(1):m.group(2) for m in re.finditer(r'(\S+): \s*(\S+)', x)}
@@ -148,6 +159,8 @@ def expand_prefix(raw, prefixes):
     return regex(r'(\S+)\s*:\s*(\S+)').sub(lambda m:(prefixes.get(m.group(1), m.group(1)) + ':' + m.group(2)), raw or '')
 
 def ensure_prefix(root, prefixes, prefix, value=None):
+    if prefixes is None:
+        prefixes = read_prefixes(root)
     prefixes[prefix] = value or reserved_prefixes[prefix]
     prefixes = {k:v for k, v in prefixes.iteritems() if reserved_prefixes.get(k) != v}
     if prefixes:
@@ -796,7 +809,7 @@ def read_raster_cover(root, prefixes, refines):
             if href:
                 return href
 
-    for item in items_with_property(root, 'cover-image'):
+    for item in items_with_property(root, 'cover-image', prefixes):
         href = get_href(item)
         if href:
             return href
@@ -811,7 +824,7 @@ def read_raster_cover(root, prefixes, refines):
 def ensure_is_only_raster_cover(root, prefixes, refines, raster_cover_item_href):
     for item in XPath('./opf:metadata/opf:meta[@name="cover"]')(root):
         remove_element(item, refines)
-    for item in items_with_property(root, 'cover-image'):
+    for item in items_with_property(root, 'cover-image', prefixes):
         prop = normalize_whitespace(item.get('properties').replace('cover-image', ''))
         if prop:
             item.set('properties', prop)

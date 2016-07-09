@@ -82,9 +82,11 @@ def init_env():
 
 def filter_tests(suite, test_ok):
     ans = unittest.TestSuite()
+    added = set()
     for test in itertests(suite):
-        if test_ok(test):
+        if test_ok(test) and test not in added:
             ans.addTest(test)
+            added.add(test)
     return ans
 
 def filter_tests_by_name(suite, *names):

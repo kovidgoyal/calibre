@@ -39,7 +39,7 @@ class RuleEdit(RuleEditBase):
 
     MSG = _('Create the rule below, the rule can be used to add or ignore files')
     SUBJECT = _('the file, if the filename')
-    VALUE_ERROR = _('You must provide a value for the tag to match')
+    VALUE_ERROR = _('You must provide a value for the filename to match')
 
     def update_state(self):
         tt = _('A comma separated list of tags')

@@ -19,20 +19,9 @@ class Skeptic(BasicNewsRecipe):
                   dict(name='hr'),
                   ]
 
-
     feeds = [
-            ('The Skeptic', 'http://www.skeptic.com/feed'),
-            ('E-Skeptic', 'http://www.skeptic.com/eskeptic'),
-            ('All-SkepticBlog', 'http://skepticblog.org/feed'),
-            ('Brian Dunning', 'http://skepticblog.org/author/dunning/feed/'),
-            ('Daniel Loxton', 'http://skepticblog.org/author/loxton/feed/'),
-            ('Kirsten Sanford', 'http://skepticblog.org/author/sanford/feed/'),
-            ('Mark Edward', 'http://skepticblog.org/author/edward/feed/'),
-            ('Michael Shermer', 'http://skepticblog.org/author/shermer/feed/'),
-            ('Phil Plait', 'http://skepticblog.org/author/plait/feed/'),
-            ('Ryan Johnson', 'http://skepticblog.org/author/johnson/feed/'),
-            ('Steven Novella', 'http://skepticblog.org/author/novella/feed/'),
-            ('Yau-Man Chan', 'http://skepticblog.org/author/chan/feed/'),
+            ('The Skeptic', 'http://feeds.feedburner.com/Skepticcom'),
+            ('E-Skeptic', 'http://www.skeptic.com/eskeptic')
             ]
 
     def get_browser(self):
@@ -45,5 +34,4 @@ class Skeptic(BasicNewsRecipe):
                     h2{font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:small;}
                     p{font-family:Arial,Helvetica,sans-serif;font-size:small;}
                     body{font-family:Helvetica,Arial,sans-serif;font-size:small;}
-		'''
-
+                    '''

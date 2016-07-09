@@ -32,7 +32,8 @@ def get_metadata(stream):
         stream = DummyFile(stream)
     root = parse_opf(stream)
     ver = parse_opf_version(root.get('version'))
-    return get_metadata2(root, ver)
+    f = get_metadata2 if ver.major < 3 else get_metadata3
+    return f(root, ver)
 
 def set_metadata_opf2(root, cover_prefix, mi, opf_version,
                       cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
@@ -94,7 +95,8 @@ def set_metadata(stream, mi, cover_prefix='', cover_data=None, apply_null=False,
         stream = DummyFile(stream)
     root = parse_opf(stream)
     ver = parse_opf_version(root.get('version'))
-    opfbytes, raster_cover = set_metadata_opf2(
+    f = set_metadata_opf2 if ver.major < 3 else set_metadata_opf3
+    opfbytes, raster_cover = f(
         root, cover_prefix, mi, ver, cover_data=cover_data,
         apply_null=apply_null, update_timestamp=update_timestamp,
         force_identifiers=force_identifiers, add_missing_cover=add_missing_cover)

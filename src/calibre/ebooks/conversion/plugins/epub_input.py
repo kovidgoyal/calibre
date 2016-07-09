@@ -76,7 +76,51 @@ class EPUBInput(InputFormatPlugin):
             traceback.print_exc()
         return False
 
-    def rationalize_cover(self, opf, log):
+    def set_guide_type(self, opf, gtype, href=None, title=''):
+        # Set the titlepage guide entry
+        for elem in list(opf.iterguide()):
+            if elem.get('type', '').lower() == 'titlepage':
+                elem.getparent().remove(elem)
+
+        if href is not None:
+            t = opf.create_guide_item(gtype, title, href)
+            for guide in opf.root.iterchildren('guide'):
+                guide.append(t)
+                return
+            guide = opf.create_guide_element()
+            opf.root.append(guide)
+            guide.append(t)
+            return t
+
+    def rationalize_cover3(self, opf, log):
+        ''' If there is a reference to the cover/titlepage via manifest properties, convert to
+        entries in the <guide> so that the rest of the pipeline picks it up. '''
+        from calibre.ebooks.metadata.opf3 import items_with_property
+        removed = None
+        raster_cover_href = opf.epub3_raster_cover
+        if raster_cover_href:
+            self.set_guide_type(opf, 'cover', raster_cover_href, 'Cover Image')
+        titlepage_id = titlepage_href = None
+        for item in items_with_property(opf.root, 'calibre:title-page'):
+            tid, href = item.get('id'), item.get('href')
+            if href and tid:
+                titlepage_id, titlepage_href = tid, href.partition('#')[0]
+                break
+        if titlepage_href is not None:
+            self.set_guide_type(opf, 'titlepage', titlepage_href, 'Title Page')
+            spine = list(opf.iterspine())
+            if len(spine) > 1:
+                for item in spine:
+                    if item.get('idref') == titlepage_id:
+                        log('Found HTML cover', titlepage_href)
+                        if self.for_viewer:
+                            item.attrib.pop('linear', None)
+                        else:
+                            item.getparent().remove(item)
+                            removed = titlepage_href
+                        return removed
+
+    def rationalize_cover2(self, opf, log):
         ''' Ensure that the cover information in the guide is correct. That
         means, at most one entry with type="cover" that points to a raster
         cover and at most one entry with type="titlepage" that points to an
@@ -149,14 +193,7 @@ class EPUBInput(InputFormatPlugin):
                         renderer)
 
         # Set the titlepage guide entry
-        for elem in list(opf.iterguide()):
-            if elem.get('type', '').lower() == 'titlepage':
-                elem.getparent().remove(elem)
-
-        t = etree.SubElement(guide_elem.getparent(), OPF('reference'))
-        t.set('type', 'titlepage')
-        t.set('href', guide_cover)
-        t.set('title', 'Title Page')
+        self.set_guide_type(opf, 'titlepage', guide_cover, 'Title Page')
         return removed
 
     def find_opf(self):
@@ -229,7 +266,8 @@ class EPUBInput(InputFormatPlugin):
             for elem in opf.iterguide():
                 elem.set('href', delta+elem.get('href'))
 
-        self.removed_cover = self.rationalize_cover(opf, log)
+        f = self.rationalize_cover3 if opf.package_version >= 3.0 else self.rationalize_cover2
+        self.removed_cover = f(opf, log)
 
         for x in opf.itermanifest():
             if x.get('media-type', '') == 'application/x-dtbook+xml':

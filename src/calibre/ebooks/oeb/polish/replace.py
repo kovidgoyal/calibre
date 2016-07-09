@@ -8,11 +8,15 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import codecs, shutil, os, posixpath
+from future_builtins import map
+from functools import partial
 from urlparse import urlparse, urlunparse
 from collections import Counter, defaultdict
 
 from calibre import sanitize_file_name_unicode
 from calibre.ebooks.chardet import strip_encoding_declarations
+from calibre.ebooks.oeb.polish.css import iter_declarations, remove_property_value
+from calibre.ebooks.oeb.polish.utils import extract
 
 class LinkReplacer(object):
 
@@ -274,3 +278,78 @@ def rationalize_folders(container, folder_type_map):
                 name_map[name] = new_name
                 new_names.add(new_name)
     return name_map
+
+
+def remove_links_in_sheet(href_to_name, sheet, predicate):
+    import_rules_to_remove = []
+    changed = False
+    for i, r in enumerate(sheet):
+        if r.type == r.IMPORT_RULE:
+            name = href_to_name(r.href)
+            if predicate(name, r.href, None):
+                import_rules_to_remove.append(i)
+    for i in sorted(import_rules_to_remove, reverse=True):
+        sheet.deleteRule(i)
+        changed = True
+
+    for dec in iter_declarations(sheet):
+        changed = remove_links_in_declaration(href_to_name, dec, predicate) or changed
+    return changed
+
+
+def remove_links_in_declaration(href_to_name, style, predicate):
+    def check_pval(v):
+        if v.type == v.URI:
+            name = href_to_name(v.uri)
+            return predicate(name, v.uri, None)
+        return False
+
+    changed = False
+
+    for p in tuple(style.getProperties(all=True)):
+        changed = remove_property_value(p, check_pval) or changed
+    return changed
+
+
+def remove_links_to(container, predicate):
+    ''' predicate must be a function that takes the arguments (name, href,
+    fragment=None) and returns True iff the link should be removed '''
+    from calibre.ebooks.oeb.base import iterlinks, OEB_DOCS, OEB_STYLES, XPath, XHTML
+    stylepath = XPath('//h:style')
+    styleattrpath = XPath('//*[@style]')
+    changed = set()
+    for name, mt in container.mime_map.iteritems():
+        removed = False
+        if mt in OEB_DOCS:
+            root = container.parsed(name)
+            for el, attr, href, pos in iterlinks(root, find_links_in_css=False):
+                hname = container.href_to_name(href, name)
+                frag = href.partition('#')[-1]
+                if predicate(hname, href, frag):
+                    if attr is None:
+                        el.text = None
+                    else:
+                        if el.tag == XHTML('link') or el.tag == XHTML('img'):
+                            extract(el)
+                        else:
+                            del el.attrib[attr]
+                    removed = True
+            for tag in stylepath(root):
+                if tag.text and (tag.get('type') or 'text/css').lower() == 'text/css':
+                    sheet = container.parse_css(tag.text)
+                    if remove_links_in_sheet(partial(container.href_to_name, base=name), sheet, predicate):
+                        tag.text = sheet.cssText
+                        removed = True
+            for tag in styleattrpath(root):
+                style = tag.get('style')
+                if style:
+                    style = container.parse_css(style, is_declaration=True)
+                    if remove_links_in_declaration(partial(container.href_to_name, base=name), style, predicate):
+                        removed = True
+                        tag.set('style', style.cssText)
+        elif mt in OEB_STYLES:
+            removed = remove_links_in_sheet(partial(container.href_to_name, base=name), container.parsed(name), predicate)
+        if removed:
+            changed.add(name)
+    tuple(map(container.dirty, changed))
+    return changed

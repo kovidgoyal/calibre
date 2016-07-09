@@ -24,6 +24,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.conversion.plugins.epub_input import (
     ADOBE_OBFUSCATION, IDPF_OBFUSCATION, decrypt_font_data)
 from calibre.ebooks.conversion.preprocess import HTMLPreProcessor, CSSPreProcessor as cssp
+from calibre.ebooks.metadata.opf3 import read_prefixes, items_with_property, ensure_prefix, CALIBRE_PREFIX
 from calibre.ebooks.metadata.utils import parse_opf_version
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.reader.headers import MetadataHeader
@@ -125,6 +126,8 @@ class ContainerBase(object):  # {{{
         ans = guess_type(name)
         if ans == 'text/html':
             ans = 'application/xhtml+xml'
+        if ans in {'application/x-font-truetype', 'application/vnd.ms-opentype'} and self.opf_version_parsed[:2] > (3, 0):
+            return 'application/font-sfnt'
         return ans
 
     def decode(self, data, normalize_to_nfc=True):
@@ -610,11 +613,56 @@ class Container(ContainerBase):  # {{{
 
     def manifest_items_with_property(self, property_name):
         ' All manifest items that have the specified property '
-        q = property_name.lower()
-        for item in self.opf_xpath('//opf:manifest/opf:item[@href and @properties]'):
-            props = (item.get('properties') or '').lower().split()
-            if q in props:
+        prefixes = read_prefixes(self.opf)
+        for item in items_with_property(self.opf, property_name, prefixes):
+            href = item.get('href')
+            if href:
                 yield self.href_to_name(item.get('href'), self.opf_name)
+
+    def manifest_items_of_type(self, predicate):
+        ''' The names of all manifest items whose media-type matches predicate.
+        `predicate` can be a set, a list, a string or a function taking a single
+        argument, which will be called with the media-type. '''
+        if isinstance(predicate, type('')):
+            predicate = predicate.__eq__
+        elif hasattr(predicate, '__contains__'):
+            predicate = predicate.__contains__
+        for mt, names in self.manifest_type_map.iteritems():
+            if predicate(mt):
+                for name in names:
+                    yield name
+
+    def apply_unique_properties(self, name, *properties):
+        ''' Ensure that the specified properties are set on only the manifest item
+        identified by name. You can pass None as the name to remove the
+        property from all items. '''
+        properties = frozenset(properties)
+        removed_names, added_names = [], []
+        for p in properties:
+            if p.startswith('calibre:'):
+                ensure_prefix(self.opf, None, 'calibre', CALIBRE_PREFIX)
+                break
+
+        for item in self.opf_xpath('//opf:manifest/opf:item'):
+            iname = self.href_to_name(item.get('href'), self.opf_name)
+            props = (item.get('properties') or '').split()
+            lprops = {p.lower() for p in props}
+            for prop in properties:
+                if prop.lower() in lprops:
+                    if name != iname:
+                        removed_names.append(iname)
+                        props = [p for p in props if p.lower() != prop]
+                        if props:
+                            item.set('properties', ' '.join(props))
+                        else:
+                            del item.attrib['properties']
+                else:
+                    if name == iname:
+                        added_names.append(iname)
+                        props.append(prop)
+                        item.set('properties', ' '.join(props))
+        self.dirty(self.opf_name)
+        return removed_names, added_names
 
     @property
     def guide_type_map(self):

@@ -32,7 +32,7 @@ class BuildTest(unittest.TestCase):
     @unittest.skipUnless(islinux, 'DBUS only used on linux')
     def test_dbus(self):
         import dbus
-        if 'DISPLAY' in os.environ:
+        if 'DBUS_SESSION_BUS_ADDRESS' in os.environ:
             bus = dbus.SystemBus()
             self.assertTrue(bus.list_names(), 'Failed to list names on the system bus')
             bus = dbus.SessionBus()
@@ -68,14 +68,13 @@ class BuildTest(unittest.TestCase):
                 # C++ name mangling incompatibilities preventing some modules
                 # from loading
                 exclusions.update(set('podofo'.split()))
-            else:
-                # libusb fails to initialize in the travis container
-                exclusions.update(set('libusb libmtp'.split()))
+        if islinux and (not os.path.exists('/dev/bus/usb') and not os.path.exists('/proc/bus/usb')):
+            # libusb fails to initialize in containers without USB subsystems
+            exclusions.update(set('libusb libmtp'.split()))
         for name in plugins:
             if name in exclusions:
-                if not isosx:
-                    # libusb fails to initialize on travis, so just check that the
-                    # DLL can be loaded
+                if name in ('libusb', 'libmtp'):
+                    # Just check that the DLL can be loaded
                     ctypes.CDLL(os.path.join(sys.extensions_location, name + ('.dylib' if isosx else '.so')))
                 continue
             mod, err = plugins[name]
@@ -238,15 +237,9 @@ def find_tests():
     ans.addTests(find_tests())
     return ans
 
-class TestRunner(unittest.main):
-
-    def createTests(self):
-        self.test = find_tests()
-
 def test():
-    result = TestRunner(verbosity=2, buffer=True, catchbreak=True, failfast=True, argv=sys.argv[:1], exit=False).result
-    if not result.wasSuccessful():
-        raise SystemExit(1)
+    from calibre.utils.run_tests import run_cli
+    run_cli(find_tests())
 
 if __name__ == '__main__':
     test()

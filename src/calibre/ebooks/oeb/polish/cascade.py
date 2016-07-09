@@ -18,6 +18,7 @@ from calibre.ebooks.css_transform_rules import all_properties
 from calibre.ebooks.oeb.base import OEB_STYLES, XHTML
 from calibre.ebooks.oeb.normalize_css import normalizers, DEFAULTS
 from calibre.ebooks.oeb.stylizer import media_ok, INHERITED
+from tinycss.fonts3 import serialize_font_family, parse_font_family
 
 _html_css_stylesheet = None
 
@@ -116,6 +117,9 @@ class Values(tuple):
 def normalize_style_declaration(decl, sheet_name):
     ans = {}
     for prop in iterdeclaration(decl):
+        if prop.name == 'font-family':
+            # Needed because of https://bitbucket.org/cthedot/cssutils/issues/66/incorrect-handling-of-spaces-in-font
+            prop.propertyValue.cssText = serialize_font_family(parse_font_family(prop.propertyValue.cssText))
         ans[prop.name] = Values(prop.propertyValue, sheet_name, prop.priority)
     return ans
 

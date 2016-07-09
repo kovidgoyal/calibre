@@ -18,6 +18,8 @@ from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
 
+def sanitize_file_name(x):
+    return re.sub(r'[?&=;]', '_', ascii_filename(x))
 
 class HTMLInput(InputFormatPlugin):
 
@@ -145,8 +147,7 @@ class HTMLInput(InputFormatPlugin):
             oeb.container = DirContainer(os.path.dirname(path), log,
                     ignore_opf=True)
             bname = os.path.basename(path)
-            id, href = oeb.manifest.generate(id='html',
-                    href=ascii_filename(bname))
+            id, href = oeb.manifest.generate(id='html', href=sanitize_file_name(bname))
             htmlfile_map[path] = href
             item = oeb.manifest.add(id, href, 'text/html')
             if path == htmlpath and '%' in path:
@@ -260,8 +261,7 @@ class HTMLInput(InputFormatPlugin):
             link = link.lower()
         if link not in self.added_resources:
             bhref = os.path.basename(link)
-            id, href = self.oeb.manifest.generate(id='added',
-                    href=bhref)
+            id, href = self.oeb.manifest.generate(id='added', href=sanitize_file_name(bhref))
             guessed = self.guess_type(href)[0]
             media_type = guessed or self.BINARY_MIME
             if media_type == 'text/plain':

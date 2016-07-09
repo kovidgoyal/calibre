@@ -8,7 +8,7 @@ import unittest
 
 from setup import Command
 
-TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build'.split())
+TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc'.split())
 
 def find_tests(which_tests=None):
     ans = []
@@ -59,6 +59,11 @@ def find_tests(which_tests=None):
     if ok('smartypants'):
         from calibre.utils.smartypants import run_tests
         a(run_tests(return_tests=True))
+    if ok('misc'):
+        from calibre.ebooks.metadata.tag_mapper import find_tests
+        a(find_tests())
+        from calibre.utils.shared_file import find_tests
+        a(find_tests())
 
     tests = unittest.TestSuite(ans)
     return tests
@@ -68,7 +73,7 @@ class Test(Command):
     description = 'Run the calibre test suite'
 
     def add_options(self, parser):
-        parser.add_option('--test-module', default=[], action='append', type='choice', choices=sorted(map(str, TEST_MODULES)),
+        parser.add_option('--test-module', '--test-group', default=[], action='append', type='choice', choices=sorted(map(str, TEST_MODULES)),
                           help='The test module to run (can be specified more than once for multiple modules). Choices: %s' % ', '.join(sorted(TEST_MODULES)))
         parser.add_option('--test-verbosity', type=int, default=4, help='Test verbosity (0-4)')
         parser.add_option('--test-name', default=[], action='append',

@@ -1,5 +1,6 @@
 import os
 import sys
+import tempfile
 import unittest
 from threading import Thread, Event
 from duktape import dukpy
@@ -128,9 +129,10 @@ class EvalTests(unittest.TestCase):
         self.ctx = Context()
         self.g = self.ctx.g
 
-        self.testfile = 'dukpy_test.js'
-        with open(self.testfile, 'w') as fobj:
-            fobj.write('1+1')
+        with tempfile.NamedTemporaryFile(
+                prefix='dukpy-test-', suffix='.js', delete=False) as fobj:
+            fobj.write(b'1+1')
+            self.testfile = fobj.name
 
     def tearDown(self):
         os.remove(self.testfile)

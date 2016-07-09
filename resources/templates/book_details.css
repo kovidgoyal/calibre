@@ -1,6 +1,7 @@
 a { 
     text-decoration: none;
-    color: blue
+    /* LINK_COLOR below will be replaced with the link color defined by the current color theme */
+    color: LINK_COLOR
 }
 
 a:hover {

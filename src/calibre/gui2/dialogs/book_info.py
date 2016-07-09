@@ -14,15 +14,8 @@ from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.gui2 import gprefs, NO_URL_FORMATTING
 from calibre import fit_image
-from calibre.gui2.book_details import render_html, details_context_menu_event
+from calibre.gui2.book_details import render_html, details_context_menu_event, css
 from calibre.gui2.widgets import CoverView
-
-_css = None
-def css():
-    global _css
-    if _css is None:
-        _css = P('templates/book_details.css', data=True).decode('utf-8')
-    return _css
 
 class Details(QWebView):
 

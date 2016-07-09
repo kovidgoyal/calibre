@@ -4,15 +4,80 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-
+from io import BytesIO
+from itertools import count
+from functools import partial
+from zipfile import ZipFile, ZIP_STORED
 import os
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.create import create_book
+from calibre.ebooks.oeb.polish.cover import (
+    find_cover_image, mark_as_cover, find_cover_page, mark_as_titlepage, clean_opf
+)
 from calibre.ebooks.oeb.polish.toc import get_toc
+from calibre.ebooks.oeb.polish.utils import guess_type
+from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.ebooks.metadata.book.base import Metadata
+from calibre.ebooks.metadata.opf3 import CALIBRE_PREFIX
+
+OPF_TEMPLATE = '''
+<package xmlns="http://www.idpf.org/2007/opf" version="{ver}" prefix="calibre: %s" unique-identifier="uid">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:identifier id="uid">test</dc:identifier>
+        {metadata}
+    </metadata>
+    <manifest>{manifest}</manifest>
+    <spine>{spine}</spine>
+    <guide>{guide}</guide>
+</package>''' % CALIBRE_PREFIX  # noqa
+
+def create_manifest_item(name, data=b'', properties=None):
+    return (name, data, properties)
+cmi = create_manifest_item
+
+def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
+    mo = []
+    for name, data, properties in manifest:
+        mo.append('<item id="%s" href="%s" media-type="%s" %s/>' % (
+            name, name, guess_type(name), ('properties="%s"' % properties if properties else '')))
+    mo = ''.join(mo)
+    metadata = ''
+    if meta_cover:
+        metadata = '<meta name="cover" content="%s"/>' % meta_cover
+    if not spine:
+        spine = [x[0] for x in manifest if guess_type(x[0]) in OEB_DOCS]
+    spine = ''.join('<itemref idref="%s"/>' % name for name in spine)
+    guide = ''.join('<reference href="%s" type="%s"/>' % (name, typ) for name, typ in guide)
+    opf = OPF_TEMPLATE.format(manifest=mo, ver='%d.0'%ver, metadata=metadata, spine=spine, guide=guide)
+    buf = BytesIO()
+    with ZipFile(buf, 'w', ZIP_STORED) as zf:
+        zf.writestr('META-INF/container.xml', b'''
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+   <rootfiles>
+      <rootfile full-path="content.opf" media-type="application/oebps-package+xml"/>
+   </rootfiles>
+</container>''')
+        zf.writestr('content.opf', opf.encode('utf-8'))
+        for name, data, properties in manifest:
+            if isinstance(data, type('')):
+                data = data.encode('utf-8')
+            zf.writestr(name, data)
+    buf.seek(0)
+    return buf
+
+counter = count()
+
 
 class Structure(BaseTest):
+
+    def create_epub(self, *args, **kw):
+        n = next(counter)
+        ep = os.path.join(self.tdir, str(n) + 'book.epub')
+        with open(ep, 'wb') as f:
+            f.write(create_epub(*args, **kw).getvalue())
+        c = get_container(ep, tdir=os.path.join(self.tdir, 'container%d' % n), tweak_mode=True)
+        return c
 
     def test_toc_detection(self):
         ep = os.path.join(self.tdir, 'book.epub')
@@ -29,3 +94,58 @@ class Structure(BaseTest):
         toc = get_toc(c)
         self.assertTrue(len(toc))
         self.assertEqual(toc.as_dict['children'][0]['title'], 'EPUB 3 nav')
+
+    def test_epub3_covers(self):
+        # cover image
+        ce = partial(self.create_epub, ver=3)
+        c = ce([cmi('c.jpg')])
+        self.assertIsNone(find_cover_image(c))
+        c = ce([cmi('c.jpg')], meta_cover='c.jpg')
+        self.assertEqual('c.jpg', find_cover_image(c))
+        c = ce([cmi('c.jpg', b'z', 'cover-image'), cmi('d.jpg')], meta_cover='d.jpg')
+        self.assertEqual('c.jpg', find_cover_image(c))
+        mark_as_cover(c, 'd.jpg')
+        self.assertEqual('d.jpg', find_cover_image(c))
+        self.assertFalse(c.opf_xpath('//*/@name'))
+
+        # title page
+        c = ce([cmi('c.html'), cmi('a.html')])
+        self.assertIsNone(find_cover_page(c))
+        mark_as_titlepage(c, 'a.html', move_to_start=False)
+        self.assertEqual('a.html', find_cover_page(c))
+        self.assertEqual('c.html', next(c.spine_names)[0])
+        mark_as_titlepage(c, 'a.html', move_to_start=True)
+        self.assertEqual('a.html', find_cover_page(c))
+        self.assertEqual('a.html', next(c.spine_names)[0])
+
+        # clean opf of all cover information
+        c = ce([cmi('c.jpg', b'z', 'cover-image'), cmi('c.html', b'', 'calibre:title-page'), cmi('d.html')],
+                             meta_cover='c.jpg', guide=[('c.jpg', 'cover'), ('d.html', 'cover')])
+        self.assertEqual(set(clean_opf(c)), {'c.jpg', 'c.html', 'd.html'})
+        self.assertFalse(c.opf_xpath('//*/@name'))
+        self.assertFalse(c.opf_xpath('//*/@type'))
+        for prop in 'cover-image calibre:title-page'.split():
+            self.assertEqual([], list(c.manifest_items_with_property(prop)))
+
+    def test_epub2_covers(self):
+        # cover image
+        ce = partial(self.create_epub, ver=2)
+        c = ce([cmi('c.jpg')])
+        self.assertIsNone(find_cover_image(c))
+        c = ce([cmi('c.jpg')], meta_cover='c.jpg')
+        self.assertEqual('c.jpg', find_cover_image(c))
+        c = ce([cmi('c.jpg'), cmi('d.jpg')], guide=[('c.jpg', 'cover')])
+        self.assertEqual('c.jpg', find_cover_image(c))
+        mark_as_cover(c, 'd.jpg')
+        self.assertEqual('d.jpg', find_cover_image(c))
+        self.assertEqual({'cover':'d.jpg'}, c.guide_type_map)
+
+        # title page
+        c = ce([cmi('c.html'), cmi('a.html')])
+        self.assertIsNone(find_cover_page(c))
+        mark_as_titlepage(c, 'a.html', move_to_start=False)
+        self.assertEqual('a.html', find_cover_page(c))
+        self.assertEqual('c.html', next(c.spine_names)[0])
+        mark_as_titlepage(c, 'a.html', move_to_start=True)
+        self.assertEqual('a.html', find_cover_page(c))
+        self.assertEqual('a.html', next(c.spine_names)[0])

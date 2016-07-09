@@ -745,11 +745,13 @@ class CharsModel(FileCollection):
         self.files = data['chars']
         self.all_chars = tuple(entry.char for entry in self.files)
         psk = numeric_sort_key
-        self.sort_keys = tuple((psk(entry.char), None, entry.codepoint, len(entry.usage)) for entry in self.files)
+        self.sort_keys = tuple((psk(entry.char), None, entry.codepoint, entry.count) for entry in self.files)
         self.endResetModel()
 
     def data(self, index, role=Qt.DisplayRole):
         if role == SORT_ROLE:
+            if index.column() == 1:
+                return self.data(index)
             try:
                 return self.sort_keys[index.row()][index.column()]
             except IndexError:

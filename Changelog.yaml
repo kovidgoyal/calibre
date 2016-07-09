@@ -20,6 +20,73 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.62.0
+  date: 2016-07-08
+
+  new features:
+    - title: "EPUB metadata: Support for reading and writing EPUB 3 specific metadata. Now when processing EPUB 3 files, calibre will generate/use EPUB 3 specific metadata constructs when available, for example for series."
+
+    - title: "Recognize the newest Kindle model, that started shipping today."
+      tickets: [1599970]
+
+  bug fixes:
+    - title: "Tag Mapper: Allow specifying a space as the split character when creating a split tags rule"
+
+    - title: "Tag mapper: Fix upper case characters not working in 'contains' rules"
+
+    - title: "Smarten punctuation: Fix double dashes and triple dots being smartened even inside attribute values."
+      tickets: [1598465]
+
+    - title: "HTML Input: Sanitize semi-colons from HTML filenames as they can cause problems with other EPUB consuming software."
+      tickets: [1598719]
+
+    - title: "EPUB Input: Speed up reading of the book spine from the OPF file for books with a very large number of entries in the spine"
+
+    - title: "Edit Book: Reports: Characters: Fix sorting by count and name not working."
+      tickets: [1598518]
+
+    - title: "Fix KoboTouch configuration migration not working for older settings"
+      tickets: [1598017]
+
+  improved recipes:
+    - The Skeptic
+
+  new recipes:
+    - title: Various Russian news sources 
+      author: bugmen00t
+
+- version: 2.61.0
+  date: 2016-07-01
+
+  new features:
+    - title: "Driver for FNAC (re-branded Bq) with new firmware."
+      tickets: [1596952, 1595924]
+
+    - title: "Edit Book: Check Book: Add an auto fix action to remove all links to a missing resource (such as a deleted stylesheet) automatically."
+      tickets: [1596048]
+
+  bug fixes:
+    - title: "Edit Book: Check Book: Fix incorrect handling of font family names with spaces in them that are not quoted."
+      tickets: [1596053]
+
+    - title: "E-book viewer: Fix Qt 5.7 breaking mouse wheel scrolling"
+
+    - title: "Kobo driver: Fix a regression in the last release that broke connecting to older devices"
+      tickets: [1596801] 
+
+    - title: "Get Books: Fix detection of book formats broken for the Legimi plugin by a website change"
+
+    - title: "Update builtin metadata source ozon.ru to handle website changes"
+
+    - title: "Font subsetting: Fix incorrect handling of fonts whose names are included in font rules without quotes"
+
+    - title: "Fix ebook-viewer broken when running the binary calibre release on systems with very old versions of glibc"
+
+  improved recipes:
+    - derStandard
+    - Kurier
+    - Kliene Zeitung
+
 - version: 2.60.0
   date: 2016-06-24
 

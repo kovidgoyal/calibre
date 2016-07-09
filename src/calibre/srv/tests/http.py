@@ -81,7 +81,7 @@ class TestHTTP(BaseTest):
         def handler(data):
             return data.lang_code + data._('Unknown')
 
-        with TestServer(handler, timeout=0.1) as server:
+        with TestServer(handler, timeout=0.3) as server:
             conn = server.connect()
 
             def test(al, q):
@@ -391,7 +391,7 @@ class TestHTTP(BaseTest):
                 lf.seek(0)
                 data =  lf.read()
                 server.change_handler(lambda conn: lf)
-                conn = server.connect()
+                conn = server.connect(timeout=1)
                 conn.request('GET', '/test')
                 r = conn.getresponse()
                 self.ae(r.status, httplib.OK)

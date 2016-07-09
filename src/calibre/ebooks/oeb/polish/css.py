@@ -8,7 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from functools import partial
 
-from cssutils.css import CSSRule
+from cssutils.css import CSSRule, CSSStyleDeclaration
 from css_selectors import parse, SelectorSyntaxError
 
 from calibre import force_unicode
@@ -257,3 +257,28 @@ def classes_in_rule_list(css_rules):
             classes |= classes_in_rule_list(rule.cssRules)
     return classes
 
+def iter_declarations(sheet_or_rule):
+    if hasattr(sheet_or_rule, 'cssRules'):
+        for rule in sheet_or_rule.cssRules:
+            for x in iter_declarations(rule):
+                yield x
+    elif hasattr(sheet_or_rule, 'style'):
+        yield sheet_or_rule.style
+    elif isinstance(sheet_or_rule, CSSStyleDeclaration):
+        yield sheet_or_rule
+
+def remove_property_value(prop, predicate):
+    ''' Remove the Values that match the predicate from this property. If all
+    values of the property would be removed, the property is removed from its
+    parent instead. Note that this means the property must have a parent (a
+    CSSStyleDeclaration). '''
+    removed_vals = []
+    removed_vals = filter(predicate, prop.propertyValue)
+    if len(removed_vals) == len(prop.propertyValue):
+        prop.parent.removeProperty(prop.name)
+    else:
+        x = prop.propertyValue.cssText
+        for v in removed_vals:
+            x = x.replace(v.cssText, '').strip()
+        prop.propertyValue.cssText = x
+    return bool(removed_vals)
