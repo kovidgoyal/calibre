@@ -31,7 +31,6 @@ from calibre.utils.config_base import prefs
 EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'
 
-
 # Implementation of QtQHash for strings. This doesn't seem to be in the Python implementation.
 def qhash(inputstr):
     instr = b""
@@ -64,10 +63,10 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 2, 1)
+    version = (2, 3, 0)
 
     dbversion = 0
-    fwversion = 0
+    fwversion = (0,0,0)
     supported_dbversion = 125
     has_kepubs = False
 
@@ -157,9 +156,41 @@ class KOBO(USBMS):
     def device_database_path(self):
         return self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
 
+    def device_database_connection(self):
+        import apsw
+        db_connection = apsw.Connection(self.device_database_path())
+
+        return db_connection
+
+    def get_database_version(self, connection):
+        cursor = connection.cursor()
+        cursor.execute('SELECT version FROM dbversion')
+        try:
+            result = cursor.next()
+            dbversion = result[0]
+        except StopIteration:
+            dbversion = 0
+
+        return dbversion
+
+
+    def get_firmware_version(self):
+    # Determine the firmware version
+        try:
+            with lopen(self.normalize_path(self._main_prefix + '.kobo/version'), 'rb') as f:
+                fwversion = f.readline().split(',')[2]
+                fwversion = tuple((int(x) for x in fwversion.split('.')))
+        except:
+            debug_print("Kobo::get_firmware_version - didn't get firmware version from file'")
+            fwversion = (0,0,0)
+
+        return fwversion
+
+
     def sanitize_path_components(self, components):
         invalid_filename_chars_re = re.compile(r'[\/\\\?%\*:;\|\"\'><\$!]', re.IGNORECASE | re.UNICODE)
         return [invalid_filename_chars_re.sub('_', x) for x in components]
+
 
     def books(self, oncard=None, end_session=True):
         from calibre.ebooks.metadata.meta import path_to_ext
@@ -180,15 +211,9 @@ class KOBO(USBMS):
                  self._card_b_prefix if oncard == 'cardb' \
                  else self._main_prefix
 
-        # Determine the firmware version
-        try:
-            with lopen(self.normalize_path(self._main_prefix + '.kobo/version'),
-                    'rb') as f:
-                self.fwversion = f.readline().split(',')[2]
-        except:
-            self.fwversion = 'unknown'
+        self.fwversion = self.get_firmware_version()
 
-        if self.fwversion != '1.0' and self.fwversion != '1.4':
+        if not (self.fwversion == (1,0) or self.fwversion == (1,4)):
             self.has_kepubs = True
         debug_print('Version of driver: ', self.version, 'Has kepubs:', self.has_kepubs)
         debug_print('Version of firmware: ', self.fwversion, 'Has kepubs:', self.has_kepubs)
@@ -293,22 +318,12 @@ class KOBO(USBMS):
                 traceback.print_exc()
             return changed
 
-        import sqlite3 as sqlite
-        with closing(sqlite.connect(
-            self.normalize_path(self._main_prefix +
-                '.kobo/KoboReader.sqlite'))) as connection:
+        with closing(self.device_database_connection()) as connection:
 
-            # return bytestrings if the content cannot the decoded as unicode
-            connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
-
-            cursor = connection.cursor()
-
-            cursor.execute('select version from dbversion')
-            result = cursor.fetchone()
-            self.dbversion = result[0]
-
+            self.dbversion = self.get_database_version(connection)
             debug_print("Database Version: ", self.dbversion)
 
+            cursor = connection.cursor()
             opts = self.settings()
             if self.dbversion >= 33:
                 query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
@@ -410,13 +425,8 @@ class KOBO(USBMS):
         #    2) volume_shorcover
         #    2) content
 
-        import sqlite3 as sqlite
         debug_print('delete_via_sql: ContentID: ', ContentID, 'ContentType: ', ContentType)
-        with closing(sqlite.connect(self.normalize_path(self._main_prefix +
-            '.kobo/KoboReader.sqlite'))) as connection:
-
-            # return bytestrings if the content cannot the decoded as unicode
-            connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+        with closing(self.device_database_connection()) as connection:
 
             cursor = connection.cursor()
             t = (ContentID,)
@@ -462,8 +472,6 @@ class KOBO(USBMS):
                             'where BookID is Null and ContentID =?',t)
             else:
                 cursor.execute('delete from content where BookID is Null and ContentID =?',t)
-
-            connection.commit()
 
             cursor.close()
             if ImageID == None:
@@ -624,7 +632,7 @@ class KOBO(USBMS):
             ContentType = 16
         elif extension == '.rtf' or extension == '.txt' or extension == '.htm' or extension == '.html':
             # print "txt"
-            if self.fwversion == '1.0' or self.fwversion == '1.4' or self.fwversion == '1.7.4':
+            if self.fwversion == (1,0) or self.fwversion == (1,4) or self.fwversion == (1,7,4):
                 ContentType = 999
             else:
                 ContentType = 901
@@ -754,21 +762,18 @@ class KOBO(USBMS):
         except:
             debug_print('    Database Exception:  Unable to reset ReadStatus list')
             raise
-        else:
-            connection.commit()
-            # debug_print('    Commit: Reset ReadStatus list')
-
-        cursor.close()
+        finally:
+            cursor.close()
 
     def set_readstatus(self, connection, ContentID, ReadStatus):
         cursor = connection.cursor()
         t = (ContentID,)
         cursor.execute('select DateLastRead from Content where BookID is Null and ContentID = ?', t)
-        result = cursor.fetchone()
-        if result is None:
-            datelastread = '1970-01-01T00:00:00'
-        else:
+        try:
+            result = cursor.next()
             datelastread = result[0] if result[0] is not None else '1970-01-01T00:00:00'
+        except StopIteration:
+            datelastread = '1970-01-01T00:00:00'
 
         t = (ReadStatus,datelastread,ContentID,)
 
@@ -777,9 +782,7 @@ class KOBO(USBMS):
         except:
             debug_print('    Database Exception:  Unable update ReadStatus')
             raise
-        else:
-            connection.commit()
-            # debug_print('    Commit: Setting ReadStatus List')
+
         cursor.close()
 
     def reset_favouritesindex(self, connection, oncard):
@@ -796,9 +799,8 @@ class KOBO(USBMS):
             debug_print('    Database Exception:  Unable to reset Shortlist list')
             if 'no such column' not in str(e):
                 raise
-        else:
-            connection.commit()
-            # debug_print('    Commit: Reset FavouritesIndex list')
+        finally:
+            cursor.close()
 
     def set_favouritesindex(self, connection, ContentID):
         cursor = connection.cursor()
@@ -811,9 +813,8 @@ class KOBO(USBMS):
             debug_print('    Database Exception:  Unable set book as Shortlist')
             if 'no such column' not in str(e):
                 raise
-        else:
-            connection.commit()
-            # debug_print('    Commit: Set FavouritesIndex')
+        finally:
+            cursor.close()
 
     def update_device_database_collections(self, booklists, collections_attributes, oncard):
         debug_print("Kobo:update_device_database_collections - oncard='%s'"%oncard)
@@ -854,12 +855,7 @@ class KOBO(USBMS):
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
 
-        import sqlite3 as sqlite
-        with closing(sqlite.connect(self.normalize_path(self._main_prefix +
-            '.kobo/KoboReader.sqlite'))) as connection:
-
-            # return bytestrings if the content cannot the decoded as unicode
-            connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+        with closing(self.device_database_connection()) as connection:
 
             if collections:
 
@@ -988,25 +984,20 @@ class KOBO(USBMS):
                 ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(filepath)
                 ContentID = self.contentid_from_path(filepath, ContentType)
 
-                import sqlite3 as sqlite
-                with closing(sqlite.connect(self.normalize_path(self._main_prefix +
-                    '.kobo/KoboReader.sqlite'))) as connection:
-
-                    # return bytestrings if the content cannot the decoded as unicode
-                    connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+                with closing(self.device_database_connection()) as connection:
 
                     cursor = connection.cursor()
                     t = (ContentID,)
                     cursor.execute('select ImageId from Content where BookID is Null and ContentID = ?', t)
-                    result = cursor.fetchone()
-                    if result is None:
+                    try:
+                        result = cursor.next()
+#                        debug_print("ImageId: ", result[0])
+                        ImageID = result[0]
+                    except StopIteration:
                         debug_print("No rows exist in the database - cannot upload")
                         return
-                    else:
-                        ImageID = result[0]
-#                        debug_print("ImageId: ", result[0])
-
-                    cursor.close()
+                    finally:
+                        cursor.close()
 
                 if ImageID != None:
                     path_prefix = '.kobo/images/'
@@ -1158,17 +1149,17 @@ class KOBO(USBMS):
         path_map, book_ext = resolve_bookmark_paths(storage, path_map)
 
         bookmarked_books = {}
-        for id in path_map:
-            extension =  os.path.splitext(path_map[id])[1]
-            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
-            ContentID = self.contentid_from_path(path_map[id], ContentType)
-            debug_print("get_annotations - ContentID: ",  ContentID, "ContentType: ", ContentType)
+        with closing(self.device_database_connection()) as connection:
+            for id in path_map:
+                extension =  os.path.splitext(path_map[id])[1]
+                ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(path_map[id])
+                ContentID = self.contentid_from_path(path_map[id], ContentType)
+                debug_print("get_annotations - ContentID: ",  ContentID, "ContentType: ", ContentType)
 
-            bookmark_ext = extension
+                bookmark_ext = extension
 
-            db_path = self.normalize_path(self._main_prefix + '.kobo/KoboReader.sqlite')
-            myBookmark = Bookmark(db_path, ContentID, path_map[id], id, book_ext[id], bookmark_ext)
-            bookmarked_books[id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
+                myBookmark = Bookmark(connection, ContentID, path_map[id], id, book_ext[id], bookmark_ext)
+                bookmarked_books[id] = self.UserAnnotation(type='kobo_bookmark', value=myBookmark)
 
         # This returns as job.result in gui2.ui.annotations_fetched(self,job)
         return bookmarked_books
@@ -1180,7 +1171,7 @@ class KOBO(USBMS):
         #last_read_location = bookmark.last_read_location
         #timestamp = bookmark.timestamp
         percent_read = bookmark.percent_read
-        debug_print("Date: ",  bookmark.last_read)
+        debug_print("Kobo::generate_annotation_html - last_read: ",  bookmark.last_read)
         if bookmark.last_read is not None:
             try:
                 last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S"))))
@@ -1188,7 +1179,10 @@ class KOBO(USBMS):
                 try:
                     last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%S.%f"))))
                 except:
-                    last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%SZ"))))
+                    try:
+                        last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(calendar.timegm(time.strptime(bookmark.last_read, "%Y-%m-%dT%H:%M:%SZ"))))
+                    except:
+                        last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
         else:
             #self.datetime = time.gmtime()
             last_read = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
@@ -1277,7 +1271,7 @@ class KOBO(USBMS):
         bm = annotation
         ignore_tags = set(['Catalog', 'Clippings'])
 
-        if bm.type == 'kobo_bookmark':
+        if bm.type == 'kobo_bookmark' and bm.value.last_read:
             mi = db.get_metadata(db_id, index_is_id=True)
             debug_print("KOBO:add_annotation_to_library - Title: ",  mi.title)
             user_notes_soup = self.generate_annotation_html(bm.value)
@@ -1312,9 +1306,9 @@ class KOBO(USBMS):
 
 class KOBOTOUCH(KOBO):
     name        = 'KoboTouch'
-    gui_name    = 'Kobo Touch/Glo/Mini/Aura HD'
+    gui_name    = 'Kobo Touch/Glo/Mini/Aura HD/Aura H2O/Glo HD/Touch 2'
     author      = 'David Forrester'
-    description = 'Communicate with the Kobo Touch, Glo, Mini and Aura HD ereaders. Based on the existing Kobo driver by %s.' % (KOBO.author)
+    description = 'Communicate with the Kobo Touch, Glo, Mini, Aura HD, Aura H2O, Glo HD and Touch 2ereaders. Based on the existing Kobo driver by %s.' % (KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
     supported_dbversion             = 125
@@ -1375,20 +1369,20 @@ class KOBOTOUCH(KOBO):
                           ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 200,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 200,False,],   # Used for library lists
                           ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 200,False,],   # Used for Details screen from FW2.8.1
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 100,False,],   # Used for Details screen from FW2.8.1
 #                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
                           }
     GLO_COVER_FILE_ENDINGS = {      # Glo and Aura share resolution, so the image sizes should be the same.
                           ' - N3_FULL.parsed':[(758,1024),0, 200,True,],           # Used for screensaver, home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 200,False,],   # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 200,False,],   # Used for library lists
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 200,False,],   # Used for Details screen from FW2.8.1
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 100,False,],   # Used for Details screen from FW2.8.1
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
                           ' - N3_FULL.parsed':        [(1080,1440), 0, 200,True,],  # Used for screensaver, home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 200,False,],  # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 200,False,],   # Used for Details screen from FW2.8.1
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],   # Used for Details screen from FW2.8.1
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
@@ -1437,13 +1431,7 @@ class KOBOTOUCH(KOBO):
                  else self._main_prefix
         debug_print("KoboTouch:books - oncard='%s', prefix='%s'"%(oncard, prefix))
 
-        # Determine the firmware version
-        try:
-            with lopen(self.normalize_path(self._main_prefix + '.kobo/version'), 'rb') as f:
-                self.fwversion = f.readline().split(',')[2]
-                self.fwversion = tuple((int(x) for x in self.fwversion.split('.')))
-        except:
-            self.fwversion = (0,0,0)
+        self.fwversion = self.get_firmware_version()
 
         debug_print('Kobo device: %s' % self.gui_name)
         debug_print('Version of driver:', self.version, 'Has kepubs:', self.has_kepubs)
@@ -1667,24 +1655,17 @@ class KOBOTOUCH(KOBO):
             return bookshelves
 
         self.debug_index = 0
-        import sqlite3 as sqlite
-        with closing(sqlite.connect(self.device_database_path())) as connection:
+
+        with closing(self.device_database_connection()) as connection:
             debug_print("KoboTouch:books - reading device database")
 
-            # return bytestrings if the content cannot the decoded as unicode
-            connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+            self.dbversion = self.get_database_version(connection)
+            debug_print("Database Version: ", self.dbversion)
 
             cursor = connection.cursor()
 
-            cursor.execute('select version from dbversion')
-            result = cursor.fetchone()
-            self.dbversion = result[0]
-            debug_print("Database Version=%d"%self.dbversion)
-
             self.bookshelvelist = self.get_bookshelflist(connection)
             debug_print("KoboTouch:books - shelf list:", self.bookshelvelist)
-
-            opts = self.settings()
 
             columns = 'Title, Attribution, DateCreated, ContentID, MimeType, ContentType, ImageID, ReadStatus'
             if self.dbversion >= 16:
@@ -1856,18 +1837,18 @@ class KOBOTOUCH(KOBO):
     def imagefilename_from_imageID(self, prefix, ImageID):
         show_debug = self.is_debugging_title(ImageID)
 
-        path = self.images_path(prefix, ImageID)
-#        path = self.normalize_path(path.replace('/', os.sep))
+        if len(ImageID) > 0:
+            path = self.images_path(prefix, ImageID)
 
-        for ending, cover_options in self.cover_file_endings().items():
-            fpath = path + ending
-            if os.path.exists(fpath):
-                if show_debug:
-                    debug_print("KoboTouch:imagefilename_from_imageID - have cover image fpath=%s" % (fpath))
-                return fpath
+            for ending in self.cover_file_endings().keys():
+                fpath = path + ending
+                if os.path.exists(fpath):
+                    if show_debug:
+                        debug_print("KoboTouch:imagefilename_from_imageID - have cover image fpath=%s" % (fpath))
+                    return fpath
 
-        if show_debug:
-            debug_print("KoboTouch:imagefilename_from_imageID - no cover image found - ImageID=%s" % (ImageID))
+            if show_debug:
+                debug_print("KoboTouch:imagefilename_from_imageID - no cover image found - ImageID=%s" % (ImageID))
         return None
 
     def get_extra_css(self):
@@ -1930,11 +1911,8 @@ class KOBOTOUCH(KOBO):
 #        debug_print('KoboTouch:upload_books - result=', result)
 
         if self.dbversion >= 53:
-            import sqlite3 as sqlite
             try:
-                with closing(sqlite.connect(self.normalize_path(self._main_prefix +
-                                                                '.kobo/KoboReader.sqlite'))) as connection:
-                    connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+                with closing(self.device_database_connection()) as connection:
                     cursor = connection.cursor()
                     cleanup_query = "DELETE FROM content WHERE ContentID = ? AND Accessibility = 1 AND IsDownloaded = 'false'"
 
@@ -1954,7 +1932,6 @@ class KOBOTOUCH(KOBO):
                         if not self.upload_covers:
                             imageID = self.imageid_from_contentid(contentID)
                             self.delete_images(imageID, fname)
-                    connection.commit()
 
                     cursor.close()
             except Exception as e:
@@ -2064,13 +2041,10 @@ class KOBOTOUCH(KOBO):
         imageId = super(KOBOTOUCH, self).delete_via_sql(ContentID, ContentType)
 
         if self.dbversion >= 53:
-            import sqlite3 as sqlite
             debug_print('KoboTouch:delete_via_sql: ContentID="%s"'%ContentID, 'ContentType="%s"'%ContentType)
             try:
-                with closing(sqlite.connect(self.device_database_path())) as connection:
+                with closing(self.device_database_connection()) as connection:
                     debug_print('KoboTouch:delete_via_sql: have database connection')
-                    # return bytestrings if the content cannot the decoded as unicode
-                    connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
 
                     cursor = connection.cursor()
                     debug_print('KoboTouch:delete_via_sql: have cursor')
@@ -2100,8 +2074,6 @@ class KOBOTOUCH(KOBO):
                     if self.has_activity_table():
                         debug_print('KoboTouch:delete_via_sql: delete from Activity')
                         cursor.execute('delete from Activity where Id =?', t)
-
-                    connection.commit()
 
                     cursor.close()
                     debug_print('KoboTouch:delete_via_sql: finished SQL')
@@ -2227,11 +2199,7 @@ class KOBOTOUCH(KOBO):
         # the last book from the collection the list of books is empty
         # and the removal of the last book would not occur
 
-        import sqlite3 as sqlite
-        with closing(sqlite.connect(self.device_database_path())) as connection:
-
-            # return bytestrings if the content cannot the decoded as unicode
-            connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+        with closing(self.device_database_connection()) as connection:
 
             if self.manage_collections and collections:
 #                debug_print("KoboTouch:update_device_database_collections - length collections=" + unicode(len(collections)))
@@ -2427,23 +2395,17 @@ class KOBOTOUCH(KOBO):
                 ContentID = self.contentid_from_path(filepath, ContentType)
 
                 try:
-                    import sqlite3 as sqlite
-                    with closing(sqlite.connect(self.device_database_path())) as connection:
-
-                        # return bytestrings if the content cannot the decoded as unicode
-                        connection.text_factory = lambda x: unicode(x, "utf-8", "ignore")
+                    with closing(self.device_database_connection()) as connection:
 
                         cursor = connection.cursor()
                         t = (ContentID,)
                         cursor.execute('select ImageId from Content where BookID is Null and ContentID = ?', t)
-                        result = cursor.fetchone()
-
-                        if result is None:
+                        try:
+                            result = cursor.next()
+                            ImageID = result[0]
+                        except StopIteration:
                             ImageID = self.imageid_from_contentid(ContentID)
                             debug_print("KoboTouch:_upload_cover - No rows exist in the database - generated ImageID='%s'" % ImageID)
-                        else:
-                            ImageID = result[0]
-    #                        debug_print("ImageId: ", result[0])
 
                         cursor.close()
 
@@ -2527,7 +2489,6 @@ class KOBOTOUCH(KOBO):
 
         cursor = connection.cursor()
         cursor.execute(query, values)
-        connection.commit()
         cursor.close()
 
     def set_filesize_in_device_database(self, connection, contentID, fpath):
@@ -2548,7 +2509,11 @@ class KOBOTOUCH(KOBO):
 
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
-        result = cursor.fetchone()
+        try:
+            result = cursor.next()
+        except StopIteration:
+            result = None
+
         if result is None:
             if show_debug:
                 debug_print('        Did not find a record - new book on device')
@@ -2562,7 +2527,6 @@ class KOBOTOUCH(KOBO):
                 if show_debug:
                     debug_print('        Size updated.')
 
-        connection.commit()
         cursor.close()
 
 #        debug_print("KoboTouch:set_filesize_in_device_database - end")
@@ -2600,7 +2564,6 @@ class KOBOTOUCH(KOBO):
         cursor.execute(update_query)
         if self.has_activity_table():
             cursor.execute(delete_activity_query)
-        connection.commit()
         cursor.close()
 
         debug_print("KoboTouch:delete_empty_bookshelves - end")
@@ -2647,7 +2610,11 @@ class KOBOTOUCH(KOBO):
 
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
-        result = cursor.fetchone()
+        try:
+            result = cursor.next()
+        except StopIteration:
+            result = None
+
         if result is None:
             if show_debug:
                 debug_print('        Did not find a record - adding')
@@ -2656,8 +2623,6 @@ class KOBOTOUCH(KOBO):
             if show_debug:
                 debug_print('        Found a record - updating - result=', result)
             cursor.execute(updatequery, update_values)
-
-        connection.commit()
 
         cursor.close()
 
@@ -2693,7 +2658,11 @@ class KOBOTOUCH(KOBO):
 
         cursor = connection.cursor()
         cursor.execute(test_query, test_values)
-        result = cursor.fetchone()
+        try:
+            result = cursor.next()
+        except StopIteration:
+            result = None
+
         if result is None:
             if show_debug:
                 debug_print('        Did not find a record - adding shelf "%s"' % bookshelf_name)
@@ -2702,7 +2671,6 @@ class KOBOTOUCH(KOBO):
             debug_print('KoboTouch:check_for_bookshelf - Shelf "%s" is deleted - undeleting. result[2]="%s"' % (bookshelf_name, unicode(result[2])))
             cursor.execute(updatequery, test_values)
 
-        connection.commit()
         cursor.close()
 
         # Update the bookshelf list.
@@ -2735,7 +2703,6 @@ class KOBOTOUCH(KOBO):
         debug_print('KoboTouch:remove_from_bookshelf values=', values)
         cursor = connection.cursor()
         cursor.execute(query, values)
-        connection.commit()
         cursor.close()
 
         debug_print("KoboTouch:remove_from_bookshelf - end")
@@ -2776,9 +2743,8 @@ class KOBOTOUCH(KOBO):
         except:
             debug_print('    Database Exception:  Unable to set series info')
             raise
-        else:
-            connection.commit()
-        cursor.close()
+        finally:
+            cursor.close()
 
         if show_debug:
             debug_print("KoboTouch:set_series - end")
