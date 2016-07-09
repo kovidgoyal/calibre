@@ -4,10 +4,10 @@
 # Contact:      adrian.tennessee at domainthatnobodytakes.com
 ##
 # License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
-# Copyright:    Copyright 2014 Adrian Tennessee
+# Copyright:    Copyright 2015 Adrian Tennessee
 ##
 # Written:      2015-07-11
-# Last Edited:  2015-07-11
+# Last Edited:  2016-07-08
 ##
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -32,38 +32,37 @@ class Hurriyet(BasicNewsRecipe):
     remove_javascript = True
     encoding = None
 
-    # keep main image in its own line
-    extra_css = '.detailImage { clear: left; } .detailSpot { clear: left; }'
+    compress_news_images = True
+
+    # some mild formatting
+    extra_css = """.news-image { clear: left; }
+           .news-detail-title { clear:left; }
+           .col-md-7 { font-size:small; }
+           .news-detail-spot { font-style:italic; font-size:smaller }"""
 
     keep_only_tags = [
         # title
-        {'class': 'detailTop clr'},
+        {'class': 'news-detail-title selectionShareable'},
+        # date
+        {'class': 'col-md-7 text-right'},
         # image
-        {'class': 'detailImage clr'},
+        {'class': 'news-image'},
+        # detail
+        {'class': 'news-detail-spot'},
         # text
-        {'class': 'detailText'},
+        {'class': 'news-box'},
     ]
 
     feeds = [
-        (u'Anasayfa', u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=1'),
-        (u'Gündem',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=2'),
-        (u'Ekonomi',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=4'),
-        (u'Magazin',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=2035'),
-        (u'Spor',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=14'),
-        (u'Planet',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=2249'),
-        (u'Teknoloji',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=2158'),
-        (u'Sağlık',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=2446'),
-        (u'Kültür Sanat',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=2451'),
-        (u'Sinema',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=2437'),
-        (u'Astroloji',
-         u'http://rss.hurriyet.com.tr/rss.aspx?sectionId=2409'),
+        (u'Anasayfa', u'http://www.hurriyet.com.tr/rss/anasayfa'),
+        (u'Gündem', u' http://www.hurriyet.com.tr/rss/gundem'),
+        (u'Ekonomi', u'http://www.hurriyet.com.tr/rss/ekonomi'),
+        (u'Magazin', u'http://www.hurriyet.com.tr/rss/magazin'),
+        (u'Spor', u'http://www.hurriyet.com.tr/rss/spor'),
+        (u'Planet', u'http://www.hurriyet.com.tr/rss/dunya'),
+        (u'Teknoloji', u'http://www.hurriyet.com.tr/rss/teknoloji'),
+        (u'Sağlık', u'http://www.hurriyet.com.tr/rss/saglik'),
+        (u'Astroloji', u'http://www.hurriyet.com.tr/rss/astroloji'),
+        (u'Ankara', u'http://www.hurriyet.com.tr/rss/ankara'),
+        (u'Ege', u'http://www.hurriyet.com.tr/rss/ege')
     ]
