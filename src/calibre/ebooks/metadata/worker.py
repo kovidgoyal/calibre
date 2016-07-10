@@ -60,11 +60,13 @@ def run_import_plugins(paths, group_id, tdir):
         final_paths.append(path)
     return final_paths
 
+def has_book(mi, data_for_has_book):
+    return mi.title and icu_lower(mi.title.strip()) in data_for_has_book
+
 def read_metadata(paths, group_id, tdir, common_data=None):
     paths = run_import_plugins(paths, group_id, tdir)
     mi, opf, has_cover = serialize_metadata_for(paths, tdir, group_id)
     duplicate_info = None
-    if common_data is not None:
-        if isinstance(common_data, (set, frozenset)):
-            duplicate_info = mi.title and icu_lower(mi.title) in common_data
+    if isinstance(common_data, (set, frozenset)):
+        duplicate_info = has_book(mi, common_data)
     return paths, opf, has_cover, duplicate_info
