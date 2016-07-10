@@ -189,7 +189,7 @@ class TestHTTP(BaseTest):
             self.ae('', r.read())
 
             server.change_handler(lambda data:data.path[0] + data.read().decode('ascii'))
-            conn = server.connect()
+            conn = server.connect(timeout=1)
 
             # Test simple GET
             conn.request('GET', '/test/')
@@ -291,7 +291,7 @@ class TestHTTP(BaseTest):
         def handler(conn):
             return conn.generate_static_output('test', lambda : ''.join(conn.path))
         with NamedTemporaryFile(suffix='test.epub') as f, open(P('localization/locales.zip'), 'rb') as lf, \
-                TestServer(handler, timeout=0.2, compress_min_size=0) as server:
+                TestServer(handler, timeout=1, compress_min_size=0) as server:
             fdata = string.ascii_letters * 100
             f.write(fdata), f.seek(0)
 

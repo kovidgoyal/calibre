@@ -214,38 +214,38 @@ class WebSocketTest(BaseTest):
             fragments = 'Hello-µ@ßöä üàá-UTF-8!!'.split()
             nc = struct.pack(b'!H', NORMAL_CLOSE)
 
+            def ic_test(*args, **kwargs):
+                try:
+                    simple_test(*args, **kwargs)
+                except socket.error as err:
+                    if err.errno not in (errno.EPIPE, errno.ECONNRESET):
+                        # This is raised on OS X occassionally, when the server
+                        # closes the connection before the client has finished
+                        # writing all data.
+                        raise
+
             with server.silence_log:
                 for rsv in xrange(1, 7):
-                    simple_test([{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
+                    ic_test([{'rsv':rsv, 'opcode':BINARY}], [], close_code=PROTOCOL_ERROR, send_close=False)
                 for opcode in (3, 4, 5, 6, 7, 11, 12, 13, 14, 15):
-                    simple_test([{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
+                    ic_test([{'opcode':opcode}], [], close_code=PROTOCOL_ERROR, send_close=False)
 
                 for opcode in (PING, PONG):
-                    simple_test([
+                    ic_test([
                         {'opcode':opcode, 'payload':'f1', 'fin':0}, {'opcode':opcode, 'payload':'f2'}
                     ], close_code=PROTOCOL_ERROR, send_close=False)
-                simple_test([(CLOSE, nc + b'x'*124)], send_close=False, close_code=PROTOCOL_ERROR)
+                ic_test([(CLOSE, nc + b'x'*124)], send_close=False, close_code=PROTOCOL_ERROR)
 
                 for fin in (0, 1):
-                    simple_test([{'opcode':0, 'fin': fin, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
+                    ic_test([{'opcode':0, 'fin': fin, 'payload':b'non-continuation frame'}, 'some text'], close_code=PROTOCOL_ERROR, send_close=False)
 
-                simple_test([
+                ic_test([
                     {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':CONTINUATION, 'payload':fragments[1]}, {'opcode':0, 'fin':0}
                 ], [''.join(fragments)], close_code=PROTOCOL_ERROR, send_close=False)
 
-                simple_test([
+                ic_test([
                     {'opcode':TEXT, 'payload':fragments[0], 'fin':0}, {'opcode':TEXT, 'payload':fragments[1]},
                 ], close_code=PROTOCOL_ERROR, send_close=False)
-
-                def ic_test(*args, **kwargs):
-                    try:
-                        simple_test(*args, **kwargs)
-                    except socket.error as err:
-                        if err.errno not in (errno.EPIPE, errno.ECONNRESET):
-                            # This is raised on OS X occassionally, when the server
-                            # closes the connection before the client has finished
-                            # writing all data.
-                            raise
 
                 frags = []
                 for payload in (b'\xce\xba\xe1\xbd\xb9\xcf\x83\xce\xbc\xce\xb5', b'\xed\xa0\x80', b'\x80\x65\x64\x69\x74\x65\x64'):
