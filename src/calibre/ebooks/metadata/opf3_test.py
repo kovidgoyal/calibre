@@ -141,6 +141,9 @@ class TestOPF3(unittest.TestCase):
         authors = [Author('x y', 'y, x'), Author('u i', None)]
         self.ae(authors, st(root, authors))
         self.ae(root.get('prefix'), 'calibre: %s' % CALIBRE_PREFIX)
+        root = self.get_opf('''<dc:creator>a  b</dc:creator><dc:creator opf:role="aut">c d</dc:creator>''')
+        self.ae([Author('c d', None)], rl(root))
+        self.ae(authors, st(root, authors))
     # }}}
 
     def test_book_producer(self):  # {{{
@@ -155,7 +158,7 @@ class TestOPF3(unittest.TestCase):
             self.ae(['c d'], rl(root))
         root = self.get_opf('''<dc:contributor>a  b</dc:contributor><dc:contributor opf:role="bkp">c d</dc:contributor>''')
         self.ae(['c d'], rl(root))
-        self.ae('12'.split(), st(root, '12'.split()))
+        self.ae(['12'], st(root, ['12']))
     # }}}
 
     def test_dates(self):  # {{{
