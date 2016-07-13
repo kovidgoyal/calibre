@@ -982,7 +982,8 @@ class GridView(QListView):
         return super(GridView, self).selectionCommand(index, event)
 
     def wheelEvent(self, ev):
-        if ev.phase() != Qt.ScrollUpdate:
+        if ev.phase() not in (Qt.ScrollUpdate, 0):
+            # 0 is Qt.NoScrollPhase which is not yet available in PyQt
             return
         number_of_pixels = ev.pixelDelta()
         number_of_degrees = ev.angleDelta() / 8
