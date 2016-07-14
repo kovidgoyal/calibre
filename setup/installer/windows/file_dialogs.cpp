@@ -226,9 +226,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         READ(key_size, buf);
         if CHECK_KEY("HWND") {
             READ(sizeof(HWND), buf);
+#pragma warning( push )
+#pragma warning( disable : 4312)
             if (sizeof(HWND) == 8) parent = (HWND)*((__int64*)buf);
             else if (sizeof(HWND) == 4) parent = (HWND)*((__int32*)buf);
             else { fprintf(stderr, "Unknown pointer size: %zd", sizeof(HWND)); fflush(stderr); return 1;}
+#pragma warning( pop ) 
         }
 
         else if CHECK_KEY("PIPENAME") { READSTR(pipename); pipe = open_named_pipe(pipename); if (pipe == INVALID_HANDLE_VALUE) return 1; }
