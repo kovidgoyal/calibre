@@ -195,7 +195,7 @@ HANDLE open_named_pipe(LPWSTR pipename) {
             fprintf(stderr, "Failed to open pipe. GetLastError()=%d\n", GetLastError()); fflush(stderr); return ans;
         }
         if (!WaitNamedPipeW(pipename, 20000)) {
-            fprintf(stderr, "Failed to open pipe. 20 second wait timed out.\n", GetLastError()); fflush(stderr); return ans;
+            fprintf(stderr, "Failed to open pipe. 20 second wait timed out. GetLastError()=%d\n", GetLastError()); fflush(stderr); return ans;
         }
     }
     return ans;
