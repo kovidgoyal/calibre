@@ -116,6 +116,8 @@ class CSV_XML(CatalogPlugin):
                 for field in fields:
                     if field.startswith('#'):
                         item = db.get_field(entry['id'], field, index_is_id=True)
+                        if isinstance(item, (list, tuple)):
+                            item = ', '.join(item)
                     elif field == 'library_name':
                         item = current_library
                     elif field == 'title_sort':
