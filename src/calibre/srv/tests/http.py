@@ -129,7 +129,7 @@ class TestHTTP(BaseTest):
             conn._HTTPConnection__state = httplib._CS_REQ_SENT
             return conn.getresponse()
 
-        with TestServer(handler, timeout=0.1, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
+        with TestServer(handler, timeout=0.2, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
             conn = server.connect()
             r = raw_send(conn, b'hello\n')
             self.ae(r.status, httplib.BAD_REQUEST)
