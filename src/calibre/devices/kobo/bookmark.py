@@ -5,7 +5,6 @@ __copyright__ = '2011, Timothy Legge <timlegge@gmail.com> and Kovid Goyal <kovid
 __docformat__ = 'restructuredtext en'
 
 import os
-from contextlib import closing
 
 
 class Bookmark(): # {{{
