@@ -148,7 +148,7 @@ class WSClient(object):
 class WSTestServer(TestServer):
 
     def __init__(self, handler):
-        TestServer.__init__(self, None, shutdown_timeout=0.5)
+        TestServer.__init__(self, None, shutdown_timeout=5)
         from calibre.srv.http_response import create_http_handler
         self.loop.handler = create_http_handler(websocket_handler=handler())
 
