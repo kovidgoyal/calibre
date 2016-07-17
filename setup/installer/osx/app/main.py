@@ -451,10 +451,11 @@ class Py2App(object):
 
     @flush
     def add_misc_libraries(self):
+        # Reminder to self to add iconv.dylib in the new freeze code
         for x in (
                 'usb-1.0.0', 'mtp.9', 'ltdl.7', 'chm.0', 'sqlite3.0',
                 'icudata.53', 'icui18n.53', 'icuio.53', 'icuuc.53',
-                'crypto.1.0.0', 'ssl.1.0.0'
+                'crypto.1.0.0', 'ssl.1.0.0',  # 'iconv.2'
         ):
             info('\nAdding', x)
             x = 'lib%s.dylib'%x
@@ -525,7 +526,7 @@ class Py2App(object):
                 ext = os.path.splitext(y)[1]
                 if ext not in ('', '.py', '.so') or \
                     (not ext and not os.path.isdir(join(root, y))):
-                        ans.append(y)
+                    ans.append(y)
 
             return ans
         if dest is None:

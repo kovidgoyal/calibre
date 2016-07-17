@@ -82,14 +82,14 @@ class Ozon(Source):
         qItems = set([ozonid, isbn])
 
         # Added Russian variant of 'Unknown'
-        unk = [unicode(_('Unknown')).upper(), unicode(_('Неизв.')).upper()]
+        unk = [_('Unknown').upper(), 'Неизв.'.upper(), icu_upper('Неизв.')]
 
         if title and title not in unk:
             qItems.add(title)
 
         if authors:
             for auth in authors:
-                if auth.upper() not in unk:
+                if icu_upper(auth) not in unk:
                     qItems.add(auth)
 
         qItems.discard(None)

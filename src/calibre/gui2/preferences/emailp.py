@@ -20,16 +20,17 @@ from calibre.utils.smtp import config as smtp_prefs
 
 class EmailAccounts(QAbstractTableModel):  # {{{
 
-    def __init__(self, accounts, subjects, aliases={}):
+    def __init__(self, accounts, subjects, aliases={}, tags={}):
         QAbstractTableModel.__init__(self)
         self.accounts = accounts
         self.subjects = subjects
         self.aliases = aliases
+        self.tags = tags
         self.sorted_on = (0, True)
         self.account_order = self.accounts.keys()
         self.do_sort()
         self.headers  = map(unicode, [_('Email'), _('Formats'), _('Subject'),
-            _('Auto send'), _('Alias')])
+            _('Auto send'), _('Alias'), _('Auto send only tags')])
         self.default_font = QFont()
         self.default_font.setBold(True)
         self.default_font = (self.default_font)
@@ -40,9 +41,13 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                'templates used for "Save to disk" such as {title} and '
                '{author_sort} can be used here.'),
              '<p>'+_('If checked, downloaded news will be automatically '
-                     'mailed <br>to this email address '
-                     '(provided it is in one of the listed formats).'),
-             _('Friendly name to use for this email address')
+                     'mailed to this email address '
+                     '(provided it is in one of the listed formats and has not been filtered by tags).'),
+             _('Friendly name to use for this email address'),
+             _('If specified, only news with one of these tags will be sent to'
+               ' this email address. All news downloads have their title as a'
+               ' tag, so you can use this to easily control which news downloads'
+               ' are sent to this email address.')
              ])))
 
     def do_sort(self):
@@ -62,6 +67,9 @@ class EmailAccounts(QAbstractTableModel):  # {{{
         elif col == 4:
             def key(account_key):
                 return numeric_sort_key(self.aliases.get(account_key) or '')
+        elif col == 5:
+            def key(account_key):
+                return numeric_sort_key(self.tags.get(account_key) or '')
         self.account_order.sort(key=key, reverse=not self.sorted_on[1])
 
     def sort(self, column, order=Qt.AscendingOrder):
@@ -105,6 +113,8 @@ class EmailAccounts(QAbstractTableModel):  # {{{
                 return (self.subjects.get(account, ''))
             if col == 4:
                 return (self.aliases.get(account, ''))
+            if col == 5:
+                return (self.tags.get(account, ''))
         if role == Qt.FontRole and self.accounts[account][2]:
             return self.default_font
         if role == Qt.CheckStateRole and col == 3:
@@ -131,6 +141,11 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             aval = unicode(value or '').strip()
             if aval:
                 self.aliases[account] = aval
+        elif col == 5:
+            self.tags.pop(account, None)
+            aval = unicode(value or '').strip()
+            if aval:
+                self.tags[account] = aval
         elif col == 1:
             self.accounts[account][0] = unicode(value or '').upper()
         elif col == 0:
@@ -206,7 +221,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.send_email_widget.changed_signal.connect(self.changed_signal.emit)
         opts = self.send_email_widget.smtp_opts
         self._email_accounts = EmailAccounts(opts.accounts, opts.subjects,
-                opts.aliases)
+                opts.aliases, opts.tags)
         self._email_accounts.dataChanged.connect(lambda x,y:
                 self.changed_signal.emit())
         self.email_view.setModel(self._email_accounts)
@@ -241,6 +256,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.proxy['accounts'] =  self._email_accounts.accounts
         self.proxy['subjects'] = self._email_accounts.subjects
         self.proxy['aliases'] = self._email_accounts.aliases
+        self.proxy['tags'] = self._email_accounts.tags
 
         return ConfigWidgetBase.commit(self)
 

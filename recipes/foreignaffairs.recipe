@@ -49,7 +49,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
     def parse_index(self):
         answer = []
-        soup = self.index_to_soup(self.FRONTPAGE)
+        soup = self.index_to_soup(html.tostring(self.clean_fa_html(self.index_to_soup(self.FRONTPAGE, as_tree=True))))
         div = soup.find('div', attrs={'class':'magazine-hero__image image_auto_width'})
         self.cover_url =  div.find('img')['src']
         # get dates
@@ -80,12 +80,16 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
                 answer.append((section, articles))
         return answer
 
-    def preprocess_raw_html(self, raw_html, url):
-        root = html5lib.parse(raw_html, treebuilder='lxml', namespaceHTMLElements=False).getroot()
+    def clean_fa_html(self, root):
         for svg in tuple(root.iter('{*}svg')):
             svg.getparent().remove(svg)
         for meta in tuple(root.iter('{*}meta')):
             meta.getparent().remove(meta)
+        return root
+
+    def preprocess_raw_html(self, raw_html, url):
+        root = html5lib.parse(raw_html, treebuilder='lxml', namespaceHTMLElements=False).getroot()
+        self.clean_fa_html(root)
         return html.tostring(root)
 
     def preprocess_html(self, soup):

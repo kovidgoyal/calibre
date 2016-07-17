@@ -421,7 +421,7 @@ def set_authors(root, prefixes, refines, authors):
     for item in XPath('./opf:metadata/dc:creator')(root):
         props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
         opf_role = item.get(OPF('role'))
-        if (is_relators_role(props, 'aut')) or (opf_role and opf_role.lower() != 'aut'):
+        if (opf_role and opf_role.lower() != 'aut') or (props.get('role') and not is_relators_role(props, 'aut')):
             continue
         remove_element(item, refines)
     metadata = XPath('./opf:metadata')(root)[0]
@@ -457,7 +457,7 @@ def set_book_producers(root, prefixes, refines, producers):
     for item in XPath('./opf:metadata/dc:contributor')(root):
         props = properties_for_id_with_scheme(item.get('id'), prefixes, refines)
         opf_role = item.get(OPF('role'))
-        if (is_relators_role(props, 'bkp')) or (opf_role and opf_role.lower() != 'bkp'):
+        if (opf_role and opf_role.lower() != 'bkp') or (props.get('role') and not is_relators_role(props, 'bkp')):
             continue
         remove_element(item, refines)
     metadata = XPath('./opf:metadata')(root)[0]

@@ -232,6 +232,11 @@ class CybookOdyssey(CybookOpus):
     name = 'Cybook Odyssey'
     id = 'cybook_odyssey'
 
+class CybookMuse(CybookOpus):
+
+    name = 'Cybook Muse'
+    id = 'cybook_muse'
+    output_profile = 'tablet'
 
 class PocketBook360(CybookOpus):
 

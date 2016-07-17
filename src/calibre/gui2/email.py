@@ -155,6 +155,8 @@ def email_news(mi, remove, get_fmts, done, job_manager):
         files = [f for f in files if f is not None]
         if not files:
             continue
+        if opts.tags.get(account, False) and not ({t.strip() for t in opts.tags[account].split(',')} & set(mi.tags)):
+            continue
         attachment = files[0]
         to_s = [account]
         subjects = [_('News:')+' '+mi.title]

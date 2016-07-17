@@ -1480,7 +1480,7 @@ class Cache(object):
         if title:
             if isbytestring(title):
                 title = title.decode(preferred_encoding, 'replace')
-            q = icu_lower(title)
+            q = icu_lower(title).strip()
             for title in self.fields['title'].table.book_col_map.itervalues():
                 if q == icu_lower(title):
                     return True
