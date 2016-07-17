@@ -135,24 +135,18 @@ if iswindows:
     prefix  = sw = os.environ.get('SW', r'C:\cygwin64\home\kovid\sw')
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
-    ICU = os.environ.get('ICU_DIR', os.path.join(prefix, 'private', 'icu'))
-    icu_inc_dirs = [os.path.join(ICU, 'source', 'common'), os.path.join(ICU,
-        'source', 'i18n')]
-    icu_lib_dirs = [os.path.join(ICU, 'source', 'lib')]
-    SSL = os.environ.get('OPENSSL_DIR', os.path.join(prefix, 'private', 'openssl'))
-    openssl_inc_dirs = [os.path.join(SSL, 'include')]
-    openssl_lib_dirs = [os.path.join(SSL, 'lib')]
+    icu_inc_dirs = [sw_inc_dir]
+    icu_lib_dirs = [sw_lib_dir]
+    openssl_inc_dirs = [sw_inc_dir]
+    openssl_lib_dirs = [sw_lib_dir]
     sqlite_inc_dirs = [sw_inc_dir]
-    chmlib_inc_dirs = consolidate('CHMLIB_INC_DIR', os.path.join(prefix,
-        'build', 'chmlib-0.40', 'src'))
-    chmlib_lib_dirs = consolidate('CHMLIB_LIB_DIR', os.path.join(prefix,
-        'build', 'chmlib-0.40', 'src', 'Release'))
+    chmlib_inc_dirs = [sw_inc_dir]
+    chmlib_lib_dirs = [sw_lib_dir]
     ft_lib_dirs = [sw_lib_dir]
     ft_libs = ['freetype']
     ft_inc_dirs = [os.path.join(sw_inc_dir, 'freetype2'), sw_inc_dir]
     zlib_inc_dirs = [sw_inc_dir]
     zlib_lib_dirs = [sw_lib_dir]
-
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
