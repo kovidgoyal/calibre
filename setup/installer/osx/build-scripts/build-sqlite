@@ -1,5 +1,0 @@
-#!/bin/sh
-
-export CFLAGS="$CFLAGS -O2 -DSQLITE_ENABLE_LOCKING_STYLE"
-cd $SW/build/sqlite-* &&\
-./configure --prefix=$SW --disable-dependency-tracking --disable-static && make && make install

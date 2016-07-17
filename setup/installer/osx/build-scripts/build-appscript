@@ -1,3 +1,0 @@
-#!/bin/sh
-
-easy_install --always-unzip -U appscript

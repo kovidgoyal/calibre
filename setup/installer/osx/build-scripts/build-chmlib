@@ -1,5 +1,0 @@
-#!/bin/bash
-
-cd $SW/build/chmlib* && \
-#cp /usr/share/libtool/config.* . && \
-./configure --disable-dependency-tracking --disable-pread --disable-io64 --prefix=$SW && make && make install

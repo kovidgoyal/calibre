@@ -1,3 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/glib-* && ./configure --prefix=$SW --disable-selinux --disable-fam --disable-static --with-libiconv=gnu  && make && make install

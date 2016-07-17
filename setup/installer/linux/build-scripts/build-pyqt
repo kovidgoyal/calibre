@@ -1,5 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/PyQt-gpl-* && \
-python configure.py --verbose --confirm-license -c -j10  --no-designer-plugin --no-qml-plugin --no-docstrings && \
-make -j2 && make install

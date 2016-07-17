@@ -18,12 +18,14 @@ __all__ = [
         'pypi_register', 'pypi_upload', 'upload_to_server',
         'upload_installers',
         'upload_user_manual', 'upload_demo', 'reupload',
-        'linux32', 'linux64', 'linux', 'linux_freeze',
-        'osx32_freeze', 'osx', 'rsync', 'push',
-        'win32_freeze', 'win32', 'win64', 'win',
         'stage1', 'stage2', 'stage3', 'stage4', 'stage5', 'publish', 'publish_betas',
+        'linux', 'linux32', 'linux64', 'win', 'win32', 'win64', 'osx',
         ]
 
+from setup.installers import Linux, Win, OSX, Linux32, Linux64, Win32, Win64
+linux, linux32, linux64 = Linux(), Linux32(), Linux64()
+win, win32, win64 = Win(), Win32(), Win64()
+osx = OSX()
 
 from setup.translations import POT, GetTranslations, Translations, ISO639, ISO3166
 pot = POT()
@@ -80,29 +82,6 @@ upload_demo = UploadDemo()
 upload_to_server = UploadToServer()
 upload_installers = UploadInstallers()
 reupload = ReUpload()
-
-from setup.installer import Rsync, Push
-rsync = Rsync()
-push = Push()
-
-from setup.installer.linux import Linux, Linux32, Linux64
-linux = Linux()
-linux32 = Linux32()
-linux64 = Linux64()
-from setup.installer.linux.freeze2 import LinuxFreeze
-linux_freeze = LinuxFreeze()
-
-from setup.installer.osx import OSX
-osx = OSX()
-from setup.installer.osx.app.main import OSX32_Freeze
-osx32_freeze = OSX32_Freeze()
-
-from setup.installer.windows import Win, Win32, Win64
-win = Win()
-win32 = Win32()
-win64 = Win64()
-from setup.installer.windows.freeze import Win32Freeze
-win32_freeze = Win32Freeze()
 
 from setup.pypi import PyPIRegister, PyPIUpload
 pypi_register = PyPIRegister()

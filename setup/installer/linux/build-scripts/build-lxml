@@ -1,3 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/lxml-3* && rm -rf build/* && python setup.py install

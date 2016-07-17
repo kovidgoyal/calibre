@@ -1,4 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/ncurses-* && \
-./configure --prefix=$SW --with-shared --without-debug --without-ada --enable-widec && make && make install
