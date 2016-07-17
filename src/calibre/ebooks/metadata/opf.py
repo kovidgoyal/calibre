@@ -27,13 +27,16 @@ def get_metadata2(root, ver):
 def get_metadata3(root, ver):
     return read_metadata(root, ver=ver, return_extra_data=True)
 
+def get_metadata_from_parsed(root):
+    ver = parse_opf_version(root.get('version'))
+    f = get_metadata2 if ver.major < 3 else get_metadata3
+    return f(root, ver)
+
 def get_metadata(stream):
     if isinstance(stream, bytes):
         stream = DummyFile(stream)
     root = parse_opf(stream)
-    ver = parse_opf_version(root.get('version'))
-    f = get_metadata2 if ver.major < 3 else get_metadata3
-    return f(root, ver)
+    return get_metadata_from_parsed(root)
 
 def set_metadata_opf2(root, cover_prefix, mi, opf_version,
                       cover_data=None, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):

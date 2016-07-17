@@ -953,10 +953,9 @@ class EbookViewer(MainWindow):
                         det_msg=tb, show=True)
             self.close_progress_indicator()
         else:
-            self.metadata.show_opf(self.iterator.opf,
-                    self.iterator.book_format)
+            self.metadata.show_metadata(self.iterator.mi, self.iterator.book_format)
             self.view.current_language = self.iterator.language
-            title = self.iterator.opf.title
+            title = self.iterator.mi.title
             if not title:
                 title = os.path.splitext(os.path.basename(pathtoebook))[0]
             if self.iterator.toc:

@@ -6,13 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import httplib, hashlib, zlib, string, time
+import httplib, hashlib, zlib, string, time, os
 from io import BytesIO
 from tempfile import NamedTemporaryFile
 
 from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.utils.monotonic import monotonic
+
+is_travis = os.environ.get('TRAVIS') == 'true'
 
 class TestHTTP(BaseTest):
 
@@ -129,7 +131,9 @@ class TestHTTP(BaseTest):
             conn._HTTPConnection__state = httplib._CS_REQ_SENT
             return conn.getresponse()
 
-        with TestServer(handler, timeout=0.2, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
+        base_timeout = 0.5 if is_travis else 0.1
+
+        with TestServer(handler, timeout=base_timeout, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
             conn = server.connect()
             r = raw_send(conn, b'hello\n')
             self.ae(r.status, httplib.BAD_REQUEST)
@@ -189,7 +193,7 @@ class TestHTTP(BaseTest):
             self.ae('', r.read())
 
             server.change_handler(lambda data:data.path[0] + data.read().decode('ascii'))
-            conn = server.connect(timeout=1)
+            conn = server.connect(timeout=base_timeout * 5)
 
             # Test simple GET
             conn.request('GET', '/test/')
@@ -249,7 +253,7 @@ class TestHTTP(BaseTest):
             r = conn.getresponse()
             self.ae(r.status, httplib.BAD_REQUEST), self.ae(r.read(), b'Chunk does not have trailing CRLF')
 
-            conn = server.connect(timeout=1)
+            conn = server.connect(timeout=base_timeout * 5)
             conn.request('POST', '/test', headers={'Transfer-Encoding': 'chunked'})
             conn.send(b'30\r\nbody\r\n0\r\n\r\n')
             r = conn.getresponse()

@@ -139,9 +139,10 @@ class EbookIterator(BookmarksMixin):
         self.book_format, self.pathtoopf, input_fmt = run_extract_book(
             self.pathtoebook, self.base, only_input_plugin=only_input_plugin, view_kepub=view_kepub, processed=processed)
         self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
-        self.language = self.opf.language
-        if self.language:
-            self.language = self.language.lower()
+        self.mi = self.opf.to_book_metadata()
+        self.language = None
+        if self.mi.languages:
+            self.language = self.mi.languages[0].lower()
         ordered = [i for i in self.opf.spine if i.is_linear] + \
                   [i for i in self.opf.spine if not i.is_linear]
         self.spine = []

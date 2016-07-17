@@ -620,6 +620,9 @@ class OPF(object):  # {{{
         self._user_metadata_ = temp.get_all_user_metadata(True)
 
     def to_book_metadata(self):
+        if self.package_version >= 3.0:
+            from calibre.ebooks.metadata.opf3 import read_metadata
+            return read_metadata(self.root)
         ans = MetaInformation(self)
         for n, v in self._user_metadata_.items():
             ans.set_user_metadata(n, v)
