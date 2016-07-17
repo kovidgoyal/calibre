@@ -1,6 +1,0 @@
-#!/bin/sh
-export FREETYPE_CFLAGS="-I$SW/include/freetype2"
-export FREETYPE_LIBS="-L$SW/lib -lfreetype -lz -lbz2"
-
-cd $SW/build/fontconfig-2.* && \
-./configure --prefix=$SW --disable-static --disable-docs --with-expat=$SW  --with-add-fonts=/usr/X11/lib/X11/fonts --disable-dependency-tracking  && make && make install

@@ -1,4 +1,0 @@
-#!/bin/sh
-cd $SW/build/libxml2-2.* && \
-./configure --prefix=$SW --enable-shared --disable-static --with-iconv=$SW --with-zlib=$SW --without-python --without-debug --disable-dependency-tracking && make && make install
-

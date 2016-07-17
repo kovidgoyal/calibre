@@ -1,5 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/libplist-* && \
-./configure --without-cython --disable-dependency-tracking --prefix=$SW && \
-make && make install

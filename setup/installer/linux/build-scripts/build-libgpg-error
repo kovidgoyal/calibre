@@ -1,3 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/libgpg-error* && ./configure --prefix=$SW --disable-static && make && make install

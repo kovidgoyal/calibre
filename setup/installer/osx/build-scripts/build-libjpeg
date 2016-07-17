@@ -1,4 +1,0 @@
-#!/bin/bash
-
-cd $SW/build/libjpeg-turbo* && \
-./configure --disable-dependency-tracking --enable-shared --with-jpeg8 --without-turbojpeg --prefix=$SW --host x86_64-apple-darwin NASM=$SW/bin/nasm && make -j2 && make install

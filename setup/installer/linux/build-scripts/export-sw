@@ -1,8 +1,0 @@
-#!/bin/sh
-cd $HOME
-rm sw-linux*;
-cp /usr/lib/x86_64-linux-gnu/libffi.so.5 /lib/x86_64-linux-gnu/libdbus-1.so.3 ~/sw/lib/
-echo "[Paths]\nPrefix = .." > ~/sw/qt/bin/qt.conf && cat ~/sw/qt/bin/qt.conf
-echo "[Paths]\nPrefix = ../qt" > ~/sw/bin/qt.conf && cat ~/sw/bin/qt.conf
-tar cf sw-linux.tar --exclude sw/build --exclude sw/sources --exclude sw/man --exclude '*.pyc' --exclude '*.pyo' --exclude 'sw/share/doc' --exclude sw/share/gtk-doc --exclude sw/share/man --exclude sw/share/info sw && xz -9 sw-linux.tar
-rm ~/sw/lib/libffi.so.5 ~/sw/lib/libdbus-1.so.3 ~/sw/qt/bin/qt.conf ~/sw/bin/qt.conf

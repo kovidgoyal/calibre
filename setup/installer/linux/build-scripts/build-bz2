@@ -1,7 +1,0 @@
-#!/bin/sh
-
-LBZ2=libbz2.so.1.0.6
-
-cd $SW/build/bzip2* && make -f Makefile-libbz2_so && \
-    rm -f $SW/lib/libbz2* && cp -a $LBZ2 $SW/lib && ln -s $LBZ2 $SW/lib/libbz2.so && ln -s $LBZ2 $SW/lib/libbz2.so.1 && ln -s $LBZ2 $SW/lib/libbz2.so.1.0 && \
-    cp -a bzlib.h $SW/include

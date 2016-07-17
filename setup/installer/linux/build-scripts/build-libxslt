@@ -1,4 +1,0 @@
-#!/bin/sh
-cd $SW/build/libxslt-*
-./configure --prefix=$SW --enable-shared --disable-static --without-python --without-debug --disable-dependency-tracking --with-libxml-prefix=$SW && make && make install
-

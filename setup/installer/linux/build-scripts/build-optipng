@@ -1,7 +1,0 @@
-#!/bin/bash
-
-export CPPFLAGS=$CFLAGS
-
-cd $SW/build/optipng* && \
-./configure -prefix=$SW -with-system-libs && make && make install
-
