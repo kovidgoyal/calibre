@@ -111,7 +111,7 @@ class FinancialTimes(BasicNewsRecipe):
         section_title = 'Untitled'
 
         for column in soup.findAll('div', attrs={'class':'feedBoxes clearfix'}):
-            for section in column. findAll('div', attrs={'class':'feedBox'}):
+            for section in column.findAll('div', attrs={'class':'feedBox'}):
                 sectiontitle=self.tag_to_string(section.find('h4'))
                 if '...' not in sectiontitle:
                     section_title=sectiontitle
