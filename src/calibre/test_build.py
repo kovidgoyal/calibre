@@ -144,6 +144,9 @@ class BuildTest(unittest.TestCase):
         na = QNetworkAccessManager()
         self.assertTrue(hasattr(na, 'sslErrors'), 'Qt not compiled with openssl')
         from PyQt5.QtWebKitWidgets import QWebView
+        if iswindows:
+            from PyQt5.Qt import QtWin
+            QtWin
         QWebView()
         del QWebView
         del na
