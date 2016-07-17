@@ -1,3 +1,0 @@
-#!/bin/sh
-cd $SW/build/zlib-* && \
-./configure --prefix=$SW && make && make install

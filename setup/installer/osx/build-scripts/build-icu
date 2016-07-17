@@ -1,9 +1,0 @@
-#!/bin/sh
-
-export CFLAGS="$CFLAGS -DU_CHARSET_IS_UTF8=1"
-export CPPFLAGS="$CFLAGS"
-export CXXFLAGS="$CFLAGS"
-
-cd $SW/build/icu*/source && \
-./runConfigureICU MacOSX --disable-samples --prefix=$SW && make && make install && python ~/build/calibre/setup/installer/osx/fix_icu.py
-

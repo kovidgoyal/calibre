@@ -1,3 +1,0 @@
-#!/bin/sh
-cd $SW/build/libiconv-* && \
-./configure --disable-static --disable-dependency-tracking --enable-shared --prefix=$SW && make && make install

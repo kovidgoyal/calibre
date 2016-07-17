@@ -1,9 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/icu*/source && \
-    ./configure --prefix=/usr --sysconfdir=/etc --mandir=/usr/share/man --sbindir=/usr/bin && make && \
-    rm -rf $SW/icu && rm -rf $SW/include/layout $SW/include/unicode && rm -f $SW/lib/libicu* && \
-    make -j1 DESTDIR=$SW/icu install && \
-    cp -ar $SW/icu/usr/include/* $SW/include && cp -a $SW/icu/usr/lib/libicu* $SW/lib/ && \
-    rm -rf $SW/icu
-

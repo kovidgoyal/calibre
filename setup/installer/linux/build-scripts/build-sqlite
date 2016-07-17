@@ -1,5 +1,0 @@
-#!/bin/sh
-
-export CFLAGS="$CFLAGS"
-cd $SW/build/sqlite-* &&\
-./configure --prefix=$SW --disable-dependency-tracking --disable-static && make && make install

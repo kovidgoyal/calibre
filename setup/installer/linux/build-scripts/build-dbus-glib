@@ -1,3 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/dbus-glib-* && ./configure --prefix=$SW --disable-static && make && make install

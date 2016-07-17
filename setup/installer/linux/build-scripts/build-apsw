@@ -1,7 +1,0 @@
-#!/bin/sh
-
-# Change the version of sqlite below (get the current version from https://sqlite.org/download.html)
-# You might also need to change 2013 to 2014 in the setup.py script
-
-cd $SW/build/apsw-* && rm -rf build/* && \
-python setup.py fetch --version=3.8.5 --sqlite --missing-checksum-ok && python setup.py install

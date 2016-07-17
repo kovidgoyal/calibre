@@ -1,3 +1,0 @@
-#!/bin/sh
-
-cd $SW/build/netifaces-* && python setup.py build && cp build/*/netifaces.so $SW/lib/python*/site-packages/

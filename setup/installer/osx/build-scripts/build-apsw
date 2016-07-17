@@ -1,7 +1,0 @@
-
-#!/bin/sh
-
-# Change the https URLs to http in setup.py
-
-cd $SW/build/apsw-* && rm -rf build/* && \
-python setup.py fetch --version=3.8.6 --sqlite --missing-checksum-ok && python setup.py install
