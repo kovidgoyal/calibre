@@ -589,6 +589,7 @@ class SearchRestrictionMixin(object):
             self._apply_search_restriction(restriction, r)
 
     def clear_additional_restriction(self):
+        self.search_restriction.setCurrentIndex(0)
         self._apply_search_restriction('', '')
 
     def _apply_search_restriction(self, restriction, name):
