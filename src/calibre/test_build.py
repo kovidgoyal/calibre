@@ -25,7 +25,7 @@ class BuildTest(unittest.TestCase):
         for x in os.listdir(base):
             if x.lower().endswith('.dll'):
                 try:
-                    ctypes.WinDLL(os.path.join(base, x))
+                    ctypes.WinDLL(str(os.path.join(base, x)))
                 except Exception as err:
                     self.assertTrue(False, 'Failed to load DLL %s with error: %s' % (x, err))
 
