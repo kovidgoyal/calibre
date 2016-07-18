@@ -469,9 +469,12 @@ class MobiMLizer(object):
                                 istate.attrib['height'] = str(int(height))
                         item.unload_data_from_memory()
         elif tag == 'hr' and asfloat(style['width']) > 0 and style._get('width') not in {'100%', 'auto'}:
-            rawti = style._get('text-indent')
-            prop = style['width'] / self.profile.width
-            istate.attrib['width'] = "%d%%" % int(round(prop * 100))
+            raww = style._get('width')
+            if hasattr(raww, 'strip') and '%' in raww:
+                istate.attrib['width'] = raww
+            else:
+                prop = style['width'] / self.profile.width
+                istate.attrib['width'] = "%d%%" % int(round(prop * 100))
         elif display == 'table':
             tag = 'table'
         elif display == 'table-row':
