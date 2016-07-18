@@ -203,8 +203,7 @@ class ViewLog(QDialog):  # {{{
         QApplication.clipboard().setText(txt)
 
     def dialog_closing(self, result):
-        self.geom = bytearray(self.saveGeometry())
-        gprefs[self.unique_name] = self.geom
+        gprefs[self.unique_name] = bytearray(self.saveGeometry())
 # }}}
 
 _proceed_memory = []
