@@ -84,7 +84,7 @@ pyqt['sip_bin'] = os.environ.get('SIP_BIN', 'sip')
 from PyQt5.QtCore import PYQT_CONFIGURATION
 pyqt['sip_flags'] = PYQT_CONFIGURATION['sip_flags']
 def get_sip_dir():
-    q = os.environ.get('SIP_DIR', sys.prefix if iswindows else os.path.join(sys.prefix, 'share', 'sip'))
+    q = os.environ.get('SIP_DIR', os.path.join(sys.prefix, 'share', 'sip') if iswindows else os.path.join(sys.prefix, 'share', 'sip'))
     for x in ('', 'Py2-PyQt5', 'PyQt5', 'sip/PyQt5'):
         base = os.path.join(q, x)
         if os.path.exists(os.path.join(base, 'QtWidgets')):
@@ -112,26 +112,7 @@ openssl_inc_dirs, openssl_lib_dirs = [], []
 icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
 ICU = sw = ''
 
-QT_DLLS = ['Qt5' + x for x in (
-'Core', 'Gui',  'OpenGL', 'Network', 'PrintSupport', 'Positioning', 'Sensors', 'Sql', 'Svg',
-'WebKit', 'WebKitWidgets', 'Widgets',  'Multimedia', 'MultimediaWidgets', 'Xml',  # 'XmlPatterns',
-)]
-QT_PLUGINS = ('imageformats', 'audio', 'iconengines', 'mediaservice', 'platforms', 'playlistformats', 'printsupport', 'sqldrivers')
-if islinux or ishaiku:
-    # platformthemes cause crashes in Ubuntu
-    QT_PLUGINS += ('platforminputcontexts', 'generic',)
-
-PYQT_MODULES = ('Qt', 'QtCore', 'QtGui', 'QtNetwork',  # 'QtMultimedia', 'QtMultimediaWidgets',
-                'QtPrintSupport', 'QtSensors', 'QtSvg', 'QtWebKit', 'QtWebKitWidgets', 'QtWidgets')
-QT_FRAMEWORKS = []
-
-
 if iswindows:
-    icu_libs = ['icudt', 'icuin', 'icuuc', 'icuio']
-    QT_DLLS += ['Qt5WinExtras']
-    QT_DLLS = {x + '.dll' for x in QT_DLLS}
-    PYQT_MODULES += ('QtWinExtras',)
-    PYQT_MODULES = {x + '.pyd' for x in PYQT_MODULES}
     prefix  = sw = os.environ.get('SW', r'C:\cygwin64\home\kovid\sw')
     sw_inc_dir  = os.path.join(prefix, 'include')
     sw_lib_dir  = os.path.join(prefix, 'lib')
@@ -150,9 +131,6 @@ if iswindows:
     podofo_inc = os.path.join(sw_inc_dir, 'podofo')
     podofo_lib = sw_lib_dir
 elif isosx:
-    QT_DLLS += ['Qt5DBus', 'Qt5MacExtras']
-    PYQT_MODULES += ('QtMacExtras',)
-    QT_FRAMEWORKS = [x.replace('5', '') for x in QT_DLLS]
     sw = os.environ.get('SW', os.path.expanduser('~/sw'))
     podofo_inc = os.path.join(sw, 'include', 'podofo')
     podofo_lib = os.path.join(sw, 'lib')
@@ -164,8 +142,6 @@ elif isosx:
     openssl_inc_dirs = [os.path.join(SSL, 'include')]
     openssl_lib_dirs = [os.path.join(SSL, 'lib')]
 else:
-    QT_DLLS += ['Qt5DBus', 'Qt5XcbQpa', 'Qt5X11Extras']
-    PYQT_MODULES += ('QtX11Extras',)
     ft_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR',
             '/usr/include/freetype2')
     ft_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
@@ -188,5 +164,3 @@ podofo_inc = [podofo_inc, os.path.dirname(podofo_inc)]
 
 BUILD_HOST='192.168.81.1'
 PROJECT=os.path.basename(os.path.abspath('.'))
-
-
