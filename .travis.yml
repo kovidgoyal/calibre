@@ -10,10 +10,19 @@ matrix:
     include:
         - os: linux
           sudo: false
+          env:
+            - SW=$HOME/sw PATH=$SW/bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib LD_LIBRARY_PATH=$SW/qt/lib:$SW/lib PKG_CONFIG_PATH=$SW/lib/pkgconfig QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins
         - os: osx
+          env:
+            # On OS X the frameworks/dylibs contain hard coded paths, so we have to re-create the paths in the VM exactly
+            - SWBASE=/sw SW=$SWBASE/sw PATH=$SW/bin:$SW/qt/bin:$SW/python/Python.framework/Versions/2.7/bin:$PWD/node_modules/.bin:$PATH CFLAGS=-I$SW/include LDFLAGS=-L$SW/lib QMAKE=$SW/qt/bin/qmake QT_PLUGIN_PATH=$SW/qt/plugins 
 
 before_install:
-    - python setup/unix-ci.py install
-    - python setup/unix-ci.py bootstrap
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then mkdir -p $SW && curl https://download.calibre-ebook.com/travis/linux-64.tar.xz | tar xJ -C $SW; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo mkdir -p $SW && sudo chown -R $USER $SWBASE; fi
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl https://download.calibre-ebook.com/travis/osx.tar.xz | tar xJ -C $SW; fi
+    - npm install --no-optional rapydscript-ng && echo $PATH && which rapydscript && rapydscript --version
+    - python setup.py bootstrap --ephemeral
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export SSL_CERT_FILE=$PWD/resources/mozilla-ca-certs.pem; fi
 
-script: python setup/unix-ci.py test
+script: python setup.py test
