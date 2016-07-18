@@ -336,7 +336,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         UpdateMixin.init_update_mixin(self, opts)
 
         # ###################### Search boxes ########################
-        SearchRestrictionMixin.init_search_restirction_mixin(self)
+        SearchRestrictionMixin.init_search_restriction_mixin(self)
         SavedSearchBoxMixin.init_saved_seach_box_mixin(self)
 
         # ###################### Library view ########################

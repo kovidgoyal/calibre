@@ -312,7 +312,7 @@ class SearchRestrictionMixin(object):
     def __init__(self, *args, **kwargs):
         pass
 
-    def init_search_restirction_mixin(self):
+    def init_search_restriction_mixin(self):
         self.checked = QIcon(I('ok.png'))
         self.empty = QIcon(I('blank.png'))
         self.current_search_action = QAction(self.empty, _('*current search'), self)
