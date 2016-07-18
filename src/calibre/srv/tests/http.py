@@ -14,7 +14,7 @@ from calibre import guess_type
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.utils.monotonic import monotonic
 
-is_travis = os.environ.get('TRAVIS') == 'true'
+is_ci = os.environ.get('CI', '').lower() == 'true'
 
 class TestHTTP(BaseTest):
 
@@ -131,7 +131,7 @@ class TestHTTP(BaseTest):
             conn._HTTPConnection__state = httplib._CS_REQ_SENT
             return conn.getresponse()
 
-        base_timeout = 0.5 if is_travis else 0.1
+        base_timeout = 0.5 if is_ci else 0.1
 
         with TestServer(handler, timeout=base_timeout, max_header_line_size=100./1024, max_request_body_size=100./(1024*1024)) as server:
             conn = server.connect()

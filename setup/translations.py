@@ -13,7 +13,7 @@ from functools import partial
 
 from setup import Command, __appname__, __version__, require_git_master, build_cache_dir
 from setup.parallel_build import parallel_check_output
-is_travis = os.environ.get('TRAVIS') == 'true'
+is_ci = os.environ.get('CI', '').lower() == 'true'
 
 def qt_sources():
     qtdir = '/usr/src/qt5'
@@ -387,7 +387,7 @@ class Translations(POT):  # {{{
                     self.write_cache(cdata, current_hash, src)
                 if raw:
                     zi = ZipInfo(os.path.basename(src).rpartition('.')[0])
-                    zi.compress_type = ZIP_STORED if is_travis else ZIP_DEFLATED
+                    zi.compress_type = ZIP_STORED if is_ci else ZIP_DEFLATED
                     zf.writestr(zi, raw)
 
     def check_iso639(self, raw, path):

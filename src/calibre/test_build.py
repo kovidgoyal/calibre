@@ -14,11 +14,11 @@ Test a binary calibre build to ensure that all needed binary images/libraries ha
 
 import os, ctypes, sys, unittest
 from calibre.constants import plugins, iswindows, islinux, isosx
-is_travis = os.environ.get('TRAVIS') == 'true'
+is_ci = os.environ.get('CI', '').lower() == 'true'
 
 class BuildTest(unittest.TestCase):
 
-    @unittest.skipUnless(iswindows, 'DLL loading needs testing only on windows')
+    @unittest.skipUnless(iswindows and not is_ci, 'DLL loading needs testing only on windows (non-continuous integration)')
     def test_dlls(self):
         import win32api
         base = win32api.GetDllDirectory()
@@ -60,7 +60,7 @@ class BuildTest(unittest.TestCase):
 
     def test_plugins(self):
         exclusions = set()
-        if is_travis:
+        if is_ci:
             if isosx:
                 # The compiler version on OS X is different between the
                 # machine on which the dependencies are built and the
@@ -206,7 +206,7 @@ class BuildTest(unittest.TestCase):
         import psutil
         psutil.Process(os.getpid())
 
-    @unittest.skipIf(is_travis and isosx, 'Currently there is a C++ ABI incompatibility until the osx-build machine is moved to OS X 10.9')
+    @unittest.skipIf(is_ci and isosx, 'Currently there is a C++ ABI incompatibility until the osx-build machine is moved to OS X 10.9')
     def test_podofo(self):
         from calibre.utils.podofo import test_podofo as dotest
         dotest()

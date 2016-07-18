@@ -21,7 +21,7 @@ from calibre.srv.pre_activated import has_preactivated_support
 from calibre.srv.tests.base import BaseTest, TestServer
 from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.monotonic import monotonic
-is_travis = os.environ.get('TRAVIS') == 'true'
+is_ci = os.environ.get('CI', '').lower() == 'true'
 
 class LoopTest(BaseTest):
 
@@ -103,7 +103,7 @@ class LoopTest(BaseTest):
         with TestServer(lambda data:(data.path[0] + data.read()), listen_on='1.1.1.1', fallback_to_detected_interface=True, specialize=specialize) as server:
             self.assertNotEqual('1.1.1.1', server.address[0])
 
-    @skipIf(is_travis, 'Travis does not support BonJour')
+    @skipIf(is_ci, 'Continuous Integration servers do not support BonJour')
     def test_bonjour(self):
         'Test advertising via BonJour'
         from calibre.srv.bonjour import BonJour
