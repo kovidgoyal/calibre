@@ -159,40 +159,41 @@ def simple_repl(user_ns={}):
     code.interact(BANNER, raw_input, user_ns)
 
 def ipython(user_ns=None):
+    os.environ['IPYTHONDIR'] = ipydir
     try:
-        import IPython
-        try:
-            from traitlets.config import Config
-        except ImportError:
-            from IPython.config.loader import Config
+        from IPython.terminal.embed import InteractiveShellEmbed
+        from traitlets.config.loader import Config
+        from IPython.terminal.prompts import Prompts, Token
     except ImportError:
         return simple_repl(user_ns=user_ns)
+
+    class CustomPrompt(Prompts):
+
+        def in_prompt_tokens(self, cli=None):
+            return [
+                (Token.Prompt, 'calibre['),
+                (Token.PromptNum, get_version()),
+                (Token.Prompt, ']> '),
+            ]
+
+        def out_prompt_tokens(self):
+            return []
+
     defns = {'os':os, 're':re, 'sys':sys}
-    if not user_ns:
-        user_ns = defns
-    else:
-        defns.update(user_ns)
-        user_ns = defns
+    defns.update(user_ns or {})
 
     c = Config()
+    c.TerminalInteractiveShell.prompts_class = CustomPrompt
     c.InteractiveShellApp.exec_lines = [
         'from __future__ import division, absolute_import, unicode_literals, print_function',
         ]
     c.TerminalInteractiveShell.confirm_exit = False
-    c.PromptManager.in_template = (r'{color.LightGreen}calibre '
-            '{color.LightBlue}[{color.LightCyan}%s{color.LightBlue}]'
-            r'{color.Green}|\#> '%get_version())
-    c.PromptManager.in2_template = r'{color.Green}|{color.LightGreen}\D{color.Green}> '
-    c.PromptManager.out_template = r'<\#> '
     c.TerminalInteractiveShell.banner1 = BANNER
-    c.PromptManager.justify = True
-    c.TerminalIPythonApp.ipython_dir = ipydir
-    os.environ['IPYTHONDIR'] = ipydir
+    c.BaseIPythonApplication.ipython_dir = ipydir
 
     c.InteractiveShell.separate_in = ''
     c.InteractiveShell.separate_out = ''
     c.InteractiveShell.separate_out2 = ''
 
-    c.PrefilterManager.multi_line_specials = True
-
-    IPython.embed(config=c, user_ns=user_ns)
+    ipshell = InteractiveShellEmbed.instance(config=c, user_ns=user_ns)
+    ipshell()
