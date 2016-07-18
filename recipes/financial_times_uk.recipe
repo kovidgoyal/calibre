@@ -44,7 +44,7 @@ class FinancialTimes(BasicNewsRecipe):
                       dict(name='p'  , attrs={'class':lambda x: x and 'lastUpdated' in x.split()}),
                       dict(name='div', attrs={'class':lambda x: x and 'syndicationHeadline' in x.split()}),
                       dict(name='p'  , attrs={'class':lambda x: x and 'byline' in x.split()}),
-                      dict(name='div', attrs={'class':['fullstory fullstoryBody','ft-story-header','ft-story-body','index-detail']})
+                      dict(name='div', attrs={'class':['fullstory fullstoryBody','fullstory fullstoryBody specialArticle','ft-story-header','ft-story-body','index-detail']})
     ]
     remove_tags = [
         dict(name='style', attrs={'id':'antiClickjack'}),
