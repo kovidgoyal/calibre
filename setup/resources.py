@@ -286,6 +286,8 @@ class RecentUAs(Command):
 
     def run(self, opts):
         lines = self.get_list()[:10]
+        if not lines:
+            raise RuntimeError('Failed to download list of common user agents')
         with open(self.UA_PATH, 'wb') as f:
             f.write('\n'.join(lines).encode('ascii'))
 
