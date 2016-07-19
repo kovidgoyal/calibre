@@ -801,7 +801,8 @@ class Amazon(Source):
 
     @property
     def user_agent(self):
-        return 'Mozilla/5.0 (compatible, MSIE 11, Windows NT 6.3; Trident/7.0;  rv:11.0) like Gecko'
+        # IE 11 - windows 7
+        return 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
 
     def save_settings(self, *args, **kwargs):
         Source.save_settings(self, *args, **kwargs)
@@ -1218,7 +1219,7 @@ if __name__ == '__main__':  # tests {{{
 
             (   # A kindle edition that does not appear in the search results when searching by ASIN
                 {'identifiers':{'amazon':'B004JHY6OG'}},
-                [title_test('The Heroes: A First Law Novel', exact=True)]
+                [title_test('The Heroes: A First Law Novel (First Law World 2)', exact=True)]
             ),
 
             (  # + in title and uses id="main-image" for cover
