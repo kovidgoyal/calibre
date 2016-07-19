@@ -11,7 +11,7 @@ __all__ = [
         'build', 'mathjax',
         'gui',
         'develop', 'install',
-        'kakasi', 'coffee', 'rapydscript', 'cacerts', 'resources',
+        'kakasi', 'coffee', 'rapydscript', 'cacerts', 'recent_uas', 'resources',
         'check', 'test',
         'sdist', 'bootstrap',
         'manual', 'tag_release',
@@ -53,11 +53,12 @@ check = Check()
 from setup.test import Test
 test = Test()
 
-from setup.resources import Resources, Kakasi, Coffee, CACerts, RapydScript
+from setup.resources import Resources, Kakasi, Coffee, CACerts, RapydScript, RecentUAs
 resources = Resources()
 kakasi = Kakasi()
 coffee = Coffee()
 cacerts = CACerts()
+recent_uas = RecentUAs()
 rapydscript = RapydScript()
 
 from setup.publish import Manual, TagRelease, Stage1, Stage2, \
