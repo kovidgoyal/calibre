@@ -372,15 +372,15 @@ USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
 
 
-_ua_list = None
 def random_user_agent(choose=None):
-    global _ua_list
-    if _ua_list is None:
+    try:
+        ua_list = random_user_agent.ua_list
+    except AttributeError:
         try:
-            _ua_list = P('common-user-agents.txt', data=True, allow_user_override=False).decode('utf-8').splitlines()
+            ua_list = random_user_agent.ua_list = P('common-user-agents.txt', data=True, allow_user_override=False).decode('utf-8').splitlines()
         except IOError:
             # People running from source checkout
-            _ua_list =  [
+            ua_list = random_user_agent.ua_list = [
                  # IE 11 - windows 10
                  'Mozilla/5.0 (Windows NT 10.0; Trident/7.0; rv:11.0) like Gecko',
                  # IE 11 - windows 8.1
@@ -396,7 +396,7 @@ def random_user_agent(choose=None):
                  # 32bit IE 11 on 64 bit win 7
                  'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
             ]
-    return random.choice(_ua_list) if choose is None else _ua_list[choose]
+    return random.choice(ua_list) if choose is None else ua_list[choose]
 
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, use_robust_parser=False, verify_ssl_certificates=True):
     '''
