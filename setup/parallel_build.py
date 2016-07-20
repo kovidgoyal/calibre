@@ -34,7 +34,7 @@ if iswindows:
     gsi.restype = None
     si = SYSTEM_INFO()
     gsi(si)
-    cpu_count = min(16, max(1, si.dwNumberOfProcessors))
+    cpu_count = si.dwNumberOfProcessors
 else:
     from multiprocessing import cpu_count
     try:
@@ -42,6 +42,7 @@ else:
     except NotImplementedError:
         cpu_count = 1
 
+cpu_count = min(16, max(1, cpu_count))
 
 def run_worker(job, decorate=True):
     cmd, human_text = job
