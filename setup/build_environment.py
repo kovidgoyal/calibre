@@ -109,7 +109,6 @@ icu_lib_dirs = []
 zlib_inc_dirs = []
 zlib_lib_dirs = []
 openssl_inc_dirs, openssl_lib_dirs = [], []
-icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
 ICU = sw = ''
 
 if iswindows:
@@ -161,6 +160,3 @@ podofo_error = None if os.path.exists(os.path.join(podofo_inc, 'podofo.h')) else
     ' functionality will not work. Use the PODOFO_INC_DIR and',
     ' PODOFO_LIB_DIR environment variables.')
 podofo_inc = [podofo_inc, os.path.dirname(podofo_inc)]
-
-BUILD_HOST='192.168.81.1'
-PROJECT=os.path.basename(os.path.abspath('.'))
