@@ -11,7 +11,37 @@ from multiprocessing.dummy import Pool
 from functools import partial
 from contextlib import closing
 
-from setup.build_environment import cpu_count
+from setup import iswindows
+
+if iswindows:
+    from ctypes import windll, Structure, POINTER, c_size_t
+    from ctypes.wintypes import WORD, DWORD, LPVOID
+    class SYSTEM_INFO(Structure):
+        _fields_ = [
+            ("wProcessorArchitecture",      WORD),
+            ("wReserved",                   WORD),
+            ("dwPageSize",                  DWORD),
+            ("lpMinimumApplicationAddress", LPVOID),
+            ("lpMaximumApplicationAddress", LPVOID),
+            ("dwActiveProcessorMask",       c_size_t),
+            ("dwNumberOfProcessors",        DWORD),
+            ("dwProcessorType",             DWORD),
+            ("dwAllocationGranularity",     DWORD),
+            ("wProcessorLevel",             WORD),
+            ("wProcessorRevision",          WORD)]
+    gsi = windll.kernel32.GetSystemInfo
+    gsi.argtypes = [POINTER(SYSTEM_INFO)]
+    gsi.restype = None
+    si = SYSTEM_INFO()
+    gsi(si)
+    cpu_count = min(16, max(1, si.dwNumberOfProcessors))
+else:
+    from multiprocessing import cpu_count
+    try:
+        cpu_count = cpu_count()
+    except NotImplementedError:
+        cpu_count = 1
+
 
 def run_worker(job, decorate=True):
     cmd, human_text = job

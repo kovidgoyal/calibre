@@ -40,16 +40,6 @@ PKGCONFIG = os.environ.get('PKG_CONFIG', PKGCONFIG)
 if islinux and not PKGCONFIG:
     raise SystemExit('Failed to find pkg-config on your system. You can use the environment variable PKG_CONFIG to point to the pkg-config executable')
 
-if iswindows:
-    import win32api
-    cpu_count = win32api.GetSystemInfo()[5]
-else:
-    from multiprocessing import cpu_count
-    try:
-        cpu_count = cpu_count()
-    except NotImplementedError:
-        cpu_count = 1
-
 def run_pkgconfig(name, envvar, default, flag, prefix):
     ans = []
     if envvar:

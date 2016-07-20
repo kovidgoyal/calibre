@@ -13,10 +13,10 @@ from setup import Command, islinux, isbsd, isosx, SRC, iswindows, __version__
 from setup.build_environment import (
     chmlib_inc_dirs, podofo_inc, podofo_lib, podofo_error, pyqt, NMAKE, QMAKE,
     msvc, win_inc, win_lib, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
-    icu_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs, cpu_count, is64bit,
+    icu_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs, is64bit,
     glib_flags, fontconfig_flags, openssl_inc_dirs, openssl_lib_dirs,
     zlib_inc_dirs, zlib_lib_dirs, zlib_libs, qmakespec)
-from setup.parallel_build import create_job, parallel_build
+from setup.parallel_build import create_job, parallel_build, cpu_count
 isunix = islinux or isosx or isbsd
 
 make = 'make' if isunix else NMAKE
