@@ -170,8 +170,8 @@ def init_env():
             ldflags.append('/LIBPATH:'+p)
         cflags.append('-I%s'%sysconfig.get_python_inc())
         ldflags.append('/LIBPATH:'+os.path.join(sysconfig.PREFIX, 'libs'))
-    return namedtuple('Environment', 'cc cxx debug cflags ldflags make')(
-        cc=cc, cxx=cxx, debug=debug, cflags=cflags, ldflags=ldflags, make=NMAKE if iswindows else 'make')
+    return namedtuple('Environment', 'cc cxx cflags ldflags make')(
+        cc=cc, cxx=cxx, cflags=cflags, ldflags=ldflags, make=NMAKE if iswindows else 'make')
 
 
 class Build(Command):
