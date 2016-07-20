@@ -116,6 +116,7 @@ zlib_inc_dirs = []
 zlib_lib_dirs = []
 zlib_libs = ['z']
 openssl_inc_dirs, openssl_lib_dirs = [], []
+icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
 ICU = sw = ''
 
 QT_DLLS = ['Qt5' + x for x in (
@@ -131,7 +132,6 @@ PYQT_MODULES = ('Qt', 'QtCore', 'QtGui', 'QtNetwork',  # 'QtMultimedia', 'QtMult
                 'QtPrintSupport', 'QtSensors', 'QtSvg', 'QtWebKit', 'QtWebKitWidgets', 'QtWidgets')
 QT_FRAMEWORKS = []
 
-icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
 
 if iswindows:
     icu_libs = ['icudt', 'icuin', 'icuuc', 'icuio']
