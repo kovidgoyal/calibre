@@ -32,7 +32,7 @@ get_translations = GetTranslations()
 iso639 = ISO639()
 iso3166 = ISO3166()
 
-from setup.extensions import Build
+from setup.build import Build
 build = Build()
 
 from setup.mathjax import MathJax
