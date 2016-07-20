@@ -15,7 +15,8 @@
     {
         "name": "speedup",
         "sources": "calibre/utils/speedup.c",
-        "windows_libraries": "m"
+        "libraries": "m",
+        "windows_libraries": ""
     },
     {
         "name": "zlib2",

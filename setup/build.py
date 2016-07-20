@@ -124,6 +124,7 @@ def read_extensions():
 def init_env():
     from setup.build_environment import msvc, is64bit, win_inc, win_lib, NMAKE
     from distutils import sysconfig
+    linker = None
     if isunix:
         cc = os.environ.get('CC', 'gcc')
         cxx = os.environ.get('CXX', 'g++')
@@ -170,8 +171,9 @@ def init_env():
             ldflags.append('/LIBPATH:'+p)
         cflags.append('-I%s'%sysconfig.get_python_inc())
         ldflags.append('/LIBPATH:'+os.path.join(sysconfig.PREFIX, 'libs'))
-    return namedtuple('Environment', 'cc cxx cflags ldflags make')(
-        cc=cc, cxx=cxx, cflags=cflags, ldflags=ldflags, make=NMAKE if iswindows else 'make')
+        linker = msvc.linker
+    return namedtuple('Environment', 'cc cxx cflags ldflags linker make')(
+        cc=cc, cxx=cxx, cflags=cflags, ldflags=ldflags, linker=linker, make=NMAKE if iswindows else 'make')
 
 
 class Build(Command):
@@ -262,7 +264,7 @@ class Build(Command):
         if ext.sip_files:
             return self.build_pyqt_extension(ext, dest)
         compiler = self.env.cxx if ext.needs_cxx else self.env.cc
-        linker = self.env.msvc.linker if iswindows else compiler
+        linker = self.env.linker if iswindows else compiler
         objects = []
         obj_dir = self.j(self.obj_dir, ext.name)
         einc = self.inc_dirs_to_cflags(ext.inc_dirs)
