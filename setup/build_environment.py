@@ -131,7 +131,10 @@ PYQT_MODULES = ('Qt', 'QtCore', 'QtGui', 'QtNetwork',  # 'QtMultimedia', 'QtMult
                 'QtPrintSupport', 'QtSensors', 'QtSvg', 'QtWebKit', 'QtWebKitWidgets', 'QtWidgets')
 QT_FRAMEWORKS = []
 
+icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
+
 if iswindows:
+    icu_libs = ['icudt', 'icuin', 'icuuc', 'icuio']
     QT_DLLS += ['Qt5WinExtras']
     QT_DLLS = {x + '.dll' for x in QT_DLLS}
     PYQT_MODULES += ('QtWinExtras',)

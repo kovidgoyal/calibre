@@ -15,7 +15,7 @@ from setup.build_environment import (
     msvc, win_inc, win_lib, chmlib_lib_dirs, sqlite_inc_dirs, icu_inc_dirs,
     icu_lib_dirs, ft_libs, ft_lib_dirs, ft_inc_dirs, is64bit,
     glib_flags, fontconfig_flags, openssl_inc_dirs, openssl_lib_dirs,
-    zlib_inc_dirs, zlib_lib_dirs, zlib_libs, qmakespec)
+    zlib_inc_dirs, zlib_lib_dirs, zlib_libs, qmakespec, icu_libs)
 from setup.parallel_build import create_job, parallel_build, cpu_count
 isunix = islinux or isosx or isbsd
 
@@ -53,11 +53,6 @@ class Extension(object):
 
 reflow_sources = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.cpp'))
 reflow_headers = glob.glob(os.path.join(SRC, 'calibre', 'ebooks', 'pdf', '*.h'))
-
-icu_libs = ['icudata', 'icui18n', 'icuuc', 'icuio']
-icu_cflags = []
-if iswindows:
-    icu_libs = ['icudt', 'icuin', 'icuuc', 'icuio']
 
 extensions = [
 
@@ -127,8 +122,7 @@ extensions = [
         headers=['calibre/utils/icu_calibre_utils.h'],
         libraries=icu_libs,
         lib_dirs=icu_lib_dirs,
-        inc_dirs=icu_inc_dirs,
-        cflags=icu_cflags
+        inc_dirs=icu_inc_dirs
         ),
 
     Extension('sqlite_custom',
@@ -191,7 +185,6 @@ extensions = [
         headers=['calibre/utils/icu_calibre_utils.h'],
         libraries=icu_libs,
         lib_dirs=icu_lib_dirs,
-        cflags=icu_cflags,
         inc_dirs=icu_inc_dirs
     ),
 
