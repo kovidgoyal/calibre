@@ -106,7 +106,7 @@ def parse_extension(ext):
         cflags = kw['cflags']
         prefix = '/D' if iswindows else '-D'
         cflags.extend(prefix + x for x in defines.split())
-    for k in 'inc_dirs sources headers sip_files'.split():
+    for k in 'inc_dirs lib_dirs sources headers sip_files'.split():
         v = get(k)
         if v:
             kw[k] = expand_file_list(v.split())
