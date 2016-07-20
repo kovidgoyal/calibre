@@ -79,12 +79,8 @@ def is_ext_allowed(ext):
     only = ext.get('only', '')
     if only:
         only = only.split()
-        if iswindows and 'windows' not in only:
-            return False
-        if isosx and 'osx' not in only:
-            return False
-        if 'linux' not in only:
-            return False
+        q = 'windows' if iswindows else 'osx' if isosx else 'linux'
+        return q in only
     return True
 
 def parse_extension(ext):
