@@ -378,6 +378,7 @@ class Boss(QObject):
             self.set_modified()
         self.gui.toc_view.update_if_visible()
         completion_worker().clear_caches()
+        self.gui.preview.start_refresh_timer()
 
     @in_thread_job
     def delete_requested(self, spine_items, other_items):
