@@ -1523,9 +1523,11 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
             text = d.text()
             if not text:
                 return
-        vals = self.current_val
-        vals['isbn'] = text
-        self.current_val = vals
+        text = check_isbn(text)
+        if text:
+            vals = self.current_val
+            vals['isbn'] = text
+            self.current_val = vals
 
 # }}}
 
