@@ -76,9 +76,21 @@ The special characters are:
     (?<!...)            Matches if not preceded by ....
     (?(id)yes|no)       Matches yes pattern if group id matched, the (optional)
                         no pattern otherwise.
+    (?(DEFINE)...)      If there's no group called "DEFINE", then ... will be
+                        ignored, but any group definitions will be available.
     (?|...|...)         (?|A|B), creates an RE that will match either A or B,
                         but reuses capture group numbers across the
                         alternatives.
+    (*FAIL)             Forces matching to fail, which means immediate
+                        backtracking.
+    (*F)                Abbreviation for (*FAIL).
+    (*PRUNE)            Discards the current backtracking information. Its
+                        effect doesn't extend outside an atomic group or a
+                        lookaround.
+    (*SKIP)             Similar to (*PRUNE), except that it also sets where in
+                        the text the next attempt at matching the entire
+                        pattern will start. Its effect doesn't extend outside
+                        an atomic group or a lookaround.
 
 The fuzzy matching constraints are: "i" to permit insertions, "d" to permit
 deletions, "s" to permit substitutions, "e" to permit any of these. Limits are
@@ -124,6 +136,7 @@ second character.
     \g<name>        Matches the text matched by the group named name.
     \G              Matches the empty string, but only at the position where
                     the search started.
+    \K              Keeps only what follows for the entire match.
     \L<name>        Named list. The list is provided as a keyword argument.
     \m              Matches the empty string, but only at the start of a word.
     \M              Matches the empty string, but only at the end of a word.
@@ -188,6 +201,8 @@ these flags can also be set within an RE:
                           when matching a bytestring.
     B   b   BESTMATCH     Find the best fuzzy match (default is first).
     D       DEBUG         Print the parsed pattern.
+    E   e   ENHANCEMATCH  Attempt to improve the fit after finding the first
+                          fuzzy match.
     F   f   FULLCASE      Use full case-folding when performing
                           case-insensitive matching in Unicode.
     I   i   IGNORECASE    Perform case-insensitive matching.
@@ -196,8 +211,7 @@ these flags can also be set within an RE:
     M   m   MULTILINE     "^" matches the beginning of lines (after a newline)
                           as well as the string. "$" matches the end of lines
                           (before a newline) as well as the end of the string.
-    E   e   ENHANCEMATCH  Attempt to improve the fit after finding the first
-                          fuzzy match.
+    P   p   POSIX         Perform POSIX-standard matching (leftmost longest).
     R   r   REVERSE       Searches backwards.
     S   s   DOTALL        "." matches any character at all, including the
                           newline.
@@ -221,11 +235,11 @@ __all__ = ["compile", "escape", "findall", "finditer", "fullmatch", "match",
   "purge", "search", "split", "splititer", "sub", "subf", "subfn", "subn",
   "template", "Scanner", "A", "ASCII", "B", "BESTMATCH", "D", "DEBUG", "E",
   "ENHANCEMATCH", "S", "DOTALL", "F", "FULLCASE", "I", "IGNORECASE", "L",
-  "LOCALE", "M", "MULTILINE", "R", "REVERSE", "T", "TEMPLATE", "U", "UNICODE",
-  "V0", "VERSION0", "V1", "VERSION1", "X", "VERBOSE", "W", "WORD", "error",
-  "Regex"]
+  "LOCALE", "M", "MULTILINE", "P", "POSIX", "R", "REVERSE", "T", "TEMPLATE",
+  "U", "UNICODE", "V0", "VERSION0", "V1", "VERSION1", "X", "VERBOSE", "W",
+  "WORD", "error", "Regex"]
 
-__version__ = "2.4.66"
+__version__ = "2.4.105"
 
 # --------------------------------------------------------------------
 # Public interface.
@@ -341,50 +355,27 @@ def template(pattern, flags=0):
 
 def escape(pattern, special_only=False):
     "Escape all non-alphanumeric characters or special characters in pattern."
-    if isinstance(pattern, unicode):
-        s = []
-        if special_only:
-            for c in pattern:
-                if c in _METACHARS:
-                    s.append(u"\\")
-                    s.append(c)
-                elif c == u"\x00":
-                    s.append(u"\\000")
-                else:
-                    s.append(c)
-        else:
-            for c in pattern:
-                if c in _ALNUM:
-                    s.append(c)
-                elif c == u"\x00":
-                    s.append(u"\\000")
-                else:
-                    s.append(u"\\")
-                    s.append(c)
-
-        return u"".join(s)
+    s = []
+    if special_only:
+        for c in pattern:
+            if c in _METACHARS:
+                s.append("\\")
+                s.append(c)
+            elif c == "\x00":
+                s.append("\\000")
+            else:
+                s.append(c)
     else:
-        s = []
-        if special_only:
-            for c in pattern:
-                if c in _METACHARS:
-                    s.append("\\")
-                    s.append(c)
-                elif c == "\x00":
-                    s.append("\\000")
-                else:
-                    s.append(c)
-        else:
-            for c in pattern:
-                if c in _ALNUM:
-                    s.append(c)
-                elif c == "\x00":
-                    s.append("\\000")
-                else:
-                    s.append("\\")
-                    s.append(c)
+        for c in pattern:
+            if c in _ALNUM:
+                s.append(c)
+            elif c == "\x00":
+                s.append("\\000")
+            else:
+                s.append("\\")
+                s.append(c)
 
-        return "".join(s)
+    return pattern[ : 0].join(s)
 
 # --------------------------------------------------------------------
 # Internals.
@@ -478,10 +469,10 @@ def _compile(pattern, flags=0, kwargs={}):
     # Set the default version in the core code in case it has been changed.
     _regex_core.DEFAULT_VERSION = DEFAULT_VERSION
 
-    caught_exception = None
     global_flags = flags
 
     while True:
+        caught_exception = None
         try:
             source = _Source(pattern)
             info = _Info(global_flags, source.char_type, kwargs)
@@ -522,15 +513,23 @@ def _compile(pattern, flags=0, kwargs={}):
     # Remember whether this pattern as an inline locale flag.
     _locale_sensitive[locale_key] = info.inline_locale
 
+    # Fix the group references.
+    caught_exception = None
+    try:
+        parsed.fix_groups(pattern, reverse, False)
+    except error, e:
+        caught_exception = e
+
+    if caught_exception:
+        raise error(caught_exception.msg, caught_exception.pattern,
+          caught_exception.pos)
+
     # Should we print the parsed pattern?
     if flags & DEBUG:
         parsed.dump(indent=0, reverse=reverse)
 
-    # Fix the group references.
-    parsed.fix_groups(pattern, reverse, False)
-
     # Optimise the parsed pattern.
-    parsed = parsed.optimise(info)
+    parsed = parsed.optimise(info, reverse)
     parsed = parsed.pack_characters(info)
 
     # Get the required string.
@@ -680,10 +679,10 @@ Regex = compile
 # Register myself for pickling.
 import copy_reg as _copy_reg
 
-def _pickle(p):
-    return _compile, (p.pattern, p.flags)
+def _pickle(pattern):
+    return _regex.compile, pattern._pickled_data
 
-_copy_reg.pickle(_pattern_type, _pickle, _compile)
+_copy_reg.pickle(_pattern_type, _pickle)
 
 if not hasattr(str, "format"):
     # Strings don't have the .format method (below Python 2.6).

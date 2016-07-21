@@ -24,7 +24,7 @@ typedef struct RE_Property {
 typedef struct RE_PropertyValue {
     RE_UINT16 name;
     RE_UINT8 value_set;
-    RE_UINT8 id;
+    RE_UINT16 id;
 } RE_PropertyValue;
 
 typedef RE_UINT32 (*RE_GetPropertyFunc)(RE_UINT32 ch);
@@ -83,24 +83,24 @@ typedef RE_UINT32 (*RE_GetPropertyFunc)(RE_UINT32 ch);
 #define RE_PROP_S_MASK 0x0F000000
 #define RE_PROP_Z_MASK 0x00007000
 
-#define RE_PROP_ALNUM 0x460001
+#define RE_PROP_ALNUM 0x470001
 #define RE_PROP_ALPHA 0x070001
-#define RE_PROP_ANY 0x470001
+#define RE_PROP_ANY 0x480001
 #define RE_PROP_ASCII 0x010001
-#define RE_PROP_BLANK 0x480001
+#define RE_PROP_BLANK 0x490001
 #define RE_PROP_CNTRL 0x00000F
 #define RE_PROP_DIGIT 0x000009
-#define RE_PROP_GRAPH 0x490001
+#define RE_PROP_GRAPH 0x4A0001
 #define RE_PROP_LOWER 0x080001
-#define RE_PROP_PRINT 0x4A0001
+#define RE_PROP_PRINT 0x4B0001
 #define RE_PROP_SPACE 0x190001
 #define RE_PROP_UPPER 0x090001
-#define RE_PROP_WORD 0x4B0001
-#define RE_PROP_XDIGIT 0x4C0001
-#define RE_PROP_POSIX_ALNUM 0x4E0001
-#define RE_PROP_POSIX_DIGIT 0x4D0001
-#define RE_PROP_POSIX_PUNCT 0x4F0001
-#define RE_PROP_POSIX_XDIGIT 0x500001
+#define RE_PROP_WORD 0x4C0001
+#define RE_PROP_XDIGIT 0x4D0001
+#define RE_PROP_POSIX_ALNUM 0x4F0001
+#define RE_PROP_POSIX_DIGIT 0x4E0001
+#define RE_PROP_POSIX_PUNCT 0x500001
+#define RE_PROP_POSIX_XDIGIT 0x510001
 
 #define RE_BREAK_OTHER 0
 #define RE_BREAK_DOUBLEQUOTE 1
@@ -119,26 +119,36 @@ typedef RE_UINT32 (*RE_GetPropertyFunc)(RE_UINT32 ch);
 #define RE_BREAK_MIDNUMLET 14
 #define RE_BREAK_NUMERIC 15
 #define RE_BREAK_EXTENDNUMLET 16
+#define RE_BREAK_EBASE 17
+#define RE_BREAK_EMODIFIER 18
+#define RE_BREAK_ZWJ 19
+#define RE_BREAK_GLUEAFTERZWJ 20
+#define RE_BREAK_EBASEGAZ 21
 
 #define RE_GBREAK_OTHER 0
-#define RE_GBREAK_CR 1
-#define RE_GBREAK_LF 2
-#define RE_GBREAK_CONTROL 3
-#define RE_GBREAK_EXTEND 4
-#define RE_GBREAK_REGIONALINDICATOR 5
-#define RE_GBREAK_SPACINGMARK 6
-#define RE_GBREAK_L 7
-#define RE_GBREAK_V 8
-#define RE_GBREAK_T 9
-#define RE_GBREAK_LV 10
-#define RE_GBREAK_LVT 11
-#define RE_GBREAK_PREPEND 12
+#define RE_GBREAK_PREPEND 1
+#define RE_GBREAK_CR 2
+#define RE_GBREAK_LF 3
+#define RE_GBREAK_CONTROL 4
+#define RE_GBREAK_EXTEND 5
+#define RE_GBREAK_REGIONALINDICATOR 6
+#define RE_GBREAK_SPACINGMARK 7
+#define RE_GBREAK_L 8
+#define RE_GBREAK_V 9
+#define RE_GBREAK_T 10
+#define RE_GBREAK_LV 11
+#define RE_GBREAK_LVT 12
+#define RE_GBREAK_EBASE 13
+#define RE_GBREAK_EMODIFIER 14
+#define RE_GBREAK_ZWJ 15
+#define RE_GBREAK_GLUEAFTERZWJ 16
+#define RE_GBREAK_EBASEGAZ 17
 
-extern char* re_strings[1261];
-extern RE_Property re_properties[147];
-extern RE_PropertyValue re_property_values[1372];
+extern char* re_strings[1336];
+extern RE_Property re_properties[150];
+extern RE_PropertyValue re_property_values[1469];
 extern RE_UINT16 re_expand_on_folding[104];
-extern RE_GetPropertyFunc re_get_property[81];
+extern RE_GetPropertyFunc re_get_property[82];
 
 RE_UINT32 re_get_general_category(RE_UINT32 ch);
 RE_UINT32 re_get_block(RE_UINT32 ch);
@@ -193,10 +203,11 @@ RE_UINT32 re_get_soft_dotted(RE_UINT32 ch);
 RE_UINT32 re_get_logical_order_exception(RE_UINT32 ch);
 RE_UINT32 re_get_other_id_start(RE_UINT32 ch);
 RE_UINT32 re_get_other_id_continue(RE_UINT32 ch);
-RE_UINT32 re_get_sterm(RE_UINT32 ch);
+RE_UINT32 re_get_sentence_terminal(RE_UINT32 ch);
 RE_UINT32 re_get_variation_selector(RE_UINT32 ch);
 RE_UINT32 re_get_pattern_white_space(RE_UINT32 ch);
 RE_UINT32 re_get_pattern_syntax(RE_UINT32 ch);
+RE_UINT32 re_get_prepended_concatenation_mark(RE_UINT32 ch);
 RE_UINT32 re_get_hangul_syllable_type(RE_UINT32 ch);
 RE_UINT32 re_get_bidi_class(RE_UINT32 ch);
 RE_UINT32 re_get_canonical_combining_class(RE_UINT32 ch);
@@ -208,7 +219,7 @@ RE_UINT32 re_get_line_break(RE_UINT32 ch);
 RE_UINT32 re_get_numeric_type(RE_UINT32 ch);
 RE_UINT32 re_get_numeric_value(RE_UINT32 ch);
 RE_UINT32 re_get_bidi_mirrored(RE_UINT32 ch);
-RE_UINT32 re_get_indic_matra_category(RE_UINT32 ch);
+RE_UINT32 re_get_indic_positional_category(RE_UINT32 ch);
 RE_UINT32 re_get_indic_syllabic_category(RE_UINT32 ch);
 RE_UINT32 re_get_alphanumeric(RE_UINT32 ch);
 RE_UINT32 re_get_any(RE_UINT32 ch);

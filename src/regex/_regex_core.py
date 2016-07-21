@@ -14,6 +14,7 @@
 # 2010-01-16 mrab Python front-end re-written and extended
 
 import string
+import sys
 import unicodedata
 from collections import defaultdict
 
@@ -24,9 +25,9 @@ if _regex is None:
 
 
 __all__ = ["A", "ASCII", "B", "BESTMATCH", "D", "DEBUG", "E", "ENHANCEMATCH",
-  "F", "FULLCASE", "I", "IGNORECASE", "L", "LOCALE", "M", "MULTILINE", "R",
-  "REVERSE", "S", "DOTALL", "T", "TEMPLATE", "U", "UNICODE", "V0", "VERSION0",
-  "V1", "VERSION1", "W", "WORD", "X", "VERBOSE", "error",
+  "F", "FULLCASE", "I", "IGNORECASE", "L", "LOCALE", "M", "MULTILINE", "P",
+  "POSIX", "R", "REVERSE", "S", "DOTALL", "T", "TEMPLATE", "U", "UNICODE",
+  "V0", "VERSION0", "V1", "VERSION1", "W", "WORD", "X", "VERBOSE", "error",
   "Scanner"]
 
 # The regex exception.
@@ -70,6 +71,7 @@ F = FULLCASE = 0x4000     # Unicode full case-folding.
 I = IGNORECASE = 0x2      # Ignore case.
 L = LOCALE = 0x4          # Assume current 8-bit locale.
 M = MULTILINE = 0x8       # Make anchors look for newline.
+P = POSIX = 0x10000       # POSIX-style matching (leftmost longest).
 R = REVERSE = 0x400       # Search backwards.
 S = DOTALL = 0x10         # Make dot match newline.
 U = UNICODE = 0x20        # Assume Unicode locale.
@@ -89,7 +91,7 @@ DEFAULT_FLAGS = {VERSION0: 0, VERSION1: FULLCASE}
 
 # The mask for the flags.
 GLOBAL_FLAGS = (_ALL_ENCODINGS | _ALL_VERSIONS | BESTMATCH | DEBUG |
-  ENHANCEMATCH | REVERSE)
+  ENHANCEMATCH | POSIX | REVERSE)
 SCOPED_FLAGS = FULLCASE | IGNORECASE | MULTILINE | DOTALL | WORD | VERBOSE
 
 ALPHA = frozenset(string.ascii_letters)
@@ -111,8 +113,9 @@ UNLIMITED = (1 << BITS_PER_CODE) - 1
 
 # The regular expression flags.
 REGEX_FLAGS = {"a": ASCII, "b": BESTMATCH, "e": ENHANCEMATCH, "f": FULLCASE,
-  "i": IGNORECASE, "L": LOCALE, "m": MULTILINE, "r": REVERSE, "s": DOTALL, "u":
-  UNICODE, "V0": VERSION0, "V1": VERSION1, "w": WORD, "x": VERBOSE}
+  "i": IGNORECASE, "L": LOCALE, "m": MULTILINE, "p": POSIX, "r": REVERSE,
+  "s": DOTALL, "u": UNICODE, "V0": VERSION0, "V1": VERSION1, "w": WORD, "x":
+  VERBOSE}
 
 # The case flags.
 CASE_FLAGS = FULLCASE | IGNORECASE
@@ -120,6 +123,9 @@ NOCASE = 0
 FULLIGNORECASE = FULLCASE | IGNORECASE
 
 FULL_CASE_FOLDING = UNICODE | FULLIGNORECASE
+
+CASE_FLAGS_COMBINATIONS = {0: 0, FULLCASE: 0, IGNORECASE: IGNORECASE,
+  FULLIGNORECASE: FULLIGNORECASE}
 
 # The number of digits in hexadecimal escapes.
 HEX_ESCAPES = {"x": 2, "u": 4, "U": 8}
@@ -146,6 +152,7 @@ CHARACTER
 CHARACTER_IGN
 CHARACTER_IGN_REV
 CHARACTER_REV
+CONDITIONAL
 DEFAULT_BOUNDARY
 DEFAULT_END_OF_WORD
 DEFAULT_START_OF_WORD
@@ -162,6 +169,7 @@ GREEDY_REPEAT
 GROUP
 GROUP_CALL
 GROUP_EXISTS
+KEEP
 LAZY_REPEAT
 LOOKAROUND
 NEXT
@@ -169,6 +177,7 @@ PROPERTY
 PROPERTY_IGN
 PROPERTY_IGN_REV
 PROPERTY_REV
+PRUNE
 RANGE
 RANGE_IGN
 RANGE_IGN_REV
@@ -196,6 +205,7 @@ SET_UNION
 SET_UNION_IGN
 SET_UNION_IGN_REV
 SET_UNION_REV
+SKIP
 START_OF_LINE
 START_OF_LINE_U
 START_OF_STRING
@@ -286,30 +296,44 @@ def is_cased(info, char):
 
 def _compile_firstset(info, fs):
     "Compiles the firstset for the pattern."
-    if not fs or None in fs:
+    reverse = bool(info.flags & REVERSE)
+    fs = _check_firstset(info, reverse, fs)
+    if not fs:
         return []
+
+    # Compile the firstset.
+    return fs.compile(reverse)
+
+def _check_firstset(info, reverse, fs):
+    "Checks the firstset for the pattern."
+    if not fs or None in fs:
+        return None
 
     # If we ignore the case, for simplicity we won't build a firstset.
     members = set()
+    case_flags = NOCASE
     for i in fs:
         if isinstance(i, Character) and not i.positive:
-            return []
+            return None
 
-        if i.case_flags:
-            if isinstance(i, Character):
-                if is_cased(info, i.value):
-                    return []
-            elif isinstance(i, SetBase):
-                return []
-
+#        if i.case_flags:
+#            if isinstance(i, Character):
+#                if is_cased(info, i.value):
+#                    return []
+#            elif isinstance(i, SetBase):
+#                return []
+        case_flags |= i.case_flags
         members.add(i.with_flags(case_flags=NOCASE))
 
-    # Build the firstset.
-    fs = SetUnion(info, list(members), zerowidth=True)
-    fs = fs.optimise(info, in_set=True)
+    if case_flags == (FULLCASE | IGNORECASE):
+        return None
 
-    # Compile the firstset.
-    return fs.compile(bool(info.flags & REVERSE))
+    # Build the firstset.
+    fs = SetUnion(info, list(members), case_flags=case_flags & ~FULLCASE,
+      zerowidth=True)
+    fs = fs.optimise(info, reverse, in_set=True)
+
+    return fs
 
 def _flatten_code(code):
     "Flattens the code from a list of tuples."
@@ -319,28 +343,38 @@ def _flatten_code(code):
 
     return flat_code
 
+def make_case_flags(info):
+    "Makes the case flags."
+    flags = info.flags & CASE_FLAGS
+
+    # Turn off FULLCASE if ASCII is turned on.
+    if info.flags & ASCII:
+        flags &= ~FULLCASE
+
+    return flags
+
 def make_character(info, value, in_set=False):
     "Makes a character literal."
     if in_set:
         # A character set is built case-sensitively.
         return Character(value)
 
-    return Character(value, case_flags=info.flags & CASE_FLAGS)
+    return Character(value, case_flags=make_case_flags(info))
 
 def make_ref_group(info, name, position):
     "Makes a group reference."
-    return RefGroup(info, name, position, case_flags=info.flags & CASE_FLAGS)
+    return RefGroup(info, name, position, case_flags=make_case_flags(info))
 
 def make_string_set(info, name):
     "Makes a string set."
-    return StringSet(info, name, case_flags=info.flags & CASE_FLAGS)
+    return StringSet(info, name, case_flags=make_case_flags(info))
 
 def make_property(info, prop, in_set):
     "Makes a property."
     if in_set:
         return prop
 
-    return prop.with_flags(case_flags=info.flags & CASE_FLAGS)
+    return prop.with_flags(case_flags=make_case_flags(info))
 
 def _parse_pattern(source, info):
     "Parses a pattern, eg. 'a|b|c'."
@@ -498,10 +532,6 @@ def parse_limited_quantifier(source):
         # No minimum means 0 and no maximum means unlimited.
         min_count = int(min_count or 0)
         max_count = int(max_count) if max_count else None
-
-        if max_count is not None and min_count > max_count:
-            raise error("min repeat greater than max repeat", source.string,
-              saved_pos)
     else:
         if not min_count:
             source.pos = saved_pos
@@ -509,21 +539,25 @@ def parse_limited_quantifier(source):
 
         min_count = max_count = int(min_count)
 
-    if is_above_limit(min_count) or is_above_limit(max_count):
-        raise error("repeat count too big", source.string, saved_pos)
-
     if not source.match ("}"):
         source.pos = saved_pos
         return None
+
+    if is_above_limit(min_count) or is_above_limit(max_count):
+        raise error("repeat count too big", source.string, saved_pos)
+
+    if max_count is not None and min_count > max_count:
+        raise error("min repeat greater than max repeat", source.string,
+          saved_pos)
 
     return min_count, max_count
 
 def parse_fuzzy(source, ch):
     "Parses a fuzzy setting, if present."
+    saved_pos = source.pos
+
     if ch != "{":
         return None
-
-    saved_pos = source.pos
 
     constraints = {}
     try:
@@ -565,7 +599,7 @@ def parse_cost_constraint(source, constraints):
         else:
             # There's a maximum cost.
             cost_pos = source.pos
-            max_cost = int(parse_count(source))
+            max_cost = parse_cost_limit(source)
 
             # Inclusive or exclusive limit?
             if not max_inc:
@@ -578,46 +612,57 @@ def parse_cost_constraint(source, constraints):
     elif ch in DIGITS:
         # Syntax: cost ("<=" | "<") constraint ("<=" | "<") cost
         source.pos = saved_pos
-        try:
-            # Minimum cost.
-            min_cost = int(parse_count(source))
 
-            min_inc = parse_fuzzy_compare(source)
-            if min_inc is None:
-                raise ParseError()
+        # Minimum cost.
+        cost_pos = source.pos
+        min_cost = parse_cost_limit(source)
 
-            constraint = parse_constraint(source, constraints, source.get())
-
-            max_inc = parse_fuzzy_compare(source)
-            if max_inc is None:
-                raise ParseError()
-
-            # Maximum cost.
-            cost_pos = source.pos
-            max_cost = int(parse_count(source))
-
-            # Inclusive or exclusive limits?
-            if not min_inc:
-                min_cost += 1
-            if not max_inc:
-                max_cost -= 1
-
-            if not 0 <= min_cost <= max_cost:
-                raise error("bad fuzzy cost limit", source.string, cost_pos)
-
-            constraints[constraint] = min_cost, max_cost
-        except ValueError:
+        min_inc = parse_fuzzy_compare(source)
+        if min_inc is None:
             raise ParseError()
+
+        constraint = parse_constraint(source, constraints, source.get())
+
+        max_inc = parse_fuzzy_compare(source)
+        if max_inc is None:
+            raise ParseError()
+
+        # Maximum cost.
+        cost_pos = source.pos
+        max_cost = parse_cost_limit(source)
+
+        # Inclusive or exclusive limits?
+        if not min_inc:
+            min_cost += 1
+        if not max_inc:
+            max_cost -= 1
+
+        if not 0 <= min_cost <= max_cost:
+            raise error("bad fuzzy cost limit", source.string, cost_pos)
+
+        constraints[constraint] = min_cost, max_cost
     else:
         raise ParseError()
+
+def parse_cost_limit(source):
+    "Parses a cost limit."
+    cost_pos = source.pos
+    digits = parse_count(source)
+
+    try:
+        return int(digits)
+    except ValueError:
+        pass
+
+    raise error("bad fuzzy cost limit", source.string, cost_pos)
 
 def parse_constraint(source, constraints, ch):
     "Parses a constraint."
     if ch not in "deis":
-        raise error("bad fuzzy constraint", source.string, source.pos)
+        raise ParseError()
 
     if ch in constraints:
-        raise error("repeated fuzzy constraint", source.string, source.pos)
+        raise ParseError()
 
     return ch
 
@@ -643,7 +688,7 @@ def parse_cost_equation(source, constraints):
 
     max_inc = parse_fuzzy_compare(source)
     if max_inc is None:
-        raise error("missing fuzzy cost limit", source.string, source.pos)
+        raise ParseError()
 
     max_cost = int(parse_count(source))
 
@@ -678,7 +723,7 @@ def parse_literal_and_element(source, info):
     inline flag or None if it has reached the end of a sequence.
     """
     characters = []
-    case_flags = info.flags & CASE_FLAGS
+    case_flags = make_case_flags(info)
     while True:
         saved_pos = source.pos
         ch = source.get()
@@ -807,6 +852,19 @@ def parse_paren(source, info):
         source.pos = saved_pos_2
         return parse_flags_subpattern(source, info)
 
+    if ch == "*":
+        # (*...
+        saved_pos_2 = source.pos
+        word = source.get_while(set(")>"), include=False)
+        if word[ : 1].isalpha():
+            verb = VERBS.get(word)
+            if not verb:
+                raise error("unknown verb", source.string, saved_pos_2)
+
+            source.expect(")")
+
+            return verb
+
     # (...: an unnamed capture group.
     source.pos = saved_pos
     group = info.open_group()
@@ -881,6 +939,26 @@ def parse_conditional(source, info):
     "Parses a conditional subpattern."
     saved_flags = info.flags
     saved_pos = source.pos
+    ch = source.get()
+    if ch == "?":
+        # (?(?...
+        ch = source.get()
+        if ch in ("=", "!"):
+            # (?(?=... or (?(?!...: lookahead conditional.
+            return parse_lookaround_conditional(source, info, False, ch == "=")
+        if ch == "<":
+            # (?(?<...
+            ch = source.get()
+            if ch in ("=", "!"):
+                # (?(?<=... or (?(?<!...: lookbehind conditional.
+                return parse_lookaround_conditional(source, info, True, ch ==
+                  "=")
+
+        source.pos = saved_pos
+        raise error("expected lookaround conditional", source.string,
+          source.pos)
+
+    source.pos = saved_pos
     try:
         group = parse_name(source, True)
         source.expect(")")
@@ -899,6 +977,26 @@ def parse_conditional(source, info):
         return Sequence()
 
     return Conditional(info, group, yes_branch, no_branch, saved_pos)
+
+def parse_lookaround_conditional(source, info, behind, positive):
+    saved_flags = info.flags
+    try:
+        subpattern = _parse_pattern(source, info)
+        source.expect(")")
+    finally:
+        info.flags = saved_flags
+        source.ignore_space = bool(info.flags & VERBOSE)
+
+    yes_branch = parse_sequence(source, info)
+    if source.match("|"):
+        no_branch = parse_sequence(source, info)
+    else:
+        no_branch = Sequence()
+
+    source.expect(")")
+
+    return LookAroundConditional(behind, positive, subpattern, yes_branch,
+      no_branch)
 
 def parse_atomic(source, info):
     "Parses an atomic subpattern."
@@ -1103,7 +1201,7 @@ def parse_escape(source, info, in_set):
         raise error("bad escape (end of pattern)", source.string, source.pos)
     if ch in HEX_ESCAPES:
         # A hexadecimal escape sequence.
-        return parse_hex_escape(source, info, HEX_ESCAPES[ch], in_set, ch)
+        return parse_hex_escape(source, info, ch, HEX_ESCAPES[ch], in_set, ch)
     elif ch == "g" and not in_set:
         # A group reference.
         saved_pos = source.pos
@@ -1211,18 +1309,28 @@ def parse_octal_escape(source, info, digits, in_set):
             raise error("bad escape \\%s" % digits[0], source.string,
               source.pos)
 
-def parse_hex_escape(source, info, expected_len, in_set, type):
+def parse_hex_escape(source, info, esc, expected_len, in_set, type):
     "Parses a hex escape sequence."
+    saved_pos = source.pos
     digits = []
     for i in range(expected_len):
         ch = source.get()
         if ch not in HEX_DIGITS:
             raise error("incomplete escape \\%s%s" % (type, ''.join(digits)),
-              source.string, source.pos)
+              source.string, saved_pos)
         digits.append(ch)
 
-    value = int("".join(digits), 16)
-    return make_character(info, value, in_set)
+    try:
+        value = int("".join(digits), 16)
+    except ValueError:
+        pass
+    else:
+        if value < 0x110000:
+            return make_character(info, value, in_set)
+
+    # Bad hex escape.
+    raise error("bad hex escape \\%s%s" % (esc, ''.join(digits)),
+      source.string, saved_pos)
 
 def parse_group_ref(source, info):
     "Parses a group reference."
@@ -1326,7 +1434,7 @@ def parse_set(source, info):
     if negate:
         item = item.with_flags(positive=not item.positive)
 
-    item = item.with_flags(case_flags=info.flags & CASE_FLAGS)
+    item = item.with_flags(case_flags=make_case_flags(info))
 
     return item
 
@@ -1745,7 +1853,7 @@ class RegexBase(object):
         if case_flags is None:
             case_flags = self.case_flags
         else:
-            case_flags = case_flags & CASE_FLAGS
+            case_flags = CASE_FLAGS_COMBINATIONS[case_flags & CASE_FLAGS]
         if zerowidth is None:
             zerowidth = self.zerowidth
         else:
@@ -1760,7 +1868,7 @@ class RegexBase(object):
     def fix_groups(self, pattern, reverse, fuzzy):
         pass
 
-    def optimise(self, info):
+    def optimise(self, info, reverse):
         return self
 
     def pack_characters(self, info):
@@ -1868,8 +1976,8 @@ class Atomic(RegexBase):
     def fix_groups(self, pattern, reverse, fuzzy):
         self.subpattern.fix_groups(pattern, reverse, fuzzy)
 
-    def optimise(self, info):
-        self.subpattern = self.subpattern.optimise(info)
+    def optimise(self, info, reverse):
+        self.subpattern = self.subpattern.optimise(info, reverse)
 
         if self.subpattern.is_empty():
             return self.subpattern
@@ -1929,42 +2037,52 @@ class Branch(RegexBase):
         for b in self.branches:
             b.fix_groups(pattern, reverse, fuzzy)
 
-    def optimise(self, info):
+    def optimise(self, info, reverse):
         # Flatten branches within branches.
-        branches = Branch._flatten_branches(info, self.branches)
+        branches = Branch._flatten_branches(info, reverse, self.branches)
 
         # Move any common prefix or suffix out of the branches.
-        prefix, branches = Branch._split_common_prefix(info, branches)
-        suffix, branches = Branch._split_common_suffix(info, branches)
-
-        # Merge branches starting with the same character. (If a character
-        # prefix doesn't match in one branch, it won't match in any of the
-        # others starting with that same character.)
-        branches = Branch._merge_common_prefixes(info, branches)
-
-        # Try to reduce adjacent single-character branches to sets.
-        branches = Branch._reduce_to_set(info, branches)
-
-        if len(branches) > 1:
-            sequence = prefix + [Branch(branches)] + suffix
+        if reverse:
+            suffix, branches = Branch._split_common_suffix(info, branches)
+            prefix = []
         else:
-            sequence = prefix + branches + suffix
-
-        return make_sequence(sequence)
-
-    def optimise(self, info):
-        # Flatten branches within branches.
-        branches = Branch._flatten_branches(info, self.branches)
+            prefix, branches = Branch._split_common_prefix(info, branches)
+            suffix = []
 
         # Try to reduce adjacent single-character branches to sets.
-        branches = Branch._reduce_to_set(info, branches)
+        branches = Branch._reduce_to_set(info, reverse, branches)
 
         if len(branches) > 1:
             sequence = [Branch(branches)]
+
+            if not prefix or not suffix:
+                # We might be able to add a quick precheck before the branches.
+                firstset = self._add_precheck(info, reverse, branches)
+
+                if firstset:
+                    if reverse:
+                        sequence.append(firstset)
+                    else:
+                        sequence.insert(0, firstset)
         else:
             sequence = branches
 
-        return make_sequence(sequence)
+        return make_sequence(prefix + sequence + suffix)
+
+    def _add_precheck(self, info, reverse, branches):
+        charset = set()
+        pos = -1 if reverse else 0
+
+        for branch in branches:
+            if type(branch) is Literal and branch.case_flags == NOCASE:
+                charset.add(branch.characters[pos])
+            else:
+                return
+
+        if not charset:
+            return None
+
+        return _check_firstset(info, reverse, [Character(c) for c in charset])
 
     def pack_characters(self, info):
         self.branches = [b.pack_characters(info) for b in self.branches]
@@ -2008,11 +2126,11 @@ class Branch(RegexBase):
             b.dump(indent + 1, reverse)
 
     @staticmethod
-    def _flatten_branches(info, branches):
+    def _flatten_branches(info, reverse, branches):
         # Flatten the branches so that there aren't branches of branches.
         new_branches = []
         for b in branches:
-            b = b.optimise(info)
+            b = b.optimise(info, reverse)
             if isinstance(b, Branch):
                 new_branches.extend(b.branches)
             else:
@@ -2156,7 +2274,7 @@ class Branch(RegexBase):
         return True
 
     @staticmethod
-    def _merge_common_prefixes(info, branches):
+    def _merge_common_prefixes(info, reverse, branches):
         # Branches with the same case-sensitive character prefix can be grouped
         # together if they are separated only by other branches with a
         # character prefix.
@@ -2174,7 +2292,8 @@ class Branch(RegexBase):
                 prefixed[b.items[0].value].append(b.items)
                 order.setdefault(b.items[0].value, len(order))
             else:
-                Branch._flush_char_prefix(info, prefixed, order, new_branches)
+                Branch._flush_char_prefix(info, reverse, prefixed, order,
+                  new_branches)
 
                 new_branches.append(b)
 
@@ -2187,7 +2306,7 @@ class Branch(RegexBase):
         return isinstance(c, Character) and c.positive and not c.case_flags
 
     @staticmethod
-    def _reduce_to_set(info, branches):
+    def _reduce_to_set(info, reverse, branches):
         # Can the branches be reduced to a set?
         new_branches = []
         items = set()
@@ -2197,24 +2316,25 @@ class Branch(RegexBase):
                 # Branch starts with a single character.
                 if b.case_flags != case_flags:
                     # Different case sensitivity, so flush.
-                    Branch._flush_set_members(info, items, case_flags,
+                    Branch._flush_set_members(info, reverse, items, case_flags,
                       new_branches)
 
                     case_flags = b.case_flags
 
                 items.add(b.with_flags(case_flags=NOCASE))
             else:
-                Branch._flush_set_members(info, items, case_flags,
+                Branch._flush_set_members(info, reverse, items, case_flags,
                   new_branches)
 
                 new_branches.append(b)
 
-        Branch._flush_set_members(info, items, case_flags, new_branches)
+        Branch._flush_set_members(info, reverse, items, case_flags,
+          new_branches)
 
         return new_branches
 
     @staticmethod
-    def _flush_char_prefix(info, prefixed, order, new_branches):
+    def _flush_char_prefix(info, reverse, prefixed, order, new_branches):
         # Flush the prefixed branches.
         if not prefixed:
             return
@@ -2234,13 +2354,13 @@ class Branch(RegexBase):
                         optional = True
 
                 sequence = Sequence([Character(value), Branch(subbranches)])
-                new_branches.append(sequence.optimise(info))
+                new_branches.append(sequence.optimise(info, reverse))
 
         prefixed.clear()
         order.clear()
 
     @staticmethod
-    def _flush_set_members(info, items, case_flags, new_branches):
+    def _flush_set_members(info, reverse, items, case_flags, new_branches):
         # Flush the set members.
         if not items:
             return
@@ -2248,7 +2368,7 @@ class Branch(RegexBase):
         if len(items) == 1:
             item = list(items)[0]
         else:
-            item = SetUnion(info, list(items)).optimise(info)
+            item = SetUnion(info, list(items)).optimise(info, reverse)
 
         new_branches.append(item.with_flags(case_flags=case_flags))
 
@@ -2337,6 +2457,15 @@ class CallGroup(RegexBase):
     def max_width(self):
         return UNLIMITED
 
+class CallRef(RegexBase):
+    def __init__(self, ref, parsed):
+        self.ref = ref
+        self.parsed = parsed
+
+    def _compile(self, reverse, fuzzy):
+        return ([(OP.CALL_REF, self.ref)] + self.parsed._compile(reverse,
+          fuzzy) + [(OP.END, )])
+
 class Character(RegexBase):
     _opcode = {(NOCASE, False): OP.CHARACTER, (IGNORECASE, False):
       OP.CHARACTER_IGN, (FULLCASE, False): OP.CHARACTER, (FULLIGNORECASE,
@@ -2349,7 +2478,7 @@ class Character(RegexBase):
         RegexBase.__init__(self)
         self.value = value
         self.positive = bool(positive)
-        self.case_flags = case_flags
+        self.case_flags = CASE_FLAGS_COMBINATIONS[case_flags]
         self.zerowidth = bool(zerowidth)
 
         if (self.positive and (self.case_flags & FULLIGNORECASE) ==
@@ -2364,7 +2493,7 @@ class Character(RegexBase):
     def rebuild(self, positive, case_flags, zerowidth):
         return Character(self.value, positive, case_flags, zerowidth)
 
-    def optimise(self, info, in_set=False):
+    def optimise(self, info, reverse, in_set=False):
         return self
 
     def get_firstset(self, reverse):
@@ -2427,17 +2556,22 @@ class Conditional(RegexBase):
             try:
                 self.group = self.info.group_index[self.group]
             except KeyError:
-                raise error("unknown group", pattern, self.position)
+                if self.group == 'DEFINE':
+                    # 'DEFINE' is a special name unless there's a group with
+                    # that name.
+                    self.group = 0
+                else:
+                    raise error("unknown group", pattern, self.position)
 
-        if not 1 <= self.group <= self.info.group_count:
+        if not 0 <= self.group <= self.info.group_count:
             raise error("invalid group reference", pattern, self.position)
 
         self.yes_item.fix_groups(pattern, reverse, fuzzy)
         self.no_item.fix_groups(pattern, reverse, fuzzy)
 
-    def optimise(self, info):
-        yes_item = self.yes_item.optimise(info)
-        no_item = self.no_item.optimise(info)
+    def optimise(self, info, reverse):
+        yes_item = self.yes_item.optimise(info, reverse)
+        no_item = self.no_item.optimise(info, reverse)
 
         return Conditional(info, self.group, yes_item, no_item, self.position)
 
@@ -2478,7 +2612,7 @@ class Conditional(RegexBase):
     def _dump(self, indent, reverse):
         print "%sGROUP_EXISTS %s" % (INDENT * indent, self.group)
         self.yes_item.dump(indent + 1, reverse)
-        if self.no_item:
+        if not self.no_item.is_empty():
             print "%sOR" % (INDENT * indent)
             self.no_item.dump(indent + 1, reverse)
 
@@ -2527,6 +2661,12 @@ class EndOfStringLineU(EndOfStringLine):
 class EndOfWord(ZeroWidthBase):
     _opcode = OP.END_OF_WORD
     _op_name = "END_OF_WORD"
+
+class Failure(ZeroWidthBase):
+    _op_name = "FAILURE"
+
+    def _compile(self, reverse, fuzzy):
+        return [(OP.FAILURE, )]
 
 class Fuzzy(RegexBase):
     def __init__(self, subpattern, constraints=None):
@@ -2686,8 +2826,8 @@ class GreedyRepeat(RegexBase):
     def fix_groups(self, pattern, reverse, fuzzy):
         self.subpattern.fix_groups(pattern, reverse, fuzzy)
 
-    def optimise(self, info):
-        subpattern = self.subpattern.optimise(info)
+    def optimise(self, info, reverse):
+        subpattern = self.subpattern.optimise(info, reverse)
 
         return type(self)(subpattern, self.min_count, self.max_count)
 
@@ -2775,8 +2915,8 @@ class Group(RegexBase):
         self.info.defined_groups[self.group] = (self, reverse, fuzzy)
         self.subpattern.fix_groups(pattern, reverse, fuzzy)
 
-    def optimise(self, info):
-        subpattern = self.subpattern.optimise(info)
+    def optimise(self, info, reverse):
+        subpattern = self.subpattern.optimise(info, reverse)
 
         return Group(self.info, self.group, subpattern)
 
@@ -2840,18 +2980,16 @@ class Group(RegexBase):
     def get_required_string(self, reverse):
         return self.subpattern.get_required_string(reverse)
 
+class Keep(ZeroWidthBase):
+    _opcode = OP.KEEP
+    _op_name = "KEEP"
+
 class LazyRepeat(GreedyRepeat):
     _opcode = OP.LAZY_REPEAT
     _op_name = "LAZY_REPEAT"
 
 class LookAround(RegexBase):
     _dir_text = {False: "AHEAD", True: "BEHIND"}
-
-    def __new__(cls, behind, positive, subpattern):
-        if positive and subpattern.is_empty():
-            return subpattern
-
-        return RegexBase.__new__(cls)
 
     def __init__(self, behind, positive, subpattern):
         RegexBase.__init__(self)
@@ -2862,8 +3000,10 @@ class LookAround(RegexBase):
     def fix_groups(self, pattern, reverse, fuzzy):
         self.subpattern.fix_groups(pattern, self.behind, fuzzy)
 
-    def optimise(self, info):
-        subpattern = self.subpattern.optimise(info)
+    def optimise(self, info, reverse):
+        subpattern = self.subpattern.optimise(info, self.behind)
+        if self.positive and subpattern.is_empty():
+            return subpattern
 
         return LookAround(self.behind, self.positive, subpattern)
 
@@ -2893,7 +3033,7 @@ class LookAround(RegexBase):
         self.subpattern.dump(indent + 1, self.behind)
 
     def is_empty(self):
-        return self.subpattern.is_empty()
+        return self.positive and self.subpattern.is_empty()
 
     def __eq__(self, other):
         return type(self) is type(other) and (self.behind, self.positive,
@@ -2901,6 +3041,95 @@ class LookAround(RegexBase):
 
     def max_width(self):
         return 0
+
+class LookAroundConditional(RegexBase):
+    _dir_text = {False: "AHEAD", True: "BEHIND"}
+
+    def __init__(self, behind, positive, subpattern, yes_item, no_item):
+        RegexBase.__init__(self)
+        self.behind = bool(behind)
+        self.positive = bool(positive)
+        self.subpattern = subpattern
+        self.yes_item = yes_item
+        self.no_item = no_item
+
+    def fix_groups(self, pattern, reverse, fuzzy):
+        self.subpattern.fix_groups(pattern, reverse, fuzzy)
+        self.yes_item.fix_groups(pattern, reverse, fuzzy)
+        self.no_item.fix_groups(pattern, reverse, fuzzy)
+
+    def optimise(self, info, reverse):
+        subpattern = self.subpattern.optimise(info, self.behind)
+        yes_item = self.yes_item.optimise(info, self.behind)
+        no_item = self.no_item.optimise(info, self.behind)
+
+        return LookAroundConditional(self.behind, self.positive, subpattern,
+          yes_item, no_item)
+
+    def pack_characters(self, info):
+        self.subpattern = self.subpattern.pack_characters(info)
+        self.yes_item = self.yes_item.pack_characters(info)
+        self.no_item = self.no_item.pack_characters(info)
+        return self
+
+    def remove_captures(self):
+        self.subpattern = self.subpattern.remove_captures()
+        self.yes_item = self.yes_item.remove_captures()
+        self.no_item = self.no_item.remove_captures()
+
+    def is_atomic(self):
+        return (self.subpattern.is_atomic() and self.yes_item.is_atomic() and
+          self.no_item.is_atomic())
+
+    def can_be_affix(self):
+        return (self.subpattern.can_be_affix() and self.yes_item.can_be_affix()
+          and self.no_item.can_be_affix())
+
+    def contains_group(self):
+        return (self.subpattern.contains_group() or
+          self.yes_item.contains_group() or self.no_item.contains_group())
+
+    def get_firstset(self, reverse):
+        return (self.subpattern.get_firstset(reverse) |
+          self.no_item.get_firstset(reverse))
+
+    def _compile(self, reverse, fuzzy):
+        code = [(OP.CONDITIONAL, int(self.positive), int(not self.behind))]
+        code.extend(self.subpattern.compile(self.behind, fuzzy))
+        code.append((OP.NEXT, ))
+        code.extend(self.yes_item.compile(reverse, fuzzy))
+        add_code = self.no_item.compile(reverse, fuzzy)
+        if add_code:
+            code.append((OP.NEXT, ))
+            code.extend(add_code)
+
+        code.append((OP.END, ))
+
+        return code
+
+    def _dump(self, indent, reverse):
+        print("%sCONDITIONAL %s %s" % (INDENT * indent,
+          self._dir_text[self.behind], POS_TEXT[self.positive]))
+        self.subpattern.dump(indent + 1, self.behind)
+        print("%sEITHER" % (INDENT * indent))
+        self.yes_item.dump(indent + 1, reverse)
+        if not self.no_item.is_empty():
+            print("%sOR".format(INDENT * indent))
+            self.no_item.dump(indent + 1, reverse)
+
+    def is_empty(self):
+        return (self.subpattern.is_empty() and self.yes_item.is_empty() or
+          self.no_item.is_empty())
+
+    def __eq__(self, other):
+        return type(self) is type(other) and (self.subpattern, self.yes_item,
+          self.no_item) == (other.subpattern, other.yes_item, other.no_item)
+
+    def max_width(self):
+        return max(self.yes_item.max_width(), self.no_item.max_width())
+
+    def get_required_string(self, reverse):
+        return self.max_width(), None
 
 class PrecompiledCode(RegexBase):
     def __init__(self, code):
@@ -2921,7 +3150,7 @@ class Property(RegexBase):
         RegexBase.__init__(self)
         self.value = value
         self.positive = bool(positive)
-        self.case_flags = case_flags
+        self.case_flags = CASE_FLAGS_COMBINATIONS[case_flags]
         self.zerowidth = bool(zerowidth)
 
         self._key = (self.__class__, self.value, self.positive,
@@ -2930,7 +3159,7 @@ class Property(RegexBase):
     def rebuild(self, positive, case_flags, zerowidth):
         return Property(self.value, positive, case_flags, zerowidth)
 
-    def optimise(self, info, in_set=False):
+    def optimise(self, info, reverse, in_set=False):
         return self
 
     def get_firstset(self, reverse):
@@ -2961,6 +3190,12 @@ class Property(RegexBase):
     def max_width(self):
         return 1
 
+class Prune(ZeroWidthBase):
+    _op_name = "PRUNE"
+
+    def _compile(self, reverse, fuzzy):
+        return [(OP.PRUNE, )]
+
 class Range(RegexBase):
     _opcode = {(NOCASE, False): OP.RANGE, (IGNORECASE, False): OP.RANGE_IGN,
       (FULLCASE, False): OP.RANGE, (FULLIGNORECASE, False): OP.RANGE_IGN,
@@ -2974,7 +3209,7 @@ class Range(RegexBase):
         self.lower = lower
         self.upper = upper
         self.positive = bool(positive)
-        self.case_flags = case_flags
+        self.case_flags = CASE_FLAGS_COMBINATIONS[case_flags]
         self.zerowidth = bool(zerowidth)
 
         self._key = (self.__class__, self.lower, self.upper, self.positive,
@@ -2983,7 +3218,7 @@ class Range(RegexBase):
     def rebuild(self, positive, case_flags, zerowidth):
         return Range(self.lower, self.upper, positive, case_flags, zerowidth)
 
-    def optimise(self, info, in_set=False):
+    def optimise(self, info, reverse, in_set=False):
         # Is the range case-sensitive?
         if not self.positive or not (self.case_flags & IGNORECASE) or in_set:
             return self
@@ -3049,7 +3284,7 @@ class RefGroup(RegexBase):
         self.info = info
         self.group = group
         self.position = position
-        self.case_flags = case_flags
+        self.case_flags = CASE_FLAGS_COMBINATIONS[case_flags]
 
         self._key = self.__class__, self.group, self.case_flags
 
@@ -3099,11 +3334,11 @@ class Sequence(RegexBase):
         for s in self.items:
             s.fix_groups(pattern, reverse, fuzzy)
 
-    def optimise(self, info):
+    def optimise(self, info, reverse):
         # Flatten the sequences.
         items = []
         for s in self.items:
-            s = s.optimise(info)
+            s = s.optimise(info, reverse)
             if isinstance(s, Sequence):
                 items.extend(s.items)
             else:
@@ -3117,7 +3352,7 @@ class Sequence(RegexBase):
         characters = []
         case_flags = NOCASE
         for s in self.items:
-            if type(s) is Character and s.positive:
+            if type(s) is Character and s.positive and not s.zerowidth:
                 if s.case_flags != case_flags:
                     # Different case sensitivity, so flush, unless neither the
                     # previous nor the new character are cased.
@@ -3176,7 +3411,7 @@ class Sequence(RegexBase):
         return fs | set([None])
 
     def has_simple_start(self):
-        return self.items and self.items[0].has_simple_start()
+        return bool(self.items) and self.items[0].has_simple_start()
 
     def _compile(self, reverse, fuzzy):
         seq = self.items
@@ -3241,7 +3476,7 @@ class SetBase(RegexBase):
         self.info = info
         self.items = tuple(items)
         self.positive = bool(positive)
-        self.case_flags = case_flags
+        self.case_flags = CASE_FLAGS_COMBINATIONS[case_flags]
         self.zerowidth = bool(zerowidth)
 
         self.char_width = 1
@@ -3251,7 +3486,7 @@ class SetBase(RegexBase):
 
     def rebuild(self, positive, case_flags, zerowidth):
         return type(self)(self.info, self.items, positive, case_flags,
-          zerowidth).optimise(self.info)
+          zerowidth).optimise(self.info, False)
 
     def get_firstset(self, reverse):
         return set([self])
@@ -3288,8 +3523,7 @@ class SetBase(RegexBase):
 
         # Is full case-folding possible?
         if (not (self.info.flags & UNICODE) or (self.case_flags &
-           FULLIGNORECASE) !=
-          FULLIGNORECASE):
+          FULLIGNORECASE) != FULLIGNORECASE):
             return self
 
         # Get the characters which expand to multiple codepoints on folding.
@@ -3345,16 +3579,17 @@ class SetDiff(SetBase):
       True): OP.SET_DIFF_IGN_REV}
     _op_name = "SET_DIFF"
 
-    def optimise(self, info, in_set=False):
+    def optimise(self, info, reverse, in_set=False):
         items = self.items
         if len(items) > 2:
             items = [items[0], SetUnion(info, items[1 : ])]
 
         if len(items) == 1:
             return items[0].with_flags(case_flags=self.case_flags,
-              zerowidth=self.zerowidth).optimise(info, in_set)
+              zerowidth=self.zerowidth).optimise(info, reverse, in_set)
 
-        self.items = tuple(m.optimise(info, in_set=True) for m in items)
+        self.items = tuple(m.optimise(info, reverse, in_set=True) for m in
+          items)
 
         return self._handle_case_folding(info, in_set)
 
@@ -3370,10 +3605,10 @@ class SetInter(SetBase):
       (FULLIGNORECASE, True): OP.SET_INTER_IGN_REV}
     _op_name = "SET_INTER"
 
-    def optimise(self, info, in_set=False):
+    def optimise(self, info, reverse, in_set=False):
         items = []
         for m in self.items:
-            m = m.optimise(info, in_set=True)
+            m = m.optimise(info, reverse, in_set=True)
             if isinstance(m, SetInter) and m.positive:
                 # Intersection in intersection.
                 items.extend(m.items)
@@ -3382,7 +3617,7 @@ class SetInter(SetBase):
 
         if len(items) == 1:
             return items[0].with_flags(case_flags=self.case_flags,
-              zerowidth=self.zerowidth).optimise(info, in_set)
+              zerowidth=self.zerowidth).optimise(info, reverse, in_set)
 
         self.items = tuple(items)
 
@@ -3400,10 +3635,10 @@ class SetSymDiff(SetBase):
       OP.SET_SYM_DIFF_REV, (FULLIGNORECASE, True): OP.SET_SYM_DIFF_IGN_REV}
     _op_name = "SET_SYM_DIFF"
 
-    def optimise(self, info, in_set=False):
+    def optimise(self, info, reverse, in_set=False):
         items = []
         for m in self.items:
-            m = m.optimise(info, in_set=True)
+            m = m.optimise(info, reverse, in_set=True)
             if isinstance(m, SetSymDiff) and m.positive:
                 # Symmetric difference in symmetric difference.
                 items.extend(m.items)
@@ -3412,7 +3647,7 @@ class SetSymDiff(SetBase):
 
         if len(items) == 1:
             return items[0].with_flags(case_flags=self.case_flags,
-              zerowidth=self.zerowidth).optimise(info, in_set)
+              zerowidth=self.zerowidth).optimise(info, reverse, in_set)
 
         self.items = tuple(items)
 
@@ -3433,10 +3668,10 @@ class SetUnion(SetBase):
       (FULLIGNORECASE, True): OP.SET_UNION_IGN_REV}
     _op_name = "SET_UNION"
 
-    def optimise(self, info, in_set=False):
+    def optimise(self, info, reverse, in_set=False):
         items = []
         for m in self.items:
-            m = m.optimise(info, in_set=True)
+            m = m.optimise(info, reverse, in_set=True)
             if isinstance(m, SetUnion) and m.positive:
                 # Union in union.
                 items.extend(m.items)
@@ -3447,7 +3682,7 @@ class SetUnion(SetBase):
             i = items[0]
             return i.with_flags(positive=i.positive == self.positive,
               case_flags=self.case_flags,
-              zerowidth=self.zerowidth).optimise(info, in_set)
+              zerowidth=self.zerowidth).optimise(info, reverse, in_set)
 
         self.items = tuple(items)
 
@@ -3491,6 +3726,10 @@ class SetUnion(SetBase):
         m = any(i.matches(ch) for i in self.items)
         return m == self.positive
 
+class Skip(ZeroWidthBase):
+    _op_name = "SKIP"
+    _opcode = OP.SKIP
+
 class StartOfLine(ZeroWidthBase):
     _opcode = OP.START_OF_LINE
     _op_name = "START_OF_LINE"
@@ -3516,7 +3755,7 @@ class String(RegexBase):
 
     def __init__(self, characters, case_flags=NOCASE):
         self.characters = tuple(characters)
-        self.case_flags = case_flags
+        self.case_flags = CASE_FLAGS_COMBINATIONS[case_flags]
 
         if (self.case_flags & FULLIGNORECASE) == FULLIGNORECASE:
             folded_characters = []
@@ -3579,7 +3818,7 @@ class StringSet(RegexBase):
     def __init__(self, info, name, case_flags=NOCASE):
         self.info = info
         self.name = name
-        self.case_flags = case_flags
+        self.case_flags = CASE_FLAGS_COMBINATIONS[case_flags]
 
         self._key = self.__class__, self.name, self.case_flags
 
@@ -3614,7 +3853,8 @@ class StringSet(RegexBase):
                 branch = Branch(branches)
             else:
                 branch = branches[0]
-            branch = branch.optimise(self.info).pack_characters(self.info)
+            branch = branch.optimise(self.info,
+              reverse).pack_characters(self.info)
 
             return branch.compile(reverse, fuzzy)
         else:
@@ -3972,7 +4212,8 @@ def _check_group_features(info, parsed):
                     # The pattern as a whole doesn't have the features we want,
                     # so we'll need to make a copy of it with the desired
                     # features.
-                    additional_groups.append((parsed, reverse, fuzzy))
+                    additional_groups.append((CallRef(len(call_refs), parsed),
+                      reverse, fuzzy))
             else:
                 # Calling a capture group.
                 def_info = info.defined_groups[call.group]
@@ -4024,7 +4265,8 @@ class Scanner:
             source.ignore_space = bool(info.flags & VERBOSE)
             parsed = _parse_pattern(source, info)
             if not source.at_end():
-                raise error("unbalanced parenthesis", source.string, source.pos)
+                raise error("unbalanced parenthesis", source.string,
+                  source.pos)
 
             # We want to forbid capture groups within each phrase.
             patterns.append(parsed.remove_captures())
@@ -4035,7 +4277,8 @@ class Scanner:
         parsed = Branch(patterns)
 
         # Optimise the compound pattern.
-        parsed = parsed.optimise(info)
+        reverse = bool(info.flags & REVERSE)
+        parsed = parsed.optimise(info, reverse)
         parsed = parsed.pack_characters(info)
 
         # Get the required string.
@@ -4145,6 +4388,7 @@ POSITION_ESCAPES = {
     "A": StartOfString(),
     "b": Boundary(),
     "B": Boundary(False),
+    "K": Keep(),
     "m": StartOfWord(),
     "M": EndOfWord(),
     "Z": EndOfString(),
@@ -4158,3 +4402,11 @@ WORD_POSITION_ESCAPES.update({
     "m": DefaultStartOfWord(),
     "M": DefaultEndOfWord(),
 })
+
+# Regex control verbs.
+VERBS = {
+    "FAIL": Failure(),
+    "F": Failure(),
+    "PRUNE": Prune(),
+    "SKIP": Skip(),
+}
