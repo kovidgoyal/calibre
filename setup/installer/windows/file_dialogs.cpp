@@ -19,6 +19,54 @@
 #define PRINTERR(x) fprintf(stderr, "%s", x); fflush(stderr);
 #define SECRET_SIZE 32
 
+void set_dpi_aware() {
+    // Try SetProcessDpiAwareness first
+    HINSTANCE sh_core = LoadLibraryW(L"Shcore.dll");
+
+    if (sh_core) {
+        enum ProcessDpiAwareness
+        {
+            ProcessDpiUnaware         = 0,
+            ProcessSystemDpiAware     = 1,
+            ProcessPerMonitorDpiAware = 2
+        };
+
+        typedef HRESULT (WINAPI* SetProcessDpiAwarenessFuncType)(ProcessDpiAwareness);
+        SetProcessDpiAwarenessFuncType SetProcessDpiAwarenessFunc = reinterpret_cast<SetProcessDpiAwarenessFuncType>(GetProcAddress(sh_core, "SetProcessDpiAwareness"));
+
+        if (SetProcessDpiAwarenessFunc) {
+            // We only check for E_INVALIDARG because we would get
+            // E_ACCESSDENIED if the DPI was already set previously
+            // and S_OK means the call was successful
+            if (SetProcessDpiAwarenessFunc(ProcessPerMonitorDpiAware) == E_INVALIDARG) {
+                PRINTERR("Failed to set process DPI awareness using SetProcessDpiAwareness"); 
+            } else {
+                FreeLibrary(sh_core);
+                return;
+            }
+        }
+
+        FreeLibrary(sh_core);
+    }
+
+    // Fall back to SetProcessDPIAware if SetProcessDpiAwareness
+    // is not available on this system
+    HINSTANCE user32 = LoadLibraryW(L"user32.dll");
+
+    if (user32) {
+        typedef BOOL (WINAPI* SetProcessDPIAwareFuncType)(void);
+        SetProcessDPIAwareFuncType SetProcessDPIAwareFunc = reinterpret_cast<SetProcessDPIAwareFuncType>(GetProcAddress(user32, "SetProcessDPIAware"));
+
+        if (SetProcessDPIAwareFunc) {
+            if (!SetProcessDPIAwareFunc()) {
+                PRINTERR("Failed to set process DPI awareness using SetProcessDPIAware"); 
+            }
+        }
+
+        FreeLibrary(user32);
+    }
+}
+
 bool write_bytes(HANDLE pipe, DWORD sz, const char* buf) {
     DWORD written = 0;
     if (!WriteFile(pipe, buf, sz, &written, NULL)) {
@@ -275,6 +323,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         if (!write_bytes(pipe, SECRET_SIZE+1, secret)) return 1;
         return write_bytes(pipe, echo_sz, echo_buf) ? 0 : 1;
     }
-
+    set_dpi_aware();
     return show_dialog(pipe, secret, parent, save_dialog, title, folder, filename, save_path, multiselect, confirm_overwrite, only_dirs, no_symlinks, file_types, num_file_types);
 }
