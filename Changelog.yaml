@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.63.0
+  date: 2016-07-22
+
+  new features:
+    - title: "News download: Allow controlling which periodicals are automatically sent to a specific email in Preferences->Sharing by email"
+
+    - title: "Edit Book: Update regex engine to support Unicode 9.0"
+
+  bug fixes:
+    - title: "Edit metadata dialog: Fix pasting ISBN from clipboard not stripping garbage characters after a valid ISBN."
+      tickets: [1604956]
+
+    - title: "Edit Book: Also refresh the Preview and Live CSS panels after performing any action that changes files other than the currently displayed file."
+
+    - title: "E-book viewer: Fix the show metadata button not reading EPUB 3 metadata"
+
+    - title: "MOBI Output: Fix <hr> not being rendered as full-width in old MOBI files"
+
+    - title: "CSV Catalog output: Fix incorrect formatting of is_multiple custom columns."
+      tickets: [1602908]
+
+    - title: "CSV Catalog Output: Separate multiple authors with & instead of comma. Fixes problems when the author name contains commas."
+
+    - title: "EPUB 3 metadata: Fix updating metadata in EPUB 3 files not overwriting existing authors."
+      tickets: [1602227]
+
+    - title: "Fix duplicate detection when adding books not working when the book title has leading or trailing whitespace"
+
+    - title: "Book details panel: Pick the color used for links from the current system color theme"
+
+    - title: "Windows: Fix file selection dialogs blurry on HiDPI monitors"
+
+  improved recipes:
+    - Gosc Niedzielny
+    - Nikkei Free
+    - Financial Times (UK)
+    - Foreign Affairs
+    - Berlin Policy Journal
+    - Gazet van Antwerpen
+    - Hurriyet
+
+
 - version: 2.62.0
   date: 2016-07-08
 
