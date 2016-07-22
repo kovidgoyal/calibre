@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 3 # Needed for dynamic plugin loading
+store_version = 4 # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2011-2013, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import re
@@ -59,7 +59,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                     if counter <= 0:
                         break
 
-                    id = ''.join(data.xpath('.//div[@class="cover_container"]/a[1]/@href'))
+                    id = ''.join(data.xpath('.//div[@class="col-2"]/a/@href'))
                     if not id:
                         continue
 
@@ -69,15 +69,10 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                     cover_url = re.sub(r'%2F', '/', cover_url)
                     cover_url = re.sub(r'widthMax=120&heightMax=200', 'widthMax=64&heightMax=64', cover_url)
                     title = ''.join(data.xpath('.//a[@class="title"]/text()'))
-                    title = re.sub(r' - ebook$', '', title)
-                    formats = ', '.join(data.xpath('.//ul[@class="formats_available"]/li//b/text()'))
-                    DrmFree = re.search(r'znak', formats)
-                    formats = re.sub(r'\ ?\(.+?\)', '', formats)
-
-                    author = ''
-                    with closing(br.open('http://www.nexto.pl/' + id.strip(), timeout=timeout/4)) as nf:
-                        idata = html.fromstring(nf.read())
-                        author = ', '.join(idata.xpath('//div[@class="basic_data"]/p[1]/b/a/text()'))
+                    title = re.sub(r' – ebook', '', title)
+                    author = ', '.join(data.xpath('.//div[@class="col-7"]//h4//a/text()'))
+                    formats = ', '.join(data.xpath('.//ul[@class="formats"]/li//b/text()'))
+                    DrmFree = re.search(r'znak', str(data.xpath('.//ul[@class="formats"]/li//b/@title')))
 
                     counter -= 1
 
@@ -85,7 +80,7 @@ class NextoStore(BasicStoreConfig, StorePlugin):
                     s.cover_url = cover_url if cover_url[:4] == 'http' else 'http://www.nexto.pl' + cover_url
                     s.title = title.strip()
                     s.author = author.strip()
-                    s.price = price
+                    s.price = price.strip()
                     s.detail_item = id.strip()
                     s.drm = SearchResult.DRM_UNLOCKED if DrmFree else SearchResult.DRM_LOCKED
                     s.formats = formats.upper().strip()
