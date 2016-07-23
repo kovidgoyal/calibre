@@ -12,10 +12,9 @@ from PyQt5.Qt import (
     QCheckBox
 )
 
-from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
 
-class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
+class CreateCustomColumn(QDialog):
 
     # Note: in this class, we are treating is_multiple as the boolean that
     # custom_columns expects to find in its structure. It does not use the dict
