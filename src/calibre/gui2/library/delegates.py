@@ -472,8 +472,10 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         editor.selectAll()
 
     def setModelData(self, editor, model, index):
-        val = editor.text()
-        model.setData(index, (val), Qt.EditRole)
+        val = editor.text() or ''
+        if not isinstance(editor, EditWithComplete):
+            val = val.strip()
+        model.setData(index, val, Qt.EditRole)
 # }}}
 
 class CcLongTextDelegate(QStyledItemDelegate):  # {{{
