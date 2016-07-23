@@ -165,6 +165,7 @@ class CreateCustomColumn(QDialog):
                 self.format_box.setText(c['display'].get('number_format', ''))
         elif ct == 'comments':
             self.show_comments_heading.setChecked(c['display'].get('show_heading', False))
+            self.show_comment_on_left.setChecked(c['display'].get('show_on_left', False))
             idx = max(0, self.comments_type.findData(c['display'].get('interpret_as', 'html')))
             self.comments_type.setCurrentIndex(idx)
         self.datatype_changed()
@@ -207,6 +208,7 @@ class CreateCustomColumn(QDialog):
             self.composite_sort_by.setCurrentIndex(0)
         if which == 'text':
             self.show_comments_heading.setChecked(True)
+            self.show_comment_on_left.setChecked(True)
             self.comments_type.setCurrentIndex(self.comments_type.findData('short-text'))
     # }}}
 
@@ -310,6 +312,10 @@ class CreateCustomColumn(QDialog):
         self.show_comments_heading = sch = QCheckBox(_('Show heading in book details panel'))
         sch.setToolTip(_(
             'Choose whether to show the heading for this column in the Book Details Panel'))
+        add_row(None, sch)
+        self.show_comment_on_left = sch = QCheckBox(_('Show column on left in book details panel'))
+        sch.setToolTip(_(
+            'Choose whether to show the comment on the left or the right in the Book Details Panel'))
         add_row(None, sch)
         self.comments_type = ct = QComboBox(self)
         for k, text in (
@@ -416,8 +422,19 @@ class CreateCustomColumn(QDialog):
         self.is_names.setVisible(col_type == '*text')
         is_comments = col_type == 'comments'
         self.show_comments_heading.setVisible(is_comments)
+        self.show_comment_on_left.setVisible(is_comments)
+        self.show_comments_heading.clicked.connect(self.force_comment_on_left)
+        self.show_comment_on_left.clicked.connect(self.force_show_comment_heading)
         self.comments_type.setVisible(is_comments)
         self.comments_type_label.setVisible(is_comments)
+
+    def force_show_comment_heading(self, checked):
+        if checked:
+            self.show_comments_heading.setChecked(True)
+
+    def force_comment_on_left(self, checked):
+        if not checked:
+            self.show_comment_on_left.setChecked(False)
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -514,6 +531,7 @@ class CreateCustomColumn(QDialog):
                 display_dict = {'number_format': None}
         elif col_type == 'comments':
             display_dict['show_heading'] = bool(self.show_comments_heading.isChecked())
+            display_dict['show_on_left'] = bool(self.show_comment_on_left.isChecked())
             display_dict['interpret_as'] = type(u'')(self.comments_type.currentData())
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:

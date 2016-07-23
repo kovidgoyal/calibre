@@ -201,8 +201,8 @@ def render_metadata(mi, interface_data, table, field_list=None):
         datatype = fm.datatype
         val = mi[field]
         if field is 'comments' or datatype is 'comments':
-            if fm.display?.interpret_as is 'short-text':
-                add_row(name, val)
+            if fm.display?.show_on_left:
+                add_row(name, val, is_html=fm.display?.interpret_as is 'html')
             else:
                 comments[field] = val
             return
