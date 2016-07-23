@@ -6,7 +6,11 @@ __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from functools import partial
 
-from PyQt5.Qt import QDialog, Qt, QColor
+from PyQt5.Qt import (
+    QDialog, Qt, QColor, QIcon, QVBoxLayout, QLabel, QGridLayout,
+    QDialogButtonBox, QWidget, QLineEdit, QHBoxLayout, QComboBox,
+    QCheckBox
+)
 
 from calibre.gui2.preferences.create_custom_column_ui import Ui_QCreateCustomColumn
 from calibre.gui2 import error_dialog
@@ -81,10 +85,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
     def __init__(self, parent, current_row, current_key, standard_colheads, standard_colnames):
         QDialog.__init__(self, parent)
-        Ui_QCreateCustomColumn.__init__(self)
-        self.setupUi(self)
+        self.setup_ui()
         self.setWindowTitle(_('Create a custom column'))
-        self.heading_label.setText(_('Create a custom column'))
+        self.heading_label.setText('<b>' + _('Create a custom column'))
         # Remove help icon on title bar
         icon = self.windowIcon()
         self.setWindowFlags(self.windowFlags()&(~Qt.WindowContextHelpButtonHint))
@@ -92,18 +95,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
         self.simple_error = partial(error_dialog, self, show=True,
             show_copy_button=False)
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.rejected.connect(self.reject)
-        self.shortcuts.linkActivated.connect(self.shortcut_activated)
-        text = '<p>'+_('Quick create:')
-        for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
-                ('yesno', _('Yes/No')),
-                ('tags', _('Tags')), ('series', _('Series')), ('rating',
-                    _('Rating')), ('people', _("People's names"))]:
-            text += ' <a href="col:%s">%s</a>,'%(col, name)
-        text = text[:-1]
-        self.shortcuts.setText(text)
-
         for sort_by in [_('Text'), _('Number'), _('Date'), _('Yes/No')]:
             self.composite_sort_by.addItem(sort_by)
 
@@ -126,7 +117,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return
 
         self.setWindowTitle(_('Edit a custom column'))
-        self.heading_label.setText(_('Edit a custom column'))
+        self.heading_label.setText('<b>' + _('Edit a custom column'))
         self.shortcuts.setVisible(False)
         idx = current_row
         if idx < 0:
@@ -152,7 +143,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         self.column_type_box.setEnabled(False)
         if ct == 'datetime':
             if c['display'].get('date_format', None):
-                self.date_format_box.setText(c['display'].get('date_format', ''))
+                self.format_box.setText(c['display'].get('date_format', ''))
         elif ct in ['composite', '*composite']:
             self.composite_box.setText(c['display'].get('composite_template', ''))
             sb = c['display'].get('composite_sort', 'text')
@@ -171,7 +162,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.enum_colors.setText(','.join(c['display'].get('enum_colors', [])))
         elif ct in ['int', 'float']:
             if c['display'].get('number_format', None):
-                self.number_format_box.setText(c['display'].get('number_format', ''))
+                self.format_box.setText(c['display'].get('number_format', ''))
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
@@ -179,19 +170,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             self.is_names.setChecked(c['display'].get('is_names', False))
         self.description_box.setText(c['display'].get('description', ''))
 
-        self.composite_contains_html.setToolTip('<p>' +
-                _('If checked, this column will be displayed as HTML in '
-                  'book details and the content server. This can be used to '
-                  'construct links with the template language. For example, '
-                  'the template '
-                  '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
-                  '{series:| [|}{series_index:| [|]]}</pre>'
-                  'will create a field displaying the title in bold large '
-                  'characters, along with the series, for example <br>"<big><b>'
-                  'An Oblique Approach</b></big> [Belisarius [1]]". The template '
-                  '<pre>&lt;a href="http://www.beam-ebooks.de/ebook/{identifiers'
-                  ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
-                  'will generate a link to the book on the Beam ebooks site.') + '</p>')
         self.exec_()
 
     def shortcut_activated(self, url):
@@ -221,14 +199,184 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     }[which])
             self.composite_sort_by.setCurrentIndex(0)
 
+    def setup_ui(self):
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowIcon(QIcon(I('column.png')))
+        self.vl = l = QVBoxLayout(self)
+        self.heading_label = la = QLabel('')
+        l.addWidget(la)
+        self.shortcuts = s = QLabel('')
+        s.setWordWrap(True)
+        s.linkActivated.connect(self.shortcut_activated)
+        text = '<p>'+_('Quick create:')
+        for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
+                ('yesno', _('Yes/No')),
+                ('tags', _('Tags')), ('series', _('Series')), ('rating',
+                    _('Rating')), ('people', _("People's names"))]:
+            text += ' <a href="col:%s">%s</a>,'%(col, name)
+        text = text[:-1]
+        s.setText(text)
+        l.addWidget(s)
+        self.g = g = QGridLayout()
+        l.addLayout(g)
+        l.addStretch(10)
+        self.button_box = bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        bb.accepted.connect(self.accept), bb.rejected.connect(self.reject)
+        l.addWidget(bb)
+
+        def add_row(text, widget):
+            if text is None:
+                f = g.addWidget if isinstance(widget, QWidget) else g.addLayout
+                f(widget, g.rowCount(), 0, 1, -1)
+                return
+
+            row = g.rowCount()
+            la = QLabel(text)
+            g.addWidget(la, row, 0, 1, 1)
+            if isinstance(widget, QWidget):
+                la.setBuddy(widget)
+                g.addWidget(widget, row, 1, 1, 1)
+            else:
+                widget.setContentsMargins(0, 0, 0, 0)
+                g.addLayout(widget, row, 1, 1, 1)
+                for i in range(widget.count()):
+                    w = widget.itemAt(i).widget()
+                    if isinstance(w, QWidget):
+                        la.setBuddy(w)
+                        break
+            return la
+
+        # Lookup name
+        self.column_name_box = cnb = QLineEdit(self)
+        cnb.setToolTip(_("Used for searching the column. Must contain only digits and lower case letters."))
+        add_row(_("&Lookup name"), cnb)
+
+        # Heading
+        self.column_heading_box = chb = QLineEdit(self)
+        chb.setToolTip(_("Column heading in the library view and category name in the tag browser"))
+        add_row(_("Column &heading"), chb)
+
+        # Column Type
+        h = QHBoxLayout()
+        self.column_type_box = ctb = QComboBox(self)
+        ctb.setMinimumWidth(70)
+        ctb.setToolTip(_("What kind of information will be kept in the column."))
+        h.addWidget(ctb)
+        self.use_decorations = ud = QCheckBox(_("Show &checkmarks"), self)
+        ud.setToolTip(_("Show check marks in the GUI. Values of 'yes', 'checked', and 'true'\n"
+            "will show a green check. Values of 'no', 'unchecked', and 'false' will show a red X.\n"
+            "Everything else will show nothing."))
+        h.addWidget(ud)
+        self.is_names = ins = QCheckBox(_("Contains names"), self)
+        ins.setToolTip(_("Check this box if this column contains names, like the authors column."))
+        h.addWidget(ins)
+        add_row(_("&Column type"), h)
+
+        # Description
+        self.description_box = d = QLineEdit(self)
+        d.setToolTip(_("Optional text describing what this column is for"))
+        add_row(_("D&escription"), d)
+
+        # Date/number formatting
+        h = QHBoxLayout()
+        self.format_box = fb = QLineEdit(self)
+        h.addWidget(fb)
+        self.format_default_label = la = QLabel('')
+        la.setOpenExternalLinks(True)
+        h.addWidget(la)
+        self.format_label = add_row('', h)
+
+        # Template
+        self.composite_box = cb = QLineEdit(self)
+        self.composite_default_label = cdl = QLabel(_("Default: (nothing)"))
+        cb.setToolTip(_("Field template. Uses the same syntax as save templates."))
+        cdl.setToolTip(_("Similar to save templates. For example, %s") % "{title} {isbn}")
+        h = QHBoxLayout()
+        h.addWidget(cb), h.addWidget(cdl)
+        self.composite_label = add_row(_("&Template"), h)
+
+        # Values for enum type
+        l = QGridLayout()
+        self.enum_box = eb = QLineEdit(self)
+        eb.setToolTip(_(
+            "A comma-separated list of permitted values. The empty value is always\n"
+            "included, and is the default. For example, the list 'one,two,three' has\n"
+            "four values, the first of them being the empty value."))
+        self.enum_default_label = la = QLabel(_("Values"))
+        la.setBuddy(eb)
+        l.addWidget(eb), l.addWidget(la, 0, 1)
+        self.enum_colors = ec = QLineEdit(self)
+        ec.setToolTip(_("A list of color names to use when displaying an item. The\n"
+            "list must be empty or contain a color for each value."))
+        self.enum_colors_label = la = QLabel(_('Colors'))
+        la.setBuddy(ec)
+        l.addWidget(ec), l.addWidget(la, 1, 1)
+        self.enum_label = add_row(_('&Values'), l)
+
+        # Composite display properties
+        l = QHBoxLayout()
+        self.composite_sort_by_label = la = QLabel(_("&Sort/search column by"))
+        self.composite_sort_by = csb = QComboBox(self)
+        la.setBuddy(csb), csb.setToolTip(_("How this column should handled in the GUI when sorting and searching"))
+        l.addWidget(la), l.addWidget(csb)
+        self.composite_make_category = cmc = QCheckBox(_("Show in tags browser"))
+        cmc.setToolTip(_("If checked, this column will appear in the tags browser as a category"))
+        l.addWidget(cmc)
+        self.composite_contains_html = cch = QCheckBox(_("Show as HTML in book details"))
+        cch.setToolTip('<p>' +
+                _('If checked, this column will be displayed as HTML in '
+                  'book details and the content server. This can be used to '
+                  'construct links with the template language. For example, '
+                  'the template '
+                  '<pre>&lt;big&gt;&lt;b&gt;{title}&lt;/b&gt;&lt;/big&gt;'
+                  '{series:| [|}{series_index:| [|]]}</pre>'
+                  'will create a field displaying the title in bold large '
+                  'characters, along with the series, for example <br>"<big><b>'
+                  'An Oblique Approach</b></big> [Belisarius [1]]". The template '
+                  '<pre>&lt;a href="http://www.beam-ebooks.de/ebook/{identifiers'
+                  ':select(beam)}"&gt;Beam book&lt;/a&gt;</pre> '
+                  'will generate a link to the book on the Beam ebooks site.') + '</p>')
+        l.addWidget(cch)
+        add_row(None, l)
+
+        self.resize(self.sizeHint())
+
     def datatype_changed(self, *args):
         try:
             col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
         except:
             col_type = None
+        needs_format = col_type in ('datetime', 'int', 'float')
         for x in ('box', 'default_label', 'label'):
-            getattr(self, 'date_format_'+x).setVisible(col_type == 'datetime')
-            getattr(self, 'number_format_'+x).setVisible(col_type in ['int', 'float'])
+            getattr(self, 'format_'+x).setVisible(needs_format)
+        if needs_format:
+            if col_type == 'datetime':
+                l, dl = _('&Format for dates'), _('Default: dd MMM yyyy.')
+                self.format_box.setToolTip(_(
+                    "<p>Date format. Use 1-4 \'d\'s for day, 1-4 \'M\'s for month, and 2 or 4 \'y\'s for year.</p>\n"
+                    "<p>For example:\n"
+                    "<ul>\n"
+                    "<li> ddd, d MMM yyyy gives Mon, 5 Jan 2010<li>\n"
+                    "<li>dd MMMM yy gives 05 January 10</li>\n"
+                    "</ul> "))
+            else:
+                l, dl = _('&Format for numbers'), (
+                    '<p>' + _('Default: Not formatted. For format language details see'
+                    ' <a href="https://docs.python.org/library/string.html#format-string-syntax">the python documentation</a>'))
+                if col_type == 'int':
+                    self.format_box.setToolTip('<p>' +
+                        _('Examples: The format <code>{0:0>4d}</code> '
+                        'gives a 4-digit number with leading zeros. The format '
+                        '<code>{0:d}&nbsp;days</code> prints the number then the word "days"')+ '</p>')
+                else:
+                    self.format_box.setToolTip('<p>' +
+                        _('Examples: The format <code>{0:.1f}</code> gives a floating '
+                        'point number with 1 digit after the decimal point. The format '
+                        '<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints '
+                        '"Price&nbsp;$&nbsp;" then displays the number with 2 digits '
+                        'after the decimal point and thousands separated by commas.') + '</p>'
+                    )
+            self.format_label.setText(l), self.format_default_label.setText(dl)
         for x in ('box', 'default_label', 'label', 'sort_by', 'sort_by_label',
                   'make_category', 'contains_html'):
             getattr(self, 'composite_'+x).setVisible(col_type in ['composite', '*composite'])
@@ -236,18 +384,6 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
-        if col_type == 'int':
-            self.number_format_box.setToolTip('<p>' +
-                _('Examples: The format <code>{0:0>4d}</code> '
-                  'gives a 4-digit number with leading zeros. The format '
-                  '<code>{0:d}&nbsp;days</code> prints the number then the word "days"')+ '</p>')
-        elif col_type == 'float':
-            self.number_format_box.setToolTip('<p>' +
-                _('Examples: The format <code>{0:.1f}</code> gives a floating '
-                  'point number with 1 digit after the decimal point. The format '
-                  '<code>Price:&nbsp;$&nbsp;{0:,.2f}</code> prints '
-                  '"Price&nbsp;$&nbsp;" then displays the number with 2 digits '
-                  'after the decimal point and thousands separated by commas.') + '</p>')
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -297,8 +433,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         display_dict = {}
 
         if col_type == 'datetime':
-            if unicode(self.date_format_box.text()).strip():
-                display_dict = {'date_format':unicode(self.date_format_box.text()).strip()}
+            if unicode(self.format_box.text()).strip():
+                display_dict = {'date_format':unicode(self.format_box.text()).strip()}
             else:
                 display_dict = {'date_format': None}
         elif col_type == 'composite':
@@ -338,8 +474,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         elif col_type == 'text' and is_multiple:
             display_dict = {'is_names': self.is_names.isChecked()}
         elif col_type in ['int', 'float']:
-            if unicode(self.number_format_box.text()).strip():
-                display_dict = {'number_format':unicode(self.number_format_box.text()).strip()}
+            if unicode(self.format_box.text()).strip():
+                display_dict = {'number_format':unicode(self.format_box.text()).strip()}
             else:
                 display_dict = {'number_format': None}
 
