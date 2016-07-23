@@ -163,6 +163,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         elif ct in ['int', 'float']:
             if c['display'].get('number_format', None):
                 self.format_box.setText(c['display'].get('number_format', ''))
+        elif ct == 'comments':
+            self.show_comments_heading.setChecked(c['display'].get('show_heading', False))
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
@@ -172,7 +174,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
 
         self.exec_()
 
-    def shortcut_activated(self, url):
+    def shortcut_activated(self, url):  # {{{
         which = unicode(url).split(':')[-1]
         self.column_type_box.setCurrentIndex({
             'yesno': 9,
@@ -198,8 +200,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'formats': "{:'approximate_formats()'}",
                     }[which])
             self.composite_sort_by.setCurrentIndex(0)
+    # }}}
 
-    def setup_ui(self):
+    def setup_ui(self):  # {{{
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowIcon(QIcon(I('column.png')))
         self.vl = l = QVBoxLayout(self)
@@ -295,6 +298,12 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         h.addWidget(cb), h.addWidget(cdl)
         self.composite_label = add_row(_("&Template"), h)
 
+        # Comments properties
+        self.show_comments_heading = sch = QCheckBox(_('Show heading in book details panel'))
+        sch.setToolTip(_(
+            'Choose whether to show the heading for this column in the Book Details Panel'))
+        add_row(None, sch)
+
         # Values for enum type
         l = QGridLayout()
         self.enum_box = eb = QLineEdit(self)
@@ -340,6 +349,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         add_row(None, l)
 
         self.resize(self.sizeHint())
+    # }}}
 
     def datatype_changed(self, *args):
         try:
@@ -384,6 +394,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
+        self.show_comments_heading.setVisible(col_type == 'comments')
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -478,6 +489,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 display_dict = {'number_format':unicode(self.format_box.text()).strip()}
             else:
                 display_dict = {'number_format': None}
+        elif col_type == 'comments':
+            display_dict['show_heading'] = bool(self.show_comments_heading.isChecked())
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()

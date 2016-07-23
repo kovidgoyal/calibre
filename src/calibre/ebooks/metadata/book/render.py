@@ -86,8 +86,10 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
         if metadata['datatype'] == 'comments' or field == 'comments':
             val = getattr(mi, field)
             if val:
-                val = force_unicode(val)
-                comment_fields.append(comments_to_html(val))
+                val = comments_to_html(force_unicode(val))
+                if metadata['display'].get('show_heading'):
+                    val = '<h3 class="comments-heading">%s</h3>%s' % (p(name), val)
+                comment_fields.append('<div id="%s" class="comments">%s</div>' % (field.replace('#', '_'), val))
         elif metadata['datatype'] == 'rating':
             val = getattr(mi, field)
             if val:
