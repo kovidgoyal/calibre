@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import socket, os, struct
+import socket, os, struct, errno
 from base64 import standard_b64encode
 from collections import deque, namedtuple
 from functools import partial
@@ -73,7 +73,12 @@ class WSClient(object):
                 return data
             self.read_buf.appendleft(data[max_amt+1:])
             return data[:max_amt + 1]
-        return self.socket.recv(max_amt)
+        try:
+            return self.socket.recv(max_amt)
+        except socket.error as err:
+            if err.errno != errno.ECONNRESET:
+                raise
+            return b''
 
     def read_size(self, size):
         ans = b''
