@@ -17,7 +17,7 @@ from PyQt5.Qt import (
 
 from calibre.constants import islinux
 from calibre.gui2.library.delegates import (RatingDelegate, PubDateDelegate,
-    TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate,
+    TextDelegate, DateDelegate, CompleteDelegate, CcTextDelegate, CcLongTextDelegate,
     CcBoolDelegate, CcCommentsDelegate, CcDateDelegate, CcTemplateDelegate,
     CcEnumDelegate, CcNumberDelegate, LanguagesDelegate)
 from calibre.gui2.library.models import BooksModel, DeviceBooksModel
@@ -236,6 +236,7 @@ class BooksView(QTableView):  # {{{
         self.publisher_delegate = TextDelegate(self)
         self.text_delegate = TextDelegate(self)
         self.cc_text_delegate = CcTextDelegate(self)
+        self.cc_longtext_delegate = CcLongTextDelegate(self)
         self.cc_enum_delegate = CcEnumDelegate(self)
         self.cc_bool_delegate = CcBoolDelegate(self)
         self.cc_comments_delegate = CcCommentsDelegate(self)
@@ -774,7 +775,13 @@ class BooksView(QTableView):  # {{{
                     delegate.set_format(cc['display'].get('date_format',''))
                     self.setItemDelegateForColumn(cm.index(colhead), delegate)
                 elif cc['datatype'] == 'comments':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
+                    ctype = cc['display'].get('interpret_as', 'html')
+                    if ctype == 'short-text':
+                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_text_delegate)
+                    elif ctype in ('long-text', 'markdown'):
+                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_longtext_delegate)
+                    else:
+                        self.setItemDelegateForColumn(cm.index(colhead), self.cc_comments_delegate)
                 elif cc['datatype'] == 'text':
                     if cc['is_multiple']:
                         if cc['display'].get('is_names', False):

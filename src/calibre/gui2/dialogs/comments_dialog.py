@@ -3,11 +3,12 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __license__   = 'GPL v3'
 
-from PyQt5.Qt import Qt, QDialog, QDialogButtonBox
+from PyQt5.Qt import Qt, QDialog, QDialogButtonBox, QVBoxLayout, QPlainTextEdit, QSize
 
 from calibre.gui2 import gprefs, Application
 from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
 from calibre.library.comments import comments_to_html
+from calibre.gui2.widgets2 import Dialog
 
 class CommentsDialog(QDialog, Ui_CommentsDialog):
 
@@ -47,6 +48,31 @@ class CommentsDialog(QDialog, Ui_CommentsDialog):
     def closeEvent(self, ev):
         self.save_geometry()
         return QDialog.closeEvent(self, ev)
+
+
+class PlainTextDialog(Dialog):
+
+    def __init__(self, parent, text, column_name=None):
+        title = _('Edit "{0}"').format(column_name) if column_name else _('Edit text')
+        Dialog.__init__(self, title, 'edit-plain-text-dialog', parent=parent)
+        self.text = text
+
+    def setup_ui(self):
+        self.l = l = QVBoxLayout(self)
+        self._text = QPlainTextEdit(self)
+        l.addWidget(self._text)
+        l.addWidget(self.bb)
+
+    @property
+    def text(self):
+        return self._text.toPlainText()
+
+    @text.setter
+    def text(self, val):
+        self._text.setPlainText(val or '')
+
+    def sizeHint(self):
+        return QSize(600, 400)
 
 if __name__ == '__main__':
     app = Application([])

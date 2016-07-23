@@ -20,7 +20,7 @@ from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
-from calibre.gui2.dialogs.comments_dialog import CommentsDialog
+from calibre.gui2.dialogs.comments_dialog import CommentsDialog, PlainTextDialog
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
@@ -457,11 +457,14 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def createEditor(self, parent, option, index):
         m = index.model()
         col = m.column_map[index.column()]
-        editor = EditWithComplete(parent)
-        editor.set_separator(None)
-        complete_items = sorted(list(m.db.all_custom(label=m.db.field_metadata.key_to_label(col))),
-                                key=sort_key)
-        editor.update_items_cache(complete_items)
+        key = m.db.field_metadata.key_to_label(col)
+        if m.db.field_metadata[col]['is_multiple']:
+            editor = EditWithComplete(parent)
+            editor.set_separator(None)
+            complete_items = sorted(list(m.db.all_custom(label=key)), key=sort_key)
+            editor.update_items_cache(complete_items)
+        else:
+            editor = QStyledItemDelegate.createEditor(self, parent, option, index)
         return editor
 
     def setEditorData(self, editor, index):
@@ -471,6 +474,32 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
     def setModelData(self, editor, model, index):
         val = editor.text()
         model.setData(index, (val), Qt.EditRole)
+# }}}
+
+class CcLongTextDelegate(QStyledItemDelegate):  # {{{
+
+    '''
+    Delegate for comments data.
+    '''
+
+    def __init__(self, parent):
+        QStyledItemDelegate.__init__(self, parent)
+        self.document = QTextDocument()
+
+    def createEditor(self, parent, option, index):
+        m = index.model()
+        col = m.column_map[index.column()]
+        if check_key_modifier(Qt.ControlModifier):
+            text = ''
+        else:
+            text = m.db.data[index.row()][m.custom_columns[col]['rec_index']]
+        d = PlainTextDialog(parent, text, column_name=m.custom_columns[col]['name'])
+        if d.exec_() == d.Accepted:
+            m.setData(index, d.text, Qt.EditRole)
+        return None
+
+    def setModelData(self, editor, model, index):
+        model.setData(index, (editor.textbox.html), Qt.EditRole)
 # }}}
 
 class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
