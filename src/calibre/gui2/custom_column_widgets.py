@@ -9,8 +9,8 @@ from functools import partial
 
 from PyQt5.Qt import (QComboBox, QLabel, QSpinBox, QDoubleSpinBox, QDateTimeEdit,
         QDateTime, QGroupBox, QVBoxLayout, QSizePolicy, QGridLayout,
-        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout,
-        QPushButton, QMessageBox, QToolButton, Qt)
+        QSpacerItem, QIcon, QCheckBox, QWidget, QHBoxLayout, QLineEdit,
+        QPushButton, QMessageBox, QToolButton, Qt, QPlainTextEdit)
 
 from calibre.utils.date import qt_to_dt, now, as_local_time, as_utc
 from calibre.gui2.complete2 import EditWithComplete
@@ -63,6 +63,37 @@ class Base(object):
 
     def break_cycles(self):
         self.db = self.widgets = self.initial_val = None
+
+class SimpleText(Base):
+
+    def setup_ui(self, parent):
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), QLineEdit(parent)]
+
+    def setter(self, val):
+        self.widgets[1].setText(type(u'')(val or ''))
+
+    def getter(self):
+        return self.widgets[1].text().strip()
+
+
+class LongText(Base):
+
+    def setup_ui(self, parent):
+        self._box = QGroupBox(parent)
+        self._box.setTitle('&'+self.col_metadata['name'])
+        self._layout = QVBoxLayout()
+        self._tb = QPlainTextEdit(self._box)
+        self._tb.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self._layout.addWidget(self._tb)
+        self._box.setLayout(self._layout)
+        self.widgets = [self._box]
+
+    def setter(self, val):
+        self._tb.setPlainText(type(u'')(val or ''))
+
+    def getter(self):
+        return self._tb.toPlainText()
+
 
 class Bool(Base):
 
@@ -511,6 +542,15 @@ class Enumeration(Base):
             val = None
         return val
 
+def comments_factory(db, key, parent):
+    fm = db.custom_column_num_map[key]
+    ctype = fm.get('display', {}).get('interpret_as', 'html')
+    if ctype == 'short-text':
+        return SimpleText(db, key, parent)
+    if ctype in ('long-text', 'markdown'):
+        return LongText(db, key, parent)
+    return Comments(db, key, parent)
+
 widgets = {
         'bool' : Bool,
         'rating' : Rating,
@@ -518,7 +558,7 @@ widgets = {
         'float': Float,
         'datetime': DateTime,
         'text' : Text,
-        'comments': Comments,
+        'comments': comments_factory,
         'series': Series,
         'enumeration': Enumeration
 }
@@ -526,7 +566,7 @@ widgets = {
 def field_sort_key(y, fm=None):
     m1 = fm[y]
     name = icu_lower(m1['name'])
-    n1 = 'zzzzz' + name if m1['datatype'] == 'comments' else name
+    n1 = 'zzzzz' + name if m1['datatype'] == 'comments' and m1.get('display', {}).get('interpret_as') != 'short-text' else name
     return sort_key(n1)
 
 def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, parent=None):
@@ -555,7 +595,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         # Add the key if it really exists in the database
         if key in cols_to_display:
             cols.append(key)
-            if fm[key]['datatype'] == 'comments':
+            if fm[key]['datatype'] == 'comments' and fm[key].get('display', {}).get('interpret_as') != 'short-text':
                 comments_in_tweak += 1
 
     # Add all the remaining fields
@@ -563,7 +603,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
     for key in cols_to_display:
         if key not in cols:
             cols.append(key)
-            if fm[key]['datatype'] == 'comments':
+            if fm[key]['datatype'] == 'comments' and fm[key].get('display', {}).get('interpret_as') != 'short-text':
                 comments_not_in_tweak += 1
 
     count = len(cols)
@@ -582,9 +622,10 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
         dt = fm[key]['datatype']
         if dt == 'composite' or (bulk and dt == 'comments'):
             continue
+        is_comments = dt == 'comments' and fm[key].get('display', {}).get('interpret_as') != 'short-text'
         w = widget_factory(dt, fm[key]['colnum'])
         ans.append(w)
-        if two_column and dt == 'comments':
+        if two_column and is_comments:
             # Here for compatibility with old layout. Comments always started
             # in the left column
             comments_in_tweak -= 1
@@ -599,7 +640,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
                 comments_not_in_tweak = 0
 
         l = QGridLayout()
-        if dt == 'comments':
+        if is_comments:
             layout.addLayout(l, row, column, layout_rows_for_comments, 1)
             layout.setColumnStretch(column, 100)
             row += layout_rows_for_comments
@@ -608,7 +649,7 @@ def populate_metadata_page(layout, db, book_id, bulk=False, two_column=False, pa
             layout.setColumnStretch(column, 100)
             row += 1
         for c in range(0, len(w.widgets), 2):
-            if dt != 'comments':
+            if not is_comments:
                 w.widgets[c].setWordWrap(True)
                 w.widgets[c].setBuddy(w.widgets[c+1])
                 l.addWidget(w.widgets[c], c, 0)
