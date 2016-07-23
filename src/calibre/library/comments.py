@@ -130,6 +130,14 @@ def comments_to_html(comments):
 
     return result.renderContents(encoding=None)
 
+def markdown(val):
+    try:
+        md = markdown.Markdown
+    except AttributeError:
+        from calibre.ebooks.markdown import Markdown
+        md = markdown.Markdown = Markdown()
+    return md.convert(val)
+
 def merge_comments(one, two):
     return comments_to_html(one) + '\n\n' + comments_to_html(two)
 

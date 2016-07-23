@@ -14,7 +14,7 @@ from calibre import prepare_string_for_xml, force_unicode
 from calibre.ebooks.metadata import fmt_sidx
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
-from calibre.library.comments import comments_to_html
+from calibre.library.comments import comments_to_html, markdown
 from calibre.utils.icu import sort_key
 from calibre.utils.formatter import EvalFormatter
 from calibre.utils.date import is_date_undefined
@@ -83,13 +83,24 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
         if not name:
             name = field
         name += ':'
+        disp = metadata['display']
         if metadata['datatype'] == 'comments' or field == 'comments':
             val = getattr(mi, field)
             if val:
-                val = comments_to_html(force_unicode(val))
-                if metadata['display'].get('show_heading'):
-                    val = '<h3 class="comments-heading">%s</h3>%s' % (p(name), val)
-                comment_fields.append('<div id="%s" class="comments">%s</div>' % (field.replace('#', '_'), val))
+                ctype = disp.get('interpret_as') or 'html'
+                val = force_unicode(val)
+                if ctype == 'short-text':
+                    ans.append((field, row % (name, p(val))))
+                else:
+                    if ctype == 'long-text':
+                        val = '<pre>%s</pre>' % p(val)
+                    elif ctype == 'markdown':
+                        val = markdown(val)
+                    else:
+                        val = comments_to_html(val)
+                    if disp.get('show_heading'):
+                        val = '<h3 class="comments-heading">%s</h3>%s' % (p(name), val)
+                    comment_fields.append('<div id="%s" class="comments">%s</div>' % (field.replace('#', '_'), val))
         elif metadata['datatype'] == 'rating':
             val = getattr(mi, field)
             if val:
@@ -102,7 +113,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
             val = getattr(mi, field)
             if val:
                 val = force_unicode(val)
-                if metadata['display'].get('contains_html', False):
+                if disp.get('contains_html', False):
                     ans.append((field, row % (name, comments_to_html(val))))
                 else:
                     if not metadata['is_multiple']:

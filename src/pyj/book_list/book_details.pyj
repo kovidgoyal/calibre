@@ -201,7 +201,10 @@ def render_metadata(mi, interface_data, table, field_list=None):
         datatype = fm.datatype
         val = mi[field]
         if field is 'comments' or datatype is 'comments':
-            comments[field] = val
+            if fm.display?.interpret_as is 'short-text':
+                add_row(name, val)
+            else:
+                comments[field] = val
             return
         func = None
         if datatype is 'composite':
@@ -249,9 +252,13 @@ def render_metadata(mi, interface_data, table, field_list=None):
             traceback.print_exc()
 
     for i, field in enumerate(sorted(comments)):
+        fm = interface_data.field_metadata[field]
         comment = comments[field]
         div = E.div()
         div.innerHTML = comment
+        if fm.display?.show_heading:
+            name = fm.name or field
+            div.insertBefore(E.h3(name), div.firstChild or None)
         table.parentNode.appendChild(div)
         if i is 0:
             div.style.marginTop = '2ex'

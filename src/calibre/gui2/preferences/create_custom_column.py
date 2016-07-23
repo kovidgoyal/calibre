@@ -82,6 +82,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'is_multiple':True
         },
     )))
+    column_types_map = {k['datatype']:idx for idx, k in column_types.iteritems()}
 
     def __init__(self, parent, current_row, current_key, standard_colheads, standard_colnames):
         QDialog.__init__(self, parent)
@@ -165,6 +166,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 self.format_box.setText(c['display'].get('number_format', ''))
         elif ct == 'comments':
             self.show_comments_heading.setChecked(c['display'].get('show_heading', False))
+            idx = max(0, self.comments_type.findData(c['display'].get('interpret_as', 'html')))
+            self.comments_type.setCurrentIndex(idx)
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
@@ -177,12 +180,13 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
     def shortcut_activated(self, url):  # {{{
         which = unicode(url).split(':')[-1]
         self.column_type_box.setCurrentIndex({
-            'yesno': 9,
-            'tags' : 1,
-            'series': 3,
-            'rating': 8,
-            'people': 1,
-            }.get(which, 10))
+            'yesno': self.column_types_map['bool'],
+            'tags' : self.column_types_map['*text'],
+            'series': self.column_types_map['series'],
+            'rating': self.column_types_map['rating'],
+            'people': self.column_types_map['*text'],
+            'text': self.column_types_map['comments'],
+            }.get(which, self.column_types_map['composite']))
         self.column_name_box.setText(which)
         self.column_heading_box.setText({
             'isbn':'ISBN',
@@ -191,7 +195,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             'tags': _('My Tags'),
             'series': _('My Series'),
             'rating': _('My Rating'),
-            'people': _('People')}[which])
+            'people': _('People'),
+            'text': _('My Title'),
+        }[which])
         self.is_names.setChecked(which == 'people')
         if self.composite_box.isVisible():
             self.composite_box.setText(
@@ -200,6 +206,9 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                     'formats': "{:'approximate_formats()'}",
                     }[which])
             self.composite_sort_by.setCurrentIndex(0)
+        if which == 'text':
+            self.show_comments_heading.setChecked(True)
+            self.comments_type.setCurrentIndex(self.comments_type.findData('short-text'))
     # }}}
 
     def setup_ui(self):  # {{{
@@ -215,7 +224,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         for col, name in [('isbn', _('ISBN')), ('formats', _('Formats')),
                 ('yesno', _('Yes/No')),
                 ('tags', _('Tags')), ('series', _('Series')), ('rating',
-                    _('Rating')), ('people', _("People's names"))]:
+                    _('Rating')), ('people', _("Names")), ('text', _('Short text'))]:
             text += ' <a href="col:%s">%s</a>,'%(col, name)
         text = text[:-1]
         s.setText(text)
@@ -303,6 +312,18 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
         sch.setToolTip(_(
             'Choose whether to show the heading for this column in the Book Details Panel'))
         add_row(None, sch)
+        self.comments_type = ct = QComboBox(self)
+        for k, text in (
+                ('html', 'HTML'),
+                ('short-text', _('Short text, like a title')),
+                ('long-text', _('Plain text')),
+                ('markdown', _('Plain text formatted using markdown'))
+        ):
+            ct.addItem(text, k)
+        ct.setToolTip(_('Choose how the data in this column is interpreted.\n'
+                        'This control how the data is displayed in the Book Details panel\n'
+                        'and how it is edited.'))
+        self.comments_type_label = add_row(_('Interpret this column as:') + ' ', ct)
 
         # Values for enum type
         l = QGridLayout()
@@ -394,7 +415,10 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             getattr(self, 'enum_'+x).setVisible(col_type == 'enumeration')
         self.use_decorations.setVisible(col_type in ['text', 'composite', 'enumeration'])
         self.is_names.setVisible(col_type == '*text')
-        self.show_comments_heading.setVisible(col_type == 'comments')
+        is_comments = col_type == 'comments'
+        self.show_comments_heading.setVisible(is_comments)
+        self.comments_type.setVisible(is_comments)
+        self.comments_type_label.setVisible(is_comments)
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -491,6 +515,7 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
                 display_dict = {'number_format': None}
         elif col_type == 'comments':
             display_dict['show_heading'] = bool(self.show_comments_heading.isChecked())
+            display_dict['interpret_as'] = type(u'')(self.comments_type.currentData())
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()
