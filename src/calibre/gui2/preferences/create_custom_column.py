@@ -16,37 +16,68 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
     # Note: in this class, we are treating is_multiple as the boolean that
     # custom_columns expects to find in its structure. It does not use the dict
 
-    column_types = {
-                    0:{'datatype':'text',
-                        'text':_('Text, column shown in the tag browser'),
-                        'is_multiple':False},
-                    1:{'datatype':'*text',
-                        'text':_('Comma separated text, like tags, shown in the tag browser'),
-                        'is_multiple':True},
-                    2:{'datatype':'comments',
-                        'text':_('Long text, like comments, not shown in the tag browser'),
-                        'is_multiple':False},
-                    3:{'datatype':'series',
-                        'text':_('Text column for keeping series-like information'),
-                        'is_multiple':False},
-                    4:{'datatype':'enumeration',
-                        'text':_('Text, but with a fixed set of permitted values'), 'is_multiple':False},
-                    5:{'datatype':'datetime',
-                        'text':_('Date'), 'is_multiple':False},
-                    6:{'datatype':'float',
-                        'text':_('Floating point numbers'), 'is_multiple':False},
-                    7:{'datatype':'int',
-                        'text':_('Integers'), 'is_multiple':False},
-                    8:{'datatype':'rating',
-                        'text':_('Ratings, shown with stars'),
-                        'is_multiple':False},
-                    9:{'datatype':'bool',
-                        'text':_('Yes/No'), 'is_multiple':False},
-                    10:{'datatype':'composite',
-                        'text':_('Column built from other columns'), 'is_multiple':False},
-                    11:{'datatype':'*composite',
-                        'text':_('Column built from other columns, behaves like tags'), 'is_multiple':True},
-                }
+    column_types = dict(enumerate((
+        {
+            'datatype':'text',
+            'text':_('Text, column shown in the tag browser'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'*text',
+            'text':_('Comma separated text, like tags, shown in the tag browser'),
+            'is_multiple':True
+        },
+        {
+            'datatype':'comments',
+            'text':_('Long text, like comments, not shown in the tag browser'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'series',
+            'text':_('Text column for keeping series-like information'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'enumeration',
+            'text':_('Text, but with a fixed set of permitted values'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'datetime',
+            'text':_('Date'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'float',
+            'text':_('Floating point numbers'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'int',
+            'text':_('Integers'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'rating',
+            'text':_('Ratings, shown with stars'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'bool',
+            'text':_('Yes/No'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'composite',
+            'text':_('Column built from other columns'),
+            'is_multiple':False
+        },
+        {
+            'datatype':'*composite',
+            'text':_('Column built from other columns, behaves like tags'),
+            'is_multiple':True
+        },
+    )))
 
     def __init__(self, parent, current_row, current_key, standard_colheads, standard_colnames):
         QDialog.__init__(self, parent)
@@ -231,7 +262,8 @@ class CreateCustomColumn(QDialog, Ui_QCreateCustomColumn):
             return self.simple_error('', _('Lookup names cannot end with _index, '
                     'because these names are reserved for the index of a series column.'))
         col_heading = unicode(self.column_heading_box.text()).strip()
-        col_type = self.column_types[self.column_type_box.currentIndex()]['datatype']
+        coldef = self.column_types[self.column_type_box.currentIndex()]
+        col_type = coldef['datatype']
         if col_type[0] == '*':
             col_type = col_type[1:]
             is_multiple = True
