@@ -89,24 +89,20 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
             if val:
                 ctype = disp.get('interpret_as') or 'html'
                 val = force_unicode(val)
-                if ctype == 'short-text':
-                    ans.append((field, row % (name, p(val))))
+                if ctype == 'long-text':
+                    val = '<pre style="white-space:pre-wrap">%s</pre>' % p(val)
+                elif ctype == 'short-text':
+                    val = '<span>%s</span>' % p(val)
+                elif ctype == 'markdown':
+                    val = markdown(val)
                 else:
-                    if ctype == 'long-text':
-                        val = '<pre>%s</pre>' % p(val)
-                    elif ctype == 'markdown':
-                        val = markdown(val)
-                    else:
-                        val = comments_to_html(val)
-                    add_comment = True
-                    if disp.get('show_heading'):
-                        if disp.get('heading_on_side'):
-                            ans.append((field, row % (name, val)))
-                            add_comment = False
-                        else:
-                            val = '<h3 class="comments-heading">%s</h3>%s' % (p(name), val)
-                    if add_comment:
-                        comment_fields.append('<div id="%s" class="comments">%s</div>' % (field.replace('#', '_'), val))
+                    val = comments_to_html(val)
+                if disp.get('heading_position', 'hide') == 'side':
+                    ans.append((field, row % (name, val)))
+                else:
+                    if disp.get('heading_position', 'hide') == 'above':
+                        val = '<h3 class="comments-heading">%s</h3>%s' % (p(name), val)
+                    comment_fields.append('<div id="%s" class="comments">%s</div>' % (field.replace('#', '_'), val))
         elif metadata['datatype'] == 'rating':
             val = getattr(mi, field)
             if val:

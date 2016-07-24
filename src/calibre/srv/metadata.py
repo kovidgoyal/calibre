@@ -53,10 +53,10 @@ def add_field(field, db, book_id, ans, field_metadata):
                 ctype = field_metadata.get('display', {}).get('interpret_as', 'html')
                 if ctype == 'markdown':
                     val = markdown(val)
-                elif ctype == 'short-text':
-                    pass
                 elif ctype == 'long-text':
-                    val = '<pre>%s</pre>' % prepare_string_for_xml(val)
+                    val = '<pre style="white-space:pre-wrap">%s</pre>' % prepare_string_for_xml(val)
+                elif ctype == 'short-text':
+                    val = '<span">%s</span>' % prepare_string_for_xml(val)
                 else:
                     val = comments_to_html(val)
             elif datatype == 'composite' and field_metadata['display'].get('contains_html'):
