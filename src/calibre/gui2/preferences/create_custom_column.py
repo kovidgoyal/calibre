@@ -165,6 +165,7 @@ class CreateCustomColumn(QDialog):
                 self.format_box.setText(c['display'].get('number_format', ''))
         elif ct == 'comments':
             self.show_comments_heading.setChecked(c['display'].get('show_heading', False))
+            self.comments_heading_on_side.setChecked(c['display'].get('heading_on_side', False))
             idx = max(0, self.comments_type.findData(c['display'].get('interpret_as', 'html')))
             self.comments_type.setCurrentIndex(idx)
         self.datatype_changed()
@@ -207,6 +208,7 @@ class CreateCustomColumn(QDialog):
             self.composite_sort_by.setCurrentIndex(0)
         if which == 'text':
             self.show_comments_heading.setChecked(True)
+            self.comments_heading_on_side.setChecked(True)
             self.comments_type.setCurrentIndex(self.comments_type.findData('short-text'))
     # }}}
 
@@ -307,9 +309,13 @@ class CreateCustomColumn(QDialog):
         self.composite_label = add_row(_("&Template"), h)
 
         # Comments properties
-        self.show_comments_heading = sch = QCheckBox(_('Show heading in book details panel'))
+        self.show_comments_heading = sch = QCheckBox(_('Show heading in the Book Details panel'))
         sch.setToolTip(_(
-            'Choose whether to show the heading for this column in the Book Details Panel'))
+            'Choose whether to show the heading for this column in the Book Details panel'))
+        add_row(None, sch)
+        self.comments_heading_on_side = sch = QCheckBox(_('Show column heading to the side of the text'))
+        sch.setToolTip(_(
+            'Choose whether to show the heading above or to the side of the text in the Book Details panel'))
         add_row(None, sch)
         self.comments_type = ct = QComboBox(self)
         for k, text in (
@@ -418,6 +424,7 @@ class CreateCustomColumn(QDialog):
         self.show_comments_heading.setVisible(is_comments)
         self.comments_type.setVisible(is_comments)
         self.comments_type_label.setVisible(is_comments)
+        self.comments_heading_on_side.setVisible(is_comments)
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -515,6 +522,7 @@ class CreateCustomColumn(QDialog):
         elif col_type == 'comments':
             display_dict['show_heading'] = bool(self.show_comments_heading.isChecked())
             display_dict['interpret_as'] = type(u'')(self.comments_type.currentData())
+            display_dict['heading_on_side'] = bool(self.comments_heading_on_side.isChecked())
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()

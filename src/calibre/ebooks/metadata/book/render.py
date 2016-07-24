@@ -98,9 +98,15 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
                         val = markdown(val)
                     else:
                         val = comments_to_html(val)
+                    add_comment = True
                     if disp.get('show_heading'):
-                        val = '<h3 class="comments-heading">%s</h3>%s' % (p(name), val)
-                    comment_fields.append('<div id="%s" class="comments">%s</div>' % (field.replace('#', '_'), val))
+                        if disp.get('heading_on_side'):
+                            ans.append((field, row % (name, val)))
+                            add_comment = False
+                        else:
+                            val = '<h3 class="comments-heading">%s</h3>%s' % (p(name), val)
+                    if add_comment:
+                        comment_fields.append('<div id="%s" class="comments">%s</div>' % (field.replace('#', '_'), val))
         elif metadata['datatype'] == 'rating':
             val = getattr(mi, field)
             if val:
