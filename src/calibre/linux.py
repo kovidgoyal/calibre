@@ -1032,6 +1032,7 @@ def get_appdata():
     _ = lambda x: x  # Make sure the text below is not translated, but is marked for translation
     return {
         'calibre-gui': {
+            'name':( ('Calibre Ebook Reader') ),
             'summary':( _('The one stop solution to all your e-book needs.') ),
             'description':(
                 _('calibre is the one stop solution to all your e-book needs.'),
@@ -1045,6 +1046,7 @@ def get_appdata():
         },
 
         'calibre-ebook-edit': {
+            'name':( ('Calibre Ebook Editor') ),
             'summary':( _('Edit the text and styles inside e-books.') ),
             'description':(
                 _('The calibre e-book editor allows you to edit the text and styles inside the book with a live preview of your changes.'),
@@ -1058,6 +1060,7 @@ def get_appdata():
         },
 
         'calibre-ebook-viewer': {
+            'name':( ('Calibre Ebook Viewer') ),
             'summary':( _('Read e-books in over a dozen different formats.') ),
             'description': (
                 _('The calibre e-book viewer allows you to read e-books in over a dozen different formats.'),
@@ -1077,7 +1080,7 @@ def write_appdata(key, entry, base, translators):
     root = E.application(
         E.id(key + '.desktop', type='desktop'),
         E.licence('CC0'),
-        E.name('Calibre Ebook Reader'),
+        E.name(entry['name']),
         E.description(),
         E.url('https://calibre-ebook.com', type='homepage'),
         E.screenshots(),
