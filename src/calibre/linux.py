@@ -1033,7 +1033,7 @@ def get_appdata():
     return {
         'calibre-gui': {
             'name':( ('Calibre Ebook Reader') ),
-            'summary':( _('The one stop solution to all your e-book needs.') ),
+            'summary':( _('The one stop solution to all your e-book needs') ),
             'description':(
                 _('calibre is the one stop solution to all your e-book needs.'),
                 _('You can use calibre to catalog your books, fetch metadata for them automatically, convert them from and to all the various ebook formats, send them to your e-book reader devices, read the books on your computer, edit the books in a dedicated e-book editor and even make them available over the network with the built-in content server. You can also download news and periodicals in e-book format from over a thousand different news and magazine websites.')  # noqa
@@ -1047,7 +1047,7 @@ def get_appdata():
 
         'calibre-ebook-edit': {
             'name':( ('Calibre Ebook Editor') ),
-            'summary':( _('Edit the text and styles inside e-books.') ),
+            'summary':( _('Edit the text and styles inside e-books') ),
             'description':(
                 _('The calibre e-book editor allows you to edit the text and styles inside the book with a live preview of your changes.'),
                 _('It can edit books in both the EPUB and AZW3 (kindle) formats. It includes various useful tools for checking the book for errors, editing the Table of Contents, performing automated cleanups, etc.'),  # noqa
@@ -1061,7 +1061,7 @@ def get_appdata():
 
         'calibre-ebook-viewer': {
             'name':( ('Calibre Ebook Viewer') ),
-            'summary':( _('Read e-books in over a dozen different formats.') ),
+            'summary':( _('Read e-books in over a dozen different formats') ),
             'description': (
                 _('The calibre e-book viewer allows you to read e-books in over a dozen different formats.'),
                 _('It has a full screen mode for distraction free reading and can display the text with multiple columns per screen.'),
