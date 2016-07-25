@@ -20,6 +20,7 @@ def build_single(which, bitness, shutdown=True):
     if bitness:
         cmd.append(bitness)
     cmd.append('calibre')
+    cmd.append('--sign-installers')
     env = os.environ.copy()
     env['CALIBRE_SRC_DIR'] = base
     ret = subprocess.Popen(cmd, env=env, cwd=build_calibre).wait()
