@@ -917,6 +917,17 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         self.job_manager.threaded_server.close()
         self.device_manager.keep_going = False
         self.auto_adder.stop()
+        # Do not report any errors that happen after the shutdown
+        # We cannot restore the original excepthook as that causes PyQt to
+        # call abort() on unhandled exceptions
+        import traceback
+        def eh(t, v, tb):
+            try:
+                traceback.print_exception(t, v, tb, file=sys.stderr)
+            except:
+                pass
+        sys.excepthook = eh
+
         mb = self.library_view.model().metadata_backup
         if mb is not None:
             mb.stop()
@@ -940,16 +951,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         except KeyboardInterrupt:
             pass
         self.hide_windows()
-        # Do not report any errors that happen after the shutdown
-        # We cannot restore the original excepthook as that causes PyQt to
-        # call abort() on unhandled exceptions
-        import traceback
-        def eh(t, v, tb):
-            try:
-                traceback.print_exception(t, v, tb, file=sys.stderr)
-            except:
-                pass
-        sys.excepthook = eh
         if self._spare_pool is not None:
             self._spare_pool.shutdown()
         from calibre.db.delete_service import shutdown
