@@ -1032,6 +1032,8 @@ def get_appdata():
     _ = lambda x: x  # Make sure the text below is not translated, but is marked for translation
     return {
         'calibre-gui': {
+            'name':'calibre',
+            'summary':_('The one stop solution to all your e-book needs'),
             'description':(
                 _('calibre is the one stop solution to all your e-book needs.'),
                 _('You can use calibre to catalog your books, fetch metadata for them automatically, convert them from and to all the various ebook formats, send them to your e-book reader devices, read the books on your computer, edit the books in a dedicated e-book editor and even make them available over the network with the built-in content server. You can also download news and periodicals in e-book format from over a thousand different news and magazine websites.')  # noqa
@@ -1044,6 +1046,8 @@ def get_appdata():
         },
 
         'calibre-ebook-edit': {
+            'name':'calibre - E-book Editor',
+            'summary':_('Edit the text and styles inside e-books'),
             'description':(
                 _('The calibre e-book editor allows you to edit the text and styles inside the book with a live preview of your changes.'),
                 _('It can edit books in both the EPUB and AZW3 (kindle) formats. It includes various useful tools for checking the book for errors, editing the Table of Contents, performing automated cleanups, etc.'),  # noqa
@@ -1056,6 +1060,8 @@ def get_appdata():
         },
 
         'calibre-ebook-viewer': {
+            'name':'calibre - E-book Viewer',
+            'summary':_('Read e-books in over a dozen different formats'),
             'description': (
                 _('The calibre e-book viewer allows you to read e-books in over a dozen different formats.'),
                 _('It has a full screen mode for distraction free reading and can display the text with multiple columns per screen.'),
@@ -1071,24 +1077,35 @@ def write_appdata(key, entry, base, translators):
     from lxml.etree import tostring
     from lxml.builder import E
     fpath = os.path.join(base, '%s.appdata.xml' % key)
-    root = E.application(
-        E.id(key + '.desktop', type='desktop'),
-        E.licence('CC0'),
-        E.description(),
-        E.url('https://calibre-ebook.com', type='homepage'),
-        E.screenshots(),
-    )
+    screenshots = E.screenshots()
     for w, h, url in entry['screenshots']:
         s = E.screenshot(url, width=str(w), height=str(h))
-        root[-1].append(s)
-    root[-1][0].set('type', 'default')
+        screenshots.append(s)
+    screenshots[0].set('type', 'default')
+    description = E.description()
     for para in entry['description']:
-        root[2].append(E.p(para))
+        description.append(E.p(para))
         for lang, t in translators.iteritems():
             tp = t.ugettext(para)
             if tp != para:
-                root[2].append(E.p(tp))
-                root[2][-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+                description.append(E.p(tp))
+                description[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
+
+    root = E.application(
+        E.id(key + '.desktop', type='desktop'),
+        E.name(entry['name']),
+        E.metadata_license('CC0-1.0'),
+        E.project_license('GPL-3.0'),
+        E.summary(entry['summary']),
+        description,
+        E.url('https://calibre-ebook.com', type='homepage'),
+        screenshots,
+    )
+    for lang, t in translators.iteritems():
+        tp = t.ugettext(entry['summary'])
+        if tp != entry['summary']:
+            root.append(E.summary(tp))
+            root[-1].set('{http://www.w3.org/XML/1998/namespace}lang', lang)
     with open(fpath, 'wb') as f:
         f.write(tostring(root, encoding='utf-8', xml_declaration=True, pretty_print=True))
     return fpath
