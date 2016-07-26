@@ -12,7 +12,8 @@ from collections import OrderedDict
 from PyQt5.Qt import (
     Qt, QIcon, QFont, QWidget, QScrollArea, QStackedWidget, QVBoxLayout,
     QLabel, QFrame, QToolBar, QSize, pyqtSignal, QPixmap, QDialogButtonBox,
-    QHBoxLayout, QDialog, QSizePolicy, QPainter, QTextLayout, QPointF)
+    QHBoxLayout, QDialog, QSizePolicy, QPainter, QTextLayout, QPointF,
+    QStatusTipEvent)
 
 from calibre.constants import __appname__, __version__, islinux
 from calibre.gui2 import (gprefs, min_available_height, available_width,
@@ -262,7 +263,7 @@ class Preferences(QDialog):
             self.hide_plugin()
 
     def event(self, ev):
-        if ev.type() == ev.StatusTip:
+        if isinstance(ev, QStatusTipEvent):
             msg = re.sub(r'</?[a-z1-6]+>', ' ', ev.tip())
             self.title_bar.show_msg(msg)
         return QDialog.event(self, ev)
