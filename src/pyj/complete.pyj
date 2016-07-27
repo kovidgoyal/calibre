@@ -1,0 +1,85 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from dom import ensure_id
+from elementmaker import E
+from keycodes import get_key
+from popups import CompletionPopup
+
+class EditWithComplete:
+
+    def __init__(self, name, placeholder=None, tooltip=None, parent=None, input_type='text', onenterkey=None):
+        inpt = E.input(type=input_type, name=name, title=tooltip or '', placeholder=placeholder or '')
+        self.input_id = ensure_id(inpt)
+        self.onenterkey = onenterkey
+        self.completion_popup = CompletionPopup(parent=parent)
+        self.ignore_next_input = False
+        inpt.addEventListener('keydown', self.onkeydown)
+        inpt.addEventListener('input', self.oninput)
+        self.completion_popup.add_associated_widget(inpt)
+        if parent:
+            parent.appendChild(inpt)
+
+    @property
+    def text_input(self):
+        return document.getElementById(self.input_id)
+
+    def apply_completion(self):
+        self.ignore_next_input = True
+        text = self.completion_popup.current_text
+        self.text_input.value = text
+
+    def onkeydown(self, event):
+        k = get_key(event)
+        if self.completion_popup.is_visible and self.completion_popup.handle_keydown(k):
+            event.preventDefault(), event.stopPropagation()
+            return
+        if k is 'enter':
+            if self.onenterkey:
+                event.preventDefault(), event.stopPropagation()
+                self.enter_pressed()
+        elif k is 'tab':
+            if self.completion_popup.is_visible:
+                self.apply_completion()
+                event.preventDefault(), event.stopPropagation()
+
+    def oninput(self, event):
+        if self.ignore_next_input:
+            self.ignore_next_input = False
+        else:
+            ti = self.text_input
+            self.completion_popup.set_query(ti.value or '')
+            self.completion_popup.popup(ti)
+
+    def hide_completion_popup(self):
+        self.completion_popup.hide()
+
+    def add_associated_widget(self, widget_or_id):
+        self.completion_popup.add_associated_widget(widget_or_id)
+
+    def set_all_items(self, items):
+        self.completion_popup.set_all_items(items)
+
+
+def create_search_bar(action, name, tooltip=None, placeholder=None, button=None):
+
+    parent = E.div()
+    ewc = EditWithComplete(name, parent=parent, tooltip=tooltip, placeholder=placeholder)
+
+    def trigger():
+        ewc.hide_completion_popup()
+        action()
+    ewc.onenterkey = trigger
+
+    if button:
+        ewc.add_associated_widget(button)
+        button.addEventListener('click', trigger)
+    return parent
+
+# }}}
+
+def main(container):
+    ewc = EditWithComplete(parent=container, placeholder='Testing edit with complete')
+    ewc.set_all_items('a a1 a11 a12 a13 b b1 b2 b3'.split(' '))
+    ewc.text_input.focus()
