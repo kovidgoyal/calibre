@@ -4,13 +4,11 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import regex
 from collections import deque
 
-REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
-
-
 def compile_pat(pat):
+    import regex
+    REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
     return regex.compile(pat, flags=REGEX_FLAGS)
 
 def matcher(rule):
@@ -57,7 +55,7 @@ def apply_rules(tag, rules):
                     break
                 if ac == 'replace':
                     if 'matches' in rule['match_type']:
-                        tag = regex.sub(rule['query'], rule['replace'], tag, flags=REGEX_FLAGS)
+                        tag = compile_pat(rule['query']).sub(rule['replace'], tag)
                     else:
                         tag = rule['replace']
                     if ',' in tag:

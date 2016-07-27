@@ -9,15 +9,15 @@ from collections import OrderedDict
 import operator
 
 from cssutils.css import Property, CSSRule
-import regex
 
 from calibre import force_unicode
 from calibre.ebooks import parse_css_length
 from calibre.ebooks.oeb.normalize_css import normalizers, safe_parser
 
-REGEX_FLAGS = regex.VERSION1 | regex.UNICODE | regex.IGNORECASE
 
 def compile_pat(pat):
+    import regex
+    REGEX_FLAGS = regex.VERSION1 | regex.UNICODE | regex.IGNORECASE
     return regex.compile(pat, flags=REGEX_FLAGS)
 
 def all_properties(decl):
@@ -327,6 +327,7 @@ def export_rules(serialized_rules):
     return '\n'.join(lines).encode('utf-8')
 
 def import_rules(raw_data):
+    import regex
     pat = regex.compile('\s*(\S+)\s*:\s*(.+)', flags=regex.VERSION1)
     current_rule = {}
 
