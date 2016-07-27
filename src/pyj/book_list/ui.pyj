@@ -3,13 +3,15 @@
 from __python__ import hash_literals
 
 import traceback
-from book_list.globals import get_boss, get_session_data
+from book_list.globals import get_boss, get_session_data, get_current_query
 from book_list.search import SearchPanel
 from book_list.top_bar import TopBar
 from book_list.views import BooksView
 from book_list.item_list import ItemsView, create_item
 from book_list.prefs import PrefsPanel
 from book_list.book_details import BookDetailsPanel
+from dom import ensure_id
+from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog, ajax_progress_dialog
 from popups import install_event_filters
@@ -84,6 +86,34 @@ def change_library_actions():
             ans.append({'title':library_name, 'action':boss.ui.change_library.bind(boss.ui, lid)})
     return ans
 
+class DevelopPanel:
+
+    def __init__(self, interface_data, book_list_container):
+        c = E.div()
+        book_list_container.appendChild(c)
+        self.container_id = ensure_id(c)
+
+    @property
+    def container(self):
+        return document.getElementById(self.container_id)
+
+    @property
+    def is_visible(self):
+        self.container.style.display is 'block'
+
+    @is_visible.setter
+    def is_visible(self, val):
+        self.container.style.display = 'block' if val else 'none'
+
+    def init(self):
+        q = get_current_query()
+        m = q.widget_module
+        if m:
+            m = get_module(m)
+            if m?.main:
+                m.main(self.container)
+
+
 class UI:
 
     ROOT_PANEL = 'books'
@@ -96,6 +126,7 @@ class UI:
         self.prefs_panel = PrefsPanel(interface_data, book_list_container)
         self.search_panel = SearchPanel(interface_data, book_list_container)
         self.book_details_panel = BookDetailsPanel(interface_data, book_list_container)
+        self.develop_panel = DevelopPanel(interface_data, book_list_container)
         self.panels = [self.books_view, self.items_view, self.search_panel, self.prefs_panel, self.book_details_panel]
         self.panel_map = {self.ROOT_PANEL: UIState(create_book_view_top_bar_state(self.books_view), main_panel=self.books_view)}
         self.current_panel = self.ROOT_PANEL
@@ -121,6 +152,7 @@ class UI:
         self.panel_map['booklist-config-tb'] = self.create_prefences_panel(
             _('Configure Tag Browser'), close_callback=self.search_panel.apply_prefs.bind(self.search_panel),
             panel_data=self.search_panel.get_prefs.bind(self.search_panel))
+        self.panel_map['develop-widgets'] = UIState(ClosePanelBar('Develop widgets'), main_panel=self.develop_panel)
 
         bss = ClosePanelBar(_('Search for books'))
         bss.add_button(icon_name='cogs', tooltip=_('Configure Tag Browser'), action=show_panel_action('booklist-config-tb'))
