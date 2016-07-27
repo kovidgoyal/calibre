@@ -129,6 +129,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     proceed_requested = pyqtSignal(object, object)
     book_converted = pyqtSignal(object, object)
+    shutting_down = False
 
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui
@@ -883,6 +884,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         return True
 
     def shutdown(self, write_settings=True):
+        self.shutting_down = True
         self.show_shutdown_message()
 
         from calibre.customize.ui import has_library_closed_plugins
@@ -970,6 +972,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             QApplication.instance().quit()
 
     def closeEvent(self, e):
+        if self.shutting_down:
+            return
         self.write_settings()
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible():
             if not dynamic['systray_msg'] and not isosx:
