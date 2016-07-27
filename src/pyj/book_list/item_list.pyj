@@ -2,9 +2,8 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import build_rule, svgicon
+from dom import build_rule, svgicon, add_extra_css
 from elementmaker import E
-from widgets import add_extra_css
 
 from book_list.theme import get_font_size, get_color
 

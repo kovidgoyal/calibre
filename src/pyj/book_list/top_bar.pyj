@@ -3,10 +3,9 @@
 from __python__ import hash_literals
 
 from book_list.theme import get_color, get_font_size
-from dom import set_css, clear, create_keyframes, build_rule, svgicon
+from dom import set_css, clear, create_keyframes, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
-from widgets import add_extra_css
 
 bar_counter = 0
 CLASS_NAME = 'main-top-bar'

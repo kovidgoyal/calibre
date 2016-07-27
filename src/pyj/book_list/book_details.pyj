@@ -6,12 +6,12 @@ import traceback
 from ajax import ajax
 from book_list.globals import get_current_query
 from book_list.theme import get_font_size
-from dom import clear, build_rule, svgicon
+from dom import clear, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
 from book_list.globals import get_boss
 from modals import error_dialog
-from widgets import create_spinner, create_button, add_extra_css
+from widgets import create_spinner, create_button
 from date import format_date
 from utils import fmt_sidx
 

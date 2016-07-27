@@ -4,11 +4,10 @@ from __python__ import hash_literals
 
 import traceback
 from ajax import ajax_send
-from dom import set_css, clear, build_rule
+from dom import set_css, clear, build_rule, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog, ajax_progress_dialog
-from widgets import add_extra_css
 
 from book_list.globals import get_session_data, get_boss
 from widgets import create_button, create_spinner

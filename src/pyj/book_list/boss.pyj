@@ -4,11 +4,10 @@ from __python__ import hash_literals
 
 import traceback
 from ajax import encode_query
-from dom import set_css
+from dom import set_css, get_widget_css
 from elementmaker import E
 from modals import error_dialog, create_modal_container
 from gettext import gettext as _
-from widgets import get_widget_css
 from utils import parse_url_params, debounce
 
 from book_list.globals import get_session_data, set_boss, set_current_query

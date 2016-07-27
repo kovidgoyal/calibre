@@ -2,11 +2,11 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import clear, set_css, element, svgicon, build_rule
+from dom import clear, set_css, element, svgicon, build_rule, add_extra_css
 from elementmaker import E
 from book_list.theme import get_color
 from book_list.globals import get_boss
-from widgets import create_spinner, create_button, add_extra_css
+from widgets import create_spinner, create_button
 from gettext import gettext as _
 from read_book.toc import create_toc_panel
 

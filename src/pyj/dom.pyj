@@ -102,3 +102,12 @@ def ensure_id(w):
         ans = 'auto-id-' + auto_id_count
         w.setAttribute('id', ans)
     return ans
+
+extra_css = []
+
+def add_extra_css(func):
+    extra_css.push(func)
+
+def get_widget_css():
+    return extra_css.join('\n')
+

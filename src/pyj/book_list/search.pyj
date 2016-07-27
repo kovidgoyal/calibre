@@ -3,10 +3,10 @@
 from __python__ import hash_literals
 
 from ajax import ajax
-from dom import clear, set_css, build_rule, svgicon
+from dom import clear, set_css, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
-from widgets import create_button, create_spinner, Breadcrumbs, add_extra_css
+from widgets import create_button, create_spinner, Breadcrumbs
 from modals import show_modal
 from book_list.globals import get_boss, get_session_data
 from book_list.theme import get_color, get_font_size

@@ -4,11 +4,10 @@ from __python__ import hash_literals
 
 from ajax import ajax, ajax_send
 from elementmaker import E
-from dom import set_css, clear, build_rule, svgicon
+from dom import set_css, clear, build_rule, svgicon, add_extra_css
 from gettext import gettext as _
 from book_list.theme import get_color, get_font_size
 from popups import MODAL_Z_INDEX
-from widgets import add_extra_css
 
 modal_container = None
 modal_count = 0
