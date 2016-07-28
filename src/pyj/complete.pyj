@@ -13,8 +13,7 @@ class EditWithComplete:
         inpt = E.input(type=input_type, name=name, title=tooltip or '', placeholder=placeholder or '')
         self.input_id = ensure_id(inpt)
         self.onenterkey = onenterkey
-        self.completion_popup = CompletionPopup(parent=parent)
-        self.ignore_next_input = False
+        self.completion_popup = CompletionPopup(parent=parent, onselect=self.apply_completion)
         inpt.addEventListener('keydown', self.onkeydown)
         inpt.addEventListener('input', self.oninput)
         self.completion_popup.add_associated_widget(inpt)
@@ -25,10 +24,12 @@ class EditWithComplete:
     def text_input(self):
         return document.getElementById(self.input_id)
 
-    def apply_completion(self):
-        self.ignore_next_input = True
-        text = self.completion_popup.current_text
-        self.text_input.value = text
+    def apply_completion(self, text):
+        if text:
+            ti = self.text_input
+            ti.value = text
+            ti.focus()
+            return True
 
     def onkeydown(self, event):
         k = get_key(event)
@@ -38,19 +39,19 @@ class EditWithComplete:
         if k is 'enter':
             if self.onenterkey:
                 event.preventDefault(), event.stopPropagation()
-                self.enter_pressed()
+                self.onenterkey()
         elif k is 'tab':
             if self.completion_popup.is_visible:
-                self.apply_completion()
+                if self.apply_completion(self.completion_popup.current_text):
+                    self.completion_popup.hide()
+                else:
+                    self.completion_popup.move_highlight()
                 event.preventDefault(), event.stopPropagation()
 
     def oninput(self, event):
-        if self.ignore_next_input:
-            self.ignore_next_input = False
-        else:
-            ti = self.text_input
-            self.completion_popup.set_query(ti.value or '')
-            self.completion_popup.popup(ti)
+        ti = self.text_input
+        self.completion_popup.set_query(ti.value or '')
+        self.completion_popup.popup(ti)
 
     def hide_completion_popup(self):
         self.completion_popup.hide()
@@ -65,7 +66,7 @@ class EditWithComplete:
 def create_search_bar(action, name, tooltip=None, placeholder=None, button=None):
 
     parent = E.div()
-    ewc = EditWithComplete(name, parent=parent, tooltip=tooltip, placeholder=placeholder)
+    ewc = EditWithComplete(name, parent=parent, tooltip=tooltip, placeholder=placeholder, input_type='search')
 
     def trigger():
         ewc.hide_completion_popup()

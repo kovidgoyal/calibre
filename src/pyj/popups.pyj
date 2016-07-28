@@ -32,11 +32,11 @@ def click_in_popup(event):
 
 def filter_clicks(event):
     if shown_popups.length:
-        event.stopPropagation(), event.preventDefault()
         if not click_in_popup(event):
             for popup_id in shown_popups:
                 hide_popup(popup_id)
             shown_popups.clear()
+            event.stopPropagation(), event.preventDefault()
 
 def install_event_filters():
     window.addEventListener('click', filter_clicks, True)
@@ -66,14 +66,15 @@ class CompletionPopup:
     CLASS = 'popup-completion-items'
     CURRENT_ITEM_CLASS = 'popup-completion-current-item'
 
-    def __init__(self, parent=None, max_items=25):
+    def __init__(self, parent=None, max_items=25, onselect=None):
         self.max_items = max_items
         self.container_id = create_popup(parent)
+        self.onselect = onselect
         self.items = []
         self.matches = []
         c = self.container
         set_css(c, user_select='none')
-        c.appendChild(E.div(class_=self.CLASS, onclick=self._item_clicked))
+        c.appendChild(E.div(class_=self.CLASS))
         self.associated_widget_ids = set()
         self.current_query, self.is_upwards = '', False
         self.applied_query = self.current_query
@@ -120,38 +121,41 @@ class CompletionPopup:
 
     def hide(self):
         self.container.style.display = 'none'
-
-    def highlight_up(self):
-        self.move_highlight(True)
-
-    def highlight_down(self):
-        self.move_highlight(False)
+        c = self.current_item
+        if c:
+            c.classList.remove(self.CURRENT_ITEM_CLASS)
 
     def handle_keydown(self, key):
         if key is 'escape':
             self.hide()
             return True
         if key is 'up':
-            self.highlight_up()
+            self.move_highlight(True)
             return True
         if key is 'down':
-            self.highlight_down()
+            self.move_highlight(False)
             return True
         return False
 
     @property
     def current_item(self):
         c = self.container
-        return c.querySelector('{} > div.{}'.format(self.CLASS, self.CURRENT_ITEM_CLASS))
+        return c.querySelector('div.{} > div.{}'.format(self.CLASS, self.CURRENT_ITEM_CLASS))
 
-    def move_highlight(self, up=True):
+    @property
+    def current_text(self):
+        return self.current_item?.textContent
+
+    def move_highlight(self, up=None):
+        if up is None:
+            up = self.is_upwards
         ans = None
         div = self.current_item
         if div:
             div.classList.remove(self.CURRENT_ITEM_CLASS)
             ans = div.previousSibling if up else div.nextSibling
         if not ans:
-            c = self.container
+            c = self.container.firstChild
             ans = c.lastChild if up else c.firstChild
         if ans:
             ans.classList.add(self.CURRENT_ITEM_CLASS)
@@ -188,18 +192,28 @@ class CompletionPopup:
         if self.is_upwards:
             items = reversed(items)
         for m in items:
-            c.firstChild.appendChild(E.div(m))
+            c.firstChild.appendChild(E.div(m, onmouseenter=self.onmouseenter, onclick=self.onclick))
 
-    def _item_clicked(self, ev):
-        self.hide()
+    def onmouseenter(self, event):
+        div = self.current_item
+        if div:
+            div.classList.remove(self.CURRENT_ITEM_CLASS)
+        event.currentTarget.classList.add(self.CURRENT_ITEM_CLASS)
+
+    def onclick(self, event):
+        self.onmouseenter(event)
+        try:
+            if self.onselect:
+                self.onselect(self.current_text)
+        finally:
+            self.hide()
 
 add_extra_css(def():
     sel = 'div.' + CompletionPopup.CLASS
-    style = build_rule(sel, background_color=get_color('window-background'),
-                       border='solid 1px ' + get_color('window-foreground'))
+    style = build_rule(sel, overflow='hidden', background_color=get_color('window-background'), border='solid 1px ' + get_color('window-foreground'))
     sel += ' > div'
-    style += build_rule(sel, cursor='pointer', margin='1ex 1rem')
-    sel += ' > div.' + CompletionPopup.CURRENT_ITEM_CLASS
+    style += build_rule(sel, cursor='pointer', padding='1ex 1rem', white_space='nowrap', text_overflow='ellipsis', overflow='hidden')
+    sel += '.' + CompletionPopup.CURRENT_ITEM_CLASS
     style += build_rule(sel, color=get_color('list-hover-foreground'), background_color=get_color('list-hover-background'))
     return style
 )
