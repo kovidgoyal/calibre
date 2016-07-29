@@ -1,8 +1,9 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class ProPublicaRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en'
     version = 1
@@ -21,30 +22,39 @@ class ProPublicaRecipe(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'article'}))
+    keep_only_tags.append(dict(name='div', attrs={'class': 'article'}))
 
     remove_tags = []
-    remove_tags.append(dict(name = 'div', attrs = {'id': 'rollups'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class': 'follow_info'}))
-    remove_tags.append(dict(name = 'ul', attrs = {'class': 'long-tools-top'}))
-    remove_tags.append(dict(name = 'ul', attrs = {'id': 'share-box'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class': 'tags'}))
-    remove_tags.append(dict(name = 'ul', attrs = {'class': 'long-tools'}))
-    remove_tags.append(dict(name = 'ul', attrs = {'id': 'share-box2'}))
-    remove_tags.append(dict(name = 'p', attrs = {'id': 'original-url'}))
+    remove_tags.append(dict(name='div', attrs={'id': 'rollups'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'follow_info'}))
+    remove_tags.append(dict(name='ul', attrs={'class': 'long-tools-top'}))
+    remove_tags.append(dict(name='ul', attrs={'id': 'share-box'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'tags'}))
+    remove_tags.append(dict(name='ul', attrs={'class': 'long-tools'}))
+    remove_tags.append(dict(name='ul', attrs={'id': 'share-box2'}))
+    remove_tags.append(dict(name='p', attrs={'id': 'original-url'}))
 
     feeds = []
-    feeds.append((u'Top Stories', u'http://feeds.propublica.org/propublica/main'))
-    feeds.append((u'Stimulus', u'http://feeds.propublica.org/propublica/watchdog/stimulus'))
-    feeds.append((u'Bailout', u'http://feeds.propublica.org/propublica/watchdog/bailout'))
-    feeds.append((u'Business', u'http://feeds.propublica.org/propublica/business-money'))
-    feeds.append((u'Justice', u'http://feeds.propublica.org/propublica/justice-law'))
-    feeds.append((u'Energy & Environment', u'http://feeds.propublica.org/propublica/energy-environment'))
-    feeds.append((u'Government & Politics', u'http://feeds.propublica.org/propublica/government-politics'))
-    feeds.append((u'Health & Science', u'http://feeds.propublica.org/propublica/health-science'))
-    feeds.append((u'Media & Technology', u'http://feeds.propublica.org/propublica/media-technology'))
-    feeds.append((u'National Security', u'http://feeds.propublica.org/propublica/national-security'))
-    #feeds.append((u'', u''))
+    feeds.append(
+        (u'Top Stories', u'http://feeds.propublica.org/propublica/main'))
+    feeds.append(
+        (u'Stimulus', u'http://feeds.propublica.org/propublica/watchdog/stimulus'))
+    feeds.append(
+        (u'Bailout', u'http://feeds.propublica.org/propublica/watchdog/bailout'))
+    feeds.append(
+        (u'Business', u'http://feeds.propublica.org/propublica/business-money'))
+    feeds.append(
+        (u'Justice', u'http://feeds.propublica.org/propublica/justice-law'))
+    feeds.append((u'Energy & Environment',
+                  u'http://feeds.propublica.org/propublica/energy-environment'))
+    feeds.append((u'Government & Politics',
+                  u'http://feeds.propublica.org/propublica/government-politics'))
+    feeds.append(
+        (u'Health & Science', u'http://feeds.propublica.org/propublica/health-science'))
+    feeds.append((u'Media & Technology',
+                  u'http://feeds.propublica.org/propublica/media-technology'))
+    feeds.append((u'National Security',
+                  u'http://feeds.propublica.org/propublica/national-security'))
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
                           'publisher': publisher}
@@ -57,4 +67,3 @@ class ProPublicaRecipe(BasicNewsRecipe):
                 div.cat {font-size: x-small; color: #666666; margin-bottom: 0.1em;}
                 div.info {font-size: small; color: #696969;}
                 '''
-

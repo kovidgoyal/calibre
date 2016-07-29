@@ -13,24 +13,28 @@ def _swig_setattr(self,class_type,name,value):
     if (name == "this"):
         if isinstance(value, class_type):
             self.__dict__[name] = value.this
-            if hasattr(value,"thisown"): self.__dict__["thisown"] = value.thisown
+            if hasattr(value,"thisown"):
+                self.__dict__["thisown"] = value.thisown
             del value.thisown
             return
     method = class_type.__swig_setmethods__.get(name,None)
-    if method: return method(self,value)
+    if method:
+        return method(self,value)
     self.__dict__[name] = value
 
 def _swig_getattr(self,class_type,name):
     method = class_type.__swig_getmethods__.get(name,None)
-    if method: return method(self)
-    raise AttributeError,name
+    if method:
+        return method(self)
+    raise AttributeError(name)
 
 import types
 try:
     _object = types.ObjectType
     _newclass = 1
 except AttributeError:
-    class _object : pass
+    class _object :
+        pass
     _newclass = 0
 
 
@@ -44,30 +48,38 @@ class chmUnitInfo(_object):
     __getattr__ = lambda self, name: _swig_getattr(self, chmUnitInfo, name)
     __swig_setmethods__["start"] = _chmlib.chmUnitInfo_start_set
     __swig_getmethods__["start"] = _chmlib.chmUnitInfo_start_get
-    if _newclass:start = property(_chmlib.chmUnitInfo_start_get,_chmlib.chmUnitInfo_start_set)
+    if _newclass:
+        start = property(_chmlib.chmUnitInfo_start_get,_chmlib.chmUnitInfo_start_set)
     __swig_setmethods__["length"] = _chmlib.chmUnitInfo_length_set
     __swig_getmethods__["length"] = _chmlib.chmUnitInfo_length_get
-    if _newclass:length = property(_chmlib.chmUnitInfo_length_get,_chmlib.chmUnitInfo_length_set)
+    if _newclass:
+        length = property(_chmlib.chmUnitInfo_length_get,_chmlib.chmUnitInfo_length_set)
     __swig_setmethods__["space"] = _chmlib.chmUnitInfo_space_set
     __swig_getmethods__["space"] = _chmlib.chmUnitInfo_space_get
-    if _newclass:space = property(_chmlib.chmUnitInfo_space_get,_chmlib.chmUnitInfo_space_set)
+    if _newclass:
+        space = property(_chmlib.chmUnitInfo_space_get,_chmlib.chmUnitInfo_space_set)
     __swig_setmethods__["path"] = _chmlib.chmUnitInfo_path_set
     __swig_getmethods__["path"] = _chmlib.chmUnitInfo_path_get
-    if _newclass:path = property(_chmlib.chmUnitInfo_path_get,_chmlib.chmUnitInfo_path_set)
+    if _newclass:
+        path = property(_chmlib.chmUnitInfo_path_get,_chmlib.chmUnitInfo_path_set)
     def __init__(self,*args):
         _swig_setattr(self, chmUnitInfo, 'this', apply(_chmlib.new_chmUnitInfo,args))
         _swig_setattr(self, chmUnitInfo, 'thisown', 1)
-    def __del__(self, destroy= _chmlib.delete_chmUnitInfo):
+    def __del__(self, destroy=_chmlib.delete_chmUnitInfo):
         try:
-            if self.thisown: destroy(self)
-        except: pass
+            if self.thisown:
+                destroy(self)
+        except:
+            pass
     def __repr__(self):
         return "<C chmUnitInfo instance at %s>" % (self.this,)
 
 class chmUnitInfoPtr(chmUnitInfo):
+
     def __init__(self,this):
         _swig_setattr(self, chmUnitInfo, 'this', this)
-        if not hasattr(self,"thisown"): _swig_setattr(self, chmUnitInfo, 'thisown', 0)
+        if not hasattr(self,"thisown"):
+            _swig_setattr(self, chmUnitInfo, 'thisown', 0)
         _swig_setattr(self, chmUnitInfo,self.__class__,chmUnitInfo)
 _chmlib.chmUnitInfo_swigregister(chmUnitInfoPtr)
 

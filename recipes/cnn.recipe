@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Profile to download CNN
@@ -7,17 +7,18 @@ Profile to download CNN
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class CNN(BasicNewsRecipe):
 
     title = 'CNN'
     description = 'Global news'
-    timefmt  = ' [%d %b %Y]'
+    timefmt = ' [%d %b %Y]'
     __author__ = 'Kovid Goyal'
     language = 'en'
 
     no_stylesheets = True
-    use_embedded_content   = False
-    oldest_article        = 15
+    use_embedded_content = False
+    oldest_article = 15
     ignore_duplicate_articles = {'url'}
     # recursions = 1
     # match_regexps = [r'http://sportsillustrated.cnn.com/.*/[1-9].html']
@@ -41,38 +42,38 @@ class CNN(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(id=['body-text', 'storycontent']),
-        dict(attrs={'class':['pg-headline', 'metadata']}),
+        dict(attrs={'class': ['pg-headline', 'metadata']}),
     ]
 
     remove_tags = [
-        dict(attrs={'class':lambda x: x and bool({
+        dict(attrs={'class': lambda x: x and bool({
             'video__end-slate', 'owl-filmstrip', 'el-embed-instagram',
         }.intersection(set(x.split())))}),
     ]
 
-    feeds =  [
-             ('Top News', 'http://rss.cnn.com/rss/cnn_topstories.rss'),
-             ('World', 'http://rss.cnn.com/rss/cnn_world.rss'),
-             ('U.S.', 'http://rss.cnn.com/rss/cnn_us.rss'),
-             # ('Sports', 'http://rss.cnn.com/rss/si_topstories.rss'),
-             ('Business', 'http://rss.cnn.com/rss/money_latest.rss'),
-             ('Politics', 'http://rss.cnn.com/rss/cnn_allpolitics.rss'),
-             ('Law', 'http://rss.cnn.com/rss/cnn_law.rss'),
-             ('Technology', 'http://rss.cnn.com/rss/cnn_tech.rss'),
-             ('Science & Space', 'http://rss.cnn.com/rss/cnn_space.rss'),
-             ('Health', 'http://rss.cnn.com/rss/cnn_health.rss'),
-             ('Entertainment', 'http://rss.cnn.com/rss/cnn_showbiz.rss'),
-             ('Education', 'http://rss.cnn.com/rss/cnn_education.rss'),
-             ('Offbeat', 'http://rss.cnn.com/rss/cnn_offbeat.rss'),
-             ('Most Popular', 'http://rss.cnn.com/rss/cnn_mostpopular.rss')
-             ]
+    feeds = [
+        ('Top News', 'http://rss.cnn.com/rss/cnn_topstories.rss'),
+        ('World', 'http://rss.cnn.com/rss/cnn_world.rss'),
+        ('U.S.', 'http://rss.cnn.com/rss/cnn_us.rss'),
+        # ('Sports', 'http://rss.cnn.com/rss/si_topstories.rss'),
+        ('Business', 'http://rss.cnn.com/rss/money_latest.rss'),
+        ('Politics', 'http://rss.cnn.com/rss/cnn_allpolitics.rss'),
+        ('Law', 'http://rss.cnn.com/rss/cnn_law.rss'),
+        ('Technology', 'http://rss.cnn.com/rss/cnn_tech.rss'),
+        ('Science & Space', 'http://rss.cnn.com/rss/cnn_space.rss'),
+        ('Health', 'http://rss.cnn.com/rss/cnn_health.rss'),
+        ('Entertainment', 'http://rss.cnn.com/rss/cnn_showbiz.rss'),
+        ('Education', 'http://rss.cnn.com/rss/cnn_education.rss'),
+        ('Offbeat', 'http://rss.cnn.com/rss/cnn_offbeat.rss'),
+        ('Most Popular', 'http://rss.cnn.com/rss/cnn_mostpopular.rss')
+    ]
 
     def preprocess_html(self, soup):
         body = soup.find('body')
-        for h2 in soup.findAll(attrs={'class':'pg-headline'}):
+        for h2 in soup.findAll(attrs={'class': 'pg-headline'}):
             h2.extract()
             body.insert(0, h2)
-        for img in soup.findAll('img', attrs={'data-src-medium':True}):
+        for img in soup.findAll('img', attrs={'data-src-medium': True}):
             img['src'] = img['data-src-medium']
         return soup
 

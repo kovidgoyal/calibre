@@ -35,13 +35,13 @@ class Unihandecoder(object):
         elif lang[:2] == u'vn' or lang == u'vietnum':
             from calibre.ebooks.unihandecode.vndecoder import Vndecoder
             self.decoder = Vndecoder()
-        else: #zh and others
+        else:  # zh and others
             from calibre.ebooks.unihandecode.unidecoder import Unidecoder
             self.decoder = Unidecoder()
 
     def decode(self, text):
         try:
-            unicode # python2
+            unicode  # python2
             if not isinstance(text, unicode):
                 try:
                     text = unicode(text)
@@ -50,8 +50,8 @@ class Unihandecoder(object):
                         text = text.decode(self.preferred_encoding)
                     except:
                         text = text.decode('utf-8', 'replace')
-        except: # python3, str is unicode
+        except:  # python3, str is unicode
             pass
-        #at first unicode normalize it. (see Unicode standards)
+        # at first unicode normalize it. (see Unicode standards)
         ntext = unicodedata.normalize('NFKC', text)
         return self.decoder.decode(ntext)

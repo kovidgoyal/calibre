@@ -28,7 +28,7 @@ class ILIAD(USBMS):
     VENDOR_NAME = 'IREX'
     WINDOWS_MAIN_MEM = 'ILIAD'
 
-    #OSX_MAIN_MEM = ''
+    # OSX_MAIN_MEM = ''
 
     MAIN_MEMORY_VOLUME_LABEL  = 'IRex Iliad Main Memory'
 

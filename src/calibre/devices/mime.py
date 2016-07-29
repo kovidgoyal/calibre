@@ -18,3 +18,4 @@ def mime_type_ext(ext):
 
 def mime_type_path(path):
     return _mt(path)
+

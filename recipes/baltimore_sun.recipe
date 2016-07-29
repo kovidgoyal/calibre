@@ -4,32 +4,35 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __copyright__ = '2012 Josh Hall<jwtheiv@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import urllib, re
+import urllib
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class BaltimoreSun(BasicNewsRecipe):
 
-    title       = 'The Baltimore Sun'
+    title = 'The Baltimore Sun'
     __author__ = 'Kovid Goyal'
     description = 'Complete local news and blogs from Baltimore'
-    language    = 'en'
-    version     = 2.5
+    language = 'en'
+    version = 2.5
     compress_news_images = True
     compress_news_images_auto_size = 8
     oldest_article = 1
     max_articles_per_feed = 100
     use_embedded_content = False
-    no_stylesheets       = True
-    remove_javascript    = True
-    remove_empty_feeds   = True
+    no_stylesheets = True
+    remove_javascript = True
+    remove_empty_feeds = True
 
     ignore_duplicate_articles = {'title'}
     keep_only_tags = [
-        dict(name=['div', 'section'], attrs={'class':["trb_article_title","trb_article_leadart", 'trb_bylines', 'trb_article_dateline', 'trb_mainContent']}),
+        dict(name=['div', 'section'], attrs={'class': [
+             "trb_article_title", "trb_article_leadart", 'trb_bylines', 'trb_article_dateline', 'trb_mainContent']}),
     ]
     remove_tags = [
         dict(name=['meta', 'link']),
-        dict(name=['div', 'aside'], attrs={'class':lambda x: x and set(x.split()).intersection({
+        dict(name=['div', 'aside'], attrs={'class': lambda x: x and set(x.split()).intersection({
             'trb_gptAd', 'trb_panelmod_container', 'trb_socialize', 'trb_taboola', 'trb_embed_related'})}),
     ]
 
@@ -51,7 +54,8 @@ class BaltimoreSun(BasicNewsRecipe):
         # (u'Howard County', u'http://feeds.feedburner.com/baltimoresun/news/local/howard/rss2'),
         (u'Education', u'http://feeds.feedburner.com/baltimoresun/news/education/rss2'),
         # (u'Obituaries', u'http://feeds.feedburner.com/baltimoresun/news/obituaries/rss2'),
-        (u'Local Politics', u'http://feeds.feedburner.com/baltimoresun/news/local/politics/rss2'),
+        (u'Local Politics',
+         u'http://feeds.feedburner.com/baltimoresun/news/local/politics/rss2'),
         (u'Weather', u'http://feeds.feedburner.com/baltimoresun/news/weather/site/rss2'),
         # (u'Traffic', u'http://feeds.feedburner.com/baltimoresun/news/traffic/rss2'),
         (u'Nation/world', u'http://feeds.feedburner.com/baltimoresun/news/nationworld/rss2'),
@@ -60,7 +64,8 @@ class BaltimoreSun(BasicNewsRecipe):
         # Sports##
         (u'Top Sports', u'http://feeds.feedburner.com/baltimoresun/sports/rss2'),
         (u'Orioles/Baseball', u'http://www.baltimoresun.com/sports/orioles/rss2.0.xml'),
-        (u'Ravens/Football', u'http://feeds.feedburner.com/baltimoresun/sports/football/rss2'),
+        (u'Ravens/Football',
+         u'http://feeds.feedburner.com/baltimoresun/sports/football/rss2'),
         # (u'Terps', u''http://feeds.feedburner.com/baltimoresun/sports/terps/rss2'),
         # (u'College Football', u''feed://feeds.feedburner.com/baltimoresun/sports/college/football/rss2'),
         # (u'Lacrosse', u'http://feeds.feedburner.com/baltimoresun/sports/college/lacrosse/rss2'),
@@ -74,8 +79,10 @@ class BaltimoreSun(BasicNewsRecipe):
         (u'Celebrity News', u'http://baltimore.feedsportal.com/c/34255/f/623042/index.rss'),
         (u'Arts & Theater', u'http://feeds.feedburner.com/baltimoresun/entertainment/galleriesmuseums/rss2'),
         (u'Movies', u'http://www.baltimoresun.com/entertainment/movies/rss2.0.xml'),
-        (u'Music & Nightlife', u'http://www.baltimoresun.com/entertainment/music/rss2.0.xml'),
-        (u'Restaurants & Food', u'http://www.baltimoresun.com/entertainment/dining/rss2.0.xml'),
+        (u'Music & Nightlife',
+         u'http://www.baltimoresun.com/entertainment/music/rss2.0.xml'),
+        (u'Restaurants & Food',
+         u'http://www.baltimoresun.com/entertainment/dining/rss2.0.xml'),
         (u'TV/Media', u'http://www.baltimoresun.com/entertainment/tv/rss2.0.xml'),
 
         # Life ##
@@ -113,18 +120,25 @@ class BaltimoreSun(BasicNewsRecipe):
         (u'Peter Schmuck', u'http://www.baltimoresun.com/sports/bal-columnist-schmuck,0,7485088.columnist-rss2.0.xml'),
 
         # News Blogs ##
-        (u'Baltimore Crime Beat', u'http://baltimore.feedsportal.com/c/34255/f/623075/index.rss'),
+        (u'Baltimore Crime Beat',
+         u'http://baltimore.feedsportal.com/c/34255/f/623075/index.rss'),
         (u'InsideEd', u'http://www.baltimoresun.com/news/maryland/education/blog/rss2.0.xml'),
-        (u'Maryland Politics', u'http://www.baltimoresun.com/news/maryland/politics/blog/rss2.0.xml'),
-        (u'Maryland Weather', u'http://www.baltimoresun.com/news/weather/weather-blog/rss2.0.xml'),
-        (u'Second Opinion', u'http://www.baltimoresun.com/news/opinion/second-opinion-blog/rss2.0.xml'),
-        (u'Sun Investigates', u'http://www.baltimoresun.com/news/maryland/sun-investigates/rss2.0.xml'),
+        (u'Maryland Politics',
+         u'http://www.baltimoresun.com/news/maryland/politics/blog/rss2.0.xml'),
+        (u'Maryland Weather',
+         u'http://www.baltimoresun.com/news/weather/weather-blog/rss2.0.xml'),
+        (u'Second Opinion',
+         u'http://www.baltimoresun.com/news/opinion/second-opinion-blog/rss2.0.xml'),
+        (u'Sun Investigates',
+         u'http://www.baltimoresun.com/news/maryland/sun-investigates/rss2.0.xml'),
         (u'You Dont Say', u'http://www.baltimoresun.com/news/language-blog/rss2.0.xml'),
 
         # Business Blogs ##
         (u'BaltTech', u'http://www.baltimoresun.com/business/technology/blog/rss2.0.xml'),
-        (u'Consuming Interests', u'http://www.baltimoresun.com/business/consuming-interests-blog/rss2.0.xml'),
-        (u'The Real Estate Wonk', u'http://www.baltimoresun.com/business/real-estate/wonk/rss2.0.xml'),
+        (u'Consuming Interests',
+         u'http://www.baltimoresun.com/business/consuming-interests-blog/rss2.0.xml'),
+        (u'The Real Estate Wonk',
+         u'http://www.baltimoresun.com/business/real-estate/wonk/rss2.0.xml'),
 
         # Entertainment Blogs ##
         (u'ArtSmash', 'http://www.baltimoresun.com/entertainment/arts/artsmash/rss2.0.xml'),
@@ -135,7 +149,8 @@ class BaltimoreSun(BasicNewsRecipe):
 
         # Life Blogs ##
         # (u'BMore Green', u'http://weblogs.baltimoresun.com/features/green/index.xml'),
-        (u'Baltimore Insider',u'http://www.baltimoresun.com/features/baltimore-insider-blog/rss2.0.xml'),
+        (u'Baltimore Insider',
+         u'http://www.baltimoresun.com/features/baltimore-insider-blog/rss2.0.xml'),
         (u'Picture of Health', u'http://www.baltimoresun.com/health/blog/rss2.0.xml'),
         # (u'Unleashed', u'http://weblogs.baltimoresun.com/features/mutts/blog/index.xml'),
 
@@ -143,15 +158,18 @@ class BaltimoreSun(BasicNewsRecipe):
         (u'TV Lust', u'http://baltimore.feedsportal.com/c/34255/f/623096/index.rss'),
 
         # Sports Blogs ##
-        (u'Baltimore Sports Blitz', u'http://baltimore.feedsportal.com/c/34255/f/623097/index.rss'),
+        (u'Baltimore Sports Blitz',
+         u'http://baltimore.feedsportal.com/c/34255/f/623097/index.rss'),
         # (u'Lacrosse Insider',u'http://www.baltimoresun.com/sports/lacrosse-blog/rss2.0.xml'),
         (u'Orioles Insider', u'http://baltimore.feedsportal.com/c/34255/f/623100/index.rss'),
-        (u'Ravens Insider', u'http://www.baltimoresun.com/sports/ravens/ravens-insider/rss2.0.xml'),
+        (u'Ravens Insider',
+         u'http://www.baltimoresun.com/sports/ravens/ravens-insider/rss2.0.xml'),
         # (u'Ring Posts', u'http://weblogs.baltimoresun.com/sports/wrestling/blog/index.xml'),
-        (u'The Schmuck Stops Here', u'http://www.baltimoresun.com/sports/schmuck-blog/rss2.0.xml'),
+        (u'The Schmuck Stops Here',
+         u'http://www.baltimoresun.com/sports/schmuck-blog/rss2.0.xml'),
         # (u'Tracking the Terps', u'http://weblogs.baltimoresun.com/sports/college/maryland_terps/blog/index.xml'),
         # (u'Varsity Letters', u'http://weblogs.baltimoresun.com/sports/highschool/varsityletters/index.xml'),
-]
+    ]
 
     def get_article_url(self, article):
         ans = None
@@ -162,7 +180,8 @@ class BaltimoreSun(BasicNewsRecipe):
         except:
             pass
         if ans is None:
-            ans = article.get('feedburner_origlink', article.get('guid', article.get('link')))
+            ans = article.get('feedburner_origlink',
+                              article.get('guid', article.get('link')))
         if ans is not None:
             return ans.replace('?track=rss', '')
 

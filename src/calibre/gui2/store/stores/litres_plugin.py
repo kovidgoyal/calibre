@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 1 # Needed for dynamic plugin loading
+store_version = 1  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, Roman Mukhin <ramses_ru at hotmail.com>'
@@ -25,7 +25,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 class LitResStore(BasicStoreConfig, StorePlugin):
     shop_url = u'http://www.litres.ru'
-    #http://robot.litres.ru/pages/biblio_book/?art=174405
+    # http://robot.litres.ru/pages/biblio_book/?art=174405
 
     def open(self, parent=None, detail_item=None, external=False):
 
@@ -46,7 +46,6 @@ class LitResStore(BasicStoreConfig, StorePlugin):
             d.set_tags(self.config.get('tags', ''))
             d.exec_()
 
-
     def search(self, query, max_results=10, timeout=60):
         search_url = u'http://robot.litres.ru/pages/catalit_browser/?checkpoint=2000-01-02&'\
         'search=%s&limit=0,%s'
@@ -54,7 +53,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
 
         counter = max_results
         br = browser()
-        br.addheaders.append( ['Accept-Encoding','gzip'] )
+        br.addheaders.append(['Accept-Encoding','gzip'])
 
         with closing(br.open(search_url, timeout=timeout)) as r:
             ungzipResponse(r,br)
@@ -84,9 +83,9 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         sRes.drm = SearchResult.DRM_UNLOCKED
         sRes.detail_item = data.xpath(xp_template.format('hub_id'))
         sRes.title = data.xpath('string(.//title-info/book-title/text()|.//publish-info/book-name/text())')
-        #aut = concat('.//title-info/author/first-name', ' ')
-        authors = data.xpath('.//title-info/author/first-name/text()|'\
-        './/title-info/author/middle-name/text()|'\
+        # aut = concat('.//title-info/author/first-name', ' ')
+        authors = data.xpath('.//title-info/author/first-name/text()|'
+        './/title-info/author/middle-name/text()|'
         './/title-info/author/last-name/text()')
         sRes.author = u' '.join(map(unicode, authors))
         sRes.price = data.xpath(xp_template.format('price'))
@@ -121,8 +120,8 @@ def ungzipResponse(r,b):
         gz = gzip.GzipFile(fileobj=r, mode='rb')
         data = gz.read()
         gz.close()
-        #headers["Content-type"] = "text/html; charset=utf-8"
-        r.set_data( data )
+        # headers["Content-type"] = "text/html; charset=utf-8"
+        r.set_data(data)
         b.set_response(r)
 
 def _get_affiliate_id():

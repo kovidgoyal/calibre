@@ -94,8 +94,7 @@ class View(object):
                 }.get(col, self._get)
             if isinstance(col, int):
                 label = self.cache.backend.custom_column_num_map[col]['label']
-                label = (self.cache.backend.field_metadata.custom_field_prefix
-                        + label)
+                label = (self.cache.backend.field_metadata.custom_field_prefix + label)
             if label.endswith('_index'):
                 try:
                     num = int(label.partition('_')[0])
@@ -103,8 +102,7 @@ class View(object):
                     pass  # series_index
                 else:
                     label = self.cache.backend.custom_column_num_map[num]['label']
-                    label = (self.cache.backend.field_metadata.custom_field_prefix
-                            + label + '_index')
+                    label = (self.cache.backend.field_metadata.custom_field_prefix + label + '_index')
 
             fm = self.field_metadata[label]
             fm

@@ -42,7 +42,7 @@ def uniquote(raw):
     return quote(raw).decode('utf-8')
 
 def is_parent(parent, path):
-    path = op.realpath(path) # In case it's a symlink
+    path = op.realpath(path)  # In case it's a symlink
     parent = op.realpath(parent)
     return path.startswith(parent)
 
@@ -89,7 +89,7 @@ def trash_move(src, dst, topdir=None):
 def find_mount_point(path):
     # Even if something's wrong, "/" is a mount point, so the loop will exit.
     # Use realpath in case it's a symlink
-    path = op.realpath(path) # Required to avoid infinite loop
+    path = op.realpath(path)  # Required to avoid infinite loop
     while not op.ismount(path):
         path = op.split(path)[0]
     return path

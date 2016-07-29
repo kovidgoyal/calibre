@@ -12,14 +12,14 @@ from lxml import etree
 
 from calibre.ebooks.oeb.base import rewrite_links, urlnormalize
 
-class RenameFiles(object): # {{{
+class RenameFiles(object):  # {{{
 
     '''
     Rename files and adjust all links pointing to them. Note that the spine
     and manifest are not touched by this transform.
     '''
 
-    def __init__(self, rename_map, renamed_items_map = None):
+    def __init__(self, rename_map, renamed_items_map=None):
         self.rename_map = rename_map
         self.renamed_items_map = renamed_items_map
 
@@ -85,7 +85,7 @@ class RenameFiles(object): # {{{
 
 # }}}
 
-class UniqueFilenames(object): # {{{
+class UniqueFilenames(object):  # {{{
 
     'Ensure that every item in the manifest has a unique filename'
 
@@ -125,7 +125,6 @@ class UniqueFilenames(object): # {{{
             renamer = RenameFiles(self.rename_map)
             renamer(oeb, opts)
 
-
     def unique_suffix(self, fname):
         base, ext = posixpath.splitext(fname)
         c = 0
@@ -137,7 +136,7 @@ class UniqueFilenames(object): # {{{
                 return suffix
 # }}}
 
-class FlatFilenames(object): # {{{
+class FlatFilenames(object):  # {{{
 
     'Ensure that every item in the manifest has a unique filename without subdirectories.'
 

@@ -55,6 +55,7 @@ class field(object):
 
 
 class versioned_field(field):
+
     def __init__(self, vfield, version, start=0, fmt=WORD):
         field.__init__(self, start=start, fmt=fmt)
         self.vfield, self.version = vfield, version
@@ -92,9 +93,10 @@ class fixed_stringfield(object):
         return obj.unpack(start=self._start, fmt="<"+length+"s")[0]
 
     def __set__(self, obj, val):
-        if val.__class__.__name__ != 'str': val = str(val)
+        if val.__class__.__name__ != 'str':
+            val = str(val)
         if len(val) != self._length:
-            raise LRFException("Trying to set fixed_stringfield with a " + \
+            raise LRFException("Trying to set fixed_stringfield with a " +
                                "string of  incorrect length")
         obj.pack(val, start=self._start, fmt="<"+str(len(val))+"s")
 
@@ -103,6 +105,7 @@ class fixed_stringfield(object):
                 " starting at byte " + str(self._start)
 
 class xml_attr_field(object):
+
     def __init__(self, tag_name, attr, parent='BookInfo'):
         self.tag_name = tag_name
         self.parent = parent
@@ -122,7 +125,7 @@ class xml_attr_field(object):
         return ''
 
     def __set__(self, obj, val):
-        if val == None:
+        if val is None:
             val = ""
         document = obj.info
         elems = document.getElementsByTagName(self.tag_name)
@@ -134,7 +137,6 @@ class xml_attr_field(object):
         if elem:
             elem.setAttribute(self.attr, val)
         obj.info = document
-
 
     def __repr__(self):
         return "XML Attr Field: " + self.tag_name + " in " + self.parent
@@ -205,7 +207,6 @@ class xml_field(object):
 
         obj.info = document
 
-
     def __str__(self):
         return self.tag_name
 
@@ -235,7 +236,7 @@ def insert_into_file(fileobj, data, start, end):
     fileobj.write(data)
     fileobj.flush()
     fileobj.truncate()
-    delta = fileobj.tell() - end # < 0 if len(data) < end-start
+    delta = fileobj.tell() - end  # < 0 if len(data) < end-start
     copyfileobj(buffer, fileobj, -1)
     fileobj.flush()
     buffer.close()
@@ -308,7 +309,7 @@ class LRFMetaFile(object):
     compressed_info_size     = field(fmt=WORD, start=0x4c)
     thumbnail_type           = versioned_field(version, 800, fmt=WORD, start=0x4e)
     thumbnail_size           = versioned_field(version, 800, fmt=DWORD, start=0x50)
-    uncompressed_info_size   = versioned_field(compressed_info_size, 0, \
+    uncompressed_info_size   = versioned_field(compressed_info_size, 0,
                                              fmt=DWORD, start=0x54)
 
     title                 = xml_field("Title", parent="BookInfo")
@@ -362,9 +363,9 @@ class LRFMetaFile(object):
                 return res
             return restore_pos
         locals_ = func()
-        if locals_.has_key("fget"):
+        if locals_.has_key("fget"):  # noqa
             locals_["fget"] = decorator(locals_["fget"])
-        if locals_.has_key("fset"):
+        if locals_.has_key("fset"):  # noqa
             locals_["fset"] = decorator(locals_["fset"])
         return property(**locals_)
 
@@ -402,7 +403,7 @@ class LRFMetaFile(object):
             stream = zlib.compress(info)
             orig_size = self.compressed_info_size
             self.compressed_info_size = len(stream) + 4
-            delta = insert_into_file(self._file, stream, self.info_start, \
+            delta = insert_into_file(self._file, stream, self.info_start,
                                      self.info_start + orig_size - 4)
 
             if self.toc_object_offset > 0:
@@ -410,19 +411,19 @@ class LRFMetaFile(object):
             self.object_index_offset += delta
             self.update_object_offsets(delta)
 
-        return { "fget":fget, "fset":fset, "doc":doc }
+        return {"fget":fget, "fset":fset, "doc":doc}
 
     @safe_property
     def thumbnail_pos():
         doc = """ The position of the thumbnail in the LRF file """
         def fget(self):
             return self.info_start + self.compressed_info_size-4
-        return { "fget":fget, "doc":doc }
+        return {"fget":fget, "doc":doc}
 
     @classmethod
     def _detect_thumbnail_type(cls, slice):
         """ @param slice: The first 16 bytes of the thumbnail """
-        ttype = 0x14 # GIF
+        ttype = 0x14  # GIF
         if "PNG" in slice:
             ttype = 0x12
         if "BM" in slice:
@@ -430,7 +431,6 @@ class LRFMetaFile(object):
         if "JFIF" in slice:
             ttype = 0x11
         return ttype
-
 
     @safe_property
     def thumbnail():
@@ -453,14 +453,14 @@ class LRFMetaFile(object):
             slice = data[0:16]
             orig_size = self.thumbnail_size
             self.thumbnail_size = len(data)
-            delta = insert_into_file(self._file, data, self.thumbnail_pos, \
+            delta = insert_into_file(self._file, data, self.thumbnail_pos,
                                      self.thumbnail_pos + orig_size)
             self.toc_object_offset += delta
             self.object_index_offset += delta
             self.thumbnail_type = self._detect_thumbnail_type(slice)
             self.update_object_offsets(delta)
 
-        return { "fget":fget, "fset":fset, "doc":doc }
+        return {"fget":fget, "fset":fset, "doc":doc}
 
     def __init__(self, file):
         """ @param file: A file object opened in the r+b mode """
@@ -468,7 +468,7 @@ class LRFMetaFile(object):
         self.size = file.tell()
         self._file = file
         if self.lrf_header != LRFMetaFile.LRF_HEADER:
-            raise LRFException(file.name + \
+            raise LRFException(file.name +
                 " has an invalid LRF header. Are you sure it is an LRF file?")
         # Byte at which the compressed meta information starts
         self.info_start = 0x58 if self.version > 800 else 0x53
@@ -602,36 +602,34 @@ class LRFMetaFile(object):
         return None
 
 
-
 def option_parser():
     from calibre.utils.config import OptionParser
     from calibre.constants import __appname__, __version__
-    parser = OptionParser(usage = \
-_('''%prog [options] mybook.lrf
+    parser = OptionParser(usage=_('''%prog [options] mybook.lrf
 
 
 Show/edit the metadata in an LRF file.\n\n'''),
       version=__appname__+' '+__version__,
       epilog='Created by Kovid Goyal')
-    parser.add_option("-t", "--title", action="store", type="string", \
+    parser.add_option("-t", "--title", action="store", type="string",
                     dest="title", help=_("Set the book title"))
     parser.add_option('--title-sort', action='store', type='string', default=None,
                       dest='title_reading', help=_('Set sort key for the title'))
-    parser.add_option("-a", "--author", action="store", type="string", \
+    parser.add_option("-a", "--author", action="store", type="string",
                     dest="author", help=_("Set the author"))
     parser.add_option('--author-sort', action='store', type='string', default=None,
                       dest='author_reading', help=_('Set sort key for the author'))
-    parser.add_option("-c", "--category", action="store", type="string", \
+    parser.add_option("-c", "--category", action="store", type="string",
                     dest="category", help=_("The category this book belongs"
                     " to. E.g.: History"))
-    parser.add_option("--thumbnail", action="store", type="string", \
+    parser.add_option("--thumbnail", action="store", type="string",
                     dest="thumbnail", help=_("Path to a graphic that will be"
                     " set as this files' thumbnail"))
-    parser.add_option("--comment", action="store", type="string", \
+    parser.add_option("--comment", action="store", type="string",
                     dest="comment", help=_("Path to a txt file containing the "
                     "comment to be stored in the lrf file."))
-    parser.add_option("--get-thumbnail", action="store_true", \
-                    dest="get_thumbnail", default=False, \
+    parser.add_option("--get-thumbnail", action="store_true",
+                    dest="get_thumbnail", default=False,
                     help=_("Extract thumbnail from LRF file"))
     parser.add_option('--publisher', default=None, help=_('Set the publisher'))
     parser.add_option('--classification', default=None, help=_('Set the book classification'))
@@ -642,8 +640,10 @@ Show/edit the metadata in an LRF file.\n\n'''),
     parser.add_option('--bookid', action='store', type='string', default=None,
                       dest='book_id', help=_('Set book ID'))
     # The SumPage element specifies the number of "View"s (visible pages for the BookSetting element conditions) of the content.
-    # Basically, the total pages per the page size, font size, etc. when the LRF is first created. Since this will change as the book is reflowed, it is probably not worth using.
-    #parser.add_option("-p", "--page", action="store", type="string", \
+    # Basically, the total pages per the page size, font size, etc. when the
+    # LRF is first created. Since this will change as the book is reflowed, it
+    # is probably not worth using.
+    # parser.add_option("-p", "--page", action="store", type="string", \
     #                dest="page", help=_("Don't know what this is for"))
 
     return parser
@@ -678,9 +678,9 @@ def main(args=sys.argv):
 
     if options.title:
         lrf.title        = options.title
-    if options.title_reading != None:
+    if options.title_reading is not None:
         lrf.title_reading = options.title_reading
-    if options.author_reading != None:
+    if options.author_reading is not None:
         lrf.author_reading = options.author_reading
     if options.author:
         lrf.author    = options.author
@@ -723,7 +723,7 @@ def main(args=sys.argv):
     if options.get_cover:
         try:
             ext, data = lrf.get_cover()
-        except: # Fails on books created by LRFCreator 1.0
+        except:  # Fails on books created by LRFCreator 1.0
             ext, data = None, None
         if data:
             cover = os.path.splitext(os.path.basename(args[1]))[0]+"_cover."+ext

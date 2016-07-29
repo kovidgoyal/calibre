@@ -25,8 +25,8 @@ class Footnote:
     def __init__(self,
             in_file ,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -103,7 +103,7 @@ class Footnote:
         self.__cb_count = 0
         self.__footnote_bracket_count = 0
         self.__in_footnote = 0
-        self.__first_line = 0 #have not processed the first line of footnote
+        self.__first_line = 0  # have not processed the first line of footnote
         self.__footnote_count = 0
 
     def separate_footnotes(self):
@@ -146,7 +146,7 @@ class Footnote:
                 write_obj.write(
                 'mi<mk<footnt-end\n')
         os.remove(self.__footnote_holder)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "footnote_separate.data")
         copy_obj.rename(self.__write_to, self.__file)
@@ -250,7 +250,7 @@ class Footnote:
         self.__join_from_temp()
         # self.__write_obj.close()
         # self.__read_from_foot_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to2, "footnote_joined.data")
         copy_obj.rename(self.__write_to2, self.__file)

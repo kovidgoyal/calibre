@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class pesRecipe(BasicNewsRecipe):
-    __author__  = 'bubak'
+    __author__ = 'bubak'
     title = u'Neviditelný pes'
     publisher = u''
     description = u'Neviditelný pes'
@@ -13,11 +14,10 @@ class pesRecipe(BasicNewsRecipe):
     remove_empty_feeds = True
 
     feeds = [
-            (u'Neviditelný pes', u'http://neviditelnypes.lidovky.cz/export/rss.asp?c=pes_neviditelny')
-            ]
+        (u'Neviditelný pes',
+         u'http://neviditelnypes.lidovky.cz/export/rss.asp?c=pes_neviditelny')
+    ]
 
-
-    #encoding = 'iso-8859-2'
     language = 'cs'
     cover_url = 'http://g.zpravy.cz/o/pes/logo_pes.jpg'
     remove_javascript = True
@@ -26,7 +26,5 @@ class pesRecipe(BasicNewsRecipe):
                             """
 
     remove_tags = []
-    remove_tags_before = dict(name='div', attrs={'id':'art-full'})
-    remove_tags_after = dict(name='div', attrs={'id':'authors'})
-
-
+    remove_tags_before = dict(name='div', attrs={'id': 'art-full'})
+    remove_tags_after = dict(name='div', attrs={'id': 'authors'})

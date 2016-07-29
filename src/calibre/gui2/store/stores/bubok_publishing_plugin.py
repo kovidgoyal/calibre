@@ -35,7 +35,7 @@ class BubokPublishingStore(BasicStoreConfig, StorePlugin):
 
     def search(self, query, max_results=10, timeout=60):
         url = 'http://www.bubok.es/resellers/calibre_search/' + urllib.quote_plus(query)
-        
+
         br = browser()
 
         counter = max_results
@@ -44,17 +44,17 @@ class BubokPublishingStore(BasicStoreConfig, StorePlugin):
             for data in doc.xpath('//div[contains(@class, "libro")]'):
                 if counter <= 0:
                     break
-                
+
                 id = ''.join(data.xpath('.//div[@class="url"]/text()'))
-                
+
                 title = ''.join(data.xpath('.//div[@class="titulo"]/text()'))
-                
+
                 author = ''.join(data.xpath('.//div[@class="autor"]/text()'))
-                
+
                 price = ''.join(data.xpath('.//div[@class="precio"]/text()'))
-                
+
                 formats = ''.join(data.xpath('.//div[@class="formatos"]/text()'))
-                
+
                 cover = ''.join(data.xpath('.//div[@class="portada"]/text()'))
 
                 counter -= 1

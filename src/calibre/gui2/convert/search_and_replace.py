@@ -91,14 +91,14 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
 
     def sr_change_clicked(self):
         row = self.search_replace.currentRow()
-        if  row >= 0:
+        if row >= 0:
             self.search_replace.item(row, 0).setText(self.sr_search.regex)
             self.search_replace.item(row, 1).setText(self.sr_replace.text())
             self.search_replace.setCurrentCell(row, 0)
 
     def sr_remove_clicked(self):
         row = self.search_replace.currentRow()
-        if  row >= 0:
+        if row >= 0:
             self.search_replace.removeRow(row)
             self.search_replace.setCurrentCell(row if row < self.search_replace.rowCount() else row-1, 0)
             self.sr_search.clear()
@@ -144,7 +144,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
         for col in xrange(0, self.search_replace.columnCount()):
             item1 = self.search_replace.item(row, col)
             item2 = self.search_replace.item(row+i, col)
-            value = item1.text();
+            value = item1.text()
             item1.setText(item2.text())
             item2.setText(value)
         self.search_replace.setCurrentCell(row+i, 0)
@@ -165,8 +165,6 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
             self.sr_save.setEnabled(False)
             self.sr_down.setEnabled(False)
             self.sr_up.setEnabled(False)
-
-
 
     def break_cycles(self):
         Widget.break_cycles(self)
@@ -205,7 +203,7 @@ class SearchAndReplaceWidget(Widget, Ui_Form):
                         ' has not been added to the list of definitions. '
                         'Do you wish to continue with the conversion '
                         '(the definition will not be used)?')):
-                    return False
+                return False
 
         # Verify all search expressions are valid
         for search, replace in definitions:

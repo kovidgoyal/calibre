@@ -35,23 +35,23 @@ def get_metadata(stream, extract_cover=True):
     """
     Return metadata as a L{MetaInfo} object
     """
-    
+
     pheader = PdbHeaderReader(stream)
-    
+
     MetadataReader = MREADER.get(pheader.ident, None)
 
     if MetadataReader is None:
         return MetaInformation(pheader.title, [_('Unknown')])
 
     return MetadataReader(stream, extract_cover)
-    
+
 def set_metadata(stream, mi):
     stream.seek(0)
-    
+
     pheader = PdbHeaderReader(stream)
-    
+
     MetadataWriter = MWRITER.get(pheader.ident, None)
-    
+
     if MetadataWriter:
         MetadataWriter(stream, mi)
 

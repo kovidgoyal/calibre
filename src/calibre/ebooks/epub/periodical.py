@@ -15,19 +15,19 @@ from calibre.utils.date import parse_date
 SONY_METADATA = u'''\
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-		 xmlns:dcterms="http://purl.org/dc/terms/"
-		 xmlns:dc="http://purl.org/dc/elements/1.1/"
-		 xmlns:prs="http://xmlns.sony.net/e-book/prs/">
-	<rdf:Description rdf:about="">
-		<dc:title>{title}</dc:title>
-		<dc:publisher>{publisher}</dc:publisher>
-		<dcterms:alternative>{short_title}</dcterms:alternative>
-		<dcterms:issued>{issue_date}</dcterms:issued>
-		<dc:language>{language}</dc:language>
-		<dcterms:conformsTo rdf:resource="http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0"/>
-		<dcterms:type rdf:resource="http://xmlns.sony.net/e-book/prs/datatype/newspaper"/>
-		<dcterms:type rdf:resource="http://xmlns.sony.net/e-book/prs/datatype/periodical"/>
-	</rdf:Description>
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:prs="http://xmlns.sony.net/e-book/prs/">
+    <rdf:Description rdf:about="">
+        <dc:title>{title}</dc:title>
+        <dc:publisher>{publisher}</dc:publisher>
+        <dcterms:alternative>{short_title}</dcterms:alternative>
+        <dcterms:issued>{issue_date}</dcterms:issued>
+        <dc:language>{language}</dc:language>
+        <dcterms:conformsTo rdf:resource="http://xmlns.sony.net/e-book/prs/periodicals/1.0/newspaper/1.0"/>
+        <dcterms:type rdf:resource="http://xmlns.sony.net/e-book/prs/datatype/newspaper"/>
+        <dcterms:type rdf:resource="http://xmlns.sony.net/e-book/prs/datatype/periodical"/>
+    </rdf:Description>
 </rdf:RDF>
 '''
 
@@ -124,7 +124,8 @@ def sony_metadata(oeb):
         from calibre.ebooks.oeb.base import TOC
         section = TOC(klass='section', title=_('All articles'),
                     href=oeb.spine[2].href)
-        for x in toc: section.nodes.append(x)
+        for x in toc:
+            section.nodes.append(x)
         toc = TOC(klass='periodical', href=oeb.spine[2].href,
                     title=unicode(oeb.metadata.title[0]))
         toc.nodes.append(section)

@@ -6,50 +6,52 @@ from collections import defaultdict
 from pprint import pformat
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def absurl(url):
     if url.startswith('/'):
         url = 'http://www.latimes.com' + url
     return url
 
+
 class LATimes(BasicNewsRecipe):
-    title                 = 'Los Angeles Times'
-    __author__            = 'Kovid Goyal'
-    description           = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'  # noqa
-    category              = 'news, politics, USA, Los Angeles, world'
-    oldest_article        = 2
+    title = 'Los Angeles Times'
+    __author__ = 'Kovid Goyal'
+    description = 'The Los Angeles Times is a leading source of news on Southern California, entertainment, movies, television, music, politics, business, health, technology, travel, sports, environment, economics, autos, jobs, real estate and other topics affecting California'  # noqa
+    category = 'news, politics, USA, Los Angeles, world'
+    oldest_article = 2
     max_articles_per_feed = 200
-    no_stylesheets        = True
-    encoding              = 'utf8'
-    use_embedded_content  = False
-    language              = 'en'
-    remove_empty_feeds    = True
-    publication_type      = 'newspaper'
-    masthead_url          = 'http://www.latimes.com/images/logo.png'
-    cover_url             = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
+    no_stylesheets = True
+    encoding = 'utf8'
+    use_embedded_content = False
+    language = 'en'
+    remove_empty_feeds = True
+    publication_type = 'newspaper'
+    masthead_url = 'http://www.latimes.com/images/logo.png'
+    cover_url = 'http://www.latimes.com/includes/sectionfronts/A1.pdf'
 
     keep_only_tags = [
         dict(itemprop='articleBody'),
         dict(name='h1'),
-        dict(attrs={'data-content-type':'image'}),
+        dict(attrs={'data-content-type': 'image'}),
     ]
     remove_tags = [
-        dict(attrs={'data-content-type':'story'}),
-        dict(attrs={'data-load-type':'commentFrame'}),
+        dict(attrs={'data-content-type': 'story'}),
+        dict(attrs={'data-load-type': 'commentFrame'}),
     ]
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.latimes.com')
         feeds = defaultdict(list)
-        for x in soup.findAll(attrs={'data-content-type':'story', 'data-content-section':True, 'data-content-url':True, 'data-content-title':True}):
+        for x in soup.findAll(attrs={'data-content-type': 'story', 'data-content-section': True, 'data-content-url': True, 'data-content-title': True}):
             url = absurl(x['data-content-url'])
             section = x['data-content-section'].capitalize()
             title = x['data-content-title']
-            feeds[section].append({'title':title, 'url':url})
+            feeds[section].append({'title': title, 'url': url})
         self.log(pformat(dict(feeds)))
         return [(k, feeds[k]) for k in sorted(feeds)]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-baseurl':True}):
+        for img in soup.findAll('img', attrs={'data-baseurl': True}):
             img['src'] = img['data-baseurl'] + '/750'
         for div in soup.findAll(itemprop='articleBody'):
             div.extract()

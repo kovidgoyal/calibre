@@ -3,20 +3,21 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1421956712(BasicNewsRecipe):
-    title          = 'TheAtlantic.com'
-    __author__     = 'ebrandon'
-    language       = 'en'
-    description    = 'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine'
+    title = 'TheAtlantic.com'
+    __author__ = 'ebrandon'
+    language = 'en'
+    description = 'News and editorial about politics, culture, entertainment, tech, etc. Contains many articles not seen in The Atlantic magazine'
     oldest_article = 7
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
     ignore_duplicate_articles = {'title', 'url'}
 
     def print_version(self, url):
         return url.replace('/archive/', '/print/')
 
-    feeds          = [
+    feeds = [
         ('Politics', 'http://feeds.feedburner.com/AtlanticPoliticsChannel'),
         ('International', 'http://feeds.feedburner.com/AtlanticInternational'),
         ('National', 'http://feeds.feedburner.com/AtlanticNational'),

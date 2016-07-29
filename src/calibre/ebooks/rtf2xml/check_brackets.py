@@ -12,7 +12,7 @@
 #########################################################################
 class CheckBrackets:
     """Check that brackets match up"""
-    def __init__(self, bug_handler = None, file=None):
+    def __init__(self, bug_handler=None, file=None):
         self.__file=file
         self.__bug_handler = bug_handler
         self.__bracket_count=0
@@ -49,7 +49,7 @@ class CheckBrackets:
                         return (False, "closed bracket doesn't match, line %s" % line_count)
 
         if self.__bracket_count != 0:
-            msg = ('At end of file open and closed brackets don\'t match\n' \
+            msg = ('At end of file open and closed brackets don\'t match\n'
                         'total number of brackets is %s') % self.__bracket_count
             return (False, msg)
         return (True, "Brackets match!")

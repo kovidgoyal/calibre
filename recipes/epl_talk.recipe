@@ -27,29 +27,23 @@ class EPLTalkRecipe(BasicNewsRecipe):
     encoding = 'utf8'
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
-    remove_tags =  [
-                       {'class': 'feedflare'},
-                       {'class': 'tweetmeme_button'},
-                       {'class': 'eplrelated'},
-                       {'p': 'Related posts:<ol>'},
-                   ]
+    remove_tags = [
+        {'class': 'feedflare'},
+        {'class': 'tweetmeme_button'},
+        {'class': 'eplrelated'},
+        {'p': 'Related posts:<ol>'},
+    ]
 
     def preprocess_html(self, soup):
-       return self.adeify_images(soup)
+        return self.adeify_images(soup)
 
-    feeds =[
-               (u'EPL Talk', u'http://feeds.feedburner.com/EPLTalk'),
-               (u'MLS Talk', u'http://feeds.feedburner.com/majorleaguesoccertalksite'),
-               #(),
-               #(),
-               #(),
-           ]
+    feeds = [
+        (u'EPL Talk', u'http://feeds.feedburner.com/EPLTalk'),
+        (u'MLS Talk', u'http://feeds.feedburner.com/majorleaguesoccertalksite'),
+    ]
 
     extra_css = '''
            h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}

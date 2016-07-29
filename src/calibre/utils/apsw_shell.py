@@ -20,7 +20,7 @@ if sys.platform=="win32":
         colorama.init()
         del colorama
         _win_colour=True
-    except: # there are several failure reasons, ignore them all
+    except:  # there are several failure reasons, ignore them all
         pass
 
 
@@ -120,9 +120,12 @@ class Shell(object):
 
         # other stuff
         self.set_encoding(encoding)
-        if stdin is None: stdin=sys.stdin
-        if stdout is None: stdout=sys.stdout
-        if stderr is None: stderr=sys.stderr
+        if stdin is None:
+            stdin=sys.stdin
+        if stdout is None:
+            stdout=sys.stdout
+        if stderr is None:
+            stderr=sys.stderr
         self.stdin=stdin
         self.stdout=stdout
         self._original_stdout=stdout
@@ -131,7 +134,7 @@ class Shell(object):
         # successfully parsed and acted upon
         self.interactive=None
         # current colouring object
-        self.command_colour() # set to default
+        self.command_colour()  # set to default
         self._using_readline=False
         self._input_stack=[]
         self.input_line_number=0
@@ -331,13 +334,13 @@ OPTIONS include:
         return msg.lstrip()
 
     ###
-    ### Value formatting routines.  They take a value and return a
-    ### text formatting of them.  Mostly used by the various output's
-    ### but also by random other pieces of code.
+    # Value formatting routines.  They take a value and return a
+    # text formatting of them.  Mostly used by the various output's
+    # but also by random other pieces of code.
     ###
 
-    _binary_type = eval(("buffer", "bytes") [sys.version_info>=(3,0)])
-    _basestring = eval(("basestring", "str") [sys.version_info>=(3,0)])
+    _binary_type = eval(("buffer", "bytes")[sys.version_info>=(3,0)])
+    _basestring = eval(("basestring", "str")[sys.version_info>=(3,0)])
 
     # bytes that are ok in C strings - no need for quoting
     _printable=[ord(x) for x in
@@ -407,7 +410,7 @@ OPTIONS include:
                     op.append("\\n")
                 elif c=="\t":
                     op.append("\\t")
-                elif c=="/": # yes you have to escape forward slash for some reason
+                elif c=="/":  # yes you have to escape forward slash for some reason
                     op.append("\\/")
                 elif c=='"':
                     op.append("\\"+c)
@@ -435,7 +438,6 @@ OPTIONS include:
         else:
             # number of some kind
             return '%s' % (v,)
-
 
     def _fmt_python(self, v):
         "Format as python literal"
@@ -467,7 +469,7 @@ OPTIONS include:
 
     def _fmt_sql_identifier(self, v):
         "Return the identifier quoted in SQL syntax if needed (eg table and column names)"
-        if not len(v): # yes sqlite does allow zero length identifiers
+        if not len(v):  # yes sqlite does allow zero length identifiers
             return '""'
         nonalnum=re.sub("[A-Za-z_0-9]+", "", v)
         if len(nonalnum)==0:
@@ -493,10 +495,10 @@ OPTIONS include:
             return "%s" % (v,)
 
     ###
-    ### The various output routines.  They are always called with the
-    ### header irrespective of the setting allowing for some per query
-    ### setup. (see output_column for example).  The doc strings are
-    ### used to generate help.
+    # The various output routines.  They are always called with the
+    # header irrespective of the setting allowing for some per query
+    # setup. (see output_column for example).  The doc strings are
+    # used to generate help.
     ###
 
     def output_column(self, header, line):
@@ -598,7 +600,7 @@ OPTIONS include:
         assert(t.endswith("\r\n"))
         t=t[:-2]
         # should not be other eol irregularities
-        assert(not t.endswith("\r") and not  t.endswith("\n"))
+        assert(not t.endswith("\r") and not t.endswith("\n"))
         self.write(self.stdout, t+"\n")
         self._csv[0].truncate(0)
         self._csv[0].seek(0)
@@ -702,7 +704,7 @@ OPTIONS include:
         self.write(self.stdout, self.colour.summary+summary+self.colour.summary_)
 
     ###
-    ### Various routines
+    # Various routines
     ###
 
     def cmdloop(self, intro=None):
@@ -757,7 +759,7 @@ Enter SQL statements terminated with a ";"
                     self._using_readline=True
                 try:
                     command=self.getcompleteline()
-                    if command is None: # EOF
+                    if command is None:  # EOF
                         return
                     self.process_complete_line(command)
                 except:
@@ -775,7 +777,7 @@ Enter SQL statements terminated with a ";"
     def handle_exception(self):
         """Handles the current exception, printing a message to stderr as appropriate.
         It will reraise the exception if necessary (eg if bail is true)"""
-        eclass,eval,etb=sys.exc_info() # py2&3 compatible way of doing this
+        eclass,eval,etb=sys.exc_info()  # py2&3 compatible way of doing this
         if isinstance(eval, SystemExit):
             eval._handle_exception_saw_this=True
             raise
@@ -927,7 +929,7 @@ Enter SQL statements terminated with a ";"
         fn(cmd[1:])
 
     ###
-    ### Commands start here
+    # Commands start here
     ###
 
     def _boolean_command(self, name, cmd):
@@ -935,7 +937,6 @@ Enter SQL statements terminated with a ";"
         if len(cmd)!=1 or cmd[0].lower() not in ("on", "off"):
             raise self.Error(name+" expected ON or OFF")
         return cmd[0].lower()=="on"
-
 
     # Note that doc text is used for generating help output.
 
@@ -965,7 +966,6 @@ Enter SQL statements terminated with a ";"
         finally:
             b.finish()
             out.close()
-
 
     def command_bail(self, cmd):
         """bail ON|OFF: Stop after hitting an error (default OFF)
@@ -1254,7 +1254,6 @@ Enter SQL statements terminated with a ";"
         finally:
             self.process_sql("END", internal=True)
 
-
     def command_echo(self, cmd):
         """echo ON|OFF: If ON then each SQL statement or command is printed before execution (default OFF)
 
@@ -1286,7 +1285,6 @@ Enter SQL statements terminated with a ";"
         except LookupError:
             raise self.Error("No known codec error handler '%s'" % (errors,))
         self.encoding=enc, errors
-
 
     def command_encoding(self, cmd):
         """encoding ENCODING: Set the encoding used for new files opened via .output and imports
@@ -1330,7 +1328,6 @@ Enter SQL statements terminated with a ";"
         within each frame are also displayed.
         """
         self.exceptions=self._boolean_command("exceptions", cmd)
-
 
     def command_exit(self, cmd):
         """exit:Exit this program"""
@@ -1389,7 +1386,7 @@ Enter SQL statements terminated with a ";"
             tablefilter=cmd[1]
         querytemplate=[]
         queryparams=[]
-        def qp(): # binding for current queryparams
+        def qp():  # binding for current queryparams
             return "?"+str(len(queryparams))
         s=cmd[0]
         if '%' in s or '_' in s:
@@ -1424,7 +1421,9 @@ Enter SQL statements terminated with a ";"
     _help_info=None
 
     def command_help(self, cmd):
-        """help ?COMMAND?: Shows list of commands and their usage.  If COMMAND is specified then shows detail about that COMMAND.  ('.help all' will show detailed help about all commands.)
+        """help ?COMMAND?: Shows list of commands and their usage.  If COMMAND
+        is specified then shows detail about that COMMAND.  ('.help all' will
+        show detailed help about all commands.)
         """
         if not self._help_info:
             # buildup help database
@@ -1441,13 +1440,14 @@ Enter SQL statements terminated with a ";"
                 d=getattr(self, c).__doc__
                 assert d, c+" command must have documentation"
                 c=c[len("command_"):]
-                if c in ("headers", "color"): continue
+                if c in ("headers", "color"):
+                    continue
                 while d[0]=="\n":
                     d=d[1:]
                 parts=d.split("\n", 1)
                 firstline=parts[0].strip().split(":", 1)
                 assert len(firstline)==2, c+" command must have usage: description doc"
-                if len(parts)==1 or len(parts[1].strip())==0: # work around textwrap bug
+                if len(parts)==1 or len(parts[1].strip())==0:  # work around textwrap bug
                     multi=""
                 else:
                     multi=textwrap.dedent(parts[1])
@@ -1460,7 +1460,7 @@ Enter SQL statements terminated with a ";"
                     colours=list(self._colours.keys())
                     colours.sort()
                     firstline[1]=firstline[1]+" from "+", ".join(colours)
-                if len(multi.strip())==0: # All whitespace
+                if len(multi.strip())==0:  # All whitespace
                     multi=None
                 else:
                     multi=multi.strip("\n")
@@ -1505,7 +1505,8 @@ Enter SQL statements terminated with a ";"
                     w=len(self._help_info[command][0])
 
             for command in cmd:
-                if command=="headers": command="header"
+                if command=="headers":
+                    command="header"
                 if command not in self._help_info:
                     raise self.Error("No such command \"%s\"" % (command,))
                 out=[]
@@ -1621,10 +1622,10 @@ Enter SQL statements terminated with a ";"
             return
 
         ###
-        ### csv module is not good at unicode so we have to
-        ### indirect unless utf8 is in use
+        # csv module is not good at unicode so we have to
+        # indirect unless utf8 is in use
         ###
-        if self.encoding[0].lower()=="utf8": # no need for tempfile
+        if self.encoding[0].lower()=="utf8":  # no need for tempfile
             thefile=open(filename, "rb")
         else:
             import tempfile
@@ -1694,33 +1695,37 @@ Enter SQL statements terminated with a ";"
                 raise self.Error("Table \"%s\" already exists" % (tablename,))
 
             # The types we support deducing
-            def DateUS(v): # US formatted date with wrong ordering of day and month
+            def DateUS(v):  # US formatted date with wrong ordering of day and month
                 return DateWorld(v, switchdm=True)
-            def DateWorld(v, switchdm=False): # Sensibly formatted date as used anywhere else in the world
+            def DateWorld(v, switchdm=False):  # Sensibly formatted date as used anywhere else in the world
                 y,m,d=self._getdate(v)
-                if switchdm: m,d=d,m
+                if switchdm:
+                    m,d=d,m
                 if m<1 or m>12 or d<1 or d>31:
                     raise ValueError
                 return "%d-%02d-%02d" % (y,m,d)
-            def DateTimeUS(v): # US date and time
+            def DateTimeUS(v):  # US date and time
                 return DateTimeWorld(v, switchdm=True)
-            def DateTimeWorld(v, switchdm=False): # Sensible date and time
+            def DateTimeWorld(v, switchdm=False):  # Sensible date and time
                 y,m,d,h,M,s=self._getdatetime(v)
-                if switchdm: m,d=d,m
+                if switchdm:
+                    m,d=d,m
                 if m<1 or m>12 or d<1 or d>31 or h<0 or h>23 or M<0 or M>59 or s<0 or s>65:
                     raise ValueError
                 return "%d-%02d-%02dT%02d:%02d:%02d" % (y,m,d,h,M,s)
-            def Number(v): # we really don't want phone numbers etc to match
+            def Number(v):  # we really don't want phone numbers etc to match
                 # Python's float & int constructors allow whitespace which we don't
                 if re.search(r"\s", v):
                     raise ValueError
-                if v=="0": return 0
-                if v[0]=="+": # idd prefix
+                if v=="0":
+                    return 0
+                if v[0]=="+":  # idd prefix
                     raise ValueError
                 if re.match("^[0-9]+$", v):
-                    if v[0]=="0": raise ValueError # also a phone number
+                    if v[0]=="0":
+                        raise ValueError  # also a phone number
                     return int(v)
-                if v[0]=="0" and not v.startswith("0."): # deceptive not a number
+                if v[0]=="0" and not v.startswith("0."):  # deceptive not a number
                     raise ValueError
                 return float(v)
 
@@ -1844,7 +1849,7 @@ Enter SQL statements terminated with a ";"
         if not m:
             raise ValueError
         y,m,d=int(m.group(1)), int(m.group(2)), int(m.group(3))
-        if d>1000: # swap order
+        if d>1000:  # swap order
             y,m,d=d,m,y
         if y<1000 or y>9999:
             raise ValueError
@@ -1932,7 +1937,7 @@ Enter SQL statements terminated with a ";"
                     self.separator="\t"
                 else:
                     pass
-                    #self.separator=self._output_stack[0]["separator"]
+                    # self.separator=self._output_stack[0]["separator"]
                 if w=="insert":
                     if len(cmd)==2:
                         self._output_table=cmd[1]
@@ -1954,7 +1959,8 @@ Enter SQL statements terminated with a ";"
         detail=[]
 
         for m in modes:
-            if m=='tabs': continue
+            if m=='tabs':
+                continue
             d=getattr(self, "output_"+m).__doc__
             assert d, "output mode "+m+" needs doc"
             d=d.replace("\n", " ").strip()
@@ -1993,7 +1999,7 @@ Enter SQL statements terminated with a ";"
         if hasattr(self.stdin, "flush"):
             try:
                 self.stdin.flush()
-            except IOError: # see issue 117
+            except IOError:  # see issue 117
                 pass
 
         # we will also close stdout but only do so once we have a
@@ -2009,7 +2015,7 @@ Enter SQL statements terminated with a ";"
                 if self.stdout!=self._original_stdout:
                     old=self.stdout
                 self.stdout=self._original_stdout
-                if old is not None: # done here in case close raises exception
+                if old is not None:  # done here in case close raises exception
                     old.close()
                 return
 
@@ -2178,7 +2184,8 @@ Enter SQL statements terminated with a ";"
                 continue
             # boolean settings
             if i in ("echo", "headers", "exceptions"):
-                if i=="headers": i="header"
+                if i=="headers":
+                    i="header"
                 v="off"
                 if getattr(self, i):
                     v="on"
@@ -2210,7 +2217,7 @@ Enter SQL statements terminated with a ";"
                     v+=" (Errors "+self.encoding[1]+")"
             else:
                 assert False, "Bug: unknown show handling"
-            outs.append( (k,v) )
+            outs.append((k,v))
 
         # find width of k column
         l=0
@@ -2304,7 +2311,7 @@ Enter SQL statements terminated with a ";"
         try:
             if sys.platform=="win32":
                 import ctypes, struct
-                h=ctypes.windll.kernel32.GetStdHandle(-12) # -12 is stderr
+                h=ctypes.windll.kernel32.GetStdHandle(-12)  # -12 is stderr
                 buf=ctypes.create_string_buffer(22)
                 if ctypes.windll.kernel32.GetConsoleScreenBufferInfo(h, buf):
                     _,_,_,_,_,left,top,right,bottom,_,_=struct.unpack("hhhhHhhhhhh", buf.raw)
@@ -2376,7 +2383,8 @@ Enter SQL statements terminated with a ";"
 
         This function is needed because shlex does not do it for us.
         """
-        if "\\" not in s: return s
+        if "\\" not in s:
+            return s
         # See the resolve_backslashes function in SQLite shell source
         res=[]
         i=0
@@ -2395,7 +2403,7 @@ Enter SQL statements terminated with a ";"
                 "n": "\n",
                 "t": "\t"
                 }.get(c, None))
-            i+=1 # advance again
+            i+=1  # advance again
             if res[-1] is None:
                 raise self.Error("Unknown backslash sequence \\"+c)
         return "".join(res)
@@ -2442,7 +2450,7 @@ Enter SQL statements terminated with a ";"
                     if self._using_readline and sys.platform!="win32":
                         # these are needed so that readline knows they are non-printing characters
                         c="\x01"+c[0]+"\x02", "\x01"+c[1]+"\x02",
-                    line=self._raw_input(c[0]+prompt+c[1])+"\n" # raw_input excludes newline
+                    line=self._raw_input(c[0]+prompt+c[1])+"\n"  # raw_input excludes newline
                 else:
                     self.write(self.stdout, prompt)
                     line=self.stdin.readline()  # includes newline unless last line of file doesn't have one
@@ -2452,11 +2460,12 @@ Enter SQL statements terminated with a ";"
             if sys.version_info<(3,0):
                 if type(line)!=unicode:
                     enc=getattr(self.stdin, "encoding", self.encoding[0])
-                    if not enc: enc=self.encoding[0]
+                    if not enc:
+                        enc=self.encoding[0]
                     line=line.decode(enc)
         except EOFError:
             return None
-        if len(line)==0: # always a \n on the end normally so this is EOF
+        if len(line)==0:  # always a \n on the end normally so this is EOF
             return None
         if line[-1]=="\n":
             line=line[:-1]
@@ -2476,12 +2485,13 @@ Enter SQL statements terminated with a ";"
                 return None
             if len(command.strip())==0:
                 return ""
-            if command[0]=="?": command=".help "+command[1:]
+            if command[0]=="?":
+                command=".help "+command[1:]
             # incomplete SQL?
             while command[0]!="." and not apsw.complete(command):
                 self._completion_first=False
                 line=self.getline(self.moreprompt)
-                if line is None: # unexpected eof
+                if line is None:  # unexpected eof
                     raise self.Error("Incomplete SQL (line %d of %s): %s\n" % (self.input_line_number, getattr(self.stdin, "name", "<stdin>"), command))
                 if line in ("go", "/"):
                     break
@@ -2560,7 +2570,8 @@ Enter SQL statements terminated with a ";"
             except:
                 # Readline swallows any exceptions we raise.  We
                 # shouldn't be raising any so this is to catch that
-                import traceback; traceback.print_exc()
+                import traceback
+                traceback.print_exc()
                 raise
 
         if state>len(self.completions):
@@ -2649,7 +2660,6 @@ Enter SQL statements terminated with a ";"
         "Returns the tokens prior to pos end in the line"
         return re.findall(r'"?\w+"?', line[:end])
 
-
     def complete_sql(self, line, token, beg, end):
         """Provide some completions for SQL
 
@@ -2731,13 +2741,13 @@ Enter SQL statements terminated with a ";"
             for word in corpus:
                 if word.upper().startswith(ut):
                     # potential match - now match case
-                    if word.startswith(token): # exact
+                    if word.startswith(token):  # exact
                         if word not in res:
                             res.append(word)
-                    elif word.lower().startswith(token): # lower
+                    elif word.lower().startswith(token):  # lower
                         if word.lower() not in res:
                             res.append(word.lower())
-                    elif word.upper().startswith(token): # upper
+                    elif word.upper().startswith(token):  # upper
                         if word.upper() not in res:
                             res.append(word.upper())
                     else:
@@ -2796,7 +2806,7 @@ Enter SQL statements terminated with a ";"
             import resource, time
             r=resource.getrusage(resource.RUSAGE_SELF)
             res={'Wall clock': time.time()}
-            for i,desc in ( ("utime", "User time"),
+            for i,desc in (("utime", "User time"),
                        ("stime", "System time"),
                        ("maxrss", "Max rss"),
                        ("idrss", "Memory"),
@@ -2838,7 +2848,7 @@ Enter SQL statements terminated with a ";"
                     else:
                         self.write(self.stderr, "+ %s: %d\n" % (k, val))
 
-    ### Colour support
+    # Colour support
 
     def _out_colour(self):
         # Sets up color for output.  Input being interactive doesn't
@@ -2853,11 +2863,14 @@ Enter SQL statements terminated with a ";"
     # so that it doesn't matter if a colour scheme leaves something
     # out.
     class _colourscheme:
+
         def __init__(self, **kwargs):
             for k,v in kwargs.items():
                 setattr(self, k, v)
-        def __nonzero__(self): return True
-        def __str__(self): return "_colourscheme("+str(self.__dict__)+")"
+        def __nonzero__(self):
+            return True
+        def __str__(self):
+            return "_colourscheme("+str(self.__dict__)+")"
         def __getattr__(self, k):
             return ""
         def colour_value(self, val, formatted):
@@ -2923,7 +2936,8 @@ def main():
             pass
         else:
             # Where did this exception come from?
-            import traceback; traceback.print_exc()
+            import traceback
+            traceback.print_exc()
         sys.exit(1)
 
 if __name__=='__main__':

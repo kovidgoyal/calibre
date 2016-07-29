@@ -2,29 +2,26 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class KellogInsight(BasicNewsRecipe):
 
-    title          = 'Kellog Insight'
-    __author__     = 'Kovid Goyal and Sujata Raman'
-    description    = 'Articles from the Kellog School of Management'
+    title = 'Kellog Insight'
+    __author__ = 'Kovid Goyal and Sujata Raman'
+    description = 'Articles from the Kellog School of Management'
     no_stylesheets = True
-    encoding       = 'utf-8'
+    encoding = 'utf-8'
     language = 'en'
     auto_cleanup = True
     use_embedded_content = False
 
     oldest_article = 60
-
-    #keep_only_tags = [dict(name='div', attrs={'id':['print_no_comments']})]
-
-    #remove_tags = [dict(name='div', attrs={'class':'col-three'})]
 
     extra_css = '''
                 h1{font-family:arial; font-size:medium; color:#333333;}
@@ -36,7 +33,8 @@ class KellogInsight(BasicNewsRecipe):
                 .col-two-text{font-family:arial; font-size:x-small; color:#333333;}
                 '''
 
-    feeds = [('Articles', 'http://insight.kellogg.northwestern.edu/index.php/Kellogg/RSS')]
+    feeds = [
+        ('Articles', 'http://insight.kellogg.northwestern.edu/index.php/Kellogg/RSS')]
 
     def get_article_url(self, article):
         # Get only article not blog links
@@ -48,8 +46,7 @@ class KellogInsight(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
 
-            for tag in soup.findAll(name=['span']):
-                tag.nextSibling.name = 'h4'
+        for tag in soup.findAll(name=['span']):
+            tag.nextSibling.name = 'h4'
 
-            return soup
-
+        return soup

@@ -706,7 +706,10 @@ class Reader(FormatReader):
                     offset += 7
                 # Exact link modifier
                 # 2 Bytes
-                # Paragraph Offset (The Exact Link Modifier modifies a Paragraph Link or Targeted Paragraph Link function to specify an exact byte offset within the paragraph. This function must be followed immediately by the function it modifies).
+                # Paragraph Offset (The Exact Link Modifier modifies a Paragraph Link or
+                # Targeted Paragraph Link function to specify an exact byte offset within
+                # the paragraph. This function must be followed immediately by the
+                # function it modifies).
                 elif c == 0x9a:
                     offset += 2
             elif c == 0xa0:

@@ -12,17 +12,17 @@ from calibre.gui2.store.config.chooser.adv_search_builder import AdvSearchBuilde
 from calibre.gui2.store.config.chooser.chooser_widget_ui import Ui_Form
 
 class StoreChooserWidget(QWidget, Ui_Form):
-    
+
     def __init__(self):
         QWidget.__init__(self)
         self.setupUi(self)
-        
+
         self.query.initialize('store_config_chooser_query')
         self.query.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.query.setMinimumContentsLength(25)
-        
+
         self.adv_search_builder.setIcon(QIcon(I('search.png')))
-        
+
         self.search.clicked.connect(self.do_search)
         self.adv_search_builder.clicked.connect(self.build_adv_search)
         self.enable_all.clicked.connect(self.results_view.model().enable_all)

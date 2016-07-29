@@ -18,6 +18,7 @@ from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
 from calibre.constants import plugins
 
 class DjvuChunk(object):
+
     def __init__(self, buf, start, end, align=True, bigendian=True,
             inclheader=False, verbose=0):
         self.speedup, err = plugins['bzzdec']
@@ -39,9 +40,9 @@ class DjvuChunk(object):
         self.dataend = pos + self.size - (8 if inclheader else 0)
         if self.type == b'FORM':
             oldpos, pos = pos, pos+4
-            #print oldpos, pos
+            # print oldpos, pos
             self.subtype = buf[oldpos:pos]
-            #self.headersize += 4
+            # self.headersize += 4
         self.datastart = pos
         if verbose > 0:
             print ('found', self.type, self.subtype, pos, self.size)
@@ -106,6 +107,7 @@ class DjvuChunk(object):
             schunk.dump(verbose=verbose, indent=indent+1, out=out, txtout=txtout)
 
 class DJVUFile(object):
+
     def __init__(self, instream, verbose=0):
         self.instream = instream
         buf = self.instream.read(4)

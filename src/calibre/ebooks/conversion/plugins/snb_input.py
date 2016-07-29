@@ -13,7 +13,7 @@ from calibre.utils.filenames import ascii_filename
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
 def html_encode(s):
-    return s.replace(u'&', u'&amp;').replace(u'<', u'&lt;').replace(u'>', u'&gt;').replace(u'"', u'&quot;').replace(u"'", u'&apos;').replace(u'\n', u'<br/>').replace(u' ', u'&nbsp;')
+    return s.replace(u'&', u'&amp;').replace(u'<', u'&lt;').replace(u'>', u'&gt;').replace(u'"', u'&quot;').replace(u"'", u'&apos;').replace(u'\n', u'<br/>').replace(u' ', u'&nbsp;')  # noqa
 
 class SNBInput(InputFormatPlugin):
 
@@ -47,9 +47,9 @@ class SNBInput(InputFormatPlugin):
         oeb = create_oebbook(log, None, options,
                 encoding=options.input_encoding, populate=False)
         meta = snbFile.GetFileStream('snbf/book.snbf')
-        if meta != None:
+        if meta is not None:
             meta = etree.fromstring(meta)
-            l = { 'title'    : './/head/name',
+            l = {'title'    : './/head/name',
                   'creator'  : './/head/author',
                   'language' : './/head/language',
                   'generator': './/head/generator',
@@ -58,8 +58,8 @@ class SNBInput(InputFormatPlugin):
             d = {}
             for item in l:
                 node = meta.find(l[item])
-                if node != None:
-                    d[item] = node.text if node.text != None else ''
+                if node is not None:
+                    d[item] = node.text if node.text is not None else ''
                 else:
                     d[item] = ''
 
@@ -82,7 +82,7 @@ class SNBInput(InputFormatPlugin):
             log.debug('Process TOC ...')
             toc = snbFile.GetFileStream('snbf/toc.snbf')
             oeb.container = DirContainer(tdir, log)
-            if toc != None:
+            if toc is not None:
                 toc = etree.fromstring(toc)
                 i = 1
                 for ch in toc.find('.//body'):
@@ -90,7 +90,7 @@ class SNBInput(InputFormatPlugin):
                     chapterSrc = ch.get('src')
                     fname = 'ch_%d.htm' % i
                     data = snbFile.GetFileStream('snbc/' + chapterSrc)
-                    if data == None:
+                    if data is None:
                         continue
                     snbc = etree.fromstring(data)
                     outputFile = open(os.path.join(tdir, fname), 'wb')

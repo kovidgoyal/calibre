@@ -89,7 +89,7 @@ class WorkerThread(threading.Thread):
             if self._dismissed.isSet():
                 # if told to exit, return the work request we just picked up
                 self.workRequestQueue.put(request)
-                break # and exit
+                break  # and exit
             try:
                 self.resultQueue.put(
                     (request, request.callable(*request.args, **request.kwds))

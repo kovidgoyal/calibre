@@ -1,48 +1,45 @@
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 # dug from http://www.mobileread.com/forums/showthread.php?p=1012294
 
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1277443634(BasicNewsRecipe):
-	title = u'自由電子報'
-	oldest_article = 1
-	max_articles_per_feed = 100
+    title = u'自由電子報'
+    oldest_article = 1
+    max_articles_per_feed = 100
 
-	feeds = [(u'頭版', u'http://news.ltn.com.tw/rss/focus.xml'),
-                  (u'政治', u'http://news.ltn.com.tw/rss/politics.xml'),
-                  (u'社會', u'http://news.ltn.com.tw/rss/society.xml'),
-                  (u'生活', u'http://news.ltn.com.tw/rss/life.xml'),
-                  (u'言論', u'http://news.ltn.com.tw/rss/opinion.xml'),
-                  (u'國際', u'http://news.ltn.com.tw/rss/world.xml'),
-                  (u'財經', u'http://news.ltn.com.tw/rss/business.xml'),
-                  (u'體育', u'http://news.ltn.com.tw/rss/sports.xml'),
-                  (u'影視', u'http://news.ltn.com.tw/rss/entertainment.xml'),
-                  (u'消費', u'http://news.ltn.com.tw/rss/consumer.xml'),
-                  (u'副刊', u'http://news.ltn.com.tw/rss/supplement.xml'),
-                  (u'地方', u'http://news.ltn.com.tw/rss/local.xml'),
-                  (u'台北都會', u'http://news.ltn.com.tw/rss/taipei.xml'),
-                  (u'北部新聞', u'http://news.ltn.com.tw/rss/northern.xml'),
-                  (u'中部新聞', u'http://news.ltn.com.tw/rss/central.xml'),
-                  (u'南部新聞', u'http://news.ltn.com.tw/rss/southern.xml')
-                  
-                 ]
-	#extra_css = '''span[class='insubject1'][id='newtitle'] {font-size:200%; font-weight:bold;}'''
-	__author__ = 'einstuerzende, updated by Eddie Lau'
-	__version__ = '1.2'
-	language = 'zh'
-	publisher = 'Liberty Times Group'
-	description = 'Liberty Times (Taiwan)'
-	category = 'News, Chinese, Taiwan'
-	remove_javascript = True
-	use_embedded_content = False
-	no_stylesheets = True
-	encoding = 'utf-8'
-	conversion_options = {'linearize_tables':True}
-	masthead_url = 'http://www.libertytimes.com.tw/2008/images/img_auto/005/logo_new.gif'
-	cover_url = 'http://www.libertytimes.com.tw/2008/images/img_auto/005/logo_new.gif'
-	auto_cleanup = True
-    #keep_only_tags = [dict(name='td', attrs={'id':['newsContent']})]
+    feeds = [(u'頭版', u'http://news.ltn.com.tw/rss/focus.xml'),
+             (u'政治', u'http://news.ltn.com.tw/rss/politics.xml'),
+             (u'社會', u'http://news.ltn.com.tw/rss/society.xml'),
+             (u'生活', u'http://news.ltn.com.tw/rss/life.xml'),
+             (u'言論', u'http://news.ltn.com.tw/rss/opinion.xml'),
+             (u'國際', u'http://news.ltn.com.tw/rss/world.xml'),
+             (u'財經', u'http://news.ltn.com.tw/rss/business.xml'),
+             (u'體育', u'http://news.ltn.com.tw/rss/sports.xml'),
+             (u'影視', u'http://news.ltn.com.tw/rss/entertainment.xml'),
+             (u'消費', u'http://news.ltn.com.tw/rss/consumer.xml'),
+             (u'副刊', u'http://news.ltn.com.tw/rss/supplement.xml'),
+             (u'地方', u'http://news.ltn.com.tw/rss/local.xml'),
+             (u'台北都會', u'http://news.ltn.com.tw/rss/taipei.xml'),
+             (u'北部新聞', u'http://news.ltn.com.tw/rss/northern.xml'),
+             (u'中部新聞', u'http://news.ltn.com.tw/rss/central.xml'),
+             (u'南部新聞', u'http://news.ltn.com.tw/rss/southern.xml')
 
-
+             ]
+    __author__ = 'einstuerzende, updated by Eddie Lau'
+    __version__ = '1.2'
+    language = 'zh'
+    publisher = 'Liberty Times Group'
+    description = 'Liberty Times (Taiwan)'
+    category = 'News, Chinese, Taiwan'
+    remove_javascript = True
+    use_embedded_content = False
+    no_stylesheets = True
+    encoding = 'utf-8'
+    conversion_options = {'linearize_tables': True}
+    masthead_url = 'http://www.libertytimes.com.tw/2008/images/img_auto/005/logo_new.gif'
+    cover_url = 'http://www.libertytimes.com.tw/2008/images/img_auto/005/logo_new.gif'
+    auto_cleanup = True

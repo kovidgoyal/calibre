@@ -49,7 +49,6 @@ class LrsParser(object):
                 canvas.put_object(self.parsed_objects[po.get('refobj')],
                                   po.get('x1'), po.get('y1'))
 
-
     @classmethod
     def attrs_to_dict(cls, tag, exclude=('objid',)):
         result = {}
@@ -87,7 +86,6 @@ class LrsParser(object):
                 elem.append(subelem)
                 self.process_text_element(item, subelem)
 
-
     def process_paragraph(self, tag):
         p = Paragraph()
         contents = [i for i in tag.contents]
@@ -113,7 +111,7 @@ class LrsParser(object):
                     tb.append(self.process_paragraph(item))
                 elif item.name == 'cr':
                     tb.append(CR())
-                elif item.name == 'charbutton': # BookDesigner does this
+                elif item.name == 'charbutton':  # BookDesigner does this
                     p = Paragraph()
                     tb.append(p)
                     elem = self.text_tag_to_element(item)
@@ -146,7 +144,6 @@ class LrsParser(object):
                 label = self.tag_to_string(tag)
                 self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])
 
-
     def third_pass(self):
         map = {
                'page'       : (Page, ['pagestyle', 'evenfooterid',
@@ -169,21 +166,19 @@ class LrsParser(object):
                     label = tag.get(a, False)
                     if label and \
                         (label in self._style_labels or label in self.parsed_objects):
-                        _obj = self.parsed_objects[label] if \
-                            self.parsed_objects.has_key(label) else \
-                            self._style_labels[label]
+                        _obj = (self.parsed_objects[label] if
+                            self.parsed_objects.has_key(label) else  # noqa
+                            self._style_labels[label])
                         settings[attrmap[a]] = _obj
                 for a in ('evenfooterid', 'oddfooterid', 'evenheaderid', 'oddheaderid'):
-                    if tag.has_key(a):
+                    if tag.has_key(a):  # noqa
                         settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
                 args = []
-                if tag.has_key('refstream'):
+                if tag.has_key('refstream'):  # noqa
                     args.append(self.parsed_objects[tag.get('refstream')])
-                if tag.has_key('canvaswidth'):
+                if tag.has_key('canvaswidth'):  # noqa
                     args += [tag.get('canvaswidth'), tag.get('canvasheight')]
                 self.parsed_objects[id] = map[tag.name][0](*args, **settings)
-
-
 
     def second_pass(self):
         map = {
@@ -199,7 +194,7 @@ class LrsParser(object):
                 settings = self.attrs_to_dict(tag, map[tag.name][1]+['objid'])
                 if tag.name == 'pagestyle':
                     for a in ('evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid'):
-                        if tag.has_key(a):
+                        if tag.has_key(a):  # noqa
                             settings[a.replace('id', '')] = self.parsed_objects[tag.get(a)]
                 settings.pop('autoindex', '')
                 self.parsed_objects[id] = map[tag.name][0](**settings)
@@ -208,7 +203,6 @@ class LrsParser(object):
                     self._style_labels[x] = self.parsed_objects[id]
                 if tag.name == 'registfont':
                     self.book.append(self.parsed_objects[id])
-
 
     @classmethod
     def tag_to_string(cls, tag):
@@ -238,7 +232,7 @@ class LrsParser(object):
             tag = base.find(tagname.lower())
             if tag is None:
                 return ('', '', '')
-            tag = (self.tag_to_string(tag), tag.get('reading') if tag.has_key('reading') else '')
+            tag = (self.tag_to_string(tag), tag.get('reading') if tag.has_key('reading') else '')  # noqa
             return tag
 
         title          = me(bookinfo, 'Title')

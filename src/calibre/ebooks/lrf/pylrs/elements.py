@@ -1,6 +1,7 @@
 """ elements.py -- replacements and helpers for ElementTree """
 
 class ElementWriter(object):
+
     def __init__(self, e, header=False, sourceEncoding="ascii",
                  spaceBeforeClose=True, outputEncodingName="UTF-16"):
         self.header = header
@@ -8,7 +9,6 @@ class ElementWriter(object):
         self.sourceEncoding=sourceEncoding
         self.spaceBeforeClose = spaceBeforeClose
         self.outputEncodingName = outputEncodingName
-
 
     def _encodeCdata(self, rawText):
         if type(rawText) is str:
@@ -19,7 +19,6 @@ class ElementWriter(object):
         text = text.replace(">", "&gt;")
         return text
 
-
     def _writeAttribute(self, f, name, value):
         f.write(u' %s="' % unicode(name))
         if not isinstance(value, basestring):
@@ -29,11 +28,9 @@ class ElementWriter(object):
         f.write(value)
         f.write(u'"')
 
-
     def _writeText(self, f, rawText):
         text = self._encodeCdata(rawText)
         f.write(text)
-
 
     def _write(self, f, e):
         f.write(u'<' + unicode(e.tag))
@@ -61,7 +58,6 @@ class ElementWriter(object):
         if e.tail is not None:
             self._writeText(f, e.tail)
 
-
     def toString(self):
         class x:
             pass
@@ -69,7 +65,6 @@ class ElementWriter(object):
         x.write = buffer.append
         self.write(x)
         return u''.join(buffer)
-
 
     def write(self, f):
         if self.header:

@@ -8,10 +8,12 @@ equipped.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
 class equipped(BasicNewsRecipe):
-    title          = u'Equipped'
+    title = u'Equipped'
     __author__ = 'teepel <teepel44@gmail.com>'
-    language       = 'pl'
+    language = 'pl'
     description = u'Wiadomości z equipped.pl'
     INDEX = 'http://equipped.pl'
     extra_css = '.alignleft {float:left; margin-right:5px;}'
@@ -22,8 +24,5 @@ class equipped(BasicNewsRecipe):
     remove_javascript = True
     no_stylesheets = True
     use_embedded_content = False
-    #keep_only_tags = [dict(name='article')]
-    #remove_tags = [dict(id='disqus_thread')]
-    #remove_tags_after = [dict(id='disqus_thread')]
 
-    feeds          = [(u'Equipped', u'http://feeds.feedburner.com/Equippedpl?format=xml')]
+    feeds = [(u'Equipped', u'http://feeds.feedburner.com/Equippedpl?format=xml')]

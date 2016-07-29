@@ -113,9 +113,9 @@ f[68] = f0_19
 
 # Constants to be used
 K = [
-    0x5A827999L, # ( 0 <= t <= 19)
-    0x6ED9EBA1L, # (20 <= t <= 39)
-    0x8F1BBCDCL, # (40 <= t <= 59)
+    0x5A827999L,  # ( 0 <= t <= 19)
+    0x6ED9EBA1L,  # (20 <= t <= 39)
+    0x8F1BBCDCL,  # (40 <= t <= 59)
     0xCA62C1D6L  # (60 <= t <= 79)
     ]
 
@@ -124,7 +124,7 @@ class mssha1(object):
 
     def __init__(self):
         "Initialisation."
-        
+
         # Initial message length in bits(!).
         self.length = 0L
         self.count = [0, 0]
@@ -135,7 +135,6 @@ class mssha1(object):
         # Call a separate init function, that can be used repeatedly
         # to start from scratch on the same object.
         self.init()
-
 
     def init(self):
         "Initialize the message-digest and set all fields to zero."
@@ -169,13 +168,12 @@ class mssha1(object):
             C = _rotateLeft(B, 30) & 0xffffffffL
             B = A
             A = TEMP & 0xffffffffL
-            
+
         self.H0 = (self.H0 + A) & 0xffffffffL
         self.H1 = (self.H1 + B) & 0xffffffffL
         self.H2 = (self.H2 + C) & 0xffffffffL
         self.H3 = (self.H3 + D) & 0xffffffffL
         self.H4 = (self.H4 + E) & 0xffffffffL
-    
 
     # Down from here all methods follow the Python Standard Library
     # API of the sha module.
@@ -222,7 +220,6 @@ class mssha1(object):
             i = 0
             self.input = self.input + list(inBuf)
 
-
     def digest(self):
         """Terminate the message-digest computation and return digest.
 
@@ -261,16 +258,15 @@ class mssha1(object):
                  _long2bytesBigEndian(self.H3, 4) + \
                  _long2bytesBigEndian(self.H4, 4)
 
-        self.H0 = H0 
-        self.H1 = H1 
+        self.H0 = H0
+        self.H1 = H1
         self.H2 = H2
         self.H3 = H3
         self.H4 = H4
-        self.input = input 
-        self.count = count 
+        self.input = input
+        self.count = count
 
         return digest
-
 
     def hexdigest(self):
         """Terminate and return digest in HEX form.

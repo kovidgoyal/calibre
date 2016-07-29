@@ -1157,7 +1157,7 @@ class ServiceInfo(object):
                         value = 0
 
                 # Only update non-existent properties
-                if key and result.get(key) == None:
+                if key and result.get(key) == None:  # noqa
                     result[key] = value
 
             self.properties = result

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.adventuregamers.com
@@ -6,21 +6,21 @@ www.adventuregamers.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdventureGamers(BasicNewsRecipe):
-    title                 = u'Adventure Gamers'
-    language              = 'en'
-    __author__            = 'Darko Miletic'
-    description           = 'Adventure games portal'
-    publisher             = 'Adventure Gamers'
-    category              = 'news, games, adventure, technology'
-    oldest_article        = 10
-    #delay                 = 10
+    title = u'Adventure Gamers'
+    language = 'en'
+    __author__ = 'Darko Miletic'
+    description = 'Adventure games portal'
+    publisher = 'Adventure Gamers'
+    category = 'news, games, adventure, technology'
+    oldest_article = 10
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    encoding              = 'utf8'
-    remove_javascript     = True
-    use_embedded_content  = False
-    INDEX                 = u'http://www.adventuregamers.com'
+    no_stylesheets = True
+    encoding = 'utf8'
+    remove_javascript = True
+    use_embedded_content = False
+    INDEX = u'http://www.adventuregamers.com'
     extra_css             = """
                                 .pageheader_type{font-size: x-large; font-weight: bold; color: #828D74}
                                 .pageheader_title,.page_title{font-size: xx-large; color: #394128}
@@ -29,59 +29,54 @@ class AdventureGamers(BasicNewsRecipe):
                                 .score_column_1{ padding-left: 10px; font-size: small; width: 50%}
                                 .score_column_2{ padding-left: 10px; font-size: small; width: 50%}
                                 .score_column_3{ padding-left: 10px; font-size: small; width: 50%}
-                                .score_header{font-size: large; color: #50544A}                                
+                                .score_header{font-size: large; color: #50544A}
                                 img{margin-bottom: 1em;}
-                                body{font-family: 'Open Sans',Helvetica,Arial,sans-serif}                                
+                                body{font-family: 'Open Sans',Helvetica,Arial,sans-serif}
                             """
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
-    keep_only_tags = [dict(name='div', attrs={'class':'cleft_inn'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'cleft_inn'})]
     remove_tags = [
-                     dict(name=['object','link','embed','form','iframe','meta'])
-                    ,dict(name='a', attrs={'href':'http://www.adventuregamers.com/about/scoring'})
-                    ,dict(name='a', attrs={'href':'http://www.adventuregamers.com/about/policies'})
-                  ]
-    remove_tags_after = [dict(name='div', attrs={'class':'bodytext'})]
-    remove_attributes = ['width','height']
+        dict(name=['object', 'link', 'embed', 'form', 'iframe', 'meta']), dict(name='a', attrs={
+            'href': 'http://www.adventuregamers.com/about/scoring'}), dict(name='a', attrs={'href': 'http://www.adventuregamers.com/about/policies'})
+    ]
+    remove_tags_after = [dict(name='div', attrs={'class': 'bodytext'})]
+    remove_attributes = ['width', 'height']
 
     feeds = [(u'Articles', u'http://www.adventuregamers.com/rss/')]
 
     def get_article_url(self, article):
         url = BasicNewsRecipe.get_article_url(self, article)
         if '/videos/' in url or '/hypeometer/' in url:
-           return None
+            return None
         return url
 
     def append_page(self, soup, appendtag, position):
-        pager = soup.find('div', attrs={'class':'pagination_big'})
+        pager = soup.find('div', attrs={'class': 'pagination_big'})
         if pager:
-           nextpage = soup.find('a', attrs={'class':'next-page'})
-           if nextpage:
-               nexturl = nextpage['href']
-               soup2 = self.index_to_soup(nexturl)
-               texttag = soup2.find('div', attrs={'class':'bodytext'})
-               for it in texttag.findAll(style=True):
-                   del it['style']
-               newpos = len(texttag.contents)
-               self.append_page(soup2,texttag,newpos)
-               texttag.extract()
-               pager.extract()
-               appendtag.insert(position,texttag)
-
+            nextpage = soup.find('a', attrs={'class': 'next-page'})
+            if nextpage:
+                nexturl = nextpage['href']
+                soup2 = self.index_to_soup(nexturl)
+                texttag = soup2.find('div', attrs={'class': 'bodytext'})
+                for it in texttag.findAll(style=True):
+                    del it['style']
+                newpos = len(texttag.contents)
+                self.append_page(soup2, texttag, newpos)
+                texttag.extract()
+                pager.extract()
+                appendtag.insert(position, texttag)
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
-        for item in soup.findAll('div', attrs={'class':'floatright'}):
+        for item in soup.findAll('div', attrs={'class': 'floatright'}):
             item.extract()
         self.append_page(soup, soup.body, 3)
-        pager = soup.find('div',attrs={'class':'pagination_big'})
+        pager = soup.find('div', attrs={'class': 'pagination_big'})
         if pager:
-           pager.extract()
+            pager.extract()
         return self.adeify_images(soup)

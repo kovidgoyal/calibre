@@ -22,9 +22,9 @@ class Pict:
             in_file,
             bug_handler,
             out_file,
-            copy = None,
-            orig_file = None,
-            run_level = 1,
+            copy=None,
+            orig_file=None,
+            run_level=1,
         ):
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -55,7 +55,7 @@ class Pict:
         return "}\n"
 
     def __text_func(self, line):
-        #tx<nu<__________<true text
+        # tx<nu<__________<true text
         return line[17:]
 
     def __make_dir(self):
@@ -125,7 +125,7 @@ class Pict:
             write_obj.write('mi<mk<pict-end__\n')
             if not self.__already_found_pict:
                 self.__create_pict_file()
-                self.__already_found_pict=True;
+                self.__already_found_pict=True
                 self.__print_rtf_header()
             self.__in_pict = 1
             self.__pict_br_count = self.__ob_count
@@ -162,7 +162,7 @@ class Pict:
                 if self.__already_found_pict:
                     self.__write_pic_obj.write("}\n")
                     self.__write_pic_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "pict.data")
             try:

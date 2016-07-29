@@ -48,7 +48,7 @@ class OverDrive(Source):
             ' time required. Check the download all metadata option below to'
             ' enable downloading this data.')
 
-    def identify(self, log, result_queue, abort, title=None, authors=None, # {{{
+    def identify(self, log, result_queue, abort, title=None, authors=None,  # {{{
             identifiers={}, timeout=30):
         ovrdrv_id = identifiers.get('overdrive', None)
         isbn = identifiers.get('isbn', None)
@@ -74,7 +74,7 @@ class OverDrive(Source):
         return None
     # }}}
 
-    def download_cover(self, log, result_queue, abort, # {{{
+    def download_cover(self, log, result_queue, abort,  # {{{
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
         import mechanize
         cached_url = self.get_cached_cover_url(identifiers)
@@ -119,7 +119,7 @@ class OverDrive(Source):
             log.exception('Failed to download cover from:', cached_url)
     # }}}
 
-    def get_cached_cover_url(self, identifiers): # {{{
+    def get_cached_cover_url(self, identifiers):  # {{{
         url = None
         ovrdrv_id = identifiers.get('overdrive', None)
         if ovrdrv_id is None:
@@ -132,7 +132,7 @@ class OverDrive(Source):
         return url
     # }}}
 
-    def get_base_referer(self): # to be used for passing referrer headers to cover download
+    def get_base_referer(self):  # to be used for passing referrer headers to cover download
         choices = [
             'http://overdrive.chipublib.org/82DC601D-7DDE-4212-B43A-09D821935B01/10/375/en/',
             'http://emedia.clevnet.org/9D321DAD-EC0D-490D-BFD8-64AE2C96ECA8/10/241/en/',
@@ -224,7 +224,7 @@ class OverDrive(Source):
         # get the search results object
         results = False
         iterations = 0
-        while results == False:
+        while results is False:
             iterations += 1
             xreq = mechanize.Request(q_xref)
             xreq.add_header('X-Requested-With', 'XMLHttpRequest')
@@ -243,28 +243,27 @@ class OverDrive(Source):
                         for token in xref_tokens:
                             if len(xref_q) < len(token):
                                 xref_q = token
-                        #log.error('rewrote xref_q, new query is '+xref_q)
+                        # log.error('rewrote xref_q, new query is '+xref_q)
                 else:
-                        xref_q = ''
+                    xref_q = ''
                 q_xref = q+'SearchResults.svc/GetResults?iDisplayLength=50&sSearch='+xref_q
 
         return self.sort_ovrdrv_results(raw, log, title, title_tokens, author, author_tokens)
-
 
     def sort_ovrdrv_results(self, raw, log, title=None, title_tokens=None, author=None, author_tokens=None, ovrdrv_id=None):
         close_matches = []
         raw = re.sub('.*?\[\[(?P<content>.*?)\]\].*', '[[\g<content>]]', raw)
         results = json.loads(raw)
-        #log.error('raw results are:'+str(results))
+        # log.error('raw results are:'+str(results))
         # The search results are either from a keyword search or a multi-format list from a single ID,
         # sort through the results for closest match/format
         if results:
             for reserveid, od_title, subtitle, edition, series, publisher, format, formatid, creators, \
                     thumbimage, shortdescription, worldcatlink, excerptlink, creatorfile, sorttitle, \
                     availabletolibrary, availabletoretailer, relevancyrank, unknown1, unknown2, unknown3 in results:
-                #log.error("this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series)
+                # log.error("this record's title is "+od_title+", subtitle is "+subtitle+", author[s] are "+creators+", series is "+series)
                 if ovrdrv_id is not None and int(formatid) in [1, 50, 410, 900]:
-                    #log.error('overdrive id is not None, searching based on format type priority')
+                    # log.error('overdrive id is not None, searching based on format type priority')
                     return self.format_results(reserveid, od_title, subtitle, series, publisher,
                             creators, thumbimage, worldcatlink, formatid)
                 else:
@@ -272,7 +271,8 @@ class OverDrive(Source):
                         creators = creators.split(', ')
 
                     # if an exact match in a preferred format occurs
-                    if ((author and creators and creators[0] == author[0]) or (not author and not creators)) and od_title.lower() == title.lower() and int(formatid) in [1, 50, 410, 900] and thumbimage:
+                    if ((author and creators and creators[0] == author[0]) or (not author and not creators)) and  \
+                            od_title.lower() == title.lower() and int(formatid) in [1, 50, 410, 900] and thumbimage:
                         return self.format_results(reserveid, od_title, subtitle, series, publisher,
                                 creators, thumbimage, worldcatlink, formatid)
                     else:
@@ -295,12 +295,15 @@ class OverDrive(Source):
                                 break
                         if close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900] and thumbimage:
                             if subtitle and series:
-                                close_matches.insert(0, self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
+                                close_matches.insert(0, self.format_results(reserveid, od_title, subtitle, series,
+                                                     publisher, creators, thumbimage, worldcatlink, formatid))
                             else:
-                                close_matches.append(self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
+                                close_matches.append(self.format_results(reserveid, od_title, subtitle, series,
+                                                     publisher, creators, thumbimage, worldcatlink, formatid))
 
                         elif close_title_match and close_author_match and int(formatid) in [1, 50, 410, 900]:
-                            close_matches.append(self.format_results(reserveid, od_title, subtitle, series, publisher, creators, thumbimage, worldcatlink, formatid))
+                            close_matches.append(self.format_results(reserveid, od_title, subtitle, series,
+                                                 publisher, creators, thumbimage, worldcatlink, formatid))
 
             if close_matches:
                 return close_matches[0]
@@ -312,7 +315,7 @@ class OverDrive(Source):
     def overdrive_get_record(self, br, log, q, ovrdrv_id):
         import mechanize
         search_url = q+'SearchResults.aspx?ReserveID={'+ovrdrv_id+'}'
-        results_url = q+'SearchResults.svc/GetResults?sEcho=1&iColumns=18&sColumns=ReserveID%2CTitle%2CSubtitle%2CEdition%2CSeries%2CPublisher%2CFormat%2CFormatID%2CCreators%2CThumbImage%2CShortDescription%2CWorldCatLink%2CExcerptLink%2CCreatorFile%2CSortTitle%2CAvailableToLibrary%2CAvailableToRetailer%2CRelevancyRank&iDisplayStart=0&iDisplayLength=10&sSearch=&bEscapeRegex=true&iSortingCols=1&iSortCol_0=17&sSortDir_0=asc'
+        results_url = q+'SearchResults.svc/GetResults?sEcho=1&iColumns=18&sColumns=ReserveID%2CTitle%2CSubtitle%2CEdition%2CSeries%2CPublisher%2CFormat%2CFormatID%2CCreators%2CThumbImage%2CShortDescription%2CWorldCatLink%2CExcerptLink%2CCreatorFile%2CSortTitle%2CAvailableToLibrary%2CAvailableToRetailer%2CRelevancyRank&iDisplayStart=0&iDisplayLength=10&sSearch=&bEscapeRegex=true&iSortingCols=1&iSortCol_0=17&sSortDir_0=asc'  # noqa
 
         # re-initialize the cookiejar to so that it's clean
         clean_cj = mechanize.CookieJar()
@@ -334,15 +337,12 @@ class OverDrive(Source):
         br.set_cookiejar(clean_cj)
         return self.sort_ovrdrv_results(raw, log, None, None, None, ovrdrv_id)
 
-
     def find_ovrdrv_data(self, br, log, title, author, isbn, ovrdrv_id=None):
         q = base_url
         if ovrdrv_id is None:
             return self.overdrive_search(br, log, q, title, author)
         else:
             return self.overdrive_get_record(br, log, q, ovrdrv_id)
-
-
 
     def to_ovrdrv_data(self, br, log, title=None, author=None, ovrdrv_id=None):
         '''
@@ -369,7 +369,6 @@ class OverDrive(Source):
             ovrdrv_data_cache[ovrdrv_id] = ovrdrv_data if ovrdrv_data else False
 
         return ovrdrv_data if ovrdrv_data else False
-
 
     def parse_search_results(self, ovrdrv_data, mi):
         '''
@@ -398,7 +397,6 @@ class OverDrive(Source):
         if cover_url:
             self.cache_identifier_to_cover_url(ovrdrv_id,
                     cover_url)
-
 
     def get_book_detail(self, br, metadata_url, mi, ovrdrv_id, log):
         from lxml import html
@@ -440,7 +438,7 @@ class OverDrive(Source):
                 mi.language = lang
 
         if ebook_isbn:
-            #print "ebook isbn is "+str(ebook_isbn[0])
+            # print "ebook isbn is "+str(ebook_isbn[0])
             isbn = check_isbn(ebook_isbn[0].strip())
             if isbn:
                 self.cache_isbn_to_identifier(isbn, ovrdrv_id)

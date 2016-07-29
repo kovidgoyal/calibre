@@ -4,18 +4,19 @@ def save_to_file(text, filename):
     f.write(text.encode('utf-8'))
     f.close()
 
-uids = {} 
+uids = {}
 def describe(node, depth=2):
     if not hasattr(node, 'tag'):
         return "[%s]" % type(node)
     name = node.tag
-    if node.get('id', ''): name += '#'+node.get('id') 
-    if node.get('class', ''): 
+    if node.get('id', ''):
+        name += '#'+node.get('id')
+    if node.get('class', ''):
         name += '.' + node.get('class').replace(' ','.')
     if name[:4] in ['div#', 'div.']:
         name = name[3:]
     if name in ['tr', 'td', 'div', 'p']:
-        if not node in uids:
+        if node not in uids:
             uid = uids[node] = len(uids)+1
         else:
             uid = uids.get(node)

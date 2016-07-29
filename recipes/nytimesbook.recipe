@@ -1,14 +1,16 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
 
 class NewYorkTimesBookReview(BasicNewsRecipe):
-    title          = u'New York Times Book Review'
-    language       = 'en'
-    description    = 'The New York Times Sunday Book Review'
-    __author__     = 'Kovid Goyal'
+    title = u'New York Times Book Review'
+    language = 'en'
+    description = 'The New York Times Sunday Book Review'
+    __author__ = 'Kovid Goyal'
 
     no_stylesheets = True
     no_javascript = True
@@ -26,34 +28,36 @@ class NewYorkTimesBookReview(BasicNewsRecipe):
     ]
 
     def parse_index(self):
-        soup = self.index_to_soup('http://www.nytimes.com/pages/books/review/index.html')
+        soup = self.index_to_soup(
+            'http://www.nytimes.com/pages/books/review/index.html')
 
         # Find TOC
-        toc = soup.find('div', attrs={'class':'rank'})
+        toc = soup.find('div', attrs={'class': 'rank'})
         main_articles, articles = [], []
         feeds = [('Features', main_articles), ('Latest', articles)]
-        for h2 in toc.findAll('h2', attrs={'class':'headline'}):
+        for h2 in toc.findAll('h2', attrs={'class': 'headline'}):
             a = h2.find('a', href=True)
             if a is not None:
                 title = self.tag_to_string(a)
                 url = a['href']
                 desc = ''
-                p = h2.findNextSibling('p', attrs={'class':'summary'})
+                p = h2.findNextSibling('p', attrs={'class': 'summary'})
                 if p:
                     desc = self.tag_to_string(p)
-                main_articles.append({'title':title, 'url':url, 'description':desc})
+                main_articles.append(
+                    {'title': title, 'url': url, 'description': desc})
                 self.log('Found:', title, 'at', url)
                 if desc:
                     self.log('\t', desc)
         for li in soup.find(id='latest-panel').find('ol').findAll('li'):
-            a = li.find('a', attrs={'class':'story-link'}, href=True)
+            a = li.find('a', attrs={'class': 'story-link'}, href=True)
             if a is None:
                 continue
             url = a['href']
-            m = a.find(attrs={'class':'story-meta'})
+            m = a.find(attrs={'class': 'story-meta'})
             title = self.tag_to_string(m.find('h2'))
-            desc = self.tag_to_string(m.find(attrs={'class':'summary'}))
-            articles.append({'title':title, 'url':url, 'description':desc})
+            desc = self.tag_to_string(m.find(attrs={'class': 'summary'}))
+            articles.append({'title': title, 'url': url, 'description': desc})
             self.log('Found:', title, 'at', url)
             if desc:
                 self.log('\t', desc)

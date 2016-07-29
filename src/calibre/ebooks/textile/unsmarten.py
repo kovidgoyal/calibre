@@ -76,7 +76,7 @@ def unsmarten(txt):
     txt = re.sub(u'&#252;|&uuml;|ü',     r'{u"}',  txt)  # u-umlaut
     txt = re.sub(u'&#253;|&yacute;|ý',   r"{y'}",  txt)  # y-acute
     txt = re.sub(u'&#255;|&yuml;|ÿ',     r'{y"}',  txt)  # y-umlaut
-    
+
     txt = re.sub(u'&#268;|&Ccaron;|Č',   r'{Cˇ}',  txt)  # C-caron
     txt = re.sub(u'&#269;|&ccaron;|č',   r'{cˇ}',  txt)  # c-caron
     txt = re.sub(u'&#270;|&Dcaron;|Ď',   r'{Dˇ}',  txt)  # D-caron
@@ -89,7 +89,7 @@ def unsmarten(txt):
     txt = re.sub(u'&#318;|&lcaron;|ľ',   r'{lˇ}',  txt)  # l-caron
     txt = re.sub(u'&#327;|&Ncaron;|Ň',   r'{Nˇ}',  txt)  # N-caron
     txt = re.sub(u'&#328;|&ncaron;|ň',   r'{nˇ}',  txt)  # n-caron
-   
+
     txt = re.sub(u'&#338;|&OElig;|Œ',    r'{OE}',  txt)  # OE
     txt = re.sub(u'&#339;|&oelig;|œ',    r'{oe}',  txt)  # oe
 
@@ -120,8 +120,8 @@ def unsmarten(txt):
     txt = re.sub(u'&#9830;|&diams;|♦',   r'{diamond}', txt)  # diamond
 
     # Move into main code?
-    #txt = re.sub(u'\xa0',   r'p. ', txt)              # blank paragraph
-    #txt = re.sub(u'\n\n\n\n',   r'\n\np. \n\n', txt)  # blank paragraph
-    #txt = re.sub(u'\n  \n',   r'\n<br />\n', txt)     # blank paragraph - br tag
+    # txt = re.sub(u'\xa0',   r'p. ', txt)              # blank paragraph
+    # txt = re.sub(u'\n\n\n\n',   r'\n\np. \n\n', txt)  # blank paragraph
+    # txt = re.sub(u'\n  \n',   r'\n<br />\n', txt)     # blank paragraph - br tag
 
     return txt

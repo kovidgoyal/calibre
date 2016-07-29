@@ -55,7 +55,7 @@ class MarkdownMLizer(OEB2HTML):
         text = re.sub('(?msu)^[ ]{1,3}', '', text)
         # pre has 4 spaces. We trimmed 3 so anything with a space left is a pre.
         text = re.sub('(?msu)^[ ]', '    ', text)
-        
+
         # Remove tabs that aren't at the beinning of a line
         new_text = []
         for l in text.splitlines():
@@ -67,13 +67,13 @@ class MarkdownMLizer(OEB2HTML):
             l = re.sub('\t', '', l)
             new_text.append(start + l)
         text = '\n'.join(new_text)
-        
+
         # Remove spaces from blank lines.
         text = re.sub('(?msu)^[ ]+$', '', text)
-        
+
         # Reduce blank lines
         text = re.sub('(?msu)\n{7,}', '\n' * 6, text)
-        
+
         # Remove blank lines at beginning and end of document.
         text = re.sub('^\s*', '', text)
         text = re.sub('\s*$', '\n\n', text)
@@ -87,7 +87,7 @@ class MarkdownMLizer(OEB2HTML):
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
         text = re.sub(r'\t+', '', text)
-        if self.remove_space_after_newline == True:
+        if self.remove_space_after_newline == True:  # noqa
             text = re.sub(r'^ +', '', text)
             self.remove_space_after_newline = False
         return text
@@ -95,7 +95,7 @@ class MarkdownMLizer(OEB2HTML):
     def prepare_string_for_markdown(self, txt):
         txt = re.sub(r'([\\`*_{}\[\]()#+!])', r'\\\1', txt)
         return txt
-    
+
     def prepare_string_for_pre(self, txt):
         new_text = []
         for l in txt.splitlines():
@@ -123,7 +123,7 @@ class MarkdownMLizer(OEB2HTML):
         tags = []
         tag = barename(elem.tag)
         attribs = elem.attrib
-        
+
         # Ignore anything that is set to not be displayed.
         if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
@@ -149,13 +149,13 @@ class MarkdownMLizer(OEB2HTML):
 
         if style['font-style'] == 'italic' or tag in ('i', 'em'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'cite'):
-                if self.style_italic == False:
+                if self.style_italic == False:  # noqa
                     text.append('*')
                     tags.append('*')
                     self.style_italic = True
         if style['font-weight'] in ('bold', 'bolder') or tag in ('b', 'strong'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th'):
-                if self.style_bold == False:
+                if self.style_bold == False:  # noqa
                     text.append('**')
                     tags.append('**')
                     self.style_bold = True
@@ -181,9 +181,9 @@ class MarkdownMLizer(OEB2HTML):
             tags.append('\n')
         elif tag == 'a':
             # Only write links with absolute (external) urls.
-            if self.opts.keep_links and attribs.has_key('href') and '://' in attribs['href']:
+            if self.opts.keep_links and attribs.has_key('href') and '://' in attribs['href']:  # noqa
                 title = ''
-                if attribs.has_key('title'):
+                if attribs.has_key('title'):  # noqa
                     title = ' "' + attribs['title'] + '"'
                     remove_space = self.remove_space_after_newline
                     title = self.remove_newlines(title)
@@ -193,7 +193,7 @@ class MarkdownMLizer(OEB2HTML):
         elif tag == 'img':
             if self.opts.keep_image_references:
                 txt = '!'
-                if attribs.has_key('alt'):
+                if attribs.has_key('alt'):  # noqa
                     remove_space = self.remove_space_after_newline
                     txt += '[' + self.remove_newlines(attribs['alt']) + ']'
                     self.remove_space_after_newline = remove_space

@@ -50,7 +50,8 @@ def invert_tag_map(tag_map):
     dattrs = dict((v, k) for k, v in dattrs.items())
     tattrs = [dict((v, k) for k, v in (map or {}).items()) for map in tattrs]
     for map in tattrs:
-        if map: map.update(dattrs)
+        if map:
+            map.update(dattrs)
     tattrs[0] = dattrs
     return tags, tattrs
 
@@ -249,9 +250,7 @@ class ReBinary(object):
                 nstyle = None if next is None else self.stylizer.style(next)
             if child is not None:
                 if not preserve \
-                   and (inhead or not nstyle
-                        or self.is_block(cstyle)
-                        or self.is_block(nstyle)) \
+                   and (inhead or not nstyle or self.is_block(cstyle) or self.is_block(nstyle)) \
                    and child.tail and child.tail.isspace():
                     child.tail = None
                 self.tree_to_binary(child, nsrmap, parents, inhead, preserve)
@@ -270,7 +269,7 @@ class ReBinary(object):
 
     def build_ahc(self):
         if len(self.anchors) > 6:
-            self.logger.warn("More than six anchors in file %r. " \
+            self.logger.warn("More than six anchors in file %r. "
                 "Some links may not work properly." % self.item.href)
         data = StringIO()
         data.write(unichr(len(self.anchors)).encode('utf-8'))
@@ -295,6 +294,7 @@ def preserve(function):
     return wrapper
 
 class LitWriter(object):
+
     def __init__(self, opts):
         self.opts = opts
 
@@ -460,7 +460,7 @@ class LitWriter(object):
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
-                self._logger.warn("File %r of unknown media-type %r " \
+                self._logger.warn("File %r of unknown media-type %r "
                     "excluded from output." % (item.href, item.media_type))
                 continue
             name = '/data/' + item.id
@@ -602,7 +602,8 @@ class LitWriter(object):
                 sdata = sdata + pack('<Q', len(data))
                 if guid == DESENCRYPT_GUID:
                     cdata = MSDES_CONTROL + cdata
-                    if not data: continue
+                    if not data:
+                        continue
                     msdes.deskey(self._bookkey, msdes.EN0)
                     pad = 8 - (len(data) & 0x7)
                     if pad != 8:
@@ -610,7 +611,8 @@ class LitWriter(object):
                     data = msdes.des(data)
                 elif guid == LZXCOMPRESS_GUID:
                     cdata = LZXC_CONTROL + cdata
-                    if not data: continue
+                    if not data:
+                        continue
                     unlen = len(data)
                     lzx = Compressor(17)
                     data, rtable = lzx.compress(data, flush=True)
@@ -656,7 +658,7 @@ class LitWriter(object):
     def _build_dchunks(self):
         ddata = []
         directory = list(self._directory)
-        directory.sort(cmp=lambda x, y: \
+        directory.sort(cmp=lambda x, y:
             cmp(x.name.lower(), y.name.lower()))
         qrn = 1 + (1 << 2)
         dchunk = StringIO()

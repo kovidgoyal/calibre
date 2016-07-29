@@ -31,13 +31,13 @@ class Pocket(BasicNewsRecipe):
     category = 'news, custom'
 
     # Settings people change
-    oldest_article        = 7.0
+    oldest_article = 7.0
     max_articles_per_feed = 50
-    minimum_articles      = 10
+    minimum_articles = 10
     mark_as_read_after_dl = True  # Set this to False for testing
-    sort_method           = 'oldest'  # MUST be either 'oldest' or 'newest'
+    sort_method = 'oldest'  # MUST be either 'oldest' or 'newest'
     # To filter by tag this needs to be a single tag in quotes; IE 'calibre'
-    only_pull_tag         = None
+    only_pull_tag = None
 
     # You don't want to change anything under
     no_stylesheets = True
@@ -58,7 +58,7 @@ class Pocket(BasicNewsRecipe):
         fail loudly if it's missing from the config.
         """
         br = BasicNewsRecipe.get_browser(self,
-                user_agent='Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; \
+                                         user_agent='Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; \
                         en-us) AppleWebKit/533.19.4 (KHTML, like Gecko) \
                         Version/5.0.3 Safari/533.19.4')
         if self.username is not None and self.password is not None:
@@ -104,15 +104,18 @@ class Pocket(BasicNewsRecipe):
             response = urllib2.urlopen(request)
             pocket_feed = json.load(response)['list']
         except urllib2.HTTPError as e:
-            self.log.exception("Pocket returned an error: {0}".format(e.info()))
+            self.log.exception(
+                "Pocket returned an error: {0}".format(e.info()))
             return []
         except urllib2.URLError as e:
-            self.log.exception("Unable to connect to getpocket.com's api: {0}\nurl: {1}".format(e, fetch_url))
+            self.log.exception(
+                "Unable to connect to getpocket.com's api: {0}\nurl: {1}".format(e, fetch_url))
             return []
 
         if len(pocket_feed) < self.minimum_articles:
             self.mark_as_read_after_dl = False
-            self.user_error("Only {0} articles retrieved, minimum_articles not reached".format(len(pocket_feed)))
+            self.user_error(
+                "Only {0} articles retrieved, minimum_articles not reached".format(len(pocket_feed)))
 
         for pocket_article in pocket_feed.iteritems():
             self.articles.append({
@@ -158,14 +161,16 @@ class Pocket(BasicNewsRecipe):
         with tempfile.NamedTemporaryFile(delete=False) as tf:
             tmpbody = article['article']
             for img in article['images']:
-                imgdiv = '<div id="RIL_IMG_{0}" class="RIL_IMG"></div>'.format(article['images'][img]['image_id'])
-                imgtag = '<img src="{0}" \>'.format(article['images'][img]['src'])
+                imgdiv = '<div id="RIL_IMG_{0}" class="RIL_IMG"></div>'.format(
+                    article['images'][img]['image_id'])
+                imgtag = '<img src="{0}" \>'.format(
+                    article['images'][img]['src'])
                 tmpbody = tmpbody.replace(imgdiv, imgtag)
 
             tf.write(template.safe_substitute(
                 title=article['title'],
                 body=tmpbody
-                ))
+            ))
         return tf.name
 
     def mark_as_read(self, mark_list):
@@ -184,10 +189,12 @@ class Pocket(BasicNewsRecipe):
             request = urllib2.Request(mark_read_url)
             urllib2.urlopen(request)
         except urllib2.HTTPError as e:
-            self.log.exception('Pocket returned an error while archiving articles: {0}'.format(e))
+            self.log.exception(
+                'Pocket returned an error while archiving articles: {0}'.format(e))
             return []
         except urllib2.URLError as e:
-            self.log.exception("Unable to connect to getpocket.com's modify api: {0}".format(e))
+            self.log.exception(
+                "Unable to connect to getpocket.com's modify api: {0}".format(e))
             return []
 
     def cleanup(self):

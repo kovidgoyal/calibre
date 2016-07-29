@@ -13,7 +13,7 @@ from calibre.ebooks.mobi.debug.headers import MOBIFile
 from calibre.ebooks.mobi.debug.mobi6 import inspect_mobi as inspect_mobi6
 from calibre.ebooks.mobi.debug.mobi8 import inspect_mobi as inspect_mobi8
 
-def inspect_mobi(path_or_stream, ddir=None): # {{{
+def inspect_mobi(path_or_stream, ddir=None):  # {{{
     stream = (path_or_stream if hasattr(path_or_stream, 'read') else
             open(path_or_stream, 'rb'))
     f = MOBIFile(stream)

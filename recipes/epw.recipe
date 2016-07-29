@@ -5,26 +5,28 @@
 from collections import OrderedDict
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def absurl(x):
     if x.startswith('/'):
         x = 'http://www.epw.in' + x
         return x
 
+
 class EconomicAndPoliticalWeekly(BasicNewsRecipe):
-    title                  = 'Economic and Political Weekly'
-    __author__             = 'Kovid Goyal'
-    description            = 'Economic and Political news from India'
-    publisher              = 'epw.in'
-    category               = 'news, finances, politics, India'
-    oldest_article         = 7
-    max_articles_per_feed  = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
+    title = 'Economic and Political Weekly'
+    __author__ = 'Kovid Goyal'
+    description = 'Economic and Political news from India'
+    publisher = 'epw.in'
+    category = 'news, finances, politics, India'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = False
     simultaneous_downloads = 1
-    encoding               = 'utf-8'
-    language               = 'en_IN'
-    publication_type       = 'newspaper'
-    masthead_url           = 'http://www.epw.in/system/files/epw_masthead.png'
+    encoding = 'utf-8'
+    language = 'en_IN'
+    publication_type = 'newspaper'
+    masthead_url = 'http://www.epw.in/system/files/epw_masthead.png'
 
     keep_only_tags = [
         dict(id=['block-system-main', 'page-title']),
@@ -36,8 +38,9 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
         sections = OrderedDict()
         current_section = None
 
-        for div in main.findAll(attrs={'class':lambda x: x and 'views-field-title' in x.split()}):
-            section = self.tag_to_string(div.findParent(attrs={'class':'block-inner'}).find('h2'))
+        for div in main.findAll(attrs={'class': lambda x: x and 'views-field-title' in x.split()}):
+            section = self.tag_to_string(div.findParent(
+                attrs={'class': 'block-inner'}).find('h2'))
             if section != current_section:
                 current_section = section
                 if section not in sections:
@@ -50,17 +53,19 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
             if a.get('title'):
                 desc = a['title']
             else:
-                d = div.findNextSibling(attrs={'class':lambda x: x and 'views-field-body' in x.split()})
+                d = div.findNextSibling(
+                    attrs={'class': lambda x: x and 'views-field-body' in x.split()})
                 if d is not None:
                     desc = self.tag_to_string(d)
             self.log('\t', title, url)
             self.log('\t\t', desc)
-            sections[current_section].append({'title':title, 'url':url, 'description':desc})
+            sections[current_section].append(
+                {'title': title, 'url': url, 'description': desc})
 
         current_section = 'Web Exclusive'
         sections[current_section] = []
         self.log('\n\n' + current_section)
-        for div in main.findAll(attrs={'class':lambda x: x and 'views-field-nothing' in x.split()}):
+        for div in main.findAll(attrs={'class': lambda x: x and 'views-field-nothing' in x.split()}):
             title = self.tag_to_string(div)
             elems = div.findAll('a', href=True)
             if len(elems) == 2:
@@ -70,6 +75,7 @@ class EconomicAndPoliticalWeekly(BasicNewsRecipe):
             url = absurl(elems[-1]['href'])
             self.log('\t', title, url)
             self.log('\t\t', desc)
-            sections[current_section].append({'title':title, 'url':url, 'description':desc})
+            sections[current_section].append(
+                {'title': title, 'url': url, 'description': desc})
 
         return [(t, articles) for t, articles in sections.iteritems() if articles]

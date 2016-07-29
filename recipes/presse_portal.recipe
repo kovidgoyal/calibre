@@ -4,38 +4,43 @@ from __future__ import unicode_literals, division, absolute_import, print_functi
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import datetime
 
+
 class PressePortalDE(BasicNewsRecipe):
     # Titel of the Recipe
-    title          = 'Presseportal DE'
+    title = 'Presseportal DE'
     # Author
-    __author__            = 'Volker Heggemann, VoHe'
+    __author__ = 'Volker Heggemann, VoHe'
     # oldes article to download (in days) 									---- can be edit by user
     oldest_article = 1
     # describes itself, 						 							---- can be edit by user
     max_articles_per_feed = 100
-    # speed up the download on fast computers be carefull (I test max.20)	---- can be edit by user
+    # speed up the download on fast computers be carefull (I test max.20)
+    # ---- can be edit by user
     simultaneous_downloads = 10
     # description, some Reader show this in titlepage
-    description           = u'Presseportal News Feed DE'
-    # add date to description so for dayly downloads you can find them easier ---- can be edit by user
-    description			  = description +' fetched: ' + datetime.now().strftime("%Y-%m-%d")  # %H:%M:%S")
+    description = u'Presseportal News Feed DE'
+    # add date to description so for dayly downloads you can find them easier
+    # ---- can be edit by user
+    description = description + ' fetched: ' + \
+        datetime.now().strftime("%Y-%m-%d")  # %H:%M:%S")
     # Who published the content?
-    publisher             = u'Presseportal.de'
+    publisher = u'Presseportal.de'
     # What is the content of?
-    category              = u'latest news, national Police, Germany'
+    category = u'latest news, national Police, Germany'
     # describes itself, 						 							---- can be edit by user
-    use_embedded_content  = False
+    use_embedded_content = False
     # describes itself, 						 							---- can be edit by user
     language = 'de'
-    # encoding of content. e.g. utf-8, None, ... 							---- can be edit by user
-    encoding              = None  # 'utf-8' doesn't work here
+    # encoding of content. e.g. utf-8, None, ...
+    # ---- can be edit by user
+    encoding = None  # 'utf-8' doesn't work here
     # Removes javascript- why keep this, we only want static content
-    remove_javascript     = True
+    remove_javascript = True
     # Removes empty feeds - why keep them!?
     remove_empty_feeds = True
 
     # remove the rubbish (in ebook)
-    auto_cleanup   = True
+    auto_cleanup = True
     # now the content description and URL follows
     # feel free to add, wipe out what you need	 							---- can be edit by user
     #
@@ -46,75 +51,86 @@ class PressePortalDE(BasicNewsRecipe):
     # Make some tests, may you first comment all of them out, and step by step you add what you'll need?
     #
 
-    feeds          = [  # Ressorts
-                        # Add or Remove the '#' symbol in front of line, to get or discard this rss-feed
-                        #
-                        # ---- each line can be edit by user
-                        #
-                        # (u'Alle Ressort',u'http://www.presseportal.de/rss/presseportal.rss2'),
-                        (u'Wirtschaft',u'http://www.presseportal.de/rss/wirtschaft.rss2'),
-                        (u'Finanzen',u'http://www.presseportal.de/rss/finanzen.rss2'),
-                        (u'Politik',u'http://www.presseportal.de/rss/politik.rss2'),
-                        (u'Vermischtes',u'http://www.presseportal.de/rss/vermischtes.rss2'),
-                        (u'Sport',u'http://www.presseportal.de/rss/sport.rss2'),
-                        (u'Kultur',u'http://www.presseportal.de/rss/kultur.rss2'),
-                        # Branchen
-                        (u'Arbeit',u'http://www.presseportal.de/rss/arbeit.rss2'),
-                        (u'Auto',u'http://www.presseportal.de/rss/auto.rss2'),
-                        (u'Banken',u'http://www.presseportal.de/rss/banken.rss2'),
-                        (u'Bildung',u'http://www.presseportal.de/rss/bildung.rss2'),
-                        (u'Bauwesen',u'http://www.presseportal.de/rss/bauwesen.rss2'),
-                        (u'Celebrities',u'http://www.presseportal.de/rss/celebrities.rss2'),
-                        (u'Chemie',u'http://www.presseportal.de/rss/chemie.rss2'),
-                        (u'Comuter',u'http://www.presseportal.de/rss/computer.rss2'),
-                        (u'Energie',u'http://www.presseportal.de/rss/energie.rss2'),
-                        (u'Fernsehn',u'http://www.presseportal.de/rss/fernsehn.rss2'),
-                        (u'Fussball',u'http://www.presseportal.de/rss/fussball.rss2'),
-                        (u'Gesundheit',u'http://www.presseportal.de/rss/gesundheit.rss2'),
-                        (u'Handel',u'http://www.presseportal.de/rss/handel.rss2'),
-                        (u'Immobilien',u'http://www.presseportal.de/rss/immobilien.rss2'),
-                        (u'Kinder',u'http://www.presseportal.de/rss/kinder.rss2'),
-                        (u'Lebensmittel',u'http://www.presseportal.de/rss/lebensmittel.rss2'),
-                        (u'Livestyle',u'http://www.presseportal.de/rss/livestyle.rss2'),
-                        (u'Logistik',u'http://www.presseportal.de/rss/logistik.rss2'),
-                        (u'Maschinenbau',u'http://www.presseportal.de/rss/maschinenbau.rss2'),
-                        (u'Medien',u'http://www.presseportal.de/rss/medien.rss2'),
-                        (u'Motorsport',u'http://www.presseportal.de/rss/motorsport.rss2'),
-                        (u'Ratgeber',u'http://www.presseportal.de/rss/ratgeber.rss2'),
-                        (u'Recht',u'http://www.presseportal.de/rss/recht.rss2'),
-                        (u'Soziales',u'http://www.presseportal.de/rss/soziales.rss2'),
-                        (u'Telekommunikation',u'http://www.presseportal.de/rss/telekommunikation.rss2'),
-                        (u'Touristik',u'http://www.presseportal.de/rss/touristik.rss2'),
-                        (u'Umwelt',u'http://www.presseportal.de/rss/umwelt.rss2'),
-                        (u'Unterhaltung',u'http://www.presseportal.de/rss/unterhaltung.rss2'),
-                        (u'Versicherung',u'http://www.presseportal.de/rss/versicherung.rss2'),
-                        (u'Wissenschaft',u'http://www.presseportal.de/rss/wissenschaft.rss2'),
-                        # Themen
-                        (u'Polizei (gesamt)',u'http://www.presseportal.de/rss/polizei.rss2'),
-                        (u'Bilder',u'http://www.presseportal.de/rss/98,306.rss2'),
-                        (u'Video',u'http://www.presseportal.de/rss/videocast.rss2'),
-                        (u'Audio',u'http://www.presseportal.de/rss/podcast.rss2'),
-                        (u'Investor Relations',u'http://www.presseportal.de/rss/ir.rss2'),
-                        (u'Presseschau',u'http://www.presseportal.de/rss/1043.rss2'),
-                        # Polizeipresse - Kommunal!
-                        (u'Polizei BW',u'http://www.presseportal.de/rss/polizei/laender/1.rss2'),
-                        (u'Polizei BY',u'http://www.presseportal.de/rss/polizei/laender/2.rss2'),
-                        (u'Polizei BE',u'http://www.presseportal.de/rss/polizei/laender/3.rss2'),
-                        (u'Polizei HB',u'http://www.presseportal.de/rss/polizei/laender/4.rss2'),
-                        (u'Polizei HH',u'http://www.presseportal.de/rss/polizei/laender/5.rss2'),
-                        (u'Polizei HE',u'http://www.presseportal.de/rss/polizei/laender/6.rss2'),
-                        (u'Polizei MV',u'http://www.presseportal.de/rss/polizei/laender/7.rss2'),
-                        (u'Polizei NI',u'http://www.presseportal.de/rss/polizei/laender/8.rss2'),
-                        (u'Polizei NW',u'http://www.presseportal.de/rss/polizei/laender/9.rss2'),
-                        (u'Polizei RP',u'http://www.presseportal.de/rss/polizei/laender/10.rss2'),
-                        (u'Polizei SH',u'http://www.presseportal.de/rss/polizei/laender/11.rss2'),
-                        (u'Polizei BUND',u'http://www.presseportal.de/rss/polizei/laender/12.rss2'),
-                        (u'Polizei SL',u'http://www.presseportal.de/rss/polizei/laender/13.rss2'),
-                        (u'Polizei SA',u'http://www.presseportal.de/rss/polizei/laender/14.rss2'),
-                        (u'Polizei TH',u'http://www.presseportal.de/rss/polizei/laender/15.rss2'),
-                        (u'Polizei ST',u'http://www.presseportal.de/rss/polizei/laender/16.rss2'),
+    feeds = [  # Ressorts
+        # Add or Remove the '#' symbol in front of line, to get or discard this rss-feed
+        #
+        # ---- each line can be edit by user
+        #
+        # (u'Alle Ressort',u'http://www.presseportal.de/rss/presseportal.rss2'),
+        (u'Wirtschaft', u'http://www.presseportal.de/rss/wirtschaft.rss2'),
+        (u'Finanzen', u'http://www.presseportal.de/rss/finanzen.rss2'),
+        (u'Politik', u'http://www.presseportal.de/rss/politik.rss2'),
+        (u'Vermischtes',
+         u'http://www.presseportal.de/rss/vermischtes.rss2'),
+        (u'Sport', u'http://www.presseportal.de/rss/sport.rss2'),
+        (u'Kultur', u'http://www.presseportal.de/rss/kultur.rss2'),
+        # Branchen
+        (u'Arbeit', u'http://www.presseportal.de/rss/arbeit.rss2'),
+        (u'Auto', u'http://www.presseportal.de/rss/auto.rss2'),
+        (u'Banken', u'http://www.presseportal.de/rss/banken.rss2'),
+        (u'Bildung', u'http://www.presseportal.de/rss/bildung.rss2'),
+        (u'Bauwesen', u'http://www.presseportal.de/rss/bauwesen.rss2'),
+        (u'Celebrities',
+         u'http://www.presseportal.de/rss/celebrities.rss2'),
+        (u'Chemie', u'http://www.presseportal.de/rss/chemie.rss2'),
+        (u'Comuter', u'http://www.presseportal.de/rss/computer.rss2'),
+        (u'Energie', u'http://www.presseportal.de/rss/energie.rss2'),
+        (u'Fernsehn', u'http://www.presseportal.de/rss/fernsehn.rss2'),
+        (u'Fussball', u'http://www.presseportal.de/rss/fussball.rss2'),
+        (u'Gesundheit', u'http://www.presseportal.de/rss/gesundheit.rss2'),
+        (u'Handel', u'http://www.presseportal.de/rss/handel.rss2'),
+        (u'Immobilien', u'http://www.presseportal.de/rss/immobilien.rss2'),
+        (u'Kinder', u'http://www.presseportal.de/rss/kinder.rss2'),
+        (u'Lebensmittel',
+         u'http://www.presseportal.de/rss/lebensmittel.rss2'),
+        (u'Livestyle', u'http://www.presseportal.de/rss/livestyle.rss2'),
+        (u'Logistik', u'http://www.presseportal.de/rss/logistik.rss2'),
+        (u'Maschinenbau',
+         u'http://www.presseportal.de/rss/maschinenbau.rss2'),
+        (u'Medien', u'http://www.presseportal.de/rss/medien.rss2'),
+        (u'Motorsport', u'http://www.presseportal.de/rss/motorsport.rss2'),
+        (u'Ratgeber', u'http://www.presseportal.de/rss/ratgeber.rss2'),
+        (u'Recht', u'http://www.presseportal.de/rss/recht.rss2'),
+        (u'Soziales', u'http://www.presseportal.de/rss/soziales.rss2'),
+        (u'Telekommunikation',
+         u'http://www.presseportal.de/rss/telekommunikation.rss2'),
+        (u'Touristik', u'http://www.presseportal.de/rss/touristik.rss2'),
+        (u'Umwelt', u'http://www.presseportal.de/rss/umwelt.rss2'),
+        (u'Unterhaltung',
+         u'http://www.presseportal.de/rss/unterhaltung.rss2'),
+        (u'Versicherung',
+         u'http://www.presseportal.de/rss/versicherung.rss2'),
+        (u'Wissenschaft',
+         u'http://www.presseportal.de/rss/wissenschaft.rss2'),
+        # Themen
+        (u'Polizei (gesamt)',
+         u'http://www.presseportal.de/rss/polizei.rss2'),
+        (u'Bilder', u'http://www.presseportal.de/rss/98,306.rss2'),
+        (u'Video', u'http://www.presseportal.de/rss/videocast.rss2'),
+        (u'Audio', u'http://www.presseportal.de/rss/podcast.rss2'),
+        (u'Investor Relations',
+         u'http://www.presseportal.de/rss/ir.rss2'),
+        (u'Presseschau', u'http://www.presseportal.de/rss/1043.rss2'),
+        # Polizeipresse - Kommunal!
+        (u'Polizei BW', u'http://www.presseportal.de/rss/polizei/laender/1.rss2'),
+        (u'Polizei BY', u'http://www.presseportal.de/rss/polizei/laender/2.rss2'),
+        (u'Polizei BE', u'http://www.presseportal.de/rss/polizei/laender/3.rss2'),
+        (u'Polizei HB', u'http://www.presseportal.de/rss/polizei/laender/4.rss2'),
+        (u'Polizei HH', u'http://www.presseportal.de/rss/polizei/laender/5.rss2'),
+        (u'Polizei HE', u'http://www.presseportal.de/rss/polizei/laender/6.rss2'),
+        (u'Polizei MV', u'http://www.presseportal.de/rss/polizei/laender/7.rss2'),
+        (u'Polizei NI', u'http://www.presseportal.de/rss/polizei/laender/8.rss2'),
+        (u'Polizei NW', u'http://www.presseportal.de/rss/polizei/laender/9.rss2'),
+        (u'Polizei RP', u'http://www.presseportal.de/rss/polizei/laender/10.rss2'),
+        (u'Polizei SH', u'http://www.presseportal.de/rss/polizei/laender/11.rss2'),
+        (u'Polizei BUND',
+         u'http://www.presseportal.de/rss/polizei/laender/12.rss2'),
+        (u'Polizei SL', u'http://www.presseportal.de/rss/polizei/laender/13.rss2'),
+        (u'Polizei SA', u'http://www.presseportal.de/rss/polizei/laender/14.rss2'),
+        (u'Polizei TH', u'http://www.presseportal.de/rss/polizei/laender/15.rss2'),
+        (u'Polizei ST', u'http://www.presseportal.de/rss/polizei/laender/16.rss2'),
 
-                    ]
+    ]
 
     def print_version(self, url):
         # Separate the last part of the Url : http://www.presseportal.de/pm/70776/3120111
@@ -123,7 +139,7 @@ class PressePortalDE(BasicNewsRecipe):
         #  take the last of this tuples : '3120111'
         # and split this at the symbol '.' (if there) : ('3120111',)
         # from this take the first tuple. '3120111'
-        side = (url.rpartition('/')[-1]).rsplit('.',1)[0]
+        side = (url.rpartition('/')[-1]).rsplit('.', 1)[0]
         # print 'ConvertPrintURL from :  ' + url + '/n to ' + side
-        printurl='http://www.presseportal.de/print/' + side + '-print.html'
+        printurl = 'http://www.presseportal.de/print/' + side + '-print.html'
         return printurl

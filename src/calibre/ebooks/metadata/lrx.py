@@ -71,7 +71,7 @@ def get_metadata(f):
         author = author.text
         publisher = bi.find('Publisher')
         mi.publisher = getattr(publisher, 'text', None)
-        mi.tags = [x.text for x in  bi.findall('Category')]
+        mi.tags = [x.text for x in bi.findall('Category')]
         mi.language = root.find('DocInfo').find('Language').text
         return mi
 

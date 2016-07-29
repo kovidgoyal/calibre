@@ -256,8 +256,7 @@ class FontScanner(Thread):
                             as_unicode(e))
                 continue
             for candidate in files:
-                if (candidate.rpartition('.')[-1].lower() not in self.allowed_extensions
-                        or not os.path.isfile(candidate)):
+                if (candidate.rpartition('.')[-1].lower() not in self.allowed_extensions or not os.path.isfile(candidate)):
                     continue
                 candidate = os.path.normcase(os.path.abspath(candidate))
                 try:

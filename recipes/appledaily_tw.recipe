@@ -34,12 +34,12 @@ class AppledailyTW(BasicNewsRecipe):
         {'name': 'hr'}
     ]
     conversion_options = {
-        'title'           : title,
-        'comments'        : description,
-        'tags'            : category,
-        'language'        : language,
-        'publisher'       : publisher,
-        'authors'         : publisher,
+        'title': title,
+        'comments': description,
+        'tags': category,
+        'language': language,
+        'publisher': publisher,
+        'authors': publisher,
         'linearize_tables': True
     }
     feeds = [
@@ -105,5 +105,6 @@ class AppledailyTW(BasicNewsRecipe):
 
     def preprocess_raw_html(self, raw_html, url):
         raw_html = re.sub(ur'<a href=".*?<br><br>.*?<\/a>', '', raw_html)
-        raw_html = re.sub(ur'<title>(.*?)[\s]+\|.*<\/title>', '<title>\1<\/title>', raw_html)
+        raw_html = re.sub(
+            ur'<title>(.*?)[\s]+\|.*<\/title>', '<title>\1<\/title>', raw_html)
         return raw_html

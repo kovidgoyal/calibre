@@ -1,33 +1,44 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class crnews(BasicNewsRecipe):
-    __author__     = 'Douglas Delgado'
-    title          = u'La Nacion Costa Rica'
-    publisher      = 'GRUPO NACION GN, S. A.'
-    description    = 'Diario de circulacion nacional de Costa Rica. Recipe creado por Douglas Delgado (doudelgado@gmail.com) para su uso con Calibre por Kovid Goyal'
-    category       = 'Spanish, Entertainment'
-    masthead_url   = 'http://www.nacion.com/App_Themes/nacioncom/Images/logo_nacioncom.png'
+    __author__ = 'Douglas Delgado'
+    title = u'La Nacion Costa Rica'
+    publisher = 'GRUPO NACION GN, S. A.'
+    description = 'Diario de circulacion nacional de Costa Rica. Recipe creado por Douglas Delgado (doudelgado@gmail.com) para su uso con Calibre por Kovid Goyal'  # noqa
+    category = 'Spanish, Entertainment'
+    masthead_url = 'http://www.nacion.com/App_Themes/nacioncom/Images/logo_nacioncom.png'
 
     oldest_article = 7
-    delay          = 1
+    delay = 1
     max_articles_per_feed = 100
     auto_cleanup = True
-    encoding       = 'utf-8'
-    language       = 'es_CR'
-    use_embedded_content  = False
-    remove_empty_feeds    = True
+    encoding = 'utf-8'
+    language = 'es_CR'
+    use_embedded_content = False
+    remove_empty_feeds = True
     remove_javascript = True
     no_stylesheets = True
 
-
-    feeds          = [(u'Portada', u'http://www.nacion.com/rss/'), (u'Ultima Hora', u'http://www.nacion.com/rss/latest/'), (u'Nacionales', u'http://www.nacion.com/rss/nacional/'), (u'Entretenimiento', u'http://www.nacion.com/rss/ocio/'), (u'Sucesos', u'http://www.nacion.com/rss/sucesos/'), (u'Deportes', u'http://www.nacion.com/rss/deportes/'), (u'Internacionales', u'http://www.nacion.com/rss/mundo/'), (u'Economia', u'http://www.nacion.com/rss/economia/'), (u'Vivir', u'http://www.nacion.com/rss/vivir/'), (u'Tecnologia', u'http://www.nacion.com/rss/tecnologia/'), (u'Opinion', u'http://www.nacion.com/rss/opinion/')]
+    feeds = [
+    (u'Portada', u'http://www.nacion.com/rss/'),
+    (u'Ultima Hora', u'http://www.nacion.com/rss/latest/'),
+    (u'Nacionales', u'http://www.nacion.com/rss/nacional/'),
+    (u'Entretenimiento', u'http://www.nacion.com/rss/ocio/'),
+    (u'Sucesos', u'http://www.nacion.com/rss/sucesos/'),
+    (u'Deportes', u'http://www.nacion.com/rss/deportes/'),
+    (u'Internacionales', u'http://www.nacion.com/rss/mundo/'),
+    (u'Economia', u'http://www.nacion.com/rss/economia/'),
+    (u'Vivir', u'http://www.nacion.com/rss/vivir/'),
+    (u'Tecnologia', u'http://www.nacion.com/rss/tecnologia/'),
+    (u'Opinion', u'http://www.nacion.com/rss/opinion/')]
 
     def get_cover_url(self):
         index = 'http://kiosko.net/cr/np/cr_nacion.html'
         soup = self.index_to_soup(index)
-        for image in soup.findAll('img',src=True):
-           if image['src'].endswith('cr_nacion.750.jpg'):
-              return image['src']
+        for image in soup.findAll('img', src=True):
+            if image['src'].endswith('cr_nacion.750.jpg'):
+                return image['src']
         return None
 
     def get_article_url(self, article):

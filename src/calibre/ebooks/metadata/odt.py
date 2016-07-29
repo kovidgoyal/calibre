@@ -52,7 +52,7 @@ fields = {
 'print-date':       (METANS,u'print-date'),
 'creation-date':    (METANS,u'creation-date'),
 'user-defined':     (METANS,u'user-defined'),
-#'template':         (METANS,u'template'),
+# 'template':         (METANS,u'template'),
 }
 
 def normalize(str):

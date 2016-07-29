@@ -4,20 +4,21 @@ import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class insider(BasicNewsRecipe):
-    __author__  = 'bubak'
-    title      = 'Insider'
+    __author__ = 'bubak'
+    title = 'Insider'
     language = 'cs'
 
-    remove_tags        = [dict(name='div', attrs={'class':'article-related-content'})
-                 ,dict(name='div', attrs={'class':'calendar'})
-                 ,dict(name='span', attrs={'id':'labelHolder'})
-    ]
+    remove_tags = [dict(name='div', attrs={'class': 'article-related-content'}), dict(name='div', attrs={'class': 'calendar'}), dict(name='span', attrs={'id': 'labelHolder'})  # noqa
+                   ]
 
     no_stylesheets = True
-    keep_only_tags = [dict(name='div', attrs={'class':['doubleBlock textContentFormat']})]
+    keep_only_tags = [
+        dict(name='div', attrs={'class': ['doubleBlock textContentFormat']})]
 
-    preprocess_regexps = [(re.compile(r'T.mata:.*', re.DOTALL|re.IGNORECASE), lambda m: '</body>')]
+    preprocess_regexps = [
+        (re.compile(r'T.mata:.*', re.DOTALL | re.IGNORECASE), lambda m: '</body>')]
     needs_subscription = True
 
     def get_browser(self):
@@ -37,7 +38,7 @@ class insider(BasicNewsRecipe):
         articles = []
 
         soup = self.index_to_soup('http://www.denikinsider.cz')
-        titles = soup.findAll('span', attrs={'class':'homepageArticleTitle'})
+        titles = soup.findAll('span', attrs={'class': 'homepageArticleTitle'})
         if titles is None:
             raise ValueError('Could not find category content')
 
@@ -50,10 +51,8 @@ class insider(BasicNewsRecipe):
             seen_titles.add(title.string)
             url = article['href']
             if url.startswith('/'):
-                url = 'http://www.denikinsider.cz/'+url
+                url = 'http://www.denikinsider.cz/' + url
             self.log('\tFound article:', title, 'at', url)
-            articles.append({'title':title.string, 'url':url, 'description':'',
-                            'date':''})
+            articles.append({'title': title.string, 'url': url, 'description': '',
+                             'date': ''})
         return [(self.title, articles)]
-
-

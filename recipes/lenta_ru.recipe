@@ -9,6 +9,7 @@ from calibre.ebooks.BeautifulSoup import Tag
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class LentaRURecipe(BasicNewsRecipe):
     title = u'Lenta.ru: \u041d\u043e\u0432\u043e\u0441\u0442\u0438'
     __author__ = 'Nikolai Kotchetkov'
@@ -27,7 +28,8 @@ class LentaRURecipe(BasicNewsRecipe):
     masthead_url = u'http://img.lenta.ru/i/logowrambler.gif'
     cover_url = u'http://img.lenta.ru/i/logowrambler.gif'
 
-    #Add feed names if you want them to be sorted (feeds of this list appear first)
+    # Add feed names if you want them to be sorted (feeds of this list appear
+    # first)
     sortOrder = [u'_default', u'В России', u'б.СССР', u'В мире']
 
     encoding = 'cp1251'
@@ -37,22 +39,20 @@ class LentaRURecipe(BasicNewsRecipe):
     recursions = 0
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
+    keep_only_tags = [dict(name='td', attrs={'class': ['statya', 'content']})]
 
-    keep_only_tags = [dict(name='td', attrs={'class':['statya','content']})]
+    remove_tags_after = [dict(name='p', attrs={'class': 'links'}), dict(
+        name='div', attrs={'id': 'readers-block'})]
 
-    remove_tags_after = [dict(name='p', attrs={'class':'links'}), dict(name='div', attrs={'id':'readers-block'})]
-
-    remove_tags = [dict(name='table', attrs={'class':['vrezka','content']}), dict(name='div', attrs={'class':'b240'}), dict(name='div', attrs={'id':'readers-block'}), dict(name='p', attrs={'class':'links'})]
+    remove_tags = [dict(name='table', attrs={'class': ['vrezka', 'content']}), dict(name='div', attrs={
+        'class': 'b240'}), dict(name='div', attrs={'id': 'readers-block'}), dict(name='p', attrs={'class': 'links'})]
 
     feeds = [u'http://lenta.ru/rss/']
 
-    extra_css = 'h1 {font-size: 1.2em; margin: 0em 0em 0em 0em;} h2 {font-size: 1.0em; margin: 0em 0em 0em 0em;} h3 {font-size: 0.8em; margin: 0em 0em 0em 0em;}'
+    extra_css = 'h1 {font-size: 1.2em; margin: 0em 0em 0em 0em;} h2 {font-size: 1.0em; margin: 0em 0em 0em 0em;} h3 {font-size: 0.8em; margin: 0em 0em 0em 0em;}'  # noqa
 
     def parse_index(self):
         try:
@@ -60,14 +60,14 @@ class LentaRURecipe(BasicNewsRecipe):
             if not feedData:
                 raise NotImplementedError
             self.log("parse_index: Feed loaded successfully.")
-            if feedData.feed.has_key('title'):
+            if feedData.feed.has_key('title'):  # noqa
                 self.title = feedData.feed.title
                 self.log("parse_index: Title updated to: ", self.title)
-            if feedData.feed.has_key('image'):
+            if feedData.feed.has_key('image'):  # noqa
                 self.log("HAS IMAGE!!!!")
 
             def get_virtual_feed_articles(feed):
-                if feeds.has_key(feed):
+                if feeds.has_key(feed):  # noqa
                     return feeds[feed][1]
                 self.log("Adding new feed: ", feed)
                 articles = []
@@ -76,14 +76,15 @@ class LentaRURecipe(BasicNewsRecipe):
 
             feeds = {}
 
-            #Iterate feed items and distribute articles using tags
+            # Iterate feed items and distribute articles using tags
             for item in feedData.entries:
-                link = item.get('link', '');
-                title = item.get('title', '');
+                link = item.get('link', '')
+                title = item.get('title', '')
                 if '' == link or '' == title:
                     continue
-                article = {'title':title, 'url':link, 'description':item.get('description', ''), 'date':item.get('date', ''), 'content':''};
-                if not item.has_key('tags'):
+                article = {'title': title, 'url': link, 'description': item.get(
+                    'description', ''), 'date': item.get('date', ''), 'content': ''}
+                if not item.has_key('tags'):  # noqa
                     get_virtual_feed_articles('_default').append(article)
                     continue
                 for tag in item.tags:
@@ -91,15 +92,17 @@ class LentaRURecipe(BasicNewsRecipe):
                     term = tag.get('term', '')
                     if '' == term:
                         if (not addedToDefault):
-                            get_virtual_feed_articles('_default').append(article)
+                            get_virtual_feed_articles(
+                                '_default').append(article)
                         continue
                     get_virtual_feed_articles(term).append(article)
 
-            #Get feed list
-            #Select sorted feeds first of all
+            # Get feed list
+            # Select sorted feeds first of all
             result = []
             for feedName in self.sortOrder:
-                if (not feeds.has_key(feedName)): continue
+                if (not feeds.has_key(feedName)):  # noqa
+                    continue
                 result.append(feeds[feedName])
                 del feeds[feedName]
             result = result + feeds.values()
@@ -114,14 +117,13 @@ class LentaRURecipe(BasicNewsRecipe):
         return self.adeify_images(soup)
 
     def postprocess_html(self, soup, first_fetch):
-        #self.log('Original: ', soup.prettify())
 
         contents = Tag(soup, 'div')
 
-        #Extract tags with given attributes
-        extractElements = {'div' : [{'id' : 'readers-block'}]}
+        # Extract tags with given attributes
+        extractElements = {'div': [{'id': 'readers-block'}]}
 
-        #Remove all elements that were not extracted before
+        # Remove all elements that were not extracted before
         for tag, attrs in extractElements.iteritems():
             for attr in attrs:
                 garbage = soup.findAll(tag, attr)
@@ -129,9 +131,9 @@ class LentaRURecipe(BasicNewsRecipe):
                     for pieceOfGarbage in garbage:
                         pieceOfGarbage.extract()
 
-        #Find article text using header
-        #and add all elements to contents
-        element = soup.find({'h1' : True, 'h2' : True})
+        # Find article text using header
+        # and add all elements to contents
+        element = soup.find({'h1': True, 'h2': True})
         if (element):
             element.name = 'h1'
         while element:
@@ -140,20 +142,22 @@ class LentaRURecipe(BasicNewsRecipe):
             contents.insert(len(contents.contents), element)
             element = nextElement
 
-        #Place article date after header
-        dates = soup.findAll(text=re.compile('\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}:\d{2}'))
+        # Place article date after header
+        dates = soup.findAll(text=re.compile(
+            '\d{2}\.\d{2}\.\d{4}, \d{2}:\d{2}:\d{2}'))
         if dates:
             for date in dates:
                 for string in date:
                     parent = date.parent
                     if (parent and isinstance(parent, Tag) and 'div' == parent.name and 'dt' == parent['class']):
-                        #Date div found
+                        # Date div found
                         parent.extract()
-                        parent['style'] = 'font-size: 0.5em; color: gray; font-family: monospace;'
+                        parent[
+                            'style'] = 'font-size: 0.5em; color: gray; font-family: monospace;'
                         contents.insert(1, parent)
                         break
 
-        #Place article picture after date
+        # Place article picture after date
         pic = soup.find('img')
         if pic:
             picDiv = Tag(soup, 'div')
@@ -168,10 +172,8 @@ class LentaRURecipe(BasicNewsRecipe):
                 picDiv.insert(1, titleDiv)
             contents.insert(2, picDiv)
 
-        body = soup.find('td', {'class':['statya','content']})
+        body = soup.find('td', {'class': ['statya', 'content']})
         if body:
             body.replaceWith(contents)
 
-        #self.log('Result: ', soup.prettify())
         return soup
-

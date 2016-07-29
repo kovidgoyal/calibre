@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 
 '''
 www.esquire.com
@@ -8,31 +8,33 @@ from collections import defaultdict
 from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
 
+
 class Esquire(BasicNewsRecipe):
-    title                 = 'Esquire'
-    __author__            = 'Kovid Goyal'
-    description           = 'Esquire: Man at His Best'
-    publisher             = 'Hearst Communications, Inc.'
-    no_stylesheets        = True
-    encoding              = 'utf-8'
-    language              = 'en'
+    title = 'Esquire'
+    __author__ = 'Kovid Goyal'
+    description = 'Esquire: Man at His Best'
+    publisher = 'Hearst Communications, Inc.'
+    no_stylesheets = True
+    encoding = 'utf-8'
+    language = 'en'
 
     keep_only_tags = [
-        dict(name='header', attrs={'class':['gallery-header', 'article-header']}),
-        dict(attrs={'class':['gallery-main-view', 'article-body--content']}),
+        dict(name='header', attrs={
+             'class': ['gallery-header', 'article-header']}),
+        dict(attrs={'class': ['gallery-main-view', 'article-body--content']}),
     ]
 
     remove_tags = [
-        dict(attrs={'class':'article-body--share-container'}),
-        dict(attrs={'class':lambda x: x and 'tags--top' in x}),
-        dict(attrs={'class':lambda x: x and 'image-share' in x}),
-        dict(attrs={'class':lambda x: x and 'share-gallery' in x}),
-        dict(attrs={'class':lambda x: x and 'embedded-image--expand' in x}),
-        dict(attrs={'class':lambda x: x and 'embedded-image--close' in x}),
+        dict(attrs={'class': 'article-body--share-container'}),
+        dict(attrs={'class': lambda x: x and 'tags--top' in x}),
+        dict(attrs={'class': lambda x: x and 'image-share' in x}),
+        dict(attrs={'class': lambda x: x and 'share-gallery' in x}),
+        dict(attrs={'class': lambda x: x and 'embedded-image--expand' in x}),
+        dict(attrs={'class': lambda x: x and 'embedded-image--close' in x}),
     ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
         return soup
 
@@ -47,7 +49,7 @@ class Esquire(BasicNewsRecipe):
             url = a.get('href')
             if url.startswith('/'):
                 url = 'http://www.esquire.com' + url
-            feeds['Cover Story'] = [{'title':title, 'url':url}]
+            feeds['Cover Story'] = [{'title': title, 'url': url}]
             break
 
         for story in select('.landing-feed--story-container'):
@@ -70,10 +72,10 @@ class Esquire(BasicNewsRecipe):
                 break
             else:
                 desc = ''
-            articles.append({'title':title, 'url':url, 'description':desc})
+            articles.append({'title': title, 'url': url, 'description': desc})
 
         ans = []
-        for sec in sorted(feeds, key=lambda x:(x != 'Cover Story', x)):
+        for sec in sorted(feeds, key=lambda x: (x != 'Cover Story', x)):
             articles = feeds[sec]
             if articles:
                 ans.append((sec, articles))

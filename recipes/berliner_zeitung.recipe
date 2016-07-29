@@ -6,16 +6,18 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
-class BerlinerZeitung(BasicNewsRecipe) :
-    title         = 'Berliner Zeitung'
-    __author__    = 'Kovid Goyal'
-    language      = 'de'
-    description   = 'Berliner Zeitung RSS'
-    timefmt       = ' [%d.%m.%Y]'
+
+class BerlinerZeitung(BasicNewsRecipe):
+    title = 'Berliner Zeitung'
+    __author__ = 'Kovid Goyal'
+    language = 'de'
+    description = 'Berliner Zeitung RSS'
+    timefmt = ' [%d.%m.%Y]'
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
 

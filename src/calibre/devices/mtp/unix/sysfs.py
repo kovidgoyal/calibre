@@ -24,7 +24,8 @@ class MTPDetect(object):
         Check if the device has an interface named "MTP" using sysfs, which
         avoids probing the device.
         '''
-        if not self.ok: return False
+        if not self.ok:
+            return False
 
         def read(x):
             try:
@@ -36,7 +37,8 @@ class MTPDetect(object):
         ipath = os.path.join(self.base, '{0}-*/{0}-*/interface'.format(dev.busnum))
         for x in glob.glob(ipath):
             raw = read(x)
-            if not raw or raw.strip() != b'MTP': continue
+            if not raw or raw.strip() != b'MTP':
+                continue
             raw = read(os.path.join(os.path.dirname(os.path.dirname(x)),
                                     'devnum'))
             try:

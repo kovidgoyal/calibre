@@ -14,9 +14,8 @@ class ProtocolError(Exception):
 class TimeoutError(ProtocolError):
     """ There was a timeout during communication """
     def __init__(self, func_name):
-        ProtocolError.__init__(self, \
-        "There was a timeout while communicating with the device in function: "\
-        +func_name)
+        ProtocolError.__init__(self,
+        "There was a timeout while communicating with the device in function: " +func_name)
 
 class DeviceError(ProtocolError):
     """ Raised when device is not found """
@@ -26,17 +25,18 @@ class DeviceError(ProtocolError):
         ProtocolError.__init__(self, msg)
 
 class UserFeedback(DeviceError):
-   INFO = 0
-   WARN = WARNING = 1
-   ERROR = 2
+    INFO = 0
+    WARN = WARNING = 1
+    ERROR = 2
 
-   def __init__(self, msg, details, level):
-       Exception.__init__(self, msg)
-       self.level = level
-       self.details = details
-       self.msg = msg
+    def __init__(self, msg, details, level):
+        Exception.__init__(self, msg)
+        self.level = level
+        self.details = details
+        self.msg = msg
 
 class OpenFeedback(DeviceError):
+
     def __init__(self, msg):
         self.feedback_msg = msg
         DeviceError.__init__(self, msg)
@@ -64,7 +64,7 @@ class OpenFailed(ProtocolError):
 class DeviceBusy(ProtocolError):
     """ Raised when device is busy """
     def __init__(self, uerr=""):
-        ProtocolError.__init__(self, "Device is in use by another application:"\
+        ProtocolError.__init__(self, "Device is in use by another application:"
                                "\nUnderlying error:" + str(uerr))
 
 class DeviceLocked(ProtocolError):

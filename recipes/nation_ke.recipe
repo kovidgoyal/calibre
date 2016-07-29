@@ -1,10 +1,11 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Hans Donner <hans.donner at pobox.com>'
 '''
 www.standardmedia.co.ke
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class NationKeRecipe(BasicNewsRecipe):
 
@@ -41,11 +42,8 @@ class NationKeRecipe(BasicNewsRecipe):
              (u'Blogs', u'http://www.nation.co.ke/blogs/-/620/620/-/view/asFeed/-/28ia05z/-/index.xml')]
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
     def print_version(self, url):
         from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -58,4 +56,3 @@ class NationKeRecipe(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)
-

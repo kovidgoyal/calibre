@@ -26,13 +26,13 @@ def any2lit(opts, path):
     if not ext:
         raise ValueError('Unknown file type: '+path)
     ext = ext.lower()[1:]
-    
+
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(path))[0]+'.lit'
-    
+
     opts.output = os.path.abspath(opts.output)
     orig_output = opts.output
-    
+
     with TemporaryDirectory('_any2lit') as tdir:
         oebdir = os.path.join(tdir, 'oeb')
         os.mkdir(oebdir)
@@ -46,7 +46,7 @@ def any2lit(opts, path):
         opts.output = orig_output
         logging.getLogger('html2epub').info(_('Creating LIT file from EPUB...'))
         oeb2lit(opts, opf)
-    
+
 
 def main(args=sys.argv):
     parser = option_parser()

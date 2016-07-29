@@ -1,31 +1,31 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class DallasNews(BasicNewsRecipe):
-    title          = u'The Dallas Morning News'
-    language       = 'en'
-    oldest_article = 2 #days
+    title = u'The Dallas Morning News'
+    language = 'en'
+    oldest_article = 2  # days
     max_articles_per_feed = 25
 
     no_stylesheets = True
     use_embedded_content = False
     auto_cleanup = True
 
-    feeds          = [
-                      ('Local News',
-                          'http://www.dallasnews.com/news/politics/local-politics/?rss'),
-                      ('National Politics',
-                          'http://www.dallasnews.com/news/politics/national-politic/?rss'),
-                      ('State Politics',
-                          'http://www.dallasnews.com/news/politics/state-politics/?rss'),
-                      ('Religion',
-                         'http://www.dallasnews.com/news/religion/?rss'),
-                      ('Crime',
-                          'http://www.dallasnews.com/news/crime/headlines/?rss'),
-                      ('Celebrity News',
-                          'http://www.dallasnews.com/entertainment/celebrity-news/?rss&listname=TopStories'),
-                      ('Nation',
-                          'http://www.dallasnews.com/news/nation-world/nation/?rss'),
-                      ('World',
-                          'http://www.dallasnews.com/news/nation-world/world/?rss'),
-                    ]
-
+    feeds = [
+        ('Local News',
+         'http://www.dallasnews.com/news/politics/local-politics/?rss'),
+        ('National Politics',
+         'http://www.dallasnews.com/news/politics/national-politic/?rss'),
+        ('State Politics',
+         'http://www.dallasnews.com/news/politics/state-politics/?rss'),
+        ('Religion',
+         'http://www.dallasnews.com/news/religion/?rss'),
+        ('Crime',
+         'http://www.dallasnews.com/news/crime/headlines/?rss'),
+        ('Celebrity News',
+         'http://www.dallasnews.com/entertainment/celebrity-news/?rss&listname=TopStories'),
+        ('Nation',
+         'http://www.dallasnews.com/news/nation-world/nation/?rss'),
+        ('World',
+         'http://www.dallasnews.com/news/nation-world/world/?rss'),
+    ]

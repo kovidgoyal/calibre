@@ -195,7 +195,7 @@ class EPUB_MOBI(CatalogPlugin):
         # If preset specified from the cli, insert stored options from JSON file
         if hasattr(opts, 'preset') and opts.preset:
             available_presets = JSONConfig("catalog_presets")
-            if not opts.preset in available_presets:
+            if opts.preset not in available_presets:
                 if available_presets:
                     print(_('Error: Preset "%s" not found.' % opts.preset))
                     print(_('Stored presets: %s' % ', '.join([p for p in sorted(available_presets.keys())])))
@@ -205,7 +205,7 @@ class EPUB_MOBI(CatalogPlugin):
 
             # Copy the relevant preset values to the opts object
             for item in available_presets[opts.preset]:
-                if not item in ['exclusion_rules_tw', 'format', 'prefix_rules_tw']:
+                if item not in ['exclusion_rules_tw', 'format', 'prefix_rules_tw']:
                     setattr(opts, item, available_presets[opts.preset][item])
 
             # Provide an unconnected device
@@ -273,8 +273,8 @@ class EPUB_MOBI(CatalogPlugin):
 
         # If exclude_genre is blank, assume user wants all tags as genres
         if opts.exclude_genre.strip() == '':
-            #opts.exclude_genre = '\[^.\]'
-            #build_log.append(" converting empty exclude_genre to '\[^.\]'")
+            # opts.exclude_genre = '\[^.\]'
+            # build_log.append(" converting empty exclude_genre to '\[^.\]'")
             opts.exclude_genre = 'a^'
             build_log.append(" converting empty exclude_genre to 'a^'")
         if opts.connected_device['is_device_connected'] and \
@@ -330,10 +330,10 @@ class EPUB_MOBI(CatalogPlugin):
                 opts.log.warn('\n*** No enabled Sections, terminating catalog generation ***')
                 return ["No Included Sections", "No enabled Sections.\nCheck E-book options tab\n'Included sections'\n"]
         if opts.fmt == 'mobi' and sections_list == ['Descriptions']:
-                warning = _("\n*** Adding 'By Authors' Section required for MOBI output ***")
-                opts.log.warn(warning)
-                sections_list.insert(0, 'Authors')
-                opts.generate_authors = True
+            warning = _("\n*** Adding 'By Authors' Section required for MOBI output ***")
+            opts.log.warn(warning)
+            sections_list.insert(0, 'Authors')
+            opts.generate_authors = True
 
         opts.log(u" Sections: %s" % ', '.join(sections_list))
         opts.section_list = sections_list

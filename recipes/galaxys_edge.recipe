@@ -4,12 +4,13 @@ __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class GalaxyEdge(BasicNewsRecipe):
-    title                 = u'The Galaxy\'s Edge'
+    title = u'The Galaxy\'s Edge'
     language = 'en'
 
-    oldest_article        = 7
-    __author__            = 'Krittika Goyal'
+    oldest_article = 7
+    __author__ = 'Krittika Goyal'
     no_stylesheets = True
 
     auto_cleanup = True
@@ -18,15 +19,15 @@ class GalaxyEdge(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.galaxysedge.com/')
-        main = soup.find('table', attrs={'width':'944'})
-        toc = main.find('td', attrs={'width':'204'})
+        main = soup.find('table', attrs={'width': '944'})
+        toc = main.find('td', attrs={'width': '204'})
 
         current_section = None
         current_articles = []
         feeds = []
         c = 0
         for x in toc.findAll(['p']):
-            c = c+1
+            c = c + 1
             if c == 5:
                 if current_articles and current_section:
                     feeds.append((current_section, current_articles))
@@ -36,32 +37,31 @@ class GalaxyEdge(BasicNewsRecipe):
                 self.log('\tFound section:', current_section)
                 title = self.tag_to_string(edwo)
                 url = edwo.get('href', True)
-                url = 'http://www.galaxysedge.com/'+url
+                url = 'http://www.galaxysedge.com/' + url
                 print(title)
                 print(c)
                 if not url or not title:
                     continue
                 self.log('\t\tFound article:', title)
                 self.log('\t\t\t', url)
-                current_articles.append({'title': title, 'url':url,
-                    'description':'', 'date':''})
-            elif c>5:
+                current_articles.append({'title': title, 'url': url,
+                                         'description': '', 'date': ''})
+            elif c > 5:
                 current_section = self.tag_to_string(x.find('b'))
                 current_articles = []
                 self.log('\tFound section:', current_section)
                 for y in x.findAll('a'):
                     title = self.tag_to_string(y)
                     url = y.get('href', True)
-                    url = 'http://www.galaxysedge.com/'+url
+                    url = 'http://www.galaxysedge.com/' + url
                     print(title)
                     if not url or not title:
                         continue
                     self.log('\t\tFound article:', title)
                     self.log('\t\t\t', url)
-                    current_articles.append({'title': title, 'url':url,
-                        'description':'', 'date':''})
+                    current_articles.append({'title': title, 'url': url,
+                                             'description': '', 'date': ''})
             if current_articles and current_section:
                 feeds.append((current_section, current_articles))
 
         return feeds
-

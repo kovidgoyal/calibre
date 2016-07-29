@@ -13,7 +13,8 @@ try:
     from calibre.utils.serve_coffee import serve
 except ImportError:
     import init_calibre
-    if False: init_calibre, serve
+    if False:
+        init_calibre, serve
     from calibre.utils.serve_coffee import serve
 
 def run_devel_server():

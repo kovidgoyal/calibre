@@ -20,9 +20,9 @@ class Output:
     def __init__(self,
             file,
             orig_file,
-            output_dir = None,
-            out_file = None,
-            no_ask = True
+            output_dir=None,
+            out_file=None,
+            no_ask=True
             ):
         """
         Required:

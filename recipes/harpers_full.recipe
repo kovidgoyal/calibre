@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 harpers.org - paid subscription/ printed issue articles
@@ -8,28 +8,30 @@ If you have institutional subscription based on access IP you do not need to ent
 anything in username/password fields
 '''
 
-import time, re
+import time
+import re
 import urllib
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Harpers_full(BasicNewsRecipe):
-    title                 = "Harper's Magazine - articles from printed edition"
-    __author__            = 'Darko Miletic'
-    description           = "Harper's Magazine, the oldest general-interest monthly in America, explores the issues that drive our national conversation, through long-form narrative journalism and essays, and such celebrated features as the iconic Harper's Index."
-    publisher             = "Harpers's"
-    category              = 'news, politics, USA'
-    oldest_article        = 30
+    title = "Harper's Magazine - articles from printed edition"
+    __author__ = 'Darko Miletic'
+    description = "Harper's Magazine, the oldest general-interest monthly in America, explores the issues that drive our national conversation, through long-form narrative journalism and essays, and such celebrated features as the iconic Harper's Index."  # noqa
+    publisher = "Harpers's"
+    category = 'news, politics, USA'
+    oldest_article = 30
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    delay                 = 1
-    language              = 'en'
-    encoding              = 'utf8'
-    needs_subscription    = 'optional'
-    masthead_url          = 'http://harpers.org/wp-content/themes/harpers/images/pheader.gif'
-    publication_type      = 'magazine'
-    LOGIN                 = 'http://harpers.org/wp-admin/admin-ajax.php'
+    no_stylesheets = True
+    use_embedded_content = False
+    delay = 1
+    language = 'en'
+    encoding = 'utf8'
+    needs_subscription = 'optional'
+    masthead_url = 'http://harpers.org/wp-content/themes/harpers/images/pheader.gif'
+    publication_type = 'magazine'
+    LOGIN = 'http://harpers.org/wp-admin/admin-ajax.php'
     extra_css             = """
                                 body{font-family: adobe-caslon-pro,serif}
                                 .category{font-size: small}
@@ -37,71 +39,62 @@ class Harpers_full(BasicNewsRecipe):
                             """
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
-    keep_only_tags = [ dict(name='div', attrs={'class':['postdetailFull','articlePost']}) ]
+    keep_only_tags = [
+        dict(name='div', attrs={'class': ['postdetailFull', 'articlePost']})]
     remove_tags = [
-                     dict(name='div', attrs={'class':'fRight rightDivPad'})
-                    ,dict(name=['link','meta','object','embed','iframe'])
-                  ]
-    remove_attributes=['xmlns']
+        dict(name='div', attrs={'class': 'fRight rightDivPad'}), dict(
+            name=['link', 'meta', 'object', 'embed', 'iframe'])
+    ]
+    remove_attributes = ['xmlns']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://harpers.org/')
         if self.username is not None and self.password is not None:
-            tt = time.localtime()*1000
-            data = urllib.urlencode({ 'action':'cds_auth_user'
-                                     ,'m':self.username
-                                     ,'p':self.password
-                                     ,'rt':'http://harpers.org/'
-                                     ,'tt':tt
-                                   })
+            tt = time.localtime() * 1000
+            data = urllib.urlencode({'action': 'cds_auth_user', 'm': self.username, 'p': self.password, 'rt': 'http://harpers.org/', 'tt': tt
+                                     })
             br.open(self.LOGIN, data)
         return br
 
     def parse_index(self):
-        #find current issue
+        # find current issue
         soup = self.index_to_soup('http://harpers.org/')
-        currentIssue=soup.find('div',attrs={'class':'mainNavi'}).find('li',attrs={'class':'curentIssue'})
-        currentIssue_url=self.tag_to_string(currentIssue.a['href'])
+        currentIssue = soup.find('div', attrs={'class': 'mainNavi'}).find(
+            'li', attrs={'class': 'curentIssue'})
+        currentIssue_url = self.tag_to_string(currentIssue.a['href'])
         self.log(currentIssue_url)
 
-        #go to the current issue
+        # go to the current issue
         soup1 = self.index_to_soup(currentIssue_url)
         currentIssue_title = self.tag_to_string(soup1.head.title.string)
-        date = re.split('\s\|\s',currentIssue_title)[0]
-        self.timefmt =  u' [%s]'%date
+        date = re.split('\s\|\s', currentIssue_title)[0]
+        self.timefmt = u' [%s]' % date
 
-        #get cover
-        self.cover_url = soup1.find('div', attrs = {'class':'picture_hp'}).find('img', src=True)['src']         
+        # get cover
+        self.cover_url = soup1.find(
+            'div', attrs={'class': 'picture_hp'}).find('img', src=True)['src']
         self.log(self.cover_url)
-        
+
         articles = []
         count = 0
-        for item in soup1.findAll('div', attrs={'class':'articleData'}):
+        for item in soup1.findAll('div', attrs={'class': 'articleData'}):
             text_links = item.findAll('h2')
             if text_links:
                 for text_link in text_links:
                     if count == 0:
-                       count = 1
+                        count = 1
                     else:
-                       url   = text_link.a['href']
-                       title = self.tag_to_string(text_link.a)
-                       date  = strftime(' %B %Y')
-                       articles.append({
-                                          'title'      :title
-                                         ,'date'       :date
-                                         ,'url'        :url
-                                         ,'description':''
-                                        })
+                        url = text_link.a['href']
+                        title = self.tag_to_string(text_link.a)
+                        date = strftime(' %B %Y')
+                        articles.append({
+                            'title': title, 'date': date, 'url': url, 'description': ''
+                        })
         return [(currentIssue_title, articles)]
 
     def print_version(self, url):
         return url + '?single=1'
-
-

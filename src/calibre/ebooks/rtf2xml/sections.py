@@ -53,8 +53,8 @@ class Sections:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1):
+            copy=None,
+            run_level=1):
         """
         Required:
             'file'--file to parse
@@ -107,7 +107,7 @@ class Sections:
         'cw<pa<margin-rig'      : (self.__attribute_func, 'margin-right'),
         'mi<mk<header-ind'      : (self.__end_sec_def_func, None),
         # premature endings
-        #__end_sec_premature_func
+        # __end_sec_premature_func
         'tx<nu<__________'      : (self.__end_sec_premature_func, None),
         'cw<ci<font-style'      : (self.__end_sec_premature_func, None),
         'cw<ci<font-size_'      : (self.__end_sec_premature_func, None),
@@ -334,7 +334,7 @@ class Sections:
         elif self.__token_info == 'cw<pf<par-def___':
             self.__state = 'body'
             self.__section_num += 1
-            self.__write_obj.write (
+            self.__write_obj.write(
                     'mi<tg<open-att__<section<num>%s'
                     '<num-in-level>%s'
                     '<type>rtf-native'
@@ -345,7 +345,7 @@ class Sections:
         elif self.__token_info == 'tx<nu<__________':
             self.__state = 'body'
             self.__section_num += 1
-            self.__write_obj.write (
+            self.__write_obj.write(
                     'mi<tg<open-att__<section<num>%s'
                     '<num-in-level>%s'
                     '<type>rtf-native'
@@ -498,13 +498,13 @@ class Sections:
             line = line_to_read
             self.__token_info = line[:16]
             action = self.__state_dict.get(self.__state)
-            if action == None:
+            if action is None:
                 sys.stderr.write('no matching state in module sections.py\n')
                 sys.stderr.write(self.__state + '\n')
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "sections.data")
         copy_obj.rename(self.__write_to, self.__file)

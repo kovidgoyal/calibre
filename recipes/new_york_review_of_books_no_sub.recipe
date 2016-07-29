@@ -1,5 +1,5 @@
 #!/usr/bin/env  python2
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
@@ -10,13 +10,16 @@ import re
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def find_header(tag):
     return tag.name == 'header' and tag.parent['class'] == 'article'
+
 
 def absurl(url):
     if url.startswith('/'):
         url = 'http://www.nybooks.com' + url
     return url
+
 
 class NewYorkReviewOfBooks(BasicNewsRecipe):
 
@@ -30,22 +33,23 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
     no_javascript = True
 
     keep_only_tags = [
-        dict(name='section', attrs={'class':'article_body'}),
+        dict(name='section', attrs={'class': 'article_body'}),
         dict(name=find_header),
-        dict(name='div', attrs={'class':['footnotes', 'for-subscribers-only']}),
+        dict(name='div', attrs={
+             'class': ['footnotes', 'for-subscribers-only']}),
     ]
 
     preprocess_regexps = [(re.compile(r'<head>.*?</head>', re.DOTALL), lambda
-        m:'<head></head>')]
+                           m:'<head></head>')]
 
     def print_version(self, url):
-        return url+'?pagination=false'
+        return url + '?pagination=false'
 
     def preprocess_html(self, soup):
         header = soup.find('header')
         body = soup.find('body')
         body.insert(0, header)
-        header.find('div', attrs={'class':'details'}).extract()
+        header.find('div', attrs={'class': 'details'}).extract()
         for i in soup.findAll('input'):
             i.extract()
         return soup
@@ -54,7 +58,7 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         soup = self.index_to_soup('http://www.nybooks.com/current-issue')
 
         # Find cover
-        sidebar = soup.find('div', attrs={'class':'issue_cover'})
+        sidebar = soup.find('div', attrs={'class': 'issue_cover'})
         if sidebar is not None:
             img = sidebar.find('img', src=True)
             self.cover_url = absurl(img['src'])
@@ -65,26 +69,28 @@ class NewYorkReviewOfBooks(BasicNewsRecipe):
         if div is not None:
             text = self.tag_to_string(div)
             date = text.partition(u'\u2022')[0].strip()
-            self.timefmt = u' [%s]'%date
+            self.timefmt = u' [%s]' % date
             self.log('Issue date:', date)
 
         # Find TOC
-        tocs = soup.find('div', attrs={'class':'current_issue'}).findAll('div', attrs={'class':'articles_list'})
+        tocs = soup.find('div', attrs={'class': 'current_issue'}).findAll(
+            'div', attrs={'class': 'articles_list'})
         articles = []
         for toc in tocs:
-            for div in toc.findAll('div', attrs={'class':'row'}):
+            for div in toc.findAll('div', attrs={'class': 'row'}):
                 h2 = div.find('h2')
                 title = self.tag_to_string(h2).strip()
-                author = self.tag_to_string(div.find('div', attrs={'class':'author'})).strip()
-                title = title + u' (%s)'%author
+                author = self.tag_to_string(
+                    div.find('div', attrs={'class': 'author'})).strip()
+                title = title + u' (%s)' % author
                 url = absurl(h2.find('a', href=True)['href'])
                 desc = ''
-                for p in div.findAll('p', attrs={'class':lambda x: x and 'quiet' in x}):
+                for p in div.findAll('p', attrs={'class': lambda x: x and 'quiet' in x}):
                     desc += self.tag_to_string(p)
                 self.log('Found article:', title)
                 self.log('\t', url)
                 self.log('\t', desc)
-                articles.append({'title':title, 'url':url, 'date':'',
-                    'description':desc})
+                articles.append({'title': title, 'url': url, 'date': '',
+                                 'description': desc})
 
         return [('Current Issue', articles)]

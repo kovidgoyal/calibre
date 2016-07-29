@@ -200,16 +200,14 @@ class CHMReader(CHMFile):
         # containing prev, next or team
         t = soup('table')
         if t:
-            if (t[0].previousSibling is None
-              or t[0].previousSibling.previousSibling is None):
+            if (t[0].previousSibling is None or t[0].previousSibling.previousSibling is None):
                 try:
                     alt = t[0].img['alt'].lower()
                     if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:
                         t[0].extract()
                 except:
                     pass
-            if (t[-1].nextSibling is None
-              or t[-1].nextSibling.nextSibling is None):
+            if (t[-1].nextSibling is None or t[-1].nextSibling.nextSibling is None):
                 try:
                     alt = t[-1].img['alt'].lower()
                     if alt.find('prev') != -1 or alt.find('next') != -1 or alt.find('team') != -1:

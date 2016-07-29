@@ -1,8 +1,9 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class JournalOfAccountancyRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en'
     version = 1
@@ -32,14 +33,15 @@ class JournalOfAccountancyRecipe(BasicNewsRecipe):
                           'publisher': publisher}
 
     keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'Rubricname'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'Headline'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'SubHeadline'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'Authorname'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'Date'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'BodyContent'}))
+    keep_only_tags.append(dict(name='div', attrs={'id': 'Rubricname'}))
+    keep_only_tags.append(dict(name='div', attrs={'id': 'Headline'}))
+    keep_only_tags.append(dict(name='div', attrs={'id': 'SubHeadline'}))
+    keep_only_tags.append(dict(name='div', attrs={'id': 'Authorname'}))
+    keep_only_tags.append(dict(name='div', attrs={'id': 'Date'}))
+    keep_only_tags.append(dict(name='div', attrs={'id': 'BodyContent'}))
 
     remove_attributes = ['style']
 
     feeds = []
-    feeds.append((u'Journal of Accountancy', u'http://feeds2.feedburner.com/JournalOfAccountancy'))
+    feeds.append((u'Journal of Accountancy',
+                  u'http://feeds2.feedburner.com/JournalOfAccountancy'))

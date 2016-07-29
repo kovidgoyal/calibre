@@ -1,27 +1,29 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class TelevisionWithoutPity(BasicNewsRecipe):
-    title          = u'Television Without Pity'
-    language       = 'en'
-    __author__     = 'Snarkastica'
-    SHOW = 'http://www.televisionwithoutpity.com/show/SHOW-NAME-HERE/recaps/'  # Used for pulling down an entire show, not just the RSS feed
+    title = u'Television Without Pity'
+    language = 'en'
+    __author__ = 'Snarkastica'
+    # Used for pulling down an entire show, not just the RSS feed
+    SHOW = 'http://www.televisionwithoutpity.com/show/SHOW-NAME-HERE/recaps/'
     oldest_article = 7  # days
     max_articles_per_feed = 25
     # reverse_article_order=True # Useful for entire show, to display in episode order
-    #encoding = 'cp1252'
     use_embedded_content = False
 
-    preprocess_regexps = [(re.compile(r'<span class="headline_recap_title .*?>', re.DOTALL|re.IGNORECASE), lambda match: '<span class="headline_recap_title">')]
-    keep_only_tags = [dict(name='span', attrs={'class':'headline_recap_title'}), dict(
-        name='p', attrs={'class':'byline'}), dict(name='div', attrs={'class':'body_recap'}), dict(name='h1')]
+    preprocess_regexps = [(re.compile(r'<span class="headline_recap_title .*?>',
+                                      re.DOTALL | re.IGNORECASE), lambda match: '<span class="headline_recap_title">')]
+    keep_only_tags = [dict(name='span', attrs={'class': 'headline_recap_title'}), dict(
+        name='p', attrs={'class': 'byline'}), dict(name='div', attrs={'class': 'body_recap'}), dict(name='h1')]
     no_stylesheets = True
 
     # Comment this out and configure process_index() to retrieve a single show
-    feeds          = [
-('Ltest Recaps',
- 'http://www.televisionwithoutpity.com/rss.xml'),
-]
+    feeds = [
+        ('Ltest Recaps',
+         'http://www.televisionwithoutpity.com/rss.xml'),
+    ]
 
     '''
     This method can be used to grab all recaps for a single show
@@ -62,20 +64,22 @@ class TelevisionWithoutPity(BasicNewsRecipe):
         return feeds
     '''
 
-    # This will add subsequent pages of multipage recaps to a single article page
+    # This will add subsequent pages of multipage recaps to a single article
+    # page
     def append_page(self, soup, appendtag, position):
-        if (soup.find('p',attrs={'class':'pages'})):  # If false, will still grab single-page recaplets
-            pager = soup.find('p',attrs={'class':'pages'}).find(text='Next')
+        # If false, will still grab single-page recaplets
+        if (soup.find('p', attrs={'class': 'pages'})):
+            pager = soup.find('p', attrs={'class': 'pages'}).find(text='Next')
             if pager:
                 nexturl = pager.parent['href']
                 soup2 = self.index_to_soup(nexturl)
-                texttag = soup2.find('div', attrs={'class':'body_recap'})
+                texttag = soup2.find('div', attrs={'class': 'body_recap'})
                 for it in texttag.findAll(style=True):
                     del it['style']
                 newpos = len(texttag.contents)
-                self.append_page(soup2,texttag,newpos)
+                self.append_page(soup2, texttag, newpos)
                 texttag.extract()
-                appendtag.insert(position,texttag)
+                appendtag.insert(position, texttag)
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
@@ -84,15 +88,10 @@ class TelevisionWithoutPity(BasicNewsRecipe):
     # Remove the multi page links (we had to keep these in for append_page(), but they can go away now
     # Could have used CSS to hide, but some readers ignore CSS.
     def postprocess_html(self, soup, first_fetch):
-        paginator = soup.findAll('p', attrs={'class':'pages'})
+        paginator = soup.findAll('p', attrs={'class': 'pages'})
         if paginator:
             for p in paginator:
                 p.extract()
 
                 # TODO: Fix this so it converts the headline class into a heading 1
-        #titleTag = Tag(soup, "h1")
-        #repTag = soup.find('span', attrs={'class':'headline_recap_title'})
-        #titleTag.insert(0, repTag.contents[0])
-        # repTag.extract()
-        #soup.body.insert(1, titleTag)
         return soup

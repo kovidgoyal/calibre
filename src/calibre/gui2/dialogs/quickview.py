@@ -392,8 +392,7 @@ class Quickview(QDialog, Ui_Quickview):
         self.books_table.setSortingEnabled(False)
         tt = ('<p>' +
             _('Double-click on a book to change the selection in the library view. '
-               'Shift- or control-double-click to edit the metadata of a book')
-              + '</p>')
+               'Shift- or control-double-click to edit the metadata of a book') + '</p>')
         for row, b in enumerate(books):
             mi = self.db.get_metadata(b, index_is_id=True, get_user_categories=False)
             a = TableItem(mi.title, mi.title_sort)

@@ -22,8 +22,8 @@ class ListNumbers:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         """
         Required:
@@ -100,7 +100,7 @@ class ListNumbers:
         lines = chunk.split('\n')
         text_string = ''
         for line in lines:
-            if line [0:5] == 'tx<hx':
+            if line[0:5] == 'tx<hx':
                 if line[17:] == '\'B7':
                     return "unordered"
             elif line[0:5] == 'tx<nu':
@@ -183,7 +183,7 @@ class ListNumbers:
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "list_numbers.data")
         copy_obj.rename(self.__write_to, self.__file)

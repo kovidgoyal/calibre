@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Walt Anthony <workshop.northpole at gmail.com>'
 '''
 www.americanthinker.com
@@ -8,37 +8,34 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.cleantext import clean_xml_chars
 from lxml import etree
 
+
 class AmericanThinker(BasicNewsRecipe):
-    title          = u'American Thinker'
-    description    = "American Thinker is a daily internet publication devoted to the thoughtful exploration of issues of importance to Americans."
-    __author__     = 'Walt Anthony'
-    publisher             = 'Thomas Lifson'
-    category              = 'news, politics, USA'
-    oldest_article        = 7  # days
+    title = u'American Thinker'
+    description = "American Thinker is a daily internet publication devoted to the thoughtful exploration of issues of importance to Americans."
+    __author__ = 'Walt Anthony'
+    publisher = 'Thomas Lifson'
+    category = 'news, politics, USA'
+    oldest_article = 7  # days
     max_articles_per_feed = 50
-    summary_length        = 150
-    language              = 'en'
+    summary_length = 150
+    language = 'en'
     ignore_duplicate_articles = {'title', 'url'}
 
-    remove_javascript     = True
+    remove_javascript = True
     auto_cleanup = True
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        , 'linearize_tables' : True
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True
+    }
 
     def preprocess_raw_html(self, raw, url):
         root = html5lib.parse(
             clean_xml_chars(raw), treebuilder='lxml',
             namespaceHTMLElements=False)
-        for x in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' article_body ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' bottom '))]'''):
+        for x in root.xpath('''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' article_body ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' bottom '))]'''):  # noqa
             x.getparent().remove(x)
         return etree.tostring(root, encoding=unicode)
 
     feeds = [(u'http://feeds.feedburner.com/americanthinker'),
-                     (u'http://feeds.feedburner.com/AmericanThinkerBlog')
-            ]
+             (u'http://feeds.feedburner.com/AmericanThinkerBlog')
+             ]

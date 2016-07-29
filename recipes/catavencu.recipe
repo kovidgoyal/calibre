@@ -1,7 +1,7 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
 '''
 academiacatavencu.info
@@ -9,44 +9,42 @@ academiacatavencu.info
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AcademiaCatavencu(BasicNewsRecipe):
-    title                 = u'Academia Ca\u0163avencu'
-    __author__            = u'Silviu Cotoar\u0103'
-    description           = 'Academia Catavencu. Pamflete!'
-    publisher             = u'Ca\u0163avencu'
-    oldest_article        = 5
-    language              = 'ro'
+    title = u'Academia Ca\u0163avencu'
+    __author__ = u'Silviu Cotoar\u0103'
+    description = 'Academia Catavencu. Pamflete!'
+    publisher = u'Ca\u0163avencu'
+    oldest_article = 5
+    language = 'ro'
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    category              = 'Ziare'
-    encoding              = 'utf-8'
-    cover_url         = 'http://www.inpolitics.ro/Uploads/Articles/academia_catavencu.jpg'
+    no_stylesheets = True
+    use_embedded_content = False
+    category = 'Ziare'
+    encoding = 'utf-8'
+    cover_url = 'http://www.inpolitics.ro/Uploads/Articles/academia_catavencu.jpg'
 
     conversion_options = {
-                             'comments'   : description
-                            ,'tags'       : category
-                            ,'language'   : language
-							,'publisher'  : publisher
-                         }
+        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
+    }
 
     keep_only_tags = [
-            dict(name='h1', attrs={'class':'entry-title'}),
-			dict(name='div', attrs={'class':'entry-content'})
-                     ]
+        dict(name='h1', attrs={'class': 'entry-title'}),
+        dict(name='div', attrs={'class': 'entry-content'})
+    ]
 
     remove_tags = [
-             dict(name='div', attrs={'class':['mr_social_sharing_wrapper']})
-           , dict(name='div', attrs={'id':['fb_share_1']})
-                  ]
+        dict(name='div', attrs={'class': ['mr_social_sharing_wrapper']}), dict(
+            name='div', attrs={'id': ['fb_share_1']})
+    ]
 
     remove_tags_after = [
-              dict(name='div', attrs={'id':['fb_share_1']})
-            ]
+        dict(name='div', attrs={'id': ['fb_share_1']})
+    ]
 
-    feeds          = [
-            (u'Feeds', u'http://www.academiacatavencu.info/feed')
-                 ]
+    feeds = [
+        (u'Feeds', u'http://www.academiacatavencu.info/feed')
+    ]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

@@ -1,19 +1,20 @@
-import urllib2, re
+import urllib2
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class JBPress(BasicNewsRecipe):
-    title          = u'JBPress'
+    title = u'JBPress'
     language = 'ja'
     description = u'Japan Business Press New articles (using small print version)'
-    __author__	= 'Ado Nishimura'
+    __author__ = 'Ado Nishimura'
     needs_subscription = True
     oldest_article = 7
     max_articles_per_feed = 100
     remove_tags_before = dict(id='wrapper')
-    no_stylesheets         = True
+    no_stylesheets = True
 
     feeds = [('JBPress new article', 'http://feed.ismedia.jp/rss/jbpress/all.rdf')]
-
 
     def get_cover_url(self):
         return 'http://www.jbpress.co.jp/common/images/v1/jpn/common/logo.gif'
@@ -32,20 +33,19 @@ class JBPress(BasicNewsRecipe):
             response.set_data(html)
             br.set_response(response)
             br.select_form(nr=0)
-            br["login"]   = self.username
+            br["login"] = self.username
             br['password'] = self.password
             br.submit()
         return br
 
     def print_version(self, url):
-        url = urllib2.urlopen(url).geturl() # resolve redirect.
+        url = urllib2.urlopen(url).geturl()  # resolve redirect.
         return url.replace('/-/', '/print/')
 
     def preprocess_html(self, soup):
             # remove breadcrumb
-            h3s = soup.findAll('h3')
-            for h3 in h3s:
-                if re.compile('^JBpress&gt;').match(h3.string):
-                    h3.extract()
-            return soup
-
+        h3s = soup.findAll('h3')
+        for h3 in h3s:
+            if re.compile('^JBpress&gt;').match(h3.string):
+                h3.extract()
+        return soup

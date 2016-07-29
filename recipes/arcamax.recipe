@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = 'Copyright 2010 Starson17'
 '''
 www.arcamax.com
@@ -10,30 +10,29 @@ import os
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryDirectory
 
+
 class Arcamax(BasicNewsRecipe):
-    title               = 'Arcamax'
-    __author__          = 'Kovid Goyal'
-    description         = u'Family Friendly Comics - Customize for more days/comics: Defaults to 7 days, 25 comics - 20 general, 5 editorial.'
-    category            = 'news, comics'
-    language            = 'en'
-    use_embedded_content= False
-    no_stylesheets      = True
-    remove_javascript   = True
-    cover_url           = 'http://www.arcamax.com/images/pub/amuse/leftcol/zits.jpg'
+    title = 'Arcamax'
+    __author__ = 'Kovid Goyal'
+    description = u'Family Friendly Comics - Customize for more days/comics: Defaults to 7 days, 25 comics - 20 general, 5 editorial.'
+    category = 'news, comics'
+    language = 'en'
+    use_embedded_content = False
+    no_stylesheets = True
+    remove_javascript = True
+    cover_url = 'http://www.arcamax.com/images/pub/amuse/leftcol/zits.jpg'
 
-    # ###### USER PREFERENCES - SET COMICS AND NUMBER OF COMICS TO RETRIEVE ########
+    # ###### USER PREFERENCES - SET COMICS AND NUMBER OF COMICS TO RETRIEVE ##
     num_comics_to_get = 7
-    # CHOOSE COMIC STRIPS BELOW - REMOVE COMMENT '# ' FROM IN FRONT OF DESIRED STRIPS
+    # CHOOSE COMIC STRIPS BELOW - REMOVE COMMENT '# ' FROM IN FRONT OF DESIRED
+    # STRIPS
 
-    conversion_options = {'linearize_tables'  : True
-                        , 'comment'           : description
-                        , 'tags'              : category
-                        , 'language'          : language
-                        }
+    conversion_options = {'linearize_tables': True, 'comment': description, 'tags': category, 'language': language
+                          }
 
-    keep_only_tags     = [
-        dict(name='header', attrs={'class':'fn-content-header bluelabel'}),
-        dict(name='figure', attrs={'class':['comic']}),
+    keep_only_tags = [
+        dict(name='header', attrs={'class': 'fn-content-header bluelabel'}),
+        dict(name='figure', attrs={'class': ['comic']}),
     ]
 
     def parse_index(self):
@@ -93,18 +92,22 @@ class Arcamax(BasicNewsRecipe):
             num -= 1
             raw = self.index_to_soup(url, raw=True)
             self.panel_counter += 1
-            path = os.path.join(self.panel_tdir, '%d.html' % self.panel_counter)
+            path = os.path.join(self.panel_tdir, '%d.html' %
+                                self.panel_counter)
             with open(path, 'wb') as f:
                 f.write(raw)
             soup = self.index_to_soup(raw)
-            a = soup.find(name='a', attrs={'class':['prev']})
+            a = soup.find(name='a', attrs={'class': ['prev']})
             prev_page_url = 'http://www.arcamax.com' + a['href']
-            title = self.tag_to_string(soup.find('title')).partition('|')[0].strip()
+            title = self.tag_to_string(
+                soup.find('title')).partition('|')[0].strip()
             if 'for' not in title.split():
                 title = title + ' for today'
-            date = self.tag_to_string(soup.find(name='span', attrs={'class':['cur']}))
+            date = self.tag_to_string(
+                soup.find(name='span', attrs={'class': ['cur']}))
             self.log('\tFound:', title, 'at:', url)
-            current_articles.append({'title': title, 'url':'file://' + path , 'description':'', 'date': date})
+            current_articles.append(
+                {'title': title, 'url': 'file://' + path, 'description': '', 'date': date})
             if self.test and len(current_articles) >= self.test[1]:
                 break
             url = prev_page_url

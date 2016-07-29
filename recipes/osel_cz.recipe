@@ -3,16 +3,17 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class OselCZ(BasicNewsRecipe):
-    title          = 'OSEL.cz'
+    title = 'OSEL.cz'
     __author__ = 'spacekpe'
     oldest_article = 100
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
     recursions = 1
     language = 'cs'
 
-    feeds          = [
+    feeds = [
         ('OSEL.cz', 'http://www.osel.cz/rss/rss.php'),
     ]
 

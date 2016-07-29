@@ -1,11 +1,11 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Peter Grungi <p dot grungi at gmail dot com>'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class DesiringGodEnglish(BasicNewsRecipe):
-    title          = u'Desiring God'
+    title = u'Desiring God'
     __author__ = 'Peter Grungi'
     language = 'en'
 
@@ -18,4 +18,4 @@ class DesiringGodEnglish(BasicNewsRecipe):
     publisher = 'Desiring God Ministries'
     author = 'Desiring God Ministries'
 
-    feeds          = [(u'Desiring God Blog', u'http://feeds.feedburner.com/DGBlog?format=xml')]
+    feeds = [(u'Desiring God Blog', u'http://feeds.feedburner.com/DGBlog?format=xml')]

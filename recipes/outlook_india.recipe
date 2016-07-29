@@ -1,28 +1,32 @@
 #!/usr/bin/env  python2
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid at kovidgoyal.net>'
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 def absurl(x):
     if x.startswith('/'):
         x = 'http://www.outlookindia.com' + x
     return x
 
+
 class OutlookIndia(BasicNewsRecipe):
 
-    title          = 'Outlook India'
-    __author__     = 'Kovid Goyal'
-    description    = 'Weekly news and current affairs in India'
+    title = 'Outlook India'
+    __author__ = 'Kovid Goyal'
+    description = 'Weekly news and current affairs in India'
     no_stylesheets = True
-    encoding       = 'utf-8'
+    encoding = 'utf-8'
     language = 'en_IN'
     ignore_duplicate_articles = {'title', 'url'}
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(attrs={'class':['sub_head', 'magzine_stry_image', 'mainContent']}),
-        dict(attrs={'class':lambda x: x and set(x.split()).intersection({'writter', 'covr_wr'})}),
+        dict(
+            attrs={'class': ['sub_head', 'magzine_stry_image', 'mainContent']}),
+        dict(attrs={'class': lambda x: x and set(
+            x.split()).intersection({'writter', 'covr_wr'})}),
     ]
     remove_tags = [
         dict(name='meta'),
@@ -40,7 +44,8 @@ class OutlookIndia(BasicNewsRecipe):
     def preprocess_raw_html(self, raw_html, url):
         import html5lib
         from lxml import html
-        root = html5lib.parse(raw_html, treebuilder='lxml', namespaceHTMLElements=False)
+        root = html5lib.parse(raw_html, treebuilder='lxml',
+                              namespaceHTMLElements=False)
         return html.tostring(root)
 
     def parse_index(self):
@@ -54,9 +59,9 @@ class OutlookIndia(BasicNewsRecipe):
             url = absurl(a['href'])
             title = self.tag_to_string(a)
             desc = ''
-            div = a.parent.findNextSibling(attrs={'class':'descriptn'})
+            div = a.parent.findNextSibling(attrs={'class': 'descriptn'})
             if div is not None:
                 desc = self.tag_to_string(div)
             self.log('Found article:', title, 'at', url)
-            articles.append({'title':title, 'url':url, 'description':desc})
+            articles.append({'title': title, 'url': url, 'description': desc})
         return [('Current Issue', articles)]

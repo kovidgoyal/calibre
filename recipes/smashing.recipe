@@ -2,14 +2,15 @@
 from __future__ import unicode_literals
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class SmashingMagazine (BasicNewsRecipe):
     __author__ = 'Marc Busqué <marc@lamarciana.com>'
     __url__ = 'http://www.lamarciana.com'
     __version__ = '1.0.2'
-    __license__   = 'GPL v3'
+    __license__ = 'GPL v3'
     __copyright__ = '2012, Marc Busqué <marc@lamarciana.com>'
     title = u'Smashing Magazine'
-    description = u'Founded in September 2006, Smashing Magazine delivers useful and innovative information to Web designers and developers. Our aim is to inform our readers about the latest trends and techniques in Web development. We try to persuade you not with the quantity but with the quality of the information we present. Smashing Magazine is and always has been independent.'
+    description = u'Founded in September 2006, Smashing Magazine delivers useful and innovative information to Web designers and developers. Our aim is to inform our readers about the latest trends and techniques in Web development. We try to persuade you not with the quantity but with the quality of the information we present. Smashing Magazine is and always has been independent.'  # noqa
     language = 'en'
     tags = 'web development, software'
     oldest_article = 7
@@ -17,7 +18,8 @@ class SmashingMagazine (BasicNewsRecipe):
     no_stylesheets = True
     encoding = 'utf8'
     cover_url = u'http://media.smashingmagazine.com/themes/smashingv4/images/logo.png'
-    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height', 'style']
+    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding',
+                         'colspan', 'valign', 'vspace', 'hspace', 'alt', 'width', 'height', 'style']
 
     def get_extra_css(self):
         if not self.extra_css:
@@ -27,5 +29,5 @@ class SmashingMagazine (BasicNewsRecipe):
         return self.extra_css
 
     feeds = [
-          (u'Smashing Magazine', u'http://rss1.smashingmagazine.com/feed/'),
-          ]
+        (u'Smashing Magazine', u'http://rss1.smashingmagazine.com/feed/'),
+    ]

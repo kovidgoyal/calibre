@@ -1,10 +1,11 @@
 import os, sys
 class Configure:
-    def __init__(   self,
+
+    def __init__(self,
                     configuration_file,
                     bug_handler,
-                    debug_dir = None,
-                    show_config_file = None,
+                    debug_dir=None,
+                    show_config_file=None,
                     ):
         """
         Requires:
@@ -77,12 +78,12 @@ class Configure:
         allowable = [
             'configuration-directory',
             'smart-output',  # = false
-            'level', #  = 1
-            'convert-symbol',#   = true
-            'convert-wingdings',#   = true
-            'convert-zapf-dingbats', #   = true
-            'convert-caps',# true
-            'indent', #   = 1
+            'level',  # = 1
+            'convert-symbol',  # = true
+            'convert-wingdings',  # = true
+            'convert-zapf-dingbats',  # = true
+            'convert-caps',  # true
+            'indent',  # = 1
             'group-styles',
             'group-borders',
             'headings-to-sections',
@@ -99,7 +100,7 @@ class Configure:
                         % the_key)
                 return 1
         configuration_dir = return_dict.get('configuration-directory')
-        if configuration_dir == None:
+        if configuration_dir is None:
             return_dict['configure-directory'] = None
         else:
             if not os.path.isdir(configuration_dir):

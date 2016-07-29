@@ -21,7 +21,7 @@ from calibre.utils.pyconsole.history import History
 from calibre.utils.pyconsole import prints, prefs, __appname__, \
         __version__, error_dialog, dynamic
 
-class EditBlock(object): # {{{
+class EditBlock(object):  # {{{
 
     def __init__(self, cursor):
         self.cursor = cursor
@@ -34,7 +34,7 @@ class EditBlock(object): # {{{
         self.cursor.endEditBlock()
 # }}}
 
-class Prepender(object): # {{{
+class Prepender(object):  # {{{
     'Helper class to insert output before the current prompt'
     def __init__(self, console):
         self.console = console
@@ -50,7 +50,7 @@ class Prepender(object): # {{{
         self.console.cursor_pos = self.opos
 # }}}
 
-class ThemeMenu(QMenu): # {{{
+class ThemeMenu(QMenu):  # {{{
 
     def __init__(self, parent):
         QMenu.__init__(self, _('Choose theme (needs restart)'))
@@ -131,7 +131,7 @@ class Console(QTextEdit):
         self.lexer = PythonLexer(ensurenl=False)
         self.tb_lexer = PythonTracebackLexer()
 
-        self.context_menu = cm = QMenu(self) # {{{
+        self.context_menu = cm = QMenu(self)  # {{{
         cm.theme = ThemeMenu(cm)
         # }}}
 
@@ -141,7 +141,7 @@ class Console(QTextEdit):
         p.setColor(p.Text, QColor(self.formatter.color))
         self.setPalette(p)
 
-        self.key_dispatcher = { # {{{
+        self.key_dispatcher = {  # {{{
                 Qt.Key_Enter : self.enter_pressed,
                 Qt.Key_Return : self.enter_pressed,
                 Qt.Key_Up : self.up_pressed,
@@ -152,7 +152,7 @@ class Console(QTextEdit):
                 Qt.Key_Right : self.right_pressed,
                 Qt.Key_Backspace : self.backspace_pressed,
                 Qt.Key_Delete : self.delete_pressed,
-        } # }}}
+        }  # }}}
 
         motd = textwrap.dedent('''\
         # Python {0}
@@ -164,7 +164,6 @@ class Console(QTextEdit):
 
         self.controllers = []
         QTimer.singleShot(0, self.launch_controller)
-
 
         with EditBlock(self.cursor):
             self.render_block(motd)
@@ -218,13 +217,13 @@ class Console(QTextEdit):
     def execution_done(self, controller, ret):
         if controller is self.controller:
             self.running_done.emit()
-            if ret: # Incomplete command
+            if ret:  # Incomplete command
                 self.buf = self.old_buf
                 self.prompt_frame = self.old_prompt_frame
                 c = self.prompt_frame.lastCursorPosition()
                 c.insertBlock()
                 self.setTextCursor(c)
-            else: # Command completed
+            else:  # Command completed
                 try:
                     self.old_prompt_frame.setFrameFormat(QTextFrameFormat())
                 except RuntimeError:
@@ -391,7 +390,8 @@ class Console(QTextEdit):
 
     def left_pressed(self):
         lineno, pos = self.cursor_pos
-        if lineno < 0: return
+        if lineno < 0:
+            return
         if pos > self.prompt_len:
             c = self.cursor
             c.movePosition(c.PreviousCharacter)
@@ -405,7 +405,8 @@ class Console(QTextEdit):
 
     def up_pressed(self):
         lineno, pos = self.cursor_pos
-        if lineno < 0: return
+        if lineno < 0:
+            return
         if lineno == 0:
             b = self.history.back()
             if b is not None:
@@ -416,10 +417,10 @@ class Console(QTextEdit):
             self.setTextCursor(c)
         self.ensureCursorVisible()
 
-
     def backspace_pressed(self):
         lineno, pos = self.cursor_pos
-        if lineno < 0: return
+        if lineno < 0:
+            return
         if pos > self.prompt_len:
             self.cursor.deletePreviousChar()
         elif lineno > 0:
@@ -435,7 +436,8 @@ class Console(QTextEdit):
 
     def right_pressed(self):
         lineno, pos = self.cursor_pos
-        if lineno < 0: return
+        if lineno < 0:
+            return
         c = self.cursor
         cp = list(self.prompt(False))
         if pos < len(cp[lineno]):
@@ -447,7 +449,8 @@ class Console(QTextEdit):
 
     def down_pressed(self):
         lineno, pos = self.cursor_pos
-        if lineno < 0: return
+        if lineno < 0:
+            return
         c = self.cursor
         cp = list(self.prompt(False))
         if lineno >= len(cp) - 1:
@@ -459,7 +462,6 @@ class Console(QTextEdit):
             c.movePosition(c.Down)
             self.setTextCursor(c)
         self.ensureCursorVisible()
-
 
     def home_pressed(self):
         if self.prompt_frame is not None:

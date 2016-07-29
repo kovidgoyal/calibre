@@ -50,8 +50,8 @@ class Table:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,):
+            copy=None,
+            run_level=1,):
         """
         Required:
             'file'--file to parse
@@ -125,7 +125,7 @@ class Table:
             self.__found_row_def_func(line)
         elif self.__token_info == 'cw<tb<cell______':
             self.__start_row_func(line)
-            self.__empty_cell( line)
+            self.__empty_cell(line)
         self.__write_obj.write(line)
     def __not_in_table_func(self, line):
         """
@@ -189,9 +189,9 @@ class Table:
             Write out the table marker.
             Initialize table values (not sure about these yet)
         """
-	self.__rows_in_table = 0;
-	self.__cells_in_table = 0;
-	self.__cells_in_row = 0;
+        self.__rows_in_table = 0
+        self.__cells_in_table = 0
+        self.__cells_in_row = 0
         self.__max_number_cells_in_row = 0
         self.__table_data.append({})
         self.__list_of_cells_in_row = []
@@ -227,7 +227,7 @@ class Table:
         widths = self.__row_dict.get('widths')
         if widths:
             width_list = widths.split(',')
-            num_cells = len (width_list)
+            num_cells = len(width_list)
             self.__row_dict['number-of-cells'] = num_cells
     def __in_row_def_func(self, line):
         """
@@ -526,13 +526,13 @@ class Table:
             self.__token_info = line[:16]
             action = self.__state_dict.get(self.__state[-1])
             # print self.__state[-1]
-            if action == None:
+            if action is None:
                 sys.stderr.write('No matching state in module table.py\n')
                 sys.stderr.write(self.__state[-1] + '\n')
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "table.data")
         copy_obj.rename(self.__write_to, self.__file)

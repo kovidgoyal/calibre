@@ -3,7 +3,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2015, Ned Letcher <ned at nedned.net>'
 
 
@@ -22,21 +22,23 @@ class SlateStarCodex(BasicNewsRecipe):
     no_stylesheets = True
     # alternative candidate for keep_only_tags:
     # [{'attrs':{'class':['pjgm-posttitle', 'pjgm-postmeta', 'pjgm-postcontent']}}]
-    keep_only_tags = [dict(name='div', attrs={'class':re.compile(r'\bpost\b')})]
-    remove_tags = [dict(name='div', attrs={'class':re.compile(r'\bsharedaddy\b')})]
-   
+    keep_only_tags = [
+        dict(name='div', attrs={'class': re.compile(r'\bpost\b')})]
+    remove_tags = [
+        dict(name='div', attrs={'class': re.compile(r'\bsharedaddy\b')})]
+
     def get_archived_posts(self):
         soup = self.index_to_soup('http://slatestarcodex.com/archives/')
-        entries = soup.findAll(attrs={'class':'sya_postcontent'})
+        entries = soup.findAll(attrs={'class': 'sya_postcontent'})
 
         posts = []
         for entry in entries:
             atag = entry.find('a')
             url = atag['href']
             post = {
-                'title' : atag.contents[0],
-                'url' : url,
-                'date' : "-".join(url.strip('/').split('/')[-4:-1]),
+                'title': atag.contents[0],
+                'url': url,
+                'date': "-".join(url.strip('/').split('/')[-4:-1]),
             }
             posts.append(post)
         return posts

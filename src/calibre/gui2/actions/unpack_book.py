@@ -176,8 +176,7 @@ class UnpackBook(QDialog):
             det_msg = e.orig_tb
         except Error as e:
             return error_dialog(self, _('Failed to unpack'),
-                (_('Could not explode the %s file.')%self.current_format) + ' '
-                + as_unicode(e), show=True)
+                (_('Could not explode the %s file.')%self.current_format) + ' ' + as_unicode(e), show=True)
         except:
             import traceback
             det_msg = traceback.format_exc()

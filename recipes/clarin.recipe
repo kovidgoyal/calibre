@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
 clarin.com
@@ -9,25 +9,27 @@ import urllib
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Clarin(BasicNewsRecipe):
-    title                 = 'Clarín'
-    __author__            = 'Darko Miletic'
-    description           = 'Clarin.com. Noticias de la Argentina y el mundo. Información actualizada las 24 horas y en español. Informate ya'
-    publisher             = 'Grupo Clarin'
-    category              = 'news, politics, Argentina'
-    oldest_article        = 2
+    title = 'Clarín'
+    __author__ = 'Darko Miletic'
+    description = 'Clarin.com. Noticias de la Argentina y el mundo. Información actualizada las 24 horas y en español. Informate ya'
+    publisher = 'Grupo Clarin'
+    category = 'news, politics, Argentina'
+    oldest_article = 2
     max_articles_per_feed = 100
-    use_embedded_content  = False
-    no_stylesheets        = True
-    encoding              = 'utf8'
-    delay                 = 1
-    language              = 'es_AR'
-    publication_type      = 'newspaper'
-    needs_subscription    = 'optional'
-    INDEX                 = 'http://www.clarin.com'
-    LOGIN                 = 'https://app-pase.clarin.com/pase-registracion/app/pase/ingresarNavegable?execution=e1s1'
-    masthead_url          = 'http://www.clarin.com/static/CLAClarinV3/images/logo.png'
-    cover_url             = strftime('http://tapas.clarin.com/tapa/%Y/%m/%d/%Y%m%d_thumb.jpg')
+    use_embedded_content = False
+    no_stylesheets = True
+    encoding = 'utf8'
+    delay = 1
+    language = 'es_AR'
+    publication_type = 'newspaper'
+    needs_subscription = 'optional'
+    INDEX = 'http://www.clarin.com'
+    LOGIN = 'https://app-pase.clarin.com/pase-registracion/app/pase/ingresarNavegable?execution=e1s1'
+    masthead_url = 'http://www.clarin.com/static/CLAClarinV3/images/logo.png'
+    cover_url = strftime(
+        'http://tapas.clarin.com/tapa/%Y/%m/%d/%Y%m%d_thumb.jpg')
     extra_css             = """
                                body{font-family: Arial,Helvetica,sans-serif}
                                h2{font-family: Georgia,serif; font-size: xx-large}
@@ -36,43 +38,37 @@ class Clarin(BasicNewsRecipe):
                             """
 
     conversion_options = {
-                          'comment'  : description
-                        , 'tags'     : category
-                        , 'publisher': publisher
-                        , 'language' : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
-    remove_tags_before = dict(attrs={'class':'int-nota-title'})
-    remove_tags       = [
-                         dict(name=['meta','base','link','iframe','embed','object']),
-                         dict(attrs={'class':['tags-bar','breadcrumb','share-bar']}),
-                         dict(attrs={'id':['relacionadas']})
-                        ]
-    remove_tags_after = dict(name='div', attrs={'id':'relacionadas'})
+    remove_tags_before = dict(attrs={'class': 'int-nota-title'})
+    remove_tags = [
+        dict(name=['meta', 'base', 'link', 'iframe', 'embed', 'object']),
+        dict(attrs={'class': ['tags-bar', 'breadcrumb', 'share-bar']}),
+        dict(attrs={'id': ['relacionadas']})
+    ]
+    remove_tags_after = dict(name='div', attrs={'id': 'relacionadas'})
     remove_attributes = ['lang']
 
     feeds = [
-               (u'Pagina principal', u'http://www.clarin.com/rss/')
-              ,(u'Politica'        , u'http://www.clarin.com/rss/politica/')
-              ,(u'Deportes'        , u'http://www.clarin.com/rss/deportes/')
-              ,(u'Mundo'           , u'http://www.clarin.com/rss/mundo/')
-              ,(u'Espectaculos'    , u'http://www.clarin.com/rss/espectaculos/')
-              ,(u'Sociedad'        , u'http://www.clarin.com/rss/sociedad/')
-              ,(u'Ciudades'        , u'http://www.clarin.com/rss/ciudades/')
-              ,(u'Policiales'      , u'http://www.clarin.com/rss/policiales/')
-              ,(u'Internet'        , u'http://www.clarin.com/rss/internet/')
-            ]
+
+    (u'Pagina principal', u'http://www.clarin.com/rss/'),
+    (u'Politica', u'http://www.clarin.com/rss/politica/'),
+    (u'Deportes', u'http://www.clarin.com/rss/deportes/'),
+    (u'Mundo', u'http://www.clarin.com/rss/mundo/'),
+    (u'Espectaculos', u'http://www.clarin.com/rss/espectaculos/'),
+    (u'Sociedad', u'http://www.clarin.com/rss/sociedad/'),
+    (u'Ciudades', u'http://www.clarin.com/rss/ciudades/'),
+    (u'Policiales', u'http://www.clarin.com/rss/policiales/'),
+    (u'Internet', u'http://www.clarin.com/rss/internet/')
+    ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'ingresar_ingresar_paseForm':'ingresar_ingresar_paseForm'
-                                     ,'ingresar_ingresar_email_paseInputComponent':self.username
-                                     ,'ingresar_ingresar_palabraClave_paseInputComponent':self.password
-                                     ,'ingresar_ingresar_ingresar_paseButton':'Ingresar'
-                                     ,'javax.faces.ViewState':'e1s1'
-                                   })
+            data = urllib.urlencode({'ingresar_ingresar_paseForm': 'ingresar_ingresar_paseForm', 'ingresar_ingresar_email_paseInputComponent': self.username, 'ingresar_ingresar_palabraClave_paseInputComponent': self.password, 'ingresar_ingresar_ingresar_paseButton': 'Ingresar', 'javax.faces.ViewState': 'e1s1'  # noqa
+                                     })
             br.open(self.LOGIN, data)
         return br
 

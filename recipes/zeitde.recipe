@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
@@ -7,49 +7,67 @@ Fetch Zeit-Online.de
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
 
+
 class ZeitDe(BasicNewsRecipe):
 
-    __author__            = 'Armin Geller'    # AGe 2014-02-26
-    title                 = u'Zeit Online'
-    description           = u'German  online portal of newspaper Die Zeit'
-    publisher             = 'ZEIT ONLINE GmbH'
-    category              = 'news, Germany'
-    timefmt               = ' [%a, %d %b %Y]'
-    publication_type      = 'newspaper'
-    language              = 'de'
-    encoding              = 'UTF-8'
+    __author__ = 'Armin Geller'    # AGe 2014-02-26
+    title = u'Zeit Online'
+    description = u'German  online portal of newspaper Die Zeit'
+    publisher = 'ZEIT ONLINE GmbH'
+    category = 'news, Germany'
+    timefmt = ' [%a, %d %b %Y]'
+    publication_type = 'newspaper'
+    language = 'de'
+    encoding = 'UTF-8'
 
-    oldest_article        = 7
+    oldest_article = 7
     max_articles_per_feed = 100
-    remove_empty_feeds    = True
-    auto_cleanup          = True
+    remove_empty_feeds = True
+    auto_cleanup = True
 
-    masthead_url          = 'http://images.zeit.de/static/img/logo_247x30.png'
+    masthead_url = 'http://images.zeit.de/static/img/logo_247x30.png'
 
-    year = str(date.today().isocalendar()[0])  # [0]=year [1]=week number [2]=week day
-    # week = str(date.today().isocalendar()[1]+1).zfill(3) # AGE 2014-01-09: week needs 3 digits with prefix 0
+    # [0]=year [1]=week number [2]=week day
+    year = str(date.today().isocalendar()[0])
+    # week = str(date.today().isocalendar()[1]+1).zfill(3) # AGE 2014-01-09:
+    # week needs 3 digits with prefix 0
     week = str(date.today().isocalendar()[1]).zfill(3)  # AGE 2014-02-26: week
-    cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/titelfluss/'  + year + '/'+ week + '_001.jpg'  # AGE 2014-01-09
+    cover_url = 'http://images.zeit.de/bilder/titelseiten_zeit/titelfluss/' + \
+        year + '/' + week + '_001.jpg'  # AGE 2014-01-09
 
     extra_css = '.caption {font-size: 0.9em; font-style: italic; } \
                  .excerpt {font-size: 1.3em; font-style: italic; } '
 
-    feeds =  [
-               (u'Startseite – Die wichtigsten Themen auf einen Blick', u'http://newsfeed.zeit.de/index_xml'),
-               (u'Politik – Ausland und Deutschland', u'http://newsfeed.zeit.de/politik/index'),
-               (u'Wirtschaft – Wirtschaft und Unternehmen', u'http://newsfeed.zeit.de/wirtschaft/index'),
-               (u'Meinung – Autoren kommentieren', u'http://newsfeed.zeit.de/meinung/index'),
-               (u'Gesellschaft – Gesellschaft und soziales Leben', u'http://newsfeed.zeit.de/gesellschaft/index'),
-               (u'Kultur – Literatur, Kunst, Film und Musik', u'http://newsfeed.zeit.de/kultur/index'),
-               (u'Wissen – Wissenschaft, Gesundheit, Umwelt und Geschichte', u'http://newsfeed.zeit.de/wissen/index'),
-               (u'Digital – Hardware, Software, Internet, Datenschutz', u'http://newsfeed.zeit.de/digital/index'),
-               (u'Studium – ZEIT ONLINE für Studenten', u'http://newsfeed.zeit.de/studium/index'),
-               (u'Karriere – Für Ein-, Um- und Aufsteiger', u'http://newsfeed.zeit.de/karriere/index'),
-               (u'Lebensart – Freizeit und Leben', u'http://newsfeed.zeit.de/lebensart/index'),
-               (u'Reisen – All inclusive und individuell', u'http://newsfeed.zeit.de/reisen/index'),
-               (u'Mobilität – Wie wir uns fortbewegen', u'http://newsfeed.zeit.de/mobilitaet/index'),  # AGe 2014-01-09
-               (u'Sport – Sieg und Niederlage', u'http://newsfeed.zeit.de/sport/index')
-              ]
+    feeds = [
+        (u'Startseite – Die wichtigsten Themen auf einen Blick',
+         u'http://newsfeed.zeit.de/index_xml'),
+        (u'Politik – Ausland und Deutschland',
+         u'http://newsfeed.zeit.de/politik/index'),
+        (u'Wirtschaft – Wirtschaft und Unternehmen',
+         u'http://newsfeed.zeit.de/wirtschaft/index'),
+        (u'Meinung – Autoren kommentieren',
+         u'http://newsfeed.zeit.de/meinung/index'),
+        (u'Gesellschaft – Gesellschaft und soziales Leben',
+         u'http://newsfeed.zeit.de/gesellschaft/index'),
+        (u'Kultur – Literatur, Kunst, Film und Musik',
+         u'http://newsfeed.zeit.de/kultur/index'),
+        (u'Wissen – Wissenschaft, Gesundheit, Umwelt und Geschichte',
+         u'http://newsfeed.zeit.de/wissen/index'),
+        (u'Digital – Hardware, Software, Internet, Datenschutz',
+         u'http://newsfeed.zeit.de/digital/index'),
+        (u'Studium – ZEIT ONLINE für Studenten',
+         u'http://newsfeed.zeit.de/studium/index'),
+        (u'Karriere – Für Ein-, Um- und Aufsteiger',
+         u'http://newsfeed.zeit.de/karriere/index'),
+        (u'Lebensart – Freizeit und Leben',
+         u'http://newsfeed.zeit.de/lebensart/index'),
+        (u'Reisen – All inclusive und individuell',
+         u'http://newsfeed.zeit.de/reisen/index'),
+        (u'Mobilität – Wie wir uns fortbewegen',
+         u'http://newsfeed.zeit.de/mobilitaet/index'),  # AGe 2014-01-09
+        (u'Sport – Sieg und Niederlage',
+         u'http://newsfeed.zeit.de/sport/index')
+    ]
 
     def print_version(self, url):
         return url + '/komplettansicht?print=true'

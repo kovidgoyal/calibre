@@ -1,8 +1,9 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 '''
 newstatesman.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class NewStatesman(BasicNewsRecipe):
 
@@ -13,22 +14,22 @@ class NewStatesman(BasicNewsRecipe):
     oldest_article = 4.0
     no_stylesheets = True
     use_embedded_content = False
-    remove_empty_feeds      = True
+    remove_empty_feeds = True
 
-    keep_only_tags = [dict(attrs={'class' : 'node'})]
+    keep_only_tags = [dict(attrs={'class': 'node'})]
 
     remove_tags_after = [
-        dict(attrs={'class' : lambda x: x and 'content123' in x})
+        dict(attrs={'class': lambda x: x and 'content123' in x})
     ]
 
     remove_tags = [
-        dict(attrs={'class' : lambda x: x and 'links_bookmark' in x})    
+        dict(attrs={'class': lambda x: x and 'links_bookmark' in x})
     ]
-    
+
     extra_css = '''
         .title-main {font-size: x-large;}
         h2 { font-size: small;  }
-        h1 { font-size: medium;  }        
+        h1 { font-size: medium;  }
         .field-field-nodeimage-title {
             font-size: small;
             color: #3C3C3C;
@@ -44,18 +45,17 @@ class NewStatesman(BasicNewsRecipe):
         if first and hasattr(self, 'add_toc_thumbnail'):
             pic = soup.find('img')
             if pic is not None:
-                self.add_toc_thumbnail(article,pic['src'])
+                self.add_toc_thumbnail(article, pic['src'])
 
     def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self,article)
+        url = BasicNewsRecipe.get_article_url(self, article)
 
         if url in self.processed_urls:
-            self.log('skipping duplicate article: %s' %article.title )
+            self.log('skipping duplicate article: %s' % article.title)
             return None
-        
-        self.processed_urls.append(url)     
+
+        self.processed_urls.append(url)
         return url
-    
 
     feeds = [
         (u'Politics',
@@ -79,12 +79,3 @@ class NewStatesman(BasicNewsRecipe):
         (u'Others',
          u'http://www.newstatesman.com/feeds_allsite/site_feed.php'),
     ]
-
-    
-    
-    
-    
-    
-    
-    
-

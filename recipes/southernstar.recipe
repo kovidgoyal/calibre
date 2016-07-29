@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, watou'
 '''
 southernstar.ie
@@ -13,9 +13,10 @@ import codecs
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag, NavigableString
 
+
 class TheSouthernStar(BasicNewsRecipe):
 
-    title      = 'The Southern Star'
+    title = 'The Southern Star'
     __author__ = 'watou'
     description = 'West Cork\'s leading news and information provider since 1889'
     NEWS_INDEX = 'http://www.southernstar.ie/news.php'
@@ -25,13 +26,13 @@ class TheSouthernStar(BasicNewsRecipe):
     language = 'en_IE'
     encoding = 'cp1252'
 
-    publication_type   = 'newspaper'
-    masthead_url       = 'http://www.southernstar.ie/images/logo.gif'
-    remove_tags_before = dict(name='div', attrs={'class':'article'})
-    remove_tags_after  = dict(name='div', attrs={'class':'article'})
-    remove_tags        = [dict(name='div', attrs={'style':'width:300px; position:relative'}),
-        dict(name='form'),
-        dict(name='div', attrs={'class':'endpanel'})]
+    publication_type = 'newspaper'
+    masthead_url = 'http://www.southernstar.ie/images/logo.gif'
+    remove_tags_before = dict(name='div', attrs={'class': 'article'})
+    remove_tags_after = dict(name='div', attrs={'class': 'article'})
+    remove_tags = [dict(name='div', attrs={'style': 'width:300px; position:relative'}),
+                   dict(name='form'),
+                   dict(name='div', attrs={'class': 'endpanel'})]
     no_stylesheets = True
     tempfiles = []
     pubdate = ''
@@ -63,10 +64,10 @@ class TheSouthernStar(BasicNewsRecipe):
     def fetch_ss_articles(self, index, seen_titles):
         articles = []
         soup = self.index_to_soup(index)
-        ts = soup.find('div', {'class':'article'})
+        ts = soup.find('div', {'class': 'article'})
         ds = self.tag_to_string(ts.find('strong'))
-        self.pubdate = ' ['+ds+']'
-        self.timefmt = ' [%s]'%ds
+        self.pubdate = ' [' + ds + ']'
+        self.timefmt = ' [%s]' % ds
 
         for post in ts.findAll('h1'):
             a = post.find('a', href=True)
@@ -76,14 +77,14 @@ class TheSouthernStar(BasicNewsRecipe):
             seen_titles.add(title)
             url = a['href']
             if url.startswith('article'):
-                url = 'http://www.southernstar.ie/'+url
+                url = 'http://www.southernstar.ie/' + url
             self.log('\tFound article:', title, 'at', url)
             p = post.findNextSibling('p')
             desc = None
             if p is not None:
                 desc = str(p)
-            articles.append({'title':title, 'url':url, 'description':desc,
-                'date':self.pubdate})
+            articles.append({'title': title, 'url': url, 'description': desc,
+                             'date': self.pubdate})
 
         return articles
 
@@ -91,22 +92,22 @@ class TheSouthernStar(BasicNewsRecipe):
         articles = []
 
         soup = self.index_to_soup(page)
-        ts = soup.find('div', {'class':'content'})
+        ts = soup.find('div', {'class': 'content'})
         for post in ts.findAll('h1'):
             title = self.tag_to_string(post)
             self.log('\tFound note:', title)
-            f = tempfile.NamedTemporaryFile(suffix='.html',delete=False)
+            f = tempfile.NamedTemporaryFile(suffix='.html', delete=False)
             f.close()
             f = codecs.open(f.name, 'w+b', self.encoding, 'replace')
             url = "file://" + f.name
-            f.write(u'<html><head><meta http-equiv="Content-Type" content="text/html; charset='+
-                self.encoding+'"></head><body><h1>'+title+'</h1>')
+            f.write(u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=' +
+                    self.encoding + '"></head><body><h1>' + title + '</h1>')
             f.write(str(post.findNextSibling('p')))
             f.write(u'</body></html>')
             self.log('\tWrote note to', f.name)
             f.close()
             self.tempfiles.append(f)
-            articles.append({'title':title, 'url':url, 'date':self.pubdate})
+            articles.append({'title': title, 'url': url, 'date': self.pubdate})
 
         return articles
 
@@ -127,7 +128,7 @@ class TheSouthernStar(BasicNewsRecipe):
         return soup
 
     def image_url_processor(self, baseurl, url):
-        return url.replace(' ','%20')
+        return url.replace(' ', '%20')
 
     def cleanup(self):
         self.log('cleaning up')

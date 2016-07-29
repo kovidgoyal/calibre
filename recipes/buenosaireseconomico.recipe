@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.diariobae.com
@@ -6,22 +6,24 @@ www.diariobae.com
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class BsAsEconomico(BasicNewsRecipe):
-    title                 = 'Buenos Aires Economico'
-    __author__            = 'Darko Miletic'
-    description           = 'Diario BAE es el diario economico-politico con mas influencia en la Argentina. Fuente de empresarios y politicos del pais y el exterior. El pozo estaria aportando en periodos breves un volumen equivalente a 800m3 diarios. Pero todavia deben efectuarse otras perforaciones adicionales.'
-    publisher             = 'Diario BAE'
-    category              = 'news, politics, economy, Argentina'
-    oldest_article        = 2
+    title = 'Buenos Aires Economico'
+    __author__ = 'Darko Miletic'
+    description = 'Diario BAE es el diario economico-politico con mas influencia en la Argentina. Fuente de empresarios y politicos del pais y el exterior. El pozo estaria aportando en periodos breves un volumen equivalente a 800m3 diarios. Pero todavia deben efectuarse otras perforaciones adicionales.'  # noqa
+    publisher = 'Diario BAE'
+    category = 'news, politics, economy, Argentina'
+    oldest_article = 2
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'utf-8'
-    language              = 'es_AR'
-    cover_url             = strftime('http://www.diariobae.com/imgs_portadas/%Y%m%d_portadasBAE.jpg')
-    masthead_url          = 'http://www.diariobae.com/img/logo_bae.png'
-    remove_empty_feeds    = True
-    publication_type      = 'newspaper'
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    language = 'es_AR'
+    cover_url = strftime(
+        'http://www.diariobae.com/imgs_portadas/%Y%m%d_portadasBAE.jpg')
+    masthead_url = 'http://www.diariobae.com/img/logo_bae.png'
+    remove_empty_feeds = True
+    publication_type = 'newspaper'
     extra_css             = """
                                body{font-family: Georgia,"Times New Roman",Times,serif}
                                #titulo{font-size: x-large}
@@ -29,29 +31,27 @@ class BsAsEconomico(BasicNewsRecipe):
                                img{display: block; margin-top: 1em}
                             """
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
-    remove_tags_before= dict(attrs={'id':'titulo'})
-    remove_tags_after = dict(attrs={'id':'autor' })
-    remove_tags       = [
-                            dict(name=['meta','base','iframe','link','lang'])
-                           ,dict(attrs={'id':'barra_tw'})
-                        ]
-    remove_attributes = ['data-count','data-via']
+    remove_tags_before = dict(attrs={'id': 'titulo'})
+    remove_tags_after = dict(attrs={'id': 'autor'})
+    remove_tags = [
+        dict(name=['meta', 'base', 'iframe', 'link', 'lang']), dict(
+            attrs={'id': 'barra_tw'})
+    ]
+    remove_attributes = ['data-count', 'data-via']
 
     feeds = [
-               (u'Argentina'   , u'http://www.diariobae.com/rss/argentina.xml'   )
-              ,(u'Valores'     , u'http://www.diariobae.com/rss/valores.xml'     )
-              ,(u'Finanzas'    , u'http://www.diariobae.com/rss/finanzas.xml'    )
-              ,(u'Negocios'    , u'http://www.diariobae.com/rss/negocios.xml'    )
-              ,(u'Mundo'       , u'http://www.diariobae.com/rss/mundo.xml'       )
-              ,(u'5 dias'      , u'http://www.diariobae.com/rss/5dias.xml'       )
-              ,(u'Espectaculos', u'http://www.diariobae.com/rss/espectaculos.xml')
-            ]
+
+    (u'Argentina', u'http://www.diariobae.com/rss/argentina.xml'),
+    (u'Valores', u'http://www.diariobae.com/rss/valores.xml'),
+    (u'Finanzas', u'http://www.diariobae.com/rss/finanzas.xml'),
+    (u'Negocios', u'http://www.diariobae.com/rss/negocios.xml'),
+    (u'Mundo', u'http://www.diariobae.com/rss/mundo.xml'),
+    (u'5 dias', u'http://www.diariobae.com/rss/5dias.xml'),
+    (u'Espectaculos', u'http://www.diariobae.com/rss/espectaculos.xml')
+    ]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

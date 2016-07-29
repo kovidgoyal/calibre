@@ -10,14 +10,15 @@ import datetime
 
 # Could make this the base class; will need to add 'publish'
 class WriteXmlMixin:
-    def write_xml(self, outfile, encoding = "iso-8859-1"):
+
+    def write_xml(self, outfile, encoding="iso-8859-1"):
         from xml.sax import saxutils
         handler = saxutils.XMLGenerator(outfile, encoding)
         handler.startDocument()
         self.publish(handler)
         handler.endDocument()
 
-    def to_xml(self, encoding = "iso-8859-1"):
+    def to_xml(self, encoding="iso-8859-1"):
         try:
             import cStringIO as StringIO
             StringIO
@@ -28,7 +29,7 @@ class WriteXmlMixin:
         return f.getvalue()
 
 
-def _element(handler, name, obj, d = {}):
+def _element(handler, name, obj, d={}):
     if isinstance(obj, basestring) or obj is None:
         # special-case handling to make the API easier
         # to use for the common case.
@@ -102,7 +103,7 @@ class DateElement:
 
 class Category:
     """Publish a category element"""
-    def __init__(self, category, domain = None):
+    def __init__(self, category, domain=None):
         self.category = category
         self.domain = domain
     def publish(self, handler):
@@ -132,7 +133,7 @@ class Image:
     """Publish a channel Image"""
     element_attrs = {}
     def __init__(self, url, title, link,
-                 width = None, height = None, description = None):
+                 width=None, height=None, description=None):
         self.url = url
         self.title = title
         self.link = link
@@ -167,7 +168,7 @@ class Guid:
     Defaults to being a permalink, which is the assumption if it's
     omitted.  Hence strings are always permalinks.
     """
-    def __init__(self, guid, isPermaLink = 1):
+    def __init__(self, guid, isPermaLink=1):
         self.guid = guid
         self.isPermaLink = isPermaLink
     def publish(self, handler):
@@ -264,26 +265,26 @@ class RSS2(WriteXmlMixin):
                  link,
                  description,
 
-                 language = None,
-                 copyright = None,
-                 managingEditor = None,
-                 webMaster = None,
-                 pubDate = None,  # a datetime, *in* *GMT*
-                 lastBuildDate = None, # a datetime
+                 language=None,
+                 copyright=None,
+                 managingEditor=None,
+                 webMaster=None,
+                 pubDate=None,  # a datetime, *in* *GMT*
+                 lastBuildDate=None,  # a datetime
 
-                 categories = None, # list of strings or Category
-                 generator = _generator_name,
-                 docs = "http://blogs.law.harvard.edu/tech/rss",
-                 cloud = None,    # a Cloud
-                 ttl = None,      # integer number of minutes
+                 categories=None,  # list of strings or Category
+                 generator=_generator_name,
+                 docs="http://blogs.law.harvard.edu/tech/rss",
+                 cloud=None,    # a Cloud
+                 ttl=None,      # integer number of minutes
 
-                 image = None,     # an Image
-                 rating = None,    # a string; I don't know how it's used
-                 textInput = None, # a TextInput
-                 skipHours = None, # a SkipHours with a list of integers
-                 skipDays = None,  # a SkipDays with a list of strings
+                 image=None,     # an Image
+                 rating=None,    # a string; I don't know how it's used
+                 textInput=None,  # a TextInput
+                 skipHours=None,  # a SkipHours with a list of integers
+                 skipDays=None,  # a SkipDays with a list of strings
 
-                 items = None,     # list of RSSItems
+                 items=None,     # list of RSSItems
                  ):
         self.title = title
         self.link = link
@@ -376,21 +377,20 @@ class RSS2(WriteXmlMixin):
         pass
 
 
-
 class RSSItem(WriteXmlMixin):
     """Publish an RSS Item"""
     element_attrs = {}
     def __init__(self,
-                 title = None,  # string
-                 link = None,   # url as string
-                 description = None, # string
-                 author = None,      # email address as string
-                 categories = None,  # list of string or Category
-                 comments = None,  # url as string
-                 enclosure = None, # an Enclosure
-                 guid = None,    # a unique string
-                 pubDate = None, # a datetime
-                 source = None,  # a Source
+                 title=None,  # string
+                 link=None,   # url as string
+                 description=None,  # string
+                 author=None,      # email address as string
+                 categories=None,  # list of string or Category
+                 comments=None,  # url as string
+                 enclosure=None,  # an Enclosure
+                 guid=None,    # a unique string
+                 pubDate=None,  # a datetime
+                 source=None,  # a Source
                  ):
 
         if title is None and description is None:

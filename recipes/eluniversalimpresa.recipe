@@ -1,7 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class ElUniversalImpresaRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'es_MX'
     version = 1
@@ -24,18 +25,20 @@ class ElUniversalImpresaRecipe(BasicNewsRecipe):
                           'publisher': publisher, 'linearize_tables': True}
 
     def parse_index(self):
-        soup = self.index_to_soup('http://www.eluniversal.com.mx/edicion_impresa.html')
+        soup = self.index_to_soup(
+            'http://www.eluniversal.com.mx/edicion_impresa.html')
         index = []
 
-        table = soup.find('table', attrs = {'width': '500'})
+        table = soup.find('table', attrs={'width': '500'})
         articles = []
-        for td in table.findAll(lambda tag: tag.name == 'td' and tag.has_key('class') and tag['class'] == 'arnegro12'):
+        for td in table.findAll(lambda tag: tag.name == 'td' and tag.has_key('class') and tag['class'] == 'arnegro12'):  # noqa
             a = td.a
             a.extract()
             title = self.tag_to_string(a)
             url = self.INDEX + a['href']
             description = self.tag_to_string(td)
-            articles.append({'title': title, 'date': None, 'url': url, 'description' : description})
+            articles.append({'title': title, 'date': None,
+                             'url': url, 'description': description})
 
         index.append(('Primera Plana', articles))
 
@@ -50,7 +53,8 @@ class ElUniversalImpresaRecipe(BasicNewsRecipe):
                 title = self.tag_to_string(a)
 
                 url = self.INDEX + a['href']
-                articles.append({'title': title, 'date': None, 'url': url, 'description': ''})
+                articles.append({'title': title, 'date': None,
+                                 'url': url, 'description': ''})
 
             index.append((feedTitle, articles))
 
@@ -72,10 +76,10 @@ class ElUniversalImpresaRecipe(BasicNewsRecipe):
             if self.tag_to_string(p).strip() == '':
                 p.extract()
 
-        tag = soup.find('font', attrs = {'color': '#0F046A'})
+        tag = soup.find('font', attrs={'color': '#0F046A'})
         if tag:
             for attr in ['color', 'face', 'helvetica,', 'sans-serif', 'size']:
-                if tag.has_key(attr):
+                if tag.has_key(attr):  # noqa
                     del tag[attr]
             tag.name = 'h1'
 

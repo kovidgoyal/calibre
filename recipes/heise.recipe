@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
@@ -13,7 +13,7 @@ class heiseDe(BasicNewsRecipe):
     title = 'heise'
     description = 'Computernews from Germany'
     __author__ = 'Oliver Niesner'
-    use_embedded_content   = False
+    use_embedded_content = False
     language = 'de'
     timefmt = ' [%d %b %Y]'
     max_articles_per_feed = 40
@@ -46,22 +46,22 @@ class heiseDe(BasicNewsRecipe):
     '''
 
     remove_tags = [dict(id='navi_bottom'),
-		   dict(id='software_tabbox'),
-		   dict(id='heisetopnavi_sub_container'),
-		   dict(id='navi_login'),
-		   dict(id='heisetopnavi_search'),
-		   dict(id='themen_aktuell'),
-		   dict(id='navi_top'),
-		   dict(id='logo_bereich'),
-		   dict(name='div', attrs={'class':'news_logo'}),
-		   dict(name='div', attrs={'class':'heisetopnavi_header'}),
-		   dict(name='p', attrs={'class':'teasermitbildundtext'}),
-		   dict(name='div', attrs={'class':'news_foren'}),
-		   dict(name='p', attrs={'class':'news_navi'})]
+                   dict(id='software_tabbox'),
+                   dict(id='heisetopnavi_sub_container'),
+                   dict(id='navi_login'),
+                   dict(id='heisetopnavi_search'),
+                   dict(id='themen_aktuell'),
+                   dict(id='navi_top'),
+                   dict(id='logo_bereich'),
+                   dict(name='div', attrs={'class': 'news_logo'}),
+                   dict(name='div', attrs={'class': 'heisetopnavi_header'}),
+                   dict(name='p', attrs={'class': 'teasermitbildundtext'}),
+                   dict(name='div', attrs={'class': 'news_foren'}),
+                   dict(name='p', attrs={'class': 'news_navi'})]
 
-    remove_tags_after = [dict(name='div', attrs={'class':'news_foren'})]
+    remove_tags_after = [dict(name='div', attrs={'class': 'news_foren'})]
 
-    feeds =  [ 
+    feeds = [
         ('heise online', 'http://www.heise.de/newsticker/heise.rdf'),
         ('heise Developer', 'http://www.heise.de/developer/rss/news-atom.xml'),
         ('heise open', 'http://www.heise.de/open/news/news-atom.xml')

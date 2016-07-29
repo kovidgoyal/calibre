@@ -6,7 +6,7 @@ Microsoft LIT HTML tag and attribute tables, copied from ConvertLIT.
 """
 
 TAGS = [
-    None, 
+    None,
     None,
     None,
     "a",
@@ -117,7 +117,7 @@ TAGS = [
     None,
     ]
 
-ATTRS0 = { 
+ATTRS0 = {
     0x8010: "tabindex",
     0x8046: "title",
     0x804b: "style",
@@ -901,114 +901,114 @@ ATTRS108 = {
     }
 
 TAGS_ATTRS = [
-    None, 
     None,
     None,
-    ATTRS3,   # a  
-    None,     # acronym  
-    ATTRS5,   # address  
-    ATTRS6,   # applet  
-    ATTRS7,   # area  
-    ATTRS8,   # b  
-    ATTRS9,   # base  
-    ATTRS10,  # basefont  
-    None,     # bdo  
-    ATTRS12,  # bgsound  
-    ATTRS13,  # big  
-    None,     # blink  
-    ATTRS15,  # blockquote  
-    ATTRS16,  # body  
-    ATTRS17,  # br  
-    ATTRS18,  # button  
-    ATTRS19,  # caption  
-    ATTRS20,  # center  
-    ATTRS21,  # cite  
-    ATTRS22,  # code  
-    ATTRS23,  # col  
-    ATTRS24,  # colgroup  
+    None,
+    ATTRS3,   # a
+    None,     # acronym
+    ATTRS5,   # address
+    ATTRS6,   # applet
+    ATTRS7,   # area
+    ATTRS8,   # b
+    ATTRS9,   # base
+    ATTRS10,  # basefont
+    None,     # bdo
+    ATTRS12,  # bgsound
+    ATTRS13,  # big
+    None,     # blink
+    ATTRS15,  # blockquote
+    ATTRS16,  # body
+    ATTRS17,  # br
+    ATTRS18,  # button
+    ATTRS19,  # caption
+    ATTRS20,  # center
+    ATTRS21,  # cite
+    ATTRS22,  # code
+    ATTRS23,  # col
+    ATTRS24,  # colgroup
     None,
     None,
-    ATTRS27,  # dd  
-    None,     # del  
-    ATTRS29,  # dfn  
-    None,     # dir  
-    ATTRS31,  # div  
-    ATTRS32,  # dl  
-    ATTRS33,  # dt  
-    ATTRS34,  # em  
-    ATTRS35,  # embed  
-    ATTRS36,  # fieldset  
-    ATTRS37,  # font  
-    ATTRS38,  # form  
-    ATTRS39,  # frame  
-    ATTRS40,  # frameset  
+    ATTRS27,  # dd
+    None,     # del
+    ATTRS29,  # dfn
+    None,     # dir
+    ATTRS31,  # div
+    ATTRS32,  # dl
+    ATTRS33,  # dt
+    ATTRS34,  # em
+    ATTRS35,  # embed
+    ATTRS36,  # fieldset
+    ATTRS37,  # font
+    ATTRS38,  # form
+    ATTRS39,  # frame
+    ATTRS40,  # frameset
     None,
-    ATTRS42,  # h1  
-    ATTRS43,  # h2  
-    ATTRS44,  # h3  
-    ATTRS45,  # h4  
-    ATTRS46,  # h5  
-    ATTRS47,  # h6  
-    None,     # head  
-    ATTRS49,  # hr  
-    None,     # html  
-    ATTRS51,  # i  
-    ATTRS52,  # iframe  
-    ATTRS53,  # img  
-    ATTRS54,  # input  
-    None,     # ins  
-    ATTRS56,  # kbd  
-    ATTRS57,  # label  
-    ATTRS58,  # legend  
-    ATTRS59,  # li  
-    ATTRS60,  # link  
-    ATTRS61,  # tag61  
-    ATTRS62,  # map  
-    ATTRS63,  # tag63  
-    None,     # tag64  
-    ATTRS65,  # meta  
-    ATTRS66,  # nextid  
-    None,     # nobr  
-    None,     # noembed  
-    None,     # noframes  
-    None,     # noscript  
-    ATTRS71,  # object  
-    ATTRS72,  # ol  
-    ATTRS73,  # option  
-    ATTRS74,  # p  
-    ATTRS75,  # param  
-    ATTRS76,  # plaintext  
-    ATTRS77,  # pre  
-    ATTRS78,  # q  
-    None,     # rp  
-    None,     # rt  
-    None,     # ruby  
-    ATTRS82,  # s  
-    ATTRS83,  # samp  
-    ATTRS84,  # script  
-    ATTRS85,  # select  
-    ATTRS86,  # small  
-    ATTRS87,  # span  
-    ATTRS88,  # strike  
-    ATTRS89,  # strong  
-    ATTRS90,  # style  
-    ATTRS91,  # sub  
-    ATTRS92,  # sup  
-    ATTRS93,  # table  
-    ATTRS94,  # tbody  
-    ATTRS95,  # tc  
-    ATTRS96,  # td  
-    ATTRS97,  # textarea  
-    ATTRS98,  # tfoot  
-    ATTRS99,  # th  
-    ATTRS100, # thead  
-    None,     # title  
-    ATTRS102, # tr  
-    ATTRS103, # tt  
-    ATTRS104, # u  
-    ATTRS105, # ul  
-    ATTRS106, # var  
-    None,     # wbr  
+    ATTRS42,  # h1
+    ATTRS43,  # h2
+    ATTRS44,  # h3
+    ATTRS45,  # h4
+    ATTRS46,  # h5
+    ATTRS47,  # h6
+    None,     # head
+    ATTRS49,  # hr
+    None,     # html
+    ATTRS51,  # i
+    ATTRS52,  # iframe
+    ATTRS53,  # img
+    ATTRS54,  # input
+    None,     # ins
+    ATTRS56,  # kbd
+    ATTRS57,  # label
+    ATTRS58,  # legend
+    ATTRS59,  # li
+    ATTRS60,  # link
+    ATTRS61,  # tag61
+    ATTRS62,  # map
+    ATTRS63,  # tag63
+    None,     # tag64
+    ATTRS65,  # meta
+    ATTRS66,  # nextid
+    None,     # nobr
+    None,     # noembed
+    None,     # noframes
+    None,     # noscript
+    ATTRS71,  # object
+    ATTRS72,  # ol
+    ATTRS73,  # option
+    ATTRS74,  # p
+    ATTRS75,  # param
+    ATTRS76,  # plaintext
+    ATTRS77,  # pre
+    ATTRS78,  # q
+    None,     # rp
+    None,     # rt
+    None,     # ruby
+    ATTRS82,  # s
+    ATTRS83,  # samp
+    ATTRS84,  # script
+    ATTRS85,  # select
+    ATTRS86,  # small
+    ATTRS87,  # span
+    ATTRS88,  # strike
+    ATTRS89,  # strong
+    ATTRS90,  # style
+    ATTRS91,  # sub
+    ATTRS92,  # sup
+    ATTRS93,  # table
+    ATTRS94,  # tbody
+    ATTRS95,  # tc
+    ATTRS96,  # td
+    ATTRS97,  # textarea
+    ATTRS98,  # tfoot
+    ATTRS99,  # th
+    ATTRS100,  # thead
+    None,     # title
+    ATTRS102,  # tr
+    ATTRS103,  # tt
+    ATTRS104,  # u
+    ATTRS105,  # ul
+    ATTRS106,  # var
+    None,     # wbr
     None,
     ]
 

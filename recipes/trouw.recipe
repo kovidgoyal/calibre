@@ -1,11 +1,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import cookielib
 
+
 class BasicUserRecipe1333905513(BasicNewsRecipe):
-    title          = u'Trouw'
+    title = u'Trouw'
     __author__ = 'asalet_r'
     language = 'nl'
-    description    = u'Trouw de Verdieping'
+    description = u'Trouw de Verdieping'
     oldest_article = 1
     max_articles_per_feed = 25
     no_stylesheets = True
@@ -27,10 +28,10 @@ class BasicUserRecipe1333905513(BasicNewsRecipe):
         dict(id=['articleDetailTitle', 'art_box2']),
     ]
     remove_tags = [
-        dict(attrs={'class':'twitter-tweet'}),
+        dict(attrs={'class': 'twitter-tweet'}),
     ]
 
-    feeds          = [
+    feeds = [
         (u'Nederland', u'http://www.trouw.nl/nieuws/nederland/rss.xml'),
         (u'Buitenland', u'http://www.trouw.nl/nieuws/buitenland/rss.xml'),
         (u'Politiek', u'http://www.trouw.nl/nieuws/politiek/rss.xml'),

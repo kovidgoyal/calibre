@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 spectator.org
@@ -7,20 +7,22 @@ spectator.org
 from calibre.web.feeds.news import BasicNewsRecipe
 from css_selectors import Select
 
+
 class TheAmericanSpectator(BasicNewsRecipe):
-    title                 = 'The American Spectator'
-    __author__            = 'Kovid Goyal'
-    description           = 'News from USA'
-    oldest_article        = 7
+    title = 'The American Spectator'
+    __author__ = 'Kovid Goyal'
+    description = 'News from USA'
+    oldest_article = 7
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    language              = 'en'
+    no_stylesheets = True
+    use_embedded_content = False
+    language = 'en'
     auto_cleanup = True
     encoding = 'utf-8'
 
     def parse_index(self):
-        root = self.index_to_soup('http://spectator.org/issues/current', as_tree=True)
+        root = self.index_to_soup(
+            'http://spectator.org/issues/current', as_tree=True)
         select = Select(root)
         main = tuple(select('div#block-system-main'))[0]
         feeds = []
@@ -43,7 +45,8 @@ class TheAmericanSpectator(BasicNewsRecipe):
                 for x in select('div.views-field-field-short-summary', li):
                     desc = self.tag_to_string(x)
                     break
-                articles.append({'title':title, 'url':url, 'description':desc})
+                articles.append(
+                    {'title': title, 'url': url, 'description': desc})
                 self.log('\t', title, 'at', url)
             feeds.append((section_title, articles))
         return feeds

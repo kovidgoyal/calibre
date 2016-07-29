@@ -22,8 +22,8 @@ class Colors:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1
+            copy=None,
+            run_level=1
             ):
         """
         Required:
@@ -125,8 +125,8 @@ class Colors:
             Othewise, get a function by passing the self.__token_info to the
             state dictionary.
             """
-        #mi<mk<clrtbl-beg
-        #cw<ci<red_______<nu<00
+        # mi<mk<clrtbl-beg
+        # cw<ci<red_______<nu<00
         if self.__token_info == 'mi<mk<clrtbl-end':
             self.__state = 'after_color_table'
         else:
@@ -147,7 +147,7 @@ class Colors:
         Added Oct 10, 2003
         If the number is 0, that indicates no color
         """
-        #cw<ci<font-color<nu<2
+        # cw<ci<font-color<nu<2
         if self.__token_info == 'cw<ci<font-color':
             hex_num = int(line[20:-1])
             hex_num = self.__figure_num(hex_num)
@@ -247,7 +247,7 @@ class Colors:
                         except:
                             pass
                     action(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "color.data")
         copy_obj.rename(self.__write_to, self.__file)

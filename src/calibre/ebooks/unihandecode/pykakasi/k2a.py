@@ -31,7 +31,7 @@ class K2a (object):
         self.kanwa = jisyo()
 
     def isKatakana(self, char):
-        return ( 0x30a0 < ord(char) and ord(char) < 0x30f7)
+        return (0x30a0 < ord(char) and ord(char) < 0x30f7)
 
     def convert(self, text):
         Hstr = ""

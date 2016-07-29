@@ -1,5 +1,5 @@
 #!/usr/bin/env  python2
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
@@ -7,8 +7,12 @@ __docformat__ = 'restructuredtext en'
 discovermagazine.com
 '''
 
-import re, mechanize, json, cookielib
+import re
+import mechanize
+import json
+import cookielib
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class DiscoverMagazine(BasicNewsRecipe):
 
@@ -21,17 +25,19 @@ class DiscoverMagazine(BasicNewsRecipe):
     max_articles_per_feed = 20
     no_stylesheets = True
     remove_javascript = True
-    use_embedded_content  = False
+    use_embedded_content = False
     encoding = 'utf-8'
     extra_css = '.headline {font-size: x-large;} \n .fact {padding-top: 10pt}'
 
     remove_tags = [
-                   dict(name='div', attrs={'id':['searchModule', 'mainMenu', 'tool-box']}),
-                   dict(name='div', attrs={'id':['footer','teaser','already-subscriber','teaser-suite','related-articles']}),
-                   dict(name='div', attrs={'class':['column']}),
-                   dict(name='img', attrs={'src':'http://discovermagazine.com/onebyone.gif'})]
+        dict(name='div', attrs={
+             'id': ['searchModule', 'mainMenu', 'tool-box']}),
+        dict(name='div', attrs={'id': [
+             'footer', 'teaser', 'already-subscriber', 'teaser-suite', 'related-articles']}),
+        dict(name='div', attrs={'class': ['column']}),
+        dict(name='img', attrs={'src': 'http://discovermagazine.com/onebyone.gif'})]
 
-    remove_tags_after = [dict(name='div', attrs={'class':'listingBar'})]
+    remove_tags_after = [dict(name='div', attrs={'class': 'listingBar'})]
 
     # Login stuff
     needs_subscription = True
@@ -46,7 +52,7 @@ class DiscoverMagazine(BasicNewsRecipe):
                 'Accept-Language': 'en-US,en;q=0.5',
                 'Origin': 'http://discovermagazine.com',
             }, data=json.dumps(
-                {'appId': '2', 'email':self.username, 'password':self.password}))
+                {'appId': '2', 'email': self.username, 'password': self.password}))
         br.set_debug_http(True)
         br.open(rq)
         data = json.loads(br.open(rq).read())
@@ -73,21 +79,21 @@ class DiscoverMagazine(BasicNewsRecipe):
     # End login stuff
 
     def append_page(self, soup, appendtag, position):
-        pager = soup.find('span',attrs={'class':'next'})
+        pager = soup.find('span', attrs={'class': 'next'})
         if pager:
             nexturl = pager.a['href']
             soup2 = self.index_to_soup(nexturl)
-            texttag = soup2.find('div', attrs={'class':'articlebody'})
+            texttag = soup2.find('div', attrs={'class': 'articlebody'})
             newpos = len(texttag.contents)
-            self.append_page(soup2,texttag,newpos)
+            self.append_page(soup2, texttag, newpos)
             texttag.extract()
-            appendtag.insert(position,texttag)
+            appendtag.insert(position, texttag)
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Language" content="en-US"/>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>'
-        soup.head.insert(0,mtag)
+        soup.head.insert(0, mtag)
         self.append_page(soup, soup.body, 3)
-        pager = soup.find('div',attrs={'class':'listingBar'})
+        pager = soup.find('div', attrs={'class': 'listingBar'})
         if pager:
             pager.extract()
         return soup
@@ -97,29 +103,32 @@ class DiscoverMagazine(BasicNewsRecipe):
             tag.parent.extract()
         for tag in soup.findAll(['table', 'tr', 'td']):
             tag.name = 'div'
-        for tag in soup.findAll('div', attrs={'class':'discreet advert'}):
+        for tag in soup.findAll('div', attrs={'class': 'discreet advert'}):
             tag.extract()
-        for tag in soup.findAll('hr', attrs={'size':'1'}):
+        for tag in soup.findAll('hr', attrs={'size': '1'}):
             tag.extract()
         for tag in soup.findAll('br'):
             tag.extract()
         return soup
 
     feeds = [
-             (u'Technology', u'http://discovermagazine.com/topics/technology/rss.xml'),
-             (u'Health - Medicine', u'http://discovermagazine.com/topics/health-medicine/rss.xml'),
-             (u'Mind Brain', u'http://discovermagazine.com/topics/mind-brain/rss.xml'),
-             (u'Space', u'http://discovermagazine.com/topics/space/rss.xml'),
-             (u'Human Origins', u'http://discovermagazine.com/topics/human-origins/rss.xml'),
-             (u'Living World', u'http://discovermagazine.com/topics/living-world/rss.xml'),
-             (u'Environment', u'http://discovermagazine.com/topics/environment/rss.xml'),
-             (u'Physics & Math', u'http://discovermagazine.com/topics/physics-math/rss.xml'),
-             (u"20 Things you didn't know about...", u'http://discovermagazine.com/columns/20-things-you-didnt-know/rss.xml'),
-             (u'Fuzzy Math', u'http://discovermagazine.com/columns/fuzzy-math/rss.xml'),
-             (u'The Brain', u'http://discovermagazine.com/columns/the-brain/rss.xml'),
-             (u'What is This', u'http://discovermagazine.com/columns/what-is-this/rss.xml'),
-             (u'Vital Signs', u'http://discovermagazine.com/columns/vital-signs/rss.xml'),
-             (u'Think Tech', u'http://discovermagazine.com/columns/think-tech/rss.xml'),
-             (u'Future Tech', u'http://discovermagazine.com/columns/future-tech/rss.xml'),
-             (u'Discover Interview', u'http://discovermagazine.com/columns/discover-interview/rss.xml'),
-            ]
+        (u'Technology', u'http://discovermagazine.com/topics/technology/rss.xml'),
+        (u'Health - Medicine',
+         u'http://discovermagazine.com/topics/health-medicine/rss.xml'),
+        (u'Mind Brain', u'http://discovermagazine.com/topics/mind-brain/rss.xml'),
+        (u'Space', u'http://discovermagazine.com/topics/space/rss.xml'),
+        (u'Human Origins', u'http://discovermagazine.com/topics/human-origins/rss.xml'),
+        (u'Living World', u'http://discovermagazine.com/topics/living-world/rss.xml'),
+        (u'Environment', u'http://discovermagazine.com/topics/environment/rss.xml'),
+        (u'Physics & Math', u'http://discovermagazine.com/topics/physics-math/rss.xml'),
+        (u"20 Things you didn't know about...",
+         u'http://discovermagazine.com/columns/20-things-you-didnt-know/rss.xml'),
+        (u'Fuzzy Math', u'http://discovermagazine.com/columns/fuzzy-math/rss.xml'),
+        (u'The Brain', u'http://discovermagazine.com/columns/the-brain/rss.xml'),
+        (u'What is This', u'http://discovermagazine.com/columns/what-is-this/rss.xml'),
+        (u'Vital Signs', u'http://discovermagazine.com/columns/vital-signs/rss.xml'),
+        (u'Think Tech', u'http://discovermagazine.com/columns/think-tech/rss.xml'),
+        (u'Future Tech', u'http://discovermagazine.com/columns/future-tech/rss.xml'),
+        (u'Discover Interview',
+         u'http://discovermagazine.com/columns/discover-interview/rss.xml'),
+    ]

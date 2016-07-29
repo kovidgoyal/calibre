@@ -35,7 +35,7 @@ class BlockStyle(object):
         if hasattr(self.ba, 'bgcolor'):
             if self.ba.bgcolor.a < 255:
                 ans += '\tbackground-color: %s;\n'%(self.ba.bgcolor.to_html())
-        #TODO: Fixed size blocks
+        # TODO: Fixed size blocks
         return ans + '}\n'
 
 
@@ -66,7 +66,6 @@ class LRFConverter(object):
                 # TODO: Headers and footers
                 self.page_css += '}\n'
 
-
     def create_block_styles(self):
         self.block_css = ''
         for obj in self.lrf.objects.values():
@@ -87,7 +86,8 @@ class LRFConverter(object):
 
 def option_parser():
     parser = OptionParser(usage='%prog book.lrf')
-    parser.add_option('--output-dir', '-o', default=None, help='Output directory in which to store created HTML files. If it does not exist, it is created. By default the current directory is used.', dest='out')
+    parser.add_option('--output-dir', '-o', default=None, help=(
+        'Output directory in which to store created HTML files. If it does not exist, it is created. By default the current directory is used.'), dest='out')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
     return parser
 

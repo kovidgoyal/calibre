@@ -1,16 +1,16 @@
 #!/usr/bin/env  python2
 ##
-## Title:        SatMagazine
+# Title:        SatMagazine
 ##
-## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+# License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
 ##
-## Written:      Feb 2012
-## Last Edited:  Mar 2012
+# Written:      Feb 2012
+# Last Edited:  Mar 2012
 ##
 
 # Feb 2012: Initial release
 
-__license__   = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
 
 '''
 satmagazine.com
@@ -19,13 +19,14 @@ satmagazine.com
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class SatMagazine(BasicNewsRecipe):
 
-    title            = u'SatMagazine'
-    description      = u'North American Satellite Markets...'
-    publisher        = 'Satnews Publishers'
+    title = u'SatMagazine'
+    description = u'North American Satellite Markets...'
+    publisher = 'Satnews Publishers'
     publication_type = 'magazine'
-    INDEX            = 'http://www.satmagazine.com/cgi-bin/display_edition.cgi'
+    INDEX = 'http://www.satmagazine.com/cgi-bin/display_edition.cgi'
     __author__ = 'kiavash'
 
     language = 'en'
@@ -34,15 +35,15 @@ class SatMagazine(BasicNewsRecipe):
     simultaneous_downloads = 2
 
     # Flattens all the tables to make it compatible with Nook
-    conversion_options = {'linearize_tables' : True}
+    conversion_options = {'linearize_tables': True}
 
-    keep_only_tags = [dict(name='span', attrs={'class':'story'})]
+    keep_only_tags = [dict(name='span', attrs={'class': 'story'})]
 
     no_stylesheets = True
     remove_javascript = True
 
-    remove_attributes = [ 'border', 'cellspacing', 'align', 'cellpadding', 'colspan',
-                          'valign', 'vspace', 'hspace', 'alt', 'width', 'height' ]
+    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan',
+                         'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
 
     # Specify extra CSS - overrides ALL other CSS (IE. Added last).
     extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
@@ -64,15 +65,17 @@ class SatMagazine(BasicNewsRecipe):
                  h3 { font-size: 125%; font-weight: bold; } \
                  h4, h5, h6 { font-size: 100%; font-weight: bold; }'
 
-    # Remove the line breaks, href links and float left/right and picture width/height.
-    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: ''),
-                              (re.compile(r'<a.*?>'), lambda h1: ''),
-                              (re.compile(r'</a>'), lambda h2: ''),
-                              (re.compile(r'float:.*?'), lambda h3: ''),
-                              (re.compile(r'width:.*?px'), lambda h4: ''),
-                              (re.compile(r'height:.*?px'), lambda h5: '')
-                              ]
+    # Remove the line breaks, href links and float left/right and picture
+    # width/height.
+    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+                          (re.compile(r'<br[ ]*clear.*/>',
+                                      re.IGNORECASE), lambda m: ''),
+                          (re.compile(r'<a.*?>'), lambda h1: ''),
+                          (re.compile(r'</a>'), lambda h2: ''),
+                          (re.compile(r'float:.*?'), lambda h3: ''),
+                          (re.compile(r'width:.*?px'), lambda h4: ''),
+                          (re.compile(r'height:.*?px'), lambda h5: '')
+                          ]
 
     def parse_index(self):
 
@@ -87,19 +90,19 @@ class SatMagazine(BasicNewsRecipe):
             self.cover_url = cover['src']
             self.log('Found Cover image:', self.cover_url)
 
-        soup = soup.find('div', attrs={'id':'middlecontent'}) # main part of the site that has the articles
+        # main part of the site that has the articles
+        soup = soup.find('div', attrs={'id': 'middlecontent'})
 
-        #Find the Magazine date
-        ts = soup.find('span', attrs={'class':'master_heading'}) # contains the string with the date
+        # Find the Magazine date
+        # contains the string with the date
+        ts = soup.find('span', attrs={'class': 'master_heading'})
         ds = ' '.join(self.tag_to_string(ts).strip().split()[:2])
         self.log('Found Current Issue:', ds)
-        self.timefmt = ' [%s]'%ds
+        self.timefmt = ' [%s]' % ds
 
-        #sections = soup.findAll('span', attrs={'class':'upper_heading'})
+        articles = soup.findAll('span', attrs={'class': 'heading'})
 
-        articles = soup.findAll('span', attrs={'class':'heading'})
-
-        descriptions = soup.findAll('span', attrs={'class':'story'})
+        descriptions = soup.findAll('span', attrs={'class': 'story'})
 
         title_number = 0
 
@@ -111,10 +114,9 @@ class SatMagazine(BasicNewsRecipe):
 
             self.log('\tFound article:', title, 'at', url)
             desc = self.tag_to_string(descriptions[title_number])
-            #self.log('\t\t', desc)
 
-            article_info.append({'title':title, 'url':url, 'description':desc,
-                                'date':self.timefmt})
+            article_info.append({'title': title, 'url': url, 'description': desc,
+                                 'date': self.timefmt})
 
             title_number = title_number + 1
 
@@ -126,28 +128,29 @@ class SatMagazine(BasicNewsRecipe):
     def preprocess_html(self, soup):
 
         # Finds all the images
-        for figure in soup.findAll('img', attrs = {'src' : True}):
+        for figure in soup.findAll('img', attrs={'src': True}):
 
             # if the image is an ad then remove it.
-            if (figure['alt'].find('_ad_') >=0) or (figure['alt'].find('_snipe_') >=0):
-              del figure['src']
-              del figure['alt']
-              del figure['border']
-              del figure['hspace']
-              del figure['vspace']
-              del figure['align']
-              del figure['size']
-              figure.name = 'font'
-              continue
+            if (figure['alt'].find('_ad_') >= 0) or (figure['alt'].find('_snipe_') >= 0):
+                del figure['src']
+                del figure['alt']
+                del figure['border']
+                del figure['hspace']
+                del figure['vspace']
+                del figure['align']
+                del figure['size']
+                figure.name = 'font'
+                continue
 
-            figure['style'] = 'display:block' # adds /n before and after the image
+            # adds /n before and after the image
+            figure['style'] = 'display:block'
 
         # Makes the title standing out
         for title in soup.findAll('b'):
             title.name = 'h3'
 
         # Removes all unrelated links
-        for link in soup.findAll('a', attrs = {'href': True}):
+        for link in soup.findAll('a', attrs={'href': True}):
             link.name = 'font'
             del link['href']
             del link['target']

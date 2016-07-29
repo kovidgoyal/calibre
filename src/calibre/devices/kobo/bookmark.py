@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 import os
 
 
-class Bookmark(): # {{{
+class Bookmark():  # {{{
     '''
     A simple class fetching bookmark data
     kobo-specific
@@ -103,8 +103,8 @@ class Bookmark(): # {{{
                                     chapter_progress=chapter_progress)
             previous_chapter = current_chapter
             # debug_print("e_type:" , e_type, '\t', 'loc: ', note_id, 'text: ', text,
-                    # 'annotation: ', annotation, 'chapter_title: ', chapter_title,
-                    # 'chapter_progress: ', chapter_progress, 'date: ')
+            # 'annotation: ', annotation, 'chapter_title: ', chapter_title,
+            # 'chapter_progress: ', chapter_progress, 'date: ')
 
         cursor.execute('SELECT datelastread, ___PercentRead '
                         'FROM content '
@@ -121,10 +121,9 @@ class Bookmark(): # {{{
 #                self.last_read_location = self.last_read - self.pdf_page_offset
         self.user_notes = user_notes
 
-
     def get_book_length(self):
-#TL        self.book_length = 0
-#TL        self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
+        # TL        self.book_length = 0
+        # TL        self.book_length = int(unpack('>I', record0[0x04:0x08])[0])
         pass
 
 # }}}

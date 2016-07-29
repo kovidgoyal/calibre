@@ -26,7 +26,7 @@ class WinFonts(object):
         for f in ('Serif', 'Sans', 'Mono'):
             base = 'fonts/liberation/Liberation%s-%s.ttf'
             self.app_font_families['Liberation %s'%f] = m = {}
-            for weight, is_italic in product( (self.w.FW_NORMAL, self.w.FW_BOLD), (False, True) ):
+            for weight, is_italic in product((self.w.FW_NORMAL, self.w.FW_BOLD), (False, True)):
                 name = {(self.w.FW_NORMAL, False):'Regular',
                         (self.w.FW_NORMAL, True):'Italic',
                         (self.w.FW_BOLD, False):'Bold',
@@ -59,11 +59,12 @@ class WinFonts(object):
     def fonts_for_family(self, family, normalize=True):
         family = type(u'')(family)
         ans = {}
-        for weight, is_italic in product( (self.w.FW_NORMAL, self.w.FW_BOLD), (False, True) ):
+        for weight, is_italic in product((self.w.FW_NORMAL, self.w.FW_BOLD), (False, True)):
             if family in self.app_font_families:
                 m = self.app_font_families[family]
                 path = m.get((weight, is_italic), None)
-                if path is None: continue
+                if path is None:
+                    continue
                 data = P(path, data=True)
             else:
                 try:

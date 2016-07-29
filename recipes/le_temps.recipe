@@ -2,7 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -12,8 +12,9 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class LeTemps(BasicNewsRecipe):
-    title          = u'Le Temps'
+    title = u'Le Temps'
     oldest_article = 7
     max_articles_per_feed = 100
     __author__ = 'Kovid Goyal'
@@ -38,7 +39,7 @@ class LeTemps(BasicNewsRecipe):
         raw = br.submit().read()
         if '>Login' in raw:
             raise ValueError('Failed to login to letemps.ch. Check '
-                'your username and password')
+                             'your username and password')
         return br
 
     def get_article_url(self, article):
@@ -76,18 +77,18 @@ class LeTemps(BasicNewsRecipe):
             ans = ans.replace('0E', '-')
         return ans
 
-    keep_only_tags =    [
-                            dict(name='div', attrs={'id':'content'}),
-                        ]
-    remove_tags    =    [
-                            dict(name='div', attrs={'id':'html5_gallery'}),
-                            dict(name='ul', attrs={'class':['tabs', 'social-buttons cf']}),
-                            dict(name='img', attrs={'class':['bigImg']}),
-                            dict(name='div', attrs={'class':[
-                                'box function','contentInserts','box banner', 'related-stories',
-                                'box additional','galleryOverview','position','rightAd','bottomAd','video',
-                            ]}),
-                        ]
+    keep_only_tags = [
+        dict(name='div', attrs={'id': 'content'}),
+    ]
+    remove_tags = [
+        dict(name='div', attrs={'id': 'html5_gallery'}),
+        dict(name='ul', attrs={'class': ['tabs', 'social-buttons cf']}),
+        dict(name='img', attrs={'class': ['bigImg']}),
+        dict(name='div', attrs={'class': [
+                                'box function', 'contentInserts', 'box banner', 'related-stories',
+                                'box additional', 'galleryOverview', 'position', 'rightAd', 'bottomAd', 'video',
+                                ]}),
+    ]
 
     extra_css       =   '''
                         h1{font-family:"Georgia","Times New Roman",Times,serif;font-size:large;}
@@ -118,48 +119,78 @@ class LeTemps(BasicNewsRecipe):
                         .caption dd .description {z-index: 2;margin-left: 0px;padding: 3px 4px;position: relative;}
                         '''
 
-    feeds          =    [
-                            (u'Actualité', u'http://letemps.ch/rss/site/'),
-                            (u'Actualité - Monde', u'http://letemps.ch/rss/site/actualite/monde'),
-                            (u'Actualité - Suisse & régions', u'http://letemps.ch/rss/site/actualite/suisse_regions'),
-                            (u'Actualité - Sport', u'http://letemps.ch/rss/site/actualite/sports'),
-                            (u'Actualité - Sciences & Environnement', u'http://letemps.ch/rss/site/actualite/sciences_environnement'),
-                            (u'Actualité - Multimédia', u'http://letemps.ch/rss/site/actualite/multimedia'),
-                            (u'Actualité - Société', u'http://letemps.ch/rss/site/actualite/societe'),
-                            (u'Actualité - Société | Quoi de neuf', u'http://letemps.ch/rss/site/actualite/societe/quoi_de_neuf'),
-                            (u'Economie & Finance', u'http://letemps.ch/rss/site/economie_finance'),
-                            (u'Economie & Finance - Finance', u'http://letemps.ch/rss/site/economie_finance/finance'),
-                            (u'Economie & Finance - Fonds de placement', u'http://letemps.ch/rss/site/economie_finance/fonds_placement'),
-                            (u'Economie & Finance - Carrières', u'http://letemps.ch/rss/site/economie_finance/carrieres'),
-                            (u'Culture', u'http://letemps.ch/rss/site/culture'),
-                            (u'Culture - Cinémas', u'http://letemps.ch/rss/site/culture/cinema'),
-                            (u'Culture - Musiques', u'http://letemps.ch/rss/site/culture/musiques'),
-                            (u'Culture - Scènes', u'http://letemps.ch/rss/site/culture/scenes'),
-                            (u'Culture - Arts plastiques', u'http://letemps.ch/rss/site/culture/arts_plastiques'),
-                            (u'Culture - Livres', u'http://letemps.ch/rss/site/culture/livres'),
-                            (u'Lifestyle - Luxe', u'http://letemps.ch/rss/site/lifestyle/luxe'),
-                            (u'Lifestyle - Mode', u'http://letemps.ch/rss/site/lifestyle/mode'),
-                            (u'Lifestyle - Horlogerie & Joaillerie', u'http://letemps.ch/rss/site/lifestyle/horlogerie_joaillerie'),
-                            (u'Lifestyle - Design', u'http://letemps.ch/rss/site/lifestyle/design'),
-                            (u'Lifestyle - Voyages', u'http://letemps.ch/rss/site/lifestyle/voyages'),
-                            (u'Lifestyle - Gastronomie', u'http://letemps.ch/rss/site/lifestyle/gastronomie'),
-                            (u'Lifestyle - Architecture & Immobilier', u'http://letemps.ch/rss/site/lifestyle/architecture_immobilier'),
-                            (u'Lifestyle - Automobile', u'http://letemps.ch/rss/site/lifestyle/automobile'),
-                            (u'Opinions', u'http://letemps.ch/rss/site/opinions'),
-                            (u'Opinions - Editoriaux', u'http://letemps.ch/rss/site/opinions/editoriaux'),
-                            (u'Opinions - Invités', u'http://letemps.ch/rss/site/opinions/invites'),
-                            (u'Opinions - Chroniques', u'http://letemps.ch/rss/site/opinions/chroniques'),
-                            (u'Opinions - Chappatte', u'http://letemps.ch/rss/site/opinions/chappatte')
-                        ]
+    feeds = [
+        (u'Actualité', u'http://letemps.ch/rss/site/'),
+        (u'Actualité - Monde',
+         u'http://letemps.ch/rss/site/actualite/monde'),
+        (u'Actualité - Suisse & régions',
+         u'http://letemps.ch/rss/site/actualite/suisse_regions'),
+        (u'Actualité - Sport',
+         u'http://letemps.ch/rss/site/actualite/sports'),
+        (u'Actualité - Sciences & Environnement',
+         u'http://letemps.ch/rss/site/actualite/sciences_environnement'),
+        (u'Actualité - Multimédia',
+         u'http://letemps.ch/rss/site/actualite/multimedia'),
+        (u'Actualité - Société',
+         u'http://letemps.ch/rss/site/actualite/societe'),
+        (u'Actualité - Société | Quoi de neuf',
+         u'http://letemps.ch/rss/site/actualite/societe/quoi_de_neuf'),
+        (u'Economie & Finance',
+         u'http://letemps.ch/rss/site/economie_finance'),
+        (u'Economie & Finance - Finance',
+         u'http://letemps.ch/rss/site/economie_finance/finance'),
+        (u'Economie & Finance - Fonds de placement',
+         u'http://letemps.ch/rss/site/economie_finance/fonds_placement'),
+        (u'Economie & Finance - Carrières',
+         u'http://letemps.ch/rss/site/economie_finance/carrieres'),
+        (u'Culture', u'http://letemps.ch/rss/site/culture'),
+        (u'Culture - Cinémas',
+         u'http://letemps.ch/rss/site/culture/cinema'),
+        (u'Culture - Musiques',
+         u'http://letemps.ch/rss/site/culture/musiques'),
+        (u'Culture - Scènes',
+         u'http://letemps.ch/rss/site/culture/scenes'),
+        (u'Culture - Arts plastiques',
+         u'http://letemps.ch/rss/site/culture/arts_plastiques'),
+        (u'Culture - Livres',
+         u'http://letemps.ch/rss/site/culture/livres'),
+        (u'Lifestyle - Luxe',
+         u'http://letemps.ch/rss/site/lifestyle/luxe'),
+        (u'Lifestyle - Mode',
+         u'http://letemps.ch/rss/site/lifestyle/mode'),
+        (u'Lifestyle - Horlogerie & Joaillerie',
+         u'http://letemps.ch/rss/site/lifestyle/horlogerie_joaillerie'),
+        (u'Lifestyle - Design',
+         u'http://letemps.ch/rss/site/lifestyle/design'),
+        (u'Lifestyle - Voyages',
+         u'http://letemps.ch/rss/site/lifestyle/voyages'),
+        (u'Lifestyle - Gastronomie',
+         u'http://letemps.ch/rss/site/lifestyle/gastronomie'),
+        (u'Lifestyle - Architecture & Immobilier',
+         u'http://letemps.ch/rss/site/lifestyle/architecture_immobilier'),
+        (u'Lifestyle - Automobile',
+         u'http://letemps.ch/rss/site/lifestyle/automobile'),
+        (u'Opinions', u'http://letemps.ch/rss/site/opinions'),
+        (u'Opinions - Editoriaux',
+         u'http://letemps.ch/rss/site/opinions/editoriaux'),
+        (u'Opinions - Invités',
+         u'http://letemps.ch/rss/site/opinions/invites'),
+        (u'Opinions - Chroniques',
+         u'http://letemps.ch/rss/site/opinions/chroniques'),
+        (u'Opinions - Chappatte',
+         u'http://letemps.ch/rss/site/opinions/chappatte')
+    ]
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
-            del feed.description    # The title says it all and the description has has bad characters for "Le Temps"
+            # The title says it all and the description has has bad characters
+            # for "Le Temps"
+            del feed.description
         return feeds
 
     def postprocess_html(self, soup, first):
-        for tag in soup.findAll('div', attrs={'class':'box pagination'}):
+        for tag in soup.findAll('div', attrs={'class': 'box pagination'}):
             tag.extract()
         if not first:
             h = soup.find('h1')

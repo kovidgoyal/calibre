@@ -174,6 +174,7 @@ class _Parser(object):
 
 
 class _CompileParser(_Parser):
+
     def __init__(self, val, prog, parent, compile_text):
         self.lex_pos = 0
         self.prog = prog[0]
@@ -366,15 +367,15 @@ class TemplateFormatter(string.Formatter):
                 (r'.*?\)', lambda x,t: t[:-1]),
         ])
 
-    ################## 'Functional' template language ######################
+    # ################# 'Functional' template language ######################
 
     lex_scanner = re.Scanner([
-                (r'[(),=;]',            lambda x,t: (1, t)),
-                (r'-?[\d\.]+',          lambda x,t: (3, t)),
-                (r'\$',                 lambda x,t: (2, t)),
-                (r'\w+',                lambda x,t: (2, t)),
-                (r'".*?((?<!\\)")',     lambda x,t: (3, t[1:-1])),
-                (r'\'.*?((?<!\\)\')',   lambda x,t: (3, t[1:-1])),
+                (r'[(),=;]', lambda x,t: (1, t)),
+                (r'-?[\d\.]+', lambda x,t: (3, t)),
+                (r'\$', lambda x,t: (2, t)),
+                (r'\w+', lambda x,t: (2, t)),
+                (r'".*?((?<!\\)")', lambda x,t: (3, t[1:-1])),
+                (r'\'.*?((?<!\\)\')', lambda x,t: (3, t[1:-1])),
                 (r'\n#.*?(?:(?=\n)|$)', None),
                 (r'\s',                 None)
         ], flags=re.DOTALL)
@@ -414,7 +415,7 @@ class TemplateFormatter(string.Formatter):
             val = parser.program()
         return val
 
-    ################## Override parent classes methods #####################
+    # ################# Override parent classes methods #####################
 
     def get_value(self, key, args, kwargs):
         raise Exception('get_value must be implemented in the subclass')
@@ -496,7 +497,7 @@ class TemplateFormatter(string.Formatter):
             return self.compress_spaces.sub(' ', ans).strip()
         return ans
 
-    ########## a formatter that throws exceptions ############
+    # ######### a formatter that throws exceptions ############
 
     def unsafe_format(self, fmt, kwargs, book, strip_results=True):
         self.strip_results = strip_results
@@ -507,7 +508,7 @@ class TemplateFormatter(string.Formatter):
         self.locals = {}
         return self.evaluate(fmt, [], kwargs)
 
-    ########## a formatter guaranteed not to throw an exception ############
+    # ######### a formatter guaranteed not to throw an exception ############
 
     def safe_format(self, fmt, kwargs, error_value, book,
                     column_name=None, template_cache=None,
@@ -522,7 +523,7 @@ class TemplateFormatter(string.Formatter):
         try:
             ans = self.evaluate(fmt, [], kwargs)
         except Exception as e:
-            if DEBUG: # and getattr(e, 'is_locking_error', False):
+            if DEBUG:  # and getattr(e, 'is_locking_error', False):
                 traceback.print_exc()
             ans = error_value + ' ' + e.message
         return ans

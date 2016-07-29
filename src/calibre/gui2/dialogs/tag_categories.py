@@ -35,7 +35,7 @@ class TagCategories(QDialog, Ui_TagCategories):
     '''
     category_labels_orig =   ['', 'authors', 'series', 'publisher', 'tags']
 
-    def __init__(self, window, db, on_category=None, book_ids = None):
+    def __init__(self, window, db, on_category=None, book_ids=None):
         QDialog.__init__(self, window)
         Ui_TagCategories.__init__(self)
         self.setupUi(self)
@@ -253,8 +253,8 @@ class TagCategories(QDialog, Ui_TagCategories):
     def del_category(self):
         if self.current_cat_name is not None:
             if not confirm('<p>'+_('The current tag category will be '
-                           '<b>permanently deleted</b>. Are you sure?')
-                        +'</p>', 'tag_category_delete', self):
+                           '<b>permanently deleted</b>. Are you sure?') +
+                           '</p>', 'tag_category_delete', self):
                 return
             del self.categories[self.current_cat_name]
             self.current_cat_name = None

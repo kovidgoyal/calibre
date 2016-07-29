@@ -18,12 +18,12 @@ def agent_auth(transport, username):
     Attempt to authenticate to the given transport using any of the private
     keys available from an SSH agent.
     """
-    
+
     agent = paramiko.Agent()
     agent_keys = agent.get_keys()
     if len(agent_keys) == 0:
         return
-        
+
     for key in agent_keys:
         print 'Trying ssh-agent key %s' % hexlify(key.get_fingerprint()),
         try:
@@ -37,7 +37,7 @@ def agent_auth(transport, username):
 def portable_getpass(username, hostname, retry):
     return getpass.getpass('%sPlease enter the password for %s on %s: '%(
                                 'Incorrect password. ' if retry else '', username, hostname))
-            
+
 def password_auth(transport, username, hostname, getpw=portable_getpass):
     for i in range(3):
         pw = getpw(username, hostname, i>0)

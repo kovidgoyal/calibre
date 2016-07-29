@@ -4,23 +4,24 @@ scmp.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class SCMP(BasicNewsRecipe):
-    title                 = 'South China Morning Post'
-    __author__            = 'llam'
-    description           = "SCMP.com, Hong Kong's premier online English daily provides exclusive up-to-date news, audio video news, podcasts, RSS Feeds, Blogs, breaking news, top stories, award winning news and analysis on Hong Kong and China."
-    publisher             = 'South China Morning Post Publishers Ltd.'
-    oldest_article        = 2
-    delay                 = 1
+    title = 'South China Morning Post'
+    __author__ = 'llam'
+    description = "SCMP.com, Hong Kong's premier online English daily provides exclusive up-to-date news, audio video news, podcasts, RSS Feeds, Blogs, breaking news, top stories, award winning news and analysis on Hong Kong and China."  # noqa
+    publisher = 'South China Morning Post Publishers Ltd.'
+    oldest_article = 2
+    delay = 1
     max_articles_per_feed = 200
-    no_stylesheets        = True
-    encoding              = 'utf-8'
+    no_stylesheets = True
+    encoding = 'utf-8'
     auto_cleanup = True
-    use_embedded_content  = False
-    language              = 'en_CN'
-    remove_empty_feeds    = True
-    needs_subscription    = 'optional'
-    publication_type      = 'newspaper'
-    masthead_url          = 'http://www.scmp.com/images/logo_scmp_home.gif'
+    use_embedded_content = False
+    language = 'en_CN'
+    remove_empty_feeds = True
+    needs_subscription = 'optional'
+    publication_type = 'newspaper'
+    masthead_url = 'http://www.scmp.com/images/logo_scmp_home.gif'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -36,12 +37,11 @@ class SCMP(BasicNewsRecipe):
         return br
 
     feeds = [
-             (u'Business'     , u'http://www.scmp.com/rss/business.xml')
-             ,(u'Hong Kong'    , u'http://www.scmp.com/rss/hong_kong.xml')
-             ,(u'China'        , u'http://www.scmp.com/rss/china.xml')
-             ,(u'Asia & World' , u'http://www.scmp.com/rss/news_asia_world.xml')
-             ,(u'Opinion'      , u'http://www.scmp.com/rss/opinion.xml')
-             ,(u'LifeSTYLE'    , u'http://www.scmp.com/rss/lifestyle.xml')
-             ,(u'Sport'        , u'http://www.scmp.com/rss/sport.xml')
-            ]
-
+        (u'Business', u'http://www.scmp.com/rss/business.xml'),
+        (u'Hong Kong', u'http://www.scmp.com/rss/hong_kong.xml'),
+        (u'China', u'http://www.scmp.com/rss/china.xml'),
+        (u'Asia & World', u'http://www.scmp.com/rss/news_asia_world.xml'),
+        (u'Opinion', u'http://www.scmp.com/rss/opinion.xml'),
+        (u'LifeSTYLE', u'http://www.scmp.com/rss/lifestyle.xml'),
+        (u'Sport', u'http://www.scmp.com/rss/sport.xml')
+    ]

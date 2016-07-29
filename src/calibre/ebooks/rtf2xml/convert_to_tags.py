@@ -16,9 +16,9 @@ class ConvertToTags:
             dtd_path,
             no_dtd,
             encoding,
-            indent = None,
-            copy = None,
-            run_level = 1,
+            indent=None,
+            copy=None,
+            run_level=1,
             ):
         """
         Required:
@@ -37,7 +37,7 @@ class ConvertToTags:
         self.__no_dtd = no_dtd
         self.__encoding = 'cp' + encoding
         # if encoding == 'mac_roman':
-            # self.__encoding = 'mac_roman'
+        # self.__encoding = 'mac_roman'
         self.__indent = indent
         self.__run_level = run_level
         self.__write_to = better_mktemp()
@@ -78,7 +78,7 @@ class ConvertToTags:
         """
         Print the opening tag and newlines when needed.
         """
-        #mi<tg<open______<style-sheet
+        # mi<tg<open______<style-sheet
         info = line[17:-1]
         self.__new_line = 0
         if info in self.__block:
@@ -108,7 +108,7 @@ class ConvertToTags:
         name. The rest are attributes, separated fromt their values by '>'. So
         read each token one at a time, and split them by '>'.
         """
-        #mi<tg<open-att__<footnote<num>
+        # mi<tg<open-att__<footnote<num>
         info = line[17:-1]
         tokens = info.split("<")
         element_name = tokens[0]
@@ -139,7 +139,7 @@ class ConvertToTags:
         """
         Same as the __open_att_func, except a '/' is placed at the end of the tag.
         """
-        #mi<tg<open-att__<footnote<num>
+        # mi<tg<open-att__<footnote<num>
         info = line[17:-1]
         tokens = info.split("<")
         element_name = tokens[0]
@@ -164,7 +164,7 @@ class ConvertToTags:
         """
         Print out the closed tag and new lines, if appropriate.
         """
-            #mi<tg<close_____<style-sheet\n
+        # mi<tg<close_____<style-sheet\n
         info = line[17:-1]
         self.__write_obj.write(
         '</%s>' % info)
@@ -178,7 +178,7 @@ class ConvertToTags:
         """
         Simply print out the information between [17:-1]
         """
-        #tx<nu<__________<Normal;
+        # tx<nu<__________<Normal;
         # change this!
         self.__write_obj.write(line[17:-1])
 
@@ -209,7 +209,7 @@ class ConvertToTags:
         """
         Write the XML declaration at the top of the document.
         """
-        #keep maximum compatibility with previous version
+        # keep maximum compatibility with previous version
         check_encoding_obj = check_encoding.CheckEncoding(
                     bug_handler=self.__bug_handler)
 
@@ -266,9 +266,9 @@ class ConvertToTags:
                     action = self.__state_dict.get(self.__token_info)
                     if action is not None:
                         action(line)
-        #convert all encodings to UTF8 or ASCII to avoid unsupported encodings in lxml
+        # convert all encodings to UTF8 or ASCII to avoid unsupported encodings in lxml
         if self.__convert_utf or self.__bad_encoding:
-            copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+            copy_obj = copy.Copy(bug_handler=self.__bug_handler)
             copy_obj.rename(self.__write_to, self.__file)
             file_encoding = "utf-8"
             if self.__bad_encoding:
@@ -279,7 +279,7 @@ class ConvertToTags:
                                     file_encoding, 'replace')
                     for line in read_obj:
                         write_objenc.write(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "convert_to_tags.data")
         copy_obj.rename(self.__write_to, self.__file)

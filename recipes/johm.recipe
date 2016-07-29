@@ -1,10 +1,11 @@
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class JournalofHospitalMedicine(BasicNewsRecipe):
 
-    title       = 'Journal of Hospital Medicine'
-    __author__  = 'Kovid Goyal'
+    title = 'Journal of Hospital Medicine'
+    __author__ = 'Kovid Goyal'
     description = 'Medical news'
     timefmt = ' [%d %b, %Y]'
     needs_subscription = True
@@ -12,10 +13,8 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
 
     no_stylesheets = True
     keep_only_tags = [dict(id=['articleTitle', 'articleMeta', 'fulltext'])]
-    remove_tags = [dict(attrs={'class':'licensedContent'})]
+    remove_tags = [dict(attrs={'class': 'licensedContent'})]
 
-
-   # TO LOGIN
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://www3.interscience.wiley.com/cgi-bin/home')
@@ -28,7 +27,7 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
             raise Exception('Login failed. Check your username and password')
         return br
 
-    #TO GET ARTICLE TOC
+    # TO GET ARTICLE TOC
     def johm_get_index(self):
         return self.index_to_soup('http://onlinelibrary.wiley.com/journal/10.1002/(ISSN)1553-5606/currentissue')
 
@@ -38,17 +37,17 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
         toc = soup.find(id='issueTocGroups')
         feeds = []
         for group in toc.findAll('li', id=re.compile(r'group\d+')):
-            gtitle = group.find(attrs={'class':'subSectionHeading'})
+            gtitle = group.find(attrs={'class': 'subSectionHeading'})
             if gtitle is None:
                 continue
             gtitle = self.tag_to_string(gtitle)
-            arts = group.find(attrs={'class':'articles'})
+            arts = group.find(attrs={'class': 'articles'})
             if arts is None:
                 continue
             self.log('Found section:', gtitle)
             articles = []
-            for art in arts.findAll(attrs={'class':lambda x: x and 'tocArticle'
-                in x}):
+            for art in arts.findAll(attrs={'class': lambda x: x and 'tocArticle'
+                                           in x}):
                 a = art.find('a', href=True)
                 if a is None:
                     continue
@@ -58,15 +57,14 @@ class JournalofHospitalMedicine(BasicNewsRecipe):
                 url = url.replace('/abstract', '/full')
                 title = self.tag_to_string(a)
                 a.extract()
-                pm = art.find(attrs={'class':'productMenu'})
+                pm = art.find(attrs={'class': 'productMenu'})
                 if pm is not None:
                     pm.extract()
                 desc = self.tag_to_string(art)
                 self.log('\tFound article:', title, 'at', url)
-                articles.append({'title':title, 'url':url, 'description':desc,
-                    'date':''})
+                articles.append({'title': title, 'url': url, 'description': desc,
+                                 'date': ''})
             if articles:
                 feeds.append((gtitle, articles))
 
         return feeds
-

@@ -2,65 +2,70 @@
 # -*- coding: utf-8 -*-
 
 ##
-## Title:        New Journal of Physics
-## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
-## Copyright:    Chema Cort\xe9s
+# Title:        New Journal of Physics
+# License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+# Copyright:    Chema Cort\xe9s
 ##
-## Written:      Jan 2011
-## Last Edited:  Jan 2012 - by Kiavash
+# Written:      Jan 2011
+# Last Edited:  Jan 2012 - by Kiavash
 ##
 
-__license__   = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
-__copyright__   = u'Chema Cort\xe9s - 2011-01-05'
-__version__     = 'v0.5.0'
-__date__        = '2012-01-13'
+__license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__copyright__ = u'Chema Cort\xe9s - 2011-01-05'
+__version__ = 'v0.5.0'
+__date__ = '2012-01-13'
 
 '''
 njp.org
 '''
 
-import re	# Import the regular expressions module.
+import re  # Import the regular expressions module.
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class NewJournalOfPhysics(BasicNewsRecipe):
-    title          = u'New Journal of Physics'
-    __author__     = u'Chema Cort\xe9s'
-    description    = u'The open-access journal for physics'
-    publisher      = u'IOP (Institute of Physics)'
-    category       = 'physics, journal, science'
-    language       = 'en'
-    
-    feeds          = [(u'Latest Papers', u'http://iopscience.iop.org/1367-2630/?rss=1')]
-    
-    cover_url      = 'http://images.iop.org/journals_icons/Info/1367-2630/cover.gif'
-    
+    title = u'New Journal of Physics'
+    __author__ = u'Chema Cort\xe9s'
+    description = u'The open-access journal for physics'
+    publisher = u'IOP (Institute of Physics)'
+    category = 'physics, journal, science'
+    language = 'en'
+
+    feeds = [(u'Latest Papers', u'http://iopscience.iop.org/1367-2630/?rss=1')]
+
+    cover_url = 'http://images.iop.org/journals_icons/Info/1367-2630/cover.gif'
+
     oldest_article = 7
     max_articles_per_feed = 30
     timeout = 30
-    
+
     no_stylesheets = True
     use_embedded_content = False
     remove_javascript = True
     remove_empty_feeds = True
-    asciiize = True	# Converts all none ascii characters to their ascii equivalents
-    
+    asciiize = True  # Converts all none ascii characters to their ascii equivalents
+
     keep_only_tags = [
-                        dict(id=['articleEvoContainer']),
-                     ]
-    
-    remove_tags    = [
-                        dict(name='div', attrs={'class':'affiliations'}), # Removes Shoow Affiliations
-                        dict(name='div', attrs={'class':'abst-icon-links'}), # Removes Tags and PDF export
-                        dict(name='p', attrs={'class':'studyimage'}),	# remove Studay image
-                        dict(name='a', attrs={'class':'icon powerpoint'}),	# remove Export to PowerPoint Slide
-                        dict(name='a', attrs={'title':'CrossRef'}),	# remove CrossRef icon
-                        dict(name='a', attrs={'title':'PubMed'}),	# remove PubMed icon
-                        dict(name='a', attrs={'e4f5426941':'true'}),	# remove cross ref image
-                        dict(name='img', attrs={'src':''}),	# remove empty image
-                        dict(name='a', attrs={'class':'closeChap'}),	# remove 'Close'
-                        dict(name='ul', attrs={'class':'breadcrumbs'}),	# remove Top breadcrumbs
-                     ]
-    
+        dict(id=['articleEvoContainer']),
+    ]
+
+    remove_tags = [
+        # Removes Shoow Affiliations
+        dict(name='div', attrs={'class': 'affiliations'}),
+        # Removes Tags and PDF export
+        dict(name='div', attrs={'class': 'abst-icon-links'}),
+        dict(name='p', attrs={'class': 'studyimage'}),  # remove Studay image
+        # remove Export to PowerPoint Slide
+        dict(name='a', attrs={'class': 'icon powerpoint'}),
+        dict(name='a', attrs={'title': 'CrossRef'}),  # remove CrossRef icon
+        dict(name='a', attrs={'title': 'PubMed'}),  # remove PubMed icon
+        dict(name='a', attrs={'e4f5426941': 'true'}),  # remove cross ref image
+        dict(name='img', attrs={'src': ''}),  # remove empty image
+        dict(name='a', attrs={'class': 'closeChap'}),  # remove 'Close'
+        # remove Top breadcrumbs
+        dict(name='ul', attrs={'class': 'breadcrumbs'}),
+    ]
+
     extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
                  .introduction, .first { font-weight: bold; } \
                  .cross-head { font-weight: bold; font-size: 125%; } \
@@ -79,11 +84,12 @@ class NewJournalOfPhysics(BasicNewsRecipe):
                  h2 { font-size: 150%; font-weight: bold; } \
                  h3 { font-size: 125%; font-weight: bold; } \
                  h4, h5, h6 { font-size: 100%; font-weight: bold; }'
-    
+
     # Remove the line breaks.
-    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: ''),
-                              ]
+    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+                          (re.compile(r'<br[ ]*clear.*/>',
+                                      re.IGNORECASE), lambda m: ''),
+                          ]
 
     def print_version(self, url):
-        return url+"/article"
+        return url + "/article"

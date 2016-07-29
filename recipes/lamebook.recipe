@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class LamebookRecipe(BasicNewsRecipe):
     title = 'Lamebook'
     __author__ = 'atordo'
@@ -11,19 +12,19 @@ class LamebookRecipe(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
     language = 'en'
-    use_embedded_content  = False
+    use_embedded_content = False
     publication_type = 'blog'
     reverse_article_order = True
     encoding = 'utf-8'
 
     keep_only_tags = [
-        dict(name='div', attrs={'class':'entry'})
-       ,dict(name='ol', attrs={'class':'commentlist'})
+        dict(name='div', attrs={'class': 'entry'}), dict(
+            name='ol', attrs={'class': 'commentlist'})
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'style':['clear: left; float: left; margin: 0 15px 0 0;'
-           ,'float: left; margin: 0 15px 0 0;']})
+        dict(name='div', attrs={'style': [
+             'clear: left; float: left; margin: 0 15px 0 0;', 'float: left; margin: 0 15px 0 0;']})
     ]
 
     feeds = [('Lamebook', 'http://feeds.feedburner.com/Lamebook')]

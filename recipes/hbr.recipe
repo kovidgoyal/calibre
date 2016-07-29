@@ -8,19 +8,20 @@ from mechanize import Request
 from urllib import urlencode
 import json
 
+
 class HBR(BasicNewsRecipe):
 
     title = 'Harvard Business Review'
     description = 'To subscribe go to http://hbr.harvardbusiness.org'
     needs_subscription = True
     __author__ = 'Kovid Goyal'
-    timefmt                = ' [%B %Y]'
+    timefmt = ' [%B %Y]'
     language = 'en'
     no_stylesheets = True
 
     keep_only_tags = [
-        dict(attrs={'class':['article-hed', 'byline']}),
-        dict(attrs={'class':lambda x: x and 'article' in x.split()}),
+        dict(attrs={'class': ['article-hed', 'byline']}),
+        dict(attrs={'class': lambda x: x and 'article' in x.split()}),
     ]
     remove_tags = [
         dict(name='personalization-placement'),
@@ -31,10 +32,10 @@ class HBR(BasicNewsRecipe):
         # br.set_debug_http(True)
         br.open('https://hbr.org/sign-in')
         rq = Request('https://hbr.org/authenticate', headers={
-            'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'Referer': 'https://hbr.org/sign-in',
             'X-Requested-With': 'XMLHttpRequest',
-        }, data=urlencode({'username':self.username, 'password':self.password}))
+        }, data=urlencode({'username': self.username, 'password': self.password}))
         r = br.open(rq)
         raw = r.read()
         data = json.loads(raw)
@@ -48,7 +49,8 @@ class HBR(BasicNewsRecipe):
         section = 'Unknown'
         articles = []
         feeds = []
-        toc = next(select('stream-content[data-stream-name="table-of-contents"] ul'))
+        toc = next(
+            select('stream-content[data-stream-name="table-of-contents"] ul'))
         for x in toc.xpath('descendant::*[local-name()="h4" or local-name()="stream-item"]'):
             if 'h4' in x.tag:
                 if articles:
@@ -63,14 +65,16 @@ class HBR(BasicNewsRecipe):
                 if authors:
                     desc = 'by ' + authors + ': ' + desc
                 self.log('\tFound article:', title, url, desc)
-                articles.append({'title':title, 'url':'https://hbr.org' + url, 'description':desc})
+                articles.append(
+                    {'title': title, 'url': 'https://hbr.org' + url, 'description': desc})
         if articles:
             feeds.append((section, articles))
         return feeds
 
     def parse_index(self):
         soup = self.index_to_soup('http://hbr.org/magazine')
-        fig = soup.find('figure', attrs={'class': lambda x: x and 'current-issue' in x.split()})
+        fig = soup.find('figure', attrs={
+                        'class': lambda x: x and 'current-issue' in x.split()})
         url = 'https://hbr.org' + fig.find('a', href=True)['href']
         img = fig.find('img')
         self.cover_url = 'https://hbr.org' + img['src']

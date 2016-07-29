@@ -614,7 +614,6 @@ class SchemaUpgrade(object):
         '''
         self.db.execute(script)
 
-
     def upgrade_version_21(self):
         '''
         Write the series sort into the existing sort column in the series table

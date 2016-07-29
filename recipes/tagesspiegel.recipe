@@ -6,13 +6,15 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
 
 class TagesspiegelRss(BasicNewsRecipe):
-    title          = 'Der Tagesspiegel'
-    __author__     = 'Kovid Goyal'
+    title = 'Der Tagesspiegel'
+    __author__ = 'Kovid Goyal'
     oldest_article = 1
     max_articles_per_feed = 100
     language = 'de'
@@ -29,7 +31,7 @@ class TagesspiegelRss(BasicNewsRecipe):
         classes('ts-lead ts-article-body ts-intro ts-title ts-authors')
     ]
 
-    feeds          = [
+    feeds = [
         (u'Politik', u'http://www.tagesspiegel.de/contentexport/feed/politik'),
         (u'Meinung', u'http://www.tagesspiegel.de/contentexport/feed/meinung'),
         (u'Berlin', u'http://www.tagesspiegel.de/contentexport/feed/berlin'),

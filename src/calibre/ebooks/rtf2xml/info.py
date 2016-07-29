@@ -22,8 +22,8 @@ class Info:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         """
         Required:
@@ -164,7 +164,7 @@ class Info:
         """
         if self.__token_info == 'mi<mk<docinf-end':
             self.__state = 'in_info_table'
-            #Don't print empty tags
+            # Don't print empty tags
             if len(self.rmspace.sub('',self.__text_string)):
                 self.__write_obj.write(
                     'mi<tg<open______<%s\n'
@@ -190,7 +190,7 @@ class Info:
         """
         self.__state = 'collect_tokens'
         self.__text_string = 'mi<tg<empty-att_<%s' % tag
-        #mi<tg<empty-att_<page-definition<margin>33\n
+        # mi<tg<empty-att_<page-definition<margin>33\n
 
     def __collect_tokens_func(self, line):
         """
@@ -212,7 +212,7 @@ class Info:
             to the text string.
             (num-of-wor => number-of-words)
         """
-        #cw<di<year______<nu<2003
+        # cw<di<year______<nu<2003
         if self.__token_info == 'mi<mk<docinf-end':
             self.__state = 'in_info_table'
             self.__write_obj.write(
@@ -274,7 +274,7 @@ class Info:
                         sys.stderr.write('No matching state in module styles.py\n')
                         sys.stderr.write(self.__state + '\n')
                     action(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "info.data")
         copy_obj.rename(self.__write_to, self.__file)

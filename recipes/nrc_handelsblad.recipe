@@ -1,25 +1,24 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012'
 '''
 nrc.nl
 '''
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class NRC(BasicNewsRecipe):
-    title                  = 'NRC Handelsblad'
-    __author__             = 'veezh'
-    description            = 'Nieuws (no subscription needed)'
-    oldest_article         = 1
-    max_articles_per_feed  = 100
-    no_stylesheets         = True
-    #delay                  = 1
-    use_embedded_content   = False
-    encoding               = 'utf-8'
-    publisher              = 'nrc.nl'
-    category               = 'news, Netherlands, world'
-    language               = 'nl'
+    title = 'NRC Handelsblad'
+    __author__ = 'veezh'
+    description = 'Nieuws (no subscription needed)'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    publisher = 'nrc.nl'
+    category = 'news, Netherlands, world'
+    language = 'nl'
     timefmt = ''
-    #publication_type       = 'newsportal'
     extra_css = '''
                     h1{font-size:130%;}
                     #h2{font-size:100%;font-weight:normal;}
@@ -29,14 +28,9 @@ class NRC(BasicNewsRecipe):
                     #full-contents{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
                     #match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}
                 '''
-    #preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
     conversion_options = {
-                              'comments'        : description
-                             ,'tags'            : category
-                             ,'language'        : language
-                             ,'publisher'       : publisher
-                             ,'linearize_tables': True
-                          }
+        'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True
+    }
 
     remove_empty_feeds = True
 
@@ -45,11 +39,11 @@ class NRC(BasicNewsRecipe):
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
             if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
+                tstr = alink.string
+                alink.replaceWith(tstr)
         return soup
 
-    keep_only_tags = [dict(name='div', attrs={'class':'article'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'article'})]
     remove_tags_after = [dict(id='broodtekst')]
 
 #    keep_only_tags    = [
@@ -63,14 +57,14 @@ class NRC(BasicNewsRecipe):
 #        if 'blog' not in link and ('chat' not in link):
 #             return link
 
-    feeds          = [
-#                      ('Nieuws', 'http://www.nrc.nl/rss.php'),
-                      ('Binnenland', 'http://www.nrc.nl/nieuws/categorie/binnenland/rss.php'),
-                      ('Buitenland', 'http://www.nrc.nl/nieuws/categorie/buitenland/rss.php'),
-                      ('Economie', 'http://www.nrc.nl/nieuws/categorie/economie/rss.php'),
-                      ('Wetenschap', 'http://www.nrc.nl/nieuws/categorie/wetenschap/rss.php'),
-                      ('Cultuur', 'http://www.nrc.nl/nieuws/categorie/cultuur/rss.php'),
-                      ('Boeken', 'http://www.nrc.nl/boeken/rss.php'),
-                      ('Tech', 'http://www.nrc.nl/tech/rss.php/'),
-                      ('Klimaat', 'http://www.nrc.nl/klimaat/rss.php/'),
-                      ]
+    feeds = [
+        #                      ('Nieuws', 'http://www.nrc.nl/rss.php'),
+        ('Binnenland', 'http://www.nrc.nl/nieuws/categorie/binnenland/rss.php'),
+        ('Buitenland', 'http://www.nrc.nl/nieuws/categorie/buitenland/rss.php'),
+        ('Economie', 'http://www.nrc.nl/nieuws/categorie/economie/rss.php'),
+        ('Wetenschap', 'http://www.nrc.nl/nieuws/categorie/wetenschap/rss.php'),
+        ('Cultuur', 'http://www.nrc.nl/nieuws/categorie/cultuur/rss.php'),
+        ('Boeken', 'http://www.nrc.nl/boeken/rss.php'),
+        ('Tech', 'http://www.nrc.nl/tech/rss.php/'),
+        ('Klimaat', 'http://www.nrc.nl/klimaat/rss.php/'),
+    ]

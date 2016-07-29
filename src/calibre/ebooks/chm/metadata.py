@@ -52,26 +52,21 @@ def _metadata_from_span(soup, searchfor):
     return _detag(span.renderContents(None).strip())
 
 def _get_authors(soup):
-    aut = (_metadata_from_span(soup, r'author')
-        or _metadata_from_table(soup, r'^\s*by\s*:?\s+'))
+    aut = (_metadata_from_span(soup, r'author') or _metadata_from_table(soup, r'^\s*by\s*:?\s+'))
     ans = [_('Unknown')]
     if aut is not None:
         ans = string_to_authors(aut)
     return ans
 
 def _get_publisher(soup):
-    return (_metadata_from_span(soup, 'imprint')
-        or _metadata_from_table(soup, 'publisher'))
+    return (_metadata_from_span(soup, 'imprint') or _metadata_from_table(soup, 'publisher'))
 
 def _get_isbn(soup):
-    return (_metadata_from_span(soup, 'isbn')
-        or _metadata_from_table(soup, 'isbn'))
+    return (_metadata_from_span(soup, 'isbn') or _metadata_from_table(soup, 'isbn'))
 
 def _get_comments(soup):
-    date = (_metadata_from_span(soup, 'cwdate')
-        or _metadata_from_table(soup, 'pub date'))
-    pages = ( _metadata_from_span(soup, 'pages')
-        or _metadata_from_table(soup, 'pages'))
+    date = (_metadata_from_span(soup, 'cwdate') or _metadata_from_table(soup, 'pub date'))
+    pages = (_metadata_from_span(soup, 'pages') or _metadata_from_table(soup, 'pages'))
     try:
         # date span can have copyright symbols in it...
         date = date.replace(u'\u00a9', '').strip()

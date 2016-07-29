@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2013, Malah <malah at neuf dot fr>'
 '''
 Le GORAFI.fr
@@ -7,6 +7,7 @@ Le GORAFI.fr
 
 __author__ = '2013, Malah <malah at neuf dot fr>'
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class legorafi(BasicNewsRecipe):
     title = u'Le GORAFI.fr'
@@ -18,17 +19,17 @@ class legorafi(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     keep_only_tags = [
-        dict(name='div', attrs={'class':'entry-content'}),
-        dict(name='h3', attrs={'id':'comments-title'}),
+        dict(name='div', attrs={'class': 'entry-content'}),
+        dict(name='h3', attrs={'id': 'comments-title'}),
     ]
     remove_tags = [
-        dict(name='div', attrs={'id':'soshake-sharebox'}),
-        dict(name='div', attrs={'class':'social-ring'}),
-        dict(name='div', attrs={'class':'entry-utility'}),
-        dict(name='div', attrs={'id':'respond'}),
+        dict(name='div', attrs={'id': 'soshake-sharebox'}),
+        dict(name='div', attrs={'class': 'social-ring'}),
+        dict(name='div', attrs={'class': 'entry-utility'}),
+        dict(name='div', attrs={'id': 'respond'}),
     ]
     masthead_url = u'http://web.gweno.free.fr/img/logositeter.png'
     couverture_url = u'http://www.legorafi.fr/wp-content/uploads/2013/02/iconegorafi.png'
-    feeds =  [
-      (u'Articles', u'http://www.legorafi.fr/feed/'),
+    feeds = [
+        (u'Articles', u'http://www.legorafi.fr/feed/'),
     ]

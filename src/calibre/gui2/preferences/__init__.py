@@ -199,7 +199,8 @@ class Setting(object):
                 val = unicode(self.gui_obj.text())
             else:
                 idx = self.gui_obj.currentIndex()
-                if idx < 0: idx = 0
+                if idx < 0:
+                    idx = 0
                 val = unicode(self.gui_obj.itemData(idx) or '')
         return val
 
@@ -298,7 +299,9 @@ def get_plugin(category, name):
             (category, name))
 
 class ConfigDialog(QDialog):
-    def set_widget(self, w): self.w = w
+
+    def set_widget(self, w):
+        self.w = w
     def accept(self):
         try:
             self.restart_required = self.w.commit()

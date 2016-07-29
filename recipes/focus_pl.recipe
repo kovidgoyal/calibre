@@ -19,33 +19,33 @@ class NYTimes(BasicNewsRecipe):
 
     # TO GET ARTICLE TOC
     def nejm_get_index(self):
-            return self.index_to_soup('http://www.focus.pl/')
+        return self.index_to_soup('http://www.focus.pl/')
 
     # To parse artice toc
     def parse_index(self):
-            soup = self.nejm_get_index()
+        soup = self.nejm_get_index()
 
-            toc = soup.find('div', id='wrapper')
+        toc = soup.find('div', id='wrapper')
 
-            articles = []
-            feeds = []
-            section_title = 'Focus Articles'
-            for x in toc.findAll(True):
-                if x.name == 'h1':
-                    # Article found
-                    a = x.find('a')
-                    if a is None:
-                        continue
-                    title = self.tag_to_string(a)
-                    url = a.get('href', False)
-                    if not url or not title:
-                        continue
-                    # if url.startswith('story'):
-                    url = 'http://www.focus.pl' + url
-                    self.log('\t\tFound article:', title)
-                    self.log('\t\t\t', url)
-                    articles.append({'title': title, 'url': url,
-                                     'description': '', 'date': ''})
-            feeds.append((section_title, articles))
+        articles = []
+        feeds = []
+        section_title = 'Focus Articles'
+        for x in toc.findAll(True):
+            if x.name == 'h1':
+                # Article found
+                a = x.find('a')
+                if a is None:
+                    continue
+                title = self.tag_to_string(a)
+                url = a.get('href', False)
+                if not url or not title:
+                    continue
+                # if url.startswith('story'):
+                url = 'http://www.focus.pl' + url
+                self.log('\t\tFound article:', title)
+                self.log('\t\t\t', url)
+                articles.append({'title': title, 'url': url,
+                                 'description': '', 'date': ''})
+        feeds.append((section_title, articles))
 
-            return feeds
+        return feeds

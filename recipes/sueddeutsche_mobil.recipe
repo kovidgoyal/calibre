@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, 2013 Andreas Zeiser <andreas.zeiser@web.de>'
 '''
 szmobil.sueddeutsche.de/
@@ -17,29 +17,32 @@ import datetime
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import re
 
+
 class SZmobil(BasicNewsRecipe):
-    title       = u'Süddeutsche Zeitung mobil'
-    __author__  = u'Andreas Zeiser'
+    title = u'Süddeutsche Zeitung mobil'
+    __author__ = u'Andreas Zeiser'
     description = u'Nachrichten aus Deutschland. Zugriff auf kostenpflichtiges Abo SZ mobil.'
-    publisher              = u'Sueddeutsche Zeitung'
-    masthead_url           = 'http://pix.sueddeutsche.de/img/layout/header/SZ_solo288x31.gif'
-    language               = u'de'
-    publication_type       = u'newspaper'
-    category               = u'news, politics, Germany'
-    cover_url              = 'https://zeitung.sueddeutsche.de/szdigital/public/issue/previewimage?size=l&issueId=' + (datetime.datetime.utcnow()+datetime.timedelta(hours=1)).strftime("%Y-%m-%d") + '&targetVersion=3&productId=sz'
-    no_stylesheets         = True
-    oldest_article         = 2
-    encoding               = 'iso-8859-1'
-    needs_subscription     = True
-    remove_empty_feeds     = True
-    delay                  = 1
+    publisher = u'Sueddeutsche Zeitung'
+    masthead_url = 'http://pix.sueddeutsche.de/img/layout/header/SZ_solo288x31.gif'
+    language = u'de'
+    publication_type = u'newspaper'
+    category = u'news, politics, Germany'
+    cover_url = 'https://zeitung.sueddeutsche.de/szdigital/public/issue/previewimage?size=l&issueId=' + \
+        (datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+         ).strftime("%Y-%m-%d") + '&targetVersion=3&productId=sz'
+    no_stylesheets = True
+    oldest_article = 2
+    encoding = 'iso-8859-1'
+    needs_subscription = True
+    remove_empty_feeds = True
+    delay = 1
 
     # if you want to get rid of the date on the title page use
     # timefmt = ''
     timefmt = ' [%a, %d %b, %Y]'
 
-    root_url ='http://epaper.sueddeutsche.de/app/service/epaper-mobil/'
-    keep_only_tags = [dict(name='div', attrs={'class':'article'})]
+    root_url = 'http://epaper.sueddeutsche.de/app/service/epaper-mobil/'
+    keep_only_tags = [dict(name='div', attrs={'class': 'article'})]
 
     def get_browser(self):
         browser = BasicNewsRecipe.get_browser(self)
@@ -48,7 +51,7 @@ class SZmobil(BasicNewsRecipe):
         url = 'https://id.sueddeutsche.de/login'
         browser.open(url)
 
-        browser.select_form(nr=0) # to select the first form
+        browser.select_form(nr=0)  # to select the first form
         browser['login'] = self.username
         browser['password'] = self.password
         browser.submit()
@@ -56,18 +59,20 @@ class SZmobil(BasicNewsRecipe):
 
     def parse_index(self):
         # find all sections
-        src = self.index_to_soup('http://epaper.sueddeutsche.de/app/service/epaper-mobil/')
+        src = self.index_to_soup(
+            'http://epaper.sueddeutsche.de/app/service/epaper-mobil/')
         feeds = []
-        for itt in src.findAll('a',href=True):
+        for itt in src.findAll('a', href=True):
             if itt['href'].startswith('section.php?section'):
-                feeds.append( (itt.string[0:-2],itt['href']) )
+                feeds.append((itt.string[0:-2], itt['href']))
 
         all_articles = []
         for feed in feeds:
             feed_url = self.root_url + feed[1]
             feed_title = feed[0]
 
-            self.report_progress(0, ('Fetching feed')+' %s...'%(feed_title if feed_title else feed_url))
+            self.report_progress(0, ('Fetching feed') + ' %s...' %
+                                 (feed_title if feed_title else feed_url))
 
             src = self.index_to_soup(feed_url)
             articles = []
@@ -75,20 +80,22 @@ class SZmobil(BasicNewsRecipe):
             for itt in src.findAll('a', href=True):
                 if itt['href'].startswith('article.php?id='):
                     article_url = itt['href']
-                    article_id = int(re.search("id=(\d*)&etag=", itt['href']).group(1))
+                    article_id = int(
+                        re.search("id=(\d*)&etag=", itt['href']).group(1))
 
-                    # first check if link is a special article in section "Meinungsseite"
-                    if itt.find('strong')!= None:
+                    # first check if link is a special article in section
+                    # "Meinungsseite"
+                    if itt.find('strong') is not None:
                         article_name = itt.strong.string
-                        if len(itt.contents)>1:
+                        if len(itt.contents) > 1:
                             shorttitles[article_id] = itt.contents[1]
 
-                        articles.append( (article_name, article_url, article_id) )
+                        articles.append(
+                            (article_name, article_url, article_id))
                         continue
 
-
                     # candidate for a general article
-                    if itt.string == None:
+                    if itt.string is None:
                         article_name = ''
                     else:
                         article_name = itt.string
@@ -97,10 +104,11 @@ class SZmobil(BasicNewsRecipe):
                         # just another link ("mehr") to an article
                         continue
 
-                    if itt.has_key('id'):
+                    if itt.has_key('id'):  # noqa
                         shorttitles[article_id] = article_name
                     else:
-                        articles.append( (article_name, article_url, article_id) )
+                        articles.append(
+                            (article_name, article_url, article_id))
 
             feed_articles = []
             for article_name, article_url, article_id in articles:
@@ -110,15 +118,14 @@ class SZmobil(BasicNewsRecipe):
                 # pubdate = strftime('')
                 pubdate = strftime('[%a, %d %b]')
                 description = ''
-                if shorttitles.has_key(article_id):
+                if shorttitles.has_key(article_id):  # noqa
                     description = shorttitles[article_id]
                 # we do not want the flag ("Impressum")
                 if "HERAUSGEGEBEN VOM" in description:
                     continue
-                d = dict(title=title, url=url, date=pubdate, description=description, content='')
+                d = dict(title=title, url=url, date=pubdate,
+                         description=description, content='')
                 feed_articles.append(d)
-            all_articles.append( (feed_title, feed_articles) )
+            all_articles.append((feed_title, feed_articles))
 
         return all_articles
-
-

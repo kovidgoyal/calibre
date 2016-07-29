@@ -446,8 +446,7 @@ class CustomColumns(object):
 
         # Populate the books temp cust_table
         self.conn.executemany(
-            'INSERT INTO temp_bulk_tag_edit_books VALUES (?)',
-                [(x,) for x in ids])
+            'INSERT INTO temp_bulk_tag_edit_books VALUES (?)', [(x,) for x in ids])
 
         # Populate the add/remove tags temp temp_tables
         for table, tags in enumerate([add, remove]):
@@ -576,8 +575,7 @@ class CustomColumns(object):
                     xid = self.conn.execute(
                         'INSERT INTO %s(value) VALUES(?)'%table, (x,)).lastrowid
                 if not self.conn.get(
-                    'SELECT book FROM %s WHERE book=? AND value=?'%lt,
-                                                        (id_, xid), all=False):
+                    'SELECT book FROM %s WHERE book=? AND value=?'%lt, (id_, xid), all=False):
                     if data['datatype'] == 'series':
                         self.conn.execute(
                             '''INSERT INTO %s(book, value, extra)
@@ -601,11 +599,9 @@ class CustomColumns(object):
             self.conn.execute('DELETE FROM %s WHERE book=?'%table, (id_,))
             if val is not None:
                 self.conn.execute(
-                        'INSERT INTO %s(book,value) VALUES (?,?)'%table,
-                    (id_, val))
+                        'INSERT INTO %s(book,value) VALUES (?,?)'%table, (id_, val))
             nval = self.conn.get(
-                    'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'],
-                    (id_,), all=False)
+                    'SELECT custom_%s FROM meta2 WHERE id=?'%data['num'], (id_,), all=False)
             self.data.set(id_, self.FIELD_MAP[data['num']], nval,
                     row_is_id=True)
         if notify:
@@ -631,9 +627,9 @@ class CustomColumns(object):
             if data['normalized']:
                 query = '%s.value'
                 if data['is_multiple']:
-#                    query = 'group_concat(%s.value, "{0}")'.format(
-#                                        data['multiple_seps']['cache_to_list'])
-#                    if not display.get('sort_alpha', False):
+                    #                    query = 'group_concat(%s.value, "{0}")'.format(
+                    #                                        data['multiple_seps']['cache_to_list'])
+                    #                    if not display.get('sort_alpha', False):
                     if data['multiple_seps']['cache_to_list'] == '|':
                         query = 'sortconcat_bar(link.id, %s.value)'
                     elif data['multiple_seps']['cache_to_list'] == '&':

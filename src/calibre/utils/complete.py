@@ -53,7 +53,6 @@ def prints(*args, **kwargs):
     file.write(end)
 
 
-
 def split(src):
     try:
         return shlex.split(src)
@@ -83,10 +82,12 @@ def get_opts_from_parser(parser, prefix):
             if x.startswith(prefix):
                 yield x
     for o in parser.option_list:
-        for x in do_opt(o): yield x+' '
+        for x in do_opt(o):
+            yield x+' '
     for g in parser.option_groups:
         for o in g.option_list:
-            for x in do_opt(o): yield x+' '
+            for x in do_opt(o):
+                yield x+' '
 
 def send(ans):
     pat = re.compile('([^0-9a-zA-Z_./-])')
@@ -95,7 +96,6 @@ def send(ans):
         if x.endswith('\\ '):
             x = x[:-2]+' '
         prints(x)
-
 
 
 class EbookConvert(object):

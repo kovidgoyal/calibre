@@ -22,7 +22,7 @@ class E1843(BasicNewsRecipe):
     encoding = 'utf-8'
 
     keep_only_tags = [
-        dict(name='h1', attrs={'class':'title'}),
+        dict(name='h1', attrs={'class': 'title'}),
         classes('field-name-field-rubric-summary article-header__overlay-main-image meta-info__author article__body'),
     ]
 
@@ -54,7 +54,8 @@ class E1843(BasicNewsRecipe):
                 r = div.find(**classes('article-rubric'))
                 if r is not None:
                     desc = self.tag_to_string(r)
-                articles.append({'title':title, 'url':url, 'description':desc})
+                articles.append(
+                    {'title': title, 'url': url, 'description': desc})
 
         if current_section and articles:
             ans.append((current_section, articles))

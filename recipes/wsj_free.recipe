@@ -10,21 +10,23 @@ from lxml import html
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def CSSSelect(expr):
     expr = {
         'div.whatsNews-simple': '''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' whatsNews-simple ')]''',
         'a.mjLinkItem[href]': '''descendant-or-self::a[@class and contains(concat(' ', normalize-space(@class), ' '), ' mjLinkItem ') and (@href)]''',
         '.meta_sectionName': '''descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), ' meta_sectionName ')]''',
-        'p':'descendant-or-self::p',
-        'div.whatsNews-simple.whatsNews-itp': '''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' whatsNews-simple ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' whatsNews-itp '))]''',
+        'p': 'descendant-or-self::p',
+        'div.whatsNews-simple.whatsNews-itp': '''descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' whatsNews-simple ') and (@class and contains(concat(' ', normalize-space(@class), ' '), ' whatsNews-itp '))]''',  # noqa
         'a[href]': 'descendant-or-self::a[@href]',
-        'span.date-date':"descendant-or-self::span[@class and contains(concat(' ', normalize-space(@class), ' '), ' date-date ')]",
-        'div.itpSectionHeaderPdf a[href]': "descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' itpSectionHeaderPdf ')]/descendant-or-self::*/a[@href]",
-        'div.itpHeader ul.tab a[href]': "descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' itpHeader ')]/descendant-or-self::*/ul[@class and contains(concat(' ', normalize-space(@class), ' '), ' tab ')]/descendant-or-self::*/a[@href]",
+        'span.date-date': "descendant-or-self::span[@class and contains(concat(' ', normalize-space(@class), ' '), ' date-date ')]",
+        'div.itpSectionHeaderPdf a[href]': "descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' itpSectionHeaderPdf ')]/descendant-or-self::*/a[@href]",  # noqa
+        'div.itpHeader ul.tab a[href]': "descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' itpHeader ')]/descendant-or-self::*/ul[@class and contains(concat(' ', normalize-space(@class), ' '), ' tab ')]/descendant-or-self::*/a[@href]",  # noqa
 
     }[expr]
     from lxml.etree import XPath
     return XPath(expr)
+
 
 def classes(classes):
     q = frozenset(classes.split(' '))
@@ -60,14 +62,16 @@ class WSJ(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        classes('insetButton insettipBox author-info media-object-video article_tools nc-exp-artmeta category'),
+        classes(
+            'insetButton insettipBox author-info media-object-video article_tools nc-exp-artmeta category'),
         dict(name='span', attrs={
              'data-country-code': True, 'data-ticker-code': True}),
         dict(name='meta link'.split()),
     ]
 
     def preprocess_raw_html(self, raw_html, url):
-        root = html5lib.parse(raw_html, treebuilder='lxml', namespaceHTMLElements=False)
+        root = html5lib.parse(raw_html, treebuilder='lxml',
+                              namespaceHTMLElements=False)
         raw_html = html.tostring(root)
         # open('/t/art.html', 'w').write(raw_html)
         return raw_html
@@ -137,7 +141,8 @@ class WSJ(BasicNewsRecipe):
                 p = h2.xpath('following-sibling::p')
                 if p:
                     desc = self.tag_to_string(p[0])
-                articles.append({'title':title, 'url':url, 'description':desc, 'date':''})
+                articles.append({'title': title, 'url': url,
+                                 'description': desc, 'date': ''})
                 self.log('Found article:', title)
                 self.log('\t\t', desc)
 
@@ -175,7 +180,8 @@ class WSJ(BasicNewsRecipe):
             if url.endswith('whatsnews'):
                 articles = self.wsj_find_wn_articles(url)
             else:
-                articles = self.wsj_find_articles(url, ahed=title == 'Front Section')
+                articles = self.wsj_find_articles(
+                    url, ahed=title == 'Front Section')
         except:
             articles = []
         if articles:

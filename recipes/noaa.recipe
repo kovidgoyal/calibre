@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 '''
 noaa.com
@@ -9,36 +9,33 @@ noaa.com
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
+
 class NOAA(BasicNewsRecipe):
-    title                  = 'NOAA Online'
-    __author__             = 'Darko Miletic'
-    description            = 'NOAA'
-    publisher              = 'NOAA'
-    category               = 'news, science, US, ocean'
-    oldest_article         = 15
-    max_articles_per_feed  = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
+    title = 'NOAA Online'
+    __author__ = 'Darko Miletic'
+    description = 'NOAA'
+    publisher = 'NOAA'
+    category = 'news, science, US, ocean'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = False
     simultaneous_downloads = 1
-    encoding               = 'utf-8'
-    lang                   = 'en-US'
+    encoding = 'utf-8'
+    lang = 'en-US'
     language = 'en'
 
-    remove_tags        = [dict(name=['embed','object'])
-                         ,dict(name='div', attrs={'id':'leftNav'})
-                         ,dict(name='div', attrs={'id':'topNav'})
-                         ,dict(name='div', attrs={'class':'feedback_box'})
-                         ,dict(name='div', attrs={'id':'midBlock'})
-                         ,dict(name='div', attrs={'id':'footer'})
-                         ]
+    remove_tags = [dict(name=['embed', 'object']), dict(name='div', attrs={'id': 'leftNav'}), dict(name='div', attrs={'id': 'topNav'}), dict(name='div', attrs={'class': 'feedback_box'}), dict(name='div', attrs={'id': 'midBlock'}), dict(name='div', attrs={'id': 'footer'}) ]  # noqa
 
-    feeds          = [(u'NOAA articles', u'http://www.noaa.gov/rss/noaarss.xml')]
+    feeds = [(u'NOAA articles', u'http://www.noaa.gov/rss/noaarss.xml')]
 
     def preprocess_html(self, soup):
         soup.html['xml:lang'] = self.lang
-        soup.html['lang']     = self.lang
-        mlang = Tag(soup,'meta',[("http-equiv","Content-Language"),("content",self.lang)])
-        mcharset = Tag(soup,'meta',[("http-equiv","Content-Type"),("content","text/html; charset=UTF-8")])
-        soup.head.insert(0,mlang)
-        soup.head.insert(1,mcharset)
+        soup.html['lang'] = self.lang
+        mlang = Tag(soup, 'meta', [
+                    ("http-equiv", "Content-Language"), ("content", self.lang)])
+        mcharset = Tag(soup, 'meta', [
+                       ("http-equiv", "Content-Type"), ("content", "text/html; charset=UTF-8")])
+        soup.head.insert(0, mlang)
+        soup.head.insert(1, mcharset)
         return self.adeify_images(soup)

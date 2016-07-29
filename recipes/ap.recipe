@@ -6,21 +6,23 @@ class AssociatedPress(BasicNewsRecipe):
     title = u'Associated Press'
     description = 'Global news'
     __author__ = 'Krittika Goyal'
-    use_embedded_content   = False
+    use_embedded_content = False
     language = 'en'
     no_stylesheets = True
     conversion_options = {
-        'linearize_tables' : True
+        'linearize_tables': True
     }
-    keep_only_tags = {'name':'table', 'attrs':{'class':lambda x: x and 'ap-story-table' in x.split()}}
+    keep_only_tags = {'name': 'table', 'attrs': {
+        'class': lambda x: x and 'ap-story-table' in x.split()}}
     remove_tags = [
-        {'class':['ap-mediabox-table']},
-        {'name':'img', 'src':lambda x: x and '//analytics.' in x},
+        {'class': ['ap-mediabox-table']},
+        {'name': 'img', 'src': lambda x: x and '//analytics.' in x},
     ]
 
     def parse_index(self):
         feeds = []
-        fronts = ('HOME', 'US', 'WORLD', 'BUSINESS', 'TECHNOLOGY', 'SPORTS', 'ENTERTAINMENT', 'HEALTH', 'SCIENCE', 'POLITICS')
+        fronts = ('HOME', 'US', 'WORLD', 'BUSINESS', 'TECHNOLOGY',
+                  'SPORTS', 'ENTERTAINMENT', 'HEALTH', 'SCIENCE', 'POLITICS')
         for front in fronts:
             feeds.append([front.capitalize(), self.parse_section(front)])
         feeds[0][0] = 'Top Stories'
@@ -28,19 +30,20 @@ class AssociatedPress(BasicNewsRecipe):
 
     def parse_section(self, front):
         self.log('Processing section:', front)
-        soup = self.index_to_soup('http://hosted.ap.org/dynamic/fronts/%s?SITE=AP' % front)
+        soup = self.index_to_soup(
+            'http://hosted.ap.org/dynamic/fronts/%s?SITE=AP' % front)
 
         articles = []
-        for x in soup.findAll('p', attrs={'class':['ap-newsbriefitem-p', 'ap-topheadlineitem-p']}):
+        for x in soup.findAll('p', attrs={'class': ['ap-newsbriefitem-p', 'ap-topheadlineitem-p']}):
             a = x.find('a', href=True)
             title = self.tag_to_string(a)
             url = "http://hosted.ap.org" + a['href']
-            p = x.find(attrs={'class':'topheadlinebody'})
+            p = x.find(attrs={'class': 'topheadlinebody'})
             desc = ''
             if p is not None:
                 desc = self.tag_to_string(p)
             self.log('\tFound article:', title, '\n\t\t', desc)
-            articles.append({'title':title, 'url':url})
+            articles.append({'title': title, 'url': url})
 
         self.log('\n\n')
 

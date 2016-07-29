@@ -1,6 +1,6 @@
 # vim:fileencoding=UTF-8
 from __future__ import unicode_literals
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2013, Eddie Lau'
 __Date__ = ''
 
@@ -12,7 +12,9 @@ Change Log:
 
 from calibre import (__appname__, force_unicode, strftime)
 from calibre.utils.date import now as nowf
-import os, datetime, re
+import os
+import datetime
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -21,10 +23,11 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.localization import canonicalize_lang
 
+
 class AppleDaily(BasicNewsRecipe):
-    title          = u'AM730'
-    __author__     = 'Eddie Lau'
-    publisher      = 'AM730'
+    title = u'AM730'
+    __author__ = 'Eddie Lau'
+    publisher = 'AM730'
     oldest_article = 1
     max_articles_per_feed = 100
     auto_cleanup = False
@@ -35,46 +38,46 @@ class AppleDaily(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     description = 'http://www.am730.com.hk'
-    category    = 'Chinese, News, Hong Kong'
+    category = 'Chinese, News, Hong Kong'
     masthead_url = 'http://www.am730.com.hk/images/logo.jpg'
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 20px; margin-bottom: 20px; max-height:70%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} li {font-size:50%; margin-left:auto; margin-right:auto;}'
-    keep_only_tags = [dict(name='h2', attrs={'class':'printTopic'}),
-                      dict(name='div', attrs={'id':'article_content'}),
-                      dict(name='div', attrs={'id':'slider'})]
-    remove_tags = [dict(name='img', attrs={'src':'images/am730_article_logo.jpg'}),
-                   dict(name='img', attrs={'src':'images/am_endmark.gif'})]
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 20px; margin-bottom: 20px; max-height:70%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} li {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
+    keep_only_tags = [dict(name='h2', attrs={'class': 'printTopic'}),
+                      dict(name='div', attrs={'id': 'article_content'}),
+                      dict(name='div', attrs={'id': 'slider'})]
+    remove_tags = [dict(name='img', attrs={'src': 'images/am730_article_logo.jpg'}),
+                   dict(name='img', attrs={'src': 'images/am_endmark.gif'})]
 
     def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
         # convert UTC to local hk time - at HKT 6am, all news are available
-        return dt_utc + datetime.timedelta(8.0/24) - datetime.timedelta(6.0/24)
+        return dt_utc + datetime.timedelta(8.0 / 24) - datetime.timedelta(6.0 / 24)
 
     def get_fetchdate(self):
-        if __Date__ <> '':
+        if __Date__ != '':
             return __Date__
         else:
             return self.get_dtlocal().strftime("%Y%m%d")
 
     def get_fetchformatteddate(self):
-        if __Date__ <> '':
-            return __Date__[0:4]+'-'+__Date__[4:6]+'-'+__Date__[6:8]
+        if __Date__ != '':
+            return __Date__[0:4] + '-' + __Date__[4:6] + '-' + __Date__[6:8]
         else:
             return self.get_dtlocal().strftime("%Y-%m-%d")
 
     def get_fetchyear(self):
-        if __Date__ <> '':
+        if __Date__ != '':
             return __Date__[0:4]
         else:
             return self.get_dtlocal().strftime("%Y")
 
     def get_fetchmonth(self):
-        if __Date__ <> '':
+        if __Date__ != '':
             return __Date__[4:6]
         else:
             return self.get_dtlocal().strftime("%m")
 
     def get_fetchday(self):
-        if __Date__ <> '':
+        if __Date__ != '':
             return __Date__[6:8]
         else:
             return self.get_dtlocal().strftime("%d")
@@ -85,7 +88,9 @@ class AppleDaily(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.am730.com.hk')
-        cover = 'http://www.am730.com.hk/' + soup.find(attrs={'id':'mini_news_img'}).find('img').get('src', False)
+        cover = 'http://www.am730.com.hk/' + \
+            soup.find(attrs={'id': 'mini_news_img'}).find(
+                'img').get('src', False)
         br = BasicNewsRecipe.get_browser(self)
         try:
             br.open(cover)
@@ -97,7 +102,7 @@ class AppleDaily(BasicNewsRecipe):
         if first and hasattr(self, 'add_toc_thumbnail'):
             picdiv = soup.find('img')
             if picdiv is not None:
-                self.add_toc_thumbnail(article,picdiv['src'])
+                self.add_toc_thumbnail(article, picdiv['src'])
 
     def parse_index(self):
         feeds = []
@@ -123,7 +128,8 @@ class AppleDaily(BasicNewsRecipe):
         mi.publisher = __appname__
         mi.author_sort = __appname__
         if self.publication_type:
-            mi.publication_type = 'periodical:'+self.publication_type+':'+self.short_title()
+            mi.publication_type = 'periodical:' + \
+                self.publication_type + ':' + self.short_title()
         mi.timestamp = nowf()
         article_titles, aseen = [], set()
         for f in feeds:
@@ -136,15 +142,15 @@ class AppleDaily(BasicNewsRecipe):
         if not isinstance(mi.comments, unicode):
             mi.comments = mi.comments.decode('utf-8', 'replace')
         mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
-                '\n\n'.join(article_titles))
+                        '\n\n'.join(article_titles))
 
         language = canonicalize_lang(self.language)
         if language is not None:
             mi.language = language
         # This one affects the pub date shown in kindle title
-        #mi.pubdate = nowf()
         # now appears to need the time field to be > 12.00noon as well
-        mi.pubdate = datetime.datetime(int(self.get_fetchyear()), int(self.get_fetchmonth()), int(self.get_fetchday()), 12, 30, 0)
+        mi.pubdate = datetime.datetime(int(self.get_fetchyear()), int(
+            self.get_fetchmonth()), int(self.get_fetchday()), 12, 30, 0)
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
 
@@ -153,12 +159,14 @@ class AppleDaily(BasicNewsRecipe):
         mp = getattr(self, 'masthead_path', None)
         if mp is not None and os.access(mp, os.R_OK):
             from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(self.masthead_path), os.getcwdu())
+            ref = Guide.Reference(os.path.basename(
+                self.masthead_path), os.getcwdu())
             ref.type = 'masthead'
             ref.title = 'Masthead Image'
             opf.guide.append(ref)
 
-        manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
+        manifest = [os.path.join(dir, 'feed_%d' % i)
+                    for i in range(len(feeds))]
         manifest.append(os.path.join(dir, 'index.html'))
         manifest.append(os.path.join(dir, 'index.ncx'))
 
@@ -167,7 +175,7 @@ class AppleDaily(BasicNewsRecipe):
         if cpath is None:
             pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
             if self.default_cover(pf):
-                cpath =  pf.name
+                cpath = pf.name
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
             manifest.append(cpath)
@@ -189,12 +197,11 @@ class AppleDaily(BasicNewsRecipe):
         self.play_order_counter = 0
         self.play_order_map = {}
 
-
         def feed_index(num, parent):
             f = feeds[num]
             for j, a in enumerate(f):
                 if getattr(a, 'downloaded', False):
-                    adir = 'feed_%d/article_%d/'%(num, j)
+                    adir = 'feed_%d/article_%d/' % (num, j)
                     auth = a.author
                     if not auth:
                         auth = None
@@ -204,16 +211,18 @@ class AppleDaily(BasicNewsRecipe):
                     else:
                         desc = self.description_limiter(desc)
                     tt = a.toc_thumbnail if a.toc_thumbnail else None
-                    entries.append('%sindex.html'%adir)
+                    entries.append('%sindex.html' % adir)
                     po = self.play_order_map.get(entries[-1], None)
                     if po is None:
                         self.play_order_counter += 1
                         po = self.play_order_counter
-                    parent.add_item('%sindex.html'%adir, None,
-                            a.title if a.title else _('Untitled Article'),
-                            play_order=po, author=auth,
-                            description=desc, toc_thumbnail=tt)
-                    last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
+                    parent.add_item('%sindex.html' % adir, None,
+                                    a.title if a.title else _(
+                                        'Untitled Article'),
+                                    play_order=po, author=auth,
+                                    description=desc, toc_thumbnail=tt)
+                    last = os.path.join(
+                        self.output_dir, ('%sindex.html' % adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
                         relp = sp[len(prefix):]
@@ -226,12 +235,14 @@ class AppleDaily(BasicNewsRecipe):
                         soup = BeautifulSoup(src)
                         body = soup.find('body')
                         if body is not None:
-                            prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
+                            prefix = '/'.join('..'for i in range(2 *
+                                                                 len(re.findall(r'link\d+', last))))
                             templ = self.navbar.generate(True, num, j, len(f),
-                                            not self.has_single_feed,
-                                            a.orig_url, __appname__, prefix=prefix,
-                                            center=self.center_navbar)
-                            elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                                                         not self.has_single_feed,
+                                                         a.orig_url, __appname__, prefix=prefix,
+                                                         center=self.center_navbar)
+                            elem = BeautifulSoup(templ.render(
+                                doctype='xhtml').decode('utf-8')).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
                                 fi.write(unicode(soup).encode('utf-8'))
@@ -240,7 +251,7 @@ class AppleDaily(BasicNewsRecipe):
 
         if len(feeds) > 1:
             for i, f in enumerate(feeds):
-                entries.append('feed_%d/index.html'%i)
+                entries.append('feed_%d/index.html' % i)
                 po = self.play_order_map.get(entries[-1], None)
                 if po is None:
                     self.play_order_counter += 1
@@ -251,11 +262,11 @@ class AppleDaily(BasicNewsRecipe):
                 desc = getattr(f, 'description', None)
                 if not desc:
                     desc = None
-                feed_index(i, toc.add_item('feed_%d/index.html'%i, None,
-                    f.title, play_order=po, description=desc, author=auth))
+                feed_index(i, toc.add_item('feed_%d/index.html' % i, None,
+                                           f.title, play_order=po, description=desc, author=auth))
 
         else:
-            entries.append('feed_%d/index.html'%0)
+            entries.append('feed_%d/index.html' % 0)
             feed_index(0, toc)
 
         for i, p in enumerate(entries):
@@ -265,5 +276,3 @@ class AppleDaily(BasicNewsRecipe):
 
         with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
             opf.render(opf_file, ncx_file)
-
-

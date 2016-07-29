@@ -1,27 +1,28 @@
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
 '''
 LePoint.fr
 '''
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class lepoint(BasicNewsRecipe):
 
-    title                  = 'Le Point'
-    __author__             = 'calibre'
-    description            = 'Actualités'
-    encoding               = 'utf-8'
-    publisher              = 'LePoint.fr'
-    category               = 'news, France, world'
-    language               = 'fr'
+    title = 'Le Point'
+    __author__ = 'calibre'
+    description = 'Actualités'
+    encoding = 'utf-8'
+    publisher = 'LePoint.fr'
+    category = 'news, France, world'
+    language = 'fr'
 
-    use_embedded_content   = False
-    timefmt                = ' [%d %b %Y]'
-    max_articles_per_feed  = 15
-    no_stylesheets         = True
-    remove_empty_feeds     = True
-    filterDuplicates       = True
+    use_embedded_content = False
+    timefmt = ' [%d %b %Y]'
+    max_articles_per_feed = 15
+    no_stylesheets = True
+    remove_empty_feeds = True
+    filterDuplicates = True
 
     extra_css = '''
                     h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
@@ -32,17 +33,18 @@ class lepoint(BasicNewsRecipe):
                 '''
 
     remove_tags = [
-            dict(name='iframe'),
-            dict(name='div', attrs={'class':['entete_chroniqueur']}),
-            dict(name='div', attrs={'class':['col_article']}),
-            dict(name='div', attrs={'class':['signature_article']}),
-            dict(name='div', attrs={'class':['util_font util_article']}),
-            dict(name='div', attrs={'class':['util_article bottom']})
+        dict(name='iframe'),
+        dict(name='div', attrs={'class': ['entete_chroniqueur']}),
+        dict(name='div', attrs={'class': ['col_article']}),
+        dict(name='div', attrs={'class': ['signature_article']}),
+        dict(name='div', attrs={'class': ['util_font util_article']}),
+        dict(name='div', attrs={'class': ['util_article bottom']})
     ]
 
-    keep_only_tags    = [dict(name='div', attrs={'class':['page_article']})]
+    keep_only_tags = [dict(name='div', attrs={'class': ['page_article']})]
 
-    remove_tags_after  = dict(name='div', attrs={'class':['util_article bottom']})
+    remove_tags_after = dict(
+        name='div', attrs={'class': ['util_article bottom']})
 
     feeds = [
         (u'À la une', 'http://www.lepoint.fr/rss.xml'),
@@ -57,7 +59,6 @@ class lepoint(BasicNewsRecipe):
         (u'Santé', 'http://www.lepoint.fr/sante/rss.xml'),
         ('Sport', 'http://www.lepoint.fr/sport/rss.xml')
     ]
-
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

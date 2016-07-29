@@ -1,9 +1,10 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class IndianExpress(BasicNewsRecipe):
-    title          = u'Indian Express'
-    language       = 'en_IN'
-    __author__     = 'Krittika Goyal'
+    title = u'Indian Express'
+    language = 'en_IN'
+    __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
     max_articles_per_feed = 25
     encoding = 'utf-8'
@@ -11,30 +12,30 @@ class IndianExpress(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     auto_cleanup = True
-    feeds          = [
-('Front Page',
- 'http://indianexpress.com/print/front-page/feed/'),
-('Editorials',
- 'http://indianexpress.com/section/opinion/editorials/feed/'),
-('Crime',
- 'http://indianexpress.com/section/india/crime/feed/'),
-('Cricket',
- 'http://indianexpress.com/section/sports/cricket/feed/'),
-('Health',
- 'http://www.indianexpress.com/lifestyle/health/feed/'),
-('Asia',
- 'http://indianexpress.com/section/world/asia/'),
-('Politics',
- 'http://indianexpress.com/section/india/politics/feed/'),
-('Mumbai',
- 'http://www.indianexpress.com/cities/mumbai/feed/'),
-('Op-Ed',
- 'http://indianexpress.com/section/opinion/feed/'),
-('Lifestyle',
- 'http://indianexpress.com/section/lifestyle/feed/'),
-('Bollywood',
- 'http://indianexpress.com/section/entertainment/bollywood/feed/'),
-]
+    feeds = [
+        ('Front Page',
+         'http://indianexpress.com/print/front-page/feed/'),
+        ('Editorials',
+         'http://indianexpress.com/section/opinion/editorials/feed/'),
+        ('Crime',
+         'http://indianexpress.com/section/india/crime/feed/'),
+        ('Cricket',
+         'http://indianexpress.com/section/sports/cricket/feed/'),
+        ('Health',
+         'http://www.indianexpress.com/lifestyle/health/feed/'),
+        ('Asia',
+         'http://indianexpress.com/section/world/asia/'),
+        ('Politics',
+         'http://indianexpress.com/section/india/politics/feed/'),
+        ('Mumbai',
+         'http://www.indianexpress.com/cities/mumbai/feed/'),
+        ('Op-Ed',
+         'http://indianexpress.com/section/opinion/feed/'),
+        ('Lifestyle',
+         'http://indianexpress.com/section/lifestyle/feed/'),
+        ('Bollywood',
+         'http://indianexpress.com/section/entertainment/bollywood/feed/'),
+    ]
 
     def print_version(self, url):
         return url.partition('?')[0].rstrip('/') + '/99'

@@ -7,7 +7,7 @@ import struct
 from calibre.ebooks.lrf import LRFParseError
 
 class Tag(object):
-    
+
     tags = {
                 0x00 : (6, "*ObjectStart"),
                 0x01 : (0, "*ObjectEnd"),
@@ -181,32 +181,32 @@ class Tag(object):
     for key in tags.keys():
         temp = tags[key][1]
         if temp is not None:
-            name_map[key] = temp 
-    
+            name_map[key] = temp
+
     def __init__(self, stream):
         self.offset = stream.tell()
         tag_id = struct.unpack("<BB", stream.read(2))
-        if tag_id[1] != 0xF5: 
+        if tag_id[1] != 0xF5:
             raise LRFParseError("Bad tag ID %02X at %d"%(tag_id[1], self.offset))
-        if tag_id[0] not in self.__class__.tags: 
+        if tag_id[0] not in self.__class__.tags:
             raise LRFParseError("Unknown tag ID: F5%02X" % tag_id[0])
-        
+
         self.id = 0xF500 + tag_id[0]
-        
+
         size, self.name = self.__class__.tags[tag_id[0]]
         if isinstance(size, basestring):
             parser = getattr(self, size + '_parser')
             self.contents = parser(stream)
         else:
             self.contents = stream.read(size)
-            
+
     def __str__(self):
         s = "Tag %04X " % self.id
-        if self.name: 
+        if self.name:
             s += self.name
         s += " at %08X, contents: %s" % (self.offset, repr(self.contents))
         return s
-    
+
     @dynamic_property
     def byte(self):
         def fget(self):
@@ -214,7 +214,7 @@ class Tag(object):
                 raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
             return struct.unpack("<B", self.contents)[0]
         return property(fget=fget)
-    
+
     @dynamic_property
     def word(self):
         def fget(self):
@@ -222,7 +222,7 @@ class Tag(object):
                 raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
             return struct.unpack("<H", self.contents)[0]
         return property(fget=fget)
-    
+
     @dynamic_property
     def sword(self):
         def fget(self):
@@ -230,7 +230,7 @@ class Tag(object):
                 raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
             return struct.unpack("<h", self.contents)[0]
         return property(fget=fget)
-    
+
     @dynamic_property
     def dword(self):
         def fget(self):
@@ -238,15 +238,15 @@ class Tag(object):
                 raise LRFParseError("Bad parameter for tag ID: %04X" % self.id)
             return struct.unpack("<I", self.contents)[0]
         return property(fget=fget)
-    
+
     def dummy_parser(self, stream):
         raise LRFParseError("Unknown tag at %08X" % stream.tell())
-    
+
     @classmethod
     def string_parser(self, stream):
         size = struct.unpack("<H", stream.read(2))[0]
         return unicode(stream.read(size), "utf_16")
-    
+
     def type_one_parser(self, stream):
         cnt = struct.unpack("<H", stream.read(2))[0]
         res = []
@@ -254,13 +254,13 @@ class Tag(object):
             res.append(struct.unpack("<I", stream.read(4))[0])
             cnt -= 1
         return res
-    
+
     def tag_78_parser(self, stream):
         pos = stream.tell()
         res = []
         res.append(struct.unpack("<I", stream.read(4))[0])
         tag = Tag(stream)
-        if tag.id != 0xF516: 
+        if tag.id != 0xF516:
             raise LRFParseError("Bad tag 78 at %08X" % pos)
         res.append(tag.contents)
         res.append(struct.unpack("<H", stream.read(2))[0])

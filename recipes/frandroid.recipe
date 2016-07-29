@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
 class BasicUserRecipe1318572550(BasicNewsRecipe):
-    title          = u'FrAndroid'
+    title = u'FrAndroid'
     language = 'fr'
     oldest_article = 2
     max_articles_per_feed = 100
     auto_cleanup = True
 
-    feeds          = [(u'FrAndroid', u'http://feeds.feedburner.com/Frandroid')]
+    feeds = [(u'FrAndroid', u'http://feeds.feedburner.com/Frandroid')]

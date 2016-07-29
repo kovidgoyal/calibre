@@ -31,12 +31,12 @@ class ResultsView(QTreeView):
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
-        
+
         if not index.isValid():
             return
-        
+
         result = self.model().get_result(index)
-        
+
         menu = QMenu()
         da = menu.addAction(_('Download...'), partial(self.download_requested.emit, result))
         if not result.downloads:

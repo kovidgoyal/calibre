@@ -16,7 +16,7 @@ numwords = {}
 def text2int(textnum):
     if not numwords:
 
-        units = [ "zero", "one", "two", "three", "four", "five", "six",
+        units = ["zero", "one", "two", "three", "four", "five", "six",
                 "seven", "eight", "nine", "ten", "eleven", "twelve",
                 "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
                 "eighteen", "nineteen"]
@@ -26,12 +26,15 @@ def text2int(textnum):
 
         scales = ["hundred", "thousand", "million", "billion", "trillion",
                 'quadrillion', 'quintillion', 'sexillion', 'septillion',
-                'octillion', 'nonillion', 'decillion' ]
+                'octillion', 'nonillion', 'decillion']
 
         numwords["and"] = (1, 0)
-        for idx, word in enumerate(units): numwords[word] = (1, idx)
-        for idx, word in enumerate(tens): numwords[word] = (1, idx * 10)
-        for idx, word in enumerate(scales): numwords[word] = (10 ** (idx * 3 or 2), 0)
+        for idx, word in enumerate(units):
+            numwords[word] = (1, idx)
+        for idx, word in enumerate(tens):
+            numwords[word] = (1, idx * 10)
+        for idx, word in enumerate(scales):
+            numwords[word] = (10 ** (idx * 3 or 2), 0)
 
     ordinal_words = {'first':1, 'second':2, 'third':3, 'fifth':5,
             'eighth':8, 'ninth':9, 'twelfth':12}
@@ -47,7 +50,7 @@ def text2int(textnum):
                     word = "%s%s" % (word[:-len(ending)], replacement)
 
             if word not in numwords:
-                #raise Exception("Illegal word: " + word)
+                # raise Exception("Illegal word: " + word)
                 return False
 
             scale, increment = numwords[word]

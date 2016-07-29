@@ -1,12 +1,13 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:fdm=marker:ai
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
 class PoradniaPWN(BasicNewsRecipe):
-    title          = u'Poradnia Językowa PWN'
-    __author__        = 'fenuks'
-    description   = u'Internetowa poradnia językowa Wydawnictwa Naukowego PWN. Poradnię prowadzi Redaktor Naczelny Słowników Języka Polskiego, prof. Mirosław Bańko. Pomagają mu eksperci - znani polscy językoznawcy. Współpracuje z nami m.in. prof. Jerzy Bralczyk oraz dr Jan Grzenia.'
-    category       = 'language'
-    language       = 'pl'
-    #cover_url = ''
+    title = u'Poradnia Językowa PWN'
+    __author__ = 'fenuks'
+    description = u'Internetowa poradnia językowa Wydawnictwa Naukowego PWN. Poradnię prowadzi Redaktor Naczelny Słowników Języka Polskiego, prof. Mirosław Bańko. Pomagają mu eksperci - znani polscy językoznawcy. Współpracuje z nami m.in. prof. Jerzy Bralczyk oraz dr Jan Grzenia.'  # noqa
+    category = 'language'
+    language = 'pl'
     oldest_article = 14
     max_articles_per_feed = 100000
     INDEX = "http://poradnia.pwn.pl/"
@@ -14,9 +15,8 @@ class PoradniaPWN(BasicNewsRecipe):
     remove_attributes = ['style']
     remove_javascript = True
     use_embedded_content = False
-    #preprocess_regexps     = [(re.compile('<li|ul', re.IGNORECASE), lambda m: '<div'),(re.compile('</li>', re.IGNORECASE), lambda m: '</div>'), (re.compile('</ul>', re.IGNORECASE), lambda m: '</div>')]
-    keep_only_tags = [dict(name="div", attrs={"class":"searchhi"})]
-    feeds          = [(u'Poradnia', u'http://rss.pwn.pl/poradnia.rss')]
+    keep_only_tags = [dict(name="div", attrs={"class": "searchhi"})]
+    feeds = [(u'Poradnia', u'http://rss.pwn.pl/poradnia.rss')]
 
     '''def find_articles(self, url):
         articles = []
@@ -56,7 +56,7 @@ class PoradniaPWN(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for i in soup.findAll(name=['ul', 'li']):
-            i.name="div"
+            i.name = "div"
         for z in soup.findAll(name='a'):
             if not z['href'].startswith('http'):
                 z['href'] = 'http://poradnia.pwn.pl/' + z['href']

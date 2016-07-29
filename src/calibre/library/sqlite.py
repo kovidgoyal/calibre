@@ -172,7 +172,8 @@ class Connection(sqlite.Connection):
         return ans.fetchall()
 
 def _author_to_author_sort(x):
-    if not x: return ''
+    if not x:
+        return ''
     return author_to_author_sort(x.replace('|', ','))
 
 def pynocase(one, two, encoding='utf-8'):
@@ -332,34 +333,44 @@ class ConnectionProxy(object):
             self.closed = True
 
     @proxy
-    def get(self, query, all=True): pass
+    def get(self, query, all=True):
+        pass
 
     @proxy
-    def commit(self): pass
+    def commit(self):
+        pass
 
     @proxy
-    def execute(self): pass
+    def execute(self):
+        pass
 
     @proxy
-    def executemany(self): pass
+    def executemany(self):
+        pass
 
     @proxy
-    def executescript(self): pass
+    def executescript(self):
+        pass
 
     @proxy
-    def create_aggregate(self): pass
+    def create_aggregate(self):
+        pass
 
     @proxy
-    def create_function(self): pass
+    def create_function(self):
+        pass
 
     @proxy
-    def cursor(self): pass
+    def cursor(self):
+        pass
 
     @proxy
-    def dump(self): pass
+    def dump(self):
+        pass
 
     @proxy
-    def create_dynamic_filter(self): pass
+    def create_dynamic_filter(self):
+        pass
 
 def connect(dbpath, row_factory=None):
     conn = ConnectionProxy(DBThread(dbpath, row_factory))

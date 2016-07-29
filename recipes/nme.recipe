@@ -3,8 +3,10 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import browser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.BeautifulSoup import Tag
+
+
 class AdvancedUserRecipe1306061239(BasicNewsRecipe):
-    title          = u'New Musical Express Magazine'
+    title = u'New Musical Express Magazine'
     description = 'UK Rock & Pop Mag.'
     __author__ = 'Dave Asbury, Inge Aning'
     category = 'Music, Film, Tv'
@@ -18,7 +20,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     '''
 
     remove_empty_feeds = True
-    encoding  = 'utf-8'
+    encoding = 'utf-8'
     remove_javascript = True
     no_stylesheets = True
     oldest_article = 7
@@ -26,64 +28,78 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
     auto_cleanup = False
     language = 'en'
     compress_news_images = True
-    simultaneous_downloads  = 20
+    simultaneous_downloads = 20
     use_embedded_content = False
     recursions = 0
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    feeds          = [
-                    (u'NME News',u'http://www.nme.com/rss/news'),
-                    (u'Reviews',u'http://www.nme.com/rss/reviews'),
-                    (u'Blogs',u'http://www.nme.com/rss/blogs'),
+    feeds = [
+        (u'NME News', u'http://www.nme.com/rss/news'),
+        (u'Reviews', u'http://www.nme.com/rss/reviews'),
+        (u'Blogs', u'http://www.nme.com/rss/blogs'),
     ]
 
     keep_only_tags = [
-        dict(name='div',attrs={'id':'content'}),
+        dict(name='div', attrs={'id': 'content'}),
     ]
 
     remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan',
-                          'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
+                         'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
 
     remove_tags = [
-            dict(name='meta'),
-            dict(name='span',attrs={'class':'article_info'}),
-            dict(name='div',attrs={'class':'breadcrumbs'}),
-            dict(name='div',attrs={'class':'mugshot'}),
-            dict(name='div',attrs={'class':'header'}),
-            dict(name='div',attrs={'class':re.compile('youtube.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'class':re.compile('socialbuttons.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'class':'clear_both'}),
-            dict(name='div',attrs={'class':re.compile('headline.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'class':'member-signedout'}),
-            dict(name='div',attrs={'class':re.compile('prev_next.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'class':re.compile('article_related.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'class':re.compile('feature_bar.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'class':re.compile('ebay.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'id':re.compile('morenews.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'id':re.compile('ticketspopup.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'id':re.compile('ratemy_logprompt.*',re.IGNORECASE)}),
-            dict(name='div',attrs={'id':re.compile('related_artist.*',re.IGNORECASE)}),
-            dict(name='img',attrs={'class':re.compile('video_play_large.*',re.IGNORECASE)}),
-            dict(name='ul',attrs={'class':re.compile('prev_next.*',re.IGNORECASE)}),
-            dict(name='ul',attrs={'class':re.compile('nme_store.*',re.IGNORECASE)}),
-            dict(name='p',attrs={'class':re.compile('top',re.IGNORECASE)}),
-            dict(name='table',attrs={'class':re.compile('tickets.*',re.IGNORECASE)}),
+        dict(name='meta'),
+        dict(name='span', attrs={'class': 'article_info'}),
+        dict(name='div', attrs={'class': 'breadcrumbs'}),
+        dict(name='div', attrs={'class': 'mugshot'}),
+        dict(name='div', attrs={'class': 'header'}),
+        dict(name='div', attrs={'class': re.compile(
+            'youtube.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': re.compile(
+            'socialbuttons.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': 'clear_both'}),
+        dict(name='div', attrs={'class': re.compile(
+            'headline.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': 'member-signedout'}),
+        dict(name='div', attrs={'class': re.compile(
+            'prev_next.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': re.compile(
+            'article_related.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': re.compile(
+            'feature_bar.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'class': re.compile('ebay.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'id': re.compile(
+            'morenews.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'id': re.compile(
+            'ticketspopup.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'id': re.compile(
+            'ratemy_logprompt.*', re.IGNORECASE)}),
+        dict(name='div', attrs={'id': re.compile(
+            'related_artist.*', re.IGNORECASE)}),
+        dict(name='img', attrs={'class': re.compile(
+            'video_play_large.*', re.IGNORECASE)}),
+        dict(name='ul', attrs={'class': re.compile(
+            'prev_next.*', re.IGNORECASE)}),
+        dict(name='ul', attrs={'class': re.compile(
+            'nme_store.*', re.IGNORECASE)}),
+        dict(name='p', attrs={'class': re.compile('top', re.IGNORECASE)}),
+        dict(name='table', attrs={
+             'class': re.compile('tickets.*', re.IGNORECASE)}),
     ]
 
-    masthead_url   = 'http://default.media.ipcdigital.co.uk/300/000001014/e1ab_orh100000w300/NME-logo.jpg'
+    masthead_url = 'http://default.media.ipcdigital.co.uk/300/000001014/e1ab_orh100000w300/NME-logo.jpg'
 
     def get_cover_url(self):
-        magazine_page_raw = self.index_to_soup('http://www.nme.com/magazine', raw=True)
-        magazine_page_raw = re.sub(r'<script\b.+?</script>', '', magazine_page_raw, flags=re.DOTALL|re.IGNORECASE)
-        magazine_page_raw = re.sub(r'\!\[if ', '!--[if ', magazine_page_raw, flags=re.DOTALL|re.IGNORECASE)
+        magazine_page_raw = self.index_to_soup(
+            'http://www.nme.com/magazine', raw=True)
+        magazine_page_raw = re.sub(
+            r'<script\b.+?</script>', '', magazine_page_raw, flags=re.DOTALL | re.IGNORECASE)
+        magazine_page_raw = re.sub(
+            r'\!\[if ', '!--[if ', magazine_page_raw, flags=re.DOTALL | re.IGNORECASE)
         magazine_page = self.index_to_soup(magazine_page_raw)
-        cov = magazine_page.find('img',attrs={'class':'magcover'})
+        cov = magazine_page.find('img', attrs={'class': 'magcover'})
 
         cov2 = str(cov['src'])
 
@@ -100,97 +116,106 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         '''
         Need this for a bug on site that prevents blogg post being parsed correctly
         '''
-        raw_html = re.sub(r'\!\[if ', '!--[if ', raw_html, flags=re.DOTALL|re.IGNORECASE)
+        raw_html = re.sub(r'\!\[if ', '!--[if ', raw_html,
+                          flags=re.DOTALL | re.IGNORECASE)
 
         return raw_html
 
     def preprocess_html(self, soup):
-        youtube_regex = re.compile(r'(?:youtube\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)(?P<id>[^"&?/ ]{11})', re.DOTALL|re.IGNORECASE)
-        instagram_regex = re.compile(r'.*?instagram.*?', re.DOTALL|re.IGNORECASE)
-        twitter_regex = re.compile(r'.*?twitter.*?', re.DOTALL|re.IGNORECASE)
-        visualise_regex = re.compile(r'.*?visualise.*?', re.DOTALL|re.IGNORECASE)
-        soundcloud_regex = re.compile(r'(?P<url>.*?(w|api)\.soundcloud.*?com\/(tracks|playlists)\/\d{8,9})', re.DOTALL|re.IGNORECASE)
-        dailymotion_regex = re.compile(r'.*?dailymotion.*?', re.DOTALL|re.IGNORECASE)
-        spotify_regex = re.compile(r'.*?spotify.*?', re.DOTALL|re.IGNORECASE)
-        vine_regex = re.compile(r'.*?vine.*?', re.DOTALL|re.IGNORECASE)
-        doubleHtmlEntities = re.compile(ur'(&amp;)(?P<e>[\d\w\#]*;)', re.DOTALL|re.IGNORECASE|re.UNICODE)
+        youtube_regex = re.compile(
+            r'(?:youtube\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)(?P<id>[^"&?/ ]{11})', re.DOTALL | re.IGNORECASE)
+        instagram_regex = re.compile(
+            r'.*?instagram.*?', re.DOTALL | re.IGNORECASE)
+        twitter_regex = re.compile(r'.*?twitter.*?', re.DOTALL | re.IGNORECASE)
+        visualise_regex = re.compile(
+            r'.*?visualise.*?', re.DOTALL | re.IGNORECASE)
+        soundcloud_regex = re.compile(
+            r'(?P<url>.*?(w|api)\.soundcloud.*?com\/(tracks|playlists)\/\d{8,9})', re.DOTALL | re.IGNORECASE)
+        dailymotion_regex = re.compile(
+            r'.*?dailymotion.*?', re.DOTALL | re.IGNORECASE)
+        spotify_regex = re.compile(r'.*?spotify.*?', re.DOTALL | re.IGNORECASE)
+        vine_regex = re.compile(r'.*?vine.*?', re.DOTALL | re.IGNORECASE)
+        doubleHtmlEntities = re.compile(
+            ur'(&amp;)(?P<e>[\d\w\#]*;)', re.DOTALL | re.IGNORECASE | re.UNICODE)
         for iframe in soup.findAll('iframe'):
-            if iframe.has_key('src') and youtube_regex.search(iframe['src']) is not None :
+            if iframe.has_key('src') and youtube_regex.search(iframe['src']) is not None:  # noqa
                 pq = Tag(soup, 'blockquote')
                 br = Tag(soup, 'br')
                 pq.insert(0, '[ YouTube ]')
                 pq.insert(1, br)
                 m = youtube_regex.search(iframe['src'])
                 if m.group('id') is not None:
-                    imgTag = Tag(soup, 'img', [('src','http://img.youtube.com/vi/' + m.group('id') + '/0.jpg')])
+                    imgTag = Tag(soup, 'img', [
+                                 ('src', 'http://img.youtube.com/vi/' + m.group('id') + '/0.jpg')])
                     pq.insert(len(pq.contents), imgTag)
                 pq.insert(len(pq.contents), iframe['src'])
                 iframe.replaceWith(pq)
-            elif iframe.has_key('src') and soundcloud_regex.search(iframe['src']) is not None:
+            elif iframe.has_key('src') and soundcloud_regex.search(iframe['src']) is not None:  # noqa
                 m = soundcloud_regex.search(iframe['src'])
                 pq = Tag(soup, 'blockquote')
                 br = Tag(soup, 'br')
                 pq.insert(0, '[ SoundCloud ]')
                 pq.insert(1, br)
                 pq.insert(2, m.group('url'))
-                #imgUrl = self.get_soundcloud_pic(iframe['src'])
                 iframe.replaceWith(pq)
-            elif iframe.has_key('src') and dailymotion_regex.search(iframe['src']) is not None:
+            elif iframe.has_key('src') and dailymotion_regex.search(iframe['src']) is not None:  # noqa
                 pq = Tag(soup, 'blockquote')
                 br = Tag(soup, 'br')
                 pq.insert(0, '[ DailyMotion ]')
                 pq.insert(1, br)
                 imgUrl = self.get_dailymotion_pic(iframe['src'])
                 if imgUrl is not None:
-                    imgTag = Tag(soup, 'img', [('src',imgUrl)])
+                    imgTag = Tag(soup, 'img', [('src', imgUrl)])
                     pq.insert(len(pq.contents), imgTag)
                 pq.insert(len(pq.contents), iframe['src'])
                 iframe.replaceWith(pq)
-            elif iframe.has_key('src') and spotify_regex.search(iframe['src']) is not None:
+            elif iframe.has_key('src') and spotify_regex.search(iframe['src']) is not None:  # noqa
                 pq = Tag(soup, 'blockquote')
                 br = Tag(soup, 'br')
                 pq.insert(0, '[ Spotify ]')
                 pq.insert(1, br)
                 imgUrl = self.get_spotify_pic(iframe['src'])
                 if imgUrl is not None:
-                    imgTag = Tag(soup, 'img', [('src',imgUrl)])
+                    imgTag = Tag(soup, 'img', [('src', imgUrl)])
                     pq.insert(len(pq.contents), imgTag)
                 pq.insert(len(pq.contents), iframe['src'])
                 iframe.replaceWith(pq)
-            elif iframe.has_key('src') and vine_regex.search(iframe['src']) is not None:
+            elif iframe.has_key('src') and vine_regex.search(iframe['src']) is not None:  # noqa
                 pq = Tag(soup, 'blockquote')
                 br = Tag(soup, 'br')
                 pq.insert(0, '[ Vine ]')
                 pq.insert(1, br)
                 imgUrl = self.get_vine_pic(iframe['src'])
                 if imgUrl is not None:
-                    imgTag = Tag(soup, 'img', [('src',imgUrl)])
+                    imgTag = Tag(soup, 'img', [('src', imgUrl)])
                     pq.insert(len(pq.contents), imgTag)
                 pq.insert(len(pq.contents), iframe['src'])
                 iframe.replaceWith(pq)
-            elif iframe.has_key('src') and visualise_regex.search(iframe['src']) is not None :
+            elif iframe.has_key('src') and visualise_regex.search(iframe['src']) is not None:  # noqa
                 imgUrl = self.get_visualise_pic(iframe['src'])
                 if imgUrl is not None:
-                    imgTag = Tag(soup, 'img', [('src',imgUrl)])
+                    imgTag = Tag(soup, 'img', [('src', imgUrl)])
                     iframe.replaceWith(imgTag)
         for blockquote in soup.findAll('blockquote'):
-            if blockquote.has_key('class') and twitter_regex.search(blockquote['class']) is not None:
+            if blockquote.has_key('class') and twitter_regex.search(blockquote['class']) is not None:  # noqa
                 pq = Tag(soup, 'blockquote')
                 br = Tag(soup, 'br')
                 pq.insert(0, '[ Twitter ]')
                 pq.insert(len(pq.contents), br)
-                match = re.search("(?P<url>pic\.twitter[^\s<]+)", str(blockquote))
+                match = re.search(
+                    "(?P<url>pic\.twitter[^\s<]+)", str(blockquote))
                 if match is not None:
                     img = self.get_twitter_pic(str(match.group("url")))
                     if img is not None:
-                        pq.insert(len(pq.contents),img)
+                        pq.insert(len(pq.contents), img)
                 for p in blockquote.findAll(name='p'):
                     x = 0
                     plen = len(p.contents)
                     while True:
                         c = len(pq.contents)
                         if p.contents[x].string is not None:
-                            pq.insert(c, re.sub(doubleHtmlEntities, lambda m: '&' + m.group(2), str(p.contents[x].string), re.IGNORECASE | re.UNICODE))
+                            pq.insert(c, re.sub(doubleHtmlEntities, lambda m: '&' + m.group(
+                                2), str(p.contents[x].string), re.IGNORECASE | re.UNICODE))
                         else:
                             pq.insert(c, p.contents[x].content)
                         x += 1
@@ -205,32 +230,34 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
                     while True:
                         c = len(pq.contents)
                         if blockquote.contents[x].string is not None:
-                            pq.insert(c, re.sub(doubleHtmlEntities, lambda m: '&' + m.group(2), str(blockquote.contents[x].string), re.IGNORECASE | re.UNICODE))
+                            pq.insert(c, re.sub(doubleHtmlEntities, lambda m: '&' + m.group(
+                                2), str(blockquote.contents[x].string), re.IGNORECASE | re.UNICODE))
                         else:
                             pq.insert(c, blockquote.contents[x].content)
                         x += 1
                         if x == xlen:
                             break
                 blockquote.replaceWith(pq)
-            elif blockquote.has_key('class') and instagram_regex.search(blockquote['class']) is not None:
+            elif blockquote.has_key('class') and instagram_regex.search(blockquote['class']) is not None:  # noqa
                 pq = Tag(soup, 'blockquote')
                 br = Tag(soup, 'br')
                 pq.insert(0, '[ Instagram ]')
                 pq.insert(1, br)
-                a = blockquote.find(name='a',attrs={'href':instagram_regex})
+                a = blockquote.find(name='a', attrs={'href': instagram_regex})
                 imgUrl = None
                 if a is not None:
                     imgUrl = self.get_instagram_pic(str(a['href']))
                 if imgUrl is not None:
-                    img = Tag(soup, 'img', [('src',imgUrl)])
-                    pq.insert(len(pq.contents),img)
+                    img = Tag(soup, 'img', [('src', imgUrl)])
+                    pq.insert(len(pq.contents), img)
                 for p in blockquote.findAll(name='p'):
                     x = 0
                     plen = len(p.contents)
                     while x < plen:
                         c = len(pq.contents)
                         if p.contents[x].string is not None:
-                            pq.insert(c, re.sub(doubleHtmlEntities, lambda m: '&' + m.group(2), str(p.contents[x].string), re.IGNORECASE | re.UNICODE))
+                            pq.insert(c, re.sub(doubleHtmlEntities, lambda m: '&' + m.group(
+                                2), str(p.contents[x].string), re.IGNORECASE | re.UNICODE))
                         # else:
                             # pq.insert(c, p.contents[x].content)
                         x += 1
@@ -258,7 +285,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
             print '404: ' + url
             return returnValue
         bs = BeautifulSoup(raw)
-        imgRaw = bs.find(name='meta', attrs={'property':'og:image'})
+        imgRaw = bs.find(name='meta', attrs={'property': 'og:image'})
         if imgRaw is not None:
             returnValue = str(imgRaw['content'])
         return returnValue
@@ -271,7 +298,7 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
             print '404: ' + url
             return returnValue
         bs = BeautifulSoup(raw)
-        refresh = bs.find('meta', {'http-equiv':'refresh'})
+        refresh = bs.find('meta', {'http-equiv': 'refresh'})
         if refresh is not None:
             content = refresh.get('content').partition('=')[2]
             try:
@@ -280,7 +307,8 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
                 print '404: ' + url
                 return returnValue
             bs = BeautifulSoup(raw)
-        img = bs.find(name='img',attrs={'alt':re.compile('.*permalink.*',re.IGNORECASE)})
+        img = bs.find(name='img', attrs={
+                      'alt': re.compile('.*permalink.*', re.IGNORECASE)})
         if img is not None:
             returnValue = img
         return returnValue
@@ -304,7 +332,8 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
             return returnValue
         m = re.search('\"display_src\":\"(?P<url>http[s]?:.*?)\"', str(raw))
         if m is not None:
-            returnValue = re.sub(r'\\','',m.group("url"), flags=re.DOTALL|re.IGNORECASE)
+            returnValue = re.sub(r'\\', '', m.group(
+                "url"), flags=re.DOTALL | re.IGNORECASE)
         return returnValue
 
     def get_dailymotion_pic(self, url):
@@ -316,7 +345,8 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
             return returnValue
         m = re.search('("thumbnail_url\"\:\")(?P<url>http.*?)(\")', str(raw))
         if m is not None:
-            returnValue = re.sub(r'\\','',m.group("url"), flags=re.DOTALL|re.IGNORECASE)
+            returnValue = re.sub(r'\\', '', m.group(
+                "url"), flags=re.DOTALL | re.IGNORECASE)
         return returnValue
 
     def get_spotify_pic(self, url):
@@ -344,9 +374,9 @@ class AdvancedUserRecipe1306061239(BasicNewsRecipe):
         return returnValue
 
     preprocess_regexps = [
-        (re.compile(r'<script\b.+?</script>', re.DOTALL|re.IGNORECASE), lambda h1: ''),
-        (re.compile(r'<a.* id="buy-tickets-button".*</a>',re.IGNORECASE), lambda h2: ''),
-        (re.compile(r'<a.* class="gallery.*</a>',re.IGNORECASE), lambda h2: ''),
+        (re.compile(r'<script\b.+?</script>', re.DOTALL | re.IGNORECASE), lambda h1: ''),
+        (re.compile(r'<a.* id="buy-tickets-button".*</a>', re.IGNORECASE), lambda h2: ''),
+        (re.compile(r'<a.* class="gallery.*</a>', re.IGNORECASE), lambda h2: ''),
     ]
 
     extra_css = '''

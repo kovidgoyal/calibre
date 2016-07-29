@@ -42,8 +42,7 @@ class TableView(QDialog):
                                 self.font_magnification_step)
 
     def zoom_out(self):
-        self.view.setZoomFactor(max(0.1, self.view.zoomFactor()
-                                    -self.font_magnification_step))
+        self.view.setZoomFactor(max(0.1, self.view.zoomFactor() - self.font_magnification_step))
 
     def __call__(self, html, baseurl):
         self.view.setHtml(

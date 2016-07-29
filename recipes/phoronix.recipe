@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
 
 '''
@@ -11,20 +11,20 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class cdnet(BasicNewsRecipe):
 
-    title                  = 'Phoronix'
-    __author__             = 'calibre'
-    description            = 'Actualités Phoronix'
-    encoding               = 'utf-8'
-    publisher              = 'Phoronix.com'
-    category               = 'news, IT, linux'
-    language               = 'en'
+    title = 'Phoronix'
+    __author__ = 'calibre'
+    description = 'Actualités Phoronix'
+    encoding = 'utf-8'
+    publisher = 'Phoronix.com'
+    category = 'news, IT, linux'
+    language = 'en'
 
-    use_embedded_content   = False
-    timefmt                = ' [%d %b %Y]'
-    max_articles_per_feed  = 25
-    no_stylesheets         = True
-    remove_empty_feeds     = True
-    filterDuplicates       = True
+    use_embedded_content = False
+    timefmt = ' [%d %b %Y]'
+    max_articles_per_feed = 25
+    no_stylesheets = True
+    remove_empty_feeds = True
+    filterDuplicates = True
 
     extra_css = '''
                     h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
@@ -35,13 +35,11 @@ class cdnet(BasicNewsRecipe):
     remove_tags = []
 
     remove_tags_before = dict(id='phxcms_content_phx')
-    remove_tags_after  = dict(name='div', attrs={'class':'KonaBody'})
+    remove_tags_after = dict(name='div', attrs={'class': 'KonaBody'})
 
-    feeds =  [('Phoronix', 'http://feeds.feedburner.com/Phoronix')]
-
+    feeds = [('Phoronix', 'http://feeds.feedburner.com/Phoronix')]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
             del item['style']
         return soup
-

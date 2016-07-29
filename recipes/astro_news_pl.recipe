@@ -1,18 +1,19 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
 class AstroNEWS(BasicNewsRecipe):
-    title          = u'AstroNEWS'
-    __author__        = 'fenuks'
-    description   = u'AstroNEWS regularnie dostarcza wiadomości o wydarzeniach związanych z astronomią i astronautyką. Informujemy o aktualnych odkryciach i wydarzeniach naukowych, zapowiadamy ciekawe zjawiska astronomiczne. Serwis jest częścią portalu astronomicznego AstroNET prowadzonego przez miłośników astronomii i zawodowych astronomów.'
-    category       = 'astronomy, science'
-    language       = 'pl'
+    title = u'AstroNEWS'
+    __author__ = 'fenuks'
+    description = u'AstroNEWS regularnie dostarcza wiadomości o wydarzeniach związanych z astronomią i astronautyką. Informujemy o aktualnych odkryciach i wydarzeniach naukowych, zapowiadamy ciekawe zjawiska astronomiczne. Serwis jest częścią portalu astronomicznego AstroNET prowadzonego przez miłośników astronomii i zawodowych astronomów.'  # noqa
+    category = 'astronomy, science'
+    language = 'pl'
     oldest_article = 8
     max_articles_per_feed = 100
-    #extra_css= 'table {text-align: left;}'
-    no_stylesheets=True
-    cover_url='http://news.astronet.pl/img/logo_news.jpg'
+    no_stylesheets = True
+    cover_url = 'http://news.astronet.pl/img/logo_news.jpg'
     remove_attributes = ['width', 'align']
-    remove_tags=[dict(name='hr')]
-    feeds          = [(u'Wiadomości', u'http://news.astronet.pl/rss.cgi')]
+    remove_tags = [dict(name='hr')]
+    feeds = [(u'Wiadomości', u'http://news.astronet.pl/rss.cgi')]
 
     def print_version(self, url):
         return url.replace('astronet.pl/', 'astronet.pl/print.cgi?')

@@ -3,25 +3,29 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1434046032(BasicNewsRecipe):
-    title          = 'Zaxid.net'
+    title = 'Zaxid.net'
     __author__ = 'rpalyvoda'
     oldest_article = 7
     max_articles_per_feed = 100
-    language               = 'uk'
+    language = 'uk'
     cover_url = 'http://upload.wikimedia.org/wikipedia/uk/b/bc/Zaxid-net.jpg'
     masthead_url = 'http://upload.wikimedia.org/wikipedia/uk/b/bc/Zaxid-net.jpg'
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
-        ('\u0421\u0442\u0440\u0456\u0447\u043a\u0430 \u043d\u043e\u0432\u0438\u043d', 'http://zaxid.net/rss/all.xml'),
+    feeds = [
+        ('\u0421\u0442\u0440\u0456\u0447\u043a\u0430 \u043d\u043e\u0432\u0438\u043d',
+         'http://zaxid.net/rss/all.xml'),
         ('\u0421\u0442\u0430\u0442\u0442\u0456', 'http://zaxid.net/rss/2.xml'),
         ('\u0411\u043b\u043e\u0433\u0438', 'http://zaxid.net/rss/3.xml'),
         ('\u0410\u043d\u043e\u043d\u0441\u0438', 'http://zaxid.net/rss/13.xml'),
         ('\u041b\u044c\u0432\u0456\u0432', 'http://zaxid.net/rss/16.xml'),
-        ('\u0415\u043a\u043e\u043d\u043e\u043c\u0456\u043a\u0430', 'http://zaxid.net/rss/5.xml'),
+        ('\u0415\u043a\u043e\u043d\u043e\u043c\u0456\u043a\u0430',
+         'http://zaxid.net/rss/5.xml'),
         ('IQ', 'http://zaxid.net/rss/9.xml'),
-        ('\u041a\u0443\u043b\u044c\u0442\u0443\u0440\u0430', 'http://zaxid.net/rss/6.xml'),
+        ('\u041a\u0443\u043b\u044c\u0442\u0443\u0440\u0430',
+         'http://zaxid.net/rss/6.xml'),
         ('\u0421\u0432\u0456\u0442', 'http://zaxid.net/rss/8.xml'),
         ('\u0421\u043f\u043e\u0440\u0442', 'http://zaxid.net/rss/7.xml'),
     ]

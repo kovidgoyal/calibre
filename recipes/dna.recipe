@@ -1,38 +1,37 @@
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class DNAIndia(BasicNewsRecipe):
 
-    title       = 'DNA India'
+    title = 'DNA India'
     description = 'Mumbai news, India news, World news, breaking news'
-    __author__  = 'Kovid Goyal'
+    __author__ = 'Kovid Goyal'
     language = 'en_IN'
 
-    encoding    = 'cp1252'
+    encoding = 'cp1252'
     use_embedded_content = False
 
     no_stylesheets = True
     auto_cleanup = True
 
-    feeds       = [
-                   ('Top News', 'http://www.dnaindia.com/syndication/rss_topnews.xml'),
-                   ('Popular News', 'http://www.dnaindia.com/syndication/rss_popular.xml'),
-                   ('Recent Columns', 'http://www.dnaindia.com/syndication/rss_column.xml'),
-                   ('Mumbai', 'http://www.dnaindia.com/syndication/rss,catid-1.xml'),
-                   ('India', 'http://www.dnaindia.com/syndication/rss,catid-2.xml'),
-                   ('World', 'http://www.dnaindia.com/syndication/rss,catid-9.xml'),
-                   ('Money', 'http://www.dnaindia.com/syndication/rss,catid-4.xml'),
-                   ('Sports', 'http://www.dnaindia.com/syndication/rss,catid-6.xml'),
-                   ('After Hours', 'http://www.dnaindia.com/syndication/rss,catid-7.xml')
-                   ]
-
-    
+    feeds = [
+        ('Top News', 'http://www.dnaindia.com/syndication/rss_topnews.xml'),
+        ('Popular News', 'http://www.dnaindia.com/syndication/rss_popular.xml'),
+        ('Recent Columns', 'http://www.dnaindia.com/syndication/rss_column.xml'),
+        ('Mumbai', 'http://www.dnaindia.com/syndication/rss,catid-1.xml'),
+        ('India', 'http://www.dnaindia.com/syndication/rss,catid-2.xml'),
+        ('World', 'http://www.dnaindia.com/syndication/rss,catid-9.xml'),
+        ('Money', 'http://www.dnaindia.com/syndication/rss,catid-4.xml'),
+        ('Sports', 'http://www.dnaindia.com/syndication/rss,catid-6.xml'),
+        ('After Hours', 'http://www.dnaindia.com/syndication/rss,catid-7.xml')
+    ]
 
     def print_version(self, url):
         match = re.search(r'newsid=(\d+)', url)
         if not match:
             return url
-        return 'http://www.dnaindia.com/dnaprint.asp?newsid='+match.group(1)
+        return 'http://www.dnaindia.com/dnaprint.asp?newsid=' + match.group(1)
 
     def postprocess_html(self, soup, first_fetch):
         for t in soup.findAll(['table', 'tr', 'td']):

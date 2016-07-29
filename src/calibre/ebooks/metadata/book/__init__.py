@@ -131,4 +131,4 @@ SERIALIZABLE_FIELDS =      SOCIAL_METADATA_FIELDS.union(
                            DEVICE_METADATA_FIELDS) - \
                            frozenset(['device_collections', 'formats',
                                'cover_data'])
-                           # these are rebuilt when needed
+# these are rebuilt when needed

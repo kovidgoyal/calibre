@@ -20,22 +20,22 @@ class telepolis(BasicNewsRecipe):
     ]
 
     keep_only_tags = [
-        dict(name='div', attrs={'class':'flol w510'}),
-        dict(name='div', attrs={'class':'main_tresc'}),
-        dict(name='div', attrs={'class':'main_tresc_news'})
+        dict(name='div', attrs={'class': 'flol w510'}),
+        dict(name='div', attrs={'class': 'main_tresc'}),
+        dict(name='div', attrs={'class': 'main_tresc_news'})
     ]
 
     def append_page(self, soup, appendtag):
-        chpage= appendtag.find(attrs={'class':'str'})
+        chpage = appendtag.find(attrs={'class': 'str'})
         if chpage:
             for page in chpage.findAll('a'):
                 if page.renderContents() == 'Następna &rsaquo;':
                     break
                 soup2 = self.index_to_soup(page['href'])
-                pagetext = soup2.find(attrs={'class':'main_tresc'})
+                pagetext = soup2.find(attrs={'class': 'main_tresc'})
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, pagetext)
-            for r in appendtag.findAll(attrs={'class':'str'}):
+            for r in appendtag.findAll(attrs={'class': 'str'}):
                 r.extract()
 
     def preprocess_html(self, soup):

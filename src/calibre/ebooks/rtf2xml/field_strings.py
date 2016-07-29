@@ -16,7 +16,7 @@ class FieldStrings:
     This module is given a string. It processes the field instruction string and
     returns a list of three values.
     """
-    def __init__(self, bug_handler, run_level = 1):
+    def __init__(self, bug_handler, run_level=1):
         """
         Requires:
             nothing
@@ -76,7 +76,7 @@ class FieldStrings:
         'INCLUDETEXT'   :       (self.__include_text_func, 'include-text-from-file'),
         'INDEX'         :       (self.__index_func, 'index'),
         'NOTEREF'       :       (self.__note_ref_func, 'reference-to-note'),
-        'PAGEREF'	:	(self.__page_ref_func, 'reference-to-page'),
+        'PAGEREF'	: (self.__page_ref_func, 'reference-to-page'),
         'REF'           :       (self.__ref_func, 'reference'),
         'ref'           :       (self.__ref_func, 'reference'),
         'SEQ'           :       (self.__sequence_func, 'numbering-sequence'),
@@ -104,7 +104,7 @@ class FieldStrings:
         'ADVANCE'       :       (self.__default_inst_func, 'advance'),
         'ASK'           :       (self.__default_inst_func, 'prompt-user'),
         'AUTONUMLGL'    :       (self.__default_inst_func, 'automatic-number'),
-        'AUTONUM'       :	(self.__default_inst_func, 'automatic-number'),
+        'AUTONUM'       : (self.__default_inst_func, 'automatic-number'),
         'AUTOTEXTLIST'  :       (self.__default_inst_func, 'auto-list-text'),
         'AUTOTEXT'      :       (self.__default_inst_func, 'auto-text'),
         'BARCODE'       :       (self.__default_inst_func, 'barcode'),
@@ -151,10 +151,11 @@ class FieldStrings:
         self.__symbol_num_exp = re.compile(r'SYMBOL (.*?) ')
         self.__symbol_font_exp = re.compile(r'\\f "(.*?)"')
         self.__symbol_size_exp = re.compile(r'\\s (\d+)')
-        ##self.__toc_figure_exp = re.compile(r'\\c "Figure"')
+        # self.__toc_figure_exp = re.compile(r'\\c "Figure"')
         # \\@ "dddd, MMMM d, yyyy"
         self.__date_exp = re.compile(r'\\@\s{1,}"(.*?)"')
-        self.__num_type_exp = re.compile(r'\\\*\s{1,}(Arabic|alphabetic|ALPHABETIC|roman|ROMAN|Ordinal|CardText|OrdText|Hex|DollarText|Upper|Lower|FirstCap|Caps)')
+        self.__num_type_exp = re.compile(
+            r'\\\*\s{1,}(Arabic|alphabetic|ALPHABETIC|roman|ROMAN|Ordinal|CardText|OrdText|Hex|DollarText|Upper|Lower|FirstCap|Caps)')
         self.__format_text_exp = re.compile(r'\\\*\s{1,}(Upper|Lower|FirstCap|Caps)')
         self.__merge_format_exp = re.compile(r'\\\*\s{1,}MERGEFORMAT')
         self.__ta_short_field_exp = re.compile(r'\\s\s{1,}"(.*?)"')
@@ -522,7 +523,7 @@ class FieldStrings:
                 sys.stderr.write('no dictionary entry for %s\n' % name)
         line = re.sub(self.__merge_format_exp, '', line)
         words = line.split()
-        words = words[1:] #  get rid of field name
+        words = words[1:]  # get rid of field name
         for word in words:
             if word[0:1] != '\\':
                 the_string += '<bookmark>%s' % word
@@ -705,7 +706,7 @@ class FieldStrings:
             the_string += '<number-type>%s' % num_type
         line = re.sub(self.__merge_format_exp, '', line)
         words = line.split()
-        words = words[1:] #  get rid of field name
+        words = words[1:]  # get rid of field name
         for word in words:
             if word[0:1] != '\\':
                 the_string += '<bookmark>%s' % word
@@ -729,7 +730,7 @@ class FieldStrings:
         the_string = name
         line = re.sub(self.__merge_format_exp, '', line)
         words = line.split()
-        words = words[1:] #  get rid of field name
+        words = words[1:]  # get rid of field name
         for word in words:
             if word[0:1] != '\\':
                 the_string += '<bookmark>%s' % word

@@ -1,8 +1,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
+
 class WatchingAmericaRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en'
     version = 1
@@ -36,22 +37,25 @@ class WatchingAmericaRecipe(BasicNewsRecipe):
         soup = self.index_to_soup(self.INDEX)
 
         articles = []
-        feature = soup.find('div', attrs = {'id': 'headzone'})
+        feature = soup.find('div', attrs={'id': 'headzone'})
         if feature:
-            link = feature.find('a', attrs = {'class': 'feature'})
+            link = feature.find('a', attrs={'class': 'feature'})
             url = link.get('href', None)
             title = self.tag_to_string(link)
-            description = self.tag_to_string(feature.find('h1', attrs = {'class': 'pull'}))
-            article = {'title': title, 'date': u'', 'url': url, 'description': description}
+            description = self.tag_to_string(
+                feature.find('h1', attrs={'class': 'pull'}))
+            article = {'title': title, 'date': u'',
+                       'url': url, 'description': description}
             articles.append(article)
             answer.append(('Feature', articles))
 
-        feed_titles = ['Translations from the West', 'Translations from the East']
+        feed_titles = ['Translations from the West',
+                       'Translations from the East']
         for i in range(1, 3):
             articles = []
-            div = soup.find('div', attrs = {'class': 'newscol' + str(i)})
+            div = soup.find('div', attrs={'class': 'newscol' + str(i)})
             if div:
-                for link in div.findAll('a', attrs = {'class': 'headline'}):
+                for link in div.findAll('a', attrs={'class': 'headline'}):
                     url = link.get('href', None)
                     title = self.tag_to_string(link)
 
@@ -60,7 +64,8 @@ class WatchingAmericaRecipe(BasicNewsRecipe):
                     if h3:
                         description = self.tag_to_string(h3)
 
-                    article = {'title': title, 'date': u'', 'url': url, 'description': description}
+                    article = {'title': title, 'date': u'',
+                               'url': url, 'description': description}
                     articles.append(article)
             answer.append((feed_titles[i - 1], articles))
 
@@ -68,16 +73,16 @@ class WatchingAmericaRecipe(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         freshSoup = self.get_fresh_soup(soup)
-        article = soup.find('p', attrs = {'class': 'MsoNormal'}).parent
+        article = soup.find('p', attrs={'class': 'MsoNormal'}).parent
         if article:
             article.name = 'div'
             del article['width']
             article['class'] = 'main_content'
-            org = article.find('a', attrs = {'href': '?SHOW_ORIGINAL_TEXT'})
+            org = article.find('a', attrs={'href': '?SHOW_ORIGINAL_TEXT'})
             if org:
                 org.parent.extract()
 
-            intro = article.find('span', attrs = {'class': 'insideitro'})
+            intro = article.find('span', attrs={'class': 'insideitro'})
             if intro:
                 for el in intro.findAll(['strong', 'em', 'br']):
                     if el.name == 'br':
@@ -90,7 +95,8 @@ class WatchingAmericaRecipe(BasicNewsRecipe):
         return freshSoup
 
     def get_fresh_soup(self, oldSoup):
-        freshSoup = BeautifulSoup('<html><head><title></title></head><body></body></html>')
+        freshSoup = BeautifulSoup(
+            '<html><head><title></title></head><body></body></html>')
         if oldSoup.head.title:
             freshSoup.head.title.append(self.tag_to_string(oldSoup.head.title))
         return freshSoup

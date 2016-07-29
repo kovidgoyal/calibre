@@ -31,7 +31,7 @@ Messages that can be received by client:
 
 '''
 
-def tounicode(raw): # {{{
+def tounicode(raw):  # {{{
     if isbytestring(raw):
         try:
             raw = raw.decode(preferred_encoding, 'replace')
@@ -46,7 +46,7 @@ def tounicode(raw): # {{{
         return raw
 # }}}
 
-class DummyFile(object): # {{{
+class DummyFile(object):  # {{{
 
     def __init__(self, what, out_queue):
         self.closed = False
@@ -65,7 +65,7 @@ class DummyFile(object): # {{{
         self.out_queue.put((self.what, tounicode(raw)))
 # }}}
 
-class Comm(Thread): # {{{
+class Comm(Thread):  # {{{
 
     def __init__(self, conn, out_queue, in_queue):
         Thread.__init__(self)
@@ -103,7 +103,7 @@ class Comm(Thread): # {{{
                 raise EOFError('interpreter failed to send')
 # }}}
 
-class Interpreter(InteractiveInterpreter): # {{{
+class Interpreter(InteractiveInterpreter):  # {{{
 
     def __init__(self, queue, local={}):
         if '__name__' not in local:

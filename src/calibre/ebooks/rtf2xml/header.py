@@ -25,8 +25,8 @@ class Header:
     def __init__(self,
             in_file ,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -42,8 +42,8 @@ class Header:
             self.__in_header = False
             self.__write_obj.write(line)
             self.__write_to_head_obj.write(
-            'mi<mk<head___clo\n' \
-            'mi<tg<close_____<header-or-footer\n' \
+            'mi<mk<head___clo\n'
+            'mi<tg<close_____<header-or-footer\n'
             'mi<mk<header-clo\n')
         else:
             self.__write_to_head_obj.write(line)
@@ -71,9 +71,9 @@ class Header:
                     )
         else:
             sys.stderr.write(
-            'module is header\n' \
-            'method is __found_header\n' \
-            'no dict entry\n' \
+            'module is header\n'
+            'method is __found_header\n'
+            'no dict entry\n'
             'line is %s' % line)
             self.__write_to_head_obj.write(
                     'mi<tg<open-att__<header-or-footer<type>none\n'
@@ -102,10 +102,10 @@ class Header:
             'head-right'        :   ('header-right'),
             'foot-left_'        :   ('footer-left'),
             'foot-right'        :   ('footer-right'),
-            'head-first'        :   ('header-first' ),
-            'foot-first'        :   ('footer-first' ),
-            'header____'        :   ('header' ),
-            'footer____'        :   ('footer' ),
+            'head-first'        :   ('header-first'),
+            'foot-first'        :   ('footer-first'),
+            'header____'        :   ('header'),
+            'footer____'        :   ('footer'),
         }
 
     def separate_headers(self):
@@ -134,7 +134,7 @@ class Header:
                         # not in the middle of footnote text
                         else:
                             self.__default_sep(line)
-        
+
         with open(self.__header_holder, 'r') as read_obj:
             with open(self.__write_to, 'a') as write_obj:
                 write_obj.write(
@@ -145,7 +145,7 @@ class Header:
                 'mi<mk<header-end\n')
         os.remove(self.__header_holder)
 
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "header_separate.data")
         copy_obj.rename(self.__write_to, self.__file)
@@ -249,7 +249,7 @@ class Header:
         self.__join_from_temp()
         self.__write_obj.close()
         self.__read_from_head_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "header_join.data")
         copy_obj.rename(self.__write_to, self.__file)

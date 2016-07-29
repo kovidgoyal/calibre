@@ -1,4 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
 class MarineCorpsTimes(BasicNewsRecipe):
     title = 'Marine Corps Times'
     __author__ = 'jde'
@@ -9,9 +11,9 @@ class MarineCorpsTimes(BasicNewsRecipe):
     publisher = 'MarineCorpsTimes.com'
     category = 'news, U.S. Marine Corps'
     tags = 'news, U.S. Marine Corps'
-    cover_url 		= 'http://www.marinecorpstimes.com/images/logo_marinetimes-alert.jpg'
-    masthead_url 	= 'http://www.marinecorpstimes.com/images/logo_marinetimes-alert.jpg'
-    oldest_article = 7 #days
+    cover_url = 'http://www.marinecorpstimes.com/images/logo_marinetimes-alert.jpg'
+    masthead_url = 'http://www.marinecorpstimes.com/images/logo_marinetimes-alert.jpg'
+    oldest_article = 7  # days
     max_articles_per_feed = 25
     publication_type = 'newspaper'
     no_stylesheets = True
@@ -23,20 +25,14 @@ class MarineCorpsTimes(BasicNewsRecipe):
     remove_empty_feeds = True
     auto_cleanup = True
 
-
-
     feeds = [
 
-	('News', 		'http://www.MarineCorpstimes.com/rss_news.php'),
-	('Benefits', 		'http://www.MarineCorpstimes.com/rss_benefits.php'),
-	('Money', 		'http://www.MarineCorpstimes.com/rss_money.php'),
-	('Careers & Education', 	'http://www.MarineCorpstimes.com/rss_careers.php'),
-	('Community', 	'http://www.MarineCorpstimes.com/rss_community.php'),
-	('Off Duty', 		'http://www.MarineCorpstimes.com/rss_off_duty.php'),
-	('Entertainment', 	'http://www.MarineCorpstimes.com/rss_entertainment.php'),
-	('Guard & Reserve', 	'http://www.MarineCorpstimes.com/rss_guard.php'),
-              ]
-
-
-
-
+        ('News',   'http://www.MarineCorpstimes.com/rss_news.php'),
+        ('Benefits',   'http://www.MarineCorpstimes.com/rss_benefits.php'),
+        ('Money',   'http://www.MarineCorpstimes.com/rss_money.php'),
+        ('Careers & Education',  'http://www.MarineCorpstimes.com/rss_careers.php'),
+        ('Community',  'http://www.MarineCorpstimes.com/rss_community.php'),
+        ('Off Duty',   'http://www.MarineCorpstimes.com/rss_off_duty.php'),
+        ('Entertainment',  'http://www.MarineCorpstimes.com/rss_entertainment.php'),
+        ('Guard & Reserve',  'http://www.MarineCorpstimes.com/rss_guard.php'),
+    ]

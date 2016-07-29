@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>, 2012 Bernd Leinfelder <skoll1975@gmail.com>'
 
 '''
@@ -7,18 +7,19 @@ www.nzz.ch
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class Nzz(BasicNewsRecipe):
-    title                 = 'NZZ Online'
-    __author__            = 'Darko Miletic, Bernd Leinfelder'
-    description           = 'Laufend aktualisierte Nachrichten, Analysen und Hintergruende zu Politik, Wirtschaft, Kultur und Sport'
-    publisher             = 'NZZ AG'
-    category              = 'news, politics, nachrichten, Switzerland'
-    oldest_article        = 2
+    title = 'NZZ Online'
+    __author__ = 'Darko Miletic, Bernd Leinfelder'
+    description = 'Laufend aktualisierte Nachrichten, Analysen und Hintergruende zu Politik, Wirtschaft, Kultur und Sport'
+    publisher = 'NZZ AG'
+    category = 'news, politics, nachrichten, Switzerland'
+    oldest_article = 2
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    encoding              = 'utf-8'
-    use_embedded_content  = False
-    language              = 'de'
+    no_stylesheets = True
+    encoding = 'utf-8'
+    use_embedded_content = False
+    language = 'de'
     extra_css             = """
                                body{font-family: Georgia,"Times New Roman",Times,serif }
                                .artikel h3,.artikel h4,.bildLegende,.question,.autor{font-family: Arial,Verdana,Helvetica,sans-serif}
@@ -34,36 +35,32 @@ class Nzz(BasicNewsRecipe):
                             """
 
     conversion_options = {
-                             'comments'  : description
-                            ,'tags'      : category
-                            ,'language'  : language
-                            ,'publisher' : publisher
-                         }
+        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
+    }
 
-    remove_attributes=['width','height','lang']
+    remove_attributes = ['width', 'height', 'lang']
     remove_tags_before = dict(id='main')
     remove_tags_after = dict(id='articleBodyText')
     remove_tags = [
-                     dict(name=['object','link','base','meta','iframe'])
-                    ,dict(id='social-media-floater')
-                    ,dict(name='div',attrs={'class':['box']})
+        dict(name=['object', 'link', 'base', 'meta', 'iframe']), dict(
+            id='social-media-floater'), dict(name='div', attrs={'class': ['box']})
 
-                  ]
+    ]
 
     feeds = [
-               (u'International' , u'http://www.nzz.ch/aktuell/international.rss')
-              ,(u'Schweiz'       , u'http://www.nzz.ch/aktuell/schweiz.rss')
-              ,(u'Wirtschaft'    , u'http://www.nzz.ch/aktuell/wirtschaft/uebersicht.rss')
-              ,(u'Finanzmaerkte' , u'http://www.nzz.ch/finanzen/uebersicht/finanznachrichten.rss')
-              ,(u'Zuerich'       , u'http://www.nzz.ch/aktuell/zuerich/uebersicht.rss')
-              ,(u'Sport'         , u'http://www.nzz.ch/aktuell/sport/uebersicht.rss')
-              ,(u'Panorama'      , u'http://www.nzz.ch/aktuell/panorama.rss')
-              ,(u'Kultur'        , u'http://www.nzz.ch/aktuell/feuilleton/uebersicht.rss')
-              ,(u'Wissenschaft'  , u'http://www.nzz.ch/wissen/uebersicht.rss')
-              ,(u'Reisen'        , u'http://www.nzz.ch/lebensart/reisen-freizeit.rss')
-              ,(u'Auto Mobil'    , u'http://www.nzz.ch/lebensart/auto-mobil.rss')
-              ,(u'Digital'       , u'http://www.nzz.ch/lebensart/digital.rss')
-              ,(u'Stil'          , u'http://www.nzz.ch/lebensart/stil.rss')
-              ,(u'Wein-Keller'   , u'http://www.nzz.ch/lebensart/wein-keller.rss')
-            ]
 
+    (u'International', u'http://www.nzz.ch/aktuell/international.rss'),
+    (u'Schweiz', u'http://www.nzz.ch/aktuell/schweiz.rss'),
+    (u'Wirtschaft', u'http://www.nzz.ch/aktuell/wirtschaft/uebersicht.rss'),
+    (u'Finanzmaerkte', u'http://www.nzz.ch/finanzen/uebersicht/finanznachrichten.rss'),
+    (u'Zuerich', u'http://www.nzz.ch/aktuell/zuerich/uebersicht.rss'),
+    (u'Sport', u'http://www.nzz.ch/aktuell/sport/uebersicht.rss'),
+    (u'Panorama', u'http://www.nzz.ch/aktuell/panorama.rss'),
+    (u'Kultur', u'http://www.nzz.ch/aktuell/feuilleton/uebersicht.rss'),
+    (u'Wissenschaft', u'http://www.nzz.ch/wissen/uebersicht.rss'),
+    (u'Reisen', u'http://www.nzz.ch/lebensart/reisen-freizeit.rss'),
+    (u'Auto Mobil', u'http://www.nzz.ch/lebensart/auto-mobil.rss'),
+    (u'Digital', u'http://www.nzz.ch/lebensart/digital.rss'),
+    (u'Stil', u'http://www.nzz.ch/lebensart/stil.rss'),
+    (u'Wein-Keller', u'http://www.nzz.ch/lebensart/wein-keller.rss')
+    ]

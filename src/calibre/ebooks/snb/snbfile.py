@@ -9,6 +9,7 @@ import sys, struct, zlib, bz2, os
 from calibre import guess_type
 
 class FileStream:
+
     def IsBinary(self):
         return self.attr & 0x41000000 != 0x41000000
 
@@ -26,11 +27,11 @@ class SNBFile:
     REVZ1 = 0x00000000
     REVZ2 = 0x00000000
 
-    def __init__(self, inputFile = None):
+    def __init__(self, inputFile=None):
         self.files = []
         self.blocks = []
 
-        if inputFile != None:
+        if inputFile is not None:
             self.Open(inputFile)
 
     def Open(self, inputFile):
@@ -41,7 +42,7 @@ class SNBFile:
         self.Parse(snbFile)
         snbFile.close()
 
-    def Parse(self, snbFile, metaOnly = False):
+    def Parse(self, snbFile, metaOnly=False):
         # Read header
         vmbr = snbFile.read(44)
         (self.magic, self.rev80, self.revA3, self.revZ1,
@@ -55,7 +56,7 @@ class SNBFile:
 
         # Read tail
         snbFile.seek(-16, os.SEEK_END)
-        #plainStreamEnd = snbFile.tell()
+        # plainStreamEnd = snbFile.tell()
         tailblock = snbFile.read(16)
         (self.tailSize, self.tailOffset, self.tailMagic) = struct.unpack('>ii8s', tailblock)
         snbFile.seek(self.tailOffset)
@@ -71,7 +72,7 @@ class SNBFile:
         for f in self.files:
             if f.attr & 0x41000000 == 0x41000000:
                 # Compressed Files
-                if uncompressedData == None:
+                if uncompressedData is None:
                     uncompressedData = ""
                     for i in range(self.plainBlock):
                         bzdc = bz2.BZ2Decompressor()
@@ -102,7 +103,7 @@ class SNBFile:
                 raise Exception("Invalid file")
 
     def ParseFile(self, vfat, fileCount):
-        fileNames = vfat[fileCount*12:].split('\0');
+        fileNames = vfat[fileCount*12:].split('\0')
         for i in range(fileCount):
             f = FileStream()
             (f.attr, f.fileNameOffset, f.fileSize) = struct.unpack('>iii', vfat[i * 12 : (i+1)*12])
@@ -110,14 +111,15 @@ class SNBFile:
             self.files.append(f)
 
     def ParseTail(self, vtail, fileCount):
-        self.binBlock = (self.binStreamSize + 0x8000 - 1) / 0x8000;
-        self.plainBlock = (self.plainStreamSizeUncompressed + 0x8000 - 1) / 0x8000;
+        self.binBlock = (self.binStreamSize + 0x8000 - 1) / 0x8000
+        self.plainBlock = (self.plainStreamSizeUncompressed + 0x8000 - 1) / 0x8000
         for i in range(self.binBlock + self.plainBlock):
             block = BlockData()
             (block.Offset,) = struct.unpack('>i', vtail[i * 4 : (i+1) * 4])
             self.blocks.append(block)
         for i in range(fileCount):
-            (self.files[i].blockIndex, self.files[i].contentOffset) = struct.unpack('>ii', vtail[(self.binBlock + self.plainBlock) * 4 + i * 8 : (self.binBlock + self.plainBlock) * 4 + (i+1) * 8])
+            (self.files[i].blockIndex, self.files[i].contentOffset) = struct.unpack('>ii', vtail[
+             (self.binBlock + self.plainBlock) * 4 + i * 8 : (self.binBlock + self.plainBlock) * 4 + (i+1) * 8])
 
     def IsValid(self):
         if self.magic != SNBFile.MAGIC:
@@ -145,7 +147,7 @@ class SNBFile:
         for root, dirs, files in os.walk(tdir):
             for name in files:
                 p, ext = os.path.splitext(name)
-                if ext in [ ".snbf", ".snbc" ]:
+                if ext in [".snbf", ".snbc"]:
                     self.AppendPlain(os.path.relpath(os.path.join(root, name), tdir), tdir)
                 else:
                     self.AppendBinary(os.path.relpath(os.path.join(root, name), tdir), tdir)
@@ -157,7 +159,7 @@ class SNBFile:
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
         if isinstance(f.fileName, unicode):
-            f.fileName = f.fileName.encode("ascii", "ignore");
+            f.fileName = f.fileName.encode("ascii", "ignore")
         self.files.append(f)
 
     def AppendBinary(self, fileName, tdir):
@@ -167,7 +169,7 @@ class SNBFile:
         f.fileBody = open(os.path.join(tdir,fileName), 'rb').read()
         f.fileName = fileName.replace(os.sep, '/')
         if isinstance(f.fileName, unicode):
-            f.fileName = f.fileName.encode("ascii", "ignore");
+            f.fileName = f.fileName.encode("ascii", "ignore")
         self.files.append(f)
 
     def GetFileStream(self, fileName):
@@ -181,7 +183,7 @@ class SNBFile:
         for f in self.files:
             fname = os.path.basename(f.fileName)
             root, ext = os.path.splitext(fname)
-            if ext in [ '.jpeg', '.jpg', '.gif', '.svg', '.png' ]:
+            if ext in ['.jpeg', '.jpg', '.gif', '.svg', '.png']:
                 file = open(os.path.join(path, fname), 'wb')
                 file.write(f.fileBody)
                 file.close()
@@ -204,7 +206,7 @@ class SNBFile:
         plainStream = ''
         binStream = ''
         for f in self.files:
-            vfat += struct.pack('>iii', f.attr, len(fileNameTable), f.fileSize);
+            vfat += struct.pack('>iii', f.attr, len(fileNameTable), f.fileSize)
             fileNameTable += (f.fileName + '\0')
 
             if f.attr & 0x41000000 == 0x41000000:
@@ -232,13 +234,13 @@ class SNBFile:
         plainBlockOffset = binBlockOffset + len(binStream)
 
         binBlock = (len(binStream) + 0x8000 - 1) / 0x8000
-        #plainBlock = (len(plainStream) + 0x8000 - 1) / 0x8000
+        # plainBlock = (len(plainStream) + 0x8000 - 1) / 0x8000
 
         offset = 0
         tailBlock = ''
         for i in range(binBlock):
             tailBlock += struct.pack('>i', binBlockOffset + offset)
-            offset += 0x8000;
+            offset += 0x8000
         tailRec = ''
         for f in self.files:
             t = 0
@@ -246,7 +248,7 @@ class SNBFile:
                 t = 0
             else:
                 t = binBlock
-            tailRec += struct.pack('>ii', f.contentOffset / 0x8000 + t, f.contentOffset % 0x8000);
+            tailRec += struct.pack('>ii', f.contentOffset / 0x8000 + t, f.contentOffset % 0x8000)
 
         # Write binary stream
         outputFile.write(binStream)
@@ -255,8 +257,8 @@ class SNBFile:
         pos = 0
         offset = 0
         while pos < len(plainStream):
-            tailBlock += struct.pack('>i', plainBlockOffset + offset);
-            block = plainStream[pos:pos+0x8000];
+            tailBlock += struct.pack('>i', plainBlockOffset + offset)
+            block = plainStream[pos:pos+0x8000]
             compressed = bz2.compress(block)
             outputFile.write(compressed)
             offset += len(compressed)
@@ -271,7 +273,7 @@ class SNBFile:
         outputFile.write(veom)
 
         # Write file end mark
-        outputFile.write(SNBFile.MAGIC);
+        outputFile.write(SNBFile.MAGIC)
 
         # Close
         outputFile.close()

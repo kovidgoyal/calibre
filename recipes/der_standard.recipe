@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
 
 ''' http://www.derstandard.at - Austrian Newspaper '''
@@ -11,11 +11,12 @@ import re
 import random
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class DerStandardRecipe(BasicNewsRecipe):
     title = u'derStandard'
     __author__ = 'Gerhard Aigner and Sujata Raman and Marcel Jira and Peter Reschenhofer'
     description = u'Nachrichten aus Österreich'
-    publisher ='derStandard.at'
+    publisher = 'derStandard.at'
     category = 'news, politics, nachrichten, Austria'
     use_embedded_content = False
     remove_empty_feeds = True
@@ -55,30 +56,33 @@ class DerStandardRecipe(BasicNewsRecipe):
     ]
 
     keep_only_tags = [
-        dict(name='div', attrs={'class':re.compile('^artikel')})
+        dict(name='div', attrs={'class': re.compile('^artikel')})
     ]
 
     remove_tags = [
         dict(name=['link', 'iframe', 'style', 'hr']),
-        dict(attrs={'class':['lookup-links', 'media-list']}),
-        dict(name='form',attrs={'name':'sitesearch'}),
-        dict(name='div', attrs={'class':['socialsharing', 'block video',
-                                         'blog-browsing section',
-                                         'diashow', 'supplemental']}),
-        dict(name='div', attrs={'id':'highlighted'})
+        dict(attrs={'class': ['lookup-links', 'media-list']}),
+        dict(name='form', attrs={'name': 'sitesearch'}),
+        dict(name='div', attrs={'class': ['socialsharing', 'block video',
+                                          'blog-browsing section',
+                                          'diashow', 'supplemental']}),
+        dict(name='div', attrs={'id': 'highlighted'})
     ]
 
     remove_attributes = ['width', 'height']
 
     preprocess_regexps = [
-        (re.compile(r'\[[\d]*\]', re.DOTALL|re.IGNORECASE), lambda match: ''),
-        (re.compile(r'bgcolor="#\w{3,6}"', re.DOTALL|re.IGNORECASE), lambda match: '')
+        (re.compile(r'\[[\d]*\]', re.DOTALL |
+                    re.IGNORECASE), lambda match: ''),
+        (re.compile(r'bgcolor="#\w{3,6}"',
+                    re.DOTALL | re.IGNORECASE), lambda match: '')
     ]
 
     filter_regexps = [r'/r[1-9]*']
 
     def get_article_url(self, article):
-        matchObj = re.search( re.compile(r'/r'+'[1-9]*',flags=0), article.link,flags=0)
+        matchObj = re.search(re.compile(
+            r'/r' + '[1-9]*', flags=0), article.link, flags=0)
 
         if matchObj:
             return None
@@ -86,7 +90,7 @@ class DerStandardRecipe(BasicNewsRecipe):
         return article.link
 
     def preprocess_html(self, soup):
-        if soup.find('div', {'class':re.compile('^artikel')}) is None:
+        if soup.find('div', {'class': re.compile('^artikel')}) is None:
             self.abort_article()
         for t in soup.findAll(['ul', 'li']):
             t.name = 'div'
@@ -96,7 +100,8 @@ class DerStandardRecipe(BasicNewsRecipe):
         base_url = 'https://epaper.derstandard.at/'
         url = base_url + 'shelf.act?s=' + str(random.random() * 10000)
         soup = self.index_to_soup(url)
-        img = soup.find('img', {'class':re.compile('^thumbnailBig'), 'src':True})
+        img = soup.find(
+            'img', {'class': re.compile('^thumbnailBig'), 'src': True})
         if img and img['src']:
             cover_url = base_url + img['src']
             return cover_url

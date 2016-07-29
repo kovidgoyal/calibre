@@ -134,9 +134,9 @@ class Matches(QAbstractItemModel):
                 if result.drm_free_only:
                     return ('<p>' + _('This store only distributes ebooks without DRM.') + '</p>')
                 else:
-                    return ('<p>' + _('This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')
+                    return ('<p>' + _('This store distributes ebooks with DRM. It may have some titles without DRM, but you will need to check on a per title basis.') + '</p>')  # noqa
             elif col == 3:
-                return ('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')
+                return ('<p>' + _('This store is headquartered in %s. This is a good indication of what market the store caters to. However, this does not necessarily mean that the store is limited to that market only.') % result.headquarters + '</p>')  # noqa
             elif col == 4:
                 if result.affiliate:
                     return ('<p>' + _('Buying from this store supports the calibre developer: %s.') % result.author + '</p>')
@@ -248,14 +248,14 @@ class SearchFilter(SearchQueryParser):
                 accessor = q[locvalue]
                 if query == 'true':
                     if locvalue in ('affiliate', 'drm', 'enabled'):
-                        if accessor(sr) == True:
+                        if accessor(sr) == True:  # noqa
                             matches.add(sr)
                     elif accessor(sr) is not None:
                         matches.add(sr)
                     continue
                 if query == 'false':
                     if locvalue in ('affiliate', 'drm', 'enabled'):
-                        if accessor(sr) == False:
+                        if accessor(sr) == False:  # noqa
                             matches.add(sr)
                     elif accessor(sr) is None:
                         matches.add(sr)

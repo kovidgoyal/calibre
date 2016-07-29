@@ -1,15 +1,15 @@
 #!/usr/bin/env  python2
 ##
-## Title:        Padreydecano.com News, Sports, and Blog Calibre Recipe
-## Contact:      Carlos Alves - <carlos@carlosalves.info>
+# Title:        Padreydecano.com News, Sports, and Blog Calibre Recipe
+# Contact:      Carlos Alves - <carlos@carlosalves.info>
 ##
-## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
-## Copyright:    Carlos Alves - <carlos@carlosalves.info>
+# License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+# Copyright:    Carlos Alves - <carlos@carlosalves.info>
 ##
-## Written:      September 2013
-## Last Edited:  2016-01-11
+# Written:      September 2013
+# Last Edited:  2016-01-11
 ##
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __author__ = '2016, Carlos Alves <carlos@carlosalves.info>'
 
 '''
@@ -18,31 +18,33 @@ padreydecano.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class General(BasicNewsRecipe):
-    title                 = 'Padre y Decano'
-    __author__            = 'Carlos Alves'
-    description           = 'El sitio del pueblo'
+    title = 'Padre y Decano'
+    __author__ = 'Carlos Alves'
+    description = 'El sitio del pueblo'
     tags = 'soccer, futbol, Peñarol'
-    language       = 'es_UY'
-    timefmt        = '[%a, %d %b, %Y]'
-    use_embedded_content  = False
-    recursion             = 5
+    language = 'es_UY'
+    timefmt = '[%a, %d %b, %Y]'
+    use_embedded_content = False
+    recursion = 5
     encoding = None
     remove_javascript = True
     no_stylesheets = True
 
-    oldest_article        = 10
+    oldest_article = 10
     max_articles_per_feed = 100
     keep_only_tags = [
-             dict(name='h1', attrs={'class':'entry-title'}),
-             dict(name='div', attrs={'class':'entry-content clearfix'})
-             ]
+        dict(name='h1', attrs={'class': 'entry-title'}),
+        dict(name='div', attrs={'class': 'entry-content clearfix'})
+    ]
 
     remove_tags = [
-             dict(name='div', attrs={'class':['br', 'hr', 'titlebar', 'navigation']}),
-             dict(name='dl', attrs={'class':'gallery-item'}),
-             dict(name=['object','link'])
-                  ]
+        dict(name='div', attrs={
+             'class': ['br', 'hr', 'titlebar', 'navigation']}),
+        dict(name='dl', attrs={'class': 'gallery-item'}),
+        dict(name=['object', 'link'])
+    ]
 
     extra_css = '''
                 h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
@@ -51,8 +53,9 @@ class General(BasicNewsRecipe):
                 p {font-family:Arial,Helvetica,sans-serif;}
                 '''
     feeds = [
-           (u'Padre y Decano | Club Atlético Peñarol', u'http://www.padreydecano.com/cms/feed/')
-        ]
+        (u'Padre y Decano | Club Atlético Peñarol',
+         u'http://www.padreydecano.com/cms/feed/')
+    ]
 
     def get_cover_url(self):
         return 'http://www.padreydecano.com/cms/wp-content/uploads/2011/09/editorial.jpg'

@@ -13,14 +13,15 @@
 """
 Gets options for main part of script
 """
-import  sys, os
+import sys, os
 from calibre.ebooks.rtf2xml import options_trem, configure_txt
 class GetOptions:
+
     def __init__(self,
             system_arguments,
             rtf_dir,
             bug_handler,
-            configuration_file = None,
+            configuration_file=None,
             ):
         self.__system_arguments = system_arguments
         self.__rtf_dir = rtf_dir
@@ -37,7 +38,7 @@ class GetOptions:
                         'show-warnings'     :       [0],
                         'caps'              :       [0,],
                         'no-caps'           :       [0],
-                        'symbol'            :       [0 ],
+                        'symbol'            :       [0],
                         'no-symbol'         :       [0],
                         'windings'          :       [0],
                         'no-wingdings'      :       [0],
@@ -66,8 +67,8 @@ class GetOptions:
                         'config'            :       [0],
                 }
         options_obj = options_trem.ParseOptions(
-                        system_string = self.__system_arguments,
-                        options_dict = options_dict
+                        system_string=self.__system_arguments,
+                        options_dict=options_dict
                     )
         options, arguments = options_obj.parse_options()
         if options == 0:
@@ -85,7 +86,7 @@ class GetOptions:
         return_options['version'] = 0
         if 'version' in the_keys:
             return_options['version'] = 1
-            return  return_options
+            return return_options
         # unused
         return_options['out-dir'] = 0
         if 'dir' in the_keys:
@@ -97,7 +98,7 @@ class GetOptions:
                 return_options['dir'] = options['dir']
         return_options['out-file'] = 0
         if 'output' in the_keys:
-            #out_file = options['output']
+            # out_file = options['output']
             return_options['out-file'] = options['output']
         else:
             pass
@@ -117,7 +118,7 @@ class GetOptions:
                 return_options['valid'] = 0
                 return return_options
         if 'dtd' in the_keys:
-            #dtd = options['dtd']
+            # dtd = options['dtd']
             return_options['raw-dtd-path'] = options['dtd']
         acceptable = ['sdoc', 'raw', 'tei']
         if 'format' in the_keys:
@@ -126,7 +127,7 @@ class GetOptions:
                 sys.stderr.write('--format must take either \'sdoc\' or '
                         '\'tei\'\n')
                 return_options['valid'] = 0
-                return  return_options
+                return return_options
             else:
                 return_options['format'] = options['format']
         # a hack! python chokes on external dtd
@@ -258,17 +259,17 @@ class GetOptions:
                         )
                 return_options['valid'] = 0
         """
-        return  return_options
+        return return_options
     def __get_config_options(self):
         configure_obj = configure_txt.Configure(
-            bug_handler = self.__bug_handler,
-            configuration_file = self.__configuration_file)
-        options_dict = configure_obj.get_configuration(type = 'normal')
+            bug_handler=self.__bug_handler,
+            configuration_file=self.__configuration_file)
+        options_dict = configure_obj.get_configuration(type='normal')
         if options_dict == 1:
             sys.exit(1)
         options_dict['valid'] = 1
         convert_caps = options_dict.get('convert-caps')
-        if  convert_caps == 'false':
+        if convert_caps == 'false':
             options_dict['convert-caps'] = 0
         convert_symbol = options_dict.get('convert-symbol')
         if convert_symbol == 'false':
@@ -277,7 +278,7 @@ class GetOptions:
         if convert_wingdings == 'false':
             options_dict['convert-wingdings'] = 0
         convert_zapf = options_dict.get('convert-zapf-dingbats')
-        if  convert_zapf == 'false':
+        if convert_zapf == 'false':
             options_dict['convert-zapf'] = 0
         elif convert_zapf == 'true':
             options_dict['convert-zapf'] = 1

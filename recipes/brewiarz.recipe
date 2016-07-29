@@ -3,7 +3,8 @@
 __license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import datetime, re
+import datetime
+import re
 
 
 class brewiarz(BasicNewsRecipe):
@@ -38,16 +39,21 @@ class brewiarz(BasicNewsRecipe):
             url_date_weekday = url_date.strftime("%A")
             url_date_weekday_pl = weekday_dict[url_date_weekday]
 
-            url = "http://brewiarz.pl/" + url_date_month_roman + "_" + url_date_year + "/" + url_date_day + url_date_month + "/index.php3"
+            url = "http://brewiarz.pl/" + url_date_month_roman + "_" + \
+                url_date_year + "/" + url_date_day + url_date_month + "/index.php3"
             articles = self.parse_pages(url)
             if articles:
-                title = url_date_weekday_pl + " " + url_date_day + "." + url_date_month + "." + url_date_year
+                title = url_date_weekday_pl + " " + url_date_day + \
+                    "." + url_date_month + "." + url_date_year
                 feeds.append((title, articles))
             else:
                 sectors = self.get_sectors(url)
                 for subpage in sectors:
-                    title = url_date_weekday_pl + " " + url_date_day + "." + url_date_month + "." + url_date_year + " - " + subpage.string
-                    url = "http://brewiarz.pl/" + url_date_month_roman + "_" + url_date_year + "/" + url_date_day + url_date_month + "/" + subpage['href']
+                    title = url_date_weekday_pl + " " + url_date_day + "." + \
+                        url_date_month + "." + url_date_year + " - " + subpage.string
+                    url = "http://brewiarz.pl/" + url_date_month_roman + "_" + url_date_year + \
+                        "/" + url_date_day + url_date_month + \
+                        "/" + subpage['href']
                     print(url)
                     articles = self.parse_pages(url)
                     if articles:
@@ -60,7 +66,8 @@ class brewiarz(BasicNewsRecipe):
         sectors_table = soup.find(name='table', attrs={'width': '490'})
         sector_links = sectors_table.findAll(name='a')
         for sector_links_modified in sector_links:
-            link_parent_text = sector_links_modified.findParent(name='div').text
+            link_parent_text = sector_links_modified.findParent(
+                name='div').text
             if link_parent_text:
                 sector_links_modified.text = link_parent_text.text
             sectors.append(sector_links_modified)
@@ -80,17 +87,20 @@ class brewiarz(BasicNewsRecipe):
                 if ol:
                     sublinks = ol.findAll(name='a')
                     for sublink in sublinks:
-                        link_title = self.tag_to_string(link) + " - " + self.tag_to_string(sublink)
-                        link_url_print = re.sub('php3', 'php3?kr=_druk&wr=lg&', sublink['href'])
+                        link_title = self.tag_to_string(
+                            link) + " - " + self.tag_to_string(sublink)
+                        link_url_print = re.sub(
+                            'php3', 'php3?kr=_druk&wr=lg&', sublink['href'])
                         link_url = url[:-10] + link_url_print
                         current_articles.append({'title': link_title,
                                                  'url': link_url, 'description': '', 'date': ''})
                 else:
-                    if link.findParent(name = 'ol'):
+                    if link.findParent(name='ol'):
                         continue
                     else:
                         link_title = self.tag_to_string(link)
-                        link_url_print = re.sub('php3', 'php3?kr=_druk&wr=lg&', link['href'])
+                        link_url_print = re.sub(
+                            'php3', 'php3?kr=_druk&wr=lg&', link['href'])
                         link_url = url[:-10] + link_url_print
                         current_articles.append({'title': link_title,
                                                  'url': link_url, 'description': '', 'date': ''})
@@ -123,7 +133,8 @@ class brewiarz(BasicNewsRecipe):
         return cleaned
 
     def strip_tags(self, soup_dirty):
-        VALID_TAGS = ['p', 'div', 'br', 'b', 'a', 'title', 'head', 'html', 'body']
+        VALID_TAGS = ['p', 'div', 'br', 'b',
+                      'a', 'title', 'head', 'html', 'body']
 
         for tag in soup_dirty.findAll(True):
             if tag.name not in VALID_TAGS:

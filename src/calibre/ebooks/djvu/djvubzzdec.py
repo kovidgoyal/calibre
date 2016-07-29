@@ -5,7 +5,6 @@ from __future__ import (unicode_literals, division, absolute_import,
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Anthon van der Neut <A.van.der.Neut@ruamel.eu>'
-#__docformat__ = 'restructuredtext en'
 
 # Copyright (C) 2011 Anthon van der Neut, Ruamel bvba
 # Adapted from Leon Bottou's djvulibre C++ code,
@@ -386,7 +385,7 @@ xmtf = (
   0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
   0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 )
- # }}}
+# }}}
 
 class BZZDecoder():
 
@@ -564,8 +563,8 @@ class BZZDecoder():
                 k -= 1
             mtf[k] = outbuf[i]
             freq[k] = fc
-        #///////////////////////////////
-        #//////// Reconstruct the string
+        # ///////////////////////////////
+        # //////// Reconstruct the string
 
         if markerpos < 1 or markerpos >= self.xsize:
             raise BZZDecoderError("BiteStream.corrupt")

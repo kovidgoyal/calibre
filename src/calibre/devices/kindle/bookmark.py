@@ -7,7 +7,7 @@ import os
 from cStringIO import StringIO
 from struct import unpack
 
-class Bookmark(): # {{{
+class Bookmark():  # {{{
     '''
     A simple class fetching bookmark data
     Kindle-specific
@@ -61,11 +61,11 @@ class Bookmark(): # {{{
                 bpl = bpar_offset + 4
                 bpar_len, = unpack('>I', data[bpl:bpl+4])
                 bpar_len += 8
-                #print "bpar_len: 0x%x" % bpar_len
+                # print "bpar_len: 0x%x" % bpar_len
                 eo = bpar_offset + bpar_len
 
                 # Walk bookmark entries
-                #print " --- %s --- " % self.path
+                # print " --- %s --- " % self.path
                 current_entry = 1
                 sig = data[eo:eo+4]
                 previous_block = None
@@ -76,11 +76,11 @@ class Bookmark(): # {{{
                     rec_len, = unpack('>I', data[eo+4:eo+8])
                     if rec_len == 0:
                         current_block = "empty_data"
-                    elif  data[eo+8:eo+12] == "EBAR":
+                    elif data[eo+8:eo+12] == "EBAR":
                         current_block = "data_header"
-                        #entry_type = "data_header"
+                        # entry_type = "data_header"
                         location, = unpack('>I', data[eo+0x34:eo+0x38])
-                        #print "data_header location: %d" % location
+                        # print "data_header location: %d" % location
                     else:
                         current_block = "text_block"
                         if previous_block == 'empty_data':
@@ -106,7 +106,7 @@ class Bookmark(): # {{{
                     end_loc, = unpack('>I', data[eo+0x10:eo+0x14])
 
                     if end_loc in user_notes and \
-                       (user_notes[end_loc]['type'] == 'Highlight' or \
+                       (user_notes[end_loc]['type'] == 'Highlight' or
                         user_notes[end_loc]['type'] == 'Note'):
                         # Switch location to start (0x08:0x0c)
                         start, = unpack('>I', data[eo+8:eo+12])

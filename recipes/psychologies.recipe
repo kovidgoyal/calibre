@@ -1,7 +1,7 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = u'2011, Silviu Cotoar\u0103'
 '''
 psychologies.ro
@@ -9,26 +9,24 @@ psychologies.ro
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Psychologies(BasicNewsRecipe):
-    title                 = u'Psychologies'
-    __author__            = u'Silviu Cotoar\u0103'
-    description           = u'Psihologie \u015fi Dezvoltare Personal\u0103..'
-    publisher             = u'Psychologies'
-    oldest_article        = 25
-    language              = 'ro'
+    title = u'Psychologies'
+    __author__ = u'Silviu Cotoar\u0103'
+    description = u'Psihologie \u015fi Dezvoltare Personal\u0103..'
+    publisher = u'Psychologies'
+    oldest_article = 25
+    language = 'ro'
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    category              = 'Ziare,Reviste,Psihologie'
-    encoding              = 'utf-8'
-    cover_url             = 'http://www.psychologies.ro/images/default/logo.gif'
+    no_stylesheets = True
+    use_embedded_content = False
+    category = 'Ziare,Reviste,Psihologie'
+    encoding = 'utf-8'
+    cover_url = 'http://www.psychologies.ro/images/default/logo.gif'
 
     conversion_options = {
-                             'comments'   : description
-                            ,'tags'       : category
-                            ,'language'   : language
-                            ,'publisher'  : publisher
-                         }
+        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
+    }
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
@@ -46,14 +44,14 @@ class Psychologies(BasicNewsRecipe):
                 '''
 
     keep_only_tags = [
-                          dict(name='div', attrs={'class':'nav'})
-                        , dict(name='div', attrs={'id':'textarticol'})
+        dict(name='div', attrs={'class': 'nav'}), dict(
+            name='div', attrs={'id': 'textarticol'})
 
-                     ]
+    ]
 
-    feeds          = [
-                        (u'Feeds', u'http://feeds.feedburner.com/Psychologies')
-                     ]
+    feeds = [
+        (u'Feeds', u'http://feeds.feedburner.com/Psychologies')
+    ]
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)

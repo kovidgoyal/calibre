@@ -25,8 +25,8 @@ class ProcessTokens:
             in_file,
             exception_handler,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -34,7 +34,7 @@ class ProcessTokens:
         self.__run_level = run_level
         self.__write_to = better_mktemp()
         self.initiate_token_dict()
-        ##self.initiate_token_actions()
+        # self.initiate_token_actions()
         self.compile_expressions()
         self.__bracket_count=0
         self.__exception_handler = exception_handler
@@ -50,50 +50,50 @@ class ProcessTokens:
         # unicode
         'mshex'              :  ('nu', '__________', self.__ms_hex_func),
         # brackets
-        '{'                  :	('nu', '{', self.ob_func),
-        '}'                  :	('nu', '}', self.cb_func),
+        '{'                  : ('nu', '{', self.ob_func),
+        '}'                  : ('nu', '}', self.cb_func),
         # microsoft characters
-        'ldblquote'          :	('mc', 'ldblquote', self.ms_sub_func),
-        'rdblquote'          :	('mc', 'rdblquote', self.ms_sub_func),
-        'rquote'             :	('mc', 'rquote', self.ms_sub_func),
-        'lquote'             :	('mc', 'lquote', self.ms_sub_func),
-        'emdash'             :	('mc', 'emdash', self.ms_sub_func),
-        'endash'             :	('mc', 'endash', self.ms_sub_func),
-        'bullet'             :	('mc', 'bullet', self.ms_sub_func),
-        '~'                  :	('mc', '~', self.ms_sub_func),
-        'tab'                :	('mc', 'tab', self.ms_sub_func),
-        '_'                  :	('mc', '_', self.ms_sub_func),
-        ';'                  :	('mc', ';', self.ms_sub_func),
+        'ldblquote'          : ('mc', 'ldblquote', self.ms_sub_func),
+        'rdblquote'          : ('mc', 'rdblquote', self.ms_sub_func),
+        'rquote'             : ('mc', 'rquote', self.ms_sub_func),
+        'lquote'             : ('mc', 'lquote', self.ms_sub_func),
+        'emdash'             : ('mc', 'emdash', self.ms_sub_func),
+        'endash'             : ('mc', 'endash', self.ms_sub_func),
+        'bullet'             : ('mc', 'bullet', self.ms_sub_func),
+        '~'                  : ('mc', '~', self.ms_sub_func),
+        'tab'                : ('mc', 'tab', self.ms_sub_func),
+        '_'                  : ('mc', '_', self.ms_sub_func),
+        ';'                  : ('mc', ';', self.ms_sub_func),
         # this must be wrong
-        '-'                  :	('mc', '-', self.ms_sub_func),
-        'line'               :  ('mi', 'hardline-break', self.direct_conv_func), #calibre
+        '-'                  : ('mc', '-', self.ms_sub_func),
+        'line'               :  ('mi', 'hardline-break', self.direct_conv_func),  # calibre
         # misc => ml
-        '*'                  :	('ml', 'asterisk__', self.default_func),
-        ':'                  :	('ml', 'colon_____', self.default_func),
+        '*'                  : ('ml', 'asterisk__', self.default_func),
+        ':'                  : ('ml', 'colon_____', self.default_func),
         # text
-        'backslash'          :	('nu', '\\', self.text_func),
-        'ob'                 :	('nu', '{', self.text_func),
-        'cb'                 :	('nu', '}', self.text_func),
+        'backslash'          : ('nu', '\\', self.text_func),
+        'ob'                 : ('nu', '{', self.text_func),
+        'cb'                 : ('nu', '}', self.text_func),
         # paragraph formatting => pf
         'page'               :  ('pf', 'page-break', self.default_func),
-        'par'                :	('pf', 'par-end___', self.default_func),
-        'pard'               :	('pf', 'par-def___', self.default_func),
-        'keepn'              :	('pf', 'keep-w-nex', self.bool_st_func),
-        'widctlpar'          :	('pf', 'widow-cntl', self.bool_st_func),
-        'adjustright'        :	('pf', 'adjust-rgt', self.bool_st_func),
-        'lang'               :	('pf', 'language__', self.__language_func),
-        'ri'                 :	('pf', 'right-inde', self.divide_by_20),
-        'fi'                 :	('pf', 'fir-ln-ind', self.divide_by_20),
-        'li'                 :	('pf', 'left-inden', self.divide_by_20),
-        'sb'                 :	('pf', 'space-befo', self.divide_by_20),
-        'sa'                 :	('pf', 'space-afte', self.divide_by_20),
-        'sl'                 :	('pf', 'line-space', self.divide_by_20),
-        'deftab'             :	('pf', 'default-ta', self.divide_by_20),
-        'ql'                 :	('pf', 'align_____<left', self.two_part_func),
-        'qc'                 :	('pf', 'align_____<cent', self.two_part_func),
-        'qj'                 :	('pf', 'align_____<just', self.two_part_func),
-        'qr'                 :	('pf', 'align_____<right', self.two_part_func),
-        'nowidctlpar'        :	('pf', 'widow-cntr<false', self.two_part_func),
+        'par'                : ('pf', 'par-end___', self.default_func),
+        'pard'               : ('pf', 'par-def___', self.default_func),
+        'keepn'              : ('pf', 'keep-w-nex', self.bool_st_func),
+        'widctlpar'          : ('pf', 'widow-cntl', self.bool_st_func),
+        'adjustright'        : ('pf', 'adjust-rgt', self.bool_st_func),
+        'lang'               : ('pf', 'language__', self.__language_func),
+        'ri'                 : ('pf', 'right-inde', self.divide_by_20),
+        'fi'                 : ('pf', 'fir-ln-ind', self.divide_by_20),
+        'li'                 : ('pf', 'left-inden', self.divide_by_20),
+        'sb'                 : ('pf', 'space-befo', self.divide_by_20),
+        'sa'                 : ('pf', 'space-afte', self.divide_by_20),
+        'sl'                 : ('pf', 'line-space', self.divide_by_20),
+        'deftab'             : ('pf', 'default-ta', self.divide_by_20),
+        'ql'                 : ('pf', 'align_____<left', self.two_part_func),
+        'qc'                 : ('pf', 'align_____<cent', self.two_part_func),
+        'qj'                 : ('pf', 'align_____<just', self.two_part_func),
+        'qr'                 : ('pf', 'align_____<right', self.two_part_func),
+        'nowidctlpar'        : ('pf', 'widow-cntr<false', self.two_part_func),
         'tx'                 :  ('pf', 'tab-stop__', self.divide_by_20),
         'tb'                 :  ('pf', 'tab-bar-st', self.divide_by_20),
         'tqr'                :  ('pf', 'tab-right_', self.default_func),
@@ -103,40 +103,40 @@ class ProcessTokens:
         'tlhyph'             :  ('pf', 'leader-hyp', self.default_func),
         'tldot'              :  ('pf', 'leader-dot', self.default_func),
         # stylesheet = > ss
-        'stylesheet'         :	('ss', 'style-shet', self.default_func),
-        'sbasedon'           :	('ss', 'based-on__', self.default_func),
-        'snext'              :	('ss', 'next-style', self.default_func),
-        'cs'                 :	('ss', 'char-style', self.default_func),
-        's'                  :	('ss', 'para-style', self.default_func),
+        'stylesheet'         : ('ss', 'style-shet', self.default_func),
+        'sbasedon'           : ('ss', 'based-on__', self.default_func),
+        'snext'              : ('ss', 'next-style', self.default_func),
+        'cs'                 : ('ss', 'char-style', self.default_func),
+        's'                  : ('ss', 'para-style', self.default_func),
         # graphics => gr
-        'pict'               :	('gr', 'picture___', self.default_func),
-        'objclass'           :	('gr', 'obj-class_', self.default_func),
-        'macpict'            :	('gr', 'mac-pic___', self.default_func),
+        'pict'               : ('gr', 'picture___', self.default_func),
+        'objclass'           : ('gr', 'obj-class_', self.default_func),
+        'macpict'            : ('gr', 'mac-pic___', self.default_func),
         # section => sc
-        'sect'               :	('sc', 'section___', self.default_func),
-        'sectd'              :	('sc', 'sect-defin', self.default_func),
-        'endhere'            :	('sc', 'sect-note_', self.default_func),
+        'sect'               : ('sc', 'section___', self.default_func),
+        'sectd'              : ('sc', 'sect-defin', self.default_func),
+        'endhere'            : ('sc', 'sect-note_', self.default_func),
         # list=> ls
-        'pntext'             :	('ls', 'list-text_', self.default_func),
+        'pntext'             : ('ls', 'list-text_', self.default_func),
         # this line must be wrong because it duplicates an earlier one
-        'listtext'           :	('ls', 'list-text_', self.default_func),
-        'pn'                 :	('ls', 'list______', self.default_func),
-        'pnseclvl'           :	('ls', 'list-level', self.default_func),
-        'pncard'             :	('ls', 'list-cardi', self.bool_st_func),
-        'pndec'              :	('ls', 'list-decim', self.bool_st_func),
-        'pnucltr'            :	('ls', 'list-up-al', self.bool_st_func),
-        'pnucrm'             :	('ls', 'list-up-ro', self.bool_st_func),
-        'pnord'              :	('ls', 'list-ord__', self.bool_st_func),
-        'pnordt'             :	('ls', 'list-ordte', self.bool_st_func),
-        'pnlvlblt'           :	('ls', 'list-bulli', self.bool_st_func),
-        'pnlvlbody'          :	('ls', 'list-simpi', self.bool_st_func),
-        'pnlvlcont'          :	('ls', 'list-conti', self.bool_st_func),
-        'pnhang'             :	('ls', 'list-hang_', self.bool_st_func),
-        'pntxtb'             :	('ls', 'list-tebef', self.bool_st_func),
-        'ilvl'               :	('ls', 'list-level', self.default_func),
-        'ls'                 :	('ls', 'list-id___', self.default_func),
-        'pnstart'            :	('ls', 'list-start', self.default_func),
-        'itap'               :	('ls', 'nest-level', self.default_func),
+        'listtext'           : ('ls', 'list-text_', self.default_func),
+        'pn'                 : ('ls', 'list______', self.default_func),
+        'pnseclvl'           : ('ls', 'list-level', self.default_func),
+        'pncard'             : ('ls', 'list-cardi', self.bool_st_func),
+        'pndec'              : ('ls', 'list-decim', self.bool_st_func),
+        'pnucltr'            : ('ls', 'list-up-al', self.bool_st_func),
+        'pnucrm'             : ('ls', 'list-up-ro', self.bool_st_func),
+        'pnord'              : ('ls', 'list-ord__', self.bool_st_func),
+        'pnordt'             : ('ls', 'list-ordte', self.bool_st_func),
+        'pnlvlblt'           : ('ls', 'list-bulli', self.bool_st_func),
+        'pnlvlbody'          : ('ls', 'list-simpi', self.bool_st_func),
+        'pnlvlcont'          : ('ls', 'list-conti', self.bool_st_func),
+        'pnhang'             : ('ls', 'list-hang_', self.bool_st_func),
+        'pntxtb'             : ('ls', 'list-tebef', self.bool_st_func),
+        'ilvl'               : ('ls', 'list-level', self.default_func),
+        'ls'                 : ('ls', 'list-id___', self.default_func),
+        'pnstart'            : ('ls', 'list-start', self.default_func),
+        'itap'               : ('ls', 'nest-level', self.default_func),
         'leveltext'          :  ('ls', 'level-text', self.default_func),
         'levelnumbers'       :  ('ls', 'level-numb', self.default_func),
         'list'               :  ('ls', 'list-in-tb', self.default_func),
@@ -153,199 +153,199 @@ class ProcessTokens:
         'listid'             :  ('ls', 'lis-tbl-id',  self.default_func),
         'listoverride'       :  ('ls', 'lis-overid', self.default_func),
         # duplicate
-        'pnlvl'              :	('ls', 'list-level', self.default_func),
+        'pnlvl'              : ('ls', 'list-level', self.default_func),
         # root info => ri
-        'rtf'                :	('ri', 'rtf_______', self.default_func),
-        'deff'               :	('ri', 'deflt-font', self.default_func),
-        'mac'                :	('ri', 'macintosh_', self.default_func),
-        'pc'                 :	('ri', 'pc________', self.default_func),
-        'pca'                :	('ri', 'pca_______', self.default_func),
-        'ansi'               :	('ri', 'ansi______', self.default_func),
-        'ansicpg'            :	('ri', 'ansi-codpg', self.default_func),
+        'rtf'                : ('ri', 'rtf_______', self.default_func),
+        'deff'               : ('ri', 'deflt-font', self.default_func),
+        'mac'                : ('ri', 'macintosh_', self.default_func),
+        'pc'                 : ('ri', 'pc________', self.default_func),
+        'pca'                : ('ri', 'pca_______', self.default_func),
+        'ansi'               : ('ri', 'ansi______', self.default_func),
+        'ansicpg'            : ('ri', 'ansi-codpg', self.default_func),
         # notes => nt
-        'footnote'           :	('nt', 'footnote__', self.default_func),
-        'ftnalt'             :	('nt', 'type______<endnote', self.two_part_func),
+        'footnote'           : ('nt', 'footnote__', self.default_func),
+        'ftnalt'             : ('nt', 'type______<endnote', self.two_part_func),
         # anchor => an
-        'tc'                 :	('an', 'toc_______', self.default_func),
-        'bkmkstt'            :	('an', 'book-mk-st', self.default_func),
-        'bkmkstart'          :	('an', 'book-mk-st', self.default_func),
-        'bkmkend'            :	('an', 'book-mk-en', self.default_func),
-        'xe'                 :	('an', 'index-mark', self.default_func),
-        'rxe'                :	('an', 'place_____', self.default_func),
+        'tc'                 : ('an', 'toc_______', self.default_func),
+        'bkmkstt'            : ('an', 'book-mk-st', self.default_func),
+        'bkmkstart'          : ('an', 'book-mk-st', self.default_func),
+        'bkmkend'            : ('an', 'book-mk-en', self.default_func),
+        'xe'                 : ('an', 'index-mark', self.default_func),
+        'rxe'                : ('an', 'place_____', self.default_func),
         # index => in
-        'bxe'                :	('in', 'index-bold', self.default_func),
-        'ixe'                :	('in', 'index-ital', self.default_func),
-        'txe'                :	('in', 'index-see_', self.default_func),
+        'bxe'                : ('in', 'index-bold', self.default_func),
+        'ixe'                : ('in', 'index-ital', self.default_func),
+        'txe'                : ('in', 'index-see_', self.default_func),
         # table of contents => tc
         'tcl'               :   ('tc', 'toc-level_', self.default_func),
         'tcn'               :   ('tc', 'toc-sup-nu', self.default_func),
         # field => fd
-        'field'              :	('fd', 'field_____', self.default_func),
-        'fldinst'            :	('fd', 'field-inst', self.default_func),
-        'fldrslt'            :	('fd', 'field-rslt', self.default_func),
-        'datafield'          :	('fd', 'datafield_', self.default_func),
+        'field'              : ('fd', 'field_____', self.default_func),
+        'fldinst'            : ('fd', 'field-inst', self.default_func),
+        'fldrslt'            : ('fd', 'field-rslt', self.default_func),
+        'datafield'          : ('fd', 'datafield_', self.default_func),
         # info-tables => it
-        'fonttbl'            :	('it', 'font-table', self.default_func),
-        'colortbl'           :	('it', 'colr-table', self.default_func),
-        'listoverridetable'  :	('it', 'lovr-table', self.default_func),
-        'listtable'          :	('it', 'listtable_', self.default_func),
-        'revtbl'             :	('it', 'revi-table', self.default_func),
+        'fonttbl'            : ('it', 'font-table', self.default_func),
+        'colortbl'           : ('it', 'colr-table', self.default_func),
+        'listoverridetable'  : ('it', 'lovr-table', self.default_func),
+        'listtable'          : ('it', 'listtable_', self.default_func),
+        'revtbl'             : ('it', 'revi-table', self.default_func),
         # character info => ci
-        'b'                  :	('ci', 'bold______', self.bool_st_func),
-        'blue'               :	('ci', 'blue______', self.color_func),
-        'caps'               :	('ci', 'caps______', self.bool_st_func),
-        'cf'                 :	('ci', 'font-color', self.colorz_func),
-        'chftn'              :	('ci', 'footnot-mk', self.bool_st_func),
-        'dn'                 :	('ci', 'font-down_', self.divide_by_2),
-        'embo'               :	('ci', 'emboss____', self.bool_st_func),
-        'f'                  :	('ci', 'font-style', self.default_func),
-        'fs'                 :	('ci', 'font-size_', self.divide_by_2),
-        'green'              :	('ci', 'green_____', self.color_func),
-        'i'                  :	('ci', 'italics___', self.bool_st_func),
-        'impr'               :	('ci', 'engrave___', self.bool_st_func),
-        'outl'               :	('ci', 'outline___', self.bool_st_func),
-        'plain'              :	('ci', 'plain_____', self.bool_st_func),
-        'red'                :	('ci', 'red_______', self.color_func),
-        'scaps'              :	('ci', 'small-caps', self.bool_st_func),
-        'shad'               :	('ci', 'shadow____', self.bool_st_func),
-        'strike'             :	('ci', 'strike-thr', self.bool_st_func),
-        'striked'            :	('ci', 'dbl-strike', self.bool_st_func),
-        'sub'                :	('ci', 'subscript_', self.bool_st_func),
-        'super'              :	('ci', 'superscrip', self.bool_st_func),
-        'nosupersub'         :	('ci', 'no-su-supe', self.__no_sup_sub_func),
-        'up'                 :	('ci', 'font-up___', self.divide_by_2),
-        'v'                  :	('ci', 'hidden____', self.default_func),
+        'b'                  : ('ci', 'bold______', self.bool_st_func),
+        'blue'               : ('ci', 'blue______', self.color_func),
+        'caps'               : ('ci', 'caps______', self.bool_st_func),
+        'cf'                 : ('ci', 'font-color', self.colorz_func),
+        'chftn'              : ('ci', 'footnot-mk', self.bool_st_func),
+        'dn'                 : ('ci', 'font-down_', self.divide_by_2),
+        'embo'               : ('ci', 'emboss____', self.bool_st_func),
+        'f'                  : ('ci', 'font-style', self.default_func),
+        'fs'                 : ('ci', 'font-size_', self.divide_by_2),
+        'green'              : ('ci', 'green_____', self.color_func),
+        'i'                  : ('ci', 'italics___', self.bool_st_func),
+        'impr'               : ('ci', 'engrave___', self.bool_st_func),
+        'outl'               : ('ci', 'outline___', self.bool_st_func),
+        'plain'              : ('ci', 'plain_____', self.bool_st_func),
+        'red'                : ('ci', 'red_______', self.color_func),
+        'scaps'              : ('ci', 'small-caps', self.bool_st_func),
+        'shad'               : ('ci', 'shadow____', self.bool_st_func),
+        'strike'             : ('ci', 'strike-thr', self.bool_st_func),
+        'striked'            : ('ci', 'dbl-strike', self.bool_st_func),
+        'sub'                : ('ci', 'subscript_', self.bool_st_func),
+        'super'              : ('ci', 'superscrip', self.bool_st_func),
+        'nosupersub'         : ('ci', 'no-su-supe', self.__no_sup_sub_func),
+        'up'                 : ('ci', 'font-up___', self.divide_by_2),
+        'v'                  : ('ci', 'hidden____', self.default_func),
         # underline
         # can't see why it isn't a char info: 'ul'=>'ci'
-        'ul'                 :	('ci', 'underlined<continous', self.two_part_func),
-        'uld'                :	('ci', 'underlined<dotted', self.two_part_func),
-        'uldash'             :	('ci', 'underlined<dash', self.two_part_func),
-        'uldashd'            :	('ci', 'underlined<dash-dot', self.two_part_func),
-        'uldashdd'           :	('ci', 'underlined<dash-dot-dot', self.two_part_func),
-        'uldb'               :	('ci', 'underlined<double', self.two_part_func),
-        'ulhwave'            :	('ci', 'underlined<heavy-wave', self.two_part_func),
-        'ulldash'            :	('ci', 'underlined<long-dash', self.two_part_func),
-        'ulth'               :	('ci', 'underlined<thich', self.two_part_func),
-        'ulthd'              :	('ci', 'underlined<thick-dotted', self.two_part_func),
-        'ulthdash'           :	('ci', 'underlined<thick-dash', self.two_part_func),
-        'ulthdashd'          :	('ci', 'underlined<thick-dash-dot', self.two_part_func),
-        'ulthdashdd'         :	('ci', 'underlined<thick-dash-dot-dot', self.two_part_func),
-        'ulthldash'          :	('ci', 'underlined<thick-long-dash', self.two_part_func),
-        'ululdbwave'         :	('ci', 'underlined<double-wave', self.two_part_func),
-        'ulw'                :	('ci', 'underlined<word', self.two_part_func),
-        'ulwave'             :	('ci', 'underlined<wave', self.two_part_func),
-        'ulnone'             :	('ci', 'underlined<false', self.two_part_func),
+        'ul'                 : ('ci', 'underlined<continous', self.two_part_func),
+        'uld'                : ('ci', 'underlined<dotted', self.two_part_func),
+        'uldash'             : ('ci', 'underlined<dash', self.two_part_func),
+        'uldashd'            : ('ci', 'underlined<dash-dot', self.two_part_func),
+        'uldashdd'           : ('ci', 'underlined<dash-dot-dot', self.two_part_func),
+        'uldb'               : ('ci', 'underlined<double', self.two_part_func),
+        'ulhwave'            : ('ci', 'underlined<heavy-wave', self.two_part_func),
+        'ulldash'            : ('ci', 'underlined<long-dash', self.two_part_func),
+        'ulth'               : ('ci', 'underlined<thich', self.two_part_func),
+        'ulthd'              : ('ci', 'underlined<thick-dotted', self.two_part_func),
+        'ulthdash'           : ('ci', 'underlined<thick-dash', self.two_part_func),
+        'ulthdashd'          : ('ci', 'underlined<thick-dash-dot', self.two_part_func),
+        'ulthdashdd'         : ('ci', 'underlined<thick-dash-dot-dot', self.two_part_func),
+        'ulthldash'          : ('ci', 'underlined<thick-long-dash', self.two_part_func),
+        'ululdbwave'         : ('ci', 'underlined<double-wave', self.two_part_func),
+        'ulw'                : ('ci', 'underlined<word', self.two_part_func),
+        'ulwave'             : ('ci', 'underlined<wave', self.two_part_func),
+        'ulnone'             : ('ci', 'underlined<false', self.two_part_func),
         # table => tb
-        'trowd'              :	('tb', 'row-def___', self.default_func),
-        'cell'               :	('tb', 'cell______', self.default_func),
-        'row'                :	('tb', 'row_______', self.default_func),
-        'intbl'              :	('tb', 'in-table__', self.default_func),
-        'cols'               :	('tb', 'columns___', self.default_func),
-        'trleft'             :	('tb', 'row-pos-le', self.divide_by_20),
-        'cellx'              :	('tb', 'cell-posit', self.divide_by_20),
+        'trowd'              : ('tb', 'row-def___', self.default_func),
+        'cell'               : ('tb', 'cell______', self.default_func),
+        'row'                : ('tb', 'row_______', self.default_func),
+        'intbl'              : ('tb', 'in-table__', self.default_func),
+        'cols'               : ('tb', 'columns___', self.default_func),
+        'trleft'             : ('tb', 'row-pos-le', self.divide_by_20),
+        'cellx'              : ('tb', 'cell-posit', self.divide_by_20),
         'trhdr'              :  ('tb', 'row-header', self.default_func),
         # preamble => pr
         # document information => di
         # TODO integrate \userprops
-        'info'               :	('di', 'doc-info__', self.default_func),
-        'title'              :	('di', 'title_____', self.default_func),
-        'author'             :	('di', 'author____', self.default_func),
-        'operator'           :	('di', 'operator__', self.default_func),
-        'manager'            :	('di', 'manager___', self.default_func),
-        'company'            :	('di', 'company___', self.default_func),
+        'info'               : ('di', 'doc-info__', self.default_func),
+        'title'              : ('di', 'title_____', self.default_func),
+        'author'             : ('di', 'author____', self.default_func),
+        'operator'           : ('di', 'operator__', self.default_func),
+        'manager'            : ('di', 'manager___', self.default_func),
+        'company'            : ('di', 'company___', self.default_func),
         'keywords'           :  ('di', 'keywords__', self.default_func),
         'category'           :  ('di', 'category__', self.default_func),
         'doccomm'            :  ('di', 'doc-notes_', self.default_func),
         'comment'            :  ('di', 'doc-notes_', self.default_func),
         'subject'            :  ('di', 'subject___', self.default_func),
-        'creatim'            :	('di', 'create-tim', self.default_func),
-        'yr'                 :	('di', 'year______', self.default_func),
-        'mo'                 :	('di', 'month_____', self.default_func),
-        'dy'                 :	('di', 'day_______', self.default_func),
-        'min'                :	('di', 'minute____', self.default_func),
-        'sec'                :	('di', 'second____', self.default_func),
-        'revtim'             :	('di', 'revis-time', self.default_func),
-        'edmins'             :	('di', 'edit-time_', self.default_func),
-        'printim'            :	('di', 'print-time', self.default_func),
-        'buptim'             :	('di', 'backuptime', self.default_func),
-        'nofwords'           :	('di', 'num-of-wor', self.default_func),
-        'nofchars'           :	('di', 'num-of-chr', self.default_func),
-        'nofcharsws'         :	('di', 'numofchrws', self.default_func),
-        'nofpages'           :	('di', 'num-of-pag', self.default_func),
-        'version'            :	('di', 'version___', self.default_func),
-        'vern'               :	('di', 'intern-ver', self.default_func),
-        'hlinkbase'          :	('di', 'linkbase__', self.default_func),
-        'id'                 :	('di', 'internalID', self.default_func),
+        'creatim'            : ('di', 'create-tim', self.default_func),
+        'yr'                 : ('di', 'year______', self.default_func),
+        'mo'                 : ('di', 'month_____', self.default_func),
+        'dy'                 : ('di', 'day_______', self.default_func),
+        'min'                : ('di', 'minute____', self.default_func),
+        'sec'                : ('di', 'second____', self.default_func),
+        'revtim'             : ('di', 'revis-time', self.default_func),
+        'edmins'             : ('di', 'edit-time_', self.default_func),
+        'printim'            : ('di', 'print-time', self.default_func),
+        'buptim'             : ('di', 'backuptime', self.default_func),
+        'nofwords'           : ('di', 'num-of-wor', self.default_func),
+        'nofchars'           : ('di', 'num-of-chr', self.default_func),
+        'nofcharsws'         : ('di', 'numofchrws', self.default_func),
+        'nofpages'           : ('di', 'num-of-pag', self.default_func),
+        'version'            : ('di', 'version___', self.default_func),
+        'vern'               : ('di', 'intern-ver', self.default_func),
+        'hlinkbase'          : ('di', 'linkbase__', self.default_func),
+        'id'                 : ('di', 'internalID', self.default_func),
         # headers and footers => hf
-        'headerf'            :	('hf', 'head-first', self.default_func),
-        'headerl'            :	('hf', 'head-left_', self.default_func),
-        'headerr'            :	('hf', 'head-right', self.default_func),
-        'footerf'            :	('hf', 'foot-first', self.default_func),
-        'footerl'            :	('hf', 'foot-left_', self.default_func),
-        'footerr'            :	('hf', 'foot-right', self.default_func),
-        'header'             :	('hf', 'header____', self.default_func),
-        'footer'             :	('hf', 'footer____', self.default_func),
+        'headerf'            : ('hf', 'head-first', self.default_func),
+        'headerl'            : ('hf', 'head-left_', self.default_func),
+        'headerr'            : ('hf', 'head-right', self.default_func),
+        'footerf'            : ('hf', 'foot-first', self.default_func),
+        'footerl'            : ('hf', 'foot-left_', self.default_func),
+        'footerr'            : ('hf', 'foot-right', self.default_func),
+        'header'             : ('hf', 'header____', self.default_func),
+        'footer'             : ('hf', 'footer____', self.default_func),
         # page => pa
-        'margl'              :	('pa', 'margin-lef', self.divide_by_20),
-        'margr'              :	('pa', 'margin-rig', self.divide_by_20),
-        'margb'              :	('pa', 'margin-bot', self.divide_by_20),
-        'margt'              :	('pa', 'margin-top', self.divide_by_20),
-        'gutter'             :	('pa', 'gutter____', self.divide_by_20),
-        'paperw'             :	('pa', 'paper-widt', self.divide_by_20),
-        'paperh'             :	('pa', 'paper-hght', self.divide_by_20),
+        'margl'              : ('pa', 'margin-lef', self.divide_by_20),
+        'margr'              : ('pa', 'margin-rig', self.divide_by_20),
+        'margb'              : ('pa', 'margin-bot', self.divide_by_20),
+        'margt'              : ('pa', 'margin-top', self.divide_by_20),
+        'gutter'             : ('pa', 'gutter____', self.divide_by_20),
+        'paperw'             : ('pa', 'paper-widt', self.divide_by_20),
+        'paperh'             : ('pa', 'paper-hght', self.divide_by_20),
         # annotation => an
         'annotation'         :  ('an', 'annotation', self.default_func),
         # border => bd
-        'trbrdrh'            :	('bd', 'bor-t-r-hi', self.default_func),
-        'trbrdrv'            :	('bd', 'bor-t-r-vi', self.default_func),
-        'trbrdrt'            :	('bd', 'bor-t-r-to', self.default_func),
-        'trbrdrl'            :	('bd', 'bor-t-r-le', self.default_func),
-        'trbrdrb'            :	('bd', 'bor-t-r-bo', self.default_func),
-        'trbrdrr'            :	('bd', 'bor-t-r-ri', self.default_func),
-        'clbrdrb'            :	('bd', 'bor-cel-bo', self.default_func),
-        'clbrdrt'            :	('bd', 'bor-cel-to', self.default_func),
-        'clbrdrl'            :	('bd', 'bor-cel-le', self.default_func),
-        'clbrdrr'            :	('bd', 'bor-cel-ri', self.default_func),
-        'brdrb'              :	('bd', 'bor-par-bo', self.default_func),
-        'brdrt'              :	('bd', 'bor-par-to', self.default_func),
-        'brdrl'              :	('bd', 'bor-par-le', self.default_func),
-        'brdrr'              :	('bd', 'bor-par-ri', self.default_func),
-        'box'                :	('bd', 'bor-par-bx', self.default_func),
-        'chbrdr'            :	('bd', 'bor-par-bo', self.default_func),
-        'brdrbtw'            :	('bd', 'bor-for-ev', self.default_func),
-        'brdrbar'            :	('bd', 'bor-outsid', self.default_func),
-        'brdrnone'           :	('bd', 'bor-none__<false', self.two_part_func),
+        'trbrdrh'            : ('bd', 'bor-t-r-hi', self.default_func),
+        'trbrdrv'            : ('bd', 'bor-t-r-vi', self.default_func),
+        'trbrdrt'            : ('bd', 'bor-t-r-to', self.default_func),
+        'trbrdrl'            : ('bd', 'bor-t-r-le', self.default_func),
+        'trbrdrb'            : ('bd', 'bor-t-r-bo', self.default_func),
+        'trbrdrr'            : ('bd', 'bor-t-r-ri', self.default_func),
+        'clbrdrb'            : ('bd', 'bor-cel-bo', self.default_func),
+        'clbrdrt'            : ('bd', 'bor-cel-to', self.default_func),
+        'clbrdrl'            : ('bd', 'bor-cel-le', self.default_func),
+        'clbrdrr'            : ('bd', 'bor-cel-ri', self.default_func),
+        'brdrb'              : ('bd', 'bor-par-bo', self.default_func),
+        'brdrt'              : ('bd', 'bor-par-to', self.default_func),
+        'brdrl'              : ('bd', 'bor-par-le', self.default_func),
+        'brdrr'              : ('bd', 'bor-par-ri', self.default_func),
+        'box'                : ('bd', 'bor-par-bx', self.default_func),
+        'chbrdr'            : ('bd', 'bor-par-bo', self.default_func),
+        'brdrbtw'            : ('bd', 'bor-for-ev', self.default_func),
+        'brdrbar'            : ('bd', 'bor-outsid', self.default_func),
+        'brdrnone'           : ('bd', 'bor-none__<false', self.two_part_func),
         # border type => bt
-        'brdrs'              :	('bt', 'bdr-single', self.default_func),
-        'brdrth'             :	('bt', 'bdr-doubtb', self.default_func),
-        'brdrsh'             :	('bt', 'bdr-shadow', self.default_func),
-        'brdrdb'             :	('bt', 'bdr-double', self.default_func),
-        'brdrdot'            :	('bt', 'bdr-dotted', self.default_func),
-        'brdrdash'           :	('bt', 'bdr-dashed', self.default_func),
-        'brdrhair'           :	('bt', 'bdr-hair__', self.default_func),
-        'brdrinset'          :	('bt', 'bdr-inset_', self.default_func),
-        'brdrdashsm'         :	('bt', 'bdr-das-sm', self.default_func),
-        'brdrdashd'          :	('bt', 'bdr-dot-sm', self.default_func),
-        'brdrdashdd'         :	('bt', 'bdr-dot-do', self.default_func),
-        'brdroutset'         :	('bt', 'bdr-outset', self.default_func),
-        'brdrtriple'         :	('bt', 'bdr-trippl', self.default_func),
-        'brdrtnthsg'         :	('bt', 'bdr-thsm__', self.default_func),
-        'brdrthtnsg'         :	('bt', 'bdr-htsm__', self.default_func),
-        'brdrtnthtnsg'       :	('bt', 'bdr-hthsm_', self.default_func),
-        'brdrtnthmg'         :	('bt', 'bdr-thm___', self.default_func),
-        'brdrthtnmg'         :	('bt', 'bdr-htm___', self.default_func),
-        'brdrtnthtnmg'       :	('bt', 'bdr-hthm__', self.default_func),
-        'brdrtnthlg'         :	('bt', 'bdr-thl___', self.default_func),
-        'brdrtnthtnlg'       :	('bt', 'bdr-hthl__', self.default_func),
-        'brdrwavy'           :	('bt', 'bdr-wavy__', self.default_func),
-        'brdrwavydb'         :	('bt', 'bdr-d-wav_', self.default_func),
-        'brdrdashdotstr'     :	('bt', 'bdr-strip_', self.default_func),
-        'brdremboss'         :	('bt', 'bdr-embos_', self.default_func),
-        'brdrengrave'        :	('bt', 'bdr-engra_', self.default_func),
-        'brdrframe'          :	('bt', 'bdr-frame_', self.default_func),
-        'brdrw'              :	('bt', 'bdr-li-wid', self.divide_by_20),
-        'brsp'              :	('bt', 'bdr-sp-wid', self.divide_by_20),
-        'brdrcf'              :	('bt', 'bdr-color_', self.default_func),
+        'brdrs'              : ('bt', 'bdr-single', self.default_func),
+        'brdrth'             : ('bt', 'bdr-doubtb', self.default_func),
+        'brdrsh'             : ('bt', 'bdr-shadow', self.default_func),
+        'brdrdb'             : ('bt', 'bdr-double', self.default_func),
+        'brdrdot'            : ('bt', 'bdr-dotted', self.default_func),
+        'brdrdash'           : ('bt', 'bdr-dashed', self.default_func),
+        'brdrhair'           : ('bt', 'bdr-hair__', self.default_func),
+        'brdrinset'          : ('bt', 'bdr-inset_', self.default_func),
+        'brdrdashsm'         : ('bt', 'bdr-das-sm', self.default_func),
+        'brdrdashd'          : ('bt', 'bdr-dot-sm', self.default_func),
+        'brdrdashdd'         : ('bt', 'bdr-dot-do', self.default_func),
+        'brdroutset'         : ('bt', 'bdr-outset', self.default_func),
+        'brdrtriple'         : ('bt', 'bdr-trippl', self.default_func),
+        'brdrtnthsg'         : ('bt', 'bdr-thsm__', self.default_func),
+        'brdrthtnsg'         : ('bt', 'bdr-htsm__', self.default_func),
+        'brdrtnthtnsg'       : ('bt', 'bdr-hthsm_', self.default_func),
+        'brdrtnthmg'         : ('bt', 'bdr-thm___', self.default_func),
+        'brdrthtnmg'         : ('bt', 'bdr-htm___', self.default_func),
+        'brdrtnthtnmg'       : ('bt', 'bdr-hthm__', self.default_func),
+        'brdrtnthlg'         : ('bt', 'bdr-thl___', self.default_func),
+        'brdrtnthtnlg'       : ('bt', 'bdr-hthl__', self.default_func),
+        'brdrwavy'           : ('bt', 'bdr-wavy__', self.default_func),
+        'brdrwavydb'         : ('bt', 'bdr-d-wav_', self.default_func),
+        'brdrdashdotstr'     : ('bt', 'bdr-strip_', self.default_func),
+        'brdremboss'         : ('bt', 'bdr-embos_', self.default_func),
+        'brdrengrave'        : ('bt', 'bdr-engra_', self.default_func),
+        'brdrframe'          : ('bt', 'bdr-frame_', self.default_func),
+        'brdrw'              : ('bt', 'bdr-li-wid', self.divide_by_20),
+        'brsp'              : ('bt', 'bdr-sp-wid', self.divide_by_20),
+        'brdrcf'              : ('bt', 'bdr-color_', self.default_func),
         # comments
         # 'comment'              :	('cm', 'comment___', self.default_func),
         }
@@ -606,9 +606,9 @@ class ProcessTokens:
         'blipuid'           :   ('un', 'unknown___', self.default_func),
     """
     def __ms_hex_func(self, pre, token, num):
-        num = num[1:] # chop off leading 0, which I added
-        num = num.upper() # the mappings store hex in caps
-        return 'tx<hx<__________<\'%s\n' % num # add an ' for the mappings
+        num = num[1:]  # chop off leading 0, which I added
+        num = num.upper()  # the mappings store hex in caps
+        return 'tx<hx<__________<\'%s\n' % num  # add an ' for the mappings
 
     def ms_sub_func(self, pre, token, num):
         return 'tx<mc<__________<%s\n' % token
@@ -659,17 +659,17 @@ class ProcessTokens:
         token = list[0]
         num = list[1]
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
-        ##return 'cw<nu<nu<nu<%s>num<%s\n' % (token, num)
+        # return 'cw<nu<nu<nu<%s>num<%s\n' % (token, num)
 
     def divide_by_2(self, pre, token, num):
         num = self.divide_num(num, 2)
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
-        ##return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
+        # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
     def divide_by_20(self, pre, token, num):
         num = self.divide_num(num, 20)
         return 'cw<%s<%s<nu<%s\n' % (pre, token, num)
-        ##return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
+        # return 'cw<nu<nu<nu<%s>%s<%s\n' % (token, num, token)
 
     def text_func(self, pre, token, num=None):
         return 'tx<nu<__________<%s\n' % token
@@ -692,15 +692,15 @@ class ProcessTokens:
         if len(num) != 2:
             num = "0" + num
         return 'cw<%s<%s<%s<%s\n' % (pre, token, third_field, num)
-        ##return 'cw<cl<%s<nu<nu<%s>%s<%s\n' % (third_field, token, num, token)
+        # return 'cw<cl<%s<nu<nu<%s>%s<%s\n' % (third_field, token, num, token)
 
     def bool_st_func(self, pre, token, num):
         if num is None or num == '' or num == '1':
             return 'cw<%s<%s<nu<true\n' % (pre, token)
-            ##return 'cw<nu<nu<nu<%s>true<%s\n' % (token, token)
+            # return 'cw<nu<nu<nu<%s>true<%s\n' % (token, token)
         elif num == '0':
             return 'cw<%s<%s<nu<false\n' % (pre, token)
-                ##return 'cw<nu<nu<nu<%s>false<%s\n' % (token, token)
+            # return 'cw<nu<nu<nu<%s>false<%s\n' % (token, token)
         else:
             msg = "boolean should have some value module process tokens\ntoken is %s\n'%s'\n" % (token, num)
             raise self.__bug_handler, msg
@@ -712,7 +712,7 @@ class ProcessTokens:
 
     def divide_num(self, numerator, denominator):
         try:
-            #calibre why ignore negative number? Wrong in case of \fi
+            # calibre why ignore negative number? Wrong in case of \fi
             numerator = float(re.search('[0-9.\-]+', numerator).group())
         except TypeError, msg:
             if self.__run_level > 3:
@@ -759,11 +759,11 @@ class ProcessTokens:
     def process_cw(self, token):
         """Change the value of the control word by determining what dictionary
         it belongs to"""
-        special = [ '*', ':', '}', '{', '~', '_', '-', ';' ]
-        ##if token != "{" or token != "}":
-        token = token[1:] # strip off leading \
+        special = ['*', ':', '}', '{', '~', '_', '-', ';']
+        # if token != "{" or token != "}":
+        token = token[1:]  # strip off leading \
         token = token.replace(" ", "")
-        ##if not token: return
+        # if not token: return
         only_alpha = token.isalpha()
         num = None
         if not only_alpha and token not in special:
@@ -773,8 +773,7 @@ class ProcessTokens:
             return action(pre, token, num)
 
     def __check_brackets(self, in_file):
-        self.__check_brack_obj = check_brackets.CheckBrackets\
-            (file = in_file)
+        self.__check_brack_obj = check_brackets.CheckBrackets(file=in_file)
         good_br =  self.__check_brack_obj.check_brackets()[0]
         if not good_br:
             return 1
@@ -788,11 +787,11 @@ class ProcessTokens:
                     token = line.replace("\n","")
                     line_count += 1
                     if line_count == 1 and token != '\\{':
-                            msg = '\nInvalid RTF: document doesn\'t start with {\n'
-                            raise self.__exception_handler, msg
+                        msg = '\nInvalid RTF: document doesn\'t start with {\n'
+                        raise self.__exception_handler, msg
                     elif line_count == 2 and token[0:4] != '\\rtf':
-                            msg = '\nInvalid RTF: document doesn\'t start with \\rtf \n'
-                            raise self.__exception_handler, msg
+                        msg = '\nInvalid RTF: document doesn\'t start with \\rtf \n'
+                        raise self.__exception_handler, msg
 
                     the_index = token.find('\\ ')
                     if token is not None and the_index > -1:
@@ -823,7 +822,7 @@ class ProcessTokens:
             msg = '\nInvalid RTF: file appears to be empty.\n'
             raise self.__exception_handler, msg
 
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "processed_tokens.data")
         copy_obj.rename(self.__write_to, self.__file)

@@ -10,13 +10,14 @@ Kukuburi.com
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class KukuburiRecipe(BasicNewsRecipe):
     __author__ = 'Mori'
     language = 'en'
 
     title = u'Kukuburi'
     publisher = u'Ramón Pérez'
-    description =u'KUKUBURI by Ram\xc3\xb3n P\xc3\xa9rez'
+    description = u'KUKUBURI by Ram\xc3\xb3n P\xc3\xa9rez'
 
     no_stylesheets = True
     remove_javascript = True

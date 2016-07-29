@@ -17,6 +17,7 @@ let g:syntastic_cpp_include_dirs = [
             \]
 let g:syntastic_c_include_dirs = g:syntastic_cpp_include_dirs
 let g:syntastic_python_flake8_exec = 'flake8-python2'
+let g:syntastic_python_flake8_args = '--filename='. shellescape('*.py,*.recipe')
 
 set wildignore+=resources/viewer/mathjax/*
 set wildignore+=resources/rapydscript/lib/*

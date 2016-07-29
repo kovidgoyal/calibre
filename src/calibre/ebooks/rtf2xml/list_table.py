@@ -18,7 +18,7 @@ class ListTable:
     def __init__(
                 self,
                 bug_handler,
-                run_level = 1,
+                run_level=1,
                 ):
         self.__bug_handler = bug_handler
         self.__initiate_values()
@@ -92,7 +92,7 @@ class ListTable:
                 self.__cb_count = line[-4:]
                 self.__ob_group -= 1
             action = self.__state_dict.get(self.__state)
-            if action == None:
+            if action is None:
                 print self.__state
             action(line)
         self.__write_final_string()

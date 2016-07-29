@@ -6,44 +6,48 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import re
 import datetime
 
+
 class FSP(BasicNewsRecipe):
 
-    title      = u'Folha de S\xE3o Paulo'
+    title = u'Folha de S\xE3o Paulo'
     __author__ = 'Joao Eduardo Bertacchi, lc_addicted '
     description = u'Printed edition contents. UOL subscription required (Folha subscription currently not supported).' + \
                   u' [Conte\xfado completo da edi\xe7\xe3o impressa. Somente para assinantes UOL.]'
 
-    today=datetime.date.today()
+    today = datetime.date.today()
 
     masthead_url = 'http://f.i.uol.com.br/fsp/furniture/images/lgo-fsp-430x50-ffffff.gif'
 
     language = 'pt_BR'
     no_stylesheets = True
-    max_articles_per_feed  = 100
-    remove_javascript  = True
+    max_articles_per_feed = 100
+    remove_javascript = True
     needs_subscription = True
 
     keep_only_tags = [
-        dict(name='div', id='articleNew'), dict(name='table', attrs={'class':'articleGraphic'}),
+        dict(name='div', id='articleNew'), dict(
+            name='table', attrs={'class': 'articleGraphic'}),
         dict(name='article', id='news'),
     ]
 
     publication_type = 'newspaper'
     simultaneous_downloads = 5
 
-    remove_attributes = ['height','width']
+    remove_attributes = ['height', 'width']
 
-    # The following is an attempt to fix the problem with the section names, but whenever new sections are added it can generate accentuation problems still
-    section_dict = {'cotidian' : 'cotidiano', 'ilustrad': 'ilustrada',
-                    'quadrin': 'quadrinhos' , 'opiniao' : u'opini\xE3o',
-                    'ciencia' : u'cincia' , 'saude' : u'sa\xfade',
-                    'ribeirao' : u'ribeir\xE3o' , 'equilibrio' : u'equil\xedbrio',
-                    'imoveis' : u'im\xf3veis', 'negocios' : u'neg\xf3cios',
-                    'veiculos' : u've\xedculos', 'corrida' : 'folha corrida',
-                    'turismo':'turismo'}
+    # The following is an attempt to fix the problem with the section names,
+    # but whenever new sections are added it can generate accentuation
+    # problems still
+    section_dict = {'cotidian': 'cotidiano', 'ilustrad': 'ilustrada',
+                    'quadrin': 'quadrinhos', 'opiniao': u'opini\xE3o',
+                    'ciencia': u'cincia', 'saude': u'sa\xfade',
+                    'ribeirao': u'ribeir\xE3o', 'equilibrio': u'equil\xedbrio',
+                    'imoveis': u'im\xf3veis', 'negocios': u'neg\xf3cios',
+                    'veiculos': u've\xedculos', 'corrida': 'folha corrida',
+                    'turismo': 'turismo'}
 
     # this solves the problem with truncated content in Kindle
-    conversion_options = {'linearize_tables' : True}
+    conversion_options = {'linearize_tables': True}
 
     extra_css = """
 #articleNew { font: 18px Times New Roman,verdana,arial; }
@@ -86,7 +90,7 @@ img { background: none !important; float: none; margin: 0px; }
         if self.username is not None and self.password is not None:
             br.open('https://acesso.uol.com.br/login.html')
             br.form = br.forms().next()
-            br['user']   = self.username
+            br['user'] = self.username
             br['pass'] = self.password
             br.submit().read()
         return br
@@ -109,7 +113,8 @@ img { background: none !important; float: none; margin: 0px; }
                 if articles:
                     feeds.append((section_title, articles))
                     self.log()
-                    self.log('--> new section found, creating old section feed: ', section_title)
+                    self.log(
+                        '--> new section found, creating old section feed: ', section_title)
                 # section_title = post['name']
                 section_title = self.tag_to_string(post)
                 if section_title in self.section_dict:
@@ -126,7 +131,7 @@ img { background: none !important; float: none; margin: 0px; }
                     self.log('--> post:  ', post)
                     self.log('--> url:   ', url)
                     self.log('--> title: ', title)
-                    articles.append({'title':title, 'url':url})
+                    articles.append({'title': title, 'url': url})
 
         if articles:
             feeds.append((section_title, articles))

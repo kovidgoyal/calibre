@@ -75,4 +75,3 @@ class CommonDreams(BasicNewsRecipe):
               u'https://www.commondreams.org/feed/further_rss'),
              (u'Views', u'https://www.commondreams.org/feed/views_rss'),
              (u'Progressive Newswire', u'https://www.commondreams.org/feed/newswire_rss')]
-

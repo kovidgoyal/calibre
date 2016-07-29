@@ -217,7 +217,7 @@ class TOC(list):
         self.base_path = os.path.dirname(toc)
         soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
         for a in soup.findAll('a'):
-            if not a.has_key('href'):
+            if not a.has_key('href'):  # noqa
                 continue
             purl = urlparse(unquote(a['href']))
             href, fragment = purl[2], purl[5]

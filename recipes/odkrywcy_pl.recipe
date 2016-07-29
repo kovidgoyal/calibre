@@ -4,16 +4,14 @@ import datetime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
 
+
 class Odkrywcy(BasicNewsRecipe):
-    title          = u'Odkrywcy.pl'
-    __author__        = 'fenuks'
-    description   = u''
-    #publication_type = ''
-    language       = 'pl'
-    #encoding = ''
+    title = u'Odkrywcy.pl'
+    __author__ = 'fenuks'
+    description = u''
+    language = 'pl'
     extra_css = 'img {display: block;}'
     cover_url = ''
-    #masthead_url = ''
     INDEX = 'http://odkrywcy.pl'
     use_embedded_content = False
     oldest_article = 7
@@ -24,45 +22,56 @@ class Odkrywcy(BasicNewsRecipe):
     remove_attributes = ['style', 'font']
     ignore_duplicate_articles = {'title', 'url'}
 
-    keep_only_tags = [dict(attrs={'class':'content'})]
-    remove_tags = [dict(name='a', attrs={'href':['#opOpinie', '#opinie']}), dict(attrs={'class':['fr', 'clra', 'close', 'wpsocial-fbFanpageBox', 'tagi', 'test']}), dict(id=['rekSrd05', 'moreTopNews']), dict(name='img', attrs={'class':'zr'}), dict(name='img', attrs={'alt':u'Następne'})]
+    keep_only_tags = [dict(attrs={'class': 'content'})]
+    remove_tags = [
+        dict(name='a', attrs={'href': ['#opOpinie', '#opinie']}), dict(attrs={'class': ['fr', 'clra', 'close', 'wpsocial-fbFanpageBox', 'tagi', 'test']}),
+        dict(id=['rekSrd05', 'moreTopNews']), dict(name='img', attrs={'class': 'zr'}), dict(name='img', attrs={'alt': u'Następne'})]
     remove_tags_after = dict(id='aTxt')
-    #remove_tags_before = dict()
     feeds = [(u'', '')]
-    
+
     def find_articles(self, url):
         articles = []
         soup = self.index_to_soup(url)
-        for i in soup.findAll(attrs={'class':'katZj clra'}):
+        for i in soup.findAll(attrs={'class': 'katZj clra'}):
             tmp = i.find('small')
-            datestring = re.search('dodano: (\d{4}-\d{2}-\d{2})', tmp.string).group(1)
+            datestring = re.search(
+                'dodano: (\d{4}-\d{2}-\d{2})', tmp.string).group(1)
             d = datetime.datetime.strptime(datestring, "%Y-%m-%d").date()
             if (datetime.datetime.now().date() - d).days > self.oldest_article:
                 continue
             tmp = i.find('a')
             title = tmp.string
             url = self.INDEX + tmp['href']
-            articles.append({'title' : title,
-                   'url'   : url,
-                   'date'  : '',
-                   'description' : ''
-                    })
+            articles.append({'title': title,
+                             'url': url,
+                             'date': '',
+                             'description': ''
+                             })
         return articles
 
     def parse_index(self):
-         feeds = []
-         feeds.append((u'Człowiek', self.find_articles('http://odkrywcy.pl/kat,111396,name,Czlowiek,kategoria.html')))
-         feeds.append((u'Technologie', self.find_articles('http://odkrywcy.pl/kat,111398,name,Technologie,kategoria.html')))
-         feeds.append((u'Ekologia', self.find_articles('http://odkrywcy.pl/kat,111400,name,Ekologia,kategoria.html')))
-         feeds.append((u'Kosmos', self.find_articles('http://odkrywcy.pl/kat,111402,name,Kosmos,kategoria.html')))
-         feeds.append((u'Cywilizacja', self.find_articles('http://odkrywcy.pl/kat,111404,name,Cywilizacja,kategoria.html')))
-         feeds.append((u'Przyroda', self.find_articles('http://odkrywcy.pl/kat,111406,name,Przyroda,kategoria.html')))
-         feeds.append((u'Fizyka i chemia', self.find_articles('http://odkrywcy.pl/kat,111408,name,Fizyka,kategoria.html')))
-         feeds.append((u'Historia', self.find_articles('http://odkrywcy.pl/kat,122994,name,Historia,kategoria.html')))
-         feeds.append((u'Media', self.find_articles('http://odkrywcy.pl/kat,116794,name,Media,media.html')))
+        feeds = []
+        feeds.append((u'Człowiek', self.find_articles(
+            'http://odkrywcy.pl/kat,111396,name,Czlowiek,kategoria.html')))
+        feeds.append((u'Technologie', self.find_articles(
+            'http://odkrywcy.pl/kat,111398,name,Technologie,kategoria.html')))
+        feeds.append((u'Ekologia', self.find_articles(
+            'http://odkrywcy.pl/kat,111400,name,Ekologia,kategoria.html')))
+        feeds.append((u'Kosmos', self.find_articles(
+            'http://odkrywcy.pl/kat,111402,name,Kosmos,kategoria.html')))
+        feeds.append((u'Cywilizacja', self.find_articles(
+            'http://odkrywcy.pl/kat,111404,name,Cywilizacja,kategoria.html')))
+        feeds.append((u'Przyroda', self.find_articles(
+            'http://odkrywcy.pl/kat,111406,name,Przyroda,kategoria.html')))
+        feeds.append((u'Fizyka i chemia', self.find_articles(
+            'http://odkrywcy.pl/kat,111408,name,Fizyka,kategoria.html')))
+        feeds.append((u'Historia', self.find_articles(
+            'http://odkrywcy.pl/kat,122994,name,Historia,kategoria.html')))
+        feeds.append((u'Media', self.find_articles(
+            'http://odkrywcy.pl/kat,116794,name,Media,media.html')))
 
-         return feeds
-         
+        return feeds
+
     def append_page(self, soup, appendtag):
         tag = soup.find('a', attrs={'class': 'btnNext'})
         urls = []
@@ -72,29 +81,29 @@ class Odkrywcy(BasicNewsRecipe):
             urls.append(tag['href'])
             soup2 = self.index_to_soup(self.INDEX + tag['href'])
             tag = soup2.find(name='a', attrs={'class': 'btnNext'})
-            pagetext = soup2.findAll(attrs={'class':'content'})
+            pagetext = soup2.findAll(attrs={'class': 'content'})
             for container in pagetext:
                 header = container.find(name='h1')
                 if header:
                     header.extract()
-                for comment in container.findAll(text=lambda text:isinstance(text, Comment)):
+                for comment in container.findAll(text=lambda text: isinstance(text, Comment)):
                     comment.extract()
             for container in pagetext:
                 pos = len(appendtag.contents)
                 appendtag.insert(pos, container)
-        for r in appendtag.findAll(attrs={'class':'galStr'}):
+        for r in appendtag.findAll(attrs={'class': 'galStr'}):
             r.extract()
-        for r in appendtag.findAll(attrs={'alt':'Następne'}):
+        for r in appendtag.findAll(attrs={'alt': 'Następne'}):
             r.extract()
-        for r in appendtag.findAll(attrs={'alt':'Poprzednie'}):
+        for r in appendtag.findAll(attrs={'alt': 'Poprzednie'}):
             r.extract()
-        for r in appendtag.findAll(attrs={'class':'clra'}):
+        for r in appendtag.findAll(attrs={'class': 'clra'}):
             r.extract()
-        for r in appendtag.findAll(attrs={'class':'close'}):
+        for r in appendtag.findAll(attrs={'class': 'close'}):
             r.extract()
-        for r in appendtag.findAll(attrs={'class':'tagi'}):
+        for r in appendtag.findAll(attrs={'class': 'tagi'}):
             r.extract()
-        for r in appendtag.findAll(attrs={'id':'moreTopNews'}):
+        for r in appendtag.findAll(attrs={'id': 'moreTopNews'}):
             r.extract()
 
     def preprocess_html(self, soup):

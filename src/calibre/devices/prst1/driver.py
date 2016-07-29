@@ -672,8 +672,7 @@ class PRST1(USBMS):
                                 'WHERE content_id = ? AND collection_id = ? ')
                         t = (bookId, db_collections[collection],)
                         cursor.execute(query, t)
-                        debug_print('Deleted Book From Collection: ' + bookPath
-                                + ' -> ' + collection)
+                        debug_print('Deleted Book From Collection: ' + bookPath + ' -> ' + collection)
 
                 db_collections[collection] = None
 

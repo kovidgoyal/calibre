@@ -64,7 +64,6 @@ class SmartdeviceDialog(QDialog, Ui_Dialog):
               'to the port, try another number. You can use any number between '
               '8,000 and 32,000.') + '</p>')
 
-
         self.ip_addresses.setToolTip('<p>' +
             _('These are the IP addresses for this computer. If you decide to have your device connect to '
               'calibre using a fixed IP address, one of these addresses should '

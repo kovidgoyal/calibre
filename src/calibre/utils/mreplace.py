@@ -1,4 +1,4 @@
-#multiple replace from dictionnary : http://code.activestate.com/recipes/81330/
+# multiple replace from dictionnary : http://code.activestate.com/recipes/81330/
 __license__   = 'GPL v3'
 __copyright__ = '2010, sengian <sengian1 @ gmail.com>'
 __docformat__ = 'restructuredtext en'
@@ -30,7 +30,7 @@ class MReplace(UserDict):
         return self[mo.string[mo.start():mo.end()]]
 
     def mreplace(self, text):
-        #Replace without regex compile
+        # Replace without regex compile
         if len(self.data) < 1 or self.re is None:
             return text
         return self.regex.sub(self, text)

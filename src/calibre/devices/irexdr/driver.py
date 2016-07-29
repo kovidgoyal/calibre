@@ -13,7 +13,7 @@ from calibre.devices.usbms.driver import USBMS
 class IREXDR1000(USBMS):
 
     name           = 'IRex Digital Reader 1000 Device Interface'
-    description    = _('Communicate with the IRex Digital Reader 1000 eBook ' \
+    description    = _('Communicate with the IRex Digital Reader 1000 eBook '
         'reader.')
     author         = 'John Schember'
     supported_platforms = ['windows', 'osx', 'linux']

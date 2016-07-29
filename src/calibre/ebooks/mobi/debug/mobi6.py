@@ -28,8 +28,7 @@ class TagX(object):  # {{{
         self.tag, self.num_values, self.bitmask, self.eof = (tag, num_values,
                 bitmask, eof)
         self.num_of_values = num_values
-        self.is_eof = (self.eof == 1 and self.tag == 0 and self.num_values == 0
-                and self.bitmask == 0)
+        self.is_eof = (self.eof == 1 and self.tag == 0 and self.num_values == 0 and self.bitmask == 0)
 
     def __repr__(self):
         return 'TAGX(tag=%02d, num_values=%d, bitmask=%r, eof=%d)' % (self.tag,

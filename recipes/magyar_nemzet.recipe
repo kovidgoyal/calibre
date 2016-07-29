@@ -3,15 +3,16 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import AutomaticNewsRecipe
 
+
 class BasicUserRecipe1458590017(AutomaticNewsRecipe):
-    title          = 'Magyar Nemzet'
+    title = 'Magyar Nemzet'
     __author__ = 'pofa'
     language = 'hu'
     oldest_article = 1
     max_articles_per_feed = 50
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Kiemelt', 'http://mno.hu/rss/kiemelt'),
         ('Belföld', 'http://mno.hu/rss/belfold'),
         ('Külföld', 'http://mno.hu/rss/kulfold'),

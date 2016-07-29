@@ -14,7 +14,7 @@ from calibre.constants import __appname__, __version__, iswindows
 from calibre.gui2 import error_dialog
 
 # Time to wait for communication to/from the interpreter process
-POLL_TIMEOUT = 0.01 # seconds
+POLL_TIMEOUT = 0.01  # seconds
 
 preferred_encoding, isbytestring, __appname__, __version__, error_dialog, \
 iswindows

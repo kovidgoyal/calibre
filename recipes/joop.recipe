@@ -2,8 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 import re
 
+
 class JoopRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'nl'
     country = 'NL'
@@ -22,9 +23,12 @@ class JoopRecipe(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'author_head clearfix photo'}))
-    keep_only_tags.append(dict(name = 'h2', attrs = {'class': 'columnhead smallline'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': re.compile('article.*')}))
+    keep_only_tags.append(
+        dict(name='div', attrs={'class': 'author_head clearfix photo'}))
+    keep_only_tags.append(
+        dict(name='h2', attrs={'class': 'columnhead smallline'}))
+    keep_only_tags.append(
+        dict(name='div', attrs={'class': re.compile('article.*')}))
 
     extra_css = '''
                 body {font-family: verdana, arial, helvetica, geneva, sans-serif;}
@@ -43,21 +47,24 @@ class JoopRecipe(BasicNewsRecipe):
                           'publisher': publisher}
 
     def parse_index(self):
-        sections = ['Politiek', 'Wereld', 'Economie', 'Groen', 'Media', 'Leven', 'Show', 'Opinies']
+        sections = ['Politiek', 'Wereld', 'Economie',
+                    'Groen', 'Media', 'Leven', 'Show', 'Opinies']
         soup = self.index_to_soup(self.INDEX)
         answer = []
 
-        div = soup.find('div', attrs = {'id': 'footer'})
+        div = soup.find('div', attrs={'id': 'footer'})
         for section in sections:
             articles = []
-            h2 = div.find(lambda tag: tag.name == 'h2' and tag.renderContents() == section)
+            h2 = div.find(lambda tag: tag.name ==
+                          'h2' and tag.renderContents() == section)
             if h2:
                 ul = h2.findNextSibling('ul', 'linklist')
                 if ul:
                     for li in ul.findAll('li'):
                         title = self.tag_to_string(li.a)
                         url = self.INDEX + li.a['href']
-                        articles.append({'title': title, 'date': None, 'url': url, 'description': ''})
+                        articles.append(
+                            {'title': title, 'date': None, 'url': url, 'description': ''})
 
             answer.append((section, articles))
 
@@ -76,16 +83,14 @@ class JoopRecipe(BasicNewsRecipe):
                     span['class'] = 'joop_byline_job'
                 div.replaceWith(h2)
 
-        h2 = soup.find('h2', attrs = {'class': 'columnhead smallline'})
+        h2 = soup.find('h2', attrs={'class': 'columnhead smallline'})
         if h2:
             txt = None
             span = h2.find('span', 'info')
             if span:
-                txt = span.find(text = True)
-            div = Tag(soup, 'div', attrs = [('class', 'joop_date')])
+                txt = span.find(text=True)
+            div = Tag(soup, 'div', attrs=[('class', 'joop_date')])
             div.append(txt)
             h2.replaceWith(div)
 
         return soup
-
-

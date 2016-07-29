@@ -1,46 +1,47 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
+
 class TheIndependentNew(BasicNewsRecipe):
 
-    title                   = u'The Independent'
-    __author__              = 'Krittika Goyal'
+    title = u'The Independent'
+    __author__ = 'Krittika Goyal'
     description             = 'The latest in UK News and World News from The \
                                Independent. Wide range of international and local news, sports \
                                news, commentary and opinion pieces.Independent News - Breaking news \
                                that matters. Your daily comprehensive news source - The \
                                Independent Newspaper'
-    publisher               = 'The Independent'
-    oldest_article          = 2.0
+    publisher = 'The Independent'
+    oldest_article = 2.0
     ignore_duplicate_articles = {'title', 'url'}
-    remove_empty_feeds      = True
-    category                = 'news, UK'
-    no_stylesheets          = True
-    use_embedded_content    = False
-    remove_empty_feeds      = True
-    language                = 'en_GB'
-    publication_type        = 'newspaper'
-    encoding                = 'utf-8'
-    compress_news_images    = True
+    remove_empty_feeds = True
+    category = 'news, UK'
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_empty_feeds = True
+    language = 'en_GB'
+    publication_type = 'newspaper'
+    encoding = 'utf-8'
+    compress_news_images = True
 
     keep_only_tags = [
         dict(itemprop=['articleBody', 'headline', 'contentUrl']),
-        dict(attrs={'class':['intro', 'author']}),
+        dict(attrs={'class': ['intro', 'author']}),
     ]
     remove_tags = [
-        dict(attrs={'class':lambda x: x and 'show-all' in x.split()}),
-        dict(attrs={'data-scald-gallery':True}),
+        dict(attrs={'class': lambda x: x and 'show-all' in x.split()}),
+        dict(attrs={'data-scald-gallery': True}),
     ]
 
     remove_attributes = ['style']
 
     def preprocess_html(self, soup):
-        for div in soup.findAll(attrs={'class':'full-gallery'}):
+        for div in soup.findAll(attrs={'class': 'full-gallery'}):
             imgs = {}
-            for li in div.findAll('li', attrs={'data-gallery-item':True, 'data-original':True}):
+            for li in div.findAll('li', attrs={'data-gallery-item': True, 'data-original': True}):
                 imgs[li['data-gallery-item']] = li['data-original']
                 li.extract()
-            for li in div.findAll('li', attrs={'data-gallery-legend':True}):
+            for li in div.findAll('li', attrs={'data-gallery-legend': True}):
                 src = imgs.get(li['data-gallery-legend'])
                 if src is not None:
                     img = Tag(soup, 'img')
@@ -157,4 +158,4 @@ class TheIndependentNew(BasicNewsRecipe):
         (u'Money', u'http://www.independent.co.uk/money/?service=rss'),
         (u'IndyBest',
          u'http://www.independent.co.uk/extras/indybest/?service=rss'),
-        ]
+    ]

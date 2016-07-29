@@ -9,18 +9,19 @@ bild.de
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
-class AdvancedUserRecipe1303841067(BasicNewsRecipe):
-    title       = 'Bild.de'
-    __author__  = 'schuster'
-    description = 'RSS-Feeds von Bild.de'
-    language    = 'de'
 
-    oldest_article        = 1
+class AdvancedUserRecipe1303841067(BasicNewsRecipe):
+    title = 'Bild.de'
+    __author__ = 'schuster'
+    description = 'RSS-Feeds von Bild.de'
+    language = 'de'
+
+    oldest_article = 1
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    remove_javascript     = True
-    use_embedded_content  = False
-    remove_empty_feeds    = True
+    no_stylesheets = True
+    remove_javascript = True
+    use_embedded_content = False
+    remove_empty_feeds = True
 
     masthead_url = 'http://a3.l3-images.myspacecdn.com/images02/56/0232f842170b4d349779f8379c27e073/l.jpg'
 
@@ -36,20 +37,20 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
         ('Digital', 'http://www.bild.de/rss-feeds/rss-16725492,feed=digital.bild.html'),
         ('Spiele', 'http://www.bild.de/rss-feeds/rss-16725492,feed=spiele.bild.html'),
         ('Leserreporter', 'http://www.bild.de/rss-feeds/rss-16725492,feed=leserreporter.bild.html'),
-#        ('Berlin', 'http://www.bild.de/rss-feeds/rss-16725492,feed=Newsticker.bild.html'),
-#        ('Bremen', 'http://www.bild.de/rss-feeds/rss-16725492,feed=bremen.bild.html'),
-#        ('Chemnitz', 'http://www.bild.de/rssfeeds/rss3/rss3-20745882,feed=ressort-regio-chemnitz.bild.html'),
-#        ('Dresden', 'http://www.bild.de/rss-feeds/rss-16725492,feed=dresden.bild.html'),
-#        ('Düsseldorf', 'http://www.bild.de/rss-feeds/rss-16725492,feed=duesseldorf.bild.html'),
-#        ('Frankfurt/Main', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-frankfurt.bild.html'),
-#        ('Hamburg', 'http://www.bild.de/rss-feeds/rss-16725492,feed=hamburg.bild.html'),
-#        ('Hannover', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-hannover.bild.html'),
-#        ('Köln', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-koeln.bild.html'),
-#        ('Leipzig', 'http://www.bild.de/rss-feeds/rss-16725492,feed=leipzig.bild.html'),
-#        ('München', 'http://www.bild.de/rss-feeds/rss-16725492,feed=muenchen.bild.html'),
-#        ('Ruhrgebiet', 'http://www.bild.de/rss-feeds/rss-16725492,feed=ruhrgebiet.bild.html'),
-#        ('Saarland', 'http://www.bild.de/rssfeeds/rss3/rss3-20745882,feed=regional-saarland.bild.html'),
-#        ('Stuttgart', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-stuttgart.bild.html')
+        #        ('Berlin', 'http://www.bild.de/rss-feeds/rss-16725492,feed=Newsticker.bild.html'),
+        #        ('Bremen', 'http://www.bild.de/rss-feeds/rss-16725492,feed=bremen.bild.html'),
+        #        ('Chemnitz', 'http://www.bild.de/rssfeeds/rss3/rss3-20745882,feed=ressort-regio-chemnitz.bild.html'),
+        #        ('Dresden', 'http://www.bild.de/rss-feeds/rss-16725492,feed=dresden.bild.html'),
+        #        ('Düsseldorf', 'http://www.bild.de/rss-feeds/rss-16725492,feed=duesseldorf.bild.html'),
+        #        ('Frankfurt/Main', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-frankfurt.bild.html'),
+        #        ('Hamburg', 'http://www.bild.de/rss-feeds/rss-16725492,feed=hamburg.bild.html'),
+        #        ('Hannover', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-hannover.bild.html'),
+        #        ('Köln', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-koeln.bild.html'),
+        #        ('Leipzig', 'http://www.bild.de/rss-feeds/rss-16725492,feed=leipzig.bild.html'),
+        #        ('München', 'http://www.bild.de/rss-feeds/rss-16725492,feed=muenchen.bild.html'),
+        #        ('Ruhrgebiet', 'http://www.bild.de/rss-feeds/rss-16725492,feed=ruhrgebiet.bild.html'),
+        #        ('Saarland', 'http://www.bild.de/rssfeeds/rss3/rss3-20745882,feed=regional-saarland.bild.html'),
+        #        ('Stuttgart', 'http://www.bild.de/rss-feeds/rss-16725492,feed=regio-stuttgart.bild.html')
     ]
 
     keep_only_tags = [
@@ -58,14 +59,15 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['aside', 'iframe']),
-        dict(attrs={'class':['socialbar', 'social-sharing flank', 'vel', 'back']}),
-        dict(name='img', attrs={'alt':'logo'}),
-        dict(name='div', attrs={'class':re.compile('infoEl')}),
-        dict(name='span', attrs={'class':re.compile('loupe')})
+        dict(
+            attrs={'class': ['socialbar', 'social-sharing flank', 'vel', 'back']}),
+        dict(name='img', attrs={'alt': 'logo'}),
+        dict(name='div', attrs={'class': re.compile('infoEl')}),
+        dict(name='span', attrs={'class': re.compile('loupe')})
     ]
 
     remove_tags_after = [
-        dict(name='div', attrs={'itemprop':re.compile('articleBody')})
+        dict(name='div', attrs={'itemprop': re.compile('articleBody')})
     ]
 
     def preprocess_html(self, soup):
@@ -73,7 +75,7 @@ class AdvancedUserRecipe1303841067(BasicNewsRecipe):
         if not soup.find('article'):
             self.abort_article()
         # remove all style attributes
-        for item in soup.findAll(attrs={'style':True}):
+        for item in soup.findAll(attrs={'style': True}):
             del item['style']
         # remove <br> within headlines
         for h1 in soup.findAll('h1'):

@@ -1,5 +1,5 @@
 #!/usr/bin/env  python2
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Matthew Briggs'
 __docformat__ = 'restructuredtext en'
 
@@ -15,21 +15,22 @@ except ImportError:
     from calibre.web.feeds.news import BasicNewsRecipe as JavascriptRecipe
 from calibre.web.feeds import feed_from_xml
 
+
 class DailyTelegraph(JavascriptRecipe):
-    title          = u'The Australian'
-    __author__     = u'Kovid Goyal'
-    description    = (u'National broadsheet newspaper from down under - colloquially known as The Oz'
-            '. You will need to have a subscription to '
-            'http://www.theaustralian.com.au to get full articles.')
+    title = u'The Australian'
+    __author__ = u'Kovid Goyal'
+    description = (u'National broadsheet newspaper from down under - colloquially known as The Oz'
+                   '. You will need to have a subscription to '
+                   'http://www.theaustralian.com.au to get full articles.')
     language = 'en_AU'
 
     oldest_article = 2
     needs_subscription = 'optional'
     max_articles_per_feed = 30
-    remove_javascript      = True
-    no_stylesheets         = True
-    encoding               = 'utf8'
-    remove_empty_feeds     = True
+    remove_javascript = True
+    no_stylesheets = True
+    encoding = 'utf8'
+    remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
 
     keep_only_tags = ['div#story']
@@ -50,14 +51,16 @@ class DailyTelegraph(JavascriptRecipe):
         (u'Media', u'http://feeds.news.com.au/public/rss/2.0/aus_media_57.xml'),
         (u'IT', u'http://feeds.news.com.au/public/rss/2.0/ausit_itnews_topstories_367.xml'),
         (u'Exec Tech', u'http://feeds.news.com.au/public/rss/2.0/ausit_exec_topstories_385.xml'),
-        (u'Higher Education', u'http://feeds.news.com.au/public/rss/2.0/aus_higher_education_56.xml'),
+        (u'Higher Education',
+         u'http://feeds.news.com.au/public/rss/2.0/aus_higher_education_56.xml'),
         (u'Arts', u'http://feeds.news.com.au/public/rss/2.0/aus_arts_51.xml'),
         (u'Travel', u'http://feeds.news.com.au/public/rss/2.0/aus_travel_and_indulgence_63.xml'),
         (u'Property', u'http://feeds.news.com.au/public/rss/2.0/aus_property_59.xml'),
         (u'Sport', u'http://feeds.news.com.au/public/rss/2.0/aus_sport_61.xml'),
         (u'Business', u'http://feeds.news.com.au/public/rss/2.0/aus_business_811.xml'),
         (u'Aviation', u'http://feeds.news.com.au/public/rss/2.0/aus_business_aviation_706.xml'),
-        (u'Commercial Property', u'http://feeds.news.com.au/public/rss/2.0/aus_business_commercial_property_708.xml'),
+        (u'Commercial Property',
+         u'http://feeds.news.com.au/public/rss/2.0/aus_business_commercial_property_708.xml'),
         (u'Mining', u'http://feeds.news.com.au/public/rss/2.0/aus_business_mining_704.xml')
     ]
 
@@ -72,20 +75,21 @@ class DailyTelegraph(JavascriptRecipe):
                                  oldest_article=self.oldest_article, max_articles_per_feed=self.max_articles_per_feed, get_article_url=self.get_article_url)
             if len(feed) > 0:
                 feeds.append((title, [
-                    {'title':a.title, 'url':a.url, 'description':a.text_summary} for a in feed.articles]))
+                    {'title': a.title, 'url': a.url, 'description': a.text_summary} for a in feed.articles]))
         return ans
 
     def do_login(self, browser, username, password):
         if username and password:
             browser.visit('http://www.theaustralian.com.au/login')
-            form = browser.select_form('form[action="https://idp.news.com.au/idp/Authn/rest"]')
+            form = browser.select_form(
+                'form[action="https://idp.news.com.au/idp/Authn/rest"]')
             form['username'] = username
             form['password'] = password
-            browser.submit(submit_control_selector='button[type="submit"]', timeout=60)
+            browser.submit(
+                submit_control_selector='button[type="submit"]', timeout=60)
             if '>Log Out' not in browser.html:
-                raise ValueError('Failed to log in, check your username and password')
+                raise ValueError(
+                    'Failed to log in, check your username and password')
 
     def get_article_url(self, article):
         return article.id
-
-

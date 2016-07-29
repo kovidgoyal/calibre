@@ -308,8 +308,7 @@ class TBS(object):  # {{{
 
             # parent_section_index is needed for the last record
             if first_node is not None and first_node.depth > 0:
-                parent_section_index = (first_node.index if first_node.depth
-                        == 1 else first_node.parent_index)
+                parent_section_index = (first_node.index if first_node.depth == 1 else first_node.parent_index)
             else:
                 parent_section_index = max(self.section_map.iterkeys())
 
@@ -340,8 +339,7 @@ class TBS(object):  # {{{
             extra = {}
             # Write starting section information
             if spanner is None:
-                num_articles = len([a for a in depth_map[1] if a.parent_index
-                    == parent_section_index])
+                num_articles = len([a for a in depth_map[1] if a.parent_index == parent_section_index])
                 if not depth_map[1]:
                     extra = {0b0001: 0}
                 if num_articles > 1:

@@ -21,8 +21,8 @@ class Styles:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         """
         Required:
@@ -69,163 +69,163 @@ class Styles:
         # Dictionary needed to convert shortened style names to readable names
         self.__token_dict={
         # paragraph formatting => pf
-        'par-end___'    :	'para',
-        'par-def___'    :	'paragraph-definition',
-        'keep-w-nex'    :	'keep-with-next',
-        'widow-cntl'    :	'widow-control',
-        'adjust-rgt'    :	'adjust-right',
-        'language__'    :	'language',
-        'right-inde'    :	'right-indent',
-        'fir-ln-ind'    :	'first-line-indent',
-        'left-inden'    :	'left-indent',
-        'space-befo'    :	'space-before',
-        'space-afte'    :	'space-after',
-        'line-space'    :	'line-spacing',
-        'default-ta'    :	'default-tab',
-        'align_____'    :	'align',
-        'widow-cntr'    :	'widow-control',
+        'par-end___'    : 'para',
+        'par-def___'    : 'paragraph-definition',
+        'keep-w-nex'    : 'keep-with-next',
+        'widow-cntl'    : 'widow-control',
+        'adjust-rgt'    : 'adjust-right',
+        'language__'    : 'language',
+        'right-inde'    : 'right-indent',
+        'fir-ln-ind'    : 'first-line-indent',
+        'left-inden'    : 'left-indent',
+        'space-befo'    : 'space-before',
+        'space-afte'    : 'space-after',
+        'line-space'    : 'line-spacing',
+        'default-ta'    : 'default-tab',
+        'align_____'    : 'align',
+        'widow-cntr'    : 'widow-control',
         # page fomratting mixed in! (Just in older RTF?)
         'margin-lef'    :       'left-indent',
         'margin-rig'    :       'right-indent',
         'margin-bot'    :       'space-after',
         'margin-top'    :       'space-before',
         # stylesheet = > ss
-        'style-shet'    :	'stylesheet',
-        'based-on__'    :	'based-on-style',
-        'next-style'    :	'next-style',
-        'char-style'    :	'character-style',
-        'para-style'    :	'paragraph-style',
+        'style-shet'    : 'stylesheet',
+        'based-on__'    : 'based-on-style',
+        'next-style'    : 'next-style',
+        'char-style'    : 'character-style',
+        'para-style'    : 'paragraph-style',
         # graphics => gr
-        'picture___'    :	'pict',
-        'obj-class_'    :	'obj_class',
-        'mac-pic___'    :	'mac-pict',
+        'picture___'    : 'pict',
+        'obj-class_'    : 'obj_class',
+        'mac-pic___'    : 'mac-pict',
         # section => sc
-        'section___'    :	'section-new',
-        'sect-defin'    :	'section-reset',
-        'sect-note_'    :	'endnotes-in-section',
+        'section___'    : 'section-new',
+        'sect-defin'    : 'section-reset',
+        'sect-note_'    : 'endnotes-in-section',
         # list=> ls
-        'list-text_'    :	'list-text',
-        'list______'    :	'list',
-        'list-lev-d'    :	'list-level-definition',
-        'list-cardi'    :	'list-cardinal-numbering',
-        'list-decim'    :	'list-decimal-numbering',
-        'list-up-al'    :	'list-uppercase-alphabetic-numbering',
-        'list-up-ro'    :	'list-uppercae-roman-numbering',
-        'list-ord__'    :	'list-ordinal-numbering',
-        'list-ordte'    :	'list-ordinal-text-numbering',
-        'list-bulli'    :	'list-bullet',
-        'list-simpi'    :	'list-simple',
-        'list-conti'    :	'list-continue',
-        'list-hang_'    :	'list-hang',
+        'list-text_'    : 'list-text',
+        'list______'    : 'list',
+        'list-lev-d'    : 'list-level-definition',
+        'list-cardi'    : 'list-cardinal-numbering',
+        'list-decim'    : 'list-decimal-numbering',
+        'list-up-al'    : 'list-uppercase-alphabetic-numbering',
+        'list-up-ro'    : 'list-uppercae-roman-numbering',
+        'list-ord__'    : 'list-ordinal-numbering',
+        'list-ordte'    : 'list-ordinal-text-numbering',
+        'list-bulli'    : 'list-bullet',
+        'list-simpi'    : 'list-simple',
+        'list-conti'    : 'list-continue',
+        'list-hang_'    : 'list-hang',
         # 'list-tebef'    :	'list-text-before',
-        'list-level'    :	'level',
-        'list-id___'    :	'list-id',
-        'list-start'    :	'list-start',
-        'nest-level'    :	'nest-level',
+        'list-level'    : 'level',
+        'list-id___'    : 'list-id',
+        'list-start'    : 'list-start',
+        'nest-level'    : 'nest-level',
         # duplicate
-        'list-level'    :	'list-level',
+        'list-level'    : 'list-level',
         # notes => nt
-        'footnote__'    :	'footnote',
-        'type______'    :	'type',
+        'footnote__'    : 'footnote',
+        'type______'    : 'type',
         # anchor => an
-        'toc_______'    :	'anchor-toc',
-        'book-mk-st'    :	'bookmark-start',
-        'book-mk-en'    :	'bookmark-end',
-        'index-mark'    :	'anchor-index',
-        'place_____'    :	'place',
+        'toc_______'    : 'anchor-toc',
+        'book-mk-st'    : 'bookmark-start',
+        'book-mk-en'    : 'bookmark-end',
+        'index-mark'    : 'anchor-index',
+        'place_____'    : 'place',
         # field => fd
-        'field_____'    :	'field',
-        'field-inst'    :	'field-instruction',
-        'field-rslt'    :	'field-result',
-        'datafield_'    :	'data-field',
+        'field_____'    : 'field',
+        'field-inst'    : 'field-instruction',
+        'field-rslt'    : 'field-result',
+        'datafield_'    : 'data-field',
         # info-tables => it
-        'font-table'    :	'font-table',
-        'colr-table'    :	'color-table',
-        'lovr-table'    :	'list-override-table',
-        'listtable_'    :	'list-table',
-        'revi-table'    :	'revision-table',
+        'font-table'    : 'font-table',
+        'colr-table'    : 'color-table',
+        'lovr-table'    : 'list-override-table',
+        'listtable_'    : 'list-table',
+        'revi-table'    : 'revision-table',
         # character info => ci
-        'hidden____'    :	'hidden',
-        'italics___'    :	'italics',
-        'bold______'    :	'bold',
-        'strike-thr'   :	'strike-through',
-        'shadow____'   :	'shadow',
-        'outline___'   :	'outline',
-        'small-caps'   :	'small-caps',
-        'dbl-strike'   :	'double-strike-through',
-        'emboss____'    :	'emboss',
-        'engrave___'    :	'engrave',
-        'subscript_'    :	'subscript',
-        'superscrip'    :	'superscript',
-        'plain_____'    :	'plain',
-        'font-style'    :	'font-style',
-        'font-color'    :	'font-color',
-        'font-size_'    :	'font-size',
-        'font-up___'    :	'superscript',
-        'font-down_'    :	'subscript',
-        'red_______'    :	'red',
-        'blue______'    :	'blue',
-        'green_____'    :	'green',
+        'hidden____'    : 'hidden',
+        'italics___'    : 'italics',
+        'bold______'    : 'bold',
+        'strike-thr'   : 'strike-through',
+        'shadow____'   : 'shadow',
+        'outline___'   : 'outline',
+        'small-caps'   : 'small-caps',
+        'dbl-strike'   : 'double-strike-through',
+        'emboss____'    : 'emboss',
+        'engrave___'    : 'engrave',
+        'subscript_'    : 'subscript',
+        'superscrip'    : 'superscript',
+        'plain_____'    : 'plain',
+        'font-style'    : 'font-style',
+        'font-color'    : 'font-color',
+        'font-size_'    : 'font-size',
+        'font-up___'    : 'superscript',
+        'font-down_'    : 'subscript',
+        'red_______'    : 'red',
+        'blue______'    : 'blue',
+        'green_____'    : 'green',
         'caps______'    :       'caps',
         # table => tb
-        'row-def___'    :	'row-definition',
-        'cell______'    :	'cell',
-        'row_______'    :	'row',
-        'in-table__'    :	'in-table',
-        'columns___'    :	'columns',
-        'row-pos-le'    :	'row-position-left',
-        'cell-posit'    :	'cell-position',
+        'row-def___'    : 'row-definition',
+        'cell______'    : 'cell',
+        'row_______'    : 'row',
+        'in-table__'    : 'in-table',
+        'columns___'    : 'columns',
+        'row-pos-le'    : 'row-position-left',
+        'cell-posit'    : 'cell-position',
         # preamble => pr
         # underline
-        'underlined'    :	'underlined',
+        'underlined'    : 'underlined',
         # border => bd
-        'bor-t-r-hi'    :	'border-table-row-horizontal-inside',
-        'bor-t-r-vi'    :	'border-table-row-vertical-inside',
-        'bor-t-r-to'    :	'border-table-row-top',
-        'bor-t-r-le'    :	'border-table-row-left',
-        'bor-t-r-bo'    :	'border-table-row-bottom',
-        'bor-t-r-ri'    :	'border-table-row-right',
-        'bor-cel-bo'    :	'border-cell-bottom',
-        'bor-cel-to'    :	'border-cell-top',
-        'bor-cel-le'    :	'border-cell-left',
-        'bor-cel-ri'    :	'border-cell-right',
-        'bor-par-bo'    :	'border-paragraph-bottom',
-        'bor-par-to'    :	'border-paragraph-top',
-        'bor-par-le'    :	'border-paragraph-left',
-        'bor-par-ri'    :	'border-paragraph-right',
-        'bor-par-bo'    :	'border-paragraph-box',
-        'bor-for-ev'    :	'border-for-every-paragraph',
-        'bor-outsid'    :	'border-outisde',
-        'bor-none__'    :	'border',
+        'bor-t-r-hi'    : 'border-table-row-horizontal-inside',
+        'bor-t-r-vi'    : 'border-table-row-vertical-inside',
+        'bor-t-r-to'    : 'border-table-row-top',
+        'bor-t-r-le'    : 'border-table-row-left',
+        'bor-t-r-bo'    : 'border-table-row-bottom',
+        'bor-t-r-ri'    : 'border-table-row-right',
+        'bor-cel-bo'    : 'border-cell-bottom',
+        'bor-cel-to'    : 'border-cell-top',
+        'bor-cel-le'    : 'border-cell-left',
+        'bor-cel-ri'    : 'border-cell-right',
+        'bor-par-bo'    : 'border-paragraph-bottom',
+        'bor-par-to'    : 'border-paragraph-top',
+        'bor-par-le'    : 'border-paragraph-left',
+        'bor-par-ri'    : 'border-paragraph-right',
+        'bor-par-bo'    : 'border-paragraph-box',
+        'bor-for-ev'    : 'border-for-every-paragraph',
+        'bor-outsid'    : 'border-outisde',
+        'bor-none__'    : 'border',
         # border type => bt
-        'bdr-single'    :	'single',
-        'bdr-doubtb'    :	'double-thickness-border',
-        'bdr-shadow'    :	'shadowed-border',
-        'bdr-double'    :	'double-border',
-        'bdr-dotted'    :	'dotted-border',
-        'bdr-dashed'    :	'dashed',
-        'bdr-hair__'    :	'hairline',
-        'bdr-inset_'    :	'inset',
-        'bdr-das-sm'    :	'dash-small',
-        'bdr-dot-sm'    :	'dot-dash',
-        'bdr-dot-do'    :	'dot-dot-dash',
-        'bdr-outset'    :	'outset',
-        'bdr-trippl'    :	'tripple',
-        'bdr-thsm__'    :	'thick-thin-small',
-        'bdr-htsm__'    :	'thin-thick-small',
-        'bdr-hthsm_'    :	'thin-thick-thin-small',
-        'bdr-thm__'     :	'thick-thin-medium',
-        'bdr-htm__'     :	'thin-thick-medium',
-        'bdr-hthm_'     :	'thin-thick-thin-medium',
-        'bdr-thl__'     :	'thick-thin-large',
-        'bdr-hthl_'     :	'think-thick-think-large',
-        'bdr-wavy_'     :	'wavy',
-        'bdr-d-wav'     :	'double-wavy',
-        'bdr-strip'     :	'striped',
-        'bdr-embos'     :	'emboss',
-        'bdr-engra'     :	'engrave',
-        'bdr-frame'     :	'frame',
-        'bdr-li-wid'    :	'line-width',
+        'bdr-single'    : 'single',
+        'bdr-doubtb'    : 'double-thickness-border',
+        'bdr-shadow'    : 'shadowed-border',
+        'bdr-double'    : 'double-border',
+        'bdr-dotted'    : 'dotted-border',
+        'bdr-dashed'    : 'dashed',
+        'bdr-hair__'    : 'hairline',
+        'bdr-inset_'    : 'inset',
+        'bdr-das-sm'    : 'dash-small',
+        'bdr-dot-sm'    : 'dot-dash',
+        'bdr-dot-do'    : 'dot-dot-dash',
+        'bdr-outset'    : 'outset',
+        'bdr-trippl'    : 'tripple',
+        'bdr-thsm__'    : 'thick-thin-small',
+        'bdr-htsm__'    : 'thin-thick-small',
+        'bdr-hthsm_'    : 'thin-thick-thin-small',
+        'bdr-thm__'     : 'thick-thin-medium',
+        'bdr-htm__'     : 'thin-thick-medium',
+        'bdr-hthm_'     : 'thin-thick-thin-medium',
+        'bdr-thl__'     : 'thick-thin-large',
+        'bdr-hthl_'     : 'think-thick-think-large',
+        'bdr-wavy_'     : 'wavy',
+        'bdr-d-wav'     : 'double-wavy',
+        'bdr-strip'     : 'striped',
+        'bdr-embos'     : 'emboss',
+        'bdr-engra'     : 'engrave',
+        'bdr-frame'     : 'frame',
+        'bdr-li-wid'    : 'line-width',
         # tabs
         'tab-center'  :   'center',
         'tab-right_'  :   'right',
@@ -287,13 +287,13 @@ class Styles:
                 self.__enter_dict_entry(key, border_dict[key])
         elif self.__token_info in self.__tabs_list:
             action = self.__tabs_dict.get(self.__token_info)
-            if action != None:
+            if action is not None:
                 action(line)
         elif line[0:2] == 'cw':
-            #cw<pf<widow-cntl<nu<true
+            # cw<pf<widow-cntl<nu<true
             info = line[6:16]
             att = self.__token_dict.get(info)
-            if att == None :
+            if att is None :
                 if info not in self.__ignore_list:
                     if self.__run_level > 3:
                         msg = 'no value for key %s\n' % info
@@ -335,7 +335,7 @@ class Styles:
         """
         """
         type = self.__tab_type_dict.get(self.__token_info)
-        if type != None:
+        if type is not None:
             self.__tab_type = type
         else:
             if self.__run_level > 3:
@@ -354,7 +354,7 @@ class Styles:
         """
         self.__leader_found = 1
         leader = self.__tab_type_dict.get(self.__token_info)
-        if leader != None:
+        if leader is not None:
             leader += '^'
             try:
                 self.__styles_dict['par'][self.__styles_num]['tabs'] += ':%s;' % leader
@@ -477,7 +477,7 @@ class Styles:
         """
         self.__state = 'in_individual_style'
     def __found_end_ind_style_func(self, line):
-        name = self.__text_string[:-1] # get rid of semicolon
+        name = self.__text_string[:-1]  # get rid of semicolon
         # add 2005-04-29
         # get rid of space before or after
         name = name.strip()
@@ -520,9 +520,9 @@ class Styles:
                 styles = ['next-style', 'based-on-style']
                 for style in styles:
                     value = self.__styles_dict[type][key].get(style)
-                    if value != None:
+                    if value is not None:
                         temp_dict = self.__styles_dict[type].get(value)
-                        if  temp_dict:
+                        if temp_dict:
                             changed_value = self.__styles_dict[type][value].get('name')
                             if changed_value:
                                 self.__styles_dict[type][key][style] = \
@@ -611,7 +611,7 @@ class Styles:
             not found, simply print out the line.
         """
         action = self.__state_dict.get(self.__token_info)
-        if action == None:
+        if action is None:
             self.__write_obj.write(line)
         else:
             action(line)
@@ -685,13 +685,13 @@ class Styles:
             line = line_to_read
             self.__token_info = line[:16]
             action = self.__state_dict.get(self.__state)
-            if action == None:
+            if action is None:
                 sys.stderr.write('no matching state in module styles.py\n')
                 sys.stderr.write(self.__state + '\n')
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "styles.data")
         copy_obj.rename(self.__write_to, self.__file)

@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 from __future__ import unicode_literals
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 # Written April 2015
 # Last edited 4/18/15
@@ -9,6 +9,7 @@ technologyreview.com
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def absurl(x):
     if x.startswith('//'):
         x = 'http:' + x
@@ -16,13 +17,15 @@ def absurl(x):
         x = "http://www.technologyreview.com" + x
     return x
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
 
 class MitTechnologyReview(BasicNewsRecipe):
 
-    title      = 'MIT Technology Review Magazine'
+    title = 'MIT Technology Review Magazine'
     __author__ = 'Michael Marotta'
     description = ('Bi-monthly magazine version of MIT Technology Review.'
                    ' This is different than the recipe named simply "Technology Review"'
@@ -35,7 +38,8 @@ class MitTechnologyReview(BasicNewsRecipe):
     no_stylesheets = True
 
     keep_only_tags = [
-        classes('article-topper__topic article-topper__title article-topper__media-wrap article-body__content'),
+        classes(
+            'article-topper__topic article-topper__title article-topper__media-wrap article-body__content'),
     ]
     remove_tags = [
         classes('l-article-list'),
@@ -44,16 +48,17 @@ class MitTechnologyReview(BasicNewsRecipe):
     def parse_index(self):
         soup = self.index_to_soup(self.INDEX)
         # find cover
-        self.cover_url = absurl(soup.find('a', attrs={'class':'magazine-topper__cover'}).find('img', src=True)['src'])
+        self.cover_url = absurl(soup.find(
+            'a', attrs={'class': 'magazine-topper__cover'}).find('img', src=True)['src'])
         # parse articles
         current_articles = []
-        for div in soup.findAll(attrs={'class':lambda x: x in
-            'magazine-features-item__top-title magazine-features-item-title author-tz__title feed-tz__title'.split()}):
+        for div in soup.findAll(attrs={'class': lambda x: x in
+                                       'magazine-features-item__top-title magazine-features-item-title author-tz__title feed-tz__title'.split()}):
             a = div.find('a', href=True)
             title = self.tag_to_string(a).strip()
             href = absurl(a['href'])
             if href and title:
-                current_articles.append({'title':title, 'url':href})
+                current_articles.append({'title': title, 'url': href})
                 self.log(title, '[%s]' % href)
         return [('Articles', current_articles)]
 

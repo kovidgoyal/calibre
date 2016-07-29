@@ -1,37 +1,40 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class Dobreprogramy_pl(BasicNewsRecipe):
     title = 'Dobreprogramy.pl'
-    __author__  = u'fenuks & Tomasz Długosz'
-    __licence__ ='GPL v3'
-    category       = 'IT'
-    masthead_url='http://static.dpcdn.pl/css/Black/Images/header_logo_napis_fullVersion.png'
+    __author__ = u'fenuks & Tomasz Długosz'
+    __licence__ = 'GPL v3'
+    category = 'IT'
+    masthead_url = 'http://static.dpcdn.pl/css/Black/Images/header_logo_napis_fullVersion.png'
     cover_url = 'http://userlogos.org/files/logos/Karmody/dobreprogramy_01.png'
     description = u'Aktualności i blogi z dobreprogramy.pl'
     encoding = 'utf-8'
-    index='http://www.dobreprogramy.pl/'
+    index = 'http://www.dobreprogramy.pl/'
     no_stylesheets = True
-    language       = 'pl'
-    extra_css      = '.title {font-size:22px;}'
+    language = 'pl'
+    extra_css = '.title {font-size:22px;}'
     oldest_article = 8
     max_articles_per_feed = 100
     remove_attrs = ['style', 'width', 'height']
-    preprocess_regexps = [(re.compile(ur'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>'), lambda match: '') ]
-    keep_only_tags = [dict(name='h1'), dict(attrs={'class':['entry single']}), dict(id='phContent_divArticle')]
-    remove_tags = [dict(attrs={'class':['newsOptions', 'noPrint', 'komentarze', 'tags  font-heading-master', 'social nested-grid  grid-margin-px15-top clearfix no-mobile', 'page-info text-h4 font-heading grid-margin-px15-top color-annotation clearfix', 'series grid-margin-px30-top']}), dict(id='komentarze'), dict(id='phContent_ctl02_sBreadcrumb'), dict(name='iframe')]
+    preprocess_regexps = [(re.compile(
+        ur'<div id="\S+360pmp4">Twoja przeglądarka nie obsługuje Flasha i HTML5 lub wyłączono obsługę JavaScript...</div>'), lambda match: '')]
+    keep_only_tags = [dict(name='h1'), dict(
+        attrs={'class': ['entry single']}), dict(id='phContent_divArticle')]
+    remove_tags = [dict(attrs={'class': ['newsOptions', 'noPrint', 'komentarze', 'tags  font-heading-master', 'social nested-grid  grid-margin-px15-top clearfix no-mobile', 'page-info text-h4 font-heading grid-margin-px15-top color-annotation clearfix', 'series grid-margin-px30-top']}), dict(id='komentarze'), dict(id='phContent_ctl02_sBreadcrumb'), dict(name='iframe')]  # noqa
 
     feeds = [(u'Aktualności', 'http://feeds.feedburner.com/dobreprogramy/Aktualnosci'),
-                 ('Blogi', 'http://feeds.feedburner.com/dobreprogramy/BlogCzytelnikow')]
-
+             ('Blogi', 'http://feeds.feedburner.com/dobreprogramy/BlogCzytelnikow')]
 
     def preprocess_html(self, soup):
         for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
-                a['href']=self.index + a['href']
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:  # noqa
+                a['href'] = self.index + a['href']
         for r in soup.findAll('iframe'):
             r.parent.extract()
         return soup
+
     def postprocess_html(self, soup, first_fetch):
         for r in soup.findAll('span', text=''):
             if not r.string:

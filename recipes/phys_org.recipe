@@ -7,7 +7,6 @@ class HindustanTimes(BasicNewsRecipe):
     __author__ = 'Krittika Goyal'
     oldest_article = 1  # days
     max_articles_per_feed = 25
-    #encoding = 'cp1252'
     use_embedded_content = False
 
     no_stylesheets = True

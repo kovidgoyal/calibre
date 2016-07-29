@@ -132,8 +132,6 @@ class LRFContentObject(LRFObject):
             yield i
 
 
-
-
 class LRFStream(LRFObject):
     tag_map = {
         0xF504: ['', 'read_stream_size'],
@@ -162,12 +160,12 @@ class LRFStream(LRFObject):
             raise LRFParseError('Stream flags not initialized')
         self.stream = stream.read(self.stream_size)
         if self.stream_flags & 0x200 !=0:
-            l = len(self.stream);
+            l = len(self.stream)
             key = self._scramble_key&0xFF
             if key != 0 and key <= 0xF0:
-                  key = l % key + 0xF
+                key = l % key + 0xF
             else:
-                  key = 0
+                key = 0
             if l > 0x400 and (isinstance(self, ImageStream) or isinstance(self, Font) or isinstance(self, SoundStream)):
                 l = 0x400
             self.stream = self.descramble_buffer(self.stream, l, key)
@@ -244,6 +242,7 @@ class PageAttr(StyleObject, LRFObject):
 
 
 class Color(object):
+
     def __init__(self, val):
         self.a, self.r, self.g, self.b = val & 0xFF, (val>>8)&0xFF, (val>>16)&0xFF, (val>>24)&0xFF
 
@@ -256,14 +255,15 @@ class Color(object):
     def __len__(self):
         return 4
 
-    def __getitem__(self, i): # Qt compatible ordering and values
-        return (self.r, self.g, self.b, 0xff-self.a)[i] # In Qt 0xff is opaque while in LRS 0x00 is opaque
+    def __getitem__(self, i):  # Qt compatible ordering and values
+        return (self.r, self.g, self.b, 0xff-self.a)[i]  # In Qt 0xff is opaque while in LRS 0x00 is opaque
 
     def to_html(self):
         return 'rgb(%d, %d, %d)'%(self.r, self.g, self.b)
 
 
 class EmptyPageElement(object):
+
     def __iter__(self):
         for i in range(0):
             yield i
@@ -396,8 +396,10 @@ class Page(LRFStream):
                     xspace = self.xspace if hasattr(self, 'xspace') else 0
                     yspace = self.yspace if hasattr(self, 'yspace') else 0
                     self._contents.append(BlockSpace(xspace, yspace))
-                    if hasattr(self, 'xspace'): delattr(self, 'xspace')
-                    if hasattr(self, 'yspace'): delattr(self, 'yspace')
+                    if hasattr(self, 'xspace'):
+                        delattr(self, 'xspace')
+                    if hasattr(self, 'yspace'):
+                        delattr(self, 'yspace')
 
     def header(self, odd):
         id = self._document.objects[self.style_id].oddheaderid if odd else self._document.objects[self.style_id].evenheaderid
@@ -431,12 +433,17 @@ class Page(LRFStream):
         return s
 
 
-
 class BlockAttr(StyleObject, LRFObject):
     tag_map = {
         0xF531: ['blockwidth', 'W'],
         0xF532: ['blockheight', 'W'],
-        0xF533: ['blockrule', 'W', {0x14: "horz-fixed", 0x12: "horz-adjustable", 0x41: "vert-fixed", 0x21: "vert-adjustable", 0x44: "block-fixed", 0x22: "block-adjustable"}],
+        0xF533: ['blockrule', 'W', {
+            0x14: "horz-fixed",
+            0x12: "horz-adjustable",
+            0x41: "vert-fixed",
+            0x21: "vert-adjustable",
+            0x44: "block-fixed",
+            0x22: "block-adjustable"}],
         0xF534: ['bgcolor', 'D', Color],
         0xF535: ['layout', 'W', {0x41: 'TbRl', 0x34: 'LrTb'}],
         0xF536: ['framewidth', 'W'],
@@ -474,7 +481,6 @@ class BlockAttr(StyleObject, LRFObject):
             ans += item('background-color: %s;'%obj.bgcolor.to_html())
 
         return ans
-
 
 
 class TextCSS(object):
@@ -521,8 +527,6 @@ class TextCSS(object):
         return ans
 
 
-
-
 class TextAttr(StyleObject, LRFObject, TextCSS):
 
     FONT_MAP = collections.defaultdict(lambda : 'serif')
@@ -553,7 +557,6 @@ class TextAttr(StyleObject, LRFObject, TextCSS):
       }
     tag_map.update(ruby_tags)
     tag_map.update(LRFObject.tag_map)
-
 
 
 class Block(LRFStream, TextCSS):
@@ -594,7 +597,6 @@ class Block(LRFStream, TextCSS):
 
         self.content = obj
 
-
         for attr in self.extra_attrs:
             if hasattr(self, attr):
                 self.attrs[attr] = getattr(self, attr)
@@ -627,7 +629,6 @@ class MiniPage(LRFStream):
     tag_map.update(BlockAttr.tag_map)
 
 
-
 class Text(LRFStream):
     tag_map = {
         0xF503: ['style_id', 'D'],
@@ -637,7 +638,7 @@ class Text(LRFStream):
 
     style = property(fget=lambda self : self._document.objects[self.style_id])
 
-    text_map = { 0x22: u'"', 0x26: u'&amp;', 0x27: u'\'', 0x3c: u'&lt;', 0x3e: u'&gt;' }
+    text_map = {0x22: u'"', 0x26: u'&amp;', 0x27: u'\'', 0x3c: u'&lt;', 0x3e: u'&gt;'}
     entity_pattern = re.compile(r'&amp;(\S+?);')
 
     text_tags = {
@@ -701,7 +702,6 @@ class Text(LRFStream):
     class Span(TextTag):
         pass
 
-
     linetype_map = {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}
     adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
     lineposition_map = {1:'before', 2:'after'}
@@ -733,7 +733,6 @@ class Text(LRFStream):
             start += 1
         self.content.extend(None for i in range(open_containers))
 
-
     def end_para(self, tag, stream):
         i = len(self.content)-1
         while i > -1:
@@ -755,7 +754,7 @@ class Text(LRFStream):
     def empline(self, tag, stream):
         def invalid(op):
             stream.seek(op)
-            #self.simple_container(None, 'EmpLine')
+            # self.simple_container(None, 'EmpLine')
 
         oldpos = stream.tell()
         try:
@@ -808,8 +807,8 @@ class Text(LRFStream):
         length = len(self.stream)
         style = self.style.as_dict()
         current_style = style.copy()
-        text_tags = set(list(TextAttr.tag_map.keys()) + \
-                        list(Text.text_tags.keys()) + \
+        text_tags = set(list(TextAttr.tag_map.keys()) +
+                        list(Text.text_tags.keys()) +
                         list(ruby_tags.keys()))
         text_tags -= set([0xf500+i for i in range(10)])
         text_tags.add(0xf5cc)
@@ -828,7 +827,6 @@ class Text(LRFStream):
                         return pos-1
                     return find_first_tag(pos+1)
 
-
                 except:
                     return find_first_tag(pos+1)
 
@@ -838,7 +836,7 @@ class Text(LRFStream):
                 if tag_pos > start_pos:
                     self.add_text(self.stream[start_pos:tag_pos])
                 stream.seek(tag_pos)
-            else: # No tags in this stream
+            else:  # No tags in this stream
                 self.add_text(self.stream)
                 stream.seek(0, 2)
                 break
@@ -847,19 +845,18 @@ class Text(LRFStream):
 
             if tag.id == 0xF5CC:
                 self.add_text(stream.read(tag.word))
-            elif tag.id in self.__class__.text_tags: # A Text tag
+            elif tag.id in self.__class__.text_tags:  # A Text tag
                 action = self.__class__.text_tags[tag.id]
                 if isinstance(action, basestring):
                     getattr(self, action)(tag, stream)
                 else:
                     getattr(self, action[0])(tag, action[1])
-            elif tag.id in TextAttr.tag_map: # A Span attribute
+            elif tag.id in TextAttr.tag_map:  # A Span attribute
                 action = TextAttr.tag_map[tag.id]
                 if len(self.content) == 0:
                     current_style = style.copy()
                 name, val = action[0], LRFObject.tag_to_val(action, self, tag, None)
-                if name and (name not in current_style or current_style[name]
-                        != val):
+                if name and (name not in current_style or current_style[name] != val):
                     # No existing Span
                     if len(self.content) > 0 and isinstance(self.content[-1], self.__class__.Span):
                         self.content[-1].attrs[name] = val
@@ -935,7 +932,6 @@ class Image(LRFObject):
 
     encoding = property(fget=lambda self : self._document.objects[self.refstream].encoding)
     data = property(fget=lambda self : self._document.objects[self.refstream].stream)
-
 
     def __unicode__(self):
         return u'<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
@@ -1037,22 +1033,22 @@ class Import(LRFStream):
 class Button(LRFObject):
     tag_map = {
         0xF503: ['', 'do_ref_image'],
-        0xF561: ['button_flags','W'],           #<Button/>
-        0xF562: ['','do_base_button'],            #<BaseButton>
-        0xF563: ['',''],            #</BaseButton>
-        0xF564: ['','do_focus_in_button'],            #<FocusinButton>
-        0xF565: ['',''],            #</FocusinButton>
-        0xF566: ['','do_push_button'],            #<PushButton>
-        0xF567: ['',''],            #</PushButton>
-        0xF568: ['','do_up_button'],            #<UpButton>
-        0xF569: ['',''],            #</UpButton>
-        0xF56A: ['','do_start_actions'],            #start actions
-        0xF56B: ['',''],            #end actions
-        0xF56C: ['','parse_jump_to'], #JumpTo
-        0xF56D: ['','parse_send_message'], #<SendMessage
-        0xF56E: ['','parse_close_window'],            #<CloseWindow/>
-        0xF5D6: ['','parse_sound_stop'],            #<SoundStop/>
-        0xF5F9: ['','parse_run'],    #Run
+        0xF561: ['button_flags','W'],  # <Button/>
+        0xF562: ['','do_base_button'],  # <BaseButton>
+        0xF563: ['',''],  # </BaseButton>
+        0xF564: ['','do_focus_in_button'],  # <FocusinButton>
+        0xF565: ['',''],  # </FocusinButton>
+        0xF566: ['','do_push_button'],  # <PushButton>
+        0xF567: ['',''],  # </PushButton>
+        0xF568: ['','do_up_button'],  # <UpButton>
+        0xF569: ['',''],  # </UpButton>
+        0xF56A: ['','do_start_actions'],  # start actions
+        0xF56B: ['',''],  # end actions
+        0xF56C: ['','parse_jump_to'],  # JumpTo
+        0xF56D: ['','parse_send_message'],  # <SendMessage
+        0xF56E: ['','parse_close_window'],  # <CloseWindow/>
+        0xF5D6: ['','parse_sound_stop'],  # <SoundStop/>
+        0xF5F9: ['','parse_run'],  # Run
       }
     tag_map.update(LRFObject.tag_map)
 
@@ -1223,37 +1219,37 @@ class TOCObject(LRFStream):
 
 
 object_map = [
-    None,       #00
-    PageTree,   #01
-    Page,       #02
-    Header,     #03
-    Footer,     #04
-    PageAttr,    #05
-    Block,      #06
-    BlockAttr,   #07
-    MiniPage,   #08
-    None,       #09
-    Text,       #0A
-    TextAttr,    #0B
-    Image,      #0C
-    Canvas,     #0D
-    ESound,     #0E
-    None,       #0F
-    None,       #10
-    ImageStream,#11
-    Import,     #12
-    Button,     #13
-    Window,     #14
-    PopUpWin,   #15
-    Sound,      #16
-    SoundStream,#17
-    None,       #18
-    Font,       #19
-    ObjectInfo, #1A
-    None,       #1B
-    BookAttr,    #1C
-    SimpleText, #1D
-    TOCObject,  #1E
+    None,  # 00
+    PageTree,  # 01
+    Page,  # 02
+    Header,  # 03
+    Footer,  # 04
+    PageAttr,  # 05
+    Block,  # 06
+    BlockAttr,  # 07
+    MiniPage,  # 08
+    None,  # 09
+    Text,  # 0A
+    TextAttr,  # 0B
+    Image,  # 0C
+    Canvas,  # 0D
+    ESound,  # 0E
+    None,  # 0F
+    None,  # 10
+    ImageStream,  # 11
+    Import,  # 12
+    Button,  # 13
+    Window,  # 14
+    PopUpWin,  # 15
+    Sound,  # 16
+    SoundStream,  # 17
+    None,  # 18
+    Font,  # 19
+    ObjectInfo,  # 1A
+    None,  # 1B
+    BookAttr,  # 1C
+    SimpleText,  # 1D
+    TOCObject,  # 1E
 ]
 
 

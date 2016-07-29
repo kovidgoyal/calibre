@@ -24,9 +24,9 @@ class GroupBorders:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,
-            wrap = 0,
+            copy=None,
+            run_level=1,
+            wrap=0,
             ):
         """
         Required:
@@ -144,8 +144,8 @@ class GroupBorders:
             and line[17:-1] == 'paragraph-definition':
             sys.stderr.write('Wrong flag in __after_pard_func\n')
             if self.__run_level > 2:
-               msg =  'wrong flag'
-               raise self.__bug_handler, msg
+                msg =  'wrong flag'
+                raise self.__bug_handler, msg
         elif self.__token_info in self.__end_list:
             self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
             self.__write_end_border_tag()
@@ -222,14 +222,14 @@ class GroupBorders:
         else:
             self.__write_obj.write(line)
     def __write_start_border_tag(self, the_string):
-        self.__write_obj.write('mi<mk<start-brdg\n' )
+        self.__write_obj.write('mi<mk<start-brdg\n')
         self.__border_num += 1
         num = '%04d' % self.__border_num
         num_string = 's%s' % num
         the_string += '<num>%s' % num_string
         self.__write_obj.write('mi<tg<open-att__<border-group%s\n' % the_string)
     def __write_end_border_tag(self):
-        self.__write_obj.write('mi<mk<end-brdg__\n' )
+        self.__write_obj.write('mi<mk<end-brdg__\n')
         self.__write_obj.write('mi<tg<close_____<border-group\n')
     def __is_border_func(self, line):
         line = re.sub(self.__name_regex, '', line)
@@ -282,7 +282,7 @@ class GroupBorders:
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "group_borders.data")
         copy_obj.rename(self.__write_to, self.__file)

@@ -20,12 +20,12 @@ class PDBOutput(OutputFormatPlugin):
         OptionRecommendation(name='format', recommended_value='doc',
             level=OptionRecommendation.LOW,
             short_switch='f', choices=list(ALL_FORMAT_WRITERS),
-            help=(_('Format to use inside the pdb container. Choices are:')+\
+            help=(_('Format to use inside the pdb container. Choices are:')+
             ' %s' % sorted(ALL_FORMAT_WRITERS))),
         OptionRecommendation(name='pdb_output_encoding', recommended_value='cp1252',
             level=OptionRecommendation.LOW,
-            help=_('Specify the character encoding of the output document. ' \
-            'The default is cp1252. Note: This option is not honored by all ' \
+            help=_('Specify the character encoding of the output document. '
+            'The default is cp1252. Note: This option is not honored by all '
             'formats.')),
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,

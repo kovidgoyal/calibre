@@ -13,6 +13,6 @@ class FormatWriter(object):
 
     def __init__(self, opts, log):
         raise NotImplementedError()
-        
+
     def write_content(self, oeb_book, output_stream, metadata=None):
         raise NotImplementedError()

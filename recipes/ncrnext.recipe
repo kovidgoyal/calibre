@@ -1,8 +1,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
+
 class NrcNextRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'nl'
     country = 'NL'
@@ -13,28 +14,29 @@ class NrcNextRecipe(BasicNewsRecipe):
     category = u'News, Opinion, the Netherlands'
     description = u'Dutch newsblog from the Dutch daily newspaper nrcnext.'
 
-    conversion_options = {'comments': description, 'language': language, 'publisher': publisher}
+    conversion_options = {'comments': description,
+                          'language': language, 'publisher': publisher}
 
     no_stylesheets = True
     remove_javascript = True
 
-    keep_only_tags = [dict(name='div', attrs={'id' : 'main'})]
+    keep_only_tags = [dict(name='div', attrs={'id': 'main'})]
 
     remove_tags = []
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'meta'}))
-    remove_tags.append(dict(name = 'p', attrs = {'class' : 'meta'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'datumlabel'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'sharing-is-caring'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'navigation'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'reageer'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'comment odd alt thread-odd thread-alt depth-1 reactie '}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'comment even thread-even depth-1 reactie '}))
-    remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats single'}))
-    remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats onderwerpen'}))
-    remove_tags.append(dict(name = 'ul', attrs = {'class' : 'cats rubrieken'}))
-    remove_tags.append(dict(name = 'h3', attrs = {'class' : 'reacties'}))
-
-
+    remove_tags.append(dict(name='div', attrs={'class': 'meta'}))
+    remove_tags.append(dict(name='p', attrs={'class': 'meta'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'datumlabel'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'sharing-is-caring'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'navigation'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'reageer'}))
+    remove_tags.append(dict(name='div', attrs={
+                       'class': 'comment odd alt thread-odd thread-alt depth-1 reactie '}))
+    remove_tags.append(
+        dict(name='div', attrs={'class': 'comment even thread-even depth-1 reactie '}))
+    remove_tags.append(dict(name='ul', attrs={'class': 'cats single'}))
+    remove_tags.append(dict(name='ul', attrs={'class': 'cats onderwerpen'}))
+    remove_tags.append(dict(name='ul', attrs={'class': 'cats rubrieken'}))
+    remove_tags.append(dict(name='h3', attrs={'class': 'reacties'}))
 
     extra_css = '''
                 body {font-family: verdana, arial, helvetica, geneva, sans-serif; text-align: left;}
@@ -43,7 +45,7 @@ class NrcNextRecipe(BasicNewsRecipe):
                 h2.vlag {font-size: small; font-weight: bold;}
                 '''
 
-    def parse_index(self) :
+    def parse_index(self):
         # Use the wesbite as an index. Their RSS feeds can be out of date.
         feeds = {}
         feeds[u'columnisten'] = u'http://www.nrcnext.nl/columnisten/'
@@ -55,25 +57,27 @@ class NrcNextRecipe(BasicNewsRecipe):
         articles = {}
         indices = []
 
-        for index, feed in feeds.items() :
+        for index, feed in feeds.items():
             soup = self.index_to_soup(feed)
-            for post in soup.findAll(True, attrs={'class' : 'post '}) :
-                # Find the links to the actual articles and rember the location they're pointing to and the title
-                a = post.find('a', attrs={'rel' : 'bookmark'})
+            for post in soup.findAll(True, attrs={'class': 'post '}):
+                # Find the links to the actual articles and rember the location
+                # they're pointing to and the title
+                a = post.find('a', attrs={'rel': 'bookmark'})
                 href = a['href']
                 title = self.tag_to_string(a)
-                if index == 'columnisten' :
+                if index == 'columnisten':
                     # In this feed/page articles can be written by more than one author.
                     # It is nice to see their names in the titles.
-                    flag = post.find('h2', attrs = {'class' : 'vlag'})
+                    flag = post.find('h2', attrs={'class': 'vlag'})
                     author = flag.contents[0].renderContents()
                     completeTitle = u''.join([author, u': ', title])
-                else :
+                else:
                     completeTitle = title
 
                 # Add the article to a temporary list
-                article = {'title' : completeTitle, 'date' : u'', 'url'  : href, 'description' : '<p>&nbsp;</p>'}
-                if not articles.has_key(index) :
+                article = {'title': completeTitle, 'date': u'',
+                           'url': href, 'description': '<p>&nbsp;</p>'}
+                if not articles.has_key(index):  # noqa
                     articles[index] = []
                 articles[index].append(article)
 
@@ -82,25 +86,28 @@ class NrcNextRecipe(BasicNewsRecipe):
 
         # Now, sort the temporary list of feeds in the order they appear on the website
         # indices = self.sort_index_by(indices, {u'columnisten' : 1, u'koken' : 3, u'geld & werk' : 2, u'vandaag' : 0, u'city life in afrika' : 4})
-        indices = self.sort_index_by(indices, {u'columnisten' : 1, u'koken' : 3, u'geld & werk' : 2, u'vandaag' : 0})
+        indices = self.sort_index_by(
+            indices, {u'columnisten': 1, u'koken': 3, u'geld & werk': 2, u'vandaag': 0})
         # Apply this sort order to the actual list of feeds and articles
-        answer = [(key, articles[key]) for key in indices if articles.has_key(key)]
+        answer = [(key, articles[key])
+                  for key in indices if articles.has_key(key)]  # noqa
 
         return answer
 
-    def preprocess_html(self, soup) :
-        if soup.find('div', attrs = {'id' : 'main', 'class' : 'single'}):
-            tag = soup.find('div', attrs = {'class' : 'post'})
+    def preprocess_html(self, soup):
+        if soup.find('div', attrs={'id': 'main', 'class': 'single'}):
+            tag = soup.find('div', attrs={'class': 'post'})
             if tag:
                 h2 = tag.find('h2', 'vlag')
                 if h2:
-                    new_h2 = Tag(soup, 'h2', attrs = [('class', 'vlag')])
+                    new_h2 = Tag(soup, 'h2', attrs=[('class', 'vlag')])
                     new_h2.append(self.tag_to_string(h2))
                     h2.replaceWith(new_h2)
                 else:
                     h2 = tag.find('h2')
                     if h2:
-                        new_h2 = Tag(soup, 'h2', attrs = [('class', 'sub_title')])
+                        new_h2 = Tag(soup, 'h2', attrs=[
+                                     ('class', 'sub_title')])
                         new_h2.append(self.tag_to_string(h2))
                         h2.replaceWith(new_h2)
 
@@ -111,11 +118,11 @@ class NrcNextRecipe(BasicNewsRecipe):
                     h1.replaceWith(new_h1)
 
                 # Slows down my reader.
-                for movie in tag.findAll('span', attrs = {'class' : 'vvqbox vvqvimeo'}):
+                for movie in tag.findAll('span', attrs={'class': 'vvqbox vvqvimeo'}):
                     movie.extract()
-                for movie in tag.findAll('span', attrs = {'class' : 'vvqbox vvqyoutube'}):
+                for movie in tag.findAll('span', attrs={'class': 'vvqbox vvqyoutube'}):
                     movie.extract()
-                for iframe in tag.findAll('iframe') :
+                for iframe in tag.findAll('iframe'):
                     iframe.extract()
 
                 fresh_soup = self.getFreshSoup(soup)
@@ -127,8 +134,8 @@ class NrcNextRecipe(BasicNewsRecipe):
                 return soup
 
     def getFreshSoup(self, oldSoup):
-        freshSoup = BeautifulSoup('<html><head><title></title></head><body></body></html>')
+        freshSoup = BeautifulSoup(
+            '<html><head><title></title></head><body></body></html>')
         if oldSoup.head.title:
             freshSoup.head.title.append(self.tag_to_string(oldSoup.head.title))
         return freshSoup
-

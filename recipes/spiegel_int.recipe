@@ -1,5 +1,5 @@
- 
-__license__   = 'GPL v3'
+
+__license__ = 'GPL v3'
 __copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 spiegel.de
@@ -7,29 +7,27 @@ spiegel.de
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Spiegel_int(BasicNewsRecipe):
-    title                 = 'Spiegel Online International'
-    __author__            = 'Darko Miletic and Sujata Raman'
-    description           = "Daily news, analysis and opinion from Europe's leading newsmagazine and Germany's top news Web site"
-    oldest_article        = 7
+    title = 'Spiegel Online International'
+    __author__ = 'Darko Miletic and Sujata Raman'
+    description = "Daily news, analysis and opinion from Europe's leading newsmagazine and Germany's top news Web site"
+    oldest_article = 7
     max_articles_per_feed = 100
-    language              = 'en_DE'
-    no_stylesheets        = True
-    use_embedded_content  = False
+    language = 'en_DE'
+    no_stylesheets = True
+    use_embedded_content = False
     auto_cleanup = True
     auto_cleanup_keep = '//*[@id="spArticleTopAsset"]'
-    encoding              = 'cp1252'
-    publisher             = 'SPIEGEL ONLINE GmbH'
-    category              = 'news, politics, Germany'
-    masthead_url          = 'http://www.spiegel.de/static/sys/v9/spiegelonline_logo.png'
-    publication_type      = 'magazine'
+    encoding = 'cp1252'
+    publisher = 'SPIEGEL ONLINE GmbH'
+    category = 'news, politics, Germany'
+    masthead_url = 'http://www.spiegel.de/static/sys/v9/spiegelonline_logo.png'
+    publication_type = 'magazine'
 
     conversion_options = {
-                             'comments' : description
-                            ,'tags'     : category
-                            ,'language' : language
-                            ,'publisher': publisher
-                         }
+        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
+    }
 
     extra_css = '''
                    #spArticleContent{font-family: Verdana,Arial,Helvetica,Geneva,sans-serif}
@@ -46,25 +44,5 @@ class Spiegel_int(BasicNewsRecipe):
                    .spPhotoGallery{font-size:x-small; color:#990000 ;}
                 '''
 
-    #keep_only_tags    = [dict(attrs={'id':'spArticleContent'})]
-    #remove_tags_after = dict(attrs={'id':'spArticleBody'})
-    #remove_tags       = [dict(name=['meta','base','iframe','embed','object'])]
-    #remove_attributes = ['clear']
-    feeds             = [(u'Spiegel Online', u'http://www.spiegel.de/international/index.rss')]
+    feeds = [(u'Spiegel Online', u'http://www.spiegel.de/international/index.rss')]
 
-    #def print_version(self, url):
-        #main, sep, rest = url.rpartition(',')
-        #rmain, rsep, rrest = main.rpartition(',')
-        #return rmain + ',druck-' + rrest + ',' + rest
-
-    #def preprocess_html(self, soup):
-        #for item in soup.findAll(style=True):
-            #del item['style']
-        #for item in soup.findAll('a'):
-            #if item.string is not None:
-               #str = item.string
-               #item.replaceWith(str)
-            #else:
-               #str = self.tag_to_string(item)
-               #item.replaceWith(str)
-        #return soup

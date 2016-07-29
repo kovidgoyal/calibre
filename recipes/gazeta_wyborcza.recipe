@@ -2,6 +2,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
 import re
+
+
 class Gazeta_Wyborcza(BasicNewsRecipe):
     title = u'Gazeta Wyborcza'
     __author__ = 'fenuks, Artur Stachecki'
@@ -21,13 +23,16 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     # rules for gazeta.pl
-    preprocess_regexps = [(re.compile(u'<b>Czytaj więcej</b>.*', re.DOTALL), lambda m: '</body>')]
+    preprocess_regexps = [
+        (re.compile(u'<b>Czytaj więcej</b>.*', re.DOTALL), lambda m: '</body>')]
     keep_only_tags = [dict(id='gazeta_article')]
-    remove_tags = [dict(id=['gazeta_article_tools', 'gazeta_article_miniatures']), dict(attrs={'class':['mod mod_sociallist', 'c0', 'fb', 'voteNeedLogin']})]
+    remove_tags = [dict(id=['gazeta_article_tools', 'gazeta_article_miniatures']), dict(
+        attrs={'class': ['mod mod_sociallist', 'c0', 'fb', 'voteNeedLogin']})]
     remove_tags_after = dict(id='gazeta_article_body')
 
     # rules for wyborcza.biz
-    preprocess_regexps.append((re.compile(u'(<br>)?(<br>)?        Czytaj (także|też):.*?</a>\.?<br>', re.DOTALL), lambda m: ''))
+    preprocess_regexps.append((re.compile(
+        u'(<br>)?(<br>)?        Czytaj (także|też):.*?</a>\.?<br>', re.DOTALL), lambda m: ''))
 
     feeds = [(u'Kraj', u'http://rss.feedsportal.com/c/32739/f/530266/index.rss'),
              (u'\u015awiat', u'http://rss.feedsportal.com/c/32739/f/530270/index.rss'),
@@ -36,18 +41,26 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
              (u'Kultura', u'http://rss.gazeta.pl/pub/rss/gazetawyborcza_kultura.xml'),
              (u'Nauka', u'http://rss.feedsportal.com/c/32739/f/530269/index.rss'),
              (u'Opinie', u'http://rss.gazeta.pl/pub/rss/opinie.xml'),
-             (u'Gazeta \u015awi\u0105teczna', u'http://rss.feedsportal.com/c/32739/f/530431/index.rss'),
-             (u'Du\u017cy Format', u'http://rss.feedsportal.com/c/32739/f/530265/index.rss'),
+             (u'Gazeta \u015awi\u0105teczna',
+              u'http://rss.feedsportal.com/c/32739/f/530431/index.rss'),
+             (u'Du\u017cy Format',
+              u'http://rss.feedsportal.com/c/32739/f/530265/index.rss'),
              (u'Witamy w Polsce', u'http://rss.feedsportal.com/c/32739/f/530476/index.rss'),
-             (u'M\u0119ska Muzyka', u'http://rss.feedsportal.com/c/32739/f/530337/index.rss'),
+             (u'M\u0119ska Muzyka',
+              u'http://rss.feedsportal.com/c/32739/f/530337/index.rss'),
              (u'Lata Lec\u0105', u'http://rss.feedsportal.com/c/32739/f/530326/index.rss'),
-             (u'Solidarni z Tybetem', u'http://rss.feedsportal.com/c/32739/f/530461/index.rss'),
-             (u'W pon. - \u017bakowski', u'http://rss.feedsportal.com/c/32739/f/530491/index.rss'),
-             (u'We wt. - Kolenda-Zalewska', u'http://rss.feedsportal.com/c/32739/f/530310/index.rss'),
-             (u'\u015aroda w \u015brod\u0119', u'http://rss.feedsportal.com/c/32739/f/530428/index.rss'),
-             (u'W pi\u0105tek - Olejnik', u'http://rss.feedsportal.com/c/32739/f/530364/index.rss'),
+             (u'Solidarni z Tybetem',
+              u'http://rss.feedsportal.com/c/32739/f/530461/index.rss'),
+             (u'W pon. - \u017bakowski',
+              u'http://rss.feedsportal.com/c/32739/f/530491/index.rss'),
+             (u'We wt. - Kolenda-Zalewska',
+              u'http://rss.feedsportal.com/c/32739/f/530310/index.rss'),
+             (u'\u015aroda w \u015brod\u0119',
+              u'http://rss.feedsportal.com/c/32739/f/530428/index.rss'),
+             (u'W pi\u0105tek - Olejnik',
+              u'http://rss.feedsportal.com/c/32739/f/530364/index.rss'),
              (u'Nekrologi', u'http://rss.feedsportal.com/c/32739/f/530358/index.rss')
-            ]
+             ]
 
     def print_version(self, url):
         if 'feedsportal.com' in url:
@@ -80,17 +93,19 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
     def append_page(self, soup, appendtag):
         tag = soup.find('div', attrs={'id': 'Str'})
         try:
-            baseurl = soup.find(name='meta', attrs={'property':'og:url'})['content']
+            baseurl = soup.find(name='meta', attrs={
+                                'property': 'og:url'})['content']
         except:
             return 1
         link = tag.findAll('a')[-1]
         while link:
             soup2 = self.index_to_soup(baseurl + link['href'])
             link = soup2.find('div', attrs={'id': 'Str'}).findAll('a')[-1]
-            if not u'następne' in link.string:
+            if u'następne' not in link.string:
                 link = ''
             pagetext = soup2.find(id='artykul')
-            comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+            comments = pagetext.findAll(
+                text=lambda text: isinstance(text, Comment))
             for comment in comments:
                 comment.extract()
             pos = len(appendtag.contents)
@@ -99,7 +114,7 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://wyborcza.pl/0,76762,3751429.html')
-        cover = soup.find(attrs={'class':'gallerycontent'})
+        cover = soup.find(attrs={'class': 'gallerycontent'})
         self.cover_url = cover.ul.li.a.img['src'].replace('P.jpg', '.jpg')
         return getattr(self, 'cover_url', self.cover_url)
 
@@ -108,4 +123,3 @@ class Gazeta_Wyborcza(BasicNewsRecipe):
             return url.strip()
         else:
             return url
-

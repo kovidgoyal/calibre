@@ -5,11 +5,12 @@ __copyright__ = 'teepel'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class media2_pl(BasicNewsRecipe):
     title = u'Media2'
     __author__ = 'teepel <teepel44@gmail.com>'
     language = 'pl'
-    description = u'Media2.pl to jeden z najczęściej odwiedzanych serwisów dla profesjonalistów z branży medialnej, telekomunikacyjnej, public relations oraz nowych technologii.'
+    description = u'Media2.pl to jeden z najczęściej odwiedzanych serwisów dla profesjonalistów z branży medialnej, telekomunikacyjnej, public relations oraz nowych technologii.'  # noqa
     masthead_url = 'http://media2.pl/res/logo/www.png'
     cover_url = 'http://media2.pl/res/logo/www.png'
     INDEX = 'http://media2.pl'
@@ -22,15 +23,17 @@ class media2_pl(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
     extra_css = '''.news-lead{font-weight: bold; }'''
 
-    keep_only_tags = [dict(name = 'div', attrs = {'class' : 'news-item tpl-big'})]
-    remove_tags = [dict(name = 'span', attrs = {'class' : 'news-comments'}), dict(name = 'div', attrs = {'class' : ['item-sidebar', 'news-inline-promo nobbtext']}), 
-    dict(name = 'div', attrs = {'class' : 'news-tags'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'news-item tpl-big'})]
+    remove_tags = [dict(name='span', attrs={'class': 'news-comments'}), dict(name='div', attrs={'class': ['item-sidebar', 'news-inline-promo nobbtext']}),
+                   dict(name='div', attrs={'class': 'news-tags'})]
 
     feeds = [(u'Media2', u'http://feeds.feedburner.com/media2'), (u'Internet', u'http://feeds.feedburner.com/media2/internet'),
-            (u'Media', 'http://feeds.feedburner.com/media2/media'), (u'Telekomunikacja', 'http://feeds.feedburner.com/media2/telekomunikacja'),
-            (u'Reklama/PR', 'http://feeds.feedburner.com/media2/reklama-pr'), (u'Technologie', 'http://feeds.feedburner.com/media2/technologie'),
-            (u'Badania', 'http://feeds.feedburner.com/media2/badania')
-            ]
+             (u'Media', 'http://feeds.feedburner.com/media2/media'), (u'Telekomunikacja',
+                                                                      'http://feeds.feedburner.com/media2/telekomunikacja'),
+             (u'Reklama/PR', 'http://feeds.feedburner.com/media2/reklama-pr'), (u'Technologie',
+                                                                                'http://feeds.feedburner.com/media2/technologie'),
+             (u'Badania', 'http://feeds.feedburner.com/media2/badania')
+             ]
 
     def image_url_processor(self, baseurl, url):
         if url[0] == '/':

@@ -80,7 +80,7 @@ cff_standard_strings = [
 # }}}
 
 
-STANDARD_CHARSETS = [ # {{{
+STANDARD_CHARSETS = [  # {{{
 # ISOAdobe
 (".notdef", "space", "exclam", "quotedbl", "numbersign", "dollar",
     "percent", "ampersand", "quoteright", "parenleft", "parenright",
@@ -179,5 +179,5 @@ STANDARD_CHARSETS = [ # {{{
         "threeinferior", "fourinferior", "fiveinferior", "sixinferior",
         "seveninferior", "eightinferior", "nineinferior", "centinferior",
         "dollarinferior", "periodinferior", "commainferior"),
-] # }}}
+]  # }}}
 

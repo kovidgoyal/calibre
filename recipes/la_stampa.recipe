@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
-__license__   = 'GPL v3'
-__author__    = 'Gabriele Marini, based on Darko Miletic'
+__license__ = 'GPL v3'
+__author__ = 'Gabriele Marini, based on Darko Miletic'
 __copyright__ = '2009, Darko Miletic <darko.miletic at gmail.com>'
 __description__ = 'La Stampa 28/12/2012'
 
@@ -9,52 +9,56 @@ http://www.lastampa.it/
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class LaStampa(BasicNewsRecipe):
 
- title                 = u'La Stampa'
- language = 'it'
- __author__ = 'Gabriele Marini'
- #oldest_article        = 15
- oldest_articlce       = 7 #for daily schedule
- max_articles_per_feed = 50
- recursion             = 100
- cover_url             = 'http://www1.lastampa.it/edicola/PDF/1.pdf'
- use_embedded_content  = False
- remove_javascript     = True
- no_stylesheets        = True
+    title = u'La Stampa'
+    language = 'it'
+    __author__ = 'Gabriele Marini'
+    oldest_articlce = 7  # for daily schedule
+    max_articles_per_feed = 50
+    recursion = 100
+    cover_url = 'http://www1.lastampa.it/edicola/PDF/1.pdf'
+    use_embedded_content = False
+    remove_javascript = True
+    no_stylesheets = True
 
- conversion_options = {'linearize_tables':True}
- remove_attributes = ['colspan']
+    conversion_options = {'linearize_tables': True}
+    remove_attributes = ['colspan']
 
- extra_css = ' .boxocchiello2{font-size: small} .catenaccio{font-style: italic} .titoloRub{font-size: xx-large; font-weight: bold } .titologir{font-size: xx-large; font-weight: bold } .sezione{font-weight: bold} '
+    extra_css = ' .boxocchiello2{font-size: small} .catenaccio{font-style: italic} .titoloRub{font-size: xx-large; font-weight: bold } .titologir{font-size: xx-large; font-weight: bold } .sezione{font-weight: bold} '  # noqa
 
+    def get_article_url(self, article):
+        link = article.get('links')
+        if link:
+            return link[0]['href']
 
- def get_article_url(self, article):
-    link = article.get('links')
-    if link:
-       return link[0]['href']
+    keep_only_tags = [
+        dict(attrs={'class': ['boxocchiello2', 'titoloRub', 'titologir', 'autore-girata', 'luogo-girata', 'catenaccio', 'sezione', 'articologirata', 'bodytext', 'news-single-img', 'ls-articoloCorpo', 'ls-blog-list-1col']}),  # noqa
+                      dict(name='div', attrs={'id': 'corpoarticolo'})
+                      ]
 
- keep_only_tags = [dict(attrs={'class':['boxocchiello2','titoloRub','titologir','autore-girata','luogo-girata','catenaccio','sezione','articologirata','bodytext','news-single-img','ls-articoloCorpo','ls-blog-list-1col']}),
-                   dict(name='div', attrs={'id':'corpoarticolo'})
-                  ]
-
-
- remove_tags = [dict(name='div', attrs={'id':['menutop','fwnetblocco']}),
-                dict(attrs={'class':['ls-toolbarCommenti','ls-boxCommentsBlog']}),
-                dict(name='table', attrs={'id':['strumenti','imgesterna']}),
-                dict(name='a', attrs={'class':['linkblu','link']}),
-                dict(name='span', attrs={'class':['boxocchiello','boxocchiello2','sezione']})
-               ]
- feeds    = [(u'BuonGiorno',u'http://www.lastampa.it/cultura/opinioni/buongiorno/rss.xml'),
+    remove_tags = [dict(name='div', attrs={'id': ['menutop', 'fwnetblocco']}),
+                   dict(
+                       attrs={'class': ['ls-toolbarCommenti', 'ls-boxCommentsBlog']}),
+                   dict(name='table', attrs={
+                        'id': ['strumenti', 'imgesterna']}),
+                   dict(name='a', attrs={'class': ['linkblu', 'link']}),
+                   dict(name='span', attrs={
+                        'class': ['boxocchiello', 'boxocchiello2', 'sezione']})
+                   ]
+    feeds = [(u'BuonGiorno', u'http://www.lastampa.it/cultura/opinioni/buongiorno/rss.xml'),
              (u'Jena', u'http://www.lastampa.it/cultura/opinioni/jena/rss.xml'),
              (u'Editoriali', u'http://www.lastampa.it/cultura/opinioni/editoriali'),
-			 (u'Finestra sull America', u'http://lastampa.feedsportal.com/c/32418/f/625713/index.rss'),
+             (u'Finestra sull America',
+                 u'http://lastampa.feedsportal.com/c/32418/f/625713/index.rss'),
              (u'HomePage', u'http://www.lastampa.it/rss.xml'),
              (u'Politica Italia', u'http://www.lastampa.it/italia/politica/rss.xml'),
              (u'ArciItaliana', u'http://www.lastampa.it/rss/blog/arcitaliana'),
              (u'Cronache', u'http://www.lastampa.it/italia/cronache/rss.xml'),
              (u'Esteri', u'http://www.lastampa.it/esteri/rss.xml'),
-             (u'Danni Collaterali', u'http://www.lastampa.it/rss/blog/danni-collaterali'),
+             (u'Danni Collaterali',
+                 u'http://www.lastampa.it/rss/blog/danni-collaterali'),
              (u'Economia', u'http://www.lastampa.it/economia/rss.xml'),
              (u'Tecnologia ', u'http://www.lastampa.it/tecnologia/rss.xml'),
              (u'Spettacoli', u'http://www.lastampa.it/spettacoli/rss.xml'),
@@ -65,10 +69,10 @@ class LaStampa(BasicNewsRecipe):
              (u'Cultura', u'http://www.lastampa.it/cultura/rss.xml'),
              (u'Scuola', u'http://www.lastampa.it/cultura/scuola/rss.xml'),
              (u'Benessere', u'http://www.lastampa.it/scienza/benessere/rss.xml'),
-             (u'Cucina', u'http://www.lastampa.it/societa/cucina/rss.xml'),			 
-			 (u'Casa', u'http://www.lastampa.it/societa/casa/rss.xml'),
-			 (u'Moda',u'http://www.lastampa.it/societa/moda/rss.xml'),
-			 (u'Giochi',u'http://www.lastampa.it/tecnologia/giochi/rss.xml'),
-             (u'Viaggi',u'http://www.lastampa.it/societa/viaggi/rss.xml'),
+             (u'Cucina', u'http://www.lastampa.it/societa/cucina/rss.xml'),
+             (u'Casa', u'http://www.lastampa.it/societa/casa/rss.xml'),
+             (u'Moda', u'http://www.lastampa.it/societa/moda/rss.xml'),
+             (u'Giochi', u'http://www.lastampa.it/tecnologia/giochi/rss.xml'),
+             (u'Viaggi', u'http://www.lastampa.it/societa/viaggi/rss.xml'),
              (u'Ambiente', u'http://www.lastampa.it/scienza/ambiente/rss.xml')
-            ]
+             ]

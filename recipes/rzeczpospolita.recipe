@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class RzeczpospolitaRecipe(BasicNewsRecipe):
     __license__ = 'GPL v3'
     __author__ = u'kwetal, Tomasz Dlugosz, adrianf0'
@@ -19,18 +20,18 @@ class RzeczpospolitaRecipe(BasicNewsRecipe):
     simultaneous_downloads = 5
 
     feeds = []
-    feeds.append((u"Wiadomości", u'http://www.rp.pl/rss/1056')) #Wydarzenia
-    feeds.append((u"Ekonomia", u'http://www.rp.pl/rss/1004')) #Ekonomia
-    feeds.append((u"Prawo", u'http://www.rp.pl/rss/1037')) #Prawo
+    feeds.append((u"Wiadomości", u'http://www.rp.pl/rss/1056'))  # Wydarzenia
+    feeds.append((u"Ekonomia", u'http://www.rp.pl/rss/1004'))  # Ekonomia
+    feeds.append((u"Prawo", u'http://www.rp.pl/rss/1037'))  # Prawo
 
-    keep_only_tags =[]
-    keep_only_tags.append(dict(name = 'div', attrs = {'class' : 'article-content'}))
+    keep_only_tags = []
+    keep_only_tags.append(dict(name='div', attrs={'class': 'article-content'}))
 
-    remove_tags =[]
-    remove_tags.append(dict(name = 'div', attrs = {'id' : 'article-copyright-box'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'article-footer'}))
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'article-tags'}))
-    
+    remove_tags = []
+    remove_tags.append(dict(name='div', attrs={'id': 'article-copyright-box'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'article-footer'}))
+    remove_tags.append(dict(name='div', attrs={'class': 'article-tags'}))
+
     extra_css = '''
                     body {font-family: verdana, arial, helvetica, geneva, sans-serif ;}
                     h1{text-align: left;}

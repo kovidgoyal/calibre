@@ -2,7 +2,7 @@
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 
 '''
@@ -12,27 +12,25 @@ kurier.at
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Kurier(BasicNewsRecipe):
-    title                 = 'Kurier'
-    __author__            = 'Darko Miletic'
-    description           = 'News from Austria'
-    publisher             = 'KURIER'
-    category              = 'news, politics, Austria'
-    oldest_article        = 2
+    title = 'Kurier'
+    __author__ = 'Darko Miletic'
+    description = 'News from Austria'
+    publisher = 'KURIER'
+    category = 'news, politics, Austria'
+    oldest_article = 2
     max_articles_per_feed = 100
-    timeout               = 30
-    no_stylesheets        = True
-    use_embedded_content  = False
-    language              = 'de_AT'
-    remove_empty_feeds    = True
-    publication_type      = 'newspaper'
+    timeout = 30
+    no_stylesheets = True
+    use_embedded_content = False
+    language = 'de_AT'
+    remove_empty_feeds = True
+    publication_type = 'newspaper'
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
     feeds = [
         ('Politik', 'http://kurier.at/politik/xml/rss'),
@@ -45,20 +43,20 @@ class Kurier(BasicNewsRecipe):
     ]
 
     keep_only_tags = [
-        dict(name='article', attrs={'class':re.compile('main-article')})
+        dict(name='article', attrs={'class': re.compile('main-article')})
     ]
 
     remove_tags = [
-        dict(name='div', attrs={'class':'social-media-container'}),
-        dict(name='section', attrs={'class':'tags'}),
-        dict(name='section', attrs={'class':re.compile('comment-box')}),
-        dict(name='section', attrs={'class':re.compile('related-content')}),
-        dict(name='section', attrs={'class':re.compile('article-slider')}),
-        dict(name='section', attrs={'class':re.compile('commentcontainer')}),
+        dict(name='div', attrs={'class': 'social-media-container'}),
+        dict(name='section', attrs={'class': 'tags'}),
+        dict(name='section', attrs={'class': re.compile('comment-box')}),
+        dict(name='section', attrs={'class': re.compile('related-content')}),
+        dict(name='section', attrs={'class': re.compile('article-slider')}),
+        dict(name='section', attrs={'class': re.compile('commentcontainer')}),
         dict(name='blockquote')
     ]
 
-    remove_attributes = ['width','height']
+    remove_attributes = ['width', 'height']
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

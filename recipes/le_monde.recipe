@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012'
 '''
 lemonde.fr
@@ -6,20 +6,19 @@ lemonde.fr
 import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class LeMonde(BasicNewsRecipe):
-    title                  = 'Le Monde'
-    __author__             = 'veezh'
-    description            = u'Actualités'
-    oldest_article         = 1
-    max_articles_per_feed  = 100
-    no_stylesheets         = True
-    #delay                  = 1
-    use_embedded_content   = False
-    encoding               = 'utf-8'
-    publisher              = 'lemonde.fr'
-    category               = 'news, France, world'
-    language               = 'fr'
-    #publication_type       = 'newsportal'
+    title = 'Le Monde'
+    __author__ = 'veezh'
+    description = u'Actualités'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    publisher = 'lemonde.fr'
+    category = 'news, France, world'
+    language = 'fr'
     extra_css = '''
                     h1{font-size:130%;}
                     h2{font-size:100%;}
@@ -32,14 +31,9 @@ class LeMonde(BasicNewsRecipe):
                     /*full-contents{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}*/
                     /*match-stats-summary{font-size:small; font-family:Arial,Helvetica,sans-serif;font-weight:normal;}*/
                 '''
-    #preprocess_regexps     = [(re.compile(r'<!--.*?-->', re.DOTALL), lambda m: '')]
     conversion_options = {
-                              'comments'        : description
-                             ,'tags'            : category
-                             ,'language'        : language
-                             ,'publisher'       : publisher
-                             ,'linearize_tables': True
-                          }
+        'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True
+    }
 
     remove_empty_feeds = True
 
@@ -47,18 +41,20 @@ class LeMonde(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for aside in soup.findAll('aside'):
-            aside.name='blockquote'
+            aside.name = 'blockquote'
             aside['class'] = "aside"
         for alink in soup.findAll('a'):
             if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
+                tstr = alink.string
+                alink.replaceWith(tstr)
         return soup
 
     preprocess_regexps = [
         (re.compile(r'([0-9])%'), lambda m: m.group(1) + '&nbsp;%'),
-        (re.compile(r'([0-9])([0-9])([0-9]) ([0-9])([0-9])([0-9])'), lambda m: m.group(1) + m.group(2) + m.group(3) + '&nbsp;' + m.group(4) + m.group(5) + m.group(6)),
-        (re.compile(r'([0-9]) ([0-9])([0-9])([0-9])'), lambda m: m.group(1) + '&nbsp;' + m.group(2) + m.group(3) + m.group(4)),
+        (re.compile(r'([0-9])([0-9])([0-9]) ([0-9])([0-9])([0-9])'), lambda m: m.group(
+            1) + m.group(2) + m.group(3) + '&nbsp;' + m.group(4) + m.group(5) + m.group(6)),
+        (re.compile(r'([0-9]) ([0-9])([0-9])([0-9])'), lambda m: m.group(1) +
+         '&nbsp;' + m.group(2) + m.group(3) + m.group(4)),
         (re.compile(r'<span>'), lambda match: ' <span>'),
         (re.compile(r'\("'), lambda match: '(&laquo;&nbsp;'),
         (re.compile(r'"\)'), lambda match: '&nbsp;&raquo;)'),
@@ -104,53 +100,53 @@ class LeMonde(BasicNewsRecipe):
         (re.compile(r' - '), lambda match: '&nbsp;&ndash; '),
         (re.compile(r' -,'), lambda match: '&nbsp;&ndash;,'),
         (re.compile(r'&raquo;:'), lambda match: '&raquo;&nbsp;:'),
-        ]
+    ]
 
-
-    keep_only_tags    = [
-                       dict(name='article', attrs={})
-                        ]
+    keep_only_tags = [
+        dict(name='article', attrs={})
+    ]
 
     remove_tags = [
-                       dict(attrs={'class':['rubriques_liees']}),
-                       dict(attrs={'class':['sociaux']}),
-                       dict(attrs={'class':['bloc_base meme_sujet']}),
-                       dict(name='p', attrs={'class':['lire']})
-                        ]
+        dict(attrs={'class': ['rubriques_liees']}),
+        dict(attrs={'class': ['sociaux']}),
+        dict(attrs={'class': ['bloc_base meme_sujet']}),
+        dict(name='p', attrs={'class': ['lire']})
+    ]
 
     remove_tags_after = [dict(id='fb-like')]
 
     def get_article_url(self, article):
-          url = article.get('guid', None)
-          if '/chat/' in url or '.blog' in url or '/video/' in url or '/sport/' in url or '/portfolio/' in url or '/visuel/' in url :
-              url = None
-          return url
+        url = article.get('guid', None)
+        if '/chat/' in url or '.blog' in url or '/video/' in url or '/sport/' in url or '/portfolio/' in url or '/visuel/' in url:
+            url = None
+        return url
 
 #    def get_article_url(self, article):
 #        link = article.get('link')
 #        if 'blog' not in link and ('chat' not in link):
 #             return link
 
-    feeds          = [
-                      ('A la une', 'http://www.lemonde.fr/rss/une.xml'),
-                      ('International', 'http://www.lemonde.fr/rss/tag/international.xml'),
-                      ('Europe', 'http://www.lemonde.fr/rss/tag/europe.xml'),
-                      (u'Société', 'http://www.lemonde.fr/rss/tag/societe.xml'),
-                      ('Economie', 'http://www.lemonde.fr/rss/tag/economie.xml'),
-                      (u'Médias', 'http://www.lemonde.fr/rss/tag/actualite-medias.xml'),
-                      (u'Planète', 'http://www.lemonde.fr/rss/tag/planete.xml'),
-                      ('Culture', 'http://www.lemonde.fr/rss/tag/culture.xml'),
-                      ('Technologies', 'http://www.lemonde.fr/rss/tag/technologies.xml'),
-                      ('Livres', 'http://www.lemonde.fr/rss/tag/livres.xml'),
+    feeds = [
+        ('A la une', 'http://www.lemonde.fr/rss/une.xml'),
+        ('International', 'http://www.lemonde.fr/rss/tag/international.xml'),
+        ('Europe', 'http://www.lemonde.fr/rss/tag/europe.xml'),
+        (u'Société', 'http://www.lemonde.fr/rss/tag/societe.xml'),
+        ('Economie', 'http://www.lemonde.fr/rss/tag/economie.xml'),
+        (u'Médias', 'http://www.lemonde.fr/rss/tag/actualite-medias.xml'),
+        (u'Planète', 'http://www.lemonde.fr/rss/tag/planete.xml'),
+        ('Culture', 'http://www.lemonde.fr/rss/tag/culture.xml'),
+        ('Technologies', 'http://www.lemonde.fr/rss/tag/technologies.xml'),
+        ('Livres', 'http://www.lemonde.fr/rss/tag/livres.xml'),
 
-                    ]
+    ]
 
     def get_cover_url(self):
         cover_url = None
-        soup = self.index_to_soup('http://www.lemonde.fr/web/monde_pdf/0,33-0,1-0,0.html')
-        link_item = soup.find('div',attrs={'class':'pg-gch'})
+        soup = self.index_to_soup(
+            'http://www.lemonde.fr/web/monde_pdf/0,33-0,1-0,0.html')
+        link_item = soup.find('div', attrs={'class': 'pg-gch'})
 
         if link_item and link_item.img:
-           cover_url = link_item.img['src']
+            cover_url = link_item.img['src']
 
         return cover_url

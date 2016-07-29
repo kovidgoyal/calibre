@@ -5,10 +5,12 @@ __license__ = 'GPL v3'
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Comment
 import re
+
+
 class gw_bydgoszcz(BasicNewsRecipe):
-    title          = u'Gazeta Wyborcza Bydgoszcz'
+    title = u'Gazeta Wyborcza Bydgoszcz'
     __author__ = 'fenuks'
-    language       = 'pl'
+    language = 'pl'
     description = 'Wiadomości z Bydgoszczy na portalu Gazeta.pl.'
     category = 'newspaper'
     publication_type = 'newspaper'
@@ -23,13 +25,16 @@ class gw_bydgoszcz(BasicNewsRecipe):
     use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
 
-    #rules for gazeta.pl
-    preprocess_regexps = [(re.compile(u'<b>Czytaj więcej</b>.*', re.DOTALL), lambda m: '</body>')]
+    # rules for gazeta.pl
+    preprocess_regexps = [
+        (re.compile(u'<b>Czytaj więcej</b>.*', re.DOTALL), lambda m: '</body>')]
     keep_only_tags = [dict(id='gazeta_article')]
-    remove_tags = [dict(id=['gazeta_article_tools', 'gazeta_article_miniatures']), dict(attrs={'class':['mod mod_sociallist', 'c0', 'fb', 'voteNeedLogin']})]
+    remove_tags = [dict(id=['gazeta_article_tools', 'gazeta_article_miniatures']), dict(
+        attrs={'class': ['mod mod_sociallist', 'c0', 'fb', 'voteNeedLogin']})]
     remove_tags_after = dict(id='gazeta_article_body')
 
-    feeds          = [(u'Wiadomości', u'http://rss.feedsportal.com/c/32739/f/530239/index.rss')]
+    feeds = [
+        (u'Wiadomości', u'http://rss.feedsportal.com/c/32739/f/530239/index.rss')]
 
     def print_version(self, url):
         if 'feedsportal.com' in url:
@@ -63,17 +68,19 @@ class gw_bydgoszcz(BasicNewsRecipe):
     def append_page(self, soup, appendtag):
         tag = soup.find('div', attrs={'id': 'Str'})
         try:
-            baseurl = soup.find(name='meta', attrs={'property':'og:url'})['content']
+            baseurl = soup.find(name='meta', attrs={
+                                'property': 'og:url'})['content']
         except:
             return 1
         link = tag.findAll('a')[-1]
         while link:
             soup2 = self.index_to_soup(baseurl + link['href'])
             link = soup2.find('div', attrs={'id': 'Str'}).findAll('a')[-1]
-            if not u'następne' in link.string:
+            if u'następne' not in link.string:
                 link = ''
             pagetext = soup2.find(id='artykul')
-            comments = pagetext.findAll(text=lambda text:isinstance(text, Comment))
+            comments = pagetext.findAll(
+                text=lambda text: isinstance(text, Comment))
             for comment in comments:
                 comment.extract()
             pos = len(appendtag.contents)

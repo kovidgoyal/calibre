@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 gulfnews.com
@@ -6,21 +6,22 @@ gulfnews.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class GulfNews(BasicNewsRecipe):
-    title                 = 'Gulf News'
-    __author__            = 'Darko Miletic'
-    description           = 'News from United Arab Emirrates, persian gulf and rest of the world'
-    publisher             = 'Al Nisr Publishing LLC'
-    category              = 'news, politics, UAE, world'
-    oldest_article        = 2
+    title = 'Gulf News'
+    __author__ = 'Darko Miletic'
+    description = 'News from United Arab Emirrates, persian gulf and rest of the world'
+    publisher = 'Al Nisr Publishing LLC'
+    category = 'news, politics, UAE, world'
+    oldest_article = 2
     max_articles_per_feed = 200
-    no_stylesheets        = True
-    encoding              = 'utf8'
-    use_embedded_content  = False
-    language              = 'en'
-    remove_empty_feeds    = True
-    publication_type      = 'newsportal'
-    masthead_url          = 'http://gulfnews.com/media/img/gulf_news_logo.jpg'
+    no_stylesheets = True
+    encoding = 'utf8'
+    use_embedded_content = False
+    language = 'en'
+    remove_empty_feeds = True
+    publication_type = 'newsportal'
+    masthead_url = 'http://gulfnews.com/media/img/gulf_news_logo.jpg'
     extra_css             = """
                                body{font-family: Arial,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
@@ -32,31 +33,27 @@ class GulfNews(BasicNewsRecipe):
                             """
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
     remove_tags = [
-                     dict(name=['meta','link','object','embed'])
-                     ,dict(attrs={'class':['quickLinks','ratings']})
-                     ,dict(attrs={'id':'imageSelector'})
-                  ]
-    remove_attributes=['lang']
-    keep_only_tags=[
-                     dict(name='h1')
-                     ,dict(attrs={'class':['synopsis','details','image','article']})
-                   ]
-
+        dict(name=['meta', 'link', 'object', 'embed']), dict(
+            attrs={'class': ['quickLinks', 'ratings']}), dict(attrs={'id': 'imageSelector'})
+    ]
+    remove_attributes = ['lang']
+    keep_only_tags = [
+        dict(name='h1'), dict(
+            attrs={'class': ['synopsis', 'details', 'image', 'article']})
+    ]
 
     feeds = [
-              (u'UAE News'      , u'http://gulfnews.com/cmlink/1.446094')
-             ,(u'Business'      , u'http://gulfnews.com/cmlink/1.446098')
-             ,(u'Entertainment' , u'http://gulfnews.com/cmlink/1.446095')
-             ,(u'Sport'         , u'http://gulfnews.com/cmlink/1.446096')
-             ,(u'Life'          , u'http://gulfnews.com/cmlink/1.446097')
-            ]
+
+    (u'UAE News', u'http://gulfnews.com/cmlink/1.446094'),
+    (u'Business', u'http://gulfnews.com/cmlink/1.446098'),
+    (u'Entertainment', u'http://gulfnews.com/cmlink/1.446095'),
+    (u'Sport', u'http://gulfnews.com/cmlink/1.446096'),
+    (u'Life', u'http://gulfnews.com/cmlink/1.446097')
+    ]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

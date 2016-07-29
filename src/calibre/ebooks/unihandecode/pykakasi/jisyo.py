@@ -31,12 +31,12 @@ class jisyo (object):
                 P('localization/pykakasi/kanadict2.pickle', data=True))
 
     def load_jisyo(self, char):
-        try:#python2
+        try:  # python2
             key = "%04x"%ord(unicode(char))
-        except:#python3
+        except:  # python3
             key = "%04x"%ord(char)
 
-        try: #already exist?
+        try:  # already exist?
             table = self.jisyo_table[key]
         except:
             try:

@@ -1,7 +1,6 @@
-__license__   = 'GPL v3'
-__author__    = 'Lorenzo Vigentini, based on Darko Miletic, Gabriele Marini; minor fixes by faber1971'
+__license__ = 'GPL v3'
+__author__ = 'Lorenzo Vigentini, based on Darko Miletic, Gabriele Marini; minor fixes by faber1971'
 __copyright__ = '2009-2012, Darko Miletic <darko.miletic at gmail.com>, Lorenzo Vigentini <l.vigentini at gmail.com>, faber1971'
-description   = 'Italian daily newspaper - v1.02 (04, January 2010); 16.05.2010 new version; 17.10.2011 new version; 14.12.2011 new version; 11.05.2012 new version'
 
 '''
 http://www.repubblica.it/
@@ -10,35 +9,36 @@ http://www.repubblica.it/
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class LaRepubblica(BasicNewsRecipe):
-    title                   = 'La Repubblica'
-    __author__              = 'Lorenzo Vigentini, Gabriele Marini, Darko Miletic, faber1971'
-    description             = 'il quotidiano online con tutte le notizie in tempo reale. News e ultime notizie. Tutti i settori: politica, cronaca, economia, sport, esteri, scienza, tecnologia, internet, spettacoli, musica, cultura, arte, mostre, libri, dvd, vhs, concerti, cinema, attori, attrici, recensioni, chat, cucina, mappe. Le citta di Repubblica: Roma, Milano, Bologna, Firenze, Palermo, Napoli, Bari, Torino.'
-    masthead_url            = 'http://www.repubblica.it/static/images/homepage/2010/la-repubblica-logo-home-payoff.png'
-    publisher               = 'Gruppo editoriale L\'Espresso'
-    category                = 'News, politics, culture, economy, general interest'
-    language                = 'it'
-    timefmt                 = '[%a, %d %b, %Y]'
-    oldest_article          = 1
-    encoding                = 'utf8'
-    use_embedded_content    = False
-    no_stylesheets          = True
-    publication_type        = 'newspaper'
-    articles_are_obfuscated = True    
-    temp_files              = []    
+    title = 'La Repubblica'
+    __author__ = 'Lorenzo Vigentini, Gabriele Marini, Darko Miletic, faber1971'
+    description = 'il quotidiano online con tutte le notizie in tempo reale. News e ultime notizie. Tutti i settori: politica, cronaca, economia, sport, esteri, scienza, tecnologia, internet, spettacoli, musica, cultura, arte, mostre, libri, dvd, vhs, concerti, cinema, attori, attrici, recensioni, chat, cucina, mappe. Le citta di Repubblica: Roma, Milano, Bologna, Firenze, Palermo, Napoli, Bari, Torino.'  # noqa
+    masthead_url = 'http://www.repubblica.it/static/images/homepage/2010/la-repubblica-logo-home-payoff.png'
+    publisher = 'Gruppo editoriale L\'Espresso'
+    category = 'News, politics, culture, economy, general interest'
+    language = 'it'
+    timefmt = '[%a, %d %b, %Y]'
+    oldest_article = 1
+    encoding = 'utf8'
+    use_embedded_content = False
+    no_stylesheets = True
+    publication_type = 'newspaper'
+    articles_are_obfuscated = True
+    temp_files = []
     extra_css               = """
                                img{display: block}
                               """
-                           
-    remove_attributes = ['width','height','lang','xmlns:og','xmlns:fb']
-    
+
+    remove_attributes = ['width', 'height', 'lang', 'xmlns:og', 'xmlns:fb']
+
     def get_article_url(self, article):
         link = BasicNewsRecipe.get_article_url(self, article)
-        if link and not '.repubblica.it/' in link:
+        if link and '.repubblica.it/' not in link:
             link2 = article.get('id', article.get('guid', None))
             if link2:
                 link = link2
-        return link.rpartition('?')[0]        
+        return link.rpartition('?')[0]
 
     def get_obfuscated_article(self, url):
         count = 0
@@ -49,61 +49,65 @@ class LaRepubblica(BasicNewsRecipe):
                 count = 10
             except:
                 print "Retrying download..."
-            count += 1        
+            count += 1
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(html)
         self.temp_files[-1].close()
         return self.temp_files[-1].name
-        
-    keep_only_tags     = [
-                          dict(attrs={'class':'articolo'}),
-                          dict(attrs={'class':'body-text'}),
-                          dict(name='p', attrs={'class':'disclaimer clearfix'}),
-                          dict(name='div', attrs={'id':'main'}),
-                          dict(attrs={'id':'contA'})
-                         ]
 
+    keep_only_tags = [
+        dict(attrs={'class': 'articolo'}),
+        dict(attrs={'class': 'body-text'}),
+        dict(name='p', attrs={'class': 'disclaimer clearfix'}),
+        dict(name='div', attrs={'id': 'main'}),
+        dict(attrs={'id': 'contA'})
+    ]
 
-    remove_tags        = [
-                            dict(name=['object','link','meta','iframe','embed']),
-                            dict(name='span',attrs={'class':'linkindice'}),
-                            dict(name='div', attrs={'class':['bottom-mobile','adv adv-middle-inline']}),
-                            dict(name='div', attrs={'id':['rssdiv','blocco','fb-like-head', 'sidebar']}),
-                            dict(name='div', attrs={'class':['utility','fb-like-button','archive-button']}),
-                            dict(name='div', attrs={'class':'generalbox'}),
-                            dict(name='ul', attrs={'id':'hystory'})
-                         ]
+    remove_tags = [
+        dict(name=['object', 'link', 'meta', 'iframe', 'embed']),
+        dict(name='span', attrs={'class': 'linkindice'}),
+        dict(name='div', attrs={
+             'class': ['bottom-mobile', 'adv adv-middle-inline']}),
+        dict(name='div', attrs={
+             'id': ['rssdiv', 'blocco', 'fb-like-head', 'sidebar']}),
+        dict(name='div', attrs={
+             'class': ['utility', 'fb-like-button', 'archive-button']}),
+        dict(name='div', attrs={'class': 'generalbox'}),
+        dict(name='ul', attrs={'id': 'hystory'})
+    ]
 
-    feeds          = [
-                       (u'Homepage', u'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
-                       (u'Cronaca', u'http://www.repubblica.it/rss/cronaca/rss2.0.xml'),
-                       (u'Esteri', u'http://www.repubblica.it/rss/esteri/rss2.0.xml'),
-                       (u'Economia', u'http://www.repubblica.it/rss/economia/rss2.0.xml'),
-                       (u'Politica', u'http://www.repubblica.it/rss/politica/rss2.0.xml'),
-                       (u'Scienze', u'http://www.repubblica.it/rss/scienze/rss2.0.xml'),
-                       (u'Tecnologia', u'http://www.repubblica.it/rss/tecnologia/rss2.0.xml'),
-                       (u'Scuola e Universita', u'http://www.repubblica.it/rss/scuola_e_universita/rss2.0.xml'),
-                       (u'Ambiente', u'http://www.repubblica.it/rss/ambiente/rss2.0.xml'),
-                       (u'Cultura', u'http://www.repubblica.it/rss/spettacoli_e_cultura/rss2.0.xml'),
-                       (u'Persone', u'http://www.repubblica.it/rss/persone/rss2.0.xml'),
-                       (u'Sport', u'http://www.repubblica.it/rss/sport/rss2.0.xml'),
-                       (u'Calcio', u'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml'),
-                       (u'Motori', u'http://www.repubblica.it/rss/motori/rss2.0.xml'),
-                       (u'Roma', u'http://roma.repubblica.it/rss/rss2.0.xml'),
-                       (u'Torino', u'http://torino.repubblica.it/rss/rss2.0.xml'),
-                       (u'Milano', u'feed://milano.repubblica.it/rss/rss2.0.xml'),
-                       (u'Napoli', u'feed://napoli.repubblica.it/rss/rss2.0.xml'),
-                       (u'Bari', u'http://bari.repubblica.it/rss/rss2.0.xml'),
-                       (u'Palermo', u'feed://palermo.repubblica.it/rss/rss2.0.xml')
-                      ]
+    feeds = [
+        (u'Homepage', u'http://www.repubblica.it/rss/homepage/rss2.0.xml'),
+        (u'Cronaca', u'http://www.repubblica.it/rss/cronaca/rss2.0.xml'),
+        (u'Esteri', u'http://www.repubblica.it/rss/esteri/rss2.0.xml'),
+        (u'Economia', u'http://www.repubblica.it/rss/economia/rss2.0.xml'),
+        (u'Politica', u'http://www.repubblica.it/rss/politica/rss2.0.xml'),
+        (u'Scienze', u'http://www.repubblica.it/rss/scienze/rss2.0.xml'),
+        (u'Tecnologia',
+         u'http://www.repubblica.it/rss/tecnologia/rss2.0.xml'),
+        (u'Scuola e Universita',
+         u'http://www.repubblica.it/rss/scuola_e_universita/rss2.0.xml'),
+        (u'Ambiente', u'http://www.repubblica.it/rss/ambiente/rss2.0.xml'),
+        (u'Cultura', u'http://www.repubblica.it/rss/spettacoli_e_cultura/rss2.0.xml'),
+        (u'Persone', u'http://www.repubblica.it/rss/persone/rss2.0.xml'),
+        (u'Sport', u'http://www.repubblica.it/rss/sport/rss2.0.xml'),
+        (u'Calcio', u'http://www.repubblica.it/rss/sport/calcio/rss2.0.xml'),
+        (u'Motori', u'http://www.repubblica.it/rss/motori/rss2.0.xml'),
+        (u'Roma', u'http://roma.repubblica.it/rss/rss2.0.xml'),
+        (u'Torino', u'http://torino.repubblica.it/rss/rss2.0.xml'),
+        (u'Milano', u'feed://milano.repubblica.it/rss/rss2.0.xml'),
+        (u'Napoli', u'feed://napoli.repubblica.it/rss/rss2.0.xml'),
+        (u'Bari', u'http://bari.repubblica.it/rss/rss2.0.xml'),
+        (u'Palermo', u'feed://palermo.repubblica.it/rss/rss2.0.xml')
+    ]
 
     def preprocess_html(self, soup):
-        for item in soup.findAll(['hgroup','deresponsabilizzazione','per']):
+        for item in soup.findAll(['hgroup', 'deresponsabilizzazione', 'per']):
             item.name = 'div'
-            item.attrs = []            
+            item.attrs = []
         for item in soup.findAll(style=True):
-            del item['style']           
+            del item['style']
         return soup
-                      
+
     def preprocess_raw_html(self, raw, url):
-       return '<html><head>'+raw[raw.find('</head>'):]
+        return '<html><head>' + raw[raw.find('</head>'):]

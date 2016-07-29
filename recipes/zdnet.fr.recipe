@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011 Aurélien Chabot <contact@aurelienchabot.fr>'
 
 '''
@@ -11,20 +11,20 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 class zdnet(BasicNewsRecipe):
 
-    title                  = 'ZDNet.fr'
-    __author__             = 'calibre'
-    description            = 'Actualités'
-    encoding               = 'utf-8'
-    publisher              = 'ZDNet.fr'
-    category               = 'Actualité, Informatique, IT'
-    language               = 'fr'
+    title = 'ZDNet.fr'
+    __author__ = 'calibre'
+    description = 'Actualités'
+    encoding = 'utf-8'
+    publisher = 'ZDNet.fr'
+    category = 'Actualité, Informatique, IT'
+    language = 'fr'
 
-    use_embedded_content   = False
-    timefmt                = ' [%d %b %Y]'
-    max_articles_per_feed  = 15
-    no_stylesheets         = True
-    remove_empty_feeds     = True
-    filterDuplicates       = True
+    use_embedded_content = False
+    timefmt = ' [%d %b %Y]'
+    max_articles_per_feed = 15
+    no_stylesheets = True
+    remove_empty_feeds = True
+    filterDuplicates = True
 
     extra_css = '''
                     h1 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
@@ -34,8 +34,8 @@ class zdnet(BasicNewsRecipe):
 
     remove_tags = [
         dict(name='iframe'),
-        dict(name='div', attrs={'class':['toolbox']}),
-        dict(name='div', attrs={'class':['clear clearfix']}),
+        dict(name='div', attrs={'class': ['toolbox']}),
+        dict(name='div', attrs={'class': ['clear clearfix']}),
         dict(id='emailtoafriend'),
         dict(id='storyaudio'),
         dict(id='fbtwContainer'),
@@ -43,14 +43,13 @@ class zdnet(BasicNewsRecipe):
     ]
 
     remove_tags_before = dict(id='leftcol')
-    remove_tags_after  = dict(id='content')
+    remove_tags_after = dict(id='content')
 
-    feeds =  [
-            ('Informatique', 'http://www.zdnet.fr/feeds/rss/actualites/informatique/'),
-            ('Internet', 'http://www.zdnet.fr/feeds/rss/actualites/internet/'),
-            ('Telecom', 'http://www.zdnet.fr/feeds/rss/actualites/telecoms/')
+    feeds = [
+        ('Informatique', 'http://www.zdnet.fr/feeds/rss/actualites/informatique/'),
+        ('Internet', 'http://www.zdnet.fr/feeds/rss/actualites/internet/'),
+        ('Telecom', 'http://www.zdnet.fr/feeds/rss/actualites/telecoms/')
     ]
-
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):

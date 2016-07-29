@@ -31,10 +31,10 @@ class BIBTEX(CatalogPlugin):
 
     cli_options = [
             Option('--fields',
-                default = 'all',
-                dest = 'fields',
-                action = None,
-                help = _('The fields to output when cataloging books in the '
+                default='all',
+                dest='fields',
+                action=None,
+                help=_('The fields to output when cataloging books in the '
                     'database.  Should be a comma-separated list of fields.\n'
                     'Available fields: %(fields)s.\n'
                     'plus user-created custom fields.\n'
@@ -44,65 +44,65 @@ class BIBTEX(CatalogPlugin):
                         fields=', '.join(FIELDS), opt='--fields')),
 
             Option('--sort-by',
-                default = 'id',
-                dest = 'sort_by',
-                action = None,
-                help = _('Output field to sort on.\n'
+                default='id',
+                dest='sort_by',
+                action=None,
+                help=_('Output field to sort on.\n'
                 'Available fields: author_sort, id, rating, size, timestamp, title.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
 
             Option('--create-citation',
-                default = 'True',
-                dest = 'impcit',
-                action = None,
-                help = _('Create a citation for BibTeX entries.\n'
+                default='True',
+                dest='impcit',
+                action=None,
+                help=_('Create a citation for BibTeX entries.\n'
                 'Boolean value: True, False\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
 
             Option('--add-files-path',
-                default = 'True',
-                dest = 'addfiles',
-                action = None,
-                help = _('Create a file entry if formats is selected for BibTeX entries.\n'
+                default='True',
+                dest='addfiles',
+                action=None,
+                help=_('Create a file entry if formats is selected for BibTeX entries.\n'
                 'Boolean value: True, False\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
 
             Option('--citation-template',
-                default = '{authors}{id}',
-                dest = 'bib_cit',
-                action = None,
-                help = _('The template for citation creation from database fields.\n'
+                default='{authors}{id}',
+                dest='bib_cit',
+                action=None,
+                help=_('The template for citation creation from database fields.\n'
                     'Should be a template with {} enclosed fields.\n'
                     'Available fields: %s.\n'
                     "Default: '%%default'\n"
                     "Applies to: BIBTEX output format")%', '.join(TEMPLATE_ALLOWED_FIELDS)),
 
             Option('--choose-encoding',
-                default = 'utf8',
-                dest = 'bibfile_enc',
-                action = None,
-                help = _('BibTeX file encoding output.\n'
+                default='utf8',
+                dest='bibfile_enc',
+                action=None,
+                help=_('BibTeX file encoding output.\n'
                 'Available types: utf8, cp1252, ascii.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
 
             Option('--choose-encoding-configuration',
-                default = 'strict',
-                dest = 'bibfile_enctag',
-                action = None,
-                help = _('BibTeX file encoding flag.\n'
+                default='strict',
+                dest='bibfile_enctag',
+                action=None,
+                help=_('BibTeX file encoding flag.\n'
                 'Available types: strict, replace, ignore, backslashreplace.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format")),
 
             Option('--entry-type',
-                default = 'book',
-                dest = 'bib_entry',
-                action = None,
-                help = _('Entry type for BibTeX catalog.\n'
+                default='book',
+                dest='bib_entry',
+                action=None,
+                help=_('Entry type for BibTeX catalog.\n'
                 'Available types: book, misc, mixed.\n'
                 "Default: '%default'\n"
                 "Applies to: BIBTEX output format"))]
@@ -120,8 +120,8 @@ class BIBTEX(CatalogPlugin):
         def create_bibtex_entry(entry, fields, mode, template_citation,
                                     bibtexdict, db, citation_bibtex=True, calibre_files=True):
 
-            #Bibtex doesn't like UTF-8 but keep unicode until writing
-            #Define starting chain or if book valid strict and not book return a Fail string
+            # Bibtex doesn't like UTF-8 but keep unicode until writing
+            # Define starting chain or if book valid strict and not book return a Fail string
 
             bibtex_entry = []
             if mode != "misc" and check_entry_book_valid(entry) :
@@ -129,7 +129,7 @@ class BIBTEX(CatalogPlugin):
             elif mode != "book" :
                 bibtex_entry.append(u'@misc{')
             else :
-                #case strict book
+                # case strict book
                 return ''
 
             if citation_bibtex :
@@ -150,7 +150,7 @@ class BIBTEX(CatalogPlugin):
                 else:
                     item = entry[field]
 
-                #check if the field should be included (none or empty)
+                # check if the field should be included (none or empty)
                 if item is None:
                     continue
                 try:
@@ -172,16 +172,16 @@ class BIBTEX(CatalogPlugin):
                     bibtex_entry.append(u'%s = "%s octets"' % (field, int(item)))
 
                 elif field == 'tags' :
-                    #A list to flatten
+                    # A list to flatten
                     bibtex_entry.append(u'tags = "%s"' % bibtexdict.utf8ToBibtex(u', '.join(item)))
 
                 elif field == 'comments' :
-                    #\n removal
+                    # \n removal
                     item = item.replace(u'\r\n',u' ')
                     item = item.replace(u'\n',u' ')
                     # unmatched brace removal (users should use \leftbrace or \rightbrace for single braces)
                     item = bibtexdict.stripUnmatchedSyntax(item, u'{', u'}')
-                    #html to text
+                    # html to text
                     try:
                         item = html2text(item)
                     except:
@@ -193,11 +193,11 @@ class BIBTEX(CatalogPlugin):
                     bibtex_entry.append(u'isbn = "%s"' % format_isbn(item))
 
                 elif field == 'formats' :
-                    #Add file path if format is selected
+                    # Add file path if format is selected
                     formats = [format.rpartition('.')[2].lower() for format in item]
                     bibtex_entry.append(u'formats = "%s"' % u', '.join(formats))
                     if calibre_files:
-                        files = [u':%s:%s' % (format, format.rpartition('.')[2].upper())\
+                        files = [u':%s:%s' % (format, format.rpartition('.')[2].upper())
                             for format in item]
                         bibtex_entry.append(u'file = "%s"' % u', '.join(files))
 
@@ -226,7 +226,7 @@ class BIBTEX(CatalogPlugin):
             return bibtex_entry
 
         def check_entry_book_valid(entry):
-            #Check that the required fields are ok for a book entry
+            # Check that the required fields are ok for a book entry
             for field in ['title', 'authors', 'publisher'] :
                 if entry[field] is None or len(entry[field]) == 0 :
                     return False
@@ -237,7 +237,7 @@ class BIBTEX(CatalogPlugin):
 
         def make_bibtex_citation(entry, template_citation, bibtexclass):
 
-            #define a function to replace the template entry by its value
+            # define a function to replace the template entry by its value
             def tpl_replace(objtplname) :
 
                 tpl_field = re.sub(u'[\{\}]', u'', objtplname.group())
@@ -339,16 +339,16 @@ class BIBTEX(CatalogPlugin):
         if not len(data):
             log.error("\nNo matching database entries for search criteria '%s'" % opts.search_text)
 
-        #Initialize BibTeX class
+        # Initialize BibTeX class
         bibtexc = BibTeX()
 
-        #Entries writing after Bibtex formating (or not)
+        # Entries writing after Bibtex formating (or not)
         if bibfile_enc != 'ascii' :
             bibtexc.ascii_bibtex = False
         else :
             bibtexc.ascii_bibtex = True
 
-        #Check citation choice and go to default in case of bad CLI
+        # Check citation choice and go to default in case of bad CLI
         if isinstance(opts.impcit, (StringType, UnicodeType)) :
             if opts.impcit == 'False' :
                 citation_bibtex= False
@@ -360,7 +360,7 @@ class BIBTEX(CatalogPlugin):
         else :
             citation_bibtex= opts.impcit
 
-        #Check add file entry and go to default in case of bad CLI
+        # Check add file entry and go to default in case of bad CLI
         if isinstance(opts.addfiles, (StringType, UnicodeType)) :
             if opts.addfiles == 'False' :
                 addfiles_bibtex = False
@@ -372,16 +372,16 @@ class BIBTEX(CatalogPlugin):
         else :
             addfiles_bibtex = opts.addfiles
 
-        #Preprocess for error and light correction
+        # Preprocess for error and light correction
         template_citation = preprocess_template(opts.bib_cit)
 
-        #Open output and write entries
+        # Open output and write entries
         with codecs.open(path_to_output, 'w', bibfile_enc, bibfile_enctag)\
             as outfile:
-            #File header
+            # File header
             nb_entries = len(data)
 
-            #check in book strict if all is ok else throw a warning into log
+            # check in book strict if all is ok else throw a warning into log
             if bib_entry == 'book' :
                 nb_books = len(filter(check_entry_book_valid, data))
                 if nb_books < nb_entries :

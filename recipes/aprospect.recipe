@@ -1,22 +1,20 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AmericanProspect(BasicNewsRecipe):
-    title          = u'American Prospect'
-    __author__     = u'Michael Heinz, a.peter'
-    version        = 2
+    title = u'American Prospect'
+    __author__ = u'Michael Heinz, a.peter'
+    version = 2
 
-    oldest_article        = 30
-    language              = 'en'
+    oldest_article = 30
+    language = 'en'
     max_articles_per_feed = 100
-    recursions            = 0
-    no_stylesheets        = True
-    remove_javascript     = True
+    recursions = 0
+    no_stylesheets = True
+    remove_javascript = True
 
-    #keep_only_tags = [dict(name='div', attrs={'class':'pad_10L10R'})]
-    #remove_tags    = [dict(name='form'), dict(name='div', attrs={'class':['bkt_caption','sharebox noprint','badgebox']})]
     use_embedded_content = False
 
     no_stylesheets = True
     auto_cleanup = True
-    feeds       = [(u'Articles', u'feed://www.prospect.org/articles_rss.jsp')]
- 
+    feeds = [(u'Articles', u'feed://www.prospect.org/articles_rss.jsp')]

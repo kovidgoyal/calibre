@@ -2,10 +2,11 @@ from calibre import browser
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
-    title          = u'Countryfile.com'
+    title = u'Countryfile.com'
     __author__ = 'Dave Asbury'
-    description           = 'The official website of Countryfile Magazine'
+    description = 'The official website of Countryfile Magazine'
     # last updated 24.10.14
     language = 'en_GB'
     oldest_article = 30
@@ -18,10 +19,11 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.countryfile.com/magazine')
-        cov = soup.find(attrs={'class' : re.compile('imagecache imagecache-250px')})  # 'width' : '160',
-        cov=str(cov)
-        cov=cov[10:]
-        cov=cov[:-135]
+        cov = soup.find(attrs={'class': re.compile(
+            'imagecache imagecache-250px')})  # 'width' : '160',
+        cov = str(cov)
+        cov = cov[10:]
+        cov = cov[:-135]
         # print '++++ ',cov,' ++++'
         br = browser()
 
@@ -35,7 +37,7 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
     preprocess_regexps = [
         (re.compile(r' \| Countryfile.com', re.IGNORECASE | re.DOTALL), lambda match: '')]
-    feeds          = [
+    feeds = [
         (u'Country News', u'http://www.feed43.com/7204505705648666.xml'),
         (u'Articles', u'http://www.feed43.com/8542080013204443.xml'),
     ]

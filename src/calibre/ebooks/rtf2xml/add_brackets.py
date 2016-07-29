@@ -26,8 +26,8 @@ class AddBrackets:
     """
     def __init__(self, in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         """
         Required:
@@ -89,7 +89,6 @@ class AddBrackets:
         self.__temp_group = []
         self.__open_bracket = False
         self.__found_brackets = False
-        
 
     def __before_body_func(self, line):
         """
@@ -151,7 +150,7 @@ class AddBrackets:
         But this is mostly useless in my opinion as there is no list of rejected cw
         This may be a way to implement future old rtf processing for cw
         Utility: open a group to just put brackets but why be so complicated?
-        Scheme: open brackets, write cw then go to body and back with cw after 
+        Scheme: open brackets, write cw then go to body and back with cw after
         """
         if self.__open_bracket:
             self.__write_obj.write(
@@ -159,8 +158,8 @@ class AddBrackets:
                 )
             self.__open_bracket = False
 
-        inline_string = ''.join(['%s<nu<%s\n' % (k, v) \
-                for k, v in self.__inline.iteritems() \
+        inline_string = ''.join(['%s<nu<%s\n' % (k, v)
+                for k, v in self.__inline.iteritems()
                     if v != 'false'])
         if inline_string:
             self.__write_obj.write('ob<nu<open-brack<0003\n'
@@ -175,11 +174,10 @@ class AddBrackets:
         What is the interest as it is build to accept only accepted cw
         in __after_control_word_func?
         """
-        self.__inline = {line[:16] : line[20:-1]\
+        self.__inline = {line[:16] : line[20:-1]
             for line in self.__temp_group\
             # Is this really necessary?
                 if line[:16] in self.__accept}
-
 
     def __ignore_func(self, line):
         """
@@ -194,8 +192,7 @@ class AddBrackets:
         """
         Return True if brackets match
         """
-        check_brack_obj = check_brackets.CheckBrackets\
-            (file = in_file)
+        check_brack_obj = check_brackets.CheckBrackets(file=in_file)
         return check_brack_obj.check_brackets()[0]
 
     def add_brackets(self):
@@ -216,12 +213,12 @@ class AddBrackets:
                             'No matching state in module add_brackets.py\n'
                             '%s\n' % self.__state)
                     action(line)
-        #Check bad brackets
+        # Check bad brackets
         if self.__check_brackets(self.__write_to):
-            copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+            copy_obj = copy.Copy(bug_handler=self.__bug_handler)
             if self.__copy:
                 copy_obj.copy_file(self.__write_to, "add_brackets.data")
-            copy_obj.rename(self.__write_to, self.__file)  
+            copy_obj.rename(self.__write_to, self.__file)
         else:
             if self.__run_level > 0:
                 sys.stderr.write(

@@ -9,11 +9,12 @@ dzialzagraniczny.pl
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class dzial_zagraniczny(BasicNewsRecipe):
-    title          = u'Dział Zagraniczny'
+    title = u'Dział Zagraniczny'
     __author__ = 'teepel <teepel44@gmail.com>'
-    language       = 'pl'
-    description    = u'Polskiego czytelnika to nie interesuje'
+    language = 'pl'
+    description = u'Polskiego czytelnika to nie interesuje'
     INDEX = 'http://dzialzagraniczny.pl'
     extra_css = 'img {display: block;}'
     oldest_article = 7
@@ -24,4 +25,4 @@ class dzial_zagraniczny(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = True
 
-    feeds          = [(u'Dział zagraniczny', u'http://feeds.feedburner.com/dyndns/UOfz')]
+    feeds = [(u'Dział zagraniczny', u'http://feeds.feedburner.com/dyndns/UOfz')]

@@ -104,7 +104,7 @@ def ereader_header_info202(h0):
     print ''
     print '* Garbage: Random values.'
     print ''
-    
+
 
 def section_lengths(header):
     print 'Section Sizes'

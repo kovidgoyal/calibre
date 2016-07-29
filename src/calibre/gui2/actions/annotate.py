@@ -13,7 +13,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.devices.usbms.device import Device
 from calibre.gui2.dialogs.progress import ProgressDialog
 
-class Updater(QThread): # {{{
+class Updater(QThread):  # {{{
 
     update_progress = pyqtSignal(int)
     update_done     = pyqtSignal()
@@ -130,7 +130,8 @@ class FetchAnnotationsAction(InterfaceAction):
 
     def annotations_fetched(self, job):
 
-        if not job.result: return
+        if not job.result:
+            return
 
         if self.gui.current_view() is not self.gui.library_view:
             return error_dialog(self.gui, _('Use library only'),

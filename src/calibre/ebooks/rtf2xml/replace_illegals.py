@@ -22,8 +22,8 @@ class ReplaceIllegals:
     """
     def __init__(self,
             in_file,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         self.__file = in_file
         self.__copy = copy

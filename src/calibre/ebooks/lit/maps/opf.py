@@ -52,7 +52,7 @@ TAGS = [
    ]
 
 ATTRS = {
-    0x0001: "href",   
+    0x0001: "href",
     0x0002: "%never-used",
     0x0003: "%guid",
     0x0004: "%minimum_level",

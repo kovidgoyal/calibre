@@ -112,7 +112,8 @@ class HoustonChronicle(BasicNewsRecipe):
         if len(el) == 1:
             return get_regular_timestamp(el[0].get('title'))
         else:
-            el = page_doc.xpath("//*[@class='entry-date' or @class='post-date'][1]")
+            el = page_doc.xpath(
+                "//*[@class='entry-date' or @class='post-date'][1]")
             if len(el) == 1:
                 return get_date_from_string(el[0].text_content())
             else:
@@ -129,11 +130,13 @@ class HoustonChronicle(BasicNewsRecipe):
             return False
 
         link_list = self.get_links_from_section_page(page[1])
-        self.log('from section: ', page[0], " found ", len(link_list), " links")
+        self.log('from section: ', page[0],
+                 " found ", len(link_list), " links")
         for link in link_list:
             try:
                 article_doc = html.parse(link[0])
-                description = self.get_article_description_from_doc(article_doc)
+                description = self.get_article_description_from_doc(
+                    article_doc)
                 parsed_date = self.get_published_time_from_doc(article_doc)
                 if parsed_date is not None and description is not None and \
                         parsed_date.date() > self.earliest_date and \
@@ -150,7 +153,8 @@ class HoustonChronicle(BasicNewsRecipe):
                     elif title_excluded(link[1]):
                         msg = " Title Excluded"
                     else:
-                        msg = " article older than " + str(self.oldest_web_article) + ' days...'
+                        msg = " article older than " + \
+                            str(self.oldest_web_article) + ' days...'
                     self.log("Skipping article: ", link[0], msg)
             except:
                 print 'error on fetching ' + link[0]
@@ -170,8 +174,10 @@ class HoustonChronicle(BasicNewsRecipe):
         return feeds
 
     def preprocess_html(self, soup):
-        tags_to_exclude = [('class', "caption  staged"), ('style', "display:none")]
-        story_tag = soup.find(name='div', attrs={'class': ['article-content', 'article-body']})
+        tags_to_exclude = [('class', "caption  staged"),
+                           ('style', "display:none")]
+        story_tag = soup.find(
+            name='div', attrs={'class': ['article-content', 'article-body']})
         blog_tag = soup.find(name='div', attrs={'id': re.compile('post-\d+')})
 
         def is_excluded(tag_to_check):
@@ -190,18 +196,9 @@ class HoustonChronicle(BasicNewsRecipe):
 
         base_tags = []
         if story_tag is not None:
-            base_tags = story_tag.findAll(lambda this_tag: (this_tag.name == "p"
-                                                            and not ('class', 'open') in this_tag.attrs
-                                                            and not ('class', 'close') in this_tag.attrs)
-                                                           or this_tag.name.startswith('h') or this_tag.name == 'table'
-                                                           or (this_tag.name == 'li'
-                                                               and ('class', 'hst-resgalleryitem') in this_tag.attrs))
+            base_tags = story_tag.findAll(lambda this_tag: (this_tag.name == "p" and not ('class', 'open') in this_tag.attrs and not ('class', 'close') in this_tag.attrs) or this_tag.name.startswith('h') or this_tag.name == 'table' or (this_tag.name == 'li' and ('class', 'hst-resgalleryitem') in this_tag.attrs))  # noqa
         if blog_tag is not None:
-            base_tags = blog_tag.findAll(lambda this_tag: (this_tag.name == "p" or this_tag.name.startswith('h'))
-                                                          or (this_tag.name == "span"
-                                                              and get_attr_startswith(this_tag.attrs, 'class', 'post'))
-                                                          or (this_tag.name == 'img' and (
-                'lazy-state', 'loaded') in this_tag.attrs))
+            base_tags = blog_tag.findAll(lambda this_tag: (this_tag.name == "p" or this_tag.name.startswith('h')) or (this_tag.name == "span" and get_attr_startswith(this_tag.attrs, 'class', 'post')) or (this_tag.name == 'img' and ('lazy-state', 'loaded') in this_tag.attrs))  # noqa
 
         self.log('content tags: ' + str(type(base_tags)) + str(len(base_tags)))
         all_tags = []

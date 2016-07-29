@@ -1,13 +1,17 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2014, spswerling'
 '''
 http://www.al-monitor.com/
 '''
-import string, inspect, datetime, re
+import string
+import inspect
+import datetime
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
+
 
 class AlMonitor(BasicNewsRecipe):
     title = u'Al Monitor'
@@ -26,39 +30,39 @@ class AlMonitor(BasicNewsRecipe):
     recursions = 0
     compress_news_images = True
     compress_news_images_max_size = 7
-    scale_news_images = (150,200)  # (kindle touch: 600x800)
+    scale_news_images = (150, 200)  # (kindle touch: 600x800)
     useHighResImages = False
     oldest_article = 1.5
     max_articles_per_section = 15
 
     sections = [
-                  (u'egypt',u'http://www.al-monitor.com/pulse/egypt-pulse'),
-                  (u'gulf',u'http://www.al-monitor.com/pulse/gulf-pulse'),
-                  (u'iran',u'http://www.al-monitor.com/pulse/iran-pulse'),
-                  (u'iraq',u'http://www.al-monitor.com/pulse/iraq-pulse'),
-                  (u'israel',u'http://www.al-monitor.com/pulse/israel-pulse'),
-                  (u'lebanon',u'http://www.al-monitor.com/pulse/lebanon-pulse'),
-                  (u'palistine',u'http://www.al-monitor.com/pulse/palistine-pulse'),
-                  (u'syria',u'http://www.al-monitor.com/pulse/syria-pulse'),
-                  (u'turkey',u'http://www.al-monitor.com/pulse/turkey-pulse'),
-               ]
+        (u'egypt', u'http://www.al-monitor.com/pulse/egypt-pulse'),
+        (u'gulf', u'http://www.al-monitor.com/pulse/gulf-pulse'),
+        (u'iran', u'http://www.al-monitor.com/pulse/iran-pulse'),
+        (u'iraq', u'http://www.al-monitor.com/pulse/iraq-pulse'),
+        (u'israel', u'http://www.al-monitor.com/pulse/israel-pulse'),
+        (u'lebanon', u'http://www.al-monitor.com/pulse/lebanon-pulse'),
+        (u'palistine', u'http://www.al-monitor.com/pulse/palistine-pulse'),
+        (u'syria', u'http://www.al-monitor.com/pulse/syria-pulse'),
+        (u'turkey', u'http://www.al-monitor.com/pulse/turkey-pulse'),
+    ]
 
     # util for creating remove_tags and keep_tags style regex matchers
     def tag_matcher(elt, attr, rgx_str):
-        return dict(name=elt, attrs={attr:re.compile(rgx_str, re.IGNORECASE)})
+        return dict(name=elt, attrs={attr: re.compile(rgx_str, re.IGNORECASE)})
 
     remove_tags = [
-        dict(attrs={'id':[
-                          'header',
-                          'pulsebanner',
-                          'relatedarticles',
-                          'sidecolumn',
-                          'disqus',
-                          'footer',
-                          'footer2',
-                          'footer3',
-                          'mobile-extras',
-                        ]}),
+        dict(attrs={'id': [
+            'header',
+            'pulsebanner',
+            'relatedarticles',
+            'sidecolumn',
+            'disqus',
+            'footer',
+            'footer2',
+            'footer3',
+            'mobile-extras',
+        ]}),
         tag_matcher('hr', 'id', 'spacer'),
         tag_matcher('a', 'title', 'print this article'),
         tag_matcher('div', 'class', 'extras'),
@@ -118,12 +122,12 @@ class AlMonitor(BasicNewsRecipe):
         if len(self.articles[section]) >= self.max_articles_per_section:
             return
         self.articles[section].append(
-                        dict(title=title,
-                            url=full_url,
-                            date='',
-                            description='',
-                            author='',
-                            content=''))
+            dict(title=title,
+                 url=full_url,
+                 date='',
+                 description='',
+                 author='',
+                 content=''))
 
     def preprocess_raw_html(self, raw_html, url):
         reason_to_skip = self.should_skip_article(BeautifulSoup(raw_html))
@@ -136,7 +140,7 @@ class AlMonitor(BasicNewsRecipe):
             return super(self.__class__, self).preprocess_raw_html(raw_html, url)
 
     def populate_article_metadata(self, article, soup, first):
-        summary_node = soup.find('div', {'id':'summary'})
+        summary_node = soup.find('div', {'id': 'summary'})
         if summary_node:
             summary = self.text(summary_node)
             self._p('Summary: ' + summary)
@@ -167,7 +171,7 @@ class AlMonitor(BasicNewsRecipe):
     def date_from_string(self, datestring):
         try:
             # eg: Posted September 17, 2014
-            dt = datetime.datetime.strptime(datestring,"Posted %B %d, %Y")
+            dt = datetime.datetime.strptime(datestring, "Posted %B %d, %Y")
         except:
             dt = None
 
@@ -192,14 +196,14 @@ class AlMonitor(BasicNewsRecipe):
 
         return abs_url
 
-    def text(self,n):
+    def text(self, n):
         return self.tag_to_string(n).strip()
 
     def _dbg_soup_node(self, node):
         s = '   cls: ' + str(node.get('class')).strip() + \
-              '  id: ' + str(node.get('id')).strip() + \
-              '  role: ' + str(node.get('role')).strip() + \
-              ' txt: ' + self.text(node)
+            '  id: ' + str(node.get('id')).strip() + \
+            '  role: ' + str(node.get('role')).strip() + \
+            ' txt: ' + self.text(node)
         return s
 
     def _p(self, msg):

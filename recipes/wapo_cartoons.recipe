@@ -2,8 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from datetime import date, timedelta
 
+
 class WaPoCartoonsRecipe(BasicNewsRecipe):
-    __license__   = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en'
     version = 2
@@ -21,12 +22,15 @@ class WaPoCartoonsRecipe(BasicNewsRecipe):
     feeds = []
     feeds.append((u'Anderson', u'http://www.uclick.com/client/wpc/wpnan/'))
     feeds.append((u'Auth', u'http://www.uclick.com/client/wpc/ta/'))
-    feeds.append((u'Bok', u'http://www.creators.com/featurepages/11_editorialcartoons_chip-bok.html?name=cb'))
+    feeds.append(
+        (u'Bok', u'http://www.creators.com/featurepages/11_editorialcartoons_chip-bok.html?name=cb'))
     feeds.append((u'Carlson', u'http://www.uclick.com/client/wpc/sc/'))
-    feeds.append((u'Luckovich', u'http://www.creators.com/featurepages/11_editorialcartoons_mike-luckovich.html?name=lk'))
+    feeds.append(
+        (u'Luckovich', u'http://www.creators.com/featurepages/11_editorialcartoons_mike-luckovich.html?name=lk'))
     feeds.append((u'McCoy', u'http://www.uclick.com/client/wpc/gm/'))
     feeds.append((u'Pat Oliphant', u'http://www.uclick.com/client/wpc/po/'))
-    feeds.append((u'Sargent', u'http://wpcomics.washingtonpost.com/client/wpc/bs/'))
+    feeds.append(
+        (u'Sargent', u'http://wpcomics.washingtonpost.com/client/wpc/bs/'))
     feeds.append((u'Wilkinson', u'http://www.uclick.com/client/wpc/wpswi/'))
 
     extra_css = '''
@@ -38,22 +42,25 @@ class WaPoCartoonsRecipe(BasicNewsRecipe):
 
     def parse_index(self):
         index = []
-        oldestDate = date.today() - timedelta(days = self.oldest_article)
+        oldestDate = date.today() - timedelta(days=self.oldest_article)
         oldest = oldestDate.strftime('%Y%m%d')
         for feed in self.feeds:
             cartoons = []
             soup = self.index_to_soup(feed[1])
 
-            cartoon = {'title': 'Current', 'date': None, 'url': feed[1], 'description' : ''}
+            cartoon = {'title': 'Current', 'date': None,
+                       'url': feed[1], 'description': ''}
             cartoons.append(cartoon)
 
-            select = soup.find('select', attrs = {'name': ['url', 'dest']})
+            select = soup.find('select', attrs={'name': ['url', 'dest']})
             if select:
                 cartoonCandidates = []
                 if select['name'] == 'url':
-                    cartoonCandidates = self.cartoonCandidatesWaPo(select, oldest)
+                    cartoonCandidates = self.cartoonCandidatesWaPo(
+                        select, oldest)
                 else:
-                    cartoonCandidates = self.cartoonCandidatesCreatorsCom(select, oldest)
+                    cartoonCandidates = self.cartoonCandidatesCreatorsCom(
+                        select, oldest)
 
                 for cartoon in cartoonCandidates:
                     cartoons.append(cartoon)
@@ -65,35 +72,35 @@ class WaPoCartoonsRecipe(BasicNewsRecipe):
     def preprocess_html(self, soup):
         freshSoup = self.getFreshSoup(soup)
 
-        div = soup.find('div', attrs = {'id': 'name'})
+        div = soup.find('div', attrs={'id': 'name'})
         if div:
             freshSoup.body.append(div)
-            comic = soup.find('div', attrs = {'id': 'comic_full'})
+            comic = soup.find('div', attrs={'id': 'comic_full'})
 
             img = comic.find('img')
             if '&' in img['src']:
                 img['src'], sep, bad = img['src'].rpartition('&')
 
             freshSoup.body.append(comic)
-            freshSoup.body.append(soup.find('div', attrs = {'id': 'copyright'}))
+            freshSoup.body.append(soup.find('div', attrs={'id': 'copyright'}))
         else:
-            span = soup.find('span', attrs = {'class': 'title'})
+            span = soup.find('span', attrs={'class': 'title'})
             if span:
                 del span['class']
                 span['id'] = 'name'
                 span.name = 'div'
                 freshSoup.body.append(span)
 
-            img = soup.find('img', attrs = {'class': 'pic_big'})
+            img = soup.find('img', attrs={'class': 'pic_big'})
             if img:
                 td = img.parent
-                if td.has_key('style'):
+                if td.has_key('style'):  # noqa
                     del td['style']
                 td.name = 'div'
                 td['id'] = 'comic_full'
                 freshSoup.body.append(td)
 
-            td = soup.find('td', attrs = {'class': 'copy'})
+            td = soup.find('td', attrs={'class': 'copy'})
             if td:
                 for a in td.find('a'):
                     a.extract()
@@ -105,7 +112,8 @@ class WaPoCartoonsRecipe(BasicNewsRecipe):
         return freshSoup
 
     def getFreshSoup(self, oldSoup):
-        freshSoup = BeautifulSoup('<html><head><title></title></head><body></body></html>')
+        freshSoup = BeautifulSoup(
+            '<html><head><title></title></head><body></body></html>')
         if oldSoup.head.title:
             freshSoup.head.title.append(self.tag_to_string(oldSoup.head.title))
         return freshSoup
@@ -128,7 +136,7 @@ class WaPoCartoonsRecipe(BasicNewsRecipe):
 
         opts = select.findAll('option')
         for i in range(1, len(opts)):
-            if opts[i].has_key('selected'):
+            if opts[i].has_key('selected'):  # noqa
                 continue
 
             dateString = self.tag_to_string(opts[i])
@@ -141,5 +149,3 @@ class WaPoCartoonsRecipe(BasicNewsRecipe):
                 yield {'title': dateString, 'date': None, 'url': opts[i]['value'], 'description': ''}
             else:
                 return
-
-

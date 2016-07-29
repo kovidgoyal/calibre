@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # vim:fileencoding=utf-8
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Mathieu Godlewski <mathieu at godlewski.fr>\
 2015, Rémi Vanicat <vanicat at debian.org'
 '''
@@ -11,8 +11,9 @@ Courrier International
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class CourrierInternational(BasicNewsRecipe):
-    title          = 'Courrier International'
+    title = 'Courrier International'
     __author__ = 'Mathieu Godlewski <mathieu at godlewski.fr>'
     description = 'Global news in french from international newspapers'
     oldest_article = 7
@@ -25,17 +26,19 @@ class CourrierInternational(BasicNewsRecipe):
 
     html2lrf_options = ['--base-font-size', '10']
 
-    keep_only_tags   = [
-        dict(name='div', attrs={'class':'article-content'}),
+    keep_only_tags = [
+        dict(name='div', attrs={'class': 'article-content'}),
     ]
 
-    remove_tags      = [
-        dict(name='aside', attrs={'class':re.compile('article-sitesocial|article-ad|article-tertiary|view-ci-service-article')}),
-        dict(name='button', attrs={'id':re.compile('action-zen-off-(top|bottom)')}),
+    remove_tags = [
+        dict(name='aside', attrs={'class': re.compile(
+            'article-sitesocial|article-ad|article-tertiary|view-ci-service-article')}),
+        dict(name='button', attrs={'id': re.compile(
+            'action-zen-off-(top|bottom)')}),
     ]
 
     needs_subscription = "optional"
-    login_url          = 'http://www.courrierinternational.com/login'
+    login_url = 'http://www.courrierinternational.com/login'
 
     def get_browser(self):
         def is_form_login(form):
@@ -50,26 +53,26 @@ class CourrierInternational(BasicNewsRecipe):
         return br
 
     def preprocess_html(self, soup):
-        for link in soup.findAll("a",href=re.compile('^/')):
-            link["href"]='http://www.courrierinternational.com' + link["href"]
+        for link in soup.findAll("a", href=re.compile('^/')):
+            link["href"] = 'http://www.courrierinternational.com' + link["href"]
         return soup
 
-    feeds =  [
+    feeds = [
         # Some articles requiring subscription fails on download.
         ('Tous', 'http://www.courrierinternational.com/feed/all/rss.xml'),
-#        ('France', 'http://courrierint.com/rss/rp/14/0/rss.xml'),
-#        ('Europe', 'http://courrierint.com/rss/rp/15/0/rss.xml'),
-#        ('Amerique', 'http://courrierint.com/rss/rp/16/0/rss.xml'),
-#        ('Asie', 'http://courrierint.com/rss/rp/17/0/rss.xml'),
-#        ('Afrique', 'http://courrierint.com/rss/rp/18/0/rss.xml'),
-#        ('Moyen-Orient', 'http://courrierint.com/rss/rp/19/0/rss.xml'),
-#        ('Economie', 'http://courrierint.com/rss/rp/20/0/rss.xml'),
-#        ('Multimedia', 'http://courrierint.com/rss/rp/23/0/rss.xml'),
-#        ('Sciences', 'http://courrierint.com/rss/rp/22/0/rss.xml'),
-#        ('Culture', 'http://courrierint.com/rss/rp/24/0/rss.xml'),
-#        ('Insolites', 'http://courrierint.com/rss/rp/26/0/rss.xml'),
-#        ('Cartoons', 'http://cs.courrierint.com/rss/all/rss.xml'),
-#        ('Environnement', 'http://vt.courrierint.com/rss/all/rss.xml'),
-#        ('Cinema', 'http://ca.courrierint.com/rss/all/rss.xml'),
-#        ('Sport', 'http://st.courrierint.com/rss/all/rss.xml'),
+        #        ('France', 'http://courrierint.com/rss/rp/14/0/rss.xml'),
+        #        ('Europe', 'http://courrierint.com/rss/rp/15/0/rss.xml'),
+        #        ('Amerique', 'http://courrierint.com/rss/rp/16/0/rss.xml'),
+        #        ('Asie', 'http://courrierint.com/rss/rp/17/0/rss.xml'),
+        #        ('Afrique', 'http://courrierint.com/rss/rp/18/0/rss.xml'),
+        #        ('Moyen-Orient', 'http://courrierint.com/rss/rp/19/0/rss.xml'),
+        #        ('Economie', 'http://courrierint.com/rss/rp/20/0/rss.xml'),
+        #        ('Multimedia', 'http://courrierint.com/rss/rp/23/0/rss.xml'),
+        #        ('Sciences', 'http://courrierint.com/rss/rp/22/0/rss.xml'),
+        #        ('Culture', 'http://courrierint.com/rss/rp/24/0/rss.xml'),
+        #        ('Insolites', 'http://courrierint.com/rss/rp/26/0/rss.xml'),
+        #        ('Cartoons', 'http://cs.courrierint.com/rss/all/rss.xml'),
+        #        ('Environnement', 'http://vt.courrierint.com/rss/all/rss.xml'),
+        #        ('Cinema', 'http://ca.courrierint.com/rss/all/rss.xml'),
+        #        ('Sport', 'http://st.courrierint.com/rss/all/rss.xml'),
     ]

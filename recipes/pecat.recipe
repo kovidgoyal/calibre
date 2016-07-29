@@ -1,5 +1,5 @@
 # vim:fileencoding=utf-8
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.pecat.co.rs
@@ -7,23 +7,24 @@ www.pecat.co.rs
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Pecat_rs(BasicNewsRecipe):
-    title                     = u'Печат'
-    __author__                = 'Darko Miletic'
-    description               = u'Интернет портал слободне Србије'
-    publisher                 = u'NAŠ PEČAT A.D. BEOGRAD'
-    oldest_article            = 7
-    max_articles_per_feed     = 100
-    language                  = 'sr'
-    encoding                  = 'utf-8'
-    no_stylesheets            = True
-    use_embedded_content      = True
-    masthead_url              = 'http://www.pecat.co.rs/wp-content/themes/zenko-v1/images/logo.jpg'
-    LOGIN                     = 'http://www.pecat.co.rs/'
-    remove_empty_feeds        = True
+    title = u'Печат'
+    __author__ = 'Darko Miletic'
+    description = u'Интернет портал слободне Србије'
+    publisher = u'NAŠ PEČAT A.D. BEOGRAD'
+    oldest_article = 7
+    max_articles_per_feed = 100
+    language = 'sr'
+    encoding = 'utf-8'
+    no_stylesheets = True
+    use_embedded_content = True
+    masthead_url = 'http://www.pecat.co.rs/wp-content/themes/zenko-v1/images/logo.jpg'
+    LOGIN = 'http://www.pecat.co.rs/'
+    remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
-    needs_subscription        = 'optional'
-    publication_type          = 'magazine'
+    needs_subscription = 'optional'
+    publication_type = 'magazine'
     extra_css                 = """
                                 body{font-family: Arial,Helvetica,sans1,sans-serif}
                                 img{display: block; margin-bottom: 1em; margin-top: 1em}
@@ -31,11 +32,8 @@ class Pecat_rs(BasicNewsRecipe):
                                 """
 
     conversion_options = {
-                          'comment'  : description
-                        , 'tags'     : 'politika, Srbija'
-                        , 'publisher': 'Pecat'
-                        , 'language' : language
-                        }
+        'comment': description, 'tags': 'politika, Srbija', 'publisher': 'Pecat', 'language': language
+    }
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -48,25 +46,26 @@ class Pecat_rs(BasicNewsRecipe):
         return br
 
     feeds = [
-              (u'Уводник'  , u'http://www.pecat.co.rs/category/uvodnik/feed/'),
-              (u'Интервју' , u'http://www.pecat.co.rs/category/intervju/feed/'),
-              (u'Друштво'  , u'http://www.pecat.co.rs/category/drustvo/feed/'),
-              (u'Регион'   , u'http://www.pecat.co.rs/category/region/feed/'),
-              (u'Свет'     , u'http://www.pecat.co.rs/category/svet/feed/'),
-              (u'Колумне'  , u'http://www.pecat.co.rs/category/kolumne/feed/'),
-              (u'Култура'  , u'http://www.pecat.co.rs/category/kultura/feed/'),
-              (u'Документи', u'http://www.pecat.co.rs/category/dokumenti/feed/'),
-              (u'Репортаже', u'http://www.pecat.co.rs/category/reportaze/feed/'),
-              (u'Економија', u'http://www.pecat.co.rs/category/ekonomija/feed/'),
-              (u'Изјаве'   , u'http://www.pecat.co.rs/category/izjave/feed/'),
-              (u'Преглед'  , u'http://www.pecat.co.rs/category/pregled/feed/'),
-              (u'Сапутници', u'http://www.pecat.co.rs/category/saputnici/feed/'),
-              (u'Сатира'   , u'http://www.pecat.co.rs/category/satira/feed/'),
-              (u'Спорт'    , u'http://www.pecat.co.rs/category/sport/feed/'),
-              (u'Павле Ћосић', u'http://www.pecat.co.rs/category/agencijske-vesti-pavle-cosic/feed/'),
-              (u'ТВ Коментар', u'http://www.pecat.co.rs/category/tv-komentar/feed/'),
-              (u'Вести', u'http://www.pecat.co.rs/category/vesti/feed/'),
-              (u'Календар', u'http://www.pecat.co.rs/category/kalendar/feed/'),
-              (u'Други Пишу', u'http://www.pecat.co.rs/category/drugi-pisu/feed/'),
-              (u'Одбрана и безбедност', u'http://www.pecat.co.rs/category/odbrana-i-bezbednost/feed/')
-            ]
+        (u'Уводник', u'http://www.pecat.co.rs/category/uvodnik/feed/'),
+        (u'Интервју', u'http://www.pecat.co.rs/category/intervju/feed/'),
+        (u'Друштво', u'http://www.pecat.co.rs/category/drustvo/feed/'),
+        (u'Регион', u'http://www.pecat.co.rs/category/region/feed/'),
+        (u'Свет', u'http://www.pecat.co.rs/category/svet/feed/'),
+        (u'Колумне', u'http://www.pecat.co.rs/category/kolumne/feed/'),
+        (u'Култура', u'http://www.pecat.co.rs/category/kultura/feed/'),
+        (u'Документи', u'http://www.pecat.co.rs/category/dokumenti/feed/'),
+        (u'Репортаже', u'http://www.pecat.co.rs/category/reportaze/feed/'),
+        (u'Економија', u'http://www.pecat.co.rs/category/ekonomija/feed/'),
+        (u'Изјаве', u'http://www.pecat.co.rs/category/izjave/feed/'),
+        (u'Преглед', u'http://www.pecat.co.rs/category/pregled/feed/'),
+        (u'Сапутници', u'http://www.pecat.co.rs/category/saputnici/feed/'),
+        (u'Сатира', u'http://www.pecat.co.rs/category/satira/feed/'),
+        (u'Спорт', u'http://www.pecat.co.rs/category/sport/feed/'),
+        (u'Павле Ћосић', u'http://www.pecat.co.rs/category/agencijske-vesti-pavle-cosic/feed/'),
+        (u'ТВ Коментар', u'http://www.pecat.co.rs/category/tv-komentar/feed/'),
+        (u'Вести', u'http://www.pecat.co.rs/category/vesti/feed/'),
+        (u'Календар', u'http://www.pecat.co.rs/category/kalendar/feed/'),
+        (u'Други Пишу', u'http://www.pecat.co.rs/category/drugi-pisu/feed/'),
+        (u'Одбрана и безбедност',
+         u'http://www.pecat.co.rs/category/odbrana-i-bezbednost/feed/')
+    ]

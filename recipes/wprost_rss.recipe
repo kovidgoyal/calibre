@@ -7,6 +7,7 @@ __copyright__ = '''2010, matek09, matek09@gmail.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Wprost(BasicNewsRecipe):
     title = u'Wprost (RSS)'
     __author__ = 'matek09'
@@ -18,31 +19,33 @@ class Wprost(BasicNewsRecipe):
     use_embedded_content = False
     ignore_duplicate_articles = {'title', 'url'}
     remove_empty_feeds = True
-    keep_only_tags = [dict(attrs={'class':'art-area'})]
-    remove_tags = [dict(attrs={'class':'add300x250'})]
+    keep_only_tags = [dict(attrs={'class': 'art-area'})]
+    remove_tags = [dict(attrs={'class': 'add300x250'})]
 
     extra_css = '''.div-header {font-size: x-small; font-weight: bold}'''
-    #h2 {font-size: x-large; font-weight: bold}
+    # h2 {font-size: x-large; font-weight: bold}
 
     feeds = [(u'Tylko u nas', u'http://www.wprost.pl/rss/rss_wprostextra.php'),
-    (u'Wydarzenia', u'http://www.wprost.pl/rss/rss.php'),
-    (u'Komentarze', u'http://www.wprost.pl/rss/rss_komentarze.php'),
-    (u'Wydarzenia: Kraj', u'http://www.wprost.pl/rss/rss_kraj.php'),
-    (u'Komentarze: Kraj', u'http://www.wprost.pl/rss/rss_komentarze_kraj.php'),
-    (u'Wydarzenia: Świat', u'http://www.wprost.pl/rss/rss_swiat.php'),
-    (u'Komentarze: Świat', u'http://www.wprost.pl/rss/rss_komentarze_swiat.php'),
-    (u'Wydarzenia: Gospodarka', u'http://www.wprost.pl/rss/rss_gospodarka.php'),
-    (u'Komentarze: Gospodarka', u'http://www.wprost.pl/rss/rss_komentarze_gospodarka.php'),
-    (u'Wydarzenia: Życie', u'http://www.wprost.pl/rss/rss_zycie.php'),
-    (u'Komentarze: Życie', u'http://www.wprost.pl/rss/rss_komentarze_zycie.php'),
-    (u'Wydarzenia: Sport', u'http://www.wprost.pl/rss/rss_sport.php'),
-    (u'Komentarze: Sport', u'http://www.wprost.pl/rss/rss_komentarze_sport.php'),
-    (u'Przegląd prasy', u'http://www.wprost.pl/rss/rss_prasa.php')
-    ]
+             (u'Wydarzenia', u'http://www.wprost.pl/rss/rss.php'),
+             (u'Komentarze', u'http://www.wprost.pl/rss/rss_komentarze.php'),
+             (u'Wydarzenia: Kraj', u'http://www.wprost.pl/rss/rss_kraj.php'),
+             (u'Komentarze: Kraj', u'http://www.wprost.pl/rss/rss_komentarze_kraj.php'),
+             (u'Wydarzenia: Świat', u'http://www.wprost.pl/rss/rss_swiat.php'),
+             (u'Komentarze: Świat', u'http://www.wprost.pl/rss/rss_komentarze_swiat.php'),
+             (u'Wydarzenia: Gospodarka',
+              u'http://www.wprost.pl/rss/rss_gospodarka.php'),
+             (u'Komentarze: Gospodarka',
+              u'http://www.wprost.pl/rss/rss_komentarze_gospodarka.php'),
+             (u'Wydarzenia: Życie', u'http://www.wprost.pl/rss/rss_zycie.php'),
+             (u'Komentarze: Życie', u'http://www.wprost.pl/rss/rss_komentarze_zycie.php'),
+             (u'Wydarzenia: Sport', u'http://www.wprost.pl/rss/rss_sport.php'),
+             (u'Komentarze: Sport', u'http://www.wprost.pl/rss/rss_komentarze_sport.php'),
+             (u'Przegląd prasy', u'http://www.wprost.pl/rss/rss_prasa.php')
+             ]
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.wprost.pl/tygodnik')
-        cover = soup.find(attrs={'class':'wprost-cover'})
+        cover = soup.find(attrs={'class': 'wprost-cover'})
         if cover:
             self.cover_url = cover['src']
         return getattr(self, 'cover_url', self.cover_url)

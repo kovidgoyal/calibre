@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2014, spswerling'
 '''
 www.todayszaman.com
@@ -9,10 +9,11 @@ import re
 from urlparse import urljoin
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class TodaysZaman(BasicNewsRecipe):
 
     title = u'Todays Zaman'
-    __author__  = u'spswerling'
+    __author__ = u'spswerling'
     description = 'English version of Turkish Daily "Zaman"'
     max_articles_per_feed = 100
     encoding = 'utf-8'
@@ -28,21 +29,21 @@ class TodaysZaman(BasicNewsRecipe):
     oldest_article = 1.5
     compress_news_images = True
     compress_news_images_max_size = 7
-    scale_news_images = (150,200)  # (kindle touch: 600x800)
+    scale_news_images = (150, 200)  # (kindle touch: 600x800)
     useHighResImages = False
 
     sections = [
-                (u'Columnists',u'columnists'),
-                (u'Opinion',u'op-ed'),
-                (u'World',u'world'),
-                (u'National',u'national'),
-                (u'Diplomacy',u'diplomacy'),
-                (u'Business',u'business'),
-                ]
+        (u'Columnists', u'columnists'),
+        (u'Opinion', u'op-ed'),
+        (u'World', u'world'),
+        (u'National', u'national'),
+        (u'Diplomacy', u'diplomacy'),
+        (u'Business', u'business'),
+    ]
 
     # util for creating remove_tags and keep_tags style regex matchers
     def tag_matcher(elt, attr, str):
-        return dict(name=elt, attrs={attr:re.compile(str, re.IGNORECASE)})
+        return dict(name=elt, attrs={attr: re.compile(str, re.IGNORECASE)})
 
     keep_only_tags = [
         tag_matcher('div', 'class', '^pageNewsDetailContainer$'),
@@ -52,7 +53,7 @@ class TodaysZaman(BasicNewsRecipe):
     remove_tags = [
         tag_matcher('div', 'class', 'DetailKeyword'),
         tag_matcher('div', 'class', 'MainContentSocial'),
-        tag_matcher('div', 'class','SocialNetwork'),
+        tag_matcher('div', 'class', 'SocialNetwork'),
         tag_matcher('div', 'class', 'DetailLeftOther'),
         tag_matcher('div', 'class', 'RelatedNews'),
         tag_matcher('div', 'class', '^topMenuWrapper$'),
@@ -62,7 +63,7 @@ class TodaysZaman(BasicNewsRecipe):
     articles = {}
 
     def parse_index(self):
-        for (sect_title,sect_uri) in self.sections:
+        for (sect_title, sect_uri) in self.sections:
             self.parse_section(sect_title, sect_uri)
 
         ans = []
@@ -71,7 +72,7 @@ class TodaysZaman(BasicNewsRecipe):
         return ans
 
     def parse_section(self, sect_title, sect_uri):
-        url = 'http://www.todayszaman.com/'+sect_uri
+        url = 'http://www.todayszaman.com/' + sect_uri
         print 'Start section ' + sect_title + ', ' + url
         try:
             soup = self.index_to_soup(url)
@@ -83,7 +84,7 @@ class TodaysZaman(BasicNewsRecipe):
             div_class = div.get('class')
             if div_class:
                 if div_class in ['pageColumnistsMainContent',
-                                  'pageCategoryContainer']:
+                                 'pageCategoryContainer']:
                     # print '  DIVCLASS' + div_class
                     for link in div.findAll('a', href=True):
                         self.process_link(sect_title, div_class, link)
@@ -107,7 +108,7 @@ class TodaysZaman(BasicNewsRecipe):
             else:
                 return
         elif layout in ['pageCategoryContainer']:
-            top_title = link.find(attrs={'class':'pageCategoryTopTitle'})
+            top_title = link.find(attrs={'class': 'pageCategoryTopTitle'})
             if top_title:
                 title_node = top_title
             elif (not link_text) and (next_sib and next_sib.find('h4')):
@@ -126,19 +127,19 @@ class TodaysZaman(BasicNewsRecipe):
         if section not in self.articles:
             self.articles[section] = []
         self.articles[section].append(
-                        dict(title=title,
-                             url=url,
-                             date='',
-                             description='',
-                             author='',
-                             content=''))
+            dict(title=title,
+                 url=url,
+                 date='',
+                 description='',
+                 author='',
+                 content=''))
 
     def populate_article_metadata(self, article, soup, first):
 
         def p(s):
             print '[POPULATE METADATA] ' + s[0:80]
 
-        tnode =  soup.find('title')
+        tnode = soup.find('title')
         if tnode:
             tstring = self.tag_to_string(tnode)
             if ' - ' in tstring:
@@ -150,7 +151,7 @@ class TodaysZaman(BasicNewsRecipe):
 
         # known matches: pageNewsDetailDate, pageColumnistDetailLeftDate
         regex = re.compile('(DetailDate|DetailLeftDate)$', re.IGNORECASE)
-        date_node = soup.find('div', {'class':regex})
+        date_node = soup.find('div', {'class': regex})
         if date_node:
             date = self.tag_to_string(date_node).__str__().split('/')[0]
             date = ','.join(date.split(',')[:2]).strip()
@@ -165,5 +166,5 @@ class TodaysZaman(BasicNewsRecipe):
 
     def _dbg_soup_node(self, node):
         s = '   cls: ' + node.get('class').__str__().strip() + \
-              ' txt: ' + self.tag_to_string(node).strip()
+            ' txt: ' + self.tag_to_string(node).strip()
         return s

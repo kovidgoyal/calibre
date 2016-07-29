@@ -1,7 +1,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
@@ -18,9 +18,10 @@ added by Tony Stegall
 from calibre.ptempfile import PersistentTemporaryFile
 #######################################################
 
+
 class AdvancedUserRecipe1249039563(BasicNewsRecipe):
-    title          = u'De Volkskrant'
-    __author__     = 'acidzebra'
+    title = u'De Volkskrant'
+    __author__ = 'acidzebra'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
@@ -38,7 +39,7 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
         Date:       01/01/11  - Modified for better results around December/January.
         Author:   Martin Tarenskeen
     '''
-   #######################################################################################################
+    # #########################################################################
     temp_files = []
     articles_are_obfuscated = True
 
@@ -48,24 +49,25 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
         year = date.today().year
 
         try:
-            response = br.follow_link(url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)'%year, nr = 0)
+            response = br.follow_link(
+                url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)' % year, nr=0)
             html = response.read()
         except:
-            year = year-1
+            year = year - 1
             try:
-                response = br.follow_link(url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)'%year, nr = 0)
+                response = br.follow_link(
+                    url_regex='.*?(%d)(\\/)(article)(\\/)(print)(\\/)' % year, nr=0)
                 html = response.read()
             except:
                 response = br.open(url)
                 html = response.read()
-
 
         self.temp_files.append(PersistentTemporaryFile('_fa.html'))
         self.temp_files[-1].write(html)
         self.temp_files[-1].close()
         return self.temp_files[-1].name
 
-   ###############################################################################################################
+    # #########################################################################
 
     '''
       Change Log:
@@ -75,16 +77,17 @@ class AdvancedUserRecipe1249039563(BasicNewsRecipe):
        Feeds updated by Eric Lammerts
     '''
 
-    feeds          = [
-                      (u'Nieuws', u'http://www.volkskrant.nl/nieuws/rss.xml'),
-                      (u'Binnenland', u'http://www.volkskrant.nl/nieuws/binnenland/rss.xml'),
-                      (u'Buitenland', u'http://www.volkskrant.nl/buitenland/rss.xml'),
-                      (u'Economie', u'http://www.volkskrant.nl/nieuws/economie/rss.xml'),
-                      (u'Politiek', u'http://www.volkskrant.nl/politiek/rss.xml'),
-                      (u'Sport', u'http://www.volkskrant.nl/sport/rss.xml'),
-                      (u'Cultuur', u'http://www.volkskrant.nl/nieuws/cultuur/rss.xml'),
-                      (u'Gezondheid & wetenschap', u'http://www.volkskrant.nl/nieuws/gezondheid--wetenschap/rss.xml'),
-                      (u'Tech & Media', u'http://www.volkskrant.nl/tech-media/rss.xml'),
-                      (u'Reizen', u'http://www.volkskrant.nl/nieuws/reizen/rss.xml'),
-                      (u'Opinie', u'http://www.volkskrant.nl/opinie/rss.xml'),
-                      (u'Opmerkelijk', u'http://www.volkskrant.nl/nieuws/opmerkelijk/rss.xml') ]
+    feeds = [
+        (u'Nieuws', u'http://www.volkskrant.nl/nieuws/rss.xml'),
+        (u'Binnenland', u'http://www.volkskrant.nl/nieuws/binnenland/rss.xml'),
+        (u'Buitenland', u'http://www.volkskrant.nl/buitenland/rss.xml'),
+        (u'Economie', u'http://www.volkskrant.nl/nieuws/economie/rss.xml'),
+        (u'Politiek', u'http://www.volkskrant.nl/politiek/rss.xml'),
+        (u'Sport', u'http://www.volkskrant.nl/sport/rss.xml'),
+        (u'Cultuur', u'http://www.volkskrant.nl/nieuws/cultuur/rss.xml'),
+        (u'Gezondheid & wetenschap',
+         u'http://www.volkskrant.nl/nieuws/gezondheid--wetenschap/rss.xml'),
+        (u'Tech & Media', u'http://www.volkskrant.nl/tech-media/rss.xml'),
+        (u'Reizen', u'http://www.volkskrant.nl/nieuws/reizen/rss.xml'),
+        (u'Opinie', u'http://www.volkskrant.nl/opinie/rss.xml'),
+        (u'Opmerkelijk', u'http://www.volkskrant.nl/nieuws/opmerkelijk/rss.xml')]

@@ -9,11 +9,12 @@ gazetaprawna.pl
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class gazetaprawna(BasicNewsRecipe):
     version = 1
-    title          = u'Gazeta Prawna'
+    title = u'Gazeta Prawna'
     __author__ = u'Vroo'
-    publisher      = u'Infor Biznes'
+    publisher = u'Infor Biznes'
     oldest_article = 1
     max_articles_per_feed = 20
     no_stylesheets = True
@@ -24,20 +25,21 @@ class gazetaprawna(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     remove_tags_after = [
-               dict(name='div', attrs={'class':['data-art']})
+        dict(name='div', attrs={'class': ['data-art']})
     ]
     remove_tags = [
-               dict(name='div', attrs={'class':['dodatki_artykulu','data-art']})
+        dict(name='div', attrs={'class': ['dodatki_artykulu', 'data-art']})
     ]
 
     feeds = [
-      (u'Z ostatniej chwili', u'http://rss.gazetaprawna.pl/GazetaPrawna'),
-      (u'Biznes i prawo gospodarcze', u'http://biznes.gazetaprawna.pl/rss.xml'),
-      (u'Prawo i wymiar sprawiedliwo\u015bci', u'http://prawo.gazetaprawna.pl/rss.xml'),
-      (u'Praca i ubezpieczenia', u'http://praca.gazetaprawna.pl/rss.xml'),
-      (u'Podatki i rachunkowo\u015b\u0107', u'http://podatki.gazetaprawna.pl/rss.xml')
-     ]
-
+        (u'Z ostatniej chwili', u'http://rss.gazetaprawna.pl/GazetaPrawna'),
+        (u'Biznes i prawo gospodarcze', u'http://biznes.gazetaprawna.pl/rss.xml'),
+        (u'Prawo i wymiar sprawiedliwo\u015bci',
+            u'http://prawo.gazetaprawna.pl/rss.xml'),
+        (u'Praca i ubezpieczenia', u'http://praca.gazetaprawna.pl/rss.xml'),
+        (u'Podatki i rachunkowo\u015b\u0107',
+            u'http://podatki.gazetaprawna.pl/rss.xml')
+    ]
 
     def print_version(self, url):
         url = url.replace('wiadomosci/artykuly', 'drukowanie')
@@ -54,6 +56,7 @@ class gazetaprawna(BasicNewsRecipe):
         return url
 
     def get_cover_url(self):
-        soup = self.index_to_soup('http://www.egazety.pl/infor/e-wydanie-dziennik-gazeta-prawna.html')
-        self.cover_url = soup.find('p', attrs={'class':'covr'}).a['href']
+        soup = self.index_to_soup(
+            'http://www.egazety.pl/infor/e-wydanie-dziennik-gazeta-prawna.html')
+        self.cover_url = soup.find('p', attrs={'class': 'covr'}).a['href']
         return getattr(self, 'cover_url', self.cover_url)

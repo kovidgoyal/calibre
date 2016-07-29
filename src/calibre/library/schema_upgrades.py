@@ -24,7 +24,6 @@ class SchemaUpgrade(object):
                 meth()
                 self.user_version = uv+1
 
-
     def upgrade_version_1(self):
         '''
         Normalize indices.
@@ -161,7 +160,6 @@ class SchemaUpgrade(object):
         END TRANSACTION;
         '''
         )
-
 
     def upgrade_version_6(self):
         'Show authors in order'
@@ -332,7 +330,7 @@ class SchemaUpgrade(object):
                 FROM {tn};
 
                 '''.format(tn=table_name, cn=column_name,
-                           vcn=view_column_name, scn= sort_column_name))
+                           vcn=view_column_name, scn=sort_column_name))
             self.conn.executescript(script)
 
         def create_cust_tag_browser_view(table_name, link_table_name):
@@ -380,7 +378,7 @@ class SchemaUpgrade(object):
 
         db_tables = self.conn.get('''SELECT name FROM sqlite_master
                                      WHERE type='table'
-                                     ORDER BY name''');
+                                     ORDER BY name''')
         tables = []
         for (table,) in db_tables:
             tables.append(table)

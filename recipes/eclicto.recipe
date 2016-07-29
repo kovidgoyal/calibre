@@ -1,12 +1,13 @@
 #!/usr/bin/env  python2
 
-__license__     = 'GPL v3'
+__license__ = 'GPL v3'
 '''
 blog.eclicto.pl
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
+
 
 class BlogeClictoRecipe(BasicNewsRecipe):
     __author__ = 'Mori, Tomasz Długosz'
@@ -28,20 +29,20 @@ class BlogeClictoRecipe(BasicNewsRecipe):
     '''
 
     feeds = [
-            (u'Blog eClicto', u'http://blog.eclicto.pl/feed/')
+        (u'Blog eClicto', u'http://blog.eclicto.pl/feed/')
     ]
 
     remove_tags = [
-            dict(name = 'div', attrs = {'class' : 'social_bookmark'}),
+        dict(name='div', attrs={'class': 'social_bookmark'}),
     ]
 
     keep_only_tags = [
-            dict(name = 'div', attrs = {'class' : 'post'})
+        dict(name='div', attrs={'class': 'post'})
     ]
 
     preprocess_regexps = [
-            (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
-            [
-                    (r'\s*</', lambda match: '</'),
-            ]
+        (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in
+        [
+            (r'\s*</', lambda match: '</'),
+        ]
     ]

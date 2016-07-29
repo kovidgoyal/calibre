@@ -31,7 +31,8 @@ class FileOrFolder(object):
         # self.parent_id is None for storage objects
         self.parent_id = entry.get('parent_id', None)
         n = entry.get('name', None)
-        if not n: n = '___'
+        if not n:
+            n = '___'
         self.name = force_unicode(n, 'utf-8')
         self.persistent_id = entry.get('persistent_id', self.object_id)
         self.size = entry.get('size', 0)
@@ -227,7 +228,7 @@ class FilesystemCache(object):
         for x in self.id_map.itervalues():
             if x.storage_id == storage_id and x.is_ebook:
                 if x.parent_id == storage_id and x.name.lower().endswith('.txt'):
-                    continue # Ignore .txt files in the root
+                    continue  # Ignore .txt files in the root
                 yield x
 
     def __len__(self):

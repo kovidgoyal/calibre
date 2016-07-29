@@ -44,12 +44,12 @@ class Formatter(object):
             if ndef['bgcolor']:
                 fmt.setBackground(QBrush(QColor('#%s'%ndef['bgcolor'])))
             if ndef['border']:
-                pass # No support for borders
+                pass  # No support for borders
 
             self.styles[ttype] = fmt
 
     def get_fmt(self, token):
-        if type(token) != type(Token.Generic):
+        if type(token) != type(Token.Generic):  # noqa
             token = string_to_tokentype(token)
         fmt = self.styles.get(token, None)
         if fmt is None:
@@ -93,7 +93,7 @@ class Formatter(object):
         pr = self.continuation if is_continuation else self.prompt
         fmt = self.get_fmt(Generic.Prompt)
         if fmt is None:
-             fmt = self.base_fmt()
+            fmt = self.base_fmt()
         cursor.insertText(pr, fmt)
 
 

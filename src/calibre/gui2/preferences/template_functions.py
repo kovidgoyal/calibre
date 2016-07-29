@@ -158,7 +158,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
             box = warning_dialog(self.gui, _('Template functions'),
                          _('Argument count should be -1 or greater than zero. '
                            'Setting it to zero means that this function cannot '
-                           'be used in single function mode.'), det_msg = '',
+                           'be used in single function mode.'), det_msg='',
                          show=False)
             box.bb.setStandardButtons(box.bb.standardButtons() | QDialogButtonBox.Cancel)
             box.det_msg_toggle.setVisible(False)

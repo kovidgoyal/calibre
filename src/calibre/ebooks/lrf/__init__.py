@@ -25,10 +25,10 @@ class PRS500_PROFILE(object):
     fudge         = 0
     font_size     = 10  #: Default (in pt)
     parindent     = 10  #: Default (in pt)
-    line_space    = 1.2 #: Default (in pt)
+    line_space    = 1.2  # : Default (in pt)
     header_font_size = 6  #: In pt
-    header_height    = 30 #: In px
-    default_fonts    = { 'sans': "Swis721 BT Roman", 'mono': "Courier10 BT Roman",
+    header_height    = 30  # : In px
+    default_fonts    = {'sans': "Swis721 BT Roman", 'mono': "Courier10 BT Roman",
                          'serif': "Dutch801 Rm BT Roman"}
 
     name = 'prs500'
@@ -88,7 +88,7 @@ def Book(options, logger, font_delta=0, header=None,
                linespace=int(10*profile.line_space),
                baselineskip=baselineskip,
                wordspace=10*options.wordspace)
-    if fonts['serif'] and fonts['serif'].has_key('normal'):
+    if fonts['serif'] and fonts['serif'].has_key('normal'):  # noqa
         tsd['fontfacename'] = fonts['serif']['normal'][1]
 
     book = _Book(textstyledefault=tsd,
@@ -104,8 +104,8 @@ def Book(options, logger, font_delta=0, header=None,
 
     for family in ['serif', 'sans', 'mono']:
         if not fonts[family]:
-            fonts[family] = { 'normal' : (None, profile.default_fonts[family]) }
-        elif not fonts[family].has_key('normal'):
-            raise ConversionError, 'Could not find the normal version of the ' + family + ' font'
+            fonts[family] = {'normal' : (None, profile.default_fonts[family])}
+        elif not fonts[family].has_key('normal'):  # noqa
+            raise ConversionError('Could not find the normal version of the ' + family + ' font')
     return book, fonts
 

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 eluniversal.com.mx
@@ -6,46 +6,48 @@ eluniversal.com.mx
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class ElUniversal(BasicNewsRecipe):
-    title                 = 'El Universal'
-    __author__            = 'Darko Miletic and Sujata Raman'
-    description           = 'News from Mexico'
-    oldest_article        = 1
+    title = 'El Universal'
+    __author__ = 'Darko Miletic and Sujata Raman'
+    description = 'News from Mexico'
+    oldest_article = 1
     max_articles_per_feed = 100
-    publisher             = 'El Universal'
-    category              = 'news, politics, Mexico'
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'utf8'
-    remove_javascript     = True
-    remove_empty_feeds    = True
-    publication_type      = 'newspaper'
-    language              = 'es_MX'
+    publisher = 'El Universal'
+    category = 'news, politics, Mexico'
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf8'
+    remove_javascript = True
+    remove_empty_feeds = True
+    publication_type = 'newspaper'
+    language = 'es_MX'
 
     extra_css = '''
                     body{font-family:Arial,Helvetica,sans-serif}
                     .noteTitle{font-family: Georgia,"Times New Roman",Times,serif; color: #336699; font-size: xx-large; font-weight: bold}
                     .noteInfo{display: block; color: gray}
                 '''
-    keep_only_tags = [ dict(name='div', attrs={'id':'noteContent'})]
-    remove_tags_after = dict(attrs={'class':'noteText'})
-    remove_tags  = [
-                     dict(attrs={'class':'noteExtras'}),
-                     dict(name=['meta','iframe','base','embed','object']),
-                     dict(attrs={'id':'tm_box'})
-                   ]
-    remove_attributes=['lang','onclick']
+    keep_only_tags = [dict(name='div', attrs={'id': 'noteContent'})]
+    remove_tags_after = dict(attrs={'class': 'noteText'})
+    remove_tags = [
+        dict(attrs={'class': 'noteExtras'}),
+        dict(name=['meta', 'iframe', 'base', 'embed', 'object']),
+        dict(attrs={'id': 'tm_box'})
+    ]
+    remove_attributes = ['lang', 'onclick']
 
     feeds = [
-              (u'Minuto por Minuto', u'http://www.eluniversal.com.mx/rss/universalmxm.xml' )
-             ,(u'Mundo'            , u'http://www.eluniversal.com.mx/rss/mundo.xml'        )
-             ,(u'Mexico'           , u'http://www.eluniversal.com.mx/rss/mexico.xml'       )
-             ,(u'Estados'          , u'http://www.eluniversal.com.mx/rss/estados.xml'      )
-             ,(u'Finanzas'         , u'http://www.eluniversal.com.mx/rss/finanzas.xml'     )
-             ,(u'Deportes'         , u'http://www.eluniversal.com.mx/rss/deportes.xml'     )
-             ,(u'Espectaculos'     , u'http://www.eluniversal.com.mx/rss/espectaculos.xml' )
-             ,(u'Cultura'          , u'http://www.eluniversal.com.mx/rss/cultura.xml'      )
-             ,(u'Ciencia'          , u'http://www.eluniversal.com.mx/rss/ciencia.xml'      )
-             ,(u'Computacion'      , u'http://www.eluniversal.com.mx/rss/computo.xml'      )
-             ,(u'Sociedad'         , u'http://www.eluniversal.com.mx/rss/sociedad.xml'     )
-            ]
+
+    (u'Minuto por Minuto', u'http://www.eluniversal.com.mx/rss/universalmxm.xml'),
+    (u'Mundo', u'http://www.eluniversal.com.mx/rss/mundo.xml'),
+    (u'Mexico', u'http://www.eluniversal.com.mx/rss/mexico.xml'),
+    (u'Estados', u'http://www.eluniversal.com.mx/rss/estados.xml'),
+    (u'Finanzas', u'http://www.eluniversal.com.mx/rss/finanzas.xml'),
+    (u'Deportes', u'http://www.eluniversal.com.mx/rss/deportes.xml'),
+    (u'Espectaculos', u'http://www.eluniversal.com.mx/rss/espectaculos.xml'),
+    (u'Cultura', u'http://www.eluniversal.com.mx/rss/cultura.xml'),
+    (u'Ciencia', u'http://www.eluniversal.com.mx/rss/ciencia.xml'),
+    (u'Computacion', u'http://www.eluniversal.com.mx/rss/computo.xml'),
+    (u'Sociedad', u'http://www.eluniversal.com.mx/rss/sociedad.xml')
+    ]

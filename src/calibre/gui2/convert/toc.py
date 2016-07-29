@@ -37,7 +37,6 @@ class TOCWidget(Widget, Ui_Form):
         except TypeError:
             pass  # link already localized
 
-
     def pre_commit_check(self):
         for x in ('level1', 'level2', 'level3'):
             x = getattr(self, 'opt_'+x+'_toc')

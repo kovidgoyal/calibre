@@ -20,8 +20,8 @@ class HeadingsToSections:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         """
         Required:
@@ -61,8 +61,8 @@ class HeadingsToSections:
         'mi<mk<body-close',
         # changed 2004-04-26
         # 'mi<mk<par-in-fld',
-        'mi<mk<sect-close', # right before close of section
-        'mi<mk<sect-start', # right before section start
+        'mi<mk<sect-close',  # right before close of section
+        'mi<mk<sect-start',  # right before section start
                             # this should be sect-close!
         # 'mi<mk<header-beg',
         # 'mi<mk<header-end',
@@ -124,7 +124,7 @@ class HeadingsToSections:
         self.__write_obj.write(
             'mi<mk<sect-start\n'
                 )
-        self.__write_obj.write (
+        self.__write_obj.write(
                 'mi<tg<open-att__<section<num>%s<num-in-level>%s<level>%s'
                 '<type>%s\n'
                 % (section_num, num_in_level, level, name)
@@ -205,7 +205,7 @@ class HeadingsToSections:
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "sections_to_headings.data")
         copy_obj.rename(self.__write_to, self.__file)

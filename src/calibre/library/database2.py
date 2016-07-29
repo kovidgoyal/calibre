@@ -779,7 +779,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             pass
         return self.last_modified()
 
-    ### The field-style interface. These use field keys.
+    # The field-style interface. These use field keys.
 
     def get_field(self, idx, key, default=None, index_is_id=False):
         mi = self.get_metadata(idx, index_is_id=index_is_id,
@@ -1119,7 +1119,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         if mi.authors:
             try:
                 quathors = mi.authors[:10]  # Too many authors causes parsing of
-                                            # the search expression to fail
+                # the search expression to fail
                 query = u' and '.join([u'author:"=%s"'%(a.replace('"', '')) for a in
                     quathors])
                 qauthors = mi.authors[10:]
@@ -1195,8 +1195,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 save_cover_data_to(data, path)
         now = nowf()
         self.conn.execute(
-            'UPDATE books SET has_cover=1,last_modified=? WHERE id=?',
-              (now, id))
+            'UPDATE books SET has_cover=1,last_modified=? WHERE id=?', (now, id))
         if commit:
             self.conn.commit()
         self.data.set(id, self.FIELD_MAP['cover'], True, row_is_id=True)
@@ -1718,7 +1717,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tn=field['table'], col=field['link_column']), (id_,))
         return set(x[0] for x in ans)
 
-########## data structures for get_categories
+# data structures for get_categories
 
     CATEGORY_SORTS = CATEGORY_SORTS
     MATCH_TYPE = ('any', 'all')
@@ -1769,7 +1768,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         return new_cats
 
     def get_categories(self, sort='name', ids=None):
-        #start = last = time.clock()
+        # start = last = time.clock()
         if sort not in self.CATEGORY_SORTS:
             raise ValueError('sort ' + sort + ' not a valid value')
 
@@ -1825,9 +1824,9 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                     tids[category][val] = (id, '{0:05.2f}'.format(val))
             elif cat['datatype'] == 'text' and cat['is_multiple'] and \
                             cat['display'].get('is_names', False):
-                    for l in list:
-                        (id, val) = (l[0], l[1])
-                        tids[category][val] = (id, author_to_author_sort(val))
+                for l in list:
+                    (id, val) = (l[0], l[1])
+                    tids[category][val] = (id, author_to_author_sort(val))
             else:
                 for l in list:
                     (id, val) = (l[0], l[1])
@@ -1848,8 +1847,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 md.append((category, cat['rec_index'],
                            cat['is_multiple'].get('cache_to_list', None),
                            cat['datatype'] == 'composite'))
-        #print 'end phase "collection":', time.clock() - last, 'seconds'
-        #last = time.clock()
+        # print 'end phase "collection":', time.clock() - last, 'seconds'
+        # last = time.clock()
 
         # Now scan every book looking for category items.
         # Code below is duplicated because it shaves off 10% of the loop time
@@ -1916,8 +1915,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                         except:
                             prints('get_categories: item', val, 'is not in', cat, 'list!')
 
-        #print 'end phase "books":', time.clock() - last, 'seconds'
-        #last = time.clock()
+        # print 'end phase "books":', time.clock() - last, 'seconds'
+        # last = time.clock()
 
         # Now do news
         tcategories['news'] = {}
@@ -1937,8 +1936,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             item.set_all(c=r[2], rt=r[2]*r[3], rc=r[2], id=r[0])
             tcategories['news'][r[1]] = item
 
-        #print 'end phase "news":', time.clock() - last, 'seconds'
-        #last = time.clock()
+        # print 'end phase "news":', time.clock() - last, 'seconds'
+        # last = time.clock()
 
         # Build the real category list by iterating over the temporary copy
         # and building the Tag instances.
@@ -2014,8 +2013,8 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                                         use_sort_as_name=use_sort_as_name)
                                     for r in items]
 
-        #print 'end phase "tags list":', time.clock() - last, 'seconds'
-        #last = time.clock()
+        # print 'end phase "tags list":', time.clock() - last, 'seconds'
+        # last = time.clock()
 
         # Needed for legacy databases that have multiple ratings that
         # map to n stars
@@ -2032,7 +2031,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         categories['formats'] = []
         icon = None
         if icon_map and 'formats' in icon_map:
-                icon = icon_map['formats']
+            icon = icon_map['formats']
         for fmt in self.conn.get('SELECT DISTINCT format FROM data'):
             fmt = fmt[0]
             if ids is not None:
@@ -2060,7 +2059,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
         categories['identifiers'] = []
         icon = None
         if icon_map and 'identifiers' in icon_map:
-                icon = icon_map['identifiers']
+            icon = icon_map['identifiers']
         for ident in self.conn.get('SELECT DISTINCT type FROM identifiers'):
             ident = ident[0]
             if ids is not None:
@@ -2085,7 +2084,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             # No need for ICU here.
             categories['identifiers'].sort(key=lambda x:x.name)
 
-        #### Now do the user-defined categories. ####
+        # ### Now do the user-defined categories. ####
         user_categories = dict.copy(self.clean_user_categories())
 
         # We want to use same node in the user category as in the source
@@ -2143,11 +2142,11 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 categories[cat_name] = \
                     sorted(items, key=lambda x:x.avg_rating, reverse=True)
 
-        #### Finally, the saved searches category ####
+        # ### Finally, the saved searches category ####
         items = []
         icon = None
         if icon_map and 'search' in icon_map:
-                icon = icon_map['search']
+            icon = icon_map['search']
         for srch in saved_searches().names():
             items.append(Tag(srch,
                              sort=srch, category='search',
@@ -2157,12 +2156,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
                 icon_map['search'] = icon_map['search']
             categories['search'] = items
 
-        #print 'last phase ran in:', time.clock() - last, 'seconds'
-        #print 'get_categories ran in:', time.clock() - start, 'seconds'
+        # print 'last phase ran in:', time.clock() - last, 'seconds'
+        # print 'get_categories ran in:', time.clock() - start, 'seconds'
 
         return categories
 
-    ############# End get_categories
+    # End get_categories
 
     def tags_older_than(self, tag, delta, must_have_tag=None,
             must_have_authors=None):
@@ -3030,8 +3029,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
 
         # Populate the books temp table
         self.conn.executemany(
-            'INSERT INTO temp_bulk_tag_edit_books VALUES (?)',
-                [(x,) for x in ids])
+            'INSERT INTO temp_bulk_tag_edit_books VALUES (?)', [(x,) for x in ids])
 
         # Populate the add/remove tags temp tables
         for table, tags in enumerate([add, remove]):
@@ -3299,14 +3297,12 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             identifiers.pop(typ)
             changed = True
             self.conn.execute(
-                'DELETE from identifiers WHERE book=? AND type=?',
-                    (id_, typ))
+                'DELETE from identifiers WHERE book=? AND type=?', (id_, typ))
         if val and identifiers.get(typ, None) != val:
             changed = True
             identifiers[typ] = val
             self.conn.execute(
-                'INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)',
-                    (id_, typ, val))
+                'INSERT OR REPLACE INTO identifiers (book, type, val) VALUES (?, ?, ?)', (id_, typ, val))
         if changed:
             raw = ','.join(['%s:%s'%(k, v) for k, v in
                 identifiers.iteritems()])
@@ -3460,8 +3456,7 @@ class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
             id = force_id
             obj = self.conn.execute(
                     'INSERT INTO books(id, title, series_index, '
-                        'author_sort) VALUES (?, ?, ?, ?)',
-                                (id, title, series_index, aus))
+                    'author_sort) VALUES (?, ?, ?, ?)', (id, title, series_index, aus))
 
         self.data.books_added([id], self)
         if mi.timestamp is None:

@@ -19,16 +19,16 @@ class PMLOutput(OutputFormatPlugin):
     options = set([
         OptionRecommendation(name='pml_output_encoding', recommended_value='cp1252',
             level=OptionRecommendation.LOW,
-            help=_('Specify the character encoding of the output document. ' \
+            help=_('Specify the character encoding of the output document. '
             'The default is cp1252.')),
         OptionRecommendation(name='inline_toc',
             recommended_value=False, level=OptionRecommendation.LOW,
             help=_('Add Table of Contents to beginning of the book.')),
         OptionRecommendation(name='full_image_depth',
             recommended_value=False, level=OptionRecommendation.LOW,
-            help=_('Do not reduce the size or bit depth of images. Images ' \
-                   'have their size and depth reduced by default to accommodate ' \
-                   'applications that can not convert images on their ' \
+            help=_('Do not reduce the size or bit depth of images. Images '
+                   'have their size and depth reduced by default to accommodate '
+                   'applications that can not convert images on their '
                    'own such as Dropbook.')),
     ])
 
@@ -57,7 +57,6 @@ class PMLOutput(OutputFormatPlugin):
             Image
         except ImportError:
             import Image
-
 
         from calibre.ebooks.oeb.base import OEB_RASTER_IMAGES
         for item in manifest:

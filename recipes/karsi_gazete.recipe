@@ -3,15 +3,16 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1441607918(BasicNewsRecipe):
-    title          = 'Karsi Gazete'
-    __author__     = 'Voltran'
-    language       = 'tr'
+    title = 'Karsi Gazete'
+    __author__ = 'Voltran'
+    language = 'tr'
     oldest_article = 1
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('G\xfcndem', 'http://www.karsigazete.com.tr/rss/post/1.xml'),
         ('Yazarlar', 'http://www.karsigazete.com.tr/rss/columnist'),
         ('Bilim & Teknoloji', 'http://www.karsigazete.com.tr/rss/post/4.xml'),

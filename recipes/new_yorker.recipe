@@ -1,9 +1,10 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre import browser
+
 
 class NewYorker(BasicNewsRecipe):
 
@@ -21,7 +22,7 @@ class NewYorker(BasicNewsRecipe):
     language = 'en'
     __author__ = 'Kovid Goyal'
     no_stylesheets = True
-    timefmt =  ' [%b %d]'
+    timefmt = ' [%b %d]'
     encoding = 'utf-8'
     extra_css = '''
                 .byline { font-size:xx-small; font-weight: bold;}
@@ -30,17 +31,21 @@ class NewYorker(BasicNewsRecipe):
                 '''
     needs_subscription = 'optional'
     keep_only_tags = [
-        dict(itemprop=['headline', 'alternativeHeadline', 'author', 'articleBody']),
+        dict(itemprop=['headline', 'alternativeHeadline',
+                       'author', 'articleBody']),
     ]
     remove_tags = [
-        dict(attrs={'class':lambda x: x and set(x.split()).intersection({'content-ad-wrapper', 'social-hover'})}),
+        dict(attrs={'class': lambda x: x and set(x.split()).intersection(
+            {'content-ad-wrapper', 'social-hover'})}),
         dict(id=['newsletter-signup']),
 
     ]
 
     def parse_index(self):
-        soup = self.index_to_soup('http://www.newyorker.com/magazine?intcid=magazine')
-        ph = soup.find('div', attrs={'class':lambda x: x and 'cover-info' in x.split()})
+        soup = self.index_to_soup(
+            'http://www.newyorker.com/magazine?intcid=magazine')
+        ph = soup.find(
+            'div', attrs={'class': lambda x: x and 'cover-info' in x.split()})
         if ph is not None:
             img = ph.find('img', src=True)
             if img is not None:
@@ -72,8 +77,8 @@ class NewYorker(BasicNewsRecipe):
             self.log('Found article:', title)
             self.log('\t', url)
             self.log('\t', desc)
-            articles.append({'title':title, 'url':url, 'date':'',
-                'description':desc})
+            articles.append({'title': title, 'url': url, 'date': '',
+                             'description': desc})
 
         return feeds
 
@@ -96,5 +101,3 @@ class NewYorker(BasicNewsRecipe):
         br = browser()
         return br.open_novisit(*args, **kwargs)
     open = open_novisit
-
-

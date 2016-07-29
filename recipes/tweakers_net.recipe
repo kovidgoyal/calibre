@@ -8,34 +8,35 @@ from __future__ import with_statement
   removed some extra tags
 '''
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Tweakers(BasicNewsRecipe):
-     title          = u'Tweakers.net'
-     __author__     = 'Kovid Goyal'
-     language       = 'nl'
-     oldest_article = 4
-     max_articles_per_feed = 40
-     cover_url      = 'http://tweakers.net/ext/launch/g/logo.gif'
+    title = u'Tweakers.net'
+    __author__ = 'Kovid Goyal'
+    language = 'nl'
+    oldest_article = 4
+    max_articles_per_feed = 40
+    cover_url = 'http://tweakers.net/ext/launch/g/logo.gif'
 
-     keep_only_tags = [dict(name='div', attrs={'class':'columnwrapper news'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'columnwrapper news'})]
 
-     remove_tags    = [dict(name='div', attrs={'class':'reacties'}),
-                        {'id' : ['utracker','socialButtons','b_ac']},
-                        {'class' : ['sidebar','advertorial']},
-                        {'class' : re.compile('nextPrevious')},
-                      ]
-     no_stylesheets=True
-     filter_regexps = [r'ads\.doubleclick\.net',r'ad\.doubleclick\.net']
+    remove_tags = [dict(name='div', attrs={'class': 'reacties'}),
+                   {'id': ['utracker', 'socialButtons', 'b_ac']},
+                   {'class': ['sidebar', 'advertorial']},
+                   {'class': re.compile('nextPrevious')},
+                   ]
+    no_stylesheets = True
+    filter_regexps = [r'ads\.doubleclick\.net', r'ad\.doubleclick\.net']
 
-     feeds          = [(u'Tweakers.net', u'http://tweakers.net/feeds/nieuws.xml')]
+    feeds = [(u'Tweakers.net', u'http://tweakers.net/feeds/nieuws.xml')]
 
-     def preprocess_html(self, soup):
+    def preprocess_html(self, soup):
         for a in soup.findAll('a', href=True, rel=True):
             if a['rel'].startswith('imageview'):
                 a['src'] = a['href']
@@ -45,7 +46,7 @@ class Tweakers(BasicNewsRecipe):
                     x.extract()
         return soup
 
-     def postprocess_html(self, soup, first):
+    def postprocess_html(self, soup, first):
         for base in soup.findAll('base'):
             base.extract()
         return soup

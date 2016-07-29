@@ -26,7 +26,6 @@ class PRS505(USBMS):
     path_sep = '/'
     booklist_class = CollectionsBookList
 
-
     FORMATS      = ['epub', 'lrf', 'lrx', 'rtf', 'pdf', 'txt', 'zbf']
     CAN_SET_METADATA = ['title', 'authors', 'collections']
     CAN_DO_DEVICE_DB_PLUGBOARD = True
@@ -49,7 +48,6 @@ class PRS505(USBMS):
             r'(PRS-((700[/#]\S+:)|((6|9)(0|5)0[#_]))SD)'
             )
 
-
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
 
@@ -68,34 +66,31 @@ class PRS505(USBMS):
 
     EXTRA_CUSTOMIZATION_MESSAGE = [
         _('Comma separated list of metadata fields '
-            'to turn into collections on the device. Possibilities include: ')+\
-                    'series, tags, authors' +\
-            _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
+            'to turn into collections on the device. Possibilities include: ')+
+        'series, tags, authors' +
+        _('. Two special collections are available: %(abt)s:%(abtv)s and %(aba)s:%(abav)s. Add  '
             'these values to the list to enable them. The collections will be '
             'given the name provided after the ":" character.')%dict(
                             abt='abt', abtv=ALL_BY_TITLE, aba='aba', abav=ALL_BY_AUTHOR),
-            _('Upload separate cover thumbnails for books (newer readers)') +
-            ':::'+_('Normally, the SONY readers get the cover image from the'
+        _('Upload separate cover thumbnails for books (newer readers)') + ':::'+
+        _('Normally, the SONY readers get the cover image from the'
                 ' ebook file itself. With this option, calibre will send a '
                 'separate cover image to the reader, useful if you are '
                 'sending DRMed books in which you cannot change the cover.'
                 ' WARNING: This option should only be used with newer '
                 'SONY readers: 350, 650, 950 and newer.'),
-            _('Refresh separate covers when using automatic management (newer readers)') +
-                ':::' +
-                _('Set this option to have separate book covers uploaded '
+        _('Refresh separate covers when using automatic management (newer readers)') + ':::' +
+        _('Set this option to have separate book covers uploaded '
                   'every time you connect your device. Unset this option if '
                   'you have so many books on the reader that performance is '
                   'unacceptable.'),
-            _('Preserve cover aspect ratio when building thumbnails') +
-                ':::' +
-                _('Set this option if you want the cover thumbnails to have '
+        _('Preserve cover aspect ratio when building thumbnails') + ':::' +
+        _('Set this option if you want the cover thumbnails to have '
                   'the same aspect ratio (width to height) as the cover. '
                   'Unset it if you want the thumbnail to be the maximum size, '
                   'ignoring aspect ratio.'),
-            _('Search for books in all folders') +
-                ':::' +
-                _('Setting this option tells calibre to look for books in all '
+        _('Search for books in all folders') + ':::' +
+        _('Setting this option tells calibre to look for books in all '
                   'folders on the device and its cards. This permits calibre to '
                   'find books put on the device by other software and by '
                   'wireless download.')
@@ -119,8 +114,8 @@ class PRS505(USBMS):
 
     THUMBNAIL_HEIGHT = 217
 
-    MAX_PATH_LEN = 201 # 250 - (max(len(CACHE_THUMBNAIL), len(MEDIA_THUMBNAIL)) +
-                       # len('main_thumbnail.jpg') + 1)
+    MAX_PATH_LEN = 201  # 250 - (max(len(CACHE_THUMBNAIL), len(MEDIA_THUMBNAIL)) +
+    # len('main_thumbnail.jpg') + 1)
 
     def windows_filter_pnp_id(self, pnp_id):
         return '_LAUNCHER' in pnp_id
@@ -233,8 +228,7 @@ class PRS505(USBMS):
             debug_print('PRS505: uploading covers in sync_booklists')
             for idx,bl in blists.items():
                 prefix = self._card_a_prefix if idx == 1 else \
-                                self._card_b_prefix if idx == 2 \
-                                    else self._main_prefix
+                                self._card_b_prefix if idx == 2 else self._main_prefix
                 for book in bl:
                     try:
                         p = os.path.join(prefix, book.lpath)

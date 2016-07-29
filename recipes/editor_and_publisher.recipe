@@ -3,27 +3,28 @@ __license__ = 'GPL v3'
 __copyright__ = '2010 elsuave'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
 class EandP(BasicNewsRecipe):
-    title              = u'Editor and Publisher'
-    __author__         = u'elsuave (modified from Xanthan Gum)'
-    description        = 'News about newspapers and journalism.'
-    publisher             = 'Editor and Publisher'
-    category              = 'news, journalism, industry'
+    title = u'Editor and Publisher'
+    __author__ = u'elsuave (modified from Xanthan Gum)'
+    description = 'News about newspapers and journalism.'
+    publisher = 'Editor and Publisher'
+    category = 'news, journalism, industry'
     language = 'en'
     max_articles_per_feed = 25
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'utf8'
-    cover_url             = 'http://www.editorandpublisher.com/images/EP_main_logo.gif'
-    remove_javascript     = True
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf8'
+    cover_url = 'http://www.editorandpublisher.com/images/EP_main_logo.gif'
+    remove_javascript = True
 
     html2lrf_options = [
-                          '--comment', description
-                        , '--category', category
-                        , '--publisher', publisher
-                        ]
+        '--comment', description, '--category', category, '--publisher', publisher
+    ]
 
-    html2epub_options = 'publisher="' + publisher + '"\ncomments="' + description + '"\ntags="' + category + '"'
+    html2epub_options = 'publisher="' + publisher + \
+        '"\ncomments="' + description + '"\ntags="' + category + '"'
 
     # Font formatting code borrowed from kwetal
 
@@ -36,18 +37,18 @@ class EandP(BasicNewsRecipe):
     # Keep only div:itemmgap
 
     keep_only_tags = [
-                          dict(name='div', attrs={'class':'itemmgap'})
-                          ]
+        dict(name='div', attrs={'class': 'itemmgap'})
+    ]
 
     # Remove commenting/social media lins
 
-    remove_tags_after = [dict(name='div', attrs={'class':'clear'})]
-
+    remove_tags_after = [dict(name='div', attrs={'class': 'clear'})]
 
     feeds = [(u'Breaking News', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx'),
-             (u'Business News', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=2'),
+             (u'Business News',
+              u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=2'),
              (u'Ad/Circ News', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=3'),
              (u'Newsroom', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=4'),
-             (u'Technology News', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=5'),
+             (u'Technology News',
+              u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=5'),
              (u'Syndicates News', u'http://www.editorandpublisher.com/GenerateRssFeed.aspx?CategoryId=7')]
-

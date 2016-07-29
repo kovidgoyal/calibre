@@ -111,9 +111,7 @@ class IndexEntry(object):
         potential_enders = [i for i in all_entries if
                 i.depth <= self.depth and
                 (
-                    (i.spine_pos == self.spine_pos and i.anchor_pos >
-                                                            self.anchor_pos)
-                    or
+                    (i.spine_pos == self.spine_pos and i.anchor_pos > self.anchor_pos) or
                     i.spine_pos > self.spine_pos
                 )]
         if potential_enders:

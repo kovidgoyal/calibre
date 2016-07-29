@@ -71,6 +71,7 @@ SEPARATE_TAGS = [
 ]
 
 class PMLMLizer(object):
+
     def __init__(self, log):
         self.log = log
         self.image_hrefs = {}
@@ -211,7 +212,8 @@ class PMLMLizer(object):
         if self.opts.remove_paragraph_spacing:
             text = re.sub('\n{2,}', '\n', text)
             # Only indent lines that don't have special formatting
-            text = re.sub('(?imu)^(?P<text>.+)$', lambda mo: mo.group('text') if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        %s' % mo.group('text'), text)
+            text = re.sub('(?imu)^(?P<text>.+)$', lambda mo: mo.group('text')
+                          if re.search(r'\\[XxCmrctTp]', mo.group('text')) else '        %s' % mo.group('text'), text)
         else:
             text = re.sub('\n{3,}', '\n\n', text)
 
@@ -251,7 +253,8 @@ class PMLMLizer(object):
                     if len(self.image_hrefs.keys()) == 0:
                         self.image_hrefs[page.abshref(elem.attrib['src'])] = 'cover.png'
                     else:
-                        self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name('%s.png' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
+                        self.image_hrefs[page.abshref(elem.attrib['src'])] = image_name(
+                            '%s.png' % len(self.image_hrefs.keys()), self.image_hrefs.keys()).strip('\x00')
                 text.append('\\m="%s"' % self.image_hrefs[page.abshref(elem.attrib['src'])])
         elif tag == 'hr':
             w = '\\w'
@@ -351,7 +354,7 @@ class PMLMLizer(object):
         tags.reverse()
         text += self.close_tags(tags)
 
-        #if tag in SEPARATE_TAGS:
+        # if tag in SEPARATE_TAGS:
         #    text.append('\n\n')
 
         if style['page-break-after'] == 'always':

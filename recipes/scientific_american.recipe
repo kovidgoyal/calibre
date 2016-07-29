@@ -1,37 +1,42 @@
 #!/usr/bin/env  python2
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.date import now
 from css_selectors import Select
+
 
 def absurl(url):
     if url.startswith('/'):
         url = 'http://www.scientificamerican.com' + url
     return url
 
-keep_classes = {'article-header', 'article-content', 'article-media', 'article-author', 'article-text'}
+keep_classes = {'article-header', 'article-content',
+                'article-media', 'article-author', 'article-text'}
 remove_classes = {'aside-banner', 'moreToExplore', 'article-footer'}
 
-class ScientificAmerican(BasicNewsRecipe):
-    title                 = u'Scientific American'
-    description           = u'Popular Science. Monthly magazine. Should be downloaded around the middle of each month.'
-    category              = 'science'
-    __author__            = 'Kovid Goyal'
-    no_stylesheets        = True
-    language              = 'en'
-    publisher             = 'Nature Publishing Group'
-    remove_empty_feeds    = True
-    remove_javascript     = True
-    timefmt               = ' [%B %Y]'
 
-    needs_subscription    = 'optional'
+class ScientificAmerican(BasicNewsRecipe):
+    title = u'Scientific American'
+    description = u'Popular Science. Monthly magazine. Should be downloaded around the middle of each month.'
+    category = 'science'
+    __author__ = 'Kovid Goyal'
+    no_stylesheets = True
+    language = 'en'
+    publisher = 'Nature Publishing Group'
+    remove_empty_feeds = True
+    remove_javascript = True
+    timefmt = ' [%B %Y]'
+
+    needs_subscription = 'optional'
 
     keep_only_tags = [
-        dict(attrs={'class':lambda x: x and bool(set(x.split()).intersection(keep_classes))}),
+        dict(attrs={'class': lambda x: x and bool(
+            set(x.split()).intersection(keep_classes))}),
     ]
     remove_tags = [
-        dict(attrs={'class':lambda x: x and bool(set(x.split()).intersection(remove_classes))}),
+        dict(attrs={'class': lambda x: x and bool(
+            set(x.split()).intersection(remove_classes))}),
         dict(id=['seeAlsoLinks']),
     ]
 
@@ -39,7 +44,7 @@ class ScientificAmerican(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         if self.username and self.password:
             br.open('https://www.scientificamerican.com/my-account/login/')
-            br.select_form(predicate=lambda f:f.attrs.get('id') == 'login')
+            br.select_form(predicate=lambda f: f.attrs.get('id') == 'login')
             br['emailAddress'] = self.username
             br['password'] = self.password
             br.submit()
@@ -47,7 +52,8 @@ class ScientificAmerican(BasicNewsRecipe):
 
     def parse_index(self):
         # Get the cover, date and issue URL
-        root = self.index_to_soup('http://www.scientificamerican.com/sciammag/', as_tree=True)
+        root = self.index_to_soup(
+            'http://www.scientificamerican.com/sciammag/', as_tree=True)
         select = Select(root)
         for a in select('#sa_body .store-listing__img a[href]'):
             url = absurl(a.get('href'))
@@ -59,14 +65,16 @@ class ScientificAmerican(BasicNewsRecipe):
                 break
             break
         else:
-            raise ValueError('The Scientific American website has changed, this recipe needs to be updated')
+            raise ValueError(
+                'The Scientific American website has changed, this recipe needs to be updated')
 
         # Now parse the actual issue to get the list of articles
         select = Select(self.index_to_soup(url, as_tree=True))
         feeds = []
         for i, section in enumerate(select('#sa_body .toc-articles')):
             if i == 0:
-                feeds.append(('Features', list(self.parse_sciam_features(select, section))))
+                feeds.append(
+                    ('Features', list(self.parse_sciam_features(select, section))))
             else:
                 feeds.extend(self.parse_sciam_departments(select, section))
 
@@ -84,7 +92,7 @@ class ScientificAmerican(BasicNewsRecipe):
                 break
             self.log('Found feature article: %s at %s' % (title, url))
             self.log('\t' + desc)
-            yield {'title':title, 'url':url, 'description':desc}
+            yield {'title': title, 'url': url, 'description': desc}
 
     def parse_sciam_departments(self, select, section):
         section_title, articles = 'Unknown', []
@@ -98,7 +106,8 @@ class ScientificAmerican(BasicNewsRecipe):
             for a in select('h2 a[href]', li):
                 title = self.tag_to_string(a)
                 url = absurl(a.get('href'))
-                articles.append({'title':title, 'url':url, 'description':''})
+                articles.append(
+                    {'title': title, 'url': url, 'description': ''})
                 self.log('\tFound article: %s at %s' % (title, url))
         if articles:
             yield section_title, articles

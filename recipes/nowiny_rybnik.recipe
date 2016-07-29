@@ -4,6 +4,7 @@ __license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class NowinyRybnik(BasicNewsRecipe):
     title = u'Nowiny - Rybnik'
     __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
@@ -21,7 +22,8 @@ class NowinyRybnik(BasicNewsRecipe):
     remove_tags = []
     remove_tags.append(dict(name='div', attrs={'id': 'footer'}))
 
-    feeds = [(u'Wszystkie artykuły', u'http://www.nowiny.rybnik.pl/rss,artykuly,dzial,0,miasto,0,ile,25.xml')]
+    feeds = [(u'Wszystkie artykuły',
+              u'http://www.nowiny.rybnik.pl/rss,artykuly,dzial,0,miasto,0,ile,25.xml')]
 
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):

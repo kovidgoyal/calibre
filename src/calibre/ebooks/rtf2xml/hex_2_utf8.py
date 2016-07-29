@@ -27,14 +27,14 @@ class Hex2Utf8:
             default_char_map,
             bug_handler,
             invalid_rtf_handler,
-            copy= None,
-            temp_dir= None,
-            symbol = None,
-            wingdings = None,
-            caps = None,
-            convert_caps = None,
-            dingbats = None,
-            run_level = 1,
+            copy=None,
+            temp_dir=None,
+            symbol=None,
+            wingdings=None,
+            caps=None,
+            convert_caps=None,
+            dingbats=None,
+            run_level=1,
             ):
         """
         Required:
@@ -88,10 +88,10 @@ class Hex2Utf8:
                         convert_zapf,
                         copy=None,
                         temp_dir=None,
-                        symbol = None,
-                        wingdings = None,
-                        caps = None,
-                        dingbats = None,
+                        symbol=None,
+                        wingdings=None,
+                        caps=None,
+                        dingbats=None,
                     ):
         """
         Required:
@@ -148,12 +148,12 @@ class Hex2Utf8:
         # modules
         self.__char_file = cStringIO.StringIO(char_set)
         char_map_obj =  get_char_map.GetCharMap(
-                char_file = self.__char_file,
-                bug_handler = self.__bug_handler,
+                char_file=self.__char_file,
+                bug_handler=self.__bug_handler,
                 )
         up_128_dict = char_map_obj.get_char_map(map=self.__default_char_map)
-        bt_128_dict = char_map_obj.get_char_map(map = 'bottom_128')
-        ms_standard_dict = char_map_obj.get_char_map(map = 'ms_standard')
+        bt_128_dict = char_map_obj.get_char_map(map='bottom_128')
+        ms_standard_dict = char_map_obj.get_char_map(map='ms_standard')
         self.__def_dict = {}
         self.__def_dict.update(up_128_dict)
         self.__def_dict.update(bt_128_dict)
@@ -163,29 +163,29 @@ class Hex2Utf8:
         self.__in_caps = 0
         self.__special_fonts_found = 0
         if self.__symbol:
-            symbol_base_dict = char_map_obj.get_char_map(map = 'SYMBOL')
-            ms_symbol_dict = char_map_obj.get_char_map(map = 'ms_symbol')
+            symbol_base_dict = char_map_obj.get_char_map(map='SYMBOL')
+            ms_symbol_dict = char_map_obj.get_char_map(map='ms_symbol')
             self.__symbol_dict = {}
             self.__symbol_dict.update(symbol_base_dict)
             self.__symbol_dict.update(ms_symbol_dict)
         if self.__wingdings:
-            wingdings_base_dict = char_map_obj.get_char_map(map = 'wingdings')
-            ms_wingdings_dict = char_map_obj.get_char_map(map = 'ms_wingdings')
+            wingdings_base_dict = char_map_obj.get_char_map(map='wingdings')
+            ms_wingdings_dict = char_map_obj.get_char_map(map='ms_wingdings')
             self.__wingdings_dict = {}
             self.__wingdings_dict.update(wingdings_base_dict)
             self.__wingdings_dict.update(ms_wingdings_dict)
         if self.__dingbats:
-            dingbats_base_dict = char_map_obj.get_char_map(map = 'dingbats')
-            ms_dingbats_dict = char_map_obj.get_char_map(map = 'ms_dingbats')
+            dingbats_base_dict = char_map_obj.get_char_map(map='dingbats')
+            ms_dingbats_dict = char_map_obj.get_char_map(map='ms_dingbats')
             self.__dingbats_dict = {}
             self.__dingbats_dict.update(dingbats_base_dict)
             self.__dingbats_dict.update(ms_dingbats_dict)
         # load dictionary for caps, and make a string for the replacement
-        self.__caps_uni_dict = char_map_obj.get_char_map(map = 'caps_uni')
+        self.__caps_uni_dict = char_map_obj.get_char_map(map='caps_uni')
         # # print self.__caps_uni_dict
         # don't think I'll need this
-        ##keys = self.__caps_uni_dict.keys()
-        ##self.__caps_uni_replace = '|'.join(keys)
+        # keys = self.__caps_uni_dict.keys()
+        # self.__caps_uni_replace = '|'.join(keys)
         self.__preamble_state_dict = {
             'preamble'      :       self.__preamble_func,
             'body'          :       self.__body_func,
@@ -249,7 +249,7 @@ class Hex2Utf8:
         else:
             token = hex_num.replace("'", '')
             the_num = 0
-            if  token:
+            if token:
                 the_num = int(token, 16)
             if the_num > 10:
                 self.__write_obj.write('mi<tg<empty-att_<udef_symbol<num>%s<description>not-in-table\n' %
@@ -282,7 +282,7 @@ class Hex2Utf8:
         self.__state = 'preamble'
         with open(self.__write_to, 'w') as self.__write_obj:
             with open(self.__file, 'r') as read_obj:
-               for line in read_obj:
+                for line in read_obj:
                     self.__token_info = line[:16]
                     action = self.__preamble_state_dict.get(self.__state)
                     if action is None:
@@ -290,7 +290,7 @@ class Hex2Utf8:
                         self.__state
                         )
                     action(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "preamble_utf_convert.data")
         copy_obj.rename(self.__write_to, self.__file)
@@ -460,7 +460,7 @@ class Hex2Utf8:
         else:
             sys.stderr.write('Module is hex_2_utf8\n'
             'method is __end_caps_func\n'
-            'caps list should be more than one?\n') #self.__in_caps not set
+            'caps list should be more than one?\n')  # self.__in_caps not set
 
     def __text_func(self, line):
         """
@@ -548,7 +548,7 @@ class Hex2Utf8:
                         self.__state
                         )
                     action(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "body_utf_convert.data")
         copy_obj.rename(self.__write_to, self.__file)

@@ -1,18 +1,21 @@
 from calibre.web.feeds.news import BasicNewsRecipe
+
+
 class Informacje_USA(BasicNewsRecipe):
-    title          = u'Dziennik Związkowy'
+    title = u'Dziennik Związkowy'
     oldest_article = 7
     max_articles_per_feed = 100
-    __author__        = 'fenuks & Tomasz Długosz'
-    description   = u'Najstarsza polskojęzyczna gazeta codzienna w USA'
-    category       = 'news'
-    language       = 'pl'
-    cover_url='http://dziennikzwiazkowy.com/wp-content/uploads/2014/08/LogoDZPDN1.png'
+    __author__ = 'fenuks & Tomasz Długosz'
+    description = u'Najstarsza polskojęzyczna gazeta codzienna w USA'
+    category = 'news'
+    language = 'pl'
+    cover_url = 'http://dziennikzwiazkowy.com/wp-content/uploads/2014/08/LogoDZPDN1.png'
     no_stylesheets = True
     use_embedded_content = False
-    keep_only_tags=[dict(name='div', attrs={'class':'panel'})]
-    remove_tags= [dict(name='div', attrs={'class':['social-buttons left','video-carousel','p-title','article-foot','comments-block']}),dict(attrs={'id':['writecomment','blueimp-gallery']})]
-    feeds          = [(u'Informacje', u'http://dziennikzwiazkowy.com/feed/')]
+    keep_only_tags = [dict(name='div', attrs={'class': 'panel'})]
+    remove_tags = [dict(name='div', attrs={'class': ['social-buttons left', 'video-carousel', 'p-title',
+                                                     'article-foot', 'comments-block']}), dict(attrs={'id': ['writecomment', 'blueimp-gallery']})]
+    feeds = [(u'Informacje', u'http://dziennikzwiazkowy.com/feed/')]
 
     extra_css = '''
         h1 { font-size:130% }

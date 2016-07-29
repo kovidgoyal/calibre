@@ -8,6 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class EntrepeneurMagRecipe(BasicNewsRecipe):
     __author__ = 'Kovid Goyal'
     language = 'en'
@@ -23,18 +24,19 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
     remove_javascript = True
 
     keep_only_tags = [
-        dict(attrs={'class':['headline', 'hero topimage']}),
+        dict(attrs={'class': ['headline', 'hero topimage']}),
         dict(itemprop='articlebody'),
     ]
     remove_tags = [
-        dict(attrs={'class':['related-content']}),
+        dict(attrs={'class': ['related-content']}),
     ]
     remove_attributes = ['style']
 
     INDEX = 'http://www.entrepreneur.com'
 
     def parse_index(self):
-        root = self.index_to_soup(self.INDEX + '/magazine/index.html', as_tree=True)
+        root = self.index_to_soup(
+            self.INDEX + '/magazine/index.html', as_tree=True)
         for href in root.xpath('//h2[@class="sectiontitle nb"]/a/@href'):
             return self.parse_ent_index(self.INDEX + href)
 
@@ -56,6 +58,6 @@ class EntrepeneurMagRecipe(BasicNewsRecipe):
             desc = self.tag_to_string(d) if d is not None else ''
             self.log('\t', title, 'at:', url)
             self.log('\t\t', desc)
-            ans.append({'title':title, 'url':url, 'description':desc})
+            ans.append({'title': title, 'url': url, 'description': desc})
 
         return [('Articles', ans)]

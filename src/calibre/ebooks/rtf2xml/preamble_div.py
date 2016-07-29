@@ -20,9 +20,9 @@ class PreambleDiv:
     """
     def __init__(self, in_file,
             bug_handler,
-            copy = None,
-            no_namespace = None,
-            run_level = 1,
+            copy=None,
+            no_namespace=None,
+            run_level=1,
             ):
         """
         Required:
@@ -115,11 +115,11 @@ class PreambleDiv:
         self.__style_sheet_final = ''
         self.__individual_font = 0
         self.__old_font = 0
-        self.__ob_group = 0 # depth of group
+        self.__ob_group = 0  # depth of group
         self.__font_table_final = 0
         self.__list_table_obj = list_table.ListTable(
-                run_level = self.__run_level,
-                bug_handler = self.__bug_handler,
+                run_level=self.__run_level,
+                bug_handler=self.__bug_handler,
                 )
     def __ignore_func(self, line):
         """
@@ -325,8 +325,8 @@ cw<ci<font-style<nu<0
             pass
     def __found_override_table_func(self, line):
         self.__override_table_obj = override_table.OverrideTable(
-            run_level = self.__run_level,
-            list_of_lists = self.__all_lists,
+            run_level=self.__run_level,
+            list_of_lists=self.__all_lists,
             )
         self.__state = 'override_table'
         self.__override_table_final = ''
@@ -385,11 +385,11 @@ cw<ci<font-style<nu<0
         """
         info = line[6:16]
         changed = self.__margin_dict.get(info)
-        if changed == None:
+        if changed is None:
             print 'woops!'
         else:
             self.__page[changed] = line[20:-1]
-        #cw<pa<margin-lef<nu<1728
+        # cw<pa<margin-lef<nu<1728
     def __print_page_info(self):
         self.__write_obj.write('mi<tg<empty-att_<page-definition')
         for key in self.__page.keys():
@@ -397,7 +397,7 @@ cw<ci<font-style<nu<0
             '<%s>%s' % (key, self.__page[key])
             )
         self.__write_obj.write('\n')
-#mi<tg<open-att__<footn
+# mi<tg<open-att__<footn
     def __print_sec_info(self):
         """
         Check if there is any section info. If so, print it out.
@@ -422,8 +422,8 @@ cw<ci<font-style<nu<0
         printed out later.
         """
         info = self.__translate_sec.get(line[6:16])
-        if info == None:
-            sys.stderr.write ('woops!\n')
+        if info is None:
+            sys.stderr.write('woops!\n')
         else:
             self.__section[info] = 'true'
     def __body_func(self, line):
@@ -538,12 +538,12 @@ cw<ci<font-style<nu<0
                 self.__cb_count = line[-5:-1]
                 self.__ob_group -= 1
             action = self.__state_dict.get(self.__state)
-            if action == None:
+            if action is None:
                 print self.__state
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "preamble_div.data")
         copy_obj.rename(self.__write_to, self.__file)

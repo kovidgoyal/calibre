@@ -28,7 +28,7 @@ class Header(OrderedDict):
 
     ALIGN_BLOCK = False
     POSITIONS = {}  # Mapping of position field to field whose position should
-                    # be stored in the position field
+    # be stored in the position field
     SHORT_FIELDS = set()
 
     def __init__(self):

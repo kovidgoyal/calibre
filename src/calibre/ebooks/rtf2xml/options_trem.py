@@ -262,8 +262,8 @@ if __name__ == '__main__':
         'output': [1, 'o'],
         'test3': [1, 't'],
     }
-    test_obj = ParseOptions(system_string = sys.argv,
-                    options_dict = this_dict
+    test_obj = ParseOptions(system_string=sys.argv,
+                    options_dict=this_dict
             )
     options, the_args = test_obj.parse_options()
     print options, the_args

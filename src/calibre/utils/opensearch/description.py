@@ -27,9 +27,8 @@ class Description(object):
 
         d = Description("http://www.example.com/description")
         '''
-        if url: 
+        if url:
             self.load(url)
-
 
     def load(self, url):
         '''
@@ -39,7 +38,7 @@ class Description(object):
         br = browser()
         with closing(br.open(url, timeout=15)) as f:
             doc = etree.fromstring(f.read())
-        
+
         # version 1.1 has repeating Url elements.
         self.urls = []
         for element in doc.xpath('//*[local-name() = "Url"]'):
@@ -79,14 +78,14 @@ class Description(object):
         self.syndicationright = ''.join(doc.xpath('//*[local-name() = "SyndicationRight"][1]//text()'))
 
         tag_text = ' '.join(doc.xpath('//*[local-name() = "Tags"]//text()'))
-        if tag_text != None:
+        if tag_text is not None:
             self.tags = tag_text.split(' ')
 
         self.adultcontent = doc.xpath('boolean(//*[local-name() = "AdultContent" and contains(., "true")])')
 
     def get_url_by_type(self, type):
         '''
-        Walks available urls and returns them by type. Only 
+        Walks available urls and returns them by type. Only
         appropriate in opensearch v1.1 where there can be multiple
         query targets. Returns none if no such type is found.
 
@@ -99,12 +98,12 @@ class Description(object):
 
     def get_best_template(self):
         '''
-        OK, best is a value judgement, but so be it. You'll get 
+        OK, best is a value judgement, but so be it. You'll get
         back either the atom, rss or first template available. This
         method handles the main difference between opensearch v1.0 and v1.1
         '''
         # version 1.0
-        if self.url: 
+        if self.url:
             return self.url
 
         # atom

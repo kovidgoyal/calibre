@@ -1,41 +1,44 @@
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class GrantLand(BasicNewsRecipe):
-    title          = u"Grantland"
-    description    = 'Writings on Sports & Pop Culture'
-    language       = 'en'
-    __author__     = 'barty on mobileread.com forum'
+    title = u"Grantland"
+    description = 'Writings on Sports & Pop Culture'
+    language = 'en'
+    __author__ = 'barty on mobileread.com forum'
     max_articles_per_feed = 100
     no_stylesheets = True
-    # auto_cleanup is too aggressive sometimes and we end up with blank articles
-    auto_cleanup   = False
-    timefmt        = ' [%a, %d %b %Y]'
+    # auto_cleanup is too aggressive sometimes and we end up with blank
+    # articles
+    auto_cleanup = False
+    timefmt = ' [%a, %d %b %Y]'
     oldest_article = 90
 
-    cover_url      = 'http://cdn0.sbnation.com/imported_assets/740965/blog_grantland_grid_3.jpg'
-    masthead_url   = 'http://a1.espncdn.com/prod/assets/grantland/grantland-logo.jpg'
+    cover_url = 'http://cdn0.sbnation.com/imported_assets/740965/blog_grantland_grid_3.jpg'
+    masthead_url = 'http://a1.espncdn.com/prod/assets/grantland/grantland-logo.jpg'
 
-    INDEX          = 'http://www.grantland.com'
-    CATEGORIES     = [
+    INDEX = 'http://www.grantland.com'
+    CATEGORIES = [
         # comment out second line if you don't want older articles
         # (user friendly name, url suffix, max number of articles to load)
-        ('Today in Grantland','',20),
-        ('In Case You Missed It','incaseyoumissedit',35),
-        ]
+        ('Today in Grantland', '', 20),
+        ('In Case You Missed It', 'incaseyoumissedit', 35),
+    ]
 
-    remove_tags    = [
-        {'name':['style','aside','nav','footer','script']},
-        {'name':'h1','text':'Grantland'},
-        {'id':['header','col-right']},
-        {'class':['connect_widget']},
-        {'name':'section','class':re.compile(r'\b(ad|module)\b')},
-        ]
+    remove_tags = [
+        {'name': ['style', 'aside', 'nav', 'footer', 'script']},
+        {'name': 'h1', 'text': 'Grantland'},
+        {'id': ['header', 'col-right']},
+        {'class': ['connect_widget']},
+        {'name': 'section', 'class': re.compile(r'\b(ad|module)\b')},
+    ]
 
     preprocess_regexps = [
         # remove blog banners
-        (re.compile(r'<a href="/blog/(?:(?!</a>).)+</a>', re.DOTALL|re.IGNORECASE), lambda m: ''),
-        ]
+        (re.compile(r'<a href="/blog/(?:(?!</a>).)+</a>',
+                    re.DOTALL | re.IGNORECASE), lambda m: ''),
+    ]
 
     def parse_index(self):
         feeds = []
@@ -50,7 +53,7 @@ class GrantLand(BasicNewsRecipe):
             page = "%s/%s" % (self.INDEX, tag)
             soup = self.index_to_soup(page)
 
-            main = soup.find('div',id='col-main')
+            main = soup.find('div', id='col-main')
             if main is None:
                 main = soup
 
@@ -64,7 +67,7 @@ class GrantLand(BasicNewsRecipe):
                     continue
                 self.log('\tFound article:', title)
                 self.log('\t', url)
-                articles.append({'title':title,'url':url})
+                articles.append({'title': title, 'url': url})
                 seen_urls.add(url)
 
                 if len(articles) >= max_articles:

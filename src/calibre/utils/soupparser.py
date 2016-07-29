@@ -93,7 +93,7 @@ def _convert_children(parent, beautiful_soup_tree, makeelement):
             elif isinstance(child, ProcessingInstruction):
                 parent.append(etree.ProcessingInstruction(
                     *child.split(' ', 1)))
-            else: # CData
+            else:  # CData
                 _append_text(parent, et_child, unescape(child))
 
 def _append_text(parent, element, text):
@@ -106,7 +106,7 @@ def _append_text(parent, element, text):
 # copied from ET's ElementSoup
 
 try:
-    from html.entities import name2codepoint # Python 3
+    from html.entities import name2codepoint  # Python 3
     name2codepoint
 except ImportError:
     from htmlentitydefs import name2codepoint
@@ -122,5 +122,5 @@ def unescape(string):
         try:
             return unichr(name2codepoint[m.group(1)])
         except KeyError:
-            return m.group(0) # use as is
+            return m.group(0)  # use as is
     return handle_entities(unescape_entity, string)

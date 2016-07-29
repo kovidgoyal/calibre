@@ -158,8 +158,10 @@ class PML_HTMLizer(object):
     def prepare_pml(self, pml):
         # Give Chapters the form \\*='text'text\\*. This is used for generating
         # the TOC later.
-        pml = re.sub(r'(?msu)(?P<c>\\x)(?P<text>.*?)(?P=c)', lambda match: '%s="%s"%s%s' % (match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
-        pml = re.sub(r'(?msu)(?P<c>\\X[0-4])(?P<text>.*?)(?P=c)', lambda match: '%s="%s"%s%s' % (match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
+        pml = re.sub(r'(?msu)(?P<c>\\x)(?P<text>.*?)(?P=c)', lambda match: '%s="%s"%s%s' %
+                     (match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
+        pml = re.sub(r'(?msu)(?P<c>\\X[0-4])(?P<text>.*?)(?P=c)', lambda match: '%s="%s"%s%s' %
+                     (match.group('c'), self.strip_pml(match.group('text')), match.group('text'), match.group('c')), pml)
 
         # Remove comments
         pml = re.sub(r'(?mus)\\v(?P<text>.*?)\\v', '', pml)
@@ -171,8 +173,10 @@ class PML_HTMLizer(object):
         pml = re.sub(r'(?mus)^[ ]*$', '', pml)
 
         # Footnotes and Sidebars.
-        pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="%s"%s\\FN' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
-        pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="%s"%s\\SB' % (match.group('target'), match.group('text')) if match.group('text') else '', pml)
+        pml = re.sub(r'(?mus)<footnote\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</footnote>', lambda match: '\\FN="%s"%s\\FN' %
+                     (match.group('target'), match.group('text')) if match.group('text') else '', pml)
+        pml = re.sub(r'(?mus)<sidebar\s+id="(?P<target>.+?)">\s*(?P<text>.*?)\s*</sidebar>', lambda match: '\\SB="%s"%s\\SB' %
+                     (match.group('target'), match.group('text')) if match.group('text') else '', pml)
 
         # Convert &'s into entities so &amp; in the text doesn't get turned into
         # &. It will display as &amp;
@@ -527,7 +531,7 @@ class PML_HTMLizer(object):
         empty_count = 0
 
         for s in self.STATES:
-            self.state[s] = [False, ''];
+            self.state[s] = [False, '']
 
         for line in pml.splitlines():
             parsed = []
@@ -700,23 +704,23 @@ class PML_HTMLizer(object):
                 t_l2 = None
                 t_l3 = None
             elif level == u'1':
-                if t_l0 == None:
+                if t_l0 is None:
                     t_l0 = n_toc
                 t_l1 = t_l0.add_item(href, id, text)
                 t_l2 = None
                 t_l3 = None
             elif level == u'2':
-                if t_l1 == None:
-                    if t_l0 == None:
+                if t_l1 is None:
+                    if t_l0 is None:
                         t_l1 = n_toc
                     else:
                         t_l1 = t_l0
                 t_l2 = t_l1.add_item(href, id, text)
                 t_l3 = None
             elif level == u'3':
-                if t_l2 == None:
-                    if t_l1 == None:
-                        if t_l0 == None:
+                if t_l2 is None:
+                    if t_l1 is None:
+                        if t_l0 is None:
                             t_l2 = n_toc
                         else:
                             t_l2 = t_l0
@@ -727,10 +731,10 @@ class PML_HTMLizer(object):
             # Anything above 4 is invalid but we will count
             # it as level 4.
             else:
-                if t_l3 == None:
-                    if t_l2 == None:
-                        if t_l1 == None:
-                            if t_l0 == None:
+                if t_l3 is None:
+                    if t_l2 is None:
+                        if t_l1 is None:
+                            if t_l0 is None:
                                 t_l3 = n_toc
                             else:
                                 t_l3 = t_l0
@@ -750,7 +754,8 @@ def pml_to_html(pml):
 def footnote_sidebar_to_html(pre_id, id, pml):
     id = id.strip('\x01')
     if id.strip():
-        html = '<br /><br style="page-break-after: always;" /><div id="%s-%s">%s<small><a href="#r%s-%s">return</a></small></div>' % (pre_id, id, pml_to_html(pml), pre_id, id)
+        html = '<br /><br style="page-break-after: always;" /><div id="%s-%s">%s<small><a href="#r%s-%s">return</a></small></div>' % (
+            pre_id, id, pml_to_html(pml), pre_id, id)
     else:
         html = '<br /><br style="page-break-after: always;" /><div>%s</div>' % pml_to_html(pml)
     return html

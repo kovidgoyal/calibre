@@ -38,7 +38,6 @@ class LRFInput(InputFormatPlugin):
                     recover=True)
             doc = etree.fromstring(xml, parser=parser)
 
-
         char_button_map = {}
         for x in doc.xpath('//CharButton[@refobj]'):
             ro = x.get('refobj')

@@ -93,25 +93,25 @@ class TextileMLizer(OEB2HTML):
         # escape the super/sub-scripts if needed
         text = re.sub(r'([~^]\w+[~^])(\w)', r'[\1]\2', text)
 
-        #remove empty spans
+        # remove empty spans
         text = re.sub(r'%\xa0+', r'%', text)
-        #remove empty spans - MAY MERGE SOME ?
+        # remove empty spans - MAY MERGE SOME ?
         text = re.sub(r'%%', r'', text)
-        #remove spans from tagged output
+        # remove spans from tagged output
         text = re.sub(r'%([_+*-]+)%', r'\1', text)
-        #remove spaces before a newline
+        # remove spaces before a newline
         text = re.sub(r' +\n', r'\n', text)
-        #remove newlines at top of file
+        # remove newlines at top of file
         text = re.sub(r'^\n+', r'', text)
-        #correct blockcode paras
+        # correct blockcode paras
         text = re.sub(r'\npre\.\n?\nbc\.', r'\nbc.', text)
-        #correct blockquote paras
+        # correct blockquote paras
         text = re.sub(r'\nbq\.\n?\np.*?\. ', r'\nbq. ', text)
 
-        #reduce blank lines
+        # reduce blank lines
         text = re.sub(r'\n{3}', r'\n\np. \n\n', text)
         text = re.sub(u'%\n(p[<>=]{1,2}\.|p\.)', r'%\n\n\1', text)
-        #Check span following blank para
+        # Check span following blank para
         text = re.sub(r'\n+ +%', r' %', text)
         text = re.sub(u'p[<>=]{1,2}\.\n\n?', r'', text)
         # blank paragraph
@@ -122,12 +122,12 @@ class TextileMLizer(OEB2HTML):
         text = re.sub(u'\np[<>=]{1,2}?\. \xa0', r'\np. ', text)
         text = re.sub(r'(^|\n)(p.*\. ?\n)(p.*\.)', r'\1\3', text)
         text = re.sub(r'\n(p\. \n)(p.*\.|h.*\.)', r'\n\2', text)
-        #sort out spaces in tables
+        # sort out spaces in tables
         text = re.sub(r' {2,}\|', r' |', text)
 
         # Now put back spaces removed earlier as they're needed here
         text = re.sub(r'\np\.\n', r'\np. \n', text)
-        #reduce blank lines
+        # reduce blank lines
         text = re.sub(r' \n\n\n', r' \n\n', text)
 
         return text
@@ -139,7 +139,7 @@ class TextileMLizer(OEB2HTML):
         # Condense redundant spaces created by replacing newlines with spaces.
         text = re.sub(r'[ ]{2,}', ' ', text)
         text = re.sub(r'\t+', '', text)
-        if self.remove_space_after_newline == True:
+        if self.remove_space_after_newline == True:  # noqa
             text = re.sub(r'^ +', '', text)
             self.remove_space_after_newline = False
         return text
@@ -152,7 +152,8 @@ class TextileMLizer(OEB2HTML):
             if 'background' in style.cssdict():
                 txt += 'background:'+style['background']+';'
         txt += '}'
-        if txt == '{}': txt = ''
+        if txt == '{}':
+            txt = ''
         return txt
 
     def check_halign(self, style):
@@ -163,7 +164,7 @@ class TextileMLizer(OEB2HTML):
         return ''
 
     def check_valign(self, style):
-        tests = {'top':'^','bottom':'~'} #, 'middle':'-'}
+        tests = {'top':'^','bottom':'~'}  # , 'middle':'-'}
         for i in tests:
             if style['vertical-align'] == i:
                 return tests[i]
@@ -196,7 +197,7 @@ class TextileMLizer(OEB2HTML):
 
     def check_id_tag(self, attribs):
         txt = ''
-        if attribs.has_key('id'):
+        if attribs.has_key('id'):  # noqa
             txt = '(#'+attribs['id']+ ')'
             self.our_ids.append('#'+attribs['id'])
             self.id_no_text = u'\xa0'
@@ -260,7 +261,7 @@ class TextileMLizer(OEB2HTML):
 
         if style['font-style'] == 'italic' or tag in ('i', 'em'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'cite'):
-                if self.style_italic == False:
+                if self.style_italic == False:  # noqa
                     if self.in_a_link:
                         text.append('_')
                         tags.append('_')
@@ -271,7 +272,7 @@ class TextileMLizer(OEB2HTML):
                     self.style_italic = True
         if style['font-weight'] in ('bold', 'bolder') or tag in ('b', 'strong'):
             if tag not in ('h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'th'):
-                if self.style_bold == False:
+                if self.style_bold == False:  # noqa
                     if self.in_a_link:
                         text.append('*')
                         tags.append('*')
@@ -282,13 +283,13 @@ class TextileMLizer(OEB2HTML):
                     self.style_bold = True
         if style['text-decoration'] == 'underline' or tag in ('u', 'ins'):
             if tag != 'a':
-                if self.style_under == False:
+                if self.style_under == False:  # noqa
                     text.append('[+')
                     tags.append('+]')
                     self.style_embed.append('+')
                     self.style_under = True
         if style['text-decoration'] == 'line-through' or tag in ('strike', 'del', 's'):
-            if self.style_strike == False:
+            if self.style_strike == False:  # noqa
                 text.append('[-')
                 tags.append('-]')
                 self.style_embed.append('-')
@@ -333,12 +334,12 @@ class TextileMLizer(OEB2HTML):
             tags.append('pre\n')
         elif tag == 'a':
             if self.opts.keep_links:
-                if attribs.has_key('href'):
+                if attribs.has_key('href'):  # noqa
                     text.append('"')
                     tags.append('a')
                     tags.append('":' + attribs['href'])
                     self.our_links.append(attribs['href'])
-                    if attribs.has_key('title'):
+                    if attribs.has_key('title'):  # noqa
                         tags.append('(' + attribs['title'] + ')')
                     self.in_a_link = True
                 else:
@@ -350,7 +351,7 @@ class TextileMLizer(OEB2HTML):
                 txt += self.check_valign(style)
                 txt += attribs['src']
                 text.append(txt)
-                if attribs.has_key('alt'):
+                if attribs.has_key('alt'):  # noqa
                     txt = attribs['alt']
                     if txt != '':
                         text.append('(' + txt + ')')
@@ -360,8 +361,10 @@ class TextileMLizer(OEB2HTML):
             text.append('')
             tags.append(tag)
         elif tag == 'li':
-            if self.list: li = self.list[-1]
-            else: li = {'name': 'ul', 'num': 0}
+            if self.list:
+                li = self.list[-1]
+            else:
+                li = {'name': 'ul', 'num': 0}
             text.append('\n')
             if li['name'] == 'ul':
                 text.append('*' * len(self.list) + ' ')
@@ -392,7 +395,7 @@ class TextileMLizer(OEB2HTML):
             txt = self.build_block('', style, attribs, stylizer)
             txt += '. '
             if txt != '\n. ':
-                txt = re.sub ('\n', '', txt)
+                txt = re.sub('\n', '', txt)
                 text.append(txt)
             tags.append('|\n')
         elif tag == 'td':
@@ -400,9 +403,9 @@ class TextileMLizer(OEB2HTML):
             txt = ''
             txt += self.check_halign(style)
             txt += self.check_valign(style)
-            if attribs.has_key ('colspan'):
+            if attribs.has_key('colspan'):  # noqa
                 txt += '\\' + attribs['colspan']
-            if attribs.has_key ('rowspan'):
+            if attribs.has_key('rowspan'):  # noqa
                 txt += '/' + attribs['rowspan']
             txt += self.check_styles(style)
             if txt != '':
@@ -413,12 +416,12 @@ class TextileMLizer(OEB2HTML):
             tags.append('')
         elif tag == 'span':
             if style['font-variant'] == 'small-caps':
-                if self.style_smallcap == False:
+                if self.style_smallcap == False:  # noqa
                     text.append('&')
                     tags.append('&')
                     self.style_smallcap = True
             else:
-                if self.in_a_link == False:
+                if self.in_a_link == False:  # noqa
                     txt = '%'
                     if self.opts.keep_links:
                         txt += self.check_id_tag(attribs)
@@ -427,12 +430,12 @@ class TextileMLizer(OEB2HTML):
                         text.append(txt)
                         tags.append('%')
 
-        if self.opts.keep_links and attribs.has_key('id'):
+        if self.opts.keep_links and attribs.has_key('id'):  # noqa
             if tag not in ('body', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'table'):
                 text.append(self.check_id_tag(attribs))
 
         # Process the styles for any that we want to keep
-        if tag not in ('body', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'hr', 'a', 'img', \
+        if tag not in ('body', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'hr', 'a', 'img',
                 'span', 'table', 'tr', 'td'):
             if not self.in_a_link:
                 text.append(self.check_styles(style))
@@ -456,8 +459,10 @@ class TextileMLizer(OEB2HTML):
                 if t == 'pre':
                     self.in_pre = False
                 elif t in ('ul', 'ol'):
-                    if self.list: self.list.pop()
-                    if not self.list: text.append('\n')
+                    if self.list:
+                        self.list.pop()
+                    if not self.list:
+                        text.append('\n')
             else:
                 if t == 'a':
                     self.in_a_link = False

@@ -18,17 +18,17 @@ class Oregonian(BasicNewsRecipe):
     cover_url = 'http://bit.ly/gUgxGd'
     no_stylesheets = True
     masthead_url = 'http://bit.ly/eocL70'
-    remove_tags = [dict(name='div', attrs={'class':['footer', 'content']})]
+    remove_tags = [dict(name='div', attrs={'class': ['footer', 'content']})]
     use_embedded_content = False
     remove_tags_before = dict(id='article')
     remove_tags_after = dict(id='article')
     feeds = [
-#(u'Timbers', u'feed://blog.oregonlive.com/timbers_impact/atom.xml'),
-(u'News', u'http://blog.oregonlive.com/news_impact/atom.xml'),
-(u'Opinion', u'http://blog.oregonlive.com/opinion_impact/atom.xml'),
-(u'Living', u'http://blog.oregonlive.com/living_impact/atom.xml'),
-(u'Sports', u'http://blog.oregonlive.com/sports_impact/atom.xml'),
-(u'Business', u'http://blog.oregonlive.com/business_impact/atom.xml')]
+        # (u'Timbers', u'feed://blog.oregonlive.com/timbers_impact/atom.xml'),
+        (u'News', u'http://blog.oregonlive.com/news_impact/atom.xml'),
+        (u'Opinion', u'http://blog.oregonlive.com/opinion_impact/atom.xml'),
+        (u'Living', u'http://blog.oregonlive.com/living_impact/atom.xml'),
+        (u'Sports', u'http://blog.oregonlive.com/sports_impact/atom.xml'),
+        (u'Business', u'http://blog.oregonlive.com/business_impact/atom.xml')]
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}
@@ -39,6 +39,6 @@ class Oregonian(BasicNewsRecipe):
 
 
 def get_article_url(self, article):
-        url = BasicNewsRecipe.get_article_url(self, article)
-        if '/video/' not in url:
-            return url
+    url = BasicNewsRecipe.get_article_url(self, article)
+    if '/video/' not in url:
+        return url

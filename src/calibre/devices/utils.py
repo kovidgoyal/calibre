@@ -120,7 +120,8 @@ def create_upload_path(mdata, fname, template, sanitize,
         else:
             for c in tag.split('/'):
                 c = sanitize(c)
-                if not c: continue
+                if not c:
+                    continue
                 extra_components.append(c)
         extra_components.append(name)
 

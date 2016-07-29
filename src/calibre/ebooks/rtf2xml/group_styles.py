@@ -24,9 +24,9 @@ class GroupStyles:
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,
-            wrap = 0,
+            copy=None,
+            run_level=1,
+            wrap=0,
             ):
         """
         Required:
@@ -157,9 +157,9 @@ class GroupStyles:
             self.__write_obj.write('mi<mk<style_grp_<%s\n' % name)
     def __write_end_wrap(self):
         if self.__wrap:
-            self.__write_obj.write('mi<mk<style_gend\n' )
+            self.__write_obj.write('mi<mk<style_gend\n')
             self.__write_obj.write('mi<tg<close_____<style-group\n')
-            self.__write_obj.write('mi<mk<stylegend_\n' )
+            self.__write_obj.write('mi<mk<stylegend_\n')
     def __pard_after_par_def_func(self, line):
         """
         Required:
@@ -231,7 +231,7 @@ class GroupStyles:
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "group_styles.data")
         copy_obj.rename(self.__write_to, self.__file)

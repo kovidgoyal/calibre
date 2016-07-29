@@ -35,7 +35,7 @@ def _decode(raw):
 
 class Writer(Thread):
 
-    TIMEOUT = 60 #seconds
+    TIMEOUT = 60  # seconds
 
     def __init__(self, conn):
         Thread.__init__(self)

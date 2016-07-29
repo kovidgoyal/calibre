@@ -10,7 +10,7 @@ from hashlib import sha1
 
 from calibre.ebooks import BOOK_EXTENSIONS
 
-def find_folders_under(root, db, add_root=True, # {{{
+def find_folders_under(root, db, add_root=True,  # {{{
         follow_links=False, cancel_callback=lambda : False):
     '''
     Find all folders under the specified root path, ignoring any folders under
@@ -47,7 +47,7 @@ def find_folders_under(root, db, add_root=True, # {{{
 
 # }}}
 
-class FormatCollection(object): # {{{
+class FormatCollection(object):  # {{{
 
     def __init__(self, parent_folder, formats):
         self.path_map = {}
@@ -100,7 +100,7 @@ class FormatCollection(object): # {{{
 
 # }}}
 
-def books_in_folder(folder, one_per_folder, # {{{
+def books_in_folder(folder, one_per_folder,  # {{{
         cancel_callback=lambda : False):
     assert not isinstance(folder, unicode)
 
@@ -137,7 +137,7 @@ def books_in_folder(folder, one_per_folder, # {{{
                 continue
 
             key = os.path.splitext(path)[0]
-            if not books.has_key(key):
+            if not books.has_key(key):  # noqa
                 books[key] = set([])
             books[key].add(path)
 

@@ -21,9 +21,9 @@ class InlineClass(etree.XSLTExtension):
         for x in self.FMTS:
             if input_node.get(x, None) == 'true':
                 classes.append(x)
-        #underlined is special
+        # underlined is special
         if input_node.get('underlined', 'false') != 'false':
-                classes.append('underlined')
+            classes.append('underlined')
         fs = input_node.get('font-size', False)
         if fs:
             if fs not in self.font_sizes:

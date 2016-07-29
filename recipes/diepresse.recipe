@@ -2,13 +2,14 @@
 # vim:fileencoding=utf-8
 from __future__ import unicode_literals, division, absolute_import, print_function
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Gerhard Aigner <gerhard.aigner at gmail.com>'
 
 ''' http://www.diepresse.at - Austrian Newspaper '''
 
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class DiePresseRecipe(BasicNewsRecipe):
     title = 'Die Presse'
@@ -30,16 +31,16 @@ class DiePresseRecipe(BasicNewsRecipe):
     ]
 
     remove_tags = [dict(name='hr'),
-        dict(name='br'),
-        dict(name='small'),
-        dict(name='img'),
-        dict(name='div', attrs={'class':'textnavi'}),
-        dict(name='h1', attrs={'class':'titel'}),
-        dict(name='a', attrs={'class':'print'}),
-        dict(name='div', attrs={'class':'hline'})]
+                   dict(name='br'),
+                   dict(name='small'),
+                   dict(name='img'),
+                   dict(name='div', attrs={'class': 'textnavi'}),
+                   dict(name='h1', attrs={'class': 'titel'}),
+                   dict(name='a', attrs={'class': 'print'}),
+                   dict(name='div', attrs={'class': 'hline'})]
 
     remove_tags_after = [
-        dict(name='div', attrs={'class':'articletext'})
+        dict(name='div', attrs={'class': 'articletext'})
     ]
 
     feeds = [
@@ -60,4 +61,4 @@ class DiePresseRecipe(BasicNewsRecipe):
     ]
 
     def print_version(self, url):
-        return url.replace('home','text/home')
+        return url.replace('home', 'text/home')

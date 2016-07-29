@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 nspm.rs/nspm-in-english
@@ -6,43 +6,40 @@ nspm.rs/nspm-in-english
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Nspm_int(BasicNewsRecipe):
-    title                 = 'NSPM in English'
-    __author__            = 'Darko Miletic'
-    description           = 'Magazine dedicated to political theory and sociological research'
-    publisher             = 'NSPM'
-    category              = 'news, politics, Serbia'
-    oldest_article        = 7
+    title = 'NSPM in English'
+    __author__ = 'Darko Miletic'
+    description = 'Magazine dedicated to political theory and sociological research'
+    publisher = 'NSPM'
+    category = 'news, politics, Serbia'
+    oldest_article = 7
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'utf-8'
-    language              = 'en'
-    delay                 = 2
-    publication_type      = 'magazine'    
-    masthead_url          = 'http://www.nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
-    extra_css             = """ 
-                                body{font-family: "Times New Roman", serif} 
-                                .article_description{font-family: Arial, sans-serif} 
-                                img{margin-top:0.5em; margin-bottom: 0.7em} 
-                                .author{color: #990000; font-weight: bold} 
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    language = 'en'
+    delay = 2
+    publication_type = 'magazine'
+    masthead_url = 'http://www.nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
+    extra_css             = """
+                                body{font-family: "Times New Roman", serif}
+                                .article_description{font-family: Arial, sans-serif}
+                                img{margin-top:0.5em; margin-bottom: 0.7em}
+                                .author{color: #990000; font-weight: bold}
                                 .author,.createdate{font-size: 0.9em} """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True
+    }
 
-    keep_only_tags = [dict(attrs={'id':'jsn-mainbody'})]
-    remove_tags        = [
-                           dict(name=['link','object','embed','script','meta','base','iframe'])
-                          ,dict(attrs={'class':'buttonheading'})
-                         ]
-    remove_tags_after = dict(attrs={'class':'article_separator'})
-    remove_attributes = ['width','height']
+    keep_only_tags = [dict(attrs={'id': 'jsn-mainbody'})]
+    remove_tags = [
+        dict(name=['link', 'object', 'embed', 'script', 'meta',
+                   'base', 'iframe']), dict(attrs={'class': 'buttonheading'})
+    ]
+    remove_tags_after = dict(attrs={'class': 'article_separator'})
+    remove_attributes = ['width', 'height']
 
     feeds = [(u'Articles', u'http://www.nspm.rs/nspm-in-english/feed/rss.html')]
 

@@ -1,7 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class ChowkRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en_IN'
     version = 1
@@ -16,7 +17,6 @@ class ChowkRecipe(BasicNewsRecipe):
     oldest_article = 30
     max_articles_per_feed = 100
 
-    #no_stylesheets = True
     remove_javascript = True
     encoding = 'utf-8'
 
@@ -24,7 +24,7 @@ class ChowkRecipe(BasicNewsRecipe):
     feeds.append(('Chowk Articles', 'http://www.chowk.com/rss'))
 
     keep_only_tags = []
-    keep_only_tags.append(dict(name = 'div', attrs = {'id': 'content'}))
+    keep_only_tags.append(dict(name='div', attrs={'id': 'content'}))
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
                           'publisher': publisher}
@@ -38,7 +38,6 @@ class ChowkRecipe(BasicNewsRecipe):
                 div.date {margin-bottom: 1em;}
                 div.title {font-weight: bold;}
                 '''
-
 
     def print_version(self, url):
         main, sep, id = url.rpartition('/')

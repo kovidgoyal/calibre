@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class INFRA(BasicNewsRecipe):
     title = u'INFRA'
     oldest_article = 7
@@ -8,7 +9,7 @@ class INFRA(BasicNewsRecipe):
     description = u'Serwis Informacyjny INFRA - UFO, Zjawiska Paranormalne, Duchy, Tajemnice świata.'
     cover_url = 'http://i.imgur.com/j7hJT.jpg'
     category = 'UFO'
-    index='http://infra.org.pl'
+    index = 'http://infra.org.pl'
     language = 'pl'
     max_articles_per_feed = 100
     remove_empty_feeds = True
@@ -21,6 +22,6 @@ class INFRA(BasicNewsRecipe):
         for item in soup.findAll(style=True):
             del item['style']
         for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
-                a['href']=self.index + a['href']
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:  # noqa
+                a['href'] = self.index + a['href']
         return soup

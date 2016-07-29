@@ -3,31 +3,44 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1434054160(BasicNewsRecipe):
-    title          = 'Champion.com.ua'
-    __author__     = 'rpalyvoda'
+    title = 'Champion.com.ua'
+    __author__ = 'rpalyvoda'
     oldest_article = 7
     max_articles_per_feed = 100
     language = 'uk'
     cover_url = 'http://www.champion.com.ua/images/logo.gif'
     masthead_url = 'http://www.champion.com.ua/images/logo.gif'
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
-        ('\u0421\u0442\u0440\u0456\u0447\u043a\u0430 \u043d\u043e\u0432\u0438\u043d', 'http://www.champion.com.ua/rss/'),
-        ('\u041f\u0443\u0431\u043b\u0456\u043a\u0430\u0446\u0456\u0456', 'http://www.champion.com.ua/rss/view_pubs/'),
-        ('\u0424\u0443\u0442\u0431\u043e\u043b', 'http://www.champion.com.ua/rss/id_415/'),
-        ('\u0422\u0435\u043d\u0456\u0441', 'http://www.champion.com.ua/rss/id_2682/'),
-        ('\u041b\u0435\u0433\u043a\u0430 \u0430\u0442\u043b\u0435\u0442\u0438\u043a\u0430', 'http://www.champion.com.ua/rss/id_2390/'),
-        ('\u0420\u0435\u0491\u0431\u0456', 'http://www.champion.com.ua/rss/id_2690/'),
-        ('\u0424\u0435\u0445\u0442\u0443\u0432\u0430\u043d\u043d\u044f', 'http://www.champion.com.ua/rss/id_5961/'),
+    feeds = [
+        ('\u0421\u0442\u0440\u0456\u0447\u043a\u0430 \u043d\u043e\u0432\u0438\u043d',
+         'http://www.champion.com.ua/rss/'),
+        ('\u041f\u0443\u0431\u043b\u0456\u043a\u0430\u0446\u0456\u0456',
+         'http://www.champion.com.ua/rss/view_pubs/'),
+        ('\u0424\u0443\u0442\u0431\u043e\u043b',
+         'http://www.champion.com.ua/rss/id_415/'),
+        ('\u0422\u0435\u043d\u0456\u0441',
+         'http://www.champion.com.ua/rss/id_2682/'),
+        ('\u041b\u0435\u0433\u043a\u0430 \u0430\u0442\u043b\u0435\u0442\u0438\u043a\u0430',
+         'http://www.champion.com.ua/rss/id_2390/'),
+        ('\u0420\u0435\u0491\u0431\u0456',
+         'http://www.champion.com.ua/rss/id_2690/'),
+        ('\u0424\u0435\u0445\u0442\u0443\u0432\u0430\u043d\u043d\u044f',
+         'http://www.champion.com.ua/rss/id_5961/'),
         ('\u0428\u0430\u0445\u0438', 'http://www.champion.com.ua/rss/id_2697/'),
-        ('\u0410\u0432\u0442\u043e\u0441\u043f\u043e\u0440\u0442', 'http://www.champion.com.ua/rss/id_2604/'),
+        ('\u0410\u0432\u0442\u043e\u0441\u043f\u043e\u0440\u0442',
+         'http://www.champion.com.ua/rss/id_2604/'),
         ('\u0411\u043e\u043a\u0441', 'http://www.champion.com.ua/rss/id_476/'),
-        ('\u0411\u0430\u0441\u043a\u0435\u0442\u0431\u043e\u043b', 'http://www.champion.com.ua/rss/id_475/'),
-        ('\u0413\u0430\u043d\u0434\u0431\u043e\u043b', 'http://www.champion.com.ua/rss/id_2703/'),
+        ('\u0411\u0430\u0441\u043a\u0435\u0442\u0431\u043e\u043b',
+         'http://www.champion.com.ua/rss/id_475/'),
+        ('\u0413\u0430\u043d\u0434\u0431\u043e\u043b',
+         'http://www.champion.com.ua/rss/id_2703/'),
         ('\u0425\u043e\u043a\u0435\u0439', 'http://www.champion.com.ua/rss/id_479/'),
         ('\u041b\u0438\u0436\u0456', 'http://www.champion.com.ua/rss/id_2704/'),
-        ('\u0411\u0456\u0430\u0442\u043b\u043e\u043d', 'http://www.champion.com.ua/rss/id_474/'),
-        ('\u0424\u0456\u0433\u0443\u0440\u043d\u0435 \u043a\u0430\u0442\u0430\u043d\u043d\u044f', 'http://www.champion.com.ua/rss/id_2698/'),
+        ('\u0411\u0456\u0430\u0442\u043b\u043e\u043d',
+         'http://www.champion.com.ua/rss/id_474/'),
+        ('\u0424\u0456\u0433\u0443\u0440\u043d\u0435 \u043a\u0430\u0442\u0430\u043d\u043d\u044f',
+         'http://www.champion.com.ua/rss/id_2698/'),
     ]

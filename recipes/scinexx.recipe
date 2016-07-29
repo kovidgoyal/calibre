@@ -4,21 +4,23 @@
 # Last update:  2014-011-11
 ##
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = ''
 '''
 Fetch RSS-Feeds scinexx.de
 '''
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
+
 class AdvancedUserRecipe1415718806(BasicNewsRecipe):
-    title          = u'Scinexx.de'
+    title = u'Scinexx.de'
     __author__ = 'JSuer'
-    description           = u'German  online portal of scinexx'
-    publisher             = 'MMCD NEW MEDIA GmbH'
-    category              = 'science and next generation, Germany'
-    language              = 'de'
+    description = u'German  online portal of scinexx'
+    publisher = 'MMCD NEW MEDIA GmbH'
+    category = 'science and next generation, Germany'
+    language = 'de'
     oldest_article = 7
     max_articles_per_feed = 100
     auto_cleanup = True
 
-    feeds          = [(u'Neueste Nachrichten', u'http://feeds.feedburner.com/scinexx')]
+    feeds = [(u'Neueste Nachrichten', u'http://feeds.feedburner.com/scinexx')]

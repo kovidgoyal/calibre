@@ -1,12 +1,12 @@
 ##
-## Title:        New Scientist RSS recipe
-## Contact:      AprilHare, Darko Miletic <darko.miletic at gmail.com>
+# Title:        New Scientist RSS recipe
+# Contact:      AprilHare, Darko Miletic <darko.miletic at gmail.com>
 ##
-## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
-## Copyright:    2008-2016, AprilHare, Darko Miletic <darko.miletic at gmail.com>
+# License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+# Copyright:    2008-2016, AprilHare, Darko Miletic <darko.miletic at gmail.com>
 ##
-## Written:      2008
-## Last Edited:  Jan 2016
+# Written:      2008
+# Last Edited:  Jan 2016
 ##
 
 '''
@@ -15,11 +15,11 @@
 01-27-2016: Added support for series index and minor cleanup
 '''
 
-__license__     = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
-__copyright__   = '2008-2016, AprilHare, Darko Miletic <darko.miletic at gmail.com>'
-__version__     = 'v0.6.1'
-__date__        = '2016-01-27'
-__author__      = 'Darko Miletic'
+__license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__copyright__ = '2008-2016, AprilHare, Darko Miletic <darko.miletic at gmail.com>'
+__version__ = 'v0.6.1'
+__date__ = '2016-01-27'
+__author__ = 'Darko Miletic'
 
 '''
 newscientist.com
@@ -28,24 +28,25 @@ newscientist.com
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class NewScientist(BasicNewsRecipe):
-    title                     = 'New Scientist - Online News w. subscription'
-    description               = 'Science news and science articles from New Scientist.'
-    language                  = 'en'
-    publisher                 = 'Reed Business Information Ltd.'
-    category                  = 'science news, science articles, science jobs, drugs, cancer, depression, computer software'
-    oldest_article            = 15
-    max_articles_per_feed     = 100
-    no_stylesheets            = True
-    use_embedded_content      = False
-    masthead_url              = 'http://www.newscientist.com/img/misc/ns_logo.jpg'
-    encoding                  = 'utf-8'
-    needs_subscription        = 'optional'
-    remove_empty_feeds        = True
+    title = 'New Scientist - Online News w. subscription'
+    description = 'Science news and science articles from New Scientist.'
+    language = 'en'
+    publisher = 'Reed Business Information Ltd.'
+    category = 'science news, science articles, science jobs, drugs, cancer, depression, computer software'
+    oldest_article = 15
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = False
+    masthead_url = 'http://www.newscientist.com/img/misc/ns_logo.jpg'
+    encoding = 'utf-8'
+    needs_subscription = 'optional'
+    remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
-    compress_news_images      = False
-    scale_news_images         = True
-    resolve_internal_links    = True
+    compress_news_images = False
+    scale_news_images = True
+    resolve_internal_links = True
     extra_css                 = """
                                  body{font-family: "PT Serif", serif}
                                  img{margin-bottom: 0.8em; display: block}
@@ -58,15 +59,14 @@ class NewScientist(BasicNewsRecipe):
                                 """
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
-    preprocess_regexps = [(re.compile(r'</title>.*?</head>', re.DOTALL|re.IGNORECASE),lambda match: '</title></head>')]
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
+    preprocess_regexps = [(re.compile(
+        r'</title>.*?</head>', re.DOTALL | re.IGNORECASE), lambda match: '</title></head>')]
 
-    keep_only_tags = [dict(attrs={'class':['article-header', 'article-content']})]
-    remove_tags_after = dict(name='p', attrs={'class':'print-headline'})
+    keep_only_tags = [
+        dict(attrs={'class': ['article-header', 'article-content']})]
+    remove_tags_after = dict(name='p', attrs={'class': 'print-headline'})
 
     # Whether to convert images to grayscale for eInk readers.
     Convert_Grayscale = False
@@ -85,30 +85,32 @@ class NewScientist(BasicNewsRecipe):
                 br['pwd'] = self.password
                 br.submit()
             except:
-                self.log.exception('Unable to locate login form! Switching to free mode.')
+                self.log.exception(
+                    'Unable to locate login form! Switching to free mode.')
         return br
 
     remove_tags = [
-                    dict(name=['link','base','meta','iframe','object','embed'])
-                   ,dict(attrs={'class':['ad-leaderboard', 'article-topics']})
-                   ,dict(attrs={'id':'mpu-mid-article'})
-                  ]
+        dict(name=['link', 'base', 'meta', 'iframe', 'object', 'embed']), dict(attrs={
+            'class': ['ad-leaderboard', 'article-topics']}), dict(attrs={'id': 'mpu-mid-article'})
+    ]
 
-    feeds       = [
-                    (u'Latest Headlines'        , u'http://feeds.newscientist.com/science-news'       )
-                   ,(u'Magazine'                , u'http://feeds.newscientist.com/magazine'           )
-                   ,(u'Health'                  , u'http://feeds.newscientist.com/health'             )
-                   ,(u'Life'                    , u'http://feeds.newscientist.com/life'               )
-                   ,(u'Space'                   , u'http://feeds.newscientist.com/space'              )
-                   ,(u'Physics and Mathematics' , u'http://feeds.newscientist.com/physics-math'       )
-                   ,(u'Environment'             , u'http://feeds.newscientist.com/environment'        )
-                   ,(u'Science in Society'      , u'http://feeds.newscientist.com/science-in-society' )
-                   ,(u'Tech'                    , u'http://feeds.newscientist.com/tech'               )
-                  ]
+    feeds = [
+
+    (u'Latest Headlines', u'http://feeds.newscientist.com/science-news'),
+    (u'Magazine', u'http://feeds.newscientist.com/magazine'),
+    (u'Health', u'http://feeds.newscientist.com/health'),
+    (u'Life', u'http://feeds.newscientist.com/life'),
+    (u'Space', u'http://feeds.newscientist.com/space'),
+    (u'Physics and Mathematics', u'http://feeds.newscientist.com/physics-math'),
+    (u'Environment', u'http://feeds.newscientist.com/environment'),
+    (u'Science in Society', u'http://feeds.newscientist.com/science-in-society'),
+    (u'Tech', u'http://feeds.newscientist.com/tech')
+    ]
 
     def get_article_url(self, article):
         articleurl = BasicNewsRecipe.get_article_url(self, article)
-        urlverified = self.browser.open_novisit(articleurl).geturl()  # resolve redirect.
+        # resolve redirect.
+        urlverified = self.browser.open_novisit(articleurl).geturl()
         if '?' in urlverified:
             pleft, ppart, pright = urlverified.rpartition('?')
             urlverified = pleft
@@ -116,17 +118,18 @@ class NewScientist(BasicNewsRecipe):
 
     def get_cover_url(self):
         cover_url = None
-        soup = self.index_to_soup('https://www.newscientist.com/issue/current/')
-        cover_item = soup.find('img', attrs={'class':'issue-new-magazine-cover'})
+        soup = self.index_to_soup(
+            'https://www.newscientist.com/issue/current/')
+        cover_item = soup.find(
+            'img', attrs={'class': 'issue-new-magazine-cover'})
         if cover_item:
-           cover_url = self.image_url_processor(None, cover_item['src'])
-        #Configure series and issue number
-        issue_nr = soup.find('div', attrs={'class':'magnavissue'})
+            cover_url = self.image_url_processor(None, cover_item['src'])
+        # Configure series and issue number
+        issue_nr = soup.find('div', attrs={'class': 'magnavissue'})
         if issue_nr:
             if issue_nr.string is not None:
                 non_decimal = re.compile(r'[^\d.]+')
                 nr = non_decimal.sub('', issue_nr.string)
-                self.conversion_options.update({'series':'New Scientist'})
-                self.conversion_options.update({'series_index':nr})
+                self.conversion_options.update({'series': 'New Scientist'})
+                self.conversion_options.update({'series_index': nr})
         return cover_url
-

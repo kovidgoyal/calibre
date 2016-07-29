@@ -26,10 +26,10 @@ class MakeLists:
             bug_handler,
             headings_to_sections,
             list_of_lists,
-            copy = None,
-            run_level = 1,
-            no_headings_as_list = 1,
-            write_list_info = 0,
+            copy=None,
+            run_level=1,
+            no_headings_as_list=1,
+            write_list_info=0,
             ):
         """
         Required:
@@ -140,7 +140,7 @@ class MakeLists:
             is_heading = self.__is_a_heading()
             # found paragraph definition and not heading 1
             search_obj = re.search(self.__id_regex, line)
-            if search_obj and not is_heading: # found list-id
+            if search_obj and not is_heading:  # found list-id
                 search_obj_lv = re.search(self.__lv_regex, line)
                 if search_obj_lv:
                     self.__level = search_obj_lv.group(1)
@@ -285,9 +285,9 @@ class MakeLists:
             % (id, lev_num)
                 )
         list_dict = {}
-        if self.__list_of_lists: # older RTF won't generate a list_of_lists
+        if self.__list_of_lists:  # older RTF won't generate a list_of_lists
             index_of_list = self.__get_index_of_list(id)
-            if index_of_list != None:# found a matching id
+            if index_of_list is not None:  # found a matching id
                 curlist = self.__list_of_lists[index_of_list]
                 list_dict = curlist[0]
                 level = int(self.__level) + 1
@@ -301,10 +301,10 @@ class MakeLists:
                     list_type = 'ordered'
                 self.__write_obj.write(
                     '<list-type>%s' % (list_type))
-            else: #  no matching id
+            else:  # no matching id
                 self.__write_obj.write(
                     '<list-type>%s' % (self.__list_type))
-        else:# older RTF
+        else:  # older RTF
             self.__write_obj.write(
                 '<list-type>%s' % (self.__list_type))
         # if you want to dump all the info to the list, rather than
@@ -343,10 +343,10 @@ class MakeLists:
         if id == '0':
             return
         the_index = 0
-        for list in  self.__list_of_lists:
+        for list in self.__list_of_lists:
             the_dict = list[0]
             id_in_list = the_dict.get('list-id')
-            if  id in id_in_list:
+            if id in id_in_list:
                 return the_index
             the_index += 1
         if self.__run_level > 0:
@@ -405,7 +405,7 @@ class MakeLists:
         if self.__token_info == 'mi<mk<left_inden':
             self.__left_indent = float(line[17:-1])
     def __get_list_type(self, line):
-        if self.__token_info == 'mi<mk<list-type_': # <ordered
+        if self.__token_info == 'mi<mk<list-type_':  # <ordered
             self.__list_type = line[17:-1]
             if self.__list_type == 'item':
                 self.__list_type = "unordered"
@@ -435,7 +435,7 @@ class MakeLists:
             action(line)
         read_obj.close()
         self.__write_obj.close()
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "make_lists.data")
         copy_obj.rename(self.__write_to, self.__file)

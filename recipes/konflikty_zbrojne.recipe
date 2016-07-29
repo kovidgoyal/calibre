@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Konflikty(BasicNewsRecipe):
     title = u'Konflikty Zbrojne'
     __author__ = 'fenuks'
     cover_url = 'http://konflikty.pl/wp-content/uploads/2014/07/konflikty.pl-logo.png'
     language = 'pl'
-    description = u'Zbiór ciekawych artykułów historycznych, militarnych oraz recenzji książek, gier i filmów. Najświeższe informacje o lotnictwie, wojskach lądowych i polityce.'
-    category='military, history'
+    description = u'Zbiór ciekawych artykułów historycznych, militarnych oraz recenzji książek, gier i filmów. Najświeższe informacje o lotnictwie, wojskach lądowych i polityce.'  # noqa
+    category = 'military, history'
     oldest_article = 7
     max_articles_per_feed = 100
     no_stylesheets = True
-    keep_only_tags=[
+    keep_only_tags = [
         dict(name='h1'),
         dict(name='div', attrs={'id': 'page-content'})]
 
-    remove_tags = [dict(name='aside'),dict(name='p', attrs={'id': 'breadcrumbs'}),dict(name='div', attrs={'class':['tags clearfix','post-tags clearfix','post-nav section-container clearfix','about-author section-container clearfix vcard','post-related section-container clearfix',]}),dict(name='div',attrs={'id':'disqus_thread'})]
+    remove_tags = [dict(name='aside'), dict(name='p', attrs={'id': 'breadcrumbs'}), dict(name='div', attrs={'class': [
+        'tags clearfix', 'post-tags clearfix', 'post-nav section-container clearfix', 'about-author section-container clearfix vcard', 'post-related section-container clearfix', ]}), dict(name='div', attrs={'id': 'disqus_thread'})]  # noqa
 
     feeds = [(u'Konflikty Zbrojne', u'http://www.konflikty.pl/feed')]
 

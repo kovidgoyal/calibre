@@ -1,19 +1,22 @@
 #!/usr/bin/env  python2
 from __future__ import unicode_literals
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2015 Michael Marotta <mikefm at gmail.net>'
 # Written April 2015
 # Last edited 4/17/15
 '''
 discovermagazine.com
 '''
-import re, json, cookielib
+import re
+import json
+import cookielib
 import mechanize
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class DiscoverMagazine(BasicNewsRecipe):
 
-    title      = 'Discover Magazine Monthly'
+    title = 'Discover Magazine Monthly'
     __author__ = 'Kovid Goyal'
     description = 'Monthly magazine version of Discover Magazine (not rss feed).'
     language = 'en'
@@ -23,9 +26,11 @@ class DiscoverMagazine(BasicNewsRecipe):
     INDEX = 'http://discovermagazine.com'
 
     keep_only_tags = [
-        {'attrs':{'class':['headline', 'deck', 'belowDeck', 'mediaContainer', 'segment', 'cover']}},
+        {'attrs': {'class': ['headline', 'deck', 'belowDeck',
+                             'mediaContainer', 'segment', 'cover']}},
     ]
-    remove_tags = [dict(name='div', attrs={'class': ['ladder', 'mobile', 'popular', 'open', 'scistarter']})]
+    remove_tags = [dict(name='div', attrs={
+                        'class': ['ladder', 'mobile', 'popular', 'open', 'scistarter']})]
 
     # Login {{{
     needs_subscription = True
@@ -40,7 +45,7 @@ class DiscoverMagazine(BasicNewsRecipe):
                 'Accept-Language': 'en-US,en;q=0.5',
                 'Origin': 'http://discovermagazine.com',
             }, data=json.dumps(
-                {'appId': '2', 'email':self.username, 'password':self.password}))
+                {'appId': '2', 'email': self.username, 'password': self.password}))
         br.set_debug_http(True)
         br.open(rq)
         data = json.loads(br.open(rq).read())
@@ -67,8 +72,8 @@ class DiscoverMagazine(BasicNewsRecipe):
     # End login }}}
 
     no_stylesheets = True
-    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
+    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+                          (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
 
     extra_css = 'body { font-family: helvetica, sans-serif; } \
                  .belowdeck {font-style: italic; padding=bottom: 10px; max-width: none} \
@@ -79,22 +84,24 @@ class DiscoverMagazine(BasicNewsRecipe):
     def parse_index(self):
         # gets current month from homepage and append to index
         soup = self.index_to_soup(self.INDEX)
-        c = soup.find(name=['a'], attrs={'title':['See inside the current issue of Discover Magazine']})
+        c = soup.find(name=['a'], attrs={
+                      'title': ['See inside the current issue of Discover Magazine']})
         currentMonth = self.tag_to_string(c['href'])
         self.INDEX = self.INDEX + currentMonth
         # continue parsing
         soup = self.index_to_soup(self.INDEX)
-        col = soup.find(attrs={'class':'issue'})
+        col = soup.find(attrs={'class': 'issue'})
         current_section, current_articles = None, []
         feeds = []
         # find cover
-        cover = soup.find('div', attrs={'class':'cover'})
+        cover = soup.find('div', attrs={'class': 'cover'})
         if cover is not None:
             img = cover.find('img', src=True)
             if img is not None:
-                self.cover_url = 'http://www.discovermagazine.com' + img['src'].replace(' ', '%20')  # [:-7]
+                self.cover_url = 'http://www.discovermagazine.com' + \
+                    img['src'].replace(' ', '%20')  # [:-7]
         # parse articles
-        for tag in col.findAll(name=['h3', 'div'], attrs={'class':['bottomBorder', 'headline']}):
+        for tag in col.findAll(name=['h3', 'div'], attrs={'class': ['bottomBorder', 'headline']}):
             if tag.name == 'h3':
                 if current_section and current_articles:
                     feeds.append((current_section, current_articles))
@@ -107,9 +114,10 @@ class DiscoverMagazine(BasicNewsRecipe):
                     title = self.tag_to_string(a)
                     url = 'http://www.discovermagazine.com' + a['href']
                     if title and url:
-                        p = tag.find('div', attrs={'class':'snippet'})
+                        p = tag.find('div', attrs={'class': 'snippet'})
                         desc = self.tag_to_string(p) if p is not None else ''
-                        current_articles.append({'title':title, 'url':url, 'description':desc})
+                        current_articles.append(
+                            {'title': title, 'url': url, 'description': desc})
                         self.log('\tArticle:', title, '[%s]' % url)
                         self.log('\t\t', desc)
         if current_section and current_articles:

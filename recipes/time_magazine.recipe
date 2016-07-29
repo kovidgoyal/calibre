@@ -81,7 +81,7 @@ class TimeMagazine(BasicNewsRecipe):
         return self.turl_map[url]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-lazy-src':True}):
+        for img in soup.findAll('img', attrs={'data-lazy-src': True}):
             img['src'] = img['data-lazy-src']
         for img in soup.findAll('img', src=lambda x: not x):
             img.extract()

@@ -1,35 +1,32 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class LiveMint(BasicNewsRecipe):
-    title          = u'Live Mint'
-    language       = 'en_IN'
-    __author__     = 'Krittika Goyal'
-    #encoding = 'cp1252'
-    oldest_article = 1 #days
+    title = u'Live Mint'
+    language = 'en_IN'
+    __author__ = 'Krittika Goyal'
+    oldest_article = 1  # days
     max_articles_per_feed = 25
     use_embedded_content = False
 
     no_stylesheets = True
     auto_cleanup = True
 
-
-    feeds          = [
-('Companies',
- 'http://www.livemint.com/rss/companies'),
- ('Consumer',
- 'http://www.livemint.com/rss/consumer'),
- ('Top Stories',
- 'http://www.livemint.com/rss/homepage'),
- ('Opinion',
- 'http://www.livemint.com/rss/opinion'),
- ('Money',
- 'http://www.livemint.com/rss/money'),
- ('Industry',
- 'http://www.livemint.com/rss/industry'),
- ('Economy Politics',
- 'http://www.livemint.com/rss/economy_politics'),
- ('Lounge',
- 'http://www.livemint.com/rss/lounge'),
-]
-
- 
+    feeds = [
+        ('Companies',
+         'http://www.livemint.com/rss/companies'),
+        ('Consumer',
+         'http://www.livemint.com/rss/consumer'),
+        ('Top Stories',
+         'http://www.livemint.com/rss/homepage'),
+        ('Opinion',
+         'http://www.livemint.com/rss/opinion'),
+        ('Money',
+         'http://www.livemint.com/rss/money'),
+        ('Industry',
+         'http://www.livemint.com/rss/industry'),
+        ('Economy Politics',
+         'http://www.livemint.com/rss/economy_politics'),
+        ('Lounge',
+         'http://www.livemint.com/rss/lounge'),
+    ]

@@ -3,12 +3,12 @@ from __future__ import unicode_literals
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from lxml import html
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 
 
 class Nfcmag(BasicNewsRecipe):
 
-    __author__  = '2014, Chen Wei <weichen302@gmx.com>'
+    __author__ = '2014, Chen Wei <weichen302@gmx.com>'
     title = 'Nan Feng Chuang / South Reviews Magazine'
     description = '''
 South Reviews Magazine, established in 1985, is a Guangzhou-based political and
@@ -44,8 +44,8 @@ providing valuable research reports for governments and companies.
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = False
 
-    remove_tags = [dict(attrs={'class':['side-left', 'side-right',
-                                        'breadcrumbs', 'score', 'weboNav']}),
+    remove_tags = [dict(attrs={'class': ['side-left', 'side-right',
+                                         'breadcrumbs', 'score', 'weboNav']}),
                    dict(attrs={'id': ['header', 'footer']}),
                    dict(name=['script', 'noscript', 'style'])]
     no_stylesheets = True
@@ -59,7 +59,6 @@ providing valuable research reports for governments and companies.
         raw = self.index_to_soup('http://www.nfcmag.com/magazine', raw=True)
         soup_start = html.fromstring(raw)
 
-        #pageDoc = html.parse(sectionUrl)
         els = soup_start.xpath("""//div[contains(@class, 'lastest-magazine')
                          and contains(@class, 'comBox')]
                          //a[@href and not(@id) and not(child::img)]
@@ -95,7 +94,7 @@ providing valuable research reports for governments and companies.
                     url = baseurl + url
                 url = url[:-5] + '-s.html'  # to print view
 
-                title =  x.text_content()
+                title = x.text_content()
 
                 articles.append({'title': title, 'url': url, 'date': None})
 
@@ -105,4 +104,3 @@ providing valuable research reports for governments and companies.
 
     def get_cover_url(self):
         return self.current_issue_cover
-

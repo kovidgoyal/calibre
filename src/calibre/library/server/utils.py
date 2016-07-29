@@ -83,8 +83,8 @@ class AuthController(object):
     this vulnerability, run the server behind a reverse proxy that uses HTTPS.
     '''
 
-    MAX_AGE = 3600 # Number of seconds after a successful digest auth for which
-                   # the cookie auth will be allowed
+    MAX_AGE = 3600  # Number of seconds after a successful digest auth for which
+    # the cookie auth will be allowed
 
     def __init__(self, realm, users_dict):
         self.realm = realm

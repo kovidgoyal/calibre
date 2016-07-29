@@ -1,16 +1,20 @@
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import html5lib, json, re
+import html5lib
+import json
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 def classes(classes):
     q = frozenset(classes.split(' '))
-    return dict(attrs={'class':lambda x:x and frozenset(x.split()).intersection(q)})
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
 
 class Forbes(BasicNewsRecipe):
-    title          = u'Forbes'
-    description    = 'Business and Financial News'
-    __author__     = 'Kovid Goyal'
+    title = u'Forbes'
+    description = 'Business and Financial News'
+    __author__ = 'Kovid Goyal'
     oldest_article = 30
     max_articles_per_feed = 20
     language = 'en'
@@ -29,7 +33,7 @@ class Forbes(BasicNewsRecipe):
         margin-left: auto; margin-right: auto;
     }
     '''
-    feeds          = [
+    feeds = [
         (u'Latest', u'http://www.forbes.com/news/index.xml'),
         (u'Most Popular', u'http://www.forbes.com/feeds/popstories.xml'),
         (u'Technology', u'http://www.forbes.com/technology/index.xml'),
@@ -45,7 +49,8 @@ class Forbes(BasicNewsRecipe):
         return br
 
     def preprocess_raw_html(self, raw, url):
-        root = html5lib.parse(raw, namespaceHTMLElements=False, treebuilder='lxml')
+        root = html5lib.parse(
+            raw, namespaceHTMLElements=False, treebuilder='lxml')
         for script in root.xpath('//script'):
             if script.text and script.text.startswith('try {'):
                 idx = script.text.find('fbs_settings.content = {')
@@ -61,6 +66,7 @@ class Forbes(BasicNewsRecipe):
             raise ValueError('Failed to find serialized JSON content')
         title = data['brandVoiceTitle']
         body = data['body']
+
         def cap(m):
             val = m.group()
             if val.startswith('[/'):

@@ -85,7 +85,7 @@ class CheckLibrary(object):
         for filespec in self.ignore_names:
             if fnmatch.fnmatch(filename, filespec):
                 return True
-        return False;
+        return False
 
     def scan_library(self, name_ignores, extension_ignores):
         self.ignore_names = frozenset(name_ignores)
@@ -160,7 +160,6 @@ class CheckLibrary(object):
                     self.missing_covers.append((title_dir,
                             os.path.join(path, 'cover.jpg'), id_))
 
-
     def is_ebook_file(self, filename):
         ext = os.path.splitext(filename)[1]
         if not ext:
@@ -187,14 +186,14 @@ class CheckLibrary(object):
             missing = book_formats - formats
             # Check: any books that aren't formats or normally there?
             for fn in unknowns:
-                if fn in missing: # An unknown format correctly registered
+                if fn in missing:  # An unknown format correctly registered
                     continue
                 self.extra_files.append((title_dir,
                                          os.path.join(db_path, fn), book_id))
 
             # Check: any book formats that should be there?
             for fn in missing:
-                if fn in unknowns: # An unknown format correctly registered
+                if fn in unknowns:  # An unknown format correctly registered
                     continue
                 self.missing_formats.append((title_dir,
                                              os.path.join(db_path, fn), book_id))
@@ -221,14 +220,14 @@ class CheckLibrary(object):
 
             # Check: any books that aren't formats or normally there?
             for lcfn,ccfn in lc_map(filenames, unknowns).iteritems():
-                if lcfn in missing: # An unknown format correctly registered
+                if lcfn in missing:  # An unknown format correctly registered
                     continue
                 self.extra_files.append((title_dir, os.path.join(db_path, ccfn),
                                          book_id))
 
             # Check: any book formats that should be there?
             for lcfn,ccfn in lc_map(book_formats, missing).iteritems():
-                if lcfn in unknowns: # An unknown format correctly registered
+                if lcfn in unknowns:  # An unknown format correctly registered
                     continue
                 self.missing_formats.append((title_dir,
                                              os.path.join(db_path, ccfn), book_id))

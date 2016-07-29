@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class kudyznudyRecipe(BasicNewsRecipe):
-    __author__  = 'bubak'
+    __author__ = 'bubak'
     title = u'Kudy z nudy'
     publisher = u''
     description = 'kudyznudy.cz'
@@ -12,11 +13,10 @@ class kudyznudyRecipe(BasicNewsRecipe):
     use_embedded_content = False
 
     feeds = [
-            (u'Praha nejnovější', u'http://www.kudyznudy.cz/RSS/Charts.aspx?Type=Newest&Lang=cs-CZ&RegionId=1')
-            ]
+        (u'Praha nejnovější',
+         u'http://www.kudyznudy.cz/RSS/Charts.aspx?Type=Newest&Lang=cs-CZ&RegionId=1')
+    ]
 
-
-    #encoding = 'iso-8859-2'
     language = 'cs'
     cover_url = 'http://www.kudyznudy.cz/App_Themes/KzN/Images/Containers/Header/HeaderLogoKZN.png'
     remove_javascript = True
@@ -25,8 +25,11 @@ class kudyznudyRecipe(BasicNewsRecipe):
                             """
 
     remove_attributes = []
-    remove_tags_before  = dict(name='div', attrs={'class':['C_WholeContentPadding']})
-    remove_tags_after  = dict(name='div', attrs={'class':['SurroundingsContainer']})
-    remove_tags = [dict(name='div',   attrs={'class':['Details', 'buttons', 'SurroundingsContainer', 'breadcrumb']})]
+    remove_tags_before = dict(
+        name='div', attrs={'class': ['C_WholeContentPadding']})
+    remove_tags_after = dict(
+        name='div', attrs={'class': ['SurroundingsContainer']})
+    remove_tags = [dict(name='div',   attrs={
+                        'class': ['Details', 'buttons', 'SurroundingsContainer', 'breadcrumb']})]
 
     keep_only_tags = []

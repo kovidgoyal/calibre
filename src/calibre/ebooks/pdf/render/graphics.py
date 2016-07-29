@@ -365,8 +365,7 @@ class Graphics(object):
         opacity = global_opacity
         do_fill = True
 
-        matrix = (QTransform.fromTranslate(brush_origin.x(), brush_origin.y())
-                  * pdf_system * qt_system.inverted()[0])
+        matrix = (QTransform.fromTranslate(brush_origin.x(), brush_origin.y()) * pdf_system * qt_system.inverted()[0])
         vals = list(brush.color().getRgbF())
         self.brushobj = None
 
@@ -472,8 +471,7 @@ class Graphics(object):
             if tl == self.last_fill.origin:
                 return
 
-            matrix = (QTransform.fromTranslate(tl.x(), tl.y())
-                * pdf_system * qt_system.inverted()[0])
+            matrix = (QTransform.fromTranslate(tl.x(), tl.y()) * pdf_system * qt_system.inverted()[0])
 
             pat = TexturePattern(None, matrix, self.pdf, clone=self.last_fill.brush)
             pattern = self.pdf.add_pattern(pat)

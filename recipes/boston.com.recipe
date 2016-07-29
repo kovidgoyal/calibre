@@ -1,31 +1,34 @@
-import string, re
+import string
+import re
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 from datetime import date, timedelta
 from calibre.utils.magick.draw import save_cover_data_to
 from calibre.ptempfile import PersistentTemporaryFile
 
+
 class BostonGlobeSubscription(BasicNewsRecipe):
 
     # logger = logging.getLogger("mechanize")
     # logger.addHandler(logging.StreamHandler(sys.stdout))
     # logger.setLevel(logging.DEBUG)
-    title       = "Boston Globe Subscription"
-    __author__  = 'Rob Freundlich'
+    title = "Boston Globe Subscription"
+    __author__ = 'Rob Freundlich'
     description = 'Boston Globe with full articles for subscribers'
-    language    = 'en'
+    language = 'en'
     INDEX = 'http://www.bostonglobe.com/todayspaper/%Y/%m/%d'
     todaysDate = date.today().strftime("%d/%m/%Y")
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = 'optional'
     keep_only_tags = [
-        dict(attrs={'class':['section-head', 'comic', 'article']})
+        dict(attrs={'class': ['section-head', 'comic', 'article']})
     ]
     remove_tags = [
-        dict(attrs={"class":[
+        dict(attrs={"class": [
             "skip-nav article-more", "aside promo", "article-bar bar-yellow", "tools", "sticky-tools", "article-footer", "bg-footer"
         ]}),
-        dict(attrs={"id":["masthead", "video", "section-nav", 'newsletter-form', "meter-limit-met-popup"]})
+        dict(attrs={"id": ["masthead", "video", "section-nav",
+                           'newsletter-form', "meter-limit-met-popup"]})
     ]
     no_stylesheets = True
     # simultaneous_downloads = 1
@@ -113,7 +116,8 @@ class BostonGlobeSubscription(BasicNewsRecipe):
             #
             # end of hack
             #
-            br.open("https://www.bostonglobe.com/eom/SysConfig/WebPortal/BostonGlobe/Framework/regi/final-login.jsp")
+            br.open(
+                "https://www.bostonglobe.com/eom/SysConfig/WebPortal/BostonGlobe/Framework/regi/final-login.jsp")
             br.select_form(predicate=self.is_login_form)
             br["username"] = self.username
             br["password"] = self.password
@@ -154,19 +158,20 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         def get_top_stories():
             self.log("Getting Top Stories")
             articles = []
-            topStoriesDiv = soup.find("div", {"class":"stories-top"})
-            stories = topStoriesDiv.findAll("div", {"class":"story"})
+            topStoriesDiv = soup.find("div", {"class": "stories-top"})
+            stories = topStoriesDiv.findAll("div", {"class": "story"})
             for story in stories:
-                h2 = story.find("h2", {"class":'story-title'})
+                h2 = story.find("h2", {"class": 'story-title'})
                 link = story.find("a")
                 if h2 is not None and link is not None:
                     title = title_from_h2(h2)
                     url = self.make_url(link["href"])
-                    excerpt_div = story.find("div", {"class":"excerpt"})
+                    excerpt_div = story.find("div", {"class": "excerpt"})
                     excerpt = self.tag_to_string(excerpt_div)
                     self.log('\t', title, '[%s]' % url)
                     self.log('\t\t', excerpt)
-                    articles.append({"title":title, "url":self.make_url(url), "date":self.todaysDate, "description":excerpt})
+                    articles.append({"title": title, "url": self.make_url(
+                        url), "date": self.todaysDate, "description": excerpt})
 
             if articles:
                 feeds.append(("Top Stories", articles))
@@ -209,15 +214,17 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                 self.log('\t', title, '[%s]' % self.make_url(url))
                 if description:
                     self.log('\t\t', description)
-                articles.append({"title":title, "url":self.make_url(url), "author":author, "date":self.todaysDate, "description":description})
+                articles.append({"title": title, "url": self.make_url(
+                    url), "author": author, "date": self.todaysDate, "description": description})
 
             if articles:
                 feeds.append((feedTitle, articles))
 
         def get_comics():
             articles = []
-            comicSoup = self.index_to_soup("http://www.bostonglobe.com/lifestyle/comics")
-            for personIndex in comicSoup.findAll("ol", {"class":re.compile("person-index.*")}):
+            comicSoup = self.index_to_soup(
+                "http://www.bostonglobe.com/lifestyle/comics")
+            for personIndex in comicSoup.findAll("ol", {"class": re.compile("person-index.*")}):
                 for li in personIndex.findAll("li"):
                     title = self.tag_to_string(li.p)
                     if (title in self.comics_to_fetch):
@@ -228,13 +235,14 @@ class BostonGlobeSubscription(BasicNewsRecipe):
                         # if len(imageURL) > 0:
                         #    url = imageURL[0]["href"]
                         # print "COMIC %s: %s" % (title, url)
-                        articles.append({"title":title, "url":self.make_url(url), "author":author, "date":self.todaysDate, "description":""})
+                        articles.append({"title": title, "url": self.make_url(
+                            url), "author": author, "date": self.todaysDate, "description": ""})
 
             feeds.append(("Comics", articles))
 
         get_top_stories()
 
-        for div in soup.findAll('div', {'class':'tod-paper-section'}):
+        for div in soup.findAll('div', {'class': 'tod-paper-section'}):
             get_section(div)
 
         get_comics()
@@ -270,7 +278,8 @@ class BostonGlobeSubscription(BasicNewsRecipe):
         return soup
 
     def postprocess_html(self, soup, first):
-        comicsBody = soup.find("body", {"class":re.compile(".*section-comics.*")})
+        comicsBody = soup.find(
+            "body", {"class": re.compile(".*section-comics.*")})
         if (comicsBody):
             return self.postprocess_comics(soup, first)
 

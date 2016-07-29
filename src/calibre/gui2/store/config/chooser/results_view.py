@@ -18,10 +18,10 @@ class ResultsView(QTreeView):
 
     def __init__(self, *args):
         QTreeView.__init__(self,*args)
-            
+
         self._model = Matches([p for p in store_plugins()])
         self.setModel(self._model)
-        
+
         self.setIconSize(QSize(24, 24))
 
         self.rt_delegate = RichTextDelegate(self)
@@ -31,18 +31,18 @@ class ResultsView(QTreeView):
 
         for i in xrange(self._model.columnCount()):
             self.resizeColumnToContents(i)
-            
+
         self.model().sort(1, Qt.AscendingOrder)
         self.header().setSortIndicator(self.model().sort_col, self.model().sort_order)
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
-        
+
         if not index.isValid():
             return
-        
+
         plugin = self.model().get_plugin(index)
-        
+
         menu = QMenu()
         ca = menu.addAction(_('Configure...'), partial(self.configure_plugin, plugin))
         if not plugin.is_customizable():

@@ -3,6 +3,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 '''
 Tillsonburg/Norfolk County newspapers Calibre Recipe
 '''
+
+
 class TillsonburgNorfolkCounty(BasicNewsRecipe):
     title = u'Tillsonburg/Norfolk County'
     oldest_article = 7
@@ -13,13 +15,13 @@ class TillsonburgNorfolkCounty(BasicNewsRecipe):
     description = u'Norfolk County and Tillsonburg, Ontario Canada Newspapers'
     category = u'News, Ontario, Canada'
     remove_javascript = True
-    use_embedded_content   = False
+    use_embedded_content = False
     no_stylesheets = True
     language = 'en_CA'
     encoding = 'utf-8'
 
     feeds = [
-	(u'Simcoe Reformer', u'http://www.simcoereformer.ca/rss/'),
-	(u'Delhi News-Record', u'http://www.delhinewsrecord.com/rss/'),
-	(u'Tilsonburg News', u'http://www.tillsonburgnews.com/rss/')
-	]
+        (u'Simcoe Reformer', u'http://www.simcoereformer.ca/rss/'),
+        (u'Delhi News-Record', u'http://www.delhinewsrecord.com/rss/'),
+        (u'Tilsonburg News', u'http://www.tillsonburgnews.com/rss/')
+    ]

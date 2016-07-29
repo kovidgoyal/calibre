@@ -1,5 +1,5 @@
 #!/usr/bin/env  python2
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 '''
 '''
 import re
@@ -9,17 +9,17 @@ from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class ReadersDigest(BasicNewsRecipe):
 
-    title       = 'Readers Digest'
-    __author__  = 'BrianG, Gobelinus'
+    title = 'Readers Digest'
+    __author__ = 'BrianG, Gobelinus'
     language = 'en'
     description = 'Readers Digest Feeds'
-    no_stylesheets        = True
-    use_embedded_content  = False
+    no_stylesheets = True
+    use_embedded_content = False
     oldest_article = 60
     max_articles_per_feed = 200
 
     language = 'en'
-    remove_javascript     = True
+    remove_javascript = True
 
     extra_css      = ''' h1 {font-family:georgia,serif;color:#000000;}
                         .mainHd{font-family:georgia,serif;color:#000000;}
@@ -39,21 +39,22 @@ class ReadersDigest(BasicNewsRecipe):
                         '''
 
     feeds = [
-            ('Food', 'http://www.rd.com/food/feed'),
-            ('Health', 'http://www.rd.com/health/feed'),
-            ('Home', 'http://www.rd.com/home/feed'),
-            # ('Family', 'http://www.rd.com/family/feed'),
-            # ('Money', 'http://www.rd.com/money/feed'),
-            # ('Travel', 'http://www.rd.com/travel/feed'),
-            ('True Stories', 'http://www.rd.com/true-stories/feed'),
-            ('Advice', 'http://www.rd.com/advice/feed'),
-        ]
+        ('Food', 'http://www.rd.com/food/feed'),
+        ('Health', 'http://www.rd.com/health/feed'),
+        ('Home', 'http://www.rd.com/home/feed'),
+        # ('Family', 'http://www.rd.com/family/feed'),
+        # ('Money', 'http://www.rd.com/money/feed'),
+        # ('Travel', 'http://www.rd.com/travel/feed'),
+        ('True Stories', 'http://www.rd.com/true-stories/feed'),
+        ('Advice', 'http://www.rd.com/advice/feed'),
+    ]
 
     # cover_url = 'http://www.rd.com/images/logo-main-rd.gif'
 
     keep_only_tags = dict(id='main')
     remove_tags = [
-            dict(attrs={'class': re.compile('rd-article--sidebar.*')}),
-            dict(attrs={'class': ['rd-article--footer', 'rd-article--sharing']}),
-            dict(attrs={'id': ['newsletter-form-container', 'confirmation-msg-container']}),
-            ]
+        dict(attrs={'class': re.compile('rd-article--sidebar.*')}),
+        dict(attrs={'class': ['rd-article--footer', 'rd-article--sharing']}),
+        dict(attrs={'id': ['newsletter-form-container',
+                           'confirmation-msg-container']}),
+    ]

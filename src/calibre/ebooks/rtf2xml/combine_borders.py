@@ -20,8 +20,8 @@ class CombineBorders:
     def __init__(self,
             in_file ,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -32,12 +32,12 @@ class CombineBorders:
         self.__bord_att = []
 
     def found_bd(self, line):
-        #cw<bd<bor-t-r-vi
+        # cw<bd<bor-t-r-vi
         self.__state = 'border'
         self.__bord_pos = line[6:16]
 
     def __default_func(self, line):
-        #cw<bd<bor-t-r-vi
+        # cw<bd<bor-t-r-vi
         if self.__first_five == 'cw<bd':
             self.found_bd(line)
             return ''
@@ -56,9 +56,9 @@ class CombineBorders:
             write_obj.write(line)
 
     def add_to_border_desc(self, line):
-        #cw<bt<bdr-hair__<nu<true
-        #cw<bt<bdr-linew<nu<0.50
-        #tx<__________<some text
+        # cw<bt<bdr-hair__<nu<true
+        # cw<bt<bdr-linew<nu<0.50
+        # tx<__________<some text
         border_desc = line[6:16]
         num = line[20:-1]
         if num == 'true':
@@ -82,7 +82,7 @@ class CombineBorders:
                         self.__border_func(line, write_obj)
                     else:
                         write_obj.write(self.__default_func(line))
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "combine_borders.data")
         copy_obj.rename(self.__write_to, self.__file)

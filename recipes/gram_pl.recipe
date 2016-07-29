@@ -1,6 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
+
 class Gram_pl(BasicNewsRecipe):
     title = u'Gram.pl'
     __author__ = 'fenuks'
@@ -8,42 +9,44 @@ class Gram_pl(BasicNewsRecipe):
     category = 'games'
     language = 'pl'
     oldest_article = 8
-    index='http://www.gram.pl'
+    index = 'http://www.gram.pl'
     max_articles_per_feed = 100
     ignore_duplicate_articles = {'title', 'url'}
-    no_stylesheets= True
+    no_stylesheets = True
     remove_empty_feeds = True
-    #extra_css = 'h2 {font-style: italic; font-size:20px;} .picbox div {float: left;}'
-    cover_url=u'http://www.gram.pl/www/01/img/grampl_zima.png'
-    keep_only_tags= [dict(id='articleModule')]
-    remove_tags = [dict(attrs={'class':['breadCrump', 'dymek', 'articleFooter', 'twitter-share-button']}), dict(name='aside'), dict(id='metaColumn')]
+    cover_url = u'http://www.gram.pl/www/01/img/grampl_zima.png'
+    keep_only_tags = [dict(id='articleModule')]
+    remove_tags = [dict(attrs={'class': ['breadCrump', 'dymek', 'articleFooter',
+                                         'twitter-share-button']}), dict(name='aside'), dict(id='metaColumn')]
     feeds = [(u'Informacje', u'http://www.gram.pl/feed_news.asp'),
-                        (u'Publikacje', u'http://www.gram.pl/feed_news.asp?type=articles')
-                        ]
+             (u'Publikacje', u'http://www.gram.pl/feed_news.asp?type=articles')
+             ]
 
-    def parse_feeds (self):
-      feeds = BasicNewsRecipe.parse_feeds(self)
-      for feed in feeds:
-        for article in feed.articles[:]:
-          if 'REKLAMA SKLEP' in article.title.upper() or u'ARTYKUŁ:' in article.title.upper():
-            feed.articles.remove(article)
-      return feeds
-
+    def parse_feeds(self):
+        feeds = BasicNewsRecipe.parse_feeds(self)
+        for feed in feeds:
+            for article in feed.articles[:]:
+                if 'REKLAMA SKLEP' in article.title.upper() or u'ARTYKUŁ:' in article.title.upper():
+                    feed.articles.remove(article)
+        return feeds
 
     def preprocess_html(self, soup):
-        tag=soup.find(name='div', attrs={'class':'summary'})
+        tag = soup.find(name='div', attrs={'class': 'summary'})
         if tag:
-            tag.find(attrs={'class':'pros'}).insert(0, BeautifulSoup('<h2>Plusy:</h2>').h2)
-            tag.find(attrs={'class':'cons'}).insert(0, BeautifulSoup('<h2>Minusy:</h2>').h2)
-            tag = soup.find(name='section', attrs={'class':'cenzurka'})
+            tag.find(attrs={'class': 'pros'}).insert(
+                0, BeautifulSoup('<h2>Plusy:</h2>').h2)
+            tag.find(attrs={'class': 'cons'}).insert(
+                0, BeautifulSoup('<h2>Minusy:</h2>').h2)
+            tag = soup.find(name='section', attrs={'class': 'cenzurka'})
             if tag:
                 rate = tag.p.img['data-ocena']
                 tag.p.img.extract()
-                tag.p.insert(len(tag.p.contents)-2, BeautifulSoup('<h2>Ocena: {0}</h2>'.format(rate)).h2)
+                tag.p.insert(len(tag.p.contents) - 2,
+                             BeautifulSoup('<h2>Ocena: {0}</h2>'.format(rate)).h2)
         for a in soup('a'):
-            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:
-                a['href']=self.index + a['href']
-        tag=soup.find(name='span', attrs={'class':'platforma'})
+            if a.has_key('href') and 'http://' not in a['href'] and 'https://' not in a['href']:  # noqa
+                a['href'] = self.index + a['href']
+        tag = soup.find(name='span', attrs={'class': 'platforma'})
         if tag:
-           tag.name = 'p'
+            tag.name = 'p'
         return soup

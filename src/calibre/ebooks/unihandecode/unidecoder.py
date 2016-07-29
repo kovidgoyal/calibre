@@ -93,7 +93,7 @@ class Unidecoder(object):
         Find what group character is a part of.
         '''
         # Code groups withing CODEPOINTS take the form 'xAB'
-        try:#python2
+        try:  # python2
             return 'x%02x' % (ord(unicode(character)) >> 8)
         except:
             return 'x%02x' % (ord(character) >> 8)
@@ -103,7 +103,7 @@ class Unidecoder(object):
         Return the location the replacement character is in the list for a
         the group character is a part of.
         '''
-        try:#python2
+        try:  # python2
             return ord(unicode(character)) & 255
         except:
             return ord(character) & 255

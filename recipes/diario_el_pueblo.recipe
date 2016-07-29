@@ -1,15 +1,15 @@
 #!/usr/bin/env  python2
 ##
-## Title:        Diario El Pueblo News and Sports Calibre Recipe
-## Contact:      Carlos Alves - <carlos@carlosalves.info>
+# Title:        Diario El Pueblo News and Sports Calibre Recipe
+# Contact:      Carlos Alves - <carlos@carlosalves.info>
 ##
-## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
-## Copyright:    Carlos Alves - <carlos@carlosalves.info>
+# License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+# Copyright:    Carlos Alves - <carlos@carlosalves.info>
 ##
-## Written:      September 2013
-## Last Edited:  2016-01-11
+# Written:      September 2013
+# Last Edited:  2016-01-11
 ##
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __author__ = '2013, Carlos Alves <carlos@carlosalves.info>'
 
 '''
@@ -18,29 +18,32 @@ diarioelpueblo.com.uy
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class General(BasicNewsRecipe):
-    title                 = 'Diario El Pueblo'
-    __author__            = 'Carlos Alves'
-    description           = 'Noticias de Salto - Uruguay'
+    title = 'Diario El Pueblo'
+    __author__ = 'Carlos Alves'
+    description = 'Noticias de Salto - Uruguay'
     tags = 'news, sports'
-    language       = 'es_UY'
-    timefmt        = '[%a, %d %b, %Y]'
-    use_embedded_content  = False
-    recursion             = 5
+    language = 'es_UY'
+    timefmt = '[%a, %d %b, %Y]'
+    use_embedded_content = False
+    recursion = 5
     encoding = 'utf8'
     remove_javascript = True
     no_stylesheets = True
 
-    oldest_article        = 2
+    oldest_article = 2
     max_articles_per_feed = 100
-    keep_only_tags = [dict(name='div', attrs={'class':'post-alt blog'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'post-alt blog'})]
 
     remove_tags = [
-             dict(name='div', attrs={'class':['hr', 'titlebar', 'volver-arriba-right','navigation']}),
-             dict(name='div', attrs={'id':'comment','id':'suckerfish','id':'crp_related'}),
-             dict(name='h3', attrs={'class':['post_date']}),
-             dict(name=['object','link'])
-                  ]
+        dict(name='div', attrs={
+             'class': ['hr', 'titlebar', 'volver-arriba-right', 'navigation']}),
+        dict(name='div', attrs={'id': 'comment',
+                                'id': 'suckerfish', 'id': 'crp_related'}),
+        dict(name='h3', attrs={'class': ['post_date']}),
+        dict(name=['object', 'link'])
+    ]
 
     extra_css = '''
                 h1{font-family:Geneva, Arial, Helvetica, sans-serif;color:#154B7A;}
@@ -49,8 +52,8 @@ class General(BasicNewsRecipe):
                 p {font-family:Arial,Helvetica,sans-serif;}
                 '''
     feeds = [
-           (u'Articulos', u'http://www.diarioelpueblo.com.uy/feed')
-        ]
+        (u'Articulos', u'http://www.diarioelpueblo.com.uy/feed')
+    ]
 
     def get_cover_url(self):
         return 'http://www.diarioelpueblo.com.uy/wp-content/uploads/2013/06/Cabezal_Web1.jpg'

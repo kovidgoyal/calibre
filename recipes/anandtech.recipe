@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 '''
@@ -13,10 +13,10 @@ class anan(BasicNewsRecipe):
     title = 'Anandtech'
     description = 'comprehensive Hardware Tests'
     __author__ = 'Oliver Niesner, Armin Geller'  # 2014-02-27 AGE: update
-    use_embedded_content   = False
+    use_embedded_content = False
     language = 'en'
     timefmt = ' [%d %b %Y]'
-    oldest_article        = 7
+    oldest_article = 7
     max_articles_per_feed = 40
     no_stylesheets = True
     remove_javascript = True
@@ -26,17 +26,17 @@ class anan(BasicNewsRecipe):
     masthead_url = 'http://www.anandtech.com/content/images/globals/printheader.png'
 
     keep_only_tags = [
-                       dict(name='section', attrs={'class':['main_cont']}),
-                     ]
-    remove_tags=[
-                  dict(name='div', attrs={'class':['print',
-                                                    'breadcrumb_area noprint',
-                                                    'fl-rt noprint',
-                                                    'blog_top_right',]})
-                 ]
+        dict(name='section', attrs={'class': ['main_cont']}),
+    ]
+    remove_tags = [
+        dict(name='div', attrs={'class': ['print',
+                                          'breadcrumb_area noprint',
+                                          'fl-rt noprint',
+                                          'blog_top_right', ]})
+    ]
 
-    feeds =  [('Anandtech', 'http://www.anandtech.com/rss/')]
+    feeds = [('Anandtech', 'http://www.anandtech.com/rss/')]
 
-    def print_version(self,url):
+    def print_version(self, url):
         # return url.replace("0Cshow0C", "0Cprint0C") # 2013-09-07 AGE: update
         return url.replace("/show/", "/print/")  # 2014-02-27 AGE: update

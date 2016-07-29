@@ -1,9 +1,10 @@
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1271596863(BasicNewsRecipe):
 
-    title          = u'The Nation'
+    title = u'The Nation'
     __author__ = 'Anat R.'
     language = 'en_TH'
 
@@ -15,30 +16,29 @@ class AdvancedUserRecipe1271596863(BasicNewsRecipe):
     remove_javascript = True
 
     use_embedded_content = False
-    feeds          = [(u'Topstory',
-u'http://www.nationmultimedia.com/home/rss/topstories.rss'),
-(u'National', u'http://www.nationmultimedia.com/home/rss/national.rss'),
- (u'Politics',
-u'http://www.nationmultimedia.com/home/rss/politics.rss'), (u'Business',
- u'http://www.nationmultimedia.com/home/rss/business.rss'),
-(u'Regional', u'http://www.nationmultimedia.com/home/rss/regional.rss'),
- (u'Sports', u'http://www.nationmultimedia.com/home/rss/sport.rss'),
-(u'Travel', u'http://www.nationmultimedia.com/home/rss/travel.rss'),
-(u'Life', u'http://www.nationmultimedia.com/home/rss/life.rss')]
+    feeds = [(u'Topstory',
+              u'http://www.nationmultimedia.com/home/rss/topstories.rss'),
+             (u'National', u'http://www.nationmultimedia.com/home/rss/national.rss'),
+             (u'Politics',
+              u'http://www.nationmultimedia.com/home/rss/politics.rss'), (u'Business',
+                                                                          u'http://www.nationmultimedia.com/home/rss/business.rss'),
+             (u'Regional', u'http://www.nationmultimedia.com/home/rss/regional.rss'),
+             (u'Sports', u'http://www.nationmultimedia.com/home/rss/sport.rss'),
+             (u'Travel', u'http://www.nationmultimedia.com/home/rss/travel.rss'),
+             (u'Life', u'http://www.nationmultimedia.com/home/rss/life.rss')]
     keep_only_tags = []
 
-    keep_only_tags.append(dict(name = 'div', attrs = {'class' :
-'pd10'}))
+    keep_only_tags.append(dict(name='div', attrs={'class':
+                                                  'pd10'}))
     remove_tags = []
 
-    remove_tags.append(dict(name = 'div', attrs = {'class':
-'WrapperHeaderCol2-2'}))
+    remove_tags.append(dict(name='div', attrs={'class':
+                                               'WrapperHeaderCol2-2'}))
 
-    remove_tags.append(dict(name = 'div', attrs = {'class':
-'LayoutMenu2'}))
+    remove_tags.append(dict(name='div', attrs={'class':
+                                               'LayoutMenu2'}))
 
-    remove_tags.append(dict(name = 'div', attrs = {'class':
-'TextHeaderRight'}))
+    remove_tags.append(dict(name='div', attrs={'class':
+                                               'TextHeaderRight'}))
 
-    remove_tags.append(dict(name = "ul",attrs =  {'id':'toolZoom'}))
-
+    remove_tags.append(dict(name="ul", attrs={'id': 'toolZoom'}))

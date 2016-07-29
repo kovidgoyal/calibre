@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 4 # Needed for dynamic plugin loading
+store_version = 4  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -42,8 +42,7 @@ class LibreDEStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = ('http://www.ebook.de/de/pathSearch?nav=52122&searchString='
-               + urllib2.quote(query))
+        url = ('http://www.ebook.de/de/pathSearch?nav=52122&searchString=' + urllib2.quote(query))
         br = browser()
 
         counter = max_results

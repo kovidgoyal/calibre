@@ -50,7 +50,8 @@ class Reader(FormatReader):
         vmajor = (self.header_record.version & 0x0000FF00) >> 8
         vminor = self.header_record.version & 0x000000FF
         if vmajor < 1 or (vmajor == 1 and vminor < 40):
-            raise zTXTError('Unsupported ztxt version (%i.%i). Only versions newer than %i.%i are supported.' % (vmajor, vminor, SUPPORTED_VERSION[0], SUPPORTED_VERSION[1]))
+            raise zTXTError('Unsupported ztxt version (%i.%i). Only versions newer than %i.%i are supported.' %
+                            (vmajor, vminor, SUPPORTED_VERSION[0], SUPPORTED_VERSION[1]))
 
         if (self.header_record.flags & 0x01) == 0:
             raise zTXTError('Only compression method 1 (random access) is supported')

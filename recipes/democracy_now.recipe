@@ -1,6 +1,7 @@
 # vim:fileencoding=utf-8
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class DemocracyNowRecipe(BasicNewsRecipe):
     title = u'Democracy now!'
     __author__ = u'Antoine Beaupré'
@@ -42,4 +43,3 @@ class DemocracyNowRecipe(BasicNewsRecipe):
                    dict(
                    name='div', attrs={'class': 'printer-and-transcript-links'}),
                    ]
-

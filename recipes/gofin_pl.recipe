@@ -9,18 +9,25 @@ gofin.pl
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class gofin(BasicNewsRecipe):
-    title          = u'Gofin'
+    title = u'Gofin'
     __author__ = 'teepel <teepel44@gmail.com>'
-    language       = 'pl'
-    description =u'Portal Podatkowo-Księgowy'
-    INDEX='http://gofin.pl'
+    language = 'pl'
+    description = u'Portal Podatkowo-Księgowy'
+    INDEX = 'http://gofin.pl'
     oldest_article = 7
     max_articles_per_feed = 100
-    remove_empty_feeds= True
+    remove_empty_feeds = True
     simultaneous_downloads = 5
-    remove_javascript=True
-    no_stylesheets=True
+    remove_javascript = True
+    no_stylesheets = True
     auto_cleanup = True
 
-    feeds          = [(u'Podatki', u'http://www.rss.gofin.pl/podatki.xml'), (u'Prawo Pracy', u'http://www.rss.gofin.pl/prawopracy.xml'), (u'Rachunkowo\u015b\u0107', u'http://www.rss.gofin.pl/rachunkowosc.xml'), (u'Sk\u0142adki, zasi\u0142ki, emerytury', u'http://www.rss.gofin.pl/zasilki.xml'),(u'Firma', u'http://www.rss.gofin.pl/firma.xml'), (u'Prawnik radzi', u'http://www.rss.gofin.pl/prawnikradzi.xml')]
+    feeds = [
+        (u'Podatki', u'http://www.rss.gofin.pl/podatki.xml'),
+        (u'Prawo Pracy', u'http://www.rss.gofin.pl/prawopracy.xml'),
+        (u'Rachunkowo\u015b\u0107', u'http://www.rss.gofin.pl/rachunkowosc.xml'),
+        (u'Sk\u0142adki, zasi\u0142ki, emerytury', u'http://www.rss.gofin.pl/zasilki.xml'),
+        (u'Firma', u'http://www.rss.gofin.pl/firma.xml'),
+        (u'Prawnik radzi', u'http://www.rss.gofin.pl/prawnikradzi.xml')]

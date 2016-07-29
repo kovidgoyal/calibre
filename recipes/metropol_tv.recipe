@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class metropolRecipe(BasicNewsRecipe):
-    __author__  = 'bubak'
+    __author__ = 'bubak'
     title = u'Metropol TV'
     publisher = u''
     description = 'metropol.cz'
@@ -12,11 +13,9 @@ class metropolRecipe(BasicNewsRecipe):
     use_embedded_content = False
 
     feeds = [
-            (u'Metropolcv.cz', u'http://www.metropol.cz/rss/')
-            ]
+        (u'Metropolcv.cz', u'http://www.metropol.cz/rss/')
+    ]
 
-
-    #encoding = 'iso-8859-2'
     language = 'cs'
     cover_url = 'http://www.metropol.cz/public/css/../images/logo/metropoltv.png'
     remove_javascript = True
@@ -26,4 +25,4 @@ class metropolRecipe(BasicNewsRecipe):
 
     remove_attributes = []
 
-    keep_only_tags = [dict(name='div', attrs={'id':['art-full']})]
+    keep_only_tags = [dict(name='div', attrs={'id': ['art-full']})]

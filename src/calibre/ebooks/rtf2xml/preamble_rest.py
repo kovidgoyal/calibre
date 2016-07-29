@@ -146,7 +146,7 @@ class Preamble:
                         sys.stderr.write(
                         'no matching state in module preamble_rest.py\n' + self.__state + '\n')
                     action(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "preamble_div.data")
         copy_obj.rename(self.__write_to, self.__file)

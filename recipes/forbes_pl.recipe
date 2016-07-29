@@ -6,6 +6,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 import datetime
 import re
 
+
 class forbes_pl(BasicNewsRecipe):
     title = u'Forbes.pl'
     __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
@@ -16,15 +17,18 @@ class forbes_pl(BasicNewsRecipe):
     cover_url = 'http://www.forbes.pl/resources/front/images/logo.png'
     max_articles_per_feed = 100
     extra_css = '.Block-Photo {float:left; max-width: 300px; margin-right: 5px;}'
-    preprocess_regexps = [(re.compile(ur'<p>(<strong>)?(Czytaj|Zobacz) (też|także):.*?</p>', re.DOTALL), lambda match: ''), (re.compile(ur'<strong>Zobacz:.*?</strong>', re.DOTALL), lambda match: '')]
+    preprocess_regexps = [(re.compile(ur'<p>(<strong>)?(Czytaj|Zobacz) (też|także):.*?</p>', re.DOTALL),
+                           lambda match: ''), (re.compile(ur'<strong>Zobacz:.*?</strong>', re.DOTALL), lambda match: '')]
     remove_javascript = True
     no_stylesheets = True
     now = datetime.datetime.now()
     yesterday = now - datetime.timedelta(hours=24)
     yesterday = yesterday.strftime("%d.%m.%Y %H:%M:%S")
     pages_count = 4
-    keep_only_tags = [dict(attrs={'class':['Block-Node Content-Article ', 'Block-Node Content-Article piano-closed']})]
-    remove_tags = [dict(attrs={'class':['Keywords Styled', 'twitter-share-button', 'Block-List-Related Block-List']})]
+    keep_only_tags = [dict(attrs={'class': [
+                           'Block-Node Content-Article ', 'Block-Node Content-Article piano-closed']})]
+    remove_tags = [dict(attrs={'class': [
+                        'Keywords Styled', 'twitter-share-button', 'Block-List-Related Block-List']})]
 
     feeds = [(u'Wszystkie', 'http://www.forbes.pl/rss')]
 

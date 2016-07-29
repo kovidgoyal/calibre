@@ -23,7 +23,8 @@ class Outline(object):
             item_path = os.path.abspath(item).replace('/', os.sep)
             if self.toc is not None:
                 for x in self.toc.flat():
-                    if x.abspath != item_path: continue
+                    if x.abspath != item_path:
+                        continue
                     x.outline_item_ = item
                     if x.fragment:
                         anchors.add(x.fragment)

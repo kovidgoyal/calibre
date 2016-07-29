@@ -3,8 +3,9 @@ from __future__ import unicode_literals
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import re
 
+
 class demagogRecipe(BasicNewsRecipe):
-    __author__  = 'bubak'
+    __author__ = 'bubak'
     title = u'Demagog.cz'
     publisher = u''
     description = 'demagog.cz'
@@ -14,26 +15,21 @@ class demagogRecipe(BasicNewsRecipe):
     remove_empty_feeds = True
 
     feeds = [
-            (u'Aktuality', u'http://demagog.cz/rss')
-            ]
+        (u'Aktuality', u'http://demagog.cz/rss')
+    ]
 
-
-    #encoding = 'iso-8859-2'
     language = 'cs'
     cover_url = 'http://demagog.cz/content/images/demagog.cz.png'
     remove_javascript = True
     no_stylesheets = True
     extra_css             = """
-				.vyrok_suhrn{margin-top:50px; }
-				.vyrok{margin-bottom:30px; }
+                .vyrok_suhrn{margin-top:50px; }
+                .vyrok{margin-bottom:30px; }
                             """
 
-    remove_tags = [dict(name='a', attrs={'class':'vyrok_odovodnenie_tgl'}),
-		dict(name='img', attrs={'class':'vyrok_fotografia'})]
+    remove_tags = [dict(name='a', attrs={'class': 'vyrok_odovodnenie_tgl'}),
+                   dict(name='img', attrs={'class': 'vyrok_fotografia'})]
     remove_tags_before = dict(name='h1')
-    remove_tags_after = dict(name='div', attrs={'class':'vyrok_text_after'})
-    preprocess_regexps = [(re.compile(r'(<div class="vyrok_suhrn">)', re.DOTALL|re.IGNORECASE), lambda match: '\1<hr>')]
-
-
-
-
+    remove_tags_after = dict(name='div', attrs={'class': 'vyrok_text_after'})
+    preprocess_regexps = [(re.compile(
+        r'(<div class="vyrok_suhrn">)', re.DOTALL | re.IGNORECASE), lambda match: '\1<hr>')]

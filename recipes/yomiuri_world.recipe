@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010,2014, Hiroshi Miura <miurahr@linux.com>'
 '''
 www.yomiuri.co.jp
@@ -7,67 +7,65 @@ www.yomiuri.co.jp
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class YOLNews(BasicNewsRecipe):
-    title          = u'Yomiuri Online (World)'
-    __author__     = 'Hiroshi Miura'
+    title = u'Yomiuri Online (World)'
+    __author__ = 'Hiroshi Miura'
     oldest_article = 2
     max_articles_per_feed = 50
-    description    = 'Japanese traditional newspaper Yomiuri Online News/world news'
-    publisher      = 'Yomiuri Online News'
-    category       = 'news, japan'
-    language       = 'ja'
-    encoding       = 'UTF-8'
-    index          = 'http://www.yomiuri.co.jp/world/'
+    description = 'Japanese traditional newspaper Yomiuri Online News/world news'
+    publisher = 'Yomiuri Online News'
+    category = 'news, japan'
+    language = 'ja'
+    encoding = 'UTF-8'
+    index = 'http://www.yomiuri.co.jp/world/'
     remove_javascript = True
     masthead_title = u"YOMIURI ONLINE"
 
-    keep_only_tags = [{'class':"article text-resizeable"}]
+    keep_only_tags = [{'class': "article text-resizeable"}]
 
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for curfeed in feeds:
             delList = []
-            for a,curarticle in enumerate(curfeed.articles):
+            for a, curarticle in enumerate(curfeed.articles):
                 if re.search(r'rssad.jp', curarticle.url):
                     delList.append(curarticle)
-            if len(delList)>0:
+            if len(delList) > 0:
                 for d in delList:
                     index = curfeed.articles.index(d)
-                    curfeed.articles[index:index+1] = []
+                    curfeed.articles[index:index + 1] = []
         return feeds
 
     def parse_index(self):
         feeds = []
         newsarticles = []
-        soup   = self.index_to_soup(self.index)
-        mainspan = soup.find('div', attrs={'class':'pbNested span-main-inr'})
+        soup = self.index_to_soup(self.index)
+        mainspan = soup.find('div', attrs={'class': 'pbNested span-main-inr'})
         if mainspan:
-            topstories = mainspan.find('ul',attrs={'class':'list-top'})
+            topstories = mainspan.find('ul', attrs={'class': 'list-top'})
             if topstories:
                 for itt in topstories.findAll('li'):
-                    itema = itt.find('a',href=True)
+                    itema = itt.find('a', href=True)
                     if itema:
-                        item_headline = itema.find('span',attrs={'class':'headline'})
-                        item_date     = item_headline.find('span',attrs={'class':'update'})
+                        item_headline = itema.find(
+                            'span', attrs={'class': 'headline'})
+                        item_date = item_headline.find(
+                            'span', attrs={'class': 'update'})
                         newsarticles.append({
-                               'title'      :item_headline.contents[0]
-                              ,'date'       :item_date
-                              ,'url'        :itema['href']
-                              ,'description':''
+                            'title': item_headline.contents[0], 'date': item_date, 'url': itema['href'], 'description': ''
                         })
-            secondstories = mainspan.find('ul', attrs={'class':'list-common'})
+            secondstories = mainspan.find('ul', attrs={'class': 'list-common'})
             if secondstories:
                 for itt in secondstories.findAll('li'):
-                    itema = itt.find('a',href=True)
+                    itema = itt.find('a', href=True)
                     if itema:
-                        item_headline = itema.find('span',attrs={'class':'headline'})
-                        item_date     = item_headline.find('span',attrs={'class':'update'})
+                        item_headline = itema.find(
+                            'span', attrs={'class': 'headline'})
+                        item_date = item_headline.find(
+                            'span', attrs={'class': 'update'})
                         newsarticles.append({
-                               'title'      :item_headline.contents[0]
-                              ,'date'       :item_date
-                              ,'url'        :itema['href']
-                              ,'description':''
+                            'title': item_headline.contents[0], 'date': item_date, 'url': itema['href'], 'description': ''
                         })
         feeds.append(('World', newsarticles))
         return feeds
-

@@ -1,23 +1,25 @@
 #!/usr/bin/env  python2
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2014, Nikolas Mangold-Takao <nmangold at gmail.com>'
-__version__   = '0.10'
+__version__ = '0.10'
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
 
 class IncMagazineRecipe(BasicNewsRecipe):
     language = 'en'
     version = 1
 
-    __author__  = 'Nikolas Mangold-Takao <nmangold at gmail.com>'
+    __author__ = 'Nikolas Mangold-Takao <nmangold at gmail.com>'
 
     title = u'Inc Magazine'
     publisher = u'Mansueto Ventures LLC'
     category = u'News, Business'
     description = u'Free account required to browse website. Handbook of the American Entrepeneur'
 
-    needs_subscription = True  # signup is free, without account browsing is limited and recipe won't work
+    # signup is free, without account browsing is limited and recipe won't work
+    needs_subscription = True
 
     use_embedded_content = False
     remove_empty_feeds = True
@@ -60,15 +62,17 @@ class IncMagazineRecipe(BasicNewsRecipe):
         articles = []
 
         # We need for sure 'toc-top-l-column' and 'toc-bot-l-column'
-        # I am not sure about 'toc-top-r-column and 'toc-bot-r-column', seems to be mostly ads
+        # I am not sure about 'toc-top-r-column and 'toc-bot-r-column', seems
+        # to be mostly ads
         for toc in soup.findAll('div', id=lambda x: x and x.endswith('-l-column')):
-            for article in toc.findAll('div', {'class' : lambda x: x and x.startswith('toc-h')}):  # h1-h2-h3
+            # h1-h2-h3
+            for article in toc.findAll('div', {'class': lambda x: x and x.startswith('toc-h')}):
                 link = article.find('a')
                 if link is None:
                     continue
                 article_title = self.tag_to_string(link)
-                article_link  = link.get('href')
-                articles.append({'title' : article_title, 'url' : article_link})
+                article_link = link.get('href')
+                articles.append({'title': article_title, 'url': article_link})
         feeds.append(('Articles', articles))  # TODO figure out sections
         return feeds
 

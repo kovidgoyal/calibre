@@ -15,9 +15,10 @@ class ProstAmerika(BasicNewsRecipe):
     title = 'Prost Amerika'
     language = 'en'
     __author__ = 'rylsfan'
-    #authors =
+    # authors =
     description = 'Seattle soccer with a European accent. News, features, and match reports.'
-    publisher =  'ProstAmerika' # 4464 fremont avenue n, # 209, Seattle, 98103, United States
+    # 4464 fremont avenue n, # 209, Seattle, 98103, United States
+    publisher = 'ProstAmerika'
     category = 'Sports'
 
     oldest_article = 7
@@ -32,25 +33,24 @@ class ProstAmerika(BasicNewsRecipe):
     use_embedded_content = False
     remove_javascript = True
 
-    feeds =[
-               (u'Cascadia',   u'http://www.prostamerika.com/category/localfootball/feed/' ),
-               (u'MLS',        u'http://www.prostamerika.com/category/mls/feed/'),
-               (u'EPL',        u'http://www.prostamerika.com/category/epl/feed/'),
-               (u'World',      u'http://www.prostamerika.com/category/international-soccer/feed/'),
-               (u'Fan Culture',u'http://www.prostamerika.com/category/fan-culture/feed/')
+    feeds = [
+        (u'Cascadia',   u'http://www.prostamerika.com/category/localfootball/feed/'),
+        (u'MLS',        u'http://www.prostamerika.com/category/mls/feed/'),
+        (u'EPL',        u'http://www.prostamerika.com/category/epl/feed/'),
+        (u'World',      u'http://www.prostamerika.com/category/international-soccer/feed/'),
+        (u'Fan Culture', u'http://www.prostamerika.com/category/fan-culture/feed/')
 
-           ]
+    ]
 
-    keep_only_tags = [dict(name='div', attrs={'id':'maincontent'})]
-    remove_tags =  [
-                       {'class':'tweetmeme_button'},
-                       {'class':'wp-caption-text'}
-                   ]
+    keep_only_tags = [dict(name='div', attrs={'id': 'maincontent'})]
+    remove_tags = [
+        {'class': 'tweetmeme_button'},
+        {'class': 'wp-caption-text'}
+    ]
 
-
-    remove_tags_after =[
-                           {'class':'tweetmeme_button'}
-                       ]
+    remove_tags_after = [
+        {'class': 'tweetmeme_button'}
+    ]
 
     extra_css = '''
                h1{font-family:Didot,Helvetica,sans-serif; font-weight:bold;font-size:large;}
@@ -61,8 +61,3 @@ class ProstAmerika(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)
-
-
-
-
-

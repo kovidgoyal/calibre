@@ -66,7 +66,6 @@ class RBMLizer(object):
         self.opts = opts
         return self.mlize_spine()
 
-
     def mlize_spine(self):
         self.link_hrefs = {}
         output = [u'<HTML><HEAD><TITLE></TITLE></HEAD><BODY>']
@@ -218,7 +217,7 @@ class RBMLizer(object):
         text += self.close_tags(close_tag_list)
 
         if hasattr(elem, 'tail') and elem.tail:
-                text.append(prepare_string_for_xml(elem.tail))
+            text.append(prepare_string_for_xml(elem.tail))
 
         return text
 

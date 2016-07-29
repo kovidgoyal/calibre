@@ -21,16 +21,16 @@ class CreditSlips(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-    conversion_options =   {
-                               'comments': description,
-                               'tags': category,
-                               'language': 'en',
-                               'publisher': publisher,
-                           }
+    conversion_options = {
+        'comments': description,
+        'tags': category,
+        'language': 'en',
+        'publisher': publisher,
+    }
 
     feeds = [
-               (u'Credit Slips', u'http://www.creditslips.org/creditslips/atom.xml')
-           ]
+        (u'Credit Slips', u'http://www.creditslips.org/creditslips/atom.xml')
+    ]
 
     extra_css =    '''
                        .author {font-family:Helvetica,sans-serif; font-weight:normal;font-size:small;}
@@ -40,5 +40,6 @@ class CreditSlips(BasicNewsRecipe):
                    '''
 
     def populate_article_metadata(self, article, soup, first):
-       h2 = soup.find('h2')
-       h2.replaceWith(h2.prettify() + '<p><em>Posted by ' + article.author + '</em></p>')
+        h2 = soup.find('h2')
+        h2.replaceWith(h2.prettify() + '<p><em>Posted by ' +
+                       article.author + '</em></p>')

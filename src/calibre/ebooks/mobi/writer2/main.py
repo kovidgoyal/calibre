@@ -104,14 +104,15 @@ class MobiWriter(object):
         else:
             self.primary_index_record_idx = len(self.records)
             for i in xrange(self.last_text_record_idx + 1):
-                if i == 0: continue
+                if i == 0:
+                    continue
                 tbs = self.indexer.get_trailing_byte_sequence(i)
                 self.records[i] += encode_trailing_data(tbs)
             self.records.extend(self.indexer.records)
 
     # }}}
 
-    def write_uncrossable_breaks(self): # {{{
+    def write_uncrossable_breaks(self):  # {{{
         '''
         Write information about uncrossable breaks (non linear items in
         the spine.
@@ -152,7 +153,7 @@ class MobiWriter(object):
 
     # }}}
 
-    def generate_text(self): # {{{
+    def generate_text(self):  # {{{
         self.oeb.logger.info('Serializing markup content...')
         self.serializer = Serializer(self.oeb, self.image_map,
                 self.is_periodical,
@@ -186,7 +187,7 @@ class MobiWriter(object):
             self.first_non_text_record_idx += 1
     # }}}
 
-    def generate_record0(self): #  MOBI header {{{
+    def generate_record0(self):  # MOBI header {{{
         metadata = self.oeb.metadata
         bt = 0x002
         if self.primary_index_record_idx is not None:
@@ -227,14 +228,14 @@ class MobiWriter(object):
         record0 = StringIO()
         # The MOBI Header
         record0.write(pack(b'>HHIHHHH',
-            self.compression, # compression type # compression type
-            0, # Unused
-            self.text_length, # Text length
-            self.last_text_record_idx, # Number of text records or last tr idx
-            RECORD_SIZE, # Text record size
-            0, # Unused
+            self.compression,  # compression type # compression type
+            0,  # Unused
+            self.text_length,  # Text length
+            self.last_text_record_idx,  # Number of text records or last tr idx
+            RECORD_SIZE,  # Text record size
+            0,  # Unused
             0  # Unused
-        )) # 0 - 15 (0x0 - 0xf)
+        ))  # 0 - 15 (0x0 - 0xf)
         uid = random.randint(0, 0xffffffff)
         title = normalize(unicode(metadata.title[0])).encode('utf-8')
 
@@ -316,7 +317,6 @@ class MobiWriter(object):
         record0.write(pack(b'>IIII',
             0xffffffff, 0xffffffff, 0, 0))
 
-
         # 0xa4 - 0xaf : Unknown
         record0.write(b'\0'*12)
 
@@ -352,7 +352,7 @@ class MobiWriter(object):
         #   - 0b10 : <TBS indexing description of this HTML record><size>
         #   - 0b100: <uncrossable breaks><size>
         # Setting bit 2 (0x2) disables <guide><reference type="start"> functionality
-        extra_data_flags = 0b1 # Has multibyte overlap bytes
+        extra_data_flags = 0b1  # Has multibyte overlap bytes
         if self.primary_index_record_idx is not None:
             extra_data_flags |= 0b10
         if WRITE_UNCROSSABLE_BREAKS:
@@ -372,7 +372,7 @@ class MobiWriter(object):
         self.records[0] = align_block(record0)
     # }}}
 
-    def generate_joint_record0(self): # {{{
+    def generate_joint_record0(self):  # {{{
         from calibre.ebooks.mobi.writer8.mobi import (MOBIHeader,
                 HEADER_FIELDS)
         from calibre.ebooks.mobi.writer8.exth import build_exth
@@ -409,16 +409,16 @@ class MobiWriter(object):
         # Now change the header fields that need to be different in the MOBI 6
         # header
         header_fields['first_resource_record'] = first_image_record
-        ef = 0b100001010000 # Kinglegen uses this
+        ef = 0b100001010000  # Kinglegen uses this
         if self.resources.has_fonts:
             ef |= 0b1000000000000
         header_fields['exth_flags'] = ef
         header_fields['fdst_record'] = pack(b'>HH', 1, last_content_record)
-        header_fields['fdst_count'] = 1 # Why not 0? Kindlegen uses 1
+        header_fields['fdst_count'] = 1  # Why not 0? Kindlegen uses 1
         header_fields['flis_record'] = flis_number
         header_fields['fcis_record'] = fcis_number
         header_fields['text_length'] = self.text_length
-        extra_data_flags = 0b1 # Has multibyte overlap bytes
+        extra_data_flags = 0b1  # Has multibyte overlap bytes
         if self.primary_index_record_idx is not None:
             extra_data_flags |= 0b10
         header_fields['extra_data_flags'] = extra_data_flags
@@ -453,7 +453,7 @@ class MobiWriter(object):
 
     # }}}
 
-    def write_header(self): # PalmDB header {{{
+    def write_header(self):  # PalmDB header {{{
         '''
         Write the PalmDB header
         '''

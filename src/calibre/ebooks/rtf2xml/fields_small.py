@@ -35,8 +35,8 @@ file.
     def __init__(self,
             in_file,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         """
         Required:
@@ -58,7 +58,7 @@ file.
         """
         Initiate all values.
         """
-        self.__string_obj = field_strings.FieldStrings(bug_handler = self.__bug_handler)
+        self.__string_obj = field_strings.FieldStrings(bug_handler=self.__bug_handler)
         self.__state = 'before_body'
         self.__text_string = ''
         self.__marker = 'mi<mk<inline-fld\n'
@@ -175,7 +175,7 @@ file.
             paragraphs within toc or index entries.
         """
         my_string, see_string = self.__index_see_func(my_string)
-        my_string, bookmark_string = self.__index_bookmark_func( my_string)
+        my_string, bookmark_string = self.__index_bookmark_func(my_string)
         italics, bold = self.__index__format_func(my_string)
         found_sub = 0
         my_changed_string = 'mi<tg<empty-att_<field<type>index-entry'
@@ -449,7 +449,7 @@ file.
                         sys.stderr.write('No matching state in module fields_small.py\n')
                         sys.stderr.write(self.__state + '\n')
                     action(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "fields_small.data")
         copy_obj.rename(self.__write_to, self.__file)

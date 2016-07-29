@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class nfpkRecipe(BasicNewsRecipe):
-    __author__  = 'bubak'
+    __author__ = 'bubak'
     title = u'Piratské noviny'
     publisher = u''
     description = 'nfpk.cz'
@@ -13,11 +14,9 @@ class nfpkRecipe(BasicNewsRecipe):
     remove_empty_feeds = True
 
     feeds = [
-            (u'Aktuality', u'http://www.piratskenoviny.cz/run/rss.php')
-            ]
+        (u'Aktuality', u'http://www.piratskenoviny.cz/run/rss.php')
+    ]
 
-
-    #encoding = 'iso-8859-2'
     language = 'cs'
     cover_url = 'http://www.piratskenoviny.cz/imgs/piratske-noviny.gif'
     remove_javascript = True
@@ -26,9 +25,6 @@ class nfpkRecipe(BasicNewsRecipe):
                             """
 
     remove_attributes = []
-    remove_tags_before  = dict(name='font', attrs={'size':'+3'})
-    remove_tags_after  = [dict(name='iframe')]
-    conversion_options = {'linearize_tables' : True}
-
-
-
+    remove_tags_before = dict(name='font', attrs={'size': '+3'})
+    remove_tags_after = [dict(name='iframe')]
+    conversion_options = {'linearize_tables': True}

@@ -3,45 +3,57 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1438255077(BasicNewsRecipe):
-    title          = 'iXBT.com'
-    __author__     = 'bugmen00t'
-    description           = 'Специализированный российский информационно-аналитический сайт с самыми актуальными новостями из сферы IT, детальными обзорами смартфонов, планшетов, персональных компьютеров, компьютерных комплектующих, программного обеспечения и периферийных устройств'  # noqa
-    publisher             = 'www.ixbt.com'
-    category              = 'news'
+    title = 'iXBT.com'
+    __author__ = 'bugmen00t'
+    description = 'Специализированный российский информационно-аналитический сайт с самыми актуальными новостями из сферы IT, детальными обзорами смартфонов, планшетов, персональных компьютеров, компьютерных комплектующих, программного обеспечения и периферийных устройств'  # noqa
+    publisher = 'www.ixbt.com'
+    category = 'news'
     cover_url = u'http://www.ixbt.com/pic/articles/logo.png'
-    language              = 'ru'
-    auto_cleanup   = True
+    language = 'ru'
+    auto_cleanup = True
 
     oldest_article = 30
     max_articles_per_feed = 100
 
-    feeds          = [(u'Новые статьи', u'http://www.ixbt.com/export/articles.rss'),
-                           (u'Новости', u'http://www.ixbt.com/export/news.rss'),
-                           (u'Новости железа', u'http://www.ixbt.com/export/hardnews.rss'),
-                           (u'Новости ПО', u'http://www.ixbt.com/export/softnews.rss'),
-                           (u'Новости DVD и домашних кинотеатров', u'http://www.ixbt.com/export/dvdnews.rss'),
-                           (u'Новости Apple', u'http://www.ixbt.com/export/applenews.rss'),
-                           (u'Процессоры и системы охлаждения', u'http://www.ixbt.com/export/sec_cpu.rss'),
-                           (u'Системные платы, память и чипсеты', u'http://www.ixbt.com/export/sec_mainboard.rss'),
-                           (u'3D-Видео', u'http://www.ixbt.com/export/sec_video.rss'),
-                           (u'Сети и Серверы', u'http://www.ixbt.com/export/sec_comm.rss'),
-                           (u'Оптические приводы и носители информации', u'http://www.ixbt.com/export/sec_optical.rss'),
-                           (u'Принтеры и МФУ', u'http://www.ixbt.com/export/sec_printer.rss'),
-                           (u'Мониторы и TV-тюнеры', u'http://www.ixbt.com/export/sec_monitor.rss'),
-                           (u'Жёсткие диски и Flash-накопители', u'http://www.ixbt.com/export/sec_storage.rss'),
-                           (u'Цифровой звук: акустика, звуковые карты, наушники', u'http://www.ixbt.com/export/sec_multimedia.rss'),
-                           (u'ProAudio: звуковые карты, интерфейсы, студийные мониторы и наушники, MIDI-клавиатуры, профессиональное ПО',
-                            u'http://www.ixbt.com/export/sec_proaudio.rss'),
-                           (u'Цифровая фотография', u'http://www.ixbt.com/export/sec_digimage.rss'),
-                           (u'Проекторы, кино и домашние кинотеатры', u'http://www.ixbt.com/export/sec_dvd.rss'),
-                           (u'Цифровое видео: камеры, захват и монтаж', u'http://www.ixbt.com/export/sec_divideo.rss'),
-                           (u'Ноутбуки и планшетные ПК', u'http://www.ixbt.com/export/sec_portopc.rss'),
-                           (u'Карманные компьютеры', u'http://www.ixbt.com/export/sec_pda.rss'),
-                           (u'Мобильные телефоны', u'http://www.ixbt.com/export/sec_mobile.rss'),
-                           (u'Периферия: мыши, клавиатуры, джойстики', u'http://www.ixbt.com/export/sec_peripheral.rss'),
-                           (u'Корпуса, блоки питания и ИБП', u'http://www.ixbt.com/export/sec_power.rss'),
-                           (u'Общеиндустриальные новости о новых продуктах и технологиях', u'http://www.ixbt.com/export/sec_editorial.rss')]
+    feeds = [(u'Новые статьи', u'http://www.ixbt.com/export/articles.rss'),
+             (u'Новости', u'http://www.ixbt.com/export/news.rss'),
+             (u'Новости железа', u'http://www.ixbt.com/export/hardnews.rss'),
+             (u'Новости ПО', u'http://www.ixbt.com/export/softnews.rss'),
+             (u'Новости DVD и домашних кинотеатров',
+              u'http://www.ixbt.com/export/dvdnews.rss'),
+             (u'Новости Apple', u'http://www.ixbt.com/export/applenews.rss'),
+             (u'Процессоры и системы охлаждения',
+              u'http://www.ixbt.com/export/sec_cpu.rss'),
+             (u'Системные платы, память и чипсеты',
+              u'http://www.ixbt.com/export/sec_mainboard.rss'),
+             (u'3D-Видео', u'http://www.ixbt.com/export/sec_video.rss'),
+             (u'Сети и Серверы', u'http://www.ixbt.com/export/sec_comm.rss'),
+             (u'Оптические приводы и носители информации',
+              u'http://www.ixbt.com/export/sec_optical.rss'),
+             (u'Принтеры и МФУ', u'http://www.ixbt.com/export/sec_printer.rss'),
+             (u'Мониторы и TV-тюнеры', u'http://www.ixbt.com/export/sec_monitor.rss'),
+             (u'Жёсткие диски и Flash-накопители',
+              u'http://www.ixbt.com/export/sec_storage.rss'),
+             (u'Цифровой звук: акустика, звуковые карты, наушники',
+              u'http://www.ixbt.com/export/sec_multimedia.rss'),
+             (u'ProAudio: звуковые карты, интерфейсы, студийные мониторы и наушники, MIDI-клавиатуры, профессиональное ПО',
+              u'http://www.ixbt.com/export/sec_proaudio.rss'),
+             (u'Цифровая фотография', u'http://www.ixbt.com/export/sec_digimage.rss'),
+             (u'Проекторы, кино и домашние кинотеатры',
+              u'http://www.ixbt.com/export/sec_dvd.rss'),
+             (u'Цифровое видео: камеры, захват и монтаж',
+              u'http://www.ixbt.com/export/sec_divideo.rss'),
+             (u'Ноутбуки и планшетные ПК',
+              u'http://www.ixbt.com/export/sec_portopc.rss'),
+             (u'Карманные компьютеры', u'http://www.ixbt.com/export/sec_pda.rss'),
+             (u'Мобильные телефоны', u'http://www.ixbt.com/export/sec_mobile.rss'),
+             (u'Периферия: мыши, клавиатуры, джойстики',
+              u'http://www.ixbt.com/export/sec_peripheral.rss'),
+             (u'Корпуса, блоки питания и ИБП',
+              u'http://www.ixbt.com/export/sec_power.rss'),
+             (u'Общеиндустриальные новости о новых продуктах и технологиях', u'http://www.ixbt.com/export/sec_editorial.rss')]
 
-    remove_tags_before = dict(name='div', attrs={'class':'content'})
-    remove_tags_after  = dict(name='ul', attrs={'id':'soc_ShareBlock'})
+    remove_tags_before = dict(name='div', attrs={'class': 'content'})
+    remove_tags_after = dict(name='ul', attrs={'id': 'soc_ShareBlock'})

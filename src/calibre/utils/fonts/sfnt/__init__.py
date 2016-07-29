@@ -15,7 +15,8 @@ def align_block(raw, multiple=4, pad=b'\0'):
     of 4.
     '''
     extra = len(raw) % multiple
-    if extra == 0: return raw
+    if extra == 0:
+        return raw
     return raw + pad*(multiple - extra)
 
 class UnknownTable(object):
@@ -55,15 +56,15 @@ class FixedProperty(object):
         return int(round(val*(0x10000)))
 
 def max_power_of_two(x):
-	"""
-    Return the highest exponent of two, so that
-	(2 ** exponent) <= x
-	"""
-	exponent = 0
-	while x:
-		x = x >> 1
-		exponent += 1
-	return max(exponent - 1, 0)
+    """
+Return the highest exponent of two, so that
+    (2 ** exponent) <= x
+    """
+    exponent = 0
+    while x:
+        x = x >> 1
+        exponent += 1
+    return max(exponent - 1, 0)
 
 def load_font(stream_or_path):
     raw = stream_or_path

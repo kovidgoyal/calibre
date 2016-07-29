@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 mondediplo.com
@@ -8,24 +8,25 @@ import urllib
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class LeMondeDiplomatiqueEn(BasicNewsRecipe):
-    title                  = 'Le Monde diplomatique - English edition'
-    __author__             = 'Darko Miletic'
-    description            = "Le Monde diplomatique is the place you go when you want to know what's really happening. This is a major international paper that is truly independent, that sees the world in fresh ways, that focuses on places no other publications reach. We offer a clear, considered view of the conflicting interests and complexities of a modern global world. LMD in English is a concise version of the Paris-based parent edition, publishing all the major stories each month, expertly translated, and with some London-based commissions too. We offer a taster of LMD quality on our website where a selection of articles are available each month."
-    publisher              = 'Le Monde diplomatique'
-    category               = 'news, politics, world'
-    no_stylesheets         = True
-    oldest_article         = 31
-    delay                  = 1
-    encoding               = 'utf-8'
-    needs_subscription     = True
-    masthead_url           = 'http://mondediplo.com/squelettes/pics/logo-30.gif'
-    publication_type       = 'magazine'
-    PREFIX                 = 'http://mondediplo.com/'
-    LOGIN                  = PREFIX + '2009/09/02congo'
-    INDEX                  = PREFIX + strftime('%Y/%m/')
-    use_embedded_content   = False
-    language               = 'en'
+    title = 'Le Monde diplomatique - English edition'
+    __author__ = 'Darko Miletic'
+    description = "Le Monde diplomatique is the place you go when you want to know what's really happening. This is a major international paper that is truly independent, that sees the world in fresh ways, that focuses on places no other publications reach. We offer a clear, considered view of the conflicting interests and complexities of a modern global world. LMD in English is a concise version of the Paris-based parent edition, publishing all the major stories each month, expertly translated, and with some London-based commissions too. We offer a taster of LMD quality on our website where a selection of articles are available each month."  # noqa
+    publisher = 'Le Monde diplomatique'
+    category = 'news, politics, world'
+    no_stylesheets = True
+    oldest_article = 31
+    delay = 1
+    encoding = 'utf-8'
+    needs_subscription = True
+    masthead_url = 'http://mondediplo.com/squelettes/pics/logo-30.gif'
+    publication_type = 'magazine'
+    PREFIX = 'http://mondediplo.com/'
+    LOGIN = PREFIX + '2009/09/02congo'
+    INDEX = PREFIX + strftime('%Y/%m/')
+    use_embedded_content = False
+    language = 'en'
     extra_css              = """
                                 body{font-family: "Luxi sans","Lucida sans","Lucida Grande",Lucida,"Lucida Sans Unicode",sans-serif}
                                 .surtitre{font-size: 1.2em; font-variant: small-caps; margin-bottom: 0.5em}
@@ -35,60 +36,52 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
                             """
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.LOGIN)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({ 'login':self.username
-                                     ,'pass':self.password
-                                     ,'enter':'enter'
-                                   })
-            br.open(self.LOGIN,data)
+            data = urllib.urlencode({'login': self.username, 'pass': self.password, 'enter': 'enter'
+                                     })
+            br.open(self.LOGIN, data)
         return br
 
-    keep_only_tags    =[
-                          dict(name='div', attrs={'id':'contenu'})
-                        , dict(name='div',attrs={'class':'notes surlignable'})
-                        ]
-    remove_tags = [dict(name=['object','link','script','iframe','base'])]
-    remove_attributes = ['height','width','name','lang']
+    keep_only_tags = [
+        dict(name='div', attrs={'id': 'contenu'}), dict(
+            name='div', attrs={'class': 'notes surlignable'})
+    ]
+    remove_tags = [dict(name=['object', 'link', 'script', 'iframe', 'base'])]
+    remove_attributes = ['height', 'width', 'name', 'lang']
 
     def parse_index(self):
         articles = []
         soup = self.index_to_soup(self.INDEX)
-        cnt = soup.find('div',attrs={'class':'som_num'})
+        cnt = soup.find('div', attrs={'class': 'som_num'})
         for item in cnt.findAll('li'):
             description = ''
             feed_link = item.find('a')
-            desc = item.find('div',attrs={'class':'chapo'})
+            desc = item.find('div', attrs={'class': 'chapo'})
             if desc:
-               description = desc.string
-            if feed_link and feed_link.has_key('href'):
-                url   = self.PREFIX + feed_link['href'].partition('/../')[2]
+                description = desc.string
+            if feed_link and feed_link.has_key('href'):  # noqa
+                url = self.PREFIX + feed_link['href'].partition('/../')[2]
                 title = self.tag_to_string(feed_link)
-                date  = strftime(self.timefmt)
+                date = strftime(self.timefmt)
                 articles.append({
-                                  'title'      :title
-                                 ,'date'       :date
-                                 ,'url'        :url
-                                 ,'description':description
-                                })
+                    'title': title, 'date': date, 'url': url, 'description': description
+                })
         return [(self.title, articles)]
 
     def get_cover_url(self):
         cover_url = None
         soup = self.index_to_soup(self.INDEX)
-        cover_item = soup.find('div',attrs={'class':'current'})
+        cover_item = soup.find('div', attrs={'class': 'current'})
         if cover_item:
-           ap = cover_item.find('img',attrs={'class':'spip_logos'})
-           if ap:
-              cover_url = self.INDEX + ap['src']
+            ap = cover_item.find('img', attrs={'class': 'spip_logos'})
+            if ap:
+                cover_url = self.INDEX + ap['src']
         return cover_url
 
     def preprocess_html(self, soup):
@@ -96,9 +89,9 @@ class LeMondeDiplomatiqueEn(BasicNewsRecipe):
             del item['style']
         for item in soup.findAll('a'):
             if item.string is not None:
-               str = item.string
-               item.replaceWith(str)
+                str = item.string
+                item.replaceWith(str)
             else:
-               str = self.tag_to_string(item)
-               item.replaceWith(str)
+                str = self.tag_to_string(item)
+                item.replaceWith(str)
         return soup

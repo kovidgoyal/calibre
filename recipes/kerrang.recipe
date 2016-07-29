@@ -4,6 +4,7 @@ __license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class kerrang(BasicNewsRecipe):
     title = u'Kerrang!'
     __author__ = 'Artur Stachecki <artur.stachecki@gmail.com>'
@@ -19,7 +20,7 @@ class kerrang(BasicNewsRecipe):
     recursions = 0
 
     keep_only_tags = []
-    keep_only_tags.append(dict(attrs = {'class' : ['headz', 'blktxt']}))
+    keep_only_tags.append(dict(attrs={'class': ['headz', 'blktxt']}))
 
     extra_css = '''       img { display: block; margin-right: auto;}
                         h1 {text-align: left; font-size: 22px;}'''

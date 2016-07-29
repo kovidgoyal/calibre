@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008-2014, Karthik <hashkendistro@gmail.com>'
 '''
 timesofindia.indiatimes.com
@@ -7,21 +7,22 @@ timesofindia.indiatimes.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class TheEconomicTimes(BasicNewsRecipe):
-    title                  = 'The Times of India'
-    __author__             = 'Karthik'
-    description            = 'News from the Indian daily Times of India'
-    publisher              = 'timesofindia.indiatimes.com'
-    category               = 'news, finances, politics, sports, business, entertainment, India'
-    oldest_article         = 1
-    max_articles_per_feed  = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
+    title = 'The Times of India'
+    __author__ = 'Karthik'
+    description = 'News from the Indian daily Times of India'
+    publisher = 'timesofindia.indiatimes.com'
+    category = 'news, finances, politics, sports, business, entertainment, India'
+    oldest_article = 1
+    max_articles_per_feed = 100
+    no_stylesheets = True
+    use_embedded_content = False
     simultaneous_downloads = 1
-    encoding               = 'utf-8'
-    language               = 'en_IN'
-    publication_type       = 'newspaper'
-    masthead_url           = 'http://timesofindia.indiatimes.com/photo.cms?msid=2419189'
+    encoding = 'utf-8'
+    language = 'en_IN'
+    publication_type = 'newspaper'
+    masthead_url = 'http://timesofindia.indiatimes.com/photo.cms?msid=2419189'
     extra_css              = """
                                  body{font-family: Arial,Helvetica,sans-serif}
                                  .foto_mg{font-size: 60%;
@@ -31,27 +32,27 @@ class TheEconomicTimes(BasicNewsRecipe):
                                  artag{font-size: 60%}
                                  div.storycontent{padding-top: 10px}
                              """
-    conversion_options     = {'comment'          : description,
-                              'tags'             : category,
-                              'publisher'        : publisher,
-                              'language'         : language
-                             }
-    remove_tags_before     = dict(name='h1')
-    remove_tags_after      = dict(name='div', attrs={'class':'storycontent'})
-    remove_attributes      = ['xmlns', 'style']
-    remove_tags			   = [dict(name='div', attrs={'class':'readalso'})]
+    conversion_options = {'comment': description,
+                          'tags': category,
+                          'publisher': publisher,
+                          'language': language
+                          }
+    remove_tags_before = dict(name='h1')
+    remove_tags_after = dict(name='div', attrs={'class': 'storycontent'})
+    remove_attributes = ['xmlns', 'style']
+    remove_tags = [dict(name='div', attrs={'class': 'readalso'})]
 
-    feeds                  = [('Recent Stories', 'http://timesofindia.indiatimes.com/rssfeeds/1221656.cms'),
-                              ('India', 'http://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms'),
-                              ('World', 'http://timesofindia.indiatimes.com/rssfeeds/296589292.cms'),
-                              ('Business', 'http://timesofindia.indiatimes.com/rssfeeds/1898055.cms'),
-                              ('Cricket', 'http://timesofindia.indiatimes.com/rssfeeds/4719161.cms'),
-                              ('Sports', 'http://timesofindia.indiatimes.com/rssfeeds/4719148.cms'),
-                              ('Tech', 'http://timesofindia.indiatimes.com/rssfeeds/5880659.cms'),
-                              ('Education', 'http://timesofindia.indiatimes.com/rssfeeds/913168846.cms'),
-                              ('Science', 'http://timesofindia.indiatimes.com/rssfeeds/-2128672765.cms'),
-                              ('Opinion', 'http://timesofindia.indiatimes.com/rssfeeds/784865811.cms'),
-                              ('Entertainment', 'http://timesofindia.indiatimes.com/rssfeeds/1081479906.cms')]
+    feeds = [('Recent Stories', 'http://timesofindia.indiatimes.com/rssfeeds/1221656.cms'),
+             ('India', 'http://timesofindia.indiatimes.com/rssfeeds/-2128936835.cms'),
+             ('World', 'http://timesofindia.indiatimes.com/rssfeeds/296589292.cms'),
+             ('Business', 'http://timesofindia.indiatimes.com/rssfeeds/1898055.cms'),
+             ('Cricket', 'http://timesofindia.indiatimes.com/rssfeeds/4719161.cms'),
+             ('Sports', 'http://timesofindia.indiatimes.com/rssfeeds/4719148.cms'),
+             ('Tech', 'http://timesofindia.indiatimes.com/rssfeeds/5880659.cms'),
+             ('Education', 'http://timesofindia.indiatimes.com/rssfeeds/913168846.cms'),
+             ('Science', 'http://timesofindia.indiatimes.com/rssfeeds/-2128672765.cms'),
+             ('Opinion', 'http://timesofindia.indiatimes.com/rssfeeds/784865811.cms'),
+             ('Entertainment', 'http://timesofindia.indiatimes.com/rssfeeds/1081479906.cms')]
 
     def print_version(self, url):
         return url.replace('/articleshow/', '/articleshowprint/')

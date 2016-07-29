@@ -4,7 +4,6 @@ __copyright__ = '2010, Fabian Grassl <fg@jusmeum.de>'
 __docformat__ = 'restructuredtext en'
 
 
-
 class EasyMeta(object):
 
     def __init__(self, meta):
@@ -16,7 +15,7 @@ class EasyMeta(object):
         for item_name in meta.items:
             for item in meta[item_name]:
                 if namespace(item.term) == DC11_NS:
-                    yield { 'name': barename(item.term), 'value': item.value }
+                    yield {'name': barename(item.term), 'value': item.value}
 
     def __len__(self):
         count = 0

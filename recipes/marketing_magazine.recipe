@@ -1,11 +1,12 @@
-__license__   = 'GPL v3'
-__author__    = 'faber1971'
+__license__ = 'GPL v3'
+__author__ = 'faber1971'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1327062445(BasicNewsRecipe):
-    title          = u'Marketing Magazine'
-    description   = 'Collection of Italian marketing websites'
+    title = u'Marketing Magazine'
+    description = 'Collection of Italian marketing websites'
     language = 'it'
     __author__ = 'faber1971'
     oldest_article = 7
@@ -15,7 +16,20 @@ class AdvancedUserRecipe1327062445(BasicNewsRecipe):
     no_stylesheets = True
     conversion_options = {'linearize_tables': True}
     remove_tags = [
-                     dict(name='ul', attrs={'id':'ads0'})
-                  ]
-    masthead_url            = 'http://www.linkedin-marketing.it/blog/wp-content/uploads/2012/03/pb.jpg'
-    feeds          = [(u'MarketingArena', u'http://feeds.feedburner.com/marketingarena'), (u'My Marketing', u'http://feed43.com/0537744466058428.xml'), (u'My Marketing_', u'http://feed43.com/8126723074604845.xml'), (u'Marketing Journal', u'http://feeds.feedburner.com/marketingjournal/jPwA'), (u'Venturini', u'http://robertoventurini.blogspot.com/feeds/posts/default?alt=rss'), (u'Brandforum news', u'http://www.brandforum.it/rss/news'), (u'Brandforum papers', u'http://www.brandforum.it/rss/papers'), (u'SintBlog', u'http://sint-blog.blogspot.com/feeds/posts/default'), (u'Ninja Marketing', u'http://feeds.feedburner.com/NinjaMarketing'), (u'Bloguerrilla', u'http://feeds.feedburner.com/Bloguerrilla'), (u'Nonconvenzionale', u'http://feeds.feedburner.com/nonconvenzionale'), (u'Disambiguando', u'http://giovannacosenza.wordpress.com/feed/')]
+        dict(name='ul', attrs={'id': 'ads0'})
+    ]
+    masthead_url = 'http://www.linkedin-marketing.it/blog/wp-content/uploads/2012/03/pb.jpg'
+    feeds = [
+    (u'MarketingArena', u'http://feeds.feedburner.com/marketingarena'),
+    (u'My Marketing', u'http://feed43.com/0537744466058428.xml'),
+    (u'My Marketing_', u'http://feed43.com/8126723074604845.xml'),
+    (u'Marketing Journal', u'http://feeds.feedburner.com/marketingjournal/jPwA'),
+    (u'Venturini', u'http://robertoventurini.blogspot.com/feeds/posts/default?alt=rss'),
+    (u'Brandforum news', u'http://www.brandforum.it/rss/news'),
+
+    (u'Brandforum papers', u'http://www.brandforum.it/rss/papers'),
+    (u'SintBlog', u'http://sint-blog.blogspot.com/feeds/posts/default'),
+    (u'Ninja Marketing', u'http://feeds.feedburner.com/NinjaMarketing'),
+    (u'Bloguerrilla', u'http://feeds.feedburner.com/Bloguerrilla'),
+    (u'Nonconvenzionale', u'http://feeds.feedburner.com/nonconvenzionale'),
+    (u'Disambiguando', u'http://giovannacosenza.wordpress.com/feed/')]

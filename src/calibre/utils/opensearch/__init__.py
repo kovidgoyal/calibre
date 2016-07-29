@@ -1,5 +1,5 @@
 '''
-Based on the OpenSearch Python module by Ed Summers <ehs@pobox.com> from 
+Based on the OpenSearch Python module by Ed Summers <ehs@pobox.com> from
 https://github.com/edsu/opensearch .
 
 This module is heavily modified and does not implement all the features from

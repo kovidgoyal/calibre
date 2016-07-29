@@ -2,8 +2,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 
 
-class FokkeEnSukkeRecipe(BasicNewsRecipe) :
-    __license__   = 'GPL v3'
+class FokkeEnSukkeRecipe(BasicNewsRecipe):
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'nl'
     country = 'NL'
@@ -14,7 +14,8 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe) :
     category = u'News, Cartoons'
     description = u'Popular Dutch daily cartoon Fokke en Sukke'
 
-    conversion_options = {'comments': description, 'language': language, 'publisher': publisher}
+    conversion_options = {'comments': description,
+                          'language': language, 'publisher': publisher}
 
     no_stylesheets = True
     extra_css = '''
@@ -25,50 +26,57 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe) :
     INDEX = u'http://foksuk.nl'
     cover_url = 'http://foksuk.nl/content/wysiwyg/simpleimages/image350.gif'
 
-    keep_only_tags = [dict(name='div', attrs={'class' : 'cartoon'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'cartoon'})]
 
-    def parse_index(self) :
+    def parse_index(self):
         # A list with daynames as they _can_ appear in the index
-        dayNames = ['maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag & zondag']
+        dayNames = ['maandag', 'dinsdag', 'woensdag',
+                    'donderdag', 'vrijdag', 'zaterdag & zondag']
         soup = self.index_to_soup(self.INDEX)
 
-        # Find the links for the various cartoons for this week and loop through them
-        index = soup.find('div', attrs={'class' : 'selectcartoon'})
+        # Find the links for the various cartoons for this week and loop
+        # through them
+        index = soup.find('div', attrs={'class': 'selectcartoon'})
         links = index.findAll('a')
         maxIndex = len(links) - 1
         articles = []
-        for i in range(1, len(links)) :
+        for i in range(1, len(links)):
             # There can be more than one cartoon for a given day (currently either one or two).
             # If there's only one, there is just a link with the dayname.
             # If there are two, there are three links in sequence: <a>dayname</a> <a>1</a> <a>2</a>.
             # In that case we're interested in the last two.
-            if links[i].renderContents() in dayNames :
+            if links[i].renderContents() in dayNames:
                 # If the link is not in daynames, we processed it already, but if it is, let's see
                 # if the next one has '1' as content
-                if (i + 1 <= maxIndex) and (links[i + 1].renderContents() == '1') :
+                if (i + 1 <= maxIndex) and (links[i + 1].renderContents() == '1'):
                     # Got you! Add it to the list
-                    article = {'title' : links[i].renderContents() + ' 1', 'date' : u'', 'url'  : self.INDEX + links[i + 1]['href'], 'description' : ''}
+                    article = {'title': links[i].renderContents(
+                    ) + ' 1', 'date': u'', 'url': self.INDEX + links[i + 1]['href'], 'description': ''}
                     articles.append(article)
-                    # If there is a '1', there should be a '2' as well, but better save than sorry
-                    if (i + 2 <= maxIndex) and (links[i + 2].renderContents() == '2') :
+                    # If there is a '1', there should be a '2' as well, but
+                    # better save than sorry
+                    if (i + 2 <= maxIndex) and (links[i + 2].renderContents() == '2'):
                         # Got you! Add it to the list
-                        article = {'title' : links[i].renderContents() + ' 2', 'date' : u'', 'url'  : self.INDEX + links[i + 2]['href'], 'description' : ''}
+                        article = {'title': links[i].renderContents(
+                        ) + ' 2', 'date': u'', 'url': self.INDEX + links[i + 2]['href'], 'description': ''}
                         articles.append(article)
-                else :
-                    # There is only one cartoon for this day. Add it to the list.
-                    article = {'title' : links[i].renderContents(), 'date' : u'', 'url'  : self.INDEX + links[i]['href'], 'description' : ''}
+                else:
+                    # There is only one cartoon for this day. Add it to the
+                    # list.
+                    article = {'title': links[i].renderContents(
+                    ), 'date': u'', 'url': self.INDEX + links[i]['href'], 'description': ''}
                     articles.append(article)
         # Might as well use the weeknumber as title
-        week = index.find('span', attrs={'class' : 'week'}).renderContents()
+        week = index.find('span', attrs={'class': 'week'}).renderContents()
 
         return [[week, articles]]
 
-    def preprocess_html(self, soup) :
-        cartoon = soup.find('div', attrs={'class' : 'cartoon'})
+    def preprocess_html(self, soup):
+        cartoon = soup.find('div', attrs={'class': 'cartoon'})
 
         title = ''
-        img = soup.find('img', attrs = {'alt' : True})
-        if img :
+        img = soup.find('img', attrs={'alt': True})
+        if img:
             title = img['alt']
 
         tag = Tag(soup, 'div', [('class', 'title')])
@@ -76,8 +84,8 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe) :
         cartoon.insert(0, tag)
 
         # We only want the cartoon, so throw out the index
-        select = cartoon.find('div', attrs={'class' : 'selectcartoon'})
-        if select :
+        select = cartoon.find('div', attrs={'class': 'selectcartoon'})
+        if select:
             select.extract()
 
         freshSoup = self.getFreshSoup(soup)
@@ -86,9 +94,8 @@ class FokkeEnSukkeRecipe(BasicNewsRecipe) :
         return freshSoup
 
     def getFreshSoup(self, oldSoup):
-        freshSoup = BeautifulSoup('<html><head><title></title></head><body></body></html>')
+        freshSoup = BeautifulSoup(
+            '<html><head><title></title></head><body></body></html>')
         if oldSoup.head.title:
             freshSoup.head.title.append(self.tag_to_string(oldSoup.head.title))
         return freshSoup
-
-

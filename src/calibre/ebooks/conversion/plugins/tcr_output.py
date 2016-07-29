@@ -18,7 +18,7 @@ class TCROutput(OutputFormatPlugin):
     options = set([
         OptionRecommendation(name='tcr_output_encoding', recommended_value='utf-8',
             level=OptionRecommendation.LOW,
-            help=_('Specify the character encoding of the output document. ' \
+            help=_('Specify the character encoding of the output document. '
             'The default is utf-8.')),
     ])
 

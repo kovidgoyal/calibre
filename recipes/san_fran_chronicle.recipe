@@ -1,6 +1,6 @@
 #!/usr/bin/env  python2
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
 sfgate.com
@@ -8,16 +8,17 @@ sfgate.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class SanFranciscoChronicle(BasicNewsRecipe):
-    title                 = u'San Francisco Chronicle'
-    __author__            = u'Darko Miletic and Sujata Raman'
-    description           = u'San Francisco news'
+    title = u'San Francisco Chronicle'
+    __author__ = u'Darko Miletic and Sujata Raman'
+    description = u'San Francisco news'
     language = 'en'
 
-    oldest_article        = 7
+    oldest_article = 7
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
+    no_stylesheets = True
+    use_embedded_content = False
     auto_cleanup = True
 
     extra_css       = '''
@@ -32,14 +33,13 @@ class SanFranciscoChronicle(BasicNewsRecipe):
                         .georgia h3{font-family :Arial,Helvetica,sans-serif; font-size:x-small; color:#000000;}
                      '''
 
-    feeds          = [
-                         (u'Bay Area News', u'http://www.sfgate.com/bayarea/feed/Bay-Area-News-429.php'),
-                         (u'City Insider', u'http://www.sfgate.com/default/feed/City-Insider-Blog-573.php'),
-                         (u'Crime Scene', u'http://www.sfgate.com/rss/feed/Crime-Scene-Blog-599.php'),
-                         (u'Education News', u'http://www.sfgate.com/education/feed/Education-News-from-SFGate-430.php'),
-                         (u'National News', u'http://www.sfgate.com/rss/feed/National-News-RSS-Feed-435.php'),
-                         (u'Weird News', u'http://www.sfgate.com/weird/feed/Weird-News-RSS-Feed-433.php'),
-                         (u'World News', u'http://www.sfgate.com/rss/feed/World-News-From-SFGate-432.php'),
-                     ]
-
-
+    feeds = [
+        (u'Bay Area News', u'http://www.sfgate.com/bayarea/feed/Bay-Area-News-429.php'),
+        (u'City Insider', u'http://www.sfgate.com/default/feed/City-Insider-Blog-573.php'),
+        (u'Crime Scene', u'http://www.sfgate.com/rss/feed/Crime-Scene-Blog-599.php'),
+        (u'Education News',
+         u'http://www.sfgate.com/education/feed/Education-News-from-SFGate-430.php'),
+        (u'National News', u'http://www.sfgate.com/rss/feed/National-News-RSS-Feed-435.php'),
+        (u'Weird News', u'http://www.sfgate.com/weird/feed/Weird-News-RSS-Feed-433.php'),
+        (u'World News', u'http://www.sfgate.com/rss/feed/World-News-From-SFGate-432.php'),
+    ]

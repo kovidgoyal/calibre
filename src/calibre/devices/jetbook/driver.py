@@ -21,7 +21,6 @@ class JETBOOK(USBMS):
     author         = 'James Ralston'
     supported_platforms = ['windows', 'osx', 'linux']
 
-
     # Ordered list of supported formats
     # Be sure these have an entry in calibre.devices.mime
     FORMATS     = ['epub', 'mobi', 'prc', 'fb2', 'txt', 'rtf', 'pdf']
@@ -120,7 +119,7 @@ class JETBOOK_MINI(USBMS):
     PRODUCT_ID = [0x507]
     BCD = [0x100]
     VENDOR_NAME      = 'ECTACO'
-    WINDOWS_MAIN_MEM = '' # Matches PROD_
+    WINDOWS_MAIN_MEM = ''  # Matches PROD_
     MAIN_MEMORY_VOLUME_LABEL  = 'Jetbook Mini'
 
     SUPPORTS_SUB_DIRS = True

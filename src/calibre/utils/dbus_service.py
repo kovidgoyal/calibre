@@ -296,8 +296,8 @@ def _method_lookup(self, method_name, dbus_interface):
             # if we haven't got a candidate class yet, and we find a class with a
             # suitably named member, save this as a candidate class
             if (not candidate_class and method_name in cls.__dict__):
-                if ("_dbus_is_method" in cls.__dict__[method_name].__dict__
-                    and "_dbus_interface" in cls.__dict__[method_name].__dict__):
+                if ("_dbus_is_method" in cls.__dict__[method_name].__dict__ and
+                        "_dbus_interface" in cls.__dict__[method_name].__dict__):
                     # however if it is annotated for a different interface
                     # than we are looking for, it cannot be a candidate
                     if cls.__dict__[method_name]._dbus_interface == dbus_interface:
@@ -313,10 +313,10 @@ def _method_lookup(self, method_name, dbus_interface):
             # if we have a candidate class, carry on checking this and all
             # superclasses for a method annoated as a dbus method
             # on the correct interface
-            if (candidate_class and method_name in cls.__dict__
-                and "_dbus_is_method" in cls.__dict__[method_name].__dict__
-                and "_dbus_interface" in cls.__dict__[method_name].__dict__
-                and cls.__dict__[method_name]._dbus_interface == dbus_interface):
+            if (candidate_class and method_name in cls.__dict__ and
+                    "_dbus_is_method" in cls.__dict__[method_name].__dict__ and
+                    "_dbus_interface" in cls.__dict__[method_name].__dict__ and
+                    cls.__dict__[method_name]._dbus_interface == dbus_interface):
                 # the candidate class has a dbus method on the correct interface,
                 # or overrides a method that is, success!
                 parent_method = cls.__dict__[method_name]
@@ -329,8 +329,8 @@ def _method_lookup(self, method_name, dbus_interface):
             if (not candidate_class and method_name in cls.__dict__):
                 candidate_class = cls
 
-            if (candidate_class and method_name in cls.__dict__
-                and "_dbus_is_method" in cls.__dict__[method_name].__dict__):
+            if (candidate_class and method_name in cls.__dict__ and
+                    "_dbus_is_method" in cls.__dict__[method_name].__dict__):
                 parent_method = cls.__dict__[method_name]
                 successful = True
                 break
@@ -393,6 +393,7 @@ def _method_reply_error(connection, message, exception):
 
 
 class InterfaceType(type):
+
     def __new__(cls, name, bases, dct):
         # Properties require the PropertiesInterface base.
         for func in dct.values():
@@ -952,8 +953,7 @@ class Object(Interface):
             else:
                 if retval is None:
                     retval = ()
-                elif (isinstance(retval, tuple)
-                      and not isinstance(retval, Struct)):
+                elif (isinstance(retval, tuple) and not isinstance(retval, Struct)):
                     # If the return is a tuple that is not a Struct, we use it
                     # as-is on the assumption that there are multiple return
                     # values - this is the usual Python idiom. (fd.o #10174)
@@ -998,8 +998,7 @@ class Object(Interface):
 
     def __repr__(self):
         where = ''
-        if (self._object_path is not _MANY
-            and self._object_path is not None):
+        if (self._object_path is not _MANY and self._object_path is not None):
             where = ' at %s' % self._object_path
         return '<%s.%s%s at %#x>' % (self.__class__.__module__,
                                    self.__class__.__name__, where,

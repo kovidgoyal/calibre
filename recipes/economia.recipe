@@ -1,9 +1,10 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from urllib import quote
 
+
 class EconomiaMagazine(BasicNewsRecipe):
-    title          = u'Economia Magazine'
-    __author__     = 'Kovid Goyal'
+    title = u'Economia Magazine'
+    __author__ = 'Kovid Goyal'
     description = 'Economia - Intelligence & Insight for ICAEW Members'
     language = 'en_GB'
     BASE = 'http://economia.icaew.com/'
@@ -11,8 +12,9 @@ class EconomiaMagazine(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(name='h1'),
-        dict(name='figure', attrs={'class':lambda x:x and 'figure' in x.split()}),
-        dict(attrs={'class':'intro articleCopy'.split()})
+        dict(name='figure', attrs={
+             'class': lambda x: x and 'figure' in x.split()}),
+        dict(attrs={'class': 'intro articleCopy'.split()})
     ]
 
     def image_url_processor(cls, baseurl, iurl):
@@ -25,12 +27,13 @@ class EconomiaMagazine(BasicNewsRecipe):
 
     def parse_index(self):
         soup = self.index_to_soup('http://economia.icaew.com/')
-        img = soup.find('img', src=lambda x:x and 'Magazine covers' in x)
+        img = soup.find('img', src=lambda x: x and 'Magazine covers' in x)
         self.cover_url = self.BASE + quote(img['src'].encode('utf-8'))
         soup = self.index_to_soup(self.BASE + img.parent['href'])
-        self.timefmt = ' [%s]' % self.tag_to_string(soup.find('title')).split('|')[0].strip()
+        self.timefmt = ' [%s]' % self.tag_to_string(
+            soup.find('title')).split('|')[0].strip()
         ans = []
-        for div in soup.findAll('div', attrs={'class':'articlePreview'}):
+        for div in soup.findAll('div', attrs={'class': 'articlePreview'}):
             h2 = div.find('h2')
             section_title = self.tag_to_string(h2).strip()
             self.log('Found section:', section_title)
@@ -42,7 +45,8 @@ class EconomiaMagazine(BasicNewsRecipe):
                 url = self.BASE + a['href']
                 p = li.find('p')
                 self.log('\t', title, 'at', url)
-                articles.append({'title':title, 'url':url, 'description':self.tag_to_string(p)})
+                articles.append({'title': title, 'url': url,
+                                 'description': self.tag_to_string(p)})
             if articles:
                 ans.append((section_title, articles))
         return ans

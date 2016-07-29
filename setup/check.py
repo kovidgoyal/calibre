@@ -37,7 +37,8 @@ class Check(Command):
                 if x[0].endswith('calibre/ebooks/markdown'):
                     continue
                 if (f.endswith('.py') and f not in (
-                        'feedparser.py', 'markdown.py') and
+                        'feedparser.py', 'markdown.py', 'BeautifulSoup.py', 'dict_data.py',
+                        'unicodepoints.py', 'krcodepoints.py', 'jacodepoints.py', 'vncodepoints.py', 'zhcodepoints.py') and
                         'prs500/driver.py' not in y) and not f.endswith('_ui.py'):
                     yield y
                 if f.endswith('.coffee'):
@@ -82,7 +83,7 @@ class Check(Command):
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.recipe'}:
-            p = subprocess.Popen(['flake8-python2', '--ignore=E,W', f])
+            p = subprocess.Popen(['flake8-python2', '--filename', '*.py,*.recipe', f])
             return p.wait() != 0
         elif ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
@@ -109,15 +110,16 @@ class Check(Command):
         except EnvironmentError as err:
             if err.errno != errno.ENOENT:
                 raise
+        dirty_files = tuple(f for f in self.get_files() if not self.is_cache_valid(f, cache))
         try:
-            for f in self.get_files():
-                if self.is_cache_valid(f, cache):
-                    continue
+            for i, f in enumerate(dirty_files):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
-                    subprocess.call(['gvim', '-S',
+                    self.info('%d files left to check' % (len(dirty_files) - i - 1))
+                    subprocess.call(['gvim', '-c', 'SyntasticCheck', '-c', 'll', '-S',
                                     self.j(self.SRC, '../session.vim'), '-f', f])
-                    raise SystemExit(1)
+                    if self.file_has_errors(f):
+                        raise SystemExit(1)
                 cache[f] = self.file_hash(f)
         finally:
             self.save_cache(cache)

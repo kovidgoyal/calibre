@@ -29,23 +29,23 @@ class J2H (object):
     kanwa = None
 
     cl_table = [
-	"","aiueow", "aiueow", "aiueow", "aiueow", "aiueow", "aiueow", "aiueow",
-	"aiueow", "aiueow", "aiueow", "k", "g", "k", "g", "k", "g", "k", "g", "k",
-	"g", "s", "zj", "s", "zj", "s", "zj", "s", "zj", "s", "zj", "t", "d", "tc",
-	"d", "aiueokstchgzjfdbpw", "t", "d", "t", "d", "t", "d", "n", "n", "n", "n",
-	"n", "h", "b", "p", "h", "b", "p", "hf", "b", "p", "h", "b", "p", "h", "b",
-	"p", "m", "m", "m", "m", "m", "y", "y", "y", "y", "y", "y", "rl", "rl",
-	"rl", "rl", "rl", "wiueo", "wiueo", "wiueo", "wiueo", "w", "n", "v", "k",
-	"k", "", "", "", "", "", "", "", "", ""]
+        "","aiueow", "aiueow", "aiueow", "aiueow", "aiueow", "aiueow", "aiueow",
+        "aiueow", "aiueow", "aiueow", "k", "g", "k", "g", "k", "g", "k", "g", "k",
+        "g", "s", "zj", "s", "zj", "s", "zj", "s", "zj", "s", "zj", "t", "d", "tc",
+        "d", "aiueokstchgzjfdbpw", "t", "d", "t", "d", "t", "d", "n", "n", "n", "n",
+        "n", "h", "b", "p", "h", "b", "p", "hf", "b", "p", "h", "b", "p", "h", "b",
+        "p", "m", "m", "m", "m", "m", "y", "y", "y", "y", "y", "y", "rl", "rl",
+        "rl", "rl", "rl", "wiueo", "wiueo", "wiueo", "wiueo", "w", "n", "v", "k",
+        "k", "", "", "", "", "", "", "", "", ""]
 
     def __init__(self):
         self.kanwa = jisyo()
 
     def isKanji(self, c):
-        return ( 0x3400 <= ord(c) and ord(c) < 0xfa2e)
+        return (0x3400 <= ord(c) and ord(c) < 0xfa2e)
 
     def isCletter(self, l, c):
-        if (ord(u"ぁ") <= ord(c) and  ord(c) <= 0x309f) and (  l in self.cl_table[ord(c) - ord(u"ぁ")-1]):
+        if (ord(u"ぁ") <= ord(c) and ord(c) <= 0x309f) and (l in self.cl_table[ord(c) - ord(u"ぁ")-1]):
             return True
         return False
 
@@ -68,7 +68,7 @@ class J2H (object):
             length = len(k)
             if len(text) >= length:
                 if text.startswith(k):
-                    for  (yomi, tail) in v:
+                    for (yomi, tail) in v:
                         if tail is '':
                             if max_len < length:
                                 Hstr = yomi

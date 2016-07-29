@@ -69,8 +69,8 @@ class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
     def del_search(self):
         if self.current_search_name is not None:
             if not confirm('<p>'+_('The current saved search will be '
-                           '<b>permanently deleted</b>. Are you sure?')
-                        +'</p>', 'saved_search_editor_delete', self):
+                           '<b>permanently deleted</b>. Are you sure?') +
+                           '</p>', 'saved_search_editor_delete', self):
                 return
             del self.searches[self.current_search_name]
             self.current_search_name = None

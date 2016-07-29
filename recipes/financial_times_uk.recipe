@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010-2015, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.ft.com/uk-edition
@@ -8,26 +8,27 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.web.feeds.news import BasicNewsRecipe
 from collections import OrderedDict
 
+
 class FinancialTimes(BasicNewsRecipe):
-    title                 = 'Financial Times (UK)'
-    __author__            = 'Darko Miletic'
-    description           = "The Financial Times (FT) is one of the world's leading business news and information organisations, recognised internationally for its authority, integrity and accuracy."  # noqa
-    publisher             = 'The Financial Times Ltd.'
-    category              = 'news, finances, politics, UK, World'
-    oldest_article        = 2
-    language              = 'en_GB'
+    title = 'Financial Times (UK)'
+    __author__ = 'Darko Miletic'
+    description = "The Financial Times (FT) is one of the world's leading business news and information organisations, recognised internationally for its authority, integrity and accuracy."  # noqa
+    publisher = 'The Financial Times Ltd.'
+    category = 'news, finances, politics, UK, World'
+    oldest_article = 2
+    language = 'en_GB'
     max_articles_per_feed = 250
-    no_stylesheets        = True
-    use_embedded_content  = False
-    needs_subscription    = True
-    encoding              = 'utf8'
-    publication_type      = 'newspaper'
+    no_stylesheets = True
+    use_embedded_content = False
+    needs_subscription = True
+    encoding = 'utf8'
+    publication_type = 'newspaper'
     articles_are_obfuscated = True
-    temp_files              = []
-    masthead_url          = 'http://im.media.ft.com/m/img/masthead_main.jpg'
-    LOGIN                 = 'https://accounts.ft.com/login?location=http%3A%2F%2Fwww.ft.com%2Fhome%2Fuk'
-    INDEX                 = 'http://www.ft.com/uk-edition'
-    PREFIX                = 'http://www.ft.com'
+    temp_files = []
+    masthead_url = 'http://im.media.ft.com/m/img/masthead_main.jpg'
+    LOGIN = 'https://accounts.ft.com/login?location=http%3A%2F%2Fwww.ft.com%2Fhome%2Fuk'
+    INDEX = 'http://www.ft.com/uk-edition'
+    PREFIX = 'http://www.ft.com'
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -41,21 +42,28 @@ class FinancialTimes(BasicNewsRecipe):
         return br
 
     keep_only_tags = [
-                      dict(name='p'  , attrs={'class':lambda x: x and 'lastUpdated' in x.split()}),
-                      dict(name='div', attrs={'class':lambda x: x and 'syndicationHeadline' in x.split()}),
-                      dict(name='p'  , attrs={'class':lambda x: x and 'byline' in x.split()}),
-                      dict(name='div', attrs={'class':['fullstory fullstoryBody','fullstory fullstoryBody specialArticle','ft-story-header','ft-story-body','index-detail']})
+        dict(name='p', attrs={
+             'class': lambda x: x and 'lastUpdated' in x.split()}),
+        dict(name='div', attrs={
+             'class': lambda x: x and 'syndicationHeadline' in x.split()}),
+        dict(name='p', attrs={'class': lambda x: x and 'byline' in x.split()}),
+        dict(name='div', attrs={'class': [
+             'fullstory fullstoryBody', 'fullstory fullstoryBody specialArticle', 'ft-story-header', 'ft-story-body', 'index-detail']})
     ]
     remove_tags = [
-        dict(name='style', attrs={'id':'antiClickjack'}),
-        dict(name='div', attrs={'id':'floating-con'}),
-        dict(name=['meta','iframe','base','object','embed','link']),
-        dict(attrs={'class':['storyTools','story-package','screen-copy','story-package separator','expandable-image','promobox']}),
-        dict(name='div', attrs={'class':lambda x: x and 'insideArticleRelatedTopics' in x.split()}),
-        dict(name='div', attrs={'class':lambda x: x and 'ft-new-story-tools-box' in x.split()}),
-        dict(name='div', attrs={'class':['railMiniVideo','ftbf-syndicationIndicator']})
+        dict(name='style', attrs={'id': 'antiClickjack'}),
+        dict(name='div', attrs={'id': 'floating-con'}),
+        dict(name=['meta', 'iframe', 'base', 'object', 'embed', 'link']),
+        dict(attrs={'class': ['storyTools', 'story-package', 'screen-copy',
+                              'story-package separator', 'expandable-image', 'promobox']}),
+        dict(name='div', attrs={
+             'class': lambda x: x and 'insideArticleRelatedTopics' in x.split()}),
+        dict(name='div', attrs={
+             'class': lambda x: x and 'ft-new-story-tools-box' in x.split()}),
+        dict(name='div', attrs={
+             'class': ['railMiniVideo', 'ftbf-syndicationIndicator']})
     ]
-    remove_attributes = ['width','height','lang']
+    remove_attributes = ['width', 'height', 'lang']
 
     extra_css = """
                 body{font-family: Georgia,Times,"Times New Roman",serif}
@@ -76,17 +84,18 @@ class FinancialTimes(BasicNewsRecipe):
         # self.timefmt = ' [%s]'%dates
         section_title = 'Untitled'
 
-        for column in soup.findAll('div', attrs={'class':'feedBoxes clearfix'}):
-            for section in column.findAll('div', attrs={'class':'feedBox'}):
-                sectiontitle=self.tag_to_string(section.find('h4'))
+        for column in soup.findAll('div', attrs={'class': 'feedBoxes clearfix'}):
+            for section in column.findAll('div', attrs={'class': 'feedBox'}):
+                sectiontitle = self.tag_to_string(section.find('h4'))
                 if '...' not in sectiontitle:
-                    section_title=sectiontitle
+                    section_title = sectiontitle
                     self.log('Found section:', sectiontitle)
                 for article in section.ul.findAll('li'):
                     articles = []
-                    title=self.tag_to_string(article.a)
-                    url=article.a['href']
-                    articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+                    title = self.tag_to_string(article.a)
+                    url = article.a['href']
+                    articles.append(
+                        {'title': title, 'url': url, 'description': '', 'date': ''})
                     self.log('\tFound article:', title)
 
                     if articles:
@@ -98,9 +107,9 @@ class FinancialTimes(BasicNewsRecipe):
         return ans
 
     def preprocess_html(self, soup):
-        items = ['promo-box','promo-title',
-                 'promo-headline','promo-image',
-                 'promo-intro','promo-link','subhead']
+        items = ['promo-box', 'promo-title',
+                 'promo-headline', 'promo-image',
+                 'promo-intro', 'promo-link', 'subhead']
         for item in items:
             for it in soup.findAll(item):
                 it.name = 'div'

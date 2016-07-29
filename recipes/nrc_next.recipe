@@ -3,13 +3,15 @@
 # Based on veezh's original recipe, Kovid Goyal's New York Times
 # recipe and Snaabs nrc Handelsblad recipe
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2014 Niels Giesen'
 
 '''
 www.nrc.nl
 '''
-import os, zipfile, re
+import os
+import zipfile
+import re
 from io import BytesIO
 
 from calibre.web.feeds.news import BasicNewsRecipe
@@ -27,7 +29,7 @@ class NRCNext(BasicNewsRecipe):
     __author__ = 'Niels Giesen'
 
     conversion_options = {
-        'no_default_epub_cover' : True
+        'no_default_epub_cover': True
     }
 
     def build_index(self):
@@ -39,7 +41,7 @@ class NRCNext(BasicNewsRecipe):
         br['password'] = self.password
         response2 = br.submit()
         raw = response2.get_data()
-        if 'niet ingelogd' in raw: # in body class
+        if 'niet ingelogd' in raw:  # in body class
             raise ValueError('Failed to login, check username and password')
         epubraw = None
         for today in (date.today(), date.today() - timedelta(days=1),):
@@ -63,7 +65,7 @@ class NRCNext(BasicNewsRecipe):
         emre = re.compile("&lt;em(?:.*)&gt;(.*)&lt;/em&gt;")
         subst = '\\1'
         for name in namelist:
-            _, ext = os.path.splitext(name);
+            _, ext = os.path.splitext(name)
             if (ext == '.html') or (ext == '.ncx'):
                 fname = os.path.join(self.output_dir, name)
                 with open(fname) as f:

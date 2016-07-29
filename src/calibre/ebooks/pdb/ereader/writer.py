@@ -155,7 +155,7 @@ class Writer(FormatWriter):
                     if len(data) + len(header) < 65505:
                         images.append((header, data))
                 except Exception as e:
-                    self.log.error('Error: Could not include file %s becuase ' \
+                    self.log.error('Error: Could not include file %s becuase '
                         '%s.' % (item.href, e))
 
         return images
@@ -194,7 +194,7 @@ class Writer(FormatWriter):
         text_count = the number of text pages
         image_count = the number of images
         '''
-        compression = 10 # zlib compression.
+        compression = 10  # zlib compression.
         non_text_offset = text_count + 1
 
         chapter_offset = non_text_offset

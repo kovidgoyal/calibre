@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2014, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.wired.com
@@ -8,23 +8,24 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
 import urllib2
 
+
 class WiredDailyNews(BasicNewsRecipe):
-    title                 = 'Wired Magazine, Monthly Edition'
-    __author__            = 'Darko Miletic, update by Zach Lapidus, Michael Marotta'
-    description           = ('Wired is a full-color monthly American magazine, published in both print '
-                             'and online editions, that reports on how emerging technologies affect culture,'
-                             'the economy and politics. Monthly edition, best run at the start of every month.')
-    publisher             = 'Conde Nast'
-    category              = 'news, IT, computers, technology'
-    oldest_article        = 2
+    title = 'Wired Magazine, Monthly Edition'
+    __author__ = 'Darko Miletic, update by Zach Lapidus, Michael Marotta'
+    description = ('Wired is a full-color monthly American magazine, published in both print '
+                   'and online editions, that reports on how emerging technologies affect culture,'
+                   'the economy and politics. Monthly edition, best run at the start of every month.')
+    publisher = 'Conde Nast'
+    category = 'news, IT, computers, technology'
+    oldest_article = 2
     max_articles_per_feed = 200
-    no_stylesheets        = True
-    encoding              = 'utf-8'
-    use_embedded_content  = False
-    language              = 'en'
+    no_stylesheets = True
+    encoding = 'utf-8'
+    use_embedded_content = False
+    language = 'en'
     ignore_duplicate_articles = {'url'}
-    remove_empty_feeds    = True
-    publication_type      = 'newsportal'
+    remove_empty_feeds = True
+    publication_type = 'newsportal'
     extra_css             = """
                             .entry-header{
                                           text-transform: uppercase;
@@ -34,13 +35,13 @@ class WiredDailyNews(BasicNewsRecipe):
                             """
 
     remove_tags = [
-        dict(name=['meta','link']),
-        dict(name='div', attrs={'class':'podcast_storyboard'}),
+        dict(name=['meta', 'link']),
+        dict(name='div', attrs={'class': 'podcast_storyboard'}),
         dict(id=['sharing', 'social', 'article-tags', 'sidebar']),
-                  ]
-    keep_only_tags=[
-        dict(attrs={'data-js':['post', 'postHeader']}),
-        dict(attrs={'class':'exchange fsb-content relative'}),
+    ]
+    keep_only_tags = [
+        dict(attrs={'data-js': ['post', 'postHeader']}),
+        dict(attrs={'class': 'exchange fsb-content relative'}),
     ]
 
     def get_date_url(self):
@@ -55,7 +56,7 @@ class WiredDailyNews(BasicNewsRecipe):
         return dateurl
 
     def parse_wired_index_page(self, currenturl, seen):
-        soup   = self.index_to_soup(currenturl)
+        soup = self.index_to_soup(currenturl)
         for a in soup.find('main').findAll('a', href=True):
             url = a['href']
             if url.startswith('http://www.wired.com/') and url.endswith('/'):
@@ -65,7 +66,7 @@ class WiredDailyNews(BasicNewsRecipe):
                 if title.lower() != 'read more' and title and url not in seen:
                     seen.add(url)
                     self.log('Found article:', title)
-                    yield {'title':title, 'date':date, 'url':url, 'description':''}
+                    yield {'title': title, 'date': date, 'url': url, 'description': ''}
 
     def parse_index(self):
         '''

@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2012, Darko Miletic <darko.miletic at gmail.com>'
 '''
 novine.novilist.hr
@@ -8,23 +8,24 @@ import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class NoviList_hr(BasicNewsRecipe):
-    title                 = 'Novi List'
-    __author__            = 'Darko Miletic'
-    description           = 'Vijesti iz Hrvatske'
-    publisher             = 'NOVI LIST d.d.'
-    category              = 'Novi list, politika, hrvatski dnevnik, Novine, Hrvatska, Croatia, News, newspaper, Hrvatski,Primorje, dnevni list, Rijeka'
-    oldest_article        = 2
+    title = 'Novi List'
+    __author__ = 'Darko Miletic'
+    description = 'Vijesti iz Hrvatske'
+    publisher = 'NOVI LIST d.d.'
+    category = 'Novi list, politika, hrvatski dnevnik, Novine, Hrvatska, Croatia, News, newspaper, Hrvatski,Primorje, dnevni list, Rijeka'
+    oldest_article = 2
     max_articles_per_feed = 200
-    no_stylesheets        = True
-    encoding              = 'cp1250'
-    use_embedded_content  = False
-    language              = 'hr'
-    remove_empty_feeds    = True
-    publication_type      = 'newspaper'
-    needs_subscription    = True
-    masthead_url          = 'http://novine.novilist.hr/images/system/novilist-logo.jpg'
-    index                 = 'http://novine.novilist.hr/'
+    no_stylesheets = True
+    encoding = 'cp1250'
+    use_embedded_content = False
+    language = 'hr'
+    remove_empty_feeds = True
+    publication_type = 'newspaper'
+    needs_subscription = True
+    masthead_url = 'http://novine.novilist.hr/images/system/novilist-logo.jpg'
+    index = 'http://novine.novilist.hr/'
     extra_css             = """
                                @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                body{font-family: Geneva,Arial,Helvetica,Swiss,sans1,sans-serif }
@@ -37,20 +38,16 @@ class NoviList_hr(BasicNewsRecipe):
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        , 'linearize_tables' : True
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True
+    }
 
     keep_only_tags = [
-                       dict(name='td', attrs={'class':['nadnaslov', 'naslov', 'podnaslov']}),
-                       dict(name='font', attrs={'face':'Geneva,Arial,Helvetica,Swiss'})
-                     ]
+        dict(name='td', attrs={'class': ['nadnaslov', 'naslov', 'podnaslov']}),
+        dict(name='font', attrs={'face': 'Geneva,Arial,Helvetica,Swiss'})
+    ]
 
     remove_tags = [dict(name=['meta', 'link', 'iframe', 'embed', 'object'])]
-    remove_attributes=['border', 'lang', 'size', 'face', 'bgcolor']
+    remove_attributes = ['border', 'lang', 'size', 'face', 'bgcolor']
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -66,35 +63,32 @@ class NoviList_hr(BasicNewsRecipe):
         articles = []
         count = 0
         soup = self.index_to_soup(self.index)
-        #cover url
+        # cover url
         for alink in soup.findAll('a'):
-           if alink['href'].startswith('images/clanci/DOC_'):
-              self.cover_url = self.index + alink['href']
-        #feeds
-        for item in soup.findAll('td',attrs={'class':'tocrubrika'}):
-            count = count +1
+            if alink['href'].startswith('images/clanci/DOC_'):
+                self.cover_url = self.index + alink['href']
+        # feeds
+        for item in soup.findAll('td', attrs={'class': 'tocrubrika'}):
+            count = count + 1
             if self.test and count > 2:
-               return articles
+                return articles
             aitem = item.a
-            section  = self.tag_to_string(aitem)
+            section = self.tag_to_string(aitem)
             feedlink = self.index + aitem['href']
             feedpage = self.index_to_soup(feedlink)
-            self.report_progress(0, _('Fetching feed')+' %s...'%(section))
-            inarts   = []
-            for alink in feedpage.findAll('a',attrs={'class':'naslovlinkdesno'}):
-                url   = self.index + alink['href']
+            self.report_progress(0, _('Fetching feed') + ' %s...' % (section))
+            inarts = []
+            for alink in feedpage.findAll('a', attrs={'class': 'naslovlinkdesno'}):
+                url = self.index + alink['href']
                 inarts.append({
-                                  'title'      :self.tag_to_string(alink)
-                                 ,'date'       :strftime(self.timefmt)
-                                 ,'url'        :url
-                                 ,'description':''
-                                })
+                    'title': self.tag_to_string(alink), 'date': strftime(self.timefmt), 'url': url, 'description': ''
+                })
             if self.remove_empty_feeds:
                 if inarts:
-                    articles.append((section,inarts))
+                    articles.append((section, inarts))
             else:
-                articles.append((section,inarts))
+                articles.append((section, inarts))
         return articles
 
     def print_version(self, url):
-        return url.replace('?WCI=Rubrike&','?WCI=Pretrazivac&')
+        return url.replace('?WCI=Rubrike&', '?WCI=Pretrazivac&')

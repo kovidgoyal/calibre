@@ -115,7 +115,7 @@ class XmlPropertyListParser(object):
             self.__plist = value
         else:
             top = self.__stack[-1]
-            #assert isinstance(top, (dict, list))
+            # assert isinstance(top, (dict, list))
             if self.__in_dict:
                 k = self.__key
                 if k is None:
@@ -154,7 +154,7 @@ class XmlPropertyListParser(object):
     def _end_dict(self, name):
         if self.__key is not None:
             print("XmlPropertyListParser() WARNING: Missing value for key '%s'" % self.__key)
-            #raise PropertyListParseError("Missing value for key '%s'" % self.__key)
+            # raise PropertyListParseError("Missing value for key '%s'" % self.__key)
         self._pop_stack()
 
     def _start_true(self, name, attrs):
@@ -166,7 +166,7 @@ class XmlPropertyListParser(object):
     def _parse_key(self, name, content):
         if not self.__in_dict:
             print("XmlPropertyListParser() WARNING: ignoring <key>%s</key> (<key> elements must be contained in <dict> element)" % content)
-            #raise PropertyListParseError("<key> element '%s' must be in <dict> element." % content)
+            # raise PropertyListParseError("<key> element '%s' must be in <dict> element." % content)
         else:
             self.__key = content
 
@@ -183,7 +183,8 @@ class XmlPropertyListParser(object):
     # (in particular, YYYY '-' MM '-' DD 'T' HH ':' MM ':' SS 'Z'.
     # Smaller units may be omitted with a loss of precision)
     import re
-    DATETIME_PATTERN = re.compile(r"(?P<year>\d\d\d\d)(?:-(?P<month>\d\d)(?:-(?P<day>\d\d)(?:T(?P<hour>\d\d)(?::(?P<minute>\d\d)(?::(?P<second>\d\d))?)?)?)?)?Z$")
+    DATETIME_PATTERN = re.compile(
+        r"(?P<year>\d\d\d\d)(?:-(?P<month>\d\d)(?:-(?P<day>\d\d)(?:T(?P<hour>\d\d)(?::(?P<minute>\d\d)(?::(?P<second>\d\d))?)?)?)?)?Z$")
 
     def _parse_date(self, name, content):
         import datetime
@@ -193,7 +194,7 @@ class XmlPropertyListParser(object):
         match = pattern.match(content)
         if not match:
             print("XmlPropertyListParser() ERROR: error parsing %s as datetime" % repr(content))
-            #raise PropertyListParseError("Failed to parse datetime '%s'" % content)
+            # raise PropertyListParseError("Failed to parse datetime '%s'" % content)
             d = datetime.datetime.today()
         else:
             groups, components = match.groupdict(), []

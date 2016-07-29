@@ -5,6 +5,7 @@ www.rtvslo.si
 '''
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class MMCRTV(BasicNewsRecipe):
     title = u'MMC RTV Slovenija'
     __author__ = u'BlonG'
@@ -25,33 +26,33 @@ class MMCRTV(BasicNewsRecipe):
             '''
 
     def print_version(self, url):
-            split_url = url.split("/")
-            print_url = 'http://www.rtvslo.si/index.php?c_mod=news&op=print&id=' + split_url[-1]
-            return print_url
+        split_url = url.split("/")
+        print_url = 'http://www.rtvslo.si/index.php?c_mod=news&op=print&id=' + \
+            split_url[-1]
+        return print_url
 
     keep_only_tags = [
-            dict(name='div', attrs={'class':'title'}),
-            dict(name='div', attrs={'id':'newsbody'}),
-            dict(name='div', attrs={'id':'newsblocks'}),
-            ]
+        dict(name='div', attrs={'class': 'title'}),
+        dict(name='div', attrs={'id': 'newsbody'}),
+        dict(name='div', attrs={'id': 'newsblocks'}),
+    ]
 #    remove_tags=[
 # 40            dict(name='div', attrs={'id':'newsblocks'}),
 #            ]
 
     feeds = [
-            (u'Slovenija', u'http://www.rtvslo.si/feeds/01.xml'),
-            (u'Svet', u'http://www.rtvslo.si/feeds/02.xml'),
-            (u'Evropska unija', u'http://www.rtvslo.si/feeds/16.xml'),
-            (u'Gospodarstvo', u'http://www.rtvslo.si/feeds/04.xml'),
-            (u'\u010crna kronika', u'http://www.rtvslo.si/feeds/08.xml'),
-            (u'Okolje', u'http://www.rtvslo.si/feeds/12.xml'),
-            (u'Znanost in tehnologija', u'http://www.rtvslo.si/feeds/09.xml'),
-            (u'Zabava', u'http://www.rtvslo.si/feeds/06.xml'),
-            (u'Ture avanture', u'http://www.rtvslo.si/feeds/28.xml'),
-            ]
+        (u'Slovenija', u'http://www.rtvslo.si/feeds/01.xml'),
+        (u'Svet', u'http://www.rtvslo.si/feeds/02.xml'),
+        (u'Evropska unija', u'http://www.rtvslo.si/feeds/16.xml'),
+        (u'Gospodarstvo', u'http://www.rtvslo.si/feeds/04.xml'),
+        (u'\u010crna kronika', u'http://www.rtvslo.si/feeds/08.xml'),
+        (u'Okolje', u'http://www.rtvslo.si/feeds/12.xml'),
+        (u'Znanost in tehnologija', u'http://www.rtvslo.si/feeds/09.xml'),
+        (u'Zabava', u'http://www.rtvslo.si/feeds/06.xml'),
+        (u'Ture avanture', u'http://www.rtvslo.si/feeds/28.xml'),
+    ]
 
 #    def preprocess_html(self, soup):
 #            newsblocks = soup.find('div',attrs = ['id':'newsblocks'])
 #            soup.find('div', attrs = {'id':'newsbody'}).insert(-1, newsblocks)
 #            return soup
-

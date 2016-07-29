@@ -20,22 +20,22 @@ class NYTimesTechnology(BasicNewsRecipe):
     remove_empty_feeds = True
     no_stylesheets = True
     language = 'en'
-    cover_url ='http://bit.ly/g0SKJT'
+    cover_url = 'http://bit.ly/g0SKJT'
     feeds = [
-            (u'Bits', u'http://bits.blogs.nytimes.com/feed/'),
-            (u'Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
-            (u'Open', u'http://open.blogs.nytimes.com/feed/')
+        (u'Bits', u'http://bits.blogs.nytimes.com/feed/'),
+        (u'Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
+        (u'Open', u'http://open.blogs.nytimes.com/feed/')
     ]
     keep_only_tags = [
-        dict(name='div', attrs={'id':['story-body', 'header', 'story-meta']}),
+        dict(name='div', attrs={'id': ['story-body', 'header', 'story-meta']}),
         dict(name='h1'),
         dict(name='h2'),
-        dict(name='div', attrs={'class':'entry-content'})
+        dict(name='div', attrs={'class': 'entry-content'})
     ]
     remove_tags = [
         dict(id='lede-ad'),
-        dict(attrs={'class':lambda x:x and 'ad' in x.split()}),
-        dict(attrs={'class':lambda x:x and 'nocontent' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'ad' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'nocontent' in x.split()}),
     ]
     extra_css = '''
            h1{font-family:Arial,Helvetica,sans-serif;

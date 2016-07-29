@@ -1,11 +1,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
+
 class SignOfTheTimes(BasicNewsRecipe):
-    title          = u'Sign of the Times'
-    language       = 'en'
-    __author__     = 'TerminalVeracity'
-    oldest_article = 31#days
+    title = u'Sign of the Times'
+    language = 'en'
+    __author__ = 'TerminalVeracity'
+    oldest_article = 31  # days
     max_articles_per_feed = 50
     use_embedded_content = False
 
@@ -17,17 +18,20 @@ class SignOfTheTimes(BasicNewsRecipe):
 
     remove_stylesheets = True
     remove_tags = [
-       dict(name='div', attrs={'class':['article-icon','article-print','article-footer']}),
-       dict(name='span', attrs={'class':['tiny']}),
+        dict(name='div', attrs={
+             'class': ['article-icon', 'article-print', 'article-footer']}),
+        dict(name='span', attrs={'class': ['tiny']}),
     ]
 
-    feeds          = [('Signs', 'http://www.sott.net/xml_engine/signs_rss'),]
+    feeds = [('Signs', 'http://www.sott.net/xml_engine/signs_rss'), ]
 
     def preprocess_html(self, soup):
-        story = soup.find(name='div', attrs={'class':'article'})
-        soup = BeautifulSoup('<html><head><title>t</title></head><body></body></html>')
+        story = soup.find(name='div', attrs={'class': 'article'})
+        soup = BeautifulSoup(
+            '<html><head><title>t</title></head><body></body></html>')
         body = soup.find(name='body')
         body.insert(0, story)
-        for div in soup.findAll(attrs={'class':'image-caption'}):
-           for br in div.findAll('br'): br.extract()
+        for div in soup.findAll(attrs={'class': 'image-caption'}):
+            for br in div.findAll('br'):
+                br.extract()
         return soup

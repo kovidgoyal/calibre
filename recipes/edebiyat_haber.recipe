@@ -3,14 +3,15 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import AutomaticNewsRecipe
 
+
 class BasicUserRecipe1420467110(AutomaticNewsRecipe):
-    title          = 'Edebiyat Haber'
+    title = 'Edebiyat Haber'
     language = 'tr'
     __author__ = 'asalet_r'
     oldest_article = 7
     max_articles_per_feed = 100
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('Edebiyat Haber', 'http://feeds.feedburner.com/feedburner/edebiyathaber'),
     ]

@@ -1,10 +1,9 @@
 #!/usr/bin/env  python2
-__license__     = 'GPL v3'
-__author__      = 'DrMerry Based on v1.01 by Lorenzo Vigentini'
-__copyright__   = 'For version 1.02, 1.03: DrMerry'
-__version__     = 'v1.03'
-__date__        = '11, July 2011'
-__description__ = 'Computeractive publishes new downloads, reviews, news stories, step-by-step guides and answers to PC problems every day. Original version (c): 2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
+__license__ = 'GPL v3'
+__author__ = 'DrMerry Based on v1.01 by Lorenzo Vigentini'
+__copyright__ = 'For version 1.02, 1.03: DrMerry'
+__version__ = 'v1.03'
+__date__ = '11, July 2011'
 
 '''
 http://www.computeractive.co.uk/
@@ -13,83 +12,50 @@ http://www.computeractive.co.uk/
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class computeractive(BasicNewsRecipe):
-    __author__      = 'DrMerry'
-    description   = 'Computeractive publishes new downloads, reviews, news stories, step-by-step guides and answers to PC problems every day.'
-    cover_url     = 'http://images.pcworld.com/images/common/header/header-logo.gif'
+    __author__ = 'DrMerry'
+    description = 'Computeractive publishes new downloads, reviews, news stories, step-by-step guides and answers to PC problems every day.'
+    cover_url = 'http://images.pcworld.com/images/common/header/header-logo.gif'
 
-    title          = 'Computer act!ve'
-    publisher      = 'Incisive media'
-    category       = 'PC, video, computing, product reviews, editing, cameras, production'
+    title = 'Computer act!ve'
+    publisher = 'Incisive media'
+    category = 'PC, video, computing, product reviews, editing, cameras, production'
 
-    language       = 'en'
-    timefmt        = '[%a, %d %b, %Y]'
+    language = 'en'
+    timefmt = '[%a, %d %b, %Y]'
 
-    oldest_article        = 7
+    oldest_article = 7
     max_articles_per_feed = 25
-    use_embedded_content  = False
-    recursion             = 10
+    use_embedded_content = False
+    recursion = 10
 
-    remove_javascript     = True
-    no_stylesheets        = True
-    remove_empty_feeds   = True
-    remove_tags_after = dict(name='div', attrs={'class':'article_tags_block'})
+    remove_javascript = True
+    no_stylesheets = True
+    remove_empty_feeds = True
+    remove_tags_after = dict(name='div', attrs={'class': 'article_tags_block'})
 
-    keep_only_tags     = [
-                            dict(name='div', attrs={'id':'container_left'})
-                        ]
-
-    remove_tags        = [
-                            dict(name='div', attrs={'id':['seeAlsoTags','commentsModule','relatedArticles','mainLeft','mainRight','recent_comment_block_parent','reviewDetails']}),
-                            dict(name='div', attrs={'class':['buyIt','detailMpu','small_section','recent_comment_block_parent','title_right_button_fix','section_title.title_right_button_fix','common_button']}),
-                            dict(name='a', attrs={'class':'largerImage'})
-                        ]
-
-    preprocess_regexps = [
-        (re.compile(r'(<a [^>]*>|</a>)', re.DOTALL|re.IGNORECASE),
-        lambda match: ''),
+    keep_only_tags = [
+        dict(name='div', attrs={'id': 'container_left'})
     ]
 
-    feeds          = [
-                       (u'General content', u'http://feeds.computeractive.co.uk/rss/latest/computeractive/all'),
-                       (u'News', u'http://feeds.computeractive.co.uk/rss/latest/computeractive/news'),
-                     ]
+    remove_tags = [
+        dict(name='div', attrs={'id': ['seeAlsoTags', 'commentsModule', 'relatedArticles',
+                                       'mainLeft', 'mainRight', 'recent_comment_block_parent', 'reviewDetails']}),
+        dict(name='div', attrs={'class': ['buyIt', 'detailMpu', 'small_section', 'recent_comment_block_parent',
+                                          'title_right_button_fix', 'section_title.title_right_button_fix', 'common_button']}),
+        dict(name='a', attrs={'class': 'largerImage'})
+    ]
 
+    preprocess_regexps = [
+        (re.compile(r'(<a [^>]*>|</a>)', re.DOTALL | re.IGNORECASE),
+         lambda match: ''),
+    ]
 
-    extra_css = '''
-                h1 {font-family:Arial,Helvetica,sans-serif; font-size:20px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold;}
-                h2 {font-family:Arial,Helvetica,sans-serif; font-size:18px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold; }
-                h3 {color:#333333;font-family:Arial,Helvetica,sans-serif; font-size:16px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold;}
-                h4 {color:#333333; font-family:Arial,Helvetica,sans-serif;font-size:14px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold;}
-                h5 {color:#333333; font-family:Arial,Helvetica,sans-serif; font-size:12px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:bold;text-transform:uppercase;}
-                .newsdate {color:#333333;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:italic; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
-                .author {color:#333333;font-family:Arial,Helvetica,sans-serif;font-size:10px; font-size-adjust:none; font-stretch:normal; font-style:bold; font-variant:normal; font-weight:bold; line-height:10px; text-decoration:none;}
-                p {font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:10px;}
-                .breadcrumbs {margin:0 0 0.6em 0;font-family:"Trebuchet MS",Arial,Helvetica,sans-serif; font-size:8px;}
-                #breadcrumbsLeft {width:360px; }
-                .breadcrumbs ul {color:#999; display:inline; margin:1em 0 0 0; padding:0; list-style:none; }
-                .breadcrumbs li { display:inline; }
-                .breadcrumbs a:link, .breadcrumbs a:visited { color:#999; text-decoration:none; }
-                .breadcrumbs a:hover, .breadcrumbs a:active { color:#999; text-decoration:underline; }
-                #postHeader #reviewDetails { padding-left: 0px; }
-                #reviewDetails { float:left; margin:0 0 0 10px; padding:0; width:574px; border-top:1px dotted #0071BC; }
-        	#reviewDetails div { margin:0; padding:0; }
-		#reviewDetailsLeft { float:left; width:334px; margin:0 10px 0 0; padding:0; }
-		#reviewDetailsRight { float:right; width:230px; margin:0; padding:0; }
-    		#reviewDetails div h2 { font-size:1.2em; float:none; margin:0.5em 0 0.5em 0; padding:0; }
-		#reviewDetails #verdict { width:334px; float:left; margin:0; padding:0; }
-		#reviewDetails #ratings, #reviewDetails #price { width:230px; float:left; margin:0; padding:0; }
-		#reviewDetails #ratings img { border:0; margin:0; padding:0; }
-		#verdict p strong { width:334px; float:left; margin:0 0 0.25em; padding:0; }
-		#verdict ul { width:334px; float:left; margin:0; padding:0; }
-		#verdict li { width:334px; float:left; list-style:none; clear:left; margin:0 4px 0.3em 0px; padding:0 0 0 12px;}
-		html > body #verdict li { width:322px; }
-                #post { margin-bottom:2em; clear:both; }
-                #post .content p { margin:1em 0; line-height:1.5em; }
-                #post p a:link { color:#005599; text-decoration:none; font-weight:bold; }
-                #post p a:hover, #post p a:active { color:#cc0000; text-decoration:underline; }
-                #post p a:visited { color:#003366; text-decoration:none; font-weight:bold; }
-                #postHeader .author { font-weight:normal; margin:1em 8px 0.25em 0; }
-                #postHeader .postMetaData { color:#666; margin:0 8px 0 0; }
-                '''
+    feeds = [
+        (u'General content',
+         u'http://feeds.computeractive.co.uk/rss/latest/computeractive/all'),
+        (u'News', u'http://feeds.computeractive.co.uk/rss/latest/computeractive/news'),
+    ]
+
 

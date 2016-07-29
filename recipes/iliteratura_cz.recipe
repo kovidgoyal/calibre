@@ -1,8 +1,9 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class SmeRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'Abelturd'
     language = 'cs'
     version = 1
@@ -21,25 +22,22 @@ class SmeRecipe(BasicNewsRecipe):
     no_stylesheets = True
     remove_javascript = True
 
-
     feeds = []
     feeds.append((u'\u010cl\xe1nky', u'http://www.iliteratura.cz/rss.asp'))
 
-
     keep_only_tags = []
 
-    remove_tags = [dict(name='table'),dict(name='h3')]
-
+    remove_tags = [dict(name='table'), dict(name='h3')]
 
     preprocess_regexps = [
-        (re.compile(r'<h3>Souvisej.*</body>', re.DOTALL|re.IGNORECASE),
-        lambda match: ''),
-     ]
+        (re.compile(r'<h3>Souvisej.*</body>', re.DOTALL | re.IGNORECASE),
+         lambda match: ''),
+    ]
 
     def print_version(self, url):
-         m = re.search('(?<=ID=)[0-9]*', url)
+        m = re.search('(?<=ID=)[0-9]*', url)
 
-         return u'http://www.iliteratura.cz/clanek.asp?polozkaID=' + str(m.group(0)) + '&c=tisk'
+        return u'http://www.iliteratura.cz/clanek.asp?polozkaID=' + str(m.group(0)) + '&c=tisk'
 
     extra_css = '''
                   h1 {font-size:140%;font-family:georgia,serif; font-weight:bold}

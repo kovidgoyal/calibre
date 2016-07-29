@@ -4,6 +4,7 @@ __license__ = 'GPL v3'
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class ppeRecipe(BasicNewsRecipe):
     __author__ = u'Artur Stachecki <artur.stachecki@gmail.com>'
     language = 'pl'
@@ -18,18 +19,19 @@ class ppeRecipe(BasicNewsRecipe):
     remove_javascript = True
     remove_empty_feeds = True
     remove_attributes = ['style']
-    
-    keep_only_tags = [dict(attrs={'class':'box'})]
-    remove_tags = [dict(attrs={'class':['voltage-1', 'voltage-2', 'encyklopedia', 'nag', 'related', 'comment_form', 'komentarze-box']})]
+
+    keep_only_tags = [dict(attrs={'class': 'box'})]
+    remove_tags = [dict(attrs={'class': ['voltage-1', 'voltage-2',
+                                         'encyklopedia', 'nag', 'related', 'comment_form', 'komentarze-box']})]
 
     feeds = [
-            ('Newsy', 'http://ppe.pl/rss.html'),
-            ('Recenzje', 'http://ppe.pl/rss-recenzje.html'),
-            ('Publicystyka', 'http://ppe.pl/rss-publicystyka.html'),
-            ]
+        ('Newsy', 'http://ppe.pl/rss.html'),
+        ('Recenzje', 'http://ppe.pl/rss-recenzje.html'),
+        ('Publicystyka', 'http://ppe.pl/rss-publicystyka.html'),
+    ]
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.ppe.pl/psx_extreme.html')
-        part = soup.find(attrs={'class':'archiwum-foto'})['style']
+        part = soup.find(attrs={'class': 'archiwum-foto'})['style']
         part = re.search("'(.+)'", part).group(1).replace('_min', '')
         return 'http://www.ppe.pl' + part

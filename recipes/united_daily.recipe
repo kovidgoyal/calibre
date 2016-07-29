@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class UnitedDaily(BasicNewsRecipe):
     title = u'聯合新聞網'
@@ -60,7 +61,7 @@ class UnitedDaily(BasicNewsRecipe):
              (u'健康醫藥', u'http://mag.udn.com/udnrss/life_rss.xml'),
              ]
 
-    extra_css = '''div[id='story_title'] {font-size:200%; font-weight:bold;} td[class='story_title'] {font-size:200%; font-weight:bold;} td[class='story_title'] td[class='story_title']>div {font-size:200%; font-weight:bold;}'''
+    extra_css = '''div[id='story_title'] {font-size:200%; font-weight:bold;} td[class='story_title'] {font-size:200%; font-weight:bold;} td[class='story_title'] td[class='story_title']>div {font-size:200%; font-weight:bold;}'''  # noqa
 
     __author__ = 'Eddie Lau'
     __version__ = '1.2'
@@ -72,17 +73,14 @@ class UnitedDaily(BasicNewsRecipe):
     use_embedded_content = False
     no_stylesheets = True
     encoding = 'utf-8'
-    conversion_options = {'linearize_tables':True}
+    conversion_options = {'linearize_tables': True}
     masthead_url = 'http://udn.com/NEWS/2004/images/logo_udn.gif'
     cover_url = 'http://udn.com/NEWS/2004/images/logo_udn.gif'
     auto_cleanup = True
-    #keep_only_tags = [dict(name='td', attrs={'class':['story_title']}),
+    # keep_only_tags = [dict(name='td', attrs={'class':['story_title']}),
     #                  dict(name='div', attrs={'id':['story_title']}),
     #                  dict(name='td', attrs={'class':['story_author']}),
     #                  dict(name='div', attrs={'id':['story_author']}),
     #                  dict(name='td', attrs={'class':['story']}),
     #                  dict(name='div', attrs={'id':['story']}),
     #                  ]
-    #remove_tags = [dict(name='div', attrs={'id':['mvouter']})]
-
-

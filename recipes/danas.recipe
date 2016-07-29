@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 danas.rs
@@ -7,117 +7,116 @@ danas.rs
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Danas(BasicNewsRecipe):
-    title                 = 'Danas'
-    __author__            = 'Darko Miletic'
-    description           = 'Dnevne novine sa vestima iz sveta, politike, ekonomije, kulture, sporta, Beograda, Novog Sada i cele Srbije.'
-    publisher             = 'Danas d.o.o.'
-    category              = 'news, politics, Serbia'
-    oldest_article        = 2
+    title = 'Danas'
+    __author__ = 'Darko Miletic'
+    description = 'Dnevne novine sa vestima iz sveta, politike, ekonomije, kulture, sporta, Beograda, Novog Sada i cele Srbije.'
+    publisher = 'Danas d.o.o.'
+    category = 'news, politics, Serbia'
+    oldest_article = 2
     max_articles_per_feed = 100
-    no_stylesheets        = False
-    use_embedded_content  = False
-    encoding              = 'utf-8'
-    masthead_url          = 'http://www.danas.rs/images/basic/danas.gif'
-    language              = 'sr'
-    remove_javascript     = True
-    publication_type      = 'newspaper'
-    remove_empty_feeds    = True
+    no_stylesheets = False
+    use_embedded_content = False
+    encoding = 'utf-8'
+    masthead_url = 'http://www.danas.rs/images/basic/danas.gif'
+    language = 'sr'
+    remove_javascript = True
+    publication_type = 'newspaper'
+    remove_empty_feeds = True
     extra_css             = """ @font-face {font-family: "serif1";src:url(res:///opt/sony/ebook/FONT/tt0011m_.ttf)}
                                 @font-face {font-family: "sans1";src:url(res:///opt/sony/ebook/FONT/tt0003m_.ttf)}
                                 .article,.articledescription,body,.lokacija,.feed{font-family: Tahoma,Arial,Helvetica,sans1,sans-serif}
                                 .nadNaslov,h1,.preamble{font-family: Georgia,"Times New Roman",Times,serif1,serif}
-                                .antrfileText{border-left: 2px solid #999999; 
-                                              margin-left: 0.8em; 
-                                              padding-left: 1.2em; 
-                                              margin-bottom: 0; 
-                                              margin-top: 0} 
+                                .antrfileText{border-left: 2px solid #999999;
+                                              margin-left: 0.8em;
+                                              padding-left: 1.2em;
+                                              margin-bottom: 0;
+                                              margin-top: 0}
                                 h2,.datum,.lokacija,.autor{font-size: small}
                                 .autor{text-transform: uppercase}
-                                .antrfileNaslov{border-left: 2px solid #999999; 
-                                                margin-left: 0.8em; 
-                                                padding-left: 1.2em; 
-                                                font-weight:bold; 
-                                                margin-bottom: 0; 
-                                                margin-top: 0} 
+                                .antrfileNaslov{border-left: 2px solid #999999;
+                                                margin-left: 0.8em;
+                                                padding-left: 1.2em;
+                                                font-weight:bold;
+                                                margin-bottom: 0;
+                                                margin-top: 0}
                                 img{margin-bottom: 0.8em}
                                 .naslovTemeDana{font-size: small}
                             """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
-    preprocess_regexps = [ 
-                           (re.compile(u'\u0110'), lambda match: u'\u00D0')
-                          ,(re.compile(u'\u2018'), lambda match: '&lsquo;') # left single quotation mark                        
-                          ,(re.compile(u'\u2019'), lambda match: '&rsquo;') # right single quotation mark
-                          ,(re.compile(u'\u201a'), lambda match: '&lsquo;') # single low-9 quotation mark                        
-                          ,(re.compile(u'\u201b'), lambda match: '&rsquo;') # single high-reversed-9 quotation mark
-                          ,(re.compile(u'\u201c'), lambda match: '&ldquo;') # left double quotation mark
-                          ,(re.compile(u'\u201d'), lambda match: '&rdquo;') # right double quotation mark
-                          ,(re.compile(u'\u201e'), lambda match: '&ldquo;') # double low-9 quotation mark                          
-                          ,(re.compile(u'\u201f'), lambda match: '&rdquo;') # double high-reversed-9 quotation mark
-                          ,(re.compile(u'\u00f4'), lambda match: '&ldquo;') # latin small letter o with circumflex
-                          ,(re.compile(u'\u00f6'), lambda match: '&rdquo;') # latin small letter o with dieaeresis
-                          ,(re.compile(u'\u00e1'), lambda match: '&nbsp;' ) # latin small letter a with acute
-                          ,(re.compile(u'\u00e4'), lambda match: '&nbsp;' ) # latin small letter a with dieaeresis
-                         ]
+    preprocess_regexps = [
+        (re.compile(u'\u0110'), lambda match: u'\u00D0'), (re.compile(
+            u'\u2018'), lambda match: '&lsquo;')  # left single quotation mark
+        # right single quotation mark
+        # single low-9 quotation mark
+        # single high-reversed-9 quotation mark
+        # left double quotation mark
+        # right double quotation mark
+        # double low-9 quotation mark
+        # double high-reversed-9 quotation mark
+        # latin small letter o with circumflex
+        # latin small letter o with dieaeresis
+        # latin small letter a with acute
+        # latin small letter a with dieaeresis
+        , (re.compile(u'\u2019'), lambda match: '&rsquo;'), (re.compile(u'\u201a'), lambda match: '&lsquo;'), (re.compile(u'\u201b'), lambda match: '&rsquo;'), (re.compile(u'\u201c'), lambda match: '&ldquo;'), (re.compile(u'\u201d'), lambda match: '&rdquo;'), (re.compile(u'\u201e'), lambda match: '&ldquo;'), (re.compile(u'\u201f'), lambda match: '&rdquo;'), (re.compile(u'\u00f4'), lambda match: '&ldquo;'), (re.compile(u'\u00f6'), lambda match: '&rdquo;'), (re.compile(u'\u00e1'), lambda match: '&nbsp;'), (re.compile(u'\u00e4'), lambda match: '&nbsp;')  # noqa
+    ]
 
-    keep_only_tags     = [dict(name='div', attrs={'id':'left'})]
+    keep_only_tags = [dict(name='div', attrs={'id': 'left'})]
     remove_tags = [
-                     dict(name='div', attrs={'class':['width_1_4','metaClanka','baner','listaVesti','article_nav']})
-                    ,dict(name='div', attrs={'id':'comments'})
-                    ,dict(name=['object','link','iframe','meta'])
-                  ]
-    remove_attributes = ['w:st','st']
+        dict(name='div', attrs={'class': ['width_1_4', 'metaClanka', 'baner', 'listaVesti', 'article_nav']}), dict(
+            name='div', attrs={'id': 'comments'}), dict(name=['object', 'link', 'iframe', 'meta'])
+    ]
+    remove_attributes = ['w:st', 'st']
 
-    feeds          = [
-                        (u'Politika'             , u'http://www.danas.rs/rss/rss.asp?column_id=27')
-                       ,(u'Hronika'              , u'http://www.danas.rs/rss/rss.asp?column_id=2' )
-                       ,(u'Drustvo'              , u'http://www.danas.rs/rss/rss.asp?column_id=24')
-                       ,(u'Dijalog'              , u'http://www.danas.rs/rss/rss.asp?column_id=1' )
-                       ,(u'Ekonomija'            , u'http://www.danas.rs/rss/rss.asp?column_id=6' )
-                       ,(u'Svet'                 , u'http://www.danas.rs/rss/rss.asp?column_id=25')
-                       ,(u'Srbija'               , u'http://www.danas.rs/rss/rss.asp?column_id=28')
-                       ,(u'Kultura'              , u'http://www.danas.rs/rss/rss.asp?column_id=5' )
-                       ,(u'Sport'                , u'http://www.danas.rs/rss/rss.asp?column_id=13')
-                       ,(u'Scena'                , u'http://www.danas.rs/rss/rss.asp?column_id=42')
-                       ,(u'Feljton'              , u'http://www.danas.rs/rss/rss.asp?column_id=19')
-                       ,(u'Periskop'             , u'http://www.danas.rs/rss/rss.asp?column_id=4' )
-                       ,(u'Famozno'              , u'http://www.danas.rs/rss/rss.asp?column_id=47')
-                       ,(u'Sluzbena beleska'     , u'http://www.danas.rs/rss/rss.asp?column_id=48')
-                       ,(u'Suocavanja'           , u'http://www.danas.rs/rss/rss.asp?column_id=49')
-                       ,(u'Moj Izbor'            , u'http://www.danas.rs/rss/rss.asp?column_id=50')
-                       ,(u'Direktno'             , u'http://www.danas.rs/rss/rss.asp?column_id=51')
-                       ,(u'I tome slicno'        , u'http://www.danas.rs/rss/rss.asp?column_id=52')
-                       ,(u'No longer and not yet', u'http://www.danas.rs/rss/rss.asp?column_id=53')
-                       ,(u'Resetovanje'          , u'http://www.danas.rs/rss/rss.asp?column_id=54')
-                       ,(u'Iza scene'            , u'http://www.danas.rs/rss/rss.asp?column_id=60')
-                       ,(u'Drustvoslovlje'       , u'http://www.danas.rs/rss/rss.asp?column_id=55')
-                       ,(u'Zvaka u pepeljari'    , u'http://www.danas.rs/rss/rss.asp?column_id=56')
-                       ,(u'Vostani Serbie'       , u'http://www.danas.rs/rss/rss.asp?column_id=57')
-                       ,(u'Med&Jad-a'            , u'http://www.danas.rs/rss/rss.asp?column_id=58')
-                       ,(u'Svetlosti pozornice'  , u'http://www.danas.rs/rss/rss.asp?column_id=59')
-                       ,(u'Dva cvancika'         , u'http://www.danas.rs/rss/rss.asp?column_id=65')
-                       ,(u'Iz kornera'           , u'http://www.danas.rs/rss/rss.asp?column_id=64')
-                     ]
+    feeds = [
+
+    (u'Politika', u'http://www.danas.rs/rss/rss.asp?column_id=27'),
+    (u'Hronika', u'http://www.danas.rs/rss/rss.asp?column_id=2'),
+    (u'Drustvo', u'http://www.danas.rs/rss/rss.asp?column_id=24'),
+    (u'Dijalog', u'http://www.danas.rs/rss/rss.asp?column_id=1'),
+    (u'Ekonomija', u'http://www.danas.rs/rss/rss.asp?column_id=6'),
+    (u'Svet', u'http://www.danas.rs/rss/rss.asp?column_id=25'),
+    (u'Srbija', u'http://www.danas.rs/rss/rss.asp?column_id=28'),
+    (u'Kultura', u'http://www.danas.rs/rss/rss.asp?column_id=5'),
+    (u'Sport', u'http://www.danas.rs/rss/rss.asp?column_id=13'),
+    (u'Scena', u'http://www.danas.rs/rss/rss.asp?column_id=42'),
+    (u'Feljton', u'http://www.danas.rs/rss/rss.asp?column_id=19'),
+    (u'Periskop', u'http://www.danas.rs/rss/rss.asp?column_id=4'),
+    (u'Famozno', u'http://www.danas.rs/rss/rss.asp?column_id=47'),
+    (u'Sluzbena beleska', u'http://www.danas.rs/rss/rss.asp?column_id=48'),
+    (u'Suocavanja', u'http://www.danas.rs/rss/rss.asp?column_id=49'),
+    (u'Moj Izbor', u'http://www.danas.rs/rss/rss.asp?column_id=50'),
+    (u'Direktno', u'http://www.danas.rs/rss/rss.asp?column_id=51'),
+    (u'I tome slicno', u'http://www.danas.rs/rss/rss.asp?column_id=52'),
+    (u'No longer and not yet', u'http://www.danas.rs/rss/rss.asp?column_id=53'),
+    (u'Resetovanje', u'http://www.danas.rs/rss/rss.asp?column_id=54'),
+    (u'Iza scene', u'http://www.danas.rs/rss/rss.asp?column_id=60'),
+    (u'Drustvoslovlje', u'http://www.danas.rs/rss/rss.asp?column_id=55'),
+    (u'Zvaka u pepeljari', u'http://www.danas.rs/rss/rss.asp?column_id=56'),
+    (u'Vostani Serbie', u'http://www.danas.rs/rss/rss.asp?column_id=57'),
+    (u'Med&Jad-a', u'http://www.danas.rs/rss/rss.asp?column_id=58'),
+    (u'Svetlosti pozornice', u'http://www.danas.rs/rss/rss.asp?column_id=59'),
+    (u'Dva cvancika', u'http://www.danas.rs/rss/rss.asp?column_id=65'),
+    (u'Iz kornera', u'http://www.danas.rs/rss/rss.asp?column_id=64')
+    ]
 
     def preprocess_html(self, soup):
-        for tagn in ['st1:place','st1:city','st1:country-region','st1:state']:
+        for tagn in ['st1:place', 'st1:city', 'st1:country-region', 'st1:state']:
             for item in soup.body.findAll(tagn):
-                item.name='span'
+                item.name = 'span'
         for item in soup.findAll(style=True):
             del item['style']
         for item in soup.findAll('a'):
-            if item.has_key('name'):
-               item.extract()
+            if item.has_key('name'):  # noqa
+                item.extract()
         for item in soup.findAll('img'):
-            if not item.has_key('alt'):
-               item['alt'] = 'image'    
+            if not item.has_key('alt'):  # noqa
+                item['alt'] = 'image'
         return soup
 
     def print_version(self, url):
@@ -128,5 +127,5 @@ class Danas(BasicNewsRecipe):
         soup = self.index_to_soup('http://www.danas.rs/')
         for citem in soup.findAll('img'):
             if citem['src'].endswith('naslovna.jpg') or citem['src'].endswith('naslovna1.jpg'):
-               return 'http://www.danas.rs' + citem['src']
+                return 'http://www.danas.rs' + citem['src']
         return cover_url

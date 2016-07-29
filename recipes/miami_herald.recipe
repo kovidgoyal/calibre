@@ -1,5 +1,5 @@
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009-2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
 miamiherald.com
@@ -7,19 +7,19 @@ miamiherald.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class TheMiamiHerald(BasicNewsRecipe):
-    title                 = 'The Miami Herald'
-    __author__            = 'Darko Miletic and Sujata Raman'
-    description           = "Miami-Dade and Broward's source for the latest breaking local news on sports, weather, business, jobs, real estate, shopping, health, travel, entertainment, & more."
-    oldest_article        = 1
+    title = 'The Miami Herald'
+    __author__ = 'Darko Miletic and Sujata Raman'
+    description = "Miami-Dade and Broward's source for the latest breaking local news on sports, weather, business, jobs, real estate, shopping, health, travel, entertainment, & more."  # noqa
+    oldest_article = 1
     max_articles_per_feed = 100
-    publisher             = u'The Miami Herald'
-    category              = u'miami herald, weather, dolphins, news, miami news, local news, miamiherald, miami newspaper, miamiherald.com, miami, the miami herald, broward, miami-dade'
-    language              = 'en'
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'cp1252'
-    remove_javascript     = True
+    publisher = u'The Miami Herald'
+    language = 'en'
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'cp1252'
+    remove_javascript = True
     extra_css = '''
                 h1{font-family:Arial,Helvetica,sans-serif; font-size:large; color:#1A272F; }
                 .subheadline{font-family:Arial,Helvetica,sans-serif; font-size:30%; color: #666666;}
@@ -32,32 +32,29 @@ class TheMiamiHerald(BasicNewsRecipe):
                 '''
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
-                
-    keep_only_tags = [dict(name='div', attrs={'id':'wide'}),]
+        'comment': description, 'publisher': publisher, 'language': language
+    }
 
-    remove_tags = [dict(name=['object','link','embed','iframe','meta'])]
+    keep_only_tags = [dict(name='div', attrs={'id': 'wide'}), ]
 
+    remove_tags = [dict(name=['object', 'link', 'embed', 'iframe', 'meta'])]
 
     feeds = [
-             (u'Breaking News'  , u'http://www.miamiherald.com/news/breaking-news/index.xml' )
-             ,(u'Miami-Dade' , u'http://www.miamiherald.com/news/miami-dade/index.xml' )
-             ,(u'Broward' , u'http://www.miamiherald.com/news/broward/index.xml' )
-             ,(u'Florida Keys' , u'http://www.miamiherald.com/news/florida-keys/index.xml' )
-             ,(u'Florida' , u'http://www.miamiherald.com/news/florida/index.xml' )
-             ,(u'Nation' , u'http://www.miamiherald.com/news/nation/index.xml' )
-             ,(u'World' , u'http://www.miamiherald.com/news/world/index.xml' )
-             ,(u'Americas' , u'http://www.miamiherald.com/news/americas/index.xml' )
-             ,(u'Cuba' , u'http://www.miamiherald.com/news/americas/cuba/index.xml' )
-             ,(u'Haiti' , u'http://www.miamiherald.com/news/americas/haiti/index.xml' )
-             ,(u'Politics' , u'http://www.miamiherald.com/news/politics/index.xml' )
-             ,(u'Education' , u'http://www.miamiherald.com/news/education/index.xml' )
-             ,(u'Environment' , u'http://www.miamiherald.com/news/environment/index.xml' )
-            ]
+
+    (u'Breaking News', u'http://www.miamiherald.com/news/breaking-news/index.xml'),
+    (u'Miami-Dade', u'http://www.miamiherald.com/news/miami-dade/index.xml'),
+    (u'Broward', u'http://www.miamiherald.com/news/broward/index.xml'),
+    (u'Florida Keys', u'http://www.miamiherald.com/news/florida-keys/index.xml'),
+    (u'Florida', u'http://www.miamiherald.com/news/florida/index.xml'),
+    (u'Nation', u'http://www.miamiherald.com/news/nation/index.xml'),
+    (u'World', u'http://www.miamiherald.com/news/world/index.xml'),
+    (u'Americas', u'http://www.miamiherald.com/news/americas/index.xml'),
+    (u'Cuba', u'http://www.miamiherald.com/news/americas/cuba/index.xml'),
+    (u'Haiti', u'http://www.miamiherald.com/news/americas/haiti/index.xml'),
+    (u'Politics', u'http://www.miamiherald.com/news/politics/index.xml'),
+    (u'Education', u'http://www.miamiherald.com/news/education/index.xml'),
+    (u'Environment', u'http://www.miamiherald.com/news/environment/index.xml')
+    ]
 
     def print_version(self, url):
         art, sep, rest = url.rpartition('/')

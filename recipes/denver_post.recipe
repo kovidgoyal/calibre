@@ -7,15 +7,17 @@ from __future__ import (unicode_literals, division, absolute_import,
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 def classes(classes):
     q = frozenset(classes.split(' '))
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+
 class DenverPost(BasicNewsRecipe):
-    title          = u'Denver Post'
-    language       = 'en'
-    __author__     = 'Kovid Goyal'
+    title = u'Denver Post'
+    language = 'en'
+    __author__ = 'Kovid Goyal'
     oldest_article = 1  # days
     max_articles_per_feed = 20
 
@@ -27,27 +29,27 @@ class DenverPost(BasicNewsRecipe):
     ]
     remove_tags = [
         classes('related'),
-        dict(attrs={'data-config-video-id':True}),
+        dict(attrs={'data-config-video-id': True}),
     ]
 
-    feeds          = [
-('Top Stories',
- 'http://feeds.denverpost.com/dp-news-topstories'),
-('Business',
- 'http://feeds.denverpost.com/dp-business'),
-('Sports',
- 'http://feeds.denverpost.com/dp-sports'),
-('Lifestyles',
- 'http://feeds.denverpost.com/dp-lifestyles'),
-('Politics',
- 'http://feeds.denverpost.com/dp-politics'),
-('Entertainment',
- 'http://feeds.denverpost.com/dp-entertainment'),
+    feeds = [
+        ('Top Stories',
+         'http://feeds.denverpost.com/dp-news-topstories'),
+        ('Business',
+         'http://feeds.denverpost.com/dp-business'),
+        ('Sports',
+         'http://feeds.denverpost.com/dp-sports'),
+        ('Lifestyles',
+         'http://feeds.denverpost.com/dp-lifestyles'),
+        ('Politics',
+         'http://feeds.denverpost.com/dp-politics'),
+        ('Entertainment',
+         'http://feeds.denverpost.com/dp-entertainment'),
 
-]
+    ]
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs={'data-src':True}):
+        for img in soup.findAll('img', attrs={'data-src': True}):
             img['src'] = img['data-src']
             del img['height']
             del img['width']

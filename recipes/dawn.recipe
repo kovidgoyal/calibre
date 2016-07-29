@@ -1,7 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class DawnRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en_PK'
     version = 1
@@ -20,10 +21,11 @@ class DawnRecipe(BasicNewsRecipe):
     remove_javascript = True
     encoding = 'utf-8'
     keep_only_tags = [
-        dict(name='div', attrs={'class':'push-half--sides  push--top'}),
-        dict(name='article', attrs={'class':'story  story--single  push-half'})]
+        dict(name='div', attrs={'class': 'push-half--sides  push--top'}),
+        dict(name='article', attrs={'class': 'story  story--single  push-half'})]
 
-    # Feeds from http://www.dawn.com/wps/wcm/connect/dawn-content-library/dawn/services/rss
+    # Feeds from
+    # http://www.dawn.com/wps/wcm/connect/dawn-content-library/dawn/services/rss
     feeds = []
     feeds.append((u'Latest News', u'http://feeds.feedburner.com/dawn-news'))
 
@@ -37,4 +39,3 @@ class DawnRecipe(BasicNewsRecipe):
                 span.news_headline {font-size: xx-large; font-weight: bold; margin: 0em; padding: 0em}
                 span.news_byline {font-size: x-small; color: #696969; margin-top: 1em;}
                 '''
-

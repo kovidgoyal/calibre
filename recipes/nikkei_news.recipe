@@ -8,32 +8,33 @@ import unicodedata
 # import pprint, sys
 # pp = pprint.PrettyPrinter(indent=4)
 
-class NikkeiNet_paper_subscription(BasicNewsRecipe):
-    title           = u'\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\uFF08\u671D\u520A\u30FB\u5915\u520A\uFF09'
-    __author__      = 'Ado Nishimura'
-    description     = u'\u65E5\u7D4C\u96FB\u5B50\u7248\u306B\u3088\u308B\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\u3002\u671D\u520A\u30FB\u5915\u520A\u306F\u53D6\u5F97\u6642\u9593\u306B\u3088\u308A\u5207\u308A\u66FF\u308F\u308A\u307E\u3059\u3002\u8981\u8CFC\u8AAD'  # noqa
-    needs_subscription = True
-    oldest_article  = 1
-    max_articles_per_feed = 30
-    language        = 'ja'
-    no_stylesheets  = True
-    # cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
-    cover_url       = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
-    # masthead_url    = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
-    masthead_url    = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
-    cover_margins   = (10, 188, '#ffffff')
 
-    remove_tags_before = {'class':"cmn-indent"}
+class NikkeiNet_paper_subscription(BasicNewsRecipe):
+    title = u'\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\uFF08\u671D\u520A\u30FB\u5915\u520A\uFF09'
+    __author__ = 'Ado Nishimura'
+    description = u'\u65E5\u7D4C\u96FB\u5B50\u7248\u306B\u3088\u308B\u65E5\u672C\u7D4C\u6E08\u65B0\u805E\u3002\u671D\u520A\u30FB\u5915\u520A\u306F\u53D6\u5F97\u6642\u9593\u306B\u3088\u308A\u5207\u308A\u66FF\u308F\u308A\u307E\u3059\u3002\u8981\u8CFC\u8AAD'  # noqa
+    needs_subscription = True
+    oldest_article = 1
+    max_articles_per_feed = 30
+    language = 'ja'
+    no_stylesheets = True
+    # cover_url       = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
+    cover_url = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
+    # masthead_url    = 'http://parts.nikkei.com/parts/ds/images/common/logo_r1.svg'
+    masthead_url = 'http://cdn.nikkei.co.jp/parts/ds/images/common/st_nikkei_r1_20101003_1.gif'
+    cover_margins = (10, 188, '#ffffff')
+
+    remove_tags_before = {'class': "cmn-indent"}
     remove_tags = [
-#                       {'class':"cmn-article_move"},
-#                       {'class':"cmn-pr_list"},
-#                       {'class':"cmnc-zoom"},
-                       {'class':"cmn-hide"},
-                       {'name':'form'},
-                       {'class':'cmn-print_headline cmn-clearfix'},
-                       {'id':'ABOUT_NIKKEI'},
-                  ]
-    remove_tags_after = {'class':"cmn-indent"}
+        #                       {'class':"cmn-article_move"},
+        #                       {'class':"cmn-pr_list"},
+        #                       {'class':"cmnc-zoom"},
+        {'class': "cmn-hide"},
+        {'name': 'form'},
+        {'class': 'cmn-print_headline cmn-clearfix'},
+        {'id': 'ABOUT_NIKKEI'},
+    ]
+    remove_tags_after = {'class': "cmn-indent"}
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -50,7 +51,8 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             br.open('http://www.nikkei.com/')
             print "-------------------------open first login form-----------------------------"
             try:
-                url = br.links(url_regex="www.nikkei.com/etc/accounts/login").next().url
+                url = br.links(
+                    url_regex="www.nikkei.com/etc/accounts/login").next().url
             except StopIteration:
                 url = 'http://www.nikkei.com/etc/accounts/login?dps=3&pageflag=top&url=http%3A%2F%2Fwww.nikkei.com%2F'
             br.open(url)  # br.follow_link(link)
@@ -62,7 +64,7 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             # response = br.response()
             print "-------------------------got login form------------------------------------"
             br.select_form(name='LA0210Form01')
-            br['LA0210Form01:LA0210Email']    = self.username
+            br['LA0210Form01:LA0210Email'] = self.username
             br['LA0210Form01:LA0210Password'] = self.password
             br.submit()
             # response = br.response()
@@ -84,17 +86,19 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
         result = []
         soup = self.index_to_soup('http://www.nikkei.com/paper/')
         # soup = self.index_to_soup(self.test_data())
-        sections = soup.findAll('div', 'cmn-section kn-special JSID_baseSection')
+        sections = soup.findAll(
+            'div', 'cmn-section kn-special JSID_baseSection')
         if len(sections) == 0:
             sections = soup.findAll('div', 'cmn-section kn-special')
         for sect in sections:
             sect_title = sect.find('h3', 'cmnc-title').string
             sect_result = []
-            for elem in sect.findAll(attrs={'class':['cmn-article_title']}):
-                if elem.span.a is None or elem.span.a['href'].startswith('javascript') :
+            for elem in sect.findAll(attrs={'class': ['cmn-article_title']}):
+                if elem.span.a is None or elem.span.a['href'].startswith('javascript'):
                     continue
                 url = 'http://www.nikkei.com' + elem.span.a['href']
-                url = re.sub("/article/", "/print-article/", url)  # print version.
+                # print version.
+                url = re.sub("/article/", "/print-article/", url)
                 span = elem.span.a.span
                 if ((span is not None) and (len(span.contents) > 1)):
                     title = span.contents[1].string
@@ -105,8 +109,10 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
 
     def populate_article_metadata(self, article, soup, first):
         try:
-            elms = soup.findAll('div', {"class":"cmn-article_text JSID_key_fonttxt"})
-            elm_text = u'◆'.join([self.tag_to_string(elm).strip() for elm in elms])
+            elms = soup.findAll(
+                'div', {"class": "cmn-article_text JSID_key_fonttxt"})
+            elm_text = u'◆'.join(
+                [self.tag_to_string(elm).strip() for elm in elms])
             elm_text = unicodedata.normalize('NFKC', elm_text)
             article.summary = article.text_summary = elm_text
         except:

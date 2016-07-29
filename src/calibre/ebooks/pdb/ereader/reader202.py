@@ -55,7 +55,7 @@ class Reader202(FormatReader):
 
     def decompress_text(self, number):
         from calibre.ebooks.compression.palmdoc import decompress_doc
-        return decompress_doc(''.join([chr(ord(x) ^ 0xA5) for x in self.section_data(number)])).decode('cp1252' if self.encoding is None else self.encoding, 'replace')
+        return decompress_doc(''.join([chr(ord(x) ^ 0xA5) for x in self.section_data(number)])).decode('cp1252' if self.encoding is None else self.encoding, 'replace')  # noqa
 
     def get_image(self, number):
         name = None

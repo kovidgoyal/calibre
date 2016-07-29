@@ -19,11 +19,12 @@ class CaravanMagazine(BasicNewsRecipe):
 
     keep_only_tags = [
         dict(attrs={'class': ['post-title']}),
-        dict(attrs={'class':['post-subhheading', 'authorndate', 'rg-thumbs', 'entry-content']}),
+        dict(attrs={'class': ['post-subhheading',
+                              'authorndate', 'rg-thumbs', 'entry-content']}),
     ]
 
     remove_tags = [
-        dict(attrs={'class':['share-with']}),
+        dict(attrs={'class': ['share-with']}),
     ]
 
     def preprocess_raw_html(self, raw_html, url):
@@ -99,7 +100,8 @@ class CaravanMagazine(BasicNewsRecipe):
                 if ele['class'].startswith(heading_class):
                     # heading section
                     if current_articles:
-                        self.log('Adding {0} articles to {1}'.format(len(current_articles), current_section))
+                        self.log('Adding {0} articles to {1}'.format(
+                            len(current_articles), current_section))
                         feeds.append((current_section, current_articles))
                     current_section = self.tag_to_string(ele)
                     current_articles = []
@@ -133,7 +135,8 @@ class CaravanMagazine(BasicNewsRecipe):
         # append any remaining articles that were probably from last section,
         # we ran out of heading_class to push them
         if current_articles:
-            self.log('Adding {0} articles to {1}'.format(len(current_articles), current_section))
+            self.log('Adding {0} articles to {1}'.format(
+                len(current_articles), current_section))
             feeds.append((current_section, current_articles))
 
         return feeds

@@ -58,7 +58,8 @@ class HorizontalHeader(UnknownTable):
     version_number = FixedProperty('_version_number')
 
     def read_data(self, hmtx):
-        if hasattr(self, 'ascender'): return
+        if hasattr(self, 'ascender'):
+            return
         field_types = (
             '_version_number' , 'l',
             'ascender', 'h',
@@ -100,7 +101,8 @@ class HorizontalHeader(UnknownTable):
 class OS2Table(UnknownTable):
 
     def read_data(self):
-        if hasattr(self, 'char_width'): return
+        if hasattr(self, 'char_width'):
+            return
         ver, = unpack_from(b'>H', self.raw)
         field_types = [
             'version' , 'H',
@@ -158,7 +160,8 @@ class PostTable(UnknownTable):
     italic_angle = FixedProperty('_italic_angle')
 
     def read_data(self):
-        if hasattr(self, 'underline_position'): return
+        if hasattr(self, 'underline_position'):
+            return
         (self._version, self._italic_angle, self.underline_position,
          self.underline_thickness) = unpack_from(b'>llhh', self.raw)
 

@@ -33,12 +33,14 @@ class TNR(BasicNewsRecipe):
         self.log('Logging in...')
         raw = br.submit().read()
         if 'SIGN OUT' not in raw:
-            raise ValueError('Failed to log in to tnr.com, check your username and password')
+            raise ValueError(
+                'Failed to log in to tnr.com, check your username and password')
         self.log('Logged in successfully')
         return br
 
     def parse_index(self):
-        raw = self.index_to_soup('http://www.newrepublic.com/current-issue', raw=True)
+        raw = self.index_to_soup(
+            'http://www.newrepublic.com/current-issue', raw=True)
         # raw = self.index_to_soup(open('/t/raw.html').read().decode('utf-8'), raw=True)
         for pat, sub in self.preprocess_regexps:
             raw = pat.sub(sub, raw)
@@ -46,18 +48,19 @@ class TNR(BasicNewsRecipe):
         feed_title = 'The New Republic Magazine Articles'
 
         articles = []
-        for div in soup.findAll('div', attrs={'class':lambda x: x and 'field-item' in x.split()}):
-            a = div.find('a', href=True, attrs={'class':lambda x: x != 'author'})
+        for div in soup.findAll('div', attrs={'class': lambda x: x and 'field-item' in x.split()}):
+            a = div.find('a', href=True, attrs={
+                         'class': lambda x: x != 'author'})
             if a is not None:
                 art_title = self.tag_to_string(a)
                 url = a.get('href')
                 num = re.search(r'/(\d+)/', url)
                 if num is not None:
                     art = num.group(1)
-                    url = 'http://www.newrepublic.com/node/%s/print'%art
+                    url = 'http://www.newrepublic.com/node/%s/print' % art
                     self.log.info('\tFound article:', art_title, 'at', url)
-                    article = {'title':art_title, 'url':url, 'description':'', 'date':''}
+                    article = {'title': art_title, 'url': url,
+                               'description': '', 'date': ''}
                     articles.append(article)
 
         return [(feed_title, articles)]
-

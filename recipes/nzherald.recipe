@@ -1,38 +1,39 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 import re
 
+
 class NewZealandHerald(BasicNewsRecipe):
 
-    title       = 'New Zealand Herald'
-    __author__  = 'Kovid Goyal'
+    title = 'New Zealand Herald'
+    __author__ = 'Kovid Goyal'
     description = 'Daily news'
     timefmt = ' [%d %b, %Y]'
     language = 'en_NZ'
     oldest_article = 2.5
 
     feeds = [
-            ('Business',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000003.xml'),
-            ('World',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000002.xml'),
-            ('National',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000001.xml'),
-            ('Entertainment',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_001501119.xml'),
-            ('Travel',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000007.xml'),
-            ('Opinion',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000466.xml'),
-            ('Life & Style',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000006.xml'),
-            ('Technology',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000005.xml'),
-            ('Sport',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000004.xml'),
-            ('Motoring',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000009.xml'),
-            ('Property',
-                'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000008.xml'),
+        ('Business',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000003.xml'),
+        ('World',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000002.xml'),
+        ('National',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000001.xml'),
+        ('Entertainment',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_001501119.xml'),
+        ('Travel',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000007.xml'),
+        ('Opinion',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000466.xml'),
+        ('Life & Style',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000006.xml'),
+        ('Technology',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000005.xml'),
+        ('Sport',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000004.xml'),
+        ('Motoring',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000009.xml'),
+        ('Property',
+         'http://rss.nzherald.co.nz/rss/xml/nzhrsscid_000000008.xml'),
     ]
 
     def print_version(self, url):
@@ -40,4 +41,3 @@ class NewZealandHerald(BasicNewsRecipe):
         if m is None:
             return url
         return 'http://www.nzherald.co.nz/news/print.cfm?pnum=1&objectid=' + m.group(1)
-

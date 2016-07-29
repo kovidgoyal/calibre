@@ -1,5 +1,6 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class AntywebRecipe(BasicNewsRecipe):
     encoding = 'utf-8'
@@ -10,38 +11,40 @@ class AntywebRecipe(BasicNewsRecipe):
     title = u'Antyweb'
     category = u'News'
     description = u'Blog o internecie i nowych technologiach'
-    cover_url=''
-    remove_empty_feeds= True
+    cover_url = ''
+    remove_empty_feeds = True
     auto_cleanup = False
-    no_stylesheets=True
+    no_stylesheets = True
     use_embedded_content = False
     oldest_article = 7
     max_articles_per_feed = 100
     remove_javascript = True
     simultaneous_downloads = 10
-    ignore_duplicate_articles = {'title', 'url'} # zignoruj zduplikowane artykuły o takich samych tytułach LUB adresach
-    scale_news_images =True
-    conversion_options        = { 'tags'                : u'news, aplikacje mobilne, Android, iOS, Windows Phone ',
-                                  'smarten_punctuation' : True,
-                                  'publisher'           : 'AntyWeb'
-                                } # opcje konwersji. 
+    # zignoruj zduplikowane artykuły o takich samych tytułach LUB adresach
+    ignore_duplicate_articles = {'title', 'url'}
+    scale_news_images = True
+    conversion_options = {'tags': u'news, aplikacje mobilne, Android, iOS, Windows Phone ',
+                          'smarten_punctuation': True,
+                          'publisher': 'AntyWeb'
+                          }  # opcje konwersji.
 
-    keep_only_tags=[]    
-    keep_only_tags.append(dict(name = 'h1'))
-    keep_only_tags.append(dict(name = 'article', attrs = {'class' : 'article'}))
-    remove_tags =[]
-    remove_tags.append(dict(name = 'div', attrs = {'class' : 'ac-footer group'}))
+    keep_only_tags = []
+    keep_only_tags.append(dict(name='h1'))
+    keep_only_tags.append(dict(name='article', attrs={'class': 'article'}))
+    remove_tags = []
+    remove_tags.append(dict(name='div', attrs={'class': 'ac-footer group'}))
 
-    feeds          = [
-                            (u'News', 'http://feeds.feedburner.com/antyweb'),
-                            (u'Felietony', 'http://feeds.feedburner.com/AntywebFelietony'),
-                            (u'Apple', 'http://feeds.feedburner.com/AntywebApple'),
-                            (u'Gry', 'http://feeds.feedburner.com/AntywebGry'),
-                            (u'Mobile', 'http://feeds.feedburner.com/AntywebMobile'),
-                            (u'Startups', 'http://feeds.feedburner.com/AntywebStartups'),
-                            (u'Google', 'http://feeds.feedburner.com/AntywebGoogle'),
-                            (u'Microsoft', 'http://feeds.feedburner.com/AntywebMicrosoft')
-                     ]
+    feeds = [
+        (u'News', 'http://feeds.feedburner.com/antyweb'),
+        (u'Felietony', 'http://feeds.feedburner.com/AntywebFelietony'),
+        (u'Apple', 'http://feeds.feedburner.com/AntywebApple'),
+        (u'Gry', 'http://feeds.feedburner.com/AntywebGry'),
+        (u'Mobile', 'http://feeds.feedburner.com/AntywebMobile'),
+        (u'Startups', 'http://feeds.feedburner.com/AntywebStartups'),
+        (u'Google', 'http://feeds.feedburner.com/AntywebGoogle'),
+        (u'Microsoft', 'http://feeds.feedburner.com/AntywebMicrosoft')
+    ]
+
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
             if alink.string is not None:

@@ -18,18 +18,18 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
         self.setupUi(self)
-        
+
         self.buttonBox.accepted.connect(self.advanced_search_button_pushed)
         self.tab_2_button_box.accepted.connect(self.accept)
         self.tab_2_button_box.rejected.connect(self.reject)
         self.clear_button.clicked.connect(self.clear_button_pushed)
         self.adv_search_used = False
         self.mc = ''
-        
+
         self.tabWidget.setCurrentIndex(0)
         self.tabWidget.currentChanged[int].connect(self.tab_changed)
         self.tab_changed(0)
-        
+
     def tab_changed(self, idx):
         if idx == 1:
             self.tab_2_button_box.button(QDialogButtonBox.Ok).setDefault(True)
@@ -113,7 +113,7 @@ class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
             ans.append('author:"' + self.mc + author + '"')
         format = unicode(self.format_box.text()).strip()
         if format:
-            ans.append('format:"' + self.mc + format + '"')            
+            ans.append('format:"' + self.mc + format + '"')
         if ans:
             return ' and '.join(ans)
         return ''

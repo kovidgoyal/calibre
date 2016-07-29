@@ -73,7 +73,8 @@ def encint(bytes, remaining):
         remaining -= 1
         val <<= 7
         val |= (b & 0x7f)
-        if b & 0x80 == 0: break
+        if b & 0x80 == 0:
+            break
     return val, bytes[pos:], remaining
 
 def msguid(bytes):
@@ -155,7 +156,8 @@ class UnBinary(object):
         target = target.split('/')
         base = self.dir.split('/')
         for index in xrange(min(len(base), len(target))):
-            if base[index] != target[index]: break
+            if base[index] != target[index]:
+                break
         else:
             index += 1
         relpath = (['..'] * (len(base) - index)) + target[index:]
@@ -367,6 +369,7 @@ class UnBinary(object):
 
 
 class DirectoryEntry(object):
+
     def __init__(self, name, section, offset, size):
         self.name = name
         self.section = section
@@ -382,6 +385,7 @@ class DirectoryEntry(object):
 
 
 class ManifestItem(object):
+
     def __init__(self, original, internal, mime_type, offset, root, state):
         self.original = original
         self.internal = internal
@@ -391,10 +395,12 @@ class ManifestItem(object):
         self.state = state
         # Some LIT files have Windows-style paths
         path = original.replace('\\', '/')
-        if path[1:3] == ':/': path = path[2:]
+        if path[1:3] == ':/':
+            path = path[2:]
         # Some paths in Fictionwise "multiformat" LIT files contain '..' (!?)
         path = os.path.normpath(path).replace('\\', '/')
-        while path.startswith('../'): path = path[3:]
+        while path.startswith('../'):
+            path = path[3:]
         self.path = path
 
     def __eq__(self, other):
@@ -556,7 +562,7 @@ class LitFile(object):
             offset, size = u32(piece), int32(piece[8:])
             piece = self.read_raw(offset, size)
             if i == 0:
-                continue # Dont need this piece
+                continue  # Dont need this piece
             elif i == 1:
                 if u32(piece[8:])  != self.entry_chunklen or \
                    u32(piece[12:]) != self.entry_unknown:
@@ -566,7 +572,7 @@ class LitFile(object):
                 if u32(piece[8:])  != self.count_chunklen or \
                    u32(piece[12:]) != self.count_unknown:
                     raise LitError('Secondary header does not match piece')
-                continue # No data needed from this piece
+                continue  # No data needed from this piece
             elif i == 3:
                 self.piece3_guid = piece
             elif i == 4:
@@ -583,7 +589,8 @@ class LitFile(object):
             offset = 32 + (i * chunk_size)
             chunk = piece[offset:offset + chunk_size]
             tag, chunk = chunk[:4], chunk[4:]
-            if tag != 'AOLL': continue
+            if tag != 'AOLL':
+                continue
             remaining, chunk = int32(chunk[:4]), chunk[4:]
             if remaining >= chunk_size:
                 raise LitError('AOLL remaining count is negative')
@@ -594,7 +601,8 @@ class LitFile(object):
                 entries = (2 ** 16) - 1
             chunk = chunk[40:]
             for j in xrange(entries):
-                if remaining <= 0: break
+                if remaining <= 0:
+                    break
                 namelen, chunk, remaining = encint(chunk, remaining)
                 if namelen != (namelen & 0x7fffffff):
                     raise LitError('Directory entry had 64bit name length.')
@@ -640,13 +648,15 @@ class LitFile(object):
         self.paths = {self.opf_path: None}
         while raw:
             slen, raw = ord(raw[0]), raw[1:]
-            if slen == 0: break
+            if slen == 0:
+                break
             root, raw = raw[:slen].decode('utf8'), raw[slen:]
             if not raw:
                 raise LitError('Truncated manifest')
             for state in ['spine', 'not spine', 'css', 'images']:
                 num_files, raw = int32(raw), raw[4:]
-                if num_files == 0: continue
+                if num_files == 0:
+                    continue
                 for i in xrange(num_files):
                     if len(raw) < 5:
                         raise LitError('Truncated manifest')
@@ -666,8 +676,10 @@ class LitFile(object):
             for item in mlist[1:]:
                 path = item.path
                 while shared and not path.startswith(shared):
-                    try: shared = shared[:shared.rindex("/", 0, -2) + 1]
-                    except ValueError: shared = None
+                    try:
+                        shared = shared[:shared.rindex("/", 0, -2) + 1]
+                    except ValueError:
+                        shared = None
                 if not shared:
                     break
             if shared:
@@ -896,7 +908,8 @@ class LitContainer(object):
         try:
             unbin = UnBinary(raw, path, self._litfile.manifest, OPF_MAP)
         except LitError:
-            if 'PENGUIN group' not in raw: raise
+            if 'PENGUIN group' not in raw:
+                raise
             print "WARNING: attempting PENGUIN malformed OPF fix"
             raw = raw.replace(
                 'PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)

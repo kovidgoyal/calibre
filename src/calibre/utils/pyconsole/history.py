@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from collections import deque
 
-class History(object): # {{{
+class History(object):  # {{{
 
     def __init__(self, current, entries):
         self.entries = deque(entries, maxlen=max(2000, len(entries)))

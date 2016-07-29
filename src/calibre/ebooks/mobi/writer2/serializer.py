@@ -83,7 +83,8 @@ class Serializer(object):
         for item in self.oeb.toc.iterdescendants():
             if item.klass == 'section':
                 articles = list(item)
-                if not articles: continue
+                if not articles:
+                    continue
                 spine_item(item).is_section_start = True
                 for i, article in enumerate(articles):
                     si = spine_item(article)
@@ -97,14 +98,16 @@ class Serializer(object):
                 prev_item = items[i-1]
             except:
                 prev_item = None
-            if in_art and item.is_article_start == True:
+            if in_art and item.is_article_start is True:
                 prev_item.is_article_end = True
                 in_art = False
-            if in_sec and item.is_section_start == True:
+            if in_sec and item.is_section_start is True:
                 prev_item.is_section_end = True
                 in_sec = False
-            if item.is_section_start: in_sec = True
-            if item.is_article_start: in_art = True
+            if item.is_section_start:
+                in_sec = True
+            if item.is_article_start:
+                in_art = True
 
         item.is_section_end = item.is_article_end = True
 
@@ -219,8 +222,8 @@ class Serializer(object):
                 t = tocref.title
                 if isinstance(t, unicode):
                     t = t.encode('utf-8')
-                buf.write('<div></div> <div> <h2 height="1em"><font size="+2"><b>'
-                        +t+'</b></font></h2> <div height="1em"></div>')
+                buf.write('<div></div> <div> <h2 height="1em"><font size="+2"><b>' + t +
+                          '</b></font></h2> <div height="1em"></div>')
 
             buf.write('<ul>')
 
@@ -299,7 +302,7 @@ class Serializer(object):
         buf = self.buf
         if not isinstance(elem.tag, basestring) \
             or namespace(elem.tag) not in nsrmap:
-                return
+            return
         tag = prefixname(elem.tag, nsrmap)
         # Previous layers take care of @name
         id_ = elem.attrib.pop('id', None)
@@ -312,7 +315,7 @@ class Serializer(object):
         if self.anchor_offset is not None and \
             tag == 'a' and not elem.attrib and \
             not len(elem) and not elem.text:
-                return
+            return
         self.anchor_offset = buf.tell()
         buf.write(b'<')
         buf.write(tag.encode('utf-8'))
@@ -352,7 +355,7 @@ class Serializer(object):
         text = text.replace('&', '&amp;')
         text = text.replace('<', '&lt;')
         text = text.replace('>', '&gt;')
-        text = text.replace(u'\u00AD', '') # Soft-hyphen
+        text = text.replace(u'\u00AD', '')  # Soft-hyphen
         if quot:
             text = text.replace('"', '&quot;')
         if isinstance(text, unicode):

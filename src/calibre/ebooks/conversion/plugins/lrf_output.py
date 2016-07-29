@@ -73,7 +73,6 @@ class LRFOptions(object):
         self.header_separation = (self.profile.dpi/72.) * opts.header_separation
         self.headerformat = opts.header_format
 
-
         for x in ('top', 'bottom', 'left', 'right'):
             setattr(self, x+'_margin',
                 (self.profile.dpi/72.) * float(getattr(opts, 'margin_'+x)))
@@ -172,7 +171,6 @@ class LRFOutput(OutputFormatPlugin):
         for x in self.oeb.toc.iterdescendants():
             nroot.add(x.title, x.href)
         self.oeb.toc = nroot
-
 
     def convert(self, oeb, output_path, input_plugin, opts, log):
         self.log, self.opts, self.oeb = log, opts, oeb

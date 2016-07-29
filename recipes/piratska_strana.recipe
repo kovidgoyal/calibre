@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class cpsRecipe(BasicNewsRecipe):
-    __author__  = 'bubak'
+    __author__ = 'bubak'
     title = u'Piratská strana'
     publisher = u''
     description = ''
@@ -13,11 +14,9 @@ class cpsRecipe(BasicNewsRecipe):
     remove_empty_feeds = True
 
     feeds = [
-            (u'Články', u'http://www.pirati.cz/rss.xml')
-            ]
+        (u'Články', u'http://www.pirati.cz/rss.xml')
+    ]
 
-
-    #encoding = 'iso-8859-2'
     language = 'cs'
     cover_url = 'http://www.pirati.cz/sites/all/themes/addari-cps/images/headbg.jpg'
     remove_javascript = True
@@ -26,15 +25,10 @@ class cpsRecipe(BasicNewsRecipe):
                             """
 
     remove_attributes = []
-    keep_only_tags = [dict(name='div', attrs={'id':'postarea'})]
-    remove_tags = [dict(name='div', attrs={'class':['breadcrumb', 'submitted', 'links-readmore']}),
-        dict(name='div', attrs={'id':['comments']})]
-    remove_tags_before  = dict(name='font', attrs={'size':'+3'})
-    remove_tags_after  = [dict(name='iframe')]
+    keep_only_tags = [dict(name='div', attrs={'id': 'postarea'})]
+    remove_tags = [dict(name='div', attrs={'class': ['breadcrumb', 'submitted', 'links-readmore']}),
+                   dict(name='div', attrs={'id': ['comments']})]
+    remove_tags_before = dict(name='font', attrs={'size': '+3'})
+    remove_tags_after = [dict(name='iframe')]
 
-    conversion_options = {'linearize_tables' : True}
-
-
-
-
-
+    conversion_options = {'linearize_tables': True}

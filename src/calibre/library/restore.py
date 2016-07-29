@@ -93,9 +93,7 @@ class Restore(Thread):
             for x in self.mismatched_dirs:
                 ans += '\t'+x+'\n'
 
-
         return ans
-
 
     def run(self):
         try:

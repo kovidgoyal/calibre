@@ -3,9 +3,10 @@ import random
 from calibre import browser
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
-    title          = u'The Sun UK'
+    title = u'The Sun UK'
     description = 'Articles from The Sun tabloid UK'
     __author__ = 'Dave Asbury'
     # last updated 5/5/13 better cover fetch
@@ -16,34 +17,32 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
 
     masthead_url = 'http://www.thesun.co.uk/sol/img/global/Sun-logo.gif'
     encoding = 'UTF-8'
-    remove_javascript     = True
+    remove_javascript = True
     no_stylesheets = True
 
-    ignore_duplicate_articles = {'title','url'}
+    ignore_duplicate_articles = {'title', 'url'}
     compress_news_images = True
 
-    extra_css  = '''
-    body{ text-align: justify; font-family:Arial,Helvetica,sans-serif; font-size:11px; font-size-adjust:none; font-stretch:normal; font-style:normal; font-variant:normal; font-weight:normal;}
-           '''
     keep_only_tags = [
-        dict(name='div',attrs={'class' : 'intro'}),
-                                dict(name='h3'),
-        dict(name='div',attrs={'id' : 'articlebody'}),
+        dict(name='div', attrs={'class': 'intro'}),
+        dict(name='h3'),
+        dict(name='div', attrs={'id': 'articlebody'}),
 
     ]
     remove_tags_after = [dict(id='bodyText')]
-    remove_tags=[
-                    dict(name='li'),
-                    dict(attrs={'class' : 'grid-4 right-hand-column'}),
-        ]
+    remove_tags = [
+        dict(name='li'),
+        dict(attrs={'class': 'grid-4 right-hand-column'}),
+    ]
 
-    feeds          = [
-    (u'News', u'http://www.thesun.co.uk/sol/homepage/news/rss'),
-    (u'Sport', u'http://www.thesun.co.uk/sol/homepage/sport/rss'),
-    (u'Showbiz', u'http://www.thesun.co.uk/sol/homepage/showbiz/rss'),
-    (u'Woman', u'http://www.thesun.co.uk/sol/homepage/woman/rss'),
+    feeds = [
+        (u'News', u'http://www.thesun.co.uk/sol/homepage/news/rss'),
+        (u'Sport', u'http://www.thesun.co.uk/sol/homepage/sport/rss'),
+        (u'Showbiz', u'http://www.thesun.co.uk/sol/homepage/showbiz/rss'),
+        (u'Woman', u'http://www.thesun.co.uk/sol/homepage/woman/rss'),
     ]
     # starsons code
+
     def parse_feeds(self):
         feeds = BasicNewsRecipe.parse_feeds(self)
         for feed in feeds:
@@ -60,14 +59,11 @@ class AdvancedUserRecipe1325006965(BasicNewsRecipe):
         cover_url = 'http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg'
 
         try:
-            br.open_novisit('http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg')
+            br.open_novisit(
+                'http://www.thepaperboy.com/frontpages/current/The_Sun_newspaper_front_page.jpg')
         except:
             cover_url = random.choice([
-                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg'
-                ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage7_677962a_905505a.jpg'
-                ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg'
-                ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg'
-                ,'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg'
+                'http://img.thesun.co.uk/multimedia/archive/00905/errorpage6_677961a_905507a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage7_677962a_905505a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage5_677960a_905512a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage2_677957a_905502a.jpg', 'http://img.thesun.co.uk/multimedia/archive/00905/errorpage3_677958a_905503a.jpg'  # noqa
             ])
 
         return cover_url

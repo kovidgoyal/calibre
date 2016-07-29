@@ -23,7 +23,7 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         by anisotrope, 27 June 2015
         '''
 
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'Rick Shang, kwetal, anisotrope'
     language = 'en'
     version = 1.02
@@ -41,7 +41,8 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
     FRONTPAGE = INDEX + '/magazine'
 
     keep_only_tags = [
-        dict(attrs={'class':lambda x: x and set(x.split()).intersection(set('article-header l-article-column'.split()))}),
+        dict(attrs={'class': lambda x: x and set(x.split()).intersection(
+            set('article-header l-article-column'.split()))}),
     ]
 
     conversion_options = {'comments': description, 'tags': category, 'language': 'en',
@@ -49,33 +50,40 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
 
     def parse_index(self):
         answer = []
-        soup = self.index_to_soup(html.tostring(self.clean_fa_html(self.index_to_soup(self.FRONTPAGE, as_tree=True))))
-        div = soup.find('div', attrs={'class':'magazine-hero__image image_auto_width'})
-        self.cover_url =  div.find('img')['src']
+        soup = self.index_to_soup(html.tostring(self.clean_fa_html(
+            self.index_to_soup(self.FRONTPAGE, as_tree=True))))
+        div = soup.find(
+            'div', attrs={'class': 'magazine-hero__image image_auto_width'})
+        self.cover_url = div.find('img')['src']
         # get dates
-        date = re.split('\s\|\s',self.tag_to_string(soup.head.title.string))[0]
+        date = re.split('\s\|\s', self.tag_to_string(
+            soup.head.title.string))[0]
         self.title = "Foreign Affairs ({})".format(date)
-        self.timefmt =  u' [%s]'%date
+        self.timefmt = u' [%s]' % date
 
-        sec_start = soup.findAll('section', attrs={'class':re.compile(r'\bmagazine-list\b')})
+        sec_start = soup.findAll(
+            'section', attrs={'class': re.compile(r'\bmagazine-list\b')})
         for sec in sec_start:
             articles = []
             section = self.tag_to_string(sec.find('h1'))
             for article_block in sec.findAll('article'):
                 if article_block.find('a') is not None:
-                    title=self.tag_to_string(article_block.div.a.h2)
+                    title = self.tag_to_string(article_block.div.a.h2)
                     url = article_block.div.a['href']
-                    atr=article_block.findNext('p', attrs={'class': 'author'})
+                    atr = article_block.findNext(
+                        'p', attrs={'class': 'author'})
                     if atr is not None:
-                        author=self.tag_to_string(atr)
+                        author = self.tag_to_string(atr)
                     else:
-                        author=''
-                    desc=article_block.findNext('div', attrs={'class': 'deck'})
+                        author = ''
+                    desc = article_block.findNext(
+                        'div', attrs={'class': 'deck'})
                     if desc is not None:
-                        description=self.tag_to_string(desc)
+                        description = self.tag_to_string(desc)
                     else:
-                        description=''
-                    articles.append({'title':title, 'date':None, 'url':url, 'description':description, 'author':author})
+                        description = ''
+                    articles.append({'title': title, 'date': None, 'url': url,
+                                     'description': description, 'author': author})
             if articles:
                 answer.append((section, articles))
         return answer
@@ -88,7 +96,8 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         return root
 
     def preprocess_raw_html(self, raw_html, url):
-        root = html5lib.parse(raw_html, treebuilder='lxml', namespaceHTMLElements=False).getroot()
+        root = html5lib.parse(raw_html, treebuilder='lxml',
+                              namespaceHTMLElements=False).getroot()
         self.clean_fa_html(root)
         return html.tostring(root)
 
@@ -104,8 +113,10 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         if self.username is not None and self.password is not None:
             # mechanize fails to parse the html correctly, so use html5lib to
             # sanitize the html first
-            response = br.open('https://www.foreignaffairs.com/user?destination=user%3Fop%3Dlo')
-            root = html5lib.parse(response.get_data(), treebuilder='lxml', namespaceHTMLElements=False)
+            response = br.open(
+                'https://www.foreignaffairs.com/user?destination=user%3Fop%3Dlo')
+            root = html5lib.parse(
+                response.get_data(), treebuilder='lxml', namespaceHTMLElements=False)
             response.set_data(html.tostring(root))
             br.set_response(response)
             br.select_form(predicate=select_form)

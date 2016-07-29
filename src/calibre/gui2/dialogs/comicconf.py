@@ -71,7 +71,8 @@ class ComicConf(QDialog, Ui_Dialog):
     def accept(self):
         for opt in self.config.option_set.preferences:
             g = getattr(self, 'opt_'+opt.name, False)
-            if not g or not g.isVisible(): continue
+            if not g or not g.isVisible():
+                continue
             if hasattr(g, 'isChecked'):
                 val = bool(g.isChecked())
             elif hasattr(g, 'value'):

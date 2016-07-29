@@ -1,27 +1,31 @@
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 def class_sel(cls):
     def f(x):
         return x and cls in x.split()
     return f
 
+
 class Spectator(BasicNewsRecipe):
 
-    title       = 'Spectator Magazine'
-    __author__  = 'Kovid Goyal'
+    title = 'Spectator Magazine'
+    __author__ = 'Kovid Goyal'
     description = 'Magazine'
     language = 'en'
 
     no_stylesheets = True
 
-    keep_only_tags = dict(name='div', attrs={'class':['article-header__text', 'featured-image', 'article-content']})
+    keep_only_tags = dict(name='div', attrs={
+                          'class': ['article-header__text', 'featured-image', 'article-content']})
     remove_tags = [
-        dict(name='div', attrs={'id':['disqus_thread']}),
-        dict(attrs={'class':['middle-promo', 'sharing', 'mejs-player-holder']}),
+        dict(name='div', attrs={'id': ['disqus_thread']}),
+        dict(attrs={'class': ['middle-promo',
+                              'sharing', 'mejs-player-holder']}),
         dict(name='a', onclick=lambda x: x and '__gaTracker' in x and 'outbound-article' in x),
     ]
     remove_tags_after = [
-        dict(name='hr', attrs={'class':'sticky-clear'}),
+        dict(name='hr', attrs={'class': 'sticky-clear'}),
     ]
 
     def parse_spec_section(self, div):
@@ -30,21 +34,21 @@ class Spectator(BasicNewsRecipe):
         self.log('Section:', sectitle)
         articles = []
         for div in div.findAll('div', id=lambda x: x and x.startswith('post-')):
-            h2 = div.find('h2', attrs={'class':class_sel('term-item__title')})
+            h2 = div.find('h2', attrs={'class': class_sel('term-item__title')})
             title = self.tag_to_string(h2)
             a = h2.find('a')
             url = a['href']
             desc = ''
             self.log('\tArticle:', title)
-            p = div.find(attrs={'class':class_sel('term-item__excerpt')})
+            p = div.find(attrs={'class': class_sel('term-item__excerpt')})
             if p is not None:
                 desc = self.tag_to_string(p)
-            articles.append({'title':title, 'url':url, 'description':desc})
+            articles.append({'title': title, 'url': url, 'description': desc})
         return sectitle, articles
 
     def parse_index(self):
         soup = self.index_to_soup('http://www.spectator.co.uk/magazine/')
-        a = soup.find('a', attrs={'class':'issue-details__cover-link'})
+        a = soup.find('a', attrs={'class': 'issue-details__cover-link'})
         self.timefmt = a['title']
         self.cover_url = a['href']
         if self.cover_url.startswith('//'):
@@ -52,8 +56,8 @@ class Spectator(BasicNewsRecipe):
 
         feeds = []
 
-        div = soup.find(attrs={'class':class_sel('content-area')})
-        for x in div.findAll(attrs={'class':class_sel('magazine-section-holder')}):
+        div = soup.find(attrs={'class': class_sel('content-area')})
+        for x in div.findAll(attrs={'class': class_sel('magazine-section-holder')}):
             title, articles = self.parse_spec_section(x)
             if articles:
                 feeds.append((title, articles))

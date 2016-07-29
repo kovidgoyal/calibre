@@ -124,7 +124,7 @@ class Sfnt(object):
         # Write tables
         head_offset = None
         table_data = []
-        offset = stream.tell() + ( calcsize(b'>4s3L') * num_tables )
+        offset = stream.tell() + (calcsize(b'>4s3L') * num_tables)
         sizes = OrderedDict()
         for tag in self:
             table = self.tables[tag]

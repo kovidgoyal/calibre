@@ -2,8 +2,9 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 from calibre.ptempfile import PersistentTemporaryFile
 
+
 class MotherJonesRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en'
     version = 1
@@ -23,29 +24,36 @@ class MotherJonesRecipe(BasicNewsRecipe):
     simultaneous_downloads = 3
 
     keep_only_tags = []
-    keep_only_tags.append(dict(name = 'h1'))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'dek'}))
-    keep_only_tags.append(dict(name = 'p', attrs = {'class': 'submitted'}))
-    keep_only_tags.append(dict(name = 'div', attrs = {'class': 'print-content'}))
-    #keep_only_tags.append(dict(name = '', attrs = {'': ''}))
+    keep_only_tags.append(dict(name='h1'))
+    keep_only_tags.append(dict(name='div', attrs={'class': 'dek'}))
+    keep_only_tags.append(dict(name='p', attrs={'class': 'submitted'}))
+    keep_only_tags.append(dict(name='div', attrs={'class': 'print-content'}))
+    # keep_only_tags.append(dict(name = '', attrs = {'': ''}))
 
     remove_tags = []
-    remove_tags.append(dict(name = 'base'))
-    #remove_tags.append(dict(name = '', attrs = {'': ''}))
+    remove_tags.append(dict(name='base'))
+    # remove_tags.append(dict(name = '', attrs = {'': ''}))
 
     remove_attributes = ['style']
 
     # feeds from http://motherjones.com/about/rss
     feeds = []
-    feeds.append((u'Latest News', u'http://feeds.feedburner.com/motherjones/main?format=xml'))
-    feeds.append((u'Politics & Current Affairs', u'http://motherjones.com/rss/sections/Politics/feed&format=xml'))
-    feeds.append((u'Environment & Health', u'http://motherjones.com/rss/sections/Environment/feed'))
-    feeds.append((u'Media & Culture', u'http://motherjones.com/rss/sections/Media/feed'))
-    feeds.append((u'Blog: Kevin Drum', u'http://motherjones.com/rss/blogs/Kevin+Drum/feed'))
-    feeds.append((u'Blog: MoJo Blog', u'http://motherjones.com/rss/blogs/mojo/feed'))
-    feeds.append((u'Blog: Blue Marble', u'http://motherjones.com/rss/blogs/Blue+Marble/feed'))
-    feeds.append((u'Blog: The Riff', u'http://motherjones.com/rss/blogs/Riff/feed'))
-    ##feeds.append((u'', u''))
+    feeds.append(
+        (u'Latest News', u'http://feeds.feedburner.com/motherjones/main?format=xml'))
+    feeds.append((u'Politics & Current Affairs',
+                  u'http://motherjones.com/rss/sections/Politics/feed&format=xml'))
+    feeds.append((u'Environment & Health',
+                  u'http://motherjones.com/rss/sections/Environment/feed'))
+    feeds.append(
+        (u'Media & Culture', u'http://motherjones.com/rss/sections/Media/feed'))
+    feeds.append(
+        (u'Blog: Kevin Drum', u'http://motherjones.com/rss/blogs/Kevin+Drum/feed'))
+    feeds.append(
+        (u'Blog: MoJo Blog', u'http://motherjones.com/rss/blogs/mojo/feed'))
+    feeds.append(
+        (u'Blog: Blue Marble', u'http://motherjones.com/rss/blogs/Blue+Marble/feed'))
+    feeds.append(
+        (u'Blog: The Riff', u'http://motherjones.com/rss/blogs/Riff/feed'))
 
     extra_css = '''
                 body{font-family:verdana,arial,helvetica,geneva,sans-serif;}
@@ -70,7 +78,7 @@ class MotherJonesRecipe(BasicNewsRecipe):
         br = self.get_browser()
         br.open(url)
 
-        response = br.follow_link(url_regex = r'/print/[0-9]+', nr = 0)
+        response = br.follow_link(url_regex=r'/print/[0-9]+', nr=0)
         html = response.read()
 
         self.temp_files.append(PersistentTemporaryFile('_motherjones.html'))
@@ -90,7 +98,7 @@ class MotherJonesRecipe(BasicNewsRecipe):
             return article.link
 
     def preprocess_html(self, soup):
-        for img in soup.findAll('img', attrs = {'src': True}):
+        for img in soup.findAll('img', attrs={'src': True}):
             if not img['src'].startswith('http://'):
                 img['src'] = 'http://motherjones.com' + img['src']
 

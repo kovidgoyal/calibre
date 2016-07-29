@@ -23,7 +23,7 @@ class Inline:
             in_file,
             bug_handler,
             copy=None,
-            run_level = 1,):
+            run_level=1,):
         """
         Required:
             'file'--file to parse
@@ -74,7 +74,7 @@ class Inline:
             'cw<fd<field_____'  :       self.__found_field_func,
         }
         self.__state = 'default'
-        self.__brac_count = 0 # do I need this?
+        self.__brac_count = 0  # do I need this?
         self.__list_inline_list = []
         self.__body_inline_list = []
         self.__groups_in_waiting_list = [0]
@@ -82,7 +82,7 @@ class Inline:
         self.__groups_in_waiting = self.__groups_in_waiting_body
         self.__place = 'non_list'
         self.__inline_list = self.__body_inline_list
-        self.__in_para = 0 #  not in paragraph
+        self.__in_para = 0  # not in paragraph
         self.__char_dict = {
             # character info => ci
             'annotation'    :   'annotation',
@@ -173,12 +173,12 @@ class Inline:
             Use the dictionary to get the approriate function.
             Always print out the line.
         """
-        if line[0:5] == 'cw<ci': #calibre: bug in original function no diff between cw<ci and cw<pf
+        if line[0:5] == 'cw<ci':  # calibre: bug in original function no diff between cw<ci and cw<pf
             self.__handle_control_word(line)
         else:
             action = self.__after_open_bracket_dict.get(self.__token_info)
             if action:
-                self.__state = 'default' #  a non control word?
+                self.__state = 'default'  # a non control word?
                 action(line)
         self.__write_obj.write(line)
 
@@ -273,7 +273,7 @@ class Inline:
                 self.__in_para = 1
                 self.__start_para_func(line)
             elif self.__groups_in_waiting[0] != 0:
-                    self.__write_inline()
+                self.__write_inline()
 
     def __write_inline(self):
         """
@@ -415,7 +415,7 @@ class Inline:
                         sys.stderr.write('No matching state in module inline.py\n')
                         sys.stderr.write(self.__state + '\n')
                     action(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "inline.data")
         copy_obj.rename(self.__write_to, self.__file)

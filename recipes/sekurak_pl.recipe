@@ -1,14 +1,12 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Sekurak(BasicNewsRecipe):
-    title          = u'Sekurak'
-    __author__        = 'fenuks'
-    description   = u'Wiadomości z dziedziny bezpieczeństwa'
-    category       = 'it, security'
-    #publication_type = ''
-    language       = 'pl'
-    #encoding = ''
-    #extra_css = ''
+    title = u'Sekurak'
+    __author__ = 'fenuks'
+    description = u'Wiadomości z dziedziny bezpieczeństwa'
+    category = 'it, security'
+    language = 'pl'
     cover_url = 'http://www.securitum.pl/aktualnosci/sekurak.pl/image'
     masthead_url = ''
     use_embedded_content = False
@@ -21,8 +19,5 @@ class Sekurak(BasicNewsRecipe):
     ignore_duplicate_articles = {'title', 'url'}
 
     keep_only_tags = [dict(id='articleContent')]
-    #remove_tags = []
-    #remove_tags_after = dict()
-    #remove_tags_before = dict()
 
-    feeds          = [(u'Wpisy', u'http://feeds.feedburner.com/sekurak')]
+    feeds = [(u'Wpisy', u'http://feeds.feedburner.com/sekurak')]

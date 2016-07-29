@@ -20,8 +20,8 @@ class DeleteInfo:
     def __init__(self,
             in_file ,
             bug_handler,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         self.__file = in_file
         self.__bug_handler = bug_handler
@@ -72,7 +72,7 @@ class DeleteInfo:
     def __default_func(self,line):
         """Handle lines when in no special state. Look for an asterisk to
         begin a special state. Otherwise, print out line."""
-        ##cw<ml<asterisk__<nu<true
+        # cw<ml<asterisk__<nu<true
         if self.__token_info == 'cw<ml<asterisk__':
             self.__state = 'after_asterisk'
             self.__delete_count = self.__ob_count
@@ -186,7 +186,7 @@ class DeleteInfo:
         with open(self.__file, 'r') as read_obj:
             with open(self.__write_to, 'w') as self.__write_obj:
                 for line in read_obj:
-                    #ob<nu<open-brack<0001
+                    # ob<nu<open-brack<0001
                     self.__token_info = line[:16]
                     if self.__token_info == 'ob<nu<open-brack':
                         self.__ob_count = line[-5:-1]
@@ -200,7 +200,7 @@ class DeleteInfo:
                     # Print if allowed by action
                     if action(line):
                         self.__write_obj.write(line)
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "delete_info.data")
         copy_obj.rename(self.__write_to, self.__file)

@@ -1,21 +1,25 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 nytimes.com
 '''
-import re, string, time
+import re
+import string
+import time
 from calibre import strftime
 from datetime import timedelta, date
 from time import sleep
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag, BeautifulStoneSoup
 
+
 class NYTimes(BasicNewsRecipe):
 
-    recursions=1  # set this to zero to omit Related articles lists
-    match_regexps=[r'/[12][0-9][0-9][0-9]/[0-9]+/']  # speeds up processing by preventing index page links from being followed
+    recursions = 1  # set this to zero to omit Related articles lists
+    # speeds up processing by preventing index page links from being followed
+    match_regexps = [r'/[12][0-9][0-9][0-9]/[0-9]+/']
 
     # set getTechBlogs to True to include the technology blogs
     # set tech_oldest_article to control article age
@@ -31,27 +35,31 @@ class NYTimes(BasicNewsRecipe):
     # on their website to a new "Trending" page
     getPopularArticles = False
     popularPeriod = '1'  # set this to the number of days to include in the measurement
-                        # e.g. 7 will get the most popular measured over the last 7 days
-                        # and 30 will get the most popular measured over 30 days.
-                        # you still only get up to 20 articles in each category
+    # e.g. 7 will get the most popular measured over the last 7 days
+    # and 30 will get the most popular measured over 30 days.
+    # you still only get up to 20 articles in each category
 
-    # set headlinesOnly to True for the headlines-only version. If True, webEdition is ignored.
+    # set headlinesOnly to True for the headlines-only version. If True,
+    # webEdition is ignored.
     headlinesOnly = True
 
     # set webEdition to True for the Web edition of the newspaper. Set oldest_web_article to the
     # number of days old an article can be for inclusion. If oldest_web_article = None all articles
-    # will be included. Note: oldest_web_article is ignored if webEdition = False
+    # will be included. Note: oldest_web_article is ignored if webEdition =
+    # False
     webEdition = False
     oldest_web_article = None
 
     # download higher resolution images than the small thumbnails typically included in the article
-    # the down side of having large beautiful images is the file size is much larger, on the order of 7MB per paper
+    # the down side of having large beautiful images is the file size is much
+    # larger, on the order of 7MB per paper
     useHighResImages = True
     compress_news_images = True
     compress_news_images_auto_size = 5
 
     # replace paid Kindle Version:  the name will be changed to "The New York Times" to cause
-    # previous paid versions of the new york times to best sent to the back issues folder on the kindle
+    # previous paid versions of the new york times to best sent to the back
+    # issues folder on the kindle
     replaceKindleVersion = False
 
     # includeSections: List of sections to include. If empty, all sections found will be included.
@@ -86,68 +94,69 @@ class NYTimes(BasicNewsRecipe):
     use_embedded_content = False
 
     # Whether to omit duplicates of articles (typically arsing when articles are indexed in
-    # more than one section). If True, only the first occurance will be downloaded.
+    # more than one section). If True, only the first occurance will be
+    # downloaded.
     filterDuplicates = True
 
     # Sections to collect for the Web edition.
     # Delete any you don't want, or use includeSections or excludeSections
-    web_sections = [(u'World',u'world'),
-                    (u'U.S.',u'national'),
-                    (u'Politics',u'politics'),
-                    (u'New York',u'nyregion'),
-                    (u'Business','business'),
-                    (u'Technology',u'technology'),
-                    (u'Sports',u'sports'),
-                    (u'Science',u'science'),
-                    (u'Health',u'health'),
-                    (u'Opinion',u'opinion'),
-                    (u'Arts',u'arts'),
-                    (u'Books',u'books'),
-                    (u'Movies',u'movies'),
-                    (u'Music',u'arts/music'),
-                    (u'Television',u'arts/television'),
-                    (u'Style',u'style'),
-                    (u'Dining & Wine',u'dining'),
-                    (u'Fashion & Style',u'fashion'),
-                    (u'Home & Garden',u'garden'),
-                    (u'Travel',u'travel'),
-                    ('Education',u'education'),
-                    ('Multimedia',u'multimedia'),
-                    (u'Obituaries',u'obituaries'),
-                    (u'Sunday Magazine',u'magazine')
+    web_sections = [(u'World', u'world'),
+                    (u'U.S.', u'national'),
+                    (u'Politics', u'politics'),
+                    (u'New York', u'nyregion'),
+                    (u'Business', 'business'),
+                    (u'Technology', u'technology'),
+                    (u'Sports', u'sports'),
+                    (u'Science', u'science'),
+                    (u'Health', u'health'),
+                    (u'Opinion', u'opinion'),
+                    (u'Arts', u'arts'),
+                    (u'Books', u'books'),
+                    (u'Movies', u'movies'),
+                    (u'Music', u'arts/music'),
+                    (u'Television', u'arts/television'),
+                    (u'Style', u'style'),
+                    (u'Dining & Wine', u'dining'),
+                    (u'Fashion & Style', u'fashion'),
+                    (u'Home & Garden', u'garden'),
+                    (u'Travel', u'travel'),
+                    ('Education', u'education'),
+                    ('Multimedia', u'multimedia'),
+                    (u'Obituaries', u'obituaries'),
+                    (u'Sunday Magazine', u'magazine')
                     ]
 
     tech_feeds = [
-               (u'Tech - News', u'http://pogue.blogs.nytimes.com/feed/'),
-               (u'Tech - Bits', u'http://bits.blogs.nytimes.com/feed/'),
-               (u'Tech - Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
-               (u'Tech - Open', u'http://open.blogs.nytimes.com/feed/')
-                   ]
+        (u'Tech - News', u'http://pogue.blogs.nytimes.com/feed/'),
+        (u'Tech - Bits', u'http://bits.blogs.nytimes.com/feed/'),
+        (u'Tech - Gadgetwise', u'http://gadgetwise.blogs.nytimes.com/feed/'),
+        (u'Tech - Open', u'http://open.blogs.nytimes.com/feed/')
+    ]
 
     if headlinesOnly:
-        title='New York Times Headlines'
+        title = 'New York Times Headlines'
         description = 'Headlines from the New York Times'
         needs_subscription = False
     elif webEdition:
-        title='New York Times (Web)'
+        title = 'New York Times (Web)'
         description = 'New York Times on the Web'
         needs_subscription = False
     elif replaceKindleVersion:
-        title='The New York Times'
+        title = 'The New York Times'
         description = 'Today\'s New York Times'
         needs_subscription = False
     else:
-        title='New York Times'
+        title = 'New York Times'
         description = 'Today\'s New York Times'
         needs_subscription = False
 
-    def decode_url_date(self,url):
+    def decode_url_date(self, url):
         urlitems = url.split('/')
         try:
-            d = date(int(urlitems[3]),int(urlitems[4]),int(urlitems[5]))
+            d = date(int(urlitems[3]), int(urlitems[4]), int(urlitems[5]))
         except:
             try:
-                d = date(int(urlitems[4]),int(urlitems[5]),int(urlitems[6]))
+                d = date(int(urlitems[4]), int(urlitems[5]), int(urlitems[6]))
             except:
                 return None
         return d
@@ -158,7 +167,7 @@ class NYTimes(BasicNewsRecipe):
         earliest_date = date.today() - timedelta(days=oldest_web_article)
     oldest_article = 365  # by default, a long time ago
 
-    __author__  = 'GRiker/Kovid Goyal/Nick Redding'
+    __author__ = 'GRiker/Kovid Goyal/Nick Redding'
     language = 'en'
     requires_version = (0, 7, 5)
     encoding = 'utf-8'
@@ -167,117 +176,122 @@ class NYTimes(BasicNewsRecipe):
 
     # simultaneous_downloads = 1 # no longer required to deal with ads
 
-    cover_margins = (18,18,'grey99')
+    cover_margins = (18, 18, 'grey99')
 
     keep_only_tags = dict(id=['article', 'story', 'content'])
     remove_tags = [
-                    dict(attrs={'class':[
-                                        'articleFooter',
-                                        'articleTools',
-                                        'rfd', 'story-footer-links', 'page-footer',
-                                        'columnGroup singleRule',
-                                        'columnGroup last',
-                                        'columnGroup  last',
-                                        'doubleRule',
-                                        'dottedLine',
-                                        'entry-meta',
-                                        'entry-response module',
-                                        'leftNavTabs',
-                                        'metaFootnote',
-                                        'inside-story',
-                                        'module box nav',
-                                        'nextArticleLink',
-                                        'nextArticleLink clearfix',
-                                        'post-tools',
-                                        'relatedSearchesModule',
-                                        'side_tool',
-                                        'singleAd',
-                                        'postCategory column',
-                                        'refer tagRefer',  # added for bits blog post
-                                        'entry entry-utility',  # added for DealBook
-                                        'entry-tags',  # added for DealBook
-                                        'footer promos clearfix',  # added for DealBook
-                                        'footer links clearfix',  # added for DealBook
-                                        'tabsContainer',  # added for other blog downloads
-                                        'column lastColumn',  # added for other blog downloads
-                                        'pageHeaderWithLabel',  # added for other gadgetwise downloads
-                                        'column two',  # added for other blog downloads
-                                        'column two last',  # added for other blog downloads
-                                        'column three',  # added for other blog downloads
-                                        'column three last',  # added for other blog downloads
-                                        'column four',  # added for other blog downloads
-                                        'column four last',  # added for other blog downloads
-                                        'column last',  # added for other blog downloads
-                                        'entry entry-related',
-                                        'subNavigation tabContent active',  # caucus blog navigation
-                                        'mediaOverlay slideshow',
-                                        'wideThumb',
-                                        'video',  # added 02-11-2011
-                                        'videoHeader',  # added 02-11-2011
-                                        'articleInlineVideoHolder',  # added 02-11-2011
-                                        'assetCompanionAd',
-                                        'nytint-sectionHeader',
-                                        re.compile('^subNavigation'),
-                                        re.compile('^leaderboard'),
-                                        re.compile('^module'),
-                                        re.compile('commentCount'),
-                                        'lede-container',
-                                        'credit'
-                                        ]}),
-                    dict(attrs={'class':lambda x: x and 'related-coverage-marginalia' in x.split()}),
-                    dict(attrs={'class':lambda x: x and 'interactive' in x.split()}),
-                    dict(attrs={'class':lambda x: x and 'sharetools' in x.split()}),
-                    dict(attrs={'class':lambda x: x and 'ad' in x.split()}),
-                    dict(name='div', attrs={'class':re.compile('toolsList')}),  # bits
-                    dict(name='div', attrs={'class':re.compile('postNavigation')}),  # bits
-                    dict(name='div', attrs={'class':'tweet'}),
-                    dict(name='span', attrs={'class':'commentCount meta'}),
-                    dict(name='div', attrs={'id':'header'}),
-                    dict(name='div', attrs={'id':re.compile('commentsContainer')}),  # bits, pogue, gadgetwise, open
-                    dict(name='ul', attrs={'class':re.compile('entry-tools')}),  # pogue, gadgetwise
-                    dict(name='div', attrs={'class':re.compile('nocontent')}),  # pogue, gadgetwise
-                    dict(name='div', attrs={'id':re.compile('respond')}),  # open
-                    dict(name='div', attrs={'class':re.compile('entry-tags')}),  # pogue
-                    dict(id=[
-                            'adxLeaderboard',
-                            'pagelinks',
-                            'adxSponLink',
-                            'anchoredAd_module',
-                            'anchoredAd_spot',
-                            'archive',
-                            'articleExtras',
-                            'articleInline',
-                            'blog_sidebar',
-                            'businessSearchBar',
-                            'cCol',
-                            'entertainmentSearchBar',
-                            'footer',
-                            'header',
-                            'header_search',
-                            'inlineBox',
-                            'login',
-                            'masthead',
-                            'masthead-nav',
-                            'memberTools',
-                            'navigation', 'navigation-ghost', 'navigation-modal', 'navigation-edge',
-                            'page-footer',
-                            'portfolioInline',
-                            'readerReviews',
-                            'readerReviewsCount',
-                            'relatedArticles',
-                            'relatedTopics',
-                            'respond',
-                            'ribbon',
-                            'side_search',
-                            'side_index',
-                            'side_tool',
-                            'toolsRight',
-                            'skybox',  # added for DealBook
-                            'TopAd',  # added for DealBook
-                            'related-content',  # added for DealBook
-                            'whats-next',
-                            ]),
-                    dict(name=['script', 'noscript', 'style','form','hr', 'button', 'meta', 'footer'])]
+        dict(attrs={'class': [
+            'articleFooter',
+            'articleTools',
+            'rfd', 'story-footer-links', 'page-footer',
+            'columnGroup singleRule',
+            'columnGroup last',
+            'columnGroup  last',
+            'doubleRule',
+            'dottedLine',
+            'entry-meta',
+            'entry-response module',
+            'leftNavTabs',
+            'metaFootnote',
+            'inside-story',
+            'module box nav',
+            'nextArticleLink',
+            'nextArticleLink clearfix',
+            'post-tools',
+            'relatedSearchesModule',
+            'side_tool',
+            'singleAd',
+            'postCategory column',
+            'refer tagRefer',  # added for bits blog post
+            'entry entry-utility',  # added for DealBook
+            'entry-tags',  # added for DealBook
+            'footer promos clearfix',  # added for DealBook
+            'footer links clearfix',  # added for DealBook
+            'tabsContainer',  # added for other blog downloads
+            'column lastColumn',  # added for other blog downloads
+            'pageHeaderWithLabel',  # added for other gadgetwise downloads
+            'column two',  # added for other blog downloads
+            'column two last',  # added for other blog downloads
+            'column three',  # added for other blog downloads
+            'column three last',  # added for other blog downloads
+            'column four',  # added for other blog downloads
+            'column four last',  # added for other blog downloads
+            'column last',  # added for other blog downloads
+            'entry entry-related',
+            'subNavigation tabContent active',  # caucus blog navigation
+            'mediaOverlay slideshow',
+            'wideThumb',
+            'video',  # added 02-11-2011
+            'videoHeader',  # added 02-11-2011
+            'articleInlineVideoHolder',  # added 02-11-2011
+            'assetCompanionAd',
+            'nytint-sectionHeader',
+            re.compile('^subNavigation'),
+            re.compile('^leaderboard'),
+            re.compile('^module'),
+            re.compile('commentCount'),
+            'lede-container',
+            'credit'
+        ]}),
+        dict(
+            attrs={'class': lambda x: x and 'related-coverage-marginalia' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'interactive' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'sharetools' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'ad' in x.split()}),
+        dict(name='div', attrs={'class': re.compile('toolsList')}),  # bits
+        dict(name='div', attrs={
+             'class': re.compile('postNavigation')}),  # bits
+        dict(name='div', attrs={'class': 'tweet'}),
+        dict(name='span', attrs={'class': 'commentCount meta'}),
+        dict(name='div', attrs={'id': 'header'}),
+        # bits, pogue, gadgetwise, open
+        dict(name='div', attrs={'id': re.compile('commentsContainer')}),
+        # pogue, gadgetwise
+        dict(name='ul', attrs={'class': re.compile('entry-tools')}),
+        # pogue, gadgetwise
+        dict(name='div', attrs={'class': re.compile('nocontent')}),
+        dict(name='div', attrs={'id': re.compile('respond')}),  # open
+        dict(name='div', attrs={'class': re.compile('entry-tags')}),  # pogue
+        dict(id=[
+            'adxLeaderboard',
+            'pagelinks',
+            'adxSponLink',
+            'anchoredAd_module',
+            'anchoredAd_spot',
+            'archive',
+            'articleExtras',
+            'articleInline',
+            'blog_sidebar',
+            'businessSearchBar',
+            'cCol',
+            'entertainmentSearchBar',
+            'footer',
+            'header',
+            'header_search',
+            'inlineBox',
+            'login',
+            'masthead',
+            'masthead-nav',
+            'memberTools',
+            'navigation', 'navigation-ghost', 'navigation-modal', 'navigation-edge',
+            'page-footer',
+            'portfolioInline',
+            'readerReviews',
+            'readerReviewsCount',
+            'relatedArticles',
+            'relatedTopics',
+            'respond',
+            'ribbon',
+            'side_search',
+            'side_index',
+            'side_tool',
+            'toolsRight',
+            'skybox',  # added for DealBook
+            'TopAd',  # added for DealBook
+            'related-content',  # added for DealBook
+            'whats-next',
+        ]),
+        dict(name=['script', 'noscript', 'style', 'form', 'hr', 'button', 'meta', 'footer'])]
     no_stylesheets = True
     extra_css = '''
                 .articleHeadline { text-align: left; margin-top:0.5em; margin-bottom:0.25em; }
@@ -304,38 +318,40 @@ class NYTimes(BasicNewsRecipe):
     ans = []
     url_list = []
 
-    def filter_ans(self, ans) :
+    def filter_ans(self, ans):
         total_article_count = 0
         idx = 0
-        idx_max = len(ans)-1
+        idx_max = len(ans) - 1
         while idx <= idx_max:
             if self.includeSections != []:
                 if ans[idx][0] not in self.includeSections:
-                    print "SECTION NOT INCLUDED: ",ans[idx][0]
+                    print "SECTION NOT INCLUDED: ", ans[idx][0]
                     del ans[idx]
-                    idx_max = idx_max-1
+                    idx_max = idx_max - 1
                     continue
             if ans[idx][0] in self.excludeSections:
-                print "SECTION EXCLUDED: ",ans[idx][0]
+                print "SECTION EXCLUDED: ", ans[idx][0]
                 del ans[idx]
-                idx_max = idx_max-1
+                idx_max = idx_max - 1
                 continue
             if True:  # self.verbose
-                self.log("Section %s: %d articles" % (ans[idx][0], len(ans[idx][1])))
+                self.log("Section %s: %d articles" %
+                         (ans[idx][0], len(ans[idx][1])))
             for article in ans[idx][1]:
                 total_article_count += 1
                 if True:  # self.verbose
-                    self.log("\t%-40.40s... \t%-60.60s..." % (article['title'].encode('cp1252','replace'),
-                              article['url'].encode('cp1252','replace')))
-            idx = idx+1
+                    self.log("\t%-40.40s... \t%-60.60s..." % (article['title'].encode('cp1252', 'replace'),
+                                                              article['url'].encode('cp1252', 'replace')))
+            idx = idx + 1
 
         self.log("Queued %d articles" % total_article_count)
         return ans
 
-    def exclude_url(self,url):
+    def exclude_url(self, url):
         if not url.startswith("http"):
             return True
-        if not url.endswith(".html") and 'dealbook.nytimes.com' not in url:  # added for DealBook
+        # added for DealBook
+        if not url.endswith(".html") and 'dealbook.nytimes.com' not in url:
             return True
         if 'nytimes.com' not in url:
             return True
@@ -361,29 +377,29 @@ class NYTimes(BasicNewsRecipe):
             return True
         if '#postcomment' in url:
             return True
-        if re.search('/\d\d\d\d/\d\d/\d\d/',url) is None:
-            print("NO DATE IN "+url)
+        if re.search('/\d\d\d\d/\d\d/\d\d/', url) is None:
+            print("NO DATE IN " + url)
             return True
         return False
 
-    def fixChars(self,string):
+    def fixChars(self, string):
         # Replace lsquo (\x91)
-        fixed = re.sub("\x91","‘",string)
+        fixed = re.sub("\x91", "‘", string)
 
         # Replace rsquo (\x92)
-        fixed = re.sub("\x92","’",fixed)
+        fixed = re.sub("\x92", "’", fixed)
 
         # Replace ldquo (\x93)
-        fixed = re.sub("\x93","“",fixed)
+        fixed = re.sub("\x93", "“", fixed)
 
         # Replace rdquo (\x94)
-        fixed = re.sub("\x94","”",fixed)
+        fixed = re.sub("\x94", "”", fixed)
 
         # Replace ndash (\x96)
-        fixed = re.sub("\x96","–",fixed)
+        fixed = re.sub("\x96", "–", fixed)
 
         # Replace mdash (\x97)
-        fixed = re.sub("\x97","—",fixed)
+        fixed = re.sub("\x97", "—", fixed)
 
         return fixed
 
@@ -392,24 +408,28 @@ class NYTimes(BasicNewsRecipe):
         return br
 
     cover_tag = 'NY_NYT'
+
     def get_cover_url(self):
         from datetime import timedelta, date
-        cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str(date.today().day)+'/lg/'+self.cover_tag+'.jpg'
+        cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
+            str(date.today().day) + '/lg/' + self.cover_tag + '.jpg'
         br = BasicNewsRecipe.get_browser(self)
-        daysback=1
+        daysback = 1
         try:
             br.open(cover)
         except:
-            while daysback<7:
-                cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg'+str((date.today() - timedelta(days=daysback)).day)+'/lg/'+self.cover_tag+'.jpg'
+            while daysback < 7:
+                cover = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg' + \
+                    str((date.today() - timedelta(days=daysback)).day) + \
+                    '/lg/' + self.cover_tag + '.jpg'
                 br = BasicNewsRecipe.get_browser(self)
                 try:
                     br.open(cover)
                 except:
-                    daysback = daysback+1
+                    daysback = daysback + 1
                     continue
                 break
-        if daysback==7:
+        if daysback == 7:
             self.log("\nCover unavailable")
             cover = None
         return cover
@@ -423,14 +443,15 @@ class NYTimes(BasicNewsRecipe):
         from contextlib import closing
         import copy
         from calibre.ebooks.chardet import xml_to_unicode
-        print("ARTICLE_TO_SOUP "+url_or_raw)
+        print("ARTICLE_TO_SOUP " + url_or_raw)
         if re.match(r'\w+://', url_or_raw):
             br = self.clone_browser(self.browser)
             open_func = getattr(br, 'open_novisit', br.open)
             with closing(open_func(url_or_raw)) as f:
                 _raw = f.read()
             if not _raw:
-                raise RuntimeError('Could not fetch index from %s'%url_or_raw)
+                raise RuntimeError(
+                    'Could not fetch index from %s' % url_or_raw)
         else:
             _raw = url_or_raw
         if raw:
@@ -455,19 +476,20 @@ class NYTimes(BasicNewsRecipe):
     def massageNCXText(self, description):
         # Kindle TOC descriptions won't render certain characters
         if description:
-            massaged = unicode(BeautifulStoneSoup(description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
+            massaged = unicode(BeautifulStoneSoup(
+                description, convertEntities=BeautifulStoneSoup.HTML_ENTITIES))
             # Replace '&' with '&'
-            massaged = re.sub("&#038;","&", massaged)
-            massaged = re.sub("&amp;","&", massaged)
+            massaged = re.sub("&#038;", "&", massaged)
+            massaged = re.sub("&amp;", "&", massaged)
             return self.fixChars(massaged)
         else:
             return description
 
-    def feed_title(self,div):
+    def feed_title(self, div):
         return ''.join(div.findAll(text=True, recursive=True)).strip()
 
-    def handle_article(self,div):
-        thumbnail = div.find('div','thumbnail')
+    def handle_article(self, div):
+        thumbnail = div.find('div', 'thumbnail')
         if thumbnail:
             thumbnail.extract()
         a = div.find('a', href=True)
@@ -494,15 +516,15 @@ class NYTimes(BasicNewsRecipe):
         title = self.tag_to_string(a, use_alt=True).strip()
         description = ''
         pubdate = strftime('%a, %d %b')
-        summary = div.find(True, attrs={'class':'summary'})
+        summary = div.find(True, attrs={'class': 'summary'})
         if summary:
             description = self.tag_to_string(summary, use_alt=False)
         author = ''
-        authorAttribution = div.find(True, attrs={'class':'byline'})
+        authorAttribution = div.find(True, attrs={'class': 'byline'})
         if authorAttribution:
             author = self.tag_to_string(authorAttribution, use_alt=False)
         else:
-            authorAttribution = div.find(True, attrs={'class':'byline'})
+            authorAttribution = div.find(True, attrs={'class': 'byline'})
             if authorAttribution:
                 author = self.tag_to_string(authorAttribution, use_alt=False)
         feed = self.key if self.key is not None else 'Uncategorized'
@@ -510,11 +532,11 @@ class NYTimes(BasicNewsRecipe):
             self.ans.append(feed)
             self.articles[feed] = []
         self.articles[feed].append(
-                        dict(title=title, url=url, date=pubdate,
-                            description=description, author=author,
-                            content=''))
+            dict(title=title, url=url, date=pubdate,
+                 description=description, author=author,
+                 content=''))
 
-    def get_popular_articles(self,ans):
+    def get_popular_articles(self, ans):
         if self.getPopularArticles:
             popular_articles = {}
             key_list = []
@@ -523,29 +545,30 @@ class NYTimes(BasicNewsRecipe):
                 try:
                     url = h3tag.a['href']
                 except:
-                    return ('','','','')
+                    return ('', '', '', '')
                 url = re.sub(r'\?.*', '', url)
                 if self.exclude_url(url):
-                    return ('','','','')
+                    return ('', '', '', '')
                 url += '?pagewanted=all'
-                title = self.tag_to_string(h3tag.a,False)
+                title = self.tag_to_string(h3tag.a, False)
                 h6tag = h3tag.findNextSibling('h6')
                 if h6tag is not None:
-                    author = self.tag_to_string(h6tag,False)
+                    author = self.tag_to_string(h6tag, False)
                 else:
                     author = ''
                 ptag = h3tag.findNextSibling('p')
                 if ptag is not None:
-                    desc = self.tag_to_string(ptag,False)
+                    desc = self.tag_to_string(ptag, False)
                 else:
                     desc = ''
-                return(title,url,author,desc)
+                return(title, url, author, desc)
 
             have_emailed = False
-            emailed_soup = self.index_to_soup('http://www.nytimes.com/most-popular-emailed?period='+self.popularPeriod)
+            emailed_soup = self.index_to_soup(
+                'http://www.nytimes.com/most-popular-emailed?period=' + self.popularPeriod)
             for h3tag in emailed_soup.findAll('h3'):
-                (title,url,author,desc) = handleh3(h3tag)
-                if url=='':
+                (title, url, author, desc) = handleh3(h3tag)
+                if url == '':
                     continue
                 if not have_emailed:
                     key_list.append('Most E-Mailed')
@@ -553,13 +576,14 @@ class NYTimes(BasicNewsRecipe):
                     have_emailed = True
                 popular_articles['Most E-Mailed'].append(
                     dict(title=title, url=url, date=strftime('%a, %d %b'),
-                        description=desc, author=author,
-                        content=''))
+                         description=desc, author=author,
+                         content=''))
             have_viewed = False
-            viewed_soup = self.index_to_soup('http://www.nytimes.com/most-popular-viewed?period='+self.popularPeriod)
+            viewed_soup = self.index_to_soup(
+                'http://www.nytimes.com/most-popular-viewed?period=' + self.popularPeriod)
             for h3tag in viewed_soup.findAll('h3'):
-                (title,url,author,desc) = handleh3(h3tag)
-                if url=='':
+                (title, url, author, desc) = handleh3(h3tag)
+                if url == '':
                     continue
                 if not have_viewed:
                     key_list.append('Most Viewed')
@@ -567,14 +591,15 @@ class NYTimes(BasicNewsRecipe):
                     have_viewed = True
                 popular_articles['Most Viewed'].append(
                     dict(title=title, url=url, date=strftime('%a, %d %b'),
-                        description=desc, author=author,
-                        content=''))
-            viewed_ans = [(k, popular_articles[k]) for k in key_list if k in popular_articles]
+                         description=desc, author=author,
+                         content=''))
+            viewed_ans = [(k, popular_articles[k])
+                          for k in key_list if k in popular_articles]
             for x in viewed_ans:
                 ans.append(x)
         return ans
 
-    def get_tech_feeds(self,ans):
+    def get_tech_feeds(self, ans):
         if self.getTechBlogs:
             tech_articles = {}
             key_list = []
@@ -593,40 +618,42 @@ class NYTimes(BasicNewsRecipe):
                 for a in f.articles:
                     tech_articles[f.title].append(
                         dict(title=a.title, url=a.url.partition('?')[0], date=a.date,
-                            description=a.summary, author=a.author,
-                            content=a.content))
-            tech_ans = [(k, tech_articles[k]) for k in key_list if k in tech_articles]
+                             description=a.summary, author=a.author,
+                             content=a.content))
+            tech_ans = [(k, tech_articles[k])
+                        for k in key_list if k in tech_articles]
             for x in tech_ans:
                 ans.append(x)
         return ans
 
     def parse_web_edition(self):
 
-        for (sec_title,index_url) in self.web_sections:
+        for (sec_title, index_url) in self.web_sections:
             if self.includeSections != []:
                 if sec_title not in self.includeSections:
-                    print "SECTION NOT INCLUDED: ",sec_title
+                    print "SECTION NOT INCLUDED: ", sec_title
                     continue
             if sec_title in self.excludeSections:
-                print "SECTION EXCLUDED: ",sec_title
+                print "SECTION EXCLUDED: ", sec_title
                 continue
             try:
-                soup = self.index_to_soup('http://www.nytimes.com/pages/'+index_url+'/index.html')
+                soup = self.index_to_soup(
+                    'http://www.nytimes.com/pages/' + index_url + '/index.html')
             except:
                 continue
-            print 'Index URL: '+'http://www.nytimes.com/pages/'+index_url+'/index.html'
+            print 'Index URL: ' + 'http://www.nytimes.com/pages/' + index_url + '/index.html'
 
             self.key = sec_title
             # Find each article
-            for div in soup.findAll(True,
-                attrs={'class':['section-headline', 'ledeStory', 'story', 'story headline','sectionHeader','headlinesOnly multiline flush']}):
-                if div['class'] in ['story', 'story headline', 'storyHeader'] :
+            for div in soup.findAll(True, attrs={
+                    'class': ['section-headline', 'ledeStory', 'story', 'story headline', 'sectionHeader', 'headlinesOnly multiline flush']}):
+                if div['class'] in ['story', 'story headline', 'storyHeader']:
                     self.handle_article(div)
                 elif div['class'] == 'ledeStory':
-                    divsub = div.find('div','storyHeader')
+                    divsub = div.find('div', 'storyHeader')
                     if divsub is not None:
                         self.handle_article(divsub)
-                        ulrefer = div.find('ul','refer')
+                        ulrefer = div.find('ul', 'refer')
                         if ulrefer is not None:
                             for lidiv in ulrefer.findAll('li'):
                                 self.handle_article(lidiv)
@@ -634,31 +661,33 @@ class NYTimes(BasicNewsRecipe):
                     for lidiv in div.findAll('li'):
                         self.handle_article(lidiv)
 
-        self.ans = [(k, self.articles[k]) for k in self.ans if k in self.articles]
+        self.ans = [(k, self.articles[k])
+                    for k in self.ans if k in self.articles]
         return self.filter_ans(self.get_tech_feeds(self.get_popular_articles(self.ans)))
 
     def parse_todays_index(self):
 
-        soup = self.index_to_soup('http://www.nytimes.com/pages/todayspaper/index.html')
+        soup = self.index_to_soup(
+            'http://www.nytimes.com/pages/todayspaper/index.html')
         skipping = False
         # Find each article
         for div in soup.findAll(True,
-            attrs={'class':['section-headline', 'story', 'story headline','sectionHeader','headlinesOnly multiline flush']}):
-            if div['class'] in ['section-headline','sectionHeader']:
+                                attrs={'class': ['section-headline', 'story', 'story headline', 'sectionHeader', 'headlinesOnly multiline flush']}):
+            if div['class'] in ['section-headline', 'sectionHeader']:
                 self.key = string.capwords(self.feed_title(div))
-                self.key = self.key.replace('Op-ed','Op-Ed')
-                self.key = self.key.replace('U.s.','U.S.')
-                self.key = self.key.replace('N.y.','N.Y.')
+                self.key = self.key.replace('Op-ed', 'Op-Ed')
+                self.key = self.key.replace('U.s.', 'U.S.')
+                self.key = self.key.replace('N.y.', 'N.Y.')
                 skipping = False
                 if self.includeSections != []:
                     if self.key not in self.includeSections:
-                        print "SECTION NOT INCLUDED: ",self.key
+                        print "SECTION NOT INCLUDED: ", self.key
                         skipping = True
                 if self.key in self.excludeSections:
-                    print "SECTION EXCLUDED: ",self.key
+                    print "SECTION EXCLUDED: ", self.key
                     skipping = True
 
-            elif div['class'] in ['story', 'story headline'] :
+            elif div['class'] in ['story', 'story headline']:
                 if not skipping:
                     self.handle_article(div)
             elif div['class'] == 'headlinesOnly multiline flush':
@@ -666,20 +695,23 @@ class NYTimes(BasicNewsRecipe):
                     if not skipping:
                         self.handle_article(lidiv)
 
-        self.ans = [(k, self.articles[k]) for k in self.ans if k in self.articles]
+        self.ans = [(k, self.articles[k])
+                    for k in self.ans if k in self.articles]
         return self.filter_ans(self.get_tech_feeds(self.get_popular_articles(self.ans)))
 
     def parse_headline_index(self):
 
-        soup = self.index_to_soup('http://www.nytimes.com/pages/todaysheadlines/')
+        soup = self.index_to_soup(
+            'http://www.nytimes.com/pages/todaysheadlines/')
 
-        section_name='Unknown Section'
+        section_name = 'Unknown Section'
         pubdate = strftime('%a, %d %b')
         for td_col in soup.findAll('td'):
             h6_sec_name = td_col.find('h6')
             if h6_sec_name is not None:
-                new_section_name = self.tag_to_string(h6_sec_name,use_alt=False)
-                new_section_name = re.sub(r'^ *$','',new_section_name)
+                new_section_name = self.tag_to_string(
+                    h6_sec_name, use_alt=False)
+                new_section_name = re.sub(r'^ *$', '', new_section_name)
                 if new_section_name == '':
                     continue
                 section_name = new_section_name
@@ -691,7 +723,7 @@ class NYTimes(BasicNewsRecipe):
                     break
                 if h4tag is None:
                     continue
-                author = self.tag_to_string(h4tag,use_alt=False)
+                author = self.tag_to_string(h4tag, use_alt=False)
                 try:
                     url = re.sub(r'\?.*', '', atag['href'])
                 except:
@@ -709,16 +741,18 @@ class NYTimes(BasicNewsRecipe):
                 title = self.tag_to_string(atag, use_alt=False).strip()
                 desc = atag.parent.find('p')
                 if desc is not None:
-                    description = self.tag_to_string(desc,use_alt=False)
+                    description = self.tag_to_string(desc, use_alt=False)
                 else:
                     description = ''
                 if section_name not in self.articles:
                     self.ans.append(section_name)
                     self.articles[section_name] = []
-                print('Title '+title+' author '+author)
-                self.articles[section_name].append(dict(title=title, url=url, date=pubdate, description=description, author=author, content=''))
+                print('Title ' + title + ' author ' + author)
+                self.articles[section_name].append(dict(
+                    title=title, url=url, date=pubdate, description=description, author=author, content=''))
 
-        self.ans = [(k, self.articles[k]) for k in self.ans if k in self.articles]
+        self.ans = [(k, self.articles[k])
+                    for k in self.ans if k in self.articles]
         return self.filter_ans(self.ans)
 
     def parse_index(self):
@@ -729,23 +763,24 @@ class NYTimes(BasicNewsRecipe):
         else:
             return self.parse_todays_index()
 
-    def strip_anchors(self,soup,kill_all=False):
+    def strip_anchors(self, soup, kill_all=False):
         paras = soup.findAll(True)
         for para in paras:
             aTags = para.findAll('a')
             for a in aTags:
                 if a.img is None:
-                    if kill_all or (self.recursions==0):
-                        a.replaceWith(self.tag_to_string(a,False))
+                    if kill_all or (self.recursions == 0):
+                        a.replaceWith(self.tag_to_string(a, False))
                     else:
                         if 'href' in a:
                             if a['href'].startswith('http://www.nytimes'):
                                 if not a['href'].endswith('pagewanted=all'):
                                     url = re.sub(r'\?.*', '', a['href'])
                                     if self.exclude_url(url):
-                                        a.replaceWith(self.tag_to_string(a,False))
+                                        a.replaceWith(
+                                            self.tag_to_string(a, False))
                                     else:
-                                        a['href'] = url+'?pagewanted=all'
+                                        a['href'] = url + '?pagewanted=all'
                             elif not (a['href'].startswith('http://pogue') or
                                       a['href'].startswith('http://bits') or
                                       a['href'].startswith('http://travel') or
@@ -754,20 +789,18 @@ class NYTimes(BasicNewsRecipe):
                                       a['href'].startswith('http://health') or
                                       a['href'].startswith('http://dealbook') or
                                       a['href'].startswith('http://open')):
-                                a.replaceWith(self.tag_to_string(a,False))
+                                a.replaceWith(self.tag_to_string(a, False))
         return soup
 
-    def handle_tags(self,soup):
+    def handle_tags(self, soup):
         try:
-            print("HANDLE TAGS: TITLE = "+self.tag_to_string(soup.title))
+            print("HANDLE TAGS: TITLE = " + self.tag_to_string(soup.title))
         except:
             print("HANDLE TAGS: NO TITLE")
         if soup is None:
             print("ERROR: handle_tags received NoneType")
             return None
 
-##        print("HANDLING AD FORWARD:")
-# print(soup)
         if self.keep_only_tags:
             body = Tag(soup, 'body')
             try:
@@ -790,7 +823,8 @@ class NYTimes(BasicNewsRecipe):
                 tag = tag.parent
 
         if self.remove_tags_after is not None:
-            rt = [self.remove_tags_after] if isinstance(self.remove_tags_after, dict) else self.remove_tags_after
+            rt = [self.remove_tags_after] if isinstance(
+                self.remove_tags_after, dict) else self.remove_tags_after
             for spec in rt:
                 tag = soup.find(**spec)
                 remove_beyond(tag, 'nextSibling')
@@ -806,31 +840,32 @@ class NYTimes(BasicNewsRecipe):
         return soup
 
     def preprocess_html(self, soup):
-        #print(strftime("%H:%M:%S")+" --  PREPROCESS TITLE="+self.tag_to_string(soup.title))
-        skip_tag = soup.find(True, {'name':'skip'})
+        skip_tag = soup.find(True, {'name': 'skip'})
         if skip_tag is not None:
-            #url = 'http://www.nytimes.com' + re.sub(r'\?.*', '', skip_tag.parent['href'])
             url = 'http://www.nytimes.com' + skip_tag.parent['href']
-            #url += '?pagewanted=all'
             self.log.warn("Skipping ad to article at '%s'" % url)
             sleep(5)
             soup = self.handle_tags(self.article_to_soup(url))
 
         # check if the article is from one of the tech blogs
-        blog=soup.find('div',attrs={'id':['pogue','bits','gadgetwise','open']})
+        blog = soup.find(
+            'div', attrs={'id': ['pogue', 'bits', 'gadgetwise', 'open']})
 
         if blog is not None:
             old_body = soup.find('body')
-            new_body=Tag(soup,'body')
-            new_body.append(soup.find('div',attrs={'id':'content'}))
-            new_body.find('div',attrs={'id':'content'})['id']='blogcontent'  # identify for postprocess_html
+            new_body = Tag(soup, 'body')
+            new_body.append(soup.find('div', attrs={'id': 'content'}))
+            new_body.find('div', attrs={'id': 'content'})[
+                'id'] = 'blogcontent'  # identify for postprocess_html
             old_body.replaceWith(new_body)
-            for divr in soup.findAll('div',attrs={'class':re.compile('w190 right')}):
+            for divr in soup.findAll('div', attrs={'class': re.compile('w190 right')}):
                 if divr.find(text=re.compile('Sign up')):
                     divr.extract()
-            divr = soup.find('div',attrs={'class':re.compile('^relatedArticlesModule')})
+            divr = soup.find(
+                'div', attrs={'class': re.compile('^relatedArticlesModule')})
             if divr is not None:
-                print("PROCESSING RELATED: "+self.tag_to_string(soup.title,False))
+                print("PROCESSING RELATED: " +
+                      self.tag_to_string(soup.title, False))
             # handle related articles
                 rlist = []
                 ul = divr.find('ul')
@@ -839,47 +874,51 @@ class NYTimes(BasicNewsRecipe):
                         atag = li.find('a')
                         if atag is not None:
                             if atag['href'].startswith('http://pogue') or atag['href'].startswith('http://bits') or \
-                                atag['href'].startswith('http://open'):
-                                atag.find(text=True).replaceWith(self.massageNCXText(self.tag_to_string(atag,False)))
+                                    atag['href'].startswith('http://open'):
+                                atag.find(text=True).replaceWith(
+                                    self.massageNCXText(self.tag_to_string(atag, False)))
                                 rlist.append(atag)
                 divr.extract()
                 if rlist != []:
-                    asidediv = Tag(soup,'div',[('class','aside')])
+                    asidediv = Tag(soup, 'div', [('class', 'aside')])
                     if soup.find('hr') is None:
-                        asidediv.append(Tag(soup,'hr'))
-                    h4 = Tag(soup,'h4',[('class','asidenote')])
-                    h4.insert(0,"Related Posts")
+                        asidediv.append(Tag(soup, 'hr'))
+                    h4 = Tag(soup, 'h4', [('class', 'asidenote')])
+                    h4.insert(0, "Related Posts")
                     asidediv.append(h4)
-                    ul = Tag(soup,'ul')
+                    ul = Tag(soup, 'ul')
                     for r in rlist:
-                        li = Tag(soup,'li',[('class','aside')])
+                        li = Tag(soup, 'li', [('class', 'aside')])
                         r['class'] = 'aside'
                         li.append(r)
                         ul.append(li)
                     asidediv.append(ul)
-                    asidediv.append(Tag(soup,'hr'))
+                    asidediv.append(Tag(soup, 'hr'))
                     smain = soup.find('body')
                     smain.append(asidediv)
             else:
-                print("CANNOT FIND RELATED: "+self.tag_to_string(soup.title,False))
+                print("CANNOT FIND RELATED: " +
+                      self.tag_to_string(soup.title, False))
             for atag in soup.findAll('a'):
                 img = atag.find('img')
                 if img is not None:
                     atag.replaceWith(img)
                 elif 'href' not in atag:
-                    atag.replaceWith(atag.renderContents().decode('cp1252','replace'))
+                    atag.replaceWith(
+                        atag.renderContents().decode('cp1252', 'replace'))
                 elif not (atag['href'].startswith('http://www.nytimes') or atag['href'].startswith('http://pogue') or
-                              atag['href'].startswith('http://bits') or atag['href'].startswith('http://open')):
-                    atag.replaceWith(atag.renderContents().decode('cp1252','replace'))
+                          atag['href'].startswith('http://bits') or atag['href'].startswith('http://open')):
+                    atag.replaceWith(
+                        atag.renderContents().decode('cp1252', 'replace'))
             hdr = soup.find('address')
             if hdr is not None:
-                hdr.name='span'
-            for span_credit in soup.findAll('span','credit'):
-                sp = Tag(soup,'span')
+                hdr.name = 'span'
+            for span_credit in soup.findAll('span', 'credit'):
+                sp = Tag(soup, 'span')
                 span_credit.replaceWith(sp)
-                sp.append(Tag(soup,'br'))
+                sp.append(Tag(soup, 'br'))
                 sp.append(span_credit)
-                sp.append(Tag(soup,'br'))
+                sp.append(Tag(soup, 'br'))
 
         else:  # nytimes article
 
@@ -887,16 +926,19 @@ class NYTimes(BasicNewsRecipe):
             first_outer = None  # first related outer tag
             first_related = None  # first related tag
             for outerdiv in soup.findAll(attrs={'class': re.compile('articleInline runaroundLeft')}):
-                for rdiv in soup.findAll('div','columnGroup doubleRule'):
+                for rdiv in soup.findAll('div', 'columnGroup doubleRule'):
                     if rdiv.find('h3') is not None:
-                        if self.tag_to_string(rdiv.h3,False).startswith('Related'):
-                            rdiv.h3.find(text=True).replaceWith("Related articles")
+                        if self.tag_to_string(rdiv.h3, False).startswith('Related'):
+                            rdiv.h3.find(text=True).replaceWith(
+                                "Related articles")
                             rdiv.h3['class'] = 'asidenote'
                             for litag in rdiv.findAll('li'):
                                 if litag.find('a') is not None:
                                     if litag.find('a')['href'].startswith('http://www.nytimes.com'):
-                                        url = re.sub(r'\?.*', '', litag.find('a')['href'])
-                                        litag.find('a')['href'] = url+'?pagewanted=all'
+                                        url = re.sub(
+                                            r'\?.*', '', litag.find('a')['href'])
+                                        litag.find('a')[
+                                            'href'] = url + '?pagewanted=all'
                                         litag.extract()
                                         related.append(litag)
                                         if first_related is None:
@@ -907,8 +949,10 @@ class NYTimes(BasicNewsRecipe):
                             for h6tag in rdiv.findAll('h6'):
                                 if h6tag.find('a') is not None:
                                     if h6tag.find('a')['href'].startswith('http://www.nytimes.com'):
-                                        url = re.sub(r'\?.*', '', h6tag.find('a')['href'])
-                                        h6tag.find('a')['href'] = url+'?pagewanted=all'
+                                        url = re.sub(
+                                            r'\?.*', '', h6tag.find('a')['href'])
+                                        h6tag.find('a')[
+                                            'href'] = url + '?pagewanted=all'
                                         h6tag.extract()
                                         related.append(h6tag)
                                         if first_related is None:
@@ -921,33 +965,38 @@ class NYTimes(BasicNewsRecipe):
                     if r.h6:  # don't want the anchor inside a h6 tag
                         r.h6.replaceWith(r.h6.a)
                     first_related.ul.append(r)
-                first_related.insert(0,Tag(soup,'hr'))
-                first_related.append(Tag(soup,'hr'))
+                first_related.insert(0, Tag(soup, 'hr'))
+                first_related.append(Tag(soup, 'hr'))
                 first_related['class'] = 'aside'
-                first_outer.replaceWith(first_related)  # replace the outer tag with the related tag
+                # replace the outer tag with the related tag
+                first_outer.replaceWith(first_related)
 
             for rdiv in soup.findAll(attrs={'class': re.compile('articleInline runaroundLeft')}):
                 rdiv.extract()
 
-            kicker_tag = soup.find(attrs={'class':'kicker'})
+            kicker_tag = soup.find(attrs={'class': 'kicker'})
             if kicker_tag:  # remove Op_Ed author head shots
                 tagline = self.tag_to_string(kicker_tag)
-                if tagline=='Op-Ed Columnist':
-                    img_div = soup.find('div','inlineImage module')
+                if tagline == 'Op-Ed Columnist':
+                    img_div = soup.find('div', 'inlineImage module')
                     if img_div:
                         img_div.extract()
 
             if self.useHighResImages:
                 try:
-                    # open up all the "Enlarge this Image" pop-ups and download the full resolution jpegs
-                    enlargeThisList = soup.findAll('div',{'class':'icon enlargeThis'})
+                    # open up all the "Enlarge this Image" pop-ups and download
+                    # the full resolution jpegs
+                    enlargeThisList = soup.findAll(
+                        'div', {'class': 'icon enlargeThis'})
                     if enlargeThisList:
                         for popupref in enlargeThisList:
                             popupreflink = popupref.find('a')
                             if popupreflink:
                                 reflinkstring = str(popupreflink['href'])
-                                refstart = reflinkstring.find("javascript:pop_me_up2('") + len("javascript:pop_me_up2('")
-                                refend = reflinkstring.find(".html", refstart) + len(".html")
+                                refstart = reflinkstring.find(
+                                    "javascript:pop_me_up2('") + len("javascript:pop_me_up2('")
+                                refend = reflinkstring.find(
+                                    ".html", refstart) + len(".html")
                                 reflinkstring = reflinkstring[refstart:refend]
 
                                 popuppage = self.browser.open(reflinkstring)
@@ -958,106 +1007,120 @@ class NYTimes(BasicNewsRecipe):
                                     year = str(st.tm_year)
                                     month = "%.2d" % st.tm_mon
                                     day = "%.2d" % st.tm_mday
-                                    imgstartpos = popuphtml.find('http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/') + \
-                                                                 len('http://graphics8.nytimes.com/images/' + year + '/' +  month +'/' + day +'/')
+                                    imgstartpos = popuphtml.find('http://graphics8.nytimes.com/images/' + year + '/' +  month + '/' + day + '/') + \
+                                        len('http://graphics8.nytimes.com/images/' +
+                                            year + '/' + month + '/' + day + '/')
                                     highResImageLink = 'http://graphics8.nytimes.com/images/' + year + '/' + \
-                                        month +'/' + day +'/' + popuphtml[imgstartpos:popuphtml.find('.jpg',imgstartpos)+4]
+                                        month + '/' + day + '/' + \
+                                        popuphtml[imgstartpos:popuphtml.find(
+                                            '.jpg', imgstartpos) + 4]
                                     popupSoup = BeautifulSoup(popuphtml)
-                                    highResTag = popupSoup.find('img', {'src':highResImageLink})
+                                    highResTag = popupSoup.find(
+                                        'img', {'src': highResImageLink})
                                     if highResTag:
                                         try:
                                             newWidth = highResTag['width']
                                             newHeight = highResTag['height']
-                                            imageTag = popupref.parent.find("img")
+                                            imageTag = popupref.parent.find(
+                                                "img")
                                         except:
-                                            self.log("Error: finding width and height of img")
+                                            self.log(
+                                                "Error: finding width and height of img")
                                         popupref.extract()
                                         if imageTag:
                                             try:
-                                                imageTag['src'] = highResImageLink
+                                                imageTag[
+                                                    'src'] = highResImageLink
                                                 imageTag['width'] = newWidth
                                                 imageTag['height'] = newHeight
                                             except:
-                                                self.log("Error setting the src width and height parameters")
+                                                self.log(
+                                                    "Error setting the src width and height parameters")
                 except Exception:
                     self.log("Error pulling high resolution images")
 
                 try:
-                    # in case pulling images failed, delete the enlarge this text
-                    enlargeThisList = soup.findAll('div',{'class':'icon enlargeThis'})
+                    # in case pulling images failed, delete the enlarge this
+                    # text
+                    enlargeThisList = soup.findAll(
+                        'div', {'class': 'icon enlargeThis'})
                     if enlargeThisList:
                         for popupref in enlargeThisList:
                             popupref.extract()
                 except:
                     self.log("Error removing Enlarge this text")
 
-        return self.strip_anchors(soup,False)
+        return self.strip_anchors(soup, False)
 
-    def postprocess_html(self,soup,first_fetch):
+    def postprocess_html(self, soup, first_fetch):
         if not first_fetch:  # remove Related links
-            for aside in soup.findAll('div','aside'):
+            for aside in soup.findAll('div', 'aside'):
                 aside.extract()
-            soup = self.strip_anchors(soup,True)
-            #print("RECURSIVE: "+self.tag_to_string(soup.title))
+            soup = self.strip_anchors(soup, True)
 
-        if soup.find('div',attrs={'id':'blogcontent'}) is None:
+        if soup.find('div', attrs={'id': 'blogcontent'}) is None:
             if first_fetch:
-                aside = soup.find('div','aside')
+                aside = soup.find('div', 'aside')
                 if aside is not None:  # move the related list to the end of the article
-                    art = soup.find('div',attrs={'id':'article'})
+                    art = soup.find('div', attrs={'id': 'article'})
                     if art is None:
-                        art = soup.find('div',attrs={'class':'article'})
+                        art = soup.find('div', attrs={'class': 'article'})
                     if art is not None:
                         art.append(aside)
             try:
-                    if self.one_picture_per_article:
+                if self.one_picture_per_article:
                             # Remove all images after first
-                            largeImg = soup.find(True, {'class':'articleSpanImage'})
-                            inlineImgs = soup.findAll(True, {'class':'inlineImage module'})
-                            if largeImg:
-                                    for inlineImg in inlineImgs:
-                                            inlineImg.extract()
+                    largeImg = soup.find(True, {'class': 'articleSpanImage'})
+                    inlineImgs = soup.findAll(
+                        True, {'class': 'inlineImage module'})
+                    if largeImg:
+                        for inlineImg in inlineImgs:
+                            inlineImg.extract()
+                    else:
+                        if inlineImgs:
+                            firstImg = inlineImgs[0]
+                            for inlineImg in inlineImgs[1:]:
+                                inlineImg.extract()
+                            # Move firstImg before article body
+                            cgFirst = soup.find(
+                                True, {'class': re.compile('columnGroup  *first')})
+                            if cgFirst:
+                                # Strip all sibling NavigableStrings: noise
+                                navstrings = cgFirst.findAll(
+                                    text=True, recursive=False)
+                                [ns.extract() for ns in navstrings]
+                                headline_found = False
+                                tag = cgFirst.find(True)
+                                insertLoc = 0
+                                while True:
+                                    insertLoc += 1
+                                    if hasattr(tag, 'class') and tag['class'] == 'articleHeadline':
+                                        headline_found = True
+                                        break
+                                    tag = tag.nextSibling
+                                    if not tag:
+                                        headline_found = False
+                                        break
+                                if headline_found:
+                                    cgFirst.insert(insertLoc, firstImg)
                             else:
-                                    if inlineImgs:
-                                            firstImg = inlineImgs[0]
-                                            for inlineImg in inlineImgs[1:]:
-                                                    inlineImg.extract()
-                                            # Move firstImg before article body
-                                            cgFirst = soup.find(True, {'class':re.compile('columnGroup  *first')})
-                                            if cgFirst:
-                                                    # Strip all sibling NavigableStrings: noise
-                                                    navstrings = cgFirst.findAll(text=True, recursive=False)
-                                                    [ns.extract() for ns in navstrings]
-                                                    headline_found = False
-                                                    tag = cgFirst.find(True)
-                                                    insertLoc = 0
-                                                    while True:
-                                                            insertLoc += 1
-                                                            if hasattr(tag,'class') and tag['class'] == 'articleHeadline':
-                                                                            headline_found = True
-                                                                            break
-                                                            tag = tag.nextSibling
-                                                            if not tag:
-                                                                    headline_found = False
-                                                                    break
-                                                    if headline_found:
-                                                            cgFirst.insert(insertLoc,firstImg)
-                                            else:
-                                                    self.log(">>> No class:'columnGroup first' found <<<")
+                                self.log(
+                                    ">>> No class:'columnGroup first' found <<<")
             except:
-                    self.log("ERROR: One picture per article in postprocess_html")
+                self.log("ERROR: One picture per article in postprocess_html")
 
             try:
                 # Change captions to italic
-                for caption in soup.findAll(True, {'class':'caption'}) :
-                        if caption and len(caption) > 0:
-                                cTag = Tag(soup, "p", [("class", "caption")])
-                                c = self.fixChars(self.tag_to_string(caption,use_alt=False)).strip()
-                                mp_off = c.find("More Photos")
-                                if mp_off >= 0:
-                                        c = c[:mp_off]
-                                cTag.insert(0, c)
-                                caption.replaceWith(cTag)
+                for caption in soup.findAll(True, {'class': 'caption'}):
+                    if caption and len(caption) > 0:
+                        cTag = Tag(soup, "p", [("class", "caption")])
+                        c = self.fixChars(self.tag_to_string(
+                            caption, use_alt=False)).strip()
+                        mp_off = c.find("More Photos")
+                        if mp_off >= 0:
+                            c = c[:mp_off]
+                        cTag.insert(0, c)
+                        caption.replaceWith(cTag)
             except:
                 self.log("ERROR:  Problem in change captions to italic")
 
@@ -1066,50 +1129,57 @@ class NYTimes(BasicNewsRecipe):
                 h1 = soup.find('h1')
                 blogheadline = str(h1)  # added for dealbook
                 if h1:
-                        headline = h1.find("nyt_headline")
-                        if headline:
-                                tag = Tag(soup, "h2")
-                                tag['class'] = "headline"
-                                tag.insert(0, self.fixChars(headline.contents[0]))
-                                h1.replaceWith(tag)
-                        elif blogheadline.find('entry-title'):  # added for dealbook
-                                tag = Tag(soup, "h2")  # added for dealbook
-                                tag['class'] = "headline"  # added for dealbook
-                                tag.insert(0, self.fixChars(h1.contents[0]))  # added for dealbook
-                                h1.replaceWith(tag)  # added for dealbook
+                    headline = h1.find("nyt_headline")
+                    if headline:
+                        tag = Tag(soup, "h2")
+                        tag['class'] = "headline"
+                        tag.insert(0, self.fixChars(headline.contents[0]))
+                        h1.replaceWith(tag)
+                    elif blogheadline.find('entry-title'):  # added for dealbook
+                        tag = Tag(soup, "h2")  # added for dealbook
+                        tag['class'] = "headline"  # added for dealbook
+                        # added for dealbook
+                        tag.insert(0, self.fixChars(h1.contents[0]))
+                        h1.replaceWith(tag)  # added for dealbook
 
                 else:
-                        # Blog entry - replace headline, remove <hr> tags  - BCC I think this is no longer functional 1-18-2011
-                        headline = soup.find('title')
-                        if headline:
-                                tag = Tag(soup, "h2")
-                                tag['class'] = "headline"
-                                tag.insert(0, self.fixChars(self.tag_to_string(headline,False)))
-                                soup.insert(0, tag)
-                                hrs = soup.findAll('hr')
-                                for hr in hrs:
-                                        hr.extract()
+                    # Blog entry - replace headline, remove <hr> tags  - BCC I
+                    # think this is no longer functional 1-18-2011
+                    headline = soup.find('title')
+                    if headline:
+                        tag = Tag(soup, "h2")
+                        tag['class'] = "headline"
+                        tag.insert(0, self.fixChars(
+                            self.tag_to_string(headline, False)))
+                        soup.insert(0, tag)
+                        hrs = soup.findAll('hr')
+                        for hr in hrs:
+                            hr.extract()
             except:
                 self.log("ERROR:  Problem in Change <nyt_headline> to <h2>")
 
             try:
                 # if this is from a blog (dealbook, fix the byline format
-                bylineauthor = soup.find('address',attrs={'class':'byline author vcard'})
+                bylineauthor = soup.find(
+                    'address', attrs={'class': 'byline author vcard'})
                 if bylineauthor:
                     tag = Tag(soup, "h6")
                     tag['class'] = "byline"
-                    tag.insert(0, self.fixChars(self.tag_to_string(bylineauthor,False)))
+                    tag.insert(0, self.fixChars(
+                        self.tag_to_string(bylineauthor, False)))
                     bylineauthor.replaceWith(tag)
             except:
                 self.log("ERROR:  fixing byline author format")
 
             try:
-                # if this is a blog (dealbook) fix the credit style for the pictures
-                blogcredit = soup.find('div',attrs={'class':'credit'})
+                # if this is a blog (dealbook) fix the credit style for the
+                # pictures
+                blogcredit = soup.find('div', attrs={'class': 'credit'})
                 if blogcredit:
                     tag = Tag(soup, "h6")
                     tag['class'] = "credit"
-                    tag.insert(0, self.fixChars(self.tag_to_string(blogcredit,False)))
+                    tag.insert(0, self.fixChars(
+                        self.tag_to_string(blogcredit, False)))
                     blogcredit.replaceWith(tag)
             except:
                 self.log("ERROR:  fixing credit format")
@@ -1118,81 +1188,91 @@ class NYTimes(BasicNewsRecipe):
                 # Change <h1> to <h3> - used in editorial blogs
                 masthead = soup.find("h1")
                 if masthead:
-                        # Nuke the href
-                        if masthead.a:
-                                del(masthead.a['href'])
-                        tag = Tag(soup, "h3")
-                        tag.insert(0, self.fixChars(masthead.contents[0]))
-                        masthead.replaceWith(tag)
+                    # Nuke the href
+                    if masthead.a:
+                        del(masthead.a['href'])
+                    tag = Tag(soup, "h3")
+                    tag.insert(0, self.fixChars(masthead.contents[0]))
+                    masthead.replaceWith(tag)
             except:
-                self.log("ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
+                self.log(
+                    "ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
 
             try:
                 # Change <span class="bold"> to <b>
-                for subhead in soup.findAll(True, {'class':'bold'}) :
-                        if subhead.contents:
-                                bTag = Tag(soup, "b")
-                                bTag.insert(0, subhead.contents[0])
-                                subhead.replaceWith(bTag)
+                for subhead in soup.findAll(True, {'class': 'bold'}):
+                    if subhead.contents:
+                        bTag = Tag(soup, "b")
+                        bTag.insert(0, subhead.contents[0])
+                        subhead.replaceWith(bTag)
             except:
-                self.log("ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
+                self.log(
+                    "ERROR:  Problem in Change <h1> to <h3> - used in editorial blogs")
             try:
                 # remove the <strong> update tag
-                blogupdated = soup.find('span', {'class':'update'})
+                blogupdated = soup.find('span', {'class': 'update'})
                 if blogupdated:
                     blogupdated.replaceWith("")
             except:
                 self.log("ERROR:  Removing strong tag")
 
             try:
-                divTag = soup.find('div',attrs={'id':'articleBody'})
+                divTag = soup.find('div', attrs={'id': 'articleBody'})
                 if divTag:
-                        divTag['class'] = divTag['id']
+                    divTag['class'] = divTag['id']
             except:
-                self.log("ERROR:  Problem in soup.find(div,attrs={id:articleBody})")
+                self.log(
+                    "ERROR:  Problem in soup.find(div,attrs={id:articleBody})")
 
             try:
                 # Add class="authorId" to <div> so we can format with CSS
-                divTag = soup.find('div',attrs={'id':'authorId'})
+                divTag = soup.find('div', attrs={'id': 'authorId'})
                 if divTag and divTag.contents[0]:
-                        tag = Tag(soup, "p")
-                        tag['class'] = "authorId"
-                        tag.insert(0, self.fixChars(self.tag_to_string(divTag.contents[0],
-                                                         use_alt=False)))
-                        divTag.replaceWith(tag)
+                    tag = Tag(soup, "p")
+                    tag['class'] = "authorId"
+                    tag.insert(0, self.fixChars(self.tag_to_string(divTag.contents[0],
+                                                                   use_alt=False)))
+                    divTag.replaceWith(tag)
             except:
-                self.log("ERROR:  Problem in Add class=authorId to <div> so we can format with CSS")
-        #print(strftime("%H:%M:%S")+" -- POSTPROCESS TITLE="+self.tag_to_string(soup.title))
+                self.log(
+                    "ERROR:  Problem in Add class=authorId to <div> so we can format with CSS")
         return soup
 
     def populate_article_metadata(self, article, soup, first):
         if not first:
             return
-        idxdiv = soup.find('div',attrs={'class':'articleSpanImage'})
+        idxdiv = soup.find('div', attrs={'class': 'articleSpanImage'})
         if idxdiv is not None:
             if idxdiv.img:
-                self.add_toc_thumbnail(article, re.sub(r'links\\link\d+\\','',idxdiv.img['src']))
+                self.add_toc_thumbnail(article, re.sub(
+                    r'links\\link\d+\\', '', idxdiv.img['src']))
         else:
             img = soup.find('body').find('img')
             if img is not None:
-                self.add_toc_thumbnail(article, re.sub(r'links\\link\d+\\','',img['src']))
+                self.add_toc_thumbnail(article, re.sub(
+                    r'links\\link\d+\\', '', img['src']))
         shortparagraph = ""
         try:
             if len(article.text_summary.strip()) == 0:
-                articlebodies = soup.findAll('div',attrs={'class':'articleBody'})
+                articlebodies = soup.findAll(
+                    'div', attrs={'class': 'articleBody'})
                 if articlebodies:
                     for articlebody in articlebodies:
                         if articlebody:
                             paras = articlebody.findAll('p')
                             for p in paras:
-                                refparagraph = self.massageNCXText(self.tag_to_string(p,use_alt=False)).strip()
-                                # account for blank paragraphs and short paragraphs by appending them to longer ones
+                                refparagraph = self.massageNCXText(
+                                    self.tag_to_string(p, use_alt=False)).strip()
+                                # account for blank paragraphs and short
+                                # paragraphs by appending them to longer ones
                                 if len(refparagraph) > 0:
                                     if len(refparagraph) > 70:  # approximately one line of text
                                         newpara = shortparagraph + refparagraph
-                                        newparaDateline,newparaEm,newparaDesc = newpara.partition('&mdash;')
+                                        newparaDateline, newparaEm, newparaDesc = newpara.partition(
+                                            '&mdash;')
                                         if newparaEm == '':
-                                            newparaDateline,newparaEm,newparaDesc = newpara.partition('—')
+                                            newparaDateline, newparaEm, newparaDesc = newpara.partition(
+                                                '—')
                                             if newparaEm == '':
                                                 newparaDesc = newparaDateline
                                         article.summary = article.text_summary = newparaDesc.strip()
@@ -1202,8 +1282,8 @@ class NYTimes(BasicNewsRecipe):
                                         if shortparagraph.strip().find(" ") == -1 and not shortparagraph.strip().endswith(":"):
                                             shortparagraph = shortparagraph + "- "
             else:
-                article.summary = article.text_summary = self.massageNCXText(article.text_summary)
+                article.summary = article.text_summary = self.massageNCXText(
+                    article.text_summary)
         except:
             self.log("Error creating article descriptions")
             return
-

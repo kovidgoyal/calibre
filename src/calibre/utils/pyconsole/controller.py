@@ -42,7 +42,7 @@ class Controller(QThread):
             'CALIBRE_SIMPLE_WORKER':
                 'calibre.utils.pyconsole.interpreter:main',
             'CALIBRE_WORKER_ADDRESS':
-                    hexlify(cPickle.dumps(self.listener.address, -1)),
+                hexlify(cPickle.dumps(self.listener.address, -1)),
             'CALIBRE_WORKER_KEY': hexlify(self.auth_key)
         }
         self.process = Process(self.env)

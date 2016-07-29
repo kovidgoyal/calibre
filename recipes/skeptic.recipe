@@ -1,28 +1,30 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class Skeptic(BasicNewsRecipe):
-    title          = u'The Skeptic'
-    description         = 'Discussions with leading experts and investigation of fringe science and paranormal claims.'
-    language       = 'en'
-    __author__     = 'Starson17'
+    title = u'The Skeptic'
+    description = 'Discussions with leading experts and investigation of fringe science and paranormal claims.'
+    language = 'en'
+    __author__ = 'Starson17'
     oldest_article = 31
-    cover_url           = 'http://www.skeptricks.com/images/Skeptic_Magazine.jpg'
-    remove_empty_feeds    = True
-    remove_javascript   = True
+    cover_url = 'http://www.skeptricks.com/images/Skeptic_Magazine.jpg'
+    remove_empty_feeds = True
+    remove_javascript = True
     max_articles_per_feed = 50
     no_stylesheets = True
 
-    remove_tags = [dict(name='div', attrs={'class':['Introduction','divider']}),
-                  dict(name='div', attrs={'id':['feature', 'podcast']}),
-                  dict(name='div', attrs={'id':re.compile(r'follow.*', re.DOTALL|re.IGNORECASE)}),
-                  dict(name='hr'),
-                  ]
+    remove_tags = [dict(name='div', attrs={'class': ['Introduction', 'divider']}),
+                   dict(name='div', attrs={'id': ['feature', 'podcast']}),
+                   dict(name='div', attrs={'id': re.compile(
+                       r'follow.*', re.DOTALL | re.IGNORECASE)}),
+                   dict(name='hr'),
+                   ]
 
     feeds = [
-            ('The Skeptic', 'http://feeds.feedburner.com/Skepticcom'),
-            ('E-Skeptic', 'http://www.skeptic.com/eskeptic')
-            ]
+        ('The Skeptic', 'http://feeds.feedburner.com/Skepticcom'),
+        ('E-Skeptic', 'http://www.skeptic.com/eskeptic')
+    ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)

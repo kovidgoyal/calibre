@@ -1,23 +1,28 @@
 #!/usr/bin/env  python2
 # -*- coding: utf-8 -*-
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2014, spswerling'
 '''
 www.hurriyetdailynews.com
 '''
-import os, string, inspect, datetime, re
+import os
+import string
+import inspect
+import datetime
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
+
 class HurriyetDailyNews_en(BasicNewsRecipe):
-    title          = u'Hurriyet Daily News'
-    __author__            = u'spswerling'
-    description            = 'a Turkey based daily in english'
+    title = u'Hurriyet Daily News'
+    __author__ = u'spswerling'
+    description = 'a Turkey based daily in english'
     description = 'English version of Turkish Daily "Hurriyet"'
-    no_stylesheets         = True
-    encoding               = 'utf-8'
-    category               = 'news'
-    language               = 'en_TR'
+    no_stylesheets = True
+    encoding = 'utf-8'
+    category = 'news'
+    language = 'en_TR'
     publication_type = 'newspaper'
     cover_img_url = 'http://www.hurriyetdailynews.com/images/design/logo-hurriyet-daily-news.png'
     masthead_url = cover_img_url
@@ -28,25 +33,25 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
     oldest_article = 1
     compress_news_images = True
     compress_news_images_max_size = 7
-    scale_news_images = (150,200)  # (kindle touch: 600x800)
+    scale_news_images = (150, 200)  # (kindle touch: 600x800)
     useHighResImages = False
     oldest_article = 1.5
     max_articles_per_section = 25
     max_articles_per_subsection = 7
 
     sections = [
-                 u'turkey',
-                 u'economy',
-                 u'world',
-                 u'sports',
-                 # u'life',
-                 u'opinion',
-                 # u'arts/culture'
-               ]
+        u'turkey',
+        u'economy',
+        u'world',
+        u'sports',
+        # u'life',
+        u'opinion',
+        # u'arts/culture'
+    ]
 
     # util for creating remove_tags and keep_tags style regex matchers
     def tag_matcher(elt, attr, str):
-        return dict(name=elt, attrs={attr:re.compile(str, re.IGNORECASE)})
+        return dict(name=elt, attrs={attr: re.compile(str, re.IGNORECASE)})
 
     keep_only_tags = [tag_matcher('div', 'class', 'NewsDetail')]
 
@@ -57,7 +62,7 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
         tag_matcher('span', 'id', 'comment'),
         tag_matcher('h2', 'class', 'NewSpot'),
         tag_matcher('h2', 'class', 'pv-gallery'),
-        ]
+    ]
 
     articles = {}
     subsection_links = {}
@@ -94,7 +99,7 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
         self._p('Got home page. hunt down section links.')
 
         regex = re.compile('rmRootLink', re.IGNORECASE)
-        links = soup.findAll('a', {'class':regex})
+        links = soup.findAll('a', {'class': regex})
 
         filtered_links = filter(include_link, links)
         self._p(' all sections: ' + ', '.join(map(self.text, links)))
@@ -114,7 +119,7 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
             return []
         self._p('Got ' + url)
 
-        div = soup.find('div', {'class':'SeffafLink'})
+        div = soup.find('div', {'class': 'SeffafLink'})
         if not div:
             self._p('could not find any subsections')
             return [section_link]
@@ -133,7 +138,7 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
         #    return
 
         self._p('hit section  ' + section +
-           ', subsect ' +  self.subsection_name(subsection_link))
+                ', subsect ' + self.subsection_name(subsection_link))
         url = self.abs_url(subsection_link['href'])
         try:
             self._p('hitting ' + url)
@@ -167,20 +172,20 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
         if len(self.articles[section]) >= self.max_articles_per_section:
             return
         if len(self.subsection_links[subsection]) >= \
-            self.max_articles_per_subsection:
+                self.max_articles_per_subsection:
             return
         self._p('Q: ' + ' - '.join([section, subsection, title, url]))
         full_title = string.capwords(subsection + ' - ' + title)
         self.subsection_links[subsection].append(url)
         self.articles[section].append(
-                        dict(title=full_title,
-                            url=full_url,
-                            date='',
-                            description='',
-                            author='',
-                            content=''))
+            dict(title=full_title,
+                 url=full_url,
+                 date='',
+                 description='',
+                 author='',
+                 content=''))
 
-    def text(self,n):
+    def text(self, n):
         return self.tag_to_string(n).strip()
 
     def abs_url(self, url):
@@ -195,10 +200,10 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
 
         return abs_url
 
-    def section_name(self,link):
+    def section_name(self, link):
         return self.text(link).lower()
 
-    def subsection_name(self,link):
+    def subsection_name(self, link):
         from_fn = str(os.path.splitext(link['href'])[0]).split('/')[-1]
         return from_fn
 
@@ -225,11 +230,11 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
     def date_from_string(self, datestring):
         try:
             # eg: September/17/2014
-            dt = datetime.datetime.strptime(datestring,"%B/%d/%Y")
+            dt = datetime.datetime.strptime(datestring, "%B/%d/%Y")
         except:
             try:
                 # eg: September 17/2014
-                dt = datetime.datetime.strptime(datestring,"%B %d/%Y")
+                dt = datetime.datetime.strptime(datestring, "%B %d/%Y")
             except:
                 dt = None
         if dt:
@@ -239,8 +244,8 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
         return dt
 
     def scrape_article_date(self, soup):
-        dnode =  soup.find('p', {'class':'dateagency'}) or \
-                 soup.find('p', {'class':'Tarih'})
+        dnode =  soup.find('p', {'class': 'dateagency'}) or \
+            soup.find('p', {'class': 'Tarih'})
         if dnode:
             dstring = self.text(dnode)
             return self.date_from_string(dstring)
@@ -249,8 +254,8 @@ class HurriyetDailyNews_en(BasicNewsRecipe):
 
     def _dbg_soup_node(self, node):
         s = '   cls: ' + str(node.get('class')).strip() + \
-              '  id: ' + str(node.get('id')).strip() + \
-              ' txt: ' + self.text(node)
+            '  id: ' + str(node.get('id')).strip() + \
+            ' txt: ' + self.text(node)
         return s
 
     def _p(self, msg):

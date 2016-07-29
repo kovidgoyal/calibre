@@ -1,8 +1,8 @@
 from calibre.web.feeds.news import BasicNewsRecipe
-#from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+
 
 class MoneyControlRecipe(BasicNewsRecipe):
-    __license__  = 'GPL v3'
+    __license__ = 'GPL v3'
     __author__ = 'kwetal'
     language = 'en_IN'
     locale = 'en_IN'
@@ -22,8 +22,10 @@ class MoneyControlRecipe(BasicNewsRecipe):
     remove_javascript = True
 
     feeds = []
-    feeds.append((u'Latest News', u'http://www.moneycontrol.com/rss/latestnews.xml'))
-    feeds.append((u'All Stories', u'http://www.moneycontrol.com/rss/allstories.xml'))
+    feeds.append(
+        (u'Latest News', u'http://www.moneycontrol.com/rss/latestnews.xml'))
+    feeds.append(
+        (u'All Stories', u'http://www.moneycontrol.com/rss/allstories.xml'))
 
     def print_version(self, url):
         return url.replace('/stocksnews.php?', '/news_print.php?') + '&sr_no=0'
@@ -54,4 +56,3 @@ class MoneyControlRecipe(BasicNewsRecipe):
 
         return freshSoup
     '''
-

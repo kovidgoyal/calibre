@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5 # Needed for dynamic plugin loading
+store_version = 5  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2012-2015, Tomasz Długosz <tomek3d@gmail.com>'
@@ -42,7 +42,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
         counter = max_results
         page = 1
         while counter:
-            with closing(br.open('http://www.publio.pl/szukaj,strona' + str(page) + '.html?q=' + urllib.quote(query) + '&sections=EMAGAZINE&sections=MINIBOOK&sections=EBOOK', timeout=timeout)) as f:
+            with closing(br.open('http://www.publio.pl/szukaj,strona' + str(page) + '.html?q=' + urllib.quote(query) + '&sections=EMAGAZINE&sections=MINIBOOK&sections=EBOOK', timeout=timeout)) as f:  # noqa
                 doc = html.fromstring(f.read())
                 for data in doc.xpath('//div[@class="product-tile"]'):
                     if counter <= 0:
@@ -56,7 +56,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     title = ''.join(data.xpath('.//h3[@class="product-tile-title"]/a/text()'))
                     author = ', '.join(data.xpath('.//span[@class="product-tile-author"]/a/text()'))
                     price = ''.join(data.xpath('.//div[@class="product-tile-price-wrapper "]/a/ins/text()'))
-                    #formats = ', '.join([x.strip() for x in data.xpath('.//div[@class="formats"]/a/text()')])
+                    # formats = ', '.join([x.strip() for x in data.xpath('.//div[@class="formats"]/a/text()')])
 
                     counter -= 1
 
@@ -66,8 +66,8 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                     s.author = author
                     s.price = price
                     s.detail_item = 'http://www.publio.pl' + id.strip()
-                    #s.drm = SearchResult.DRM_LOCKED if 'DRM' in formats else SearchResult.DRM_UNLOCKED
-                    #s.formats = formats.replace(' DRM','').strip()
+                    # s.drm = SearchResult.DRM_LOCKED if 'DRM' in formats else SearchResult.DRM_UNLOCKED
+                    # s.formats = formats.replace(' DRM','').strip()
 
                     yield s
                 if not doc.xpath('boolean(//a[@class="next"])'):

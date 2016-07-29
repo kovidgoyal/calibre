@@ -5,21 +5,22 @@ www.iprofesional.com
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class iProfesional(BasicNewsRecipe):
-    title                 = 'iProfesional.com'
-    __author__            = 'Darko Miletic'
-    description           = 'Las ultimas noticias sobre profesionales'
-    publisher             = 'Emprendimientos Corporativos S.A.'
-    category              = 'news, IT, impuestos, negocios, politics, Argentina'
-    oldest_article        = 2
+    title = 'iProfesional.com'
+    __author__ = 'Darko Miletic'
+    description = 'Las ultimas noticias sobre profesionales'
+    publisher = 'Emprendimientos Corporativos S.A.'
+    category = 'news, IT, impuestos, negocios, politics, Argentina'
+    oldest_article = 2
     max_articles_per_feed = 200
-    no_stylesheets        = True
-    encoding              = 'utf8'
-    use_embedded_content  = False
-    language              = 'es_AR'
-    remove_empty_feeds    = True
-    publication_type      = 'newsportal'
-    masthead_url          = 'http://www.iprofesional.com/img/header/logoiprofesional.png'
+    no_stylesheets = True
+    encoding = 'utf8'
+    use_embedded_content = False
+    language = 'es_AR'
+    remove_empty_feeds = True
+    publication_type = 'newsportal'
+    masthead_url = 'http://www.iprofesional.com/img/header/logoiprofesional.png'
     extra_css             = """
                                body{font-family: 'Droid Sans',Arial,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
@@ -30,28 +31,27 @@ class iProfesional(BasicNewsRecipe):
                             """
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
-    keep_only_tags = [dict(attrs={'class':'desarrollo'})]
-    remove_tags = [dict(name=['meta','link','base','embed','object','iframe'])]
+    keep_only_tags = [dict(attrs={'class': 'desarrollo'})]
+    remove_tags = [
+        dict(name=['meta', 'link', 'base', 'embed', 'object', 'iframe'])]
 
     feeds = [
-              (u'Ultimas noticias'  , u'http://feeds.feedburner.com/iprofesional-principales-noticias')
-             ,(u'Finanzas'          , u'http://feeds.feedburner.com/iprofesional-finanzas')
-             ,(u'Impuestos'         , u'http://feeds.feedburner.com/iprofesional-impuestos')
-             ,(u'Negocios'          , u'http://feeds.feedburner.com/iprofesional-economia')
-             ,(u'Comercio Exterior' , u'http://feeds.feedburner.com/iprofesional-comercio-exterior')
-             ,(u'Tecnologia'        , u'http://feeds.feedburner.com/iprofesional-tecnologia')
-             ,(u'Management'        , u'http://feeds.feedburner.com/iprofesional-managment')
-             ,(u'Marketing'         , u'http://feeds.feedburner.com/iprofesional-marketing')
-             ,(u'Legales'           , u'http://feeds.feedburner.com/iprofesional-legales')
-             ,(u'Autos'             , u'http://feeds.feedburner.com/iprofesional-autos')
-             ,(u'Vinos'             , u'http://feeds.feedburner.com/iprofesional-vinos-bodegas')
-            ]
+
+    (u'Ultimas noticias', u'http://feeds.feedburner.com/iprofesional-principales-noticias'),
+    (u'Finanzas', u'http://feeds.feedburner.com/iprofesional-finanzas'),
+    (u'Impuestos', u'http://feeds.feedburner.com/iprofesional-impuestos'),
+    (u'Negocios', u'http://feeds.feedburner.com/iprofesional-economia'),
+    (u'Comercio Exterior', u'http://feeds.feedburner.com/iprofesional-comercio-exterior'),
+    (u'Tecnologia', u'http://feeds.feedburner.com/iprofesional-tecnologia'),
+    (u'Management', u'http://feeds.feedburner.com/iprofesional-managment'),
+    (u'Marketing', u'http://feeds.feedburner.com/iprofesional-marketing'),
+    (u'Legales', u'http://feeds.feedburner.com/iprofesional-legales'),
+    (u'Autos', u'http://feeds.feedburner.com/iprofesional-autos'),
+    (u'Vinos', u'http://feeds.feedburner.com/iprofesional-vinos-bodegas')
+    ]
 
     def preprocess_html(self, soup):
         for item in soup.findAll(style=True):
@@ -72,4 +72,3 @@ class iProfesional(BasicNewsRecipe):
             if 'alt' not in item:
                 item['alt'] = 'image'
         return soup
-

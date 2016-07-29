@@ -1,16 +1,16 @@
 ##
-## Title:        BBC News, Sport, and Blog Calibre Recipe
-## Contact:      mattst - jmstanfield@gmail.com
+# Title:        BBC News, Sport, and Blog Calibre Recipe
+# Contact:      mattst - jmstanfield@gmail.com
 ##
-## License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
-## Copyright:    mattst - jmstanfield@gmail.com
+# License:      GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html
+# Copyright:    mattst - jmstanfield@gmail.com
 ##
-## Written:      November 2011
-## Last Edited:  2011-11-19
+# Written:      November 2011
+# Last Edited:  2011-11-19
 ##
 
-__license__     = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
-__copyright__   = 'mattst - jmstanfield@gmail.com'
+__license__ = 'GNU General Public License v3 - http://www.gnu.org/copyleft/gpl.html'
+__copyright__ = 'mattst - jmstanfield@gmail.com'
 
 
 '''
@@ -22,6 +22,7 @@ import re
 
 # Import the BasicNewsRecipe class which this class extends.
 from calibre.web.feeds.recipes import BasicNewsRecipe
+
 
 class BBCBrasilRecipe(BasicNewsRecipe):
 
@@ -61,19 +62,23 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # Select / de-select the feeds you want in your ebook.
     #
     feeds = [
-                      (u'Primeira P\xe1gina', u'http://www.bbc.co.uk/portuguese/index.xml'),
-                      (u'\xdaltimas Not\xedcias', u'http://www.bbc.co.uk/portuguese/ultimas_noticias/index.xml'),
-                      (u'Internacional', u'http://www.bbc.co.uk/portuguese/topicos/internacional/index.xml'),
-                      (u'Brasil', u'http://www.bbc.co.uk/portuguese/topicos/brasil/index.xml'),
-                      (u'Am\xe9rica Latina', u'http://www.bbc.co.uk/portuguese/topicos/america_latina/index.xml'),
-                      (u'Economia', u'http://www.bbc.co.uk/portuguese/topicos/economia/index.xml'),
-                      (u'Sa\xfade', u'http://www.bbc.co.uk/portuguese/topicos/saude/index.xml'),
-                      (u'Ci\xeancia e Tecnologia', u'http://www.bbc.co.uk/portuguese/topicos/ciencia_e_tecnologia/index.xml'),
-                      (u'Cultura', u'http://www.bbc.co.uk/portuguese/topicos/cultura/index.xml'),
-                      (u'V\xeddeos e Fotos', u'http://www.bbc.co.uk/portuguese/videos_e_fotos/index.xml'),
-                      (u'Especiais', u'http://www.bbc.co.uk/portuguese/especiais/index.xml')
-            ]
-
+        (u'Primeira P\xe1gina', u'http://www.bbc.co.uk/portuguese/index.xml'),
+        (u'\xdaltimas Not\xedcias',
+         u'http://www.bbc.co.uk/portuguese/ultimas_noticias/index.xml'),
+        (u'Internacional',
+         u'http://www.bbc.co.uk/portuguese/topicos/internacional/index.xml'),
+        (u'Brasil', u'http://www.bbc.co.uk/portuguese/topicos/brasil/index.xml'),
+        (u'Am\xe9rica Latina',
+         u'http://www.bbc.co.uk/portuguese/topicos/america_latina/index.xml'),
+        (u'Economia', u'http://www.bbc.co.uk/portuguese/topicos/economia/index.xml'),
+        (u'Sa\xfade', u'http://www.bbc.co.uk/portuguese/topicos/saude/index.xml'),
+        (u'Ci\xeancia e Tecnologia',
+         u'http://www.bbc.co.uk/portuguese/topicos/ciencia_e_tecnologia/index.xml'),
+        (u'Cultura', u'http://www.bbc.co.uk/portuguese/topicos/cultura/index.xml'),
+        (u'V\xeddeos e Fotos',
+         u'http://www.bbc.co.uk/portuguese/videos_e_fotos/index.xml'),
+        (u'Especiais', u'http://www.bbc.co.uk/portuguese/especiais/index.xml')
+    ]
 
     #    **** SELECT YOUR USER PREFERENCES ****
 
@@ -122,15 +127,14 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # As with 'feeds' select/de-select by adding/removing the initial '#',
     # only one timefmt should be selected, here's a few to choose from.
     #
-    timefmt = ' [%a, %d %b %Y]'              # [Fri, 14 Nov 2011] (Calibre default)
-    #timefmt = ' [%a, %d %b %Y %H:%M]'       # [Fri, 14 Nov 2011 18:30]
-    #timefmt = ' [%a, %d %b %Y %I:%M %p]'    # [Fri, 14 Nov 2011 06:30 PM]
-    #timefmt = ' [%d %b %Y]'                 # [14 Nov 2011]
-    #timefmt = ' [%d %b %Y %H:%M]'           # [14 Nov 2011 18.30]
-    #timefmt = ' [%Y-%m-%d]'                 # [2011-11-14]
-    #timefmt = ' [%Y-%m-%d-%H-%M]'           # [2011-11-14-18-30]
-
-
+    # [Fri, 14 Nov 2011] (Calibre default)
+    timefmt = ' [%a, %d %b %Y]'
+    # timefmt = ' [%a, %d %b %Y %H:%M]'       # [Fri, 14 Nov 2011 18:30]
+    # timefmt = ' [%a, %d %b %Y %I:%M %p]'    # [Fri, 14 Nov 2011 06:30 PM]
+    # timefmt = ' [%d %b %Y]'                 # [14 Nov 2011]
+    # timefmt = ' [%d %b %Y %H:%M]'           # [14 Nov 2011 18.30]
+    # timefmt = ' [%Y-%m-%d]'                 # [2011-11-14]
+    # timefmt = ' [%Y-%m-%d-%H-%M]'           # [2011-11-14-18-30]
 
     #
     #    **** IMPORTANT ****
@@ -143,8 +147,6 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     #
     #    **** IMPORTANT ****
     #
-
-
 
     # Author of this recipe.
     __author__ = 'Carlos Laviola'
@@ -167,7 +169,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # with None is working fine, so stick with that for robustness.
     encoding = None
 
-    # Sets whether a feed has full articles embedded in it. The BBC feeds do not.
+    # Sets whether a feed has full articles embedded in it. The BBC feeds do
+    # not.
     use_embedded_content = False
 
     # Removes empty feeds - why keep them!?
@@ -195,7 +198,7 @@ class BBCBrasilRecipe(BasicNewsRecipe):
                          }
     '''
 
-    conversion_options = { 'smarten_punctuation' : True }
+    conversion_options = {'smarten_punctuation': True}
 
     # Specify extra CSS - overrides ALL other CSS (IE. Added last).
     extra_css = 'body { font-family: verdana, helvetica, sans-serif; } \
@@ -218,22 +221,22 @@ class BBCBrasilRecipe(BasicNewsRecipe):
                  h4, h5, h6 { text-align: center; font-size: 100%; font-weight: bold; }'
 
     # Remove various tag attributes to improve the look of the ebook pages.
-    remove_attributes = [ 'border', 'cellspacing', 'align', 'cellpadding', 'colspan',
-                          'valign', 'vspace', 'hspace', 'alt', 'width', 'height' ]
+    remove_attributes = ['border', 'cellspacing', 'align', 'cellpadding', 'colspan',
+                         'valign', 'vspace', 'hspace', 'alt', 'width', 'height']
 
     # Remove the (admittedly rarely used) line breaks, "<br />", which sometimes
     # cause a section of the ebook to start in an unsightly fashion or, more
     # frequently, a "<br />" will muck up the formatting of a correspondant's byline.
     # "<br />" and "<br clear/>" are far more frequently used on the table formatted
     # style of pages, and really spoil the look of the ebook pages.
-    preprocess_regexps     = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
-                              (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
-
+    preprocess_regexps = [(re.compile(r'<br[ ]*/>', re.IGNORECASE), lambda m: ''),
+                          (re.compile(r'<br[ ]*clear.*/>', re.IGNORECASE), lambda m: '')]
 
     # Create regular expressions for tag keeping and removal to make the matches more
     # robust against minor changes and errors in the HTML, Eg. double spaces, leading
     # and trailing spaces, missing hyphens, and such like.
-    # Python regular expression ('re' class) page: http://docs.python.org/library/re.html
+    # Python regular expression ('re' class) page:
+    # http://docs.python.org/library/re.html
 
     # ***************************************
     # Regular expressions for keep_only_tags:
@@ -255,7 +258,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # (travel), and in some sport pages. These alternative pages are table based (which is
     # why I think they are an out-of-date design) and account for -I'm guesstimaking- less
     # than 1% of all articles. They use a table class 'storycontent' to hold the article
-    # and like blq_content (above) have required lots of extra removal by remove_tags.
+    # and like blq_content (above) have required lots of extra removal by
+    # remove_tags.
     story_content_reg_exp = '^.*story[_ -]*content.*$'
 
     # Keep the sections of the HTML which match the list below. The HTML page created by
@@ -265,11 +269,14 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # will be inside div class/id 'blq_content' in the HTML (if 'blq_content' is there at
     # all). If they are the other way around in keep_only_tags then blq_content_reg_exp
     # will end up being discarded.
-    keep_only_tags = [ dict(name='table', attrs={'class':re.compile(story_content_reg_exp, re.IGNORECASE)}),
-                       dict(name='div',   attrs={'class':re.compile(blq_content_reg_exp, re.IGNORECASE)}),
-                       dict(name='div',   attrs={'id':re.compile(blq_content_reg_exp, re.IGNORECASE)}),
-                       dict(name='div',   attrs={'class':re.compile(storybody_reg_exp, re.IGNORECASE)}),
-                       dict(name='div',   attrs={'id':re.compile(storybody_reg_exp, re.IGNORECASE)}) ]
+    keep_only_tags = [dict(name='table', attrs={'class': re.compile(story_content_reg_exp, re.IGNORECASE)}),
+                      dict(name='div',   attrs={'class': re.compile(
+                           blq_content_reg_exp, re.IGNORECASE)}),
+                      dict(name='div',   attrs={'id': re.compile(
+                           blq_content_reg_exp, re.IGNORECASE)}),
+                      dict(name='div',   attrs={'class': re.compile(
+                           storybody_reg_exp, re.IGNORECASE)}),
+                      dict(name='div',   attrs={'id': re.compile(storybody_reg_exp, re.IGNORECASE)})]
 
     # ************************************
     # Regular expressions for remove_tags:
@@ -307,7 +314,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     audio_reg_exp = '^.*audio.*$'
 
     # Regular expression to remove pictureGallery and variant tags, Eg. 'pictureGallery'.
-    # This class is used to embed a photo slideshow. See also 'slideshow' below.
+    # This class is used to embed a photo slideshow. See also 'slideshow'
+    # below.
     picture_gallery_reg_exp = '^.*picture.*$'
 
     # Regular expression to remove slideshow and variant tags, Eg. 'dslideshow-enclosure'.
@@ -336,7 +344,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     hidden_reg_exp = '^.*hidden.*$'
 
     # Regular expression to remove comment and variant tags, Eg. 'comment-introduction'.
-    # Used on the site to display text about registered users entering comments.
+    # Used on the site to display text about registered users entering
+    # comments.
     comment_reg_exp = '^.*comment.*$'
 
     # Regular expression to remove form and variant tags, Eg. 'comment-form'.
@@ -344,31 +353,32 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # for entering comments about an article.
     form_reg_exp = '^.*form.*$'
 
-    # Extra things to remove due to the addition of 'blq_content' in keep_only_tags.
+    # Extra things to remove due to the addition of 'blq_content' in
+    # keep_only_tags.
 
-    #<div class="story-actions"> Used on sports pages for 'email' and 'print'.
+    # <div class="story-actions"> Used on sports pages for 'email' and 'print'.
     story_actions_reg_exp = '^.*story[_ -]*actions.*$'
 
-    #<div class="bookmark-list"> Used on sports pages instead of 'share-help' (for
+    # <div class="bookmark-list"> Used on sports pages instead of 'share-help' (for
     # social networking links).
     bookmark_list_reg_exp = '^.*bookmark[_ -]*list.*$'
 
-    #<div id="secondary-content" class="content-group">
+    # <div id="secondary-content" class="content-group">
     # NOTE: Don't remove class="content-group" that is needed.
     # Used on sports pages to link to 'similar stories'.
     secondary_content_reg_exp = '^.*secondary[_ -]*content.*$'
 
-    #<div id="featured-content" class="content-group">
+    # <div id="featured-content" class="content-group">
     # NOTE: Don't remove class="content-group" that is needed.
     # Used on sports pages to link to pages like 'tables', 'fixtures', etc.
     featured_content_reg_exp = '^.*featured[_ -]*content.*$'
 
-    #<div id="navigation">
+    # <div id="navigation">
     # Used on sports pages to link to pages like 'tables', 'fixtures', etc.
     # Used sometimes instead of "featured-content" above.
     navigation_reg_exp = '^.*navigation.*$'
 
-    #<a class="skip" href="#blq-container-inner">Skip to top</a>
+    # <a class="skip" href="#blq-container-inner">Skip to top</a>
     # Used on sports pages to link to the top of the page.
     skip_reg_exp = '^.*skip.*$'
 
@@ -377,13 +387,15 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # is not entirely clear from the pages (which are a total mess!).
 
     # Remove mapping based tags, Eg. <map id="world_map">
-    # The dynamic maps don't seem to work during ebook creation. TO DO: Investigate.
+    # The dynamic maps don't seem to work during ebook creation. TO DO:
+    # Investigate.
     map_reg_exp = '^.*map.*$'
 
     # Remove social bookmarking variation, called 'socialBookMarks'.
     social_bookmarks_reg_exp = '^.*social[_ -]*bookmarks.*$'
 
-    # Remove page navigation tools, like 'search', 'email', 'print', called 'blq-mast'.
+    # Remove page navigation tools, like 'search', 'email', 'print', called
+    # 'blq-mast'.
     blq_mast_reg_exp = '^.*blq[_ -]*mast.*$'
 
     # Remove 'sharesb', I think this is a generic 'sharing' class. It seems to appear
@@ -394,7 +406,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # Remove class 'o'. The worst named user created css class of all time. The creator
     # should immediately be fired. I've seen it used to hold nothing at all but with
     # 20 or so empty lines in it. Also to hold a single link to another article.
-    # Whatever it was designed to do it is not wanted by this recipe. Exact match only.
+    # Whatever it was designed to do it is not wanted by this recipe. Exact
+    # match only.
     o_reg_exp = '^o$'
 
     # Remove 'promotopbg' and 'promobottombg', link lists. Have decided to
@@ -442,53 +455,93 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # Remove 'storyextra' - links to relevant articles and external sites.
     storyextra_reg_exp = '^.*story[_ -]*extra.*$'
 
-
-    remove_tags = [ dict(name='div',  attrs={'class':re.compile(story_feature_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(share_help_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(embedded_hyper_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(hypertabs_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(video_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(audio_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(picture_gallery_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(slideshow_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(quote_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(hidden_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(comment_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(story_actions_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(bookmark_list_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'id':re.compile(secondary_content_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'id':re.compile(featured_content_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'id':re.compile(navigation_reg_exp, re.IGNORECASE)}),
-                    dict(name='form', attrs={'id':re.compile(form_reg_exp, re.IGNORECASE)}),
-                    dict(attrs={'class':re.compile(quote_reg_exp, re.IGNORECASE)}),
-                    dict(attrs={'class':re.compile(hidden_reg_exp, re.IGNORECASE)}),
-                    dict(attrs={'class':re.compile(social_links_reg_exp, re.IGNORECASE)}),
-                    dict(attrs={'class':re.compile(comment_reg_exp, re.IGNORECASE)}),
-                    dict(attrs={'class':re.compile(skip_reg_exp, re.IGNORECASE)}),
-                    dict(name='map', attrs={'id':re.compile(map_reg_exp, re.IGNORECASE)}),
-                    dict(name='map', attrs={'name':re.compile(map_reg_exp, re.IGNORECASE)}),
-                    dict(name='div', attrs={'id':re.compile(social_bookmarks_reg_exp, re.IGNORECASE)}),
-                    dict(name='div', attrs={'id':re.compile(blq_mast_reg_exp, re.IGNORECASE)}),
-                    dict(name='div', attrs={'class':re.compile(sharesb_reg_exp, re.IGNORECASE)}),
-                    dict(name='div', attrs={'class':re.compile(o_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(promo_top_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(promo_bottom_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(nlp_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(mva_or_mvb_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(mvtb_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(blq_toplink_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(prods_services_01_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(prods_services_02_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(blq_misc_01_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(blq_misc_02_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':re.compile(puffbox_reg_exp, re.IGNORECASE)}),
-                    dict(attrs={'class':re.compile(sibtbg_reg_exp, re.IGNORECASE)}),
-                    dict(attrs={'class':re.compile(storyextra_reg_exp, re.IGNORECASE)}),
-                    dict(name='div',  attrs={'class':'tools-container'}),
-                    dict(name='div',  attrs={'class':'tools-container-end'}),
-                    dict(name='div',  attrs={'class':'g-block story-body contextual-links'}),
-                    dict(name='div',  attrs={'class':' g-w11 sidebar'})
-                  ]
+    remove_tags = [dict(name='div',  attrs={'class': re.compile(story_feature_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        share_help_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        embedded_hyper_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        hypertabs_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        video_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        audio_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        picture_gallery_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        slideshow_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        quote_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        hidden_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        comment_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        story_actions_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        bookmark_list_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'id': re.compile(
+                        secondary_content_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'id': re.compile(
+                        featured_content_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'id': re.compile(
+                        navigation_reg_exp, re.IGNORECASE)}),
+                   dict(name='form', attrs={'id': re.compile(
+                        form_reg_exp, re.IGNORECASE)}),
+                   dict(attrs={'class': re.compile(
+                        quote_reg_exp, re.IGNORECASE)}),
+                   dict(attrs={'class': re.compile(
+                        hidden_reg_exp, re.IGNORECASE)}),
+                   dict(attrs={'class': re.compile(
+                        social_links_reg_exp, re.IGNORECASE)}),
+                   dict(attrs={'class': re.compile(
+                        comment_reg_exp, re.IGNORECASE)}),
+                   dict(attrs={'class': re.compile(
+                        skip_reg_exp, re.IGNORECASE)}),
+                   dict(name='map', attrs={'id': re.compile(
+                        map_reg_exp, re.IGNORECASE)}),
+                   dict(name='map', attrs={'name': re.compile(
+                        map_reg_exp, re.IGNORECASE)}),
+                   dict(name='div', attrs={'id': re.compile(
+                        social_bookmarks_reg_exp, re.IGNORECASE)}),
+                   dict(name='div', attrs={'id': re.compile(
+                        blq_mast_reg_exp, re.IGNORECASE)}),
+                   dict(name='div', attrs={'class': re.compile(
+                        sharesb_reg_exp, re.IGNORECASE)}),
+                   dict(name='div', attrs={
+                       'class': re.compile(o_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        promo_top_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        promo_bottom_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={
+                       'class': re.compile(nlp_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        mva_or_mvb_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        mvtb_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        blq_toplink_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        prods_services_01_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        prods_services_02_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        blq_misc_01_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        blq_misc_02_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': re.compile(
+                        puffbox_reg_exp, re.IGNORECASE)}),
+                   dict(attrs={'class': re.compile(
+                        sibtbg_reg_exp, re.IGNORECASE)}),
+                   dict(attrs={'class': re.compile(
+                        storyextra_reg_exp, re.IGNORECASE)}),
+                   dict(name='div',  attrs={'class': 'tools-container'}),
+                   dict(name='div',  attrs={'class': 'tools-container-end'}),
+                   dict(name='div',  attrs={
+                       'class': 'g-block story-body contextual-links'}),
+                   dict(name='div',  attrs={'class': ' g-w11 sidebar'})
+                   ]
 
     # Uses url to create and return the 'printer friendly' version of the url.
     # In other words the 'print this page' address of the page.
@@ -498,7 +551,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
     # Note: Sports urls are linked from regular news feeds (Eg. 'News Home') when
     # there is a major story of interest to 'everyone'. So even if no BBC sports
     # feeds are added to 'feeds' the logic of this method is still needed to avoid
-    # blank / missing / empty articles which have an index title and then no body.
+    # blank / missing / empty articles which have an index title and then no
+    # body.
     def print_version(self, url):
 
         # Handle sports page urls type 01:
@@ -517,7 +571,6 @@ class BBCBrasilRecipe(BasicNewsRecipe):
         print_url = temp_url + "?print=true"
 
         return print_url
-
 
     # Remove articles in feeds based on a string in the article title or url.
     #
@@ -542,7 +595,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
 
                 # Most BBC rss feed video only 'articles' use upper case 'VIDEO'
                 # as a title prefix. Just match upper case 'VIDEO', so that
-                # articles like 'Video game banned' won't be matched and removed.
+                # articles like 'Video game banned' won't be matched and
+                # removed.
                 if 'VIDEO' in article.title:
                     feed.articles.remove(article)
 
@@ -585,7 +639,8 @@ class BBCBrasilRecipe(BasicNewsRecipe):
                 # pages which just display a cricket scorecard. The pages have a mass
                 # of table and css entries to display the scorecards nicely. Probably
                 # could make them work with this recipe, but might take a whole day
-                # of work to sort out all the css - basically a formatting nightmare.
+                # of work to sort out all the css - basically a formatting
+                # nightmare.
                 elif 'scorecards' in article.url:
                     feed.articles.remove(article)
 

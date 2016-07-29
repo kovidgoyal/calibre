@@ -21,7 +21,7 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 
-class FormatsConfig(QWidget): # {{{
+class FormatsConfig(QWidget):  # {{{
 
     def __init__(self, all_formats, format_map):
         QWidget.__init__(self)
@@ -73,7 +73,7 @@ class FormatsConfig(QWidget): # {{{
             self.f.setCurrentRow(idx+1)
 # }}}
 
-class TemplateConfig(QWidget): # {{{
+class TemplateConfig(QWidget):  # {{{
 
     def __init__(self, val):
         QWidget.__init__(self)
@@ -111,13 +111,13 @@ class TemplateConfig(QWidget): # {{{
             return True
         except Exception as err:
             error_dialog(self, _('Invalid template'),
-                    '<p>'+_('The template %s is invalid:')%tmpl + \
+                    '<p>'+_('The template %s is invalid:')%tmpl +
                     '<br>'+unicode(err), show=True)
 
             return False
 # }}}
 
-class SendToConfig(QWidget): # {{{
+class SendToConfig(QWidget):  # {{{
 
     def __init__(self, val, device):
         QWidget.__init__(self)
@@ -157,7 +157,7 @@ class SendToConfig(QWidget): # {{{
 
 # }}}
 
-class IgnoredDevices(QWidget): # {{{
+class IgnoredDevices(QWidget):  # {{{
 
     def __init__(self, devs, blacklist):
         QWidget.__init__(self)

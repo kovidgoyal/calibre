@@ -107,7 +107,7 @@ class KTCollectionsBookList(CollectionsBookList):
                 continue
             # If the book is not in the current library, we don't want to use the metadtaa for the collections
             if book.application_id is None:
-#                debug_print("KTCollectionsBookList:get_collections - Book not in current library")
+                #                debug_print("KTCollectionsBookList:get_collections - Book not in current library")
                 continue
             # Decide how we will build the collections. The default: leave the
             # book in all existing collections. Do not add any new ones.
@@ -144,7 +144,7 @@ class KTCollectionsBookList(CollectionsBookList):
                         debug_print("KTCollectionsBookList:get_collections - adding book.device_collections", book.device_collections)
                 # If the book is not in the current library, we don't want to use the metadtaa for the collections
                 elif book.application_id is None or not book.can_put_on_shelves:
-#                    debug_print("KTCollectionsBookList:get_collections - Book not in current library")
+                    #                    debug_print("KTCollectionsBookList:get_collections - Book not in current library")
                     continue
                 else:
                     doing_dc = False
@@ -183,7 +183,7 @@ class KTCollectionsBookList(CollectionsBookList):
                     debug_print("KTCollectionsBookList:get_collections - val=", val)
 
                 for category in val:
-#                    debug_print("KTCollectionsBookList:get_collections - category=", category)
+                    #                    debug_print("KTCollectionsBookList:get_collections - category=", category)
                     is_series = False
                     if doing_dc:
                         # Attempt to determine if this value is a series by

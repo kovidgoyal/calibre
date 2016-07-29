@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6 # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
@@ -65,7 +65,7 @@ class VirtualoStore(BasicStoreConfig, StorePlugin):
                 cover_url = ''.join(data.xpath('.//img[@class="cover"]/@src'))
                 title = ''.join(data.xpath('.//div[@class="title"]/a/text()'))
                 author = ', '.join(data.xpath('.//div[@class="information"]//div[@class="authors"]/a/text()'))
-                formats = [ form.strip() for form in data.xpath('.//div[@class="information"]//div[@class="format"]/a/text()')]
+                formats = [form.strip() for form in data.xpath('.//div[@class="information"]//div[@class="format"]/a/text()')]
                 nodrm = no_drm_pattern.search(''.join(data.xpath('.//div[@class="protection"]/text()')))
 
                 counter -= 1

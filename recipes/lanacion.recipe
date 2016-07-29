@@ -5,22 +5,23 @@ lanacion.com.ar
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Lanacion(BasicNewsRecipe):
-    title                 = 'La Nacion'
-    __author__            = 'Darko Miletic'
-    description           = "lanacion.com - Informacion actualizada las 24 horas, con noticias de Argentina y del mundo"
-    publisher             = 'La Nacion S.A.'
-    category              = 'news, politics, Argentina'
-    oldest_article        = 1
+    title = 'La Nacion'
+    __author__ = 'Darko Miletic'
+    description = "lanacion.com - Informacion actualizada las 24 horas, con noticias de Argentina y del mundo"
+    publisher = 'La Nacion S.A.'
+    category = 'news, politics, Argentina'
+    oldest_article = 1
     max_articles_per_feed = 100
-    use_embedded_content  = False
-    auto_cleanup          = False
-    no_stylesheets        = True
-    encoding              = 'utf8'
-    language              = 'es_AR'
-    publication_type      = 'newspaper'
-    remove_empty_feeds    = True
-    masthead_url          = 'http://www.lanacion.com.ar/_ui/desktop/imgs/layout/logos/ln-home.gif'
+    use_embedded_content = False
+    auto_cleanup = False
+    no_stylesheets = True
+    encoding = 'utf8'
+    language = 'es_AR'
+    publication_type = 'newspaper'
+    remove_empty_feeds = True
+    masthead_url = 'http://www.lanacion.com.ar/_ui/desktop/imgs/layout/logos/ln-home.gif'
     extra_css             = """
                                 h1{font-family: TheSans,Arial,sans-serif}
                                 body{font-family: Arial,sans-serif}
@@ -30,49 +31,46 @@ class Lanacion(BasicNewsRecipe):
                             """
 
     conversion_options = {
-                          'comment'  : description
-                        , 'tags'     : category
-                        , 'publisher': publisher
-                        , 'language' : language
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
     remove_tags = [
-                     dict(name=['iframe','embed','object','meta','link','button'])
-                    ,dict(attrs={'id':['herramientas-sociales','comunidad', 'ranking-nota','footer']})
-                    ,dict(attrs={'class':['mas-sobre-tema','cinturon-notas floatFix','cinturon-notas']})
-                  ]
+        dict(name=['iframe', 'embed', 'object', 'meta', 'link', 'button']), dict(attrs={'id': [
+            'herramientas-sociales', 'comunidad', 'ranking-nota', 'footer']}), dict(attrs={'class': ['mas-sobre-tema', 'cinturon-notas floatFix', 'cinturon-notas']})  # noqa
+    ]
 
-    remove_tags_before = dict(attrs={'id':'nota'})
-    remove_tags_after  = dict(attrs={'class':'en-esta-nota'})
+    remove_tags_before = dict(attrs={'id': 'nota'})
+    remove_tags_after = dict(attrs={'class': 'en-esta-nota'})
 
-    feeds          = [
-                         (u'Politica'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30')
-                        ,(u'Deportes'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=131')
-                        ,(u'Economia'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=272')
-                        ,(u'Sociedad'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7773')
-                        ,(u'Seguridad'            , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7775')
-                        ,(u'Buenos Aires'         , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7774')
-                        ,(u'Opinion'              , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=28')
-                        ,(u'Espectaculos'         , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=120')
-                        ,(u'El Mundo'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7')
-                        ,(u'Revista'              , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=494')
-                        ,(u'Enfoques'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=421')
-                        ,(u'Comercio Exterior'    , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=347')
-                        ,(u'Tecnologia'           , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=432')
-                        ,(u'Turismo'              , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=504')
-                        ,(u'Al volante'           , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=371')
-                        ,(u'El Campo'             , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=337')
-                        ,(u'Moda y Belleza'       , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1312')
-                        ,(u'Inmuebles Comerciales', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1363')
-                        ,(u'Countries'            , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1348')
-                        ,(u'Comunidad'            , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1344')
-                        ,(u'adnCultura'           , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=6734')
-                        ,(u'The WSJ Americas'     , u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=6373')
-                     ]
+    feeds = [
+
+    (u'Politica', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=30'),
+    (u'Deportes', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=131'),
+    (u'Economia', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=272'),
+    (u'Sociedad', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7773'),
+    (u'Seguridad', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7775'),
+    (u'Buenos Aires', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7774'),
+    (u'Opinion', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=28'),
+    (u'Espectaculos', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=120'),
+    (u'El Mundo', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=7'),
+    (u'Revista', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=494'),
+    (u'Enfoques', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=421'),
+    (u'Comercio Exterior', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=347'),
+    (u'Tecnologia', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=432'),
+    (u'Turismo', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=504'),
+    (u'Al volante', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=371'),
+    (u'El Campo', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=337'),
+    (u'Moda y Belleza', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1312'),
+    (u'Inmuebles Comerciales', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1363'),
+    (u'Countries', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1348'),
+    (u'Comunidad', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=1344'),
+    (u'adnCultura', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=6734'),
+    (u'The WSJ Americas', u'http://contenidos.lanacion.com.ar/herramientas/rss/categoria_id=6373')
+    ]
 
     def get_cover_url(self):
         soup = self.index_to_soup('http://www.lanacion.com.ar/edicion-impresa')
-        atap = soup.find(attrs={'class':'tapa'})
+        atap = soup.find(attrs={'class': 'tapa'})
         if atap:
             li = atap.find('img')
             if li:

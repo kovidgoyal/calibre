@@ -3,15 +3,16 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import AutomaticNewsRecipe
 
+
 class BasicUserRecipe1458513045(AutomaticNewsRecipe):
-    title          = 'Múlt-Kor'
-    __author__     = 'pofa'
-    language       = 'hu'
+    title = 'Múlt-Kor'
+    __author__ = 'pofa'
+    language = 'hu'
     oldest_article = 1
     max_articles_per_feed = 50
-    auto_cleanup   = True
+    auto_cleanup = True
 
-    feeds          = [
+    feeds = [
         ('XX. század', 'http://mult-kor.hu/.scripts/rss.php?label=10'),
         ('Újkor', 'http://mult-kor.hu/.scripts/rss.php?label=14'),
         ('Középkor', 'http://mult-kor.hu/.scripts/rss.php?label=13'),

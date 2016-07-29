@@ -1,17 +1,16 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1271446252(BasicNewsRecipe):
-    title          = u'CanardPC'
+    title = u'CanardPC'
     oldest_article = 7
     max_articles_per_feed = 100
     language = 'fr'
     __author__ = 'zorgluf'
     max_articles_per_feed = 25
-    #encoding = 'cp1252'
     use_embedded_content = False
 
     no_stylesheets = True
     auto_cleanup = True
 
-    feeds          = [(u'CanardPC', u'http://www.canardpc.com/feed.php')]
-
+    feeds = [(u'CanardPC', u'http://www.canardpc.com/feed.php')]

@@ -10,7 +10,7 @@ import re
 from calibre import prints
 from calibre.utils.logging import default_log as log
 
-class NumberToText(object): # {{{
+class NumberToText(object):  # {{{
     '''
     Converts numbers to text
     4.56    => four point fifty-six
@@ -82,14 +82,16 @@ class NumberToText(object): # {{{
         resultString = ""
         self.suffix = ''
 
-        if self.verbose: self.log("numberTranslate(): %s" % self.number)
+        if self.verbose:
+            self.log("numberTranslate(): %s" % self.number)
 
         # Special case ordinals
         if re.search('[st|nd|rd|th]',self.number):
             self.number = re.sub(',','',self.number)
             ordinal_suffix = re.search('[\D]', self.number)
             ordinal_number = re.sub('\D','',re.sub(',','',self.number))
-            if self.verbose: self.log("Ordinal: %s" % ordinal_number)
+            if self.verbose:
+                self.log("Ordinal: %s" % ordinal_number)
             self.number_as_float = ordinal_number
             self.suffix = self.number[ordinal_suffix.start():]
             if int(ordinal_number) > 9:
@@ -100,7 +102,8 @@ class NumberToText(object): # {{{
 
         # Test for time
         elif re.search(':',self.number):
-            if self.verbose: self.log("Time: %s" % self.number)
+            if self.verbose:
+                self.log("Time: %s" % self.number)
             self.number_as_float = re.sub(':','.',self.number)
             time_strings = self.number.split(":")
             hours = NumberToText(time_strings[0]).text
@@ -109,13 +112,15 @@ class NumberToText(object): # {{{
 
         # Test for %
         elif re.search('%', self.number):
-            if self.verbose: self.log("Percent: %s" % self.number)
+            if self.verbose:
+                self.log("Percent: %s" % self.number)
             self.number_as_float = self.number.split('%')[0]
             self.text = NumberToText(self.number.replace('%',' percent')).text
 
         # Test for decimal
         elif re.search('\.',self.number):
-            if self.verbose: self.log("Decimal: %s" % self.number)
+            if self.verbose:
+                self.log("Decimal: %s" % self.number)
             self.number_as_float = self.number
             decimal_strings = self.number.split(".")
             left = NumberToText(decimal_strings[0]).text
@@ -124,7 +129,8 @@ class NumberToText(object): # {{{
 
         # Test for hypenated
         elif re.search('-', self.number):
-            if self.verbose: self.log("Hyphenated: %s" % self.number)
+            if self.verbose:
+                self.log("Hyphenated: %s" % self.number)
             self.number_as_float = self.number.split('-')[0]
             strings = self.number.split('-')
             if re.search('[0-9]+', strings[0]):
@@ -137,13 +143,15 @@ class NumberToText(object): # {{{
 
         # Test for only commas and numbers
         elif re.search(',', self.number) and not re.search('[^0-9,]',self.number):
-            if self.verbose: self.log("Comma(s): %s" % self.number)
+            if self.verbose:
+                self.log("Comma(s): %s" % self.number)
             self.number_as_float = re.sub(',','',self.number)
             self.text = NumberToText(self.number_as_float).text
 
         # Test for hybrid e.g., 'K2, 2nd, 10@10'
         elif re.search('[\D]+', self.number):
-            if self.verbose: self.log("Hybrid: %s" % self.number)
+            if self.verbose:
+                self.log("Hybrid: %s" % self.number)
             # Split the token into number/text
             number_position = re.search('\d',self.number).start()
             text_position = re.search('\D',self.number).start()
@@ -157,7 +165,8 @@ class NumberToText(object): # {{{
                 self.text = '%s%s' % (text, NumberToText(number).text)
 
         else:
-            if self.verbose: self.log("Clean: %s" % self.number)
+            if self.verbose:
+                self.log("Clean: %s" % self.number)
             try:
                 self.float_as_number = float(self.number)
                 number = int(self.number)

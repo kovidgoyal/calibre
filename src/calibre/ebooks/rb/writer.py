@@ -132,7 +132,7 @@ class RBWriter(object):
 
                     images.append((name, data))
                 except Exception as e:
-                    self.log.error('Error: Could not include file %s becuase ' \
+                    self.log.error('Error: Could not include file %s becuase '
                         '%s.' % (item.href, e))
 
         return images

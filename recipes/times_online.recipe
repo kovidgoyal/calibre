@@ -1,5 +1,5 @@
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009-2013, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.thetimes.co.uk
@@ -7,25 +7,26 @@ www.thetimes.co.uk
 import urllib
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class TimesOnline(BasicNewsRecipe):
-    title                 = 'The Times UK'
-    __author__            = 'Darko Miletic'
-    description           = 'news from United Kingdom and World'
-    language              = 'en_GB'
-    publisher             = 'Times Newspapers Ltd'
-    category              = 'news, politics, UK'
-    oldest_article        = 3
+    title = 'The Times UK'
+    __author__ = 'Darko Miletic'
+    description = 'news from United Kingdom and World'
+    language = 'en_GB'
+    publisher = 'Times Newspapers Ltd'
+    category = 'news, politics, UK'
+    oldest_article = 3
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'utf-8'
-    delay                 = 1
-    needs_subscription    = True
-    auto_cleanup          = False    
-    publication_type      = 'newspaper'
-    masthead_url          = 'http://www.thetimes.co.uk/tto/public/img/the_times_460.gif'
-    INDEX                 = 'http://www.thetimes.co.uk'
-    PREFIX                = u'http://www.thetimes.co.uk/tto/'
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    delay = 1
+    needs_subscription = True
+    auto_cleanup = False
+    publication_type = 'newspaper'
+    masthead_url = 'http://www.thetimes.co.uk/tto/public/img/the_times_460.gif'
+    INDEX = 'http://www.thetimes.co.uk'
+    PREFIX = u'http://www.thetimes.co.uk/tto/'
     extra_css             = """
                                 .f-ha{font-size: xx-large; font-weight: bold}
                                 .f-author{font-family: Arial,Helvetica,sans-serif}
@@ -33,72 +34,63 @@ class TimesOnline(BasicNewsRecipe):
                                 body{font-family: Georgia,"Times New Roman",Times,serif}
                             """
     conversion_options = {
-                          'comment'    : description
-                        , 'tags'       : category
-                        , 'publisher'  : publisher
-                        , 'language'   : language
-                        }
-
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.open('http://www.thetimes.co.uk/tto/news/')
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({ 
-                                      'gotoUrl' :self.INDEX
-                                     ,'username':self.username
-                                     ,'password':self.password
-                                   })
-            br.open('https://login.thetimes.co.uk/',data)
+            data = urllib.urlencode({
+                'gotoUrl': self.INDEX, 'username': self.username, 'password': self.password
+            })
+            br.open('https://login.thetimes.co.uk/', data)
         return br
 
-    remove_tags      = [
-                           dict(name=['object','link','iframe','base','meta'])
-                          ,dict(attrs={'class':'tto-counter' })
-                        ]
-    remove_attributes=['lang']
-    keep_only_tags   = [
-                          dict(attrs={'class':'heading' })
-                         ,dict(attrs={'class':'f-author'})
-                         ,dict(attrs={'class':['media','byline-timestamp']})
-                         ,dict(attrs={'id':'bodycopy'})
-                       ]
+    remove_tags = [
+        dict(name=['object', 'link', 'iframe', 'base', 'meta']), dict(
+            attrs={'class': 'tto-counter'})
+    ]
+    remove_attributes = ['lang']
+    keep_only_tags = [
+        dict(attrs={'class': 'heading'}), dict(attrs={'class': 'f-author'}), dict(
+            attrs={'class': ['media', 'byline-timestamp']}), dict(attrs={'id': 'bodycopy'})
+    ]
 
     feeds = [
-                (u'UK News'     , PREFIX + u'news/uk/?view=list'      )
-               ,(u'World'       , PREFIX + u'news/world/?view=list'   )
-               ,(u'Politics'    , PREFIX + u'news/politics/?view=list')
-               ,(u'Health'      , PREFIX + u'health/news/?view=list'  )
-               ,(u'Education'   , PREFIX + u'education/?view=list'    )
-               ,(u'Technology'  , PREFIX + u'technology/?view=list'   )
-               ,(u'Science'     , PREFIX + u'science/?view=list'      )
-               ,(u'Environment' , PREFIX + u'environment/?view=list'  )
-               ,(u'Faith'       , PREFIX + u'faith/?view=list'        )
-               ,(u'Opinion'     , PREFIX + u'opinion/?view=list'      )
-               ,(u'Sport'       , PREFIX + u'sport/?view=list'        )
-               ,(u'Business'    , PREFIX + u'business/?view=list'     )
-               ,(u'Money'       , PREFIX + u'money/?view=list'        )
-               ,(u'Life'        , PREFIX + u'life/?view=list'         )
-               ,(u'Arts'        , PREFIX + u'arts/?view=list'         )
-            ]
+
+    (u'UK News', PREFIX + u'news/uk/?view=list'),
+    (u'World', PREFIX + u'news/world/?view=list'),
+    (u'Politics', PREFIX + u'news/politics/?view=list'),
+    (u'Health', PREFIX + u'health/news/?view=list'),
+    (u'Education', PREFIX + u'education/?view=list'),
+    (u'Technology', PREFIX + u'technology/?view=list'),
+    (u'Science', PREFIX + u'science/?view=list'),
+    (u'Environment', PREFIX + u'environment/?view=list'),
+    (u'Faith', PREFIX + u'faith/?view=list'),
+    (u'Opinion', PREFIX + u'opinion/?view=list'),
+    (u'Sport', PREFIX + u'sport/?view=list'),
+    (u'Business', PREFIX + u'business/?view=list'),
+    (u'Money', PREFIX + u'money/?view=list'),
+    (u'Life', PREFIX + u'life/?view=list'),
+    (u'Arts', PREFIX + u'arts/?view=list')
+    ]
 
     def parse_index(self):
         totalfeeds = []
         lfeeds = self.get_feeds()
         for feedobj in lfeeds:
             feedtitle, feedurl = feedobj
-            self.report_progress(0, _('Fetching feed')+' %s...'%(feedtitle if feedtitle else feedurl))
+            self.report_progress(0, _('Fetching feed') + ' %s...' %
+                                 (feedtitle if feedtitle else feedurl))
             articles = []
             soup = self.index_to_soup(feedurl)
-            for item in soup.findAll('td', attrs={'class':'title'}):
-                atag          = item.find('a')
-                url           = self.INDEX + atag['href']
-                title         = self.tag_to_string(atag)
+            for item in soup.findAll('td', attrs={'class': 'title'}):
+                atag = item.find('a')
+                url = self.INDEX + atag['href']
+                title = self.tag_to_string(atag)
                 articles.append({
-                                      'title'      :title
-                                     ,'date'       :''
-                                     ,'url'        :url
-                                     ,'description':''
-                                    })
+                    'title': title, 'date': '', 'url': url, 'description': ''
+                })
             totalfeeds.append((feedtitle, articles))
         return totalfeeds

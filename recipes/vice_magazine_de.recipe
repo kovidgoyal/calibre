@@ -2,6 +2,7 @@
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class ViceDERecipe(BasicNewsRecipe):
     title = u'Vice Magazin Deutschland'
     __author__ = 'atordo;alex'
@@ -13,19 +14,19 @@ class ViceDERecipe(BasicNewsRecipe):
     auto_cleanup = False
     no_stylesheets = True
     language = 'de'
-    use_embedded_content  = False
+    use_embedded_content = False
     remove_javascript = True
     publication_type = 'magazine'
 
-    recursions=10
+    recursions = 10
     match_regexps = [r'/read/.*\?Contentpage=[2-9]$']
 
     keep_only_tags = [
-        dict(attrs={'class':['article_title','article_content','next']})
+        dict(attrs={'class': ['article_title', 'article_content', 'next']})
     ]
     remove_tags = [
-        dict(attrs={'class':['social_buttons','search','tweet','like','inline_socials'
-           ,'stumblebadge','plusone']})
+        dict(attrs={'class': ['social_buttons', 'search', 'tweet',
+                              'like', 'inline_socials', 'stumblebadge', 'plusone']})
     ]
 
     extra_css = '''

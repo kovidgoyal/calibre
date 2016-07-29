@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 frontlineonnet.com
@@ -7,46 +7,39 @@ frontlineonnet.com
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Frontlineonnet(BasicNewsRecipe):
-    title                = 'Frontline'
-    __author__           = 'Darko Miletic'
-    description          = "India's national magazine"
-    publisher            = 'Frontline'
-    category             = 'news, politics, India'
-    no_stylesheets       = True
-    delay                = 1
-    INDEX                = 'http://frontlineonnet.com/'
+    title = 'Frontline'
+    __author__ = 'Darko Miletic'
+    description = "India's national magazine"
+    publisher = 'Frontline'
+    category = 'news, politics, India'
+    no_stylesheets = True
+    delay = 1
+    INDEX = 'http://frontlineonnet.com/'
     use_embedded_content = False
-    encoding             = 'utf-8'
-    language             = 'en_IN'
-    publication_type     = 'magazine'
-    masthead_url         = 'http://frontlineonnet.com/images/newfline.jpg'
+    encoding = 'utf-8'
+    language = 'en_IN'
+    publication_type = 'magazine'
+    masthead_url = 'http://frontlineonnet.com/images/newfline.jpg'
     extra_css            = """
                               body{font-family: Verdana,Arial,Helvetica,sans-serif}
                               img{margin-top:0.5em; margin-bottom: 0.7em; display: block}
                            """
 
     conversion_options = {
-                          'comment'          : description
-                        , 'tags'             : category
-                        , 'publisher'        : publisher
-                        , 'language'         : language
-                        , 'linearize_tables' : True
-                        }
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True
+    }
 
     preprocess_regexps = [
-                           (re.compile(r'.*?<base', re.DOTALL|re.IGNORECASE),lambda match: '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html dir="ltr" xml:lang="en-IN"><head><title>title</title><base')  # noqa
-                          ,(re.compile(r'<base .*?>', re.DOTALL|re.IGNORECASE),lambda match: '</head><body>')
-                          ,(re.compile(r'<byline>', re.DOTALL|re.IGNORECASE),lambda match: '<div class="byline">')
-                          ,(re.compile(r'</byline>', re.DOTALL|re.IGNORECASE),lambda match: '</div>')
-                          ,(re.compile(r'<center>', re.DOTALL|re.IGNORECASE),lambda match: '<div class="ctr">')
-                          ,(re.compile(r'</center>', re.DOTALL|re.IGNORECASE),lambda match: '</div>')
+                           (re.compile(r'.*?<base', re.DOTALL | re.IGNORECASE), lambda match: '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html dir="ltr" xml:lang="en-IN"><head><title>title</title><base')  # noqa
+                          , (re.compile(r'<base .*?>', re.DOTALL | re.IGNORECASE), lambda match: '</head><body>'), (re.compile(r'<byline>', re.DOTALL | re.IGNORECASE), lambda match: '<div class="byline">'), (re.compile(r'</byline>', re.DOTALL | re.IGNORECASE), lambda match: '</div>'), (re.compile(r'<center>', re.DOTALL | re.IGNORECASE), lambda match: '<div class="ctr">'), (re.compile(r'</center>', re.DOTALL | re.IGNORECASE), lambda match: '</div>')  # noqa
                          ]
 
-    keep_only_tags= [
-                      dict(name='div', attrs={'id':'content'})
-                    ]
-    remove_attributes=['size','noshade','border']
+    keep_only_tags = [
+        dict(name='div', attrs={'id': 'content'})
+    ]
+    remove_attributes = ['size', 'noshade', 'border']
 
     use_javascript_to_login = True
     needs_subscription = True
@@ -54,7 +47,8 @@ class Frontlineonnet(BasicNewsRecipe):
     def javascript_login(self, browser, username, password):
         browser.visit('http://www.frontline.in/profile/login.do')
         browser.wait_for_element('form#loginForm', timeout=180)
-        form = browser.select_form('#loginForm')  # Select the first form on the page
+        # Select the first form on the page
+        form = browser.select_form('#loginForm')
         form['userName'] = username
         form['password'] = password
         browser.submit(timeout=120)
@@ -77,13 +71,9 @@ class Frontlineonnet(BasicNewsRecipe):
                     title = self.tag_to_string(a)
                     url = a['href']
                     articles.append({
-                                    'title'      :title
-                                    ,'date'       :''
-                                    ,'url'        :url
-                                    ,'description':''
+                                    'title': title, 'date': '', 'url': url, 'description': ''
                                     })
                     self.log('\t', title, url)
         if articles:
             feeds.append((current_section, articles))
         return feeds
-

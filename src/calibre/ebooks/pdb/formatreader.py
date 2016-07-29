@@ -13,6 +13,6 @@ class FormatReader(object):
 
     def __init__(self, header, stream, log, options):
         raise NotImplementedError()
-        
+
     def extract_content(self, output_dir):
         raise NotImplementedError()

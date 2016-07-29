@@ -7,11 +7,12 @@ www.ittechblog.pl
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class ittechblog(BasicNewsRecipe):
     title = u'IT techblog'
     __author__ = 'MrStefan <mrstefaan@gmail.com>'
     language = 'pl'
-    description =u'Na naszym blogu technologicznym znajdziesz między innymi: testy sprzętu, najnowsze startupy, technologiczne nowinki, felietony tematyczne.'
+    description = u'Na naszym blogu technologicznym znajdziesz między innymi: testy sprzętu, najnowsze startupy, technologiczne nowinki, felietony tematyczne.'
     extra_css = '.cover > img {display:block;}'
     remove_empty_feeds = True
     oldest_article = 7
@@ -20,7 +21,8 @@ class ittechblog(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
 
-    keep_only_tags =[dict(attrs={'class':'box'})]
-    remove_tags =[dict(name='aside'), dict(attrs={'class':['tags', 'counter', 'twitter-share-button']})]
+    keep_only_tags = [dict(attrs={'class': 'box'})]
+    remove_tags = [dict(name='aside'), dict(
+        attrs={'class': ['tags', 'counter', 'twitter-share-button']})]
 
-    feeds          = [(u'Artykuły', u'http://feeds.feedburner.com/ITTechBlog?format=xml')]
+    feeds = [(u'Artykuły', u'http://feeds.feedburner.com/ITTechBlog?format=xml')]

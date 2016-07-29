@@ -53,8 +53,7 @@ def populate_strand(parent, entries):
         current_index = parent.index
         siblings = []
         for entry in list(entries):
-            if (entry.depth == parent.depth and entry.parent == parent.parent
-                    and entry.index == current_index+1):
+            if (entry.depth == parent.depth and entry.parent == parent.parent and entry.index == current_index+1):
                 current_index += 1
                 entries.remove(entry)
                 children = [c for c in entries if c.parent == entry.index]
@@ -177,7 +176,7 @@ def sequences_to_bytes(sequences):
     for val, extra in sequences:
         ans.append(encode_tbs(val, extra, flag_size))
         flag_size = 4  # only the first sequence has flag size 3 as all
-                      # subsequent sequences could need the 0b1000 flag
+        # subsequent sequences could need the 0b1000 flag
     return b''.join(ans)
 
 def calculate_all_tbs(indexing_data, tbs_type=8):

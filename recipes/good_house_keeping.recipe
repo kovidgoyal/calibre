@@ -1,45 +1,38 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1305547242(BasicNewsRecipe):
-    title          = u'Good House Keeping'
+    title = u'Good House Keeping'
     language = 'en'
     __author__ = 'Anonymous'
     oldest_article = 7
     max_articles_per_feed = 100
-    no_stylesheets         = True
-    use_embedded_content   = False
-    #auto_cleanup = True
-    remove_javascript      = True
+    no_stylesheets = True
+    use_embedded_content = False
+    remove_javascript = True
 
-    def print_version(self,url):
-       if '/tips-for-making-desserts?' in url:
-           return None
-       segments = url.split('/')
-       segments[-1] = segments[-1].split('?')[0]
-       segments[-1] +='?page=all'
-       printURL = '/'.join(segments[0:3]) + '/print-this/' + segments[-1]
-       return printURL
+    def print_version(self, url):
+        if '/tips-for-making-desserts?' in url:
+            return None
+        segments = url.split('/')
+        segments[-1] = segments[-1].split('?')[0]
+        segments[-1] += '?page=all'
+        printURL = '/'.join(segments[0:3]) + '/print-this/' + segments[-1]
+        return printURL
 
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
             if alink.string is not None:
-               tstr = alink.string
-               alink.replaceWith(tstr)
+                tstr = alink.string
+                alink.replaceWith(tstr)
         return soup
 
-
-    #feeds          = [
-#(u'Food and Recipes', u'http://www.goodhousekeeping.com/rss/recipes/'),
-#]
-
-
-    feeds          = [
-(u'Food and Recipes', u'http://www.goodhousekeeping.com/rss/recipes/'),
-(u'Home and Organizing', u'http://www.goodhousekeeping.com/rss/home/'),
-(u'Diet and Health', u'http://www.goodhousekeeping.com/rss/health/'),
-(u'Beauty and Anti-Aging', u'http://www.goodhousekeeping.com/rss/beauty/'),
-(u'Family and Relationships', u'http://www.goodhousekeeping.com/rss/family/'),
-(u'Holidays', u'http://www.goodhousekeeping.com/rss/holidays/'),
-(u'In the Test Kitchen', 'http://www.goodhousekeeping.com/rss/test-kitchen-blog/'),
-]
-
+    feeds = [
+        (u'Food and Recipes', u'http://www.goodhousekeeping.com/rss/recipes/'),
+        (u'Home and Organizing', u'http://www.goodhousekeeping.com/rss/home/'),
+        (u'Diet and Health', u'http://www.goodhousekeeping.com/rss/health/'),
+        (u'Beauty and Anti-Aging', u'http://www.goodhousekeeping.com/rss/beauty/'),
+        (u'Family and Relationships', u'http://www.goodhousekeeping.com/rss/family/'),
+        (u'Holidays', u'http://www.goodhousekeeping.com/rss/holidays/'),
+        (u'In the Test Kitchen', 'http://www.goodhousekeeping.com/rss/test-kitchen-blog/'),
+    ]

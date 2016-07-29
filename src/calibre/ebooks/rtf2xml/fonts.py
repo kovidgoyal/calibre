@@ -23,8 +23,8 @@ class Fonts:
             in_file,
             bug_handler,
             default_font_num,
-            copy = None,
-            run_level = 1,
+            copy=None,
+            run_level=1,
             ):
         """
         Required:
@@ -101,7 +101,7 @@ class Fonts:
             self.__state = 'font_in_table'
             self.__font_num = self.__default_font_num
             self.__text_line = ''
-        ##self.__write_obj.write(line)
+        # self.__write_obj.write(line)
 
     def __font_in_table_func(self, line):
         """
@@ -121,12 +121,12 @@ class Fonts:
                 as attributes.
                 Preamture end of font table
             """
-        #cw<ci<font-style<nu<4
-        #tx<nu<__________<Times;
+        # cw<ci<font-style<nu<4
+        # tx<nu<__________<Times;
         if self.__token_info == 'mi<mk<fontit-end':
             self.__wrote_ind_font = 1
             self.__state = 'font_table'
-            self.__text_line = self.__text_line[:-1] # get rid of last ';'
+            self.__text_line = self.__text_line[:-1]  # get rid of last ';'
             self.__font_table[self.__font_num] = self.__text_line
             self.__write_obj.write(
             'mi<tg<empty-att_'
@@ -208,14 +208,13 @@ class Fonts:
                     self.__token_info = line[:16]
                     action = self.__state_dict.get(self.__state)
                     if action is None:
-                        sys.stderr.write('no matching state in module fonts.py\n' \
-                                            + self.__state + '\n')
+                        sys.stderr.write('no matching state in module fonts.py\n' + self.__state + '\n')
                     action(line)
         default_font_name = self.__font_table.get(self.__default_font_num)
         if not default_font_name:
             default_font_name = 'Not Defined'
         self.__special_font_dict['default-font'] = default_font_name
-        copy_obj = copy.Copy(bug_handler = self.__bug_handler)
+        copy_obj = copy.Copy(bug_handler=self.__bug_handler)
         if self.__copy:
             copy_obj.copy_file(self.__write_to, "fonts.data")
         copy_obj.rename(self.__write_to, self.__file)

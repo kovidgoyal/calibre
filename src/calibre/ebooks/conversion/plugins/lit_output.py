@@ -26,7 +26,6 @@ class LITOutput(OutputFormatPlugin):
                 remove_css_pagebreaks=False)
         split(self.oeb, self.opts)
 
-
         tocadder = HTMLTOCAdder()
         tocadder(oeb, opts)
         mangler = CaseMangler()

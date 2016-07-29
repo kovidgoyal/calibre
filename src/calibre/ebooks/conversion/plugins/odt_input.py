@@ -16,7 +16,6 @@ class ODTInput(InputFormatPlugin):
     description = 'Convert ODT (OpenOffice) files to HTML'
     file_types  = set(['odt'])
 
-
     def convert(self, stream, options, file_ext, log,
                 accelerators):
         from calibre.ebooks.odt.input import Extract

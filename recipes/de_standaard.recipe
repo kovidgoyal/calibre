@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
 '''
 standaard.be
@@ -6,26 +6,26 @@ standaard.be
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class DeStandaard(BasicNewsRecipe):
-    title                 = u'De Standaard'
-    __author__            = u'Darko Miletic'
-    language              = 'nl_BE'
-    description           = u'News from Belgium in Dutch'
-    oldest_article        = 7
+    title = u'De Standaard'
+    __author__ = u'Darko Miletic'
+    language = 'nl_BE'
+    description = u'News from Belgium in Dutch'
+    oldest_article = 7
     max_articles_per_feed = 100
-    no_stylesheets        = True
-    use_embedded_content  = False
-    encoding              = 'utf-8'
-    masthead_url          = 'http://www.standaard.be/extra/css/images/masthead/logo_340x45.png'
-    publication_type      = 'newspaper'
-    
-    keep_only_tags    = [dict(name='div' , attrs={'id':['intro','continued']})]
+    no_stylesheets = True
+    use_embedded_content = False
+    encoding = 'utf-8'
+    masthead_url = 'http://www.standaard.be/extra/css/images/masthead/logo_340x45.png'
+    publication_type = 'newspaper'
 
-    feeds          = [(u'De Standaard Online', u'http://feeds.feedburner.com/dso-front')]
+    keep_only_tags = [dict(name='div', attrs={'id': ['intro', 'continued']})]
 
+    feeds = [(u'De Standaard Online', u'http://feeds.feedburner.com/dso-front')]
 
     def get_article_url(self, article):
         return article.get('guid',  None)
 
     def print_version(self, url):
-        return url.replace('/artikel/detail.aspx?','/Artikel/PrintArtikel.aspx?')
+        return url.replace('/artikel/detail.aspx?', '/Artikel/PrintArtikel.aspx?')

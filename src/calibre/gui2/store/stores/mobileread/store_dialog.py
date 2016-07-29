@@ -14,7 +14,7 @@ from calibre.gui2.store.stores.mobileread.models import BooksModel
 from calibre.gui2.store.stores.mobileread.store_dialog_ui import Ui_Dialog
 
 class MobileReadStoreDialog(QDialog, Ui_Dialog):
-    
+
     def __init__(self, plugin, *args):
         QDialog.__init__(self, *args)
         self.setupUi(self)
@@ -23,9 +23,9 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         self.search_query.initialize('store_mobileread_search')
         self.search_query.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.search_query.setMinimumContentsLength(25)
-        
+
         self.adv_search_button.setIcon(QIcon(I('search.png')))
-        
+
         self._model = BooksModel(self.plugin.get_book_list())
         self.results_view.setModel(self._model)
         self.total.setText('%s' % self.results_view.model().rowCount())
@@ -35,25 +35,25 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         self.results_view.activated.connect(self.open_store)
         self.results_view.model().total_changed.connect(self.update_book_total)
         self.finished.connect(self.dialog_closed)
-        
+
         self.restore_state()
-        
+
     def do_search(self):
         self.results_view.model().search(unicode(self.search_query.text()))
-        
+
     def open_store(self, index):
         result = self.results_view.model().get_book(index)
         if result:
             self.plugin.open(self, result.detail_item)
-    
+
     def update_book_total(self, total):
         self.total.setText('%s' % total)
-    
+
     def build_adv_search(self):
         adv = AdvSearchBuilderDialog(self)
         if adv.exec_() == QDialog.Accepted:
             self.search_query.setText(adv.search_string())
-    
+
     def restore_state(self):
         geometry = self.plugin.config.get('dialog_geometry', None)
         if geometry:
@@ -68,7 +68,7 @@ class MobileReadStoreDialog(QDialog, Ui_Dialog):
         else:
             for i in xrange(self.results_view.model().columnCount()):
                 self.results_view.resizeColumnToContents(i)
-                
+
         self.results_view.model().sort_col = self.plugin.config.get('dialog_sort_col', 0)
         self.results_view.model().sort_order = self.plugin.config.get('dialog_sort_order', Qt.AscendingOrder)
         self.results_view.model().sort(self.results_view.model().sort_col, self.results_view.model().sort_order)

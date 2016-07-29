@@ -1,6 +1,7 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
 
+
 class AdvancedUserRecipe1361743898(BasicNewsRecipe):
     title = u'Democracy Journal'
     description = '''A journal of ideas. Published quarterly.'''
@@ -18,10 +19,10 @@ class AdvancedUserRecipe1361743898(BasicNewsRecipe):
         for x in soup.findAll(href=re.compile("http://www\.democracyjournal\.org/\d*/.*php$")):
             url = x.get('href')
             title = self.tag_to_string(x)
-            articles.append({'title':title, 'url':url, 'description':'', 'date':''})
+            articles.append({'title': title, 'url': url,
+                             'description': '', 'date': ''})
         feeds.append(('Articles', articles))
         return feeds
 
     def print_version(self, url):
         return url + '?page=all'
-

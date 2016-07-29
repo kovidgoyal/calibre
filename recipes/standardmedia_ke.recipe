@@ -1,10 +1,11 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2010, Hans Donner <hans.donner at pobox.com>'
 '''
 www.standardmedia.co.ke
 '''
 
 from calibre.web.feeds.news import BasicNewsRecipe
+
 
 class StandardMediaKeRecipe(BasicNewsRecipe):
 
@@ -37,12 +38,8 @@ class StandardMediaKeRecipe(BasicNewsRecipe):
              (u'Entertainment', u'http://www.standardmedia.co.ke/rss/entertain.php')]
 
     conversion_options = {
-                          'comment'   : description
-                        , 'tags'      : category
-                        , 'publisher' : publisher
-                        , 'language'  : language
-                        }
-
+        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+    }
 
     def print_version(self, url):
         import re
@@ -51,4 +48,3 @@ class StandardMediaKeRecipe(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         return self.adeify_images(soup)
-

@@ -1,8 +1,9 @@
-import  re
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class XkcdCom(BasicNewsRecipe):
-    cover_url =    'http://what-if.xkcd.com/imgs/whatif-logo.png'
+    cover_url = 'http://what-if.xkcd.com/imgs/whatif-logo.png'
     masthead_url = 'http://what-if.xkcd.com/imgs/whatif-logo.png'
     __author__ = 'kisnik'
     title = 'What If...'
@@ -10,7 +11,7 @@ class XkcdCom(BasicNewsRecipe):
     language = 'en'
     keep_only_tags = [dict(name='article')]
 
-    use_embedded_content   = False
+    use_embedded_content = False
     oldest_article = 60
     # add image and text
     # add an horizontal line after the question
@@ -23,5 +24,4 @@ class XkcdCom(BasicNewsRecipe):
 
     extra_css = "#photo_text{font-size:small;}"
 
-    feeds          = [(u'What If...', u'http://what-if.xkcd.com/feed.atom')]
-
+    feeds = [(u'What If...', u'http://what-if.xkcd.com/feed.atom')]

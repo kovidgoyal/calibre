@@ -1,5 +1,6 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AirForceTimes(BasicNewsRecipe):
     title = 'Air Force Times'
     __author__ = 'jde'
@@ -12,7 +13,7 @@ class AirForceTimes(BasicNewsRecipe):
     tags = 'news, U.S. Air Force'
     cover_url = 'http://www.airforcetimes.com/images/logo_airforcetimes_alert.jpg'
     masthead_url = 'http://www.airforcetimes.com/images/logo_airforcetimes_alert.jpg'
-    oldest_article = 7 #days
+    oldest_article = 7  # days
     max_articles_per_feed = 25
     publication_type = 'newspaper'
     no_stylesheets = True
@@ -24,20 +25,14 @@ class AirForceTimes(BasicNewsRecipe):
     remove_empty_feeds = True
     auto_cleanup = True
 
-
-
     feeds = [
 
-	('News', 		'http://www.airforcetimes.com/rss_news.php'),
-	('Benefits', 		'http://www.airforcetimes.com/rss_benefits.php'),
-	('Money', 		'http://www.airforcetimes.com/rss_money.php'),
-	('Careers & Education', 	'http://www.airforcetimes.com/rss_careers.php'),
-	('Community', 	'http://www.airforcetimes.com/rss_community.php'),
-	('Off Duty', 		'http://www.airforcetimes.com/rss_off_duty.php'),
-	('Entertainment', 	'http://www.airforcetimes.com/rss_entertainment.php'),
-	('Guard & Reserve', 	'http://www.airforcetimes.com/rss_guard.php'),
-              ]
-
-
-
-
+        ('News',   'http://www.airforcetimes.com/rss_news.php'),
+        ('Benefits',   'http://www.airforcetimes.com/rss_benefits.php'),
+        ('Money',   'http://www.airforcetimes.com/rss_money.php'),
+        ('Careers & Education',  'http://www.airforcetimes.com/rss_careers.php'),
+        ('Community',  'http://www.airforcetimes.com/rss_community.php'),
+        ('Off Duty',   'http://www.airforcetimes.com/rss_off_duty.php'),
+        ('Entertainment',  'http://www.airforcetimes.com/rss_entertainment.php'),
+        ('Guard & Reserve',  'http://www.airforcetimes.com/rss_guard.php'),
+    ]

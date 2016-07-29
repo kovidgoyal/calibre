@@ -11,8 +11,8 @@ from urllib import urlencode
 
 class Query(object):
     '''
-    Represents an opensearch query Really this class is just a 
-    helper for substituting values into the macros in a format. 
+    Represents an opensearch query Really this class is just a
+    helper for substituting values into the macros in a format.
 
     format = 'http://beta.indeed.com/opensearch?q={searchTerms}&start={startIndex}&limit={count}'
     q = Query(format)
@@ -22,7 +22,7 @@ class Query(object):
     print q.url()
     '''
 
-    standard_macros = ['searchTerms', 'count', 'startIndex', 'startPage', 
+    standard_macros = ['searchTerms', 'count', 'startIndex', 'startPage',
         'language', 'outputEncoding', 'inputEncoding']
 
     def __init__(self, format):
@@ -38,12 +38,12 @@ class Query(object):
         # unpack the query string to a dictionary
         self.query_string = parse_qs(self.url_parts[4])
 
-        # look for standard macros and create a mapping of the 
+        # look for standard macros and create a mapping of the
         # opensearch names to the service specific ones
         # so q={searchTerms} will result in a mapping between searchTerms and q
         self.macro_map = {}
         for key,values in self.query_string.items():
-            # TODO eventually optional/required params should be 
+            # TODO eventually optional/required params should be
             # distinguished somehow (the ones with/without trailing ?
             macro = values[0].replace('{', '').replace('}', '').replace('?', '')
             if macro in Query.standard_macros:
@@ -70,5 +70,5 @@ class Query(object):
         return urlunparse(tuple(url_parts))
 
     def has_macro(self, macro):
-        return self.macro_map.has_key(macro)
+        return macro in self.macro_map
 

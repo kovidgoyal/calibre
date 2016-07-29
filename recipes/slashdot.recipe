@@ -2,13 +2,14 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import with_statement
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net> edited by Huan T'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class Slashdot(BasicNewsRecipe):
-    title          = u'Slashdot.org'
+    title = u'Slashdot.org'
     description    = '''Tech news. WARNING: This recipe downloads a lot
     of content and may result in your IP being banned from slashdot.org'''
     oldest_article = 7
@@ -21,21 +22,20 @@ class Slashdot(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     keep_only_tags = [
-        dict(name='div',attrs={'class':'story'}),
-        dict(name='div',attrs={'class':'body'}),
-        dict(name='ul',attrs={'id':'commentlisting'}),
+        dict(name='div', attrs={'class': 'story'}),
+        dict(name='div', attrs={'class': 'body'}),
+        dict(name='ul', attrs={'id': 'commentlisting'}),
     ]
 
-    feeds          = [
-                 (u'Slashdot',
- u'http://rss.slashdot.org/Slashdot/slashdot'),
-                 (u'/. IT',
- u'http://rss.slashdot.org/Slashdot/slashdotIT'),
-                 (u'/. Hardware',
- u'http://rss.slashdot.org/Slashdot/slashdotHardware'),
-                 (u'/. Linux',
- u'http://rss.slashdot.org/Slashdot/slashdotLinux'),
-                 (u'/. Your Rights Online',
- u'http://rss.slashdot.org/Slashdot/slashdotYourRightsOnline')
-                 ]
-
+    feeds = [
+        (u'Slashdot',
+         u'http://rss.slashdot.org/Slashdot/slashdot'),
+        (u'/. IT',
+         u'http://rss.slashdot.org/Slashdot/slashdotIT'),
+        (u'/. Hardware',
+         u'http://rss.slashdot.org/Slashdot/slashdotHardware'),
+        (u'/. Linux',
+         u'http://rss.slashdot.org/Slashdot/slashdotLinux'),
+        (u'/. Your Rights Online',
+         u'http://rss.slashdot.org/Slashdot/slashdotYourRightsOnline')
+    ]

@@ -85,10 +85,10 @@ class StoreAction(InterfaceAction):
 
     def search_author(self):
         row = self._get_selected_row()
-        if row == None:
+        if row is None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
             return
-        self.search({ 'author': self._get_author(row) })
+        self.search({'author': self._get_author(row)})
 
     def _get_title(self, row):
         title = ''
@@ -102,17 +102,17 @@ class StoreAction(InterfaceAction):
 
     def search_title(self):
         row = self._get_selected_row()
-        if row == None:
+        if row is None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
             return
-        self.search({ 'title': self._get_title(row) })
+        self.search({'title': self._get_title(row)})
 
     def search_author_title(self):
         row = self._get_selected_row()
-        if row == None:
+        if row is None:
             error_dialog(self.gui, _('Cannot search'), _('No book selected'), show=True)
             return
-        self.search({ 'author': self._get_author(row), 'title': self._get_title(row) })
+        self.search({'author': self._get_author(row), 'title': self._get_title(row)})
 
     def choose(self):
         from calibre.gui2.store.config.chooser.chooser_dialog import StoreChooserDialog
@@ -137,8 +137,7 @@ class StoreAction(InterfaceAction):
             '<p>' +
             _('Using the integrated search you can easily find which '
             'store has the book you are looking for, at the best price. '
-            'You also get DRM status and other useful information.')
-            + '<p>' +
+            'You also get DRM status and other useful information.') + '<p>' +
             _('All transactions (paid or otherwise) are handled between '
             'you and the book seller. '
             'Calibre is not part of this process and any issues related '

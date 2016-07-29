@@ -18,24 +18,25 @@ def get_metadata(stream):
             print >>sys.stderr, u'Couldn\'t read RB header from file'
             return mi
         stream.read(10)
-        
+
         read_i32 = lambda: struct.unpack('<I', stream.read(4))[0]
-        
+
         stream.seek(read_i32())
         toc_count = read_i32()
 
         for i in range(toc_count):
             stream.read(32)
             length, offset, flag = read_i32(), read_i32(), read_i32()
-            if flag == 2: break
+            if flag == 2:
+                break
         else:
             print >>sys.stderr, u'Couldn\'t find INFO from RB file'
             return mi
-            
+
         stream.seek(offset)
         info = stream.read(length).splitlines()
         for line in info:
-            if not '=' in line:
+            if '=' not in line:
                 continue
             key, value = line.split('=')
             if key.strip() == 'TITLE':
@@ -48,5 +49,5 @@ def get_metadata(stream):
         print >>sys.stderr, msg.encode('utf8')
         raise
     return mi
-        
-         
+
+

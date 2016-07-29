@@ -36,7 +36,6 @@ class kakasi(object):
         self.h2a = H2a()
         self.k2a = K2a()
 
-
     def do(self, text):
         otext =  ''
         i = 0
