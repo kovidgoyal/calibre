@@ -1,10 +1,10 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 __license__     = 'GPL v3'
 __copyright__   = '08 Januery 2011, desUBIKado'
 __author__      = 'desUBIKado'
 __description__ = 'Daily newspaper from Biscay'
-__version__     = 'v0.11'
-__date__        = '26, July 2014'
+__version__     = 'v0.13'
+__date__        = '28, July 2016'
 '''
 http://www.elcorreo.com/
 '''
@@ -32,8 +32,8 @@ class elcorreo(BasicNewsRecipe):
     remove_javascript     = True
 
     feeds              = [
-                           (u'Portada',        u'http://www.elcorreo.com/bizkaia/rss/atom/portada'),
-                           (u'Mundo',         u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=internacional'),
+                           (u'Portada',      	 u'http://www.elcorreo.com/bizkaia/rss/atom/portada'),
+                           (u'Mundo',       	 u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=internacional'),
                            (u'Bizkaia',          u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=bizkaia'),
                            (u'Guipuzkoa',        u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=gipuzkoa'),
                            (u'Araba',            u'http://www.elcorreo.com/bizkaia/rss/atom?seccion=araba'),
@@ -58,93 +58,100 @@ class elcorreo(BasicNewsRecipe):
                          ]
 
     keep_only_tags     = [
-                          dict(name='ul', attrs={'class':['media-list']})
+                          dict(name='article', attrs={'class':['story media-list ']})
                          ]
 
     remove_tags        = [
-                          dict(name='span', attrs={'class':['no-comments']})
+                          dict(name='span', attrs={'class':['no-comments']}),
+                          dict(name='div', attrs={'class':['compApoyosText compNoticiasR']})
                          ]
 
-    remove_tags_before = dict(name='ul' , attrs={'class':'media-list'})
-    remove_tags_after  = dict(name='ul' , attrs={'class':'media-list'})
+    remove_tags_before = dict(name='article' , attrs={'class':'story media-list '})
+    remove_tags_after  = dict(name='article' , attrs={'class':'story media-list '})
+
 
     # Usamos la versión para móviles
 
     def print_version(self, url):
-        return url.replace('http://www.', 'http://m.')
+          return url.replace('http://www.', 'http://m.')
+
+
 
     _processed_links = []
 
     def get_article_url(self, article):
 
-        link = article.get('link', None)
+       link = article.get('link', None)
 
-        if link is None:
-            return article
+       if link is None:
+           return article
 
-        # modificamos la url de las noticias de los equipos deportivos para que funcionen, por ejemplo:
-        # http://athletic.elcorreo.com/noticias/201407/27/muniain-estrella-athletic-para-20140727093046.html
-        # http://m.elcorreo.com/noticias/201407/27/muniain-estrella-athletic-para-20140727093046.html?external=deportes/athletic
+       # modificamos la url de las noticias de los equipos deportivos para que funcionen, por ejemplo:
+       # http://athletic.elcorreo.com/noticias/201407/27/muniain-estrella-athletic-para-20140727093046.html
+       # http://m.elcorreo.com/noticias/201407/27/muniain-estrella-athletic-para-20140727093046.html?external=deportes/athletic
 
-        parte = link.split('/')
+       parte = link.split('/')
 
-        if parte[2] == 'athletic.elcorreo.com':
-            link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/athletic'
-        else:
-            if parte[2] == 'baskonia.elcorreo.com':
-                link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/baskonia'
-            else:
-                if parte[2] == 'bilbaobasket.elcorreo.com':
-                    link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/bilbaobasket'
-                else:
-                    if parte[2] == 'alaves.elcorreo.com':
-                        link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/alaves'
+       if parte[2] == 'athletic.elcorreo.com':
+	  link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/athletic'
+       else:
+	   if parte[2] == 'baskonia.elcorreo.com':
+	      link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/baskonia'
+	   else:
+	       if parte[2] == 'bilbaobasket.elcorreo.com':
+	          link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/bilbaobasket'
+	       else:
+		   if parte[2] == 'alaves.elcorreo.com':
+	              link = 'http://m.elcorreo.com/' + parte[3] + '/' + parte[4] + '/' + parte[5] + '/' + parte[6] + '?external=deportes/alaves'
 
-        # A veces el mismo articulo aparece en la versión de Alava y en la de Bizkaia. Por ejemplo:
-        # http://www.elcorreo.com/alava/deportes/motor/formula-1/201407/27/ecclestone-quiere-briatore-ayude-20140727140820-rc.html
-        # http://www.elcorreo.com/bizkaia/deportes/motor/formula-1/201407/27/ecclestone-quiere-briatore-ayude-20140727140820-rc.html
-        # para controlar los duplicados, unificamos las url para que sean siempre de bizkaia (excepto para la sección "araba")
 
-        if ((parte[3] == 'alava') and (parte[4] != 'araba')):
-            link = link.replace('elcorreo.com/alava', 'elcorreo.com/bizkaia')
+       # A veces el mismo articulo aparece en la versión de Alava y en la de Bizkaia. Por ejemplo:
+       # http://www.elcorreo.com/alava/deportes/motor/formula-1/201407/27/ecclestone-quiere-briatore-ayude-20140727140820-rc.html
+       # http://www.elcorreo.com/bizkaia/deportes/motor/formula-1/201407/27/ecclestone-quiere-briatore-ayude-20140727140820-rc.html
+       # para controlar los duplicados, unificamos las url para que sean siempre de bizkaia (excepto para la sección "araba")
 
-        # Controlamos si el artículo ha sido incluido en otro feed para eliminarlo
+       if ((parte[3] == 'alava') and (parte[4] != 'araba')):
+	  link = link.replace('elcorreo.com/alava', 'elcorreo.com/bizkaia')
 
-        if not (link in self._processed_links):
+
+       # Controlamos si el artículo ha sido incluido en otro feed para eliminarlo
+
+       if not (link in self._processed_links):
             self._processed_links.append(link)
-        else:
+       else:
             link = None
 
-        return link
+
+       return link
 
     # Recuperamos la portada de papel (la imagen format=1 tiene mayor resolucion)
 
     def get_cover_url(self):
-        cover = None
-        st = time.localtime()
-        year = str(st.tm_year)
-        month = "%.2d" % st.tm_mon
-        day = "%.2d" % st.tm_mday
-        # http://info.elcorreo.com/pdf/07082013-viz.pdf
-        cover='http://info.elcorreo.com/pdf/'+ day +  month + year +'-viz.pdf'
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(cover)
-        except:
-            self.log("\nPortada no disponible")
-            cover ='http://www.elcorreo.com/vizcaya/noticias/201002/02/Media/logo-elcorreo-nuevo.png'
-        return cover
+       cover = None
+       st = time.localtime()
+       year = str(st.tm_year)
+       month = "%.2d" % st.tm_mon
+       day = "%.2d" % st.tm_mday
+		#http://info.elcorreo.com/pdf/07082013-viz.pdf
+       cover='http://info.elcorreo.com/pdf/'+ day +  month + year +'-viz.pdf'
+       br = BasicNewsRecipe.get_browser(self)
+       try:
+           br.open(cover)
+       except:
+           self.log("\nPortada no disponible")
+           cover ='http://www.elcorreo.com/vizcaya/noticias/201002/02/Media/logo-elcorreo-nuevo.png'
+       return cover
 
     # Para cambiar el estilo del texto
 
     extra_css = '''
-    h4 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:28px;}
-    .place {font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:12px;}
-    .name {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:12px;}
-    .overhead, .compLadillo, description {font-family:georgia,serif; font-weight:bold;font-size:18px;}
-    .compSumario, .detalle-titular {font-family:georgia,serif; font-style:italic; font-weight:normal;font-size:22px;color:#4D4D4D;}
-    img{margin-bottom: 0.4em}
-    '''
+		    h4 {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:28px;}
+		    .place {font-family:Arial,Helvetica,sans-serif; font-weight:normal;font-size:12px;}
+                    .name {font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:12px;}
+                    .overhead, .compLadillo, description {font-family:georgia,serif; font-weight:bold;font-size:18px;}
+                    .compSumario, .detalle-titular {font-family:georgia,serif; font-style:italic; font-weight:normal;font-size:22px;color:#4D4D4D;}
+                    img{margin-bottom: 0.4em}
+                '''
 
     preprocess_regexps = [
 
