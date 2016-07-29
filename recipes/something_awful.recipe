@@ -37,14 +37,10 @@ class SomethingAwfulRecipe(BasicNewsRecipe):
     feeds = [
 
     ('Photoshop Phriday', 'http://www.somethingawful.com/rss/photoshop-phriday.rss.xml'),
-    ('Comedy Goldmine',
-                                                                                               'http://www.somethingawful.com/rss/comedy-goldmine.rss.xml')  # ,
-    ('The Flash Tub', 'http://www.somethingawful.com/rss/flash-tub.rss.xml')
-        # ,
-    ('Downloads', 'http://www.somethingawful.com/rss/downloads.rss.xml')
-        # ,
-    ('AwfulVision', 'http://www.somethingawful.com/rss/awfulvision.rss.xml')
-        ,
+    ('Comedy Goldmine', 'http://www.somethingawful.com/rss/comedy-goldmine.rss.xml'),
+    # ('The Flash Tub', 'http://www.somethingawful.com/rss/flash-tub.rss.xml')
+    # ('Downloads', 'http://www.somethingawful.com/rss/downloads.rss.xml')
+    # ('AwfulVision', 'http://www.somethingawful.com/rss/awfulvision.rss.xml')
     ('Awful Link of the Day', 'http://www.somethingawful.com/rss/awful-links.rss.xml'),
     ('Fake Something Awfuls', 'http://www.somethingawful.com/rss/fake-something-awful.rss.xml'),
     ('The Barbarian\'s Dojo', 'http://www.somethingawful.com/rss/steve-sumner.rss.xml'),
