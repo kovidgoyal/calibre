@@ -17,7 +17,7 @@ class GazetvanAntwerpen(BasicNewsRecipe):
     title = 'Gazet van Antwerpen'
     __author__ = 'Darko Miletic'
     description = 'News from Belgium in Dutch'
-    publisher = 'Gazet van Antwerpen'
+    publisher = 'Mediahuis'
     category = 'news, politics, Belgium'
     language = 'nl_BE'
 
