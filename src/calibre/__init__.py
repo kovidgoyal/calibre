@@ -296,7 +296,7 @@ def get_proxies(debug=True):
     from urllib import getproxies
     proxies = getproxies()
     for key, proxy in list(proxies.items()):
-        if not proxy or '..' in proxy:
+        if not proxy or '..' in proxy or key == 'auto':
             del proxies[key]
             continue
         if proxy.startswith(key+'://'):
