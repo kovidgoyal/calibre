@@ -7,12 +7,13 @@ __docformat__ = 'restructuredtext en'
 
 import importlib
 
-from PyQt5.Qt import QIcon, Qt, QStringListModel
+from PyQt5.Qt import (
+    QIcon, Qt, QStringListModel, QListView, QSizePolicy, QHBoxLayout, QSize,
+    QStackedWidget, pyqtSignal)
 
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget, AbortCommit
 from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.logging import Log
-from calibre.gui2.preferences.conversion_ui import Ui_Form
 from calibre.gui2.convert.look_and_feel import LookAndFeelWidget
 from calibre.gui2.convert.heuristics import HeuristicsWidget
 from calibre.gui2.convert.search_and_replace import SearchAndReplaceWidget
@@ -36,11 +37,38 @@ class Model(QStringListModel):
                 return (QIcon(w.ICON))
         return QStringListModel.data(self, index, role)
 
-class Base(ConfigWidgetBase, Ui_Form):
+
+class ListView(QListView):
+
+    current_changed = pyqtSignal(object, object)
+
+    def __init__(self, parent=None):
+        QListView.__init__(self, parent)
+        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding)
+        f = self.font()
+        f.setBold(True)
+        self.setFont(f)
+        self.setIconSize(QSize(48, 48))
+        self.setFlow(self.TopToBottom)
+        self.setSpacing(10)
+
+    def currentChanged(self, cur, prev):
+        QListView.currentChanged(self, cur, prev)
+        self.current_changed.emit(cur, prev)
+
+class Base(ConfigWidgetBase):
 
     restore_defaults_desc = _('Restore settings to default values. '
             'Only settings for the currently selected section '
             'are restored.')
+
+    def setupUi(self, x):
+        self.resize(720, 603)
+        self.l = l = QHBoxLayout(self)
+        self.list = lv = ListView(self)
+        l.addWidget(lv)
+        self.stack = s = QStackedWidget(self)
+        l.addWidget(s, stretch=10)
 
     def genesis(self, gui):
         log = Log()
@@ -64,7 +92,7 @@ class Base(ConfigWidgetBase, Ui_Form):
             if isinstance(w, TOCWidget):
                 w.manually_fine_tune_toc.hide()
 
-        self.list.currentChanged = self.category_current_changed
+        self.list.current_changed.connect(self.category_current_changed)
         self.list.setCurrentIndex(self.model.index(0))
 
     def initialize(self):
