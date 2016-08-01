@@ -806,6 +806,7 @@ class WordsView(QTableView):
     ignore_all = pyqtSignal()
     add_all = pyqtSignal(object)
     change_to = pyqtSignal(object, object)
+    current_changed = pyqtSignal(object, object)
 
     def __init__(self, parent=None):
         QTableView.__init__(self, parent)
@@ -863,6 +864,9 @@ class WordsView(QTableView):
         words = sorted({w[0] for w in words}, key=sort_key)
         if words:
             QApplication.clipboard().setText('\n'.join(words))
+
+    def currentChanged(self, cur, prev):
+        self.current_changed.emit(cur, prev)
 
 class SpellCheck(Dialog):
 
@@ -937,7 +941,7 @@ class SpellCheck(Dialog):
         w.add_all.connect(self.add_all)
         w.activated.connect(self.word_activated)
         w.change_to.connect(self.change_to)
-        w.currentChanged = self.current_word_changed
+        w.current_changed.connect(self.current_word_changed)
         state = tprefs.get(self.state_name, None)
         hh = self.words_view.horizontalHeader()
         h.addWidget(w)
