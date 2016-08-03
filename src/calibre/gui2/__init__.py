@@ -1,13 +1,13 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
-import os, sys, Queue, threading, glob
+import os, sys, Queue, threading, glob, signal
 from contextlib import contextmanager
 from threading import RLock, Lock
 from urllib import unquote
 from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import from Qt
 from PyQt5.Qt import (
-    QFileInfo, QObject, QBuffer, Qt, QByteArray, QTranslator,
+    QFileInfo, QObject, QBuffer, Qt, QByteArray, QTranslator, QSocketNotifier,
     QCoreApplication, QThread, QEvent, QTimer, pyqtSignal, QDateTime,
     QDesktopServices, QFileDialog, QFileIconProvider, QSettings, QIcon,
     QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale, QFontInfo)
@@ -860,6 +860,8 @@ def setup_gui_option_parser(parser):
 
 class Application(QApplication):
 
+    shutdown_signal_received = pyqtSignal()
+
     def __init__(self, args, force_calibre_style=False, override_program_name=None, headless=False, color_prefs=gprefs):
         self.file_event_hook = None
         if override_program_name:
@@ -872,6 +874,8 @@ class Application(QApplication):
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         self.pi = plugins['progress_indicator'][0]
         QApplication.__init__(self, qargs)
+        if not iswindows:
+            self.setup_unix_signals()
         if islinux or isbsd:
             self.setAttribute(Qt.AA_DontUseNativeMenuBar, 'CALIBRE_NO_NATIVE_MENUBAR' in os.environ)
         self.setup_styles(force_calibre_style)
@@ -1047,6 +1051,28 @@ class Application(QApplication):
 
     def __exit__(self, *args):
         self.setQuitOnLastWindowClosed(True)
+
+    def setup_unix_signals(self):
+        import fcntl
+        read_fd, write_fd = os.pipe()
+        cloexec_flag = getattr(fcntl, 'FD_CLOEXEC', 1)
+        for fd in (read_fd, write_fd):
+            flags = fcntl.fcntl(fd, fcntl.F_GETFD)
+            fcntl.fcntl(fd, fcntl.F_SETFD, flags | cloexec_flag | os.O_NONBLOCK)
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            signal.signal(sig, lambda x, y: None)
+            signal.siginterrupt(sig, False)
+        signal.set_wakeup_fd(write_fd)
+        self.signal_notifier = QSocketNotifier(read_fd, QSocketNotifier.Read, self)
+        self.signal_notifier.setEnabled(True)
+        self.signal_notifier.activated.connect(self.signal_received, type=Qt.QueuedConnection)
+
+    def signal_received(self, read_fd):
+        try:
+            os.read(read_fd, 1024)
+        except EnvironmentError:
+            return
+        self.shutdown_signal_received.emit()
 
 _store_app = None
 

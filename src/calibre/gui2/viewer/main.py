@@ -178,6 +178,7 @@ class EbookViewer(MainWindow):
         self.action_reload = QAction(_('&Reload book'), self)
         self.action_reload.triggered.connect(self.reload_book)
         self.action_quit.triggered.connect(self.quit)
+        QApplication.instance().shutdown_signal_received.connect(self.action_quit.trigger)
         self.action_reference_mode.triggered[bool].connect(self.view.reference_mode)
         self.action_metadata.triggered[bool].connect(self.metadata.setVisible)
         self.action_table_of_contents.toggled[bool].connect(self.set_toc_visible)

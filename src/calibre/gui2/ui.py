@@ -397,8 +397,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         if config['autolaunch_server']:
             self.start_content_server()
 
-        self.keyboard_interrupt.connect(self.quit, type=Qt.QueuedConnection)
-
         self.read_settings()
         self.finalize_layout()
         if self.bars_manager.showing_donate:
@@ -425,6 +423,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # Collect cycles now
         gc.collect()
 
+        QApplication.instance().shutdown_signal_received.connect(self.quit)
         if show_gui and self.gui_debug is not None:
             QTimer.singleShot(10, self.show_gui_debug_msg)
 
@@ -843,6 +842,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
     def quit(self, checked=True, restart=False, debug_on_restart=False,
             confirm_quit=True):
+        if self.shutting_down:
+            return
         if confirm_quit and not self.confirm_quit():
             return
         try:

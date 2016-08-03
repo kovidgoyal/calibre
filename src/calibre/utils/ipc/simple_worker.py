@@ -70,6 +70,8 @@ class OffloadWorker(object):
     def shutdown(self):
         try:
             eintr_retry_call(self.conn.send, None)
+        except IOError:
+            pass
         except:
             import traceback
             traceback.print_exc()

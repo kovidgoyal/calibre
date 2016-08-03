@@ -71,6 +71,7 @@ def _run(args, notify=None):
     main = Main(opts, notify=notify)
     main.set_exception_handler()
     main.show()
+    app.shutdown_signal_received.connect(main.boss.quit)
     if len(args) > 1:
         main.boss.open_book(args[1], edit_file=args[2:], clear_notify_data=False)
     else:

@@ -86,7 +86,6 @@ class MainWindow(QMainWindow):
     ___menu     = None
     __actions   = []
 
-    keyboard_interrupt = pyqtSignal()
     # See https://bugreports.qt-project.org/browse/QTBUG-42281
     window_blocked = pyqtSignal()
     window_unblocked = pyqtSignal()
@@ -131,8 +130,7 @@ class MainWindow(QMainWindow):
         sys.excepthook = ExceptionHandler(self)
 
     def unhandled_exception(self, type, value, tb):
-        if type == KeyboardInterrupt:
-            self.keyboard_interrupt.emit()
+        if type is KeyboardInterrupt:
             return
         try:
             sio = StringIO.StringIO()

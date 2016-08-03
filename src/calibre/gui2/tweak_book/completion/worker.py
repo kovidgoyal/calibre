@@ -178,7 +178,7 @@ def main(control_conn, data_conn):
     while True:
         try:
             request = eintr_retry_call(control_conn.recv)
-        except EOFError:
+        except (KeyboardInterrupt, EOFError):
             break
         if request is None:
             break

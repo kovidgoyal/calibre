@@ -337,6 +337,8 @@ def worker_main(conn):
             job = cPickle.loads(eintr_retry_call(conn.recv_bytes))
         except EOFError:
             break
+        except KeyboardInterrupt:
+            break
         except Exception:
             prints('recv() failed in worker, terminating worker', file=sys.stderr)
             import traceback
