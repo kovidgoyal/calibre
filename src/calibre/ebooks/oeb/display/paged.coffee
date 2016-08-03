@@ -107,9 +107,14 @@ class PagedDisplay
     set_geometry: (cols_per_screen=1, margin_top=20, margin_side=40, margin_bottom=20) ->
         this.cols_per_screen = cols_per_screen
         if this.use_document_margins and this.document_margins != null
-            this.margin_top = this.document_margins.top or margin_top
-            this.margin_bottom = this.document_margins.bottom or margin_bottom
-            this.margin_side = this.document_margins.left or this.document_margins.right or margin_side
+            this.margin_top = if this.document_margins.top != null then this.document_margins.top else margin_top
+            this.margin_bottom = if this.document_margins.bottom != null then this.document_margins.bottom else margin_bottom
+            if this.document_margins.left != null
+                this.margin_side = this.document_margins.left
+            else if this.document_margins.right != null
+                this.margin_side = this.document_margins.right
+            else
+                this.margin_side = margin_side
             this.effective_margin_top = this.margin_top
             this.effective_margin_bottom = this.margin_bottom
         else
