@@ -1,31 +1,83 @@
-__license__ = 'GPL v3'
-__copyright__ = '2008-2011, Darko Miletic <darko.miletic at gmail.com>'
-'''
-standaard.be
-'''
-
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from __future__ import unicode_literals, division, absolute_import, print_function
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+class AdvancedUserRecipe1467571059(BasicNewsRecipe):
+    title                 = 'De Standaard'
+    __author__            = 'Darko Miletic, Aimylios, oCkz7bJ_'
+    description           = 'De Standaard'
+    publisher             = 'Mediahuis'
+    category              = 'news, politics, Belgium'
+    language              = 'nl_BE'
 
-class DeStandaard(BasicNewsRecipe):
-    title = u'De Standaard'
-    __author__ = u'Darko Miletic'
-    language = 'nl_BE'
-    description = u'News from Belgium in Dutch'
-    oldest_article = 7
+    oldest_article        = 2
     max_articles_per_feed = 100
-    no_stylesheets = True
-    use_embedded_content = False
-    encoding = 'utf-8'
-    masthead_url = 'http://www.standaard.be/extra/css/images/masthead/logo_340x45.png'
-    publication_type = 'newspaper'
+    no_stylesheets        = True
+    use_embedded_content  = False
+    remove_javascript     = True
 
-    keep_only_tags = [dict(name='div', attrs={'id': ['intro', 'continued']})]
+    cover_url    = 'http://www.standaard.be/extra/assets/extra/dslive/headers/ds-black.svg'
+    masthead_url = 'http://tonysweb.be/m/img/tijdschriften/de_standaard.svg'
 
-    feeds = [(u'De Standaard Online', u'http://feeds.feedburner.com/dso-front')]
+    # Source: http://www.standaard.be/rssfeeds
+    feeds          = [
+        # Nieuws
+        ('Binnenland', 'http://www.standaard.be/rss/section/1f2838d4-99ea-49f0-9102-138784c7ea7c'),
+        ('Buitenland', 'http://www.standaard.be/rss/section/e70ccf13-a2f0-42b0-8bd3-e32d424a0aa0'),
+        ('Cultuur', 'http://www.standaard.be/rss/section/ab8d3fd8-bf2f-487a-818b-9ea546e9a859'),
+        ('Media', 'http://www.standaard.be/rss/section/eb1a6433-ca3f-4a3b-ab48-a81a5fb8f6e2'),
+        ('Economie', 'http://www.standaard.be/rss/section/451c8e1e-f9e4-450e-aa1f-341eab6742cc'),
+        ('Sport', 'http://www.standaard.be/rss/section/8f693cea-dba8-46e4-8575-807d1dc2bcb7'),
+        ('Beroemd en Bizar', 'http://www.standaard.be/rss/section/113a9a78-f65a-47a8-bd1c-b24483321d0f'),
+        # Standaard.biz
+        ('Overzicht', 'http://www.standaard.be/rss/section/a30afc42-3737-4301-8f8a-5b6833855457'),
+        ('Economie', 'http://www.standaard.be/rss/section/212b8b54-bd91-4c8b-942c-8029e8797d36'),
+        ('Bedrijven', 'http://www.standaard.be/rss/section/6aa8d4fa-4b9a-40d5-aa8f-87ac72472f27'),
+        ('Consument', 'http://www.standaard.be/rss/section/46025691-2ec4-4a06-b6d7-9773686a24a7'),
+        ('Beurs', 'http://www.standaard.be/rss/section/74cef9d1-3b28-4b90-943a-ce685bf6ed6e'),
+        ('Marketing & Media', 'http://www.standaard.be/rss/section/9bdf4a14-f8bf-4439-aaf1-344181f73e73'),
+        ('Mobilia', 'http://www.standaard.be/rss/section/270b7f8f-dd73-44cb-b622-9f7200a439a7'),
+        # Lifestyle
+        ('Mode', 'http://www.standaard.be/rss/section/3a4b39a1-e58f-42e4-8ae9-a0f90f97f27f'),
+        ('Beauty', 'http://www.standaard.be/rss/section/51dd6a40-e297-409c-af25-9f0301159a1c'),
+        ('Culinair', 'http://www.standaard.be/rss/section/ec1dbffa-a00b-48e6-96f0-00d215f90744'),
+        ('Reizen', 'http://www.standaard.be/rss/section/eed96e23-ed90-4818-83ab-adabf8caf0f4'),
+        ('Design & Wonen', 'http://www.standaard.be/rss/section/f4dd4e8d-6cb1-4eef-abc2-06b0e3d72de4'),
+        ('Gezondheid & Psycho', 'http://www.standaard.be/rss/section/a166bb48-b6b4-4c1a-beb3-9f0301160b75'),
+        ('Glamour', 'http://www.standaard.be/rss/section/06b5429e-beb1-4e76-909c-9f0301162a9c'),
+        ('Lifestyleblog', 'http://www.standaard.be/rss/section/246d27cb-ce7b-4245-bad4-a09f0119b450'),
+        # Weblogs
+        ('Autoblog', 'http://www.standaard.be/rss/tag/autoblog'),
+        ('Beursexperts', 'http://www.standaard.be/rss/tag/beursexperts'),
+        ('En nu even elders', 'http://www.standaard.be/rss/tag/blog-en-nu-even-elders'),
+        ('Marketingblog', 'http://www.standaard.be/rss/tag/marketingblog'),
+        ('TV-blog', 'http://www.standaard.be/rss/tag/tv-blog'),
+        # Interactie
+        ('Opinies', 'http://feeds.feedburner.com/dso-meningen-opinie')
+    ]
 
-    def get_article_url(self, article):
-        return article.get('guid',  None)
+    keep_only_tags = [
+        dict(name='header', attrs={'class':'article__header'}),
+        dict(name='footer', attrs={'class':'article__meta'}),
+        dict(name='article', attrs={'class':'article-full'}),
+        dict(name='figure', attrs={'class':'article__image'})
+    ]
 
-    def print_version(self, url):
-        return url.replace('/artikel/detail.aspx?', '/Artikel/PrintArtikel.aspx?')
+    remove_tags = [
+        dict(name=['embed', 'object']),
+        dict(name='div', attrs={'class':['note NotePortrait', 'note']}),
+        dict(name='ul', attrs={'class':re.compile('article__share')}),
+        dict(name='div', attrs={'class':'slideshow__controls'}),
+        dict(name='a', attrs={'role':'button'}),
+        dict(name='figure', attrs={'class':re.compile('video')})
+    ]
+
+    remove_attributes = ['width', 'height']
+
+    def preprocess_html(self, soup):
+        del soup.body['onload']
+        for item in soup.findAll(style=True):
+            del item['style']
+        return soup
