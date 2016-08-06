@@ -176,7 +176,7 @@ def run_file_dialog(
         prints('stdout+stderr from file dialog helper:', type('')([h.stdoutdata, h.stderrdata]))
 
     if h.rc != 0:
-        raise Exception('File dialog failed: ' + get_errors())
+        raise Exception('File dialog failed (return code %s): %s' % (h.rc, get_errors()))
     server.join(2)
     if server.is_alive():
         raise Exception('Timed out waiting for read from pipe to complete')
