@@ -1048,6 +1048,9 @@ class BooksModel(QAbstractTableModel):  # {{{
         return True
 
     def setData(self, index, value, role):
+        from calibre.gui2.ui import get_gui
+        if get_gui().shutting_down:
+            return False
         if role == Qt.EditRole:
             from calibre.gui2.ui import get_gui
             try:
@@ -1633,6 +1636,9 @@ class DeviceBooksModel(BooksModel):  # {{{
             return (section+1)
 
     def setData(self, index, value, role):
+        from calibre.gui2.ui import get_gui
+        if get_gui().shutting_down:
+            return False
         done = False
         if role == Qt.EditRole:
             row, col = index.row(), index.column()
