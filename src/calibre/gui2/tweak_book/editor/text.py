@@ -313,7 +313,12 @@ class TextEdit(PlainTextEdit):
             raw, count = pat.subn(template, raw)
             if repl_is_func:
                 from calibre.gui2.tweak_book.search import show_function_debug_output
-                template.end()
+                if getattr(template.func, 'append_final_output_to_marked', False):
+                    retval = template.end()
+                    if retval:
+                        raw += unicode(retval)
+                else:
+                    template.end()
                 show_function_debug_output(template)
             if count > 0:
                 start_pos = min(c.anchor(), c.position())
