@@ -370,3 +370,21 @@ function, like this:
         ...
 
     replace.call_after_last_match = True
+
+
+Appending the output from the function to marked text
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When running search and replace on marked text, it is sometimes useful to
+append so text to the end of the marked text. You can do that by setting
+the ``append_final_output_to_marked`` attribute on your function (note that you
+also need to set ``call_after_last_match``), like this:
+
+.. code-block:: python
+
+    def replace(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
+        ...
+        return 'some text to append'
+
+    replace.call_after_last_match = True
+    replace.append_final_output_to_marked = True
