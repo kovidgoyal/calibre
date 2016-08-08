@@ -309,11 +309,12 @@ class PagedDisplay
             title = py_bridge.title()
             author = py_bridge.author()
             section = py_bridge.section()
+            tl_section = py_bridge.tl_section()
         if this.header != null
-            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
+            this.header.innerHTML = this.header_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_TOP_LEVEL_SECTION_/g, tl_section+"").replace(/_SECTION_/g, section+"")
             runscripts(this.header)
         if this.footer != null
-            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_SECTION_/g, section+"")
+            this.footer.innerHTML = this.footer_template.replace(/_PAGENUM_/g, pagenum+"").replace(/_TITLE_/g, title+"").replace(/_AUTHOR_/g, author+"").replace(/_TOP_LEVEL_SECTION_/g, tl_section+"").replace(/_SECTION_/g, section+"")
             runscripts(this.footer)
 
     fit_images: () ->
