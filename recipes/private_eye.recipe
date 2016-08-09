@@ -1,44 +1,42 @@
 import re
-
 from calibre.web.feeds.news import BasicNewsRecipe
 
-
 class AdvancedUserRecipe1359406781(BasicNewsRecipe):
-    title = u'Private Eye'
+    title          = u'Private Eye'
     publication_type = 'magazine'
     description = u'Private Eye is a fortnightly British satirical and current affairs magazine, edited by Ian Hislop'
     oldest_article = 13
     max_articles_per_feed = 100
     remove_empty_feeds = True
-    remove_javascript = True
+    remove_javascript     = True
     no_stylesheets = True
     ignore_duplicate_articles = {'title'}
     language = 'en_GB'
-    encoding = 'iso-8859-1'
+    encoding = 'cp1252'
     __author__ = u'MartynPritchard@yahoo.com'
     __copyright__ = '2014, Martyn Pritchard <MartynPritchard@yahoo.com>'
 
     def get_cover_url(self):
         cover_url = None
-        soup = self.index_to_soup(
-            'http://www.private-eye.co.uk/current_issue.php')
+        soup = self.index_to_soup('http://www.private-eye.co.uk/current_issue.php')
         for citem in soup.findAll('img'):
             if citem['src'].endswith('big.jpg'):
                 return 'http://www.private-eye.co.uk/' + citem['src']
         return cover_url
 
-    remove_tags_before = {'class': "sub_dave"}
-    remove_tags = [dict(name='td', attrs={'class': 'sub_dave'})]
+    remove_tags_before = {'class':"article"}
+    remove_tags_after  = {'id' : "nav-box-sections-mobile"}
+    remove_tags_after  = {'class' : "gap-biggest"}
+    remove_tags_after  = {'id' : "subscribe-here"}
+    remove_tags = [dict(name='td', attrs={'class':'sub_dave'})]
+    remove_tags = [dict(name='div', attrs={'class':'footer-block'})]
+    remove_tags = [dict(name='div', attrs={'class':'sub-nav-bar'})]
 
     preprocess_regexps = [
-        (re.compile(r'../grfx', re.DOTALL | re.IGNORECASE),
-         lambda match: 'http://www.private-eye.co.uk/grfx'),
-        (re.compile(r'More From This Issue.*</body>',
-                    re.DOTALL | re.IGNORECASE), lambda match: '</body>'),
-        (re.compile(r'More top stories in the latest issue:.*</body>',
-                    re.DOTALL | re.IGNORECASE), lambda match: '</body>'),
-        (re.compile(r'Also Available Online.*</body>',
-                    re.DOTALL | re.IGNORECASE), lambda match: '</body>'),
+                   (re.compile(r'../grfx', re.DOTALL|re.IGNORECASE), lambda match: 'http://www.private-eye.co.uk/grfx'),
+                   (re.compile(r'More From This Issue.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+                   (re.compile(r'More top stories in the latest issue:.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
+                   (re.compile(r'Also Available Online.*</body>', re.DOTALL|re.IGNORECASE), lambda match: '</body>'),
     ]
 
-    feeds = [(u'Private Eye', u'http://www.private-eye.co.uk/rss/rss.php')]
+    feeds          = [(u'Private Eye', u'https://dl.dropboxusercontent.com/u/10483931/PrivateEyeStat.xml')]
