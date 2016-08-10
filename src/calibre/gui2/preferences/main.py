@@ -13,7 +13,7 @@ from PyQt5.Qt import (
     Qt, QIcon, QFont, QWidget, QScrollArea, QStackedWidget, QVBoxLayout,
     QLabel, QFrame, QToolBar, QSize, pyqtSignal, QPixmap, QDialogButtonBox,
     QHBoxLayout, QDialog, QSizePolicy, QPainter, QTextLayout, QPointF,
-    QStatusTipEvent)
+    QStatusTipEvent, QApplication)
 
 from calibre.constants import __appname__, __version__, islinux
 from calibre.gui2 import (gprefs, min_available_height, available_width,
@@ -121,7 +121,8 @@ class Category(QWidget):  # {{{
         self.bar = QToolBar(self)
         self.bar.setStyleSheet(
                 'QToolBar { border: none; background: none }')
-        self.bar.setIconSize(QSize(32, 32))
+        lh = QApplication.instance().line_height
+        self.bar.setIconSize(QSize(2*lh, 2*lh))
         self.bar.setMovable(False)
         self.bar.setFloatable(False)
         self.bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
