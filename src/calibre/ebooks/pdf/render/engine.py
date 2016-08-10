@@ -285,8 +285,8 @@ class PdfEngine(QPaintEngine):
             last_x, last_y = x, y
 
         if not self.content_written_to_current_page:
-            painter_top = self.painter().clipPath().boundingRect().y()
-            ypositions = [y - painter_top for x, y in gi.positions]
+            dy = self.graphics.current_state.transform.dy()
+            ypositions = [y + dy for x, y in gi.positions]
             miny = min(ypositions or (0,))
             maxy = max(ypositions or (self.pixel_height,))
             page_top = self.header_height if self.has_headers else 0
