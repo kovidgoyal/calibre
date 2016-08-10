@@ -1320,20 +1320,21 @@ def run_search(
         return no_replace(_(
                 'Currently selected text does not match the search query.'))
 
-    def count_message(replaced, count, show_diff=False):
-        if replaced:
-            msg = _('Performed the replacement at {num} occurrences of {query}')
-        else:
-            msg = _('Found {num} occurrences of {query}')
-        msg = msg.format(num=count, query=errfind)
-        if show_diff and count > 0:
-            d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False)
-            d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
-            b.setIcon(QIcon(I('diff.png'))), d.set_details(None), b.clicked.connect(d.accept)
-            b.clicked.connect(partial(show_current_diff, allow_revert=True), type=Qt.QueuedConnection)
-            d.exec_()
-        else:
-            info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True)
+    def count_message(replaced, count, show_diff=False, show_dialog=True):
+        if show_dialog:
+            if replaced:
+                msg = _('Performed the replacement at {num} occurrences of {query}')
+            else:
+                msg = _('Found {num} occurrences of {query}')
+            msg = msg.format(num=count, query=errfind)
+            if show_diff and count > 0:
+                d = MessageBox(MessageBox.INFO, _('Searching done'), prepare_string_for_xml(msg), parent=gui_parent, show_copy_button=False)
+                d.diffb = b = d.bb.addButton(_('See what &changed'), d.bb.ActionRole)
+                b.setIcon(QIcon(I('diff.png'))), d.set_details(None), b.clicked.connect(d.accept)
+                b.clicked.connect(partial(show_current_diff, allow_revert=True), type=Qt.QueuedConnection)
+                d.exec_()
+            else:
+                info_dialog(gui_parent, _('Searching done'), prepare_string_for_xml(msg), show=True)
 
     def do_all(replace=True):
         count = 0
@@ -1392,7 +1393,16 @@ def run_search(
             return do_find()
         if action == 'replace-all':
             if marked:
-                return count_message(True, sum(editor.all_in_marked(p, repl) for p, repl in searches))
+                suppress_dialog = False
+                try:
+                    if hasattr(searches[0][1], 'func'):
+                        user_func = getattr(searches[0][1], 'func')
+                        user_feature = 'suppress_result_dialog'
+                        if hasattr(user_func, user_feature):
+                            suppress_dialog = getattr(user_func, user_feature, False)
+                except:
+                    pass
+                return count_message(True, sum(editor.all_in_marked(p, repl) for p, repl in searches), show_dialog = not suppress_dialog)
             add_savepoint(_('Before: Replace all'))
             count = do_all()
             if count == 0:

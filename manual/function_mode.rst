@@ -1,5 +1,5 @@
 Function Mode for Search & Replace in the Editor
-=======================================================================
+================================================
 
 The Search & Replace tool in the editor support a *function mode*. In this
 mode, you can combine regular expressions (see :doc:`regexp`) with
@@ -23,7 +23,7 @@ complex tasks.
     :align: center
 
 Automatically fixing the case of headings in the document
--------------------------------------------------------------
+---------------------------------------------------------
 
 Here, we will leverage one of the builtin functions in the editor to
 automatically change the case of all text inside heading tags to title case::
@@ -37,7 +37,7 @@ the heading tags.
 
 
 Your first custom function - smartening hyphens
-------------------------------------------------------------------
+-----------------------------------------------
 
 The real power of function mode comes from being able to create your own
 functions to process text in arbitrary ways. The Smarten Punctuation tool in
@@ -71,7 +71,7 @@ inside HTML tag definitions.
 
 
 The power of function mode - using a spelling dictionary to fix mis-hyphenated words
-----------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------
 
 Often, ebooks created from scans of printed books contain mis-hyphenated words
 -- words that were split at the end of the line on the printed page. We will
@@ -116,7 +116,7 @@ main language of the book.
 
 
 Auto numbering sections
----------------------------
+-----------------------
 
 Now we will see something a little different. Suppose your HTML file has many
 sections, each with a heading in an :code:`<h2>` tag that looks like
@@ -151,7 +151,7 @@ are processed in the order in which they appear in the book. See
 
 
 Auto create a Table of Contents
--------------------------------------
+-------------------------------
 
 Finally, lets try something a little more ambitious. Suppose your book has
 headings in ``h1`` and ``h2`` tags that look like
@@ -221,7 +221,7 @@ you would be better off using the dedicated Table of Contents tool in
 :guilabel:`Tools->Table of Contents`.
 
 The API for the function mode
--------------------------------
+-----------------------------
 
 All function mode functions must be python functions named replace, with the
 following signature::
@@ -236,7 +236,7 @@ the original string. The various arguments to the ``replace()`` function are
 documented below.
 
 The ``match`` argument
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^
 
 The ``match`` argument represents the currently found match. It is a
 `python Match object <https://docs.python.org/2.7/library/re.html#match-objects>`_.
@@ -245,14 +245,14 @@ text corresponding to individual capture groups in the search regular
 expression.
 
 The ``number`` argument
-^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``number`` argument is the number of the current match. When you run
 :guilabel:`Replace All`, every successive match will cause ``replace()`` to be
 called with an increasing number. The first match has number 1.
 
 The ``file_name`` argument
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This is the filename of the file in which the current match was found. When
 searching inside marked text, the ``file_name`` is empty. The ``file_name`` is
@@ -260,7 +260,7 @@ in canonical form, a path relative to the root of the book, using ``/`` as the
 path separator.
 
 The ``metadata`` argument
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This represents the metadata of the current book, such as title, authors,
 language, etc. It is an object of class :class:`calibre.ebooks.metadata.book.base.Metadata`.
@@ -268,7 +268,7 @@ Useful attributes include, ``title``, ``authors`` (a list of authors) and
 ``language`` (the language code).
 
 The ``dictionaries`` argument
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This represents the collection of dictionaries used for spell checking the
 current book. It's most useful method is ``dictionaries.recognized(word)``
@@ -276,7 +276,7 @@ which will return ``True`` if the passed in word is recognized by the dictionary
 for the current book's language.
 
 The ``data`` argument
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 This a simple python ``dict``. When you run
 :guilabel:`Replace All`, every successive match will cause ``replace()`` to be
@@ -285,7 +285,7 @@ data between invocations of ``replace()`` during a :guilabel:`Replace All`
 operation.
 
 The ``functions`` argument
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``functions`` argument gives you access to all other user defined
 functions. This is useful for code re-use. You can define utility functions in
@@ -328,7 +328,7 @@ uses it when it is run afterwards. Consider the following two functions:
         ...
 
 Debugging your functions
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can debug the functions you create by using the standard ``print()``
 function from python. The output of print will be displayed in a popup window
@@ -338,7 +338,7 @@ to output an entire table of contents above.
 .. _file_order_replace_all:
 
 Choose file order when running on multiple HTML files
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When you run a :guilabel:`Replace All` on multiple HTML files, the order in
 which the files are processes depends on what files you have open for editing.
@@ -357,7 +357,7 @@ the search to process multiple files in the order they appear in the book,
 either forwards or backwards, respectively.
 
 Having your function called an extra time after the last match is found
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Sometimes, as in the auto generate table of contents example above, it is
 useful to have your function called an extra time after the last match is
@@ -373,7 +373,7 @@ function, like this:
 
 
 Appending the output from the function to marked text
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 When running search and replace on marked text, it is sometimes useful to
 append so text to the end of the marked text. You can do that by setting
@@ -388,3 +388,26 @@ also need to set ``call_after_last_match``), like this:
 
     replace.call_after_last_match = True
     replace.append_final_output_to_marked = True
+
+If you wish, you can also suppress the result dialog by adding yet another 
+setting ``suppress_result_dialog`` to the previous ones, like this:
+
+.. code-block:: python
+
+    replace.call_after_last_match = True
+    replace.append_final_output_to_marked = True
+    replace.suppress_result_dialog = True
+
+The setting ``suppress_result_dialog`` is not dependent on the other two, 
+so you can also use the following combination:
+
+.. code-block:: python
+
+    replace.call_after_last_match = True
+    replace.suppress_result_dialog = True
+
+or even a single setting:
+
+.. code-block:: python
+
+    replace.suppress_result_dialog = True
