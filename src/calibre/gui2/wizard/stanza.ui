@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;p&gt;If you use the &lt;a href=&quot;http://www.lexcycle.com/download&quot;&gt;Stanza&lt;/a&gt; or &lt;a href=&quot;http://marvinapp.com/&quot;&gt;Marvin&lt;/a&gt; e-book reading app on your Apple iDevice, you can access your calibre book collection wirelessly, directly on the device. To do this you have to turn on the calibre content server.</string>
+		 <string>&lt;p&gt;If you use the &lt;a href=&quot;http://www.appstafarian.com/marvin.html&quot;&gt;Marvin&lt;/a&gt; e-book reading app (or similar OPDS enabled apps) on your Apple iDevice, you can access your calibre book collection wirelessly, directly on the device. To do this you have to turn on the calibre content server.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
