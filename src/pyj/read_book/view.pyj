@@ -68,10 +68,16 @@ class View:
             'content_loaded': self.on_content_loaded,
         }
         self.currently_showing = {}
+        document.getElementById('book-top-margin').addEventListener('click', self.top_margin_clicked)
 
     @property
     def iframe(self):
         return document.getElementById(iframe_id)
+
+    def top_margin_clicked(self, event):
+        if event.button is 0:
+            event.preventDefault(), event.stopPropagation()
+            self.overlay.show()
 
     def set_margins(self, no_margins):
         sd = get_session_data()
