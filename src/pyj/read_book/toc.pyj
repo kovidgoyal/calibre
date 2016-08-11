@@ -2,7 +2,8 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-from dom import set_css, svgicon
+from complete import create_search_bar
+from dom import set_css, svgicon, ensure_id
 from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
@@ -17,7 +18,8 @@ def create_toc_tree(toc, onclick):
 
     return create_tree(toc, populate_data, onclick)
 
-def do_search(text, container):
+def do_search(text):
+    container = document.getElementById(this)
     a = find_text_in_tree(container, text)
     if not text:
         return
@@ -25,21 +27,6 @@ def do_search(text, container):
         return error_dialog(_('No matches found'), _(
             'The text "{}" was not found in the Table of Contents').format(text))
     scroll_tree_item_into_view(a)
-
-def on_input_keydown(event):
-    if event.keyCode is 13:  # Enter
-        event.preventDefault(), event.stopPropagation()
-        text = event.target.value
-        event.target.nextSibling.focus()
-        container = event.target.parentNode.parentNode.firstChild.nextSibling
-        do_search(text, container)
-
-def on_search_click(event):
-    if event.button is 0:
-        event.preventDefault(), event.stopPropagation()
-        text = event.currentTarget.previousSibling.value
-        container = event.currentTarget.parentNode.parentNode.firstChild.nextSibling
-        do_search(text, container)
 
 def create_toc_panel(book, container, onclick, onclose):
     container.appendChild(E.div(
@@ -51,16 +38,12 @@ def create_toc_panel(book, container, onclick, onclose):
         if event.button is 0:
             onclick(li.dataset.tocDest, li.dataset.tocFrag)
     toc_panel = create_toc_tree(book.manifest.toc, handle_click)
+    toc_panel_id = ensure_id(toc_panel)
     set_css(container, display='flex', flex_direction='column')
     set_css(toc_panel, flex_grow='10')
     container.appendChild(toc_panel)
-
-    container.appendChild(E.div(
-        style='margin: 1ex 1em; display: flex;',
-        E.input(
-            type='search', name='toc-serach',
-            title=_('Search Table of Contents'), placeholder=_('Search Table of Contents'),
-            style="flex-grow: 10; margin-right: 0.5em", onkeydown=on_input_keydown,
-        ),
-        E.div(class_='simple-link', svgicon('search'), onclick=on_search_click)
-    ))
+    search_button = E.div(class_='simple-link', svgicon('search'))
+    t = _('Search Table of Contents')
+    search_bar = create_search_bar(do_search.bind(toc_panel_id), 'search-book-toc', button=search_button, placeholder=t)
+    set_css(search_bar, flex_grow='10', margin_right='1em')
+    container.appendChild(E.div(style='margin: 1ex 1em; display: flex;', search_bar, search_button))
