@@ -921,6 +921,9 @@ class DocumentView(QWebView):  # {{{
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
         self.last_loaded_path = path
+        # This is needed otherwise percentage margins on body are not correctly
+        # evaluated in read_document_margins() in paged mode.
+        self.document.setPreferredContentsSize(QSize())
 
         def callback(lu):
             self.loading_url = lu
