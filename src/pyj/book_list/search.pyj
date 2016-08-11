@@ -3,6 +3,7 @@
 from __python__ import hash_literals
 
 from ajax import ajax
+from complete import create_search_bar
 from dom import clear, set_css, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
@@ -56,15 +57,10 @@ class SearchPanel:
 
         # Build search input
         search_container = div.firstChild
-        search_button = create_button(_('Search'), icon='search', action=self.execute_search.bind(self), tooltip=_('Do the search'))
-        search_container.appendChild(E.div(style="display: flex; width: 100%;",
-            E.input(
-                type='search', name='search-books',
-                title=_('Search for books'), placeholder=_('Enter the search query'),
-                style="flex-grow: 10; margin-right: 0.5em", onkeydown=self.on_input_keydown.bind(self),
-            ),
-            search_button
-        ))
+        search_button = create_button(_('Search'), icon='search', tooltip=_('Do the search'))
+        search_bar = create_search_bar(self.execute_search.bind(self), 'search-books', tooltip=_('Search for books'), placeholder=_('Enter the search query'), button=search_button)
+        set_css(search_bar, flex_grow='10', margin_right='0.5em')
+        search_container.appendChild(E.div(style="display: flex; width: 100%;", search_bar, search_button))
         search_container.appendChild(E.ul(class_='search-items'))
 
         # Build loading panel
@@ -79,12 +75,6 @@ class SearchPanel:
         self.tag_browser_data = None
         self.node_id_map = {}
         self.active_nodes = {}
-
-    def on_input_keydown(self, event):
-        if event.keyCode is 13:  # Enter
-            event.preventDefault(), event.stopPropagation()
-            event.target.nextSibling.focus()
-            self.execute_search()
 
     def init(self):
         tb = self.search_control

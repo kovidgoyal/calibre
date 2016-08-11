@@ -131,6 +131,16 @@ def viewport_to_document(x, y, doc):
 def username_key(username):
     return ('u' if username else 'n') + username
 
+def uniq(vals):
+    # Remove all duplicates from vals, while preserving order
+    ans = v'[]'
+    seen = {}
+    for x in vals:
+        if not seen[x]:
+            seen[x] = True
+            ans.push(x)
+    return ans
+
 if __name__ is '__main__':
     print(fmt_sidx(10), fmt_sidx(1.2))
     print(list(map(human_readable, [1, 1024.0, 1025, 1024*1024*2.3])))

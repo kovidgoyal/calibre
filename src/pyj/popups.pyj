@@ -48,7 +48,7 @@ def create_popup(parent, idprefix):
     div = E.div(id=pid, style='display: none; position: absolute; z-index: {}'.format(POPUP_Z_INDEX))
     parent = parent or document.body
     parent.appendChild(div)
-    return pid
+    return div
 
 def show_popup(popup_id, associated_widget_ids=None):
     elem = document.getElementById(popup_id)
@@ -68,12 +68,12 @@ class CompletionPopup:
 
     def __init__(self, parent=None, max_items=25, onselect=None):
         self.max_items = max_items
-        self.container_id = create_popup(parent)
+        c = create_popup(parent)
+        set_css(c, user_select='none')
+        self.container_id = c.getAttribute('id')
         self.onselect = onselect
         self.items = []
         self.matches = []
-        c = self.container
-        set_css(c, user_select='none')
         c.appendChild(E.div(class_=self.CLASS))
         self.associated_widget_ids = set()
         self.current_query, self.is_upwards = '', False
@@ -88,7 +88,7 @@ class CompletionPopup:
         return self.container.style.display is not 'none'
 
     def set_all_items(self, items):
-        self.items = items
+        self.items = list(items)
         self.matches = []
         self.applied_query = ''
 
@@ -210,7 +210,7 @@ class CompletionPopup:
 
 add_extra_css(def():
     sel = 'div.' + CompletionPopup.CLASS
-    style = build_rule(sel, overflow='hidden', background_color=get_color('window-background'), border='solid 1px ' + get_color('window-foreground'))
+    style = build_rule(sel, overflow='hidden', text_align='left', background_color=get_color('window-background'), border='solid 1px ' + get_color('window-foreground'))
     sel += ' > div'
     style += build_rule(sel, cursor='pointer', padding='1ex 1rem', white_space='nowrap', text_overflow='ellipsis', overflow='hidden')
     sel += '.' + CompletionPopup.CURRENT_ITEM_CLASS

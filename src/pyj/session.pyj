@@ -72,9 +72,8 @@ def get_session_storage():
 
 class SessionData:
 
-    global_prefix = 'calibre-'
-
-    def __init__(self):
+    def __init__(self, global_prefix=None):
+        self.global_prefix = global_prefix or 'calibre-session-'
         self.storage = get_session_storage()
         self.overflow_storage = {}
         self.has_overflow = False
@@ -114,6 +113,13 @@ class SessionData:
         self.storage.clear()
         self.overflow_storage = {}
         self.has_overflow = False
+
+_local_storage = None
+def local_storage():
+    nonlocal _local_storage
+    if not _local_storage:
+        _local_storage = SessionData('calibre-local-')
+    return _local_storage
 
 class UserSessionData(SessionData):
 

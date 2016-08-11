@@ -5,7 +5,9 @@ from __python__ import hash_literals, bound_methods
 from dom import ensure_id
 from elementmaker import E
 from keycodes import get_key
+from session import local_storage
 from popups import CompletionPopup
+from utils import uniq
 
 class EditWithComplete:
 
@@ -63,14 +65,30 @@ class EditWithComplete:
         self.completion_popup.set_all_items(items)
 
 
-def create_search_bar(action, name, tooltip=None, placeholder=None, button=None):
-
-    parent = E.div()
+def create_search_bar(action, name, tooltip=None, placeholder=None, button=None, history_size=100):
+    parent = E.div(style="display:flex")
     ewc = EditWithComplete(name, parent=parent, tooltip=tooltip, placeholder=placeholder, input_type='search')
+    parent.lastChild.style.width = '100%'
+    history_name = 'search-bar-history-' + name
+
+    def update_completion_items():
+        items = local_storage().get(history_name)
+        if items?.length:
+            ewc.set_all_items(items)
+    update_completion_items()
 
     def trigger():
+        text = ewc.text_input.value
         ewc.hide_completion_popup()
-        action()
+        action(text)
+        if text and text.strip():
+            items = local_storage().get(history_name) or v'[]'
+            idx = items.indexOf(text)
+            if idx > -1:
+                items = items.splice(idx, 1)
+            items.unshift(text)
+            local_storage().set(history_name, uniq(items[:history_size]))
+            update_completion_items()
     ewc.onenterkey = trigger
 
     if button:
@@ -81,6 +99,8 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None)
 # }}}
 
 def main(container):
-    ewc = EditWithComplete(parent=container, placeholder='Testing edit with complete')
-    ewc.set_all_items('a a1 a11 a12 a13 b b1 b2 b3'.split(' '))
-    ewc.text_input.focus()
+    container.appendChild(create_search_bar(print, 'test-search-bar', placeholder='Testing search bar'))
+    container.firstChild.lastChild.focus()
+    # ewc = EditWithComplete(parent=container, placeholder='Testing edit with complete')
+    # ewc.set_all_items('a a1 a11 a12 a13 b b1 b2 b3'.split(' '))
+    # ewc.text_input.focus()
