@@ -148,7 +148,7 @@ class UploadInstallers(Command):  # {{{
                 upload_signatures()
                 check_call('ssh code /apps/update-calibre-version.py'.split())
             # self.upload_to_sourceforge()
-            self.upload_to_dbs()
+            # self.upload_to_dbs()
             self.upload_to_github(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
