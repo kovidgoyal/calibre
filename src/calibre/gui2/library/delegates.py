@@ -458,7 +458,7 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         m = index.model()
         col = m.column_map[index.column()]
         key = m.db.field_metadata.key_to_label(col)
-        if m.db.field_metadata[col]['is_multiple']:
+        if m.db.field_metadata[col]['datatype'] != 'comments':
             editor = EditWithComplete(parent)
             editor.set_separator(None)
             complete_items = sorted(list(m.db.all_custom(label=key)), key=sort_key)
