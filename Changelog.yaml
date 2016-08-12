@@ -20,6 +20,45 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.64.0
+  date: 2016-08-12
+
+  new features:
+    - title: "Custom columns: Add a new 'Short text' column type that behaves like the builtin title column"
+      description: "More generally, you can now customize Comments-like columns, controlling how their headings are displayed in the Book Details panel and also specifying what kind of data they contain (plain text, HTML or even Markdown)"
+    - title: "Edit book: Function mode: Allow appending text to the end of the marked text when running function mode search/replace on marked text"
+
+    - title: "PDF Output: Add a new variable _TOP_LEVEL_SECTION_ for use in header/footer templates that resolves to the current top-most section in the Table of Contents"
+
+    - title: "Linux/OSX: Shutdown gracefully on receiving the interrupt or terminate Unix signals"
+
+  bug fixes:
+    - title: "PDF Output: Fix a regression that caused the last page of a chapter to sometimes be dropped from the output"
+
+    - title: "Do not show an error if the user tries to quit calibre while editing a cell in the book list. Instead, just silently abort the edit."
+      tickets: [1610539]
+
+    - title: "E-book viewer: Fix 0px margins and percentage margins not being respected when the option to override book margins is turned off."
+      tickets: [1608458]
+
+    - title: "Book Details: Do not show the 'Copy link' context menu item unless there is an actual link at the cursor location."
+      tickets: [1605594]
+
+    - title: "Get Books: Update store plugin for nexto"
+
+  improved recipes:
+    - Private Eye
+    - Prospect Magazine
+    - De Standaard
+    - Jot Down
+    - Weblogs SL
+    - Hola
+    - El Correo
+
+  new recipes:
+    - title: Data News 
+      author: oCkz7bJ_
+
 - version: 2.63.0
   date: 2016-07-22
 
