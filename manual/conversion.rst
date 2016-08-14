@@ -847,7 +847,7 @@ names are taken from the metadata Table of Contents in the document (the PDF
 Outline). If the document has no table of contents then it will be replaced by
 empty text. If a single PDF page has multiple sections, the first section on
 the page will be used. Similarly, there is a variable named _TOP_LEVEL_SECTION_
-that can be used to ge the name of the current top-level section.
+that can be used to get the name of the current top-level section.
 
 You can even use javascript inside the header and footer templates, for
 example, the following template will cause page numbers to start at 4 instead
