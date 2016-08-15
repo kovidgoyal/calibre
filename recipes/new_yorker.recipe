@@ -13,11 +13,6 @@ class NewYorker(BasicNewsRecipe):
 
     masthead_url = 'http://www.newyorker.com/images/elements/print/newyorker_printlogo.gif'
 
-    compress_news_images = True
-    compress_news_images_auto_size = 8
-    scale_news_images_to_device = False
-    scale_news_images = (768, 1024)
-
     url_list = []
     language = 'en'
     __author__ = 'Kovid Goyal'
@@ -31,8 +26,8 @@ class NewYorker(BasicNewsRecipe):
                 '''
     needs_subscription = 'optional'
     keep_only_tags = [
-        dict(itemprop=['headline', 'alternativeHeadline',
-                       'author', 'articleBody']),
+        dict(itemprop=['headline', 'alternativeHeadline', 'author', 'articleBody']),
+        dict(id=['featured-item']),
     ]
     remove_tags = [
         dict(attrs={'class': lambda x: x and set(x.split()).intersection(
@@ -84,9 +79,21 @@ class NewYorker(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         for img in soup.findAll('img'):
-            ds = img['data-src']
+            try:
+                ds = img['data-src']
+            except KeyError:
+                continue
             if ds:
                 img['src'] = ds
+        return soup
+
+    def postprocess_html(self, soup, *a):
+        ab = soup.find(id='articleBody')
+        if ab is not None:
+            fi = soup.find(id='featured-item')
+            if fi is not None:
+                p = fi.parent
+                p.insert(len(p) - 2, fi)
         return soup
 
     # The New Yorker changes the content it delivers based on cookies, so the
