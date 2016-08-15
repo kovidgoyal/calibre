@@ -235,6 +235,7 @@ def main(args=sys.argv):
         except NoAutoReload as e:
             raise SystemExit(e.message)
     opts.auto_reload_port=int(os.environ.get('CALIBRE_AUTORELOAD_PORT', 0))
+    opts.allow_console_print = 'CALIBRE_ALLOW_CONSOLE_PRINT' in os.environ
     server=Server(libraries, opts)
     if opts.daemonize:
         if not opts.log and not iswindows:

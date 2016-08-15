@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import hashlib, random, zipfile
+import hashlib, random, zipfile, shutil, sys
 from json import load as load_json_file
 
 from calibre import as_unicode
@@ -32,6 +32,14 @@ def auto_reload(ctx, rd):
     if auto_reload_port > 0:
         rd.outheaders.set('Calibre-Auto-Reload-Port', type('')(auto_reload_port), replace_all=True)
     return lopen(P('content-server/autoreload.js'), 'rb')
+
+
+@endpoint('/console-print', methods=('POST',))
+def console_print(ctx, rd):
+    if not getattr(rd.opts, 'allow_console_print', False):
+        raise HTTPNotFound('console printing is not allowed')
+    shutil.copyfileobj(rd.request_body_file, sys.stdout)
+    return ''
 
 def get_basic_query_data(ctx, rd):
     db, library_id, library_map, default_library = get_library_data(ctx, rd)
@@ -89,6 +97,7 @@ def interface_data(ctx, rd):
         'gui_last_modified_display_format':tweaks['gui_last_modified_display_format'],
         'use_roman_numerals_for_series_number': get_use_roman(),
         'translations': get_translations(),
+        'allow_console_print':getattr(rd.opts, 'allow_console_print', False),
     }
     ans['library_map'], ans['default_library'] = ctx.library_info(rd)
     ud = {}

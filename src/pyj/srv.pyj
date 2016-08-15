@@ -3,7 +3,7 @@
 from __python__ import hash_literals
 
 import initialize  # noqa: unused-import
-from ajax import ajax
+from ajax import ajax, set_allow_console_print
 from elementmaker import E
 from gettext import gettext as _, install
 from session import UserSessionData
@@ -20,6 +20,7 @@ def on_library_loaded(end_type, xhr, ev):
     if end_type is 'load':
         interface_data = JSON.parse(xhr.responseText)
         interface_data.main_js = main_js
+        set_allow_console_print(interface_data.allow_console_print)
         main_js = None
         script = document.getElementById('main_js')
         if script:
