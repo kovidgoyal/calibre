@@ -120,7 +120,7 @@ class KindlePW(Kindle):
     output_profile = 'kindle_pw'
 
 class KindleVoyage(Kindle):
-    name = 'Kindle Voyage'
+    name = 'Kindle Voyage/Oasis'
     id = 'kindle_voyage'
     output_profile = 'kindle_voyage'
 
