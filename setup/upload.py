@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib, json
+import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib, json, httplib
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
@@ -139,7 +139,7 @@ def upload_to_fosshub(files=None):
     jq = {'software': 'Calibre', 'apiKey':get_fosshub_data(), 'upload':entries}
     rq = urllib2.urlopen('https://www.fosshub.com/JSTools/uploadJson', urllib.urlencode({'content':json.dumps(jq)}))
     resp = rq.read()
-    if rq.getcode() != 200:
+    if rq.getcode() != httplib.OK:
         raise SystemExit('Failed to upload to fosshub, with HTTP error code: %d and response: %s' % (rq.getcode(), resp))
 
 
