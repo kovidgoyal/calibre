@@ -148,8 +148,6 @@ class UploadInstallers(Command):  # {{{
         parser.add_option('--replace', default=False, action='store_true', help='Replace existing installers')
 
     def run(self, opts):
-        upload_to_fosshub()
-        return
         all_possible = set(installers())
         available = set(glob.glob('dist/*'))
         files = {x:installer_description(x) for x in
