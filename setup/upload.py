@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib
+import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib, json
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
@@ -137,7 +137,7 @@ def upload_to_fosshub(files=None):
             'version': __version__,
         })
     jq = {'software': 'Calibre', 'apiKey':get_fosshub_data(), 'upload':entries}
-    rq = urllib2.urlopen('https://www.fosshub.com/JSTools/uploadJson', urllib.urlencode({'content':jq}))
+    rq = urllib2.urlopen('https://www.fosshub.com/JSTools/uploadJson', urllib.urlencode({'content':json.dumps(jq)}))
     if rq.getcode() != 200:
         raise SystemExit('Failed to upload to fosshub, with HTTP error code: %d' % rq.getcode())
 
@@ -148,6 +148,8 @@ class UploadInstallers(Command):  # {{{
         parser.add_option('--replace', default=False, action='store_true', help='Replace existing installers')
 
     def run(self, opts):
+        upload_to_fosshub()
+        return
         all_possible = set(installers())
         available = set(glob.glob('dist/*'))
         files = {x:installer_description(x) for x in
