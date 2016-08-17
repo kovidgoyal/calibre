@@ -124,9 +124,9 @@ def run_remote_upload(args):
 
 # }}}
 
-def upload_to_fosshub(files=None):
-    if files is None:
-        files = set(installers())
+def upload_to_fosshub():
+    # fosshub has no API to do partial uploads, so we always upload all files.
+    files = set(installers())
     entries = []
     for fname in files:
         desc = installer_description(fname)
@@ -136,7 +136,8 @@ def upload_to_fosshub(files=None):
             'type': desc,
             'version': __version__,
         })
-    jq = {'software': 'Calibre', 'apiKey':get_fosshub_data(), 'upload':entries}
+    jq = {'software': 'Calibre', 'apiKey':get_fosshub_data(), 'upload':entries, 'delete':[{'type':'*', 'version':'*', 'name':'*'}]}
+    # print(json.dumps(jq, indent=2))
     rq = urllib2.urlopen('https://www.fosshub.com/JSTools/uploadJson', urllib.urlencode({'content':json.dumps(jq)}))
     resp = rq.read()
     if rq.getcode() != httplib.OK:
@@ -149,6 +150,7 @@ class UploadInstallers(Command):  # {{{
         parser.add_option('--replace', default=False, action='store_true', help='Replace existing installers')
 
     def run(self, opts):
+        # return upload_to_fosshub()
         all_possible = set(installers())
         available = set(glob.glob('dist/*'))
         files = {x:installer_description(x) for x in
@@ -168,7 +170,7 @@ class UploadInstallers(Command):  # {{{
                 upload_signatures()
                 check_call('ssh code /apps/update-calibre-version.py'.split())
             # self.upload_to_sourceforge()
-            upload_to_fosshub(files)
+            upload_to_fosshub()
             self.upload_to_github(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
