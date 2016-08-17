@@ -138,8 +138,9 @@ def upload_to_fosshub(files=None):
         })
     jq = {'software': 'Calibre', 'apiKey':get_fosshub_data(), 'upload':entries}
     rq = urllib2.urlopen('https://www.fosshub.com/JSTools/uploadJson', urllib.urlencode({'content':json.dumps(jq)}))
+    resp = rq.read()
     if rq.getcode() != 200:
-        raise SystemExit('Failed to upload to fosshub, with HTTP error code: %d' % rq.getcode())
+        raise SystemExit('Failed to upload to fosshub, with HTTP error code: %d and response: %s' % (rq.getcode(), resp))
 
 
 class UploadInstallers(Command):  # {{{
