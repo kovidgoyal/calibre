@@ -18,6 +18,7 @@ from read_book.paged_mode import (
     jump_to_cfi as paged_jump_to_cfi
 )
 from read_book.settings import apply_settings
+from read_book.touch import create_handlers as create_touch_handlers
 from utils import debounce
 
 FORCE_FLOW_MODE = False
@@ -70,6 +71,7 @@ class IframeBoss:
         if data.translations:
             install(data.translations)
         window.onerror = self.onerror
+        create_touch_handlers()
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
         console.log(error_object)
