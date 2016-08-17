@@ -5,7 +5,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, subprocess, hashlib, shutil, glob, stat, sys, time
+import os, subprocess, hashlib, shutil, glob, stat, sys, time, urllib2, urllib
 from subprocess import check_call
 from tempfile import NamedTemporaryFile, mkdtemp, gettempdir
 from zipfile import ZipFile
@@ -99,6 +99,10 @@ def get_github_data():
 def get_sourceforge_data():
     return {'username':'kovidgoyal', 'project':'calibre'}
 
+def get_fosshub_data():
+    with open(os.path.expanduser('~/work/env/private/fosshub'), 'rb') as f:
+        return f.read().decode('utf-8')
+
 def send_data(loc):
     subprocess.check_call(['rsync', '--inplace', '--delete', '-r', '-z', '-h', '--progress', '-e', 'ssh -x',
         loc+'/', '%s@%s:%s'%(STAGING_USER, STAGING_HOST, STAGING_DIR)])
@@ -113,15 +117,30 @@ def sf_cmdline(ver, sdata):
 def calibre_cmdline(ver):
     return [__appname__, ver, 'fmap', 'calibre']
 
-def dbs_cmdline(ver):
-    return [__appname__, ver, 'fmap', 'dbs']
-
 def run_remote_upload(args):
     print 'Running remotely:', ' '.join(args)
     subprocess.check_call(['ssh', '-x', '%s@%s'%(STAGING_USER, STAGING_HOST),
         'cd', STAGING_DIR, '&&', 'python2', 'hosting.py']+args)
 
 # }}}
+
+def upload_to_fosshub(files=None):
+    if files is None:
+        files = set(installers())
+    entries = []
+    for fname in files:
+        desc = installer_description(fname)
+        url = 'https://download.calibre-ebook.com/%s/%s' % (__version__, os.path.basename(fname))
+        entries.append({
+            'url':url,
+            'type': desc,
+            'version': __version__,
+        })
+    jq = {'software': 'Calibre', 'apiKey':get_fosshub_data(), 'upload':entries}
+    rq = urllib2.urlopen('https://www.fosshub.com/JSTools/uploadJson', urllib.urlencode(jq))
+    if rq.getcode() != 200:
+        raise SystemExit('Failed to upload to fosshub, with HTTP error code: %d' % rq.getcode())
+
 
 class UploadInstallers(Command):  # {{{
 
@@ -148,7 +167,7 @@ class UploadInstallers(Command):  # {{{
                 upload_signatures()
                 check_call('ssh code /apps/update-calibre-version.py'.split())
             # self.upload_to_sourceforge()
-            # self.upload_to_dbs()
+            upload_to_fosshub(files)
             self.upload_to_github(opts.replace)
         finally:
             shutil.rmtree(tdir, ignore_errors=True)
@@ -198,8 +217,6 @@ class UploadInstallers(Command):  # {{{
     def upload_to_calibre(self):
         run_remote_upload(calibre_cmdline(__version__))
 
-    def upload_to_dbs(self):
-        run_remote_upload(dbs_cmdline(__version__))
 # }}}
 
 class UploadUserManual(Command):  # {{{

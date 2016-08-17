@@ -7,10 +7,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, time, sys, shutil, glob, json, mimetypes
+import os, time, sys, shutil, json, mimetypes
 from pprint import pprint
 from argparse import ArgumentParser, FileType
-from subprocess import check_call, CalledProcessError, check_output
+from subprocess import check_call
 from collections import OrderedDict
 
 class ReadFileWithProgressReporting(file):  # {{{
@@ -339,55 +339,6 @@ def upload_to_servers(files, version):  # {{{
     #
 # }}}
 
-def upload_to_dbs(files, version):  # {{{
-    print('Uploading to fosshub.com')
-    sys.stdout.flush()
-    server = 'mirror10.fosshub.com'
-    rdir = 'release/'
-    def run_ssh(command, func=check_call):
-        cmd = ['ssh', '-x', 'kovid@%s' % server, command]
-        try:
-            return func(cmd)
-        except CalledProcessError as err:
-            # fosshub is being a little flaky sshing into it is failing the first
-            # time, needing a retry
-            if err.returncode != 255:
-                raise
-            return func(cmd)
-
-    old_files = set(run_ssh('ls ' + rdir, func=check_output).decode('utf-8').split())
-    if len(files) < 7:
-        existing = set(map(os.path.basename, files))
-        # fosshub does not support partial re-uploads
-        for f in glob.glob('%s/%s/calibre-*' % (SERVER_BASE, version)):
-            if os.path.basename(f) not in existing:
-                files[f] = None
-
-    for x in files:
-        start = time.time()
-        print ('Uploading', x)
-        sys.stdout.flush()
-        old_files.discard(os.path.basename(x))
-        for i in range(5):
-            try:
-                check_call(['rsync', '-h', '-z', '--progress', '-e', 'ssh -x', x,
-                'kovid@%s:%s'%(server, rdir)])
-            except KeyboardInterrupt:
-                raise SystemExit(1)
-            except:
-                print ('\nUpload failed, trying again in 30 seconds')
-                sys.stdout.flush()
-                time.sleep(30)
-            else:
-                break
-        print ('Uploaded in', int(time.time() - start), 'seconds\n\n')
-        sys.stdout.flush()
-
-    if old_files:
-        run_ssh('rm -f %s' % (' '.join(rdir + x for x in old_files)))
-    run_ssh('/home/kovid/uploadFiles')
-# }}}
-
 # CLI {{{
 def cli_parser():
     epilog='Copyright Kovid Goyal 2012'
@@ -419,7 +370,6 @@ def cli_parser():
     gh = subparsers.add_parser('github', help='Upload to GitHub',
             epilog=epilog)
     subparsers.add_parser('calibre', help='Upload to calibre file servers')
-    subparsers.add_parser('dbs', help='Upload to fosshub.com')
 
     a = sf.add_argument
     a('project',
@@ -462,8 +412,6 @@ def main(args=None):
         gh()
     elif args.service == 'calibre':
         upload_to_servers(ofiles, args.version)
-    elif args.service == 'dbs':
-        upload_to_dbs(ofiles, args.version)
 
 if __name__ == '__main__':
     main()
