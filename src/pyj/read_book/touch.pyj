@@ -4,10 +4,16 @@ from __python__ import hash_literals, bound_methods
 
 from read_book.globals import get_boss
 
+touch_id = 0
+handled_held_taps = {}
+
 def copy_touch(t):
+    nonlocal touch_id
+    touch_id += 1
     now = window.performance.now()
-    return {'identifier':t.identifier, 'page_x':v'[t.pageX]', 'page_y':v'[t.pageY]', 'viewport_x':v'[t.clientX]', 'viewport_y':v'[t.clientY]',
-            'active':True, 'mtime':now, 'ctime':now}
+    return {'identifier':t.identifier, 'id':touch_id,
+            'page_x':v'[t.pageX]', 'page_y':v'[t.pageY]', 'viewport_x':v'[t.clientX]', 'viewport_y':v'[t.clientY]',
+            'active':True, 'mtime':now, 'ctime':now, 'is_held':False}
 
 def max_displacement(points):
     ans = 0
@@ -23,28 +29,36 @@ def max_displacement(points):
 def interpret_single_gesture(touch):
     max_x_displacement = max_displacement(touch.viewport_x)
     max_y_displacement = max_displacement(touch.viewport_y)
+    ans = {'active':touch.active, 'is_held':touch.is_held}
     if max(max_x_displacement, max_y_displacement) < 25:
-        return {'type':'tap'}
+        ans.type = 'tap'
+        ans.viewport_x = touch.viewport_x[0]
+        ans.viewport_y = touch.viewport_y
+        return ans
     if touch.viewport_y.length < 2:
-        return {}
+        return ans
     delta_x = abs(touch.viewport_x[-1] - touch.viewport_x[0])
     delta_y = abs(touch.viewport_y[-1] - touch.viewport_y[0])
     if max(delta_y, delta_x) > 30 and min(delta_x, delta_y)/max(delta_y, delta_x) < 0.35:
-        ans = {'type':'swipe'}
+        ans.type = 'swipe'
         ans.axis = 'vertical' if delta_y > delta_x else 'horizontal'
-        pts = touch.viewport_y if ans.axis is 'vertical' else touch.viewport_x
+        ans.points = pts = touch.viewport_y if ans.axis is 'vertical' else touch.viewport_x
         positive = pts[-1] > pts[0]
         if ans.axis is 'vertical':
             ans.direction = 'down' if positive else 'up'
         else:
             ans.direction = 'right' if positive else 'left'
         return ans
-    return {}
+    return ans
+
+def tap_on_link(gesture):
+    pass
 
 class TouchHandler:
 
     def __init__(self):
         self.ongoing_touches = {}
+        self.hold_timer = None
 
     @property
     def has_active_touches(self):
@@ -61,10 +75,34 @@ class TouchHandler:
             v'delete self.ongoing_touches[tid]'
         return ans
 
+    def start_hold_timer(self):
+        self.stop_hold_timer()
+        self.hold_timer = window.setTimeout(self.check_for_hold, 100)
+
+    def stop_hold_timer(self):
+        if self.hold_timer is not None:
+            window.clearTimeout(self.hold_timer)
+            self.hold_timer = None
+
+    def check_for_hold(self):
+        if len(self.ongoing_touches) > 0:
+            now = window.performance.now()
+            found_hold = False
+            for touchid in self.ongoing_touches:
+                touch = self.ongoing_touches[touchid]
+                if now - touch.mtime > 750:
+                    touch.is_held = True
+                    found_hold = True
+            if found_hold:
+                self.dispatch_gesture()
+            self.start_hold_timer()
+
     def handle_touchstart(self, ev):
         ev.preventDefault(), ev.stopPropagation()
         for touch in ev.changedTouches:
             self.ongoing_touches[touch.identifier] = copy_touch(touch)
+        if len(self.ongoing_touches) > 0:
+            self.start_hold_timer()
 
     def update_touch(self, t, touch):
         t.mtime = window.performance.now()
@@ -77,12 +115,7 @@ class TouchHandler:
             t = self.ongoing_touches[touch.identifier]
             if t:
                 self.update_touch(t, touch)
-                if len(self.ongoing_touches) is 1:
-                    gesture = interpret_single_gesture(t)
-                    if gesture?.type is 'swipe':
-                        gesture.active = True
-                        get_boss().handle_gesture(gesture)
-
+                self.dispatch_gesture()
 
     def handle_touchend(self, ev):
         ev.preventDefault(), ev.stopPropagation()
@@ -92,15 +125,17 @@ class TouchHandler:
                 t.active = False
                 self.update_touch(t, touch)
         if not self.has_active_touches:
-            touches, self.ongoing_touches = self.ongoing_touches, {}
-            self.interpret_gesture(touches)
+            self.dispatch_gesture()
+            self.ongoing_touches = {}
 
     def handle_touchcancel(self, ev):
         ev.preventDefault(), ev.stopPropagation()
         for touch in ev.changedTouches:
             v'delete self.ongoing_touches[touch.identifier]'
 
-    def interpret_gesture(self, touches):
+
+    def dispatch_gesture(self):
+        touches = self.ongoing_touches
         num = len(touches)
         gesture = {}
         if num is 1:
@@ -108,16 +143,22 @@ class TouchHandler:
         if not gesture?.type:
             return
         if gesture.type is 'tap':
-            # TODO: Check for tap on link. Also convert the tap gesture into
-            # semantic gestures based on position of tap (next page/previous
-            # page/show ui) as these are common to both paged and flow mode.
-            pass
+            if gesture.is_held:
+                if handled_held_taps[gesture.id]:
+                    return
+                handled_held_taps[gesture.id] = True
+                # TODO: send a fake click event
+            if not tap_on_link(gesture):
+                # TODO: Check for tap on link. Also convert the tap gesture into
+                # semantic gestures based on position of tap (next page/previous
+                # page/show ui) as these are common to both paged and flow mode.
+                pass
         get_boss().handle_gesture(gesture)
 
 touch_handler = TouchHandler()
 
 def create_handlers():
-    document.body.addEventListener('touchstart', touch_handler.handle_touchstart, True)
-    document.body.addEventListener('touchmove', touch_handler.handle_touchmove, True)
-    document.body.addEventListener('touchend', touch_handler.handle_touchend, True)
-    document.body.addEventListener('touchcancel', touch_handler.handle_touchcancel, True)
+    window.addEventListener('touchstart', touch_handler.handle_touchstart, True)
+    window.addEventListener('touchmove', touch_handler.handle_touchmove, True)
+    window.addEventListener('touchend', touch_handler.handle_touchend, True)
+    window.addEventListener('touchcancel', touch_handler.handle_touchcancel, True)
