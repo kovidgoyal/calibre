@@ -140,7 +140,14 @@ class ConfigDialog(QDialog, Ui_Dialog):
         with zipfile.ZipFile(P('viewer/hyphenate/patterns.zip',
             allow_user_override=False), 'r') as zf:
             pats = [x.split('.')[0].replace('-', '_') for x in zf.namelist()]
-        names = list(map(get_language, pats))
+
+        lang_pats = {
+            'el_monoton': get_language('el').partition(';')[0] + _(' monotone'), 'el_polyton':get_language('el').partition(';')[0] + _(' polytone'),
+            'sr_cyrl': get_language('sr') + _(' cyrillic'), 'sr_latn': get_language('sr') + _(' latin'),
+        }
+        def gl(pat):
+            return lang_pats.get(pat, get_language(pat))
+        names = list(map(gl, pats))
         pmap = {}
         for i in range(len(pats)):
             pmap[names[i]] = pats[i]
