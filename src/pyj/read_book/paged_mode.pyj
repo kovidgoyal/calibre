@@ -492,3 +492,11 @@ def onkeydown(evt):
         scroll_by_page(key is 'pageup', True)
     if handled:
         evt.preventDefault()
+
+def handle_gesture(gesture):
+    if gesture.type is 'swipe':
+        if not gesture.active:
+            if gesture.axis is 'vertical':
+                pass  # TODO: next/prev section
+            else:
+                scroll_by_page(gesture.direction is 'right', False)

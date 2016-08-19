@@ -2,10 +2,44 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
+from read_book.globals import get_boss
 
 def copy_touch(t):
+    now = window.performance.now()
     return {'identifier':t.identifier, 'page_x':v'[t.pageX]', 'page_y':v'[t.pageY]', 'viewport_x':v'[t.clientX]', 'viewport_y':v'[t.clientY]',
-            'active':True, 'mtime':window.performance.now()}
+            'active':True, 'mtime':now, 'ctime':now}
+
+def max_displacement(points):
+    ans = 0
+    first = points[0]
+    if not first?:
+        return ans
+    for p in points:
+        delta = abs(p - first)
+        if delta > ans:
+            ans = delta
+    return ans
+
+def interpret_single_gesture(touch):
+    max_x_displacement = max_displacement(touch.viewport_x)
+    max_y_displacement = max_displacement(touch.viewport_y)
+    if max(max_x_displacement, max_y_displacement) < 25:
+        return {'type':'tap'}
+    if touch.viewport_y.length < 2:
+        return {}
+    delta_x = abs(touch.viewport_x[-1] - touch.viewport_x[0])
+    delta_y = abs(touch.viewport_y[-1] - touch.viewport_y[0])
+    if max(delta_y, delta_x) > 30 and min(delta_x, delta_y)/max(delta_y, delta_x) < 0.35:
+        ans = {'type':'swipe'}
+        ans.axis = 'vertical' if delta_y > delta_x else 'horizontal'
+        pts = touch.viewport_y if ans.axis is 'vertical' else touch.viewport_x
+        positive = pts[-1] > pts[0]
+        if ans.axis is 'vertical':
+            ans.direction = 'down' if positive else 'up'
+        else:
+            ans.direction = 'right' if positive else 'left'
+        return ans
+    return {}
 
 class TouchHandler:
 
@@ -43,6 +77,12 @@ class TouchHandler:
             t = self.ongoing_touches[touch.identifier]
             if t:
                 self.update_touch(t, touch)
+                if len(self.ongoing_touches) is 1:
+                    gesture = interpret_single_gesture(t)
+                    if gesture?.type is 'swipe':
+                        gesture.active = True
+                        get_boss().handle_gesture(gesture)
+
 
     def handle_touchend(self, ev):
         ev.preventDefault(), ev.stopPropagation()
@@ -61,7 +101,18 @@ class TouchHandler:
             v'delete self.ongoing_touches[touch.identifier]'
 
     def interpret_gesture(self, touches):
-        print(1111111, touches)
+        num = len(touches)
+        gesture = {}
+        if num is 1:
+            gesture = interpret_single_gesture(touches[Object.keys(touches)[0]])
+        if not gesture?.type:
+            return
+        if gesture.type is 'tap':
+            # TODO: Check for tap on link. Also convert the tap gesture into
+            # semantic gestures based on position of tap (next page/previous
+            # page/show ui) as these are common to both paged and flow mode.
+            pass
+        get_boss().handle_gesture(gesture)
 
 touch_handler = TouchHandler()
 

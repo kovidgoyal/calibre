@@ -99,3 +99,5 @@ def flow_onkeydown(evt):
 def layout(is_single_page):
     set_css(document.body, margin='0', border_width='0', padding='0')
 
+def handle_gesture(gesture):
+    pass

@@ -10,12 +10,12 @@ from read_book.globals import set_boss, set_current_spine_item, current_layout_m
 from read_book.mathjax import apply_mathjax
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import (
-    flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout
+    flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout, handle_gesture as flow_handle_gesture
 )
 from read_book.paged_mode import (
     layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction,
     onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
-    jump_to_cfi as paged_jump_to_cfi
+    jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture
 )
 from read_book.settings import apply_settings
 from read_book.touch import create_handlers as create_touch_handlers
@@ -94,6 +94,7 @@ class IframeBoss:
             self.do_layout = flow_layout
             self.handle_wheel = flow_onwheel
             self.handle_keydown = flow_onkeydown
+            self.handle_gesture = flow_handle_gesture
             self.to_scroll_fraction = flow_to_scroll_fraction
             self.jump_to_cfi = scroll_to_cfi
         else:
@@ -102,6 +103,7 @@ class IframeBoss:
             self.handle_keydown = paged_onkeydown
             self.to_scroll_fraction = paged_scroll_to_fraction
             self.jump_to_cfi = paged_jump_to_cfi
+            self.handle_gesture = paged_handle_gesture
         apply_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
         self.last_cfi = None
