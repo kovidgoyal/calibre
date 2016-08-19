@@ -114,7 +114,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
 
     # Merge consecutive spans that have the same styling
     current_run = []
-    for span in root.xpath('//span[not(@style or @lang)]'):
+    for span in root.xpath('//span[not(@style or @lang or @dir)]'):
         if not current_run:
             current_run.append(span)
         else:
@@ -130,6 +130,22 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
     # element
     class_map = dict(styles.classes.itervalues())
     parents = ('p', 'div') + tuple('h%d' % i for i in xrange(1, 7))
+    for parent in root.xpath('//*[(%s)]' % ' or '.join('name()="%s"' % t for t in parents)):
+        # If all spans have dir="rtl" and the parent does not have dir set,
+        # move the dir to the parent.
+        if len(parent) and (parent.get('dir') or 'rtl') == 'rtl':
+            has_rtl_children = False
+            for child in parent.iterchildren('span'):
+                if child.get('dir') == 'rtl':
+                    has_rtl_children = True
+                else:
+                    has_rtl_children = False
+                    break
+            if has_rtl_children:
+                parent.set('dir', 'rtl')
+                for child in parent.iterchildren():
+                    del child.attrib['dir']
+
     for parent in root.xpath('//*[(%s) and count(span)=1]' % ' or '.join('name()="%s"' % t for t in parents)):
         if len(parent) == 1 and not parent.text and not parent[0].tail and not parent[0].get('id', None):
             # We have a block whose contents are entirely enclosed in a <span>
@@ -145,6 +161,8 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
                 parent.remove(span)
                 if span.get('lang'):
                     parent.set('lang', span.get('lang'))
+                if span.get('dir'):
+                    parent.set('dir', span.get('dir'))
                 for child in span:
                     parent.append(child)
 
@@ -160,7 +178,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
                 del span.attrib['class']
 
     # Get rid of <span>s that have no styling
-    for span in root.xpath('//span[not(@class or @id or @style or @lang)]'):
+    for span in root.xpath('//span[not(@class or @id or @style or @lang or @dir)]'):
         lift(span)
 
     # Convert <p><br style="page-break-after:always"> </p> style page breaks

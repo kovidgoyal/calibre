@@ -674,6 +674,8 @@ class Convert(object):
             lang = html_lang(style.lang)
             if lang is not None and lang != self.doc_lang:
                 ans.set('lang', lang)
+        if style.rtl is True:
+            ans.set('dir', 'rtl')
         return ans
 
     def add_frame(self, html_obj, style):
