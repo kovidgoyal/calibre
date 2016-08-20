@@ -33,7 +33,7 @@ def interpret_single_gesture(touch):
     if max(max_x_displacement, max_y_displacement) < 25:
         ans.type = 'tap'
         ans.viewport_x = touch.viewport_x[0]
-        ans.viewport_y = touch.viewport_y
+        ans.viewport_y = touch.viewport_y[0]
         return ans
     if touch.viewport_y.length < 2:
         return ans
@@ -51,8 +51,34 @@ def interpret_single_gesture(touch):
         return ans
     return ans
 
+
+def element_from_point(x, y):
+    # This does not currently support detecting links inside iframes, but since
+    # iframes are not common in books, I am going to ignore that for now
+    return document.elementFromPoint(x, y)
+
+
+def find_link(x, y):
+    p = element_from_point(x, y)
+    while p:
+        if p.tagName and p.tagName.toLowerCase() is 'a' and p.hasAttribute('href'):
+            return p
+        p = p.parentNode
+
+
+TAP_LINK_THRESHOLD = 5
+
 def tap_on_link(gesture):
-    pass
+    for delta_x in [0, TAP_LINK_THRESHOLD, -TAP_LINK_THRESHOLD]:
+        for delta_y in [0, TAP_LINK_THRESHOLD, -TAP_LINK_THRESHOLD]:
+            x = gesture.viewport_x + delta_x
+            y = gesture.viewport_y + delta_y
+            link = find_link(x, y)
+            if link:
+                link.click()
+                return True
+    return False
+
 
 class TouchHandler:
 
@@ -149,7 +175,7 @@ class TouchHandler:
                 handled_held_taps[gesture.id] = True
                 # TODO: send a fake click event
             if not tap_on_link(gesture):
-                # TODO: Check for tap on link. Also convert the tap gesture into
+                # TODO: Convert the tap gesture into
                 # semantic gestures based on position of tap (next page/previous
                 # page/show ui) as these are common to both paged and flow mode.
                 pass
