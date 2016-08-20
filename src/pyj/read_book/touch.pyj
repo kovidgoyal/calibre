@@ -4,16 +4,15 @@ from __python__ import hash_literals, bound_methods
 
 from read_book.globals import get_boss
 
-touch_id = 0
-handled_held_taps = {}
+gesture_id = 0
 
 def copy_touch(t):
-    nonlocal touch_id
-    touch_id += 1
     now = window.performance.now()
-    return {'identifier':t.identifier, 'id':touch_id,
-            'page_x':v'[t.pageX]', 'page_y':v'[t.pageY]', 'viewport_x':v'[t.clientX]', 'viewport_y':v'[t.clientY]',
-            'active':True, 'mtime':now, 'ctime':now, 'is_held':False}
+    return {
+        'identifier':t.identifier,
+        'page_x':v'[t.pageX]', 'page_y':v'[t.pageY]', 'viewport_x':v'[t.clientX]', 'viewport_y':v'[t.clientY]',
+        'active':True, 'mtime':now, 'ctime':now, 'is_held':False
+    }
 
 def max_displacement(points):
     ans = 0
@@ -26,10 +25,10 @@ def max_displacement(points):
             ans = delta
     return ans
 
-def interpret_single_gesture(touch):
+def interpret_single_gesture(touch, gesture_id):
     max_x_displacement = max_displacement(touch.viewport_x)
     max_y_displacement = max_displacement(touch.viewport_y)
-    ans = {'active':touch.active, 'is_held':touch.is_held}
+    ans = {'active':touch.active, 'is_held':touch.is_held, 'id':gesture_id}
     if max(max_x_displacement, max_y_displacement) < 25:
         ans.type = 'tap'
         ans.viewport_x = touch.viewport_x[0]
@@ -84,22 +83,29 @@ class TouchHandler:
 
     def __init__(self):
         self.ongoing_touches = {}
+        self.gesture_id = None
         self.hold_timer = None
+        self.handled_tap_hold = False
 
-    @property
-    def has_active_touches(self):
+    def prune_expired_touches(self):
         now = window.performance.now()
         expired = v'[]'
         ans = False
-        for t in self.ongoing_touches:
+        for tid in self.ongoing_touches:
+            t = self.ongoing_touches[tid]
             if t.active:
                 if now - t.mtime > 3000:
                     expired.push(t.identifier)
-                ans = True
-                break
         for tid in expired:
             v'delete self.ongoing_touches[tid]'
-        return ans
+
+    @property
+    def has_active_touches(self):
+        for tid in self.ongoing_touches:
+            t = self.ongoing_touches[tid]
+            if t.active:
+                return True
+        return False
 
     def start_hold_timer(self):
         self.stop_hold_timer()
@@ -116,7 +122,7 @@ class TouchHandler:
             found_hold = False
             for touchid in self.ongoing_touches:
                 touch = self.ongoing_touches[touchid]
-                if now - touch.mtime > 750:
+                if touch.active and now - touch.mtime > 750:
                     touch.is_held = True
                     found_hold = True
             if found_hold:
@@ -125,8 +131,14 @@ class TouchHandler:
 
     def handle_touchstart(self, ev):
         ev.preventDefault(), ev.stopPropagation()
+        self.prune_expired_touches()
         for touch in ev.changedTouches:
             self.ongoing_touches[touch.identifier] = copy_touch(touch)
+            if self.gesture_id is None:
+                nonlocal gesture_id
+                gesture_id += 1
+                self.gesture_id = gesture_id
+                self.handled_tap_hold = False
         if len(self.ongoing_touches) > 0:
             self.start_hold_timer()
 
@@ -150,29 +162,33 @@ class TouchHandler:
             if t:
                 t.active = False
                 self.update_touch(t, touch)
+        self.prune_expired_touches()
         if not self.has_active_touches:
             self.dispatch_gesture()
             self.ongoing_touches = {}
+            self.gesture_id = None
+            self.handled_tap_hold = False
 
     def handle_touchcancel(self, ev):
         ev.preventDefault(), ev.stopPropagation()
         for touch in ev.changedTouches:
             v'delete self.ongoing_touches[touch.identifier]'
-
+        self.gesture_id = None
+        self.handled_tap_hold = False
 
     def dispatch_gesture(self):
         touches = self.ongoing_touches
         num = len(touches)
         gesture = {}
         if num is 1:
-            gesture = interpret_single_gesture(touches[Object.keys(touches)[0]])
+            gesture = interpret_single_gesture(touches[Object.keys(touches)[0]], self.gesture_id)
         if not gesture?.type:
             return
         if gesture.type is 'tap':
             if gesture.is_held:
-                if handled_held_taps[gesture.id]:
+                if self.handled_tap_hold:
                     return
-                handled_held_taps[gesture.id] = True
+                self.handled_tap_hold = True
                 # TODO: send a fake click event
             if not tap_on_link(gesture):
                 # TODO: Convert the tap gesture into
