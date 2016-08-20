@@ -4,6 +4,10 @@ from __python__ import hash_literals, bound_methods
 
 from read_book.globals import get_boss
 
+HOLD_THRESHOLD = 750  # milliseconds
+TAP_LINK_THRESHOLD = 5  # pixels
+
+
 gesture_id = 0
 
 def copy_touch(t):
@@ -65,8 +69,6 @@ def find_link(x, y):
         p = p.parentNode
 
 
-TAP_LINK_THRESHOLD = 5
-
 def tap_on_link(gesture):
     for delta_x in [0, TAP_LINK_THRESHOLD, -TAP_LINK_THRESHOLD]:
         for delta_y in [0, TAP_LINK_THRESHOLD, -TAP_LINK_THRESHOLD]:
@@ -122,7 +124,7 @@ class TouchHandler:
             found_hold = False
             for touchid in self.ongoing_touches:
                 touch = self.ongoing_touches[touchid]
-                if touch.active and now - touch.mtime > 750:
+                if touch.active and now - touch.mtime > HOLD_THRESHOLD:
                     touch.is_held = True
                     found_hold = True
             if found_hold:
@@ -186,10 +188,16 @@ class TouchHandler:
             return
         if gesture.type is 'tap':
             if gesture.is_held:
-                if self.handled_tap_hold:
-                    return
-                self.handled_tap_hold = True
-                # TODO: send a fake click event
+                if not self.handled_tap_hold:
+                    self.handled_tap_hold = True
+                    fake_click = new MouseEvent('click', {
+                        'clientX': gesture.viewport_x, 'clientY':gesture.viewport_y, 'buttons': 1,
+                        'view':window.self, 'bubbles': True, 'cancelable': True,
+                    })
+                    elem = document.elementFromPoint(fake_click.clientX, fake_click.clientY)
+                    if elem:
+                        elem.dispatchEvent(fake_click)
+                return
             if not tap_on_link(gesture):
                 # TODO: Convert the tap gesture into
                 # semantic gestures based on position of tap (next page/previous
