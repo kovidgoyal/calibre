@@ -1282,7 +1282,7 @@ not multiple and the destination field is multiple</string>
       <widget class="QCheckBox" name="refresh_book_list">
        <property name="toolTip">
         <string>If enabled, the book list will be re-sorted and any existing
-search or Virtual LIbrary will be refreshed after the edit
+search or Virtual Library will be refreshed after the edit
 is completed. This can be slow on large libraries.</string>
        </property>
        <property name="text">
