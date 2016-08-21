@@ -5,6 +5,7 @@ from __python__ import hash_literals, bound_methods
 from read_book.globals import get_boss
 
 HOLD_THRESHOLD = 750  # milliseconds
+TAP_THRESHOLD = 5  # pixels
 TAP_LINK_THRESHOLD = 5  # pixels
 
 
@@ -33,7 +34,7 @@ def interpret_single_gesture(touch, gesture_id):
     max_x_displacement = max_displacement(touch.viewport_x)
     max_y_displacement = max_displacement(touch.viewport_y)
     ans = {'active':touch.active, 'is_held':touch.is_held, 'id':gesture_id}
-    if max(max_x_displacement, max_y_displacement) < 25:
+    if max(max_x_displacement, max_y_displacement) < TAP_THRESHOLD:
         ans.type = 'tap'
         ans.viewport_x = touch.viewport_x[0]
         ans.viewport_y = touch.viewport_y[0]
@@ -42,7 +43,7 @@ def interpret_single_gesture(touch, gesture_id):
         return ans
     delta_x = abs(touch.viewport_x[-1] - touch.viewport_x[0])
     delta_y = abs(touch.viewport_y[-1] - touch.viewport_y[0])
-    if max(delta_y, delta_x) > 30 and min(delta_x, delta_y)/max(delta_y, delta_x) < 0.35:
+    if max(delta_y, delta_x) > TAP_THRESHOLD and min(delta_x, delta_y)/max(delta_y, delta_x) < 0.35:
         ans.type = 'swipe'
         ans.axis = 'vertical' if delta_y > delta_x else 'horizontal'
         ans.points = pts = touch.viewport_y if ans.axis is 'vertical' else touch.viewport_x
