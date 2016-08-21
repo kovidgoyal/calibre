@@ -200,8 +200,10 @@ class RecursiveFetcher(object):
                 remove_beyond(tag, 'nextSibling')
 
         if self.remove_tags_before is not None:
-            tag = soup.find(**self.remove_tags_before)
-            remove_beyond(tag, 'previousSibling')
+            rt = [self.remove_tags_before] if isinstance(self.remove_tags_before, dict) else self.remove_tags_before
+            for spec in rt:
+                tag = soup.find(**spec)
+                remove_beyond(tag, 'previousSibling')
 
         for kwds in self.remove_tags:
             for tag in soup.findAll(**kwds):
