@@ -1,77 +1,48 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
 __license__ = 'GPL v3'
-__author__ = 'Lorenzo Vigentini'
-__copyright__ = '2009, Lorenzo Vigentini <l.vigentini at gmail.com>'
-__version__ = 'v1.01'
-__date__ = '10, January 2010'
-__description__ = 'Monthly Italian edition of Scientific American, 16.05.2010 new version'
+__author__ = 'Daniele Forsi'
 
-'''
-http://lescienze.espresso.repubblica.it/
-'''
+from calibre.web.feeds.recipes import BasicNewsRecipe
 
-from calibre.web.feeds.news import BasicNewsRecipe
-
-
-class leScienze(BasicNewsRecipe):
-    __author__ = 'Lorenzo Vigentini, Gabriele Marini'
-    description = 'Monthly Italian edition of Scientific American'
-
-    cover_url = 'http://lescienze.espresso.repubblica.it/images/logo_lescienze.gif'
-    title = 'le Scienze'
-    publisher = 'Gruppo editoriale L\'Espresso'
-    category = 'Science, general interest'
-
+class LeScienze(BasicNewsRecipe):
+    title = 'Le Scienze'
+    description = 'Edizione italiana di Scientific American'
+    publication_type = 'magazine'
     language = 'it'
-#    encoding       = 'cp1252'
-    timefmt = '[%a, %d %b, %Y]'
+    conversion_options = {
+        'publisher': 'Le Scienze S.p.A.',
+        'tags': 'science',
+    }
 
-    oldest_article = 100
-    max_articles_per_feed = 100
-    use_embedded_content = False
-    recursion = 20
-
-    remove_javascript = True
+    INDEX = 'http://www.lescienze.it/utility/2011/10/17/news/lista_rss-589690/'
+    masthead_url = 'http://www.lescienze.it/static/images/logo-le-scienze.png'
     no_stylesheets = True
-
+    extra_css = '''
+    .img-left,.img-right{font-style:italic;font-size:75%;padding:1em;margin:auto;}
+    .summary{font-style:italic;font-size:120%;}
+    '''
     keep_only_tags = [
-        dict(name='div', attrs={'class': 'bigbox'})
+        dict(name='article', attrs={'class': 'main-article'}),
     ]
-
     remove_tags = [
-        dict(name='span', attrs={'class': 'linkindice'}),
-        dict(name='div', attrs={'class': 'box-commenti'}),
-        dict(name='div', attrs={'id': ['rssdiv', 'blocco']})
+        dict(attrs={'class': [
+            'adv adv-middle',
+            'colsx',
+            'correlati',
+            'social-toolbar-foot',
+            'tags',
+        ]}),
     ]
-    remove_tags_after = [dict(name='div', attrs={'class': 'box-commenti'})]
+    remove_empty_feeds = True
 
-    feeds = [
+    def get_feeds(self):
+        soup = self.index_to_soup(self.INDEX)
+        feeds = []
 
-        (u'Home', u'http://data.kataweb.it/rss/scienze'),
-        (u'Antropologia', u'http://data.kataweb.it/rss/scienze/antropologia'),
-        (u'Archeologia', u'http://data.kataweb.it/rss/scienze/archeologia'),
-        (u'Arte e Musica', u'http://data.kataweb.it/rss/scienze/arte_e_musica'),
-        (u'Astrofisica', u'http://data.kataweb.it/rss/scienze/astrofisica'),
-        (u'Astronautica', u'http://data.kataweb.it/rss/scienze/astronautica'),
-        (u'Astronomia', u'http://data.kataweb.it/rss/scienze/astronomia_e_cosmologia'),
-        (u'Biologia', u'http://data.kataweb.it/rss/scienze/biologia'),
-        (u'Chimica', u'http://data.kataweb.it/rss/scienze/chimica'),
-        (u'Ecologia & ambiente', u'http://data.kataweb.it/rss/scienze/ecologia_e_ambiente'),
-        (u'Economia', u'http://data.kataweb.it/rss/scienze/Economia'),
-        (u'Fisica', u'http://data.kataweb.it/rss/scienze/Fisica'),
-        (u'Informatica', u'http://data.kataweb.it/rss/scienze/informatica_e_telecomunicazioni'),
-        (u'Ingegneria', u'http://data.kataweb.it/rss/scienze/ingegneria_e_tecnologia'),
-        (u'Matematica', u'http://data.kataweb.it/rss/scienze/Matematica'),
-        (u'Medicina', u'http://data.kataweb.it/rss/scienze/Medicina'),
-        (u'Paleontologia', u'http://data.kataweb.it/rss/scienze/Paleontologia'),
-        (u'Recensioni', u'http://data.kataweb.it/rss/scienze/Recensioni'),
-        (u'Psicologia', u'http://data.kataweb.it/rss/scienze/psicologie_e_scienze_cognitive'),
-        (u'Scienze della Terra', u'http://data.kataweb.it/rss/scienze/scienze_della_terra'),
-        (u'Scienze dello spazio',
-         u'http://data.kataweb.it/rss/scienze/scienze_dello_spazio'),
-        (u'Scienze naturali', u'http://data.kataweb.it/rss/scienze/scienze_naturali'),
-        (u'Scienze sociali', u'http://data.kataweb.it/rss/scienze/scienze_sociali'),
-        (u'Statistica', u'http://data.kataweb.it/rss/scienze/statistica'),
-        (u'Storia della scienza',
-         u'http://data.kataweb.it/rss/scienze/storia_della_scienza')
-    ]
+        for link in soup.findAll('a'):
+            href = link.get('href')
+            if href.endswith('.xml'):
+                title = link.string
+                feeds.append((title, href))
+
+        return feeds
