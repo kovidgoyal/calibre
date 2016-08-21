@@ -181,6 +181,8 @@ def init_env():
 class Build(Command):
 
     short_description = 'Build calibre C/C++ extension modules'
+    DEFAULT_OUTPUTDIR = os.path.abspath(os.path.join(SRC, 'calibre', 'plugins'))
+    DEFAULT_BUILDDIR = os.path.abspath(os.path.join(os.path.dirname(SRC), 'build'))
 
     description = textwrap.dedent('''\
         calibre depends on several python extensions written in C/C++.
@@ -222,8 +224,8 @@ class Build(Command):
             return
         self.env = init_env()
         extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
-        self.build_dir = os.path.abspath(opts.build_dir or os.path.join(os.path.dirname(SRC), 'build'))
-        self.output_dir = os.path.abspath(opts.output_dir or os.path.join(SRC, 'calibre', 'plugins'))
+        self.build_dir = os.path.abspath(opts.build_dir or self.DEFAULT_BUILDDIR)
+        self.output_dir = os.path.abspath(opts.output_dir or self.DEFAULT_OUTPUTDIR)
         self.obj_dir = os.path.join(self.build_dir, 'objects')
         for x in (self.output_dir, self.obj_dir):
             if not os.path.exists(x):
@@ -468,16 +470,13 @@ class Build(Command):
             os.chdir(cwd)
 
     def clean(self):
+        self.output_dir = self.DEFAULT_OUTPUTDIR
         extensions = map(parse_extension, filter(is_ext_allowed, read_extensions()))
         for ext in extensions:
             dest = self.dest(ext)
             for x in (dest, dest+'.manifest'):
                 if os.path.exists(x):
                     os.remove(x)
-        build_dir = self.j(self.d(self.SRC), 'build')
+        build_dir = self.DEFAULT_BUILDDIR
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir)
-
-
-
-
