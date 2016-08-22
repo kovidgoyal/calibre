@@ -162,8 +162,10 @@ def read_justification(parent, dest, XPath, get):
             continue
         if val in {'both', 'distribute'} or 'thai' in val or 'kashida' in val:
             ans = 'justify'
-        if val in {'left', 'center', 'right',}:
+        elif val in {'left', 'center', 'right', 'start', 'end'}:
             ans = val
+        elif val in {'start', 'end'}:
+            ans = {'start':'left'}.get(val, 'right')
     setattr(dest, 'text_align', ans)
 
 def read_spacing(parent, dest, XPath, get):
@@ -188,16 +190,6 @@ def read_spacing(parent, dest, XPath, get):
     setattr(dest, 'margin_top', padding_top)
     setattr(dest, 'margin_bottom', padding_bottom)
     setattr(dest, 'line_height', line_height)
-
-def read_direction(parent, dest, XPath, get):
-    ans = inherit
-    for jc in XPath('./w:textFlow[@w:val]')(parent):
-        val = get(jc, 'w:val')
-        if not val:
-            continue
-        if 'rl' in val.lower():
-            ans = 'rtl'
-    setattr(dest, 'direction', ans)
 
 def read_shd(parent, dest, XPath, get):
     ans = inherit
@@ -322,7 +314,7 @@ class ParagraphStyle(object):
         'margin_left', 'margin_top', 'margin_right', 'margin_bottom',
 
         # Misc.
-        'text_indent', 'text_align', 'line_height', 'direction', 'background_color',
+        'text_indent', 'text_align', 'line_height', 'background_color',
         'numbering', 'font_family', 'font_size', 'color', 'frame',
     )
 
@@ -341,7 +333,7 @@ class ParagraphStyle(object):
             ):
                 setattr(self, p, binary_property(pPr, p, namespace.XPath, namespace.get))
 
-            for x in ('border', 'indent', 'justification', 'spacing', 'direction', 'shd', 'numbering', 'frame'):
+            for x in ('border', 'indent', 'justification', 'spacing', 'shd', 'numbering', 'frame'):
                 f = globals()['read_%s' % x]
                 f(pPr, self, namespace.XPath, namespace.get)
 
@@ -389,12 +381,16 @@ class ParagraphStyle(object):
             if self.line_height not in {inherit, '1'}:
                 c['line-height'] = self.line_height
 
-            for x in ('text_indent', 'text_align', 'background_color', 'font_family', 'font_size', 'color'):
+            for x in ('text_indent', 'background_color', 'font_family', 'font_size', 'color'):
                 val = getattr(self, x)
                 if val is not inherit:
                     if x == 'font_size':
                         val = '%.3gpt' % val
                     c[x.replace('_', '-')] = val
+            ta = self.text_align
+            if self.bidi:
+                ta = {'left':'right', 'right':'left'}.get(ta, ta)
+            c['text-align'] = ta
 
         return self._css
 

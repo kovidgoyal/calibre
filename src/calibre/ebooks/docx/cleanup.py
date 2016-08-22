@@ -17,11 +17,13 @@ def mergeable(previous, current):
         return False
     if current.get('id', False):
         return False
+    for attr in ('style', 'lang', 'dir'):
+        if previous.get(attr) != current.get(attr):
+            return False
     try:
         return next(previous.itersiblings()) is current
     except StopIteration:
         return False
-
 
 def append_text(parent, text):
     if len(parent) > 0:
@@ -114,7 +116,7 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
 
     # Merge consecutive spans that have the same styling
     current_run = []
-    for span in root.xpath('//span[not(@style or @lang or @dir)]'):
+    for span in root.xpath('//span'):
         if not current_run:
             current_run.append(span)
         else:
@@ -126,33 +128,33 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
                     merge_run(current_run)
                 current_run = [span]
 
-    # Remove unnecessary span tags that are the only child of a parent block
-    # element
+    # Process dir attributes
     class_map = dict(styles.classes.itervalues())
     parents = ('p', 'div') + tuple('h%d' % i for i in xrange(1, 7))
     for parent in root.xpath('//*[(%s)]' % ' or '.join('name()="%s"' % t for t in parents)):
-        # If all spans have dir="rtl" and the parent does not have dir set,
-        # move the dir to the parent.
-        if len(parent) and (parent.get('dir') or 'rtl') == 'rtl':
-            has_rtl_children = False
+        # Ensure that children of rtl parents that are not rtl have an
+        # explicit dir set. Also, remove dir from children if it is the same as
+        # that of the parent.
+        if len(parent):
+            parent_dir = parent.get('dir')
             for child in parent.iterchildren('span'):
-                if child.get('dir') == 'rtl':
-                    has_rtl_children = True
-                else:
-                    has_rtl_children = False
-                    break
-            if has_rtl_children:
-                parent.set('dir', 'rtl')
-                for child in parent.iterchildren():
-                    del child.attrib['dir']
+                child_dir = child.get('dir')
+                if parent_dir == 'rtl' and child_dir != 'rtl':
+                    child_dir = 'ltr'
+                    child.set('dir', child_dir)
+                if child_dir and child_dir == parent_dir:
+                    child.attrib.pop('dir')
 
+    # Remove unnecessary span tags that are the only child of a parent block
+    # element
     for parent in root.xpath('//*[(%s) and count(span)=1]' % ' or '.join('name()="%s"' % t for t in parents)):
         if len(parent) == 1 and not parent.text and not parent[0].tail and not parent[0].get('id', None):
             # We have a block whose contents are entirely enclosed in a <span>
             span = parent[0]
             span_class = span.get('class', None)
             span_css = class_map.get(span_class, {})
-            if liftable(span_css):
+            span_dir = span.get('dir')
+            if liftable(span_css) and (not span_dir or span_dir == parent.get('dir')):
                 pclass = parent.get('class', None)
                 if span_class:
                     pclass = (pclass + ' ' + span_class) if pclass else span_class

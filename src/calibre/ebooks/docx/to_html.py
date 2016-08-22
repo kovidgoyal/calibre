@@ -466,7 +466,7 @@ class Convert(object):
             n = min(6, max(1, int(m.group(1))))
             dest.tag = 'h%d' % n
 
-        if style.direction == 'rtl':
+        if style.bidi is True:
             dest.set('dir', 'rtl')
 
         border_runs = []
