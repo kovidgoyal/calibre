@@ -204,10 +204,13 @@ class TouchHandler:
                         elem.dispatchEvent(fake_click)
                 return
             if not tap_on_link(gesture):
-                # TODO: Convert the tap gesture into
-                # semantic gestures based on position of tap (next page/previous
-                # page/show ui) as these are common to both paged and flow mode.
-                pass
+                if gesture.viewport_y < window.innerHeight / 4:
+                    gesture.type = 'show-chrome'
+                else:
+                    # TODO: Convert the tap gesture into
+                    # semantic gestures based on position of tap (next page/previous
+                    # page/show ui) as these are common to both paged and flow mode.
+                    pass
         get_boss().handle_gesture(gesture)
 
 touch_handler = TouchHandler()

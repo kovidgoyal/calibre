@@ -66,6 +66,7 @@ class View:
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'update_cfi': self.on_update_cfi,
             'content_loaded': self.on_content_loaded,
+            'show_chrome': self.show_chrome,
         }
         self.currently_showing = {}
         document.getElementById('book-top-margin').addEventListener('click', self.top_margin_clicked)
@@ -77,7 +78,10 @@ class View:
     def top_margin_clicked(self, event):
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
-            self.overlay.show()
+            self.show_chrome()
+
+    def show_chrome(self):
+        self.overlay.show()
 
     def set_margins(self, no_margins):
         sd = get_session_data()
