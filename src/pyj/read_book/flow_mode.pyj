@@ -100,4 +100,12 @@ def layout(is_single_page):
     set_css(document.body, margin='0', border_width='0', padding='0')
 
 def handle_gesture(gesture):
-    pass
+    if gesture.type is 'swipe':
+        if gesture.points.length > 1 and not gesture.is_held:
+            delta = gesture.points[-2] - gesture.points[-1]
+            if gesture.axis is 'vertical':
+                scroll_by(delta)
+            else:
+                window.scrollBy(delta, 0)
+        if not gesture.active:
+            print('TODO: Implement momentum scrolling')
