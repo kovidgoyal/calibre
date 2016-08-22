@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+from __python__ import hash_literals, bound_methods
 
 from dom import set_css
 from read_book.globals import get_boss
@@ -99,7 +99,56 @@ def flow_onkeydown(evt):
 def layout(is_single_page):
     set_css(document.body, margin='0', border_width='0', padding='0')
 
+class FlickAnimator:
+
+    SPEED_FACTOR = 0.04
+    DECEL_TIME_CONSTANT = 325  # milliseconds
+    VELOCITY_HISTORY = 300  # milliseconds
+    MIMUMUM_VELOCITY = 100  # pixels/sec
+
+    def __init__(self):
+        self.animation_id = None
+
+    def start(self, gesture):
+        self.vertical = gesture.axis is 'vertical'
+        now = window.performance.now()
+        points = times = None
+        for i, t in enumerate(gesture.times):
+            if now - t < self.VELOCITY_HISTORY:
+                points, times = gesture.points[i:], gesture.times[i:]
+                break
+        if times and times.length > 1:
+            elapsed = (times[-1] - times[0]) / 1000
+            if elapsed > 0 and points.length > 1:
+                delta = points[0] - points[-1]
+                velocity = delta / elapsed
+                if abs(velocity) > self.MIMUMUM_VELOCITY:
+                    self.amplitude = self.SPEED_FACTOR * velocity
+                    self.start_time = now
+                    self.animation_id = window.requestAnimationFrame(self.auto_scroll)
+
+    def auto_scroll(self, ts):
+        if self.animation_id is None:
+            return
+        elapsed = window.performance.now() - self.start_time
+        delta = self.amplitude * Math.exp(-elapsed / self.DECEL_TIME_CONSTANT)
+        if abs(delta) >= 1:
+            delta = Math.round(delta)
+            if self.vertical:
+                window.scrollBy(0, delta)
+            else:
+                window.scrollBy(delta, 0)
+            self.animation_id = window.requestAnimationFrame(self.auto_scroll)
+
+    def stop(self):
+        if self.animation_id is not None:
+            window.cancelAnimationFrame(self.animation_id)
+            self.animation_id = None
+
+flick_animator = FlickAnimator()
+
 def handle_gesture(gesture):
+    flick_animator.stop()
     if gesture.type is 'swipe':
         if gesture.points.length > 1 and not gesture.is_held:
             delta = gesture.points[-2] - gesture.points[-1]
@@ -107,5 +156,5 @@ def handle_gesture(gesture):
                 scroll_by(delta)
             else:
                 window.scrollBy(delta, 0)
-        if not gesture.active:
-            print('TODO: Implement momentum scrolling')
+        if not gesture.active and not gesture.is_held:
+            flick_animator.start(gesture)

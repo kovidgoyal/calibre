@@ -16,7 +16,7 @@ def copy_touch(t):
     return {
         'identifier':t.identifier,
         'page_x':v'[t.pageX]', 'page_y':v'[t.pageY]', 'viewport_x':v'[t.clientX]', 'viewport_y':v'[t.clientY]',
-        'active':True, 'mtime':now, 'ctime':now, 'is_held':False
+        'active':True, 'mtimes':v'[now]', 'ctime':now, 'is_held':False, 'x_velocity': 0, 'y_velocity': 0
     }
 
 def max_displacement(points):
@@ -47,11 +47,14 @@ def interpret_single_gesture(touch, gesture_id):
         ans.type = 'swipe'
         ans.axis = 'vertical' if delta_y > delta_x else 'horizontal'
         ans.points = pts = touch.viewport_y if ans.axis is 'vertical' else touch.viewport_x
+        ans.times = touch.mtimes
         positive = pts[-1] > pts[0]
         if ans.axis is 'vertical':
             ans.direction = 'down' if positive else 'up'
+            ans.velocity = touch.y_velocity
         else:
             ans.direction = 'right' if positive else 'left'
+            ans.velocity = touch.x_velocity
         return ans
     return ans
 
@@ -97,7 +100,7 @@ class TouchHandler:
         for tid in self.ongoing_touches:
             t = self.ongoing_touches[tid]
             if t.active:
-                if now - t.mtime > 3000:
+                if now - t.mtimes[-1] > 3000:
                     expired.push(t.identifier)
         for tid in expired:
             v'delete self.ongoing_touches[tid]'
@@ -125,7 +128,7 @@ class TouchHandler:
             found_hold = False
             for touchid in self.ongoing_touches:
                 touch = self.ongoing_touches[touchid]
-                if touch.active and now - touch.mtime > HOLD_THRESHOLD:
+                if touch.active and now - touch.mtimes[-1] > HOLD_THRESHOLD:
                     touch.is_held = True
                     found_hold = True
             if found_hold:
@@ -146,7 +149,8 @@ class TouchHandler:
             self.start_hold_timer()
 
     def update_touch(self, t, touch):
-        t.mtime = window.performance.now()
+        now = window.performance.now()
+        t.mtimes.push(now)
         t.page_x.push(touch.pageX), t.page_y.push(touch.pageY)
         t.viewport_x.push(touch.clientX), t.viewport_y.push(touch.clientY)
 
