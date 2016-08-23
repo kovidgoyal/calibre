@@ -16,7 +16,7 @@ from PyQt5.Qt import (
     QPainter, QStaticText, pyqtSignal, QTextOption, QAbstractListModel,
     QModelIndex, QStyledItemDelegate, QStyle, QCheckBox, QListView,
     QTextDocument, QSize, QComboBox, QFrame, QCursor, QGroupBox, QSplitter,
-    QPixmap, QRect, QPlainTextEdit, pyqtSlot, QMimeData, QKeySequence)
+    QPixmap, QRect, QPlainTextEdit, QMimeData)
 
 from calibre import prepare_string_for_xml, human_readable
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
@@ -1122,7 +1122,6 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
 
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)
-        self.selectionChanged.connect(self.selection_changed)
         self.syntax = None
 
     def toPlainText(self):
@@ -1138,22 +1137,6 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         # non BMP characters such as 0x1f431 are present.
         return ans.rstrip('\0')
 
-    @pyqtSlot()
-    def copy(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        c = self.textCursor()
-        if not c.hasSelection():
-            return
-        md = QMimeData()
-        md.setText(self.selected_text)
-        QApplication.clipboard().setMimeData(md)
-
-    @pyqtSlot()
-    def cut(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        self.copy()
-        self.textCursor().removeSelectedText()
-
     def selected_text_from_cursor(self, cursor):
         return unicodedata.normalize('NFC', unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0'))
 
@@ -1161,20 +1144,10 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
     def selected_text(self):
         return self.selected_text_from_cursor(self.textCursor())
 
-    def selection_changed(self):
-        # Workaround Qt replacing nbsp with normal spaces on copy
-        clipboard = QApplication.clipboard()
-        if clipboard.supportsSelection() and self.textCursor().hasSelection():
-            md = QMimeData()
-            md.setText(self.selected_text)
-            clipboard.setMimeData(md, clipboard.Selection)
-
-    def event(self, ev):
-        if ev.type() == ev.ShortcutOverride and ev in (QKeySequence.Copy, QKeySequence.Cut):
-            ev.accept()
-            (self.copy if ev == QKeySequence.Copy else self.cut)()
-            return True
-        return QPlainTextEdit.event(self, ev)
+    def createMimeDataFromSelection(self):
+        ans = QMimeData()
+        ans.setText(self.selected_text)
+        return ans
 # }}}
 
 if __name__ == '__main__':
