@@ -10,12 +10,14 @@ from read_book.globals import set_boss, set_current_spine_item, current_layout_m
 from read_book.mathjax import apply_mathjax
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import (
-    flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout, handle_gesture as flow_handle_gesture
+    flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout, handle_gesture as flow_handle_gesture,
+    scroll_by_page as flow_scroll_by_page
 )
 from read_book.paged_mode import (
     layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction,
     onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
-    jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture
+    jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture,
+    scroll_by_page as paged_scroll_by_page
 )
 from read_book.settings import apply_settings
 from read_book.touch import create_handlers as create_touch_handlers
@@ -41,6 +43,7 @@ class IframeBoss:
             'initialize':self.initialize,
             'display': self.display,
             'scroll_to_anchor': self.on_scroll_to_anchor,
+            'next_screen': self.on_next_screen,
         }
         self.last_window_ypos = 0
 
@@ -122,6 +125,13 @@ class IframeBoss:
             self.scroll_to_anchor(frag)
         else:
             self.to_scroll_fraction(0.0)
+
+    def on_next_screen(self, data):
+        backwards = data.backwards
+        if current_layout_mode() is 'flow':
+            flow_scroll_by_page(backwards)
+        else:
+            paged_scroll_by_page(backwards, True)
 
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
