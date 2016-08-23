@@ -3,12 +3,13 @@
 from __python__ import bound_methods, hash_literals
 
 from book_list.globals import get_session_data, get_boss
-from dom import set_css
+from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
 from read_book.globals import messenger, iframe_id
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
+from book_list.theme import get_color
 from utils import parse_url_params, username_key
 
 LOADING_DOC = '''
@@ -29,6 +30,15 @@ __BS__
 </html>
 '''.replace('end_script', '<' + '/script>')  # cannot have a closing script tag as this is embedded inside a script tag in index.html
 
+
+add_extra_css(def():
+    sel = '.book-side-margin'
+    ans = build_rule(sel, cursor='pointer', color='rgba(0, 0, 0, 0)', text_align='center', height='100vh', user_select='none', display='flex', align_items='center', justify_content='center')
+    ans += build_rule(sel + ':hover', background_color=get_color('window-background'), color=get_color('window-foreground'))
+    ans += build_rule(sel + ':active > svg', color='red', transform='scale(2)')
+    return ans
+)
+
 class View:
 
     def __init__(self, container, ui):
@@ -39,13 +49,13 @@ class View:
             E.div(style='width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                   E.div(style='display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
                     E.div(style='flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
-                        E.div(style='width:{}px; height:100vh; cursor: pointer'.format(sd.get('margin_left', 20)), id='book-left-margin', onclick=self.left_margin_clicked),
+                        E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked),
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
                             E.div(style='height:{}px; width:100%; padding: 0'.format(sd.get('margin_top', 20)), id='book-top-margin', onclick=self.top_margin_clicked),
                             E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2'),
                             E.div(style='height:{}px; width:100%; padding: 0'.format(sd.get('margin_bottom', 20)), id='book-bottom-margin'),
                         ),
-                        E.div(style='width:{}px; height:100vh; cursor:pointer'.format(sd.get('margin_right', 20)), id='book-right-margin', onclick=self.right_margin_clicked),
+                        E.div(svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)), class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked),
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # overlay
                     )
                 )
@@ -112,8 +122,13 @@ class View:
             margin_right += extra
         set_css(document.getElementById('book-top-margin'), height=margin_top + 'px')
         set_css(document.getElementById('book-bottom-margin'), height=margin_bottom + 'px')
-        set_css(document.getElementById('book-left-margin'), width=margin_left + 'px')
-        set_css(document.getElementById('book-right-margin'), width=margin_right + 'px')
+        def side_margin(which, val):
+            m = document.getElementById('book-{}-margin'.format(which))
+            set_css(m, width=val + 'px')
+            val = min(val, 75)
+            m.firstChild.style.width = val + 'px'
+            m.firstChild.style.height = val + 'px'
+        side_margin('left', margin_left), side_margin('right', margin_right)
 
     def create_src_doc(self):
         iframe_script = self.ui.interface_data.main_js.replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
