@@ -204,7 +204,6 @@ public slots:
 
 signals:
   void itemActivated(int index);
-  void inputReceived();
   void currentChanged(int index);
   void stop(); //Emitted when the user presses the Esc key
 
@@ -219,5 +218,6 @@ protected:
 
 private:
   PictureFlowPrivate* d;
+  int last_device_pixel_ratio;
 };
 
