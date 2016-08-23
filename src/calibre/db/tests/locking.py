@@ -102,7 +102,7 @@ class TestLock(BaseTest):
             t.daemon = True
             t.start()
             self.assertRaises(LockingError, lock.release)
-            t.join(2)
+            t.join(4)
             self.assertFalse(t.is_alive())
         self.assertFalse(lock.is_shared)
         self.assertFalse(lock.is_exclusive)
