@@ -158,11 +158,16 @@ def clone(style):
 
 class Style(object):
 
+    is_bidi = False
+
     def update(self, other):
         for prop in self.all_properties:
             nval = getattr(other, prop)
             if nval is not inherit:
                 setattr(self, prop, nval)
+
+    def apply_bidi(self):
+        self.is_bidi = True
 
     def convert_spacing(self):
         ans = {}
@@ -181,6 +186,13 @@ class Style(object):
             val = getattr(self, 'padding_%s' % x)
             if val is not inherit:
                 c['padding-%s' % x] = '%.3gpt' % val
+        if self.is_bidi:
+            for a in ('padding-%s', 'border-%s-style', 'border-%s-color', 'border-%s-width'):
+                l, r = c.get(a % 'left'), c.get(a % 'right')
+                if l is not None:
+                    c[a % 'right'] = l
+                if r is not None:
+                    c[a % 'left'] = r
         return c
 
 class RowStyle(Style):
@@ -266,7 +278,7 @@ class TableStyle(Style):
     all_properties = (
         'width', 'float', 'cell_padding_left', 'cell_padding_right', 'cell_padding_top',
         'cell_padding_bottom', 'margin_left', 'margin_right', 'background_color',
-        'spacing', 'indent', 'overrides', 'col_band_size', 'row_band_size', 'look',
+        'spacing', 'indent', 'overrides', 'col_band_size', 'row_band_size', 'look', 'bidi',
     ) + tuple(k % edge for edge in border_edges for k in border_props)
 
     def __init__(self, namespace, tblPr=None):
@@ -276,6 +288,7 @@ class TableStyle(Style):
                 setattr(self, p, inherit)
         else:
             self.overrides = inherit
+            self.bidi = binary_property(tblPr, 'bidiVisual', namespace.XPath, namespace.get)
             for x in ('width', 'float', 'padding', 'shd', 'justification', 'spacing', 'indent', 'borders', 'band_size', 'look'):
                 f = globals()['read_%s' % x]
                 f(tblPr, self, self.namespace.XPath, self.namespace.get)
@@ -399,6 +412,10 @@ class Table(object):
         self.handle_merged_cells()
         self.sub_tables = {x:Table(namespace, x, styles, para_map, is_sub_table=True) for x in self.namespace.XPath('./w:tr/w:tc/w:tbl')(tbl)}
 
+    @property
+    def bidi(self):
+        return self.table_style.bidi is True
+
     def override_allowed(self, name):
         'Check if the named override is allowed by the tblLook element'
         if name.endswith('Cell') or name == 'wholeTable':
@@ -460,6 +477,8 @@ class Table(object):
 
         for trPr in self.namespace.XPath('./w:trPr')(tr):
             rs.update(RowStyle(self.namespace, trPr))
+        if self.bidi:
+            rs.apply_bidi()
         self.style_map[tr] = rs
 
     def resolve_cell_style(self, tc, overrides, row, col, rows, cols_in_row):
@@ -507,6 +526,8 @@ class Table(object):
                     val = 'hidden'
                 setattr(cs, eprop, val)
 
+        if self.bidi:
+            cs.apply_bidi()
         self.style_map[tc] = cs
 
     def resolve_para_style(self, p, overrides):
@@ -582,6 +603,8 @@ class Table(object):
 
     def apply_markup(self, rmap, page, parent=None):
         table = TABLE('\n\t\t')
+        if self.bidi:
+            table.set('dir', 'rtl')
         self.table_style.page = page
         style_map = {}
         if parent is None:
