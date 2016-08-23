@@ -9,8 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 from collections import defaultdict, deque
 
-from PyQt5.Qt import (
-    QTextCursor, pyqtSlot, QTextBlockUserData, QTextLayout, QTimer)
+from PyQt5.Qt import QTextCursor, QTextBlockUserData, QTextLayout, QTimer
 
 from ..themes import highlight_to_char_format
 from calibre.gui2.tweak_book.widgets import BusyCursor
@@ -124,7 +123,6 @@ class SyntaxHighlighter(object):
             new_data = True
         return ud, new_data
 
-    @pyqtSlot(int, int, int)
     def reformat_blocks(self, position, removed, added):
         doc = self.doc
         if doc is None or self.ignore_requests or not hasattr(self, 'state_map'):
