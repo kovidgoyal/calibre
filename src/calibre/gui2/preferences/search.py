@@ -7,13 +7,11 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import QApplication
 
-from calibre.gui2.preferences import ConfigWidgetBase, test_widget, \
-        CommaSeparatedList, AbortCommit
+from calibre.gui2.preferences import ConfigWidgetBase, test_widget, CommaSeparatedList
 from calibre.gui2.preferences.search_ui import Ui_Form
 from calibre.gui2 import config, error_dialog, gprefs
 from calibre.utils.config import prefs
 from calibre.utils.icu import sort_key
-from calibre.library.caches import set_use_primary_find_in_search
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
@@ -102,12 +100,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.muc_changed = False
         self.opt_grouped_search_make_user_categories.lineEdit().editingFinished.connect(
                                                         self.muc_box_changed)
-        self.opt_case_sensitive.toggled.connect(self.case_sensitive_toggled)
-        self.case_sensitive_toggled()
-
-    def case_sensitive_toggled(self):
-        if self.opt_case_sensitive.isChecked():
-            self.opt_use_primary_find_in_search.setChecked(False)
 
     def set_similar_fields(self, initial=False):
         self.set_similar('similar_authors_search_key', initial=initial)
@@ -218,11 +210,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.gst_value.blockSignals(False)
 
     def commit(self):
-        if self.opt_case_sensitive.isChecked() and self.opt_use_primary_find_in_search.isChecked():
-            error_dialog(self, _('Incompatible options'), _(
-                'The option to have un-accented characters match accented characters has no effect'
-                ' if you also turn on case-sensitive searching. So only turn on one of those options'), show=True)
-            raise AbortCommit()
         if self.gst_changed:
             self.db.new_api.set_pref('grouped_search_terms', self.gst)
             self.db.field_metadata.add_grouped_search_terms(self.gst)
@@ -237,7 +224,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):
-        set_use_primary_find_in_search(prefs['use_primary_find_in_search'])
+        gui.current_db.new_api.clear_caches()  # Clear the search cache
         gui.set_highlight_only_button_icon()
         if self.muc_changed:
             gui.tags_view.recount()

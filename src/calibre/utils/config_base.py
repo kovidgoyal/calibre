@@ -440,7 +440,8 @@ def create_global_prefs(conf_obj=None):
                    'libraries. Note that this option will have no effect if you turn '
                    'on case-sensitive searching')%u'\xf1')
     c.add_opt('case_sensitive', default=False, help=_(
-        'Make searches case-sensitive'))
+        'Make searches case-sensitive. Note that turning on case-sensitive searches disables matching of '
+        'accented characters by their unaccented versions.'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
