@@ -196,7 +196,7 @@ class FileList(QTreeWidget):
         self.emblem_cache = {}
         self.rendered_emblem_cache = {}
         self.top_level_pixmap_cache = {
-            name : QPixmap(I(icon)).scaled(TOP_ICON_SIZE, TOP_ICON_SIZE, transformMode=Qt.SmoothTransformation)
+            name : QIcon(I(icon)).pixmap(TOP_ICON_SIZE, TOP_ICON_SIZE)
             for name, icon in {
                 'text':'keyboard-prefs.png',
                 'styles':'lookfeel.png',
@@ -336,8 +336,7 @@ class FileList(QTreeWidget):
                 for emblem in emblems:
                     pm = self.emblem_cache.get(emblem, None)
                     if pm is None:
-                        pm = self.emblem_cache[emblem] = QPixmap(
-                            I(emblem)).scaled(self.iconSize(), transformMode=Qt.SmoothTransformation)
+                        pm = self.emblem_cache[emblem] = QIcon(I(emblem)).pixmap(self.iconSize())
                     pixmaps.append(pm)
                 num = len(pixmaps)
                 w, h = pixmaps[0].width(), pixmaps[0].height()
