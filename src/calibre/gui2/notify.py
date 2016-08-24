@@ -26,7 +26,7 @@ class Notifier(object):
 
 class DBUSNotifier(Notifier):
 
-    ICON = I('notify.png')
+    ICON = I('lt.png')
 
     def __init__(self, server, path, interface):
         self.ok, self.err = True, None
@@ -176,7 +176,7 @@ if __name__ == '__main__':
     '''
     from PyQt5.Qt import QApplication, QSystemTrayIcon, QIcon
     app = QApplication([])
-    ic = QIcon(I('notify.png'))
+    ic = QIcon(I('lt.png'))
     tray = QSystemTrayIcon(ic)
     tray.setVisible(True)
     n = QtNotifier(tray)
