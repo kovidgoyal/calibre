@@ -243,13 +243,15 @@ class ImageDropMixin(object):  # {{{
                 d.start_download()
                 if d.err is None:
                     pmap = QPixmap()
-                    pmap.loadFromData(open(d.fpath, 'rb').read())
+                    with lopen(d.fpath, 'rb') as f:
+                        data = f.read()
+                    pmap.loadFromData(data)
                     if not pmap.isNull():
-                        self.handle_image_drop(pmap)
+                        self.handle_image_drop(pmap, data=data)
 
-    def handle_image_drop(self, pmap):
+    def handle_image_drop(self, pmap, data=None):
         self.set_pixmap(pmap)
-        self.cover_changed.emit(pixmap_to_data(pmap, quality=100))
+        self.cover_changed.emit(data or pixmap_to_data(pmap, format='PNG'))
 
     def dragMoveEvent(self, event):
         event.acceptProposedAction()
@@ -284,7 +286,7 @@ class ImageDropMixin(object):  # {{{
         if not pmap.isNull():
             self.set_pixmap(pmap)
             self.cover_changed.emit(
-                    pixmap_to_data(pmap, quality=100))
+                    pixmap_to_data(pmap, format='PNG'))
 # }}}
 
 class ImageView(QWidget, ImageDropMixin):  # {{{
