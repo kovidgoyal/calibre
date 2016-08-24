@@ -289,8 +289,10 @@ class CoverView(QWidget):  # {{{
         target = QRect(x, y, width, height)
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
-        p.drawPixmap(target, self.pixmap.scaled(target.size(),
-            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        dpr = self.devicePixelRatio()
+        spmap = self.pixmap.scaled(target.size() * dpr, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        spmap.setDevicePixelRatio(dpr)
+        p.drawPixmap(target, spmap)
         if gprefs['bd_overlay_cover_size']:
             sztgt = target.adjusted(0, 0, 0, -4)
             f = p.font()
