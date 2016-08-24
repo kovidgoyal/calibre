@@ -437,7 +437,10 @@ def create_global_prefs(conf_obj=None):
                    u' English, searching for n will match %s and n, but if '
                    'your language is Spanish it will only match n. Note that '
                    'this is much slower than a simple search on very large '
-                   'libraries.')%u'\xf1')
+                   'libraries. Note that this option will have no effect if you turn '
+                   'on case-sensitive searching')%u'\xf1')
+    c.add_opt('case_sensitive', default=False, help=_(
+        'Make searches case-sensitive'))
 
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
