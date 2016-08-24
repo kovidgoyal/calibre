@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import unicodedata
+import unicodedata, math
 from functools import partial
 
 from PyQt5.Qt import (
@@ -28,7 +28,7 @@ from calibre.utils.icu import utf16_length
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     if isinstance(fill, basestring):
         fill = QColor(fill)
-    sz = sz or tprefs['toolbar_icon_size']
+    sz = sz or int(math.ceil(tprefs['toolbar_icon_size'] * QApplication.instance().devicePixelRatio()))
     if palette is None:
         palette = QApplication.palette()
     img = QImage(sz, sz, QImage.Format_ARGB32)
