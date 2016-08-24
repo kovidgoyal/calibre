@@ -81,6 +81,8 @@ class RichTextDelegate(QStyledItemDelegate):  # {{{
 
 class CoverDelegate(QStyledItemDelegate):  # {{{
 
+    ICON_SIZE = 150, 200
+
     needs_redraw = pyqtSignal()
 
     def __init__(self, parent):
@@ -633,8 +635,9 @@ class CoversModel(QAbstractListModel):  # {{{
 
         if current_cover is None:
             current_cover = QPixmap(I('default_cover.png'))
+        current_cover.setDevicePixelRatio(QApplication.instance().devicePixelRatio())
 
-        self.blank = QPixmap(I('blank.png')).scaled(150, 200)
+        self.blank = QPixmap(I('blank.png')).scaled(*CoverDelegate.ICON_SIZE)
         self.cc = current_cover
         self.reset_covers(do_reset=False)
 
@@ -652,8 +655,10 @@ class CoversModel(QAbstractListModel):  # {{{
     def get_item(self, src, pmap, waiting=False):
         sz = '%dx%d'%(pmap.width(), pmap.height())
         text = (src + '\n' + sz)
-        scaled = pmap.scaled(150, 200, Qt.IgnoreAspectRatio,
-                Qt.SmoothTransformation)
+        scaled = pmap.scaled(
+            int(CoverDelegate.ICON_SIZE[0] * pmap.devicePixelRatio()), int(CoverDelegate.ICON_SIZE[1] * pmap.devicePixelRatio()),
+            Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        scaled.setDevicePixelRatio(pmap.devicePixelRatio())
         return (text, (scaled), pmap, waiting)
 
     def rowCount(self, parent=None):
@@ -715,6 +720,12 @@ class CoversModel(QAbstractListModel):  # {{{
                 return self.index(r)
         return self.index(0)
 
+    def load_pixmap(self, data):
+        pmap = QPixmap()
+        pmap.loadFromData(data)
+        pmap.setDevicePixelRatio(QApplication.instance().devicePixelRatio())
+        return pmap
+
     def update_result(self, plugin_name, width, height, data):
         if plugin_name.endswith('}'):
             # multi cover plugin
@@ -724,8 +735,7 @@ class CoversModel(QAbstractListModel):  # {{{
                 return
             plugin = plugin[0]
             last_row = max(self.plugin_map[plugin])
-            pmap = QPixmap()
-            pmap.loadFromData(data)
+            pmap = self.load_pixmap(data)
             if pmap.isNull():
                 return
             self.beginInsertRows(QModelIndex(), last_row, last_row)
@@ -745,8 +755,7 @@ class CoversModel(QAbstractListModel):  # {{{
                     break
             if idx is None:
                 return
-            pmap = QPixmap()
-            pmap.loadFromData(data)
+            pmap = self.load_pixmap(data)
             if pmap.isNull():
                 return
             self.covers[idx] = self.get_item(plugin_name, pmap, waiting=False)
@@ -774,7 +783,7 @@ class CoversView(QListView):  # {{{
         self.setWrapping(True)
         self.setResizeMode(self.Adjust)
         self.setGridSize(QSize(190, 260))
-        self.setIconSize(QSize(150, 200))
+        self.setIconSize(QSize(*CoverDelegate.ICON_SIZE))
         self.setSelectionMode(self.SingleSelection)
         self.setViewMode(self.IconMode)
 

@@ -12,14 +12,26 @@ from threading import Thread
 from glob import glob
 
 import sip
-from PyQt5.Qt import (QDialog, QApplication, QLabel, QGridLayout,
-                      QDialogButtonBox, Qt, pyqtSignal, QListWidget,
-                      QListWidgetItem, QSize, QIcon)
+from PyQt5.Qt import (
+    QDialog, QApplication, QLabel, QGridLayout, QDialogButtonBox, Qt,
+    pyqtSignal, QListWidget, QListWidgetItem, QSize, QPixmap, QStyledItemDelegate
+)
 
 from calibre import as_unicode
 from calibre.ebooks.metadata.pdf import page_images
 from calibre.gui2 import error_dialog, file_icon_provider
 from calibre.ptempfile import PersistentTemporaryDirectory
+
+
+class CoverDelegate(QStyledItemDelegate):
+
+    def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, index)
+        style = QApplication.style()
+        # Ensure the cover is rendered over any selection rect
+        style.drawItemPixmap(painter, option.rect, Qt.AlignTop|Qt.AlignHCenter,
+            QPixmap(index.data(Qt.DecorationRole)))
+
 
 class PDFCovers(QDialog):
     'Choose a cover from the first few pages of a PDF'
@@ -39,6 +51,8 @@ class PDFCovers(QDialog):
 
         self.covers = c = QListWidget(self)
         l.addWidget(c)
+        self.item_delegate = CoverDelegate(self)
+        c.setItemDelegate(self.item_delegate)
         c.setIconSize(QSize(120, 160))
         c.setSelectionMode(c.SingleSelection)
         c.setViewMode(c.IconMode)
@@ -96,8 +110,11 @@ class PDFCovers(QDialog):
             self.reject()
             return
 
-        for f in sorted(files):
-            i = QListWidgetItem(QIcon(f), '')
+        for i, f in enumerate(sorted(files)):
+            p = QPixmap(f).scaled(self.covers.iconSize()*self.devicePixelRatio(), aspectRatioMode=Qt.IgnoreAspectRatio, transformMode=Qt.SmoothTransformation)
+            p.setDevicePixelRatio(self.devicePixelRatio())
+            i = QListWidgetItem(_('page %d') % (i + 1))
+            i.setData(Qt.DecorationRole, p)
             i.setData(Qt.UserRole, f)
             self.covers.addItem(i)
 
@@ -107,4 +124,3 @@ if __name__ == '__main__':
     d = PDFCovers(sys.argv[-1])
     d.exec_()
     print (d.cover_path)
-
