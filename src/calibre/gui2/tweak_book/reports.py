@@ -373,25 +373,28 @@ class ImagesDelegate(QStyledItemDelegate):
         k = (th, entry.name)
         pmap = self.cache.get(k)
         if pmap is None:
-            pmap = self.cache[k] = self.pixmap(th, entry)
+            pmap = self.cache[k] = self.pixmap(th, entry, painter.device().devicePixelRatio())
         if pmap.isNull():
             bottom = option.rect.top()
         else:
             m = 2 * self.MARGIN
-            x = option.rect.left() + (option.rect.width() - m - pmap.width()) // 2
+            x = option.rect.left() + (option.rect.width() - m - int(pmap.width()/pmap.devicePixelRatio())) // 2
             painter.drawPixmap(x, option.rect.top() + self.MARGIN, pmap)
-            bottom = m + pmap.height() + option.rect.top()
+            bottom = m + int(pmap.height() / pmap.devicePixelRatio()) + option.rect.top()
         rect = QRect(option.rect.left(), bottom, option.rect.width(), option.rect.bottom() - bottom)
         if option.state & QStyle.State_Selected:
             painter.setPen(self.parent().palette().color(QPalette.HighlightedText))
         painter.drawText(rect, Qt.AlignHCenter | Qt.AlignVCenter, entry.basename)
         painter.restore()
 
-    def pixmap(self, thumbnail_height, entry):
+    def pixmap(self, thumbnail_height, entry, dpr):
         pmap = QPixmap(current_container().name_to_abspath(entry.name)) if entry.width > 0 and entry.height > 0 else QPixmap()
-        scaled, width, height = fit_image(entry.width, entry.height, thumbnail_height, thumbnail_height)
-        if scaled and not pmap.isNull():
-            pmap = pmap.scaled(width, height, transformMode=Qt.SmoothTransformation)
+        if not pmap.isNull():
+            pmap.setDevicePixelRatio(dpr)
+            scaled, width, height = fit_image(entry.width, entry.height, thumbnail_height, thumbnail_height)
+            if scaled:
+                pmap = pmap.scaled(int(dpr * width), int(dpr * height), transformMode=Qt.SmoothTransformation)
+                pmap.setDevicePixelRatio(dpr)
         return pmap
 
 

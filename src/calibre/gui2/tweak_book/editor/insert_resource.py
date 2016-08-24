@@ -108,11 +108,13 @@ class ImageDelegate(QStyledItemDelegate):
             except:
                 pass
             else:
+                dpr = painter.device().devicePixelRatio()
                 cover.loadFromData(raw)
+                cover.setDevicePixelRatio(dpr)
                 if not cover.isNull():
                     scaled, width, height = fit_image(cover.width(), cover.height(), self.cover_size.width(), self.cover_size.height())
                     if scaled:
-                        cover = self.cover_cache[name] = cover.scaled(width, height, transformMode=Qt.SmoothTransformation)
+                        cover = self.cover_cache[name] = cover.scaled(int(dpr*width), int(dpr*height), transformMode=Qt.SmoothTransformation)
 
         painter.save()
         try:
@@ -121,8 +123,8 @@ class ImageDelegate(QStyledItemDelegate):
             trect = QRect(rect)
             rect.setBottom(rect.bottom() - self.title_height)
             if not cover.isNull():
-                dx = max(0, int((rect.width() - cover.width())/2.0))
-                dy = max(0, rect.height() - cover.height())
+                dx = max(0, int((rect.width() - int(cover.width()/cover.devicePixelRatio()))/2.0))
+                dy = max(0, rect.height() - int(cover.height()/cover.devicePixelRatio()))
                 rect.adjust(dx, dy, -dx, 0)
                 painter.drawPixmap(rect, cover)
             rect = trect
@@ -455,7 +457,5 @@ if __name__ == '__main__':
     from calibre.gui2.tweak_book.boss import get_container
     set_current_container(get_container(sys.argv[-1]))
 
-    d = ChooseFolder()
-    if d.exec_() == d.Accepted:
-        print (repr(d.chosen_folder))
-
+    d = InsertImage(for_browsing=True)
+    d.exec_()
