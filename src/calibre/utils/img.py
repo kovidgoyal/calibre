@@ -481,8 +481,9 @@ def test():  # {{{
     from calibre.ptempfile import TemporaryDirectory
     from calibre import CurrentDir
     from glob import glob
+    img = image_from_data(I('lt.png', data=True, allow_user_override=False))
     with TemporaryDirectory() as tdir, CurrentDir(tdir):
-        shutil.copyfile(I('devices/kindle.jpg', allow_user_override=False), 'test.jpg')
+        save_image(img, 'test.jpg')
         ret = optimize_jpeg('test.jpg')
         if ret is not None:
             raise SystemExit('optimize_jpeg failed: %s' % ret)
@@ -495,7 +496,6 @@ def test():  # {{{
             raise SystemExit('optimize_png failed: %s' % ret)
         if glob('*.bak'):
             raise SystemExit('Spurious .bak files left behind')
-    img = image_from_data(I('devices/kindle.jpg', data=True, allow_user_override=False))
     quantize_image(img)
     oil_paint_image(img)
     gaussian_sharpen_image(img)

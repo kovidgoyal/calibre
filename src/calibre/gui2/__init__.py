@@ -874,6 +874,7 @@ class Application(QApplication):
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         self.pi = plugins['progress_indicator'][0]
         QApplication.__init__(self, qargs)
+        self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         if not iswindows:
             self.setup_unix_signals()
         if islinux or isbsd:

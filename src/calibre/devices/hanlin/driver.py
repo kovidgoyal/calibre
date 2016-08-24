@@ -117,7 +117,7 @@ class BOOX(HANLINV3):
     supported_platforms = ['windows', 'osx', 'linux']
     METADATA_CACHE = '.metadata.calibre'
     DRIVEINFO = '.driveinfo.calibre'
-    icon           = I('devices/boox.jpg')
+    icon           = I('devices/boox.png')
 
     # Ordered list of supported formats
     FORMATS     = ['epub', 'fb2', 'djvu', 'pdf', 'html', 'txt', 'rtf', 'mobi',
