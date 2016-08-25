@@ -239,7 +239,9 @@ class Background(QWidget):  # {{{
             from calibre.gui2.preferences.texture_chooser import texture_path
             path = texture_path(self.btex)
             if path:
-                self.brush.setTexture(QPixmap(path))
+                p = QPixmap(path)
+                p.setDevicePixelRatio(self.devicePixelRatio())
+                self.brush.setTexture(p)
         self.update()
 
     def sizeHint(self):

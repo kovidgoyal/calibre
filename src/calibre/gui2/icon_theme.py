@@ -497,7 +497,7 @@ class Delegate(QStyledItemDelegate):
         pixmap = index.data(Qt.DecorationRole)
         if pixmap and not pixmap.isNull():
             rect = option.rect.adjusted(0, self.SPACING, COVER_SIZE[0] - option.rect.width(), - self.SPACING)
-            painter.drawPixmap(rect, pixmap, pixmap.rect())
+            painter.drawPixmap(rect, pixmap)
         if option.state & QStyle.State_Selected:
             painter.setPen(QPen(QApplication.instance().palette().highlightedText().color()))
         bottom = option.rect.bottom() - 2
@@ -690,6 +690,7 @@ class ChooseTheme(Dialog):
         theme['cover-pixmap'] = p = QPixmap()
         if isinstance(cdata, bytes):
             p.loadFromData(cdata)
+            p.setDevicePixelRatio(self.devicePixelRatio())
         item = self.item_from_name(theme['name'])
         if item is not None:
             item.setData(Qt.DecorationRole, p)
