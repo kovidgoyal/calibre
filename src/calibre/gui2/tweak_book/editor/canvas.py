@@ -595,14 +595,17 @@ class Canvas(QWidget):
             i = self.current_image
             width, height = i.width(), i.height()
             scaled, width, height = fit_image(width, height, pwidth, pheight)
+            dpr = self.devicePixelRatio()
             if scaled:
-                i = self.current_image.scaled(width, height, transformMode=Qt.SmoothTransformation)
+                i = self.current_image.scaled(int(dpr * width), int(dpr * height), transformMode=Qt.SmoothTransformation)
             self.current_scaled_pixmap = QPixmap.fromImage(i)
+            self.current_scaled_pixmap.setDevicePixelRatio(dpr)
 
     @painter
     def draw_pixmap(self, painter):
         p = self.current_scaled_pixmap
-        width, height = p.width(), p.height()
+        dpr = self.devicePixelRatio()
+        width, height = int(p.width()/dpr), int(p.height()/dpr)
         pwidth, pheight = self.last_canvas_size
         x = int(abs(pwidth - width)/2.)
         y = int(abs(pheight - height)/2.)
