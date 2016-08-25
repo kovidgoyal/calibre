@@ -204,9 +204,9 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.buffer_size = buffer
         self.metadata_backup = None
         icon_height = (parent.fontMetrics() if hasattr(parent, 'fontMetrics') else QApplication.instance().fontMetrics()).lineSpacing()
-        self.bool_yes_icon = QPixmap(I('ok.png')).scaledToHeight(icon_height, Qt.SmoothTransformation)
-        self.bool_no_icon = QPixmap(I('list_remove.png')).scaledToHeight(icon_height, Qt.SmoothTransformation)
-        self.bool_blank_icon = QPixmap(I('blank.png')).scaledToHeight(icon_height, Qt.SmoothTransformation)
+        self.bool_yes_icon = QIcon(I('ok.png')).pixmap(icon_height)
+        self.bool_no_icon = QIcon(I('list_remove.png')).pixmap(icon_height)
+        self.bool_blank_icon = QIcon(I('blank.png')).pixmap(icon_height)
         # Qt auto-scales marked icon correctly, so we dont need to do it (and
         # remember that the cover grid view needs a larger version of the icon,
         # anyway)
