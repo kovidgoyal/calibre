@@ -96,7 +96,6 @@ class TouchHandler:
     def prune_expired_touches(self):
         now = window.performance.now()
         expired = v'[]'
-        ans = False
         for tid in self.ongoing_touches:
             t = self.ongoing_touches[tid]
             if t.active:
