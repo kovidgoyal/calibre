@@ -152,7 +152,7 @@ def default_cover_icons(cols=5):
         del extra[0]
         count += 1
 
-def create_cover(report, icons=(), cols=5, size=60, padding=8):
+def create_cover(report, icons=(), cols=5, size=120, padding=16):
     icons = icons or tuple(default_cover_icons(cols))
     rows = int(math.ceil(len(icons) / cols))
     with Canvas(cols * (size + padding), rows * (size + padding), bgcolor='#eee') as canvas:
