@@ -22,6 +22,9 @@ class LinkedImageNotFound(ValueError):
         ValueError.__init__(self, fname)
         self.fname = fname
 
+def image_filename(x):
+    return ascii_filename(x).replace(' ', '_').replace('#', '_')
+
 def emu_to_pt(x):
     return x / 12700
 
@@ -126,7 +129,7 @@ class Images(object):
                 raw = rawsrc.read()
         else:
             raw = self.docx.read(fname)
-        base = base or ascii_filename(fname.rpartition('/')[-1]).replace(' ', '_') or 'image'
+        base = base or image_filename(fname.rpartition('/')[-1]) or 'image'
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
         if ext == 'emf':
             # For an example, see: https://bugs.launchpad.net/bugs/1224849
@@ -201,7 +204,7 @@ class Images(object):
         for pr in XPath('descendant::pic:cNvPr')(pic):
             name = pr.get('name', None)
             if name:
-                name = ascii_filename(name).replace(' ', '_')
+                name = image_filename(name)
             alt = pr.get('descr', None)
             for a in XPath('descendant::a:blip[@r:embed or @r:link]')(pic):
                 rid = get(a, 'r:embed')
