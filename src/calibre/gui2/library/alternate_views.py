@@ -19,7 +19,7 @@ from PyQt5.Qt import (
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen,
-    qBlue, QItemSelectionModel)
+    qBlue, QItemSelectionModel, QIcon)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir
@@ -420,11 +420,11 @@ class CoverDelegate(QStyledItemDelegate):
         if raw_icon is not None:
             ans = raw_icon.pixmap(sz, sz)
         elif name == ':ondevice':
-            ans = QPixmap(I('ok.png')).scaled(sz, sz, transformMode=Qt.SmoothTransformation)
+            ans = QIcon(I('ok.png')).scaled(sz, sz)
         elif name:
-            pmap = QPixmap(os.path.join(config_dir, 'cc_icons', name))
+            pmap = QIcon(os.path.join(config_dir, 'cc_icons', name)).pixmap(sz, sz)
             if not pmap.isNull():
-                ans = pmap.scaled(sz, sz)
+                ans = pmap
         cache[name] = ans
         return ans
 
@@ -513,7 +513,7 @@ class CoverDelegate(QStyledItemDelegate):
                 try:
                     p = self.on_device_emblem
                 except AttributeError:
-                    p = self.on_device_emblem = QPixmap(I('ok.png')).scaled(48, 48, transformMode=Qt.SmoothTransformation)
+                    p = self.on_device_emblem = QIcon(I('ok.png')).pixmap(48, 48)
                 self.paint_embossed_emblem(p, painter, orect, right_adjust, left=False)
         finally:
             painter.restore()
@@ -542,21 +542,23 @@ class CoverDelegate(QStyledItemDelegate):
                 delta = 0 if i == 0 else self.emblem_size + self.MARGIN
                 grect.moveLeft(grect.left() + delta) if horizontal else grect.moveTop(grect.top() + delta)
                 rect = QRect(grect)
-                rect.setWidth(emblem.width()), rect.setHeight(emblem.height())
+                rect.setWidth(int(emblem.width() / emblem.devicePixelRatio())), rect.setHeight(int(emblem.height() / emblem.devicePixelRatio()))
                 painter.drawPixmap(rect, emblem)
         finally:
             painter.restore()
 
     def paint_embossed_emblem(self, pixmap, painter, orect, right_adjust, left=True):
         drect = QRect(orect)
+        pw = int(pixmap.width() / pixmap.devicePixelRatio())
+        ph = int(pixmap.height() / pixmap.devicePixelRatio())
         if left:
             drect.setLeft(drect.left() + right_adjust)
-            drect.setRight(drect.left() + pixmap.width())
+            drect.setRight(drect.left() + pw)
         else:
             drect.setRight(drect.right() - right_adjust)
-            drect.setLeft(drect.right() - pixmap.width() + 1)
+            drect.setLeft(drect.right() - pw + 1)
         drect.setBottom(drect.bottom() - self.title_height)
-        drect.setTop(drect.bottom() - pixmap.height())
+        drect.setTop(drect.bottom() - ph)
         painter.drawPixmap(drect, pixmap)
 
     @pyqtSlot(QHelpEvent, QAbstractItemView, QStyleOptionViewItem, QModelIndex, result=bool)
