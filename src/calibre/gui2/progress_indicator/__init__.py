@@ -8,7 +8,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 import math
 from PyQt5.Qt import (
     Qt, QWidget, QSizePolicy, QSize, QRect, QConicalGradient, QPen, QBrush,
-    QPainter, QTimer, QVBoxLayout, QLabel, QStackedWidget
+    QPainter, QTimer, QVBoxLayout, QLabel, QStackedWidget, QDialog
 )
 
 def draw_snake_spinner(painter, rect, angle, light, dark):
@@ -154,8 +154,12 @@ class WaitStack(QStackedWidget):
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
-    w = ProgressSpinner()
-    w.show()
+    d = QDialog()
+    d.resize(100, 100)
+    w = ProgressSpinner(d)
+    l = QVBoxLayout(d)
+    l.addWidget(w)
     w.start()
-    app.exec_()
+    d.exec_()
+    del d
     del app
