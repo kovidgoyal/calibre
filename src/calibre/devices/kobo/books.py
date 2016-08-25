@@ -80,6 +80,10 @@ class ImageWrapper(object):
 
 class KTCollectionsBookList(CollectionsBookList):
 
+    def __init__(self, oncard, prefix, settings):
+        super(KTCollectionsBookList, self).__init__(oncard, prefix, settings)
+        self.set_device_managed_collections([])
+
     def get_collections(self, collection_attributes):
         debug_print("KTCollectionsBookList:get_collections - start - collection_attributes=", collection_attributes)
 
@@ -126,6 +130,16 @@ class KTCollectionsBookList(CollectionsBookList):
                 # For existing books, modify the collections only if the user
                 # specified 'on_connect'
                 attrs = collection_attributes
+                for cat_name in self.device_managed_collections:
+                    if cat_name in book.device_collections:
+                        if cat_name not in collections:
+                            collections[cat_name] = {}
+                            if show_debug:
+                                debug_print("KTCollectionsBookList:get_collections - Device Managed Collection:", cat_name)
+                        if lpath not in collections[cat_name]:
+                            collections[cat_name][lpath] = (book, tsval, tsval)
+                            if show_debug:
+                                debug_print("KTCollectionsBookList:get_collections - Device Managed Collection -added book to cat_name", cat_name)
                 book.device_collections = []
             if show_debug:
                 debug_print("KTCollectionsBookList:get_collections - attrs=", attrs)
@@ -255,8 +269,12 @@ class KTCollectionsBookList(CollectionsBookList):
             books = lpaths.values()
             books.sort(cmp=none_cmp)
             result[category] = [x[0] for x in books]
+        # debug_print("KTCollectionsBookList:get_collections - result=", result.keys())
         debug_print("KTCollectionsBookList:get_collections - end")
         return result
+
+    def set_device_managed_collections(self, collection_names):
+        self.device_managed_collections = collection_names
 
     def set_debugging_title(self, title):
         self.debugging_title = title
