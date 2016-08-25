@@ -486,8 +486,10 @@ class CoverDelegate(QStyledItemDelegate):
                     rect.setBottom(rect.bottom() - self.title_height)
                 if self.animating is not None and self.animating.row() == index.row():
                     cdata = cdata.scaled(cdata.size() * self._animated_size)
-                dx = max(0, int((rect.width() - cdata.width())/2.0))
-                dy = max(0, rect.height() - cdata.height())
+                dpr = cdata.devicePixelRatio()
+                cw, ch = int(cdata.width() / dpr), int(cdata.height() / dpr)
+                dx = max(0, int((rect.width() - cw)/2.0))
+                dy = max(0, rect.height() - ch)
                 right_adjust = dx
                 rect.adjust(dx, dy, -dx, 0)
                 painter.drawPixmap(rect, cdata)
@@ -625,8 +627,9 @@ class GridView(QListView):
         self.padding_left = 0
         self.set_color()
         self.ignore_render_requests = Event()
+        dpr = self.devicePixelRatio()
         self.thumbnail_cache = ThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'],
-            thumbnail_size=(self.delegate.cover_size.width(), self.delegate.cover_size.height()))
+            thumbnail_size=(int(dpr * self.delegate.cover_size.width()), int(dpr * self.delegate.cover_size.height())))
         self.render_thread = None
         self.update_item.connect(self.re_render, type=Qt.QueuedConnection)
         self.doubleClicked.connect(self.double_clicked)
@@ -725,7 +728,8 @@ class GridView(QListView):
             self.setSpacing(self.delegate.spacing)
         self.set_color()
         if size_changed:
-            self.thumbnail_cache.set_thumbnail_size(self.delegate.cover_size.width(), self.delegate.cover_size.height())
+            dpr = self.devicePixelRatio()
+            self.thumbnail_cache.set_thumbnail_size(int(dpr * self.delegate.cover_size.width()), int(dpr*self.delegate.cover_size.height()))
         cs = gprefs['cover_grid_disk_cache_size']
         if (cs*(1024**2)) != self.thumbnail_cache.max_size:
             self.thumbnail_cache.set_size(cs)
@@ -789,6 +793,8 @@ class GridView(QListView):
         if has_cover:
             p = QImage()
             p.loadFromData(cdata, CACHE_FORMAT if cdata is tcdata else 'JPEG')
+            dpr = self.devicePixelRatio()
+            p.setDevicePixelRatio(dpr)
             if p.isNull() and cdata is tcdata:
                 # Invalid image in cache
                 self.thumbnail_cache.invalidate((book_id,))
@@ -798,11 +804,13 @@ class GridView(QListView):
             if not use_cache:  # cache is stale
                 if cdata is not None:
                     width, height = p.width(), p.height()
-                    scaled, nwidth, nheight = fit_image(width, height, self.delegate.cover_size.width(), self.delegate.cover_size.height())
+                    scaled, nwidth, nheight = fit_image(
+                        width, height, int(dpr * self.delegate.cover_size.width()), int(dpr * self.delegate.cover_size.height()))
                     if scaled:
                         if self.ignore_render_requests.is_set():
                             return
                         p = p.scaled(nwidth, nheight, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                        p.setDevicePixelRatio(dpr)
                     cdata = p
                 # update cache
                 if cdata is None:
