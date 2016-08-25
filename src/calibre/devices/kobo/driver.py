@@ -63,11 +63,11 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 3, 0)
+    version = (2, 3, 1)
 
     dbversion = 0
     fwversion = (0,0,0)
-    supported_dbversion = 125
+    supported_dbversion = 128
     has_kepubs = False
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -1305,11 +1305,11 @@ class KOBOTOUCH(KOBO):
     name        = 'KoboTouch'
     gui_name    = 'Kobo Touch/Glo/Mini/Aura HD/Aura H2O/Glo HD/Touch 2'
     author      = 'David Forrester'
-    description = 'Communicate with the Kobo Touch, Glo, Mini, Aura HD, Aura H2O, Glo HD and Touch 2ereaders. Based on the existing Kobo driver by %s.' % (
+    description = 'Communicate with the Kobo Touch, Glo, Mini, Aura HD, Aura H2O, Glo HD and Touch 2 ereaders. Based on the existing Kobo driver by %s.' % (
         KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 125
+    supported_dbversion             = 128
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1327,6 +1327,7 @@ class KOBOTOUCH(KOBO):
     min_aurah2o_fwversion           = (3, 7, 0)
     min_reviews_fwversion           = (3, 12, 0)
     min_glohd_fwversion             = (3, 14, 0)
+    min_auraone_fwversion           = (3, 20, 7280)
 
     has_kepubs = True
 
@@ -1346,8 +1347,10 @@ class KOBOTOUCH(KOBO):
     TIMESTAMP_STRING = "%Y-%m-%dT%H:%M:%SZ"
 
     AURA_PRODUCT_ID     = [0x4203]
+    AURA_EDITION2_PRODUCT_ID    = [0x4226]
     AURA_HD_PRODUCT_ID  = [0x4193]
     AURA_H2O_PRODUCT_ID = [0x4213]
+    AURA_ONE_PRODUCT_ID = [0x4225]
     GLO_PRODUCT_ID      = [0x4173]
     GLO_HD_PRODUCT_ID   = [0x4223]
     MINI_PRODUCT_ID     = [0x4183]
@@ -1355,7 +1358,8 @@ class KOBOTOUCH(KOBO):
     TOUCH2_PRODUCT_ID   = [0x4224]
     PRODUCT_ID          = AURA_PRODUCT_ID + AURA_HD_PRODUCT_ID + AURA_H2O_PRODUCT_ID + \
                           GLO_PRODUCT_ID + GLO_HD_PRODUCT_ID + \
-                          MINI_PRODUCT_ID + TOUCH_PRODUCT_ID +TOUCH2_PRODUCT_ID
+                          MINI_PRODUCT_ID + TOUCH_PRODUCT_ID + TOUCH2_PRODUCT_ID + \
+                          AURA_ONE_PRODUCT_ID + AURA_EDITION2_PRODUCT_ID
 
     BCD = [0x0110, 0x0326]
 
@@ -1363,27 +1367,45 @@ class KOBOTOUCH(KOBO):
     # Note: "200" has been used just as a much larger number than the current versions. It is just a lazy
     #    way of making it open ended.
     COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
                           ' - N3_FULL.parsed':[(600,800),0, 200,True,],            # Used for screensaver, home screen
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,473),0, 200,False,],
+                          # Used for library lists
                           ' - N3_LIBRARY_GRID.parsed':[(149,198),0, 200,False,],   # Used for library lists
+                          # Used for library lists
                           ' - N3_LIBRARY_LIST.parsed':[(60,90),0, 53,False,],
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 100,False,],   # Used for Details screen from FW2.8.1
-#                          ' - N3_LIBRARY_SHELF.parsed': [(40,60),0, 52,],
+                          # Used for Details screen from FW2.8.1
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,473), 82, 100,False,],
                           }
-    GLO_COVER_FILE_ENDINGS = {      # Glo and Aura share resolution, so the image sizes should be the same.
-                          ' - N3_FULL.parsed':[(758,1024),0, 200,True,],           # Used for screensaver, home screen
+    # Glo and Aura share resolution, so the image sizes should be the same.
+    GLO_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':[(758,1024),0, 200,True,],
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,479),0, 200,False,],
-                          ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 200,False,],   # Used for library lists
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 100,False,],   # Used for Details screen from FW2.8.1
+                          # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':[(149,201),0, 200,False,],   
+                          # Used for Details screen from FW2.8.1
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,479), 88, 100,False,],   
                           }
     AURA_HD_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
                           ' - N3_FULL.parsed':        [(1080,1440), 0, 200,True,],  # Used for screensaver, home screen
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,  471), 0, 200,False,],
+                          # Used for library lists
                           ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
-                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],   # Used for Details screen from FW2.8.1
+                          # Used for Details screen from FW2.8.1
+                          ' - AndroidBookLoadTablet_Aspect.parsed':[(355,  471), 88, 100,False,],
+                          }
+    AURA_ONE_COVER_FILE_ENDINGS = {
+                          # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':        [(1872,1404), 0, 200,True,],  # Used for screensaver, home screen
+                          # Used for Details screen before FW2.8.1, then for current book tile on home screen
+                          ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
+                          # Used for library lists
+                          ' - N3_LIBRARY_GRID.parsed':[(149,  198), 0, 200,False,],  # Used for library lists
                           }
     # Following are the sizes used with pre2.1.4 firmware
 #    COVER_FILE_ENDINGS = {
@@ -2187,12 +2209,14 @@ class KOBOTOUCH(KOBO):
             }
 #        debug_print('KoboTouch:update_device_database_collections - collections_attributes=', collections_attributes)
 
-        create_bookshelves      = self.create_bookshelves
-        delete_empty_shelves    = self.delete_empty_shelves
+        collections_columns      = self.collections_columns
+        create_collections       = self.create_collections
+        delete_empty_collections = self.delete_empty_collections
         update_series_details   = self.update_series_details
         debugging_title         = self.get_debugging_title()
         debug_print("KoboTouch:update_device_database_collections - set_debugging_title to '%s'" % debugging_title)
         booklists.set_debugging_title(debugging_title)
+        booklists.set_device_managed_collections(self.ignore_collections_names)
 
         bookshelf_attribute = len(collections_attributes) > 0
 
@@ -2223,7 +2247,7 @@ class KOBOTOUCH(KOBO):
                 # Process any collections that exist
                 for category, books in collections.items():
                     debug_print("KoboTouch:update_device_database_collections - category='%s' books=%d"%(category, len(books)))
-                    if create_bookshelves and not (category in supportedcategories or category in readstatuslist or category in accessibilitylist):
+                    if create_collections and not (category in supportedcategories or category in readstatuslist or category in accessibilitylist):
                         self.check_for_bookshelf(connection, category)
 #                    if category in self.bookshelvelist:
 #                        debug_print("Category: ", category, " id = ", readstatuslist.get(category))
@@ -2248,7 +2272,10 @@ class KOBOTOUCH(KOBO):
                             ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
                             book.contentID = self.contentid_from_path(book.path, ContentType)
 
-                        if category in self.bookshelvelist and self.supports_bookshelves:
+                        if category in self.ignore_collections_names:
+                            debug_print('        Ignoring collection=%s' % category)
+                            category_added = True
+                        elif category in self.bookshelvelist and self.supports_bookshelves:
                             if show_debug:
                                 debug_print('        length book.device_collections=%d'%len(book.device_collections))
                             if category not in book.device_collections:
@@ -2311,7 +2338,7 @@ class KOBOTOUCH(KOBO):
                                 debug_print("KoboTouch:update_device_database_collections - about to remove a book from shelves book.title=%s" % book.title)
                             self.remove_book_from_device_bookshelves(connection, book)
                             book.device_collections.extend(book.kobo_collections)
-                if not prefs['manage_device_metadata'] == 'manual' and delete_empty_shelves:
+                if not prefs['manage_device_metadata'] == 'manual' and delete_empty_collections:
                     debug_print("KoboTouch:update_device_database_collections - about to clear empty bookshelves")
                     self.delete_empty_bookshelves(connection)
                 debug_print("KoboTouch:update_device_database_collections - Number of series set=%d Number of books=%d" % (self.series_set, books_in_library))
@@ -2467,6 +2494,7 @@ class KOBOTOUCH(KOBO):
         show_debug = self.is_debugging_title(book.title)  # or True
 
         remove_shelf_list = set(book.current_shelves) - set(book.device_collections)
+        remove_shelf_list = remove_shelf_list - set(self.ignore_collections_names)
 
         if show_debug:
             debug_print('KoboTouch:remove_book_from_device_bookshelves - book.application_id="%s"'%book.application_id)
@@ -2648,13 +2676,14 @@ class KOBOTOUCH(KOBO):
                       "true",
                       "false",
                       )
+        shelf_type = "UserTag" #if self.supports_reading_list else None
         if self.dbversion < 64:
             addquery += ' ("CreationDate","InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced")'\
                         ' VALUES (?, ?, ?, ?, ?, ?, ?)'
         else:
-            addquery += ' ("CreationDate", "InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced", "Id")'\
-                        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-            add_values = add_values +(bookshelf_name,)
+            addquery += ' ("CreationDate", "InternalName","LastModified","Name","_IsDeleted","_IsVisible","_IsSynced", "Id", "Type")'\
+                        ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            add_values = add_values +(bookshelf_name, shelf_type)
 
         if show_debug:
             debug_print('KoboTouch:check_for_bookshelf addquery=', addquery)
@@ -2755,15 +2784,15 @@ class KOBOTOUCH(KOBO):
             debug_print("KoboTouch:set_series - end")
 
     @classmethod
-    def config_widget(self):
+    def config_widget(cls):
         # TODO: Cleanup the following
-        self.current_friendly_name = self.gui_name
+        cls.current_friendly_name = cls.gui_name
 
         from calibre.devices.kobo.kobotouch_config import KOBOTOUCHConfig
-        return KOBOTOUCHConfig(self.settings(), self.FORMATS,
-                               self.SUPPORTS_SUB_DIRS, self.MUST_READ_METADATA,
-                               self.SUPPORTS_USE_AUTHOR_SORT, self.EXTRA_CUSTOMIZATION_MESSAGE,
-                               self, extra_customization_choices=self.EXTRA_CUSTOMIZATION_CHOICES
+        return KOBOTOUCHConfig(cls.settings(), cls.FORMATS,
+                               cls.SUPPORTS_SUB_DIRS, cls.MUST_READ_METADATA,
+                               cls.SUPPORTS_USE_AUTHOR_SORT, cls.EXTRA_CUSTOMIZATION_MESSAGE,
+                               cls, extra_customization_choices=cls.EXTRA_CUSTOMIZATION_CHOICES
                                )
 
     @classmethod
@@ -2782,6 +2811,7 @@ class KOBOTOUCH(KOBO):
 
     @classmethod
     def save_settings(cls, config_widget):
+        cls.opts = None
         config_widget.commit()
 
     @classmethod
@@ -2796,6 +2826,7 @@ class KOBOTOUCH(KOBO):
         c.add_opt('collections_columns', default='')
         c.add_opt('create_collections', default=False)
         c.add_opt('delete_empty_collections', default=False)
+        c.add_opt('ignore_collections_names', default='')
 
         c.add_opt('upload_covers', default=False)
         c.add_opt('keep_cover_aspect', default=False)
@@ -2827,10 +2858,14 @@ class KOBOTOUCH(KOBO):
 
     def isAura(self):
         return self.detected_device.idProduct in self.AURA_PRODUCT_ID
+    def isAuraEdition2(self):
+        return self.detected_device.idProduct in self.AURA_EDITION2_PRODUCT_ID
     def isAuraHD(self):
         return self.detected_device.idProduct in self.AURA_HD_PRODUCT_ID
     def isAuraH2O(self):
         return self.detected_device.idProduct in self.AURA_H2O_PRODUCT_ID
+    def isAuraOne(self):
+        return self.detected_device.idProduct in self.AURA_ONE_PRODUCT_ID
     def isGlo(self):
         return self.detected_device.idProduct in self.GLO_PRODUCT_ID
     def isGloHD(self):
@@ -2843,8 +2878,9 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
 
     def cover_file_endings(self):
-        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() \
+        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() or self.isAuraEdition2 \
                 else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() or self.isAuraH2O() or self.isGloHD() \
+                else self.AURA_ONE_COVER_FILE_ENDINGS if self.isAuraOne() \
                 else self.COVER_FILE_ENDINGS
 
     def set_device_name(self):
@@ -2870,16 +2906,27 @@ class KOBOTOUCH(KOBO):
 
     @property
     def manage_collections(self):
-        return self.get_pref('manage_collections')
+        return self.get_pref('manage_collections') and self.supports_bookshelves
     @property
     def create_collections(self):
-        return self.get_pref('create_collections')
+        return self.manage_collections and self.get_pref('create_collections') and len(self.collections_columns) > 0
     @property
     def collections_columns(self):
         return self.get_pref('collections_columns')
     @property
     def delete_empty_collections(self):
-        return self.get_pref('delete_empty_collections')
+        return self.manage_collections and self.get_pref('delete_empty_collections')
+    @property
+    def ignore_collections_names(self):
+        return [x.lower().strip() for x in self.get_pref('ignore_collections_names').split(',')]
+    @property
+    def create_bookshelves(self):
+        # Only for backwards compatabilty
+        return self.manage_collections
+    @property
+    def delete_empty_shelves(self):
+        # Only for backwards compatabilty
+        return self.delete_empty_collections
 
     @property
     def upload_covers(self):
@@ -2898,12 +2945,6 @@ class KOBOTOUCH(KOBO):
         return self.get_pref('modify_css')
 
     @property
-    def create_bookshelves(self):
-        return self.get_pref('create_collections') and self.supports_bookshelves
-    @property
-    def delete_empty_shelves(self):
-        return self.get_pref('delete_empty_collections') and self.supports_bookshelves
-    @property
     def update_device_metadata(self):
         return self.get_pref('update_device_metadata')
     @property
@@ -2920,6 +2961,11 @@ class KOBOTOUCH(KOBO):
     @property
     def supports_bookshelves(self):
         return self.dbversion >= self.min_supported_dbversion
+#     @property
+#     def supports_reading_list(self):
+# #         debug_print("KoboTouch.supports_reading_list: self.fwversion=%s self.min_reading_list_fwversion=%s" % (self.fwversion, self.min_reading_list_fwversion))
+# #         debug_print("KoboTouch.supports_reading_list: self.fwversion  >= self.min_reading_list_fwversion=%s" % (self.fwversion >= self.min_reading_list_fwversion))
+#         return self.fwversion >= self.min_reading_list_fwversion
 
     @property
     def show_archived_books(self):
@@ -2956,8 +3002,7 @@ class KOBOTOUCH(KOBO):
     def modify_database_check(self, function):
         # Checks to see whether the database version is supported
         # and whether the user has chosen to support the firmware version
-        #        debug_print("KoboTouch:modify_database_check - self.fwversion > self.max_supported_fwversion=", self.fwversion > self.max_supported_fwversion)
-        if self.dbversion > self.supported_dbversion or self.fwversion > self.max_supported_fwversion:
+        if self.dbversion > self.supported_dbversion or self.is_supported_fwversion:
             # Unsupported database
             if not self.get_pref('support_newer_firmware'):
                 debug_print('The database has been upgraded past supported version')
@@ -2988,6 +3033,13 @@ class KOBOTOUCH(KOBO):
         else:
             # Supported database version
             return True
+
+    @property
+    def is_supported_fwversion(self):
+        # Starting with firmware version 3.19.x, the last number appears to be is a
+        # build number. It can be safely ignored when testing the firmware version.
+        debug_print("KoboTouch::is_supported_fwversion - self.fwversion[:2]", self.fwversion[:2])
+        return self.fwversion[:2] > self.max_supported_fwversion
 
     @classmethod
     def migrate_old_settings(cls, settings):

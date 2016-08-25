@@ -98,6 +98,7 @@ class KOBOTOUCHConfig(TabbedDeviceConfig):
         p['manage_collections'] = self.manage_collections
         p['create_collections'] = self.create_collections
         p['collections_columns'] = self.collections_columns
+        p['ignore_collections_names'] = self.ignore_collections_names
         p['delete_empty_collections'] = self.delete_empty_collections
 
         p['upload_covers'] = self.upload_covers
@@ -221,10 +222,19 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                          device.get_pref('delete_empty_collections')
                          )
 
+        self.ignore_collections_names_label = QLabel(_('Ignore Collections'))
+        self.ignore_collections_names_edit = QLineEdit(self)
+        self.ignore_collections_names_edit.setToolTip(_('List the names of collections to be ignored by ' +
+                'the collection management. The collections listed ' +
+                'will not be changed. Names are separated by commas.'))
+        self.ignore_collections_names_edit.setText(device.get_pref('ignore_collections_names'))
+
         self.options_layout.addWidget(self.collections_columns_label,         1, 0, 1, 1)
         self.options_layout.addWidget(self.collections_columns_edit,          1, 1, 1, 1)
         self.options_layout.addWidget(self.create_collections_checkbox,       2, 0, 1, 2)
         self.options_layout.addWidget(self.delete_empty_collections_checkbox, 3, 0, 1, 2)
+        self.options_layout.addWidget(self.ignore_collections_names_label,    4, 0, 1, 1)
+        self.options_layout.addWidget(self.ignore_collections_names_edit,     4, 1, 1, 1)
         self.options_layout.setRowStretch(4, 1)
 
     @property
@@ -242,6 +252,10 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
     @property
     def delete_empty_collections(self):
         return self.delete_empty_collections_checkbox.isChecked()
+
+    @property
+    def ignore_collections_names(self):
+        return self.ignore_collections_names_edit.text().strip()
 
 
 class CoversGroupBox(DeviceOptionsGroupBox):
