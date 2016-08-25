@@ -85,6 +85,10 @@ class TOC(object):
         except ValueError:
             return 1
 
+    @property
+    def last_child(self):
+        return self.children[-1] if self.children else None
+
     def get_lines(self, lvl=0):
         frag = ('#'+self.frag) if self.frag else ''
         ans = [(u'\t'*lvl) + u'TOC: %s --> %s%s'%(self.title, self.dest, frag)]
@@ -315,8 +319,6 @@ def from_xpaths(container, xpaths):
     '''
     tocroot = TOC()
     xpaths = [XPath(xp) for xp in xpaths]
-    level_prev = {i+1:None for i in xrange(len(xpaths))}
-    level_prev[0] = tocroot
 
     # Find those levels that have no elements in all spine items
     maps = OrderedDict()
@@ -336,31 +338,39 @@ def from_xpaths(container, xpaths):
             lmap = {i+1:items for i, (l, items) in enumerate(lmap)}
             maps[name] = lmap
 
+    node_level_map = {tocroot: 0}
+
+    def parent_for_level(child_level):
+        limit = child_level - 1
+
+        def process_node(node):
+            child = node.last_child
+            if child is None:
+                return node
+            lvl = node_level_map[child]
+            return node if lvl > limit else child if lvl == limit else process_node(child)
+
+        return process_node(tocroot)
+
     for name, level_item_map in maps.iteritems():
         root = container.parsed(name)
         item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
         item_dirtied = False
 
         for item in root.iterdescendants(etree.Element):
-            lvl = plvl = item_level_map.get(item, None)
+            lvl = item_level_map.get(item, None)
             if lvl is None:
                 continue
-            parent = None
-            while parent is None:
-                plvl -= 1
-                parent = level_prev[plvl]
-            lvl = plvl + 1
+            text = elem_to_toc_text(item)
+            parent = parent_for_level(lvl)
             if item_at_top(item):
                 dirtied, elem_id = False, None
             else:
                 dirtied, elem_id = ensure_id(item)
-            text = elem_to_toc_text(item)
             item_dirtied = dirtied or item_dirtied
             toc = parent.add(text, name, elem_id)
+            node_level_map[toc] = lvl
             toc.dest_exists = True
-            level_prev[lvl] = toc
-            for i in xrange(lvl+1, len(xpaths)+1):
-                level_prev[i] = None
 
         if item_dirtied:
             container.commit_item(name, keep_parsed=True)

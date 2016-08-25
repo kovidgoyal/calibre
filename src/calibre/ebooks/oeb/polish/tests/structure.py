@@ -15,7 +15,7 @@ from calibre.ebooks.oeb.polish.create import create_book
 from calibre.ebooks.oeb.polish.cover import (
     find_cover_image, mark_as_cover, find_cover_page, mark_as_titlepage, clean_opf
 )
-from calibre.ebooks.oeb.polish.toc import get_toc
+from calibre.ebooks.oeb.polish.toc import get_toc, from_xpaths as toc_from_xpaths
 from calibre.ebooks.oeb.polish.utils import guess_type
 from calibre.ebooks.oeb.base import OEB_DOCS
 from calibre.ebooks.metadata.book.base import Metadata
@@ -94,6 +94,29 @@ class Structure(BaseTest):
         toc = get_toc(c)
         self.assertTrue(len(toc))
         self.assertEqual(toc.as_dict['children'][0]['title'], 'EPUB 3 nav')
+
+        def tfx(linear, expected):
+            items = ['<t{0}>{0}</t{0}>'.format(x) for x in linear]
+            html = '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops">'
+            html += '<body>%s</body></html>' % '\n'.join(items)
+            with c.open('nav.html', 'wb') as f:
+                f.write(html.encode('utf-8'))
+            toc = toc_from_xpaths(c, ['//h:t'+x for x in sorted(set(linear))])
+
+            def p(node):
+                ans = ''
+                if node.children:
+                    ans += '['
+                    for c in node.children:
+                        ans += c.title + p(c)
+                    ans += ']'
+                return ans
+            self.assertEqual('[%s]'%expected, p(toc))
+
+        tfx('121333', '1[2]1[333]')
+        tfx('1223424', '1[22[3[4]]2[4]]')
+        tfx('32123', '321[2[3]]')
+        tfx('123123', '1[2[3]]1[2[3]]')
 
     def test_epub3_covers(self):
         # cover image
