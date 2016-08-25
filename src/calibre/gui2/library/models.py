@@ -91,6 +91,7 @@ class ColumnIcon(object):  # {{{
         self.mi = None
         self.formatter = formatter
         self.model = model
+        self.dpr = QApplication.instance().devicePixelRatio()
 
     def __call__(self, id_, fmts, cache_index, db, icon_cache, icon_bitmap_cache,
              template_cache):
@@ -121,33 +122,30 @@ class ColumnIcon(object):  # {{{
 
                 icon_bitmaps = []
                 total_width = 0
+                rh = max(2, self.model.row_height - 4)
+                dim = int(self.dpr * rh)
                 for icon in icons:
                     d = os.path.join(config_dir, 'cc_icons', icon)
                     if (os.path.exists(d)):
                         bm = QPixmap(d)
-                        bm = bm.scaled(128, 128, aspectRatioMode=Qt.KeepAspectRatio,
-                                       transformMode=Qt.SmoothTransformation)
+                        bm = bm.scaled(dim, dim, aspectRatioMode=Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation)
+                        bm.setDevicePixelRatio(self.dpr)
                         icon_bitmaps.append(bm)
                         total_width += bm.width()
                 if len(icon_bitmaps) > 1:
                     i = len(icon_bitmaps)
-                    result = QPixmap((i * 128) + ((i-1)*2), 128)
+                    result = QPixmap((i * dim) + ((i-1)*2), dim)
+                    result.setDevicePixelRatio(self.dpr)
                     result.fill(Qt.transparent)
                     painter = QPainter(result)
                     x = 0
                     for bm in icon_bitmaps:
                         painter.drawPixmap(x, 0, bm)
-                        x += bm.width() + 2
+                        x += int(bm.width() / self.dpr) + 2
                     painter.end()
                 else:
                     result = icon_bitmaps[0]
 
-                # If the image height is less than the row height, leave it alone
-                # The -4 allows for a margin above and below. Also ensure that
-                # it is always a bit positive
-                rh = max(2, self.model.row_height - 4)
-                if result.height() > rh:
-                    result = result.scaledToHeight(rh, mode=Qt.SmoothTransformation)
                 icon_cache[id_][cache_index] = result
                 icon_bitmap_cache[icon_string] = result
                 self.mi = None
