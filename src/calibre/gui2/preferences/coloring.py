@@ -14,7 +14,7 @@ from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
         QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
-        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu, QPixmap)
+        QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu)
 
 from calibre import prepare_string_for_xml, sanitize_file_name_unicode
 from calibre.constants import config_dir
@@ -479,7 +479,7 @@ class RuleEditor(QDialog):  # {{{
                 item.setData(Qt.Unchecked, Qt.CheckStateRole)
             else:
                 item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
-            icon = QIcon(QPixmap(os.path.join(self.icon_folder, filename)).scaled(self.filenamebox_view.iconSize(), transformMode=Qt.SmoothTransformation))
+            icon = QIcon(os.path.join(self.icon_folder, filename))
             item.setIcon(icon)
             model.appendRow(item)
 
@@ -1048,7 +1048,8 @@ class EditRules(QWidget):  # {{{
 # }}}
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
 
     from calibre.library import db
 
