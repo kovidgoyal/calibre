@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap
 
 from PyQt5.Qt import (QWidget, pyqtSignal, QCheckBox, QAbstractSpinBox,
-    QLineEdit, QComboBox, Qt, QIcon, QDialog, QVBoxLayout, QRadioButton,
+    QLineEdit, QComboBox, Qt, QIcon, QDialog, QVBoxLayout,
     QDialogButtonBox)
 
 from calibre.customize.ui import preferences_plugins
@@ -101,9 +101,6 @@ class Setting(object):
         if isinstance(self.gui_obj, QCheckBox):
             self.datatype = 'bool'
             self.gui_obj.stateChanged.connect(self.changed)
-        elif isinstance(self.gui_obj, QRadioButton):
-            self.datatype = 'bool'
-            self.gui_obj.toggled.connect(self.changed)
         elif isinstance(self.gui_obj, QAbstractSpinBox):
             self.datatype = 'number'
             self.gui_obj.valueChanged.connect(self.changed)
@@ -115,7 +112,7 @@ class Setting(object):
             self.gui_obj.editTextChanged.connect(self.changed)
             self.gui_obj.currentIndexChanged.connect(self.changed)
         else:
-            raise ValueError('Unknown data type')
+            raise ValueError('Unknown data type %s' % self.gui_obj.__class__)
 
         if isinstance(self.config_obj, ConfigProxy) and \
                 not unicode(self.gui_obj.toolTip()):
