@@ -331,6 +331,7 @@ class TextBrowser(PlainTextEdit):  # {{{
         w = self.viewport().rect().width()
         painter = QPainter(self.viewport())
         painter.setClipRect(event.rect())
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         floor = event.rect().bottom()
         ceiling = event.rect().top()
         fv = self.firstVisibleBlock().blockNumber()
@@ -370,8 +371,7 @@ class TextBrowser(PlainTextEdit):  # {{{
                 if bot > top + 1 and not img.isNull():
                     y_top = self.blockBoundingGeometry(doc.findBlockByNumber(top+1)).translated(origin).y() + 3
                     y_bot -= 3
-                    scaled, imgw, imgh = fit_image(img.width(), img.height(), w - 3, y_bot - y_top)
-                    painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+                    scaled, imgw, imgh = fit_image(int(img.width()/img.devicePixelRatio()), int(img.height()/img.devicePixelRatio()), w - 3, y_bot - y_top)
                     painter.drawPixmap(QRect(3, y_top, imgw, imgh), img)
 
         painter.end()
@@ -559,7 +559,12 @@ class DiffSplit(QSplitter):  # {{{
     @property
     def failed_img(self):
         if self._failed_img is None:
+            try:
+                dpr = self.devicePixelRatioF()
+            except AttributeError:
+                dpr = self.devicePixelRatio()
             i = QImage(200, 150, QImage.Format_ARGB32)
+            i.setDevicePixelRatio(dpr)
             i.fill(Qt.white)
             p = QPainter(i)
             r = i.rect().adjusted(10, 10, -10, -10)
@@ -580,6 +585,11 @@ class DiffSplit(QSplitter):  # {{{
         def load(data):
             p = QPixmap()
             p.loadFromData(bytes(data))
+            try:
+                dpr = self.devicePixelRatioF()
+            except AttributeError:
+                dpr = self.devicePixelRatio()
+            p.setDevicePixelRatio(dpr)
             if data and p.isNull():
                 p = self.failed_img
             return p
@@ -647,7 +657,7 @@ class DiffSplit(QSplitter):  # {{{
     def get_lines_for_image(self, img, view):
         if img.isNull():
             return 0, 0
-        w, h = img.width(), img.height()
+        w, h = int(img.width()/img.devicePixelRatio()), int(img.height()/img.devicePixelRatio())
         scaled, w, h = fit_image(w, h, view.available_width() - 3, int(0.9 * view.height()))
         line_height = view.blockBoundingRect(view.document().begin()).height()
         return int(ceil(h / line_height)) + 1, w
