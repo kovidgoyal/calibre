@@ -1350,9 +1350,17 @@ void PictureFlow::keyPressEvent(QKeyEvent* event)
 #define SPEED_LOWER_THRESHOLD 10
 #define SPEED_UPPER_LIMIT 40
 
+qreal PictureFlow::device_pixel_ratio() const {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+	return devicePixelRatioF();
+#else
+	return (qreal)devicePixelRatio();
+#endif
+}
+
 void PictureFlow::mouseMoveEvent(QMouseEvent* event)
 {
-  int x = event->x() * devicePixelRatio();
+  int x = (int)(event->x() * device_pixel_ratio());
   int distanceMovedSinceLastEvent = x - d->previousPos.x();
 
   // Check to see if we need to switch from single press mode to a drag mode
@@ -1433,14 +1441,14 @@ void PictureFlow::mouseMoveEvent(QMouseEvent* event)
     
   }
 
-  d->previousPos = event->pos() * devicePixelRatio();
+  d->previousPos = event->pos() * device_pixel_ratio();
   d->previousPosTimestamp.restart();
 }
 
 void PictureFlow::mousePressEvent(QMouseEvent* event)
 {
-  d->firstPress = event->pos() * devicePixelRatio();
-  d->previousPos = event->pos() * devicePixelRatio();
+  d->firstPress = event->pos() * device_pixel_ratio();
+  d->previousPos = event->pos() * device_pixel_ratio();
   d->previousPosTimestamp.start();
   d->singlePress = true; // Initially assume a single press
 //  d->dragStartSlide = d->getTarget();
@@ -1451,7 +1459,7 @@ void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
 {
   bool accepted = false;
   int sideWidth = (d->buffer.width() - slideSize().width()) /2;
-  int x = event->x() * devicePixelRatio();
+  int x = (int)(event->x() * device_pixel_ratio());
 
   if (d->singlePress)
   {
@@ -1478,15 +1486,15 @@ void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
 void PictureFlow::paintEvent(QPaintEvent* event)
 {
   Q_UNUSED(event);
-  if (last_device_pixel_ratio != devicePixelRatio()) {
-      last_device_pixel_ratio = devicePixelRatio();
-      d->resize(width() * last_device_pixel_ratio, height() * last_device_pixel_ratio);
+  if (last_device_pixel_ratio != device_pixel_ratio()) {
+      last_device_pixel_ratio = device_pixel_ratio();
+      d->resize((int)(width() * last_device_pixel_ratio), (int)(height() * last_device_pixel_ratio));
       update();
       return;
   }
   QPainter painter(this);
   qreal dpr = d->buffer.devicePixelRatio();
-  d->buffer.setDevicePixelRatio(devicePixelRatio());
+  d->buffer.setDevicePixelRatio(device_pixel_ratio());
   painter.setRenderHint(QPainter::Antialiasing, false);
   painter.drawImage(QPoint(0,0), d->buffer);
   d->buffer.setDevicePixelRatio(dpr);
@@ -1494,8 +1502,8 @@ void PictureFlow::paintEvent(QPaintEvent* event)
 
 void PictureFlow::resizeEvent(QResizeEvent* event)
 {
-  last_device_pixel_ratio = devicePixelRatio();
-  d->resize(width() * last_device_pixel_ratio, height() * last_device_pixel_ratio);
+  last_device_pixel_ratio = device_pixel_ratio();
+  d->resize((int)(width() * last_device_pixel_ratio), (int)(height() * last_device_pixel_ratio));
   QWidget::resizeEvent(event);
 }
 

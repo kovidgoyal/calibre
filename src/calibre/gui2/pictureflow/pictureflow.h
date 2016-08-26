@@ -218,6 +218,7 @@ protected:
 
 private:
   PictureFlowPrivate* d;
-  int last_device_pixel_ratio;
+  qreal device_pixel_ratio() const;
+  qreal last_device_pixel_ratio;
 };
 
