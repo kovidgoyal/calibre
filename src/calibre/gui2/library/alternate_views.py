@@ -420,7 +420,7 @@ class CoverDelegate(QStyledItemDelegate):
         if raw_icon is not None:
             ans = raw_icon.pixmap(sz, sz)
         elif name == ':ondevice':
-            ans = QIcon(I('ok.png')).scaled(sz, sz)
+            ans = QIcon(I('ok.png')).pixmap(sz, sz)
         elif name:
             pmap = QIcon(os.path.join(config_dir, 'cc_icons', name)).pixmap(sz, sz)
             if not pmap.isNull():
