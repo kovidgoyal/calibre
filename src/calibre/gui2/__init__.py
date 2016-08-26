@@ -873,6 +873,18 @@ class Application(QApplication):
         self.headless = headless
         qargs = [i.encode('utf-8') if isinstance(i, unicode) else i for i in args]
         self.pi = plugins['progress_indicator'][0]
+        if not isosx and not headless and hasattr(Qt, 'AA_EnableHighDpiScaling'):
+            # On OS X high dpi scaling is turned on automatically by the OS, so we dont need to set it explicitly
+            # This requires Qt >= 5.6
+            for v in ('QT_AUTO_SCREEN_SCALE_FACTOR', 'QT_SCALE_FACTOR', 'QT_SCREEN_SCALE_FACTORS', 'QT_DEVICE_PIXEL_RATIO'):
+                if os.environ.get(v):
+                    break
+            else:
+                # Should probably make a preference to allow the user to
+                # control this, if needed.
+                # Could have options: auto, off, 0.75, 1, 1.25, 1.5, 1.75, 2,
+                # 2.25, 2.5
+                QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, qargs)
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         if not iswindows:
