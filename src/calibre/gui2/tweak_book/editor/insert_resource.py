@@ -108,7 +108,10 @@ class ImageDelegate(QStyledItemDelegate):
             except:
                 pass
             else:
-                dpr = painter.device().devicePixelRatio()
+                try:
+                    dpr = painter.device().devicePixelRatioF()
+                except AttributeError:
+                    dpr = painter.device().devicePixelRatio()
                 cover.loadFromData(raw)
                 cover.setDevicePixelRatio(dpr)
                 if not cover.isNull():

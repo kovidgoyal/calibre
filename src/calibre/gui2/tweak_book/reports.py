@@ -373,7 +373,11 @@ class ImagesDelegate(QStyledItemDelegate):
         k = (th, entry.name)
         pmap = self.cache.get(k)
         if pmap is None:
-            pmap = self.cache[k] = self.pixmap(th, entry, painter.device().devicePixelRatio())
+            try:
+                dpr = painter.device().devicePixelRatioF()
+            except AttributeError:
+                dpr = painter.device().devicePixelRatio()
+            pmap = self.cache[k] = self.pixmap(th, entry, dpr)
         if pmap.isNull():
             bottom = option.rect.top()
         else:
