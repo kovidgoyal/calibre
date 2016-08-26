@@ -289,7 +289,10 @@ class CoverView(QWidget):  # {{{
         target = QRect(x, y, width, height)
         p = QPainter(self)
         p.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
-        dpr = self.devicePixelRatio()
+        try:
+            dpr = self.devicePixelRatioF()
+        except AttributeError:
+            dpr = self.devicePixelRatio()
         spmap = self.pixmap.scaled(target.size() * dpr, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         spmap.setDevicePixelRatio(dpr)
         p.drawPixmap(target, spmap)

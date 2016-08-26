@@ -688,9 +688,13 @@ class ChooseTheme(Dialog):
 
     def set_cover(self, theme, cdata):
         theme['cover-pixmap'] = p = QPixmap()
+        try:
+            dpr = self.devicePixelRatioF()
+        except AttributeError:
+            dpr = self.devicePixelRatio()
         if isinstance(cdata, bytes):
             p.loadFromData(cdata)
-            p.setDevicePixelRatio(self.devicePixelRatio())
+            p.setDevicePixelRatio(dpr)
         item = self.item_from_name(theme['name'])
         if item is not None:
             item.setData(Qt.DecorationRole, p)

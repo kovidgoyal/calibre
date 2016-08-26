@@ -110,9 +110,14 @@ class PDFCovers(QDialog):
             self.reject()
             return
 
+        try:
+            dpr = self.devicePixelRatioF()
+        except AttributeError:
+            dpr = self.devicePixelRatio()
+
         for i, f in enumerate(sorted(files)):
-            p = QPixmap(f).scaled(self.covers.iconSize()*self.devicePixelRatio(), aspectRatioMode=Qt.IgnoreAspectRatio, transformMode=Qt.SmoothTransformation)
-            p.setDevicePixelRatio(self.devicePixelRatio())
+            p = QPixmap(f).scaled(self.covers.iconSize()*dpr, aspectRatioMode=Qt.IgnoreAspectRatio, transformMode=Qt.SmoothTransformation)
+            p.setDevicePixelRatio(dpr)
             i = QListWidgetItem(_('page %d') % (i + 1))
             i.setData(Qt.DecorationRole, p)
             i.setData(Qt.UserRole, f)

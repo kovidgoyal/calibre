@@ -166,7 +166,10 @@ class BookInfo(QDialog):
                     pixmap.height(), self.cover.size().width()-10,
                     self.cover.size().height()-10)
             if scaled:
-                dpr = self.devicePixelRatio()
+                try:
+                    dpr = self.devicePixelRatioF()
+                except AttributeError:
+                    dpr = self.devicePixelRatio()
                 pixmap = pixmap.scaled(int(dpr * new_width), int(dpr * new_height),
                         Qt.KeepAspectRatio, Qt.SmoothTransformation)
                 pixmap.setDevicePixelRatio(dpr)
@@ -200,7 +203,11 @@ class BookInfo(QDialog):
         self.current_row = row
         self.setWindowTitle(mi.title)
         self.cover_pixmap = QPixmap.fromImage(mi.cover_data[1])
-        self.cover_pixmap.setDevicePixelRatio(self.devicePixelRatio())
+        try:
+            dpr = self.devicePixelRatioF()
+        except AttributeError:
+            dpr = self.devicePixelRatio()
+        self.cover_pixmap.setDevicePixelRatio(dpr)
         self.resize_cover()
         html = render_html(mi, self.css, True, self, all_fields=True)
         self.details.setHtml(html)

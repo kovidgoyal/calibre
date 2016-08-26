@@ -240,7 +240,11 @@ class Background(QWidget):  # {{{
             path = texture_path(self.btex)
             if path:
                 p = QPixmap(path)
-                p.setDevicePixelRatio(self.devicePixelRatio())
+                try:
+                    dpr = self.devicePixelRatioF()
+                except AttributeError:
+                    dpr = self.devicePixelRatio()
+                p.setDevicePixelRatio(dpr)
                 self.brush.setTexture(p)
         self.update()
 
