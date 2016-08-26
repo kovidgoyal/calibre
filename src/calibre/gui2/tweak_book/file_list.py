@@ -25,7 +25,7 @@ from calibre.ebooks.oeb.polish.replace import get_recommended_folders
 from calibre.ebooks.oeb.polish.cover import (
     get_cover_page_name, get_raster_cover_name, is_raster_image)
 from calibre.gui2 import error_dialog, choose_files, question_dialog, elided_text, choose_save_file
-from calibre.gui2.tweak_book import current_container, tprefs
+from calibre.gui2.tweak_book import current_container, tprefs, editors
 from calibre.gui2.tweak_book.editor import syntax_from_mime
 from calibre.gui2.tweak_book.templates import template_for
 from calibre.utils.icu import sort_key
@@ -647,7 +647,7 @@ class FileList(QTreeWidget):
 
     @property
     def searchable_names(self):
-        ans = {'text':OrderedDict(), 'styles':OrderedDict(), 'selected':OrderedDict()}
+        ans = {'text':OrderedDict(), 'styles':OrderedDict(), 'selected':OrderedDict(), 'open':OrderedDict()}
         for item in self.all_files:
             category = unicode(item.data(0, CATEGORY_ROLE) or '')
             mime = unicode(item.data(0, MIME_ROLE) or '')
@@ -657,8 +657,14 @@ class FileList(QTreeWidget):
                 ans[category][name] = syntax_from_mime(name, mime)
             if not ok and category == 'misc':
                 ok = mime in {guess_type('a.'+x) for x in ('opf', 'ncx', 'txt', 'xml')}
-            if ok and item.isSelected():
-                ans['selected'][name] = syntax_from_mime(name, mime)
+            if ok:
+                cats = []
+                if item.isSelected():
+                    cats.append('selected')
+                if name in editors:
+                    cats.append('open')
+                for cat in cats:
+                    ans[cat][name] = syntax_from_mime(name, mime)
         return ans
 
     def export(self, name):

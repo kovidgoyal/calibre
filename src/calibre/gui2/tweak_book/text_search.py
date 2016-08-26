@@ -47,7 +47,7 @@ class WhereBox(QComboBox):
 
     def __init__(self, parent, emphasize=False):
         QComboBox.__init__(self)
-        self.addItems([_('Current file'), _('All text files'), _('Selected files')])
+        self.addItems([_('Current file'), _('All text files'), _('Selected files'), _('Open files')])
         self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
             '''
             Where to search/replace:
@@ -58,6 +58,8 @@ class WhereBox(QComboBox):
             <dd>Search in all text (HTML) files</dd>
             <dt><b>Selected files</b></dt>
             <dd>Search in the files currently selected in the Files Browser</dd>
+            <dt><b>Open files</b></dt>
+            <dd>Search in the files currently open in the editor</dd>
             </dl>'''))
         self.emphasize = emphasize
         self.ofont = QFont(self.font())
@@ -68,7 +70,7 @@ class WhereBox(QComboBox):
 
     @dynamic_property
     def where(self):
-        wm = {0:'current', 1:'text', 2:'selected'}
+        wm = {0:'current', 1:'text', 2:'selected', 3:'open'}
         def fget(self):
             return wm[self.currentIndex()]
         def fset(self, val):

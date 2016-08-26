@@ -117,7 +117,7 @@ class WhereBox(QComboBox):
 
     def __init__(self, parent, emphasize=False):
         QComboBox.__init__(self)
-        self.addItems([_('Current file'), _('All text files'), _('All style files'), _('Selected files'), _('Marked text')])
+        self.addItems([_('Current file'), _('All text files'), _('All style files'), _('Selected files'), _('Open files'), _('Marked text')])
         self.setToolTip('<style>dd {margin-bottom: 1.5ex}</style>' + _(
             '''
             Where to search/replace:
@@ -130,6 +130,8 @@ class WhereBox(QComboBox):
             <dd>Search in all style (CSS) files</dd>
             <dt><b>Selected files</b></dt>
             <dd>Search in the files currently selected in the Files Browser</dd>
+            <dt><b>Open files</b></dt>
+            <dd>Search in the files currently open in the editor</dd>
             <dt><b>Marked text</b></dt>
             <dd>Search only within the marked text in the currently opened file. You can mark text using the Search menu.</dd>
             </dl>'''))
@@ -142,7 +144,7 @@ class WhereBox(QComboBox):
 
     @dynamic_property
     def where(self):
-        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'selected-text'}
+        wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'open', 5:'selected-text'}
         def fget(self):
             return wm[self.currentIndex()]
         def fset(self, val):
@@ -1185,7 +1187,7 @@ def initialize_search_request(state, action, current_editor, current_editor_name
     marked = False
     if where == 'current':
         editor = current_editor
-    elif where in {'styles', 'text', 'selected'}:
+    elif where in {'styles', 'text', 'selected', 'open'}:
         files = searchable_names[where]
         if current_editor_name in files:
             # Start searching in the current editor
