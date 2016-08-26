@@ -166,7 +166,7 @@ class CoverThread(Thread):
                     else:
                         with closing(self.br.open(result.cover_url, timeout=timeout)) as f:
                             result.cover_data = f.read()
-                    result.cover_data = scale_image(result.cover_data, 64, 64)[2]
+                    result.cover_data = scale_image(result.cover_data, 256, 256)[2]
                     callback()
                 self.tasks.task_done()
             except:

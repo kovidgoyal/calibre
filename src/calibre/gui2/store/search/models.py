@@ -10,7 +10,7 @@ import re, string
 from operator import attrgetter
 
 from PyQt5.Qt import (Qt, QAbstractItemModel, QPixmap, QModelIndex, QSize,
-                      pyqtSignal)
+                      pyqtSignal, QIcon, QApplication)
 
 from calibre import force_unicode
 from calibre.gui2 import FunctionDispatcher
@@ -39,20 +39,16 @@ class Matches(QAbstractItemModel):
 
     HEADERS = [_('Cover'), _('Title'), _('Price'), _('DRM'), _('Store'), _('Download'), _('Affiliate')]
     HTML_COLS = (1, 4)
+    IMG_COLS = (0, 3, 5, 6)
 
     def __init__(self, cover_thread_count=2, detail_thread_count=4):
         QAbstractItemModel.__init__(self)
 
-        self.DRM_LOCKED_ICON = QPixmap(I('drm-locked.png')).scaledToHeight(64,
-                Qt.SmoothTransformation)
-        self.DRM_UNLOCKED_ICON = QPixmap(I('drm-unlocked.png')).scaledToHeight(64,
-                Qt.SmoothTransformation)
-        self.DRM_UNKNOWN_ICON = QPixmap(I('dialog_question.png')).scaledToHeight(64,
-                Qt.SmoothTransformation)
-        self.DONATE_ICON = QPixmap(I('donate.png')).scaledToHeight(16,
-                Qt.SmoothTransformation)
-        self.DOWNLOAD_ICON = QPixmap(I('arrow-down.png')).scaledToHeight(16,
-                Qt.SmoothTransformation)
+        self.DRM_LOCKED_ICON = QIcon(I('drm-locked.png'))
+        self.DRM_UNLOCKED_ICON = QIcon(I('drm-unlocked.png'))
+        self.DRM_UNKNOWN_ICON = QIcon(I('dialog_question.png'))
+        self.DONATE_ICON = QIcon(I('donate.png'))
+        self.DOWNLOAD_ICON = QIcon(I('arrow-down.png'))
 
         # All matches. Used to determine the order to display
         # self.matches because the SearchFilter returns
@@ -206,13 +202,14 @@ class Matches(QAbstractItemModel):
             elif col == 2:
                 return (result.price)
             elif col == 4:
-                return ('%s<br>%s' % (result.store_name, result.formats))
+                return ('<span>%s<br>%s</span>' % (result.store_name, result.formats))
             return None
         elif role == Qt.DecorationRole:
             if col == 0 and result.cover_data:
                 p = QPixmap()
                 p.loadFromData(result.cover_data)
-                return (p)
+                p.setDevicePixelRatio(QApplication.instance().devicePixelRatio())
+                return p
             if col == 3:
                 if result.drm == SearchResult.DRM_LOCKED:
                     return (self.DRM_LOCKED_ICON)

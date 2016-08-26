@@ -10,9 +10,9 @@ __docformat__ = 'restructuredtext en'
 from collections import namedtuple
 
 from PyQt5.Qt import (
-    QWidget, Qt, QLabel, QVBoxLayout, QPixmap, QDialogButtonBox, QApplication, QTimer,
+    QWidget, Qt, QLabel, QVBoxLayout, QDialogButtonBox, QApplication, QTimer, QPixmap,
     QSize, pyqtSignal, QIcon, QPlainTextEdit, QCheckBox, QPainter, QHBoxLayout, QFontMetrics,
-    QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy)
+    QPainterPath, QRectF, pyqtProperty, QPropertyAnimation, QEasingCurve, QSizePolicy, QImage)
 
 from calibre.constants import __version__
 from calibre.gui2.dialogs.message_box import ViewLog
@@ -58,7 +58,7 @@ class Icon(QWidget):
         elif icon is None:
             self.icon = self.default_icon
         else:
-            self.icon = QPixmap(I(icon)).scaled(self.sizeHint(), transformMode=Qt.SmoothTransformation)
+            self.icon = QIcon(I(icon)).pixmap(self.sizeHint())
         self.update()
 
     def sizeHint(self):
@@ -263,9 +263,11 @@ class ProceedQuestion(QWidget):
         if self.rendered_pixmap is not None:
             return
 
-        p = QPixmap(self.size())
+        dpr = getattr(self, 'devicePixelRatioF', self.devicePixelRatio)()
+        p = QImage(dpr * self.size(), QImage.Format_ARGB32_Premultiplied)
+        p.setDevicePixelRatio(dpr)
         self.render(p)
-        self.rendered_pixmap = p
+        self.rendered_pixmap = QPixmap.fromImage(p)
         self.original_visibility = v = []
         for child in self.findChildren(QWidget):
             if child.isVisible():
@@ -412,4 +414,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

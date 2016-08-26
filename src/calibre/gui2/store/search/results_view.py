@@ -8,10 +8,33 @@ __docformat__ = 'restructuredtext en'
 
 from functools import partial
 
-from PyQt5.Qt import (pyqtSignal, QMenu, QTreeView)
+from PyQt5.Qt import (
+    pyqtSignal, QMenu, QTreeView, QStyledItemDelegate, QModelIndex, Qt, QIcon)
 
+from calibre import fit_image
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.search.models import Matches
+
+class ImageDelegate(QStyledItemDelegate):
+
+    def paint(self, painter, option, index):
+        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        img = index.data(Qt.DecorationRole)
+        if img:
+            h = option.rect.height() - 4
+            w = option.rect.width()
+            if isinstance(img, QIcon):
+                img = img.pixmap(h - 4, h - 4)
+                dpr = img.devicePixelRatio()
+            else:
+                dpr = img.devicePixelRatio()
+                scaled, nw, nh = fit_image(img.width(), img.height(), w, h)
+                if scaled:
+                    img = img.scaled(nw*dpr, nh*dpr, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            iw, ih = int(img.width()/dpr), int(img.height()/dpr)
+            dx, dy = (option.rect.width() - iw) // 2, (option.rect.height() - ih) // 2
+            painter.drawPixmap(option.rect.adjusted(dx, dy, -dx, -dy), img)
+
 
 class ResultsView(QTreeView):
 
@@ -25,9 +48,12 @@ class ResultsView(QTreeView):
         self.setModel(self._model)
 
         self.rt_delegate = RichTextDelegate(self)
+        self.img_delegate = ImageDelegate(self)
 
         for i in self._model.HTML_COLS:
             self.setItemDelegateForColumn(i, self.rt_delegate)
+        for i in self._model.IMG_COLS:
+            self.setItemDelegateForColumn(i, self.img_delegate)
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())

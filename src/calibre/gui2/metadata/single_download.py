@@ -637,7 +637,7 @@ class CoversModel(QAbstractListModel):  # {{{
             current_cover = QPixmap(I('default_cover.png'))
         current_cover.setDevicePixelRatio(QApplication.instance().devicePixelRatio())
 
-        self.blank = QPixmap(I('blank.png')).scaled(*CoverDelegate.ICON_SIZE)
+        self.blank = QIcon(I('blank.png')).pixmap(*CoverDelegate.ICON_SIZE)
         self.cc = current_cover
         self.reset_covers(do_reset=False)
 

@@ -6,7 +6,7 @@ from future_builtins import map
 from threading import Thread, Event
 
 from PyQt5.Qt import (QObject, pyqtSignal, Qt, QUrl, QDialog, QGridLayout,
-        QLabel, QCheckBox, QDialogButtonBox, QIcon, QPixmap)
+        QLabel, QCheckBox, QDialogButtonBox, QIcon)
 
 from calibre.constants import (__appname__, __version__, iswindows, isosx,
         isportable, is64bit, numeric_version)
@@ -105,8 +105,7 @@ class UpdateNotification(QDialog):
         self.setLayout(self.l)
         self.logo = QLabel()
         self.logo.setMaximumWidth(110)
-        self.logo.setPixmap(QPixmap(I('lt.png')).scaled(100, 100,
-            Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        self.logo.setPixmap(QIcon(I('lt.png')).pixmap(100, 100))
         ver = calibre_version
         if ver.endswith('.0'):
             ver = ver[:-2]
