@@ -126,6 +126,7 @@ def run_remote_upload(args):
 
 def upload_to_fosshub():
     # fosshub has no API to do partial uploads, so we always upload all files.
+    print('Sending upload request to fosshub...')
     files = set(installers())
     entries = []
     for fname in files:
