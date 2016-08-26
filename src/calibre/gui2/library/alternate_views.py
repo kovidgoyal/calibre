@@ -627,7 +627,7 @@ class GridView(QListView):
         self.padding_left = 0
         self.set_color()
         self.ignore_render_requests = Event()
-        dpr = self.devicePixelRatio()
+        dpr = self.device_pixel_ratio
         self.thumbnail_cache = ThumbnailCache(max_size=gprefs['cover_grid_disk_cache_size'],
             thumbnail_size=(int(dpr * self.delegate.cover_size.width()), int(dpr * self.delegate.cover_size.height())))
         self.render_thread = None
@@ -643,6 +643,13 @@ class GridView(QListView):
         self.resize_timer = t = QTimer(self)
         t.setInterval(200), t.setSingleShot(True)
         t.timeout.connect(self.update_memory_cover_cache_size)
+
+    @property
+    def device_pixel_ratio(self):
+        try:
+            return self.devicePixelRatioF()
+        except AttributeError:
+            return self.devicePixelRatio()
 
     @property
     def first_visible_row(self):
@@ -728,7 +735,7 @@ class GridView(QListView):
             self.setSpacing(self.delegate.spacing)
         self.set_color()
         if size_changed:
-            dpr = self.devicePixelRatio()
+            dpr = self.device_pixel_ratio
             self.thumbnail_cache.set_thumbnail_size(int(dpr * self.delegate.cover_size.width()), int(dpr*self.delegate.cover_size.height()))
         cs = gprefs['cover_grid_disk_cache_size']
         if (cs*(1024**2)) != self.thumbnail_cache.max_size:
@@ -793,7 +800,7 @@ class GridView(QListView):
         if has_cover:
             p = QImage()
             p.loadFromData(cdata, CACHE_FORMAT if cdata is tcdata else 'JPEG')
-            dpr = self.devicePixelRatio()
+            dpr = self.device_pixel_ratio
             p.setDevicePixelRatio(dpr)
             if p.isNull() and cdata is tcdata:
                 # Invalid image in cache
