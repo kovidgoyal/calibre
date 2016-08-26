@@ -20,6 +20,40 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.65.0
+  date: 2016-08-26
+
+  new features:
+    - title: "Driver for Kobo Aura One and Aura Edition 2"
+
+    - title: "Kobo driver: Add an option to ignore some collections on the device. The specified collections will not be touched by the driver."
+
+    - title: "Add an option in Preferences->Searching to make searching case-sensitive"
+
+    - title: "DOCX Input: Add support for right-to-left text/tables"
+      tickets: [1569771] 
+
+  bug fixes:
+    - title: "Fix some icons/images in the user interface looking blurred in environments with High DPI scaling enabled, such as OS X retina screens"
+
+    - title: "DOCX Input: Fix images that have the # character in their filenames not being converted correctly."
+      tickets: [1616482]
+
+    - title: "ToC wizard: Fix generating toc from headings/xpath yielding unexpected results when tags are present out of sequence"
+
+    - title: "Edit Book: Fix drag and drop of text replacing non-breaking spaces with normal spaces"
+
+    - title: "E-book viewer: Fix duplicate names in hyphenation dictionary chooser."
+      tickets: [1615040]
+
+    - title: "Fix a regression in the previous release that caused the completion popups for some custom column types in the book list to stop working."
+      tickets: [1612640]
+
+  improved recipes:
+    - Le Scienze
+    - New Yorker
+
+
 - version: 2.64.0
   date: 2016-08-12
 
