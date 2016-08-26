@@ -882,8 +882,7 @@ class Application(QApplication):
             else:
                 # Should probably make a preference to allow the user to
                 # control this, if needed.
-                # Could have options: auto, off, 0.75, 1, 1.25, 1.5, 1.75, 2,
-                # 2.25, 2.5
+                # Could have options: auto, off, 1.25, 1.5, 1.75, 2, 2.25, 2.5
                 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, qargs)
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
