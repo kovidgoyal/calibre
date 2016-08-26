@@ -16,7 +16,7 @@ ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        plugins, config_dir, filesystem_encoding, isxp)
+        plugins, config_dir, filesystem_encoding, isxp, DEBUG)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -886,6 +886,12 @@ class Application(QApplication):
                 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QApplication.__init__(self, qargs)
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
+        if DEBUG and not headless:
+            prints('devicePixelRatio:', self.devicePixelRatio())
+            s = self.primaryScreen()
+            if s:
+                prints('logicalDpi:', s.logicalDotsPerInchX(), 'x', s.logicalDotsPerInchY())
+                prints('physicalDpi:', s.physicalDotsPerInchX(), 'x', s.physicalDotsPerInchY())
         if not iswindows:
             self.setup_unix_signals()
         if islinux or isbsd:
