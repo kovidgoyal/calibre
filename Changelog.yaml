@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title: 
 
-- version: 2.65.0
+- version: 2.65.1
   date: 2016-08-26
 
   new features:
@@ -48,6 +48,8 @@
 
     - title: "Fix a regression in the previous release that caused the completion popups for some custom column types in the book list to stop working."
       tickets: [1612640]
+
+    - title: "Version 2.65.1 contains a quick-fix for a typo in 2.65.0 that caused calibre to crash when a device is connected and the cover grid is enabled"
 
   improved recipes:
     - Le Scienze
