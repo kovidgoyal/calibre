@@ -12,7 +12,7 @@ from urlparse import urlparse
 
 from PyQt5.Qt import (
     QObject, QApplication, QDialog, QGridLayout, QLabel, QSize, Qt,
-    QDialogButtonBox, QIcon, QPixmap, QInputDialog, QUrl, pyqtSignal)
+    QDialogButtonBox, QIcon, QInputDialog, QUrl, pyqtSignal)
 
 from calibre import prints, isbytestring
 from calibre.constants import cache_dir
@@ -1516,9 +1516,8 @@ class Boss(QObject):
             d.setLayout(d.l)
             d.setWindowTitle(_('Unsaved changes'))
             d.i = QLabel('')
-            d.i.setPixmap(QPixmap(I('save.png')).scaledToHeight(64, Qt.SmoothTransformation))
-            d.i.setMaximumSize(QSize(d.i.pixmap().width(), 64))
-            d.i.setScaledContents(True)
+            d.i.setMaximumSize(QSize(64, 64))
+            d.i.setPixmap(QIcon(I('dialog_warning.png')).pixmap(d.i.maximumSize()))
             d.l.addWidget(d.i, 0, 0)
             d.m = QLabel(_('There are unsaved changes, if you quit without saving, you will lose them.'))
             d.m.setWordWrap(True)
