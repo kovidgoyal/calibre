@@ -62,7 +62,7 @@ def parse_details_page(url, log, timeout, browser, domain):
     if domain == 'jp':
         for a in root.xpath('//a[@href]'):
             if 'black-curtain-redirect.html' in a.get('href'):
-                url = 'http://amazon.co.jp'+a.get('href')
+                url = 'https://amazon.co.jp'+a.get('href')
                 log('Black curtain redirect found, following')
                 return parse_details_page(url, log, timeout, browser, domain)
 
@@ -669,7 +669,7 @@ class Worker(Thread):  # Get details {{{
             if 'data:' in src:
                 continue
             if 'loading-' in src:
-                js_img = re.search(br'"largeImage":"(http://[^"]+)",',raw)
+                js_img = re.search(br'"largeImage":"(https?://[^"]+)",',raw)
                 if js_img:
                     src = js_img.group(1).decode('utf-8')
             if ('/no-image-avail' not in src and 'loading-' not in src and '/no-img-sm' not in src):
@@ -832,13 +832,13 @@ class Amazon(Source):
         if domain and asin:
             url = None
             if domain == 'com':
-                url = 'http://amzn.com/'+asin
+                url = 'https://amzn.com/'+asin
             elif domain == 'uk':
-                url = 'http://www.amazon.co.uk/dp/'+asin
+                url = 'https://www.amazon.co.uk/dp/'+asin
             elif domain == 'br':
-                url = 'http://www.amazon.com.br/dp/'+asin
+                url = 'https://www.amazon.com.br/dp/'+asin
             else:
-                url = 'http://www.amazon.%s/dp/%s'%(domain, asin)
+                url = 'https://www.amazon.%s/dp/%s'%(domain, asin)
             if url:
                 idtype = 'amazon' if domain == 'com' else 'amazon_'+domain
                 return domain, idtype, asin, url
@@ -964,7 +964,7 @@ class Amazon(Source):
         encoded_q = dict([(x.encode(encode_to, 'ignore'), y.encode(encode_to,
             'ignore')) for x, y in
             q.iteritems()])
-        url = 'http://www.amazon.%s/s/?'%self.get_website_domain(domain) + urlencode(encoded_q)
+        url = 'https://www.amazon.%s/s/?'%self.get_website_domain(domain) + urlencode(encoded_q)
         return url, domain
 
     # }}}
@@ -1005,7 +1005,7 @@ class Amazon(Source):
             if title_ok(title):
                 url = a.get('href')
                 if url.startswith('/'):
-                    url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                    url = 'https://www.amazon.%s%s' % (self.get_website_domain(domain), url)
                 matches.append(url)
 
         if not matches:
@@ -1020,7 +1020,7 @@ class Amazon(Source):
                     if title_ok(title):
                         url = a.get('href')
                         if url.startswith('/'):
-                            url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                            url = 'https://www.amazon.%s%s' % (self.get_website_domain(domain), url)
                         matches.append(url)
                     break
 
@@ -1034,7 +1034,7 @@ class Amazon(Source):
                     if title_ok(title):
                         url = a.get('href')
                         if url.startswith('/'):
-                            url = 'http://www.amazon.%s%s' % (self.get_website_domain(domain), url)
+                            url = 'https://www.amazon.%s%s' % (self.get_website_domain(domain), url)
                         matches.append(url)
                     break
         if not matches and root.xpath('//form[@action="/errors/validateCaptcha"]'):
