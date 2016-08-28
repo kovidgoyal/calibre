@@ -92,6 +92,7 @@ def config(defaults=None):
     c.add_opt('text_color', default=None)
     c.add_opt('background_color', default=None)
     c.add_opt('show_controls', default=True)
+    c.add_opt('page_indicator_opts', default=0)
 
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Times New Roman' if iswindows else 'Liberation Serif',
@@ -360,6 +361,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.opt_show_controls.setChecked(opts.show_controls)
         from calibre.gui2.viewer.main import vprefs
         self.opt_singleinstance.setChecked(bool(vprefs['singleinstance']))
+        self.page_indicator_opts.setCurrentIndex(opts.page_indicator_opts)
 
     def change_color(self, which, reset=False):
         if reset:
@@ -445,6 +447,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('text_color', self.current_text_color)
         c.set('background_color', self.current_background_color)
         c.set('show_controls', self.opt_show_controls.isChecked())
+        c.set('page_indicator_opts', self.page_indicator_opts.currentIndex())
         for x in ('top', 'bottom', 'side'):
             c.set(x+'_margin', int(getattr(self, 'opt_%s_margin'%x).value()))
         from calibre.gui2.viewer.main import dprefs, vprefs

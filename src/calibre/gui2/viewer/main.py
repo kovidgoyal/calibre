@@ -148,6 +148,7 @@ class EbookViewer(MainWindow):
         self.current_book_has_toc = False
         self.iterator          = None
         self.current_page      = None
+        self.page_anchors      = None
         self.pending_search    = None
         self.pending_search_dir= None
         self.pending_anchor    = None
@@ -480,7 +481,9 @@ class EbookViewer(MainWindow):
     def update_clock(self):
         self.clock_label.setText(QTime.currentTime().toString(Qt.SystemLocaleShortDate))
 
+    # cw: -XXX- This looks to be where the action is!
     def update_pos_label(self, *args):
+        next_section = self.get_next_section_index()
         if self.pos_label.isVisible():
             try:
                 value, maximum = args
@@ -694,6 +697,12 @@ class EbookViewer(MainWindow):
             return -1
         self.current_page = self.iterator.spine[index]
         self.current_index = index
+        d = self.view.document
+        sp = self.current_page.start_page
+        total_cols = float(d.scroll_width) / d.page_width
+        self.page_anchors = map(lambda ap:
+                ap[0] * total_cols ** -1 * (self.current_page.pages - 1) + sp,
+                sorted(d.anchor_positions.values()))
         self.set_page_number(self.view.scroll_fraction)
         QTimer.singleShot(100, self.update_indexing_state)
         if self.pending_search is not None:
@@ -714,11 +723,15 @@ class EbookViewer(MainWindow):
             self.view.document.page_position.restore()
         return self.current_index
 
-    def goto_next_section(self):
+    def get_next_section_index(self):
         if hasattr(self, 'current_index'):
             entry = self.toc_model.next_entry(self.current_index,
-                    self.view.document.read_anchor_positions(),
-                    self.view.viewport_rect, self.view.document.in_paged_mode)
+                                              self.view.document.read_anchor_positions(),
+                                              self.view.viewport_rect, self.view.document.in_paged_mode)
+            return entry
+
+    def goto_next_section(self):
+            entry = self.get_next_section_index()
             if entry is not None:
                 self.pending_goto_next_section = (
                         self.toc_model.currently_viewed_entry, entry, False)
@@ -759,6 +772,19 @@ class EbookViewer(MainWindow):
                                 self.toc_model.currently_viewed_entry, entry,
                                 pgns[2])
                         self.toc_clicked(entry.index(), force=True)
+        #if hasattr(self, 'current_page'):
+        #    page_anchors = []
+        #    for idx_e in self.current_page.index_entries:
+        #        if idx_e.start_anchor is not None:
+        #            we = self.view.document.mainFrame().findFirstElement(
+        #                    "#%s" % idx_e.start_anchor)
+        #            if we is not None:
+        #                g = we.geometry()
+        #                cs = self.view.document.mainFrame().contentsSize()
+        #                f = float(g.left()) / float(cs.width()) * \
+        #                        self.iterator.pages[self.current_index]
+        #            page_anchors.append(f + self.current_page.start_page)
+        #    self.page_anchors = page_anchors
 
     def load_path(self, path, pos=0.0):
         self.open_progress_indicator(_('Laying out %s')%self.current_title)
@@ -984,10 +1010,11 @@ class EbookViewer(MainWindow):
             self.current_book_has_toc = bool(self.iterator.toc)
             self.current_title = title
             self.setWindowTitle(title + ' [%s]'%self.iterator.book_format + ' - ' + self.base_window_title)
-            self.pos.setMaximum(sum(self.iterator.pages))
-            self.pos.setSuffix(' / %d'%sum(self.iterator.pages))
+            self.total_pages = sum(self.iterator.pages)
+            self.pos.setMaximum(self.total_pages)
+            self.pos.setSuffix(' / %d'%self.total_pages)
             self.vertical_scrollbar.setMinimum(100)
-            self.vertical_scrollbar.setMaximum(100*sum(self.iterator.pages))
+            self.vertical_scrollbar.setMaximum(100*self.total_pages)
             self.vertical_scrollbar.setSingleStep(10)
             self.vertical_scrollbar.setPageStep(100)
             self.set_vscrollbar_value(1)
@@ -1017,9 +1044,50 @@ class EbookViewer(MainWindow):
         self.vertical_scrollbar.blockSignals(False)
 
     def set_page_number(self, frac):
-        if getattr(self, 'current_page', None) is not None:
-            page = self.current_page.start_page + frac*float(self.current_page.pages-1)
+        if self.current_page is not None:
+            page = self.current_page.start_page + \
+                    frac * float(self.current_page.pages - 1)
+            chEnd = None
+            #if len(ap) > 1:
+            #    # This is in columns, still need PAGE
+            #    sorted_ap_k = sorted(ap, key=lambda apk: apk[0])
+            #    if len(ap) == 1:
+            #        chEnd = ap[sorted_ap_k[0]]
+            #    else:
+            #        for idx, k in enumerate(sorted_ap_k):
+            #            pa = ap[sorted_ap_k[idx]]
+            #            if pa >= page:
+            #                chEnd = ap[sorted_ap_k[idx - 1]]
+            #                break
+            if self.page_anchors is not None:
+                if len(self.page_anchors) == 1:
+                    chEnd = self.page_anchors[0]
+                elif len(self.page_anchors) > 1:
+                    for idx, pa in enumerate(self.page_anchors):
+                        if pa >= page:
+                            if idx >= 1:
+                                chEnd = self.page_anchors[idx - 1]
+                            break
+            if chEnd is None or page > chEnd:
+                chEnd = self.current_page.start_page + \
+                        self.current_page.pages - 1
             self.pos.set_value(page)
+        # self.view.document.page_indicator_opts
+        # 0 - No Chapter Indicator
+        # 1 - Book Delta
+        # 2 - Chapter
+        # 3 - Chapter Delta
+        # 4 - Chapter Delta and Book Delta
+        po = self.view.document.page_indicator_opts
+        if self.current_page is not None:
+            if po == 1:
+                self.pos.setSuffix(" / {0:.1f}".format(chEnd - page))
+            elif po == 2:
+                self.pos.setSuffix(" / {0:.1f} / {1:.1f}".format(chEnd, self.total_pages));
+            elif po == 3:
+                self.pos.setSuffix(" / {0:.1f} / {1:.1f}".format(chEnd - page, self.total_pages));
+            elif po == 4:
+                self.pos.setSuffix(" / {0:.1f} / {1:.1f}".format(chEnd - page, self.total_pages - page));
             self.set_vscrollbar_value(page)
 
     def scrolled(self, frac, onload=False):

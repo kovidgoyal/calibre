@@ -109,6 +109,8 @@ class Document(QWebPage):  # {{{
                     dynamic_coffeescript=self.debug_javascript)
         self.in_fullscreen_mode = False
         self.math_present = False
+        self.page_width = 0
+        self.scroll_width = 0
 
         self.setLinkDelegationPolicy(self.DelegateAllLinks)
         self.scroll_marks = []
@@ -194,6 +196,7 @@ class Document(QWebPage):  # {{{
         self.remember_current_page = opts.remember_current_page
         self.copy_bookmarks_to_file = opts.copy_bookmarks_to_file
         self.search_online_url = opts.search_online_url or 'https://www.google.com/search?q={text}'
+        self.page_indicator_opts = opts.page_indicator_opts
 
     def fit_images(self):
         if self.do_fit_images and not self.in_paged_mode:
@@ -269,6 +272,7 @@ class Document(QWebPage):  # {{{
         if self.in_paged_mode:
             self.switch_to_paged_mode(last_loaded_path=last_loaded_path)
         self.read_anchor_positions(use_cache=False)
+        self.page_width = self.javascript('window.paged_display.page_width', int)
         evaljs = self.mainFrame().evaluateJavaScript
         for pl in self.all_viewer_plugins:
             pl.run_javascript(evaljs)
@@ -320,11 +324,11 @@ class Document(QWebPage):  # {{{
         side_margin = self.javascript('window.paged_display.layout(%s)'%f, typ=int)
         mf = self.mainFrame()
         sz = mf.contentsSize()
-        scroll_width = self.javascript('document.body.scrollWidth', int)
+        self.scroll_width = self.javascript('document.body.scrollWidth', int)
         # At this point sz.width() is not reliable, presumably because Qt
         # has not yet been updated
-        if scroll_width > self.window_width:
-            sz.setWidth(scroll_width+side_margin)
+        if self.scroll_width > self.window_width:
+            sz.setWidth(self.scroll_width+side_margin)
             self.setPreferredContentsSize(sz)
         self.javascript('window.paged_display.fit_images()')
 
@@ -416,6 +420,7 @@ class Document(QWebPage):  # {{{
     def jump_to_anchor(self, anchor):
         if not self.loaded_javascript:
             return
+
         self.javascript('window.paged_display.jump_to_anchor("%s")'%anchor)
 
     def element_ypos(self, elem):
@@ -952,7 +957,7 @@ class DocumentView(QWebView):  # {{{
                 self.scrollbar.setRange(0, delta)
                 self.scrollbar.setValue(0)
                 self.scrollbar.setSingleStep(1)
-                self.scrollbar.setPageStep(int(delta/10.))
+                self.scrollbar.setPageStep(int(delta / 10.))
             self.scrollbar.setVisible(delta > 0)
             self.scrollbar.blockSignals(False)
             self._ignore_scrollbar_signals = False
