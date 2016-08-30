@@ -6,8 +6,7 @@ from functools import partial
 
 import apsw
 from PyQt5.Qt import (
-    QCoreApplication, QIcon, QObject, QTimer, Qt, QSplashScreen, QBrush,
-    QColor, QPixmap)
+    QCoreApplication, QIcon, QObject, QTimer, Qt, QSplashScreen, QBrush, QColor)
 
 from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
@@ -100,7 +99,7 @@ def init_qt(args):
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override)
     app.file_event_hook = EventAccumulator()
-    app.setWindowIcon(QIcon(I('lt.png')))
+    app.setWindowIcon(QIcon(I('lt.png', allow_user_override=False)))
     return app, opts, args
 
 
@@ -165,10 +164,8 @@ class SplashScreen(QSplashScreen):
 
     def __init__(self):
         self.drawn_once = False
-        QSplashScreen.__init__(self)
-        pmap = QPixmap(I('library.png'))
-        pmap.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
-        self.setPixmap(pmap)
+        pmap = QIcon(I('library.png', allow_user_override=False)).pixmap(512, 512)
+        QSplashScreen.__init__(self, pmap)
         self.setWindowTitle(__appname__)
 
     def drawContents(self, painter):

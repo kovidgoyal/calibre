@@ -13,7 +13,7 @@ base = d(a(__file__))
 os.chdir(base)
 
 imgsrc = j(d(d(base)), 'imgsrc')
-sources = {'calibre':j(d(base), 'calibre.png'), 'ebook-edit':j(imgsrc, 'tweak.svg'), 'ebook-viewer':j(imgsrc, 'viewer.svg'), 'book':j(imgsrc, 'book.svg')}
+sources = {'calibre':j(imgsrc, 'calibre.svg'), 'ebook-edit':j(imgsrc, 'tweak.svg'), 'ebook-viewer':j(imgsrc, 'viewer.svg'), 'book':j(imgsrc, 'book.svg')}
 
 for name, src in sources.iteritems():
     iconset = name + '.iconset'
@@ -39,7 +39,7 @@ for name, src in sources.iteritems():
                 os.remove(iname)
             for name in (iname, iname2x):
                 if os.path.exists(name):
-                    subprocess.check_call(['optipng', '-o7', name])
+                    subprocess.check_call(['optipng', '-o7', '-strip', 'all', name])
     finally:
         os.chdir('..')
 
