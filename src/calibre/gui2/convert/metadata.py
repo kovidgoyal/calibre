@@ -97,11 +97,14 @@ class MetadataWidget(Widget, Ui_Form):
             pm = QPixmap()
             pm.loadFromData(cover)
             if not pm.isNull():
+                pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
                 self.cover.setPixmap(pm)
                 self.cover_data = cover
                 self.set_cover_tooltip(pm)
         else:
-            self.cover.setPixmap(QPixmap(I('default_cover.png')))
+            pm = QPixmap(I('default_cover.png'))
+            pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
+            self.cover.setPixmap(pm)
             self.cover.setToolTip(_('This book has no cover'))
         for x in ('author', 'series', 'publisher'):
             x = getattr(self, x)
@@ -201,6 +204,7 @@ class MetadataWidget(Widget, Ui_Form):
             if cover:
                 pix = QPixmap()
                 pix.loadFromData(cover)
+                pix.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
                 if pix.isNull():
                     d = error_dialog(self.parent(), _('Error reading file'),
                                       _file + _(" is not a valid picture"))

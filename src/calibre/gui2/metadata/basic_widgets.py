@@ -1172,6 +1172,7 @@ class Cover(ImageView):  # {{{
                 pm = QPixmap(I('default_cover.png'))
             else:
                 self._cdata = cdata
+            pm.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
             self.setPixmap(pm)
             tt = _('This book has no cover')
             if self._cdata:

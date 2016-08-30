@@ -343,9 +343,9 @@ class ImageView(QWidget, ImageDropMixin):  # {{{
         cw, ch = self.rect().width(), self.rect().height()
         scaled, nw, nh = fit_image(w, h, cw, ch)
         if scaled:
-            pmap = pmap.scaled(nw, nh, Qt.IgnoreAspectRatio,
+            pmap = pmap.scaled(nw*pmap.devicePixelRatio(), nh*pmap.devicePixelRatio(), Qt.IgnoreAspectRatio,
                     Qt.SmoothTransformation)
-        w, h = pmap.width(), pmap.height()
+        w, h = pmap.width()/pmap.devicePixelRatio(), pmap.height()/pmap.devicePixelRatio()
         x = int(abs(cw - w)/2.)
         y = int(abs(ch - h)/2.)
         target = QRect(x, y, w, h)
