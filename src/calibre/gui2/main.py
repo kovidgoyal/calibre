@@ -165,7 +165,10 @@ class SplashScreen(QSplashScreen):
 
     def __init__(self):
         self.drawn_once = False
-        QSplashScreen.__init__(self, QPixmap(I('library.png')))
+        QSplashScreen.__init__(self)
+        pmap = QPixmap(I('library.png'))
+        pmap.setDevicePixelRatio(getattr(self, 'devicePixelRatioF', self.devicePixelRatio)())
+        self.setPixmap(pmap)
         self.setWindowTitle(__appname__)
 
     def drawContents(self, painter):
