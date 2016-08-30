@@ -10,7 +10,7 @@ import sys
 from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOptionViewItem,
         QSpinBox, QStyledItemDelegate, QComboBox, QTextDocument, QMenu, QKeySequence,
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
-        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize)
+        QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit)
 
 from calibre.gui2 import UNDEFINED_QDATETIME, rating_font
 from calibre.constants import iswindows
@@ -464,7 +464,11 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             complete_items = sorted(list(m.db.all_custom(label=key)), key=sort_key)
             editor.update_items_cache(complete_items)
         else:
-            editor = QStyledItemDelegate.createEditor(self, parent, option, index)
+            editor = QLineEdit(parent)
+            text = index.data(Qt.DisplayRole)
+            if text:
+                editor.setText(text)
+                editor.selectAll()
         return editor
 
     def setEditorData(self, editor, index):
