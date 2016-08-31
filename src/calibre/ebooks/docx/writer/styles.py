@@ -485,8 +485,12 @@ class BlockStyle(DOCXStyle):
             self.background_color = None
             self.text_align = 'left'
         else:
-            self.text_indent = int(css['text-indent'] * 20)
-            self.css_text_indent = css._get('text-indent')
+            try:
+                self.text_indent = int(css['text-indent'] * 20)
+                self.css_text_indent = css._get('text-indent')
+            except (TypeError, ValueError):
+                self.text_indent = 0
+                self.css_text_indent = None
             try:
                 self.line_height = max(0, int(css.lineHeight * 20))
             except (TypeError, ValueError):
