@@ -1318,7 +1318,10 @@ class KOBOTOUCH(KOBO):
     min_dbversion_activity          = 77
     min_dbversion_keywords          = 82
 
-    max_supported_fwversion         = (3, 19, 5761)
+    # Starting with firmware version 3.19.x, the last number appears to be is a
+    # build number. A number will be recorded here but It can be safely ignored
+    # when testing the firmware version.
+    max_supported_fwversion         = (3, 20, 7413)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -2566,9 +2569,15 @@ class KOBOTOUCH(KOBO):
     def delete_empty_bookshelves(self, connection):
         debug_print("KoboTouch:delete_empty_bookshelves - start")
 
+        ignore_collections_in = ''
+        if self.ignore_collections_names:
+            ignore_collections_in = ','.join(["'%s'" % collections_name for collections_name in self.ignore_collections_names])
+            ignore_collections_in = ', %s' % ignore_collections_in
+
         delete_query = ("DELETE FROM Shelf "
                         "WHERE Shelf._IsSynced = 'false' "
-                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist') "
+                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_in + ") "
+                        "AND Type <> 'SystemTag' "
                         "AND NOT EXISTS "
                         "(SELECT 1 FROM ShelfContent c "
                         "WHERE Shelf.Name = C.ShelfName "
@@ -2577,7 +2586,8 @@ class KOBOTOUCH(KOBO):
         update_query = ("UPDATE Shelf "
                         "SET _IsDeleted = 'true' "
                         "WHERE Shelf._IsSynced = 'true' "
-                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist') "
+                        "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_in + ") "
+                        "AND Type <> 'SystemTag' "
                         "AND NOT EXISTS "
                         "(SELECT 1 FROM ShelfContent C "
                         "WHERE Shelf.Name = C.ShelfName "
@@ -2917,7 +2927,10 @@ class KOBOTOUCH(KOBO):
         return self.manage_collections and self.get_pref('delete_empty_collections')
     @property
     def ignore_collections_names(self):
-        return [x.lower().strip() for x in self.get_pref('ignore_collections_names').split(',')]
+        # Cache the collection from the options string.
+        if not hasattr(self.opts, '_ignore_collections_names'):
+            self.opts._ignore_collections_names = [x.lower().strip() for x in self.get_pref('ignore_collections_names').split(',')] if len(self.get_pref('ignore_collections_names')) > 0 else []
+        return self.opts._ignore_collections_names
     @property
     def create_bookshelves(self):
         # Only for backwards compatabilty
