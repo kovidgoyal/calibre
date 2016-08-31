@@ -6,7 +6,7 @@ from functools import partial
 
 import apsw
 from PyQt5.Qt import (
-    QCoreApplication, QIcon, QObject, QTimer, Qt, QSplashScreen, QBrush, QColor)
+    QCoreApplication, QIcon, QObject, QTimer)
 
 from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
@@ -16,6 +16,7 @@ from calibre.gui2 import (
     ORG_NAME, APP_UID, initialize_file_icon_provider, Application, choose_dir,
     error_dialog, question_dialog, gprefs, setup_gui_option_parser)
 from calibre.gui2.main_window import option_parser as _option_parser
+from calibre.gui2.splash_screen import SplashScreen
 from calibre.utils.config import prefs, dynamic
 
 if iswindows:
@@ -159,36 +160,6 @@ class EventAccumulator(object):
 
     def __call__(self, ev):
         self.events.append(ev)
-
-class SplashScreen(QSplashScreen):
-
-    def __init__(self):
-        self.drawn_once = False
-        pmap = QIcon(I('library.png', allow_user_override=False)).pixmap(512, 512)
-        QSplashScreen.__init__(self, pmap)
-        self.setWindowTitle(__appname__)
-
-    def drawContents(self, painter):
-        self.drawn_once = True
-        painter.setBackgroundMode(Qt.OpaqueMode)
-        painter.setBackground(QBrush(QColor(0xee, 0xee, 0xee)))
-        painter.setPen(Qt.black)
-        painter.setRenderHint(painter.TextAntialiasing, True)
-        r = self.rect().adjusted(5, 5, -5, -5)
-        br = painter.drawText(r, Qt.AlignLeft, self.message())
-        painter.fillRect(br.adjusted(-2, -3, 80, 3), painter.background())
-        br = painter.drawText(r, Qt.AlignLeft, self.message())
-
-    def show_message(self, msg):
-        self.showMessage(msg)
-        self.wait_for_draw()
-
-    def wait_for_draw(self):
-        # Without this the splash screen is not painted on linux and windows
-        self.drawn_once = False
-        st = time.time()
-        while not self.drawn_once and (time.time() - st < 0.1):
-            Application.instance().processEvents()
 
 class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
