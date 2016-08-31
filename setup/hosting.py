@@ -223,7 +223,7 @@ def generate_index():  # {{{
             rmap[series] = []
         rmap[series].append(rnum)
 
-    template = '''<!DOCTYPE html>\n<html lang="en"> <head> <meta charset="utf-8"> <title>{title}</title> <style type="text/css"> {style} </style> </head> <body> <h1>{title}</h1> <p>{msg}</p> {body} </body> </html> '''  # noqa
+    template = '''<!DOCTYPE html>\n<html lang="en"> <head> <meta charset="utf-8"> <title>{title}</title><link rel="icon" type="image/png" href="//calibre-ebook.com/favicon.png" /> <style type="text/css"> {style} </style> </head> <body> <h1>{title}</h1> <p>{msg}</p> {body} </body> </html> '''  # noqa
     style = '''
     body { font-family: sans-serif; background-color: #eee; }
     a { text-decoration: none; }
