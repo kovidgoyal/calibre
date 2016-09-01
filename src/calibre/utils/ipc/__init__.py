@@ -9,7 +9,9 @@ __docformat__ = 'restructuredtext en'
 import os, errno
 from threading import Thread
 
+from calibre import force_unicode
 from calibre.constants import iswindows, get_windows_username, islinux
+from calibre.utils.filenames import ascii_filename
 
 ADDRESS = VADDRESS = None
 
@@ -32,7 +34,6 @@ def gui_socket_address():
             except:
                 user = None
             if user:
-                from calibre.utils.filenames import ascii_filename
                 user = ascii_filename(user).replace(' ', '_')
                 if user:
                     ADDRESS += '-' + user[:100] + 'x'
@@ -41,7 +42,7 @@ def gui_socket_address():
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
             if islinux:
-                ADDRESS = (u'\0%s-calibre-gui.socket' % user).encode('ascii')
+                ADDRESS = (u'\0%s-calibre-gui.socket' % ascii_filename(force_unicode(user))).encode('ascii')
             else:
                 from tempfile import gettempdir
                 tmp = gettempdir()
@@ -59,7 +60,6 @@ def viewer_socket_address():
             except:
                 user = None
             if user:
-                from calibre.utils.filenames import ascii_filename
                 user = ascii_filename(user).replace(' ', '_')
                 if user:
                     VADDRESS += '-' + user[:100] + 'x'
@@ -68,7 +68,7 @@ def viewer_socket_address():
             if not user:
                 user = os.path.basename(os.path.expanduser('~'))
             if islinux:
-                VADDRESS = (u'\0%s-calibre-viewer.socket' % user).encode('ascii')
+                VADDRESS = (u'\0%s-calibre-viewer.socket' % ascii_filename(force_unicode(user))).encode('ascii')
             else:
                 from tempfile import gettempdir
                 tmp = gettempdir()
