@@ -177,6 +177,14 @@ class POCKETBOOK360(EB600):
     def can_handle(cls, dev, debug=False):
         return dev[-1] == '1.00' and not dev[-2] and not dev[-3]
 
+class POCKETBOOKHD(EB600):
+
+    name = 'Pocket Touch HD Device Interface'
+    gui_name = 'PocketBook HD'
+    PRODUCT_ID  = [0x6a42]
+    BCD         = [0x9999]
+    FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'docx', 'doc', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
+
 class GER2(EB600):
 
     name = 'Ganaxa GeR2 Device Interface'
