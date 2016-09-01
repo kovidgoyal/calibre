@@ -274,11 +274,6 @@ class SendEmail(QWidget, Ui_Form):
                             _('You must either set both the username <b>and</b> password for '
                             'the mail server or no username and no password at all.')).exec_()
                 return False
-            if not username and not password and enc_method != 'NONE':
-                error_dialog(self, _('Bad configuration'),
-                            _('Please enter a username and password or set'
-                               ' encryption to None ')).exec_()
-                return False
             if not (username and password) and not question_dialog(self,
                     _('Are you sure?'),
                 _('No username and password set for mailserver. Most '
