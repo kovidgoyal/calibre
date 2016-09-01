@@ -639,8 +639,9 @@ class Py2App(object):
         self.create_app_clone('console.app', specialise_plist)
         # Comes from the terminal-notifier project:
         # https://github.com/alloy/terminal-notifier
-        shutil.copytree(join(SW, 'build/notifier.app'), join(
-            self.contents_dir, 'calibre-notifier.app'))
+        dest = join(self.contents_dir, 'calibre-notifier.app')
+        shutil.copytree(join(SW, 'build/notifier.app'), dest)
+        shutil.copy2(join(self.resources_dir, 'calibre.icns'), join(dest, 'Contents', 'Resources', 'library.icns'))
 
     @flush
     def create_gui_apps(self):
