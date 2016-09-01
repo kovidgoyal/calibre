@@ -29,7 +29,11 @@ isfrozen  = hasattr(sys, 'frozen')
 isunix = isosx or islinux or ishaiku
 isportable = os.environ.get('CALIBRE_PORTABLE_BUILD', None) is not None
 ispy3 = sys.version_info.major > 2
-isxp = iswindows and sys.getwindowsversion().major < 6
+isxp = isoldvista = False
+if iswindows:
+    wver = sys.getwindowsversion()
+    isxp = wver.major < 6
+    isoldvista = wver.build < 6002
 is64bit = sys.maxsize > (1 << 32)
 isworker = 'CALIBRE_WORKER' in os.environ or 'CALIBRE_SIMPLE_WORKER' in os.environ
 if isworker:
