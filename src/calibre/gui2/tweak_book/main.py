@@ -48,7 +48,7 @@ def _run(args, notify=None):
         import ctypes
         try:
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('com.calibre-ebook.edit-book')
-        except:
+        except Exception:
             pass  # Only available on windows 7 and newer
 
     # The following two lines are needed to prevent circular imports causing

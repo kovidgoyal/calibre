@@ -100,7 +100,7 @@ def init_qt(args):
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override)
     app.file_event_hook = EventAccumulator()
-    app.setWindowIcon(QIcon(I('lt.png', allow_user_override=False)))
+    app.setWindowIcon(QIcon(I('library.png', allow_user_override=False)))
     return app, opts, args
 
 
@@ -461,6 +461,16 @@ def main(args=sys.argv):
     if args[0] == '__CALIBRE_GUI_DEBUG__':
         gui_debug = args[1]
         args = ['calibre']
+
+    if iswindows:
+        # Ensure that all ebook editor instances are grouped together in the task
+        # bar. This prevents them from being grouped with viewer process when
+        # launched from within calibre, as both use calibre-parallel.exe
+        import ctypes
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('com.calibre-ebook.main-gui')
+        except Exception:
+            pass  # Only available on windows 7 and newer
 
     try:
         app, opts, args = init_qt(args)

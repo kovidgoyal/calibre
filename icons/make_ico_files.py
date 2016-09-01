@@ -19,12 +19,15 @@ for name, src in sources.iteritems():
     os.mkdir('ico_temp')
     try:
         names = []
-        for sz in (16, 32, 48, 256):
+        for sz in (16, 24, 32, 48, 64, 256):
             iname = os.path.join('ico_temp', '{0}x{0}.png'.format(sz))
             subprocess.check_call(['rsvg-convert', src, '-w', str(sz), '-h', str(sz), '-o', iname])
             subprocess.check_call(['optipng', '-o7', '-strip', 'all', iname])
+            if sz >= 128:
+                names.append('-r')  # store as raw PNG to reduce size
+            else:
+                names.extend(['-t', '0'])  # see https://bugzilla.gnome.org/show_bug.cgi?id=755200
             names.append(iname)
-        names[-1:-1] = ['-r']
         subprocess.check_call(['icotool', '-c', '--output=' + name+'.ico'] + names)
     finally:
         shutil.rmtree('ico_temp')
