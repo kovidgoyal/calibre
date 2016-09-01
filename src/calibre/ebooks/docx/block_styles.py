@@ -388,9 +388,10 @@ class ParagraphStyle(object):
                         val = '%.3gpt' % val
                     c[x.replace('_', '-')] = val
             ta = self.text_align
-            if self.bidi:
-                ta = {'left':'right', 'right':'left'}.get(ta, ta)
-            c['text-align'] = ta
+            if ta is not inherit:
+                if self.bidi is True:
+                    ta = {'left':'right', 'right':'left'}.get(ta, ta)
+                c['text-align'] = ta
 
         return self._css
 
