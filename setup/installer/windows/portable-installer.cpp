@@ -499,6 +499,19 @@ static void launch_calibre() {
 
 }
 
+void makedirs(LPWSTR path) {
+    WCHAR *p = path;
+    while (*p) {
+        if ((*p == L'\\' || *p == L'/') && p != path && *(p-1) != L':') {
+            *p = 0;
+            CreateDirectory(path, NULL);
+            *p = L'\\';
+        }
+        p++;
+    }
+    CreateDirectory(path, NULL);
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 {
 
@@ -521,6 +534,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     if (argc > 1) {
         tgt = argv[1];
         automated = true;
+        if (!directory_exists(tgt)) {
+            if (GetFullPathName(tgt, MAX_PATH*4, fdest, NULL) == 0) {
+                show_last_error(L"Failed to resolve target folder");
+                goto end;
+            }
+            makedirs(fdest);
+        }
+
     } else {
         tgt = get_directory_from_user();
         if (tgt == NULL) goto end;
