@@ -20,6 +20,44 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.66.0
+  date: 2016-09-02
+
+  new features:
+    - title: "A simplified calibre logo"
+
+    - title: "Edit Book: Allow restricting a search to the files currently open for editing"
+
+    - title: "Driver for the PocketBook Touch HD"
+      tickets: [1618962]
+
+    - title: "Kobo driver: Add support for firmware version 3.20"
+
+  bug fixes:
+    - title: "DOCX Input: Fix right-to-left alignment not working for footnotes." 
+      tickets: [1617254]
+
+    - title: "Sending email: Allow setting up a mail relay that uses encryption without a username and password."
+      tickets: [1618528]
+
+    - title: "Linux: Fix calibre not working when the username is non-ASCII."
+      tickets: [1619056]
+
+    - title: "DOCX Output: Ignore invalid text-indent values in the input document instead of erroring out."
+      tickets: [1618869]
+
+    - title: "Portable Installer: Auto-create the installation folder specified on the command line if it does not exist"
+
+    - title: "Kobo driver: Fix the ignore collections in option not working"
+
+    - title: "More user interface fixes for high DPI screens"
+
+    - title: "DOCX Input: Fix a regression in the previous release that could cause invalid values to be output for the text-align CSS property"
+
+  new recipes:
+    - title: Contropiano 
+      author: michele
+
 - version: 2.65.1
   date: 2016-08-26
 
