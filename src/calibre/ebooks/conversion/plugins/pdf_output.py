@@ -10,7 +10,7 @@ Convert OEB ebook format to PDF.
 
 import glob, os
 
-from calibre.constants import iswindows, islinux
+from calibre.constants import islinux
 from calibre.customize.conversion import (OutputFormatPlugin,
     OptionRecommendation)
 from calibre.ptempfile import TemporaryDirectory
@@ -157,21 +157,14 @@ class PDFOutput(OutputFormatPlugin):
             self.cover_data = item.data
 
     def handle_embedded_fonts(self):
-        ''' On windows, Qt uses GDI which does not support OpenType
-        (CFF) fonts, so we need to nuke references to OpenType
-        fonts. Qt's directwrite text backend is not mature.
-        Also make sure all fonts are embeddable. '''
+        ''' Make sure all fonts are embeddable. '''
         from calibre.ebooks.oeb.base import urlnormalize
         from calibre.utils.fonts.utils import remove_embed_restriction
-        from PyQt5.Qt import QByteArray, QRawFont
 
-        font_warnings = set()
         processed = set()
-        is_cff = {}
         for item in list(self.oeb.manifest):
             if not hasattr(item.data, 'cssRules'):
                 continue
-            remove = set()
             for i, rule in enumerate(item.data.cssRules):
                 if rule.type == rule.FONT_FACE_RULE:
                     try:
@@ -194,18 +187,6 @@ class PDFOutput(OutputFormatPlugin):
                         if nraw != raw:
                             ff.data = nraw
                             self.oeb.container.write(path, nraw)
-
-                    if iswindows:
-                        if path not in is_cff:
-                            f = QRawFont(QByteArray(nraw), 12)
-                            is_cff[path] = f.isValid() and len(f.fontTable('head')) == 0
-                        if is_cff[path]:
-                            if path not in font_warnings:
-                                font_warnings.add(path)
-                                self.log.warn('CFF OpenType fonts are not supported on windows, ignoring: %s' % path)
-                            remove.add(i)
-            for i in sorted(remove, reverse=True):
-                item.data.cssRules.pop(i)
 
     def convert_text(self, oeb_book):
         from calibre.ebooks.metadata.opf2 import OPF
