@@ -120,29 +120,34 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.gui2 import must_use_qt, load_builtin_fonts
-        must_use_qt()
-        load_builtin_fonts()
+        # Turn off hinting in WebKit (requires a patched build of QtWebKit)
+        os.environ['CALIBRE_WEBKIT_NO_HINTING'] = '1'
+        try:
+            must_use_qt()
+            load_builtin_fonts()
 
-        self.oeb = oeb_book
-        self.input_plugin, self.opts, self.log = input_plugin, opts, log
-        self.output_path = output_path
-        from calibre.ebooks.oeb.base import OPF, OPF2_NS
-        from lxml import etree
-        from io import BytesIO
-        package = etree.Element(OPF('package'),
-            attrib={'version': '2.0', 'unique-identifier': 'dummy'},
-            nsmap={None: OPF2_NS})
-        from calibre.ebooks.metadata.opf2 import OPF
-        self.oeb.metadata.to_opf2(package)
-        self.metadata = OPF(BytesIO(etree.tostring(package))).to_book_metadata()
-        self.cover_data = None
+            self.oeb = oeb_book
+            self.input_plugin, self.opts, self.log = input_plugin, opts, log
+            self.output_path = output_path
+            from calibre.ebooks.oeb.base import OPF, OPF2_NS
+            from lxml import etree
+            from io import BytesIO
+            package = etree.Element(OPF('package'),
+                attrib={'version': '2.0', 'unique-identifier': 'dummy'},
+                nsmap={None: OPF2_NS})
+            from calibre.ebooks.metadata.opf2 import OPF
+            self.oeb.metadata.to_opf2(package)
+            self.metadata = OPF(BytesIO(etree.tostring(package))).to_book_metadata()
+            self.cover_data = None
 
-        if input_plugin.is_image_collection:
-            log.debug('Converting input as an image collection...')
-            self.convert_images(input_plugin.get_images())
-        else:
-            log.debug('Converting input as a text based book...')
-            self.convert_text(oeb_book)
+            if input_plugin.is_image_collection:
+                log.debug('Converting input as an image collection...')
+                self.convert_images(input_plugin.get_images())
+            else:
+                log.debug('Converting input as a text based book...')
+                self.convert_text(oeb_book)
+        finally:
+            os.environ.pop('CALIBRE_WEBKIT_NO_HINTING', None)
 
     def convert_images(self, images):
         from calibre.ebooks.pdf.writer import ImagePDFWriter
