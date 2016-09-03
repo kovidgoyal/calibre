@@ -31,7 +31,7 @@ from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.gui2 import error_dialog, rating_font, gprefs, NO_URL_FORMATTING
+from calibre.gui2 import error_dialog, rating_font, gprefs
 from calibre.gui2.progress_indicator import draw_snake_spinner
 from calibre.utils.date import (utcnow, fromordinal, format_date,
         UNDEFINED_DATE, as_utc)
@@ -326,7 +326,7 @@ class Comments(QWebView):  # {{{
 
     def link_clicked(self, url):
         from calibre.gui2 import open_url
-        if unicode(url.toString(NO_URL_FORMATTING)).startswith('http://'):
+        if url.scheme() in {'http', 'https'}:
             open_url(url)
 
     def turnoff_scrollbar(self, *args):
