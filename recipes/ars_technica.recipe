@@ -4,6 +4,7 @@ __copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
 arstechnica.com
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
@@ -14,36 +15,34 @@ class ArsTechnica(BasicNewsRecipe):
     __author__ = 'Darko Miletic, Sujata Raman, Alexis Rohou, Tom Sparks'
     description = 'Ars Technica: Serving the technologist for 1.2 decades'
     publisher = 'Conde Nast Publications'
-    category = 'news, IT, technology'
     oldest_article = 5
     max_articles_per_feed = 100
     no_stylesheets = True
     encoding = 'utf-8'
     use_embedded_content = False
     remove_empty_feeds = True
-    publication_type = 'newsportal'
     extra_css             = '''
-                            body {font-family: Arial,sans-serif}
-                            .heading{font-family: "Times New Roman",serif}
-                            .byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none}
-                            img{display: block}
-                            .caption-text{font-size:small; font-style:italic}
-                            .caption-byline{font-size:small; font-style:italic; font-weight:bold}
+    body {font-family: Arial,sans-serif}
+    .heading{font-family: "Times New Roman",serif}
+    .byline{font-weight: bold; line-height: 1em; font-size: 0.625em; text-decoration: none}
+    img{display: block}
+    .caption-text{font-size:small; font-style:italic}
+    .caption-byline{font-size:small; font-style:italic; font-weight:bold}
+    .video, .page-numbers, .story-sidebar { display: none }
+    .image { display: block }
     '''
 
-    conversion_options = {
-        'comments': description, 'tags': category, 'language': language, 'publisher': publisher
-    }
-
     keep_only_tags = [
-        dict(attrs={'class': 'standalone'}), dict(attrs={'id': 'article-guts'})
+        dict(itemprop=['headline', 'description']), dict(attrs={'class': ['post-meta', 'article-guts', 'standalone']})
     ]
 
     remove_tags = [
-        dict(name=['object', 'link', 'embed', 'iframe', 'meta']), dict(attrs={'class': 'corner-info'}), dict(attrs={
-            'id': 'article-footer-wrap'}), dict(attrs={'class': 'article-expander'}), dict(name='nav', attrs={'class': 'subheading'})
+        dict(name=['object', 'link', 'embed', 'iframe', 'meta']),
+        dict(attrs={'class': ['video', 'corner-info', 'article-expander']}),
+        dict(id=['social-left', 'article-footer-wrap']),
+        dict(name='nav', attrs={'class': 'subheading'}),
     ]
-    remove_attributes = ['lang']
+    remove_attributes = ['lang', 'style']
 
     feeds = [
         (u'Ars Features (All our long-form feature articles)', u'http://feeds.arstechnica.com/arstechnica/features'),
@@ -68,12 +67,13 @@ class ArsTechnica(BasicNewsRecipe):
                 nurl = nexttag.parent['href']
                 rawc = self.index_to_soup(nurl, True)
                 soup2 = BeautifulSoup(rawc, fromEncoding=self.encoding)
-                texttag = soup2.find(attrs={'id': 'article-guts'})
-                newpos = len(texttag.contents)
-                self.append_page(soup2, texttag, newpos)
-                texttag.extract()
-                pager.extract()
-                appendtag.insert(position, texttag)
+                texttag = soup2.find(attrs={'class': 'article-guts'})
+                if texttag is not None:
+                    newpos = len(texttag.contents)
+                    self.append_page(soup2, texttag, newpos)
+                    texttag.extract()
+                    pager.extract()
+                    appendtag.insert(position, texttag)
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body, 3)
@@ -89,9 +89,12 @@ class ArsTechnica(BasicNewsRecipe):
                 else:
                     str = self.tag_to_string(item)
                     item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if 'alt' not in item:
-                item['alt'] = 'image'
+        for div in soup.findAll('div', attrs={'class':'image', 'style':lambda x: x and 'background-image' in x}):
+            url = re.search(r'''url\(['"]?([^'")]+)''', div['style'])
+            if url is not None:
+                div.name = 'img'
+                div['src'] = url.group(1)
+                div['style'] = ''
         return soup
 
     def preprocess_raw_html(self, raw, url):
