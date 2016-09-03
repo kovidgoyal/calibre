@@ -20,7 +20,7 @@ from calibre.ebooks.metadata import fmt_sidx, authors_to_string
 from calibre.library.comments import comments_to_html
 from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
-from calibre.utils.date import as_utc, timestampfromdt
+from calibre.utils.date import as_utc, timestampfromdt, is_date_undefined
 
 from calibre.srv.errors import HTTPNotFound
 from calibre.srv.routes import endpoint
@@ -54,10 +54,11 @@ def format_tag_string(tags, sep, joinval=', '):
     return joinval.join(tlist) if tlist else ''
 
 # Vocabulary for building OPDS feeds {{{
+DC_NS = 'http://purl.org/dc/terms/'
 E = ElementMaker(namespace='http://www.w3.org/2005/Atom',
                  nsmap={
                      None   : 'http://www.w3.org/2005/Atom',
-                     'dc'   : 'http://purl.org/dc/terms/',
+                     'dc'   : DC_NS,
                      'opds' : 'http://opds-spec.org/2010/catalog',
                      })
 
@@ -198,7 +199,11 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
         extra.append(comments)
     if extra:
         extra = html_to_lxml('\n'.join(extra))
-    ans = E.entry(TITLE(mi.title), E.author(E.name(authors_to_string(mi.authors))), ID('urn:uuid:' + mi.uuid), UPDATED(mi.last_modified))
+    ans = E.entry(TITLE(mi.title), E.author(E.name(authors_to_string(mi.authors))), ID('urn:uuid:' + mi.uuid), UPDATED(mi.last_modified),
+                  E.published(mi.timestamp.isoformat()))
+    if mi.pubdate and not is_date_undefined(mi.pubdate):
+        ans.append(ans.makeelement('{%s}date' % DC_NS))
+        ans[-1].text = mi.pubdate.isoformat()
     if len(extra):
         ans.append(E.content(extra, type='xhtml'))
     get = partial(request_context.ctx.url_for, '/get', book_id=book_id, library_id=request_context.library_id)
