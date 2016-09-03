@@ -205,19 +205,24 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
     idm = 'calibre' if version == 0 else 'uuid'
     id_ = 'urn:%s:%s'%(idm, item[FM['uuid']])
     ans = E.entry(TITLE(title), E.author(E.name(authors)), ID(id_),
-            UPDATED(updated))
+            UPDATED(item[FM['last_modified']]))
     if len(extra):
         ans.append(E.content(extra, type='xhtml'))
     formats = item[FM['formats']]
     if formats:
+        book_id = item[FM['id']]
         for fmt in formats.split(','):
             fmt = fmt.lower()
             mt = guess_type('a.'+fmt)[0]
-            href = prefix + '/get/%s/%s'%(fmt, item[FM['id']])
+            href = prefix + '/get/%s/%s'%(fmt, book_id)
             if mt:
                 link = E.link(type=mt, href=href)
                 if version > 0:
                     link.set('rel', "http://opds-spec.org/acquisition")
+                    fm = db.format_metadata(book_id, fmt)
+                    if fm:
+                        link.set('length', str(fm['size']))
+                        link.set('mtime', fm['mtime'].isoformat())
                 ans.append(link)
     ans.append(E.link(type='image/jpeg', href=prefix+'/get/cover/%s'%item[FM['id']],
         rel="x-stanza-cover-image" if version == 0 else

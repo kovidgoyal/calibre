@@ -198,16 +198,22 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
         extra.append(comments)
     if extra:
         extra = html_to_lxml('\n'.join(extra))
-    ans = E.entry(TITLE(mi.title), E.author(E.name(authors_to_string(mi.authors))), ID('urn:uuid:' + mi.uuid), UPDATED(updated))
+    ans = E.entry(TITLE(mi.title), E.author(E.name(authors_to_string(mi.authors))), ID('urn:uuid:' + mi.uuid), UPDATED(mi.last_modified))
     if len(extra):
         ans.append(E.content(extra, type='xhtml'))
     get = partial(request_context.ctx.url_for, '/get', book_id=book_id, library_id=request_context.library_id)
     if mi.formats:
+        fm = mi.format_metadata
         for fmt in mi.formats:
             fmt = fmt.lower()
             mt = guess_type('a.'+fmt)[0]
             if mt:
-                ans.append(E.link(type=mt, href=get(what=fmt), rel="http://opds-spec.org/acquisition"))
+                link = E.link(type=mt, href=get(what=fmt), rel="http://opds-spec.org/acquisition")
+                ffm = fm.get(fmt.upper())
+                if ffm:
+                    link.set('length', str(ffm['size']))
+                    link.set('mtime', ffm['mtime'].isoformat())
+                ans.append(link)
     ans.append(E.link(type='image/jpeg', href=get(what='cover'), rel="http://opds-spec.org/cover"))
     ans.append(E.link(type='image/jpeg', href=get(what='thumb'), rel="http://opds-spec.org/thumbnail"))
 
