@@ -146,20 +146,17 @@ class RatingsEdit(RatingEdit):
         self.is_new = is_new
         self.field = field
         self.metadata = metadata
-        self.valueChanged.connect(self.changed)
-        if not is_new:
-            self.setReadOnly(True)
+        self.currentIndexChanged.connect(self.changed)
 
     def from_mi(self, mi):
-        val = (mi.get(self.field, default=0) or 0)/2
-        self.setValue(val)
+        self.current_val = mi.get(self.field, default=0)
 
     def to_mi(self, mi):
-        mi.set(self.field, self.value() * 2)
+        mi.set(self.field, self.current_val)
 
     @property
     def is_blank(self):
-        return self.value() == 0
+        return self.current_val == 0
 
     def same_as(self, other):
         return self.current_val == other.current_val
@@ -673,8 +670,9 @@ class CompareMany(QDialog):
         return QDialog.keyPressEvent(self, ev)
 
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
     from calibre.library import db
+    app = Application([])
     db = db()
     ids = sorted(db.all_ids(), reverse=True)
     ids = tuple(zip(ids[0::2], ids[1::2]))
