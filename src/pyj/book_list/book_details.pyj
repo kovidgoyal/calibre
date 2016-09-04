@@ -144,8 +144,11 @@ def render_metadata(mi, interface_data, table, field_list=None):
 
     def process_rating(field, fm, name, val):
         stars = E.span()
-        for i in range(int(val) // 2):
+        val = int(val)
+        for i in range(val // 2):
             stars.appendChild(svgicon('star'))
+        if fm.display.allow_half_stars and (val % 2):
+            stars.appendChild(svgicon('star-half'))
         add_row(name, stars)
 
     def process_identifiers(field, fm, name, val):
