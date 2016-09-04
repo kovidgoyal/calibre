@@ -8,7 +8,7 @@ import os, subprocess, errno, shutil, tempfile, sys
 from io import BytesIO
 from threading import Thread
 
-from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform
+from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform, QPixmap
 from calibre import fit_image, force_unicode
 from calibre.constants import iswindows, plugins, get_version
 from calibre.utils.config_base import tweaks
@@ -71,6 +71,8 @@ def image_from_x(x):
         return image_from_data(x)
     if isinstance(x, bytearray):
         return image_from_data(bytes(x))
+    if isinstance(x, QPixmap):
+        return x.toImage()
     raise TypeError('Unknown image src type: %s' % type(x))
 
 def image_and_format_from_data(data):

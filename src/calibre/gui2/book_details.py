@@ -23,6 +23,7 @@ from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata.book.render import mi_to_html
 from calibre.gui2 import (config, open_url, pixmap_to_data, gprefs, rating_font, NO_URL_FORMATTING)
 from calibre.utils.config import tweaks
+from calibre.utils.img import image_from_x, blend_image
 from calibre.utils.localization import is_rtl
 
 _css = None
@@ -368,6 +369,8 @@ class CoverView(QWidget):  # {{{
             pmap.loadFromData(cdata)
         if pmap.isNull():
             return
+        if pmap.hasAlphaChannel():
+            pmap = QPixmap.fromImage(blend_image(image_from_x(pmap)))
         self.pixmap = pmap
         self.do_layout()
         self.update()
@@ -665,7 +668,7 @@ class BookDetails(QWidget):  # {{{
                 return
 
         # Now look for ebook files
-        urls, filenames = dnd_get_files(md, BOOK_EXTENSIONS, allow_all_extensions=True)
+        urls, filenames = dnd_get_files(md, BOOK_EXTENSIONS, allow_all_extensions=True, filter_exts=image_extensions())
         if not urls:
             # Nothing found
             return

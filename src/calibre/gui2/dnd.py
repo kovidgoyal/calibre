@@ -246,7 +246,7 @@ def dnd_get_image(md, image_exts=None):
 
     return None, None
 
-def dnd_get_files(md, exts, allow_all_extensions=False):
+def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
     '''
     Get the file in the QMimeData object md with an extension that is one of
     the extensions in exts.
@@ -261,9 +261,9 @@ def dnd_get_files(md, exts, allow_all_extensions=False):
     local_files = [path_from_qurl(x) for x in urls]
     def is_ok(path):
         ext = posixpath.splitext(path)[1][1:].lower()
-        if allow_all_extensions and ext:
+        if allow_all_extensions and ext and ext not in filter_exts:
             return True
-        return ext in exts
+        return ext in exts and ext not in filter_exts
     local_files = [p for p in local_files if is_ok(urllib.unquote(p))]
     local_files = [x for x in local_files if os.path.exists(x)]
     if local_files:
