@@ -12,6 +12,7 @@ from itertools import groupby
 from PyQt5.Qt import (QAbstractTableModel, Qt, pyqtSignal, QIcon, QImage,
         QModelIndex, QDateTime, QColor, QPixmap, QPainter, QApplication)
 
+from calibre import fit_image
 from calibre.gui2 import error_dialog
 from calibre.utils.search_query_parser import ParseException
 from calibre.ebooks.metadata import fmt_sidx, authors_to_string, string_to_authors
@@ -128,13 +129,14 @@ class ColumnIcon(object):  # {{{
                     d = os.path.join(config_dir, 'cc_icons', icon)
                     if (os.path.exists(d)):
                         bm = QPixmap(d)
-                        bm = bm.scaled(dim, dim, aspectRatioMode=Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation)
+                        scaled, nw, nh = fit_image(bm.width(), bm.height(), bm.width(), dim)
+                        bm = bm.scaled(nw, nh, aspectRatioMode=Qt.IgnoreAspectRatio, transformMode=Qt.SmoothTransformation)
                         bm.setDevicePixelRatio(self.dpr)
                         icon_bitmaps.append(bm)
                         total_width += bm.width()
                 if len(icon_bitmaps) > 1:
                     i = len(icon_bitmaps)
-                    result = QPixmap((i * dim) + ((i-1)*2), dim)
+                    result = QPixmap(total_width + ((i-1)*2), dim)
                     result.setDevicePixelRatio(self.dpr)
                     result.fill(Qt.transparent)
                     painter = QPainter(result)
