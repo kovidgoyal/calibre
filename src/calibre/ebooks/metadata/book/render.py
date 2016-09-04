@@ -11,7 +11,7 @@ from functools import partial
 from binascii import hexlify
 
 from calibre import prepare_string_for_xml, force_unicode
-from calibre.ebooks.metadata import fmt_sidx
+from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.constants import filesystem_encoding
 from calibre.library.comments import comments_to_html, markdown
@@ -106,12 +106,7 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
         elif metadata['datatype'] == 'rating':
             val = getattr(mi, field)
             if val:
-                if disp.get('allow_half_stars'):
-                    val = max(0, min(int(val), 10))
-                    star_string = u'\u2605' * (val // 2) + (u'\u00bd' if val % 2 else '')
-                else:
-                    val = max(0, min(int(val/2.0), 5))
-                    star_string = u'\u2605' * val
+                star_string = rating_to_stars(val, disp.get('allow_half_stars', False))
                 ans.append((field,
                     u'<td class="title">%s</td><td class="rating value" '
                     'style=\'font-family:"%s"\'>%s</td>'%(

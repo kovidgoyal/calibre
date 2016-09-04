@@ -23,7 +23,7 @@ from PyQt5.Qt import (
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir
-from calibre.ebooks.metadata import fmt_sidx
+from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.utils import join_with_timeout
 from calibre.gui2 import gprefs, config
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
@@ -392,7 +392,7 @@ class CoverDelegate(QStyledItemDelegate):
                 mi = db.get_proxy_metadata(book_id)
                 display_name, ans, val, fm = mi.format_field_extended(field)
                 if fm and fm['datatype'] == 'rating':
-                    ans = u'\u2605' * int(val/2.0) if val is not None else ''
+                    ans = rating_to_stars(val, fm['display'].get('allow_half_stars', False))
             return '' if ans is None else unicode(ans)
         except Exception:
             if DEBUG:

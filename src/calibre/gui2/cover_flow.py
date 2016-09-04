@@ -13,6 +13,7 @@ from PyQt5.Qt import (QImage, QSizePolicy, QTimer, QDialog, Qt, QSize, QAction,
         QStackedLayout, QLabel, QByteArray, pyqtSignal, QKeySequence, QFont)
 
 from calibre import plugins
+from calibre.ebooks.metadata import rating_to_stars
 from calibre.constants import islinux
 from calibre.gui2 import (config, available_height, available_width, gprefs,
         rating_font)
@@ -125,7 +126,7 @@ if pictureflow is not None:
         def subtitle(self, index):
             if gprefs['show_rating_in_cover_browser']:
                 try:
-                    return u'\u2605'*self.model.rating(index)
+                    return rating_to_stars(self.model.rating(index) * 2)
                 except:
                     pass
             return ''
