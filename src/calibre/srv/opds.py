@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import hashlib, binascii
 from functools import partial
-from itertools import repeat
 from collections import OrderedDict, namedtuple
 from urllib import urlencode
 
@@ -16,7 +15,7 @@ from lxml.builder import ElementMaker
 
 from calibre.constants import __appname__
 from calibre.db.view import sanitize_sort_field_name
-from calibre.ebooks.metadata import fmt_sidx, authors_to_string
+from calibre.ebooks.metadata import fmt_sidx, authors_to_string, rating_to_stars
 from calibre.library.comments import comments_to_html
 from calibre import guess_type, prepare_string_for_xml as xml
 from calibre.utils.icu import sort_key
@@ -170,7 +169,7 @@ def ACQUISITION_ENTRY(book_id, updated, request_context):
     mi = request_context.db.get_metadata(book_id)
     extra = []
     if mi.rating > 0:
-        rating = u''.join(repeat(u'\u2605', int(mi.rating/2.)))
+        rating = rating_to_stars(mi.rating)
         extra.append(_('RATING: %s<br />')%rating)
     if mi.tags:
         extra.append(_('TAGS: %s<br />')%xml(format_tag_string(mi.tags, None)))

@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 
 import hashlib, binascii
 from functools import partial
-from itertools import repeat
 from collections import OrderedDict
 
 from lxml import etree, html
@@ -16,7 +15,7 @@ import cherrypy
 import routes
 
 from calibre.constants import __appname__
-from calibre.ebooks.metadata import fmt_sidx
+from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.library.comments import comments_to_html
 from calibre.library.server import custom_fields_to_display
 from calibre.library.server.utils import format_tag_string, Offsets
@@ -168,7 +167,7 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
     extra = []
     rating = item[FM['rating']]
     if rating > 0:
-        rating = u''.join(repeat(u'\u2605', int(rating/2.)))
+        rating = rating_to_stars(rating)
         extra.append(_('RATING: %s<br />')%rating)
     tags = item[FM['tags']]
     if tags:
