@@ -231,7 +231,7 @@ class MyBlockingBusy(QDialog):  # {{{
 
         # Various fields
         if args.rating != -1:
-            cache.set_field('rating', {bid:args.rating*2 for bid in self.ids})
+            cache.set_field('rating', {bid:args.rating for bid in self.ids})
 
         if args.clear_pub:
             cache.set_field('publisher', {bid:'' for bid in self.ids})
@@ -341,6 +341,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.remove_format.setCurrentIndex(-1)
 
         self.series.currentIndexChanged[int].connect(self.series_changed)
+        self.rating.currentIndexChanged.connect(lambda:self.apply_rating.setChecked(True))
         self.series.editTextChanged.connect(self.series_changed)
         self.tag_editor_button.clicked.connect(self.tag_editor)
         self.autonumber_series.stateChanged[int].connect(self.auto_number_changed)
@@ -981,7 +982,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         au = unicode(self.authors.text())
         aus = unicode(self.author_sort.text())
         do_aus = self.author_sort.isEnabled()
-        rating = self.rating.value()
+        rating = self.rating.rating_value
+        if not self.apply_rating.isChecked():
+            rating = -1
         pub = unicode(self.publisher.text())
         do_series = self.write_series
         clear_series = self.clear_series.isChecked()

@@ -824,25 +824,16 @@ class BulkFloat(BulkInt):
 class BulkRating(BulkBase):
 
     def setup_ui(self, parent):
-        self.make_widgets(parent, QSpinBox)
-        self.main_widget.setRange(0, 5)
-        self.main_widget.setSuffix(' '+_('star(s)'))
-        self.main_widget.setSpecialValueText(_('Not rated'))
-        self.main_widget.setSingleStep(1)
+        allow_half_stars = self.col_metadata['display'].get('allow_half_stars', False)
+        self.make_widgets(parent, partial(RatingEditor, is_half_star=allow_half_stars))
 
     def setter(self, val):
-        if val is None:
-            val = 0
-        self.main_widget.setValue(int(round(val/2.)))
+        val = max(0, min(int(val or 0), 10))
+        self.main_widget.rating_value = val
         self.ignore_change_signals = False
 
     def getter(self):
-        val = self.main_widget.value()
-        if val == 0:
-            val = None
-        else:
-            val *= 2
-        return val
+        return self.main_widget.rating_value or None
 
 class BulkDateTime(BulkBase):
 

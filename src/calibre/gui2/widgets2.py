@@ -192,6 +192,7 @@ class RatingModel(QAbstractListModel):
         QAbstractListModel.__init__(self, parent)
         self.is_half_star = is_half_star
         self.rating_font = QFont(rating_font())
+        self.null_text = _('Not rated')
 
     def rowCount(self, parent=QModelIndex()):
         return 11 if self.is_half_star else 6
@@ -199,7 +200,7 @@ class RatingModel(QAbstractListModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
             val = index.row() * (1 if self.is_half_star else 2)
-            return rating_to_stars(val, self.is_half_star) or _('Not rated')
+            return rating_to_stars(val, self.is_half_star) or self.null_text
         if role == Qt.FontRole:
             return QApplication.instance().font() if index.row() == 0 else self.rating_font
 
@@ -234,6 +235,15 @@ class RatingEditor(QComboBox):
         self.view().setStyleSheet('QListView { background: palette(window) }\nQListView::item { padding: 6px }')
         self.setMaxVisibleItems(self.count())
         self.currentIndexChanged.connect(self.update_font)
+
+    @property
+    def null_text(self):
+        return self._model.null_text
+
+    @null_text.setter
+    def null_text(self, val):
+        self._model.null_text = val
+        self._model.dataChanged.emit(self._model.index(0, 0), self._model.index(0, 0))
 
     def update_font(self):
         if self.currentIndex() == 0:
