@@ -1,3 +1,6 @@
+#!/usr/bin/env python2
+# vim:fileencoding=UTF-8
+
 __license__   = 'GPL v3'
 __copyright__ = '2010, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -168,6 +171,8 @@ class CreateCustomColumn(QDialog):
             self.comments_heading_position.setCurrentIndex(idx)
             idx = max(0, self.comments_type.findData(c['display'].get('interpret_as', 'html')))
             self.comments_type.setCurrentIndex(idx)
+        elif ct == 'rating':
+            self.allow_half_stars.setChecked(bool(c['display'].get('allow_half_stars', False)))
         self.datatype_changed()
         if ct in ['text', 'composite', 'enumeration']:
             self.use_decorations.setChecked(c['display'].get('use_decorations', False))
@@ -350,6 +355,11 @@ class CreateCustomColumn(QDialog):
         l.addWidget(ec), l.addWidget(la, 1, 1)
         self.enum_label = add_row(_('&Values'), l)
 
+        # Rating allow half stars
+        self.allow_half_stars = ahs = QCheckBox(_('Allow half stars'))
+        ahs.setToolTip(_('Allow half star ratings, for example: ') + '<span style="font-family:calibre Symbols">★★★½</span>')
+        add_row(None, ahs)
+
         # Composite display properties
         l = QHBoxLayout()
         self.composite_sort_by_label = la = QLabel(_("&Sort/search column by"))
@@ -427,6 +437,7 @@ class CreateCustomColumn(QDialog):
         self.comments_heading_position_label.setVisible(is_comments)
         self.comments_type.setVisible(is_comments)
         self.comments_type_label.setVisible(is_comments)
+        self.allow_half_stars.setVisible(col_type == 'rating')
 
     def accept(self):
         col = unicode(self.column_name_box.text()).strip()
@@ -524,6 +535,8 @@ class CreateCustomColumn(QDialog):
         elif col_type == 'comments':
             display_dict['heading_position'] = type(u'')(self.comments_heading_position.currentData())
             display_dict['interpret_as'] = type(u'')(self.comments_type.currentData())
+        elif col_type == 'rating':
+            display_dict['allow_half_stars'] = bool(self.allow_half_stars.isChecked())
 
         if col_type in ['text', 'composite', 'enumeration'] and not is_multiple:
             display_dict['use_decorations'] = self.use_decorations.checkState()

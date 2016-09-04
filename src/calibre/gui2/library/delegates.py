@@ -12,10 +12,11 @@ from PyQt5.Qt import (Qt, QApplication, QStyle, QIcon,  QDoubleSpinBox, QStyleOp
         QAbstractTextDocumentLayout, QFont, QFontInfo, QDate, QDateTimeEdit, QDateTime,
         QStyleOptionComboBox, QStyleOptionSpinBox, QLocale, QSize, QLineEdit)
 
+from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import UNDEFINED_QDATETIME, rating_font
 from calibre.constants import iswindows
 from calibre.gui2.widgets import EnLineEdit
-from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu
+from calibre.gui2.widgets2 import populate_standard_spinbox_context_menu, RatingEditor
 from calibre.gui2.complete2 import EditWithComplete
 from calibre.utils.date import now, format_date, qt_to_dt, is_date_undefined
 from calibre.utils.config import tweaks
@@ -176,6 +177,7 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
+        self.is_half_star = kwargs.get('is_half_star', False)
         self.table_widget = args[0]
         self.rf = QFont(rating_font())
         self.em = Qt.ElideMiddle
@@ -184,33 +186,25 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             delta = 2
         self.rf.setPointSize(QFontInfo(QApplication.font()).pointSize()+delta)
 
-    def createEditor(self, parent, option, index):
-        sb = QSpinBox(parent)
-        sb.setMinimum(0)
-        sb.setMaximum(5)
-        sb.setSuffix(' ' + _('stars'))
-        sb.setSpecialValueText(_('Not rated'))
-        return sb
-
     def get_required_width(self, editor, style, fm):
-        val = editor.maximum()
-        text = editor.textFromValue(val) + editor.suffix()
-        srect = style.itemTextRect(fm, editor.geometry(), Qt.AlignLeft, False,
-                                   text + u'M')
-        return srect.width()
+        return editor.sizeHint().width()
 
     def displayText(self, value, locale):
-        r = int(value)
-        if r < 0 or r > 5:
-            r = 0
-        return u'\u2605'*r
+        return rating_to_stars(value, self.is_half_star)
+
+    def createEditor(self, parent, option, index):
+        return RatingEditor(parent, is_half_star=self.is_half_star)
 
     def setEditorData(self, editor, index):
         if check_key_modifier(Qt.ControlModifier):
             val = 0
         else:
             val = index.data(Qt.EditRole)
-        editor.setValue(val)
+        editor.rating_value = val
+
+    def setModelData(self, editor, model, index):
+        val = editor.rating_value
+        model.setData(index, val, Qt.EditRole)
 
     def sizeHint(self, option, index):
         option.font = self.rf
@@ -223,6 +217,7 @@ class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         return QStyledItemDelegate.paint(self, painter, option, index)
 
 # }}}
+
 
 class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 

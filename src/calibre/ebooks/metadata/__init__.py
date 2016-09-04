@@ -1,4 +1,5 @@
-#!/usr/bin/env  python2
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -392,4 +393,15 @@ def check_doi(doi):
     if doi_check is not None:
         return doi_check.group()
     return None
+
+def rating_to_stars(value, allow_half_star=False, star=u'★', half=u'½'):
+    r = max(0, min(int(value), 10))
+    if allow_half_star:
+        ans = u'★' * (r // 2)
+        if r % 2:
+            ans += u'½'
+    else:
+        ans = u'★' * int(r/2.0)
+    return ans
+
 

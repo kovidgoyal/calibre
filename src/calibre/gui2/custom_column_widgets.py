@@ -21,6 +21,7 @@ from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 from calibre.library.comments import comments_to_html
 from calibre.gui2.library.delegates import ClearingDoubleSpinBox, ClearingSpinBox
+from calibre.gui2.widgets2 import RatingEditor
 
 class Base(object):
 
@@ -158,27 +159,18 @@ class Float(Int):
             val = self.widgets[1].minimum()
         self.widgets[1].setValue(val)
 
-class Rating(Int):
+class Rating(Base):
 
     def setup_ui(self, parent):
-        Int.setup_ui(self, parent)
-        w = self.widgets[1]
-        w.setRange(0, 5)
-        w.setSuffix(' '+_('star(s)'))
-        w.setSpecialValueText(_('Not rated'))
+        allow_half_stars = self.col_metadata['display'].get('allow_half_stars', False)
+        self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent), RatingEditor(parent=parent, is_half_star=allow_half_stars)]
 
     def setter(self, val):
-        if val is None:
-            val = 0
-        self.widgets[1].setValue(int(round(val/2.)))
+        val = max(0, min(int(val or 0), 10))
+        self.widgets[1].rating_value = val
 
     def getter(self):
-        val = self.widgets[1].value()
-        if val == 0:
-            val = None
-        else:
-            val *= 2
-        return val
+        return self.widgets[1].rating_value or None
 
 class DateTimeEdit(QDateTimeEdit):
 

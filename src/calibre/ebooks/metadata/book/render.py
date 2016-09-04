@@ -106,11 +106,16 @@ def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=
         elif metadata['datatype'] == 'rating':
             val = getattr(mi, field)
             if val:
-                val = val/2.0
+                if disp.get('allow_half_stars'):
+                    val = max(0, min(int(val), 10))
+                    star_string = u'\u2605' * (val // 2) + (u'\u00bd' if val % 2 else '')
+                else:
+                    val = max(0, min(int(val/2.0), 5))
+                    star_string = u'\u2605' * val
                 ans.append((field,
                     u'<td class="title">%s</td><td class="rating value" '
                     'style=\'font-family:"%s"\'>%s</td>'%(
-                        name, rating_font, u'\u2605'*int(val))))
+                        name, rating_font, star_string)))
         elif metadata['datatype'] == 'composite':
             val = getattr(mi, field)
             if val:

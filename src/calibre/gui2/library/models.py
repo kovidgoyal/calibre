@@ -709,6 +709,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         return img
 
     def build_data_convertors(self):
+        rating_fields = {}
 
         def renderer(field, decorator=False):
             idfunc = self.db.id
@@ -776,8 +777,9 @@ class BooksModel(QAbstractTableModel):  # {{{
                 def func(idx):
                     return (QDateTime(as_local_time(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE))))
             elif dt == 'rating':
+                rating_fields[field] = m['display'].get('allow_half_stars', False)
                 def func(idx):
-                    return (int(fffunc(field_obj, idfunc(idx), default_value=0)/2.0))
+                    return int(fffunc(field_obj, idfunc(idx), default_value=0))
             elif dt == 'series':
                 sidx_field = self.db.new_api.fields[field + '_index']
                 def func(idx):
@@ -817,8 +819,20 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif dt == 'bool':
                 self.dc_decorator[col] = renderer(col, 'bool')
 
+        tc = self.dc.copy()
+        def stars_tooltip(func, allow_half=True):
+            def f(idx):
+                ans = val = int(func(idx))
+                ans = str(val // 2)
+                if allow_half and val % 2:
+                    ans += '.5'
+                return _('%s stars') % ans
+            return f
+        for f, allow_half in rating_fields.iteritems():
+            tc[f] = stars_tooltip(self.dc[f], allow_half)
         # build a index column to data converter map, to remove the string lookup in the data loop
         self.column_to_dc_map = [self.dc[col] for col in self.column_map]
+        self.column_to_tc_map = [tc[col] for col in self.column_map]
         self.column_to_dc_decorator_map = [self.dc_decorator.get(col, None) for col in self.column_map]
 
     def data(self, index, role):
@@ -850,7 +864,9 @@ class BooksModel(QAbstractTableModel):  # {{{
                         return None
                     self.icon_cache[id_][cache_index] = None
             return self.column_to_dc_map[col](index.row())
-        elif role in (Qt.EditRole, Qt.ToolTipRole):
+        elif role == Qt.ToolTipRole:
+            return self.column_to_tc_map[col](index.row())
+        elif role == Qt.EditRole:
             return self.column_to_dc_map[col](index.row())
         elif role == Qt.BackgroundRole:
             if self.id(index) in self.ids_to_highlight_set:
@@ -996,9 +1012,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         elif typ == 'bool':
             val = value if value is None else bool(value)
         elif typ == 'rating':
-            val = int(value)
-            val = 0 if val < 0 else 5 if val > 5 else val
-            val *= 2
+            val = max(0, min(int(value or 0), 10))
         elif typ in ('int', 'float'):
             if value == 0:
                 val = '0'
@@ -1089,8 +1103,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             id = self.db.id(row)
             books_to_refresh = set([id])
             if column == 'rating':
-                val = 0 if val < 0 else 5 if val > 5 else val
-                val *= 2
+                val = max(0, min(int(val or 0), 10))
                 self.db.set_rating(id, val)
             elif column == 'series':
                 val = val.strip()

@@ -4,24 +4,25 @@ FullName: calibre Symbols
 FamilyName: calibre Symbols
 Weight: Medium
 Copyright: Created by Kovid Goyal with FontForge 2.0 (http://fontforge.sf.net)
-UComments: "2012-2-27: Created." 
+UComments: "2012-2-27: Created."
 Version: 001.000
 ItalicAngle: 0
 UnderlinePosition: -100
 UnderlineWidth: 50
 Ascent: 800
 Descent: 200
+InvalidEm: 0
 LayerCount: 2
-Layer: 0 0 "Back"  1
-Layer: 1 0 "Fore"  0
-NeedsXUIDChange: 1
+Layer: 0 0 "Back" 1
+Layer: 1 0 "Fore" 0
 XUID: [1021 913 325894820 11538708]
+StyleMap: 0x0000
 FSType: 0
 OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
 CreationTime: 1330331997
-ModificationTime: 1330487767
+ModificationTime: 1472969125
 OS2TypoAscent: 0
 OS2TypoAOffset: 1
 OS2TypoDescent: 0
@@ -44,10 +45,10 @@ DisplaySize: -24
 AntiAlias: 1
 FitToEm: 1
 WidthSeparation: 150
-WinInfo: 9600 75 22
+WinInfo: 0 152 34
 BeginPrivate: 0
 EndPrivate
-BeginChars: 1114112 3
+BeginChars: 1114112 4
 
 StartChar: uni2605
 Encoding: 9733 9733 0
@@ -91,7 +92,7 @@ SplineSet
  485.545 635.457 493.518 604.173 506.689 547.357 c 2
  551.923 352.862 l 1
 EndSplineSet
-Validated: 524289
+Validated: 1
 EndChar
 
 StartChar: zero
@@ -147,6 +148,36 @@ SplineSet
  332.1 182.6 338.4 164.4 338.4 142.8 c 0
 EndSplineSet
 Validated: 1
+EndChar
+
+StartChar: onehalf
+Encoding: 189 189 3
+Width: 979
+VWidth: -26
+Flags: WO
+LayerCount: 2
+Fore
+SplineSet
+466.134 74.71 m 1
+ 320.554 -51.8184 l 2
+ 274.802 -91.5547 249.758 -112.902 245.426 -115.866 c 0
+ 241.092 -118.828 236.846 -120.31 232.688 -120.31 c 0
+ 227.835 -120.31 223.415 -118.306 219.429 -114.297 c 0
+ 215.442 -110.289 213.449 -105.844 213.449 -100.965 c 0
+ 213.449 -97.8281 223.329 -71.3379 243.087 -21.4932 c 2
+ 322.115 180.323 l 1
+ 152.618 289.598 l 2
+ 104.783 320.271 79.2217 337.176 75.9297 340.313 c 0
+ 72.6357 343.45 70.9893 347.981 70.9893 353.907 c 0
+ 70.9893 369.243 79.8291 376.912 97.5059 376.912 c 0
+ 98.8926 376.912 123.155 374.82 170.296 370.638 c 2
+ 379.825 352.862 l 1
+ 427.14 555.201 l 2
+ 439.271 607.834 446.811 636.764 449.757 641.992 c 0
+ 452.702 647.221 458.162 649.834 466.134 649.834 c 4
+ 474.454 649.834 466.134 74.71 466.134 74.71 c 1
+EndSplineSet
+Validated: 524321
 EndChar
 EndChars
 EndSplineFont

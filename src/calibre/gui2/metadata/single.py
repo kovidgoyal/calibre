@@ -436,10 +436,7 @@ class MetadataSingleDialogBase(QDialog):
         elif update_sorts and not mi.is_null('authors'):
             self.author_sort.auto_generate()
         if not mi.is_null('rating'):
-            try:
-                self.rating.set_value(mi.rating)
-            except:
-                pass
+            self.rating.set_value(mi.rating * 2)
         if not mi.is_null('publisher'):
             self.publisher.set_value(mi.publisher)
         if not mi.is_null('tags'):

@@ -224,6 +224,7 @@ class BooksView(QTableView):  # {{{
         self.setWordWrap(False)
 
         self.rating_delegate = RatingDelegate(self)
+        self.half_rating_delegate = RatingDelegate(self, is_half_star=True)
         self.timestamp_delegate = DateDelegate(self)
         self.pubdate_delegate = PubDateDelegate(self)
         self.last_modified_delegate = DateDelegate(self,
@@ -760,9 +761,9 @@ class BooksView(QTableView):  # {{{
     def database_changed(self, db):
         db.data.add_marked_listener(self.marked_changed_listener)
         for i in range(self.model().columnCount(None)):
-            if self.itemDelegateForColumn(i) in (self.rating_delegate,
-                    self.timestamp_delegate, self.pubdate_delegate,
-                    self.last_modified_delegate, self.languages_delegate):
+            if self.itemDelegateForColumn(i) in (
+                    self.rating_delegate, self.timestamp_delegate, self.pubdate_delegate,
+                    self.last_modified_delegate, self.languages_delegate, self.half_rating_delegate):
                 self.setItemDelegateForColumn(i, self.itemDelegate())
 
         cm = self.column_map
@@ -799,7 +800,8 @@ class BooksView(QTableView):  # {{{
                 elif cc['datatype'] == 'bool':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_bool_delegate)
                 elif cc['datatype'] == 'rating':
-                    self.setItemDelegateForColumn(cm.index(colhead), self.rating_delegate)
+                    d = self.half_rating_delegate if cc['display'].get('allow_half_stars', False) else self.rating_delegate
+                    self.setItemDelegateForColumn(cm.index(colhead), d)
                 elif cc['datatype'] == 'composite':
                     self.setItemDelegateForColumn(cm.index(colhead), self.cc_template_delegate)
                 elif cc['datatype'] == 'enumeration':
@@ -1126,6 +1128,7 @@ class DeviceBooksView(BooksView):  # {{{
         self.can_add_columns = False
         self.resize_on_select = False
         self.rating_delegate = None
+        self.half_rating_delegate = None
         for i in range(10):
             self.setItemDelegateForColumn(i, TextDelegate(self))
         self.setDragDropMode(self.NoDragDrop)

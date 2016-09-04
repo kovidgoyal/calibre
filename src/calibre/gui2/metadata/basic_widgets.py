@@ -13,12 +13,12 @@ from datetime import date, datetime
 from PyQt5.Qt import (
     Qt, QDateTimeEdit, pyqtSignal, QMessageBox, QIcon, QToolButton, QWidget,
     QLabel, QGridLayout, QApplication, QDoubleSpinBox, QListWidgetItem, QSize,
-    QPixmap, QDialog, QMenu, QSpinBox, QLineEdit, QSizePolicy, QKeySequence,
+    QPixmap, QDialog, QMenu, QLineEdit, QSizePolicy, QKeySequence,
     QDialogButtonBox, QAction, QCalendarWidget, QDate, QDateTime, QUndoCommand,
     QUndoStack, QVBoxLayout, QPlainTextEdit)
 
 from calibre.gui2.widgets import EnLineEdit, FormatList as _FormatList, ImageView
-from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton, Dialog
+from calibre.gui2.widgets2 import access_key, populate_standard_spinbox_context_menu, RightClickButton, Dialog, RatingEditor
 from calibre.utils.icu import sort_key
 from calibre.utils.config import tweaks, prefs
 from calibre.ebooks.metadata import (
@@ -1231,7 +1231,7 @@ class CommentsEdit(Editor, ToMetadataMixin):  # {{{
             db.set_comment(id_, self.current_val, notify=False, commit=False)
 # }}}
 
-class RatingEdit(make_undoable(QSpinBox), ToMetadataMixin):  # {{{
+class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
     LABEL = _('&Rating:')
     TOOLTIP = _('Rating of this book. 0-5 stars')
     FIELD_NAME = 'rating'
@@ -1240,40 +1240,26 @@ class RatingEdit(make_undoable(QSpinBox), ToMetadataMixin):  # {{{
         super(RatingEdit, self).__init__(parent)
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
-        self.setMaximum(5)
-        self.setSuffix(' ' + _('stars'))
-        self.setSpecialValueText(_('Not rated'))
 
     @dynamic_property
     def current_val(self):
         def fget(self):
-            return self.value()
+            return self.rating_value
         def fset(self, val):
-            if val is None:
-                val = 0
-            val = int(val)
-            if val < 0:
-                val = 0
-            if val > 5:
-                val = 5
-            self.set_spinbox_value(val)
+            self.rating_value = val
         return property(fget=fget, fset=fset)
 
     def initialize(self, db, id_):
         val = db.rating(id_, index_is_id=True)
-        if val > 0:
-            val = int(val/2.)
-        else:
-            val = 0
         self.current_val = val
         self.original_val = self.current_val
 
     def commit(self, db, id_):
-        db.set_rating(id_, 2*self.current_val, notify=False, commit=False)
+        db.set_rating(id_, self.current_val, notify=False, commit=False)
         return True
 
     def zero(self):
-        self.setValue(0)
+        self.setCurrentIndex(0)
 
 # }}}
 
