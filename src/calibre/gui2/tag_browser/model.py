@@ -1351,7 +1351,7 @@ class TagsModel(QAbstractItemModel):  # {{{
                     if self.db.field_metadata[tag.category]['is_csp']:
                         add_colon = True
 
-                    if tag.name and tag.name[0] == u'\u2605':  # char is a star. Assume rating
+                    if tag.name and tag.name[0] in u'★½':  # char is a star or a half. Assume rating
                         ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
                     else:
                         name = tag.original_name

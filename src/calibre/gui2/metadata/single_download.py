@@ -26,7 +26,7 @@ from PyQt5.Qt import (
 from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre.customize.ui import metadata_plugins
-from calibre.ebooks.metadata import authors_to_string
+from calibre.ebooks.metadata import authors_to_string, rating_to_stars
 from calibre.utils.logging import GUILog as Log
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 from calibre.ebooks.metadata.book.base import Metadata
@@ -269,7 +269,7 @@ class ResultsView(QTableView):  # {{{
                 parts.append('<div>%s: %s</div>'%series)
         if not book.is_null('rating'):
             style = 'style=\'font-family:"%s"\''%f
-            parts.append('<div %s>%s</div>'%(style, '\u2605'*int(book.rating)))
+            parts.append('<div %s>%s</div>'%(style, rating_to_stars(int(book.rating))))
         parts.append('</center>')
         if book.identifiers:
             urls = urls_from_identifiers(book.identifiers)

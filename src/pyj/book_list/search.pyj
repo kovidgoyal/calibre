@@ -256,7 +256,7 @@ class SearchPanel:
             return expr
 
         category = 'tags' if item.category is 'news' else item.category
-        if item.name and item.name[0] is '★':
+        if item.name and item.name[0] in '★½':
             # Assume ratings
             expr = '{}:{}'.format(category, item.name.length)
         else:
