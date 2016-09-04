@@ -15,7 +15,7 @@ from functools import partial
 from calibre.db.tables import ONE_ONE, MANY_ONE, MANY_MANY, null
 from calibre.db.write import Writer
 from calibre.db.utils import force_to_bool, atof
-from calibre.ebooks.metadata import title_sort, author_to_author_sort
+from calibre.ebooks.metadata import title_sort, author_to_author_sort, rating_to_stars
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 from calibre.utils.date import UNDEFINED_DATE, clean_date_for_sort, parse_date
@@ -77,7 +77,7 @@ class Field(object):
         self.default_value = {} if name == 'identifiers' else () if self.is_multiple else None
         self.category_formatter = type(u'')
         if dt == 'rating':
-            self.category_formatter = lambda x:'\u2605'*int(x/2)
+            self.category_formatter = partial(rating_to_stars, allow_half_stars=self.metadata['display'].get('allow_half_stars', False))
         elif name == 'languages':
             self.category_formatter = calibre_langcode_to_name
         self.writer = Writer(self)
