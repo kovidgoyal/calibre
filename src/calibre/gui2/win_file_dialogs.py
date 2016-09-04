@@ -225,8 +225,10 @@ def choose_files(window, name, title,
         return ans
     return None
 
-def choose_images(window, name, title, select_only_single_file=True,
-                  formats=('png', 'gif', 'jpg', 'jpeg', 'svg')):
+def choose_images(window, name, title, select_only_single_file=True, formats=None):
+    if formats is None:
+        from calibre.gui2.dnd import image_extensions
+        formats = image_extensions()
     file_types = [(_('Images'), list(formats))]
     return choose_files(window, name, title, select_only_single_file=select_only_single_file, filters=file_types)
 

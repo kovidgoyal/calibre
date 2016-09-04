@@ -13,7 +13,7 @@ from threading import Thread
 from Queue import Queue, Empty
 
 from PyQt5.Qt import QPixmap, Qt, QDialog, QLabel, QVBoxLayout, \
-        QDialogButtonBox, QProgressBar, QTimer, QUrl
+        QDialogButtonBox, QProgressBar, QTimer, QUrl, QImageReader
 
 from calibre.constants import DEBUG, iswindows
 from calibre.ptempfile import PersistentTemporaryFile
@@ -21,6 +21,12 @@ from calibre import browser, as_unicode, prints
 from calibre.gui2 import error_dialog
 from calibre.utils.imghdr import what
 
+def image_extensions():
+    if not hasattr(image_extensions, 'ans'):
+        image_extensions.ans = [bytes(x).decode('utf-8') for x in QImageReader.supportedImageFormats()]
+    return image_extensions.ans
+
+# This is present for compatibility with old plugins, do not use
 IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
 
 class Worker(Thread):  # {{{
@@ -121,7 +127,7 @@ class DownloadDialog(QDialog):  # {{{
 
 def dnd_has_image(md):
     # Chromium puts image data into application/octet-stream
-    return md.hasImage() or md.hasFormat('application/octet-stream') and what(None, bytes(md.data('application/octet-stream'))) in IMAGE_EXTENSIONS
+    return md.hasImage() or md.hasFormat('application/octet-stream') and what(None, bytes(md.data('application/octet-stream'))) in image_extensions()
 
 def data_as_string(f, md):
     raw = bytes(md.data(f))
@@ -181,13 +187,12 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False):
         return bool(exts)
     return bool(exts.intersection(frozenset(extensions)))
 
-def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
+def dnd_get_image(md, image_exts=None):
     '''
     Get the image in the QMimeData object md.
 
     :return: None, None if no image is found
-             QPixmap, None if an image is found, the pixmap is guaranteed not
-             null
+             QPixmap, None if an image is found, the pixmap is guaranteed not null
              url, filename if a URL that points to an image is found
     '''
     if md.hasImage():
@@ -206,6 +211,9 @@ def dnd_get_image(md, image_exts=IMAGE_EXTENSIONS):
         pmap.loadFromData(cdata)
         if not pmap.isNull():
             return pmap, None
+
+    if image_exts is None:
+        image_exts = image_extensions()
 
     # No image, look for an URL pointing to an image
     urls = urls_from_md(md)

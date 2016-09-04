@@ -18,7 +18,7 @@ from PyQt5.Qt import (
 from calibre import fit_image
 from calibre.gui2 import error_dialog, pixmap_to_data
 from calibre.gui2.dnd import (
-    IMAGE_EXTENSIONS, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
+    image_extensions, dnd_has_extension, dnd_has_image, dnd_get_image, DownloadDialog)
 from calibre.gui2.tweak_book import capitalize
 from calibre.utils.imghdr import identify
 from calibre.utils.img import (
@@ -224,11 +224,10 @@ class Canvas(QWidget):
         return self.current_image is not self.original_image
 
     # Drag 'n drop {{{
-    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS) or dnd_has_image(md):
+        if dnd_has_extension(md, image_extensions()) or dnd_has_image(md):
             event.acceptProposedAction()
 
     def dropEvent(self, event):

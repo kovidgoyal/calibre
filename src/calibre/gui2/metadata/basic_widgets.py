@@ -1071,8 +1071,7 @@ class Cover(ImageView):  # {{{
 
     def select_cover(self, *args):
         files = choose_images(
-            self, 'change cover dialog', _('Choose cover for ') + self.dialog.title.current_val,
-            formats=('png', 'gif', 'jpg', 'jpeg'))
+            self, 'change cover dialog', _('Choose cover for ') + self.dialog.title.current_val)
         if not files:
             return
         _file = files[0]

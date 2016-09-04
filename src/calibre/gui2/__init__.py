@@ -750,9 +750,11 @@ else:
                 ans = ans[0]
         return ans
 
-    def choose_images(window, name, title, select_only_single_file=True,
-                    formats=('png', 'gif', 'jpg', 'jpeg', 'svg')):
+    def choose_images(window, name, title, select_only_single_file=True, formats=None):
         mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
+        if formats is None:
+            from calibre.gui2.dnd import image_extensions
+            formats = image_extensions()
         fd = FileDialog(title=title, name=name,
                         filters=[(_('Images'), list(formats))],
                         parent=window, add_all_files_filter=False, mode=mode,

@@ -17,7 +17,7 @@ from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre import fit_image
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
-    IMAGE_EXTENSIONS, dnd_has_extension)
+    dnd_has_extension, image_extensions)
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.book.base import (field_metadata, Metadata)
 from calibre.ebooks.metadata.book.render import mi_to_html
@@ -639,11 +639,10 @@ class BookDetails(QWidget):  # {{{
     open_fmt_with = pyqtSignal(int, object, object)
 
     # Drag 'n drop {{{
-    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS+BOOK_EXTENSIONS
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS, allow_all_extensions=True) or \
+        if dnd_has_extension(md, image_extensions() + BOOK_EXTENSIONS, allow_all_extensions=True) or \
                 dnd_has_image(md):
             event.acceptProposedAction()
 

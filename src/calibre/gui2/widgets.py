@@ -20,7 +20,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.utils.config import prefs, XMLConfig
 from calibre.gui2.progress_indicator import ProgressIndicator as _ProgressIndicator
 from calibre.gui2.dnd import (dnd_has_image, dnd_get_image, dnd_get_files,
-    IMAGE_EXTENSIONS, dnd_has_extension, DownloadDialog)
+    image_extensions, dnd_has_extension, DownloadDialog)
 from calibre.utils.localization import localize_user_manual_link
 
 history = XMLConfig('history')
@@ -215,14 +215,15 @@ class ImageDropMixin(object):  # {{{
     Adds support for dropping images onto widgets and a context menu for
     copy/pasting images.
     '''
-    DROPABBLE_EXTENSIONS = IMAGE_EXTENSIONS
+    DROPABBLE_EXTENSIONS = None
 
     def __init__(self):
         self.setAcceptDrops(True)
 
     def dragEnterEvent(self, event):
         md = event.mimeData()
-        if dnd_has_extension(md, self.DROPABBLE_EXTENSIONS) or \
+        exts = self.DROPABBLE_EXTENSIONS or image_extensions()
+        if dnd_has_extension(md, exts) or \
                 dnd_has_image(md):
             event.acceptProposedAction()
 
