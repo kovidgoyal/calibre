@@ -653,7 +653,8 @@ class BookDetails(QWidget):  # {{{
         event.setDropAction(Qt.CopyAction)
         md = event.mimeData()
 
-        x, y = dnd_get_image(md)
+        image_exts = set(image_extensions()) - set(tweaks['cover_drop_exclude'])
+        x, y = dnd_get_image(md, image_exts)
         if x is not None:
             # We have an image, set cover
             event.accept()
@@ -668,7 +669,7 @@ class BookDetails(QWidget):  # {{{
                 return
 
         # Now look for ebook files
-        urls, filenames = dnd_get_files(md, BOOK_EXTENSIONS, allow_all_extensions=True, filter_exts=image_extensions())
+        urls, filenames = dnd_get_files(md, BOOK_EXTENSIONS, allow_all_extensions=True, filter_exts=image_exts)
         if not urls:
             # Nothing found
             return

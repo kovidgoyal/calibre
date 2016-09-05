@@ -18,6 +18,7 @@ from calibre.gui2.dialogs.add_empty_book import AddEmptyBookDialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import sort_key
 from calibre.gui2.actions import InterfaceAction
@@ -359,11 +360,12 @@ class AddAction(InterfaceAction):
             cid = db.id(current_idx.row()) if cid is None else cid
         formats = []
         from calibre.gui2.dnd import image_extensions
+        image_exts = set(image_extensions()) - set(tweaks['cover_drop_exclude'])
         for path in paths:
             ext = os.path.splitext(path)[1].lower()
             if ext:
                 ext = ext[1:]
-            if ext in image_extensions():
+            if ext in image_exts:
                 pmap = QPixmap()
                 pmap.load(path)
                 if not pmap.isNull():
