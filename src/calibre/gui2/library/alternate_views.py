@@ -19,13 +19,13 @@ from PyQt5.Qt import (
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen,
-    qBlue, QItemSelectionModel, QIcon)
+    qBlue, QItemSelectionModel, QIcon, QFont)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.utils import join_with_timeout
-from calibre.gui2 import gprefs, config
+from calibre.gui2 import gprefs, config, rating_font
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs, tweaks
 
@@ -333,6 +333,7 @@ class CoverDelegate(QStyledItemDelegate):
         self.render_queue = LifoQueue()
         self.animating = None
         self.highlight_color = QColor(Qt.white)
+        self.rating_font = QFont(rating_font())
 
     def set_dimensions(self):
         width = self.original_width = gprefs['cover_grid_width']
@@ -384,6 +385,7 @@ class CoverDelegate(QStyledItemDelegate):
         return self.item_size
 
     def render_field(self, db, book_id):
+        is_stars = False
         try:
             field = db.pref('field_under_covers_in_grid', 'title')
             if field == 'size':
@@ -393,12 +395,13 @@ class CoverDelegate(QStyledItemDelegate):
                 display_name, ans, val, fm = mi.format_field_extended(field)
                 if fm and fm['datatype'] == 'rating':
                     ans = rating_to_stars(val, fm['display'].get('allow_half_stars', False))
-            return '' if ans is None else unicode(ans)
+                    is_stars = True
+            return ('' if ans is None else unicode(ans)), is_stars
         except Exception:
             if DEBUG:
                 import traceback
                 traceback.print_exc()
-        return ''
+        return '', is_stars
 
     def render_emblem(self, book_id, rule, rule_index, cache, mi, db, formatter, template_cache):
         ans = cache[book_id].get(rule, False)
@@ -497,7 +500,9 @@ class CoverDelegate(QStyledItemDelegate):
                     rect = trect
                     rect.setTop(rect.bottom() - self.title_height + 5)
                     painter.setRenderHint(QPainter.TextAntialiasing, True)
-                    title = self.render_field(db, book_id)
+                    title, is_stars = self.render_field(db, book_id)
+                    if is_stars:
+                        painter.setFont(self.rating_font)
                     metrics = painter.fontMetrics()
                     painter.setPen(self.highlight_color)
                     painter.drawText(rect, Qt.AlignCenter|Qt.TextSingleLine,
