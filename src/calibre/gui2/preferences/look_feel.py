@@ -291,8 +291,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
-        r('show_rating_in_cover_browser', gprefs)
         r('cover_browser_title_template', db.prefs)
+        fm = db.field_metadata
+        r('cover_browser_subtitle_field', db.prefs, choices=[(_('No subtitle'), 'none')] + sorted(
+            (fm[k].get('name'), k) for k in fm.all_field_keys() if fm[k].get('name')
+        ))
         r('emblem_size', gprefs)
         r('emblem_position', gprefs, choices=[
             (_('Left'), 'left'), (_('Top'), 'top'), (_('Right'), 'right'), (_('Bottom'), 'bottom')])
@@ -636,6 +639,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         gui.library_view.refresh_book_details()
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
+        gui.update_cover_flow_subtitle_font()
         gui.cover_flow.template_inited = False
         gui.library_view.refresh_row_sizing()
         gui.grid_view.refresh_settings()

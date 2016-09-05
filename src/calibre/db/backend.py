@@ -445,6 +445,7 @@ class DB(object):
         defs['update_all_last_mod_dates_on_start'] = False
         defs['field_under_covers_in_grid'] = 'title'
         defs['cover_browser_title_template'] = '{title}'
+        defs['cover_browser_subtitle_field'] = 'rating'
 
         # Migrate the bool tristate tweak
         defs['bools_are_tristate'] = \
