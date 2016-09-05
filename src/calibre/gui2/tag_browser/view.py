@@ -7,21 +7,22 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import cPickle, os
+import cPickle, os, re
 from functools import partial
 from itertools import izip
 
 from PyQt5.Qt import (
     QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
     QMenu, QPoint, QModelIndex, QToolTip, QCursor, QDrag, QRect,
-    QLinearGradient, QPalette, QColor, QPen, QBrush
+    QLinearGradient, QPalette, QColor, QPen, QBrush, QFont
 )
 
 from calibre import sanitize_file_name_unicode
 from calibre.constants import config_dir
+from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
-from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data
+from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font
 from calibre.utils.icu import sort_key
 
 class TagDelegate(QStyledItemDelegate):  # {{{
@@ -29,6 +30,8 @@ class TagDelegate(QStyledItemDelegate):  # {{{
     def __init__(self, *args, **kwargs):
         QStyledItemDelegate.__init__(self, *args, **kwargs)
         self.old_look = gprefs['tag_browser_old_look']
+        self.rating_pat = re.compile(r'[%s]' % rating_to_stars(3, True))
+        self.rating_font = QFont(rating_font())
 
     def draw_average_rating(self, item, style, painter, option, widget):
         rating = item.average_rating
@@ -63,6 +66,9 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
         painter.drawText(r, Qt.AlignCenter | Qt.TextSingleLine, count)
         tr.setRight(r.left() - 1)
+        is_rating = not self.rating_pat.sub('', text)
+        if is_rating:
+            painter.setFont(self.rating_font)
         flags = Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine
         lr = QRect(tr)
         lr.setRight(lr.right() * 2)
