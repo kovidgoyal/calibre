@@ -252,12 +252,11 @@ class NumericSearch(object):  # {{{
             else:
                 relop = self.operators['=']
 
-            cast = int
             if dt == 'rating':
                 cast = lambda x: 0 if x is None else int(x)
                 adjust = lambda x: x // 2
-            elif dt in ('float', 'composite'):
-                cast = float
+            else:
+                cast = float if dt in ('float', 'composite', 'half-rating') else int
 
             mult = 1.0
             if len(query) > 1:
@@ -270,9 +269,12 @@ class NumericSearch(object):  # {{{
 
             try:
                 q = cast(query) * mult
-            except:
+            except Exception:
                 raise ParseException(
                         _('Non-numeric value in query: {0}').format(query))
+            if dt == 'half-rating':
+                q = int(round(q * 2))
+                cast = int
 
         qfalse = query == 'false'
         for val, book_ids in field_iter():
@@ -282,7 +284,7 @@ class NumericSearch(object):  # {{{
                 continue
             try:
                 v = cast(val)
-            except:
+            except Exception:
                 v = None
             if v:
                 v = adjust(v)
@@ -569,6 +571,8 @@ class Parser(SearchQueryParser):  # {{{
                 else:
                     field = self.dbcache.fields[location]
                     fi, is_many = partial(self.field_iter, location, candidates), field.is_many
+                if dt == 'rating' and fm['display'].get('allow_half_stars'):
+                    dt = 'half-rating'
                 return self.num_search(
                     icu_lower(query), fi, location, dt, candidates, is_many=is_many)
 
