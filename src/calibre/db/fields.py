@@ -77,7 +77,10 @@ class Field(object):
         self.default_value = {} if name == 'identifiers' else () if self.is_multiple else None
         self.category_formatter = type(u'')
         if dt == 'rating':
-            self.category_formatter = partial(rating_to_stars, allow_half_stars=self.metadata['display'].get('allow_half_stars', False))
+            if self.metadata['display'].get('allow_half_stars', False):
+                self.category_formatter = lambda x: rating_to_stars(x, True)
+            else:
+                self.category_formatter = rating_to_stars
         elif name == 'languages':
             self.category_formatter = calibre_langcode_to_name
         self.writer = Writer(self)

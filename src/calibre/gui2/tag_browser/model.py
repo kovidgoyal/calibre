@@ -15,6 +15,7 @@ from PyQt5.Qt import (QAbstractItemModel, QIcon, QFont, Qt,
         QMimeData, QModelIndex, pyqtSignal, QObject)
 
 from calibre.constants import config_dir
+from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import gprefs, config, error_dialog, file_icon_provider
 from calibre.db.categories import Tag
 from calibre.utils.config import tweaks
@@ -1294,6 +1295,7 @@ class TagsModel(QAbstractItemModel):  # {{{
         # They will be 'checked' in both places, but we want to put the node
         # into the search string only once. The nodes_seen set helps us do that
         nodes_seen = set()
+        stars = rating_to_stars(3, True)
 
         node_searches = {TAG_SEARCH_STATES['mark_plus']       : 'true',
                          TAG_SEARCH_STATES['mark_plusplus']   : '.true',
@@ -1351,8 +1353,11 @@ class TagsModel(QAbstractItemModel):  # {{{
                     if self.db.field_metadata[tag.category]['is_csp']:
                         add_colon = True
 
-                    if tag.name and tag.name[0] in u'★½':  # char is a star or a half. Assume rating
-                        ans.append('%s%s:%s'%(prefix, category, len(tag.name)))
+                    if tag.name and tag.name[0] in stars:  # char is a star or a half. Assume rating
+                        rnum = len(tag.name)
+                        if tag.name.endswith(stars[-1]):
+                            rnum = '%s.5' % (rnum - 1)
+                        ans.append('%s%s:%s'%(prefix, category, rnum))
                     else:
                         name = tag.original_name
                         use_prefix = tag.state in [TAG_SEARCH_STATES['mark_plusplus'],

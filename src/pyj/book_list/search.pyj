@@ -9,6 +9,7 @@ from elementmaker import E
 from gettext import gettext as _
 from widgets import create_button, create_spinner, Breadcrumbs
 from modals import show_modal
+from utils import rating_to_stars
 from book_list.globals import get_boss, get_session_data
 from book_list.theme import get_color, get_font_size
 
@@ -224,6 +225,7 @@ class SearchPanel:
             return ''
 
         search_state = {'plus':'true', 'plusplus':'.true', 'minus':'false', 'minusminus':'.false'}[state]
+        stars = rating_to_stars(3, True)
 
         if item.is_category:
             category = item.category
@@ -256,9 +258,12 @@ class SearchPanel:
             return expr
 
         category = 'tags' if item.category is 'news' else item.category
-        if item.name and item.name[0] in '★½':
+        if item.name and item.name[0] in stars:
             # Assume ratings
-            expr = '{}:{}'.format(category, item.name.length)
+            rnum = item.name.length
+            if item.name.endswith(stars[-1]):
+                rnum = '{}.5'.format(rnum - 1)
+            expr = '{}:{}'.format(category, rnum)
         else:
             fm = self.interface_data.field_metadata[item.category]
             suffix = ':' if fm and fm.is_csp else ''
