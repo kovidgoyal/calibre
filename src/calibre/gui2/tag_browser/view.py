@@ -93,11 +93,8 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             r = style.subElementRect(style.SE_ItemViewItemFocusRect, option,
                     widget)
             painter.drawLine(r.bottomLeft(), r.bottomRight())
-        if item.type != TagTreeItem.TAG:
-            return
-        if item.tag.state == 0:
-            if config['show_avg_rating']:
-                self.draw_average_rating(item, style, painter, option, widget)
+        if item.type == TagTreeItem.TAG and item.tag.state == 0 and config['show_avg_rating']:
+            self.draw_average_rating(item, style, painter, option, widget)
 
     # }}}
 
