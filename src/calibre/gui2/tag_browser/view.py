@@ -66,7 +66,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
         painter.drawText(r, Qt.AlignCenter | Qt.TextSingleLine, count)
         tr.setRight(r.left() - 1)
-        is_rating = not self.rating_pat.sub('', text)
+        is_rating = item.type == TagTreeItem.TAG and not self.rating_pat.sub('', text)
         if is_rating:
             painter.setFont(self.rating_font)
         flags = Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine
