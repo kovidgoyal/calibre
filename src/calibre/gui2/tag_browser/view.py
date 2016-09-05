@@ -58,13 +58,12 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         tr = style.subElementRect(style.SE_ItemViewItemText, option, widget)
         count = unicode(index.data(COUNT_ROLE))
         width = painter.fontMetrics().boundingRect(count).width()
+        text = index.data(Qt.DisplayRole)
         r = QRect(tr)
-        r.setRight(r.right() - 1)
-        r.setLeft(r.right() - width - 4)
+        r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
         painter.drawText(r, Qt.AlignCenter | Qt.TextSingleLine, count)
         tr.setRight(r.left() - 1)
         flags = Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine
-        text = index.data(Qt.DisplayRole)
         lr = QRect(tr)
         lr.setRight(lr.right() * 2)
         br = painter.boundingRect(lr, flags, text)
@@ -81,13 +80,15 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         painter.drawText(tr, flags, text)
 
     def paint(self, painter, option, index):
-        item = index.data(Qt.UserRole)
         QStyledItemDelegate.paint(self, painter, option, QModelIndex())
         widget = self.parent()
         style = QApplication.style() if widget is None else widget.style()
         self.initStyleOption(option, index)
+        item = index.data(Qt.UserRole)
         self.draw_icon(style, painter, option, widget)
+        painter.save()
         self.draw_text(style, painter, option, widget, index, item)
+        painter.restore()
         if item.boxed:
             r = style.subElementRect(style.SE_ItemViewItemFocusRect, option,
                     widget)
