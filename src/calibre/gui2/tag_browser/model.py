@@ -27,6 +27,7 @@ from calibre.utils.formatter import EvalFormatter
 TAG_SEARCH_STATES = {'clear': 0, 'mark_plus': 1, 'mark_plusplus': 2,
                      'mark_minus': 3, 'mark_minusminus': 4}
 DRAG_IMAGE_ROLE = Qt.UserRole + 1000
+COUNT_ROLE = DRAG_IMAGE_ROLE + 1
 
 _bf = None
 def bf():
@@ -152,7 +153,7 @@ class TagTreeItem(object):  # {{{
 
     def category_data(self, role):
         if role == Qt.DisplayRole:
-            return (self.py_name + ' [%d]'%len(self.child_tags()))
+            return self.py_name
         if role == Qt.EditRole:
             return (self.py_name)
         if role == Qt.DecorationRole:
@@ -166,6 +167,8 @@ class TagTreeItem(object):  # {{{
         if role == DRAG_IMAGE_ROLE:
             self.ensure_icon()
             return self.icon_state_map[0]
+        if role == COUNT_ROLE:
+            return len(self.child_tags())
         return None
 
     def tag_data(self, role):
@@ -178,11 +181,7 @@ class TagTreeItem(object):  # {{{
             else:
                 name = tag.name
         if role == Qt.DisplayRole:
-            count = self.item_count
-            if count == 0:
-                return ('%s'%(name))
-            else:
-                return ('[%d] %s'%(count, name))
+            return unicode(name)
         if role == Qt.EditRole:
             return (tag.original_name)
         if role == Qt.DecorationRole:
@@ -202,10 +201,14 @@ class TagTreeItem(object):  # {{{
                 tt.append(_('Books in this category are unrated'))
             if self.type == self.TAG and self.tag.category == 'search':
                 tt.append(_('Search expression:') + ' ' + self.tag.search_expression)
+            if self.type == self.TAG:
+                tt.append(_('Number of books: %s') % self.item_count)
             return '\n'.join(tt)
         if role == DRAG_IMAGE_ROLE:
             self.ensure_icon()
             return self.icon_state_map[0]
+        if role == COUNT_ROLE:
+            return self.item_count
         return None
 
     def dump_data(self):

@@ -11,14 +11,16 @@ import cPickle, os
 from functools import partial
 from itertools import izip
 
-from PyQt5.Qt import (QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize,
-        QIcon, QApplication, QMenu, QPoint, QModelIndex, QToolTip, QCursor,
-        QDrag)
+from PyQt5.Qt import (
+    QStyledItemDelegate, Qt, QTreeView, pyqtSignal, QSize, QIcon, QApplication,
+    QMenu, QPoint, QModelIndex, QToolTip, QCursor, QDrag, QRect,
+    QLinearGradient, QPalette, QColor, QPen, QBrush
+)
 
 from calibre import sanitize_file_name_unicode
 from calibre.constants import config_dir
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
-        TagsModel, DRAG_IMAGE_ROLE)
+        TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data
 from calibre.utils.icu import sort_key
 
@@ -28,43 +30,73 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         QStyledItemDelegate.__init__(self, *args, **kwargs)
         self.old_look = gprefs['tag_browser_old_look']
 
+    def draw_average_rating(self, item, style, painter, option, widget):
+        rating = item.average_rating
+        if rating is None:
+            return
+        r = style.subElementRect(style.SE_ItemViewItemDecoration, option, widget)
+        icon = option.icon
+        painter.save()
+        nr = r.adjusted(0, 0, 0, 0)
+        nr.setBottom(r.bottom()-int(r.height()*(rating/5.0)))
+        painter.setClipRect(nr)
+        bg = option.palette.window()
+        if self.old_look:
+            bg = option.palette.alternateBase() if option.features&option.Alternate else option.palette.base()
+        painter.fillRect(r, bg)
+        style.proxy().drawPrimitive(style.PE_PanelItemViewItem, option, painter, widget)
+        painter.setOpacity(0.3)
+        icon.paint(painter, r, option.decorationAlignment, icon.Normal, icon.On)
+        painter.restore()
+
+    def draw_icon(self, style, painter, option, widget):
+        r = style.subElementRect(style.SE_ItemViewItemDecoration, option, widget)
+        icon = option.icon
+        icon.paint(painter, r, option.decorationAlignment, icon.Normal, icon.On)
+
+    def draw_text(self, style, painter, option, widget, index, item):
+        tr = style.subElementRect(style.SE_ItemViewItemText, option, widget)
+        count = unicode(index.data(COUNT_ROLE))
+        width = painter.fontMetrics().boundingRect(count).width()
+        r = QRect(tr)
+        r.setRight(r.right() - 1)
+        r.setLeft(r.right() - width - 4)
+        painter.drawText(r, Qt.AlignCenter | Qt.TextSingleLine, count)
+        tr.setRight(r.left() - 1)
+        flags = Qt.AlignVCenter | Qt.AlignLeft | Qt.TextSingleLine
+        text = index.data(Qt.DisplayRole)
+        lr = QRect(tr)
+        lr.setRight(lr.right() * 2)
+        br = painter.boundingRect(lr, flags, text)
+        if br.width() > tr.width():
+            g = QLinearGradient(tr.topLeft(), tr.topRight())
+            c = option.palette.color(QPalette.WindowText)
+            g.setColorAt(0, c), g.setColorAt(0.8, c)
+            c = QColor(c)
+            c.setAlpha(0)
+            g.setColorAt(1, c)
+            pen = QPen()
+            pen.setBrush(QBrush(g))
+            painter.setPen(pen)
+        painter.drawText(tr, flags, text)
+
     def paint(self, painter, option, index):
         item = index.data(Qt.UserRole)
-        QStyledItemDelegate.paint(self, painter, option, index)
+        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
         widget = self.parent()
         style = QApplication.style() if widget is None else widget.style()
         self.initStyleOption(option, index)
+        self.draw_icon(style, painter, option, widget)
+        self.draw_text(style, painter, option, widget, index, item)
         if item.boxed:
             r = style.subElementRect(style.SE_ItemViewItemFocusRect, option,
                     widget)
-            painter.save()
             painter.drawLine(r.bottomLeft(), r.bottomRight())
-            painter.restore()
         if item.type != TagTreeItem.TAG:
             return
-        if item.tag.state == 0 and config['show_avg_rating']:
-            rating = item.average_rating
-            if rating is None:
-                return
-            r = style.subElementRect(style.SE_ItemViewItemDecoration,
-                    option, widget)
-            icon = option.icon
-            painter.save()
-            nr = r.adjusted(0, 0, 0, 0)
-            nr.setBottom(r.bottom()-int(r.height()*(rating/5.0)))
-            painter.setClipRect(nr)
-            bg = option.palette.window()
-            if self.old_look:
-                bg = (option.palette.alternateBase() if
-                        option.features&option.Alternate else
-                        option.palette.base())
-            painter.fillRect(r, bg)
-            style.proxy().drawPrimitive(style.PE_PanelItemViewItem, option,
-                    painter, widget)
-            painter.setOpacity(0.3)
-            icon.paint(painter, r, option.decorationAlignment, icon.Normal,
-                    icon.On)
-            painter.restore()
+        if item.tag.state == 0:
+            if config['show_avg_rating']:
+                self.draw_average_rating(item, style, painter, option, widget)
 
     # }}}
 
