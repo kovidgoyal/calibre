@@ -4,6 +4,7 @@ from __python__ import bound_methods, hash_literals
 
 import traceback
 from aes import GCM
+from elementmaker import E
 from gettext import install, gettext as _
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
@@ -19,7 +20,7 @@ from read_book.paged_mode import (
     jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture,
     scroll_by_page as paged_scroll_by_page
 )
-from read_book.settings import apply_settings
+from read_book.settings import apply_settings, opts
 from read_book.touch import create_handlers as create_touch_handlers
 from utils import debounce
 
@@ -75,6 +76,7 @@ class IframeBoss:
             install(data.translations)
         window.onerror = self.onerror
         create_touch_handlers()
+        self.color_scheme = data.color_scheme
 
     def onerror(self, msg, script_url, line_number, column_number, error_object):
         console.log(error_object)
@@ -135,6 +137,9 @@ class IframeBoss:
 
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'
+        document.body.appendChild(
+            E.style(str.format('html, body {{ color: {} !important; background-color: {} !important }}', opts.color_scheme.foreground, opts.color_scheme.background))
+        )
         self.do_layout()
         if self.mathjax:
             return apply_mathjax(self.mathjax, self.book.manifest.link_uid, self.content_loaded_stage2)

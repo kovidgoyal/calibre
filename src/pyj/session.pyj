@@ -26,6 +26,20 @@ defaults = {
     'max_text_height': 0,
     'max_text_width': 0,
     'cols_per_screen': 1,
+    'current_color_scheme': 'white',
+    'user_color_schemes': {},
+}
+
+is_local_setting = {
+    'margin_right': True,
+    'margin_left': True,
+    'margin_top': True,
+    'margin_bottom': True,
+    'read_mode': 'paged',
+    'max_text_height': True,
+    'max_text_width': True,
+    'cols_per_screen': True,
+    'current_color_scheme': True,
 }
 
 def storage_available(which):
@@ -132,7 +146,8 @@ class UserSessionData(SessionData):
         self.push_timer_id = None
         if saved_data:
             for key in saved_data:
-                self.set(key, saved_data[key])
+                if not is_local_setting[key]:
+                    self.set(key, saved_data[key])
         self.echo_changes = True
 
     def defval(self, key):
@@ -152,7 +167,7 @@ class UserSessionData(SessionData):
         return self.get(lkey, defval)
 
     def set(self, key, value):
-        if self.echo_changes and self.has_user:
+        if self.echo_changes and self.has_user and not is_local_setting[key]:
             self.changes[key] = value
             self.has_changes = True
             if self.push_timer_id is not None:

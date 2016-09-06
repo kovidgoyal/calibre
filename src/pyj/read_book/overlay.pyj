@@ -168,7 +168,7 @@ class MainOverlay:
         add_button('search', _('Search for text in this book'))
         add_button()
         add_button('Aa', _('Change text size'), text_button=True)
-        add_button('cogs', _('Configure the book reader'))
+        add_button('cogs', _('Configure the book reader'), self.overlay.show_prefs)
         add_button()
 
     def update_time(self):
@@ -207,6 +207,20 @@ class TOCOverlay: # {{{
     def handle_activate(self, dest, frag):
         self.overlay.hide()
         self.overlay.view.goto_named_destination(dest, frag)
+# }}}
+
+class PrefsOverlay: # {{{
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def on_container_click(self, evt):
+        pass  # Dont allow panel to be closed by a click
+
+    def show(self, container):
+        container.style.backgroundColor = get_color('window-background')
+        create_prefs_panel(container, self.overlay.hide_current_panel)
+
 # }}}
 
 class Overlay:
@@ -280,4 +294,8 @@ class Overlay:
 
     def show_toc(self):
         self.panels.push(TOCOverlay(self))
+        self.show_current_panel()
+
+    def show_prefs(self):
+        self.panels.push(PrefsOverlay(self))
         self.show_current_panel()

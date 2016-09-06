@@ -4,6 +4,7 @@ from __python__ import hash_literals
 
 from aes import GCM, random_bytes
 from encodings import hexlify
+from gettext import gettext as _, register_callback, gettext as gt
 
 _boss = None
 
@@ -49,3 +50,18 @@ def current_spine_item():
 def set_current_spine_item(val):
     nonlocal _current_spine_item
     _current_spine_item = val
+
+
+default_color_schemes = {
+    'white':{'foreground':'black', 'background':'white', 'name':_('White')},
+    'black':{'foreground':'white', 'background':'black', 'name':_('Black')},
+    'sepia-light':{'foreground':'#643b0f', 'background':'#2a2c05', 'name':_('Sepia Light')},
+    'sepia-dark':{'background':'#643b0f', 'foreground':'#2a2c05', 'name':_('Sepia Dark')},
+}
+
+register_callback(def():
+    # Ensure the color scheme names are translated
+    for key in default_color_schemes:
+        scheme = default_color_schemes[key]
+        scheme.name = gt(scheme.name)
+)
