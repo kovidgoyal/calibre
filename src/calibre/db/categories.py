@@ -98,7 +98,7 @@ def clean_user_categories(dbcache):
         pass
     return new_cats
 
-def sort_categories(items, sort, first_letter_sort=False):
+def sort_categories(items, sort, first_letter_sort=False, reverse=False):
     if sort == 'popularity':
         key=lambda x:(-getattr(x, 'count', 0), sort_key(x.sort or x.name))
     elif sort == 'rating':
@@ -109,7 +109,7 @@ def sort_categories(items, sort, first_letter_sort=False):
                           sort_key(x.sort or x.name))
         else:
             key=lambda x:sort_key(x.sort or x.name)
-    items.sort(key=key)
+    items.sort(key=key, reverse=reverse)
     return items
 
 def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False):
@@ -134,6 +134,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
 
     for category, is_multiple, is_composite in find_categories(fm):
         tag_class = create_tag_class(category, fm)
+        sort_on, reverse = sort, False
         if is_composite:
             if bids is None:
                 bids = dbcache._all_book_ids() if book_ids is None else book_ids
@@ -144,15 +145,18 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
         else:
             cat = fm[category]
             brm = book_rating_map
-            if cat['datatype'] == 'rating' and category != 'rating':
-                brm = dbcache.fields[category].book_value_map
+            dt = cat['datatype']
+            if dt == 'rating':
+                if category != 'rating':
+                    brm = dbcache.fields[category].book_value_map
+                sort_on, reverse = 'rating', True
             cats = dbcache.fields[category].get_categories(
                 tag_class, brm, lang_map, book_ids)
-            if (category != 'authors' and cat['datatype'] == 'text' and
+            if (category != 'authors' and dt == 'text' and
                 cat['is_multiple'] and cat['display'].get('is_names', False)):
                 for item in cats:
                     item.sort = author_to_author_sort(item.sort)
-        sort_categories(cats, sort, first_letter_sort=first_letter_sort)
+        sort_categories(cats, sort_on, first_letter_sort=first_letter_sort, reverse=reverse)
         categories[category] = cats
 
     # Needed for legacy databases that have multiple ratings that
