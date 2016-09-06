@@ -114,12 +114,10 @@ class SessionData:
         self.overflow_storage = {}
         self.has_overflow = False
 
-_local_storage = None
 def local_storage():
-    nonlocal _local_storage
-    if not _local_storage:
-        _local_storage = SessionData('calibre-local-')
-    return _local_storage
+    if not local_storage.storage:
+        local_storage.storage = SessionData('calibre-local-')
+    return local_storage.storage
 
 class UserSessionData(SessionData):
 
