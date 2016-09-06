@@ -98,19 +98,15 @@ def clean_user_categories(dbcache):
         pass
     return new_cats
 
-def sort_categories(items, sort, first_letter_sort=False, reverse=False):
-    if sort == 'popularity':
-        key=lambda x:(-getattr(x, 'count', 0), sort_key(x.sort or x.name))
-    elif sort == 'rating':
-        key=lambda x:(-getattr(x, 'avg_rating', 0.0), sort_key(x.sort or x.name))
-    else:
-        if first_letter_sort:
-            key=lambda x:(collation_order(icu_upper(x.sort or x.name or ' ')),
-                          sort_key(x.sort or x.name))
-        else:
-            key=lambda x:sort_key(x.sort or x.name)
-    items.sort(key=key, reverse=reverse)
-    return items
+category_sort_keys = {True:{}, False: {}}
+category_sort_keys[True]['popularity'] = category_sort_keys[False]['popularity'] = \
+    lambda x:(-getattr(x, 'count', 0), sort_key(x.sort or x.name))
+category_sort_keys[True]['rating'] = category_sort_keys[False]['rating'] = \
+    lambda x:(-getattr(x, 'avg_rating', 0.0), sort_key(x.sort or x.name))
+category_sort_keys[True]['name'] = \
+    lambda x:(collation_order(icu_upper(x.sort or x.name or ' ')), sort_key(x.sort or x.name))
+category_sort_keys[False]['name'] = \
+    lambda x:sort_key(x.sort or x.name)
 
 def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False):
     if sort not in CATEGORY_SORTS:
@@ -156,7 +152,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                 cat['is_multiple'] and cat['display'].get('is_names', False)):
                 for item in cats:
                     item.sort = author_to_author_sort(item.sort)
-        sort_categories(cats, sort_on, first_letter_sort=first_letter_sort, reverse=reverse)
+        cats.sort(key=category_sort_keys[bool(first_letter_sort)][sort_on], reverse=reverse)
         categories[category] = cats
 
     # Needed for legacy databases that have multiple ratings that
@@ -233,7 +229,8 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                         items.append(taglist[label][n])
                 # else: do nothing, to not include nodes w zero counts
             cat_name = '@' + user_cat  # add the '@' to avoid name collision
-            categories[cat_name] = sort_categories(items, sort)
+            items.sort(key=category_sort_keys[False][sort])
+            categories[cat_name] = items
 
     # ### Finally, the saved searches category ####
     items = []
