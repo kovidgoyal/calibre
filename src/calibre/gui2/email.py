@@ -52,7 +52,7 @@ class Worker(Thread):
 class Sendmail(object):
 
     MAX_RETRIES = 1
-    TIMEOUT = 15 * 60  # seconds
+    TIMEOUT = 25 * 60  # seconds
 
     def __init__(self):
         self.calculate_rate_limit()
