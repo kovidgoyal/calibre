@@ -127,6 +127,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
         return ans
 
     bids = None
+    first_letter_sort = bool(first_letter_sort)
 
     for category, is_multiple, is_composite in find_categories(fm):
         tag_class = create_tag_class(category, fm)
@@ -153,7 +154,7 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
                 cat['is_multiple'] and cat['display'].get('is_names', False)):
                 for item in cats:
                     item.sort = author_to_author_sort(item.sort)
-        cats.sort(key=category_sort_keys[bool(first_letter_sort)][sort_on], reverse=reverse)
+        cats.sort(key=category_sort_keys[first_letter_sort][sort_on], reverse=reverse)
         categories[category] = cats
 
     # Needed for legacy databases that have multiple ratings that
