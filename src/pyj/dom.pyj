@@ -92,16 +92,14 @@ def element(elem_id, child_selector):
         ans = ans.querySelector(child_selector)
     return ans
 
-auto_id_count = 0
-
 def ensure_id(w):
-    nonlocal auto_id_count
     ans = w.getAttribute('id')
     if not ans:
-        auto_id_count += 1
-        ans = 'auto-id-' + auto_id_count
+        ensure_id.count += 1
+        ans = 'auto-id-' + ensure_id.count
         w.setAttribute('id', ans)
     return ans
+ensure_id.count = 0
 
 extra_css = v'[]'
 
