@@ -328,6 +328,13 @@ class ReadingTest(BaseTest):
         self.assertEqual(cache.search('rating:2'), {1, 3})
         self.assertEqual(cache.search('rating:!=2'), {2})
 
+        cache.field_metadata.all_metadata()['#rating']['display']['allow_half_stars'] = True
+        cache.set_field('#rating', {1:3, 2:4, 3:9})
+        self.assertEqual(cache.search('#rating:1'), set())
+        self.assertEqual(cache.search('#rating:1.5'), {1})
+        self.assertEqual(cache.search('#rating:>4'), {3})
+        self.assertEqual(cache.search('#rating:2'), {2})
+
         # Note that the old db searched uuid for un-prefixed searches, the new
         # db does not, for performance
 
