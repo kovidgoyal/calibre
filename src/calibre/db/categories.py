@@ -145,7 +145,8 @@ def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False)
             if dt == 'rating':
                 if category != 'rating':
                     brm = dbcache.fields[category].book_value_map
-                sort_on, reverse = 'rating', True
+                if sort_on == 'name':
+                    sort_on, reverse = 'rating', True
             cats = dbcache.fields[category].get_categories(
                 tag_class, brm, lang_map, book_ids)
             if (category != 'authors' and dt == 'text' and
