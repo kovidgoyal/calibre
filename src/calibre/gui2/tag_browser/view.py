@@ -59,13 +59,17 @@ class TagDelegate(QStyledItemDelegate):  # {{{
 
     def draw_text(self, style, painter, option, widget, index, item):
         tr = style.subElementRect(style.SE_ItemViewItemText, option, widget)
-        count = unicode(index.data(COUNT_ROLE))
-        width = painter.fontMetrics().boundingRect(count).width()
         text = index.data(Qt.DisplayRole)
-        r = QRect(tr)
-        r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
-        painter.drawText(r, Qt.AlignCenter | Qt.TextSingleLine, count)
-        tr.setRight(r.left() - 1)
+        hover = option.state & style.State_MouseOver
+        if hover or gprefs['tag_browser_show_counts']:
+            count = unicode(index.data(COUNT_ROLE))
+            width = painter.fontMetrics().boundingRect(count).width()
+            r = QRect(tr)
+            r.setRight(r.right() - 1), r.setLeft(r.right() - width - 4)
+            painter.drawText(r, Qt.AlignCenter | Qt.TextSingleLine, count)
+            tr.setRight(r.left() - 1)
+        else:
+            tr.setRight(tr.right() - 1)
         is_rating = item.type == TagTreeItem.TAG and not self.rating_pat.sub('', text)
         if is_rating:
             painter.setFont(self.rating_font)

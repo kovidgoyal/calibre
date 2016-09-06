@@ -288,6 +288,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('cover_grid_disk_cache_size', gprefs)
         r('cover_grid_spacing', gprefs)
         r('cover_grid_show_title', gprefs)
+        r('tag_browser_show_counts', gprefs)
 
         r('cover_flow_queue_length', config, restart_required=True)
         r('cover_browser_reflections', gprefs)
