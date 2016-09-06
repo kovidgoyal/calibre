@@ -516,9 +516,20 @@ def ngettext(text, plural, n):
 def install(translation_data):
     t = new Translations(translation_data)
     t.install()
+    for func in register_callback.install_callbacks:
+        try:
+            func(t)
+        except:
+            pass
     return t
 
 has_prop = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty)
+
+def register_callback(func):
+    # Register callbacks that will be called when new translation data is
+    # installed
+    register_callback.install_callbacks.push(func)
+register_callback.install_callbacks = v'[]'
 
 class Translations:
 
