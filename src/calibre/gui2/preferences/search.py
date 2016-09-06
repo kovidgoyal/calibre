@@ -231,6 +231,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         return ConfigWidgetBase.commit(self)
 
     def refresh_gui(self, gui):
+        gui.current_db.new_api.clear_caches()
         set_use_primary_find_in_search(prefs['use_primary_find_in_search'])
         gui.set_highlight_only_button_icon()
         if self.muc_changed:
