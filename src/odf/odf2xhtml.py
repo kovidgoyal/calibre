@@ -20,6 +20,7 @@
 #
 # import pdb
 # pdb.set_trace()
+from collections import defaultdict
 from xml.sax import handler
 from xml.sax.saxutils import escape, quoteattr
 from xml.dom import Node
@@ -359,6 +360,9 @@ class ODF2XHTML(handler.ContentHandler):
         # Tags
         self.generate_css = generate_css
         self.frame_stack = []
+        self.list_number_map = defaultdict(lambda : 1)
+        self.list_id_map = {}
+        self.list_class_stack = []
         self.elements = {
         (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
         (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
@@ -1297,6 +1301,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             of <text:list> elements on the tagstack.
         """
         name = attrs.get((TEXTNS,'style-name'))
+        continue_numbering = attrs.get((TEXTNS, 'continue-numbering')) == 'true'
+        continue_list = attrs.get((TEXTNS, 'continue-list'))
+        list_id = attrs.get(('http://www.w3.org/XML/1998/namespace', 'id'))
         level = self.tagstack.count_tags(tag) + 1
         if name:
             name = name.replace(".","_")
@@ -1306,15 +1313,33 @@ dl.notes dd:last-of-type { page-break-after: avoid }
             # textbox itself may be nested within another list.
             name = self.tagstack.rfindattr((TEXTNS,'style-name'))
         list_class = "%s_%d" % (name, level)
-        if self.generate_css:
-            self.opentag('%s' % self.listtypes.get(list_class,'ul'), {'class': list_class})
+        tag_name = self.listtypes.get(list_class,'ul')
+        number_class = tag_name + list_class
+        if list_id:
+            self.list_id_map[list_id] = number_class
+        if continue_list:
+            if continue_list in self.list_id_map:
+                tglc = self.list_id_map[continue_list]
+                self.list_number_map[number_class] = self.list_number_map[tglc]
+            else:
+                self.list_number_map.pop(number_class, None)
         else:
-            self.opentag('%s' % self.listtypes.get(list_class,'ul'))
+            if not continue_numbering:
+                self.list_number_map.pop(number_class, None)
+        self.list_class_stack.append(number_class)
+        attrs = {}
+        if tag_name == 'ol' and self.list_number_map[number_class] != 1:
+            attrs = {'start': str(self.list_number_map[number_class])}
+        if self.generate_css:
+            attrs['class'] = list_class
+        self.opentag('%s' % tag_name, attrs)
         self.purgedata()
 
     def e_text_list(self, tag, attrs):
         """ End a list """
         self.writedata()
+        if self.list_class_stack:
+            self.list_class_stack.pop()
         name = attrs.get((TEXTNS,'style-name'))
         level = self.tagstack.count_tags(tag) + 1
         if name:
@@ -1330,6 +1355,9 @@ dl.notes dd:last-of-type { page-break-after: avoid }
 
     def s_text_list_item(self, tag, attrs):
         """ Start list item """
+        number_class = self.list_class_stack[-1] if self.list_class_stack else None
+        if number_class:
+            self.list_number_map[number_class] += 1
         self.opentag('li')
         self.purgedata()
 
