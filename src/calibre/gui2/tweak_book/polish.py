@@ -47,7 +47,9 @@ def customize_remove_unused_css(name, parent, ans):
     m.setChecked(tprefs['merge_identical_selectors'])
     l.addWidget(m)
     d.la3 = label('<span style="font-size:small; font-style: italic">' + _(
-        'Merge CSS rules in the same stylesheet that have identical selectors.'))
+        'Merge CSS rules in the same stylesheet that have identical selectors.'
+    ' Note that in rare cases merging can result in a change to the effective styling'
+    ' of the book, so use with care.'))
     d.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
