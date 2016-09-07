@@ -37,6 +37,7 @@ ALL_OPTS = {
 
 CUSTOMIZATION = {
     'remove_unused_classes': False,
+    'merge_identical_selectors': False,
 }
 
 SUPPORTED = {'EPUB', 'AZW3'}
@@ -201,7 +202,8 @@ def polish_one(ebook, opts, report, customization=None):
 
     if opts.remove_unused_css:
         rt(_('Removing unused CSS rules'))
-        if remove_unused_css(ebook, report, remove_unused_classes=customization['remove_unused_classes']):
+        if remove_unused_css(
+                ebook, report, remove_unused_classes=customization['remove_unused_classes'], merge_rules=customization['merge_identical_selectors']):
             changed = True
         report('')
 

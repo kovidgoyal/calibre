@@ -29,14 +29,25 @@ def customize_remove_unused_css(name, parent, ans):
     d.l = l = QVBoxLayout()
     d.setLayout(d.l)
     d.setWindowTitle(_('Remove unused CSS'))
-    d.la = la = QLabel(_(
-        'This will remove all CSS rules that do not match any actual content. You'
-        ' can also have it automatically remove any class attributes from the HTML'
-        ' that do not match any CSS rules, by using the check box below:'))
-    la.setWordWrap(True), l.addWidget(la)
+    def label(text):
+        la = QLabel(text)
+        la.setWordWrap(True), l.addWidget(la), la.setMinimumWidth(450)
+        l.addWidget(la)
+        return la
+
+    d.la = label(_(
+        'This will remove all CSS rules that do not match any actual content.'
+        ' There are a couple of additional cleanups you can enable, below:'))
     d.c = c = QCheckBox(_('Remove unused &class attributes'))
     c.setChecked(tprefs['remove_unused_classes'])
     l.addWidget(c)
+    d.la2 = label('<span style="font-size:small; font-style: italic">' + _(
+        'Remove all class attributes from the HTML that do not match any existing CSS rules'))
+    d.m = m = QCheckBox(_('Merge identical CSS rules'))
+    m.setChecked(tprefs['merge_identical_selectors'])
+    l.addWidget(m)
+    d.la3 = label('<span style="font-size:small; font-style: italic">' + _(
+        'Merge CSS rules in the same stylesheet that have identical selectors.'))
     d.bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
     d.l.addWidget(d.bb)
     d.bb.rejected.connect(d.reject)
@@ -44,6 +55,7 @@ def customize_remove_unused_css(name, parent, ans):
     if d.exec_() != d.Accepted:
         raise Abort()
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
+    ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
 
 def get_customization(action, name, parent):
     ans = CUSTOMIZATION.copy()
