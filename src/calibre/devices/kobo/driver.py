@@ -1305,7 +1305,7 @@ class KOBOTOUCH(KOBO):
     name        = 'KoboTouch'
     gui_name    = 'Kobo Touch/Glo/Mini/Aura HD/Aura H2O/Glo HD/Touch 2'
     author      = 'David Forrester'
-    description = 'Communicate with the Kobo Touch, Glo, Mini, Aura HD, Aura H2O, Glo HD and Touch 2 ereaders. Based on the existing Kobo driver by %s.' % (
+    description = 'Communicate with the Kobo Touch, Glo, Mini, Aura HD, Aura H2O, Glo HD, Touch 2, Aura ONE and Aura Edition 2 ereaders. Based on the existing Kobo driver by %s.' % (
         KOBO.author)
 #    icon        = I('devices/kobotouch.jpg')
 
@@ -2896,10 +2896,14 @@ class KOBOTOUCH(KOBO):
         device_name = self.gui_name
         if self.isAura():
             device_name = 'Kobo Aura'
+        elif self.isAuraEdition2():
+            device_name = 'Kobo Aura Edition 2'
         elif self.isAuraHD():
             device_name = 'Kobo Aura HD'
         elif self.isAuraH2O():
             device_name = 'Kobo Aura H2O'
+        elif self.isAuraOne():
+            device_name = 'Kobo Aura ONE'
         elif self.isGlo():
             device_name = 'Kobo Glo'
         elif self.isGloHD():
