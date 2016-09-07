@@ -5,6 +5,7 @@ from __python__ import hash_literals, bound_methods
 from gettext import gettext as _
 from dom import svgicon, ensure_id, clear
 from elementmaker import E
+from book_list.item_list import build_list, create_item
 
 class Prefs:
 
@@ -43,7 +44,13 @@ class Prefs:
         self.display_panel(which)
 
     def display_top(self, container):
-        pass
+        c = E.div()
+        container.appendChild(c)
+        build_list(c, [
+            create_item(_('Colors'), def():self.show_panel('colors');, _('Change the colors of the page and text')),
+            create_item(_('Page Layout'), def():self.show_panel('layout');, _('Change the page margins and number of columns per page')),
+        ])
+
 
 def create_prefs_panel(container, close_func):
     Prefs(container, close_func)
