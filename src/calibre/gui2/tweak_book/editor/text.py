@@ -336,9 +336,16 @@ class TextEdit(PlainTextEdit):
         from calibre.gui2.dialogs.confirm_delete import confirm
         if confirm(_('Sorting CSS rules can in rare cases change the effective styles applied to the book.'
                      ' Are you sure you want to proceed?'), 'edit-book-confirm-sort-css', parent=self, config_set=tprefs):
+            c = self.textCursor()
+            c.beginEditBlock()
+            c.movePosition(c.Start), c.movePosition(c.End, c.KeepAnchor)
+            text = unicode(c.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
             from calibre.ebooks.oeb.polish.css import sort_sheet
-            text = sort_sheet(current_container(), self.toPlainText()).cssText
-            self.setPlainText(text)
+            text = sort_sheet(current_container(), text).cssText
+            c.insertText(text)
+            c.movePosition(c.Start)
+            c.endEditBlock()
+            self.setTextCursor(c)
 
     def find(self, pat, wrap=False, marked=False, complete=False, save_match=None):
         if marked:
