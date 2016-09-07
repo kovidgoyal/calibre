@@ -16,6 +16,7 @@ from calibre import force_unicode
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.normalize_css import normalize_filter_css, normalizers
 from calibre.ebooks.oeb.polish.pretty import pretty_script_or_style
+from calibre.utils.icu import numeric_sort_key
 from css_selectors import Select, SelectorError
 
 
@@ -324,3 +325,37 @@ def remove_property_value(prop, predicate):
             x = x.replace(v.cssText, '').strip()
         prop.propertyValue.cssText = x
     return bool(removed_vals)
+
+
+RULE_PRIORITIES = {t:i for i, t in enumerate((CSSRule.COMMENT, CSSRule.CHARSET_RULE, CSSRule.IMPORT_RULE, CSSRule.NAMESPACE_RULE))}
+
+def sort_sheet(container, sheet_or_text):
+    ''' Sort the rules in a stylesheet. Note that in the general case this can
+    change the effective styles, but for most common sheets, it should be safe.
+    '''
+    sheet = container.parse_css(sheet_or_text) if isinstance(sheet_or_text, unicode) else sheet_or_text
+
+    def text_sort_key(x):
+        return numeric_sort_key(unicode(x or ''))
+
+    def selector_sort_key(x):
+        return (x.specificity, text_sort_key(x.selectorText))
+
+    def rule_sort_key(rule):
+        primary = RULE_PRIORITIES.get(rule.type, len(RULE_PRIORITIES))
+        secondary = text_sort_key(getattr(rule, 'atkeyword', '') or '')
+        tertiary = None
+        if rule.type == CSSRule.STYLE_RULE:
+            primary += 1
+            selectors = sorted(rule.selectorList, key=selector_sort_key)
+            tertiary = selector_sort_key(selectors[0])
+            rule.selectorText = ', '.join(s.selectorText for s in selectors)
+        elif rule.type == CSSRule.FONT_FACE_RULE:
+            try:
+                tertiary = text_sort_key(rule.style.getPropertyValue('font-family'))
+            except Exception:
+                pass
+
+        return primary, secondary, tertiary
+    sheet.cssRules.sort(key=rule_sort_key)
+    return sheet

@@ -17,7 +17,7 @@ from PyQt5.Qt import (
     QColorDialog, QTimer, pyqtSignal)
 
 from calibre import prepare_string_for_xml
-from calibre.gui2.tweak_book import tprefs, TOP
+from calibre.gui2.tweak_book import tprefs, TOP, current_container
 from calibre.gui2.tweak_book.completion.popup import CompletionPopup
 from calibre.gui2.tweak_book.editor import (
     SYNTAX_PROPERTY, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY, store_locale, LINK_PROPERTY)
@@ -331,6 +331,14 @@ class TextEdit(PlainTextEdit):
     def smart_comment(self):
         from calibre.gui2.tweak_book.editor.comments import smart_comment
         smart_comment(self, self.syntax)
+
+    def sort_css(self):
+        from calibre.gui2.dialogs.confirm_delete import confirm
+        if confirm(_('Sorting CSS rules can in rare cases change the effective styles applied to the book.'
+                     ' Are you sure you want to proceed?'), 'edit-book-confirm-sort-css', parent=self, config_set=tprefs):
+            from calibre.ebooks.oeb.polish.css import sort_sheet
+            text = sort_sheet(current_container(), self.toPlainText()).cssText
+            self.setPlainText(text)
 
     def find(self, pat, wrap=False, marked=False, complete=False, save_match=None):
         if marked:

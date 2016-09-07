@@ -80,6 +80,8 @@ def register_text_editor_actions(_reg, palette):
     ac = reg('format-justify-fill.png', _('&Justify'), ('format_text', 'justify_justify'), 'format-text-justify-fill', (), _('Justify'))
     ac.setToolTip(_('<h3>Justify</h3>Align the paragraph to both the left and right margins'))
 
+    ac = reg('sort.png', _('&Sort style rules'), ('sort_css',), 'editor-sort-css', (),
+             _('Sort the style rules'), syntaxes=('css',))
     ac = reg('view-image.png', _('&Insert image'), ('insert_resource', 'image'), 'insert-image', (),
              _('Insert an image into the text'), syntaxes=('html', 'css'))
     ac.setToolTip(_('<h3>Insert image</h3>Insert an image into the text'))
