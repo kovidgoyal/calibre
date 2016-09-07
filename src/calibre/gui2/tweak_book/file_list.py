@@ -344,10 +344,11 @@ class FileList(QTreeWidget):
                     icon = self.rendered_emblem_cache[emblems] = QIcon(pixmaps[0])
                 else:
                     canvas = QPixmap((num * w) + ((num-1)*2), h)
+                    canvas.setDevicePixelRatio(pixmaps[0].devicePixelRatio())
                     canvas.fill(Qt.transparent)
                     painter = QPainter(canvas)
                     for i, pm in enumerate(pixmaps):
-                        painter.drawPixmap(i * (w + 2), 0, pm)
+                        painter.drawPixmap(int(i * (w + 2)/canvas.devicePixelRatio()), 0, pm)
                     painter.end()
                     icon = self.rendered_emblem_cache[emblems] = canvas
             item.setData(0, Qt.DecorationRole, icon)
