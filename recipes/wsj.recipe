@@ -233,7 +233,7 @@ class WSJ(BasicNewsRecipe):
         # return self.test_wsj_index()
         root = self.index_to_soup(self.wsj_itp_page, as_tree=True)
         for span in CSSSelect('span.date-date')(root):
-            if span.text:
+            if span.text and span.text.strip():
                 self.timefmt = span.text
                 break
         for a in CSSSelect('div.itpSectionHeaderPdf a[href]')(root):
