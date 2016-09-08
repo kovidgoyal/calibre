@@ -95,7 +95,7 @@ def get_metadata(stream, cover=True):
             raw = f.read().strip()
             if raw:
                 prints(raw)
-        if not info:
+        if info is None:
             raise ValueError('Could not read info dict from PDF')
         covpath = os.path.join(pdfpath, 'cover.jpg')
         cdata = None
