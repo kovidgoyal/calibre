@@ -33,28 +33,39 @@ def read_info(outputdir, get_cover):
     ans = {}
 
     try:
-        raw = subprocess.check_output([pdfinfo, '-meta', '-enc', 'UTF-8', 'src.pdf'])
+        raw = subprocess.check_output([pdfinfo, '-enc', 'UTF-8', 'src.pdf'])
     except subprocess.CalledProcessError as e:
         prints('pdfinfo errored out with return code: %d'%e.returncode)
         return None
-    # The XMP metadata could be in an encoding other than UTF-8, so split it
-    # out before trying to decode raw
-    parts = re.split(br'^Metadata:', raw, 1, flags=re.MULTILINE)
-    if len(parts) > 1:
-        raw, ans['xmp_metadata'] = parts
     try:
-        raw = raw.decode('utf-8')
+        info_raw = raw.decode('utf-8')
     except UnicodeDecodeError:
         prints('pdfinfo returned no UTF-8 data')
         return None
 
-    for line in raw.splitlines():
+    for line in info_raw.splitlines():
         if u':' not in line:
             continue
         field, val = line.partition(u':')[::2]
         val = val.strip()
         if field and val:
             ans[field] = val.strip()
+
+    # Now read XMP metadata
+    # Versions of poppler before 0.47.0 used to print out both the Info dict and
+    # XMP metadata packet together. However, since that changed in
+    # https://cgit.freedesktop.org/poppler/poppler/commit/?id=c91483aceb1b640771f572cb3df9ad707e5cad0d
+    # we can no longer rely on it.
+    try:
+        raw = subprocess.check_output([pdfinfo, '-meta', 'src.pdf']).strip()
+    except subprocess.CalledProcessError as e:
+        prints('pdfinfo errored out with return code: %d'%e.returncode)
+
+    parts = re.split(br'^Metadata:', raw, 1, flags=re.MULTILINE)
+    if len(parts) > 1:
+        raw, ans['xmp_metadata'] = parts
+    elif raw:
+        ans['xmp_metadata'] = raw
 
     if get_cover:
         try:
