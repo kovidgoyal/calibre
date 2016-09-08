@@ -63,7 +63,8 @@ def read_info(outputdir, get_cover):
 
     parts = re.split(br'^Metadata:', raw, 1, flags=re.MULTILINE)
     if len(parts) > 1:
-        raw, ans['xmp_metadata'] = parts
+        # old poppler < 0.47.0
+        ans['xmp_metadata'] = parts[1]
     elif raw:
         ans['xmp_metadata'] = raw
 
