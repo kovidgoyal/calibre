@@ -20,6 +20,51 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.67.0
+  date: 2016-09-08
+
+  new features:
+    - title: "Allow creating custom rating columns that support half-stars via Preferences->Add your own columns"
+
+    - title: "Tag Browser: Add an option in Preferences->Look & Feel->Tag Browser to turn off the display of counts in the Tag Browser"
+
+    - title: "Tag browser: Show the book counts on the right edge of the Tag Browser"
+
+    - title: "Cover Browser: Allow any metadata field to be used as the sub-title, not just the rating"
+
+    - title: "Edit Book: A new tool to sort the rules in a CSS stylesheet. To use it add it to the toolbar for CSS editors"
+
+    - title: "Edit Book: The Remove Unused CSS tool now has an option to also merge CSS rules that have identical selectors"
+
+    - title: "Add a tweak in Preferences->Tweaks to exclude some images types from being treated a covers when dropped onto the Book Details panel."
+      tickets: [1620198]
+
+    - title: "Allow reading more image formats as covers (All images will be converted to JPEG when stored)."
+      tickets: [1619993]
+
+    - title: "Content server: OPDS feeds: Change the value of <updated> for entries in the acquisition feed to be the last modified date for the book. Also make the size and last modified timestamp available as attributes in the acquisition links. Useful for integration with third party applications."
+
+    - title: "Kobo driver: Add support for firmware version 4 available on the new Kobo Aura One"
+
+  bug fixes:
+    - title: "ODT Input: Add support for continued lists."
+      tickets: [1620581]
+
+    - title: "Edit Book: Fix high-dpi rendering of emblems in the File Browser"
+
+    - title: "Fix regression in previous release that caused wide column icons to be scaled incorrectly"
+
+    - title: "Metadata download dialog: Fix https links in the download summary not working"
+
+    - title: "DOCX Output: Handle nested display:table tags with no rows."
+      tickets: [1619662]
+
+    - title: "PDF Output: Fix OpenType fonts with CFF font data not embeddable on windows"
+
+  improved recipes:
+    - Ars Technica
+
+
 - version: 2.66.0
   date: 2016-09-02
 
