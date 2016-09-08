@@ -63,9 +63,9 @@ class NikkeiNet_paper_subscription(BasicNewsRecipe):
             br.submit()
             # response = br.response()
             print "-------------------------got login form------------------------------------"
-            br.select_form(name='LA0210Form01')
-            br['LA0210Form01:LA0210Email'] = self.username
-            br['LA0210Form01:LA0210Password'] = self.password
+            br.select_form(name='LA7010Form01')
+            br['LA7010Form01:LA7010Email'] = self.username
+            br['LA7010Form01:LA7010Password'] = self.password
             br.submit()
             # response = br.response()
             print "-------------------------JS redirect---------------------------------------"
