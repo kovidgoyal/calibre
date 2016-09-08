@@ -376,7 +376,6 @@ class ToolbarSettings(QWidget):
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
         self.l = gl = QGridLayout(self)
-        self.setLayout(gl)
         self.changed = False
 
         self.bars = b = QComboBox(self)
@@ -436,10 +435,11 @@ class ToolbarSettings(QWidget):
         self.toolbar_icon_size = ics = QSpinBox(self)
         ics.setMinimum(16), ics.setMaximum(128), ics.setSuffix(' px'), ics.setValue(tprefs['toolbar_icon_size'])
         ics.setToolTip('<p>' + _('Adjust the size of icons on all toolbars'))
-        r = l.rowCount()
+        self.h = h = QHBoxLayout()
+        gl.addLayout(h, gl.rowCount(), 0, 1, -1)
         self.toolbar_icon_size_label = la = QLabel(_('Toolbar &icon size:'))
         la.setBuddy(ics)
-        l.addWidget(la, r, 0), l.addWidget(ics, r, 1)
+        h.addWidget(la), h.addWidget(ics), h.addStretch(10)
 
     def read_settings(self, prefs=None):
         prefs = prefs or tprefs
@@ -765,4 +765,3 @@ if __name__ == '__main__':
     main = Main(opts)
     d = Preferences(main)
     d.exec_()
-
