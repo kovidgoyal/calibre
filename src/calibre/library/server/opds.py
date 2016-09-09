@@ -179,8 +179,8 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
         extra.append(_('SERIES: %(series)s [%(sidx)s]<br />')%
                 dict(series=xml(series),
                 sidx=fmt_sidx(float(item[FM['series_index']]))))
+    mi = db.get_metadata(item[CFM['id']['rec_index']], index_is_id=True)
     for key in CKEYS:
-        mi = db.get_metadata(item[CFM['id']['rec_index']], index_is_id=True)
         name, val = mi.format_field(key)
         if val:
             datatype = CFM[key]['datatype']
