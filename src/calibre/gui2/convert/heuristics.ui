@@ -84,7 +84,7 @@
         <item>
          <widget class="QLabel" name="huf_label">
           <property name="text">
-           <string>Line &amp;un-wrap factor :</string>
+           <string>Line &amp;un-wrap factor:</string>
           </property>
           <property name="buddy">
            <cstring>opt_html_unwrap_factor</cstring>
