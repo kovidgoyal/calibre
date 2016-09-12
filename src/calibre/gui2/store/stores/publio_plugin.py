@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 5  # Needed for dynamic plugin loading
+store_version = 6  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
-__copyright__ = '2012-2015, Tomasz Długosz <tomek3d@gmail.com>'
+__copyright__ = '2012-2016, Tomasz Długosz <tomek3d@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import urllib
@@ -53,7 +53,7 @@ class PublioStore(BasicStoreConfig, StorePlugin):
                         continue
 
                     cover_url = ''.join(data.xpath('.//img[@class="product-tile-cover-photo"]/@src'))
-                    title = ''.join(data.xpath('.//h3[@class="product-tile-title"]/a/text()'))
+                    title = ''.join(data.xpath('.//h3[@class="product-tile-title"]/a/span[1]/text()'))
                     author = ', '.join(data.xpath('.//span[@class="product-tile-author"]/a/text()'))
                     price = ''.join(data.xpath('.//div[@class="product-tile-price-wrapper "]/a/ins/text()'))
                     # formats = ', '.join([x.strip() for x in data.xpath('.//div[@class="formats"]/a/text()')])
