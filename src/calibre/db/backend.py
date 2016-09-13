@@ -1031,17 +1031,18 @@ class DB(object):
         data = self.custom_field_metadata(label, num)
         self.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
 
-    def close(self, force=False):
+    def close(self, force=False, unload_formatter_functions=True):
         if getattr(self, '_conn', None) is not None:
-            try:
-                unload_user_template_functions(self.library_id)
-            except Exception:
-                pass
+            if unload_formatter_functions:
+                try:
+                    unload_user_template_functions(self.library_id)
+                except Exception:
+                    pass
             self._conn.close(force)
             del self._conn
 
     def reopen(self, force=False):
-        self.close(force)
+        self.close(force=force, unload_formatter_functions=False)
         self._conn = None
         self.conn
 
@@ -1070,7 +1071,7 @@ class DB(object):
                     shell.process_command('.read ' + fname.replace(os.sep, '/'))
                     conn.execute('PRAGMA user_version=%d;'%uv)
 
-                self.close()
+                self.close(unload_formatter_functions=False)
                 try:
                     atomic_rename(tmpdb, self.dbpath)
                 finally:
