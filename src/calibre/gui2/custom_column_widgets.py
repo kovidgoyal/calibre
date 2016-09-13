@@ -129,19 +129,26 @@ class Int(Base):
         w.setRange(-1000000, 100000000)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
+        self.was_none = False
+        w.valueChanged.connect(self.valueChanged)
 
     def setter(self, val):
         if val is None:
             val = self.widgets[1].minimum()
-        else:
-            val = int(val)
         self.widgets[1].setValue(val)
+        self.was_none = val == self.widgets[1].minimum()
 
     def getter(self):
         val = self.widgets[1].value()
         if val == self.widgets[1].minimum():
             val = None
         return val
+
+    def valueChanged(self, toWhat):
+        if self.was_none and toWhat == -999999:
+            self.changed_from_none = True
+            self.setter(0)
+        self.was_none = toWhat == self.widgets[1].minimum()
 
 class Float(Int):
 
@@ -153,11 +160,8 @@ class Float(Int):
         w.setDecimals(2)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
-
-    def setter(self, val):
-        if val is None:
-            val = self.widgets[1].minimum()
-        self.widgets[1].setValue(val)
+        self.was_none = False
+        w.valueChanged.connect(self.valueChanged)
 
 class Rating(Base):
 
@@ -797,20 +801,27 @@ class BulkInt(BulkBase):
         self.main_widget.setRange(-1000000, 100000000)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
+        self.was_none = False
+        self.main_widget.valueChanged.connect(self.valueChanged)
 
     def setter(self, val):
         if val is None:
             val = self.main_widget.minimum()
-        else:
-            val = int(val)
         self.main_widget.setValue(val)
         self.ignore_change_signals = False
+        self.was_none = val == self.main_widget.minimum()
 
     def getter(self):
         val = self.main_widget.value()
         if val == self.main_widget.minimum():
             val = None
         return val
+
+    def valueChanged(self, toWhat):
+        if self.was_none and toWhat == -999999:
+            self.changed_from_none = True
+            self.setter(0)
+        self.was_none = toWhat == self.main_widget.minimum()
 
 class BulkFloat(BulkInt):
 
@@ -820,6 +831,8 @@ class BulkFloat(BulkInt):
         self.main_widget.setDecimals(2)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
+        self.was_none = False
+        self.main_widget.valueChanged.connect(self.valueChanged)
 
 class BulkRating(BulkBase):
 
