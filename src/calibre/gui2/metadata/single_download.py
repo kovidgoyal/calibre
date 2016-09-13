@@ -269,7 +269,7 @@ class ResultsView(QTableView):  # {{{
                 parts.append('<div>%s: %s</div>'%series)
         if not book.is_null('rating'):
             style = 'style=\'font-family:"%s"\''%f
-            parts.append('<div %s>%s</div>'%(style, rating_to_stars(int(book.rating))))
+            parts.append('<div %s>%s</div>'%(style, rating_to_stars(int(2 * book.rating))))
         parts.append('</center>')
         if book.identifiers:
             urls = urls_from_identifiers(book.identifiers)
