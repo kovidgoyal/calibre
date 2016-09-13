@@ -65,12 +65,16 @@ class RescaleImages(object):
                     new_height = max(1, new_height)
                     self.log('Rescaling image from %dx%d to %dx%d'%(
                         width, height, new_width, new_height), item.href)
-                    img = img.resize((new_width, new_height))
+                    try:
+                        img = img.resize((new_width, new_height))
+                    except Exception:
+                        self.log.exception('Failed to rescale image: %s' % item.href)
+                        continue
                     buf = BytesIO()
                     try:
                         img.save(buf, ext)
                     except Exception:
-                        self.log.exception('Failed to rescale image')
+                        self.log.exception('Failed to rescale image: %s' % item.href)
                     else:
                         item.data = buf.getvalue()
                         item.unload_data_from_memory()
