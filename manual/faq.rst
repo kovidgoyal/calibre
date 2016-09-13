@@ -557,6 +557,8 @@ problem for *some* calibre users.
   * Try a different computer, in particular the Kobo does not work well with
     some Windows XP machines. If you are on Windows XP, try a computer with a
     newer version of Windows.
+  * Log out of the Kobo and log in again, this causes it to rebuild the
+    database, fixing corrupted database errors.
   * Try upgrading the firmware on your Kobo Touch to the latest
   * Try resetting the Kobo (sometimes this cures the problem for a little while, but then it re-appears, in which case you have to reset again and again)
   * Try only putting one or two books onto the Kobo at a time and do not keep large collections on the Kobo
