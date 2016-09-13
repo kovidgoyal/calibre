@@ -1037,6 +1037,8 @@ def do_set_custom(db, col, id_, val, append):
     else:
         db.set_custom(id_, val, label=col, append=append)
         prints('Data set to: %r'%db.get_custom(id_, label=col, index_is_id=True))
+    write_dirtied(db)
+    send_message()
 
 def set_custom_option_parser():
     parser = get_parser(_(
