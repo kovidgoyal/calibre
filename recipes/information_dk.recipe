@@ -28,21 +28,45 @@ class Information_dk(BasicNewsRecipe):
 
     feeds = [
 
-    (u'Nyheder fra', u'http://www.information.dk/feed'),
-    (u'Bedst lige nu', u'http://www.information.dk/bedstligenu/feed'),
-    (u'Politik og internationalt', u'http://www.information.dk/politik/feed'),
-    (u'Kunst og kultur', u'http://www.information.dk/kultur/feed'),
-    (u'Moderne Tider', u'http://www.information.dk/modernetider/feed'),
-    (u'Klima', u'http://www.information.dk/klima/feed'),
-    (u'Opinion', u'http://www.information.dk/opinion/feed'),
-    (u'Literatur', u'http://www.information.dk/litteratur/feed'),
-    (u'Film', u'http://www.information.dk/film/feed'),
-    (u'Kunst', u'http://www.information.dk/kunst/feed')
+    (u'Nyheder', u'https://www.information.dk/feed'),
+    (u'Politik', u'https://www.information.dk/emne/politik/feed'),
+    (u'Indland', u'https://www.information.dk/indland/feed'),
+    (u'Udland', u'https://www.information.dk/udland/feed'),
+    (u'Debat', u'https://www.information.dk/debat/feed'),
+    (u'Kunst og kultur', u'https://www.information.dk/kultur/feed'),
+    (u'Literatur', u'https://www.information.dk/litteratur/feed'),
+    (u'Film', u'https://www.information.dk/emne/film/feed'),
+    (u'Kunst', u'https://www.information.dk/emne/kunst/feed')
     ]
 
+    keep_only_tags = [dict(name='article', attrs={}),
+                      dict(name='div', attrs={'class': 'field-name-body'})]
     remove_tags_before = dict(name='h1', attrs={'class': 'print-title'})
     remove_tags_after = dict(name='div', attrs={'class': 'print-footer'})
-    remove_tags = [dict(name=['object', 'link'])]
-
-    def print_version(self, url):
-        return url.replace('information.dk/', 'information.dk/print/')
+    
+    field_name_best_from_inf = '^.*?field-name-best-from-inf.*?$'
+    related_stuff = '^.*?related-stuff.*?$'
+    view_iv_seneste = '^.*?view-iv-seneste.*?$'
+    view_iv_news_queue = '^.*?view-iv-news-queue.*?$'
+    view_footer = '^.*?view-footer.*?$'
+    field_name_recommendations = '^.*?field-name-recommendations.*?$'
+    field_name_comments_label = '^.*?field-name-comments-label.*?$'
+    field_name_no_comments = '^.?field-name-no-comments.*?$'
+    comment = '^.*?comment.*?$'
+    
+    remove_tags = [dict(name=['object', 'link']),
+                   dict(name='div', attrs={'id': 'node-article-full-group-date'}),
+                   dict(name='div', attrs={'id': 'node-article-full-group-right'}),
+                   dict(name='div', attrs={'id': 'node-article-non-subscriber-full-group-date'}),
+                   dict(name='div', attrs={'id': 'node-article-non-subscriber-full-group-right'}),
+                   dict(name='div', attrs={'class': re.compile(field_name_best_from_inf, re.IGNORECASE)}),
+                   dict(name='div', attrs={'class': re.compile(related_stuff, re.IGNORECASE)}),
+                   dict(name='div', attrs={'class': re.compile(view_iv_seneste, re.IGNORECASE)}),
+                   dict(name='div', attrs={'class': re.compile(view_iv_news_queue, re.IGNORECASE)}),
+                   dict(name='div', attrs={'class': re.compile(view_footer, re.IGNORECASE)}),
+                   dict(name='div', attrs={'class': re.compile(field_name_recommendations, re.IGNORECASE)}),
+                   dict(name='div', attrs={'class': re.compile(field_name_comments_label, re.IGNORECASE)}),
+                   dict(name='div', attrs={'class': re.compile(field_name_no_comments, re.IGNORECASE)}),
+                   dict(name='article', attrs={'class': re.compile(comment, re.IGNORECASE)}),
+                   dict(name='h2', attrs={'class': 'pane-title'}),
+                   dict(name='div', attrs={'id': 'comments'})]
