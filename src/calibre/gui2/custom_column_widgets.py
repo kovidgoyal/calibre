@@ -123,25 +123,31 @@ class Bool(Base):
 class Int(Base):
 
     def setup_ui(self, parent):
+        self.was_none = False
         self.widgets = [QLabel('&'+self.col_metadata['name']+':', parent),
                 ClearingSpinBox(parent)]
         w = self.widgets[1]
         w.setRange(-1000000, 100000000)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
+        w.valueChanged.connect(self.valueChanged)
 
     def setter(self, val):
         if val is None:
             val = self.widgets[1].minimum()
-        else:
-            val = int(val)
         self.widgets[1].setValue(val)
+        self.was_none = val == self.widgets[1].minimum()
 
     def getter(self):
         val = self.widgets[1].value()
         if val == self.widgets[1].minimum():
             val = None
         return val
+
+    def valueChanged(self, to_what):
+        if self.was_none and to_what == -999999:
+            self.setter(0)
+        self.was_none = to_what == self.widgets[1].minimum()
 
 class Float(Int):
 
@@ -153,11 +159,8 @@ class Float(Int):
         w.setDecimals(2)
         w.setSpecialValueText(_('Undefined'))
         w.setSingleStep(1)
-
-    def setter(self, val):
-        if val is None:
-            val = self.widgets[1].minimum()
-        self.widgets[1].setValue(val)
+        self.was_none = False
+        w.valueChanged.connect(self.valueChanged)
 
 class Rating(Base):
 
@@ -793,24 +796,30 @@ class BulkBool(BulkBase, Bool):
 class BulkInt(BulkBase):
 
     def setup_ui(self, parent):
+        self.was_none = False
         self.make_widgets(parent, QSpinBox)
         self.main_widget.setRange(-1000000, 100000000)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
+        self.main_widget.valueChanged.connect(self.valueChanged)
 
     def setter(self, val):
         if val is None:
             val = self.main_widget.minimum()
-        else:
-            val = int(val)
         self.main_widget.setValue(val)
         self.ignore_change_signals = False
+        self.was_none = val == self.main_widget.minimum()
 
     def getter(self):
         val = self.main_widget.value()
         if val == self.main_widget.minimum():
             val = None
         return val
+
+    def valueChanged(self, to_what):
+        if self.was_none and to_what == -999999:
+            self.setter(0)
+        self.was_none = to_what == self.main_widget.minimum()
 
 class BulkFloat(BulkInt):
 
@@ -820,6 +829,8 @@ class BulkFloat(BulkInt):
         self.main_widget.setDecimals(2)
         self.main_widget.setSpecialValueText(_('Undefined'))
         self.main_widget.setSingleStep(1)
+        self.was_none = False
+        self.main_widget.valueChanged.connect(self.valueChanged)
 
 class BulkRating(BulkBase):
 
