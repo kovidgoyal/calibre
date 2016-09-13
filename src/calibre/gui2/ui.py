@@ -685,8 +685,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             try:
                 if call_close:
                     olddb.close()
-                from calibre.utils.formatter_functions import unload_user_template_functions
-                unload_user_template_functions(olddb.library_id)
             except:
                 import traceback
                 traceback.print_exc()

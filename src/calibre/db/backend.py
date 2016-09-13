@@ -31,7 +31,8 @@ from calibre.utils.filenames import (
     WindowsAtomicFolderMove, atomic_rename, remove_dir_if_empty,
     copytree_using_links, copyfile_using_links)
 from calibre.utils.img import save_cover_data_to
-from calibre.utils.formatter_functions import load_user_template_functions
+from calibre.utils.formatter_functions import (load_user_template_functions,
+                                               unload_user_template_functions)
 from calibre.db.tables import (OneToOneTable, ManyToOneTable, ManyToManyTable,
         SizeTable, FormatsTable, AuthorsTable, IdentifiersTable, PathTable,
         CompositeTable, UUIDTable, RatingTable)
@@ -1032,6 +1033,10 @@ class DB(object):
         self.execute('UPDATE custom_columns SET mark_for_delete=1 WHERE id=?', (data['num'],))
 
     def close(self, force=False):
+        try:
+            unload_user_template_functions(self.library_id)
+        except:
+            pass
         if getattr(self, '_conn', None) is not None:
             self._conn.close(force)
             del self._conn
