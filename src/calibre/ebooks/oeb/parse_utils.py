@@ -297,7 +297,7 @@ def parse_html(data, log=None, decoder=None, preprocessor=None,
                     'HTML 5 parsing failed, falling back to older parsers')
                 data = _html4_parse(data)
 
-    if has_html4_doctype or data.tag == 'HTML':
+    if has_html4_doctype or data.tag == 'HTML' or (len(data) and (data[-1].get('LANG') or data[-1].get('DIR'))):
         # Lower case all tag and attribute names
         data.tag = data.tag.lower()
         for x in data.iterdescendants():
