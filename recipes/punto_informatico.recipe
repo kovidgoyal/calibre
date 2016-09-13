@@ -36,4 +36,4 @@ class PuntoInformatico(BasicNewsRecipe):
         return article.get('id', article.get('guid', None))
 
     feeds = [(u'Punto Informatico',
-              u'http://feeds.punto-informatico.it/c/32288/f/438866/index.rss')]
+              u'http://punto-informatico.it/fader/pixml2.xml')]
