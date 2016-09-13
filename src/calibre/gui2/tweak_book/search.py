@@ -485,6 +485,10 @@ class SearchPanel(QWidget):  # {{{
     def set_where(self, val):
         self.widget.where = val
 
+    def unset_marked(self):
+        if self.widget.where == 'selected-text':
+            self.widget.where = self.widget.DEFAULT_STATE['where']
+
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Escape:
             self.hide_panel()

@@ -796,6 +796,8 @@ class Boss(QObject):
             ed.mark_selected_text()
             if ed.has_marked_text:
                 self.gui.central.search_panel.set_where('selected-text')
+            else:
+                self.gui.central.search_panel.unset_marked()
 
     def editor_action(self, action):
         ed = self.gui.central.current_editor
