@@ -49,7 +49,10 @@ if not _run_once:
     #
     # Ensure that all temp files/dirs are created under a calibre tmp dir
     from calibre.ptempfile import base_dir
-    base_dir()
+    try:
+        base_dir()
+    except EnvironmentError:
+        pass  # Ignore this error during startup, so we can show a better error message to the user later.
 
     #
     # Convert command line arguments to unicode

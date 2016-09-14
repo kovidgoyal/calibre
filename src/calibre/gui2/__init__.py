@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
         plugins, config_dir, filesystem_encoding, isxp, DEBUG, __version__, __appname__ as APP_UID)
+from calibre.ptempfile import base_dir
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -858,6 +859,15 @@ def setup_gui_option_parser(parser):
         parser.add_option('--detach', default=False, action='store_true',
                           help=_('Detach from the controlling terminal, if any (linux only)'))
 
+def show_temp_dir_error(err):
+    import traceback
+    extra = _('Click "Show details" for more information.')
+    if 'CALIBRE_TEMP_DIR' in os.environ:
+        extra = _('The %s environment variable is set. Try unsetting it.') % 'CALIBRE_TEMP_DIR'
+    error_dialog(None, _('Could not create temporary directory'), _(
+        'Could not create temporary directory, calibre cannot start.') + ' ' + extra, det_msg=traceback.format_exc(), show=True)
+
+
 class Application(QApplication):
 
     shutdown_signal_received = pyqtSignal()
@@ -890,6 +900,12 @@ class Application(QApplication):
         QApplication.setApplicationName(APP_UID)
         QApplication.__init__(self, qargs)
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
+        try:
+            base_dir()
+        except EnvironmentError as err:
+            if not headless:
+                show_temp_dir_error(err)
+            raise SystemExit('Failed to create temporary directory')
         if DEBUG and not headless:
             prints('devicePixelRatio:', self.devicePixelRatio())
             s = self.primaryScreen()
