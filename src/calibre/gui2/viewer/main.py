@@ -13,7 +13,7 @@ from calibre.gui2.viewer.ui import Main as MainWindow
 from calibre.gui2.viewer.toc import TOC
 from calibre.gui2.widgets import ProgressIndicator
 from calibre.gui2 import (
-    Application, ORG_NAME, APP_UID, choose_files, info_dialog, error_dialog,
+    Application, choose_files, info_dialog, error_dialog,
     open_url, setup_gui_option_parser)
 from calibre.ebooks.oeb.iterator.book import EbookIterator
 from calibre.constants import islinux, filesystem_encoding, DEBUG, iswindows
@@ -1227,8 +1227,6 @@ def main(args=sys.argv):
     app.file_event_hook = acc
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('viewer.png')))
-    QApplication.setOrganizationName(ORG_NAME)
-    QApplication.setApplicationName(APP_UID)
 
     if vprefs['singleinstance']:
         try:

@@ -8,7 +8,7 @@ from PyQt5.Qt import (
 from calibre import __appname__, setup_cli_handlers, islinux, isbsd
 from calibre.ebooks.lrf.lrfparser import LRFDocument
 
-from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, \
+from calibre.gui2 import error_dialog, \
                          config, choose_files, Application
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.gui2.lrf_renderer.main_ui import Ui_MainWindow
@@ -307,8 +307,6 @@ def main(args=sys.argv, logger=None):
         override = 'calibre-lrf-viewer' if islinux else None
         app = Application(args, override_program_name=override)
         app.setWindowIcon(QIcon(I('viewer.png')))
-        QCoreApplication.setOrganizationName(ORG_NAME)
-        QCoreApplication.setApplicationName(APP_UID)
         opts = normalize_settings(parser, opts)
         stream = open(args[1], 'rb') if len(args) > 1 else None
         main = file_renderer(stream, opts, logger=logger)

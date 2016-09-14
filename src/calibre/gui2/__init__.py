@@ -12,11 +12,9 @@ from PyQt5.Qt import (
     QDesktopServices, QFileDialog, QFileIconProvider, QSettings, QIcon,
     QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale, QFontInfo)
 
-ORG_NAME = 'KovidsBrain'
-APP_UID  = 'libprs500'
 from calibre import prints
 from calibre.constants import (islinux, iswindows, isbsd, isfrozen, isosx,
-        plugins, config_dir, filesystem_encoding, isxp, DEBUG)
+        plugins, config_dir, filesystem_encoding, isxp, DEBUG, __version__, __appname__ as APP_UID)
 from calibre.utils.config import Config, ConfigProxy, dynamic, JSONConfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.date import UNDEFINED_DATE
@@ -886,6 +884,10 @@ class Application(QApplication):
                 # control this, if needed.
                 # Could have options: auto, off, 1.25, 1.5, 1.75, 2, 2.25, 2.5
                 QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QApplication.setOrganizationName('calibre-ebook.com')
+        QApplication.setOrganizationDomain(QApplication.organizationName())
+        QApplication.setApplicationVersion(__version__)
+        QApplication.setApplicationName(APP_UID)
         QApplication.__init__(self, qargs)
         self.setAttribute(Qt.AA_UseHighDpiPixmaps)
         if DEBUG and not headless:

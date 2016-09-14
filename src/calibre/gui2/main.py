@@ -13,7 +13,7 @@ from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
         filesystem_encoding, get_portable_base)
 from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (
-    ORG_NAME, APP_UID, initialize_file_icon_provider, Application, choose_dir,
+    initialize_file_icon_provider, Application, choose_dir,
     error_dialog, question_dialog, gprefs, setup_gui_option_parser)
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
@@ -95,8 +95,6 @@ def init_qt(args):
         if os.path.isdir(libpath):
             prefs.set('library_path', os.path.abspath(libpath))
             prints('Using library at', prefs['library_path'])
-    QCoreApplication.setOrganizationName(ORG_NAME)
-    QCoreApplication.setApplicationName(APP_UID)
     override = 'calibre-gui' if islinux else None
     app = Application(args, override_program_name=override)
     app.file_event_hook = EventAccumulator()

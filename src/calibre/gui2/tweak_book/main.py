@@ -11,7 +11,7 @@ import sys, os, importlib, time
 from PyQt5.Qt import QIcon
 
 from calibre.constants import islinux, iswindows
-from calibre.gui2 import Application, ORG_NAME, APP_UID, setup_gui_option_parser, decouple, set_gui_prefs
+from calibre.gui2 import Application, setup_gui_option_parser, decouple, set_gui_prefs
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
 
@@ -66,8 +66,6 @@ def _run(args, notify=None):
     app.file_event_hook = EventAccumulator()
     app.load_builtin_fonts()
     app.setWindowIcon(QIcon(I('tweak.png')))
-    Application.setOrganizationName(ORG_NAME)
-    Application.setApplicationName(APP_UID)
     main = Main(opts, notify=notify)
     main.set_exception_handler()
     main.show()
