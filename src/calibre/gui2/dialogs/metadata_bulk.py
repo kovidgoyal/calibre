@@ -879,6 +879,8 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if dest == 'title' and len(val) == 0:
                 val = _('Unknown')
 
+        if not val and dfm['datatype'] == 'datetime':
+            val = None
         self.set_field_calls[dest][book_id] = val
     # }}}
 
