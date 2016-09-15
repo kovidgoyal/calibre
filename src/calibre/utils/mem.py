@@ -15,18 +15,11 @@ value.
 
 import gc, os
 
-from calibre.constants import iswindows, islinux
-
 def get_memory():
     'Return memory usage in bytes'
+    # See https://pythonhosted.org/psutil/#psutil.Process.memory_info
     import psutil
-    p = psutil.Process(os.getpid())
-    if hasattr(p, 'memory_info_ex'):
-        mem = p.memory_info_ex()
-    else:
-        mem = p.get_ext_memory_info()
-    attr = 'wset' if iswindows else 'data' if islinux else 'rss'
-    return getattr(mem, attr)
+    return psutil.Process(os.getpid()).memory_info().rss
 
 def memory(since=0.0):
     'Return memory used in MB. The value of since is subtracted from the used memory'
