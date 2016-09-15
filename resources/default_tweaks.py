@@ -437,8 +437,11 @@ metadata_edit_custom_column_order = []
 # public email server like gmx/hotmail/gmail. Default is: 5 minutes
 # Setting it to lower may cause the server's SPAM controls to kick in,
 # making email sending fail. Changes will take effect only after a restart of
-# calibre.
+# calibre. You can also change the list of hosts that calibre considers
+# to be public relays here. Any relay host ending with one of the suffixes
+# in the list below will be considered a public email server.
 public_smtp_relay_delay = 301
+public_smtp_relay_host_suffixes = ['gmail.com', 'live.com', 'gmx.com']
 
 #: The maximum width and height for covers saved in the calibre library
 # All covers in the calibre library will be resized, preserving aspect ratio,

@@ -62,9 +62,11 @@ class Sendmail(object):
         self.rate_limit = 1
         opts = email_config().parse()
         rh = opts.relay_host
-        if rh and (
-            'gmail.com' in rh or 'live.com' in rh or 'gmx.com' in rh):
-            self.rate_limit = tweaks['public_smtp_relay_delay']
+        if rh:
+            for suffix in tweaks['public_smtp_relay_host_suffixes']:
+                if rh.lower().endswith(suffix):
+                    self.rate_limit = tweaks['public_smtp_relay_delay']
+                    break
 
     def __call__(self, attachment, aname, to, subject, text, log=None,
             abort=None, notifications=None):
