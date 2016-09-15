@@ -903,7 +903,7 @@ LibraryDatabase.metadata_for_field = MT(lambda self, field:self.field_metadata.g
 # }}}
 
 # Miscellaneous API {{{
-for meth in ('get_next_series_num_for', 'has_book', 'author_sort_from_authors'):
+for meth in ('get_next_series_num_for', 'has_book',):
     def getter(meth):
         def func(self, x):
             return getattr(self.new_api, meth)(x)
@@ -917,6 +917,7 @@ LibraryDatabase.saved_search_delete = MT(lambda self, x:self.new_api.saved_searc
 LibraryDatabase.saved_search_add = MT(lambda self, x, y:self.new_api.saved_search_add(x, y))
 LibraryDatabase.saved_search_rename = MT(lambda self, x, y:self.new_api.saved_search_rename(x, y))
 LibraryDatabase.commit_dirty_cache = MT(lambda self: self.new_api.commit_dirty_cache())
+LibraryDatabase.author_sort_from_authors = MT(lambda self, x: self.new_api.author_sort_from_authors(x))
 # Cleaning is not required anymore
 LibraryDatabase.clean = LibraryDatabase.clean_custom = MT(lambda self:None)
 LibraryDatabase.clean_standard_field = MT(lambda self, field, commit=False:None)

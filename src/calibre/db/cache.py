@@ -1448,15 +1448,15 @@ class Cache(object):
         return _get_next_series_num_for_list(tuple(series_indices), unwrap=False)
 
     @read_api
-    def author_sort_from_authors(self, authors):
+    def author_sort_from_authors(self, authors, key_func=icu_lower):
         '''Given a list of authors, return the author_sort string for the authors,
         preferring the author sort associated with the author over the computed
         string. '''
         table = self.fields['authors'].table
         result = []
-        rmap = {icu_lower(v):k for k, v in table.id_map.iteritems()}
+        rmap = {key_func(v):k for k, v in table.id_map.iteritems()}
         for aut in authors:
-            aid = rmap.get(icu_lower(aut), None)
+            aid = rmap.get(key_func(aut), None)
             result.append(author_to_author_sort(aut) if aid is None else table.asort_map[aid])
         return ' & '.join(filter(None, result))
 

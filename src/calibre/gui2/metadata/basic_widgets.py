@@ -486,10 +486,13 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         self.first_time = False
         self.update_state()
 
+    def author_sort_from_authors(self, authors):
+        return self.db.new_api.author_sort_from_authors(authors, key_func=lambda x: x)
+
     def update_state(self, *args):
         au = unicode(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au)
-        au = self.db.author_sort_from_authors(string_to_authors(au))
+        au = self.author_sort_from_authors(string_to_authors(au))
 
         normal = au == self.current_val
         col = OK_COLOR if normal else ERR_COLOR
@@ -517,7 +520,7 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
         au = unicode(self.authors_edit.text())
         au = re.sub(r'\s+et al\.$', '', au).strip()
         authors = string_to_authors(au)
-        self.current_val = self.db.author_sort_from_authors(authors)
+        self.current_val = self.author_sort_from_authors(authors)
 
     def author_to_sort(self, *args):
         au = unicode(self.authors_edit.text())
