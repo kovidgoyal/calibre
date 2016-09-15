@@ -181,7 +181,7 @@ class BooksView:
         set_css(div, border='dashed 1px currentColor', border_radius='10px')
 
     def cover_grid_item(self, book_id):
-        cover_url = 'get/thumb/{}/{}?sz={}x{}'.format(book_id, self.interface_data['library_id'], THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
+        cover_url = 'get/thumb/{}/{}?sz={}x{}'.format(book_id, self.interface_data['library_id'], Math.ceil(THUMBNAIL_MAX_WIDTH*window.devicePixelRatio), Math.ceil(THUMBNAIL_MAX_HEIGHT*window.devicePixelRatio))
         metadata = self.interface_data['metadata'][book_id]
         alt = _('{} by {}').format(metadata['title'], metadata['authors'].join(' & '))
         img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
