@@ -2,7 +2,7 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import clear, set_css, element, svgicon, build_rule, add_extra_css
+from dom import clear, set_css, unique_id, svgicon, build_rule, add_extra_css
 from elementmaker import E
 from book_list.theme import get_color
 from book_list.globals import get_boss
@@ -113,6 +113,7 @@ class MainOverlay:
     def __init__(self, overlay):
         self.overlay = overlay
         self.timer = None
+        self.timer_id = unique_id()
         if window.Intl?.DateTimeFormat:
             self.date_formatter = window.Intl.DateTimeFormat(undefined, {'hour':'numeric', 'minute':'numeric'})
         else:
@@ -127,11 +128,11 @@ class MainOverlay:
 
             set_css(E.div(  # top row
                 E.div(self.overlay.view.book.metadata.title, style='max-width: 90%; text-overflow: ellipsis; font-weight: bold'),
-                E.div(self.date_formatter.format(Date()), data_time='1', style='max-width: 9%; text-overflow: ellipsis'),
+                E.div(self.date_formatter.format(Date()), id=self.timer_id, style='max-width: 9%; text-overflow: ellipsis'),
             ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor'),
 
-            set_css(E.div(class_='button-row'  # button row
-            ), display='flex', align_items='center', flex_wrap='wrap', padding='0 0.5rem', border_bottom='solid 1px currentColor'),
+            set_css(E.div(class_='button-row'),  # button row
+               display='flex', align_items='center', flex_wrap='wrap', padding='0 0.5rem', border_bottom='solid 1px currentColor'),
 
             set_css(E.ul(class_='item-list', # list of items
                E.li(_('Table of Contents'), onclick=self.overlay.show_toc),
@@ -173,7 +174,7 @@ class MainOverlay:
         add_button()
 
     def update_time(self):
-        element(self.container_id, '[data-time]').textContent = self.date_formatter.format(Date())
+        document.getElementById(self.timer_id).textContent = self.date_formatter.format(Date())
 
     def on_hide(self):
         if self.timer is not None:
