@@ -92,14 +92,17 @@ def element(elem_id, child_selector):
         ans = ans.querySelector(child_selector)
     return ans
 
+def unique_id():
+    unique_id.count += 1
+    return 'auto-id-' + unique_id.count
+unique_id.count = 0
+
 def ensure_id(w):
     ans = w.getAttribute('id')
     if not ans:
-        ensure_id.count += 1
-        ans = 'auto-id-' + ensure_id.count
+        ans = unique_id()
         w.setAttribute('id', ans)
     return ans
-ensure_id.count = 0
 
 extra_css = v'[]'
 
@@ -108,4 +111,3 @@ def add_extra_css(func):
 
 def get_widget_css():
     return extra_css.join('\n')
-
