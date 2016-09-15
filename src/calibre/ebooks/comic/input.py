@@ -101,10 +101,9 @@ class PageProcessor(list):  # {{{
             if self.opts.landscape:
                 self.rotate = True
             else:
-                split1, split2 = img.clone, img.clone
                 half = int(width/2)
-                split1 = crop_image(img, 0, 0, half - 1, height)
-                split2 = crop_image(img, half, 0, half-1, height)
+                split1 = crop_image(img, 0, 0, half, height)
+                split2 = crop_image(img, half, 0, width - half, height)
                 self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
         self.process_pages()
 
