@@ -30,6 +30,7 @@ class TheIndependentNew(BasicNewsRecipe):
     ]
     remove_tags = [
         dict(attrs={'class': lambda x: x and 'show-all' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'context-sdl_editor_representation' in x.split()}),
         dict(attrs={'data-scald-gallery': True}),
     ]
 
