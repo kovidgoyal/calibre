@@ -52,110 +52,106 @@ class TheIndependentNew(BasicNewsRecipe):
 
     feeds = [
         (u'News - UK',
-         u'http://www.independent.co.uk/news/uk/?service=rss'),
+         u'http://www.independent.co.uk/news/uk/rss'),
         (u'News - World',
-         u'http://www.independent.co.uk/news/world/?service=rss'),
+         u'http://www.independent.co.uk/news/world/rss'),
         (u'News - Business',
-         u'http://www.independent.co.uk/news/business/?service=rss'),
+         u'http://www.independent.co.uk/news/business/rss'),
         (u'News - People',
-         u'http://www.independent.co.uk/news/people/?service=rss'),
+         u'http://www.independent.co.uk/news/people/rss'),
         (u'News - Science',
-         u'http://www.independent.co.uk/news/science/?service=rss'),
+         u'http://www.independent.co.uk/news/science/rss'),
         (u'News - Media',
-         u'http://www.independent.co.uk/news/media/?service=rss'),
+         u'http://www.independent.co.uk/news/media/rss'),
         (u'News - Education',
-         u'http://www.independent.co.uk/news/education/?service=rss'),
+         u'http://www.independent.co.uk/news/education/rss'),
         (u'News - Obituaries',
-         u'http://www.independent.co.uk/news/obituaries/?service=rss'),
+         u'http://www.independent.co.uk/news/obituaries/rss'),
         (u'News - Corrections',
-         u'http://www.independent.co.uk/news/corrections/?service=rss'
+         u'http://www.independent.co.uk/news/corrections/rss'
          ),
-        (u'Opinion',
-         u'http://www.independent.co.uk/opinion/?service=rss'),
         (u'Voices',
-         u'http://www.independent.co.uk/voices/?service=rss'
+         u'http://www.independent.co.uk/voices/rss'
          ),
         (u'Environment',
-         u'http://www.independent.co.uk/environment/?service=rss'),
+         u'http://www.independent.co.uk/environment/rss'),
         (u'Sport - Athletics',
-         u'http://www.independent.co.uk/sport/general/athletics/?service=rss'
+         u'http://www.independent.co.uk/sport/general/athletics/rss'
          ),
         (u'Sport - Cricket',
-         u'http://www.independent.co.uk/sport/cricket/?service=rss'),
+         u'http://www.independent.co.uk/sport/cricket/rss'),
         (u'Sport - Football',
-         u'http://www.independent.co.uk/sport/football/?service=rss'),
+         u'http://www.independent.co.uk/sport/football/rss'),
         (u'Sport - Golf',
-         u'http://www.independent.co.uk/sport/golf/?service=rss'),
+         u'http://www.independent.co.uk/sport/golf/rss'),
         (u'Sport - Motor racing',
-         u'http://www.independent.co.uk/sport/motor-racing/?service=rss'
+         u'http://www.independent.co.uk/sport/motor-racing/rss'
          ),
         (u'Sport - Olympics',
-         u'http://www.independent.co.uk/sport/olympics/?service=rss'),
+         u'http://www.independent.co.uk/sport/olympics/rss'),
         (u'Sport - Racing',
-         u'http://www.independent.co.uk/sport/racing/?service=rss'),
+         u'http://www.independent.co.uk/sport/racing/rss'),
         (u'Sport - Rugby League',
-         u'http://www.independent.co.uk/sport/general/rugby-league/?service=rss'),
+         u'http://www.independent.co.uk/sport/general/rugby-league/rss'),
         (u'Sport - Rugby Union',
-         u'http://www.independent.co.uk/sport/rugby/rugby-union/?service=rss'
+         u'http://www.independent.co.uk/sport/rugby/rugby-union/rss'
          ),
         (u'Sport - Sailing',
-         u'http://www.independent.co.uk/sport/general/sailing/?service=rss'
+         u'http://www.independent.co.uk/sport/general/sailing/rss'
          ),
         (u'Sport - Tennis',
-         u'http://www.independent.co.uk/sport/tennis/?service=rss'),
+         u'http://www.independent.co.uk/sport/tennis/rss'),
         (u'Sport - Others',
-         u'http://www.independent.co.uk/sport/general/others/?service=rss'
+         u'http://www.independent.co.uk/sport/general/others/rss'
          ),
         (u'Life & Style - Fashion',
-         u'http://www.independent.co.uk/life-style/fashion/?service=rss'
+         u'http://www.independent.co.uk/life-style/fashion/rss'
          ),
         (u'Life & Style -Food & Drink',
-         u'http://www.independent.co.uk/life-style/food-and-drink/?service=rss'
+         u'http://www.independent.co.uk/life-style/food-and-drink/rss'
          ),
         (u'Life & Style - Health and Families',
-         u'http://www.independent.co.uk/life-style/health-and-families/?service=rss'
+         u'http://www.independent.co.uk/life-style/health-and-families/rss'
          ),
-        (u'Life & Style - House & Home',
-         u'http://www.independent.co.uk/life-style/house-and-home/'),
         (u'Life & Style - History',
-         u'http://www.independent.co.uk/life-style/history/?service=rss'
+         u'http://www.independent.co.uk/life-style/history/rss'
          ),
         (u'Life & Style - Gadgets & Tech',
-         u'http://www.independent.co.uk/life-style/gadgets-and-tech/?service=rss'
+         u'http://www.independent.co.uk/life-style/gadgets-and-tech/rss'
          ),
         (u'Life & Style - Motoring',
-         u'http://www.independent.co.uk/life-style/motoring/?service=rss'
+         u'http://www.independent.co.uk/life-style/motoring/rss'
          ),
         (u'Arts & Ents - Art',
-         u'http://www.independent.co.uk/arts-entertainment/art/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/art/rss'
          ),
         (u'Arts & Ents - Architecture',
-         u'http://www.independent.co.uk/arts-entertainment/architecture/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/architecture/rss'
          ),
         (u'Arts & Ents - Music',
-         u'http://www.independent.co.uk/arts-entertainment/music/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/music/rss'
          ),
         (u'Arts & Ents - Classical',
-         u'http://www.independent.co.uk/arts-entertainment/classical/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/classical/rss'
          ),
         (u'Arts & Ents - Films',
-         u'http://www.independent.co.uk/arts-entertainment/films/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/films/rss'
          ),
         (u'Arts & Ents - TV',
-         u'http://www.independent.co.uk/arts-entertainment/tv/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/tv/rss'
          ),
         (u'Arts & Ents - Theatre and Dance',
-         u'http://www.independent.co.uk/arts-entertainment/theatre-dance/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/theatre-dance/rss'
          ),
         (u'Arts & Ents - Comedy',
-         u'http://www.independent.co.uk/arts-entertainment/comedy/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/comedy/rss'
          ),
         (u'Arts & Ents - Books',
-         u'http://www.independent.co.uk/arts-entertainment/books/?service=rss'
+         u'http://www.independent.co.uk/arts-entertainment/books/rss'
          ),
-        (u'Travel', u'http://www.independent.co.uk/travel/?service=rss'
+        (u'Travel', u'http://www.independent.co.uk/travel/rss'
          ),
-        (u'Money', u'http://www.independent.co.uk/money/?service=rss'),
+        (u'Money', u'http://www.independent.co.uk/money/rss'),
         (u'IndyBest',
-         u'http://www.independent.co.uk/extras/indybest/?service=rss'),
+         u'http://www.independent.co.uk/extras/indybest/rss'),
     ]
