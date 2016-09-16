@@ -20,6 +20,47 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.68.0
+  date: 2016-09-16
+
+  new features:
+    - title: "Add a tweak to Preferences->Tweaks to control the list of servers calibre considers public email servers"
+
+  bug fixes:
+    - title: "Content server: Fix a regression in the previous release that broke the OPDS feeds for libraries with no custom columns"
+      tickets: [1621642] 
+
+    - title: "Edit metadata dialog: Fix auto-generation/validation of author sort values not working when only changing case of the author name."
+      tickets: [1623593]
+
+    - title: "A nicer error message when calibre fails to create the temporary directory."
+      tickets: [1622131]
+
+    - title: "Fix dates being set to empty in bulk search/replace not becoming UNDEFINED"
+
+    - title: "Edit metadata dialog: Make pressing up on an undefined numeric field set the value to zero instead of -99999."
+      tickets: [1622757]
+
+    - title: "Conversion: Handle corrupted JPEG files that have valid headers but invalid data."
+      tickets: [1622416]
+
+    - title: "Conversion: Improve detection of input documents that use uppercase tag/attribute names."
+      tickets: [1622261]
+
+    - title: "Fix regression in previous release that caused incorrect display of ratings in the side panel of the metadata download dialog"
+
+    - title: "Get Books: Update publio and virtualo store plugins for website changes"
+
+    - title: "Fix reading metadata from PDF files broken by poppler >= 0.47.0"
+
+    - title: "Change the application name set in Qt to calibre from libprs500."
+      tickets: [1623397]
+
+  improved recipes:
+    - Respekt Magazine
+    - Punto Informatico
+    - El universal
+
 - version: 2.67.0
   date: 2016-09-08
 
