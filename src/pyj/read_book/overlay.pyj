@@ -128,12 +128,13 @@ class MainOverlay:
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
+        icon_size = '3.5ex'
 
         def ac(text, tooltip, action, icon, is_text_button):
             if is_text_button:
                 icon = E.span(icon, style='font-size: 175%; font-weight: bold')
             else:
-                icon = svgicon(icon, '3.5ex', '3.5ex') if icon else ''
+                icon = svgicon(icon, icon_size, icon_size) if icon else ''
 
             return E.li(icon, '\xa0', text, onclick=action, title=tooltip)
 
@@ -172,9 +173,20 @@ class MainOverlay:
                     ac(_('Font size'), _('Change text size'), None, 'Aa', True),
                     ac(_('Preferences'), _('Configure the book reader'), self.overlay.show_prefs, 'cogs'),
                 ),
-            class_=MAIN_OVERLAY_ACTIONS_CLASS),
+            class_=MAIN_OVERLAY_ACTIONS_CLASS
+            ),
 
         ), user_select='none', background_color=get_color('window-background')))
+
+        container.appendChild(
+            set_css(E.div( # bottom bar
+                svgicon('close', icon_size, icon_size), '\xa0', _('Close'),
+            ),
+            cursor='pointer', position='fixed', width='100vw', bottom='0', display='flex', justify_content='center', align_items='center', padding='0.5ex 1em',
+            user_select='none', background_color=get_color('window-background'),
+            )
+        )
+
 
         self.on_hide()
         self.timer = setInterval(self.update_time, 1000)
