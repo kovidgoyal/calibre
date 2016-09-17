@@ -97,14 +97,19 @@ class DeleteBook:  # {{{
 # MainOverlay {{{
 
 MAIN_OVERLAY_TS_CLASS = 'read-book-main-overlay-top-section'
+MAIN_OVERLAY_ACTIONS_CLASS = 'read-book-main-overlay-actions'
 
 add_extra_css(def():
-    sel = '.' + MAIN_OVERLAY_TS_CLASS + ' '
-    style = build_rule(sel + '.button-row > div:hover', transform='scale(1.5)')
-    style += build_rule(sel + '.button-row > div:active', transform='scale(2)')
-    style += build_rule(sel + '.item-list > li', padding='1ex 1rem', border_bottom='solid 1px currentColor', cursor='pointer')
-    style += build_rule(sel + '.item-list > li:hover', color=get_color('window-background'), background_color=get_color('window-foreground'))
-    style += build_rule(sel + '.item-list > li:active', transform='scaleY(2)')
+    style = ''
+    sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
+    style += build_rule(sel, overflow='hidden')
+    sel += '> ul '
+    style += build_rule(sel, display='flex', flex_wrap='wrap', margin_right='-1px', list_style='none', border_bottom='1px solid currentColor')
+    sel += '> li'
+    style += build_rule(sel, border_right='1px solid currentColor', padding='0.5em 1ex', display='flex', align_items='center', cursor='pointer')
+    style += build_rule(sel + ':last-child', border_right='0px solid currentColor')
+    style += build_rule(sel + ':hover > *:first-child', color='red')
+    style += build_rule(sel + ':active > *:first-child', transform='scale(1.8)')
     return style
 )
 
@@ -123,6 +128,15 @@ class MainOverlay:
 
     def show(self, container):
         self.container_id = container.getAttribute('id')
+
+        def ac(text, tooltip, action, icon, is_text_button):
+            if is_text_button:
+                icon = E.span(icon, style='font-size: 175%; font-weight: bold')
+            else:
+                icon = svgicon(icon, '3.5ex', '3.5ex') if icon else ''
+
+            return E.li(icon, '\xa0', text, onclick=action, title=tooltip)
+
         container.appendChild(set_css(E.div(class_=MAIN_OVERLAY_TS_CLASS,  # top section
             onclick=def (evt):evt.stopPropagation();,
 
@@ -131,47 +145,39 @@ class MainOverlay:
                 E.div(self.date_formatter.format(Date()), id=self.timer_id, style='max-width: 9%; text-overflow: ellipsis'),
             ), display='flex', justify_content='space-between', align_items='baseline', font_size='smaller', padding='0.5ex 1rem', border_bottom='solid 1px currentColor'),
 
-            set_css(E.div(class_='button-row'),  # button row
-               display='flex', align_items='center', flex_wrap='wrap', padding='0 0.5rem', border_bottom='solid 1px currentColor'),
+            E.div( # actions
+                E.ul(
+                    ac(_('Home'), _('Return to list of books'), self.return_to_book_list, 'home'),
+                    ac(_('Back'), None, self.back, 'arrow-left'),
+                    ac(_('Forward'), None, self.forward, 'arrow-right'),
+                ),
 
-            set_css(E.ul(class_='item-list', # list of items
-               E.li(_('Table of Contents'), onclick=self.overlay.show_toc),
-               E.li(_('Bookmarks')),
-               E.li(_('Go to a specific location in the book')),
-            ), list_style_type='none'),
+                E.ul(
+                    ac(_('Search'), _('Search for text in this book'), None, 'search'),
+                    ac(_('Go to'), _('Go to a specific location in the book'), None, 'chevron-right'),
+                ),
+
+                E.ul(
+                    ac(_('Sync'), _('Get last read position and annotations from the server'), None, 'cloud-download'),
+                    ac(_('Delete'), _('Delete this book from the device'), self.overlay.delete_book, 'trash'),
+                    ac(_('Reload'), _('Reload this book from the server'), self.overlay.reload_book, 'refresh')
+                ),
+
+                E.ul(
+                    ac(_('Table of Contents'), None, self.overlay.show_toc, 'TC', True),
+                    ac(_('Bookmarks'), None, None, 'bookmark'),
+                ),
+
+                E.ul(
+                    ac(_('Font size'), _('Change text size'), None, 'Aa', True),
+                    ac(_('Preferences'), _('Configure the book reader'), self.overlay.show_prefs, 'cogs'),
+                ),
+            class_=MAIN_OVERLAY_ACTIONS_CLASS),
 
         ), user_select='none', background_color=get_color('window-background')))
 
         self.on_hide()
         self.timer = setInterval(self.update_time, 1000)
-        button_row = container.querySelector('.button-row')
-
-        def add_button(icon, title, action, text_button=False):
-            if not icon:
-                button_row.appendChild(set_css(E.span(), border_left='solid 1px currentColor', width='1px', align_self='stretch'))
-                return
-            if text_button:
-                icon = E.span(icon, style='font-size: 175%; font-weight: bold')
-            else:
-                icon = svgicon(icon, '3.5ex', '3.5ex')
-            button_row.appendChild(set_css(E.div(
-                icon, title=title, onclick=action),
-                cursor='pointer', padding='0.5ex 0', margin='0 0.5rem',
-            ))
-
-        add_button('home', _('Return to list of books'), self.return_to_book_list)
-        add_button('arrow-left', _('Back'), self.back)
-        add_button('arrow-right', _('Forward'), self.forward)
-        add_button()
-        add_button('refresh', _('Reload this book from the server'), self.overlay.reload_book)
-        add_button('cloud-download', _('Get last read position and annotations from the server'))
-        add_button('trash', _('Delete this book from the device'), self.overlay.delete_book)
-        add_button()
-        add_button('search', _('Search for text in this book'))
-        add_button()
-        add_button('Aa', _('Change text size'), text_button=True)
-        add_button('cogs', _('Configure the book reader'), self.overlay.show_prefs)
-        add_button()
 
     def update_time(self):
         document.getElementById(self.timer_id).textContent = self.date_formatter.format(Date())
