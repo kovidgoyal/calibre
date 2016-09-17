@@ -104,10 +104,10 @@ add_extra_css(def():
     sel = '.' + MAIN_OVERLAY_TS_CLASS + ' > .' + MAIN_OVERLAY_ACTIONS_CLASS + ' '
     style += build_rule(sel, overflow='hidden')
     sel += '> ul '
-    style += build_rule(sel, display='flex', flex_wrap='wrap', margin_right='-1px', list_style='none', border_bottom='1px solid currentColor')
+    style += build_rule(sel, display='flex', flex_wrap='wrap', list_style='none', border_bottom='1px solid currentColor')
     sel += '> li'
     style += build_rule(sel, border_right='1px solid currentColor', padding='0.5em 1ex', display='flex', align_items='center', cursor='pointer')
-    style += build_rule(sel + ':last-child', border_right='0px solid currentColor')
+    style += build_rule(sel + ':last-child', border_right_style='none')
     style += build_rule(sel + ':hover > *:first-child', color='red')
     style += build_rule(sel + ':active > *:first-child', transform='scale(1.8)')
     return style
