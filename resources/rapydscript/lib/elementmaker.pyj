@@ -48,7 +48,7 @@ def _makeelement(tag, *args, **kwargs):
             ans.addEventListener(attr, val)
         elif val is True:
             ans.setAttribute(vattr, vattr)
-        elif val is not False:
+        elif type(val) is 'string':
             ans.setAttribute(vattr, val)
 
     for arg in args:
