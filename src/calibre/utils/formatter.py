@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 
 import re, string, traceback
 
+from calibre import prints
 from calibre.constants import DEBUG
 from calibre.utils.formatter_functions import formatter_functions, compile_user_function
 from calibre.utils.config import tweaks
@@ -525,6 +526,8 @@ class TemplateFormatter(string.Formatter):
         except Exception as e:
             if DEBUG:  # and getattr(e, 'is_locking_error', False):
                 traceback.print_exc()
+                if column_name:
+                    prints('Error evaluating column named:', column_name)
             ans = error_value + ' ' + e.message
         return ans
 
