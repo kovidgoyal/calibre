@@ -525,6 +525,8 @@ class TemplateFormatter(string.Formatter):
         except Exception as e:
             if DEBUG:  # and getattr(e, 'is_locking_error', False):
                 traceback.print_exc()
+                if column_name:
+                    print('Error evaluating column named: %s' % column_name)
             ans = error_value + ' ' + e.message
         return ans
 
