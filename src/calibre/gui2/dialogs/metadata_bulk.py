@@ -451,7 +451,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         fm = self.db.field_metadata
         for f in fm:
             if (f in ['author_sort'] or
-                    (fm[f]['datatype'] in ['text', 'series', 'enumeration', 'comments'] and
+                    (fm[f]['datatype'] in ['text', 'series', 'enumeration', 'comments', 'rating'] and
                      fm[f].get('search_terms', None) and
                      f not in ['formats', 'ondevice', 'series_sort']) or
                     (fm[f]['datatype'] in ['int', 'float', 'bool', 'datetime'] and
@@ -751,6 +751,18 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 raise Exception(_('You must specify a destination when source is '
                                   'a composite field or a template'))
             dest = src
+
+        if self.destination_field_fm['datatype'] == 'rating' and val[0]:
+            ok = True
+            try:
+                v = int(val[0])
+                if v < 0 or v > 10:
+                    ok = False;
+            except:
+                ok = False
+            if not ok:
+                raise Exception(_('The replacement value for a rating column must '
+                                  'be empty or an integer between 0 and 10'))
         dest_mode = self.replace_mode.currentIndex()
 
         if self.destination_field_fm['is_csp']:
@@ -881,6 +893,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         if not val and dfm['datatype'] == 'datetime':
             val = None
+        if dfm['datatype'] == 'rating':
+            if (not val or int(val) == 0):
+                val = None
+            if dest == 'rating' and val:
+                val = (int(val) // 2) * 2
         self.set_field_calls[dest][book_id] = val
     # }}}
 
@@ -967,7 +984,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 
         if self.s_r_error is not None and do_sr:
             error_dialog(self, _('Search/replace invalid'),
-                    _('Search pattern is invalid: %s')%self.s_r_error.message,
+                    _('Search/replace is invalid: %s')%self.s_r_error.message,
                     show=True)
             return False
         self.changed = bool(self.ids)
