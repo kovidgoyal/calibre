@@ -93,7 +93,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
         self.restore_geometry()
+        self.opt_columns.cellDoubleClicked.connect(self.row_double_clicked)
         self.opt_columns.blockSignals(False)
+
+    def row_double_clicked(self, r, c):
+        self.edit_custcol()
 
     def restore_geometry(self):
         geom = gprefs.get('custcol-prefs-table-geometry', None)
@@ -111,7 +115,10 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.opt_columns.resizeRowsToContents()
 
     def setup_row(self, field_metadata, row, col, oldkey=None):
+        flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
         item = QTableWidgetItem(col)
+        item.setFlags(flags)
         self.opt_columns.setItem(row, 1, item)
 
         if col.startswith('#'):
@@ -134,20 +141,23 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 coltype = self.column_desc[dt]
         coltype_info = (coltype if oldkey is None else
                           ' ' + _('(lookup name was {0}) {1}'.format(oldkey, coltype)))
+
         item = QTableWidgetItem(coltype_info)
+        item.setFlags(flags)
         self.opt_columns.setItem(row, 2, item)
 
         desc = fm['display'].get('description', "")
         item = QTableWidgetItem(desc)
+        item.setFlags(flags)
         self.opt_columns.setItem(row, 3, item)
 
         item = QTableWidgetItem(fm['name'])
         item.setData(Qt.UserRole, (col))
+        item.setFlags(flags)
         self.opt_columns.setItem(row, 0, item)
 
         if col.startswith('#'):
             item.setData(Qt.DecorationRole, (QIcon(I('column.png'))))
-        flags = Qt.ItemIsEnabled|Qt.ItemIsSelectable
         if col != 'ondevice':
             flags |= Qt.ItemIsUserCheckable
         item.setFlags(flags)

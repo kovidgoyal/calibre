@@ -135,6 +135,7 @@ class CreateCustomColumn(QDialog):
         c = parent.custcols[col]
         self.column_name_box.setText(c['label'])
         self.column_heading_box.setText(c['name'])
+        self.column_heading_box.setFocus()
         ct = c['datatype']
         if c['is_multiple']:
             ct = '*' + ct
