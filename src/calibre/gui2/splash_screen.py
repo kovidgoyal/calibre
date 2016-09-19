@@ -32,13 +32,14 @@ class SplashScreen(QSplashScreen):
         t.translate(330, 450)
         painter.setTransform(t)
         painter.rotate(-98)
+        left_margin = 25
         if iswindows:
             # On windows Qt cannot anti-alias rotated text
             p = QPainterPath()
-            p.addText(0, 0, f, self.message())
+            p.addText(left_margin, 0, f, self.message())
             painter.fillPath(p, QBrush(Qt.black))
         else:
-            painter.drawText(0, 0, self.message())
+            painter.drawText(left_margin, 0, self.message())
         painter.restore()
 
     def show_message(self, msg):

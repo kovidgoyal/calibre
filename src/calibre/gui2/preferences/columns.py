@@ -9,7 +9,7 @@ import copy, sys
 
 from PyQt5.Qt import Qt, QTableWidgetItem, QIcon
 
-from calibre.gui2 import gprefs
+from calibre.gui2 import gprefs, Application
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
@@ -90,6 +90,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
         for row, col in enumerate(colmap):
             self.setup_row(self.field_metadata, row, col)
+
 
         self.restore_geometry()
         self.opt_columns.blockSignals(False)
@@ -271,6 +272,5 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
 
 if __name__ == '__main__':
-    from PyQt5.Qt import QApplication
-    app = QApplication([])
+    app = Application([])
     test_widget('Interface', 'Custom Columns')
