@@ -255,7 +255,7 @@ class StatusBar(QStatusBar):  # {{{
         else:
             base = _('%d books') % self.total
         if self.selected > 0:
-            base = _('%(num)s, %(sel)d selected') % dict(num=base, sel=self.selected)
+            base = ngettext('%(num)s, %(sel)d selected', '%(num)s, %(sel)d selected', self.selected) % dict(num=base, sel=self.selected)
         if self.library_total != self.total:
             base = _('{0}, {1} total').format(base, self.library_total)
 
