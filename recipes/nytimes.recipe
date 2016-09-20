@@ -236,6 +236,7 @@ class NYTimes(BasicNewsRecipe):
         dict(
             attrs={'class': lambda x: x and 'related-coverage-marginalia' in x.split()}),
         dict(attrs={'class': lambda x: x and 'interactive' in x.split()}),
+        dict(attrs={'class': lambda x: x and 'skip-to-text-link' in x.split()}),
         dict(attrs={'class': lambda x: x and 'sharetools' in x.split()}),
         dict(attrs={'class': lambda x: x and 'ad' in x.split()}),
         dict(name='div', attrs={'class': re.compile('toolsList')}),  # bits
@@ -290,6 +291,7 @@ class NYTimes(BasicNewsRecipe):
             'TopAd',  # added for DealBook
             'related-content',  # added for DealBook
             'whats-next',
+            'newsletter-promo',
         ]),
         dict(name=['script', 'noscript', 'style', 'form', 'hr', 'button', 'meta', 'footer'])]
     no_stylesheets = True
