@@ -297,10 +297,10 @@ class Ozon(Source):
     # }}}
 
     def to_metadata(self, log, entry):  # {{{
-        title = unicode(entry.xpath(u'normalize-space(.//span[@itemprop="name"][1]/text())'))
+        title = unicode(entry.xpath(u'normalize-space(.//div[@itemprop="name"][1]/text())'))
         # log.debug(u'Title: -----> %s' % title)
 
-        author = unicode(entry.xpath(u'normalize-space(.//a[contains(@href, "person")])'))
+        author = unicode(entry.xpath(u'normalize-space(.//div[contains(@class, "mPerson")])'))
         # log.debug(u'Author: -----> %s' % author)
 
         norm_authors = map(_normalizeAuthorNameWithInitials, map(unicode.strip, unicode(author).split(u',')))
