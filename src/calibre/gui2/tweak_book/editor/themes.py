@@ -71,7 +71,6 @@ SOLARIZED = \
     Tooltip      fg=black bg=ffffed
     Link         fg={blue}
     BadLink      fg={cyan} us=wave uc={red}
-    ClassAttribute fg={cyan}
 
     DiffDelete   bg={base02} fg={red}
     DiffInsert   bg={base02} fg={green}
@@ -109,13 +108,12 @@ THEMES = {
     Type         fg={identifier}
     Statement    fg={keyword}
     Keyword      fg={keyword}
-    Special      fg=e7f6da
+    Special      fg={special}
     Error        us=wave uc=red
     SpellError   us=wave uc=orange
     SpecialCharacter bg={cursor_loc}
     Link         fg=cyan
     BadLink      fg={string} us=wave uc=red
-    ClassAttribute fg={string}
 
     DiffDelete   bg=341414 fg=642424
     DiffInsert   bg=143414 fg=246424
@@ -128,7 +126,8 @@ THEMES = {
         comment='99968b',
         string='95e454',
         keyword='8ac6f2',
-        constant='e5786d'),  # }}}
+        constant='e5786d',
+        special='e7f6da'),  # }}}
 
     'pyte-light':  # {{{
     '''
@@ -158,13 +157,12 @@ THEMES = {
     Type         fg={identifier}
     Statement    fg={keyword}
     Keyword      fg={keyword}
-    Special      fg=70a0d0 italic
+    Special      fg={special} italic
     SpecialCharacter bg={cursor_loc}
     Error        us=wave uc=red
     SpellError   us=wave uc=magenta
     Link         fg=blue
     BadLink      fg={string} us=wave uc=red
-    ClassAttribute fg={string}
 
     DiffDelete   bg=rgb(255,180,200) fg=rgb(200,80,110)
     DiffInsert   bg=rgb(180,255,180) fg=rgb(80,210,80)
@@ -177,7 +175,8 @@ THEMES = {
         comment='a0b0c0',
         string='4070a0',
         keyword='007020',
-        constant='a07040'),  # }}}
+        constant='a07040',
+        special='70a0d0'),  # }}}
 
     'solarized-x-dark': SOLARIZED.format(**SLDX),
     'solarized-dark': SOLARIZED.format(**SLD),
@@ -569,7 +568,7 @@ class ThemeEditor(Dialog):
                 *['<b>%s</b>' % x for x in (
                     'Normal', 'Visual', 'CursorLine', 'LineNr', 'MatchParen',
                     'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter',
-                    'Error', 'SpellError', 'Comment', 'ClassAttribute'
+                    'Error', 'SpellError', 'Comment'
                 )]
             ))
         p.setMaximumWidth(p.size_hint.width() + 5)

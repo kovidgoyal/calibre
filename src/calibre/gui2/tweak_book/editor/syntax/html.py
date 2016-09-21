@@ -18,7 +18,7 @@ from calibre.spell.break_iterator import split_into_words_and_positions
 from calibre.gui2.tweak_book import dictionaries, tprefs, verify_link
 from calibre.gui2.tweak_book.editor import (
     syntax_text_char_format, SPELL_PROPERTY, SPELL_LOCALE_PROPERTY,
-    store_locale, LINK_PROPERTY, TAG_NAME_PROPERTY)
+    store_locale, LINK_PROPERTY, TAG_NAME_PROPERTY, CLASS_ATTRIBUTE_PROPERTY)
 from calibre.gui2.tweak_book.editor.syntax.base import SyntaxHighlighter, run_loop
 from calibre.gui2.tweak_book.editor.syntax.css import (
     create_formats as create_css_formats, state_map as css_state_map, CSSState, CSSUserData)
@@ -535,7 +535,8 @@ def create_formats(highlighter, add_css=True):
     if add_css:
         formats['css_sub_formats'] = create_css_formats(highlighter)
     formats['spell'].setProperty(SPELL_PROPERTY, True)
-    formats['class_attr'] = syntax_text_char_format(t.get('ClassAttribute', t['String']))
+    formats['class_attr'] = syntax_text_char_format(t['Special'])
+    formats['class_attr'].setProperty(CLASS_ATTRIBUTE_PROPERTY, True)
     formats['link'] = syntax_text_char_format(t['Link'])
     formats['link'].setProperty(LINK_PROPERTY, True)
     formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
