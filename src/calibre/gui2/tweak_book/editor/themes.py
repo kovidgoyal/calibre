@@ -71,6 +71,7 @@ SOLARIZED = \
     Tooltip      fg=black bg=ffffed
     Link         fg={blue}
     BadLink      fg={cyan} us=wave uc={red}
+    ClassAttribute fg={cyan}
 
     DiffDelete   bg={base02} fg={red}
     DiffInsert   bg={base02} fg={green}
@@ -114,6 +115,7 @@ THEMES = {
     SpecialCharacter bg={cursor_loc}
     Link         fg=cyan
     BadLink      fg={string} us=wave uc=red
+    ClassAttribute fg={string}
 
     DiffDelete   bg=341414 fg=642424
     DiffInsert   bg=143414 fg=246424
@@ -162,6 +164,7 @@ THEMES = {
     SpellError   us=wave uc=magenta
     Link         fg=blue
     BadLink      fg={string} us=wave uc=red
+    ClassAttribute fg={string}
 
     DiffDelete   bg=rgb(255,180,200) fg=rgb(200,80,110)
     DiffInsert   bg=rgb(180,255,180) fg=rgb(80,210,80)
@@ -456,23 +459,19 @@ class Property(QWidget):
 HELP_TEXT = _('''\
 <h2>Creating a custom theme</h2>
 
-<p id="attribute" lang="und">You can create a custom syntax highlighting
-theme, with your own colors and font styles. The most important
-types of highlighting rules are described below. Note that not
-every rule supports every kind of customization, for example,
-changing font or underline styles for the <code>Cursor</code> rule
-does not have any effect as that rule is used only for the color of
-the blinking cursor.</p>
+<p id="attribute" lang="und">You can create a custom syntax highlighting theme, \
+with your own colors and font styles. The most important types of highlighting \
+rules are described below. Note that not every rule supports every kind of \
+customization, for example, changing font or underline styles for the \
+<code>Cursor</code> rule does not have any effect as that rule is used only for \
+the color of the blinking cursor.</p>
 
-<p>As you make changes to your theme on the left, the changes will
-be reflected live in this panel.</p>
+<p>As you make changes to your theme on the left, the changes will be reflected live in this panel.</p>
 
 <p xml:lang="und">
 {0}
-    The most important rule. Sets the
-    foreground and background colors for the editor as well as the
-    style of "normal" text, that is, text that does not match any
-    special syntax.
+    The most important rule. Sets the foreground and background colors for the \
+    editor as well as the style of "normal" text, that is, text that does not match any special syntax.
 
 {1}
     Defines the colors for text selected by the mouse.
@@ -510,6 +509,9 @@ be reflected live in this panel.</p>
 
 {12}
     Comments like <!-- this one -->
+
+{13}
+    Class attributes, like this <span class="myclass1 myclass2"></span>
 </p>
 
 <style type="text/css">
@@ -566,7 +568,8 @@ class ThemeEditor(Dialog):
         p.load_text(HELP_TEXT.format(
                 *['<b>%s</b>' % x for x in (
                     'Normal', 'Visual', 'CursorLine', 'LineNr', 'MatchParen',
-                    'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter', 'Error', 'SpellError', 'Comment'
+                    'Function', 'Type', 'Statement', 'Constant', 'SpecialCharacter',
+                    'Error', 'SpellError', 'Comment', 'ClassAttribute'
                 )]
             ))
         p.setMaximumWidth(p.size_hint.width() + 5)

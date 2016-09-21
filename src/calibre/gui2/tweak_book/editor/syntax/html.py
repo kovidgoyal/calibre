@@ -434,7 +434,7 @@ def quoted_val(state, text, i, formats, user_data):
     pos = text.find(quote, i)
     if pos == -1:
         num = len(text) - i
-        is_link = False
+        is_link = is_class = False
     else:
         num = pos - i + 1
         state.parse = IN_OPENING_TAG
@@ -445,11 +445,14 @@ def quoted_val(state, text, i, formats, user_data):
                 pass
         add_attr_data(user_data, ATTR_VALUE, ATTR_END, i + num)
         is_link = state.attribute_name in LINK_ATTRS
+        is_class = not is_link and state.attribute_name == 'class'
 
     if is_link:
         if verify_link(text[i:i+num - 1], user_data.doc_name) is False:
             return [(num - 1, formats['bad_link']), (1, formats['string'])]
         return [(num - 1, formats['link']), (1, formats['string'])]
+    elif is_class:
+        return [(num - 1, formats['class_attr']), (1, formats['string'])]
     return [(num, formats['string'])]
 
 def closing_tag(state, text, i, formats, user_data):
@@ -532,6 +535,7 @@ def create_formats(highlighter, add_css=True):
     if add_css:
         formats['css_sub_formats'] = create_css_formats(highlighter)
     formats['spell'].setProperty(SPELL_PROPERTY, True)
+    formats['class_attr'] = syntax_text_char_format(t.get('ClassAttribute', t['String']))
     formats['link'] = syntax_text_char_format(t['Link'])
     formats['link'].setProperty(LINK_PROPERTY, True)
     formats['link'].setToolTip(_('Hold down the Ctrl key and click to open this link'))
