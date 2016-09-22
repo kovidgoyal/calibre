@@ -55,8 +55,8 @@ def set_current_spine_item(val):
 default_color_schemes = {
     'white':{'foreground':'black', 'background':'white', 'name':_('White')},
     'black':{'foreground':'white', 'background':'black', 'name':_('Black')},
-    'sepia-light':{'foreground':'#643b0f', 'background':'#2a2c05', 'name':_('Sepia Light')},
-    'sepia-dark':{'background':'#643b0f', 'foreground':'#2a2c05', 'name':_('Sepia Dark')},
+    'sepia-light':{'foreground':'#39322B', 'background':'#F6F3E9', 'name':_('Sepia Light')},
+    'sepia-dark': {'background':'#39322B', 'foreground':'#F6F3E9', 'name':_('Sepia Dark')},
 }
 
 register_callback(def():

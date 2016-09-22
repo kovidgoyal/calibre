@@ -88,6 +88,10 @@ def change_library_actions():
 
 class DevelopPanel:
 
+    # To use, go to URL:
+    # http://localhost:8080/?panel=develop-widgets&widget_module=<module name>
+    # Implement the develop(container) method in that module.
+
     def __init__(self, interface_data, book_list_container):
         c = E.div()
         book_list_container.appendChild(c)
@@ -110,8 +114,8 @@ class DevelopPanel:
         m = q.widget_module
         if m:
             m = get_module(m)
-            if m?.main:
-                m.main(self.container)
+            if m?.develop:
+                m.develop(self.container)
 
 
 class UI:
