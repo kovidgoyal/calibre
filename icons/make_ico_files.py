@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, shutil, subprocess
+import os, shutil, subprocess, sys
 
 d, j, a = (getattr(os.path, x) for x in ('dirname', 'join', 'abspath'))
 base = d(a(__file__))
@@ -14,6 +14,8 @@ os.chdir(base)
 
 imgsrc = j(d(base), 'imgsrc')
 sources = {'library':j(imgsrc, 'calibre.svg'), 'ebook-edit':j(imgsrc, 'tweak.svg'), 'viewer':j(imgsrc, 'viewer.svg'), 'favicon':j(imgsrc, 'calibre.svg')}
+if sys.argv[-1] == 'only-logo':
+    sources = {'library':sources['library']}
 
 for name, src in sources.iteritems():
     os.mkdir('ico_temp')

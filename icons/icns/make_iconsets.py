@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, shutil, subprocess
+import os, shutil, subprocess, sys
 
 d, j, a = (getattr(os.path, x) for x in ('dirname', 'join', 'abspath'))
 base = d(a(__file__))
@@ -14,6 +14,8 @@ os.chdir(base)
 
 imgsrc = j(d(d(base)), 'imgsrc')
 sources = {'calibre':j(imgsrc, 'calibre.svg'), 'ebook-edit':j(imgsrc, 'tweak.svg'), 'ebook-viewer':j(imgsrc, 'viewer.svg'), 'book':j(imgsrc, 'book.svg')}
+if sys.argv[-1] == 'only-logo':
+    sources = {'calibre':sources['calibre']}
 
 for name, src in sources.iteritems():
     iconset = name + '.iconset'
