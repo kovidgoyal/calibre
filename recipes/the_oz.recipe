@@ -7,16 +7,14 @@ __docformat__ = 'restructuredtext en'
 http://www.theaustralian.news.com.au/
 '''
 
-from calibre import browser
-try:
-    from calibre.web.feeds.jsnews import JavascriptRecipe
-except ImportError:
-    # Allow compiling of recipes to work until this recipe is ported
-    from calibre.web.feeds.news import BasicNewsRecipe as JavascriptRecipe
-from calibre.web.feeds import feed_from_xml
+from calibre.web.feeds.news import BasicNewsRecipe
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
-class DailyTelegraph(JavascriptRecipe):
+class DailyTelegraph(BasicNewsRecipe):
     title = u'The Australian'
     __author__ = u'Kovid Goyal'
     description = (u'National broadsheet newspaper from down under - colloquially known as The Oz'
@@ -33,12 +31,13 @@ class DailyTelegraph(JavascriptRecipe):
     remove_empty_feeds = True
     ignore_duplicate_articles = {'url'}
 
-    keep_only_tags = ['div#story']
+    keep_only_tags = dict(id='story')
     remove_tags = [
-        '.story-info', '.story-header-tools', '.module-controls', '.story-sidebar',
-        '.story-footer', '#comments', '.story-extras', '.story-related', '.vms-nav',
-        '.vms-endcard', '.vms-discover', '.share-tools', '.story-comments-link',
-        '.vms-controls', '.ooyala-player', '.vms-countdown', '.vms-header', '.comments',
+        dict(id='comments'),
+        classes('story-info story-header-tools module-controls story-sidebar'
+        ' story-footer story-extras story-related vms-nav'
+        ' vms-endcard vms-discover share-tools story-comments-link'
+        ' vms-controls ooyala-player vms-countdown vms-header comments')
     ]
 
     feeds = [
@@ -64,21 +63,8 @@ class DailyTelegraph(JavascriptRecipe):
         (u'Mining', u'http://feeds.news.com.au/public/rss/2.0/aus_business_mining_704.xml')
     ]
 
-    def get_publication_data(self, br):
-        br = browser()
-        ans = {}
-        feeds = ans['index'] = []
-        for title, url in self.feeds:
-            raw = br.open_novisit(url).read()
-            self.log('Fetching feed: %s' % title)
-            feed = feed_from_xml(raw, title=title, log=self.log,
-                                 oldest_article=self.oldest_article, max_articles_per_feed=self.max_articles_per_feed, get_article_url=self.get_article_url)
-            if len(feed) > 0:
-                feeds.append((title, [
-                    {'title': a.title, 'url': a.url, 'description': a.text_summary} for a in feed.articles]))
-        return ans
-
     def do_login(self, browser, username, password):
+        # TODO: Port this to BasicNewsRecipe login
         if username and password:
             browser.visit('http://www.theaustralian.com.au/login')
             form = browser.select_form(
