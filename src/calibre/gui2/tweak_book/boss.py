@@ -205,8 +205,8 @@ class Boss(QObject):
     def _check_before_open(self):
         if self.gui.action_save.isEnabled():
             if not question_dialog(self.gui, _('Unsaved changes'), _(
-                'The current book has unsaved changes. If you open a new book, they will be lost'
-                ' are you sure you want to proceed?')):
+                'The current book has unsaved changes. If you open a new book, they will be lost.'
+                ' Are you sure you want to proceed?')):
                 return
         if self.save_manager.has_tasks:
             return info_dialog(self.gui, _('Cannot open'),
