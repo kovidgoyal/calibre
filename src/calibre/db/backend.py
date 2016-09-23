@@ -252,7 +252,7 @@ class Connection(apsw.Connection):  # {{{
         apsw.Connection.__init__(self, path)
 
         self.setbusytimeout(self.BUSY_TIMEOUT)
-        self.execute('pragma cache_size=5000')
+        self.execute('pragma cache_size=-5000')
         self.execute('pragma temp_store=2')
 
         encoding = self.execute('pragma encoding').next()[0]

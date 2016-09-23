@@ -210,7 +210,7 @@ def load_c_extensions(conn, debug=DEBUG):
 def do_connect(path, row_factory=None):
     conn = sqlite.connect(path, factory=Connection,
                                 detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
-    conn.execute('pragma cache_size=5000')
+    conn.execute('pragma cache_size=-5000')
     encoding = conn.execute('pragma encoding').fetchone()[0]
     conn.create_aggregate('sortconcat', 2, SortedConcatenate)
     conn.create_aggregate('sortconcat_bar', 2, SortedConcatenateBar)
