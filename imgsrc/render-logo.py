@@ -21,6 +21,7 @@ def render(outpath, sz):
 render(j(resources, 'images', 'library.png'), 1024)
 render(j(resources, 'images', 'lt.png'), 256)
 render(j(resources, 'content-server', 'calibre.png'), 128)
+render(j(srv, 'main', 'calibre-paypal-logo.png'), 60)
 shutil.copy2(j(resources, 'content-server', 'calibre.png'), j(resources, 'content_server', 'calibre.png'))
 shutil.copy2(j(resources, 'images', 'lt.png'), j(srv, 'common', 'favicon.png'))
 shutil.copy2(j(resources, 'images', 'lt.png'), j(srv, 'common', 'favicon.png'))
