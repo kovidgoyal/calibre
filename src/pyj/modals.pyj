@@ -53,7 +53,7 @@ class ModalContainer:
         # Popup style
         set_css(div.firstChild,
             position='relative', display='inline-block', top='50vh', transform='translateY(-50%)',
-            min_width='25vw', max_width='75vw',
+            min_width='25vw', max_width='70vw',  # Needed for iPhone 5
             border_radius='1em', padding='1em 2em', margin_right='1em', margin_left='1em',
             background=get_color('dialog-background'), color=get_color('dialog-foreground'),
             background_image=get_color('dialog-background-image'), get_color('dialog-background'), get_color('dialog-background2')
