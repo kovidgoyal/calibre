@@ -25,7 +25,7 @@ defaults = {
     'read_mode': 'paged',
     'max_text_height': 0,
     'max_text_width': 0,
-    'cols_per_screen': 1,
+    'columns_per_screen': {'portrait':'auto', 'landscape':'auto'},
     'current_color_scheme': 'white',
     'user_color_schemes': {},
 }
@@ -38,7 +38,7 @@ is_local_setting = {
     'read_mode': 'paged',
     'max_text_height': True,
     'max_text_width': True,
-    'cols_per_screen': True,
+    'columns_per_screen': True,
     'current_color_scheme': True,
 }
 

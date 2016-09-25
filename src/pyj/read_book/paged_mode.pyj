@@ -106,14 +106,19 @@ def layout(is_single_page):
     nonlocal _in_paged_mode, col_width, col_and_gap, screen_height, gap, screen_width, is_full_screen_layout, cols_per_screen
     body_style = window.getComputedStyle(document.body)
     first_layout = not _in_paged_mode
+    cps = opts.columns_per_screen
+    cps = cps.landscape if window.innerWidth > window.innerHeight else cps.portrait
+    if cps is 'auto':
+        cps = int(Math.floor(window.innerWidth / 500.0))
+    cps = max(1, min(cps or 1, 20))
     if first_layout:
         handle_rtl_body(body_style)
         # Check if the current document is a full screen layout like
         # cover, if so we treat it specially.
         single_screen = (document.body.scrollHeight < window.innerHeight + 75)
         first_layout = True
-        if not single_screen and opts.cols_per_screen > 1:
-            num = opts.cols_per_screen - 1
+        if not single_screen and cps > 1:
+            num = cps - 1
             elems = document.querySelectorAll('body > *')
             if elems.length == 1:
                 # Workaround for the case when the content is wrapped in a
@@ -125,7 +130,7 @@ def layout(is_single_page):
                 num -= 1
                 create_page_div()
 
-    n = cols_per_screen = opts.cols_per_screen
+    n = cols_per_screen = cps
     # Calculate the column width so that cols_per_screen columns fit exactly in
     # the window width, with their separator margins
     ww = col_width = screen_width = window.innerWidth

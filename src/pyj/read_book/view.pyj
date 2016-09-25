@@ -102,7 +102,8 @@ class View:
     def show_chrome(self):
         self.overlay.show()
 
-    def set_margins(self, no_margins):
+    def set_margins(self):
+        no_margins = self.currently_showing.name is self.book.manifest.title_page_name
         sd = get_session_data()
         margin_left = 0 if no_margins else sd.get('margin_left')
         margin_right = 0 if no_margins else sd.get('margin_right')
@@ -197,7 +198,7 @@ class View:
         return ans
 
     def on_resize(self):
-        pass
+        self.set_margins()  # needed because of max text height/width
 
     def show_loading(self):
         title = self.book.metadata.title
@@ -244,7 +245,7 @@ class View:
             'margin_left': 0 if name is self.book.manifest.title_page_name else sd.get('margin_left'),
             'margin_right': 0 if name is self.book.manifest.title_page_name else sd.get('margin_right'),
             'read_mode': sd.get('read_mode'),
-            'cols_per_screen': sd.get('cols_per_screen'),
+            'columns_per_screen': sd.get('columns_per_screen'),
             'color_scheme': self.get_color_scheme(True),
         }
         initial_position = initial_position or {'replace_history':False}
@@ -254,7 +255,7 @@ class View:
         idx = spine.indexOf(name)
         if idx > -1:
             self.currently_showing.bookpos = 'epubcfi(/{})'.format(2 * (idx +1))
-        self.set_margins(name is self.book.manifest.title_page_name)
+        self.set_margins()
         load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
 
     def goto_doc_boundary(self, data):
