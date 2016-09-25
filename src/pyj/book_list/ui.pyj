@@ -116,6 +116,8 @@ class DevelopPanel:
             m = get_module(m)
             if m?.develop:
                 m.develop(self.container)
+            else:
+                self.container.textContent = 'The module {} either does not exist or has no develop method.'.format(q.widget_module)
 
 
 class UI:
