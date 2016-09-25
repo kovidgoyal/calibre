@@ -178,13 +178,16 @@ class View:
 
     def get_color_scheme(self, apply_to_margins):
         sd = get_session_data()
-        cs = sd.current_color_scheme or 'white'
+        cs = sd.get('current_color_scheme') or 'white'
+        ucs = sd.get('user_color_schemes')
         if default_color_schemes[cs]:
             ans = default_color_schemes[cs]
-        elif sd.user_color_schemes[cs] and sd.user_color_schemes[cs].foreground and sd.user_color_schemes[cs].background:
-            ans = sd.user_color_schemes[cs]
+        elif ucs[cs] and ucs[cs].foreground and ucs[cs].background:
+            ans = ucs[cs]
         else:
-            ans = default_color_schemes['white']
+            for sn in default_color_schemes:
+                ans = default_color_schemes[sn]
+                break
         if apply_to_margins:
             for which in 'left top right bottom'.split(' '):
                 s = document.getElementById('book-{}-margin'.format(which)).style
