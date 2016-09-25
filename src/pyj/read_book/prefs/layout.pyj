@@ -1,0 +1,47 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from gettext import gettext as _
+from dom import add_extra_css, build_rule, unique_id, element
+from book_list.globals import get_session_data
+from elementmaker import E
+
+CONTAINER = unique_id('reader-page-layout')
+MARGINS = unique_id('reader-page-margins')
+
+add_extra_css(def():
+    sel = '#' + MARGINS
+    style = build_rule(sel, margin_left='2em', margin_top='-1em')
+    style += build_rule(sel + ' td', padding='1ex 1em')
+    return style
+)
+
+def create_layout_panel(container):
+    container.appendChild(E.div(id=CONTAINER))
+    container = container.lastChild
+    sd = get_session_data()
+    container.appendChild(E.p(_('Change the page margins below'), style='margin:1ex 1em; padding: 1ex 0'))
+    container.appendChild(E.table(id=MARGINS))
+    labels = {'top':_('Top:'), 'bottom':_('Bottom:'), 'left':_('Left:'), 'right':_('Right:')}
+    for which in 'top bottom left right'.split(' '):
+        container.lastChild.appendChild(E.tr(
+            E.td(labels[which]), E.td(E.input(type='number', min='0', step='1', name=which, value=str(sd.get('margin_'+which))))
+        ))
+develop = create_layout_panel
+
+
+def commit_layout(onchange, container):
+    was_changed = False
+    sd = get_session_data()
+    for which in 'top bottom left right'.split(' '):
+        i = element(MARGINS, '[name={}]'.format(which))
+        try:
+            val = int(i.value)
+        except:
+            continue
+        if val is not sd.get('margin_' + which):
+            was_changed = True
+            sd.set('margin_' + which, val)
+    if was_changed:
+        onchange()

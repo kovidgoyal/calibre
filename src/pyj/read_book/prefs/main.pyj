@@ -7,6 +7,7 @@ from dom import svgicon, ensure_id, clear
 from elementmaker import E
 from book_list.item_list import build_list, create_item
 from read_book.prefs.colors import create_colors_panel, commit_colors
+from read_book.prefs.layout import create_layout_panel, commit_layout
 
 
 class Prefs:
@@ -70,7 +71,10 @@ class Prefs:
 
     def display_layout(self, container):
         document.getElementById(self.title_id).textContent = _('Page Layout')
+        create_layout_panel(container)
 
+    def close_layout(self):
+        commit_layout(self.onchange, self.container)
 
 def create_prefs_panel(container, close_func, on_change):
     Prefs(container, close_func, on_change)
