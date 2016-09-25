@@ -110,6 +110,11 @@ def layout(is_single_page):
     cps = cps.landscape if window.innerWidth > window.innerHeight else cps.portrait
     if cps is 'auto':
         cps = int(Math.floor(window.innerWidth / 500.0))
+    else:
+        try:
+            cps = int(cps)
+        except:
+            cps = 1
     cps = max(1, min(cps or 1, 20))
     if first_layout:
         handle_rtl_body(body_style)
