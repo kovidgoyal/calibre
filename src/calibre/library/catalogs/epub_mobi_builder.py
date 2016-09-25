@@ -4421,7 +4421,7 @@ class CatalogBuilder(object):
                 title['cover'] = cover
 
                 if not os.path.exists(cover):
-                    shutil.copyfile(I('book.png'), cover)
+                    shutil.copyfile(I('default_cover.png'), cover)
 
                 if os.path.isfile(default_thumb_fp):
                     # Check to see if default cover is newer than thumbnail

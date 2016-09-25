@@ -1129,7 +1129,7 @@ class CoverFetch(QDialog):  # {{{
         self.cover_pixmap = None
 
         self.setWindowTitle(_('Downloading cover...'))
-        self.setWindowIcon(QIcon(I('book.png')))
+        self.setWindowIcon(QIcon(I('default_cover.png')))
 
         self.l = l = QVBoxLayout()
         self.setLayout(l)

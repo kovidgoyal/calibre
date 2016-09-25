@@ -231,7 +231,7 @@ class CoverView(QWidget):  # {{{
                 QSizePolicy.Expanding if vertical else QSizePolicy.Minimum,
                 QSizePolicy.Expanding)
 
-        self.default_pixmap = QPixmap(I('book.png'))
+        self.default_pixmap = QPixmap(I('default_cover.png'))
         self.pixmap = self.default_pixmap
         self.pwidth = self.pheight = None
         self.data = {}
@@ -444,7 +444,7 @@ class BookInfo(QWebView):
             ('remove_format', 'trash.png'), ('save_format', 'save.png'),
             ('restore_format', 'edit-undo.png'), ('copy_link','edit-copy.png'),
             ('manage_author', 'user_profile.png'), ('compare_format', 'diff.png'),
-            ('set_cover_format', 'book.png'),
+            ('set_cover_format', 'default_cover.png'),
         ]:
             ac = QAction(QIcon(I(icon)), '', self)
             ac.current_fmt = None

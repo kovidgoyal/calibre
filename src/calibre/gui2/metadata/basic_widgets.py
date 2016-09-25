@@ -786,7 +786,7 @@ class FormatsManager(QWidget):
         self.cover_from_format_button = QToolButton(self)
         self.cover_from_format_button.setToolTip(
                 _('Set the cover for the book from the selected format'))
-        self.cover_from_format_button.setIcon(QIcon(I('book.png')))
+        self.cover_from_format_button.setIcon(QIcon(I('default_cover.png')))
         self.cover_from_format_button.setIconSize(QSize(32, 32))
 
         self.metadata_from_format_button = QToolButton(self)
