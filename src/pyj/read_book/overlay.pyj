@@ -192,7 +192,9 @@ class MainOverlay:
         self.timer = setInterval(self.update_time, 1000)
 
     def update_time(self):
-        document.getElementById(self.timer_id).textContent = self.date_formatter.format(Date())
+        tm = document.getElementById(self.timer_id)
+        if tm:
+            tm.textContent = self.date_formatter.format(Date())
 
     def on_hide(self):
         if self.timer is not None:
@@ -233,13 +235,20 @@ class PrefsOverlay: # {{{
 
     def __init__(self, overlay):
         self.overlay = overlay
+        self.changes_occurred = False
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
 
     def show(self, container):
+        self.changes_occurred = False
         container.style.backgroundColor = get_color('window-background')
-        create_prefs_panel(container, self.overlay.hide_current_panel)
+        create_prefs_panel(container, self.overlay.hide_current_panel, def():self.changes_occurred=True;)
+
+    def on_hide(self):
+        if self.changes_occurred:
+            self.changes_occurred = False
+            get_boss().redisplay_book()
 
 # }}}
 
@@ -317,5 +326,5 @@ class Overlay:
         self.show_current_panel()
 
     def show_prefs(self):
-        self.panels.push(PrefsOverlay(self))
+        self.panels = [PrefsOverlay(self)]
         self.show_current_panel()

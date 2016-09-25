@@ -107,6 +107,9 @@ class ReadUI:
         metadata = self.metadata or self.interface_data.metadata[book_id]
         self.load_book(book_id, self.base_url_data.fmt, metadata, True)
 
+    def redisplay_book(self):
+        self.view.redisplay_book()
+
     @property
     def url_data(self):
         ans = {'book_id':self.base_url_data.book_id, 'fmt': self.base_url_data.fmt}

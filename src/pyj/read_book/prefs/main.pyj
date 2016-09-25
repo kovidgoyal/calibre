@@ -11,10 +11,10 @@ from read_book.prefs.colors import create_colors_panel, commit_colors
 
 class Prefs:
 
-    def __init__(self, container, close_func):
+    def __init__(self, container, close_func, on_change):
         self.close_func = close_func
-        self.changes_occurred = False
-        title = E.h2(_('Configure book reader'))
+        self.on_change = on_change
+        title = E.h2()
         self.title_id = ensure_id(title)
         container.appendChild(E.div(
             style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
@@ -27,7 +27,7 @@ class Prefs:
         self.display_top(container.lastChild)
 
     def onchange(self):
-        self.changes_occurred = True
+        self.on_change()
 
     def onclose(self):
         if self.stack.length > 1:
@@ -53,6 +53,7 @@ class Prefs:
         self.display_panel(which)
 
     def display_top(self, container):
+        document.getElementById(self.title_id).textContent = _('Configure book reader')
         c = E.div()
         container.appendChild(c)
         build_list(c, [
@@ -71,5 +72,5 @@ class Prefs:
         document.getElementById(self.title_id).textContent = _('Page Layout')
 
 
-def create_prefs_panel(container, close_func):
-    Prefs(container, close_func)
+def create_prefs_panel(container, close_func, on_change):
+    Prefs(container, close_func, on_change)

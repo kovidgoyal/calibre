@@ -233,6 +233,9 @@ class View:
                 pos.type, pos.cfi = 'cfi', '/' + rest
         self.show_name(name, initial_position=pos)
 
+    def redisplay_book(self):
+        self.display_book(self.book)
+
     def show_name(self, name, initial_position=None):
         if self.currently_showing.loading:
             return

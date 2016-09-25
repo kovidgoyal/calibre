@@ -113,6 +113,9 @@ class Boss:
     def reload_book(self):
         self.read_ui.reload_book()
 
+    def redisplay_book(self):
+        self.read_ui.redisplay_book()
+
     def return_to_book_list(self, book_id):
         # Note that book_id could refer to a deleted book, that is, a book no
         # longer in local storage
