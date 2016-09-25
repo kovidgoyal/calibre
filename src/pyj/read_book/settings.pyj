@@ -6,7 +6,7 @@ opts = {}
 
 def apply_settings(settings):
     settings = settings or {}
-    opts.columns_per_screen = settings.columns_per_screen or {'portrait':'auto', 'landscape':'auto'}
+    opts.columns_per_screen = settings.columns_per_screen or {'portrait':0, 'landscape':0}
     opts.margin_left = max(0, settings.margin_left or 0)
     opts.margin_right = max(0, settings.margin_right or 0)
     opts.color_scheme = settings.color_scheme
