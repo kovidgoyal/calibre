@@ -3,57 +3,11 @@
 from __python__ import hash_literals, bound_methods
 
 from gettext import gettext as _
-from dom import svgicon, ensure_id, clear, set_css, add_extra_css, build_rule
+from dom import svgicon, ensure_id, clear
 from elementmaker import E
 from book_list.item_list import build_list, create_item
-from book_list.globals import get_session_data
-from read_book.globals import default_color_schemes
+from read_book.prefs.colors import create_colors_panel, commit_colors
 
-# Colors {{{
-add_extra_css(def():
-    sel = 'ul.color-preferences-list'
-    style = build_rule(sel, list_style_type='none', display='flex', flex_wrap='wrap')
-    sel += ' > li'
-    style += build_rule(sel, padding='1ex 1rem', margin='1ex 1rem', border_radius='4px', cursor='pointer', border='solid 1px currentColor')
-    style += build_rule(sel + ' svg', visibility='hidden')
-    sel += '.current-color'
-    style += build_rule(sel + ' svg', visibility='visible')
-    return style
-)
-
-def change_current_color(ev):
-    ul = ev.currentTarget.parentNode
-    for li in ul.childNodes:
-        li.setAttribute('class', 'current-color' if li is ev.currentTarget else '')
-
-def current_color_scheme(container):
-    return container.querySelector('li.current-color').getAttribute('data-name')
-
-def create_colors_panel(container):
-    container.appendChild(E.p(_('Choose a color scheme below'), style='margin:1ex 1em; padding: 1ex 0'))
-    all_schemes = {}
-    for k in default_color_schemes:
-        all_schemes[k] = default_color_schemes[k]
-    sd = get_session_data()
-    ucs = sd.get('user_color_schemes')
-    for k in ucs:
-        all_schemes[k] = ucs[k]
-    ul = E.ul(class_='color-preferences-list')
-    container.appendChild(ul)
-    for name in sorted(all_schemes, key=def(k):all_schemes[k].name;):
-        scheme = all_schemes[name]
-        item = set_css(E.li(svgicon('check'), '\xa0' + scheme.name, data_name=name, onclick=change_current_color,
-                            class_='current-color' if name is sd.get('current_color_scheme') else ''),
-                       color=scheme.foreground, background_color=scheme.background)
-        ul.appendChild(item)
-
-def commit_colors(onchange, container):
-    ccs = current_color_scheme(container)
-    sd = get_session_data()
-    if sd.get('current_color_scheme') is not ccs:
-        sd.set('current_color_scheme', ccs)
-        onchange()
-# }}}
 
 class Prefs:
 
@@ -119,6 +73,3 @@ class Prefs:
 
 def create_prefs_panel(container, close_func):
     Prefs(container, close_func)
-
-def develop(container):
-    create_colors_panel(container)

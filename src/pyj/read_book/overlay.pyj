@@ -9,7 +9,7 @@ from book_list.globals import get_boss
 from widgets import create_spinner, create_button
 from gettext import gettext as _
 from read_book.toc import create_toc_panel
-from read_book.prefs import create_prefs_panel
+from read_book.prefs.main import create_prefs_panel
 
 class LoadingMessage:  # {{{
 

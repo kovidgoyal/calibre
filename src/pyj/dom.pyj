@@ -92,15 +92,16 @@ def element(elem_id, child_selector):
         ans = ans.querySelector(child_selector)
     return ans
 
-def unique_id():
-    unique_id.count += 1
-    return 'auto-id-' + unique_id.count
-unique_id.count = 0
+def unique_id(prefix):
+    prefix = prefix or 'auto-id'
+    unique_id.counts[prefix] = num = (unique_id.counts[prefix] or 0) + 1
+    return prefix + '-' + num
+unique_id.counts = {}
 
-def ensure_id(w):
+def ensure_id(w, prefix):
     ans = w.getAttribute('id')
     if not ans:
-        ans = unique_id()
+        ans = unique_id(prefix)
         w.setAttribute('id', ans)
     return ans
 

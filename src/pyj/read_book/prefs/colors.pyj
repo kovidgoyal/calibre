@@ -1,0 +1,186 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from gettext import gettext as _
+from dom import svgicon, set_css, add_extra_css, build_rule, clear, unique_id
+from elementmaker import E
+from book_list.globals import get_session_data
+from read_book.globals import default_color_schemes
+from modals import error_dialog
+from widgets import create_button
+
+
+CONTAINER = unique_id('reader-color-scheme')
+COLOR_LIST = unique_id()
+ACTION_BUTTONS = unique_id()
+EDIT_SCHEME = unique_id()
+
+add_extra_css(def():
+    sel = '#' + COLOR_LIST
+    style = build_rule(sel, list_style_type='none', display='flex', flex_wrap='wrap')
+    sel += ' > li'
+    style += build_rule(sel, padding='1ex 1rem', margin='1ex 0.5rem', border_radius='4px', cursor='pointer', border='solid 1px currentColor')
+    style += build_rule(sel + ' svg', visibility='hidden')
+    sel += '.current-color'
+    style += build_rule(sel + ' svg', visibility='visible')
+    style += build_rule('#{} #{} td'.format(CONTAINER, EDIT_SCHEME), padding='1ex 1em')
+    sel = '#' + ACTION_BUTTONS
+    style += sel + '{margin-top:2ex; padding-top:1ex; border-top: solid 1px currentColor; margin-bottom: 2ex; padding-bottom: 1ex; border-bottom: solid 1px currentColor}'
+    style += build_rule(sel + ' > span ', margin='1ex 0.5rem', display='inline-block')
+    return style
+)
+
+def get_container():
+    return document.getElementById(CONTAINER)
+
+def change_current_color(ev):
+    ul = ev.currentTarget.parentNode
+    for li in ul.childNodes:
+        li.setAttribute('class', 'current-color' if li is ev.currentTarget else '')
+    set_action_button_visibility(ul.parentNode)
+
+def new_color_scheme(ev):
+    container = get_container()
+    container.lastChild.style.display = 'block'
+    for inp in container.lastChild.querySelectorAll('input'):
+        n = inp.getAttribute('name')
+        inp.value = {'name':'', 'bg':'#ffffff', 'fg':'#000000'}[n]
+    container.lastChild.querySelector('input').focus()
+    return container
+
+def edit_color_scheme(ev):
+    container = new_color_scheme(ev)
+    ccs = current_color_scheme(container)
+    all_schemes = all_color_schemes()
+    if all_schemes[ccs]:
+        container = document.getElementById(EDIT_SCHEME)
+        container.querySelector('input').value = all_schemes[ccs].name
+        container.querySelector('input[name=bg]').value = all_schemes[ccs].background
+        container.querySelector('input[name=fg]').value = all_schemes[ccs].foreground
+
+def remove_color_scheme(ev):
+    ccs = current_color_scheme()
+    if default_color_schemes[ccs]:
+        return error_dialog(_('Cannot remove'), _('Cannot remove a builtin color scheme'))
+    sd = get_session_data()
+    ucs = sd.get('user_color_schemes')
+    v'delete ucs[ccs]'
+    sd.set('user_color_schemes', ucs)
+    create_color_buttons()
+    set_current_color_scheme()
+
+
+def current_color_scheme():
+    return get_container().querySelector('li.current-color').getAttribute('data-name')
+
+def set_current_color_scheme(value):
+    ul = document.getElementById(COLOR_LIST)
+    done = False
+    for li in ul.childNodes:
+        li.classList.remove('current-color')
+        if li.getAttribute('data-name') is value:
+            li.classList.add('current-color')
+            done = True
+    if not done:
+        for li in ul.childNodes:
+            li.classList.add('current-color')
+            break
+    set_action_button_visibility()
+
+def add_color_scheme(ev):
+    div = document.getElementById(EDIT_SCHEME)
+    if this is not 'cancel':
+        name = div.querySelector('input[name=name]').value
+        if not name:
+            error_dialog(_('Name not specified'), _(
+                'You must specify a name for the color scheme'))
+            return
+        bg = div.querySelector('input[name=bg]').value
+        fg = div.querySelector('input[name=fg]').value
+        for col in (bg, fg):
+            if not /^#[0-9A-F]{6}$/i.test(bg):
+                error_dialog(_('Invalid color'), _(
+                    'The color {} is not a valid color').format(col))
+                return
+        key = '*' + name
+        sd = get_session_data()
+        ucs = sd.get('user_color_schemes')
+        ucs[key] = {'name':name, 'foreground':fg, 'background':bg}
+        sd.set('user_color_schemes', ucs)
+        create_color_buttons()
+        set_current_color_scheme(key)
+    div.style.display = 'none'
+
+
+def all_color_schemes():
+    all_schemes = {}
+    for k in default_color_schemes:
+        all_schemes[k] = default_color_schemes[k]
+    sd = get_session_data()
+    ucs = sd.get('user_color_schemes')
+    for k in ucs:
+        all_schemes[k] = ucs[k]
+    return all_schemes
+
+
+def create_color_buttons():
+    ul = document.getElementById(COLOR_LIST)
+    sd = get_session_data()
+    clear(ul)
+    all_schemes = all_color_schemes()
+    ccs = sd.get('current_color_scheme')
+    for name in sorted(all_schemes, key=def(k):return all_schemes[k].name.toLowerCase();):
+        scheme = all_schemes[name]
+        item = set_css(E.li(svgicon('check'), '\xa0' + scheme.name, data_name=name, onclick=change_current_color,
+                            class_='current-color' if name is ccs else ''),
+                       color=scheme.foreground, background_color=scheme.background)
+        ul.appendChild(item)
+
+
+def set_action_button_visibility():
+    container = get_container()
+    ccs = current_color_scheme(container)
+    is_custom = ccs.startswith('*')
+    is_first = True
+    for button in container.querySelectorAll('#' + ACTION_BUTTONS + ' > span'):
+        if is_first:
+            is_first = False
+        else:
+            button.style.display = 'inline-block' if is_custom else 'none'
+
+def create_colors_panel(container):
+    container.appendChild(E.div(id=CONTAINER))
+    container = container.lastChild
+    container.appendChild(E.p(_('Choose a color scheme below'), style='margin:1ex 1em; padding: 1ex 0'))
+    ul = E.ul(id=COLOR_LIST)
+    container.appendChild(ul)
+    create_color_buttons()
+
+    container.appendChild(E.div(
+        E.span(create_button(_('New scheme'), 'plus', new_color_scheme)),
+        E.span(create_button(_('Edit scheme'), 'pencil', edit_color_scheme)),
+        E.span(create_button(_('Remove scheme'), 'trash', remove_color_scheme)),
+        id=ACTION_BUTTONS,
+    ))
+
+    container.appendChild(E.div(id=EDIT_SCHEME, style='display:none',
+        E.table(
+            E.tr(E.td(_('Name:')), E.td(E.input(name='name'))),
+            E.tr(E.td(_('Background:')), E.td(E.input(name='bg', type='color', value='#ffffff'))),
+            E.tr(E.td(_('Foreground:')), E.td(E.input(name='fg', type='color', value='#000000'))),
+        ),
+        E.div(style="display:flex; justify-content: flex-end; margin: 1ex 1em",
+            create_button(_('OK'), 'check', add_color_scheme), E.span('\xa0'), create_button(_('Cancel'), 'close', add_color_scheme.bind('cancel'))
+    )))
+    set_action_button_visibility()
+
+develop = create_colors_panel
+
+def commit_colors(onchange):
+    ccs = current_color_scheme()
+    sd = get_session_data()
+    if sd.get('current_color_scheme') is not ccs:
+        sd.set('current_color_scheme', ccs)
+        onchange()
+
