@@ -19,6 +19,7 @@ from PyQt5.Qt import (
     QPixmap, QRect, QPlainTextEdit, QMimeData)
 
 from calibre import prepare_string_for_xml, human_readable
+from calibre.constants import iswindows
 from calibre.ebooks.oeb.polish.utils import lead_text, guess_type
 from calibre.gui2 import error_dialog, choose_files, choose_save_file, info_dialog, choose_images
 from calibre.gui2.tweak_book import tprefs, current_container
@@ -1118,7 +1119,7 @@ class AddCover(Dialog):
 class PlainTextEdit(QPlainTextEdit):  # {{{
 
     ''' A class that overrides some methods from QPlainTextEdit to fix handling
-    of the nbsp unicode character. '''
+    of the nbsp unicode character and AltGr input method on windows. '''
 
     def __init__(self, parent=None):
         QPlainTextEdit.__init__(self, parent)
@@ -1148,6 +1149,31 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
         ans = QMimeData()
         ans.setText(self.selected_text)
         return ans
+
+    def show_tooltip(self, ev):
+        pass
+
+    def override_shortcut(self, ev):
+        if iswindows and self.windows_ignore_altgr_shortcut(ev):
+            ev.accept()
+            return True
+
+    def windows_ignore_altgr_shortcut(self, ev):
+        import win32api, win32con
+        s = win32api.GetAsyncKeyState(win32con.VK_RMENU) & 0xffff  # VK_RMENU == R_ALT
+        return s & 0x8000
+
+    def event(self, ev):
+        et = ev.type()
+        if et == ev.ToolTip:
+            self.show_tooltip(ev)
+            return True
+        if et == ev.ShortcutOverride:
+            ret = self.override_shortcut(ev)
+            if ret:
+                return True
+        return QPlainTextEdit.event(self, ev)
+
 # }}}
 
 if __name__ == '__main__':
