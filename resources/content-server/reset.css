@@ -78,3 +78,7 @@ hr {
 input, select {
     vertical-align:middle;
 }
+
+input[type=radio] {
+    margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0.25em
+}
