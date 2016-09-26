@@ -16,31 +16,30 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="arrow-up.svg">
+   sodipodi:docname="bookmark.svg">
   <defs
      id="defs4">
     <linearGradient
        inkscape:collect="always"
-       id="linearGradient4141">
+       id="linearGradient4139">
       <stop
-         style="stop-color:#016324;stop-opacity:1"
+         style="stop-color:#6971cf;stop-opacity:1"
          offset="0"
-         id="stop4143" />
+         id="stop4141" />
       <stop
-         style="stop-color:#16fb67;stop-opacity:1"
+         style="stop-color:#1c2057;stop-opacity:0.99215686"
          offset="1"
-         id="stop4145" />
+         id="stop4143" />
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient4141"
-       id="linearGradient4147"
-       x1="64.402176"
-       y1="1023.1872"
-       x2="63.597828"
-       y2="953.27203"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(1,0,0,-1,0,1976.7244)" />
+       xlink:href="#linearGradient4139"
+       id="linearGradient4145"
+       x1="61.520882"
+       y1="925.11218"
+       x2="61.520882"
+       y2="1052.4872"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -49,9 +48,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.313708"
-     inkscape:cx="22.268551"
-     inkscape:cy="53.034111"
+     inkscape:zoom="8"
+     inkscape:cx="21.80731"
+     inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -112,8 +111,8 @@
      transform="translate(0,-924.36216)">
     <path
        inkscape:connector-curvature="0"
-       d="m 126,1015.5844 q 0,-3.1597 -2.30078,-5.4687 L 69.449218,955.67116 q -2.300781,-2.309 -5.449218,-2.309 -3.148437,0 -5.449218,2.309 L 4.3007819,1010.1157 Q 2,1012.4247 2,1015.5844 q 0,3.1598 2.3007819,5.4687 2.3007819,2.3091 5.4492193,2.3091 l 108.4999988,0 q 3.14844,0 5.44922,-2.3091 Q 126,1018.7442 126,1015.5844 Z"
+       d="m 107.88837,925.00043 q 1.9264,0 3.68529,0.75381 2.76396,1.08883 4.39721,3.43401 1.63325,2.34518 1.63325,5.19291 l 0,107.96204 q 0,2.8477 -1.63325,5.193 -1.63325,2.3451 -4.39721,3.4339 -1.59137,0.6701 -3.68529,0.6701 -4.0203,0 -6.95178,-2.6802 L 64,1013.4473 27.063412,1048.96 q -3.01523,2.7639 -6.951782,2.7639 -1.926402,0 -3.685289,-0.7538 -2.763959,-1.0888 -4.39721,-3.4339 -1.633251,-2.3453 -1.633251,-5.193 l 0,-107.96204 q 0,-2.84773 1.633251,-5.19291 1.633251,-2.34518 4.397209,-3.43401 1.758888,-0.75381 3.68529,-0.75381 l 87.77674,0 z"
        id="path4"
-       style="fill:url(#linearGradient4147);fill-opacity:1" />
+       style="fill:url(#linearGradient4145);fill-opacity:1" />
   </g>
 </svg>

@@ -23,7 +23,7 @@
        inkscape:collect="always"
        id="linearGradient4141">
       <stop
-         style="stop-color:#014c1c;stop-opacity:1"
+         style="stop-color:#016224;stop-opacity:1"
          offset="0"
          id="stop4143" />
       <stop
@@ -49,7 +49,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="11.313708"
-     inkscape:cx="50.287658"
+     inkscape:cx="22.268551"
      inkscape:cy="53.034111"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -68,7 +68,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <dc:creator>
           <cc:Agent>
             <dc:title>Kovid Goyal</dc:title>
@@ -76,12 +76,12 @@
         </dc:creator>
         <dc:rights>
           <cc:Agent>
-            <dc:title></dc:title>
+            <dc:title />
           </cc:Agent>
         </dc:rights>
         <dc:publisher>
           <cc:Agent>
-            <dc:title></dc:title>
+            <dc:title />
           </cc:Agent>
         </dc:publisher>
         <cc:license
