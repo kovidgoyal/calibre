@@ -1065,6 +1065,8 @@ class Boss(QObject):
             filters=[(_('Book (%s)') % ext.upper(), [ext.lower()])], all_files=False)
         if not path:
             return
+        if '.' not in os.path.basename(path):
+            path += '.' + ext.lower()
         tdir = self.mkdtemp(prefix='save-copy-')
         container = clone_container(c, tdir)
         for name, ed in editors.iteritems():
