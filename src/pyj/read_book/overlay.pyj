@@ -10,6 +10,7 @@ from widgets import create_spinner, create_button
 from gettext import gettext as _
 from read_book.toc import create_toc_panel
 from read_book.prefs.main import create_prefs_panel
+from read_book.prefs.font_size import create_font_size_panel
 
 class LoadingMessage:  # {{{
 
@@ -170,7 +171,7 @@ class MainOverlay:
                 ),
 
                 E.ul(
-                    ac(_('Font size'), _('Change text size'), None, 'Aa', True),
+                    ac(_('Font size'), _('Change text size'), self.overlay.show_font_size_chooser, 'Aa', True),
                     ac(_('Preferences'), _('Configure the book reader'), self.overlay.show_prefs, 'cogs'),
                 ),
             class_=MAIN_OVERLAY_ACTIONS_CLASS
@@ -252,6 +253,14 @@ class PrefsOverlay: # {{{
 
 # }}}
 
+class FontSizeOverlay:
+
+    def __init__(self, overlay):
+        self.overlay = overlay
+
+    def show(self, container):
+        create_font_size_panel(container)
+
 class Overlay:
 
     def __init__(self, view):
@@ -327,4 +336,8 @@ class Overlay:
 
     def show_prefs(self):
         self.panels = [PrefsOverlay(self)]
+        self.show_current_panel()
+
+    def show_font_size_chooser(self):
+        self.panels = [FontSizeOverlay(self)]
         self.show_current_panel()

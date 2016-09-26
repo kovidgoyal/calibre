@@ -1,0 +1,13 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from elementmaker import E
+
+def create_font_size_panel(container):
+    container.appendChild(E.div(
+        style='margin:15vh auto; max-width: 500px; border-radius: 8px; border: solid 1px currentColor',
+        onclick=def(ev): ev.preventDefault(), ev.stopPropagation
+    ))
+
+develop = create_font_size_panel
