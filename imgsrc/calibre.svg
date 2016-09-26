@@ -688,7 +688,7 @@
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
      inkscape:cy="627.42279"
-     inkscape:cx="199.69634"
+     inkscape:cx="-24.456504"
      inkscape:zoom="1.4142136"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -709,7 +709,22 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Kovid Goyal</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title>CC BY-SA</dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>Kovid Goyal</dc:title>
+          </cc:Agent>
+        </dc:publisher>
       </cc:Work>
     </rdf:RDF>
   </metadata>
