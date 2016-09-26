@@ -248,6 +248,7 @@ class View:
             'read_mode': sd.get('read_mode'),
             'columns_per_screen': sd.get('columns_per_screen'),
             'color_scheme': self.get_color_scheme(True),
+            'base_font_size': sd.get('base_font_size'),
         }
         initial_position = initial_position or {'replace_history':False}
         self.currently_showing = {'name':name, 'settings':settings, 'initial_position':initial_position, 'loading':True}
@@ -320,3 +321,6 @@ class View:
     def on_content_loaded(self):
         self.hide_loading()
         # self.overlay.show()
+
+    def update_font_size(self):
+        self.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))

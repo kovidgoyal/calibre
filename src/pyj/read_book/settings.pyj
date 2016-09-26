@@ -10,5 +10,6 @@ def apply_settings(settings):
     opts.margin_left = max(0, settings.margin_left or 0)
     opts.margin_right = max(0, settings.margin_right or 0)
     opts.color_scheme = settings.color_scheme
+    opts.base_font_size = max(8, min(settings.base_font_size or 16, 64))
 
 apply_settings()

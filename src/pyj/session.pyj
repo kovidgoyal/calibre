@@ -28,6 +28,7 @@ defaults = {
     'columns_per_screen': {'portrait':0, 'landscape':0},
     'current_color_scheme': 'white',
     'user_color_schemes': {},
+    'base_font_size': 16,
 }
 
 is_local_setting = {
@@ -40,6 +41,7 @@ is_local_setting = {
     'max_text_width': True,
     'columns_per_screen': True,
     'current_color_scheme': True,
+    'base_font_size': True,
 }
 
 def storage_available(which):
