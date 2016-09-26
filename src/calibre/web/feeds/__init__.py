@@ -8,9 +8,9 @@ Contains the logic for parsing feeds.
 import time, traceback, copy, re
 
 from calibre.utils.logging import default_log
-from calibre import entity_to_unicode, strftime
+from calibre import entity_to_unicode, strftime, force_unicode
 from calibre.utils.date import dt_factory, utcnow, local_tz
-from calibre.utils.cleantext import clean_ascii_chars
+from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 
 class Article(object):
 
@@ -18,23 +18,23 @@ class Article(object):
         from lxml import html
         self.downloaded = False
         self.id = id
-        self._title = (title or _('Unknown')).strip()
+        title = force_unicode(title or _('Unknown'), 'utf-8')
+        self._title = clean_xml_chars(title).strip()
         try:
             self._title = re.sub(r'&(\S+?);',
                 entity_to_unicode, self._title)
         except:
             pass
-        if not isinstance(self._title, unicode):
-            self._title = self._title.decode('utf-8', 'replace')
         self._title = clean_ascii_chars(self._title)
         self.url = url
         self.author = author
         self.toc_thumbnail = None
         if author and not isinstance(author, unicode):
             author = author.decode('utf-8', 'replace')
-        self.summary = summary
         if summary and not isinstance(summary, unicode):
             summary = summary.decode('utf-8', 'replace')
+        summary = clean_xml_chars(summary) if summary else summary
+        self.summary = summary
         if summary and '<' in summary:
             try:
                 s = html.fragment_fromstring(summary, create_parent=True)
