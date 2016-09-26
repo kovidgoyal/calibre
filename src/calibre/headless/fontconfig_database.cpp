@@ -269,7 +269,7 @@ static const char *specialLanguages[] = {
     "sa", // Siddham
     "sd", // Khudawadi
     "mai", // Tirhuta
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
     "hoc", // WarangCiti
     "", // Ahom
     "", // AnatolianHieroglyphs

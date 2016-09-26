@@ -1351,7 +1351,7 @@ void PictureFlow::keyPressEvent(QKeyEvent* event)
 #define SPEED_UPPER_LIMIT 40
 
 qreal PictureFlow::device_pixel_ratio() const {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
 	return devicePixelRatioF();
 #else
 	return (qreal)devicePixelRatio();
