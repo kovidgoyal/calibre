@@ -198,7 +198,8 @@ class View:
         return ans
 
     def on_resize(self):
-        self.set_margins()  # needed because of max text height/width
+        if self.book and self.currently_showing.name:
+            self.set_margins()  # needed because of max text height/width
 
     def show_loading(self):
         title = self.book.metadata.title
