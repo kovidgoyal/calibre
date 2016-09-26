@@ -135,6 +135,7 @@ class FeedTemplate(Template):
         return navbar
 
     def _generate(self, f, feeds, cutoff, extra_css=None, style=None):
+        from calibre.utils.cleantext import clean_xml_chars
         feed = feeds[f]
         head = HEAD(TITLE(feed.title))
         if style:
@@ -173,7 +174,7 @@ class FeedTemplate(Template):
                             style='padding-bottom:0.5em')
                     )
             if article.summary:
-                li.append(DIV(cutoff(article.text_summary),
+                li.append(DIV(clean_xml_chars(cutoff(article.text_summary)),
                     CLASS('article_description', 'calibre_rescale_70')))
             ul.append(li)
         div.append(ul)

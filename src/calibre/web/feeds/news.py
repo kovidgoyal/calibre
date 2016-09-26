@@ -1039,12 +1039,13 @@ class BasicNewsRecipe(Recipe):
     def description_limiter(cls, src):
         if not src:
             return ''
+        src = force_unicode(src, 'utf-8')
         pos = cls.summary_length
         fuzz = 50
-        si = src.find(';', pos)
+        si = src.find(u';', pos)
         if si > 0 and si-pos > fuzz:
             si = -1
-        gi = src.find('>', pos)
+        gi = src.find(u'>', pos)
         if gi > 0 and gi-pos > fuzz:
             gi = -1
         npos = max(si, gi)
@@ -1052,8 +1053,9 @@ class BasicNewsRecipe(Recipe):
             npos = pos
         ans = src[:npos+1]
         if len(ans) < len(src):
-            return (ans+u'\u2026') if isinstance(ans, unicode) else (ans +
-                    '...')
+            from calibre.utils.cleantext import clean_xml_chars
+            # Truncating the string could cause a dangling UTF-16 half-surrogate, which will cause lxml to barf, clean it
+            ans = clean_xml_chars(ans) + u'\u2026'
         return ans
 
     def feed2index(self, f, feeds):
