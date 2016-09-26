@@ -655,7 +655,7 @@ A value of zero means calculate automatically.</string>
      <widget class="QWidget" name="tab_4">
       <attribute name="icon">
        <iconset resource="../../../../resources/images.qrc">
-        <normaloff>:/images/default_cover.png</normaloff>:/images/default_cover.png</iconset>
+        <normaloff>:/images/book.png</normaloff>:/images/book.png</iconset>
       </attribute>
       <attribute name="title">
        <string>Book Details</string>

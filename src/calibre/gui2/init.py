@@ -466,7 +466,7 @@ class LayoutMixin(object):  # {{{
             self.book_details = BookDetails(False, self)
             self.stack = Stack(self)
             self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book Details'), I('default_cover.png'),
+                    _('Book Details'), I('book.png'),
                     orientation=Qt.Vertical, parent=self, side_index=1,
                     shortcut='Shift+Alt+D')
             self.bd_splitter.addWidget(self.stack)
@@ -477,7 +477,7 @@ class LayoutMixin(object):  # {{{
         # }}}
         else:  # wide {{{
             self.bd_splitter = Splitter('book_details_splitter',
-                    _('Book Details'), I('default_cover.png'), initial_side_size=200,
+                    _('Book Details'), I('book.png'), initial_side_size=200,
                     orientation=Qt.Horizontal, parent=self, side_index=1,
                     shortcut='Shift+Alt+D')
             self.stack = Stack(self)
