@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
@@ -15,9 +16,31 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="template.svg">
+   sodipodi:docname="arrow-down.svg">
   <defs
-     id="defs4" />
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4141">
+      <stop
+         style="stop-color:#014c1c;stop-opacity:1"
+         offset="0"
+         id="stop4143" />
+      <stop
+         style="stop-color:#16fb67;stop-opacity:1"
+         offset="1"
+         id="stop4145" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4141"
+       id="linearGradient4147"
+       x1="64.402176"
+       y1="1023.1872"
+       x2="63.597828"
+       y2="953.27203"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,9 +48,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="50.110881"
-     inkscape:cy="69.707741"
+     inkscape:zoom="11.313708"
+     inkscape:cx="50.287658"
+     inkscape:cy="53.034111"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -85,5 +108,11 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-924.36216)" />
+     transform="translate(0,-924.36216)">
+    <path
+       inkscape:connector-curvature="0"
+       d="m 126,961.13994 q 0,3.15974 -2.30078,5.46871 l -54.250002,54.44455 q -2.300781,2.309 -5.449218,2.309 -3.148437,0 -5.449218,-2.309 L 4.3007819,966.60865 Q 2,964.29968 2,961.13994 q 0,-3.15973 2.3007819,-5.4687 2.3007819,-2.30908 5.4492193,-2.30908 l 108.4999988,0 q 3.14844,0 5.44922,2.30908 Q 126,957.98021 126,961.13994 Z"
+       id="path4"
+       style="fill-opacity:1;fill:url(#linearGradient4147)" />
+  </g>
 </svg>

@@ -37,7 +37,7 @@
      inkscape:current-layer="layer1"
      inkscape:document-units="px"
      inkscape:cy="54.689889"
-     inkscape:cx="23.125771"
+     inkscape:cx="23.304342"
      inkscape:zoom="11.2"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -65,15 +65,32 @@
         </dc:creator>
         <dc:rights>
           <cc:Agent>
-            <dc:title>CC BY-SA</dc:title>
+            <dc:title></dc:title>
           </cc:Agent>
         </dc:rights>
         <dc:publisher>
           <cc:Agent>
-            <dc:title>Kovid Goyal</dc:title>
+            <dc:title></dc:title>
           </cc:Agent>
         </dc:publisher>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <g

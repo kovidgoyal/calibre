@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
@@ -15,9 +16,31 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="template.svg">
+   sodipodi:docname="back.svg">
   <defs
-     id="defs4" />
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4139">
+      <stop
+         style="stop-color:#175568;stop-opacity:1"
+         offset="0"
+         id="stop4141" />
+      <stop
+         style="stop-color:#2ca2c5;stop-opacity:1"
+         offset="1"
+         id="stop4143" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4139"
+       id="linearGradient4145"
+       x1="25.760528"
+       y1="988.36217"
+       x2="102.23947"
+       y2="988.36217"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -25,8 +48,8 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.2"
-     inkscape:cx="50.110881"
+     inkscape:zoom="5.6568542"
+     inkscape:cx="50.464434"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -85,5 +108,11 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-924.36216)" />
+     transform="translate(0,-924.36216)">
+    <path
+       inkscape:connector-curvature="0"
+       d="m 100.83687,949.16301 -39.199152,39.19915 39.199152,39.19914 q 1.4026,1.4026 1.4026,3.322 0,1.9193 -1.4026,3.322 l -12.254352,12.2543 q -1.402606,1.4026 -3.321962,1.4026 -1.919356,0 -3.321962,-1.4026 L 27.163138,991.68412 q -1.40261,-1.4026 -1.40261,-3.32196 0,-1.91935 1.40261,-3.32196 l 54.775456,-54.77546 q 1.402606,-1.40261 3.321962,-1.40261 1.919356,0 3.321962,1.40261 l 12.254352,12.25435 q 1.4026,1.4026 1.4026,3.32196 0,1.91935 -1.4026,3.32196 z"
+       id="path4"
+       style="fill:url(#linearGradient4145);fill-opacity:1" />
+  </g>
 </svg>
