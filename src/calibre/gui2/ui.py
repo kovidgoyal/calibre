@@ -134,7 +134,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
     def __init__(self, opts, parent=None, gui_debug=None):
         global _gui
         MainWindow.__init__(self, opts, parent=parent, disable_automatic_gc=True)
-        self.setWindowIcon(QIcon(I('library.png', allow_user_override=False)))
+        self.setWindowIcon(QApplication.instance().windowIcon())
         self.jobs_pointer = Pointer(self)
         self.proceed_requested.connect(self.do_proceed,
                 type=Qt.QueuedConnection)
