@@ -151,6 +151,29 @@ def repair_library(library_path):
     from calibre.gui2.dialogs.restore_library import repair_library_at
     return repair_library_at(library_path)
 
+def windows_repair(library_path=None):
+    from binascii import hexlify, unhexlify
+    import cPickle, subprocess
+    if library_path:
+        library_path = hexlify(cPickle.dumps(library_path, -1))
+        winutil.prepare_for_restart()
+        os.environ['CALIBRE_REPAIR_CORRUPTED_DB'] = library_path
+        subprocess.Popen([sys.executable])
+    else:
+        try:
+            app = Application([])
+            from calibre.gui2.dialogs.restore_library import repair_library_at
+            library_path = cPickle.loads(unhexlify(os.environ.pop('CALIBRE_REPAIR_CORRUPTED_DB')))
+            done = repair_library_at(library_path, wait_time=4)
+        except Exception:
+            done = False
+            error_dialog(None, _('Failed to repair library'), _(
+                'Could not repair library. Click "Show details" for more information.'), det_msg=traceback.format_exc(), show=True)
+        if done:
+            subprocess.Popen([sys.executable])
+        app.quit()
+
+
 class EventAccumulator(object):
 
     def __init__(self):
@@ -266,6 +289,13 @@ class GuiRunner(QObject):
                         det_msg=traceback.format_exc()
                         )
             if repair:
+                if iswindows:
+                    # On some windows systems the existing db file gets locked
+                    # by something when running restore from the main process.
+                    # So run the restore in a separate process.
+                    windows_repair(self.library_path)
+                    self.app.quit()
+                    return
                 if repair_library(self.library_path):
                     db = LibraryDatabase(self.library_path)
         except:
@@ -455,6 +485,9 @@ def create_listener():
     return Listener(address=gui_socket_address())
 
 def main(args=sys.argv):
+    if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:
+        windows_repair()
+        return 0
     gui_debug = None
     if args[0] == '__CALIBRE_GUI_DEBUG__':
         gui_debug = args[1]
