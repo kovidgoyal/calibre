@@ -259,7 +259,7 @@ class FontSizeOverlay:
         self.overlay = overlay
 
     def show(self, container):
-        create_font_size_panel(container)
+        create_font_size_panel(container, self.overlay.hide_current_panel)
 
 class Overlay:
 

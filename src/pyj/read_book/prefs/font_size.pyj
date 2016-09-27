@@ -2,12 +2,45 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
+from dom import unique_id, set_css, add_extra_css, build_rule
 from elementmaker import E
+from book_list.globals import get_session_data, get_boss
+from book_list.theme import get_color
 
-def create_font_size_panel(container):
-    container.appendChild(E.div(
-        style='margin:15vh auto; max-width: 500px; border-radius: 8px; border: solid 1px currentColor',
+CONTAINER = unique_id('font-size-prefs')
+QUICK = unique_id('quick')
+
+add_extra_css(def():
+    style = build_rule('#' + QUICK + ' li.current', background_color=get_color('window-background2'))
+    style += build_rule('#' + QUICK + ' li:hover', background_color=get_color('window-background2'))
+    return style
+)
+
+def change_font_size(sz):
+    sd = get_session_data()
+    if sd.get('base_font_size') is not sz:
+        sd.set('base_font_size', sz)
+        get_boss().read_ui.update_font_size()
+
+def set_quick_size(ev):
+    li = ev.currentTarget
+    sz = int(li.dataset.sz)
+    change_font_size(sz)
+
+def create_font_size_panel(container, close):
+    container.appendChild(E.div(id=CONTAINER,
+        style='margin:15vh auto; max-width: 500px; border-radius: 8px; border: solid 1px currentColor; padding:1ex 1rem',
         onclick=def(ev): ev.preventDefault(), ev.stopPropagation
     ))
+    container = container.lastChild
+    container.style.backgroundColor = get_color('window-background')
+    quick = E.ul(id=QUICK, style='display:flex; justify-content:space-around; flex-wrap: wrap; align-items: baseline; list-style: none')
+    container.appendChild(quick)
+    sd = get_session_data()
+    cfs = sd.get('base_font_size')
+    for sz in (10, 12, 14, 16, 18, 20, 22):
+        quick.appendChild(set_css(E.li('Aa', title='{} px'.format(sz), class_='current' if cfs is sz else '', data_sz=str(sz), onclick=def(ev):set_quick_size(ev), close();),
+            display='inline-block', font_size=sz + 'px', padding='5px', cursor='pointer', border_radius='2px'))
 
-develop = create_font_size_panel
+def develop(container):
+    create_font_size_panel(container, def():pass;)
