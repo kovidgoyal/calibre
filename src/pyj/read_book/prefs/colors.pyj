@@ -5,7 +5,7 @@ from __python__ import hash_literals, bound_methods
 from gettext import gettext as _
 from dom import svgicon, set_css, add_extra_css, build_rule, clear, unique_id
 from elementmaker import E
-from book_list.globals import get_session_data
+from book_list.globals import get_session_data, get_boss
 from read_book.globals import default_color_schemes
 from modals import error_dialog
 from widgets import create_button
@@ -33,6 +33,20 @@ add_extra_css(def():
 
 def get_container():
     return document.getElementById(CONTAINER)
+
+def resolve_color_scheme(current_color_scheme):
+    sd = get_session_data()
+    cs = current_color_scheme or sd.get('current_color_scheme') or 'white'
+    ucs = sd.get('user_color_schemes')
+    if default_color_schemes[cs]:
+        ans = default_color_schemes[cs]
+    elif ucs[cs] and ucs[cs].foreground and ucs[cs].background:
+        ans = ucs[cs]
+    else:
+        for sn in default_color_schemes:
+            ans = default_color_schemes[sn]
+            break
+    return ans
 
 def change_current_color(ev):
     ul = ev.currentTarget.parentNode
@@ -152,6 +166,9 @@ def set_action_button_visibility():
 def create_colors_panel(container):
     container.appendChild(E.div(id=CONTAINER))
     container = container.lastChild
+    cs = resolve_color_scheme()
+    container.dataset.bg = cs.background
+    container.dataset.fg = cs.foreground
     container.appendChild(E.p(_('Choose a color scheme below'), style='margin:1ex 1em; padding: 1ex 0'))
     ul = E.ul(id=COLOR_LIST)
     container.appendChild(ul)
@@ -179,8 +196,9 @@ develop = create_colors_panel
 
 def commit_colors(onchange):
     ccs = current_color_scheme()
-    sd = get_session_data()
-    if sd.get('current_color_scheme') is not ccs:
+    rcs = resolve_color_scheme(ccs)
+    c = get_container()
+    if rcs.foreground is not c.dataset.fg or rcs.background is not c.dataset.bg:
+        sd = get_session_data()
         sd.set('current_color_scheme', ccs)
-        onchange()
-
+        get_boss().read_ui.update_color_scheme()

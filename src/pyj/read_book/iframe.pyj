@@ -45,6 +45,7 @@ class IframeBoss:
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'next_screen': self.on_next_screen,
             'change_font_size': self.change_font_size,
+            'change_color_scheme': self.change_color_scheme,
         }
         self.last_window_ypos = 0
 
@@ -147,6 +148,11 @@ class IframeBoss:
         if data.base_font_size? and data.base_font_size != opts.base_font_size:
             opts.base_font_size = data.base_font_size
             self.apply_font_size()
+
+    def change_color_scheme(self, data):
+        if data.color_scheme and data.color_scheme.foreground and data.color_scheme.background:
+            opts.color_scheme = data.color_scheme
+            self.apply_colors()
 
     def content_loaded(self):
         document.documentElement.style.overflow = 'hidden'

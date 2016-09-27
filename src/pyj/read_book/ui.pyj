@@ -113,6 +113,9 @@ class ReadUI:
     def update_font_size(self):
         self.view.update_font_size()
 
+    def update_color_scheme(self):
+        self.view.update_color_scheme()
+
     @property
     def url_data(self):
         ans = {'book_id':self.base_url_data.book_id, 'fmt': self.base_url_data.fmt}

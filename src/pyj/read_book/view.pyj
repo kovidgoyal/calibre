@@ -6,9 +6,10 @@ from book_list.globals import get_session_data, get_boss
 from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
-from read_book.globals import messenger, iframe_id, default_color_schemes
+from read_book.globals import messenger, iframe_id
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
+from read_book.prefs.colors import resolve_color_scheme
 from book_list.theme import get_color
 from utils import parse_url_params, username_key
 
@@ -178,23 +179,13 @@ class View:
         self.ui.show_error((data.title or _('There was an error processing the book')), data.msg, data.details)
 
     def get_color_scheme(self, apply_to_margins):
-        sd = get_session_data()
-        cs = sd.get('current_color_scheme') or 'white'
-        ucs = sd.get('user_color_schemes')
-        if default_color_schemes[cs]:
-            ans = default_color_schemes[cs]
-        elif ucs[cs] and ucs[cs].foreground and ucs[cs].background:
-            ans = ucs[cs]
-        else:
-            for sn in default_color_schemes:
-                ans = default_color_schemes[sn]
-                break
+        ans = resolve_color_scheme()
         if apply_to_margins:
             for which in 'left top right bottom'.split(' '):
                 s = document.getElementById('book-{}-margin'.format(which)).style
                 if which is 'top' or which is 'bottom':
                     s.color = ans.foreground  # Setting a color for the side margins causes the hover arrow to become visible
-                s.backgroundColor = ans.background
+                    s.backgroundColor = ans.background
         return ans
 
     def on_resize(self):
@@ -324,3 +315,7 @@ class View:
 
     def update_font_size(self):
         self.send_message('change_font_size', base_font_size=get_session_data().get('base_font_size'))
+
+    def update_color_scheme(self):
+        cs = self.get_color_scheme(True)
+        self.send_message('change_color_scheme', color_scheme=cs)
