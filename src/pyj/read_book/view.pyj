@@ -185,7 +185,7 @@ class View:
                 s = document.getElementById('book-{}-margin'.format(which)).style
                 if which is 'top' or which is 'bottom':
                     s.color = ans.foreground  # Setting a color for the side margins causes the hover arrow to become visible
-                    s.backgroundColor = ans.background
+                s.backgroundColor = ans.background
         return ans
 
     def on_resize(self):
