@@ -174,8 +174,8 @@ elif isosx:
     openssl_inc_dirs = [os.path.join(SSL, 'include')]
     openssl_lib_dirs = [os.path.join(SSL, 'lib')]
 else:
-    QT_DLLS += ['Qt5DBus', 'Qt5XcbQpa']
-    # PYQT_MODULES += ('QtDBus',)
+    QT_DLLS += ['Qt5DBus', 'Qt5XcbQpa', 'Qt5X11Extras']
+    PYQT_MODULES += ('QtX11Extras',)
     ft_inc_dirs = pkgconfig_include_dirs('freetype2', 'FT_INC_DIR',
             '/usr/include/freetype2')
     ft_lib_dirs = pkgconfig_lib_dirs('freetype2', 'FT_LIB_DIR', '/usr/lib')
