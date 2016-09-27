@@ -2669,7 +2669,7 @@ def getPhases(debug):
     }
 
 def adjust_attributes(token, replacements):
-    if frozenset(token['data']) & frozenset(replacements):
+    if token['data'].viewkeys() & replacements.viewkeys():
         token['data'] = OrderedDict(
             (replacements.get(k, k), v) for k, v in token['data'].iteritems())
 
