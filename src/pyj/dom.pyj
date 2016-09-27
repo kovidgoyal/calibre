@@ -92,6 +92,15 @@ def element(elem_id, child_selector):
         ans = ans.querySelector(child_selector)
     return ans
 
+def selector(id_selector, *args):
+    ans = '#' + id_selector
+    for x in args:
+        ans += ' ' + x
+    return ans
+
+def rule(id_selector, *args, **kw):
+    return build_rule(selector(id_selector, *args), **kw)
+
 def unique_id(prefix):
     prefix = prefix or 'auto-id'
     unique_id.counts[prefix] = num = (unique_id.counts[prefix] or 0) + 1
