@@ -206,6 +206,10 @@ class IframeBoss:
     def onresize(self):
         if current_layout_mode() is not 'flow':
             self.do_layout()
+        if self.last_cfi:
+            cfi = self.last_cfi[len('epubcfi(/'):-1].partition('/')[2]
+            if cfi:
+                paged_jump_to_cfi('/' + cfi)
         self.update_cfi()
 
     def onwheel(self, evt):
