@@ -140,6 +140,11 @@ class View:
         set_css(document.getElementById('book-bottom-margin'), height=margin_bottom + 'px')
         def side_margin(which, val):
             m = document.getElementById('book-{}-margin'.format(which))
+            if which is 'left':
+                # Explicitly set the width of the central panel. This is needed
+                # on small screens with chrome, without it sometimes the right
+                # margin goes off the screen.
+                m.nextSibling.style.maxWidth = 'calc(100vw - {}px)'.format(margin_left + margin_right)
             set_css(m, width=val + 'px')
             val = min(val, 75)
             m.firstChild.style.width = val + 'px'
@@ -204,7 +209,9 @@ class View:
 
     def on_resize(self):
         if self.book and self.currently_showing.name:
-            self.set_margins()  # needed because of max text height/width
+            sd = get_session_data()
+            if sd.get('max_text_width') or sd.get('max_text_height'):
+                self.set_margins()
 
     def show_loading(self):
         title = self.book.metadata.title
