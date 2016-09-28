@@ -94,6 +94,7 @@ if pictureflow is not None:
             self.template_error_reported = False
             self.template = db.pref('cover_browser_title_template', '{title}')
             self.template_is_title = self.template == '{title}'
+            self.template_is_empty = not self.template.strip()
 
         def count(self):
             return self.model.count()
@@ -113,6 +114,8 @@ if pictureflow is not None:
                     self.init_template(db)
                 if self.template_is_title:
                     ans = self.model.title(index)
+                elif self.template_is_empty:
+                    ans = ''
                 else:
                     try:
                         ans = self.render_template(self.template, index, db)
