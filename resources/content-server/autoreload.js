@@ -25,7 +25,7 @@
                 self.retries = 0;
                 self.opened_at_least_once = true;
                 self.interval = 100;
-                console.log('Connected to reloading WebSocket server at : ' + url);
+                console.log('Connected to reloading WebSocket server at: ' + url);
                 window.addEventListener('beforeunload', function (event) {
                     console.log('Shutting down connection to reload server, before page unload');
                     self.disable = true;
