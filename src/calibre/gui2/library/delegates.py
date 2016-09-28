@@ -423,11 +423,10 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         elif check_key_modifier(Qt.ShiftModifier + Qt.ControlModifier):
             val = now()
         else:
-            m = index.model()
             # db col is not named for the field, but for the table number. To get it,
             # gui column -> column label -> table number -> db column
-            val = m.db.data[index.row()][m.custom_columns[m.column_map[index.column()]]['rec_index']]
-            if val is None:
+            val = index.data(Qt.EditRole)
+            if is_date_undefined(val):
                 val = now()
         editor.setDateTime(val)
 
