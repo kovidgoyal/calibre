@@ -7,7 +7,8 @@
 
 (function(autoreload_port) {
     "use strict";
-    var url = 'ws://127.0.0.1:' + autoreload_port;
+    var host = document.location.host.split(':')[0];
+    var url = 'ws://' + host + ':' + autoreload_port;
     var MAX_RETRIES = 10;
 
     function ReconnectingWebSocket() {
@@ -24,7 +25,7 @@
                 self.retries = 0;
                 self.opened_at_least_once = true;
                 self.interval = 100;
-                console.log('Connected to reloading WebSocket server at port: ' + autoreload_port);
+                console.log('Connected to reloading WebSocket server at : ' + url);
                 window.addEventListener('beforeunload', function (event) {
                     console.log('Shutting down connection to reload server, before page unload');
                     self.disable = true;
