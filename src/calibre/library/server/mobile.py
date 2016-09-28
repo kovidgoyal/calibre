@@ -20,7 +20,7 @@ from calibre.ebooks.metadata import fmt_sidx
 from calibre.constants import __appname__
 from calibre import human_readable, isbytestring
 from calibre.utils.cleantext import clean_xml_chars
-from calibre.utils.date import utcfromtimestamp, as_local_time
+from calibre.utils.date import utcfromtimestamp, as_local_time, is_date_undefined
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import sort_key
 
@@ -260,7 +260,11 @@ class MobileServer(object):
                                              no_tag_count=True)
             book['title'] = record[FM['title']]
             for x in ('timestamp', 'pubdate'):
-                book[x] = strftime('%d %b, %Y', as_local_time(record[FM[x]]))
+                dval = record[FM[x]]
+                if is_date_undefined(dval):
+                    book[x] = ''
+                else:
+                    book[x] = strftime('%d %b, %Y', as_local_time(dval))
             book['id'] = record[FM['id']]
             books.append(book)
             for key in CKEYS:

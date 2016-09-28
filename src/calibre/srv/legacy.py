@@ -17,7 +17,7 @@ from calibre.srv.errors import HTTPRedirect, HTTPBadRequest
 from calibre.srv.routes import endpoint
 from calibre.srv.utils import get_library_data, http_date
 from calibre.utils.cleantext import clean_xml_chars
-from calibre.utils.date import timestampfromdt, dt_as_local
+from calibre.utils.date import timestampfromdt, dt_as_local, is_date_undefined
 
 # /mobile {{{
 def clean(x):
@@ -177,8 +177,8 @@ def build_index(books, num, search, sort, order, start, total, url_base, field_m
         first = E.span(u'\u202f%s %s by %s' % (book.title, series,
             authors_to_string(book.authors)), class_='first-line')
         div.append(first)
-        second = E.span(u'%s %s %s' % (strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple()),
-            tags, ctext), class_='second-line')
+        ds = '' if is_date_undefined(book.timestamp) else strftime('%d %b, %Y', t=dt_as_local(book.timestamp).timetuple())
+        second = E.span(u'%s %s %s' % (ds, tags, ctext), class_='second-line')
         div.append(second)
 
         books_table.append(E.tr(thumbnail, data))
