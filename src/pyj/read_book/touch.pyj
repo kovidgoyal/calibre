@@ -250,12 +250,13 @@ class BookTouchHandler(TouchHandler):
         if gesture.type is 'double-tap':
             if gesture.active:
                 return
+            gesture.type = 'show-chrome'
         get_boss().handle_gesture(gesture)
 
-touch_handler = BookTouchHandler()
+main_touch_handler = BookTouchHandler()
 
 def create_handlers():
-    window.addEventListener('touchstart', touch_handler.handle_touchstart, True)
-    window.addEventListener('touchmove', touch_handler.handle_touchmove, True)
-    window.addEventListener('touchend', touch_handler.handle_touchend, True)
-    window.addEventListener('touchcancel', touch_handler.handle_touchcancel, True)
+    window.addEventListener('touchstart', main_touch_handler.handle_touchstart, True)
+    window.addEventListener('touchmove', main_touch_handler.handle_touchmove, True)
+    window.addEventListener('touchend', main_touch_handler.handle_touchend, True)
+    window.addEventListener('touchcancel', main_touch_handler.handle_touchcancel, True)
