@@ -34,6 +34,13 @@ def set_custom_size(ev):
     sz = int(element(CONTAINER, 'input').value)
     change_font_size(sz)
 
+def change_font_size_by(amt):
+    sd = get_session_data()
+    sz = sd.get('base_font_size')
+    nsz = sz + amt
+    nsz = max(8, min(nsz, 40))
+    change_font_size(nsz)
+
 def show_custom_size(ev):
     c = element(CONTAINER)
     for child in c.childNodes:

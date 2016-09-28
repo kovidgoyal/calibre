@@ -10,6 +10,7 @@ from read_book.globals import messenger, iframe_id
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
+from read_book.prefs.font_size import change_font_size_by
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from book_list.theme import get_color
 from utils import parse_url_params, username_key
@@ -83,6 +84,7 @@ class View:
             'update_cfi': self.on_update_cfi,
             'content_loaded': self.on_content_loaded,
             'show_chrome': self.show_chrome,
+            'bump_font_size': self.bump_font_size,
         }
         self.currently_showing = {}
 
@@ -107,6 +109,10 @@ class View:
 
     def forward_gesture(self, gesture):
         self.send_message('gesture_from_margin', gesture=gesture)
+
+    def bump_font_size(self, data):
+        delta = 2 if data.increase else -2
+        change_font_size_by(delta)
 
     def show_chrome(self):
         self.overlay.show()

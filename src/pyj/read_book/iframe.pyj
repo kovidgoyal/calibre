@@ -120,6 +120,8 @@ class IframeBoss:
     def handle_gesture(self, gesture):
         if gesture.type is 'show-chrome':
             self.send_message('show_chrome')
+        elif gesture.type is 'pinch':
+            self.send_message('bump_font_size', increase=gesture.direction is 'out')
         else:
             self._handle_gesture(gesture)
 
