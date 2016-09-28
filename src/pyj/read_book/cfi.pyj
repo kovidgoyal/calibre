@@ -508,28 +508,28 @@ def at_point(ox, oy):  # {{{
         Math.sqrt(Math.pow(p1[0]-p2[0], 2), Math.pow(p1[1]-p2[1], 2))
 
     try:
-        cfi = window.cfi.at(ox, oy)
-        point = window.cfi.point(cfi)
+        cfi = at(ox, oy)
+        p = point(cfi)
     except Exception:
         cfi = None
 
 
     if cfi:
-        if point.range is not None:
-            r = point.range
+        if p.range is not None:
+            r = p.range
             rect = r.getClientRects()[0]
 
-            x = (point.a*rect.left + (1-point.a)*rect.right)
+            x = (p.a*rect.left + (1-p.a)*rect.right)
             y = (rect.top + rect.bottom)/2
             x, y = viewport_to_document(x, y, r.startContainer.ownerDocument)
         else:
-            node = point.node
+            node = p.node
             r = node.getBoundingClientRect()
             x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
-            if type(point.x) is 'number' and node.offsetWidth:
-                x += (point.x*node.offsetWidth)/100
-            if type(point.y) is 'number' and node.offsetHeight:
-                y += (point.y*node.offsetHeight)/100
+            if type(p.x) is 'number' and node.offsetWidth:
+                x += (p.x*node.offsetWidth)/100
+            if type(p.y) is 'number' and node.offsetHeight:
+                y += (p.y*node.offsetHeight)/100
 
         if dist(viewport_to_document(ox, oy), v'[x, y]') > 50:
             cfi = None
@@ -540,7 +540,6 @@ def at_point(ox, oy):  # {{{
 def at_current():  # {{{
     winx, winy = window_scroll_pos()
     winw, winh = window.innerWidth, window.innerHeight
-    max = Math.max
     winw = max(winw, 400)
     winh = max(winh, 600)
     deltay = Math.floor(winh/50)
