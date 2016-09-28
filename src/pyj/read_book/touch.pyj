@@ -204,6 +204,9 @@ class TouchHandler:
         self.gesture_id = None
         self.handled_tap_hold = False
 
+    def handle_gesture(self, gesture):
+        pass
+
     def dispatch_gesture(self):
         touches = self.ongoing_touches
         num = len(touches)
@@ -215,7 +218,11 @@ class TouchHandler:
             gesture = interpret_double_gesture(touches[t[0]], touches[t[1]], self.gesture_id)
         if not gesture?.type:
             return
+        self.handle_gesture(gesture)
 
+class BookTouchHandler(TouchHandler):
+
+    def handle_gesture(self, gesture):
         if gesture.type is 'tap':
             if gesture.is_held:
                 if not self.handled_tap_hold:
@@ -245,7 +252,7 @@ class TouchHandler:
                 return
         get_boss().handle_gesture(gesture)
 
-touch_handler = TouchHandler()
+touch_handler = BookTouchHandler()
 
 def create_handlers():
     window.addEventListener('touchstart', touch_handler.handle_touchstart, True)
