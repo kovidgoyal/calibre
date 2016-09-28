@@ -3,6 +3,7 @@
 from __python__ import hash_literals, bound_methods
 
 from read_book.globals import get_boss
+from book_list.globals import get_boss as book_list_boss
 
 HOLD_THRESHOLD = 750  # milliseconds
 TAP_THRESHOLD = 5  # pixels
@@ -204,9 +205,6 @@ class TouchHandler:
         self.gesture_id = None
         self.handled_tap_hold = False
 
-    def handle_gesture(self, gesture):
-        pass
-
     def dispatch_gesture(self):
         touches = self.ongoing_touches
         num = len(touches)
@@ -222,10 +220,15 @@ class TouchHandler:
 
 class BookTouchHandler(TouchHandler):
 
+    def __init__(self, for_side_margin=None):
+        self.for_side_margin = for_side_margin
+        TouchHandler.__init__(self)
+
     def handle_gesture(self, gesture):
+        gesture.from_side_margin = self.for_side_margin
         if gesture.type is 'tap':
             if gesture.is_held:
-                if not self.handled_tap_hold:
+                if not self.for_side_margin and not self.handled_tap_hold:
                     self.handled_tap_hold = True
                     fake_click = new MouseEvent('click', {
                         'clientX': gesture.viewport_x, 'clientY':gesture.viewport_y, 'buttons': 1,
@@ -236,7 +239,7 @@ class BookTouchHandler(TouchHandler):
                         elem.dispatchEvent(fake_click)
                 return
             if not gesture.active:
-                if not tap_on_link(gesture):
+                if self.for_side_margin or not tap_on_link(gesture):
                     if gesture.viewport_y < min(100, window.innerHeight / 4):
                         gesture.type = 'show-chrome'
                     else:
@@ -251,12 +254,29 @@ class BookTouchHandler(TouchHandler):
             if gesture.active:
                 return
             gesture.type = 'show-chrome'
-        get_boss().handle_gesture(gesture)
+        if self.for_side_margin:
+            book_list_boss().read_ui.view.forward_gesture(gesture)
+        else:
+            get_boss().handle_gesture(gesture)
+
+    def __repr__(self):
+        return 'BookTouchHandler:for_side_margin:' + self.for_side_margin
 
 main_touch_handler = BookTouchHandler()
+left_margin_handler = BookTouchHandler('left')
+right_margin_handler = BookTouchHandler('right')
+
+def install_handlers(elem, handler):
+    elem.addEventListener('touchstart', handler.handle_touchstart, True)
+    elem.addEventListener('touchmove', handler.handle_touchmove, True)
+    elem.addEventListener('touchend', handler.handle_touchend, True)
+    elem.addEventListener('touchcancel', handler.handle_touchcancel, True)
 
 def create_handlers():
-    window.addEventListener('touchstart', main_touch_handler.handle_touchstart, True)
-    window.addEventListener('touchmove', main_touch_handler.handle_touchmove, True)
-    window.addEventListener('touchend', main_touch_handler.handle_touchend, True)
-    window.addEventListener('touchcancel', main_touch_handler.handle_touchcancel, True)
+    install_handlers(window, main_touch_handler)
+
+def set_left_margin_handler(elem):
+    install_handlers(elem, left_margin_handler)
+
+def set_right_margin_handler(elem):
+    install_handlers(elem, right_margin_handler)

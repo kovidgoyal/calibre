@@ -46,6 +46,7 @@ class IframeBoss:
             'next_screen': self.on_next_screen,
             'change_font_size': self.change_font_size,
             'change_color_scheme': self.change_color_scheme,
+            'gesture_from_margin': self.gesture_from_margin,
         }
         self.last_window_ypos = 0
 
@@ -121,6 +122,9 @@ class IframeBoss:
             self.send_message('show_chrome')
         else:
             self._handle_gesture(gesture)
+
+    def gesture_from_margin(self, data):
+        self.handle_gesture(data.gesture)
 
     def on_scroll_to_anchor(self, data):
         frag = data.frag

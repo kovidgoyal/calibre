@@ -10,6 +10,7 @@ from read_book.globals import messenger, iframe_id
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
+from read_book.touch import set_left_margin_handler, set_right_margin_handler
 from book_list.theme import get_color
 from utils import parse_url_params, username_key
 
@@ -46,17 +47,21 @@ class View:
         self.ui = ui
         self.loaded_resources = {}
         sd = get_session_data()
+        left_margin = E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked)
+        set_left_margin_handler(left_margin)
+        right_margin = E.div(svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)), class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked)
+        set_right_margin_handler(right_margin)
         container.appendChild(
             E.div(style='width: 100vw; height: 100vh; overflow: hidden; display: flex; align-items: stretch',  # container for horizontally aligned panels
                   E.div(style='display: flex; flex-direction: column; align-items: stretch; flex-grow:2',  # container for iframe and any other panels in the same column
                     E.div(style='flex-grow: 2; display:flex; align-items: stretch',  # container for iframe and its overlay
-                        E.div(svgicon('caret-left'), style='width:{}px;'.format(sd.get('margin_left', 20)), class_='book-side-margin', id='book-left-margin', onclick=self.left_margin_clicked),
+                        left_margin,
                         E.div(style='flex-grow:2; display:flex; align-items:stretch; flex-direction: column', # container for top and bottom margins
                             E.div(style='height:{}px; width:100%; padding: 0; cursor: pointer'.format(sd.get('margin_top', 20)), id='book-top-margin', onclick=self.top_margin_clicked),
                             E.iframe(id=iframe_id, seamless=True, sandbox='allow-popups allow-scripts', style='flex-grow: 2'),
                             E.div(style='height:{}px; width:100%; padding: 0'.format(sd.get('margin_bottom', 20)), id='book-bottom-margin'),
                         ),
-                        E.div(svgicon('caret-right'), style='width:{}px;'.format(sd.get('margin_right', 20)), class_='book-side-margin', id='book-right-margin', onclick=self.right_margin_clicked),
+                        right_margin,
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # overlay
                     )
                 )
@@ -99,6 +104,9 @@ class View:
         if event.button is 0:
             event.preventDefault(), event.stopPropagation()
             self.show_chrome()
+
+    def forward_gesture(self, gesture):
+        self.send_message('gesture_from_margin', gesture=gesture)
 
     def show_chrome(self):
         self.overlay.show()
