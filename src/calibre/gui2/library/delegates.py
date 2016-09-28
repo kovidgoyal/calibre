@@ -423,8 +423,6 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         elif check_key_modifier(Qt.ShiftModifier + Qt.ControlModifier):
             val = now()
         else:
-            # db col is not named for the field, but for the table number. To get it,
-            # gui column -> column label -> table number -> db column
             val = index.data(Qt.EditRole)
             if is_date_undefined(val):
                 val = now()
