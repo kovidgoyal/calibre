@@ -1321,7 +1321,7 @@ class KOBOTOUCH(KOBO):
     # Starting with firmware version 3.19.x, the last number appears to be is a
     # build number. A number will be recorded here but It can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 0, 7523)
+    max_supported_fwversion         = (4, 1, 7523)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -1331,6 +1331,7 @@ class KOBOTOUCH(KOBO):
     min_reviews_fwversion           = (3, 12, 0)
     min_glohd_fwversion             = (3, 14, 0)
     min_auraone_fwversion           = (3, 20, 7280)
+    min_fwversion_overdrive         = (4,  0, 7523)
 
     has_kepubs = True
 
@@ -1549,6 +1550,9 @@ class KOBOTOUCH(KOBO):
                 elif accessibility == 4:        # Pre 2.x.x firmware
                     playlist_map[lpath].append('Recommendation')
                     allow_shelves = False
+                elif accessibility == 9:        # From 4.0 on Aura One
+                    playlist_map[lpath].append('OverDrive')
+                    allow_shelves = False
 
                 kobo_collections = playlist_map[lpath][:]
 
@@ -1698,7 +1702,7 @@ class KOBOTOUCH(KOBO):
             if self.dbversion >= 16:
                 columns += ', ___ExpirationStatus, FavouritesIndex, Accessibility'
             else:
-                columns += ', "-1" as ___ExpirationStatus, "-1" as FavouritesIndex, "-1" as Accessibility'
+                columns += ', -1 as ___ExpirationStatus, -1 as FavouritesIndex, -1 as Accessibility'
             if self.dbversion >= 33:
                 columns += ', IsDownloaded'
             else:
@@ -1709,39 +1713,44 @@ class KOBOTOUCH(KOBO):
                 columns += ', null as Series, null as SeriesNumber, ___UserID, null as ExternalId'
 
             where_clause = ''
-            if self.supports_kobo_archive():
-                where_clause = (" where BookID is Null "
-                    " and ((Accessibility = -1 and IsDownloaded in ('true', 1 )) or (Accessibility in (1,2) %(expiry)s) "
-                    "    %(previews)s %(recomendations)s )"
-                    " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) and ContentType = 6)") % \
-                        dict(
-                             expiry="" if self.show_archived_books else "and IsDownloaded in ('true', 1)",
-                             previews=" or (Accessibility in (6) and ___UserID <> '')" if self.show_previews else "",
-                             recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if self.show_recommendations else ""
-                             )
+            if self.supports_kobo_archive() or self.supports_overdrive():
+                where_clause = (" WHERE BookID IS NULL "
+                        " AND ((Accessibility = -1 AND IsDownloaded in ('true', 1 )) "              # Sideloaded books
+                        "      OR (Accessibility IN (%(downloaded_accessibility)s) %(expiry)s) "    # Purchased books
+                        "      %(previews)s %(recomendations)s ) "                                  # Previews or Recommendations
+                    ) % \
+                    dict(
+                         expiry="" if self.show_archived_books else "and IsDownloaded in ('true', 1)",
+                         previews=" OR (Accessibility in (6) AND ___UserID <> '')" if self.show_previews else "",
+                         recomendations=" OR (Accessibility IN (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else "",
+                         downloaded_accessibility = "1,2,9" if  self.supports_overdrive() else "1,2"
+                         )
             elif self.supports_series():
-                where_clause = (" where BookID is Null "
-                    " and ((Accessibility = -1 and IsDownloaded in ('true', 1)) or (Accessibility in (1,2)) %(previews)s %(recomendations)s )"
-                    " and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)") % \
-                        dict(
-                             expiry=" and ContentType = 6" if self.show_archived_books else "",
-                             previews=" or (Accessibility in (6) and ___UserID <> '')" if self.show_previews else "",
-                             recomendations=" or (Accessibility in (-1, 4, 6) and ___UserId = '')" if self.show_recommendations else ""
-                             )
+                where_clause = (" WHERE BookID IS NULL "
+                    " AND ((Accessibility = -1 AND IsDownloaded IN ('true', 1)) or (Accessibility IN (1,2)) %(previews)s %(recomendations)s )"
+                    " AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus is Null) %(expiry)s)"
+                    ) % \
+                    dict(
+                         expiry=" AND ContentType = 6" if self.show_archived_books else "",
+                         previews=" or (Accessibility IN (6) AND ___UserID <> '')" if self.show_previews else "",
+                         recomendations=" or (Accessibility in (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else ""
+                         )
             elif self.dbversion >= 33:
-                where_clause = (' where BookID is Null %(previews)s %(recomendations)s and not'
-                ' ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)') % \
-                        dict(
-                             expiry=' and ContentType = 6' if self.show_archived_books else '',
-                             previews=' and Accessibility <> 6' if not self.show_previews else '',
-                             recomendations=' and IsDownloaded in (\'true\', 1)' if not self.show_recommendations else ''
-                             )
+                where_clause = (' WHERE BookID IS NULL %(previews)s %(recomendations)s AND NOT'
+                    ' ((___ExpirationStatus=3 or ___ExpirationStatus IS NULL) %(expiry)s)'
+                    ) % \
+                    dict(
+                         expiry=' AND ContentType = 6' if self.show_archived_books else '',
+                         previews=' AND Accessibility <> 6' if not self.show_previews else '',
+                         recomendations=' AND IsDownloaded IN (\'true\', 1)' if not self.show_recommendations else ''
+                         )
             elif self.dbversion >= 16:
-                where_clause = (' where BookID is Null '
-                    'and not ((___ExpirationStatus=3 or ___ExpirationStatus is Null) %(expiry)s)') % \
-                        dict(expiry=' and ContentType = 6' if self.show_archived_books else '')
+                where_clause = (' WHERE BookID IS NULL '
+                    'AND NOT ((___ExpirationStatus=3 OR ___ExpirationStatus IS Null) %(expiry)s)'
+                    ) % \
+                    dict(expiry=' and ContentType = 6' if self.show_archived_books else '')
             else:
-                where_clause = ' where BookID is Null'
+                where_clause = ' WHERE BookID IS NULL'
 
             # Note: The card condition should not need the contentId test for the SD
             # card. But the ExternalId does not get set for sideloaded kepubs on the
@@ -1767,10 +1776,12 @@ class KOBOTOUCH(KOBO):
                         'ExternalId' in err
                         ):
                     raise
-                query= ('select Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
-                    'ImageID, ReadStatus, "-1" as ___ExpirationStatus, "-1" as '
-                    'FavouritesIndex, "-1" as Accessibility, "1" as IsDownloaded, null as Series, null as SeriesNumber'
-                    ' from content where BookID is Null')
+                query= ('SELECT Title, Attribution, DateCreated, ContentID, MimeType, ContentType, '
+                        'ImageID, ReadStatus, -1 AS ___ExpirationStatus, "-1" AS '
+                        'FavouritesIndex, -1 AS Accessibility, 1 AS IsDownloaded, NULL AS Series, NULL AS SeriesNumber '
+                        'FROM content '
+                        'WHERE BookID IS NULL'
+                        )
                 cursor.execute(query)
 
             changed = False
@@ -1796,7 +1807,7 @@ class KOBOTOUCH(KOBO):
 
                 prefix = self._card_a_prefix if oncard == 'carda' else self._main_prefix
                 changed = update_booklist(prefix, path, row[0], row[1], mime, row[2], row[3], row[5],
-                                          row[6], row[7], row[4], row[8], row[9], row[10], row[11],
+                                          row[6], row[7], row[4], row[8], int(row[9]), row[10], row[11],
                                           row[12], row[13], row[14], bookshelves)
 
                 if changed:
@@ -1813,11 +1824,11 @@ class KOBOTOUCH(KOBO):
         # Do the operation in reverse order so indices remain valid
         for idx in sorted(bl_cache.itervalues(), reverse=True):
             if idx is not None:
-                if not os.path.exists(self.normalize_path(os.path.join(prefix, bl[idx].lpath))):
+                if not os.path.exists(self.normalize_path(os.path.join(prefix, bl[idx].lpath))) or not bl[idx].contentID:
                     need_sync = True
                     del bl[idx]
-#                else:
-#                    debug_print("KoboTouch:books - Book in mtadata.calibre, on file system but not database - bl[idx].title:'%s'"%bl[idx].title)
+                else:
+                    debug_print("KoboTouch:books - Book in mtadata.calibre, on file system but not database - bl[idx].title:'%s'"%bl[idx].title)
 
         # print "count found in cache: %d, count of files in metadata: %d, need_sync: %s" % \
         #      (len(bl_cache), len(bl), need_sync)
@@ -2206,9 +2217,10 @@ class KOBOTOUCH(KOBO):
             }
 
         accessibilitylist = {
+            "Deleted":1,
+            "OverDrive":9,
             "Preview":6,
             "Recommendation":4,
-            "Deleted":1,
             }
 #        debug_print('KoboTouch:update_device_database_collections - collections_attributes=', collections_attributes)
 
@@ -2577,7 +2589,7 @@ class KOBOTOUCH(KOBO):
         delete_query = ("DELETE FROM Shelf "
                         "WHERE Shelf._IsSynced = 'false' "
                         "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_in + ") "
-                        "AND Type <> 'SystemTag' "
+                        "AND (Type IS NULL OR Type <> 'SystemTag') "    # Collections are created with Type of NULL and change after a sync.
                         "AND NOT EXISTS "
                         "(SELECT 1 FROM ShelfContent c "
                         "WHERE Shelf.Name = C.ShelfName "
@@ -2587,7 +2599,7 @@ class KOBOTOUCH(KOBO):
                         "SET _IsDeleted = 'true' "
                         "WHERE Shelf._IsSynced = 'true' "
                         "AND Shelf.InternalName not in ('Shortlist', 'Wishlist'" + ignore_collections_in + ") "
-                        "AND Type <> 'SystemTag' "
+                        "AND (Type IS NULL OR Type <> 'SystemTag') "
                         "AND NOT EXISTS "
                         "(SELECT 1 FROM ShelfContent C "
                         "WHERE Shelf.Name = C.ShelfName "
@@ -2997,6 +3009,9 @@ class KOBOTOUCH(KOBO):
 
     def supports_kobo_archive(self):
         return self.dbversion >= self.min_dbversion_archive
+
+    def supports_overdrive(self):
+        return self.fwversion >= self.min_fwversion_overdrive
 
     def supports_covers_on_sdcard(self):
         return self.dbversion >= self.min_dbversion_images_on_sdcard and self.fwversion >= self.min_fwversion_images_on_sdcard
