@@ -14,6 +14,7 @@ class AdvancedUserRecipe1390132023(BasicNewsRecipe):
     # 27.6.15 using feed43 as rss feeds dead
     # feed 43 string = <div {*}<a href="{%}"{*}<h4>{%}</h4>
     oldest_article = 1.5
+    language = 'en_GB'
     max_articles_per_feed = 10
     compress_news_images = True
     compress_news_images_max_size = 20

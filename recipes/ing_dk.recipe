@@ -9,6 +9,7 @@ Ingeniøren.dk
 class Ing_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Ingeniøren'
+    language = 'da'
     description = 'Nyheder om teknologi og naturvidenskab for fagfolk og interesserede; artikler, blogs, debat, infografik, video.'
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
