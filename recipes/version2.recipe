@@ -16,49 +16,49 @@ class version2(BasicNewsRecipe):
     publisher = 'version2.dk'
     category = 'news, IT, hardware, software, Denmark'
     oldest_article = 14
-    max_articles_per_feed = 50
-    no_stylesheets = True
+    max_articles_per_feed = 25
+    no_stylesheets = False
     remove_empty_feeds = True
     use_embedded_content = False
-    encoding = 'iso-8859-1'
+    encoding = 'utf-8'
     language = 'da'
-
-    extra_css             = """
-                                body {font-family: "Verdana",Times,serif}
-                                .articleauthor{color: #9F9F9F;
-                                               font-family: Arial, sans-serif;
-                                               font-size: small;
-                                               text-transform: uppercase}
-                                .rubric,.dd,h6#credit{color: #CD0021;
-                                        font-family: Arial, sans-serif;
-                                        font-size: small;
-                                        text-transform: uppercase}
-                                .descender:first-letter{display: inline; font-size: xx-large; font-weight: bold}
-                                .dd,h6#credit{color: gray}
-                                .c{display: block}
-                                .caption,h2#articleintro{font-style: italic}
-                                .caption{font-size: small}
-                            """
-
+    
+    extra_css = '.article { font-weight: normal; }'
+    
     preprocess_regexps = [(re.compile(r'</?a[^>]*>'), lambda match: ''),
                           (re.compile(r'<span[^>]*article-link-id.*?<br\s*\/?><br\s*\/?>'), lambda match: '')]
 
-    keep_only_tags = [dict(name='div', attrs={'class': 'article'})]
+    keep_only_tags = [dict(name='div', attrs={'id': 'article-page'}),
+					  dict(name='section', attrs={'class': 'byline'}),
+					  dict(name='section', attrs={'class': 'body'})]
 
     remove_tags = [
         dict(name='p', attrs={'class': 'meta links'}),
         dict(name='div', attrs={'class': 'float-right'}),
-        dict(name='span', attrs={'class': 'article-link-id'})
+        dict(name='span', attrs={'class': 'article-link-id'}),
+		dict(name='section', attrs={'class': 'social-tools-pane'}),
+        dict(name='section', attrs={'class': 'article-timeline'}),
+        dict(name='div', attrs={'id' : 'mini-panel-comments_and_form'}),
+        dict(name='div', attrs={'class': 'related-articles top-three'}),
+        dict(name='div', attrs={'id': 'mini-panel-jobfinder_1'}),
+        dict(name='section', attrs={'id': 'mini-panel-frontpage_debat_zone'}),
+        dict(name='div', attrs={'class': 'panel-panel panel-col-center grid w4'}),
+        dict(name='section', attrs={'class': 'short-list sidebar most-rate-up'}),
+        dict(name='section', attrs={'class': 'short-list sidebar debat-pane most-comment-lists'}),
+        dict(name='section', attrs={'class': 'short-list sidebar most-controversial'}),
+        dict(name='div', attrs={'id': 'mini-panel-related_branch_news'}),
+        dict(name='div', attrs={'class': 'items-pane pr-pane'}),
+        dict(name='section', attrs={'id': 'mini-panel-jobfinder_front'}),
+        dict(name='section', attrs={'class': 'item-news'}),
+        dict(name='section', attrs={'class': 'jobs-list'}),
+        dict(name='footer', attrs={'id': 'footer'}),
+        dict(name='section', attrs={'class': 'banner'}),
+        dict(name='div', attrs={'class' : 'fast-track-frontpage'}),
+        dict(name='a', attrs={'class': 'byline-comments'})
     ]
 
     feeds = [
-        (u'Seneste nyheder', u'http://www.version2.dk/feeds/nyheder'),
-        (u'Forretningssoftware', u'http://www.version2.dk/feeds/forretningssoftware'),
-        (u'Internet & styresystemer', u'http://www.version2.dk/feeds/styresystemer'),
-        (u'It-arkitektur', u'http://www.version2.dk/feeds/it-arkitektur'),
-        (u'It-styring & outsourcing', u'http://www.version2.dk/feeds/it-styring'), (u'Job & karriere', u'http://www.version2.dk/feeds/karriere'),
-        (u'Mobil it & tele', u'http://www.version2.dk/feeds/tele'),
-        (u'Server/storage & netværk', u'http://www.version2.dk/feeds/server-storage'),
-        (u'Sikkerhed', u'http://www.version2.dk/feeds/sikkerhed'),
-        (u'Softwareudvikling', u'http://www.version2.dk/feeds/softwareudvikling')
+        (u'Seneste nyheder', u'https://www.version2.dk/it-nyheder/rss'),
+        (u'Seneste blogs', u'https://www.version2.dk/blogs/rss'),
+		(u'Seneste kommentarer', u'https://www.version2.dk/debat/rss')
     ]
