@@ -5,6 +5,7 @@ __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 information.dk
 '''
 
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
@@ -43,7 +44,7 @@ class Information_dk(BasicNewsRecipe):
                       dict(name='div', attrs={'class': 'field-name-body'})]
     remove_tags_before = dict(name='h1', attrs={'class': 'print-title'})
     remove_tags_after = dict(name='div', attrs={'class': 'print-footer'})
-    
+
     field_name_best_from_inf = '^.*?field-name-best-from-inf.*?$'
     related_stuff = '^.*?related-stuff.*?$'
     view_iv_seneste = '^.*?view-iv-seneste.*?$'
@@ -53,7 +54,7 @@ class Information_dk(BasicNewsRecipe):
     field_name_comments_label = '^.*?field-name-comments-label.*?$'
     field_name_no_comments = '^.?field-name-no-comments.*?$'
     comment = '^.*?comment.*?$'
-    
+
     remove_tags = [dict(name=['object', 'link']),
                    dict(name='div', attrs={'id': 'node-article-full-group-date'}),
                    dict(name='div', attrs={'id': 'node-article-full-group-right'}),

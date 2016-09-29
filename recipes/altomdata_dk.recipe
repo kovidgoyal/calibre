@@ -10,13 +10,13 @@ Alt om DATA, Datatid TechLife - Download, test, antivirus, netværk
 class WwwAltomdata_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Alt om DATA, Datatid TechLife - Download, test, antivirus, netværk'
-	
+
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50
-	language='da'
-	resolve_internal_links = True
-	remove_empty_feeds = True
+    language='da'
+    resolve_internal_links = True
+    remove_empty_feeds = True
     auto_cleanup = True
     language = 'da'
 

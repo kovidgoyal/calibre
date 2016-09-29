@@ -7,7 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 Det grønne område
 '''
 
-class Lyngby-taarbaekLokalavisen_dk(BasicNewsRecipe):
+class Lyngby_taarbaekLokalavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Det grønne område'
     description = 'Lokale, regionale nyheder, sport og kultur i Lyngby-Taarbæk, Virum, Holte, Nærum, Vedbæk og Skodsborg på lyngby-taarbaek.lokalavisen.dk'

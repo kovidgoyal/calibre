@@ -10,7 +10,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class OesterbroAvis_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Østerbro Avis'
-    
+
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50

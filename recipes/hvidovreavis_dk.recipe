@@ -13,5 +13,5 @@ class Hvidovre_Avis_dk(BasicNewsRecipe):
         ('Sport', 'http://hvidovre.lokalavisen.dk/section/senestesportrss'),
         ('112', 'http://hvidovre.lokalavisen.dk/section/seneste112rss'),
         ('Kultur', 'http://hvidovre.lokalavisen.dk/section/senestekulturrss'),
-        ('Læserbreve', 'http://hvidovre.lokalavisen.dk/section/senestelaeserbreverss'),
+        ('LÃ¦serbreve', 'http://hvidovre.lokalavisen.dk/section/senestelaeserbreverss'),
     ]

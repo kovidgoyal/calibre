@@ -10,7 +10,9 @@ Computerworld.dk
 class WwwComputerworld_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Computerworld.dk'
-    description = 'Nyheder, analyser, viden, blogs og debat om it. Computerworld er dit medie om det digitale Danmark. Computerworld skriver om nye teknologier, hardware, software, informationssamfundet, internettet, it-branchen, telebranchen, it-ledelse, it-strategi, forretnings-it , it-job og meget mere.'
+    description = ('Nyheder, analyser, viden, blogs og debat om it. Computerworld er dit medie om det digitale Danmark.'
+                   ' Computerworld skriver om nye teknologier, hardware, software, informationssamfundet, internettet,'
+                   ' it-branchen, telebranchen, it-ledelse, it-strategi, forretnings-it , it-job og meget mere.')
     category = 'technology, news, business, linux, opensource, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50

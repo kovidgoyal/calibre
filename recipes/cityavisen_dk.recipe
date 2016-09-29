@@ -10,7 +10,7 @@ City Avisen
 class CityAvisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'City Avisen'
-    
+
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50

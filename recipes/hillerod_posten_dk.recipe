@@ -4,13 +4,13 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 '''
-Hillerød Posten
+HillerÃ¸d Posten
 '''
 
 class HilleroedLokalavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
-    title = 'Hillerød Posten'
-    description = 'Lokale og regionale nyheder, sport og kultur fra Hillerød, Skævinge og Gørløse på hilleroed.lokalavisen.dk'
+    title = 'HillerÃ¸d Posten'
+    description = 'Lokale og regionale nyheder, sport og kultur fra HillerÃ¸d, SkÃ¦vinge og GÃ¸rlÃ¸se pÃ¥ hilleroed.lokalavisen.dk'
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -18,11 +18,11 @@ class HilleroedLokalavisen_dk(BasicNewsRecipe):
     language = 'da'
 
     feeds = [
-        ('Seneste nyt fra Hillerød Posten', 'http://hilleroed.lokalavisen.dk/section/senestenytrss'),
-        ('Seneste lokale nyheder fra Hillerød Posten', 'http://hilleroed.lokalavisen.dk/section/senestelokalenyhederrss'),
-        ('Seneste sport fra Hillerød Posten', 'http://hilleroed.lokalavisen.dk/section/senestesportrss'),
-        ('Seneste 112 nyheder fra Hillerød Posten', 'http://hilleroed.lokalavisen.dk/section/seneste112rss'),
-        ('Seneste kultur nyheder fra Hillerød Posten', 'http://hilleroed.lokalavisen.dk/section/senestekulturrss'),
-        ('Seneste læserbreve fra Hillerød Posten', 'http://hilleroed.lokalavisen.dk/section/senestelaeserbreverss'),
+        ('Seneste nyt fra HillerÃ¸d Posten', 'http://hilleroed.lokalavisen.dk/section/senestenytrss'),
+        ('Seneste lokale nyheder fra HillerÃ¸d Posten', 'http://hilleroed.lokalavisen.dk/section/senestelokalenyhederrss'),
+        ('Seneste sport fra HillerÃ¸d Posten', 'http://hilleroed.lokalavisen.dk/section/senestesportrss'),
+        ('Seneste 112 nyheder fra HillerÃ¸d Posten', 'http://hilleroed.lokalavisen.dk/section/seneste112rss'),
+        ('Seneste kultur nyheder fra HillerÃ¸d Posten', 'http://hilleroed.lokalavisen.dk/section/senestekulturrss'),
+        ('Seneste lÃ¦serbreve fra HillerÃ¸d Posten', 'http://hilleroed.lokalavisen.dk/section/senestelaeserbreverss'),
 
     ]

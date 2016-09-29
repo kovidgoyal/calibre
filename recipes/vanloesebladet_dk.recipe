@@ -10,7 +10,7 @@ Vanløse Bladet
 class VanloeseBladet_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Vanløse Bladet'
-    
+
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50

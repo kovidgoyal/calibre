@@ -14,7 +14,7 @@ class KristeligtDagblad(BasicNewsRecipe):
         ('Leder', 'http://www.kristeligt-dagblad.dk/rss/leder'),
         ('Danmark', 'http://www.kristeligt-dagblad.dk/rss/danmark'),
         ('Udland', 'http://www.kristeligt-dagblad.dk/rss/udland'),
-        ('Liv & Sjæl', 'http://www.kristeligt-dagblad.dk/rss/liv'),
+        ('Liv & SjÃ¦l', 'http://www.kristeligt-dagblad.dk/rss/liv'),
         ('Familieliv', 'http://www.kristeligt-dagblad.dk/rss/familieliv'),
         ('Kronik', 'http://www.kristeligt-dagblad.dk/rss/kronik'),
         ('Kirke & Tro', 'http://www.kristeligt-dagblad.dk/rss/kirke'),

@@ -10,9 +10,10 @@ Albertslund Posten
 class AlbertslundLokalavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Albertslund Posten'
-    description = 'RSS feed med sidste nyt fra Albertslund Posten. Der er nye historier flere gange dagligt - få de seneste nyheder fra dit lokalområde automatisk. Albertslund Posten. albertslund.lokalavisen.dk'
+    description = ('RSS feed med sidste nyt fra Albertslund Posten. Der er nye historier flere gange dagligt'
+                   ' - få de seneste nyheder fra dit lokalområde automatisk. Albertslund Posten. albertslund.lokalavisen.dk')
     category = 'newspaper, news, localnews, sport, culture, Denmark'
-	oldest_article = 7
+    oldest_article = 7
     max_articles_per_feed = 25
     auto_cleanup = True
     language = 'da'

@@ -10,7 +10,8 @@ Avisen.dk
 class WwwAvisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Avisen.dk'
-    description = 'Nyheder, artikler, seneste nyt, nyhedsarkiv, kommentarer og blogs. Avisen.dk dækker bredt, men har fokus på arbejdslivet. Avisen.dk - går arbejdet bedre'
+    description = ('Nyheder, artikler, seneste nyt, nyhedsarkiv, kommentarer og blogs. Avisen.dk dækker bredt,'
+                   ' men har fokus på arbejdslivet. Avisen.dk - går arbejdet bedre')
     category = 'newspaper, news, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50
@@ -18,6 +19,6 @@ class WwwAvisen_dk(BasicNewsRecipe):
     language = 'da'
 
     feeds = [
-		('Nyheder fra Avisen.dk', 'http://www.avisen.dk/rss.aspx'),
+                ('Nyheder fra Avisen.dk', 'http://www.avisen.dk/rss.aspx'),
     ]
 

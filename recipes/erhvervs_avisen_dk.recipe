@@ -10,7 +10,7 @@ Erhvervs&#149;Avisen: RSS feed: Seneste nyt - erhvervsavisen.dk
 class Erhvervsavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Erhvervs Avisen'
-    description = 'Lokale, regionale nyheder, bolig, motor og job i Køge, Greve, Ringsted og Stevns på erhvervsavisen.dk'
+    description = 'Lokale, regionale nyheder, bolig, motor og job i KÃ¸ge, Greve, Ringsted og Stevns pÃ¥ erhvervsavisen.dk'
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50

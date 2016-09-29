@@ -10,7 +10,8 @@ Allerød Nyt: RSS feed: Seneste nyt - alleroed.lokalavisen.dk
 class AlleroedLokalavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Allerød Nyt - alleroed.lokalavisen.dk'
-    description = 'RSS feed med sidste nyt fra Allerød Nyt. Der er nye historier flere gange dagligt - få de seneste nyheder fra dit lokalområde automatisk. Allerød Nyt. alleroed.lokalavisen.dk'
+    description = ('RSS feed med sidste nyt fra Allerød Nyt. Der er nye historier flere gange dagligt'
+                   ' - få de seneste nyheder fra dit lokalområde automatisk. Allerød Nyt. alleroed.lokalavisen.dk')
     category = 'newspaper, news, localnews, sport, culture, Denmark'
     oldest_article = 7
     max_articles_per_feed = 50
