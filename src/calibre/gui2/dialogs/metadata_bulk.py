@@ -757,7 +757,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             try:
                 v = int(val[0])
                 if v < 0 or v > 10:
-                    ok = False;
+                    ok = False
             except:
                 ok = False
             if not ok:

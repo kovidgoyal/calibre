@@ -1723,7 +1723,7 @@ class KOBOTOUCH(KOBO):
                          expiry="" if self.show_archived_books else "and IsDownloaded in ('true', 1)",
                          previews=" OR (Accessibility in (6) AND ___UserID <> '')" if self.show_previews else "",
                          recomendations=" OR (Accessibility IN (-1, 4, 6) AND ___UserId = '')" if self.show_recommendations else "",
-                         downloaded_accessibility = "1,2,9" if  self.supports_overdrive() else "1,2"
+                         downloaded_accessibility="1,2,9" if self.supports_overdrive() else "1,2"
                          )
             elif self.supports_series():
                 where_clause = (" WHERE BookID IS NULL "

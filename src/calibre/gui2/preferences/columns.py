@@ -91,7 +91,6 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         for row, col in enumerate(colmap):
             self.setup_row(self.field_metadata, row, col)
 
-
         self.restore_geometry()
         self.opt_columns.cellDoubleClicked.connect(self.row_double_clicked)
         self.opt_columns.blockSignals(False)
