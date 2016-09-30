@@ -468,45 +468,45 @@ the color of the blinking cursor.</p>
 <p>As you make changes to your theme on the left, the changes will be reflected live in this panel.</p>
 
 <p xml:lang="und">
-{0}
+{}
     The most important rule. Sets the foreground and background colors for the \
     editor as well as the style of "normal" text, that is, text that does not match any special syntax.
 
-{1}
+{}
     Defines the colors for text selected by the mouse.
 
-{2}
+{}
     Defines the color for the line containing the cursor.
 
-{3}
+{}
     Defines the colors for the line numbers on the left.
 
-{4}
+{}
     Defines the colors for matching tags in HTML and matching
     braces in CSS.
 
-{5}
+{}
     Used for highlighting tags in HTML
 
-{6}
+{}
     Used for highlighting attributes in HTML
 
-{7}
+{}
     Tag names in HTML
 
-{8}
+{}
     Namespace prefixes in XML and constants in CSS
 
-{9}
+{}
     Non-breaking spaces/hyphens in HTML
 
-{10}
+{}
     Syntax errors such as <this <>
 
-{11}
+{}
     Misspelled words such as <span lang="en">thisword</span>
 
-{12}
+{}
     Comments like <!-- this one -->
 
 </p>
