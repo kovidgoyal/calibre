@@ -509,8 +509,6 @@ the color of the blinking cursor.</p>
 {12}
     Comments like <!-- this one -->
 
-{13}
-    Class attributes, like this <span class="myclass1 myclass2"></span>
 </p>
 
 <style type="text/css">
