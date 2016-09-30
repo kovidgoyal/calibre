@@ -20,6 +20,48 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.69.0
+  date: 2016-09-30
+
+  new features:
+    - title: "Kobo driver: Support for firmware version 4.1 and Overdrive books on the device"
+
+    - title: "Edit Book: Highlight class names inside HTML tags"
+
+    - title: "Bulk metadata edit dialog: Allow search & replace to work for ratings columns as well."
+
+  bug fixes:
+    - title: "Fix downloading of metadata from ozon.ru, which broke due to website changes"
+
+    - title: "Kobo driver: Fix delete of empty collections"
+
+    - title: "Kobo driver: Fix book previews being sometimes detected as actual books"
+
+    - title: "Cover Browser: Fix setting an empty template for the title causes an error"
+
+    - title: "Edit Book: On windows do not trigger shortcuts when using the right Alt (AltGr) key. This allows it to be used for entering special characters instead."
+      tickets: [1627487]
+
+    - title: "Edit Book: Auto-add file extension when using the Save a Copy dialog if it is missing."
+      tickets: [1627482]
+
+    - title: "Linux: Fix calibre not launching when used with some old VNC server implementations"
+
+    - title: "Windows: Run library restore in a separate process as on some windows machines, running it in the main process causes something in the system to lock the db file."
+
+    - title: "Fix some news downloads in east asian languages not working because the truncation of article descriptions could cause invalid UTF-16 bytes in the string"
+
+    - title: "Fix incorrect timezone when editing custom date columns directly in the book list"
+
+  improved recipes:
+    - New York Times
+    - Independent
+    - El tribuno de Salta
+
+  new recipes:
+    - title: Various Danish news sources 
+      author: Allan Simonsen
+
 - version: 2.68.0
   date: 2016-09-16
 
