@@ -458,7 +458,8 @@ class CoverSettingsWidget(QWidget):
     def update_preview(self):
         if self.ignore_changed:
             return
-        w, h = self.preview_label.sizeHint().width(), self.preview_label.sizeHint().height()
+        dpr = getattr(self, 'devicePixelRatioF', self.devicePixelRatio)()
+        w, h = int(dpr * self.preview_label.sizeHint().width()), int(dpr * self.preview_label.sizeHint().height())
         prefs = self.prefs_for_rendering
         hr = h / prefs['cover_height']
         for x in ('title', 'subtitle', 'footer'):
@@ -466,6 +467,7 @@ class CoverSettingsWidget(QWidget):
             prefs[attr] = int(prefs[attr] * hr)
         prefs['cover_width'], prefs['cover_height'] = w, h
         img = generate_cover(self.mi, prefs=prefs, as_qimage=True)
+        img.setDevicePixelRatio(dpr)
         self.preview_label.setPixmap(QPixmap.fromImage(img))
 
     def default_mi(self):
