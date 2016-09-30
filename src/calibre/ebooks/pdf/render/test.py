@@ -55,7 +55,7 @@ def full(p, xmax, ymax):
 
     b = QBrush(Qt.HorPattern)
     b.setColor(QColor(Qt.blue))
-    pix = QPixmap(I('console.png'))
+    pix = QPixmap(I('lt.png'))
     w = xmax/4
     p.fillRect(0, ymax/3, w, w, b)
     p.fillRect(xmax/3, ymax/3, w, w, QBrush(pix))
@@ -95,7 +95,7 @@ def brush(p, xmax, ymax):
     p.drawRect(x, y, w, w)
 
 def pen(p, xmax, ymax):
-    pix = QPixmap(I('console.png'))
+    pix = QPixmap(I('lt.png'))
     pen = QPen(QBrush(pix), 60)
     p.setPen(pen)
     p.drawRect(0, xmax/3, xmax/3, xmax/2)
