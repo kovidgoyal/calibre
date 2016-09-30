@@ -53,8 +53,6 @@ Everything after the -- is passed to the script.
     parser.add_option('--reinitialize-db', default=None,
             help=_('Re-initialize the sqlite calibre database at the '
             'specified path. Useful to recover from db corruption.'))
-    parser.add_option('-p', '--py-console', help=_('Run python console'),
-            default=False, action='store_true')
     parser.add_option('-m', '--inspect-mobi', action='store_true',
             default=False,
             help=_('Inspect the MOBI file(s) at the specified path(s)'))
@@ -230,9 +228,6 @@ def main(args=sys.argv):
     elif opts.viewer:
         from calibre.gui_launch import ebook_viewer
         ebook_viewer(['ebook-viewer', '--debug-javascript'] + args[1:])
-    elif opts.py_console:
-        from calibre.utils.pyconsole.main import main
-        main()
     elif opts.command:
         sys.argv = args
         exec(opts.command)
