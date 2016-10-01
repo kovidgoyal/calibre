@@ -1062,24 +1062,7 @@ class Manifest(object):
             """Convert the URL provided in :param:`href` from a book-absolute
             reference to a reference relative to this manifest item.
             """
-            if urlparse(href).scheme:
-                return href
-            if '/' not in self.href:
-                return href
-            base = filter(None, os.path.dirname(os.path.normpath(self.href)).replace(os.sep, '/').split('/'))
-            target, frag = urldefrag(href)
-            target = target.split('/')
-            index = 0
-            for index in xrange(min(len(base), len(target))):
-                if base[index] != target[index]:
-                    break
-            else:
-                index += 1
-            relhref = (['..'] * (len(base) - index)) + target[index:]
-            relhref = '/'.join(relhref)
-            if frag:
-                relhref = '#'.join((relhref, frag))
-            return relhref
+            return rel_href(self.href, href)
 
         def abshref(self, href):
             """Convert the URL provided in :param:`href` from a reference
@@ -1932,3 +1915,37 @@ class OEBBook(object):
         if self.spine.page_progression_direction in {'ltr', 'rtl'}:
             spine.attrib['page-progression-direction'] = self.spine.page_progression_direction
         return results
+
+
+def rel_href(base_href, href):
+    """Convert the URL provided in :param:`href` to a URL relative to the URL
+    in :param:`base_href`  """
+    if urlparse(href).scheme:
+        return href
+    if '/' not in base_href:
+        return href
+    base = filter(lambda x: x and x != '.', os.path.dirname(os.path.normpath(base_href)).replace(os.sep, '/').split('/'))
+    while True:
+        try:
+            idx = base.index('..')
+        except ValueError:
+            break
+        if idx > 0:
+            del base[idx-1:idx+1]
+        else:
+            break
+    if not base:
+        return href
+    target, frag = urldefrag(href)
+    target = target.split('/')
+    index = 0
+    for index in xrange(min(len(base), len(target))):
+        if base[index] != target[index]:
+            break
+    else:
+        index += 1
+    relhref = (['..'] * (len(base) - index)) + target[index:]
+    relhref = '/'.join(relhref)
+    if frag:
+        relhref = '#'.join((relhref, frag))
+    return relhref
