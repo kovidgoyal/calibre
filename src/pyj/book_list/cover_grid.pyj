@@ -8,11 +8,13 @@ from gettext import gettext as _
 
 THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
+BORDER_RADIUS = 10
 
 def cover_grid_css():
     sel = '#' + this
     ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow='hidden')
 
+    # Container for an individual cover
     sel += ' > div'
     ans += build_rule(
         sel, margin='10px', display='flex', align_content='flex-end', align_items='flex-end', justify_content='space-around',
@@ -21,8 +23,12 @@ def cover_grid_css():
     ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
     ans += build_rule(f'{sel}:active', transform='scale(2)')
 
+    # Container for cover failed to load message
+    ans += build_rule(sel + ' > div', position='relative', top='-50%', transform='translateY(50%)')
+
+    # The actual cover
     sel += ' > img'
-    ans += build_rule(sel, max_width='100%', max_height='100%', display='block', width='auto', height='auto', border_radius='10px')
+    ans += build_rule(sel, max_width='100%', max_height='100%', display='block', width='auto', height='auto', border_radius=BORDER_RADIUS+'px')
     return ans
 
 def init(container):
@@ -36,12 +42,11 @@ def on_img_load_error(err):
         return
     clear(div)
     div.appendChild(E.div(
-        style='position:relative; top:-50%; transform: translateY(50%)',
         E.h2(img.getAttribute('data-title'), style='text-align:center; font-size:larger; font-weight: bold'),
         E.div(_('by'), style='text-align: center'),
         E.h2(img.getAttribute('data-authors'), style='text-align:center; font-size:larger; font-weight: bold')
     ))
-    set_css(div, border='dashed 1px currentColor', border_radius='10px')
+    set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
 def create_item(book_id, interface_data, onclick):
     cover_url = 'get/thumb/{}/{}?sz={}x{}'.format(book_id, interface_data['library_id'], Math.ceil(THUMBNAIL_MAX_WIDTH*window.devicePixelRatio), Math.ceil(THUMBNAIL_MAX_HEIGHT*window.devicePixelRatio))
