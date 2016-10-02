@@ -4,16 +4,14 @@ from __python__ import hash_literals
 
 import traceback
 from ajax import ajax_send
-from dom import set_css, clear, build_rule, add_extra_css
+from dom import set_css, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog, ajax_progress_dialog
 
 from book_list.globals import get_session_data, get_boss
+from book_list.cover_grid import cover_grid_css, create_item as create_cover_grid_item, init as init_cover_grid, append_item as cover_grid_append_item
 from widgets import create_button, create_spinner
-
-THUMBNAIL_MAX_WIDTH = 300
-THUMBNAIL_MAX_HEIGHT = 400
 
 bv_counter = 0
 
@@ -21,9 +19,8 @@ CLASS_NAME = 'books-main-list'
 
 def widget_css():
     ans = ''
-    sel = '.' + CLASS_NAME + ' '
-    ans += build_rule(sel + '.cover_grid > div:hover', transform='scale(1.2)')
-    ans += build_rule(sel + '.cover_grid > div:active', transform='scale(2.0)')
+    sel = f'.{CLASS_NAME} '
+    ans += cover_grid_css(sel)
     return ans
 add_extra_css(widget_css)
 
@@ -69,8 +66,9 @@ class BooksView:
             mode = 'cover_grid'
         self.mode = mode
         if mode is 'cover_grid':
-            self.render_book = self.cover_grid_item.bind(self)
-            self.init_grid = self.init_cover_grid.bind(self)
+            self.render_book = create_cover_grid_item
+            self.init_grid = init_cover_grid
+            self.append_item = cover_grid_append_item
         self.clear()
         self.render_ids()
 
@@ -97,13 +95,13 @@ class BooksView:
         c.removeChild(self.grid)
         c.insertBefore(E.div(), c.lastChild)
         self.shown_book_ids.clear()
-        self.init_grid()
+        self.init_grid(self.grid)
 
     def render_id(self, book_id):
         l = self.shown_book_ids.length
         self.shown_book_ids.add(book_id)
         if l < self.shown_book_ids.length:
-            return self.render_book(book_id)
+            return self.render_book(book_id, self.interface_data, self.show_book_details.bind(self, book_id))
 
     def render_ids(self, book_ids):
         book_ids = book_ids or self.interface_data['search_result']['book_ids']
@@ -111,7 +109,7 @@ class BooksView:
         for book_id in book_ids:
             child = self.render_id(book_id)
             if child is not None:
-                div.appendChild(self.render_book(book_id))
+                self.append_item(div, child)
 
     def update_fetching_status(self):
         c = self.container
@@ -158,47 +156,6 @@ class BooksView:
                 error_dialog(_('Could not get more books'), _('Server returned an invalid response'), traceback.format_exc())
         elif end_type is not 'abort':
             error_dialog(_('Could not get more books'), xhr.error_html)
-
-    # Cover grid {{{
-
-    def init_cover_grid(self):
-        div = self.grid
-        set_css(div, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow_x='hidden')
-        div.setAttribute('class', 'cover_grid')
-
-    def on_cover_grid_img_err(self, err):
-        img = err.target
-        div = img.parentNode
-        if not div:
-            return
-        clear(div)
-        div.appendChild(E.div(
-            style='position:relative; top:-50%; transform: translateY(50%)',
-            E.h2(img.getAttribute('data-title'), style='text-align:center; font-size:larger; font-weight: bold'),
-            E.div(_('by'), style='text-align: center'),
-            E.h2(img.getAttribute('data-authors'), style='text-align:center; font-size:larger; font-weight: bold')
-        ))
-        set_css(div, border='dashed 1px currentColor', border_radius='10px')
-
-    def cover_grid_item(self, book_id):
-        cover_url = 'get/thumb/{}/{}?sz={}x{}'.format(book_id, self.interface_data['library_id'], Math.ceil(THUMBNAIL_MAX_WIDTH*window.devicePixelRatio), Math.ceil(THUMBNAIL_MAX_HEIGHT*window.devicePixelRatio))
-        metadata = self.interface_data['metadata'][book_id]
-        alt = _('{} by {}').format(metadata['title'], metadata['authors'].join(' & '))
-        img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
-                    style='max-width: 100%; max-height: 100%; display: block; width:auto; height:auto; border-radius: 10px')
-        img.onerror = self.on_cover_grid_img_err.bind(self)
-
-        ans = E.div(
-            style=('margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around;'
-                    'width: 21vw; height: 28vw; max-width: {}px; max-height: {}px; min-width: {}px; min-height: {}px; cursor:pointer').format(
-                             THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH // 2, THUMBNAIL_MAX_HEIGHT // 2),
-            data_book_id=str(book_id),
-            img
-        )
-        ans.addEventListener('click', def(ev): self.show_book_details(book_id);)
-        return ans
-
-    # }}}
 
     def sort_panel_data(self, create_item):
         current_sorted_field = self.interface_data.search_result.sort.partition(',')[0]
