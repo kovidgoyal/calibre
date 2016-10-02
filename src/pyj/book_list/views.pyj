@@ -17,12 +17,10 @@ bv_counter = 0
 
 CLASS_NAME = 'books-main-list'
 
-def widget_css():
-    ans = ''
-    sel = f'.{CLASS_NAME} '
-    ans += cover_grid_css(sel)
+add_extra_css(def():
+    ans = cover_grid_css()
     return ans
-add_extra_css(widget_css)
+)
 
 class BooksView:
 

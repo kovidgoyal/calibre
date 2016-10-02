@@ -11,16 +11,25 @@ THUMBNAIL_MAX_HEIGHT = 400
 
 COVER_GRID = unique_id('cover-grid')
 
-def cover_grid_css(sel):
-    ans =  build_rule(f'{sel} #{COVER_GRID} > div:hover', transform='scale(1.2)')
-    ans += build_rule(f'{sel} #{COVER_GRID} > div:active', transform='scale(2)')
+def cover_grid_css():
+    sel = '#' + COVER_GRID
+    ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow='hidden')
+
+    sel += ' > div'
+    ans += build_rule(
+        sel, margin='10px', display='flex', align_content='flex-end', align_items='flex-end', justify_content='space-around',
+        width='21vw', height='28vw', max_width=THUMBNAIL_MAX_WIDTH+'px', max_height=THUMBNAIL_MAX_HEIGHT+'px', cursor='pointer',
+        min_width=f'{THUMBNAIL_MAX_WIDTH // 2}px', min_height=f'{THUMBNAIL_MAX_HEIGHT // 2}px')
+    ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
+    ans += build_rule(f'{sel}:active', transform='scale(2)')
+
+    sel += ' > img'
+    ans += build_rule(sel, max_width='100%', max_height='100%', display='block', width='auto', height='auto', border_radius='10px')
     return ans
 
 def init(container):
     clear(container)
-    div = E.div(id=COVER_GRID)
-    set_css(div, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow='hidden')
-    container.appendChild(div)
+    container.appendChild(E.div(id=COVER_GRID))
 
 def on_img_load_error(err):
     img = err.target
@@ -40,17 +49,10 @@ def create_item(book_id, interface_data, onclick):
     cover_url = 'get/thumb/{}/{}?sz={}x{}'.format(book_id, interface_data['library_id'], Math.ceil(THUMBNAIL_MAX_WIDTH*window.devicePixelRatio), Math.ceil(THUMBNAIL_MAX_HEIGHT*window.devicePixelRatio))
     metadata = interface_data['metadata'][book_id]
     alt = _('{} by {}').format(metadata['title'], metadata['authors'].join(' & '))
-    img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
-                style='max-width: 100%; max-height: 100%; display: block; width:auto; height:auto; border-radius: 10px')
+    img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '))
     img.onerror = on_img_load_error
 
-    ans = E.div(
-        style=('margin: 10px; display: flex; align-content: flex-end; align-items: flex-end; justify-content: space-around;'
-                'width: 21vw; height: 28vw; max-width: {}px; max-height: {}px; min-width: {}px; min-height: {}px; cursor:pointer').format(
-                            THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, THUMBNAIL_MAX_WIDTH // 2, THUMBNAIL_MAX_HEIGHT // 2),
-        data_book_id=str(book_id),
-        img
-    )
+    ans = E.div(img, data_book_id=str(book_id))
     ans.addEventListener('click', onclick)
     return ans
 
