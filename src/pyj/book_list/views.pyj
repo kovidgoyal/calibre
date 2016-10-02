@@ -163,7 +163,7 @@ class BooksView:
 
     def init_cover_grid(self):
         div = self.grid
-        set_css(div, display='flex', flex_wrap='wrap', justify_content='flex-start', align_items='flex-end', align_content='flex-start', user_select='none')
+        set_css(div, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow_x='hidden')
         div.setAttribute('class', 'cover_grid')
 
     def on_cover_grid_img_err(self, err):
