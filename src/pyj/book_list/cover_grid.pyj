@@ -22,9 +22,10 @@ def cover_grid_css():
         min_width=f'{THUMBNAIL_MAX_WIDTH // 2}px', min_height=f'{THUMBNAIL_MAX_HEIGHT // 2}px')
     ans += build_rule(f'{sel}:hover', transform='scale(1.2)')
     ans += build_rule(f'{sel}:active', transform='scale(2)')
+    ans += build_rule(sel + '.cover-grid-filler', height='0', max_height='0', min_height='0')
 
     # Container for cover failed to load message
-    ans += build_rule(sel + ' > div', position='relative', top='-50%', transform='translateY(50%)')
+    ans += build_rule(sel + ' > div', position='relative', top='-50%', transform='translateY(50%)', margin='0')
 
     # The actual cover
     sel += ' > img'
@@ -34,6 +35,8 @@ def cover_grid_css():
 def init(container):
     clear(container)
     container.appendChild(E.div(id=this))
+    for i in range(12):
+        container.lastChild.appendChild(E.div(class_='cover-grid-filler'))
 
 def on_img_load_error(err):
     img = err.target
@@ -60,5 +63,6 @@ def create_item(book_id, interface_data, onclick):
     return ans
 
 def append_item(container, item):
-    container.firstChild.appendChild(item)
+    first_filler = container.lastChild.querySelector('.cover-grid-filler')
+    container.lastChild.insertBefore(item, first_filler)
 
