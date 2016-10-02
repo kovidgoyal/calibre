@@ -2,17 +2,15 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
-from dom import clear, set_css, build_rule, unique_id
+from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
 THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
 
-COVER_GRID = unique_id('cover-grid')
-
 def cover_grid_css():
-    sel = '#' + COVER_GRID
+    sel = '#' + this
     ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow='hidden')
 
     sel += ' > div'
@@ -29,7 +27,7 @@ def cover_grid_css():
 
 def init(container):
     clear(container)
-    container.appendChild(E.div(id=COVER_GRID))
+    container.appendChild(E.div(id=this))
 
 def on_img_load_error(err):
     img = err.target

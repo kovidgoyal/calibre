@@ -4,7 +4,7 @@ from __python__ import hash_literals
 
 import traceback
 from ajax import ajax_send
-from dom import set_css, add_extra_css
+from dom import set_css, add_extra_css, unique_id
 from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog, ajax_progress_dialog
@@ -16,9 +16,10 @@ from widgets import create_button, create_spinner
 bv_counter = 0
 
 CLASS_NAME = 'books-main-list'
+COVER_GRID = unique_id('cover-grid')
 
 add_extra_css(def():
-    ans = cover_grid_css()
+    ans = cover_grid_css.call(COVER_GRID)
     return ans
 )
 
@@ -65,7 +66,7 @@ class BooksView:
         self.mode = mode
         if mode is 'cover_grid':
             self.render_book = create_cover_grid_item
-            self.init_grid = init_cover_grid
+            self.init_grid = init_cover_grid.bind(COVER_GRID)
             self.append_item = cover_grid_append_item
         self.clear()
         self.render_ids()
