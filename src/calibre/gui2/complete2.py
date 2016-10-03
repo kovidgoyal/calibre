@@ -211,7 +211,10 @@ class Completer(QListView):  # {{{
         # self.debug_event(e)
 
         if etype == e.KeyPress:
-            key = e.key()
+            try:
+                key = e.key()
+            except AttributeError:
+                return QObject.eventFilter(self, obj, e)
             if key == Qt.Key_Escape:
                 self.hide()
                 e.accept()
