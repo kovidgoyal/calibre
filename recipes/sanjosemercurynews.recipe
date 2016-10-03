@@ -28,19 +28,16 @@ class MercuryNews(BasicNewsRecipe):
     }
 
     keep_only_tags = [
-        dict(name='h1', attrs={'id': 'articleTitle'}), dict(
-            name='div', attrs={'id': 'articleBody'})
-    ]
-    remove_tags = [
-        dict(name='div', attrs={'class': 'articleEmbeddedAdBox'}), dict(name=[
-            'link', 'iframe', 'object']), dict(name='div', attrs={'id': 'articleViewerGroup'})
+        dict(name='h1'),
+        dict(attrs={'class':['byline', 'time', 'article-body']}),
+        dict(attrs={'class':lambda x: x and 'header-features' in x.split()}),
     ]
 
     feeds = [
-
-    (u'News', u'http://feeds.mercurynews.com/mngi/rss/CustomRssServlet/568/200735.xml'),
-    (u'Politics', u'http://feeds.mercurynews.com/mngi/rss/CustomRssServlet/568/200740.xml'),
-    (u'Local News', u'http://feeds.mercurynews.com/mngi/rss/CustomRssServlet/568/200748.xml'),
-    (u'Editorials', u'http://feeds.mercurynews.com/mngi/rss/CustomRssServlet/568/200766.xml'),
-    (u'Opinion', u'http://feeds.mercurynews.com/mngi/rss/CustomRssServlet/568/200224.xml')
+        ('News', 'http://www.mercurynews.com/feed/')
     ]
+
+    def preprocess_html(self, soup, *a):
+        for img in soup.findAll(name='img', attrs={'data-src':True}):
+            img['src'] = img['data-src']
+        return soup
