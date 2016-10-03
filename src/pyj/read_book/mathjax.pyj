@@ -8,7 +8,7 @@ def get_url(mathjax_files, name):
     ans = mathjax_files[name]
     if not ans:
         return name
-    if type(ans) is not 'string':
+    if jstype(ans) is not 'string':
         ans = mathjax_files[name] = window.URL.createObjectURL(ans)
     return ans
 

@@ -223,7 +223,7 @@ class PrefsPanel:
                 cls = Choices
             elif val is True or val is False:
                 cls = CheckBox
-            elif type(val) is 'number':
+            elif jstype(val) is 'number':
                 cls = SpinBox
             else:
                 cls = LineEdit

@@ -224,7 +224,7 @@ def scroll_to_column(number, animated=False, notify=False, duration=1000):
 def scroll_to_xpos(xpos, animated=False, notify=False, duration=1000):
     # Scroll so that the column containing xpos is the left most column in
     # the viewport
-    if type(xpos) is not 'number':
+    if jstype(xpos) is not 'number':
         print(xpos, 'is not a number, cannot scroll to it!')
         return
     if is_full_screen_layout:

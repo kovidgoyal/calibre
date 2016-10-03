@@ -95,7 +95,7 @@ class CompletionPopup:
         self.applied_query = ''
 
     def add_associated_widget(self, widget_or_id):
-        if type(widget_or_id) is not 'string':
+        if jstype(widget_or_id) is not 'string':
             widget_or_id = ensure_id(widget_or_id)
         self.associated_widget_ids.add(widget_or_id)
 

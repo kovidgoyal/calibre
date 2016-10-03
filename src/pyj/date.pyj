@@ -106,7 +106,7 @@ def test_fd(date, fmt, ans):
 def format_date(date=None, fmt='dd MMM yyyy', as_utc=False):
     fmt = fmt or 'dd MMM yyyy'
     ampm = 'ap' in fmt.toLowerCase()
-    if type(date) is 'string':
+    if jstype(date) is 'string':
         date = Date(date)
     date = date or Date()
     if is_date_undefined(date):

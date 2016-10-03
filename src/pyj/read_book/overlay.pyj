@@ -282,7 +282,7 @@ class Overlay:
         return document.getElementById('book-overlay')
 
     def container_clicked(self, evt):
-        if self.panels.length and type(self.panels[-1].on_container_click) is 'function':
+        if self.panels.length and jstype(self.panels[-1].on_container_click) is 'function':
             self.panels[-1].on_container_click(evt)
         else:
             self.hide_current_panel()

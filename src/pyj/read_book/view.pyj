@@ -242,7 +242,7 @@ class View:
                 snum = int(snum)
             except Exception:
                 print('Invalid spine number in CFI:', snum)
-            if type(snum) == 'number':
+            if jstype(snum) == 'number':
                 name = book.manifest.spine[(int(snum) // 2) - 1] or name
                 pos.type, pos.cfi = 'cfi', '/' + rest
         self.show_name(name, initial_position=pos)

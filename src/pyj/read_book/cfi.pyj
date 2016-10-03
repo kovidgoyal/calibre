@@ -134,7 +134,7 @@ def encode(doc, node, offset, tail):  # {{{
 
     # Handle the offset, if any
     if node.nodeType is Node.ELEMENT_NODE:
-        if type(offset) is 'number':
+        if jstype(offset) is 'number':
             node = node.childNodes.item(offset)
     elif Node.TEXT_NODE <= node.nodeType <= Node.ENTITY_NODE:
         offset = offset or 0
@@ -388,7 +388,7 @@ def point(cfi, doc):  # {{{
     y = None
     range_ = None
 
-    if type(r.offset) is "number":
+    if jstype(r.offset) is "number":
         # Character offset
         range_ = ndoc.createRange()
         if r.forward:
@@ -435,7 +435,7 @@ def scroll_to(cfi, callback, doc):  # {{{
     if not point_:
         print("No point found for cfi: " + cfi)
         return
-    if type(point_.time) is 'number':
+    if jstype(point_.time) is 'number':
         set_current_time(point_.node, point_.time)
 
     if point_.range is not None:
@@ -486,9 +486,9 @@ def scroll_to(cfi, callback, doc):  # {{{
         fn = def():
             r = node.getBoundingClientRect()
             x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
-            if type(point_.x) is 'number' and node.offsetWidth:
+            if jstype(point_.x) is 'number' and node.offsetWidth:
                 x += (point_.x*node.offsetWidth)/100
-            if type(point_.y) is 'number' and node.offsetHeight:
+            if jstype(point_.y) is 'number' and node.offsetHeight:
                 y += (point_.y*node.offsetHeight)/100
             window.scrollTo(x, y)
             if callback:
@@ -526,9 +526,9 @@ def at_point(ox, oy):  # {{{
             node = p.node
             r = node.getBoundingClientRect()
             x, y = viewport_to_document(r.left, r.top, node.ownerDocument)
-            if type(p.x) is 'number' and node.offsetWidth:
+            if jstype(p.x) is 'number' and node.offsetWidth:
                 x += (p.x*node.offsetWidth)/100
-            if type(p.y) is 'number' and node.offsetHeight:
+            if jstype(p.y) is 'number' and node.offsetHeight:
                 y += (p.y*node.offsetHeight)/100
 
         if dist(viewport_to_document(ox, oy), v'[x, y]') > 50:

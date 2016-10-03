@@ -21,7 +21,7 @@ def base64encode(bytes):
 
 def base64decode(string):
     # convert the output of base64encode back into an array of bytes (Uint8Array)
-    if type(window) is not 'undefined':
+    if jstype(window) is not 'undefined':
         chars = window.atob(string)
     else:
         chars = new Buffer(string, 'base64').toString('binary')  # noqa: undef
@@ -106,7 +106,7 @@ def utf8_encode_js(string):
             ans.push(ch.charCodeAt(0))
     return Uint8Array(ans)
 
-if type(TextEncoder) is 'function':
+if jstype(TextEncoder) is 'function':
     _u8enc = TextEncoder('utf-8')
     utf8_encode = _u8enc.encode.bind(_u8enc)
     _u8enc = undefined

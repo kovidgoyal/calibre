@@ -136,7 +136,7 @@ class ReadUI:
         self.current_metadata = metadata or {'title':_('Book id #') + book_id}
         get_boss().update_window_title()
         self.init_ui()
-        if type(self.db) is 'string':
+        if jstype(self.db) is 'string':
             self.show_error(_('Cannot read book'), self.db)
             return
         self.db.get_book(book_id, fmt, metadata, self.got_book.bind(self, force_reload))

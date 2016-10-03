@@ -74,7 +74,7 @@ def _expand(groups, repl, group_name_map):
             return String.fromCharCode(_ASCII_CONTROL_CHARS[q])
         if '0' <= q <= '9':
             ans = read_digits(Number.MAX_VALUE, _NUM_PAT, 10, Number.MAX_VALUE, q)
-            if type(ans) is 'number':
+            if jstype(ans) is 'number':
                 return groups[ans] or ''
             return '\\' + ans
         if q is 'g':
@@ -89,17 +89,17 @@ def _expand(groups, repl, group_name_map):
                 return groups[gn] or ''
         if q is 'x':
             code = read_digits(2, _HEX_PAT, 16, 0x10FFFF)
-            if type(code) is 'number':
+            if jstype(code) is 'number':
                 return String.fromCharCode(code)
             return '\\x' + code
         if q is 'u':
             code = read_digits(4, _HEX_PAT, 16, 0x10FFFF)
-            if type(code) is 'number':
+            if jstype(code) is 'number':
                 return String.fromCharCode(code)
             return '\\u' + code
         if q is 'U':
             code = read_digits(8, _HEX_PAT, 16, 0x10FFFF)
-            if type(code) is 'number':
+            if jstype(code) is 'number':
                 if code <= 0xFFFF:
                     return String.fromCharCode(code)
                 code -= 0x10000
@@ -265,7 +265,7 @@ class MatchObject:
         return ans
 
     def _group_number(self, g):
-        if type(g) is 'number':
+        if jstype(g) is 'number':
             return g
         if has_prop(self.re.group_name_map, g):
             return self.re.group_name_map[g][-1]
@@ -273,7 +273,7 @@ class MatchObject:
 
     def _group_val(self, q, defval):
         val = undefined
-        if type(q) is 'number' and -1 < q < self._groups.length:
+        if jstype(q) is 'number' and -1 < q < self._groups.length:
             val = self._groups[q]
         else:
             if has_prop(self.re.group_name_map, q):
@@ -400,7 +400,7 @@ class RegexObject:
 
     def subn(self, repl, string, count=0):
         expand = _expand
-        if type(repl) is 'function':
+        if jstype(repl) is 'function':
             expand = def(m, repl, gnm): return '' + repl(MatchObject(self, m, 0, None))
         this._pattern.lastIndex = 0
         num = 0

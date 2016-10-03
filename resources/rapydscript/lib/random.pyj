@@ -30,10 +30,10 @@
             ρσ_seed_state.key[ρσ_seed_state.key_j]) % 256]
 
 def seed(x=Date().getTime()):
-    if type(x) is 'number':
+    if jstype(x) is 'number':
         x = x.toString()
-    elif type(x) is not 'string':
-        raise TypeError("unhashable type: '" + type(x) + "'")
+    elif jstype(x) is not 'string':
+        raise TypeError("unhashable type: '" + jstype(x) + "'")
     for i in range(256):
         ρσ_seed_state.key[i] = i
     j = 0

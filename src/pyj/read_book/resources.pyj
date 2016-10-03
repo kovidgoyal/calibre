@@ -34,7 +34,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
             return setTimeout(do_one, 0)
         if previous_resources[name]:
             ans[name] = data = previous_resources[name]
-            if type(data[0]) is 'string':
+            if jstype(data[0]) is 'string':
                 find_virtualized_resources(data[0])
             return setTimeout(do_one, 0)
         db.get_file(book, name, got_one)
@@ -44,7 +44,7 @@ def load_resources(db, book, root_name, previous_resources, proceed):
             # Enable to have cover image not preserve aspect ratio
             data = data.replace('width: auto', 'width: 100%')
         ans[name] = v'[data, mimetype]'
-        if type(data) is 'string':
+        if jstype(data) is 'string':
             find_virtualized_resources(data)
         return setTimeout(do_one, 0)
 
@@ -88,7 +88,7 @@ def finalize_resources(book, root_name, resource_data):
     # Resolve the non virtualized resources immediately
     for name in resource_data:
         data, mimetype = resource_data[name]
-        if type(data) is not 'string':
+        if jstype(data) is not 'string':
             blob_url_map[name] = window.URL.createObjectURL(data)
     for name in blob_url_map:
         v'delete resource_data[name]'
