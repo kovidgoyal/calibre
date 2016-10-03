@@ -1217,7 +1217,7 @@ class Plugins(PreferencesPlugin):
 
 class Tweaks(PreferencesPlugin):
     name = 'Tweaks'
-    icon = I('drawer.png')
+    icon = I('tweaks.png')
     gui_name = _('Tweaks')
     category = 'Advanced'
     gui_category = _('Advanced')
