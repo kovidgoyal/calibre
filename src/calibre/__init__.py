@@ -368,9 +368,9 @@ def get_proxy_info(proxy_scheme, proxy_string):
         return None
     return ans
 
-USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.2.13) Gecko/20101210 Gentoo Firefox/3.6.13'
+# IE 11 on windows 7
+USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
-
 
 def random_user_agent(choose=None):
     try:
