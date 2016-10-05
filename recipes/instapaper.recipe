@@ -30,6 +30,7 @@ class AdvancedUserRecipe1299694372(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'evernote_confirm'}),
         dict(name='div', attrs={'id': 'controlbar_container'}),
         dict(name='div', attrs={'id': 'footer'}),
+        dict(name='div', attrs={'id': 'speedRead'}),
         dict(name='label')
     ]
     use_embedded_content = False
