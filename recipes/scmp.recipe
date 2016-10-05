@@ -5,6 +5,12 @@ scmp.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={
+        'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class SCMP(BasicNewsRecipe):
     title = 'South China Morning Post'
     __author__ = 'llam'
@@ -15,13 +21,20 @@ class SCMP(BasicNewsRecipe):
     max_articles_per_feed = 200
     no_stylesheets = True
     encoding = 'utf-8'
-    auto_cleanup = True
     use_embedded_content = False
     language = 'en_CN'
     remove_empty_feeds = True
     needs_subscription = 'optional'
     publication_type = 'newspaper'
-    masthead_url = 'http://www.scmp.com/images/logo_scmp_home.gif'
+
+    keep_only_tags = [
+        dict(name='h1'),
+        classes('field-name-field-subheading scmp-gallery-swiper pane-node-body field-name-field-authors'),
+        dict(itemprop='dateCreated dateModified'.split()),
+    ]
+    remove_tags = [
+        dict(name='button')
+    ]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
@@ -45,3 +58,8 @@ class SCMP(BasicNewsRecipe):
         (u'LifeSTYLE', u'http://www.scmp.com/rss/lifestyle.xml'),
         (u'Sport', u'http://www.scmp.com/rss/sport.xml')
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll("img", attrs={'data-original':True}):
+            img['src'] = img['data-original']
+        return soup
