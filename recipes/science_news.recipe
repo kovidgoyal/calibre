@@ -19,64 +19,19 @@ class ScienceNewsIssue(BasicNewsRecipe):
     the last 30 days worth of articles.'''
     category = u'Science, Technology, News'
     publisher = u'Society for Science & the Public'
-    oldest_article = 30
+    oldest_article = 15
     language = 'en'
-    max_articles_per_feed = 100
+    max_articles_per_feed = 50
     no_stylesheets = True
     use_embedded_content = False
     timefmt = ' [%A, %d %B, %Y]'
-    recursions = 1
-    remove_attributes = ['style']
+    auto_cleanup = False
 
-    conversion_options = {'linearize_tables': True, 'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-                          }
-
-    extra_css = '''
-                .content_description{font-family:georgia ;font-size:x-large; color:#646464 ; font-weight:bold;}
-                .content_summary{font-family:georgia ;font-size:small ;color:#585858 ; font-weight:bold;}
-                .content_authors{font-family:helvetica,arial ;font-size: xx-small ;color:#14487E ;}
-                .content_edition{font-family:helvetica,arial ;font-size: xx-small ;}
-                .exclusive{color:#FF0000 ;}
-                .anonymous{color:#14487E ;}
-                .content_content{font-family:helvetica,arial ;font-size: medium ; color:#000000;}
-                .description{color:#585858;font-family:helvetica,arial ;font-size: large ;}
-                .credit{color:#A6A6A6;font-family:helvetica,arial ;font-size: xx-small ;}
-                '''
-
-    keep_only_tags = [dict(name='div', attrs={'class': 'content_content'}),
-                      dict(name='ul', attrs={'id': 'toc'})
-                      ]
-
-    remove_tags = [dict(name='a', attrs={'class': 'enlarge print-no'}),
-                   dict(name='a', attrs={'rel': 'shadowbox'})
-                   ]
-
-    feeds = [(u"Science News Current Issues",
-              u'http://www.sciencenews.org/view/feed/type/edition/name/issues.rss')]
-
-    match_regexps = [
-        r'www.sciencenews.org/view/feature/id/',
-        r'www.sciencenews.org/view/generic/id'
+    keep_only_tags = [
+        dict(name="h1", attrs={'itemprop': 'headline'}),
+        dict(name="div", attrs={'property': 'rnews:articlebody schema:articleBody'}),
+        dict(name="div", attrs={'itemprop': 'author'}),
     ]
 
-    def image_url_processor(self, baseurl, url):
-        x = url.split('/')
-        if x[4] == u'scale':
-            url = u'http://www.sciencenews.org/view/download/id/' + \
-                x[6] + u'/name/' + x[-1]
-        return url
-
-    def get_cover_url(self):
-        cover_url = None
-        index = 'http://www.sciencenews.org/view/home'
-        soup = self.index_to_soup(index)
-        link_item = soup.find(name='img', alt="issue")
-        if link_item:
-            cover_url = 'http://www.sciencenews.org' + \
-                link_item['src'] + '.jpg'
-        return cover_url
-
-    def preprocess_html(self, soup):
-        for tag in soup.findAll(name=['span']):
-            tag.name = 'div'
-        return soup
+    feeds = [(u"Science News Headlines",
+              u'https://www.sciencenews.org/feeds/headlines.rss')]
