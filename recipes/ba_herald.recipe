@@ -43,7 +43,6 @@ class BuenosAiresHerald(BasicNewsRecipe):
     (u'Argentina', u'http://www.buenosairesherald.com/argentina'),
     (u'World', u'http://www.buenosairesherald.com/world'),
     (u'Latin America', u'http://www.buenosairesherald.com/latin-america'),
-    (u'Entertainment', u'http://www.buenosairesherald.com/entertainment'),
     (u'Sports', u'http://www.buenosairesherald.com/sports')
     ]
 
