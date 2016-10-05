@@ -1,0 +1,34 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# https://manual.calibre-ebook.com/news_recipe.html
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+'''
+Dagens Medicin
+'''
+
+
+class Dagensmedicin_dk(BasicNewsRecipe):
+    __author__            = 'CoderAllan.github.com'
+    title                 = 'Dagens Medicin'
+    description           = 'Uafhængig nyhedsavis om sundhedssektoren'
+    category              = 'news, medicin, healthcare, Denmark'
+    oldest_article        = 7
+    max_articles_per_feed = 50
+    auto_cleanup          = True
+    language              = 'da'
+
+    # Feed are found here: http://dagensmedicin.dk/feeds
+    feeds = [
+        ('Dagens Medicin', 'http://dagensmedicin.dk/feed/'),
+        ('Leder', 'http://dagensmedicin.dk/sektion/opinion/leder/rss'),
+        ('Kommentarer til Dagens Medicin', 'http://dagensmedicin.dk/comments/feed/'),
+        ('Almen Praksis ', 'http://dagensmedicin.dk/sektion/almen-praksis/rss'),
+        ('Cancer', 'http://dagensmedicin.dk/sektion/cancer/rss'),
+        ('Hjerte-kar', 'http://dagensmedicin.dk/sektion/hjerte-kar/rss'),
+        ('Psykiatri', 'http://dagensmedicin.dk/sektion/psykiatri/rss'),
+        ('Diabetes', 'http://dagensmedicin.dk/sektion/diabetes/rss'),
+        ('Debat', 'http://dagensmedicin.dk/sektion/opinion/debat/rss'),
+        ('Blogs', 'http://dagensmedicin.dk/sektion/opinion/blogs/rss'),
+        ('Stikpillen', 'http://dagensmedicin.dk/sektion/opinion/stikpillen/rss'),
+    ]
