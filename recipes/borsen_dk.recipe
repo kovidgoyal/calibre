@@ -1,0 +1,40 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# https://manual.calibre-ebook.com/news_recipe.html
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+'''
+Børsen.dk
+'''
+
+
+class Borsen_dk(BasicNewsRecipe):
+    __author__            = 'CoderAllan.github.com'
+    title                 = 'Børsen.dk'
+    description           = ('Meget mere end Danmarks førende erhvervsavis. Børsen sætter dagsordenen for erhvervslivet.'
+                             ' Vi skriver interessant og med kant. På alle platforme.')
+    category              = 'newspaper, news, finance, politics, economy, sport, Denmark'
+    oldest_article        = 7
+    max_articles_per_feed = 50
+    auto_cleanup          = False
+    language              = 'da'
+
+    keep_only_tags = [
+        dict(name="h1", attrs={'itemprop': 'headline'}),
+        dict(name="div", attrs={'itemprob': 'datePublished'}),
+        dict(name="div", attrs={'itemprop': 'articleBody'}),
+    ]
+
+    # Feed are found here:
+    # http://borsen.dk/kundeservice/smartphone_tablet_og_rss/rss-feeds.html
+    feeds = [
+        ('Nyheder', 'http://borsen.dk/rss/'),
+        ('Breaking news feed', 'http://borsen.dk/rss/breaking'),
+        ('Penge', 'http://borsen.dk/rss/penge/'),
+        ('Topnyheder', 'http://borsen.dk/rss/topnyheder/'),
+        ('Privat økonomi', 'http://borsen.dk/rss/privatoekonomi/'),
+        ('Økonomi', 'http://borsen.dk/rss/oekonomi/'),
+        ('Politik', 'http://borsen.dk/rss/politik/'),
+        ('Finans', 'http://finans.borsen.dk/rss/'),
+        ('Sport', 'http://borsen.dk/rss/sport/'),
+    ]

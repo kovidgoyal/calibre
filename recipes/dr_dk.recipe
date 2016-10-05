@@ -6,22 +6,36 @@ from calibre.web.feeds.news import BasicNewsRecipe
 __license__ = 'GPL v3'
 __copyright__ = '2010, Darko Miletic <darko.miletic at gmail.com>'
 '''
-dr.dk
+DR.dk
 '''
 
 class DRNyheder(BasicNewsRecipe):
-    title = 'DR Nyheder'
-    __author__ = 'Darko Miletic'
-    publisher = 'DR Nyheder'
-    category = 'news, politics, money, culture, sport, science, Denmark'
-    oldest_article = 2
+    title                 = 'DR Nyheder'
+    __author__            = 'Darko Miletic'
+    publisher             = 'DR Nyheder'
+    description           = 'Her finder du nyheder fra DR og alle vores TV og Radio kanaler live og on demand - når du har lyst.'
+    category              = 'news, politics, money, culture, sport, science, Denmark'
+    oldest_article        = 2
     max_articles_per_feed = 50
-    no_stylesheets = True
-    encoding = 'utf8'
-    use_embedded_content = False
-    language = 'da'
+    no_stylesheets        = True
+    encoding              = 'utf8'
+    use_embedded_content  = False
+    language              = 'da'
+    auto_cleanup          = False
 
-    # All feeds are found here: http://www.dr.dk/nyheder/dr-nyheder-som-rss-feed
+    keep_only_tags = [
+        dict(name="h1", attrs={'id': 'access-content'}),
+        dict(name="p", attrs={'class': 'summary'}),
+        dict(name="span", attrs={'itemprop': 'datePublished'}),
+        dict(name="div", attrs={'class': 'wcms-article-content'}),
+    ]
+
+    remove_tags = [
+        dict(name='menu', attrs={'class': 'share'}),
+        dict(name='menu', attrs={'class': 'dr-site-share-horizontal'}),
+    ]
+
+    # Feed are found here: http://www.dr.dk/nyheder/dr-nyheder-som-rss-feed
     feeds          = [
         ('Indland', 'http://www.dr.dk/nyheder/service/feeds/indland'),
         ('Udland', 'http://www.dr.dk/nyheder/service/feeds/udland'),
@@ -40,3 +54,4 @@ class DRNyheder(BasicNewsRecipe):
         ('DR Sjælland', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/sjaelland/'),
         ('DR Østjylland', 'http://www.dr.dk/Nyheder/Service/feeds/regionale/oestjylland/'),
     ]
+

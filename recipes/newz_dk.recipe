@@ -1,0 +1,38 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# https://manual.calibre-ebook.com/news_recipe.html
+from __future__ import unicode_literals, division, absolute_import, print_function
+from calibre.web.feeds.news import BasicNewsRecipe
+'''
+newz.dk
+'''
+
+
+class Newz_dk(BasicNewsRecipe):
+    __author__ = 'CoderAllan.github.com'
+    title = 'newz.dk'
+    description = 'Nyheder for rigtige nørder'
+    category = 'newspaper, news, localnews, sport, culture, Denmark'
+    oldest_article = 7
+    max_articles_per_feed = 50
+    auto_cleanup = True
+    language = 'da'
+
+    # Feed are found here: https://newz.dk/feeds
+    feeds = [
+        ('Newz', 'https://newz.dk/rss'),
+        ('Forums', 'https://newz.dk/forum/rss'),
+        ('Artikler', 'https://newz.dk/forum/artikler/rss'),
+        ('Afstemninger', 'https://newz.dk/forum/afstemninger/rss'),
+        ('Tagwall', 'https://newz.dk/forum/tagwall/rss'),
+        ('Hardware', 'https://newz.dk/forum/hardware/rss'),
+        ('Software', 'https://newz.dk/forum/software/rss'),
+        ('Programmering', 'https://newz.dk/forum/programmering/rss'),
+        ('Support', 'https://newz.dk/forum/support/rss'),
+        ('Køb / Salg', 'https://newz.dk/forum/koeb-salg/rss'),
+        ('Jobs', 'https://newz.dk/forum/jobs/rss'),
+        ('Demo /LAN-parties', 'https://newz.dk/forum/demo-lan-parties/rss'),
+        ('Folding@Home', 'https://newz.dk/forum/folding-home/rss'),
+        ('Gallerier', 'https://newz.dk/forum/gallerier/rss'),
+        ('news.dk', 'https://newz.dk/forum/newz-dk/rss'),
+    ]
