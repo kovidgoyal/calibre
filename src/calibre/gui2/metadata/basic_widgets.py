@@ -1275,7 +1275,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
     def __init__(self, parent):
         EditWithComplete.__init__(self, parent)
-        self.lineEdit().setMaxLength(65536)  # see https://bugs.launchpad.net/bugs/1569388
+        self.lineEdit().setMaxLength(655360)  # see https://bugs.launchpad.net/bugs/1630944
         self.books_to_refresh = set([])
         self.setToolTip(self.TOOLTIP)
         self.setWhatsThis(self.TOOLTIP)
