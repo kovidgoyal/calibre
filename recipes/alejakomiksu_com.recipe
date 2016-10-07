@@ -10,8 +10,6 @@ class AlejaKomiksu(BasicNewsRecipe):
     category = 'comics'
     language = 'pl'
     extra_css = 'ul {list-style-type: none;} .gfx_news {float: right;}'
-    preprocess_regexps = [(re.compile(ur'((<li class="no_img_b">(Do poczytania)|(Nowości):</li>)|(<p class="head2">Komentarze</p>)).*</body>',
-                                      re.DOTALL | re.IGNORECASE), lambda match: '</body>')]
     cover_url = 'http://www.alejakomiksu.com/gfx/build/logo.png'
     masthead_url = 'http://www.alejakomiksu.com/gfx/build/logo.png'
     use_embedded_content = False
@@ -23,7 +21,7 @@ class AlejaKomiksu(BasicNewsRecipe):
     remove_attributes = ['style', 'font']
     ignore_duplicate_articles = {'title', 'url'}
 
-    keep_only_tags = [dict(attrs={'class': 'cont_tresc'})]
+    keep_only_tags = dict(attrs={'class': ['akNews__header','akNews__body']})
 
     feeds = [(u'Wiadomości', 'http://www.alejakomiksu.com/rss.php5')]
 
