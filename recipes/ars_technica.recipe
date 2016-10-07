@@ -44,19 +44,26 @@ class ArsTechnica(BasicNewsRecipe):
     ]
     remove_attributes = ['lang', 'style']
 
+    # Feed are found here: http://arstechnica.com/rss-feeds/
     feeds = [
-        (u'Ars Features (All our long-form feature articles)', u'http://feeds.arstechnica.com/arstechnica/features'),
-        (u'Technology Lab (Information Technology)', u'http://feeds.arstechnica.com/arstechnica/technology-lab'),
-        (u'Gear & Gadgets', u'http://feeds.arstechnica.com/arstechnica/gadgets'),
-        (u'Ministry of Innovation (Business of Technology)', u'http://feeds.arstechnica.com/arstechnica/business'),
-        (u'Risk Assessment (Security & Hacktivism)', u'http://feeds.arstechnica.com/arstechnica/security'),
-        (u'Law & Disorder (Civilizations & Discontents)', u'http://feeds.arstechnica.com/arstechnica/tech-policy'),
-        (u'Infinite Loop (Apple Ecosystem)', u'http://feeds.arstechnica.com/arstechnica/apple'),
-        (u'Opposable Thumbs (Gaming & Entertainment)', u'http://feeds.arstechnica.com/arstechnica/gaming'),
-        (u'Scientific Method (Science & Exploration)', u'http://feeds.arstechnica.com/arstechnica/science'),
-        (u'Multiverse (Exploratoins & Meditations on Sci-Fi)', u'http://feeds.arstechnica.com/arstechnica/multiverse'),
-        (u'Cars Technica (All Things Automotive)', u'http://feeds.arstechnica.com/arstechnica/cars'),
-        (u'Staff Blogs (From the Minds of Ars)', u'http://feeds.arstechnica.com/arstechnica/staff-blogs')
+        ('Ars Technica', 'http://feeds.arstechnica.com/arstechnica/index'),
+        ('Features', 'http://feeds.arstechnica.com/arstechnica/features'),
+        ('Technology Lab', 'http://feeds.arstechnica.com/arstechnica/technology-lab'),
+        ('Gear &amp; Gadgets', 'http://feeds.arstechnica.com/arstechnica/gadgets'),
+        ('Ministry of Innovation', 'http://feeds.arstechnica.com/arstechnica/business'),
+        ('Risk Assessment', 'http://feeds.arstechnica.com/arstechnica/security'),
+        ('Law &amp; Disorder', 'http://feeds.arstechnica.com/arstechnica/tech-policy'),
+        ('Infinite Loop', 'http://feeds.arstechnica.com/arstechnica/apple'),
+        ('Opposable Thumbs', 'http://feeds.arstechnica.com/arstechnica/gaming'),
+        ('Scientific Method', 'http://feeds.arstechnica.com/arstechnica/science'),
+        ('The Multiverse', 'http://feeds.arstechnica.com/arstechnica/multiverse'),
+        ('Cars Technica', 'http://feeds.arstechnica.com/arstechnica/cars'),
+        ('Staff', 'http://feeds.arstechnica.com/arstechnica/staff-blogs'),
+        ('Open Source', 'http://feeds.arstechnica.com/arstechnica/open-source'),
+        ('microsoft', 'http://feeds.arstechnica.com/arstechnica/microsoft'),
+        ('software', 'http://feeds.arstechnica.com/arstechnica/software'),
+        ('telecom', 'http://feeds.arstechnica.com/arstechnica/telecom'),
+        ('Internet', 'http://feeds.arstechnica.com/arstechnica/web'),
     ]
 
     def append_page(self, soup, appendtag, position):
