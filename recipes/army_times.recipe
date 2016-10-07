@@ -26,14 +26,13 @@ class ArmyTimes(BasicNewsRecipe):
     auto_cleanup = True
 
     feeds = [
-
-        ('News',   'http://www.armytimes.com/rss_news.php'),
-        ('Benefits',   'http://www.armytimes.com/rss_benefits.php'),
-        ('Money',   'http://www.armytimes.com/rss_money.php'),
-        ('Careers & Education',  'http://www.armytimes.com/rss_careers.php'),
-        ('Community',  'http://www.armytimes.com/rss_community.php'),
-        ('Off Duty',   'http://www.armytimes.com/rss_off_duty.php'),
-        ('Entertainment',  'http://www.armytimes.com/rss_entertainment.php'),
-        ('Guard & Reserve',  'http://www.armytimes.com/rss_guard.php'),
-
+        ('Home', 'http://feeds.feedburner.com/rss/category/arm-home?format=xml'),
+        ('Education', 'http://feeds.feedburner.com/rss/category/arm-education?format=xml'),
+        ('Careers', 'http://feeds.feedburner.com/rss/category/arm-careers?format=xml'),
+        ('Adventure', 'http://feeds.feedburner.com/rss/category/arm-Adventure?format=xml'),
+        ('Entertainment', 'http://feeds.feedburner.com/rss/category/arm-entertainment?format=xml'),
+        ('Technology', 'http://feeds.feedburner.com/rss/category/arm-technology?format=xml'),
+        ('Reserve', 'http://feeds.feedburner.com/rss/category/arm-reserve?format=xml'),
+        ('Opinion', 'http://feeds.feedburner.com/rss/category/arm-opinion?format=xml'),
+        ('Pay', 'http://feeds.feedburner.com/rss/category/arm-pay?format=xml'),
     ]

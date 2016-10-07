@@ -44,7 +44,7 @@ class AlJazeera(BasicNewsRecipe):
     ]
 
     feeds = [(u'Al Jazeera English',
-              u'http://english.aljazeera.net/Services/Rss/?PostingId=2007731105943979989')]
+              u'http://www.aljazeera.com/xml/rss/all.xml')]
 
     def get_article_url(self, article):
         artlurl = article.get('link',  None)

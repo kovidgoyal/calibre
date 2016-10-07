@@ -43,24 +43,17 @@ class WiredDailyNews(BasicNewsRecipe):
     ]
 
     feeds = [
-
-    (u'Top Stories', u'http://feeds.wired.com/wired/index'),
-    (u'Product reviews', u'http://feeds.wired.com/WiredReviews'),
-    (u'Autopia', u'http://feeds.wired.com/wiredautopia'),
-    (u'Business', u'http://feeds.wired.com/wiredbusinessblog'),
-    (u'Danger Room', u'http://feeds.wired.com/WiredDangerRoom'),
-    (u'Gadget Lab', u'http://feeds.wired.com/GearFactor'),
-    (u'Game Life', u'http://feeds.wired.com/Gamelife'),
-    (u'GeekMom', u'http://feeds.wired.com/wiredgeekmom/'),
-    (u'Innovation Insights', u'http://feeds.wired.com/wiredinsights'),
-    (u'Opinion', u'http://feeds.wired.com/wiredopinion/'),
-    (u'Playbook', u'http://feeds.wired.com/wiredplaybook/'),
-    (u'This day in Tech', u'http://feeds.wired.com/ThisDayInTech'),
-    (u'Threat level', u'http://feeds.wired.com/wired27b'),
-    (u'Design', u'http://feeds.wired.com/wired/design'),
-    (u'Underwire', u'http://feeds.wired.com/wiredunderwire'),
-    (u'Enterprise', u'http://feeds.wired.com/wiredenterprise/'),
-    (u'Science', u'http://feeds.wired.com/wiredscience')
+    (u'Top Stories', u'https://www.wired.com/feed/'),
+    (u'Business', u'https://www.wired.com/category/business/feed/'),
+    (u'Design', u'https://www.wired.com/category/design/feed/'),
+    (u'Entertainment', u'https://www.wired.com/category/underwire/feed/'),
+    (u'Tech', u'https://www.wired.com/category/gear/feed/'),
+    (u'Product Reviews', u'https://www.wired.com/category/reviews/feed/'),
+    (u'Science', u'https://www.wired.com/category/science/feed/'),
+    (u'Science Blogs', u'https://www.wired.com/category/science/science-blogs/feed/'),
+    (u'Security', u'https://www.wired.com/category/security/feed/'),
+    (u'Transportation', u'https://www.wired.com/category/transportation/feed/'),
+    (u'Photo', u'https://www.wired.com/category/photo/feed/'),
     ]
 
     def get_article_url(self, article):

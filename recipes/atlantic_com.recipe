@@ -17,16 +17,24 @@ class AdvancedUserRecipe1421956712(BasicNewsRecipe):
     def print_version(self, url):
         return url.replace('/archive/', '/print/')
 
+    # Feed are found here: http://www.theatlantic.com/follow-the-atlantic/#follow-rssfeeds
     feeds = [
-        ('Politics', 'http://feeds.feedburner.com/AtlanticPoliticsChannel'),
-        ('International', 'http://feeds.feedburner.com/AtlanticInternational'),
-        ('National', 'http://feeds.feedburner.com/AtlanticNational'),
-        ('Science and Tech', 'http://feeds.feedburner.com/AtlanticScienceAndTechnology'),
-        ('Business', 'http://feeds.feedburner.com/AtlanticBusinessChannel'),
-        ('Health', 'http://feeds.feedburner.com/AtlanticFood'),
-        ('Education', 'http://feeds.feedburner.com/AtlanticEducationChannel'),
-        ('Entertainment', 'http://feeds.feedburner.com/AtlanticCulture'),
-        ('Sexes', 'http://feeds.feedburner.com/AtlanticSexesChannel'),
-        ('The Atlantic', 'http://feeds.feedburner.com/TheAtlantic'),
-        ('The Atlatic Wire', 'http://feeds.feedburner.com/TheAtlanticWire'),
+        ('The Atlantic', 'http://www.theatlantic.com/feed/all/'),
+        ('Best of The Atlantic', 'http://www.theatlantic.com/feed/best-of/'),
+        ('Politics | The Atlantic', 'http://www.theatlantic.com/feed/channel/politics/'),
+        ('Business | The Atlantic', 'http://www.theatlantic.com/feed/channel/business/'),
+        ('Culture | The Atlantic', 'http://www.theatlantic.com/feed/channel/entertainment/'),
+        ('Global | The Atlantic', 'http://www.theatlantic.com/feed/channel/international/'),
+        ('Technology | The Atlantic', 'http://www.theatlantic.com/feed/channel/technology/'),
+        ('U.S. | The Atlantic', 'http://www.theatlantic.com/feed/channel/national/'),
+        ('Health | The Atlantic', 'http://www.theatlantic.com/feed/channel/health/'),
+        ('Video | The Atlantic', 'http://www.theatlantic.com/feed/channel/video/'),
+        ('Sexes | The Atlantic', 'http://www.theatlantic.com/feed/channel/sexes/'),
+        ('Education | The Atlantic', 'http://www.theatlantic.com/feed/channel/education/'),
+        ('Science | The Atlantic', 'http://www.theatlantic.com/feed/channel/science/'),
+        ('News | The Atlantic', 'http://www.theatlantic.com/feed/channel/news/'),
+        ('Press Releases | The Atlantic', 'http://www.theatlantic.com/feed/channel/press-releases/'),
+        ('Newsletters | The Atlantic', 'http://www.theatlantic.com/feed/channel/newsletters/'),
+        ('The Atlantic Photo', 'http://feeds.feedburner.com/theatlantic/infocus'),
+        ('Notes | The Atlantic', 'http://feeds.feedburner.com/TheAtlanticNotes'),
     ]
