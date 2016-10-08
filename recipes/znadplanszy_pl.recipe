@@ -17,7 +17,5 @@ class ZnadPlanszy(BasicNewsRecipe):
     remove_attributes = ['style', 'font']
     ignore_duplicate_articles = {'title', 'url'}
 
-    remove_tags = [dict(attrs={'class': 'rounded-container'})]
-    remove_tags_after = dict(attrs={'id': 'dotEPUBcontent'})
-    remove_tags_before = dict(attrs={'class': 'content units nine alpha'})
+    keep_only_tags = dict(name='article')
     feeds = [(u'Wszystkie', 'http://znadplanszy.pl/full-feed/posts/')]
