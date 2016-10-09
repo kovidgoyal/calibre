@@ -20,6 +20,7 @@ class FanGraphs(BasicNewsRecipe):
     category = 'Baseball'
     language = 'en'
     publication_type = 'Blog'
+    auto_cleanup = True
 
     description = 'Baseball statistical analysis, graphs, and projections.'
     __author__ = 'David Appelman'
@@ -27,9 +28,8 @@ class FanGraphs(BasicNewsRecipe):
 
     feeds = [
         (u'Fangraphs', u'http://feeds.feedburner.com/FanGraphs?format=xml'),
-        (u'Rotographs', u'http://www.wizardrss.com/feed/feeds.feedburner.com/RotoGraphs?format=xml'),
-        (u'Community', u'http://www.wizardrss.com/feed/www.fangraphs.com/community/?feed=rss2'),
-        (u'NotGraphs', u'http://www.wizardrss.com/feed/www.fangraphs.com/not/?feed=rss2')]
+        (u'Rotographs', u'http://feeds.feedburner.com/RotoGraphs?format=xml'),
+        (u'NotGraphs', u'http://feeds.feedburner.com/NotGraphs?format=xml')]
 
     extra_css = '''
                     h1{font-family:Arial,Helvetica,sans-serif; font-weight:bold;font-size:large;}

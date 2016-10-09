@@ -19,29 +19,19 @@ class NewsandRecord(BasicNewsRecipe):
     encoding = 'utf-8'
     remove_javascript = True
     no_stylesheets = True
+    auto_cleanup = True
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    remove_tags_before = dict(name='h3', attrs={'class': 'nrcTxt_headline'})
-    remove_tags_after = dict(name='div', attrs={'id': 'nrcBlk_ContentBody'})
-
-    remove_tags = [
-        dict(name='iframe'),
-        dict(name=['notags', 'embed', 'object', 'link', 'img']),
-
-    ]
-
     feeds = [
-        ('News', 'http://www.news-record.com/news/archive/feed'),
-        ('Greensboro News', 'http://www.news-record.com/news/greensboro/feed'),
-        ('Education', 'http://www.news-record.com/news/education/feed'),
-        ('Government', 'http://www.news-record.com/news/government/feed'),
-        ('College Sports', 'http://www.news-record.com/sports/college/feed'),
-        ('Sports Extra', 'http://www.news-record.com/blog/sportsextra/feed'),
-        ('Life', 'http://www.news-record.com/life/top/feed'),
-        ('NASCAR', 'http://www.news-record.com/sports/nascar/top/feed'),
-        ('Editorials', 'http://www.news-record.com/opinion/editorials/feed'),
-        ('Letters to the Editor', 'http://www.news-record.com/opinion/letters/feed')
+        ('News', 'http://www.greensboro.com/search/?q=&t=article&l=10&d=&d1=&d2=&s=start_time&sd=desc&c[]=news,news/*&f=rss'),
+        ('Greensboro News', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=news/local,news/crime,news/goverment,news/schools,news/rockingham_county,news/local,news/crime,news/goverment,news/schools,news/rockingham_county/*&f=rss'),
+        ('Business', 'http://www.greensboro.com/search/?q=&t=article&l=10&d=&d1=&d2=&s=start_time&sd=desc&c[]=business,business/*&f=rss'),
+        ('Local Business', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=business/local_business,business/local_business/*&f=rss'),
+        ('Sports', 'http://www.greensboro.com/search/?q=&t=article&l=10&d=&d1=&d2=&s=start_time&sd=desc&c[]=sports,sports/*&f=rss'),
+        ('College Sports', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=sports/college,sports/college/*&f=rss'),
+        ('Sports Extra', 'http://www.greensboro.com/search/?q=&t=article&l=100&d=&d1=&d2=&s=start_time&sd=desc&nsa=eedition&c[]=blogs/sports_extra,blogs/sports_extra/*&f=rss'),
+        ('Life', 'http://www.greensboro.com/search/?q=&t=article&l=10&d=&d1=&d2=&s=start_time&sd=desc&c[]=life,life/*&f=rss'),
     ]

@@ -18,12 +18,15 @@ articles_are_obfuscated = True
 
 class digiArts(BasicNewsRecipe):
     __author__ = 'Lorenzo Vigentini'
-    description = 'Digital Arts - comprehensive coverage of the art of graphic design, 3D, animation, video, effects, web and interactive design, in print and online.'  # noqa
+    description = ('Digital Arts - comprehensive coverage of the art of '
+                   'graphic design, 3D, animation, video, effects, web and '
+                   'interactive design, in print and online.')  # noqa
     cover_url = 'http://media.digitalartsonline.co.uk/graphics/logo_digital_arts.gif'
 
     title = 'Digital Arts Magazine  '
     publisher = 'IDG Communication'
-    category = 'Multimedia, photo, video, computing, product reviews, editing, cameras, production'
+    category = ('Multimedia, photo, video, computing, product reviews, '
+                'editing, cameras, production')
 
     language = 'en'
     encoding = 'cp1252'
@@ -36,30 +39,22 @@ class digiArts(BasicNewsRecipe):
 
     remove_javascript = True
     no_stylesheets = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        br.open(url + '&print')
-
-        response = br.follow_link(url, nr=0)
-        html = response.read()
-
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
+    auto_cleanup = False
 
     keep_only_tags = [
-        dict(name='div', attrs={'id': ['articleHeader', 'articleContent']})
+        dict(name='h1', attrs={'itemprop': 'headline'}),
+        dict(name='span', attrs={'itemprop': 'author'}),
+        dict(name='section', attrs={'class': 'articleBody'}),
     ]
 
-    remove_tags = [
-        dict(name='div', attrs={'class': ['submissionBar', 'mpuContainer']}),
-        dict(name='div', attrs={'id': ['articleSidebar', 'articleFooter']})
-    ]
-    remove_tags_after = [
-        dict(name='p', attrs={'id': 'articlePageList'})
-    ]
+    # Feed are found here: http://www.digitalartsonline.co.uk/rss/
     feeds = [
-        (u'Content', u'http://rss.feedsportal.com/c/662/f/8410/index.rss')
+        ('Latest News Articles',
+         'http://www.digitalartsonline.co.uk/rss/feeds/digitalarts-news.xml'),
+        ('Latest Tutorials',
+         'http://www.digitalartsonline.co.uk/rss/feeds/digitalarts-tutorials.xml'),
+        ('Latest Reviews',
+         'http://www.digitalartsonline.co.uk/rss/feeds/digitalarts-reviews.xml'),
+        ('Latest Features',
+         'http://www.digitalartsonline.co.uk/rss/feeds/digitalarts-features.xml'),
     ]
