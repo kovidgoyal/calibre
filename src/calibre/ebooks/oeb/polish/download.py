@@ -108,10 +108,10 @@ def download_one(tdir, timeout, progress_report, url):
     except Exception as err:
         return False, url, as_unicode(err)
 
-def download_external_resoures(container, urls, timeout=60, progress_report=lambda url, done, total: None):
+def download_external_resources(container, urls, timeout=60, progress_report=lambda url, done, total: None):
     failures = {}
     replacements = {}
-    with TemporaryDirectory('editor_download') as tdir:
+    with TemporaryDirectory('editor-download') as tdir:
         pool = Pool(10)
         with closing(pool):
             for ok, result in pool.imap_unordered(partial(download_one, tdir, timeout, progress_report), urls):
