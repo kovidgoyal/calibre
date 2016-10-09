@@ -7,7 +7,6 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import re, importlib
-from collections import deque
 import textwrap, unicodedata
 from future_builtins import map
 
@@ -104,7 +103,6 @@ class TextEdit(PlainTextEdit):
         self.cursorPositionChanged.connect(self.highlight_cursor_line)
         self.blockCountChanged[int].connect(self.update_line_number_area_width)
         self.updateRequest.connect(self.update_line_number_area)
-        self.currently_showing_tooltip_memory = deque(maxlen=10)
 
     @dynamic_property
     def is_modified(self):
@@ -650,11 +648,9 @@ class TextEdit(PlainTextEdit):
         if fmt is not None:
             tt = unicode(fmt.toolTip())
             if tt:
-                tt = textwrap.fill(tt)
-                self.currently_showing_tooltip_memory.append(tt)
                 QToolTip.setFont(self.tooltip_font)
                 QToolTip.setPalette(self.tooltip_palette)
-                QToolTip.showText(ev.globalPos(), tt)
+                QToolTip.showText(ev.globalPos(), textwrap.fill(tt))
                 return
         QToolTip.hideText()
         ev.ignore()
