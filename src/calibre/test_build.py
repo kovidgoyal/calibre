@@ -128,7 +128,7 @@ class BuildTest(unittest.TestCase):
         fmts = set(map(unicode, QImageReader.supportedImageFormats()))
         testf = {'jpg', 'png', 'svg', 'ico', 'gif'}
         self.assertEqual(testf.intersection(fmts), testf, "Qt doesn't seem to be able to load some of its image plugins. Available plugins: %s" % fmts)
-        data = I('blank.png', allow_user_override=False, data=True)
+        data = P('images/blank.png', allow_user_override=False, data=True)
         img = image_from_data(data)
         image_from_data(P('catalog/mastheadImage.gif', allow_user_override=False, data=True))
         for fmt in 'png bmp jpeg'.split():
