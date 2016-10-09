@@ -60,16 +60,42 @@ def get_filename(original_url_parsed, response):
                     ans += exts[0]
     return ans
 
-def download_one(tdir, timeout, url):
+def get_content_length(response):
+    cl = response.info().get('Content-Length')
+    try:
+        return int(cl)
+    except Exception:
+        return -1
+
+class ProgressTracker(object):
+
+    def __init__(self, fobj, url, sz, progress_report):
+        self.fobj = fobj
+        self.progress_report = progress_report
+        self.url, self.sz = url, sz
+        self.close, self.flush, self.name = fobj.close, fobj.flush, fobj.name
+
+    def write(self, x):
+        ret = self.fobj.write(x)
+        try:
+            self.progress_report(self.url, self.fobj.tell(), self.sz)
+        except Exception:
+            pass
+        return ret
+
+def download_one(tdir, timeout, progress_report, url):
     try:
         purl = urlparse(url)
-        with NamedTemporaryFile(dir=tdir, delete=False) as dest:
+        with NamedTemporaryFile(dir=tdir, delete=False) as df:
             if purl.scheme == 'file':
                 src = lopen(purl.path, 'rb')
                 filename = os.path.basename(src)
+                sz = (src.seek(0, os.SEEK_END), src.tell(), src.seek(0))[1]
             else:
                 src = urlopen(url, timeout=timeout)
                 filename = get_filename(purl, src)
+                sz = get_content_length(src)
+            dest = ProgressTracker(df, url, sz, progress_report)
             with src:
                 shutil.copyfileobj(src, dest)
             filename = sanitize_file_name2(filename)
@@ -82,14 +108,13 @@ def download_one(tdir, timeout, url):
     except Exception as err:
         return False, url, as_unicode(err)
 
-
-def download_external_resoures(container, urls, timeout=60):
+def download_external_resoures(container, urls, timeout=60, progress_report=lambda url, done, total: None):
     failures = {}
     replacements = {}
     with TemporaryDirectory('editor_download') as tdir:
         pool = Pool(10)
         with closing(pool):
-            for ok, result in pool.imap_unordered(partial(download_one, tdir, timeout), urls):
+            for ok, result in pool.imap_unordered(partial(download_one, tdir, timeout, progress_report), urls):
                 if ok:
                     url, suggested_filename, downloaded_file, mt = result
                     with lopen(downloaded_file, 'rb') as src:
