@@ -335,7 +335,10 @@ class Container(ContainerBase):  # {{{
         if not os.path.exists(base):
             os.makedirs(base)
         with lopen(path, 'wb') as f:
-            f.write(data)
+            if hasattr(data, 'read'):
+                shutil.copyfileobj(data, f)
+            else:
+                f.write(data)
         mt = media_type or self.guess_type(name)
         self.name_path_map[name] = path
         self.mime_map[name] = mt
