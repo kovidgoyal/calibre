@@ -122,11 +122,11 @@ def iterlinks(root, find_links_in_css=True):
     for el in root.iter():
         attribs = el.attrib
         try:
-            tag = el.tag
-        except UnicodeDecodeError:
+            tag = barename(el.tag).lower()
+        except Exception:
             continue
 
-        if tag == XHTML('object'):
+        if tag == 'object':
             codebase = None
             # <object> tags have attributes that are relative to
             # codebase
@@ -152,7 +152,7 @@ def iterlinks(root, find_links_in_css=True):
 
         if not find_links_in_css:
             continue
-        if tag == XHTML('style') and el.text:
+        if tag == 'style' and el.text:
             for match in _css_url_re.finditer(el.text):
                 yield (el, None, match.group(1), match.start(1))
             for match in _css_import_re.finditer(el.text):
