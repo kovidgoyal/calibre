@@ -9,28 +9,30 @@ class tvn24(BasicNewsRecipe):
     description = u'Sport, Biznes, Gospodarka, Informacje, Wiadomości Zawsze aktualne wiadomości z Polski i ze świata'
     category = 'news'
     language = 'pl'
-    cover_url = 'http://www.qzdrowiu.pl/Upload/KnowQZdrowiu_PressOffice/TVN24_logo_575702b7-edce-4b6f-a41b-4395f9456f96_ff6d6ccf-528a-4b94-9e61-2fed727aba35.png'  # noqa
+    cover_url = 'http://ncplus.pl/~/media/n/npl/kanaly/logo%20na%20strony%20kanalow/tvn24-630.png'  # noqa
     extra_css = 'ul {list-style: none; padding: 0; margin: 0;} li {float: left;margin: 0 0.15em;}'
     remove_empty_feeds = True
     remove_javascript = True
     no_stylesheets = True
     keep_only_tags = [
-        #       dict(name='h1', attrs={'class':'size38 mt20 pb20'}),
-        dict(name='div', attrs={'class': 'mainContainer'}),
-        #       dict(name='p'),
-        #       dict(attrs={'class':['size18 mt10 mb15', 'bold topicSize1', 'fromUsers content', 'textArticleDefault']})
+        dict(name='article',attrs={'class':'mb20'})
     ]
     remove_tags = [
-        dict(attrs={'class': ['commentsInfo', 'textSize', 'related newsNews align-right', 'box', 'watchMaterial text', 'related galleryGallery align-center', 'advert block-alignment-right', 'userActions', 'socialBookmarks', 'im yourArticle fl', 'dynamicButton addComment fl', 'innerArticleModule onRight cols externalContent', 'thumbsGallery', 'relatedObject customBlockquote align-right', 'lead', 'mainRightColumn', 'articleDateContainer borderGreyBottom', 'socialMediaContainer onRight loaded', 'quizContent', 'twitter', 'facebook', 'googlePlus', 'share', 'voteResult', 'reportTitleBar bgBlue_v4 mb15', 'innerVideoModule center']}),  # noqa
-        dict(name='article', attrs={'class': [
-             'singleArtPhotoCenter', 'singleArtPhotoRight', 'singleArtPhotoLeft']}),
+        dict(attrs={'class': ['commentsInfo', 'textSize', 'related newsNews align-right', 'box', 'watchMaterial text', 'related galleryGallery align-center', 'advert block-alignment-right', 'userActions', 'socialBookmarks', 'im yourArticle fl', 'dynamicButton addComment fl', 'thumbsGallery', 'relatedObject customBlockquote align-right', 'lead', 'mainRightColumn', 'articleDateContainer borderGreyBottom', 'socialMediaContainer onRight loaded', 'quizContent', 'twitter', 'facebook', 'googlePlus', 'share', 'voteResult', 'reportTitleBar bgBlue_v4 mb15', 'innerVideoModule center']}),  # noqa
+        dict(name='aside'),
+        dict(name='figure'),
         dict(name='section', attrs={
-             'id': ['forum', 'innerArticle', 'quiz toCenter', 'mb20']}),
-        dict(name='div', attrs={
-             'class': 'socialMediaContainer big p20 mb20 borderGrey  loaded'})
+             'id': ['forum', 'innerArticle', 'quiz toCenter', 'mb20']})
     ]
     remove_tags_after = [dict(name='li', attrs={'class': 'share'})]
     feeds = [(u'Najnowsze', u'http://www.tvn24.pl/najnowsze.xml'), ]
+
+    def get_article_url(self, article):
+        link = article.get('link')
+        # following websites are linked in aforementioned feeds, but have different layout not compatible with this recipe
+        banned = ['tvnwarszawa.pl','tvnmeteo.pl','szklokontaktowe.tvn24.pl','tvn24bis.pl']
+        if not any(x in link for x in banned):
+            return link
 
     def preprocess_html(self, soup):
         for alink in soup.findAll('a'):
