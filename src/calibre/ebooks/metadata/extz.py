@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile, safe_replace
 
+
 def get_metadata(stream, extract_cover=True):
     '''
     Return metadata as a L{MetaInfo} object
@@ -44,6 +45,7 @@ def get_metadata(stream, extract_cover=True):
     except Exception:
         return mi
     return mi
+
 
 def set_metadata(stream, mi):
     replacements = {}
@@ -86,6 +88,7 @@ def set_metadata(stream, mi):
     except:
         pass
 
+
 def get_first_opf_name(zf):
     names = zf.namelist()
     opfs = []
@@ -96,6 +99,7 @@ def get_first_opf_name(zf):
         raise Exception('No OPF found')
     opfs.sort()
     return opfs[0]
+
 
 def _write_new_cover(new_cdata, cpath):
     from calibre.utils.img import save_cover_data_to

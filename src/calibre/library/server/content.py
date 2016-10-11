@@ -22,6 +22,7 @@ from calibre.utils.config import tweaks
 plugboard_content_server_value = 'content_server'
 plugboard_content_server_formats = ['epub', 'mobi', 'azw3']
 
+
 class CSSortKeyGenerator(SortKeyGenerator):
 
     def __init__(self, fields, fm, db_prefs):
@@ -29,6 +30,7 @@ class CSSortKeyGenerator(SortKeyGenerator):
 
     def __call__(self, record):
         return self.itervals(record).next()
+
 
 class ContentServer(object):
 

@@ -11,6 +11,7 @@ import traceback, re
 
 from calibre.constants import iswindows
 
+
 class DeviceDefaults(object):
 
     def __init__(self):

@@ -11,20 +11,24 @@ import sys, os, re
 
 from calibre.customize.ui import available_input_formats
 
+
 def is_supported(path):
     ext = os.path.splitext(path)[1].replace('.', '').lower()
     ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
     return ext in available_input_formats() or ext == 'kepub'
+
 
 class UnsupportedFormatError(Exception):
 
     def __init__(self, fmt):
         Exception.__init__(self, _('%s format books are not supported')%fmt.upper())
 
+
 def EbookIterator(*args, **kwargs):
     'For backwards compatibility'
     from calibre.ebooks.oeb.iterator.book import EbookIterator
     return EbookIterator(*args, **kwargs)
+
 
 def get_preprocess_html(path_to_ebook, output=None):
     from calibre.ebooks.conversion.plumber import set_regex_wizard_callback, Plumber

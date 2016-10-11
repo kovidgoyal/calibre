@@ -11,6 +11,7 @@ from future_builtins import map, zip
 
 is_narrow_build = sys.maxunicode < 0x10ffff
 
+
 class Parser(object):
 
     ''' See epubcfi.ebnf for the specification that this parser tries to
@@ -166,17 +167,20 @@ class Parser(object):
 
 _parser = None
 
+
 def parser():
     global _parser
     if _parser is None:
         _parser = Parser()
     return _parser
 
+
 def get_steps(pcfi):
     ans = tuple(pcfi['steps'])
     if 'redirect' in pcfi:
         ans += get_steps(pcfi['redirect'])
     return ans
+
 
 def cfi_sort_key(cfi, only_path=True):
     p = parser()

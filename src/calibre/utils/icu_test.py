@@ -21,6 +21,7 @@ def make_collation_func(name, locale, numeric=True, template='_sort_key_template
     yield icu._make_func(getattr(icu, template), name, collator=cname, collator_func='not_used_xxx', func=func)
     delattr(icu, cname)
 
+
 class TestICU(unittest.TestCase):
 
     ae = unittest.TestCase.assertEqual
@@ -197,16 +198,20 @@ class TestICU(unittest.TestCase):
             fpos = index_of(needle, haystack)
             self.ae(pos, fpos, 'Failed to find index of %r in %r (%d != %d)' % (needle, haystack, pos, fpos))
 
+
 def find_tests():
     return unittest.defaultTestLoader.loadTestsFromTestCase(TestICU)
+
 
 class TestRunner(unittest.main):
 
     def createTests(self):
         self.test = find_tests()
 
+
 def run(verbosity=4):
     TestRunner(verbosity=verbosity, exit=False)
+
 
 def test_build():
     result = TestRunner(verbosity=0, buffer=True, catchbreak=True, failfast=True, argv=sys.argv[:1], exit=False).result

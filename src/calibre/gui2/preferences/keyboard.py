@@ -12,6 +12,7 @@ from PyQt5.Qt import QVBoxLayout
 from calibre.gui2.preferences import (ConfigWidgetBase, test_widget)
 from calibre.gui2.keyboard import ShortcutConfig
 
+
 class ConfigWidget(ConfigWidgetBase):
 
     def genesis(self, gui):

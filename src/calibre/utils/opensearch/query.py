@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from urlparse import urlparse, urlunparse, parse_qs
 from urllib import urlencode
 
+
 class Query(object):
     '''
     Represents an opensearch query Really this class is just a

@@ -12,6 +12,7 @@ from operator import itemgetter
 
 from calibre.utils.fonts.sfnt import UnknownTable
 
+
 class LocaTable(UnknownTable):
 
     def load_offsets(self, head_table, maxp_table):

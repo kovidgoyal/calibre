@@ -7,11 +7,13 @@ import os
 from cStringIO import StringIO
 from struct import unpack
 
+
 class Bookmark():  # {{{
     '''
     A simple class fetching bookmark data
     Kindle-specific
     '''
+
     def __init__(self, path, id, book_format, bookmark_extension):
         self.book_format = book_format
         self.bookmark_extension = bookmark_extension

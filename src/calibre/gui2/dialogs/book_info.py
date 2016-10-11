@@ -17,6 +17,7 @@ from calibre import fit_image
 from calibre.gui2.book_details import render_html, details_context_menu_event, css
 from calibre.gui2.widgets import CoverView
 
+
 class Details(QWebView):
 
     def __init__(self, book_info, parent=None):
@@ -28,6 +29,7 @@ class Details(QWebView):
 
     def contextMenuEvent(self, ev):
         details_context_menu_event(self, ev, self.book_info)
+
 
 class BookInfo(QDialog):
 

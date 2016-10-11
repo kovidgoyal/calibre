@@ -15,6 +15,7 @@ from calibre.utils.zipfile import safe_replace
 BM_FIELD_SEP = u'*|!|?|*'
 BM_LEGACY_ESC = u'esc-text-%&*#%(){}ads19-end-esc'
 
+
 class BookmarksMixin(object):
 
     def __init__(self, copy_bookmarks_to_file=True):

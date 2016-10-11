@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.gui2.convert.fb2_input_ui import Ui_Form
 from calibre.gui2.convert import Widget
 
+
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('FB2 Input')

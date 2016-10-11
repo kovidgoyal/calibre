@@ -19,6 +19,7 @@ from calibre.ebooks.chardet import detect_xml_encoding
 from calibre.constants import iswindows
 from calibre import unicode_path, as_unicode, replace_entities
 
+
 class Link(object):
 
     '''
@@ -72,6 +73,7 @@ class IgnoreFile(Exception):
         Exception.__init__(self, msg)
         self.doesnt_exist = errno == gerrno.ENOENT
         self.errno = errno
+
 
 class HTMLFile(object):
 

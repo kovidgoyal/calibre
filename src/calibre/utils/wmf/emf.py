@@ -35,6 +35,7 @@ StretchDiBits = namedtuple(
     ' bmp_bits_size usage op dest_width dest_height')
 # }}}
 
+
 class EMF(object):
 
     def __init__(self, raw, verbose=0):
@@ -74,6 +75,7 @@ class EMF(object):
         bmps = list(sorted(self.bitmaps, key=lambda x: len(x)))
         bmp = bmps[-1]
         return to_png(bmp)
+
 
 def emf_unwrap(raw, verbose=0):
     '''

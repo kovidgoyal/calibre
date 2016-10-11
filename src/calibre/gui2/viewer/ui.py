@@ -23,6 +23,7 @@ from calibre.gui2.viewer.toc import TOCView, TOCSearch
 from calibre.gui2.viewer.footnote import FootnotesView
 from calibre.utils.localization import is_rtl
 
+
 class DoubleSpinBox(QDoubleSpinBox):  # {{{
 
     value_changed = pyqtSignal(object, object)
@@ -44,6 +45,7 @@ class DoubleSpinBox(QDoubleSpinBox):  # {{{
         self.value_changed.emit(self.value(), self.maximum())
 # }}}
 
+
 class Reference(QLineEdit):  # {{{
 
     goto = pyqtSignal(object)
@@ -63,6 +65,7 @@ class Reference(QLineEdit):  # {{{
         self.setText('')
         self.goto.emit(text)
 # }}}
+
 
 class Metadata(QWebView):  # {{{
 
@@ -101,6 +104,7 @@ class Metadata(QWebView):  # {{{
         p.end()
         QWebView.paintEvent(self, ev)
 # }}}
+
 
 class History(list):  # {{{
 
@@ -170,6 +174,7 @@ class History(list):  # {{{
     def __str__(self):
         return 'History: Items=%s back_pos=%s insert_pos=%s forward_pos=%s' % (tuple(self), self.back_pos, self.insert_pos, self.forward_pos)
 
+
 def test_history():
     h = History()
     for i in xrange(4):
@@ -180,6 +185,7 @@ def test_history():
     h.add(9)
     assert h == [0, 9]
 # }}}
+
 
 class ToolBar(QToolBar):  # {{{
 
@@ -193,6 +199,7 @@ class ToolBar(QToolBar):  # {{{
             ev.accept()
             sm()
 # }}}
+
 
 class Main(MainWindow):
 

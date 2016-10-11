@@ -18,6 +18,7 @@ from calibre.ebooks.oeb.transforms.subset import get_font_properties, find_font_
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 
+
 def used_font(style, embedded_fonts):
     ff = [unicode(f) for f in style.get('font-family', []) if unicode(f).lower() not in {
         'serif', 'sansserif', 'sans-serif', 'fantasy', 'cursive', 'monospace'}]

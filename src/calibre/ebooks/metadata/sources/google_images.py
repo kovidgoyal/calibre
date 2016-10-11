@@ -13,6 +13,7 @@ from calibre.ebooks.metadata.sources.base import Source, Option
 
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'
 
+
 class GoogleImages(Source):
 
     name = 'Google Images'
@@ -81,6 +82,7 @@ class GoogleImages(Source):
             if 'ou' in data:
                 ans[data['ou']] = True
         return list(ans.iterkeys())
+
 
 def test():
     from Queue import Queue

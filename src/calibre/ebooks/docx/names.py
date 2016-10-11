@@ -75,11 +75,14 @@ STRICT_NAMESPACES = {
 }
 # }}}
 
+
 def barename(x):
     return x.rpartition('}')[-1]
 
+
 def XML(x):
     return '{%s}%s' % (TRANSITIONAL_NAMESPACES['xml'], x)
+
 
 def generate_anchor(name, existing):
     x = y = 'id_' + re.sub(r'[^0-9a-zA-Z_]', '', ascii_text(name)).lstrip('_')
@@ -88,6 +91,7 @@ def generate_anchor(name, existing):
         y = '%s_%d' % (x, c)
         c += 1
     return y
+
 
 class DOCXNamespace(object):
 

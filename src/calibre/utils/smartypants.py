@@ -887,6 +887,7 @@ def _tokenize(str):
 
     return tokens
 
+
 def run_tests(return_tests=False):
     import unittest
     sp = smartyPants

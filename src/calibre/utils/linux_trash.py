@@ -36,18 +36,22 @@ uid = os.getuid()
 TOPDIR_TRASH = '.Trash'
 TOPDIR_FALLBACK = '.Trash-%s'%uid
 
+
 def uniquote(raw):
     if isinstance(raw, unicode):
         raw = raw.encode('utf-8')
     return quote(raw).decode('utf-8')
+
 
 def is_parent(parent, path):
     path = op.realpath(path)  # In case it's a symlink
     parent = op.realpath(parent)
     return path.startswith(parent)
 
+
 def format_date(date):
     return date.strftime("%Y-%m-%dT%H:%M:%S")
+
 
 def info_for(src, topdir):
     # ...it MUST not include a ".."" directory, and for files not "under" that
@@ -62,10 +66,12 @@ def info_for(src, topdir):
     info += "DeletionDate=" + format_date(datetime.now()) + "\n"
     return info
 
+
 def check_create(dir):
     # use 0700 for paths [3]
     if not op.exists(dir):
         os.makedirs(dir, 0o700)
+
 
 def trash_move(src, dst, topdir=None):
     filename = op.basename(src)
@@ -86,6 +92,7 @@ def trash_move(src, dst, topdir=None):
     with open(op.join(infopath, destname + INFO_SUFFIX), 'wb') as f:
         f.write(info_for(src, topdir))
 
+
 def find_mount_point(path):
     # Even if something's wrong, "/" is a mount point, so the loop will exit.
     # Use realpath in case it's a symlink
@@ -93,6 +100,7 @@ def find_mount_point(path):
     while not op.ismount(path):
         path = op.split(path)[0]
     return path
+
 
 def find_ext_volume_global_trash(volume_root):
     # from [2] Trash directories (1) check for a .Trash dir with the right
@@ -114,6 +122,7 @@ def find_ext_volume_global_trash(volume_root):
         return None
     return trash_dir
 
+
 def find_ext_volume_fallback_trash(volume_root):
     # from [2] Trash directories (1) create a .Trash-$uid dir.
     trash_dir = op.join(volume_root, TOPDIR_FALLBACK)
@@ -122,6 +131,7 @@ def find_ext_volume_fallback_trash(volume_root):
     check_create(trash_dir)
     return trash_dir
 
+
 def find_ext_volume_trash(volume_root):
     trash_dir = find_ext_volume_global_trash(volume_root)
     if trash_dir is None:
@@ -129,8 +139,11 @@ def find_ext_volume_trash(volume_root):
     return trash_dir
 
 # Pull this out so it's easy to stub (to avoid stubbing lstat itself)
+
+
 def get_dev(path):
     return os.lstat(path).st_dev
+
 
 def send2trash(path):
     if not op.exists(path):

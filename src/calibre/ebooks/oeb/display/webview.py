@@ -11,6 +11,7 @@ import re
 
 from calibre import guess_type
 
+
 class EntityDeclarationProcessor(object):  # {{{
 
     def __init__(self, html):
@@ -24,11 +25,13 @@ class EntityDeclarationProcessor(object):  # {{{
             self.processed_html = self.processed_html.replace('&%s;'%key, val)
 # }}}
 
+
 def self_closing_sub(match):
     tag = match.group(1)
     if tag.lower().strip() == 'br':
         return match.group()
     return '<%s%s></%s>'%(match.group(1), match.group(2), match.group(1))
+
 
 def load_html(path, view, codec='utf-8', mime_type=None,
               pre_load_callback=lambda x:None, path_is_html=False,

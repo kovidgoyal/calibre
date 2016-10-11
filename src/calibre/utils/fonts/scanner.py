@@ -17,6 +17,7 @@ from calibre.constants import (config_dir, iswindows, isosx, plugins, DEBUG,
 from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
 from calibre.utils.icu import sort_key
 
+
 class NoFonts(ValueError):
     pass
 
@@ -114,6 +115,7 @@ def font_dirs():
                 os.path.expanduser('~/Library/Fonts'),
                 ]
     return fc_list()
+
 
 class FontScanner(Thread):
 
@@ -384,6 +386,7 @@ class FontScanner(Thread):
 
 font_scanner = FontScanner()
 font_scanner.start()
+
 
 def force_rescan():
     font_scanner.join()

@@ -10,6 +10,7 @@ Device driver for Bookeen's Cybook Gen 3
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class SNE(USBMS):
 
     name           = 'Samsung SNE Device Interface'

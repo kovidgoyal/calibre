@@ -12,6 +12,7 @@ from lxml import etree
 
 from calibre.utils.icu import partition_by_first_letter, sort_key
 
+
 def get_applicable_xe_fields(index, xe_fields, XPath, expand):
     iet = index.get('entry-type', None)
     xe_fields = [xe for xe in xe_fields if xe.get('entry-type', None) == iet]
@@ -39,6 +40,7 @@ def get_applicable_xe_fields(index, xe_fields, XPath, expand):
 
     return [xe for xe in xe_fields if contained(xe)]
 
+
 def make_block(expand, style, parent, pos):
     p = parent.makeelement(expand('w:p'))
     parent.insert(pos, p)
@@ -55,6 +57,7 @@ def make_block(expand, style, parent, pos):
     r.append(t)
     return p, t
 
+
 def add_xe(xe, t, expand):
     text = xe.get('text', '')
     pt = xe.get('page-number-text', None)
@@ -68,6 +71,7 @@ def add_xe(xe, t, expand):
         t2.text = ' [%s]' % pt
         r.append(t2)
     return xe['anchor'], t.getparent()
+
 
 def process_index(field, index, xe_fields, log, XPath, expand):
     '''
@@ -117,6 +121,7 @@ def process_index(field, index, xe_fields, log, XPath, expand):
             blocks.append(p)
 
     return hyperlinks, blocks
+
 
 def split_up_block(block, a, text, parts, ldict):
     prefix = parts[:-1]
@@ -168,6 +173,7 @@ If there is no matching entry, then because of the original reversed order we wa
 to insert nk+1 and all following entries from n into p immediately following pk.
 """
 
+
 def find_match(prev_block, pind, nextent, ldict):
     curlevel = ldict.get(prev_block[pind], -1)
     if curlevel < 0:
@@ -181,6 +187,7 @@ def find_match(prev_block, pind, nextent, ldict):
         if prev_block[p].text_content() == nextent.text_content():
             return p
     return -1
+
 
 def add_link(pent, nent, ldict):
     na = nent.xpath('descendant::a[1]')
@@ -199,6 +206,7 @@ def add_link(pent, nent, ldict):
         # substitute link na for plain text in pent
         pent.text = ""
         pent.append(na)
+
 
 def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict):
     # First elements match. Any more in next?
@@ -221,6 +229,7 @@ def merge_blocks(prev_block, next_block, pind, nind, next_path, ldict):
         prev_block.insert(pind, next_block[nind])
 
     next_block.getparent().remove(next_block)
+
 
 def polish_index_markup(index, blocks):
     # Blocks are in reverse order at this point

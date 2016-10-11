@@ -11,6 +11,7 @@ from lxml import etree
 from calibre.ebooks.oeb.polish.container import OPF_NAMESPACES
 from calibre.utils.localization import canonicalize_lang
 
+
 def get_book_language(container):
     for lang in container.opf_xpath('//dc:language'):
         raw = lang.text
@@ -18,6 +19,7 @@ def get_book_language(container):
             code = canonicalize_lang(raw.split(',')[0].strip())
             if code:
                 return code
+
 
 def set_guide_item(container, item_type, title, name, frag=None):
     ref_tag = '{%s}reference' % OPF_NAMESPACES['opf']

@@ -18,6 +18,7 @@ NSMAP = {'h': XHTML_NS, 'html': XHTML_NS, 'xhtml': XHTML_NS}
 PAGE_RE = re.compile(r'page', re.IGNORECASE)
 ROMAN_RE = re.compile(r'^[ivxlcdm]+$', re.IGNORECASE)
 
+
 def filter_name(name):
     name = name.strip()
     name = PAGE_RE.sub('', name)
@@ -27,11 +28,13 @@ def filter_name(name):
             break
     return name
 
+
 def build_name_for(expr):
     if not expr:
         counter = count(1)
         return lambda elem: str(counter.next())
     selector = XPath(expr, namespaces=NSMAP)
+
     def name_for(elem):
         results = selector(elem)
         if not results:
@@ -39,6 +42,7 @@ def build_name_for(expr):
         name = ' '.join(results)
         return filter_name(name)
     return name_for
+
 
 def add_page_map(opfpath, opts):
     oeb = OEBBook(opfpath)

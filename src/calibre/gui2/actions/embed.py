@@ -14,6 +14,7 @@ from calibre import force_unicode
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
 
+
 class EmbedAction(InterfaceAction):
 
     name = 'Embed Metadata'
@@ -120,6 +121,7 @@ class EmbedAction(InterfaceAction):
         pd.setValue(i)
         db = self.gui.current_db.new_api
         book_id = book_ids[i]
+
         def report_error(mi, fmt, tb):
             mi.book_id = book_id
             errors.append((mi, fmt, tb))

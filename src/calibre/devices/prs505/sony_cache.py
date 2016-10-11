@@ -60,12 +60,14 @@ MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, 
 INVERSE_DAY_MAP = dict(zip(DAY_MAP.values(), DAY_MAP.keys()))
 INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
 
+
 def strptime(src):
     src = src.strip()
     src = src.split()
     src[0] = str(DAY_MAP[src[0][:-1]])+','
     src[2] = str(MONTH_MAP[src[2]])
     return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
+
 
 def strftime(epoch, zone=time.localtime):
     try:
@@ -77,11 +79,13 @@ def strftime(epoch, zone=time.localtime):
     src[2] = INVERSE_MONTH_MAP[int(src[2])]
     return ' '.join(src)
 
+
 def uuid():
     from uuid import uuid4
     return str(uuid4()).replace('-', '', 1).upper()
 
 # }}}
+
 
 class XMLCache(object):
 

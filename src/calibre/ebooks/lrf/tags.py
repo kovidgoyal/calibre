@@ -6,6 +6,7 @@ import struct
 
 from calibre.ebooks.lrf import LRFParseError
 
+
 class Tag(object):
 
     tags = {

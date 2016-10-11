@@ -45,6 +45,7 @@ CATEGORIES = (
     ('misc', _('Miscellaneous'), _('Misc-')),
 )
 
+
 def name_is_ok(name, show_error):
     if not name or not name.strip():
         return show_error('') and False
@@ -60,6 +61,7 @@ def name_is_ok(name, show_error):
         return show_error(_('This file name already exists in the book')) and False
     show_error('')
     return True
+
 
 def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_name_unicode, leading_zeros=True, prefix=None, category='text'):  # {{{
     d = QDialog(parent)
@@ -91,6 +93,7 @@ def get_bulk_rename_settings(parent, number, msg=None, sanitize=sanitize_file_na
         return prefix + fmt, num
     return None, None
 # }}}
+
 
 class ItemDelegate(QStyledItemDelegate):  # {{{
 
@@ -150,6 +153,7 @@ class ItemDelegate(QStyledItemDelegate):  # {{{
             option.rect.adjust(0, 0, br.width(), 0)
             painter.drawText(option.rect, Qt.AlignRight|Qt.AlignVCenter, suffix)
 # }}}
+
 
 class FileList(QTreeWidget):
 
@@ -738,6 +742,7 @@ class FileList(QTreeWidget):
             if sheets:
                 self.link_stylesheets_requested.emit(names, sheets, r.isChecked())
 
+
 class NewFileDialog(QDialog):  # {{{
 
     def __init__(self, parent=None):
@@ -819,6 +824,7 @@ class NewFileDialog(QDialog):  # {{{
         QDialog.accept(self)
 # }}}
 
+
 class MergeDialog(QDialog):  # {{{
 
     def __init__(self, names, parent=None):
@@ -853,6 +859,7 @@ class MergeDialog(QDialog):  # {{{
                 return unicode(b.text())
 
 # }}}
+
 
 class FileListWidget(QWidget):
 

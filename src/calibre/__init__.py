@@ -29,17 +29,21 @@ if False:
     winerror, win32api, isbsd, config_dir
 
 _mt_inited = False
+
+
 def _init_mimetypes():
     global _mt_inited
     import mimetypes
     mimetypes.init([P('mime.types')])
     _mt_inited = True
 
+
 def guess_type(*args, **kwargs):
     import mimetypes
     if not _mt_inited:
         _init_mimetypes()
     return mimetypes.guess_type(*args, **kwargs)
+
 
 def guess_all_extensions(*args, **kwargs):
     import mimetypes
@@ -57,16 +61,19 @@ def guess_extension(*args, **kwargs):
         ext = '.pdb'
     return ext
 
+
 def get_types_map():
     import mimetypes
     if not _mt_inited:
         _init_mimetypes()
     return mimetypes.types_map
 
+
 def to_unicode(raw, encoding='utf-8', errors='strict'):
     if isinstance(raw, unicode):
         return raw
     return raw.decode(encoding, errors)
+
 
 def patheq(p1, p2):
     p = os.path
@@ -75,12 +82,14 @@ def patheq(p1, p2):
         return False
     return d(p1) == d(p2)
 
+
 def unicode_path(path, abs=False):
     if isinstance(path, bytes):
         path = path.decode(filesystem_encoding)
     if abs:
         path = os.path.abspath(path)
     return path
+
 
 def osx_version():
     if isosx:
@@ -90,12 +99,14 @@ def osx_version():
         if m:
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
 
+
 def confirm_config_name(name):
     return name + '_again'
 
 _filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+/]')
 _filename_sanitize_unicode = frozenset([u'\\', u'|', u'?', u'*', u'<',
     u'"', u':', u'>', u'+', u'/'] + list(map(unichr, xrange(32))))
+
 
 def sanitize_file_name(name, substitute='_', as_unicode=False):
     '''
@@ -125,6 +136,7 @@ def sanitize_file_name(name, substitute='_', as_unicode=False):
         one = '_' + one[1:]
     return one
 
+
 def sanitize_file_name_unicode(name, substitute='_'):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
@@ -151,6 +163,7 @@ def sanitize_file_name_unicode(name, substitute='_'):
         one = '_' + one[1:]
     return one
 
+
 def sanitize_file_name2(name, substitute='_'):
     '''
     Sanitize filenames removing invalid chars. Keeps unicode names as unicode
@@ -159,6 +172,7 @@ def sanitize_file_name2(name, substitute='_'):
     if isbytestring(name):
         return sanitize_file_name(name, substitute=substitute)
     return sanitize_file_name_unicode(name, substitute=substitute)
+
 
 def prints(*args, **kwargs):
     '''
@@ -227,8 +241,10 @@ def prints(*args, **kwargs):
     count += len(sep)
     return count
 
+
 class CommandLineError(Exception):
     pass
+
 
 def setup_cli_handlers(logger, level):
     import logging
@@ -261,12 +277,14 @@ def load_library(name, cdll):
         return cdll.LoadLibrary(name)
     return cdll.LoadLibrary(name+'.so')
 
+
 def filename_to_utf8(name):
     '''Return C{name} encoded in utf8. Unhandled characters are replaced. '''
     if isinstance(name, unicode):
         return name.encode('utf8')
     codec = 'cp1252' if iswindows else 'utf8'
     return name.decode(codec, 'replace').encode('utf8')
+
 
 def extract(path, dir):
     extractor = None
@@ -292,6 +310,7 @@ def extract(path, dir):
         raise Exception('Unknown archive type')
     extractor(path, dir)
 
+
 def get_proxies(debug=True):
     from urllib import getproxies
     proxies = getproxies()
@@ -314,6 +333,7 @@ def get_proxies(debug=True):
     if proxies and debug:
         prints('Using proxies:', proxies)
     return proxies
+
 
 def get_parsed_proxy(typ='http', debug=True):
     proxies = get_proxies(debug)
@@ -346,6 +366,7 @@ def get_parsed_proxy(typ='http', debug=True):
                     prints('Using http proxy', str(ans))
                 return ans
 
+
 def get_proxy_info(proxy_scheme, proxy_string):
     '''
     Parse all proxy information from a proxy string (as returned by
@@ -372,6 +393,7 @@ def get_proxy_info(proxy_scheme, proxy_string):
 USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
 USER_AGENT_MOBILE = 'Mozilla/5.0 (Windows; U; Windows CE 5.1; rv:1.8.1a3) Gecko/20060610 Minimo/0.016'
 
+
 def random_user_agent(choose=None):
     try:
         ua_list = random_user_agent.ua_list
@@ -397,6 +419,7 @@ def random_user_agent(choose=None):
                  'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
             ]
     return random.choice(ua_list) if choose is None else ua_list[choose]
+
 
 def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, use_robust_parser=False, verify_ssl_certificates=True):
     '''
@@ -431,6 +454,7 @@ def browser(honor_time=True, max_time=2, mobile_browser=False, user_agent=None, 
 
     return opener
 
+
 def fit_image(width, height, pwidth, pheight):
     '''
     Fit image in box of width pwidth and height pheight.
@@ -452,6 +476,7 @@ def fit_image(width, height, pwidth, pheight):
         width, height = floor(corrf*width), pheight
 
     return scaled, int(width), int(height)
+
 
 class CurrentDir(object):
 
@@ -481,6 +506,8 @@ class CurrentDir(object):
 
 
 _ncpus = None
+
+
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
     global _ncpus
@@ -502,17 +529,21 @@ def detect_ncpus():
 
 relpath = os.path.relpath
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
+
+
 def english_sort(x, y):
     '''
     Comapare two english phrases ignoring starting prepositions.
     '''
     return cmp(_spat.sub('', x), _spat.sub('', y))
 
+
 def walk(dir):
     ''' A nice interface to os.walk '''
     for record in os.walk(dir):
         for f in record[-1]:
             yield os.path.join(record[0], f)
+
 
 def strftime(fmt, t=None):
     ''' A version of strftime that returns unicode strings and tries to handle dates
@@ -542,11 +573,13 @@ def strftime(fmt, t=None):
         ans = ans.replace('_early year hack##', str(orig_year))
     return ans
 
+
 def my_unichr(num):
     try:
         return safe_chr(num)
     except (ValueError, OverflowError):
         return u'?'
+
 
 def entity_to_unicode(match, exceptions=[], encoding='cp1252',
         result_exceptions={}):
@@ -606,11 +639,14 @@ xml_entity_to_unicode = partial(entity_to_unicode, result_exceptions={
     '>' : '&gt;',
     '&' : '&amp;'})
 
+
 def replace_entities(raw, encoding='cp1252'):
     return _ent_pat.sub(partial(entity_to_unicode, encoding=encoding), raw)
 
+
 def xml_replace_entities(raw, encoding='cp1252'):
     return _ent_pat.sub(partial(xml_entity_to_unicode, encoding=encoding), raw)
+
 
 def prepare_string_for_xml(raw, attribute=False):
     raw = _ent_pat.sub(entity_to_unicode, raw)
@@ -619,8 +655,10 @@ def prepare_string_for_xml(raw, attribute=False):
         raw = raw.replace('"', '&quot;').replace("'", '&apos;')
     return raw
 
+
 def isbytestring(obj):
     return isinstance(obj, (str, bytes))
+
 
 def force_unicode(obj, enc=preferred_encoding):
     if isbytestring(obj):
@@ -639,6 +677,7 @@ def force_unicode(obj, enc=preferred_encoding):
                         obj = obj.decode('utf-8')
     return obj
 
+
 def as_unicode(obj, enc=preferred_encoding):
     if not isbytestring(obj):
         try:
@@ -650,11 +689,13 @@ def as_unicode(obj, enc=preferred_encoding):
                 obj = repr(obj)
     return force_unicode(obj, enc=enc)
 
+
 def url_slash_cleaner(url):
     '''
     Removes redundant /'s from url's.
     '''
     return re.sub(r'(?<!:)/{2,}', '/', url)
+
 
 def human_readable(size, sep=' '):
     """ Convert a size in bytes into a human readable form """
@@ -669,6 +710,7 @@ def human_readable(size, sep=' '):
     if size.endswith('.0'):
         size = size[:-2]
     return size + sep + suffix
+
 
 def remove_bracketed_text(src,
         brackets={u'(':u')', u'[':u']', u'{':u'}'}):
@@ -688,9 +730,11 @@ def remove_bracketed_text(src,
             buf.append(char)
     return u''.join(buf)
 
+
 def ipython(user_ns=None):
     from calibre.utils.ipython import ipython
     ipython(user_ns=user_ns)
+
 
 def fsync(fileobj):
     fileobj.flush()

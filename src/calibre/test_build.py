@@ -16,6 +16,7 @@ import os, ctypes, sys, unittest
 from calibre.constants import plugins, iswindows, islinux, isosx
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
+
 class BuildTest(unittest.TestCase):
 
     @unittest.skipUnless(iswindows and not is_ci, 'DLL loading needs testing only on windows (non-continuous integration)')
@@ -230,6 +231,7 @@ class BuildTest(unittest.TestCase):
             if not cafile or not cafile.endswith('/mozilla-ca-certs.pem') or not os.access(cafile, os.R_OK):
                 self.assert_('Mozilla CA certs not loaded')
 
+
 def find_tests():
     ans = unittest.defaultTestLoader.loadTestsFromTestCase(BuildTest)
     from calibre.utils.icu_test import find_tests
@@ -239,6 +241,7 @@ def find_tests():
     from tinycss.tests.main import find_tests
     ans.addTests(find_tests())
     return ans
+
 
 def test():
     from calibre.utils.run_tests import run_cli

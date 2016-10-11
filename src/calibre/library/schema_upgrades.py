@@ -10,6 +10,7 @@ import os
 
 from calibre.utils.date import isoformat, DEFAULT_DATE
 
+
 class SchemaUpgrade(object):
 
     def __init__(self):
@@ -415,6 +416,7 @@ class SchemaUpgrade(object):
         'Cache has_cover'
         self.conn.execute('ALTER TABLE books ADD COLUMN has_cover BOOL DEFAULT 0')
         data = self.conn.get('SELECT id,path FROM books', all=True)
+
         def has_cover(path):
             if path:
                 path = os.path.join(self.library_path, path.replace('/', os.sep),

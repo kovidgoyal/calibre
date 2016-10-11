@@ -39,6 +39,7 @@ def get_highlighter(syntax):
             pass
     return SyntaxHighlighter
 
+
 def get_smarts(syntax):
     if syntax:
         smartsname = {'xml':'html'}.get(syntax, syntax)
@@ -48,6 +49,8 @@ def get_smarts(syntax):
             pass
 
 _dff = None
+
+
 def default_font_family():
     global _dff
     if _dff is None:
@@ -60,6 +63,7 @@ def default_font_family():
             _dff = 'Courier New'
     return _dff
 
+
 class LineNumbers(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -71,6 +75,7 @@ class LineNumbers(QWidget):  # {{{
     def paintEvent(self, ev):
         self.parent().paint_line_numbers(ev)
 # }}}
+
 
 class TextEdit(PlainTextEdit):
 
@@ -108,8 +113,10 @@ class TextEdit(PlainTextEdit):
     def is_modified(self):
         ''' True if the document has been modified since it was loaded or since
         the last time is_modified was set to False. '''
+
         def fget(self):
             return self.document().isModified()
+
         def fset(self, val):
             self.document().setModified(bool(val))
         return property(fget=fget, fset=fset)

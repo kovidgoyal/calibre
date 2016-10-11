@@ -6,6 +6,7 @@ from PyQt5.Qt import QDialog, QTreeWidgetItem, QIcon, QModelIndex
 from calibre.gui2 import file_icon_provider
 from calibre.gui2.dialogs.choose_format_device_ui import Ui_ChooseFormatDeviceDialog
 
+
 class ChooseFormatDeviceDialog(QDialog, Ui_ChooseFormatDeviceDialog):
 
     def __init__(self, window, msg, formats):

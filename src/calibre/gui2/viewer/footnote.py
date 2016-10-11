@@ -19,6 +19,7 @@ from calibre import prints
 from calibre.constants import DEBUG
 from calibre.ebooks.oeb.display.webview import load_html
 
+
 class FootnotesPage(QWebPage):
 
     def __init__(self, parent):

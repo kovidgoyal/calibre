@@ -2,6 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Code to manage ebook library'''
 
+
 def db(path=None, read_only=False):
     from calibre.db.legacy import LibraryDatabase
     from calibre.utils.config import prefs
@@ -62,6 +63,7 @@ def generate_test_db(library_path,  # {{{
     print 'Time per record:', t/float(num_of_records)
 # }}}
 
+
 def current_library_path():
     from calibre.utils.config import prefs
     path = prefs['library_path']
@@ -70,6 +72,7 @@ def current_library_path():
         while path.endswith('/'):
             path = path[:-1]
         return path
+
 
 def current_library_name():
     import posixpath

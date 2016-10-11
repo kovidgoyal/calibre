@@ -11,8 +11,10 @@ certgen, err = plugins['certgen']
 if err:
     raise ImportError('Failed to load teh certgen module with error: %s' % err)
 
+
 def create_key_pair(size=2048):
     return certgen.create_rsa_keypair(size)
+
 
 def create_cert_request(
     key_pair, common_name,
@@ -28,20 +30,26 @@ def create_cert_request(
         *map(enc, (common_name, country, state, locality, organization, organizational_unit, email_address))
     )
 
+
 def create_cert(req, ca_cert, ca_keypair, expire=365, not_before=0):
     return certgen.create_rsa_cert(req, ca_cert, ca_keypair, not_before, expire)
+
 
 def create_ca_cert(req, ca_keypair, expire=365, not_before=0):
     return certgen.create_rsa_cert(req, None, ca_keypair, not_before, expire)
 
+
 def serialize_cert(cert):
     return certgen.serialize_cert(cert)
+
 
 def serialize_key(key_pair, password=None):
     return certgen.serialize_rsa_key(key_pair, password)
 
+
 def cert_info(cert):
     return certgen.cert_info(cert).decode('utf-8')
+
 
 def create_server_cert(
     domain, ca_cert_file=None, server_cert_file=None, server_key_file=None,

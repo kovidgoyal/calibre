@@ -15,6 +15,7 @@ from calibre import as_unicode, random_user_agent
 from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import Source
 
+
 def parse_html(raw):
     import html5lib
     from calibre.ebooks.chardet import xml_to_unicode
@@ -24,10 +25,12 @@ def parse_html(raw):
     return html5lib.parse(raw, treebuilder='lxml',
                               namespaceHTMLElements=False).getroot()
 
+
 def astext(node):
     from lxml import etree
     return etree.tostring(node, method='text', encoding=unicode,
                           with_tail=False).strip()
+
 
 class Worker(Thread):  # {{{
 
@@ -157,6 +160,7 @@ class Worker(Thread):  # {{{
         desc = re.sub(r'(?s)<!--.*?-->', '', desc)
         return sanitize_comments_html(desc)
 # }}}
+
 
 class Edelweiss(Source):
 

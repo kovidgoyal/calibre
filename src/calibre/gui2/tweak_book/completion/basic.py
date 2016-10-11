@@ -26,6 +26,7 @@ Request = namedtuple('Request', 'id type data query')
 names_cache = {}
 file_cache = {}
 
+
 @control
 def clear_caches(cache_type, data_conn):
     global names_cache, file_cache
@@ -41,10 +42,12 @@ def clear_caches(cache_type, data_conn):
         if name.lower().endswith('.opf'):
             names_cache.clear()
 
+
 @data
 def names_data(request_data):
     c = current_container()
     return c.mime_map, {n for n, is_linear in c.spine_names}
+
 
 @data
 def file_data(name):
@@ -53,12 +56,14 @@ def file_data(name):
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
 
+
 def get_data(data_conn, data_type, data=None):
     eintr_retry_call(data_conn.send, Request(None, data_type, data, None))
     result, tb = eintr_retry_call(data_conn.recv)
     if tb:
         raise DataError(tb)
     return result
+
 
 class Name(unicode):
 
@@ -67,6 +72,7 @@ class Name(unicode):
         ans.mime_type = mime_type
         ans.in_spine = name in spine_names
         return ans
+
 
 @control
 def complete_names(names_data, data_conn):
@@ -91,6 +97,7 @@ def complete_names(names_data, data_conn):
     descriptions = {href:d(name) for name, href in nmap.iteritems()}
     return items, descriptions, {}
 
+
 def create_anchor_map(root):
     ans = {}
     for elem in root.xpath('//*[@id or @name]'):
@@ -98,6 +105,7 @@ def create_anchor_map(root):
         if anchor and anchor not in ans:
             ans[anchor] = description_for_anchor(elem)
     return ans
+
 
 @control
 def complete_anchor(name, data_conn):
@@ -117,6 +125,7 @@ def complete_anchor(name, data_conn):
 
 _current_matcher = (None, None, None)
 
+
 def handle_control_request(request, data_conn):
     global _current_matcher
     ans = control_funcs[request.type](request.data, data_conn)
@@ -131,6 +140,7 @@ def handle_control_request(request, data_conn):
             items = OrderedDict((i, ()) for i in _current_matcher[-1].items)
         ans = items, descriptions
     return ans
+
 
 class HandleDataRequest(QObject):
 

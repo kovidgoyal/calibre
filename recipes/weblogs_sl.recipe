@@ -11,6 +11,7 @@ http://www.weblogssl.com/
 import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class weblogssl(BasicNewsRecipe):
     __author__     = 'desUBIKado'
     description    = u'Weblogs colectivos dedicados a seguir la actualidad sobre tecnologia, entretenimiento, estilos de vida, motor, deportes y economia.'

@@ -13,8 +13,10 @@ from threading import Thread, Event
 from calibre import prints
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 
+
 class Abort(Exception):
     pass
+
 
 class MetadataBackup(Thread):
     '''

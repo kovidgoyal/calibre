@@ -56,6 +56,7 @@ else:
 DEFAULT_DATE = datetime(2000,1,1, tzinfo=utc_tz)
 EPOCH = datetime(1970, 1, 1, tzinfo=_utc_tz)
 
+
 def is_date_undefined(qt_or_dt):
     d = qt_or_dt
     if d is None:
@@ -73,11 +74,14 @@ def is_date_undefined(qt_or_dt):
             d.day == UNDEFINED_DATE.day)
 
 _iso_pat = None
+
+
 def iso_pat():
     global _iso_pat
     if _iso_pat is None:
         _iso_pat = re.compile(r'\d{4}[/.-]\d{1,2}[/.-]\d{1,2}')
     return _iso_pat
+
 
 def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
     '''
@@ -107,6 +111,7 @@ def parse_date(date_string, assume_utc=False, as_utc=True, default=None):
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
+
 def fix_only_date(val):
     n = val + timedelta(days=1)
     if n.month > val.month:
@@ -114,6 +119,7 @@ def fix_only_date(val):
     if val.day == 1:
         val = val.replace(day=2)
     return val
+
 
 def parse_only_date(raw, assume_utc=True, as_utc=True):
     '''
@@ -126,11 +132,13 @@ def parse_only_date(raw, assume_utc=True, as_utc=True):
             day=15)
     return fix_only_date(parse_date(raw, default=default, assume_utc=assume_utc, as_utc=as_utc))
 
+
 def strptime(val, fmt, assume_utc=False, as_utc=True):
     dt = datetime.strptime(val, fmt)
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_utc_tz if assume_utc else _local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
+
 
 def dt_factory(time_t, assume_utc=False, as_utc=True):
     dt = datetime(*(time_t[0:6]))
@@ -139,6 +147,7 @@ def dt_factory(time_t, assume_utc=False, as_utc=True):
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
 safeyear = lambda x: min(max(x, MINYEAR), MAXYEAR)
+
 
 def qt_to_dt(qdate_or_qdatetime, as_utc=True):
     o = qdate_or_qdatetime
@@ -160,15 +169,18 @@ def qt_to_dt(qdate_or_qdatetime, as_utc=True):
         dt = datetime(safeyear(o.year()), o.month(), 1).replace(tzinfo=_local_tz)
     return dt.astimezone(_utc_tz if as_utc else _local_tz)
 
+
 def fromtimestamp(ctime, as_utc=True):
     dt = datetime.utcfromtimestamp(ctime).replace(tzinfo=_utc_tz)
     if not as_utc:
         dt = dt.astimezone(_local_tz)
     return dt
 
+
 def fromordinal(day, as_utc=True):
     return datetime.fromordinal(day).replace(
             tzinfo=_utc_tz if as_utc else _local_tz)
+
 
 def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
     if not hasattr(date_time, 'tzinfo'):
@@ -180,6 +192,7 @@ def isoformat(date_time, assume_utc=False, as_utc=True, sep='T'):
     # str(sep) because isoformat barfs with unicode sep on python 2.x
     return unicode(date_time.isoformat(str(sep)))
 
+
 def as_local_time(date_time, assume_utc=True):
     if not hasattr(date_time, 'tzinfo'):
         return date_time
@@ -188,10 +201,12 @@ def as_local_time(date_time, assume_utc=True):
                 _local_tz)
     return date_time.astimezone(_local_tz)
 
+
 def dt_as_local(dt):
     if dt.tzinfo is local_tz:
         return dt
     return dt.astimezone(local_tz)
+
 
 def as_utc(date_time, assume_utc=True):
     if not hasattr(date_time, 'tzinfo'):
@@ -201,8 +216,10 @@ def as_utc(date_time, assume_utc=True):
                 _local_tz)
     return date_time.astimezone(_utc_tz)
 
+
 def now():
     return datetime.now().replace(tzinfo=_local_tz)
+
 
 def utcnow():
     return datetime.utcnow().replace(tzinfo=_utc_tz)
@@ -222,10 +239,12 @@ def utcfromtimestamp(stamp):
             traceback.print_exc()
     return utcnow()
 
+
 def timestampfromdt(dt, assume_utc=True):
     return (as_utc(dt, assume_utc=assume_utc) - EPOCH).total_seconds()
 
 # Format date functions {{{
+
 
 def fd_format_hour(dt, ampm, hr):
     l = len(hr)
@@ -236,11 +255,13 @@ def fd_format_hour(dt, ampm, hr):
         return '%d'%h
     return '%02d'%h
 
+
 def fd_format_minute(dt, ampm, min):
     l = len(min)
     if l == 1:
         return '%d'%dt.minute
     return '%02d'%dt.minute
+
 
 def fd_format_second(dt, ampm, sec):
     l = len(sec)
@@ -248,11 +269,13 @@ def fd_format_second(dt, ampm, sec):
         return '%d'%dt.second
     return '%02d'%dt.second
 
+
 def fd_format_ampm(dt, ampm, ap):
     res = strftime('%p', t=dt.timetuple())
     if ap == 'AP':
         return res
     return res.lower()
+
 
 def fd_format_day(dt, ampm, dy):
     l = len(dy)
@@ -262,6 +285,7 @@ def fd_format_day(dt, ampm, dy):
         return '%02d'%dt.day
     return lcdata['abday' if l == 3 else 'day'][(dt.weekday() + 1) % 7]
 
+
 def fd_format_month(dt, ampm, mo):
     l = len(mo)
     if l == 1:
@@ -269,6 +293,7 @@ def fd_format_month(dt, ampm, mo):
     if l == 2:
         return '%02d'%dt.month
     return lcdata['abmon' if l == 3 else 'mon'][dt.month - 1]
+
 
 def fd_format_year(dt, ampm, yr):
     if len(yr) == 2:
@@ -285,11 +310,14 @@ fd_function_index = {
         'a': fd_format_ampm,
         'A': fd_format_ampm,
     }
+
+
 def fd_repl_func(dt, ampm, mo):
     s = mo.group(0)
     if not s:
         return ''
     return fd_function_index[s[0]](dt, ampm, s)
+
 
 def format_date(dt, format, assume_utc=False, as_utc=False):
     ''' Return a date formatted as a string using a subset of Qt's formatting codes '''
@@ -320,25 +348,31 @@ def format_date(dt, format, assume_utc=False, as_utc=False):
 
 # Clean date functions {{{
 
+
 def cd_has_hour(tt, dt):
     tt['hour'] = dt.hour
     return ''
+
 
 def cd_has_minute(tt, dt):
     tt['min'] = dt.minute
     return ''
 
+
 def cd_has_second(tt, dt):
     tt['sec'] = dt.second
     return ''
+
 
 def cd_has_day(tt, dt):
     tt['day'] = dt.day
     return ''
 
+
 def cd_has_month(tt, dt):
     tt['mon'] = dt.month
     return ''
+
 
 def cd_has_year(tt, dt):
     tt['year'] = dt.year
@@ -353,11 +387,13 @@ cd_function_index = {
         's': cd_has_second
     }
 
+
 def cd_repl_func(tt, dt, match_object):
     s = match_object.group(0)
     if not s:
         return ''
     return cd_function_index[s[0]](tt, dt)
+
 
 def clean_date_for_sort(dt, fmt=None):
     ''' Return dt with fields not in shown in format set to a default '''
@@ -384,6 +420,7 @@ def clean_date_for_sort(dt, fmt=None):
     return dt.replace(year=tt['year'], month=tt['mon'], day=tt['day'], hour=tt['hour'],
                       minute=tt['min'], second=tt['sec'], microsecond=0)
 # }}}
+
 
 def replace_months(datestr, clang):
     # Replace months by english equivalent for parse_date

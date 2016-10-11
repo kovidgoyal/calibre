@@ -18,6 +18,7 @@ from calibre.ebooks.pdb.ztxt import zTXTError
 
 SUPPORTED_VERSION = (1, 40)
 
+
 class HeaderRecord(object):
     '''
     The first record in the file is always the header record. It holds

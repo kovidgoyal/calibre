@@ -6,8 +6,10 @@ __docformat__ = 'restructuredtext en'
 
 import os
 
+
 class EreaderError(Exception):
     pass
+
 
 def image_name(name, taken_names=[]):
     name = os.path.basename(name)

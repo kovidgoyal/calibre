@@ -14,6 +14,7 @@ from calibre.utils.icu import sort_key, lower
 
 _lang_map = None
 
+
 def get_lang_map():
     global _lang_map
     if _lang_map is None:
@@ -21,6 +22,7 @@ def get_lang_map():
         for x in ('zxx', 'mis', 'mul'):
             _lang_map.pop(x, None)
     return _lang_map
+
 
 class LanguagesEdit(EditWithComplete):
 

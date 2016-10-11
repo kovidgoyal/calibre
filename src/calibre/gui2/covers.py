@@ -21,6 +21,7 @@ from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.utils.date import now
 from calibre.utils.icu import sort_key
 
+
 class Preview(QLabel):
 
     def __init__(self, parent=None):
@@ -29,6 +30,7 @@ class Preview(QLabel):
 
     def sizeHint(self):
         return QSize(300, 400)
+
 
 class ColorButton(QToolButton):
 
@@ -45,6 +47,7 @@ class ColorButton(QToolButton):
     def color(self):
         def fget(self):
             return self._color.name(QColor.HexRgb)[1:]
+
         def fset(self, val):
             self._color = QColor('#' + val)
         return property(fget=fget, fset=fset)
@@ -58,6 +61,7 @@ class ColorButton(QToolButton):
         if c.isValid():
             self._color = c
             self.update_display()
+
 
 class CreateColorScheme(QDialog):
 
@@ -95,6 +99,7 @@ class CreateColorScheme(QDialog):
                 return error_dialog(self, _('Invalid name'), _(
                     'A color scheme with the name "%s" already exists.') % name, show=True)
         QDialog.accept(self)
+
 
 class CoverSettingsWidget(QWidget):
 
@@ -170,6 +175,7 @@ class CoverSettingsWidget(QWidget):
         fp.l = l = QFormLayout()
         fp.setLayout(l)
         fp.f = []
+
         def add_hline():
             f = QFrame()
             fp.f.append(f)
@@ -196,6 +202,7 @@ class CoverSettingsWidget(QWidget):
             add_hline()
         self.changed_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(500), t.timeout.connect(self.emit_changed)
+
         def create_sz(label):
             ans = QSpinBox(self)
             ans.setSuffix(' px'), ans.setMinimum(100), ans.setMaximum(10000)
@@ -498,6 +505,7 @@ class CoverSettingsWidget(QWidget):
         with self.original_prefs:
             for k, v in self.current_prefs.iteritems():
                 self.original_prefs[k] = v
+
 
 class CoverSettingsDialog(QDialog):
 

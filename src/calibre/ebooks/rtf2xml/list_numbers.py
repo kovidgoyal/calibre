@@ -14,11 +14,13 @@ import os
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
 
+
 class ListNumbers:
     """
         RTF puts list numbers outside of the paragraph. The public method
         in this class put the list numbers inside the paragraphs.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -39,6 +41,7 @@ class ListNumbers:
         self.__bug_handler = bug_handler
         self.__copy = copy
         self.__write_to = better_mktemp()
+
     def __initiate_values(self):
         """
         initiate values for fix_list_numbers.
@@ -57,6 +60,7 @@ class ListNumbers:
         'list_text'         :   self.__list_text_func,
         'after_list_text'   :   self.__after_list_text_func
         }
+
     def __after_ob_func(self, line):
         """
         Handle the line immediately after an open bracket.
@@ -75,6 +79,7 @@ class ListNumbers:
             self.__write_obj.write(self.__previous_line)
             self.__write_obj.write(line)
             self.__state = 'default'
+
     def __after_list_text_func(self, line):
         """
         Look for an open bracket or a line of text, and then print out the
@@ -93,6 +98,7 @@ class ListNumbers:
             self.__write_obj.write('mi<mk<lst-tx-end\n')
             self.__list_chunk = ''
         self.__write_obj.write(line)
+
     def __determine_list_type(self, chunk):
         """
         Determine if the list is ordered or itemized
@@ -117,6 +123,7 @@ class ListNumbers:
         """
         # must be some type of ordered list -- just a guess!
         return 'unordered'
+
     def __list_text_func(self, line):
         """
         Handle lines that are part of the list text. If the end of the list
@@ -134,6 +141,7 @@ class ListNumbers:
             self.__write_obj.write('mi<mk<list-type_<%s\n' % self.__list_type)
         if self.__token_info != 'cw<pf<par-def___':
             self.__list_chunk = self.__list_chunk + line
+
     def __default_func(self, line):
         """
         Handle the lines that are not part of any special state. Look for an
@@ -150,6 +158,7 @@ class ListNumbers:
             self.__previous_line = line
         else:
             self.__write_obj.write(line)
+
     def fix_list_numbers(self):
         """
         Required:

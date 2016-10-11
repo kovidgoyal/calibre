@@ -16,8 +16,10 @@ from calibre.constants import isosx
 from calibre.gui2 import Dispatcher
 from calibre.gui2.keyboard import NameConflict
 
+
 def menu_action_unique_name(plugin, unique_name):
     return u'%s : menu action : %s'%(plugin.unique_name, unique_name)
+
 
 class InterfaceAction(QObject):
 

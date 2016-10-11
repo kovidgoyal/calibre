@@ -14,6 +14,7 @@ from Queue import Queue, Empty
 from calibre import prints
 from calibre.constants import DEBUG
 
+
 class BaseJob(object):
 
     WAITING  = 0

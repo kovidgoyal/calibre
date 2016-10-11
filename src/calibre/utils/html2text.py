@@ -38,6 +38,7 @@ SKIP_INTERNAL_LINKS = True
 
 # ## Entity Nonsense ###
 
+
 def name2cp(k):
     if k == 'apos':
         return ord("'")
@@ -63,6 +64,7 @@ unifiable_n = {}
 for k in unifiable.keys():
     unifiable_n[name2cp(k)] = unifiable[k]
 
+
 def charref(name):
     if name[0] in ['x','X']:
         c = int(name[1:], 16)
@@ -73,6 +75,7 @@ def charref(name):
         return unifiable_n[c]
     else:
         return unichr(c)
+
 
 def entityref(c):
     if not UNICODE_SNOB and c in unifiable.keys():
@@ -85,6 +88,7 @@ def entityref(c):
         else:
             return unichr(name2cp(c))
 
+
 def replaceEntities(s):
     s = s.group(1)
     if s[0] == "#":
@@ -93,8 +97,11 @@ def replaceEntities(s):
         return entityref(s)
 
 r_unescape = re.compile(r"&(#?[xX]?(?:[0-9a-fA-F]+|\w{1,8}));")
+
+
 def unescape(s):
     return r_unescape.sub(replaceEntities, s)
+
 
 def fixattrs(attrs):
     # Fix bug in sgmllib.py
@@ -107,12 +114,14 @@ def fixattrs(attrs):
 
 # ## End Entity Nonsense ###
 
+
 def onlywhite(line):
     """Return true if the line does only consist of whitespace characters."""
     for c in line:
         if c is not ' ' and c is not '  ':
             return c is ' '
     return line
+
 
 def optwrap(text):
     """Wrap all paragraphs in the provided text."""
@@ -139,6 +148,7 @@ def optwrap(text):
                 newlines += 1
     return result
 
+
 def hn(tag):
     if tag[0] == 'h' and len(tag) == 2:
         try:
@@ -147,6 +157,7 @@ def hn(tag):
                 return n
         except ValueError:
             return 0
+
 
 class _html2text(sgmllib.SGMLParser):
 
@@ -409,14 +420,17 @@ class _html2text(sgmllib.SGMLParser):
     def unknown_decl(self, data):
         pass
 
+
 def wrapwrite(text):
     sys.stdout.write(text.encode('utf8'))
+
 
 def html2text_file(html, out=wrapwrite, baseurl=''):
     h = _html2text(out, baseurl)
     h.feed(html)
     h.feed("")
     return h.close()
+
 
 def html2text(html, baseurl=''):
     return optwrap(html2text_file(html, None, baseurl))

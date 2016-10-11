@@ -14,6 +14,7 @@ from calibre.gui2 import Dispatcher
 from calibre.gui2.tools import fetch_scheduled_recipe
 from calibre.gui2.actions import InterfaceAction
 
+
 class FetchNewsAction(InterfaceAction):
 
     name = 'Fetch News'

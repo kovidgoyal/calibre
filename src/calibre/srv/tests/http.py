@@ -16,6 +16,7 @@ from calibre.utils.monotonic import monotonic
 
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
+
 class TestHTTP(BaseTest):
 
     def test_header_parsing(self):  # {{{
@@ -59,6 +60,7 @@ class TestHTTP(BaseTest):
     def test_accept_encoding(self):  # {{{
         'Test parsing of Accept-Encoding'
         from calibre.srv.http_response import acceptable_encoding
+
         def test(name, val, ans, allowed={'gzip'}):
             self.ae(acceptable_encoding(val, allowed), ans, name + ' failed')
         test('Empty field', '', None)
@@ -72,6 +74,7 @@ class TestHTTP(BaseTest):
         'Test parsing of Accept-Language'
         from calibre.srv.http_response import preferred_lang
         from calibre.utils.localization import get_translator
+
         def test(name, val, ans):
             self.ae(preferred_lang(val, lambda x:(True, x, None)), ans, name + ' failed')
         test('Empty field', '', 'en')
@@ -102,6 +105,7 @@ class TestHTTP(BaseTest):
     def test_range_parsing(self):  # {{{
         'Test parsing of Range header'
         from calibre.srv.http_response import get_ranges
+
         def test(val, *args):
             pval = get_ranges(val, 100)
             if len(args) == 1 and args[0] is None:
@@ -124,8 +128,10 @@ class TestHTTP(BaseTest):
         'Test basic HTTP protocol conformance'
         from calibre.srv.errors import HTTPNotFound, HTTPRedirect
         body = 'Requested resource not found'
+
         def handler(data):
             raise HTTPNotFound(body)
+
         def raw_send(conn, raw):
             conn.send(raw)
             conn._HTTPConnection__state = httplib._CS_REQ_SENT
@@ -292,6 +298,7 @@ class TestHTTP(BaseTest):
     def test_http_response(self):  # {{{
         'Test HTTP protocol responses'
         from calibre.srv.http_response import parse_multipart_byterange
+
         def handler(conn):
             return conn.generate_static_output('test', lambda : ''.join(conn.path))
         with NamedTemporaryFile(suffix='test.epub') as f, open(P('localization/locales.zip'), 'rb') as lf, \
@@ -322,6 +329,7 @@ class TestHTTP(BaseTest):
 
             # Test dynamic etagged content
             num_calls = [0]
+
             def edfunc():
                 num_calls[0] += 1
                 return b'data'
@@ -411,6 +419,7 @@ class TestHTTP(BaseTest):
     def test_static_generation(self):  # {{{
         'Test static generation'
         nums = list(map(str, xrange(10)))
+
         def handler(conn):
             return conn.generate_static_output('test', nums.pop)
         with TestServer(handler) as server:

@@ -849,6 +849,7 @@ Enter SQL statements terminated with a ";"
         cur=self.db.cursor()
         # we need to know when each new statement is executed
         state={'newsql': True, 'timing': None}
+
         def et(cur, sql, bindings):
             state['newsql']=True
             # if time reporting, do so now
@@ -1048,6 +1049,7 @@ Enter SQL statements terminated with a ";"
             # prefer not to emit them
             v={"virtuals": False,
                "foreigns": False}
+
             def check(name, sql):
                 if name.lower().startswith("sqlite_"):
                     return False
@@ -1386,6 +1388,7 @@ Enter SQL statements terminated with a ";"
             tablefilter=cmd[1]
         querytemplate=[]
         queryparams=[]
+
         def qp():  # binding for current queryparams
             return "?"+str(len(queryparams))
         s=cmd[0]
@@ -1697,6 +1700,7 @@ Enter SQL statements terminated with a ";"
             # The types we support deducing
             def DateUS(v):  # US formatted date with wrong ordering of day and month
                 return DateWorld(v, switchdm=True)
+
             def DateWorld(v, switchdm=False):  # Sensibly formatted date as used anywhere else in the world
                 y,m,d=self._getdate(v)
                 if switchdm:
@@ -1704,8 +1708,10 @@ Enter SQL statements terminated with a ";"
                 if m<1 or m>12 or d<1 or d>31:
                     raise ValueError
                 return "%d-%02d-%02d" % (y,m,d)
+
             def DateTimeUS(v):  # US date and time
                 return DateTimeWorld(v, switchdm=True)
+
             def DateTimeWorld(v, switchdm=False):  # Sensible date and time
                 y,m,d,h,M,s=self._getdatetime(v)
                 if switchdm:
@@ -1713,6 +1719,7 @@ Enter SQL statements terminated with a ";"
                 if m<1 or m>12 or d<1 or d>31 or h<0 or h>23 or M<0 or M>59 or s<0 or s>65:
                     raise ValueError
                 return "%d-%02d-%02dT%02d:%02d:%02d" % (y,m,d,h,M,s)
+
             def Number(v):  # we really don't want phone numbers etc to match
                 # Python's float & int constructors allow whitespace which we don't
                 if re.search(r"\s", v):
@@ -2867,12 +2874,16 @@ Enter SQL statements terminated with a ";"
         def __init__(self, **kwargs):
             for k,v in kwargs.items():
                 setattr(self, k, v)
+
         def __nonzero__(self):
             return True
+
         def __str__(self):
             return "_colourscheme("+str(self.__dict__)+")"
+
         def __getattr__(self, k):
             return ""
+
         def colour_value(self, val, formatted):
             self.colour
             if val is None:
@@ -2917,6 +2928,7 @@ Enter SQL statements terminated with a ";"
         del v
     except:
         pass
+
 
 def main():
     # Docstring must start on second line so dedenting works correctly

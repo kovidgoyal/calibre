@@ -12,14 +12,17 @@ import apsw
 from calibre.constants import config_dir
 from calibre.utils.config import to_json, from_json
 
+
 def as_json(data):
     return json.dumps(data, ensure_ascii=False, default=to_json)
+
 
 def load_json(raw):
     try:
         return json.loads(raw, object_hook=from_json)
     except Exception:
         return {}
+
 
 class UserManager(object):
 

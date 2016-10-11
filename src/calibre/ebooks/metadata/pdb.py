@@ -31,6 +31,7 @@ MWRITER = {
     'PNRdPPrs' : set_eReader,
 }
 
+
 def get_metadata(stream, extract_cover=True):
     """
     Return metadata as a L{MetaInfo} object
@@ -44,6 +45,7 @@ def get_metadata(stream, extract_cover=True):
         return MetaInformation(pheader.title, [_('Unknown')])
 
     return MetadataReader(stream, extract_cover)
+
 
 def set_metadata(stream, mi):
     stream.seek(0)

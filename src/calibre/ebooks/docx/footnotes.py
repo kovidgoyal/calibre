@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import OrderedDict
 
+
 class Note(object):
 
     def __init__(self, namespace, parent, rels):
@@ -19,6 +20,7 @@ class Note(object):
     def __iter__(self):
         for p in self.namespace.descendants(self.parent, 'w:p', 'w:tbl'):
             yield p
+
 
 class Footnotes(object):
 

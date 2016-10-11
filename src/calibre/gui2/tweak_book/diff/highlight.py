@@ -15,6 +15,7 @@ from calibre.gui2.tweak_book.editor.text import get_highlighter as calibre_highl
 from calibre.gui2.tweak_book.editor.themes import get_theme, highlight_to_char_format
 from calibre.gui2.tweak_book.editor.syntax.utils import format_for_pygments_token, NULL_FMT
 
+
 class QtHighlighter(QTextDocument):
 
     def __init__(self, parent, text, hlclass):
@@ -51,6 +52,7 @@ class QtHighlighter(QTextDocument):
                 cursor.setCharFormat(NULL_FMT)
                 block = block.next()
 
+
 class NullHighlighter(object):
 
     def __init__(self, text):
@@ -60,6 +62,7 @@ class NullHighlighter(object):
         for i in xrange(lo, hi):
             cursor.insertText(self.lines[i])
             cursor.insertBlock()
+
 
 def pygments_lexer(filename):
     try:
@@ -75,12 +78,14 @@ def pygments_lexer(filename):
             return glff('a.py')
         return None
 
+
 class PygmentsHighlighter(object):
 
     def __init__(self, text, lexer):
         theme, cache = get_theme(tprefs['editor_theme']), {}
         theme = {k:highlight_to_char_format(v) for k, v in theme.iteritems()}
         theme[None] = NULL_FMT
+
         def fmt(token):
             return format_for_pygments_token(theme, cache, token)
 
@@ -100,6 +105,7 @@ class PygmentsHighlighter(object):
             for fmt, text in self.lines[i]:
                 cursor.insertText(text, fmt)
             cursor.setCharFormat(NULL_FMT)
+
 
 def get_highlighter(parent, text, syntax):
     hlclass = calibre_highlighter(syntax)

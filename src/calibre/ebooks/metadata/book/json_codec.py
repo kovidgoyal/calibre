@@ -15,6 +15,8 @@ from calibre import isbytestring
 
 # Translate datetimes to and from strings. The string form is the datetime in
 # UTC. The returned date is also UTC
+
+
 def string_to_datetime(src):
     from calibre.utils.iso8601 import parse_iso8601
     if src != "None":
@@ -23,6 +25,7 @@ def string_to_datetime(src):
         except Exception:
             pass
     return None
+
 
 def datetime_to_string(dateval):
     from calibre.utils.date import isoformat, UNDEFINED_DATE, local_tz
@@ -35,6 +38,7 @@ def datetime_to_string(dateval):
     if dateval <= UNDEFINED_DATE:
         return "None"
     return isoformat(dateval)
+
 
 def encode_thumbnail(thumbnail):
     '''
@@ -53,6 +57,7 @@ def encode_thumbnail(thumbnail):
             return None
     return (thumbnail[0], thumbnail[1], b64encode(str(thumbnail[2])))
 
+
 def decode_thumbnail(tup):
     '''
     Decode an encoded thumbnail into its 3 component parts
@@ -60,6 +65,7 @@ def decode_thumbnail(tup):
     if tup is None:
         return None
     return (tup[0], tup[1], b64decode(tup[2]))
+
 
 def object_to_unicode(obj, enc=preferred_encoding):
 
@@ -79,6 +85,7 @@ def object_to_unicode(obj, enc=preferred_encoding):
         return ans
     return obj
 
+
 def encode_is_multiple(fm):
     if fm.get('is_multiple', None):
         # migrate is_multiple back to a character
@@ -91,6 +98,7 @@ def encode_is_multiple(fm):
     else:
         fm['is_multiple'] = None
         fm['is_multiple2'] = {}
+
 
 def decode_is_multiple(fm):
     im = fm.get('is_multiple2',  None)
@@ -114,6 +122,7 @@ def decode_is_multiple(fm):
         elif im is None:
             im = {}
         fm['is_multiple'] = im
+
 
 class JsonCodec(object):
 

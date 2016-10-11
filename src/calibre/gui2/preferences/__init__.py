@@ -15,8 +15,10 @@ from calibre.customize.ui import preferences_plugins
 from calibre.utils.config import ConfigProxy
 from calibre.gui2.complete2 import EditWithComplete
 
+
 class AbortCommit(Exception):
     pass
+
 
 class ConfigWidgetInterface(object):
 
@@ -81,6 +83,7 @@ class ConfigWidgetInterface(object):
         use this method.
         '''
         pass
+
 
 class Setting(object):
 
@@ -204,6 +207,7 @@ class Setting(object):
                 val = unicode(self.gui_obj.itemData(idx) or '')
         return val
 
+
 class CommaSeparatedList(Setting):
 
     def set_gui_val(self, val):
@@ -219,6 +223,7 @@ class CommaSeparatedList(Setting):
             ans = [x.strip() for x in val.split(',')]
             ans = [x for x in ans if x]
         return ans
+
 
 class ConfigWidgetBase(QWidget, ConfigWidgetInterface):
 
@@ -298,16 +303,19 @@ def get_plugin(category, name):
             'No Preferences Plugin with category: %s and name: %s found' %
             (category, name))
 
+
 class ConfigDialog(QDialog):
 
     def set_widget(self, w):
         self.w = w
+
     def accept(self):
         try:
             self.restart_required = self.w.commit()
         except AbortCommit:
             return
         QDialog.accept(self)
+
 
 def init_gui():
     from calibre.gui2.ui import Main
@@ -320,6 +328,7 @@ def init_gui():
     gui = Main(opts)
     gui.initialize(db.library_path, db, None, actions, show_gui=False)
     return gui
+
 
 def show_config_widget(category, name, gui=None, show_restart_msg=False,
         parent=None, never_shutdown=False):
@@ -352,6 +361,7 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
     bb.button(bb.RestoreDefaults).setEnabled(w.supports_restoring_to_defaults)
     bb.button(bb.Apply).setEnabled(False)
     bb.button(bb.Apply).clicked.connect(d.accept)
+
     def onchange():
         b = bb.button(bb.Apply)
         b.setEnabled(True)
@@ -384,8 +394,10 @@ def show_config_widget(category, name, gui=None, show_restart_msg=False,
 
 # Testing {{{
 
+
 def test_widget(category, name, gui=None):
     show_config_widget(category, name, gui=gui, show_restart_msg=True)
+
 
 def test_all():
     from PyQt5.Qt import QApplication

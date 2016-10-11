@@ -14,10 +14,12 @@ import sys, os
 from calibre.ebooks.rtf2xml import copy, border_parse
 from calibre.ptempfile import better_mktemp
 
+
 class Styles:
     """
     Change lines with style numbers to actual style names.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -39,6 +41,7 @@ class Styles:
         self.__copy = copy
         self.__write_to = better_mktemp()
         self.__run_level = run_level
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -258,6 +261,7 @@ class Styles:
         self.__tabs_list = self.__tabs_dict.keys()
         self.__tab_type = 'left'
         self.__leader_found = 0
+
     def __in_individual_style_func(self, line):
         """
         Required:
@@ -303,6 +307,7 @@ class Styles:
                 self.__enter_dict_entry(att, value)
         elif line[0:2] == 'tx':
             self.__text_string += line[17:-1]
+
     def __tab_stop_func(self, line):
         """
         Requires:
@@ -331,6 +336,7 @@ class Styles:
             self.__styles_dict['par'][self.__styles_num]['tabs'] += '%s;' % line[20:-1]
         self.__tab_type = 'left'
         self.__leader_found = 0
+
     def __tab_type_func(self, line):
         """
         """
@@ -341,6 +347,7 @@ class Styles:
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
                 raise self.__bug_handler, msg
+
     def __tab_leader_func(self, line):
         """
         Requires:
@@ -365,6 +372,7 @@ class Styles:
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
                 raise self.__bug_handler, msg
+
     def __tab_bar_func(self, line):
         """
         Requires:
@@ -388,6 +396,7 @@ class Styles:
             self.__styles_dict['par'][self.__styles_num]['tabs']\
             += '%s;' % line[20:-1]
         self.__tab_type = 'left'
+
     def __enter_dict_entry(self, att, value):
         """
         Required:
@@ -404,6 +413,7 @@ class Styles:
             self.__styles_dict[self.__type_of_style][self.__styles_num][att] = value
         except KeyError:
             self.__add_dict_entry(att, value)
+
     def __add_dict_entry(self, att, value):
         """
         Required:
@@ -433,6 +443,7 @@ class Styles:
         smallest_dict[att] = value
         type_dict[self.__styles_num] = smallest_dict
         self.__styles_dict[self.__type_of_style] = type_dict
+
     def __para_style_func(self, line):
         """
         Required:
@@ -452,6 +463,7 @@ class Styles:
         self.__enter_dict_entry('tabs-decimal', '')
         self.__enter_dict_entry('tabs-bar', '')
         """
+
     def __char_style_func(self, line):
         """
         Required:
@@ -464,6 +476,7 @@ class Styles:
         """
         self.__type_of_style = 'char'
         self.__styles_num = line[20:-1]
+
     def __found_beg_ind_style_func(self, line):
         """
         Required:
@@ -476,6 +489,7 @@ class Styles:
             dictionary.
         """
         self.__state = 'in_individual_style'
+
     def __found_end_ind_style_func(self, line):
         name = self.__text_string[:-1]  # get rid of semicolon
         # add 2005-04-29
@@ -483,6 +497,7 @@ class Styles:
         name = name.strip()
         self.__enter_dict_entry('name', name)
         self.__text_string = ''
+
     def __found_end_styles_table_func(self, line):
         """
         Required:
@@ -497,6 +512,7 @@ class Styles:
         self.__state = 'after_styles_table'
         self.__fix_based_on()
         self.__print_style_table()
+
     def __fix_based_on(self):
         """
         Requires:
@@ -536,6 +552,7 @@ class Styles:
                                     msg = 'There is no style with %s\n' % value
                                     raise self.__bug_handler, msg
                             del self.__styles_dict[type][key][style]
+
     def __print_style_table(self):
         """
         Required:
@@ -574,6 +591,7 @@ class Styles:
             self.__write_obj.write(
             'mi<tg<close_____<%s-styles\n' % prefix
             )
+
     def __found_styles_table_func(self, line):
         """
         Required:
@@ -584,6 +602,7 @@ class Styles:
             Change the state to in the style table when the marker has been found.
         """
         self.__state = 'in_styles_table'
+
     def __before_styles_func(self, line):
         """
         Required:
@@ -600,6 +619,7 @@ class Styles:
             self.__write_obj.write(line)
         else:
             action(line)
+
     def __in_styles_func(self, line):
         """
         Required:
@@ -615,6 +635,7 @@ class Styles:
             self.__write_obj.write(line)
         else:
             action(line)
+
     def __para_style_in_body_func(self, line, type):
         """
         Required:
@@ -645,6 +666,7 @@ class Styles:
             self.__write_obj.write(
             'cw<ss<%s_style<nu<not-defined\n' % prefix
             )
+
     def __after_styles_func(self, line):
         """
         Required:
@@ -661,6 +683,7 @@ class Styles:
             action(line, type)
         else:
             self.__write_obj.write(line)
+
     def convert_styles(self):
         """
         Requires:

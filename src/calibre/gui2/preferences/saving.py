@@ -13,6 +13,7 @@ from calibre.utils.config import ConfigProxy
 from calibre.library.save_to_disk import config
 from calibre.gui2 import gprefs
 
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):

@@ -12,6 +12,7 @@ from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.lrf.objects import PageAttr, BlockAttr, TextAttr
 from calibre.ebooks.lrf.pylrs.pylrs import TextStyle
 
+
 class BlockStyle(object):
 
     def __init__(self, ba):
@@ -84,12 +85,14 @@ class LRFConverter(object):
         self.create_page_styles()
         self.create_block_styles()
 
+
 def option_parser():
     parser = OptionParser(usage='%prog book.lrf')
     parser.add_option('--output-dir', '-o', default=None, help=(
         'Output directory in which to store created HTML files. If it does not exist, it is created. By default the current directory is used.'), dest='out')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
     return parser
+
 
 def process_file(lrfpath, opts, logger=None):
     if logger is None:

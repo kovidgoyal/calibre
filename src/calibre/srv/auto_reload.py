@@ -21,10 +21,12 @@ from calibre.utils.monotonic import monotonic
 
 MAX_RETRIES = 10
 
+
 class NoAutoReload(EnvironmentError):
     pass
 
 # Filesystem watcher {{{
+
 
 class WatcherBase(object):
 
@@ -202,6 +204,7 @@ else:
 
 def find_dirs_to_watch(fpath, dirs, add_default_dirs):
     dirs = {os.path.abspath(x) for x in dirs}
+
     def add(x):
         if os.path.isdir(x):
             dirs.add(x)
@@ -217,12 +220,14 @@ def find_dirs_to_watch(fpath, dirs, add_default_dirs):
     return dirs
 # }}}
 
+
 def join_process(p, timeout=5):
     t = Thread(target=p.wait, name='JoinProcess')
     t.daemon = True
     t.start()
     t.join(timeout)
     return p.poll()
+
 
 class Worker(object):
 
@@ -314,6 +319,7 @@ class Worker(object):
 
 # WebSocket reload notifier {{{
 
+
 class ReloadHandler(DummyHandler):
 
     def __init__(self, *args, **kw):
@@ -376,6 +382,7 @@ class ReloadServer(Thread):
         self.loop.stop()
         self.join(self.loop.opts.shutdown_timeout)
 # }}}
+
 
 def auto_reload(log, dirs=frozenset(), cmd=None, add_default_dirs=True, listen_on=None):
     if Watcher is None:

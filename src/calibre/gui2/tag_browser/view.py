@@ -25,6 +25,7 @@ from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
 from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font
 from calibre.utils.icu import sort_key
 
+
 class TagDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -107,6 +108,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
             self.draw_average_rating(item, style, painter, option, widget)
 
     # }}}
+
 
 class TagsView(QTreeView):  # {{{
 
@@ -533,6 +535,7 @@ class TagsView(QTreeView):  # {{{
                         m = self.context_menu.addMenu(self.user_category_icon,
                                         _('Add %s to user category')%display_name(tag))
                         nt = self.model().user_category_node_tree
+
                         def add_node_tree(tree_dict, m, path):
                             p = path[:]
                             for k in sorted(tree_dict.keys(), key=sort_key):

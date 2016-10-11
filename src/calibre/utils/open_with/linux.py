@@ -14,6 +14,7 @@ from calibre.constants import filesystem_encoding, cache_dir
 from calibre.utils.icu import numeric_sort_key as sort_key
 from calibre.utils.localization import canonicalize_lang, get_lang
 
+
 def parse_localized_key(key):
     name, rest = key.partition('[')[0::2]
     if not rest:
@@ -22,9 +23,11 @@ def parse_localized_key(key):
     lang = re.split(r'[_.@]', rest)[0]
     return name, canonicalize_lang(lang)
 
+
 def unquote_exec(val):
     val = val.replace(r'\\', '\\')
     return shlex.split(val)
+
 
 def parse_desktop_file(path):
     gpat = re.compile(r'^\[(.+?)\]\s*$')
@@ -71,6 +74,7 @@ def parse_desktop_file(path):
         return ans
 
 icon_data = None
+
 
 def find_icons():
     global icon_data
@@ -157,9 +161,11 @@ def find_icons():
     icon_data = {k:v[0][1] for k, v in ans.iteritems()}
     return icon_data
 
+
 def localize_string(data):
     lang = canonicalize_lang(get_lang())
     return data.get(lang, data.get(None)) or ''
+
 
 def find_programs(extensions):
     extensions = {ext.lower() for ext in extensions}
@@ -201,8 +207,10 @@ def find_programs(extensions):
     ans.sort(key=lambda d:sort_key(d.get('Name')))
     return ans
 
+
 def entry_sort_key(entry):
     return sort_key(entry['Name'])
+
 
 def entry_to_cmdline(entry, path):
     path = os.path.abspath(path)
@@ -210,6 +218,7 @@ def entry_to_cmdline(entry, path):
         'f':path, 'F':path, 'u':'file://'+path, 'U':'file://'+path, '%':'%',
         'c':entry.get('Name', ''), 'k':entry.get('desktop_file_path', ''),
     }
+
     def replace(match):
         char = match.group()[-1]
         repl = rmap.get(char)

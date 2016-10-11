@@ -24,6 +24,8 @@ from calibre.customize.ui import preferences_plugins
 ICON_SIZE = 32
 
 # Title Bar {{{
+
+
 class Message(QWidget):
 
     def __init__(self, parent):
@@ -68,6 +70,7 @@ class Message(QWidget):
             y = (self.height() - br.height()) / 2
         self.layout.draw(p, QPointF(0, y))
 
+
 class TitleBar(QWidget):
 
     def __init__(self, parent=None):
@@ -97,6 +100,7 @@ class TitleBar(QWidget):
         self.msg.setText(' '.join(msg.splitlines()).strip())
 
 # }}}
+
 
 class Category(QWidget):  # {{{
 
@@ -143,6 +147,7 @@ class Category(QWidget):  # {{{
         self.plugin_activated.emit(plugin)
 
 # }}}
+
 
 class Browser(QScrollArea):  # {{{
 

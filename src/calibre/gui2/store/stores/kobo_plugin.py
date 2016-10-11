@@ -22,6 +22,7 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+
 def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
     from css_selectors import Select
     url = 'http://www.kobobooks.com/search/search.html?q=' + urllib.quote_plus(query)
@@ -79,6 +80,7 @@ def search_kobo(query, max_results=10, timeout=60, write_html_to=None):
                 s.drm = SearchResult.DRM_UNKNOWN
 
             yield s
+
 
 class KoboStore(BasicStoreConfig, StorePlugin):
 

@@ -23,6 +23,7 @@ from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.shortcuts import ShortcutConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 
+
 def config(defaults=None):
     desc = _('Options to customize the ebook viewer')
     if defaults is None:
@@ -116,8 +117,10 @@ def config(defaults=None):
 
     return c
 
+
 def load_themes():
     return JSONConfig('viewer_themes')
+
 
 class ConfigDialog(QDialog, Ui_Dialog):
 
@@ -145,6 +148,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             'el_monoton': get_language('el').partition(';')[0] + _(' monotone'), 'el_polyton':get_language('el').partition(';')[0] + _(' polytone'),
             'sr_cyrl': get_language('sr') + _(' cyrillic'), 'sr_latn': get_language('sr') + _(' latin'),
         }
+
         def gl(pat):
             return lang_pats.get(pat, get_language(pat))
         names = list(map(gl, pats))
@@ -235,6 +239,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def word_lookups(self):
         def fget(self):
             return dict(self.dictionary_list.item(i).data(Qt.UserRole) for i in range(self.dictionary_list.count()))
+
         def fset(self, wl):
             self.dictionary_list.clear()
             for langcode, url in sorted(wl.iteritems(), key=lambda (lc, url):sort_key(calibre_langcode_to_name(lc))):

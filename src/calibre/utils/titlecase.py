@@ -31,6 +31,7 @@ UC_INITIALS = re.compile(r"^(?:[A-Z]{1}\.{1}|[A-Z]{1}\.{1}[A-Z]{1})+$")
 
 _lang = None
 
+
 def lang():
     global _lang
     if _lang is None:
@@ -38,8 +39,8 @@ def lang():
         _lang = get_lang().lower()
     return _lang
 
-def titlecase(text):
 
+def titlecase(text):
     """
     Titlecases input text
 

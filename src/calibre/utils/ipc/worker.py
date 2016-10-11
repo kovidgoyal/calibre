@@ -50,6 +50,7 @@ PARALLEL_FUNCS = {
     ('calibre.utils.ipc.worker', 'arbitrary_n', 'notification'),
 }
 
+
 class Progress(Thread):
 
     def __init__(self, conn):
@@ -70,6 +71,7 @@ class Progress(Thread):
                 eintr_retry_call(self.conn.send, x)
             except:
                 break
+
 
 def arbitrary(module_name, func_name, args, kwargs={}):
     '''
@@ -110,6 +112,7 @@ def arbitrary(module_name, func_name, args, kwargs={}):
     func = getattr(module, func_name)
     return func(*args, **kwargs)
 
+
 def arbitrary_n(module_name, func_name, args, kwargs={},
         notification=lambda x, y: y):
     '''
@@ -129,6 +132,7 @@ def arbitrary_n(module_name, func_name, args, kwargs={},
     kwargs['notification'] = notification
     return func(*args, **kwargs)
 
+
 def get_func(name):
     module, func, notification = PARALLEL_FUNCS[name]
     try:
@@ -141,6 +145,7 @@ def get_func(name):
         module = importlib.import_module(module)
     func = getattr(module, func)
     return func, notification
+
 
 def main():
     if iswindows:

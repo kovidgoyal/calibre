@@ -26,6 +26,7 @@ from calibre.utils.icu import utf16_length
 get_offset = itemgetter(0)
 PARAGRAPH_SEPARATOR = '\u2029'
 
+
 class Tag(object):
 
     def __init__(self, start_block, tag_start, end_block, tag_end, self_closing=False):
@@ -42,6 +43,7 @@ class Tag(object):
             self.name, self.start_block.blockNumber(), self.start_offset, self.end_block.blockNumber(), self.end_offset, self.self_closing)
     __str__ = __repr__
 
+
 def next_tag_boundary(block, offset, forward=True, max_lines=10000):
     while block.isValid() and max_lines > 0:
         ud = block.userData()
@@ -57,6 +59,7 @@ def next_tag_boundary(block, offset, forward=True, max_lines=10000):
         max_lines -= 1
     return None, None
 
+
 def next_attr_boundary(block, offset, forward=True):
     while block.isValid():
         ud = block.userData()
@@ -70,6 +73,7 @@ def next_attr_boundary(block, offset, forward=True):
         block = block.next() if forward else block.previous()
         offset = -1 if forward else sys.maxint
     return None, None
+
 
 def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
     ''' Find the closest containing tag. To find it, we search for the first
@@ -113,6 +117,7 @@ def find_closest_containing_tag(block, offset, max_tags=sys.maxint):
         max_tags -= 1
     return None  # Could not find a containing tag
 
+
 def find_tag_definition(block, offset):
     ''' Return the <tag | > definition, if any that (block, offset) is inside. '''
     block, boundary = next_tag_boundary(block, offset, forward=False)
@@ -125,6 +130,7 @@ def find_tag_definition(block, offset):
         tag = tag_start.prefix + ':' + tag
     return tag, closing
 
+
 def find_containing_attribute(block, offset):
     block, boundary = next_attr_boundary(block, offset, forward=False)
     if block is None:
@@ -135,6 +141,7 @@ def find_containing_attribute(block, offset):
     if block is not None and boundary.type == ATTR_NAME:
         return boundary.data
     return None
+
 
 def find_attribute_in_tag(block, offset, attr_name):
     ' Return the start of the attribute value as block, offset or None, None if attribute not found '
@@ -159,6 +166,7 @@ def find_attribute_in_tag(block, offset, attr_name):
                 found_attr = True
             current_offset += 1
 
+
 def find_end_of_attribute(block, offset):
     ' Find the end of an attribute that occurs somewhere after the position specified by (block, offset) '
     block, boundary = next_attr_boundary(block, offset)
@@ -167,6 +175,7 @@ def find_end_of_attribute(block, offset):
     if boundary.type is not ATTR_VALUE or boundary.data is not ATTR_END:
         return None, None
     return block, boundary.offset
+
 
 def find_closing_tag(tag, max_tags=sys.maxint):
     ''' Find the closing tag corresponding to the specified tag. To find it we
@@ -198,10 +207,12 @@ def find_closing_tag(tag, max_tags=sys.maxint):
         max_tags -= 1
     return None
 
+
 def select_tag(cursor, tag):
     cursor.setPosition(tag.start_block.position() + tag.start_offset)
     cursor.setPosition(tag.end_block.position() + tag.end_offset + 1, cursor.KeepAnchor)
     return unicode(cursor.selectedText()).replace(PARAGRAPH_SEPARATOR, '\n').rstrip('\0')
+
 
 def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
     cursor.beginEditBlock()
@@ -218,6 +229,7 @@ def rename_tag(cursor, opening_tag, closing_tag, new_name, insert=False):
         text = re.sub(r'^<\s*[a-zA-Z0-9]+', '<%s' % new_name, text)
     cursor.insertText(text)
     cursor.endEditBlock()
+
 
 def ensure_not_within_tag_definition(cursor, forward=True):
     ''' Ensure the cursor is not inside a tag definition <>. Returns True iff the cursor was moved. '''
@@ -244,6 +256,7 @@ BLOCK_TAG_NAMES = frozenset((
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'p', 'div', 'dd', 'dl', 'ul',
     'ol', 'li', 'body', 'td', 'th'))
 
+
 def find_closest_containing_block_tag(block, offset, block_tag_names=BLOCK_TAG_NAMES):
     while True:
         tag = find_closest_containing_tag(block, offset)
@@ -253,6 +266,7 @@ def find_closest_containing_block_tag(block, offset, block_tag_names=BLOCK_TAG_N
             return tag
         block, offset = tag.start_block, tag.start_offset
 
+
 def set_style_property(tag, property_name, value, editor):
     '''
     Set a style property, i.e. a CSS property inside the style attribute of the tag.
@@ -260,6 +274,7 @@ def set_style_property(tag, property_name, value, editor):
     '''
     block, offset = find_attribute_in_tag(tag.start_block, tag.start_offset + 1, 'style')
     c = editor.textCursor()
+
     def css(d):
         return d.cssText.replace('\n', ' ')
     if block is None or offset is None:
@@ -280,6 +295,7 @@ def set_style_property(tag, property_name, value, editor):
         c.insertText('"%s"' % css(d))
 
 entity_pat = re.compile(r'&(#{0,1}[a-zA-Z0-9]{1,8});$')
+
 
 class Smarts(NullSmarts):
 
@@ -757,6 +773,7 @@ if __name__ == '__main__':  # {{{
     </body>
 </html>
 '''
+
     def callback(ed):
         import regex
         ed.find_text(regex.compile('A bold word'))

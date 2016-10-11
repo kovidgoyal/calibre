@@ -12,6 +12,7 @@ __license__   = 'GPL v3'
 from PyQt5.Qt import (QDialog, QVBoxLayout, QLabel, QDialogButtonBox,
             QListWidget, QAbstractItemView, QSizePolicy)
 
+
 class ChoosePluginToolbarsDialog(QDialog):
 
     def __init__(self, parent, plugin, locations):

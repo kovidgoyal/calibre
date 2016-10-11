@@ -226,6 +226,7 @@ else:
     DatabaseImages = None
     FileSystemImages = None
 
+
 class CBDialog(QDialog):
 
     closed = pyqtSignal()
@@ -444,6 +445,7 @@ class CoverFlowMixin(object):
     def sync_listview_to_cf(self, row):
         self.cf_last_updated_at = time.time()
 
+
 def test():
     from PyQt5.Qt import QApplication, QMainWindow
     app = QApplication([])
@@ -459,6 +461,7 @@ def test():
     w.show()
     cf.setFocus(Qt.OtherFocusReason)
     sys.exit(app.exec_())
+
 
 def main(args=sys.argv):
     return 0

@@ -17,9 +17,11 @@ from calibre.ebooks.oeb.polish.split import split, merge
 from calibre.utils.filenames import nlinks_file
 from calibre.ptempfile import TemporaryFile, TemporaryDirectory
 
+
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
     return _gc(*args, **kwargs)
+
 
 class ContainerTests(BaseTest):
 
@@ -93,6 +95,7 @@ class ContainerTests(BaseTest):
         ' Test renaming of files '
         book = get_simple_book()
         count = [0]
+
         def new_container():
             count[0] += 1
             tdir = os.mkdir(os.path.join(self.tdir, str(count[0])))

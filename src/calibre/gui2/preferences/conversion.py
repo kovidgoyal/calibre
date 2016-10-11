@@ -23,6 +23,7 @@ from calibre.gui2.convert.toc import TOCWidget
 from calibre.customize.ui import input_format_plugins, output_format_plugins
 from calibre.gui2.convert import config_widget_for_input_plugin
 
+
 class Model(QStringListModel):
 
     def __init__(self, widgets):
@@ -55,6 +56,7 @@ class ListView(QListView):
     def currentChanged(self, cur, prev):
         QListView.currentChanged(self, cur, prev)
         self.current_changed.emit(cur, prev)
+
 
 class Base(ConfigWidgetBase):
 
@@ -113,12 +115,14 @@ class Base(ConfigWidgetBase):
     def category_current_changed(self, n, p):
         self.stack.setCurrentIndex(n.row())
 
+
 class CommonOptions(Base):
 
     def load_conversion_widgets(self):
         self.conversion_widgets = [LookAndFeelWidget, HeuristicsWidget,
                 PageSetupWidget,
                 StructureDetectionWidget, TOCWidget, SearchAndReplaceWidget,]
+
 
 class InputOptions(Base):
 
@@ -128,6 +132,7 @@ class InputOptions(Base):
             pw = config_widget_for_input_plugin(plugin)
             if pw is not None:
                 self.conversion_widgets.append(pw)
+
 
 class OutputOptions(Base):
 

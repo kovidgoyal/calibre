@@ -21,10 +21,12 @@ from calibre.utils.date import now as nowf
 from calibre.utils.imghdr import what
 from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 
+
 def is_image(ss):
     if ss is None:
         return False
     return what(None, ss[:200]) is not None
+
 
 class StreamSlicer(object):
 
@@ -92,6 +94,7 @@ class StreamSlicer(object):
 
     def truncate(self, value):
         self._stream.truncate(value)
+
 
 class MetadataUpdater(object):
     DRM_KEY_SIZE = 48
@@ -323,6 +326,7 @@ class MetadataUpdater(object):
 
     def update(self, mi):
         mi.title = normalize(mi.title)
+
         def update_exth_record(rec):
             recs.append(rec)
             if rec[0] in self.original_exth_records:
@@ -457,10 +461,12 @@ class MetadataUpdater(object):
                         self.thumbnail_record[:] = thumbnail
                 return
 
+
 def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)
     mu.update(mi)
     return
+
 
 def get_metadata(stream):
     from calibre.ebooks.metadata import MetaInformation

@@ -18,6 +18,7 @@ from calibre.ebooks.metadata import (author_to_author_sort, authors_to_string,
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.config_base import config_dir, prefs
 
+
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     from calibre.utils.date import now
 
@@ -30,6 +31,8 @@ def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
         return _strftime(fmt, now().timetuple())
 
 _log = None
+
+
 def logger():
     global _log
     if _log is None:
@@ -3679,6 +3682,7 @@ class Book(Metadata):
     A simple class describing a book in the iTunes Books Library.
     See ebooks.metadata.book.base
     '''
+
     def __init__(self, title, author):
         Metadata.__init__(self, title, authors=author.split(' & '))
         self.author = author

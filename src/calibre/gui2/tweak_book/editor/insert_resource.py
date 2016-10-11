@@ -29,6 +29,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.localization import get_lang, canonicalize_lang
 from calibre.utils.icu import sort_key
 
+
 class ChooseName(Dialog):  # {{{
 
     ''' Chooses the filename for a newly imported file, with error checking '''
@@ -71,6 +72,8 @@ class ChooseName(Dialog):  # {{{
 # }}}
 
 # Images {{{
+
+
 class ImageDelegate(QStyledItemDelegate):
 
     MARGIN = 4
@@ -139,6 +142,7 @@ class ImageDelegate(QStyledItemDelegate):
         finally:
             painter.restore()
 
+
 class Images(QAbstractListModel):
 
     def __init__(self, parent):
@@ -174,6 +178,7 @@ class Images(QAbstractListModel):
         if role in (Qt.DisplayRole, Qt.ToolTipRole):
             return name
         return None
+
 
 class InsertImage(Dialog):
 
@@ -318,11 +323,13 @@ class InsertImage(Dialog):
         self.fm.setFilterFixedString(f)
 # }}}
 
+
 def get_resource_data(rtype, parent):
     if rtype == 'image':
         d = InsertImage(parent)
         if d.exec_() == d.Accepted:
             return d.chosen_image, d.chosen_image_is_external, d.fullpage.isChecked(), d.preserve_aspect_ratio.isChecked()
+
 
 def create_folder_tree(container):
     root = {}
@@ -335,6 +342,7 @@ def create_folder_tree(container):
         for x in folder_path:
             current[x] = current = current.get(x, {})
     return root
+
 
 class ChooseFolder(Dialog):  # {{{
 

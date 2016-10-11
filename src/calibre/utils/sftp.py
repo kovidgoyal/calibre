@@ -13,6 +13,7 @@ from binascii import hexlify
 
 import paramiko
 
+
 def agent_auth(transport, username):
     """
     Attempt to authenticate to the given transport using any of the private
@@ -34,9 +35,11 @@ def agent_auth(transport, username):
             print '... failed.'
     return False
 
+
 def portable_getpass(username, hostname, retry):
     return getpass.getpass('%sPlease enter the password for %s on %s: '%(
                                 'Incorrect password. ' if retry else '', username, hostname))
+
 
 def password_auth(transport, username, hostname, getpw=portable_getpass):
     for i in range(3):

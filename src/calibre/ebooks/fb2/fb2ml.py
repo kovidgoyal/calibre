@@ -20,6 +20,7 @@ from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.img import save_cover_data_to
 from calibre.ebooks.oeb.base import urlnormalize
 
+
 class FB2MLizer(object):
     '''
     Todo: * Include more FB2 specific tags in the conversion.

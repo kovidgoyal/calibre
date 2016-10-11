@@ -18,6 +18,7 @@ from calibre.ebooks.pdf.render.common import (
 from calibre.ebooks.pdf.render.serialize import Path
 from calibre.ebooks.pdf.render.gradients import LinearGradientPattern
 
+
 def convert_path(path):  # {{{
     p = Path()
     i = 0
@@ -45,6 +46,7 @@ def convert_path(path):  # {{{
 
 Brush = namedtuple('Brush', 'origin brush color')
 
+
 class TilingPattern(Stream):
 
     def __init__(self, cache_key, matrix, w=8, h=8, paint_type=2, compress=False):
@@ -66,6 +68,7 @@ class TilingPattern(Stream):
         d['YStep'] = self.h
         d['Matrix'] = Array(self.matrix)
         d['Resources'] = self.resources
+
 
 class QtPattern(TilingPattern):
 
@@ -224,6 +227,7 @@ class QtPattern(TilingPattern):
         super(QtPattern, self).__init__(pattern_num, matrix)
         self.write(self.qt_patterns[pattern_num-2])
 
+
 class TexturePattern(TilingPattern):
 
     def __init__(self, pixmap, matrix, pdf, clone=None):
@@ -245,6 +249,7 @@ class TexturePattern(TilingPattern):
                 paint_type=clone.paint_type)
             self.resources['XObject'] = Dictionary(clone.resources['XObject'])
             self.write(clone.getvalue())
+
 
 class GraphicsState(object):
 
@@ -278,6 +283,7 @@ class GraphicsState(object):
         ans.clip_updated = self.clip_updated
         ans.do_fill, ans.do_stroke = self.do_fill, self.do_stroke
         return ans
+
 
 class Graphics(object):
 

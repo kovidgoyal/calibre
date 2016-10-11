@@ -13,6 +13,7 @@ from PyQt5.Qt import QTimer, QApplication, Qt
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 
+
 class MarkBooksAction(InterfaceAction):
 
     name = 'Mark Books'

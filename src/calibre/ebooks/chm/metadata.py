@@ -15,8 +15,10 @@ from calibre.utils.logging import default_log
 from calibre.ptempfile import TemporaryFile
 from calibre import force_unicode
 
+
 def _clean(s):
     return s.replace(u'\u00a0', u' ')
+
 
 def _detag(tag):
     str = u""
@@ -44,12 +46,14 @@ def _metadata_from_table(soup, searchfor):
         meta = _detag(td)
         return re.sub(r'^[^:]+:', '', meta).strip()
 
+
 def _metadata_from_span(soup, searchfor):
     span = soup.find('span', {'class': re.compile(searchfor, flags=re.I)})
     if span is None:
         return None
     # this metadata might need some cleaning up still :/
     return _detag(span.renderContents(None).strip())
+
 
 def _get_authors(soup):
     aut = (_metadata_from_span(soup, r'author') or _metadata_from_table(soup, r'^\s*by\s*:?\s+'))
@@ -58,11 +62,14 @@ def _get_authors(soup):
         ans = string_to_authors(aut)
     return ans
 
+
 def _get_publisher(soup):
     return (_metadata_from_span(soup, 'imprint') or _metadata_from_table(soup, 'publisher'))
 
+
 def _get_isbn(soup):
     return (_metadata_from_span(soup, 'isbn') or _metadata_from_table(soup, 'isbn'))
+
 
 def _get_comments(soup):
     date = (_metadata_from_span(soup, 'cwdate') or _metadata_from_table(soup, 'pub date'))
@@ -76,6 +83,7 @@ def _get_comments(soup):
     except:
         pass
     return None
+
 
 def _get_cover(soup, rdr):
     ans = None
@@ -158,6 +166,7 @@ def get_metadata_from_reader(rdr):
         mi.cover_data = ('jpg', cdata)
 
     return mi
+
 
 def get_metadata(stream):
     with TemporaryFile('_chm_metadata.chm') as fname:

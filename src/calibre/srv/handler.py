@@ -19,10 +19,12 @@ from calibre.srv.routes import Router
 from calibre.srv.users import UserManager
 from calibre.utils.date import utcnow
 
+
 def init_library(library_path):
     db = Cache(create_backend(library_path))
     db.init()
     return db
+
 
 class LibraryBroker(object):
 
@@ -75,6 +77,7 @@ class LibraryBroker(object):
                 return x
             return x.backend.library_path
         return {k:os.path.basename(lpath(v)) for k, v in self.lmap.iteritems()}
+
 
 class Context(object):
 
@@ -177,6 +180,7 @@ class Context(object):
             else:
                 cache[key] = old
             return old[1]
+
 
 class Handler(object):
 

@@ -14,6 +14,7 @@ modified to make it work
 
 from calibre.constants import iswindows
 
+
 def get_socket_inherit(socket):
     '''
     Returns True if the socket has been set to allow inheritance across
@@ -31,6 +32,7 @@ def get_socket_inherit(socket):
     except:
         import traceback
         traceback.print_exc()
+
 
 def set_socket_inherit(sock, inherit):
     '''
@@ -64,6 +66,7 @@ def set_socket_inherit(sock, inherit):
     except:
         import traceback
         traceback.print_exc()
+
 
 def test():
     import socket

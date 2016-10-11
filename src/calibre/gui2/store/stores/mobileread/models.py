@@ -15,6 +15,7 @@ from calibre.utils.config_base import prefs
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 
+
 class BooksModel(QAbstractItemModel):
 
     total_changed = pyqtSignal(int)

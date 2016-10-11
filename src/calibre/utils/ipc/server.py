@@ -23,6 +23,7 @@ from calibre.ptempfile import base_dir
 
 _counter = 0
 
+
 class ConnectedWorker(Thread):
 
     def __init__(self, worker, conn, rfile):
@@ -81,6 +82,7 @@ class ConnectedWorker(Thread):
             self._returncode = r
         return r
 
+
 class CriticalError(Exception):
     pass
 
@@ -88,6 +90,7 @@ _name_counter = itertools.count()
 
 if islinux:
     import fcntl
+
     class LinuxListener(Listener):
 
         def __init__(self, *args, **kwargs):
@@ -167,6 +170,7 @@ else:
 
                 if err.errno != errno.EADDRINUSE:
                     raise
+
 
 class Server(Thread):
 

@@ -14,6 +14,7 @@ from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ptempfile import TemporaryDirectory
 
+
 class HTMLZOutput(OutputFormatPlugin):
 
     name = 'HTMLZ Output'

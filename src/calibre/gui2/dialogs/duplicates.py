@@ -16,6 +16,7 @@ from PyQt5.Qt import (
 from calibre.gui2 import gprefs
 from calibre.ebooks.metadata import authors_to_string
 
+
 class DuplicatesQuestion(QDialog):
 
     def __init__(self, db, duplicates, parent=None):

@@ -20,6 +20,7 @@ from odf.namespaces import TEXTNS as odTEXTNS
 from calibre import CurrentDir, walk
 from calibre.ebooks.oeb.base import _css_logger
 
+
 class Extract(ODF2XHTML):
 
     def extract_pictures(self, zf):

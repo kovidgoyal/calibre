@@ -21,6 +21,7 @@ from calibre.library.coloring import (displayable_columns, color_row_key)
 from calibre.gui2 import error_dialog, choose_files, pixmap_to_data
 from calibre.utils.localization import localize_user_manual_link
 
+
 class ParenPosition:
 
     def __init__(self, block, pos, paren):
@@ -31,6 +32,7 @@ class ParenPosition:
 
     def set_highlight(self, to_what):
         self.highlight = to_what
+
 
 class TemplateHighlighter(QSyntaxHighlighter):
 
@@ -199,6 +201,7 @@ class TemplateHighlighter(QSyntaxHighlighter):
         self.paren_pos_map = {}
         self.rehighlight()
         self.generate_paren_positions = False
+
 
 class TemplateDialog(QDialog, Ui_TemplateDialog):
 

@@ -30,10 +30,13 @@ KEY = Qt.Key_J
 MODIFIER = Qt.META if isosx else Qt.CTRL
 
 SnipKey = namedtuple('SnipKey', 'trigger syntaxes')
+
+
 def snip_key(trigger, *syntaxes):
     if '*' in syntaxes:
         syntaxes = all_text_syntaxes
     return SnipKey(trigger, frozenset(syntaxes))
+
 
 def contains(l1, r1, l2, r2):
     # True iff (l2, r2) if contained in (l1, r1)
@@ -85,6 +88,8 @@ obtain some advantage from it? But.</p>
 
 # Parsing of snippets {{{
 escape = unescape = None
+
+
 def escape_funcs():
     global escape, unescape
     if escape is None:
@@ -95,6 +100,7 @@ def escape_funcs():
         unescape_pat = re.compile('|'.join(unescapem))
         unescape = lambda x:unescape_pat.sub(lambda m:unescapem[m.group()], x)
     return escape, unescape
+
 
 class TabStop(unicode):
 
@@ -129,6 +135,7 @@ class TabStop(unicode):
         return 'TabStop(text=%s num=%d start=%d is_mirror=%s takes_selection=%s is_toplevel=%s)' % (
             unicode.__repr__(self), self.num, self.start, self.is_mirror, self.takes_selection, self.is_toplevel)
 
+
 def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
     escape, unescape = escape_funcs()
     template = escape(template)
@@ -158,6 +165,7 @@ def parse_template(template, start_offset=0, is_toplevel=True, grouped=True):
 _snippets = None
 user_snippets = JSONConfig('editor_snippets')
 
+
 def snippets(refresh=False):
     global _snippets
     if _snippets is None or refresh:
@@ -170,6 +178,7 @@ def snippets(refresh=False):
     return _snippets
 
 # Editor integration {{{
+
 
 class EditorTabStop(object):
 
@@ -218,6 +227,7 @@ class EditorTabStop(object):
             c = editor.textCursor()
             c.setPosition(self.left), c.setPosition(self.right, c.KeepAnchor)
             return editor.selected_text_from_cursor(c)
+
         def fset(self, text):
             editor = self.editor()
             if editor is None or self.is_deleted:
@@ -261,6 +271,7 @@ class EditorTabStop(object):
                 self.left += chars_added
             if position <= self.right:
                 self.right += chars_added
+
 
 class Template(list):
 
@@ -329,6 +340,7 @@ class Template(list):
                 dist, ans = x, c
         return ans
 
+
 def expand_template(editor, trigger, template):
     c = editor.textCursor()
     c.beginEditBlock()
@@ -348,6 +360,7 @@ def expand_template(editor, trigger, template):
     c.endEditBlock()
     return tl
 
+
 def find_matching_snip(text, syntax=None, snip_func=None):
     ans_snip = ans_trigger = None
     for key, snip in (snip_func or snippets)():
@@ -355,6 +368,7 @@ def find_matching_snip(text, syntax=None, snip_func=None):
             ans_snip, ans_trigger = snip, key.trigger
             break
     return ans_snip, ans_trigger
+
 
 class SnippetManager(QObject):
 
@@ -420,6 +434,7 @@ class SnippetManager(QObject):
 
 # Config {{{
 
+
 class SnippetTextEdit(PlainTextEdit):
 
     def __init__(self, text, parent=None):
@@ -432,6 +447,7 @@ class SnippetTextEdit(PlainTextEdit):
         if self.snippet_manager.handle_key_press(ev):
             return
         PlainTextEdit.keyPressEvent(self, ev)
+
 
 class EditSnippet(QWidget):
 
@@ -521,6 +537,7 @@ class EditSnippet(QWidget):
     def snip(self):
         def fset(self, snip):
             self.apply_snip(snip)
+
         def fget(self):
             ftypes = []
             for i in xrange(self.types.count()):
@@ -543,6 +560,7 @@ class EditSnippet(QWidget):
         elif not snip['syntaxes']:
             err = _('You must specify at least one file type')
         return err
+
 
 class UserSnippets(Dialog):
 

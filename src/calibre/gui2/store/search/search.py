@@ -24,6 +24,7 @@ from calibre.gui2.store.search.download_thread import SearchThreadPool, \
 from calibre.gui2.store.search.search_ui import Ui_Dialog
 from calibre.utils.filenames import ascii_filename
 
+
 class SearchDialog(QDialog, Ui_Dialog):
 
     SEARCH_TEXT = _('&Search')

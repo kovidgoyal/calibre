@@ -7,6 +7,7 @@ import re, os, shutil
 from calibre import CurrentDir
 from calibre.customize import Plugin
 
+
 class ConversionOption(object):
 
     '''
@@ -46,6 +47,7 @@ class ConversionOption(object):
                 long_switch=self.long_switch, short_switch=self.short_switch,
                 choices=self.choices)
 
+
 class OptionRecommendation(object):
     LOW  = 1
     MED  = 2
@@ -82,6 +84,7 @@ class OptionRecommendation(object):
                              repr(self.recommended_value) +
                              ' is not a string or a number')
 
+
 class DummyReporter(object):
 
     def __init__(self):
@@ -89,6 +92,7 @@ class DummyReporter(object):
 
     def __call__(self, percent, msg=''):
         pass
+
 
 def gui_configuration_widget(name, parent, get_option_by_name,
         get_option_help, db, book_id, for_output=True):

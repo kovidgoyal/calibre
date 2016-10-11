@@ -185,14 +185,17 @@ _TYPES = {_TYPE_A : "a",
 
 # utility functions
 
+
 def currentTimeMillis():
     """Current system time in milliseconds"""
     return time.time() * 1000
+
 
 def ntop(address):
     """Convert address to its string representation"""
     af = len(address) == 4 and socket.AF_INET or socket.AF_INET6
     return socket.inet_ntop(af, address)
+
 
 def address_type(address):
     """Return appropriate record type for an address"""
@@ -200,33 +203,42 @@ def address_type(address):
 
 # Exceptions
 
+
 class MalformedPacketException(Exception):
     pass
+
 
 class NonLocalNameException(Exception):
     pass
 
+
 class NonUniqueNameException(Exception):
     pass
+
 
 class NamePartTooLongException(Exception):
     pass
 
+
 class AbstractMethodException(Exception):
     pass
 
+
 class BadTypeInNameException(Exception):
     pass
+
 
 class BadDomainName(Exception):
 
     def __init__(self, pos):
         Exception.__init__(self, "at position " + str(pos))
 
+
 class BadDomainNameCircular(BadDomainName):
     pass
 
 # implementation classes
+
 
 class DNSEntry(object):
 
@@ -276,6 +288,7 @@ class DNSEntry(object):
         else:
             result += "]"
         return result
+
 
 class DNSQuestion(DNSEntry):
 
@@ -357,6 +370,7 @@ class DNSRecord(DNSEntry):
         arg = "%s/%s,%s" % (self.ttl, self.getRemainingTTL(currentTimeMillis()), other)
         return DNSEntry.toString(self, "record", arg)
 
+
 class DNSAddress(DNSRecord):
 
     """A DNS address record"""
@@ -382,6 +396,7 @@ class DNSAddress(DNSRecord):
         except:
             return 'record[%s]' % self.address
 
+
 class DNSHinfo(DNSRecord):
 
     """A DNS host information record"""
@@ -406,6 +421,7 @@ class DNSHinfo(DNSRecord):
         """String representation"""
         return self.cpu + " " + self.os
 
+
 class DNSPointer(DNSRecord):
 
     """A DNS pointer record"""
@@ -427,6 +443,7 @@ class DNSPointer(DNSRecord):
     def __repr__(self):
         """String representation"""
         return self.toString(self.alias)
+
 
 class DNSText(DNSRecord):
 
@@ -452,6 +469,7 @@ class DNSText(DNSRecord):
             return self.toString(self.text[:7] + "...")
         else:
             return self.toString(self.text)
+
 
 class DNSService(DNSRecord):
 
@@ -480,6 +498,7 @@ class DNSService(DNSRecord):
     def __repr__(self):
         """String representation"""
         return self.toString("%s:%s" % (self.server, self.port))
+
 
 class DNSIncoming(object):
 
@@ -929,6 +948,7 @@ class Engine(threading.Thread):
         self.condition.notify()
         self.condition.release()
 
+
 class Listener(object):
 
     """A Listener is used by this module to listen on the multicast
@@ -1284,6 +1304,7 @@ class Zeroconf(object):
 
     Supports registration, unregistration, queries and browsing.
     """
+
     def __init__(self, bindaddress=None):
         """Creates an instance of the Zeroconf class, establishing
         multicast communications, listening and reaping threads."""

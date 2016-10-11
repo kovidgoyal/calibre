@@ -26,8 +26,10 @@ DEFAULT_LEVEL1 = '/'
 DEFAULT_LEVEL2 = '-_ 0123456789'
 DEFAULT_LEVEL3 = '.'
 
+
 class PluginFailed(RuntimeError):
     pass
+
 
 class Worker(Thread):
 
@@ -53,6 +55,7 @@ class Worker(Thread):
 wlock = Lock()
 workers = []
 
+
 def split(tasks, pool_size):
     '''
     Split a list into a list of sub lists, with the number of sub lists being
@@ -69,11 +72,13 @@ def split(tasks, pool_size):
         ans.append(section)
     return ans
 
+
 def default_scorer(*args, **kwargs):
     try:
         return CScorer(*args, **kwargs)
     except PluginFailed:
         return PyScorer(*args, **kwargs)
+
 
 class Matcher(object):
 
@@ -123,6 +128,7 @@ class Matcher(object):
             del items[limit:]
         return OrderedDict(x[1:] for x in filter(itemgetter(0), items))
 
+
 def get_items_from_dir(basedir, acceptq=lambda x: True):
     if isinstance(basedir, bytes):
         basedir = basedir.decode(filesystem_encoding)
@@ -136,12 +142,15 @@ def get_items_from_dir(basedir, acceptq=lambda x: True):
                     x = x.replace(os.sep, '/')
                 yield x
 
+
 class FilesystemMatcher(Matcher):
 
     def __init__(self, basedir, *args, **kwargs):
         Matcher.__init__(self, get_items_from_dir(basedir), *args, **kwargs)
 
 # Python implementation of the scoring algorithm {{{
+
+
 def calc_score_for_char(ctx, prev, current, distance):
     factor = 1.0
     ans = ctx.max_score_per_char
@@ -156,6 +165,7 @@ def calc_score_for_char(ctx, prev, current, distance):
         factor = (1.0 / distance) * 0.75
 
     return ans * factor
+
 
 def process_item(ctx, haystack, needle):
     # non-recursive implementation using a stack
@@ -192,6 +202,7 @@ def process_item(ctx, haystack, needle):
             final_positions = positions
     return final_score, final_positions
 
+
 class PyScorer(object):
     __slots__ = ('level1', 'level2', 'level3', 'max_score_per_char', 'items', 'memory')
 
@@ -207,6 +218,7 @@ class PyScorer(object):
             yield process_item(self, item, needle)
 # }}}
 
+
 class CScorer(object):
 
     def __init__(self, items, level1=DEFAULT_LEVEL1, level2=DEFAULT_LEVEL2, level3=DEFAULT_LEVEL3):
@@ -220,6 +232,7 @@ class CScorer(object):
         for score, pos in izip(scores, positions):
             yield score, pos
 
+
 def test(return_tests=False):
     import unittest
 
@@ -230,6 +243,7 @@ def test(return_tests=False):
             from calibre.utils.mem import get_memory as memory
             m = Matcher(['a'], scorer=CScorer)
             m('a')
+
             def doit(c):
                 m = Matcher([c+'im/one.gif', c+'im/two.gif', c+'text/one.html',], scorer=CScorer)
                 m('one')
@@ -269,6 +283,7 @@ else:
     def get_char(string, pos):
         chs = 2 if ('\ud800' <= string[pos] <= '\udbff') else 1  # UTF-16 surrogate pair in python narrow builds
         return string[pos:pos+chs]
+
 
 def main(basedir=None, query=None):
     from calibre import prints

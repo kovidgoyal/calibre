@@ -30,6 +30,8 @@ DRAG_IMAGE_ROLE = Qt.UserRole + 1000
 COUNT_ROLE = DRAG_IMAGE_ROLE + 1
 
 _bf = None
+
+
 def bf():
     global _bf
     if _bf is None:
@@ -37,6 +39,7 @@ def bf():
         _bf.setBold(True)
         _bf = (_bf)
     return _bf
+
 
 class TagTreeItem(object):  # {{{
 
@@ -252,6 +255,7 @@ class TagTreeItem(object):  # {{{
 
     def all_children(self):
         res = []
+
         def recurse(nodes, res):
             for t in nodes:
                 res.append(t)
@@ -261,6 +265,7 @@ class TagTreeItem(object):  # {{{
 
     def child_tags(self):
         res = []
+
         def recurse(nodes, res, depth):
             if depth > 100:
                 return
@@ -271,6 +276,7 @@ class TagTreeItem(object):  # {{{
         recurse(self.children, res, 1)
         return res
     # }}}
+
 
 class TagsModel(QAbstractItemModel):  # {{{
 
@@ -1254,6 +1260,7 @@ class TagsModel(QAbstractItemModel):  # {{{
 
     def reset_all_states(self, except_=None):
         update_list = []
+
         def process_tag(tag_item):
             tag = tag_item.tag
             if tag is except_:

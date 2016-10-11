@@ -12,9 +12,11 @@ import re, os
 from calibre import fsync
 from calibre.devices.usbms.driver import USBMS
 
+
 def is_alex(device_info):
     return device_info[3] == u'Linux 2.6.28 with pxa3xx_u2d' and \
             device_info[4] == u'Seleucia Disk'
+
 
 class N516(USBMS):
 
@@ -42,6 +44,7 @@ class N516(USBMS):
     def can_handle(self, device_info, debug=False):
         return not is_alex(device_info)
 
+
 class KIBANO(N516):
 
     name = 'Kibano driver'
@@ -56,6 +59,7 @@ class KIBANO(N516):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['INTERNAL_SD_CARD',
                                              'EXTERNAL_SD_CARD']
 
+
 class THEBOOK(N516):
     name = 'The Book driver'
     gui_name = 'The Book'
@@ -68,6 +72,7 @@ class THEBOOK(N516):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['_FILE-STOR_GADGE',
             'FILE-STOR_GADGET']
 
+
 class LIBREAIR(N516):
     name = 'Libre Air Driver'
     gui_name = 'Libre Air'
@@ -79,6 +84,7 @@ class LIBREAIR(N516):
     VENDOR_NAME      = ['ALURATEK', 'LINUX']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
     EBOOK_DIR_MAIN = 'Books'
+
 
 class ALEX(N516):
 
@@ -141,6 +147,7 @@ class ALEX(N516):
                 pass
         self.report_progress(1.0, _('Removing books from device...'))
 
+
 class AZBOOKA(ALEX):
 
     name = 'Azbooka driver'
@@ -161,6 +168,7 @@ class AZBOOKA(ALEX):
     def upload_cover(self, path, filename, metadata, filepath):
         pass
 
+
 class EB511(USBMS):
     name           = 'Elonex EB 511 driver'
     gui_name       = 'EB 511'
@@ -180,6 +188,7 @@ class EB511(USBMS):
     SUPPORTS_SUB_DIRS = True
 
     OSX_MAIN_MEM_VOL_PAT = re.compile(r'/eReader')
+
 
 class ODYSSEY(N516):
     name  = 'Cybook Odyssey driver'

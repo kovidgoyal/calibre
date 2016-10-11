@@ -17,10 +17,12 @@ from calibre.ebooks.oeb.polish.fonts import change_font_in_declaration
 from calibre.utils.fonts.utils import get_all_font_names
 from tinycss.fonts3 import parse_font_family
 
+
 class InvalidFont(BaseError):
 
     HELP = _('This font could not be processed. It most likely will'
              ' not work in an ebook reader, either')
+
 
 def fix_sheet(sheet, css_name, font_name):
     changed = False
@@ -28,6 +30,7 @@ def fix_sheet(sheet, css_name, font_name):
         if rule.type in (CSSRule.FONT_FACE_RULE, CSSRule.STYLE_RULE):
             changed = change_font_in_declaration(rule.style, css_name, font_name) or changed
     return changed
+
 
 class FontAliasing(BaseError):
 
@@ -66,6 +69,7 @@ class FontAliasing(BaseError):
                         container.dirty(name)
                         changed = True
         return changed
+
 
 def check_fonts(container):
     font_map = {}

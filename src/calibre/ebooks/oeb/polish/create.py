@@ -26,6 +26,7 @@ from calibre.utils.zipfile import ZipFile, ZIP_STORED
 
 valid_empty_formats = {'epub', 'txt', 'docx', 'azw3'}
 
+
 def create_toc(mi, opf, html_name, lang):
     uuid = ''
     for u in opf.xpath('//*[@id="uuid_id"]'):
@@ -33,6 +34,7 @@ def create_toc(mi, opf, html_name, lang):
     toc = TOC()
     toc.add(_('Start'), html_name)
     return create_ncx(toc, lambda x:x, mi.title, lang, uuid)
+
 
 def create_book(mi, path, fmt='epub', opf_name='metadata.opf', html_name='start.xhtml', toc_name='toc.ncx'):
     ''' Create an empty book in the specified format at the specified location. '''

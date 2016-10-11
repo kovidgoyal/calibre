@@ -7,12 +7,14 @@ from __future__ import (unicode_literals, division, absolute_import,
 import subprocess, re
 from calibre.constants import iswindows, isosx
 
+
 def get_address_of_default_gateway(family='AF_INET'):
     import netifaces
     ip = netifaces.gateways()['default'][getattr(netifaces, family)][0]
     if isinstance(ip, bytes):
         ip = ip.decode('ascii')
     return ip
+
 
 def get_addresses_for_interface(name, family='AF_INET'):
     import netifaces

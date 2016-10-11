@@ -14,6 +14,7 @@ from calibre.constants import iswindows
 from calibre.db.tests.base import BaseTest
 from calibre.ptempfile import TemporaryDirectory
 
+
 class FilesystemTest(BaseTest):
 
     def get_filesystem_data(self, cache, book_id):
@@ -172,11 +173,14 @@ class FilesystemTest(BaseTest):
     def test_find_books_in_directory(self):
         from calibre.db.adding import find_books_in_directory, compile_rule
         strip = lambda files: frozenset({os.path.basename(x) for x in files})
+
         def q(one, two):
             one, two = {strip(a) for a in one}, {strip(b) for b in two}
             self.assertEqual(one, two)
+
         def r(action='ignore', match_type='startswith', query=''):
             return {'action':action, 'match_type':match_type, 'query':query}
+
         def c(*rules):
             return tuple(map(compile_rule, rules))
 

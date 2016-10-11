@@ -16,11 +16,13 @@ from calibre.constants import config_dir
 from calibre.gui2 import choose_files, error_dialog
 from calibre.utils.icu import sort_key
 
+
 def texture_dir():
     ans = os.path.join(config_dir, 'textures')
     if not os.path.exists(ans):
         os.makedirs(ans)
     return ans
+
 
 def texture_path(fname):
     if not fname:
@@ -28,6 +30,7 @@ def texture_path(fname):
     if fname.startswith(':'):
         return I('textures/%s' % fname[1:])
     return os.path.join(texture_dir(), fname)
+
 
 class TextureChooser(QDialog):
 

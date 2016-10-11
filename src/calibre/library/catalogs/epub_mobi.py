@@ -20,6 +20,7 @@ from calibre.utils.localization import calibre_langcode_to_name, canonicalize_la
 
 Option = namedtuple('Option', 'option, default, dest, action, help')
 
+
 class EPUB_MOBI(CatalogPlugin):
 
     'ePub catalog generator'

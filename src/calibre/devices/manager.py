@@ -18,6 +18,7 @@ class DeviceManager(object):
 
 class Job(object):
     count = 0
+
     def __init__(self, func, args):
         self.completed = False
         self.exception = None

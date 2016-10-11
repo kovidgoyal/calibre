@@ -11,6 +11,7 @@ import random
 
 from calibre.gui2.actions import InterfaceAction
 
+
 class PickRandomAction(InterfaceAction):
 
     name = 'Pick Random Book'

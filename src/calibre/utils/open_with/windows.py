@@ -19,8 +19,10 @@ from calibre.utils.winreg.default_programs import split_commandline
 
 ICON_SIZE = 64
 
+
 def hicon_to_pixmap(hicon):
     return QtWin.fromHICON(hicon)
+
 
 def pixmap_to_data(pixmap):
     ba = QByteArray()
@@ -29,10 +31,12 @@ def pixmap_to_data(pixmap):
     pixmap.save(buf, 'PNG')
     return bytearray(ba.data())
 
+
 def copy_to_size(pixmap, size=ICON_SIZE):
     if pixmap.width() > ICON_SIZE:
         return pixmap.scaled(ICON_SIZE, ICON_SIZE, transformMode=Qt.SmoothTransformation)
     return pixmap.copy()
+
 
 def simple_load_icon(module, index, as_data=False, size=ICON_SIZE):
     ' Use the win32 API ExtractIcon to load the icon. This restricts icon size to 32x32, but has less chance of failing '
@@ -104,6 +108,7 @@ def load_icon(module, index, as_data=False, size=ICON_SIZE):
         return pixmap
     finally:
         win32api.FreeLibrary(handle)
+
 
 def load_icon_resource(icon_resource, as_data=False, size=ICON_SIZE):
     if not icon_resource:

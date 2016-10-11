@@ -10,6 +10,7 @@ from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendatio
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import __appname__, __version__
 
+
 class SNBOutput(OutputFormatPlugin):
 
     name = 'SNB Output'
@@ -254,6 +255,7 @@ if __name__ == '__main__':
     from calibre.ebooks.oeb.base import OEBBook
     from calibre.ebooks.conversion.preprocess import HTMLPreProcessor
     from calibre.customize.profiles import HanlinV3Output
+
     class OptionValues(object):
         pass
 

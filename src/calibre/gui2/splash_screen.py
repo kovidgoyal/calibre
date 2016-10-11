@@ -10,6 +10,7 @@ from PyQt5.Qt import Qt, QSplashScreen, QIcon, QApplication, QTransform, QPainte
 from calibre.constants import __appname__, iswindows
 from calibre.utils.monotonic import monotonic
 
+
 class SplashScreen(QSplashScreen):
 
     def __init__(self, develop=False):
@@ -58,6 +59,7 @@ class SplashScreen(QSplashScreen):
             return QSplashScreen.keyPressEvent(self, ev)
         ev.accept()
         QApplication.instance().quit()
+
 
 def main():
     from calibre.gui2 import Application

@@ -19,6 +19,7 @@ zeroes = lambda x: b'\0'*x
 nulls = lambda x: b'\xff'*x
 short = lambda x: pack(b'>H', x)
 
+
 class Header(OrderedDict):
 
     HEADER_NAME = b''

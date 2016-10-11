@@ -15,6 +15,7 @@ from collections import OrderedDict, Counter
 from calibre.ebooks.oeb.base import XPNSMAP, TOC, XHTML, xml2text, barename
 from calibre.ebooks import ConversionError
 
+
 def XPath(x):
     try:
         return etree.XPath(x, namespaces=XPNSMAP)
@@ -22,8 +23,10 @@ def XPath(x):
         raise ConversionError(
         'The syntax of the XPath expression %s is invalid.' % repr(x))
 
+
 def isspace(x):
     return not x or x.replace(u'\xa0', u'').isspace()
+
 
 def at_start(elem):
     ' Return True if there is no content before elem '
@@ -41,6 +44,7 @@ def at_start(elem):
             continue
         return False
     return False
+
 
 class DetectStructure(object):
 

@@ -18,6 +18,7 @@ from calibre.utils.filenames import ascii_filename
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
 
+
 def matching_rule(font, rules):
     ff = font['font-family']
     if not isinstance(ff, basestring):
@@ -34,6 +35,7 @@ def matching_rule(font, rules):
                 ff = tuple(ff)[0]
             if icu_lower(ff) == family:
                 return rule
+
 
 def embed_font(container, font, all_font_rules, report, warned):
     rule = matching_rule(font, all_font_rules)
@@ -79,6 +81,7 @@ def embed_font(container, font, all_font_rules, report, warned):
         rule['src'] = 'url(%s)' % href
         rule['name'] = name
         return rule
+
 
 def embed_all_fonts(container, stats, report):
     all_font_rules = tuple(stats.all_font_rules.itervalues())

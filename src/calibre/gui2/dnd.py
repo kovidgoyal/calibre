@@ -21,6 +21,7 @@ from calibre import browser, as_unicode, prints
 from calibre.gui2 import error_dialog
 from calibre.utils.imghdr import what
 
+
 def image_extensions():
     if not hasattr(image_extensions, 'ans'):
         image_extensions.ans = [bytes(x).decode('utf-8') for x in QImageReader.supportedImageFormats()]
@@ -28,6 +29,7 @@ def image_extensions():
 
 # This is present for compatibility with old plugins, do not use
 IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'png', 'bmp']
+
 
 class Worker(Thread):  # {{{
 
@@ -50,6 +52,7 @@ class Worker(Thread):  # {{{
     def callback(self, a, b, c):
         self.rq.put((a, b, c))
 # }}}
+
 
 class DownloadDialog(QDialog):  # {{{
 
@@ -125,9 +128,11 @@ class DownloadDialog(QDialog):  # {{{
 
 # }}}
 
+
 def dnd_has_image(md):
     # Chromium puts image data into application/octet-stream
     return md.hasImage() or md.hasFormat('application/octet-stream') and what(None, bytes(md.data('application/octet-stream'))) in image_extensions()
+
 
 def data_as_string(f, md):
     raw = bytes(md.data(f))
@@ -137,6 +142,7 @@ def data_as_string(f, md):
         except:
             pass
     return raw
+
 
 def urls_from_md(md):
     ans = list(md.urls())
@@ -149,6 +155,7 @@ def urls_from_md(md):
                 ans.append(u)
     return ans
 
+
 def path_from_qurl(qurl):
     raw = bytes(qurl.toEncoded(
         QUrl.PreferLocalFile | QUrl.RemoveScheme | QUrl.RemovePassword | QUrl.RemoveUserInfo |
@@ -158,11 +165,13 @@ def path_from_qurl(qurl):
         ans = ans[1:]
     return ans
 
+
 def remote_urls_from_qurl(qurls, allowed_exts):
     for qurl in qurls:
         if qurl.scheme() in {'http', 'https', 'ftp'} and posixpath.splitext(
                 qurl.path())[1][1:].lower() in allowed_exts:
             yield bytes(qurl.toEncoded()), posixpath.basename(qurl.path())
+
 
 def dnd_has_extension(md, extensions, allow_all_extensions=False):
     if DEBUG:
@@ -186,6 +195,7 @@ def dnd_has_extension(md, extensions, allow_all_extensions=False):
     if allow_all_extensions:
         return bool(exts)
     return bool(exts.intersection(frozenset(extensions)))
+
 
 def dnd_get_image(md, image_exts=None):
     '''
@@ -246,6 +256,7 @@ def dnd_get_image(md, image_exts=None):
 
     return None, None
 
+
 def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
     '''
     Get the file in the QMimeData object md with an extension that is one of
@@ -259,6 +270,7 @@ def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
     urls = urls_from_md(md)
     # First look for a local file
     local_files = [path_from_qurl(x) for x in urls]
+
     def is_ok(path):
         ext = posixpath.splitext(path)[1][1:].lower()
         if allow_all_extensions and ext and ext not in filter_exts:
@@ -284,6 +296,7 @@ def dnd_get_files(md, exts, allow_all_extensions=False, filter_exts=()):
         return rurls, filenames
 
     return None, None
+
 
 def _get_firefox_pair(md, exts, url, fname):
     url = bytes(md.data(url)).decode('utf-16')
@@ -345,6 +358,7 @@ def get_firefox_rurl(md, exts):
     if DEBUG:
         prints('Firefox rurl:', url, fname)
     return url, fname
+
 
 def has_firefox_ext(md, exts):
     return bool(get_firefox_rurl(md, exts)[0])

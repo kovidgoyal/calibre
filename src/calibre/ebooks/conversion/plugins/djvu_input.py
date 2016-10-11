@@ -12,6 +12,7 @@ from io import BytesIO
 
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class DJVUInput(InputFormatPlugin):
 
     name        = 'DJVU Input'

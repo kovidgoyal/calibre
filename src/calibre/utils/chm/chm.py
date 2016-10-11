@@ -188,6 +188,7 @@ locale_table = {
     0x042a : ('cp1258',        "Vietnamese", "Vietnamese")
 }
 
+
 class CHMFile:
     "A class to manage access to CHM files."
     filename = ""

@@ -13,6 +13,7 @@ import sys
 from calibre.ebooks.pdb.ereader import EreaderError
 from calibre.ebooks.pdb.header import PdbHeaderReader
 
+
 def ereader_header_info(header):
     h0 = header.section_data(0)
 
@@ -29,6 +30,7 @@ def ereader_header_info(header):
     else:
         raise EreaderError('Size mismatch. eReader header record size %i KB is not supported.' % len(h0))
 
+
 def pdb_header_info(header):
     print 'PDB Header Info:'
     print ''
@@ -36,6 +38,7 @@ def pdb_header_info(header):
     print 'Total Sectons:   %s' % header.num_sections
     print 'Title:           %s' % header.title
     print ''
+
 
 def ereader_header_info132(h0):
     print 'Ereader Record 0 (Header) Info:'
@@ -72,6 +75,7 @@ def ereader_header_info132(h0):
         print '%i-%i:                   %i' % (i, i+2, struct.unpack('>H', h0[i:i+2])[0])
 
     print ''
+
 
 def ereader_header_info202(h0):
     print 'Ereader Record 0 (Header) Info:'
@@ -118,6 +122,7 @@ def section_lengths(header):
             message = ''
 
         print 'Section %i:   %i %s' % (i, size, message)
+
 
 def main(args=sys.argv):
     if len(args) < 2:

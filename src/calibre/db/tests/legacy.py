@@ -15,6 +15,8 @@ from operator import itemgetter
 from calibre.db.tests.base import BaseTest
 
 # Utils {{{
+
+
 class ET(object):
 
     def __init__(self, func_name, args, kwargs={}, old=None, legacy=None):
@@ -32,6 +34,7 @@ class ET(object):
         self.retval = newres
         return newres
 
+
 def compare_argspecs(old, new, attr):
     # We dont compare the names of the non-keyword arguments as they are often
     # different and they dont affect the usage of the API.
@@ -40,6 +43,7 @@ def compare_argspecs(old, new, attr):
     ok = len(old.args) == len(new.args) and old.defaults == new.defaults and (num == 0 or old.args[-num:] == new.args[-num:])
     if not ok:
         raise AssertionError('The argspec for %s does not match. %r != %r' % (attr, old, new))
+
 
 def run_funcs(self, db, ndb, funcs):
     for func in funcs:
@@ -60,6 +64,7 @@ def run_funcs(self, db, ndb, funcs):
             res1, res2 = fmt(getattr(db, meth)(*args)), fmt(getattr(ndb, meth)(*args))
             self.assertEqual(res1, res2, 'The method: %s() returned different results for argument %s' % (meth, args))
 # }}}
+
 
 class LegacyTest(BaseTest):
 
@@ -253,6 +258,7 @@ class LegacyTest(BaseTest):
             for a in args:
                 self.assertEqual(fmt(getattr(db, meth)(*a)), fmt(getattr(ndb, meth)(*a)),
                                  'The method: %s() returned different results for argument %s' % (meth, a))
+
         def f(x, y):  # get_top_level_move_items is broken in the old db on case-insensitive file systems
             x.discard('metadata_db_prefs_backup.json')
             return x, y

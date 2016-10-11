@@ -17,6 +17,7 @@ from calibre.ebooks.txt.newlines import TxtNewlines, specified_newlines
 
 MAX_RECORD_SIZE = 4096
 
+
 class Writer(FormatWriter):
 
     def __init__(self, opts, log):

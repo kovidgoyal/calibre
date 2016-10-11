@@ -45,12 +45,14 @@ OK_COLOR = 'rgba(0, 255, 0, 12%)'
 ERR_COLOR = 'rgba(255, 0, 0, 12%)'
 INDICATOR_SHEET = 'QLineEdit { color: black; background-color: %s }'
 
+
 def save_dialog(parent, title, msg, det_msg=''):
     d = QMessageBox(parent)
     d.setWindowTitle(title)
     d.setText(msg)
     d.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
     return d.exec_()
+
 
 def clean_text(x):
     return re.sub(r'\s', ' ', x.strip())
@@ -76,6 +78,7 @@ class BasicMetadataWidget(object):
             pass
         return property(fget=fget, fset=fset)
 '''
+
 
 class ToMetadataMixin(object):
 
@@ -107,6 +110,7 @@ class ToMetadataMixin(object):
                 self.disable_popup = orig
         else:
             self.setEditText(text)
+
 
 def make_undoable(spinbox):
     'Add a proper undo/redo capability to spinbox which must be a sub-class of QAbstractSpinBox'
@@ -181,6 +185,8 @@ def make_undoable(spinbox):
     return UndoableSpinbox
 
 # Title {{{
+
+
 class TitleEdit(EnLineEdit, ToMetadataMixin):
 
     TITLE_ATTR = FIELD_NAME = 'title'
@@ -233,6 +239,7 @@ class TitleEdit(EnLineEdit, ToMetadataMixin):
 
     def break_cycles(self):
         self.dialog = None
+
 
 class TitleSortEdit(TitleEdit, ToMetadataMixin):
 
@@ -314,6 +321,8 @@ class TitleSortEdit(TitleEdit, ToMetadataMixin):
 # }}}
 
 # Authors {{{
+
+
 class AuthorsEdit(EditWithComplete, ToMetadataMixin):
 
     TOOLTIP = ''
@@ -421,6 +430,7 @@ class AuthorsEdit(EditWithComplete, ToMetadataMixin):
             self.manage_authors_signal.triggered.disconnect()
         except:
             pass
+
 
 class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
 
@@ -571,6 +581,8 @@ class AuthorSortEdit(EnLineEdit, ToMetadataMixin):
 # }}}
 
 # Series {{{
+
+
 class SeriesEdit(EditWithComplete, ToMetadataMixin):
 
     TOOLTIP = _('List of known series. You can add new series.')
@@ -707,6 +719,7 @@ class SeriesIndexEdit(make_undoable(QDoubleSpinBox), ToMetadataMixin):
 
 # }}}
 
+
 class BuddyLabel(QLabel):  # {{{
 
     def __init__(self, buddy):
@@ -716,6 +729,7 @@ class BuddyLabel(QLabel):  # {{{
 # }}}
 
 # Formats {{{
+
 
 class Format(QListWidgetItem):
 
@@ -733,6 +747,7 @@ class Format(QListWidgetItem):
             self.setToolTip(text)
             self.setStatusTip(text)
 
+
 class OrigAction(QAction):
 
     restore_fmt = pyqtSignal(object)
@@ -744,6 +759,7 @@ class OrigAction(QAction):
 
     def _triggered(self):
         self.restore_fmt.emit(self.fmt)
+
 
 class FormatList(_FormatList):
 
@@ -772,6 +788,7 @@ class FormatList(_FormatList):
             if f.ext.upper() == fmt.upper():
                 self.takeItem(i)
                 break
+
 
 class FormatsManager(QWidget):
 
@@ -1008,6 +1025,7 @@ class FormatsManager(QWidget):
         self.temp_files = []
 # }}}
 
+
 class Cover(ImageView):  # {{{
 
     download_cover = pyqtSignal()
@@ -1164,6 +1182,7 @@ class Cover(ImageView):  # {{{
     def current_val(self):
         def fget(self):
             return self._cdata
+
         def fset(self, cdata):
             self._cdata = None
             self.cdata_before_trim = None
@@ -1206,6 +1225,7 @@ class Cover(ImageView):  # {{{
 
 # }}}
 
+
 class CommentsEdit(Editor, ToMetadataMixin):  # {{{
 
     FIELD_NAME = 'comments'
@@ -1215,6 +1235,7 @@ class CommentsEdit(Editor, ToMetadataMixin):  # {{{
     def current_val(self):
         def fget(self):
             return self.html
+
         def fset(self, val):
             if not val or not val.strip():
                 val = ''
@@ -1234,6 +1255,7 @@ class CommentsEdit(Editor, ToMetadataMixin):  # {{{
             db.set_comment(id_, self.current_val, notify=False, commit=False)
 # }}}
 
+
 class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
     LABEL = _('&Rating:')
     TOOLTIP = _('Rating of this book. 0-5 stars')
@@ -1248,6 +1270,7 @@ class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
     def current_val(self):
         def fget(self):
             return self.rating_value
+
         def fset(self, val):
             self.rating_value = val
         return property(fget=fget, fset=fset)
@@ -1265,6 +1288,7 @@ class RatingEdit(RatingEditor, ToMetadataMixin):  # {{{
         self.setCurrentIndex(0)
 
 # }}}
+
 
 class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
     LABEL = _('Ta&gs:')
@@ -1284,6 +1308,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
     def current_val(self):
         def fget(self):
             return [clean_text(x) for x in unicode(self.text()).split(',')]
+
         def fset(self, val):
             if not val:
                 val = []
@@ -1330,6 +1355,7 @@ class TagsEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
 # }}}
 
+
 class LanguagesEdit(LE, ToMetadataMixin):  # {{{
 
     LABEL = _('&Languages:')
@@ -1344,6 +1370,7 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
     def current_val(self):
         def fget(self):
             return self.lang_codes
+
         def fset(self, val):
             self.set_lang_codes(val, self.allow_undo)
         return property(fget=fget, fset=fset)
@@ -1372,6 +1399,7 @@ class LanguagesEdit(LE, ToMetadataMixin):  # {{{
 # }}}
 
 # Identifiers {{{
+
 
 class Identifiers(Dialog):
 
@@ -1418,6 +1446,7 @@ class Identifiers(Dialog):
             return
         Dialog.accept(self)
 
+
 class IdentifiersEdit(QLineEdit, ToMetadataMixin):
     LABEL = _('I&ds:')
     BASE_TT = _('Edit the identifiers for this book. '
@@ -1460,9 +1489,11 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
                             c = v
                     ans[itype] = c
             return ans
+
         def fset(self, val):
             if not val:
                 val = {}
+
             def keygen(x):
                 x = x[0]
                 if x == 'isbn':
@@ -1521,6 +1552,7 @@ class IdentifiersEdit(QLineEdit, ToMetadataMixin):
 
 # }}}
 
+
 class ISBNDialog(QDialog):  # {{{
 
     def __init__(self, parent, txt):
@@ -1573,6 +1605,7 @@ class ISBNDialog(QDialog):  # {{{
 
 # }}}
 
+
 class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
     LABEL = _('&Publisher:')
     FIELD_NAME = 'publisher'
@@ -1624,11 +1657,13 @@ class PublisherEdit(EditWithComplete, ToMetadataMixin):  # {{{
 
 # DateEdit {{{
 
+
 class CalendarWidget(QCalendarWidget):
 
     def showEvent(self, ev):
         if self.selectedDate().year() == UNDEFINED_DATE.year:
             self.setSelectedDate(QDate.currentDate())
+
 
 class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
 
@@ -1665,6 +1700,7 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
     def current_val(self):
         def fget(self):
             return qt_to_dt(self.dateTime(), as_utc=False)
+
         def fset(self, val):
             if val is None or is_date_undefined(val):
                 val = UNDEFINED_DATE
@@ -1697,6 +1733,7 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
             self.setDateTime(QDateTime.currentDateTime())
         else:
             return super(DateEdit, self).keyPressEvent(ev)
+
 
 class PubdateEdit(DateEdit):
     LABEL = _('Publishe&d:')

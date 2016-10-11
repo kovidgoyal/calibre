@@ -18,6 +18,7 @@ from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 StartEvent = namedtuple('StartEvent', 'job_id name module function args kwargs callback data')
 DoneEvent = namedtuple('DoneEvent', 'job_id')
 
+
 class Job(Thread):
 
     daemon = True
@@ -243,9 +244,11 @@ class JobsManager(object):
                 del self.finished_jobs[job_id]
     # }}}
 
+
 def sleep_test(x):
     time.sleep(x)
     return x
+
 
 def error_test():
     raise Exception('a testing error')

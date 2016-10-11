@@ -34,6 +34,7 @@ TEMPLATE = '''
 </html>
 '''
 
+
 def find_previous_calibre_inline_toc(oeb):
     if 'toc' in oeb.guide:
         href = urlnormalize(oeb.guide['toc'].href.partition('#')[0])
@@ -41,6 +42,7 @@ def find_previous_calibre_inline_toc(oeb):
             item = oeb.manifest.hrefs[href]
             if (hasattr(item.data, 'xpath') and XPath('//h:body[@id="calibre_generated_inline_toc"]')(item.data)):
                 return item
+
 
 class TOCAdder(object):
 

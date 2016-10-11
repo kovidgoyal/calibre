@@ -17,6 +17,7 @@ from calibre.utils.date import now as nowf
 from calibre.utils.config import tweaks
 from calibre.utils.icu import sort_key
 
+
 class Offsets(object):
     'Calculate offsets for a paginated view'
 
@@ -58,6 +59,7 @@ def expose(func):
         return ans
 
     return do
+
 
 class AuthController(object):
 
@@ -142,6 +144,7 @@ class AuthController(object):
         is_valid = s_hashpart == hashpart
         return (is_valid and (time.time() - timestamp) < self.MAX_AGE)
 
+
 def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     if not hasattr(dt, 'timetuple'):
         dt = nowf()
@@ -150,6 +153,7 @@ def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
         return _strftime(fmt, dt)
     except:
         return _strftime(fmt, nowf().timetuple())
+
 
 def format_tag_string(tags, sep, ignore_max=False, no_tag_count=False, joinval=', '):
     MAX = sys.maxint if ignore_max else tweaks['max_content_server_tags_shown']
@@ -166,10 +170,12 @@ def format_tag_string(tags, sep, ignore_max=False, no_tag_count=False, joinval='
         return u'%s:&:%s'%(tweaks['max_content_server_tags_shown'],
                      joinval.join(tlist)) if tlist else ''
 
+
 def quote(s):
     if isinstance(s, unicode):
         s = s.encode('utf-8')
     return quote_(s)
+
 
 def unquote(s):
     ans = unquote_(s)
@@ -177,8 +183,10 @@ def unquote(s):
         ans = ans.decode('utf-8')
     return ans
 
+
 def cookie_time_fmt(time_t):
     return time.strftime('%a, %d-%b-%Y %H:%M:%S GMT', time_t)
+
 
 def cookie_max_age_to_expires(max_age):
     gmt_expiration_time = time.gmtime(time.time() + max_age)

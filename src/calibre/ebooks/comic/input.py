@@ -21,6 +21,7 @@ from calibre.utils.ipc.job import ParallelJob
 # rescaling is done (we assume that it is a tablet output profile)
 MAX_SCREEN_SIZE = 3000
 
+
 def extract_comic(path_to_comic_file):
     '''
     Un-archive the comic file.
@@ -37,6 +38,7 @@ def extract_comic(path_to_comic_file):
         if nbn != bn:
             os.rename(x, os.path.join(os.path.dirname(x), nbn))
     return tdir
+
 
 def find_pages(dir, sort_on_mtime=False, verbose=False):
     '''
@@ -71,6 +73,7 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
         prints('Found comic pages...')
         prints('\t'+'\n\t'.join([os.path.relpath(p, dir) for p in pages]))
     return pages
+
 
 class PageProcessor(list):  # {{{
 
@@ -197,6 +200,7 @@ class PageProcessor(list):  # {{{
             self.append(dest)
 # }}}
 
+
 def render_pages(tasks, dest, opts, notification=lambda x, y: x):
     '''
     Entry point for the job server.
@@ -228,6 +232,7 @@ class Progress(object):
         self.done += 1
         # msg = msg%os.path.basename(job.args[0])
         self.update(float(self.done)/self.total, msg)
+
 
 def process_pages(pages, opts, update, tdir):
     '''

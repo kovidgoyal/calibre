@@ -8,6 +8,7 @@ from calibre.utils.zipfile import ZipFile
 from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir
 
+
 def get_metadata(stream):
     from calibre.ebooks.metadata.meta import get_metadata
     from calibre.ebooks.metadata.archive import is_comic

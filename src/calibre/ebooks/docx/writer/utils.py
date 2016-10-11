@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from tinycss.color3 import parse_color_string
 
+
 def int_or_zero(raw):
     try:
         return int(raw)
@@ -15,6 +16,8 @@ def int_or_zero(raw):
         return 0
 
 # convert_color() {{{
+
+
 def convert_color(value):
     if not value:
         return
@@ -27,8 +30,10 @@ def convert_color(value):
         return
     return '%02X%02X%02X' % (int(val.red * 255), int(val.green * 255), int(val.blue * 255))
 
+
 def test_convert_color(return_tests=False):
     import unittest
+
     class TestColors(unittest.TestCase):
 
         def test_color_conversion(self):

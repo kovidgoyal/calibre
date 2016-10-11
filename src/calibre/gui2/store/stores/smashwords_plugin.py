@@ -23,6 +23,7 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+
 def search(query, max_results=10, timeout=60):
     url = 'http://www.smashwords.com/books/search?query=' + urllib2.quote(query)
 
@@ -70,6 +71,7 @@ def search(query, max_results=10, timeout=60):
             s.drm = SearchResult.DRM_UNLOCKED
 
             yield s
+
 
 class SmashwordsStore(BasicStoreConfig, StorePlugin):
 

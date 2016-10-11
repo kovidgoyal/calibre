@@ -24,8 +24,10 @@ METADATA_PRIORITIES = collections.defaultdict(lambda:0)
 for i, ext in enumerate(_METADATA_PRIORITIES):
     METADATA_PRIORITIES[ext] = i
 
+
 def path_to_ext(path):
     return os.path.splitext(path)[1][1:].lower()
+
 
 def metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     try:
@@ -35,6 +37,7 @@ def metadata_from_formats(formats, force_read_metadata=False, pattern=None):
         if not mi.authors:
             mi.authors = [_('Unknown')]
         return mi
+
 
 def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
     mi = MetaInformation(None, None)
@@ -66,6 +69,7 @@ def _metadata_from_formats(formats, force_read_metadata=False, pattern=None):
         mi.authors = [_('Unknown')]
 
     return mi
+
 
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False,
                  force_read_metadata=False, pattern=None):
@@ -116,6 +120,7 @@ def _get_metadata(stream, stream_type, use_libprs_metadata,
         base.smart_update(opf)
 
     return base
+
 
 def set_metadata(stream, mi, stream_type='lrf', report_error=None):
     if stream_type:
@@ -194,6 +199,7 @@ def metadata_from_filename(name, pat=None, fallback_pat=None):
         mi.title = name
     return mi
 
+
 def opf_metadata(opfpath):
     if hasattr(opfpath, 'read'):
         f = opfpath
@@ -215,6 +221,7 @@ def opf_metadata(opfpath):
         import traceback
         traceback.print_exc()
         pass
+
 
 def forked_read_metadata(path, tdir):
     from calibre.ebooks.metadata.opf2 import metadata_to_opf

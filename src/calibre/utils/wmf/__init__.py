@@ -7,8 +7,10 @@ __docformat__ = 'restructuredtext en'
 
 import struct
 
+
 class Unavailable(Exception):
     pass
+
 
 class NoRaster(Exception):
     pass
@@ -55,6 +57,7 @@ def create_bmp_from_dib(raw):
     parts = [b'BM', struct.pack(b'<I', size), b'\0'*4, struct.pack(b'<I',
         pixel_array_offset)]
     return b''.join(parts) + raw
+
 
 def to_png(bmp):
     from PyQt5.Qt import QImage, QByteArray, QBuffer

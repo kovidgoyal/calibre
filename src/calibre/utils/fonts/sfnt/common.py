@@ -12,6 +12,7 @@ from collections import OrderedDict, namedtuple
 
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
+
 class Unpackable(object):
 
     def __init__(self, raw, offset):
@@ -25,6 +26,7 @@ class Unpackable(object):
             ans = ans[0]
         self.offset += calcsize(fmt)
         return ans
+
 
 class SimpleListTable(list):
 
@@ -49,6 +51,7 @@ class SimpleListTable(list):
 
     def read_extra_footer(self, data):
         pass
+
 
 class ListTable(OrderedDict):
 
@@ -99,6 +102,7 @@ class IndexTable(list):
     def dump(self, prefix=''):
         print(prefix, self.__class__.__name__, sep='')
 
+
 class LanguageSystemTable(IndexTable):
 
     def read_extra_header(self, data):
@@ -106,6 +110,7 @@ class LanguageSystemTable(IndexTable):
         if self.lookup_order != 0:
             raise UnsupportedFont('This LanguageSystemTable has an unknown'
                     ' lookup order: 0x%x'%self.lookup_order)
+
 
 class ScriptTable(ListTable):
 
@@ -120,9 +125,11 @@ class ScriptTable(ListTable):
         self[b'default'] = (LanguageSystemTable(data.raw, start_pos +
             default_offset) if default_offset else None)
 
+
 class ScriptListTable(ListTable):
 
     child_class = ScriptTable
+
 
 class FeatureTable(IndexTable):
 
@@ -133,9 +140,11 @@ class FeatureTable(IndexTable):
             raise UnsupportedFont(
                 'This FeatureTable has non NULL FeatureParams: 0x%x'%self.feature_params)
 
+
 class FeatureListTable(ListTable):
 
     child_class = FeatureTable
+
 
 class LookupTable(SimpleListTable):
 
@@ -150,6 +159,7 @@ class LookupTable(SimpleListTable):
         if self.lookup_flag & 0x0010:
             self.mark_filtering_set = data.unpack('H')
 
+
 def ExtensionSubstitution(raw, offset, subtable_map={}):
     data = Unpackable(raw, offset)
     subst_format, extension_lookup_type, offset = data.unpack('2HL')
@@ -158,6 +168,7 @@ def ExtensionSubstitution(raw, offset, subtable_map={}):
     return subtable_map[extension_lookup_type](raw, offset+data.start_pos)
 
 CoverageRange = namedtuple('CoverageRange', 'start end start_coverage_index')
+
 
 class Coverage(object):
 
@@ -194,6 +205,7 @@ class Coverage(object):
                     if start <= gid <= end:
                         ans[gid] = start_coverage_index + (gid-start)
         return ans
+
 
 class UnknownLookupSubTable(object):
 

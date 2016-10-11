@@ -24,8 +24,10 @@ from calibre.constants import DEBUG
 
 builtin_names = frozenset([p.name for p in builtin_plugins])
 
+
 class NameConflict(ValueError):
     pass
+
 
 def _config():
     c = Config('customize')
@@ -58,6 +60,7 @@ def load_plugin(path_to_zip_file):  # {{{
 
 # Enable/disable plugins {{{
 
+
 def disable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)
     plugin = find_plugin(x)
@@ -71,6 +74,7 @@ def disable_plugin(plugin_or_name):
         ep.remove(x)
     config['enabled_plugins'] = ep
 
+
 def enable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)
     dp = config['disabled_plugins']
@@ -80,6 +84,7 @@ def enable_plugin(plugin_or_name):
     ep = config['enabled_plugins']
     ep.add(x)
     config['enabled_plugins'] = ep
+
 
 def restore_plugin_state_to_default(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)
@@ -96,6 +101,7 @@ default_disabled_plugins = set([
     'Overdrive', 'Douban Books', 'OZON.ru', 'Edelweiss', 'Google Images', 'Big Book Search',
 ])
 
+
 def is_disabled(plugin):
     if plugin.name in config['enabled_plugins']:
         return False
@@ -110,6 +116,7 @@ _on_postimport       = {}
 _on_preprocess       = {}
 _on_postprocess      = {}
 _on_postadd          = []
+
 
 def reread_filetype_plugins():
     global _on_import
@@ -171,6 +178,7 @@ run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins,
 run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
                                                occasion='postprocess')
 
+
 def run_plugins_on_postimport(db, book_id, fmt):
     customization = config['plugin_customization']
     fmt = fmt.lower()
@@ -185,6 +193,7 @@ def run_plugins_on_postimport(db, book_id, fmt):
                 print ('Running file type plugin %s failed with traceback:'%
                        plugin.name)
                 traceback.print_exc()
+
 
 def run_plugins_on_postadd(db, book_id, fmt_map):
     customization = config['plugin_customization']
@@ -203,10 +212,13 @@ def run_plugins_on_postadd(db, book_id, fmt_map):
 # }}}
 
 # Plugin customization {{{
+
+
 def customize_plugin(plugin, custom):
     d = config['plugin_customization']
     d[plugin.name] = custom.strip()
     config['plugin_customization'] = d
+
 
 def plugin_customization(plugin):
     return config['plugin_customization'].get(plugin.name, '')
@@ -214,10 +226,13 @@ def plugin_customization(plugin):
 # }}}
 
 # Input/Output profiles {{{
+
+
 def input_profiles():
     for plugin in _initialized_plugins:
         if isinstance(plugin, InputProfile):
             yield plugin
+
 
 def output_profiles():
     for plugin in _initialized_plugins:
@@ -226,6 +241,7 @@ def output_profiles():
 # }}}
 
 # Interface Actions # {{{
+
 
 def interface_actions():
     customization = config['plugin_customization']
@@ -238,6 +254,7 @@ def interface_actions():
 
 # Preferences Plugins # {{{
 
+
 def preferences_plugins():
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
@@ -248,6 +265,8 @@ def preferences_plugins():
 # }}}
 
 # Library Closed Plugins # {{{
+
+
 def available_library_closed_plugins():
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
@@ -255,6 +274,7 @@ def available_library_closed_plugins():
             if not is_disabled(plugin):
                 plugin.site_customization = customization.get(plugin.name, '')
                 yield plugin
+
 
 def has_library_closed_plugins():
     for plugin in _initialized_plugins:
@@ -266,6 +286,7 @@ def has_library_closed_plugins():
 
 # Store Plugins # {{{
 
+
 def store_plugins():
     customization = config['plugin_customization']
     for plugin in _initialized_plugins:
@@ -273,16 +294,19 @@ def store_plugins():
             plugin.site_customization = customization.get(plugin.name, '')
             yield plugin
 
+
 def available_store_plugins():
     for plugin in store_plugins():
         if not is_disabled(plugin):
             yield plugin
+
 
 def stores():
     stores = set([])
     for plugin in store_plugins():
         stores.add(plugin.name)
     return stores
+
 
 def available_stores():
     stores = set([])
@@ -295,6 +319,8 @@ def available_stores():
 # Metadata read/write {{{
 _metadata_readers = {}
 _metadata_writers = {}
+
+
 def reread_metadata_plugins():
     global _metadata_readers
     global _metadata_writers
@@ -308,6 +334,7 @@ def reread_metadata_plugins():
             for ft in plugin.file_types:
                 _metadata_writers[ft].append(plugin)
 
+
 def metadata_readers():
     ans = set([])
     for plugins in _metadata_readers.values():
@@ -315,12 +342,14 @@ def metadata_readers():
             ans.add(plugin)
     return ans
 
+
 def metadata_writers():
     ans = set([])
     for plugins in _metadata_writers.values():
         for plugin in plugins:
             ans.add(plugin)
     return ans
+
 
 class QuickMetadata(object):
 
@@ -335,6 +364,7 @@ class QuickMetadata(object):
 
 quick_metadata = QuickMetadata()
 
+
 class ApplyNullMetadata(object):
 
     def __init__(self):
@@ -348,6 +378,7 @@ class ApplyNullMetadata(object):
 
 apply_null_metadata = ApplyNullMetadata()
 
+
 class ForceIdentifiers(object):
 
     def __init__(self):
@@ -360,6 +391,7 @@ class ForceIdentifiers(object):
         self.force_identifiers = False
 
 force_identifiers = ForceIdentifiers()
+
 
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
@@ -379,6 +411,7 @@ def get_file_type_metadata(stream, ftype):
                         traceback.print_exc()
                         continue
     return mi
+
 
 def set_file_type_metadata(stream, mi, ftype, report_error=None):
     ftype = ftype.lower().strip()
@@ -401,6 +434,7 @@ def set_file_type_metadata(stream, mi, ftype, report_error=None):
                         else:
                             report_error(mi, ftype, traceback.format_exc())
 
+
 def can_set_metadata(ftype):
     ftype = ftype.lower().strip()
     for plugin in _metadata_writers.get(ftype, ()):
@@ -411,6 +445,7 @@ def can_set_metadata(ftype):
 # }}}
 
 # Add/remove plugins {{{
+
 
 def add_plugin(path_to_zip_file):
     make_config_dir()
@@ -428,6 +463,7 @@ def add_plugin(path_to_zip_file):
     config['plugins'] = plugins
     initialize_plugins()
     return plugin
+
 
 def remove_plugin(plugin_or_name):
     name = getattr(plugin_or_name, 'name', plugin_or_name)
@@ -453,10 +489,12 @@ def remove_plugin(plugin_or_name):
 
 # Input/Output format plugins {{{
 
+
 def input_format_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, InputFormatPlugin):
             yield plugin
+
 
 def plugin_for_input_format(fmt):
     customization = config['plugin_customization']
@@ -465,12 +503,14 @@ def plugin_for_input_format(fmt):
             plugin.site_customization = customization.get(plugin.name, None)
             return plugin
 
+
 def all_input_formats():
     formats = set()
     for plugin in input_format_plugins():
         for format in plugin.file_types:
             formats.add(format)
     return formats
+
 
 def available_input_formats():
     formats = set()
@@ -487,12 +527,14 @@ def output_format_plugins():
         if isinstance(plugin, OutputFormatPlugin):
             yield plugin
 
+
 def plugin_for_output_format(fmt):
     customization = config['plugin_customization']
     for plugin in output_format_plugins():
         if fmt.lower() == plugin.file_type:
             plugin.site_customization = customization.get(plugin.name, None)
             return plugin
+
 
 def available_output_formats():
     formats = set([])
@@ -505,10 +547,12 @@ def available_output_formats():
 
 # Catalog plugins {{{
 
+
 def catalog_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, CatalogPlugin):
             yield plugin
+
 
 def available_catalog_formats():
     formats = set([])
@@ -518,6 +562,7 @@ def available_catalog_formats():
                 formats.add(format)
     return formats
 
+
 def plugin_for_catalog_format(fmt):
     for plugin in catalog_plugins():
         if fmt.lower() in plugin.file_types:
@@ -526,6 +571,8 @@ def plugin_for_catalog_format(fmt):
 # }}}
 
 # Device plugins {{{
+
+
 def device_plugins(include_disabled=False):
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
@@ -536,6 +583,7 @@ def device_plugins(include_disabled=False):
                         plugin.do_delayed_plugin_initialization()
                     yield plugin
 
+
 def disabled_device_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, DevicePlugin):
@@ -545,12 +593,15 @@ def disabled_device_plugins():
 # }}}
 
 # Metadata sources2 {{{
+
+
 def metadata_plugins(capabilities):
     capabilities = frozenset(capabilities)
     for plugin in all_metadata_plugins():
         if plugin.capabilities.intersection(capabilities) and \
                 not is_disabled(plugin):
             yield plugin
+
 
 def all_metadata_plugins():
     for plugin in _initialized_plugins:
@@ -559,6 +610,8 @@ def all_metadata_plugins():
 # }}}
 
 # Viewer plugins {{{
+
+
 def all_viewer_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, ViewerPlugin):
@@ -566,6 +619,8 @@ def all_viewer_plugins():
 # }}}
 
 # Editor plugins {{{
+
+
 def all_edit_book_tool_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, EditBookToolPlugin):
@@ -575,6 +630,7 @@ def all_edit_book_tool_plugins():
 # Initialize plugins {{{
 
 _initialized_plugins = []
+
 
 def initialize_plugin(plugin, path_to_zip_file):
     try:
@@ -587,9 +643,11 @@ def initialize_plugin(plugin, path_to_zip_file):
         raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:')
                             %tb) + '\n'+tb)
 
+
 def has_external_plugins():
     'True if there are updateable (zip file based) plugins'
     return bool(config['plugins'])
+
 
 def initialize_plugins(perf=False):
     global _initialized_plugins
@@ -638,6 +696,7 @@ def initialize_plugins(perf=False):
 
 initialize_plugins()
 
+
 def initialized_plugins():
     for plugin in _initialized_plugins:
         yield plugin
@@ -645,6 +704,7 @@ def initialized_plugins():
 # }}}
 
 # CLI {{{
+
 
 def build_plugin(path):
     from calibre import prints
@@ -662,6 +722,7 @@ def build_plugin(path):
     plugin = add_plugin(t.name)
     os.remove(t.name)
     prints(u'Plugin updated:', plugin.name, plugin.version)
+
 
 def option_parser():
     parser = OptionParser(usage=_('''\
@@ -686,6 +747,7 @@ def option_parser():
     parser.add_option('--disable-plugin', default=None,
                       help=_('Disable the named plugin'))
     return parser
+
 
 def main(args=sys.argv):
     parser = option_parser()

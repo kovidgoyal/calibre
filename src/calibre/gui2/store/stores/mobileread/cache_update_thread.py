@@ -17,6 +17,7 @@ from PyQt5.Qt import (pyqtSignal, QObject)
 from calibre import browser
 from calibre.gui2.store.search_result import SearchResult
 
+
 class CacheUpdateThread(Thread, QObject):
 
     total_changed = pyqtSignal(int)

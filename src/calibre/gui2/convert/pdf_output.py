@@ -11,6 +11,7 @@ from calibre.utils.localization import localize_user_manual_link
 paper_size_model = None
 orientation_model = None
 
+
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('PDF Output')

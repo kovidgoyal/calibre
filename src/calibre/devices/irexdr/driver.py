@@ -10,6 +10,7 @@ Device driver for IRex Digiatal Reader
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class IREXDR1000(USBMS):
 
     name           = 'IRex Digital Reader 1000 Device Interface'
@@ -36,6 +37,7 @@ class IREXDR1000(USBMS):
     EBOOK_DIR_MAIN = ''
     DELETE_EXTS = ['.mbp']
     SUPPORTS_SUB_DIRS = True
+
 
 class IREXDR800(IREXDR1000):
     name           = 'IRex Digital Reader 800 Device Interface'

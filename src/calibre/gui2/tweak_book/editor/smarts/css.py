@@ -16,6 +16,7 @@ from calibre.gui2.tweak_book.editor.smarts.utils import (
     no_modifiers, get_leading_whitespace_on_block, get_text_before_cursor,
     smart_home, smart_backspace, smart_tab, expand_tabs)
 
+
 def find_rule(raw, rule_address):
     import tinycss
     parser = tinycss.make_full_parser()
@@ -33,6 +34,7 @@ def find_rule(raw, rule_address):
         if rule_address:
             rules = getattr(r, 'rules', ())
     return ans
+
 
 class Smarts(NullSmarts):
 

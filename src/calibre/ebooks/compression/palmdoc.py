@@ -13,13 +13,16 @@ if not cPalmdoc:
     raise RuntimeError(('Failed to load required cPalmdoc module: '
             '%s')%plugins['cPalmdoc'][1])
 
+
 def decompress_doc(data):
     return cPalmdoc.decompress(data)
+
 
 def compress_doc(data):
     if not data:
         return u''
     return cPalmdoc.compress(data)
+
 
 def test():
     TESTS = [
@@ -42,6 +45,7 @@ def test():
         print '\t\t', repr(decompress_doc(x))
         assert decompress_doc(x) == test
         print
+
 
 def py_compress_doc(data):
     out = StringIO()

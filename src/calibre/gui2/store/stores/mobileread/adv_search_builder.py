@@ -13,6 +13,7 @@ from PyQt5.Qt import (QDialog, QDialogButtonBox)
 from calibre.gui2.store.stores.mobileread.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 
+
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
 
     def __init__(self, parent):

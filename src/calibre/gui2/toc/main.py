@@ -27,6 +27,7 @@ from calibre.utils.logging import GUILog
 
 ICON_SIZE = 24
 
+
 class XPathDialog(QDialog):  # {{{
 
     def __init__(self, parent, prefs):
@@ -119,6 +120,7 @@ class XPathDialog(QDialog):  # {{{
     def xpaths(self):
         return [w.xpath for w in self.widgets if w.xpath.strip()]
 # }}}
+
 
 class ItemView(QFrame):  # {{{
 
@@ -351,6 +353,7 @@ class ItemView(QFrame):  # {{{
 
 # }}}
 
+
 class TreeWidget(QTreeWidget):  # {{{
 
     edit_item = pyqtSignal()
@@ -544,6 +547,7 @@ class TreeWidget(QTreeWidget):  # {{{
 
     def show_context_menu(self, point):
         item = self.currentItem()
+
         def key(k):
             sc = unicode(QKeySequence(k | Qt.CTRL).toString(QKeySequence.NativeText))
             return ' [%s]'%sc
@@ -568,6 +572,7 @@ class TreeWidget(QTreeWidget):  # {{{
             m.addAction(QIcon(I('modified.png')), _('Bulk rename all selected items'), self.bulk_rename)
             m.exec_(QCursor.pos())
 # }}}
+
 
 class TOCView(QWidget):  # {{{
 

@@ -19,6 +19,7 @@ from calibre.gui2 import error_dialog, config, open_url, warning_dialog, \
 from calibre import as_unicode
 from calibre.utils.icu import sort_key
 
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):

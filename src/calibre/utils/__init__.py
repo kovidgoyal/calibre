@@ -9,6 +9,7 @@ Miscelleaneous utilities.
 
 from time import time
 
+
 def join_with_timeout(q, timeout=2):
     ''' Join the queue q with a specified timeout. Blocks until all tasks on
     the queue are done or times out with a runtime error. '''

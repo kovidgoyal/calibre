@@ -10,8 +10,10 @@ from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendatio
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
 
+
 def relpath(*args):
     return _relpath(*args).replace(os.sep, '/')
+
 
 class HTMLOutput(OutputFormatPlugin):
 

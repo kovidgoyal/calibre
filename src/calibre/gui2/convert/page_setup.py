@@ -12,6 +12,7 @@ from calibre.gui2.convert.page_setup_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.customize.ui import input_profiles, output_profiles
 
+
 class ProfileModel(QAbstractListModel):
 
     def __init__(self, profiles):
@@ -34,6 +35,7 @@ class ProfileModel(QAbstractListModel):
             ss = _('Screen size: %s') % ss
             return ('%s [%s]' % (profile.description, ss))
         return None
+
 
 class PageSetupWidget(Widget, Ui_Form):
 

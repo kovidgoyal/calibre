@@ -12,6 +12,7 @@ from PyQt5.Qt import QComboBox, Qt
 
 from calibre.gui2 import config as gui_conf
 
+
 class HistoryBox(QComboBox):
 
     def __init__(self, parent=None):

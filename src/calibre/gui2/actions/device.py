@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.smartdevice import SmartdeviceDialog
 from calibre.gui2 import info_dialog, question_dialog
 from calibre.library.server import server_config as content_server_config
 
+
 class ShareConnMenu(QMenu):  # {{{
 
     connect_to_folder = pyqtSignal()

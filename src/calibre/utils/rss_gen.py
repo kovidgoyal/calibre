@@ -9,6 +9,8 @@ _generator_name = __name__ + "-" + ".".join(map(str, __version__))
 import datetime
 
 # Could make this the base class; will need to add 'publish'
+
+
 class WriteXmlMixin:
 
     def write_xml(self, outfile, encoding="iso-8859-1"):
@@ -40,6 +42,7 @@ def _element(handler, name, obj, d={}):
     else:
         # It better know how to emit the correct XML.
         obj.publish(handler)
+
 
 def _opt_element(handler, name, obj):
     if obj is None:
@@ -79,13 +82,16 @@ class IntElement:
     to text for XML.)
     """
     element_attrs = {}
+
     def __init__(self, name, val):
         self.name = name
         self.val = val
+
     def publish(self, handler):
         handler.startElement(self.name, self.element_attrs)
         handler.characters(str(self.val))
         handler.endElement(self.name)
+
 
 class DateElement:
     """implements the 'publish' API for a datetime.datetime
@@ -94,26 +100,33 @@ class DateElement:
 
     Converts the datetime to RFC 2822 timestamp (4-digit year).
     """
+
     def __init__(self, name, dt):
         self.name = name
         self.dt = dt
+
     def publish(self, handler):
         _element(handler, self.name, _format_date(self.dt))
 ####
 
+
 class Category:
     """Publish a category element"""
+
     def __init__(self, category, domain=None):
         self.category = category
         self.domain = domain
+
     def publish(self, handler):
         d = {}
         if self.domain is not None:
             d["domain"] = self.domain
         _element(handler, "category", self.category, d)
 
+
 class Cloud:
     """Publish a cloud"""
+
     def __init__(self, domain, port, path,
                  registerProcedure, protocol):
         self.domain = domain
@@ -121,6 +134,7 @@ class Cloud:
         self.path = path
         self.registerProcedure = registerProcedure
         self.protocol = protocol
+
     def publish(self, handler):
         _element(handler, "cloud", None, {
             "domain": self.domain,
@@ -129,9 +143,11 @@ class Cloud:
             "registerProcedure": self.registerProcedure,
             "protocol": self.protocol})
 
+
 class Image:
     """Publish a channel Image"""
     element_attrs = {}
+
     def __init__(self, url, title, link,
                  width=None, height=None, description=None):
         self.url = url
@@ -162,15 +178,18 @@ class Image:
 
         handler.endElement("image")
 
+
 class Guid:
     """Publish a guid
 
     Defaults to being a permalink, which is the assumption if it's
     omitted.  Hence strings are always permalinks.
     """
+
     def __init__(self, guid, isPermaLink=1):
         self.guid = guid
         self.isPermaLink = isPermaLink
+
     def publish(self, handler):
         d = {}
         if self.isPermaLink:
@@ -179,12 +198,14 @@ class Guid:
             d["isPermaLink"] = "false"
         _element(handler, "guid", self.guid, d)
 
+
 class TextInput:
     """Publish a textInput
 
     Apparently this is rarely used.
     """
     element_attrs = {}
+
     def __init__(self, title, description, name, link):
         self.title = title
         self.description = description
@@ -202,10 +223,12 @@ class TextInput:
 
 class Enclosure:
     """Publish an enclosure"""
+
     def __init__(self, url, length, type):
         self.url = url
         self.length = length
         self.type = type
+
     def publish(self, handler):
         _element(handler, "enclosure", None,
                  {"url": self.url,
@@ -213,13 +236,17 @@ class Enclosure:
                   "type": self.type,
                   })
 
+
 class Source:
     """Publish the item's original source, used by aggregators"""
+
     def __init__(self, name, url):
         self.name = name
         self.url = url
+
     def publish(self, handler):
         _element(handler, "source", self.name, {"url": self.url})
+
 
 class SkipHours:
     """Publish the skipHours
@@ -227,8 +254,10 @@ class SkipHours:
     This takes a list of hours, as integers.
     """
     element_attrs = {}
+
     def __init__(self, hours):
         self.hours = hours
+
     def publish(self, handler):
         if self.hours:
             handler.startElement("skipHours", self.element_attrs)
@@ -236,20 +265,24 @@ class SkipHours:
                 _element(handler, "hour", str(hour))
             handler.endElement("skipHours")
 
+
 class SkipDays:
     """Publish the skipDays
 
     This takes a list of days as strings.
     """
     element_attrs = {}
+
     def __init__(self, days):
         self.days = days
+
     def publish(self, handler):
         if self.days:
             handler.startElement("skipDays", self.element_attrs)
             for day in self.days:
                 _element(handler, "day", day)
             handler.endElement("skipDays")
+
 
 class RSS2(WriteXmlMixin):
     """The main RSS class.
@@ -260,6 +293,7 @@ class RSS2(WriteXmlMixin):
 
     rss_attrs = {"version": "2.0"}
     element_attrs = {}
+
     def __init__(self,
                  title,
                  link,
@@ -380,6 +414,7 @@ class RSS2(WriteXmlMixin):
 class RSSItem(WriteXmlMixin):
     """Publish an RSS Item"""
     element_attrs = {}
+
     def __init__(self,
                  title=None,  # string
                  link=None,   # url as string

@@ -10,6 +10,7 @@ import re
 from calibre import prints
 from calibre.utils.logging import default_log as log
 
+
 class NumberToText(object):  # {{{
     '''
     Converts numbers to text

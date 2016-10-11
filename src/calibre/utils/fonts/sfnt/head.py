@@ -13,6 +13,7 @@ from struct import unpack_from, pack, calcsize
 from calibre.utils.fonts.sfnt import UnknownTable, DateTimeProperty, FixedProperty
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
+
 class HeadTable(UnknownTable):
 
     created = DateTimeProperty('_created')
@@ -52,6 +53,7 @@ class HeadTable(UnknownTable):
     def update(self):
         vals = [getattr(self, f) for f in self._fields]
         self.raw = pack(self._fmt, *vals)
+
 
 class HorizontalHeader(UnknownTable):
 
@@ -97,6 +99,7 @@ class HorizontalHeader(UnknownTable):
         fmt = '>%dh'%(2*num)
         entries = unpack_from(fmt.encode('ascii'), long_hor_metric)
         self.left_side_bearings = entries[1::2]
+
 
 class OS2Table(UnknownTable):
 
@@ -153,6 +156,7 @@ class OS2Table(UnknownTable):
         prefix = calcsize(b'>HhHH')
         self.raw = self.raw[:prefix] + b'\0\0' + self.raw[prefix+2:]
         self.fs_type = 0
+
 
 class PostTable(UnknownTable):
 

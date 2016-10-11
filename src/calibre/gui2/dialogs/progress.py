@@ -10,6 +10,7 @@ from PyQt5.Qt import (
 from calibre.gui2 import elided_text
 from calibre.gui2.progress_indicator import ProgressIndicator
 
+
 class ProgressDialog(QDialog):
 
     canceled_signal = pyqtSignal()
@@ -66,6 +67,7 @@ class ProgressDialog(QDialog):
     def value(self):
         def fset(self, val):
             return self.bar.setValue(val)
+
         def fget(self):
             return self.bar.value()
         return property(fget=fget, fset=fset)
@@ -80,6 +82,7 @@ class ProgressDialog(QDialog):
     def max(self):
         def fget(self):
             return self.bar.maximum()
+
         def fset(self, val):
             self.bar.setMaximum(val)
         return property(fget=fget, fset=fset)
@@ -88,6 +91,7 @@ class ProgressDialog(QDialog):
     def min(self):
         def fget(self):
             return self.bar.minimum()
+
         def fset(self, val):
             self.bar.setMinimum(val)
         return property(fget=fget, fset=fset)
@@ -96,6 +100,7 @@ class ProgressDialog(QDialog):
     def title(self):
         def fget(self):
             return self.title_label.text()
+
         def fset(self, val):
             self.title_label.setText(unicode(val or ''))
         return property(fget=fget, fset=fset)
@@ -104,6 +109,7 @@ class ProgressDialog(QDialog):
     def msg(self):
         def fget(self):
             return self.message.text()
+
         def fset(self, val):
             val = unicode(val or '')
             self.message.setText(elided_text(val, self.font(), self.message.minimumWidth()-10))
@@ -126,6 +132,7 @@ class ProgressDialog(QDialog):
                 self._canceled()
         else:
             QDialog.keyPressEvent(self, ev)
+
 
 class BlockingBusy(QDialog):
 

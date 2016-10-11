@@ -13,6 +13,7 @@ import calibre
 from calibre.utils.localization import lang_as_iso639_1
 from calibre.utils.resources import compiled_coffeescript
 
+
 class JavaScriptLoader(object):
 
     JS = {x:('viewer/%s.js'%x if y is None else y) for x, y in {

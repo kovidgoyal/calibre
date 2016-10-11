@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.polish.toc import find_existing_ncx_toc, find_existing_n
 
 _patterns = None
 
+
 class Patterns(object):
 
     __slots__ = ('sanitize_invisible_pat', 'split_pat', 'digit_pat', 'fr_elision_pat')
@@ -37,11 +38,13 @@ class Patterns(object):
         self.fr_elision_pat = regex.compile(
             u"^(?:l|d|m|t|s|j|c|ç|lorsqu|puisqu|quoiqu|qu)['’]", flags=regex.UNICODE | regex.VERSION1 | regex.IGNORECASE)
 
+
 def patterns():
     global _patterns
     if _patterns is None:
         _patterns = Patterns()
     return _patterns
+
 
 class Location(object):
 
@@ -58,6 +61,7 @@ class Location(object):
     def replace(self, new_word):
         self.original_word = self.elided_prefix + new_word
 
+
 def filter_words(word):
     if not word:
         return False
@@ -66,12 +70,14 @@ def filter_words(word):
         return False
     return True
 
+
 def get_words(text, lang):
     try:
         ans = split_into_words(unicode(text), lang)
     except (TypeError, ValueError):
         return ()
     return filter(filter_words, ans)
+
 
 def add_words(text, node, words, file_name, locale, node_item):
     candidates = get_words(text, locale.langcode)
@@ -90,13 +96,16 @@ def add_words(text, node, words, file_name, locale, node_item):
             words[(sword, locale)].append(loc)
             words[None] += 1
 
+
 def add_words_from_attr(node, attr, words, file_name, locale):
     text = node.get(attr, None)
     if text:
         add_words(text, node, words, file_name, locale, (True, attr))
 
+
 def add_words_from_text(node, attr, words, file_name, locale):
     add_words(getattr(node, attr), node, words, file_name, locale, (False, attr))
+
 
 def add_words_from_escaped_html(text, words, file_name, node, attr, locale):
     text = replace_entities(text)
@@ -117,6 +126,7 @@ opf_spell_tags = {'title', 'creator', 'subject', 'description', 'publisher'}
 # We can only use barename() for tag names and simple attribute checks so that
 # this code matches up with the syntax highlighter base spell checking
 
+
 def read_words_from_opf(root, words, file_name, book_locale):
     for tag in root.iterdescendants('*'):
         if tag.text is not None and barename(tag.tag) in opf_spell_tags:
@@ -129,12 +139,14 @@ def read_words_from_opf(root, words, file_name, book_locale):
 ncx_spell_tags = {'text'}
 xml_spell_tags = opf_spell_tags | ncx_spell_tags
 
+
 def read_words_from_ncx(root, words, file_name, book_locale):
     for tag in root.xpath('//*[local-name()="text"]'):
         if tag.text is not None:
             add_words_from_text(tag, 'text', words, file_name, book_locale)
 
 html_spell_tags = {'script', 'style', 'link'}
+
 
 def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
     if tag.text is not None and barename(tag.tag) not in html_spell_tags:
@@ -143,6 +155,7 @@ def read_words_from_html_tag(tag, words, file_name, parent_locale, locale):
         add_words_from_attr(tag, attr, words, file_name, locale)
     if tag.tail is not None and tag.getparent() is not None and barename(tag.getparent().tag) not in html_spell_tags:
         add_words_from_text(tag, 'tail', words, file_name, parent_locale)
+
 
 def locale_from_tag(tag):
     if 'lang' in tag.attrib:
@@ -160,6 +173,7 @@ def locale_from_tag(tag):
         if loc is not None:
             return loc
 
+
 def read_words_from_html(root, words, file_name, book_locale):
     stack = [(root, book_locale)]
     while stack:
@@ -168,12 +182,14 @@ def read_words_from_html(root, words, file_name, book_locale):
         read_words_from_html_tag(parent, words, file_name, parent_locale, locale)
         stack.extend((tag, locale) for tag in parent.iterchildren('*'))
 
+
 def group_sort(locations):
     order = {}
     for loc in locations:
         if loc.file_name not in order:
             order[loc.file_name] = len(order)
     return sorted(locations, key=lambda l:(order[l.file_name], l.sourceline))
+
 
 def get_checkable_file_names(container):
     file_names = [name for name, linear in container.spine_names] + [container.opf_name]
@@ -182,6 +198,7 @@ def get_checkable_file_names(container):
         if toc is not None and container.exists(toc) and toc not in file_names:
             file_names.append(toc)
     return file_names, toc
+
 
 def get_all_words(container, book_locale, get_word_count=False):
     words = defaultdict(list)
@@ -203,8 +220,10 @@ def get_all_words(container, book_locale, get_word_count=False):
         return count, ans
     return ans
 
+
 def merge_locations(locs1, locs2):
     return group_sort(locs1 + locs2)
+
 
 def replace(text, original_word, new_word, lang):
     indices = []
@@ -221,6 +240,7 @@ def replace(text, original_word, new_word, lang):
     for idx in reversed(indices):
         text = text[:idx] + new_word + text[idx+len(original_word):]
     return text, bool(indices)
+
 
 def replace_word(container, new_word, locations, locale, undo_cache=None):
     changed = set()
@@ -243,6 +263,7 @@ def replace_word(container, new_word, locations, locale, undo_cache=None):
             container.replace(loc.file_name, node.getroottree().getroot())
             changed.add(loc.file_name)
     return changed
+
 
 def undo_replace_word(container, undo_cache):
     changed = set()

@@ -26,6 +26,7 @@ EndTagTable = TagMeta(('eof', 0, 0, 0, 1))
 mask_to_bit_shifts = {1:0, 2:1, 3:0, 4:2, 8:3, 12:2, 16:4, 32:5, 48:4, 64:6,
         128:7, 192: 6}
 
+
 class IndexHeader(Header):  # {{{
 
     HEADER_NAME = b'INDX'
@@ -90,6 +91,7 @@ class IndexHeader(Header):  # {{{
 
     POSITIONS = {'idxt_offset':'idxt'}
 # }}}
+
 
 class Index(object):  # {{{
 
@@ -234,6 +236,7 @@ class Index(object):  # {{{
         return self.records
 # }}}
 
+
 class SkelIndex(Index):
 
     tag_types = tuple(map(TagMeta, (
@@ -274,6 +277,7 @@ class ChunkIndex(Index):
                     'geometry':(c.start_pos, c.length),
                     }) for c in chunk_table
         ]
+
 
 class GuideIndex(Index):
 

@@ -19,6 +19,7 @@ from calibre.ebooks.oeb.polish.stats import StatsCollector, font_keys, normalize
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
 from calibre.utils.logging import Log, Stream
 
+
 class VirtualContainer(ContainerBase):
 
     tweak_mode = True
@@ -55,6 +56,7 @@ class VirtualContainer(ContainerBase):
         for name in sorted(self.mime_map):
             if self.mime_map[name] in OEB_DOCS:
                 yield name, True
+
 
 class CascadeTest(BaseTest):
 
@@ -145,6 +147,7 @@ class CascadeTest(BaseTest):
 
     def test_font_stats(self):
         embeds = '@font-face { font-family: X; src: url(X.otf) }\n@font-face { font-family: X; src: url(XB.otf); font-weight: bold }'
+
         def get_stats(html, *fonts):
             styles = []
             html = '<html><head><link href="styles.css"></head><body>{}</body></html>'.format(html)

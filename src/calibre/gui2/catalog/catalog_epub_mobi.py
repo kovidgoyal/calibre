@@ -22,6 +22,7 @@ from PyQt5.Qt import (Qt, QAbstractItemView, QCheckBox, QComboBox,
         QSize, QSizePolicy, QTableWidget, QTableWidgetItem, QTextEdit, QToolButton,
         QUrl, QVBoxLayout, QWidget)
 
+
 class PluginWidget(QWidget,Ui_Form):
 
     TITLE = _('E-book options')
@@ -817,6 +818,7 @@ class PluginWidget(QWidget,Ui_Form):
         '''
         open_url(QUrl(localize_user_manual_link('https://manual.calibre-ebook.com/catalogs.html')))
 
+
 class CheckableTableWidgetItem(QTableWidgetItem):
 
     '''
@@ -846,11 +848,13 @@ class CheckableTableWidgetItem(QTableWidgetItem):
         else:
             return self.checkState() == Qt.Checked
 
+
 class NoWheelComboBox(QComboBox):
 
     def wheelEvent(self, event):
         # Disable the mouse wheel on top of the combo box changing selection as plays havoc in a grid
         event.ignore()
+
 
 class ComboBox(NoWheelComboBox):
     # Caller is responsible for providing the list in the preferred order
@@ -868,6 +872,7 @@ class ComboBox(NoWheelComboBox):
             self.setCurrentIndex(idx)
         else:
             self.setCurrentIndex(0)
+
 
 class GenericRulesTable(QTableWidget):
 
@@ -1164,6 +1169,7 @@ class GenericRulesTable(QTableWidget):
             print("%s:values_index_changed(): row %d " %
                   (self.objectName(), row))
 
+
 class ExclusionRules(GenericRulesTable):
 
     COLUMNS = {'ENABLED':{'ordinal': 0, 'name': ''},
@@ -1254,6 +1260,7 @@ class ExclusionRules(GenericRulesTable):
         self.source_index_changed(source_combo, row, pattern=data['pattern'])
 
         self.blockSignals(False)
+
 
 class PrefixRules(GenericRulesTable):
 

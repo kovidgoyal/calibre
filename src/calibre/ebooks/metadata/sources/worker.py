@@ -23,6 +23,7 @@ from calibre.ebooks.metadata.sources.base import dump_caches, load_caches
 from calibre.utils.logging import GUILog
 from calibre.ebooks.metadata.opf2 import metadata_to_opf, OPF
 
+
 def merge_result(oldmi, newmi, ensure_fields=None):
     dummy = Metadata(_('Unknown'))
     for f in msprefs['ignore_fields']:
@@ -48,6 +49,7 @@ def merge_result(oldmi, newmi, ensure_fields=None):
                 setattr(newmi, f, getattr(dummy, f))
 
     return newmi
+
 
 def main(do_identify, covers, metadata, ensure_fields, tdir):
     failed_ids = set()
@@ -97,12 +99,14 @@ def main(do_identify, covers, metadata, ensure_fields, tdir):
 
     return failed_ids, failed_covers, all_failed
 
+
 def single_identify(title, authors, identifiers):
     log = GUILog()
     results = identify(log, Event(), title=title, authors=authors,
             identifiers=identifiers)
     return [metadata_to_opf(r) for r in results], [r.has_cached_cover_url for
         r in results], dump_caches(), log.dump()
+
 
 def single_covers(title, authors, identifiers, caches, tdir):
     load_caches(caches)

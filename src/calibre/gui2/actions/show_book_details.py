@@ -11,6 +11,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.gui2 import error_dialog
 
+
 class ShowBookDetailsAction(InterfaceAction):
 
     name = 'Show Book Details'

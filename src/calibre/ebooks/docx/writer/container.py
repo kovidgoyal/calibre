@@ -20,6 +20,7 @@ from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1
 from calibre.utils.zipfile import ZipFile
 from calibre.ebooks.pdf.render.common import PAPER_SIZES
 
+
 def xml2str(root, pretty_print=False, with_tail=False):
     if hasattr(etree, 'cleanup_namespaces'):
         etree.cleanup_namespaces(root)
@@ -27,14 +28,17 @@ def xml2str(root, pretty_print=False, with_tail=False):
                           pretty_print=pretty_print, with_tail=with_tail)
     return ans
 
+
 def page_size(opts):
     width, height = PAPER_SIZES[opts.docx_page_size]
     if opts.docx_custom_page_size is not None:
         width, height = map(float, opts.docx_custom_page_size.partition('x')[0::2])
     return width, height
 
+
 def create_skeleton(opts, namespaces=None):
     namespaces = namespaces or DOCXNamespace().namespaces
+
     def w(x):
         return '{%s}%s' % (namespaces['w'], x)
     dn = {k:v for k, v in namespaces.iteritems() if k in {'w', 'r', 'm', 've', 'o', 'wp', 'w10', 'wne', 'a', 'pic'}}
@@ -44,6 +48,7 @@ def create_skeleton(opts, namespaces=None):
     doc.append(body)
     width, height = page_size(opts)
     width, height = int(20 * width), int(20 * height)
+
     def margin(which):
         return w(which), str(int(getattr(opts, 'margin_'+which) * 20))
     body.append(E.sectPr(
@@ -131,6 +136,7 @@ class DocumentRelationships(object):
                 r.set('TargetMode', target_mode)
             relationships.append(r)
         return xml2str(relationships)
+
 
 class DOCX(object):
 

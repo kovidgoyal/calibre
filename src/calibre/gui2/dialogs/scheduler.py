@@ -28,11 +28,13 @@ from calibre.utils.network import internet_connected
 from calibre import force_unicode
 from calibre.utils.localization import get_lang, canonicalize_lang
 
+
 def convert_day_time_schedule(val):
     day_of_week, hour, minute = val
     if day_of_week == -1:
         return (tuple(xrange(7)), hour, minute)
     return ((day_of_week,), hour, minute)
+
 
 class RecipesView(QTreeView):
 
@@ -48,6 +50,8 @@ class RecipesView(QTreeView):
         self.parent().current_changed(current, previous)
 
 # Time/date widgets {{{
+
+
 class Base(QWidget):
 
     def __init__(self, parent=None):
@@ -55,6 +59,7 @@ class Base(QWidget):
         self.l = QGridLayout()
         self.setLayout(self.l)
         self.setToolTip(textwrap.dedent(self.HELP))
+
 
 class DaysOfWeek(Base):
 
@@ -107,6 +112,7 @@ class DaysOfWeek(Base):
         hour, minute = t.hour(), t.minute()
         return 'days_of_week', (days_of_week, int(hour), int(minute))
 
+
 class DaysOfMonth(Base):
 
     HELP = _('''\
@@ -157,6 +163,7 @@ class DaysOfMonth(Base):
         t = self.time.time()
         hour, minute = t.hour(), t.minute()
         return 'days_of_month', (days_of_month, int(hour), int(minute))
+
 
 class EveryXDays(Base):
 
@@ -533,6 +540,7 @@ class SchedulerDialog(QDialog):
         if scheduled:
             typ, sch, last_downloaded = schedule_info
             d = utcnow() - last_downloaded
+
             def hm(x):
                 return (x-x%3600)//3600, (x%3600 - (x%3600)%60)//60
             hours, minutes = hm(d.seconds)

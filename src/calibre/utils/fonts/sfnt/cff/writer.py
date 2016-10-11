@@ -12,6 +12,7 @@ from collections import OrderedDict
 
 from calibre.utils.fonts.sfnt.cff.constants import cff_standard_strings
 
+
 class Index(list):
 
     def __init__(self):
@@ -48,6 +49,7 @@ class Index(list):
             self.raw = prefix + offsets + obj_data
         return self.raw
 
+
 class Strings(Index):
 
     def __init__(self):
@@ -62,6 +64,7 @@ class Strings(Index):
             self.append(x)
         return ans
 
+
 class Dict(Index):
 
     def __init__(self, src, strings):
@@ -71,6 +74,7 @@ class Dict(Index):
     def compile(self):
         self[:] = [self.src.compile(self.strings)]
         Index.compile(self)
+
 
 class PrivateDict(object):
 
@@ -90,6 +94,7 @@ class PrivateDict(object):
         self.raw = raw
         return raw
 
+
 class Charsets(list):
 
     def __init__(self, strings):
@@ -102,6 +107,7 @@ class Charsets(list):
         ans += pack(('>%dH'%len(self)).encode('ascii'), *sids)
         self.raw = ans
         return ans
+
 
 class Subset(object):
 

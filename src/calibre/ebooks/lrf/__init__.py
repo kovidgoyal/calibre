@@ -13,6 +13,7 @@ from calibre.ebooks import ConversionError
 
 __docformat__ = "epytext"
 
+
 class LRFParseError(Exception):
     pass
 
@@ -33,9 +34,11 @@ class PRS500_PROFILE(object):
 
     name = 'prs500'
 
+
 def find_custom_fonts(options, logger):
     from calibre.utils.fonts.scanner import font_scanner
     fonts = {'serif' : None, 'sans' : None, 'mono' : None}
+
     def family(cmd):
         return cmd.split(',')[-1].strip()
     if options.serif_family:

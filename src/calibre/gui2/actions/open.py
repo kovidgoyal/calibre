@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.actions import InterfaceAction
 
+
 class OpenFolderAction(InterfaceAction):
 
     name = 'Open Folder'

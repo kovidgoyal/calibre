@@ -78,6 +78,7 @@ SONY_ATOM_ENTRY = u'''\
 </entry>
 '''
 
+
 def sony_metadata(oeb):
     m = oeb.metadata
     title = short_title = unicode(m.title[0])

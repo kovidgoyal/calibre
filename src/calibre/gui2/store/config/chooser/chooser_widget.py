@@ -11,6 +11,7 @@ from PyQt5.Qt import (QWidget, QIcon, QDialog, QComboBox)
 from calibre.gui2.store.config.chooser.adv_search_builder import AdvSearchBuilderDialog
 from calibre.gui2.store.config.chooser.chooser_widget_ui import Ui_Form
 
+
 class StoreChooserWidget(QWidget, Ui_Form):
 
     def __init__(self):

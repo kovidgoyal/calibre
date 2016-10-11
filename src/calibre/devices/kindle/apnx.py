@@ -18,6 +18,7 @@ from calibre.utils.logging import default_log
 from calibre import prints, fsync
 from calibre.constants import DEBUG
 
+
 class APNXBuilder(object):
     '''
     Create an APNX file using a pseudo page mapping.

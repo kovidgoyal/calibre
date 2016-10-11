@@ -23,6 +23,7 @@
 
 from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
 
+
 class K2a (object):
 
     kanwa = None

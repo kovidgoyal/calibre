@@ -18,6 +18,7 @@ from calibre.ptempfile import (PersistentTemporaryDirectory,
         PersistentTemporaryFile)
 from calibre.utils.config import prefs, tweaks
 
+
 class UnpackBook(QDialog):
 
     def __init__(self, parent, book_id, fmts, db):
@@ -281,6 +282,7 @@ class UnpackBook(QDialog):
         for b in self.fmt_choice_buttons:
             if b.isChecked():
                 return unicode(b.text())
+
 
 class UnpackBookAction(InterfaceAction):
 

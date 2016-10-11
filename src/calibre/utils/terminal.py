@@ -14,6 +14,7 @@ from calibre.constants import iswindows
 
 if iswindows:
     import ctypes.wintypes
+
     class CONSOLE_SCREEN_BUFFER_INFO(ctypes.Structure):
         _fields_ = [
             ('dwSize', ctypes.wintypes._COORD),
@@ -22,6 +23,7 @@ if iswindows:
             ('srWindow', ctypes.wintypes._SMALL_RECT),
             ('dwMaximumWindowSize', ctypes.wintypes._COORD)
         ]
+
 
 def fmt(code):
     return ('\033[%dm'%code).encode('ascii')
@@ -84,6 +86,7 @@ if iswindows:
             val |= (WCOLORS[bg] << 4)
         return val
 
+
 def colored(text, fg=None, bg=None, bold=False):
     prefix = []
     if fg is not None:
@@ -98,6 +101,7 @@ def colored(text, fg=None, bg=None, bold=False):
         prefix = prefix.decode('ascii')
         suffix = suffix.decode('ascii')
     return prefix + text + suffix
+
 
 class Detect(object):
 
@@ -172,6 +176,7 @@ class Detect(object):
                     if not ignore_errors:
                         raise ctypes.WinError(err)
 
+
 class ColoredStream(Detect):
 
     def __init__(self, stream=None, fg=None, bg=None, bold=False):
@@ -207,6 +212,7 @@ class ColoredStream(Detect):
             self.stream.flush()
         elif self.set_console is not None:
             self.set_console(self.file_handle, self.default_console_text_attributes)
+
 
 class ANSIStream(Detect):
 
@@ -298,6 +304,7 @@ class ANSIStream(Detect):
         else:
             self.set_console(self.file_handle, self.default_console_text_attributes)
 
+
 def windows_terminfo():
     from ctypes import Structure, byref
     from ctypes.wintypes import SHORT, WORD
@@ -339,6 +346,7 @@ def windows_terminfo():
     if not success:
         raise Exception('stdout is not a console?')
     return csbi
+
 
 def get_term_geometry():
     import fcntl, termios, struct
@@ -382,6 +390,7 @@ def geometry():
         except Exception:
             pass
         return 80, 25
+
 
 def test():
     s = ANSIStream()

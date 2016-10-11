@@ -8,6 +8,7 @@ from cStringIO import StringIO
 
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class TCRInput(InputFormatPlugin):
 
     name        = 'TCR Input'

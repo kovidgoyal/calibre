@@ -15,6 +15,7 @@ from calibre.utils.config import dynamic
 from calibre.gui2.actions import InterfaceAction
 from calibre import sanitize_file_name_unicode
 
+
 class GenerateCatalogAction(InterfaceAction):
 
     name = 'Generate Catalog'

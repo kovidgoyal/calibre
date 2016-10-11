@@ -21,6 +21,7 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.utils.date import parse_date
 from calibre.gui2.device_drivers.mtp_folder_browser import Browser, IgnoredFolders
 
+
 class FormatsConfig(QWidget):  # {{{
 
     def __init__(self, all_formats, format_map):
@@ -73,6 +74,7 @@ class FormatsConfig(QWidget):  # {{{
             self.f.setCurrentRow(idx+1)
 # }}}
 
+
 class TemplateConfig(QWidget):  # {{{
 
     def __init__(self, val):
@@ -117,6 +119,7 @@ class TemplateConfig(QWidget):  # {{{
             return False
 # }}}
 
+
 class SendToConfig(QWidget):  # {{{
 
     def __init__(self, val, device):
@@ -156,6 +159,7 @@ class SendToConfig(QWidget):  # {{{
         return [x for x in ans if x]
 
 # }}}
+
 
 class IgnoredDevices(QWidget):  # {{{
 
@@ -197,6 +201,7 @@ class IgnoredDevices(QWidget):  # {{{
 # }}}
 
 # Rules {{{
+
 
 class Rule(QWidget):
 
@@ -267,6 +272,7 @@ class Rule(QWidget):
                 )
         return None
 
+
 class FormatRules(QGroupBox):
 
     def __init__(self, device, rules):
@@ -325,6 +331,7 @@ class FormatRules(QGroupBox):
                 if r is not None:
                     yield r
 # }}}
+
 
 class MTPConfig(QTabWidget):
 
@@ -484,6 +491,7 @@ class MTPConfig(QTabWidget):
                 p['ignored_folders'] = self.current_ignored_folders
 
             self.device.prefs[self.current_device_key] = p
+
 
 class SendError(QDialog):
 

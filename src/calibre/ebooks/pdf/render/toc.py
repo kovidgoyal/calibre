@@ -11,6 +11,7 @@ import os
 from lxml.html import tostring
 from lxml.html.builder import (HTML, HEAD, BODY, TABLE, TR, TD, H2, STYLE)
 
+
 def convert_node(toc, table, level, pdf):
     tr = TR(
         TD(toc.text or _('Unknown')), TD(),
@@ -36,6 +37,7 @@ def process_children(toc, table, level, pdf):
     for child in toc:
         convert_node(child, table, level, pdf)
         process_children(child, table, level+1, pdf)
+
 
 def toc_as_html(toc, pdf, opts):
     pdf = pdf.engine.pdf

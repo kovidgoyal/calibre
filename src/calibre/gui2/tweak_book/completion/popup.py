@@ -17,6 +17,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book.widgets import make_highlighted_text
 from calibre.utils.icu import string_length
 
+
 class ChoosePopupWidget(QWidget):
 
     TOP_MARGIN = BOTTOM_MARGIN = 2
@@ -234,6 +235,7 @@ class ChoosePopupWidget(QWidget):
             self.ensure_index_visible(self.current_index)
             self.update()
 
+
 class CompletionPopup(ChoosePopupWidget):
 
     def __init__(self, parent, max_height=1000):
@@ -292,6 +294,7 @@ class CompletionPopup(ChoosePopupWidget):
 
 if __name__ == '__main__':
     from calibre.utils.matcher import Matcher
+
     def test(editor):
         c = editor.__c = CompletionPopup(editor.editor, max_height=100)
         items = 'a ab abc abcd abcde abcdef abcdefg abcdefgh'.split()

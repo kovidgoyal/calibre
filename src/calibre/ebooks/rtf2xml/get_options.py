@@ -15,6 +15,8 @@ Gets options for main part of script
 """
 import sys, os
 from calibre.ebooks.rtf2xml import options_trem, configure_txt
+
+
 class GetOptions:
 
     def __init__(self,
@@ -27,6 +29,7 @@ class GetOptions:
         self.__rtf_dir = rtf_dir
         self.__configuration_file = configuration_file
         self.__bug_handler = bug_handler
+
     def get_options(self):
         """
         return valid, output, help, show_warnings, debug, file
@@ -260,6 +263,7 @@ class GetOptions:
                 return_options['valid'] = 0
         """
         return return_options
+
     def __get_config_options(self):
         configure_obj = configure_txt.Configure(
             bug_handler=self.__bug_handler,

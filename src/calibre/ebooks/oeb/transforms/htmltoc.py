@@ -44,7 +44,9 @@ body > .calibre_toc_block {
 """
     }
 
+
 class HTMLTOCAdder(object):
+
     def __init__(self, title=None, style='nested', position='end'):
         self.title = title
         self.style = style

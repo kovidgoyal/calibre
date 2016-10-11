@@ -16,6 +16,7 @@ from calibre.db.tests.base import BaseTest, IMG
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.date import now, UNDEFINED_DATE
 
+
 def import_test(replacement_data, replacement_fmt=None):
     def func(path, fmt):
         if not path.endswith('.'+fmt.lower()):
@@ -25,6 +26,7 @@ def import_test(replacement_data, replacement_fmt=None):
             f.write(replacement_data)
         return f.name
     return func
+
 
 class AddRemoveTest(BaseTest):
 

@@ -12,6 +12,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ptempfile import PersistentTemporaryFile
 
+
 class Reader(FormatReader):
 
     def __init__(self, header, stream, log, options):

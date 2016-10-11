@@ -22,6 +22,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre import (__appname__, __version__, fit_image, isosx)
 from calibre.ebooks.oeb.display.webview import load_html
 
+
 def get_custom_size(opts):
     custom_size = None
     if opts.custom_size is not None:
@@ -34,6 +35,7 @@ def get_custom_size(opts):
             except:
                 custom_size = None
     return custom_size
+
 
 def get_pdf_printer(opts, for_comic=False, output_file_name=None):  # {{{
     from calibre.gui2 import must_use_qt
@@ -80,6 +82,7 @@ def get_pdf_printer(opts, for_comic=False, output_file_name=None):  # {{{
 
     return printer
 # }}}
+
 
 def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
     page_rect = printer.pageRect()
@@ -132,6 +135,7 @@ class Page(QWebPage):  # {{{
     def javaScriptAlert(self, frame, msg):
         self.log(unicode(msg))
 # }}}
+
 
 class PDFWriter(QObject):  # {{{
 
@@ -338,6 +342,7 @@ class PDFWriter(QObject):  # {{{
             self.loop.exit(0)
 
 # }}}
+
 
 class ImagePDFWriter(object):  # {{{
 

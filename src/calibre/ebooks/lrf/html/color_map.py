@@ -98,6 +98,8 @@ NAME_MAP = {
 
 hex_pat = re.compile('#(\d{2})(\d{2})(\d{2})')
 rgb_pat = re.compile('rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)', re.IGNORECASE)
+
+
 def lrs_color(html_color):
     hcol = html_color.lower()
     match = hex_pat.search(hcol)

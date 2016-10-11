@@ -14,12 +14,15 @@ from calibre.ebooks.epub import config as common_config
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.lit.writer import oeb2lit
 
+
 def config(defaults=None):
     c = common_config(defaults=defaults, name='lit')
     return c
 
+
 def option_parser(usage=USAGE):
     return config().option_parser(usage=usage%('LIT', formats()))
+
 
 def any2lit(opts, path):
     ext = os.path.splitext(path)[1]

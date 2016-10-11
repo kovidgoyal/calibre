@@ -11,10 +11,13 @@
 #                                                                       #
 #########################################################################
 import sys
+
+
 class BorderParse:
     """
     Parse a border line and return a dictionary of attributes and values
     """
+
     def __init__(self):
         # cw<bd<bor-t-r-hi<nu<true
         self.__border_dict = {
@@ -70,6 +73,7 @@ class BorderParse:
         'bdr-engra_'     : 'engrave',
         'bdr-frame_'     : 'frame',
         }
+
     def parse_border(self, line):
         """
         Requires:
@@ -124,6 +128,7 @@ class BorderParse:
         new_border_dict = self.__determine_styles(border_type, border_style_list)
         border_dict.update(new_border_dict)
         return border_dict
+
     def __determine_styles(self, border_type, border_style_list):
         new_border_dict = {}
         att = '%s-style' % border_type

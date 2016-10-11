@@ -8,6 +8,7 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 
+
 class FB2Output(OutputFormatPlugin):
 
     name = 'FB2 Output'

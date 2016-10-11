@@ -14,6 +14,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import config
 
+
 class ThrobbingButton(QToolButton):
 
     @pyqtProperty(int)

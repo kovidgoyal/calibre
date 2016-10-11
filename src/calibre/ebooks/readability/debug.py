@@ -5,6 +5,8 @@ def save_to_file(text, filename):
     f.close()
 
 uids = {}
+
+
 def describe(node, depth=2):
     if not hasattr(node, 'tag'):
         return "[%s]" % type(node)

@@ -14,6 +14,7 @@ _server = None
 
 _all_ip_addresses = dict()
 
+
 class AllIpAddressesGetter(Thread):
 
     def get_all_ips(self):
@@ -43,6 +44,7 @@ class AllIpAddressesGetter(Thread):
 
 _ip_address_getter_thread = None
 
+
 def get_all_ips(reinitialize=False):
     global _all_ip_addresses, _ip_address_getter_thread
     if not _ip_address_getter_thread or (reinitialize and not
@@ -52,6 +54,7 @@ def get_all_ips(reinitialize=False):
         _ip_address_getter_thread.setDaemon(True)
         _ip_address_getter_thread.start()
     return _all_ip_addresses
+
 
 def _get_external_ip():
     'Get IP address of interface used to connect to the outside world'
@@ -72,6 +75,7 @@ def _get_external_ip():
     # print 'ipaddr: %s' % ipaddr
     return ipaddr
 
+
 def verify_ipV4_address(ip_address):
     result = None
     if ip_address != '0.0.0.0' and ip_address != '::':
@@ -86,6 +90,8 @@ def verify_ipV4_address(ip_address):
     return result
 
 _ext_ip = None
+
+
 def get_external_ip():
     global _ext_ip
     if _ext_ip is None:
@@ -95,6 +101,7 @@ def get_external_ip():
         except Exception:
             _ext_ip = _get_external_ip()
     return _ext_ip
+
 
 def start_server():
     global _server
@@ -109,6 +116,7 @@ def start_server():
         atexit.register(stop_server)
 
     return _server
+
 
 def create_service(desc, type, port, properties, add_hostname, use_ip_address=None):
     port = int(port)
@@ -155,6 +163,7 @@ def publish(desc, type, port, properties=None, add_hostname=True, use_ip_address
     server.registerService(service)
     return service
 
+
 def unpublish(desc, type, port, properties=None, add_hostname=True):
     '''
     Unpublish a service.
@@ -166,6 +175,7 @@ def unpublish(desc, type, port, properties=None, add_hostname=True):
     server.unregisterService(service)
     if server.countRegisteredServices() == 0:
         stop_server()
+
 
 def stop_server():
     global _server

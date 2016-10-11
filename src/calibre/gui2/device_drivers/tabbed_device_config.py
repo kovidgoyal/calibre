@@ -18,11 +18,14 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.gui2.device_drivers.mtp_config import (FormatsConfig, TemplateConfig)
 from calibre.devices.usbms.driver import debug_print
 
+
 def wrap_msg(msg):
     return textwrap.fill(msg.strip(), 100)
 
+
 def setToolTipFor(widget, tt):
     widget.setToolTip(wrap_msg(tt))
+
 
 def create_checkbox(title, tt, state):
     cb = QCheckBox(title)
@@ -52,6 +55,7 @@ class TabbedDeviceConfig(QTabWidget):
     from DeviceOptionsGroupBox, are created to further group the options. The group
     boxes can be coded to support any control type and dependencies between them.
     """
+
     def __init__(self, device_settings, all_formats, supports_subdirs,
                     must_read_metadata, supports_use_author_sort,
                     extra_customization_message, device,
@@ -221,6 +225,7 @@ class DeviceConfigTab(QWidget):  # {{{
     abstract the properties of the configuration tab. When a property is accessed, it
     will iterate over all known widgets looking for the property.
     '''
+
     def __init__(self, parent=None):
         QWidget.__init__(self)
         self.parent = parent
@@ -264,6 +269,7 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
 
         if extra_customization_message:
             extra_customization_choices = extra_customization_choices or {}
+
             def parse_msg(m):
                 msg, _, tt = m.partition(':::') if m else ('', '', '')
                 return msg.strip(), textwrap.fill(tt.strip(), 100)
@@ -351,10 +357,12 @@ class ExtraCustomization(DeviceConfigTab):  # {{{
 
 # }}}
 
+
 class DeviceOptionsGroupBox(QGroupBox):
     """
     This is a container for the individual options for a device driver.
     """
+
     def __init__(self, parent, device=None, title=_("Unknown")):
         QGroupBox.__init__(self, parent)
 

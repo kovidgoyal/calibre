@@ -14,6 +14,7 @@ from PyQt5.Qt import (QTabWidget, QTreeWidget, QTreeWidgetItem, Qt, QDialog,
 
 from calibre.gui2 import file_icon_provider
 
+
 def browser_item(f, parent):
     name = f.name
     if not f.is_folder:
@@ -27,6 +28,7 @@ def browser_item(f, parent):
     ans.setData(0, Qt.DecorationRole, file_icon_provider().icon_from_ext(ext))
 
     return ans
+
 
 class Storage(QTreeWidget):
 
@@ -56,6 +58,7 @@ class Storage(QTreeWidget):
             return (self.object_id, item.data(0, Qt.UserRole))
         return None
 
+
 class Folders(QTabWidget):
 
     selected = pyqtSignal()
@@ -75,6 +78,7 @@ class Folders(QTabWidget):
         w = self.currentWidget()
         if w is not None:
             return w.current_item
+
 
 class Browser(QDialog):
 
@@ -96,6 +100,7 @@ class Browser(QDialog):
     @property
     def current_item(self):
         return self.folders.current_item
+
 
 class IgnoredFolders(QDialog):
 
@@ -202,6 +207,7 @@ class IgnoredFolders(QDialog):
             ans[unicode(w.storage.storage_id)] = list(folders)
         return ans
 
+
 def setup_device():
     from calibre.devices.mtp.driver import MTP_DEVICE
     from calibre.devices.scanner import DeviceScanner
@@ -215,6 +221,7 @@ def setup_device():
     dev.open(cd, 'test')
     return dev
 
+
 def browse():
     from calibre.gui2 import Application
     app = Application([])
@@ -224,6 +231,7 @@ def browse():
     d.exec_()
     dev.shutdown()
     return d.current_item
+
 
 def ignored_folders():
     from calibre.gui2 import Application

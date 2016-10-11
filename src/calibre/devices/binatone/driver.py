@@ -10,6 +10,7 @@ Device driver for Bookeen's Cybook Gen 3
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class README(USBMS):
 
     name           = 'Binatone Readme Device Interface'

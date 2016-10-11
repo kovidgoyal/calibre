@@ -14,6 +14,7 @@ from calibre.gui2.device_drivers.configwidget_ui import Ui_ConfigWidget
 from calibre.utils.formatter import validation_formatter
 from calibre.ebooks import BOOK_EXTENSIONS
 
+
 class ConfigWidget(QWidget, Ui_ConfigWidget):
 
     def __init__(self, settings, all_formats, supports_subdirs,
@@ -63,6 +64,7 @@ class ConfigWidget(QWidget, Ui_ConfigWidget):
             self.opt_use_author_sort.hide()
         if extra_customization_message:
             extra_customization_choices = extra_customization_choices or {}
+
             def parse_msg(m):
                 msg, _, tt = m.partition(':::') if m else ('', '', '')
                 return msg.strip(), textwrap.fill(tt.strip(), 100)

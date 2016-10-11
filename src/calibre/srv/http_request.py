@@ -21,6 +21,8 @@ quoted_slash = re.compile(br'%2[fF]')
 HTTP_METHODS = {'HEAD', 'GET', 'PUT', 'POST', 'TRACE', 'DELETE', 'OPTIONS'}
 
 # Parse URI {{{
+
+
 def parse_request_uri(uri):
     """Parse a Request-URI into (scheme, authority, path).
 
@@ -61,6 +63,7 @@ def parse_request_uri(uri):
     else:
         # An authority.
         return None, uri, None
+
 
 def parse_uri(uri, parse_query=True):
     scheme, authority, path = parse_request_uri(uri)
@@ -110,6 +113,7 @@ decoded_headers = {
 
 uppercase_headers = {'WWW', 'TE'}
 
+
 def normalize_header_name(name):
     parts = [x.capitalize() for x in name.split('-')]
     q = parts[0].upper()
@@ -118,6 +122,7 @@ def normalize_header_name(name):
     if len(parts) == 3 and parts[1] == 'Websocket':
         parts[1] = 'WebSocket'
     return '-'.join(parts)
+
 
 class HTTPHeaderParser(object):
 
@@ -186,12 +191,14 @@ class HTTPHeaderParser(object):
             commit()
             self.lines.append(line)
 
+
 def read_headers(readline):
     p = HTTPHeaderParser()
     while not p.finished:
         p(readline())
     return p.hdict
 # }}}
+
 
 class HTTPRequest(Connection):
 

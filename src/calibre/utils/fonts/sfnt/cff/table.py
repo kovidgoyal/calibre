@@ -20,6 +20,7 @@ from calibre.utils.fonts.sfnt.cff.constants import (cff_standard_strings,
 # http://www.adobe.com/content/dam/Adobe/en/devnet/font/pdfs/5176.CFF.pdf
 # http://www.adobe.com/content/dam/Adobe/en/devnet/font/pdfs/5177.Type2.pdf
 
+
 class CFF(object):
 
     def __init__(self, raw):
@@ -87,6 +88,7 @@ class CFF(object):
         # pprint.pprint(self.top_dict)
         # pprint.pprint(self.private_dict)
 
+
 class Index(list):
 
     def __init__(self, raw, offset, prepend=()):
@@ -119,11 +121,13 @@ class Index(list):
             except IndexError:
                 self.pos = offset
 
+
 class Strings(Index):
 
     def __init__(self, raw, offset):
         super(Strings, self).__init__(raw, offset, prepend=[x.encode('ascii')
             for x in cff_standard_strings])
+
 
 class Charset(list):
 
@@ -175,11 +179,14 @@ class Charset(list):
         except (KeyError, IndexError, ValueError):
             return None
 
+
 class Subrs(Index):
     pass
 
+
 class CharStringsIndex(Index):
     pass
+
 
 class CFFTable(UnknownTable):
 

@@ -66,20 +66,25 @@ PCONVCONTEXT = c_void_p
 XCLASS_FLAGS         = 0x4000
 XTYP_EXECUTE         = (0x0050 | XCLASS_FLAGS)
 
+
 class DDEError(ValueError):
     pass
+
 
 def init_errcheck(result, func, args):
     if result != 0:
         raise DDEError('Failed to initialize DDE client with return code: %x' % result)
     return args
 
+
 def no_errcheck(result, func, args):
     return args
+
 
 def dde_error(instance):
     errcode = GetLastError(instance)
     raise DDEError(DML_ERRORS.get(errcode, 'Unknown DDE error code: %x' % errcode))
+
 
 def default_errcheck(result, func, args):
     if (isinstance(result, (int, long)) and result == 0) or (getattr(result, 'value', False) is None):
@@ -87,6 +92,7 @@ def default_errcheck(result, func, args):
     return args
 
 null = object()
+
 
 class a(object):
 
@@ -96,6 +102,7 @@ class a(object):
             self.spec=((1 if in_arg else 2), name)
         else:
             self.spec=((1 if in_arg else 2), name, default)
+
 
 def cwrap(name, restype, *args, **kw):
     params=(restype,) + tuple(x.typ for x in args)
@@ -116,6 +123,7 @@ ClientTransaction = cwrap('DdeClientTransaction', HDDEDATA, a('data', LPBYTE), a
 FreeDataHandle = cwrap('DdeFreeDataHandle', BOOL, a('data', HDDEDATA), errcheck=no_errcheck)
 Disconnect = cwrap('DdeDisconnect', BOOL, a('conversation', HCONV), errcheck=no_errcheck)
 Uninitialize = cwrap('DdeUninitialize', BOOL, a('instance', DWORD), errcheck=no_errcheck)
+
 
 def send_dde_command(service, topic, command):
     instance = DWORD(0)

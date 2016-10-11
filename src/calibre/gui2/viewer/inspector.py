@@ -11,6 +11,7 @@ from PyQt5.QtWebKitWidgets import QWebInspector
 
 from calibre.gui2 import gprefs
 
+
 class WebInspector(QDialog):
 
     def __init__(self, parent, page):

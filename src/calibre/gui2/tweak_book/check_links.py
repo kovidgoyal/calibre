@@ -18,11 +18,13 @@ from calibre.gui2.tweak_book import current_container, set_current_container, ed
 from calibre.gui2.tweak_book.boss import get_boss
 from calibre.gui2.tweak_book.widgets import Dialog
 
+
 def get_data(name):
     'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
     if name in editors:
         return editors[name].get_raw_data()
     return current_container().raw_data(name)
+
 
 def set_data(name, val):
     if name in editors:
@@ -31,6 +33,7 @@ def set_data(name, val):
         with current_container().open(name, 'wb') as f:
             f.write(val)
     get_boss().set_modified()
+
 
 class CheckExternalLinks(Dialog):
 

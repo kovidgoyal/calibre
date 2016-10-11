@@ -42,6 +42,7 @@ from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryDirectory
 # }}}
 
+
 class RichTextDelegate(QStyledItemDelegate):  # {{{
 
     def __init__(self, parent=None, max_width=160):
@@ -78,6 +79,7 @@ class RichTextDelegate(QStyledItemDelegate):  # {{{
         self.to_doc(index, option).drawContents(painter)
         painter.restore()
 # }}}
+
 
 class CoverDelegate(QStyledItemDelegate):  # {{{
 
@@ -120,6 +122,7 @@ class CoverDelegate(QStyledItemDelegate):  # {{{
                 QPixmap(index.data(Qt.DecorationRole)))
 
 # }}}
+
 
 class ResultsModel(QAbstractTableModel):  # {{{
 
@@ -210,6 +213,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
         self.endResetModel()
 
 # }}}
+
 
 class ResultsView(QTableView):  # {{{
 
@@ -308,6 +312,7 @@ class ResultsView(QTableView):  # {{{
 
 # }}}
 
+
 class Comments(QWebView):  # {{{
 
     def __init__(self, parent=None):
@@ -376,6 +381,7 @@ class Comments(QWebView):  # {{{
         return QSize(800, 300)
 # }}}
 
+
 class IdentifyWorker(Thread):  # {{{
 
     def __init__(self, log, abort, title, authors, identifiers, caches):
@@ -432,6 +438,7 @@ class IdentifyWorker(Thread):  # {{{
             self.error = force_unicode(traceback.format_exc())
 
 # }}}
+
 
 class IdentifyWidget(QWidget):  # {{{
 
@@ -549,6 +556,7 @@ class IdentifyWidget(QWidget):  # {{{
         self.abort.set()
 # }}}
 
+
 class CoverWorker(Thread):  # {{{
 
     def __init__(self, log, abort, title, authors, identifiers, caches):
@@ -628,6 +636,7 @@ class CoverWorker(Thread):  # {{{
 
 # }}}
 
+
 class CoversModel(QAbstractListModel):  # {{{
 
     def __init__(self, current_cover, parent=None):
@@ -687,6 +696,7 @@ class CoversModel(QAbstractListModel):  # {{{
         # Remove entries that are still waiting
         good = []
         pmap = {}
+
         def keygen(x):
             pmap = x[2]
             if pmap is None:
@@ -770,6 +780,7 @@ class CoversModel(QAbstractListModel):  # {{{
 
 # }}}
 
+
 class CoversView(QListView):  # {{{
 
     chosen = pyqtSignal()
@@ -850,6 +861,7 @@ class CoversView(QListView):  # {{{
         return QListView.keyPressEvent(self, ev)
 
 # }}}
+
 
 class CoversWidget(QWidget):  # {{{
 
@@ -957,6 +969,7 @@ class CoversWidget(QWidget):  # {{{
 
 # }}}
 
+
 class LogViewer(QDialog):  # {{{
 
     def __init__(self, log, parent=None):
@@ -1004,6 +1017,7 @@ class LogViewer(QDialog):  # {{{
         QTimer.singleShot(1000, self.update_log)
 
 # }}}
+
 
 class FullFetch(QDialog):  # {{{
 
@@ -1119,6 +1133,7 @@ class FullFetch(QDialog):  # {{{
                 identifiers=identifiers)
         return self.exec_()
 # }}}
+
 
 class CoverFetch(QDialog):  # {{{
 

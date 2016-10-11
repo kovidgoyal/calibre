@@ -14,6 +14,7 @@ from calibre.ptempfile import remove_dir
 from calibre.utils.filenames import remove_dir_if_empty
 from calibre.utils.recycle_bin import delete_tree, delete_file
 
+
 class DeleteService(Thread):
 
     ''' Provide a blocking file delete implementation with support for the
@@ -136,6 +137,8 @@ class DeleteService(Thread):
                 shutil.rmtree(tdir)
 
 __ds = None
+
+
 def delete_service():
     global __ds
     if __ds is None:
@@ -143,11 +146,13 @@ def delete_service():
         __ds.start()
     return __ds
 
+
 def shutdown(timeout=20):
     global __ds
     if __ds is not None:
         __ds.shutdown(timeout)
         __ds = None
+
 
 def has_jobs():
     global __ds

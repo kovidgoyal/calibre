@@ -18,6 +18,7 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.gui2 import gprefs
 from calibre.utils.smtp import config as smtp_prefs
 
+
 class EmailAccounts(QAbstractTableModel):  # {{{
 
     def __init__(self, accounts, subjects, aliases={}, tags={}):
@@ -206,6 +207,7 @@ class EmailAccounts(QAbstractTableModel):  # {{{
             self.endResetModel()
 
 # }}}
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 

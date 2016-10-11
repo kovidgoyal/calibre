@@ -53,8 +53,10 @@ HEURISTIC_OPTIONS = ['markup_chapter_headings',
 
 DEFAULT_TRUE_OPTIONS = HEURISTIC_OPTIONS + ['remove_fake_margins']
 
+
 def print_help(parser, log):
     parser.print_help()
+
 
 def check_command_line_options(parser, args, log):
     if len(args) < 3 or args[1].startswith('-') or args[2].startswith('-'):
@@ -77,6 +79,7 @@ def check_command_line_options(parser, args, log):
     output = os.path.abspath(output)
 
     return input, output
+
 
 def option_recommendation_to_cli_option(add_option, rec):
     opt = rec.option
@@ -111,8 +114,10 @@ def option_recommendation_to_cli_option(add_option, rec):
         switches = ['--disable-'+opt.long_switch]
     add_option(Option(*switches, **attrs))
 
+
 def group_titles():
     return _('INPUT OPTIONS'), _('OUTPUT OPTIONS')
+
 
 def recipe_test(option, opt_str, value, parser):
     assert value is None
@@ -145,9 +150,11 @@ def recipe_test(option, opt_str, value, parser):
 
     setattr(parser.values, option.dest, tuple(value))
 
+
 def add_input_output_options(parser, plumber):
     input_options, output_options = \
                                 plumber.input_options, plumber.output_options
+
     def add_options(group, options):
         for opt in options:
             if plumber.input_fmt == 'recipe' and opt.option.long_switch == 'test':
@@ -168,6 +175,7 @@ def add_input_output_options(parser, plumber):
                           ' of the output %s')%plumber.output_fmt)
         add_options(oo.add_option, output_options)
         parser.add_option_group(oo)
+
 
 def add_pipeline_options(parser, plumber):
     groups = OrderedDict((
@@ -266,6 +274,7 @@ def option_parser():
                 'output.epub'))
     return parser
 
+
 class ProgressBar(object):
 
     def __init__(self, log):
@@ -275,6 +284,7 @@ class ProgressBar(object):
         if msg:
             percent = int(frac*100)
             self.log('%d%% %s'%(percent, msg))
+
 
 def create_option_parser(args, log):
     if '--version' in args:
@@ -313,10 +323,12 @@ def create_option_parser(args, log):
 
     return parser, plumber
 
+
 def abspath(x):
     if x.startswith('http:') or x.startswith('https:'):
         return x
     return os.path.abspath(os.path.expanduser(x))
+
 
 def read_sr_patterns(path, log=None):
     import json, re, codecs
@@ -345,6 +357,7 @@ def read_sr_patterns(path, log=None):
                 pats.append((pat, line))
                 pat = None
     return json.dumps(pats)
+
 
 def main(args=sys.argv):
     log = Log()
@@ -390,6 +403,7 @@ def main(args=sys.argv):
     log(_('Output saved to'), ' ', plumber.output)
 
     return 0
+
 
 def manual_index_strings():
     return _('''\

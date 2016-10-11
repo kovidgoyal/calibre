@@ -17,6 +17,7 @@ import struct
 from calibre.ebooks.djvu.djvubzzdec import BZZDecoder
 from calibre.constants import plugins
 
+
 class DjvuChunk(object):
 
     def __init__(self, buf, start, end, align=True, bigendian=True,
@@ -106,6 +107,7 @@ class DjvuChunk(object):
         for schunk in self._subchunks:
             schunk.dump(verbose=verbose, indent=indent+1, out=out, txtout=txtout)
 
+
 class DJVUFile(object):
 
     def __init__(self, instream, verbose=0):
@@ -120,6 +122,7 @@ class DJVUFile(object):
 
     def dump(self, outfile=None, maxlevel=0):
         self.dc.dump(out=outfile, maxlevel=maxlevel)
+
 
 def main():
     f = DJVUFile(open(sys.argv[-1], 'rb'))

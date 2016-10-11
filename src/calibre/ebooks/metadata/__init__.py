@@ -22,6 +22,7 @@ except:
             'is invalid, using default')
     _author_pat = re.compile(r'(?i),?\s+(and|with)\s+')
 
+
 def string_to_authors(raw):
     if not raw:
         return []
@@ -30,11 +31,13 @@ def string_to_authors(raw):
     authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
     return [a for a in authors if a]
 
+
 def authors_to_string(authors):
     if authors is not None:
         return ' & '.join([a.replace('&', '&&') for a in authors if a])
     else:
         return ''
+
 
 def author_to_author_sort(author, method=None):
     if not author:
@@ -93,10 +96,13 @@ def author_to_author_sort(author, method=None):
 
     return u' '.join(atokens)
 
+
 def authors_to_sort_string(authors):
     return ' & '.join(map(author_to_author_sort, authors))
 
 _title_pats = {}
+
+
 def get_title_sort_pat(lang=None):
     ans = _title_pats.get(lang, None)
     if ans is not None:
@@ -128,6 +134,7 @@ def get_title_sort_pat(lang=None):
 
 _ignore_starts = u'\'"'+u''.join(unichr(x) for x in
         range(0x2018, 0x201e)+[0x2032, 0x2033])
+
 
 def title_sort(title, order=None, lang=None):
     if order is None:
@@ -176,6 +183,7 @@ def fmt_sidx(i, fmt='%.2f', use_roman=False):
     if int(i) == float(i):
         return roman(int(i)) if use_roman else '%d'%int(i)
     return fmt%i
+
 
 class Resource(object):
 
@@ -325,6 +333,7 @@ def MetaInformation(title, authors=(_('Unknown'),)):
         authors = mi.authors
     return Metadata(title, authors, other=mi)
 
+
 def check_isbn10(isbn):
     try:
         digits = map(int, isbn[:9])
@@ -335,6 +344,7 @@ def check_isbn10(isbn):
     except:
         pass
     return None
+
 
 def check_isbn13(isbn):
     try:
@@ -349,6 +359,7 @@ def check_isbn13(isbn):
         pass
     return None
 
+
 def check_isbn(isbn):
     if not isbn:
         return None
@@ -361,6 +372,7 @@ def check_isbn(isbn):
     if len(isbn) == 13:
         return check_isbn13(isbn)
     return None
+
 
 def check_issn(issn):
     if not issn:
@@ -376,6 +388,7 @@ def check_issn(issn):
         pass
     return None
 
+
 def format_isbn(isbn):
     cisbn = check_isbn(isbn)
     if not cisbn:
@@ -385,6 +398,7 @@ def format_isbn(isbn):
         return '-'.join((i[:2], i[2:6], i[6:9], i[9]))
     return '-'.join((i[:3], i[3:5], i[5:9], i[9:12], i[12]))
 
+
 def check_doi(doi):
     'Check if something that looks like a DOI is present anywhere in the string'
     if not doi:
@@ -393,6 +407,7 @@ def check_doi(doi):
     if doi_check is not None:
         return doi_check.group()
     return None
+
 
 def rating_to_stars(value, allow_half_stars=False, star=u'★', half=u'½'):
     r = max(0, min(int(value or 0), 10))

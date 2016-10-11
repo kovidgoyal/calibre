@@ -78,12 +78,16 @@ CTXIDS = 3
 MAXLEN = 1024 ** 2
 
 # Exception classes used by this module.
+
+
 class BZZDecoderError(Exception):
 
     """This exception is raised when BZZDecode runs into trouble
     """
+
     def __init__(self, msg):
         self.msg = msg
+
     def __str__(self):
         return "BZZDecoderError: %s" % (self.msg)
 
@@ -386,6 +390,7 @@ xmtf = (
   0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
 )
 # }}}
+
 
 class BZZDecoder():
 

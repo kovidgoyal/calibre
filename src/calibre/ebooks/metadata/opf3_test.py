@@ -32,6 +32,7 @@ read_author_link_map, read_user_categories, set_author_link_map, set_user_catego
 TEMPLATE = '''<package xmlns="http://www.idpf.org/2007/opf" version="3.0" prefix="calibre: %s" unique-identifier="uid"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">{metadata}</metadata><manifest>{manifest}</manifest></package>''' % CALIBRE_PREFIX  # noqa
 default_refines = defaultdict(list)
 
+
 class TestOPF3(unittest.TestCase):
 
     ae = unittest.TestCase.assertEqual
@@ -57,6 +58,7 @@ class TestOPF3(unittest.TestCase):
     def test_identifiers(self):  # {{{
         def idt(val, scheme=None, iid=''):
             return '<dc:identifier id="{id}" {scheme}>{val}</dc:identifier>'.format(scheme=('opf:scheme="%s"'%scheme if scheme else ''), val=val, id=iid)
+
         def ri(root):
             return dict(read_identifiers(root, read_prefixes(root), default_refines))
 
@@ -94,6 +96,7 @@ class TestOPF3(unittest.TestCase):
     def test_title(self):  # {{{
         def rt(root):
             return read_title(root, read_prefixes(root), read_refines(root))
+
         def st(root, title, title_sort=None):
             set_title(root, read_prefixes(root), read_refines(root), title, title_sort)
             return rt(root)
@@ -111,6 +114,7 @@ class TestOPF3(unittest.TestCase):
     def test_languages(self):  # {{{
         def rl(root):
             return read_languages(root, read_prefixes(root), read_refines(root))
+
         def st(root, languages):
             set_languages(root, read_prefixes(root), read_refines(root), languages)
             return rl(root)
@@ -124,6 +128,7 @@ class TestOPF3(unittest.TestCase):
     def test_authors(self):  # {{{
         def rl(root):
             return read_authors(root, read_prefixes(root), read_refines(root))
+
         def st(root, authors):
             set_authors(root, read_prefixes(root), read_refines(root), authors)
             return rl(root)
@@ -149,6 +154,7 @@ class TestOPF3(unittest.TestCase):
     def test_book_producer(self):  # {{{
         def rl(root):
             return read_book_producers(root, read_prefixes(root), read_refines(root))
+
         def st(root, producers):
             set_book_producers(root, read_prefixes(root), read_refines(root), producers)
             return rl(root)
@@ -163,12 +169,15 @@ class TestOPF3(unittest.TestCase):
 
     def test_dates(self):  # {{{
         from calibre.utils.date import utcnow
+
         def rl(root):
             return read_pubdate(root, read_prefixes(root), read_refines(root)), read_timestamp(root, read_prefixes(root), read_refines(root))
+
         def st(root, pd, ts):
             set_pubdate(root, read_prefixes(root), read_refines(root), pd)
             set_timestamp(root, read_prefixes(root), read_refines(root), ts)
             return rl(root)
+
         def ae(root, y1=None, y2=None):
             x1, x2 = rl(root)
             for x, y in ((x1, y1), (x2, y2)):
@@ -189,6 +198,7 @@ class TestOPF3(unittest.TestCase):
     def test_comments(self):  # {{{
         def rt(root):
             return read_comments(root, read_prefixes(root), read_refines(root))
+
         def st(root, val):
             set_comments(root, read_prefixes(root), read_refines(root), val)
             return rt(root)
@@ -200,6 +210,7 @@ class TestOPF3(unittest.TestCase):
     def test_publisher(self):  # {{{
         def rt(root):
             return read_publisher(root, read_prefixes(root), read_refines(root))
+
         def st(root, val):
             set_publisher(root, read_prefixes(root), read_refines(root), val)
             return rt(root)
@@ -225,6 +236,7 @@ class TestOPF3(unittest.TestCase):
     def test_tags(self):  # {{{
         def rt(root):
             return read_tags(root, read_prefixes(root), read_refines(root))
+
         def st(root, val):
             set_tags(root, read_prefixes(root), read_refines(root), val)
             return rt(root)
@@ -236,6 +248,7 @@ class TestOPF3(unittest.TestCase):
     def test_rating(self):  # {{{
         def rt(root):
             return read_rating(root, read_prefixes(root), read_refines(root))
+
         def st(root, val):
             set_rating(root, read_prefixes(root), read_refines(root), val)
             return rt(root)
@@ -249,6 +262,7 @@ class TestOPF3(unittest.TestCase):
     def test_series(self):  # {{{
         def rt(root):
             return read_series(root, read_prefixes(root), read_refines(root))
+
         def st(root, val, i):
             set_series(root, read_prefixes(root), read_refines(root), val, i)
             return rt(root)
@@ -265,6 +279,7 @@ class TestOPF3(unittest.TestCase):
         def rt(root, name):
             f = globals()['read_' + name]
             return f(root, read_prefixes(root), read_refines(root))
+
         def st(root, name, val):
             f = globals()['set_' + name]
             f(root, read_prefixes(root), read_refines(root), val)
@@ -275,8 +290,10 @@ class TestOPF3(unittest.TestCase):
             root = self.get_opf('''<meta name="calibre:%s" content='{"1":1}'/><meta property="calibre:%s">{"2":2}</meta>''' % (name, name))
             self.ae({'2':2}, rt(root, name))
             self.ae({'3':3}, st(root, name, {3:3}))
+
         def ru(root):
             return read_user_metadata(root, read_prefixes(root), read_refines(root))
+
         def su(root, val):
             set_user_metadata(root, read_prefixes(root), read_refines(root), val)
             return ru(root)
@@ -531,13 +548,16 @@ class TestOPF3(unittest.TestCase):
 
 # Run tests {{{
 
+
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(TestOPF3)
+
 
 class TestRunner(unittest.main):
 
     def createTests(self):
         self.test = suite()
+
 
 def run(verbosity=4):
     TestRunner(verbosity=verbosity, exit=False)

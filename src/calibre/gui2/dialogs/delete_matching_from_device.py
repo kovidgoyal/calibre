@@ -12,6 +12,7 @@ from calibre.gui2.dialogs.delete_matching_from_device_ui import \
                                             Ui_DeleteMatchingFromDeviceDialog
 from calibre.utils.date import UNDEFINED_DATE
 
+
 class tableItem(QTableWidgetItem):
 
     def __init__(self, text):
@@ -25,17 +26,20 @@ class tableItem(QTableWidgetItem):
     def __lt__(self, other):
         return self.sort < other.sort
 
+
 class centeredTableItem(tableItem):
 
     def __init__(self, text):
         tableItem.__init__(self, text)
         self.setTextAlignment(Qt.AlignCenter)
 
+
 class titleTableItem(tableItem):
 
     def __init__(self, text):
         tableItem.__init__(self, text)
         self.sort = title_sort(text.lower())
+
 
 class authorTableItem(tableItem):
 
@@ -45,6 +49,7 @@ class authorTableItem(tableItem):
             self.sort = book.author_sort.lower()
         else:
             self.sort = authors_to_sort_string(book.authors).lower()
+
 
 class dateTableItem(tableItem):
 

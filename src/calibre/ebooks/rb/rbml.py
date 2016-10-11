@@ -53,6 +53,7 @@ STYLES = [
     ('text-align', {'center' : 'center'}),
 ]
 
+
 class RBMLizer(object):
 
     def __init__(self, log, name_map={}):

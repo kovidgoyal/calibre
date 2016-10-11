@@ -21,6 +21,7 @@ from calibre.utils.icu import sort_key
 
 E = ElementMaker()
 
+
 class XMLServer(object):
     'Serves XML and the Ajax based HTML frontend'
 

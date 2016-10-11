@@ -10,8 +10,10 @@ from struct import unpack_from, error
 
 from calibre.utils.imghdr import what
 
+
 def find_imgtype(data):
     return what(None, data) or 'unknown'
+
 
 class Container(object):
 

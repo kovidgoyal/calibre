@@ -17,7 +17,9 @@ __all__ = ['Compressor', 'Decompressor', 'LZXError']
 LZXError = _lzx.LZXError
 Compressor = _lzx.Compressor
 
+
 class Decompressor(object):
+
     def __init__(self, wbits):
         self.wbits = wbits
         self.blocksize = 1 << wbits

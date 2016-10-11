@@ -15,9 +15,11 @@ from calibre.constants import config_dir, CONFIG_DIR_MODE
 
 plugin_dir = os.path.join(config_dir, 'plugins')
 
+
 def make_config_dir():
     if not os.path.exists(plugin_dir):
         os.makedirs(plugin_dir, mode=CONFIG_DIR_MODE)
+
 
 class Option(object):
 
@@ -52,10 +54,12 @@ class Option(object):
     def __str__(self):
         return repr(self)
 
+
 class OptionValues(object):
 
     def copy(self):
         return deepcopy(self)
+
 
 class OptionSet(object):
 
@@ -237,6 +241,7 @@ class OptionSet(object):
                                         for name in [None] + self.group_list]
         return src + '\n\n'.join(groups)
 
+
 class ConfigInterface(object):
 
     def __init__(self, description):
@@ -311,6 +316,7 @@ class Config(ConfigInterface):
         except LockError:
             raise IOError('Could not lock config file: %s'%self.config_file_path)
 
+
 class StringConfig(ConfigInterface):
     '''
     A string based configuration
@@ -330,6 +336,7 @@ class StringConfig(ConfigInterface):
         setattr(opts, name, val)
         footer = self.option_set.get_override_section(self.src)
         self.src = self.option_set.serialize(opts)+ '\n\n' + footer + '\n'
+
 
 class ConfigProxy(object):
     '''
@@ -451,6 +458,8 @@ if prefs['installation_uuid'] is None:
     prefs['installation_uuid'] = str(uuid.uuid4())
 
 # Read tweaks
+
+
 def read_raw_tweaks():
     make_config_dir()
     default_tweaks = P('default_tweaks.py', data=True,
@@ -461,6 +470,7 @@ def read_raw_tweaks():
             f.write(default_tweaks)
     with open(tweaks_file, 'rb') as f:
         return default_tweaks, f.read()
+
 
 def read_tweaks():
     default_tweaks, tweaks = read_raw_tweaks()
@@ -476,6 +486,7 @@ def read_tweaks():
     dl.update(l)
     return dl
 
+
 def write_tweaks(raw):
     make_config_dir()
     tweaks_file = os.path.join(config_dir, 'tweaks.py')
@@ -485,6 +496,7 @@ def write_tweaks(raw):
 
 tweaks = read_tweaks()
 
+
 def reset_tweaks_to_default():
     default_tweaks = P('default_tweaks.py', data=True,
             allow_user_override=False)
@@ -492,6 +504,7 @@ def reset_tweaks_to_default():
     exec default_tweaks in dg, dl
     tweaks.clear()
     tweaks.update(dl)
+
 
 class Tweak(object):
 

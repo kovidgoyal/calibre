@@ -12,6 +12,7 @@ from calibre.gui2.convert import Widget
 
 font_family_model = None
 
+
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('MOBI Output')

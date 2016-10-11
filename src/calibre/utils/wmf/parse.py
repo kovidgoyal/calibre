@@ -9,6 +9,7 @@ import sys, struct
 
 from calibre.utils.wmf import create_bmp_from_dib, to_png
 
+
 class WMFHeader(object):
 
     '''
@@ -33,6 +34,7 @@ class WMFHeader(object):
         offset += 6
 
         self.records_start_at = header_size * 2
+
 
 class WMF(object):
 
@@ -204,6 +206,7 @@ class WMF(object):
         bmps = list(sorted(self.bitmaps, key=lambda x: len(x)))
         bmp = bmps[-1]
         return to_png(bmp)
+
 
 def wmf_unwrap(wmf_data, verbose=0):
     '''

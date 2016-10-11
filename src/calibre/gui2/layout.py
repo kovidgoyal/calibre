@@ -20,6 +20,7 @@ from calibre.gui2.widgets2 import RightClickButton
 from calibre.utils.config_base import tweaks
 from calibre import human_readable
 
+
 class LocationManager(QObject):  # {{{
 
     locations_changed = pyqtSignal()
@@ -169,6 +170,7 @@ class LocationManager(QObject):  # {{{
 
 # }}}
 
+
 class SearchBar(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -257,6 +259,7 @@ class SearchBar(QWidget):  # {{{
 
 # }}}
 
+
 class Spacer(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -265,6 +268,7 @@ class Spacer(QWidget):  # {{{
         self.setLayout(self.l)
         self.l.addStretch(10)
 # }}}
+
 
 class MainWindowMixin(object):  # {{{
 

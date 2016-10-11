@@ -18,6 +18,7 @@ from calibre.ebooks.metadata.sources.prefs import msprefs
 from calibre.utils.img import save_cover_data_to, remove_borders_from_image, image_to_data, image_from_data
 from calibre.utils.imghdr import identify
 
+
 class Worker(Thread):
 
     def __init__(self, plugin, abort, title, authors, identifiers, timeout, rq, get_best_cover=False):
@@ -51,11 +52,13 @@ class Worker(Thread):
                         self.plugin.name)
         self.time_spent = time.time() - start_time
 
+
 def is_worker_alive(workers):
     for w in workers:
         if w.is_alive():
             return True
     return False
+
 
 def process_result(log, result):
     plugin, data = result
@@ -75,6 +78,7 @@ def process_result(log, result):
         log.exception('Invalid cover from', plugin.name)
         return None
     return (plugin, width, height, fmt, data)
+
 
 def run_download(log, results, abort,
         title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):

@@ -2843,7 +2843,9 @@ entity_mapping = {
                 '"':'{"}',
                 }
 
+
 class BibTeX:
+
     def __init__(self):
         self.rep_utf8 = MReplace(utf8enc2latex_mapping)
         self.rep_ent = MReplace(entity_mapping)

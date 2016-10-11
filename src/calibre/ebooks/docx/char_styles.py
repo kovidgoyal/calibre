@@ -11,6 +11,8 @@ from calibre.ebooks.docx.block_styles import (  # noqa
     inherit, simple_color, LINE_STYLES, simple_float, binary_property, read_shd)
 
 # Read from XML {{{
+
+
 def read_text_border(parent, dest, XPath, get):
     border_color = border_style = border_width = padding = inherit
     elems = XPath('./w:bdr')(parent)
@@ -45,6 +47,7 @@ def read_text_border(parent, dest, XPath, get):
     setattr(dest, 'border_width', border_width)
     setattr(dest, 'padding', padding)
 
+
 def read_color(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:color[@w:val]')(parent):
@@ -54,11 +57,13 @@ def read_color(parent, dest, XPath, get):
         ans = simple_color(val)
     setattr(dest, 'color', ans)
 
+
 def convert_highlight_color(val):
     return {
         'darkBlue': '#000080', 'darkCyan': '#008080', 'darkGray': '#808080',
         'darkGreen': '#008000', 'darkMagenta': '#800080', 'darkRed': '#800000', 'darkYellow': '#808000',
         'lightGray': '#c0c0c0'}.get(val, val)
+
 
 def read_highlight(parent, dest, XPath, get):
     ans = inherit
@@ -72,6 +77,7 @@ def read_highlight(parent, dest, XPath, get):
             val = convert_highlight_color(val)
         ans = val
     setattr(dest, 'highlight', ans)
+
 
 def read_lang(parent, dest, XPath, get):
     ans = inherit
@@ -90,6 +96,7 @@ def read_lang(parent, dest, XPath, get):
                 ans = val
     setattr(dest, 'lang', ans)
 
+
 def read_letter_spacing(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:spacing[@w:val]')(parent):
@@ -97,6 +104,7 @@ def read_letter_spacing(parent, dest, XPath, get):
         if val is not None:
             ans = val
     setattr(dest, 'letter_spacing', ans)
+
 
 def read_sz(parent, dest, XPath, get):
     ans = inherit
@@ -106,6 +114,7 @@ def read_sz(parent, dest, XPath, get):
             ans = val
     setattr(dest, 'font_size', ans)
 
+
 def read_underline(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:u[@w:val]')(parent):
@@ -114,6 +123,7 @@ def read_underline(parent, dest, XPath, get):
             ans = val if val == 'none' else 'underline'
     setattr(dest, 'text_decoration', ans)
 
+
 def read_vert_align(parent, dest, XPath, get):
     ans = inherit
     for col in XPath('./w:vertAlign[@w:val]')(parent):
@@ -121,6 +131,7 @@ def read_vert_align(parent, dest, XPath, get):
         if val and val in {'baseline', 'subscript', 'superscript'}:
             ans = val
     setattr(dest, 'vert_align', ans)
+
 
 def read_position(parent, dest, XPath, get):
     ans = inherit
@@ -131,6 +142,7 @@ def read_position(parent, dest, XPath, get):
         except Exception:
             pass
     setattr(dest, 'position', ans)
+
 
 def read_font_family(parent, dest, XPath, get):
     ans = inherit
@@ -144,6 +156,7 @@ def read_font_family(parent, dest, XPath, get):
             ans = val
     setattr(dest, 'font_family', ans)
 # }}}
+
 
 class RunStyle(object):
 

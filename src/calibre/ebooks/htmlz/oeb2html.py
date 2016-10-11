@@ -25,6 +25,7 @@ from calibre.utils.logging import default_log
 
 SELF_CLOSING_TAGS = {'area', 'base', 'basefont', 'br', 'hr', 'input', 'img', 'link', 'meta'}
 
+
 class OEB2HTML(object):
     '''
     Base class. All subclasses should implement dump_text to actually transform
@@ -410,11 +411,13 @@ def oeb2html_no_css(oeb_book, log, opts):
     images = izer.images
     return (html, images)
 
+
 def oeb2html_inline_css(oeb_book, log, opts):
     izer = OEB2HTMLInlineCSSizer(log)
     html = izer.oeb2html(oeb_book, opts)
     images = izer.images
     return (html, images)
+
 
 def oeb2html_class_css(oeb_book, log, opts):
     izer = OEB2HTMLClassCSSizer(log)

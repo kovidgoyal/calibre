@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt5.Qt import QDialog
 from calibre.gui2.dialogs.drm_error_ui import Ui_Dialog
 
+
 class DRMErrorMessage(QDialog, Ui_Dialog):
 
     def __init__(self, parent=None, title=None):

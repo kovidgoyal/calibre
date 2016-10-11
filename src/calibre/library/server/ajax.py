@@ -23,6 +23,7 @@ from calibre.library.server import custom_fields_to_display
 from calibre import force_unicode, isbytestring
 from calibre.library.field_metadata import category_icon_map
 
+
 class Endpoint(object):  # {{{
 
     'Manage mime-type json serialization, etc.'
@@ -56,6 +57,7 @@ class Endpoint(object):  # {{{
         return wrapper
 # }}}
 
+
 def category_icon(category, meta):  # {{{
     if category in category_icon_map:
         icon = category_icon_map[category]
@@ -69,27 +71,35 @@ def category_icon(category, meta):  # {{{
 # }}}
 
 # URL Encoding {{{
+
+
 def encode_name(name):
     if isinstance(name, unicode):
         name = name.encode('utf-8')
     return hexlify(name)
 
+
 def decode_name(name):
     return unhexlify(name).decode('utf-8')
+
 
 def absurl(prefix, url):
     return prefix + url
 
+
 def category_url(prefix, cid):
     return absurl(prefix, '/ajax/category/'+encode_name(cid))
 
+
 def icon_url(prefix, name):
     return absurl(prefix, '/browse/icon/'+name)
+
 
 def books_in_url(prefix, category, cid):
     return absurl(prefix, '/ajax/books_in/%s/%s'%(
         encode_name(category), encode_name(cid)))
 # }}}
+
 
 class AjaxServer(object):
 

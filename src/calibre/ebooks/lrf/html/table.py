@@ -7,8 +7,10 @@ from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Text, CR, Span, \
                                              CharButton, Plot, Paragraph, \
                                              LrsTextTag
 
+
 def ceil(num):
     return int(math.ceil(num))
+
 
 def print_xml(elem):
     from calibre.ebooks.lrf.pylrs.pylrs import ElementWriter
@@ -17,10 +19,12 @@ def print_xml(elem):
     ew.write(sys.stdout)
     print
 
+
 def cattrs(base, extra):
     new = base.copy()
     new.update(extra)
     return new
+
 
 def tokens(tb):
     '''

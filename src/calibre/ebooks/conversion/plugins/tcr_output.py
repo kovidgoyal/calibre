@@ -9,6 +9,7 @@ import os
 from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 
+
 class TCROutput(OutputFormatPlugin):
 
     name = 'TCR Output'

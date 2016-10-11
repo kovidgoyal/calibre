@@ -7,6 +7,7 @@ from calibre import prints
 from calibre.constants import iswindows
 from calibre.customize import Plugin
 
+
 class DevicePlugin(Plugin):
     """
     Defines the interface that should be implemented by backends that
@@ -712,6 +713,7 @@ class DevicePlugin(Plugin):
         '''
         return (None, (None, False))
 
+
 class BookList(list):
     '''
     A list of books. Each Book object must have the fields
@@ -765,6 +767,7 @@ class BookList(list):
 
         '''
         raise NotImplementedError()
+
 
 class CurrentlyConnectedDevice(object):
 

@@ -13,6 +13,7 @@ from PyQt5.Qt import QTimer, QDialog, QDialogButtonBox, QCheckBox, QVBoxLayout, 
 from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 
+
 class Choose(QDialog):
 
     def __init__(self, fmts, parent=None):

@@ -28,6 +28,8 @@ This class manages access to the preference holding the saved search queries.
 It exists to ensure that unicode is used throughout, and also to permit
 adding other fields, such as whether the search is a 'favorite'
 '''
+
+
 class SavedSearchQueries(object):
     queries = {}
     opt_name = ''
@@ -90,13 +92,16 @@ are common across all instances of the parser (devices, library, etc).
 '''
 ss = SavedSearchQueries(None, None)
 
+
 def set_saved_searches(db, opt_name):
     global ss
     ss = SavedSearchQueries(db, opt_name)
 
+
 def saved_searches():
     global ss
     return ss
+
 
 def global_lookup_saved_search(name):
     return ss.lookup(name)
@@ -127,6 +132,8 @@ location_expression ::= base_token | ( '(' or_expression ')' )
 
 base_token ::= a sequence of letters and colons, perhaps quoted
 '''
+
+
 class Parser(object):
 
     def __init__(self):
@@ -260,6 +267,7 @@ class Parser(object):
 
         return ['token', 'all', ':'.join(words)]
 
+
 class ParseException(Exception):
 
     @property
@@ -267,6 +275,7 @@ class ParseException(Exception):
         if len(self.args) > 0:
             return self.args[0]
         return ""
+
 
 class SearchQueryParser(object):
     '''
@@ -424,6 +433,7 @@ class SearchQueryParser(object):
         return set([])
 
 # Testing {{{
+
 
 class Tester(SearchQueryParser):
 

@@ -15,6 +15,7 @@ NULL       = lambda a, b: a
 COLOR      = lambda a, b: QColor(*a)
 WEIGHT     = lambda a, b: WEIGHT_MAP(a)
 
+
 class PixmapItem(QGraphicsPixmapItem):
 
     def __init__(self, data, encoding, x0, y0, x1, y1, xsize, ysize):
@@ -88,6 +89,7 @@ class FontLoader(object):
             qfont.setUnderline(text_style.emplineposition == 'after')
         return qfont
 
+
 class Style(object):
     map = collections.defaultdict(lambda : NULL)
 
@@ -143,6 +145,7 @@ class BlockStyle(Style):
         bgcolor=COLOR,
         framecolor=COLOR,
         )
+
 
 class ParSkip(object):
 
@@ -317,6 +320,7 @@ class TextBlock(object):
             s += str(line) + '\n'
         return s
 
+
 class Link(QGraphicsRectItem):
     inactive_brush = QBrush(QColor(0xff, 0xff, 0xff, 0xff))
     active_brush   = QBrush(QColor(0x00, 0x00, 0x00, 0x59))
@@ -341,6 +345,7 @@ class Link(QGraphicsRectItem):
     def mousePressEvent(self, event):
         self.hoverLeaveEvent(None)
         self.slot(self.refobj)
+
 
 class Line(QGraphicsItem):
     whitespace = re.compile(r'\s+')
@@ -570,6 +575,7 @@ class Word(object):
         self.text_color = ts.textcolor
         self.highlight = False
         self.valign = valign
+
 
 def main(args=sys.argv):
     return 0

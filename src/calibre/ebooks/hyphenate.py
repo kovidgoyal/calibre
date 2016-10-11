@@ -18,6 +18,7 @@ import re
 
 __version__ = '1.0.20070709'
 
+
 class Hyphenator:
 
     def __init__(self, patterns, exceptions=''):

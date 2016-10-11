@@ -20,10 +20,13 @@ from calibre.utils.cleantext import clean_xml_chars
 from calibre.utils.date import timestampfromdt, dt_as_local, is_date_undefined
 
 # /mobile {{{
+
+
 def clean(x):
     if isinstance(x, basestring):
         x = clean_xml_chars(x)
     return x
+
 
 def E(tag, *children, **attribs):
     children = list(map(clean, children))
@@ -35,6 +38,7 @@ for tag in 'HTML HEAD TITLE LINK DIV IMG BODY OPTION SELECT INPUT FORM SPAN TABL
     tag = tag.lower()
     setattr(E, tag, partial(E, tag))
 
+
 def html(ctx, rd, endpoint, output):
     rd.outheaders.set('Content-Type', 'text/html; charset=UTF-8', replace_all=True)
     if isinstance(output, bytes):
@@ -44,6 +48,7 @@ def html(ctx, rd, endpoint, output):
         if not isinstance(ans, bytes):
             ans = ans.encode('utf-8')
     return ans
+
 
 def build_search_box(num, search, sort, order, ctx, field_metadata):  # {{{
     div = E.div(id='search_box')
@@ -87,6 +92,7 @@ def build_search_box(num, search, sort, order, ctx, field_metadata):  # {{{
     return div
 # }}}
 
+
 def build_navigation(start, num, total, url_base):  # {{{
     end = min((start+num-1), total)
     tagline = E.span('Books %d to %d of %d'%(start, end, total),
@@ -120,6 +126,7 @@ def build_choose_library(ctx, library_map):
             method='GET', action=ctx.url_for('/mobile'), accept_charset='UTF-8'
         ),
         id='choose_library')
+
 
 def build_index(books, num, search, sort, order, start, total, url_base, field_metadata, ctx, library_map, library_id):  # {{{
     logo = E.div(E.img(src=ctx.url_for('/static', what='calibre.png'), alt=__appname__), id='logo')
@@ -205,6 +212,7 @@ def build_index(books, num, search, sort, order, start, total, url_base, field_m
     )  # End html
 # }}}
 
+
 @endpoint('/mobile', postprocess=html)
 def mobile(ctx, rd):
     db, library_id, library_map, default_library = get_library_data(ctx, rd)
@@ -236,9 +244,11 @@ def mobile(ctx, rd):
     return build_index(books, num, search, sort_by, order, start, total, url_base, db.field_metadata, ctx, lm, library_id)
 # }}}
 
+
 @endpoint('/browse/{+rest=""}')
 def browse(ctx, rd, rest):
     raise HTTPRedirect(ctx.url_for(None))
+
 
 @endpoint('/stanza/{+rest=""}')
 def stanza(ctx, rd, rest):

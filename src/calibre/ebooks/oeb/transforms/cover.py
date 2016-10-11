@@ -12,6 +12,7 @@ from lxml import etree
 from calibre import guess_type
 from calibre.utils.imghdr import identify
 
+
 class CoverManager(object):
 
     SVG_TEMPLATE = textwrap.dedent('''\

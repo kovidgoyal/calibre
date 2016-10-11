@@ -12,6 +12,7 @@ from functools import partial
 
 from calibre.devices.errors import DeviceError, WrongDestinationError, FreeSpaceError
 
+
 def sanity_check(on_card, files, card_prefixes, free_space):
     if on_card == 'carda' and not card_prefixes[0]:
         raise WrongDestinationError(_(
@@ -39,6 +40,7 @@ def sanity_check(on_card, files, card_prefixes, free_space):
     if on_card == 'cardb' and size > free_space[2] - 1024*1024:
         raise FreeSpaceError(_("There is insufficient free space on the storage card"))
 
+
 def build_template_regexp(template):
     from calibre import prints
 
@@ -61,6 +63,7 @@ def build_template_regexp(template):
         prints(u'Failed to parse template: %r'%template)
         template = u'{title} - {authors}'
         return re.compile(re.sub('{([^}]*)}', f, template) + '([_\d]*$)')
+
 
 def create_upload_path(mdata, fname, template, sanitize,
         prefix_path='',

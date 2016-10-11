@@ -19,6 +19,7 @@ from calibre.gui2.store.search_result import SearchResult
 from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
 
+
 class ManyBooksStore(BasicStoreConfig, OpenSearchOPDSStore):
 
     open_search_url = 'http://www.manybooks.net/opds/'

@@ -15,6 +15,7 @@ from calibre.constants import cache_dir
 PROMPT = b'(debug) '
 QUESTION = b'\x00\x01\x02'
 
+
 class RemotePdb(pdb.Pdb):
 
     def __init__(self, addr="127.0.0.1", port=4444, skip=None):
@@ -77,6 +78,7 @@ class RemotePdb(pdb.Pdb):
 
     do_EOF = do_quit = do_exit = do_q = end_session
 
+
 def set_trace(port=4444, skip=None):
     frame = inspect.currentframe().f_back
 
@@ -89,6 +91,7 @@ def set_trace(port=4444, skip=None):
         prints('Failed to run debugger')
         import traceback
         traceback.print_exc()
+
 
 def cli(port=4444):
     prints('Connecting to remote debugger on port %d...' % port)

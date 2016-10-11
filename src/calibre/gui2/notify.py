@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.constants import islinux, isosx, get_osx_version
 
+
 class Notifier(object):
 
     DEFAULT_TIMEOUT = 5000
@@ -58,6 +59,7 @@ class KDENotifier(DBUSNotifier):
             import traceback
             traceback.print_exc()
 
+
 class FDONotifier(DBUSNotifier):
 
     def __init__(self):
@@ -75,6 +77,7 @@ class FDONotifier(DBUSNotifier):
         except:
             import traceback
             traceback.print_exc()
+
 
 class QtNotifier(Notifier):
 
@@ -101,12 +104,14 @@ class QtNotifier(Notifier):
             except:
                 pass
 
+
 class DummyNotifier(Notifier):
 
     ok = True
 
     def __call__(self, body, summary=None, replaces_id=None, timeout=0):
         pass
+
 
 class AppleNotifier(Notifier):
 

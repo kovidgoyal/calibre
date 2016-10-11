@@ -8,14 +8,17 @@ from PyQt5.Qt import QDialog
 from calibre.gui2.dialogs.comicconf_ui import Ui_Dialog
 from calibre.ebooks.lrf.comic.convert_from import config, PROFILES
 
+
 def set_conversion_defaults(window):
     d = ComicConf(window)
     d.exec_()
+
 
 def get_bulk_conversion_options(window):
     d = ComicConf(window, config_defaults=config(None).as_string())
     if d.exec_() == QDialog.Accepted:
         return d.config.parse()
+
 
 def get_conversion_options(window, defaults, title, author):
     if defaults is None:

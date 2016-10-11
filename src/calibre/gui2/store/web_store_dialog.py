@@ -11,6 +11,7 @@ from PyQt5.Qt import QDialog, QUrl
 from calibre import url_slash_cleaner
 from calibre.gui2.store.web_store_dialog_ui import Ui_Dialog
 
+
 class WebStoreDialog(QDialog, Ui_Dialog):
 
     def __init__(self, gui, base_url, parent=None, detail_url=None, create_browser=None):

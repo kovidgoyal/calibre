@@ -15,6 +15,7 @@ from collections import OrderedDict, defaultdict
 from calibre.ebooks.mobi.utils import (encint, encode_number_as_hex,
         encode_tbs, align_block, RECORD_SIZE, CNCX as CNCX_)
 
+
 class CNCX(CNCX_):  # {{{
 
     def __init__(self, toc, is_periodical):
@@ -29,6 +30,7 @@ class CNCX(CNCX_):  # {{{
                     strings.append(item.description)
         CNCX_.__init__(self, strings)
 # }}}
+
 
 class TAGX(object):  # {{{
 
@@ -132,6 +134,7 @@ class IndexEntry(object):
     def size(self):
         def fget(self):
             return self.length
+
         def fset(self, val):
             self.length = val
         return property(fget=fget, fset=fset, doc='Alias for length')
@@ -198,6 +201,7 @@ class IndexEntry(object):
         ans = buf.getvalue()
         return ans
 
+
 class PeriodicalIndexEntry(IndexEntry):
 
     def __init__(self, offset, label_offset, class_offset, depth):
@@ -205,6 +209,7 @@ class PeriodicalIndexEntry(IndexEntry):
         self.depth = depth
         self.class_offset = class_offset
         self.control_byte_count = 2
+
 
 class SecondaryIndexEntry(IndexEntry):
 
@@ -237,6 +242,7 @@ class SecondaryIndexEntry(IndexEntry):
             yield cls(rmap[tag])
 
 # }}}
+
 
 class TBS(object):  # {{{
 
@@ -421,6 +427,7 @@ class TBS(object):  # {{{
                     0b100: len(nodes)}, flag_size=3)
 
 # }}}
+
 
 class Indexer(object):  # {{{
 

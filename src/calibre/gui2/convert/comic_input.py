@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.gui2.convert.comic_input_ui import Ui_Form
 from calibre.gui2.convert import Widget
 
+
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('Comic Input')

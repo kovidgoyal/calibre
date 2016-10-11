@@ -12,6 +12,7 @@ from calibre.utils.speedups import ReadOnlyFileBuffer
 
 HSIZE = 120
 
+
 def what(file, h=None):
     ' Recognize image headers '
     if h is None:
@@ -33,6 +34,7 @@ def what(file, h=None):
     if h[:2] == b'\xff\xd8':
         return 'jpeg'
     return None
+
 
 def identify(src):
     ''' Recognize file format and sizes. Returns format, width, height. width
@@ -90,6 +92,7 @@ def identify(src):
 
 tests = []
 
+
 def test_jpeg(h):
     """JPEG data in JFIF format (Changed by Kovid to mimic the file utility,
     the original code was failing with some jpegs that included ICC_PROFILE
@@ -100,6 +103,7 @@ def test_jpeg(h):
         q = h[:32].tobytes()
         if b'JFIF' in q or b'8BIM' in q:
             return 'jpeg'
+
 
 def jpeg_dimensions(stream):
     # A JPEG marker is two bytes of the form 0xff x where 0 < x < 0xff
@@ -144,11 +148,13 @@ def jpeg_dimensions(stream):
 
 tests.append(test_jpeg)
 
+
 def test_png(h):
     if h[:8] == b"\211PNG\r\n\032\n":
         return 'png'
 
 tests.append(test_png)
+
 
 def test_gif(h):
     """GIF ('87 and '89 variants)"""
@@ -157,6 +163,7 @@ def test_gif(h):
 
 tests.append(test_gif)
 
+
 def test_tiff(h):
     """TIFF (can be in Motorola or Intel byte order)"""
     if h[:2] in (b'MM', b'II'):
@@ -164,11 +171,13 @@ def test_tiff(h):
 
 tests.append(test_tiff)
 
+
 def test_webp(h):
     if h[:4] == b'RIFF' and h[8:12] == b'WEBP':
         return 'webp'
 
 tests.append(test_webp)
+
 
 def test_rgb(h):
     """SGI image library"""
@@ -176,6 +185,7 @@ def test_rgb(h):
         return 'rgb'
 
 tests.append(test_rgb)
+
 
 def test_pbm(h):
     """PBM (portable bitmap)"""
@@ -185,6 +195,7 @@ def test_pbm(h):
 
 tests.append(test_pbm)
 
+
 def test_pgm(h):
     """PGM (portable graymap)"""
     if len(h) >= 3 and \
@@ -192,6 +203,7 @@ def test_pgm(h):
         return 'pgm'
 
 tests.append(test_pgm)
+
 
 def test_ppm(h):
     """PPM (portable pixmap)"""
@@ -201,12 +213,14 @@ def test_ppm(h):
 
 tests.append(test_ppm)
 
+
 def test_rast(h):
     """Sun raster file"""
     if h[:4] == b'\x59\xA6\x6A\x95':
         return 'rast'
 
 tests.append(test_rast)
+
 
 def test_xbm(h):
     """X bitmap (X10 or X11)"""
@@ -216,11 +230,13 @@ def test_xbm(h):
 
 tests.append(test_xbm)
 
+
 def test_bmp(h):
     if h[:2] == b'BM':
         return 'bmp'
 
 tests.append(test_bmp)
+
 
 def test_emf(h):
     if h[:4] == b'\x01\0\0\0' and h[40:44] == b' EMF':
@@ -228,11 +244,13 @@ def test_emf(h):
 
 tests.append(test_emf)
 
+
 def test_jpeg2000(h):
     if h[:12] == b'\x00\x00\x00\x0cjP  \r\n\x87\n':
         return 'jpeg2000'
 
 tests.append(test_jpeg2000)
+
 
 def test_svg(h):
     if h[:4] == b'<svg' or (h[:2] == b'<?' and h[2:5].tobytes().lower() == b'xml' and b'<svg' in h.tobytes()):

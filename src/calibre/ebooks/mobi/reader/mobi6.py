@@ -24,8 +24,10 @@ from calibre.ebooks.mobi.reader.headers import BookHeader
 from calibre.utils.img import save_cover_data_to
 from calibre.utils.imghdr import what
 
+
 class TopazError(ValueError):
     pass
+
 
 class MobiReader(object):
     PAGE_BREAK_PAT = re.compile(
@@ -377,6 +379,7 @@ class MobiReader(object):
             'x-large': '5',
             'xx-large': '6',
             }
+
         def barename(x):
             return x.rpartition(':')[-1]
 
@@ -869,6 +872,7 @@ class MobiReader(object):
             except Exception:
                 continue
             self.image_names.append(os.path.basename(path))
+
 
 def test_mbp_regex():
     for raw, m in {

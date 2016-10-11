@@ -36,12 +36,14 @@ from calibre.devices.interface import DevicePlugin as Device
 from calibre.ebooks.lrf.html.color_map import lrs_color
 from calibre.ebooks.chardet import xml_to_unicode
 
+
 def update_css(ncss, ocss):
     for key in ncss.keys():
         if ocss.has_key(key):  # noqa
             ocss[key].update(ncss[key])
         else:
             ocss[key] = ncss[key]
+
 
 def munge_paths(basepath, url):
     purl = urlparse(unquote(url),)
@@ -59,6 +61,7 @@ def munge_paths(basepath, url):
         path = os.path.join(dn, path)
     return os.path.normpath(path), fragment
 
+
 def strip_style_comments(match):
     src = match.group()
     while True:
@@ -72,10 +75,12 @@ def strip_style_comments(match):
         src = src[:lindex] + src[rindex+2:]
     return src
 
+
 def tag_regex(tagname):
     '''Return non-grouping regular expressions that match the opening and closing tags for tagname'''
     return dict(open=r'(?:<\s*%(t)s\s+[^<>]*?>|<\s*%(t)s\s*>)'%dict(t=tagname),
                 close=r'</\s*%(t)s\s*>'%dict(t=tagname))
+
 
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
@@ -1802,6 +1807,7 @@ class HTMLConverter(object):
         for _file in self.scaled_images.values() + self.rotated_images.values():
             _file.__del__()
 
+
 def process_file(path, options, logger):
     if not isinstance(path, unicode):
         path = path.decode(sys.getfilesystemencoding())
@@ -1919,6 +1925,7 @@ def process_file(path, options, logger):
     conv.writeto(oname, lrs=options.lrs)
     conv.cleanup()
     return oname
+
 
 def try_opf(path, options, logger):
     if hasattr(options, 'opf'):

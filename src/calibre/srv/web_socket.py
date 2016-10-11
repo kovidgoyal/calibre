@@ -56,6 +56,7 @@ UNEXPECTED_ERROR = 1011
 
 RESERVED_CLOSE_CODES = (1004,1005,1006,)
 
+
 class ReadFrame(object):  # {{{
 
     def __init__(self):
@@ -176,6 +177,7 @@ class ReadFrame(object):  # {{{
 
 # Sending frames {{{
 
+
 def create_frame(fin, opcode, payload, mask=None, rsv=0):
     if isinstance(payload, type('')):
         payload = payload.encode('utf-8')
@@ -235,6 +237,7 @@ class MessageWriter(object):
 
 conn_id = 0
 
+
 class UTF8Decoder(object):  # {{{
 
     def __init__(self):
@@ -248,6 +251,7 @@ class UTF8Decoder(object):  # {{{
         self.state = 0
         self.codep = 0
 # }}}
+
 
 class WebSocketConnection(HTTPConnection):
 
@@ -528,6 +532,7 @@ class DummyHandler(object):
 # Run this file with calibre-debug and use wstest to run the Autobahn test
 # suite
 
+
 class EchoHandler(object):
 
     def __init__(self, *args, **kwargs):
@@ -550,6 +555,7 @@ class EchoHandler(object):
 
     def handle_websocket_close(self, connection_id):
         self.ws_connections.pop(connection_id, None)
+
 
 def run_echo_server():
     s = ServerLoop(create_http_handler(websocket_handler=EchoHandler()))

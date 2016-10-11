@@ -4,6 +4,7 @@ __author__ = 'Daniele Forsi'
 
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
+
 class LeScienze(BasicNewsRecipe):
     title = 'Le Scienze'
     description = 'Edizione italiana di Scientific American'

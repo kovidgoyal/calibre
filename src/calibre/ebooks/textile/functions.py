@@ -66,12 +66,14 @@ from urlparse import urlparse
 
 from calibre.utils.smartypants import smartyPants
 
+
 def _normalize_newlines(string):
     out = re.sub(r'\r\n', '\n', string)
     out = re.sub(r'\n{3,}', '\n\n', out)
     out = re.sub(r'\n\s*\n', '\n\n', out)
     out = re.sub(r'"$', '" ', out)
     return out
+
 
 def getimagesize(url):
     """
@@ -110,6 +112,7 @@ def getimagesize(url):
                 return 'width="%i" height="%i"' % p.image.size
     except (IOError, ValueError):
         return None
+
 
 class Textile(object):
     hlgn = r'(?:\<(?!>)|(?<!<)\>|\<\>|\=|[()]+(?! ))'
@@ -1073,6 +1076,7 @@ def textile(text, head_offset=0, html_type='xhtml', encoding=None, output=None):
     """
     return Textile().textile(text, head_offset=head_offset,
                              html_type=html_type)
+
 
 def textile_restricted(text, lite=True, noimage=True, html_type='xhtml'):
     """

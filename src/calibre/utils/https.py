@@ -13,6 +13,7 @@ from calibre import get_proxies
 from calibre.constants import ispy3
 has_ssl_verify = hasattr(ssl, 'create_default_context') and hasattr(ssl, '_create_unverified_context')
 
+
 class HTTPError(ValueError):
 
     def __init__(self, url, code):
@@ -153,6 +154,7 @@ else:
                 self._tunnel()
             self.sock = ssl.wrap_socket(sock, cert_reqs=ssl.CERT_REQUIRED, ca_certs=self.cert_file, ssl_version=self.calibre_ssl_version)
             getattr(ssl, 'match_hostname', match_hostname)(self.sock.getpeercert(), self.host)
+
 
 def get_https_resource_securely(
     url, cacerts='calibre-ebook-root-CA.crt', timeout=60, max_redirects=5, ssl_version=None, headers=None, get_response=False):

@@ -15,8 +15,10 @@ import sys, os
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
 
+
 class DeleteInfo:
     """Delete unecessary destination groups"""
+
     def __init__(self,
             in_file ,
             bug_handler,

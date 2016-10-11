@@ -15,6 +15,7 @@ from threading import Lock
 from calibre import as_unicode, prints
 from calibre.constants import cache_dir, get_windows_number_formats, iswindows
 
+
 def force_to_bool(val):
     if isinstance(val, (str, unicode)):
         try:
@@ -33,6 +34,7 @@ def force_to_bool(val):
 
 _fuzzy_title_patterns = None
 
+
 def fuzzy_title_patterns():
     global _fuzzy_title_patterns
     if _fuzzy_title_patterns is None:
@@ -48,11 +50,13 @@ def fuzzy_title_patterns():
         )
     return _fuzzy_title_patterns
 
+
 def fuzzy_title(title):
     title = icu_lower(title.strip())
     for pat, repl in fuzzy_title_patterns():
         title = pat.sub(repl, title)
     return title
+
 
 def find_identical_books(mi, data):
     author_map, aid_map, title_map = data
@@ -79,8 +83,11 @@ def find_identical_books(mi, data):
 
 
 Entry = namedtuple('Entry', 'path size timestamp thumbnail_size')
+
+
 class CacheError(Exception):
     pass
+
 
 class ThumbnailCache(object):
 
@@ -129,6 +136,7 @@ class ThumbnailCache(object):
         self.total_size = 0
         self.items = OrderedDict()
         order = self._read_order()
+
         def listdir(*args):
             try:
                 return os.listdir(os.path.join(*args))
@@ -358,6 +366,8 @@ class ThumbnailCache(object):
                 self._apply_size()
 
 number_separators = None
+
+
 def atof(string):
     # Python 2.x does not handle unicode number separators correctly, so we
     # have to implement our own

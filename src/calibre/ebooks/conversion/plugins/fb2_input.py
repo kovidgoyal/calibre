@@ -12,6 +12,7 @@ from calibre import guess_type
 FB2NS  = 'http://www.gribuser.ru/xml/fictionbook/2.0'
 FB21NS = 'http://www.gribuser.ru/xml/fictionbook/2.1'
 
+
 class FB2Input(InputFormatPlugin):
 
     name        = 'FB2 Input'

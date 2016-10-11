@@ -22,6 +22,7 @@ border_edges = ('left', 'top', 'right', 'bottom')
 border_props = ('padding_%s', 'border_%s_width', 'border_%s_style', 'border_%s_color')
 ignore = object()
 
+
 def parse_css_font_family(raw):
     decl, errs = css_parser.parse_style_attr('font-family:' + raw)
     if decl:
@@ -32,16 +33,20 @@ def parse_css_font_family(raw):
                     break
                 yield val
 
+
 def css_font_family_to_docx(raw):
     generic = {'serif':'Cambria', 'sansserif':'Candara', 'sans-serif':'Candara', 'fantasy':'Comic Sans', 'cursive':'Segoe Script'}
     for ff in parse_css_font_family(raw):
         return generic.get(ff.lower(), ff)
 
+
 def bmap(x):
     return 'on' if x else 'off'
 
+
 def is_dropcaps(html_tag, tag_style):
     return len(html_tag) < 2 and len(etree.tostring(html_tag, method='text', encoding=unicode, with_tail=False)) < 5 and tag_style['float'] == 'left'
+
 
 class CombinedStyle(object):
 
@@ -73,6 +78,7 @@ class CombinedStyle(object):
             makeelement(pPr, 'w:outlineLvl', w_val=str(self.outline_level + 1))
         rPr = makeelement(block, 'w:rPr')
         self.rs.serialize_properties(rPr, normal_style.rs)
+
 
 class FloatSpec(object):
 
@@ -132,6 +138,7 @@ class FloatSpec(object):
             bstyle = getattr(self, 'border_%s_style' % edge)
             self.makeelement(bdr, 'w:'+edge, w_space=str(padding), w_val=bstyle, w_sz=str(width), w_color=getattr(self, 'border_%s_color' % edge))
 
+
 class DOCXStyle(object):
 
     ALL_PROPS = ()
@@ -185,6 +192,7 @@ LINE_STYLES = {
     'inset' : 'inset',
     'outset': 'outset',
 }
+
 
 class TextStyle(DOCXStyle):
 
@@ -341,6 +349,7 @@ class TextStyle(DOCXStyle):
         if bdr.attrib:
             rPr.append(bdr)
 
+
 class DescendantTextStyle(object):
 
     def __init__(self, parent_style, child_style):
@@ -348,6 +357,7 @@ class DescendantTextStyle(object):
         self.makeelement = child_style.makeelement
 
         p = []
+
         def add(name, **props):
             p.append((name, frozenset(props.iteritems())))
 
@@ -460,6 +470,7 @@ def read_css_block_borders(self, css, store_css_style=False):
             setattr(self, 'border_%s_style' %  edge, LINE_STYLES.get(css['border-%s-style' % edge].lower(), 'none'))
             if store_css_style:
                 setattr(self, 'border_%s_css_style' %  edge, css['border-%s-style' % edge].lower())
+
 
 class BlockStyle(DOCXStyle):
 

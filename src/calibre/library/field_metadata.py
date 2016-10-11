@@ -26,6 +26,7 @@ category_icon_map = {
 
 # Builtin metadata {{{
 
+
 def _builtin_field_metadata():
     # This is a function so that changing the UI language allows newly created
     # field metadata objects to have correctly translated labels for builtin
@@ -319,6 +320,7 @@ def _builtin_field_metadata():
                            'is_csp': False}),
         ]
 # }}}
+
 
 class FieldMetadata(dict):
     '''

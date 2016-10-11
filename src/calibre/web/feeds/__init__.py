@@ -12,6 +12,7 @@ from calibre import entity_to_unicode, strftime, force_unicode
 from calibre.utils.date import dt_factory, utcnow, local_tz
 from calibre.utils.cleantext import clean_ascii_chars, clean_xml_chars
 
+
 class Article(object):
 
     def __init__(self, id, title, url, author, summary, published, content):
@@ -74,6 +75,7 @@ class Article(object):
             if not isinstance(t, unicode) and hasattr(t, 'decode'):
                 t = t.decode('utf-8', 'replace')
             return t
+
         def fset(self, val):
             self._title = clean_ascii_chars(val)
         return property(fget=fget, fset=fset)
@@ -278,6 +280,7 @@ class Feed(object):
         except ValueError:
             pass
 
+
 class FeedCollection(list):
 
     def __init__(self, feeds):
@@ -341,6 +344,7 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7,
                             oldest_article=oldest_article,
                             max_articles_per_feed=max_articles_per_feed)
     return pfeed
+
 
 def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100,
         log=default_log):

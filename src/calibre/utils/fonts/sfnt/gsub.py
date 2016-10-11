@@ -16,6 +16,7 @@ from calibre.utils.fonts.sfnt.common import (ScriptListTable, FeatureListTable,
         SimpleListTable, LookupTable, ExtensionSubstitution,
         UnknownLookupSubTable)
 
+
 class SingleSubstitution(UnknownLookupSubTable):
 
     formats = {1, 2}
@@ -33,6 +34,7 @@ class SingleSubstitution(UnknownLookupSubTable):
             return {gid + self.delta for gid in gid_index_map}
         return {self.substitutes[i] for i in gid_index_map.itervalues()}
 
+
 class MultipleSubstitution(UnknownLookupSubTable):
 
     formats = {1}
@@ -48,8 +50,10 @@ class MultipleSubstitution(UnknownLookupSubTable):
             ans |= glyphs
         return ans
 
+
 class AlternateSubstitution(MultipleSubstitution):
     pass
+
 
 class LigatureSubstitution(UnknownLookupSubTable):
 
@@ -72,6 +76,7 @@ class LigatureSubstitution(UnknownLookupSubTable):
                 if set(components).issubset(glyph_ids):
                     ans.add(glyph_id)
         return ans
+
 
 class ContexttualSubstitution(UnknownLookupSubTable):
 
@@ -104,6 +109,7 @@ class ChainingContextualSubstitution(UnknownLookupSubTable):
         # This table only defined substitution in terms of other tables
         return set()
 
+
 class ReverseChainSingleSubstitution(UnknownLookupSubTable):
 
     formats = {1}
@@ -135,6 +141,7 @@ subtable_map = {
         8: ReverseChainSingleSubstitution,
 }
 
+
 class GSUBLookupTable(LookupTable):
 
     def set_child_class(self):
@@ -144,9 +151,11 @@ class GSUBLookupTable(LookupTable):
         else:
             self.child_class = subtable_map[self.lookup_type]
 
+
 class LookupListTable(SimpleListTable):
 
     child_class = GSUBLookupTable
+
 
 class GSUBTable(UnknownTable):
 

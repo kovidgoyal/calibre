@@ -20,12 +20,14 @@ URL = 'https://code.calibre-ebook.com/latest'
 # URL = 'http://localhost:8000/latest'
 NO_CALIBRE_UPDATE = (0, 0, 0)
 
+
 def get_download_url():
     which = ('portable' if isportable else 'windows' if iswindows
             else 'osx' if isosx else 'linux')
     if which == 'windows' and is64bit:
         which += '64'
     return 'https://calibre-ebook.com/download_' + which
+
 
 def get_newest_version():
     try:
@@ -58,9 +60,11 @@ def get_newest_version():
         ans = tuple(map(int, (m.group(1), m.group(2), m.group(3))))
     return ans
 
+
 class Signal(QObject):
 
     update_found = pyqtSignal(object, object)
+
 
 class CheckForUpdates(Thread):
 
@@ -94,6 +98,7 @@ class CheckForUpdates(Thread):
 
     def shutdown(self):
         self.shutdown_event.set()
+
 
 class UpdateNotification(QDialog):
 
@@ -153,6 +158,7 @@ class UpdateNotification(QDialog):
         open_url(QUrl(get_download_url()))
 
         QDialog.accept(self)
+
 
 class UpdateMixin(object):
 

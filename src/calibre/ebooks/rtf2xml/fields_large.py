@@ -14,6 +14,7 @@ import sys, os
 from calibre.ebooks.rtf2xml import field_strings, copy
 from calibre.ptempfile import better_mktemp
 
+
 class FieldsLarge:
     """
 =========================
@@ -88,6 +89,7 @@ Examples
         </paragraph-definition>
         </field-block>
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -109,6 +111,7 @@ Examples
         self.__copy = copy
         self.__run_level = run_level
         self.__write_to = better_mktemp()
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -142,6 +145,7 @@ Examples
         self.__par_in_field = []  # paragraphs in field?
         self.__sec_in_field = []  # sections in field?
         self.__field_string = []  # list of field strings
+
     def __before_body_func(self, line):
         """
         Requried:
@@ -155,6 +159,7 @@ Examples
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'in_body'
         self.__write_obj.write(line)
+
     def __in_body_func(self, line):
         """
         Required:
@@ -168,6 +173,7 @@ Examples
         if action:
             action(line)
         self.__write_obj.write(line)
+
     def __found_field_func(self, line):
         """
         Requires:
@@ -185,6 +191,7 @@ Examples
         self.__field_count.append(ob_count)
         self.__sec_in_field.append(0)
         self.__par_in_field.append(0)
+
     def __in_field_func(self, line):
         """
         Requires:
@@ -205,6 +212,7 @@ Examples
                 action(line)
             else:
                 self.__field_string[-1] += line
+
     def __par_in_field_func(self, line):
         """
         Requires:
@@ -217,6 +225,7 @@ Examples
         """
         self.__field_string[-1] += line
         self.__par_in_field[-1] = 1
+
     def __sec_in_field_func(self, line):
         """
         Requires:
@@ -229,6 +238,7 @@ Examples
         """
         self.__field_string[-1] += line
         self.__sec_in_field[-1] = 1
+
     def __found_field_instruction_func(self, line):
         """
         Requires:
@@ -242,6 +252,7 @@ Examples
         self.__state = 'field_instruction'
         self.__field_instruction_count = self.__ob_count
         self.__cb_count = 0
+
     def __field_instruction_func(self, line):
         """
         Requires:
@@ -267,6 +278,7 @@ Examples
             self.__field_instruction_string = ''
         else:
             self.__field_instruction_string += line
+
     def __end_field_func(self):
         """
         Requires:
@@ -321,9 +333,11 @@ Examples
         else:
             self.__field_string[-1] += inner_field_string
         self.__symbol = 0
+
     def __write_field_string(self, the_string):
         self.__state = 'in_body'
         self.__write_obj.write(the_string)
+
     def fix_fields(self):
         """
         Requires:

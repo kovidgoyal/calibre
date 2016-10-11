@@ -19,6 +19,7 @@ from calibre.gui2 import gprefs, rating_font
 from calibre.gui2.complete2 import LineEdit, EditWithComplete
 from calibre.gui2.widgets import history
 
+
 class HistoryMixin(object):
 
     max_history_items = None
@@ -59,15 +60,18 @@ class HistoryMixin(object):
         history.set(self.store_name, self.history)
         self.update_items_cache(self.history)
 
+
 class HistoryLineEdit2(LineEdit, HistoryMixin):
 
     def __init__(self, parent=None, completer_widget=None, sort_func=lambda x:None):
         LineEdit.__init__(self, parent=parent, completer_widget=completer_widget, sort_func=sort_func)
 
+
 class HistoryComboBox(EditWithComplete, HistoryMixin):
 
     def __init__(self, parent=None):
         EditWithComplete.__init__(self, parent, sort_func=lambda x:None)
+
 
 class ColorButton(QPushButton):
 
@@ -84,6 +88,7 @@ class ColorButton(QPushButton):
     def color(self):
         def fget(self):
             return self._color
+
         def fset(self, val):
             val = unicode(val or '')
             col = QColor(val)
@@ -114,6 +119,7 @@ def access_key(k):
         return '\t' + QKeySequence(k).toString(QKeySequence.NativeText)
     return ''
 
+
 def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False):
     m = menu
     le = spinbox.lineEdit()
@@ -128,6 +134,7 @@ def populate_standard_spinbox_context_menu(spinbox, menu, add_clear=False):
     m.addAction(_('Step &down'), spinbox.stepDown)
     m.setAttribute(Qt.WA_DeleteOnClose)
 
+
 class RightClickButton(QToolButton):
 
     def mousePressEvent(self, ev):
@@ -136,6 +143,7 @@ class RightClickButton(QToolButton):
             ev.accept()
             return
         return QToolButton.mousePressEvent(self, ev)
+
 
 class Dialog(QDialog):
 
@@ -204,6 +212,7 @@ class RatingModel(QAbstractListModel):
         if role == Qt.FontRole:
             return QApplication.instance().font() if index.row() == 0 else self.rating_font
 
+
 class UndoCommand(QUndoCommand):
 
     def __init__(self, widget, val):
@@ -219,6 +228,7 @@ class UndoCommand(QUndoCommand):
         def redo(self):
             w = self.widget()
             w.setCurrentIndex(self.redo_val)
+
 
 class RatingEditor(QComboBox):
 

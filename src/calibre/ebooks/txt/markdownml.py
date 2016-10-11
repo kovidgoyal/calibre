@@ -16,6 +16,7 @@ from calibre.ebooks.htmlz.oeb2html import OEB2HTML
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, barename, namespace, rewrite_links
 from calibre.ebooks.oeb.stylizer import Stylizer
 
+
 class MarkdownMLizer(OEB2HTML):
 
     def extract_content(self, oeb_book, opts):

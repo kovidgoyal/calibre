@@ -7,6 +7,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+
 def base64_decode(raw):
     from io import BytesIO
     from base64 import b64decode

@@ -22,6 +22,7 @@ NS_MAP = {
 XPath = lambda x: etree.XPath(x, namespaces=NS_MAP)
 BUILTIN_LOCALES = {'en-US', 'en-GB', 'es-ES'}
 
+
 def parse_xcu(raw, origin='%origin%'):
     ' Get the dictionary and affix file names as well as supported locales for each dictionary '
     ans = {}
@@ -40,6 +41,7 @@ def parse_xcu(raw, origin='%origin%'):
         ans[(dic, aff)] = locales
     return ans
 
+
 def convert_to_utf8(dic_data, aff_data, errors='strict'):
     m = re.search(br'^SET\s+(\S+)$', aff_data[:2048], flags=re.MULTILINE)
     if m is not None:
@@ -54,6 +56,7 @@ def convert_to_utf8(dic_data, aff_data, errors='strict'):
                 aff_data = aff_data.decode(enc, errors).encode('utf-8')
                 dic_data = dic_data.decode(enc, errors).encode('utf-8')
     return dic_data, aff_data
+
 
 def import_from_libreoffice_source_tree(source_path):
     dictionaries = {}
@@ -85,8 +88,10 @@ def import_from_libreoffice_source_tree(source_path):
     if want_locales:
         raise Exception('Failed to find dictionaries for some wanted locales: %s' % want_locales)
 
+
 def fill_country_code(x):
     return {'lt':'lt_LT'}.get(x, x)
+
 
 def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
@@ -96,6 +101,7 @@ def uniq(vals, kmap=lambda x:x):
     seen = set()
     seen_add = seen.add
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+
 
 def import_from_oxt(source_path, name, dest_dir=None, prefix='dic-'):
     from calibre.spell.dictionary import parse_lang_code

@@ -32,6 +32,8 @@ EPUB_EXT  = '.epub'
 KEPUB_EXT = '.kepub'
 
 # Implementation of QtQHash for strings. This doesn't seem to be in the Python implementation.
+
+
 def qhash(inputstr):
     instr = b""
     if isinstance(inputstr, bytes):
@@ -900,9 +902,11 @@ class KOBO(USBMS):
     def collections_columns(self):
         opts = self.settings()
         return opts.extra_customization[self.OPT_COLLECTIONS]
+
     @property
     def read_metadata(self):
         return self.settings().read_metadata
+
     @property
     def show_previews(self):
         opts = self.settings()
@@ -2879,22 +2883,31 @@ class KOBOTOUCH(KOBO):
 
     def isAura(self):
         return self.detected_device.idProduct in self.AURA_PRODUCT_ID
+
     def isAuraEdition2(self):
         return self.detected_device.idProduct in self.AURA_EDITION2_PRODUCT_ID
+
     def isAuraHD(self):
         return self.detected_device.idProduct in self.AURA_HD_PRODUCT_ID
+
     def isAuraH2O(self):
         return self.detected_device.idProduct in self.AURA_H2O_PRODUCT_ID
+
     def isAuraOne(self):
         return self.detected_device.idProduct in self.AURA_ONE_PRODUCT_ID
+
     def isGlo(self):
         return self.detected_device.idProduct in self.GLO_PRODUCT_ID
+
     def isGloHD(self):
         return self.detected_device.idProduct in self.GLO_HD_PRODUCT_ID
+
     def isMini(self):
         return self.detected_device.idProduct in self.MINI_PRODUCT_ID
+
     def isTouch(self):
         return self.detected_device.idProduct in self.TOUCH_PRODUCT_ID
+
     def isTouch2(self):
         return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
 
@@ -2932,15 +2945,19 @@ class KOBOTOUCH(KOBO):
     @property
     def manage_collections(self):
         return self.get_pref('manage_collections') and self.supports_bookshelves
+
     @property
     def create_collections(self):
         return self.manage_collections and self.get_pref('create_collections') and len(self.collections_columns) > 0
+
     @property
     def collections_columns(self):
         return self.get_pref('collections_columns')
+
     @property
     def delete_empty_collections(self):
         return self.manage_collections and self.get_pref('delete_empty_collections')
+
     @property
     def ignore_collections_names(self):
         # Cache the collection from the options string.
@@ -2948,10 +2965,12 @@ class KOBOTOUCH(KOBO):
             icn = self.get_pref('ignore_collections_names')
             self.opts._ignore_collections_names = [x.lower().strip() for x in icn.split(',')] if icn else []
         return self.opts._ignore_collections_names
+
     @property
     def create_bookshelves(self):
         # Only for backwards compatabilty
         return self.manage_collections
+
     @property
     def delete_empty_shelves(self):
         # Only for backwards compatabilty
@@ -2960,9 +2979,11 @@ class KOBOTOUCH(KOBO):
     @property
     def upload_covers(self):
         return self.get_pref('upload_covers')
+
     @property
     def keep_cover_aspect(self):
         return self.upload_covers and self.get_pref('keep_cover_aspect')
+
     @property
     def upload_grayscale(self):
         return self.upload_covers and self.get_pref('upload_grayscale')
@@ -2976,6 +2997,7 @@ class KOBOTOUCH(KOBO):
     @property
     def update_device_metadata(self):
         return self.get_pref('update_device_metadata')
+
     @property
     def update_series_details(self):
         return self.update_device_metadata and self.get_pref('update_series') and self.supports_series()
@@ -2990,12 +3012,15 @@ class KOBOTOUCH(KOBO):
     @property
     def supports_bookshelves(self):
         return self.dbversion >= self.min_supported_dbversion
+
     @property
     def show_archived_books(self):
         return self.get_pref('show_archived_books')
+
     @property
     def show_previews(self):
         return self.get_pref('show_previews')
+
     @property
     def show_recommendations(self):
         return self.get_pref('show_recommendations')

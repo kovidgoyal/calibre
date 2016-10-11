@@ -12,8 +12,10 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre.constants import numeric_version
 from calibre import walk
 
+
 class RecipeDisabled(Exception):
     pass
+
 
 class RecipeInput(InputFormatPlugin):
 

@@ -15,6 +15,7 @@ from calibre import fit_image
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.search.models import Matches
 
+
 class ImageDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):

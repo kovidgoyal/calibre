@@ -11,6 +11,7 @@ import re, os
 
 from calibre.ebooks.metadata import MetaInformation
 
+
 def get_metadata(stream, extract_cover=True):
     '''
     Return metadata as a L{MetaInfo} object

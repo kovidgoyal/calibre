@@ -12,6 +12,7 @@ from PyQt5.Qt import QVBoxLayout, QDialog, QLabel, QDialogButtonBox, Qt, \
 
 from calibre.gui2 import file_icon_provider
 
+
 class Formats(QAbstractListModel):
 
     def __init__(self, fmt_count):
@@ -44,6 +45,7 @@ class Formats(QAbstractListModel):
 
     def fmt(self, idx):
         return self.fmts[idx.row()]
+
 
 class SelectFormats(QDialog):
 

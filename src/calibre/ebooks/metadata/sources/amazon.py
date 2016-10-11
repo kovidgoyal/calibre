@@ -19,8 +19,10 @@ from calibre.ebooks.metadata.sources.base import (Source, Option, fixcase,
 from calibre.ebooks.metadata.book.base import Metadata
 from calibre.utils.localization import canonicalize_lang
 
+
 class CaptchaError(Exception):
     pass
+
 
 def parse_details_page(url, log, timeout, browser, domain):
     from calibre.utils.cleantext import clean_ascii_chars
@@ -76,6 +78,7 @@ def parse_details_page(url, log, timeout, browser, domain):
     from css_selectors import Select
     selector = Select(root)
     return oraw, root, selector
+
 
 def parse_asin(root, log, url):
     try:
@@ -747,6 +750,7 @@ class Worker(Thread):  # Get details {{{
                 if ans:
                     return ans
 # }}}
+
 
 class Amazon(Source):
 

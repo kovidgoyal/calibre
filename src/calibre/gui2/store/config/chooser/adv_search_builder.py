@@ -14,6 +14,7 @@ from calibre.gui2.store.config.chooser.adv_search_builder_ui import Ui_Dialog
 from calibre.library.caches import CONTAINS_MATCH, EQUALS_MATCH
 from calibre.utils.localization import localize_user_manual_link
 
+
 class AdvSearchBuilderDialog(QDialog, Ui_Dialog):
 
     def __init__(self, parent):

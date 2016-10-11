@@ -8,6 +8,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class RBInput(InputFormatPlugin):
 
     name        = 'RB Input'

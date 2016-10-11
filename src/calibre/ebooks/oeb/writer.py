@@ -12,6 +12,7 @@ from calibre.ebooks.oeb.base import DirContainer, OEBError
 
 __all__ = ['OEBWriter']
 
+
 class OEBWriter(object):
     DEFAULT_PROFILE = 'PRS505'
     """Default renderer profile for content written with this Writer."""

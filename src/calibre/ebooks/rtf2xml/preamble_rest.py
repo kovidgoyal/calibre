@@ -14,6 +14,7 @@ import sys,os
 
 from calibre.ebooks.rtf2xml import copy
 
+
 class Preamble:
     """
     Fix the reamaing parts of the preamble. This module does very little. It
@@ -21,6 +22,7 @@ class Preamble:
     future, when I understand how to interpret the revision table and list
     table, I will make these methods more functional.
     """
+
     def __init__(self, file,
                 bug_handler,
                 platform,

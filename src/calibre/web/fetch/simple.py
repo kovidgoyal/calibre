@@ -23,11 +23,14 @@ from calibre.utils.img import image_from_data, image_to_data
 from calibre.utils.imghdr import what
 from calibre.web.fetch.utils import rescale_image
 
+
 class AbortArticle(Exception):
     pass
 
+
 class FetchError(Exception):
     pass
+
 
 class closing(object):
 
@@ -47,6 +50,8 @@ class closing(object):
 
 
 bad_url_counter = 0
+
+
 def basename(url):
     try:
         parts = urlparse.urlsplit(url)
@@ -59,6 +64,7 @@ def basename(url):
     if not os.path.splitext(res)[1]:
         return 'index.html'
     return res
+
 
 def save_soup(soup, target):
     ns = BeautifulSoup('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
@@ -86,6 +92,7 @@ def save_soup(soup, target):
     with open(target, 'wb') as f:
         f.write(html.encode('utf-8'))
 
+
 class response(str):
 
     def __new__(cls, *args):
@@ -93,8 +100,10 @@ class response(str):
         obj.newurl = None
         return obj
 
+
 def default_is_link_wanted(url, tag):
     raise NotImplementedError()
+
 
 class RecursiveFetcher(object):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in
@@ -552,6 +561,7 @@ class RecursiveFetcher(object):
             print
         return res
 
+
 def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.com')):
     parser = OptionParser(usage=usage)
     parser.add_option('-d', '--base-dir',
@@ -591,6 +601,7 @@ def create_fetcher(options, image_map={}, log=None):
     if log is None:
         log = Log(level=Log.DEBUG) if options.verbose else Log()
     return RecursiveFetcher(options, log, image_map={})
+
 
 def main(args=sys.argv):
     parser = option_parser()

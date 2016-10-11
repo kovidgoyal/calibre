@@ -11,6 +11,7 @@ def control(func):
     func.function_type = 'control'
     return func
 
+
 def data(func):
     func.function_type = 'data'
     return func

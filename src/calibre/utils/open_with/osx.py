@@ -15,6 +15,8 @@ from calibre.utils.icu import numeric_sort_key
 application_locations = ('/Applications', '~/Applications', '~/Desktop')
 
 # Public UTI MAP {{{
+
+
 def generate_public_uti_map():
     from lxml import etree
     import html5lib, urllib
@@ -205,6 +207,7 @@ PUBLIC_UTI_RMAP = dict(PUBLIC_UTI_RMAP)
 
 # }}}
 
+
 def find_applications_in(base):
     try:
         entries = os.listdir(base)
@@ -219,11 +222,13 @@ def find_applications_in(base):
                 for app in find_applications_in(path):
                     yield app
 
+
 def find_applications():
     for base in application_locations:
         base = os.path.expanduser(base)
         for app in find_applications_in(base):
             yield app
+
 
 def get_extensions_from_utis(utis, plist):
     declared_utis = defaultdict(set)
@@ -247,6 +252,7 @@ def get_extensions_from_utis(utis, plist):
         ans |= declared_utis[uti]
         ans |= PUBLIC_UTI_RMAP.get(uti, set())
     return ans
+
 
 def get_bundle_data(path):
     path = os.path.abspath(path)
@@ -285,6 +291,7 @@ def get_bundle_data(path):
                         extensions.add(ext.lower())
     return ans
 
+
 def find_programs(extensions):
     extensions = frozenset(extensions)
     ans = []
@@ -298,6 +305,7 @@ def find_programs(extensions):
         if app and app['extensions'].intersection(extensions):
             ans.append(app)
     return ans
+
 
 def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
     if not path:
@@ -328,6 +336,7 @@ def get_icon(path, pixmap_to_data=None, as_data=False, size=64):
     if as_data:
         ans = pixmap_to_data(ans)
     return ans
+
 
 def entry_to_cmdline(entry, path):
     app = entry['path']

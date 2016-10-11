@@ -46,6 +46,7 @@ from dbus.lowlevel import ErrorMessage, MethodReturnMessage, MethodCallMessage
 from dbus.proxies import LOCAL_PATH
 is_py2 = sys.version_info.major == 2
 
+
 class dbus_property(object):
     """A decorator used to mark properties of a `dbus.service.Object`.
     """
@@ -149,6 +150,7 @@ class _VariantSignature(object):
 
     It has no string representation.
     """
+
     def __iter__(self):
         """Return self."""
         return self
@@ -577,6 +579,7 @@ class PropertiesInterface(Interface):
 #: Object._connection if it's actually in more than one place
 _MANY = object()
 
+
 class Object(Interface):
     r"""A base class for exporting your own Objects across the Bus.
 
@@ -1004,6 +1007,7 @@ class Object(Interface):
                                    self.__class__.__name__, where,
                                    id(self))
     __str__ = __repr__
+
 
 class FallbackObject(Object):
     """An object that implements an entire subtree of the object-path

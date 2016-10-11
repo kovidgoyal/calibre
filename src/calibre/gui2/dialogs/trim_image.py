@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 from calibre.gui2 import gprefs
 from calibre.gui2.tweak_book.editor.canvas import Canvas
 
+
 class TrimImage(QDialog):
 
     def __init__(self, img_data, parent=None):

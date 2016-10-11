@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 Computerworld.dk
 '''
 
+
 class WwwComputerworld_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Computerworld.dk'

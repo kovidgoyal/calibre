@@ -45,6 +45,7 @@ EXTH_CODES = {
 
 COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
 
+
 def build_exth(metadata, prefer_author_sort=False, is_periodical=False,
         share_not_sync=True, cover_offset=None, thumbnail_offset=None,
         start_offset=None, mobi_doctype=2, num_of_resources=None,

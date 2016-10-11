@@ -14,6 +14,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.confirm_delete import confirm
 
+
 class StoreAction(InterfaceAction):
 
     name = 'Store'

@@ -13,6 +13,7 @@ from calibre import as_unicode
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN
 from calibre.ebooks.oeb.polish.check.parsing import EmptyFile
 
+
 class InvalidImage(BaseError):
 
     HELP = _('An invalid image is an image that could not be loaded, typically because'
@@ -20,6 +21,7 @@ class InvalidImage(BaseError):
 
     def __init__(self, msg, *args, **kwargs):
         BaseError.__init__(self, 'Invalid image: ' + msg, *args, **kwargs)
+
 
 class CMYKImage(BaseError):
 
@@ -48,6 +50,7 @@ class CMYKImage(BaseError):
             f.truncate()
             f.write(raw)
         return True
+
 
 def check_raster_images(name, mt, raw):
     if not raw:

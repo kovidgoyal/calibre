@@ -18,6 +18,7 @@ else:
 
 _ascii_pat = None
 
+
 def clean_ascii_chars(txt, charlist=None):
     r'''
     Remove ASCII control chars.
@@ -39,14 +40,17 @@ def clean_ascii_chars(txt, charlist=None):
         pat = re.compile(u'|'.join(map(unichr, charlist)))
     return pat.sub('', txt)
 
+
 def allowed(x):
     x = ord(x)
     return (x != 127 and (31 < x < 0xd7ff or x in (9, 10, 13))) or (0xe000 < x < 0xfffd) or (0x10000 < x < 0x10ffff)
+
 
 def py_clean_xml_chars(unicode_string):
     return u''.join(filter(allowed, unicode_string))
 
 clean_xml_chars = native_clean_xml_chars or py_clean_xml_chars
+
 
 def test_clean_xml_chars():
     raw = u'asd\x02a\U00010437x\ud801b\udffe\ud802'

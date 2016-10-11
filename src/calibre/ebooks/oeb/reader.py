@@ -32,6 +32,7 @@ from calibre import guess_type, xml_replace_entities
 
 __all__ = ['OEBReader']
 
+
 class OEBReader(object):
     """Read an OEBPS 1.x or OPF/OPS 2.0 file collection."""
 

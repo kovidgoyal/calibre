@@ -31,6 +31,8 @@ icu_unicode_version = getattr(_icu, 'unicode_version', None)
 _nmodes = {m:getattr(_icu, 'UNORM_'+m, None) for m in ('NFC', 'NFD', 'NFKC', 'NFKD', 'NONE', 'DEFAULT', 'FCD')}
 
 # Ensure that the python internal filesystem and default encodings are not ASCII
+
+
 def is_ascii(name):
     try:
         return codecs.lookup(name).name == b'ascii'
@@ -51,6 +53,7 @@ except:
     traceback.print_exc()
 del is_ascii
 
+
 def collator():
     global _collator, _locale
     if _collator is None:
@@ -67,10 +70,12 @@ def collator():
             _collator = _icu.Collator('en')
     return _collator
 
+
 def change_locale(locale=None):
     global _locale, _collator, _primary_collator, _sort_collator, _numeric_collator, _case_sensitive_collator
     _collator = _primary_collator = _sort_collator = _numeric_collator = _case_sensitive_collator = None
     _locale = locale
+
 
 def primary_collator():
     'Ignores case differences and accented characters'
@@ -79,6 +84,7 @@ def primary_collator():
         _primary_collator = collator().clone()
         _primary_collator.strength = _icu.UCOL_PRIMARY
     return _primary_collator
+
 
 def sort_collator():
     'Ignores case differences and recognizes numbers in strings (if the tweak is set)'
@@ -89,6 +95,7 @@ def sort_collator():
         _sort_collator.numeric = tweaks['numeric_collation']
     return _sort_collator
 
+
 def numeric_collator():
     'Uses natural sorting for numbers inside strings so something2 will sort before something10'
     global _numeric_collator
@@ -97,6 +104,7 @@ def numeric_collator():
         _numeric_collator.strength = _icu.UCOL_SECONDARY
         _numeric_collator.numeric = True
     return _numeric_collator
+
 
 def case_sensitive_collator():
     'Always sorts upper case letter before lower case'
@@ -171,6 +179,7 @@ def {name}(x):
         raise
 '''
 
+
 def _make_func(template, name, **kwargs):
     l = globals()
     kwargs['name'] = name
@@ -206,6 +215,7 @@ lower = _make_func(_change_case_template, 'lower', which='LOWER_CASE')
 
 title_case = _make_func(_change_case_template, 'title_case', which='TITLE_CASE')
 
+
 def capitalize(x):
     try:
         return upper(x[0]) + lower(x[1:])
@@ -233,11 +243,13 @@ safe_chr = _icu.chr
 
 ord_string = _icu.ord_string
 
+
 def character_name(string):
     try:
         return _icu.character_name(unicode(string)) or None
     except (TypeError, ValueError, KeyError):
         pass
+
 
 def character_name_from_code(code):
     try:
@@ -245,12 +257,14 @@ def character_name_from_code(code):
     except (TypeError, ValueError, KeyError):
         return ''
 
+
 def normalize(text, mode='NFC'):
     # This is very slightly slower than using unicodedata.normalize, so stick with
     # that unless you have very good reasons not too. Also, it's speed
     # decreases on wide python builds, where conversion to/from ICU's string
     # representation is slower.
     return _icu.normalize(_nmodes[mode], unicode(text))
+
 
 def contractions(col=None):
     global _cmap
@@ -263,6 +277,7 @@ def contractions(col=None):
         ans = frozenset(filter(None, ans))
         _cmap[col] = ans
     return ans
+
 
 def partition_by_first_letter(items, reverse=False, key=lambda x:x):
     # Build a list of 'equal' first letters by noticing changes

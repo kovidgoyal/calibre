@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 Erhvervs&#149;Avisen: RSS feed: Seneste nyt - erhvervsavisen.dk
 '''
 
+
 class Erhvervsavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Erhvervs Avisen'

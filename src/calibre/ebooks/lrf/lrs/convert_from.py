@@ -17,6 +17,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \
             DropCaps, Footer, RuledLine
 from calibre.ebooks.chardet import xml_to_unicode
 
+
 class LrsParser(object):
 
     SELF_CLOSING_TAGS = [i.lower() for i in ['CR', 'Plot', 'NoBR', 'Space',

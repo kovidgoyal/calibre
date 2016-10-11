@@ -16,10 +16,12 @@ from calibre.ebooks.rtf2xml import get_char_map, copy
 from calibre.ebooks.rtf2xml.char_set import char_set
 from calibre.ptempfile import better_mktemp
 
+
 class Hex2Utf8:
     """
     Convert Microsoft hexidecimal numbers to utf-8
     """
+
     def __init__(self,
             in_file,
             area_to_convert,

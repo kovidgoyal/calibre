@@ -12,6 +12,7 @@ import re
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class HANLINV3(USBMS):
 
     name           = 'Hanlin V3 driver'
@@ -81,6 +82,7 @@ class HANLINV3(USBMS):
             drives['carda'] = main
         return drives
 
+
 class SPECTRA(HANLINV3):
 
     name = 'Spectra'
@@ -90,6 +92,7 @@ class SPECTRA(HANLINV3):
     FORMATS = ['epub', 'mobi', 'fb2', 'lit', 'prc', 'chm', 'djvu', 'pdf', 'rtf', 'txt']
 
     SUPPORTS_SUB_DIRS = True
+
 
 class HANLINV5(HANLINV3):
     name           = 'Hanlin V5 driver'
@@ -107,6 +110,7 @@ class HANLINV5(HANLINV3):
     STORAGE_CARD_VOLUME_LABEL = 'Hanlin V5 Storage Card'
 
     OSX_EJECT_COMMAND = ['diskutil', 'unmount', 'force']
+
 
 class BOOX(HANLINV3):
 

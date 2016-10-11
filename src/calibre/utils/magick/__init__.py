@@ -10,6 +10,7 @@ from calibre.utils.magick.legacy import Image, PixelWand
 if False:
     PixelWand
 
+
 def create_canvas(width, height, bgcolor='#ffffff'):
     canvas = Image()
     canvas.create_canvas(int(width), int(height), str(bgcolor))

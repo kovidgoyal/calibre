@@ -27,6 +27,7 @@ __author__ = "Ryan Ginstrom"
 
 IDEOGRAPHIC_SPACE = 0x3000
 
+
 def is_asian(char):
     """Is the character Asian?"""
 
@@ -34,11 +35,13 @@ def is_asian(char):
     # Anything over is an Asian character
     return ord(char) > IDEOGRAPHIC_SPACE
 
+
 def filter_jchars(c):
     """Filters Asian characters to spaces"""
     if is_asian(c):
         return ' '
     return c
+
 
 def nonj_len(word):
     u"""Returns number of non-Asian words in {word}
@@ -54,6 +57,7 @@ def nonj_len(word):
     # The length of which is 2!
     chars = [filter_jchars(c) for c in word]
     return len(u''.join(chars).split())
+
 
 def get_wordcount(text):
     """Get the word/character count for text
@@ -73,12 +77,15 @@ def get_wordcount(text):
                 non_asian_words=non_asian_words,
                 words=words)
 
+
 def dict2obj(dictionary):
     """Transform a dictionary into an object"""
     class Obj(object):
+
         def __init__(self, dictionary):
             self.__dict__.update(dictionary)
     return Obj(dictionary)
+
 
 def get_wordcount_obj(text):
     """Get the wordcount as an object rather than a dictionary"""

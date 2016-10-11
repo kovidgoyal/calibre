@@ -26,6 +26,7 @@ from calibre.utils.img import (
     normalize_image, oil_paint_image
 )
 
+
 def painter(func):
     @wraps(func)
     def ans(self, painter):
@@ -35,6 +36,7 @@ def painter(func):
         finally:
             painter.restore()
     return ans
+
 
 class SelectionState(object):
 
@@ -52,6 +54,7 @@ class SelectionState(object):
         self.drag_corner = None
         self.dragging = None
         self.last_drag_pos = None
+
 
 class Command(QUndoCommand):
 
@@ -75,6 +78,7 @@ class Command(QUndoCommand):
         canvas = self.canvas_ref()
         canvas.set_image(self.after_image)
 
+
 def get_selection_rect(img, sr, target):
     ' Given selection rect return the corresponding rectangle in the underlying image as left, top, width, height '
     left_border = (abs(sr.left() - target.left())/target.width()) * img.width()
@@ -82,6 +86,7 @@ def get_selection_rect(img, sr, target):
     right_border = (abs(target.right() - sr.right())/target.width()) * img.width()
     bottom_border = (abs(target.bottom() - sr.bottom())/target.height()) * img.height()
     return left_border, top_border, img.width() - left_border - right_border, img.height() - top_border - bottom_border
+
 
 class Trim(Command):
 
@@ -95,6 +100,7 @@ class Trim(Command):
         sr = canvas.selection_state.rect
         return img.copy(*get_selection_rect(img, sr, target))
 
+
 class AutoTrim(Trim):
 
     ''' Auto trim borders from the image '''
@@ -102,6 +108,7 @@ class AutoTrim(Trim):
 
     def __call__(self, canvas):
         return remove_borders_from_image(canvas.current_image)
+
 
 class Rotate(Command):
 
@@ -112,6 +119,7 @@ class Rotate(Command):
         m = QTransform()
         m.rotate(90)
         return img.transformed(m, Qt.SmoothTransformation)
+
 
 class Scale(Command):
 
@@ -125,6 +133,7 @@ class Scale(Command):
         img = canvas.current_image
         return img.scaled(self.width, self.height, transformMode=Qt.SmoothTransformation)
 
+
 class Sharpen(Command):
 
     TEXT = _('Sharpen image')
@@ -137,6 +146,7 @@ class Sharpen(Command):
     def __call__(self, canvas):
         return gaussian_sharpen_image(canvas.current_image, sigma=self.sigma)
 
+
 class Blur(Sharpen):
 
     TEXT = _('Blur image')
@@ -144,6 +154,7 @@ class Blur(Sharpen):
 
     def __call__(self, canvas):
         return gaussian_blur_image(canvas.current_image, sigma=self.sigma)
+
 
 class Oilify(Command):
 
@@ -156,6 +167,7 @@ class Oilify(Command):
     def __call__(self, canvas):
         return oil_paint_image(canvas.current_image, radius=self.radius)
 
+
 class Despeckle(Command):
 
     TEXT = _('De-speckle image')
@@ -163,12 +175,14 @@ class Despeckle(Command):
     def __call__(self, canvas):
         return despeckle_image(canvas.current_image)
 
+
 class Normalize(Command):
 
     TEXT = _('Normalize image')
 
     def __call__(self, canvas):
         return normalize_image(canvas.current_image)
+
 
 class Replace(Command):
 
@@ -191,6 +205,7 @@ class Replace(Command):
             p.end()
         return self.after_image
 
+
 def imageop(func):
     @wraps(func)
     def ans(self, *args, **kwargs):
@@ -204,6 +219,7 @@ def imageop(func):
         finally:
             QApplication.restoreOverrideCursor()
     return ans
+
 
 class Canvas(QWidget):
 

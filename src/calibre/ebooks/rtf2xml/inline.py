@@ -14,11 +14,14 @@ States.
     2. paragraph end -- close out all tags
     3. footnote beg -- close out all tags
 """
+
+
 class Inline:
     """
     Make inline tags within lists.
     Logic:
     """
+
     def __init__(self,
             in_file,
             bug_handler,

@@ -38,6 +38,7 @@ XML_DOCS = OEB_DOCS | {SVG_MIME}
 # with 4 digits
 to_ref = partial(to_base, base=32, min_num_digits=4)
 
+
 class KF8Writer(object):
 
     def __init__(self, oeb, opts, resources):
@@ -279,6 +280,7 @@ class KF8Writer(object):
             root = self.data(item)
             aidbase = i * int(1e6)
             j = 0
+
             def in_table(elem):
                 p = elem.getparent()
                 if p is None:
@@ -488,6 +490,7 @@ class KF8Writer(object):
         if self.guide_table:
             self.guide_table.sort(key=lambda x:x.type)  # Needed by the Kindle
             self.guide_records = GuideIndex(self.guide_table)()
+
 
 def create_kf8_book(oeb, opts, resources, for_joint=False):
     writer = KF8Writer(oeb, opts, resources)

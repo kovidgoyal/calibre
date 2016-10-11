@@ -11,6 +11,7 @@ Generate UUID encoded using a user specified alphabet.
 
 import string, math, uuid as _uuid
 
+
 def num_to_string(number, alphabet, alphabet_len, pad_to_length=None):
     ans = []
     number = max(0, number)
@@ -21,11 +22,13 @@ def num_to_string(number, alphabet, alphabet_len, pad_to_length=None):
         ans.append(alphabet[0] * (pad_to_length - len(ans)))
     return ''.join(ans)
 
+
 def string_to_num(string, alphabet_map, alphabet_len):
     ans = 0
     for char in reversed(string):
         ans = ans * alphabet_len + alphabet_map[char]
     return ans
+
 
 class ShortUUID(object):
 

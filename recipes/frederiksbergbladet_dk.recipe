@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 Frederiksberg Bladet
 '''
 
+
 class FrederiksbergBladet_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Frederiksberg Bladet'

@@ -1,4 +1,6 @@
 import os, sys
+
+
 class Configure:
 
     def __init__(self,
@@ -19,6 +21,7 @@ class Configure:
         self.__debug_dir = debug_dir
         self.__bug_handler = bug_handler
         self.__show_config_file = show_config_file
+
     def get_configuration(self, type):
         self.__configuration_file = self.__get_file_name()
         return_dict = {}
@@ -59,6 +62,7 @@ class Configure:
                     % self.__configuration_file)
             raise self.__bug_handler, msg
         return return_dict
+
     def __get_file_name(self):
         home_var = os.environ.get('HOME')
         if home_var:
@@ -74,6 +78,7 @@ class Configure:
         if os.path.isfile(script_file):
             return script_file
         return self.__configuration_file
+
     def __parse_dict(self, return_dict):
         allowable = [
             'configuration-directory',

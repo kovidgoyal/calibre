@@ -12,19 +12,24 @@ from future_builtins import map
 
 from calibre.ebooks import BOOK_EXTENSIONS
 
+
 def splitext(path):
     key, ext = os.path.splitext(path)
     return key, ext[1:].lower()
 
+
 def formats_ok(formats):
     return len(formats) > 0
+
 
 def path_ok(path):
     return not os.path.isdir(path) and os.access(path, os.R_OK)
 
+
 def compile_glob(pat):
     import fnmatch
     return re.compile(fnmatch.translate(pat), flags=re.I)
+
 
 def compile_rule(rule):
     mt = rule['match_type']
@@ -45,12 +50,14 @@ def compile_rule(rule):
         ans = lambda filename: not func(filename)
     return ans, rule['action'] == 'add'
 
+
 def filter_filename(compiled_rules, filename):
     for q, action in compiled_rules:
         if q(filename):
             return action
 
 _metadata_extensions = None
+
 
 def metadata_extensions():
     # Set of all known book extensions + OPF (the OPF is used to read metadata,
@@ -59,6 +66,7 @@ def metadata_extensions():
     if _metadata_extensions is None:
         _metadata_extensions =  frozenset(map(unicode, BOOK_EXTENSIONS)) | {'opf'}
     return _metadata_extensions
+
 
 def listdir(root, sort_by_mtime=False):
     items = (os.path.join(root, x) for x in os.listdir(root))
@@ -74,11 +82,13 @@ def listdir(root, sort_by_mtime=False):
         if path_ok(path):
             yield path
 
+
 def allow_path(path, ext, compiled_rules):
     ans = filter_filename(compiled_rules, os.path.basename(path))
     if ans is None:
         ans = ext in metadata_extensions()
     return ans
+
 
 def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(), listdir_impl=listdir):
     dirpath = os.path.abspath(dirpath)
@@ -101,6 +111,7 @@ def find_books_in_directory(dirpath, single_book_per_directory, compiled_rules=(
             if formats_ok(formats):
                 yield list(formats.itervalues())
 
+
 def import_book_directory_multiple(db, dirpath, callback=None,
         added_ids=None, compiled_rules=()):
     from calibre.ebooks.metadata.meta import metadata_from_formats
@@ -121,6 +132,7 @@ def import_book_directory_multiple(db, dirpath, callback=None,
                 break
     return duplicates
 
+
 def import_book_directory(db, dirpath, callback=None, added_ids=None, compiled_rules=()):
     from calibre.ebooks.metadata.meta import metadata_from_formats
     dirpath = os.path.abspath(dirpath)
@@ -140,6 +152,7 @@ def import_book_directory(db, dirpath, callback=None, added_ids=None, compiled_r
     if callable(callback):
         callback(mi.title)
 
+
 def recursive_import(db, root, single_book_per_directory=True,
         callback=None, added_ids=None, compiled_rules=()):
     root = os.path.abspath(root)
@@ -155,6 +168,7 @@ def recursive_import(db, root, single_book_per_directory=True,
             if callback(''):
                 break
     return duplicates
+
 
 def add_catalog(cache, path, title, dbapi=None):
     from calibre.ebooks.metadata.book.base import Metadata
@@ -188,6 +202,7 @@ def add_catalog(cache, path, title, dbapi=None):
         cache.add_format(db_id, fmt, stream, dbapi=dbapi)  # Cant keep write lock since post-import hooks might run
 
     return db_id, new_book_added
+
 
 def add_news(cache, path, arg, dbapi=None):
     from calibre.ebooks.metadata.meta import get_metadata

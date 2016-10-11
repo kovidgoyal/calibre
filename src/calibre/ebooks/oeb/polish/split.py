@@ -15,8 +15,10 @@ from calibre.ebooks.oeb.polish.errors import MalformedMarkup
 from calibre.ebooks.oeb.polish.toc import node_from_loc
 from calibre.ebooks.oeb.polish.replace import LinkRebaser
 
+
 class AbortError(ValueError):
     pass
+
 
 def in_table(node):
     while node is not None:
@@ -24,6 +26,7 @@ def in_table(node):
             return True
         node = node.getparent()
     return False
+
 
 def adjust_split_point(split_point, log):
     '''
@@ -49,8 +52,10 @@ def adjust_split_point(split_point, log):
 
     return sp
 
+
 def get_body(root):
     return root.find('h:body', namespaces=XPNSMAP)
+
 
 def do_split(split_point, log, before=True):
     '''
@@ -143,6 +148,7 @@ def do_split(split_point, log, before=True):
 
     return tree, tree2
 
+
 class SplitLinkReplacer(object):
 
     def __init__(self, base, bottom_anchors, top_name, bottom_name, container):
@@ -162,6 +168,7 @@ class SplitLinkReplacer(object):
             url = self.container.name_to_href(self.bottom_name, self.base) + '#' + purl.fragment
             self.replaced = True
         return url
+
 
 def split(container, name, loc_or_xpath, before=True, totals=None):
     '''
@@ -247,6 +254,7 @@ def split(container, name, loc_or_xpath, before=True, totals=None):
     container.dirty(container.opf_name)
     return bottom_name
 
+
 def multisplit(container, name, xpath, before=True):
     '''
     Split the specified file at multiple locations (all tags that match the specified XPath expression. See also: :func:`split`.
@@ -311,8 +319,10 @@ def add_text(body, text):
     else:
         body.text = (body.text or '') + text
 
+
 def all_anchors(root):
     return set(root.xpath('//*/@id')) | set(root.xpath('//*/@name'))
+
 
 def all_stylesheets(container, name):
     for link in XPath('//h:head/h:link[@href]')(container.parsed(name)):
@@ -320,6 +330,7 @@ def all_stylesheets(container, name):
         typ = link.get('type', 'text/css')
         if typ == 'text/css':
             yield name
+
 
 def unique_anchor(seen_anchors, current):
     c = 0
@@ -329,12 +340,14 @@ def unique_anchor(seen_anchors, current):
         ans = '%s_%d' % (current, c)
     return ans
 
+
 def remove_name_attributes(root):
     # Remove all name attributes, replacing them with id attributes
     for elem in root.xpath('//*[@id and @name]'):
         del elem.attrib['name']
     for elem in root.xpath('//*[@name]'):
         elem.set('id', elem.attrib.pop('name'))
+
 
 def merge_html(container, names, master):
     p = container.parsed
@@ -419,6 +432,7 @@ def merge_html(container, names, master):
     for fname, media_type in container.mime_map.iteritems():
         repl = MergeLinkReplacer(fname, anchor_map, master, container)
         container.replace_links(fname, repl)
+
 
 def merge_css(container, names, master):
     p = container.parsed

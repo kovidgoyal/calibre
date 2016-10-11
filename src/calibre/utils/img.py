@@ -22,14 +22,17 @@ if imageops is None:
                            ' get it by installing the betas from: http://www.mobileread.com/forums/showthread.php?t=274030')
     raise RuntimeError(imageops_err)
 
+
 class NotImage(ValueError):
     pass
+
 
 def normalize_format_name(fmt):
     fmt = fmt.lower()
     if fmt == 'jpg':
         fmt = 'jpeg'
     return fmt
+
 
 def get_exe_path(name):
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
@@ -43,9 +46,11 @@ def get_exe_path(name):
 
 # Loading images {{{
 
+
 def null_image():
     ' Create an invalid image. For internal use. '
     return QImage()
+
 
 def image_from_data(data):
     ' Create an image object from data, which should be a bytestring. '
@@ -56,10 +61,12 @@ def image_from_data(data):
         raise NotImage('Not a valid image')
     return i
 
+
 def image_from_path(path):
     ' Load an image from the specified path. '
     with lopen(path, 'rb') as f:
         return image_from_data(f.read())
+
 
 def image_from_x(x):
     ' Create an image from a bytestring or a path or a file like object. '
@@ -75,6 +82,7 @@ def image_from_x(x):
         return x.toImage()
     raise TypeError('Unknown image src type: %s' % type(x))
 
+
 def image_and_format_from_data(data):
     ' Create an image object from the specified data which should be a bytsestring and also return the format of the image '
     ba = QByteArray(data)
@@ -86,6 +94,7 @@ def image_and_format_from_data(data):
 # }}}
 
 # Saving images {{{
+
 
 def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level=9, jpeg_optimized=True, jpeg_progressive=False):
     '''
@@ -128,6 +137,7 @@ def image_to_data(img, compression_quality=95, fmt='JPEG', png_compression_level
         raise ValueError('Failed to export image as ' + fmt + ' with error: ' + w.errorString())
     return ba.data()
 
+
 def save_image(img, path, **kw):
     ''' Save image to the specified path. Image format is taken from the file
     extension. You can pass the same keyword arguments as for the
@@ -136,6 +146,7 @@ def save_image(img, path, **kw):
     kw['fmt'] = kw.get('fmt', fmt)
     with lopen(path, 'wb') as f:
         f.write(image_to_data(image_from_data(img), **kw))
+
 
 def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compression_quality=90, minify_to=None, grayscale=False, data_fmt='jpeg'):
     '''
@@ -188,6 +199,7 @@ def save_cover_data_to(data, path=None, bgcolor='#ffffff', resize_to=None, compr
 
 # Overlaying images {{{
 
+
 def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     ' Blend the `img` onto a canvas with the specified background color and size '
     w, h = img.width(), img.height()
@@ -199,6 +211,7 @@ def blend_on_canvas(img, width, height, bgcolor='#ffffff'):
     canvas.fill(QColor(bgcolor))
     overlay_image(img, canvas, (width - w)//2, (height - h)//2)
     return canvas
+
 
 class Canvas(object):
 
@@ -219,6 +232,7 @@ class Canvas(object):
     def export(self, fmt='JPEG', compression_quality=95):
         return image_to_data(self.img, compression_quality=compression_quality, fmt=fmt)
 
+
 def create_canvas(width, height, bgcolor='#ffffff'):
     'Create a blank canvas of the specified size and color '
     img = QImage(width, height, QImage.Format_RGB32)
@@ -235,11 +249,13 @@ def overlay_image(img, canvas=None, left=0, top=0):
     imageops.overlay(img, canvas, left, top)
     return canvas
 
+
 def texture_image(canvas, texture):
     ' Repeatedly tile the image `texture` across and down the image `canvas` '
     if canvas.hasAlphaChannel():
         canvas = blend_image(canvas)
     return imageops.texture_image(canvas, texture)
+
 
 def blend_image(img, bgcolor='#ffffff'):
     ' Used to convert images that have semi-transparent pixels to opaque by blending with the specified color '
@@ -251,6 +267,7 @@ def blend_image(img, bgcolor='#ffffff'):
 
 # Image borders {{{
 
+
 def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#ffffff'):
     img = image_from_data(img)
     if not (left > 0 or right > 0 or top > 0 or bottom > 0):
@@ -259,6 +276,7 @@ def add_borders_to_image(img, left=0, top=0, right=0, bottom=0, border_color='#f
     canvas.fill(QColor(border_color))
     overlay_image(img, canvas, left, top)
     return canvas
+
 
 def remove_borders_from_image(img, fuzz=None):
     ''' Try to auto-detect and remove any borders from the image. Returns
@@ -273,8 +291,10 @@ def remove_borders_from_image(img, fuzz=None):
 
 # Cropping/scaling of images {{{
 
+
 def resize_image(img, width, height):
     return img.scaled(int(width), int(height), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+
 
 def resize_to_fit(img, width, height):
     img = image_from_data(img)
@@ -283,10 +303,12 @@ def resize_to_fit(img, width, height):
         resize_image(img, nw, nh)
     return resize_needed, img
 
+
 def clone_image(img):
     ''' Returns a shallow copy of the image. However, the underlying data buffer
     will be automatically copied-on-write '''
     return QImage(img)
+
 
 def scale_image(data, width=60, height=80, compression_quality=70, as_png=False, preserve_aspect_ratio=True):
     ''' Scale an image, returning it as either JPEG or PNG data (bytestring).
@@ -306,6 +328,7 @@ def scale_image(data, width=60, height=80, compression_quality=70, as_png=False,
     w, h = img.width(), img.height()
     return w, h, image_to_data(img, compression_quality=compression_quality, fmt=fmt)
 
+
 def crop_image(img, x, y, width, height):
     '''
     Return the specified section of the image.
@@ -324,8 +347,10 @@ def crop_image(img, x, y, width, height):
 
 # Image transformations {{{
 
+
 def grayscale_image(img):
     return imageops.grayscale(image_from_data(img))
+
 
 def set_image_opacity(img, alpha=0.5):
     ''' Change the opacity of `img`. Note that the alpha value is multiplied to
@@ -333,8 +358,10 @@ def set_image_opacity(img, alpha=0.5):
     semi-transparent image to an opaque one. For that use `blend_image()`. '''
     return imageops.set_opacity(image_from_data(img), alpha)
 
+
 def flip_image(img, horizontal=False, vertical=False):
     return image_from_data(img).mirrored(horizontal, vertical)
+
 
 def image_has_transparent_pixels(img):
     ' Return True iff the image has at least one semi-transparent pixel '
@@ -343,25 +370,32 @@ def image_has_transparent_pixels(img):
         return False
     return imageops.has_transparent_pixels(img)
 
+
 def rotate_image(img, degrees):
     t = QTransform()
     t.rotate(degrees)
     return image_from_data(img).transformed(t)
 
+
 def gaussian_sharpen_image(img, radius=0, sigma=3, high_quality=True):
     return imageops.gaussian_sharpen(image_from_data(img), max(0, radius), sigma, high_quality)
+
 
 def gaussian_blur_image(img, radius=-1, sigma=3):
     return imageops.gaussian_blur(image_from_data(img), max(0, radius), sigma)
 
+
 def despeckle_image(img):
     return imageops.despeckle(image_from_data(img))
+
 
 def oil_paint_image(img, radius=-1, high_quality=True):
     return imageops.oil_paint(image_from_data(img), radius, high_quality)
 
+
 def normalize_image(img):
     return imageops.normalize(image_from_data(img))
+
 
 def quantize_image(img, max_colors=256, dither=True, palette=''):
     ''' Quantize the image to contain a maximum of `max_colors` colors. By
@@ -385,6 +419,7 @@ def quantize_image(img, max_colors=256, dither=True, palette=''):
 
 # Optimization of images {{{
 
+
 def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
     file_path = os.path.abspath(file_path)
     cwd = os.path.dirname(file_path)
@@ -398,6 +433,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
         else:
             os.close(fd)
         iname, oname = os.path.basename(file_path), os.path.basename(outfile)
+
         def repl(q, r):
             cmd[cmd.index(q)] = r
         if not as_filter:
@@ -416,6 +452,7 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
         stderr = p.stderr if as_filter else p.stdout
         if as_filter:
             src = input_data or open(file_path, 'rb')
+
             def copy(src, dest):
                 try:
                     shutil.copyfileobj(src, dest)
@@ -453,15 +490,18 @@ def run_optimizer(file_path, cmd, as_filter=False, input_data=None):
             if err.errno != errno.ENOENT:
                 raise
 
+
 def optimize_jpeg(file_path):
     exe = get_exe_path('jpegtran')
     cmd = [exe] + '-copy none -optimize -progressive -maxmemory 100M -outfile'.split() + [False, True]
     return run_optimizer(file_path, cmd)
 
+
 def optimize_png(file_path):
     exe = get_exe_path('optipng')
     cmd = [exe] + '-fix -clobber -strip all -o7 -out'.split() + [False, True]
     return run_optimizer(file_path, cmd)
+
 
 def encode_jpeg(file_path, quality=80):
     from calibre.utils.speedups import ReadOnlyFileBuffer
@@ -478,6 +518,7 @@ def encode_jpeg(file_path, quality=80):
         raise ValueError('Failed to export image to PPM')
     return run_optimizer(file_path, cmd, as_filter=True, input_data=ReadOnlyFileBuffer(ba.data()))
 # }}}
+
 
 def test():  # {{{
     from calibre.ptempfile import TemporaryDirectory

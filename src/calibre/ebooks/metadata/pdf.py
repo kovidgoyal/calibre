@@ -13,6 +13,7 @@ from calibre.ebooks.metadata import (
     MetaInformation, string_to_authors, check_isbn, check_doi)
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 
+
 def get_tools():
     from calibre.ebooks.pdf.pdftohtml import PDFTOHTML
     base = os.path.dirname(PDFTOHTML)
@@ -20,6 +21,7 @@ def get_tools():
     pdfinfo = os.path.join(base, 'pdfinfo') + suffix
     pdftoppm = os.path.join(base, 'pdftoppm') + suffix
     return pdfinfo, pdftoppm
+
 
 def read_info(outputdir, get_cover):
     ''' Read info dict and cover from a pdf file named src.pdf in outputdir.
@@ -77,6 +79,7 @@ def read_info(outputdir, get_cover):
 
     return ans
 
+
 def page_images(pdfpath, outputdir, first=1, last=1):
     pdftoppm = get_tools()[1]
     outputdir = os.path.abspath(outputdir)
@@ -90,6 +93,7 @@ def page_images(pdfpath, outputdir, first=1, last=1):
                                os.path.join(outputdir, 'page-images')], **args)
     except subprocess.CalledProcessError as e:
         raise ValueError('Failed to render PDF, pdftoppm errorcode: %s'%e.returncode)
+
 
 def get_metadata(stream, cover=True):
     with TemporaryDirectory('_pdf_metadata_read') as pdfpath:
@@ -164,6 +168,7 @@ def get_metadata(stream, cover=True):
 get_quick_metadata = partial(get_metadata, cover=False)
 
 from calibre.utils.podofo import set_metadata as podofo_set_metadata
+
 
 def set_metadata(stream, mi):
     stream.seek(0)

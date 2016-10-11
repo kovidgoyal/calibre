@@ -16,6 +16,7 @@ from calibre import fsync
 from calibre.constants import isosx
 from calibre.devices.usbms.driver import USBMS
 
+
 class NOOK(USBMS):
 
     name           = 'Nook Device Interface'
@@ -81,6 +82,7 @@ class NOOK(USBMS):
 
     def sanitize_path_components(self, components):
         return [x.replace('#', '_') for x in components]
+
 
 class NOOK_COLOR(NOOK):
     name           = 'Nook Color Device Interface'

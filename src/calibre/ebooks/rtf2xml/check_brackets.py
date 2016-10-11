@@ -10,8 +10,11 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
+
+
 class CheckBrackets:
     """Check that brackets match up"""
+
     def __init__(self, bug_handler=None, file=None):
         self.__file=file
         self.__bug_handler = bug_handler

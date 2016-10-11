@@ -5,6 +5,7 @@ from PyQt5.Qt import QDialog
 
 from calibre.gui2.dialogs.conversion_error_ui import Ui_ConversionErrorDialog
 
+
 class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
 
     def __init__(self, window, title, html, show=False):

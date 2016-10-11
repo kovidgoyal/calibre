@@ -29,6 +29,7 @@ html_ns = namespaces['html']
 xlink_ns = namespaces['xlink']
 xml_ns = namespaces['xmlns']
 
+
 class NamespacedHTMLPresent(ValueError):
 
     def __init__(self, prefix):
@@ -36,6 +37,8 @@ class NamespacedHTMLPresent(ValueError):
         self.prefix = prefix
 
 # Nodes {{{
+
+
 def ElementFactory(name, namespace=None, context=None):
     context = context or create_lxml_context()
     ns = namespace or namespaces['html']
@@ -43,6 +46,7 @@ def ElementFactory(name, namespace=None, context=None):
         return context.makeelement('{%s}%s' % (ns, name), nsmap={None:ns})
     except ValueError:
         return context.makeelement('{%s}%s' % (ns, to_xml_name(name)), nsmap={None:ns})
+
 
 class Element(ElementBase):
 
@@ -68,6 +72,7 @@ class Element(ElementBase):
     def childNodes(self):
         def fget(self):
             return self
+
         def fset(self, val):
             self[:] = list(val)
         return property(fget=fget, fset=fset)
@@ -129,12 +134,14 @@ class Element(ElementBase):
         for child in self:
             new_parent.append(child)
 
+
 class Comment(CommentBase):
 
     @dynamic_property
     def data(self):
         def fget(self):
             return self.text
+
         def fset(self, val):
             self.text = val.replace('--', '- -')
         return property(fget=fget, fset=fset)
@@ -180,6 +187,7 @@ class Comment(CommentBase):
     def cloneNode(self):
         return copy.copy(self)
 
+
 class Document(object):
 
     def __init__(self):
@@ -192,11 +200,13 @@ class Document(object):
         elif isinstance(child, DocType):
             self.doctype = child
 
+
 class DocType(object):
 
     def __init__(self, name, public_id, system_id):
         self.text = self.name = name
         self.public_id, self.system_id = public_id, system_id
+
 
 def create_lxml_context():
     parser = XMLParser(no_network=True)
@@ -204,6 +214,7 @@ def create_lxml_context():
     return parser
 
 # }}}
+
 
 def clean_attrib(name, val, nsmap, attrib, namespaced_attribs):
 
@@ -246,6 +257,7 @@ def clean_attrib(name, val, nsmap, attrib, namespaced_attribs):
         return '{%s}%s' % (ns, name), False
 
     return name, False
+
 
 def makeelement_ns(ctx, namespace, prefix, name, attrib, nsmap):
     nns = attrib.pop('xmlns', None)
@@ -306,6 +318,7 @@ def makeelement_ns(ctx, namespace, prefix, name, attrib, nsmap):
         elem = nelem
 
     return elem
+
 
 class TreeBuilder(BaseTreeBuilder):
 
@@ -454,6 +467,7 @@ class TreeBuilder(BaseTreeBuilder):
             parent = self.openElements[-1]
         parent.appendChild(Comment(token["data"].replace('--', '- -')))
 
+
 def makeelement(ctx, name, attrib):
     attrib.pop('xmlns', None)
     try:
@@ -470,6 +484,7 @@ def makeelement(ctx, name, attrib):
                 k = 'lang'
             elem.set(to_xml_name(k), v)
     return elem
+
 
 class NoNamespaceTreeBuilder(TreeBuilder):
 
@@ -527,6 +542,7 @@ class NoNamespaceTreeBuilder(TreeBuilder):
 
 # Input Stream {{{
 _regex_cache = {}
+
 
 class FastStream(object):
 
@@ -593,6 +609,7 @@ if len("\U0010FFFF") == 1:  # UCS4 build
 else:
     replace_chars = re.compile("([\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF])")
 
+
 def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numbers=True, linenumber_attribute=None, replace_entities=True, fix_newlines=True):
     if isinstance(raw, bytes):
         raw = xml_to_unicode(raw)[0] if decoder is None else decoder(raw)
@@ -626,6 +643,7 @@ def parse_html5(raw, decoder=None, log=None, discard_namespaces=False, line_numb
         raise ValueError('Failed to parse correctly, root has tag: %s and prefix: %s' % (root.tag, root.prefix))
     return root
 
+
 def strip_encoding_declarations(raw):
     # A custom encoding stripper that preserves line numbers
     limit = 10*1024
@@ -635,6 +653,7 @@ def strip_encoding_declarations(raw):
         prefix = pat.sub(lambda m: '\n' * m.group().count('\n'), prefix)
         raw = prefix + suffix
     return raw
+
 
 def parse(raw, decoder=None, log=None, line_numbers=True, linenumber_attribute=None, replace_entities=True, force_html5_parse=False):
     if isinstance(raw, bytes):

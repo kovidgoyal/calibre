@@ -13,6 +13,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.devices.usbms.device import Device
 from calibre.gui2.dialogs.progress import ProgressDialog
 
+
 class Updater(QThread):  # {{{
 
     update_progress = pyqtSignal(int)
@@ -56,6 +57,7 @@ class Updater(QThread):  # {{{
         self.done_callback(self.annotation_map.keys(), self.errors)
 
 # }}}
+
 
 class FetchAnnotationsAction(InterfaceAction):
 

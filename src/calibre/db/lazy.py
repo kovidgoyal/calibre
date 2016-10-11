@@ -23,6 +23,7 @@ Speeds up calibre startup with large libraries/libraries on a network share,
 with a composite custom column.
 '''
 
+
 def resolved(f):
     @wraps(f)
     def wrapper(self, *args, **kwargs):
@@ -31,6 +32,7 @@ def resolved(f):
             self._must_resolve = False
         return f(self, *args, **kwargs)
     return wrapper
+
 
 class MutableBase(object):
 
@@ -87,6 +89,7 @@ class FormatMetadata(MutableBase, MutableMapping):
             except:
                 pass
 
+
 class FormatsList(MutableBase, MutableSequence):
 
     def __init__(self, formats, format_metadata):
@@ -106,6 +109,7 @@ class FormatsList(MutableBase, MutableSequence):
 ga = object.__getattribute__
 sa = object.__setattr__
 
+
 def simple_getter(field, default_value=None):
     def func(dbref, book_id, cache):
         try:
@@ -116,6 +120,7 @@ def simple_getter(field, default_value=None):
             return ret
     return func
 
+
 def pp_getter(field, postprocess, default_value=None):
     def func(dbref, book_id, cache):
         try:
@@ -125,6 +130,7 @@ def pp_getter(field, postprocess, default_value=None):
             cache[field] = ret = postprocess(db.field_for(field, book_id, default_value=default_value))
             return ret
     return func
+
 
 def adata_getter(field):
     def func(dbref, book_id, cache):
@@ -140,6 +146,7 @@ def adata_getter(field):
         return {adata[i]['name']:adata[i][k] for i in author_ids}
     return func
 
+
 def dt_getter(field):
     def func(dbref, book_id, cache):
         try:
@@ -149,6 +156,7 @@ def dt_getter(field):
             cache[field] = ret = db.field_for(field, book_id, default_value=utcnow())
             return ret
     return func
+
 
 def item_getter(field, default_value=None, key=0):
     def func(dbref, book_id, cache):
@@ -162,6 +170,7 @@ def item_getter(field, default_value=None, key=0):
             except (IndexError, KeyError):
                 return default_value
     return func
+
 
 def fmt_getter(field):
     def func(dbref, book_id, cache):
@@ -179,6 +188,7 @@ def fmt_getter(field):
         return format_metadata
     return func
 
+
 def approx_fmts_getter(dbref, book_id, cache):
     try:
         return cache['formats']
@@ -186,6 +196,7 @@ def approx_fmts_getter(dbref, book_id, cache):
         db = dbref()
         cache['formats'] = ret = list(db.field_for('formats', book_id))
         return ret
+
 
 def series_index_getter(field='series'):
     def func(dbref, book_id, cache):
@@ -202,6 +213,7 @@ def series_index_getter(field='series'):
                 return ret
     return func
 
+
 def has_cover_getter(dbref, book_id, cache):
     try:
         return cache['has_cover']
@@ -211,6 +223,8 @@ def has_cover_getter(dbref, book_id, cache):
         return ret
 
 fmt_custom = lambda x:list(x) if isinstance(x, tuple) else x
+
+
 def custom_getter(field, dbref, book_id, cache):
     try:
         return cache[field]
@@ -218,6 +232,7 @@ def custom_getter(field, dbref, book_id, cache):
         db = dbref()
         cache[field] = ret = fmt_custom(db.field_for(field, book_id))
         return ret
+
 
 def composite_getter(mi, field, dbref, book_id, cache, formatter, template_cache):
     try:
@@ -239,6 +254,7 @@ def composite_getter(mi, field, dbref, book_id, cache, formatter, template_cache
             return 'ERROR WHILE EVALUATING: %s' % field
         return ret
 
+
 def virtual_libraries_getter(dbref, book_id, cache):
     try:
         return cache['virtual_libraries']
@@ -247,6 +263,7 @@ def virtual_libraries_getter(dbref, book_id, cache):
         vls = db.virtual_libraries_for_books((book_id,))[book_id]
         ret = cache['virtual_libraries'] = ', '.join(vls)
         return ret
+
 
 def user_categories_getter(proxy_metadata):
     cache = ga(proxy_metadata, '_cache')
@@ -292,6 +309,7 @@ for field in TOP_LEVEL_IDENTIFIERS:
 for field in ('formats', 'format_metadata'):
     getters[field] = fmt_getter(field)
 # }}}
+
 
 class ProxyMetadata(Metadata):
 

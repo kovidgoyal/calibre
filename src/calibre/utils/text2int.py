@@ -13,6 +13,7 @@ import re
 
 numwords = {}
 
+
 def text2int(textnum):
     if not numwords:
 

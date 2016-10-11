@@ -22,12 +22,15 @@ from calibre.devices.usbms.books import BookList, Book
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 
 BASE_TIME = None
+
+
 def debug_print(*args):
     global BASE_TIME
     if BASE_TIME is None:
         BASE_TIME = time.time()
     if DEBUG:
         prints('DEBUG: %6.1f'%(time.time()-BASE_TIME), *args)
+
 
 def safe_walk(top, topdown=True, onerror=None, followlinks=False):
     ' A replacement for os.walk that does not die when it encounters undecodeable filenames in a linux filesystem'

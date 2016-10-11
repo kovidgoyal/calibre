@@ -13,6 +13,7 @@ from urllib2 import unquote
 
 from calibre.ebooks.pdf.render.common import Array, Name, Dictionary, String, UTF16String
 
+
 class Destination(Array):
 
     def __init__(self, start_page, pos, get_pageref):
@@ -24,6 +25,7 @@ class Destination(Array):
         super(Destination, self).__init__([
             pref, Name('XYZ'), pos['left'], pos['top'], None
         ])
+
 
 class Links(object):
 

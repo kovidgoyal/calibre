@@ -19,9 +19,11 @@ from calibre.ebooks.oeb.iterator import is_supported
 from calibre.constants import iswindows
 from calibre.utils.icu import sort_key
 
+
 class OutputFormatSetting(Setting):
 
     CHOICES_SEARCH_FLAGS = Qt.MatchFixedString
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 

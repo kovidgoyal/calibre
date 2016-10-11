@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 import os, sys
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class LRFInput(InputFormatPlugin):
 
     name        = 'LRF Input'

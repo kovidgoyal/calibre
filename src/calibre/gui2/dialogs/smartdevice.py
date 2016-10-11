@@ -11,6 +11,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.smartdevice_ui import Ui_Dialog
 from calibre.utils.mdns import get_all_ips
 
+
 def _cmp_ipaddr(l, r):
     lparts = ['%3s'%x for x in l.split('.')]
     rparts = ['%3s'%x for x in r.split('.')]
@@ -25,6 +26,7 @@ def _cmp_ipaddr(l, r):
 
     return cmp(lparts, rparts)
 
+
 def get_all_ip_addresses():
     ipaddrs = list()
     for iface in get_all_ips().itervalues():
@@ -33,6 +35,7 @@ def get_all_ip_addresses():
                 ipaddrs.append(addrs['addr'])
     ipaddrs.sort(cmp=_cmp_ipaddr)
     return ipaddrs
+
 
 class SmartdeviceDialog(QDialog, Ui_Dialog):
 

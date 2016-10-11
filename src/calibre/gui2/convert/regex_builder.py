@@ -17,6 +17,7 @@ from calibre.constants import iswindows
 from calibre.utils.ipc.simple_worker import fork_job, WorkerError
 from calibre.ptempfile import TemporaryFile
 
+
 class RegexBuilder(QDialog, Ui_RegexBuilder):
 
     def __init__(self, db, book_id, regex, doc=None, parent=None):
@@ -195,6 +196,7 @@ class RegexBuilder(QDialog, Ui_RegexBuilder):
 
     def doc(self):
         return unicode(self.preview.toPlainText())
+
 
 class RegexEdit(QWidget, Ui_Edit):
 

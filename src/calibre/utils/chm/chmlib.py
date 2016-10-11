@@ -9,6 +9,7 @@ _chmlib, chmlib_err = plugins['chmlib']
 if chmlib_err:
     raise RuntimeError('Failed to load chmlib: '+chmlib_err)
 
+
 def _swig_setattr(self,class_type,name,value):
     if (name == "this"):
         if isinstance(value, class_type):
@@ -21,6 +22,7 @@ def _swig_setattr(self,class_type,name,value):
     if method:
         return method(self,value)
     self.__dict__[name] = value
+
 
 def _swig_getattr(self,class_type,name):
     method = class_type.__swig_getmethods__.get(name,None)
@@ -41,6 +43,8 @@ except AttributeError:
 CHM_UNCOMPRESSED = _chmlib.CHM_UNCOMPRESSED
 CHM_COMPRESSED = _chmlib.CHM_COMPRESSED
 CHM_MAX_PATHLEN = _chmlib.CHM_MAX_PATHLEN
+
+
 class chmUnitInfo(_object):
     __swig_setmethods__ = {}
     __setattr__ = lambda self, name, value: _swig_setattr(self, chmUnitInfo, name, value)
@@ -62,17 +66,21 @@ class chmUnitInfo(_object):
     __swig_getmethods__["path"] = _chmlib.chmUnitInfo_path_get
     if _newclass:
         path = property(_chmlib.chmUnitInfo_path_get,_chmlib.chmUnitInfo_path_set)
+
     def __init__(self,*args):
         _swig_setattr(self, chmUnitInfo, 'this', apply(_chmlib.new_chmUnitInfo,args))
         _swig_setattr(self, chmUnitInfo, 'thisown', 1)
+
     def __del__(self, destroy=_chmlib.delete_chmUnitInfo):
         try:
             if self.thisown:
                 destroy(self)
         except:
             pass
+
     def __repr__(self):
         return "<C chmUnitInfo instance at %s>" % (self.this,)
+
 
 class chmUnitInfoPtr(chmUnitInfo):
 

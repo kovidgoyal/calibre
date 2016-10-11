@@ -39,6 +39,7 @@ if iswindows:
 _USBDevice = namedtuple('USBDevice',
     'vendor_id product_id bcd manufacturer product serial')
 
+
 class USBDevice(_USBDevice):
 
     def __new__(cls, *args, **kwargs):
@@ -55,6 +56,7 @@ class USBDevice(_USBDevice):
 
     __str__ = __repr__
     __unicode__ = __repr__
+
 
 class LibUSBScanner(object):
 
@@ -94,6 +96,7 @@ class LibUSBScanner(object):
                 gc.collect()
             print 'Mem consumption increased by:', memory() - start, 'MB',
             print 'after', num, 'repeats'
+
 
 class LinuxScanner(object):
 
@@ -165,6 +168,7 @@ class LinuxScanner(object):
                 pass
             ans.add(dev)
         return ans
+
 
 class FreeBSDScanner(object):
 
@@ -242,6 +246,7 @@ if isfreebsd:
 if isnetbsd:
     netbsd_scanner = None
 
+
 class DeviceScanner(object):
 
     def __init__(self, *args):
@@ -262,6 +267,7 @@ class DeviceScanner(object):
         ''' If only_presence is True don't perform any expensive checks '''
         return device.is_usb_connected(self.devices, debug=debug,
                 only_presence=only_presence)
+
 
 def test_for_mem_leak():
     from calibre.utils.mem import memory, gc_histogram, diff_hists
@@ -288,6 +294,7 @@ def test_for_mem_leak():
         prints('Differences in python object counts:')
         diff_hists(h1, gc_histogram())
         prints()
+
 
 def main(args=sys.argv):
     test_for_mem_leak()

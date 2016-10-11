@@ -56,14 +56,18 @@ FLAG_BLOCK   = (1 << 2)
 FLAG_HEAD    = (1 << 3)
 FLAG_ATOM    = (1 << 4)
 
+
 def u32(bytes):
     return struct.unpack('<L', bytes[:4])[0]
+
 
 def u16(bytes):
     return struct.unpack('<H', bytes[:2])[0]
 
+
 def int32(bytes):
     return struct.unpack('<l', bytes[:4])[0]
+
 
 def encint(bytes, remaining):
     pos, val = 0, 0
@@ -77,9 +81,11 @@ def encint(bytes, remaining):
             break
     return val, bytes[pos:], remaining
 
+
 def msguid(bytes):
     values = struct.unpack("<LHHBBBBBBBB", bytes[:16])
     return "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}" % values
+
 
 def read_utf8_char(bytes, pos):
     c = ord(bytes[pos])
@@ -105,6 +111,7 @@ def read_utf8_char(bytes, pos):
             c = (c << 6) | (b & 0x3F)
     return unichr(c), pos+elsize
 
+
 def consume_sized_utf8_string(bytes, zpad=False):
     result = []
     slen, pos = read_utf8_char(bytes, 0)
@@ -115,8 +122,10 @@ def consume_sized_utf8_string(bytes, zpad=False):
         pos += 1
     return u''.join(result), bytes[pos:]
 
+
 def encode(string):
     return unicode(string).encode('ascii', 'xmlcharrefreplace')
+
 
 class UnBinary(object):
     AMPERSAND_RE = re.compile(
@@ -424,6 +433,7 @@ def preserve(function):
             self.stream.seek(opos)
     functools.update_wrapper(wrapper, function)
     return wrapper
+
 
 class LitFile(object):
     PIECE_SIZE = 16

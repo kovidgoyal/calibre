@@ -29,6 +29,7 @@ from calibre.gui2.tweak_book.spell import ManageDictionaries
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 from calibre.gui2.tweak_book.widgets import Dialog
 
+
 class BasicSettings(QWidget):  # {{{
 
     changed_signal = pyqtSignal()
@@ -150,6 +151,7 @@ class BasicSettings(QWidget):  # {{{
         return self.current_value(name) != self.initial_value(name)
 # }}}
 
+
 class EditorSettings(BasicSettings):
 
     def __init__(self, parent=None):
@@ -266,6 +268,7 @@ class EditorSettings(BasicSettings):
         if d.theme_name:
             s.setter(s.widget, d.theme_name)
 
+
 class IntegrationSettings(BasicSettings):
 
     def __init__(self, parent=None):
@@ -288,6 +291,7 @@ class IntegrationSettings(BasicSettings):
         order.setToolTip(_('When auto-selecting the format to edit for a book with'
                            ' multiple formats, this is the preference order.'))
         l.addRow(_('Preferred format order (drag and drop to change)'), order)
+
 
 class MainWindowSettings(BasicSettings):
 
@@ -329,6 +333,7 @@ class MainWindowSettings(BasicSettings):
         ))
         l.addRow(nd)
 
+
 class PreviewSettings(BasicSettings):
 
     def __init__(self, parent=None):
@@ -363,11 +368,13 @@ class PreviewSettings(BasicSettings):
 
 # ToolbarSettings  {{{
 
+
 class ToolbarList(QListWidget):
 
     def __init__(self, parent=None):
         QListWidget.__init__(self, parent)
         self.setSelectionMode(self.ExtendedSelection)
+
 
 class ToolbarSettings(QWidget):
 
@@ -570,6 +577,7 @@ class ToolbarSettings(QWidget):
 
 # }}}
 
+
 class TemplatesDialog(Dialog):  # {{{
 
     def __init__(self, parent=None):
@@ -642,6 +650,7 @@ class TemplatesDialog(Dialog):  # {{{
         self.show_template()
         self._save_syntax()
 # }}}
+
 
 class Preferences(QDialog):
 

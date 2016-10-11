@@ -28,6 +28,7 @@ Entry = namedtuple('IndexEntry', 'index start length depth parent '
         'first_child last_child title action start_offset length_offset '
         'text_record_length')
 
+
 def fill_entry(entry, start_offset, text_record_length):
     length_offset = start_offset + entry.length
     if start_offset < 0:
@@ -37,6 +38,7 @@ def fill_entry(entry, start_offset, text_record_length):
 
     return Entry(*(entry[:-4] + (action, start_offset, length_offset,
         text_record_length)))
+
 
 def populate_strand(parent, entries):
     ans = [parent]
@@ -65,6 +67,7 @@ def populate_strand(parent, entries):
         ans += siblings
     return ans
 
+
 def separate_strands(entries):
     ans = []
     while entries:
@@ -77,6 +80,7 @@ def separate_strands(entries):
             layers[entry.depth].append(entry)
         ans.append(layers)
     return ans
+
 
 def collect_indexing_data(entries, text_record_lengths):
     ''' For every text record calculate which index entries start, end, span or
@@ -105,8 +109,10 @@ def collect_indexing_data(entries, text_record_lengths):
 
     return data
 
+
 class NegativeStrandIndex(Exception):
     pass
+
 
 def encode_strands_as_sequences(strands, tbs_type=8):
     ''' Encode the list of strands for a single text record into a list of
@@ -170,6 +176,7 @@ def encode_strands_as_sequences(strands, tbs_type=8):
 
     return ans
 
+
 def sequences_to_bytes(sequences):
     ans = []
     flag_size = 3
@@ -179,6 +186,7 @@ def sequences_to_bytes(sequences):
         # subsequent sequences could need the 0b1000 flag
     return b''.join(ans)
 
+
 def calculate_all_tbs(indexing_data, tbs_type=8):
     rmap = {}
     for i, strands in enumerate(indexing_data):
@@ -186,6 +194,7 @@ def calculate_all_tbs(indexing_data, tbs_type=8):
         tbs_bytes = sequences_to_bytes(sequences)
         rmap[i+1] = tbs_bytes
     return rmap
+
 
 def apply_trailing_byte_sequences(index_table, records, text_record_lengths):
     entries = tuple(Entry(r['index'], r['offset'], r['length'], r['depth'],

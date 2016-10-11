@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 Allerød Nyt: RSS feed: Seneste nyt - alleroed.lokalavisen.dk
 '''
 
+
 class AlleroedLokalavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Allerød Nyt - alleroed.lokalavisen.dk'

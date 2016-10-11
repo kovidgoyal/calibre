@@ -19,8 +19,10 @@ from calibre.gui2.dbus_export.utils import (
 
 null = object()
 
+
 def PropDict(mapping=()):
     return dbus.Dictionary(mapping, signature='sv')
+
 
 def create_properties_for_action(ac, previous=None):
     ans = PropDict()
@@ -63,6 +65,7 @@ def create_properties_for_action(ac, previous=None):
                 ans['x-qt-icon-cache-key'] = icon.cacheKey()
     return ans
 
+
 def menu_actions(menu):
     try:
         return menu.actions()
@@ -70,6 +73,7 @@ def menu_actions(menu):
         if isinstance(menu, QMenu):
             return QMenu.actions(menu)
         raise
+
 
 class DBusMenu(QObject):
 
@@ -266,6 +270,7 @@ class DBusMenu(QObject):
             return True
         return False
 
+
 class DBusMenuAPI(Object):
 
     IFACE = 'com.canonical.dbusmenu'
@@ -368,6 +373,7 @@ class DBusMenuAPI(Object):
     @dbus_signal(IFACE, 'iu')
     def ItemActivationRequested(self, id, timestamp):
         pass
+
 
 def test():
     setup_for_cli_run()

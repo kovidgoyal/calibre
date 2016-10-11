@@ -9,6 +9,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2 import question_dialog, error_dialog, info_dialog, gprefs
 from calibre.utils.icu import sort_key
 
+
 class NameTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, txt):
@@ -61,6 +62,7 @@ class NameTableWidgetItem(QTableWidgetItem):
     def __lt__(self, other):
         return sort_key(unicode(self.text())) < sort_key(unicode(other.text()))
 
+
 class CountTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, count):
@@ -72,6 +74,7 @@ class CountTableWidgetItem(QTableWidgetItem):
 
     def __lt__(self, other):
         return self._count < other._count
+
 
 class EditColumnDelegate(QItemDelegate):
 
@@ -94,6 +97,7 @@ class EditColumnDelegate(QItemDelegate):
         self.table.blockSignals(True)
         self.table.item(index.row(), 2).setData(Qt.DisplayRole, '')
         self.table.blockSignals(False)
+
 
 class TagListEditor(QDialog, Ui_TagListEditor):
 

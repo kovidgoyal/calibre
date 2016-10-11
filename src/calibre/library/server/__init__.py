@@ -50,6 +50,7 @@ def server_config(defaults=None):
 
     return c
 
+
 def custom_fields_to_display(db):
     ckeys = set(db.field_metadata.ignorable_field_keys())
     yes_fields = set(tweaks['content_server_will_display'])
@@ -59,6 +60,7 @@ def custom_fields_to_display(db):
     if '*' in no_fields:
         no_fields = ckeys
     return frozenset(ckeys & (yes_fields - no_fields))
+
 
 def main():
     from calibre.library.server.main import main

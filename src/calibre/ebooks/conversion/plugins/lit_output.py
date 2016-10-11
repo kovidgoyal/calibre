@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.customize.conversion import OutputFormatPlugin
 
+
 class LITOutput(OutputFormatPlugin):
 
     name = 'LIT Output'

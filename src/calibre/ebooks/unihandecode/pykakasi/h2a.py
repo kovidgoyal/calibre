@@ -21,6 +21,7 @@
 # *
 # */
 
+
 class H2a (object):
 
     H2a_table = {

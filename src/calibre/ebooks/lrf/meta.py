@@ -25,10 +25,12 @@ WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes
 DWORD     = "<I"  #: Unsigned integer little endian encoded in 4 bytes
 QWORD     = "<Q"  #: Unsigned long long little endian encoded in 8 bytes
 
+
 class field(object):
     """ A U{Descriptor<http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html>}, that implements access
     to protocol packets in a human readable way.
     """
+
     def __init__(self, start=16, fmt=DWORD):
         """
         @param start: The byte at which this field is stored in the buffer
@@ -75,11 +77,14 @@ class versioned_field(field):
         else:
             field.__set__(self, obj, val)
 
+
 class LRFException(Exception):
     pass
 
+
 class fixed_stringfield(object):
     """ A field storing a variable length string. """
+
     def __init__(self, length=8, start=0):
         """
         @param length: Size of this string
@@ -103,6 +108,7 @@ class fixed_stringfield(object):
     def __repr__(self):
         return "A string of length " + str(self._length) + \
                 " starting at byte " + str(self._start)
+
 
 class xml_attr_field(object):
 
@@ -144,11 +150,13 @@ class xml_attr_field(object):
     def __str__(self):
         return self.tag_name+'.'+self.attr
 
+
 class xml_field(object):
     """
     Descriptor that gets and sets XML based meta information from an LRF file.
     Works for simple XML fields of the form <tagname>data</tagname>
     """
+
     def __init__(self, tag_name, parent="BookInfo"):
         """
         @param tag_name: The XML tag whose data we operate on
@@ -212,6 +220,7 @@ class xml_field(object):
 
     def __repr__(self):
         return "XML Field: " + self.tag_name + " in " + self.parent
+
 
 def insert_into_file(fileobj, data, start, end):
     """
@@ -287,6 +296,7 @@ def get_metadata(stream):
         mi.publisher = None
 
     return mi
+
 
 class LRFMetaFile(object):
     """ Has properties to read and write all Meta information in a LRF file. """
@@ -376,6 +386,7 @@ class LRFMetaFile(object):
         Document meta information as a minidom Document object.
         To set use a minidom document object.
         """
+
         def fget(self):
             if self.compressed_info_size == 0:
                 raise LRFException("This document has no meta info")
@@ -416,6 +427,7 @@ class LRFMetaFile(object):
     @safe_property
     def thumbnail_pos():
         doc = """ The position of the thumbnail in the LRF file """
+
         def fget(self):
             return self.info_start + self.compressed_info_size-4
         return {"fget":fget, "doc":doc}
@@ -440,6 +452,7 @@ class LRFMetaFile(object):
         Represented as a string.
         The string you would get from the file read function.
         """
+
         def fget(self):
             size = self.thumbnail_size
             if size:
@@ -647,6 +660,7 @@ Show/edit the metadata in an LRF file.\n\n'''),
     #                dest="page", help=_("Don't know what this is for"))
 
     return parser
+
 
 def set_metadata(stream, mi):
     lrf = LRFMetaFile(stream)

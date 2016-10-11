@@ -12,6 +12,7 @@ from urllib import urlencode
 
 from calibre.srv.tests.base import LibraryBaseTest
 
+
 def make_request(conn, url, headers={}, prefix='/ajax'):
     conn.request('GET', prefix + url, headers=headers)
     r = conn.getresponse()
@@ -19,6 +20,7 @@ def make_request(conn, url, headers={}, prefix='/ajax'):
     if r.status == httplib.OK and data and data[0] in b'{[':
         data = json.loads(data)
     return r, data
+
 
 class ContentTest(LibraryBaseTest):
 

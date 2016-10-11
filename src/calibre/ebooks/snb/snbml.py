@@ -53,6 +53,7 @@ CALIBRE_SNB_IMG_TAG = "<$$calibre_snb_temp_img$$>"
 CALIBRE_SNB_BM_TAG = "<$$calibre_snb_bm_tag$$>"
 CALIBRE_SNB_PRE_TAG = "<$$calibre_snb_pre_tag$$>"
 
+
 class SNBMLizer(object):
 
     curSubItem = ""

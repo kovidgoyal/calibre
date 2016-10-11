@@ -13,6 +13,7 @@ from io import BytesIO
 from calibre.utils.date import utc_tz
 from calibre.db.tests.base import BaseTest
 
+
 class ReadingTest(BaseTest):
 
     def test_read(self):  # {{{
@@ -493,18 +494,22 @@ class ReadingTest(BaseTest):
     def test_search_caching(self):  # {{{
         ' Test caching of searches '
         from calibre.db.search import LRUCache
+
         class TestCache(LRUCache):
             hit_counter = 0
             miss_counter = 0
+
             def get(self, key, default=None):
                 ans = LRUCache.get(self, key, default=default)
                 if ans is not None:
                     self.hit_counter += 1
                 else:
                     self.miss_counter += 1
+
             @property
             def cc(self):
                 self.hit_counter = self.miss_counter = 0
+
             @property
             def counts(self):
                 return self.hit_counter, self.miss_counter
@@ -559,6 +564,7 @@ class ReadingTest(BaseTest):
                                 'Standard field: %s not the same for book %s' % (field, book_id))
                 self.assertEqual(mi.format_field(field), pmi.format_field(field),
                                 'Standard field format: %s not the same for book %s' % (field, book_id))
+
                 def f(x):
                     try:
                         x.pop('rec_index', None)

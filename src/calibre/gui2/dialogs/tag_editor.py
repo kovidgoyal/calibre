@@ -10,6 +10,7 @@ from calibre.gui2 import question_dialog, error_dialog, gprefs
 from calibre.constants import islinux
 from calibre.utils.icu import sort_key, primary_contains
 
+
 class TagEditor(QDialog, Ui_TagEditor):
 
     def __init__(self, window, db, id_=None, key=None, current_tags=None):

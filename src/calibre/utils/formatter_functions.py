@@ -23,6 +23,7 @@ from calibre.utils.icu import capitalize, strcmp, sort_key
 from calibre.utils.date import parse_date, format_date, now, UNDEFINED_DATE
 from calibre.utils.localization import calibre_langcode_to_name, canonicalize_lang
 
+
 class FormatterFunctions(object):
 
     error_function_body = ('def evaluate(self, formatter, kwargs, mi, locals):\n'
@@ -109,9 +110,11 @@ class FormatterFunctions(object):
 
 _ff = FormatterFunctions()
 
+
 def formatter_functions():
     global _ff
     return _ff
+
 
 class FormatterFunction(object):
 
@@ -133,6 +136,7 @@ class FormatterFunction(object):
         if isinstance(ret, (int, float, bool)):
             return unicode(ret)
 
+
 class BuiltinFormatterFunction(FormatterFunction):
 
     def __init__(self):
@@ -144,6 +148,7 @@ class BuiltinFormatterFunction(FormatterFunction):
         except:
             lines = []
         self.program_text = ''.join(lines)
+
 
 class BuiltinStrcmp(BuiltinFormatterFunction):
     name = 'strcmp'
@@ -161,6 +166,7 @@ class BuiltinStrcmp(BuiltinFormatterFunction):
             return eq
         return gt
 
+
 class BuiltinCmp(BuiltinFormatterFunction):
     name = 'cmp'
     category = 'Relational'
@@ -176,6 +182,7 @@ class BuiltinCmp(BuiltinFormatterFunction):
         if x == y:
             return eq
         return gt
+
 
 class BuiltinFirstMatchingCmp(BuiltinFormatterFunction):
     name = 'first_matching_cmp'
@@ -198,6 +205,7 @@ class BuiltinFirstMatchingCmp(BuiltinFormatterFunction):
                 return args[i+1]
         return args[len(args)-1]
 
+
 class BuiltinStrcat(BuiltinFormatterFunction):
     name = 'strcat'
     arg_count = -1
@@ -212,6 +220,7 @@ class BuiltinStrcat(BuiltinFormatterFunction):
             res += args[i]
         return res
 
+
 class BuiltinStrlen(BuiltinFormatterFunction):
     name = 'strlen'
     arg_count = 1
@@ -225,6 +234,7 @@ class BuiltinStrlen(BuiltinFormatterFunction):
         except:
             return -1
 
+
 class BuiltinAdd(BuiltinFormatterFunction):
     name = 'add'
     arg_count = 2
@@ -235,6 +245,7 @@ class BuiltinAdd(BuiltinFormatterFunction):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
         return unicode(x + y)
+
 
 class BuiltinSubtract(BuiltinFormatterFunction):
     name = 'subtract'
@@ -247,6 +258,7 @@ class BuiltinSubtract(BuiltinFormatterFunction):
         y = float(y if y and y != 'None' else 0)
         return unicode(x - y)
 
+
 class BuiltinMultiply(BuiltinFormatterFunction):
     name = 'multiply'
     arg_count = 2
@@ -258,6 +270,7 @@ class BuiltinMultiply(BuiltinFormatterFunction):
         y = float(y if y and y != 'None' else 0)
         return unicode(x * y)
 
+
 class BuiltinDivide(BuiltinFormatterFunction):
     name = 'divide'
     arg_count = 2
@@ -268,6 +281,7 @@ class BuiltinDivide(BuiltinFormatterFunction):
         x = float(x if x and x != 'None' else 0)
         y = float(y if y and y != 'None' else 0)
         return unicode(x / y)
+
 
 class BuiltinTemplate(BuiltinFormatterFunction):
     name = 'template'
@@ -288,6 +302,7 @@ class BuiltinTemplate(BuiltinFormatterFunction):
         template = template.replace('[[', '{').replace(']]', '}')
         return formatter.__class__().safe_format(template, kwargs, 'TEMPLATE', mi)
 
+
 class BuiltinEval(BuiltinFormatterFunction):
     name = 'eval'
     arg_count = 1
@@ -307,6 +322,7 @@ class BuiltinEval(BuiltinFormatterFunction):
         template = template.replace('[[', '{').replace(']]', '}')
         return EvalFormatter().safe_format(template, locals, 'EVAL', None)
 
+
 class BuiltinAssign(BuiltinFormatterFunction):
     name = 'assign'
     arg_count = 2
@@ -317,6 +333,7 @@ class BuiltinAssign(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, target, value):
         locals[target] = value
         return value
+
 
 class BuiltinPrint(BuiltinFormatterFunction):
     name = 'print'
@@ -330,6 +347,7 @@ class BuiltinPrint(BuiltinFormatterFunction):
         print args
         return ''
 
+
 class BuiltinField(BuiltinFormatterFunction):
     name = 'field'
     arg_count = 1
@@ -338,6 +356,7 @@ class BuiltinField(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, name):
         return formatter.get_value(name, [], kwargs)
+
 
 class BuiltinRawField(BuiltinFormatterFunction):
     name = 'raw_field'
@@ -355,6 +374,7 @@ class BuiltinRawField(BuiltinFormatterFunction):
             return fm['is_multiple']['list_to_ui'].join(res)
         return unicode(res)
 
+
 class BuiltinRawList(BuiltinFormatterFunction):
     name = 'raw_list'
     arg_count = 2
@@ -369,6 +389,7 @@ class BuiltinRawList(BuiltinFormatterFunction):
             return "%s is not a list" % name
         return separator.join(res)
 
+
 class BuiltinSubstr(BuiltinFormatterFunction):
     name = 'substr'
     arg_count = 3
@@ -382,6 +403,7 @@ class BuiltinSubstr(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, str_, start_, end_):
         return str_[int(start_): len(str_) if int(end_) == 0 else int(end_)]
+
 
 class BuiltinLookup(BuiltinFormatterFunction):
     name = 'lookup'
@@ -411,6 +433,7 @@ class BuiltinLookup(BuiltinFormatterFunction):
                 return formatter.vformat('{'+args[i+1].strip() + '}', [], kwargs)
             i += 2
 
+
 class BuiltinTest(BuiltinFormatterFunction):
     name = 'test'
     arg_count = 3
@@ -423,6 +446,7 @@ class BuiltinTest(BuiltinFormatterFunction):
             return value_if_set
         else:
             return value_not_set
+
 
 class BuiltinContains(BuiltinFormatterFunction):
     name = 'contains'
@@ -439,6 +463,7 @@ class BuiltinContains(BuiltinFormatterFunction):
             return value_if_present
         else:
             return value_if_not
+
 
 class BuiltinSwitch(BuiltinFormatterFunction):
     name = 'switch'
@@ -460,6 +485,7 @@ class BuiltinSwitch(BuiltinFormatterFunction):
             if re.search(args[i], val, flags=re.I):
                 return args[i+1]
             i += 2
+
 
 class BuiltinStrcatMax(BuiltinFormatterFunction):
     name = 'strcat_max'
@@ -495,6 +521,7 @@ class BuiltinStrcatMax(BuiltinFormatterFunction):
             pass
         return result.strip()
 
+
 class BuiltinInList(BuiltinFormatterFunction):
     name = 'in_list'
     arg_count = 5
@@ -512,6 +539,7 @@ class BuiltinInList(BuiltinFormatterFunction):
                 if re.search(pat, v, flags=re.I):
                     return fv
         return nfv
+
 
 class BuiltinStrInList(BuiltinFormatterFunction):
     name = 'str_in_list'
@@ -533,6 +561,7 @@ class BuiltinStrInList(BuiltinFormatterFunction):
                     if strcmp(t, v) == 0:
                         return fv
         return nfv
+
 
 class BuiltinIdentifierInList(BuiltinFormatterFunction):
     name = 'identifier_in_list'
@@ -560,6 +589,7 @@ class BuiltinIdentifierInList(BuiltinFormatterFunction):
                         return fv
         return nfv
 
+
 class BuiltinRe(BuiltinFormatterFunction):
     name = 're'
     arg_count = 3
@@ -571,6 +601,7 @@ class BuiltinRe(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val, pattern, replacement):
         return re.sub(pattern, replacement, val, flags=re.I)
+
 
 class BuiltinReGroup(BuiltinFormatterFunction):
     name = 're_group'
@@ -606,6 +637,7 @@ class BuiltinReGroup(BuiltinFormatterFunction):
             return res
         return re.sub(pattern, repl, val, flags=re.I)
 
+
 class BuiltinSwapAroundComma(BuiltinFormatterFunction):
     name = 'swap_around_comma'
     arg_count = 1
@@ -617,6 +649,7 @@ class BuiltinSwapAroundComma(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return re.sub(r'^(.*?),\s*(.*$)', r'\2 \1', val, flags=re.I).strip()
+
 
 class BuiltinIfempty(BuiltinFormatterFunction):
     name = 'ifempty'
@@ -630,6 +663,7 @@ class BuiltinIfempty(BuiltinFormatterFunction):
             return val
         else:
             return value_if_empty
+
 
 class BuiltinShorten(BuiltinFormatterFunction):
     name = 'shorten'
@@ -657,6 +691,7 @@ class BuiltinShorten(BuiltinFormatterFunction):
         else:
             return val
 
+
 class BuiltinCount(BuiltinFormatterFunction):
     name = 'count'
     arg_count = 2
@@ -668,6 +703,7 @@ class BuiltinCount(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val, sep):
         return unicode(len([v for v in val.split(sep) if v]))
+
 
 class BuiltinListitem(BuiltinFormatterFunction):
     name = 'list_item'
@@ -690,6 +726,7 @@ class BuiltinListitem(BuiltinFormatterFunction):
         except:
             return ''
 
+
 class BuiltinSelect(BuiltinFormatterFunction):
     name = 'select'
     arg_count = 2
@@ -707,6 +744,7 @@ class BuiltinSelect(BuiltinFormatterFunction):
             if v.startswith(key+':'):
                 return v[len(key)+1:]
         return ''
+
 
 class BuiltinApproximateFormats(BuiltinFormatterFunction):
     name = 'approximate_formats'
@@ -735,6 +773,7 @@ class BuiltinApproximateFormats(BuiltinFormatterFunction):
             return ','.join(v.upper() for v in data)
         return _('This function can be used only in the GUI')
 
+
 class BuiltinFormatsModtimes(BuiltinFormatterFunction):
     name = 'formats_modtimes'
     arg_count = 1
@@ -755,6 +794,7 @@ class BuiltinFormatsModtimes(BuiltinFormatterFunction):
         return ','.join(k.upper()+':'+format_date(v['mtime'], fmt)
                         for k,v in data)
 
+
 class BuiltinFormatsSizes(BuiltinFormatterFunction):
     name = 'formats_sizes'
     arg_count = 0
@@ -771,6 +811,7 @@ class BuiltinFormatsSizes(BuiltinFormatterFunction):
         fmt_data = mi.get('format_metadata', {})
         return ','.join(k.upper()+':'+str(v['size']) for k,v in fmt_data.iteritems())
 
+
 class BuiltinFormatsPaths(BuiltinFormatterFunction):
     name = 'formats_paths'
     arg_count = 0
@@ -786,6 +827,7 @@ class BuiltinFormatsPaths(BuiltinFormatterFunction):
         fmt_data = mi.get('format_metadata', {})
         return ','.join(k.upper()+':'+str(v['path']) for k,v in fmt_data.iteritems())
 
+
 class BuiltinHumanReadable(BuiltinFormatterFunction):
     name = 'human_readable'
     arg_count = 1
@@ -799,6 +841,7 @@ class BuiltinHumanReadable(BuiltinFormatterFunction):
             return human_readable(round(float(val)))
         except:
             return ''
+
 
 class BuiltinFormatNumber(BuiltinFormatterFunction):
     name = 'format_number'
@@ -830,6 +873,7 @@ class BuiltinFormatNumber(BuiltinFormatterFunction):
         except:
             pass
         return ''
+
 
 class BuiltinSublist(BuiltinFormatterFunction):
     name = 'sublist'
@@ -865,6 +909,7 @@ class BuiltinSublist(BuiltinFormatterFunction):
                 return sep.join(val[si:ei])
         except:
             return ''
+
 
 class BuiltinSubitems(BuiltinFormatterFunction):
     name = 'subitems'
@@ -910,6 +955,7 @@ class BuiltinSubitems(BuiltinFormatterFunction):
                 pass
         return ', '.join(sorted(rv, key=sort_key))
 
+
 class BuiltinFormatDate(BuiltinFormatterFunction):
     name = 'format_date'
     arg_count = 2
@@ -947,6 +993,7 @@ class BuiltinFormatDate(BuiltinFormatterFunction):
             s = 'BAD DATE'
         return s
 
+
 class BuiltinUppercase(BuiltinFormatterFunction):
     name = 'uppercase'
     arg_count = 1
@@ -955,6 +1002,7 @@ class BuiltinUppercase(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.upper()
+
 
 class BuiltinLowercase(BuiltinFormatterFunction):
     name = 'lowercase'
@@ -965,6 +1013,7 @@ class BuiltinLowercase(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return val.lower()
 
+
 class BuiltinTitlecase(BuiltinFormatterFunction):
     name = 'titlecase'
     arg_count = 1
@@ -974,6 +1023,7 @@ class BuiltinTitlecase(BuiltinFormatterFunction):
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return titlecase(val)
 
+
 class BuiltinCapitalize(BuiltinFormatterFunction):
     name = 'capitalize'
     arg_count = 1
@@ -982,6 +1032,7 @@ class BuiltinCapitalize(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return capitalize(val)
+
 
 class BuiltinBooksize(BuiltinFormatterFunction):
     name = 'booksize'
@@ -1006,6 +1057,7 @@ class BuiltinBooksize(BuiltinFormatterFunction):
             return ''
         return _('This function can be used only in the GUI')
 
+
 class BuiltinOndevice(BuiltinFormatterFunction):
     name = 'ondevice'
     arg_count = 0
@@ -1024,6 +1076,7 @@ class BuiltinOndevice(BuiltinFormatterFunction):
             return ''
         return _('This function can be used only in the GUI')
 
+
 class BuiltinSeriesSort(BuiltinFormatterFunction):
     name = 'series_sort'
     arg_count = 0
@@ -1034,6 +1087,7 @@ class BuiltinSeriesSort(BuiltinFormatterFunction):
         if mi.series:
             return title_sort(mi.series)
         return ''
+
 
 class BuiltinHasCover(BuiltinFormatterFunction):
     name = 'has_cover'
@@ -1046,6 +1100,7 @@ class BuiltinHasCover(BuiltinFormatterFunction):
         if mi.has_cover:
             return _('Yes')
         return ''
+
 
 class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
     name = 'first_non_empty'
@@ -1064,6 +1119,7 @@ class BuiltinFirstNonEmpty(BuiltinFormatterFunction):
             i += 1
         return ''
 
+
 class BuiltinAnd(BuiltinFormatterFunction):
     name = 'and'
     arg_count = -1
@@ -1080,6 +1136,7 @@ class BuiltinAnd(BuiltinFormatterFunction):
                 return ''
             i += 1
         return '1'
+
 
 class BuiltinOr(BuiltinFormatterFunction):
     name = 'or'
@@ -1098,6 +1155,7 @@ class BuiltinOr(BuiltinFormatterFunction):
             i += 1
         return ''
 
+
 class BuiltinNot(BuiltinFormatterFunction):
     name = 'not'
     arg_count = 1
@@ -1109,6 +1167,7 @@ class BuiltinNot(BuiltinFormatterFunction):
 
     def evaluate(self, formatter, kwargs, mi, locals, val):
         return '' if val else '1'
+
 
 class BuiltinListUnion(BuiltinFormatterFunction):
     name = 'list_union'
@@ -1134,6 +1193,7 @@ class BuiltinListUnion(BuiltinFormatterFunction):
             return ', '.join(res)
         return separator.join(res)
 
+
 class BuiltinListDifference(BuiltinFormatterFunction):
     name = 'list_difference'
     arg_count = 3
@@ -1154,6 +1214,7 @@ class BuiltinListDifference(BuiltinFormatterFunction):
         if separator == ',':
             return ', '.join(res)
         return separator.join(res)
+
 
 class BuiltinListIntersection(BuiltinFormatterFunction):
     name = 'list_intersection'
@@ -1176,6 +1237,7 @@ class BuiltinListIntersection(BuiltinFormatterFunction):
             return ', '.join(res)
         return separator.join(res)
 
+
 class BuiltinListSort(BuiltinFormatterFunction):
     name = 'list_sort'
     arg_count = 3
@@ -1190,6 +1252,7 @@ class BuiltinListSort(BuiltinFormatterFunction):
         if separator == ',':
             return ', '.join(sorted(res, key=sort_key, reverse=direction != "0"))
         return separator.join(sorted(res, key=sort_key, reverse=direction != "0"))
+
 
 class BuiltinListEquals(BuiltinFormatterFunction):
     name = 'list_equals'
@@ -1208,6 +1271,7 @@ class BuiltinListEquals(BuiltinFormatterFunction):
         if s1 == s2:
             return yes_val
         return no_val
+
 
 class BuiltinListRe(BuiltinFormatterFunction):
     name = 'list_re'
@@ -1233,6 +1297,7 @@ class BuiltinListRe(BuiltinFormatterFunction):
         if separator == ',':
             return ', '.join(res)
         return separator.join(res)
+
 
 class BuiltinListReGroup(BuiltinFormatterFunction):
     name = 'list_re_group'
@@ -1273,6 +1338,7 @@ class BuiltinListReGroup(BuiltinFormatterFunction):
             return ', '.join(res)
         return separator.join(res)
 
+
 class BuiltinToday(BuiltinFormatterFunction):
     name = 'today'
     arg_count = 0
@@ -1281,8 +1347,10 @@ class BuiltinToday(BuiltinFormatterFunction):
             'return a date string for today. This value is designed for use in '
             'format_date or days_between, but can be manipulated like any '
             'other string. The date is in ISO format.')
+
     def evaluate(self, formatter, kwargs, mi, locals):
         return format_date(now(), 'iso')
+
 
 class BuiltinDaysBetween(BuiltinFormatterFunction):
     name = 'days_between'
@@ -1293,6 +1361,7 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
             'positive if date1 is greater than date2, otherwise negative. If '
             'either date1 or date2 are not dates, the function returns the '
             'empty string.')
+
     def evaluate(self, formatter, kwargs, mi, locals, date1, date2):
         try:
             d1 = parse_date(date1)
@@ -1306,6 +1375,7 @@ class BuiltinDaysBetween(BuiltinFormatterFunction):
         i = d1 - d2
         return '%.1f'%(i.days + (i.seconds/(24.0*60.0*60.0)))
 
+
 class BuiltinLanguageStrings(BuiltinFormatterFunction):
     name = 'language_strings'
     arg_count = 2
@@ -1315,6 +1385,7 @@ class BuiltinLanguageStrings(BuiltinFormatterFunction):
             'If localize is zero, return the strings in English. If '
             'localize is not zero, return the strings in the language of '
             'the current locale. Lang_codes is a comma-separated list.')
+
     def evaluate(self, formatter, kwargs, mi, locals, lang_codes, localize):
         retval = []
         for c in [c.strip() for c in lang_codes.split(',') if c.strip()]:
@@ -1326,6 +1397,7 @@ class BuiltinLanguageStrings(BuiltinFormatterFunction):
                 pass
         return ', '.join(retval)
 
+
 class BuiltinLanguageCodes(BuiltinFormatterFunction):
     name = 'language_codes'
     arg_count = 1
@@ -1334,6 +1406,7 @@ class BuiltinLanguageCodes(BuiltinFormatterFunction):
             'return the language codes for the strings passed in lang_strings. '
             'The strings must be in the language of the current locale. '
             'Lang_strings is a comma-separated list.')
+
     def evaluate(self, formatter, kwargs, mi, locals, lang_strings):
         retval = []
         for c in [c.strip() for c in lang_strings.split(',') if c.strip()]:
@@ -1345,6 +1418,7 @@ class BuiltinLanguageCodes(BuiltinFormatterFunction):
                 pass
         return ', '.join(retval)
 
+
 class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
     name = 'current_library_name'
     arg_count = 0
@@ -1353,9 +1427,11 @@ class BuiltinCurrentLibraryName(BuiltinFormatterFunction):
             'return the last name on the path to the current calibre library. '
             'This function can be called in template program mode using the '
             'template "{:\'current_library_name()\'}".')
+
     def evaluate(self, formatter, kwargs, mi, locals):
         from calibre.library import current_library_name
         return current_library_name()
+
 
 class BuiltinCurrentLibraryPath(BuiltinFormatterFunction):
     name = 'current_library_path'
@@ -1365,9 +1441,11 @@ class BuiltinCurrentLibraryPath(BuiltinFormatterFunction):
                 'return the path to the current calibre library. This function can '
                 'be called in template program mode using the template '
                 '"{:\'current_library_path()\'}".')
+
     def evaluate(self, formatter, kwargs, mi, locals):
         from calibre.library import current_library_path
         return current_library_path()
+
 
 class BuiltinFinishFormatting(BuiltinFormatterFunction):
     name = 'finish_formatting'
@@ -1385,6 +1463,7 @@ class BuiltinFinishFormatting(BuiltinFormatterFunction):
             return val
         return prefix + formatter._do_format(val, fmt) + suffix
 
+
 class BuiltinVirtualLibraries(BuiltinFormatterFunction):
     name = 'virtual_libraries'
     arg_count = 0
@@ -1401,6 +1480,7 @@ class BuiltinVirtualLibraries(BuiltinFormatterFunction):
         if hasattr(mi, '_proxy_metadata'):
             return mi._proxy_metadata.virtual_libraries
         return _('This function can be used only in the GUI')
+
 
 class BuiltinUserCategories(BuiltinFormatterFunction):
     name = 'user_categories'
@@ -1420,6 +1500,7 @@ class BuiltinUserCategories(BuiltinFormatterFunction):
             cats = sorted(cats, key=sort_key)
             return ', '.join(cats)
         return _('This function can be used only in the GUI')
+
 
 class BuiltinTransliterate(BuiltinFormatterFunction):
     name = 'transliterate'
@@ -1460,6 +1541,7 @@ class BuiltinAuthorLinks(BuiltinFormatterFunction):
             names = sorted(link_data.keys(), key=sort_key)
             return pair_sep.join(n + val_sep + link_data[n] for n in names)
         return _('This function can be used only in the GUI')
+
 
 class BuiltinAuthorSorts(BuiltinFormatterFunction):
     name = 'author_sorts'
@@ -1507,6 +1589,7 @@ _formatter_builtins = [
     BuiltinUserCategories(), BuiltinVirtualLibraries()
 ]
 
+
 class FormatterUserFunction(FormatterFunction):
 
     def __init__(self, name, doc, arg_count, program_text):
@@ -1516,6 +1599,8 @@ class FormatterUserFunction(FormatterFunction):
         self.program_text = program_text
 
 tabs = re.compile(r'^\t*')
+
+
 def compile_user_function(name, doc, arg_count, eval_func):
     def replace_func(mo):
         return mo.group().replace('\t', '    ')
@@ -1553,6 +1638,7 @@ def load_user_template_functions(library_uuid, funcs):
         except:
             traceback.print_exc()
     formatter_functions().register_functions(library_uuid, compiled_funcs)
+
 
 def unload_user_template_functions(library_uuid):
     formatter_functions().unregister_functions(library_uuid)

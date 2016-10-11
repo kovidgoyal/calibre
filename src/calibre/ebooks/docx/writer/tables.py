@@ -11,12 +11,14 @@ from collections import namedtuple
 from calibre.ebooks.docx.writer.utils import convert_color
 from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb, border_edges
 
+
 class Dummy(object):
     pass
 
 Border = namedtuple('Border', 'css_style style width color level')
 border_style_weight = {
     x:100-i for i, x in enumerate(('double', 'solid', 'dashed', 'dotted', 'ridge', 'outset', 'groove', 'inset'))}
+
 
 class SpannedCell(object):
 
@@ -34,6 +36,7 @@ class SpannedCell(object):
         makeelement(tcPr, 'w:%sMerge' % ('h' if self.horizontal else 'v'), w_val='continue')
         makeelement(tc, 'w:p')
 
+
 def read_css_block_borders(self, css):
     obj = Dummy()
     rcbb(obj, css, store_css_style=True)
@@ -47,12 +50,14 @@ def read_css_block_borders(self, css):
         ))
         setattr(self, 'padding_' + edge, getattr(obj, 'padding_' + edge))
 
+
 def as_percent(x):
     if x and x.endswith('%'):
         try:
             return float(x.rstrip('%'))
         except Exception:
             pass
+
 
 def convert_width(tag_style):
     if tag_style is not None:
@@ -68,6 +73,7 @@ def convert_width(tag_style):
             except Exception:
                 pass
     return ('auto', 0)
+
 
 class Cell(object):
 
@@ -200,6 +206,7 @@ class Cell(object):
                 ans = self.table.rows[ridx+1].cells[idx]
         return getattr(ans, 'spanning_cell', ans)
 
+
 class Row(object):
 
     BLEVEL = 1
@@ -242,6 +249,7 @@ class Row(object):
         tr = makeelement(parent, 'w:tr')
         for cell in self.cells:
             cell.serialize(tr, makeelement)
+
 
 class Table(object):
 

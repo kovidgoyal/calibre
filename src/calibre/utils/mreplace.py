@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 import re
 from UserDict import UserDict
 
+
 class MReplace(UserDict):
 
     def __init__(self, data=None, case_sensitive=True):

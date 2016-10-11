@@ -13,12 +13,14 @@ from select import select
 from calibre.constants import islinux, isosx
 from calibre.srv.utils import eintr_retry_call
 
+
 def file_metadata(fileobj):
     try:
         fd = fileobj.fileno()
         return os.fstat(fd)
     except Exception:
         pass
+
 
 def copy_range(src_file, start, size, dest):
     total_sent = 0
@@ -33,8 +35,10 @@ def copy_range(src_file, start, size, dest):
         del data
     return total_sent
 
+
 class CannotSendfile(Exception):
     pass
+
 
 class SendfileInterrupted(Exception):
     pass

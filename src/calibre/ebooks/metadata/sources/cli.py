@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.sources.base import create_log
 from calibre.ebooks.metadata.sources.identify import identify
 from calibre.ebooks.metadata.sources.covers import download_cover
 
+
 def option_parser():
     parser = OptionParser(_('''\
 %prog [options]
@@ -40,6 +41,7 @@ of title, authors or ISBN.
             help=_('Timeout in seconds. Default is 30'))
 
     return parser
+
 
 def main(args=sys.argv):
     parser = option_parser()

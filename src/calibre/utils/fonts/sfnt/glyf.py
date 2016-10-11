@@ -26,6 +26,7 @@ OVERLAP_COMPOUND           = 0x0400  # used by Apple in GX fonts
 SCALED_COMPONENT_OFFSET    = 0x0800  # composite designed to have the component offset scaled (designed for Apple)
 UNSCALED_COMPONENT_OFFSET  = 0x1000  # composite designed not to have the component offset scaled (designed for MS)
 
+
 class SimpleGlyph(object):
 
     def __init__(self, num_of_countours, raw):
@@ -41,6 +42,7 @@ class SimpleGlyph(object):
 
     def __call__(self):
         return self.raw
+
 
 class CompositeGlyph(SimpleGlyph):
 
@@ -64,6 +66,7 @@ class CompositeGlyph(SimpleGlyph):
                 offset += 4
             elif flags & WE_HAVE_A_TWO_BY_TWO:
                 offset += 8
+
 
 class GlyfTable(UnknownTable):
 

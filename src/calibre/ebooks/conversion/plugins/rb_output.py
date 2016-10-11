@@ -8,6 +8,7 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin, OptionRecommendation
 
+
 class RBOutput(OutputFormatPlugin):
 
     name = 'RB Output'

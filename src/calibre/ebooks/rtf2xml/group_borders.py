@@ -14,6 +14,7 @@ import sys, os, re
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
 
+
 class GroupBorders:
     """
     Form lists.
@@ -21,6 +22,7 @@ class GroupBorders:
     list.
     Use indents to determine items and how lists are nested.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -44,6 +46,7 @@ class GroupBorders:
         self.__run_level = run_level
         self.__write_to = better_mktemp()
         self.__wrap = wrap
+
     def __initiate_values(self):
         """
         Required:
@@ -113,6 +116,7 @@ class GroupBorders:
         self.__line_num = 0
         self.__border_regex  = re.compile(r'(<border-paragraph[^<]+|<border-for-every-paragraph[^<]+)')
         self.__last_border_string = ''
+
     def __in_pard_func(self, line):
         """
         Required:
@@ -128,6 +132,7 @@ class GroupBorders:
             self.__state = 'after_pard'
         else:
             self.__write_obj.write(line)
+
     def __after_pard_func(self, line):
         """
         Required:
@@ -155,12 +160,14 @@ class GroupBorders:
             self.__write_obj.write(line)
         else:
             self.__list_chunk += line
+
     def __close_pard_(self, line):
         self.__write_obj.write(self.__list_chunk)
         self.__write_obj.write('mi<tg<close_____<paragraph-definition\n')
         self.__write_end_wrap()
         self.__list_chunk = ''
         self.__state = 'default'
+
     def __pard_after_par_def_func(self, line):
         """
         Required:
@@ -197,6 +204,7 @@ class GroupBorders:
                 self.__state = 'in_pard'
                 self.__last_border_string = border_string
                 self.__list_chunk = ''
+
     def __default_func(self, line):
         """
         Required:
@@ -221,6 +229,7 @@ class GroupBorders:
                 self.__write_obj.write(line)
         else:
             self.__write_obj.write(line)
+
     def __write_start_border_tag(self, the_string):
         self.__write_obj.write('mi<mk<start-brdg\n')
         self.__border_num += 1
@@ -228,15 +237,18 @@ class GroupBorders:
         num_string = 's%s' % num
         the_string += '<num>%s' % num_string
         self.__write_obj.write('mi<tg<open-att__<border-group%s\n' % the_string)
+
     def __write_end_border_tag(self):
         self.__write_obj.write('mi<mk<end-brdg__\n')
         self.__write_obj.write('mi<tg<close_____<border-group\n')
+
     def __is_border_func(self, line):
         line = re.sub(self.__name_regex, '', line)
         index = line.find('border-paragraph')
         if index > -1:
             return 1
         return 0
+
     def __parse_pard_with_border(self, line):
         border_string = ''
         pard_string = ''
@@ -247,6 +259,7 @@ class GroupBorders:
             else:
                 pard_string += token
         return border_string, pard_string
+
     def __write_pard_with_border(self, line):
         border_string = ''
         pard_string = ''
@@ -258,9 +271,11 @@ class GroupBorders:
                 pard_string += token
         self.__write_start_border_tag(border_string)
         self.__write_obj.write(pard_string)
+
     def __get_style_name(self, line):
         if self.__token_info == 'mi<mk<style-name':
             self.__style_name = line[17:-1]
+
     def group_borders(self):
         """
         Required:

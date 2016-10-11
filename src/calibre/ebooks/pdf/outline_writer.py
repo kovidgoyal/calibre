@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import os
 from collections import defaultdict
 
+
 class Outline(object):
 
     def __init__(self, toc, items):

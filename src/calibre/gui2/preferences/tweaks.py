@@ -27,10 +27,12 @@ from PyQt5.Qt import (
 
 ROOT = QModelIndex()
 
+
 class AdaptSQP(SearchQueryParser):
 
     def __init__(self, *args, **kwargs):
         pass
+
 
 class Delegate(QStyledItemDelegate):  # {{{
 
@@ -46,6 +48,7 @@ class Delegate(QStyledItemDelegate):  # {{{
         QStyledItemDelegate.paint(self, p, copy, idx)
 
 # }}}
+
 
 class Tweak(object):  # {{{
 
@@ -105,6 +108,7 @@ class Tweak(object):  # {{{
         self.custom_values.update(varmap)
 
 # }}}
+
 
 class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
 
@@ -298,6 +302,7 @@ class Tweaks(QAbstractListModel, AdaptSQP):  # {{{
 
 # }}}
 
+
 class PluginTweaks(QDialog):  # {{{
 
     def __init__(self, raw, parent=None):
@@ -324,6 +329,7 @@ class PluginTweaks(QDialog):  # {{{
 
 # }}}
 
+
 class TweaksView(QListView):
 
     current_changed = pyqtSignal(object, object)
@@ -339,6 +345,7 @@ class TweaksView(QListView):
     def currentChanged(self, cur, prev):
         QListView.currentChanged(self, cur, prev)
         self.current_changed.emit(cur, prev)
+
 
 class ConfigWidget(ConfigWidgetBase):
 

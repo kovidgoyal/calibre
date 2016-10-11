@@ -22,11 +22,13 @@ from calibre.utils.filenames import shorten_components_to
 BASE = importlib.import_module('calibre.devices.mtp.%s.driver'%(
     'windows' if iswindows else 'unix')).MTP_DEVICE
 
+
 class MTPInvalidSendPathError(PathError):
 
     def __init__(self, folder):
         PathError.__init__(self, 'Trying to send to ignored folder: %s'%folder)
         self.folder = folder
+
 
 class MTP_DEVICE(BASE):
 
@@ -493,6 +495,7 @@ class MTP_DEVICE(BASE):
 
     def remove_books_from_metadata(self, paths, booklists):
         self.report_progress(0, _('Removing books from metadata'))
+
         class NextPath(Exception):
             pass
 
@@ -531,6 +534,7 @@ class MTP_DEVICE(BASE):
 
     def settings(self):
         class Opts(object):
+
             def __init__(s):
                 s.format_map = self.get_pref('format_map')
         return Opts()

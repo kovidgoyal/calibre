@@ -16,6 +16,7 @@ from threading import Lock
 
 from calibre import isbytestring, force_unicode, as_unicode, prints
 
+
 class Stream(object):
 
     def __init__(self, stream=None):
@@ -50,6 +51,7 @@ class ANSIStream(Stream):
     def flush(self):
         self.stream.flush()
 
+
 class FileStream(Stream):
 
     def __init__(self, stream=None):
@@ -57,6 +59,7 @@ class FileStream(Stream):
 
     def prints(self, level, *args, **kwargs):
         self._prints(*args, **kwargs)
+
 
 class HTMLStream(Stream):
 
@@ -79,6 +82,7 @@ class HTMLStream(Stream):
 
     def flush(self):
         self.stream.flush()
+
 
 class UnicodeHTMLStream(HTMLStream):
 
@@ -170,11 +174,13 @@ class Log(object):
     def __exit__(self, *args):
         self.filter_level = self.orig_filter_level
 
+
 class DevNull(Log):
 
     def __init__(self):
         Log.__init__(self, level=Log.ERROR)
         self.outputs = []
+
 
 class ThreadSafeLog(Log):
     exception_traceback_level = Log.DEBUG
@@ -193,6 +199,7 @@ class ThreadSafeLog(Log):
             Log.prints(self, ERROR, *args, **kwargs)
             Log.prints(self, self.exception_traceback_level, traceback.format_exc(limit))
 
+
 class ThreadSafeWrapper(Log):
 
     def __init__(self, other_log):
@@ -203,6 +210,7 @@ class ThreadSafeWrapper(Log):
     def prints(self, *args, **kwargs):
         with self._lock:
             Log.prints(self, *args, **kwargs)
+
 
 class GUILog(ThreadSafeLog):
 

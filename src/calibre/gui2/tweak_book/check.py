@@ -18,6 +18,7 @@ from calibre.gui2 import NO_URL_FORMATTING
 from calibre.gui2.tweak_book import tprefs
 from calibre.gui2.tweak_book.widgets import BusyCursor
 
+
 def icon_for_level(level):
     if level > WARN:
         icon = 'dialog_error.png'
@@ -28,6 +29,7 @@ def icon_for_level(level):
     else:
         icon = None
     return QIcon(I(icon)) if icon else QIcon()
+
 
 def prefix_for_level(level):
     if level > WARN:
@@ -42,6 +44,7 @@ def prefix_for_level(level):
         text += ': '
     return text
 
+
 class Delegate(QStyledItemDelegate):
 
     def initStyleOption(self, option, index):
@@ -49,6 +52,7 @@ class Delegate(QStyledItemDelegate):
         if index.row() == self.parent().currentRow():
             option.font.setBold(True)
             option.backgroundBrush = self.parent().palette().brush(QPalette.AlternateBase)
+
 
 class Check(QSplitter):
 
@@ -155,6 +159,7 @@ class Check(QSplitter):
     def current_item_changed(self, *args):
         i = self.items.currentItem()
         self.help.setText('')
+
         def loc_to_string(line, col):
             loc = ''
             if line is not None:
@@ -240,6 +245,7 @@ class Check(QSplitter):
     def clear(self):
         self.items.clear()
         self.clear_help()
+
 
 def main():
     from calibre.gui2 import Application

@@ -15,6 +15,7 @@ comment_pat  = re.compile(r'\{\\info.*?\{\\subject(.*?)(?<!\\)\}', re.DOTALL)
 tags_pat = re.compile(r'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
 publisher_pat = re.compile(r'\{\\info.*?\{\\manager(.*?)(?<!\\)\}', re.DOTALL)
 
+
 def get_document_info(stream):
     """
     Extract the \info block from an RTF file.
@@ -57,6 +58,7 @@ def get_document_info(stream):
             break
     return data.getvalue(), pos
 
+
 def detect_codepage(stream):
     pat = re.compile(r'\\ansicpg(\d+)')
     match = pat.search(stream.read(512))
@@ -71,10 +73,12 @@ def detect_codepage(stream):
         except:
             pass
 
+
 def encode(unistr):
     if not isinstance(unistr, unicode):
         unistr = force_unicode(unistr)
     return ''.join([str(c) if ord(c) < 128 else '\\u' + str(ord(c)) + '?' for c in unistr])
+
 
 def decode(raw, codec):
     if codec is not None:
@@ -87,6 +91,7 @@ def decode(raw, codec):
         return unichr(int(match.group(1)))
     raw = re.sub(r'\\u([0-9]{3,4}).', uni, raw)
     return raw
+
 
 def get_metadata(stream):
     """
@@ -132,6 +137,7 @@ def get_metadata(stream):
 
     return mi
 
+
 def create_metadata(stream, options):
     md = [r'{\info']
     if options.title:
@@ -161,6 +167,7 @@ def create_metadata(stream, options):
         ans = src[:6] + u''.join(md) + src[6:]
         stream.seek(0)
         stream.write(ans)
+
 
 def set_metadata(stream, options):
     '''

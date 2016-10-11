@@ -35,19 +35,23 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now as nowf, utcnow, UNDEFINED_DATE
 from calibre.utils.icu import sort_key
 
+
 def api(f):
     f.is_cache_api = True
     return f
+
 
 def read_api(f):
     f = api(f)
     f.is_read_api = True
     return f
 
+
 def write_api(f):
     f = api(f)
     f.is_read_api = False
     return f
+
 
 def wrap_simple(lock, func):
     @wraps(func)
@@ -62,6 +66,7 @@ def wrap_simple(lock, func):
             return func(*args, **kwargs)
     return call_func_with_lock
 
+
 def run_import_plugins(path_or_stream, fmt):
     fmt = fmt.lower()
     if hasattr(path_or_stream, 'seek'):
@@ -74,6 +79,7 @@ def run_import_plugins(path_or_stream, fmt):
         path = path_or_stream
     return run_plugins_on_import(path, fmt)
 
+
 def _add_newbook_tag(mi):
     tags = prefs['new_book_tags']
     if tags:
@@ -85,6 +91,7 @@ def _add_newbook_tag(mi):
                     mi.tags.append(tag)
 
 dynamic_category_preferences = frozenset({'grouped_search_make_user_categories', 'grouped_search_terms', 'user_categories'})
+
 
 class Cache(object):
 
@@ -804,6 +811,7 @@ class Cache(object):
                 path = self._field_for('path', book_id).replace('/', os.sep)
             except:
                 return ()
+
             def verify(fmt):
                 try:
                     name = self.fields['formats'].format_fname(book_id, fmt)
@@ -918,6 +926,7 @@ class Cache(object):
                     return virtual_fields[fm.get(field, field)].sort_keys_for_books(get_metadata, lang_map)
             if is_series:
                 idx_func = self.fields[idx].sort_keys_for_books(get_metadata, lang_map)
+
                 def skf(book_id):
                     return (func(book_id), idx_func(book_id))
                 return skf
@@ -2159,6 +2168,7 @@ class Cache(object):
         exporter.set_metadata(library_key, metadata)
         if progress is not None:
             progress(_('Completed'), total, total)
+
 
 def import_library(library_key, importer, library_path, progress=None, abort=None):
     from calibre.db.backend import DB

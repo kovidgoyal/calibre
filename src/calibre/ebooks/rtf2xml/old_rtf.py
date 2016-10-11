@@ -12,6 +12,7 @@
 #########################################################################
 import sys
 
+
 class OldRtf:
     """
     Check to see if the RTF is an older version
@@ -19,6 +20,7 @@ class OldRtf:
     If allowable control word/properties happen in text without being enclosed
     in brackets the file will be considered old rtf
     """
+
     def __init__(self, in_file,
                 bug_handler,
                 run_level,

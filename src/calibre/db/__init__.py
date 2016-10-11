@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 SPOOL_SIZE = 30*1024*1024
 
+
 def _get_next_series_num_for_list(series_indices, unwrap=True):
     from calibre.utils.config_base import tweaks
     from math import ceil, floor
@@ -39,6 +40,7 @@ def _get_next_series_num_for_list(series_indices, unwrap=True):
         return float(tweaks['series_index_auto_increment'])
     return 1.0
 
+
 def _get_series_values(val):
     import re
     series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
@@ -53,6 +55,7 @@ def _get_series_values(val):
         except:
             pass
     return (val, None)
+
 
 def get_data_as_dict(self, prefix=None, authors_as_string=False, ids=None, convert_to_local_tz=True):
     '''

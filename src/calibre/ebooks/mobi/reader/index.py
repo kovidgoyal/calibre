@@ -25,20 +25,25 @@ INDEX_HEADER_FIELDS = (
 class InvalidFile(ValueError):
     pass
 
+
 def check_signature(data, signature):
     if data[:len(signature)] != signature:
         raise InvalidFile('Not a valid %r section'%signature)
 
+
 class NotAnINDXRecord(InvalidFile):
     pass
 
+
 class NotATAGXSection(InvalidFile):
     pass
+
 
 def format_bytes(byts):
     byts = bytearray(byts)
     byts = [hex(b)[2:] for b in byts]
     return ' '.join(byts)
+
 
 def parse_indx_header(data):
     check_signature(data, b'INDX')
@@ -120,6 +125,7 @@ class CNCX(object):  # {{{
         return self.records.iteritems()
 # }}}
 
+
 def parse_tagx_section(data):
     check_signature(data, b'TAGX')
 
@@ -131,6 +137,7 @@ def parse_tagx_section(data):
         vals = list(bytearray(data[i:i+4]))
         tags.append(TagX(*vals))
     return control_byte_count, tags
+
 
 def get_tag_map(control_byte_count, tagx, data, strict=False):
     ptags = []
@@ -202,6 +209,7 @@ def get_tag_map(control_byte_count, tagx, data, strict=False):
 
     return ans
 
+
 def parse_index_record(table, data, control_byte_count, tags, codec,
         ordt_map, strict=False):
     header = parse_indx_header(data)
@@ -240,6 +248,7 @@ def parse_index_record(table, data, control_byte_count, tags, codec,
         tag_map = get_tag_map(control_byte_count, tags, rec, strict=strict)
         table[ident] = tag_map
     return header
+
 
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)

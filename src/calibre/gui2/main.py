@@ -22,8 +22,10 @@ from calibre.utils.config import prefs, dynamic
 if iswindows:
     winutil = plugins['winutil'][0]
 
+
 class AbortInit(Exception):
     pass
+
 
 def option_parser():
     parser = _option_parser(_('''\
@@ -50,6 +52,7 @@ path_to_ebook to the database.
                 'will be silently aborted, so use with care.'))
     setup_gui_option_parser(parser)
     return parser
+
 
 def find_portable_library():
     base = get_portable_base()
@@ -83,6 +86,7 @@ def find_portable_library():
     prefs.set('library_path', lib)
     if not os.path.exists(lib):
         os.mkdir(lib)
+
 
 def init_qt(args):
     parser = option_parser()
@@ -155,9 +159,11 @@ def get_library_path(gui_runner):
             library_path = gui_runner.choose_dir(get_default_library_path())
     return library_path
 
+
 def repair_library(library_path):
     from calibre.gui2.dialogs.restore_library import repair_library_at
     return repair_library_at(library_path)
+
 
 def windows_repair(library_path=None):
     from binascii import hexlify, unhexlify
@@ -189,6 +195,7 @@ class EventAccumulator(object):
 
     def __call__(self, ev):
         self.events.append(ev)
+
 
 class GuiRunner(QObject):
     '''Make sure an event loop is running before starting the main work of
@@ -333,6 +340,7 @@ class GuiRunner(QObject):
 
         self.initialize_db()
 
+
 def get_debug_executable():
     e = sys.executable if getattr(sys, 'frozen', False) else sys.argv[0]
     if hasattr(sys, 'frameworks_dir'):
@@ -350,6 +358,7 @@ def get_debug_executable():
             exe = base + '-debug' + ext
     return exe
 
+
 def run_in_debug_mode(logpath=None):
     import tempfile, subprocess
     fd, logpath = tempfile.mkstemp('.txt')
@@ -365,8 +374,10 @@ def run_in_debug_mode(logpath=None):
             stderr=subprocess.STDOUT, stdin=open(os.devnull, 'r'),
             creationflags=creationflags)
 
+
 def shellquote(s):
     return "'" + s.replace("'", "'\\''") + "'"
+
 
 def run_gui(opts, args, listener, app, gui_debug=None):
     initialize_file_icon_provider()
@@ -423,6 +434,7 @@ def run_gui(opts, args, listener, app, gui_debug=None):
 
 singleinstance_name = 'calibre_GUI'
 
+
 def cant_start(msg=_('If you are sure it is not running')+', ',
                det_msg=_('Timed out waiting for response from running calibre'),
                listener_failed=False):
@@ -448,6 +460,7 @@ def cant_start(msg=_('If you are sure it is not running')+', ',
 
     raise SystemExit(1)
 
+
 def build_pipe(print_error=True):
     t = RC(print_error=print_error)
     t.start()
@@ -456,6 +469,7 @@ def build_pipe(print_error=True):
         cant_start()
         raise SystemExit(1)
     return t
+
 
 def shutdown_other(rc=None):
     if rc is None:
@@ -473,6 +487,7 @@ def shutdown_other(rc=None):
     prints(_('Failed to shutdown running calibre instance'))
     raise SystemExit(1)
 
+
 def communicate(opts, args):
     t = build_pipe()
     if opts.shutdown_running_calibre:
@@ -485,12 +500,14 @@ def communicate(opts, args):
     t.conn.close()
     raise SystemExit(0)
 
+
 def create_listener():
     if islinux:
         from calibre.utils.ipc.server import LinuxListener as Listener
     else:
         from multiprocessing.connection import Listener
     return Listener(address=gui_socket_address())
+
 
 def main(args=sys.argv):
     if iswindows and 'CALIBRE_REPAIR_CORRUPTED_DB' in os.environ:

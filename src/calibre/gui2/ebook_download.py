@@ -39,10 +39,12 @@ class DownloadInfo(MessageBox):
     def show_again_changed(self):
         gprefs.set('show_get_books_download_info', self.toggle_checkbox.isChecked())
 
+
 def show_download_info(filename, parent=None):
     if not gprefs.get('show_get_books_download_info', True):
         return
     DownloadInfo(filename, parent).exec_()
+
 
 def get_download_filename(response):
     filename = get_download_filename_from_response(response)
@@ -50,6 +52,7 @@ def get_download_filename(response):
     filename = filename[:60] + ext
     filename = ascii_filename(filename)
     return filename
+
 
 def download_file(url, cookie_file=None, filename=None, create_browser=None):
     if url.startswith('//'):
@@ -121,6 +124,7 @@ class EbookDownload(object):
 
 
 gui_ebook_download = EbookDownload()
+
 
 def start_ebook_download(callback, job_manager, gui, cookie_file=None, url='', filename='', save_loc='', add_to_lib=True, tags=[], create_browser=None):
     description = _('Downloading %s') % filename.decode('utf-8', 'ignore') if filename else url.decode('utf-8', 'ignore')

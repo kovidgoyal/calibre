@@ -63,6 +63,7 @@ import re
 from calibre.ebooks.unihandecode.unicodepoints import CODEPOINTS
 from calibre.ebooks.unihandecode.zhcodepoints import CODEPOINTS as HANCODES
 
+
 class Unidecoder(object):
 
     codepoints = {}

@@ -10,6 +10,7 @@ __docformat__ = 'restructuredtext en'
 import subprocess, sys, os, pprint, signal, time, glob, io
 pprint, io
 
+
 def build(mod='wpd'):
     master = subprocess.Popen('ssh -MN getafix'.split())
     master2 = subprocess.Popen('ssh -MN win64'.split())
@@ -37,6 +38,7 @@ def build(mod='wpd'):
             m.send_signal(signal.SIGHUP)
         for m in (master2, master):
             m.wait()
+
 
 def main():
     fp, d = os.path.abspath(__file__), os.path.dirname

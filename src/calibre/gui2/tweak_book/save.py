@@ -19,12 +19,14 @@ from calibre.utils import join_with_timeout
 from calibre.utils.filenames import atomic_rename, format_permissions
 from calibre.utils.ipc import RC
 
+
 def save_dir_container(container, path):
     if not os.path.exists(path):
         os.makedirs(path)
     if not os.path.isdir(path):
         raise ValueError('%s is not a folder, cannot save a directory based container to it' % path)
     container.commit(path)
+
 
 def save_container(container, path):
     if container.is_dir:
@@ -74,6 +76,7 @@ def save_container(container, path):
         if os.path.exists(temp):
             os.remove(temp)
 
+
 def send_message(msg=''):
     if msg:
         t = RC(print_error=False)
@@ -83,6 +86,7 @@ def send_message(msg=''):
             t.conn.send('bookedited:'+msg)
             t.conn.close()
 
+
 def find_first_existing_ancestor(path):
     while path and not os.path.exists(path):
         npath = os.path.dirname(path)
@@ -90,6 +94,7 @@ def find_first_existing_ancestor(path):
             break
         path = npath
     return path
+
 
 class SaveWidget(QWidget):
 
@@ -115,6 +120,7 @@ class SaveWidget(QWidget):
         self.pi.setVisible(False)
         self.pi.stopAnimation()
         self.label.setText('')
+
 
 class SaveManager(QObject):
 

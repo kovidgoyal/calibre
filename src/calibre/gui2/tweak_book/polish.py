@@ -21,14 +21,17 @@ from calibre.gui2.tweak_book import tprefs, current_container, set_current_conta
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.utils.icu import numeric_sort_key
 
+
 class Abort(Exception):
     pass
+
 
 def customize_remove_unused_css(name, parent, ans):
     d = QDialog(parent)
     d.l = l = QVBoxLayout()
     d.setLayout(d.l)
     d.setWindowTitle(_('Remove unused CSS'))
+
     def label(text):
         la = QLabel(text)
         la.setWordWrap(True), l.addWidget(la), la.setMinimumWidth(450)
@@ -59,6 +62,7 @@ def customize_remove_unused_css(name, parent, ans):
     ans['remove_unused_classes'] = tprefs['remove_unused_classes'] = c.isChecked()
     ans['merge_identical_selectors'] = tprefs['merge_identical_selectors'] = m.isChecked()
 
+
 def get_customization(action, name, parent):
     ans = CUSTOMIZATION.copy()
     try:
@@ -68,10 +72,12 @@ def get_customization(action, name, parent):
         return None
     return ans
 
+
 def format_report(title, report):
     from calibre.ebooks.markdown import markdown
     report = [force_unicode(line) for line in report]
     return markdown('# %s\n\n'%force_unicode(title) + '\n\n'.join(report), output_format='html4')
+
 
 def show_report(changed, title, report, parent, show_current_diff):
     report = format_report(title, report)
@@ -95,6 +101,7 @@ def show_report(changed, title, report, parent, show_current_diff):
     d.exec_()
 
 # CompressImages {{{
+
 
 class ImageItemDelegate(QStyledItemDelegate):
 
@@ -124,6 +131,7 @@ class ImageItemDelegate(QStyledItemDelegate):
             painter.setPen(QPen(option.palette.color(option.palette.HighlightedText)))
         painter.drawText(trect, Qt.AlignVCenter | Qt.AlignLeft, name + '\n' + sz)
         painter.restore()
+
 
 class CompressImages(Dialog):
 
@@ -180,6 +188,7 @@ class CompressImages(Dialog):
         if not self.enable_lossy.isChecked():
             return None
         return self.jq.value()
+
 
 class CompressImagesProgress(Dialog):
 

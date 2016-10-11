@@ -24,6 +24,7 @@ class FakeAction(object):
         self.dont_remove_from = dont_remove_from
         self.dont_add_to = dont_add_to
 
+
 class BaseModel(QAbstractListModel):
 
     def name_to_action(self, name, gui):
@@ -139,6 +140,7 @@ class AllModel(BaseModel):
         self.beginResetModel()
         self._data = self.get_all_actions(current)
         self.endResetModel()
+
 
 class CurrentModel(BaseModel):
 

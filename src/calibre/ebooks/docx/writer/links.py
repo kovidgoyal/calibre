@@ -12,6 +12,7 @@ from urlparse import urlparse
 
 from calibre.utils.filenames import ascii_text
 
+
 def start_text(tag, prefix_len=0, top_level=True):
     ans = tag.text or ''
     limit = 50 - prefix_len
@@ -23,6 +24,7 @@ def start_text(tag, prefix_len=0, top_level=True):
     if top_level and len(ans) > limit:
         ans = ans[:limit] + '...'
     return ans
+
 
 class TOCItem(object):
 
@@ -54,6 +56,7 @@ class TOCItem(object):
             r = makeelement(p, 'w:r')
             makeelement(r, 'w:fldChar', w_fldCharType='end')
         body.insert(0, p)
+
 
 def sanitize_bookmark_name(base):
     return re.sub(r'[^0-9a-zA-Z]', '_', ascii_text(base))

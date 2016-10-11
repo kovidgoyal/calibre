@@ -21,11 +21,13 @@ from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
 from calibre.ebooks.oeb.polish.utils import guess_type, actual_case_for_name, corrected_case_for_name
 from calibre.ebooks.oeb.polish.check.base import BaseError, WARN, INFO
 
+
 class BadLink(BaseError):
 
     HELP = _('The resource pointed to by this link does not exist. You should'
              ' either fix, or remove the link.')
     level = WARN
+
 
 class CaseMismatch(BadLink):
 
@@ -44,8 +46,10 @@ class CaseMismatch(BadLink):
         if frag:
             nhref += '#' + frag
         orig_href = self.href
+
         class LinkReplacer(object):
             replaced = False
+
             def __call__(self, url):
                 if url != orig_href:
                     return url
@@ -54,6 +58,7 @@ class CaseMismatch(BadLink):
         replacer = LinkReplacer()
         container.replace_links(self.name, replacer)
         return replacer.replaced
+
 
 class BadDestinationType(BaseError):
 
@@ -69,6 +74,7 @@ class BadDestinationType(BaseError):
                           link_elem.get('href'), link_dest)
         self.bad_href = link_elem.get('href')
 
+
 class BadDestinationFragment(BaseError):
 
     level = WARN
@@ -81,10 +87,12 @@ class BadDestinationFragment(BaseError):
                       ' or change the link to point to the correct location.').format(
                           self.bad_href, fragment, link_dest)
 
+
 class FileLink(BadLink):
 
     HELP = _('This link uses the file:// URL scheme. This does not work with many ebook readers.'
              ' Remove the file:// prefix and make sure the link points to a file inside the book.')
+
 
 class LocalLink(BadLink):
 
@@ -92,9 +100,11 @@ class LocalLink(BadLink):
              ' book is read on any computer other than the one it was created on.'
              ' Either fix or remove the link.')
 
+
 class EmptyLink(BadLink):
 
     HELP = _('This link is empty. This is almost always a mistake. Either fill in the link destination or remove the link tag.')
+
 
 class UnreferencedResource(BadLink):
 
@@ -105,6 +115,7 @@ class UnreferencedResource(BadLink):
     def __init__(self, name):
         BadLink.__init__(self, _(
             'The file %s is not referenced') % name, name)
+
 
 class UnreferencedDoc(UnreferencedResource):
 
@@ -124,6 +135,7 @@ class UnreferencedDoc(UnreferencedResource):
         container.insert_into_xml(spine, si)
         container.dirty(container.opf_name)
         return True
+
 
 class Unmanifested(BadLink):
 
@@ -150,6 +162,7 @@ class Unmanifested(BadLink):
                 container.add_name_to_manifest(self.name)
         return True
 
+
 class DanglingLink(BadLink):
 
     def __init__(self, text, target_name, name, lnum, col):
@@ -159,6 +172,7 @@ class DanglingLink(BadLink):
 
     def __call__(self, container):
         return bool(remove_links_to(container, lambda name, *a: name == self.target_name))
+
 
 class Bookmarks(BadLink):
 
@@ -221,6 +235,7 @@ class MimetypeMismatch(BaseError):
                 container.dirty(container.opf_name)
         return changed
 
+
 def check_mimetypes(container):
     errors = []
     a = errors.append
@@ -231,6 +246,7 @@ def check_mimetypes(container):
                 continue
             a(MimetypeMismatch(container, name, mt, gt))
     return errors
+
 
 def check_link_destination(container, dest_map, name, href, a, errors):
     if href.startswith('#'):
@@ -278,6 +294,7 @@ def check_link_destinations(container):
                 check_link_destination(container, dest_map, name, href, a, errors)
 
     return errors
+
 
 def check_links(container):
     links_map = defaultdict(set)
@@ -360,6 +377,7 @@ def check_links(container):
             a(Bookmarks(name))
 
     return errors
+
 
 def check_external_links(container, progress_callback=lambda num, total:None):
     progress_callback(0, 0)

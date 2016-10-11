@@ -31,6 +31,7 @@ from calibre.gui2.complete2 import EditWithComplete
 ROOT = QModelIndex()
 PARAGRAPH_SEPARATOR = '\u2029'
 
+
 class BusyCursor(object):
 
     def __enter__(self):
@@ -39,10 +40,12 @@ class BusyCursor(object):
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
 
+
 class Dialog(BaseDialog):
 
     def __init__(self, title, name, parent=None):
         BaseDialog.__init__(self, title, name, parent=parent, prefs=tprefs)
+
 
 class InsertTag(Dialog):  # {{{
 
@@ -76,6 +79,7 @@ class InsertTag(Dialog):  # {{{
             print (d.tag)
 
 # }}}
+
 
 class RationalizeFolders(Dialog):  # {{{
 
@@ -136,6 +140,7 @@ class RationalizeFolders(Dialog):  # {{{
         return Dialog.accept(self)
 # }}}
 
+
 class MultiSplit(Dialog):  # {{{
 
     def __init__(self, parent=None):
@@ -169,6 +174,7 @@ class MultiSplit(Dialog):  # {{{
         return self._xpath.xpath
 
 # }}}
+
 
 class ImportForeign(Dialog):  # {{{
 
@@ -252,6 +258,7 @@ class ImportForeign(Dialog):  # {{{
 
 # Quick Open {{{
 
+
 def make_highlighted_text(emph, text, positions):
     positions = sorted(set(positions) - {-1})
     if positions:
@@ -265,6 +272,7 @@ def make_highlighted_text(emph, text, positions):
         parts.append(prepare_string_for_xml(text[pos:]))
         return ''.join(parts)
     return text
+
 
 class Results(QWidget):
 
@@ -396,6 +404,7 @@ class Results(QWidget):
         except IndexError:
             pass
 
+
 class QuickOpen(Dialog):
 
     def __init__(self, items, parent=None):
@@ -470,6 +479,7 @@ class QuickOpen(Dialog):
 
 # Filterable names list {{{
 
+
 class NamesDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
@@ -508,6 +518,7 @@ class NamesDelegate(QStyledItemDelegate):
             painter.translate(option.rect.left(), option.rect.top() + (max(0, option.rect.height() - height) // 2))
             doc.drawContents(painter)
         painter.restore()
+
 
 class NamesModel(QAbstractListModel):
 
@@ -553,6 +564,7 @@ class NamesModel(QAbstractListModel):
         except IndexError:
             pass
 
+
 def create_filterable_names_list(names, filter_text=None, parent=None, model=NamesModel):
     nl = QListView(parent)
     nl.m = m = model(names, parent=nl)
@@ -569,6 +581,7 @@ def create_filterable_names_list(names, filter_text=None, parent=None, model=Nam
 # }}}
 
 # Insert Link {{{
+
 
 class AnchorsModel(QAbstractListModel):
 
@@ -601,6 +614,7 @@ class AnchorsModel(QAbstractListModel):
         self.items = [x for x in self.names if primary_contains(query, x[0]) or primary_contains(query, x[1])]
         self.endResetModel()
         self.filtered.emit(not bool(query))
+
 
 class InsertLink(Dialog):
 
@@ -717,6 +731,7 @@ class InsertLink(Dialog):
 # }}}
 
 # Insert Semantics {{{
+
 
 class InsertSemantics(Dialog):
 
@@ -910,6 +925,7 @@ class InsertSemantics(Dialog):
 
 # }}}
 
+
 class FilterCSS(Dialog):  # {{{
 
     def __init__(self, current_name=None, parent=None):
@@ -981,6 +997,7 @@ class FilterCSS(Dialog):  # {{{
 
 # Add Cover {{{
 
+
 class CoverView(QWidget):
 
     def __init__(self, parent=None):
@@ -1017,6 +1034,7 @@ class CoverView(QWidget):
 
     def sizeHint(self):
         return QSize(300, 400)
+
 
 class AddCover(Dialog):
 
@@ -1115,6 +1133,7 @@ class AddCover(Dialog):
             pass
 
 # }}}
+
 
 class PlainTextEdit(QPlainTextEdit):  # {{{
 

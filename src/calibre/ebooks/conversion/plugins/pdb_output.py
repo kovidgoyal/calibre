@@ -10,6 +10,7 @@ from calibre.customize.conversion import OutputFormatPlugin, \
     OptionRecommendation
 from calibre.ebooks.pdb import PDBError, get_writer, ALL_FORMAT_WRITERS
 
+
 class PDBOutput(OutputFormatPlugin):
 
     name = 'PDB Output'

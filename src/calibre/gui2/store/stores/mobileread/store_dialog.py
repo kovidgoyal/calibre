@@ -13,6 +13,7 @@ from calibre.gui2.store.stores.mobileread.adv_search_builder import AdvSearchBui
 from calibre.gui2.store.stores.mobileread.models import BooksModel
 from calibre.gui2.store.stores.mobileread.store_dialog_ui import Ui_Dialog
 
+
 class MobileReadStoreDialog(QDialog, Ui_Dialog):
 
     def __init__(self, plugin, *args):

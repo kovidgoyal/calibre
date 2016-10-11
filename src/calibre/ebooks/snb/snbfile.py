@@ -8,16 +8,20 @@ import sys, struct, zlib, bz2, os
 
 from calibre import guess_type
 
+
 class FileStream:
 
     def IsBinary(self):
         return self.attr & 0x41000000 != 0x41000000
 
+
 def compareFileStream(file1, file2):
     return cmp(file1.fileName, file2.fileName)
 
+
 class BlockData:
     pass
+
 
 class SNBFile:
 
@@ -300,12 +304,14 @@ class SNBFile:
             tempFile.write(f.fileBody)
             tempFile.close()
 
+
 def usage():
     print "This unit test is for INTERNAL usage only!"
     print "This unit test accept two parameters."
     print "python snbfile.py <INPUTFILE> <DESTFILE>"
     print "The input file will be extracted and write to dest file. "
     print "Meta data of the file will be shown during this process."
+
 
 def main():
     if len(sys.argv) != 3:

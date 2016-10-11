@@ -21,6 +21,7 @@ except ImportError:
 __all__ = ["BadZipfile", "error", "ZIP_STORED", "ZIP_DEFLATED", "is_zipfile",
            "ZipInfo", "ZipFile", "PyZipFile", "LargeZipFile"]
 
+
 class BadZipfile(Exception):
     pass
 
@@ -137,6 +138,7 @@ _CD64_NUMBER_ENTRIES_TOTAL = 7
 _CD64_DIRECTORY_SIZE = 8
 _CD64_OFFSET_START_CENTDIR = 9
 
+
 def decode_arcname(name):
     if not isinstance(name, unicode):
         try:
@@ -152,10 +154,13 @@ def decode_arcname(name):
 
 # Added by Kovid to reset timestamp to default if it overflows the DOS
 # limits
+
+
 def fixtimevar(val):
     if val < 0 or val > 0xffff:
         val = 0
     return val
+
 
 def _check_zipfile(fp):
     try:
@@ -164,6 +169,7 @@ def _check_zipfile(fp):
     except IOError:
         pass
     return False
+
 
 def is_zipfile(filename):
     """Quickly see if a file is a ZIP file by checking the magic number.
@@ -180,6 +186,7 @@ def is_zipfile(filename):
     except IOError:
         pass
     return result
+
 
 def _EndRecData64(fpin, offset, endrec):
     """
@@ -487,6 +494,7 @@ class _ZipDecrypter:
         c = chr(c)
         self._UpdateKeys(c)
         return c
+
 
 class ZipExtFile(io.BufferedIOBase):
 
@@ -1447,6 +1455,7 @@ class ZipFile:
             self.fp.close()
         self.fp = None
 
+
 def safe_replace(zipstream, name, datastream, extra_replacements={},
         add_missing=False):
     '''
@@ -1497,6 +1506,7 @@ def safe_replace(zipstream, name, datastream, extra_replacements={},
         zipstream.truncate()
         shutil.copyfileobj(temp, zipstream)
         zipstream.flush()
+
 
 class PyZipFile(ZipFile):
 

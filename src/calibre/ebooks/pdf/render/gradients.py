@@ -18,6 +18,7 @@ from calibre.ebooks.pdf.render.common import Name, Array, Dictionary
 
 Stop = namedtuple('Stop', 't color')
 
+
 class LinearGradientPattern(Dictionary):
 
     def __init__(self, brush, matrix, pdf, pixel_page_width, pixel_page_height):

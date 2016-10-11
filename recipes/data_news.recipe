@@ -3,6 +3,7 @@
 from __future__ import unicode_literals, division, absolute_import, print_function
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class AdvancedUserRecipe1468055030(BasicNewsRecipe):
     title          		  = 'DataNews'
     __author__            = 'oCkz7bJ_'

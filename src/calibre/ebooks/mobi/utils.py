@@ -19,6 +19,7 @@ from tinycss.color3 import parse_color_string
 IMAGE_MAX_SIZE = 10 * 1024 * 1024
 RECORD_SIZE = 0x1000  # 4096 (Text record size (uncompressed))
 
+
 def decode_string(raw, codec='utf-8', ordt_map=''):
     length, = struct.unpack(b'>B', raw[0])
     raw = raw[1:1+length]
@@ -26,6 +27,7 @@ def decode_string(raw, codec='utf-8', ordt_map=''):
     if ordt_map:
         return ''.join(ordt_map[ord(x)] for x in raw), consumed
     return raw.decode(codec), consumed
+
 
 def decode_hex_number(raw, codec='utf-8'):
     '''
@@ -42,10 +44,12 @@ def decode_hex_number(raw, codec='utf-8'):
     raw, consumed = decode_string(raw, codec=codec)
     return int(raw, 16), consumed
 
+
 def encode_string(raw):
     ans = bytearray(bytes(raw))
     ans.insert(0, len(ans))
     return bytes(ans)
+
 
 def encode_number_as_hex(num):
     '''
@@ -60,6 +64,7 @@ def encode_number_as_hex(num):
     if nlen % 2 != 0:
         num = b'0'+num
     return encode_string(num)
+
 
 def encint(value, forward=True):
     '''
@@ -97,6 +102,7 @@ def encint(value, forward=True):
     byts.reverse()
     return bytes(byts)
 
+
 def decint(raw, forward=True):
     '''
     Read a variable width integer from the bytestring or bytearray raw and return the
@@ -123,6 +129,7 @@ def decint(raw, forward=True):
 
     return val, len(byts)
 
+
 def test_decint(num):
     for d in (True, False):
         raw = encint(num, forward=d)
@@ -130,6 +137,7 @@ def test_decint(num):
         if (num, sz) != decint(raw, forward=d):
             raise ValueError('Failed for num %d, forward=%r: %r != %r' % (
                 num, d, (num, sz), decint(raw, forward=d)))
+
 
 def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
     '''
@@ -172,6 +180,7 @@ def rescale_image(data, maxsizeb=IMAGE_MAX_SIZE, dimen=None):
         scale -= 0.05
     return data
 
+
 def get_trailing_data(record, extra_data_flags):
     '''
     Given a text record as a bytestring and the extra data flags from the MOBI
@@ -203,6 +212,7 @@ def get_trailing_data(record, extra_data_flags):
         record = record[:-sz]
     return data, record
 
+
 def encode_trailing_data(raw):
     '''
     Given some data in the bytestring raw, return a bytestring of the form
@@ -222,6 +232,7 @@ def encode_trailing_data(raw):
             break
         lsize += 1
     return raw + encoded
+
 
 def encode_fvwi(val, flags, flag_size=4):
     '''
@@ -279,6 +290,7 @@ def decode_tbs(byts, flag_size=4):
         consumed += consumed2
     return val, extra, consumed
 
+
 def encode_tbs(val, extra, flag_size=4):
     '''
     Encode the number val and the extra data in the extra dict as an fvwi. See
@@ -297,6 +309,7 @@ def encode_tbs(val, extra, flag_size=4):
         ans += encint(extra[0b0001])
     return ans
 
+
 def utf8_text(text):
     '''
     Convert a possibly null string to utf-8 bytes, guaranteeing to return a non
@@ -310,6 +323,7 @@ def utf8_text(text):
     else:
         text = _('Unknown').encode('utf-8')
     return text
+
 
 def align_block(raw, multiple=4, pad=b'\0'):
     '''
@@ -353,6 +367,7 @@ def detect_periodical(toc, log=None):
             return False
     return True
 
+
 def count_set_bits(num):
     if num < 0:
         num = -num
@@ -361,6 +376,7 @@ def count_set_bits(num):
         ans += (num & 0b1)
         num >>= 1
     return ans
+
 
 def to_base(num, base=32, min_num_digits=None):
     digits = string.digits + string.ascii_uppercase
@@ -379,6 +395,7 @@ def to_base(num, base=32, min_num_digits=None):
     ans.reverse()
     return ''.join(ans)
 
+
 def mobify_image(data):
     'Convert PNG images to GIF as the idiotic Kindle cannot display some PNG'
     fmt = what(None, data)
@@ -392,6 +409,8 @@ def mobify_image(data):
     return data
 
 # Font records {{{
+
+
 def read_font_record(data, extent=1040):
     '''
     Return the font encoded in the MOBI FONT record represented by data.
@@ -467,6 +486,7 @@ def read_font_record(data, extent=1040):
 
     return ans
 
+
 def write_font_record(data, obfuscate=True, compress=True):
     '''
     Write the ttf/otf font represented by data into a font record. See
@@ -498,6 +518,7 @@ def write_font_record(data, obfuscate=True, compress=True):
     return header + xor_key + data
 
 # }}}
+
 
 def create_text_record(text):
     '''
@@ -549,6 +570,7 @@ def create_text_record(text):
 
     return data, overlap
 
+
 class CNCX(object):  # {{{
 
     '''
@@ -594,6 +616,7 @@ class CNCX(object):  # {{{
         return len(self.records)
 
 # }}}
+
 
 def is_guide_ref_start(ref):
     return (ref.title.lower() == 'start' or

@@ -14,10 +14,12 @@ import sys, os
 from calibre.ebooks.rtf2xml import copy, override_table, list_table
 from calibre.ptempfile import better_mktemp
 
+
 class PreambleDiv:
     """
     Break the preamble into divisions.
     """
+
     def __init__(self, in_file,
             bug_handler,
             copy=None,
@@ -40,6 +42,7 @@ class PreambleDiv:
         self.__no_namespace = no_namespace
         self.__write_to = better_mktemp()
         self.__run_level = run_level
+
     def __initiate_values(self):
         """
         Set values, including those for the dictionary.
@@ -121,6 +124,7 @@ class PreambleDiv:
                 run_level=self.__run_level,
                 bug_handler=self.__bug_handler,
                 )
+
     def __ignore_func(self, line):
         """
         Ignore all  lines, until the bracket is found that marks the end of
@@ -128,8 +132,10 @@ class PreambleDiv:
         """
         if self.__ignore_num == self.__cb_count:
             self.__state = self.__previous_state
+
     def __found_rtf_head_func(self, line):
         self.__state = 'rtf_header'
+
     def __rtf_head_func(self, line):
         if self.__ob_count == '0002':
             self.__rtf_final = (
@@ -151,6 +157,7 @@ class PreambleDiv:
             self.__write_obj.write(line)
         else:
             self.__rtf_final = self.__rtf_final + line
+
     def __make_default_font_table(self):
         """
         If not font table is fount, need to write one out.
@@ -163,6 +170,7 @@ class PreambleDiv:
         self.__font_table_final += 'mi<mk<fontit-end\n'
         self.__font_table_final +=  'mi<mk<fonttb-end\n'
         self.__font_table_final += 'mi<tg<close_____<font-table\n'
+
     def __make_default_color_table(self):
         """
         If no color table is found, write a string for a default one
@@ -174,6 +182,7 @@ class PreambleDiv:
         self.__color_table_final += 'cw<ci<blue______<en<00\n'
         self.__color_table_final += 'mi<mk<clrtbl-end\n'
         self.__color_table_final += 'mi<tg<close_____<color-table\n'
+
     def __make_default_style_table(self):
         """
         If not font table is found, make a string for a default one
@@ -200,6 +209,7 @@ mi<mk<stylei-end
 mi<mk<styles-end
 mi<tg<close_____<style-table
 """
+
     def __found_font_table_func(self, line):
         if self.__found_font_table:
             self.__state = 'ignore'
@@ -209,6 +219,7 @@ mi<tg<close_____<style-table
         self.__close_group_count = self.__ob_count
         self.__cb_count = 0
         self.__found_font_table = 1
+
     def __font_table_func(self, line):
         """
         Keep adding to the self.__individual_font string until end of group
@@ -251,6 +262,7 @@ cw<ci<font-style<nu<0
             self.__individual_font = 1
             self.__font_table_final +=   'mi<mk<fontit-beg\n'
             self.__font_table_final +=  line
+
     def __old_font_func(self, line):
         """
         Required:
@@ -262,6 +274,7 @@ cw<ci<font-style<nu<0
             \f3\fswiss\fcharset77 Helvetica-Oblique;\f4\fnil\fcharset77 Geneva;}
             Note how each font is not divided by a bracket
         """
+
     def __found_color_table_func(self, line):
         """
         all functions that start with __found operate the same. They set the
@@ -272,6 +285,7 @@ cw<ci<font-style<nu<0
         self.__color_table_final = ''
         self.__close_group_count = self.__ob_count
         self.__cb_count = 0
+
     def __color_table_func(self, line):
         if int(self.__cb_count) == int(self.__close_group_count):
             self.__state = 'preamble'
@@ -281,11 +295,13 @@ cw<ci<font-style<nu<0
             'mi<mk<clrtbl-end\n' + 'mi<tg<close_____<color-table\n'
         else:
             self.__color_table_final += line
+
     def __found_style_sheet_func(self, line):
         self.__state = 'style_sheet'
         self.__style_sheet_final = ''
         self.__close_group_count = self.__ob_count
         self.__cb_count = 0
+
     def __style_sheet_func(self, line):
         """
         Same logic as the  font_table_func.
@@ -306,11 +322,13 @@ cw<ci<font-style<nu<0
                 'mi<mk<stylei-end\n'
         else:
             self.__style_sheet_final +=  line
+
     def __found_list_table_func(self, line):
         self.__state = 'list_table'
         self.__list_table_final = ''
         self.__close_group_count = self.__ob_count
         self.__cb_count = 0
+
     def __list_table_func(self, line):
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
@@ -323,6 +341,7 @@ cw<ci<font-style<nu<0
         else:
             self.__list_table_final += line
             pass
+
     def __found_override_table_func(self, line):
         self.__override_table_obj = override_table.OverrideTable(
             run_level=self.__run_level,
@@ -333,6 +352,7 @@ cw<ci<font-style<nu<0
         self.__close_group_count = self.__ob_count
         self.__cb_count = 0
         # cw<it<lovr-table
+
     def __override_table_func(self, line):
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
@@ -342,11 +362,13 @@ cw<ci<font-style<nu<0
             pass
         else:
             self.__override_table_final += line
+
     def __found_revision_table_func(self, line):
         self.__state = 'revision_table'
         self.__revision_table_final = ''
         self.__close_group_count = self.__ob_count
         self.__cb_count = 0
+
     def __revision_table_func(self, line):
         if int(self.__cb_count) == int(self.__close_group_count):
             self.__state = 'preamble'
@@ -356,11 +378,13 @@ cw<ci<font-style<nu<0
             'mi<mk<revtbl-end\n' + 'mi<tg<close_____<revision-table\n'
         else:
             self.__revision_table_final += line
+
     def __found_doc_info_func(self, line):
         self.__state = 'doc_info'
         self.__doc_info_table_final = ''
         self.__close_group_count = self.__ob_count
         self.__cb_count = 0
+
     def __doc_info_func(self, line):
         if self.__cb_count == self.__close_group_count:
             self.__state = 'preamble'
@@ -378,6 +402,7 @@ cw<ci<font-style<nu<0
                 'mi<mk<docinf-end\n'
         else:
             self.__doc_info_table_final +=  line
+
     def __margin_func(self, line):
         """
         Handles lines that describe page info. Add the apporpriate info in the
@@ -390,6 +415,7 @@ cw<ci<font-style<nu<0
         else:
             self.__page[changed] = line[20:-1]
         # cw<pa<margin-lef<nu<1728
+
     def __print_page_info(self):
         self.__write_obj.write('mi<tg<empty-att_<page-definition')
         for key in self.__page.keys():
@@ -398,6 +424,7 @@ cw<ci<font-style<nu<0
             )
         self.__write_obj.write('\n')
 # mi<tg<open-att__<footn
+
     def __print_sec_info(self):
         """
         Check if there is any section info. If so, print it out.
@@ -416,6 +443,7 @@ cw<ci<font-style<nu<0
                 '<%s>%s' %  (key, self.__section[key])
                 )
             self.__write_obj.write('\n')
+
     def __section_func(self, line):
         """
         Add info pertaining to section to the self.__section dictionary, to be
@@ -426,11 +454,14 @@ cw<ci<font-style<nu<0
             sys.stderr.write('woops!\n')
         else:
             self.__section[info] = 'true'
+
     def __body_func(self, line):
         self.__write_obj.write(line)
+
     def __default_func(self, line):
         # either in preamble or in body
         pass
+
     def __para_def_func(self, line):
         # if self.__ob_group == 1
         # this tells dept of group
@@ -438,6 +469,7 @@ cw<ci<font-style<nu<0
             self.__state = 'body'
             self.__write_preamble()
         self.__write_obj.write(line)
+
     def __text_func(self, line):
         """
         If the cb_count is less than 1, you have hit the body
@@ -456,6 +488,7 @@ cw<ci<font-style<nu<0
             self.__state = 'body'
             self.__write_preamble()
         self.__write_obj.write(line)
+
     def __row_def_func(self, line):
         # if self.__ob_group == 1
         # this tells dept of group
@@ -463,6 +496,7 @@ cw<ci<font-style<nu<0
             self.__state = 'body'
             self.__write_preamble()
         self.__write_obj.write(line)
+
     def __new_section_func(self, line):
         """
         This is new. The start of a section marks the end of the preamble
@@ -475,6 +509,7 @@ cw<ci<font-style<nu<0
             sys.stderr.write('method is __new_section_func\n')
             sys.stderr.write('bracket count should be 2?\n')
         self.__write_obj.write(line)
+
     def __write_preamble(self):
         """
         Write all the strings, which represent all the data in the preamble.
@@ -514,6 +549,7 @@ cw<ci<font-style<nu<0
         # self.__write_obj.write('mi<mk<head_foot_<\n')
         # self.__write_obj.write('mi<tg<close_____<headers-and-footers\n')
         self.__write_obj.write('mi<mk<body-open_\n')
+
     def __preamble_func(self, line):
         """
         Check if the token info belongs to the dictionary. If so, take the
@@ -522,6 +558,7 @@ cw<ci<font-style<nu<0
         action = self.__state_dict.get(self.__token_info)
         if action:
             action(line)
+
     def make_preamble_divisions(self):
         self.__initiate_values()
         read_obj = open(self.__file, 'r')

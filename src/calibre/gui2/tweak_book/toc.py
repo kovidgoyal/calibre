@@ -17,6 +17,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.toc.main import TOCView, ItemEdit
 from calibre.gui2.tweak_book import current_container, TOP, actions, tprefs
 
+
 class TOCEditor(QDialog):
 
     explode_done = pyqtSignal(object)
@@ -102,11 +103,13 @@ class TOCEditor(QDialog):
 DEST_ROLE = Qt.UserRole
 FRAG_ROLE = DEST_ROLE + 1
 
+
 class Delegate(QStyledItemDelegate):
 
     def sizeHint(self, *args):
         ans = QStyledItemDelegate.sizeHint(self, *args)
         return ans + QSize(0, 10)
+
 
 class TOCViewer(QWidget):
 

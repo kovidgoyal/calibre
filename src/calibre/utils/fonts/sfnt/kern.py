@@ -13,6 +13,7 @@ from calibre.utils.fonts.sfnt import (UnknownTable, FixedProperty,
         max_power_of_two)
 from calibre.utils.fonts.sfnt.errors import UnsupportedFont
 
+
 class KernTable(UnknownTable):
 
     version = FixedProperty('_version')

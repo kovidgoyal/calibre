@@ -68,6 +68,7 @@ TODO:
     * Fonts
 '''
 
+
 def txt2rtf(text):
     # Escape { and } in the text.
     text = text.replace('{', r'\'7b')

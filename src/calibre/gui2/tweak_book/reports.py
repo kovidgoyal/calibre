@@ -40,11 +40,13 @@ from calibre.utils.localization import calibre_langcode_to_name, canonicalize_la
 
 ROOT = QModelIndex()
 
+
 def read_state(name, default=None):
     data = tprefs.get('reports-ui-state')
     if data is None:
         tprefs['reports-ui-state'] = data = {}
     return data.get(name, default)
+
 
 def save_state(name, val):
     data = tprefs.get('reports-ui-state')
@@ -55,6 +57,7 @@ def save_state(name, val):
     data[name] = val
 
 SORT_ROLE = Qt.UserRole + 1
+
 
 class ProxyModel(QSortFilterProxyModel):
 
@@ -80,6 +83,7 @@ class ProxyModel(QSortFilterProxyModel):
         if orientation == Qt.Vertical and role == Qt.DisplayRole:
             return section + 1
         return QSortFilterProxyModel.headerData(self, section, orientation, role)
+
 
 class FileCollection(QAbstractTableModel):
 
@@ -109,6 +113,7 @@ class FileCollection(QAbstractTableModel):
             return self.files[index.row()].name
         except IndexError:
             pass
+
 
 class FilesView(QTableView):
 
@@ -213,6 +218,7 @@ class FilesView(QTableView):
 
 # Files {{{
 
+
 class FilesModel(FileCollection):
 
     COLUMN_HEADERS = (_('Folder'), _('Name'), _('Size (KB)'), _('Type'))
@@ -262,6 +268,7 @@ class FilesModel(FileCollection):
             if col == 3:
                 return self.CATEGORY_NAMES.get(entry.category)
 
+
 class FilesWidget(QWidget):
 
     edit_requested = pyqtSignal(object)
@@ -307,6 +314,7 @@ class FilesWidget(QWidget):
 
 # Jump {{{
 
+
 def jump_to_location(loc):
     from calibre.gui2.tweak_book.boss import get_boss
     boss = get_boss()
@@ -327,6 +335,7 @@ def jump_to_location(loc):
         if loc.text_on_line is not None:
             editor.find(regex.compile(regex.escape(loc.text_on_line)))
 
+
 class Jump(object):
 
     def __init__(self):
@@ -344,6 +353,7 @@ class Jump(object):
 jump = Jump()  # }}}
 
 # Images {{{
+
 
 class ImagesDelegate(QStyledItemDelegate):
 
@@ -496,6 +506,7 @@ class ImagesWidget(QWidget):
 
 # Links {{{
 
+
 class LinksModel(FileCollection):
 
     COLUMN_HEADERS = ['✓ ', _('Source'), _('Source text'), _('Target'), _('Anchor'), _('Target text')]
@@ -560,10 +571,12 @@ class LinksModel(FileCollection):
             except IndexError:
                 pass
 
+
 class WebView(QWebView):
 
     def sizeHint(self):
         return QSize(600, 200)
+
 
 class LinksWidget(QWidget):
 
@@ -649,6 +662,7 @@ class LinksWidget(QWidget):
 
 # Words {{{
 
+
 class WordsModel(FileCollection):
 
     COLUMN_HEADERS = (_('Word'), _('Language'), _('Times used'))
@@ -660,6 +674,7 @@ class WordsModel(FileCollection):
         self.total_size = len({entry.locale for entry in self.files})
         psk = numeric_sort_key
         lsk_cache = {}
+
         def locale_sort_key(loc):
             try:
                 return lsk_cache[loc]
@@ -699,6 +714,7 @@ class WordsModel(FileCollection):
 
     def location(self, index):
         return None
+
 
 class WordsWidget(QWidget):
 
@@ -741,6 +757,7 @@ class WordsWidget(QWidget):
 # }}}
 
 # Characters {{{
+
 
 class CharsModel(FileCollection):
 
@@ -785,6 +802,7 @@ class CharsModel(FileCollection):
 
     def location(self, index):
         return None
+
 
 class CharsWidget(QWidget):
 
@@ -854,6 +872,7 @@ class CharsWidget(QWidget):
 # }}}
 
 # CSS {{{
+
 
 class CSSRulesModel(QAbstractItemModel):
 
@@ -957,6 +976,7 @@ class CSSRulesModel(QAbstractItemModel):
         self.build_maps()
         self.endResetModel()
 
+
 class CSSProxyModel(QSortFilterProxyModel):
 
     def __init__(self, parent=None):
@@ -976,6 +996,7 @@ class CSSProxyModel(QSortFilterProxyModel):
         if not isinstance(entry, CSSEntry):
             return True
         return primary_contains(self._filter_text, entry.rule.selector)
+
 
 class CSSWidget(QWidget):
 
@@ -1032,6 +1053,7 @@ class CSSWidget(QWidget):
     def sort_order(self):
         def fget(self):
             return [Qt.AscendingOrder, Qt.DescendingOrder][self._sort_order.currentIndex()]
+
         def fset(self, val):
             self._sort_order.setCurrentIndex({Qt.AscendingOrder:0}.get(val, 1))
         return property(fget=fget, fset=fset)
@@ -1099,6 +1121,7 @@ class CSSWidget(QWidget):
 # }}}
 
 # Classes {{{
+
 
 class ClassesModel(CSSRulesModel):
 
@@ -1177,6 +1200,7 @@ class ClassesModel(CSSRulesModel):
         self.build_maps()
         self.endResetModel()
 
+
 class ClassProxyModel(CSSProxyModel):
 
     def filterAcceptsRow(self, row, parent):
@@ -1187,6 +1211,7 @@ class ClassProxyModel(CSSProxyModel):
         if not isinstance(entry, ClassEntry):
             return True
         return primary_contains(self._filter_text, entry.cls)
+
 
 class ClassesWidget(CSSWidget):
 
@@ -1231,6 +1256,8 @@ class ClassesWidget(CSSWidget):
 # }}}
 
 # Wrapper UI {{{
+
+
 class ReportsWidget(QWidget):
 
     edit_requested = pyqtSignal(object)
@@ -1319,6 +1346,7 @@ class ReportsWidget(QWidget):
         if fname:
             with open(fname, 'wb') as f:
                 f.write(data)
+
 
 class Reports(Dialog):
 

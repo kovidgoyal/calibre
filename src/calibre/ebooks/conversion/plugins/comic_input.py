@@ -13,6 +13,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 from calibre import CurrentDir
 from calibre.ptempfile import PersistentTemporaryDirectory
 
+
 class ComicInput(InputFormatPlugin):
 
     name        = 'Comic Input'

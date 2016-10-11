@@ -20,6 +20,7 @@ from calibre.customize import (Plugin, numeric_version, platform,
 # python 2.x that prevents importing from zip files in locations whose paths
 # have non ASCII characters
 
+
 def get_resources(zfp, name_or_list_of_names):
     '''
     Load resources from the plugin zip file
@@ -47,6 +48,7 @@ def get_resources(zfp, name_or_list_of_names):
         ans = ans.pop(names[0], None)
 
     return ans
+
 
 def get_icons(zfp, name_or_list_of_names):
     '''
@@ -83,6 +85,7 @@ def get_icons(zfp, name_or_list_of_names):
 
 _translations_cache = {}
 
+
 def load_translations(namespace, zfp):
     null = object()
     trans = _translations_cache.get(zfp, null)
@@ -108,6 +111,7 @@ def load_translations(namespace, zfp):
 
     namespace['_'] = trans.ugettext
     namespace['ngettext'] = trans.ungettext
+
 
 class PluginLoader(object):
 

@@ -14,6 +14,7 @@ __all__ = ['translate']
 
 _CACHE = {}
 
+
 def translate(lang, text):
     trans = None
     if lang in _CACHE:

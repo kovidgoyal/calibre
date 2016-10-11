@@ -12,6 +12,7 @@ This module implements a simple commandline SMTP client that supports:
 import sys, traceback, os, socket, encodings.idna as idna
 from calibre import isbytestring, force_unicode
 
+
 def create_mail(from_, to, subject, text=None, attachment_data=None,
                  attachment_type=None, attachment_name=None):
     assert text or attachment_data
@@ -52,6 +53,7 @@ def create_mail(from_, to, subject, text=None, attachment_data=None,
 
     return outer.as_string()
 
+
 def get_mx(host, verbose=0):
     import dns.resolver
     if verbose:
@@ -60,6 +62,7 @@ def get_mx(host, verbose=0):
     answers.sort(cmp=lambda x, y: cmp(int(getattr(x, 'preference', sys.maxint)),
                                       int(getattr(y, 'preference', sys.maxint))))
     return [str(x.exchange) for x in answers if hasattr(x, 'exchange')]
+
 
 def safe_localhost():
     # RFC 2821 says we should use the fqdn in the EHLO/HELO verb, and
@@ -82,6 +85,7 @@ def safe_localhost():
             pass
         local_hostname = '[%s]' % addr
     return local_hostname
+
 
 def sendmail_direct(from_, to, msg, timeout, localhost, verbose,
         debug_output=None):
@@ -143,6 +147,7 @@ def sendmail(msg, from_, to, localhost=None, verbose=0, timeout=None,
             pass  # Ignore so as to not hide original error
     return ret
 
+
 def option_parser():
     try:
         from calibre.utils.config import OptionParser
@@ -196,9 +201,11 @@ are only used in the SMTP negotiation, the message headers are not modified.
                       help=_('Be more verbose'))
     return parser
 
+
 def extract_email_address(raw):
     from email.utils import parseaddr
     return parseaddr(raw)[-1]
+
 
 def compose_mail(from_, to, text, subject=None, attachment=None,
         attachment_name=None):
@@ -219,6 +226,7 @@ def compose_mail(from_, to, text, subject=None, attachment=None,
     return create_mail(from_, to, subject, text=text,
             attachment_data=attachment_data, attachment_type=attachment_type,
             attachment_name=attachment_name)
+
 
 def main(args=sys.argv):
     parser = option_parser()
@@ -273,6 +281,7 @@ def main(args=sys.argv):
             print 'Delivery failed. Message saved to', opts.outbox
         raise
     return 0
+
 
 def config(defaults=None):
     from calibre.utils.config import Config, StringConfig

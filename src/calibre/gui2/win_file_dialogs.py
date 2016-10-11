@@ -14,6 +14,7 @@ is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
 HELPER = os.path.join(base, 'calibre-file-dialog.exe')
 
+
 def is_ok():
     return os.path.exists(HELPER)
 
@@ -26,6 +27,7 @@ except ImportError:
     expanduser = os.path.expanduser
     dynamic = {}
 
+
 def get_hwnd(widget=None):
     ewid = None
     if widget is not None:
@@ -34,17 +36,21 @@ def get_hwnd(widget=None):
         return None
     return int(ewid)
 
+
 def serialize_hwnd(hwnd):
     if hwnd is None:
         return b''
     return struct.pack(b'=B4s' + (b'Q' if is64bit else b'I'), 4, b'HWND', int(hwnd))
 
+
 def serialize_secret(secret):
     return struct.pack(b'=B6s32s', 6, b'SECRET', secret)
+
 
 def serialize_binary(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
     return struct.pack(b'=B%ssB' % len(key), len(key), key, int(val))
+
 
 def serialize_string(key, val):
     key = key.encode('ascii') if not isinstance(key, bytes) else key
@@ -53,9 +59,11 @@ def serialize_string(key, val):
         raise ValueError('%s is too long' % key)
     return struct.pack(b'=B%dsH%ds' % (len(key), len(val)), len(key), key, len(val), val)
 
+
 def serialize_file_types(file_types):
     key = b"FILE_TYPES"
     buf = [struct.pack(b'=B%dsH' % len(key), len(key), key, len(file_types))]
+
     def add(x):
         x = x.encode('utf-8').replace(b'\0', b'')
         buf.append(struct.pack(b'=H%ds' % len(x), len(x), x))
@@ -65,6 +73,7 @@ def serialize_file_types(file_types):
             extensions = extensions.split()
         add('; '.join('*.' + ext.lower() for ext in extensions))
     return b''.join(buf)
+
 
 class Helper(Thread):
 
@@ -82,6 +91,7 @@ class Helper(Thread):
         self.rc = self.process.wait()
         self.callback()
 
+
 class Loop(QEventLoop):
 
     dialog_closed = pyqtSignal()
@@ -90,10 +100,12 @@ class Loop(QEventLoop):
         QEventLoop.__init__(self)
         self.dialog_closed.connect(self.exit, type=Qt.QueuedConnection)
 
+
 def process_path(x):
     if isinstance(x, bytes):
         x = x.decode(filesystem_encoding)
     return os.path.abspath(expanduser(x))
+
 
 def select_initial_dir(q):
     while q:
@@ -104,6 +116,7 @@ def select_initial_dir(q):
             return c
         q = c
     return expanduser('~')
+
 
 def run_file_dialog(
         parent=None, title=None, initial_folder=None, filename=None, save_path=None,
@@ -161,6 +174,7 @@ def run_file_dialog(
                data, loop.dialog_closed.emit)
     h.start()
     loop.exec_(QEventLoop.ExcludeUserInputEvents)
+
     def decode(x):
         x = x or b''
         try:
@@ -168,6 +182,7 @@ def run_file_dialog(
         except Exception:
             x = repr(x)
         return x
+
     def get_errors():
         return decode(h.stdoutdata) + ' ' + decode(h.stderrdata)
     from calibre import prints
@@ -194,6 +209,7 @@ def run_file_dialog(
     ans = tuple((os.path.abspath(x.decode('utf-8')) for x in parts[1:]))
     return ans
 
+
 def get_initial_folder(name, title, default_dir='~', no_save_dir=False):
     name = name or 'dialog_' + title
     if no_save_dir:
@@ -204,6 +220,7 @@ def get_initial_folder(name, title, default_dir='~', no_save_dir=False):
         initial_folder = select_initial_dir(initial_folder)
     return name, initial_folder
 
+
 def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
     name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
     ans = run_file_dialog(window, title, only_dirs=True, initial_folder=initial_folder)
@@ -212,6 +229,7 @@ def choose_dir(window, name, title, default_dir='~', no_save_dir=False):
         if not no_save_dir:
             dynamic.set(name, ans)
         return ans
+
 
 def choose_files(window, name, title,
                  filters=(), all_files=True, select_only_single_file=False, default_dir=u'~'):
@@ -225,12 +243,14 @@ def choose_files(window, name, title,
         return ans
     return None
 
+
 def choose_images(window, name, title, select_only_single_file=True, formats=None):
     if formats is None:
         from calibre.gui2.dnd import image_extensions
         formats = image_extensions()
     file_types = [(_('Images'), list(formats))]
     return choose_files(window, name, title, select_only_single_file=select_only_single_file, filters=file_types)
+
 
 def choose_save_file(window, name, title, filters=[], all_files=True, initial_path=None, initial_filename=None):
     no_save_dir = False
@@ -251,6 +271,7 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
             dynamic.set(name, ans)
         return ans
 
+
 class PipeServer(Thread):
 
     def __init__(self, pipename):
@@ -270,6 +291,7 @@ class PipeServer(Thread):
 
     def run(self):
         import win32pipe, win32file, winerror, win32api
+
         def as_unicode(err):
             try:
                 self.err_msg = type('')(err)
@@ -303,6 +325,7 @@ class PipeServer(Thread):
         finally:
             win32api.CloseHandle(self.pipe_handle)
             self.pipe_handle = None
+
 
 def test(helper=HELPER):
     pipename = '\\\\.\\pipe\\%s' % uuid4()

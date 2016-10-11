@@ -13,6 +13,7 @@ from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader.reader132 import Reader132
 from calibre.ebooks.pdb.ereader.reader202 import Reader202
 
+
 class Reader(FormatReader):
 
     def __init__(self, header, stream, log, options):

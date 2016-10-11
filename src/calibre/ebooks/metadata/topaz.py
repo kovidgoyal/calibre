@@ -10,6 +10,7 @@ from struct import pack
 from calibre.ebooks.metadata import MetaInformation
 from calibre import force_unicode
 
+
 class StreamSlicer(object):
 
     def __init__(self, stream, start=0, stop=None):
@@ -76,6 +77,7 @@ class StreamSlicer(object):
 
     def truncate(self, value):
         self._stream.truncate(value)
+
 
 class MetadataUpdater(object):
 
@@ -356,9 +358,11 @@ class MetadataUpdater(object):
         self.stream.write(updated_metadata)
         self.stream.write(chunk2)
 
+
 def get_metadata(stream):
     mu = MetadataUpdater(stream)
     return mu.get_metadata()
+
 
 def set_metadata(stream, mi):
     mu = MetadataUpdater(stream)

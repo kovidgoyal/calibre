@@ -110,6 +110,7 @@ MIBNUM_TO_NAME = {
     2258: 'cp1258',
 }
 
+
 class HeaderRecord(object):
     '''
     Plucker header. PDB record 0.

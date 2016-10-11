@@ -114,6 +114,7 @@ affecting image quality.</p>
 
 }
 
+
 def hfix(name, raw):
     if name == 'about':
         return raw.format('')
@@ -126,6 +127,7 @@ def hfix(name, raw):
 CLI_HELP = {x:hfix(x, re.sub('<.*?>', '', y)) for x, y in HELP.iteritems()}
 # }}}
 
+
 def update_metadata(ebook, new_opf):
     from calibre.ebooks.metadata.opf import get_metadata, set_metadata
     with ebook.open(ebook.opf_name, 'r+b') as stream, open(new_opf, 'rb') as ns:
@@ -135,6 +137,7 @@ def update_metadata(ebook, new_opf):
         stream.seek(0)
         stream.truncate()
         stream.write(opfbytes)
+
 
 def polish_one(ebook, opts, report, customization=None):
     rt = lambda x: report('\n### ' + x)
@@ -228,6 +231,7 @@ def polish(file_map, opts, log, report):
 
 REPORT = '{0} REPORT {0}'.format('-'*30)
 
+
 def gui_polish(data):
     files = data.pop('files')
     if not data.pop('metadata'):
@@ -248,6 +252,7 @@ def gui_polish(data):
         log(msg)
     return '\n\n'.join(report)
 
+
 def tweak_polish(container, actions, customization=None):
     opts = ALL_OPTS.copy()
     opts.update(actions)
@@ -256,6 +261,7 @@ def tweak_polish(container, actions, customization=None):
     report = []
     changed = polish_one(container, opts, report.append, customization=customization)
     return report, changed
+
 
 def option_parser():
     from calibre.utils.config import OptionParser
@@ -280,6 +286,7 @@ def option_parser():
     o('--verbose', help=_('Produce more verbose output, useful for debugging.'))
 
     return parser
+
 
 def main(args=None):
     parser = option_parser()

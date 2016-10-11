@@ -16,6 +16,7 @@ from calibre.library.check_library import CheckLibrary, CHECKS
 from calibre.utils.recycle_bin import delete_file, delete_tree
 from calibre import prints, as_unicode
 
+
 class DBCheck(QDialog):  # {{{
 
     update_msg = pyqtSignal(object)
@@ -70,8 +71,10 @@ class DBCheck(QDialog):  # {{{
 
 # }}}
 
+
 class Item(QTreeWidgetItem):
     pass
+
 
 class CheckLibraryDialog(QDialog):
 

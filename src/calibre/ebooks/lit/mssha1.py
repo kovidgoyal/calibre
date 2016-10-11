@@ -16,6 +16,7 @@ import struct, copy
 #   and is reused here with tiny modifications.
 # ======================================================================
 
+
 def _long2bytesBigEndian(n, blocksize=0):
     """Convert a long integer to a byte string.
 
@@ -84,16 +85,21 @@ def _rotateLeft(x, n):
 def f0_19(B, C, D):
     return (B & (C ^ D)) ^ D
 
+
 def f20_39(B, C, D):
     return B ^ C ^ D
 
+
 def f40_59(B, C, D):
     return ((B | C) & D) | (B & C)
+
 
 def f60_79(B, C, D):
     return B ^ C ^ D
 
 # Microsoft's lovely addition...
+
+
 def f6_42(B, C, D):
     return (B + C) ^ C
 
@@ -118,6 +124,7 @@ K = [
     0x8F1BBCDCL,  # (40 <= t <= 59)
     0xCA62C1D6L  # (60 <= t <= 79)
     ]
+
 
 class mssha1(object):
     "An implementation of the MD5 hash function in pure Python."
@@ -299,6 +306,7 @@ class mssha1(object):
 
 digest_size = digestsize = 20
 blocksize = 1
+
 
 def new(arg=None):
     """Return a new mssha1 crypto object.

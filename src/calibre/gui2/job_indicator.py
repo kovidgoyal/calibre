@@ -13,6 +13,7 @@ from PyQt5.Qt import (QPainter, Qt, QWidget, QPropertyAnimation, QRect, QPoint,
 
 from calibre.gui2 import config
 
+
 class Pointer(QWidget):
 
     def __init__(self, gui):

@@ -4,10 +4,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, John Schember <john@nachtimwald.com>'
 __docformat__ = 'restructuredtext en'
 
+
 class PDBError(Exception):
     pass
 
 FORMAT_READERS = None
+
 
 def _import_readers():
     global FORMAT_READERS
@@ -31,6 +33,8 @@ def _import_readers():
 
 ALL_FORMAT_WRITERS = {'doc', 'ztxt', 'ereader'}
 FORMAT_WRITERS = None
+
+
 def _import_writers():
     global FORMAT_WRITERS
     from calibre.ebooks.pdb.palmdoc.writer import Writer as palmdoc_writer
@@ -77,6 +81,7 @@ IDENTITY_TO_NAME = {
     'BDOCWrdS': 'WordSmith',
 }
 
+
 def get_reader(identity):
     '''
     Returns None if no reader is found for the identity.
@@ -85,6 +90,7 @@ def get_reader(identity):
     if FORMAT_READERS is None:
         _import_readers()
     return FORMAT_READERS.get(identity, None)
+
 
 def get_writer(extension):
     '''

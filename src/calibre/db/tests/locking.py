@@ -11,6 +11,7 @@ from threading import Thread
 from calibre.db.tests.base import BaseTest
 from calibre.db.locking import SHLock, RWLockWrapper, LockingError
 
+
 class TestLock(BaseTest):
     """Tests for db locking """
 
@@ -27,6 +28,7 @@ class TestLock(BaseTest):
         self.assertFalse(lock.owns_lock())
 
         done = []
+
         def test():
             if not lock.owns_lock():
                 done.append(True)
@@ -40,12 +42,14 @@ class TestLock(BaseTest):
 
     def test_multithread_deadlock(self):
         lock = SHLock()
+
         def two_shared():
             r = RWLockWrapper(lock)
             with r:
                 time.sleep(0.2)
                 with r:
                     pass
+
         def one_exclusive():
             time.sleep(0.1)
             w = RWLockWrapper(lock, is_shared=False)
@@ -149,6 +153,7 @@ class TestLock(BaseTest):
     def test_contention(self):
         lock = SHLock()
         done = []
+
         def lots_of_acquires():
             for _ in xrange(1000):
                 shared = random.choice([True,False])

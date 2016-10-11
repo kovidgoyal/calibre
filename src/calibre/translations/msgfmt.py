@@ -35,6 +35,7 @@ __version__ = "1.1"
 MESSAGES = {}
 STATS = {'translated': 0, 'untranslated': 0}
 
+
 def usage(code, msg=''):
     print >> sys.stderr, __doc__
     if msg:

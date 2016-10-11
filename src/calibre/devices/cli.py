@@ -17,6 +17,7 @@ from calibre.utils.config import device_prefs
 
 MINIMUM_COL_WIDTH = 12  # : Minimum width of columns in ls output
 
+
 class FileFormatter(object):
 
     def __init__(self, file):
@@ -31,6 +32,7 @@ class FileFormatter(object):
     @dynamic_property
     def mode_string(self):
         doc=""" The mode string for this file. There are only two modes read-only and read-write """
+
         def fget(self):
             mode, x = "-", "-"
             if self.is_dir:
@@ -45,6 +47,7 @@ class FileFormatter(object):
     @dynamic_property
     def isdir_name(self):
         doc='''Return self.name + '/' if self is a directory'''
+
         def fget(self):
             name = self.name
             if self.is_dir:
@@ -55,6 +58,7 @@ class FileFormatter(object):
     @dynamic_property
     def name_in_color(self):
         doc=""" The name in ANSI text. Directories are blue, ebooks are green """
+
         def fget(self):
             cname = self.name
             blue, green, normal = "", "", ""
@@ -72,6 +76,7 @@ class FileFormatter(object):
     @dynamic_property
     def human_readable_size(self):
         doc=""" File size in human readable form """
+
         def fget(self):
             return human_readable(self.size)
         return property(doc=doc, fget=fget)
@@ -79,6 +84,7 @@ class FileFormatter(object):
     @dynamic_property
     def modification_time(self):
         doc=""" Last modified time in the Linux ls -l format """
+
         def fget(self):
             return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.wtime))
         return property(doc=doc, fget=fget)
@@ -86,9 +92,11 @@ class FileFormatter(object):
     @dynamic_property
     def creation_time(self):
         doc=""" Last modified time in the Linux ls -l format """
+
         def fget(self):
             return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.ctime))
         return property(doc=doc, fget=fget)
+
 
 def info(dev):
     info = dev.get_device_information()
@@ -96,6 +104,7 @@ def info(dev):
     print "Device version:  ", info[1]
     print "Software version:", info[2]
     print "Mime type:       ", info[3]
+
 
 def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
     def col_split(l, cols):  # split list l into columns
@@ -173,12 +182,14 @@ def ls(dev, path, recurse=False, human_readable_size=False, ll=False, cols=0):
     output.close()
     return listing
 
+
 def shutdown_plugins():
     for d in device_plugins():
         try:
             d.shutdown()
         except:
             pass
+
 
 def main():
     from calibre.utils.terminal import geometry

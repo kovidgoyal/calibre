@@ -13,6 +13,7 @@ speedup, err = plugins['speedup']
 if not speedup:
     raise RuntimeError(err)
 
+
 class SafeLocalTimeZone(tzlocal):
 
     def _isdst(self, dt):
@@ -28,6 +29,7 @@ utc_tz = tzutc()
 local_tz = SafeLocalTimeZone()
 del tzutc, tzlocal
 UNDEFINED_DATE = datetime(101,1,1, tzinfo=utc_tz)
+
 
 def parse_iso8601(date_string, assume_utc=False, as_utc=True):
     if not date_string:

@@ -12,6 +12,7 @@ from calibre.gui2.preferences.misc_ui import Ui_Form
 from calibre.gui2 import (config, open_local_file, gprefs)
 from calibre import get_proxies
 
+
 class WorkersSetting(Setting):
 
     def set_gui_val(self, val):
@@ -21,6 +22,7 @@ class WorkersSetting(Setting):
     def get_gui_val(self):
         val = Setting.get_gui_val(self)
         return val * 2
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 

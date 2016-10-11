@@ -15,6 +15,7 @@ from calibre.gui2 import (error_dialog, question_dialog, choose_files,
 from calibre import as_unicode
 from calibre.utils.localization import localize_user_manual_link
 
+
 class SearchAndReplaceWidget(Widget, Ui_Form):
 
     TITLE = _('Search\n&\nReplace')

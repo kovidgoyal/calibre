@@ -11,6 +11,7 @@ import traceback, sys
 from threading import Lock, Condition, current_thread
 from calibre.utils.config_base import tweaks
 
+
 class LockingError(RuntimeError):
 
     is_locking_error = True
@@ -19,8 +20,10 @@ class LockingError(RuntimeError):
         RuntimeError.__init__(self, msg)
         self.locking_debug_msg = extra
 
+
 class DowngradeLockError(LockingError):
     pass
+
 
 def create_locks():
     '''
@@ -47,6 +50,7 @@ def create_locks():
     l = SHLock()
     wrapper = DebugRWLockWrapper if tweaks.get('newdb_debug_locking', False) else RWLockWrapper
     return wrapper(l), wrapper(l, is_shared=False)
+
 
 class SHLock(object):  # {{{
     '''
@@ -207,6 +211,7 @@ class SHLock(object):  # {{{
 
 # }}}
 
+
 class RWLockWrapper(object):
 
     def __init__(self, shlock, is_shared=True):
@@ -224,6 +229,7 @@ class RWLockWrapper(object):
 
     def owns_lock(self):
         return self._shlock.owns_lock()
+
 
 class DebugRWLockWrapper(RWLockWrapper):
 
@@ -248,6 +254,7 @@ class DebugRWLockWrapper(RWLockWrapper):
 
     __enter__ = acquire
     __exit__ = release
+
 
 class SafeReadLock(object):
 

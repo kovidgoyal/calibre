@@ -54,6 +54,7 @@ SPOOL_SIZE = 30*1024*1024
 
 ProxyMetadata = namedtuple('ProxyMetadata', 'book_size ondevice_col db_approx_formats')
 
+
 class LibraryDatabase2(LibraryDatabase, SchemaUpgrade, CustomColumns):
     '''
     An ebook metadata database that stores references to ebook files on disk.

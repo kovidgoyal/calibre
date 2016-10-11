@@ -20,6 +20,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.search_box import SearchBox2
 from calibre.utils.icu import primary_contains
 
+
 class Delegate(QStyledItemDelegate):
 
     def helpEvent(self, ev, view, option, index):
@@ -34,6 +35,7 @@ class Delegate(QStyledItemDelegate):
                 QToolTip.showText(ev.globalPos(), tooltip, view)
                 return True
         return QStyledItemDelegate.helpEvent(self, ev, view, option, index)
+
 
 class TOCView(QTreeView):
 
@@ -108,6 +110,7 @@ class TOCView(QTreeView):
     def copy_to_clipboard(self):
         m = self.model()
         QApplication.clipboard().setText(getattr(m, 'as_plain_text', ''))
+
 
 class TOCSearch(QWidget):
 
@@ -306,6 +309,7 @@ class TOCItem(QStandardItem):
 
     def __str__(self):
         return repr(self)
+
 
 class TOC(QStandardItemModel):
 

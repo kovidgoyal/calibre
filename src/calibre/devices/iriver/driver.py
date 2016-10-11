@@ -10,6 +10,7 @@ import re
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class IRIVER_STORY(USBMS):
 
     name           = 'Iriver Story Device Interface'

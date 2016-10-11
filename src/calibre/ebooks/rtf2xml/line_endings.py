@@ -16,8 +16,10 @@ from calibre.ebooks.rtf2xml import copy
 from calibre.utils.cleantext import clean_ascii_chars
 from calibre.ptempfile import better_mktemp
 
+
 class FixLineEndings:
     """Fix line endings"""
+
     def __init__(self,
             bug_handler,
             in_file=None,

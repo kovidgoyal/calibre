@@ -20,6 +20,7 @@ lost_cr_exception_pat = re.compile(r'(Ph\.D)|(D\.Phil)|((Dr|Mr|Mrs|Ms)\.[A-Z])')
 sanitize_pat = re.compile(r'<script|<table|<tr|<td|<th|<style|<iframe',
         re.IGNORECASE)
 
+
 def comments_to_html(comments):
     '''
     Convert random comment text to normalized, xml-legal block of <p>s
@@ -130,6 +131,7 @@ def comments_to_html(comments):
 
     return result.renderContents(encoding=None)
 
+
 def markdown(val):
     try:
         md = markdown.Markdown
@@ -138,8 +140,10 @@ def markdown(val):
         md = markdown.Markdown = Markdown()
     return md.convert(val)
 
+
 def merge_comments(one, two):
     return comments_to_html(one) + '\n\n' + comments_to_html(two)
+
 
 def sanitize_html(html):
     if not html:
@@ -157,12 +161,14 @@ def sanitize_html(html):
     stream = TreeWalker(tree)
     return serializer.render(stream)
 
+
 def sanitize_comments_html(html):
     from calibre.ebooks.markdown import Markdown
     text = html2text(html)
     md = Markdown()
     html = md.convert(text)
     return sanitize_html(html)
+
 
 def test():
     for pat, val in [

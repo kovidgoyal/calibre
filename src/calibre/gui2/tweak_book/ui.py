@@ -48,8 +48,10 @@ from calibre.gui2.tweak_book.editor.insert_resource import InsertImage
 from calibre.utils.icu import character_name, sort_key
 from calibre.utils.localization import localize_user_manual_link
 
+
 def open_donate():
     open_url(QUrl('https://calibre-ebook.com/donate'))
+
 
 class Central(QStackedWidget):  # {{{
 
@@ -198,6 +200,7 @@ class Central(QStackedWidget):  # {{{
         return True
 # }}}
 
+
 class CursorPositionWidget(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -226,6 +229,7 @@ class CursorPositionWidget(QWidget):  # {{{
                 text = name + ' : ' + text
             self.la.setText(text)
 # }}}
+
 
 class Main(MainWindow):
 
@@ -322,6 +326,7 @@ class Main(MainWindow):
                 sid, unicode(ac.text()).replace('&', ''), default_keys=keys, description=description, action=ac, group=group)
             self.addAction(ac)
             return ac
+
         def treg(icon, text, target, sid, keys, description):
             return reg(icon, text, target, sid, keys, description, toolbar_allowed=icon is not None)
 
@@ -430,6 +435,7 @@ class Main(MainWindow):
         # Search actions
         group = _('Search')
         self.action_find = treg('search.png', _('&Find/Replace'), self.boss.show_find, 'find-replace', ('Ctrl+F',), _('Show the Find/Replace panel'))
+
         def sreg(name, text, action, overrides={}, keys=(), description=None, icon=None):
             return reg(icon, text, partial(self.boss.search_action_triggered, action, overrides), name, keys, description or text.replace('&', ''))
         self.action_find_next = sreg('find-next', _('Find &Next'),
@@ -635,6 +641,7 @@ class Main(MainWindow):
 
     def populate_toolbars(self, animate=False):
         self.global_bar.clear(), self.tools_bar.clear(), self.plugins_bar.clear()
+
         def add(bar, ac):
             if ac is None:
                 bar.addSeparator()

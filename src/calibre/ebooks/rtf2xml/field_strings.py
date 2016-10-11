@@ -11,11 +11,14 @@
 #                                                                       #
 #########################################################################
 import sys, re
+
+
 class FieldStrings:
     """
     This module is given a string. It processes the field instruction string and
     returns a list of three values.
     """
+
     def __init__(self, bug_handler, run_level=1):
         """
         Requires:
@@ -26,6 +29,7 @@ class FieldStrings:
         self.__run_level = run_level
         self.__bug_handler = bug_handler
         self.__initiate_values()
+
     def __initiate_values(self):
         """
         Requires:
@@ -175,6 +179,7 @@ class FieldStrings:
         self.__quote_exp = re.compile(r'"(.*?)"')
         self.__filter_switch = re.compile(r'\\c\s{1,}(.*?)\s')
         self.__link_switch = re.compile(r'\\l\s{1,}(.*?)\s')
+
     def process_string(self, my_string, type):
         """
         Requires:
@@ -218,6 +223,7 @@ class FieldStrings:
             the_list = self.__fall_back_func(field_name, line)
             return the_list
         return the_list
+
     def __default_inst_func(self, field_name, name, line):
         """
         Requires:
@@ -230,6 +236,7 @@ class FieldStrings:
             I only need the changed name for the field.
         """
         return [None, None, name]
+
     def __fall_back_func(self, field_name,  line):
         """
         Requires:
@@ -244,6 +251,7 @@ class FieldStrings:
         the_string = field_name
         the_string += '<update>none'
         return [None, None, the_string]
+
     def __equation_func(self, field_name, name, line):
         """
         Requried:
@@ -255,6 +263,7 @@ class FieldStrings:
         Logic:
         """
         return [None, None, name]
+
     def __no_switch_func(self, field_name, name, line):
         """
         Required:
@@ -267,6 +276,7 @@ class FieldStrings:
         Logic:
         """
         return [None, None, name]
+
     def __num_type_and_format_func(self, field_name, name, line):
         """
         Required:
@@ -293,6 +303,7 @@ class FieldStrings:
                 arg = match_group.group(1)
                 the_string += '<argument>%s' % arg
         return [None, None, the_string]
+
     def __num_format_func(self, field_name, name, line):
         """
         Required:
@@ -308,6 +319,7 @@ class FieldStrings:
         if num_format:
             the_string += '<number-format>%s' % num_format
         return [None, None, the_string]
+
     def __parse_num_format(self, the_string):
         """
         Required:
@@ -320,6 +332,7 @@ class FieldStrings:
         match_group = re.search(self.__date_exp, the_string)
         if match_group:
             return match_group(1)
+
     def __parse_num_type(self, the_string):
         """
         Required:
@@ -344,6 +357,7 @@ class FieldStrings:
                 sys.stderr.write('module is fields_string\n')
                 sys.stderr.write('method is __parse_num_type\n')
                 sys.stderr.write('no dictionary entry for %s\n' % name)
+
     def __date_func(self, field_name, name, line):
         """
         Required:
@@ -360,6 +374,7 @@ class FieldStrings:
         if match_group:
             the_string += '<date-format>%s' % match_group.group(1)
         return [None, None, the_string]
+
     def __simple_info_func(self, field_name, name, line):
         """
         Requried:
@@ -387,6 +402,7 @@ class FieldStrings:
                 sys.stderr.write('method is __parse_num_type\n')
                 sys.stderr.write('no dictionary entry for %s\n' % name)
         return [None, None, the_string]
+
     def __hyperlink_func(self, field_name, name, line):
         """
         Requried:
@@ -424,6 +440,7 @@ class FieldStrings:
         if index > -1:
             the_string += '<no-history>true'
         return [None, None, the_string]
+
     def __include_text_func(self, field_name, name, line):
         """
         Requried:
@@ -465,6 +482,7 @@ class FieldStrings:
         if index > -1:
             the_string += '<no-field-update>true'
         return [None, None, the_string]
+
     def __include_pict_func(self, field_name, name, line):
         """
         Requried:
@@ -496,6 +514,7 @@ class FieldStrings:
         if index > -1:
             the_string += '<external>true'
         return [None, None, the_string]
+
     def __ref_func(self, field_name, name, line):
         """
         Requires:
@@ -549,6 +568,7 @@ class FieldStrings:
         if index > -1:
             the_string += '<insert-number-full>true'
         return [None, None, the_string]
+
     def __toc_table_func(self, field_name, name, line):
         """
         Requires:
@@ -567,6 +587,7 @@ class FieldStrings:
             the_string = the_string.replace('table-of-contents', 'table-of-figures')
         # don't really need the first value in this list, I don't believe
         return [name, None, the_string]
+
     def __sequence_func(self, field_name, name, line):
         """
         Requires:
@@ -585,6 +606,7 @@ class FieldStrings:
         label = fields[1]
         my_string = '%s<label>%s' % (name, label)
         return [None, None, my_string]
+
     def __ta_func(self, field_name, name, line):
         """
         Requires:
@@ -615,6 +637,7 @@ class FieldStrings:
         if index > -1:
             the_string += '<italics>true'
         return [None, None, the_string]
+
     def __index_func(self, field_name, name, line):
         """
         Requires:
@@ -687,6 +710,7 @@ class FieldStrings:
         if index > -1:
             the_string += '<enable-yomi-text>true'
         return [None, None, the_string]
+
     def __page_ref_func(self, field_name, name, line):
         """
         Requires:
@@ -717,6 +741,7 @@ class FieldStrings:
         if index > -1:
             the_string += '<paragraph-relative-position>true'
         return [None, None, the_string]
+
     def __note_ref_func(self, field_name, name, line):
         """
         Requires:
@@ -744,6 +769,7 @@ class FieldStrings:
         if index > -1:
             the_string += '<include-note-number>true'
         return [None, None, the_string]
+
     def __symbol_func(self, field_name, name, line):
         """
         Requires:

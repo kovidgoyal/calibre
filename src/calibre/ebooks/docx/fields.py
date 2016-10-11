@@ -10,6 +10,7 @@ import re
 
 from calibre.ebooks.docx.index import process_index, polish_index_markup
 
+
 class Field(object):
 
     def __init__(self, start):
@@ -46,6 +47,7 @@ scanner = re.Scanner([
 ], flags=re.DOTALL)
 
 null = object()
+
 
 def parser(name, field_map, default_field_name=None):
 
@@ -223,6 +225,7 @@ class Fields(object):
         rmap = {v:k for k, v in object_map.iteritems()}
         for idx, blocks in self.index_fields:
             polish_index_markup(idx, [rmap[b] for b in blocks])
+
 
 def test_parse_fields(return_tests=False):
     import unittest

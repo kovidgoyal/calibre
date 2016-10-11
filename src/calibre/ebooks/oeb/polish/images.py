@@ -11,6 +11,7 @@ from Queue import Queue, Empty
 
 from calibre import detect_ncpus, human_readable, force_unicode, filesystem_encoding
 
+
 class Worker(Thread):
 
     daemon = True
@@ -57,12 +58,14 @@ class Worker(Thread):
         after = os.path.getsize(path)
         self.results[name] = (True, (before, after))
 
+
 def get_compressible_images(container):
     mt_map = container.manifest_type_map
     images = set()
     for mt in 'png jpg jpeg'.split():
         images |= set(mt_map.get('image/' + mt, ()))
     return images
+
 
 def compress_images(container, report=None, names=None, jpeg_quality=None, progress_callback=lambda n, t, name:True):
     images = get_compressible_images(container)
@@ -73,6 +76,7 @@ def compress_images(container, report=None, names=None, jpeg_quality=None, progr
     abort = Event()
     for name in images:
         queue.put(name)
+
     def pc(name):
         keep_going = progress_callback(len(results), len(images), name)
         if not keep_going:

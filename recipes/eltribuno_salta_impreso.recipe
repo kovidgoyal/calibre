@@ -6,6 +6,7 @@ http://www.eltribuno.info/salta/edicion_impresa.aspx
 
 from calibre.web.feeds.news import BasicNewsRecipe
 
+
 class ElTribunoSaltaImpreso(BasicNewsRecipe):
     title                   = 'El Tribuno Salta'
     __author__              = 'Darko Miletic'

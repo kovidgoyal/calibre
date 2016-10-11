@@ -16,6 +16,7 @@ from collections import namedtuple
 from calibre import guess_type, replace_entities
 from calibre.ebooks.chardet import xml_to_unicode
 
+
 def character_count(html):
     ''' Return the number of "significant" text characters in a HTML string. '''
     count = 0
@@ -23,6 +24,7 @@ def character_count(html):
     for match in re.finditer(r'>[^<]+<', html):
         count += len(strip_space.sub(' ', match.group()))-2
     return count
+
 
 def anchor_map(html):
     ''' Return map of all anchor names to their offsets in the html '''
@@ -33,6 +35,7 @@ def anchor_map(html):
         ans[anchor] = ans.get(anchor, match.start())
     return ans
 
+
 def all_links(html):
     ''' Return set of all links in the file '''
     ans = set()
@@ -40,6 +43,7 @@ def all_links(html):
             r'''<\s*[Aa]\s+.*?[hH][Rr][Ee][Ff]\s*=\s*(['"])(.+?)\1''', html, re.MULTILINE|re.DOTALL):
         ans.add(replace_entities(match.group(2)))
     return ans
+
 
 class SpineItem(unicode):
 
@@ -82,6 +86,7 @@ class SpineItem(unicode):
         obj.is_single_page = None
         return obj
 
+
 class IndexEntry(object):
 
     def __init__(self, spine, toc_entry, num):
@@ -122,6 +127,7 @@ class IndexEntry(object):
         else:
             self.end_spine_pos = self.spine_count - 1
             self.end_anchor = None
+
 
 def create_indexing_data(spine, toc):
     if not toc:

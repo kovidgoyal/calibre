@@ -19,6 +19,7 @@ if iswindows:
     from threading import Lock
     recycler = None
     rlock = Lock()
+
     def start_recycler():
         global recycler
         if recycler is None:
@@ -95,6 +96,7 @@ elif isosx:
         recycle = osx_recycle
 elif islinux:
     from calibre.utils.linux_trash import send2trash
+
     def fdo_recycle(path):
         if isbytestring(path):
             path = path.decode(filesystem_encoding)
@@ -104,13 +106,16 @@ elif islinux:
 
 can_recycle = callable(recycle)
 
+
 def nuke_recycle():
     global can_recycle
     can_recycle = False
 
+
 def restore_recyle():
     global can_recycle
     can_recycle = callable(recycle)
+
 
 def delete_file(path, permanent=False):
     if not permanent and can_recycle:
@@ -121,6 +126,7 @@ def delete_file(path, permanent=False):
             import traceback
             traceback.print_exc()
     os.remove(path)
+
 
 def delete_tree(path, permanent=False):
     if permanent:

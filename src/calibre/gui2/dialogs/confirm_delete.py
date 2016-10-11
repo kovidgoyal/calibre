@@ -10,6 +10,7 @@ from PyQt5.Qt import (
 from calibre import confirm_config_name
 from calibre.gui2 import dynamic
 
+
 class Dialog(QDialog):
 
     def __init__(self, msg, name, parent, config_set=dynamic, icon='dialog_warning.png',

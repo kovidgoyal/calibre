@@ -32,6 +32,7 @@ FILTER_INSTALLED = 1
 FILTER_UPDATE_AVAILABLE = 2
 FILTER_NOT_INSTALLED = 3
 
+
 def get_plugin_updates_available(raise_error=False):
     '''
     API exposed to read whether there are updates available for any
@@ -48,11 +49,14 @@ def get_plugin_updates_available(raise_error=False):
             return update_plugins
     return None
 
+
 def filter_upgradeable_plugins(display_plugin):
     return display_plugin.is_upgrade_available()
 
+
 def filter_not_installed_plugins(display_plugin):
     return not display_plugin.is_installed()
+
 
 def read_available_plugins(raise_error=False):
     import json, bz2
@@ -80,6 +84,7 @@ def read_available_plugins(raise_error=False):
                 pprint.pprint(plugin)
     display_plugins = sorted(display_plugins, key=lambda k: k.name)
     return display_plugins
+
 
 def get_installed_plugin_status(display_plugin):
     display_plugin.installed_version = None
@@ -110,6 +115,7 @@ class ImageTitleLayout(QHBoxLayout):
     '''
     A reusable layout widget displaying an image followed by a title
     '''
+
     def __init__(self, parent, icon_name, title):
         QHBoxLayout.__init__(self)
         title_font = QFont()
@@ -729,6 +735,7 @@ class PluginUpdaterDialog(SizePersistedDialog):
             b = d.bb.addButton(_('Restart calibre now'), d.bb.AcceptRole)
             b.setIcon(QIcon(I('lt.png')))
             d.do_restart = False
+
             def rf():
                 d.do_restart = True
             b.clicked.connect(rf)

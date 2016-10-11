@@ -42,11 +42,13 @@ DICTIONARY = 2
 
 _country_map = None
 
+
 def country_map():
     global _country_map
     if _country_map is None:
         _country_map = cPickle.loads(P('localization/iso3166.pickle', data=True, allow_user_override=False))
     return _country_map
+
 
 class AddDictionary(QDialog):  # {{{
 
@@ -126,6 +128,7 @@ class AddDictionary(QDialog):  # {{{
 # }}}
 
 # User Dictionaries {{{
+
 
 class UserWordList(QListWidget):
 
@@ -587,6 +590,8 @@ class ManageDictionaries(Dialog):  # {{{
 # }}}
 
 # Spell Check Dialog {{{
+
+
 class WordsModel(QAbstractTableModel):
 
     word_ignored = pyqtSignal(object, object)
@@ -669,6 +674,7 @@ class WordsModel(QAbstractTableModel):
     def sort_key(self, col):
         if col == 0:
             f = (lambda x: x) if tprefs['spell_check_case_sensitive_sort'] else primary_sort_key
+
             def key(w):
                 return f(w[0])
         elif col == 1:
@@ -801,6 +807,7 @@ class WordsModel(QAbstractTableModel):
         except ValueError:
             return -1
 
+
 class WordsView(QTableView):
 
     ignore_all = pyqtSignal()
@@ -867,6 +874,7 @@ class WordsView(QTableView):
 
     def currentChanged(self, cur, prev):
         self.current_changed.emit(cur, prev)
+
 
 class SpellCheck(Dialog):
 
@@ -1278,6 +1286,8 @@ class SpellCheck(Dialog):
 # }}}
 
 # Find next occurrence  {{{
+
+
 def find_next(word, locations, current_editor, current_editor_name,
               gui_parent, show_editor, edit_file):
     files = OrderedDict()
@@ -1310,6 +1320,7 @@ def find_next(word, locations, current_editor, current_editor_name,
             show_editor(file_name)
             return True
     return False
+
 
 def find_next_error(current_editor, current_editor_name, gui_parent, show_editor, edit_file):
     files = get_checkable_file_names(current_container())[0]

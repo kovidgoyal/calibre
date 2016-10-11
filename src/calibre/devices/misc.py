@@ -11,6 +11,7 @@ import os
 from calibre.devices.usbms.driver import USBMS
 from calibre import fsync
 
+
 class PALMPRE(USBMS):
 
     name           = 'Palm Pre Device Interface'
@@ -51,6 +52,7 @@ class AVANT(USBMS):
 
     EBOOK_DIR_MAIN = ''
     SUPPORTS_SUB_DIRS = True
+
 
 class SWEEX(USBMS):
     # Identical to the Promedia
@@ -101,6 +103,7 @@ class PDNOVEL(USBMS):
                 coverfile.write(coverdata[2])
                 fsync(coverfile)
 
+
 class PDNOVEL_KOBO(PDNOVEL):
     name = 'Pandigital Kobo device interface'
     gui_name = 'PD Novel (Kobo)'
@@ -139,6 +142,7 @@ class VELOCITYMICRO(USBMS):
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = False
 
+
 class GEMEI(USBMS):
     name           = 'Gemei Device Interface'
     gui_name       = 'GM2000'
@@ -158,6 +162,7 @@ class GEMEI(USBMS):
 
     EBOOK_DIR_MAIN = 'eBooks'
     SUPPORTS_SUB_DIRS = True
+
 
 class LUMIREAD(USBMS):
     name           = 'Acer Lumiread Device Interface'
@@ -193,6 +198,7 @@ class LUMIREAD(USBMS):
                 f.write(metadata.thumbnail[-1])
                 fsync(f)
 
+
 class ALURATEK_COLOR(USBMS):
 
     name           = 'Aluratek Color Device Interface'
@@ -214,6 +220,7 @@ class ALURATEK_COLOR(USBMS):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER', '.', 'TOUCH', 'SCRIBA_190', 'BOOKYLIGHT', 'SAPIENS_V2', 'EBOOK']
     SCAN_FROM_ROOT = True
     SUPPORTS_SUB_DIRS_FOR_SCAN = True
+
 
 class TREKSTOR(USBMS):
 
@@ -246,6 +253,7 @@ class TREKSTOR(USBMS):
     SUPPORTS_SUB_DIRS = True
     SUPPORTS_SUB_DIRS_DEFAULT = False
 
+
 class EEEREADER(USBMS):
 
     name           = 'Asus EEE Reader device interface'
@@ -265,6 +273,7 @@ class EEEREADER(USBMS):
 
     VENDOR_NAME = ['LINUX', 'ASUS']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['FILE-STOR_GADGET', 'EEE_NOTE']
+
 
 class ADAM(USBMS):
 
@@ -287,6 +296,7 @@ class ADAM(USBMS):
     VENDOR_NAME = 'NI'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['ADAM']
     SUPPORTS_SUB_DIRS = True
+
 
 class NEXTBOOK(USBMS):
 
@@ -341,6 +351,7 @@ class NEXTBOOK(USBMS):
                 fsync(f)
     '''
 
+
 class MOOVYBOOK(USBMS):
 
     name           = 'Moovybook device interface'
@@ -362,6 +373,7 @@ class MOOVYBOOK(USBMS):
 
     def get_main_ebook_dir(self, for_upload=False):
         return 'Books' if for_upload else self.EBOOK_DIR_MAIN
+
 
 class COBY(USBMS):
 
@@ -389,6 +401,7 @@ class COBY(USBMS):
             return 'eBooks'
         return self.EBOOK_DIR_CARD_A
 
+
 class EX124G(USBMS):
 
     name = 'Motorola Ex124G device interface'
@@ -415,6 +428,7 @@ class EX124G(USBMS):
         if for_upload:
             return 'eBooks'
         return self.EBOOK_DIR_CARD_A
+
 
 class WAYTEQ(USBMS):
 
@@ -506,6 +520,7 @@ class WOXTER(USBMS):
     VENDOR_NAME = ['ROCKCHIP', 'TEXET']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EREADER', 'TB-146SE']
 
+
 class POCKETBOOK626(USBMS):
 
     name  = 'PocketBook Touch Lux 2'
@@ -525,6 +540,7 @@ class POCKETBOOK626(USBMS):
 
     VENDOR_NAME = ['USB_2.0']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['USB_FLASH_DRIVER']
+
 
 class SONYDPTS1(USBMS):
 
@@ -546,6 +562,7 @@ class SONYDPTS1(USBMS):
     VENDOR_NAME = ['SONY']
     WINDOWS_MAIN_MEM = ['DPT-S1']
     WINDOWS_CARD_A_MEM = ['DPT-S1__SD']
+
 
 class CERVANTES(USBMS):
 

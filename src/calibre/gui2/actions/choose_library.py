@@ -20,9 +20,11 @@ from calibre.gui2 import (gprefs, warning_dialog, Dispatcher, error_dialog,
     question_dialog, info_dialog, open_local_file, choose_dir)
 from calibre.gui2.actions import InterfaceAction
 
+
 def db_class():
     from calibre.db.legacy import LibraryDatabase
     return LibraryDatabase
+
 
 class LibraryUsageStats(object):  # {{{
 
@@ -95,6 +97,7 @@ class LibraryUsageStats(object):  # {{{
         self.write_stats()
 # }}}
 
+
 class MovedDialog(QDialog):  # {{{
 
     def __init__(self, stats, location, parent=None):
@@ -150,6 +153,7 @@ class MovedDialog(QDialog):  # {{{
         self.newloc = newloc
         QDialog.accept(self)
 # }}}
+
 
 class BackupStatus(QDialog):  # {{{
 

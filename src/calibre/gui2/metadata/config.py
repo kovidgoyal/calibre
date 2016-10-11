@@ -14,6 +14,7 @@ from PyQt5.Qt import (QWidget, QGridLayout, QGroupBox, QListView, Qt, QSpinBox,
 
 from calibre.gui2.preferences.metadata_sources import FieldsModel as FM
 
+
 class FieldsModel(FM):  # {{{
 
     def __init__(self, plugin):
@@ -50,6 +51,7 @@ class FieldsModel(FM):  # {{{
         self.prefs['ignore_fields'] = list(ignored_fields.union(changed))
 
 # }}}
+
 
 class ConfigWidget(QWidget):
 

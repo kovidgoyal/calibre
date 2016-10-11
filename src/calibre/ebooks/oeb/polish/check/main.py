@@ -22,6 +22,7 @@ from calibre.ebooks.oeb.polish.check.opf import check_opf
 
 XML_TYPES = frozenset(map(guess_type, ('a.xml', 'a.svg', 'a.opf', 'a.ncx'))) | {'application/oebps-page-map+xml'}
 
+
 def run_checks(container):
 
     errors = []
@@ -80,6 +81,7 @@ def run_checks(container):
     errors += check_opf(container)
 
     return errors
+
 
 def fix_errors(container, errors):
     # Fix parsing

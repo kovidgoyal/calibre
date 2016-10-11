@@ -11,6 +11,7 @@ import os
 from calibre import guess_type
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class HTMLZInput(InputFormatPlugin):
 
     name        = 'HTLZ Input'

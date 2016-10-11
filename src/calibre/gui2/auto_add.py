@@ -22,6 +22,7 @@ from calibre.gui2.dialogs.duplicates import DuplicatesQuestion
 
 AUTO_ADDED = frozenset(BOOK_EXTENSIONS) - {'pdr', 'mbp', 'tan'}
 
+
 class AllAllowed(object):
 
     def __init__(self):
@@ -38,6 +39,7 @@ def allowed_formats():
     else:
         allowed = AUTO_ADDED - frozenset(gprefs['blocked_auto_formats'])
     return allowed
+
 
 class Worker(Thread):
 

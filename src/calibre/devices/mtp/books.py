@@ -15,6 +15,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 from calibre.ebooks.metadata.book.json_codec import JsonCodec
 from calibre.utils.date import utcnow
 
+
 class BookList(BL):
 
     def __init__(self, storage_id):
@@ -38,6 +39,7 @@ class BookList(BL):
 
     def remove_book(self, book):
         self.remove(book)
+
 
 class Book(Metadata):
 
@@ -69,6 +71,7 @@ class Book(Metadata):
         if not ans or self.is_null('title_sort') or ans == _('Unknown'):
             ans = ''
         return ans or title_sort(self.title or '')
+
 
 class JSONCodec(JsonCodec):
     pass

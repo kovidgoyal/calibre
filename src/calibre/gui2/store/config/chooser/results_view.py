@@ -14,6 +14,7 @@ from calibre.customize.ui import store_plugins
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.config.chooser.models import Matches
 
+
 class ResultsView(QTreeView):
 
     def __init__(self, *args):

@@ -22,6 +22,8 @@ from calibre.gui2.tweak_book.widgets import Dialog
 underline_styles = {'single', 'dash', 'dot', 'dash_dot', 'dash_dot_dot', 'wave', 'spell'}
 
 _default_theme = None
+
+
 def default_theme():
     global _default_theme
     if _default_theme is None:
@@ -185,6 +187,7 @@ THEMES = {
 
 }
 
+
 def read_color(col):
     if QColor.isValidColor(col):
         return QBrush(QColor(col))
@@ -199,6 +202,7 @@ def read_color(col):
         pass
 
 Highlight = namedtuple('Highlight', 'fg bg bold italic underline underline_color')
+
 
 def read_theme(raw):
     ans = {}
@@ -233,6 +237,7 @@ def read_theme(raw):
 
 THEMES = {k:read_theme(raw) for k, raw in THEMES.iteritems()}
 
+
 def u(x):
     x = {'spell':'SpellCheck', 'dash_dot':'DashDot', 'dash_dot_dot':'DashDotDot'}.get(x, x.capitalize())
     if 'Dot' in x:
@@ -240,16 +245,19 @@ def u(x):
     return x + 'Underline'
 underline_styles = {x:getattr(QTextCharFormat, u(x)) for x in underline_styles}
 
+
 def to_highlight(data):
     data = data.copy()
     for c in ('fg', 'bg', 'underline_color'):
         data[c] = read_color(data[c]) if data.get(c, None) is not None else None
     return Highlight(**data)
 
+
 def read_custom_theme(data):
     dt = THEMES[default_theme()].copy()
     dt.update({k:to_highlight(v) for k, v in data.iteritems()})
     return dt
+
 
 def get_theme(name):
     try:
@@ -261,6 +269,7 @@ def get_theme(name):
             return THEMES[default_theme()]
         else:
             return read_custom_theme(ans)
+
 
 def highlight_to_char_format(h):
     ans = syntax_text_char_format()
@@ -278,11 +287,13 @@ def highlight_to_char_format(h):
             ans.setUnderlineColor(h.underline_color.color())
     return ans
 
+
 def theme_color(theme, name, attr):
     try:
         return getattr(theme[name], attr).color()
     except (KeyError, AttributeError):
         return getattr(THEMES[default_theme()][name], attr).color()
+
 
 def theme_format(theme, name):
     try:
@@ -291,16 +302,20 @@ def theme_format(theme, name):
         h = THEMES[default_theme()][name]
     return highlight_to_char_format(h)
 
+
 def custom_theme_names():
     return tuple(tprefs['custom_themes'].iterkeys())
 
+
 def builtin_theme_names():
     return tuple(THEMES.iterkeys())
+
 
 def all_theme_names():
     return builtin_theme_names() + custom_theme_names()
 
 # Custom theme creation/editing {{{
+
 
 class CreateNewTheme(Dialog):
 
@@ -337,8 +352,10 @@ class CreateNewTheme(Dialog):
                 'A custom theme with the name %s already exists') % self.theme_name, show=True)
         return Dialog.accept(self)
 
+
 def col_to_string(color):
     return '%02X%02X%02X' % color.getRgb()[:3]
+
 
 class ColorButton(QPushButton):
 
@@ -386,6 +403,7 @@ class ColorButton(QPushButton):
             return None
         return col_to_string(self.current_color)
 
+
 class Bool(QCheckBox):
 
     changed = pyqtSignal()
@@ -403,6 +421,7 @@ class Bool(QCheckBox):
     @property
     def value(self):
         return self.checkState() == Qt.Checked
+
 
 class Property(QWidget):
 
@@ -521,6 +540,7 @@ p.someclass {{
 }}
 </style>
 ''')  # }}}
+
 
 class ThemeEditor(Dialog):
 

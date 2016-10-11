@@ -22,6 +22,7 @@ from calibre.utils.date import utcnow
 
 PDFVER = b'%PDF-1.4'  # 1.4 is needed for XMP metadata
 
+
 class IndirectObjects(object):
 
     def __init__(self):
@@ -77,6 +78,7 @@ class IndirectObjects(object):
             line = '%010d 00000 n '%offset
             stream.write(line.encode('ascii') + EOL)
         return self.xref_offset
+
 
 class Page(Stream):
 
@@ -149,6 +151,7 @@ class Page(Stream):
         # objects.commit(ret, stream)
         return ret
 
+
 class Path(object):
 
     def __init__(self):
@@ -166,11 +169,13 @@ class Path(object):
     def close(self):
         self.ops.append(('h',))
 
+
 class Catalog(Dictionary):
 
     def __init__(self, pagetree):
         super(Catalog, self).__init__({'Type':Name('Catalog'),
             'Pages': pagetree})
+
 
 class PageTree(Dictionary):
 
@@ -193,6 +198,7 @@ class PageTree(Dictionary):
         except ValueError:
             return -1
 
+
 class HashingStream(object):
 
     def __init__(self, f):
@@ -209,6 +215,7 @@ class HashingStream(object):
         self.hashobj.update(raw)
         if raw:
             self.last_char = raw[-1]
+
 
 class Image(Stream):
 
@@ -239,6 +246,7 @@ class Image(Stream):
         if self.soft_mask is not None:
             d['SMask'] = self.soft_mask
 
+
 class Metadata(Stream):
 
     def __init__(self, mi):
@@ -249,6 +257,7 @@ class Metadata(Stream):
     def add_extra_keys(self, d):
         d['Type'] = Name('Metadata')
         d['Subtype'] = Name('XML')
+
 
 class PDFStream(object):
 

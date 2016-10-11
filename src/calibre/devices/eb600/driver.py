@@ -18,6 +18,7 @@ import re
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class EB600(USBMS):
 
     name           = 'Netronix EB600 Device Interface'
@@ -48,6 +49,7 @@ class EB600(USBMS):
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD_A = ''
     SUPPORTS_SUB_DIRS = True
+
 
 class TOLINO(EB600):
 
@@ -120,6 +122,7 @@ class TOLINO(EB600):
             return getattr(self, 'ebook_dir_for_upload', self.EBOOK_DIR_MAIN)
         return self.EBOOK_DIR_MAIN
 
+
 class COOL_ER(EB600):
 
     name = 'Cool-er device interface'
@@ -133,6 +136,7 @@ class COOL_ER(EB600):
     OSX_MAIN_MEM = 'COOL-ER eReader Media'
 
     EBOOK_DIR_MAIN = 'my docs'
+
 
 class SHINEBOOK(EB600):
 
@@ -177,6 +181,7 @@ class POCKETBOOK360(EB600):
     def can_handle(cls, dev, debug=False):
         return dev[-1] == '1.00' and not dev[-2] and not dev[-3]
 
+
 class POCKETBOOKHD(EB600):
 
     name = 'Pocket Touch HD Device Interface'
@@ -184,6 +189,7 @@ class POCKETBOOKHD(EB600):
     PRODUCT_ID  = [0x6a42]
     BCD         = [0x9999]
     FORMATS = ['epub', 'fb2', 'prc', 'mobi', 'docx', 'doc', 'pdf', 'djvu', 'rtf', 'chm', 'txt']
+
 
 class GER2(EB600):
 
@@ -199,6 +205,7 @@ class GER2(EB600):
     VENDOR_NAME = 'GANAXA'
     WINDOWS_MAIN_MEN = 'GER2_________-FD'
     WINDOWS_CARD_A_MEM = 'GER2_________-SD'
+
 
 class ITALICA(EB600):
 
@@ -233,6 +240,7 @@ class ECLICTO(EB600):
     EBOOK_DIR_MAIN = 'Text'
     EBOOK_DIR_CARD_A = ''
 
+
 class DBOOK(EB600):
 
     name = 'Airis Dbook Device Interface'
@@ -243,6 +251,7 @@ class DBOOK(EB600):
     VENDOR_NAME = 'INFINITY'
     WINDOWS_MAIN_MEM = 'AIRIS_DBOOK'
     WINDOWS_CARD_A_MEM = 'AIRIS_DBOOK'
+
 
 class INVESBOOK(EB600):
 
@@ -256,6 +265,7 @@ class INVESBOOK(EB600):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['00INVES_E600', 'INVES-WIBOOK',
             'OK_POCKET_611_61']
 
+
 class BOOQ(EB600):
     name = 'Booq Device Interface'
     gui_name = 'bq Reader'
@@ -265,6 +275,7 @@ class BOOQ(EB600):
     VENDOR_NAME = ['NETRONIX', '36LBOOKS']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['EB600', 'ELEQTOR']
 
+
 class MENTOR(EB600):
 
     name = 'Astak Mentor EB600'
@@ -273,6 +284,7 @@ class MENTOR(EB600):
     FORMATS = ['epub', 'fb2', 'mobi', 'prc', 'pdf', 'txt']
 
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'MENTOR'
+
 
 class ELONEX(EB600):
 
@@ -288,6 +300,7 @@ class ELONEX(EB600):
     @classmethod
     def can_handle(cls, dev, debug=False):
         return dev[3] == 'Elonex' and dev[4] == 'eBook'
+
 
 class POCKETBOOK301(USBMS):
 
@@ -305,6 +318,7 @@ class POCKETBOOK301(USBMS):
     VENDOR_ID   = [0x1]
     PRODUCT_ID  = [0x301]
     BCD         = [0x132]
+
 
 class POCKETBOOK602(USBMS):
 
@@ -327,6 +341,7 @@ class POCKETBOOK602(USBMS):
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['PB602', 'PB603', 'PB902',
             'PB903', 'Pocket912', 'PB', 'FILE-STOR_GADGET']
 
+
 class POCKETBOOK622(POCKETBOOK602):
 
     name = 'PocketBook 622 Device Interface'
@@ -340,6 +355,7 @@ class POCKETBOOK622(POCKETBOOK602):
     VENDOR_NAME = 'LINUX'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'FILE-STOR_GADGET'
 
+
 class POCKETBOOK360P(POCKETBOOK602):
 
     name = 'PocketBook 360+ Device Interface'
@@ -349,6 +365,7 @@ class POCKETBOOK360P(POCKETBOOK602):
 
     VENDOR_NAME = '__POCKET'
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = 'BOOK_USB_STORAGE'
+
 
 class POCKETBOOK701(USBMS):
 
@@ -379,6 +396,7 @@ class POCKETBOOK701(USBMS):
             drives['main'] = carda
             drives['carda'] = main
         return drives
+
 
 class PI2(EB600):
 

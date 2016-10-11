@@ -70,6 +70,7 @@ SEPARATE_TAGS = [
     'tr',
 ]
 
+
 class PMLMLizer(object):
 
     def __init__(self, log):

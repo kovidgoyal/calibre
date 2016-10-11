@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 import sys
 
+
 class CheckEncoding:
 
     def __init__(self, bug_handler):

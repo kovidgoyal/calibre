@@ -14,6 +14,7 @@ from calibre.utils.config_base import prefs
 from calibre.devices.usbms.driver import debug_print
 from calibre.ebooks.metadata import author_to_author_sort
 
+
 class Book(Book_):
 
     def __init__(self, prefix, lpath, title=None, authors=None, mime=None, date=None, ContentType=None,

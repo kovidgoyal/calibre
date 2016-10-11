@@ -12,6 +12,7 @@ from calibre.gui2.convert.debug_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.gui2 import error_dialog, choose_dir
 
+
 class DebugWidget(Widget, Ui_Form):
 
     TITLE = _('Debug')

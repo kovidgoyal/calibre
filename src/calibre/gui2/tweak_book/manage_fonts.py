@@ -21,6 +21,7 @@ from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 
+
 class EmbeddingData(Dialog):
 
     def __init__(self, family, faces, parent=None):
@@ -50,6 +51,7 @@ class EmbeddingData(Dialog):
             if 'font-style' in face:
                 text.append('<br>' + 'font-style:\xa0' + type('')(face['font-style']))
         self.text.setHtml('\n'.join(text))
+
 
 class AllFonts(QAbstractTableModel):
 
@@ -127,6 +129,7 @@ class AllFonts(QAbstractTableModel):
             except (IndexError, KeyError):
                 pass
         return ans
+
 
 class ChangeFontFamily(Dialog):
 

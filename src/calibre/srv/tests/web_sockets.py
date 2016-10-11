@@ -27,6 +27,7 @@ Sec-WebSocket-Version: 13\r
 
 Frame = namedtuple('Frame', 'fin opcode payload')
 
+
 class WSClient(object):
 
     def __init__(self, port, timeout=5):
@@ -163,6 +164,7 @@ class WSTestServer(TestServer):
 
     def connect(self):
         return WSClient(self.address[1])
+
 
 class WebSocketTest(BaseTest):
 

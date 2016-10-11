@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 
+
 def remove_html_cover(oeb, log):
     from calibre.ebooks.oeb.base import OEB_DOCS
 
@@ -27,11 +28,13 @@ def remove_html_cover(oeb, log):
         if item.media_type in OEB_DOCS:
             oeb.manifest.remove(item)
 
+
 def extract_mobi(output_path, opts):
     if opts.extract_to is not None:
         from calibre.ebooks.mobi.debug.main import inspect_mobi
         ddir = opts.extract_to
         inspect_mobi(output_path, ddir=ddir)
+
 
 class MOBIOutput(OutputFormatPlugin):
 
@@ -260,6 +263,7 @@ class MOBIOutput(OutputFormatPlugin):
                 tr.tag = XHTML('div')
                 for td in cols:
                     td.tag = XHTML('span' if cols else 'div')
+
 
 class AZW3Output(OutputFormatPlugin):
 

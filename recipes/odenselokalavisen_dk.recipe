@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 Lokalavisen Odense
 '''
 
+
 class OdenseLokalavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Lokalavisen Odense'

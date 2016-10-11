@@ -19,6 +19,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.gui2.actions import InterfaceAction
 
+
 class HistoryAction(QAction):
 
     view_historical = pyqtSignal(object)

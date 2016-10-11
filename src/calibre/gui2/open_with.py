@@ -25,12 +25,14 @@ from calibre.utils.icu import numeric_sort_key as sort_key
 
 ENTRY_ROLE = Qt.UserRole
 
+
 def pixmap_to_data(pixmap):
     ba = QByteArray()
     buf = QBuffer(ba)
     buf.open(QBuffer.WriteOnly)
     pixmap.save(buf, 'PNG')
     return bytearray(ba.data())
+
 
 def run_program(entry, path, parent):
     import subprocess
@@ -47,6 +49,7 @@ def run_program(entry, path, parent):
     t = Thread(name='WaitProgram', target=process.wait)
     t.daemon = True
     t.start()
+
 
 def entry_to_icon_text(entry, only_text=False):
     if only_text:
@@ -117,6 +120,7 @@ if iswindows:
         return cmdline.replace('%1', qpath)
 
     del run_program
+
     def run_program(entry, path, parent):  # noqa
         cmdline = entry_to_cmdline(entry, path)
         print('Running Open With commandline:', repr(entry['cmdline']), ' |==> ', repr(cmdline))
@@ -217,6 +221,7 @@ else:
         return entry
 # }}}
 
+
 class ChooseProgram(Dialog):  # {{{
 
     found = pyqtSignal()
@@ -296,6 +301,7 @@ class ChooseProgram(Dialog):  # {{{
 
 oprefs.defaults['entries'] = {}
 
+
 def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
     oft = file_type = file_type.lower()
     file_type = {'cover_image':'jpeg'}.get(oft, oft)
@@ -314,6 +320,7 @@ def choose_program(file_type='jpeg', parent=None, prefs=oprefs):
         register_keyboard_shortcuts(finalize=True)
     return entry
 
+
 def populate_menu(menu, receiver, file_type):
     file_type = file_type.lower()
     for entry in oprefs['entries'].get(file_type, ()):
@@ -328,6 +335,7 @@ def populate_menu(menu, receiver, file_type):
     return menu
 
 # }}}
+
 
 class EditPrograms(Dialog):  # {{{
 
@@ -393,12 +401,14 @@ class EditPrograms(Dialog):  # {{{
         oprefs['entries'][self.file_type] = entries
         oprefs['entries'] = oprefs['entries']
 
+
 def edit_programs(file_type, parent):
     d = EditPrograms(file_type, parent)
     d.exec_()
 # }}}
 
 registered_shortcuts = {}
+
 
 def register_keyboard_shortcuts(gui=None, finalize=False):
     if gui is None:

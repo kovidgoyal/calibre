@@ -6,6 +6,7 @@ from PyQt5.Qt import QDialog, QLineEdit, Qt
 from calibre.gui2.dialogs.password_ui import Ui_Dialog
 from calibre.gui2 import dynamic
 
+
 class PasswordDialog(QDialog, Ui_Dialog):
 
     def __init__(self, window, name, msg):

@@ -13,6 +13,7 @@ from PyQt5.Qt import QApplication, QEventLoop
 
 from calibre.constants import DEBUG
 
+
 class PagePosition(object):
 
     def __init__(self, document):

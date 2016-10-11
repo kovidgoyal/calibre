@@ -22,11 +22,14 @@ MTPDevice = namedtuple('MTPDevice', 'busnum devnum vendor_id product_id '
         'bcd serial manufacturer product')
 
 null = object()
+
+
 def fingerprint(d):
     return MTPDevice(d.busnum, d.devnum, d.vendor_id, d.product_id, d.bcd,
             d.serial, d.manufacturer, d.product)
 
 APPLE = 0x05ac
+
 
 class MTP_DEVICE(MTPDeviceBase):
 
@@ -411,6 +414,7 @@ class MTP_DEVICE(MTPDeviceBase):
                 (obj.full_path, self.format_errorstack(errs)))
         parent.remove_child(obj)
         return parent
+
 
 def develop():
     from calibre.devices.scanner import DeviceScanner

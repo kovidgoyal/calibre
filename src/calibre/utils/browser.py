@@ -10,6 +10,7 @@ from cookielib import CookieJar, Cookie
 
 from mechanize import Browser as B, HTTPSHandler
 
+
 class ModernHTTPSHandler(HTTPSHandler):
 
     ssl_context = None
@@ -20,6 +21,7 @@ class ModernHTTPSHandler(HTTPSHandler):
                 req.get_full_url())
             if cert_file:
                 self.ssl_context.load_cert_chain(cert_file, key_file)
+
         def conn_factory(hostport):
             return httplib.HTTPSConnection(hostport, context=self.ssl_context)
         return self.do_open(conn_factory, req)

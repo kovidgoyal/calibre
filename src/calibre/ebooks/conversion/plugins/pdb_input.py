@@ -8,6 +8,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class PDBInput(InputFormatPlugin):
 
     name        = 'PDB Input'

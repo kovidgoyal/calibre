@@ -25,6 +25,8 @@ NAMESPACES = {
               'dc'   : 'http://purl.org/dc/terms',
               'gd'   : 'http://schemas.google.com/g/2005'
             }
+
+
 def get_details(browser, url, timeout):  # {{{
     try:
         raw = browser.open_novisit(url, timeout=timeout).read()
@@ -38,6 +40,7 @@ def get_details(browser, url, timeout):  # {{{
 
     return raw
 # }}}
+
 
 def to_metadata(browser, log, entry_, timeout):  # {{{
     from lxml import etree
@@ -152,6 +155,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
 
     return mi
 # }}}
+
 
 class GoogleBooks(Source):
 

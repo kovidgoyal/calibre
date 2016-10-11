@@ -60,6 +60,7 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',  # {{{
 EDGES = ('top', 'right', 'bottom', 'left')
 BORDER_PROPS = ('color', 'style', 'width')
 
+
 def normalize_edge(name, cssvalue):
     style = {}
     if isinstance(cssvalue, PropertyValue):
@@ -89,6 +90,7 @@ def normalize_edge(name, cssvalue):
 
 def simple_normalizer(prefix, names, check_inherit=True):
     composition = tuple('%s-%s' %(prefix, n) for n in names)
+
     @wraps(normalize_simple_composition)
     def wrapper(name, cssvalue):
         return normalize_simple_composition(name, cssvalue, composition, check_inherit=check_inherit)
@@ -114,6 +116,7 @@ def normalize_simple_composition(name, cssvalue, composition, check_inherit=True
 
 font_composition = ('font-style', 'font-variant', 'font-weight', 'font-size', 'line-height', 'font-family')
 
+
 def normalize_font(cssvalue, font_family_as_list=False):
     # See https://developer.mozilla.org/en-US/docs/Web/CSS/font
     composition = font_composition
@@ -132,6 +135,7 @@ def normalize_font(cssvalue, font_family_as_list=False):
         if not isinstance(ans['font-family'], basestring):
             ans['font-family'] = serialize_font_family(ans['font-family'])
     return ans
+
 
 def normalize_border(name, cssvalue):
     style = normalizers['border-' + EDGES[0]]('border-' + EDGES[0], cssvalue)
@@ -160,12 +164,15 @@ SHORTHAND_DEFAULTS = {
 }
 
 _safe_parser = None
+
+
 def safe_parser():
     global _safe_parser
     if _safe_parser is None:
         import logging
         _safe_parser = CSSParser(loglevel=logging.CRITICAL, validate=False)
     return _safe_parser
+
 
 def normalize_filter_css(props):
     ans = set()
@@ -178,6 +185,7 @@ def normalize_filter_css(props):
             cssvalue = dec.getPropertyCSSValue(dec.item(0))
             ans |= set(n(prop, cssvalue))
     return ans
+
 
 def condense_edge(vals):
     edges = {x.name.rpartition('-')[-1]:x.value for x in vals}
@@ -200,6 +208,7 @@ def condense_edge(vals):
             return ce['top']
         return ' '.join(ce[x] for x in ('top', 'left'))
 
+
 def simple_condenser(prefix, func):
     @wraps(func)
     def condense_simple(style, props):
@@ -209,6 +218,7 @@ def simple_condenser(prefix, func):
                 style.removeProperty(prop.name)
             style.setProperty(prefix, cp)
     return condense_simple
+
 
 def condense_border(style, props):
     prop_map = {p.name:p for p in props}
@@ -247,10 +257,12 @@ def condense_rule(style):
         if len(vals) > 1 and {x.priority for x in vals} == {''}:
             condensers[prefix[:-1]](style, vals)
 
+
 def condense_sheet(sheet):
     for rule in sheet.cssRules:
         if rule.type == rule.STYLE_RULE:
             condense_rule(rule.style)
+
 
 def test_normalization(return_tests=False):  # {{{
     import unittest
@@ -289,11 +301,13 @@ def test_normalization(return_tests=False):  # {{{
                 for x, v in expected.iteritems():
                     ans['border-%s-%s' % (edge, x)] = v
                 return ans
+
             def border_dict(expected):
                 ans = {}
                 for edge in EDGES:
                     ans.update(border_edge_dict(expected, edge))
                 return ans
+
             def border_val_dict(expected, val='color'):
                 ans = {'border-%s-%s' % (edge, val): DEFAULTS['border-%s-%s' % (edge, val)] for edge in EDGES}
                 for edge in EDGES:

@@ -8,6 +8,7 @@ import os
 
 from calibre.customize.conversion import OutputFormatPlugin
 
+
 class RTFOutput(OutputFormatPlugin):
 
     name = 'RTF Output'

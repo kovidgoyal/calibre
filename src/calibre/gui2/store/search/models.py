@@ -20,6 +20,7 @@ from calibre.gui2.store.search.download_thread import DetailsThreadPool, \
 from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import SearchQueryParser
 
+
 def comparable_price(text):
     # this keep thousand and fraction separators
     match = re.search(r'(?:\d|[,.](?=\d))(?:\d*(?:[,.\' ](?=\d))?)+', text)

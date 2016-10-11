@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.oeb.base import XPath
 
+
 class CSSCleanup(object):
 
     def __init__(self, log, opts):
@@ -23,6 +24,7 @@ class CSSCleanup(object):
         for body in XPath('//h:body')(item.data):
             style = stylizer.style(body)
             style.drop('height')
+
 
 def remove_duplicate_anchors(oeb):
     # The Kindle apparently has incorrect behavior for duplicate anchors, see

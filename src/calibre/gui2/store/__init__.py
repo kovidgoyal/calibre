@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.utils.filenames import ascii_filename
 
+
 class StorePlugin(object):  # {{{
 
     '''

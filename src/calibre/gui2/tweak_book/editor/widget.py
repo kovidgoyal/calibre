@@ -25,6 +25,7 @@ from calibre.gui2.tweak_book.editor.help import help_url
 from calibre.gui2.tweak_book.editor.text import TextEdit
 from calibre.utils.icu import utf16_length
 
+
 def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     if isinstance(fill, basestring):
         fill = QColor(fill)
@@ -43,6 +44,7 @@ def create_icon(text, palette=None, sz=None, divider=2, fill='white'):
     p.drawText(img.rect().adjusted(2, 2, -2, -2), Qt.AlignCenter, text)
     p.end()
     return QIcon(QPixmap.fromImage(img))
+
 
 def register_text_editor_actions(_reg, palette):
     def reg(*args, **kw):
@@ -157,6 +159,7 @@ class Editor(QMainWindow):
     def current_line(self):
         def fget(self):
             return self.editor.textCursor().blockNumber()
+
         def fset(self, val):
             self.editor.go_to_line(val)
         return property(fget=fget, fset=fset)
@@ -166,6 +169,7 @@ class Editor(QMainWindow):
         def fget(self):
             c = self.editor.textCursor()
             return {'cursor':(c.anchor(), c.position())}
+
         def fset(self, val):
             anchor, position = val.get('cursor', (None, None))
             if anchor is not None and position is not None:
@@ -189,6 +193,7 @@ class Editor(QMainWindow):
             if changed:
                 self.data = ans
             return ans.encode('utf-8')
+
         def fset(self, val):
             self.editor.load_text(val, syntax=self.syntax, doc_name=editor_name(self))
         return property(fget=fget, fset=fset)
@@ -312,6 +317,7 @@ class Editor(QMainWindow):
     def is_modified(self):
         def fget(self):
             return self.editor.is_modified
+
         def fset(self, val):
             self.editor.is_modified = val
         return property(fget=fget, fset=fset)
@@ -353,6 +359,7 @@ class Editor(QMainWindow):
 
     def populate_toolbars(self):
         self.action_bar.clear(), self.tools_bar.clear()
+
         def add_action(name, bar):
             if name is None:
                 bar.addSeparator()
@@ -583,6 +590,7 @@ class Editor(QMainWindow):
         else:
             dictionaries.add_to_user_dictionary(dic, word, locale)
         self.word_ignored.emit(word, locale)
+
 
 def launch_editor(path_to_edit, path_is_raw=False, syntax='html', callback=None):
     from calibre.gui2.tweak_book import dictionaries

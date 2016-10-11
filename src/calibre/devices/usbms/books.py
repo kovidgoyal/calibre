@@ -15,6 +15,7 @@ from calibre import isbytestring, force_unicode
 from calibre.utils.config_base import tweaks
 from calibre.utils.icu import sort_key
 
+
 class Book(Metadata):
 
     def __init__(self, prefix, lpath, size=None, other=None):
@@ -46,6 +47,7 @@ class Book(Metadata):
     @dynamic_property
     def db_id(self):
         doc = '''The database id in the application database that this file corresponds to'''
+
         def fget(self):
             match = re.search(r'_(\d+)$', self.lpath.rpartition('.')[0])
             if match:
@@ -56,6 +58,7 @@ class Book(Metadata):
     @dynamic_property
     def title_sorter(self):
         doc = '''String to sort the title. If absent, title is returned'''
+
         def fget(self):
             return title_sort(self.title)
         return property(doc=doc, fget=fget)
@@ -63,6 +66,7 @@ class Book(Metadata):
     @dynamic_property
     def thumbnail(self):
         return None
+
 
 class BookList(_BookList):
 
@@ -98,6 +102,7 @@ class BookList(_BookList):
 
     def get_collections(self):
         return {}
+
 
 class CollectionsBookList(BookList):
 

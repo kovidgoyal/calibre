@@ -68,21 +68,27 @@ def Handle_Main():
     except ParseRtf.RtfInvalidCodeException, msg:
         sys.stderr.write(msg)
 """
+
+
 class InvalidRtfException(Exception):
     """
     handle invalid RTF
     """
     pass
+
+
 class RtfInvalidCodeException(Exception):
     """
     handle bugs in program
     """
     pass
 
+
 class ParseRtf:
     """
     Main class for controlling the rest of the parsing.
     """
+
     def __init__(self,
                 in_file,
                 out_file='',

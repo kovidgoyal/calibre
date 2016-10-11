@@ -42,6 +42,7 @@ class WizardWidget(QWidget, Ui_Form):
         expr = '//'+tag + q
         return expr
 
+
 class Wizard(QDialog):
 
     def __init__(self, parent=None):

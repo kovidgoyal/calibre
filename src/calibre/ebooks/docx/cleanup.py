@@ -10,6 +10,7 @@ import os
 
 NBSP = '\xa0'
 
+
 def mergeable(previous, current):
     if previous.tail or current.tail:
         return False
@@ -24,6 +25,7 @@ def mergeable(previous, current):
         return next(previous.itersiblings()) is current
     except StopIteration:
         return False
+
 
 def append_text(parent, text):
     if len(parent) > 0:
@@ -88,6 +90,7 @@ def lift(span):
         else:
             add_text(last_child, 'tail', span.tail)
 
+
 def before_count(root, tag, limit=10):
     body = root.xpath('//body[1]')
     if not body:
@@ -99,6 +102,7 @@ def before_count(root, tag, limit=10):
         ans += 1
         if ans > limit:
             return limit
+
 
 def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
     # Move <hr>s outside paragraphs, if possible.

@@ -22,6 +22,7 @@ from calibre.ptempfile import (PersistentTemporaryDirectory,
 
 # Start download {{{
 
+
 class Job(ThreadedJob):
 
     ignore_html_details = True
@@ -43,10 +44,12 @@ class Job(ThreadedJob):
     def log_file(self):
         return open(self.download_debug_log, 'rb')
 
+
 def show_config(gui, parent):
     from calibre.gui2.preferences import show_config_widget
     show_config_widget('Sharing', 'Metadata download', parent=parent,
             gui=gui, never_shutdown=True)
+
 
 class ConfirmDialog(QDialog):
 
@@ -109,6 +112,7 @@ class ConfirmDialog(QDialog):
         self.identify = False
         self.accept()
 
+
 def split_jobs(ids, batch_size=100):
     ans = []
     ids = list(ids)
@@ -117,6 +121,7 @@ def split_jobs(ids, batch_size=100):
         ans.append(jids)
         ids = ids[batch_size:]
     return ans
+
 
 def start_download(gui, ids, callback, ensure_fields=None):
     d = ConfirmDialog(ids, gui)
@@ -138,6 +143,7 @@ def start_download(gui, ids, callback, ensure_fields=None):
 
 # }}}
 
+
 def get_job_details(job):
     (aborted, good_ids, tdir, log_file, failed_ids, failed_covers, title_map,
             lm_map, all_failed) = job.result
@@ -152,6 +158,7 @@ def get_job_details(job):
     det_msg = '\n'.join(det_msg)
     return (aborted, good_ids, tdir, log_file, failed_ids, failed_covers,
             all_failed, det_msg, lm_map)
+
 
 class HeartBeat(object):
     CHECK_INTERVAL = 300  # seconds
@@ -170,6 +177,7 @@ class HeartBeat(object):
             self.last_count = c
             self.last_time = time.time()
         return True
+
 
 class Notifier(Thread):
 
@@ -200,6 +208,7 @@ class Notifier(Thread):
                                 float(len(self.seen))/self.total,
                                 _('Processed %s')%self.title_map[book_id]))
             time.sleep(1)
+
 
 def download(all_ids, tf, db, do_identify, covers, ensure_fields,
         log=None, abort=None, notifications=None):

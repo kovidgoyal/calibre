@@ -15,6 +15,7 @@ from calibre import browser
 from calibre.constants import DEBUG
 from calibre.utils.img import scale_image
 
+
 class GenericDownloadThreadPool(object):
     '''
     add_task must be implemented in a subclass and must
@@ -139,8 +140,10 @@ class CoverThreadPool(GenericDownloadThreadPool):
         self.tasks.put((search_result, update_callback, timeout))
         GenericDownloadThreadPool.add_task(self)
 
+
 def decode_data_url(url):
     return base64.standard_b64decode(url.partition(',')[2])
+
 
 class CoverThread(Thread):
 

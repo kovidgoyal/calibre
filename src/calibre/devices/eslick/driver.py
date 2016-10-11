@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class ESLICK(USBMS):
 
     name           = 'ESlick Device Interface'

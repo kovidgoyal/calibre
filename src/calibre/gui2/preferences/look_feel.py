@@ -33,6 +33,7 @@ from calibre.gui2.preferences.coloring import EditRules
 from calibre.gui2.library.alternate_views import auto_height, CM_TO_INCH
 from calibre.gui2.widgets2 import Dialog
 
+
 class BusyCursor(object):
 
     def __enter__(self):
@@ -42,6 +43,7 @@ class BusyCursor(object):
         QApplication.restoreOverrideCursor()
 
 # IdLinksEditor {{{
+
 
 class IdLinksRuleEdit(Dialog):
 
@@ -82,6 +84,7 @@ class IdLinksRuleEdit(Dialog):
                 return error_dialog(self, _('Value needed'), _(
                     'The %s field cannot be empty') % which, show=True)
         Dialog.accept(self)
+
 
 class IdLinksEditor(Dialog):
 
@@ -149,6 +152,7 @@ class IdLinksEditor(Dialog):
         if r > -1:
             self.table.removeRow(r)
 # }}}
+
 
 class DisplayedFields(QAbstractListModel):  # {{{
 
@@ -224,6 +228,7 @@ class DisplayedFields(QAbstractListModel):  # {{{
 
 # }}}
 
+
 class Background(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -256,6 +261,7 @@ class Background(QWidget):  # {{{
         painter.fillRect(ev.rect(), self.brush)
         painter.end()
 # }}}
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 

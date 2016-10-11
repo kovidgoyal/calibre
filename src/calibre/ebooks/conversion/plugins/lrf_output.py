@@ -11,6 +11,7 @@ import sys, os
 from calibre.customize.conversion import OutputFormatPlugin
 from calibre.customize.conversion import OptionRecommendation
 
+
 class LRFOptions(object):
 
     def __init__(self, output, opts, oeb):
@@ -82,6 +83,7 @@ class LRFOptions(object):
                 'render_tables_as_images', 'sans_family', 'mono_family',
                 'text_size_multiplier_for_rendered_tables'):
             setattr(self, x, getattr(opts, x))
+
 
 class LRFOutput(OutputFormatPlugin):
 

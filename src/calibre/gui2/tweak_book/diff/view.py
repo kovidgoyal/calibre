@@ -32,6 +32,7 @@ from calibre.gui2.tweak_book.diff.highlight import get_highlighter
 
 Change = namedtuple('Change', 'ltop lbot rtop rbot kind')
 
+
 class BusyCursor(object):
 
     def __enter__(self):
@@ -39,6 +40,7 @@ class BusyCursor(object):
 
     def __exit__(self, *args):
         QApplication.restoreOverrideCursor()
+
 
 def beautify_text(raw, syntax):
     from lxml import etree
@@ -85,6 +87,7 @@ class LineNumberMap(dict):  # {{{
         dict.clear(self)
         self.max_width = 1
 # }}}
+
 
 class TextBrowser(PlainTextEdit):  # {{{
 
@@ -391,6 +394,7 @@ class TextBrowser(PlainTextEdit):  # {{{
 
 # }}}
 
+
 class DiffSplitHandle(QSplitterHandle):  # {{{
 
     WIDTH = 30  # px
@@ -496,6 +500,7 @@ class DiffSplitHandle(QSplitterHandle):  # {{{
         else:
             return QSplitterHandle.wheelEvent(self, ev)
 # }}}
+
 
 class DiffSplit(QSplitter):  # {{{
 
@@ -642,6 +647,7 @@ class DiffSplit(QSplitter):  # {{{
                     c.removeSelectedText()
                 c.endEditBlock()
                 v.images[top] = (img, w, lines)
+
                 def mapnum(x):
                     return x if x <= top else x + delta
                 lnm = LineNumberMap()
@@ -894,6 +900,7 @@ class DiffSplit(QSplitter):  # {{{
     # }}}
 
 # }}}
+
 
 class DiffView(QWidget):  # {{{
 

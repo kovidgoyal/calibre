@@ -21,6 +21,7 @@ from calibre.ebooks.conversion.plumber import Plumber
 from calibre.utils.config import prefs
 from calibre.utils.logging import Log
 
+
 class BulkConfig(Config):
 
     def __init__(self, parent, db, preferred_output_format=None,

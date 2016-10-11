@@ -25,6 +25,7 @@ from calibre.gui2.widgets2 import HistoryLineEdit2
 from calibre.utils.filenames import samefile
 from calibre.utils.icu import numeric_sort_key
 
+
 class BusyWidget(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -55,12 +56,14 @@ class BusyWidget(QWidget):  # {{{
         p.end()
 # }}}
 
+
 class Cache(object):
 
     def __init__(self):
         self._left, self._right = {}, {}
         self.left, self.right = self._left.get, self._right.get
         self.set_left, self.set_right = self._left.__setitem__, self._right.__setitem__
+
 
 def changed_files(list_of_names1, list_of_names2, get_data1, get_data2):
     list_of_names1, list_of_names2 = frozenset(list_of_names1), frozenset(list_of_names2)
@@ -124,12 +127,14 @@ def get_decoded_raw(name):
                     pass
     return raw, syntax
 
+
 def string_diff(left, right, left_syntax=None, right_syntax=None, left_name='left', right_name='right'):
     left, right = unicode(left), unicode(right)
     cache = Cache()
     cache.set_left(left_name, left), cache.set_right(right_name, right)
     changed_names = {} if left == right else {left_name:right_name}
     return cache, {left_name:left_syntax, right_name:right_syntax}, changed_names, {}, set(), set()
+
 
 def file_diff(left, right):
     (raw1, syntax1), (raw2, syntax2) = map(get_decoded_raw, (left, right))
@@ -139,6 +144,7 @@ def file_diff(left, right):
     cache.set_left(left, raw1), cache.set_right(right, raw2)
     changed_names = {} if raw1 == raw2 else {left:right}
     return cache, {left:syntax1, right:syntax2}, changed_names, {}, set(), set()
+
 
 def dir_diff(left, right):
     ldata, rdata, lsmap, rsmap = {}, {}, {}, {}
@@ -156,6 +162,7 @@ def dir_diff(left, right):
     syntax_map.update({name:rsmap[name] for name in added_names})
     syntax_map.update({name:lsmap[name] for name in removed_names})
     return cache, syntax_map, changed_names, renamed_names, removed_names, added_names
+
 
 def container_diff(left, right):
     left_names, right_names = set(left.name_path_map), set(right.name_path_map)
@@ -186,11 +193,13 @@ def container_diff(left, right):
     syntax_map.update({name:syntax(left, name) for name in removed_names})
     return cache, syntax_map, changed_names, renamed_names, removed_names, added_names
 
+
 def ebook_diff(path1, path2):
     from calibre.ebooks.oeb.polish.container import get_container
     left = get_container(path1, tweak_mode=True)
     right = get_container(path2, tweak_mode=True)
     return container_diff(left, right)
+
 
 class Diff(Dialog):
 
@@ -396,6 +405,7 @@ class Diff(Dialog):
     def apply_diff(self, identical_msg, cache, syntax_map, changed_names, renamed_names, removed_names, added_names):
         self.view.clear()
         self.apply_diff_calls = calls = []
+
         def add(args, kwargs):
             self.view.add_diff(*args, **kwargs)
             calls.append((args, kwargs))
@@ -448,6 +458,7 @@ class Diff(Dialog):
                 return
             return Dialog.keyPressEvent(self, ev)
 
+
 def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=None, names=None):
     d = Diff(parent=parent, revert_button_msg=revert_msg)
     if revert_msg is not None:
@@ -459,6 +470,7 @@ def compare_books(path1, path2, revert_msg=None, revert_callback=None, parent=No
     except:
         pass
     d.break_cycles()
+
 
 def main(args=sys.argv):
     from calibre.gui2 import Application

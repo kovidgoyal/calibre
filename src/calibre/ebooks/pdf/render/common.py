@@ -59,10 +59,12 @@ PAPER_SIZES = {k:globals()[k.upper()] for k in ('a0 a1 a2 a3 a4 a5 a6 b0 b1 b2'
 ic = str if ispy3 else unicode
 icb = (lambda x: str(x).encode('ascii')) if ispy3 else bytes
 
+
 def fmtnum(o):
     if isinstance(o, float):
         return pdf_float(o)
     return ic(o)
+
 
 def serialize(o, stream):
     if isinstance(o, float):
@@ -84,6 +86,7 @@ def serialize(o, stream):
     else:
         raise ValueError('Unknown object: %r'%o)
 
+
 class Name(unicode):
 
     def pdf_serialize(self, stream):
@@ -93,6 +96,7 @@ class Name(unicode):
         buf = [x if 33 < ord(x) < 126 and x != b'#' else b'#'+hex(ord(x)) for x
                in raw]
         stream.write(b'/'+b''.join(buf))
+
 
 def escape_pdf_string(bytestring):
     indices = []
@@ -128,6 +132,7 @@ class String(unicode):
             raw = codecs.BOM_UTF16_BE + self.encode('utf-16-be')
         stream.write(b'('+escape_pdf_string(raw)+b')')
 
+
 class UTF16String(unicode):
 
     def pdf_serialize(self, stream):
@@ -138,6 +143,7 @@ class UTF16String(unicode):
             stream.write(b'<' + hexlify(raw) + b'>')
         else:
             stream.write(b'('+escape_pdf_string(raw)+b')')
+
 
 class Dictionary(dict):
 
@@ -153,6 +159,7 @@ class Dictionary(dict):
             stream.write(EOL)
         stream.write(b'>>' + EOL)
 
+
 class InlineDictionary(Dictionary):
 
     def pdf_serialize(self, stream):
@@ -164,6 +171,7 @@ class InlineDictionary(Dictionary):
             stream.write(b' ')
         stream.write(b'>>')
 
+
 class Array(list):
 
     def pdf_serialize(self, stream):
@@ -173,6 +181,7 @@ class Array(list):
                 stream.write(b' ')
             serialize(o, stream)
         stream.write(b']')
+
 
 class Stream(BytesIO):
 
@@ -211,6 +220,7 @@ class Stream(BytesIO):
 
     def write_raw(self, raw):
         BytesIO.write(self, raw)
+
 
 class Reference(object):
 

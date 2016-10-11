@@ -18,6 +18,7 @@ class Color(QColor):
     def __init__(self, color):
         QColor.__init__(self, color.r, color.g, color.b, 0xff-color.a)
 
+
 class Pen(QPen):
 
     def __init__(self, color, width):
@@ -69,6 +70,7 @@ def object_factory(container, obj, respect_max_y=False):
         return Canvas(container.font_loader, obj, container.logger, container.opts,
                       container.ruby_tags, container.link_activated)
     return None
+
 
 class _Canvas(QGraphicsRectItem):
 
@@ -209,6 +211,7 @@ class Canvas(_Canvas, ContentObject):
         block.reset()
         _Canvas.layout_block(self, block, x, y)
 
+
 class Header(Canvas):
 
     def __init__(self, font_loader, header, page_style, logger, opts, ruby_tags, link_activated):
@@ -217,6 +220,7 @@ class Header(Canvas):
         if opts.visual_debug:
             self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
 
+
 class Footer(Canvas):
 
     def __init__(self, font_loader, footer, page_style, logger, opts, ruby_tags, link_activated):
@@ -224,6 +228,7 @@ class Footer(Canvas):
                         page_style.textwidth, page_style.footheight)
         if opts.visual_debug:
             self.setPen(QPen(Qt.blue, 1, Qt.DashLine))
+
 
 class Screen(_Canvas):
 

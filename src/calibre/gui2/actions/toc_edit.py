@@ -17,6 +17,7 @@ from calibre.gui2.actions import InterfaceAction
 
 SUPPORTED = {'EPUB', 'AZW3'}
 
+
 class ChooseFormat(QDialog):  # {{{
 
     def __init__(self, formats, parent=None):
@@ -55,6 +56,7 @@ class ChooseFormat(QDialog):  # {{{
             for b in self.buttons:
                 if b.isChecked():
                     yield unicode(b.text())[1:]
+
         def fset(self, formats):
             formats = {x.upper() for x in formats}
             for b in self.buttons:
@@ -62,6 +64,7 @@ class ChooseFormat(QDialog):  # {{{
         return property(fget=fget, fset=fset)
 
 # }}}
+
 
 class ToCEditAction(InterfaceAction):
 

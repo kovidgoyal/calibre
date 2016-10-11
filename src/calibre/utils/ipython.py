@@ -14,6 +14,7 @@ ipydir = os.path.join(cache_dir(), 'ipython')
 
 BANNER = ('Welcome to the interactive calibre shell!\n')
 
+
 def setup_pyreadline():
     config = '''
 #Bind keys for exit (keys only work on empty lines
@@ -129,6 +130,7 @@ history_length(2000) #value of -1 means no limit
 
         # Override completer from rlcompleter to disable automatic ( on callable
         completer_obj = rlcompleter.Completer()
+
         def nop(val, word):
             return word
         completer_obj._callable_postfix = nop
@@ -139,6 +141,7 @@ history_length(2000) #value of -1 means no limit
         readline.read_history_file()
         atexit.register(readline.write_history_file)
         del readline, rlcompleter, atexit
+
 
 def simple_repl(user_ns={}):
     if iswindows:
@@ -157,6 +160,7 @@ def simple_repl(user_ns={}):
         user_ns[x] = user_ns.get(x, globals().get(x, locals().get(x)))
     import code
     code.interact(BANNER, raw_input, user_ns)
+
 
 def ipython(user_ns=None):
     os.environ['IPYTHONDIR'] = ipydir

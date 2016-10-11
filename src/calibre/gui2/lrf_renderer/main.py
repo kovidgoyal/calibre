@@ -17,6 +17,7 @@ from calibre.gui2.main_window import MainWindow
 from calibre.gui2.lrf_renderer.document import Document
 from calibre.gui2.search_box import SearchBox2
 
+
 class RenderWorker(QThread):
 
     def __init__(self, parent, lrf_stream, logger, opts):
@@ -45,6 +46,7 @@ class RenderWorker(QThread):
             self.aborted = True
             self.lrf.keep_parsing = False
 
+
 class Config(QDialog, Ui_ViewerConfig):
 
     def __init__(self, parent, opts):
@@ -53,6 +55,7 @@ class Config(QDialog, Ui_ViewerConfig):
         self.setupUi(self)
         self.white_background.setChecked(opts.white_background)
         self.hyphenate.setChecked(opts.hyphenate)
+
 
 class Main(MainWindow, Ui_MainWindow):
 
@@ -282,6 +285,7 @@ Read the LRF ebook book.lrf
     parser.add_option('--profile', dest='profile', default=False, action='store_true',
                       help=_('Profile the LRF renderer'))
     return parser
+
 
 def normalize_settings(parser, opts):
     saved_opts = config['LRF_ebook_viewer_options']

@@ -11,6 +11,7 @@ from calibre.gui2.convert.heuristics_ui import Ui_Form
 from calibre.gui2.convert import Widget
 from calibre.utils.localization import localize_user_manual_link
 
+
 class HeuristicsWidget(Widget, Ui_Form):
 
     TITLE = _('Heuristic\nProcessing')

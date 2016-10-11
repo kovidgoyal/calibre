@@ -14,6 +14,7 @@ from PyQt5.Qt import (QDialog, QIcon, QApplication, QSize, QKeySequence,
 from calibre.constants import __version__, isfrozen
 from calibre.gui2 import gprefs
 
+
 class MessageBox(QDialog):  # {{{
 
     ERROR = 0
@@ -166,6 +167,7 @@ class MessageBox(QDialog):  # {{{
         self.resize_needed.emit()
 # }}}
 
+
 class ViewLog(QDialog):  # {{{
 
     def __init__(self, title, html, parent=None, unique_name=None):
@@ -207,6 +209,7 @@ class ViewLog(QDialog):  # {{{
 # }}}
 
 _proceed_memory = []
+
 
 class ProceedNotification(MessageBox):  # {{{
 
@@ -279,6 +282,7 @@ class ProceedNotification(MessageBox):  # {{{
 
 # }}}
 
+
 class ErrorNotification(MessageBox):  # {{{
 
     def __init__(self, html_log, log_viewer_title, title, msg,
@@ -318,6 +322,7 @@ class ErrorNotification(MessageBox):  # {{{
         self.vlb.clicked.disconnect()
         _proceed_memory.remove(self)
 # }}}
+
 
 class JobError(QDialog):  # {{{
 

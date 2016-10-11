@@ -15,6 +15,7 @@ import sys, os
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
 
+
 class Paragraphs:
     """
     =================
@@ -38,6 +39,7 @@ class Paragraphs:
     a paragraph definition; the end of a field-block; and the beginning of a
     section. (How about the end of a section or the end of a field-block?)
     """
+
     def __init__(self,
             in_file,
             bug_handler,

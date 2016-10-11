@@ -25,6 +25,7 @@ from calibre.utils.dbus_service import (
 
 _sni_count = 0
 
+
 class StatusNotifierItem(QObject):
 
     IFACE = 'org.kde.StatusNotifierItem'
@@ -97,6 +98,7 @@ class StatusNotifierItem(QObject):
         self.activated.emit(QSystemTrayIcon.Trigger)
 
 _status_item_menu_count = 0
+
 
 class StatusNotifierItemAPI(Object):
 

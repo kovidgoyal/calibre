@@ -28,9 +28,12 @@ from calibre.constants import islinux
 DBPATH = 'Sony_Reader/database/books.db'
 THUMBPATH = 'Sony_Reader/database/cache/books/%s/thumbnail/main_thumbnail.jpg'
 
+
 class ImageWrapper(object):
+
     def __init__(self, image_path):
         self.image_path = image_path
+
 
 class PRST1(USBMS):
     name           = 'SONY PRST1 and newer Device Interface'

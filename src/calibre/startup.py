@@ -117,6 +117,7 @@ if not _run_once:
     elif isosx:
         import fcntl
         FIOCLEX = 0x20006601
+
         def local_open(name, mode='r', bufsize=-1):
             ans = open(name, mode, bufsize)
             try:
@@ -131,6 +132,7 @@ if not _run_once:
         except AttributeError:
             cloexec_flag = 1
         supports_mode_e = False
+
         def local_open(name, mode='r', bufsize=-1):
             global supports_mode_e
             mode += 'e'
@@ -163,6 +165,7 @@ if not _run_once:
                 pthread_setname_np.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
                 pthread_setname_np.restype = ctypes.c_int
                 orig_start = threading.Thread.start
+
                 def new_start(self):
                     orig_start(self)
                     try:
@@ -181,6 +184,7 @@ if not _run_once:
                         pass  # Don't care about failure to set name
                 threading.Thread.start = new_start
 
+
 def test_lopen():
     from calibre.ptempfile import TemporaryDirectory
     from calibre import CurrentDir
@@ -189,6 +193,7 @@ def test_lopen():
 
     if iswindows:
         import msvcrt, win32api
+
         def assert_not_inheritable(f):
             if win32api.GetHandleInformation(msvcrt.get_osfhandle(f.fileno())) & 0b1:
                 raise SystemExit('File handle is inheritable!')

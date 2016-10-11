@@ -25,10 +25,12 @@ from calibre.gui2.notify import get_notifier
 
 _keep_refs = []
 
+
 def partial(*args, **kwargs):
     ans = functools.partial(*args, **kwargs)
     _keep_refs.append(ans)
     return ans
+
 
 class LibraryViewMixin(object):  # {{{
 
@@ -100,6 +102,7 @@ class LibraryViewMixin(object):  # {{{
 
     # }}}
 
+
 class QuickviewSplitter(QSplitter):  # {{{
 
     def __init__(self, parent=None, orientation=Qt.Vertical, qv_widget=None):
@@ -130,6 +133,7 @@ class QuickviewSplitter(QSplitter):  # {{{
     def hide_quickview_widget(self):
         self.qv_widget.hide()
 # }}}
+
 
 class LibraryWidget(Splitter):  # {{{
 
@@ -165,6 +169,7 @@ class LibraryWidget(Splitter):  # {{{
 
         self.addWidget(parent.quickview_splitter)
 # }}}
+
 
 class Stack(QStackedWidget):  # {{{
 
@@ -203,6 +208,7 @@ class UpdateLabel(QLabel):  # {{{
     def contextMenuEvent(self, e):
         pass
 # }}}
+
 
 class StatusBar(QStatusBar):  # {{{
 
@@ -280,6 +286,7 @@ class StatusBar(QStatusBar):  # {{{
         self.clearMessage()
 
 # }}}
+
 
 class GridViewButton(LayoutButton):  # {{{
 
@@ -452,6 +459,7 @@ class VLTabs(QTabBar):  # {{{
         self.rebuild()
 
 # }}}
+
 
 class LayoutMixin(object):  # {{{
 

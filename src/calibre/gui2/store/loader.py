@@ -18,10 +18,13 @@ from calibre.constants import numeric_version, DEBUG
 from calibre.gui2.store import StorePlugin
 from calibre.utils.config import JSONConfig
 
+
 class VersionMismatch(ValueError):
+
     def __init__(self, ver):
         ValueError.__init__(self, 'calibre too old')
         self.ver = ver
+
 
 def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
     from calibre.utils.https import get_https_resource_securely
@@ -44,6 +47,7 @@ def download_updates(ver_map={}, server='https://code.calibre-ebook.com'):
         src = io.StringIO(src, newline=None).getvalue()
         yield name, src
         raw = d.unused_data
+
 
 class Stores(OrderedDict):
 

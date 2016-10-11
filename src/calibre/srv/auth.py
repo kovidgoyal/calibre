@@ -19,19 +19,24 @@ from calibre.utils.monotonic import monotonic
 MAX_AGE_SECONDS = 3600
 nonce_counter, nonce_counter_lock = 0, Lock()
 
+
 def as_bytestring(x):
     if not isinstance(x, bytes):
         x = x.encode('utf-8')
     return x
 
+
 def md5_hex(s):
     return md5(as_bytestring(s)).hexdigest().decode('ascii')
+
 
 def sha256_hex(s):
     return sha256(as_bytestring(s)).hexdigest().decode('ascii')
 
+
 def base64_decode(s):
     return base64.standard_b64decode(as_bytestring(s)).decode('utf-8')
+
 
 def synthesize_nonce(key_order, realm, secret, timestamp=None):
     '''
@@ -52,10 +57,12 @@ def synthesize_nonce(key_order, realm, secret, timestamp=None):
     nonce = ':'.join((timestamp, h))
     return nonce
 
+
 def validate_nonce(key_order, nonce, realm, secret):
     timestamp, hashpart = nonce.partition(':')[::2]
     s_nonce = synthesize_nonce(key_order, realm, secret, timestamp)
     return s_nonce == nonce
+
 
 def is_nonce_stale(nonce, max_age_seconds=MAX_AGE_SECONDS):
     try:
@@ -157,6 +164,7 @@ class DigestAuth(object):  # {{{
             raise HTTPSimpleResponse(httplib.BAD_REQUEST, 'The uri in the Request Line and the Authorization header do not match')
         return self.response is not None and path == data.path and self.request_digest(pw, data) == self.response
 # }}}
+
 
 class AuthController(object):
 

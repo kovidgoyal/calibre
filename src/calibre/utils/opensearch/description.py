@@ -16,6 +16,7 @@ from lxml import etree
 from calibre import browser
 from calibre.utils.opensearch.url import URL
 
+
 class Description(object):
     '''
     A class for representing OpenSearch Description files.

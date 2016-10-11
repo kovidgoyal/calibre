@@ -12,6 +12,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.quickview import Quickview
 from calibre.gui2 import error_dialog
 
+
 class ShowQuickviewAction(InterfaceAction):
 
     name = 'Show Quickview'

@@ -18,6 +18,7 @@ from calibre.utils.localization import localize_user_manual_link
 box_values = {}
 last_matchkind = CONTAINS_MATCH
 
+
 def init_dateop(cb):
     for op, desc in [
             ('=', _('equal to')),
@@ -28,8 +29,10 @@ def init_dateop(cb):
     ]:
         cb.addItem(desc, op)
 
+
 def current_dateop(cb):
     return unicode(cb.itemData(cb.currentIndex()) or '')
+
 
 class SearchDialog(QDialog, Ui_Dialog):
 

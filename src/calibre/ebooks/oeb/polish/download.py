@@ -47,6 +47,7 @@ def get_external_resources(container):
                     ans[link].append(name)
     return ans
 
+
 def get_filename(original_url_parsed, response):
     ans = get_download_filename_from_response(response) or posixpath.basename(original_url_parsed.path) or 'unknown'
     ct = response.info().get('Content-Type', '')
@@ -60,12 +61,14 @@ def get_filename(original_url_parsed, response):
                     ans += exts[0]
     return ans
 
+
 def get_content_length(response):
     cl = response.info().get('Content-Length')
     try:
         return int(cl)
     except Exception:
         return -1
+
 
 class ProgressTracker(object):
 
@@ -82,6 +85,7 @@ class ProgressTracker(object):
         except Exception:
             pass
         return ret
+
 
 def download_one(tdir, timeout, progress_report, url):
     try:
@@ -108,6 +112,7 @@ def download_one(tdir, timeout, progress_report, url):
     except Exception as err:
         return False, url, as_unicode(err)
 
+
 def download_external_resources(container, urls, timeout=60, progress_report=lambda url, done, total: None):
     failures = {}
     replacements = {}
@@ -125,13 +130,15 @@ def download_external_resources(container, urls, timeout=60, progress_report=lam
                     failures[url] = err
     return replacements, failures
 
+
 def replacer(url_map):
     def replace(url):
         r = url_map.get(url)
-        replace.replaced |= r is not None
+        replace.replaced |= r != url
         return url if r is None else r
     replace.replaced = False
     return replace
+
 
 def replace_resources(container, urls, replacements):
     url_maps = defaultdict(dict)

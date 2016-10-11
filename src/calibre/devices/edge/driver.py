@@ -11,6 +11,7 @@ Device driver for Barns and Nobel's Nook
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class EDGE(USBMS):
 
     name           = 'Edge Device Interface'

@@ -15,6 +15,7 @@ _xml_types = {'application/oebps-page-map+xml', 'application/vnd.adobe-page-temp
             guess_type('a.'+x) for x in ('ncx', 'opf', 'svg', 'xpgt', 'xml')}
 _js_types = {'application/javascript', 'application/x-javascript'}
 
+
 def syntax_from_mime(name, mime):
     for syntax, types in (('html', OEB_DOCS), ('css', OEB_STYLES), ('xml', _xml_types)):
         if mime in types:
@@ -30,6 +31,7 @@ def syntax_from_mime(name, mime):
         return 'xml'
 
 all_text_syntaxes = frozenset({'text', 'html', 'xml', 'css', 'javascript'})
+
 
 def editor_from_syntax(syntax, parent=None):
     if syntax in all_text_syntaxes:
@@ -48,10 +50,12 @@ TAG_NAME_PROPERTY = LINK_PROPERTY + 1
 CSS_PROPERTY = TAG_NAME_PROPERTY + 1
 CLASS_ATTRIBUTE_PROPERTY = CSS_PROPERTY + 1
 
+
 def syntax_text_char_format(*args):
     ans = QTextCharFormat(*args)
     ans.setProperty(SYNTAX_PROPERTY, True)
     return ans
+
 
 class StoreLocale(object):
 

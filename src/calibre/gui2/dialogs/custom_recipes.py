@@ -22,8 +22,10 @@ from calibre.utils.icu import sort_key
 from calibre.web.feeds.recipes.collection import get_builtin_recipe_collection, get_builtin_recipe_by_id
 from calibre.utils.localization import localize_user_manual_link
 
+
 def is_basic_recipe(src):
     return re.search(r'^class BasicUserRecipe', src, flags=re.MULTILINE) is not None
+
 
 class CustomRecipeModel(QAbstractListModel):  # {{{
 
@@ -111,6 +113,7 @@ class CustomRecipeModel(QAbstractListModel):  # {{{
         self.endResetModel()
 # }}}
 
+
 def py3_repr(x):
     ans = repr(x)
     if isinstance(x, bytes) and not ans.startswith('b'):
@@ -118,6 +121,7 @@ def py3_repr(x):
     if isinstance(x, unicode) and ans.startswith('u'):
         ans = ans[1:]
     return ans
+
 
 def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds):
     classname = 'BasicUserRecipe%d' % int(time.time())
@@ -148,6 +152,7 @@ def options_to_recipe_source(title, oldest_article, max_articles_per_feed, feeds
             classname=classname, title=py3_repr(title), oldest_article=oldest_article, feeds=feeds,
             max_articles_per_feed=max_articles_per_feed, base='AutomaticNewsRecipe')
     return src
+
 
 class RecipeList(QWidget):  # {{{
 
@@ -253,6 +258,7 @@ class RecipeList(QWidget):  # {{{
         self.model.replace_many_by_title(script_map)
         self.select_row()
 # }}}
+
 
 class BasicRecipe(QWidget):  # {{{
 
@@ -399,6 +405,7 @@ class BasicRecipe(QWidget):  # {{{
         return property(fget=fget, fset=fset)
 # }}}
 
+
 class AdvancedRecipe(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -437,6 +444,7 @@ class AdvancedRecipe(QWidget):  # {{{
     def sizeHint(self):
         return QSize(800, 500)
 # }}}
+
 
 class CustomRecipes(Dialog):
 

@@ -17,6 +17,7 @@ elif isosx:
 class PluginNotFound(ValueError):
     pass
 
+
 class InvalidPlugin(ValueError):
     pass
 
@@ -312,6 +313,7 @@ class Plugin(object):  # {{{
 
 # }}}
 
+
 class FileTypePlugin(Plugin):  # {{{
     '''
     A plugin that is associated with a particular set of file types.
@@ -392,6 +394,7 @@ class FileTypePlugin(Plugin):  # {{{
 
 # }}}
 
+
 class MetadataReaderPlugin(Plugin):  # {{{
     '''
     A plugin that implements reading metadata from a set of file types.
@@ -421,6 +424,7 @@ class MetadataReaderPlugin(Plugin):  # {{{
         '''
         return None
 # }}}
+
 
 class MetadataWriterPlugin(Plugin):  # {{{
     '''
@@ -452,6 +456,7 @@ class MetadataWriterPlugin(Plugin):  # {{{
         pass
 
 # }}}
+
 
 class CatalogPlugin(Plugin):  # {{{
     '''
@@ -580,6 +585,7 @@ class CatalogPlugin(Plugin):  # {{{
 
 # }}}
 
+
 class InterfaceActionBase(Plugin):  # {{{
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -606,6 +612,7 @@ class InterfaceActionBase(Plugin):  # {{{
         return ac
 
 # }}}
+
 
 class PreferencesPlugin(Plugin):  # {{{
 
@@ -666,6 +673,7 @@ class PreferencesPlugin(Plugin):  # {{{
 
 # }}}
 
+
 class StoreBase(Plugin):  # {{{
 
     supported_platforms = ['windows', 'osx', 'linux']
@@ -714,6 +722,7 @@ class StoreBase(Plugin):  # {{{
         raise NotImplementedError()
 
 # }}}
+
 
 class ViewerPlugin(Plugin):  # {{{
 
@@ -774,12 +783,14 @@ class ViewerPlugin(Plugin):  # {{{
 
 # }}}
 
+
 class EditBookToolPlugin(Plugin):  # {{{
 
     type = _('Edit Book Tool')
     minimum_calibre_version = (1, 46, 0)
 
 # }}}
+
 
 class LibraryClosedPlugin(Plugin):  # {{{
     '''

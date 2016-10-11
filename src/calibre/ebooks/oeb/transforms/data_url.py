@@ -9,6 +9,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 import re
 from calibre.ebooks.oeb.base import XPath, urlunquote
 
+
 class DataURL(object):
 
     def __call__(self, oeb, opts):

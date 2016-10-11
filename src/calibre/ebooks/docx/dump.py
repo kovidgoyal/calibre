@@ -13,6 +13,7 @@ from lxml import etree
 from calibre import walk
 from calibre.utils.zipfile import ZipFile
 
+
 def pretty_all_xml_in_dir(path):
     for f in walk(path):
         if f.endswith('.xml') or f.endswith('.rels'):
@@ -24,12 +25,14 @@ def pretty_all_xml_in_dir(path):
                     stream.truncate()
                     stream.write(etree.tostring(root, pretty_print=True, encoding='utf-8', xml_declaration=True))
 
+
 def do_dump(path, dest):
     if os.path.exists(dest):
         shutil.rmtree(dest)
     with ZipFile(path) as zf:
         zf.extractall(dest)
     pretty_all_xml_in_dir(dest)
+
 
 def dump(path):
     dest = os.path.splitext(os.path.basename(path))[0]

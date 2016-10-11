@@ -19,28 +19,35 @@ RECOVER_PARSER = etree.XMLParser(recover=True, no_network=True)
 XHTML_NS     = 'http://www.w3.org/1999/xhtml'
 XMLNS_NS     = 'http://www.w3.org/2000/xmlns/'
 
+
 class NotHTML(Exception):
 
     def __init__(self, root_tag):
         Exception.__init__(self, 'Data is not HTML')
         self.root_tag = root_tag
 
+
 def barename(name):
     return name.rpartition('}')[-1]
+
 
 def namespace(name):
     return name.rpartition('}')[0][1:]
 
+
 def XHTML(name):
     return '{%s}%s' % (XHTML_NS, name)
 
+
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces={'h':XHTML_NS})
+
 
 def XPath(expr):
     return etree.XPath(expr, namespaces={'h':XHTML_NS})
 
 META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
+
 
 def merge_multiple_html_heads_and_bodies(root, log=None):
     heads, bodies = xpath(root, '//h:head'), xpath(root, '//h:body')
@@ -61,6 +68,7 @@ def merge_multiple_html_heads_and_bodies(root, log=None):
         log.warn('Merging multiple <head> and <body> sections')
     return root
 
+
 def clone_element(elem, nsmap={}, in_context=True):
     if in_context:
         maker = elem.getroottree().getroot().makeelement
@@ -72,6 +80,7 @@ def clone_element(elem, nsmap={}, in_context=True):
     nelem.extend(elem)
     return nelem
 
+
 def node_depth(node):
     ans = 0
     p = node.getparent()
@@ -80,9 +89,11 @@ def node_depth(node):
         p = p.getparent()
     return ans
 
+
 def fix_self_closing_cdata_tags(data):
     from html5lib.constants import cdataElements, rcdataElements
     return re.sub(r'<\s*(%s)\s*[^>]*/\s*>' % ('|'.join(cdataElements|rcdataElements)), r'<\1></\1>', data, flags=re.I)
+
 
 def html5_parse(data, max_nesting_depth=100):
     import html5lib, warnings
@@ -178,6 +189,7 @@ def html5_parse(data, max_nesting_depth=100):
             XMLNS_NS}
     return clone_element(data, nsmap=fnsmap, in_context=False)
 
+
 def _html4_parse(data, prefer_soup=False):
     if prefer_soup:
         from calibre.utils.soupparser import fromstring
@@ -198,6 +210,7 @@ def _html4_parse(data, prefer_soup=False):
         data = etree.fromstring(data, parser=RECOVER_PARSER)
     return data
 
+
 def clean_word_doc(data, log):
     prefixes = []
     for match in re.finditer(r'xmlns:(\S+?)=".*?microsoft.*?"', data):
@@ -216,13 +229,16 @@ def clean_word_doc(data, log):
         data = pat.sub('', data)
     return data
 
+
 class HTML5Doc(ValueError):
     pass
+
 
 def check_for_html5(prefix, root):
     if re.search(r'<!DOCTYPE\s+html\s*>', prefix, re.IGNORECASE) is not None:
         if root.xpath('//svg'):
             raise HTML5Doc('This document appears to be un-namespaced HTML 5, should be parsed by the HTML 5 parser')
+
 
 def parse_html(data, log=None, decoder=None, preprocessor=None,
         filename='<string>', non_html_file_tags=frozenset()):

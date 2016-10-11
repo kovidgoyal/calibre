@@ -25,6 +25,7 @@ def match_string(s1, s2_already_lowered):
             return True
     return False
 
+
 def check_all_prev_empty(tag):
     if tag is None:
         return True
@@ -32,12 +33,14 @@ def check_all_prev_empty(tag):
         return False
     return check_all_prev_empty(tag.previousSibling)
 
+
 def check_empty(s, rex=re.compile(r'\S')):
     return rex.search(s) is None
 
 
 class CHMError(Exception):
     pass
+
 
 class CHMReader(CHMFile):
 
@@ -266,6 +269,7 @@ class CHMReader(CHMFile):
         if self._contents is not None:
             return self._contents
         paths = []
+
         def get_paths(chm, ui, ctx):
             # skip directories
             # note this path refers to the internal CHM structure

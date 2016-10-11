@@ -11,6 +11,7 @@ from calibre.constants import preferred_encoding
 from calibre.utils.config import to_json, from_json
 from calibre import prints
 
+
 class DBPrefs(dict):
 
     def __init__(self, db):

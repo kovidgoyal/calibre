@@ -15,6 +15,7 @@ from calibre.constants import plugins, filesystem_encoding
 from calibre.utils.fonts.utils import (is_truetype_font, get_font_names,
         get_font_characteristics)
 
+
 class WinFonts(object):
 
     def __init__(self, winfonts):
@@ -137,11 +138,13 @@ class WinFonts(object):
     def remove_system_font(self, path):
         return self.w.remove_system_font(path)
 
+
 def load_winfonts():
     w, err = plugins['winfonts']
     if w is None:
         raise RuntimeError('Failed to load the winfonts module: %s'%err)
     return WinFonts(w)
+
 
 def test_ttf_reading():
     for f in sys.argv[1:]:
@@ -149,6 +152,7 @@ def test_ttf_reading():
         print (os.path.basename(f))
         get_font_characteristics(raw)
         print()
+
 
 def test():
     base = os.path.abspath(__file__)

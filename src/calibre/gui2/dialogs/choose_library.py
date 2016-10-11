@@ -18,6 +18,7 @@ from calibre.constants import (filesystem_encoding, iswindows,
         get_portable_base)
 from calibre import isbytestring, patheq, force_unicode
 
+
 class ProgressDialog(PD):
 
     on_progress_update = pyqtSignal(object, object, object)
@@ -38,6 +39,7 @@ class ProgressDialog(PD):
 
     def show_new_progress(self, *args):
         self.on_progress_update.emit(*args)
+
 
 class ChooseLibrary(QDialog, Ui_Dialog):
 
@@ -136,6 +138,7 @@ class ChooseLibrary(QDialog, Ui_Dialog):
             pd.canceled_signal.connect(abort_move.set)
             self.parent().library_view.model().stop_metadata_backup()
             move_error = []
+
             def do_move():
                 try:
                     self.db.new_api.move_library_to(loc, abort=abort_move, progress=pd.show_new_progress)

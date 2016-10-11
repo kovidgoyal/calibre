@@ -1,5 +1,6 @@
 """ elements.py -- replacements and helpers for ElementTree """
 
+
 class ElementWriter(object):
 
     def __init__(self, e, header=False, sourceEncoding="ascii",

@@ -11,8 +11,10 @@ from bisect import bisect
 
 from calibre import guess_type as _guess_type, replace_entities
 
+
 def guess_type(x):
     return _guess_type(x)[0] or 'application/octet-stream'
+
 
 def setup_cssutils_serialization(tab_width=2):
     import cssutils
@@ -20,6 +22,7 @@ def setup_cssutils_serialization(tab_width=2):
     prefs.indent = tab_width * ' '
     prefs.indentClosingBrace = False
     prefs.omitLastSemicolon = False
+
 
 def actual_case_for_name(container, name):
     from calibre.utils.filenames import samefile
@@ -45,6 +48,7 @@ def actual_case_for_name(container, name):
         ans.append(correctx)
     return '/'.join(ans)
 
+
 def corrected_case_for_name(container, name):
     parts = name.split('/')
     ans = []
@@ -67,6 +71,7 @@ def corrected_case_for_name(container, name):
         ans.append(correctx)
     return '/'.join(ans)
 
+
 class PositionFinder(object):
 
     def __init__(self, raw):
@@ -81,6 +86,7 @@ class PositionFinder(object):
             offset = pos
         return (lnum + 1, offset)
 
+
 class CommentFinder(object):
 
     def __init__(self, raw, pat=r'(?s)/\*.*?\*/'):
@@ -94,6 +100,7 @@ class CommentFinder(object):
             return False
         q = bisect(self.starts, offset) - 1
         return q >= 0 and self.starts[q] <= offset <= self.ends[q]
+
 
 def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
     from calibre.ebooks.oeb.base import XPath, XHTML
@@ -127,6 +134,7 @@ def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
 
     return changed_names
 
+
 def lead_text(top_elem, num_words=10):
     ''' Return the leading text contained in top_elem (including descendants)
     upto a maximum of num_words words. More efficient than using
@@ -150,6 +158,7 @@ def lead_text(top_elem, num_words=10):
             stack.extend(reversed(list((c, 'text') for c in elem.iterchildren('*'))))
     return ' '.join(words[:num_words])
 
+
 def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_level=None, css_preprocessor=None):
     if log_level is None:
         import logging
@@ -172,8 +181,10 @@ def parse_css(data, fname='<string>', is_declaration=False, decode=None, log_lev
         data = parser.parseString(data, href=fname, validate=False)
     return data
 
+
 def handle_entities(text, func):
     return func(replace_entities(text))
+
 
 def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_entities):
     '''Apply the specified function to individual groups in the match object (the result of re.search() or
@@ -198,12 +209,14 @@ def apply_func_to_match_groups(match, func=icu_upper, handle_entities=handle_ent
     parts.append(match.string[pos:match.end()])
     return ''.join(parts)
 
+
 def apply_func_to_html_text(match, func=icu_upper, handle_entities=handle_entities):
     ''' Apply the specified function only to text between HTML tag definitions. '''
     f = lambda text:handle_entities(text, func)
     parts = re.split(r'(<[^>]+>)', match.group())
     parts = (x if x.startswith('<') else f(x) for x in parts)
     return ''.join(parts)
+
 
 def extract(elem):
     ''' Remove an element from the tree, keeping elem.tail '''

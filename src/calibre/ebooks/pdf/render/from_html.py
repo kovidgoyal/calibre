@@ -25,6 +25,7 @@ from calibre.ebooks.pdf.render.common import (inch, cm, mm, pica, cicero,
 from calibre.ebooks.pdf.render.engine import PdfDevice
 from calibre.ptempfile import PersistentTemporaryFile
 
+
 def get_page_size(opts, for_comic=False):  # {{{
     use_profile = not (opts.override_profile_size or
                        opts.output_profile.short_name == 'default' or
@@ -59,6 +60,7 @@ def get_page_size(opts, for_comic=False):  # {{{
             page_size = PAPER_SIZES[opts.paper_size]
     return page_size
 # }}}
+
 
 class Page(QWebPage):  # {{{
 
@@ -104,6 +106,7 @@ class Page(QWebPage):  # {{{
 
 # }}}
 
+
 def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
     if preserve_aspect_ratio:
         aspect_ratio = float(p.width())/p.height()
@@ -120,6 +123,7 @@ def draw_image_page(page_rect, painter, p, preserve_aspect_ratio=True):
         page_rect.setHeight(nnh)
         page_rect.setWidth(nnw)
     painter.drawPixmap(page_rect, p, p.rect())
+
 
 class PDFWriter(QObject):
 

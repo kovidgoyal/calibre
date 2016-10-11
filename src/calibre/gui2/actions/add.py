@@ -26,6 +26,7 @@ from calibre.gui2 import question_dialog
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
 
+
 def get_filters():
     return [
             (_('Books'), BOOK_EXTENSIONS),
@@ -502,6 +503,7 @@ class AddAction(InterfaceAction):
                 return
             paths = [p for p in view.model().paths(rows) if p is not None]
         ve = self.gui.device_manager.device.VIRTUAL_BOOK_EXTENSIONS
+
         def ext(x):
             ans = os.path.splitext(x)[1]
             ans = ans[1:] if len(ans) > 1 else ans

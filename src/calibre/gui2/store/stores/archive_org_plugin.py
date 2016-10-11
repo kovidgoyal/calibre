@@ -11,6 +11,7 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore
 from calibre.gui2.store.search_result import SearchResult
 
+
 class ArchiveOrgStore(BasicStoreConfig, OpenSearchOPDSStore):
 
     open_search_url = 'http://bookserver.archive.org/catalog/opensearch.xml'

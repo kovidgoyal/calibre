@@ -92,11 +92,13 @@ def config():
               help=_('Set the BookID in LRF files'))
     return c
 
+
 def filetypes():
     readers = set([])
     for r in metadata_readers():
         readers = readers.union(set(r.file_types))
     return readers
+
 
 def option_parser():
     writers = set([])
@@ -104,6 +106,7 @@ def option_parser():
         writers = writers.union(set(w.file_types))
     ft, w = ', '.join(sorted(filetypes())), ', '.join(sorted(writers))
     return config().option_parser(USAGE.format(ft, w))
+
 
 def do_set_metadata(opts, mi, stream, stream_type):
     mi = MetaInformation(mi)

@@ -12,6 +12,7 @@ from PyQt5.Qt import QDialog, QVBoxLayout, QPlainTextEdit, QTimer, \
 
 from calibre.gui2 import error_dialog
 
+
 class DebugDevice(QDialog):
 
     def __init__(self, gui, parent=None):

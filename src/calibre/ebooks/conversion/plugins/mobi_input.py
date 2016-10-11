@@ -7,6 +7,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class MOBIInput(InputFormatPlugin):
 
     name        = 'MOBI Input'

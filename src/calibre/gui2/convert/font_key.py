@@ -11,6 +11,7 @@ from PyQt5.Qt import QDialog
 from calibre.gui2.convert.font_key_ui import Ui_Dialog
 from calibre.utils.localization import localize_user_manual_link
 
+
 class FontKeyChooser(QDialog, Ui_Dialog):
 
     def __init__(self, parent=None, base_font_size=0.0, font_key=None):

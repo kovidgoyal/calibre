@@ -27,6 +27,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import now
 from calibre.utils.icu import sort_key
 
+
 def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {{{
     source_metadata = db.field_metadata.custom_field_metadata(include_composites=True)
     ndbname = os.path.basename(newdb.library_path)
@@ -91,6 +92,7 @@ def ask_about_cc_mismatch(gui, db, newdb, missing_cols, incompatible_cols):  # {
         return True
     return False
 # }}}
+
 
 class Worker(Thread):  # {{{
 
@@ -292,6 +294,7 @@ class ChooseLibrary(QDialog):  # {{{
         return (unicode(self.le.text()), self.delete_after_copy)
 # }}}
 
+
 class DuplicatesQuestion(QDialog):  # {{{
 
     def __init__(self, parent, duplicates, loc):
@@ -347,6 +350,7 @@ class DuplicatesQuestion(QDialog):  # {{{
 # Static session-long set of pairs of libraries that have had their custom columns
 # checked for compatibility
 libraries_with_checked_columns = defaultdict(set)
+
 
 class CopyToLibraryAction(InterfaceAction):
 

@@ -30,6 +30,7 @@ dprefs.defaults['preferred_locales'] = {}
 dprefs.defaults['user_dictionaries'] = [{'name':_('Default'), 'is_active':True, 'words':[]}]
 not_present = object()
 
+
 class UserDictionary(object):
 
     __slots__ = ('name', 'is_active', 'words')
@@ -45,6 +46,7 @@ class UserDictionary(object):
 
 _builtins = _custom = None
 
+
 def builtin_dictionaries():
     global _builtins
     if _builtins is None:
@@ -58,6 +60,7 @@ def builtin_dictionaries():
                 os.path.join(base, '%s.aff' % locale), True, None, None))
         _builtins = frozenset(dics)
     return _builtins
+
 
 def custom_dictionaries(reread=False):
     global _custom
@@ -88,13 +91,16 @@ if ul is not None and ul.langcode == 'eng' and ul.countrycode in 'GB BS BZ GH IE
     default_en_locale = 'en-' + ul.countrycode
 default_preferred_locales = {'eng':default_en_locale, 'deu':'de-DE', 'spa':'es-ES', 'fra':'fr-FR'}
 
+
 def best_locale_for_language(langcode):
     best_locale = dprefs['preferred_locales'].get(langcode, default_preferred_locales.get(langcode, None))
     if best_locale is not None:
         return parse_lang_code(best_locale)
 
+
 def preferred_dictionary(locale):
     return {parse_lang_code(k):v for k, v in dprefs['preferred_dictionaries'].iteritems()}.get(locale, None)
+
 
 def remove_dictionary(dictionary):
     if dictionary.builtin:
@@ -103,6 +109,7 @@ def remove_dictionary(dictionary):
     shutil.rmtree(base)
     dprefs['preferred_dictionaries'] = {k:v for k, v in dprefs['preferred_dictionaries'].iteritems() if v != dictionary.id}
 
+
 def rename_dictionary(dictionary, name):
     lf = os.path.join(os.path.dirname(dictionary.dicpath), 'locales')
     with open(lf, 'r+b') as f:
@@ -110,6 +117,7 @@ def rename_dictionary(dictionary, name):
         lines[:1] = [name.encode('utf-8')]
         f.seek(0), f.truncate(), f.write(b'\n'.join(lines))
     custom_dictionaries(reread=True)
+
 
 def get_dictionary(locale, exact_match=False):
     preferred = preferred_dictionary(locale)
@@ -152,6 +160,7 @@ def get_dictionary(locale, exact_match=False):
             if d.primary_locale.langcode == locale.langcode:
                 return d
 
+
 def load_dictionary(dictionary):
     from calibre.spell.import_from import convert_to_utf8
     with open(dictionary.dicpath, 'rb') as dic, open(dictionary.affpath, 'rb') as aff:
@@ -159,6 +168,7 @@ def load_dictionary(dictionary):
         dic_data, aff_data = convert_to_utf8(dic_data, aff_data)
         obj = hunspell.Dictionary(dic_data, aff_data)
     return LoadedDictionary(dictionary.primary_locale, dictionary.locales, obj, dictionary.builtin, dictionary.name, dictionary.id)
+
 
 class Dictionaries(object):
 
@@ -398,6 +408,7 @@ class Dictionaries(object):
                                 ans = add_suggestion(fw, ans)
 
         return ans
+
 
 def test_dictionaries():
     dictionaries = Dictionaries()

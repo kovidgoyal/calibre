@@ -11,11 +11,13 @@ from contextlib import closing
 
 from calibre.customize import FileTypePlugin
 
+
 def is_comic(list_of_names):
     extensions = set([x.rpartition('.')[-1].lower() for x in list_of_names
                       if '.' in x and x.lower().rpartition('/')[-1] != 'thumbs.db'])
     comic_extensions = set(['jpg', 'jpeg', 'png'])
     return len(extensions - comic_extensions) == 0
+
 
 def archive_type(stream):
     from calibre.utils.zipfile import stringFileHeader
@@ -99,6 +101,7 @@ class ArchiveExtract(FileTypePlugin):
                 of.write(zf.read(fname))
         return of.name
 
+
 def get_comic_book_info(d, mi, series_index='volume'):
     # See http://code.google.com/p/comicbookinfo/wiki/Example
     series = d.get('series', '')
@@ -144,6 +147,7 @@ def get_comic_book_info(d, mi, series_index='volume'):
             mi.pubdate = dt
         except:
             pass
+
 
 def get_comic_metadata(stream, stream_type, series_index='volume'):
     # See http://code.google.com/p/comicbookinfo/wiki/Example

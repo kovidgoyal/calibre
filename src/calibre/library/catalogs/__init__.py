@@ -17,10 +17,15 @@ FIELDS = ['all', 'title', 'title_sort', 'author_sort', 'authors', 'comments',
 TEMPLATE_ALLOWED_FIELDS = ['author_sort', 'authors', 'id', 'isbn', 'pubdate', 'title_sort',
     'publisher', 'series_index', 'series', 'tags', 'timestamp', 'title', 'uuid']
 
+
 class AuthorSortMismatchException(Exception):
     pass
+
+
 class EmptyCatalogException(Exception):
     pass
+
+
 class InvalidGenresSourceFieldException(Exception):
     pass
 

@@ -33,6 +33,7 @@ from calibre.library.coloring import color_row_key
 
 Counts = namedtuple('Counts', 'library_total total current')
 
+
 def human_readable(size, precision=1):
     """ Convert a size in bytes into megabytes """
     return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
@@ -44,11 +45,13 @@ ALIGNMENT_MAP = {'left': Qt.AlignLeft, 'right': Qt.AlignRight, 'center':
 
 _default_image = None
 
+
 def default_image():
     global _default_image
     if _default_image is None:
         _default_image = QImage(I('default_cover.png'))
     return _default_image
+
 
 def group_numbers(numbers):
     for k, g in groupby(enumerate(sorted(numbers)), lambda (i, x):i - x):
@@ -57,6 +60,7 @@ def group_numbers(numbers):
             if first is None:
                 first = last[1]
         yield first, last[1]
+
 
 class ColumnColor(object):  # {{{
 
@@ -85,6 +89,7 @@ class ColumnColor(object):  # {{{
         except:
             pass
 # }}}
+
 
 class ColumnIcon(object):  # {{{
 
@@ -155,6 +160,7 @@ class ColumnIcon(object):  # {{{
         except:
             pass
 # }}}
+
 
 class BooksModel(QAbstractTableModel):  # {{{
 
@@ -280,6 +286,7 @@ class BooksModel(QAbstractTableModel):  # {{{
         self.custom_columns = self.db.field_metadata.custom_field_metadata()
         self.column_map = list(self.orig_headers.keys()) + \
                           list(self.custom_columns)
+
         def col_idx(name):
             if name == 'ondevice':
                 return -1
@@ -632,6 +639,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     except:
                         traceback.print_exc()
                 pt.close()
+
                 def to_uni(x):
                     if isbytestring(x):
                         x = x.decode(filesystem_encoding)
@@ -726,6 +734,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 bt = self.db.new_api.pref('bools_are_tristate')
                 bn = self.bool_no_icon
                 by = self.bool_yes_icon
+
                 def func(idx):
                     val = force_to_bool(fffunc(field_obj, idfunc(idx)))
                     if val is None:
@@ -733,6 +742,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return by if val else bn
             elif field == 'size':
                 sz_mult = 1.0/(1024**2)
+
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx), default_value=0) or 0
                     if val is 0:
@@ -745,6 +755,7 @@ class BooksModel(QAbstractTableModel):  # {{{
             elif field == 'ondevice' and decorator:
                 by = self.bool_yes_icon
                 bb = self.bool_blank_icon
+
                 def func(idx):
                     return by if fffunc(field_obj, idfunc(idx)) else bb
             elif dt in {'text', 'comments', 'composite', 'enumeration'}:
@@ -754,6 +765,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     if field_obj.is_composite:
                         if do_sort:
                             sv = m['is_multiple']['cache_to_list']
+
                             def func(idx):
                                 val = fffunc(field_obj, idfunc(idx), default_value='') or ''
                                 return (jv.join(sorted((x.strip() for x in val.split(sv)), key=sort_key)))
@@ -780,10 +792,12 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return (QDateTime(as_local_time(fffunc(field_obj, idfunc(idx), default_value=UNDEFINED_DATE))))
             elif dt == 'rating':
                 rating_fields[field] = m['display'].get('allow_half_stars', False)
+
                 def func(idx):
                     return int(fffunc(field_obj, idfunc(idx), default_value=0))
             elif dt == 'series':
                 sidx_field = self.db.new_api.fields[field + '_index']
+
                 def func(idx):
                     book_id = idfunc(idx)
                     series = fffunc(field_obj, book_id, default_value=False)
@@ -792,6 +806,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                     return None
             elif dt in {'int', 'float'}:
                 fmt = m['display'].get('number_format', None)
+
                 def func(idx):
                     val = fffunc(field_obj, idfunc(idx))
                     if val is None:
@@ -822,6 +837,7 @@ class BooksModel(QAbstractTableModel):  # {{{
                 self.dc_decorator[col] = renderer(col, 'bool')
 
         tc = self.dc.copy()
+
         def stars_tooltip(func, allow_half=True):
             def f(idx):
                 ans = val = int(func(idx))
@@ -1148,6 +1164,7 @@ class BooksModel(QAbstractTableModel):  # {{{
 
 # }}}
 
+
 class OnDeviceSearch(SearchQueryParser):  # {{{
 
     USABLE_LOCATIONS = [
@@ -1239,6 +1256,7 @@ class OnDeviceSearch(SearchQueryParser):  # {{{
 
 # }}}
 
+
 class DeviceDBSortKeyGen(object):  # {{{
 
     def __init__(self, attr, keyfunc, db):
@@ -1253,6 +1271,7 @@ class DeviceDBSortKeyGen(object):  # {{{
             ans = None
         return ans
 # }}}
+
 
 class DeviceBooksModel(BooksModel):  # {{{
 
@@ -1406,6 +1425,7 @@ class DeviceBooksModel(BooksModel):  # {{{
     def sort(self, col, order, reset=True):
         descending = order != Qt.AscendingOrder
         cname = self.column_map[col]
+
         def author_key(x):
             try:
                 ax = self.db[x].author_sort

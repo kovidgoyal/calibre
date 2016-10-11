@@ -15,6 +15,7 @@ from calibre.gui2 import Application, setup_gui_option_parser, decouple, set_gui
 from calibre.ptempfile import reset_base_dir
 from calibre.utils.config import OptionParser
 
+
 def option_parser():
     parser =  OptionParser(_('''\
 %prog [opts] [path_to_ebook] [name_of_file_inside_book ...]
@@ -25,6 +26,7 @@ files inside the book which will be opened for editing automatically.
     setup_gui_option_parser(parser)
     return parser
 
+
 class EventAccumulator(object):
 
     def __init__(self):
@@ -33,8 +35,10 @@ class EventAccumulator(object):
     def __call__(self, ev):
         self.events.append(ev)
 
+
 def gui_main(path=None, notify=None):
     _run(['ebook-edit', path], notify=notify)
+
 
 def _run(args, notify=None):
     # Ensure we can continue to function if GUI is closed
@@ -84,6 +88,7 @@ def _run(args, notify=None):
     from calibre.gui2.tweak_book.preview import parse_worker
     while parse_worker.is_alive() and time.time() - st < 120:
         time.sleep(0.1)
+
 
 def main(args=sys.argv):
     _run(args)

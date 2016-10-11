@@ -21,10 +21,13 @@ from calibre.utils.logging import default_log
 from calibre.utils.zipfile import ZipFile
 from calibre.ebooks.oeb.parse_utils import RECOVER_PARSER
 
+
 def fromstring(raw, parser=RECOVER_PARSER):
     return etree.fromstring(raw, parser=parser)
 
 # Read metadata {{{
+
+
 def read_doc_props(raw, mi, XPath):
     root = fromstring(raw)
     titles = XPath('//dc:title')(root)
@@ -66,11 +69,13 @@ def read_doc_props(raw, mi, XPath):
     if langs:
         mi.languages = langs
 
+
 def read_app_props(raw, mi):
     root = fromstring(raw)
     company = root.xpath('//*[local-name()="Company"]')
     if company and company[0].text and company[0].text.strip():
         mi.publisher = company[0].text.strip()
+
 
 def read_default_style_language(raw, mi, XPath):
     root = fromstring(raw)
@@ -80,6 +85,7 @@ def read_default_style_language(raw, mi, XPath):
             mi.languages = [lang]
             break
 # }}}
+
 
 class DOCX(object):
 

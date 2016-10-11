@@ -13,7 +13,9 @@ from functools import partial
 
 Option = namedtuple('Option', 'name default longdoc shortdoc choices')
 
+
 class Choices(frozenset):
+
     def __new__(cls, *args):
         self = super(Choices, cls).__new__(cls, args)
         self.default = args[0]
@@ -154,6 +156,7 @@ assert len(raw_options) % 4 == 0
 
 options = []
 
+
 def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
@@ -168,6 +171,7 @@ for shortdoc, name, default, doc in grouper(4, raw_options):
 options = OrderedDict([(o.name, o) for o in sorted(options, key=attrgetter('name'))])
 del raw_options
 
+
 class Options(object):
 
     __slots__ = tuple(name for name in options)
@@ -175,6 +179,7 @@ class Options(object):
     def __init__(self, **kwargs):
         for opt in options.itervalues():
             setattr(self, opt.name, kwargs.get(opt.name, opt.default))
+
 
 def opt_to_cli_help(opt):
     ans = opt.shortdoc
@@ -184,11 +189,13 @@ def opt_to_cli_help(opt):
         ans += '\n\t' + opt.longdoc
     return ans
 
+
 def boolean_option(add_option, opt):
     name = opt.name.replace('_', '-')
     help = opt_to_cli_help(opt)
     add_option('--enable-' + name, action='store_true', help=help)
     add_option('--disable-' + name, action='store_false', help=help)
+
 
 def opts_to_parser(usage):
     from calibre.utils.config import OptionParser

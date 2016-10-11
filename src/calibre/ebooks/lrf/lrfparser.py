@@ -134,6 +134,7 @@ class LRFDocument(LRFMetaFile):
             self.write_files()
         return '<BBeBXylog version="1.0">\n' + bookinfo + pages + styles + objects + '</BBeBXylog>'
 
+
 def option_parser():
     parser = OptionParser(usage=_('%prog book.lrf\nConvert an LRF file into an LRS (XML UTF-8 encoded) file'))
     parser.add_option('--output', '-o', default=None, help=_('Output LRS file'), dest='out')
@@ -142,6 +143,7 @@ def option_parser():
                       dest='output_resources')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose', help=_('Be more verbose'))
     return parser
+
 
 def main(args=sys.argv, logger=None):
     parser = option_parser()

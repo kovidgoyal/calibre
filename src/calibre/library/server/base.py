@@ -75,6 +75,7 @@ class DispatchController(object):  # {{{
 
 # }}}
 
+
 class BonJour(SimplePlugin):  # {{{
 
     def __init__(self, engine, port=8080, prefix=''):
@@ -118,6 +119,7 @@ class BonJour(SimplePlugin):  # {{{
 cherrypy.engine.bonjour = BonJour(cherrypy.engine)
 
 # }}}
+
 
 class LibraryServer(ContentServer, MobileServer, XMLServer, OPDSServer, Cache,
         BrowseServer, AjaxServer):

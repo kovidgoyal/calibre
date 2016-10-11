@@ -31,6 +31,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.search_query_parser import SearchQueryParser, ParseException
 from calibre.utils.icu import lower
 
+
 class AdaptSQP(SearchQueryParser):
 
     def __init__(self, *args, **kwargs):
@@ -353,6 +354,7 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
 
 # }}}
 
+
 class FilterModel(QSortFilterProxyModel):  # {{{
 
     search_done = pyqtSignal(object)
@@ -389,6 +391,7 @@ class FilterModel(QSortFilterProxyModel):  # {{{
 
 # Jobs UI {{{
 
+
 class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
 
     def sizeHint(self, option, index):
@@ -408,6 +411,7 @@ class ProgressBarDelegate(QAbstractItemDelegate):  # {{{
         opts.text = (_('Unavailable') if percent == 0 else '%d%%'%percent)
         QApplication.style().drawControl(QStyle.CE_ProgressBar, opts, painter)
 # }}}
+
 
 class DetailView(Dialog):  # {{{
 
@@ -453,6 +457,7 @@ class DetailView(Dialog):  # {{{
             if more:
                 self.log.appendPlainText(more.decode('utf-8', 'replace'))
 # }}}
+
 
 class JobsButton(QFrame):  # {{{
 
@@ -555,6 +560,7 @@ class JobsButton(QFrame):  # {{{
             QCoreApplication.instance().alert(self, 5000)
 
 # }}}
+
 
 class JobsDialog(QDialog, Ui_JobsDialog):
 

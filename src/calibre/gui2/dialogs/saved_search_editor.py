@@ -10,6 +10,7 @@ from calibre.utils.icu import sort_key
 from calibre.gui2 import error_dialog
 from calibre.gui2.dialogs.confirm_delete import confirm
 
+
 class SavedSearchEditor(QDialog, Ui_SavedSearchEditor):
 
     def __init__(self, parent, initial_search=None):

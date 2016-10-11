@@ -24,6 +24,7 @@ from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.config_base import tweaks
 
+
 class Polish(QDialog):  # {{{
 
     def __init__(self, db, book_id_map, parent=None):
@@ -296,6 +297,7 @@ class Polish(QDialog):  # {{{
         self.jobs.append((desc, data, book_id, base, is_orig))
 # }}}
 
+
 class Report(QDialog):  # {{{
 
     def __init__(self, parent):
@@ -388,6 +390,7 @@ class Report(QDialog):  # {{{
             return
         super(Report, self).reject()
 # }}}
+
 
 class PolishAction(InterfaceAction):
 

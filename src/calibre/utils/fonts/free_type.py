@@ -13,12 +13,14 @@ from future_builtins import map
 
 from calibre.constants import plugins
 
+
 class ThreadingViolation(Exception):
 
     def __init__(self):
         Exception.__init__(self,
                 'You cannot use the freetype plugin from a thread other than the '
                 ' thread in which startup() was called')
+
 
 def same_thread(func):
     @wraps(func)
@@ -29,6 +31,7 @@ def same_thread(func):
     return check_thread
 
 FreeTypeError = getattr(plugins['freetype'][0], 'FreeTypeError', Exception)
+
 
 class Face(object):
 
@@ -62,6 +65,7 @@ class Face(object):
             raise TypeError('%r is not a unicode object'%text)
         for char in text:
             yield self.face.glyph_id(ord(char))
+
 
 class FreeType(object):
 

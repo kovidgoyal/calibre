@@ -17,6 +17,7 @@ from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks import unit_convert
 from calibre.ebooks.textile.unsmarten import unsmarten
 
+
 class TextileMLizer(OEB2HTML):
 
     MAX_EM = 10

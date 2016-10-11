@@ -15,12 +15,14 @@ import os, re
 from calibre.ebooks.rtf2xml import copy, check_brackets
 from calibre.ptempfile import better_mktemp
 
+
 class ProcessTokens:
     """
     Process each token on a line and add information that will be useful for
     later processing. Information will be put on one line, delimited by "<"
     for main fields, and ">" for sub fields
     """
+
     def __init__(self,
             in_file,
             exception_handler,
@@ -605,6 +607,7 @@ class ProcessTokens:
         'picprop'           :   ('un', 'unknown___', self.default_func),
         'blipuid'           :   ('un', 'unknown___', self.default_func),
     """
+
     def __ms_hex_func(self, pre, token, num):
         num = num[1:]  # chop off leading 0, which I added
         num = num.upper()  # the mappings store hex in caps

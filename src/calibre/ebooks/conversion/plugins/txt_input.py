@@ -24,6 +24,7 @@ MD_EXTENSIONS = {
     'wikilinks': _('Wiki style links'),
 }
 
+
 class TXTInput(InputFormatPlugin):
 
     name        = 'TXT Input'

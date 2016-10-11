@@ -16,6 +16,7 @@ from calibre.ebooks.metadata import check_isbn
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs, question_dialog, error_dialog
 
+
 class AddFromISBN(QDialog):
 
     def __init__(self, parent=None):

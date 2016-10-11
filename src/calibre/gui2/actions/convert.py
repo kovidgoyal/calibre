@@ -16,6 +16,7 @@ from calibre.utils.config import prefs, tweaks
 from calibre.gui2.actions import InterfaceAction
 from calibre.customize.ui import plugin_for_input_format
 
+
 class ConvertAction(InterfaceAction):
 
     name = 'Convert Books'

@@ -9,6 +9,7 @@ import threading, re, json
 
 from calibre import browser
 
+
 class xISBN(object):
 
     '''

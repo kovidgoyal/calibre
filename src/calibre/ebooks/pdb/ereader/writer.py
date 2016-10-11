@@ -30,6 +30,7 @@ IDENTITY = 'PNRdPPrs'
 # record size is unknown.
 MAX_RECORD_SIZE = 8192
 
+
 class Writer(FormatWriter):
 
     def __init__(self, opts, log):

@@ -23,10 +23,12 @@ from calibre.gui2.store.search_result import SearchResult
 
 web_url = 'http://m.gutenberg.org/'
 
+
 def fix_url(url):
     if url and url.startswith('//'):
         url = 'http:' + url
     return url
+
 
 def search(query, max_results=10, timeout=60, write_raw_to=None):
     url = 'http://m.gutenberg.org/ebooks/search.opds/?query=' + urllib.quote_plus(query)
@@ -84,6 +86,7 @@ def search(query, max_results=10, timeout=60, write_raw_to=None):
                             s.cover_data = base64.b64decode(href.replace('data:image/png;base64,', ''))
 
             yield s
+
 
 class GutenbergStore(BasicStoreConfig, OpenSearchOPDSStore):
 

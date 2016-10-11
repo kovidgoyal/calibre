@@ -9,6 +9,7 @@ from calibre.customize.conversion import InputFormatPlugin
 from calibre.ptempfile import TemporaryDirectory
 from calibre.constants import filesystem_encoding
 
+
 class CHMInput(InputFormatPlugin):
 
     name        = 'CHM Input'

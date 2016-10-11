@@ -24,9 +24,11 @@ from calibre.library.server.utils import quote, unquote
 from calibre.db.categories import Tag
 from calibre.ebooks.metadata.sources.identify import urls_from_identifiers
 
+
 def xml(*args, **kwargs):
     ans = prepare_string_for_xml(*args, **kwargs)
     return ans.replace('&apos;', '&#39;')
+
 
 def render_book_list(ids, prefix, suffix=''):  # {{{
     pages = []
@@ -113,11 +115,13 @@ def render_book_list(ids, prefix, suffix=''):  # {{{
 
 # }}}
 
+
 def utf8(x):  # {{{
     if isinstance(x, unicode):
         x = x.encode('utf-8')
     return x
 # }}}
+
 
 def render_rating(rating, url_prefix, container='span', prefix=None):  # {{{
     if rating < 0.1:
@@ -144,6 +148,7 @@ def render_rating(rating, url_prefix, container='span', prefix=None):  # {{{
     return u''.join(ans), rstring
 
 # }}}
+
 
 def get_category_items(category, items, datatype, prefix):  # {{{
 
@@ -176,6 +181,7 @@ def get_category_items(category, items, datatype, prefix):  # {{{
     return '\n'.join(['<div class="category-container">'] + items + ['</div>'])
 
 # }}}
+
 
 class Endpoint(object):  # {{{
     'Manage encoding, mime-type, last modified, cookies, etc.'
@@ -211,6 +217,7 @@ class Endpoint(object):  # {{{
 
         return do
 # }}}
+
 
 class BrowseServer(object):
 

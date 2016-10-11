@@ -26,6 +26,7 @@ from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 tls = local()
 
+
 def compiler():
     ans = getattr(tls, 'compiler', None)
     if ans is None:
@@ -33,6 +34,7 @@ def compiler():
         c = tls.compiler = Context()
         c.eval(P('coffee-script.js', data=True).decode('utf-8'))
     return tls.compiler
+
 
 def compile_coffeescript(raw, filename=None):
     from duktape import JSError
@@ -46,6 +48,7 @@ def compile_coffeescript(raw, filename=None):
 
 # }}}
 
+
 def check_coffeescript(filename):
     with open(filename, 'rb') as f:
         raw = f.read()
@@ -53,6 +56,7 @@ def check_coffeescript(filename):
     if errs:
         print('\n'.join(errs))
         raise Exception('Compilation failed')
+
 
 class HTTPRequestHandler(SimpleHTTPRequestHandler):  # {{{
 
@@ -175,6 +179,7 @@ class HTTPRequestHandler(SimpleHTTPRequestHandler):  # {{{
         return self.send_file(f, ctype, fs.st_mtime)
 # }}}
 
+
 class Handler(HTTPRequestHandler):  # {{{
 
     class NoCoffee(Exception):
@@ -249,6 +254,7 @@ class Handler(HTTPRequestHandler):  # {{{
 
 # }}}
 
+
 class Server(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):  # {{{
     daemon_threads = True
 
@@ -263,6 +269,7 @@ class Server(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):  # {{{
         traceback.print_exc()  # XXX But this goes to stderr!
         print ('-'*40)
 # }}}
+
 
 def serve(resources={}, port=8000, host='0.0.0.0'):
     Handler.special_resources = resources

@@ -40,14 +40,17 @@ various stages of conversion. The stages are:
 
 '''
 
+
 def supported_input_formats():
     fmts = available_input_formats()
     for x in ('zip', 'rar', 'oebzip'):
         fmts.add(x)
     return fmts
 
+
 class OptionValues(object):
     pass
+
 
 class CompositeProgressReporter(object):
 
@@ -61,6 +64,7 @@ class CompositeProgressReporter(object):
         self.global_reporter(global_frac, msg)
 
 ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
+
 
 class Plumber(object):
 
@@ -1230,9 +1234,12 @@ OptionRecommendation(name='search_replace',
 # This has to be global as create_oebbook can be called from other locations
 # (for example in the html input plugin)
 regex_wizard_callback = None
+
+
 def set_regex_wizard_callback(f):
     global regex_wizard_callback
     regex_wizard_callback = f
+
 
 def create_oebbook(log, path_or_stream, opts, reader=None,
         encoding='utf-8', populate=True, for_regex_wizard=False, specialize=None):

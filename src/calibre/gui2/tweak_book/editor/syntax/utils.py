@@ -12,6 +12,7 @@ NULL_FMT = QTextCharFormat()
 
 _pyg_map = None
 
+
 def pygments_map():
     global _pyg_map
     if _pyg_map is None:
@@ -30,6 +31,7 @@ def pygments_map():
             Token.Error: 'Error',
         }
     return _pyg_map
+
 
 def format_for_pygments_token(theme, cache, token):
     try:

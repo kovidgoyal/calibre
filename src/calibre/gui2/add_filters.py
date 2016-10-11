@@ -19,6 +19,7 @@ from calibre.utils.config import JSONConfig
 
 add_filters = JSONConfig('add-filter-rules')
 
+
 class RuleEdit(RuleEditBase):
 
     ACTION_MAP = OrderedDict((
@@ -85,6 +86,7 @@ class RuleEdit(RuleEditBase):
                     return False
         return ans
 
+
 class RuleEditDialog(RuleEditDialogBase):
 
     PREFS_NAME = 'edit-add-filter-rule'
@@ -101,6 +103,7 @@ class RuleItem(RuleItemBase):
                 action=RuleEdit.ACTION_MAP[rule['action']], match_type=RuleEdit.MATCH_TYPE_MAP[rule['match_type']], query=query)
         return text
 
+
 class Rules(RulesBase):
 
     RuleItemClass = RuleItem
@@ -111,6 +114,7 @@ class Rules(RulesBase):
             ' below to get started. The rules will be processed in order for every file until either an'
             ' "add" or an "ignore" rule matches. If no rules match, the file will be added only'
             ' if its file extension is of a known ebook type.')
+
 
 class Tester(TesterBase):
 

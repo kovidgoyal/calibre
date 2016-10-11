@@ -52,13 +52,16 @@ from calibre.utils.icu import numeric_sort_key
 _diff_dialogs = []
 last_used_transform_rules = []
 
+
 def get_container(*args, **kwargs):
     kwargs['tweak_mode'] = True
     container = _gc(*args, **kwargs)
     return container
 
+
 def setup_cssutils_serialization():
     scs(tprefs['editor_tab_stop_width'])
+
 
 def in_thread_job(func):
     @wraps(func)
@@ -68,6 +71,8 @@ def in_thread_job(func):
     return ans
 
 _boss = None
+
+
 def get_boss():
     return _boss
 
@@ -241,6 +246,7 @@ class Boss(QObject):
             from calibre.ebooks.oeb.polish.import_book import import_book_as_epub
             src, dest = d.data
             self._clear_notify_data = True
+
             def func(src, dest, tdir):
                 import_book_as_epub(src, dest)
                 return get_container(dest, tdir=tdir)
@@ -695,6 +701,7 @@ class Boss(QObject):
     def create_diff_dialog(self, revert_msg=_('&Revert changes'), show_open_in_editor=True):
         global _diff_dialogs
         from calibre.gui2.tweak_book.diff.main import Diff
+
         def line_activated(name, lnum, right):
             if right:
                 self.edit_file_requested(name, None, guess_type(name))
@@ -1531,6 +1538,7 @@ class Boss(QObject):
             d.bb.accepted.connect(d.accept)
             d.l.addWidget(d.bb, 1, 0, 1, 2)
             d.do_save = None
+
             def endit(x):
                 d.do_save = x
                 d.accept()

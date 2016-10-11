@@ -15,6 +15,7 @@ UNITS = {
             'devicepixel' : QPrinter.DevicePixel,
         }
 
+
 def unit(unit):
     return UNITS.get(unit, QPrinter.Inch)
 
@@ -52,6 +53,7 @@ PAPER_SIZES = {
                 # 'custom' : QPrinter.Custom, # Unknown, or a user defined size.
              }
 
+
 def paper_size(size):
     return PAPER_SIZES.get(size, QPrinter.Letter)
 
@@ -60,8 +62,10 @@ ORIENTATIONS = {
                 'landscape' : QPrinter.Landscape,
                }
 
+
 def orientation(orientation):
     return ORIENTATIONS.get(orientation, QPrinter.Portrait)
+
 
 def size(size):
     try:

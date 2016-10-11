@@ -29,6 +29,7 @@ from calibre.utils.config import tweaks, prefs
 from calibre.utils.icu import sort_key
 from calibre.gui2.threaded_jobs import ThreadedJob
 
+
 class Worker(Thread):
 
     def __init__(self, func, args):
@@ -117,6 +118,7 @@ class Sendmail(object):
             eto = []
             for x in to.split(','):
                 eto.append(extract_email_address(x.strip()))
+
             def safe_debug(*args, **kwargs):
                 try:
                     return log.debug(*args, **kwargs)
@@ -179,6 +181,7 @@ def email_news(mi, remove, get_fmts, done, job_manager):
 
 plugboard_email_value = 'email'
 plugboard_email_formats = ['epub', 'mobi', 'azw3']
+
 
 class SelectRecipients(QDialog):  # {{{
 
@@ -284,12 +287,14 @@ class SelectRecipients(QDialog):  # {{{
                 ans.append((to, fmts, subject))
         return ans
 
+
 def select_recipients(parent=None):
     d = SelectRecipients(parent)
     if d.exec_() == d.Accepted:
         return d.ans
     return ()
 # }}}
+
 
 class EmailMixin(object):  # {{{
 
@@ -474,6 +479,7 @@ class EmailMixin(object):  # {{{
                 index_is_id=True)
         remove = [id_] if config['delete_news_from_library_on_upload'] \
                 else []
+
         def get_fmts(fmts):
             files, auto = self.library_view.model().\
                     get_preferred_formats_from_ids([id_], fmts,

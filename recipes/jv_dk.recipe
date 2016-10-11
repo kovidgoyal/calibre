@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 JydskeVestkysten | JV.dk | jv.dk
 '''
 
+
 class WwwJv_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'JydskeVestkysten | JV.dk | jv.dk'

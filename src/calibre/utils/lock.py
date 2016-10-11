@@ -9,8 +9,10 @@ Secure access to locked files from multiple processes.
 from calibre.constants import iswindows, __appname__, islinux, win32api, win32event, winerror, fcntl
 import time, atexit, os, stat, errno
 
+
 class LockError(Exception):
     pass
+
 
 class WindowsExclFile(object):
 
@@ -104,6 +106,7 @@ class WindowsExclFile(object):
     def closed(self):
         return self._handle is None
 
+
 def unix_open(path):
     # We cannot use open(a+b) directly because Fedora apparently ships with a
     # broken libc that causes seek(0) followed by truncate() to not work for
@@ -128,6 +131,7 @@ def unix_open(path):
     if not has_cloexec:
         fcntl.fcntl(fd, fcntl.F_SETFD, fcntl.FD_CLOEXEC)
     return os.fdopen(fd, 'r+b')
+
 
 class ExclusiveFile(object):
 
@@ -155,6 +159,7 @@ class ExclusiveFile(object):
     def __exit__(self, type, value, traceback):
         self.file.close()
 
+
 def test_exclusive_file(path=None):
     if path is None:
         import tempfile
@@ -179,6 +184,7 @@ def test_exclusive_file(path=None):
             pass
         except Exception as err:
             return str(err)
+
 
 def _clean_lock_file(file):
     try:

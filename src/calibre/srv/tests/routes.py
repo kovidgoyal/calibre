@@ -8,11 +8,13 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre.srv.tests.base import BaseTest
 
+
 class TestRouter(BaseTest):
 
     def test_route_construction(self):
         ' Test route construction '
         from calibre.srv.routes import Route, endpoint, RouteError
+
         def makeroute(route, func=lambda c,d:None, **kwargs):
             return Route(endpoint(route, **kwargs)(func))
 

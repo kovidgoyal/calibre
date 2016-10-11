@@ -35,6 +35,7 @@ icon_rule_kinds = [(_('icon with text'), 'icon'),
                    (_('composed icons w/text'), 'icon_composed'),
                    (_('composed icons w/no text'), 'icon_only_composed'),]
 
+
 class ConditionEditor(QWidget):  # {{{
 
     ACTION_MAP = {
@@ -140,6 +141,7 @@ class ConditionEditor(QWidget):  # {{{
         def fget(self):
             idx = self.column_box.currentIndex()
             return unicode(self.column_box.itemData(idx) or '')
+
         def fset(self, val):
             for idx in range(self.column_box.count()):
                 c = unicode(self.column_box.itemData(idx) or '')
@@ -154,6 +156,7 @@ class ConditionEditor(QWidget):  # {{{
         def fget(self):
             idx = self.action_box.currentIndex()
             return unicode(self.action_box.itemData(idx) or '')
+
         def fset(self, val):
             for idx in range(self.action_box.count()):
                 c = unicode(self.action_box.itemData(idx) or '')
@@ -275,6 +278,7 @@ class ConditionEditor(QWidget):  # {{{
                 'is undefined'):
             self.value_box.setEnabled(False)
 # }}}
+
 
 class RuleEditor(QDialog):  # {{{
 
@@ -672,6 +676,7 @@ class RuleEditor(QDialog):  # {{{
         return kind, col, r
 # }}}
 
+
 class RulesModel(QAbstractListModel):  # {{{
 
     def __init__(self, prefs, fm, pref_name, parent=None):
@@ -845,6 +850,7 @@ class RulesModel(QAbstractListModel):  # {{{
                 col=c, action=action_name, val=prepare_string_for_xml(v)))
 
 # }}}
+
 
 class EditRules(QWidget):  # {{{
 

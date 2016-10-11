@@ -21,6 +21,7 @@ closing_map = {
     'javascript':'*/',
 }
 
+
 def apply_smart_comment(editor, opening='/*', closing='*/', line_comment=None):
     doc = editor.document()
     c = QTextCursor(editor.textCursor())
@@ -40,6 +41,7 @@ def apply_smart_comment(editor, opening='/*', closing='*/', line_comment=None):
     c.setPosition(right), c.insertText(closing)
     c.setPosition(left), c.insertText(opening)
     c.endEditBlock()
+
 
 def smart_comment(editor, syntax):
     apply_smart_comment(editor, opening=opening_map.get(syntax, '/*'), closing=closing_map.get(syntax, '*/'))

@@ -16,6 +16,7 @@ from copy import deepcopy
 from calibre import my_unichr, prepare_string_for_xml
 from calibre.ebooks.metadata.toc import TOC
 
+
 class PML_HTMLizer(object):
 
     STATES = [
@@ -751,6 +752,7 @@ def pml_to_html(pml):
     hizer = PML_HTMLizer()
     return hizer.parse_pml(pml)
 
+
 def footnote_sidebar_to_html(pre_id, id, pml):
     id = id.strip('\x01')
     if id.strip():
@@ -760,8 +762,10 @@ def footnote_sidebar_to_html(pre_id, id, pml):
         html = '<br /><br style="page-break-after: always;" /><div>%s</div>' % pml_to_html(pml)
     return html
 
+
 def footnote_to_html(id, pml):
     return footnote_sidebar_to_html('fn', id, pml)
+
 
 def sidebar_to_html(id, pml):
     return footnote_sidebar_to_html('sb', id, pml)

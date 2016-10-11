@@ -26,6 +26,7 @@ REGEXP_MATCH   = 2
 
 # Utils {{{
 
+
 def _matchkind(query, case_sensitive=False):
     matchkind = CONTAINS_MATCH
     if (len(query) > 1):
@@ -42,6 +43,7 @@ def _matchkind(query, case_sensitive=False):
         # leave case in regexps because it can be significant e.g. \S \W \D
         query = icu_lower(query)
     return matchkind, query
+
 
 def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensitive=False):
     if query.startswith('..'):
@@ -82,6 +84,7 @@ def _match(query, value, matchkind, use_primary_find_in_search=True, case_sensit
             pass
     return False
 # }}}
+
 
 class DateSearch(object):  # {{{
 
@@ -203,6 +206,7 @@ class DateSearch(object):  # {{{
         return matches
 # }}}
 
+
 class NumericSearch(object):  # {{{
 
     def __init__(self):
@@ -294,6 +298,7 @@ class NumericSearch(object):  # {{{
 
 # }}}
 
+
 class BooleanSearch(object):  # {{{
 
     def __init__(self):
@@ -335,6 +340,7 @@ class BooleanSearch(object):  # {{{
 
 # }}}
 
+
 class KeyPairSearch(object):  # {{{
 
     def __call__(self, query, field_iter, candidates, use_primary_find):
@@ -374,6 +380,7 @@ class KeyPairSearch(object):  # {{{
         return matches
 
 # }}}
+
 
 class SavedSearchQueries(object):  # {{{
     queries = {}
@@ -435,6 +442,7 @@ class SavedSearchQueries(object):  # {{{
     def names(self):
         return sorted(self.queries.iterkeys(), key=sort_key)
 # }}}
+
 
 class Parser(SearchQueryParser):  # {{{
 
@@ -565,6 +573,7 @@ class Parser(SearchQueryParser):  # {{{
                      fm['display'].get('composite_sort', '') == 'number')):
                 if location == 'id':
                     is_many = False
+
                     def fi(default_value=None):
                         for qid in candidates:
                             yield qid, {qid}
@@ -722,6 +731,7 @@ class Parser(SearchQueryParser):  # {{{
         return matches
 # }}}
 
+
 class LRUCache(object):  # {{{
 
     'A simple Least-Recently-Used cache'
@@ -777,6 +787,7 @@ class LRUCache(object):  # {{{
     def __iter__(self):
         return self.item_map.iteritems()
 # }}}
+
 
 class Search(object):
 

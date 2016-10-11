@@ -24,6 +24,7 @@ from calibre.utils.date import utcfromtimestamp, as_local_time, is_date_undefine
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.icu import sort_key
 
+
 def CLASS(*args, **kwargs):  # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
     return kwargs
@@ -70,6 +71,7 @@ def build_search_box(num, search, sort, order, prefix):  # {{{
     return div
     # }}}
 
+
 def build_navigation(start, num, total, url_base):  # {{{
     end = min((start+num-1), total)
     tagline = SPAN('Books %d to %d of %d'%(start, end, total),
@@ -91,6 +93,7 @@ def build_navigation(start, num, total, url_base):  # {{{
     return DIV(tagline, buttons, CLASS('navigation'))
 
     # }}}
+
 
 def build_index(books, num, search, sort, order, start, total, url_base, CKEYS,
         prefix, have_kobo_browser=False):

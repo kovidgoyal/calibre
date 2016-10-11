@@ -22,6 +22,7 @@ NON_EBOOK_EXTENSIONS = frozenset([
         'opf', 'swp', 'swo'
         ])
 
+
 class RestoreDatabase(LibraryDatabase2):
 
     PATH_LIMIT = 10
@@ -32,6 +33,7 @@ class RestoreDatabase(LibraryDatabase2):
 
     def dirtied(self, *args, **kwargs):
         pass
+
 
 class Restore(Thread):
 

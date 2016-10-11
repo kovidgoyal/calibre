@@ -24,6 +24,7 @@ from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
 
+
 class PageAction(QAction):  # {{{
 
     def __init__(self, wac, icon, text, checkable, view):
@@ -53,6 +54,7 @@ class PageAction(QAction):  # {{{
 
 # }}}
 
+
 class BlockStyleAction(QAction):  # {{{
 
     def __init__(self, text, name, view):
@@ -64,6 +66,7 @@ class BlockStyleAction(QAction):  # {{{
         self.parent().exec_command('formatBlock', self._name)
 
 # }}}
+
 
 class EditorWidget(QWebView):  # {{{
 
@@ -239,6 +242,7 @@ class EditorWidget(QWebView):  # {{{
         d.bb = QDialogButtonBox(QDialogButtonBox.Ok|QDialogButtonBox.Cancel)
         d.br = b = QPushButton(_('&Browse'))
         b.setIcon(QIcon(I('document_open.png')))
+
         def cf():
             files = choose_files(d, 'select link file', _('Choose file'), select_only_single_file=True)
             if files:
@@ -418,6 +422,7 @@ State_AttributeName = 5
 State_SingleQuote = 6
 State_DoubleQuote = 7
 State_AttributeValue = 8
+
 
 class Highlighter(QSyntaxHighlighter):
 
@@ -618,6 +623,7 @@ class Highlighter(QSyntaxHighlighter):
 
 # }}}
 
+
 class Editor(QWidget):  # {{{
 
     toolbar_prefs_name = None
@@ -719,6 +725,7 @@ class Editor(QWidget):  # {{{
     def html(self):
         def fset(self, v):
             self.editor.html = v
+
         def fget(self):
             self.tabs.setCurrentIndex(0)
             return self.editor.html
@@ -740,6 +747,7 @@ class Editor(QWidget):  # {{{
     def tab(self):
         def fget(self):
             return 'code' if self.tabs.currentWidget() is self.code_edit else 'wyswyg'
+
         def fset(self, val):
             self.tabs.setCurrentWidget(self.code_edit if val == 'code' else self.wyswyg)
         return property(fget=fget, fset=fset)
@@ -770,6 +778,7 @@ class Editor(QWidget):  # {{{
     def toolbars_visible(self):
         def fget(self):
             return self.toolbar1.isVisible() or self.toolbar2.isVisible() or self.toolbar3.isVisible()
+
         def fset(self, val):
             getattr(self, ('show' if val else 'hide') + '_toolbars')()
         return property(fget=fget, fset=fset)

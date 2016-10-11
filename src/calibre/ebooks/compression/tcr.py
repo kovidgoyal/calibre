@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 import re
 
+
 class TCRCompressor(object):
     '''
     TCR compression takes the form header+code_dict+coded_text.
@@ -132,6 +133,7 @@ def decompress(stream):
         entry_loc = stream.read(1)
 
     return ''.join(txt)
+
 
 def compress(txt):
     t = TCRCompressor()

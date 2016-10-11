@@ -13,9 +13,11 @@ from calibre import prints
 from calibre.constants import DEBUG
 from calibre.devices.interface import DevicePlugin
 
+
 def debug(*args, **kwargs):
     if DEBUG:
         prints('MTP:', *args, **kwargs)
+
 
 def synchronous(func):
     @wraps(func)
@@ -23,6 +25,7 @@ def synchronous(func):
         with self.lock:
             return func(self, *args, **kwargs)
     return synchronizer
+
 
 class MTPDeviceBase(DevicePlugin):
     name = 'MTP Device Interface'

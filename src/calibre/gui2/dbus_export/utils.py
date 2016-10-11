@@ -12,12 +12,14 @@ import dbus
 
 from PyQt5.Qt import QSize, QImage, Qt, QKeySequence, QBuffer, QByteArray
 
+
 def log(*args, **kw):
     kw['file'] = sys.stderr
     print('DBusExport:', *args, **kw)
     kw['file'].flush()
 
 from calibre.ptempfile import PersistentTemporaryDirectory
+
 
 class IconCache(object):
 
@@ -58,6 +60,7 @@ class IconCache(object):
 
 _icon_cache = None
 
+
 def icon_cache():
     global _icon_cache
     if _icon_cache is None:
@@ -86,6 +89,7 @@ def qicon_to_sni_image_list(qicon):
             ans.append((w, h, dbus.ByteArray(data)))
     return ans
 
+
 def swap_mnemonic_char(text, from_char='&', to_char='_'):
     text = text.replace(to_char, to_char * 2)  # Escape to_char
     # Replace the first occurence of an unescaped from_char with to_char
@@ -95,6 +99,7 @@ def swap_mnemonic_char(text, from_char='&', to_char='_'):
     # Unescape from_char
     text = text.replace(from_char * 2, from_char)
     return text
+
 
 def key_sequence_to_dbus_shortcut(qks):
     for key in qks:
@@ -112,6 +117,7 @@ def key_sequence_to_dbus_shortcut(qks):
         if items:
             yield items
 
+
 def icon_to_dbus_menu_icon(icon, size=32):
     if icon.isNull():
         return None
@@ -121,12 +127,14 @@ def icon_to_dbus_menu_icon(icon, size=32):
     icon.pixmap(32).save(buf, 'PNG')
     return dbus.ByteArray(bytes((ba.data())))
 
+
 def setup_for_cli_run():
     import signal
     from dbus.mainloop.glib import DBusGMainLoop, threads_init
     threads_init()
     DBusGMainLoop(set_as_default=True)
     signal.signal(signal.SIGINT, signal.SIG_DFL)  # quit on Ctrl-C
+
 
 def set_X_window_properties(win_id, **properties):
     ' Set X Window properties on the window with the specified id. Only string values are supported. '

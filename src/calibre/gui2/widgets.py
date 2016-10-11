@@ -25,6 +25,7 @@ from calibre.utils.localization import localize_user_manual_link
 
 history = XMLConfig('history')
 
+
 class ProgressIndicator(QWidget):  # {{{
 
     def __init__(self, *args):
@@ -57,6 +58,7 @@ class ProgressIndicator(QWidget):  # {{{
         self.pi.stopAnimation()
         self.setVisible(False)
 # }}}
+
 
 class FilenamePattern(QWidget, Ui_Form):  # {{{
 
@@ -170,6 +172,7 @@ class FilenamePattern(QWidget, Ui_Form):  # {{{
 
 # }}}
 
+
 class FormatList(QListWidget):  # {{{
     DROPABBLE_EXTENSIONS = BOOK_EXTENSIONS
     formats_dropped = pyqtSignal(object, object)
@@ -209,6 +212,7 @@ class FormatList(QListWidget):  # {{{
             return QListWidget.keyPressEvent(self, event)
 
 # }}}
+
 
 class ImageDropMixin(object):  # {{{
     '''
@@ -289,6 +293,7 @@ class ImageDropMixin(object):  # {{{
             self.cover_changed.emit(
                     pixmap_to_data(pmap, format='PNG'))
 # }}}
+
 
 class ImageView(QWidget, ImageDropMixin):  # {{{
 
@@ -372,6 +377,7 @@ class ImageView(QWidget, ImageDropMixin):  # {{{
         p.end()
 # }}}
 
+
 class CoverView(QGraphicsView, ImageDropMixin):  # {{{
 
     cover_changed = pyqtSignal(object)
@@ -393,6 +399,8 @@ class CoverView(QGraphicsView, ImageDropMixin):  # {{{
 # }}}
 
 # BasicList {{{
+
+
 class BasicListItem(QListWidgetItem):
 
     def __init__(self, text, user_data=None):
@@ -403,6 +411,7 @@ class BasicListItem(QListWidgetItem):
         if hasattr(other, 'text'):
             return self.text() == other.text()
         return False
+
 
 class BasicList(QListWidget):
 
@@ -426,6 +435,7 @@ class BasicList(QListWidget):
         for i in range(self.count()):
             yield self.item(i)
 # }}}
+
 
 class LineEditECM(object):  # {{{
 
@@ -475,6 +485,7 @@ class LineEditECM(object):  # {{{
 
 # }}}
 
+
 class EnLineEdit(LineEditECM, QLineEdit):  # {{{
 
     '''
@@ -491,6 +502,7 @@ class EnLineEdit(LineEditECM, QLineEdit):  # {{{
         return QLineEdit.event(self, ev)
 
 # }}}
+
 
 class ItemsCompleter(QCompleter):  # {{{
 
@@ -518,6 +530,7 @@ class ItemsCompleter(QCompleter):  # {{{
         self.setModel(model)
 
 # }}}
+
 
 class CompleteLineEdit(EnLineEdit):  # {{{
 
@@ -578,6 +591,7 @@ class CompleteLineEdit(EnLineEdit):  # {{{
 
 # }}}
 
+
 class EnComboBox(QComboBox):  # {{{
 
     '''
@@ -604,6 +618,7 @@ class EnComboBox(QComboBox):  # {{{
 
 # }}}
 
+
 class CompleteComboBox(EnComboBox):  # {{{
 
     def __init__(self, *args):
@@ -620,6 +635,7 @@ class CompleteComboBox(EnComboBox):  # {{{
         self.lineEdit().set_space_before_sep(space_before)
 
 # }}}
+
 
 class HistoryLineEdit(QComboBox):  # {{{
 
@@ -674,12 +690,14 @@ class HistoryLineEdit(QComboBox):  # {{{
 
 # }}}
 
+
 class ComboBoxWithHelp(QComboBox):  # {{{
     '''
     A combobox where item 0 is help text. CurrentText will return '' for item 0.
     Be sure to always fetch the text with currentText. Don't use the signals
     that pass a string, because they will not correct the text.
     '''
+
     def __init__(self, parent=None):
         QComboBox.__init__(self, parent)
         self.currentIndexChanged[int].connect(self.index_changed)
@@ -723,6 +741,7 @@ class ComboBoxWithHelp(QComboBox):  # {{{
 
 # }}}
 
+
 class EncodingComboBox(QComboBox):  # {{{
     '''
     A combobox that holds text encodings support
@@ -747,6 +766,7 @@ class EncodingComboBox(QComboBox):  # {{{
             self.addItem(item)
 
 # }}}
+
 
 class PythonHighlighter(QSyntaxHighlighter):  # {{{
 
@@ -907,6 +927,8 @@ class PythonHighlighter(QSyntaxHighlighter):  # {{{
 # }}}
 
 # Splitter {{{
+
+
 class SplitterHandle(QSplitterHandle):
 
     double_clicked = pyqtSignal(object)
@@ -928,6 +950,7 @@ class SplitterHandle(QSplitterHandle):
 
     def mouseDoubleClickEvent(self, ev):
         self.double_clicked.emit(self)
+
 
 class LayoutButton(QToolButton):
 
@@ -963,6 +986,7 @@ class LayoutButton(QToolButton):
             self.set_state_to_show()
         else:
             self.set_state_to_hide()
+
 
 class Splitter(QSplitter):
 

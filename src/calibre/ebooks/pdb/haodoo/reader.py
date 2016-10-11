@@ -49,10 +49,12 @@ punct_table = {
     u"　": u"  ",
     }
 
+
 def fix_punct(line):
     for (key, value) in punct_table.items():
         line = line.replace(key, value)
     return line
+
 
 class LegacyHeaderRecord(object):
 
@@ -64,6 +66,7 @@ class LegacyHeaderRecord(object):
             lambda x: fix_punct(x.decode('cp950', 'replace').rstrip(b'\x00')),
             fields[2:])
 
+
 class UnicodeHeaderRecord(object):
 
     def __init__(self, raw):
@@ -74,6 +77,7 @@ class UnicodeHeaderRecord(object):
         self.chapter_titles = map(
             lambda x: fix_punct(x.decode('utf_16_le', 'replace').rstrip(b'\x00')),
             fields[2].split(b'\r\x00\n\x00'))
+
 
 class Reader(FormatReader):
 

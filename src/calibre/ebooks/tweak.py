@@ -16,8 +16,10 @@ from calibre.libunzip import extract as zipextract
 from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 from calibre.utils.ipc.simple_worker import WorkerError
 
+
 class Error(ValueError):
     pass
+
 
 def ask_cli_question(msg):
     prints(msg, end=' [y/N]: ')
@@ -40,6 +42,7 @@ def ask_cli_question(msg):
     print()
     return ans == b'y'
 
+
 def mobi_exploder(path, tdir, question=lambda x:True):
     from calibre.ebooks.mobi.tweak import explode, BadFormat
     try:
@@ -47,12 +50,14 @@ def mobi_exploder(path, tdir, question=lambda x:True):
     except BadFormat as e:
         raise Error(as_unicode(e))
 
+
 def zip_exploder(path, tdir, question=lambda x:True):
     zipextract(path, tdir)
     for f in walk(tdir):
         if f.lower().endswith('.opf'):
             return f
     raise Error('Invalid book: Could not find .opf')
+
 
 def zip_rebuilder(tdir, path):
     with ZipFile(path, 'w', compression=ZIP_DEFLATED) as zf:
@@ -70,6 +75,7 @@ def zip_rebuilder(tdir, path):
                 zfn = unicodedata.normalize('NFC', os.path.relpath(absfn, tdir).replace(os.sep, '/'))
                 zf.write(absfn, zfn)
 
+
 def docx_exploder(path, tdir, question=lambda x:True):
     zipextract(path, tdir)
     from calibre.ebooks.docx.dump import pretty_all_xml_in_dir
@@ -78,6 +84,7 @@ def docx_exploder(path, tdir, question=lambda x:True):
         if os.path.basename(f) == 'document.xml':
             return f
     raise Error('Invalid book: Could not find document.xml')
+
 
 def get_tools(fmt):
     fmt = fmt.lower()
@@ -93,6 +100,7 @@ def get_tools(fmt):
         ans = None, None
 
     return ans
+
 
 def tweak(ebook_file):
     ''' Command line interface to the Tweak Book tool '''

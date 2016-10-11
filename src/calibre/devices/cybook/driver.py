@@ -17,6 +17,7 @@ from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybook.t2b as t2b
 import calibre.devices.cybook.t4b as t4b
 
+
 class CYBOOK(USBMS):
 
     name           = 'Cybook Gen 3 / Opus Device Interface'
@@ -59,6 +60,7 @@ class CYBOOK(USBMS):
         if isunix:
             return device_info[3] == 'Bookeen' and (device_info[4] == 'Cybook Gen3' or device_info[4] == 'Cybook Opus')
         return True
+
 
 class ORIZON(CYBOOK):
 
@@ -110,6 +112,7 @@ class ORIZON(CYBOOK):
         if not for_upload:
             return ''
         return self.EBOOK_DIR_CARD_A
+
 
 class MUSE(CYBOOK):
 

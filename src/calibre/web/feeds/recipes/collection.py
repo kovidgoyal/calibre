@@ -21,6 +21,7 @@ from calibre.utils.recycle_bin import delete_file
 NS = 'http://calibre-ebook.com/recipe_collection'
 E = ElementMaker(namespace=NS, nsmap={None:NS})
 
+
 def iterate_over_builtin_recipe_files():
     exclude = ['craigslist', 'toronto_sun']
     d = os.path.dirname
@@ -58,6 +59,7 @@ def serialize_recipe(urn, recipe_class):
         'description'        : attr('description', '')
         })
 
+
 def serialize_collection(mapping_of_recipe_classes):
     collection = E.recipe_collection()
     '''for u, x in mapping_of_recipe_classes.items():
@@ -80,6 +82,7 @@ def serialize_collection(mapping_of_recipe_classes):
     return etree.tostring(collection, encoding='utf-8', xml_declaration=True,
             pretty_print=True)
 
+
 def serialize_builtin_recipes():
     from calibre.web.feeds.recipes import compile_recipe
     recipe_mapping = {}
@@ -95,8 +98,10 @@ def serialize_builtin_recipes():
 
     return serialize_collection(recipe_mapping)
 
+
 def get_builtin_recipe_collection():
     return etree.parse(P('builtin_recipes.xml', allow_user_override=False)).getroot()
+
 
 def get_custom_recipe_collection(*args):
     from calibre.web.feeds.recipes import compile_recipe, \
@@ -121,6 +126,7 @@ def get_custom_recipe_collection(*args):
 
 def update_custom_recipe(id_, title, script):
     update_custom_recipes([(id_, title, script)])
+
 
 def update_custom_recipes(script_ids):
     from calibre.web.feeds.recipes import custom_recipes, \
@@ -150,6 +156,7 @@ def update_custom_recipes(script_ids):
 
 def add_custom_recipe(title, script):
     add_custom_recipes({title:script})
+
 
 def add_custom_recipes(script_map):
     from calibre.web.feeds.recipes import custom_recipes, \
@@ -190,6 +197,7 @@ def remove_custom_recipe(id_):
         except:
             pass
 
+
 def get_custom_recipe(id_):
     from calibre.web.feeds.recipes import custom_recipes
     id_ = str(int(id_))
@@ -200,8 +208,10 @@ def get_custom_recipe(id_):
         with open(os.path.join(bdir, fname), 'rb') as f:
             return f.read().decode('utf-8')
 
+
 def get_builtin_recipe_titles():
     return [r.get('title') for r in get_builtin_recipe_collection()]
+
 
 def download_builtin_recipe(urn):
     from calibre.utils.config_base import prefs
@@ -210,9 +220,11 @@ def download_builtin_recipe(urn):
     return bz2.decompress(get_https_resource_securely(
         'https://code.calibre-ebook.com/recipe-compressed/'+urn, headers={'CALIBRE-INSTALL-UUID':prefs['installation_uuid']}))
 
+
 def get_builtin_recipe(urn):
     with zipfile.ZipFile(P('builtin_recipes.zip', allow_user_override=False), 'r') as zf:
         return zf.read(urn+'.recipe')
+
 
 def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
     for x in get_builtin_recipe_collection():
@@ -232,6 +244,7 @@ def get_builtin_recipe_by_title(title, log=None, download_recipe=False):
                         'Failed to download recipe, using builtin version')
             return get_builtin_recipe(urn)
 
+
 def get_builtin_recipe_by_id(id_, log=None, download_recipe=False):
     for x in get_builtin_recipe_collection():
         if x.get('id') == id_:
@@ -249,6 +262,7 @@ def get_builtin_recipe_by_id(id_, log=None, download_recipe=False):
                         log.exception(
                         'Failed to download recipe, using builtin version')
             return get_builtin_recipe(urn)
+
 
 class SchedulerConfig(object):
 

@@ -42,10 +42,12 @@ LIGATURES = {
 
 _ligpat = re.compile(u'|'.join(LIGATURES))
 
+
 def sanitize_head(match):
     x = match.group(1)
     x = _span_pat.sub('', x)
     return '<head>\n%s\n</head>' % x
+
 
 def chap_head(match):
     chap = match.group('chap')
@@ -55,12 +57,14 @@ def chap_head(match):
     else:
         return '<h1>'+chap+'</h1>\n<h3>'+title+'</h3>\n'
 
+
 def wrap_lines(match):
     ital = match.group('ital')
     if not ital:
         return ' '
     else:
         return ital+' '
+
 
 def smarten_punctuation(html, log=None):
     from calibre.utils.smartypants import smartyPants
@@ -77,6 +81,7 @@ def smarten_punctuation(html, log=None):
     html = html.replace(start, '<!--')
     html = html.replace(stop, '-->')
     return substitute_entites(html)
+
 
 class DocAnalysis(object):
     '''
@@ -182,6 +187,7 @@ class DocAnalysis(object):
             # print str(maxValue)+" of the lines were in one bucket"
             return True
 
+
 class Dehyphenator(object):
     '''
     Analyzes words to determine whether hyphens should be retained/removed.  Uses the document
@@ -276,6 +282,7 @@ class Dehyphenator(object):
         html = intextmatch.sub(self.dehyphenate, html)
         return html
 
+
 class CSSPreProcessor(object):
 
     # Remove some of the broken CSS Microsoft products
@@ -319,6 +326,7 @@ class CSSPreProcessor(object):
             ans.append(line)
 
         return u'\n'.join(ans)
+
 
 class HTMLPreProcessor(object):
 
@@ -489,6 +497,7 @@ class HTMLPreProcessor(object):
                      (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      ]
+
     def __init__(self, log=None, extra_opts=None, regex_wizard_callback=None):
         self.log = log
         self.extra_opts = extra_opts
@@ -530,6 +539,7 @@ class HTMLPreProcessor(object):
 
         user_sr_rules = {}
         # Function for processing search and replace
+
         def do_search_replace(search_pattern, replace_txt):
             try:
                 search_re = re.compile(search_pattern)

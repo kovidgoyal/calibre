@@ -32,11 +32,14 @@ from calibre.utils.config import prefs, tweaks
 CM_TO_INCH = 0.393701
 CACHE_FORMAT = 'PPM'
 
+
 def auto_height(widget):
     return max(185, QApplication.instance().desktop().availableGeometry(widget).height() / 5.0)
 
+
 class EncodeError(ValueError):
     pass
+
 
 def image_to_data(image):  # {{{
     ba = QByteArray()
@@ -50,13 +53,17 @@ def image_to_data(image):  # {{{
 # }}}
 
 # Drag 'n Drop {{{
+
+
 def dragMoveEvent(self, event):
     event.acceptProposedAction()
+
 
 def event_has_mods(self, event=None):
     mods = event.modifiers() if event is not None else \
             QApplication.keyboardModifiers()
     return mods & Qt.ControlModifier or mods & Qt.ShiftModifier
+
 
 def mousePressEvent(base_class, self, event):
     ep = event.pos()
@@ -66,6 +73,7 @@ def mousePressEvent(base_class, self, event):
     if hasattr(self, 'handle_mouse_press_event'):
         return self.handle_mouse_press_event(event)
     return base_class.mousePressEvent(self, event)
+
 
 def drag_icon(self, cover, multiple):
     cover = cover.scaledToHeight(120, Qt.SmoothTransformation)
@@ -94,6 +102,7 @@ def drag_icon(self, cover, multiple):
         p.end()
         cover = base
     return QPixmap.fromImage(cover)
+
 
 def drag_data(self):
     m = self.model()
@@ -138,6 +147,7 @@ def drag_data(self):
     drag.setPixmap(cover)
     return drag
 
+
 def mouseMoveEvent(base_class, self, event):
     if not self.drag_allowed:
         return
@@ -160,6 +170,7 @@ def mouseMoveEvent(base_class, self, event):
     drag.exec_(Qt.CopyAction)
     self.drag_start_pos = None
 
+
 def dragEnterEvent(self, event):
     if int(event.possibleActions() & Qt.CopyAction) + \
         int(event.possibleActions() & Qt.MoveAction) == 0:
@@ -169,11 +180,13 @@ def dragEnterEvent(self, event):
     if paths:
         event.acceptProposedAction()
 
+
 def dropEvent(self, event):
     paths = self.paths_from_event(event)
     event.setDropAction(Qt.CopyAction)
     event.accept()
     self.files_dropped.emit(paths)
+
 
 def paths_from_event(self, event):
     '''
@@ -186,6 +199,7 @@ def paths_from_event(self, event):
         urls = [unicode(u.toLocalFile()) for u in md.urls()]
         return [u for u in urls if os.path.splitext(u)[1] and
                 os.path.exists(u)]
+
 
 def setup_dnd_interface(cls_or_self):
     if isinstance(cls_or_self, type):
@@ -210,6 +224,8 @@ def setup_dnd_interface(cls_or_self):
 # }}}
 
 # Manage slave views {{{
+
+
 def sync(func):
     @wraps(func)
     def ans(self, *args, **kwargs):
@@ -218,6 +234,7 @@ def sync(func):
         with self:
             return func(self, *args, **kwargs)
     return ans
+
 
 class AlternateViews(object):
 
@@ -309,6 +326,8 @@ class AlternateViews(object):
 # }}}
 
 # Rendering of covers {{{
+
+
 class CoverDelegate(QStyledItemDelegate):
 
     MARGIN = 4
@@ -606,6 +625,8 @@ class CoverDelegate(QStyledItemDelegate):
 # }}}
 
 # The View {{{
+
+
 @setup_dnd_interface
 class GridView(QListView):
 

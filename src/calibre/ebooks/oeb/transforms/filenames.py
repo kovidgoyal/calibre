@@ -12,6 +12,7 @@ from lxml import etree
 
 from calibre.ebooks.oeb.base import rewrite_links, urlnormalize
 
+
 class RenameFiles(object):  # {{{
 
     '''
@@ -85,6 +86,7 @@ class RenameFiles(object):  # {{{
 
 # }}}
 
+
 class UniqueFilenames(object):  # {{{
 
     'Ensure that every item in the manifest has a unique filename'
@@ -135,6 +137,7 @@ class UniqueFilenames(object):  # {{{
             if candidate not in self.seen_filenames:
                 return suffix
 # }}}
+
 
 class FlatFilenames(object):  # {{{
 

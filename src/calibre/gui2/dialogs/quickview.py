@@ -14,6 +14,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.dialogs.quickview_ui import Ui_Quickview
 from calibre.utils.icu import sort_key
 
+
 class TableItem(QTableWidgetItem):
 
     '''
@@ -51,6 +52,7 @@ IN_WIDGET_DOCK = 3
 IN_WIDGET_SEARCH = 4
 IN_WIDGET_CLOSE = 5
 
+
 class BooksTableFilter(QObject):
 
     return_pressed_signal = pyqtSignal()
@@ -61,6 +63,7 @@ class BooksTableFilter(QObject):
             return True
         return False
 
+
 class WidgetFocusFilter(QObject):
 
     focus_entered_signal = pyqtSignal(object)
@@ -69,6 +72,7 @@ class WidgetFocusFilter(QObject):
         if event.type() == QEvent.FocusIn:
             self.focus_entered_signal.emit(obj)
         return False
+
 
 class WidgetTabFilter(QObject):
 
@@ -86,6 +90,7 @@ class WidgetTabFilter(QObject):
                 self.tab_signal.emit(self.which_widget, False)
                 return True
         return False
+
 
 class Quickview(QDialog, Ui_Quickview):
 

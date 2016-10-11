@@ -6,10 +6,12 @@ from calibre.ptempfile import better_mktemp
 
 public_dtd = 'rtf2xml1.0.dtd'
 
+
 class ConvertToTags:
     """
     Convert file to XML
     """
+
     def __init__(self,
             in_file,
             bug_handler,

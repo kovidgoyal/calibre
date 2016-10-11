@@ -23,6 +23,8 @@ NAMESPACES = {
               'db': 'http://www.douban.com/xmlns/',
               'gd': 'http://schemas.google.com/g/2005'
             }
+
+
 def get_details(browser, url, timeout):  # {{{
     try:
         if Douban.DOUBAN_API_KEY and Douban.DOUBAN_API_KEY != '':
@@ -38,6 +40,7 @@ def get_details(browser, url, timeout):  # {{{
 
     return raw
 # }}}
+
 
 def to_metadata(browser, log, entry_, timeout):  # {{{
     from lxml import etree
@@ -143,6 +146,7 @@ def to_metadata(browser, log, entry_, timeout):  # {{{
             mi.has_douban_cover = u
     return mi
 # }}}
+
 
 class Douban(Source):
 

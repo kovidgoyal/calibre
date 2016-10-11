@@ -11,6 +11,7 @@ from calibre.ebooks.conversion.plumber import Plumber
 from calibre.customize.ui import plugin_for_catalog_format
 from calibre.utils.logging import Log
 
+
 def gui_convert(input, output, recommendations, notification=DummyReporter(),
         abort_after_input_dump=False, log=None, override_input_metadata=False):
     recommendations = list(recommendations)
@@ -24,11 +25,13 @@ def gui_convert(input, output, recommendations, notification=DummyReporter(),
 
     plumber.run()
 
+
 def gui_convert_override(input, output, recommendations, notification=DummyReporter(),
         abort_after_input_dump=False, log=None):
     gui_convert(input, output, recommendations, notification=notification,
             abort_after_input_dump=abort_after_input_dump, log=log,
             override_input_metadata=True)
+
 
 def gui_catalog(fmt, title, dbspec, ids, out_file_name, sync, fmt_options, connected_device,
         notification=DummyReporter(), log=None):

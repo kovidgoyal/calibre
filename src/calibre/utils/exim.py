@@ -27,6 +27,7 @@ def send_file(from_obj, to_obj, chunksize=1<<20):
         to_obj.write(raw)
     return type('')(m.hexdigest())
 
+
 class FileDest(object):
 
     def __init__(self, key, exporter, mtime=None):
@@ -149,6 +150,7 @@ class Exporter(object):
                         self.add_file(f, key)
                 files.append((key, rpath))
 
+
 def all_known_libraries():
     from calibre.gui2 import gprefs
     lus = gprefs.get('library_usage_stats', {})
@@ -165,6 +167,7 @@ def all_known_libraries():
             else:
                 added[path] = lus.get(path, 1)
     return added
+
 
 def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=None, abort=None):
     from calibre.db.cache import Cache
@@ -205,6 +208,7 @@ def export(destdir, library_paths=None, dbmap=None, progress1=None, progress2=No
 
 # Import {{{
 
+
 class FileSource(object):
 
     def __init__(self, f, size, digest, description, mtime, importer):
@@ -229,6 +233,7 @@ class FileSource(object):
         if self.hasher.hexdigest() != self.digest:
             self.importer.corrupted_files.append(self.description)
         self.hasher = self.f = None
+
 
 class Importer(object):
 
@@ -311,6 +316,7 @@ class Importer(object):
         gprefs = JSONConfig('gui', base_path=base_dir)
         gprefs['library_usage_stats'] = dict(library_usage_stats)
 
+
 def import_data(importer, library_path_map, config_location=None, progress1=None, progress2=None, abort=None):
     from calibre.db.cache import import_library
     config_location = config_location or config_dir
@@ -358,6 +364,7 @@ def import_data(importer, library_path_map, config_location=None, progress1=None
     if progress1 is not None:
         progress1(_('Completed'), total, total)
 
+
 def test_import(export_dir='/t/ex', import_dir='/t/imp'):
     importer = Importer(export_dir)
     if os.path.exists(import_dir):
@@ -366,11 +373,13 @@ def test_import(export_dir='/t/ex', import_dir='/t/imp'):
     import_data(importer, {k:os.path.join(import_dir, os.path.basename(k)) for k in importer.metadata['libraries'] if 'largelib' not in k},
                 config_location=os.path.join(import_dir, 'calibre-config'), progress1=print, progress2=print)
 
+
 def cli_report(*args, **kw):
     try:
         prints(*args, **kw)
     except EnvironmentError:
         pass
+
 
 def run_exporter():
     export_dir = raw_input('Enter path to an empty folder (all exported data will be saved inside it): ').decode(filesystem_encoding)
@@ -388,6 +397,7 @@ def run_exporter():
         export(export_dir, progress1=cli_report, progress2=cli_report, library_paths=library_paths)
     else:
         raise SystemExit('No libraries selected for export')
+
 
 def run_importer():
     export_dir = raw_input('Enter path to folder containing previously exported data: ').decode(filesystem_encoding)

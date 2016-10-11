@@ -13,12 +13,16 @@ from io import BytesIO
 from calibre import force_unicode
 from calibre.constants import filesystem_encoding, isosx
 
+
 class UNRARError(Exception):
     pass
 
+
 class DevNull:
+
     def write(self, x):
         pass
+
 
 class RARStream(object):
 
@@ -93,6 +97,7 @@ def RARFile(stream, get_comment=False):
                            %err)
     return RARStream(stream, unrar, get_comment=get_comment)
 
+
 class SaveStream(object):
 
     def __init__(self, stream):
@@ -104,6 +109,7 @@ class SaveStream(object):
     def __exit__(self, *args):
         self.stream.seek(0)
 
+
 def safe_path(base, relpath):
     base = os.path.abspath(base)
     path = os.path.abspath(os.path.join(base, relpath))
@@ -112,9 +118,11 @@ def safe_path(base, relpath):
         return None
     return path
 
+
 def is_useful(h):
     return not (h['is_label'] or h['is_symlink'] or h['has_password'] or
                     h['is_directory'])
+
 
 def stream_extract(stream, location):
     location = os.path.abspath(location)
@@ -146,9 +154,11 @@ def stream_extract(stream, location):
                     with open(path, 'wb') as dest:
                         f.process_current_item(dest)
 
+
 def extract(path, location):
     with open(path, 'rb') as stream:
         stream_extract(stream, location)
+
 
 def names(stream):
     with SaveStream(stream):
@@ -161,6 +171,7 @@ def names(stream):
             f.process_current_item()
             if is_useful(h):
                 yield h['filename']
+
 
 def extract_member(stream, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I),
         name=None):
@@ -184,11 +195,13 @@ def extract_member(stream, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I),
             f.process_current_item(et)
             return h['filename'], et.getvalue()
 
+
 def extract_first_alphabetically(stream):
     from calibre.libunzip import sort_key
     names_ = sorted([x for x in names(stream) if os.path.splitext(x)[1][1:].lower() in
             {'png', 'jpg', 'jpeg', 'gif', 'webp'}], key=sort_key)
     return extract_member(stream, name=names_[0], match=None)
+
 
 def extract_cover_image(stream):
     from calibre.libunzip import sort_key, name_ok
@@ -197,6 +210,8 @@ def extract_cover_image(stream):
             return extract_member(stream, name=name, match=None)
 
 # Test normal RAR file {{{
+
+
 def test_basic():
 
     stream = BytesIO(
@@ -244,6 +259,7 @@ def test_basic():
     del f
     for i in xrange(3):
         gc.collect()
+
     def get_mem_use(num):
         start = memory()
         s = SaveStream(stream)
@@ -260,6 +276,7 @@ def test_basic():
     if not isosx and abs(b - a) > 1:
         raise ValueError('Leaked %s MB for %d calls'%(b - a, 100))
     # }}}
+
 
 def test_rar(path):
     with open(path, 'rb') as stream:

@@ -26,6 +26,7 @@ from calibre.utils.localization import localize_user_manual_link
 
 user_functions = JSONConfig('editor-search-replace-functions')
 
+
 def compile_code(src, name='<string>'):
     if not isinstance(src, unicode):
         match = re.search(r'coding[:=]\s*([-\w.]+)', src[:200])
@@ -42,6 +43,7 @@ def compile_code(src, name='<string>'):
     namespace = {}
     exec code in namespace
     return namespace
+
 
 class Function(object):
 
@@ -101,6 +103,7 @@ class Function(object):
                 sys.stdout, sys.stderr = oo, oe
         self.data, self.boss, self.functions = {}, None, {}
 
+
 class DebugOutput(Dialog):
 
     def __init__(self, parent=None):
@@ -132,12 +135,15 @@ class DebugOutput(Dialog):
     def copy_to_clipboard(self):
         QApplication.instance().clipboard().setText(self.log_text)
 
+
 def builtin_functions():
     for name, obj in globals().iteritems():
         if name.startswith('replace_') and callable(obj) and hasattr(obj, 'imports'):
             yield obj
 
 _functions = None
+
+
 def functions(refresh=False):
     global _functions
     if _functions is None or refresh:
@@ -151,6 +157,7 @@ def functions(refresh=False):
                 continue
             ans[f.name] = f
     return _functions
+
 
 def remove_function(name, gui_parent=None):
     funcs = functions()
@@ -170,11 +177,13 @@ def remove_function(name, gui_parent=None):
 
 boxes = []
 
+
 def refresh_boxes():
     for ref in boxes:
         box = ref()
         if box is not None:
             box.refresh()
+
 
 class FunctionBox(EditWithComplete):
 
@@ -199,6 +208,7 @@ class FunctionBox(EditWithComplete):
             menu.addAction(_('Save current search'), self.save_search.emit)
             menu.addAction(_('Show saved searches'), self.show_saved_searches.emit)
         menu.exec_(event.globalPos())
+
 
 class FunctionEditor(Dialog):
 
@@ -272,6 +282,7 @@ class FunctionEditor(Dialog):
 
 # Builtin functions ##########################################################
 
+
 def builtin(name, *args):
     def f(func):
         func.name = name
@@ -284,12 +295,14 @@ def replace(match, number, file_name, metadata, dictionaries, data, functions, *
     return ''
 '''
 
+
 @builtin('Upper-case text', upper, apply_func_to_match_groups)
 def replace_uppercase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
     '''Make matched text upper case. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, upper)
+
 
 @builtin('Lower-case text', lower, apply_func_to_match_groups)
 def replace_lowercase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
@@ -298,12 +311,14 @@ def replace_lowercase(match, number, file_name, metadata, dictionaries, data, fu
     changed.'''
     return apply_func_to_match_groups(match, lower)
 
+
 @builtin('Capitalize text', capitalize, apply_func_to_match_groups)
 def replace_capitalize(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
     '''Capitalize matched text. If the regular expression contains groups,
     only the text in the groups will be changed, otherwise the entire text is
     changed.'''
     return apply_func_to_match_groups(match, capitalize)
+
 
 @builtin('Title-case text', titlecase, apply_func_to_match_groups)
 def replace_titlecase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
@@ -312,6 +327,7 @@ def replace_titlecase(match, number, file_name, metadata, dictionaries, data, fu
     changed.'''
     return apply_func_to_match_groups(match, titlecase)
 
+
 @builtin('Swap the case of text', swapcase, apply_func_to_match_groups)
 def replace_swapcase(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
     '''Swap the case of the matched text. If the regular expression contains groups,
@@ -319,25 +335,30 @@ def replace_swapcase(match, number, file_name, metadata, dictionaries, data, fun
     changed.'''
     return apply_func_to_match_groups(match, swapcase)
 
+
 @builtin('Upper-case text (ignore tags)', upper, apply_func_to_html_text)
 def replace_uppercase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
     '''Make matched text upper case, ignoring the text inside tag definitions.'''
     return apply_func_to_html_text(match, upper)
+
 
 @builtin('Lower-case text (ignore tags)', lower, apply_func_to_html_text)
 def replace_lowercase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
     '''Make matched text lower case, ignoring the text inside tag definitions.'''
     return apply_func_to_html_text(match, lower)
 
+
 @builtin('Capitalize text (ignore tags)', capitalize, apply_func_to_html_text)
 def replace_capitalize_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
     '''Capitalize matched text, ignoring the text inside tag definitions.'''
     return apply_func_to_html_text(match, capitalize)
 
+
 @builtin('Title-case text (ignore tags)', titlecase, apply_func_to_html_text)
 def replace_titlecase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):
     '''Title-case matched text, ignoring the text inside tag definitions.'''
     return apply_func_to_html_text(match, titlecase)
+
 
 @builtin('Swap the case of text (ignore tags)', swapcase, apply_func_to_html_text)
 def replace_swapcase_ignore_tags(match, number, file_name, metadata, dictionaries, data, functions, *args, **kwargs):

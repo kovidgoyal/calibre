@@ -8,6 +8,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class AZW4Input(InputFormatPlugin):
 
     name        = 'AZW4 Input'

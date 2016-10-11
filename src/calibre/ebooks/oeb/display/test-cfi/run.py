@@ -17,6 +17,7 @@ except ImportError:
         init_calibre, serve
     from calibre.utils.serve_coffee import serve
 
+
 def run_devel_server():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     serve(resources={'cfi.coffee':'../cfi.coffee', '/':'index.html'})

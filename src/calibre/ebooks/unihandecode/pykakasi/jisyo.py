@@ -5,6 +5,7 @@
 import cPickle, marshal
 from zlib import decompress
 
+
 class jisyo (object):
     kanwadict = None
     itaijidict = None

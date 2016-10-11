@@ -21,6 +21,7 @@ from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.reader.headers import NULL_INDEX
 from calibre.utils.imghdr import what
 
+
 class FDST(object):
 
     def __init__(self, raw):
@@ -48,6 +49,7 @@ class FDST(object):
 
         return '\n'.join(ans)
 
+
 class File(object):
 
     def __init__(self, skel, skeleton, text, first_aid, sections):
@@ -66,6 +68,7 @@ class File(object):
             for i, text in enumerate(self.sections):
                 with open('sect-%04d.html'%i, 'wb') as f:
                     f.write(text)
+
 
 class MOBIFile(object):
 
@@ -289,6 +292,7 @@ class MOBIFile(object):
                 desc.append('Calculated sequences: %r'%calculated_sequences)
             desc.append('')
             self.indexing_data.append('\n'.join(desc))
+
 
 def inspect_mobi(mobi_file, ddir):
     f = MOBIFile(mobi_file)

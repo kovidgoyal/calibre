@@ -13,6 +13,7 @@ from lxml.html import (fragment_fromstring, document_fromstring,
 from calibre.ebooks.readability.htmls import build_doc, get_body, get_title, shorten_title
 from calibre.ebooks.readability.cleaners import html_cleaner, clean_attributes
 
+
 def tounicode(tree_or_node, **kwargs):
     kwargs['encoding'] = unicode
     return htostring(tree_or_node, **kwargs)
@@ -33,6 +34,7 @@ REGEXES = {
     # skipFootnoteLink:    /^\s*(\[?[a-z0-9]{1,2}\]?|^|edit|citation needed)\s*$/i,
 }
 
+
 def describe(node, depth=1):
     if not hasattr(node, 'tag'):
         return "[%s]" % type(node)
@@ -47,6 +49,7 @@ def describe(node, depth=1):
         return name+' - '+describe(node.getparent(), depth-1)
     return name
 
+
 def to_int(x):
     if not x:
         return None
@@ -57,16 +60,20 @@ def to_int(x):
         return int(x[:-2]) * 12
     return int(x)
 
+
 def clean(text):
     text = re.sub('\s*\n\s*', '\n', text)
     text = re.sub('[ \t]{2,}', ' ', text)
     return text.strip()
 
+
 def text_length(i):
     return len(clean(i.text_content() or ""))
 
+
 class Unparseable(ValueError):
     pass
+
 
 class Document:
     TEXT_LENGTH_THRESHOLD = 25
@@ -466,6 +473,7 @@ class Document:
 
         return clean_attributes(tounicode(node))
 
+
 def option_parser():
     from calibre.utils.config import OptionParser
     parser = OptionParser(usage='%prog: [options] file')
@@ -477,6 +485,7 @@ def option_parser():
             help='XPath specifying elements that should not be removed')
 
     return parser
+
 
 def main():
     from calibre.utils.logging import default_log

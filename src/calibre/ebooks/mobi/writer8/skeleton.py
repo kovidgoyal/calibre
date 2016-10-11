@@ -38,8 +38,10 @@ _self_closing_pat = re.compile(bytes(
         'style', 'title', 'head'}))),
     re.IGNORECASE)
 
+
 def close_self_closing_tags(raw):
     return _self_closing_pat.sub(br'<\g<tag>\g<arg>></\g<tag>>', raw)
+
 
 def path_to_node(node):
     ans = []
@@ -50,6 +52,7 @@ def path_to_node(node):
         parent = parent.getparent()
     return tuple(reversed(ans))
 
+
 def node_from_path(root, path):
     parent = root
     for idx in path:
@@ -57,6 +60,7 @@ def node_from_path(root, path):
     return parent
 
 mychr = chr if ispy3 else unichr
+
 
 def tostring(raw, **kwargs):
     ''' lxml *sometimes* represents non-ascii characters as hex entities in
@@ -74,6 +78,7 @@ def tostring(raw, **kwargs):
         ans = '<?xml version="1.0" encoding="%s"?>\n'%encoding + ans
     return re.sub(r'&#x([0-9A-Fa-f]+);', lambda m:mychr(int(m.group(1), 16)),
             ans).encode(encoding)
+
 
 class Chunk(object):
 
@@ -97,6 +102,7 @@ class Chunk(object):
                 len(self.raw), self.insert_pos, self.starts_tags, self.ends_tags)
 
     __str__ = __repr__
+
 
 class Skeleton(object):
 
@@ -149,6 +155,7 @@ class Skeleton(object):
     @property
     def raw_text(self):
         return b''.join([self.skeleton] + [x.raw for x in self.chunks])
+
 
 class Chunker(object):
 

@@ -14,6 +14,7 @@ from cStringIO import StringIO
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 
+
 class HeaderRecord(object):
     '''
     The first record in the file is always the header record. It holds

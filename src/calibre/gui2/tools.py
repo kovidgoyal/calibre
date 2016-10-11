@@ -24,6 +24,7 @@ from calibre.ebooks.conversion.config import GuiRecommendations, \
     load_defaults, load_specifics, save_specifics
 from calibre.gui2.convert import bulk_defaults_for_input_format
 
+
 def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
         out_format=None, show_no_format_warning=True):
     changed = False
@@ -126,6 +127,8 @@ def convert_single_ebook(parent, db, book_ids, auto_conversion=False,  # {{{
 # }}}
 
 # Bulk convert {{{
+
+
 def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     total = len(book_ids)
     if total == 0:
@@ -145,6 +148,7 @@ def convert_bulk_ebook(parent, queue, db, book_ids, out_format=None, args=[]):
     use_saved_single_settings = d.opt_individual_saved_settings.isChecked()
     return QueueBulk(parent, book_ids, output_format, queue, db, user_recs,
             args, use_saved_single_settings=use_saved_single_settings)
+
 
 class QueueBulk(QProgressDialog):
 
@@ -260,6 +264,7 @@ class QueueBulk(QProgressDialog):
 
 # }}}
 
+
 def fetch_scheduled_recipe(arg):  # {{{
     fmt = prefs['output_format'].lower()
     # Never use AZW3 for periodicals...
@@ -309,6 +314,7 @@ def fetch_scheduled_recipe(arg):  # {{{
     return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
 
 # }}}
+
 
 def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     from calibre.gui2.dialogs.catalog import Catalog
@@ -369,6 +375,7 @@ def generate_catalog(parent, dbspec, ids, device_manager, db):  # {{{
     return 'gui_catalog', args, _('Generate catalog'), out.name, d.catalog_sync, \
             d.catalog_title
 # }}}
+
 
 def convert_existing(parent, db, book_ids, output_format):  # {{{
     already_converted_ids = []

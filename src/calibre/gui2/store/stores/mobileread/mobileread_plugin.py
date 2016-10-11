@@ -22,6 +22,7 @@ from calibre.gui2.store.stores.mobileread.cache_progress_dialog import CacheProg
 from calibre.gui2.store.stores.mobileread.cache_update_thread import CacheUpdateThread
 from calibre.gui2.store.stores.mobileread.store_dialog import MobileReadStoreDialog
 
+
 class MobileReadStore(BasicStoreConfig, StorePlugin):
 
     def __init__(self, *args, **kwargs):

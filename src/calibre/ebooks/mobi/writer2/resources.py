@@ -19,6 +19,7 @@ from calibre.utils.imghdr import what
 
 PLACEHOLDER_GIF = b'GIF89a\x01\x00\x01\x00\xf0\x00\x00\x00\x00\x00\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00!\xfe calibre-placeholder-gif-for-azw3\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'  # noqa
 
+
 class Resources(object):
 
     def __init__(self, oeb, opts, is_periodical, add_fonts=False,

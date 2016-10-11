@@ -15,6 +15,7 @@ from PyQt5.Qt import (QWidget, QVBoxLayout, QLabel, Qt, QPainter, QBrush, QRect,
 from calibre.gui2 import Dispatcher
 from calibre.gui2.progress_indicator import ProgressIndicator
 
+
 class LongJob(Thread):
 
     daemon = True
@@ -40,6 +41,7 @@ class LongJob(Thread):
             self.callback(self)
         finally:
             pass
+
 
 class BlockingJob(QWidget):
 

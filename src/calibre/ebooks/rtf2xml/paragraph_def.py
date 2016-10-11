@@ -14,6 +14,7 @@ import sys, os
 from calibre.ebooks.rtf2xml import copy, border_parse
 from calibre.ptempfile import better_mktemp
 
+
 class ParagraphDef:
     """
 =================
@@ -48,6 +49,7 @@ be closed:
 'mi<mk<para-start'  changes state to in_paragraphs
 if another paragraph_def is found, the state changes to collect_tokens.
     """
+
     def __init__(self,
         in_file,
         bug_handler,
@@ -71,6 +73,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__copy = copy
         self.__run_level = run_level
         self.__write_to = better_mktemp()
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -300,6 +303,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         'mi<mk<fldbk-end_'      : self.__stop_block_func,
         'mi<mk<lst-txbeg_'      : self.__stop_block_func,
         }
+
     def __before_1st_para_def_func(self, line):
         """
         Required:
@@ -314,11 +318,13 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__found_para_def_func()
         else:
             self.__write_obj.write(line)
+
     def __found_para_def_func(self):
         self.__state = 'collect_tokens'
         # not exactly right--have to reset the dictionary--give it default
         # values
         self.__reset_dict()
+
     def __collect_tokens_func(self, line):
         """
         Required:
@@ -350,12 +356,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
                 token = self.__token_dict.get(line[6:16])
                 if token:
                     self.__att_val_dict[token] = line[20:-1]
+
     def __tab_stop_func(self, line):
         """
         """
         self.__att_val_dict['tabs'] += '%s:' % self.__tab_type
         self.__att_val_dict['tabs'] += '%s;' % line[20:-1]
         self.__tab_type = 'left'
+
     def __tab_type_func(self, line):
         """
         """
@@ -366,6 +374,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
                 raise self.__bug_handler, msg
+
     def __tab_leader_func(self, line):
         """
         """
@@ -376,12 +385,14 @@ if another paragraph_def is found, the state changes to collect_tokens.
             if self.__run_level > 3:
                 msg = 'no entry for %s\n' % self.__token_info
                 raise self.__bug_handler, msg
+
     def __tab_bar_func(self, line):
         """
         """
         # self.__att_val_dict['tabs-bar'] += '%s:' % line[20:-1]
         self.__att_val_dict['tabs'] += 'bar:%s;' % (line[20:-1])
         self.__tab_type = 'left'
+
     def __parse_border(self, line):
         """
         Requires:
@@ -394,6 +405,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         """
         border_dict = self.__border_obj.parse_border(line)
         self.__att_val_dict.update(border_dict)
+
     def __para_def_in_para_def_func(self, line):
         """
         Requires:
@@ -407,6 +419,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         # Change this
         self.__state = 'collect_tokens'
         self.__reset_dict()
+
     def __end_para_def_func(self, line):
         """
         Requires:
@@ -422,6 +435,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_para_def_beg()
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
+
     def __start_para_after_def_func(self, line):
         """
         Requires:
@@ -438,6 +452,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_para_def_beg()
         self.__write_obj.write(line)
         self.__state = 'in_paragraphs'
+
     def __after_para_def_func(self, line):
         """
         Requires:
@@ -455,6 +470,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __in_paragraphs_func(self, line):
         """
         Requires:
@@ -469,6 +485,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __found_para_end_func(self,line):
         """
         Requires:
@@ -482,6 +499,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         """
         self.__state = 'after_para_end'
         self.__write_obj.write(line)
+
     def __after_para_end_func(self, line):
         """
         Requires:
@@ -505,6 +523,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         action = self.__after_para_end_dict.get(self.__token_info)
         if action:
             action(line)
+
     def __continue_block_func(self, line):
         """
         Requires:
@@ -521,6 +540,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_obj.write(self.__text_string)
         self.__text_string = ''
     # found a new paragraph definition after an end of a paragraph
+
     def __new_para_def_func(self, line):
         """
         Requires:
@@ -536,6 +556,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__write_para_def_end_func()
         self.__found_para_def_func()
     # after a paragraph and found reason to stop this block
+
     def __stop_block_func(self, line):
         """
         Requires:
@@ -550,6 +571,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         """
         self.__write_para_def_end_func()
         self.__state = 'after_para_def'
+
     def __write_para_def_end_func(self):
         """
         Requires:
@@ -571,6 +593,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
             self.__write_obj.write('mi<mk<font-end__\n')
         if 'caps' in keys:
             self.__write_obj.write('mi<mk<caps-end__\n')
+
     def __get_num_of_style(self):
         """
         Requires:
@@ -602,6 +625,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__att_val_dict['style-num'] = 's' + str(num)
         if new_style:
             self.__write_body_styles()
+
     def __write_body_styles(self):
         style_string = ''
         style_string += 'mi<tg<empty-att_<paragraph-style-in-body'
@@ -621,6 +645,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
                 style_string += ('<%s>%s' % (key, self.__att_val_dict[key]))
         style_string += '\n'
         self.__body_style_strings.append(style_string)
+
     def __write_para_def_beg(self):
         """
         Requires:
@@ -679,10 +704,12 @@ if another paragraph_def is found, the state changes to collect_tokens.
         if 'caps' in keys:
             value = self.__att_val_dict['caps']
             self.__write_obj.write('mi<mk<caps______<%s\n' % value)
+
     def __empty_table_element_func(self, line):
         self.__write_obj.write('mi<mk<in-table__\n')
         self.__write_obj.write(line)
         self.__state = 'after_para_def'
+
     def __reset_dict(self):
         """
         Requires:
@@ -703,6 +730,7 @@ if another paragraph_def is found, the state changes to collect_tokens.
         self.__att_val_dict['tabs-decimal'] = ''
         self.__att_val_dict['tabs-bar'] = ''
         self.__att_val_dict['tabs'] = ''
+
     def make_paragraph_def(self):
         """
         Requires:

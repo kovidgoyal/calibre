@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 from calibre.constants import isosx
 from calibre.gui2 import gprefs, native_menubar_defaults, config
 
+
 class RevealBar(QWidget):  # {{{
 
     def __init__(self, parent):
@@ -57,6 +58,7 @@ class RevealBar(QWidget):  # {{{
             painter.setClipRect(rect)
             painter.fillRect(self.rect(), col)
 # }}}
+
 
 class ToolBar(QToolBar):  # {{{
 
@@ -236,6 +238,7 @@ class ToolBar(QToolBar):  # {{{
             event.ignore()
 
 # }}}
+
 
 class MenuAction(QAction):  # {{{
 
@@ -464,6 +467,7 @@ else:
                     ac.setVisible(clone in self.location_manager.available_actions)
 
 # }}}
+
 
 class BarsManager(QObject):
 

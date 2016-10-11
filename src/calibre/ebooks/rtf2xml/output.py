@@ -13,10 +13,12 @@
 import sys, os
 # , codecs
 
+
 class Output:
     """
     Output file
     """
+
     def __init__(self,
             file,
             orig_file,

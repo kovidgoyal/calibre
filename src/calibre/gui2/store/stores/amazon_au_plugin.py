@@ -25,8 +25,10 @@ STORE_LINK =  'http://www.amazon.com.au'
 DRM_SEARCH_TEXT = 'Simultaneous Device Usage'
 DRM_FREE_TEXT = 'Unlimited'
 
+
 def get_user_agent():
     return 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+
 
 def search_amazon(query, max_results=10, timeout=60,
                   write_html_to=None,
@@ -36,6 +38,7 @@ def search_amazon(query, max_results=10, timeout=60,
                   ):
     uquery = base_query.copy()
     uquery[field_keywords] = query
+
     def asbytes(x):
         if isinstance(x, type('')):
             x = x.encode('utf-8')
@@ -109,6 +112,7 @@ def search_amazon(query, max_results=10, timeout=60,
             s.formats = 'Kindle'
 
             yield s
+
 
 class AmazonKindleStore(StorePlugin):
 

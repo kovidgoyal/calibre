@@ -40,6 +40,7 @@ from calibre.utils.mdns import (publish as publish_zeroconf, unpublish as
         unpublish_zeroconf, get_all_ips)
 from calibre.utils.socket_inheritance import set_socket_inherit
 
+
 def synchronous(tlockname):
     """A decorator to place an instance based lock around a method """
 
@@ -160,6 +161,7 @@ class SDBook(Book):
         Book.__init__(self, prefix, lpath, size=size, other=other)
         path = getattr(self, 'path', lpath)
         self.path = path.replace('\\', '/')
+
 
 class SMART_DEVICE_APP(DeviceConfig, DevicePlugin):
     name = 'SmartDevice App Interface'

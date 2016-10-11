@@ -9,6 +9,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import file_icon_provider
 
+
 class ChooseFormatDialog(QDialog):
 
     def __init__(self, window, msg, formats, show_open_with=False):

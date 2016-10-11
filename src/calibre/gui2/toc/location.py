@@ -20,6 +20,7 @@ from calibre.ebooks.oeb.display.webview import load_html
 from calibre.gui2 import error_dialog, question_dialog, gprefs
 from calibre.utils.logging import default_log
 
+
 class Page(QWebPage):  # {{{
 
     elem_clicked = pyqtSignal(object, object, object, object, object)
@@ -59,6 +60,7 @@ class Page(QWebPage):  # {{{
         self.evaljs(self.js)
 # }}}
 
+
 class WebView(QWebView):  # {{{
 
     elem_clicked = pyqtSignal(object, object, object, object, object)
@@ -94,6 +96,7 @@ class WebView(QWebView):  # {{{
             val = 0
         return val
 # }}}
+
 
 class ItemEdit(QWidget):
 

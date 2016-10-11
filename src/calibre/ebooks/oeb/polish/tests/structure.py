@@ -32,9 +32,11 @@ OPF_TEMPLATE = '''
     <guide>{guide}</guide>
 </package>''' % CALIBRE_PREFIX  # noqa
 
+
 def create_manifest_item(name, data=b'', properties=None):
     return (name, data, properties)
 cmi = create_manifest_item
+
 
 def create_epub(manifest, spine=(), guide=(), meta_cover=None, ver=3):
     mo = []

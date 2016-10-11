@@ -22,11 +22,13 @@ if iswindows:
                 ' corrupted windows. You should contact Microsoft'
                 ' for assistance and/or follow the steps described here: http://bytes.com/topic/net/answers/264804-compile-error-null-device-missing')
 
+
 def renice(niceness):
     try:
         os.nice(niceness)
     except:
         pass
+
 
 class Worker(object):
     '''

@@ -46,6 +46,7 @@ U_CHARS = Latin_ExtendedA + Latin_ExtendedB + IPA_Extensions + \
     Mathematical_Operators + Enclosed_Alphanumerics + Miscellaneous_Symbols + \
     Dingbats + Private_Use_Area + Alphabetic_Presentation_Forms
 
+
 def unipmlcode(char):
     try:
         val = ord(char.encode('cp1252'))

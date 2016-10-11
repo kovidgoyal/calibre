@@ -11,6 +11,7 @@ from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 ADOBE_OBFUSCATION =  'http://ns.adobe.com/pdf/enc#RC'
 IDPF_OBFUSCATION = 'http://www.idpf.org/2008/embedding'
 
+
 def decrypt_font_data(key, data, algorithm):
     is_adobe = algorithm == ADOBE_OBFUSCATION
     crypt_len = 1024 if is_adobe else 1040
@@ -19,10 +20,12 @@ def decrypt_font_data(key, data, algorithm):
     decrypt = bytes(bytearray(x^key.next() for x in crypt))
     return decrypt + data[crypt_len:]
 
+
 def decrypt_font(key, path, algorithm):
     with open(path, 'r+b') as f:
         data = decrypt_font_data(key, f.read(), algorithm)
         f.seek(0), f.truncate(), f.write(data)
+
 
 class EPUBInput(InputFormatPlugin):
 
@@ -198,6 +201,7 @@ class EPUBInput(InputFormatPlugin):
 
     def find_opf(self):
         from lxml import etree
+
         def attr(n, attr):
             for k, v in n.attrib.items():
                 if k.endswith(attr):

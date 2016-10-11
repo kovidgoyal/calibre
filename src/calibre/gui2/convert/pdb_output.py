@@ -9,6 +9,7 @@ from calibre.gui2.convert import Widget
 
 format_model = None
 
+
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('PDB Output')

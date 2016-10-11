@@ -8,12 +8,14 @@ Conversion to EPUB.
 '''
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 
+
 def rules(stylesheets):
     for s in stylesheets:
         if hasattr(s, 'cssText'):
             for r in s:
                 if r.type == r.STYLE_RULE:
                     yield r
+
 
 def initialize_container(path_to_container, opf_name='metadata.opf',
         extra_entries=[]):

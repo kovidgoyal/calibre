@@ -35,6 +35,7 @@ REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.MULTILINE | r
 
 # The search panel {{{
 
+
 class AnimatablePushButton(QPushButton):
 
     'A push button that can be animated without actually emitting a clicked signal'
@@ -53,11 +54,13 @@ class AnimatablePushButton(QPushButton):
         self.setDown(False)
         self.update()
 
+
 class PushButton(AnimatablePushButton):
 
     def __init__(self, text, action, parent):
         AnimatablePushButton.__init__(self, text, parent)
         self.clicked.connect(lambda : parent.search_triggered.emit(action))
+
 
 def expand_template(line_edit):
     pos = line_edit.cursorPosition()
@@ -75,6 +78,7 @@ def expand_template(line_edit):
         line_edit.setCursorPosition(pos - l + string_length(text))
         return True
     return False
+
 
 class HistoryBox(HistoryComboBox):
 
@@ -113,6 +117,7 @@ class HistoryBox(HistoryComboBox):
         self.disable_popup = not bool(self.disable_popup)
         tprefs['disable_completion_popup_for_search'] = self.disable_popup
 
+
 class WhereBox(QComboBox):
 
     def __init__(self, parent, emphasize=False):
@@ -145,8 +150,10 @@ class WhereBox(QComboBox):
     @dynamic_property
     def where(self):
         wm = {0:'current', 1:'text', 2:'styles', 3:'selected', 4:'open', 5:'selected-text'}
+
         def fget(self):
             return wm[self.currentIndex()]
+
         def fset(self, val):
             self.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
         return property(fget=fget, fset=fset)
@@ -161,6 +168,7 @@ class WhereBox(QComboBox):
         if self.emphasize:
             self.setFont(self.emph_font)
         QComboBox.hidePopup(self)
+
 
 class DirectionBox(QComboBox):
 
@@ -181,9 +189,11 @@ class DirectionBox(QComboBox):
     def direction(self):
         def fget(self):
             return 'down' if self.currentIndex() == 0 else 'up'
+
         def fset(self, val):
             self.setCurrentIndex(1 if val == 'up' else 0)
         return property(fget=fget, fset=fset)
+
 
 class ModeBox(QComboBox):
 
@@ -205,6 +215,7 @@ class ModeBox(QComboBox):
     def mode(self):
         def fget(self):
             return ('normal', 'regex', 'function')[self.currentIndex()]
+
         def fset(self, val):
             self.setCurrentIndex({'regex':1, 'function':2}.get(val, 0))
         return property(fget=fget, fset=fset)
@@ -348,6 +359,7 @@ class SearchWidget(QWidget):
     def mode(self):
         def fget(self):
             return self.mode_box.mode
+
         def fset(self, val):
             self.mode_box.mode = val
             self.da.setVisible(self.mode in ('regex', 'function'))
@@ -357,6 +369,7 @@ class SearchWidget(QWidget):
     def find(self):
         def fget(self):
             return unicode(self.find_text.text())
+
         def fset(self, val):
             self.find_text.setText(val)
         return property(fget=fget, fset=fset)
@@ -367,6 +380,7 @@ class SearchWidget(QWidget):
             if self.mode == 'function':
                 return self.functions.text()
             return unicode(self.replace_text.text())
+
         def fset(self, val):
             self.replace_text.setText(val)
         return property(fget=fget, fset=fset)
@@ -375,6 +389,7 @@ class SearchWidget(QWidget):
     def where(self):
         def fget(self):
             return self.where_box.where
+
         def fset(self, val):
             self.where_box.where = val
         return property(fget=fget, fset=fset)
@@ -383,6 +398,7 @@ class SearchWidget(QWidget):
     def case_sensitive(self):
         def fget(self):
             return self.cs.isChecked()
+
         def fset(self, val):
             self.cs.setChecked(bool(val))
         return property(fget=fget, fset=fset)
@@ -391,6 +407,7 @@ class SearchWidget(QWidget):
     def direction(self):
         def fget(self):
             return self.direction_box.direction
+
         def fset(self, val):
             self.direction_box.direction = val
         return property(fget=fget, fset=fset)
@@ -399,6 +416,7 @@ class SearchWidget(QWidget):
     def wrap(self):
         def fget(self):
             return self.wr.isChecked()
+
         def fset(self, val):
             self.wr.setChecked(bool(val))
         return property(fget=fget, fset=fset)
@@ -407,6 +425,7 @@ class SearchWidget(QWidget):
     def dot_all(self):
         def fget(self):
             return self.da.isChecked()
+
         def fset(self, val):
             self.da.setChecked(bool(val))
         return property(fget=fget, fset=fset)
@@ -415,6 +434,7 @@ class SearchWidget(QWidget):
     def state(self):
         def fget(self):
             return {x:getattr(self, x) for x in self.DEFAULT_STATE}
+
         def fset(self, val):
             for x in self.DEFAULT_STATE:
                 if x in val:
@@ -438,6 +458,7 @@ class SearchWidget(QWidget):
 # }}}
 
 regex_cache = {}
+
 
 class SearchPanel(QWidget):  # {{{
 
@@ -497,6 +518,7 @@ class SearchPanel(QWidget):  # {{{
             return QWidget.keyPressEvent(self, ev)
 # }}}
 
+
 class SearchDescription(QScrollArea):
 
     def __init__(self, parent):
@@ -507,6 +529,7 @@ class SearchDescription(QScrollArea):
         self.label.setTextFormat(Qt.PlainText)
         self.label.setWordWrap(True)
         self.set_text = self.label.setText
+
 
 class SearchesModel(QAbstractListModel):
 
@@ -564,6 +587,7 @@ class SearchesModel(QAbstractListModel):
             del self.searches[idx]
         tprefs['saved_searches'] = self.searches
         self.do_filter('')
+
 
 class EditSearch(QFrame):  # {{{
 
@@ -762,12 +786,14 @@ class EditSearch(QFrame):  # {{{
 
 # }}}
 
+
 class SearchDelegate(QStyledItemDelegate):
 
     def sizeHint(self, *args):
         ans = QStyledItemDelegate.sizeHint(self, *args)
         ans.setHeight(ans.height() + 4)
         return ans
+
 
 class SavedSearches(QWidget):
 
@@ -905,6 +931,7 @@ class SavedSearches(QWidget):
     def state(self):
         def fget(self):
             return {'wrap':self.wrap, 'direction':self.direction, 'where':self.where}
+
         def fset(self, val):
             self.wrap, self.where, self.direction = val['wrap'], val['where'], val['direction']
         return property(fget=fget, fset=fset)
@@ -938,6 +965,7 @@ class SavedSearches(QWidget):
     def where(self):
         def fget(self):
             return self.where_box.where
+
         def fset(self, val):
             self.where_box.where = val
         return property(fget=fget, fset=fset)
@@ -946,6 +974,7 @@ class SavedSearches(QWidget):
     def direction(self):
         def fget(self):
             return self.direction_box.direction
+
         def fset(self, val):
             self.direction_box.direction = val
         return property(fget=fget, fset=fset)
@@ -954,6 +983,7 @@ class SavedSearches(QWidget):
     def wrap(self):
         def fget(self):
             return self.wr.isChecked()
+
         def fset(self, val):
             self.wr.setChecked(bool(val))
         return property(fget=fget, fset=fset)
@@ -1095,6 +1125,7 @@ class SavedSearches(QWidget):
             with open(path[0], 'rb') as f:
                 obj = json.loads(f.read())
             needed_keys = {'name', 'find', 'replace', 'case_sensitive', 'dot_all', 'mode'}
+
             def err():
                 error_dialog(self, _('Invalid data'), _(
                     'The file %s does not contain valid saved searches') % path, show=True)
@@ -1139,6 +1170,7 @@ class SavedSearches(QWidget):
             with open(path, 'wb') as f:
                 f.write(raw.encode('utf-8'))
 
+
 def validate_search_request(name, searchable_names, has_marked_text, state, gui_parent):
     err = None
     where = state['where']
@@ -1156,11 +1188,13 @@ def validate_search_request(name, searchable_names, has_marked_text, state, gui_
         return False
     return True
 
+
 class InvalidRegex(regex.error):
 
     def __init__(self, raw, e):
         regex.error.__init__(self, e.message)
         self.regex = raw
+
 
 def get_search_regex(state):
     raw = state['find']
@@ -1182,6 +1216,7 @@ def get_search_regex(state):
             raise InvalidRegex(raw, e)
 
     return ans
+
 
 def initialize_search_request(state, action, current_editor, current_editor_name, searchable_names):
     editor = None
@@ -1218,8 +1253,10 @@ def initialize_search_request(state, action, current_editor, current_editor_name
 
     return editor, where, files, do_all, marked
 
+
 class NoSuchFunction(ValueError):
     pass
+
 
 def get_search_function(search):
     ans = search['replace']
@@ -1232,6 +1269,7 @@ def get_search_function(search):
             raise NoSuchFunction(ans)
     return ans
 
+
 def show_function_debug_output(func):
     if isinstance(func, Function):
         val = func.debug_buf.getvalue().strip()
@@ -1240,10 +1278,12 @@ def show_function_debug_output(func):
             from calibre.gui2.tweak_book.boss import get_boss
             get_boss().gui.sr_debug_output.show_log(func.name, val)
 
+
 def reorder_files(names, order):
     reverse = order in {'spine-reverse', 'reverse-spine'}
     spine_order = {name:i for i, (name, is_linear) in enumerate(current_container().spine_names)}
     return sorted(frozenset(names), key=spine_order.get, reverse=reverse)
+
 
 def run_search(
     searches, action, current_editor, current_editor_name, searchable_names,

@@ -21,6 +21,7 @@ from calibre.gui2.widgets2 import HistoryComboBox
 
 # UI {{{
 
+
 class ModeBox(QComboBox):
 
     def __init__(self, parent):
@@ -39,9 +40,11 @@ class ModeBox(QComboBox):
     def mode(self):
         def fget(self):
             return ('normal', 'regex')[self.currentIndex()]
+
         def fset(self, val):
             self.setCurrentIndex({'regex':1}.get(val, 0))
         return property(fget=fget, fset=fset)
+
 
 class WhereBox(QComboBox):
 
@@ -71,8 +74,10 @@ class WhereBox(QComboBox):
     @dynamic_property
     def where(self):
         wm = {0:'current', 1:'text', 2:'selected', 3:'open'}
+
         def fget(self):
             return wm[self.currentIndex()]
+
         def fset(self, val):
             self.setCurrentIndex({v:k for k, v in wm.iteritems()}[val])
         return property(fget=fget, fset=fset)
@@ -134,6 +139,7 @@ class TextSearch(QWidget):
     def state(self):
         def fget(self):
             return {'mode': self.mode.mode, 'where':self.where_box.where, 'case_sensitive':self.cs.isChecked(), 'dot_all':self.da.isChecked()}
+
         def fset(self, val):
             self.mode.mode = val.get('mode', 'normal')
             self.where_box.where = val.get('where', 'current')
@@ -150,6 +156,7 @@ class TextSearch(QWidget):
         state['direction'] = direction
         self.find_text.emit(state)
 # }}}
+
 
 def run_text_search(search, current_editor, current_editor_name, searchable_names, gui_parent, show_editor, edit_file):
     try:
@@ -184,6 +191,7 @@ def run_text_search(search, current_editor, current_editor_name, searchable_name
 
     msg = '<p>' + _('No matches were found for %s') % ('<pre style="font-style:italic">' + prepare_string_for_xml(search['find']) + '</pre>')
     return error_dialog(gui_parent, _('Not found'), msg, show=True)
+
 
 def find_text_in_chunks(pat, chunks):
     text = ''.join(x[0] for x in chunks)

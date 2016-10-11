@@ -13,6 +13,7 @@ from calibre.ebooks.oeb.base import urlnormalize
 from calibre.utils.fonts.sfnt.subset import subset, NoGlyphs, UnsupportedFont
 from tinycss.fonts3 import parse_font_family
 
+
 def get_font_properties(rule, default=None):
     '''
     Given a CSS rule, extract normalized font properties from

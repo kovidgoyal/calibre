@@ -26,8 +26,10 @@ from calibre.gui2.search_box import SearchBox2
 
 ROOT = QModelIndex()
 
+
 class NameConflict(ValueError):
     pass
+
 
 def keysequence_from_event(ev):  # {{{
     k, mods = ev.key(), int(ev.modifiers())
@@ -43,6 +45,7 @@ def keysequence_from_event(ev):  # {{{
         mods = mods & ~Qt.SHIFT
     return QKeySequence(k | mods)
 # }}}
+
 
 def finalize(shortcuts, custom_keys_map={}):  # {{{
     '''
@@ -86,6 +89,7 @@ def finalize(shortcuts, custom_keys_map={}):  # {{{
     return keys_map
 
 # }}}
+
 
 class Manager(QObject):  # {{{
 
@@ -159,6 +163,7 @@ class Manager(QObject):  # {{{
 
 # Model {{{
 
+
 class Node(object):
 
     def __init__(self, group_map, shortcut_map, name=None, shortcut=None):
@@ -178,6 +183,7 @@ class Node(object):
     def __iter__(self):
         for child in self.children:
             yield child
+
 
 class ConfigModel(SearchQueryParser, QAbstractItemModel):
 
@@ -359,6 +365,7 @@ class ConfigModel(SearchQueryParser, QAbstractItemModel):
             yield node.data
 
 # }}}
+
 
 class Editor(QFrame):  # {{{
 
@@ -613,6 +620,7 @@ class Delegate(QStyledItemDelegate):  # {{{
             self.sizeHintChanged.emit(idx)
 
 # }}}
+
 
 class ShortcutConfig(QWidget):  # {{{
 

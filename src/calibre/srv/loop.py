@@ -29,6 +29,7 @@ from calibre.utils.mdns import get_external_ip
 READ, WRITE, RDWR, WAIT = 'READ', 'WRITE', 'RDWR', 'WAIT'
 WAKEUP, JOB_DONE = bytes(bytearray(xrange(2)))
 
+
 class ReadBuffer(object):  # {{{
 
     ' A ring buffer used to speed up the readline() implementation by minimizing recv() calls '
@@ -115,6 +116,7 @@ class ReadBuffer(object):  # {{{
                     self.full_state = WRITE
         return ans
     # }}}
+
 
 class Connection(object):  # {{{
 
@@ -293,6 +295,7 @@ class Connection(object):  # {{{
     def handle_timeout(self):
         return False
 # }}}
+
 
 class ServerLoop(object):
 
@@ -624,6 +627,7 @@ class ServerLoop(object):
             if pool.workers:
                 self.log.warn('Failed to shutdown %d workers in %s cleanly' % (len(pool.workers), pool.__class__.__name__))
         self.jobs_manager.wait_for_shutdown(wait_till)
+
 
 class EchoLine(Connection):  # {{{
 

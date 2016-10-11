@@ -26,8 +26,10 @@ XPath = functools.partial(_XPath, namespaces=NAMESPACES)
 
 SPLIT_POINT_ATTR = 'csp'
 
+
 def tostring(root):
     return etree.tostring(root, encoding='utf-8')
+
 
 class SplitError(ValueError):
 
@@ -37,6 +39,7 @@ class SplitError(ValueError):
             _('Could not find reasonable point at which to split: '
                 '%(path)s Sub-tree size: %(size)d KB')%dict(
                             path=path, size=size))
+
 
 class Split(object):
 

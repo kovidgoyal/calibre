@@ -32,6 +32,7 @@ Widgets = namedtuple('Widgets', 'new old label button')
 
 # Widgets {{{
 
+
 class LineEdit(EditWithComplete):
 
     changed = pyqtSignal()
@@ -60,6 +61,7 @@ class LineEdit(EditWithComplete):
                     val = val.strip(ism['list_to_ui'].strip())
                     val = [x.strip() for x in val.split(ism['list_to_ui']) if x.strip()]
             return val
+
         def fset(self, val):
             ism = self.metadata['is_multiple']
             if ism:
@@ -87,6 +89,7 @@ class LineEdit(EditWithComplete):
     def current_val(self):
         def fget(self):
             return unicode(self.text())
+
         def fset(self, val):
             self.setText(val)
             self.setCursorPosition(0)
@@ -120,6 +123,7 @@ class LanguagesEdit(LE):
     def current_val(self):
         def fget(self):
             return self.lang_codes
+
         def fset(self, val):
             self.lang_codes = val
         return property(fget=fget, fset=fset)
@@ -136,6 +140,7 @@ class LanguagesEdit(LE):
 
     def same_as(self, other):
         return self.current_val == other.current_val
+
 
 class RatingsEdit(RatingEdit):
 
@@ -160,6 +165,7 @@ class RatingsEdit(RatingEdit):
 
     def same_as(self, other):
         return self.current_val == other.current_val
+
 
 class DateEdit(PubdateEdit):
 
@@ -187,6 +193,7 @@ class DateEdit(PubdateEdit):
 
     def same_as(self, other):
         return self.text() == other.text()
+
 
 class SeriesEdit(LineEdit):
 
@@ -225,6 +232,7 @@ class SeriesEdit(LineEdit):
         sidx = fmt_sidx(num)
         self.setText(self.text() + ' [%s]' % sidx)
 
+
 class IdentifiersEdit(LineEdit):
 
     def from_mi(self, mi):
@@ -238,11 +246,13 @@ class IdentifiersEdit(LineEdit):
         def fget(self):
             parts = (x.strip() for x in self.current_val.split(',') if x.strip())
             return {k:v for k, v in {x.partition(':')[0].strip():x.partition(':')[-1].strip() for x in parts}.iteritems() if k and v}
+
         def fset(self, val):
             val = ('%s:%s' % (k, v) for k, v in val.iteritems())
             self.setText(', '.join(val))
             self.setCursorPosition(0)
         return property(fget=fget, fset=fset)
+
 
 class CommentsEdit(Editor):
 
@@ -263,6 +273,7 @@ class CommentsEdit(Editor):
     def current_val(self):
         def fget(self):
             return self.html
+
         def fset(self, val):
             self.html = val or ''
             self.changed.emit()
@@ -284,6 +295,7 @@ class CommentsEdit(Editor):
 
     def same_as(self, other):
         return self.current_val == other.current_val
+
 
 class CoverView(QWidget):
 
@@ -307,6 +319,7 @@ class CoverView(QWidget):
     def current_val(self):
         def fget(self):
             return self.pixmap
+
         def fset(self, val):
             self.pixmap = val
             self.changed.emit()
@@ -372,6 +385,7 @@ class CoverView(QWidget):
             p.drawText(sztgt, flags, sz)
         p.end()
 # }}}
+
 
 class CompareSingle(QWidget):
 
@@ -516,6 +530,7 @@ class CompareSingle(QWidget):
                 widgets.new.to_mi(self.current_mi)
                 changed = True
         return changed
+
 
 class CompareMany(QDialog):
 

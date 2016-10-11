@@ -19,6 +19,7 @@ from calibre.customize.ui import (all_metadata_plugins, is_disabled,
         enable_plugin, disable_plugin, default_disabled_plugins)
 from calibre.gui2 import error_dialog, question_dialog
 
+
 class SourcesModel(QAbstractTableModel):  # {{{
 
     def __init__(self, parent=None):
@@ -145,6 +146,7 @@ class SourcesModel(QAbstractTableModel):  # {{{
 
 # }}}
 
+
 class FieldsModel(QAbstractListModel):  # {{{
 
     def __init__(self, parent=None):
@@ -255,6 +257,7 @@ class FieldsModel(QAbstractListModel):  # {{{
 
 # }}}
 
+
 class PluginConfig(QWidget):  # {{{
 
     finished = pyqtSignal()
@@ -289,6 +292,7 @@ class PluginConfig(QWidget):  # {{{
     def commit(self):
         self.plugin.save_settings(self.config_widget)
 # }}}
+
 
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 

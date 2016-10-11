@@ -28,6 +28,7 @@ from calibre.utils.imghdr import identify
 from calibre.utils.date import qt_to_dt
 from calibre.db import _get_next_series_num_for_list
 
+
 def get_cover_data(stream, ext):  # {{{
     from calibre.ebooks.metadata.meta import get_metadata
     old = prefs['read_file_metadata']
@@ -61,6 +62,7 @@ Settings = namedtuple('Settings',
     'restore_original comments generate_cover_settings')
 
 null = object()
+
 
 class MyBlockingBusy(QDialog):  # {{{
 
@@ -138,6 +140,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.do_swap_ta:
             title_map = cache.all_field_for('title', self.ids)
             authors_map = cache.all_field_for('authors', self.ids)
+
             def new_title(authors):
                 ans = authors_to_string(authors)
                 return titlecase(ans) if args.do_title_case else ans
@@ -153,6 +156,7 @@ class MyBlockingBusy(QDialog):  # {{{
         if args.do_title_sort:
             lang_map = cache.all_field_for('languages', self.ids)
             title_map = cache.all_field_for('title', self.ids)
+
             def get_sort(book_id):
                 if args.languages:
                     lang = args.languages[0]
@@ -291,6 +295,7 @@ class MyBlockingBusy(QDialog):  # {{{
                     self.refresh_books.update(self.db.new_api.set_field(field, book_id_val_map))
 
 # }}}
+
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
 

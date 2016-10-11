@@ -10,6 +10,7 @@ Device driver for the Nuut2
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class NUUT2(USBMS):
 
     name           = 'Nuut2 Device Interface'

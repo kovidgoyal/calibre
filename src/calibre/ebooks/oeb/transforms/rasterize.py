@@ -23,10 +23,13 @@ from calibre.utils.imghdr import what
 IMAGE_TAGS = set([XHTML('img'), XHTML('object')])
 KEEP_ATTRS = set(['class', 'style', 'width', 'height', 'align'])
 
+
 class Unavailable(Exception):
     pass
 
+
 class SVGRasterizer(object):
+
     def __init__(self, base_css=''):
         self.base_css = base_css
         from calibre.gui2 import must_use_qt

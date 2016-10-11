@@ -8,6 +8,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
+
 class DOCXInput(InputFormatPlugin):
     name        = 'DOCX Input'
     author      = 'Kovid Goyal'

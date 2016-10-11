@@ -52,6 +52,7 @@ from calibre.gui2.dbus_export.widgets import factory
 from calibre.gui2.open_with import register_keyboard_shortcuts
 from calibre.library import current_library_name
 
+
 class Listener(Thread):  # {{{
 
     def __init__(self, listener):
@@ -85,8 +86,10 @@ class Listener(Thread):  # {{{
 
 _gui = None
 
+
 def get_gui():
     return _gui
+
 
 def add_quick_start_guide(library_view, refresh_cover_browser=None):
     from calibre.ebooks.metadata.meta import get_metadata
@@ -922,6 +925,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         # We cannot restore the original excepthook as that causes PyQt to
         # call abort() on unhandled exceptions
         import traceback
+
         def eh(t, v, tb):
             try:
                 traceback.print_exception(t, v, tb, file=sys.stderr)

@@ -18,16 +18,21 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre import CurrentDir, walk
 from calibre.constants import isosx
 
+
 class EPubException(Exception):
     pass
+
 
 class OCFException(EPubException):
     pass
 
+
 class ContainerException(OCFException):
     pass
 
+
 class Container(dict):
+
     def __init__(self, stream=None):
         if not stream:
             return
@@ -46,6 +51,7 @@ class Container(dict):
             except KeyError:
                 raise EPubException("<rootfile/> element malformed")
 
+
 class OCF(object):
     MIMETYPE        = 'application/epub+zip'
     CONTAINER_PATH  = 'META-INF/container.xml'
@@ -53,6 +59,7 @@ class OCF(object):
 
     def __init__(self):
         raise NotImplementedError('Abstract base class')
+
 
 class Encryption(object):
 
@@ -78,6 +85,7 @@ class Encryption(object):
 
 
 class OCFReader(OCF):
+
     def __init__(self):
         try:
             mimetype = self.open('mimetype').read().rstrip()
@@ -121,6 +129,7 @@ class OCFReader(OCF):
 
 
 class OCFZipReader(OCFReader):
+
     def __init__(self, stream, mode='r', root=None):
         if isinstance(stream, (LocalZipFile, ZipFile)):
             self.archive = stream
@@ -146,6 +155,7 @@ class OCFZipReader(OCFReader):
     def read_bytes(self, name):
         return self.archive.read(name)
 
+
 def get_zip_reader(stream, root=None):
     try:
         zf = ZipFile(stream, mode='r')
@@ -154,13 +164,16 @@ def get_zip_reader(stream, root=None):
         zf = LocalZipFile(stream)
     return OCFZipReader(zf, root=root)
 
+
 class OCFDirReader(OCFReader):
+
     def __init__(self, path):
         self.root = path
         super(OCFDirReader, self).__init__()
 
     def open(self, path, *args, **kwargs):
         return open(os.path.join(self.root, path), *args, **kwargs)
+
 
 def render_cover(cpage, zf, reader=None):
     from calibre.ebooks import render_html_svg_workaround
@@ -212,6 +225,7 @@ def render_cover(cpage, zf, reader=None):
 
             return render_html_svg_workaround(cpage, default_log)
 
+
 def get_cover(raster_cover, first_spine_item, reader):
     zf = reader.archive
 
@@ -230,6 +244,7 @@ def get_cover(raster_cover, first_spine_item, reader):
             return data
 
     return render_cover(first_spine_item, zf, reader=reader)
+
 
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a :class:`Metadata` object """
@@ -253,12 +268,15 @@ def get_metadata(stream, extract_cover=True):
     mi.timestamp = None
     return mi
 
+
 def get_quick_metadata(stream):
     return get_metadata(stream, False)
+
 
 def serialize_cover_data(new_cdata, cpath):
     from calibre.utils.img import save_cover_data_to
     return save_cover_data_to(new_cdata, data_fmt=os.path.splitext(cpath)[1][1:])
+
 
 def set_metadata(stream, mi, apply_null=False, update_timestamp=False, force_identifiers=False, add_missing_cover=True):
     stream.seek(0)

@@ -27,6 +27,8 @@ from calibre.utils.img import image_from_x, blend_image
 from calibre.utils.localization import is_rtl
 
 _css = None
+
+
 def css():
     global _css
     if _css is None:
@@ -89,6 +91,7 @@ def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=No
                 % (table, right_pane))
     return ans
 
+
 def get_field_list(fm, use_defaults=False):
     from calibre.gui2.ui import get_gui
     db = get_gui().current_db
@@ -109,6 +112,7 @@ def get_field_list(fm, use_defaults=False):
     available = frozenset(fm.displayable_field_keys())
     return [(f, d) for f, d in fieldlist if f in available]
 
+
 def render_data(mi, use_roman_numbers=True, all_fields=False):
     field_list = get_field_list(getattr(mi, 'field_metadata', field_metadata))
     field_list = [(x, all_fields or display) for x, display in field_list]
@@ -116,6 +120,7 @@ def render_data(mi, use_roman_numbers=True, all_fields=False):
                       rating_font=rating_font(), default_author_link=gprefs.get('default_author_link'))
 
 # }}}
+
 
 def details_context_menu_event(view, ev, book_info):  # {{{
     p = view.page()
@@ -209,6 +214,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
     if len(menu.actions()) > 0:
         menu.exec_(ev.globalPos())
 # }}}
+
 
 class CoverView(QWidget):  # {{{
 
@@ -414,6 +420,7 @@ class CoverView(QWidget):  # {{{
 
 # Book Info {{{
 
+
 class BookInfo(QWebView):
 
     link_clicked = pyqtSignal(object)
@@ -618,6 +625,7 @@ class DetailsLayout(QLayout):  # {{{
             details.setGeometry(QRect(x, y, r.width() - cw - 5, r.height()))
 
 # }}}
+
 
 class BookDetails(QWidget):  # {{{
 

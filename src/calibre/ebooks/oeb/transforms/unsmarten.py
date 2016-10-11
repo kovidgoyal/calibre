@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.ebooks.oeb.base import OEB_DOCS, XPath, barename
 from calibre.utils.unsmarten import unsmarten_text
 
+
 class UnsmartenPunctuation(object):
 
     def __init__(self):

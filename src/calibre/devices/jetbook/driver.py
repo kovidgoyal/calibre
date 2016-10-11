@@ -15,6 +15,7 @@ import sys
 from calibre.devices.usbms.driver import USBMS
 from calibre.ebooks.metadata import string_to_authors
 
+
 class JETBOOK(USBMS):
     name           = 'Ectaco JetBook Device Interface'
     description    = _('Communicate with the JetBook eBook reader.')
@@ -81,6 +82,7 @@ class JETBOOK(USBMS):
 
         return mi
 
+
 class MIBUK(USBMS):
 
     name           = 'MiBuk Wolder Device Interface'
@@ -97,6 +99,7 @@ class MIBUK(USBMS):
 
     VENDOR_NAME      = ['LINUX', 'FILE_BAC']
     WINDOWS_MAIN_MEM = WINDOWS_CARD_A_MEM = ['WOLDERMIBUK', 'KED_STORAGE_GADG']
+
 
 class JETBOOK_MINI(USBMS):
 
@@ -123,6 +126,7 @@ class JETBOOK_MINI(USBMS):
     MAIN_MEMORY_VOLUME_LABEL  = 'Jetbook Mini'
 
     SUPPORTS_SUB_DIRS = True
+
 
 class JETBOOK_COLOR(USBMS):
 

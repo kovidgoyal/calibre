@@ -18,8 +18,10 @@ from calibre.utils.localization import get_lang
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.imghdr import what
 
+
 def sanitize_file_name(x):
     return re.sub(r'[?&=;]', '_', ascii_filename(x))
+
 
 class HTMLInput(InputFormatPlugin):
 

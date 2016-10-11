@@ -49,6 +49,7 @@ default_entry = {
                     'image_attribution': None,
 }
 
+
 def read_ncx(sections, index, codec):
     index_entries = []
 
@@ -79,6 +80,7 @@ def read_ncx(sections, index, codec):
             index_entries.append(entry)
 
     return index_entries
+
 
 def build_toc(index_entries):
     ans = TOC(base_path=os.getcwdu())

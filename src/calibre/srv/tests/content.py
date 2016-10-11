@@ -15,10 +15,12 @@ from calibre.srv.tests.base import LibraryBaseTest
 from calibre.utils.imghdr import identify
 from calibre.utils.shared_file import share_open
 
+
 def setUpModule():
     # Needed for cover generation
     from calibre.gui2 import ensure_app, load_builtin_fonts
     ensure_app(), load_builtin_fonts()
+
 
 class ContentTest(LibraryBaseTest):
 

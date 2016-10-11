@@ -15,6 +15,7 @@ from calibre.devices.prs505 import MEDIA_XML, MEDIA_EXT, CACHE_XML, CACHE_EXT, \
 from calibre import __appname__, prints
 from calibre.devices.usbms.books import CollectionsBookList
 
+
 class PRS505(USBMS):
 
     name           = 'SONY Device Interface'

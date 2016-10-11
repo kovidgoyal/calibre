@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class USER_DEFINED(USBMS):
 
     name           = 'User Defined USB driver'

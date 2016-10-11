@@ -8,6 +8,7 @@ from calibre.ebooks.metadata import MetaInformation, string_to_authors
 
 MAGIC = '\xb0\x0c\xb0\x0c\x02\x00NUVO\x00\x00\x00\x00'
 
+
 def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
     title = 'Unknown'

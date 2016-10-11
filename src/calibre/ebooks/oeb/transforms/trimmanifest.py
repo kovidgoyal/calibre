@@ -11,7 +11,9 @@ from urlparse import urldefrag
 from calibre.ebooks.oeb.base import CSS_MIME, OEB_DOCS
 from calibre.ebooks.oeb.base import urlnormalize, iterlinks
 
+
 class ManifestTrimmer(object):
+
     @classmethod
     def config(cls, cfg):
         return cfg

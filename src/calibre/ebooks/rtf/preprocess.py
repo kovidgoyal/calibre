@@ -14,33 +14,43 @@ At this point this will tokenize a RTF file then rebuild it from the tokens.
 In the process the UTF8 tokens are altered to be supported by the RTF2XML and also remain RTF specification compilant.
 """
 
+
 class tokenDelimitatorStart():
 
     def __init__(self):
         pass
+
     def toRTF(self):
         return b'{'
+
     def __repr__(self):
         return '{'
+
 
 class tokenDelimitatorEnd():
 
     def __init__(self):
         pass
+
     def toRTF(self):
         return b'}'
+
     def __repr__(self):
         return '}'
+
 
 class tokenControlWord():
 
     def __init__(self, name, separator=''):
         self.name = name
         self.separator = separator
+
     def toRTF(self):
         return self.name + self.separator
+
     def __repr__(self):
         return self.name + self.separator
+
 
 class tokenControlWordWithNumericArgument():
 
@@ -48,47 +58,62 @@ class tokenControlWordWithNumericArgument():
         self.name = name
         self.argument = argument
         self.separator = separator
+
     def toRTF(self):
         return self.name + repr(self.argument) + self.separator
+
     def __repr__(self):
         return self.name + repr(self.argument) + self.separator
+
 
 class tokenControlSymbol():
 
     def __init__(self, name):
         self.name = name
+
     def toRTF(self):
         return self.name
+
     def __repr__(self):
         return self.name
+
 
 class tokenData():
 
     def __init__(self, data):
         self.data = data
+
     def toRTF(self):
         return self.data
+
     def __repr__(self):
         return self.data
+
 
 class tokenBinN():
 
     def __init__(self, data, separator=''):
         self.data = data
         self.separator = separator
+
     def toRTF(self):
         return "\\bin" + repr(len(self.data)) + self.separator + self.data
+
     def __repr__(self):
         return "\\bin" + repr(len(self.data)) + self.separator + self.data
+
 
 class token8bitChar():
 
     def __init__(self, data):
         self.data = data
+
     def toRTF(self):
         return "\\'" + self.data
+
     def __repr__(self):
         return "\\'" + self.data
+
 
 class tokenUnicode():
 
@@ -97,6 +122,7 @@ class tokenUnicode():
         self.separator = separator
         self.current_ucn = current_ucn
         self.eqList = eqList
+
     def toRTF(self):
         result = '\\u' + repr(self.data) + ' '
         ucn = self.current_ucn
@@ -109,6 +135,7 @@ class tokenUnicode():
                 break
             result = result + eq.toRTF()
         return result
+
     def __repr__(self):
         return '\\u' + repr(self.data)
 
@@ -116,11 +143,14 @@ class tokenUnicode():
 def isAsciiLetter(value):
     return ((value >= 'a') and (value <= 'z')) or ((value >= 'A') and (value <= 'Z'))
 
+
 def isDigit(value):
     return (value >= '0') and (value <= '9')
 
+
 def isChar(value, char):
     return value == char
+
 
 def isString(buffer, string):
     return buffer == string

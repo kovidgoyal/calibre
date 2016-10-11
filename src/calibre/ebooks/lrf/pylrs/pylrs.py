@@ -58,11 +58,14 @@ DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 from calibre import __appname__, __version__
 from calibre import entity_to_unicode
 
+
 class LrsError(Exception):
     pass
 
+
 class ContentError(Exception):
     pass
+
 
 def _checkExists(filename):
     if not os.path.exists(filename):
@@ -136,6 +139,7 @@ def appendTextElements(e, contentsList, se):
 
 class Delegator(object):
     """ A mixin class to create delegated methods that create elements. """
+
     def __init__(self, delegates):
         self.delegates = delegates
         self.delegatedMethods = []
@@ -218,6 +222,7 @@ class Delegator(object):
 
 class LrsAttributes(object):
     """ A mixin class to handle default and user supplied attributes. """
+
     def __init__(self, defaults, alsoAllow=None, **settings):
         if alsoAllow is None:
             alsoAllow = []
@@ -235,6 +240,7 @@ class LrsContainer(object):
     """ This class is a mixin class for elements that are contained in or
         contain an unknown number of other elements.
     """
+
     def __init__(self, validChildren):
         self.parent = None
         self.contents = []
@@ -560,6 +566,7 @@ class Book(Delegator):
 
         old_base_font_size = float(max(fonts.items(), key=operator.itemgetter(1))[0])
         factor = base_font_size / old_base_font_size
+
         def rescale(old):
             return str(int(int(old) * factor))
 
@@ -625,6 +632,7 @@ class Book(Delegator):
 
 class BookInformation(Delegator):
     """ Just a container for the Info and TableOfContents elements. """
+
     def __init__(self):
         Delegator.__init__(self, [Info(), TableOfContents()])
 
@@ -636,6 +644,7 @@ class BookInformation(Delegator):
 
 class Info(Delegator):
     """ Just a container for the BookInfo and DocInfo elements. """
+
     def __init__(self):
         self.genreading = DEFAULT_GENREADING
         Delegator.__init__(self, [BookInfo(), DocInfo()])
@@ -940,6 +949,7 @@ class Template(object):
         # does nothing
         pass
 
+
 class StyleDefault(LrsAttributes):
     """
         Supply some defaults for all TextBlocks.
@@ -1079,6 +1089,7 @@ class BookSetting(LrsAttributes):
 
 class LrsStyle(LrsObject, LrsAttributes, LrsContainer):
     """ A mixin class for styles. """
+
     def __init__(self, elementName, defaults=None, alsoAllow=None, **overrides):
         if defaults is None:
             defaults = {}
@@ -1116,6 +1127,7 @@ class LrsStyle(LrsObject, LrsAttributes, LrsContainer):
         if hasattr(other, 'attrs'):
             return self.__class__ == other.__class__ and self.attrs == other.attrs
         return False
+
 
 class TextStyle(LrsStyle):
     """
@@ -1477,6 +1489,7 @@ class Paragraph(LrsContainer):
         the things that can go in it.)  It's less confusing (to me) to use
         explicit .append methods to build up the text stream.
     """
+
     def __init__(self, text=None):
         LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
                                      LrsSimpleChar1, basestring])
@@ -1620,8 +1633,10 @@ class Button(LrsObject, LrsContainer):
 
         return b
 
+
 class ButtonBlock(Button):
     pass
+
 
 class PushButton(LrsContainer):
 
@@ -1635,6 +1650,7 @@ class PushButton(LrsContainer):
             b.append(content.toElement(se))
 
         return b
+
 
 class JumpTo(LrsContainer):
 
@@ -1690,8 +1706,10 @@ class Plot(LrsSimpleChar1, LrsContainer):
                   Plot.ADJUSTMENT_VALUES[adj])
         parent.appendLrfTag(LrfTag("Plot", params))
 
+
 class Text(LrsContainer):
     """ A object that represents raw text.  Does not have a toElement. """
+
     def __init__(self, text):
         LrsContainer.__init__(self, [])
         self.text = text
@@ -1712,6 +1730,7 @@ class CR(LrsSimpleChar1, LrsContainer):
         A line break (when appended to a Paragraph) or a paragraph break
         (when appended to a TextBlock).
     """
+
     def __init__(self):
         LrsContainer.__init__(self, [])
 
@@ -1726,6 +1745,7 @@ class Italic(LrsSimpleChar1, LrsTextTag):
 
     def __init__(self, text=None):
         LrsTextTag.__init__(self, text, [LrsSimpleChar1])
+
 
 class Sub(LrsSimpleChar1, LrsTextTag):
 
@@ -1769,6 +1789,7 @@ class Box(LrsSimpleChar1, LrsContainer):
         Draw a box around text.  Unfortunately, does not seem to do
         anything on the PRS-500.
     """
+
     def __init__(self, linetype="solid"):
         LrsContainer.__init__(self, [Text, basestring])
         if linetype not in LINE_TYPE_ENCODING:
@@ -1848,6 +1869,7 @@ class Span(LrsSimpleChar1, LrsContainer):
         appendTextElements(element, self.contents, se)
         return element
 
+
 class EmpLine(LrsTextTag, LrsSimpleChar1):
     emplinetypes = ['none', 'solid', 'dotted', 'dashed', 'double']
     emplinepositions = ['before', 'after']
@@ -1879,11 +1901,13 @@ class EmpLine(LrsTextTag, LrsSimpleChar1):
         appendTextElements(element, self.contents, se)
         return element
 
+
 class Bold(Span):
     """
         There is no known "bold" lrf tag. Use Span with a fontweight in LRF,
         but use the word Bold in the LRS.
     """
+
     def __init__(self, text=None):
         Span.__init__(self, text, fontweight=800)
 
@@ -1895,6 +1919,7 @@ class Bold(Span):
 
 class BlockSpace(LrsContainer):
     """ Can be appended to a page to move the text point. """
+
     def __init__(self, xspace=0, yspace=0, x=0, y=0):
         LrsContainer.__init__(self, [])
         if xspace == 0 and x != 0:
@@ -1928,6 +1953,7 @@ class CharButton(LrsSimpleChar1, LrsContainer):
 
         Only text or SimpleChars can be appended to the CharButton.
     """
+
     def __init__(self, button, text=None):
         LrsContainer.__init__(self, [basestring, Text, LrsSimpleChar1])
         self.button = None
@@ -2037,6 +2063,7 @@ class JumpButton(LrsObject, LrsContainer):
         Actually creates several elements in the XML.  JumpButtons must
         be eventually appended to a Book (actually, an Object.)
     """
+
     def __init__(self, textBlock):
         LrsObject.__init__(self)
         LrsContainer.__init__(self, [])
@@ -2139,6 +2166,7 @@ class Header(HeaderOrFooter):
 
 class Footer(HeaderOrFooter):
     pass
+
 
 class Canvas(LrsObject, LrsContainer, LrsAttributes):
     defaults = dict(framemode="square", layout="LrTb", framewidth="0",
@@ -2266,6 +2294,7 @@ class ImageStream(LrsObject, LrsContainer):
         element.text = self.comment
         return element
 
+
 class Image(LrsObject, LrsContainer, LrsAttributes):
 
     defaults = dict()
@@ -2383,6 +2412,7 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
 
 class Font(LrsContainer):
     """ Allows a TrueType file to be embedded in an Lrf. """
+
     def __init__(self, file=None, fontname=None, fontfilename=None, encoding=None):
         LrsContainer.__init__(self, [])
         try:

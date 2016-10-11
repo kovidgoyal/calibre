@@ -17,6 +17,7 @@ from PyQt5.Qt import (
 
 from calibre.gui2 import error_dialog
 
+
 class CreateCustomColumn(QDialog):
 
     # Note: in this class, we are treating is_multiple as the boolean that

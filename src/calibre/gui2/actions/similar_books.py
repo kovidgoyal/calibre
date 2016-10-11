@@ -11,6 +11,7 @@ from PyQt5.Qt import QToolButton
 
 from calibre.gui2.actions import InterfaceAction
 
+
 class SimilarBooksAction(InterfaceAction):
 
     name = 'Similar Books'

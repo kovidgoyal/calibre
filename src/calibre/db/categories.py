@@ -17,6 +17,7 @@ from calibre.utils.icu import sort_key, collation_order
 
 CATEGORY_SORTS = ('name', 'popularity', 'rating')  # This has to be a tuple not a set
 
+
 class Tag(object):
 
     __slots__ = ('name', 'original_name', 'id', 'count', 'state', 'is_hierarchical',
@@ -51,6 +52,7 @@ class Tag(object):
     def __repr__(self):
         return str(self)
 
+
 def find_categories(field_metadata):
     for category, cat in field_metadata.iteritems():
         if (cat['is_category'] and cat['kind'] not in {'user', 'search'}):
@@ -58,6 +60,7 @@ def find_categories(field_metadata):
         elif (cat['datatype'] == 'composite' and
               cat['display'].get('make_category', False)):
             yield (category, cat['is_multiple'].get('cache_to_list', None), True)
+
 
 def create_tag_class(category, fm):
     cat = fm[category]
@@ -76,6 +79,7 @@ def create_tag_class(category, fm):
 
     return partial(Tag, use_sort_as_name=use_sort_as_name,
                    is_editable=is_editable, category=category)
+
 
 def clean_user_categories(dbcache):
     user_cats = dbcache.pref('user_categories', {})
@@ -107,6 +111,7 @@ category_sort_keys[True]['name'] = \
     lambda x:(collation_order(icu_upper(x.sort or x.name or ' ')), sort_key(x.sort or x.name))
 category_sort_keys[False]['name'] = \
     lambda x:sort_key(x.sort or x.name)
+
 
 def get_categories(dbcache, sort='name', book_ids=None, first_letter_sort=False):
     if sort not in CATEGORY_SORTS:

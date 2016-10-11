@@ -35,6 +35,7 @@ non_printing = {
 
 # Searching {{{
 
+
 def load_search_index():
     topchar = 0x10ffff
     ver = (1, topchar, icu_unicode_version or unicodedata.unidata_version)  # Increment this when you make any changes to the index
@@ -64,6 +65,7 @@ def load_search_index():
 
 _index = None
 
+
 def search_for_chars(query, and_tokens=False):
     global _index
     if _index is None:
@@ -83,6 +85,7 @@ def search_for_chars(query, and_tokens=False):
                 ans |= chars
     return sorted(ans)
 # }}}
+
 
 class CategoryModel(QAbstractItemModel):
 
@@ -467,6 +470,7 @@ class CategoryModel(QAbstractItemModel):
             category = subcategory = _('Unknown')
         return category, subcategory, (character_name_from_code(char_code) or _('Unknown'))
 
+
 class CategoryDelegate(QStyledItemDelegate):
 
     def __init__(self, parent=None):
@@ -477,6 +481,7 @@ class CategoryDelegate(QStyledItemDelegate):
         if not index.parent().isValid():
             ans += QSize(0, 6)
         return ans
+
 
 class CategoryView(QTreeView):
 
@@ -518,6 +523,7 @@ class CategoryView(QTreeView):
             self._delegate = CategoryDelegate(self)
             self.setItemDelegate(self._delegate)
             self.initialized = True
+
 
 class CharModel(QAbstractListModel):
 
@@ -568,6 +574,7 @@ class CharModel(QAbstractListModel):
         tprefs['charmap_favorites'] = list(self.chars)
         return True
 
+
 class CharDelegate(QStyledItemDelegate):
 
     def __init__(self, parent=None):
@@ -604,6 +611,7 @@ class CharDelegate(QStyledItemDelegate):
         painter.drawText(option.rect, Qt.AlignCenter | Qt.TextWordWrap | Qt.TextWrapAnywhere, text)
         painter.setPen(QPen(Qt.DashLine))
         painter.drawRect(option.rect.adjusted(1, 1, -1, -1))
+
 
 class CharView(QListView):
 
@@ -717,6 +725,7 @@ class CharView(QListView):
             self.model().beginResetModel()
             self.model().chars.remove(char_code)
             self.model().endResetModel()
+
 
 class CharSelect(Dialog):
 

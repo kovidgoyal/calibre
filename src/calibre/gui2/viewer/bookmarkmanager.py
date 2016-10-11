@@ -15,6 +15,7 @@ from PyQt5.Qt import (
 from calibre.gui2 import choose_save_file, choose_files
 from calibre.utils.icu import sort_key
 
+
 class BookmarksList(QListWidget):
 
     changed = pyqtSignal()
@@ -174,6 +175,7 @@ class BookmarkManager(QWidget):
 
     def sort_by_pos(self):
         from calibre.ebooks.epub.cfi.parse import cfi_sort_key
+
         def pos_key(b):
             if b.get('type', None) == 'cfi':
                 return b['spine'], cfi_sort_key(b['pos'])

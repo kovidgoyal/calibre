@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 class Recipe(object):
     pass
 
+
 def get_download_filename_from_response(response):
     from urlparse import urlparse
     from urllib2 import unquote as urllib2_unquote

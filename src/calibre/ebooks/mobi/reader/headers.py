@@ -19,6 +19,7 @@ from calibre.utils.config_base import tweaks
 
 NULL_INDEX = 0xffffffff
 
+
 class EXTHHeader(object):  # {{{
 
     def __init__(self, raw, codec, title):
@@ -167,6 +168,7 @@ class EXTHHeader(object):  # {{{
         #    print 'unhandled metadata record', idx, repr(content)
 # }}}
 
+
 class BookHeader(object):
 
     def __init__(self, raw, ident, user_encoding, log, try_extra_data_fix=False):
@@ -265,6 +267,7 @@ class BookHeader(object):
             else:  # Null values
                 self.skelidx = self.dividx = self.othidx = self.fdstidx = \
                         NULL_INDEX
+
 
 class MetadataHeader(BookHeader):
 

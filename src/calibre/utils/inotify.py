@@ -8,14 +8,18 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, errno, select
 
+
 class INotifyError(Exception):
     pass
+
 
 class NoSuchDir(ValueError):
     pass
 
+
 class BaseDirChanged(ValueError):
     pass
+
 
 class DirTooLarge(ValueError):
 
@@ -23,6 +27,7 @@ class DirTooLarge(ValueError):
         ValueError.__init__(self, 'The directory {0} is too large to monitor. Try increasing the value in /proc/sys/fs/inotify/max_user_watches'.format(bdir))
 
 _inotify = None
+
 
 def load_inotify():  # {{{
     ''' Initialize the inotify ctypes wrapper '''
@@ -64,6 +69,7 @@ def load_inotify():  # {{{
         _inotify = (init1, add_watch, rm_watch, read)
     return _inotify
 # }}}
+
 
 class INotify(object):
 
@@ -196,8 +202,10 @@ class INotify(object):
         'Return True iff there are events waiting to be read. Blocks if timeout is None. Polls if timeout is 0.'
         return len((select.select([self._inotify_fd], [], []) if timeout is None else select.select([self._inotify_fd], [], [], timeout))[0]) > 0
 
+
 def realpath(path):
     return os.path.abspath(os.path.realpath(path))
+
 
 class INotifyTreeWatcher(INotify):
 

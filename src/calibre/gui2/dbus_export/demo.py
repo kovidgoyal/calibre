@@ -17,8 +17,10 @@ from calibre.gui2.dbus_export.widgets import factory
 
 setup_for_cli_run()
 
+
 def make_checkable(ac, checked=True):
     ac.setCheckable(True), ac.setChecked(checked)
+
 
 class MainWindow(QMainWindow):
 

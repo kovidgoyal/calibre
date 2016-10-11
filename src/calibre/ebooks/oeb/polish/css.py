@@ -36,6 +36,7 @@ def filter_used_rules(rules, log, select):
         if not used:
             yield rule
 
+
 def get_imported_sheets(name, container, sheets, recursion_level=10, sheet=None):
     ans = set()
     sheet = sheet or sheets[name]
@@ -186,6 +187,7 @@ def remove_unused_css(container, report=None, remove_unused_classes=False, merge
         report(_('No style rules that could be merged found'))
     return num_changes > 0
 
+
 def filter_declaration(style, properties=()):
     changed = False
     for prop in properties:
@@ -203,6 +205,7 @@ def filter_declaration(style, properties=()):
                 for prop in set(normalized) - removed - all_props:
                     style.setProperty(prop, normalized[prop])
     return changed
+
 
 def filter_sheet(sheet, properties=()):
     from cssutils.css import CSSRule
@@ -262,6 +265,7 @@ def transform_css(container, transform_sheet=None, transform_style=None, names=(
 
     return doc_changed
 
+
 def filter_css(container, properties, names=()):
     '''
     Remove the specified CSS properties from all CSS rules in the book.
@@ -273,6 +277,7 @@ def filter_css(container, properties, names=()):
     return transform_css(container, transform_sheet=partial(filter_sheet, properties=properties),
                          transform_style=partial(filter_declaration, properties=properties), names=names)
 
+
 def _classes_in_selector(selector, classes):
     for attr in ('selector', 'subselector', 'parsed_tree'):
         s = getattr(selector, attr, None)
@@ -281,6 +286,7 @@ def _classes_in_selector(selector, classes):
     cn = getattr(selector, 'class_name', None)
     if cn is not None:
         classes.add(cn)
+
 
 def classes_in_selector(text):
     classes = set()
@@ -291,6 +297,7 @@ def classes_in_selector(text):
         pass
     return classes
 
+
 def classes_in_rule_list(css_rules):
     classes = set()
     for rule in css_rules:
@@ -299,6 +306,7 @@ def classes_in_rule_list(css_rules):
         elif hasattr(rule, 'cssRules'):
             classes |= classes_in_rule_list(rule.cssRules)
     return classes
+
 
 def iter_declarations(sheet_or_rule):
     if hasattr(sheet_or_rule, 'cssRules'):
@@ -309,6 +317,7 @@ def iter_declarations(sheet_or_rule):
         yield sheet_or_rule.style
     elif isinstance(sheet_or_rule, CSSStyleDeclaration):
         yield sheet_or_rule
+
 
 def remove_property_value(prop, predicate):
     ''' Remove the Values that match the predicate from this property. If all
@@ -328,6 +337,7 @@ def remove_property_value(prop, predicate):
 
 
 RULE_PRIORITIES = {t:i for i, t in enumerate((CSSRule.COMMENT, CSSRule.CHARSET_RULE, CSSRule.IMPORT_RULE, CSSRule.NAMESPACE_RULE))}
+
 
 def sort_sheet(container, sheet_or_text):
     ''' Sort the rules in a stylesheet. Note that in the general case this can

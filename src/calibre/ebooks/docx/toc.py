@@ -13,12 +13,14 @@ from lxml.etree import tostring
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
 
+
 class Count(object):
 
     __slots__ = ('val',)
 
     def __init__(self):
         self.val = 0
+
 
 def from_headings(body, log, namespace):
     ' Create a TOC from headings in the document '
@@ -61,6 +63,7 @@ def from_headings(body, log, namespace):
         log('Generating Table of Contents from headings')
         return tocroot
 
+
 def structure_toc(entries):
     indent_vals = sorted({x.indent for x in entries})
     last_found = [None for i in indent_vals]
@@ -88,6 +91,7 @@ def structure_toc(entries):
 
     return newtoc
 
+
 def link_to_txt(a, styles, object_map):
     if len(a) > 1:
         for child in a:
@@ -98,6 +102,7 @@ def link_to_txt(a, styles, object_map):
                     a.remove(child)
 
     return tostring(a, method='text', with_tail=False, encoding=unicode).strip()
+
 
 def from_toc(docx, link_map, styles, object_map, log, namespace):
     XPath, get, ancestor = namespace.XPath, namespace.get, namespace.ancestor
@@ -136,6 +141,7 @@ def from_toc(docx, link_map, styles, object_map, log, namespace):
     if toc:
         log('Found Word Table of Contents, using it to generate the Table of Contents')
         return structure_toc(toc)
+
 
 def create_toc(docx, body, link_map, styles, object_map, log, namespace):
     return from_toc(docx, link_map, styles, object_map, log, namespace) or from_headings(body, log, namespace)

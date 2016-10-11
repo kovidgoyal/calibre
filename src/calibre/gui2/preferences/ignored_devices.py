@@ -13,6 +13,7 @@ from PyQt5.Qt import (QLabel, QVBoxLayout, QListWidget, QListWidgetItem, Qt,
 from calibre.customize.ui import enable_plugin
 from calibre.gui2.preferences import ConfigWidgetBase, test_widget
 
+
 class ConfigWidget(ConfigWidgetBase):
 
     restart_critical = False

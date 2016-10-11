@@ -10,6 +10,7 @@ from PyQt5.Qt import QDialog
 
 from calibre.gui2.store.stores.mobileread.cache_progress_dialog_ui import Ui_Dialog
 
+
 class CacheProgressDialog(QDialog, Ui_Dialog):
 
     def __init__(self, parent=None, total=None):

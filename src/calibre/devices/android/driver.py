@@ -13,6 +13,7 @@ from calibre.devices.usbms.driver import USBMS
 
 HTC_BCDS = [0x100, 0x0222, 0x0224, 0x0226, 0x227, 0x228, 0x229, 0x0231, 0x9999]
 
+
 class ANDROID(USBMS):
 
     name           = 'Android driver'
@@ -339,6 +340,7 @@ class ANDROID(USBMS):
         del proxy['use_subdirs']
         del proxy['extra_customization']
 
+
 class S60(USBMS):
 
     name = 'S60 driver'
@@ -357,6 +359,7 @@ class S60(USBMS):
 
     VENDOR_NAME = 'NOKIA'
     WINDOWS_MAIN_MEM = 'S60'
+
 
 class WEBOS(USBMS):
 

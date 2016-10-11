@@ -20,6 +20,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.config import JSONConfig
 from calibre.utils.localization import localize_user_manual_link
 
+
 class RuleEdit(QWidget):  # {{{
 
     MSG = _('Create the rule below, the rule can be used to transform style properties')
@@ -151,12 +152,14 @@ class RuleEdit(QWidget):  # {{{
         return True
 # }}}
 
+
 class RuleEditDialog(RuleEditDialogBase):  # {{{
 
     PREFS_NAME = 'edit-css-transform-rule'
     DIALOG_TITLE = _('Edit rule')
     RuleEditClass = RuleEdit
 # }}}
+
 
 class RuleItem(RuleItemBase):  # {{{
 
@@ -178,6 +181,7 @@ class RuleItem(RuleItemBase):  # {{{
         return text
 # }}}
 
+
 class Rules(RulesBase):  # {{{
 
     RuleItemClass = RuleItem
@@ -186,6 +190,7 @@ class Rules(RulesBase):  # {{{
     MSG = _('You can specify rules to transform styles here. Click the "Add Rule" button'
             ' below to get started.')
 # }}}
+
 
 class Tester(Dialog):  # {{{
 
@@ -233,6 +238,7 @@ class Tester(Dialog):  # {{{
         return QSize(800, 600)
 # }}}
 
+
 class RulesDialog(RulesDialogBase):  # {{{
 
     DIALOG_TITLE = _('Edit style transform rules')
@@ -246,6 +252,7 @@ class RulesDialog(RulesDialogBase):  # {{{
         self.PREFS_OBJECT = JSONConfig('style-transform-rules')
         RulesDialogBase.__init__(self, *args, **kw)
 # }}}
+
 
 class RulesWidget(QWidget, SaveLoadMixin):  # {{{
 

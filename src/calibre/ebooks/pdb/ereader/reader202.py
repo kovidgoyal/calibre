@@ -15,6 +15,7 @@ from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.pdb.formatreader import FormatReader
 from calibre.ebooks.pdb.ereader import EreaderError
 
+
 class HeaderRecord(object):
     '''
     The first record in the file is always the header record. It holds

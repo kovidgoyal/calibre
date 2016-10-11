@@ -19,6 +19,7 @@ ENCODING_PATS = [
 ]
 ENTITY_PATTERN = re.compile(r'&(\S+?);')
 
+
 def strip_encoding_declarations(raw, limit=50*1024):
     prefix = raw[:limit]
     suffix = raw[limit:]
@@ -27,10 +28,12 @@ def strip_encoding_declarations(raw, limit=50*1024):
     raw = prefix + suffix
     return raw
 
+
 def replace_encoding_declarations(raw, enc='utf-8', limit=50*1024):
     prefix = raw[:limit]
     suffix = raw[limit:]
     changed = [False]
+
     def sub(m):
         ans = m.group()
         if m.group(1).lower() != enc.lower():
@@ -44,12 +47,14 @@ def replace_encoding_declarations(raw, enc='utf-8', limit=50*1024):
     raw = prefix + suffix
     return raw, changed[0]
 
+
 def find_declared_encoding(raw, limit=50*1024):
     prefix = raw[:limit]
     for pat in ENCODING_PATS:
         m = pat.search(prefix)
         if m is not None:
             return m.group(1)
+
 
 def substitute_entites(raw):
     from calibre import xml_entity_to_unicode
@@ -58,9 +63,11 @@ def substitute_entites(raw):
 _CHARSET_ALIASES = {"macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis"}
 
+
 def detect(*args, **kwargs):
     from chardet import detect
     return detect(*args, **kwargs)
+
 
 def force_encoding(raw, verbose, assume_utf8=False):
     from calibre.constants import preferred_encoding
@@ -82,6 +89,7 @@ def force_encoding(raw, verbose, assume_utf8=False):
     if encoding == 'ascii':
         encoding = 'utf-8'
     return encoding
+
 
 def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
     if not raw or isinstance(raw, unicode):
@@ -113,6 +121,7 @@ def detect_xml_encoding(raw, verbose=False, assume_utf8=False):
         encoding = 'utf-8'
 
     return raw, encoding
+
 
 def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False,
                    resolve_entities=False, assume_utf8=False):

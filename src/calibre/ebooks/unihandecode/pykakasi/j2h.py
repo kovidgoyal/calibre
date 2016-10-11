@@ -24,6 +24,7 @@
 from calibre.ebooks.unihandecode.pykakasi.jisyo import jisyo
 import re
 
+
 class J2H (object):
 
     kanwa = None

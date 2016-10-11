@@ -10,6 +10,7 @@ from PyQt5.Qt import QLineEdit
 
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 
+
 class TemplateLineEditor(QLineEdit):
 
     '''

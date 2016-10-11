@@ -18,6 +18,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.zipfile import ZipFile
 from calibre import prepare_string_for_xml
 
+
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a L{MetaInfo} object """
     mi = MetaInformation(_('Unknown'), [_('Unknown')])
@@ -60,6 +61,7 @@ def get_metadata(stream, extract_cover=True):
             mi.isbn = re.sub('[\x00-\x1f]', '', prepare_string_for_xml(m.group(1).strip().decode('cp1252', 'replace')))
 
     return mi
+
 
 def get_cover(name, tdir, top_level=False):
     cover_path = ''

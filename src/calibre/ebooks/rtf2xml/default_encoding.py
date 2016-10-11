@@ -57,6 +57,7 @@ Codepages as to RTF 1.9.1:
 '''
 import re
 
+
 class DefaultEncoding:
     """
     Find the default encoding for the doc

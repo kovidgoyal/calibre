@@ -37,6 +37,7 @@ from calibre.library.save_to_disk import find_plugboard
 from calibre.ptempfile import PersistentTemporaryFile, force_unicode as filename_to_unicode
 # }}}
 
+
 class DeviceJob(BaseJob):  # {{{
 
     def __init__(self, func, done, job_manager, args=[], kwargs={},
@@ -116,10 +117,12 @@ class DeviceJob(BaseJob):  # {{{
 
     # }}}
 
+
 def device_name_for_plugboards(device_class):
     if hasattr(device_class, 'DEVICE_PLUGBOARD_NAME'):
         return device_class.DEVICE_PLUGBOARD_NAME
     return device_class.__class__.__name__
+
 
 class BusyCursor(object):
 
@@ -685,6 +688,7 @@ class DeviceManager(Thread):  # {{{
 
     # }}}
 
+
 class DeviceAction(QAction):  # {{{
 
     a_s = pyqtSignal(object)
@@ -703,6 +707,7 @@ class DeviceAction(QAction):  # {{{
         return self.__class__.__name__ + ':%s:%s:%s'%(self.dest, self.delete,
                 self.specific)
     # }}}
+
 
 class DeviceMenu(QMenu):  # {{{
 
@@ -853,6 +858,7 @@ class DeviceMenu(QMenu):  # {{{
 
     # }}}
 
+
 class DeviceSignals(QObject):  # {{{
     #: This signal is emitted once, after metadata is downloaded from the
     #: connected device.
@@ -871,6 +877,7 @@ class DeviceSignals(QObject):  # {{{
 
 device_signals = DeviceSignals()
 # }}}
+
 
 class DeviceMixin(object):  # {{{
 
@@ -1364,6 +1371,7 @@ class DeviceMixin(object):  # {{{
     @dynamic_property
     def news_to_be_synced(self):
         doc = 'Set of ids to be sent to device'
+
         def fget(self):
             ans = []
             try:
@@ -1764,6 +1772,7 @@ class DeviceMixin(object):  # {{{
             return False
 
         string_pat = re.compile('(?u)\W|[_]')
+
         def clean_string(x):
             x = x.lower() if x else ''
             return string_pat.sub('', x)

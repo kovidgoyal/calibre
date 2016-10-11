@@ -20,6 +20,7 @@ from calibre.utils.icu import sort_key
 SIMPLE_GET = frozenset(STANDARD_METADATA_FIELDS - TOP_LEVEL_IDENTIFIERS)
 SIMPLE_SET = frozenset(SIMPLE_GET - {'identifiers'})
 
+
 def human_readable(size, precision=2):
     """ Convert a size in bytes into megabytes """
     return ('%.'+str(precision)+'f'+ 'MB') % ((size/(1024.*1024.)),)
@@ -42,12 +43,14 @@ NULL_VALUES = {
 
 field_metadata = FieldMetadata()
 
+
 def reset_field_metadata():
     global field_metadata
     field_metadata = FieldMetadata()
 
 ck = lambda typ: icu_lower(typ).strip().replace(':', '').replace(',', '')
 cv = lambda val: val.strip().replace(',', '|')
+
 
 class Metadata(object):
 
@@ -706,6 +709,7 @@ class Metadata(object):
         from calibre.utils.date import isoformat
         from calibre.ebooks.metadata import authors_to_string
         ans = []
+
         def fmt(x, y):
             ans.append(u'%-20s: %s'%(unicode(x), unicode(y)))
 
@@ -786,6 +790,7 @@ class Metadata(object):
         return bool(self.title or self.author or self.comments or self.tags)
 
     # }}}
+
 
 def field_from_string(field, raw, field_metadata):
     ''' Parse the string raw to return an object that is suitable for calling

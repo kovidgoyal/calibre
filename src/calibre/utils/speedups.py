@@ -7,6 +7,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 
 import os
 
+
 class ReadOnlyFileBuffer(object):
 
     ''' A zero copy implementation of a file like object. Uses memoryviews for efficiency. '''
@@ -42,6 +43,7 @@ class ReadOnlyFileBuffer(object):
 
     def close(self):
         pass
+
 
 def svg_path_to_painter_path(d):
     '''

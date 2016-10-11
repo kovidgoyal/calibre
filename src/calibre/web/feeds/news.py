@@ -32,11 +32,14 @@ from calibre.utils.img import save_cover_data_to, add_borders_to_image, image_to
 from calibre.utils.localization import canonicalize_lang
 from calibre.utils.logging import ThreadSafeWrapper
 
+
 class LoginFailed(ValueError):
     pass
 
+
 class DownloadDenied(ValueError):
     pass
+
 
 class BasicNewsRecipe(Recipe):
     '''
@@ -1706,6 +1709,7 @@ class BasicNewsRecipe(Recipe):
                                 log.debug('Resolved internal URL: %s -> %s' % (url, arelpath))
                                 seen.add(url)
 
+
 class CustomIndexRecipe(BasicNewsRecipe):
 
     def custom_index(self):
@@ -1738,9 +1742,11 @@ class CustomIndexRecipe(BasicNewsRecipe):
         self.create_opf()
         return res
 
+
 class AutomaticNewsRecipe(BasicNewsRecipe):
 
     auto_cleanup = True
+
 
 class CalibrePeriodical(BasicNewsRecipe):
 

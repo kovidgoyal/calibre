@@ -46,6 +46,7 @@ def add_fonts(parent):
 
     return families
 
+
 def writing_system_for_font(font):
     has_latin = True
     systems = QFontDatabase().writingSystems(font.family())
@@ -84,6 +85,7 @@ def writing_system_for_font(font):
         system = systems[-1]
 
     return system, has_latin
+
 
 class FontFamilyDelegate(QStyledItemDelegate):
 
@@ -143,6 +145,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
                 r.setLeft(r.left() + w)
             painter.drawText(r, Qt.AlignVCenter|Qt.AlignLeading|Qt.TextSingleLine, sample)
 
+
 class Typefaces(QLabel):
 
     def __init__(self, parent=None):
@@ -175,6 +178,7 @@ class Typefaces(QLabel):
                     weight=font['font-weight'], style=font['font-style']))
         msg = msg.format('\n\n'.join(entries))
         self.setText(msg)
+
 
 class FontsView(QListView):
 
@@ -319,6 +323,7 @@ class FontFamilyDialog(QDialog):
         self.faces.show_family(fam, self.font_scanner.fonts_for_family(fam)
                 if fam else None)
 
+
 class FontFamilyChooser(QWidget):
 
     family_changed = pyqtSignal(object)
@@ -351,6 +356,7 @@ class FontFamilyChooser(QWidget):
     def font_family(self):
         def fget(self):
             return self._current_family
+
         def fset(self, val):
             if not val:
                 val = None
@@ -363,6 +369,7 @@ class FontFamilyChooser(QWidget):
         d = FontFamilyDialog(self.font_family, self)
         if d.exec_() == d.Accepted:
             self.font_family = d.font_family
+
 
 def test():
     app = QApplication([])

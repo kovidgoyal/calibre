@@ -16,11 +16,13 @@ from calibre.ebooks.metadata import title_sort
 from calibre.utils.config_base import tweaks, prefs
 from calibre.db.write import uniq
 
+
 def sanitize_sort_field_name(field_metadata, field):
     field = field_metadata.search_term_to_field_key(field.lower().strip())
     # translate some fields to their hidden equivalent
     field = {'title': 'sort', 'authors':'author_sort'}.get(field, field)
     return field
+
 
 class MarkedVirtualField(object):
 
@@ -34,6 +36,7 @@ class MarkedVirtualField(object):
     def sort_keys_for_books(self, get_metadata, lang_map):
         g = self.marked_ids.get
         return lambda book_id:g(book_id, None)
+
 
 class TableRow(object):
 
@@ -57,6 +60,7 @@ class TableRow(object):
         for i in xrange(self.column_count):
             yield self[i]
 
+
 def format_is_multiple(x, sep=',', repl=None):
     if not x:
         return None
@@ -64,10 +68,12 @@ def format_is_multiple(x, sep=',', repl=None):
         x = (y.replace(sep, repl) for y in x)
     return sep.join(x)
 
+
 def format_identifiers(x):
     if not x:
         return None
     return ','.join('%s:%s'%(k, v) for k, v in x.iteritems())
+
 
 class View(object):
 

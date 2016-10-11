@@ -10,6 +10,7 @@ from calibre.customize.conversion import (OutputFormatPlugin,
         OptionRecommendation)
 from calibre import CurrentDir
 
+
 class OEBOutput(OutputFormatPlugin):
 
     name = 'OEB Output'

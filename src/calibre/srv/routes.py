@@ -16,6 +16,7 @@ from calibre.srv.utils import http_date
 
 default_methods = frozenset(('HEAD', 'GET'))
 
+
 def json(ctx, rd, endpoint, output):
     rd.outheaders.set('Content-Type', 'application/json; charset=UTF-8', replace_all=True)
     if isinstance(output, bytes) or hasattr(output, 'fileno'):
@@ -26,8 +27,10 @@ def json(ctx, rd, endpoint, output):
             ans = ans.encode('utf-8')
     return ans
 
+
 def route_key(route):
     return route.partition('{')[0].rstrip('/')
+
 
 def endpoint(route,
              methods=default_methods,
@@ -50,6 +53,7 @@ def endpoint(route,
 ):
     from calibre.srv.handler import Context
     from calibre.srv.http_response import RequestData
+
     def annotate(f):
         f.route = route.rstrip('/') or '/'
         f.route_key = route_key(f.route)
@@ -75,6 +79,7 @@ def endpoint(route,
         return f
     return annotate
 
+
 class Route(object):
 
     var_pat = None
@@ -92,6 +97,7 @@ class Route(object):
         found_optional_part = False
         self.soak_up_extra = False
         self.type_checkers = self.endpoint.types.copy()
+
         def route_error(msg):
             return RouteError('%s is not valid: %s' % (self.endpoint.route, msg))
 
@@ -153,6 +159,7 @@ class Route(object):
             num = len(path)
         if num < len(path):
             return False
+
         def check(tc, val):
             try:
                 return tc(val)
@@ -170,6 +177,7 @@ class Route(object):
         unknown = names - self.all_names
         if unknown:
             raise RouteError('The variable(s) %s are not part of the route: %s' % (','.join(unknown), self.endpoint.route))
+
         def quoted(x):
             if not isinstance(x, unicode) and not isinstance(x, bytes):
                 x = unicode(x)

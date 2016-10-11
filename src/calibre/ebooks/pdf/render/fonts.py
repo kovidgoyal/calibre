@@ -47,6 +47,7 @@ first. Each number gets mapped to a glyph id equal to itself by the
 
 import textwrap
 
+
 class FontStream(Stream):
 
     def __init__(self, is_otf, compress=False):
@@ -58,8 +59,10 @@ class FontStream(Stream):
         if self.is_otf:
             d['Subtype'] = Name('CIDFontType0C')
 
+
 def to_hex_string(c):
     return bytes(hex(int(c))[2:]).rjust(4, b'0').decode('ascii')
+
 
 class CMap(Stream):
 
@@ -105,6 +108,7 @@ class CMap(Stream):
             meat = '\n'.join('%s %s'%(k, v) for k, v in m.iteritems())
             mapping.append('%d beginbfchar\n%s\nendbfchar'%(len(m), meat))
         self.write(self.skeleton.format(name=name, mapping='\n'.join(mapping)))
+
 
 class Font(object):
 

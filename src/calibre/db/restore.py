@@ -22,6 +22,7 @@ NON_EBOOK_EXTENSIONS = frozenset([
         'opf', 'swp', 'swo'
         ])
 
+
 class Restorer(Cache):
 
     def __init__(self, library_path, default_prefs=None, restore_all_prefs=False, progress_callback=lambda x, y:True):
@@ -34,6 +35,7 @@ class Restorer(Cache):
 
     def no_op(self, *args, **kwargs):
         pass
+
 
 class Restore(Thread):
 

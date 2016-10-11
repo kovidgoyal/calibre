@@ -22,6 +22,7 @@ def fromstring(data, beautifulsoup=None, makeelement=None, **bsargs):
     """
     return _parse(data, beautifulsoup, makeelement, **bsargs)
 
+
 def parse(file, beautifulsoup=None, makeelement=None, **bsargs):
     """Parse a file into an ElemenTree using the BeautifulSoup parser.
 
@@ -35,6 +36,7 @@ def parse(file, beautifulsoup=None, makeelement=None, **bsargs):
         file = open(file)
     root = _parse(file, beautifulsoup, makeelement, **bsargs)
     return etree.ElementTree(root)
+
 
 def convert_tree(beautiful_soup_tree, makeelement=None):
     """Convert a BeautifulSoup tree to a list of Element trees.
@@ -71,11 +73,13 @@ def _parse(source, beautifulsoup, makeelement, **bsargs):
     root.tag = "html"
     return root
 
+
 def _convert_tree(beautiful_soup_tree, makeelement):
     root = makeelement(beautiful_soup_tree.name,
                        attrib=dict(beautiful_soup_tree.attrs))
     _convert_children(root, beautiful_soup_tree, makeelement)
     return root
+
 
 def _convert_children(parent, beautiful_soup_tree, makeelement):
     SubElement = etree.SubElement
@@ -96,6 +100,7 @@ def _convert_children(parent, beautiful_soup_tree, makeelement):
             else:  # CData
                 _append_text(parent, et_child, unescape(child))
 
+
 def _append_text(parent, element, text):
     if element is None:
         parent.text = (parent.text or '') + text
@@ -114,10 +119,12 @@ import re
 
 handle_entities = re.compile("&(\w+);").sub
 
+
 def unescape(string):
     if not string:
         return ''
     # work around oddities in BeautifulSoup's entity handling
+
     def unescape_entity(m):
         try:
             return unichr(name2codepoint[m.group(1)])

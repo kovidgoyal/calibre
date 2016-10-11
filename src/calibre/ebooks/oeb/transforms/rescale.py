@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre import fit_image
 
+
 class RescaleImages(object):
 
     'Rescale all images to fit inside given screen size'

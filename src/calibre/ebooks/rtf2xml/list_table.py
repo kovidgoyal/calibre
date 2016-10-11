@@ -10,11 +10,14 @@
 #                                                                       #
 #                                                                       #
 #########################################################################
+
+
 class ListTable:
     """
     Parse the list table line. Make a string. Form a dictionary.
     Return the string and the dictionary.
     """
+
     def __init__(
                 self,
                 bug_handler,
@@ -23,6 +26,7 @@ class ListTable:
         self.__bug_handler = bug_handler
         self.__initiate_values()
         self.__run_level = run_level
+
     def __initiate_values(self):
         self.__list_table_final = ''
         self.__state = 'default'
@@ -72,6 +76,7 @@ class ListTable:
             ]
         ],
         """
+
     def __parse_lines(self, line):
         """
         Required : line --line to parse
@@ -97,6 +102,7 @@ class ListTable:
             action(line)
         self.__write_final_string()
         # self.__add_to_final_line()
+
     def __default_func(self, line):
         """
         Requires: line --line to process
@@ -107,6 +113,7 @@ class ListTable:
         """
         if self.__token_info == 'ob<nu<open-brack':
             self.__state = 'unsure_ob'
+
     def __found_list_func(self, line):
         """
         Requires: line -- line to process
@@ -126,6 +133,7 @@ class ListTable:
         self.__all_lists.append([])
         the_dict = {'list-id': []}
         self.__all_lists[-1].append(the_dict)
+
     def __list_func(self, line):
         """
         Requires: line --line to process
@@ -147,6 +155,7 @@ class ListTable:
                 # dictionary is always the first item in the last list
                 # [{att:value}, [], [att:value, []]
                 self.__all_lists[-1][0][att] = value
+
     def __found_level_func(self, line):
         """
         Requires: line -- line to process
@@ -174,6 +183,7 @@ class ListTable:
         the_dict = {}
         self.__all_lists[-1][-1].append(the_dict)
         self.__level_dict
+
     def __level_func(self, line):
         """
         Requires:
@@ -195,6 +205,7 @@ class ListTable:
             if att:
                 value = line[20:]
                 self.__all_lists[-1][-1][0][att] = value
+
     def __level_number_func(self, line):
         """
         Requires:
@@ -226,6 +237,7 @@ class ListTable:
             level = 'level%s-show-level' % level
             self.__all_lists[-1][-1][0][level] = 'true'
             """
+
     def __level_text_func(self, line):
         """
         Requires:
@@ -264,6 +276,7 @@ class ListTable:
         elif self.__token_info == 'cw<ls<lv-tem-id_':
             value = line[20:]
             self.__all_lists[-1][-1][0]['level-template-id'] = value
+
     def __parse_level_text_length(self, line):
         """
         Requires:
@@ -289,6 +302,7 @@ class ListTable:
                 prefix_marker = 'level%s-prefix' % the_string
                 self.__all_lists[-1][-1][0][prefix_marker] = self.__prefix_string
                 self.__prefix_string = None
+
     def __list_name_func(self, line):
         """
         Requires:
@@ -301,6 +315,7 @@ class ListTable:
         if self.__token_info == 'cb<nu<clos-brack' and\
             self.__cb_count == self.__list_name_ob_count:
             self.__state = 'list'
+
     def __after_bracket_func(self, line):
         """
         Requires:
@@ -331,6 +346,7 @@ class ListTable:
                 msg = 'No matching token after open bracket\n'
                 msg += 'token is "%s\n"' % (line)
                 raise self.__bug_handler
+
     def __add_to_final_line(self):
         """
         Method no longer used.
@@ -341,6 +357,7 @@ class ListTable:
         self.__list_table_final += \
         'mi<mk<listab-end\n' + 'mi<tg<close_____<list-table\n'
         self.__list_table_final += 'mi<mk<listabend_\n'
+
     def __write_final_string(self):
         """
         Requires:
@@ -412,6 +429,7 @@ class ListTable:
         self.__list_table_final += \
         'mi<mk<listab-end\n' + 'mi<tg<close_____<list-table\n'
         self.__list_table_final += 'mi<mk<listabend_\n'
+
     def parse_list_table(self, line):
         """
         Requires:

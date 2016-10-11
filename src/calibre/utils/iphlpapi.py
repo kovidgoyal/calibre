@@ -15,6 +15,7 @@ from calibre.constants import is64bit
 # Wraps (part of) the IPHelper API, useful to enumerate the network routes and
 # adapters on the local machine
 
+
 class GUID(ctypes.Structure):
     _fields_ = [
         ("data1", wintypes.DWORD),
@@ -34,6 +35,7 @@ class GUID(ctypes.Structure):
         self.data4[5] = b6
         self.data4[6] = b7
         self.data4[7] = b8
+
 
 class SOCKADDR(ctypes.Structure):
     _fields_ = [
@@ -144,6 +146,7 @@ class IP_ADAPTER_PREFIX(ctypes.Structure):
         ('Address', SOCKET_ADDRESS),
         ('PrefixLength', wintypes.ULONG),
     ]
+
 
 class IP_ADAPTER_DNS_SUFFIX(ctypes.Structure):
     _fields_ = [
@@ -264,11 +267,13 @@ GAA_FLAG_INCLUDE_PREFIX = 0x0010
 Ws2_32 = windll.Ws2_32
 Ws2_32.inet_ntoa.restype = ctypes.c_char_p
 
+
 def _heap_alloc(heap, size):
     table_mem = HeapAlloc(heap, 0, ctypes.c_size_t(size.value))
     if not table_mem:
         raise MemoryError('Unable to allocate memory for the IP forward table')
     return table_mem
+
 
 @contextmanager
 def _get_forward_table():
@@ -297,6 +302,7 @@ def _get_forward_table():
     finally:
         if p_forward_table is not None:
             HeapFree(heap, 0, p_forward_table)
+
 
 @contextmanager
 def _get_adapters():
@@ -328,6 +334,7 @@ def _get_adapters():
 
 Adapter = namedtuple('Adapter', 'name if_index if_index6 friendly_name status transmit_speed receive_speed')
 
+
 def adapters():
     ''' A list of adapters on this machine '''
     ans = []
@@ -352,6 +359,7 @@ def adapters():
 
 
 Route = namedtuple('Route', 'destination gateway netmask interface metric flags')
+
 
 def routes():
     ''' A list of routes on this machine '''

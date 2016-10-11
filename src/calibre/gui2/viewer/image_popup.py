@@ -13,6 +13,7 @@ from PyQt5.Qt import (QDialog, QPixmap, QUrl, QScrollArea, QLabel, QSizePolicy,
 
 from calibre.gui2 import choose_save_file, gprefs, NO_URL_FORMATTING
 
+
 class ImageView(QDialog):
 
     def __init__(self, parent, current_img, current_url, geom_name='viewer_image_popup_geometry'):
@@ -121,6 +122,7 @@ class ImageView(QDialog):
         if abs(d) > 0 and not self.scrollarea.verticalScrollBar().isVisible():
             event.accept()
             (self.zoom_out if d < 0 else self.zoom_in)()
+
 
 class ImagePopup(object):
 

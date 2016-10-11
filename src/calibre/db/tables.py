@@ -16,6 +16,7 @@ from calibre.ebooks.metadata import author_to_author_sort
 
 _c_speedup = plugins['speedup'][0].parse_date
 
+
 def c_parse(val):
     try:
         year, month, day, hour, minutes, seconds, tzsecs = _c_speedup(val)
@@ -44,6 +45,7 @@ def c_parse(val):
 ONE_ONE, MANY_ONE, MANY_MANY = xrange(3)
 
 null = object()
+
 
 class Table(object):
 
@@ -76,6 +78,7 @@ class Table(object):
         ascii text. '''
         pass
 
+
 class VirtualTable(Table):
 
     '''
@@ -86,6 +89,7 @@ class VirtualTable(Table):
         metadata = {'datatype':datatype, 'table':name}
         self.table_type = table_type
         Table.__init__(self, name, metadata)
+
 
 class OneToOneTable(Table):
 
@@ -122,12 +126,14 @@ class OneToOneTable(Table):
                 clean.add(val)
         return clean
 
+
 class PathTable(OneToOneTable):
 
     def set_path(self, book_id, path, db):
         self.book_col_map[book_id] = path
         db.execute('UPDATE books SET path=? WHERE id=?',
                         (path, book_id))
+
 
 class SizeTable(OneToOneTable):
 
@@ -139,6 +145,7 @@ class SizeTable(OneToOneTable):
 
     def update_sizes(self, size_map):
         self.book_col_map.update(size_map)
+
 
 class UUIDTable(OneToOneTable):
 
@@ -163,6 +170,7 @@ class UUIDTable(OneToOneTable):
     def lookup_by_uuid(self, uuid):
         return self.uuid_to_id_map.get(uuid, None)
 
+
 class CompositeTable(OneToOneTable):
 
     def read(self, db):
@@ -176,6 +184,7 @@ class CompositeTable(OneToOneTable):
 
     def remove_books(self, book_ids, db):
         return set()
+
 
 class ManyToOneTable(Table):
 
@@ -334,6 +343,7 @@ class ManyToOneTable(Table):
                 self.link_table, lcol, table), (existing_item, item_id, item_id))
         return affected_books, new_id
 
+
 class RatingTable(ManyToOneTable):
 
     def read_id_maps(self, db):
@@ -347,6 +357,7 @@ class RatingTable(ManyToOneTable):
                                 tuple((x,) for x in bad_ids))
             db.execute('DELETE FROM {0} WHERE {1}=0'.format(
                 self.metadata['table'], self.metadata['column']))
+
 
 class ManyToManyTable(ManyToOneTable):
 
@@ -511,6 +522,7 @@ class ManyToManyTable(ManyToOneTable):
                 db.executemany('DELETE FROM {0} WHERE id=?'.format(self.metadata['table']),
                     tuple((x,) for x in v))
 
+
 class AuthorsTable(ManyToManyTable):
 
     def read_id_maps(self, db):
@@ -562,6 +574,7 @@ class AuthorsTable(ManyToManyTable):
     def remove_items(self, item_ids, db):
         raise ValueError('Direct removal of authors is not allowed')
 
+
 class FormatsTable(ManyToManyTable):
 
     do_clean_on_remove = False
@@ -612,6 +625,7 @@ class FormatsTable(ManyToManyTable):
                     pass
         db.executemany('DELETE FROM data WHERE book=? AND format=?',
             [(book_id, fmt) for book_id, fmts in formats_map.iteritems() for fmt in fmts])
+
         def zero_max(book_id):
             try:
                 return max(self.size_map[book_id].itervalues())
@@ -645,6 +659,7 @@ class FormatsTable(ManyToManyTable):
         db.execute('INSERT OR REPLACE INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                         (book_id, fmt, size, fname))
         return max(self.size_map[book_id].itervalues())
+
 
 class IdentifiersTable(ManyToManyTable):
 

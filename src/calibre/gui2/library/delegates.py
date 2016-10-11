@@ -26,6 +26,7 @@ from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.languages import LanguagesEdit
 
+
 class UpdateEditorGeometry(object):
 
     def updateEditorGeometry(self, editor, option, index):
@@ -97,6 +98,7 @@ class UpdateEditorGeometry(object):
         initial_geometry.adjust(delta_x, 0, delta_width, 0)
         editor.setGeometry(initial_geometry)
 
+
 class DateTimeEdit(QDateTimeEdit):  # {{{
 
     def __init__(self, parent, format):
@@ -131,6 +133,7 @@ class DateTimeEdit(QDateTimeEdit):  # {{{
 
 # Number Editor  {{{
 
+
 def make_clearing_spinbox(spinbox):
 
     class SpinBox(spinbox):
@@ -160,9 +163,11 @@ ClearingDoubleSpinBox = make_clearing_spinbox(QDoubleSpinBox)
 
 # setter for text-like delegates. Return '' if CTRL is pushed {{{
 
+
 def check_key_modifier(which_modifier):
     v = int(QApplication.keyboardModifiers() & (Qt.ControlModifier + Qt.ShiftModifier))
     return v == which_modifier
+
 
 def get_val_for_textlike_columns(index_):
     if check_key_modifier(Qt.ControlModifier):
@@ -172,6 +177,7 @@ def get_val_for_textlike_columns(index_):
     return unicode(ct)
 
 # }}}
+
 
 class RatingDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -250,6 +256,7 @@ class DateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
 # }}}
 
+
 class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -281,6 +288,7 @@ class PubDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         editor.setDate(val)
 
 # }}}
+
 
 class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -319,6 +327,7 @@ class TextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             QStyledItemDelegate.setModelData(self, editor, model, index)
 
 # }}}
+
 
 class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -370,6 +379,7 @@ class CompleteDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
             QStyledItemDelegate.setModelData(self, editor, model, index)
 # }}}
 
+
 class LanguagesDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     def __init__(self, parent):
@@ -389,6 +399,7 @@ class LanguagesDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         editor.update_recently_used()
         model.setData(index, (val), Qt.EditRole)
 # }}}
+
 
 class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -436,6 +447,7 @@ class CcDateDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
 # }}}
 
+
 class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     '''
@@ -474,6 +486,7 @@ class CcTextDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         model.setData(index, val, Qt.EditRole)
 # }}}
 
+
 class CcLongTextDelegate(QStyledItemDelegate):  # {{{
 
     '''
@@ -499,6 +512,7 @@ class CcLongTextDelegate(QStyledItemDelegate):  # {{{
     def setModelData(self, editor, model, index):
         model.setData(index, (editor.textbox.html), Qt.EditRole)
 # }}}
+
 
 class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -550,6 +564,7 @@ class CcNumberDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
 # }}}
 
+
 class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
     '''
@@ -596,6 +611,7 @@ class CcEnumDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         else:
             editor.setCurrentIndex(idx)
 # }}}
+
 
 class CcCommentsDelegate(QStyledItemDelegate):  # {{{
 
@@ -646,6 +662,7 @@ class CcCommentsDelegate(QStyledItemDelegate):  # {{{
         model.setData(index, (editor.textbox.html), Qt.EditRole)
 # }}}
 
+
 class DelegateCB(QComboBox):  # {{{
 
     def __init__(self, parent):
@@ -656,6 +673,7 @@ class DelegateCB(QComboBox):  # {{{
             e.accept()
         return QComboBox.event(self, e)
 # }}}
+
 
 class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
 
@@ -700,6 +718,7 @@ class CcBoolDelegate(QStyledItemDelegate, UpdateEditorGeometry):  # {{{
         editor.setCurrentIndex(val)
 
 # }}}
+
 
 class CcTemplateDelegate(QStyledItemDelegate):  # {{{
 

@@ -44,6 +44,7 @@ SPACE_TAGS = [
     'br',
 ]
 
+
 class TXTMLizer(object):
 
     def __init__(self, log):

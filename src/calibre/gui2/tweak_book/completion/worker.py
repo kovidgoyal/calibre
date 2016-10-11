@@ -20,6 +20,7 @@ from calibre.utils.ipc import eintr_retry_call
 COMPLETION_REQUEST = 'completion request'
 CLEAR_REQUEST = 'clear request'
 
+
 class CompletionWorker(Thread):
 
     daemon = True
@@ -159,11 +160,14 @@ class CompletionWorker(Thread):
         return self.worker_process.returncode
 
 _completion_worker = None
+
+
 def completion_worker():
     global _completion_worker
     if _completion_worker is None:
         _completion_worker = CompletionWorker()
     return _completion_worker
+
 
 def run_main(func):
     from multiprocessing.connection import Client
@@ -172,6 +176,7 @@ def run_main(func):
         func(control_conn, data_conn)
 
 Result = namedtuple('Result', 'request_id ans traceback query')
+
 
 def main(control_conn, data_conn):
     from calibre.gui2.tweak_book.completion.basic import handle_control_request
@@ -196,9 +201,11 @@ def main(control_conn, data_conn):
             except EOFError:
                 break
 
+
 def test_main(control_conn, data_conn):
     obj = control_conn.recv()
     control_conn.send(obj)
+
 
 def test():
     w = CompletionWorker(worker_entry_point='test_main')

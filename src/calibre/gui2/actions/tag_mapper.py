@@ -9,6 +9,7 @@ from future_builtins import map
 from calibre.gui2 import gprefs
 from calibre.gui2.actions import InterfaceAction
 
+
 class TagMapAction(InterfaceAction):
 
     name = 'Tag Mapper'

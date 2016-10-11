@@ -20,6 +20,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 
 bexts = frozenset(BOOK_EXTENSIONS) - {'mbp', 'tan', 'rar', 'zip', 'xml'}
 
+
 class FileOrFolder(object):
 
     def __init__(self, entry, fs_cache):
@@ -179,6 +180,7 @@ class FileOrFolder(object):
     @property
     def mtp_id_path(self):
         return 'mtp:::' + json.dumps(self.object_id) + ':::' + '/'.join(self.full_path)
+
 
 class FilesystemCache(object):
 

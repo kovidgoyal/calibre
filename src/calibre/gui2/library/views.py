@@ -28,6 +28,7 @@ from calibre.gui2.library import DEFAULT_SORT
 from calibre.constants import filesystem_encoding
 from calibre import force_unicode
 
+
 class HeaderView(QHeaderView):  # {{{
 
     def __init__(self, *args):
@@ -110,6 +111,7 @@ class HeaderView(QHeaderView):  # {{{
         painter.restore()
 # }}}
 
+
 class PreserveViewState(object):  # {{{
 
     '''
@@ -171,6 +173,7 @@ class PreserveViewState(object):  # {{{
             self.__enter__()
             return {x:getattr(self, x) for x in ('selected_ids', 'current_id',
                 'vscroll', 'hscroll')}
+
         def fset(self, state):
             for k, v in state.iteritems():
                 setattr(self, k, v)
@@ -178,6 +181,7 @@ class PreserveViewState(object):  # {{{
         return property(fget=fget, fset=fset)
 
 # }}}
+
 
 @setup_dnd_interface
 class BooksView(QTableView):  # {{{
@@ -741,6 +745,7 @@ class BooksView(QTableView):  # {{{
         if bool(old_marked) == bool(current_marked):
             changed = old_marked | current_marked
             i = self.model().db.data.id_to_index
+
             def f(x):
                 try:
                     return i(x)
@@ -1026,6 +1031,7 @@ class BooksView(QTableView):  # {{{
             except:
                 pass
             return None
+
         def fset(self, val):
             if val is None:
                 return
@@ -1115,6 +1121,7 @@ class BooksView(QTableView):  # {{{
         return self._model.count()
 
 # }}}
+
 
 class DeviceBooksView(BooksView):  # {{{
 

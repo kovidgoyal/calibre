@@ -23,6 +23,7 @@ DESCRIPTION = Qt.UserRole + 1
 CUSTOM = Qt.UserRole + 2
 KEY = Qt.UserRole + 3
 
+
 class Customize(QFrame):
 
     def __init__(self, index, dup_check, parent=None):
@@ -198,6 +199,7 @@ class Delegate(QStyledItemDelegate):
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
 
+
 class Shortcuts(QAbstractListModel):
 
     TEMPLATE = u'''
@@ -285,6 +287,7 @@ class Shortcuts(QAbstractListModel):
         if not index.isValid():
             return Qt.ItemIsEnabled
         return QAbstractListModel.flags(self, index) | Qt.ItemIsEditable
+
 
 class ShortcutConfig(QWidget):
 

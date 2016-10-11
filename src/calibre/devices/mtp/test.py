@@ -14,6 +14,7 @@ from calibre.utils.icu import lower
 from calibre.devices.mtp.driver import MTP_DEVICE
 from calibre.devices.scanner import DeviceScanner
 
+
 class ProgressCallback(object):
 
     def __init__(self):
@@ -24,6 +25,7 @@ class ProgressCallback(object):
         if pos == total:
             self.end_called = True
         self.count += 1
+
 
 class TestDeviceInteraction(unittest.TestCase):
 
@@ -255,6 +257,7 @@ def tests():
     tl = unittest.TestLoader()
     # return tl.loadTestsFromName('test.TestDeviceInteraction.test_memory_leaks')
     return tl.loadTestsFromTestCase(TestDeviceInteraction)
+
 
 def run():
     unittest.TextTestRunner(verbosity=2).run(tests())

@@ -37,8 +37,10 @@ Adding a book to a collection on the Kindle does not change the book file at all
 file metadata.
 '''
 
+
 def get_kfx_path(path):
     return os.path.dirname(os.path.dirname(path)).rpartition('.')[0] + '.kfx'
+
 
 class KINDLE(USBMS):
 
@@ -327,6 +329,7 @@ class KINDLE(USBMS):
                 mi.comments = last_update
                 db.add_books([bm.value['path']], ['txt'], [mi])
 
+
 class KINDLE2(KINDLE):
 
     name           = 'Kindle 2/3/4/Touch/PaperWhite/Voyage Device Interface'
@@ -553,6 +556,7 @@ class KINDLE_DX(KINDLE2):
 
     def upload_kindle_thumbnail(self, metadata, filepath):
         pass
+
 
 class KINDLE_FIRE(KINDLE2):
 

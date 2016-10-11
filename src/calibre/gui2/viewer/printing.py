@@ -23,6 +23,7 @@ from calibre.utils.icu import numeric_sort_key
 from calibre.utils.ipc.simple_worker import start_pipe_worker
 from calibre.utils.filenames import expanduser
 
+
 class PrintDialog(Dialog):
 
     OUTPUT_NAME = 'print-to-pdf-choose-file'
@@ -128,6 +129,7 @@ class PrintDialog(Dialog):
         self.save_used_values()
         return Dialog.accept(self)
 
+
 class DoPrint(Thread):
 
     daemon = True
@@ -154,6 +156,7 @@ class DoPrint(Thread):
             import traceback
             self.tb = traceback.format_exc()
 
+
 def do_print():
     data = cPickle.loads(sys.stdin.read())
     args = ['ebook-convert', data['input'], data['output'], '--override-profile-size', '--paper-size', data['paper_size'], '--pdf-add-toc',
@@ -164,6 +167,7 @@ def do_print():
         args.append('--margin-' + edge), args.append('%.1f' % (data['margin_' + edge] * 72))
     from calibre.ebooks.conversion.cli import main
     main(args)
+
 
 class Printing(QProgressDialog):
 
@@ -199,6 +203,7 @@ class Printing(QProgressDialog):
                 traceback.print_exc()
         self.timer.stop()
         self.reject()
+
 
 def print_book(path_to_book, parent=None, book_title=None):
     book_title = book_title or os.path.splitext(os.path.basename(path_to_book))[0]

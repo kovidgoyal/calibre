@@ -10,10 +10,12 @@ from calibre.ebooks.oeb.polish.container import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.normalize_css import normalize_font
 from tinycss.fonts3 import parse_font_family, parse_font, serialize_font_family, serialize_font
 
+
 def unquote(x):
     if x and len(x) > 1 and x[0] == x[-1] and x[0] in ('"', "'"):
         x = x[1:-1]
     return x
+
 
 def font_family_data_from_declaration(style, families):
     font_families = []
@@ -29,6 +31,7 @@ def font_family_data_from_declaration(style, families):
     for f in font_families:
         families[f] = families.get(f, False)
 
+
 def font_family_data_from_sheet(sheet, families):
     for rule in sheet.cssRules:
         if rule.type == rule.STYLE_RULE:
@@ -38,6 +41,7 @@ def font_family_data_from_sheet(sheet, families):
             if ff is not None:
                 for f in parse_font_family(ff.propertyValue.cssText):
                     families[f] = True
+
 
 def font_family_data(container):
     families = {}
@@ -56,6 +60,7 @@ def font_family_data(container):
                     style = container.parse_css(style, is_declaration=True)
                     font_family_data_from_declaration(style, families)
     return families
+
 
 def change_font_in_declaration(style, old_name, new_name=None):
     changed = False
@@ -83,6 +88,7 @@ def change_font_in_declaration(style, old_name, new_name=None):
             changed = True
     return changed
 
+
 def remove_embedded_font(container, sheet, rule, sheet_name):
     src = getattr(rule.style.getProperty('src'), 'value')
     if src is not None:
@@ -94,6 +100,7 @@ def remove_embedded_font(container, sheet, rule, sheet_name):
         name = container.href_to_name(src, sheet_name)
         if container.has_name(name):
             container.remove_item(name)
+
 
 def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
     changed = False
@@ -111,6 +118,7 @@ def change_font_in_sheet(container, sheet, old_name, new_name, sheet_name):
     for rule in reversed(removals):
         remove_embedded_font(container, sheet, rule, sheet_name)
     return changed
+
 
 def change_font(container, old_name, new_name=None):
     '''

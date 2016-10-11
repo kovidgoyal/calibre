@@ -12,6 +12,7 @@ import textwrap, os, glob
 from calibre.customize import FileTypePlugin
 from calibre.constants import numeric_version
 
+
 class HTML2ZIP(FileTypePlugin):
     name = 'HTML to ZIP'
     author = 'Kovid Goyal'

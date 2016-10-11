@@ -21,10 +21,13 @@ from calibre.utils.terminal import ANSIStream
 
 COMPILER_PATH = 'rapydscript/compiler.js.xz'
 
+
 def abspath(x):
     return os.path.realpath(os.path.abspath(x))
 
 # Update RapydScript {{{
+
+
 def update_rapydscript():
     d = os.path.dirname
     base = d(d(d(d(d(abspath(__file__))))))
@@ -46,8 +49,10 @@ def update_rapydscript():
 # Compiler {{{
 tls = local()
 
+
 def to_dict(obj):
     return dict(zip(obj.keys(), obj.values()))
+
 
 def compiler():
     c = getattr(tls, 'compiler', None)
@@ -59,13 +64,16 @@ def compiler():
         c.eval(buf.getvalue(), fname=COMPILER_PATH, noreturn=True)
     return c
 
+
 class CompileFailure(ValueError):
     pass
+
 
 def default_lib_dir():
     return P('rapydscript/lib', allow_user_override=False)
 
 _cache_dir = None
+
 
 def module_cache_dir():
     global _cache_dir
@@ -119,6 +127,7 @@ def compile_pyj(data, filename='<stdin>', beautify=True, private_scope=True, lib
 
 has_external_compiler = None
 
+
 def detect_external_compiler():
     from calibre.utils.filenames import find_executable_in_path
     rs = find_executable_in_path('rapydscript')
@@ -135,6 +144,7 @@ def detect_external_compiler():
         if ver >= (0, 7, 5):
             return rs
     return False
+
 
 def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=None, omit_baselib=False):
     global has_external_compiler
@@ -158,6 +168,7 @@ def compile_fast(data, filename=None, beautify=True, private_scope=True, libdir=
     if p.wait() != 0:
         raise CompileFailure(force_unicode(stderr, 'utf-8'))
     return js.decode('utf-8')
+
 
 def compile_srv():
     d = os.path.dirname
@@ -191,6 +202,7 @@ def compile_srv():
 
 # Translations {{{
 
+
 def create_pot(source_files):
     ctx = compiler()
     ctx.g.gettext_options = {
@@ -209,6 +221,7 @@ def create_pot(source_files):
     ctx.eval('exports.gettext_output(catalog, gettext_options, pywrite)')
     return ''.join(buf)
 
+
 def msgfmt(po_data_as_string):
     ctx = compiler()
     ctx.g.po_data = po_data_as_string
@@ -217,11 +230,15 @@ def msgfmt(po_data_as_string):
 # }}}
 
 # REPL {{{
+
+
 def leading_whitespace(line):
     return line[:len(line) - len(line.lstrip())]
 
+
 def format_error(data):
     return ':'.join(map(type(''), (data['file'], data['line'], data['col'], data['message'])))
+
 
 class Repl(Thread):
 
@@ -372,6 +389,7 @@ class Repl(Thread):
 
 # }}}
 
+
 def main(args=sys.argv):
     import argparse
     ver = compiler().g.exports.rs_version
@@ -397,6 +415,7 @@ def main(args=sys.argv):
             raise SystemExit(e.message)
         except CompileFailure as e:
             raise SystemExit(e.message)
+
 
 def entry():
     main(sys.argv[1:])

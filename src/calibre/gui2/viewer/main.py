@@ -35,6 +35,7 @@ dprefs = JSONConfig('viewer_dictionaries')
 dprefs.defaults['word_lookups'] = {}
 singleinstance_name = 'calibre_viewer'
 
+
 class ResizeEvent(object):
 
     INTERVAL = 20  # mins
@@ -67,6 +68,7 @@ class ResizeEvent(object):
             return False
         return True
 
+
 class Worker(Thread):
 
     def run(self):
@@ -86,11 +88,13 @@ class Worker(Thread):
             self.exception = err
             self.traceback = traceback.format_exc()
 
+
 class RecentAction(QAction):
 
     def __init__(self, path, parent):
         self.path = path
         QAction.__init__(self, os.path.basename(path), parent)
+
 
 def default_lookup_website(lang):
     if lang == 'und':
@@ -102,11 +106,13 @@ def default_lookup_website(lang):
         prefix = 'http://%s.wiktionary.org/wiki/' % lang
     return prefix + '{word}'
 
+
 def lookup_website(lang):
     if lang == 'und':
         lang = get_lang()
     wm = dprefs['word_lookups']
     return wm.get(lang, default_lookup_website(lang))
+
 
 def listen(self):
     while True:
@@ -120,6 +126,7 @@ def listen(self):
         except Exception as e:
             prints('Failed to read message from other instance with error: %s' % as_unicode(e))
     self.listener = None
+
 
 class EbookViewer(MainWindow):
 
@@ -201,6 +208,7 @@ class EbookViewer(MainWindow):
         self.search.focus_to_library.connect(lambda: self.view.setFocus(Qt.OtherFocusReason))
         self.toc.pressed[QModelIndex].connect(self.toc_clicked)
         self.toc.searched.connect(partial(self.toc_clicked, force=True))
+
         def toggle_toc(ev):
             try:
                 key = self.view.shortcuts.get_match(ev)
@@ -1115,6 +1123,7 @@ class EbookViewer(MainWindow):
     def show_footnote_view(self):
         self.footnotes_dock.show()
 
+
 def config(defaults=None):
     desc = _('Options to control the ebook viewer')
     if defaults is None:
@@ -1140,6 +1149,7 @@ def config(defaults=None):
 
     return c
 
+
 def option_parser():
     c = config()
     parser = c.option_parser(usage=_('''\
@@ -1149,6 +1159,7 @@ View an ebook.
 '''))
     setup_gui_option_parser(parser)
     return parser
+
 
 def create_listener():
     if islinux:
@@ -1184,6 +1195,7 @@ def ensure_single_instance(args, open_at):
     listener = create_listener()
     return listener
 
+
 class EventAccumulator(QObject):
 
     got_file = pyqtSignal(object)
@@ -1202,6 +1214,7 @@ class EventAccumulator(QObject):
         if self.events:
             self.got_file.emit(self.events[-1])
             self.events = []
+
 
 def main(args=sys.argv):
     # Ensure viewer can continue to function if GUI is closed

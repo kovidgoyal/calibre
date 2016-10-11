@@ -16,6 +16,7 @@ from calibre.ebooks.oeb.polish.parsing import parse_html5 as parse
 from calibre.ebooks.oeb.base import XPath, XHTML_NS, SVG_NS, XLINK_NS
 from calibre.ebooks.oeb.parse_utils import html5_parse
 
+
 def nonvoid_cdata_elements(test, parse_function):
     ''' If self closed version of non-void cdata elements like <title/> are
     present, the HTML5 parsing algorithm treats all following data as CDATA '''
@@ -29,8 +30,10 @@ def nonvoid_cdata_elements(test, parse_function):
                 len(XPath('//h:body[@id="test"]')(root)), 1,
                 'Incorrect parsing for <%s/>, parsed markup:\n' % x + etree.tostring(root))
 
+
 def namespaces(test, parse_function):
     ae = test.assertEqual
+
     def match_and_prefix(root, xpath, prefix, err=''):
         matches = XPath(xpath)(root)
         ae(len(matches), 1, err)
@@ -87,6 +90,7 @@ def namespaces(test, parse_function):
     markup = '<html><body><ns1:tag1 xmlns:ns1="NS"><ns2:tag2 xmlns:ns2="NS" ns1:id="test"/><ns1:tag3 xmlns:ns1="NS2" ns1:id="test"/></ns1:tag1>'
     root = parse_function(markup)
     err = 'Arbitrary namespaces not preserved, parsed markup:\n' + etree.tostring(root)
+
     def xpath(expr):
         return etree.XPath(expr, namespaces={'ns1':'NS', 'ns2':'NS2'})(root)
     ae(len(xpath('//ns1:tag1')), 1, err)
@@ -106,6 +110,7 @@ def namespaces(test, parse_function):
     ae(len(root.xpath('//*[@lang="es"]')), 1, err)
     ae(len(XPath('//*[@xml:lang]')(root)), 0, err)
 
+
 def space_characters(test, parse_function):
     markup = '<html><p>\u000c</p>'
     root = parse_function(markup)
@@ -116,17 +121,20 @@ def space_characters(test, parse_function):
     test.assertNotIn('\u000b', root.xpath('//*[local-name()="p"]')[0].text, err)
     test.assertNotIn('\u000c', root.xpath('//*[local-name()="p"]')[0].text, err)
 
+
 def case_insensitive_element_names(test, parse_function):
     markup = '<HTML><P> </p>'
     root = parse_function(markup)
     err = 'case sensitive parsing, parsed markup:\n' + etree.tostring(root)
     test.assertEqual(len(XPath('//h:p')(root)), 1, err)
 
+
 def entities(test, parse_function):
     markup = '<html><p>&nbsp;&apos;</p>'
     root = parse_function(markup)
     err = 'Entities not handled, parsed markup:\n' + etree.tostring(root)
     test.assertEqual('\xa0\'', root.xpath('//*[local-name()="p"]')[0].text, err)
+
 
 def multiple_html_and_body(test, parse_function):
     markup = '<html id="1"><body id="2"><p><html lang="en"><body lang="de"></p>'
@@ -137,11 +145,13 @@ def multiple_html_and_body(test, parse_function):
     test.assertEqual(len(XPath('//h:html[@id and @lang]')(root)), 1, err)
     test.assertEqual(len(XPath('//h:body[@id and @lang]')(root)), 1, err)
 
+
 def attribute_replacement(test, parse_function):
     markup = '<html><body><svg viewbox="0"></svg><svg xmlns="%s" viewbox="1">' % SVG_NS
     root = parse_function(markup)
     err = 'SVG attributes not normalized, parsed markup:\n' + etree.tostring(root)
     test.assertEqual(len(XPath('//svg:svg[@viewBox]')(root)), 2, err)
+
 
 def comments(test, parse_function):
     markup = '<html><!-- -- ---><body/></html>'
@@ -152,6 +162,7 @@ def comments(test, parse_function):
 basic_checks = (nonvoid_cdata_elements, namespaces, space_characters,
                 case_insensitive_element_names, entities, comments,
                 multiple_html_and_body, attribute_replacement)
+
 
 class ParsingTests(BaseTest):
 
@@ -188,6 +199,7 @@ class ParsingTests(BaseTest):
 
         root = parse('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" xmlns:extra="extra"><body/></html>')
         self.assertIn('extra', root.nsmap, 'Extra namespace declaration on <html> tag not preserved')
+
 
 def timing():
     import sys

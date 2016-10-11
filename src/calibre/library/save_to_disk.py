@@ -72,6 +72,7 @@ def find_plugboard(device_name, format, plugboards):
         prints('Device using plugboard', format, device_name, cpb)
     return cpb
 
+
 def config(defaults=None):
     if defaults is None:
         c = Config('save_to_disk', _('Options to control saving to disk'))
@@ -127,6 +128,7 @@ def config(defaults=None):
                 ' directory structure'))
     return c
 
+
 def preprocess_template(template):
     template = template.replace('//', '/')
     template = template.replace('{author}', '{authors}')
@@ -134,6 +136,7 @@ def preprocess_template(template):
     if not isinstance(template, unicode):
         template = template.decode(preferred_encoding, 'replace')
     return template
+
 
 class Formatter(TemplateFormatter):
     '''
@@ -166,6 +169,7 @@ class Formatter(TemplateFormatter):
         except:
             traceback.print_exc()
             return key
+
 
 def get_components(template, mi, id, timefmt='%b %Y', length=250,
         sanitize_func=ascii_filename, replace_whitespace=False,
@@ -281,6 +285,7 @@ def save_book_to_disk(id_, db, root, opts, length):
             except:
                 pass
 
+
 def get_path_components(opts, mi, book_id, path_length):
     try:
         components = get_components(opts.template, mi, book_id, opts.timefmt, path_length,
@@ -325,6 +330,7 @@ def update_metadata(mi, fmt, stream, plugboards, cdata, error_report=None, plugb
             traceback.print_exc()
         else:
             error_report(fmt, traceback.format_exc())
+
 
 def do_save_book_to_disk(id_, mi, cover, plugboards,
         format_map, root, opts, length):
@@ -391,6 +397,7 @@ def do_save_book_to_disk(id_, mi, cover, plugboards,
 
     return not written, id_, mi.title
 
+
 def sanitize_args(root, opts):
     if opts is None:
         opts = config().parse()
@@ -402,6 +409,7 @@ def sanitize_args(root, opts):
     if length < 5:
         raise ValueError('%r is too long.'%root)
     return root, opts, length
+
 
 def save_to_disk(db, ids, root, opts=None, callback=None):
     '''
@@ -432,6 +440,7 @@ def save_to_disk(db, ids, root, opts=None, callback=None):
                 break
     return failures
 
+
 def read_serialized_metadata(data):
     from calibre.ebooks.metadata.opf2 import OPF
     from calibre.utils.date import parse_date
@@ -447,6 +456,7 @@ def read_serialized_metadata(data):
             cdata = f.read()
     return mi, cdata
 
+
 def update_serialized_metadata(book, common_data=None):
     result = []
     plugboard_cache = common_data
@@ -455,6 +465,7 @@ def update_serialized_metadata(book, common_data=None):
 
             fmts = [fp.rpartition(os.extsep)[-1] for fp in book['fmts']]
             mi, cdata = read_serialized_metadata(book)
+
             def report_error(fmt, tb):
                 result.append((fmt, tb))
 

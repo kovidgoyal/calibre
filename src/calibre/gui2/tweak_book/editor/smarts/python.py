@@ -19,8 +19,10 @@ get_leading_whitespace_on_block = lambda editor, previous=False: expand_tabs(lw(
 
 tw = 4  # The tab width (hardcoded to the pep8 value)
 
+
 def expand_tabs(text):
     return text.replace('\t', ' ' * tw)
+
 
 class Smarts(NullSmarts):
 

@@ -13,6 +13,7 @@ from calibre.ebooks.docx.block_styles import ParagraphStyle, inherit, twips
 from calibre.ebooks.docx.char_styles import RunStyle
 from calibre.ebooks.docx.tables import TableStyle
 
+
 class PageProperties(object):
 
     '''

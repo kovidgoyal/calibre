@@ -17,6 +17,7 @@ from calibre.utils.icu import utf16_length
 
 is_wide_build = sys.maxunicode >= 0x10ffff
 
+
 def run_loop(user_data, state_map, formats, text):
     state = user_data.state
     i = 0
@@ -40,6 +41,7 @@ def run_loop(user_data, state_map, formats, text):
             print ('Syntax highlighter returned a zero length format, parse state:', state.parse)
             break
 
+
 class SimpleState(object):
 
     __slots__ = ('parse',)
@@ -52,6 +54,7 @@ class SimpleState(object):
         s.parse = self.parse
         return s
 
+
 class SimpleUserData(QTextBlockUserData):
 
     def __init__(self):
@@ -62,6 +65,7 @@ class SimpleUserData(QTextBlockUserData):
     def clear(self, state=None, doc_name=None):
         self.state = SimpleState() if state is None else state
         self.doc_name = doc_name
+
 
 class SyntaxHighlighter(object):
 

@@ -15,6 +15,7 @@ from calibre import browser
 from calibre.ebooks.oeb.polish.container import OEB_DOCS
 from calibre.ebooks.oeb.polish.utils import guess_type
 
+
 class URLMap(object):
 
     def __init__(self):
@@ -31,6 +32,7 @@ class URLMap(object):
             return ans
 
 _url_map = URLMap()
+
 
 def help_url(item, item_type, doc_name, extra_data=None):
     url = None
@@ -64,6 +66,7 @@ def help_url(item, item_type, doc_name, extra_data=None):
 
     return url
 
+
 def get_mdn_tag_index(category):
     url = 'https://developer.mozilla.org/docs/Web/%s/Element' % category
     if category == 'CSS':
@@ -80,6 +83,7 @@ def get_mdn_tag_index(category):
         href = href.replace('/en-US/', '/')
         ans[href.rpartition('/')[-1].lower()] = 'https://developer.mozilla.org' + href
     return ans
+
 
 def get_opf2_tag_index():
     base = 'http://www.idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#'
@@ -98,6 +102,7 @@ def get_opf2_tag_index():
         ans[tag.lower()] = base + 'Section2.4.1.2'
     return ans
 
+
 def get_opf3_tag_index():
     base = 'http://www.idpf.org/epub/301/spec/epub-publications.html#'
     ans = {}
@@ -109,6 +114,7 @@ def get_opf3_tag_index():
     for tag in ('contributor', 'creator', 'date', 'source', 'type',):
         ans[tag.lower()] = base + 'sec-opf-dc' + tag
     return ans
+
 
 def write_tag_help():
     base = 'editor-help/%s.json'

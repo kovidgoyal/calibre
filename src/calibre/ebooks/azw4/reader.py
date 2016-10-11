@@ -16,6 +16,7 @@ import re
 
 from calibre.ebooks.pdb.formatreader import FormatReader
 
+
 def unwrap(stream, output_path):
     raw_data = stream.read()
     m = re.search(br'%PDF.+%%EOF', raw_data, flags=re.DOTALL)

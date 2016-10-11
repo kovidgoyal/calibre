@@ -30,15 +30,18 @@ BASE_HREFS = {
 
 STANZA_FORMATS = frozenset(['epub', 'pdb', 'pdf', 'cbr', 'cbz', 'djvu'])
 
+
 def url_for(name, version, **kwargs):
     if not name.endswith('_'):
         name += '_'
     return routes.url_for(name+str(version), **kwargs)
 
+
 def hexlify(x):
     if isinstance(x, unicode):
         x = x.encode('utf-8')
     return binascii.hexlify(x)
+
 
 def unhexlify(x):
     return binascii.unhexlify(x).decode('utf-8')
@@ -58,6 +61,7 @@ TITLE   = E.title
 ID      = E.id
 ICON    = E.icon
 
+
 def UPDATED(dt, *args, **kwargs):
     return E.updated(as_utc(dt).strftime('%Y-%m-%dT%H:%M:%S+00:00'), *args, **kwargs)
 
@@ -65,11 +69,13 @@ LINK = partial(E.link, type='application/atom+xml')
 NAVLINK = partial(E.link,
         type='application/atom+xml;type=feed;profile=opds-catalog')
 
+
 def SEARCH_LINK(base_href, *args, **kwargs):
     kwargs['rel'] = 'search'
     kwargs['title'] = 'Search'
     kwargs['href'] = base_href+'/search/{searchTerms}'
     return LINK(*args, **kwargs)
+
 
 def AUTHOR(name, uri=None):
     args = [E.name(name)]
@@ -78,6 +84,7 @@ def AUTHOR(name, uri=None):
     return E.author(*args)
 
 SUBTITLE = E.subtitle
+
 
 def NAVCATALOG_ENTRY(base_href, updated, title, description, query, version=0):
     href = base_href+'/navcatalog/'+hexlify(query)
@@ -96,6 +103,7 @@ FIRST_LINK = partial(NAVLINK, rel='first')
 LAST_LINK  = partial(NAVLINK, rel='last')
 NEXT_LINK  = partial(NAVLINK, rel='next', title='Next')
 PREVIOUS_LINK  = partial(NAVLINK, rel='previous')
+
 
 def html_to_lxml(raw):
     raw = u'<div>%s</div>'%raw
@@ -118,6 +126,7 @@ def html_to_lxml(raw):
         except:
             from calibre.ebooks.oeb.parse_utils import _html4_parse
             return _html4_parse(raw)
+
 
 def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
                   ignore_count=False, add_kind=False):
@@ -142,6 +151,7 @@ def CATALOG_ENTRY(item, item_kind, base_href, version, updated,
             link
             )
 
+
 def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
     id_ = 'calibre:category-group:'+category+':'+item.text
     iid = item.text
@@ -153,6 +163,7 @@ def CATALOG_GROUP_ENTRY(item, category, base_href, version, updated):
             E.content(_('%d items')%item.count, type='text'),
             link
             )
+
 
 def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
     FM = db.FIELD_MAP
@@ -241,6 +252,7 @@ def ACQUISITION_ENTRY(item, version, db, updated, CFM, CKEYS, prefix):
 
 default_feed_title = __appname__ + ' ' + _('Library')
 
+
 class Feed(object):  # {{{
 
     def __init__(self, id_, updated, version, subtitle=None,
@@ -277,6 +289,7 @@ class Feed(object):  # {{{
                 xml_declaration=True)
     # }}}
 
+
 class TopLevel(Feed):  # {{{
 
     def __init__(self,
@@ -297,6 +310,7 @@ class TopLevel(Feed):  # {{{
             self.root.append(x)
 # }}}
 
+
 class NavFeed(Feed):
 
     def __init__(self, id_, updated, version, offsets, page_url, up_url, title=None):
@@ -313,6 +327,7 @@ class NavFeed(Feed):
             kwargs['title'] = title
         Feed.__init__(self, id_, updated, version, **kwargs)
 
+
 class AcquisitionFeed(NavFeed):
 
     def __init__(self, updated, id_, items, offsets, page_url, up_url, version,
@@ -324,6 +339,7 @@ class AcquisitionFeed(NavFeed):
         for item in items:
             self.root.append(ACQUISITION_ENTRY(item, version, db, updated,
                                                CFM, CKEYS, prefix))
+
 
 class CategoryFeed(NavFeed):
 
@@ -337,6 +353,7 @@ class CategoryFeed(NavFeed):
             self.root.append(CATALOG_ENTRY(item, item.category, base_href, version,
                                            updated, ignore_count=ignore_count,
                                            add_kind=which != item.category))
+
 
 class CategoryGroupFeed(NavFeed):
 
@@ -449,6 +466,7 @@ class OPDSServer(object):
         owhich = hexlify('N'+which)
         up_url = url_for('opdsnavcatalog', version, which=owhich)
         items = categories[category]
+
         def belongs(x, which):
             return getattr(x, 'sort', x.name).lower().startswith(which.lower())
         items = [x for x in items if belongs(x, which)]
@@ -516,6 +534,7 @@ class OPDSServer(object):
                 page_url, up_url, self.db, title=feed_title)
         else:
             class Group:
+
                 def __init__(self, text, count):
                     self.text, self.count = text, count
 
@@ -610,6 +629,7 @@ class OPDSServer(object):
                 (_('Newest'), _('Date'), 'Onewest'),
                 (_('Title'), _('Title'), 'Otitle'),
                 ]
+
         def getter(x):
             try:
                 return category_meta[x]['name'].lower()

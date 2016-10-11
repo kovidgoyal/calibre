@@ -7,6 +7,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 Roskilde Avis
 '''
 
+
 class RoskildeLokalavisen_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Roskilde Avis'

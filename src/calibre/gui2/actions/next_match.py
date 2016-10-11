@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.actions import InterfaceAction
 
+
 class NextMatchAction(InterfaceAction):
     name = 'Move to next highlighted book'
     action_spec = (_('Move to next match'), 'arrow-down.png',

@@ -18,6 +18,7 @@ from calibre.gui2.dialogs.confirm_delete import confirm_config_name
 from calibre.utils.config import tweaks
 from calibre.utils.date import format_date
 
+
 class ConfirmMerge(Dialog):
 
     def __init__(self, msg, name, parent, mi):

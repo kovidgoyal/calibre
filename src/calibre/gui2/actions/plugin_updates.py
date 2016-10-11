@@ -12,6 +12,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.gui2.dialogs.plugin_updater import (PluginUpdaterDialog,
                                                  FILTER_ALL, FILTER_UPDATE_AVAILABLE)
 
+
 class PluginUpdaterAction(InterfaceAction):
 
     name = 'Plugin Updater'

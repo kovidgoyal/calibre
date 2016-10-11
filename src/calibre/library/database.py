@@ -11,8 +11,10 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata import string_to_authors
 from calibre import isbytestring
 
+
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
+
     def __init__(self, sep=','):
         self.sep = sep
         self.ans = ''
@@ -27,6 +29,8 @@ class Concatenate(object):
         if self.sep:
             return self.ans[:-len(self.sep)]
         return self.ans
+
+
 class Connection(sqlite.Connection):
 
     def get(self, *args, **kw):
@@ -38,6 +42,7 @@ class Connection(sqlite.Connection):
             return ans[0]
         return ans.fetchall()
 
+
 def _connect(path):
     if isinstance(path, unicode):
         path = path.encode('utf-8')
@@ -45,6 +50,7 @@ def _connect(path):
     conn.row_factory = lambda cursor, row : list(row)
     conn.create_aggregate('concat', 1, Concatenate)
     title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
+
     def title_sort(title):
         match = title_pat.search(title)
         if match:
@@ -53,6 +59,7 @@ def _connect(path):
         return title.strip()
     conn.create_function('title_sort', 1, title_sort)
     return conn
+
 
 class LibraryDatabase(object):
 
@@ -815,6 +822,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     @dynamic_property
     def user_version(self):
         doc = 'The user version of this database'
+
         def fget(self):
             return self.conn.get('pragma user_version;', all=False)
         return property(doc=doc, fget=fget)
@@ -1482,6 +1490,7 @@ class SearchToken(object):
         else:
             text = ' '.join([item[i] if item[i] else '' for i in self.FIELD_MAP.values()])
         return bool(self.pattern.search(text)) ^ self.negate
+
 
 def text_to_tokens(text):
     OR = False

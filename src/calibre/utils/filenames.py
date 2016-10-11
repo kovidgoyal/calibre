@@ -11,6 +11,7 @@ from calibre.constants import (preferred_encoding, iswindows,
         filesystem_encoding)
 from calibre.utils.localization import get_udc
 
+
 def ascii_text(orig):
     udc = get_udc()
     try:
@@ -32,6 +33,7 @@ def ascii_filename(orig, substitute='_'):
         ans.append(x)
     return sanitize_file_name(''.join(ans), substitute=substitute)
 
+
 def supports_long_names(path):
     t = ('a'*300)+'.txt'
     try:
@@ -43,6 +45,7 @@ def supports_long_names(path):
     else:
         return True
 
+
 def shorten_component(s, by_what):
     l = len(s)
     if l < by_what:
@@ -51,6 +54,7 @@ def shorten_component(s, by_what):
     if l <= 0:
         return s
     return s[:l] + s[-l:]
+
 
 def shorten_components_to(length, components, more_to_take=0, last_has_extension=True):
     filepath = os.sep.join(components)
@@ -85,6 +89,7 @@ def shorten_components_to(length, components, more_to_take=0, last_has_extension
         return shorten_components_to(length, components, more_to_take+2)
     return ans
 
+
 def find_executable_in_path(name, path=None):
     if path is None:
         path = os.environ.get('PATH', '')
@@ -95,6 +100,7 @@ def find_executable_in_path(name, path=None):
         q = os.path.abspath(os.path.join(x, name))
         if os.access(q, os.X_OK):
             return q
+
 
 def is_case_sensitive(path):
     '''
@@ -115,6 +121,7 @@ def is_case_sensitive(path):
         is_case_sensitive = not os.path.exists(f2)
         os.remove(f1)
     return is_case_sensitive
+
 
 def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
     '''
@@ -200,6 +207,7 @@ def case_preserving_open_file(path, mode='wb', mkdir_mode=0o777):
             fpath = os.path.join(cpath, fname)
     return ans, fpath
 
+
 def windows_get_fileid(path):
     ''' The fileid uniquely identifies actual file contents (it is the same for
     all hardlinks to a file). Similar to inode number on linux. '''
@@ -218,6 +226,7 @@ def windows_get_fileid(path):
         return None
     return data[4], data[8], data[9]
 
+
 def samefile_windows(src, dst):
     samestring = (os.path.normcase(os.path.abspath(src)) ==
             os.path.normcase(os.path.abspath(dst)))
@@ -228,6 +237,7 @@ def samefile_windows(src, dst):
     if a is None and b is None:
         return False
     return a == b
+
 
 def samefile(src, dst):
     '''
@@ -255,6 +265,7 @@ def samefile(src, dst):
             os.path.normcase(os.path.abspath(dst)))
     return samestring
 
+
 def windows_get_size(path):
     ''' On windows file sizes are only accurately stored in the actual file,
     not in the directory entry (which could be out of date). So we open the
@@ -269,6 +280,7 @@ def windows_get_size(path):
         return win32file.GetFileSize(h)
     finally:
         win32file.CloseHandle(h)
+
 
 def windows_hardlink(src, dest):
     import win32file, pywintypes
@@ -295,6 +307,7 @@ def windows_hardlink(src, dest):
         msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % ('hardlink size: %d not the same as source size' % sz))
 
+
 def windows_fast_hardlink(src, dest):
     import win32file, pywintypes
     try:
@@ -307,6 +320,7 @@ def windows_fast_hardlink(src, dest):
         msg = u'Creating hardlink from %s to %s failed: %%s' % (src, dest)
         raise OSError(msg % ('hardlink size: %d not the same as source size: %s' % (dsz, ssz)))
 
+
 def windows_nlinks(path):
     import win32file
     dwFlagsAndAttributes = win32file.FILE_FLAG_BACKUP_SEMANTICS if os.path.isdir(path) else 0
@@ -317,6 +331,7 @@ def windows_nlinks(path):
         return win32file.GetFileInformationByHandle(handle)[7]
     finally:
         handle.Close()
+
 
 class WindowsAtomicFolderMove(object):
 
@@ -446,17 +461,20 @@ class WindowsAtomicFolderMove(object):
             win32file.DeleteFile(path)
         self.close_handles()
 
+
 def hardlink_file(src, dest):
     if iswindows:
         windows_hardlink(src, dest)
         return
     os.link(src, dest)
 
+
 def nlinks_file(path):
     ' Return number of hardlinks to the file '
     if iswindows:
         return windows_nlinks(path)
     return os.stat(path).st_nlink
+
 
 def atomic_rename(oldpath, newpath):
     '''Replace the file newpath with the file oldpath. Can fail if the files
@@ -476,6 +494,7 @@ def atomic_rename(oldpath, newpath):
                 time.sleep(1)
     else:
         os.rename(oldpath, newpath)
+
 
 def remove_dir_if_empty(path, ignore_metadata_caches=False):
     ''' Remove a directory if it is empty or contains only the folder metadata
@@ -522,6 +541,7 @@ if iswindows:
 else:
     expanduser = os.path.expanduser
 
+
 def format_permissions(st_mode):
     import stat
     for func, letter in (x.split(':') for x in 'REG:- DIR:d BLK:b CHR:c FIFO:p LNK:l SOCK:s'.split()):
@@ -539,12 +559,14 @@ def format_permissions(st_mode):
         ans[9] = 't' if (st_mode & stat.S_IXUSR) else 'T'
     return ''.join(ans)
 
+
 def copyfile(src, dest):
     shutil.copyfile(src, dest)
     try:
         shutil.copystat(src, dest)
     except Exception:
         pass
+
 
 def get_hardlink_function(src, dest):
     if iswindows:
@@ -561,6 +583,7 @@ def get_hardlink_function(src, dest):
         hardlink = os.link
     return hardlink
 
+
 def copyfile_using_links(path, dest, dest_is_dir=True, filecopyfunc=copyfile):
     path, dest = os.path.abspath(path), os.path.abspath(dest)
     if dest_is_dir:
@@ -570,6 +593,7 @@ def copyfile_using_links(path, dest, dest_is_dir=True, filecopyfunc=copyfile):
         hardlink(path, dest)
     except Exception:
         filecopyfunc(path, dest)
+
 
 def copytree_using_links(path, dest, dest_is_parent=True, filecopyfunc=copyfile):
     path, dest = os.path.abspath(path), os.path.abspath(dest)

@@ -31,6 +31,7 @@ STYLE_MAP = {
     'decimalZero': 'decimal-leading-zero',
 }
 
+
 def alphabet(val, lower=True):
     x = string.ascii_lowercase if lower else string.ascii_uppercase
     return x[(abs(val - 1)) % len(x)]
@@ -40,6 +41,7 @@ alphabet_map = {
     'lower-roman':lambda x:roman(x).lower(), 'upper-roman':roman,
     'decimal-leading-zero': lambda x: '0%d' % x
 }
+
 
 class Level(object):
 
@@ -148,6 +150,7 @@ class Level(object):
         css.pop('font-family', None)
         return css
 
+
 class NumberingDefinition(object):
 
     def __init__(self, namespace, parent=None, an_id=None):
@@ -168,6 +171,7 @@ class NumberingDefinition(object):
         for l, lvl in self.levels.iteritems():
             ans.levels[l] = lvl.copy()
         return ans
+
 
 class Numbering(object):
 

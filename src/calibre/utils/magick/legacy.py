@@ -16,10 +16,12 @@ from calibre.utils.img import (
 )
 from calibre.utils.imghdr import identify
 
+
 class PixelWand(object):
 
     def __init__(self):
         self.color = '#ffffff'
+
 
 class Image(object):
 
@@ -61,6 +63,7 @@ class Image(object):
             if len(self.img.colorTable()) > 0:
                 return 'PaletteType'
             return 'TrueColorType'
+
         def fset(self, t):
             if t == 'GrayscaleType':
                 self.img = grayscale_image(self.img)
@@ -72,6 +75,7 @@ class Image(object):
     def format(self):
         def fget(self):
             return self.write_format or self.read_format
+
         def fset(self, val):
             self.write_format = val
         return property(fget=fget, fset=fset)
@@ -80,6 +84,7 @@ class Image(object):
     def colorspace(self):
         def fget(self):
             return 'RGBColorspace'
+
         def fset(self, val):
             raise NotImplementedError('Changing image colorspace is not supported')
         return property(fget=fget, fset=fset)
@@ -88,6 +93,7 @@ class Image(object):
     def size(self):
         def fget(self):
             return self.img.width(), self.img.height()
+
         def fset(self, val):
             w, h = val[:2]
             self.img = resize_image(self.img, w, h)

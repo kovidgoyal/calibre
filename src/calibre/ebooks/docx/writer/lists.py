@@ -48,6 +48,7 @@ def find_list_containers(list_tag, tag_style):
             ans.append(node)
     return ans
 
+
 class NumberingDefinition(object):
 
     def __init__(self, top_most, stylizer, namespace):
@@ -87,6 +88,7 @@ class NumberingDefinition(object):
         for level in self.levels:
             level.serialize(an, makeelement)
 
+
 class Level(object):
 
     def __init__(self, list_type, container, items, ilvl=0):
@@ -120,6 +122,7 @@ class Level(object):
         if self.num_fmt == 'bullet':
             ff = {'\uf0b7':'Symbol', '\uf0a7':'Wingdings'}.get(self.lvl_text, 'Courier New')
             makeelement(makeelement(lvl, 'w:rPr'), 'w:rFonts', w_ascii=ff, w_hAnsi=ff, w_hint="default")
+
 
 class ListsManager(object):
 

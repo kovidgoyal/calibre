@@ -21,7 +21,9 @@ UNITS = ['millimeter', 'centimeter', 'point', 'inch' , 'pica' , 'didot',
 PAPER_SIZES = [u'a0', u'a1', u'a2', u'a3', u'a4', u'a5', u'a6', u'b0', u'b1',
                u'b2', u'b3', u'b4', u'b5', u'b6', u'legal', u'letter']
 
+
 class PDFMetadata(object):  # {{{
+
     def __init__(self, mi=None):
         from calibre import force_unicode
         from calibre.ebooks.metadata import authors_to_string
@@ -41,6 +43,7 @@ class PDFMetadata(object):  # {{{
         self.title = force_unicode(self.title)
         self.author = force_unicode(self.author)
 # }}}
+
 
 class PDFOutput(OutputFormatPlugin):
 

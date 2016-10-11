@@ -10,6 +10,7 @@ from calibre.gui2.dialogs.comments_dialog_ui import Ui_CommentsDialog
 from calibre.library.comments import comments_to_html
 from calibre.gui2.widgets2 import Dialog
 
+
 class CommentsDialog(QDialog, Ui_CommentsDialog):
 
     def __init__(self, parent, text, column_name=None):

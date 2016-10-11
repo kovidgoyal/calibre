@@ -11,6 +11,7 @@ import __builtin__, sys, os
 
 from calibre import config_dir
 
+
 class PathResolver(object):
 
     def __init__(self):
@@ -65,6 +66,7 @@ class PathResolver(object):
 
 _resolver = PathResolver()
 
+
 def get_path(path, data=False, allow_user_override=True):
     fpath = _resolver(path, allow_user_override=allow_user_override)
     if data:
@@ -86,11 +88,13 @@ else:
             return get_path('images', allow_user_override=allow_user_override)
         return get_path('images/'+path, data=data, allow_user_override=allow_user_override)
 
+
 def js_name_to_path(name, ext='.coffee'):
     path = (u'/'.join(name.split('.'))) + ext
     d = os.path.dirname
     base = d(d(os.path.abspath(__file__)))
     return os.path.join(base, path)
+
 
 def _compile_coffeescript(name):
     from calibre.utils.serve_coffee import compile_coffeescript
@@ -103,6 +107,7 @@ def _compile_coffeescript(name):
             raise Exception('Failed to compile coffeescript'
                     ': %s'%src)
         return cs
+
 
 def compiled_coffeescript(name, dynamic=False):
     import zipfile

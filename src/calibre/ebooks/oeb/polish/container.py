@@ -48,10 +48,12 @@ exists, join, relpath = os.path.exists, os.path.join, os.path.relpath
 OEB_FONTS = {guess_type('a.ttf'), guess_type('b.otf'), guess_type('a.woff'), 'application/x-font-ttf', 'application/x-font-otf', 'application/font-sfnt'}
 OPF_NAMESPACES = {'opf':OPF2_NS, 'dc':DC11_NS}
 
+
 class CSSPreProcessor(cssp):
 
     def __call__(self, data):
         return self.MS_PAT.sub(self.ms_sub, data)
+
 
 def clone_dir(src, dest):
     ' Clone a directory using hard links for the files, dest must already exist '
@@ -67,6 +69,7 @@ def clone_dir(src, dest):
             except:
                 shutil.copy2(spath, dpath)
 
+
 def clone_container(container, dest_dir):
     ' Efficiently clone a container using hard links '
     dest_dir = os.path.abspath(os.path.realpath(dest_dir))
@@ -76,17 +79,21 @@ def clone_container(container, dest_dir):
         return cls(None, None, container.log, clone_data=clone_data)
     return cls(None, container.log, clone_data=clone_data)
 
+
 def name_to_abspath(name, root):
     return os.path.abspath(join(root, *name.split('/')))
 
+
 def abspath_to_name(path, root):
     return relpath(os.path.abspath(path), root).replace(os.sep, '/')
+
 
 def name_to_href(name, root, base=None, quote=urlquote):
     fullpath = name_to_abspath(name, root)
     basepath = root if base is None else os.path.dirname(name_to_abspath(base, root))
     path = relpath(fullpath, basepath).replace(os.sep, '/')
     return quote(path)
+
 
 def href_to_name(href, root, base=None):
     base = root if base is None else os.path.dirname(name_to_abspath(base, root))
@@ -101,6 +108,7 @@ def href_to_name(href, root, base=None):
         return None
     fullpath = os.path.join(base, *href.split('/'))
     return abspath_to_name(fullpath, root)
+
 
 class ContainerBase(object):  # {{{
     '''
@@ -189,6 +197,7 @@ class ContainerBase(object):  # {{{
         return parse_css(data, fname=fname, is_declaration=is_declaration, decode=self.decode, log_level=logging.WARNING,
                          css_preprocessor=(None if self.tweak_mode else self.css_preprocessor))
 # }}}
+
 
 class Container(ContainerBase):  # {{{
 
@@ -1007,8 +1016,11 @@ class Container(ContainerBase):  # {{{
 # }}}
 
 # EPUB {{{
+
+
 class InvalidEpub(InvalidBook):
     pass
+
 
 class ObfuscationKeyMissing(InvalidEpub):
     pass
@@ -1016,6 +1028,7 @@ class ObfuscationKeyMissing(InvalidEpub):
 OCF_NS = 'urn:oasis:names:tc:opendocument:xmlns:container'
 VCS_IGNORE_FILES = frozenset('.gitignore .hgignore .agignore .bzrignore'.split())
 VCS_DIRS = frozenset(('.git', '.hg', '.svn', '.bzr'))
+
 
 def walk_dir(basedir):
     for dirpath, dirnames, filenames in os.walk(basedir):
@@ -1029,6 +1042,7 @@ def walk_dir(basedir):
         for fname in filenames:
             if fname not in VCS_IGNORE_FILES:
                 yield is_root, dirpath, fname
+
 
 class EpubContainer(Container):
 
@@ -1280,6 +1294,7 @@ class EpubContainer(Container):
     def path_to_ebook(self):
         def fget(self):
             return self.pathtoepub
+
         def fset(self, val):
             self.pathtoepub = val
         return property(fget=fget, fset=fset)
@@ -1287,8 +1302,11 @@ class EpubContainer(Container):
 # }}}
 
 # AZW3 {{{
+
+
 class InvalidMobi(InvalidBook):
     pass
+
 
 def do_explode(path, dest):
     from calibre.ebooks.mobi.reader.mobi6 import MobiReader
@@ -1326,10 +1344,12 @@ def opf_to_azw3(opf, outpath, container):
     set_cover(oeb)
     outp.convert(oeb, outpath, inp, plumber.opts, container.log)
 
+
 def epub_to_azw3(epub, outpath=None):
     container = get_container(epub, tweak_mode=True)
     outpath = outpath or (epub.rpartition('.')[0] + '.azw3')
     opf_to_azw3(container.name_to_abspath(container.opf_name), outpath, container)
+
 
 class AZW3Container(Container):
 
@@ -1401,6 +1421,7 @@ class AZW3Container(Container):
     def path_to_ebook(self):
         def fget(self):
             return self.pathtoazw3
+
         def fset(self, val):
             self.pathtoazw3 = val
         return property(fget=fget, fset=fset)
@@ -1409,6 +1430,7 @@ class AZW3Container(Container):
     def names_that_must_not_be_changed(self):
         return set(self.name_path_map)
 # }}}
+
 
 def get_container(path, log=None, tdir=None, tweak_mode=False):
     if log is None:
@@ -1421,6 +1443,7 @@ def get_container(path, log=None, tdir=None, tweak_mode=False):
             else EpubContainer)(path, log, tdir=tdir)
     ebook.tweak_mode = tweak_mode
     return ebook
+
 
 def test_roundtrip():
     ebook = get_container(sys.argv[-1])

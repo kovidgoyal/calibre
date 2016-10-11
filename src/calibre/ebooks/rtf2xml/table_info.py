@@ -17,11 +17,14 @@ from calibre.ptempfile import better_mktemp
 # note to self. This is the first module in which I use tempfile. A good idea?
 """
 """
+
+
 class TableInfo:
     """
     Insert table data for tables.
     Logic:
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -46,6 +49,7 @@ class TableInfo:
         self.__run_level = run_level
         self.__write_to = better_mktemp()
         # self.__write_to = 'table_info.data'
+
     def insert_info(self):
         """
         """

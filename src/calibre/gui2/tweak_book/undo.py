@@ -18,6 +18,7 @@ ROOT = QModelIndex()
 
 MAX_SAVEPOINTS = 100
 
+
 def cleanup(containers):
     for container in containers:
         try:
@@ -25,12 +26,14 @@ def cleanup(containers):
         except:
             pass
 
+
 class State(object):
 
     def __init__(self, container):
         self.container = container
         self.message = None
         self.rewind_message = None
+
 
 class GlobalUndoHistory(QAbstractListModel):
 
@@ -173,12 +176,14 @@ class GlobalUndoHistory(QAbstractListModel):
         for state in self.states:
             state.container.path_to_ebook = path
 
+
 class SpacedDelegate(QStyledItemDelegate):
 
     def sizeHint(self, *args):
         ans = QStyledItemDelegate.sizeHint(self, *args)
         ans.setHeight(ans.height() + 4)
         return ans
+
 
 class CheckpointView(QWidget):
 

@@ -20,6 +20,7 @@ from calibre import prepare_string_for_xml
 from calibre.customize.ui import plugin_for_input_format
 from calibre.gui2.font_family_chooser import FontFamilyChooser
 
+
 def config_widget_for_input_plugin(plugin):
     name = plugin.name.lower().replace(' ', '_')
     try:
@@ -36,6 +37,7 @@ def config_widget_for_input_plugin(plugin):
                 if issubclass(ans, Widget):
                     return ans
 
+
 def bulk_defaults_for_input_format(fmt):
     plugin = plugin_for_input_format(fmt)
     if plugin is not None:
@@ -43,6 +45,7 @@ def bulk_defaults_for_input_format(fmt):
         if w is not None:
             return load_defaults(w.COMMIT_NAME)
     return {}
+
 
 class Widget(QWidget):
 

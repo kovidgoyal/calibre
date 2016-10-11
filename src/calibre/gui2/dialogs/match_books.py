@@ -15,6 +15,7 @@ from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.dialogs.match_books_ui import Ui_MatchBooks
 from calibre.utils.icu import sort_key
 
+
 class TableItem(QTableWidgetItem):
     '''
     A QTableWidgetItem that sorts on a separate string and uses ICU rules
@@ -43,6 +44,7 @@ class TableItem(QTableWidgetItem):
         if l == r:
             return self.sort_idx < other.sort_idx
         return 0
+
 
 class MatchBooks(QDialog, Ui_MatchBooks):
 

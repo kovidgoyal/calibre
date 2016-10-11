@@ -20,11 +20,13 @@ from calibre.ebooks.oeb.stylizer import Stylizer as Sz, Style as St
 from calibre.ebooks.oeb.base import XPath, barename
 from calibre.utils.localization import lang_as_iso639_1
 
+
 def lang_for_tag(tag):
     for attr in ('lang', '{http://www.w3.org/XML/1998/namespace}lang'):
         val = lang_as_iso639_1(tag.get(attr))
         if val:
             return val
+
 
 class Style(St):
 
@@ -42,6 +44,7 @@ class Style(St):
                 self._letterSpacing = self._unit_convert(val)
         return self._letterSpacing
 
+
 class Stylizer(Sz):
 
     def style(self, element):
@@ -49,6 +52,7 @@ class Stylizer(Sz):
             return self._styles[element]
         except KeyError:
             return Style(element, self)
+
 
 class TextRun(object):
 
@@ -127,6 +131,7 @@ class TextRun(object):
             if isinstance(text, type('')):
                 ans += len(text)
         return ans
+
 
 class Block(object):
 
@@ -241,6 +246,7 @@ class Block(object):
             if not run.is_empty():
                 return False
         return True
+
 
 class Blocks(object):
 
@@ -382,6 +388,7 @@ class Blocks(object):
 
     def __repr__(self):
         return 'Block(%r)' % self.runs
+
 
 class Convert(object):
 

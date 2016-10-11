@@ -42,6 +42,7 @@ lock = Lock()
 mtimes = {}
 rename_counter = 0
 
+
 def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func, extra_etag_data=''):
     ''' We cannot copy files directly from the library folder to the output
     socket, as this can potentially lock the library for an extended period. So
@@ -96,6 +97,7 @@ def create_file_copy(ctx, rd, prefix, library_id, book_id, ext, mtime, copy_func
             rd.outheaders['Tempfile'] = hexlify(fname.encode('utf-8'))
         return rd.filesystem_file_with_custom_etag(ans, prefix, library_id, book_id, mtime, extra_etag_data)
 
+
 def write_generated_cover(db, book_id, width, height, destf):
     mi = db.get_metadata(book_id)
     set_use_roman(get_use_roman())
@@ -108,6 +110,7 @@ def write_generated_cover(db, book_id, width, height, destf):
     cdata = generate_cover(mi, prefs=prefs)
     destf.write(cdata)
 
+
 def generated_cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     prefix = 'generated-cover'
     if height is not None:
@@ -115,6 +118,7 @@ def generated_cover(ctx, rd, library_id, db, book_id, width=None, height=None):
 
     mtime = timestampfromdt(db.field_for('last_modified', book_id))
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, partial(write_generated_cover, db, book_id, width, height))
+
 
 def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
     mtime = db.cover_last_modified(book_id)
@@ -126,6 +130,7 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
             db.copy_cover_to(book_id, dest)
     else:
         prefix += '-%sx%s' % (width, height)
+
         def copy_func(dest):
             buf = BytesIO()
             db.copy_cover_to(book_id, buf)
@@ -133,6 +138,7 @@ def cover(ctx, rd, library_id, db, book_id, width=None, height=None):
             data = scale_image(buf.getvalue(), width=width, height=height, compression_quality=quality)[-1]
             dest.write(data)
     return create_file_copy(ctx, rd, prefix, library_id, book_id, 'jpg', mtime, copy_func)
+
 
 def book_fmt(ctx, rd, library_id, db, book_id, fmt):
     mdata = db.format_metadata(book_id, fmt)
@@ -176,6 +182,7 @@ def book_fmt(ctx, rd, library_id, db, book_id, fmt):
     return create_file_copy(ctx, rd, 'fmt', library_id, book_id, fmt, mtime, copy_func, extra_etag_data=extra_etag_data)
 # }}}
 
+
 @endpoint('/static/{+what}', auth_required=False, cache_control=24)
 def static(ctx, rd, what):
     if not what:
@@ -191,9 +198,11 @@ def static(ctx, rd, what):
     except EnvironmentError:
         raise HTTPNotFound()
 
+
 @endpoint('/favicon.png', auth_required=False, cache_control=24)
 def favicon(ctx, rd):
     return share_open(I('lt.png'), 'rb')
+
 
 @endpoint('/icon/{+which}', auth_required=False, cache_control=24)
 def icon(ctx, rd, which):

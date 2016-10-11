@@ -17,6 +17,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre import replace_entities, isbytestring
 from calibre.utils.date import parse_date, is_date_undefined
 
+
 def get_metadata(stream):
     src = stream.read()
     return get_metadata_(src)
@@ -55,6 +56,7 @@ META_NAMES = {
 # single quotes inside double quotes and vice versa.
 attr_pat = r'''(?:(?P<sq>')|(?P<dq>"))(?P<content>(?(sq)[^']+|[^"]+))(?(sq)'|")'''
 
+
 def parse_meta_tags(src):
     rmap = {}
     for field, names in META_NAMES.iteritems():
@@ -84,6 +86,7 @@ def parse_meta_tags(src):
                 return ans
     return ans
 
+
 def parse_comment_tags(src):
     all_names = '|'.join(COMMENT_NAMES.itervalues())
     rmap = {v:k for k, v in COMMENT_NAMES.iteritems()}
@@ -95,6 +98,7 @@ def parse_comment_tags(src):
         if len(ans) == len(COMMENT_NAMES):
             break
     return ans
+
 
 def get_metadata_(src, encoding=None):
     # Meta data definitions as in

@@ -11,6 +11,7 @@ __docformat__ = 'restructuredtext en'
 from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb.haodoo.reader import Reader
 
+
 def get_metadata(stream, extract_cover=True):
     '''
     Return metadata as a L{MetaInfo} object

@@ -11,6 +11,7 @@ from PyQt5.Qt import (
     QPainter, QTimer, QVBoxLayout, QLabel, QStackedWidget, QDialog
 )
 
+
 def draw_snake_spinner(painter, rect, angle, light, dark):
     painter.setRenderHint(QPainter.Antialiasing)
 
@@ -38,6 +39,7 @@ def draw_snake_spinner(painter, rect, angle, light, dark):
     pen.setCapStyle(Qt.RoundCap)
     painter.setPen(pen)
     painter.drawArc(drawing_rect, angle * 16, (360 - 2 * angle_for_width) * 16)
+
 
 class ProgressSpinner(QWidget):
 
@@ -119,6 +121,7 @@ class ProgressSpinner(QWidget):
 
 ProgressIndicator = ProgressSpinner
 
+
 class WaitPanel(QWidget):
 
     def __init__(self, msg, parent=None, size=256, interval=10):
@@ -131,6 +134,7 @@ class WaitPanel(QWidget):
         self.la = QLabel(msg)
         self.la.setStyleSheet('QLabel { font-size: 40px; font-weight: bold }')
         l.addWidget(self.la, 0, Qt.AlignCenter), l.addStretch()
+
 
 class WaitStack(QStackedWidget):
 

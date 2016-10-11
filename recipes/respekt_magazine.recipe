@@ -14,6 +14,7 @@ import lxml
 from lxml.builder import E
 respekt_url = 'http://www.respekt.cz'
 
+
 class respektRecipe(BasicNewsRecipe):
     __author__  = 'Tomáš Hnyk'
     publisher = u'Respekt Publishing a. s.'

@@ -8,6 +8,7 @@ import os
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
 
+
 class PDFInput(InputFormatPlugin):
 
     name        = 'PDF Input'

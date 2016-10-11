@@ -309,6 +309,7 @@ IANA_MOBI = \
             'TW': (4, 4)},
      'zu': {None: (53, 0)}}
 
+
 def iana2mobi(icode):
     langdict, subtags = IANA_MOBI[None], []
     if icode:
@@ -331,6 +332,7 @@ def iana2mobi(icode):
             mcode = langdict[subtag]
             break
     return pack('>HBB', 0, mcode[1], mcode[0])
+
 
 def mobi2iana(langcode, sublangcode):
     prefix = suffix = None

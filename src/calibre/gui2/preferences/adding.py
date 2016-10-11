@@ -17,6 +17,7 @@ from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.auto_add import AUTO_ADDED
 from calibre.gui2 import gprefs, choose_dir, error_dialog, question_dialog
 
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     def genesis(self, gui):

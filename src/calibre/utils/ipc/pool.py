@@ -49,6 +49,7 @@ if iswindows:
             from calibre.utils.ipc.launch import windows_null_file
             worker_kwargs['stdout'] = worker_kwargs['stderr'] = windows_null_file
 
+
 def get_stdout(process):
     import time
     while process.poll() is None:
@@ -64,6 +65,7 @@ def get_stdout(process):
         except (EOFError, EnvironmentError):
             break
 
+
 def start_worker(code, name=''):
     from calibre.utils.ipc.simple_worker import start_pipe_worker
     if name:
@@ -75,6 +77,7 @@ def start_worker(code, name=''):
         t.start()
     return p
 
+
 class Failure(Exception):
 
     def __init__(self, tf):
@@ -82,6 +85,7 @@ class Failure(Exception):
         self.details = tf.tb
         self.job_id = tf.job_id
         self.failure_message = tf.message
+
 
 class Worker(object):
 
@@ -295,6 +299,7 @@ class Pool(Thread):
                     pass  # If the process has already been killed
         workers = [w.process for w in self.available_workers + list(self.busy_workers)]
         aw = list(self.available_workers)
+
         def join():
             for w in aw:
                 try:
@@ -328,6 +333,7 @@ class Pool(Thread):
                 os.remove(self.cd_file.name)
             except EnvironmentError:
                 pass
+
 
 def worker_main(conn):
     from importlib import import_module
@@ -378,6 +384,7 @@ def worker_main(conn):
             return 1
     return 0
 
+
 def run_main(func):
     from multiprocessing.connection import Client
     from contextlib import closing
@@ -385,8 +392,10 @@ def run_main(func):
     with closing(Client(address, authkey=key)) as conn:
         raise SystemExit(func(conn))
 
+
 def test_write():
     print ('Printing to stdout in worker')
+
 
 def test():
     def get_results(pool, ignore_fail=False):

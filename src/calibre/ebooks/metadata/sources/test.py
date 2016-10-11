@@ -17,6 +17,7 @@ from calibre.ebooks.metadata import check_isbn
 from calibre.ebooks.metadata.sources.base import create_log, get_cached_cover_urls
 from calibre.ebooks.metadata.sources.prefs import msprefs
 
+
 def isbn_test(isbn):
     isbn_ = check_isbn(isbn)
 
@@ -28,6 +29,7 @@ def isbn_test(isbn):
         return False
 
     return test
+
 
 def title_test(title, exact=False):
 
@@ -42,6 +44,7 @@ def title_test(title, exact=False):
         return False
 
     return test
+
 
 def authors_test(authors):
     authors = set([x.lower() for x in authors])
@@ -67,6 +70,7 @@ def authors_test(authors):
 
     return test
 
+
 def tags_test(tags):
     tags = set([x.lower() for x in tags])
 
@@ -78,6 +82,7 @@ def tags_test(tags):
         return False
 
     return test
+
 
 def series_test(series, series_index):
     series = series.lower()
@@ -96,6 +101,7 @@ def series_test(series, series_index):
 
     return test
 
+
 def comments_test(sentinel):
 
     def test(mi):
@@ -105,6 +111,7 @@ def comments_test(sentinel):
         prints('comments test failed. %s not in comments'%sentinel)
         return False
     return test
+
 
 def pubdate_test(year, month, day):
 
@@ -116,12 +123,14 @@ def pubdate_test(year, month, day):
 
     return test
 
+
 def init_test(tdir_name):
     tdir = tempfile.gettempdir()
     lf = os.path.join(tdir, tdir_name.replace(' ', '')+'_identify_test.txt')
     log = create_log(open(lf, 'wb'))
     abort = Event()
     return tdir, lf, log, abort
+
 
 def test_identify(tests):  # {{{
     '''
@@ -188,6 +197,7 @@ def test_identify(tests):  # {{{
     prints('Full log is at:', lf)
 
 # }}}
+
 
 def test_identify_plugin(name, tests, modify_plugin=lambda plugin:None,
         fail_missing_meta=True):  # {{{

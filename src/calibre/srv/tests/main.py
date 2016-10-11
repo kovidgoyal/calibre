@@ -9,6 +9,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 from calibre.utils.run_tests import find_tests_in_dir, run_tests
 
+
 def find_tests():
     base = os.path.dirname(os.path.abspath(__file__))
     return find_tests_in_dir(base)

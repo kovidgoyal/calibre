@@ -24,6 +24,7 @@ from calibre.ebooks.metadata import fmt_sidx
 
 JACKET_XPATH = '//h:meta[@name="calibre-content" and @content="jacket"]'
 
+
 class SafeFormatter(Formatter):
 
     def get_value(self, *args, **kwargs):
@@ -31,6 +32,7 @@ class SafeFormatter(Formatter):
             return Formatter.get_value(self, *args, **kwargs)
         except KeyError:
             return ''
+
 
 class Jacket(object):
     '''
@@ -130,6 +132,7 @@ class Jacket(object):
 
 # Render Jacket {{{
 
+
 def get_rating(rating, rchar, e_rchar):
     ans = ''
     try:
@@ -144,6 +147,7 @@ def get_rating(rating, rchar, e_rchar):
     ans = ("%s%s") % (rchar * int(num), e_rchar * (5 - int(num)))
     return ans
 
+
 class Series(unicode):
 
     def __new__(self, series, series_index):
@@ -157,6 +161,7 @@ class Series(unicode):
         s.roman = roman
         return s
 
+
 class Tags(unicode):
 
     def __new__(self, tags, output_profile):
@@ -165,6 +170,7 @@ class Tags(unicode):
         t.alphabetical = ', '.join(sorted(tags, key=sort_key))
         t.tags_list = tags
         return t
+
 
 def render_jacket(mi, output_profile,
         alt_title=_('Unknown'), alt_tags=[], alt_comments='',
@@ -312,6 +318,7 @@ def render_jacket(mi, output_profile,
 
 # }}}
 
+
 def linearize_jacket(oeb):
     for x in oeb.spine[:4]:
         if XPath(JACKET_XPATH)(x.data):
@@ -320,6 +327,7 @@ def linearize_jacket(oeb):
             for e in XPath('//h:td')(x.data):
                 e.tag = XHTML('span')
             break
+
 
 def referenced_images(root):
     for img in XPath('//h:img[@src]')(root):

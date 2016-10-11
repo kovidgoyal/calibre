@@ -12,8 +12,10 @@ from calibre.utils.filenames import ascii_filename
 
 HTML_TEMPLATE = u'<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>%s</title></head><body>\n%s\n</body></html>'
 
+
 def html_encode(s):
     return s.replace(u'&', u'&amp;').replace(u'<', u'&lt;').replace(u'>', u'&gt;').replace(u'"', u'&quot;').replace(u"'", u'&apos;').replace(u'\n', u'<br/>').replace(u' ', u'&nbsp;')  # noqa
+
 
 class SNBInput(InputFormatPlugin):
 

@@ -10,6 +10,7 @@ from calibre.ebooks.metadata.book import TOP_LEVEL_IDENTIFIERS, ALL_METADATA_FIE
 
 from calibre.utils.formatter import TemplateFormatter
 
+
 class SafeFormat(TemplateFormatter):
 
     def __init__(self):

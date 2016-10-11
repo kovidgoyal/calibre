@@ -28,6 +28,7 @@ from calibre.library.save_to_disk import sanitize_args, get_path_components, fin
 
 BookId = namedtuple('BookId', 'title authors')
 
+
 def ensure_unique_components(data):  # {{{
     cmap = defaultdict(set)
     bid_map = {}
@@ -42,6 +43,7 @@ def ensure_unique_components(data):  # {{{
                 components = bid_map[book_id]
                 components[-1] = components[-1] + suffix
 # }}}
+
 
 class SpooledFile(SpooledTemporaryFile):  # {{{
 
@@ -66,6 +68,7 @@ class SpooledFile(SpooledTemporaryFile):  # {{{
         # allow specifying a size.
         self._file.truncate(*args)
 # }}}
+
 
 class Saver(QObject):
 

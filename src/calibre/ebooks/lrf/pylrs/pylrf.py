@@ -69,11 +69,14 @@ PYLRF_VERSION = "1.0"
 #   anyway.
 #
 
+
 class LrfError(Exception):
     pass
 
+
 def writeByte(f, byte):
     f.write(struct.pack("<B", byte))
+
 
 def writeWord(f, word):
     if int(word) > 65535:
@@ -86,34 +89,44 @@ def writeWord(f, word):
 def writeSignedWord(f, sword):
     f.write(struct.pack("<h", int(float(sword))))
 
+
 def writeWords(f, *words):
     f.write(struct.pack("<%dH" % len(words), *words))
+
 
 def writeDWord(f, dword):
     f.write(struct.pack("<I", int(dword)))
 
+
 def writeDWords(f, *dwords):
     f.write(struct.pack("<%dI" % len(dwords), *dwords))
+
 
 def writeQWord(f, qword):
     f.write(struct.pack("<Q", qword))
 
+
 def writeZeros(f, nZeros):
     f.write("\x00" * nZeros)
 
+
 def writeString(f, str):
     f.write(str)
+
 
 def writeIdList(f, idList):
     writeWord(f, len(idList))
     writeDWords(f, *idList)
 
+
 def writeColor(f, color):
     # TODO: allow color names, web format
     f.write(struct.pack(">I", int(color, 0)))
 
+
 def writeLineWidth(f, width):
     writeWord(f, int(width))
+
 
 def writeUnicode(f, string, encoding):
     if isinstance(string, str):
@@ -125,6 +138,7 @@ def writeUnicode(f, string, encoding):
     writeWord(f, length)
     writeString(f, string)
 
+
 def writeRaw(f, string, encoding):
     if isinstance(string, str):
         string = string.decode(encoding)
@@ -132,11 +146,13 @@ def writeRaw(f, string, encoding):
     string = string.encode("utf-16-le")
     writeString(f, string)
 
+
 def writeRubyAA(f, rubyAA):
     ralign, radjust = rubyAA
     radjust = {"line-edge":0x10, "none":0}[radjust]
     ralign = {"start":1, "center":2}[ralign]
     writeWord(f, ralign | radjust)
+
 
 def writeBgImage(f, bgInfo):
     imode, iid = bgInfo
@@ -144,11 +160,13 @@ def writeBgImage(f, bgInfo):
     writeWord(f, imode)
     writeDWord(f, iid)
 
+
 def writeEmpDots(f, dotsInfo, encoding):
     refDotsFont, dotsFontName, dotsCode = dotsInfo
     writeDWord(f, refDotsFont)
     LrfTag("fontfacename", dotsFontName).write(f, encoding)
     writeWord(f, int(dotsCode, 0))
+
 
 def writeRuledLine(f, lineInfo):
     lineLength, lineType, lineWidth, lineColor = lineInfo
@@ -398,6 +416,7 @@ STREAM_COMPRESSED = 0x100
 STREAM_FORCE_COMPRESSED = 0x8100
 STREAM_TOC = 0x0051
 
+
 class LrfStreamBase(object):
 
     def __init__(self, streamFlags, streamData=None):
@@ -557,6 +576,7 @@ class LrfToc(LrfObject):
         Table of contents.  Format of toc is:
         [ (pageid, objid, string)...]
     """
+
     def __init__(self, objId, toc, se):
         LrfObject.__init__(self, "TOC", objId)
         streamData = self._makeTocStream(toc, se)

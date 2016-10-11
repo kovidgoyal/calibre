@@ -27,6 +27,7 @@ if iswindows and hasattr(sys, 'frozen'):
 if (islinux or isbsd) and getattr(sys, 'frozen', False):
     PDFTOHTML = os.path.join(sys.executables_location, 'bin', 'pdftohtml')
 
+
 def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
     '''
     Convert the pdf into html using the pdftohtml app.
@@ -123,6 +124,7 @@ def pdftohtml(output_dir, pdf_path, no_images, as_xml=False):
         except:
             pass
 
+
 def parse_outline(raw, output_dir):
     from lxml import etree
     from calibre.ebooks.oeb.parse_utils import RECOVER_PARSER
@@ -157,6 +159,7 @@ def flip_image(img, flip):
         img = flip_image(img, horizontal=b'x' in flip, vertical=b'y' in flip)
         f.seek(0), f.truncate()
         f.write(image_to_data(img, fmt=fmt))
+
 
 def flip_images(raw):
     for match in re.finditer(b'<IMG[^>]+/?>', raw, flags=re.I):

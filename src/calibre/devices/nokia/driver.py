@@ -10,6 +10,7 @@ Device driver for Nokia's internet tablet devices
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class N770(USBMS):
 
     name           = 'Nokia 770 Device Interface'
@@ -34,6 +35,7 @@ class N770(USBMS):
     EBOOK_DIR_MAIN = 'My Ebooks'
     SUPPORTS_SUB_DIRS = True
 
+
 class N810(N770):
     name           = 'Nokia N800/N810/N900/N950/N9 Device Interface'
     gui_name       = 'Nokia N800/N810/N900/N950/N9'
@@ -45,6 +47,7 @@ class N810(N770):
     WINDOWS_MAIN_MEM = ['N800', 'N810', 'N900', 'NOKIA_N950', 'NOKIA_N9']
 
     MAIN_MEMORY_VOLUME_LABEL = 'Nokia Maemo/MeeGo device Main Memory'
+
 
 class E71X(USBMS):
 
@@ -65,6 +68,7 @@ class E71X(USBMS):
 
     VENDOR_NAME      = 'NOKIA'
     WINDOWS_MAIN_MEM = 'S60'
+
 
 class E52(USBMS):
 

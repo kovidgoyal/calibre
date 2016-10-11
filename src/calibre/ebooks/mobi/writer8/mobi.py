@@ -20,12 +20,14 @@ from calibre.utils.filenames import ascii_filename
 NULL_INDEX = 0xffffffff
 FLIS = b'FLIS\0\0\0\x08\0\x41\0\0\0\0\0\0\xff\xff\xff\xff\0\x01\0\x03\0\0\0\x03\0\0\0\x01'+ b'\xff'*4
 
+
 def fcis(text_length):
     fcis = b'FCIS\x00\x00\x00\x14\x00\x00\x00\x10\x00\x00\x00\x02\x00\x00\x00\x00'
     fcis += pack(b'>L', text_length)
     fcis += b'\x00\x00\x00\x00\x00\x00\x00\x28\x00\x00\x00\x00\x00\x00\x00'
     fcis += b'\x28\x00\x00\x00\x08\x00\x01\x00\x01\x00\x00\x00\x00'
     return fcis
+
 
 class MOBIHeader(Header):  # {{{
 
@@ -213,6 +215,7 @@ HEADER_FIELDS = {'compression', 'text_length', 'last_text_record', 'book_type',
                     'fdst_count', 'ncx_index', 'chunk_index', 'skel_index',
                     'guide_index', 'exth', 'full_title', 'extra_data_flags',
                     'flis_record', 'fcis_record', 'uid'}
+
 
 class KF8Book(object):
 

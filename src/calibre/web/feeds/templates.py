@@ -13,11 +13,14 @@ from lxml.html.builder import HTML, HEAD, TITLE, STYLE, DIV, BODY, \
 
 from calibre import preferred_encoding, strftime, isbytestring
 
+
 def CLASS(*args, **kwargs):  # class is a reserved word in Python
     kwargs['class'] = ' '.join(args)
     return kwargs
 
 # Regular templates
+
+
 class Template(object):
 
     IS_HTML = True
@@ -51,6 +54,7 @@ class Template(object):
         return etree.tostring(self.root, encoding='utf-8', xml_declaration=True,
                 pretty_print=True)
 
+
 class EmbeddedContent(Template):
 
     def _generate(self, article, style=None, extra_css=None):
@@ -79,6 +83,7 @@ class EmbeddedContent(Template):
                 elem = SPAN(elem)
             div.append(elem)
 
+
 class IndexTemplate(Template):
 
     def _generate(self, title, masthead, datefmt, feeds, extra_css=None, style=None):
@@ -105,6 +110,7 @@ class IndexTemplate(Template):
         self.root = HTML(head, BODY(div))
         if self.html_lang:
             self.root.set('lang', self.html_lang)
+
 
 class FeedTemplate(Template):
 

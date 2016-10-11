@@ -15,6 +15,7 @@ from calibre.ebooks.rb import RocketBookError
 from calibre.ebooks.metadata.rb import get_metadata
 from calibre.ebooks.metadata.opf2 import OPFCreator
 
+
 class RBToc(list):
 
     class Item(object):

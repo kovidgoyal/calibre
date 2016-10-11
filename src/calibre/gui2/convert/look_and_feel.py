@@ -13,6 +13,7 @@ from PyQt5.Qt import Qt
 from calibre.gui2.convert.look_and_feel_ui import Ui_Form
 from calibre.gui2.convert import Widget
 
+
 class LookAndFeelWidget(Widget, Ui_Form):
 
     TITLE = _('Look & Feel')

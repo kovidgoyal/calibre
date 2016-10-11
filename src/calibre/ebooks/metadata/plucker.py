@@ -18,6 +18,7 @@ from calibre.ebooks.pdb.header import PdbHeaderReader
 from calibre.ebooks.pdb.plucker.reader import SectionHeader, DATATYPE_METADATA, \
     MIBNUM_TO_NAME
 
+
 def get_metadata(stream, extract_cover=True):
     '''
     Return metadata as a L{MetaInfo} object

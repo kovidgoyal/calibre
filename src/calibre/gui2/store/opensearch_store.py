@@ -20,6 +20,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 from calibre.utils.opensearch.description import Description
 from calibre.utils.opensearch.query import Query
 
+
 class OpenSearchOPDSStore(StorePlugin):
 
     open_search_url = ''

@@ -69,6 +69,7 @@ OLDSTYLE_AUTH = re.compile(r"auth=(.*)", re.I)
 class SMTPException(Exception):
     """Base class for all exceptions raised by this module."""
 
+
 class SMTPServerDisconnected(SMTPException):
     """Not connected to any SMTP server.
 
@@ -76,6 +77,7 @@ class SMTPServerDisconnected(SMTPException):
     or when an attempt is made to use the SMTP instance before
     connecting it to a server.
     """
+
 
 class SMTPResponseException(SMTPException):
     """Base class for all exceptions that include an SMTP error code.
@@ -91,6 +93,7 @@ class SMTPResponseException(SMTPException):
         self.smtp_error = msg
         self.args = (code, msg)
 
+
 class SMTPSenderRefused(SMTPResponseException):
     """Sender address refused.
 
@@ -103,6 +106,7 @@ class SMTPSenderRefused(SMTPResponseException):
         self.smtp_error = msg
         self.sender = sender
         self.args = (code, msg, sender)
+
 
 class SMTPRecipientsRefused(SMTPException):
     """All recipient addresses refused.
@@ -120,11 +124,14 @@ class SMTPRecipientsRefused(SMTPException):
 class SMTPDataError(SMTPResponseException):
     """The SMTP server didn't accept the data."""
 
+
 class SMTPConnectError(SMTPResponseException):
     """Error during connection establishment."""
 
+
 class SMTPHeloError(SMTPResponseException):
     """The server refused our HELO reply."""
+
 
 class SMTPAuthenticationError(SMTPResponseException):
     """Authentication error.
@@ -153,12 +160,14 @@ def quoteaddr(addr):
     else:
         return "<%s>" % m
 
+
 def _addr_only(addrstring):
     displayname, addr = email.utils.parseaddr(addrstring)
     if (displayname, addr) == ('', ''):
         # parseaddr couldn't parse it, so use it as is.
         return addrstring
     return addr
+
 
 def quotedata(data):
     """Quote data for email.
@@ -180,6 +189,7 @@ else:
 
         It only supports what is needed in smtplib.
         """
+
         def __init__(self, sslobj):
             self.sslobj = sslobj
 
@@ -201,6 +211,7 @@ else:
             pass
 
     _have_ssl = True
+
 
 class SMTP:
     """This class manages a connection to an SMTP or ESMTP server.
@@ -825,6 +836,7 @@ if _have_ssl:
 # LMTP extension
 #
 LMTP_PORT = 2003
+
 
 class LMTP(SMTP):
     """LMTP - Local Mail Transfer Protocol

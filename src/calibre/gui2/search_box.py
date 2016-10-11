@@ -20,12 +20,14 @@ from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.saved_search_editor import SavedSearchEditor
 from calibre.gui2.dialogs.search import SearchDialog
 
+
 class AsYouType(unicode):
 
     def __new__(cls, text):
         self = unicode.__new__(cls, text)
         self.as_you_type = True
         return self
+
 
 class SearchLineEdit(QLineEdit):  # {{{
     key_pressed = pyqtSignal(object)
@@ -73,6 +75,7 @@ class SearchLineEdit(QLineEdit):  # {{{
             self.selectAll()
         self.select_on_mouse_press = None
 # }}}
+
 
 class SearchBox2(QComboBox):  # {{{
 
@@ -285,6 +288,7 @@ class SearchBox2(QComboBox):  # {{{
 
     # }}}
 
+
 class SavedSearchBox(QComboBox):  # {{{
 
     '''
@@ -425,6 +429,7 @@ class SavedSearchBox(QComboBox):  # {{{
 
     # }}}
 
+
 class SearchBoxMixin(object):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -510,6 +515,7 @@ class SearchBoxMixin(object):  # {{{
         self.current_view().setFocus(Qt.OtherFocusReason)
 
     # }}}
+
 
 class SavedSearchBoxMixin(object):  # {{{
 

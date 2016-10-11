@@ -8,6 +8,7 @@ Device driver for BOEYE serial readers
 
 from calibre.devices.usbms.driver import USBMS
 
+
 class BOEYE_BEX(USBMS):
     name		= 'BOEYE BEX reader driver'
     gui_name	= 'BOEYE BEX'
@@ -28,6 +29,7 @@ class BOEYE_BEX(USBMS):
 
     EBOOK_DIR_MAIN	  = 'Documents'
     SUPPORTS_SUB_DIRS = True
+
 
 class BOEYE_BDX(USBMS):
     name		= 'BOEYE BDX reader driver'

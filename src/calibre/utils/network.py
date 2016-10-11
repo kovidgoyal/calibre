@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.constants import iswindows, islinux, isbsd
 
+
 class LinuxNetworkStatus(object):
 
     def __init__(self):
@@ -30,6 +31,7 @@ class LinuxNetworkStatus(object):
         except:
             return True
 
+
 class WindowsNetworkStatus(object):
 
     def __init__(self):
@@ -41,6 +43,7 @@ class WindowsNetworkStatus(object):
             return True
         return self.winutil.internet_connected()
 
+
 class DummyNetworkStatus(object):
 
     def __call__(self):
@@ -49,6 +52,7 @@ class DummyNetworkStatus(object):
 _network_status = WindowsNetworkStatus() if iswindows else \
         LinuxNetworkStatus() if (islinux or isbsd) else \
         DummyNetworkStatus()
+
 
 def internet_connected():
     return _network_status()

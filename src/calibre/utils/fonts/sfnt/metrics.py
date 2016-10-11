@@ -11,6 +11,7 @@ from future_builtins import map
 from calibre.utils.fonts.utils import get_all_font_names
 from calibre.utils.fonts.sfnt.container import UnsupportedFont
 
+
 class FontMetrics(object):
 
     '''

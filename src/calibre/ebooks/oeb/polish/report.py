@@ -20,6 +20,7 @@ from css_selectors import Select, SelectorError
 
 File = namedtuple('File', 'name dir basename size category')
 
+
 def get_category(name, mt):
     category = 'misc'
     if mt.startswith('image/'):
@@ -40,11 +41,13 @@ def get_category(name, mt):
         category = 'toc'
     return category
 
+
 def safe_size(container, name):
     try:
         return os.path.getsize(container.name_to_abspath(name))
     except Exception:
         return 0
+
 
 def safe_img_data(container, name, mt):
     if 'svg' in mt:
@@ -55,6 +58,7 @@ def safe_img_data(container, name, mt):
         width = height = 0
     return width, height
 
+
 def files_data(container, *args):
     for name, path in container.name_path_map.iteritems():
         yield File(name, posixpath.dirname(name), posixpath.basename(name), safe_size(container, name),
@@ -64,17 +68,21 @@ Image = namedtuple('Image', 'name mime_type usage size basename id width height'
 
 LinkLocation = namedtuple('LinkLocation', 'name line_number text_on_line')
 
+
 def sort_locations(container, locations):
     nmap = {n:i for i, (n, l) in enumerate(container.spine_names)}
+
     def sort_key(l):
         return (nmap.get(l.name, len(nmap)), numeric_sort_key(l.name), l.line_number)
     return sorted(locations, key=sort_key)
+
 
 def safe_href_to_name(container, href, base):
     try:
         return container.href_to_name(href, base)
     except ValueError:
         pass  # Absolute path on windows
+
 
 def images_data(container, *args):
     image_usage = defaultdict(set)
@@ -94,6 +102,7 @@ def images_data(container, *args):
             image_data.append(Image(name, mt, sort_locations(container, image_usage.get(name, set())), safe_size(container, name),
                                     posixpath.basename(name), len(image_data), *safe_img_data(container, name, mt)))
     return tuple(image_data)
+
 
 def description_for_anchor(elem):
     def check(x, min_len=4):
@@ -121,6 +130,7 @@ def description_for_anchor(elem):
         if desc is not None:
             return desc
 
+
 def create_anchor_map(root, pat, name):
     ans = {}
     for elem in pat(root):
@@ -131,12 +141,15 @@ def create_anchor_map(root, pat, name):
 
 Anchor = namedtuple('Anchor', 'id location text')
 L = namedtuple('Link', 'location text is_external href path_ok anchor_ok anchor ok')
+
+
 def Link(location, text, is_external, href, path_ok, anchor_ok, anchor):
     if is_external:
         ok = None
     else:
         ok = path_ok and anchor_ok
     return L(location, text, is_external, href, path_ok, anchor_ok, anchor, ok)
+
 
 def links_data(container, *args):
     anchor_map = {}
@@ -181,15 +194,18 @@ def links_data(container, *args):
 
 Word = namedtuple('Word', 'id word locale usage')
 
+
 def words_data(container, book_locale, *args):
     count, words = get_all_words(container, book_locale, get_word_count=True)
     return (count, tuple(Word(i, word, locale, v) for i, ((word, locale), v) in enumerate(words.iteritems())))
 
 Char = namedtuple('Char', 'id char codepoint usage count')
 
+
 def chars_data(container, *args):
     chars = defaultdict(set)
     counter = Counter()
+
     def count(codepoint):
         counter[codepoint] += 1
 
@@ -203,6 +219,7 @@ def chars_data(container, *args):
             chars[codepoint].add(name)
 
     nmap = {n:i for i, (n, l) in enumerate(container.spine_names)}
+
     def sort_key(name):
         return nmap.get(name, len(nmap)), numeric_sort_key(name)
 
@@ -219,6 +236,7 @@ CSSFileMatch = namedtuple('CSSFileMatch', 'file_name locations sort_key')
 ClassEntry = namedtuple('ClassEntry', 'cls num_of_matches matched_files sort_key')
 ClassFileMatch = namedtuple('ClassFileMatch', 'file_name class_elements sort_key')
 ClassElement = namedtuple('ClassElement', 'name line_number text_on_line tag matched_rules')
+
 
 def css_data(container, book_locale, result_data, *args):
     import tinycss
@@ -274,6 +292,7 @@ def css_data(container, book_locale, result_data, *args):
                 yield sheet
 
     tt_cache = {}
+
     def tag_text(elem):
         ans = tt_cache.get(elem)
         if ans is None:

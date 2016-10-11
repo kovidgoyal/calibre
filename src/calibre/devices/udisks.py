@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, re
 
+
 def node_mountpoint(node):
 
     def de_mangle(raw):
@@ -19,8 +20,10 @@ def node_mountpoint(node):
             return de_mangle(line[1])
     return None
 
+
 class NoUDisks1(Exception):
     pass
+
 
 class UDisks(object):
 
@@ -65,8 +68,10 @@ class UDisks(object):
         d = self.device(parent)
         d.DriveEject([])
 
+
 class NoUDisks2(Exception):
     pass
+
 
 class UDisks2(object):
 
@@ -153,6 +158,7 @@ class UDisks2(object):
         drive.Eject({'auth.no_user_interaction':True},
                 dbus_interface=self.DRIVE)
 
+
 def get_udisks(ver=None):
     if ver is None:
         try:
@@ -161,6 +167,7 @@ def get_udisks(ver=None):
             u = UDisks()
         return u
     return UDisks2() if ver == 2 else UDisks()
+
 
 def get_udisks1():
     u = None
@@ -175,17 +182,21 @@ def get_udisks1():
         raise EnvironmentError('UDisks not available on your system')
     return u
 
+
 def mount(node_path):
     u = get_udisks1()
     u.mount(node_path)
+
 
 def eject(node_path):
     u = get_udisks1()
     u.eject(node_path)
 
+
 def umount(node_path):
     u = get_udisks1()
     u.unmount(node_path)
+
 
 def test_udisks(ver=None):
     import sys

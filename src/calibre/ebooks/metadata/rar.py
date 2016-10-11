@@ -12,6 +12,7 @@ from io import BytesIO
 
 from calibre.utils.unrar import extract_member, names
 
+
 def get_metadata(stream):
     from calibre.ebooks.metadata.archive import is_comic
     from calibre.ebooks.metadata.meta import get_metadata

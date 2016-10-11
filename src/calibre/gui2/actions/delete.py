@@ -21,6 +21,7 @@ from calibre.utils.recycle_bin import can_recycle
 
 single_shot = partial(QTimer.singleShot, 10)
 
+
 class MultiDeleter(QObject):  # {{{
 
     def __init__(self, gui, ids, callback):
@@ -81,6 +82,7 @@ class MultiDeleter(QObject):  # {{{
                     _('Failed to delete some books, click the Show Details button'
                     ' for details.'), det_msg='\n\n'.join(msg), show=True)
 # }}}
+
 
 class DeleteAction(InterfaceAction):
 

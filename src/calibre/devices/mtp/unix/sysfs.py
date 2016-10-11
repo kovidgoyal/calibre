@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import os, glob
 
+
 class MTPDetect(object):
 
     SYSFS_PATH = os.environ.get('SYSFS_PATH', '/sys')

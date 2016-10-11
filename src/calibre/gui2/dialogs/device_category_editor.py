@@ -6,6 +6,7 @@ from PyQt5.Qt import Qt, QDialog, QListWidgetItem
 from calibre.gui2.dialogs.device_category_editor_ui import Ui_DeviceCategoryEditor
 from calibre.gui2 import question_dialog, error_dialog
 
+
 class ListWidgetItem(QListWidgetItem):
 
     def __init__(self, txt):
@@ -44,6 +45,7 @@ class ListWidgetItem(QListWidgetItem):
     def setText(self, txt):
         self.current_value = txt
         QListWidgetItem.setText(txt)
+
 
 class DeviceCategoryEditor(QDialog, Ui_DeviceCategoryEditor):
 

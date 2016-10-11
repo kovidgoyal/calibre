@@ -8,6 +8,7 @@ import cStringIO, os
 
 from calibre.ebooks.metadata.opf2 import OPF
 
+
 def get_metadata(stream):
     from calibre.ebooks.lit.reader import LitContainer
     from calibre.utils.logging import Log

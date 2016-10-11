@@ -30,6 +30,7 @@ from calibre.utils import join_with_timeout
 from calibre.utils.config import prefs
 from calibre.utils.ipc.pool import Pool, Failure
 
+
 def validate_source(source, parent=None):  # {{{
     if isinstance(source, basestring):
         if not os.path.exists(source):
@@ -53,6 +54,7 @@ def validate_source(source, parent=None):  # {{{
             return False
     return True
 # }}}
+
 
 class Adder(QObject):
 

@@ -15,6 +15,7 @@ ruby_tags = {
         0xF57A: ['emplinetype', 'W', {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}]
 }
 
+
 class LRFObject(object):
 
     tag_map = {
@@ -90,6 +91,7 @@ class LRFObject(object):
 
     def __str__(self):
         return unicode(self).encode('utf-8')
+
 
 class LRFContentObject(LRFObject):
 
@@ -189,6 +191,7 @@ class PageTree(LRFObject):
         for id in getattr(self, '_contents', []):
             yield self._document.objects[id]
 
+
 class StyleObject(object):
 
     def _tags_to_xml(self):
@@ -212,6 +215,7 @@ class StyleObject(object):
             if hasattr(self, attr):
                 d[attr] = getattr(self, attr)
         return d
+
 
 class PageAttr(StyleObject, LRFObject):
     tag_map = {
@@ -271,6 +275,7 @@ class EmptyPageElement(object):
     def __str__(self):
         return unicode(self)
 
+
 class PageDiv(EmptyPageElement):
 
     def __init__(self, pain, spacesize, linewidth, linecolor):
@@ -296,6 +301,7 @@ class RuledLine(EmptyPageElement):
         return u'\n<RuledLine linelength="%s" linetype="%s" linewidth="%s" linecolor="%s" />\n'%\
                 (self.linelength, self.linetype, self.linewidth, self.linecolor)
 
+
 class Wait(EmptyPageElement):
 
     def __init__(self, time):
@@ -303,6 +309,7 @@ class Wait(EmptyPageElement):
 
     def __unicode__(self):
         return u'\n<Wait time="%d" />\n'%(self.time)
+
 
 class Locate(EmptyPageElement):
 
@@ -314,6 +321,7 @@ class Locate(EmptyPageElement):
     def __unicode__(self):
         return u'\n<Locate pos="%s" />\n'%(self.pos)
 
+
 class BlockSpace(EmptyPageElement):
 
     def __init__(self, xspace, yspace):
@@ -322,6 +330,7 @@ class BlockSpace(EmptyPageElement):
     def __unicode__(self):
         return u'\n<BlockSpace xspace="%d" yspace="%d" />\n'%\
                 (self.xspace, self.yspace)
+
 
 class Page(LRFStream):
     tag_map = {
@@ -937,6 +946,7 @@ class Image(LRFObject):
         return u'<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
         (self.id, self.x0, self.y0, self.x1, self.y1, self.xsize, self.ysize, self.refstream)
 
+
 class PutObj(EmptyPageElement):
 
     def __init__(self, objects, x1, y1, refobj):
@@ -945,6 +955,7 @@ class PutObj(EmptyPageElement):
 
     def __unicode__(self):
         return u'<PutObj x1="%d" y1="%d" refobj="%d" />'%(self.x1, self.y1, self.refobj)
+
 
 class Canvas(LRFStream):
     tag_map = {
@@ -997,8 +1008,10 @@ class Canvas(LRFStream):
         for i in self._contents:
             yield i
 
+
 class Header(Canvas):
     pass
+
 
 class Footer(Canvas):
     pass
@@ -1006,6 +1019,7 @@ class Footer(Canvas):
 
 class ESound(LRFObject):
     pass
+
 
 class ImageStream(LRFStream):
     tag_map = {
@@ -1027,8 +1041,10 @@ class ImageStream(LRFStream):
         return u'<ImageStream objid="%s" encoding="%s" file="%s" />\n'%\
             (self.id, self.encoding, self.file)
 
+
 class Import(LRFStream):
     pass
+
 
 class Button(LRFObject):
     tag_map = {
@@ -1121,14 +1137,18 @@ class Button(LRFObject):
 class Window(LRFObject):
     pass
 
+
 class PopUpWin(LRFObject):
     pass
+
 
 class Sound(LRFObject):
     pass
 
+
 class SoundStream(LRFObject):
     pass
+
 
 class Font(LRFStream):
     tag_map = {
@@ -1147,6 +1167,7 @@ class Font(LRFStream):
         s = '<RegistFont objid="%s" fontfilename="%s" fontname="%s" encoding="TTF" file="%s" />\n'%\
             (self.id, self.fontfilename, self.fontfacename, self.file)
         return s
+
 
 class ObjectInfo(LRFStream):
     pass
@@ -1180,8 +1201,10 @@ class BookAttr(StyleObject, LRFObject):
         s += '</BookStyle>\n'
         return s
 
+
 class SimpleText(Text):
     pass
+
 
 class TocLabel(object):
 
@@ -1190,6 +1213,7 @@ class TocLabel(object):
 
     def __unicode__(self):
         return u'<TocLabel refpage="%s" refobj="%s">%s</TocLabel>\n'%(self.refpage, self.refobject, self.label)
+
 
 class TOCObject(LRFStream):
 

@@ -13,6 +13,7 @@ from lxml import etree
 
 from calibre import guess_type
 
+
 class Canvas(etree.XSLTExtension):
 
     def __init__(self, doc, styles, text_block, log):
@@ -97,6 +98,7 @@ class MediaType(etree.XSLTExtension):
         if not typ:
             typ = 'application/octet-stream'
         output_parent.text = typ
+
 
 class ImageBlock(etree.XSLTExtension):
 

@@ -10,6 +10,7 @@ from calibre.gui2.convert import Widget
 paper_size_model = None
 orientation_model = None
 
+
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('DOCX Output')

@@ -15,6 +15,7 @@ from calibre.gui2.preferences.columns_ui import Ui_Form
 from calibre.gui2.preferences.create_custom_column import CreateCustomColumn
 from calibre.gui2 import error_dialog, question_dialog, ALL_COLUMNS
 
+
 class ConfigWidget(ConfigWidgetBase, Ui_Form):
 
     restart_critical = True
@@ -245,6 +246,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         hidden_cols = list(hidden_cols.intersection(set(model.column_map)))
         if 'ondevice' in hidden_cols:
             hidden_cols.remove('ondevice')
+
         def col_pos(x, y):
             xidx = config_cols.index(x) if x in config_cols else sys.maxint
             yidx = config_cols.index(y) if y in config_cols else sys.maxint

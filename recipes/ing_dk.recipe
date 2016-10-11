@@ -6,6 +6,8 @@ from calibre.web.feeds.news import BasicNewsRecipe
 '''
 Ingeniøren.dk
 '''
+
+
 class Ing_dk(BasicNewsRecipe):
     __author__ = 'CoderAllan.github.com'
     title = 'Ingeniøren'

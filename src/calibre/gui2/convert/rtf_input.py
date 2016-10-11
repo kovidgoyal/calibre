@@ -9,6 +9,7 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 from calibre.gui2.convert.rtf_input_ui import Ui_Form
 from calibre.gui2.convert import Widget
 
+
 class PluginWidget(Widget, Ui_Form):
 
     TITLE = _('RTF Input')

@@ -12,6 +12,7 @@ from calibre.gui2.store.opensearch_store import OpenSearchOPDSStore
 from calibre.gui2.store.search_result import SearchResult
 from calibre.utils.filenames import ascii_text
 
+
 class EbooksGratuitsStore(BasicStoreConfig, OpenSearchOPDSStore):
 
     open_search_url = 'http://www.ebooksgratuits.com/opds/opensearch.xml'

@@ -22,6 +22,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
 shop_url = 'http://www.ozon.ru'
 
+
 def search(query, max_results=15, timeout=60):
     url = 'http://www.ozon.ru/?context=search&text=%s&store=1,0&group=div_book' % urllib.quote_plus(query)
 
@@ -45,6 +46,7 @@ def search(query, max_results=15, timeout=60):
             s.price = format_price_in_RUR(s.price)
             yield s
 
+
 class OzonRUStore(StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
@@ -60,6 +62,7 @@ class OzonRUStore(StorePlugin):
     def search(self, query, max_results=15, timeout=60):
         for s in search(query, max_results=max_results, timeout=timeout):
             yield s
+
 
 def format_price_in_RUR(price):
     '''

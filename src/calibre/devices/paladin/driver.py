@@ -18,9 +18,12 @@ from calibre.devices.usbms.books import CollectionsBookList, BookList
 
 DBPATH = 'paladin/database/books.db'
 
+
 class ImageWrapper(object):
+
     def __init__(self, image_path):
         self.image_path = image_path
+
 
 class PALADIN(USBMS):
     name           = 'Paladin Device Interface'

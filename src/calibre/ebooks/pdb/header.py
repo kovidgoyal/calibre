@@ -11,6 +11,7 @@ import re
 import struct
 import time
 
+
 class PdbHeaderReader(object):
 
     def __init__(self, stream):

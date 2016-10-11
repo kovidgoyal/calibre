@@ -15,6 +15,7 @@ from calibre.ebooks.metadata import author_to_author_sort
 from calibre.utils.date import UNDEFINED_DATE
 from calibre.db.tests.base import BaseTest, IMG
 
+
 class WritingTest(BaseTest):
 
     # Utils {{{

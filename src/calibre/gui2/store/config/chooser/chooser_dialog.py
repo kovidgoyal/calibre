@@ -10,6 +10,7 @@ from PyQt5.Qt import (QDialog, QDialogButtonBox, QVBoxLayout)
 
 from calibre.gui2.store.config.chooser.chooser_widget import StoreChooserWidget
 
+
 class StoreChooserDialog(QDialog):
 
     def __init__(self, parent):

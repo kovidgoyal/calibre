@@ -57,6 +57,7 @@ LINK_ATTRS = frozenset(('href', 'src', 'poster', 'xlink:href'))
 
 do_spell_check = False
 
+
 def refresh_spell_check_status():
     global do_spell_check
     do_spell_check = tprefs['inline_spell_check'] and hasattr(dictionaries, 'active_user_dictionaries')
@@ -68,6 +69,7 @@ if _speedup is not None:
     Tag = _speedup.Tag
     bold_tags, italic_tags = _speedup.bold_tags, _speedup.italic_tags
     State = _speedup.State
+
     def spell_property(sfmt, locale):
         s = QTextCharFormat(sfmt)
         s.setProperty(SPELL_LOCALE_PROPERTY, locale)
@@ -168,6 +170,7 @@ else:
 
 del _speedup
 
+
 def finish_opening_tag(state, cdata_tags):
     state.parse = NORMAL
     if state.tag_being_defined is None:
@@ -180,6 +183,7 @@ def finish_opening_tag(state, cdata_tags):
     if t.name in cdata_tags:
         state.parse = CSS if t.name == 'style' else CDATA
         state.sub_parser_state = None
+
 
 def close_tag(state, name):
     removed_tags = []
@@ -212,6 +216,7 @@ def close_tag(state, name):
             state.current_lang = tag.lang
             break
 
+
 class HTMLUserData(QTextBlockUserData):
 
     def __init__(self):
@@ -231,19 +236,23 @@ class HTMLUserData(QTextBlockUserData):
     def tag_ok_for_spell(cls, name):
         return name not in html_spell_tags
 
+
 class XMLUserData(HTMLUserData):
 
     @classmethod
     def tag_ok_for_spell(cls, name):
         return name in xml_spell_tags
 
+
 def add_tag_data(user_data, tag):
     user_data.tags.append(tag)
 
 ATTR_NAME, ATTR_VALUE, ATTR_START, ATTR_END = object(), object(), object(), object()
 
+
 def add_attr_data(user_data, data_type, data, offset):
     user_data.attributes.append(Attr(offset, data_type, data))
+
 
 def css(state, text, i, formats, user_data):
     ' Inside a <style> tag '
@@ -265,6 +274,7 @@ def css(state, text, i, formats, user_data):
         ans.extend([(2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])])
     return ans
 
+
 def cdata(state, text, i, formats, user_data):
     'CDATA inside tags like <title> or <style>'
     name = state.tags[-1].name
@@ -277,6 +287,7 @@ def cdata(state, text, i, formats, user_data):
     num = m.start() - i
     add_tag_data(user_data, TagStart(m.start(), '', name, True, True))
     return [(num, fmt), (2, formats['end_tag']), (len(m.group()) - 2, formats['tag_name'])]
+
 
 def process_text(state, text, nbsp_format, spell_format, user_data):
     ans = []
@@ -314,6 +325,7 @@ def process_text(state, text, nbsp_format, spell_format, user_data):
         ans = split_ans
 
     return ans
+
 
 def normal(state, text, i, formats, user_data):
     ' The normal state in between tags '
@@ -369,6 +381,7 @@ def normal(state, text, i, formats, user_data):
     t = normal_pat.search(text, i).group()
     return process_text(state, t, formats['nbsp'], formats['spell'], user_data)
 
+
 def opening_tag(cdata_tags, state, text, i, formats, user_data):
     'An opening tag, like <a>'
     ch = text[i]
@@ -399,6 +412,7 @@ def opening_tag(cdata_tags, state, text, i, formats, user_data):
         return [(len(prefix) + 1, formats['nsprefix']), (len(name), formats['attr'])]
     return [(len(prefix), formats['attr'])]
 
+
 def attribute_name(state, text, i, formats, user_data):
     ' After attribute name '
     ch = text[i]
@@ -411,6 +425,7 @@ def attribute_name(state, text, i, formats, user_data):
     state.parse = IN_OPENING_TAG
     state.attribute_name = None
     return [(0, None)]
+
 
 def attribute_value(state, text, i, formats, user_data):
     ' After attribute = '
@@ -426,6 +441,7 @@ def attribute_value(state, text, i, formats, user_data):
     if m is None:
         return [(1, formats['no-attr-value'])]
     return [(len(m.group()), formats['string'])]
+
 
 def quoted_val(state, text, i, formats, user_data):
     ' A quoted attribute value '
@@ -455,6 +471,7 @@ def quoted_val(state, text, i, formats, user_data):
         return [(num - 1, formats['class_attr']), (1, formats['string'])]
     return [(num, formats['string'])]
 
+
 def closing_tag(state, text, i, formats, user_data):
     ' A closing tag like </a> '
     ch = text[i]
@@ -470,6 +487,7 @@ def closing_tag(state, text, i, formats, user_data):
         ans.insert(0, (num - 1, formats['bad-closing']))
     add_tag_data(user_data, TagEnd(pos, False, False))
     return ans
+
 
 def in_comment(state, text, i, formats, user_data):
     ' Comment, processing instruction or doctype '
@@ -501,6 +519,7 @@ for x in (SQ_VAL, DQ_VAL):
 
 xml_state_map = state_map.copy()
 xml_state_map[IN_OPENING_TAG] = partial(opening_tag, set())
+
 
 def create_formats(highlighter, add_css=True):
     t = highlighter.theme
@@ -558,6 +577,7 @@ class Highlighter(SyntaxHighlighter):
     def tag_ok_for_spell(self, name):
         return HTMLUserData.tag_ok_for_spell(name)
 
+
 class XMLHighlighter(Highlighter):
 
     state_map = xml_state_map
@@ -569,6 +589,7 @@ class XMLHighlighter(Highlighter):
 
     def tag_ok_for_spell(self, name):
         return XMLUserData.tag_ok_for_spell(name)
+
 
 def profile():
     import sys

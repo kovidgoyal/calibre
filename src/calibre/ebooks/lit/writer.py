@@ -44,6 +44,7 @@ ALL_MS_COVER_TYPES = [
     ('other.ms-thumbimage', 'PocketPC thumbnail image'),
     ]
 
+
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
     tags = dict((tags[i], i) for i in xrange(len(tags)))
@@ -65,6 +66,7 @@ PIECE3_GUID = "{0A9007C3-4076-11D3-8789-0000F8105754}"
 PIECE4_GUID = "{0A9007C4-4076-11D3-8789-0000F8105754}"
 DESENCRYPT_GUID = "{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}"
 LZXCOMPRESS_GUID = "{0A9007C6-4076-11D3-8789-0000F8105754}"
+
 
 def packguid(guid):
     values = guid[1:9], guid[10:14], guid[15:19], \
@@ -114,6 +116,7 @@ COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
 PAGE_BREAKS = set(['always', 'left', 'right'])
 
+
 def decint(value):
     bytes = []
     while True:
@@ -126,11 +129,14 @@ def decint(value):
             break
     return ''.join(reversed(bytes))
 
+
 def randbytes(n):
     return ''.join(chr(random.randint(0, 255)) for x in xrange(n))
 
+
 def warn(x):
     print x
+
 
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
@@ -292,6 +298,7 @@ def preserve(function):
             self._stream.seek(opos)
     functools.update_wrapper(wrapper, function)
     return wrapper
+
 
 class LitWriter(object):
 

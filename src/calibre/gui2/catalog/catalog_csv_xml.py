@@ -10,6 +10,7 @@ from calibre.gui2 import gprefs
 from calibre.gui2.ui import get_gui
 from PyQt5.Qt import QWidget, QListWidgetItem, Qt, QVBoxLayout, QLabel, QListWidget
 
+
 class PluginWidget(QWidget):
 
     TITLE = _('CSV/XML Options')

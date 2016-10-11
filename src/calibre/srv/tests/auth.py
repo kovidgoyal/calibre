@@ -17,21 +17,26 @@ from calibre.srv.routes import endpoint, Router
 
 REALM = 'calibre-test'
 
+
 @endpoint('/open', auth_required=False)
 def noauth(ctx, data):
     return 'open'
+
 
 @endpoint('/closed', auth_required=True)
 def auth(ctx, data):
     return 'closed'
 
+
 @endpoint('/android', auth_required=True, android_workaround=True)
 def android(ctx, data):
     return 'android'
 
+
 @endpoint('/android2', auth_required=True, android_workaround=True)
 def android2(ctx, data):
     return 'android2'
+
 
 def router(prefer_basic_auth=False):
     from calibre.srv.auth import AuthController
@@ -39,11 +44,13 @@ def router(prefer_basic_auth=False):
         {'testuser':'testpw', '!@#$%^&*()-=_+':'!@#$%^&*()-=_+'},
         prefer_basic_auth=prefer_basic_auth, realm=REALM, max_age_seconds=1))
 
+
 def urlopen(server, path='/closed', un='testuser', pw='testpw', method='digest'):
     auth_handler = urllib2.HTTPBasicAuthHandler() if method == 'basic' else urllib2.HTTPDigestAuthHandler()
     url = 'http://localhost:%d%s' % (server.address[1], path)
     auth_handler.add_password(realm=REALM, uri=url, user=un, passwd=pw)
     return urllib2.build_opener(auth_handler).open(url)
+
 
 def digest(un, pw, nonce=None, uri=None, method='GET', nc=1, qop='auth', realm=REALM, cnonce=None, algorithm='MD5', body=b'', modify=lambda x:None):
     'Create the payload for a digest based Authorization header'
@@ -54,14 +61,18 @@ def digest(un, pw, nonce=None, uri=None, method='GET', nc=1, qop='auth', realm=R
     da = DigestAuth(h)
     modify(da)
     pw = getattr(da, 'pw', pw)
+
     class Data(object):
+
         def __init__(self):
             self.method = method
+
         def peek():
             return body
     response = da.request_digest(pw, Data())
     return ('Digest ' + templ.format(
         un=un, realm=realm, qop=qop, uri=uri, method=method, nonce=nonce, nc=nc, cnonce=cnonce, algorithm=algorithm, response=response)).encode('ascii')
+
 
 class TestAuth(BaseTest):
 
@@ -109,6 +120,7 @@ class TestAuth(BaseTest):
         r = router()
         with TestServer(r.dispatch) as server:
             r.auth_controller.log = server.log
+
             def test(conn, path, headers={}, status=httplib.OK, body=b'', request_body=b''):
                 conn.request('GET', path, request_body, headers)
                 r = conn.getresponse()

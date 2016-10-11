@@ -17,6 +17,7 @@ from calibre.gui2 import error_dialog
 from calibre.gui2.tweak_book import actions, tprefs, editors
 from calibre.gui2.tweak_book.editor.canvas import Canvas
 
+
 class ResizeDialog(QDialog):  # {{{
 
     def __init__(self, width, height, parent=None):
@@ -65,6 +66,7 @@ class ResizeDialog(QDialog):  # {{{
     def width(self):
         def fget(self):
             return self._width.value()
+
         def fset(self, val):
             self._width.setValue(val)
         return property(fget=fget, fset=fset)
@@ -73,10 +75,12 @@ class ResizeDialog(QDialog):  # {{{
     def height(self):
         def fget(self):
             return self._height.value()
+
         def fset(self, val):
             self._height.setValue(val)
         return property(fget=fget, fset=fset)
 # }}}
+
 
 class Editor(QMainWindow):
 
@@ -111,6 +115,7 @@ class Editor(QMainWindow):
     def is_modified(self):
         def fget(self):
             return self._is_modified
+
         def fset(self, val):
             self._is_modified = val
             self.modification_state_changed.emit(val)
@@ -120,6 +125,7 @@ class Editor(QMainWindow):
     def current_editing_state(self):
         def fget(self):
             return {}
+
         def fset(self, val):
             pass
         return property(fget=fget, fset=fset)
@@ -136,6 +142,7 @@ class Editor(QMainWindow):
     def current_line(self):
         def fget(self):
             return 0
+
         def fset(self, val):
             pass
         return property(fget=fget, fset=fset)
@@ -157,6 +164,7 @@ class Editor(QMainWindow):
     def data(self):
         def fget(self):
             return self.get_raw_data()
+
         def fset(self, val):
             self.canvas.load_image(val)
             self._is_modified = False  # The image_changed signal will have been triggered causing this editor to be incorrectly marked as modified
@@ -328,6 +336,7 @@ class Editor(QMainWindow):
             'The strength of the operation (higher numbers have larger effects)'), value=4, min=0.1, max=20)
         if ok:
             self.canvas.oilify_image(radius=val)
+
 
 def launch_editor(path_to_edit, path_is_raw=False):
     app = QApplication([])

@@ -10,6 +10,7 @@ from PyQt5.Qt import QWidget
 
 from calibre.gui2.store.basic_config_widget_ui import Ui_Form
 
+
 class BasicStoreConfigWidget(QWidget, Ui_Form):
 
     def __init__(self, store):
@@ -25,6 +26,7 @@ class BasicStoreConfigWidget(QWidget, Ui_Form):
 
         self.open_external.setChecked(config.get('open_external', False))
         self.tags.setText(config.get('tags', ''))
+
 
 class BasicStoreConfig(object):
 

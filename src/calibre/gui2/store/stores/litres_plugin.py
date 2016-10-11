@@ -23,6 +23,7 @@ from calibre.gui2.store.basic_config import BasicStoreConfig
 from calibre.gui2.store.search_result import SearchResult
 from calibre.gui2.store.web_store_dialog import WebStoreDialog
 
+
 class LitResStore(BasicStoreConfig, StorePlugin):
     shop_url = u'http://www.litres.ru'
     # http://robot.litres.ru/pages/biblio_book/?art=174405
@@ -98,6 +99,7 @@ class LitResStore(BasicStoreConfig, StorePlugin):
         sRes.formats = ', '.join(fmt_set)
         return sRes
 
+
 def format_price_in_RUR(price):
     '''
     Try to format price according ru locale: '12 212,34 руб.'
@@ -113,6 +115,7 @@ def format_price_in_RUR(price):
             pass
     return price
 
+
 def ungzipResponse(r,b):
     headers = r.info()
     if headers['Content-Encoding']=='gzip':
@@ -124,12 +127,14 @@ def ungzipResponse(r,b):
         r.set_data(data)
         b.set_response(r)
 
+
 def _get_affiliate_id():
     aff_id = u'3623565'
     # Use Kovid's affiliate id 30% of the time.
     if random.randint(1, 10) in (1, 2, 3):
         aff_id = u'4084465'
     return u'lfrom=' + aff_id
+
 
 def _parse_ebook_formats(formatsStr):
     '''

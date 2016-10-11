@@ -58,6 +58,7 @@ def import_from_launchpad(url):
     subprocess.check_call('python setup.py translations'.split(), cwd=path)
     return 0
 
+
 def check_for_critical_bugs():
     if os.path.exists('.errors'):
         shutil.rmtree('.errors')

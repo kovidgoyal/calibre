@@ -22,6 +22,7 @@ from calibre.gui2.widgets2 import Dialog
 from calibre.utils.exim import all_known_libraries, export, Importer, import_data
 from calibre.utils.icu import numeric_sort_key
 
+
 def disk_usage(path_to_dir, abort=None):
     stack = [path_to_dir]
     ans = 0
@@ -39,6 +40,7 @@ def disk_usage(path_to_dir, abort=None):
         except EnvironmentError:
             pass
     return ans
+
 
 class ImportLocation(QWidget):
 
@@ -65,6 +67,7 @@ class ImportLocation(QWidget):
     @property
     def path(self):
         return self.le.text().strip()
+
 
 class RunAction(QDialog):
 
@@ -139,6 +142,7 @@ class RunAction(QDialog):
             import traceback
             self.tb = traceback.format_exc()
         self.finish_signal.emit()
+
 
 class EximDialog(Dialog):
 

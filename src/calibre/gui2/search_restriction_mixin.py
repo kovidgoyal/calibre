@@ -20,6 +20,7 @@ from calibre.utils.icu import sort_key
 from calibre.utils.search_query_parser import ParseException
 from calibre.utils.localization import localize_user_manual_link
 
+
 class SelectNames(QDialog):  # {{{
 
     def __init__(self, names, txt, parent=None):
@@ -61,6 +62,7 @@ class SelectNames(QDialog):  # {{{
 
 MAX_VIRTUAL_LIBRARY_NAME_LENGTH = 40
 
+
 def _build_full_search_string(gui):
     search_templates = (
         '',
@@ -86,6 +88,7 @@ def _build_full_search_string(gui):
         dex += 1
     template = search_templates[dex]
     return template.format(cl=cl, cr=cr, sb=sb).strip()
+
 
 class CreateVirtualLibrary(QDialog):  # {{{
 
@@ -304,6 +307,7 @@ class CreateVirtualLibrary(QDialog):  # {{{
         self.library_search = v
         QDialog.accept(self)
 # }}}
+
 
 class SearchRestrictionMixin(object):
 

@@ -33,8 +33,10 @@ DEFAULT_TEMPLATES = {
 
 }
 
+
 def raw_template_for(syntax):
     return tprefs['templates'].get(syntax, DEFAULT_TEMPLATES.get(syntax, ''))
+
 
 def template_for(syntax):
     mi = current_container().mi

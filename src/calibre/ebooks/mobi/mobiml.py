@@ -17,6 +17,8 @@ from calibre.ebooks.mobi.utils import convert_color_for_font_tag
 from calibre.utils.imghdr import identify
 
 MBP_NS = 'http://mobipocket.com/ns/mbp'
+
+
 def MBP(name):
     return '{%s}%s' % (MBP_NS, name)
 
@@ -38,10 +40,12 @@ PAGE_BREAKS = set(['always', 'left', 'right'])
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
+
 def asfloat(value):
     if not isinstance(value, (int, long, float)):
         return 0.0
     return float(value)
+
 
 def isspace(text):
     if not text:
@@ -50,7 +54,9 @@ def isspace(text):
         return False
     return text.isspace()
 
+
 class BlockState(object):
+
     def __init__(self, body):
         self.body = body
         self.nested = []
@@ -63,7 +69,9 @@ class BlockState(object):
         self.istate = None
         self.content = False
 
+
 class FormatState(object):
+
     def __init__(self):
         self.rendered = False
         self.left = 0.
@@ -102,6 +110,7 @@ class FormatState(object):
 
 
 class MobiMLizer(object):
+
     def __init__(self, ignore_tables=False):
         self.ignore_tables = ignore_tables
 

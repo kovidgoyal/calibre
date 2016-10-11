@@ -56,6 +56,7 @@ UI_INFO = """
 </ui>
 """
 
+
 class MenuExampleWindow(Gtk.ApplicationWindow):
 
     def __init__(self, app):
@@ -196,6 +197,7 @@ class MenuExampleWindow(Gtk.ApplicationWindow):
             self.popup.popup(None, None, None, None, event.button, event.time)
             return True  # event has been handled
 
+
 def convert(v):
     if isinstance(v, basestring):
         return unicode(v)
@@ -210,6 +212,7 @@ def convert(v):
     if isinstance(v, (dbus.UInt32, dbus.UInt16)):
         return int(v)
     return v
+
 
 class MyApplication(Gtk.Application):
 

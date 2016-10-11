@@ -23,10 +23,12 @@ from calibre.utils.config import prefs, tweaks
 from calibre.utils.date import isoformat, timestampfromdt
 from calibre.utils.icu import numeric_sort_key as sort_key
 
+
 def ensure_val(x, *allowed):
     if x not in allowed:
         x = allowed[0]
     return x
+
 
 def get_pagination(query, num=100, offset=0):
     try:
@@ -38,6 +40,7 @@ def get_pagination(query, num=100, offset=0):
     except:
         raise HTTPNotFound("Invalid offset")
     return num, offset
+
 
 def category_icon(category, meta):  # {{{
     if category in category_icon_map:
@@ -52,6 +55,7 @@ def category_icon(category, meta):  # {{{
 # }}}
 
 # Book metadata {{{
+
 
 def book_to_json(ctx, rd, db, book_id,
                  get_category_urls=True, device_compatible=False, device_for_template=None):
@@ -137,6 +141,7 @@ def book_to_json(ctx, rd, db, book_id,
 
     return data, mi.last_modified
 
+
 @endpoint('/ajax/book/{book_id}/{library_id=None}', postprocess=json)
 def book(ctx, rd, book_id, library_id):
     '''
@@ -175,6 +180,7 @@ def book(ctx, rd, book_id, library_id):
                 device_for_template=device_for_template)
     rd.outheaders['Last-Modified'] = http_date(timestampfromdt(last_modified))
     return data
+
 
 @endpoint('/ajax/books/{library_id=None}', postprocess=json)
 def books(ctx, rd, library_id):
@@ -227,6 +233,8 @@ def books(ctx, rd, library_id):
 # }}}
 
 # Categories (Tag Browser)  {{{
+
+
 @endpoint('/ajax/categories/{library_id=None}', postprocess=json)
 def categories(ctx, rd, library_id):
     '''
@@ -246,6 +254,7 @@ def categories(ctx, rd, library_id):
         categories = ctx.get_categories(rd, db)
         category_meta = db.field_metadata
         library_id = db.server_library_id
+
         def getter(x):
             return category_meta[x]['name']
 
@@ -517,6 +526,8 @@ def books_in(ctx, rd, encoded_category, encoded_item, library_id):
 # }}}
 
 # Search {{{
+
+
 def search_result(ctx, rd, db, query, num, offset, sort, sort_order):
     multisort = [(sanitize_sort_field_name(db.field_metadata, s), ensure_val(o, 'asc', 'desc') == 'asc')
                  for s, o in zip(sort.split(','), cycle(sort_order.split(',')))]
@@ -540,6 +551,7 @@ def search_result(ctx, rd, db, query, num, offset, sort, sort_order):
             'book_ids':ids
     }
 
+
 @endpoint('/ajax/search/{library_id=None}', postprocess=json)
 def search(ctx, rd, library_id):
     '''
@@ -554,6 +566,7 @@ def search(ctx, rd, library_id):
         return search_result(ctx, rd, db, query, num, offset, rd.query.get('sort', 'title'), rd.query.get('sort_order', 'asc'))
 
 # }}}
+
 
 @endpoint('/ajax/library-info', postprocess=json)
 def library_info(ctx, rd):

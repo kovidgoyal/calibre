@@ -24,10 +24,12 @@ from calibre.utils.icu import numeric_sort_key
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
 
+
 def asfloat(value, default):
     if not isinstance(value, (int, long, float)):
         value = default
     return float(value)
+
 
 def dynamic_rescale_factor(node):
     classes = node.get('class', '').split(' ')
@@ -45,6 +47,7 @@ def dynamic_rescale_factor(node):
 
 
 class KeyMapper(object):
+
     def __init__(self, sbase, dbase, dkey):
         self.sbase = float(sbase)
         self.dprop = [(self.relate(x, dbase), float(x)) for x in dkey]
@@ -92,7 +95,9 @@ class KeyMapper(object):
         dsize = min(diff)[1]
         return dsize
 
+
 class ScaleMapper(object):
+
     def __init__(self, sbase, dbase):
         self.dscale = float(dbase) / float(sbase)
 
@@ -101,12 +106,15 @@ class ScaleMapper(object):
         dsize = ssize * self.dscale
         return dsize
 
+
 class NullMapper(object):
+
     def __init__(self):
         pass
 
     def __getitem__(self, ssize):
         return ssize
+
 
 def FontMapper(sbase=None, dbase=None, dkey=None):
     if sbase and dbase and dkey:
@@ -115,6 +123,7 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
         return ScaleMapper(sbase, dbase)
     else:
         return NullMapper()
+
 
 class EmbedFontsCSSRules(object):
 
@@ -134,7 +143,9 @@ class EmbedFontsCSSRules(object):
                     data=sheet).href
         return self.href
 
+
 class CSSFlattener(object):
+
     def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
                  untable=False, page_break_on_body=False, specializer=None,
                  transform_css_rules=()):
@@ -542,6 +553,7 @@ class CSSFlattener(object):
     def flatten_head(self, item, href, global_href):
         html = item.data
         head = html.find(XHTML('head'))
+
         def safe_lower(x):
             try:
                 x = x.lower()

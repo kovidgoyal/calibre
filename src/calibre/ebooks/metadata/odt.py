@@ -55,6 +55,7 @@ fields = {
 # 'template':         (METANS,u'template'),
 }
 
+
 def normalize(str):
     """
     The normalize-space function returns the argument string with whitespace
@@ -63,11 +64,13 @@ def normalize(str):
     """
     return whitespace.sub(' ', str).strip()
 
+
 class MetaCollector:
     """
     The MetaCollector is a pseudo file object, that can temporarily ignore write-calls
     It could probably be replaced with a StringIO object.
     """
+
     def __init__(self):
         self._content = []
         self.dowrite = True
@@ -155,6 +158,7 @@ class odfmetaparser(xml.sax.saxutils.XMLGenerator):
     def data(self):
         return normalize(''.join(self._data))
 
+
 def get_metadata(stream, extract_cover=True):
     zin = zipfile.ZipFile(stream, 'r')
     odfs = odfmetaparser()
@@ -216,6 +220,7 @@ def get_metadata(stream, extract_cover=True):
             pass  # Do not let an error reading the cover prevent reading other data
 
     return mi
+
 
 def read_cover(stream, zin, mi, opfmeta, extract_cover):
     # search for an draw:image in a draw:frame with the name 'opf.cover'

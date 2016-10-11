@@ -12,6 +12,7 @@ from threading import Thread
 
 from calibre.utils.monotonic import monotonic
 
+
 class Worker(Thread):
 
     daemon = True
@@ -45,6 +46,7 @@ class Worker(Thread):
 
     def handle_error(self, job_id):
         self.result_queue.put((job_id, False, sys.exc_info()))
+
 
 class ThreadPool(object):
 
@@ -82,6 +84,7 @@ class ThreadPool(object):
     @property
     def idle(self):
         return sum(int(not w.working) for w in self.workers)
+
 
 class PluginPool(object):
 

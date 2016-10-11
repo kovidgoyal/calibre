@@ -16,15 +16,18 @@ from calibre.utils.fonts.utils import panose_to_css_generic_family, is_truetype_
 
 Embed = namedtuple('Embed', 'name key subsetted')
 
+
 def has_system_fonts(name):
     try:
         return bool(font_scanner.fonts_for_family(name))
     except NoFonts:
         return False
 
+
 def get_variant(bold=False, italic=False):
     return {(False, False):'Regular', (False, True):'Italic',
             (True, False):'Bold', (True, True):'BoldItalic'}[(bold, italic)]
+
 
 class Family(object):
 

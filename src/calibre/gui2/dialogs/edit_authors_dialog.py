@@ -12,12 +12,15 @@ from calibre.gui2 import error_dialog, gprefs
 from calibre.gui2.dialogs.edit_authors_dialog_ui import Ui_EditAuthorsDialog
 from calibre.utils.icu import sort_key
 
+
 class tableItem(QTableWidgetItem):
+
     def __ge__(self, other):
         return sort_key(unicode(self.text())) >= sort_key(unicode(other.text()))
 
     def __lt__(self, other):
         return sort_key(unicode(self.text())) < sort_key(unicode(other.text()))
+
 
 class EditAuthorsDialog(QDialog, Ui_EditAuthorsDialog):
 

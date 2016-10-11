@@ -17,6 +17,7 @@ from calibre.ebooks.pdb.ereader.reader132 import HeaderRecord
 from calibre.ebooks.pdb.header import PdbHeaderBuilder
 from calibre.ebooks.pdb.header import PdbHeaderReader
 
+
 def get_cover(pheader, eheader):
     cover_data = None
 
@@ -28,6 +29,7 @@ def get_cover(pheader, eheader):
             break
 
     return ('png', cover_data)
+
 
 def get_metadata(stream, extract_cover=True):
     """
@@ -61,6 +63,7 @@ def get_metadata(stream, extract_cover=True):
         mi.title = pheader.title if pheader.title else _('Unknown')
 
     return mi
+
 
 def set_metadata(stream, mi):
     pheader = PdbHeaderReader(stream)

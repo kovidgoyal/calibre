@@ -15,11 +15,14 @@ from PyQt5.Qt import (QLabel, QGridLayout, QLineEdit, QVBoxLayout,
 from calibre.gui2.device_drivers.tabbed_device_config import TabbedDeviceConfig, DeviceConfigTab, DeviceOptionsGroupBox
 from calibre.devices.usbms.driver import debug_print
 
+
 def wrap_msg(msg):
     return textwrap.fill(msg.strip(), 100)
 
+
 def setToolTipFor(widget, tt):
     widget.setToolTip(wrap_msg(tt))
+
 
 def create_checkbox(title, tt, state):
     cb = QCheckBox(title)
@@ -139,6 +142,7 @@ class Tab1Config(DeviceConfigTab):  # {{{
         self.l.addWidget(self.book_uploads_options)
         self.addDeviceWidget(self.book_uploads_options)
 # }}}
+
 
 class Tab2Config(DeviceConfigTab):  # {{{
 

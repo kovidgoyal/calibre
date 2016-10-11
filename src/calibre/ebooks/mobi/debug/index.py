@@ -31,6 +31,7 @@ FIELD_NAMES = {'len':'Header length', 'type':'Unknown', 'gen':'Index Type (0 - n
                'total':'Total number of actual Index Entries in all records', 'ordt': 'ORDT Offset', 'ligt':'LIGT Offset', 'nligt':'Number of LIGT',
                'ncncx':'Number of CNCX records', 'indices':'Geometry of index records'}
 
+
 def read_variable_len_data(data, header):
     offset = header['tagx']
     indices = []
@@ -55,6 +56,7 @@ def read_variable_len_data(data, header):
     if trailing_bytes.rstrip(b'\0'):
         raise ValueError('Traling bytes after last IDXT entry: %r' % trailing_bytes.rstrip(b'\0'))
     header['indices'] = indices
+
 
 def read_index(sections, idx, codec):
     table, cncx = OrderedDict(), CNCX([], codec)
@@ -82,6 +84,7 @@ def read_index(sections, idx, codec):
                 indx_header['ordt_map'], strict=True))
         read_variable_len_data(data, index_headers[-1])
     return table, cncx, indx_header, index_headers
+
 
 class Index(object):
 
@@ -128,6 +131,7 @@ class Index(object):
     def __iter__(self):
         return iter(self.records)
 
+
 class SKELIndex(Index):
 
     def __init__(self, skelidx, records, codec):
@@ -147,6 +151,7 @@ class SKELIndex(Index):
                     tag_map[6][0],  # start_pos
                     tag_map[6][1])  # length
                 )
+
 
 class SECTIndex(Index):
 
@@ -171,6 +176,7 @@ class SECTIndex(Index):
                     tag_map[6][1]  # length
                     )
                 )
+
 
 class GuideIndex(Index):
 
@@ -225,6 +231,7 @@ class NCXIndex(Index):
                             if tag == which:
                                 entry[name] = self.cncx.get(fieldvalue,
                                         default_entry[name])
+
                 def refindx(e, name):
                     ans = e[name]
                     if ans < 0:

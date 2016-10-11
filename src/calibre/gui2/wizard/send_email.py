@@ -21,6 +21,7 @@ from calibre.gui2.wizard.send_email_ui import Ui_Form
 from calibre.utils.smtp import config as smtp_prefs
 from calibre.gui2 import error_dialog, question_dialog
 
+
 class TestEmail(QDialog):
 
     test_done = pyqtSignal(object)
@@ -73,6 +74,7 @@ class TestEmail(QDialog):
         if self.isVisible():
             self.test_button.setEnabled(True)
             self.log.setPlainText(txt)
+
 
 class RelaySetup(QDialog):
 

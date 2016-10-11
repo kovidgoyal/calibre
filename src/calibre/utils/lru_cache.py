@@ -8,6 +8,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 # Based on https://github.com/jlhutch/pylru/blob/master/pylru.py (which is
 # licensed GPL v2+)
 
+
 class DoublyLinkedNode(object):
 
     __slots__ = 'empty prev next key value'.split()
@@ -15,6 +16,7 @@ class DoublyLinkedNode(object):
     def __init__(self):
         self.empty = True
         self.prev = self.next = self.key = self.value = None
+
 
 class lru_cache(object):
 

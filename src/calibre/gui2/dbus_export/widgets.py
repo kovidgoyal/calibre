@@ -16,10 +16,12 @@ from calibre.constants import iswindows, isosx
 UNITY_WINDOW_REGISTRAR = ('com.canonical.AppMenu.Registrar', '/com/canonical/AppMenu/Registrar', 'com.canonical.AppMenu.Registrar')
 STATUS_NOTIFIER = ("org.kde.StatusNotifierWatcher", "/StatusNotifierWatcher", "org.kde.StatusNotifierWatcher")
 
+
 def log(*args, **kw):
     kw['file'] = sys.stderr
     print('DBusExport:', *args, **kw)
     kw['file'].flush()
+
 
 class MenuBarAction(QAction):
 
@@ -30,6 +32,7 @@ class MenuBarAction(QAction):
         return self.parent()
 
 menu_counter = 0
+
 
 class ExportedMenuBar(QMenuBar):  # {{{
 
@@ -117,6 +120,7 @@ class ExportedMenuBar(QMenuBar):  # {{{
         return False
 
 # }}}
+
 
 class Factory(QObject):
 
@@ -251,6 +255,8 @@ class Factory(QObject):
         # TODO: have the created widgets also handle bus disconnection
 
 _factory = None
+
+
 def factory(app_id=None):
     global _factory
     if _factory is None:

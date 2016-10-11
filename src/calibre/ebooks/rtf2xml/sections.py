@@ -15,6 +15,7 @@ import sys, os
 from calibre.ebooks.rtf2xml import copy
 from calibre.ptempfile import better_mktemp
 
+
 class Sections:
     """
     =================
@@ -50,6 +51,7 @@ class Sections:
     CHANGE (2004-04-26) No longer write sections that occurr in field-blocks.
     Instead, ingore all section information in a field-block.
     """
+
     def __init__(self,
             in_file,
             bug_handler,
@@ -70,6 +72,7 @@ class Sections:
         self.__copy = copy
         self.__run_level = run_level
         self.__write_to = better_mktemp()
+
     def __initiate_values(self):
         """
         Initiate all values.
@@ -119,6 +122,7 @@ class Sections:
         # 'cw<sc<section___'      : self.__found_section_in_field_func,
         # 'cw<sc<sect-defin'      : self.__found_section_def_in_field_func,
         }
+
     def __found_section_def_func(self, line):
         """
         Required:
@@ -132,6 +136,7 @@ class Sections:
         """
         self.__state = 'section_def'
         self.__section_values.clear()
+
     def __attribute_func(self, line, name):
         """
         Required:
@@ -149,6 +154,7 @@ class Sections:
         attribute = name
         value = line[20:-1]
         self.__section_values[attribute] = value
+
     def __found_section_func(self, line):
         """
         Requires:
@@ -162,6 +168,7 @@ class Sections:
         self.__state = 'section'
         self.__write_obj.write(line)
         self.__section_num += 1
+
     def __found_section_def_bef_sec_func(self, line):
         """
         Requires:
@@ -175,6 +182,7 @@ class Sections:
         self.__section_num += 1
         self.__found_section_def_func(line)
         self.__write_obj.write(line)
+
     def __section_func(self, line):
         """
         Requires:
@@ -186,6 +194,7 @@ class Sections:
         if self.__token_info == 'cw<sc<sect-defin':
             self.__found_section_def_func(line)
         self.__write_obj.write(line)
+
     def __section_def_func(self, line):
         """
         Required:
@@ -207,6 +216,7 @@ class Sections:
                 self.__write_obj.write(line)
         else:
             self.__write_obj.write(line)
+
     def __end_sec_def_func(self, line, name):
         """
         Requires:
@@ -223,6 +233,7 @@ class Sections:
         else:
             self.__state = 'sec_in_field'
         self.__write_section(line)
+
     def __end_sec_premature_func(self, line, name):
         """
         Requires:
@@ -244,6 +255,7 @@ class Sections:
         self.__write_obj.write('cw<pf<par-def___<nu<true\n')
         self.__write_obj.write('ob<nu<open-brack<0000\n')
         self.__write_obj.write('cb<nu<clos-brack<0000\n')
+
     def __write_section(self, line):
         """
         Requires:
@@ -278,6 +290,7 @@ class Sections:
         elif self.__run_level > 3:
             msg = 'missed a flag\n'
             raise self.__bug_handler, msg
+
     def __handle_sec_def(self, my_string):
         """
         Requires:
@@ -290,6 +303,7 @@ class Sections:
         """
         values_dict = self.__section_values
         self.__list_of_sec_values.append(values_dict)
+
     def __body_func(self, line):
         """
         Requires:
@@ -305,6 +319,7 @@ class Sections:
             action(line)
         else:
             self.__write_obj.write(line)
+
     def __before_body_func(self, line):
         """
         Requires:
@@ -317,6 +332,7 @@ class Sections:
         if self.__token_info == 'mi<mk<body-open_':
             self.__state = 'before_first_sec'
         self.__write_obj.write(line)
+
     def __before_first_sec_func(self, line):
         """
         Requires:
@@ -357,6 +373,7 @@ class Sections:
                     )
             self.__found_first_sec = 1
         self.__write_obj.write(line)
+
     def __found_sec_in_field_func(self, line):
         """
         Requires:
@@ -371,6 +388,7 @@ class Sections:
         self.__state = 'sec_in_field'
         self.__sec_in_field_string = line
         self.__in_field = 1
+
     def __sec_in_field_func(self, line):
         """
         Requires:
@@ -390,6 +408,7 @@ class Sections:
             # change this 2004-04-26
             # self.__sec_in_field_string += line
             self.__write_obj.write(line)
+
     def __end_sec_in_field_func(self, line):
         """
         Requires:
@@ -415,6 +434,7 @@ class Sections:
         self.__in_field = 0
         # this is changed too
         self.__write_obj.write(line)
+
     def __print_field_sec_attributes(self):
         """
         Requires:
@@ -452,6 +472,7 @@ class Sections:
         self.__write_obj.write('<num-in-level>%s' % str(self.__section_num))
         self.__write_obj.write('\n')
         # Look here
+
     def __found_section_in_field_func(self, line):
         """
         Requires:
@@ -465,6 +486,7 @@ class Sections:
         self.__section_num += 1
         self.__field_num.append(self.__section_num)
         self.__sec_in_field_string += line
+
     def __found_section_def_in_field_func(self, line):
         """
         Requires:
@@ -477,6 +499,7 @@ class Sections:
         """
         self.__state = 'section_def'
         self.__section_values.clear()
+
     def make_sections(self):
         """
         Requires:

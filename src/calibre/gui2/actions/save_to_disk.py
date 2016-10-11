@@ -14,6 +14,7 @@ from calibre.utils.config import prefs
 from calibre.gui2 import error_dialog, Dispatcher, choose_dir
 from calibre.gui2.actions import InterfaceAction
 
+
 class SaveToDiskAction(InterfaceAction):
 
     name = "Save To Disk"

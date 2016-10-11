@@ -15,6 +15,7 @@ from calibre.gui2.dialogs.catalog_ui import Ui_Dialog
 from calibre.gui2 import dynamic, info_dialog
 from calibre.customize.ui import catalog_plugins
 
+
 class Catalog(QDialog, Ui_Dialog):
 
     ''' Catalog Dialog builder'''

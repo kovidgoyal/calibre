@@ -21,8 +21,10 @@ from calibre.customize.ui import (plugin_for_input_format,
         plugin_for_output_format)
 from calibre.utils.ipc.simple_worker import fork_job
 
+
 class BadFormat(ValueError):
     pass
+
 
 def do_explode(path, dest):
     with open(path, 'rb') as stream:
@@ -37,6 +39,7 @@ def do_explode(path, dest):
                 pass
 
     return opf
+
 
 def explode(path, dest, question=lambda x:True):
     with open(path, 'rb') as stream:
@@ -71,6 +74,7 @@ def explode(path, dest, question=lambda x:True):
     return fork_job('calibre.ebooks.mobi.tweak', 'do_explode', args=(path,
             dest), no_output=True)['result']
 
+
 def set_cover(oeb):
     if 'cover' not in oeb.guide or oeb.metadata['cover']:
         return
@@ -79,6 +83,7 @@ def set_cover(oeb):
         item = oeb.manifest.hrefs[cover.href]
         oeb.metadata.clear('cover')
         oeb.metadata.add('cover', item.id)
+
 
 def do_rebuild(opf, dest_path):
     plumber = Plumber(opf, dest_path, default_log)
@@ -90,6 +95,7 @@ def do_rebuild(opf, dest_path):
     oeb = create_oebbook(default_log, opf, plumber.opts)
     set_cover(oeb)
     outp.convert(oeb, dest_path, inp, plumber.opts, default_log)
+
 
 def rebuild(src_dir, dest_path):
     opf = glob.glob(os.path.join(src_dir, '*.opf'))

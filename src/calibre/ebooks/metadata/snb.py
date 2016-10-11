@@ -11,6 +11,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.snb.snbfile import SNBFile
 from lxml import etree
 
+
 def get_metadata(stream, extract_cover=True):
     """ Return metadata as a L{MetaInfo} object """
     mi = MetaInformation(_('Unknown'), [_('Unknown')])

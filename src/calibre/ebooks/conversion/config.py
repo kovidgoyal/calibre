@@ -18,8 +18,10 @@ config_dir = os.path.join(config_dir, 'conversion')
 if not os.path.exists(config_dir):
     os.makedirs(config_dir)
 
+
 def name_to_path(name):
     return os.path.join(config_dir, sanitize_file_name(name)+'.py')
+
 
 def save_defaults(name, recs):
     path = name_to_path(name)
@@ -28,6 +30,7 @@ def save_defaults(name, recs):
         pass
     with ExclusiveFile(path) as f:
         f.write(raw)
+
 
 def load_defaults(name):
     path = name_to_path(name)
@@ -40,9 +43,11 @@ def load_defaults(name):
         r.from_string(raw)
     return r
 
+
 def save_specifics(db, book_id, recs):
     raw = str(recs)
     db.set_conversion_options(book_id, 'PIPE', raw)
+
 
 def load_specifics(db, book_id):
     raw = db.conversion_options(book_id, 'PIPE')
@@ -51,8 +56,10 @@ def load_specifics(db, book_id):
         r.from_string(raw)
     return r
 
+
 def delete_specifics(db, book_id):
     db.delete_conversion_options(book_id, 'PIPE')
+
 
 class GuiRecommendations(dict):
 

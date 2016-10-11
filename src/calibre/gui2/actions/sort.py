@@ -11,6 +11,7 @@ from PyQt5.Qt import QToolButton, QAction, pyqtSignal, QIcon
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.icu import sort_key
 
+
 class SortAction(QAction):
 
     sort_requested = pyqtSignal(object, object)
@@ -22,6 +23,7 @@ class SortAction(QAction):
 
     def __call__(self):
         self.sort_requested.emit(self.key, self.ascending)
+
 
 class SortByAction(InterfaceAction):
 

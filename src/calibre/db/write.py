@@ -24,8 +24,10 @@ if ispy3:
 
 # Convert data into values suitable for the db {{{
 
+
 def sqlite_datetime(x):
     return isoformat(x, sep=' ') if isinstance(x, datetime) else x
+
 
 def single_text(x):
     if x is None:
@@ -36,6 +38,7 @@ def single_text(x):
     return x if x else None
 
 series_index_pat = re.compile(r'(.*)\s+\[([.0-9]+)\]$')
+
 
 def get_series_values(val):
     if not val:
@@ -49,6 +52,7 @@ def get_series_values(val):
         except:
             pass
     return (val, None)
+
 
 def multiple_text(sep, ui_sep, x):
     if not x:
@@ -65,12 +69,14 @@ def multiple_text(sep, ui_sep, x):
     x = (y.strip().replace(ui_sep, repsep) for y in x if y.strip())
     return tuple(' '.join(y.split()) for y in x if y)
 
+
 def adapt_datetime(x):
     if isinstance(x, (unicode, bytes)):
         x = parse_date(x, assume_utc=False, as_utc=False)
     if x and is_date_undefined(x):
         x = UNDEFINED_DATE
     return x
+
 
 def adapt_date(x):
     if isinstance(x, (unicode, bytes)):
@@ -79,6 +85,7 @@ def adapt_date(x):
         x = UNDEFINED_DATE
     return x
 
+
 def adapt_number(typ, x):
     if x is None:
         return None
@@ -86,6 +93,7 @@ def adapt_number(typ, x):
         if not x or x.lower() == 'none':
             return None
     return typ(x)
+
 
 def adapt_bool(x):
     if isinstance(x, (unicode, bytes)):
@@ -100,6 +108,7 @@ def adapt_bool(x):
             x = bool(int(x))
     return x if x is None else bool(x)
 
+
 def adapt_languages(to_tuple, x):
     ans = []
     for lang in to_tuple(x):
@@ -109,10 +118,12 @@ def adapt_languages(to_tuple, x):
         ans.append(lc)
     return tuple(ans)
 
+
 def clean_identifier(typ, val):
     typ = icu_lower(typ or '').strip().replace(':', '').replace(',', '')
     val = (val or '').strip().replace(',', '|')
     return typ, val
+
 
 def adapt_identifiers(to_tuple, x):
     if not isinstance(x, dict):
@@ -124,9 +135,11 @@ def adapt_identifiers(to_tuple, x):
             ans[k] = v
     return ans
 
+
 def adapt_series_index(x):
     ret = adapt_number(float, x)
     return 1.0 if ret is None else ret
+
 
 def get_adapter(name, metadata):
     dt = metadata['datatype']
@@ -174,6 +187,8 @@ def get_adapter(name, metadata):
 # }}}
 
 # One-One fields {{{
+
+
 def one_one_in_books(book_id_val_map, db, field, *args):
     'Set a one-one field in the books table'
     if book_id_val_map:
@@ -183,9 +198,11 @@ def one_one_in_books(book_id_val_map, db, field, *args):
         field.table.book_col_map.update(book_id_val_map)
     return set(book_id_val_map)
 
+
 def set_uuid(book_id_val_map, db, field, *args):
     field.table.update_uuid_cache(book_id_val_map)
     return one_one_in_books(book_id_val_map, db, field, *args)
+
 
 def set_title(book_id_val_map, db, field, *args):
     ans = one_one_in_books(book_id_val_map, db, field, *args)
@@ -193,6 +210,7 @@ def set_title(book_id_val_map, db, field, *args):
     field.title_sort_field.writer.set_books(
         {k:title_sort(v) for k, v in book_id_val_map.iteritems()}, db)
     return ans
+
 
 def one_one_in_other(book_id_val_map, db, field, *args):
     'Set a one-one field in the non-books table, like comments'
@@ -209,6 +227,7 @@ def one_one_in_other(book_id_val_map, db, field, *args):
             ((k, sqlite_datetime(v)) for k, v in updated.iteritems()))
         field.table.book_col_map.update(updated)
     return set(book_id_val_map)
+
 
 def custom_series_index(book_id_val_map, db, field, *args):
     series_field = field.series_field
@@ -228,11 +247,13 @@ def custom_series_index(book_id_val_map, db, field, *args):
 
 # Many-One fields {{{
 
+
 def safe_lower(x):
     try:
         return icu_lower(x)
     except (TypeError, ValueError, KeyError, AttributeError):
         return x
+
 
 def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
               case_changes, val_map, is_authors=False):
@@ -258,6 +279,7 @@ def get_db_id(val, db, m, table, kmap, rid_map, allow_case_change,
         case_changes[item_id] = val
     val_map[val] = item_id
 
+
 def change_case(case_changes, dirtied, db, table, m, is_authors=False):
     if is_authors:
         vals = ((val.replace(',', '|'), item_id) for item_id, val in
@@ -271,6 +293,7 @@ def change_case(case_changes, dirtied, db, table, m, is_authors=False):
         dirtied.update(table.col_book_map[item_id])
         if is_authors:
             table.asort_map[item_id] = author_to_author_sort(val)
+
 
 def many_one(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
@@ -347,6 +370,7 @@ def many_one(book_id_val_map, db, field, allow_case_change, *args):
 
 # Many-Many fields {{{
 
+
 def uniq(vals, kmap=lambda x:x):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
     callable that returns a hashable value for every item in vals '''
@@ -355,6 +379,7 @@ def uniq(vals, kmap=lambda x:x):
     seen = set()
     seen_add = seen.add
     return tuple(x for x, k in zip(vals, lvals) if k not in seen and not seen_add(k))
+
 
 def many_many(book_id_val_map, db, field, allow_case_change, *args):
     dirtied = set()
@@ -450,6 +475,7 @@ def many_many(book_id_val_map, db, field, allow_case_change, *args):
 
 # }}}
 
+
 def identifiers(book_id_val_map, db, field, *args):  # {{{
     table = field.table
     updates = set()
@@ -475,8 +501,10 @@ def identifiers(book_id_val_map, db, field, *args):  # {{{
     return set(book_id_val_map)
 # }}}
 
+
 def dummy(book_id_val_map, *args):
     return set()
+
 
 class Writer(object):
 

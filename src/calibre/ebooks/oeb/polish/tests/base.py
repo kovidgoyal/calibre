@@ -14,12 +14,14 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.logging import DevNull
 import calibre.ebooks.oeb.polish.container as pc
 
+
 def get_cache():
     from calibre.constants import cache_dir
     cache = os.path.join(cache_dir(), 'polish-test')
     if not os.path.exists(cache):
         os.mkdir(cache)
     return cache
+
 
 def needs_recompile(obj, srcs):
     if isinstance(srcs, type('')):
@@ -33,9 +35,11 @@ def needs_recompile(obj, srcs):
             return True
     return False
 
+
 def build_book(src, dest, args=()):
     from calibre.ebooks.conversion.cli import main
     main(['ebook-convert', src, dest] + list(args))
+
 
 def add_resources(raw, rmap):
     for placeholder, path in rmap.iteritems():
@@ -43,6 +47,7 @@ def add_resources(raw, rmap):
         shutil.copy2(path, '.')
         raw = raw.replace(placeholder, fname)
     return raw
+
 
 def get_simple_book(fmt='epub'):
     cache = get_cache()
@@ -66,6 +71,7 @@ def get_simple_book(fmt='epub'):
                     '--level1-toc=//h:h2', '--language=en', '--authors=Kovid Goyal', '--cover=lt.png'])
     return ans
 
+
 def get_split_book(fmt='epub'):
     cache = get_cache()
     ans = os.path.join(cache, 'split.'+fmt)
@@ -83,6 +89,7 @@ def get_split_book(fmt='epub'):
     return ans
 
 devnull = DevNull()
+
 
 class BaseTest(unittest.TestCase):
 

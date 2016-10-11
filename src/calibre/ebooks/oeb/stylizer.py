@@ -26,6 +26,7 @@ cssutils_log.setLevel(logging.WARN)
 
 _html_css_stylesheet = None
 
+
 def html_css_stylesheet():
     global _html_css_stylesheet
     if _html_css_stylesheet is None:
@@ -53,6 +54,7 @@ FONT_SIZE_NAMES = {
 ALLOWED_MEDIA_TYPES = frozenset({'screen', 'all', 'aural', 'amzn-kf8'})
 IGNORED_MEDIA_FEATURES = frozenset('width min-width max-width height min-height max-height device-width min-device-width max-device-width device-height min-device-height max-device-height aspect-ratio min-aspect-ratio max-aspect-ratio device-aspect-ratio min-device-aspect-ratio max-device-aspect-ratio color min-color max-color color-index min-color-index max-color-index monochrome min-monochrome max-monochrome -webkit-min-device-pixel-ratio resolution min-resolution max-resolution scan grid'.split())  # noqa
 
+
 def media_ok(raw):
     if not raw:
         return True
@@ -78,6 +80,7 @@ def media_ok(raw):
         pass
     return True
 
+
 def test_media_ok():
     assert media_ok(None)
     assert media_ok('')
@@ -89,6 +92,7 @@ def test_media_ok():
     assert not media_ok('(device-width:10px)')
     assert media_ok('screen, (device-width:10px)')
     assert not media_ok('screen and (device-width:10px)')
+
 
 class Stylizer(object):
     STYLESHEETS = WeakKeyDictionary()

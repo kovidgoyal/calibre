@@ -16,6 +16,7 @@ QBrush, QColor, QPoint, QPixmap, QPainterPath, QRectF, Qt, QPointF
 
 from calibre.ebooks.pdf.render.engine import PdfDevice
 
+
 def full(p, xmax, ymax):
     p.drawRect(0, 0, xmax, ymax)
     p.drawPolyline(QPoint(0, 0), QPoint(xmax, 0), QPoint(xmax, ymax),
@@ -82,6 +83,7 @@ def run(dev, func):
         if dev.engine.errors_occurred:
             raise SystemExit(1)
 
+
 def brush(p, xmax, ymax):
     x = 0
     y = 0
@@ -94,11 +96,13 @@ def brush(p, xmax, ymax):
     p.fillRect(x, y, w, w, QBrush(g))
     p.drawRect(x, y, w, w)
 
+
 def pen(p, xmax, ymax):
     pix = QPixmap(I('lt.png'))
     pen = QPen(QBrush(pix), 60)
     p.setPen(pen)
     p.drawRect(0, xmax/3, xmax/3, xmax/2)
+
 
 def text(p, xmax, ymax):
     f = p.font()
@@ -107,6 +111,7 @@ def text(p, xmax, ymax):
     p.setFont(f)
     p.drawText(QPoint(0, 100),
         'Test intra glyph spacing ffagain imceo')
+
 
 def main():
     app = QApplication([])

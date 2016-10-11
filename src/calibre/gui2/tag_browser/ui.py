@@ -23,6 +23,7 @@ from calibre.gui2.dialogs.tag_categories import TagCategories
 from calibre.gui2.dialogs.tag_list_editor import TagListEditor
 from calibre.gui2.dialogs.edit_authors_dialog import EditAuthorsDialog
 
+
 class TagBrowserMixin(object):  # {{{
 
     def __init__(self, *args, **kwargs):
@@ -305,6 +306,7 @@ class TagBrowserMixin(object):  # {{{
         self.library_view.model().refresh_ids(ids)
 
 # }}}
+
 
 class TagBrowserWidget(QWidget):  # {{{
 

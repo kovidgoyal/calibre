@@ -16,6 +16,7 @@ from calibre.utils.icu import capitalize, lower, upper
 from calibre.ebooks.metadata import check_isbn
 from calibre.utils.localization import canonicalize_lang, get_lang
 
+
 def create_log(ostream=None):
     from calibre.utils.logging import ThreadSafeLog, FileStream
     log = ThreadSafeLog(level=ThreadSafeLog.DEBUG)
@@ -28,6 +29,7 @@ prefix_pat = re.compile(r'^(%s)\s+'%("|".join(words)))
 trailing_paren_pat = re.compile(r'\(.*\)$')
 whitespace_pat = re.compile(r'\s+')
 
+
 def cleanup_title(s):
     if not s:
         s = _('Unknown')
@@ -36,6 +38,7 @@ def cleanup_title(s):
     s = trailing_paren_pat.sub('', s)
     s = whitespace_pat.sub(' ', s)
     return s.strip()
+
 
 class InternalMetadataCompareKeyGen(object):
 
@@ -100,6 +103,7 @@ class InternalMetadataCompareKeyGen(object):
 
 # }}}
 
+
 def get_cached_cover_urls(mi):
     from calibre.customize.ui import metadata_plugins
     plugins = list(metadata_plugins(['identify']))
@@ -108,9 +112,11 @@ def get_cached_cover_urls(mi):
         if url:
             yield (p, url)
 
+
 def dump_caches():
     from calibre.customize.ui import metadata_plugins
     return {p.name:p.dump_caches() for p in metadata_plugins(['identify'])}
+
 
 def load_caches(dump):
     from calibre.customize.ui import metadata_plugins
@@ -119,6 +125,7 @@ def load_caches(dump):
         cache = dump.get(p.name, None)
         if cache:
             p.load_caches(cache)
+
 
 def cap_author_token(token):
     lt = lower(token)
@@ -147,6 +154,7 @@ def cap_author_token(token):
             ans = ans[:idx+1] + upper(ans[idx+1]) + ans[idx+2:]
     return ans
 
+
 def fixauthors(authors):
     if not authors:
         return authors
@@ -155,11 +163,13 @@ def fixauthors(authors):
         ans.append(' '.join(map(cap_author_token, x.split())))
     return ans
 
+
 def fixcase(x):
     if x:
         from calibre.utils.titlecase import titlecase
         x = titlecase(x)
     return x
+
 
 class Option(object):
     __slots__ = ['type', 'default', 'label', 'desc', 'name', 'choices']
@@ -180,6 +190,7 @@ class Option(object):
         if choices and not isinstance(choices, dict):
             choices = dict([(x, x) for x in choices])
         self.choices = choices
+
 
 class Source(Plugin):
 

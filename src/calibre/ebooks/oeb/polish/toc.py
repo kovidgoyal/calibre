@@ -111,6 +111,7 @@ class TOC(object):
             ans['dest_error'] = self.dest_error
         return ans
 
+
 def child_xpath(tag, name):
     return tag.xpath('./*[calibre:lower-case(local-name()) = "%s"]'%name)
 
@@ -158,6 +159,7 @@ def parse_ncx(container, ncx_name):
             break
     return toc_root
 
+
 def add_from_li(container, li, parent, nav_name):
     dest = frag = text = None
     for x in li.iterchildren(XHTML('a'), XHTML('span')):
@@ -169,11 +171,13 @@ def add_from_li(container, li, parent, nav_name):
         break
     return parent.add(text or None, dest or None, frag or None)
 
+
 def first_child(parent, tagname):
     try:
         return next(parent.iterchildren(tagname))
     except StopIteration:
         return None
+
 
 def process_nav_node(container, node, toc_parent, nav_name):
     for li in node.iterchildren(XHTML('li')):
@@ -181,6 +185,7 @@ def process_nav_node(container, node, toc_parent, nav_name):
         ol = first_child(li, XHTML('ol'))
         if child is not None and ol is not None:
             process_nav_node(container, ol, child, nav_name)
+
 
 def parse_nav(container, nav_name):
     root = container.parsed(nav_name)
@@ -199,6 +204,7 @@ def parse_nav(container, nav_name):
                         break
                 break
     return toc_root
+
 
 def verify_toc_destinations(container, toc):
     anchor_map = {}
@@ -230,6 +236,7 @@ def verify_toc_destinations(container, toc):
                 'The anchor %(a)s does not exist in file %(f)s')%dict(
                 a=item.frag, f=name)
 
+
 def find_existing_ncx_toc(container):
     toc = container.opf_xpath('//opf:spine/@toc')
     if toc:
@@ -239,9 +246,11 @@ def find_existing_ncx_toc(container):
         toc = container.manifest_type_map.get(ncx, [None])[0]
     return toc or None
 
+
 def find_existing_nav_toc(container):
     for name in container.manifest_items_with_property('nav'):
         return name
+
 
 def get_x_toc(container, find_toc, parse_toc, verify_destinations=True):
     def empty_toc():
@@ -255,6 +264,7 @@ def get_x_toc(container, find_toc, parse_toc, verify_destinations=True):
         verify_toc_destinations(container, ans)
     return ans
 
+
 def get_toc(container, verify_destinations=True):
     ver = container.opf_version_parsed
     if ver.major < 3:
@@ -264,6 +274,7 @@ def get_toc(container, verify_destinations=True):
         if len(ans) == 0:
             ans = get_x_toc(container, find_existing_ncx_toc, parse_ncx, verify_destinations=verify_destinations)
         return ans
+
 
 def ensure_id(elem):
     if elem.tag == XHTML('a'):
@@ -276,6 +287,7 @@ def ensure_id(elem):
     elem.set('id', uuid_id())
     return True, elem.get('id')
 
+
 def elem_to_toc_text(elem):
     text = xml2text(elem).strip()
     if not text:
@@ -287,6 +299,7 @@ def elem_to_toc_text(elem):
     if not text:
         text = _('(Untitled)')
     return text
+
 
 def item_at_top(elem):
     try:
@@ -309,6 +322,7 @@ def item_at_top(elem):
             if el.tail and el.tail.strip():
                 return False
     return True
+
 
 def from_xpaths(container, xpaths):
     '''
@@ -377,6 +391,7 @@ def from_xpaths(container, xpaths):
 
     return tocroot
 
+
 def from_links(container):
     '''
     Generate a Table of Contents from links in the book.
@@ -407,6 +422,7 @@ def from_links(container):
             toc.remove(child)
     return toc
 
+
 def find_text(node):
     LIMIT = 200
     pat = re.compile(r'\s+')
@@ -422,6 +438,7 @@ def find_text(node):
                 return ntext or (text[:LIMIT] + '...')
             else:
                 return text
+
 
 def from_files(container):
     '''
@@ -442,6 +459,7 @@ def from_files(container):
         toc.add(text, name)
     return toc
 
+
 def node_from_loc(root, locs, totals=None):
     node = root.xpath('//*[local-name()="body"]')[0]
     for i, loc in enumerate(locs):
@@ -450,6 +468,7 @@ def node_from_loc(root, locs, totals=None):
             raise MalformedMarkup()
         node = children[loc]
     return node
+
 
 def add_id(container, name, loc, totals=None):
     root = container.parsed(name)
@@ -472,6 +491,7 @@ def add_id(container, name, loc, totals=None):
     node.set('id', node.get('id', uuid_id()))
     container.commit_item(name, keep_parsed=True)
     return node.get('id')
+
 
 def create_ncx(toc, to_href, btitle, lang, uid):
     lang = lang.replace('_', '-')
@@ -552,6 +572,7 @@ def commit_ncx_toc(container, toc, lang=None, uid=None):
     container.replace(tocname, root)
     container.pretty_print.add(tocname)
 
+
 def commit_nav_toc(container, toc, lang=None):
     from calibre.ebooks.oeb.polish.pretty import pretty_xml_tree
     tocname = find_existing_nav_toc(container)
@@ -613,10 +634,12 @@ def commit_nav_toc(container, toc, lang=None):
             li[0].tail = None
     container.replace(tocname, root)
 
+
 def commit_toc(container, toc, lang=None, uid=None):
     commit_ncx_toc(container, toc, lang=lang, uid=uid)
     if container.opf_version_parsed.major > 2:
         commit_nav_toc(container, toc, lang=lang)
+
 
 def remove_names_from_toc(container, names):
     changed = []
@@ -638,10 +661,12 @@ def remove_names_from_toc(container, names):
                 changed.append(find_toc(container))
     return changed
 
+
 def find_inline_toc(container):
     for name, linear in container.spine_names:
         if container.parsed(name).xpath('//*[local-name()="body" and @id="calibre_generated_inline_toc"]'):
             return name
+
 
 def toc_to_html(toc, container, toc_name, title, lang=None):
 
@@ -690,6 +715,7 @@ def toc_to_html(toc, container, toc_name, title, lang=None):
         html.set('lang', lang)
     pretty_html_tree(container, html)
     return html
+
 
 def create_inline_toc(container, title=None):
     '''

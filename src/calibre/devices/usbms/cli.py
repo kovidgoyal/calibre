@@ -10,6 +10,7 @@ from calibre import fsync
 from calibre.devices.errors import PathError
 from calibre.utils.filenames import case_preserving_open_file
 
+
 class File(object):
 
     def __init__(self, path):

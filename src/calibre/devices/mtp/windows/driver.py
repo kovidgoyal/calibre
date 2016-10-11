@@ -20,12 +20,14 @@ from calibre.devices.mtp.base import MTPDeviceBase, debug
 
 null = object()
 
+
 class ThreadingViolation(Exception):
 
     def __init__(self):
         Exception.__init__(self,
                 'You cannot use the MTP driver from a thread other than the '
                 ' thread in which startup() was called')
+
 
 def same_thread(func):
     @wraps(func)

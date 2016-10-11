@@ -8,6 +8,7 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from threading import Event
 
+
 class BonJour(object):  # {{{
 
     def __init__(self, name='Books in calibre', service_type='_calibre._tcp', path='/opds', add_hostname=True):
@@ -27,6 +28,7 @@ class BonJour(object):  # {{{
         self.zeroconf_ip_address = zipa = verify_ipV4_address(ip_address) or get_external_ip()
         prefix = loop.opts.url_prefix or ''
         # The Zeroconf module requires everything to be bytestrings
+
         def enc(x):
             if not isinstance(x, bytes):
                 x = x.encode('ascii')

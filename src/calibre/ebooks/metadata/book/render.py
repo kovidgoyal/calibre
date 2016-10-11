@@ -22,12 +22,14 @@ from calibre.utils.localization import calibre_langcode_to_name
 
 default_sort = ('title', 'title_sort', 'authors', 'author_sort', 'series', 'rating', 'pubdate', 'tags', 'publisher', 'identifiers')
 
+
 def field_sort(mi, name):
     try:
         title = mi.metadata_for_field(name)['name']
     except:
         title = 'zzz'
     return {x:(i, None) for i, x in enumerate(default_sort)}.get(name, (10000, sort_key(title)))
+
 
 def displayable_field_keys(mi):
     for k in mi.all_field_keys():
@@ -42,16 +44,20 @@ def displayable_field_keys(mi):
         ):
             yield k
 
+
 def get_field_list(mi):
     for field in sorted(displayable_field_keys(mi), key=partial(field_sort, mi)):
         yield field, True
+
 
 def search_href(search_term, value):
     search = '%s:"=%s"' % (search_term, value.replace('"', '\\"'))
     return prepare_string_for_xml('search:' + hexlify(search.encode('utf-8')), True)
 
+
 def item_data(field_name, value, book_id):
     return hexlify(cPickle.dumps((field_name, value, book_id), -1))
+
 
 def mi_to_html(mi, field_list=None, default_author_link=None, use_roman_numbers=True, rating_font='Liberation Serif', rtl=False):
     if field_list is None:

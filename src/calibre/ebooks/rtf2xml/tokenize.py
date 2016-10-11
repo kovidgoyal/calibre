@@ -16,8 +16,10 @@ from calibre.ebooks.rtf2xml import copy
 from calibre.utils.mreplace import MReplace
 from calibre.ptempfile import better_mktemp
 
+
 class Tokenize:
     """Tokenize RTF into one line per field. Each line will contain information useful for the rest of the script"""
+
     def __init__(self,
             in_file,
             bug_handler,

@@ -12,15 +12,19 @@ from tempfile import gettempdir
 from calibre.db.legacy import LibraryDatabase
 
 db = None
+
+
 def initdb(path):
     global db
     db = LibraryDatabase(os.path.expanduser(path))
+
 
 def show_stats(path):
     from pstats import Stats
     s = Stats(path)
     s.sort_stats('cumulative')
     s.print_stats(30)
+
 
 def main():
     stats = os.path.join(gettempdir(), 'read_db.stats')

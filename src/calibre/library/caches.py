@@ -21,6 +21,7 @@ from calibre.ebooks.metadata import title_sort, author_to_author_sort
 from calibre.ebooks.metadata.opf2 import metadata_to_opf
 from calibre import prints
 
+
 class MetadataBackup(Thread):  # {{{
     '''
     Continuously backup changed metadata into OPF files
@@ -122,6 +123,7 @@ class MetadataBackup(Thread):  # {{{
 # This is a global for performance
 pref_use_primary_find_in_search = False
 
+
 def set_use_primary_find_in_search(toWhat):
     global pref_use_primary_find_in_search
     pref_use_primary_find_in_search = toWhat
@@ -130,6 +132,7 @@ y, c, n, u = map(icu_lower, (_('yes'), _('checked'), _('no'), _('unchecked')))
 yes_vals = {y, c, 'true'}
 no_vals = {n, u, 'false'}
 del y, c, n, u
+
 
 def force_to_bool(val):
     if isinstance(val, (str, unicode)):
@@ -146,6 +149,7 @@ def force_to_bool(val):
         except:
             val = None
     return val
+
 
 class CacheRow(list):  # {{{
 
@@ -196,11 +200,13 @@ class CacheRow(list):  # {{{
 
 # }}}
 
+
 class ResultCache(SearchQueryParser):  # {{{
 
     '''
     Stores sorted and filtered metadata in memory.
     '''
+
     def __init__(self, FIELD_MAP, field_metadata, db_prefs=None):
         self.FIELD_MAP = FIELD_MAP
         self.db_prefs = db_prefs
@@ -1096,6 +1102,7 @@ class ResultCache(SearchQueryParser):  # {{{
         else:
             only_ids.sort(key=keyg)
 
+
 class SortKey(object):
 
     def __init__(self, orders, values):
@@ -1107,6 +1114,7 @@ class SortKey(object):
             if ans != 0:
                 return ans * ascending
         return 0
+
 
 class SortKeyGenerator(object):
 

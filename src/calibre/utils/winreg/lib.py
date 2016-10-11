@@ -32,8 +32,10 @@ RRF_RT_ANY = 0x0000ffff
 RRF_NOEXPAND = 0x10000000
 RRF_ZEROONFAILURE = 0x20000000
 
+
 class FILETIME(ctypes.Structure):
     _fields_ = [("dwLowDateTime", DWORD), ("dwHighDateTime", DWORD)]
+
 
 def default_errcheck(result, func, args):
     if result != getattr(winerror, 'ERROR_SUCCESS', 0):  # On shutdown winerror becomes None
@@ -41,6 +43,8 @@ def default_errcheck(result, func, args):
     return args
 
 null = object()
+
+
 class a(object):
 
     def __init__(self, name, typ, default=null, in_arg=True):
@@ -49,6 +53,7 @@ class a(object):
             self.spec = ((1 if in_arg else 2), name)
         else:
             self.spec = ((1 if in_arg else 2), name, default)
+
 
 def cwrap(name, restype, *args, **kw):
     params = (restype,) + tuple(x.typ for x in args)
@@ -64,6 +69,7 @@ RegCreateKey = cwrap(
     a('access', ULONG, KEY_ALL_ACCESS), a('security', ctypes.c_void_p, 0), a('result', PHKEY, in_arg=False), a('disposition', LPDWORD, in_arg=False))
 RegCloseKey = cwrap('RegCloseKey', LONG, a('key', HKEY))
 
+
 def enum_value_errcheck(result, func, args):
     if result == winerror.ERROR_SUCCESS:
         return args
@@ -76,6 +82,7 @@ RegEnumValue = cwrap(
     'RegEnumValueW', LONG, a('key', HKEY), a('index', DWORD), a('value_name', LPWSTR), a('value_name_size', LPDWORD), a('reserved', LPDWORD),
     a('value_type', LPDWORD), a('data', LPBYTE), a('data_size', LPDWORD), errcheck=enum_value_errcheck)
 
+
 def last_error_errcheck(result, func, args):
     if result == 0:
         raise ctypes.WinError()
@@ -83,10 +90,12 @@ def last_error_errcheck(result, func, args):
 ExpandEnvironmentStrings = cwrap(
     'ExpandEnvironmentStringsW', DWORD, a('src', LPCWSTR), a('dest', LPWSTR), a('size', DWORD), errcheck=last_error_errcheck, lib=ctypes.windll.kernel32)
 
+
 def expand_environment_strings(src):
     buf = ctypes.create_unicode_buffer(32 * 1024)
     ExpandEnvironmentStrings(src, buf, len(buf))
     return buf.value
+
 
 def convert_to_registry_data(value, has_expansions=False):
     if value is None:
@@ -105,6 +114,7 @@ def convert_to_registry_data(value, has_expansions=False):
         buf = ctypes.create_string_buffer(raw)
         return buf, dtype, len(buf)
     raise ValueError('Unknown data type: %r' % value)
+
 
 def convert_registry_data(raw, size, dtype):
     if dtype == winreg.REG_NONE:
@@ -136,6 +146,7 @@ except Exception:
     raise RuntimeError('calibre requires Windows Vista or newer to run, the last version of calibre'
                        ' that could run on Windows XP is version 1.48, available from: http://download.calibre-ebook.com/')
 
+
 def delete_value_errcheck(result, func, args):
     if result == winerror.ERROR_FILE_NOT_FOUND:
         return args
@@ -150,6 +161,8 @@ RegEnumKeyEx = cwrap(
     'RegEnumKeyExW', LONG, a('key', HKEY), a('index', DWORD), a('name', LPWSTR), a('name_size', LPDWORD), a('reserved', LPDWORD, None),
     a('cls', LPWSTR, None), a('cls_size', LPDWORD, None), a('last_write_time', ctypes.POINTER(FILETIME), in_arg=False),
     errcheck=enum_value_errcheck)
+
+
 def get_value_errcheck(result, func, args):
     if result == winerror.ERROR_SUCCESS:
         return args
@@ -175,6 +188,7 @@ def filetime_to_datettime(ft):
     return datetime.datetime(1601, 1, 1, 0, 0, 0) + datetime.timedelta(microseconds=timestamp/10)
 
 # }}}
+
 
 class Key(object):
 

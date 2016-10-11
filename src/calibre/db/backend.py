@@ -65,6 +65,7 @@ class DynamicFilter(object):  # {{{
         self.ids = frozenset(ids)
 # }}}
 
+
 class DBPrefs(dict):  # {{{
 
     'Store preferences as key:value pairs in the db'
@@ -160,6 +161,8 @@ class DBPrefs(dict):  # {{{
 # }}}
 
 # Extra collators {{{
+
+
 def pynocase(one, two, encoding='utf-8'):
     if isbytestring(one):
         try:
@@ -173,10 +176,12 @@ def pynocase(one, two, encoding='utf-8'):
             pass
     return cmp(one.lower(), two.lower())
 
+
 def _author_to_author_sort(x):
     if not x:
         return ''
     return author_to_author_sort(x.replace('|', ','))
+
 
 def icu_collator(s1, s2):
     return cmp(sort_key(force_unicode(s1, 'utf-8')),
@@ -185,6 +190,8 @@ def icu_collator(s1, s2):
 # }}}
 
 # Unused aggregators {{{
+
+
 def Concatenate(sep=','):
     '''String concatenation aggregator for sqlite'''
 
@@ -198,6 +205,7 @@ def Concatenate(sep=','):
         return sep.join(ctxt)
 
     return ([], step, finalize)
+
 
 def SortedConcatenate(sep=','):
     '''String concatenation aggregator for sqlite, sorted by supplied index'''
@@ -213,6 +221,7 @@ def SortedConcatenate(sep=','):
 
     return ({}, step, finalize)
 
+
 def IdentifiersConcat():
     '''String concatenation aggregator for the identifiers map'''
 
@@ -223,6 +232,7 @@ def IdentifiersConcat():
         return ','.join(ctxt)
 
     return ([], step, finalize)
+
 
 def AumSortedConcatenate():
     '''String concatenation aggregator for the author sort map'''
@@ -243,6 +253,7 @@ def AumSortedConcatenate():
     return ({}, step, finalize)
 
 # }}}
+
 
 class Connection(apsw.Connection):  # {{{
 
@@ -303,6 +314,7 @@ class Connection(apsw.Connection):  # {{{
             return self.cursor().executemany(sql, sequence_of_bindings)
 
 # }}}
+
 
 class DB(object):
 
@@ -1626,6 +1638,7 @@ class DB(object):
 
     def get_custom_book_data(self, name, book_ids, default=None):
         book_ids = frozenset(book_ids)
+
         def safe_load(val):
             try:
                 return json.loads(val, object_hook=from_json)

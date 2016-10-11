@@ -23,6 +23,7 @@ Question = namedtuple('Question', 'payload callback cancel_callback '
         'action_label action_icon focus_action show_det show_ok icon '
         'log_viewer_unique_name')
 
+
 class Icon(QWidget):
 
     @pyqtProperty(float)
@@ -70,6 +71,7 @@ class Icon(QWidget):
         p.drawPixmap(self.rect(), self.icon)
         p.end()
 
+
 class PlainTextEdit(QPlainTextEdit):
 
     def sizeHint(self):
@@ -77,6 +79,7 @@ class PlainTextEdit(QPlainTextEdit):
         ans = QPlainTextEdit.sizeHint(self)
         ans.setWidth(fm.averageCharWidth() * 50)
         return ans
+
 
 class ProceedQuestion(QWidget):
 
@@ -392,6 +395,7 @@ class ProceedQuestion(QWidget):
         p.addRoundedRect(QRectF(self.rect()).adjusted(bw, bw, -bw, -bw), br, br)
         painter.fillPath(p, pal.color(pal.WindowText))
 
+
 def main():
     from calibre.gui2 import Application
     from PyQt5.Qt import QMainWindow, QStatusBar, QTimer
@@ -402,6 +406,7 @@ def main():
     s.showMessage('Testing ProceedQuestion')
     w.show()
     p = ProceedQuestion(w)
+
     def doit():
         p.dummy_question()
         p.dummy_question(action_label='A very long button for testing relayout (indeed)')

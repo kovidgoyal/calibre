@@ -14,6 +14,7 @@ from calibre.gui2.preferences.main import Preferences
 from calibre.gui2 import error_dialog, show_restart_warning
 from calibre.constants import DEBUG, isosx
 
+
 class PreferencesAction(InterfaceAction):
 
     name = 'Preferences'

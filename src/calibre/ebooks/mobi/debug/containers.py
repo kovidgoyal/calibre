@@ -10,6 +10,7 @@ from struct import unpack_from
 
 from calibre.ebooks.mobi.debug.headers import EXTHHeader
 
+
 class ContainerHeader(object):
 
     def __init__(self, data):

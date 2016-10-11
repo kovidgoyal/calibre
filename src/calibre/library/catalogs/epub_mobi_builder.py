@@ -25,6 +25,7 @@ from calibre.utils.icu import capitalize, collation_order, sort_key
 from calibre.utils.img import scale_image
 from calibre.utils.zipfile import ZipFile
 
+
 class Formatter(TemplateFormatter):
 
     def get_value(self, key, args, kwargs):

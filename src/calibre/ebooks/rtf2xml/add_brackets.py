@@ -16,6 +16,7 @@ import sys, os
 from calibre.ebooks.rtf2xml import copy, check_brackets
 from calibre.ptempfile import better_mktemp
 
+
 class AddBrackets:
     """
     Add brackets for old RTF.
@@ -24,6 +25,7 @@ class AddBrackets:
     and in the list of allowed words, this will add brackets
     to facilitate the treatment of the file
     """
+
     def __init__(self, in_file,
             bug_handler,
             copy=None,

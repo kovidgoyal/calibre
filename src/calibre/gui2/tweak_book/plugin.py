@@ -15,6 +15,7 @@ from calibre.customize.ui import all_edit_book_tool_plugins
 from calibre.gui2.tweak_book import tprefs, current_container
 from calibre.gui2.tweak_book.boss import get_boss
 
+
 class Tool(object):
 
     '''
@@ -110,6 +111,7 @@ class Tool(object):
         '''
         raise NotImplementedError()
 
+
 def load_plugin_tools(plugin):
     try:
         main = importlib.import_module(plugin.__class__.__module__+'.main')
@@ -123,10 +125,12 @@ def load_plugin_tools(plugin):
                 ans.plugin = plugin
                 yield ans
 
+
 def plugin_action_sid(plugin, tool, for_toolbar=True):
     return plugin.name + tool.name + ('toolbar' if for_toolbar else 'menu')
 
 plugin_toolbar_actions = []
+
 
 def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_actions=None, plugin_menu_actions=None):
     try:
@@ -158,6 +162,7 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
 
 _tool_memory = []  # Needed to prevent the tool object from being garbage collected
 
+
 def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
     del _tool_memory[:]
     del plugin_toolbar_actions[:]
@@ -169,6 +174,7 @@ def create_plugin_actions(actions, toolbar_actions, plugin_menu_actions):
                 create_plugin_action(plugin, tool, True, actions, toolbar_actions, plugin_menu_actions)
             if tool.allowed_in_menu:
                 create_plugin_action(plugin, tool, False, actions, toolbar_actions, plugin_menu_actions)
+
 
 def install_plugin(plugin):
     for tool in load_plugin_tools(plugin):

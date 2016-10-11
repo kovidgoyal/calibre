@@ -15,6 +15,7 @@ from calibre.utils.filenames import ascii_filename
 
 ADDRESS = VADDRESS = None
 
+
 def eintr_retry_call(func, *args, **kwargs):
     while True:
         try:
@@ -23,6 +24,7 @@ def eintr_retry_call(func, *args, **kwargs):
             if getattr(e, 'errno', None) == errno.EINTR:
                 continue
             raise
+
 
 def gui_socket_address():
     global ADDRESS

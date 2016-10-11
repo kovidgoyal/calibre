@@ -35,6 +35,7 @@ from calibre.utils.ipc.simple_worker import offload_worker
 
 shutdown = object()
 
+
 def get_data(name):
     'Get the data for name. Returns a unicode string if name is a text document/stylesheet'
     if name in editors:
@@ -42,9 +43,12 @@ def get_data(name):
     return current_container().raw_data(name)
 
 # Parsing of html to add linenumbers {{{
+
+
 def parse_html(raw):
     root = parse(raw, decoder=lambda x:x.decode('utf-8'), line_numbers=True, linenumber_attribute='data-lnum')
     return serialize(root, 'text/html').encode('utf-8')
+
 
 class ParseItem(object):
 
@@ -59,6 +63,7 @@ class ParseItem(object):
     def __repr__(self):
         return 'ParsedItem(name=%r, length=%r, fingerprint=%r, parsing_done=%r, parsed_data_is_None=%r)' % (
             self.name, self.length, self.fingerprint, self.parsing_done, self.parsed_data is None)
+
 
 class ParseWorker(Thread):
 
@@ -144,6 +149,8 @@ parse_worker = ParseWorker()
 # }}}
 
 # Override network access to load data "live" from the editors {{{
+
+
 class NetworkReply(QNetworkReply):
 
     def __init__(self, parent, request, mime_type, name):
@@ -241,6 +248,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
 # }}}
 
+
 def uniq(vals):
     ''' Remove all duplicates from vals, while preserving order.  '''
     vals = vals or ()
@@ -248,12 +256,14 @@ def uniq(vals):
     seen_add = seen.add
     return tuple(x for x in vals if x not in seen and not seen_add(x))
 
+
 def find_le(a, x):
     'Find rightmost value in a less than or equal to x'
     try:
         return a[bisect_right(a, x)]
     except IndexError:
         return a[-1]
+
 
 class WebPage(QWebPage):
 
@@ -287,6 +297,7 @@ class WebPage(QWebPage):
     def current_root(self):
         def fget(self):
             return self.networkAccessManager().current_root
+
         def fset(self, val):
             self.networkAccessManager().current_root = val
         return property(fget=fget, fset=fset)
@@ -384,6 +395,7 @@ class WebView(QWebView):
         def fget(self):
             mf = self.page().mainFrame()
             return (mf.scrollBarValue(Qt.Horizontal), mf.scrollBarValue(Qt.Vertical))
+
         def fset(self, val):
             mf = self.page().mainFrame()
             mf.setScrollBarValue(Qt.Horizontal, val[0])
@@ -427,6 +439,7 @@ class WebView(QWebView):
         if url.partition(':')[0].lower() in {'http', 'https'}:
             menu.addAction(_('Open link'), partial(open_url, r.linkUrl()))
         menu.exec_(ev.globalPos())
+
 
 class Preview(QWidget):
 

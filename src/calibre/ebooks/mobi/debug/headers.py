@@ -16,6 +16,8 @@ from calibre.ebooks.mobi.debug import format_bytes
 from calibre.ebooks.mobi.utils import get_trailing_data
 
 # PalmDB {{{
+
+
 class PalmDOCAttributes(object):
 
     class Attr(object):
@@ -42,6 +44,7 @@ class PalmDOCAttributes(object):
     def __str__(self):
         attrs = '\n\t'.join([str(x) for x in self.attributes])
         return 'PalmDOC Attributes: %s\n\t%s'%(bin(self.val), attrs)
+
 
 class PalmDB(object):
 
@@ -101,6 +104,7 @@ class PalmDB(object):
         return '\n'.join(ans)
 # }}}
 
+
 class Record(object):  # {{{
 
     def __init__(self, raw, header):
@@ -114,6 +118,8 @@ class Record(object):  # {{{
 # }}}
 
 # EXTH {{{
+
+
 class EXTHRecord(object):
 
     def __init__(self, type_, data, length):
@@ -206,6 +212,7 @@ class EXTHRecord(object):
     def __str__(self):
         return '%s (%d): %r'%(self.name, self.type, self.data)
 
+
 class EXTHHeader(object):
 
     def __init__(self, raw):
@@ -251,6 +258,7 @@ class EXTHHeader(object):
             ans.append(str(r))
         return '\n'.join(ans)
 # }}}
+
 
 class MOBIHeader(object):  # {{{
 
@@ -500,6 +508,7 @@ class MOBIHeader(object):  # {{{
         return ans
 # }}}
 
+
 class MOBIFile(object):
 
     def __init__(self, stream):
@@ -570,6 +579,7 @@ class MOBIFile(object):
             d8 = d6 = lambda x: x
 
         self.decompress6, self.decompress8 = d6, d8
+
 
 class TextRecord(object):  # {{{
 

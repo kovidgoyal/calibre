@@ -31,6 +31,7 @@ LocalHeader = namedtuple('LocalHeader',
         'crc32 compressed_size uncompressed_size filename_length extra_length '
         'filename extra')
 
+
 def decode_arcname(name):
     if isinstance(name, bytes):
         from calibre.ebooks.chardet import detect
@@ -44,6 +45,7 @@ def decode_arcname(name):
             except:
                 name = name.decode('utf-8', 'replace')
     return name
+
 
 def find_local_header(f):
     pos = f.tell()
@@ -61,6 +63,7 @@ def find_local_header(f):
     if header.signature == HEADER_SIG:
         return header
     f.seek(pos)
+
 
 def find_data_descriptor(f):
     pos = f.tell()
@@ -82,6 +85,7 @@ def find_data_descriptor(f):
                          'supported.')
     finally:
         f.seek(pos)
+
 
 def read_local_file_header(f):
     pos = f.tell()
@@ -132,9 +136,11 @@ def read_local_file_header(f):
         header[:-2] + (fname, extra)
         ))
 
+
 def read_compressed_data(f, header):
     cdata = f.read(header.compressed_size)
     return cdata
+
 
 def copy_stored_file(src, size, dest):
     read = 0
@@ -145,6 +151,7 @@ def copy_stored_file(src, size, dest):
             raise ValueError('Premature end of file')
         dest.write(raw)
         read += len(raw)
+
 
 def copy_compressed_file(src, size, dest):
     d = zlib.decompressobj(-15)
@@ -164,6 +171,7 @@ def copy_compressed_file(src, size, dest):
             if count > 100:
                 raise ValueError('This ZIP file contains a ZIP bomb in %s'%
                         os.path.basename(dest.name))
+
 
 def _extractall(f, path=None, file_info=None):
     found = False

@@ -8,6 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.customize.conversion import InputFormatPlugin
 
+
 class LITInput(InputFormatPlugin):
 
     name        = 'LIT Input'

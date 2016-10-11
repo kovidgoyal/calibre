@@ -17,6 +17,7 @@ from calibre.utils.logging import default_log
 
 IMPORTABLE = {'htm', 'xhtml', 'html', 'xhtm', 'docx'}
 
+
 def auto_fill_manifest(container):
     manifest_id_map = container.manifest_id_map
     manifest_name_map = {v:k for k, v in manifest_id_map.iteritems()}
@@ -29,6 +30,7 @@ def auto_fill_manifest(container):
                 raise ValueError('This should never happen (gname=%r, name=%r, href=%r)' % (gname, name, mitem.get('href')))
             manifest_name_map[name] = mitem.get('id')
             manifest_id_map[mitem.get('id')] = name
+
 
 def import_book_as_epub(srcpath, destpath, log=default_log):
     if not destpath.lower().endswith('.epub'):

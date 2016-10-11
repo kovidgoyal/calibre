@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.ebooks.metadata.sources.base import Source, Option
 
+
 def get_urls(br, tokens):
     from urllib import quote_plus
     from mechanize import Request
@@ -24,6 +25,7 @@ def get_urls(br, tokens):
     root = html.fromstring(raw.decode('utf-8'))
     urls = [i.get('src') for i in root.xpath('//img[@src]')]
     return urls
+
 
 class BigBookSearch(Source):
 
@@ -45,6 +47,7 @@ class BigBookSearch(Source):
         tokens = tuple(self.get_title_tokens(title)) + tuple(self.get_author_tokens(authors))
         urls = get_urls(br, tokens)
         self.download_multiple_covers(title, authors, urls, get_best_cover, timeout, result_queue, abort, log)
+
 
 def test():
     from calibre import browser

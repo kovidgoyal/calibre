@@ -10,6 +10,7 @@ from hashlib import sha1
 
 from calibre.ebooks import BOOK_EXTENSIONS
 
+
 def find_folders_under(root, db, add_root=True,  # {{{
         follow_links=False, cancel_callback=lambda : False):
     '''
@@ -46,6 +47,7 @@ def find_folders_under(root, db, add_root=True,  # {{{
     return ans
 
 # }}}
+
 
 class FormatCollection(object):  # {{{
 
@@ -100,6 +102,7 @@ class FormatCollection(object):  # {{{
 
 # }}}
 
+
 def books_in_folder(folder, one_per_folder,  # {{{
         cancel_callback=lambda : False):
     assert not isinstance(folder, unicode)
@@ -144,6 +147,7 @@ def books_in_folder(folder, one_per_folder,  # {{{
         return [FormatCollection(folder, x) for x in books.values() if x]
 
 # }}}
+
 
 def hash_merge_format_collections(collections, cancel_callback=lambda:False):
     ans = []

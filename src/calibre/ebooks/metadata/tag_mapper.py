@@ -6,10 +6,12 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 from collections import deque
 
+
 def compile_pat(pat):
     import regex
     REGEX_FLAGS = regex.VERSION1 | regex.WORD | regex.FULLCASE | regex.IGNORECASE | regex.UNICODE
     return regex.compile(pat, flags=REGEX_FLAGS)
+
 
 def matcher(rule):
     mt = rule['match_type']
@@ -99,6 +101,7 @@ def apply_rules(tag, rules):
     ans.extend(tags)
     return ans
 
+
 def uniq(vals, kmap=icu_lower):
     ''' Remove all duplicates from vals, while preserving order. kmap must be a
     callable that returns a hashable value for every item in vals '''
@@ -120,8 +123,10 @@ def map_tags(tags, rules=()):
         ans.extend(apply_rules(t, rules))
     return uniq(filter(None, ans))
 
+
 def find_tests():
     import unittest
+
     class TestTagMapper(unittest.TestCase):
 
         def test_tag_mapper(self):

@@ -14,6 +14,7 @@ from calibre.ptempfile import TemporaryDirectory, TemporaryFile
 
 NEWLINE_TYPES = ['system', 'unix', 'old_mac', 'windows']
 
+
 class TXTOutput(OutputFormatPlugin):
 
     name = 'TXT Output'

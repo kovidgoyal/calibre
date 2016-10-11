@@ -12,6 +12,7 @@ from calibre import walk
 from calibre.db.tests.base import BaseTest
 from calibre.db.utils import ThumbnailCache
 
+
 class UtilsTest(BaseTest):
 
     def setUp(self):

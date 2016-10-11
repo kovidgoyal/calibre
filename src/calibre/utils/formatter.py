@@ -15,6 +15,7 @@ from calibre.constants import DEBUG
 from calibre.utils.formatter_functions import formatter_functions, compile_user_function
 from calibre.utils.config import tweaks
 
+
 class _Parser(object):
     LEX_OP  = 1
     LEX_ID  = 2
@@ -307,6 +308,7 @@ class _CompileParser(_Parser):
 
 compile_counter = 0
 
+
 class TemplateFormatter(string.Formatter):
     '''
     Provides a format function that substitutes '' for any missing value
@@ -531,10 +533,12 @@ class TemplateFormatter(string.Formatter):
             ans = error_value + ' ' + e.message
         return ans
 
+
 class ValidateFormatter(TemplateFormatter):
     '''
     Provides a formatter that substitutes the validation string for every value
     '''
+
     def get_value(self, key, args, kwargs):
         return self._validation_string
 
@@ -545,10 +549,12 @@ class ValidateFormatter(TemplateFormatter):
 
 validation_formatter = ValidateFormatter()
 
+
 class EvalFormatter(TemplateFormatter):
     '''
     A template formatter that uses a simple dict instead of an mi instance
     '''
+
     def get_value(self, key, args, kwargs):
         if key == '':
             return ''

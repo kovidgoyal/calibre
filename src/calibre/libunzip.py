@@ -7,6 +7,7 @@ import re
 from calibre.utils import zipfile
 from calibre.utils.icu import numeric_sort_key
 
+
 def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLATED, verbose=True):
     '''
     Update files in the zip file at `pathtozip` matching the given
@@ -37,6 +38,7 @@ def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLAT
                 break
     z.close()
 
+
 def extract(filename, dir):
     """
     Extract archive C{filename} into directory C{dir}
@@ -44,11 +46,13 @@ def extract(filename, dir):
     zf = zipfile.ZipFile(filename)
     zf.extractall(dir)
 
+
 def sort_key(filename):
     bn, ext = filename.rpartition('.')[::2]
     if not bn and ext:
         bn, ext = ext, bn
     return (numeric_sort_key(bn), numeric_sort_key(ext))
+
 
 def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), sort_alphabetically=False):
     zf = zipfile.ZipFile(filename)
@@ -61,8 +65,10 @@ def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)
 
 comic_exts = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
+
 def name_ok(name):
     return bool(name and not name.startswith('__MACOSX/') and name.rpartition('.')[-1].lower() in comic_exts)
+
 
 def extract_cover_image(filename):
     with zipfile.ZipFile(filename) as zf:

@@ -10,6 +10,7 @@ import sys, os
 
 from lxml import etree
 
+
 class Font(object):
 
     def __init__(self, spec):
@@ -17,6 +18,7 @@ class Font(object):
         self.size = float(spec.get('size'))
         self.color = spec.get('color')
         self.family = spec.get('family')
+
 
 class Element(object):
 
@@ -29,6 +31,7 @@ class Element(object):
 
     def __hash__(self):
         return hash(self.id)
+
 
 class Image(Element):
 
@@ -99,6 +102,7 @@ class Text(Element):
         f.write(self.to_html().encode('utf-8'))
         f.write('\n')
 
+
 class FontSizeStats(dict):
 
     def __init__(self, stats):
@@ -109,6 +113,7 @@ class FontSizeStats(dict):
             if chars >= self.chars_at_most_common_size:
                 self.most_common_size, self.chars_at_most_common_size = sz, chars
             self[sz] = chars/total
+
 
 class Interval(object):
 
@@ -134,6 +139,7 @@ class Interval(object):
 
     def __hash__(self):
         return hash('(%f,%f)'%self.left, self.right)
+
 
 class Column(object):
 
@@ -220,6 +226,7 @@ class Box(list):
                 ans.append(elem.to_html()+' ')
         ans.append('</%s>'%self.tag)
         return ans
+
 
 class ImageBox(Box):
 

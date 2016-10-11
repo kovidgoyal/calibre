@@ -8,11 +8,14 @@ __copyright__ = '2015, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import httplib
 
+
 class JobQueueFull(Exception):
     pass
 
+
 class RouteError(ValueError):
     pass
+
 
 class HTTPSimpleResponse(Exception):
 
@@ -24,20 +27,24 @@ class HTTPSimpleResponse(Exception):
         self.authenticate = authenticate
         self.log = log
 
+
 class HTTPRedirect(HTTPSimpleResponse):
 
     def __init__(self, location, http_code=httplib.MOVED_PERMANENTLY, http_message='', close_connection=False):
         HTTPSimpleResponse.__init__(self, http_code, http_message, close_connection, location)
+
 
 class HTTPNotFound(HTTPSimpleResponse):
 
     def __init__(self, http_message='', close_connection=False):
         HTTPSimpleResponse.__init__(self, httplib.NOT_FOUND, http_message, close_connection)
 
+
 class HTTPAuthRequired(HTTPSimpleResponse):
 
     def __init__(self, payload, log=None):
         HTTPSimpleResponse.__init__(self, httplib.UNAUTHORIZED, authenticate=payload, log=log)
+
 
 class HTTPBadRequest(HTTPSimpleResponse):
 

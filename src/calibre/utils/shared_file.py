@@ -33,8 +33,10 @@ if not speedup:
 
 valid_modes = {'a', 'a+', 'a+b', 'ab', 'r', 'rb', 'r+', 'r+b', 'w', 'wb', 'w+', 'w+b'}
 
+
 def validate_mode(mode):
     return mode in valid_modes
+
 
 class FlagConstants(object):
 
@@ -46,6 +48,7 @@ class FlagConstants(object):
             x = 'O_' + x
             setattr(self, x, getattr(os, x, 0))
 fc = FlagConstants()
+
 
 def flags_from_mode(mode):
     if not validate_mode(mode):
@@ -171,6 +174,7 @@ else:
 
     def raise_winerror(x):
         raise NotImplementedError(), None, sys.exc_info()[2]
+
 
 def find_tests():
     import unittest

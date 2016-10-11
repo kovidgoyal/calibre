@@ -15,6 +15,7 @@ import sys, os, re
 from calibre.ebooks.rtf2xml import field_strings, copy
 from calibre.ptempfile import better_mktemp
 
+
 class FieldsSmall:
     """
 =================
@@ -32,6 +33,7 @@ until the closing bracket entry is found. Send the string to the module
 field_strings to process it. Write the processed string to the output
 file.
     """
+
     def __init__(self,
             in_file,
             bug_handler,

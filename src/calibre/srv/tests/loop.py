@@ -23,6 +23,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.utils.monotonic import monotonic
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
+
 class LoopTest(BaseTest):
 
     def test_log_rotation(self):
@@ -56,15 +57,18 @@ class LoopTest(BaseTest):
     def test_plugins(self):
         'Test plugin semantics'
         class Plugin(object):
+
             def __init__(self):
                 self.running = Event()
                 self.event = Event()
                 self.port = None
+
             def start(self, loop):
                 self.running.set()
                 self.port = loop.bound_address[1]
                 self.event.wait()
                 self.running.clear()
+
             def stop(self):
                 self.event.set()
 
@@ -124,6 +128,7 @@ class LoopTest(BaseTest):
     def test_ring_buffer(self):
         'Test the ring buffer used for reads'
         class FakeSocket(object):
+
             def __init__(self, data):
                 self.data = data
 
@@ -133,8 +138,10 @@ class LoopTest(BaseTest):
                 return sz
         from calibre.srv.loop import ReadBuffer, READ, WRITE
         buf = ReadBuffer(100)
+
         def write(data):
             return buf.recv_from(FakeSocket(data))
+
         def set(data, rpos, wpos, state):
             buf.ba = bytearray(data)
             buf.buf = memoryview(buf.ba)
@@ -227,11 +234,14 @@ class LoopTest(BaseTest):
         'Test the jobs manager'
         from calibre.srv.jobs import JobsManager
         O = namedtuple('O', 'max_jobs max_job_time')
+
         class FakeLog(list):
+
             def error(self, *args):
                 self.append(' '.join(args))
         s = ('waiting', 'running')
         jm = JobsManager(O(1, 5), FakeLog())
+
         def job_status(jid):
             return jm.job_status(jid)[0]
 

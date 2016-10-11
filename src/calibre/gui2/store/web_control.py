@@ -20,6 +20,7 @@ from calibre.ptempfile import PersistentTemporaryFile
 from calibre.utils.filenames import ascii_filename
 from calibre.web import get_download_filename
 
+
 class NPWebView(QWebView):
 
     def __init__(self, *args):

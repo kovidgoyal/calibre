@@ -7,6 +7,7 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.gui2.convert.txt_output import PluginWidget as TXTPluginWidget
 
+
 class PluginWidget(TXTPluginWidget):
 
     TITLE = _('TXTZ Output')

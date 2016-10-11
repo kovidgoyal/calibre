@@ -13,6 +13,7 @@ from calibre.library.server.base import LibraryServer
 from calibre.constants import iswindows, plugins
 import cherrypy
 
+
 def start_threaded_server(db, opts):
     server = LibraryServer(db, opts, embedded=True, show_tracebacks=False)
     server.thread = Thread(target=server.start)
@@ -20,9 +21,11 @@ def start_threaded_server(db, opts):
     server.thread.start()
     return server
 
+
 def stop_threaded_server(server):
     server.exit()
     server.thread = None
+
 
 def create_wsgi_app(path_to_library=None, prefix='', virtual_library=None):
     'WSGI entry point'
@@ -35,6 +38,7 @@ def create_wsgi_app(path_to_library=None, prefix='', virtual_library=None):
     opts.restriction = virtual_library
     server = LibraryServer(db, opts, wsgi=True, show_tracebacks=True)
     return cherrypy.Application(server, script_name=None, config=server.config)
+
 
 def option_parser():
     parser = config().option_parser('%prog '+ _(
@@ -66,6 +70,7 @@ The OPDS interface is advertised via BonJour automatically.
             help=_('Auto reload server when source code changes. May not'
                 ' work in all environments.'))
     return parser
+
 
 def daemonize():
     try:

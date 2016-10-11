@@ -29,6 +29,8 @@ from calibre.utils.date import UNDEFINED_DATE
 from calibre.utils.formatter import EvalFormatter
 
 # Download worker {{{
+
+
 class Worker(Thread):
 
     def __init__(self, plugin, kwargs, abort):
@@ -52,6 +54,7 @@ class Worker(Thread):
     def name(self):
         return self.plugin.name
 
+
 def is_worker_alive(workers):
     for w in workers:
         if w.is_alive():
@@ -61,6 +64,7 @@ def is_worker_alive(workers):
 # }}}
 
 # Merge results from different sources {{{
+
 
 class xISBN(Thread):
 
@@ -363,6 +367,7 @@ def merge_identify_results(result_map, log):
 
 # }}}
 
+
 def identify(log, abort,  # {{{
         title=None, authors=None, identifiers={}, timeout=30):
     if title == _('Unknown'):
@@ -522,6 +527,7 @@ def identify(log, abort,  # {{{
 
     return results
 # }}}
+
 
 def urls_from_identifiers(identifiers):  # {{{
     identifiers = {k.lower():v for k, v in identifiers.iteritems()}
