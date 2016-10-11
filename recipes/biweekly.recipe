@@ -30,7 +30,7 @@ class biweekly(BasicNewsRecipe):
         browser.open('http://www.biweekly.pl/')
 
         # find the link
-        epublink = browser.find_link(text_regex=re.compile('ePUB VERSION'))
+        epublink = browser.find_link(text_regex=re.compile('EPUB'))
 
         # download ebook
         self.report_progress(0, _('Downloading ePUB'))
