@@ -340,7 +340,7 @@ class TemplateDialog(QDialog, Ui_TemplateDialog):
         tt = _('Template function reference')
         self.template_func_reference.setText(
             '<a href="%s">%s</a>' % (
-                localize_user_manual_link('https://manual.calibre-ebook.com/template_ref.html'), tt))
+                localize_user_manual_link('https://manual.calibre-ebook.com/generated/en/template_ref.html'), tt))
 
         self.font_size_box.setValue(gprefs['gpm_template_editor_font_size'])
         self.font_size_box.valueChanged.connect(self.font_size_changed)
