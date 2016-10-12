@@ -45,7 +45,7 @@ def get_external_resources(container):
             elif media_type in OEB_STYLES:
                 for link in container.iterlinks(name):
                     ans[link].append(name)
-    return ans
+    return dict(ans)
 
 
 def get_filename(original_url_parsed, response):

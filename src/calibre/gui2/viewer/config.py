@@ -100,9 +100,9 @@ def config(defaults=None):
     fonts('sans_family', default='Verdana' if iswindows else 'Liberation Sans',
           help=_('The sans-serif font family'))
     fonts('mono_family', default='Courier New' if iswindows else 'Liberation Mono',
-          help=_('The monospaced font family'))
+          help=_('The monospace font family'))
     fonts('default_font_size', default=20, help=_('The standard font size in px'))
-    fonts('mono_font_size', default=16, help=_('The monospaced font size in px'))
+    fonts('mono_font_size', default=16, help=_('The monospace font size in px'))
     fonts('standard_font', default='serif', help=_('The standard font type'))
     fonts('minimum_font_size', default=8, help=_('The minimum font size in px'))
 

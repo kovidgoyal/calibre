@@ -84,11 +84,11 @@ class PDFOutput(OutputFormatPlugin):
                 'The font family used to render sans-serif fonts')),
         OptionRecommendation(name='pdf_mono_family',
             recommended_value='Liberation Mono' if islinux else 'Courier New', help=_(
-                'The font family used to render monospaced fonts')),
+                'The font family used to render monospace fonts')),
         OptionRecommendation(name='pdf_standard_font', choices=['serif',
             'sans', 'mono'],
             recommended_value='serif', help=_(
-                'The font family used to render monospaced fonts')),
+                'The font family used to render monospace fonts')),
         OptionRecommendation(name='pdf_default_font_size',
             recommended_value=20, help=_(
                 'The default font size')),

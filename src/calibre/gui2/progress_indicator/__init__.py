@@ -135,6 +135,14 @@ class WaitPanel(QWidget):
         self.la.setStyleSheet('QLabel { font-size: 40px; font-weight: bold }')
         l.addWidget(self.la, 0, Qt.AlignCenter), l.addStretch()
 
+    @property
+    def msg(self):
+        return self.la.text()
+
+    @msg.setter
+    def msg(self, val):
+        self.la.setText(val)
+
 
 class WaitStack(QStackedWidget):
 

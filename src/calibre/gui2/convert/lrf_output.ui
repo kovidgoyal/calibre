@@ -168,7 +168,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="label_8">
         <property name="text">
-         <string>&amp;Monospaced font family:</string>
+         <string>&amp;Monospace font family:</string>
         </property>
         <property name="buddy">
          <cstring>opt_mono_family</cstring>
