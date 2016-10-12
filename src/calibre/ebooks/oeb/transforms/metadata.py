@@ -175,8 +175,15 @@ class MergeMetadata(object):
                 images = []
             removed = False
             for img in images:
-                href = item.abshref(img.get('src'))
-                if href == cover_item.href:
+                try:
+                    href = item.abshref(img.get('src'))
+                except:
+                    # Invalid URLs can make abshref throw an exception, most-
+                    # commonly if they look sort of like an IPv6 URL.
+                    href = False
+                    self.oeb.log.exception(
+                        'Skipping invalid href: %r'%img.get('src'))
+                if not href or href == cover_item.href:
                     img.getparent().remove(img)
                     removed = True
             if removed:
