@@ -18,7 +18,6 @@ class AdvancedUserRecipe1274742400(BasicNewsRecipe):
         (u'Top Stories', u'http://www.reviewjournal.com/rss.xml'),
         (u'News', u'http://www.reviewjournal.com/news/feed'),
         (u'Business', u'http://www.reviewjournal.com/business/feed'),
-        (u'Living', u'http://www.reviewjournal.com/living/feed'),
         (u'Opinion', u'http://www.reviewjournal.com/opinion/feed'),
         (u'Neon', u'http://www.reviewjournal.com/neon/feed'),
         (u'Sports', u'http://www.reviewjournal.com/sports/feed')]

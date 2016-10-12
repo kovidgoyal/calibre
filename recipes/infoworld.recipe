@@ -18,17 +18,8 @@ class Engadget(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     use_embedded_content = False
+    auto_cleanup = True
 
-    remove_tags = [dict(name='div', attrs={'class': ["articleTools clearfix", "relatedContent", "pagination clearfix", "addResources"]}),
-                   dict(name='div', attrs={'id': ["post-socialPromoBlock"]})]
-
-    keep_only_tags = [dict(name='div', attrs={'class': ["article"]})]
-
-    feeds = [(u'Top Tech Stories', u'http://infoworld.com/homepage/feed'),
-             (u'Today\'s Tech Headlines', u'http://www.infoworld.com/news/feed')]
-
-    def get_article_url(self, article):
-
-        url = article.get('link', None)
-
-        return url
+    feeds = [(u'Top Tech Stories', u'http://www.infoworld.com/index.rss'),
+             (u'Today\'s Tech Headlines',
+              u'http://www.infoworld.com/news/index.rss')]
