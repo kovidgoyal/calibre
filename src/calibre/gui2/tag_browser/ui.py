@@ -29,6 +29,44 @@ class TagBrowserMixin(object):  # {{{
     def __init__(self, *args, **kwargs):
         pass
 
+    def populate_tb_manage_menu(self, db):
+        from calibre.db.categories import find_categories
+        m = self.alter_tb.manage_menu
+        m.clear()
+        for text, func, args, cat_name in (
+             (_('Manage Authors'),
+                        self.do_author_sort_edit, (self, None), 'authors'),
+             (_('Manage Series'),
+                        self.do_tags_list_edit, (None, 'series'), 'series'),
+             (_('Manage Publishers'),
+                        self.do_tags_list_edit, (None, 'publisher'), 'publisher'),
+             (_('Manage Tags'),
+                        self.do_tags_list_edit, (None, 'tags'), 'tags'),
+             (_('Manage User Categories'),
+                        self.do_edit_user_categories, (None,), 'user:'),
+             (_('Manage Saved Searches'),
+                        self.do_saved_search_edit, (None,), 'search')
+            ):
+            m.addAction(QIcon(I(category_icon_map[cat_name])), text,
+                    partial(func, *args))
+        fm = db.new_api.field_metadata
+        categories = [x[0] for x in find_categories(fm) if fm.is_custom_field(x[0])]
+        if categories:
+            if len(categories) > 5:
+                m = m.addMenu(_('Custom columns'))
+            else:
+                m.addSeparator()
+
+            def cat_key(x):
+                try:
+                    return fm[x]['name']
+                except Exception:
+                    return ''
+            for cat in sorted(categories, key=cat_key):
+                name = cat_key(cat)
+                if name:
+                    m.addAction(_('Manage {}').format(name), partial(self.do_tags_list_edit, None, cat))
+
     def init_tag_browser_mixin(self, db):
         self.library_view.model().count_changed_signal.connect(self.tags_view.recount)
         self.tags_view.set_database(db, self.alter_tb)
@@ -48,24 +86,7 @@ class TagBrowserMixin(object):  # {{{
         self.tags_view.restriction_error.connect(self.do_restriction_error,
                                                  type=Qt.QueuedConnection)
         self.tags_view.tag_item_delete.connect(self.do_tag_item_delete)
-
-        for text, func, args, cat_name in (
-             (_('Manage Authors'),
-                        self.do_author_sort_edit, (self, None), 'authors'),
-             (_('Manage Series'),
-                        self.do_tags_list_edit, (None, 'series'), 'series'),
-             (_('Manage Publishers'),
-                        self.do_tags_list_edit, (None, 'publisher'), 'publisher'),
-             (_('Manage Tags'),
-                        self.do_tags_list_edit, (None, 'tags'), 'tags'),
-             (_('Manage User Categories'),
-                        self.do_edit_user_categories, (None,), 'user:'),
-             (_('Manage Saved Searches'),
-                        self.do_saved_search_edit, (None,), 'search')
-            ):
-            m = self.alter_tb.manage_menu
-            m.addAction(QIcon(I(category_icon_map[cat_name])), text,
-                    partial(func, *args))
+        self.populate_tb_manage_menu(db)
 
     def do_restriction_error(self):
         error_dialog(self.tags_view, _('Invalid search restriction'),
@@ -528,4 +549,3 @@ class TagBrowserWidget(QWidget):  # {{{
         self.not_found_label.setVisible(False)
 
 # }}}
-

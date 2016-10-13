@@ -373,6 +373,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         # ########################## Tags Browser ##############################
         TagBrowserMixin.init_tag_browser_mixin(self, db)
+        self.library_view.model().database_changed.connect(self.populate_tb_manage_menu, type=Qt.QueuedConnection)
 
         # ######################## Search Restriction ##########################
         if db.prefs['virtual_lib_on_startup']:
