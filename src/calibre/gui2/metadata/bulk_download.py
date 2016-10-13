@@ -136,7 +136,9 @@ def start_download(gui, ids, callback, ensure_fields=None):
     tf.close()
 
     job = Job('metadata bulk download',
-        _('Download metadata for %d books')%len(ids),
+        ngettext(
+            'Download metadata for one book',
+            'Download metadata for {} books', len(ids)).format(len(ids)),
         download, (ids, tf.name, gui.current_db, d.identify, d.covers,
             ensure_fields), {}, callback)
     job.metadata_and_covers = (d.identify, d.covers)
@@ -275,5 +277,3 @@ def download(all_ids, tf, db, do_identify, covers, ensure_fields,
                 lm_map, all_failed)
     finally:
         notifier.keep_going = False
-
-
