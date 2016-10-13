@@ -16,11 +16,11 @@ from calibre.ptempfile import PersistentTemporaryFile
 class techworld(BasicNewsRecipe):
     __author__ = 'Lorenzo Vigentini'
     description = 'Techworld offers the latest breaking IT industry news, product reviews, enterprise software downloads, how-to articles and expert blogs for technical professionals and enterprise users in the UK'  # noqa
-    cover_url = 'http://www.techworld.com/graphics/header/site_logo.jpg'
 
     title = 'TechWorld'
     publisher = 'IDG Communication'
-    category = 'Apple, Mac, video, computing, product reviews, editing, cameras, production'
+    category = ('Apple, Mac, video, computing, product reviews, '
+                'editing, cameras, production')
 
     language = 'en'
     timefmt = '[%a, %d %b, %Y]'
@@ -32,60 +32,16 @@ class techworld(BasicNewsRecipe):
 
     remove_javascript = True
     no_stylesheets = True
-
-    temp_files = []
-    articles_are_obfuscated = True
-
-    def get_obfuscated_article(self, url):
-        br = self.get_browser()
-        br.open(url)
-        response = br.follow_link(url_regex='?getDynamicPage&print$', nr=0)
-        html = response.read()
-        self.temp_files.append(PersistentTemporaryFile('_fa.html'))
-        self.temp_files[-1].write(html)
-        self.temp_files[-1].close()
-        return self.temp_files[-1].name
-
-    keep_only_tags = [
-        dict(name='div', attrs={'id': 'articleBody'}),
-        dict(name='h2', attrs={'class': 'blogTitle'}),
-        dict(name='h3', attrs={'class': 'blogger'}),
-    ]
-
-    remove_tags = [
-        dict(name='div', attrs={'class': ['submissionBar', 'mpuContainer']}),
-        dict(name='div', attrs={'id': [
-             'breadcrumb', 'mainContentSidebar', 'articleIconsList', 'loginSubscribeBoxout']}),
-        dict(name='ul', attrs={'class': 'articleIconsList'})
-    ]
-    remove_tags_after = [
-        dict(name='div', attrs={'id': 'articleFooter'})
-    ]
+    auto_cleanup = True
 
     feeds = [
-        (u'News', u'http://www.techworld.com/rss/feeds/techworld-news.xml'),
-        (u'How-Tos', u'http://www.techworld.com/rss/feeds/techworld-how-tos.xml'),
-        (u'Reviews', u'http://www.techworld.com/rss/feeds/techworld-reviews.xml'),
-        (u'Features', u'http://www.techworld.com/rss/feeds/techworld-features.xml'),
-        (u'Storage', u'http://www.techworld.com/rss/feeds/techworld-storage.xml'),
-        (u'Applications',
-         u'http://www.techworld.com/rss/feeds/techworld-applications.xml'),
-        (u'Virtualization',
-         u'http://www.techworld.com/rss/feeds/techworld-virtualisation.xml'),
-        (u'Personal Tech',
-         u'http://www.techworld.com/rss/feeds/techworld-personal-tech.xml'),
-        (u'Green IT', u'http://www.techworld.com/rss/feeds/techworld-green-it.xml'),
-        (u'Security', u'http://www.techworld.com/rss/feeds/techworld-security.xml'),
-        (u'Operating Systems',
-         u'http://www.techworld.com/rss/feeds/techworld-operating-systems.xml'),
-        (u'Networking', u'http://www.techworld.com/rss/feeds/techworld-networking.xml'),
-        (u'Mobile and Wireless',
-         u'http://www.techworld.com/rss/feeds/techworld-mobile-wireless.xml'),
-        (u'Data Centre', u'http://www.techworld.com/rss/feeds/techworld-data-centre.xml'),
-        (u'SME', u'http://www.techworld.com/rss/feeds/techworld-sme.xml'),
-        (u'TechWorld Blogs', u'http://blogs.techworld.com/atom.xml')
+        (u'News', u'http://www.techworld.com/news/rss'),
+        (u'Tutorial', u'http://www.techworld.com/tutorial/rss'),
+        (u'Reviews', u'http://www.techworld.com/review/rss'),
+        (u'Features', u'http://www.techworld.com/features/rss'),
+        (u'Analysis', u'http://www.techworld.com/analysis/rss'),
+        (u'Galleries',
+         u'http://www.techworld.com/picture-gallery/rss'),
+        (u'TechWorld Blogs',
+         u'http://www.techworld.com/blog/rss'),
     ]
-
-    extra_css = '''
-                img {align:left;}
-                '''

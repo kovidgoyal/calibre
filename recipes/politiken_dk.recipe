@@ -22,26 +22,28 @@ class Politiken_dk(BasicNewsRecipe):
     encoding = 'cp1252'
     language = 'da'
 
-    extra_css = ' body{font-family: Arial,Helvetica,sans-serif } h1{font-family: Georgia,"Times New Roman",Times,serif } '
+    extra_css = (' body{font-family: Arial,Helvetica,sans-serif } '
+                 'h1{font-family: Georgia,"Times New Roman",Times,serif } ')
 
     conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
+        'comment': description,
+        'tags': category,
+        'publisher': publisher,
+        'language': language
     }
 
     feeds = [
-
-    (u'Tophistorier', u'http://politiken.dk/rss/tophistorier.rss'),
-    (u'Seneste nyt', u'http://politiken.dk/rss/senestenyt.rss'),
-    (u'Mest laeste', u'http://politiken.dk/rss/mestlaeste.rss'),
-    (u'Danmark', u'http://politiken.dk/rss/indland.rss'),
-    (u'Politik', u'http://politiken.dk/rss/politik.rss'),
-    (u'Klima', u'http://politiken.dk/rss/klima.rss'),
-    (u'Internationalt', u'http://politiken.dk/rss/udland.rss'),
-    (u'Erhverv', u'http://politiken.dk/rss/erhverv.rss'),
-    (u'Kultur', u'http://politiken.dk/rss/kultur.rss'),
-    (u'Sport', u'http://politiken.dk/rss/sport.rss'),
-    (u'Uddannelse', u'http://politiken.dk/rss/uddannelse.rss'),
-    (u'Videnskab', u'http://politiken.dk/rss/videnskab.rss')
+        (u'Tophistorier', u'http://politiken.dk/rss/tophistorier.rss'),
+        (u'Seneste nyt', u'http://politiken.dk/rss/senestenyt.rss'),
+        (u'Mest laeste', u'http://politiken.dk/rss/mestlaeste.rss'),
+        (u'Danmark', u'http://politiken.dk/rss/indland.rss'),
+        (u'Politik', u'http://politiken.dk/rss/politik.rss'),
+        (u'Klima', u'http://politiken.dk/rss/klima.rss'),
+        (u'Internationalt', u'http://politiken.dk/rss/udland.rss'),
+        (u'Erhverv', u'http://politiken.dk/rss/erhverv.rss'),
+        (u'Kultur', u'http://politiken.dk/rss/kultur.rss'),
+        (u'Sport', u'http://politiken.dk/rss/sport.rss'),
+        (u'Uddannelse', u'http://politiken.dk/rss/uddannelse.rss'),
     ]
     remove_tags_before = dict(name='h1')
     remove_tags = [

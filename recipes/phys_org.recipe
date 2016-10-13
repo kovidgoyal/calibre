@@ -19,8 +19,6 @@ class HindustanTimes(BasicNewsRecipe):
          'http://phys.org/rss-feed/physics-news/'),
         ('Space and Earth',
          'http://phys.org/rss-feed/space-news/'),
-        ('Electronics',
-         'http://phys.org/rss-feed/electronics-news/'),
         ('Chemistry',
          'http://phys.org/rss-feed/chemistry-news/'),
         ('Biology',

@@ -23,55 +23,18 @@ class TheWashingtonPost(BasicNewsRecipe):
     language = 'en'
     remove_empty_feeds = True
     publication_type = 'newspaper'
-    masthead_url = 'http://www.washingtonpost.com/rw/sites/twpweb/img/logos/twp_logo_300.gif'
-    cover_url = strftime(
-        'http://www.washingtonpost.com/rw/WashingtonPost/Content/Epaper/%Y-%m-%d/Ax1.pdf')
-    extra_css             = """
-                               body{font-family: Georgia,serif }
-                            """
-
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
-
-    keep_only_tags = [
-        dict(attrs={'id': ['content', 'entryhead', 'entrytext']})]
-    remove_tags = [
-        dict(name=['meta', 'link', 'iframe', 'base']), dict(
-            attrs={'id': 'multimedia-leaf-page'})
-    ]
-    remove_attributes = ['lang', 'property', 'epochtime',
-                         'datetitle', 'pagetype', 'contenttype', 'comparetime']
+    auto_cleanup = True
 
     feeds = [
-
-    (u'World', u'http://feeds.washingtonpost.com/rss/world'),
-    (u'National', u'http://feeds.washingtonpost.com/rss/national'),
-    (u'White House', u'http://feeds.washingtonpost.com/rss/politics/whitehouse'),
-    (u'Business', u'http://feeds.washingtonpost.com/rss/business'),
-    (u'Opinions', u'http://feeds.washingtonpost.com/rss/opinions'),
-    (u'Investigations', u'http://feeds.washingtonpost.com/rss/investigations'),
-    (u'Local', u'http://feeds.washingtonpost.com/rss/local'),
-    (u'Entertainment', u'http://feeds.washingtonpost.com/rss/entertainment'),
-    (u'Sports', u'http://feeds.washingtonpost.com/rss/sports'),
-    (u'Redskins', u'http://feeds.washingtonpost.com/rss/sports/redskins'),
-    (u'Special Reports', u'http://feeds.washingtonpost.com/rss/national/special-reports')
+        (u'World', u'http://feeds.washingtonpost.com/rss/world'),
+        (u'National', u'http://feeds.washingtonpost.com/rss/national'),
+        (u'White House',
+         u'http://feeds.washingtonpost.com/rss/politics/whitehouse'),
+        (u'Business', u'http://feeds.washingtonpost.com/rss/business'),
+        (u'Opinions', u'http://feeds.washingtonpost.com/rss/opinions'),
+        (u'Local', u'http://feeds.washingtonpost.com/rss/local'),
+        (u'Entertainment',
+         u'http://feeds.washingtonpost.com/rss/entertainment'),
+        (u'Sports', u'http://feeds.washingtonpost.com/rss/sports'),
+        (u'Redskins', u'http://feeds.washingtonpost.com/rss/sports/redskins'),
     ]
-
-    def print_version(self, url):
-        if '_story.html' in url:
-            return url.replace('_story.html', '_print.html')
-        return url
-
-    def get_article_url(self, article):
-        link = BasicNewsRecipe.get_article_url(self, article)
-        if article.id.startswith('http'):
-            link = article.id
-        if 'washingtonpost.com' not in link:
-            self.log('Skipping ads:', link)
-            return None
-        for it in ['_video.html', '_gallery.html', '_links.html']:
-            if it in link:
-                self.log('Skipping non-article:', link)
-                return None
-        return link

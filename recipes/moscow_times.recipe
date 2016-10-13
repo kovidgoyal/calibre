@@ -19,54 +19,14 @@ class Moscowtimes(BasicNewsRecipe):
     no_stylesheets = True
     use_embedded_content = False
     remove_empty_feeds = True
-    encoding = 'cp1251'
-    masthead_url = 'http://www.themoscowtimes.com/bitrix/templates/tmt/img/logo.gif'
     publication_type = 'newspaper'
+    auto_cleanup = True
 
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language
-    }
-
-    extra_css      = '''
-                        h1{ color:#0066B3; font-family: Georgia,serif ; font-size: large}
-                        .article_date{ font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; color:#000000; font-size: x-small;}
-                        .autors{color:#999999 ; font-weight: bold ; font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; font-size: x-small; }
-                        .photoautors{ color:#999999 ; font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; font-size: x-small; }
-                        .text{font-family:Arial,Tahoma,Verdana,Helvetica,sans-serif ; font-size:75%; }
-                        '''
     feeds = [
-
-    (u'Top Stories', u'http://www.themoscowtimes.com/rss/top'),
-    (u'Current Issue', u'http://www.themoscowtimes.com/rss/issue'),
-    (u'News', u'http://www.themoscowtimes.com/rss/news'),
-    (u'Business', u'http://www.themoscowtimes.com/rss/business'),
-    (u'Art and Ideas', u'http://www.themoscowtimes.com/rss/art'),
-    (u'Opinion', u'http://www.themoscowtimes.com/rss/opinion')
+        (u'Top Stories', u'https://themoscowtimes.com/feeds/main.xml'),
+        (u'Moscow', u'https://themoscowtimes.com/feeds/moscow.xml'),
+        (u'Russia', u'https://themoscowtimes.com/feeds/russia.xml'),
+        (u'World', u'https://themoscowtimes.com/feeds/world.xml'),
+        (u'Business', u'https://themoscowtimes.com/feeds/business.xml'),
+        (u'Opinion', u'https://themoscowtimes.com/feeds/opinion.xml')
     ]
-
-    keep_only_tags = [dict(name='div', attrs={'id': 'content'})]
-    remove_tags = [
-        dict(name='div', attrs={'class': ['photo_nav', 'phototext']}), dict(
-            name=['iframe', 'meta', 'base', 'link', 'embed', 'object'])
-    ]
-
-    def preprocess_html(self, soup):
-        for lnk in soup.findAll('a'):
-            if lnk.string is not None:
-                ind = self.tag_to_string(lnk)
-                lnk.replaceWith(ind)
-        return soup
-
-    def print_version(self, url):
-        return url.replace('.themoscowtimes.com/', '.themoscowtimes.com/print/')
-
-    def get_cover_url(self):
-        cover_url = None
-        href = 'http://www.themoscowtimes.com/pdf/'
-        soup = self.index_to_soup(href)
-        div = soup.find('div', attrs={'class': 'left'})
-        if div:
-            a = div.find('a')
-            if a:
-                cover_url = 'http://www.themoscowtimes.com' + a.img['src']
-        return cover_url
