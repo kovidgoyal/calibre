@@ -20,11 +20,11 @@ def draw_snake_spinner(painter, rect, angle, light, dark):
     elif rect.height() > rect.width():
         delta = (rect.height() - rect.width()) // 2
         rect = rect.adjusted(0, delta, 0, -delta)
-    disc_width = max(4, rect.width() // 10)
+    disc_width = max(3, min(rect.width() // 10, 8))
 
     drawing_rect = QRect(rect.x() + disc_width, rect.y() + disc_width, rect.width() - 2 * disc_width, rect.height() - 2 *disc_width)
 
-    gap = 20  # degrees
+    gap = 60  # degrees
     gradient = QConicalGradient(drawing_rect.center(), angle - gap // 2)
     gradient.setColorAt(1, light)
     gradient.setColorAt(0, dark)
@@ -169,7 +169,7 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     d = QDialog()
-    d.resize(100, 100)
+    d.resize(64, 64)
     w = ProgressSpinner(d)
     l = QVBoxLayout(d)
     l.addWidget(w)
