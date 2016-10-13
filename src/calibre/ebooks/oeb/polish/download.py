@@ -43,8 +43,9 @@ def get_external_resources(container):
                 for el, attr, link in iterhtmllinks(container, name):
                     ans[link].append(name)
             elif media_type in OEB_STYLES:
-                for link in container.iterlinks(name):
-                    ans[link].append(name)
+                for link in container.iterlinks(name, get_line_numbers=False):
+                    if is_external(link):
+                        ans[link].append(name)
     return dict(ans)
 
 
@@ -99,8 +100,9 @@ def download_one(tdir, timeout, progress_report, url):
                 src = urlopen(url, timeout=timeout)
                 filename = get_filename(purl, src)
                 sz = get_content_length(src)
+            progress_report(url, 0, sz)
             dest = ProgressTracker(df, url, sz, progress_report)
-            with src:
+            with closing(src):
                 shutil.copyfileobj(src, dest)
             filename = sanitize_file_name2(filename)
             mt = guess_type(filename)
@@ -110,7 +112,7 @@ def download_one(tdir, timeout, progress_report, url):
                 raise ValueError('The external resource {} is not of a known type'.format(url))
             return True, (url, sanitize_file_name2(filename), dest.name, mt)
     except Exception as err:
-        return False, url, as_unicode(err)
+        return False, (url, as_unicode(err))
 
 
 def download_external_resources(container, urls, timeout=60, progress_report=lambda url, done, total: None):
@@ -143,10 +145,11 @@ def replacer(url_map):
 def replace_resources(container, urls, replacements):
     url_maps = defaultdict(dict)
     changed = False
-    for url, name in urls.iteritems():
+    for url, names in urls.iteritems():
         replacement = replacements.get(url)
         if replacement is not None:
-            url_maps[name][url] = container.name_to_href(replacement, name)
+            for name in names:
+                url_maps[name][url] = container.name_to_href(replacement, name)
     for name, url_map in url_maps.iteritems():
         r = replacer(url_map)
         container.replace_links(name, r)
