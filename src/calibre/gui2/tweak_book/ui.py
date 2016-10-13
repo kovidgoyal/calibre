@@ -399,7 +399,9 @@ class Main(MainWindow):
             'Check external links in the book'))
         self.action_compress_images = treg('compress-image.png', _('Compress &images losslessly'), self.boss.compress_images, 'compress-images', (), _(
             'Compress images losslessly'))
-        self.action_transform_styles = treg('wizard.png', _('Transform &styles'), self.boss.transform_styles, 'transform-styles', (), _(
+        self.action_transform_styles = treg('wizard.png', _('Transform &styles'), self.boss.transform_styles, 'get-external-resources', (), _(
+            'Download external resources in the book (images/stylesheets/etc/ that are not included in the book)'))
+        self.action_get_ext_resources = treg('download-metadata.png', _('Get external &resources'), self.boss.get_external_resources, 'transform-styles', (), _(
             'Transform styles used in the book'))
 
         def ereg(icon, text, target, sid, keys, description):
@@ -564,6 +566,7 @@ class Main(MainWindow):
         e.addAction(self.action_filter_css)
         e.addAction(self.action_spell_check_book)
         e.addAction(self.action_check_external_links)
+        e.addAction(self.action_get_ext_resources)
         e.addAction(self.action_check_book)
         e.addAction(self.action_reports)
 

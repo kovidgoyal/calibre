@@ -583,6 +583,25 @@ class Boss(QObject):
             return
         self.show_current_diff()
 
+    def get_external_resources(self):
+        if not self.ensure_book(_('You must first open a book in order to transform styles.')):
+            return
+        from calibre.gui2.tweak_book.download import DownloadResources
+        with BusyCursor():
+            self.add_savepoint(_('Before get external resources'))
+        try:
+            d = DownloadResources(self.gui)
+            d.exec_()
+        except Exception:
+            self.rewind_savepoint()
+            raise
+        if d.resources_replaced:
+            self.apply_container_update_to_gui()
+            if d.show_diff:
+                self.show_current_diff()
+        else:
+            self.rewind_savepoint()
+
     def manage_fonts(self):
         self.commit_all_editors_to_container()
         self.gui.manage_fonts.display()
