@@ -1108,7 +1108,10 @@ class Manifest(object):
             """Convert the URL provided in :param:`href` from a reference
             relative to this manifest item to a book-absolute reference.
             """
-            purl = urlparse(href)
+            try:
+                purl = urlparse(href)
+            except ValueError:
+                return href
             scheme = purl.scheme
             if scheme and scheme != 'file':
                 return href

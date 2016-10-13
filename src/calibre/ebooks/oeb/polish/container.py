@@ -97,7 +97,10 @@ def name_to_href(name, root, base=None, quote=urlquote):
 
 def href_to_name(href, root, base=None):
     base = root if base is None else os.path.dirname(name_to_abspath(base, root))
-    purl = urlparse(href)
+    try:
+        purl = urlparse(href)
+    except ValueError:
+        return None
     if purl.scheme or not purl.path:
         return None
     href = urlunquote(purl.path)
@@ -1458,5 +1461,3 @@ def test_roundtrip():
 
 if __name__ == '__main__':
     test_roundtrip()
-
-
