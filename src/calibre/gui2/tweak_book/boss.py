@@ -1197,11 +1197,16 @@ class Boss(QObject):
     def check_item_activated(self, item):
         is_mult = item.has_multiple_locations and getattr(item, 'current_location_index', None) is not None
         name = item.all_locations[item.current_location_index][0] if is_mult else item.name
+        editor = None
         if name in editors:
             editor = editors[name]
             self.gui.central.show_editor(editor)
         else:
-            editor = self.edit_file_requested(name, None, current_container().mime_map[name])
+            try:
+                editor = self.edit_file_requested(name, None, current_container().mime_map[name])
+            except KeyError:
+                error_dialog(self.gui, _('File deleted'), _(
+                    'The file {} has already been deleted, re-run Check Book to update the results.').format(name), show=True)
         if getattr(editor, 'has_line_numbers', False):
             if is_mult:
                 editor.go_to_line(*(item.all_locations[item.current_location_index][1:3]))
