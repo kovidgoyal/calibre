@@ -8,7 +8,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     pyqtSignal, QWidget, QListWidget, QListWidgetItem, QLabel, Qt,
-    QVBoxLayout, QScrollArea, QProgressBar, QGridLayout, QSize)
+    QVBoxLayout, QScrollArea, QProgressBar, QGridLayout, QSize, QIcon)
 
 from calibre.gui2 import error_dialog, info_dialog, warning_dialog
 from calibre.gui2.tweak_book import current_container
@@ -95,6 +95,7 @@ class DownloadResources(Dialog):
 
     def __init__(self, parent=None):
         self.resources_replaced = False
+        self.show_diff = False
         Dialog.__init__(self, _('Download external resources'), 'download-external-resources', parent)
         self.state = 0
         self.get_done.connect(self._get_done)
@@ -103,6 +104,7 @@ class DownloadResources(Dialog):
         self.progress.connect(self.download_status.progress, type=Qt.QueuedConnection)
 
     def setup_ui(self):
+        self.setWindowIcon(QIcon(I('download-metadata.png')))
         self.choose_resources = cr = ChooseResources(self)
         self.download_status = ds = DownloadStatus(self)
         self.success = s = QLabel('')
@@ -210,7 +212,11 @@ class DownloadResources(Dialog):
             self.state = 3
             self.bb.clear()
             self.resources_replaced = True
-            self.bb.setStandardButtons(self.bb.Close)
+            self.bb.setStandardButtons(self.bb.Ok | self.bb.Close)
+            b = self.bb.button(self.bb.Ok)
+            b.setText(_('See what &changed'))
+            b.setIcon(QIcon(I('diff.png')))
+            b.clicked.connect(lambda : setattr(self, 'show_diff', True))
             self.bb.setVisible(True)
 
     def accept(self):
@@ -248,4 +254,5 @@ if __name__ == '__main__':
     set_current_container(get_container(sys.argv[-1]))
     d = DownloadResources()
     d.exec_()
+    print(d.show_diff)
     del d, app
