@@ -185,8 +185,11 @@ class DownloadResources(Dialog):
             self.state = 2
             self.wait.msg = _('Updating resources in book...')
             self.wait.start()
-            self.success.setText('<p style="text-align:center">' + ngettext(
-                'Successfully processed the external resource', 'Successfully processed {} external resources', len(replacements)).format(len(replacements)))
+            t = ngettext(
+                'Successfully processed the external resource', 'Successfully processed {} external resources', len(replacements)).format(len(replacements))
+            if failures:
+                t += '<br>' + ngettext('Could not download one image', 'Could not download {} images', len(failures)).format(len(failures))
+            self.success.setText('<p style="text-align:center">' + t)
             resources = self.choose_resources.resources
             t = Thread(name='ReplaceResources', target=self.replace_resources, args=(resources, replacements))
             t.daemon = True
