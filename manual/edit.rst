@@ -713,6 +713,17 @@ websites. The tool will try to visit every externally linked website, and
 if the visit fails, it will report all broken links in a convenient format for 
 you to fix.
 
+
+Downloading external resources
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can use this tool to automatically download any images/stylesheets/etc. in
+the book that are not bundled with the book (i.e. they have URLs poiting to a
+location on the internet). The tool will find all such resources and
+automatically download them, add them tot he book and replace all references to
+them to use the downloaded files.
+
+
 Arranging files into folders by type
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
