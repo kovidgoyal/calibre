@@ -979,7 +979,10 @@ class Boss(QObject):
         if current_container().has_name(target):
             self.link_clicked(target, frag, show_anchor_not_found=True)
         else:
-            purl = urlparse(url)
+            try:
+                purl = urlparse(url)
+            except ValueError:
+                return
             if purl.scheme not in {'', 'file'}:
                 open_url(QUrl(url))
             else:
