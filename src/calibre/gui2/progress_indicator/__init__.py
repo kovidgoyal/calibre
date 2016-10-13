@@ -26,7 +26,7 @@ def draw_snake_spinner(painter, rect, angle, light, dark):
 
     gap = 60  # degrees
     gradient = QConicalGradient(drawing_rect.center(), angle - gap // 2)
-    gradient.setColorAt(1, light)
+    gradient.setColorAt((360 - gap//2)/360.0, light)
     gradient.setColorAt(0, dark)
 
     pen = QPen(QBrush(gradient), disc_width)
