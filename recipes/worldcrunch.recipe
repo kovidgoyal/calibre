@@ -14,5 +14,5 @@ class Worldcrunch(BasicNewsRecipe):
 
     feeds = [
         ('News',
-         'http://www.worldcrunch.com/feed'),
+         'http://www.worldcrunch.com/rss/rss.php'),
     ]

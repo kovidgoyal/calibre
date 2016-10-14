@@ -23,8 +23,5 @@ class TheWeek(BasicNewsRecipe):
     language = 'en'
     auto_cleanup = True
     feeds = [
-        (u'News-Opinion', u'http://theweek.com/section/index/news_opinion.rss'),
-        (u'Business', u'http://theweek.com/section/index/business.rss'),
-        (u'Arts-Life', u'http://theweek.com/section/index/arts_life.rss'),
-        (u'Cartoons', u'http://theweek.com/section/index/cartoon_wit/0/all-cartoons.rss')
+        (u'Latest articles', u'http://theweek.com/rss.xml'),
     ]

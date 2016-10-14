@@ -14,7 +14,6 @@ class USAToday(BasicNewsRecipe):
     title = 'USA Today'
     __author__ = 'Kovid Goyal'
     description = 'newspaper'
-    cover_url = 'http://webmedia.newseum.org/newseum-multimedia/dfp/jpg12/lg/USAT.jpg'
     encoding = 'utf-8'
     publisher = 'usatoday.com'
     category = 'news, usa'
@@ -28,25 +27,42 @@ class USAToday(BasicNewsRecipe):
     filterDuplicates = True
 
     extra_css = '''
-                    h1, h2 {font-size:xx-large; font-family:Arial,Helvetica,sans-serif;}
-                    #post-attributes, .info, .clear {font-size:xx-small; color:#4D4D4D; font-family:Arial,Helvetica,sans-serif;}
-                    #post-body, #content {font-size:medium; font-family:Arial,Helvetica,sans-serif;}
+                    h1, h2 {
+                        font-size:xx-large;
+                        font-family:Arial,Helvetica,sans-serif;}
+                    #post-attributes, .info,
+                    .clear {
+                        font-size:xx-small; color:#4D4D4D;
+                        font-family:Arial,Helvetica,sans-serif;
+                    }
+                    #post-body,
+                    #content {
+                        font-size:medium;
+                        font-family:Arial,Helvetica,sans-serif;
+                    }
                 '''
 
     feeds = [
-        ('Top Headlines', 'http://rssfeeds.usatoday.com/usatoday-NewsTopStories'),
-        ('Tech Headlines', 'http://rssfeeds.usatoday.com/usatoday-TechTopStories'),
-        ('Personal Tech', 'http://rssfeeds.usatoday.com/UsatodaycomTech-PersonalTalk'),
-        ('Science', 'http://rssfeeds.usatoday.com/TP-ScienceFair'),
-        ('Health', 'http://rssfeeds.usatoday.com/UsatodaycomHealth-TopStories'),
-        ('Travel Headlines', 'http://rssfeeds.usatoday.com/UsatodaycomTravel-TopStories'),
-        ('Money Headlines', 'http://rssfeeds.usatoday.com/UsatodaycomMoney-TopStories'),
+        ('Top Headlines',
+         'http://rssfeeds.usatoday.com/usatoday-NewsTopStories'),
+        ('Tech Headlines',
+         'http://rssfeeds.usatoday.com/usatoday-TechTopStories'),
+        ('Personal Tech',
+         'http://rssfeeds.usatoday.com/UsatodaycomTech-PersonalTalk'),
+        ('Health',
+         'http://rssfeeds.usatoday.com/UsatodaycomHealth-TopStories'),
+        ('Travel Headlines',
+         'http://rssfeeds.usatoday.com/UsatodaycomTravel-TopStories'),
+        ('Money Headlines',
+         'http://rssfeeds.usatoday.com/UsatodaycomMoney-TopStories'),
         ('Entertainment Headlines',
          'http://rssfeeds.usatoday.com/usatoday-LifeTopStories'),
-        ('Sport Headlines', 'http://rssfeeds.usatoday.com/UsatodaycomSports-TopStories'),
-        ('Weather Headlines', 'http://rssfeeds.usatoday.com/usatoday-WeatherTopStories'),
-        ('Most Popular', 'http://rssfeeds.usatoday.com/Usatoday-MostViewedArticles'),
-        ('Offbeat News', 'http://rssfeeds.usatoday.com/UsatodaycomOffbeat-TopStories')
+        ('Sport Headlines',
+         'http://rssfeeds.usatoday.com/UsatodaycomSports-TopStories'),
+        ('Weather Headlines',
+         'http://rssfeeds.usatoday.com/usatoday-WeatherTopStories'),
+        ('Most Popular',
+         'http://rssfeeds.usatoday.com/Usatoday-MostViewedArticles'),
     ]
 
     auto_cleanup = True

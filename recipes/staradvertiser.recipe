@@ -14,69 +14,19 @@ class Starbulletin(BasicNewsRecipe):
     publisher = 'Honolulu Star-Advertiser'
     category = 'news, Honolulu, Hawaii'
     oldest_article = 2
-    needs_subscription = True
     max_articles_per_feed = 100
     language = 'en'
     no_stylesheets = True
     use_embedded_content = False
     encoding = 'utf8'
     publication_type = 'newspaper'
-    masthead_url = 'http://media.staradvertiser.com/designimages/star-advertiser-logo-small.gif'
-#    extra_css             = """
-#                                body{font-family: Verdana,Arial,Helvetica,sans-serif}
-#                                h1,.brown,.hsa_postCredit{color: #663300}
-#                                .storyDeck{font-size: 1.2em; font-weight: bold}
-#                                img{display: block}
-#                            """
-
-    conversion_options = {
-        'comment': description, 'tags': category, 'publisher': publisher, 'language': language, 'linearize_tables': True
-    }
-    keep_only_tags = [
-        dict(attrs={'id': 'hsa_storyTitle'}), dict(attrs={'id': 'hsa_storyTitle article-important'}), dict(attrs={'class': ['hsa_dateStamp', 'hsa_postCredit', 'storyDeck']}), dict(name='span', attrs={'class': ['hsa_dateStamp', 'hsa_postCredit']}), dict(name='span', attrs={'class': ['hsa_dateStamp article-important', 'hsa_postCredit article-important']}), dict(name='div', attrs={'class': 'storytext article-important'}), dict(name='div', attrs={'class': 'storytext'})  # noqa
-    ]
-    remove_tags = [
-        # removed 'span' from preceding list to permit keeping of author and
-        dict(name=['object', 'link', 'script', 'meta',
-                   'base', 'iframe'])        # timestamp
-        , dict(attrs={'class': ['insideStoryImage', 'insideStoryAd']}), dict(attrs={'name': 'fb_share'})
-    ]
-
-    def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
-        if self.username is not None and self.password is not None:
-            br.open('http://www.staradvertiser.com/manage/Login/')
-            br.select_form(name='loginForm')
-            br['email'] = self.username
-            br['password'] = self.password
-            br.submit()
-        return br
+    auto_cleanup = True
 
     feeds = [
-
-    (u'Breaking News', u'http://www.staradvertiser.com/news/breaking/index.rss'),
-    (u'News', u'http://www.staradvertiser.com/newspremium/index.rss'),
-    (u'Business', u'http://www.staradvertiser.com/businesspremium/index.rss'),
-    (u'Sports', u'http://www.staradvertiser.com/sportspremium/index.rss'),
-    (u'Features', u'http://www.staradvertiser.com/featurespremium/index.rss')
+        (u'Breaking News',
+         u'http://www.staradvertiser.com/category/breaking-news/feed/'),
+        (u'Business', u'http://www.staradvertiser.com/business/feed/'),
+        (u'Sports', u'http://www.staradvertiser.com/sports/feed/'),
+        (u'Features',
+         u'http://www.staradvertiser.com/featurespremium/index.rss')
     ]
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('a'):
-            limg = item.find('img')
-            if item.string is not None:
-                str = item.string
-                item.replaceWith(str)
-            else:
-                if limg:
-                    item.name = 'div'
-                    item.attrs = []
-                else:
-                    str = self.tag_to_string(item)
-                    item.replaceWith(str)
-        for item in soup.findAll('img'):
-            if not item.has_key('alt'):  # noqa
-                item['alt'] = 'image'
-        return soup
