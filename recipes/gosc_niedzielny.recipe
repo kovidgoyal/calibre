@@ -3,7 +3,7 @@
 
 __license__ = 'GPL v3'
 __copyright__ = '2011, Piotr Kontek, piotr.kontek@gmail.com \
-                 2013, Tomasz Długosz, tomek3d@gmail.com'
+                 2013-2016, Tomasz Długosz, tomek3d@gmail.com'
 
 from calibre.web.feeds.news import BasicNewsRecipe
 import re
@@ -51,7 +51,7 @@ class GN(BasicNewsRecipe):
         return feeds
 
     def find_articles(self, main_block):
-        for a in main_block.findAll('div', attrs={'class': ['prev_doc2', 'sr-document']}):
+        for a in main_block.findAll('div', attrs={'class': ['prev_doc_n1 prev_doc_img21']}):
             art = a.find('a')
             yield {
                 'title': self.tag_to_string(art),
@@ -81,8 +81,8 @@ class GN(BasicNewsRecipe):
     ]
 
     remove_tags = [
-        dict(name='p', attrs={'class': ['r tr', 'l l-2', 'wykop']}),
-        dict(name='div', attrs={'class': ['doc_actions', 'cf', 'fr1_cl']}),
+        dict(name='p', attrs={'class': ['r tr', 'l l-2', 'wykop', 'l l-2 doc-source']}),
+        dict(name='div', attrs={'class': ['doc_actions', 'cf', 'fr1_cl','txt__social-icons','txt__tags']}),
         dict(name='div', attrs={'id': 'vote'}),
         dict(name='a', attrs={'class': 'img_enlarge'})
     ]

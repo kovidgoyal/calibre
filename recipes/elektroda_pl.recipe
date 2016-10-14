@@ -12,10 +12,11 @@ class Elektroda(BasicNewsRecipe):
     language = 'pl'
     max_articles_per_feed = 100
     no_stylesheets = True
-    remove_tags_before = dict(name='span', attrs={'class': 'postbody'})
-    remove_tags_after = dict(name='td', attrs={'class': 'spaceRow'})
-    remove_tags = [dict(name='a', attrs={'href': '#top'})]
     feeds = [(u'Elektroda', u'http://www.elektroda.pl/rtvforum/rss.php')]
+
+    keep_only_tags = [dict(name='div', attrs={'class': 'title-wrap pull-left'}),
+                      dict(name='ul', attrs={'class': 'topic-lists clearfix'})
+    ]
 
     def preprocess_html(self, soup):
         tag = soup.find('span', attrs={'class': 'postbody'})
