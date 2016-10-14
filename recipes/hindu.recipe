@@ -66,12 +66,17 @@ class TheHindu(BasicNewsRecipe):
                      'tp-karnataka',
                      'tp-kerala',
                      'tp-andhrapradesh',
+                     'tp-telangana',
                      'tp-newdelhi',
+                     'tp-mumbai',
                      'tp-otherstates',
-                     'tp-miscellaneous',
                      'tp-in-school',
                      'tp-metroplus',
-                     'tp-bookreview']
+                     'tp-youngworld',
+                     'tp-fridayreview',
+                     'tp-downtown',
+                     'tp-bookreview',
+                     'tp-others']
 
         is_accepted = True
         for omit_entry in omit_list:
