@@ -133,7 +133,7 @@ class EditMetadataAction(InterfaceAction):
             num = len(failed_ids | failed_covers)
             self.cleanup_bulk_download(tdir)
             return error_dialog(self.gui, _('Download failed'), ngettext(
-                'Failed to download metadata or cover for the selected book',
+                'Failed to download metadata or cover for the selected book.',
                 'Failed to download metadata or covers for any of the {} books.', num
             ).format(num), det_msg=det_msg, show=True)
 
