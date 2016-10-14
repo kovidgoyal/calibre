@@ -11,14 +11,15 @@ from lxml import html
 
 
 class GN(BasicNewsRecipe):
-
     __author__ = 'Piotr Kontek, Tomasz Długosz'
     title = u'Gość Niedzielny'
+    publisher = 'Wydawnictwo Kurii Metropolitalnej w Katowicach'
     description = 'Ogólnopolski tygodnik katolicki - fragmenty artykułów z aktualnego numeru'
     encoding = 'utf-8'
     no_stylesheets = True
     language = 'pl'
     remove_javascript = True
+    masthead_url = 'http://m.gosc.pl/static/themes/czerwony_gosc-mobile/logo.png'
 
     def find_last_issue(self):
         raw = self.index_to_soup(
@@ -30,15 +31,21 @@ class GN(BasicNewsRecipe):
         return page[0]
 
     def parse_index(self):
-        soup = self.index_to_soup('http://gosc.pl' + self.find_last_issue())
+        self.last_issue = self.find_last_issue()
+        soup = self.index_to_soup('http://gosc.pl' + self.last_issue)
+        self.cover_url = 'http://www.gosc.pl' + \
+            soup.find('div', attrs={'class': 'fl-w100 release-wp'}
+                      ).findAll('a')[-4].contents[0]['src']
         feeds = []
-        # wstepniak
-        a = soup.find('div', attrs={'class': 'release-wp-b'}).find('a')
+        # editorial:
+        a = soup.find('div', attrs={'class': 'release-wp-b'})
+        art = a.find('a')
         articles = [
-            {'title': self.tag_to_string(a),
-             'url': 'http://www.gosc.pl' + a['href']
+            {'title': self.tag_to_string(art),
+             'url': 'http://www.gosc.pl' + art['href'],
+             'description': self.tag_to_string(a.find('p', attrs={'class': 'b lead'}))
              }]
-        feeds.append((u'Wstępniak', articles))
+        feeds.append((u'Na dobry początek', articles))
         # kategorie
         for addr in soup.findAll('a', attrs={'href': re.compile('kategoria')}):
             if addr.string != u'wszystkie artyku\u0142y z tej kategorii \xbb':
@@ -51,11 +58,13 @@ class GN(BasicNewsRecipe):
         return feeds
 
     def find_articles(self, main_block):
-        for a in main_block.findAll('div', attrs={'class': ['prev_doc_n1 prev_doc_img21']}):
+        for a in main_block.findAll('div', attrs={'class': ['attachmentContent']}):
             art = a.find('a')
             yield {
                 'title': self.tag_to_string(art),
-                'url': 'http://www.gosc.pl' + art['href']
+                'url': 'http://www.gosc.pl' + art['href'],
+                'date': self.tag_to_string(a.find('b', attrs={'class': 'time'})).replace('DODANE', ' '),
+                'description': self.tag_to_string(a.find('div', attrs={'class': 'txt'}))
             }
 
     def append_page(self, soup, appendtag):
