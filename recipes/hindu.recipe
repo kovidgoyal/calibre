@@ -66,9 +66,9 @@ class TheHindu(BasicNewsRecipe):
                      'tp-karnataka',
                      'tp-kerala',
                      'tp-andhrapradesh',
-                     'tp-telangana'
+                     'tp-telangana',
                      'tp-newdelhi',
-                     'tp-mumbai'
+                     'tp-mumbai',
                      'tp-otherstates',
                      'tp-in-school',
                      'tp-metroplus',
