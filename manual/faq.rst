@@ -715,7 +715,7 @@ them import it on another computer. First let use see how to export the data:
 .. note:: This import/export functionality is only available from calibre
     version 2.47 onwards. If you have an older version of calibre, or if you
     encounter problems with the import/export, you can just copy over your
-    calibre library folder manually, as descibed in the next paragraph.
+    calibre library folder manually, as described in the next paragraph.
 
     Simply copy the calibre library folder from the old to the new computer. You can
     find out what the library folder is by clicking the calibre icon in the
