@@ -20,6 +20,51 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.70.0
+  date: 2016-10-14
+
+  new features:
+    - title: "Edit Book: Add a tool to download external resources (images/stylesheets/etc.) that are not included in the book."
+      tickets: [1620058]
+
+    - title: "Make custom columns available in the Alter Tag Browser->Manage categories sub menu"
+
+  bug fixes:
+    - title: "Conversion: Fix incorrect resolution of references to resources in HTML files that exist in a folder level above the OPF file. This could lead to styles being incorrectly processed in such HTML files."
+
+    - title: "Get Books: Update the amazon store plugins for website changes"
+
+    - title: "Update ozon.ru metadata download plugin to fix searching for books by ISBN"
+
+    - title: "Edit Book: Fix a regression in the previous release that broke the preferences dialog for changing color schemes."
+      tickets: [1629294]
+
+    - title: "Edit Book: Better error message when user tries to open a Check Book item that refers to a file that has been deleted since the last time Check Book was run."
+      tickets: [1632897]
+
+  improved recipes:
+    - Wired
+    - Ambito
+    - InfoWorld
+    - Instapaper
+    - San Jose Mercury News
+    - South China Morning Post
+    - Journal Gazette
+    - JPost
+    - Las Vegas Review
+    - Marietta Daily Journal
+    - DziennikBaltycki
+    - biweekly
+    - dwutygodnik
+    - GRY Online
+    - ESO
+    - TVN24
+    - And many more, see commit logs for details
+
+  new recipes:
+    - title: Various Danish news sources 
+      author: Allan Simonsen
+
 - version: 2.69.0
   date: 2016-09-30
 
