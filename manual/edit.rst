@@ -718,9 +718,9 @@ Downloading external resources
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can use this tool to automatically download any images/stylesheets/etc. in
-the book that are not bundled with the book (i.e. they have URLs poiting to a
+the book that are not bundled with the book (i.e. they have URLs pointing to a
 location on the internet). The tool will find all such resources and
-automatically download them, add them tot he book and replace all references to
+automatically download them, add them to the book and replace all references to
 them to use the downloaded files.
 
 
