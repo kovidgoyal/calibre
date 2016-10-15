@@ -403,7 +403,7 @@ cover_trim_fuzz_value = 10
 doubleclick_on_library_view = 'open_viewer'
 horizontal_scrolling_per_column = True
 
-#: Language to use when sorting.
+#: Language to use when sorting
 # Setting this tweak will force sorting to use the
 # collating order for the specified language. This might be useful if you run
 # calibre in English but want sorting to work in the language where you live.
