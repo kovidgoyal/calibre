@@ -20,8 +20,8 @@ class Ciekawostki_Historyczne(BasicNewsRecipe):
     remove_empty_feeds = True
     keep_only_tags = [dict(name='div', attrs={'class': 'post'})]
     recursions = 5
-    remove_tags = [dict(id='singlepostinfo'), dict(
-        attrs={'class': ['books short floatRight', 'unprintable', 'booksTable', 'bawmrp']})]
+    remove_tags = [dict(id=['catapult-cookie-bar','header','footer','rightcolumn','singlepostinfo']), dict(
+        attrs={'class': ['ubm_banner','ciekawostki-slider-popular','books short floatRight', 'unprintable', 'booksTable', 'bawmrp']})]
 
     feeds = [
     (u'Staro\u017cytno\u015b\u0107', u'http://ciekawostkihistoryczne.pl/tag/starozytnosc/feed/'),
