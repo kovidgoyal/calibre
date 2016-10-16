@@ -12,7 +12,7 @@ from zipfile import ZipFile
 from calibre import CurrentDir
 from calibre.ebooks.oeb.polish.tests.base import BaseTest, get_simple_book, get_split_book
 from calibre.ebooks.oeb.polish.container import get_container as _gc, clone_container, OCF_NS
-from calibre.ebooks.oeb.polish.replace import rename_files
+from calibre.ebooks.oeb.polish.replace import rename_files, rationalize_folders
 from calibre.ebooks.oeb.polish.split import split, merge
 from calibre.utils.filenames import nlinks_file
 from calibre.ptempfile import TemporaryFile, TemporaryDirectory
@@ -264,3 +264,12 @@ class ContainerTests(BaseTest):
                 self.assertTrue(os.path.exists('.git/xxx'))
                 self.assertTrue(os.path.exists('images/test-container.xyz'))
                 self.assertFalse(os.path.exists('images/cover.jpg'))
+
+    def test_folder_type_map_case(self):
+        book = get_simple_book()
+        c = get_container(book)
+        c.add_file('Image/testcase.png', b'xxx')
+        rationalize_folders(c, {'image':'image'})
+        self.assertTrue(c.has_name('Image/testcase.png'))
+        self.assertTrue(c.exists('Image/testcase.png'))
+        self.assertFalse(c.has_name('image/testcase.png'))

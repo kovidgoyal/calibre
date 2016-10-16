@@ -484,7 +484,7 @@ class Container(ContainerBase):  # {{{
         return name_to_abspath(name, self.root)
 
     def exists(self, name):
-        ''' True iff a file corresponding to the canonical name exists. Note
+        ''' True iff a file/directory corresponding to the canonical name exists. Note
         that this function suffers from the limitations of the underlying OS
         filesystem, in particular case (in)sensitivity. So on a case
         insensitive filesystem this will return True even if the case of name

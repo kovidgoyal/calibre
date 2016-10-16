@@ -267,10 +267,25 @@ def get_recommended_folders(container, names):
     return {n:recommendations.get(mt_to_category(container, guess_type(os.path.basename(n))), opf_folder) for n in names}
 
 
+def normalize_case(container, val):
+    parts = val.split('/')
+    ans = []
+    for i in range(len(parts)):
+        q = '/'.join(parts[:i+1])
+        x = container.name_to_abspath(q)
+        xl = parts[i].lower()
+        candidates = [c for c in os.listdir(os.path.dirname(x)) if c != parts[i] and c.lower() == xl]
+        ans.append(candidates[0] if candidates else parts[i])
+    return '/'.join(ans)
+
+
 def rationalize_folders(container, folder_type_map):
     all_names = set(container.mime_map)
     new_names = set()
     name_map = {}
+    for key in tuple(folder_type_map):
+        val = folder_type_map[key]
+        folder_type_map[key] = normalize_case(container, val)
     for name in all_names:
         if name.startswith('META-INF/'):
             continue
