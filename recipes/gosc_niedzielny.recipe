@@ -93,11 +93,17 @@ class GN(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)
+        r = soup.find(attrs={'class': 'lightbox'})
+        if r:
+            r.contents[0]['src'] = r['href']
         return soup
 
     def postprocess_html(self, soup, first_fetch):
         for r in soup.findAll(attrs={'class': 'pgr'}):
             r.extract()
+        for r in soup.findAll(attrs={'class': 'cm-i-a'}):
+            r.replaceWith('<div style="clear:both"></div>' +
+                          r.prettify() + '<div style="clear:both"></div>')
         return soup
 
     keep_only_tags = [
@@ -114,6 +120,6 @@ class GN(BasicNewsRecipe):
     extra_css = '''
             h1 {font-size:150%}
             p.limiter {font-size:150%; font-weight: bold}
-            span.cm-i-a {text-transform:uppercase;}
-            span.cm-i-p {font-style:italic; font-size:70%}
+            span.cm-i-a {text-transform:uppercase;font-size:50%}
+            span.cm-i-p {font-style:italic; font-size:70%;text-align:right}
         '''
