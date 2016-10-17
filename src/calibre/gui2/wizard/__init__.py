@@ -191,6 +191,14 @@ class BooqCervantes(Booq):
     name = 'bq Cervantes'
 
 
+class BOOX(Device):
+    name = 'BOOX MAX, N96, i86, C67ML, M96, etc.'
+    manufacturer = 'Onyx'
+    output_profile = 'generic_eink_hd'
+    output_format = 'EPUB'
+    id = 'boox_eink'
+
+
 class Sony300(Sony505):
 
     name = 'SONY Reader Pocket Edition'
@@ -831,11 +839,11 @@ class Wizard(QWizard):
     }
     # The latter is simply to mark the texts for translation
     if False:
-            _('&Next >')
-            _('< &Back')
-            _('Cancel')
-            _('&Finish')
-            _('Commit')
+        _('&Next >')
+        _('< &Back')
+        _('Cancel')
+        _('&Finish')
+        _('Commit')
 
     def __init__(self, parent):
         QWizard.__init__(self, parent)
@@ -891,4 +899,3 @@ if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     wizard().exec_()
-
