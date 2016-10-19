@@ -19,6 +19,7 @@ class GN(BasicNewsRecipe):
     no_stylesheets = True
     language = 'pl'
     remove_javascript = True
+    ignore_duplicate_articles = {'url'}
     masthead_url = 'http://m.gosc.pl/static/themes/czerwony_gosc-mobile/logo.png'
 
     def find_last_issue(self):
@@ -46,7 +47,7 @@ class GN(BasicNewsRecipe):
              'description': self.tag_to_string(a.find('p', attrs={'class': 'b lead'}))
              }]
         feeds.append((u'Na dobry początek', articles))
-        # kategorie
+        # columns:
         for addr in soup.findAll('a', attrs={'href': re.compile('kategoria')}):
             if addr.string != u'wszystkie artyku\u0142y z tej kategorii \xbb':
                 main_block = self.index_to_soup(
@@ -55,6 +56,20 @@ class GN(BasicNewsRecipe):
                 if len(articles) > 0:
                     section = addr.string
                     feeds.append((section, articles))
+        # not assigned content:
+        page = 1
+        not_assigned = []
+        while True:
+            soup = self.index_to_soup(
+                'http://gosc.pl' + self.last_issue.replace('przeglad', 'wszystko') + '/' + str(page))
+            articles = list(self.find_articles(soup))
+            not_assigned.extend(articles)
+            page += 1
+            pages = soup.find('span', attrs={'class': 'pgr_nrs'})
+            if str(page) not in [self.tag_to_string(x)[1] for x in pages.findAll('a')]:
+                break
+
+        feeds.append((u'Nieprzypisane', not_assigned))
         return feeds
 
     def find_articles(self, main_block):
@@ -78,11 +93,17 @@ class GN(BasicNewsRecipe):
 
     def preprocess_html(self, soup):
         self.append_page(soup, soup.body)
+        r = soup.find(attrs={'class': 'lightbox'})
+        if r:
+            r.contents[0]['src'] = r['href']
         return soup
 
     def postprocess_html(self, soup, first_fetch):
         for r in soup.findAll(attrs={'class': 'pgr'}):
             r.extract()
+        for r in soup.findAll(attrs={'class': 'cm-i-a'}):
+            r.replaceWith('<div style="clear:both"></div>' +
+                          r.prettify() + '<div style="clear:both"></div>')
         return soup
 
     keep_only_tags = [
@@ -99,6 +120,6 @@ class GN(BasicNewsRecipe):
     extra_css = '''
             h1 {font-size:150%}
             p.limiter {font-size:150%; font-weight: bold}
-            span.cm-i-a {text-transform:uppercase;}
-            span.cm-i-p {font-style:italic; font-size:70%}
+            span.cm-i-a {text-transform:uppercase;font-size:50%}
+            span.cm-i-p {font-style:italic; font-size:70%;text-align:right}
         '''
