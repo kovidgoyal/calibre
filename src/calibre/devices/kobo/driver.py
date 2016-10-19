@@ -2248,94 +2248,96 @@ class KOBOTOUCH(KOBO):
 
         with closing(self.device_database_connection()) as connection:
 
-            if self.manage_collections and collections:
-                #                debug_print("KoboTouch:update_device_database_collections - length collections=" + unicode(len(collections)))
+            if self.manage_collections:
+                if collections:
+#                     debug_print("KoboTouch:update_device_database_collections - length collections=" + unicode(len(collections)))
 
-                # Need to reset the collections outside the particular loops
-                # otherwise the last item will not be removed
-                if self.dbversion < 53:
-                    debug_print("KoboTouch:update_device_database_collections - calling reset_readstatus")
-                    self.reset_readstatus(connection, oncard)
-                if self.dbversion >= 14 and self.fwversion < self.min_fwversion_shelves:
-                    debug_print("KoboTouch:update_device_database_collections - calling reset_favouritesindex")
-                    self.reset_favouritesindex(connection, oncard)
+                    # Need to reset the collections outside the particular loops
+                    # otherwise the last item will not be removed
+                    if self.dbversion < 53:
+                        debug_print("KoboTouch:update_device_database_collections - calling reset_readstatus")
+                        self.reset_readstatus(connection, oncard)
+                    if self.dbversion >= 14 and self.fwversion < self.min_fwversion_shelves:
+                        debug_print("KoboTouch:update_device_database_collections - calling reset_favouritesindex")
+                        self.reset_favouritesindex(connection, oncard)
 
-#                debug_print("KoboTouch:update_device_database_collections - length collections=", len(collections))
-#                debug_print("KoboTouch:update_device_database_collections - self.bookshelvelist=", self.bookshelvelist)
-                # Process any collections that exist
-                for category, books in collections.items():
-                    debug_print("KoboTouch:update_device_database_collections - category='%s' books=%d"%(category, len(books)))
-                    if create_collections and not (category in supportedcategories or category in readstatuslist or category in accessibilitylist):
-                        self.check_for_bookshelf(connection, category)
-#                    if category in self.bookshelvelist:
-#                        debug_print("Category: ", category, " id = ", readstatuslist.get(category))
-                    for book in books:
-                        #                        debug_print('    Title:', book.title, 'category: ', category)
-                        show_debug = self.is_debugging_title(book.title)
-                        if show_debug:
-                            debug_print('    Title="%s"'%book.title, 'category="%s"'%category)
-#                            debug_print(book)
-                            debug_print('    class=%s'%book.__class__)
-                            debug_print('    book.contentID="%s"'%book.contentID)
-                            debug_print('    book.application_id="%s"'%book.application_id)
-
-                        if book.application_id is None:
-                            continue
-
-                        category_added = False
-
-                        if book.contentID is None:
-                            debug_print('    Do not know ContentID - Title="%s"'%book.title)
-                            extension =  os.path.splitext(book.path)[1]
-                            ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
-                            book.contentID = self.contentid_from_path(book.path, ContentType)
-
-                        if category in self.ignore_collections_names:
-                            debug_print('        Ignoring collection=%s' % category)
-                            category_added = True
-                        elif category in self.bookshelvelist and self.supports_bookshelves:
+#                     debug_print("KoboTouch:update_device_database_collections - length collections=", len(collections))
+#                     debug_print("KoboTouch:update_device_database_collections - self.bookshelvelist=", self.bookshelvelist)
+                    # Process any collections that exist
+                    for category, books in collections.items():
+                        debug_print("KoboTouch:update_device_database_collections - category='%s' books=%d"%(category, len(books)))
+                        if create_collections and not (category in supportedcategories or category in readstatuslist or category in accessibilitylist):
+                            self.check_for_bookshelf(connection, category)
+#                         if category in self.bookshelvelist:
+#                             debug_print("Category: ", category, " id = ", readstatuslist.get(category))
+                        for book in books:
+#                             debug_print('    Title:', book.title, 'category: ', category)
+                            show_debug = self.is_debugging_title(book.title)
                             if show_debug:
-                                debug_print('        length book.device_collections=%d'%len(book.device_collections))
-                            if category not in book.device_collections:
-                                if show_debug:
-                                    debug_print('        Setting bookshelf on device')
-                                self.set_bookshelf(connection, book, category)
+                                debug_print('    Title="%s"'%book.title, 'category="%s"'%category)
+#                                 debug_print(book)
+                                debug_print('    class=%s'%book.__class__)
+                                debug_print('    book.contentID="%s"'%book.contentID)
+                                debug_print('    book.application_id="%s"'%book.application_id)
+
+                            if book.application_id is None:
+                                continue
+
+                            category_added = False
+
+                            if book.contentID is None:
+                                debug_print('    Do not know ContentID - Title="%s"'%book.title)
+                                extension =  os.path.splitext(book.path)[1]
+                                ContentType = self.get_content_type_from_extension(extension) if extension != '' else self.get_content_type_from_path(book.path)
+                                book.contentID = self.contentid_from_path(book.path, ContentType)
+
+                            if category in self.ignore_collections_names:
+                                debug_print('        Ignoring collection=%s' % category)
                                 category_added = True
-                        elif category in readstatuslist.keys():
-                            # Manage ReadStatus
-                            self.set_readstatus(connection, book.contentID, readstatuslist.get(category))
-                            category_added = True
-
-                        elif category == 'Shortlist' and self.dbversion >= 14:
-                            if show_debug:
-                                debug_print('        Have an older version shortlist - %s'%book.title)
-                            # Manage FavouritesIndex/Shortlist
-                            if not self.supports_bookshelves:
+                            elif category in self.bookshelvelist and self.supports_bookshelves:
                                 if show_debug:
-                                    debug_print('            and about to set it - %s'%book.title)
-                                self.set_favouritesindex(connection, book.contentID)
+                                    debug_print('        length book.device_collections=%d'%len(book.device_collections))
+                                if category not in book.device_collections:
+                                    if show_debug:
+                                        debug_print('        Setting bookshelf on device')
+                                    self.set_bookshelf(connection, book, category)
+                                    category_added = True
+                            elif category in readstatuslist.keys():
+                                debug_print("KoboTouch:update_device_database_collections - about to set_readstatus - category='%s'"%(category, ))
+                                # Manage ReadStatus
+                                self.set_readstatus(connection, book.contentID, readstatuslist.get(category))
                                 category_added = True
-                        elif category in accessibilitylist.keys():
-                            # Do not manage the Accessibility List
-                            pass
 
-                        if category_added and category not in book.device_collections:
-                            if show_debug:
-                                debug_print('            adding category to book.device_collections', book.device_collections)
-                            book.device_collections.append(category)
-                        else:
-                            if show_debug:
-                                debug_print('            category not added to book.device_collections', book.device_collections)
-                    debug_print("KoboTouch:update_device_database_collections - end for category='%s'"%category)
+                            elif category == 'Shortlist' and self.dbversion >= 14:
+                                if show_debug:
+                                    debug_print('        Have an older version shortlist - %s'%book.title)
+                                # Manage FavouritesIndex/Shortlist
+                                if not self.supports_bookshelves:
+                                    if show_debug:
+                                        debug_print('            and about to set it - %s'%book.title)
+                                    self.set_favouritesindex(connection, book.contentID)
+                                    category_added = True
+                            elif category in accessibilitylist.keys():
+                                # Do not manage the Accessibility List
+                                pass
 
-            elif bookshelf_attribute:  # No collections but have set the shelf option
-                # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
-                debug_print("No Collections - reseting ReadStatus")
-                if self.dbversion < 53:
-                    self.reset_readstatus(connection, oncard)
-                if self.dbversion >= 14 and self.fwversion < self.min_fwversion_shelves:
-                    debug_print("No Collections - resetting FavouritesIndex")
-                    self.reset_favouritesindex(connection, oncard)
+                            if category_added and category not in book.device_collections:
+                                if show_debug:
+                                    debug_print('            adding category to book.device_collections', book.device_collections)
+                                book.device_collections.append(category)
+                            else:
+                                if show_debug:
+                                    debug_print('            category not added to book.device_collections', book.device_collections)
+                        debug_print("KoboTouch:update_device_database_collections - end for category='%s'"%category)
+
+                elif bookshelf_attribute:  # No collections but have set the shelf option
+                    # Since no collections exist the ReadStatus needs to be reset to 0 (Unread)
+                    debug_print("No Collections - reseting ReadStatus")
+                    if self.dbversion < 53:
+                        self.reset_readstatus(connection, oncard)
+                    if self.dbversion >= 14 and self.fwversion < self.min_fwversion_shelves:
+                        debug_print("No Collections - resetting FavouritesIndex")
+                        self.reset_favouritesindex(connection, oncard)
 
             # Set the series info and cleanup the bookshelves only if the firmware supports them and the user has set the options.
             if (self.supports_bookshelves and self.manage_collections or self.supports_series()) and (bookshelf_attribute or update_series_details):
@@ -2944,11 +2946,11 @@ class KOBOTOUCH(KOBO):
 
     @property
     def manage_collections(self):
-        return self.get_pref('manage_collections') and self.supports_bookshelves
+        return self.get_pref('manage_collections')
 
     @property
     def create_collections(self):
-        return self.manage_collections and self.get_pref('create_collections') and len(self.collections_columns) > 0
+        return self.manage_collections and self.supports_bookshelves and self.get_pref('create_collections') and len(self.collections_columns) > 0
 
     @property
     def collections_columns(self):
