@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="128"
+   height="128"
+   viewBox="0 0 128 128"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="format-text-heading.svg">
+  <defs
+     id="defs4">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4139">
+      <stop
+         style="stop-color:#0d5cc6;stop-opacity:1"
+         offset="0"
+         id="stop4141" />
+      <stop
+         style="stop-color:#020e1e;stop-opacity:1"
+         offset="1"
+         id="stop4143" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4139"
+       id="radialGradient4145"
+       cx="64"
+       cy="988.36218"
+       fx="64"
+       fy="988.36218"
+       r="62.9999"
+       gradientTransform="matrix(1,0,0,0.92086527,0,78.213773)"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.2"
+     inkscape:cx="19.843024"
+     inkscape:cy="69.707741"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="3840"
+     inkscape:window-height="2128"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Kovid Goyal</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:rights>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:publisher>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-924.36216)">
+    <path
+       inkscape:connector-curvature="0"
+       d="m 123.37397,1046.3766 q -3.32374,0 -10.00899,-0.2644 -6.68525,-0.2644 -10.08453,-0.2644 -3.32375,0 -9.97123,0.2644 -6.64748,0.2644 -9.97122,0.2644 -1.81295,0 -2.79496,-1.5486 -0.98202,-1.5485 -0.98202,-3.437 0,-2.3417 1.28417,-3.4748 1.28418,-1.1331 2.94605,-1.2842 1.66187,-0.1511 3.85251,-0.5288 2.19065,-0.3777 3.39929,-1.1331 2.4928,-1.5863 2.4928,-10.5755 l -0.0755,-29.53604 q 0,-1.5863 -0.0755,-2.3417 -0.98201,-0.3022 -3.77698,-0.3022 l -50.9892,0 q -2.87051,0 -3.85252,0.3022 -0.0755,0.7554 -0.0755,2.3417 l -0.0755,28.02524 q 0,10.7266 2.79496,12.3885 1.20864,0.7554 3.6259,0.982 2.41727,0.2266 4.30576,0.2644 1.88849,0.038 3.39928,1.1331 1.51079,1.0953 1.51079,3.437 0,1.9641 -0.94425,3.6259 -0.94424,1.6619 -2.75719,1.6619 -3.55036,0 -10.53777,-0.2644 -6.98741,-0.2644 -10.46223,-0.2644 -3.2482,0 -9.66907,0.2644 -6.42086,0.2644 -9.59352,0.2644 -1.73741,0 -2.68165,-1.5863 -0.94425,-1.5864 -0.94425,-3.3993 0,-2.2662 1.17086,-3.3993 1.17087,-1.1331 2.71943,-1.3219 1.54856,-0.1889 3.58813,-0.5666 2.03957,-0.3777 3.17266,-1.1331 2.49281,-1.7374 2.49281,-10.8021 l -0.0755,-4.3058 0,-61.41374 q 0,-0.2266 0.0378,-1.964 0.0378,-1.7374 0,-2.7572 -0.0378,-1.0198 -0.11331,-2.9083 -0.0755,-1.8884 -0.26439,-3.1726 -0.18885,-1.2842 -0.49101,-2.7572 -0.30216,-1.473 -0.83093,-2.3795 -0.52878,-0.9065 -1.20864,-1.3597 -1.13309,-0.7554 -3.39928,-0.9065 -2.26619,-0.1511 -4.0036,-0.1511 -1.73741,0 -3.09712,-1.0575 -1.35971,-1.0576 -1.35971,-3.3993 0,-1.964 0.90647,-3.6259 0.90648,-1.6619 2.71943,-1.6619 3.47482,0 10.46223,0.2644 6.98741,0.2644 10.46223,0.2644 3.17266,0 9.55576,-0.2644 6.38309,-0.2644 9.55575,-0.2644 1.88849,0 2.83273,1.6619 0.94425,1.6619 0.94425,3.6259 0,2.2662 -1.28417,3.286 -1.28418,1.0197 -2.90828,1.0953 -1.6241,0.075 -3.73921,0.3021 -2.1151,0.2267 -3.2482,0.9821 -2.64388,1.5863 -2.64388,12.0863 l 0.0755,24.1727 q 0,1.5863 0.0755,2.4172 0.98201,0.2266 2.94604,0.2266 l 52.80216,0 q 1.88849,0 2.8705,-0.2266 0.0755,-0.8309 0.0755,-2.4172 l 0.0755,-24.1727 q 0,-10.5 -2.64388,-12.0863 -1.35972,-0.831 -4.41907,-0.9443 -3.05935,-0.1133 -4.98561,-0.982 -1.92626,-0.8687 -1.92626,-3.7392 0,-1.964 0.94425,-3.6259 0.94424,-1.6619 2.83273,-1.6619 3.32374,0 9.97122,0.2644 6.64748,0.2644 9.97123,0.2644 3.2482,0 9.7446,-0.2644 6.4964,-0.2644 9.7446,-0.2644 1.88849,0 2.83274,1.6619 0.94424,1.6619 0.94424,3.6259 0,2.2662 -1.32194,3.3237 -1.32194,1.0576 -3.02158,1.0954 -1.69964,0.038 -3.89029,0.2266 -2.19065,0.1888 -3.32374,0.9442 -2.64389,1.7374 -2.64389,12.1619 l 0.0755,71.23384 q 0,8.9892 2.56835,10.5755 1.20863,0.7554 3.47482,1.0198 2.26619,0.2644 4.04137,0.34 1.77518,0.075 3.13489,1.1708 1.35971,1.0953 1.35971,3.3615 0,1.9641 -0.90647,3.6259 -0.90648,1.6619 -2.71943,1.6619 z"
+       id="path4"
+       style="fill-opacity:1;fill:url(#radialGradient4145)" />
+  </g>
+</svg>
