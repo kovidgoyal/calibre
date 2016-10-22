@@ -29,13 +29,13 @@
       <stop
          id="stop4159"
          offset="0.48178035"
-         style="stop-color:#585858;stop-opacity:1" />
+         style="stop-color:#1b23a8;stop-opacity:1" />
       <stop
-         style="stop-color:#434343;stop-opacity:1"
+         style="stop-color:#2029c4;stop-opacity:1"
          offset="0.74149662"
          id="stop4167" />
       <stop
-         style="stop-color:#292929;stop-opacity:1"
+         style="stop-color:#161c84;stop-opacity:1"
          offset="1"
          id="stop4155" />
     </linearGradient>
@@ -59,7 +59,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="11.2"
-     inkscape:cx="66.990146"
+     inkscape:cx="36.722289"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
