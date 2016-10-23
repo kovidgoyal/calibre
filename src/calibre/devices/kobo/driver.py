@@ -65,7 +65,7 @@ class KOBO(USBMS):
     gui_name = 'Kobo Reader'
     description = _('Communicate with the Kobo Reader')
     author = 'Timothy Legge and David Forrester'
-    version = (2, 3, 1)
+    version = (2, 3, 2)
 
     dbversion = 0
     fwversion = (0,0,0)
@@ -3098,6 +3098,7 @@ class KOBOTOUCH(KOBO):
     def migrate_old_settings(cls, settings):
         debug_print("KoboTouch::migrate_old_settings - start")
         debug_print("KoboTouch::migrate_old_settings - settings.extra_customization=", settings.extra_customization)
+        debug_print("KoboTouch::migrate_old_settings - For class=", cls.name)
 
         count_options = 0
         OPT_COLLECTIONS                 = count_options
@@ -3126,7 +3127,10 @@ class KOBOTOUCH(KOBO):
         count_options += 1
         OPT_DEBUGGING_TITLE             = count_options
 
-        if len(settings.extra_customization) >= count_options:
+        # Always migrate options if for the KoboTouch class.
+        # For a subclass, only migrate the KoboTouch options if they haven't already been migrated. This is based on
+        # the total number of options.
+        if cls == KOBOTOUCH or len(settings.extra_customization) >= count_options:
             config = cls._config()
             debug_print("KoboTouch::migrate_old_settings - config.preferences=", config.preferences)
             debug_print("KoboTouch::migrate_old_settings - settings need to be migrated")
@@ -3144,20 +3148,37 @@ class KOBOTOUCH(KOBO):
             settings.show_previews = settings.extra_customization[OPT_SHOW_PREVIEWS]
             settings.show_recommendations = settings.extra_customization[OPT_SHOW_RECOMMENDATIONS]
 
-            settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
-            settings.update_metadata = settings.update_series
-
-            # Check if these are very old settings.
-            if len(settings.extra_customization) == count_options:
-                config = cls._config()
-                settings.modify_css = config.get_option('modify_css')
-                settings.support_newer_firmware = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE - 1]
-                settings.debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE - 1]
+            # If the configuration hasn't been change for a long time, the last few option will be out
+            # of sync. The last two options aare always the support newer firmware and the debugging 
+            # title. Set seties and Modify CSS were the last two new options. The debugging title is
+            # a string, so looking for that.
+            start_subclass_extra_options = OPT_MODIFY_CSS
+            debugging_title = ''
+            if isinstance(settings.extra_customization[OPT_MODIFY_CSS], basestring):
+                debug_print("KoboTouch::migrate_old_settings - Don't have update_series option")
+                settings.update_series = config.get_option('update_series').default
+                settings.modify_css = config.get_option('modify_css').default
+                settings.support_newer_firmware = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
+                debugging_title = settings.extra_customization[OPT_MODIFY_CSS]
+                start_subclass_extra_options = OPT_MODIFY_CSS + 1
+            elif isinstance(settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE], basestring):
+                debug_print("KoboTouch::migrate_old_settings - Don't have modify_css option")
+                settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
+                settings.modify_css = config.get_option('modify_css').default
+                settings.support_newer_firmware = settings.extra_customization[OPT_MODIFY_CSS]
+                debugging_title = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
+                start_subclass_extra_options = OPT_SUPPORT_NEWER_FIRMWARE + 1
             else:
+                debug_print("KoboTouch::migrate_old_settings - Have all options")
+                settings.update_series = settings.extra_customization[OPT_UPDATE_SERIES_DETAILS]
                 settings.modify_css = settings.extra_customization[OPT_MODIFY_CSS]
                 settings.support_newer_firmware = settings.extra_customization[OPT_SUPPORT_NEWER_FIRMWARE]
-                settings.debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
-            settings.extra_customization = settings.extra_customization[count_options + 1:]
+                debugging_title = settings.extra_customization[OPT_DEBUGGING_TITLE]
+                start_subclass_extra_options = OPT_DEBUGGING_TITLE + 1
+
+            settings.debugging_title = debugging_title if isinstance(debugging_title, basestring) else ''
+            settings.update_device_metadata = settings.update_series
+            settings.extra_customization = settings.extra_customization[start_subclass_extra_options:]
 
         return settings
 
