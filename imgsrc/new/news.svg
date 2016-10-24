@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="128"
+   height="128"
+   viewBox="0 0 128 128"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="news.svg">
+  <defs
+     id="defs4">
+    <linearGradient
+       y2="515.16663"
+       x2="297.63919"
+       y1="323"
+       x1="297.63919"
+       gradientUnits="userSpaceOnUse"
+       id="SVGID_1_">
+      <stop
+         id="stop8"
+         style="stop-color:#F26822"
+         offset="0" />
+      <stop
+         id="stop10"
+         style="stop-color:#CB2026"
+         offset="1" />
+    </linearGradient>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="11.2"
+     inkscape:cx="19.843024"
+     inkscape:cy="69.707741"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="3840"
+     inkscape:window-height="2128"
+     inkscape:window-x="0"
+     inkscape:window-y="32"
+     inkscape:window-maximized="0" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Kovid Goyal</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:rights>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title />
+          </cc:Agent>
+        </dc:publisher>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-924.36216)">
+    <g
+       transform="matrix(0.63809107,0,0,0.63959391,-1.7628079,925.36153)"
+       id="g4156">
+      <polygon
+         transform="translate(-194.57771,-320.66701)"
+         points="249.988,435.707 265.333,435.707 271.013,449.962 277.817,447.251 277.817,472.112 252.085,472.112 297.64,517.668 343.193,472.112 317.463,472.112 317.463,448.454 322.585,450.657 329.016,435.707 345.29,435.707 345.29,420.363 359.546,414.683 353.521,399.564 365.028,388.057 354.178,377.206 360.241,363.11 345.29,356.679 345.29,340.406 329.945,340.406 324.265,326.151 309.147,332.176 297.64,320.668 286.79,331.518 272.693,325.455 266.263,340.406 249.988,340.406 249.988,355.75 235.734,361.43 241.759,376.549 230.251,388.057 241.101,398.907 235.039,413.003 249.988,419.433 "
+         id="polygon12"
+         style="fill:url(#SVGID_1_)" />
+      <g
+         transform="translate(-194.57771,-320.66701)"
+         id="g14">
+        <path
+           d="m 273.311,419.168 0,-56.752 17.935,0 9.01,17.43 c 3.115,5.641 6.399,13.22 8.926,19.873 l 0.252,0 c -0.842,-7.494 -1.178,-15.41 -1.178,-23.83 l 0,-13.472 13.893,0 0,56.752 -15.999,0 -9.684,-18.861 c -3.116,-5.978 -6.82,-13.641 -9.515,-20.461 l -0.336,0 c 0.42,7.663 0.589,16.167 0.589,25.345 l 0,13.978 -13.893,0 z"
+           id="path16"
+           style="fill:#993720"
+           inkscape:connector-curvature="0" />
+      </g>
+      <g
+         transform="translate(-194.57771,-320.66701)"
+         id="g18">
+        <path
+           d="m 273.311,416.873 0,-56.752 17.935,0 9.01,17.43 c 3.115,5.641 6.399,13.22 8.926,19.873 l 0.252,0 c -0.842,-7.494 -1.178,-15.41 -1.178,-23.83 l 0,-13.472 13.893,0 0,56.752 -15.999,0 -9.684,-18.861 c -3.116,-5.978 -6.82,-13.641 -9.515,-20.461 l -0.336,0 c 0.42,7.663 0.589,16.167 0.589,25.345 l 0,13.978 -13.893,0 z"
+           id="path20"
+           style="fill:#f0efef"
+           inkscape:connector-curvature="0" />
+      </g>
+    </g>
+  </g>
+</svg>
