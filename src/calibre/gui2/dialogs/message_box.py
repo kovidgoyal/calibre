@@ -30,7 +30,7 @@ class MessageBox(QDialog):  # {{{
         self.gridLayout = l = QGridLayout(self)
         l.setObjectName("gridLayout")
         self.icon_label = la = QLabel('')
-        la.setMaximumSize(QSize(68, 68))
+        la.setMaximumSize(QSize(64, 64))
         la.setScaledContents(True)
         la.setObjectName("icon_label")
         l.addWidget(la)
@@ -75,7 +75,7 @@ class MessageBox(QDialog):  # {{{
 
         self.setWindowTitle(title)
         self.setWindowIcon(self.icon)
-        self.icon_label.setPixmap(self.icon.pixmap(128, 128))
+        self.icon_label.setPixmap(self.icon.pixmap(64, 64))
         self.msg.setText(msg)
         self.det_msg.setPlainText(det_msg)
         self.det_msg.setVisible(False)
@@ -452,9 +452,8 @@ class JobError(QDialog):  # {{{
 # }}}
 
 if __name__ == '__main__':
-    app = QApplication([])
-    from calibre.gui2 import question_dialog
-    print question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
+    from calibre.gui2 import question_dialog, Application
+    app = Application([])
+    print(question_dialog(None, 'title', 'msg <a href="http://google.com">goog</a> ',
             det_msg='det '*1000,
-            show_copy_button=True)
-
+            show_copy_button=True))
