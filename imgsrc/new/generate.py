@@ -11,7 +11,6 @@ duplicates = {
     'calibre': ['library', 'lt'],
     'format-text-color': 'lookfeel',
     'books_in_series': ['series'],
-    'forward': ['sync-right'],
 }
 
 sizes = {
