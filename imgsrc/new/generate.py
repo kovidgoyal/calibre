@@ -10,6 +10,7 @@ duplicates = {
     'character-set': ['languages'],
     'calibre': ['library', 'lt'],
     'format-text-color': 'lookfeel',
+    'books_in_series': ['series'],
 }
 
 sizes = {
