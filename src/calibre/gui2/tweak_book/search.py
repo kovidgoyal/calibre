@@ -505,7 +505,7 @@ class SearchPanel(QWidget):  # {{{
         return ans
 
     def set_where(self, val):
-        if val == 'selected-text':
+        if val == 'selected-text' and self.widget.where != 'selected-text':
             self.where_before_marked = self.widget.where
         self.widget.where = val
 
