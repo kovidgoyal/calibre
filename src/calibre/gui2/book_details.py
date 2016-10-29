@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (QPixmap, QSize, QWidget, Qt, pyqtSignal, QUrl, QIcon,
     QPropertyAnimation, QEasingCurve, QApplication, QFontInfo, QAction,
     QSizePolicy, QPainter, QRect, pyqtProperty, QLayout, QPalette, QMenu,
-    QPen, QColor)
+    QPen, QColor, QMimeData)
 from PyQt5.QtWebKitWidgets import QWebView
 
 from calibre import fit_image
@@ -36,6 +36,16 @@ def css():
         col = QApplication.instance().palette().color(QPalette.Link).name()
         _css = _css.replace('LINK_COLOR', col)
     return _css
+
+
+def copy_all(web_view):
+    web_view = getattr(web_view, 'details', web_view)
+    mf = web_view.page().mainFrame()
+    c = QApplication.clipboard()
+    md = QMimeData()
+    md.setText(mf.toPlainText())
+    md.setHtml(mf.toHtml())
+    c.setMimeData(md)
 
 
 def render_html(mi, css, vertical, widget, all_fields=False, render_data_func=None):  # {{{
@@ -132,6 +142,7 @@ def details_context_menu_event(view, ev, book_info):  # {{{
     for action in list(menu.actions()):
         if action is not ca:
             menu.removeAction(action)
+    menu.addAction(QIcon(I('edit-copy.png')), _('Copy &all'), partial(copy_all, book_info))
     if not r.isNull():
         if url.startswith('format:'):
             parts = url.split(':')
