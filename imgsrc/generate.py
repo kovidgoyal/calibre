@@ -16,6 +16,7 @@ duplicates = {
 
 sizes = {
     'lt': '256',
+    'library': '1024',
     'default_cover': 'original',
     'viewer': '256',
     'tweak': '256',
