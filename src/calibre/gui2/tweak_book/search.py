@@ -468,6 +468,7 @@ class SearchPanel(QWidget):  # {{{
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
+        self.where_before_marked = None
         self.l = l = QHBoxLayout()
         self.setLayout(l)
         l.setContentsMargins(0, 0, 0, 0)
@@ -504,11 +505,14 @@ class SearchPanel(QWidget):  # {{{
         return ans
 
     def set_where(self, val):
+        if val == 'selected-text':
+            self.where_before_marked = self.widget.where
         self.widget.where = val
 
     def unset_marked(self):
         if self.widget.where == 'selected-text':
-            self.widget.where = self.widget.DEFAULT_STATE['where']
+            self.widget.where = self.where_before_marked or self.widget.DEFAULT_STATE['where']
+            self.where_before_marked = None
 
     def keyPressEvent(self, ev):
         if ev.key() == Qt.Key_Escape:
