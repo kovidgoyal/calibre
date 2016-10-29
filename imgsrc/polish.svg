@@ -131,15 +131,6 @@
     </linearGradient>
     <linearGradient
        inkscape:collect="always"
-       xlink:href="#linearGradient5981"
-       id="linearGradient5994"
-       gradientUnits="userSpaceOnUse"
-       x1="28"
-       y1="8"
-       x2="33.447109"
-       y2="16.685888" />
-    <linearGradient
-       inkscape:collect="always"
        xlink:href="#linearGradient5958"
        id="linearGradient5964"
        x1="28"
@@ -182,29 +173,6 @@
          offset="1"
          id="stop6000" />
     </linearGradient>
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient6019"
-       id="radialGradient6025"
-       cx="38"
-       cy="69"
-       fx="28.603323"
-       fy="69"
-       r="20"
-       gradientTransform="matrix(2.7976554,0,0,0.83929679,-42.232793,977.32653)"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       id="linearGradient6019">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop6021" />
-      <stop
-         style="stop-color:#000000;stop-opacity:0;"
-         offset="1"
-         id="stop6023" />
-    </linearGradient>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -214,7 +182,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="11.2"
-     inkscape:cx="19.843024"
+     inkscape:cx="34.338905"
      inkscape:cy="69.707741"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -274,26 +242,11 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(0,-924.36216)">
-    <ellipse
-       ry="16.785936"
-       rx="55.95311"
-       cy="1035.2379"
-       cx="64.07811"
-       style="opacity:0.25;fill:url(#radialGradient6025);fill-opacity:1;stroke:none;stroke-width:0.99999994;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:20;stroke-dasharray:none;stroke-opacity:1"
-       id="path6017" />
     <path
        inkscape:connector-curvature="0"
        style="fill:url(#linearGradient5964);fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient6002);stroke-width:2.79765534px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 93.715774,927.44081 C 70.765997,927.73638 67.426763,972.8958 60.84332,981.03342 l 11.190622,4.02163 c 7.363068,-12.23291 44.079858,-52.89809 23.954927,-57.52681 -0.781917,-0.0867 -1.532779,-0.0971 -2.273095,-0.0873 z m -2.885082,5.77016 c 0.541514,-0.0523 1.029509,0.0168 1.486254,0.26214 1.827037,0.98511 2.024524,4.18216 0.437134,7.08157 -1.587418,2.89941 -4.380289,4.48218 -6.207298,3.49707 -1.827009,-0.98511 -2.024551,-4.18216 -0.437133,-7.08157 1.190542,-2.17456 3.096472,-3.60206 4.721043,-3.75935 z"
        id="path5371" />
-    <path
-       sodipodi:type="inkscape:offset"
-       inkscape:radius="-1.0049498"
-       inkscape:original="M 36.59375 2.46875 C 28.390533 2.5744003 27.19695 18.716276 24.84375 21.625 L 28.84375 23.0625 C 31.475623 18.689953 44.599746 4.1545034 37.40625 2.5 C 37.12676 2.4690309 36.85837 2.4653419 36.59375 2.46875 z "
-       style="opacity:0.26666667;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient5994);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       id="path5992"
-       d="m 36.607422,3.4726562 c -1.721619,0.022173 -3.025503,0.8402493 -4.205078,2.265625 -1.179576,1.4253758 -2.144428,3.4514011 -2.933594,5.6035158 -0.789166,2.152114 -1.410368,4.422551 -1.986328,6.363281 -0.399235,1.345245 -0.776838,2.424818 -1.22461,3.361328 l 2.207032,0.792969 c 1.619888,-2.496279 4.999189,-6.593456 7.490234,-10.625 1.325839,-2.1457566 2.309091,-4.2092911 2.525391,-5.59375 0.10815,-0.6922294 0.02944,-1.1651169 -0.140625,-1.4609375 -0.166113,-0.2889417 -0.456736,-0.5224937 -1.13086,-0.6855469 -0.192432,-0.016958 -0.385855,-0.024263 -0.601562,-0.021484 z"
-       transform="translate(70.249999,979.93459)" />
     <path
        inkscape:connector-curvature="0"
        style="fill:url(#linearGradient5972);fill-opacity:1;fill-rule:evenodd;stroke:url(#linearGradient5993);stroke-width:2.79765534;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:20;stroke-dasharray:none;stroke-opacity:1"
