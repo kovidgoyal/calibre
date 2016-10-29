@@ -74,19 +74,11 @@ def get_path(path, data=False, allow_user_override=True):
             return f.read()
     return fpath
 
-if os.environ.get('CALIBRE_TEST_ICONS') == '1' and os.path.exists('/home/kovid/work/calibre/imgsrc/new'):
-    def get_image_path(path, data=False, allow_user_override=True):
-        if not path:
-            return get_path('images', allow_user_override=allow_user_override)
-        q = '/home/kovid/work/calibre/imgsrc/new/' + path[:-4] + '.svg'
-        if os.path.exists(q):
-            return q
-        return get_path('images/'+path, data=data, allow_user_override=allow_user_override)
-else:
-    def get_image_path(path, data=False, allow_user_override=True):
-        if not path:
-            return get_path('images', allow_user_override=allow_user_override)
-        return get_path('images/'+path, data=data, allow_user_override=allow_user_override)
+
+def get_image_path(path, data=False, allow_user_override=True):
+    if not path:
+        return get_path('images', allow_user_override=allow_user_override)
+    return get_path('images/'+path, data=data, allow_user_override=allow_user_override)
 
 
 def js_name_to_path(name, ext='.coffee'):
