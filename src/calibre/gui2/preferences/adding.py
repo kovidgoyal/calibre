@@ -146,6 +146,11 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                             _('You do not have read/write permissions for '
                                 'the folder: %s')%path, show=True)
                     raise AbortCommit('invalid auto-add folder')
+                if os.path.basename(path)[0] in '._':
+                    error_dialog(self, _('Invalid folder'),
+                            _('Cannot use folders whoose names start with a '
+                                'period or underscore: %s')%os.path.basename(path), show=True)
+                    raise AbortCommit('invalid auto-add folder')
                 if not question_dialog(self, _('Are you sure?'),
                         _('<b>WARNING:</b> Any files you place in %s will be '
                             'automatically deleted after being added to '
@@ -181,4 +186,3 @@ if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])
     test_widget('Import/Export', 'Adding')
-
