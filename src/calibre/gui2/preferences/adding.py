@@ -148,7 +148,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                     raise AbortCommit('invalid auto-add folder')
                 if os.path.basename(path)[0] in '._':
                     error_dialog(self, _('Invalid folder'),
-                            _('Cannot use folders whoose names start with a '
+                            _('Cannot use folders whose names start with a '
                                 'period or underscore: %s')%os.path.basename(path), show=True)
                     raise AbortCommit('invalid auto-add folder')
                 if not question_dialog(self, _('Are you sure?'),
