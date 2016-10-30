@@ -69,7 +69,8 @@ class ImageView(QDialog):
                 _('Choose a file to save to'), filters=filters,
                 all_files=False)
         if f:
-            self.current_img.save(f)
+            from calibre.utils.img import save_image
+            save_image(self.current_img.toImage(), f)
 
     def adjust_image(self, factor):
         self.label.resize(self.factor * self.current_img.size())
@@ -147,7 +148,8 @@ class ImagePopup(object):
 
 if __name__ == '__main__':
     import sys
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     p = QPixmap()
     p.load(sys.argv[-1])
     u = QUrl.fromLocalFile(sys.argv[-1])
