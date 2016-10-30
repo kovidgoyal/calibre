@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 12  # Needed for dynamic plugin loading
+store_version = 13  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
@@ -46,7 +46,7 @@ def search(query, max_results=10, timeout=60):
     doc = html.fromstring('<html><body>' + raw.decode('utf-8') + '</body></html>')
     counter = max_results
 
-    for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka " or @class="nw_katalog_lista_ksiazka promocja"]'):
+    for data in doc.xpath('//div[@class="nw_katalog_lista_ksiazka ebook " or @class="nw_katalog_lista_ksiazka ebook promocja"]'):
         if counter <= 0:
             break
 
