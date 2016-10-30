@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 6  # Needed for dynamic plugin loading
+store_version = 7  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011-2016, Tomasz Długosz <tomek3d@gmail.com>'
@@ -46,34 +46,31 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=25, timeout=60):
-        url = 'http://ebookpoint.pl/search.scgi?szukaj=' + urllib.quote_plus(query.decode('utf-8').encode('iso-8859-2')) + '&serwisyall=0&x=0&y=0'
+        url = 'http://ebookpoint.pl/search?qa=&szukaj=' + urllib.quote_plus(query.decode('utf-8').encode('iso-8859-2')) + '&serwisyall=0&wprzyg=0&wsprzed=1&wyczerp=0&formaty=em-p'
 
         br = browser()
 
         counter = max_results
         with closing(br.open(url, timeout=timeout)) as f:
             doc = html.fromstring(f.read())
-            for data in doc.xpath('//div[@class="book-list"]/ul[2]/li'):
+            for data in doc.xpath('//ul[@class="list"]/li'):
                 if counter <= 0:
                     break
 
-                id = ''.join(data.xpath('.//a[@class="cover"]/@href'))
+                id = ''.join(data.xpath('./a/@href'))
                 if not id:
                     continue
 
-                formats = ', '.join(data.xpath('.//div[@class="ikony"]/span/text()'))
-                if formats in ['MP3','']:
-                    continue
-                cover_url = ''.join(data.xpath('.//a[@class="cover"]/img/@data-src'))
-                title = ''.join(data.xpath('.//h3/a/@title'))
-                title = re.sub('eBook.', '', title)
+                formats = ', '.join(data.xpath('.//ul[@class="book-type book-type-points"]//span[@class="popup"]/span/text()'))
+                cover_url = ''.join(data.xpath('.//a[1]/p/img/@src'))
+                title = ''.join(data.xpath('.//div[@class="book-info"]/h3/a/text()'))
                 author = ''.join(data.xpath('.//p[@class="author"]//text()'))
-                price = ''.join(data.xpath('.//p[@class="price"]/ins/text()'))
+                price = ''.join(data.xpath('.//p[@class="price price-incart"]/a/ins/text()'))
 
                 counter -= 1
 
                 s = SearchResult()
-                s.cover_url = re.sub('72x9', '65x8',cover_url)
+                s.cover_url = cover_url
                 s.title = title.strip()
                 s.author = author.strip()
                 s.price = re.sub(r'\.',',',price)
