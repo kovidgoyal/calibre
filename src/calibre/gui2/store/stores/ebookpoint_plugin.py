@@ -46,7 +46,8 @@ class EbookpointStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=25, timeout=60):
-        url = 'http://ebookpoint.pl/search?qa=&szukaj=' + urllib.quote_plus(query.decode('utf-8').encode('iso-8859-2')) + '&serwisyall=0&wprzyg=0&wsprzed=1&wyczerp=0&formaty=em-p'
+        url = 'http://ebookpoint.pl/search?qa=&szukaj=' + urllib.quote_plus(
+            query.decode('utf-8').encode('iso-8859-2')) + '&serwisyall=0&wprzyg=0&wsprzed=1&wyczerp=0&formaty=em-p'
 
         br = browser()
 
