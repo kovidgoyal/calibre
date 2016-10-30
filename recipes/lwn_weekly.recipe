@@ -104,6 +104,8 @@ class WeeklyLWN(BasicNewsRecipe):
 
             elif 'SummaryHL' in curr.attrMap['class']:
                 article_title = text
+                if not article_title:
+                    article_title = _('Undefined article title')
 
                 if subsection:
                     section_title = "%s: %s" % (section, subsection)
