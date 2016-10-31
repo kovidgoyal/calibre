@@ -223,7 +223,7 @@ class ManageFonts(Dialog):
         s.addWidget(fv), s.addWidget(c)
 
         self.cb = b = QPushButton(_('&Change selected fonts'))
-        b.setIcon(QIcon(I('auto_author_sort.png')))
+        b.setIcon(QIcon(I('wizard.png')))
         b.clicked.connect(self.change_fonts)
         l.addWidget(b)
         self.rb = b = QPushButton(_('&Remove selected fonts'))

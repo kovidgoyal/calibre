@@ -110,7 +110,7 @@ class EditorWidget(QWebView):  # {{{
                     _('Align justified'), False),
                 ('Undo', 'undo', 'edit-undo', _('Undo'), False),
                 ('Redo', 'redo', 'edit-redo', _('Redo'), False),
-                ('RemoveFormat', 'remove_format', 'trash', _('Remove formatting'), False),
+                ('RemoveFormat', 'remove_format', 'edit-clear', _('Remove formatting'), False),
                 ('Copy', 'copy', 'edit-copy', _('Copy'), False),
                 ('Paste', 'paste', 'edit-paste', _('Paste'), False),
                 ('Cut', 'cut', 'edit-cut', _('Cut'), False),
@@ -166,7 +166,7 @@ class EditorWidget(QWebView):  # {{{
         self.action_insert_link.triggered.connect(self.insert_link)
         self.pageAction(QWebPage.ToggleBold).changed.connect(self.update_link_action)
         self.action_insert_link.setEnabled(False)
-        self.action_clear = QAction(QIcon(I('edit-clear.png')), _('Clear'), self)
+        self.action_clear = QAction(QIcon(I('trash.png')), _('Clear'), self)
         self.action_clear.triggered.connect(self.clear_text)
 
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
