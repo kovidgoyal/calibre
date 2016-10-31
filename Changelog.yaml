@@ -20,6 +20,49 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.71.0
+  date: 2016-10-31
+
+  new features:
+    - title: "calibre's tenth birthday edition!"
+      description: "calibre was first released (as libprs500) ten years ago today. A big thank you to the entire calibre community -- users, contributors and developers -- for keeping it humming for so long."
+      type: major
+
+    - title: "A new set of icons for calibre"
+      description: "To celebrate calibre turning ten, calibre now has a brand new set of icons designed from scratch. Note that you can choose between many different icon sets for calibre, including the original icons, from Preferences->Look & Feel->Choose icon theme"
+      type: major
+
+    - title: "A short video commemorating the occasion: https://youtu.be/Q95NfFKc0v8"
+
+    - title: "Book details panel: Add a copy all action to the right click menu."
+      tickets: [1633477]
+
+  bug fixes:
+    - title: "Get Books: Update ebookpoint and woblink store plugins for website changes"
+
+    - title: "Edit Book: When un-marking text auto-change the 'search where' location to what it was before text was marked rather than 'current file'."
+
+    - title: "Automatic adding: Show an error if the user specifies a folder whose name starts with a dot or underscore."
+      tickets: [1637021]
+
+    - title: "OS X: Fix a regression that caused incorrect display of the icon in pop-up message boxes when using a Retina display."
+      tickets: [1635999]
+
+    - title: "Kobo driver: Fix an error when migrating very old settings"
+      tickets: [1635909]
+
+    - title: "Kobo driver: Fix a regression that broke handling of reading status for devices running old 1.9x versions of the Kobo firmware"
+
+    - title: "Edit Book: When using the arrange into folders tool do not change the case of already existing folders in the book."
+      tickets: [1633875]
+
+  improved recipes:
+    - LWN Weekly
+    - Financial Times
+    - MIT Technology Review
+    - The Hindu
+
+
 - version: 2.70.0
   date: 2016-10-14
 
