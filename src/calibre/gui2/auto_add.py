@@ -11,7 +11,7 @@ import os, tempfile, shutil, time
 from threading import Thread, Event
 from future_builtins import map
 
-from PyQt5.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer)
+from PyQt5.Qt import (QFileSystemWatcher, QObject, Qt, pyqtSignal, QTimer, QApplication, QCursor)
 
 from calibre import prints
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -203,7 +203,17 @@ class AutoAdder(QObject):
         if hasattr(self, 'worker'):
             self.worker.join()
 
+    def __enter__(self):
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+
+    def __exit__(self, *args):
+        QApplication.restoreOverrideCursor()
+
     def add_to_db(self, data):
+        with self:
+            self.do_add(data)
+
+    def do_add(self, data):
         from calibre.ebooks.metadata.opf2 import OPF
 
         gui = self.parent()
