@@ -532,7 +532,9 @@ class CopyToLibraryAction(InterfaceAction):
                 return _('Copying: {0} failed, with error:\n{1}').format(title, tb)
             title, msg = _('Failed to copy some books'), _('Could not copy some books, click "Show Details" for more information.')
             tb = '\n\n'.join(map(fmt_err, self.worker.failed_books))
-            tb = _('Failed to copy {0} book(s), see below for details').format(len(self.worker.failed_books)) + '\n\n' + tb
+            tb = ngettext('Failed to copy a book, see below for details',
+                          'Failed to copy {} books, see below for details', len(self.worker.failed_books)).format(
+                len(self.worker.failed_books)) + '\n\n' + tb
             if len(ids) == len(self.worker.failed_books):
                 title, msg = _('Failed to copy books'), _('Could not copy any books, click "Show Details" for more information.')
             error_dialog(self.gui, title, msg, det_msg=tb, show=True)
