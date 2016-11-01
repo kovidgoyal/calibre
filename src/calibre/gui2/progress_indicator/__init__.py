@@ -126,7 +126,9 @@ class WaitPanel(QWidget):
         self.start, self.stop = self.spinner.start, self.spinner.stop
         l.addStretch(), l.addWidget(self.spinner, 0, Qt.AlignCenter)
         self.la = QLabel(msg)
-        self.la.setStyleSheet('QLabel { font-size: 40px; font-weight: bold }')
+        f = self.la.font()
+        f.setPointSize(28)
+        self.la.setFont(f)
         l.addWidget(self.la, 0, Qt.AlignCenter), l.addStretch()
 
     @property

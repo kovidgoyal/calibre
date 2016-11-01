@@ -595,7 +595,8 @@ class ChooseTheme(Dialog):
         v.addStretch(), v.addWidget(pi, 0, Qt.AlignCenter)
         self.wait_msg = m = QLabel(self)
         v.addWidget(m, 0, Qt.AlignCenter), v.addStretch()
-        m.setStyleSheet('QLabel { font-size: 40px; font-weight: bold }')
+        f = m.font()
+        f.setBold(True), f.setPointSize(28), m.setFont(f)
         self.start_spinner()
 
         l.addWidget(c)

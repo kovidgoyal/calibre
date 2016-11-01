@@ -244,7 +244,8 @@ class ChooseProgram(Dialog):  # {{{
         self.pi = pi = ProgressIndicator(self, 256)
         l.addStretch(1), l.addWidget(pi, alignment=Qt.AlignHCenter), l.addSpacing(10)
         w.la = la = QLabel(_('Gathering data, please wait...'))
-        la.setStyleSheet('QLabel { font-size: 30pt; font-weight: bold }')
+        f = la.font()
+        f.setBold(True), f.setPointSize(28), la.setFont(f)
         l.addWidget(la, alignment=Qt.AlignHCenter), l.addStretch(1)
         s.addWidget(w)
 
