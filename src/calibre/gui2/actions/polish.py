@@ -497,7 +497,8 @@ class PolishAction(InterfaceAction):
             if d.jobs:
                 self.gui.jobs_pointer.start()
                 self.gui.status_bar.show_message(
-                    _('Start polishing of %d book(s)') % len(d.jobs), 2000)
+                    ngettext('Start polishing the book', 'Start polishing of {} books',
+                             len(d.jobs)).format(len(d.jobs)), 2000)
 
     def book_polished(self, job):
         if job.failed:
@@ -534,4 +535,3 @@ if __name__ == '__main__':
     from calibre.library import db
     d = Polish(db(), {1:{'EPUB'}, 2:{'AZW3'}})
     d.exec_()
-
