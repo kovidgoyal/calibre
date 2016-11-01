@@ -268,13 +268,20 @@ def get_recommended_folders(container, names):
 
 
 def normalize_case(container, val):
+
+    def safe_listdir(x):
+        try:
+            return os.listdir(x)
+        except EnvironmentError:
+            return ()
+
     parts = val.split('/')
     ans = []
     for i in range(len(parts)):
         q = '/'.join(parts[:i+1])
         x = container.name_to_abspath(q)
         xl = parts[i].lower()
-        candidates = [c for c in os.listdir(os.path.dirname(x)) if c != parts[i] and c.lower() == xl]
+        candidates = [c for c in safe_listdir(os.path.dirname(x)) if c != parts[i] and c.lower() == xl]
         ans.append(candidates[0] if candidates else parts[i])
     return '/'.join(ans)
 
