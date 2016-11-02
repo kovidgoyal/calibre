@@ -19,23 +19,25 @@ from calibre.gui2 import gprefs
 
 class Icon(QWidget):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, size=None):
         QWidget.__init__(self, parent)
         self.pixmap = None
         self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.size = size or 64
 
     def set_icon(self, qicon):
-        self.pixmap = qicon.pixmap(64, 64)
+        self.pixmap = qicon.pixmap(self.size, self.size)
+        self.update()
 
     def sizeHint(self):
-        return QSize(64, 64)
+        return QSize(self.size, self.size)
 
     def paintEvent(self, ev):
         if self.pixmap is not None:
-            x = (self.width() - 64) // 2
-            y = (self.height() - 64) // 2
+            x = (self.width() - self.size) // 2
+            y = (self.height() - self.size) // 2
             p = QPainter(self)
-            p.drawPixmap(x, y, 64, 64, self.pixmap)
+            p.drawPixmap(x, y, self.size, self.size, self.pixmap)
 
 
 class MessageBox(QDialog):  # {{{

@@ -4,11 +4,12 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (
-    QDialog, Qt, QPixmap, QIcon, QSize, QVBoxLayout, QHBoxLayout, QLabel,
-    QCheckBox, QDialogButtonBox)
+    QDialog, Qt, QIcon, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox, QDialogButtonBox
+)
 
 from calibre import confirm_config_name
 from calibre.gui2 import dynamic
+from calibre.gui2.dialogs.message_box import Icon
 
 
 class Dialog(QDialog):
@@ -22,16 +23,14 @@ class Dialog(QDialog):
         self.h = h = QHBoxLayout()
         l.addLayout(h)
 
-        self.label = la = QLabel(self)
-        la.setScaledContents(True), la.setMaximumSize(QSize(96, 96)), la.setMinimumSize(QSize(96, 96))
-        la.setPixmap(QPixmap(I(icon)))
-        la.setObjectName("label")
+        self.icon_widget = Icon(self)
+        self.icon_widget.set_icon(QIcon(I(icon)))
 
         self.msg = m = QLabel(self)
-        m.setMinimumWidth(300), m.setWordWrap(True), m.setObjectName("msg")
+        m.setMinimumWidth(350), m.setWordWrap(True), m.setObjectName("msg")
         m.setText(msg)
 
-        h.addWidget(la), h.addSpacing(10), h.addWidget(m)
+        h.addWidget(self.icon_widget), h.addSpacing(10), h.addWidget(m)
 
         self.again = a = QCheckBox((confirm_msg or _("&Show this warning again")), self)
         a.setChecked(True), a.setObjectName("again")
