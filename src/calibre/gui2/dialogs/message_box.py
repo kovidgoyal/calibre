@@ -35,7 +35,7 @@ class Icon(QWidget):
             x = (self.width() - 64) // 2
             y = (self.height() - 64) // 2
             p = QPainter(self)
-            p.drawPixmap(x, y, self.width(), self.height(), self.pixmap)
+            p.drawPixmap(x, y, 64, 64, self.pixmap)
 
 
 class MessageBox(QDialog):  # {{{
