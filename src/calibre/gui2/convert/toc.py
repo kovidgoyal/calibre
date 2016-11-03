@@ -16,7 +16,7 @@ from calibre.utils.localization import localize_user_manual_link
 class TOCWidget(Widget, Ui_Form):
 
     TITLE = _('Table of\nContents')
-    ICON  = I('series.png')
+    ICON  = I('toc.png')
     HELP  = _('Control the creation/conversion of the Table of Contents.')
     COMMIT_NAME = 'toc'
 
