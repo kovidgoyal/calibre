@@ -98,7 +98,8 @@ class EmbedAction(InterfaceAction):
             self.job_data = None
             self.gui.library_view.model().refresh_ids(book_ids)
             if i > 0:
-                self.gui.status_bar.show_message(_('Embedded metadata in %d books') % i, 5000)
+                self.gui.status_bar.show_message(ngettext(
+                    'Embedded metadata in one book', 'Embedded metadata in {} books', i).format(i), 5000)
             if errors:
                 det_msg = '\n\n'.join([_('The {0} format of {1}:\n\n{2}\n').format(
                     (fmt or '').upper(), force_unicode(mi.title), force_unicode(tb)) for mi, fmt, tb in errors])
