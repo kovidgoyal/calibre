@@ -492,18 +492,18 @@ class CopyToLibraryAction(InterfaceAction):
 
         self.pd.exec_()
 
-        donemsg = _('Copied %(num)d books to %(loc)s')
-        if delete_after:
-            donemsg = _('Moved %(num)d books to %(loc)s')
-
         if self.worker.error is not None:
             e, tb = self.worker.error
             error_dialog(self.gui, _('Failed'), _('Could not copy books: ') + e,
                     det_msg=tb, show=True)
             return
 
-        self.gui.status_bar.show_message(donemsg %
-                dict(num=len(self.worker.processed), loc=loc), 2000)
+        if delete_after:
+            donemsg = ngettext('Moved the book to {loc}', 'Moved {num} books to {loc}', len(self.worker.processed))
+        else:
+            donemsg = ngettext('Copied the book to {loc}', 'Copied {num} books to {loc}', len(self.worker.processed))
+
+        self.gui.status_bar.show_message(donemsg.format(num=len(self.worker.processed), loc=loc), 2000)
         if self.worker.auto_merged_ids:
             books = '\n'.join(self.worker.auto_merged_ids.itervalues())
             info_dialog(self.gui, _('Auto merged'),

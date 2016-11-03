@@ -318,7 +318,7 @@ class Report(QDialog):  # {{{
         la.setVisible(False)
         la.setWordWrap(True)
 
-        self.ign = QCheckBox(self.ign_msg, self)
+        self.ign = QCheckBox(_('Ignore remaining report'), self)
         l.addWidget(self.ign, 2, 0)
 
         bb = self.bb = QDialogButtonBox(QDialogButtonBox.Close)
