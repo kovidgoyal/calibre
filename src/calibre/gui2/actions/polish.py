@@ -318,7 +318,6 @@ class Report(QDialog):  # {{{
         la.setVisible(False)
         la.setWordWrap(True)
 
-        self.ign_msg = _('Ignore remaining %d reports')
         self.ign = QCheckBox(self.ign_msg, self)
         l.addWidget(self.ign, 2, 0)
 
@@ -335,7 +334,8 @@ class Report(QDialog):  # {{{
         self.resize(QSize(800, 600))
 
     def setup_ign(self):
-        self.ign.setText(self.ign_msg%len(self.reports))
+        self.ign.setText(ngettext(
+            'Ignore remaining report', 'Ignore remaining {} reports', len(self.reports)).format(len(self.reports)))
         self.ign.setVisible(bool(self.reports))
         self.ign.setChecked(False)
 
