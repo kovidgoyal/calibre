@@ -105,7 +105,7 @@ def parse_text_formatting(text):
                 if tag in {'b', 'strong', 'i', 'em'}:
                     open_ranges.append([tag, offset, -1])
         else:
-            offset += len(tok)
+            offset += len(tok.replace('&amp;', '&'))
             text.append(tok)
     text = ''.join(text)
     formats = []
@@ -718,16 +718,18 @@ def generate_masthead(title, output_path=None, width=600, height=60, as_qimage=F
 
 
 def test(scale=0.25):
-    from PyQt5.Qt import QLabel, QApplication, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
-    app = QApplication([])
+    from PyQt5.Qt import QLabel, QPixmap, QMainWindow, QWidget, QScrollArea, QGridLayout
+    from calibre.gui2 import Application
+    app = Application([])
     mi = Metadata('Unknown', ['Kovid Goyal', 'John & Doe', 'Author'])
-    mi.series = 'A series of styles'
+    mi.series = 'A series & styles'
     m = QMainWindow()
     sa = QScrollArea(m)
     w = QWidget(m)
     sa.setWidget(w)
     l = QGridLayout(w)
     w.setLayout(l), l.setSpacing(30)
+    scale *= w.devicePixelRatioF()
     labels = []
     for r, color in enumerate(sorted(default_color_themes)):
         for c, style in enumerate(sorted(all_styles())):
@@ -736,6 +738,7 @@ def test(scale=0.25):
             prefs = override_prefs(cprefs, override_color_theme=color, override_style=style)
             scale_cover(prefs, scale)
             img = generate_cover(mi, prefs=prefs, as_qimage=True)
+            img.setDevicePixelRatio(w.devicePixelRatioF())
             la = QLabel()
             la.setPixmap(QPixmap.fromImage(img))
             l.addWidget(la, r, c)
