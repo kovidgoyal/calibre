@@ -459,8 +459,9 @@ class FileList(QTreeWidget):
         if num > 0:
             m.addSeparator()
             if num > 1:
-                m.addAction(QIcon(I('modified.png')), _('&Bulk rename selected files'), self.request_bulk_rename)
-            m.addAction(QIcon(I('trash.png')), _('&Delete the %d selected file(s)') % num, self.request_delete)
+                m.addAction(QIcon(I('modified.png')), _('&Bulk rename the selected files'), self.request_bulk_rename)
+            m.addAction(QIcon(I('trash.png')), ngettext(
+                '&Delete the selected file', '&Delete the {} selected files', num).format(num), self.request_delete)
             m.addSeparator()
 
         selected_map = defaultdict(list)
