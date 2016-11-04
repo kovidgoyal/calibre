@@ -88,7 +88,7 @@ def config(defaults=None):
                 ' actual e-book files.'))
     x('save_cover', default=True,
             help=_('Normally, calibre will save the cover in a separate file along with the '
-                'actual e-book file(s).'))
+                'actual e-book files.'))
     x('formats', default='all',
             help=_('Comma separated list of formats to save for each book.'
                 ' By default all available formats are saved.'))
