@@ -404,8 +404,9 @@ class JobError(QDialog):  # {{{
             self.retry_func()
 
     def update_suppress_state(self):
-        self.suppress.setText(_(
-            'Hide the remaining %d error messages'%len(self.queue)))
+        self.suppress.setText(ngettext(
+            'Hide the remaining error message',
+            'Hide the {} remaining error messages', len(self.queue)).format(len(self.queue)))
         self.suppress.setVisible(len(self.queue) > 3)
         self.do_resize()
 
