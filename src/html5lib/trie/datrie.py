@@ -6,7 +6,7 @@ try:
 except NameError:
     text_type = str
 
-from ._base import Trie as ABCTrie
+from .base import Trie as ABCTrie
 
 
 class Trie(ABCTrie):

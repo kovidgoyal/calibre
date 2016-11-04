@@ -13,8 +13,8 @@ from bisect import bisect
 from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase, fromstring, Element as LxmlElement
 
 from html5lib.constants import namespaces, tableInsertModeElements, EOF
-from html5lib.treebuilders._base import TreeBuilder as BaseTreeBuilder
-from html5lib.ihatexml import InfosetFilter, DataLossWarning
+from html5lib.treebuilders.base import TreeBuilder as BaseTreeBuilder
+from html5lib._ihatexml import InfosetFilter, DataLossWarning
 from html5lib.html5parser import HTMLParser
 
 from calibre import xml_replace_entities
@@ -51,7 +51,7 @@ def ElementFactory(name, namespace=None, context=None):
 class Element(ElementBase):
 
     ''' Implements the interface required by the html5lib tree builders (see
-    html5lib.treebuilders._base.Node) on top of the lxml ElementBase class '''
+    html5lib.treebuilders.base.Node) on top of the lxml ElementBase class '''
 
     def __str__(self):
         attrs = ''

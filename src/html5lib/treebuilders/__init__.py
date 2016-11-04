@@ -6,13 +6,13 @@ implement several things:
 
 1) A set of classes for various types of elements: Document, Doctype,
 Comment, Element. These must implement the interface of
-_base.treebuilders.Node (although comment nodes have a different
+base.treebuilders.Node (although comment nodes have a different
 signature for their constructor, see treebuilders.etree.Comment)
 Textual content may also be implemented as another node type, or not, as
 your tree implementation requires.
 
 2) A treebuilder object (called TreeBuilder by convention) that
-inherits from treebuilders._base.TreeBuilder. This has 4 required attributes:
+inherits from treebuilders.base.TreeBuilder. This has 4 required attributes:
 documentClass - the class to use for the bottommost node of a document
 elementClass - the class to use for HTML Elements
 commentClass - the class to use for comments

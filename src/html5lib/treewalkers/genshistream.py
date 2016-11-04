@@ -4,12 +4,12 @@ from genshi.core import QName
 from genshi.core import START, END, XML_NAMESPACE, DOCTYPE, TEXT
 from genshi.core import START_NS, END_NS, START_CDATA, END_CDATA, PI, COMMENT
 
-from . import _base
+from . import base
 
 from ..constants import voidElements, namespaces
 
 
-class TreeWalker(_base.TreeWalker):
+class TreeWalker(base.TreeWalker):
     def __iter__(self):
         # Buffer the events so we can pass in the following one
         previous = None

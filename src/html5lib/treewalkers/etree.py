@@ -16,7 +16,7 @@ try:
 except NameError:
     string_types = str,
 
-from . import _base
+from . import base
 from ..utils import moduleFactoryFactory
 
 tag_regexp = re.compile("{([^}]*)}(.*)")
@@ -26,7 +26,7 @@ def getETreeBuilder(ElementTreeImplementation):
     ElementTree = ElementTreeImplementation
     ElementTreeCommentType = ElementTree.Comment("asd").tag
 
-    class TreeWalker(_base.NonRecursiveTreeWalker):
+    class TreeWalker(base.NonRecursiveTreeWalker):
         """Given the particular ElementTree representation, this implementation,
         to avoid using recursion, returns "nodes" as tuples with the following
         content:
@@ -44,7 +44,7 @@ def getETreeBuilder(ElementTreeImplementation):
             if isinstance(node, tuple):  # It might be the root Element
                 elt, key, parents, flag = node
                 if flag in ("text", "tail"):
-                    return _base.TEXT, getattr(elt, flag)
+                    return base.TEXT, getattr(elt, flag)
                 else:
                     node = elt
 
@@ -52,14 +52,14 @@ def getETreeBuilder(ElementTreeImplementation):
                 node = node.getroot()
 
             if node.tag in ("DOCUMENT_ROOT", "DOCUMENT_FRAGMENT"):
-                return (_base.DOCUMENT,)
+                return (base.DOCUMENT,)
 
             elif node.tag == "<!DOCTYPE>":
-                return (_base.DOCTYPE, node.text,
+                return (base.DOCTYPE, node.text,
                         node.get("publicId"), node.get("systemId"))
 
             elif node.tag == ElementTreeCommentType:
-                return _base.COMMENT, node.text
+                return base.COMMENT, node.text
 
             else:
                 assert isinstance(node.tag, string_types), type(node.tag)
@@ -77,7 +77,7 @@ def getETreeBuilder(ElementTreeImplementation):
                         attrs[(match.group(1), match.group(2))] = value
                     else:
                         attrs[(None, name)] = value
-                return (_base.ELEMENT, namespace, tag,
+                return (base.ELEMENT, namespace, tag,
                         attrs, len(node) or node.text)
 
         def getFirstChild(self, node):

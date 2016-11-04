@@ -6,7 +6,7 @@ except NameError:
 
 from bisect import bisect_left
 
-from ._base import Trie as ABCTrie
+from .base import Trie as ABCTrie
 
 
 class Trie(ABCTrie):

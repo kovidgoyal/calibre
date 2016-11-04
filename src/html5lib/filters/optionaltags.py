@@ -1,9 +1,9 @@
 from __future__ import absolute_import, division, unicode_literals
 
-from . import _base
+from . import base
 
 
-class Filter(_base.Filter):
+class Filter(base.Filter):
     def slider(self):
         previous1 = previous2 = None
         for token in self.source:

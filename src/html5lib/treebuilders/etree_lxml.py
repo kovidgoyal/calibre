@@ -15,11 +15,11 @@ import warnings
 import re
 import sys
 
-from . import _base
+from . import base
 from ..constants import DataLossWarning
 from .. import constants
 from . import etree as etree_builders
-from .. import ihatexml
+from .. import _ihatexml
 
 import lxml.etree as etree
 
@@ -54,7 +54,7 @@ class Document(object):
 def testSerializer(element):
     rv = []
     finalText = None
-    infosetFilter = ihatexml.InfosetFilter()
+    infosetFilter = _ihatexml.InfosetFilter()
 
     def serializeElement(element, indent=0):
         if not hasattr(element, "tag"):
@@ -179,7 +179,7 @@ def tostring(element):
     return "".join(rv)
 
 
-class TreeBuilder(_base.TreeBuilder):
+class TreeBuilder(base.TreeBuilder):
     documentClass = Document
     doctypeClass = DocumentType
     elementClass = None
@@ -189,7 +189,7 @@ class TreeBuilder(_base.TreeBuilder):
 
     def __init__(self, namespaceHTMLElements, fullTree=False):
         builder = etree_builders.getETreeModule(etree, fullTree=fullTree)
-        infosetFilter = self.infosetFilter = ihatexml.InfosetFilter()
+        infosetFilter = self.infosetFilter = _ihatexml.InfosetFilter()
         self.namespaceHTMLElements = namespaceHTMLElements
 
         class Attributes(dict):
@@ -259,10 +259,10 @@ class TreeBuilder(_base.TreeBuilder):
         self.elementClass = Element
         self.commentClass = builder.Comment
         # self.fragmentClass = builder.DocumentFragment
-        _base.TreeBuilder.__init__(self, namespaceHTMLElements)
+        base.TreeBuilder.__init__(self, namespaceHTMLElements)
 
     def reset(self):
-        _base.TreeBuilder.reset(self)
+        base.TreeBuilder.reset(self)
         self.insertComment = self.insertCommentInitial
         self.initial_comments = []
         self.doctype = None

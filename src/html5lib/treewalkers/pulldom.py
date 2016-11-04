@@ -3,12 +3,12 @@ from __future__ import absolute_import, division, unicode_literals
 from xml.dom.pulldom import START_ELEMENT, END_ELEMENT, \
     COMMENT, IGNORABLE_WHITESPACE, CHARACTERS
 
-from . import _base
+from . import base
 
 from ..constants import voidElements
 
 
-class TreeWalker(_base.TreeWalker):
+class TreeWalker(base.TreeWalker):
     def __iter__(self):
         ignore_until = None
         previous = None
