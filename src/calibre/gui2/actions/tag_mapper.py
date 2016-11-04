@@ -38,7 +38,7 @@ class TagMapAction(InterfaceAction):
             'Map tags for {} books in the library', len(book_ids)).format(len(book_ids)))
         d.rules = gprefs.get('library-tag-mapper-ruleset', ())
         txt = ngettext(
-            'The changes will be applied to the <bselected book</b>',
+            'The changes will be applied to the <b>selected book</b>',
             'The changes will be applied to the <b>{} selected books</b>', len(book_ids)) if selected else ngettext(
             'The changes will be applied to <b>one book in the library</b>',
             'The changes will be applied to <b>{} books in the library</b>', len(book_ids))
