@@ -348,9 +348,6 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
         LibraryViewMixin.init_library_view_mixin(self, db)
         SearchBoxMixin.init_search_box_mixin(self)  # Requires current_db
 
-        if show_gui:
-            self.show()
-
         if self.system_tray_icon is not None and self.system_tray_icon.isVisible() and opts.start_in_tray:
             self.hide_windows()
         self.library_view.model().count_changed_signal.connect(
@@ -403,6 +400,7 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
             self.start_content_server()
 
         self.read_settings()
+
         self.finalize_layout()
         if self.bars_manager.showing_donate:
             self.donate_button.start_animation()
@@ -421,8 +419,11 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
 
         register_keyboard_shortcuts()
         self.keyboard.finalize()
+        if show_gui:
+            # Note this has to come after restoreGeometry() because of
+            # https://bugreports.qt.io/browse/QTBUG-56831
+            self.show()
         self.auto_adder = AutoAdder(gprefs['auto_add_path'], self)
-
         self.save_layout_state()
 
         # Collect cycles now
