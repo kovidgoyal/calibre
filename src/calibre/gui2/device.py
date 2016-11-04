@@ -596,7 +596,7 @@ class DeviceManager(Thread):  # {{{
 
     def upload_books(self, done, files, names, on_card=None, titles=None,
                      metadata=None, plugboards=None, add_as_step_to_job=None):
-        desc = _('Upload %d books to device')%len(names)
+        desc = ngettext('Upload one book to the device', 'Upload {} books to device', len(names)).format(len(names))
         if titles:
             desc += u':' + u', '.join(titles)
         return self.create_job_step(self._upload_books, done, to_job=add_as_step_to_job,
@@ -2012,4 +2012,3 @@ class DeviceMixin(object):  # {{{
         # The status line is reset when the job finishes
         return update_metadata
     # }}}
-
