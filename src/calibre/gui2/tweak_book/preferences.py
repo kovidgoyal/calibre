@@ -751,8 +751,11 @@ class Preferences(QDialog):
             if key.endswith('_again') and tprefs.get(key) is False:
                 del tprefs[key]
                 changed += 1
-        info_dialog(self, _('Disabled confirmations restored'), _(
-            '%d disabled confirmation prompts were restored') % changed, show=True)
+        msg = _('There are no disabled confirmation prompts')
+        if changed:
+            msg = ngettext(
+                'One disabled confirmation prompt was restored', '{} disabled confirmation prompts were restored', changed).format(changed)
+        info_dialog(self, _('Disabled confirmations restored'), msg, show=True)
 
     def accept(self):
         tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
