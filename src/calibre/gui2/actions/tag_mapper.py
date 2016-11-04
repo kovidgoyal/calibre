@@ -33,11 +33,16 @@ class TagMapAction(InterfaceAction):
         from calibre.gui2.tag_mapper import RulesDialog
         from calibre.gui2.device import BusyCursor
         d = RulesDialog(self.gui)
-        d.setWindowTitle(_('Map tags for %d books in the library') % len(book_ids))
+        d.setWindowTitle(ngettext(
+            'Map tags for one book in the library',
+            'Map tags for {} books in the library', len(book_ids)).format(len(book_ids)))
         d.rules = gprefs.get('library-tag-mapper-ruleset', ())
-        txt = _('The changes will be applied to the <b>%d selected books</b>') if selected else _(
-            'The changes will be applied to <b>%d books in the library</b>')
-        d.edit_widget.msg_label.setText(d.edit_widget.msg_label.text() + '<p>' + txt % len(book_ids))
+        txt = ngettext(
+            'The changes will be applied to the <bselected book</b>',
+            'The changes will be applied to the <b>{} selected books</b>', len(book_ids)) if selected else ngettext(
+            'The changes will be applied to <b>one book in the library</b>',
+            'The changes will be applied to <b>{} books in the library</b>', len(book_ids))
+        d.edit_widget.msg_label.setText(d.edit_widget.msg_label.text() + '<p>' + txt.format(len(book_ids)))
         if d.exec_() != d.Accepted:
             return
         with BusyCursor():
