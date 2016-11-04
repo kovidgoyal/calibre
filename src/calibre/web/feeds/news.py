@@ -1239,7 +1239,9 @@ class BasicNewsRecipe(Recipe):
         for req in self.jobs:
             tp.putRequest(req, block=True, timeout=0)
 
-        self.report_progress(0, _('Starting download [%d thread(s)]...')%self.simultaneous_downloads)
+        self.report_progress(0, ngettext(
+            'Starting download in a single thread...',
+            'Starting download [{} threads]...', self.simultaneous_downloads).format(self.simultaneous_downloads))
         while True:
             try:
                 tp.poll()
@@ -1799,4 +1801,3 @@ class CalibrePeriodical(BasicNewsRecipe):
         except:
             self.log.exception('Failed to compile downloaded recipe')
         return os.path.abspath('index.html')
-
