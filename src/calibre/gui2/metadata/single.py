@@ -581,11 +581,12 @@ class MetadataSingleDialogBase(QDialog):
         if self.editing_multiple and self.current_row != len(self.row_list) - 1:
             num = len(self.row_list) - 1 - self.current_row
             from calibre.gui2 import question_dialog
+            pm = ngettext('There is another book to edit in this set.',
+                          'There are still {} more books to edit in this set.', num).format(num)
             if not question_dialog(
-                    self, _('Are you sure?'),
-                    _('There are still %d more books to edit in this set.'
+                    self, _('Are you sure?'), pm + _(
                       ' Are you sure you want to stop? Use the Next button'
-                      ' instead of the OK button to move through books in the set.') % num,
+                      ' instead of the OK button to move through books in the set.'),
                     yes_text=_('&Stop editing'), no_text=_('&Continue editing'),
                     yes_icon='dot_red.png', no_icon='dot_green.png',
                     default_yes=False, skip_dialog_name='edit-metadata-single-confirm-ok-on-multiple'):
@@ -1147,4 +1148,3 @@ if __name__ == '__main__':
     db = db()
     row_list = list(range(len(db.data)))
     edit_metadata(db, row_list, 0)
-
