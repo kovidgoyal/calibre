@@ -226,7 +226,8 @@ class UpdateMixin(object):
             plugin.qaction.setText(_('Plugin Updates')+'*')
             plugin.qaction.setIcon(QIcon(I('plugins/plugin_updater_updates.png')))
             plugin.qaction.setToolTip(
-                _('There are %d plugin updates available')%number_of_updates)
+                ngettext('A plugin update is available',
+                         'There are {} plugin updates available', number_of_updates).format(number_of_updates))
         else:
             plugin.qaction.setText(_('Plugin Updates'))
             plugin.qaction.setIcon(QIcon(I('plugins/plugin_updater.png')))
