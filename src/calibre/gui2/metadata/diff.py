@@ -668,7 +668,10 @@ class CompareMany(QDialog):
 
     def reject_all_remaining(self):
         from calibre.gui2.dialogs.confirm_delete import confirm
-        if not confirm(_('Are you sure you want to reject all %d remaining results?') % len(self.ids), 'confirm_metadata_review_reject', parent=self):
+        if not confirm(ngettext(
+                'Are you sure you want to reject the remaining result?',
+                'Are you sure you want to reject all {} remaining results?', len(self.ids)).format(len(self.ids)),
+                       'confirm_metadata_review_reject', parent=self):
             return
         self.next_item(False)
         for id_ in self.ids:
@@ -698,4 +701,3 @@ if __name__ == '__main__':
         for changed, mi in d.accepted.itervalues():
             if changed and mi is not None:
                 print (mi)
-
