@@ -171,7 +171,7 @@ def CATALOG_GROUP_ENTRY(item, category, request_context, updated):
         TITLE(item.text),
         ID(id_),
         UPDATED(updated),
-        E.content(_('%d items')%item.count, type='text'),
+        E.content(ngettext('one item', '{} items', item.count).format(item.count), type='text'),
         link
     )
 
