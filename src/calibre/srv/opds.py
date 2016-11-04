@@ -147,9 +147,10 @@ def CATALOG_ENTRY(item, item_kind, request_context, updated, catalog_name,
         iid += ':'+item_kind
     href = request_context.url_for('/opds/category', category=hexlify(catalog_name), which=hexlify(iid))
     link = NAVLINK(href=href)
-    count = (_('%d books') if item.count > 1 else _('%d book'))%item.count
     if ignore_count:
         count = ''
+    else:
+        count = ngettext('one book', '{} books', item.count).format(item.count)
     if item.use_sort_as_name:
         name = item.sort
     else:
