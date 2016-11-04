@@ -815,6 +815,7 @@ class Boss(QObject):
                 pretty_all(current_container())
                 self.update_editors_from_container()
                 self.set_modified()
+                QApplication.alert(self.gui)
 
     def mark_selected_text(self):
         ed = self.gui.central.current_editor
