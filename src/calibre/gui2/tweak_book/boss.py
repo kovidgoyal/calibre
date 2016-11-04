@@ -1300,6 +1300,7 @@ class Boss(QObject):
 
     def check_external_links(self):
         if self.ensure_book(_('You must first open a book in order to check links.')):
+            self.commit_all_editors_to_container()
             self.gui.check_external_links.show()
 
     def compress_images(self):
