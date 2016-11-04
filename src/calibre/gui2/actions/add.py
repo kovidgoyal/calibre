@@ -467,11 +467,13 @@ class AddAction(InterfaceAction):
                 for title in sorted(merged[author], key=sort_key):
                     lines.append('\t' + title)
                 lines.append('')
-            info_dialog(self.gui, _('Merged some books'),
-                _('The following %d duplicate books were found and incoming '
-                    'book formats were processed and merged into your '
-                    'Calibre database according to your automerge '
-                    'settings:')%len(adder.merged_books),
+            pm = ngettext('The following duplicate book was found.',
+                          'The following {} duplicate books were found.',
+                          len(adder.merged_books)).format(len(adder.merged_books))
+            info_dialog(self.gui, _('Merged some books'), pm + ' ' +
+                _('Incoming book formats were processed and merged into your '
+                    'calibre database according to your auto-merge '
+                    'settings:'),
                     det_msg='\n'.join(lines), show=True)
 
         if adder.number_of_books_added > 0 or adder.merged_books:
