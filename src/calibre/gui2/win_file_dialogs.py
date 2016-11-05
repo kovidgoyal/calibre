@@ -121,7 +121,7 @@ def select_initial_dir(q):
 def run_file_dialog(
         parent=None, title=None, initial_folder=None, filename=None, save_path=None,
         allow_multiple=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False,
-        file_types=()
+        file_types=(), default_ext=None
 ):
     from calibre.gui2 import sanitize_env_vars
     secret = os.urandom(32).replace(b'\0', b' ')
@@ -166,6 +166,8 @@ def run_file_dialog(
         file_types = [(_('All files'), ('*',))]
     if file_types:
         data.append(serialize_file_types(file_types))
+    if default_ext:
+        data.append(serialize_string('DEFAULT_EXTENSION', default_ext))
     loop = Loop()
     server = PipeServer(pipename)
     with sanitize_env_vars():
@@ -263,8 +265,14 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
     file_types = list(filters)
     if all_files:
         file_types.append((_('All files'), ['*']))
+    all_exts = []
+    for _, exts in file_types:
+        for ext in exts:
+            if '*' not in ext:
+                all_exts.append(ext.lower())
+    default_ext = all_exts[0] if all_exts else None
     name, initial_folder = get_initial_folder(name, title, default_dir, no_save_dir)
-    ans = run_file_dialog(window, title, save_as=True, initial_folder=initial_folder, filename=filename, file_types=file_types)
+    ans = run_file_dialog(window, title, save_as=True, initial_folder=initial_folder, filename=filename, file_types=file_types, default_ext=default_ext)
     if ans:
         ans = ans[0]
         if not no_save_dir:
