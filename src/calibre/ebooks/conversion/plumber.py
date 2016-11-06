@@ -1111,7 +1111,7 @@ OptionRecommendation(name='search_replace',
         pr(0.35)
         self.flush()
 
-        if self.output_plugin.file_type != 'epub':
+        if self.output_plugin.file_type not in ('epub', 'kepub'):
             # Remove the toc reference to the html cover, if any, except for
             # epub, as the epub output plugin will do the right thing with it.
             item = getattr(self.oeb.toc, 'item_that_refers_to_cover', None)
