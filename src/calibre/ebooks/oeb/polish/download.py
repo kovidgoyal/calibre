@@ -88,6 +88,14 @@ class ProgressTracker(object):
         return ret
 
 
+def sanitize_file_name(x):
+    from calibre.ebooks.oeb.polish.check.parsing import make_filename_safe
+    x = sanitize_file_name2(x)
+    while '..' in x:
+        x = x.replace('..', '.')
+    return make_filename_safe(x)
+
+
 def download_one(tdir, timeout, progress_report, url):
     try:
         purl = urlparse(url)
@@ -104,13 +112,13 @@ def download_one(tdir, timeout, progress_report, url):
             dest = ProgressTracker(df, url, sz, progress_report)
             with closing(src):
                 shutil.copyfileobj(src, dest)
-            filename = sanitize_file_name2(filename)
+            filename = sanitize_file_name(filename)
             mt = guess_type(filename)
             if mt in OEB_DOCS:
                 raise ValueError('The external resource {} looks like a HTML document ({})'.format(url, filename))
             if not mt or mt == 'application/octet-stream' or '.' not in filename:
                 raise ValueError('The external resource {} is not of a known type'.format(url))
-            return True, (url, sanitize_file_name2(filename), dest.name, mt)
+            return True, (url, filename, dest.name, mt)
     except Exception as err:
         return False, (url, as_unicode(err))
 

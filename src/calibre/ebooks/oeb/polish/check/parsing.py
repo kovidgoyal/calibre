@@ -106,18 +106,23 @@ class NamedEntities(BaseError):
         return changed
 
 
+def make_filename_safe(name):
+    from calibre.utils.filenames import ascii_filename
+
+    def esc(n):
+        return ''.join(x if x in URL_SAFE else '_' for x in n)
+    return '/'.join(esc(ascii_filename(x)) for x in name.split('/'))
+
+
 class EscapedName(BaseError):
 
     level = WARN
 
     def __init__(self, name):
-        from calibre.utils.filenames import ascii_filename
         BaseError.__init__(self, _('Filename contains unsafe characters'), name)
         qname = urlquote(name)
 
-        def esc(n):
-            return ''.join(x if x in URL_SAFE else '_' for x in n)
-        self.sname = '/'.join(esc(ascii_filename(x)) for x in name.split('/'))
+        self.sname = make_filename_safe(name)
         self.HELP = _(
             'The filename {0} contains unsafe characters, that must be escaped, like'
             ' this {1}. This can cause problems with some ebook readers. To be'

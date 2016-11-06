@@ -12,7 +12,7 @@ def get_download_filename_from_response(response):
     filename = last_part_name = ''
     try:
         purl = urlparse(response.geturl())
-        last_part_name = purl.path.split('/')[-1]
+        last_part_name = urllib2_unquote(purl.path.split('/')[-1])
         disposition = response.info().get('Content-disposition', '')
         for p in disposition.split(';'):
             if 'filename' in p:
@@ -58,4 +58,3 @@ def get_download_filename(url, cookie_file=None):
         traceback.print_exc()
 
     return filename
-
