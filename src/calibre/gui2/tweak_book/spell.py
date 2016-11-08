@@ -1137,6 +1137,8 @@ class SpellCheck(Dialog):
             self.word_replaced.emit(changed_files)
             w = self.words_model.replace_word(w, new_word)
             row = self.words_model.row_for_word(w)
+            if row == -1:
+                row = self.words_view.currentIndex().row()
             if row > -1:
                 self.words_view.highlight_row(row)
 
