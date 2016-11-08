@@ -758,7 +758,10 @@ class WordsModel(QAbstractTableModel):
     def replace_word(self, w, new_word):
         # Hack to deal with replacement words that are actually multiple words,
         # ignore all words except the first
-        new_word = split_into_words(new_word)[0]
+        try:
+            new_word = split_into_words(new_word)[0]
+        except IndexError:
+            new_word = ''
         for location in self.words[w]:
             location.replace(new_word)
         if w[0] == new_word:
