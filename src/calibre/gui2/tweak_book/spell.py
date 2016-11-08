@@ -830,11 +830,11 @@ class WordsView(QTableView):
             self.copy_to_clipboard()
             ev.accept()
             return
+        before = self.currentIndex()
         ret = QTableView.keyPressEvent(self, ev)
-        if ev.key() in (Qt.Key_PageUp, Qt.Key_PageDown, Qt.Key_Up, Qt.Key_Down):
-            idx = self.currentIndex()
-            if idx.isValid():
-                self.scrollTo(idx)
+        after = self.currentIndex()
+        if after.row() != before.row() and after.isValid():
+            self.scrollTo(after)
         return ret
 
     def highlight_row(self, row):
