@@ -408,13 +408,13 @@ class NYTimes(BasicNewsRecipe):
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
-            br.open('http://www.nytimes.com/auth/login')
+            br.open('https://www.nytimes.com/auth/login')
             br.form = br.forms().next()
             br['userid'] = self.username
             br['password'] = self.password
-            raw = br.submit().read()
-            if 'Please try again' in raw:
-                raise Exception('Your username and password are incorrect')
+            br.submit().read()
+            # if 'Please try again' in raw:
+            #     raise Exception('Your username and password are incorrect')
         return br
 
     cover_tag = 'NY_NYT'
