@@ -17,7 +17,7 @@
    <item>
     <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>Here you can customize the behavior of Calibre by controlling what plugins it uses.</string>
+      <string>Here you can customize the behavior of calibre by controlling what plugins it uses.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

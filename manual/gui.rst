@@ -624,11 +624,11 @@ The Jobs panel shows the number of currently running jobs. Jobs are tasks that r
 Keyboard Shortcuts
 ---------------------
 
-Calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre ebook viewer has its own shortcuts which can be customised by clicking the Preferences button in the viewer.
+calibre has several keyboard shortcuts to save you time and mouse movement. These shortcuts are active in the book list view (when you're not editing the details of a particular book), and most of them affect the title you have selected. The calibre ebook viewer has its own shortcuts which can be customised by clicking the Preferences button in the viewer.
 
 .. note::
 
-    Note: The Calibre keyboard shortcuts do not require a modifier key (Command, Option, Control, etc.), unless specifically noted. You only need to press the letter key, e.g. E to edit.
+    Note: The calibre keyboard shortcuts do not require a modifier key (Command, Option, Control, etc.), unless specifically noted. You only need to press the letter key, e.g. E to edit.
 
 .. list-table:: Keyboard Shortcuts
     :widths: 10 100
