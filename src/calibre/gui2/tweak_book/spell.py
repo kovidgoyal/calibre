@@ -878,6 +878,10 @@ class WordsView(QTableView):
     def currentChanged(self, cur, prev):
         self.current_changed.emit(cur, prev)
 
+    @property
+    def current_word(self):
+        return self.model().word_for_row(self.currentIndex().row())
+
 
 class SpellCheck(Dialog):
 
@@ -1234,6 +1238,8 @@ class SpellCheck(Dialog):
         self.words_model.clear()
 
     def work_done(self, words, spell_map, change_request):
+        row = self.words_view.rowAt(5)
+        before_word = self.words_view.current_word
         self.end_work()
         if not isinstance(words, dict):
             return error_dialog(self, _('Failed to check spelling'), _(
@@ -1242,15 +1248,20 @@ class SpellCheck(Dialog):
         if not self.isVisible():
             return
         self.words_model.set_data(words, spell_map)
+        wrow = self.words_model.row_for_word(before_word)
+        if 0 <= wrow < self.words_model.rowCount():
+            row = wrow
+        if row < 0 or row >= self.words_model.rowCount():
+            row = 0
         col, reverse = self.words_model.sort_on
         self.words_view.horizontalHeader().setSortIndicator(
             col, Qt.DescendingOrder if reverse else Qt.AscendingOrder)
-        self.words_view.highlight_row(0)
         self.update_summary()
         self.initialize_user_dictionaries()
         if self.words_model.rowCount() > 0:
             self.words_view.resizeRowToContents(0)
             self.words_view.verticalHeader().setDefaultSectionSize(self.words_view.rowHeight(0))
+        self.words_view.highlight_row(row)
         if change_request is not None:
             w, new_word = change_request
             if w in self.words_model.words:
