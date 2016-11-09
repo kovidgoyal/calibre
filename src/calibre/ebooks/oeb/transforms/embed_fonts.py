@@ -85,6 +85,7 @@ class EmbedFonts(object):
         self.parser = cssutils.CSSParser(loglevel=logging.CRITICAL, log=logging.getLogger('calibre.css'))
         self.warned = set()
         self.warned2 = set()
+        self.warned3 = set()
 
         for item in oeb.spine:
             if not hasattr(item.data, 'xpath'):
@@ -231,4 +232,11 @@ class EmbedFonts(object):
                 sheet = self.parser.parseString(css, validate=False)
                 page_sheet.data.insertRule(sheet.cssRules[0], len(page_sheet.data.cssRules))
                 return find_font_face_rules(sheet, self.oeb)[0]
-
+            else:
+                try:
+                    w = int(f['weight'])
+                except Exception:
+                    w = 200
+                if w % 100 and ((ff, w) not in self.warned3):
+                    self.warned3.add((ff, w))
+                    self.log.warn('The font %s has a non-standard weight: %s, it will not be embedded' % (ff, w))
