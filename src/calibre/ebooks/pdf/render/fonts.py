@@ -17,6 +17,7 @@ from calibre import as_unicode
 from calibre.ebooks.pdf.render.common import (Array, String, Stream,
     Dictionary, Name)
 from calibre.utils.fonts.sfnt.subset import pdf_subset, UnsupportedFont, NoGlyphs
+from calibre.utils.short_uuid import uuid4
 
 STANDARD_FONTS = {
     'Times-Roman', 'Helvetica', 'Courier', 'Symbol', 'Times-Bold',
@@ -118,9 +119,13 @@ class Font(object):
         self.subset_tag = bytes(re.sub('.', lambda m: chr(int(m.group())+ord('A')),
                                   oct(num))).rjust(6, b'A').decode('ascii')
         self.font_stream = FontStream(metrics.is_otf, compress=compress)
+        try:
+            psname = metrics.postscript_name
+        except Exception:
+            psname = uuid4()
         self.font_descriptor = Dictionary({
             'Type': Name('FontDescriptor'),
-            'FontName': Name('%s+%s'%(self.subset_tag, metrics.postscript_name)),
+            'FontName': Name('%s+%s'%(self.subset_tag, psname)),
             'Flags': 0b100,  # Symbolic font
             'FontBBox': Array(metrics.pdf_bbox),
             'ItalicAngle': metrics.post.italic_angle,
@@ -237,5 +242,3 @@ class FontManager(object):
     def embed_fonts(self, debug):
         for font in self.fonts:
             font.embed(self.objects, debug)
-
-
