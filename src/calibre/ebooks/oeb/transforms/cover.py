@@ -96,7 +96,10 @@ class CoverManager(object):
             from calibre.ebooks.covers import create_cover
             series = series_index = None
             if m.series:
-                series, series_index = unicode(m.series[0]), m.series_index[0]
+                try:
+                    series, series_index = unicode(m.series[0]), m.series_index[0]
+                except IndexError:
+                    pass
             img_data = create_cover(title, authors, series, series_index)
             id, href = self.oeb.manifest.generate('cover',
                     u'cover_image.jpg')

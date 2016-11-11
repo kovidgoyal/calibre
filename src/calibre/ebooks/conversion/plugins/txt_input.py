@@ -77,7 +77,7 @@ class TXTInput(InputFormatPlugin):
         from calibre.ebooks.chardet import detect
         from calibre.utils.zipfile import ZipFile
         from calibre.ebooks.txt.processor import (convert_basic,
-                convert_markdown, separate_paragraphs_single_line,
+                convert_markdown_with_metadata, separate_paragraphs_single_line,
                 separate_paragraphs_print_formatted, preserve_spaces,
                 detect_paragraph_type, detect_formatting_type,
                 normalize_line_endings, convert_textile, remove_indents,
@@ -195,10 +195,11 @@ class TXTInput(InputFormatPlugin):
 
         # Process the text using the appropriate text processor.
         html = ''
+        input_mi = None
         if options.formatting_type == 'markdown':
             log.debug('Running text through markdown conversion...')
             try:
-                html = convert_markdown(txt, extensions=[x.strip() for x in options.markdown_extensions.split(',') if x.strip()])
+                input_mi, html = convert_markdown_with_metadata(txt, extensions=[x.strip() for x in options.markdown_extensions.split(',') if x.strip()])
             except RuntimeError:
                 raise ValueError('This txt file has malformed markup, it cannot be'
                     ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
@@ -236,11 +237,12 @@ class TXTInput(InputFormatPlugin):
         os.remove(htmlfile.name)
 
         # Set metadata from file.
-        from calibre.customize.ui import get_file_type_metadata
+        if input_mi is None:
+            from calibre.customize.ui import get_file_type_metadata
+            input_mi = get_file_type_metadata(stream, file_ext)
         from calibre.ebooks.oeb.transforms.metadata import meta_info_to_oeb_metadata
-        mi = get_file_type_metadata(stream, file_ext)
-        meta_info_to_oeb_metadata(mi, oeb.metadata, log)
-        self.html_postprocess_title = mi.title
+        meta_info_to_oeb_metadata(input_mi, oeb.metadata, log)
+        self.html_postprocess_title = input_mi.title
 
         return oeb
 
@@ -250,4 +252,3 @@ class TXTInput(InputFormatPlugin):
                 for title in item.data.xpath('//*[local-name()="title"]'):
                     if title.text == _('Unknown'):
                         title.text = self.html_postprocess_title
-

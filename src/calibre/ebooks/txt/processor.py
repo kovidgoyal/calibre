@@ -99,12 +99,55 @@ def convert_basic(txt, title='', epub_split_size_kb=0):
     return HTML_TEMPLATE % (title, u'\n'.join(lines))
 
 
-def convert_markdown(txt, title='', extensions=('footnotes', 'tables', 'toc')):
+DEFAULT_MD_EXTENSIONS = ('footnotes', 'tables', 'toc')
+
+
+def convert_markdown(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
     from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
     from calibre.ebooks.markdown import Markdown
     extensions = ['calibre.ebooks.markdown.extensions.' + x.lower() for x in extensions if x.lower() in MD_EXTENSIONS]
     md = Markdown(extensions=extensions)
     return HTML_TEMPLATE % (title, md.convert(txt))
+
+
+def convert_markdown_with_metadata(txt, title='', extensions=DEFAULT_MD_EXTENSIONS):
+    from calibre.ebooks.conversion.plugins.txt_input import MD_EXTENSIONS
+    from calibre.ebooks.markdown import Markdown
+    from calibre.ebooks.metadata.book.base import Metadata
+    from calibre.utils.date import parse_only_date
+    from calibre.db.write import get_series_values
+    extensions = ['calibre.ebooks.markdown.extensions.' + x.lower() for x in extensions if x.lower() in MD_EXTENSIONS]
+    meta_ext = 'calibre.ebooks.markdown.extensions.meta'
+    if meta_ext not in extensions:
+        extensions.append(meta_ext)
+    md = Markdown(extensions=extensions)
+    html = md.convert(txt)
+    mi = Metadata(title or _('Unknown'))
+    m = md.Meta
+    for k, v in {'date':'pubdate', 'summary':'comments'}.iteritems():
+        if v not in m and k in m:
+            m[v] = m.pop(k)
+    for k in 'title authors series tags pubdate comments publisher rating'.split():
+        val = m.get(k)
+        if val:
+            mf = mi.metadata_for_field(k)
+            if not mf.get('is_multiple'):
+                val = val[0]
+            if k == 'series':
+                val, si = get_series_values(val)
+                mi.series_index = 1 if si is None else si
+            if k == 'rating':
+                try:
+                    val = max(0, min(int(float(val)), 10))
+                except Exception:
+                    continue
+            if mf.get('datatype') == 'datetime':
+                try:
+                    val = parse_only_date(val, assume_utc=False)
+                except Exception:
+                    continue
+            setattr(mi, k, val)
+    return mi, HTML_TEMPLATE % (mi.title, html)
 
 
 def convert_textile(txt, title=''):
