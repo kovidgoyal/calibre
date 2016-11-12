@@ -54,7 +54,7 @@ class Mediapart(BasicNewsRecipe):
 
         soup = self.index_to_soup(
             'https://www.mediapart.fr/journal/fil-dactualites')
-        page = soup.find('div', {'class': 'page-content bust'})
+        page = soup.find('div', {'class': 'global-wrapper'})
         fils = page.find('ul', {'class': 'post-list universe-journal'})
 
         for article in fils.findAll('li'):
@@ -92,13 +92,14 @@ class Mediapart(BasicNewsRecipe):
                 summary = {
                     'title': self.tag_to_string(title).strip(),
                     'author': ', '.join(authors),
-                    'url': url,
+                    'url': 'https://www.mediapart.fr' + url
                 }
-                {
-                    "Brève": breves,
-                    "Lien": liens,
-                    "Confidentiel": confidentiels,
-                }.get(article_type).append(summary)
+                if article_type == 'Lien':
+                    liens.append(summary)
+                if article_type == 'Confidentiel':
+                    confidentiels.append(summary)
+                if article_type not in ['Lien', 'Confidentiel']:
+                    breves.append(summary)
             except:
                 pass
 
@@ -149,7 +150,7 @@ class Mediapart(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         if self.username is not None and self.password is not None:
             br.open('https://www.mediapart.fr/login')
-            br.select_form(nr=1)
+            br.select_form(nr=2)
             br['name'] = self.username
             br['password'] = self.password
             br.submit()
