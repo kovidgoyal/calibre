@@ -14,7 +14,7 @@ from threading import Thread
 from Queue import Queue, Empty
 
 from calibre import browser
-from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, urlunquote
 from calibre.ebooks.oeb.polish.container import OEB_FONTS
 from calibre.ebooks.oeb.polish.replace import remove_links_to
 from calibre.ebooks.oeb.polish.cover import get_raster_cover_name
@@ -27,6 +27,12 @@ class BadLink(BaseError):
     HELP = _('The resource pointed to by this link does not exist. You should'
              ' either fix, or remove the link.')
     level = WARN
+
+
+class InvalidCharInLink(BadLink):
+
+    HELP = _('Windows computers do not allow the : character in filenames. For maximum'
+             ' compatibility it is best to not use these in filenames/links to files.')
 
 
 class CaseMismatch(BadLink):
@@ -342,6 +348,8 @@ def check_links(container):
                         a(FileLink(_('The link %s is a file:// URL') % fl(href), name, lnum, col))
                     elif purl.path and purl.path.startswith('/') and purl.scheme in {'', 'file'}:
                         a(LocalLink(_('The link %s points to a file outside the book') % fl(href), name, lnum, col))
+                    elif purl.path and purl.scheme in {'', 'file'} and ':' in urlunquote(purl.path):
+                        a(InvalidCharInLink(_('The link %s contains a : character, this will cause errors on windows computers') % fl(href), name, lnum, col))
 
     spine_docs = {name for name, linear in container.spine_names}
     spine_styles = {tname for name in spine_docs for tname in links_map[name] if container.mime_map.get(tname, None) in OEB_STYLES}
