@@ -104,10 +104,9 @@ def href_to_name(href, root, base=None):
     if purl.scheme or not purl.path:
         return None
     href = urlunquote(purl.path)
-    if href.startswith('/') or (len(href) > 1 and href[1] == ':' and 'a' <= href[0].lower() <= 'z'):
-        # For paths that start with drive letter os.path.join(base, href)
-        # will discard base and return href on windows, so we assume that
-        # such paths are also absolute paths, on all platforms.
+    if iswindows and ':' in href:
+        # path manipulations on windows fail for paths with : in them, so we
+        # assume all such paths are invalid/absolute paths.
         return None
     fullpath = os.path.join(base, *href.split('/'))
     return abspath_to_name(fullpath, root)
