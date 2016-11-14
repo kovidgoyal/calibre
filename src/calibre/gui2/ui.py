@@ -641,6 +641,8 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 default_prefs = olddb.prefs
         except:
             olddb = None
+        if copy_structure and olddb is not None and default_prefs is not None:
+            default_prefs['field_metadata'] = olddb.new_api.field_metadata.all_metadata()
         try:
             db = LibraryDatabase(newloc, default_prefs=default_prefs)
         except apsw.Error:
