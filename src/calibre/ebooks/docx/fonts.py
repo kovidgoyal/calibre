@@ -29,6 +29,27 @@ def get_variant(bold=False, italic=False):
             (True, False):'Bold', (True, True):'BoldItalic'}[(bold, italic)]
 
 
+def find_fonts_matching(fonts, style='normal', stretch='normal'):
+    for font in fonts:
+        if font['font-style'] == style and font['font-stretch'] == stretch:
+            yield font
+
+
+def weight_key(font):
+    w = font['font-weight']
+    try:
+        return abs(int(w) - 400)
+    except Exception:
+        return abs({'normal': 400, 'bold': 700}.get(w, 1000000) - 400)
+
+
+def get_best_font(fonts, style, stretch):
+    try:
+        return sorted(find_fonts_matching(fonts, style, stretch), key=weight_key)[0]
+    except Exception:
+        pass
+
+
 class Family(object):
 
     def __init__(self, elem, embed_relationships, XPath, get):
@@ -93,7 +114,7 @@ class Fonts(object):
         name = f.name if variant in f.embedded else f.family_name
         return '"%s", %s' % (name.replace('"', ''), f.css_generic_family)
 
-    def embed_fonts(self, dest_dir, docx):
+    def embed_fonts(self, dest_dir, docx, embedded_families=None):
         defs = []
         dest_dir = os.path.join(dest_dir, 'fonts')
         for name, variant in self.used:
@@ -111,6 +132,8 @@ class Fonts(object):
                     d = ['%s: %s' % (k, v) for k, v in d.iteritems()]
                     d = ';\n\t'.join(d)
                     defs.append('@font-face {\n\t%s\n}\n' % d)
+                    if embedded_families is not None:
+                        embedded_families.add(name)
         return '\n'.join(defs)
 
     def write(self, name, dest_dir, docx, variant):
@@ -133,3 +156,21 @@ class Fonts(object):
 
         return fname
 
+    def modify_font_properties(self, css, embedded_families):
+        ff = css.get('font-family', '')
+        m = re.match(r'"([^"]+)"', ff.strip())
+        if m is not None and 'font-weight' not in css:
+            ff = m.group(1)
+            if ff and ff not in embedded_families:
+                if not has_system_fonts(ff):
+                    try:
+                        fonts = font_scanner.alt_fonts_for_family(ff)
+                    except NoFonts:
+                        return
+                    font = get_best_font(fonts, css.get('font-style', 'normal'), css.get('font-stretch', 'normal'))
+                    if font is not None:
+                        rest = ', '.join(css['font-family'].split(',')[1:])
+                        if rest:
+                            rest = ', ' + rest
+                        css['font-family'] = '"%s"' % font['font-family'].replace('"', '') + rest
+                        css['font-weight'] = font['font-weight']
