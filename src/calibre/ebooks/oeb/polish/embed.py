@@ -37,6 +37,22 @@ def matching_rule(font, rules):
                 return rule
 
 
+def format_failed_match_report(fonts, font_family, font, report):
+    msg = _('Failed to find a font in the "%s" family matching the CSS font specification:') % font_family
+    msg += '\n\n* font-weight: %s' % font['font-weight']
+    msg += '\n* font-style: %s' % font['font-style']
+    msg += '\n* font-stretch: %s' % font['font-stretch']
+    msg += '\n\n' + _('Available fonts in the family are:') + '\n'
+    for f in fonts:
+        msg += '\n' + f['path']
+        msg += '\n\n* font-weight: %s' % f.get('font-weight', '400').strip()
+        msg += '\n* font-style: %s' % f.get('font-style', 'normal').strip()
+        msg += '\n* font-stretch: %s' % f.get('font-stretch', 'normal').strip()
+        msg += '\n\n'
+    report(msg)
+    report('')
+
+
 def embed_font(container, font, all_font_rules, report, warned):
     rule = matching_rule(font, all_font_rules)
     ff = font['font-family']
@@ -49,9 +65,12 @@ def embed_font(container, font, all_font_rules, report, warned):
         try:
             fonts = font_scanner.fonts_for_family(ff)
         except NoFonts:
-            report(_('Failed to find fonts for family: %s, not embedding') % ff)
-            warned.add(ff)
-            return
+            try:
+                fonts = font_scanner.alt_fonts_for_family(ff)
+            except NoFonts:
+                report(_('Failed to find fonts for family: %s, not embedding') % ff)
+                warned.add(ff)
+                return
         wt = int(font.get('font-weight', '400'))
         for f in fonts:
             if f['weight'] == wt and f['font-style'] == font.get('font-style', 'normal') and f['font-stretch'] == font.get('font-stretch', 'normal'):
@@ -69,11 +88,10 @@ def embed_font(container, font, all_font_rules, report, warned):
                 rule['src'] = 'url(%s)' % href
                 rule['name'] = name
                 return rule
-        msg = _('Failed to find font matching: family: %(family)s; weight: %(weight)s; style: %(style)s; stretch: %(stretch)s') % dict(
-            family=ff, weight=font['font-weight'], style=font['font-style'], stretch=font['font-stretch'])
-        if msg not in warned:
-            warned.add(msg)
-            report(msg)
+        wkey = ('spec-mismatch-', ff, wt, font['font-style'], font['font-stretch'])
+        if wkey not in warned:
+            warned.add(wkey)
+            format_failed_match_report(fonts, ff, font, report)
     else:
         name = rule['src']
         href = container.name_to_href(name)
@@ -159,4 +177,3 @@ if __name__ == '__main__':
         prints(msg)
     print()
     prints('Output written to:', outbook)
-
