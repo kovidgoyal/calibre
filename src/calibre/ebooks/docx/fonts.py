@@ -167,10 +167,11 @@ class Fonts(object):
                         fonts = font_scanner.alt_fonts_for_family(ff)
                     except NoFonts:
                         return
-                    font = get_best_font(fonts, css.get('font-style', 'normal'), css.get('font-stretch', 'normal'))
-                    if font is not None:
-                        rest = ', '.join(css['font-family'].split(',')[1:])
-                        if rest:
-                            rest = ', ' + rest
-                        css['font-family'] = '"%s"' % font['font-family'].replace('"', '') + rest
-                        css['font-weight'] = font['font-weight']
+                    if fonts:
+                        font = get_best_font(fonts, css.get('font-style', 'normal'), css.get('font-stretch', 'normal'))
+                        if font is not None:
+                            rest = ', '.join(css['font-family'].split(',')[1:])
+                            if rest:
+                                rest = ', ' + rest
+                            css['font-family'] = '"%s"' % font['font-family'].replace('"', '') + rest
+                            css['font-weight'] = font['font-weight']
