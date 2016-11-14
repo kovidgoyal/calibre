@@ -7,11 +7,12 @@ __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, textwrap
+from io import BytesIO
 
 from PyQt5.Qt import (
     QSplitter, QVBoxLayout, QTableView, QWidget, QLabel, QAbstractTableModel,
     Qt, QTimer, QPushButton, pyqtSignal, QFormLayout, QLineEdit, QIcon, QSize,
-    QHBoxLayout, QTextEdit)
+    QHBoxLayout, QTextEdit, QApplication, QMessageBox)
 
 from calibre.ebooks.oeb.polish.container import get_container
 from calibre.ebooks.oeb.polish.fonts import font_family_data, change_font
@@ -20,6 +21,26 @@ from calibre.gui2.tweak_book import current_container, set_current_container
 from calibre.gui2.tweak_book.widgets import Dialog, BusyCursor
 from calibre.utils.icu import primary_sort_key as sort_key
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
+from calibre.utils.fonts.metadata import FontMetadata, UnsupportedFont
+
+
+def show_font_face_rule_for_font_file(file_data, added_name, parent=None):
+    try:
+        fm = FontMetadata(BytesIO(file_data)).to_dict()
+    except UnsupportedFont:
+        return
+    pp = _('Change this to the relative path to: %s') % added_name
+    rule = '''@font-face {{
+  src: url({pp});
+  font-family: "{ff}";
+  font-weight: {w};
+  font-style: {sy};
+  font-stretch: {st};
+  }}'''.format(pp=pp, ff=fm['font-family'], w=fm['font-weight'], sy=fm['font-style'], st=fm['font-stretch'])
+    QApplication.clipboard().setText(rule)
+    QMessageBox.information(parent, _('Font file added'), _(
+        'The font file <b>{}</b> has been added. The text for the CSS @font-face rule for this file has been copied'
+        ' to the clipboard. You should paste it into whichever css file you want to add this font to.').format(added_name))
 
 
 class EmbeddingData(Dialog):

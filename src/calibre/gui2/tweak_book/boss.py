@@ -435,14 +435,17 @@ class Boss(QObject):
         d = NewFileDialog(self.gui)
         if d.exec_() != d.Accepted:
             return
-        self.do_add_file(d.file_name, d.file_data, using_template=d.using_template, edit_file=True)
+        added_name = self.do_add_file(d.file_name, d.file_data, using_template=d.using_template, edit_file=True)
+        if d.file_name.rpartition('.')[2].lower() in ('ttf', 'otf', 'woff'):
+            from calibre.gui2.tweak_book.manage_fonts import show_font_face_rule_for_font_file
+            show_font_face_rule_for_font_file(d.file_data, added_name, self.gui)
 
     def do_add_file(self, file_name, data, using_template=False, edit_file=False):
         self.add_savepoint(_('Before: Add file %s') % self.gui.elided_text(file_name))
         c = current_container()
         adata = data.replace(b'%CURSOR%', b'') if using_template else data
         try:
-            c.add_file(file_name, adata)
+            added_name = c.add_file(file_name, adata)
         except:
             self.rewind_savepoint()
             raise
@@ -459,6 +462,7 @@ class Boss(QObject):
                 self.edit_file(file_name, syntax)
         self.set_modified()
         completion_worker().clear_caches('names')
+        return added_name
 
     def add_files(self):
         if not self.ensure_book(_('You must first open a book to tweak, before trying to create new files in it.')):
