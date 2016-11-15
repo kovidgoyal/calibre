@@ -37,20 +37,126 @@ def matching_rule(font, rules):
                 return rule
 
 
-def format_failed_match_report(fonts, font_family, font, report):
-    msg = _('Failed to find a font in the "%s" family matching the CSS font specification:') % font_family
-    msg += '\n\n* font-weight: %s' % font['font-weight']
-    msg += '\n* font-style: %s' % font['font-style']
-    msg += '\n* font-stretch: %s' % font['font-stretch']
-    msg += '\n\n' + _('Available fonts in the family are:') + '\n'
-    for f in fonts:
-        msg += '\n' + f['path']
-        msg += '\n\n* font-weight: %s' % f.get('font-weight', '400').strip()
-        msg += '\n* font-style: %s' % f.get('font-style', 'normal').strip()
-        msg += '\n* font-stretch: %s' % f.get('font-stretch', 'normal').strip()
-        msg += '\n\n'
+def format_fallback_match_report(matched_font, font_family, css_font, report):
+    msg = _('Could not find a font in the "%s" family exactly matching the CSS font specification,'
+            ' will embed a fallback font instead. CSS font specification:') % font_family
+    msg += '\n\n* font-weight: %s' % css_font.get('font-weight', 'normal')
+    msg += '\n* font-style: %s' % css_font.get('font-style', 'normal')
+    msg += '\n* font-stretch: %s' % css_font.get('font-stretch', 'normal')
+    msg += '\n\n' + _('Matched font specification:')
+    msg += '\n' + matched_font['path']
+    msg += '\n\n* font-weight: %s' % matched_font.get('font-weight', 'normal').strip()
+    msg += '\n* font-style: %s' % matched_font.get('font-style', 'normal').strip()
+    msg += '\n* font-stretch: %s' % matched_font.get('font-stretch', 'normal').strip()
     report(msg)
     report('')
+
+
+def stretch_as_number(val):
+    try:
+        return int(val)
+    except Exception:
+        pass
+    try:
+        return ('ultra-condensed', 'extra-condensed', 'condensed', 'semi-condensed',
+         'normal', 'semi-expanded', 'expanded', 'extra-expanded',
+         'ultra-expanded').index(val)
+    except Exception:
+        return 4  # normal
+
+
+def filter_by_stretch(fonts, val):
+    val = stretch_as_number(val)
+    stretch_map = [stretch_as_number(f['font-stretch']) for f in fonts]
+    equal = [f for i, f in enumerate(fonts) if stretch_map[i] == val]
+    if equal:
+        return equal
+    condensed = [i for i in range(len(fonts)) if stretch_map[i] <= 4]
+    expanded = [i for i in range(len(fonts)) if stretch_map[i] > 4]
+    if val <= 4:
+        candidates = condensed or expanded
+    else:
+        candidates = expanded or condensed
+    distance_map = [abs(stretch_map[i] - val) for i in candidates]
+    min_dist = min(distance_map)
+    return [fonts[i] for i in candidates if distance_map[i] == min_dist]
+
+
+def filter_by_style(fonts, val):
+    order = {
+        'normal':('normal', 'oblique', 'italic'),
+        'italic':('italic', 'oblique', 'normal'),
+        'oblique':('oblique', 'italic', 'normal'),
+    }
+    if val not in order:
+        val = 'normal'
+    for q in order[val]:
+        ans = [f for f in fonts if f['font-style'] == q]
+        if ans:
+            return ans
+    return fonts
+
+
+def weight_as_number(wt):
+    try:
+        return int(wt)
+    except Exception:
+        return {'normal':400, 'bold':700}.get(wt, 400)
+
+
+def filter_by_weight(fonts, val):
+    val = weight_as_number(val)
+    weight_map = [weight_as_number(f['font-weight']) for f in fonts]
+    equal = [f for i, f in enumerate(fonts) if weight_map[i] == val]
+    if equal:
+        return equal
+    rmap = {w:i for i, w in enumerate(weight_map)}
+    below = [i for i in range(len(fonts)) if weight_map[i] < val]
+    above = [i for i in range(len(fonts)) if weight_map[i] > val]
+    if val < 400:
+        candidates = below or above
+    elif val > 500:
+        candidates = above or below
+    elif val == 400:
+        if 500 in rmap:
+            return [fonts[rmap[500]]]
+        candidates = below or above
+    else:
+        if 400 in rmap:
+            return [fonts[rmap[400]]]
+        candidates = below or above
+    distance_map = [abs(weight_map[i] - val) for i in candidates]
+    min_dist = min(distance_map)
+    return [fonts[i] for i in candidates if distance_map[i] == min_dist]
+
+
+def find_matching_font(fonts, weight, style, stretch):
+    # See https://www.w3.org/TR/css-fonts-3/#font-style-matching
+    # We dont implement the unicode character range testing
+    # We also dont implement bolder, lighter
+    for f, q in ((filter_by_stretch, stretch), (filter_by_style, style), (filter_by_weight, weight)):
+        fonts = f(fonts, q)
+        if len(fonts) == 1:
+            return fonts[0]
+    return fonts[0]
+
+
+def do_embed(container, font, report):
+    from calibre.utils.fonts.scanner import font_scanner
+    report('Embedding font %s from %s' % (font['full_name'], font['path']))
+    data = font_scanner.get_font_data(font)
+    fname = font['full_name']
+    ext = 'otf' if font['is_otf'] else 'ttf'
+    fname = ascii_filename(fname).replace(' ', '-').replace('(', '').replace(')', '')
+    item = container.generate_item('fonts/%s.%s'%(fname, ext), id_prefix='font')
+    name = container.href_to_name(item.get('href'), container.opf_name)
+    with container.open(name, 'wb') as out:
+        out.write(data)
+    href = container.name_to_href(name)
+    rule = {k:font.get(k, v) for k, v in props.iteritems()}
+    rule['src'] = 'url(%s)' % href
+    rule['name'] = name
+    return rule
 
 
 def embed_font(container, font, all_font_rules, report, warned):
@@ -71,27 +177,16 @@ def embed_font(container, font, all_font_rules, report, warned):
                 report(_('Failed to find fonts for family: %s, not embedding') % ff)
                 warned.add(ff)
                 return
-        wt = int(font.get('font-weight', '400'))
+        wt = weight_as_number(font.get('font-weight'))
         for f in fonts:
             if f['weight'] == wt and f['font-style'] == font.get('font-style', 'normal') and f['font-stretch'] == font.get('font-stretch', 'normal'):
-                report('Embedding font %s from %s' % (f['full_name'], f['path']))
-                data = font_scanner.get_font_data(f)
-                fname = f['full_name']
-                ext = 'otf' if f['is_otf'] else 'ttf'
-                fname = ascii_filename(fname).replace(' ', '-').replace('(', '').replace(')', '')
-                item = container.generate_item('fonts/%s.%s'%(fname, ext), id_prefix='font')
-                name = container.href_to_name(item.get('href'), container.opf_name)
-                with container.open(name, 'wb') as out:
-                    out.write(data)
-                href = container.name_to_href(name)
-                rule = {k:f.get(k, v) for k, v in props.iteritems()}
-                rule['src'] = 'url(%s)' % href
-                rule['name'] = name
-                return rule
-        wkey = ('spec-mismatch-', ff, wt, font['font-style'], font['font-stretch'])
+                return do_embed(container, f, report)
+        f = find_matching_font(fonts, font.get('font-weight', '400'), font.get('font-style', 'normal'), font.get('font-stretch', 'normal'))
+        wkey = ('fallback-font', ff, wt, font.get('font-style'), font.get('font-stretch'))
         if wkey not in warned:
             warned.add(wkey)
-            format_failed_match_report(fonts, ff, font, report)
+            format_fallback_match_report(f, ff, font, report)
+        return do_embed(container, f, report)
     else:
         name = rule['src']
         href = container.name_to_href(name)
