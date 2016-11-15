@@ -61,31 +61,27 @@ class ForeignAffairsRecipe(BasicNewsRecipe):
         self.title = "Foreign Affairs ({})".format(date)
         self.timefmt = u' [%s]' % date
 
-        sec_start = soup.findAll(
-            'section', attrs={'class': re.compile(r'\bmagazine-list\b')})
-        for sec in sec_start:
+        for section in soup.findAll(attrs={'class':lambda x: x and 'magazine-list' in x.split()}):
             articles = []
-            section = self.tag_to_string(sec.find('h1'))
-            for article_block in sec.findAll('article'):
-                if article_block.find('a') is not None:
-                    title = self.tag_to_string(article_block.div.a.h2)
-                    url = article_block.div.a['href']
-                    atr = article_block.findNext(
-                        'p', attrs={'class': 'author'})
-                    if atr is not None:
-                        author = self.tag_to_string(atr)
-                    else:
-                        author = ''
-                    desc = article_block.findNext(
-                        'div', attrs={'class': 'deck'})
+            section_title = self.tag_to_string(section.find('h1'))
+            for h2 in section.findAll('h2'):
+                a = h2.parent
+                if a.get('href'):
+                    title = self.tag_to_string(h2)
+                    url = a['href']
+                    atr = a.findNextSibling(attrs={'class':'author'})
+                    author = self.tag_to_string(atr) if atr else ''
+                    desc = a.findNextSibling(attrs={'class': 'deck'})
                     if desc is not None:
                         description = self.tag_to_string(desc)
                     else:
                         description = ''
-                    articles.append({'title': title, 'date': None, 'url': url,
+                    articles.append({'title': title, 'url': url,
                                      'description': description, 'author': author})
+                    self.log(title)
+                    self.log('\t' + url)
             if articles:
-                answer.append((section, articles))
+                answer.append((section_title, articles))
         return answer
 
     def clean_fa_html(self, root):
