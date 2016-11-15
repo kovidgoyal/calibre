@@ -14,6 +14,7 @@ from calibre.constants import iswindows
 from calibre.ebooks.oeb.base import OEB_STYLES, OEB_DOCS
 from calibre.ebooks.oeb.polish.cascade import iterrules, resolve_styles, DEFAULTS
 from calibre.ebooks.oeb.polish.css import remove_property_value
+from calibre.ebooks.oeb.polish.embed import find_matching_font
 from calibre.ebooks.oeb.polish.container import ContainerBase, href_to_name
 from calibre.ebooks.oeb.polish.stats import StatsCollector, font_keys, normalize_font_properties, prepare_font_rule
 from calibre.ebooks.oeb.polish.tests.base import BaseTest
@@ -213,3 +214,19 @@ class CascadeTest(BaseTest):
         for prop in style.getProperties(all=True):
             remove_property_value(prop, lambda val:'png' in val.cssText)
         self.assertEqual('background: black fixed', style.cssText)
+
+    def test_fallback_font_matching(self):
+        def cf(id, weight='normal', style='normal', stretch='normal'):
+            return {'id':id, 'font-weight':weight, 'font-style':style, 'font-stretch':stretch}
+        fonts = [cf(1, '500', 'oblique', 'condensed'), cf(2, '300', 'italic', 'normal')]
+        self.assertEqual(find_matching_font(fonts)['id'], 2)
+        fonts = [cf(1, '500', 'oblique', 'normal'), cf(2, '300', 'italic', 'normal')]
+        self.assertEqual(find_matching_font(fonts)['id'], 1)
+        fonts = [cf(1, '500', 'oblique', 'normal'), cf(2, '200', 'oblique', 'normal')]
+        self.assertEqual(find_matching_font(fonts)['id'], 1)
+        fonts = [cf(1, '600', 'oblique', 'normal'), cf(2, '100', 'oblique', 'normal')]
+        self.assertEqual(find_matching_font(fonts)['id'], 2)
+        fonts = [cf(1, '600', 'oblique', 'normal'), cf(2, '100', 'oblique', 'normal')]
+        self.assertEqual(find_matching_font(fonts, '500')['id'], 2)
+        fonts = [cf(1, '600', 'oblique', 'normal'), cf(2, '100', 'oblique', 'normal')]
+        self.assertEqual(find_matching_font(fonts, '600')['id'], 1)

@@ -77,8 +77,8 @@ def filter_by_stretch(fonts, val):
         candidates = condensed or expanded
     else:
         candidates = expanded or condensed
-    distance_map = [abs(stretch_map[i] - val) for i in candidates]
-    min_dist = min(distance_map)
+    distance_map = {i:abs(stretch_map[i] - val) for i in candidates}
+    min_dist = min(distance_map.itervalues())
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
@@ -125,12 +125,12 @@ def filter_by_weight(fonts, val):
         if 400 in rmap:
             return [fonts[rmap[400]]]
         candidates = below or above
-    distance_map = [abs(weight_map[i] - val) for i in candidates]
-    min_dist = min(distance_map)
+    distance_map = {i:abs(weight_map[i] - val) for i in candidates}
+    min_dist = min(distance_map.itervalues())
     return [fonts[i] for i in candidates if distance_map[i] == min_dist]
 
 
-def find_matching_font(fonts, weight, style, stretch):
+def find_matching_font(fonts, weight='normal', style='normal', stretch='normal'):
     # See https://www.w3.org/TR/css-fonts-3/#font-style-matching
     # We dont implement the unicode character range testing
     # We also dont implement bolder, lighter
