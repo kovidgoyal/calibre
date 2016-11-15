@@ -129,10 +129,7 @@ class AllFonts(QAbstractTableModel):
                 try:
                     return font_scanner.fonts_for_family(name)
                 except NoFonts:
-                    try:
-                        return font_scanner.alt_fonts_for_family(name)
-                    except NoFonts:
-                        return []
+                    return []
             else:
                 return name
 

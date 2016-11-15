@@ -114,7 +114,7 @@ class Fonts(object):
         name = f.name if variant in f.embedded else f.family_name
         return '"%s", %s' % (name.replace('"', ''), f.css_generic_family)
 
-    def embed_fonts(self, dest_dir, docx, embedded_families=None):
+    def embed_fonts(self, dest_dir, docx):
         defs = []
         dest_dir = os.path.join(dest_dir, 'fonts')
         for name, variant in self.used:
@@ -132,8 +132,6 @@ class Fonts(object):
                     d = ['%s: %s' % (k, v) for k, v in d.iteritems()]
                     d = ';\n\t'.join(d)
                     defs.append('@font-face {\n\t%s\n}\n' % d)
-                    if embedded_families is not None:
-                        embedded_families.add(name)
         return '\n'.join(defs)
 
     def write(self, name, dest_dir, docx, variant):
@@ -155,23 +153,3 @@ class Fonts(object):
             dest.write(raw[32:])
 
         return fname
-
-    def modify_font_properties(self, css, embedded_families):
-        ff = css.get('font-family', '')
-        m = re.match(r'"([^"]+)"', ff.strip())
-        if m is not None and 'font-weight' not in css:
-            ff = m.group(1)
-            if ff and ff not in embedded_families:
-                if not has_system_fonts(ff):
-                    try:
-                        fonts = font_scanner.alt_fonts_for_family(ff)
-                    except NoFonts:
-                        return
-                    if fonts:
-                        font = get_best_font(fonts, css.get('font-style', 'normal'), css.get('font-stretch', 'normal'))
-                        if font is not None:
-                            rest = ', '.join(css['font-family'].split(',')[1:])
-                            if rest:
-                                rest = ', ' + rest
-                            css['font-family'] = '"%s"' % font['font-family'].replace('"', '') + rest
-                            css['font-weight'] = font['font-weight']

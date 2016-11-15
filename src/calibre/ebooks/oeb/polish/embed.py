@@ -171,12 +171,9 @@ def embed_font(container, font, all_font_rules, report, warned):
         try:
             fonts = font_scanner.fonts_for_family(ff)
         except NoFonts:
-            try:
-                fonts = font_scanner.alt_fonts_for_family(ff)
-            except NoFonts:
-                report(_('Failed to find fonts for family: %s, not embedding') % ff)
-                warned.add(ff)
-                return
+            report(_('Failed to find fonts for family: %s, not embedding') % ff)
+            warned.add(ff)
+            return
         wt = weight_as_number(font.get('font-weight'))
         for f in fonts:
             if f['weight'] == wt and f['font-style'] == font.get('font-style', 'normal') and f['font-stretch'] == font.get('font-stretch', 'normal'):

@@ -192,7 +192,7 @@ def build_families(cached_fonts, folders, family_attr='font-family'):
 
 class FontScanner(Thread):
 
-    CACHE_VERSION = 1
+    CACHE_VERSION = 2
 
     def __init__(self, folders=[], allowed_extensions={'ttf', 'otf'}):
         Thread.__init__(self)
@@ -219,17 +219,6 @@ class FontScanner(Thread):
         self.join()
         try:
             return self.font_family_map[icu_lower(family)]
-        except KeyError:
-            raise NoFonts('No fonts found for the family: %r'%family)
-
-    def alt_fonts_for_family(self, family):
-        ''' Same as fonts_for_family() except that it uses the family name key
-        instead of the preferred_family_name key. This is needed because some
-        software, like Word uses the family name to refer to fonts instead of
-        the preferred family name. '''
-        self.join()
-        try:
-            return self.alt_font_family_map[icu_lower(family)]
         except KeyError:
             raise NoFonts('No fonts found for the family: %r'%family)
 
@@ -371,7 +360,6 @@ class FontScanner(Thread):
 
     def build_families(self):
         self.font_family_map, self.font_families = build_families(self.cached_fonts, self.folders)
-        self.alt_font_family_map = build_families(self.cached_fonts, self.folders, 'family_name')[0]
 
     def write_cache(self):
         with self.cache:

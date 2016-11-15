@@ -437,8 +437,7 @@ class Styles(object):
         return self.classes.get(h, (None, None))[0]
 
     def generate_css(self, dest_dir, docx, notes_nopb, nosupsub):
-        embedded_families = set()
-        ef = self.fonts.embed_fonts(dest_dir, docx, embedded_families)
+        ef = self.fonts.embed_fonts(dest_dir, docx)
 
         s = '''\
             body { font-family: %s; font-size: %s; color: %s }
@@ -488,7 +487,6 @@ class Styles(object):
 
         ans = []
         for (cls, css) in sorted(self.classes.itervalues(), key=lambda x:x[0]):
-            self.fonts.modify_font_properties(css, embedded_families)
             b = ('\t%s: %s;' % (k, v) for k, v in css.iteritems())
             b = '\n'.join(b)
             ans.append('.%s {\n%s\n}\n' % (cls, b.rstrip(';')))

@@ -213,12 +213,9 @@ class EmbedFonts(object):
         try:
             fonts = font_scanner.fonts_for_family(ff)
         except NoFonts:
-            try:
-                fonts = font_scanner.alt_fonts_for_family(ff)
-            except NoFonts:
-                self.log.warn('Failed to find fonts for family:', ff, 'not embedding')
-                self.warned.add(ff)
-                return
+            self.log.warn('Failed to find fonts for family:', ff, 'not embedding')
+            self.warned.add(ff)
+            return
         weight = weight_as_number(style.get('font-weight', '400'))
 
         def do_embed(f):

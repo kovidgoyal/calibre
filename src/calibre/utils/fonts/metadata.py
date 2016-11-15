@@ -40,8 +40,7 @@ class FontMetadata(object):
         self.read_characteristics(f)
 
         f.seek(0)
-        self.font_family = (self.names.wws_family_name or
-                self.names.preferred_family_name or self.names.family_name)
+        self.font_family = self.names.family_name
         wt = self.characteristics.weight
         if wt == 400:
             wt = 'normal'
