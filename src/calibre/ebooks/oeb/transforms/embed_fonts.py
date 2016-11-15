@@ -19,9 +19,18 @@ from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
 
 
-def used_font(style, embedded_fonts):
-    ff = [unicode(f) for f in style.get('font-family', []) if unicode(f).lower() not in {
+def font_families_from_style(style):
+    return [unicode(f) for f in style.get('font-family', []) if unicode(f).lower() not in {
         'serif', 'sansserif', 'sans-serif', 'fantasy', 'cursive', 'monospace'}]
+
+
+def font_already_embedded(style, newly_embedded_fonts):
+    ff = font_families_from_style(style)
+    return not ff or ff[0] in newly_embedded_fonts
+
+
+def used_font(style, embedded_fonts):
+    ff = font_families_from_style(style)
     if not ff:
         return False, None
     lnames = {unicode(x).lower() for x in ff}
@@ -85,7 +94,7 @@ class EmbedFonts(object):
         self.parser = cssutils.CSSParser(loglevel=logging.CRITICAL, log=logging.getLogger('calibre.css'))
         self.warned = set()
         self.warned2 = set()
-        self.warned3 = set()
+        self.newly_embedded_fonts = set()
 
         for item in oeb.spine:
             if not hasattr(item.data, 'xpath'):
@@ -171,7 +180,7 @@ class EmbedFonts(object):
         for child in elem:
             self.find_usage_in(child, style, ff_rules)
         has_font, existing = used_font(style, ff_rules)
-        if not has_font:
+        if not has_font or font_already_embedded(style, self.newly_embedded_fonts):
             return
         if existing is None:
             in_book = used_font(style, self.embedded_fonts)[1]
@@ -194,8 +203,8 @@ class EmbedFonts(object):
                 page_sheet.data.insertRule(rule, len(page_sheet.data.cssRules))
 
     def embed_font(self, style):
-        ff = [unicode(f) for f in style.get('font-family', []) if unicode(f).lower() not in {
-            'serif', 'sansserif', 'sans-serif', 'fantasy', 'cursive', 'monospace'}]
+        from calibre.ebooks.oeb.polish.embed import find_matching_font, weight_as_number
+        ff = font_families_from_style(style)
         if not ff:
             return
         ff = ff[0]
@@ -204,39 +213,41 @@ class EmbedFonts(object):
         try:
             fonts = font_scanner.fonts_for_family(ff)
         except NoFonts:
-            self.log.warn('Failed to find fonts for family:', ff, 'not embedding')
-            self.warned.add(ff)
-            return
-        try:
-            weight = int(style.get('font-weight', '400'))
-        except (ValueError, TypeError, AttributeError):
-            w = style['font-weight']
-            if w not in self.warned2:
-                self.log.warn('Invalid weight in font style: %r' % w)
-                self.warned2.add(w)
-            return
+            try:
+                fonts = font_scanner.alt_fonts_for_family(ff)
+            except NoFonts:
+                self.log.warn('Failed to find fonts for family:', ff, 'not embedding')
+                self.warned.add(ff)
+                return
+        weight = weight_as_number(style.get('font-weight', '400'))
+
+        def do_embed(f):
+            data = font_scanner.get_font_data(f)
+            name = f['full_name']
+            ext = 'otf' if f['is_otf'] else 'ttf'
+            name = ascii_filename(name).replace(' ', '-').replace('(', '').replace(')', '')
+            fid, href = self.oeb.manifest.generate(id=u'font', href=u'fonts/%s.%s'%(name, ext))
+            item = self.oeb.manifest.add(fid, href, guess_type('dummy.'+ext)[0], data=data)
+            item.unload_data_from_memory()
+            page_sheet = self.get_page_sheet()
+            href = page_sheet.relhref(item.href)
+            css = '''@font-face { font-family: "%s"; font-weight: %s; font-style: %s; font-stretch: %s; src: url(%s) }''' % (
+                f['font-family'], f['font-weight'], f['font-style'], f['font-stretch'], href)
+            sheet = self.parser.parseString(css, validate=False)
+            page_sheet.data.insertRule(sheet.cssRules[0], len(page_sheet.data.cssRules))
+            self.newly_embedded_fonts.add(ff)
+            return find_font_face_rules(sheet, self.oeb)[0]
+
         for f in fonts:
             if f['weight'] == weight and f['font-style'] == style.get('font-style', 'normal') and f['font-stretch'] == style.get('font-stretch', 'normal'):
                 self.log('Embedding font %s from %s' % (f['full_name'], f['path']))
-                data = font_scanner.get_font_data(f)
-                name = f['full_name']
-                ext = 'otf' if f['is_otf'] else 'ttf'
-                name = ascii_filename(name).replace(' ', '-').replace('(', '').replace(')', '')
-                fid, href = self.oeb.manifest.generate(id=u'font', href=u'fonts/%s.%s'%(name, ext))
-                item = self.oeb.manifest.add(fid, href, guess_type('dummy.'+ext)[0], data=data)
-                item.unload_data_from_memory()
-                page_sheet = self.get_page_sheet()
-                href = page_sheet.relhref(item.href)
-                css = '''@font-face { font-family: "%s"; font-weight: %s; font-style: %s; font-stretch: %s; src: url(%s) }''' % (
-                    f['font-family'], f['font-weight'], f['font-style'], f['font-stretch'], href)
-                sheet = self.parser.parseString(css, validate=False)
-                page_sheet.data.insertRule(sheet.cssRules[0], len(page_sheet.data.cssRules))
-                return find_font_face_rules(sheet, self.oeb)[0]
-            else:
-                try:
-                    w = int(f['weight'])
-                except Exception:
-                    w = 200
-                if w % 100 and ((ff, w) not in self.warned3):
-                    self.warned3.add((ff, w))
-                    self.log.warn('The font %s has a non-standard weight: %s, it will not be embedded' % (ff, w))
+                return do_embed(f)
+        try:
+            f = find_matching_font(fonts, style.get('font-weight', 'normal'), style.get('font-style', 'normal'), style.get('font-stretch', 'normal'))
+        except Exception:
+            if ff not in self.warned2:
+                self.log.exception('Failed to find a matching font for family', ff, 'not embedding')
+                self.warned2.add(ff)
+                return
+        self.log('Embedding font %s from %s' % (f['full_name'], f['path']))
+        return do_embed(f)
