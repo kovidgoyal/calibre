@@ -8,12 +8,12 @@ __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys
+from future_builtins import map
 
 from lxml import etree
 
 from calibre import prints
 from calibre.ebooks.oeb.base import XHTML
-from calibre.ebooks.oeb.polish.stats import normalize_font_properties
 from calibre.utils.filenames import ascii_filename
 
 props = {'font-family':None, 'font-weight':'normal', 'font-style':'normal', 'font-stretch':'normal'}
@@ -196,10 +196,14 @@ def embed_font(container, font, all_font_rules, report, warned):
         return rule
 
 
+def font_key(font):
+    return tuple(map(font.get, 'font-family font-weight font-style font-stretch'.split()))
+
+
 def embed_all_fonts(container, stats, report):
     all_font_rules = tuple(stats.all_font_rules.itervalues())
     warned = set()
-    rules, nrules = [], []
+    rules, nrules = [], {}
     modified = set()
 
     for path in container.spine_items:
@@ -217,12 +221,13 @@ def embed_all_fonts(container, stats, report):
             if rule is None:
                 # This font was not already embedded in this HTML file, before
                 # processing started
-                rule = matching_rule(font, nrules)
+                key = font_key(font)
+                rule = nrules.get(key)
                 if rule is None:
                     rule = embed_font(container, font, all_font_rules, report, warned)
                     if rule is not None:
                         rules.append(rule)
-                        nrules.append(normalize_font_properties(rule.copy()))
+                        nrules[key] = rule
                         modified.add(name)
                         stats.font_stats[rule['name']] = font['text']
                 else:
