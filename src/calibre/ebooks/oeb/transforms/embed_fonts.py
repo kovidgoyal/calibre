@@ -17,6 +17,7 @@ from calibre.ebooks.oeb.base import XPath, CSS_MIME, XHTML
 from calibre.ebooks.oeb.transforms.subset import get_font_properties, find_font_face_rules, elem_style
 from calibre.utils.filenames import ascii_filename
 from calibre.utils.fonts.scanner import font_scanner, NoFonts
+from calibre.ebooks.oeb.polish.embed import font_key
 
 
 def font_families_from_style(style):
@@ -24,9 +25,14 @@ def font_families_from_style(style):
         'serif', 'sansserif', 'sans-serif', 'fantasy', 'cursive', 'monospace'}]
 
 
+def style_key(style):
+    style = style.copy()
+    style['font-family'] = font_families_from_style(style)[0]
+    return font_key(style)
+
+
 def font_already_embedded(style, newly_embedded_fonts):
-    ff = font_families_from_style(style)
-    return not ff or ff[0] in newly_embedded_fonts
+    return style_key(style) in newly_embedded_fonts
 
 
 def used_font(style, embedded_fonts):
@@ -188,6 +194,7 @@ class EmbedFonts(object):
                 # Try to find the font in the system
                 added = self.embed_font(style)
                 if added is not None:
+                    self.newly_embedded_fonts.add(style_key(style))
                     ff_rules.append(added)
                     self.embedded_fonts.append(added)
             else:
@@ -232,7 +239,6 @@ class EmbedFonts(object):
                 f['font-family'], f['font-weight'], f['font-style'], f['font-stretch'], href)
             sheet = self.parser.parseString(css, validate=False)
             page_sheet.data.insertRule(sheet.cssRules[0], len(page_sheet.data.cssRules))
-            self.newly_embedded_fonts.add(ff)
             return find_font_face_rules(sheet, self.oeb)[0]
 
         for f in fonts:
