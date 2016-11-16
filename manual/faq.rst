@@ -343,7 +343,7 @@ like and in the URL field, enter the following::
 Replace ``192.168.1.2`` with the local IP address of the computer running
 calibre. If you have changed the port the calibre content server is running on, you
 will have to change ``8080`` as well to the new port. The local IP address is
-the IP address you computer is assigned on your home network. A quick Google
+the IP address your computer is assigned on your home network. A quick Google
 search will tell you how to find out your local IP address.   Now click "Save"
 and you are done.
 
@@ -362,7 +362,7 @@ running the calibre server, like this::
 Replace ``192.168.1.2`` with the local IP address of the computer running
 calibre. If you have changed the port the calibre content server is running on, you
 will have to change ``8080`` as well to the new port. The local IP address is
-the IP address you computer is assigned on your home network. A quick Google
+the IP address your computer is assigned on your home network. A quick Google
 search will tell you how to find out your local IP address.
 
 You will see a list of books in Safari, just click on the epub link for
@@ -438,7 +438,7 @@ replace the IP address with the network name of the computer. If you have
 changed the port the calibre content server is running on, you will have to
 change ``8080`` as well to the new port.
 
-The local IP address is the IP address you computer is assigned on your home
+The local IP address is the IP address your computer is assigned on your home
 network. A quick Google search will tell you how to find out your local IP
 address. You can now browse your book collection and download books from calibre
 to your device to open with whatever ebook reading software you have on your
