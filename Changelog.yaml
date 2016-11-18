@@ -20,6 +20,54 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.72.0
+  date: 2016-11-18
+
+  new features:
+    - title: "Font embedding: Implement automatic embedding for fonts with non-normal stretch and weight values such as Condensed/Light/Extra Bold fonts"
+
+    - title: "Allow aborting an in-progress Copy-to-library action."
+      tickets: [1641458]
+
+    - title: "Edit Book: When adding a font file via File->New automatically generate the appropriate @font-face rule and copy it to the clipboard so that it can be easily inserted into the appropriate CSS files."
+
+    - title: "Edit Book: Check Book: Add a warning for links with the : character in them on windows"
+
+    - title: "Conversion: When converting markdown documents recognize basic metadata in the markdown document formatted as per the markdown metadata extension."
+
+    - title: "Edit Book: Spell Check dialog: Various small usability enhancements -- preserve position in word list on refresh, ensure that new current word is highlighted after changing a word, etc."
+
+    - title: "Edit Book: Flash the taskbar icon after beautify all files completes."
+      tickets: [1639024]
+
+  bug fixes:
+    - title: "Fix creating an empty library with the same structure as current library not creating custom columns on the first restart after creating the new custom columns."
+      tickets: [1641278]
+
+    - title: "Edit Book: Dont fail to rename files on windows if there is a link containing the colon character."
+      tickets: [1641202]
+
+    - title: "PDF Output: Dont fail if one of the embedded fonts has no names"
+
+    - title: "Edit Book: When downloading external resources, ensure the generated filenames are valid."
+      tickets: [1639448]
+
+    - title: "Windows: Fix file extension not being added automatically when missing in save dialogs."
+      tickets: [1637353]
+
+    - title: "Fix calibre not opening full-screen in windows tablet mode."
+      tickets: [1638158]
+
+    - title: "Edit Book: Fix check external links tool not detecting changes that have not yet been saved"
+
+    - title: "Generate covers: Fix & in the series causing incorrect formatting of series number."
+      tickets: [1638759]
+
+    - title: "Edit Book: Fix a regression in the last release that broke the Arrange into folders tool when arranging into sub-folders of a folder that does not exist."
+
+  improved recipes:
+    - Mediapart
+
 - version: 2.71.0
   date: 2016-10-31
 
