@@ -328,6 +328,26 @@ def remove_embed_restriction(raw):
     return raw
 
 
+def is_font_embeddable(raw):
+    # https://www.microsoft.com/typography/otspec/os2.htm#fst
+    ok, sig = is_truetype_font(raw)
+    if not ok:
+        raise UnsupportedFont('Not a supported font, sfnt_version: %r'%sig)
+
+    table, table_index, table_offset = get_table(raw, 'os/2')[:3]
+    if table is None:
+        raise UnsupportedFont('Not a supported font, has no OS/2 table')
+    fs_type_offset = struct.calcsize(b'>HhHH')
+    fs_type = struct.unpack_from(b'>H', table, fs_type_offset)[0]
+    if fs_type == 0 or fs_type & 0x8:
+        return True, fs_type
+    if fs_type & 1:
+        return False, fs_type
+    if fs_type & 0x200:
+        return False, fs_type
+    return True, fs_type
+
+
 def read_bmp_prefix(table, bmp):
     length, language, segcount = struct.unpack_from(b'>3H', table, bmp+2)
     array_len = segcount //2
@@ -479,4 +499,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
