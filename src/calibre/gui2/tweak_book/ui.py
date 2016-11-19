@@ -495,7 +495,7 @@ class Main(MainWindow):
             'view-image.png', _('&Browse images in book'), self.boss.browse_images, 'browse-images', (), _(
                 'Browse images in the books visually'))
         self.action_multiple_split = treg(
-            'auto_author_sort.png', _('&Split at multiple locations'), self.boss.multisplit, 'multisplit', (), _(
+            'document-split.png', _('&Split at multiple locations'), self.boss.multisplit, 'multisplit', (), _(
                 'Split HTML file at multiple locations'))
         self.action_compare_book = treg('diff.png', _('&Compare to another book'), self.boss.compare_book, 'compare-book', (), _(
             'Compare to another book'))
