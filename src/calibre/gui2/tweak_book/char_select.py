@@ -63,6 +63,7 @@ def load_search_index():
         del name_map['calibre-nm-version:']
     return name_map
 
+
 _index = None
 
 
@@ -624,6 +625,7 @@ class CharView(QListView):
         self._model = CharModel(self)
         self.setModel(self._model)
         self.delegate = CharDelegate(self)
+        self.setResizeMode(self.Adjust)
         self.setItemDelegate(self.delegate)
         self.setFlow(self.LeftToRight)
         self.setWrapping(True)
@@ -847,8 +849,10 @@ class CharSelect(Dialog):
         if hasattr(w, 'no_popup'):
             w.no_popup = oval
 
+
 if __name__ == '__main__':
-    app = QApplication([])
+    from calibre.gui2 import Application
+    app = Application([])
     w = CharSelect()
     w.initialize()
     w.show()
