@@ -70,11 +70,9 @@ def in_thread_job(func):
             return func(*args, **kwargs)
     return ans
 
-_boss = None
-
 
 def get_boss():
-    return _boss
+    return get_boss.boss
 
 
 class Boss(QObject):
@@ -82,7 +80,6 @@ class Boss(QObject):
     handle_completion_result_signal = pyqtSignal(object)
 
     def __init__(self, parent, notify=None):
-        global _boss
         QObject.__init__(self, parent)
         self.global_undo = GlobalUndoHistory()
         self.container_count = 0
@@ -93,7 +90,7 @@ class Boss(QObject):
         self.doing_terminal_save = False
         self.ignore_preview_to_editor_sync = False
         setup_cssutils_serialization()
-        _boss = self
+        get_boss.boss = self
         self.gui = parent
         completion_worker().result_callback = self.handle_completion_result_signal.emit
         self.handle_completion_result_signal.connect(self.handle_completion_result, Qt.QueuedConnection)
@@ -592,7 +589,7 @@ class Boss(QObject):
             return
         from calibre.gui2.tweak_book.download import DownloadResources
         with BusyCursor():
-            self.add_savepoint(_('Before get external resources'))
+            self.add_savepoint(_('Before: Get external resources'))
         try:
             d = DownloadResources(self.gui)
             d.exec_()
@@ -656,7 +653,7 @@ class Boss(QObject):
                   ' different ebook viewers. Are you sure you want to proceed?').format(
                       '<pre>%s</pre>'%newname, '<pre>%s</pre>' % urlnormalize(newname)),
                 'confirm-urlunsafe-change', parent=self.gui, title=_('Are you sure?'), config_set=tprefs):
-                    return
+                return
         self.add_savepoint(_('Before: Rename %s') % oldname)
         name_map = {oldname:newname}
         self.gui.blocking_job(
