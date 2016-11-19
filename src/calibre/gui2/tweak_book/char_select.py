@@ -735,7 +735,7 @@ class CharSelect(Dialog):
         self.initialized = False
         Dialog.__init__(self, _('Insert character'), 'charmap_dialog', parent)
         self.setWindowIcon(QIcon(I('character-set.png')))
-        self.focus_widget = None
+        self.setFocusProxy(parent)
 
     def setup_ui(self):
         self.l = l = QGridLayout(self)
@@ -749,6 +749,7 @@ class CharSelect(Dialog):
         b.setDefault(True)
 
         self.splitter = s = QSplitter(self)
+        s.setFocusPolicy(Qt.NoFocus)
         s.setChildrenCollapsible(False)
 
         self.search = h = HistoryLineEdit2(self)
@@ -759,17 +760,21 @@ class CharSelect(Dialog):
         h.initialize('charmap_search')
         h.setPlaceholderText(_('Search by name, nickname or character code'))
         self.search_button = b = QPushButton(_('&Search'))
+        b.setFocusPolicy(Qt.NoFocus)
         h.returnPressed.connect(self.do_search)
         b.clicked.connect(self.do_search)
         self.clear_button = cb = QToolButton(self)
         cb.setIcon(QIcon(I('clear_left.png')))
+        cb.setFocusPolicy(Qt.NoFocus)
         cb.setText(_('Clear search'))
         cb.clicked.connect(self.clear_search)
         l.addWidget(h), l.addWidget(b, 0, 1), l.addWidget(cb, 0, 2)
 
         self.category_view = CategoryView(self)
+        self.category_view.setFocusPolicy(Qt.NoFocus)
         l.addWidget(s, 1, 0, 1, 3)
         self.char_view = CharView(self)
+        self.char_view.setFocusPolicy(Qt.NoFocus)
         self.rearrange_button.toggled[bool].connect(self.set_allow_drag_and_drop)
         self.category_view.category_selected.connect(self.show_chars)
         self.char_view.show_name.connect(self.show_char_info)
