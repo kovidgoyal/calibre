@@ -18,6 +18,7 @@ HELPER = os.path.join(base, 'calibre-file-dialog.exe')
 def is_ok():
     return os.path.exists(HELPER)
 
+
 try:
     from calibre.constants import filesystem_encoding
     from calibre.utils.filenames import expanduser
@@ -266,7 +267,7 @@ def choose_save_file(window, name, title, filters=[], all_files=True, initial_pa
     if all_files:
         file_types.append((_('All files'), ['*']))
     all_exts = []
-    for _, exts in file_types:
+    for ftext, exts in file_types:
         for ext in exts:
             if '*' not in ext:
                 all_exts.append(ext.lower())
@@ -355,5 +356,7 @@ def test(helper=HELPER):
     if q != echo:
         raise RuntimeError('Unexpected response: %r' % server.data)
 
+
 if __name__ == '__main__':
+    choose_save_file(None, 'xxx', 'yyy')
     test(sys.argv[-1])
