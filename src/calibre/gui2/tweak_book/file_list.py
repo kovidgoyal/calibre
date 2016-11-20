@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os
+import os, posixpath
 from binascii import hexlify
 from collections import OrderedDict, defaultdict, Counter
 from functools import partial
@@ -15,7 +15,7 @@ import sip
 from PyQt5.Qt import (
     QWidget, QTreeWidget, QGridLayout, QSize, Qt, QTreeWidgetItem, QIcon, QFont,
     QStyledItemDelegate, QStyle, QPixmap, QPainter, pyqtSignal, QMenu, QTimer,
-    QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea,
+    QDialogButtonBox, QDialog, QLabel, QLineEdit, QVBoxLayout, QScrollArea, QInputDialog,
     QRadioButton, QFormLayout, QSpinBox, QListWidget, QListWidgetItem, QCheckBox)
 
 from calibre import human_readable, sanitize_file_name_unicode, plugins
@@ -460,6 +460,7 @@ class FileList(QTreeWidget):
             m.addSeparator()
             if num > 1:
                 m.addAction(QIcon(I('modified.png')), _('&Bulk rename the selected files'), self.request_bulk_rename)
+            m.addAction(QIcon(I('modified.png')), _('Change the file extension for the selected files'), self.request_change_ext)
             m.addAction(QIcon(I('trash.png')), ngettext(
                 '&Delete the selected file', '&Delete the {} selected files', num).format(num), self.request_delete)
             m.addSeparator()
@@ -525,7 +526,7 @@ class FileList(QTreeWidget):
         else:
             return QTreeWidget.keyPressEvent(self, ev)
 
-    def request_bulk_rename(self):
+    def request_rename_common(self):
         if not current_container().SUPPORTS_FILENAMES:
             error_dialog(self, _('Cannot rename'), _(
                 '%s books do not support file renaming as they do not use file names'
@@ -535,19 +536,38 @@ class FileList(QTreeWidget):
         names = {unicode(item.data(0, NAME_ROLE) or '') for item in self.selectedItems()}
         bad = names & current_container().names_that_must_not_be_changed
         if bad:
-            return error_dialog(self, _('Cannot rename'),
+            error_dialog(self, _('Cannot rename'),
                          _('The file(s) %s cannot be renamed.') % ('<b>%s</b>' % ', '.join(bad)), show=True)
+            return
         names = sorted(names, key=self.index_of_name)
-        categories = Counter(unicode(item.data(0, CATEGORY_ROLE) or '') for item in self.selectedItems())
-        fmt, num = get_bulk_rename_settings(self, len(names), category=categories.most_common(1)[0][0])
-        if fmt is not None:
-            def change_name(name, num):
-                parts = name.split('/')
-                base, ext = parts[-1].rpartition('.')[0::2]
-                parts[-1] = (fmt % num) + '.' + ext
-                return '/'.join(parts)
-            name_map = {n:change_name(n, num + i) for i, n in enumerate(names)}
-            self.bulk_rename_requested.emit(name_map)
+        return names
+
+    def request_bulk_rename(self):
+        names = self.request_rename_common()
+        if names is not None:
+            categories = Counter(unicode(item.data(0, CATEGORY_ROLE) or '') for item in self.selectedItems())
+            fmt, num = get_bulk_rename_settings(self, len(names), category=categories.most_common(1)[0][0])
+            if fmt is not None:
+                def change_name(name, num):
+                    parts = name.split('/')
+                    base, ext = parts[-1].rpartition('.')[0::2]
+                    parts[-1] = (fmt % num) + '.' + ext
+                    return '/'.join(parts)
+                name_map = {n:change_name(n, num + i) for i, n in enumerate(names)}
+                self.bulk_rename_requested.emit(name_map)
+
+    def request_change_ext(self):
+        names = self.request_rename_common()
+        if names is not None:
+            text, ok = QInputDialog.getText(self, _('Rename files'), _('New file extension:'))
+            if ok and text:
+                ext = text.lstrip('.')
+
+                def change_name(name):
+                    base = posixpath.splitext(name)[0]
+                    return base + '.' + ext
+                name_map = {n:change_name(n) for n in names}
+                self.bulk_rename_requested.emit(name_map)
 
     @property
     def selected_names(self):

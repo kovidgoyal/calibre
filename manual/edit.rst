@@ -104,6 +104,10 @@ Ctrl key and clicking the files. Then right click and select :guilabel:`Bulk
 rename`. Enter a prefix and what number you would like the automatic numbering
 to start at, click OK and you are done.
 
+Finally, you can bulk change the file extension for all selected files. Select
+multiple files, as above, and right click and choose :guilabel:`Change the file
+extension for the selected files`.
+
 Merging files
 ^^^^^^^^^^^^^^
 
