@@ -350,6 +350,8 @@ class EPUBInput(InputFormatPlugin):
                 if ol is not None:
                     process_nav_node(ol, navmap)
                     break
+        else:
+            return
 
         with NamedTemporaryFile(suffix='.ncx', dir=os.path.dirname(nav_path), delete=False) as f:
             f.write(etree.tostring(ncx, encoding='utf-8'))
@@ -368,5 +370,3 @@ class EPUBInput(InputFormatPlugin):
             spine = {x.href for x in oeb.spine}
             if (cover_toc_item is not None and cover_toc_item not in spine):
                 oeb.toc.item_that_refers_to_cover = cover_toc_item
-
-
