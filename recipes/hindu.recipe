@@ -16,12 +16,31 @@ class TheHindu(BasicNewsRecipe):
     no_stylesheets = True
 
     auto_cleanup = True
+    ignore_duplicate_articles = {'title', 'url'}
 
     extra_css = '.photo-caption { font-size: smaller }'
 
+    def articles_from_soup(self, soup):
+        ans = []
+        div = soup.find('section', attrs={'id': 'section_1'})
+        if div is None:
+            return ans
+        ul = div.find('ul', attrs={'class': 'archive-list'})
+        if ul is not None:
+            for x in ul.findAll(['a']):
+                title = self.tag_to_string(x)
+                url = x.get('href', False)
+                if not url or not title:
+                    continue
+                self.log('\t\tFound article:', title)
+                self.log('\t\t\t', url)
+                ans.append({'title': title, 'url': url,
+                                            'description': '', 'date': ''})
+        return ans
+
     def parse_index(self):
         soup = self.index_to_soup('http://www.thehindu.com/todays-paper/')
-        nav_div = soup.find(id='tpnav-bar')
+        nav_div = soup.find(id='subnav-tpbar-latest')
         section_list = []
 
         # Finding all the section titles that are acceptable
@@ -29,34 +48,18 @@ class TheHindu(BasicNewsRecipe):
             if self.is_accepted_entry(x):
                 section_list.append(
                     (string.capwords(self.tag_to_string(x)), x['href']))
+        self.log('Found section:', 'Front page')
+        feeds = [('Front Page', self.articles_from_soup(soup))]
 
         # For each section title, fetch the article urls
-        feeds = []
         for section in section_list:
             section_title = section[0]
             section_url = section[1]
+            self.log('Found section:', section_title, section_url)
             soup = self.index_to_soup(section_url)
-            current_articles = []
-
-            div = soup.find('div', attrs={'id': 'left-column'})
-            try:
-                soup.find('span', attrs={
-                          'class': 'newsection-title'}).extract()
-            except AttributeError:
-                continue  # empty section
-            soup.find('div', attrs={'id': 'tpnav-bar'}).extract()
-
-            for x in div.findAll(['a']):
-                title = self.tag_to_string(x)
-                url = x.get('href', False)
-                if not url or not title:
-                    continue
-                self.log('\t\tFound article:', title)
-                self.log('\t\t\t', url)
-                current_articles.append({'title': title, 'url': url,
-                                         'description': '', 'date': ''})
-
-            feeds.append((section_title, current_articles))
+            articles = self.articles_from_soup(soup)
+            if articles:
+                feeds.append((section_title, articles))
 
         return feeds
 
