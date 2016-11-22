@@ -7,19 +7,19 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, textwrap
+import os, textwrap, json
 from functools import partial
 
 from PyQt5.Qt import (QWidget, QDialog, QLabel, QGridLayout, QComboBox, QSize,
-        QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon,
+        QLineEdit, QIntValidator, QDoubleValidator, QFrame, Qt, QIcon, QHBoxLayout,
         QScrollArea, QPushButton, QVBoxLayout, QDialogButtonBox, QToolButton,
         QListView, QAbstractListModel, pyqtSignal, QSizePolicy, QSpacerItem,
         QApplication, QStandardItem, QStandardItemModel, QCheckBox, QMenu)
 
-from calibre import prepare_string_for_xml, sanitize_file_name_unicode
+from calibre import prepare_string_for_xml, sanitize_file_name_unicode, as_unicode
 from calibre.constants import config_dir
 from calibre.utils.icu import sort_key
-from calibre.gui2 import error_dialog, choose_files, pixmap_to_data, gprefs
+from calibre.gui2 import error_dialog, choose_files, pixmap_to_data, gprefs, choose_save_file
 from calibre.gui2.dialogs.template_dialog import TemplateDialog
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.widgets2 import ColorButton
@@ -679,6 +679,17 @@ class RuleEditor(QDialog):  # {{{
 
 class RulesModel(QAbstractListModel):  # {{{
 
+    EXIM_VERSION = 1
+
+    def load_rule(self, col, template):
+        if col not in self.fm and col != color_row_key:
+            return
+        try:
+            rule = rule_from_template(self.fm, template)
+        except:
+            rule = template
+        return rule
+
     def __init__(self, prefs, fm, pref_name, parent=None):
         QAbstractListModel.__init__(self, parent)
 
@@ -689,25 +700,17 @@ class RulesModel(QAbstractListModel):  # {{{
             rules = list(prefs[pref_name])
             self.rules = []
             for col, template in rules:
-                if col not in self.fm and col != color_row_key:
-                    continue
-                try:
-                    rule = rule_from_template(self.fm, template)
-                except:
-                    rule = template
-                self.rules.append(('color', col, rule))
+                rule = self.load_rule(col, template)
+                if rule is not None:
+                    self.rules.append(('color', col, rule))
         else:
             self.rule_kind = 'icon' if pref_name == 'column_icon_rules' else 'emblem'
             rules = list(prefs[pref_name])
             self.rules = []
             for kind, col, template in rules:
-                if col not in self.fm and col != color_row_key:
-                    continue
-                try:
-                    rule = rule_from_template(self.fm, template)
-                except:
-                    rule = template
-                self.rules.append((kind, col, rule))
+                rule = self.load_rule(col, template)
+                if rule is not None:
+                    self.rules.append((kind, col, rule))
 
     def rowCount(self, *args):
         return len(self.rules)
@@ -742,17 +745,30 @@ class RulesModel(QAbstractListModel):  # {{{
         self.rules.remove(self.rules[index.row()])
         self.endResetModel()
 
-    def commit(self, prefs):
+    def rules_as_list(self, for_export=False):
         rules = []
         for kind, col, r in self.rules:
             if isinstance(r, Rule):
                 r = r.template
             if r is not None:
-                if kind == 'color':
+                if not for_export and kind == 'color':
                     rules.append((col, r))
                 else:
                     rules.append((kind, col, r))
-        prefs[self.pref_name] = rules
+        return rules
+
+    def import_rules(self, rules):
+        self.beginResetModel()
+        for kind, col, template in rules:
+            if self.pref_name == 'column_color_rules':
+                kind = 'color'
+            rule = self.load_rule(col, template)
+            if rule is not None:
+                self.rules.append((kind, col, rule))
+        self.endResetModel()
+
+    def commit(self, prefs):
+        prefs[self.pref_name] = self.rules_as_list()
 
     def move(self, idx, delta):
         row = idx.row() + delta
@@ -906,7 +922,18 @@ class EditRules(QWidget):  # {{{
         self.add_advanced_button = b = QPushButton(QIcon(I('plus.png')),
                 _('Add Advanced Rule'), self)
         b.clicked.connect(self.add_advanced)
-        l.addWidget(b, l.rowCount(), 0, 1, 2)
+        self.hb = hb = QHBoxLayout()
+        l.addLayout(hb, l.rowCount(), 0, 1, 2)
+        hb.addWidget(b)
+        hb.addStretch(10)
+        self.export_button = b = QPushButton(_('E&xport'), self)
+        b.clicked.connect(self.export_rules)
+        b.setToolTip(_('Export these rules to a file'))
+        hb.addWidget(b)
+        self.import_button = b = QPushButton(_('&Import'), self)
+        b.setToolTip(_('Import rules from a file'))
+        b.clicked.connect(self.import_rules)
+        hb.addWidget(b)
 
     def initialize(self, fm, prefs, mi, pref_name):
         self.pref_name = pref_name
@@ -1051,7 +1078,37 @@ class EditRules(QWidget):  # {{{
         if self.pref_name == 'cover_grid_icon_rules':
             gprefs['show_emblems'] = self.enabled.isChecked()
 
+    def export_rules(self):
+        path = choose_save_file(self, 'export-coloring-rules', _('Choose file to export to'),
+                                filters=[(_('Rules'), ['rules'])], all_files=False, initial_filename=self.pref_name + '.rules')
+        if path:
+            rules = {
+                'version': self.model.EXIM_VERSION,
+                'type': self.model.pref_name,
+                'rules': self.model.rules_as_list(for_export=True)
+            }
+            with lopen(path, 'wb') as f:
+                f.write(json.dumps(rules, indent=2))
+
+    def import_rules(self):
+        files = choose_files(self, 'import-coloring-rules', _('Choose file to import from'),
+                                filters=[(_('Rules'), ['rules'])], all_files=False, select_only_single_file=True)
+        if files:
+            with lopen(files[0], 'rb') as f:
+                raw = f.read()
+            try:
+                rules = json.loads(raw)
+                if rules['version'] != self.model.EXIM_VERSION:
+                    raise ValueError('Unsupported rules version: {}'.format(rules['version']))
+                if rules['type'] != self.pref_name:
+                    raise ValueError('Rules are not of the correct type')
+                rules = list(rules['rules'])
+            except Exception as e:
+                return error_dialog(self, _('No valid rules found'), _(
+                    'No valid rules were found in {}.').format(files[0]), det_msg=as_unicode(e), show=True)
+            self.model.import_rules(rules)
 # }}}
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
@@ -1061,7 +1118,7 @@ if __name__ == '__main__':
 
     db = db()
 
-    if True:
+    if False:
         d = RuleEditor(db.field_metadata, 'column_icon_rules')
         d.add_blank_condition()
         d.exec_()
@@ -1074,9 +1131,7 @@ if __name__ == '__main__':
     else:
         d = EditRules()
         d.resize(QSize(800, 600))
-        d.initialize(db.field_metadata, db.prefs, None)
+        d.initialize(db.field_metadata, db.prefs, None, 'column_color_rules')
         d.show()
         app.exec_()
         d.commit(db.prefs)
-
-
