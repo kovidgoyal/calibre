@@ -284,6 +284,7 @@ class BooksView(QTableView):  # {{{
         self._model.about_to_be_sorted.connect(self.about_to_be_sorted)
         self._model.sorting_done.connect(self.sorting_done,
                 type=Qt.QueuedConnection)
+        self.set_row_header_visibility()
 
     # Column Header Context Menu {{{
     def column_header_context_handler(self, action=None, column=None):
@@ -762,6 +763,11 @@ class BooksView(QTableView):  # {{{
             self.model().set_row_decoration(current_marked)
             self.row_header.headerDataChanged(Qt.Vertical, 0, self.row_header.count()-1)
             self.row_header.geometriesChanged.emit()
+            self.set_row_header_visibility()
+
+    def set_row_header_visibility(self):
+        visible = self.model().row_decoration is not None or gprefs['row_numbers_in_book_list']
+        self.row_header.setVisible(visible)
 
     def database_changed(self, db):
         db.data.add_marked_listener(self.marked_changed_listener)
@@ -1140,6 +1146,10 @@ class DeviceBooksView(BooksView):  # {{{
             self.setItemDelegateForColumn(i, TextDelegate(self))
         self.setDragDropMode(self.NoDragDrop)
         self.setAcceptDrops(False)
+        self.set_row_header_visibility()
+
+    def set_row_header_visibility(self):
+        self.row_header.setVisible(gprefs['row_numbers_in_book_list'])
 
     def drag_data(self):
         m = self.model()
@@ -1197,4 +1207,3 @@ class DeviceBooksView(BooksView):  # {{{
         self.drag_allowed = supports_backloading
 
 # }}}
-

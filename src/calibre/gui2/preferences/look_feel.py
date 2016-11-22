@@ -284,6 +284,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         r('ui_style', gprefs, restart_required=True, choices=[(_('System default'), 'system'), (_('Calibre style'),
                     'calibre')])
         r('book_list_tooltips', gprefs)
+        r('row_numbers_in_book_list', gprefs)
         r('tag_browser_old_look', gprefs, restart_required=True)
         r('tag_browser_hide_empty_categories', gprefs)
         r('bd_show_cover', gprefs)
@@ -644,12 +645,16 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
         self.update_font_display()
         gui.tags_view.reread_collapse_parameters()
         gui.library_view.refresh_book_details()
+        gui.library_view.set_row_header_visibility()
         gui.cover_flow.setShowReflections(gprefs['cover_browser_reflections'])
         gui.cover_flow.setPreserveAspectRatio(gprefs['cb_preserve_aspect_ratio'])
         gui.update_cover_flow_subtitle_font()
         gui.cover_flow.template_inited = False
+        for view in 'library memory card_a card_b'.split():
+            getattr(gui, view + '_view').set_row_header_visibility()
         gui.library_view.refresh_row_sizing()
         gui.grid_view.refresh_settings()
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

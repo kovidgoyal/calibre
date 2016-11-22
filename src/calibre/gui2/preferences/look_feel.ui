@@ -116,7 +116,7 @@
          </property>
         </widget>
        </item>
-       <item row="10" column="0">
+       <item row="11" column="0">
         <spacer name="verticalSpacer_3">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -191,16 +191,6 @@
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_17">
-         <property name="text">
-          <string>&amp;User Interface layout (needs restart):</string>
-         </property>
-         <property name="buddy">
-          <cstring>opt_gui_layout</cstring>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QLabel" name="label_widget_style">
          <property name="text">
@@ -208,6 +198,16 @@
          </property>
          <property name="buddy">
           <cstring>opt_ui_style</cstring>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_17">
+         <property name="text">
+          <string>&amp;User Interface layout (needs restart):</string>
+         </property>
+         <property name="buddy">
+          <cstring>opt_gui_layout</cstring>
          </property>
         </widget>
        </item>
@@ -232,6 +232,13 @@
         <widget class="QPushButton" name="icon_theme_button">
          <property name="text">
           <string>Change &amp;icon theme (needs restart)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="10" column="0">
+        <widget class="QCheckBox" name="opt_row_numbers_in_book_list">
+         <property name="text">
+          <string>Show &amp;row numbers in the book list</string>
          </property>
         </widget>
        </item>

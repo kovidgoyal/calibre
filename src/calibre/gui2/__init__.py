@@ -30,7 +30,7 @@ except AttributeError:
 
 # Setup gprefs {{{
 gprefs = JSONConfig('gui')
-defs = gprefs.defaults
+
 
 native_menubar_defaults = {
     'action-layout-menubar': (
@@ -45,107 +45,114 @@ native_menubar_defaults = {
         )
 }
 
-if isosx:
-    defs['action-layout-menubar'] = native_menubar_defaults['action-layout-menubar']
-    defs['action-layout-menubar-device'] = native_menubar_defaults['action-layout-menubar-device']
-    defs['action-layout-toolbar'] = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
-        'Connect Share', None, 'Remove Books', 'Tweak ePub'
-        )
-    defs['action-layout-toolbar-device'] = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
-        'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Store', 'Save To Disk', 'Connect Share', None,
-        'Remove Books',
-        )
-else:
-    defs['action-layout-menubar'] = ()
-    defs['action-layout-menubar-device'] = ()
-    defs['action-layout-toolbar'] = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
-        'Store', 'Donate', 'Fetch News', 'Help', None,
-        'Remove Books', 'Choose Library', 'Save To Disk',
-        'Connect Share', 'Tweak ePub', 'Preferences',
-        )
-    defs['action-layout-toolbar-device'] = (
-        'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
-        'Send To Device', None, None, 'Location Manager', None, None,
-        'Fetch News', 'Save To Disk', 'Store', 'Connect Share', None,
-        'Remove Books', None, 'Help', 'Preferences',
-        )
 
-defs['action-layout-toolbar-child'] = ()
+def create_defs():
+    defs = gprefs.defaults
+    if isosx:
+        defs['action-layout-menubar'] = native_menubar_defaults['action-layout-menubar']
+        defs['action-layout-menubar-device'] = native_menubar_defaults['action-layout-menubar-device']
+        defs['action-layout-toolbar'] = (
+            'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
+            'Choose Library', 'Donate', None, 'Fetch News', 'Store', 'Save To Disk',
+            'Connect Share', None, 'Remove Books', 'Tweak ePub'
+            )
+        defs['action-layout-toolbar-device'] = (
+            'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
+            'Send To Device', None, None, 'Location Manager', None, None,
+            'Fetch News', 'Store', 'Save To Disk', 'Connect Share', None,
+            'Remove Books',
+            )
+    else:
+        defs['action-layout-menubar'] = ()
+        defs['action-layout-menubar-device'] = ()
+        defs['action-layout-toolbar'] = (
+            'Add Books', 'Edit Metadata', None, 'Convert Books', 'View', None,
+            'Store', 'Donate', 'Fetch News', 'Help', None,
+            'Remove Books', 'Choose Library', 'Save To Disk',
+            'Connect Share', 'Tweak ePub', 'Preferences',
+            )
+        defs['action-layout-toolbar-device'] = (
+            'Add Books', 'Edit Metadata', None, 'Convert Books', 'View',
+            'Send To Device', None, None, 'Location Manager', None, None,
+            'Fetch News', 'Save To Disk', 'Store', 'Connect Share', None,
+            'Remove Books', None, 'Help', 'Preferences',
+            )
 
-defs['action-layout-context-menu'] = (
-        'Edit Metadata', 'Send To Device', 'Save To Disk',
-        'Connect Share', 'Copy To Library', None,
-        'Convert Books', 'View', 'Open Folder', 'Show Book Details',
-        'Similar Books', 'Tweak ePub', None, 'Remove Books',
-        )
+    defs['action-layout-toolbar-child'] = ()
 
-defs['action-layout-context-menu-device'] = (
-        'View', 'Save To Disk', None, 'Remove Books', None,
-        'Add To Library', 'Edit Collections', 'Match Books'
-        )
+    defs['action-layout-context-menu'] = (
+            'Edit Metadata', 'Send To Device', 'Save To Disk',
+            'Connect Share', 'Copy To Library', None,
+            'Convert Books', 'View', 'Open Folder', 'Show Book Details',
+            'Similar Books', 'Tweak ePub', None, 'Remove Books',
+            )
 
-defs['action-layout-context-menu-cover-browser'] = (
-        'Edit Metadata', 'Send To Device', 'Save To Disk',
-        'Connect Share', 'Copy To Library', None,
-        'Convert Books', 'View', 'Open Folder', 'Show Book Details',
-        'Similar Books', 'Tweak ePub', None, 'Remove Books',
-        )
+    defs['action-layout-context-menu-device'] = (
+            'View', 'Save To Disk', None, 'Remove Books', None,
+            'Add To Library', 'Edit Collections', 'Match Books'
+            )
 
-defs['show_splash_screen'] = True
-defs['toolbar_icon_size'] = 'medium'
-defs['automerge'] = 'ignore'
-defs['toolbar_text'] = 'always'
-defs['font'] = None
-defs['tags_browser_partition_method'] = 'first letter'
-defs['tags_browser_collapse_at'] = 100
-defs['tag_browser_dont_collapse'] = []
-defs['edit_metadata_single_layout'] = 'default'
-defs['default_author_link'] = 'https://en.wikipedia.org/w/index.php?search={author}'
-defs['preserve_date_on_ctl'] = True
-defs['manual_add_auto_convert'] = False
-defs['auto_convert_same_fmt'] = False
-defs['cb_fullscreen'] = False
-defs['worker_max_time'] = 0
-defs['show_files_after_save'] = True
-defs['auto_add_path'] = None
-defs['auto_add_check_for_duplicates'] = False
-defs['blocked_auto_formats'] = []
-defs['auto_add_auto_convert'] = True
-defs['auto_add_everything'] = False
-defs['ui_style'] = 'calibre' if iswindows or isosx else 'system'
-defs['tag_browser_old_look'] = False
-defs['tag_browser_hide_empty_categories'] = False
-defs['book_list_tooltips'] = True
-defs['bd_show_cover'] = True
-defs['bd_overlay_cover_size'] = False
-defs['tags_browser_category_icons'] = {}
-defs['cover_browser_reflections'] = True
-defs['book_list_extra_row_spacing'] = 0
-defs['refresh_book_list_on_bulk_edit'] = True
-defs['cover_grid_width'] = 0
-defs['cover_grid_height'] = 0
-defs['cover_grid_spacing'] = 0
-defs['cover_grid_color'] = (80, 80, 80)
-defs['cover_grid_cache_size_multiple'] = 5
-defs['cover_grid_disk_cache_size'] = 2500
-defs['cover_grid_show_title'] = False
-defs['cover_grid_texture'] = None
-defs['show_vl_tabs'] = False
-defs['show_highlight_toggle_button'] = False
-defs['add_comments_to_email'] = False
-defs['cb_preserve_aspect_ratio'] = False
-defs['gpm_template_editor_font_size'] = 10
-defs['show_emblems'] = False
-defs['emblem_size'] = 32
-defs['emblem_position'] = 'left'
-defs['metadata_diff_mark_rejected'] = False
-defs['tag_browser_show_counts'] = True
-del defs
+    defs['action-layout-context-menu-cover-browser'] = (
+            'Edit Metadata', 'Send To Device', 'Save To Disk',
+            'Connect Share', 'Copy To Library', None,
+            'Convert Books', 'View', 'Open Folder', 'Show Book Details',
+            'Similar Books', 'Tweak ePub', None, 'Remove Books',
+            )
+
+    defs['show_splash_screen'] = True
+    defs['toolbar_icon_size'] = 'medium'
+    defs['automerge'] = 'ignore'
+    defs['toolbar_text'] = 'always'
+    defs['font'] = None
+    defs['tags_browser_partition_method'] = 'first letter'
+    defs['tags_browser_collapse_at'] = 100
+    defs['tag_browser_dont_collapse'] = []
+    defs['edit_metadata_single_layout'] = 'default'
+    defs['default_author_link'] = 'https://en.wikipedia.org/w/index.php?search={author}'
+    defs['preserve_date_on_ctl'] = True
+    defs['manual_add_auto_convert'] = False
+    defs['auto_convert_same_fmt'] = False
+    defs['cb_fullscreen'] = False
+    defs['worker_max_time'] = 0
+    defs['show_files_after_save'] = True
+    defs['auto_add_path'] = None
+    defs['auto_add_check_for_duplicates'] = False
+    defs['blocked_auto_formats'] = []
+    defs['auto_add_auto_convert'] = True
+    defs['auto_add_everything'] = False
+    defs['ui_style'] = 'calibre' if iswindows or isosx else 'system'
+    defs['tag_browser_old_look'] = False
+    defs['tag_browser_hide_empty_categories'] = False
+    defs['book_list_tooltips'] = True
+    defs['bd_show_cover'] = True
+    defs['bd_overlay_cover_size'] = False
+    defs['tags_browser_category_icons'] = {}
+    defs['cover_browser_reflections'] = True
+    defs['book_list_extra_row_spacing'] = 0
+    defs['refresh_book_list_on_bulk_edit'] = True
+    defs['cover_grid_width'] = 0
+    defs['cover_grid_height'] = 0
+    defs['cover_grid_spacing'] = 0
+    defs['cover_grid_color'] = (80, 80, 80)
+    defs['cover_grid_cache_size_multiple'] = 5
+    defs['cover_grid_disk_cache_size'] = 2500
+    defs['cover_grid_show_title'] = False
+    defs['cover_grid_texture'] = None
+    defs['show_vl_tabs'] = False
+    defs['show_highlight_toggle_button'] = False
+    defs['add_comments_to_email'] = False
+    defs['cb_preserve_aspect_ratio'] = False
+    defs['gpm_template_editor_font_size'] = 10
+    defs['show_emblems'] = False
+    defs['emblem_size'] = 32
+    defs['emblem_position'] = 'left'
+    defs['metadata_diff_mark_rejected'] = False
+    defs['tag_browser_show_counts'] = True
+    defs['row_numbers_in_book_list'] = True
+
+
+create_defs()
+del create_defs
 # }}}
 
 UNDEFINED_QDATETIME = QDateTime(UNDEFINED_DATE)
@@ -256,7 +263,9 @@ def _config():  # {{{
     c.add_opt
     return ConfigProxy(c)
 
+
 config = _config()
+
 # }}}
 
 QSettings.setPath(QSettings.IniFormat, QSettings.UserScope, config_dir)
@@ -299,6 +308,7 @@ def get_windows_color_depth():
 def get_screen_dpi():
     d = QApplication.desktop()
     return (d.logicalDpiX(), d.logicalDpiY())
+
 
 _is_widescreen = None
 
@@ -580,6 +590,7 @@ class FileIconProvider(QFileIconProvider):
             return self.icons['default']
         return QFileIconProvider.icon(self, arg)
 
+
 _file_icon_provider = None
 
 
@@ -706,6 +717,7 @@ class FileDialog(QObject):
             return tuple(os.path.abspath(unicode(i)) for i in self.fd.selectedFiles())
         return tuple(self.selected_files)
 
+
 has_windows_file_dialog_helper = False
 if iswindows and 'CALIBRE_NO_NATIVE_FILEDIALOGS' not in os.environ:
     from calibre.gui2.win_file_dialogs import is_ok as has_windows_file_dialog_helper
@@ -813,6 +825,7 @@ def decouple(prefix):
     dynamic.decouple(prefix)
     from calibre.gui2.widgets import history
     history.decouple(prefix)
+
 
 _gui_prefs = gprefs
 
@@ -1149,6 +1162,7 @@ class Application(QApplication):
             return
         self.shutdown_signal_received.emit()
 
+
 _store_app = None
 
 
@@ -1188,6 +1202,8 @@ def sanitize_env_vars():
                     os.environ[var] = orig
                 elif var in os.environ:
                     del os.environ[var]
+
+
 SanitizeLibraryPath = sanitize_env_vars  # For old plugins
 
 
@@ -1222,6 +1238,7 @@ def open_local_file(path):
     else:
         url = QUrl.fromLocalFile(path)
         open_url(url)
+
 
 _ea_lock = Lock()
 
@@ -1283,6 +1300,7 @@ def is_ok_to_use_qt():
 def is_gui_thread():
     global gui_thread
     return gui_thread is QThread.currentThread()
+
 
 _rating_font = 'Arial Unicode MS' if iswindows else 'sans-serif'
 
@@ -1369,6 +1387,7 @@ def build_forms(srcdir, info=None, summary=False, check_for_migration=False):
         info('Compiled %d forms' % num)
     if force_compile:
         gprefs.set('migrated_forms_to_qt5', True)
+
 
 _df = os.environ.get('CALIBRE_DEVELOP_FROM', None)
 if _df and os.path.exists(_df):
