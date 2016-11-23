@@ -1734,6 +1734,8 @@ class DateEdit(make_undoable(QDateTimeEdit), ToMetadataMixin):
             self.setDateTime(QDateTime.currentDateTime())
         elif ev.key() == Qt.Key_Up and is_date_undefined(self.current_val):
             self.setDateTime(QDateTime.currentDateTime())
+        elif ev.key() == Qt.Key_Tab and is_date_undefined(self.current_val):
+            ev.ignore()
         else:
             return super(DateEdit, self).keyPressEvent(ev)
 
