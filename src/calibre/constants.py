@@ -4,7 +4,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = u'calibre'
-numeric_version = (2, 72, 0)
+numeric_version = (2, 73, 0)
 __version__   = u'.'.join(map(unicode, numeric_version))
 __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 
@@ -62,6 +62,7 @@ def get_osx_version():
             _osx_ver = OSX(0, 0, 0)
     return _osx_ver
 
+
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None:
     filesystem_encoding = 'utf-8'
@@ -83,6 +84,7 @@ DEBUG = False
 def debug():
     global DEBUG
     DEBUG = True
+
 
 _cache_dir = None
 
@@ -320,6 +322,7 @@ def get_windows_user_locale_name():
     if n == 0:
         return None
     return u'_'.join(buf.value.split(u'-')[:2])
+
 
 number_formats = None
 

@@ -20,6 +20,39 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.73.0
+  date: 2016-11-25
+
+  new features:
+    - title: "Add a preference in Preferences->Look & Feel to hide the row numbers in the main book list."
+      tickets: [1643313]
+
+    - title: "Allow Export/Import of column coloring and icon rules."
+      tickets: [1643314]
+
+    - title: "Edit Book: Allow bulk changing of file extension for selected files by right clicking ont he selected files in the file browser."
+      tickets: [1643232]
+
+    - title: "Edit Book: Check Book: Add a check for nav documents that contain no ToC in EPUB 3 books"
+
+    - title:  "Edit Book: Check Book: Add a test to check if the embedded fonts in the book have their embedding permissions enabled"
+
+  bug fixes:
+    - title: "Pressing the up arrow in an date edit with undefined value should jump to the current date rather than Feb 101"
+
+    - title: "EPUB Input: When an invalid nav based ToC is used in an EPUB 3.0 document that also has a fallback NCX ToC, use the fallback ToC."
+      tickets: [1643247]
+
+    - title: "Fix a regression that broke the icon theme creation tool in the previous release"
+      tickets: [1643228]
+
+    - title: "Fix insert character dialog not reflowing characters on resize. Also only allow the search bar in the dialog to get input focus"
+
+  improved recipes:
+    - Dilbert
+    - The Hindu
+
+
 - version: 2.72.0
   date: 2016-11-18
 
