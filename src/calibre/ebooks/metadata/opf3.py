@@ -467,17 +467,18 @@ def set_authors(root, prefixes, refines, authors):
         remove_element(item, refines)
     metadata = XPath('./opf:metadata')(root)[0]
     for author in authors:
-        a = metadata.makeelement(DC('creator'))
-        aid = ensure_id(a)
-        a.text = author.name
-        metadata.append(a)
-        m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
-        m.text = 'aut'
-        metadata.append(m)
-        if author.sort:
-            m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'file-as'})
-            m.text = author.sort
+        if author.name:
+            a = metadata.makeelement(DC('creator'))
+            aid = ensure_id(a)
+            a.text = author.name
+            metadata.append(a)
+            m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
+            m.text = 'aut'
             metadata.append(m)
+            if author.sort:
+                m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'file-as'})
+                m.text = author.sort
+                metadata.append(m)
 
 
 def read_book_producers(root, prefixes, refines):
