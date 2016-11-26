@@ -145,6 +145,8 @@ def items_with_property(root, q, prefixes=None):
 # Prefixes {{{
 
 # http://www.idpf.org/epub/vocab/package/pfx/
+
+
 reserved_prefixes = {
     'dcterms':  'http://purl.org/dc/terms/',
     'epubsc':   'http://idpf.org/epub/vocab/sc/#',
@@ -319,6 +321,8 @@ def identifier_writer(name):
                 p = package_identifier.getparent()
                 p.insert(p.index(package_identifier), ident)
     return writer
+
+
 set_application_id = identifier_writer('calibre')
 set_uuid = identifier_writer('uuid')
 
@@ -411,6 +415,7 @@ def set_languages(root, prefixes, refines, languages):
 
 # Creator/Contributor {{{
 
+
 Author = namedtuple('Author', 'name sort')
 
 
@@ -500,13 +505,14 @@ def set_book_producers(root, prefixes, refines, producers):
         remove_element(item, refines)
     metadata = XPath('./opf:metadata')(root)[0]
     for bkp in producers:
-        a = metadata.makeelement(DC('contributor'))
-        aid = ensure_id(a)
-        a.text = bkp
-        metadata.append(a)
-        m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
-        m.text = 'bkp'
-        metadata.append(m)
+        if bkp:
+            a = metadata.makeelement(DC('contributor'))
+            aid = ensure_id(a)
+            a.text = bkp
+            metadata.append(a)
+            m = metadata.makeelement(OPF('meta'), attrib={'refines':'#'+aid, 'property':'role', 'scheme':'marc:relators'})
+            m.text = 'bkp'
+            metadata.append(m)
 # }}}
 
 # Dates {{{
@@ -778,6 +784,7 @@ def dict_reader(name, load=json.loads, try2=True):
                         continue
     return reader
 
+
 read_user_categories = dict_reader('user_categories')
 read_author_link_map = dict_reader('author_link_map')
 
@@ -801,6 +808,7 @@ def dict_writer(name, serialize=dump_dict, remove2=True):
             m.append(d)
     return writer
 
+
 set_user_categories = dict_writer('user_categories')
 set_author_link_map = dict_writer('author_link_map')
 
@@ -812,6 +820,8 @@ def deserialize_user_metadata(val):
         decode_is_multiple(fm)
         ans[name] = fm
     return ans
+
+
 read_user_metadata3 = dict_reader('user_metadata', load=deserialize_user_metadata, try2=False)
 
 
@@ -841,6 +851,7 @@ def read_user_metadata(root, prefixes, refines):
 
 def serialize_user_metadata(val):
     return json.dumps(object_to_unicode(val), ensure_ascii=False, default=to_json, indent=2, sort_keys=True)
+
 
 set_user_metadata3 = dict_writer('user_metadata', serialize=serialize_user_metadata, remove2=False)
 
@@ -931,7 +942,8 @@ def read_metadata(root, ver=None, return_extra_data=False):
     ans.author_sort = authors_to_string(aus) or ans.author_sort
     bkp = read_book_producers(root, prefixes, refines)
     if bkp:
-        ans.book_producer = bkp[0]
+        if bkp[0]:
+            ans.book_producer = bkp[0]
     pd = read_pubdate(root, prefixes, refines)
     if not is_date_undefined(pd):
         ans.pubdate = pd
