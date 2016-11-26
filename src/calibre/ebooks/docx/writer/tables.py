@@ -15,6 +15,7 @@ from calibre.ebooks.docx.writer.styles import read_css_block_borders as rcbb, bo
 class Dummy(object):
     pass
 
+
 Border = namedtuple('Border', 'css_style style width color level')
 border_style_weight = {
     x:100-i for i, x in enumerate(('double', 'solid', 'dashed', 'dotted', 'ridge', 'outset', 'groove', 'inset'))}
@@ -35,6 +36,9 @@ class SpannedCell(object):
         tcPr = makeelement(tc, 'w:tcPr')
         makeelement(tcPr, 'w:%sMerge' % ('h' if self.horizontal else 'v'), w_val='continue')
         makeelement(tc, 'w:p')
+
+    def applicable_borders(self, edge):
+        return self.spanning_cell.applicable_borders(edge)
 
 
 def read_css_block_borders(self, css):
