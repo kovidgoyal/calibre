@@ -128,7 +128,7 @@
           <item row="2" column="1">
            <widget class="QPushButton" name="set_as_default_button">
             <property name="toolTip">
-             <string>Store the currently checked fields as a default you can restore using the 'Select default' button</string>
+             <string>Store the currently checked fields as the default, you can quickly apply the default using the 'Select default' button</string>
             </property>
             <property name="text">
              <string>&amp;Set as default</string>
