@@ -208,6 +208,7 @@ class Worker(Thread):  # Get details {{{
                  text()="Detalles del producto" or \
                  text()="Detalhes do produto" or \
                  text()="Productgegevens" or \
+                 text()="基本信息" or \
                  starts-with(text(), "登録情報")]/../div[@class="content"]
             '''
         # Editor: is for Spanish
@@ -232,9 +233,10 @@ class Worker(Thread):  # Get details {{{
                 or text() = "Idioma:" \
                 or starts-with(text(), "Langue") \
                 or starts-with(text(), "言語") \
+                or starts-with(text(), "语种")
                 ]
             '''
-        self.language_names = {'Language', 'Sprache', 'Lingua', 'Idioma', 'Langue', '言語', 'Taal'}
+        self.language_names = {'Language', 'Sprache', 'Lingua', 'Idioma', 'Langue', '言語', 'Taal', '语种'}
 
         self.tags_xpath = '''
             descendant::h2[
@@ -250,6 +252,7 @@ class Worker(Thread):  # Get details {{{
 
         self.ratings_pat = re.compile(
             r'([0-9.]+) ?(out of|von|van|su|étoiles sur|つ星のうち|de un máximo de|de) ([\d\.]+)( (stars|Sternen|stelle|estrellas|estrelas|sterren)){0,1}')
+        self.ratings_pat_cn = re.compile('平均([0-9.]+)')
 
         lm = {
                 'eng': ('English', 'Englisch', 'Engels'),
@@ -260,6 +263,7 @@ class Worker(Thread):  # Get details {{{
                 'jpn': ('Japanese', u'日本語'),
                 'por': ('Portuguese', 'Português'),
                 'nld': ('Dutch', 'Nederlands',),
+                'chs': ('Chinese', u'中文', u'简体中文'),
                 }
         self.lang_map = {}
         for code, names in lm.iteritems():
@@ -277,6 +281,8 @@ class Worker(Thread):  # Get details {{{
                 ''', re.X)
 
     def delocalize_datestr(self, raw):
+        if self.domain == 'cn':
+            return raw.replace('年','-').replace('月','-').replace('日','')
         if not self.months:
             return raw
         ans = raw.lower()
@@ -480,9 +486,14 @@ class Worker(Thread):  # Get details {{{
         if ratings:
             for elem in ratings[0].xpath('descendant::*[@title]'):
                 t = elem.get('title').strip()
-                m = self.ratings_pat.match(t)
-                if m is not None:
-                    return float(m.group(1))/float(m.group(3)) * 5
+                if self.domain == 'cn':
+                    m = self.ratings_pat_cn.match(t)
+                    if m is not None:
+                        return float(m.group(1))
+                else:
+                    m = self.ratings_pat.match(t)
+                    if m is not None:
+                        return float(m.group(1))/float(m.group(3)) * 5
 
     def _render_comments(self, desc):
         from calibre.library.comments import sanitize_comments_html
@@ -775,6 +786,7 @@ class Amazon(Source):
             'es': _('Spain'),
             'br': _('Brazil'),
             'nl': _('Netherlands'),
+            'cn': _('China'),
     }
 
     options = (
@@ -961,7 +973,7 @@ class Amazon(Source):
 
         if domain == 'jp':
             encode_to = 'Shift_JIS'
-        elif domain == 'nl':
+        elif domain == 'nl' or domain == 'cn':
             encode_to='utf-8'
         else:
             encode_to = 'latin1'
@@ -1361,6 +1373,20 @@ if __name__ == '__main__':  # tests {{{
                 {'title':'Freakonomics'},
                 [title_test('Freakonomics',
                     exact=True), authors_test(['Steven Levitt & Stephen Dubner & R. Kuitenbrouwer & O. Brenninkmeijer & A. van Den Berg'])
+                 ]
+
+            ),
+    ]  # }}}
+
+    cn_tests = [  # {{{
+            (
+                {'identifiers':{'isbn':'9787115369512'}},
+                [title_test('若为自由故 自由软件之父理查德斯托曼传', exact=True), authors_test(['[美]sam Williams', '邓楠，李凡希'])]
+            ),
+            (
+                {'title':'爱上Raspberry Pi'},
+                [title_test('爱上Raspberry Pi',
+                    exact=True), authors_test(['Matt Richardson', 'Shawn Wallace', '李凡希'])
                  ]
 
             ),
