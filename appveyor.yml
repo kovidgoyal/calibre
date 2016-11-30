@@ -1,0 +1,24 @@
+os: Visual Studio 2015
+
+clone_folder: C:\calibre
+clone_depth: 5
+
+cache:
+    - .build-cache
+
+environment:
+    SW: C:\sw
+    QMAKE: C:\sw\qt\bin\qmake.exe
+    QT_PLUGIN_PATH: C:\sw\qt\plugins
+
+platform:
+    - x64
+
+before_build:
+    - C:\Python35-x64\python.exe setup/win-ci.py sw
+
+build_script:
+    - C:\sw\private\python\python.exe setup/win-ci.py build
+
+test_script:
+    - C:\sw\private\python\python.exe setup/win-ci.py test
