@@ -8,13 +8,6 @@ branches:
     - vs2015
 
 cache:
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    - node_modules
->>>>>>> Start work on setting up CO testing on windows with AppVeyor
-=======
->>>>>>> Add AppVeyor badge
     - .build-cache
 
 environment:
