@@ -628,8 +628,11 @@ class Boss(QObject):
         self.commit_all_editors_to_container()
         name_map = rationalize_folders(c, d.folder_map)
         if not name_map:
-            return info_dialog(self.gui, _('Nothing to do'), _(
-                'The files in this book are already arranged into folders'), show=True)
+            confirm(_(
+                'The files in this book are already arranged into folders'), 'already-arranged-into-folders',
+                self.gui, pixmap='dialog_information.png', title=_('Nothing to do'), show_cancel_button=False,
+                config_set=tprefs, confirm_msg=_('Show this message &again'))
+            return
         self.add_savepoint(_('Before: Arrange into folders'))
         self.gui.blocking_job(
             'rationalize_folders', _('Renaming and updating links...'), partial(self.rename_done, name_map),
