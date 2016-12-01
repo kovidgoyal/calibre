@@ -114,6 +114,7 @@ class BIBTEX(CatalogPlugin):
         from calibre.library.save_to_disk import preprocess_template
         from calibre.utils.date import now as nowf
         from calibre.utils.logging import default_log as log
+        from calibre.utils.filenames import ascii_text
 
         library_name = os.path.basename(db.library_path)
 
@@ -251,7 +252,7 @@ class BIBTEX(CatalogPlugin):
                         tpl_field = str(entry[tpl_field])
                     else :
                         tpl_field = entry[tpl_field]
-                    return tpl_field
+                    return ascii_text(tpl_field)
                 else:
                     return u''
 
@@ -400,4 +401,3 @@ class BIBTEX(CatalogPlugin):
             for entry in data:
                 outfile.write(create_bibtex_entry(entry, fields, bib_entry, template_citation,
                     bibtexc, db, citation_bibtex, addfiles_bibtex))
-
