@@ -377,6 +377,7 @@ class EximDialog(Dialog):
         self.abort_disk_usage.set()
         Dialog.reject(self)
 
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
