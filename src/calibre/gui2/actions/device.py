@@ -183,6 +183,7 @@ class ConnectShareAction(InterfaceAction):
     popup_type = QToolButton.InstantPopup
 
     def genesis(self):
+        self.content_server_is_running = False
         self.share_conn_menu = ShareConnMenu(self.gui)
         self.share_conn_menu.aboutToShow.connect(self.set_smartdevice_action_state)
         self.share_conn_menu.toggle_server.connect(self.toggle_content_server)
@@ -208,8 +209,10 @@ class ConnectShareAction(InterfaceAction):
     def content_server_state_changed(self, running):
         self.share_conn_menu.server_state_changed(running)
         if running:
+            self.content_server_is_running = True
             self.qaction.setIcon(QIcon(I('connect_share_on.png')))
         else:
+            self.content_server_is_running = False
             self.qaction.setIcon(QIcon(I('connect_share.png')))
 
     def toggle_content_server(self):
@@ -285,5 +288,3 @@ class ConnectShareAction(InterfaceAction):
         ac = self.share_conn_menu.control_smartdevice_action
         ac.setIcon(QIcon(I('dot_%s.png'%icon)))
         ac.setText(text)
-
-

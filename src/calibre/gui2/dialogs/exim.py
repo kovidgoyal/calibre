@@ -277,6 +277,14 @@ class EximDialog(Dialog):
         l.addStretch()
 
     def validate_import(self):
+        from calibre.gui2.ui import get_gui
+        g = get_gui()
+        if g is not None:
+            if g.iactions['Connect Share'].content_server_is_running:
+                error_dialog(self, _('Content Server running'), _(
+                    'Cannot import while the content server is running, shut it down first by clicking the'
+                    ' Connect/share button on the calibre toolbar'), show=True)
+                return False
         if self.import_panel.stack.currentIndex() == 0:
             error_dialog(self, _('No folder selected'), _(
                 'You must select a folder containing the previously exported data that you wish to import'), show=True)
