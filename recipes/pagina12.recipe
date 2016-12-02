@@ -1,5 +1,8 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 __license__ = 'GPL v3'
-__copyright__ = '2008-2012, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2016, Darko Miletic <darko.miletic at gmail.com>'
 '''
 pagina12.com.ar
 '''
@@ -8,77 +11,73 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class Pagina12(BasicNewsRecipe):
-    title = 'Pagina - 12'
-    __author__ = 'Darko Miletic'
-    description = 'Noticias de Argentina y el resto del mundo'
-    publisher = 'La Pagina S.A.'
-    category = 'news, politics, Argentina'
-    oldest_article = 2
-    max_articles_per_feed = 200
-    no_stylesheets = True
-    encoding = 'cp1252'
+    title                = 'Pagina - 12'
+    __author__           = 'Darko Miletic'
+    description          = 'Noticias de Argentina y el resto del mundo'
+    publisher            = 'La Pagina S.A.'
+    category             = 'news, politics, Argentina'
+    oldest_article       = 2
+    no_stylesheets       = True
+    encoding             = 'utf8'
     use_embedded_content = False
-    language = 'es_AR'
-    remove_empty_feeds = True
-    publication_type = 'newspaper'
-    masthead_url = 'http://www.pagina12.com.ar/commons/imgs/logo-home.gif'
-    extra_css             = """
-                               body{font-family: Arial,Helvetica,sans-serif }
+    language             = 'es_AR'
+    remove_empty_feeds   = True
+    publication_type     = 'newspaper'
+    auto_cleanup         = False
+    PREFIX               = 'https://www.pagina12.com.ar'
+    extra_css            = """
+                               body{font-family: Lora,serif}
+                               .article-date{font-size: small; margin-bottom: 0.4em;}
+                               .article-title{font-size: x-large; font-weight: bold; display: block; margin-bottom: 1em; margin-top: 1em;}
+                               .article-main-media{display: block; margin-bottom: 0.4em;}
+                               .article-summary{margin-bottom: 0.4em; display:block}
                                img{margin-bottom: 0.4em; display:block}
-                               #autor{font-weight: bold}
-                               #fecha,#epigrafe{font-size: 0.9em; margin: 5px}
-                               #imagen{border: 1px solid black; margin: 0 0 1.25em 1.25em; width: 232px }
-                               .fgprincipal{font-size: large; font-weight: bold}
-                            """
+                           """
 
     conversion_options = {
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
     remove_tags = [
-        dict(name=['meta', 'link']), dict(name='div', attrs={
-            'id': ['volver', 'logo', 'logo_suple', 'fin', 'permalink']})
+        dict(name=['meta', 'link']),
     ]
-    remove_attributes = ['lang']
+
+    keep_only_tags=[
+       dict(name='div', attrs={'class':[
+                                        'article-date',
+                                        'article-main-media-image',
+                                        'article-prefix',
+                                        'article-title',
+                                        'article-summary',
+                                        'article-text'
+                                       ]})
+    ]
 
     feeds = [
-
-    (u'Edicion impresa', u'http://www.pagina12.com.ar/diario/rss/principal.xml'),
-    (u'Espectaculos', u'http://www.pagina12.com.ar/diario/rss/espectaculos.xml'),
-    (u'Radar', u'http://www.pagina12.com.ar/diario/rss/radar.xml'),
-    (u'Radar libros', u'http://www.pagina12.com.ar/diario/rss/libros.xml'),
-    (u'Cash', u'http://www.pagina12.com.ar/diario/rss/cash.xml'),
-    (u'Turismo', u'http://www.pagina12.com.ar/diario/rss/turismo.xml'),
-    (u'Libero', u'http://www.pagina12.com.ar/diario/rss/libero.xml'),
-    (u'NO', u'http://www.pagina12.com.ar/diario/rss/no.xml'),
-    (u'Las/12', u'http://www.pagina12.com.ar/diario/rss/las12.xml'),
-    (u'Soy', u'http://www.pagina12.com.ar/diario/rss/soy.xml'),
-    (u'Futuro', u'http://www.pagina12.com.ar/diario/rss/futuro.xml'),
-    (u'M2', u'http://www.pagina12.com.ar/diario/rss/m2.xml'),
-    (u'Rosario/12', u'http://www.pagina12.com.ar/diario/rss/rosario.xml')
+      (u'Edicion impresa', u'https://www.pagina12.com.ar/rss/edicion-impresa'),
+      (u'Espectaculos'   , u'https://www.pagina12.com.ar/rss/suplementos/cultura-y-espectaculos/notas'),
+      (u'Radar'          , u'https://www.pagina12.com.ar/rss/suplementos/radar/notas'),
+      (u'Radar libros'   , u'https://www.pagina12.com.ar/rss/suplementos/radar-libros/notas'),
+      (u'Cash'           , u'https://www.pagina12.com.ar/rss/suplementos/cash/notas'),
+      (u'Turismo'        , u'https://www.pagina12.com.ar/rss/suplementos/turismo/notas'),
+      (u'Libero'         , u'https://www.pagina12.com.ar/rss/suplementos/libero/notas'),
+      (u'NO'             , u'https://www.pagina12.com.ar/rss/suplementos/no/notas'),
+      (u'Las/12'         , u'https://www.pagina12.com.ar/rss/suplementos/las12/notas'),
+      (u'Soy'            , u'https://www.pagina12.com.ar/rss/suplementos/soy/notas'),
+      (u'Futuro'         , u'http://www.pagina12.com.ar/diario/rss/futuro.xml'),
+      (u'M2'             , u'https://www.pagina12.com.ar/rss/suplementos/m2/notas'),
+      (u'Rosario/12'     , u'https://www.pagina12.com.ar/rss/suplementos/rosario12/notas')
     ]
 
-    def print_version(self, url):
-        return url.replace('http://www.pagina12.com.ar/', 'http://www.pagina12.com.ar/imprimir/')
+    def get_article_url(self, article):
+        url = article.get('guid',  None)
+        if url.startswith('/'):
+            return self.PREFIX + url
+        return url
 
     def get_cover_url(self):
-        soup = self.index_to_soup(
-            'http://www.pagina12.com.ar/diario/principal/diario/index.html')
+        soup = self.index_to_soup(self.PREFIX)
         for image in soup.findAll('img', alt=True):
-            if image['alt'].startswith('Tapa de la fecha'):
-                return image['src']
+            if image['alt'].startswith('Tapa del dia'):
+                return self.PREFIX + image['data-src']
         return None
-
-    def preprocess_html(self, soup):
-        for item in soup.findAll(style=True):
-            del item['style']
-        for item in soup.findAll('span', attrs={'id': 'seccion'}):
-            it = item.a
-            it.name = 'span'
-            del it['href']
-            del it['title']
-        for item in soup.findAll('p'):
-            it = item.find('h3')
-            if it:
-                it.name = 'span'
-        return soup
