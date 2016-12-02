@@ -77,34 +77,34 @@ def get_image_margins(elem):
     return ans
 
 
-def get_hpos(anchor, page_width, XPath, get):
+def get_hpos(anchor, page_width, XPath, get, width_frac):
     for ph in XPath('./wp:positionH')(anchor):
         rp = ph.get('relativeFrom', None)
         if rp == 'leftMargin':
-            return 0
+            return 0 + width_frac
         if rp == 'rightMargin':
-            return 1
+            return 1 + width_frac
+        al = None
+        almap = {'left':0, 'center':0.5, 'right':1}
         for align in XPath('./wp:align')(ph):
-            al = align.text
-            if al == 'left':
-                return 0
-            if al == 'center':
-                return 0.5
-            if al == 'right':
-                return 1
+            al = almap.get(align.text)
+            if al is not None:
+                if rp == 'page':
+                    return al
+                return al + width_frac
         for po in XPath('./wp:posOffset')(ph):
             try:
                 pos = emu_to_pt(int(po.text))
             except (TypeError, ValueError):
                 continue
-            return pos/page_width
+            return pos/page_width + width_frac
 
     for sp in XPath('./wp:simplePos')(anchor):
         try:
             x = emu_to_pt(sp.get('x', None))
         except (TypeError, ValueError):
             continue
-        return x/page_width
+        return x/page_width + width_frac
 
     return 0
 
@@ -298,7 +298,7 @@ class Images(object):
             # Ignore margins
             page_width = page.width
 
-        hpos = get_hpos(anchor, page_width, XPath, get) + width/(2*page_width)
+        hpos = get_hpos(anchor, page_width, XPath, get, width/(2*page_width))
 
         wrap_elem = None
         dofloat = False
