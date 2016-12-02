@@ -183,7 +183,7 @@ class ResultsModel(QAbstractTableModel):  # {{{
             return book
         elif role == Qt.ToolTipRole and col == 3:
             return (
-                _('The has cover indication is not fully\n'
+                _('The "has cover" indication is not fully\n'
                     'reliable. Sometimes results marked as not\n'
                     'having a cover will find a cover in the download\n'
                     'cover stage, and vice versa.'))
@@ -1194,9 +1194,9 @@ class CoverFetch(QDialog):  # {{{
 
 # }}}
 
+
 if __name__ == '__main__':
     DEBUG_DIALOG = True
     app = QApplication([])
     d = FullFetch()
     d.start(title='great gatsby', authors=['fitzgerald'])
-
