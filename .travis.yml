@@ -7,6 +7,8 @@ cache:
     - .build-cache
 
 matrix:
+    allow_failures:
+        - os: osx
     include:
         - os: linux
           sudo: false
