@@ -28,5 +28,5 @@ class Starbulletin(BasicNewsRecipe):
         (u'Business', u'http://www.staradvertiser.com/business/feed/'),
         (u'Sports', u'http://www.staradvertiser.com/sports/feed/'),
         (u'Features',
-         u'http://www.staradvertiser.com/featurespremium/index.rss')
+         u'http://www.staradvertiser.com/features/feed/')
     ]

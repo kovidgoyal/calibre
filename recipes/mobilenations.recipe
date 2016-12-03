@@ -14,5 +14,5 @@ class HindustanTimes(BasicNewsRecipe):
 
     feeds = [
         ('News',
-         'http://www.mobilenations.com/rss/mb.xml'),
+         'http://www.mobilenations.com/about?format=RSS'),
     ]
