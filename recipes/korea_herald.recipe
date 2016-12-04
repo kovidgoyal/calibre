@@ -16,15 +16,11 @@ class KoreaHerald(BasicNewsRecipe):
     max_articles_per_feed = 15
     no_stylesheets = True
     keep_only_tags = [
-        dict(id=['contentLeft', '_article'])
-    ]
-
-    remove_tags = [
-        dict(name='iframe'),
-        dict(name='div', attrs={
-             'class': ['left', 'htit2', 'navigation', 'banner_txt', 'banner_img']}),
-        dict(name='ul', attrs={
-            'class': ['link_icon', 'flow_icon', 'detailTextAD110113']}),
+        dict(name='h1', attrs={
+                'class':'title_sec'}),
+        dict(name='h4', attrs={
+                'class':'stitle_sec'}),
+        dict(id='articleText')
     ]
 
     feeds = [
@@ -34,5 +30,5 @@ class KoreaHerald(BasicNewsRecipe):
         ('Entertainment', 'http://www.koreaherald.com/rss/020400000000.xml'),
         ('Sports', 'http://www.koreaherald.com/rss/020500000000.xml'),
         ('Opinion', 'http://www.koreaherald.com/rss/020600000000.xml'),
-        ('English Cafe', 'http://www.koreaherald.com/rss/021000000000.xml'),
+        ('English Cafe', 'http://www.koreaherald.com/rss/021000000000.xml')
     ]
