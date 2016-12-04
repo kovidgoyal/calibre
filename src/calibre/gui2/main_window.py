@@ -185,6 +185,7 @@ def clone_menu(menu):
         return ans
 
     def clone_one_menu(m):
+        m.aboutToShow.emit()
         ans = QMenu(m.parent())
         for ac in m.actions():
             cac = clone_action(ac, ans)
