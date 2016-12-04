@@ -15,14 +15,14 @@ from textwrap import wrap
 
 from PyQt5.Qt import (
     QListView, QSize, QStyledItemDelegate, QModelIndex, Qt, QImage, pyqtSignal,
-    QTimer, QPalette, QColor, QItemSelection, QPixmap, QMenu, QApplication,
+    QTimer, QPalette, QColor, QItemSelection, QPixmap, QApplication,
     QMimeData, QUrl, QDrag, QPoint, QPainter, QRect, pyqtProperty, QEvent,
     QPropertyAnimation, QEasingCurve, pyqtSlot, QHelpEvent, QAbstractItemView,
     QStyleOptionViewItem, QToolTip, QByteArray, QBuffer, QBrush, qRed, qGreen,
     qBlue, QItemSelectionModel, QIcon, QFont)
 
 from calibre import fit_image, prints, prepare_string_for_xml, human_readable
-from calibre.constants import DEBUG, config_dir
+from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.utils import join_with_timeout
 from calibre.gui2 import gprefs, config, rating_font
@@ -929,17 +929,16 @@ class GridView(QListView):
         self.context_menu = menu
 
     def contextMenuEvent(self, event):
-        if self.context_menu is not None:
-            menu = self._temp_menu = QMenu(self)
-            sac = self.gui.iactions['Sort By']
-            sort_added = tuple(ac for ac in self.context_menu.actions() if ac is sac.qaction)
-            if not sort_added:
-                menu.addAction(sac.qaction)
-            for ac in self.context_menu.actions():
-                menu.addAction(ac)
+        if self.context_menu is None:
+            return
+        from calibre.gui2.main_window import clone_menu
+        sac = self.gui.iactions['Sort By']
+        sort_added = tuple(ac for ac in self.context_menu.actions() if ac is sac.qaction)
+        if sort_added:
             sac.update_menu()
-            menu.popup(event.globalPos())
-            event.accept()
+        m = clone_menu(self.context_menu) if islinux else self.context_menu
+        m.popup(event.globalPos())
+        event.accept()
 
     def get_selected_ids(self):
         m = self.model()
