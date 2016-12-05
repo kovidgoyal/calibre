@@ -1371,7 +1371,7 @@ def command_check_library(args, dbpath):
     checker = CheckLibrary(dbpath, db)
     checker.scan_library(names, exts)
     for check in checks:
-        _print_check_library_results(checker, check)
+        _print_check_library_results(checker, check, opts)
 
 
 def _print_check_library_results(checker, check, opts):
