@@ -10,10 +10,10 @@ Unit tests for database layer.
 import sys, unittest, os, cStringIO
 from itertools import repeat
 
-from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata import MetaInformation
-
+from calibre.library.database2 import LibraryDatabase2
+from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.run_tests import find_tests_in_dir, run_tests
 
 class DBTest(unittest.TestCase):
 
@@ -89,12 +89,13 @@ class DBTest(unittest.TestCase):
         self.assertEqual(self.db.rating(0), 3)
 
 
-def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(DBTest)
+def find_tests():
+    base = os.path.dirname(os.path.abspath(__file__))
+    return find_tests_in_dir(base)
 
 
 def test():
-    unittest.TextTestRunner(verbosity=2).run(suite())
+    run_tests(find_tests())
 
 
 def main(args=sys.argv):
