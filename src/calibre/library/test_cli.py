@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Test the CLI of the calibre database management tool
 '''
-import csv, sys
+import csv
 import unittest
 from StringIO import StringIO
 
@@ -88,7 +88,6 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         """
         Test more complex csv output
         """
-        raise unittest.SkipTest('This test fails, as csv output does not currently escape')
         checker = Mock(name='checker', speck=CheckLibrary)
         data = [['I, Caesar', 'second']]
         opts = Mock()

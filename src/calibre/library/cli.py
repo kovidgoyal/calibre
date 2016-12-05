@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Command line interface to the calibre database.
 '''
 
-import sys, os, cStringIO, re
+import cStringIO, csv, os, re, sys
 import unicodedata
 from textwrap import TextWrapper
 from optparse import OptionValueError, OptionGroup
@@ -1379,9 +1379,13 @@ def _print_check_library_results(checker, check, opts):
     list = getattr(checker, attr, None)
     if list is None:
         return
+
     if opts.csv:
-        for i in list:
-            print check[1] + ',' + i[0] + ',' + i[1]
+        to_output = [(check[1], i[0], i[1]) for i in list]
+        csv_print = csv.writer(sys.stdout)
+        for line in to_output:
+            csv_print.writerow(line)
+
     else:
         print check[1]
         for i in list:
