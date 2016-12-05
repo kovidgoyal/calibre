@@ -1,2 +1,0 @@
-# Note, this file is work-in-progress, and is partial only.
-mock==2.0.0

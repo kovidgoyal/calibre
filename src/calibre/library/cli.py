@@ -267,6 +267,8 @@ class DevNull(object):
 
     def write(self, msg):
         pass
+
+
 NULL = DevNull()
 
 
@@ -1362,7 +1364,6 @@ def command_check_library(args, dbpath):
     else:
         exts = [f.strip() for f in opts.exts.split(',') if f.strip()]
 
-
     if not LibraryDatabase.exists_at(dbpath):
         prints('No library found at', dbpath, file=sys.stderr)
         raise SystemExit(1)
@@ -1371,25 +1372,25 @@ def command_check_library(args, dbpath):
     checker = CheckLibrary(dbpath, db)
     checker.scan_library(names, exts)
     for check in checks:
-        _print_check_library_results(checker, check, opts)
+        _print_check_library_results(checker, check, as_csv=opts.csv)
 
 
-def _print_check_library_results(checker, check, opts):
+def _print_check_library_results(checker, check, as_csv=False, out=sys.stdout):
     attr = check[0]
     list = getattr(checker, attr, None)
     if list is None:
         return
 
-    if opts.csv:
+    if as_csv:
         to_output = [(check[1], i[0], i[1]) for i in list]
-        csv_print = csv.writer(sys.stdout)
+        csv_print = csv.writer(out)
         for line in to_output:
             csv_print.writerow(line)
 
     else:
-        print check[1]
+        print >>out, check[1]
         for i in list:
-            print '    %-40.40s - %-40.40s'%(i[0], i[1])
+            print >>out, '    %-40.40s - %-40.40s'%(i[0], i[1])
 
 
 def restore_database_option_parser():
@@ -1648,6 +1649,7 @@ language, for example: {0}
         help=_('The maximum number of results to return. Default is all results.'))
     return parser
 
+
 COMMANDS = ('list', 'add', 'remove', 'add_format', 'remove_format',
             'show_metadata', 'set_metadata', 'export', 'catalog',
             'saved_searches', 'add_custom_column', 'custom_columns',
@@ -1705,6 +1707,7 @@ def main(args=sys.argv):
     dbpath = prefs['library_path']
 
     return command(args[2:], dbpath)
+
 
 if __name__ == '__main__':
     sys.exit(main())

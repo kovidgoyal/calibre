@@ -20,8 +20,6 @@ platform:
 
 before_build:
   - C:\Python35-x64\python.exe setup/win-ci.py sw
-  - C:\sw\private\python\easy_install.exe --user "pip==9.0.1"
-  - C:\sw\private\python\pip install --user -r requirements.txt
 
 build_script:
     - C:\sw\private\python\python.exe setup/win-ci.py build

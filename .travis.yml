@@ -25,8 +25,6 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo mkdir -p $SWBASE && sudo chown $USER $SWBASE; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl https://download.calibre-ebook.com/travis/sw-osx.tar.bz2 | tar xj -C $SWBASE; fi
     - npm install --no-optional rapydscript-ng && echo $PATH && which rapydscript && rapydscript --version
-    - python $SW/bin/easy_install --user "pip==9.0.1"
-    - pip install --user -r requirements.txt
     - python setup.py bootstrap --ephemeral
 
 script: python setup.py test
