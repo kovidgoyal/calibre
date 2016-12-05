@@ -301,6 +301,7 @@ class StatsCollector(object):
             for v in fum.itervalues():
                 v['text'] = {safe_chr(x) for x in v['text']}
 
+
 if __name__ == '__main__':
     from calibre.ebooks.oeb.polish.container import get_container
     from calibre.utils.logging import default_log

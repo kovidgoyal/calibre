@@ -105,6 +105,7 @@ def subset_all_fonts(container, font_stats, report):
         report(_('No embedded fonts found'))
     return changed
 
+
 if __name__ == '__main__':
     from calibre.ebooks.oeb.polish.container import get_container
     from calibre.ebooks.oeb.polish.stats import StatsCollector
@@ -123,4 +124,3 @@ if __name__ == '__main__':
         prints(msg)
     print()
     prints('Output written to:', outbook)
-
