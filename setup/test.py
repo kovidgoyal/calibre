@@ -65,11 +65,11 @@ def find_tests(which_tests=None):
         from calibre.utils.shared_file import find_tests
         a(find_tests())
     if ok('library'):
-        from calibre.library.test import find_tests
-        a(find_tests())
+        a(unittest.TestLoader().discover('src/calibre/library'))
 
     tests = unittest.TestSuite(ans)
     return tests
+
 
 class Test(Command):
 
