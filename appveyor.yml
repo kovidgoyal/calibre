@@ -4,7 +4,7 @@ os: Visual Studio 2015
 clone_folder: C:\calibre
 clone_depth: 5
 branches:
-    only: 
+    only:
     - vs2015
 
 cache:
@@ -19,7 +19,9 @@ platform:
     - x64
 
 before_build:
-    - C:\Python35-x64\python.exe setup/win-ci.py sw
+  - C:\Python35-x64\python.exe setup/win-ci.py sw
+  - C:\sw\private\python\easy_install.exe --user "pip==9.0.1"
+  - C:\sw\private\python\pip install --user -r requirements.txt
 
 build_script:
     - C:\sw\private\python\python.exe setup/win-ci.py build
