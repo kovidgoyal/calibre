@@ -98,3 +98,7 @@ class PrintCheckLibraryResultsTest(unittest.TestCase):
         result = mock_stdout.getvalue().split('\n')
         parsed_result = [l for l in csv.reader(result) if l]
         self.assertEqual(parsed_result, [[self.check_human_name, data[0][0], data[0][1]]])
+
+
+def find_tests():
+    return unittest.defaultTestLoader.loadTestsFromTestCase(PrintCheckLibraryResultsTest)
