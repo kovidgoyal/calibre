@@ -39,6 +39,7 @@ def _config():
 
     return ConfigProxy(c)
 
+
 config = _config()
 
 
@@ -97,6 +98,7 @@ def restore_plugin_state_to_default(plugin_or_name):
         ep.remove(x)
     config['enabled_plugins'] = ep
 
+
 default_disabled_plugins = set([
     'Overdrive', 'Douban Books', 'OZON.ru', 'Edelweiss', 'Google Images', 'Big Book Search',
 ])
@@ -110,6 +112,7 @@ def is_disabled(plugin):
 # }}}
 
 # File type plugins {{{
+
 
 _on_import           = {}
 _on_postimport       = {}
@@ -158,6 +161,7 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
         oo, oe = sys.stdout, sys.stderr  # Some file type plugins out there override the output streams with buggy implementations
         with plugin:
             try:
+                plugin.original_path_to_file = path_to_file
                 nfp = plugin.run(path_to_file)
                 if not nfp:
                     nfp = path_to_file
@@ -170,6 +174,7 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
         shutil.copyfile(nfp, path_to_file)
         nfp = path_to_file
     return nfp
+
 
 run_plugins_on_import      = functools.partial(_run_filetype_plugins,
                                                occasion='import')
@@ -317,6 +322,8 @@ def available_stores():
 # }}}
 
 # Metadata read/write {{{
+
+
 _metadata_readers = {}
 _metadata_writers = {}
 
@@ -362,6 +369,7 @@ class QuickMetadata(object):
     def __exit__(self, *args):
         self.quick = False
 
+
 quick_metadata = QuickMetadata()
 
 
@@ -376,6 +384,7 @@ class ApplyNullMetadata(object):
     def __exit__(self, *args):
         self.apply_null = False
 
+
 apply_null_metadata = ApplyNullMetadata()
 
 
@@ -389,6 +398,7 @@ class ForceIdentifiers(object):
 
     def __exit__(self, *args):
         self.force_identifiers = False
+
 
 force_identifiers = ForceIdentifiers()
 
@@ -629,6 +639,7 @@ def all_edit_book_tool_plugins():
 
 # Initialize plugins {{{
 
+
 _initialized_plugins = []
 
 
@@ -693,6 +704,7 @@ def initialize_plugins(perf=False):
     _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)
     reread_filetype_plugins()
     reread_metadata_plugins()
+
 
 initialize_plugins()
 
@@ -798,6 +810,7 @@ def main(args=sys.argv):
             print
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -349,7 +349,9 @@ class FileTypePlugin(Plugin):  # {{{
         modified ebook. If no modifications are needed, it should
         return the path to the original ebook. If an error is encountered
         it should raise an Exception. The default implementation
-        simply return the path to the original ebook.
+        simply return the path to the original ebook. Note that the path to
+        the original file (before any file type plugins are run, is available as
+        self.original_path_to_file).
 
         The modified ebook file should be created with the
         :meth:`temporary_file` method.
@@ -813,4 +815,3 @@ class LibraryClosedPlugin(Plugin):  # {{{
         raise NotImplementedError('LibraryClosedPlugin '
                 'run method must be overridden in subclass')
 # }}}
-
