@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Command line interface to the calibre database.
 '''
 
-import sys, os, cStringIO, re
+import cStringIO, csv, os, re, sys
 import unicodedata
 from textwrap import TextWrapper
 from optparse import OptionValueError, OptionGroup
@@ -1362,18 +1362,6 @@ def command_check_library(args, dbpath):
     else:
         exts = [f.strip() for f in opts.exts.split(',') if f.strip()]
 
-    def print_one(checker, check):
-        attr = check[0]
-        list = getattr(checker, attr, None)
-        if list is None:
-            return
-        if opts.csv:
-            for i in list:
-                print check[1] + ',' + i[0] + ',' + i[1]
-        else:
-            print check[1]
-            for i in list:
-                print '    %-40.40s - %-40.40s'%(i[0], i[1])
 
     if not LibraryDatabase.exists_at(dbpath):
         prints('No library found at', dbpath, file=sys.stderr)
@@ -1383,7 +1371,25 @@ def command_check_library(args, dbpath):
     checker = CheckLibrary(dbpath, db)
     checker.scan_library(names, exts)
     for check in checks:
-        print_one(checker, check)
+        _print_check_library_results(checker, check, opts)
+
+
+def _print_check_library_results(checker, check, opts):
+    attr = check[0]
+    list = getattr(checker, attr, None)
+    if list is None:
+        return
+
+    if opts.csv:
+        to_output = [(check[1], i[0], i[1]) for i in list]
+        csv_print = csv.writer(sys.stdout)
+        for line in to_output:
+            csv_print.writerow(line)
+
+    else:
+        print check[1]
+        for i in list:
+            print '    %-40.40s - %-40.40s'%(i[0], i[1])
 
 
 def restore_database_option_parser():
