@@ -5,6 +5,7 @@
 .bzr
 .bzrignore
 .build-cache
+.cache
 src/calibre/plugins
 resources/images.qrc
 manual/generated
