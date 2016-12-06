@@ -49,7 +49,7 @@ SOLARIZED = \
     PmenuSel     fg={base01} bg={base2}
 
     Cursor       fg={base03} bg={base0}
-    Normal       fg={base0} bg={base03}
+    Normal       fg={base0} bg={base02}
     LineNr       fg={base01} bg={base02}
     LineNrC      fg={magenta}
     Visual       fg={base01} bg={base03}
@@ -201,6 +201,7 @@ def read_color(col):
     except Exception:
         pass
 
+
 Highlight = namedtuple('Highlight', 'fg bg bold italic underline underline_color')
 
 
@@ -235,6 +236,7 @@ def read_theme(raw):
             ans[name] = Highlight(fg, bg, bold, italic, underline, underline_color)
     return ans
 
+
 THEMES = {k:read_theme(raw) for k, raw in THEMES.iteritems()}
 
 
@@ -243,6 +245,8 @@ def u(x):
     if 'Dot' in x:
         return x + 'Line'
     return x + 'Underline'
+
+
 underline_styles = {x:getattr(QTextCharFormat, u(x)) for x in underline_styles}
 
 
@@ -474,6 +478,8 @@ class Property(QWidget):
         self.changed.emit()
 
 # Help text {{{
+
+
 HELP_TEXT = _('''\
 <h2>Creating a custom theme</h2>
 
@@ -684,6 +690,7 @@ class ThemeEditor(Dialog):
         g = QApplication.instance().desktop().availableGeometry(self.parent() or self)
         return QSize(min(1500, g.width() - 25), 650)
 # }}}
+
 
 if __name__ == '__main__':
     app = QApplication([])
