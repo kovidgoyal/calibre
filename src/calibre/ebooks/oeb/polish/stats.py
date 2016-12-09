@@ -43,6 +43,7 @@ def normalize_font_properties(font):
     font['font-stretch'] = val
     return font
 
+
 widths = {x:i for i, x in enumerate(('ultra-condensed',
         'extra-condensed', 'condensed', 'semi-condensed', 'normal',
         'semi-expanded', 'expanded', 'extra-expanded', 'ultra-expanded'
@@ -108,6 +109,7 @@ def get_css_text(elem, resolve_pseudo_property, which='before'):
         return text[1:-1]
     return ''
 
+
 caps_variants = {'smallcaps', 'small-caps', 'all-small-caps', 'petite-caps', 'all-petite-caps', 'unicase'}
 
 
@@ -162,6 +164,7 @@ def get_font_dict(elem, resolve_property, pseudo=None):
         ans[p] = type('')(rp[0].value)
     normalize_font_properties(ans)
     return ans
+
 
 bad_fonts = {'serif', 'sans-serif', 'monospace', 'cursive', 'fantasy', 'sansserif', 'inherit'}
 exclude_chars = frozenset(ord_string('\n\r\t'))
