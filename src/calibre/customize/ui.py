@@ -165,7 +165,7 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
             except Exception:
                 pass
             try:
-                nfp = plugin.run(path_to_file) or path_to_file
+                nfp = plugin.run(nfp) or nfp
             except:
                 print >>oe, 'Running file type plugin %s failed with traceback:'%plugin.name
                 traceback.print_exc(file=oe)
