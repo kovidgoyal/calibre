@@ -155,6 +155,8 @@ class OptionSet(object):
         for opt in self.preferences:
             if opt.help:
                 opt.help = t(opt.help)
+                if opt.name == 'use_primary_find_in_search':
+                    opt.help = opt.help.format(u'ñ')
 
     def option_parser(self, user_defaults=None, usage='', gui_mode=False):
         from calibre.utils.config import OptionParser
@@ -441,7 +443,7 @@ def create_global_prefs(conf_obj=None):
             help=_(u'Characters typed in the search box will match their '
                    'accented versions, based on the language you have chosen '
                    'for the calibre interface. For example, in '
-                   u'English, searching for n will match both ñ and n, but if '
+                   u'English, searching for n will match both {} and n, but if '
                    'your language is Spanish it will only match n. Note that '
                    'this is much slower than a simple search on very large '
                    'libraries. Also, this option will have no effect if you turn '

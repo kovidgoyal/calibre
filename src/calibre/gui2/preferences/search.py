@@ -246,7 +246,7 @@ class ConfigWidget(ConfigWidgetBase, Ui_Form):
                 config[key] = []
         self.gui.search.clear_history()
 
+
 if __name__ == '__main__':
     app = QApplication([])
     test_widget('Interface', 'Search')
-
