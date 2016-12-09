@@ -6,12 +6,13 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno, subprocess
+import os, cPickle, re, shutil, marshal, zipfile, glob, time, sys, hashlib, json, errno
 from zlib import compress
 from itertools import chain
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
-from setup import Command, basenames, __appname__
+from setup import Command, basenames, __appname__, download_securely
+
 
 def get_opts_from_parser(parser):
     def do_opt(opt):
@@ -27,11 +28,6 @@ def get_opts_from_parser(parser):
             for x in do_opt(o):
                 yield x
 
-def download_securely(url):
-    # We use curl here as on some OSes (OS X) when bootstrapping calibre,
-    # python will be unable to validate certificates until after cacerts is
-    # installed
-    return subprocess.check_output(['curl', '-fsSL', url])
 
 class Coffee(Command):  # {{{
 
@@ -127,6 +123,7 @@ class Coffee(Command):  # {{{
         if os.path.exists(x):
             os.remove(x)
 # }}}
+
 
 class Kakasi(Command):  # {{{
 
@@ -229,6 +226,7 @@ class Kakasi(Command):  # {{{
             shutil.rmtree(kakasi)
 # }}}
 
+
 class CACerts(Command):  # {{{
 
     description = 'Get updated mozilla CA certificate bundle'
@@ -255,6 +253,7 @@ class CACerts(Command):  # {{{
         from calibre.utils.https import get_https_resource_securely
         get_https_resource_securely('https://calibre-ebook.com', cacerts=self.b(self.CA_PATH))
 # }}}
+
 
 class RecentUAs(Command):
 
@@ -291,6 +290,7 @@ class RecentUAs(Command):
         with open(self.UA_PATH, 'wb') as f:
             f.write('\n'.join(lines).encode('ascii'))
 
+
 class RapydScript(Command):  # {{{
 
     description = 'Compile RapydScript to JavaScript'
@@ -299,6 +299,7 @@ class RapydScript(Command):  # {{{
         from calibre.utils.rapydscript import compile_srv
         compile_srv()
 # }}}
+
 
 class Resources(Command):  # {{{
 
