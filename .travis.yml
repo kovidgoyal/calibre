@@ -25,7 +25,7 @@ before_install:
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sudo mkdir -p $SWBASE && sudo chown $USER $SWBASE; fi
     - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl https://download.calibre-ebook.com/travis/sw-osx.tar.bz2 | tar xj -C $SWBASE; fi
     - npm install --no-optional rapydscript-ng && echo $PATH && which rapydscript && rapydscript --version
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export SSL_CERT_FILE=$PWD/resources/mozilla-ca-certs.pem; fi
     - python setup.py bootstrap --ephemeral
+    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export SSL_CERT_FILE=$PWD/resources/mozilla-ca-certs.pem; fi
 
 script: python setup.py test
