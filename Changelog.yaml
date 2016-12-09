@@ -20,6 +20,57 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.74.0
+  date: 2016-12-09
+
+  new features:
+    - title: "Amazon metadata download: Allow downloading from amazon.cn as well. To use go to Preferences->Metadata download and customize the amazon plugin to download from amazon.cn"
+
+    - title: "Edit Book: Allow disabling the 'Files already arranged into folders' message popup"
+
+  bug fixes:
+    - title: "Edit Book: Fix selected text not being fully highlighted when using the solarized color schemes."
+      tickets: [1647448]
+
+    - title: "calibredb: Fix CSV output for the check_library command not being properly escaped"
+
+    - title: "Fix subsetting of fonts whose names start with 'and' not working"
+
+    - title: "Fix a regression in 2.72 that broke the --start-in-tray command line option."
+      tickets: [1644876]
+
+    - title: "Fix third party plugins that create dynamic context menus not working in linux"
+
+    - title: "DOCX Input: Fix images wider than 50% of the page width being incorrectly right aligned even when anchored to the center of the page."
+      tickets: [1646086]
+
+    - title: "Catalog generation: Ensure all citation keys in BiBTeX catalogs have only ascii characters."
+      tickets: [1646239]
+
+    - title: "Get Books: Update ebookpoint and legimi plugins for website changes"
+
+    - title: "EPUB3 metadata: Ensure updating metadata never produces empty dc:contributor elements."
+      tickets: [1644702]
+
+    - title: "DOCX Output: Fix an error when converting tables with spanning cells."
+      tickets: [1644912]
+
+    - title: "Nicer error message if the user tries to import data while the content server is running"
+
+  improved recipes:
+    - Frontline
+    - Korea Herald
+    - Pagina 12
+    - Edge Conversations
+    - Kitsapun
+    - Mobile Nations
+    - NME
+    - Security Watch
+    - Sign on SD
+    - Star Advertiser
+    - tyzden
+
+
 - version: 2.73.0
   date: 2016-11-25
 
