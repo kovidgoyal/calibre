@@ -1,3 +1,6 @@
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 __license__   = 'GPL v3'
 __copyright__ = '2008-2016, Darko Miletic <darko.miletic at gmail.com>'
 '''
@@ -16,15 +19,13 @@ class Ambito(BasicNewsRecipe):
     oldest_article        = 2
     no_stylesheets        = True
     encoding              = 'utf8'
-    masthead_url          = 'http://www.ambito.com/img/logo.jpg'
     use_embedded_content  = False
     remove_empty_feeds    = True
+    ignore_duplicate_articles = {'url'}
     language              = 'es_AR'
     publication_type      = 'newsportal'
     extra_css             = """
-                                body{font-family: "Trebuchet MS",Verdana,sans-serif}
-                                .volanta{font-size: small}
-                                .t2_portada{font-size: xx-large; font-family: Georgia,serif; color: #026698}
+                                body{font-family: Roboto, sans-serif}
                             """
 
     conversion_options = {
@@ -35,8 +36,10 @@ class Ambito(BasicNewsRecipe):
                         }
 
     keep_only_tags    = [
-                          dict(attrs={'class':['titulo-noticia','article-img']}),
-                          dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()})
+                          dict(name='h6', attrs={'class': lambda x: x and 'bajada' in x.split()})
+                          ,dict(name='span', attrs={'class': lambda x: x and 'dia' in x.split()})
+                          ,dict(attrs={'class': lambda x: x and 'titulo-noticia' in x.split()})
+                          ,dict(attrs={'class': lambda x: x and 'despliegue-noticia' in x.split()})
                         ]
     remove_tags       = [dict(name=['object','link','embed','iframe','meta','link'])]
 
