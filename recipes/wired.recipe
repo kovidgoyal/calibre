@@ -107,3 +107,12 @@ class WiredDailyNews(BasicNewsRecipe):
 
         magazine_year_month = self.get_magazine_year_month('.')
         return [('Magazine-' + magazine_year_month, articles)]
+
+    def get_cover_url(self):
+        '''
+        get the most recent magazine cover
+        :return: url
+        '''
+        soup = self.index_to_soup('https://www.wired.com/category/magazine/')
+        return soup.find(id='mag-card').find('img').get('src')
+
