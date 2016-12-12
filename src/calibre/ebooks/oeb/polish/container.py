@@ -316,9 +316,8 @@ class Container(ContainerBase):  # {{{
 
     def manifest_has_name(self, name):
         ''' Return True if the manifest has an entry corresponding to name '''
-        href = self.name_to_href(name, self.opf_name)
-        all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
-        return href in all_hrefs
+        all_names = {self.href_to_name(x.get('href'), self.opf_name) for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
+        return name in all_names
 
     def add_file(self, name, data, media_type=None, spine_index=None, modify_name_if_needed=False, process_manifest_item=None):
         ''' Add a file to this container. Entries for the file are
@@ -326,9 +325,8 @@ class Container(ContainerBase):  # {{{
         (if the file is a text document) '''
         if '..' in name:
             raise ValueError('Names are not allowed to have .. in them')
-        all_hrefs = {x.get('href') for x in self.opf_xpath('//opf:manifest/opf:item[@href]')}
         href = self.name_to_href(name, self.opf_name)
-        if self.has_name(name) or href in all_hrefs:
+        if self.has_name(name) or self.manifest_has_name(name):
             if not modify_name_if_needed:
                 raise ValueError(('A file with the name %s already exists' % name) if self.has_name(name) else
                                  ('An item with the href %s already exists in the manifest' % href))
@@ -338,7 +336,7 @@ class Container(ContainerBase):  # {{{
                 c += 1
                 q = '%s-%d.%s' % (base, c, ext)
                 href = self.name_to_href(q, self.opf_name)
-                if not self.has_name(q) and href not in all_hrefs:
+                if not self.has_name(q) and not self.manifest_has_name(q):
                     name = q
                     break
         path = self.name_to_abspath(name)
@@ -872,15 +870,14 @@ class Container(ContainerBase):  # {{{
         while item_id in all_ids:
             c += 1
             item_id = id_prefix + '%d'%c
-        all_names = {x.get('href') for x in self.opf_xpath(
-                '//opf:manifest/opf:item[@href]')}
 
         def exists(h):
-            return self.exists(self.href_to_name(h, self.opf_name))
+            n = self.href_to_name(h, self.opf_name)
+            return self.exists(n) or self.manifest_has_name(n)
 
         if unique_href:
             c = 0
-            while href in all_names or exists(href):
+            while exists(href):
                 c += 1
                 href = '%s_%d.%s'%(base, c, ext)
         manifest = self.opf_xpath('//opf:manifest')[0]
@@ -1026,6 +1023,7 @@ class InvalidEpub(InvalidBook):
 
 class ObfuscationKeyMissing(InvalidEpub):
     pass
+
 
 OCF_NS = 'urn:oasis:names:tc:opendocument:xmlns:container'
 VCS_IGNORE_FILES = frozenset('.gitignore .hgignore .agignore .bzrignore'.split())
@@ -1457,6 +1455,7 @@ def test_roundtrip():
     diff = ebook3.compare_to(ebook2)
     if diff is not None:
         print (diff)
+
 
 if __name__ == '__main__':
     test_roundtrip()
