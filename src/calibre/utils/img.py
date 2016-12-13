@@ -84,7 +84,7 @@ def image_from_x(x):
 
 
 def image_and_format_from_data(data):
-    ' Create an image object from the specified data which should be a bytsestring and also return the format of the image '
+    ' Create an image object from the specified data which should be a bytestring and also return the format of the image '
     ba = QByteArray(data)
     buf = QBuffer(ba)
     buf.open(QBuffer.ReadOnly)
@@ -547,6 +547,7 @@ def test():  # {{{
     remove_borders_from_image(img)
     image_to_data(img, fmt='GIF')
 # }}}
+
 
 if __name__ == '__main__':  # {{{
     args = sys.argv[1:]
