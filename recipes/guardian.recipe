@@ -52,6 +52,12 @@ class Guardian(BasicNewsRecipe):
         dict(attrs={'class': lambda x: x and 'content__article-body' in x.split()}),
     ]
 
+    def get_browser(self, *a, **kw):
+        # This site returns images in JPEG-XR format if the user agent is IE
+        br = BasicNewsRecipe.get_browser(self, *a, **kw)
+        br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.111 Safari/537.36')]
+        return br
+
     def preprocess_raw_html(self, raw, url):
         import html5lib
         from lxml import html
