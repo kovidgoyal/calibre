@@ -3,7 +3,7 @@ __license__ = 'GPL 3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import os, re
+import os, re, posixpath
 from itertools import cycle
 
 from calibre.customize.conversion import InputFormatPlugin, OptionRecommendation
@@ -265,10 +265,14 @@ class EPUBInput(InputFormatPlugin):
 
         if len(parts) > 1 and parts[0]:
             delta = '/'.join(parts[:-1])+'/'
+
+            def normpath(x):
+                return posixpath.normpath(delta + elem.get('href'))
+
             for elem in opf.itermanifest():
-                elem.set('href', delta+elem.get('href'))
+                elem.set('href', normpath(elem.get('href')))
             for elem in opf.iterguide():
-                elem.set('href', delta+elem.get('href'))
+                elem.set('href', normpath(elem.get('href')))
 
         f = self.rationalize_cover3 if opf.package_version >= 3.0 else self.rationalize_cover2
         self.removed_cover = f(opf, log)

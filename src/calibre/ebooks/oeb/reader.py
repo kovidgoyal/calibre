@@ -713,5 +713,6 @@ def main(argv=sys.argv):
             print etree.tostring(doc, pretty_print=True)
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())
