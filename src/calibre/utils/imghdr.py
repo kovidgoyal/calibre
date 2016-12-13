@@ -167,6 +167,8 @@ tests.append(test_gif)
 def test_tiff(h):
     """TIFF (can be in Motorola or Intel byte order)"""
     if h[:2] in (b'MM', b'II'):
+        if h[2:4] == b'\xbc\x01':
+            return 'jxr'
         return 'tiff'
 
 tests.append(test_tiff)
@@ -257,4 +259,3 @@ def test_svg(h):
         return 'svg'
 
 tests.append(test_svg)
-
