@@ -832,19 +832,19 @@ class Amazon(Source):
                 x.startswith('identifier:amazon')] + [ident_name]
         self.touched_fields = frozenset(tf)
 
-    def get_domain_and_asin(self, identifiers):
+    def get_domain_and_asin(self, identifiers, extra_domains=()):
         for key, val in identifiers.iteritems():
             key = key.lower()
             if key in ('amazon', 'asin'):
                 return 'com', val
             if key.startswith('amazon_'):
-                domain = key.split('_')[-1]
-                if domain and domain in self.AMAZON_DOMAINS:
+                domain = key.partition('_')[-1]
+                if domain and (domain in self.AMAZON_DOMAINS or domain in extra_domains):
                     return domain, val
         return None, None
 
     def _get_book_url(self, identifiers):  # {{{
-        domain, asin = self.get_domain_and_asin(identifiers)
+        domain, asin = self.get_domain_and_asin(identifiers, extra_domains=('in', 'au', 'ca'))
         if domain and asin:
             url = None
             if domain == 'com':
@@ -853,6 +853,8 @@ class Amazon(Source):
                 url = 'https://www.amazon.co.uk/dp/'+asin
             elif domain == 'br':
                 url = 'https://www.amazon.com.br/dp/'+asin
+            elif domain == 'au':
+                url = 'https://www.amazon.com.au/dp/' + asin
             else:
                 url = 'https://www.amazon.%s/dp/%s'%(domain, asin)
             if url:
