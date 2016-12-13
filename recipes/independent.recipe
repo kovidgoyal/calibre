@@ -1,3 +1,6 @@
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+from calibre import random_user_agent
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import Tag
 
@@ -38,8 +41,13 @@ class TheIndependentNew(BasicNewsRecipe):
 
     def get_browser(self, *a, **kw):
         # This site returns images in JPEG-XR format if the user agent is IE
+        if not hasattr(self, 'non_ie_ua'):
+            try:
+                self.non_ie_ua = random_user_agent(allow_ie=False)
+            except TypeError:
+                self.non_ie_ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.111 Safari/537.36'
+        kw['user_agent'] = self.non_ie_ua
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
-        br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.111 Safari/537.36')]
         return br
 
     def preprocess_html(self, soup):

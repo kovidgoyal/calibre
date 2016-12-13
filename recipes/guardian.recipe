@@ -6,6 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 www.guardian.co.uk
 '''
+from calibre import random_user_agent
 from calibre.web.feeds.news import BasicNewsRecipe
 from datetime import date
 
@@ -54,8 +55,13 @@ class Guardian(BasicNewsRecipe):
 
     def get_browser(self, *a, **kw):
         # This site returns images in JPEG-XR format if the user agent is IE
+        if not hasattr(self, 'non_ie_ua'):
+            try:
+                self.non_ie_ua = random_user_agent(allow_ie=False)
+            except TypeError:
+                self.non_ie_ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.111 Safari/537.36'
+        kw['user_agent'] = self.non_ie_ua
         br = BasicNewsRecipe.get_browser(self, *a, **kw)
-        br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.111 Safari/537.36')]
         return br
 
     def preprocess_raw_html(self, raw, url):
