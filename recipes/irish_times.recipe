@@ -1,18 +1,24 @@
-__license__ = 'GPL v3'
-__copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David O'Callaghan, 2011 Modified by Phil Burns, 2013 Tom Scholl"
+__license__  = 'GPL v3'
+__copyright__ = "2008, Derry FitzGerald. 2009 Modified by Ray Kinsella and David O'Callaghan, 2011 Modified by Phil Burns, 2013 Tom Scholl, 2016 by leo738"
 '''
 irishtimes.com
 '''
-import urlparse
-import re
+import urlparse, re
+import json
+from uuid import uuid4
+from mechanize import Request
+from urllib import urlencode
 
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ptempfile import PersistentTemporaryFile
 
 
 class IrishTimes(BasicNewsRecipe):
-    title = u'The Irish Times'
-    __author__ = "Derry FitzGerald, Ray Kinsella, David O'Callaghan and Phil Burns, Tom Scholl"
+    title          = u'The Irish Times'
+    __author__    = "Derry FitzGerald, Ray Kinsella, David O'Callaghan and Phil Burns, Tom Scholl"
+    description = 'Daily news from The Irish Times'
+    needs_subscription = True
+
     language = 'en_IE'
 
     masthead_url = 'http://www.irishtimes.com/assets/images/generic/website/logo_theirishtimes.png'
@@ -20,28 +26,60 @@ class IrishTimes(BasicNewsRecipe):
     encoding = 'utf-8'
     oldest_article = 1.0
     max_articles_per_feed = 100
+    simultaneous_downloads = 5
     remove_empty_feeds = True
     no_stylesheets = True
     temp_files = []
     articles_are_obfuscated = True
 
-    feeds = [
-        ('News', 'http://www.irishtimes.com/cmlink/the-irish-times-news-1.1319192'),
-        ('World', 'http://www.irishtimes.com/cmlink/irishtimesworldfeed-1.1321046'),
-        ('Politics', 'http://www.irishtimes.com/cmlink/irish-times-politics-rss-1.1315953'),
-        ('Business', 'http://www.irishtimes.com/cmlink/the-irish-times-business-1.1319195'),
-        ('Culture', 'http://www.irishtimes.com/cmlink/the-irish-times-culture-1.1319213'),
-        ('Sport', 'http://www.irishtimes.com/cmlink/the-irish-times-sport-1.1319194'),
-        ('Debate', 'http://www.irishtimes.com/cmlink/debate-1.1319211'),
-        ('Life & Style', 'http://www.irishtimes.com/cmlink/the-irish-times-life-style-1.1319214'),
+    feeds          = [
+        ('News', 'https://www.irishtimes.com/cmlink/the-irish-times-news-1.1319192'),
+        ('World', 'https://www.irishtimes.com/cmlink/irishtimesworldfeed-1.1321046'),
+        ('Politics', 'https://www.irishtimes.com/cmlink/irish-times-politics-rss-1.1315953'),
+        ('Business', 'https://www.irishtimes.com/cmlink/the-irish-times-business-1.1319195'),
+        ('Culture', 'https://www.irishtimes.com/cmlink/the-irish-times-culture-1.1319213'),
+        ('Sport', 'https://www.irishtimes.com/cmlink/the-irish-times-sport-1.1319194'),
+        ('Debate', 'https://www.irishtimes.com/cmlink/debate-1.1319211'),
+        ('Life & Style', 'https://www.irishtimes.com/cmlink/the-irish-times-life-style-1.1319214'),
     ]
 
+    def get_browser(self):
+        # To understand the signin logic read signin javascript from submit button from
+        # https://www.irishtimes.com/signin
+
+        br = BasicNewsRecipe.get_browser(self)
+        url = 'https://www.irishtimes.com/signin'
+        deviceid = str(uuid4()).replace('-', '')
+        # Enable debug stuff?
+        # br.set_debug_http(True)
+        br.open(url).read()
+        rurl = 'https://www.irishtimes.com/auth-rest-api/v1/paywall/login'
+        rq = Request(rurl, headers={
+            'Accept': '*/*',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+            'Referer': url,
+            'X-Requested-With': 'XMLHttpRequest',
+        },  data=urlencode({'username': self.username, 'password': self.password,'deviceid':deviceid, 'persistent':'on'}))
+
+        r = br.open(rq)
+        raw = r.read()
+        data = json.loads(raw)
+        # print(data)
+        if r.code != 200 or 'user_id' not in raw:
+            raise ValueError('Failed to log in check username/password')
+
+        # Set cookie
+        br.set_cookie('IT_PW_AUTH', data['varnish_id'], '.irishtimes.com')
+
+        # br.set_debug_http(False)
+        return br
+
     def get_obfuscated_article(self, url):
-        # Insert a pic from the original url, but use content from the print
-        # url
+        # Insert a pic from the original url, but use content from the print url
         pic = None
         pics = self.index_to_soup(url)
-        div = pics.find('div', {'class': re.compile('image-carousel')})
+        div = pics.find('div', {'class' : re.compile('image-carousel')})
         if div:
             pic = div.img
             if pic:
@@ -51,8 +89,7 @@ class IrishTimes(BasicNewsRecipe):
                 except:
                     pic = None
 
-        content = self.index_to_soup(
-            url + '?mode=print&ot=example.AjaxPageLayout.ot')
+        content = self.index_to_soup(url + '?mode=print&ot=example.AjaxPageLayout.ot')
         if pic:
             content.p.insert(0, pic)
 
