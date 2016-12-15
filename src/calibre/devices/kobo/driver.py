@@ -1313,7 +1313,7 @@ class KOBOTOUCH(KOBO):
                     ' Based on the existing Kobo driver by %s.') % KOBO.author
 #    icon        = I('devices/kobotouch.jpg')
 
-    supported_dbversion             = 130
+    supported_dbversion             = 131
     min_supported_dbversion         = 53
     min_dbversion_series            = 65
     min_dbversion_externalid        = 65
@@ -1323,9 +1323,9 @@ class KOBOTOUCH(KOBO):
     min_dbversion_keywords          = 82
 
     # Starting with firmware version 3.19.x, the last number appears to be is a
-    # build number. A number will be recorded here but It can be safely ignored
+    # build number. A number will be recorded here but it can be safely ignored
     # when testing the firmware version.
-    max_supported_fwversion         = (4, 1, 7523)
+    max_supported_fwversion         = (4, 2, 8094)
     # The following document firwmare versions where new function or devices were added.
     # Not all are used, but this feels a good place to record it.
     min_fwversion_shelves           = (2, 0, 0)
@@ -3234,6 +3234,7 @@ class KOBOTOUCH(KOBO):
     def __str__(self, *args, **kwargs):
         options = ', '.join(['%s: %s' % (x.name, self.get_pref(x.name)) for x in self._config().preferences])
         return u"Driver:%s, Options - %s" % (self.name, options)
+
 
 if __name__ == '__main__':
     dev = KOBOTOUCH(None)
