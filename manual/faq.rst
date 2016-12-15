@@ -309,9 +309,17 @@ How do I use calibre with my iPad/iPhone/iPod touch?
 Over the air
 ^^^^^^^^^^^^^^
 
-The easiest way to browse your calibre collection on your Apple device
-(iPad/iPhone/iPod) is by using the calibre content server, which makes your
-collection available over the net. First perform the following steps in calibre
+The easiest way to transfer books wirelessly to your Apple device (iPad/iPhone/iPod)
+is to use the `Calibre Companion <http://www.multipie.co.uk/calibre-companion/>`_
+iOS app. This app is maintained by a core calibre developer and allows
+calibre to connect to your Apple device wirelessly, just as though you
+plugged in the device with a USB cable. You can browse files on the device
+in calibre and use the :guilabel:`Send to device` button to transfer files to
+your device wirelessly.
+
+Another easy way to browse your calibre collection from your Apple device
+is by using the calibre content server, which makes your collection available
+over the net. First perform the following steps in calibre
 
   * Set the Preferred Output Format in calibre to EPUB (The output format can be
     set under :guilabel:`Preferences->Interface->Behavior`)
@@ -323,8 +331,9 @@ collection available over the net. First perform the following steps in calibre
     and leave calibre running. You can also tell calibre to automatically start the
     content server via :guilabel:`Preferences->Sharing over the net`.
 
-There are many apps for your iDevice that can connect to calibre. Here we
-describe using two of them, iBooks and Stanza.
+There are many apps for your iDevice that can connect to the calibre content server.
+One was mentioned above: Calibre Companion. Below we describe two more of them,
+iBooks and Stanza.
 
 Using Stanza
 ***************
@@ -444,10 +453,11 @@ address. You can now browse your book collection and download books from calibre
 to your device to open with whatever ebook reading software you have on your
 android device.
 
-Some reading programs support browsing the calibre library directly. For
-example, in Aldiko, click My Catalogs, then + to add a catalog, then give the
-catalog a title such as "calibre" and provide the URL listed above. You can now
-browse the calibre library and download directly into the reading software.
+Calibre Companion and many reading apps support browsing the calibre library 
+directly. For example, in Aldiko, click My Catalogs, then + to add a catalog, 
+then give the catalog a title such as "calibre" and provide the URL listed 
+above. You can now browse the calibre library and download directly into the 
+reading software. 
 
 Can I access my calibre books using the web browser in my Kindle or other reading device?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
