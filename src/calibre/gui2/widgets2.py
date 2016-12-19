@@ -12,7 +12,8 @@ from PyQt5.Qt import (
     QPushButton, QPixmap, QIcon, QColor, Qt, QColorDialog, pyqtSignal,
     QKeySequence, QToolButton, QDialog, QDialogButtonBox, QComboBox, QFont,
     QAbstractListModel, QModelIndex, QApplication, QStyledItemDelegate,
-    QUndoCommand, QUndoStack)
+    QUndoCommand, QUndoStack, QLayout, QRect, QSize, QStyle, QSizePolicy,
+    QPoint, QWidget, QLabel, QCheckBox)
 
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2 import gprefs, rating_font
@@ -300,11 +301,133 @@ class RatingEditor(QComboBox):
             num *= 2
         self.setCurrentIndex(num)
 
+    @staticmethod
+    def test():
+        q = RatingEditor(is_half_star=True)
+        q.rating_value = 7
+        return q
+
+
+class FlowLayout(QLayout):  # {{{
+
+    ''' A layout that lays out items left-to-right wrapping onto a second line if needed '''
+
+    def __init__(self, parent=None):
+        QLayout.__init__(self, parent)
+        self.items = []
+
+    def addItem(self, item):
+        self.items.append(item)
+
+    def itemAt(self, idx):
+        try:
+            return self.items[idx]
+        except IndexError:
+            pass
+
+    def takeAt(self, idx):
+        try:
+            return self.items.pop(idx)
+        except IndexError:
+            pass
+
+    def count(self):
+        return len(self.items)
+    __len__ = count
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        return self.do_layout(QRect(0, 0, width, 0), apply_geometry=False)
+
+    def setGeometry(self, rect):
+        QLayout.setGeometry(self, rect)
+        self.do_layout(rect, apply_geometry=True)
+
+    def minimumSize(self):
+        size = QSize()
+        for item in self.items:
+            size = size.expandedTo(item.minimumSize())
+        left, top, right, bottom = self.getContentsMargins()
+        return size + QSize(left + right, top + bottom)
+    sizeHint = minimumSize
+
+    def smart_spacing(self, horizontal=True):
+        p = self.parent()
+        if p is None:
+            return -1
+        if p.isWidgetType():
+            which = QStyle.PM_LayoutHorizontalSpacing if horizontal else QStyle.PM_LayoutVerticalSpacing
+            return p.style().pixelMetric(which, None, p)
+        return p.spacing()
+
+    def do_layout(self, rect, apply_geometry=False):
+        left, top, right, bottom = self.getContentsMargins()
+        erect = rect.adjusted(left, top, -right, -bottom)
+        x, y = erect.x(), erect.y()
+
+        line_height = 0
+
+        def layout_spacing(wid, horizontal=True):
+            ans = self.smart_spacing(horizontal)
+            if ans != -1:
+                return ans
+            if wid is None:
+                return 0
+            return wid.style().layoutSpacing(QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal if horizontal else Qt.Vertical)
+
+        lines, current_line = [], []
+        gmap = {}
+        for item in self.items:
+            isz, wid = item.sizeHint(), item.widget()
+            hs, vs = layout_spacing(wid), layout_spacing(wid, False)
+
+            next_x = x + isz.width() + hs
+            if next_x - hs > erect.right() and line_height > 0:
+                x = erect.x()
+                y = y + line_height + vs
+                next_x = x + isz.width() + hs
+                lines.append((line_height, current_line))
+                current_line = []
+                line_height = 0
+            if apply_geometry:
+                gmap[item] = x, y, isz
+            x = next_x
+            line_height = max(line_height, isz.height())
+            current_line.append((item, isz.height()))
+
+        lines.append((line_height, current_line))
+
+        if apply_geometry:
+            for line_height, items in lines:
+                for item, item_height in items:
+                    x, y, isz = gmap[item]
+                    if item_height < line_height:
+                        y += (line_height - item_height) // 2
+                    item.setGeometry(QRect(QPoint(x, y), isz))
+
+        return y + line_height - rect.y() + bottom
+
+    @staticmethod
+    def test():
+        w = QWidget()
+        l = FlowLayout(w)
+        la = QLabel('Some text in a label')
+        l.addWidget(la)
+        c = QCheckBox('A checkboxy widget')
+        l.addWidget(c)
+        cb = QComboBox()
+        cb.addItems(['Item one'])
+        l.addWidget(cb)
+        return w
+# }}}
+
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     app = Application([])
     app.load_builtin_fonts()
-    q = RatingEditor(is_half_star=True)
-    q.rating_value = 7
-    q.show()
+    w = FlowLayout.test()
+    w.show()
     app.exec_()
