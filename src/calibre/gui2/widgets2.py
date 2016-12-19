@@ -345,6 +345,9 @@ class FlowLayout(QLayout):  # {{{
         QLayout.setGeometry(self, rect)
         self.do_layout(rect, apply_geometry=True)
 
+    def expandingDirections(self):
+        return Qt.Orientations(0)
+
     def minimumSize(self):
         size = QSize()
         for item in self.items:
@@ -381,8 +384,6 @@ class FlowLayout(QLayout):  # {{{
         gmap = {}
         for item in self.items:
             isz, wid = item.sizeHint(), item.widget()
-            if isz.isEmpty() or (wid is not None and not wid.isVisible()):
-                continue
             hs, vs = layout_spacing(wid), layout_spacing(wid, False)
 
             next_x = x + isz.width() + hs
