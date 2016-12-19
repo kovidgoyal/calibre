@@ -381,6 +381,8 @@ class FlowLayout(QLayout):  # {{{
         gmap = {}
         for item in self.items:
             isz, wid = item.sizeHint(), item.widget()
+            if isz.isEmpty() or (wid is not None and not wid.isVisible()):
+                continue
             hs, vs = layout_spacing(wid), layout_spacing(wid, False)
 
             next_x = x + isz.width() + hs
@@ -402,10 +404,10 @@ class FlowLayout(QLayout):  # {{{
         if apply_geometry:
             for line_height, items in lines:
                 for item, item_height in items:
-                    x, y, isz = gmap[item]
+                    x, wy, isz = gmap[item]
                     if item_height < line_height:
-                        y += (line_height - item_height) // 2
-                    item.setGeometry(QRect(QPoint(x, y), isz))
+                        wy += (line_height - item_height) // 2
+                    item.setGeometry(QRect(QPoint(x, wy), isz))
 
         return y + line_height - rect.y() + bottom
 
