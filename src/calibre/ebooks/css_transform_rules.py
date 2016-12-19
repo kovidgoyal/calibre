@@ -97,6 +97,7 @@ class StyleDeclaration(object):
     def __str__(self):
         return force_unicode(self.css_declaration.cssText, 'utf-8')
 
+
 operator_map = {'==':'eq', '!=': 'ne', '<=':'le', '<':'lt', '>=':'ge', '>':'gt', '-':'sub', '+': 'add', '*':'mul', '/':'truediv'}
 
 
@@ -171,9 +172,9 @@ class Rule(object):
         elif self.action in '+-/*':
             self.action_operator = partial(transform_number, float(self.action_data), getattr(operator, operator_map[self.action]))
         if match_type == 'is':
-            self.property_matches = lambda x: x.lower() == query
+            self.property_matches = lambda x: x.lower() == query.lower()
         elif match_type == 'is_not':
-            self.property_matches = lambda x: x.lower() != query
+            self.property_matches = lambda x: x.lower() != query.lower()
         elif match_type == '*':
             self.property_matches = lambda x: True
         elif 'matches' in match_type:
@@ -206,6 +207,7 @@ class Rule(object):
         changed = declaration.changed
         declaration.changed = oval or changed
         return changed
+
 
 ACTION_MAP = OrderedDict((
     ('remove', _('Remove the property')),
@@ -383,7 +385,7 @@ def test(return_tests=False):  # {{{
         def test_matching(self):
 
             def m(match_type='*', query=''):
-                self.ae(ecss, apply_rule(css, property=prop, match_type=match_type, query=query))
+                self.ae(apply_rule(css, property=prop, match_type=match_type, query=query), ecss)
 
             prop = 'color'
             css, ecss = 'color: red; margin: 0', 'margin: 0'
@@ -394,6 +396,8 @@ def test(return_tests=False):  # {{{
             m('not_matches', 'blue')
             ecss = css.replace('; ', ';\n')
             m('is', 'blue')
+            css, ecss = 'color: currentColor; line-height: 0', 'line-height: 0'
+            m('is', 'currentColor')
 
             prop = 'margin-top'
             css, ecss = 'color: red; margin-top: 10', 'color: red'
@@ -450,6 +454,7 @@ def test(return_tests=False):  # {{{
     if return_tests:
         return tests
     unittest.TextTestRunner(verbosity=4).run(tests)
+
 
 if __name__ == '__main__':
     test()
