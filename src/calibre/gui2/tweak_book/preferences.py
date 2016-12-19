@@ -587,13 +587,17 @@ class TemplatesDialog(Dialog):  # {{{
     def setup_ui(self):
         from calibre.gui2.tweak_book.templates import DEFAULT_TEMPLATES
         from calibre.gui2.tweak_book.editor.text import TextEdit
-        self.l = l = QFormLayout(self)
-        self.setLayout(l)
+        # Cannot use QFormLayout as it does not play nice with TextEdit on windows
+        self.l = l = QVBoxLayout(self)
 
         self.syntaxes = s = QComboBox(self)
         s.addItems(sorted(DEFAULT_TEMPLATES.iterkeys()))
         s.setCurrentIndex(s.findText('html'))
-        l.addRow(_('Choose the &type of template to edit:'), s)
+        h = QHBoxLayout()
+        l.addLayout(h)
+        la = QLabel(_('Choose the &type of template to edit:'))
+        la.setBuddy(s)
+        h.addWidget(la), h.addWidget(s), h.addStretch(10)
         s.currentIndexChanged.connect(self.show_template)
 
         self.helpl = la = QLabel(_(
@@ -602,14 +606,14 @@ class TemplatesDialog(Dialog):  # {{{
             ' for example for CSS rules, you have to escape them, like this: {3}').format(*['<code>%s</code>'%x for x in
                 ['{TITLE}', '{AUTHOR}', '%CURSOR%', 'body {{ color: red }}']]))
         la.setWordWrap(True)
-        l.addRow(la)
+        l.addWidget(la)
 
         self.save_timer = t = QTimer(self)
         t.setSingleShot(True), t.setInterval(100)
         t.timeout.connect(self._save_syntax)
 
         self.editor = e = TextEdit(self)
-        l.addRow(e)
+        l.addWidget(e)
         e.textChanged.connect(self.save_syntax)
 
         self.show_template()
@@ -618,7 +622,7 @@ class TemplatesDialog(Dialog):  # {{{
         self.bb.addButton(self.bb.Close)
         self.rd = b = self.bb.addButton(self.bb.RestoreDefaults)
         b.clicked.connect(self.restore_defaults)
-        l.addRow(self.bb)
+        l.addWidget(self.bb)
 
     @property
     def current_syntax(self):
