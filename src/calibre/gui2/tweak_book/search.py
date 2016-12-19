@@ -22,7 +22,7 @@ from calibre import prepare_string_for_xml
 from calibre.gui2 import error_dialog, info_dialog, choose_files, choose_save_file
 from calibre.gui2.dialogs.confirm_delete import confirm
 from calibre.gui2.dialogs.message_box import MessageBox
-from calibre.gui2.widgets2 import HistoryComboBox
+from calibre.gui2.widgets2 import HistoryComboBox, FlowLayout
 from calibre.gui2.tweak_book import tprefs, editors, current_container
 from calibre.gui2.tweak_book.function_replace import (
     FunctionBox, functions as replace_functions, FunctionEditor, remove_function, Function)
@@ -300,41 +300,33 @@ class SearchWidget(QWidget):
         l.addWidget(rab, 1, 3)
 
         self.ml = ml = QLabel(_('&Mode:'))
-        self.ol = ol = QHBoxLayout()
-        ml.setAlignment(Qt.AlignRight | Qt.AlignCenter)
+        self.ol = ol = FlowLayout()
+        ml.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         l.addWidget(ml, 2, 0)
         l.addLayout(ol, 2, 1, 1, 3)
         self.mode_box = mb = ModeBox(self)
-        mb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         ml.setBuddy(mb)
         ol.addWidget(mb)
 
         self.where_box = wb = WhereBox(self)
-        wb.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
         ol.addWidget(wb)
 
         self.direction_box = db = DirectionBox(self)
-        db.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         ol.addWidget(db)
 
         self.cs = cs = QCheckBox(_('&Case sensitive'))
-        cs.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         ol.addWidget(cs)
 
         self.wr = wr = QCheckBox(_('&Wrap'))
         wr.setToolTip('<p>'+_('When searching reaches the end, wrap around to the beginning and continue the search'))
-        wr.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         ol.addWidget(wr)
 
         self.da = da = QCheckBox(_('&Dot all'))
         da.setToolTip('<p>'+_("Make the '.' special character match any character at all, including a newline"))
-        da.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         ol.addWidget(da)
 
         self.mode_box.currentIndexChanged[int].connect(self.mode_changed)
         self.mode_changed(self.mode_box.currentIndex())
-
-        ol.addStretch(10)
 
     def edit_function(self):
         d = FunctionEditor(func_name=self.functions.text().strip(), parent=self)
@@ -456,6 +448,7 @@ class SearchWidget(QWidget):
         self.find_text.lineEdit().setSelection(0, len(text)+10)
 
 # }}}
+
 
 regex_cache = {}
 
@@ -1460,6 +1453,7 @@ def run_search(
             if marked:
                 return count_message(False, sum(editor.all_in_marked(p) for p, __ in searches))
             return do_all(replace=False)
+
 
 if __name__ == '__main__':
     app = QApplication([])
