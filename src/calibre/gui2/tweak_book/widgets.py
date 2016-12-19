@@ -1195,6 +1195,7 @@ class PlainTextEdit(QPlainTextEdit):  # {{{
 
 # }}}
 
+
 if __name__ == '__main__':
     app = QApplication([])
     AddCover.test()

@@ -48,6 +48,7 @@ def get_smarts(syntax):
         except (ImportError, AttributeError):
             pass
 
+
 _dff = None
 
 

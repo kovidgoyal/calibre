@@ -768,6 +768,7 @@ class Preferences(QDialog):
         tprefs.set('preferences_geom', bytearray(self.saveGeometry()))
         QDialog.reject(self)
 
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.gui2.tweak_book.main import option_parser
