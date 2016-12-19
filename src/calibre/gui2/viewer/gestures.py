@@ -295,7 +295,7 @@ class GestureHandler(QObject):
         view = self.parent()
         if not view.document.in_paged_mode:
             return
-        func = {Left:'next_page', Right: 'previous_page', Up:'goto_previous_section', Down:'goto_next_section'}[direction]
+        func = {Left:'next_page', Right: 'previous_page', Down:'goto_previous_section', Up:'goto_next_section'}[direction]
         getattr(view, func)()
 
     def handle_swiping(self, x, y):
@@ -370,6 +370,7 @@ class GestureHandler(QObject):
 
     def show_help(self):
         Help(self.parent()).exec_()
+
 
 if __name__ == '__main__':
     app = QApplication([])
