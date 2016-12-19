@@ -27,6 +27,7 @@ from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.tweak_book import dictionaries, current_container, set_book_locale, tprefs, editors
 from calibre.gui2.tweak_book.widgets import Dialog
+from calibre.gui2.widgets2 import FlowLayout
 from calibre.spell import DictionaryLocale
 from calibre.spell.dictionary import (
     builtin_dictionaries, custom_dictionaries, best_locale_for_language,
@@ -1027,9 +1028,9 @@ class SpellCheck(Dialog):
         cs2.setToolTip(_('When filtering the list of words, be case sensitive'))
         cs2.setChecked(tprefs['spell_check_case_sensitive_search'])
         cs2.stateChanged.connect(self.search_type_changed)
-        self.hb = h = QHBoxLayout()
+        self.hb = h = FlowLayout()
         self.summary = s = QLabel('')
-        self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addWidget(cs2), h.addStretch(1)
+        self.main.l.addLayout(h), h.addWidget(s), h.addWidget(om), h.addWidget(cs), h.addWidget(cs2)
 
     def keyPressEvent(self, ev):
         if ev.key() in (Qt.Key_Enter, Qt.Key_Return):
@@ -1362,6 +1363,7 @@ def find_next_error(current_editor, current_editor_name, gui_parent, show_editor
     return False
 
 # }}}
+
 
 if __name__ == '__main__':
     app = QApplication([])
