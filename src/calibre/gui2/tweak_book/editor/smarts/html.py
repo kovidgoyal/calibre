@@ -8,6 +8,7 @@ __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, re
 from operator import itemgetter
+from itertools import chain
 
 from cssutils import parseStyle
 from PyQt5.Qt import QTextEdit, Qt, QTextCursor
@@ -700,6 +701,16 @@ class Smarts(NullSmarts):
         c.setPosition(cstart)
         block = c.block()
         in_text = find_tag_definition(block, 0)[0] is None
+        if in_text:
+            # Check if we are in comment/PI/etc.
+            pb = block.previous()
+            while pb.isValid():
+                boundaries = pb.userData().non_tag_structures
+                if boundaries:
+                    if boundaries[-1].is_start:
+                        in_text = False
+                    break
+                pb = pb.previous()
 
         def append(text, start):
             text = text.replace(PARAGRAPH_SEPARATOR, '\n')
@@ -714,7 +725,8 @@ class Smarts(NullSmarts):
                 chunks.append((text, start + max(extra, 0)))
 
         while block.isValid() and block.position() <= cend:
-            boundaries = sorted(block.userData().tags, key=get_offset)
+            ud = block.userData()
+            boundaries = sorted(chain(ud.tags, ud.non_tag_structures), key=get_offset)
             if not boundaries:
                 # Add the whole line
                 if in_text:
