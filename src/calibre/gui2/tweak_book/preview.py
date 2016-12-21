@@ -145,6 +145,7 @@ class ParseWorker(Thread):
     def is_alive(self):
         return Thread.is_alive(self) or (hasattr(self, 'worker') and self.worker.is_alive())
 
+
 parse_worker = ParseWorker()
 # }}}
 
@@ -280,6 +281,7 @@ class WebPage(QWebPage):
         settings.setAttribute(settings.PrivateBrowsingEnabled, True)
         settings.setAttribute(settings.JavascriptCanOpenWindows, False)
         settings.setAttribute(settings.JavascriptCanAccessClipboard, False)
+        settings.setAttribute(settings.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
         settings.setAttribute(settings.LinksIncludedInFocusChain, False)
         settings.setAttribute(settings.DeveloperExtrasEnabled, True)
         settings.setDefaultTextEncoding('utf-8')

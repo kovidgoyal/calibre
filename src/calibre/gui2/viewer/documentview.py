@@ -53,6 +53,7 @@ def apply_basic_settings(settings):
     settings.setAttribute(QWebSettings.PluginsEnabled, False)
     settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
     settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
+    settings.setAttribute(QWebSettings.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
     # PrivateBrowsing disables console messages
     # settings.setAttribute(QWebSettings.PrivateBrowsingEnabled, True)
     settings.setAttribute(QWebSettings.NotificationsEnabled, False)
@@ -1435,5 +1436,3 @@ class DocumentView(QWebView):  # {{{
             self.link_clicked(qurl)
 
 # }}}
-
-
