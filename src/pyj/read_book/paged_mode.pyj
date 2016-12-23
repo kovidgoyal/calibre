@@ -513,3 +513,25 @@ def handle_gesture(gesture):
         scroll_by_page(True, False)
     elif gesture.type is 'next-page':
         scroll_by_page(False, False)
+
+
+anchor_funcs = {
+    'pos_for_elem': def pos_for_elem(elem):
+        if not elem:
+            return 0
+        br = elem.getBoundingClientRect()
+        x = viewport_to_document(br.left, br.top, elem.ownerDocument)[0]
+        return column_at(x)
+    ,
+    'visibility': def visibility(pos):
+        first = column_at(window.pageXOffset + 10)
+        if pos < first:
+            return -1
+        if pos < first + cols_per_screen:
+            return 0
+        return 1
+    ,
+    'cmp': def cmp(a, b):
+        return a - b
+    ,
+}

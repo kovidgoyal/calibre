@@ -31,6 +31,7 @@ def abspath(x):
         x = '\\\\?\\' + os.path.abspath(x)
     return x
 
+
 _books_cache_dir = None
 
 
@@ -50,8 +51,9 @@ def books_cache_dir():
 
 
 def book_hash(library_uuid, book_id, fmt, size, mtime):
-    raw = dumps((library_uuid, book_id, fmt.upper(), size, mtime), RENDER_VERSION)
+    raw = dumps((library_uuid, book_id, fmt.upper(), size, mtime, RENDER_VERSION))
     return sha1(raw).hexdigest().decode('ascii')
+
 
 staging_cleaned = False
 
@@ -81,6 +83,7 @@ def queue_job(ctx, copy_format_to, bhash, fmt, book_id, size, mtime):
         job_done_callback=job_done, job_data=(bhash, pathtoebook, tdir))
     queued_jobs[bhash] = job_id
     return job_id
+
 
 last_final_clean_time = 0
 
@@ -174,6 +177,7 @@ def book_file(ctx, rd, book_id, fmt, size, mtime, name):
         if e.errno != errno.ENOENT:
             raise
         raise HTTPNotFound('No book file with hash: %s and name: %s' % (bhash, name))
+
 
 mathjax_lock = Lock()
 mathjax_manifest = None

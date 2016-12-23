@@ -99,17 +99,22 @@ class TOC(object):
     def __str__(self):
         return b'\n'.join([x.encode('utf-8') for x in self.get_lines()])
 
-    @property
-    def as_dict(self):
+    def to_dict(self, node_counter=None):
         ans = {
             'title':self.title, 'dest':self.dest, 'frag':self.frag,
-            'children':[c.as_dict for c in self.children]
+            'children':[c.to_dict(node_counter) for c in self.children]
         }
         if self.dest_exists is not None:
             ans['dest_exists'] = self.dest_exists
         if self.dest_error is not None:
             ans['dest_error'] = self.dest_error
+        if node_counter is not None:
+            ans['id'] = next(node_counter)
         return ans
+
+    @property
+    def as_dict(self):
+        return self.to_dict()
 
 
 def child_xpath(tag, name):
@@ -748,4 +753,3 @@ def create_inline_toc(container, title=None):
             f.write(raw)
     set_guide_item(container, 'toc', title, name, frag='calibre_generated_inline_toc')
     return name
-

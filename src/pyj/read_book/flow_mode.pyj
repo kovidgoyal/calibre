@@ -5,7 +5,7 @@ from __python__ import hash_literals, bound_methods
 from dom import set_css
 from read_book.globals import get_boss
 from keycodes import get_key
-from utils import document_height, document_width
+from utils import document_height, document_width, viewport_to_document
 
 def flow_to_scroll_fraction(frac):
     window.scrollTo(0, document_height() * frac)
@@ -162,3 +162,27 @@ def handle_gesture(gesture):
         scroll_by_page(True)
     elif gesture.type is 'next-page':
         scroll_by_page(False)
+
+anchor_funcs = {
+    'pos_for_elem': def pos_for_elem(elem):
+        if not elem:
+            return 0, 0
+        br = elem.getBoundingClientRect()
+        x, y = viewport_to_document(br.left, br.top, elem.ownerDocument)
+        return y, x
+    ,
+    'visibility': def visibility(pos):
+        y, x = pos
+        if y < window.pageYOffset:
+            return -1
+        if y < window.pageYOffset + window.innerHeight:
+            if x < window.pageXOffset:
+                return -1
+            if x < window.pageXOffset + window.innerWidth:
+                return 0
+        return 1
+    ,
+    'cmp': def cmp(a, b):
+        return (a[0] - b[0]) or (a[1] - b[1])
+    ,
+}

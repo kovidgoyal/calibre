@@ -8,13 +8,50 @@ from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
 from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
+from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode
+
+
+def update_visible_toc_nodes(visible_anchors):
+    update_visible_toc_nodes.data = visible_anchors
+update_visible_toc_nodes.data = {}
+
+
+def get_highlighted_toc_nodes(toc, parent_map, id_map):
+    data = update_visible_toc_nodes.data
+    ans = {}
+    if data.has_visible:
+        ans = data.visible_anchors
+    elif data.before:
+        ans[data.before] = True
+    for node_id in Object.keys(ans):
+        pid = parent_map[node_id]
+        while pid:
+            ans[pid] = True
+            pid = parent_map[pid]
+    return ans
+
 
 def create_toc_tree(toc, onclick):
+
+    parent_map, id_map = {}, {}
+
+    def process_node(node, parent):
+        id_map[node.id] = node
+        parent_map[node.id] = parent
+        for c in node.children:
+            process_node(c, node)
+
+    process_node(toc)
+    highlighted_toc_nodes = get_highlighted_toc_nodes(toc, parent_map, id_map)
 
     def populate_data(node, li, a):
         li.dataset.tocDest = node.dest or ''
         li.dataset.tocFrag = node.frag or ''
-        a.textContent = node.title or ''
+        title = node.title or ''
+        if highlighted_toc_nodes[node.id]:
+            a.appendChild(E.b(E.i(title)))
+        else:
+            a.textContent = title
 
     return create_tree(toc, populate_data, onclick)
 
@@ -47,3 +84,45 @@ def create_toc_panel(book, container, onclick, onclose):
     search_bar = create_search_bar(do_search.bind(toc_panel_id), 'search-book-toc', button=search_button, placeholder=t)
     set_css(search_bar, flex_grow='10', margin_right='1em')
     container.appendChild(E.div(style='margin: 1ex 1em; display: flex;', search_bar, search_button))
+
+
+def current_toc_anchor_map(tam, anchor_funcs):
+    current_map = toc_anchor_map()
+    if not (current_map and current_map.layout_mode is current_layout_mode() and current_map.width is window.innerWidth and current_map.height is window.innerHeight):
+        name = current_spine_item().name
+        am = {}
+        anchors = v'[]'
+        for anchor in (tam[name] or v'[]'):
+            val = anchor_funcs.pos_for_elem()
+            if anchor.frag:
+                elem = document.getElementById(anchor.frag)
+                if elem:
+                    val = anchor_funcs.pos_for_elem(elem)
+            am[anchor.id] = val
+            anchors.push(anchor.id)
+        anchors.sort(def (a, b): anchor_funcs.cmp(am[a], am[b]);)
+        sort_map = {aid: i for i, aid in enumerate(anchors)}
+
+        current_map = {'layout_mode': current_layout_mode, 'width': window.innerWidth, 'height': window.innerHeight, 'pos_map': am, 'sort_map':sort_map}
+        set_toc_anchor_map(current_map)
+    return current_map
+
+
+def update_visible_toc_anchors(toc_anchor_map, anchor_funcs):
+    tam = current_toc_anchor_map(toc_anchor_map, anchor_funcs)
+    prev = before = after = None
+    visible_anchors = {}
+    has_visible = False
+    for anchor_id in tam.pos_map:
+        pos = tam.pos_map[anchor_id]
+        visibility = anchor_funcs.visibility(pos)
+        if visibility is 0:
+            before = prev
+            has_visible = True
+            visible_anchors[anchor_id] = True
+        elif visibility > 0:
+            after = anchor_id
+            break
+        prev = anchor_id
+
+    return {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after}

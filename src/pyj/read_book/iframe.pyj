@@ -8,16 +8,17 @@ from gettext import install, gettext as _
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
 from read_book.mathjax import apply_mathjax
+from read_book.toc import update_visible_toc_anchors
 from read_book.resources import finalize_resources, unserialize_html
 from read_book.flow_mode import (
     flow_to_scroll_fraction, flow_onwheel, flow_onkeydown, layout as flow_layout, handle_gesture as flow_handle_gesture,
-    scroll_by_page as flow_scroll_by_page
+    scroll_by_page as flow_scroll_by_page, anchor_funcs as flow_anchor_funcs
 )
 from read_book.paged_mode import (
     layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction,
     onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
     jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture,
-    scroll_by_page as paged_scroll_by_page
+    scroll_by_page as paged_scroll_by_page, anchor_funcs as paged_anchor_funcs
 )
 from read_book.settings import apply_settings, opts
 from read_book.touch import create_handlers as create_touch_handlers
@@ -104,6 +105,7 @@ class IframeBoss:
             self._handle_gesture = flow_handle_gesture
             self.to_scroll_fraction = flow_to_scroll_fraction
             self.jump_to_cfi = scroll_to_cfi
+            self.anchor_funcs = flow_anchor_funcs
         else:
             self.do_layout = paged_layout
             self.handle_wheel = paged_onwheel
@@ -111,6 +113,7 @@ class IframeBoss:
             self.to_scroll_fraction = paged_scroll_to_fraction
             self.jump_to_cfi = paged_jump_to_cfi
             self._handle_gesture = paged_handle_gesture
+            self.anchor_funcs = paged_anchor_funcs
         apply_settings(data.settings)
         set_current_spine_item({'name':data.name, 'is_first':index is 0, 'is_last':index is spine.length - 1, 'initial_position':data.initial_position})
         self.last_cfi = None
@@ -174,7 +177,7 @@ class IframeBoss:
 
     def content_loaded_stage2(self):
         self.connect_links()
-        window.addEventListener('scroll', debounce(self.update_cfi, 1000))
+        window.addEventListener('scroll', debounce(self.onscroll, 1000))
         window.addEventListener('resize', debounce(self.onresize, 500))
         window.addEventListener('wheel', self.onwheel)
         window.addEventListener('keydown', self.onkeydown)
@@ -188,7 +191,7 @@ class IframeBoss:
                 self.scroll_to_anchor(ipos.anchor)
             elif ipos.type is 'cfi':
                 self.jump_to_cfi(ipos.cfi)
-        self.update_cfi()
+        self.onscroll()
         self.send_message('content_loaded')
 
     def update_cfi(self):
@@ -203,6 +206,14 @@ class IframeBoss:
                     self.send_message('update_cfi', cfi=cfi, replace_history=self.replace_history_on_next_cfi_update)
                     self.replace_history_on_next_cfi_update = True
 
+    def update_toc_position(self):
+        visible_anchors = update_visible_toc_anchors(self.book.manifest.toc_anchor_map, self.anchor_funcs)
+        self.send_message('update_toc_position', visible_anchors=visible_anchors)
+
+    def onscroll(self):
+        self.update_cfi()
+        self.update_toc_position()
+
     def onresize(self):
         if current_layout_mode() is not 'flow':
             self.do_layout()
@@ -211,6 +222,7 @@ class IframeBoss:
             if cfi:
                 paged_jump_to_cfi('/' + cfi)
         self.update_cfi()
+        self.update_toc_position()
 
     def onwheel(self, evt):
         evt.preventDefault()

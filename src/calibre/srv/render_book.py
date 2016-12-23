@@ -55,6 +55,7 @@ def decode_url(x):
     parts = x.split('#', 1)
     return decode_component(parts[0]), (parts[1] if len(parts) > 1 else '')
 
+
 absolute_units = frozenset('px mm cm pt in pc q'.split())
 length_factors = {'mm':2.8346456693, 'cm':28.346456693, 'in': 72, 'pc': 12, 'q':0.708661417325}
 
@@ -114,6 +115,21 @@ def has_ancestor(elem, q):
     return False
 
 
+def anchor_map(root):
+    ans = []
+    seen = set()
+    for elem in root.xpath('//*[@id or @name]'):
+        eid = elem.get('id')
+        if not eid and elem.tag.endswith('}a'):
+            eid = elem.get('name')
+            if eid:
+                elem.set('id', eid)
+        if eid and eid not in seen:
+            ans.append(eid)
+            seen.add(eid)
+    return ans
+
+
 def get_length(root):
     strip_space = re.compile(r'\s+')
     ans = 0
@@ -136,6 +152,19 @@ def get_length(root):
     return ans
 
 
+def toc_anchor_map(toc):
+    ans = defaultdict(list)
+
+    def process_node(node):
+        name = node['dest']
+        if name:
+            ans[name].append({'id':node['id'], 'frag':node['frag']})
+        tuple(map(process_node, node['children']))
+
+    process_node(toc)
+    return dict(ans)
+
+
 class Container(ContainerBase):
 
     tweak_mode = True
@@ -150,10 +179,11 @@ class Container(ContainerBase):
             name == 'mimetype'
         }
         raster_cover_name, titlepage_name = self.create_cover_page(input_fmt.lower())
+        toc = get_toc(self).to_dict(count())
 
         self.book_render_data = data = {
             'version': RENDER_VERSION,
-            'toc':get_toc(self).as_dict,
+            'toc':toc,
             'spine':[name for name, is_linear in self.spine_names],
             'link_uid': uuid4(),
             'book_hash': book_hash,
@@ -163,6 +193,7 @@ class Container(ContainerBase):
             'has_maths': False,
             'total_length': 0,
             'spine_length': 0,
+            'toc_anchor_map': toc_anchor_map(toc),
         }
         # Mark the spine as dirty since we have to ensure it is normalized
         for name in data['spine']:
@@ -188,6 +219,7 @@ class Container(ContainerBase):
                 ans['has_maths'] = hm = check_for_maths(root)
                 if hm:
                     self.book_render_data['has_maths'] = True
+                ans['anchor_map'] = anchor_map(root)
             return ans
         data['files'] = {name:manifest_data(name) for name in set(self.name_path_map) - excluded_names}
         self.commit()
@@ -466,6 +498,7 @@ def html_as_dict(root):
 
 def render(pathtoebook, output_dir, book_hash=None):
     Container(pathtoebook, output_dir, book_hash=book_hash)
+
 
 if __name__ == '__main__':
     render(sys.argv[-2], sys.argv[-1])

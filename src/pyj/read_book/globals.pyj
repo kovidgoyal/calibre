@@ -35,22 +35,25 @@ messenger = Messenger()
 iframe_id = 'read-book-iframe'
 uid = 'calibre-' + hexlify(random_bytes(12))
 
-_layout_mode = 'flow'
 def current_layout_mode():
-    return _layout_mode
+    return current_layout_mode.value
+current_layout_mode.value = 'flow'
 
 def set_layout_mode(val):
-    nonlocal _layout_mode
-    _layout_mode = val
+    current_layout_mode.value = val
 
-_current_spine_item = None
 def current_spine_item():
-    return _current_spine_item
+    return current_spine_item.value
+current_spine_item.value = None
 
 def set_current_spine_item(val):
-    nonlocal _current_spine_item
-    _current_spine_item = val
+    current_spine_item.value = val
 
+def toc_anchor_map():
+    return toc_anchor_map.value
+
+def set_toc_anchor_map(val):
+    toc_anchor_map.value = val
 
 default_color_schemes = {
     'white':{'foreground':'#000000', 'background':'#ffffff', 'name':_('White')},
