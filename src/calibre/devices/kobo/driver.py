@@ -1409,7 +1409,7 @@ class KOBOTOUCH(KOBO):
                           }
     AURA_ONE_COVER_FILE_ENDINGS = {
                           # Used for screensaver, home screen
-                          ' - N3_FULL.parsed':        [(1872,1404), 0, 200,True,],  # Used for screensaver, home screen
+                          ' - N3_FULL.parsed':        [(1404,1872), 0, 200,True,],  # Used for screensaver, home screen
                           # Used for Details screen before FW2.8.1, then for current book tile on home screen
                           ' - N3_LIBRARY_FULL.parsed':[(355,  473), 0, 200,False,],
                           # Used for library lists
@@ -2914,7 +2914,7 @@ class KOBOTOUCH(KOBO):
         return self.detected_device.idProduct in self.TOUCH2_PRODUCT_ID
 
     def cover_file_endings(self):
-        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() or self.isAuraEdition2 \
+        return self.GLO_COVER_FILE_ENDINGS if self.isGlo() or self.isAura() or self.isAuraEdition2() \
                 else self.AURA_HD_COVER_FILE_ENDINGS if self.isAuraHD() or self.isAuraH2O() or self.isGloHD() \
                 else self.AURA_ONE_COVER_FILE_ENDINGS if self.isAuraOne() \
                 else self.COVER_FILE_ENDINGS
