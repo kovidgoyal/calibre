@@ -20,6 +20,53 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.75.0
+  date: 2016-12-23
+
+  new features:
+    - title: "Happy Holidays everyone!"
+
+    - title: "Add support for new Kobo firmware version 4.2"
+
+    - title: "Allow using amazon_in, amazon_au, amazon_com identifiers in the Book details panel."
+      tickets: [1649371]
+
+  bug fixes:
+    - title: "Kobo driver: Fix incorrectly sized covers being sent to some Kobo devices"
+
+    - title: "E-book viewer: Prevent javascript in the book from accessing files on the computer using XMLHttpRequest."
+      tickets: [1651728]
+
+    - title: "Edit Book: Fix the 'Search ignoring markup tool' not ignoring comments/processing instructions, etc."
+      tickets: [1651160]
+
+    - title: "CSS Transforms: Fix 'is'/'is not' rules not matching currentColor."
+      tickets: [1650930]
+
+    - title: "E-book viewer: Make the swipe up gesture move to next section instead of previous section."
+      tickets: [1651034]
+
+    - title: "Edit Book: Allow the Spell Check dialog and the search panel to be made much narrower than before."
+      tickets: [1650932]
+
+    - title: "Edit Book: Fix customize template window not freely resizable on windows."
+      tickets: [1650924]
+
+    - title: "Edit Book: Fix newlines not being matched by the 'Search ignoring markup' tool."
+      tickets: [1649383]
+
+    - title: "EPUB Input: Fix incorrect handling of html files that are in a folder above the OPF file."
+      tickets: [1649357]
+
+  improved recipes:
+    - Ambito Financiero
+    - Die Zeit (subscription)
+    - Irish Times
+    - Guardian
+    - Independent
+    - Ambito.com
+
+
 - version: 2.74.0
   date: 2016-12-09
 
