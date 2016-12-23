@@ -21,8 +21,11 @@ def get_highlighted_toc_nodes(toc, parent_map, id_map):
     ans = {}
     if data.has_visible:
         ans = data.visible_anchors
-    elif data.before:
-        ans[data.before] = True
+    else:
+        if data.before:
+            ans[data.before] = True
+        else:
+            pass  # TODO: implement this
     for node_id in Object.keys(ans):
         pid = parent_map[node_id]
         while pid:
