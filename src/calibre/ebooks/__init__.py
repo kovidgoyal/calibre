@@ -29,6 +29,7 @@ class DRMError(ValueError):
 class ParserError(ValueError):
     pass
 
+
 BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'txtz', 'text', 'htm', 'xhtm',
                    'html', 'htmlz', 'xhtml', 'pdf', 'pdb', 'updb', 'pdr', 'prc', 'mobi', 'azw', 'doc',
                    'epub', 'fb2', 'djv', 'djvu', 'lrx', 'cbr', 'cbz', 'cbc', 'oebzip',
@@ -164,6 +165,7 @@ def render_html_data(path_to_html, width, height):
 
 def render_html(path_to_html, width=590, height=750, as_xhtml=True):
     from PyQt5.QtWebKitWidgets import QWebPage
+    from PyQt5.QtWebKit import QWebSettings
     from PyQt5.Qt import QEventLoop, QPalette, Qt, QUrl, QSize
     from calibre.gui2 import is_ok_to_use_qt
     if not is_ok_to_use_qt():
@@ -172,7 +174,11 @@ def render_html(path_to_html, width=590, height=750, as_xhtml=True):
     with CurrentDir(os.path.dirname(path_to_html)):
         page = QWebPage()
         settings = page.settings()
-        settings.setAttribute(settings.PluginsEnabled, False)
+        settings.setAttribute(QWebSettings.JavaEnabled, False)
+        settings.setAttribute(QWebSettings.PluginsEnabled, False)
+        settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
+        settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
+        settings.setAttribute(QWebSettings.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
         pal = page.palette()
         pal.setBrush(QPalette.Background, Qt.white)
         page.setPalette(pal)
@@ -224,6 +230,7 @@ def calibre_cover(title, author_string, series_string=None,
     from calibre.utils.img import image_to_data
     ans = calibre_cover2(title, author_string or '', series_string or '', logo_path=logo_path, as_qimage=True)
     return image_to_data(ans, fmt=output_format)
+
 
 UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|ex|en|px|mm|cm|in|pt|pc|rem|q)$')
 
