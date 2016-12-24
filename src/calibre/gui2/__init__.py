@@ -1401,3 +1401,16 @@ def event_type_name(ev_or_etype):
         if num == etype:
             return name
     return 'UnknownEventType'
+
+
+def secure_web_page(qwebpage_or_qwebsettings):
+    from PyQt5.QtWebKit import QWebSettings
+    settings = qwebpage_or_qwebsettings if isinstance(qwebpage_or_qwebsettings, QWebSettings) else qwebpage_or_qwebsettings.settings()
+    settings.setAttribute(QWebSettings.JavaEnabled, False)
+    settings.setAttribute(QWebSettings.PluginsEnabled, False)
+    settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
+    settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
+    settings.setAttribute(QWebSettings.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
+    settings.setAttribute(QWebSettings.NotificationsEnabled, False)
+    settings.setThirdPartyCookiePolicy(QWebSettings.AlwaysBlockThirdPartyCookies)
+    return settings

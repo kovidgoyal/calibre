@@ -18,7 +18,7 @@ from PyQt5.QtWebKit import QWebSettings, QWebElement
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
-from calibre.gui2 import open_url
+from calibre.gui2 import open_url, secure_web_page
 from calibre import prints
 from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
@@ -48,16 +48,9 @@ def apply_settings(settings, opts):
 
 
 def apply_basic_settings(settings):
-    # Security
-    settings.setAttribute(QWebSettings.JavaEnabled, False)
-    settings.setAttribute(QWebSettings.PluginsEnabled, False)
-    settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
-    settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
-    settings.setAttribute(QWebSettings.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
+    secure_web_page(settings)
     # PrivateBrowsing disables console messages
     # settings.setAttribute(QWebSettings.PrivateBrowsingEnabled, True)
-    settings.setAttribute(QWebSettings.NotificationsEnabled, False)
-    settings.setThirdPartyCookiePolicy(QWebSettings.AlwaysBlockThirdPartyCookies)
 
     # Miscellaneous
     settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)

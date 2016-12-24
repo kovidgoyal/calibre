@@ -19,7 +19,7 @@ from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import xml_replace_entities, prepare_string_for_xml
-from calibre.gui2 import open_url, error_dialog, choose_files, gprefs, NO_URL_FORMATTING
+from calibre.gui2 import open_url, error_dialog, choose_files, gprefs, NO_URL_FORMATTING, secure_web_page
 from calibre.utils.soupparser import fromstring
 from calibre.utils.config import tweaks
 from calibre.utils.imghdr import what
@@ -171,6 +171,7 @@ class EditorWidget(QWebView):  # {{{
 
         self.page().setLinkDelegationPolicy(QWebPage.DelegateAllLinks)
         self.page().linkClicked.connect(self.link_clicked)
+        secure_web_page(self.page().settings())
 
         self.setHtml('')
         self.set_readonly(False)
@@ -412,6 +413,8 @@ class EditorWidget(QWebView):  # {{{
 # }}}
 
 # Highlighter {{{
+
+
 State_Text = -1
 State_DocType = 0
 State_Comment = 1
@@ -790,6 +793,7 @@ class Editor(QWidget):  # {{{
         self.tabs.tabBar().setVisible(False)
 
 # }}}
+
 
 if __name__ == '__main__':
     app = QApplication([])

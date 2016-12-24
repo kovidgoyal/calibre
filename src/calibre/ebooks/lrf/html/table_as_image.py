@@ -19,6 +19,7 @@ class HTMLTableRenderer(QObject):
         `width, height`: page width and height in pixels
         `base_dir`: The directory in which the HTML file that contains the table resides
         '''
+        from calibre.gui2 import secure_web_page
         QObject.__init__(self)
 
         self.app = None
@@ -28,6 +29,7 @@ class HTMLTableRenderer(QObject):
         self.tdir = tempfile.mkdtemp(prefix='calibre_render_table')
         self.loop = QEventLoop()
         self.page = QWebPage()
+        secure_web_page(self.page.settings())
         self.page.loadFinished.connect(self.render_html)
         self.page.mainFrame().setTextSizeMultiplier(factor)
         self.page.mainFrame().setHtml(html,

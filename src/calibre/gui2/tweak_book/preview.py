@@ -25,7 +25,7 @@ from calibre import prints
 from calibre.constants import FAKE_PROTOCOL, FAKE_HOST
 from calibre.ebooks.oeb.polish.parsing import parse
 from calibre.ebooks.oeb.base import serialize, OEB_DOCS
-from calibre.gui2 import error_dialog, open_url, NO_URL_FORMATTING
+from calibre.gui2 import error_dialog, open_url, NO_URL_FORMATTING, secure_web_page
 from calibre.gui2.tweak_book import current_container, editors, tprefs, actions, TOP
 from calibre.gui2.viewer.documentview import apply_settings
 from calibre.gui2.viewer.config import config
@@ -262,12 +262,8 @@ class WebPage(QWebPage):
         settings = self.settings()
         apply_settings(settings, config().parse())
         settings.setMaximumPagesInCache(0)
-        settings.setAttribute(settings.JavaEnabled, False)
-        settings.setAttribute(settings.PluginsEnabled, False)
+        secure_web_page(settings)
         settings.setAttribute(settings.PrivateBrowsingEnabled, True)
-        settings.setAttribute(settings.JavascriptCanOpenWindows, False)
-        settings.setAttribute(settings.JavascriptCanAccessClipboard, False)
-        settings.setAttribute(settings.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
         settings.setAttribute(settings.LinksIncludedInFocusChain, False)
         settings.setAttribute(settings.DeveloperExtrasEnabled, True)
         settings.setDefaultTextEncoding('utf-8')

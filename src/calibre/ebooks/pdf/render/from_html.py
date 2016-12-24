@@ -65,6 +65,7 @@ def get_page_size(opts, for_comic=False):  # {{{
 class Page(QWebPage):  # {{{
 
     def __init__(self, opts, log):
+        from calibre.gui2 import secure_web_page
         self.log = log
         QWebPage.__init__(self)
         settings = self.settings()
@@ -74,11 +75,7 @@ class Page(QWebPage):  # {{{
                 opts.pdf_mono_font_size)
         settings.setFontSize(QWebSettings.MinimumLogicalFontSize, 8)
         settings.setFontSize(QWebSettings.MinimumFontSize, 8)
-        settings.setAttribute(QWebSettings.JavaEnabled, False)
-        settings.setAttribute(QWebSettings.PluginsEnabled, False)
-        settings.setAttribute(QWebSettings.JavascriptCanOpenWindows, False)
-        settings.setAttribute(QWebSettings.JavascriptCanAccessClipboard, False)
-        settings.setAttribute(QWebSettings.LocalContentCanAccessFileUrls, False)  # ensure javascript cannot read from local files
+        secure_web_page(settings)
 
         std = {'serif':opts.pdf_serif_family, 'sans':opts.pdf_sans_family,
                 'mono':opts.pdf_mono_family}.get(opts.pdf_standard_font,

@@ -106,9 +106,11 @@ def draw_image_page(printer, painter, p, preserve_aspect_ratio=True):
 class Page(QWebPage):  # {{{
 
     def __init__(self, opts, log):
+        from calibre.gui2 import secure_web_page
         self.log = log
         QWebPage.__init__(self)
         settings = self.settings()
+        secure_web_page(settings)
         settings.setFontSize(QWebSettings.DefaultFontSize,
                 opts.pdf_default_font_size)
         settings.setFontSize(QWebSettings.DefaultFixedFontSize,
@@ -396,5 +398,3 @@ class ImagePDFWriter(object):  # {{{
         painter.end()
 
 # }}}
-
-
