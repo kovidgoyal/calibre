@@ -32,6 +32,7 @@ is64bit = sys.maxsize > (1 << 32)
 isworker = 'CALIBRE_WORKER' in os.environ or 'CALIBRE_SIMPLE_WORKER' in os.environ
 if isworker:
     os.environ.pop('CALIBRE_FORCE_ANSI', None)
+FAKE_PROTOCOL, FAKE_HOST = 'https', 'calibre-internal.invalid'
 
 try:
     preferred_encoding = locale.getpreferredencoding()
