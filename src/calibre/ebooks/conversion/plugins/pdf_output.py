@@ -123,9 +123,13 @@ class PDFOutput(OutputFormatPlugin):
 
     def convert(self, oeb_book, output_path, input_plugin, opts, log):
         from calibre.gui2 import must_use_qt, load_builtin_fonts
+        from calibre.ebooks.oeb.transforms.split import Split
         # Turn off hinting in WebKit (requires a patched build of QtWebKit)
         os.environ['CALIBRE_WEBKIT_NO_HINTING'] = '1'
         try:
+            # split on page breaks, as the JS code to convert page breaks to
+            # column breaks will not work because of QWebSettings.LocalContentCanAccessFileUrls
+            Split()(oeb_book, opts)
             must_use_qt()
             load_builtin_fonts()
 
