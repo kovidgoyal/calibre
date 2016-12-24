@@ -220,11 +220,6 @@ class NetworkReply(QNetworkReply):
 
 class NetworkAccessManager(QNetworkAccessManager):
 
-    OPERATION_NAMES = {getattr(QNetworkAccessManager, '%sOperation'%x) :
-            x.upper() for x in ('Head', 'Get', 'Put', 'Post', 'Delete',
-                'Custom')
-    }
-
     def createRequest(self, operation, request, data):
         qurl = request.url()
         if operation == self.GetOperation and qurl.host() == FAKE_HOST:
