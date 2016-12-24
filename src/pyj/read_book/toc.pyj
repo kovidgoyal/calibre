@@ -16,7 +16,14 @@ def update_visible_toc_nodes(visible_anchors):
 update_visible_toc_nodes.data = {}
 
 
-def get_highlighted_toc_nodes(toc, parent_map, id_map):
+def iter_toc_nodes(node, callback):
+    if callback(node):
+        return
+    for child in node.children:
+        if callback(child):
+            return
+
+def get_highlighted_toc_nodes(toc, spine, parent_map, id_map):
     data = update_visible_toc_nodes.data
     ans = {}
     if data.has_visible:
@@ -25,7 +32,14 @@ def get_highlighted_toc_nodes(toc, parent_map, id_map):
         if data.before:
             ans[data.before] = True
         else:
-            pass  # TODO: implement this
+            nodes_before = v'[]'
+            iter_toc_nodes(toc, def(node):
+                if node.dest is current_spine_item():
+                    return True
+                nodes_before.push(node)
+            )
+            if nodes_before.length:
+                ans[nodes_before[-1].id] = True
     for node_id in Object.keys(ans):
         pid = parent_map[node_id]
         while pid:
