@@ -7,7 +7,7 @@ from threading import Thread
 
 from PyQt5.Qt import (
     QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime, QObject,
-    QPropertyAnimation, QUrl, QInputDialog, QAction, QModelIndex, pyqtSignal)
+    QPropertyAnimation, QInputDialog, QAction, QModelIndex, pyqtSignal)
 
 from calibre.gui2.viewer.ui import Main as MainWindow
 from calibre.gui2.viewer.toc import TOC
@@ -549,7 +549,7 @@ class EbookViewer(MainWindow):
                     return error_dialog(self, _('No such location'),
                             _('The location pointed to by this item'
                                 ' does not exist.'), det_msg=item.abspath, show=True)
-                url = QUrl.fromLocalFile(item.abspath)
+                url = self.view.as_url(item.abspath)
                 if item.fragment:
                     url.setFragment(item.fragment)
                 self.link_clicked(url)
@@ -664,7 +664,7 @@ class EbookViewer(MainWindow):
         self.history.add(prev_pos)
 
     def link_clicked(self, url):
-        path = os.path.abspath(unicode(url.toLocalFile()))
+        path = self.view.path(url)
         frag = None
         if path in self.iterator.spine:
             self.update_page_number()  # Ensure page number is accurate as it is used for history
@@ -986,6 +986,7 @@ class EbookViewer(MainWindow):
             vh.insert(0, pathtoebook)
             vprefs.set('viewer_open_history', vh[:50])
             self.build_recent_menu()
+            self.view.set_book_data(self.iterator)
 
             self.footnotes_dock.close()
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
@@ -1265,6 +1266,7 @@ def main(args=sys.argv):
     with main:
         return app.exec_()
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())

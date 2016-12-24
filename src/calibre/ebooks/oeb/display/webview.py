@@ -33,9 +33,20 @@ def self_closing_sub(match):
     return '<%s%s></%s>'%(match.group(1), match.group(2), match.group(1))
 
 
+def cleanup_html(html):
+    html = EntityDeclarationProcessor(html).processed_html
+    self_closing_pat = re.compile(r'<\s*([:A-Za-z0-9-]+)([^>]*)/\s*>')
+    html = self_closing_pat.sub(self_closing_sub, html)
+    return html
+
+
+def load_as_html(html):
+    return re.search(r'<[a-zA-Z0-9-]+:svg', html) is None and '<![CDATA[' not in html
+
+
 def load_html(path, view, codec='utf-8', mime_type=None,
               pre_load_callback=lambda x:None, path_is_html=False,
-              force_as_html=False):
+              force_as_html=False, loading_url=None):
     from PyQt5.Qt import QUrl, QByteArray
     if mime_type is None:
         mime_type = guess_type(path)[0]
@@ -47,14 +58,11 @@ def load_html(path, view, codec='utf-8', mime_type=None,
         with open(path, 'rb') as f:
             html = f.read().decode(codec, 'replace')
 
-    html = EntityDeclarationProcessor(html).processed_html
-    self_closing_pat = re.compile(r'<\s*([:A-Za-z0-9-]+)([^>]*)/\s*>')
-    html = self_closing_pat.sub(self_closing_sub, html)
-
-    loading_url = QUrl.fromLocalFile(path)
+    html = cleanup_html(html)
+    loading_url = loading_url or QUrl.fromLocalFile(path)
     pre_load_callback(loading_url)
 
-    if force_as_html or re.search(r'<[a-zA-Z0-9-]+:svg', html) is None and '<![CDATA[' not in html:
+    if force_as_html or load_as_html(html):
         view.setHtml(html, loading_url)
     else:
         view.setContent(QByteArray(html.encode(codec)), mime_type,

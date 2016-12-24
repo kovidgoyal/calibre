@@ -50,8 +50,8 @@ get_containing_block = (node) ->
 trim = (str) ->
     return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '')
 
-is_footnote_link = (node, url, linked_to_anchors) ->
-    if not url or url.substr(0, 'file://'.length).toLowerCase() != 'file://'
+is_footnote_link = (node, url, linked_to_anchors, prefix) ->
+    if not url or url.substr(0, prefix.length) != prefix
         return false  # Ignore non-local links
     epub_type = get_epub_type(node, ['noteref'])
     if epub_type and epub_type.toLowerCase() == 'noteref'
@@ -163,8 +163,8 @@ class CalibreExtract
         cnode = inline_styles(node)
         return cnode.outerHTML
 
-    is_footnote_link: (a) ->
-        return is_footnote_link(a, a.href, py_bridge.value)
+    is_footnote_link: (a, prefix) ->
+        return is_footnote_link(a, a.href, py_bridge.value, prefix)
 
     show_footnote: (target, known_targets) ->
         if not target

@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
 __license__ = 'GPL v3'
 __copyright__ = '2014, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import json, os
+import json
 from collections import defaultdict
 
 from PyQt5.Qt import (
@@ -16,7 +16,7 @@ from PyQt5.QtWebKitWidgets import QWebView, QWebPage
 from PyQt5.QtWebKit import QWebSettings
 
 from calibre import prints
-from calibre.constants import DEBUG
+from calibre.constants import DEBUG, FAKE_PROTOCOL, FAKE_HOST
 from calibre.ebooks.oeb.display.webview import load_html
 
 
@@ -124,10 +124,10 @@ class Footnotes(object):
             pass
 
     def get_footnote_data(self, a, qurl):
-        current_path = os.path.abspath(unicode(self.view.document.mainFrame().baseUrl().toLocalFile()))
+        current_path = self.view.path()
         if not current_path:
             return  # Not viewing a local file
-        dest_path = self.spine_path(os.path.abspath(unicode(qurl.toLocalFile())))
+        dest_path = self.spine_path(self.view.path(qurl))
         if dest_path is not None:
             if dest_path == current_path:
                 # We deliberately ignore linked to anchors if the destination is
@@ -138,7 +138,7 @@ class Footnotes(object):
             else:
                 linked_to_anchors = {anchor:0 for path, anchor in dest_path.verified_links if path == current_path}
             self.view.document.bridge_value = linked_to_anchors
-            if a.evaluateJavaScript('calibre_extract.is_footnote_link(this)'):
+            if a.evaluateJavaScript('calibre_extract.is_footnote_link(this, "%s://%s")' % (FAKE_PROTOCOL, FAKE_HOST)):
                 if dest_path not in self.known_footnote_targets:
                     self.known_footnote_targets[dest_path] = s = set()
                     for item in self.view.manager.iterator.spine:

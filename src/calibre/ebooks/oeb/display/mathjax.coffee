@@ -32,7 +32,7 @@ class MathJax
         scale = if is_windows then 160 else 100
 
         script.type = 'text/javascript'
-        script.src = 'file://' + this.base + '/MathJax.js'
+        script.src = this.base + 'MathJax.js'
         script.text = user_config + ('''
         MathJax.Hub.signal.Interest(function (message) {if (String(message).match(/error/i)) {console.log(message)}});
         MathJax.Hub.Config({
@@ -111,5 +111,3 @@ class MathJax
 
 if window?
     window.mathjax = new MathJax()
-
-

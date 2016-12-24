@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 # Imports {{{
-import os, math, json
+import math, json
 from base64 import b64encode
 from functools import partial
 from future_builtins import map
@@ -18,7 +18,7 @@ from PyQt5.QtWebKit import QWebSettings, QWebElement
 
 from calibre.gui2.viewer.flip import SlideFlip
 from calibre.gui2.shortcuts import Shortcuts
-from calibre.gui2 import open_url, secure_web_page
+from calibre.gui2 import open_url, secure_web_page, error_dialog
 from calibre import prints
 from calibre.customize.ui import all_viewer_plugins
 from calibre.gui2.viewer.keys import SHORTCUTS
@@ -30,6 +30,7 @@ from calibre.gui2.viewer.table_popup import TablePopup
 from calibre.gui2.viewer.inspector import WebInspector
 from calibre.gui2.viewer.gestures import GestureHandler
 from calibre.gui2.viewer.footnote import Footnotes
+from calibre.gui2.viewer.fake_net import NetworkAccessManager
 from calibre.ebooks.oeb.display.webview import load_html
 from calibre.constants import isxp, iswindows, DEBUG, __version__
 # }}}
@@ -84,6 +85,8 @@ class Document(QWebPage):  # {{{
 
     def __init__(self, shortcuts, parent=None, debug_javascript=False):
         QWebPage.__init__(self, parent)
+        self.nam = NetworkAccessManager(self)
+        self.setNetworkAccessManager(self.nam)
         self.setObjectName("py_bridge")
         self.in_paged_mode = False
         # Use this to pass arbitrary JSON encodable objects between python and
@@ -212,11 +215,7 @@ class Document(QWebPage):  # {{{
         evaljs('window.calibre_utils.setup_epub_reading_system(%s, %s, %s, %s)' % tuple(map(json.dumps, (
             'calibre-desktop', __version__, 'paginated' if self.in_paged_mode else 'scrolling',
             'dom-manipulation layout-changes mouse-events keyboard-events'.split()))))
-        mjpath = P(u'viewer/mathjax').replace(os.sep, '/')
-        if iswindows:
-            mjpath = u'/' + mjpath
-        self.javascript(u'window.mathjax.base = %s'%(json.dumps(mjpath,
-            ensure_ascii=False)))
+        self.javascript(u'window.mathjax.base = %s'%(json.dumps(self.nam.mathjax_base, ensure_ascii=False)))
         for pl in self.all_viewer_plugins:
             pl.load_javascript(evaljs)
         evaljs('py_bridge.mark_element.connect(window.calibre_extract.mark)')
@@ -299,8 +298,7 @@ class Document(QWebPage):  # {{{
             cols_per_screen, self.top_margin, self.side_margin,
             self.bottom_margin
             ))
-        force_fullscreen_layout = bool(getattr(last_loaded_path,
-                                               'is_single_page', False))
+        force_fullscreen_layout = self.nam.is_single_page(last_loaded_path)
         self.update_contents_size_for_paged_mode(force_fullscreen_layout)
 
     def update_contents_size_for_paged_mode(self, force_fullscreen_layout=None):
@@ -564,6 +562,7 @@ class DocumentView(QWebView):  # {{{
         self.to_bottom = False
         self.document = Document(self.shortcuts, parent=self,
                 debug_javascript=debug_javascript)
+        self.document.nam.load_error.connect(self.on_unhandled_load_error)
         self.footnotes = Footnotes(self)
         self.document.settings_changed.connect(self.footnotes.clone_settings)
         self.setPage(self.document)
@@ -719,7 +718,7 @@ class DocumentView(QWebView):  # {{{
 
     def popup_table(self):
         html = self.document.extract_node()
-        self.table_popup(html, QUrl.fromLocalFile(self.last_loaded_path),
+        self.table_popup(html, self.as_url(self.last_loaded_path),
                          self.document.font_magnification_step)
 
     def contextMenuEvent(self, ev):
@@ -914,8 +913,12 @@ class DocumentView(QWebView):  # {{{
             self.document.javascript('paged_display.snap_to_selection()')
         return found
 
-    def path(self):
-        return os.path.abspath(unicode(self.url().toLocalFile()))
+    def path(self, url=None):
+        url = url or self.url()
+        return self.document.nam.as_abspath(url)
+
+    def as_url(self, path):
+        return self.document.nam.as_url(path)
 
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
@@ -924,13 +927,7 @@ class DocumentView(QWebView):  # {{{
         # evaluated in read_document_margins() in paged mode.
         self.document.setPreferredContentsSize(QSize())
 
-        def callback(lu):
-            self.loading_url = lu
-            if self.manager is not None:
-                self.manager.load_started()
-
-        load_html(path, self, codec=getattr(path, 'encoding', 'utf-8'), mime_type=getattr(path,
-            'mime_type', 'text/html'), pre_load_callback=callback)
+        url = self.as_url(path)
         entries = set()
         for ie in getattr(path, 'index_entries', []):
             if ie.start_anchor:
@@ -938,6 +935,18 @@ class DocumentView(QWebView):  # {{{
             if ie.end_anchor:
                 entries.add(ie.end_anchor)
         self.document.index_anchors = entries
+
+        def callback(lu):
+            self.loading_url = lu
+            if self.manager is not None:
+                self.manager.load_started()
+
+        load_html(path, self, codec=getattr(path, 'encoding', 'utf-8'), mime_type=getattr(path,
+            'mime_type', 'text/html'), loading_url=url, pre_load_callback=callback)
+
+    def on_unhandled_load_error(self, name, tb):
+        error_dialog(self, _('Failed to load file'), _(
+            'Failed to load the file: {}. Click "Show details" for more information').format(name), det_msg=tb, show=True)
 
     def initialize_scrollbar(self):
         if getattr(self, 'scrollbar', None) is not None:
@@ -1427,5 +1436,8 @@ class DocumentView(QWebView):  # {{{
         qurl =  self.footnotes.showing_url
         if qurl and qurl.isValid():
             self.link_clicked(qurl)
+
+    def set_book_data(self, iterator):
+        self.document.nam.set_book_data(iterator.base, iterator.spine)
 
 # }}}
