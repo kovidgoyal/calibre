@@ -85,15 +85,16 @@ class PagedDisplay
             tmp.style.position = 'absolute'
             document.body.appendChild(tmp)
             for sheet in document.styleSheets
-                for rule in sheet.rules
-                    if rule.type == CSSRule.PAGE_RULE
-                        for prop in ['left', 'top', 'bottom', 'right']
-                            val = rule.style.getPropertyValue('margin-'+prop)
-                            if val
-                                tmp.style.height = val
-                                pxval = parseInt(window.getComputedStyle(tmp).height)
-                                if not isNaN(pxval)
-                                    this.document_margins[prop] = pxval
+                if sheet.rules
+                    for rule in sheet.rules
+                        if rule.type == CSSRule.PAGE_RULE
+                            for prop in ['left', 'top', 'bottom', 'right']
+                                val = rule.style.getPropertyValue('margin-'+prop)
+                                if val
+                                    tmp.style.height = val
+                                    pxval = parseInt(window.getComputedStyle(tmp).height)
+                                    if not isNaN(pxval)
+                                        this.document_margins[prop] = pxval
             document.body.removeChild(tmp)
             if this.document_margins.left is null
                 val = parseInt(window.getComputedStyle(document.body).marginLeft)
@@ -232,14 +233,15 @@ class PagedDisplay
 
         # Convert page-breaks to column-breaks
         for sheet in document.styleSheets
-            for rule in sheet.rules
-                if rule.type == CSSRule.STYLE_RULE
-                    for prop in ['page-break-before', 'page-break-after', 'page-break-inside']
-                        val = rule.style.getPropertyValue(prop)
-                        if val
-                            cprop = '-webkit-column-' + prop.substr(5)
-                            priority = rule.style.getPropertyPriority(prop)
-                            rule.style.setProperty(cprop, val, priority)
+            if sheet.rules
+                for rule in sheet.rules
+                    if rule.type == CSSRule.STYLE_RULE
+                        for prop in ['page-break-before', 'page-break-after', 'page-break-inside']
+                            val = rule.style.getPropertyValue(prop)
+                            if val
+                                cprop = '-webkit-column-' + prop.substr(5)
+                                priority = rule.style.getPropertyPriority(prop)
+                                rule.style.setProperty(cprop, val, priority)
 
         if first_layout
             # Because of a bug in webkit column mode, svg elements defined with
