@@ -20,7 +20,7 @@
 #   new recipes:
 #     - title: 
 
-- version: 2.75.0
+- version: 2.75.1
   date: 2016-12-23
 
   new features:
@@ -32,6 +32,8 @@
       tickets: [1649371]
 
   bug fixes:
+    - title: "Version 2.75.1 has fixes for a regression in 2.75.0 that broke the Live CSS feature in the editor and caused some minor problems in the viewer"
+
     - title: "Kobo driver: Fix incorrectly sized covers being sent to some Kobo devices"
 
     - title: "E-book viewer: Prevent javascript in the book from accessing files on the computer using XMLHttpRequest."
