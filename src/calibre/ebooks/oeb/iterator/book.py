@@ -139,7 +139,7 @@ class EbookIterator(BookmarksMixin):
 
         self.delete_on_exit = []
         self._tdir = TemporaryDirectory('_ebook_iter')
-        self.base  = self._tdir.__enter__()
+        self.base  = os.path.realpath(self._tdir.__enter__())
         self.book_format, self.pathtoopf, input_fmt = run_extract_book(
             self.pathtoebook, self.base, only_input_plugin=only_input_plugin, view_kepub=view_kepub, processed=processed)
         self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))

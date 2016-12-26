@@ -76,7 +76,7 @@ class NetworkAccessManager(QNetworkAccessManager):
 
     def set_book_data(self, root, spine):
         self.orig_root = root
-        self.root = os.path.normcase(os.path.abspath(root))
+        self.root = normpath(root)
         self.mime_map, self.single_pages, self.codec_map = {}, set(), {}
         for p in spine:
             mt = getattr(p, 'mime_type', None)
