@@ -22,7 +22,7 @@ from calibre.constants import config_dir
 from calibre.ebooks.metadata import rating_to_stars
 from calibre.gui2.tag_browser.model import (TagTreeItem, TAG_SEARCH_STATES,
         TagsModel, DRAG_IMAGE_ROLE, COUNT_ROLE)
-from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font
+from calibre.gui2 import config, gprefs, choose_files, pixmap_to_data, rating_font, empty_index
 from calibre.utils.icu import sort_key
 
 
@@ -91,7 +91,7 @@ class TagDelegate(QStyledItemDelegate):  # {{{
         painter.drawText(tr, flags, text)
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, empty_index)
         widget = self.parent()
         style = QApplication.style() if widget is None else widget.style()
         self.initStyleOption(option, index)

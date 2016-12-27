@@ -13,10 +13,10 @@ from PyQt5.Qt import (QFontInfo, QFontMetrics, Qt, QFont, QFontDatabase, QPen,
         QStyledItemDelegate, QSize, QStyle, QStringListModel, pyqtSignal,
         QDialog, QVBoxLayout, QApplication, QFontComboBox, QPushButton,
         QToolButton, QGridLayout, QListView, QWidget, QDialogButtonBox, QIcon,
-        QHBoxLayout, QLabel, QModelIndex, QLineEdit, QSizePolicy)
+        QHBoxLayout, QLabel, QLineEdit, QSizePolicy)
 
 from calibre.constants import config_dir
-from calibre.gui2 import choose_files, error_dialog, info_dialog
+from calibre.gui2 import choose_files, error_dialog, info_dialog, empty_index
 
 
 def add_fonts(parent):
@@ -103,7 +103,7 @@ class FontFamilyDelegate(QStyledItemDelegate):
         return QSize(m.width(text), m.height())
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, empty_index)
         painter.save()
         try:
             self.do_paint(painter, option, index)
@@ -380,6 +380,6 @@ def test():
     d.layout().addWidget(QFontComboBox(d))
     d.exec_()
 
+
 if __name__ == '__main__':
     test()
-

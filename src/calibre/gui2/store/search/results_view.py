@@ -9,9 +9,10 @@ __docformat__ = 'restructuredtext en'
 from functools import partial
 
 from PyQt5.Qt import (
-    pyqtSignal, QMenu, QTreeView, QStyledItemDelegate, QModelIndex, Qt, QIcon)
+    pyqtSignal, QMenu, QTreeView, QStyledItemDelegate, Qt, QIcon)
 
 from calibre import fit_image
+from calibre.gui2 import empty_index
 from calibre.gui2.metadata.single_download import RichTextDelegate
 from calibre.gui2.store.search.models import Matches
 
@@ -19,7 +20,7 @@ from calibre.gui2.store.search.models import Matches
 class ImageDelegate(QStyledItemDelegate):
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, empty_index)
         img = index.data(Qt.DecorationRole)
         if img:
             h = option.rect.height() - 4

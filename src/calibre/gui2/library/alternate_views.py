@@ -25,7 +25,7 @@ from calibre import fit_image, prints, prepare_string_for_xml, human_readable
 from calibre.constants import DEBUG, config_dir, islinux
 from calibre.ebooks.metadata import fmt_sidx, rating_to_stars
 from calibre.utils import join_with_timeout
-from calibre.gui2 import gprefs, config, rating_font
+from calibre.gui2 import gprefs, config, rating_font, empty_index
 from calibre.gui2.library.caches import CoverCache, ThumbnailCache
 from calibre.utils.config import prefs, tweaks
 
@@ -451,7 +451,7 @@ class CoverDelegate(QStyledItemDelegate):
         return ans
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())  # draw the hover and selection highlights
+        QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
         m = index.model()
         db = m.db
         try:

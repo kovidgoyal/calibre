@@ -12,7 +12,7 @@ from functools import partial
 from PyQt5.Qt import (
     QGridLayout, QSize, QListView, QStyledItemDelegate, QLabel, QPixmap,
     QApplication, QSizePolicy, QAbstractListModel, Qt, QRect, QCheckBox,
-    QPainter, QModelIndex, QSortFilterProxyModel, QLineEdit, QToolButton,
+    QPainter, QSortFilterProxyModel, QLineEdit, QToolButton,
     QIcon, QFormLayout, pyqtSignal, QTreeWidget, QTreeWidgetItem, QVBoxLayout,
     QMenu, QInputDialog, QHBoxLayout)
 
@@ -20,7 +20,7 @@ from calibre import fit_image
 from calibre.constants import plugins
 from calibre.ebooks.metadata import string_to_authors
 from calibre.ebooks.metadata.book.base import Metadata
-from calibre.gui2 import choose_files, error_dialog, pixmap_to_data
+from calibre.gui2 import choose_files, error_dialog, pixmap_to_data, empty_index
 from calibre.gui2.languages import LanguagesEdit
 from calibre.gui2.tweak_book import current_container, tprefs
 from calibre.gui2.tweak_book.widgets import Dialog
@@ -101,7 +101,7 @@ class ImageDelegate(QStyledItemDelegate):
         return self.item_size
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())  # draw the hover and selection highlights
+        QStyledItemDelegate.paint(self, painter, option, empty_index)  # draw the hover and selection highlights
         name = unicode(index.data(Qt.DisplayRole) or '')
         cover = self.cover_cache.get(name, None)
         if cover is None:
@@ -461,6 +461,7 @@ class NewBook(Dialog):  # {{{
         return mi
 
 # }}}
+
 
 if __name__ == '__main__':
     app = QApplication([])  # noqa

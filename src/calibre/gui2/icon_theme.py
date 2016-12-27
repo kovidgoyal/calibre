@@ -18,14 +18,14 @@ from PyQt5.Qt import (
     QImageReader, QFormLayout, QVBoxLayout, QSplitter, QGroupBox, QListWidget,
     QLineEdit, QSpinBox, QTextEdit, QSize, QListWidgetItem, QIcon, QImage,
     pyqtSignal, QStackedLayout, QWidget, QLabel, Qt, QComboBox, QPixmap,
-    QGridLayout, QStyledItemDelegate, QModelIndex, QApplication, QStaticText,
+    QGridLayout, QStyledItemDelegate, QApplication, QStaticText,
     QStyle, QPen, QProgressDialog
 )
 
 from calibre import walk, fit_image, human_readable, detect_ncpus as cpu_count
 from calibre.constants import cache_dir, config_dir
 from calibre.customize.ui import interface_actions
-from calibre.gui2 import must_use_qt, gprefs, choose_dir, error_dialog, choose_save_file, question_dialog
+from calibre.gui2 import must_use_qt, gprefs, choose_dir, error_dialog, choose_save_file, question_dialog, empty_index
 from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.progress_indicator import ProgressIndicator
 from calibre.gui2.widgets2 import Dialog
@@ -508,7 +508,7 @@ class Delegate(QStyledItemDelegate):
         return QSize(COVER_SIZE[0] * 2, COVER_SIZE[1] + 2 * self.SPACING)
 
     def paint(self, painter, option, index):
-        QStyledItemDelegate.paint(self, painter, option, QModelIndex())
+        QStyledItemDelegate.paint(self, painter, option, empty_index)
         theme = index.data(Qt.UserRole)
         if not theme:
             return
@@ -839,6 +839,7 @@ def install_icon_theme(theme, f):
     json.dump(theme, buf, indent=2)
     buf.seek(0)
     safe_copy(buf, metadata_file)
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application

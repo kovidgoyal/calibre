@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QStyle  # Gives a nicer error message than import fr
 from PyQt5.Qt import (
     QFileInfo, QObject, QBuffer, Qt, QByteArray, QTranslator, QSocketNotifier,
     QCoreApplication, QThread, QEvent, QTimer, pyqtSignal, QDateTime, QFontMetrics,
-    QDesktopServices, QFileDialog, QFileIconProvider, QSettings, QIcon,
+    QDesktopServices, QFileDialog, QFileIconProvider, QSettings, QIcon, QStringListModel,
     QApplication, QDialog, QUrl, QFont, QFontDatabase, QLocale, QFontInfo)
 
 from calibre import prints
@@ -1414,3 +1414,7 @@ def secure_web_page(qwebpage_or_qwebsettings):
     settings.setAttribute(QWebSettings.NotificationsEnabled, False)
     settings.setThirdPartyCookiePolicy(QWebSettings.AlwaysBlockThirdPartyCookies)
     return settings
+
+
+empty_model = QStringListModel([''])
+empty_index = empty_model.index(0)
