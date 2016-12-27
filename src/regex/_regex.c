@@ -1547,6 +1547,15 @@ Py_LOCAL_INLINE(BOOL) is_unicode_vowel(Py_UCS4 ch) {
     }
 }
 
+/* Checks whether a character is a Unicode apostrophe.
+ *
+ * This could be U+0027 (APOSTROPHE) or U+2019 (RIGHT SINGLE QUOTATION MARK /
+ * curly apostrophe).
+ */
+static BOOL is_unicode_apostrophe(Py_UCS4 ch) {
+    return ch == 0x27 || ch == 0x2019;
+}
+
 /* Checks whether a position is on a default word boundary.
  *
  * The rules are defined here:
@@ -1667,7 +1676,7 @@ static BOOL unicode_at_default_boundary(RE_State* state, Py_ssize_t text_pos) {
 
     /* Break between apostrophe and vowels (French, Italian). */
     /* WB5a */
-    if (pos_m1 >= 0 && char_at(state->text, pos_m1) == '\'' &&
+    if (pos_m1 >= 0 && is_unicode_apostrophe(char_at(state->text, pos_m1)) &&
       is_unicode_vowel(char_at(state->text, text_pos)))
         return TRUE;
 
@@ -1849,7 +1858,8 @@ Py_LOCAL_INLINE(BOOL) unicode_at_default_word_start_or_end(RE_State* state,
     if (prop_m1 == RE_BREAK_ALETTER && prop == RE_BREAK_ALETTER)
         return FALSE;
 
-    if (pos_m1 >= 0 && char_m1 == '\'' && is_unicode_vowel(char_0))
+    if (pos_m1 >= 0 && is_unicode_apostrophe(char_m1) &&
+      is_unicode_vowel(char_0))
         return TRUE;
 
     pos_p1 = text_pos + 1;
@@ -10019,7 +10029,7 @@ Py_LOCAL_INLINE(BOOL) any_error_permitted(RE_State* state) {
 
     return fuzzy_info->total_cost <= values[RE_FUZZY_VAL_MAX_COST] &&
       fuzzy_info->counts[RE_FUZZY_ERR] < values[RE_FUZZY_VAL_MAX_ERR] &&
-      state->total_errors <= state->max_errors;
+      state->total_errors < state->max_errors;
 }
 
 /* Checks whether this additional fuzzy error is permitted. */
@@ -10032,7 +10042,7 @@ Py_LOCAL_INLINE(BOOL) this_error_permitted(RE_State* state, int fuzzy_type) {
 
     return fuzzy_info->total_cost + values[RE_FUZZY_VAL_COST_BASE + fuzzy_type]
       <= values[RE_FUZZY_VAL_MAX_COST] && fuzzy_info->counts[fuzzy_type] <
-      values[RE_FUZZY_VAL_MAX_BASE + fuzzy_type] && state->total_errors + 1 <=
+      values[RE_FUZZY_VAL_MAX_BASE + fuzzy_type] && state->total_errors <
       state->max_errors;
 }
 
@@ -10064,6 +10074,9 @@ Py_LOCAL_INLINE(int) next_fuzzy_match_item(RE_State* state, RE_FuzzyData* data,
         switch (data->fuzzy_type) {
         case RE_FUZZY_DEL:
             /* Could a character at text_pos have been deleted? */
+            if (step == 0)
+                return RE_ERROR_FAILURE;
+
             if (is_string)
                 data->new_string_pos += step;
             else
@@ -10074,7 +10087,10 @@ Py_LOCAL_INLINE(int) next_fuzzy_match_item(RE_State* state, RE_FuzzyData* data,
             if (!data->permit_insertion)
                 return RE_ERROR_FAILURE;
 
-            new_pos = data->new_text_pos + step;
+            if (step == 0)
+                new_pos = data->new_text_pos + data->step;
+            else
+                new_pos = data->new_text_pos + step;
             if (state->slice_start <= new_pos && new_pos <= state->slice_end) {
                 data->new_text_pos = new_pos;
                 return RE_ERROR_SUCCESS;
@@ -10083,6 +10099,9 @@ Py_LOCAL_INLINE(int) next_fuzzy_match_item(RE_State* state, RE_FuzzyData* data,
             return check_fuzzy_partial(state, new_pos);
         case RE_FUZZY_SUB:
             /* Could the character at text_pos have been substituted? */
+            if (step == 0)
+                return RE_ERROR_FAILURE;
+
             new_pos = data->new_text_pos + step;
             if (state->slice_start <= new_pos && new_pos <= state->slice_end) {
                 data->new_text_pos = new_pos;
@@ -14808,7 +14827,10 @@ backtrack:
                  * backtracked inside and already restored the groups. We also
                  * need to restore certain flags.
                  */
-                if (bt_data->lookaround.node->match)
+                RE_Node* node;
+
+                node = bt_data->lookaround.node;
+                if (node->match && (node->status & RE_STATUS_HAS_GROUPS))
                     pop_groups(state);
 
                 state->too_few_errors = bt_data->lookaround.too_few_errors;
@@ -16602,13 +16624,14 @@ Py_LOCAL_INLINE(int) do_best_fuzzy_match(RE_SafeState* safe_state, BOOL search)
                  */
                 add_to_best_list(safe_state, &best_list, state->match_pos,
                   state->text_pos);
-        }
+        } else
+            start_pos = state->match_pos + step;
 
         /* Should we keep searching? */
         if (!search)
             break;
 
-        start_pos = state->match_pos + step;
+        state->max_errors = fewest_errors - 1;
     }
 
     if (found_match) {
@@ -17103,7 +17126,7 @@ Py_LOCAL_INLINE(BOOL) get_string(PyObject* string, RE_StringInfo* str_info) {
      * instead.
      */
     if (PyUnicode_Check(string)) {
-        /* Unicode strings doesn't always support the buffer interface. */
+        /* Unicode strings don't always support the buffer interface. */
         str_info->characters = (void*)PyUnicode_AS_DATA(string);
         str_info->length = PyUnicode_GET_SIZE(string);
         str_info->charsize = sizeof(Py_UNICODE);
@@ -17112,6 +17135,39 @@ Py_LOCAL_INLINE(BOOL) get_string(PyObject* string, RE_StringInfo* str_info) {
         return TRUE;
     }
 
+#if defined(PYPY_VERSION)
+    if (PyString_Check(string)) {
+        /* Bytestrings don't always support the buffer interface. */
+        str_info->characters = (void*)PyString_AS_STRING(string);
+        str_info->length = PyString_GET_SIZE(string);
+        str_info->charsize = 1;
+        str_info->is_unicode = FALSE;
+        str_info->should_release = FALSE;
+        return TRUE;
+    }
+
+#endif
+#if defined(PYPY_VERSION)
+    /* Get pointer to string buffer. */
+    if (PyObject_GetBuffer(string, &str_info->view, PyBUF_SIMPLE) != 0) {
+        printf("PyObject_GetBuffer failed!\n");
+        PyErr_SetString(PyExc_TypeError, "expected string or buffer");
+        return FALSE;
+    }
+
+    if (!str_info->view.buf) {
+        PyBuffer_Release(&str_info->view);
+        PyErr_SetString(PyExc_ValueError, "buffer is NULL");
+        return FALSE;
+    }
+
+    str_info->should_release = TRUE;
+
+    str_info->characters = str_info->view.buf;
+    str_info->length = str_info->view.len;
+    str_info->charsize = 1;
+    str_info->is_unicode = FALSE;
+#else
     /* Get pointer to string buffer. */
 #if PY_VERSION_HEX >= 0x02060000
     buffer = Py_TYPE(string)->tp_as_buffer;
@@ -17183,6 +17239,7 @@ Py_LOCAL_INLINE(BOOL) get_string(PyObject* string, RE_StringInfo* str_info) {
 
     str_info->length = size;
     str_info->is_unicode = FALSE;
+#endif
 
     return TRUE;
 }
