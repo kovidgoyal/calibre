@@ -109,7 +109,7 @@ class TweakEpubAction(InterfaceAction):
         if not tweakable_fmts:
             return error_dialog(self.gui, _('Cannot Edit Book'),
                     _('The book must be in the %s formats to edit.'
-                        '\n\nFirst convert the book to one of these formats.') % (_(' or '.join(SUPPORTED))),
+                        '\n\nFirst convert the book to one of these formats.') % (_(' or ').join(SUPPORTED)),
                     show=True)
         from calibre.gui2.tweak_book import tprefs
         tprefs.refresh()  # In case they were changed in a Tweak Book process
