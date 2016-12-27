@@ -840,10 +840,6 @@ class BooksView(QTableView):  # {{{
 
     def contextMenuEvent(self, event):
         from calibre.gui2.main_window import clone_menu
-        sac = self.gui.iactions['Sort By']
-        sort_added = tuple(ac for ac in self.context_menu.actions() if ac is sac.qaction)
-        if sort_added:
-            sac.update_menu()
         m = clone_menu(self.context_menu) if islinux else self.context_menu
         m.popup(event.globalPos())
         event.accept()

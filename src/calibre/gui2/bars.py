@@ -253,6 +253,7 @@ class MenuAction(QAction):  # {{{
 
 # MenuBar {{{
 
+
 if isosx:
     # On OS X we need special handling for the application global menu bar and
     # the context menus, since Qt does not handle dynamic menus or menus in
@@ -272,6 +273,15 @@ if isosx:
             clone.changed.connect(self.clone_changed)
             self.clone_changed()
             self.triggered.connect(self.do_trigger)
+
+        def clone_menu(self):
+            m = self.menu()
+            m.clear()
+            for ac in QMenu.actions(self.clone.menu()):
+                if ac.isSeparator():
+                    m.addSeparator()
+                else:
+                    m.addAction(CloneAction(ac, self.parent(), clone_shortcuts=self.clone_shortcuts))
 
         def clone_changed(self):
             otext = self.text()
@@ -293,12 +303,17 @@ if isosx:
                     self.setMenu(None)
             else:
                 m = QMenu(self.text(), self.parent())
-                for ac in QMenu.actions(self.clone.menu()):
-                    if ac.isSeparator():
-                        m.addSeparator()
-                    else:
-                        m.addAction(CloneAction(ac, self.parent(), clone_shortcuts=self.clone_shortcuts))
+                m.aboutToShow.connect(self.about_to_show)
                 self.setMenu(m)
+                self.clone_menu()
+
+        def about_to_show(self):
+            cm = self.clone.menu()
+            before = list(QMenu.actions(cm))
+            cm.aboutToShow.emit()
+            after = list(QMenu.actions(cm))
+            if before != after:
+                self.clone_menu()
 
         def do_trigger(self, checked=False):
             if not sip.isdeleted(self.clone):
@@ -553,5 +568,3 @@ class BarsManager(QObject):
             bar.setToolButtonStyle(style)
         self.donate_button.setIconSize(bar.iconSize())
         self.donate_button.setToolButtonStyle(style)
-
-

@@ -170,6 +170,7 @@ def clone_menu(menu):
     # This is needed to workaround a bug in Qt 5.5+ and Unity. When the same
     # QAction object is used in both a QMenuBar and a QMenu, sub-menus of the
     # QMenu flicker when rendered under Unity.
+
     def clone_action(ac, parent):
         if ac.isSeparator():
             ans = QAction(parent)
