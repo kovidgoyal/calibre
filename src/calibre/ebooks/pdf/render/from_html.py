@@ -417,6 +417,6 @@ class PDFWriter(QObject):
                 break
             col += 1
 
-        if not self.doc.errors_occurred:
+        if not self.doc.errors_occurred and self.doc.current_page_num > 1:
             self.doc.add_links(self.current_item, start_page, amap['links'],
                             amap['anchors'])
