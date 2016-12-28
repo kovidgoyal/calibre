@@ -128,6 +128,7 @@ class EPUBInput(InputFormatPlugin):
         means, at most one entry with type="cover" that points to a raster
         cover and at most one entry with type="titlepage" that points to an
         HTML titlepage. '''
+        from calibre.ebooks.oeb.base import OPF
         removed = None
         from lxml import etree
         guide_cover, guide_elem = None, None
@@ -136,6 +137,16 @@ class EPUBInput(InputFormatPlugin):
                 guide_cover = guide_elem.get('href', '').partition('#')[0]
                 break
         if not guide_cover:
+            raster_cover = opf.raster_cover
+            if raster_cover:
+                if guide_elem is None:
+                    g = opf.root.makeelement(OPF('guide'))
+                    opf.root.append(g)
+                else:
+                    g = guide_elem.getparent()
+                guide_cover = raster_cover
+                guide_elem = g.makeelement(OPF('reference'), attrib={'href':raster_cover, 'type':'cover'})
+                g.append(guide_elem)
             return
         spine = list(opf.iterspine())
         if not spine:
@@ -173,8 +184,6 @@ class EPUBInput(InputFormatPlugin):
         # and a titlepage entry pointing to the html titlepage. The titlepage
         # entry will be used by the epub output plugin, the raster cover entry
         # by other output plugins.
-
-        from calibre.ebooks.oeb.base import OPF
 
         # Search for a raster cover identified in the OPF
         raster_cover = opf.raster_cover
