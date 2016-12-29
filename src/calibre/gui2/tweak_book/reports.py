@@ -56,6 +56,7 @@ def save_state(name, val):
         tprefs['reports-ui-state'] = data = {}
     data[name] = val
 
+
 SORT_ROLE = Qt.UserRole + 1
 
 
@@ -111,7 +112,7 @@ class FileCollection(QAbstractTableModel):
     def location(self, index):
         try:
             return self.files[index.row()].name
-        except IndexError:
+        except (IndexError, AttributeError):
             pass
 
 
@@ -349,6 +350,7 @@ class Jump(object):
             self.pos_map[key] = (self.pos_map[key] + 1) % len(locations)
             loc = locations[self.pos_map[key]]
             jump_to_location(loc)
+
 
 jump = Jump()  # }}}
 
@@ -1440,6 +1442,7 @@ class Reports(Dialog):
         self.reports.save()
         Dialog.reject(self)
 # }}}
+
 
 if __name__ == '__main__':
     from calibre.gui2 import Application
