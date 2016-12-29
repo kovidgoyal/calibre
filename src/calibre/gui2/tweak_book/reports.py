@@ -601,6 +601,8 @@ class LinksWidget(QWidget):
         self.links.restore_table('links-table', sort_column=1)
         self.view = WebView(self)
         secure_web_page(self.view.page())
+        self.setContextMenuPolicy(Qt.NoContextMenu)
+        self.view.setContextMenuPolicy(Qt.NoContextMenu)
         s.addWidget(self.view)
         self.ignore_current_change = False
         self.current_url = None
