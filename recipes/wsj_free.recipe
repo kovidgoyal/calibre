@@ -33,12 +33,13 @@ def classes(classes):
     return dict(attrs={
         'class': lambda x: x and frozenset(x.split()).intersection(q)})
 
+
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64; rv:45.0) Gecko/20100101 Firefox/45.0'
 
 
 class WSJ(BasicNewsRecipe):
 
-    title = 'The Wall Street Journal'
+    title = 'The Wall Street Journal (free)'
     __author__ = 'Kovid Goyal'
     description = 'News and current affairs'
     language = 'en'
