@@ -29,7 +29,7 @@ from calibre.constants import DEBUG
 from calibre.ebooks.oeb.polish.report import (
     gather_data, CSSEntry, CSSFileMatch, MatchLocation, ClassEntry,
     ClassFileMatch, ClassElement, CSSRule, LinkLocation)
-from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url
+from calibre.gui2 import error_dialog, question_dialog, choose_save_file, open_url, secure_web_page
 from calibre.gui2.tweak_book import current_container, tprefs, dictionaries
 from calibre.gui2.tweak_book.widgets import Dialog
 from calibre.gui2.progress_indicator import ProgressIndicator
@@ -600,6 +600,7 @@ class LinksWidget(QWidget):
         s.addWidget(f)
         self.links.restore_table('links-table', sort_column=1)
         self.view = WebView(self)
+        secure_web_page(self.view.page())
         s.addWidget(self.view)
         self.ignore_current_change = False
         self.current_url = None
