@@ -127,19 +127,19 @@ def current_toc_anchor_map(tam, anchor_funcs):
 
 def update_visible_toc_anchors(toc_anchor_map, anchor_funcs):
     tam = current_toc_anchor_map(toc_anchor_map, anchor_funcs)
-    prev = before = after = None
+    before = after = None
     visible_anchors = {}
     has_visible = False
     for anchor_id in tam.pos_map:
         pos = tam.pos_map[anchor_id]
         visibility = anchor_funcs.visibility(pos)
-        if visibility is 0:
-            before = prev
+        if visibility < 0:
+            before = anchor_id
+        elif visibility is 0:
             has_visible = True
             visible_anchors[anchor_id] = True
         elif visibility > 0:
             after = anchor_id
             break
-        prev = anchor_id
 
     return {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after}
