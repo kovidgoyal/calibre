@@ -1,6 +1,10 @@
+#!/usr/bin/env  python2
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 from __future__ import unicode_literals
 __license__ = 'GPL v3'
-__copyright__ = '2008-2015, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2008-2016, Darko Miletic <darko.miletic at gmail.com>'
 '''
 clarin.com
 '''
@@ -27,9 +31,8 @@ class Clarin(BasicNewsRecipe):
     needs_subscription = 'optional'
     INDEX = 'http://www.clarin.com'
     LOGIN = 'https://app-pase.clarin.com/pase-registracion/app/pase/ingresarNavegable?execution=e1s1'
-    masthead_url = 'http://www.clarin.com/static/CLAClarinV3/images/logo.png'
-    cover_url = strftime(
-        'http://tapas.clarin.com/tapa/%Y/%m/%d/%Y%m%d_thumb.jpg')
+    masthead_url = 'http://www.clarin.com/images/logo_clarin.svg'
+    cover_url = strftime('http://tapas.clarin.com/tapa/%Y/%m/%d/%Y%m%d_thumb.jpg')
     extra_css             = """
                                body{font-family: Arial,Helvetica,sans-serif}
                                h2{font-family: Georgia,serif; font-size: xx-large}
@@ -41,18 +44,24 @@ class Clarin(BasicNewsRecipe):
         'comment': description, 'tags': category, 'publisher': publisher, 'language': language
     }
 
-    remove_tags_before = dict(attrs={'class': 'int-nota-title'})
+    keep_only_tags = [
+                      dict(name='p'  , attrs={'class'   : 'volanta'}),
+                      dict(name='h1' , attrs={'itemprop': 'headline'}),
+                      dict(name='div', attrs={'class'   : 'bajada'}),
+                      dict(name='div', attrs={'class'   : 'body-nota'})
+                     ]
     remove_tags = [
         dict(name=['meta', 'base', 'link', 'iframe', 'embed', 'object']),
-        dict(attrs={'class': ['tags-bar', 'breadcrumb', 'share-bar']}),
-        dict(attrs={'id': ['relacionadas']})
+        dict(attrs={'class': ['tags-bar', 'breadcrumb', 'share-bar', 'share']}),
+        dict(name='div', attrs={'class': lambda x: x and 'r-nota' in x.split()}),
+        dict(attrs={'id': ['relacionadas']}),
+        dict(name='a', attrs={'class':'content-new'})
     ]
     remove_tags_after = dict(name='div', attrs={'id': 'relacionadas'})
     remove_attributes = ['lang']
 
     feeds = [
-
-    (u'Pagina principal', u'http://www.clarin.com/rss/'),
+    (u'Lo Ultimo', u'http://www.clarin.com/rss/lo-ultimo/'),
     (u'Politica', u'http://www.clarin.com/rss/politica/'),
     (u'Deportes', u'http://www.clarin.com/rss/deportes/'),
     (u'Mundo', u'http://www.clarin.com/rss/mundo/'),
@@ -67,10 +76,11 @@ class Clarin(BasicNewsRecipe):
         br = BasicNewsRecipe.get_browser(self)
         br.open(self.INDEX)
         if self.username is not None and self.password is not None:
-            data = urllib.urlencode({'ingresar_ingresar_paseForm': 'ingresar_ingresar_paseForm', 'ingresar_ingresar_email_paseInputComponent': self.username, 'ingresar_ingresar_palabraClave_paseInputComponent': self.password, 'ingresar_ingresar_ingresar_paseButton': 'Ingresar', 'javax.faces.ViewState': 'e1s1'  # noqa
+            data = urllib.urlencode({'ingresar_ingresar_paseForm': 'ingresar_ingresar_paseForm',
+                                     'ingresar_ingresar_email_paseInputComponent': self.username,
+                                     'ingresar_ingresar_palabraClave_paseInputComponent': self.password,
+                                     'ingresar_ingresar_ingresar_paseButton': 'Ingresar',
+                                     'javax.faces.ViewState': 'e1s1'  # noqa
                                      })
             br.open(self.LOGIN, data)
         return br
-
-    def get_article_url(self, article):
-        return article.get('guid',  None)
