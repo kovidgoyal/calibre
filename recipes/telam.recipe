@@ -1,5 +1,9 @@
+#!/usr/bin/env  python2
+# -*- mode: python -*-
+# -*- coding: utf-8 -*-
+
 __license__ = 'GPL v3'
-__copyright__ = '2012-2015, Darko Miletic <darko.miletic at gmail.com>'
+__copyright__ = '2012-2016, Darko Miletic <darko.miletic at gmail.com>'
 '''
 www.telam.com.ar
 '''
@@ -22,7 +26,8 @@ class Telam(BasicNewsRecipe):
     remove_empty_feeds = True
     auto_cleanup = True
     publication_type = 'newsportal'
-    masthead_url = 'http://www.telam.com.ar/img/logo_small.png'
+    PREFIX = 'http://www.telam.com.ar'
+    masthead_url = 'http://www.telam.com.ar/assets/img/logo.svg'
     extra_css             = """
                                body{font-family: Arial,Helvetica,sans-serif }
                                img{margin-bottom: 0.4em; display:block}
@@ -33,15 +38,20 @@ class Telam(BasicNewsRecipe):
     }
 
     feeds = [
-
-    (u'Ultimas noticias', u'http://www.telam.com.ar/rss2/ultimasnoticas.xml'),
-    (u'Politica', u'http://www.telam.com.ar/rss2/politica.xml'),
-    (u'Economia', u'http://www.telam.com.ar/rss2/economia.xml'),
-    (u'Sociedad', u'http://www.telam.com.ar/rss2/sociedad.xml'),
-    (u'Policiales', u'http://www.telam.com.ar/rss2/policiales.xml'),
-    (u'Internacionales', u'http://www.telam.com.ar/rss2/mundo.xml'),
-    (u'Espectaculos', u'http://www.telam.com.ar/rss2/espectaculos.xml'),
-    (u'Cultura', u'http://www.telam.com.ar/rss2/cultura.xml'),
-    (u'Deportes', u'http://www.telam.com.ar/rss2/deportes.xml'),
-    (u'Opinion', u'http://www.telam.com.ar/rss2/opinion.xml')
+                (u'Ultimas noticias', u'http://www.telam.com.ar/rss2/ultimasnoticias.xml'),
+                (u'Politica', u'http://www.telam.com.ar/rss2/politica.xml'),
+                (u'Economia', u'http://www.telam.com.ar/rss2/economia.xml'),
+                (u'Sociedad', u'http://www.telam.com.ar/rss2/sociedad.xml'),
+                (u'Policiales', u'http://www.telam.com.ar/rss2/policiales.xml'),
+                (u'Internacionales', u'http://www.telam.com.ar/rss2/internacional.xml'),
+                (u'Espectaculos', u'http://www.telam.com.ar/rss2/espectaculos.xml'),
+                (u'Cultura', u'http://www.telam.com.ar/rss2/cultura.xml'),
+                (u'Deportes', u'http://www.telam.com.ar/rss2/deportes.xml'),
+                (u'Educacion', u'http://www.telam.com.ar/rss2/educacion.xml')
     ]
+
+    def get_article_url(self, article):
+        url = BasicNewsRecipe.get_article_url(self, article)
+        if url.startswith('/'):
+            return self.PREFIX + url
+        return url
