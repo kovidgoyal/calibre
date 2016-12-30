@@ -154,11 +154,13 @@ def get_length(root):
 
 def toc_anchor_map(toc):
     ans = defaultdict(list)
+    seen_map = defaultdict(set)
 
     def process_node(node):
         name = node['dest']
-        if name:
+        if name and node['id'] not in seen_map[name]:
             ans[name].append({'id':node['id'], 'frag':node['frag']})
+            seen_map[name].add(node['id'])
         tuple(map(process_node, node['children']))
 
     process_node(toc)
