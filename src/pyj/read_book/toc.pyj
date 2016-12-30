@@ -8,7 +8,7 @@ from elementmaker import E
 from gettext import gettext as _
 from modals import error_dialog
 from widgets import create_tree, find_text_in_tree, scroll_tree_item_into_view
-from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode
+from read_book.globals import toc_anchor_map, set_toc_anchor_map, current_spine_item, current_layout_mode, get_boss
 
 
 def update_visible_toc_nodes(visible_anchors):
@@ -47,9 +47,9 @@ def get_highlighted_toc_nodes(toc, spine, parent_map, id_map):
             pid = parent_map[pid]
     return ans
 
-
-def create_toc_tree(toc, onclick):
-
+def get_toc_maps(toc):
+    if not toc:
+        toc = get_boss().book.manifest.toc
     parent_map, id_map = {}, {}
 
     def process_node(node, parent):
@@ -59,6 +59,10 @@ def create_toc_tree(toc, onclick):
             process_node(c, node)
 
     process_node(toc)
+    return parent_map, id_map
+
+def create_toc_tree(toc, onclick):
+    parent_map, id_map = get_toc_maps(toc)
     highlighted_toc_nodes = get_highlighted_toc_nodes(toc, parent_map, id_map)
 
     def populate_data(node, li, a):
@@ -109,7 +113,8 @@ def current_toc_anchor_map(tam, anchor_funcs):
         name = current_spine_item().name
         am = {}
         anchors = v'[]'
-        for anchor in (tam[name] or v'[]'):
+        pos_map = {}
+        for i, anchor in enumerate(tam[name] or v'[]'):
             val = anchor_funcs.pos_for_elem()
             if anchor.frag:
                 elem = document.getElementById(anchor.frag)
@@ -117,10 +122,11 @@ def current_toc_anchor_map(tam, anchor_funcs):
                     val = anchor_funcs.pos_for_elem(elem)
             am[anchor.id] = val
             anchors.push(anchor.id)
-        anchors.sort(def (a, b): anchor_funcs.cmp(am[a], am[b]);)
-        sort_map = {aid: i for i, aid in enumerate(anchors)}
+            pos_map[anchor.id] = i
+        # stable sort by position in document
+        anchors.sort(def (a, b): return anchor_funcs.cmp(am[a], am[b]) or (pos_map[a] - pos_map[b]);)
 
-        current_map = {'layout_mode': current_layout_mode, 'width': window.innerWidth, 'height': window.innerHeight, 'pos_map': am, 'sort_map':sort_map}
+        current_map = {'layout_mode': current_layout_mode, 'width': window.innerWidth, 'height': window.innerHeight, 'pos_map': am, 'sorted_anchors':anchors}
         set_toc_anchor_map(current_map)
     return current_map
 
@@ -130,7 +136,8 @@ def update_visible_toc_anchors(toc_anchor_map, anchor_funcs):
     before = after = None
     visible_anchors = {}
     has_visible = False
-    for anchor_id in tam.pos_map:
+
+    for anchor_id in tam.sorted_anchors:
         pos = tam.pos_map[anchor_id]
         visibility = anchor_funcs.visibility(pos)
         if visibility < 0:
