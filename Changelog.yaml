@@ -20,6 +20,37 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.76.0
+  date: 2016-12-30
+
+  bug fixes:
+    - title: "E-book viewer: Fix a regression in the previous release that broke the viewer on systems where the temporary directory is a symlink (common on OSX)."
+
+    - title: "EPUB Input: Fix EPUB2 files that specify a cover image via a <meta> tag but not in the <guide> not getting a cover when converted to PDF"
+
+    - title: "PDF Output: Fix conversion failure when input document contains first page with no renderable content."
+      tickets: [1652825]
+
+    - title: "Editor: Fix incorrect handling of some regular expressions in the Search tool."
+      tickets: [1652621]
+
+    - title: "OS X: Fix dynamically generated context menus, such as the sort by menu not working."
+      tickets: [1652694]
+
+    - title: "Fix a crash when running with assertions turned on in Qt."
+      tickets: [1652685]
+
+    - title: "Edit Book: Reports tool: Fix an error when right clicking on items in the Links view."
+      tickets: [1652960]
+
+  improved recipes:
+    - Clarin
+    - La Prensa
+    - Telam
+    - iProfesional
+    - Buenos Aires Economico
+
+
 - version: 2.75.1
   date: 2016-12-23
 
