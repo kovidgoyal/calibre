@@ -93,7 +93,8 @@ class LoopTest(BaseTest):
             conn = server.connect()
             conn.request('GET', '/')
             with self.assertRaises(socket.timeout):
-                conn.getresponse()
+                res = conn.getresponse()
+                raise Exception('Got unexpected response: %r' % res.getheaders())
             self.ae(pool.busy, 1)
             server.loop.log.filter_level = server.loop.log.ERROR
             server.loop.stop()
