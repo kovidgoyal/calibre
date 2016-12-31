@@ -1,0 +1,26 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from dom import set_css, svgicon
+from elementmaker import E
+from gettext import gettext as _
+
+
+def create_goto_list(onclick):
+    return E.div()
+
+
+def create_goto_panel(book, container, onclick, onclose):
+    container.appendChild(E.div(
+        style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
+        E.h2(_('Go to...')),
+        E.div(svgicon('close'), style='cursor:pointer', onclick=def(event):event.preventDefault(), event.stopPropagation(), onclose(event);, class_='simple-link'),
+    ))
+    def handle_click(event, li):
+        if event.button is 0:
+            onclick(li.dataset.tocDest, li.dataset.tocFrag)
+    panel = create_goto_list(handle_click)
+    set_css(container, display='flex', flex_direction='column')
+    set_css(panel, flex_grow='10')
+    container.appendChild(panel)

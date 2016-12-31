@@ -9,6 +9,7 @@ from book_list.globals import get_boss
 from widgets import create_spinner, create_button
 from gettext import gettext as _
 from read_book.toc import create_toc_panel
+from read_book.goto import create_goto_panel
 from read_book.prefs.main import create_prefs_panel
 from read_book.prefs.font_size import create_font_size_panel
 
@@ -156,7 +157,7 @@ class MainOverlay:
 
                 E.ul(
                     ac(_('Search'), _('Search for text in this book'), None, 'search'),
-                    ac(_('Go to'), _('Go to a specific location in the book'), None, 'chevron-right'),
+                    ac(_('Go to'), _('Go to a specific location in the book'), self.overlay.show_goto, 'chevron-right'),
                 ),
 
                 E.ul(
@@ -217,15 +218,16 @@ class MainOverlay:
 
 class TOCOverlay: # {{{
 
-    def __init__(self, overlay):
+    def __init__(self, overlay, create_func):
         self.overlay = overlay
+        self.create_func = create_func or create_toc_panel
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
 
     def show(self, container):
         container.style.backgroundColor = get_color('window-background')
-        create_toc_panel(self.overlay.view.book, container, self.handle_activate, self.overlay.hide_current_panel)
+        self.create_func(self.overlay.view.book, container, self.handle_activate, self.overlay.hide_current_panel)
 
     def handle_activate(self, dest, frag):
         self.overlay.hide()
@@ -332,6 +334,10 @@ class Overlay:
 
     def show_toc(self):
         self.panels.push(TOCOverlay(self))
+        self.show_current_panel()
+
+    def show_goto(self):
+        self.panels.push(TOCOverlay(self, create_goto_panel))
         self.show_current_panel()
 
     def show_prefs(self):
