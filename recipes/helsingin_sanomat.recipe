@@ -1,6 +1,11 @@
 from calibre.web.feeds.news import BasicNewsRecipe
 
 
+def classes(classes):
+    q = frozenset(classes.split(' '))
+    return dict(attrs={'class': lambda x: x and frozenset(x.split()).intersection(q)})
+
+
 class AdvancedUserRecipe1298137661(BasicNewsRecipe):
     title = u'Helsingin Sanomat'
     __author__ = 'oneillpt'
@@ -9,15 +14,21 @@ class AdvancedUserRecipe1298137661(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets = True
     remove_javascript = True
-    conversion_options = {
-        'linearize_tables': True
-    }
-    keep_only_tags = [dict(name='div', attrs={'id': 'main-content'}),
-                      dict(name='div', attrs={'class': 'contentNewsArticle'})]
+    keep_only_tags = [
+        classes('article-title single-article'),
+    ]
+    remove_tags = [
+        dict(attrs={'class':['hidden print-url', 'article-paywall']}),
+        dict(style=lambda x: x and 'height: 0' in x),
+    ]
 
-    feeds = [(u'Uutiset - HS.fi', u'http://www.hs.fi/uutiset/rss/'), (u'Politiikka - HS.fi', u'http://www.hs.fi/politiikka/rss/'),
-             (u'Ulkomaat - HS.fi', u'http://www.hs.fi/ulkomaat/rss/'), (u'Kulttuuri - HS.fi',
-                                                                        u'http://www.hs.fi/kulttuuri/rss/'),
-             (u'Kirjat - HS.fi', u'http://www.hs.fi/kulttuuri/kirjat/rss/'), (u'Elokuvat - HS.fi',
-                                                                              u'http://www.hs.fi/kulttuuri/elokuvat/rss/')
-             ]
+    feeds = [
+        (u'Uutiset - HS.fi', u'http://www.hs.fi/uutiset/rss/'),
+    ]
+
+    def preprocess_html(self, soup):
+        for tag in soup.findAll(attrs={'data-mfp-src':True}):
+            tag.name = 'img'
+            tag['src'] = tag['data-mfp-src']
+            tag['style'] = 'display:block'
+        return soup
