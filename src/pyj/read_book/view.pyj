@@ -6,7 +6,7 @@ from book_list.globals import get_session_data, get_boss
 from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
-from read_book.globals import messenger, iframe_id, current_book
+from read_book.globals import messenger, iframe_id, current_book, set_current_spine_item
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
@@ -269,6 +269,7 @@ class View:
         self.show_loading()
         spine = self.book.manifest.spine
         idx = spine.indexOf(name)
+        set_current_spine_item(name)
         if idx > -1:
             self.currently_showing.bookpos = 'epubcfi(/{})'.format(2 * (idx +1))
         self.set_margins()

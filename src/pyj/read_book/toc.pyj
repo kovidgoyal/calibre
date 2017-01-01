@@ -50,7 +50,7 @@ def get_border_nodes(toc, id_map):
         nonlocal prev, before, after
         if node.dest:
             if spine_before[node.dest]:
-                prev = node.dest
+                prev = node
             elif spine_after[node.dest]:
                 if not before:
                     before = prev
