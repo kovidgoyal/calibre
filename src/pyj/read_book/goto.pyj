@@ -25,7 +25,7 @@ def create_goto_list(onclick):
     return ans
 
 
-def create_goto_panel(book, container, onclick, onclose):
+def create_goto_panel(book, container, onclick):
     panel = create_goto_list(onclick)
     set_css(container, display='flex', flex_direction='column')
     set_css(panel, flex_grow='10')
