@@ -210,6 +210,13 @@ class FileList(QTreeWidget):
             }.iteritems()}
         self.itemActivated.connect(self.item_double_clicked)
 
+    @property
+    def current_name(self):
+        ci = self.currentItem()
+        if ci is not None:
+            return unicode(ci.data(0, NAME_ROLE) or '')
+        return ''
+
     def get_state(self):
         s = {'pos':self.verticalScrollBar().value()}
         s['expanded'] = {c for c, item in self.categories.iteritems() if item.isExpanded()}
@@ -233,13 +240,15 @@ class FileList(QTreeWidget):
                 if q == name:
                     return c
 
-    def select_name(self, name):
+    def select_name(self, name, set_as_current_index=False):
         for parent in self.categories.itervalues():
             for c in (parent.child(i) for i in xrange(parent.childCount())):
                 q = unicode(c.data(0, NAME_ROLE) or '')
                 c.setSelected(q == name)
                 if q == name:
                     self.scrollToItem(c)
+                    if set_as_current_index:
+                        self.setCurrentItem(c)
 
     def mark_name_as_current(self, name):
         current = self.item_from_name(name)
@@ -893,6 +902,7 @@ class FileListWidget(QWidget):
         self.forwarded_signals = {k for k, o in vars(self.file_list.__class__).iteritems() if isinstance(o, pyqtSignal) and '_' in k and not hasattr(self, k)}
         for x in ('delete_done', 'select_name', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))
+        self.setFocusProxy(self.file_list)
 
     def build(self, container, preserve_state=True):
         self.file_list.build(container, preserve_state=preserve_state)
@@ -900,6 +910,10 @@ class FileListWidget(QWidget):
     @property
     def searchable_names(self):
         return self.file_list.searchable_names
+
+    @property
+    def current_name(self):
+        return self.file_list.current_name
 
     def __getattr__(self, name):
         if name in self.forwarded_signals:

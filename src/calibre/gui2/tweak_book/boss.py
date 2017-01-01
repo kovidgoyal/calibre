@@ -660,16 +660,16 @@ class Boss(QObject):
         self.add_savepoint(_('Before: Rename %s') % oldname)
         name_map = {oldname:newname}
         self.gui.blocking_job(
-            'rename_file', _('Renaming and updating links...'), partial(self.rename_done, name_map),
+            'rename_file', _('Renaming and updating links...'), partial(self.rename_done, name_map, from_filelist=self.gui.file_list.current_name),
             rename_files, current_container(), name_map)
 
     def bulk_rename_requested(self, name_map):
         self.add_savepoint(_('Before: Bulk rename'))
         self.gui.blocking_job(
-            'bulk_rename_files', _('Renaming and updating links...'), partial(self.rename_done, name_map),
+            'bulk_rename_files', _('Renaming and updating links...'), partial(self.rename_done, name_map, from_filelist=self.gui.file_list.current_name),
             rename_files, current_container(), name_map)
 
-    def rename_done(self, name_map, job):
+    def rename_done(self, name_map, job, from_filelist=None):
         if job.traceback is not None:
             return error_dialog(self.gui, _('Failed to rename files'),
                     _('Failed to rename files, click Show details for more information.'),
@@ -684,6 +684,11 @@ class Boss(QObject):
             if self.gui.preview.current_name == oldname:
                 self.gui.preview.current_name = newname
         self.apply_container_update_to_gui()
+        if from_filelist:
+            if from_filelist in name_map:
+                self.gui.file_list.select_name(name_map[from_filelist], set_as_current_index=True)
+            self.gui.file_list.file_list.setFocus(Qt.PopupFocusReason)
+
     # }}}
 
     # Global history {{{
