@@ -192,6 +192,10 @@ class IframeBoss:
             elif ipos.type is 'cfi':
                 self.jump_to_cfi(ipos.cfi)
         self.onscroll()
+        document.documentElement.addEventListener('contextmenu', def(ev):
+            ev.preventDefault()
+            self.send_message('show_chrome')
+        )
         self.send_message('content_loaded')
 
     def update_cfi(self):
