@@ -237,7 +237,10 @@ class TOCOverlay: # {{{
 
     def handle_activate(self, dest, frag):
         self.overlay.hide()
-        self.overlay.view.goto_named_destination(dest, frag)
+        if jstype(dest) is 'function':
+            dest(self.overlay.view, frag)
+        else:
+            self.overlay.view.goto_named_destination(dest, frag)
 # }}}
 
 class PrefsOverlay: # {{{

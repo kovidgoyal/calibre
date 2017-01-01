@@ -84,7 +84,7 @@ class View:
             'error': self.on_iframe_error,
             'next_spine_item': self.on_next_spine_item,
             'next_section': self.on_next_section,
-            'goto_doc_boundary': self.goto_doc_boundary,
+            'goto_doc_boundary': def(data): self.goto_doc_boundary(data.start);,
             'scroll_to_anchor': self.on_scroll_to_anchor,
             'update_cfi': self.on_update_cfi,
             'update_toc_position': self.on_update_toc_position,
@@ -279,9 +279,9 @@ class View:
         self.set_margins()
         load_resources(self.ui.db, self.book, name, self.loaded_resources, self.show_spine_item)
 
-    def goto_doc_boundary(self, data):
-        name = self.book.manifest.spine[0 if data.start else self.book.manifest.spine.length - 1]
-        self.show_name(name, initial_position={'type':'frac', 'frac':0 if data.start else 1, 'replace_history':False})
+    def goto_doc_boundary(self, start):
+        name = self.book.manifest.spine[0 if start else self.book.manifest.spine.length - 1]
+        self.show_name(name, initial_position={'type':'frac', 'frac':0 if start else 1, 'replace_history':False})
 
     def on_scroll_to_anchor(self, data):
         self.show_name(data.name, initial_position={'type':'anchor', 'anchor':data.frag, 'replace_history':False})

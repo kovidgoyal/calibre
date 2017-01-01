@@ -21,6 +21,8 @@ def create_goto_list(onclick):
         items.push(create_item(_('Next Section'), icon='caret-right', subtitle=after.title, action=onclick.bind(None, after.dest, after.frag)))
     if before:
         items.push(create_item(_('Previous Section'), icon='caret-left', subtitle=before.title, action=onclick.bind(None, before.dest, before.frag)))
+    items.push(create_item(_('Document Start'), action=onclick.bind(None, def(view): view.goto_doc_boundary(True);)))
+    items.push(create_item(_('Document End'), action=onclick.bind(None, def(view): view.goto_doc_boundary(False);)))
     build_list(ans, items)
     return ans
 
