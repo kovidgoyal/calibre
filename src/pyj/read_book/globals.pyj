@@ -15,6 +15,10 @@ def set_boss(b):
 def get_boss():
     return _boss
 
+def current_book():
+    return current_book.book
+current_book.book = None
+
 class Messenger:
 
     def __init__(self):

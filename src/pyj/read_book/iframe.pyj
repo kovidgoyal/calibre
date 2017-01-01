@@ -6,7 +6,7 @@ import traceback
 from aes import GCM
 from gettext import install, gettext as _
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
-from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode
+from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode, current_book
 from read_book.mathjax import apply_mathjax
 from read_book.toc import update_visible_toc_anchors
 from read_book.resources import finalize_resources, unserialize_html
@@ -94,7 +94,7 @@ class IframeBoss:
 
     def display(self, data):
         self.encrypted_communications = True
-        self.book = data.book
+        self.book = current_book.book = data.book
         spine = self.book.manifest.spine
         index = spine.indexOf(data.name)
         set_layout_mode('flow' if FORCE_FLOW_MODE else data.settings.read_mode)

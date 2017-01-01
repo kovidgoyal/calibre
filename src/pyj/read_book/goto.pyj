@@ -6,9 +6,23 @@ from dom import set_css, svgicon
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.item_list import create_item, build_list
+from read_book.toc import get_toc_maps, get_border_nodes
+from read_book.globals import current_book
+
 
 def create_goto_list(onclick):
-    return E.div()
+    ans = E.div()
+    items = v'[]'
+    toc = current_book().manifest.toc
+    id_map = get_toc_maps(toc)[1]
+    before, after = get_border_nodes(toc, id_map)
+    if after:
+        items.push(create_item(_('Next Section'), icon='caret-right', subtitle=after.title, action=onclick.bind(after.dest, after.frag)))
+    if before:
+        items.push(create_item(_('Previous Section'), icon='caret-left', subtitle=before.title, action=onclick.bind(before.dest, before.frag)))
+    build_list(ans, items)
+    return ans
 
 
 def create_goto_panel(book, container, onclick, onclose):
@@ -17,10 +31,7 @@ def create_goto_panel(book, container, onclick, onclose):
         E.h2(_('Go to...')),
         E.div(svgicon('close'), style='cursor:pointer', onclick=def(event):event.preventDefault(), event.stopPropagation(), onclose(event);, class_='simple-link'),
     ))
-    def handle_click(event, li):
-        if event.button is 0:
-            onclick(li.dataset.tocDest, li.dataset.tocFrag)
-    panel = create_goto_list(handle_click)
+    panel = create_goto_list(onclick)
     set_css(container, display='flex', flex_direction='column')
     set_css(panel, flex_grow='10')
     container.appendChild(panel)

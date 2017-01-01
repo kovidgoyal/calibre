@@ -6,7 +6,7 @@ from book_list.globals import get_session_data, get_boss
 from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
-from read_book.globals import messenger, iframe_id
+from read_book.globals import messenger, iframe_id, current_book
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
 from read_book.prefs.colors import resolve_color_scheme
@@ -225,7 +225,7 @@ class View:
         self.overlay.hide_loading_message()
 
     def display_book(self, book):
-        self.book = book
+        self.book = current_book.book = book
         self.ui.db.update_last_read_time(book)
         self.loaded_resources = {}
         pos = {'replace_history':True}
