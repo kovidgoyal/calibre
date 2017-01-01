@@ -23,7 +23,45 @@ def iter_toc_nodes(node, callback):
         if callback(child):
             return
 
-def get_highlighted_toc_nodes(toc, spine, parent_map, id_map):
+
+def get_border_nodes(toc, id_map):
+    data = update_visible_toc_nodes.data
+    before, after = data.before, data.after
+    if before:
+        before = id_map[before]
+    if after:
+        after = id_map[after]
+    if before and after:
+        # Both border nodes are in the current spine item
+        return before, after
+    # Find the ToC entries that point to the closest files on either side of the
+    # current spine item
+    spine = get_boss().book.manifest.spine
+    spine_before, spine_after = {}, {}
+    which = spine_before
+    csi = current_spine_item()
+    for name in spine:
+        if name is csi:
+            which = spine_after
+        else:
+            which[name] = True
+    prev = None
+    iter_toc_nodes(toc, def(node):
+        nonlocal prev, before, after
+        if node.dest:
+            if spine_before[node.dest]:
+                prev = node.dest
+            elif spine_after[node.dest]:
+                if not before:
+                    before = prev
+                if not after:
+                    after = node
+                return True
+    )
+    return before, after
+
+
+def get_highlighted_toc_nodes(toc, parent_map, id_map):
     data = update_visible_toc_nodes.data
     ans = {}
     if data.has_visible:
@@ -32,14 +70,9 @@ def get_highlighted_toc_nodes(toc, spine, parent_map, id_map):
         if data.before:
             ans[data.before] = True
         else:
-            nodes_before = v'[]'
-            iter_toc_nodes(toc, def(node):
-                if node.dest is current_spine_item():
-                    return True
-                nodes_before.push(node)
-            )
-            if nodes_before.length:
-                ans[nodes_before[-1].id] = True
+            before = get_border_nodes(toc, id_map)[0]
+            if before:
+                ans[before.id] = True
     for node_id in Object.keys(ans):
         pid = parent_map[node_id]
         while pid:
@@ -149,4 +182,4 @@ def update_visible_toc_anchors(toc_anchor_map, anchor_funcs):
             after = anchor_id
             break
 
-    return {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after}
+    return {'visible_anchors':visible_anchors, 'has_visible':has_visible, 'before':before, 'after':after, 'sorted_anchors':tam.sorted_anchors}
