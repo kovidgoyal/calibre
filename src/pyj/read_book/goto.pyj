@@ -25,6 +25,13 @@ def create_goto_list(onclick):
     return ans
 
 
+def get_next_section(forward):
+    toc = current_book().manifest.toc
+    id_map = get_toc_maps(toc)[1]
+    before, after = get_border_nodes(toc, id_map)
+    return after if forward else before
+
+
 def create_goto_panel(book, container, onclick):
     panel = create_goto_list(onclick)
     set_css(container, display='flex', flex_direction='column')
