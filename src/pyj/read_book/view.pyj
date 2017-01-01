@@ -2,10 +2,12 @@
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import bound_methods, hash_literals
 
-from book_list.globals import get_session_data, get_boss
 from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
+
+from modals import error_dialog
+from book_list.globals import get_session_data, get_boss
 from read_book.globals import messenger, iframe_id, current_book, set_current_spine_item
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
@@ -289,7 +291,7 @@ class View:
             spine = self.book.manifest.spine
             idx = spine.indexOf(name)
             if idx is -1:
-                self.ui.show_error(_('Destination does not exist'), _(
+                error_dialog(_('Destination does not exist'), _(
                     'The file {} does not exist in this book').format(name))
                 return
             self.show_name(name, initial_position={'type':'anchor', 'anchor':frag, 'replace_history':False})
