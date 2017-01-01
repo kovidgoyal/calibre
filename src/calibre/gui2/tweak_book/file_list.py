@@ -250,6 +250,16 @@ class FileList(QTreeWidget):
                     if set_as_current_index:
                         self.setCurrentItem(c)
 
+    def select_names(self, names, current_name=None):
+        for parent in self.categories.itervalues():
+            for c in (parent.child(i) for i in xrange(parent.childCount())):
+                q = unicode(c.data(0, NAME_ROLE) or '')
+                c.setSelected(q in names)
+                if q == current_name:
+                    self.scrollToItem(c)
+                    s = self.selectionModel()
+                    s.setCurrentIndex(self.indexFromItem(c), s.NoUpdate)
+
     def mark_name_as_current(self, name):
         current = self.item_from_name(name)
         if current is not None:
@@ -900,7 +910,7 @@ class FileListWidget(QWidget):
         self.layout().addWidget(self.file_list)
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.forwarded_signals = {k for k, o in vars(self.file_list.__class__).iteritems() if isinstance(o, pyqtSignal) and '_' in k and not hasattr(self, k)}
-        for x in ('delete_done', 'select_name', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
+        for x in ('delete_done', 'select_name', 'select_names', 'request_edit', 'mark_name_as_current', 'clear_currently_edited_name'):
             setattr(self, x, getattr(self.file_list, x))
         self.setFocusProxy(self.file_list)
 

@@ -685,8 +685,7 @@ class Boss(QObject):
                 self.gui.preview.current_name = newname
         self.apply_container_update_to_gui()
         if from_filelist:
-            if from_filelist in name_map:
-                self.gui.file_list.select_name(name_map[from_filelist], set_as_current_index=True)
+            self.gui.file_list.select_names(frozenset(name_map.itervalues()), current_name=name_map.get(from_filelist))
             self.gui.file_list.file_list.setFocus(Qt.PopupFocusReason)
 
     # }}}
