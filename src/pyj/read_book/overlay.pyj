@@ -218,16 +218,22 @@ class MainOverlay:
 
 class TOCOverlay: # {{{
 
-    def __init__(self, overlay, create_func):
+    def __init__(self, overlay, create_func, title):
         self.overlay = overlay
         self.create_func = create_func or create_toc_panel
+        self.title = title or _('Table of Contents')
 
     def on_container_click(self, evt):
         pass  # Dont allow panel to be closed by a click
 
     def show(self, container):
         container.style.backgroundColor = get_color('window-background')
-        self.create_func(self.overlay.view.book, container, self.handle_activate, self.overlay.hide_current_panel)
+        container.appendChild(E.div(
+                style='padding: 1ex 1em; border-bottom: solid 1px currentColor',
+                E.h2(self.title, style='float:left'),
+                E.div(svgicon('close'), style='cursor:pointer; float:right', onclick=def(event):event.preventDefault(), event.stopPropagation(), self.overlay.hide_current_panel(event);, class_='simple-link'),
+            ))
+        self.create_func(self.overlay.view.book, container, self.handle_activate)
 
     def handle_activate(self, dest, frag):
         self.overlay.hide()
@@ -337,7 +343,7 @@ class Overlay:
         self.show_current_panel()
 
     def show_goto(self):
-        self.panels.push(TOCOverlay(self, create_goto_panel))
+        self.panels.push(TOCOverlay(self, create_goto_panel, _('Go to…')))
         self.show_current_panel()
 
     def show_prefs(self):

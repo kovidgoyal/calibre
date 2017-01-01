@@ -119,12 +119,7 @@ def do_search(text):
             'The text "{}" was not found in the Table of Contents').format(text))
     scroll_tree_item_into_view(a)
 
-def create_toc_panel(book, container, onclick, onclose):
-    container.appendChild(E.div(
-        style='display: flex; justify-content: space-between; padding: 1ex 1em; border-bottom: solid 1px currentColor',
-        E.h2(_('Table of Contents')),
-        E.div(svgicon('close'), style='cursor:pointer', onclick=def(event):event.preventDefault(), event.stopPropagation(), onclose(event);, class_='simple-link'),
-    ))
+def create_toc_panel(book, container, onclick):
     def handle_click(event, li):
         if event.button is 0:
             onclick(li.dataset.tocDest, li.dataset.tocFrag)
