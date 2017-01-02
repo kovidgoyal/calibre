@@ -1,0 +1,15 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+class SearchOverlay:
+
+    def __init__(self, view):
+        self.view = view
+
+    @property
+    def container(self):
+        return document.getElementById('book-search-overlay')
+
+    def hide(self):
+        self.container.style.display = 'none'

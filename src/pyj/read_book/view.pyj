@@ -11,6 +11,7 @@ from book_list.globals import get_session_data, get_boss
 from read_book.globals import messenger, iframe_id, current_book, set_current_spine_item
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
+from read_book.search import SearchOverlay
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
@@ -67,11 +68,13 @@ class View:
                             E.div(style='height:{}px; width:100%; padding: 0'.format(sd.get('margin_bottom', 20)), id='book-bottom-margin'),
                         ),
                         right_margin,
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; display:none', id='book-search-overlay'),  # search overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # main overlay
                     )
                 )
             )
         )
+        self.search_overlay = SearchOverlay(self)
         self.overlay = Overlay(self)
         self.src_doc = None
         self.iframe_ready = False
@@ -121,6 +124,7 @@ class View:
         change_font_size_by(delta)
 
     def show_chrome(self):
+        self.search_overlay.hide()
         self.overlay.show()
 
     def set_margins(self):
