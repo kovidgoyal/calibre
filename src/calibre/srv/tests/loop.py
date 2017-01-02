@@ -87,7 +87,8 @@ class LoopTest(BaseTest):
             server.join()
             self.ae(0, sum(int(w.is_alive()) for w in server.loop.pool.workers))
         # Test shutdown with hung worker
-        with TestServer(lambda data:time.sleep(1000000), worker_count=3, shutdown_timeout=0.01, timeout=0.01) as server:
+        block = Event()
+        with TestServer(lambda data:block.wait(), worker_count=3, shutdown_timeout=0.01, timeout=0.01) as server:
             pool = server.loop.pool
             self.ae(3, sum(int(w.is_alive()) for w in pool.workers))
             conn = server.connect()
