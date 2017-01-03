@@ -95,6 +95,8 @@ class LoopTest(BaseTest):
             conn.request('GET', '/')
             with self.assertRaises(socket.timeout):
                 res = conn.getresponse()
+                if str(res.status) == '408':
+                    raise socket.timeout('Timeout')
                 raise Exception('Got unexpected response: code: %s %s headers: %r data: %r' % (
                     res.status, res.reason, res.getheaders(), res.read()))
             self.ae(pool.busy, 1)
