@@ -156,7 +156,7 @@ class MainOverlay:
                 ),
 
                 E.ul(
-                    ac(_('Search'), _('Search for text in this book'), None, 'search'),
+                    ac(_('Search'), _('Search for text in this book'), self.overlay.show_search, 'search'),
                     ac(_('Go to'), _('Go to a specific location in the book'), self.overlay.show_goto, 'chevron-right'),
                 ),
 
@@ -348,6 +348,10 @@ class Overlay:
     def show_goto(self):
         self.panels.push(TOCOverlay(self, create_goto_panel, _('Go to…')))
         self.show_current_panel()
+
+    def show_search(self):
+        self.hide()
+        self.view.show_search()
 
     def show_prefs(self):
         self.panels = [PrefsOverlay(self)]

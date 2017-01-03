@@ -65,7 +65,7 @@ class EditWithComplete:
         self.completion_popup.set_all_items(items)
 
 
-def create_search_bar(action, name, tooltip=None, placeholder=None, button=None, history_size=100):
+def create_search_bar(action, name, tooltip=None, placeholder=None, button=None, history_size=100, associated_widgets=None):
     parent = E.div(style="display:flex")
     ewc = EditWithComplete(name, parent=parent, tooltip=tooltip, placeholder=placeholder, input_type='search')
     parent.lastChild.style.width = '100%'
@@ -94,6 +94,9 @@ def create_search_bar(action, name, tooltip=None, placeholder=None, button=None,
     if button:
         ewc.add_associated_widget(button)
         button.addEventListener('click', trigger)
+    if associated_widgets is not None:
+        for w in associated_widgets:
+            ewc.add_associated_widget(w)
     return parent
 
 # }}}

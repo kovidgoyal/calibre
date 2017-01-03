@@ -68,7 +68,7 @@ class View:
                             E.div(style='height:{}px; width:100%; padding: 0'.format(sd.get('margin_bottom', 20)), id='book-bottom-margin'),
                         ),
                         right_margin,
-                        E.div(style='position: absolute; top:0; left:0; width: 100%; display:none', id='book-search-overlay'),  # search overlay
+                        E.div(style='position: absolute; top:0; left:0; width: 100%; pointer-events:none; display:none', id='book-search-overlay'),  # search overlay
                         E.div(style='position: absolute; top:0; left:0; width: 100%; height: 100%; display:none', id='book-overlay'),  # main overlay
                     )
                 )
@@ -126,6 +126,10 @@ class View:
     def show_chrome(self):
         self.search_overlay.hide()
         self.overlay.show()
+
+    def show_search(self):
+        self.overlay.hide()
+        self.search_overlay.show()
 
     def set_margins(self):
         no_margins = self.currently_showing.name is self.book.manifest.title_page_name
