@@ -591,6 +591,19 @@ class Worker(Thread):  # Get details {{{
                         series = self.tostring(a[0], encoding=unicode, method='text', with_tail=False).strip()
                         if series:
                             ans = (series, series_index)
+        # This is found on newer Kindle edition pages on amazon.com
+        if ans == (None, None):
+            for b in root.xpath('//div[@id="reviewFeatureGroup"]/span/b'):
+                text = (b.text or '').strip()
+                m = re.match('Book\s+([0-9.]+)', text)
+                if m is not None:
+                    series_index = float(m.group(1))
+                    a = b.getparent().xpath('./a[@href]')
+                    if a:
+                        series = self.tostring(a[0], encoding=unicode, method='text', with_tail=False).partition('(')[0].strip()
+                        if series:
+                            ans = series, series_index
+
         if ans == (None, None):
             desc = root.xpath('//div[@id="ps-content"]/div[@class="buying"]')
             if desc:
