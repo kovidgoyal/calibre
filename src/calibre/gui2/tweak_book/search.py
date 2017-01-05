@@ -1215,6 +1215,21 @@ def get_search_regex(state):
     return ans
 
 
+def get_search_function(state):
+    ans = state['replace']
+    is_regex = state['mode'] != 'normal'
+    if not is_regex:
+        ans = regex.sub(r'\\([0-9g])', r'\\\\\1', ans)
+    if state['mode'] == 'function':
+        try:
+            return replace_functions()[ans]
+        except KeyError:
+            if not ans:
+                return Function('empty-function', '')
+            raise NoSuchFunction(ans)
+    return ans
+
+
 def initialize_search_request(state, action, current_editor, current_editor_name, searchable_names):
     editor = None
     where = state['where']
@@ -1253,18 +1268,6 @@ def initialize_search_request(state, action, current_editor, current_editor_name
 
 class NoSuchFunction(ValueError):
     pass
-
-
-def get_search_function(search):
-    ans = search['replace']
-    if search['mode'] == 'function':
-        try:
-            return replace_functions()[ans]
-        except KeyError:
-            if not ans:
-                return Function('empty-function', '')
-            raise NoSuchFunction(ans)
-    return ans
 
 
 def show_function_debug_output(func):
