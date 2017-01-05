@@ -869,6 +869,7 @@ class MergeDialog(QDialog):  # {{{
 
     def __init__(self, names, parent=None):
         QDialog.__init__(self, parent)
+        self.names = names
         self.setWindowTitle(_('Choose master file'))
         self.l = l = QVBoxLayout()
         self.setLayout(l)
@@ -894,9 +895,9 @@ class MergeDialog(QDialog):  # {{{
 
     @property
     def ans(self):
-        for b in self.buttons:
+        for n, b in zip(self.names, self.buttons):
             if b.isChecked():
-                return unicode(b.text())
+                return n
 
 # }}}
 
