@@ -219,6 +219,7 @@ def replace_file(container, name, path, basename, force_mt=None):
                 nname = b + ('_%d.%s' % (count, e))
             rename_files(container, {name:nname})
             mt = force_mt or container.guess_type(nname)
+            container.mime_map[nname] = mt
             for itemid, q in container.manifest_id_map.iteritems():
                 if q == nname:
                     for item in container.opf_xpath('//opf:manifest/opf:item[@href and @id="%s"]' % itemid):
