@@ -87,6 +87,8 @@ class PreserveMIMEDefaults(object):
                         raise
 
 # Uninstall script {{{
+
+
 UNINSTALL = '''\
 #!{python}
 from __future__ import print_function, unicode_literals
@@ -559,7 +561,7 @@ def write_completion(bash_comp_dest, zsh):
             '--exec-file':['py', 'recipe'],
             '--add-simple-plugin':['py'],
             '--inspect-mobi':['mobi', 'azw', 'azw3'],
-            '--viewer':list(available_input_formats()),
+            '--viewer':sorted(available_input_formats()),
         })
         f.write(textwrap.dedent('''
         _ebook_device_ls()
@@ -932,6 +934,7 @@ def opts_and_words(name, op, words, takes_files=False):
 }
 complete -F _'''%(opts, words) + fname + ' ' + name +"\n\n").encode('utf-8')
 
+
 pics = {'jpg', 'jpeg', 'gif', 'png', 'bmp'}
 
 
@@ -1148,4 +1151,3 @@ def cli_index_strings():
 
 if __name__ == '__main__':
     sys.exit(main())
-
