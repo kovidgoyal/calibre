@@ -1219,7 +1219,8 @@ def get_search_function(state):
     ans = state['replace']
     is_regex = state['mode'] != 'normal'
     if not is_regex:
-        ans = regex.sub(r'\\([0-9g])', r'\\\\\1', ans)
+        # We dont want backslash escape sequences interpreted in normal mode
+        return lambda m: ans
     if state['mode'] == 'function':
         try:
             return replace_functions()[ans]
