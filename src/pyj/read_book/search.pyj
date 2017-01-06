@@ -13,7 +13,7 @@ CLASS_NAME = 'book-search-container'
 
 add_extra_css(def():
     sel = '.' + CLASS_NAME
-    style = build_rule(sel, text_align='right')
+    style = build_rule(sel, text_align='right', user_select='none')
     sel += ' > div '
     style += build_rule(sel, display='inline-flex', pointer_events='auto', background_color=get_color('window-background'), padding='1ex')
     return style
@@ -50,6 +50,10 @@ class SearchOverlay:
     def container(self):
         return document.getElementById('book-search-overlay')
 
+    @property
+    def search_text(self):
+        return self.container.querySelector('input').value
+
     def hide(self):
         self.container.style.display = 'none'
 
@@ -58,8 +62,13 @@ class SearchOverlay:
         c.style.display = 'block'
         c.querySelector('input').focus()
 
+    def find(self, text, backwards):
+        if not text:
+            return
+        self.view.find(text, backwards)
+
     def find_next(self):
-        pass
+        self.find(self.search_text, False)
 
     def find_previous(self):
-        pass
+        self.find(self.search_text, True)

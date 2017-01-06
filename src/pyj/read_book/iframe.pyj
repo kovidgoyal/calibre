@@ -18,7 +18,8 @@ from read_book.paged_mode import (
     layout as paged_layout, scroll_to_fraction as paged_scroll_to_fraction,
     onwheel as paged_onwheel, onkeydown as paged_onkeydown, scroll_to_elem,
     jump_to_cfi as paged_jump_to_cfi, handle_gesture as paged_handle_gesture,
-    scroll_by_page as paged_scroll_by_page, anchor_funcs as paged_anchor_funcs
+    scroll_by_page as paged_scroll_by_page, anchor_funcs as paged_anchor_funcs,
+    snap_to_selection
 )
 from read_book.settings import apply_settings, opts
 from read_book.touch import create_handlers as create_touch_handlers
@@ -48,6 +49,7 @@ class IframeBoss:
             'change_font_size': self.change_font_size,
             'change_color_scheme': self.change_color_scheme,
             'gesture_from_margin': self.gesture_from_margin,
+            'find': self.find,
         }
         self.last_window_ypos = 0
 
@@ -271,6 +273,13 @@ class IframeBoss:
                     elem = c[0]
             if elem:
                 scroll_to_elem(elem)
+
+    def find(self, data):
+        if window.find(data.text, False, data.backwards):
+            if current_layout_mode() is not 'flow':
+                snap_to_selection()
+        else:
+            self.send_message('find_in_spine', text=data.text, backwards=data.backwards)
 
 def init():
     script = document.getElementById('bootstrap')
