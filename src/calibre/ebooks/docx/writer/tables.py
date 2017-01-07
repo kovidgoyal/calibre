@@ -242,6 +242,8 @@ class Row(object):
                 self.current_cell = None
 
     def add_block(self, block):
+        if self.current_cell is None:
+            self.start_new_cell(self.html_tag, self.orig_tag_style)
         self.current_cell.add_block(block)
 
     def add_table(self, table):
