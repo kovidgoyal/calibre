@@ -143,6 +143,7 @@ def convert_node(fields, x, names={}, import_data=None):
             return x.right.s.decode('utf-8') if isinstance(x.right.s, bytes) else x.right.s
     raise TypeError('Unknown datatype %s for fields: %s' % (x, fields))
 
+
 Alias = namedtuple('Alias', 'name asname')
 
 
@@ -579,7 +580,7 @@ h1 { text-align: center }
 </ul>
 </body>
 </html>
-    ''' % (len(ok_plugins), len(bad_plugins), len(ok_plugins)/(len(ok_plugins) + len(bad_plugins)) * 100,
+    ''' % (len(ok_plugins), len(bad_plugins), len(ok_plugins)/(max(1, len(ok_plugins) + len(bad_plugins))) * 100,
            '\n'.join(sorted(gplugs, key=lambda x:x.lower())),
            '\n'.join(sorted(plugs, key=lambda x:x.lower())))
     with open('porting.html', 'wb') as f:
@@ -706,6 +707,7 @@ class HelloWorld(FileTypePlugin):
     assert get_plugin_info(buf.getvalue()) == vals
 
 # }}}
+
 
 if __name__ == '__main__':
     # test_parse_metadata()
