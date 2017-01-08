@@ -17,7 +17,7 @@ from functools import partial
 from xml.sax.saxutils import escape, quoteattr
 
 USER_AGENT = 'calibre mirror'
-MR_URL = 'http://www.mobileread.com/forums/'
+MR_URL = 'https://www.mobileread.com/forums/'
 IS_PRODUCTION = os.path.exists('/srv/plugins')
 WORKDIR = '/srv/plugins' if IS_PRODUCTION else '/t/plugins'
 PLUGINS = 'plugins.json.bz2'
@@ -70,7 +70,7 @@ def parse_index(raw=None):  # {{{
     key_pat = re.compile(r'''(?is)(History|Uninstall)\s*:\s*([^<;]+)[<;]''')
     seen = {}
 
-    for match in re.finditer(r'''(?is)<li.+?<a\s+href=['"](http://www.mobileread.com/forums/showthread.php\?[pt]=\d+).+?>(.+?)<(.+?)</li>''', raw):
+    for match in re.finditer(r'''(?is)<li.+?<a\s+href=['"](https://www.mobileread.com/forums/showthread.php\?[pt]=\d+).+?>(.+?)<(.+?)</li>''', raw):
         deprecated = match.start() > dep_start
         donate = uninstall = None
         history = False
@@ -363,6 +363,8 @@ def fetch_plugins(old_index):
     ans = {}
     pool = ThreadPool(processes=10)
     entries = tuple(parse_index())
+    if not entries:
+        raise SystemExit('Could not find any plugins, probably the markup on the MR index page has changed')
     with closing(pool):
         result = pool.map(partial(parallel_fetch, old_index), entries)
     for entry, plugin in zip(entries, result):
