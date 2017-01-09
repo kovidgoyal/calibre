@@ -5,6 +5,8 @@ from __python__ import bound_methods, hash_literals
 import traceback
 from aes import GCM
 from gettext import install, gettext as _
+from utils import html_escape
+
 from read_book.cfi import at_current, scroll_to as scroll_to_cfi
 from read_book.globals import set_boss, set_current_spine_item, current_layout_mode, current_spine_item, set_layout_mode, current_book
 from read_book.mathjax import apply_mathjax
@@ -193,6 +195,8 @@ class IframeBoss:
                 self.scroll_to_anchor(ipos.anchor)
             elif ipos.type is 'cfi':
                 self.jump_to_cfi(ipos.cfi)
+            elif ipos.type is 'search':
+                self.find(ipos.search_data, True)
         self.onscroll()
         document.documentElement.addEventListener('contextmenu', def(ev):
             ev.preventDefault()
@@ -274,12 +278,18 @@ class IframeBoss:
             if elem:
                 scroll_to_elem(elem)
 
-    def find(self, data):
+    def find(self, data, from_load):
+        if data.searched_in_spine:
+            window.getSelection().removeAllRanges()
         if window.find(data.text, False, data.backwards):
             if current_layout_mode() is not 'flow':
                 snap_to_selection()
         else:
-            self.send_message('find_in_spine', text=data.text, backwards=data.backwards)
+            if from_load:
+                self.send_message('error', title=_('Invisible text'), msg=_(
+                    'The text <i>{}</i> is present on this page but not visible').format(html_escape(data.text)))
+            else:
+                self.send_message('find_in_spine', text=data.text, backwards=data.backwards, searched_in_spine=data.searched_in_spine)
 
 def init():
     script = document.getElementById('bootstrap')

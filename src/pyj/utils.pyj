@@ -141,6 +141,10 @@ def viewport_to_document(x, y, doc):
 def username_key(username):
     return ('u' if username else 'n') + username
 
+def html_escape(text):
+    repl = { '&': "&amp;", '"': "&quot;", '<': "&lt;", '>': "&gt;" }
+    return String.prototype.replace.call(text, /[&"<>]/g, def (c): return repl[c];)
+
 def uniq(vals):
     # Remove all duplicates from vals, while preserving order
     ans = v'[]'

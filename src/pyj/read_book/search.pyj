@@ -8,6 +8,7 @@ from keycodes import get_key
 from elementmaker import E
 from gettext import gettext as _
 from book_list.theme import get_color
+from read_book.resources import text_from_serialized_html
 
 CLASS_NAME = 'book-search-container'
 
@@ -72,3 +73,25 @@ class SearchOverlay:
 
     def find_previous(self):
         self.find(self.search_text, True)
+
+
+def find_in_serialized_html(data, text):
+    haystack = text_from_serialized_html(data)
+    return haystack.toLowerCase().indexOf(text) > -1
+
+
+def find_in_spine(names, book, db, text, proceed):
+    text = text.toLowerCase()
+
+    def got_one(data, name, mimetype):
+        if find_in_serialized_html(data, text):
+            proceed(name)
+        else:
+            do_one()
+
+    def do_one():
+        name = names.shift()
+        if name:
+            db.get_file(book, name, got_one)
+        else:
+            proceed(None)

@@ -5,13 +5,14 @@ from __python__ import bound_methods, hash_literals
 from dom import set_css, add_extra_css, build_rule, svgicon
 from elementmaker import E
 from gettext import gettext as _
+from utils import html_escape
 
-from modals import error_dialog
+from modals import error_dialog, warning_dialog
 from book_list.globals import get_session_data, get_boss
 from read_book.globals import messenger, iframe_id, current_book, set_current_spine_item
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
-from read_book.search import SearchOverlay
+from read_book.search import SearchOverlay, find_in_spine
 from read_book.prefs.colors import resolve_color_scheme
 from read_book.prefs.font_size import change_font_size_by
 from read_book.touch import set_left_margin_handler, set_right_margin_handler
@@ -121,10 +122,29 @@ class View:
         self.send_message('gesture_from_margin', gesture=gesture)
 
     def find(self, text, backwards):
-        self.send_message('find', text=text, backwards=backwards)
+        self.send_message('find', text=text, backwards=backwards, searched_in_spine=False)
 
     def on_find_in_spine(self, data):
-        pass
+        if data.searched_in_spine:
+            warning_dialog(_('Not found'), _('The text: <i>{}</i> was not found in this book').format(html_escape(data.text)))
+            return
+        spine = self.book.manifest.spine
+        idx = spine.indexOf(self.currently_showing.name)
+        if idx < 0:
+            error_dialog(_('Missing file'), _(
+                'Could not search as the spine item {} is missing from the book'.format(self.currently_showing.name)))
+            return
+        names = v'[]'
+        item_groups = [range(idx-1, -1, -1), range(spine.length-1, idx, -1)] if data.backwards else [range(idx + 1, spine.length), range(idx)]
+        for items in item_groups:
+            for i in items:
+                names.push(spine[i])
+        find_in_spine(names, self.book, self.ui.db, data.text, def(found_in):
+            if found_in:
+                self.show_name(found_in, initial_position={'type':'search', 'search_data':data, 'replace_history':True})
+            else:
+                self.send_message('find', text=data.text, backwards=data.backwards, searched_in_spine=True)
+        )
 
     def bump_font_size(self, data):
         delta = 2 if data.increase else -2

@@ -264,3 +264,20 @@ def unserialize_html(serialized_data, proceed):
     else:
         proceeded = True
         proceed()
+
+def text_from_serialized_html(data):
+    serialized_data = JSON.parse(data)
+    tag_map = serialized_data.tag_map
+    ans = v'[]'
+    stack = v'[tree[2]]'
+    ignore_text = {'script':True, 'style':True}
+    while stack.length:
+        node = stack.pop()
+        src = tag_map[node[0]]
+        if not ignore_text[src.n] and src.x:
+            ans.push(src.x)
+        if src.l:
+            ans.push(src.l)
+        for v'var i = node.length - 1; i >= 1; i--':
+            stack.push(node[i])
+    return ans.join('')
