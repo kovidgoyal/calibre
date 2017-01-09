@@ -917,7 +917,7 @@ You must enter the search URL for the search engine, with the placeholder
        <item>
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>&lt;p&gt;A CSS stylesheet that can be used to control the look and feel of books. For examples, click &lt;a href=&quot;http://www.mobileread.com/forums/showthread.php?t=51500&quot;&gt;here&lt;/a&gt;.</string>
+          <string>&lt;p&gt;A CSS stylesheet that can be used to control the look and feel of books. For examples, click &lt;a href=&quot;https://www.mobileread.com/forums/showthread.php?t=51500&quot;&gt;here&lt;/a&gt;.</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

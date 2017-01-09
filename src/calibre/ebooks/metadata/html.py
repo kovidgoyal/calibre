@@ -22,6 +22,7 @@ def get_metadata(stream):
     src = stream.read()
     return get_metadata_(src)
 
+
 COMMENT_NAMES = {
     'title': 'TITLE',
     'authors': 'AUTHOR',
@@ -102,7 +103,7 @@ def parse_comment_tags(src):
 
 def get_metadata_(src, encoding=None):
     # Meta data definitions as in
-    # http://www.mobileread.com/forums/showpost.php?p=712544&postcount=9
+    # https://www.mobileread.com/forums/showpost.php?p=712544&postcount=9
 
     if isbytestring(src):
         if not encoding:

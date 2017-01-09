@@ -38,7 +38,7 @@ class CacheUpdateThread(Thread, QObject):
         self._run = False
 
     def run(self):
-        url = 'http://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
+        url = 'https://www.mobileread.com/forums/ebooks.php?do=getlist&type=html'
 
         self.update_details.emit(_('Checking last download date.'))
         last_download = self.config.get('last_download', None)

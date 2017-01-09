@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 
 # Based on work of John Howell reversing the KFX format
-# http://www.mobileread.com/forums/showpost.php?p=3176029&postcount=89
+# https://www.mobileread.com/forums/showpost.php?p=3176029&postcount=89
 
 import struct, sys, base64, re
 from collections import defaultdict
@@ -22,6 +22,7 @@ from calibre.utils.imghdr import identify
 
 class InvalidKFX(ValueError):
     pass
+
 
 # magic numbers for data structures
 CONTAINER_MAGIC = b'CONT'
@@ -325,6 +326,7 @@ def read_metadata_kfx(stream, read_cover=True):
             mi.cover_data = (fmt, data)
 
     return mi
+
 
 if __name__ == '__main__':
     from calibre import prints

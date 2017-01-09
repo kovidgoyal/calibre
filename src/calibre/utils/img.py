@@ -10,16 +10,13 @@ from threading import Thread
 
 from PyQt5.Qt import QImage, QByteArray, QBuffer, Qt, QImageReader, QColor, QImageWriter, QTransform, QPixmap
 from calibre import fit_image, force_unicode
-from calibre.constants import iswindows, plugins, get_version
+from calibre.constants import iswindows, plugins
 from calibre.utils.config_base import tweaks
 from calibre.utils.filenames import atomic_rename
 
 # Utilities {{{
 imageops, imageops_err = plugins['imageops']
 if imageops is None:
-    if '*' in get_version():
-        raise RuntimeError('You are running from source, which requires the new binary module, imageops. You can'
-                           ' get it by installing the betas from: http://www.mobileread.com/forums/showthread.php?t=274030')
     raise RuntimeError(imageops_err)
 
 

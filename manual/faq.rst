@@ -207,7 +207,7 @@ Follow these steps to find the problem:
       etc. at the same time.
     * If you are connecting an Apple iDevice (iPad, iPod Touch, iPhone), use
       the 'Connect to iTunes' method in the 'Getting started' instructions in
-      `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
+      `Calibre + Apple iDevices: Start here <https://www.mobileread.com/forums/showthread.php?t=118559>`_.
     * Make sure you are running the latest version of calibre. The latest version
       can always be downloaded from `the calibre website <https://calibre-ebook.com/download>`_.
       You can tell what version of calibre you are currently running by looking

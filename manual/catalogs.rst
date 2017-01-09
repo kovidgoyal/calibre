@@ -112,7 +112,7 @@ Other options
 
 :guilabel:`Catalog cover` specifies whether to generate a new cover or use an existing cover. It is possible to create a custom cover for your catalogs - see :ref:`Custom catalog covers` for more information. If you have created a custom cover that you want to reuse, select :guilabel:`Use existing cover`. Otherwise, select :guilabel:`Generate new cover`.
 
-:guilabel:`Extra Description note` specifies a custom column's contents to be inserted into the Description page, next to the cover thumbnail. For example, you might want to display the date you last read a book using a :guilabel:`Last Read` custom column. For advanced use of the Description note feature, see `this post in the calibre forum <http://www.mobileread.com/forums/showpost.php?p=1335767&postcount=395>`_.
+:guilabel:`Extra Description note` specifies a custom column's contents to be inserted into the Description page, next to the cover thumbnail. For example, you might want to display the date you last read a book using a :guilabel:`Last Read` custom column. For advanced use of the Description note feature, see `this post in the calibre forum <https://www.mobileread.com/forums/showpost.php?p=1335767&postcount=395>`_.
 
 :guilabel:`Thumb width` specifies a width preference for cover thumbnails included with Descriptions pages. Thumbnails are cached to improve performance.To experiment with different widths, try generating a catalog with just a few books until you've determined your preferred width, then generate your full catalog. The first time a catalog is generated with a new thumbnail width, performance will be slower, but subsequent builds of the catalog will take advantage of the thumbnail cache.
 
@@ -125,13 +125,13 @@ Custom catalog covers
 
 .. |cc| image:: images/custom_cover.png
 
-|cc| With the `Generate Cover plugin <http://www.mobileread.com/forums/showthread.php?t=124219>`_ installed, you can create custom covers for your catalog. 
+|cc| With the `Generate Cover plugin <https://www.mobileread.com/forums/showthread.php?t=124219>`_ installed, you can create custom covers for your catalog. 
 To install the plugin, go to :guilabel:`Preferences > Advanced > Plugins > Get new plugins`.
 
 Additional help resources
 ---------------------------
 
-For more information on calibre's Catalog feature, see the MobileRead forum sticky `Creating Catalogs - Start here <http://www.mobileread.com/forums/showthread.php?t=118556>`_, where you can find information on how to customize the catalog templates, and how to submit a bug report.
+For more information on calibre's Catalog feature, see the MobileRead forum sticky `Creating Catalogs - Start here <https://www.mobileread.com/forums/showthread.php?t=118556>`_, where you can find information on how to customize the catalog templates, and how to submit a bug report.
 
-To ask questions or discuss calibre's Catalog feature with other users, visit the MobileRead forum `Calibre Catalogs <http://www.mobileread.com/forums/forumdisplay.php?f=236>`_.
+To ask questions or discuss calibre's Catalog feature with other users, visit the MobileRead forum `Calibre Catalogs <https://www.mobileread.com/forums/forumdisplay.php?f=236>`_.
 

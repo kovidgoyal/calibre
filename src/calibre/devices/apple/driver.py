@@ -30,6 +30,7 @@ def strftime(fmt='%Y/%m/%d %H:%M:%S', dt=None):
     except:
         return _strftime(fmt, now().timetuple())
 
+
 _log = None
 
 
@@ -67,7 +68,7 @@ class AppleOpenFeedback(OpenFeedback):
                             '<p>To transfer books to your iDevice, '
                             'click <b>Disable Apple Driver</b>, '
                             "then use the 'Connect to iTunes' method recommended in the "
-                            '<a href="http://www.mobileread.com/forums/showthread.php?t=118559">Calibre + iDevices FAQ</a>, '
+                            '<a href="https://www.mobileread.com/forums/showthread.php?t=118559">Calibre + iDevices FAQ</a>, '
                             'using the <em>Connect/Share</em>|<em>Connect to iTunes</em> menu item.</p>'
                             '<p>Enabling the Apple driver for direct connection to iDevices '
                             'is an unsupported advanced user mode.</p>'
@@ -222,12 +223,12 @@ class ITUNES(DriverBase):
         "Drag from iTunes Library to desktop, then add to calibre's Library window.")
     UNSUPPORTED_DIRECT_CONNECT_MODE_MESSAGE = _(
         "*** Unsupported direct connect mode. "
-        "See http://www.mobileread.com/forums/showthread.php?t=118559 "
+        "See https://www.mobileread.com/forums/showthread.php?t=118559 "
         "for instructions on using 'Connect to iTunes' ***")
     ITUNES_SANDBOX_LOCKOUT_MESSAGE = _(
         '<p>Unable to communicate with iTunes.</p>'
         '<p>Refer to this '
-        '<a href="http://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3">forum post</a> '
+        '<a href="https://www.mobileread.com/forums/showpost.php?p=2113958&postcount=3">forum post</a> '
         'for more information.</p>'
         '<p></p>')
 

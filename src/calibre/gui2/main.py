@@ -108,7 +108,7 @@ def init_qt(args):
     except Exception:
         is_x11 = False
     # Ancient broken VNC servers cannot handle icons of size greater than 256
-    # http://www.mobileread.com/forums/showthread.php?t=278447
+    # https://www.mobileread.com/forums/showthread.php?t=278447
     ic = 'lt.png' if is_x11 else 'library.png'
     app.setWindowIcon(QIcon(I(ic, allow_user_override=False)))
     return app, opts, args
@@ -432,6 +432,7 @@ def run_gui(opts, args, listener, app, gui_debug=None):
         open_local_file(debugfile)
     return ret
 
+
 singleinstance_name = 'calibre_GUI'
 
 
@@ -592,5 +593,3 @@ if __name__ == '__main__':
                 '%s<b>Log:</b><br>%s')%(unicode(err),
                     unicode(tb).replace('\n', '<br>'),
                     log.replace('\n', '<br>')))
-
-

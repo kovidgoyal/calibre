@@ -88,7 +88,7 @@ by the viewer to ones you like as well as the default font size when the viewer 
 
 More advanced customization can be achieved by the User Stylesheet setting. This is a stylesheet you can set that will be applied
 to every book. Using it you can do things like have white text on a black background, change paragraph styles, text justification, etc.
-For examples of custom stylesheets used by calibre's users, see `the forums <http://www.mobileread.com/forums/showthread.php?t=51500>`_.
+For examples of custom stylesheets used by calibre's users, see `the forums <https://www.mobileread.com/forums/showthread.php?t=51500>`_.
 
 Dictionary lookup
 -------------------

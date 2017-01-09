@@ -318,11 +318,11 @@ This will shutdown a running calibre, wait for the shutdown to complete, then up
 More plugin examples
 ----------------------
 
-You can find a list of many, sophisticated calibre plugins `here <http://www.mobileread.com/forums/showthread.php?t=118764>`_.
+You can find a list of many, sophisticated calibre plugins `here <https://www.mobileread.com/forums/showthread.php?t=118764>`_.
 
 Sharing your plugins with others
 ----------------------------------
 
 If you would like to share the plugins you have created with other users of calibre, post your plugin in a new thread in the
-`calibre plugins forum <http://www.mobileread.com/forums/forumdisplay.php?f=237>`_.
+`calibre plugins forum <https://www.mobileread.com/forums/forumdisplay.php?f=237>`_.
 

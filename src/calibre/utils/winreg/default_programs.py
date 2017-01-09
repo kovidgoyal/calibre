@@ -51,7 +51,7 @@ def extensions(basename):
     if basename == 'calibre.exe':
         from calibre.ebooks import BOOK_EXTENSIONS
         # We remove rar and zip as they interfere with 7-zip associations
-        # http://www.mobileread.com/forums/showthread.php?t=256459
+        # https://www.mobileread.com/forums/showthread.php?t=256459
         return set(BOOK_EXTENSIONS) - {'rar', 'zip'}
     if basename == 'ebook-viewer.exe':
         from calibre.customize.ui import all_input_formats
@@ -222,6 +222,7 @@ def get_open_data(base, prog_id):
                 cmd = ' '.join(parts[:-1]) + ' "%1"'
         return cmd, k.get(sub_key='DefaultIcon'), k.get_mui_string('FriendlyTypeName') or k.get()
 
+
 CommandLineToArgvW = ctypes.windll.shell32.CommandLineToArgvW
 CommandLineToArgvW.arg_types = [LPCWSTR, ctypes.POINTER(ctypes.c_int)]
 CommandLineToArgvW.restype = ctypes.POINTER(LPCWSTR)
@@ -308,6 +309,7 @@ def find_programs(extensions):
                     if name:
                         ans.append({'name':name, 'cmdline':cmdline, 'icon_resource':icon_resource})
     return ans
+
 
 if __name__ == '__main__':
     from pprint import pprint

@@ -64,7 +64,7 @@ class USBDevice:
             return True
         # As of OS X 10.11.4 Apple started mangling the names returned via the
         # IOKit registry. See
-        # http://www.mobileread.com/forums/showthread.php?t=273213
+        # https://www.mobileread.com/forums/showthread.php?t=273213
         m = osx_sanitize_name_pat.sub('_', (self.manufacturer or ''))
         p = osx_sanitize_name_pat.sub('_', (self.product or ''))
         return m == man and p == prod

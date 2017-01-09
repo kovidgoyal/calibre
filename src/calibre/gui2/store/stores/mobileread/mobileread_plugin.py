@@ -40,7 +40,7 @@ class MobileReadStore(BasicStoreConfig, StorePlugin):
         return self._mr_cache
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://www.mobileread.com/'
+        url = 'https://www.mobileread.com/'
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(detail_item if detail_item else url))

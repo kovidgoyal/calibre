@@ -306,7 +306,7 @@ Once the download is complete, you can look at the downloaded :term:`HTML` by op
     ...
 
 
-If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
+If you're satisfied with your recipe, and you feel there is enough demand to justify its inclusion into the set of built-in recipes, post your recipe in the `calibre recipes forum <https://www.mobileread.com/forums/forumdisplay.php?f=228>`_ to share it with other calibre users.
 
 .. note:: 
     On OS X, the command line tools are inside the calibre bundle, for example,
@@ -333,7 +333,7 @@ To learn more about writing advanced recipes using some of the facilities, avail
     `Built-in recipes <https://github.com/kovidgoyal/calibre/tree/master/recipes>`_
         The source code for the built-in recipes that come with calibre
 
-    `The calibre recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_
+    `The calibre recipes forum <https://www.mobileread.com/forums/forumdisplay.php?f=228>`_
         Lots of knowledgeable calibre recipe writers hang out here.
 
 

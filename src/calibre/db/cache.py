@@ -90,6 +90,7 @@ def _add_newbook_tag(mi):
                 elif tag not in mi.tags:
                     mi.tags.append(tag)
 
+
 dynamic_category_preferences = frozenset({'grouped_search_make_user_categories', 'grouped_search_terms', 'user_categories'})
 
 
@@ -1337,7 +1338,7 @@ class Cache(object):
         path = self._field_for('path', book_id)
         if path is None:
             # Theoretically, this should never happen, but apparently it
-            # does: http://www.mobileread.com/forums/showthread.php?t=233353
+            # does: https://www.mobileread.com/forums/showthread.php?t=233353
             self._update_path({book_id}, mark_as_dirtied=False)
             path = self._field_for('path', book_id)
 
