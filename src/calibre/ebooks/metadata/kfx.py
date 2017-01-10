@@ -252,9 +252,10 @@ def extract_metadata(container_data):
                     metadata[METADATA_PROPERTIES[key]].append(value)
 
         elif entity_type == PROP_METADATA2:
-            for value1 in entity_value[PROP_METADATA3]:
-                for meta in value1[PROP_METADATA]:
-                    metadata[meta[PROP_METADATA_KEY]].append(meta[PROP_METADATA_VALUE])
+            if entity_value is not None:
+                for value1 in entity_value[PROP_METADATA3]:
+                    for meta in value1[PROP_METADATA]:
+                        metadata[meta[PROP_METADATA_KEY]].append(meta[PROP_METADATA_VALUE])
 
         elif entity_type == PROP_IMAGE and COVER_KEY not in metadata:
             # assume first image is the cover
