@@ -1435,6 +1435,11 @@ class Guide(object):
     def remove(self, type):
         return self.refs.pop(type, None)
 
+    def remove_by_href(self, href):
+        remove = [r for r, i in self.refs.iteritems() if i.href == href]
+        for r in remove:
+            self.remove(r)
+
     def iterkeys(self):
         for type in self.refs:
             yield type
