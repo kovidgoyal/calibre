@@ -37,6 +37,8 @@ class PrettyPrint(object):
     def __exit__(self, *args):
         global pretty_print_opf
         pretty_print_opf = False
+
+
 pretty_print = PrettyPrint()
 
 
@@ -1570,6 +1572,7 @@ class OPFCreator(Metadata):
                 guide
         )
         root.set('unique-identifier', __appname__+'_id')
+        root.set('version', '2.0')
         raw = etree.tostring(root, pretty_print=True, xml_declaration=True,
                 encoding=encoding)
         raw = raw.replace(DNS, OPF2_NS)
@@ -1834,6 +1837,7 @@ def test_user_metadata():
     assert um == opf._user_metadata_
     assert um == opf2._user_metadata_
     print opf.render()
+
 
 if __name__ == '__main__':
     # test_user_metadata()
