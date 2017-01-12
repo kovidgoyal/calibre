@@ -133,15 +133,14 @@ class Convert(object):
         notes_header = None
         orig_rid_map = self.images.rid_map
         if self.footnotes.has_notes:
-            dl = DL()
-            dl.set('class', 'notes')
             self.body.append(H1(self.notes_text))
             notes_header = self.body[-1]
             notes_header.set('class', 'notes-header')
-            self.body.append(dl)
             for anchor, text, note in self.footnotes:
-                dl.append(DT('[', A('←' + text, href='#back_%s' % anchor, title=text), id=anchor))
-                dl[-1].set('class', 'calibre-docx-footnote-target')
+                dl = DL(id=anchor)
+                dl.set('class', 'footnote')
+                self.body.append(dl)
+                dl.append(DT('[', A('←' + text, href='#back_%s' % anchor, title=text)))
                 dl[-1][0].tail = ']'
                 dl.append(DD())
                 paras = []
@@ -657,7 +656,7 @@ class Convert(object):
                 anchor, name = self.footnotes.get_ref(child)
                 if anchor and name:
                     l = A(SUP(name, id='back_%s' % anchor), href='#' + anchor, title=name)
-                    l.set('class', 'noteref calibre-docx-footnote-link')
+                    l.set('class', 'noteref')
                     text.add_elem(l)
                     ans.append(text.elem)
             elif self.namespace.is_tag(child, 'w:tab'):

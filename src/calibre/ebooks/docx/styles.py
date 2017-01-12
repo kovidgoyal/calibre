@@ -456,18 +456,19 @@ class Styles(object):
 
             h1.notes-header { page-break-before: always }
 
-            dl.notes dt { font-size: large }
+            dl.footnote dt { font-size: large }
 
-            dl.notes dt a { text-decoration: none }
+            dl.footnote dt a { text-decoration: none }
 
             '''
 
         if not notes_nopb:
-            s = s + 'dl.notes dd { page-break-after: always }'
+            s += '''\
+            dl.footnote { page-break-after: always }
+            dl.footnote:last-of-type { page-break-after: avoid }
+            '''
 
         s = s + '''\
-            dl.notes dd:last-of-type { page-break-after: avoid }
-
             span.tab { white-space: pre }
 
             p.index-entry { text-indent: 0pt; }
