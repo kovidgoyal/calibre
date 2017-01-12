@@ -877,6 +877,10 @@ class DocumentView(QWebView):  # {{{
         if self.manager is not None:
             self.manager.link_clicked(url)
 
+    def footnote_link_clicked(self, qurl):
+        path = qurl.toLocalFile()
+        self.link_clicked(self.as_url(path))
+
     def sizeHint(self):
         return self._size_hint
 

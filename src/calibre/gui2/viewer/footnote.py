@@ -101,7 +101,7 @@ class Footnotes(object):
     def set_footnotes_view(self, fv):
         self.footnotes_view = fv
         self.clone_settings()
-        fv.page().linkClicked.connect(self.view.link_clicked)
+        fv.page().linkClicked.connect(self.view.footnote_link_clicked)
         fv.page().js_loader = self.view.document.js_loader
 
     def clone_settings(self):
