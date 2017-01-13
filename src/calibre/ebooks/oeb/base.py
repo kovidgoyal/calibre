@@ -88,6 +88,7 @@ def XLINK(name):
 def CALIBRE(name):
     return '{%s}%s' % (CALIBRE_NS, name)
 
+
 _css_url_re = re.compile(r'url\s*\([\'"]{0,1}(.*?)[\'"]{0,1}\)', re.I)
 _css_import_re = re.compile(r'@import "(.*?)"')
 _archive_re = re.compile(r'[^ ]+')
@@ -120,6 +121,7 @@ def itercsslinks(raw):
         yield match.group(1), match.start(1)
     for match in _css_import_re.finditer(raw):
         yield match.group(1), match.start(1)
+
 
 _link_attrs = set(html.defs.link_attrs) | {XLINK('href'), 'poster'}
 
@@ -401,6 +403,7 @@ def serialize(data, media_type, pretty_print=False):
             data = data.encode('utf-8')
         return data + b'\n'
     return bytes(data)
+
 
 ASCII_CHARS   = set(chr(x) for x in xrange(128))
 UNIBYTE_CHARS = set(chr(x) for x in xrange(256))
