@@ -22,7 +22,7 @@ class TheHindu(BasicNewsRecipe):
 
     def articles_from_soup(self, soup):
         ans = []
-        div = soup.find('section', attrs={'id': 'section_1'})
+        div = soup.find('section', attrs={'id': 'section_'})
         if div is None:
             return ans
         ul = div.find('ul', attrs={'class': 'archive-list'})
@@ -48,8 +48,7 @@ class TheHindu(BasicNewsRecipe):
             if self.is_accepted_entry(x):
                 section_list.append(
                     (string.capwords(self.tag_to_string(x)), x['href']))
-        self.log('Found section:', 'Front page')
-        feeds = [('Front Page', self.articles_from_soup(soup))]
+        feeds = []
 
         # For each section title, fetch the article urls
         for section in section_list:
