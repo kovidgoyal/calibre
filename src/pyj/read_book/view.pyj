@@ -132,7 +132,7 @@ class View:
         idx = spine.indexOf(self.currently_showing.name)
         if idx < 0:
             error_dialog(_('Missing file'), _(
-                'Could not search as the spine item {} is missing from the book'.format(self.currently_showing.name)))
+                'Could not search as the spine item {} is missing from the book').format(self.currently_showing.name))
             return
         names = v'[]'
         item_groups = [range(idx-1, -1, -1), range(spine.length-1, idx, -1)] if data.backwards else [range(idx + 1, spine.length), range(idx)]
