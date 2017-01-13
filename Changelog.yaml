@@ -20,6 +20,42 @@
 #   new recipes:
 #     - title: 
 
+- version: 2.77.0
+  date: 2017-01-13
+
+  bug fixes:
+    - title: "Conversion: Fix changing the cover image not updating references to the old cover image inside SVG wrappers."
+      tickets: [1655309]
+
+    - title: "E-book viewer: Fix a regression that caused clicking links in the footnote popup window to stop working"
+
+    - title: "Edit Book: Fix importing DOCX file as new book not setting the version attribute in the OPF"
+
+    - title: "Kindle driver: Fix some newer KFX books not being recognized on e-ink kindles, because of a change in how metadata is stored in the KFX format"
+
+    - title: "DOCX Output: Fix missing <td> tag causing conversion to fail."
+      tickets: [1654463]
+
+    - title: "Edit Book: Fix group references causing errors when used in replace string in the normal mode search and replace"
+
+    - title: "Edit Book: Fix Check Book reporting a spurious mime/type mismatch error after replacing a file with a file having a different mime type."
+      tickets: [1653977]
+
+    - title: "Amazon metadata download: Fix detection of series not working for some books due to changes in the amazon website"
+
+    - title: "Fix Nook HD+ not being detected on windows"
+
+    - title: "Edit Book: Ensure keyboard focus stays with Files Browser when renaming files."
+      tickets: [1653311]
+
+  improved recipes:
+    - kath.net
+    - publico.pt
+    - Telepolis
+    - The Times
+    - Helsingin Sanomat
+
+
 - version: 2.76.0
   date: 2016-12-30
 
