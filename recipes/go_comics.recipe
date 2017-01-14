@@ -3,16 +3,21 @@ __copyright__ = 'Copyright 2010 Starson17'
 '''
 www.gocomics.com
 '''
+import shutil, os
+from calibre.constants import iswindows
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.utils.filenames import ascii_filename
 
 
 class GoComics(BasicNewsRecipe):
     title = 'Go Comics'
-    __author__ = 'Starson17'
+    __author__ = 'Kovid Goyal'
     __version__ = '1.06'
     __date__ = '07 June 2011'
     description = u'200+ Comics - Customize for more days/comics: Defaults to 1 day, 25 comics - 20 general, 5 editorial.'
     category = 'news, comics'
+    encoding = 'utf-8'
     language = 'en'
     no_stylesheets = True
     remove_javascript = True
@@ -25,11 +30,6 @@ class GoComics(BasicNewsRecipe):
     # Please do not overload their servers by selecting all comics and 1000
     # strips from each!
 
-    keep_only_tags = [
-        dict(name='h1'),
-        dict(name='div', id=lambda x: x and x.startswith('mutable_')),
-    ]
-
     def get_browser(self):
         br = BasicNewsRecipe.get_browser(self)
         br.addheaders = [('Referer', 'http://www.gocomics.com/')]
@@ -37,6 +37,7 @@ class GoComics(BasicNewsRecipe):
 
     def parse_index(self):
         feeds = []
+        self.gocomics_dir = PersistentTemporaryDirectory('_gocomics')
         for i, (title, url) in enumerate([  # {{{
             # (u"The Academia Waltz",u"http://www.gocomics.com/academiawaltz"),
             # (u"Adam@Home",u"http://www.gocomics.com/adamathome"),
@@ -537,15 +538,36 @@ class GoComics(BasicNewsRecipe):
             # (u"9 Chickweed Lane",u"http://www.gocomics.com/9chickweedlane"),
         ]):  # }}}
             self.log('Working on: ', title, url)
-            articles = self.make_links(url)
+            articles = self.make_links(title, url)
             if articles:
                 feeds.append((title, articles))
             if self.test and i > 0:
                 break
         return feeds
 
-    def make_links(self, url):
-        title = 'Temp'
+    def cleanup(self):
+        try:
+            shutil.rmtree(self.gocomics_dir)
+        except EnvironmentError:
+            pass
+
+    def parse_comic_page(self, content):
+        img = content.find('img')
+        if img is None:
+            raise StopIteration()
+        img['srcset'] = ''
+        date = content.find('date')
+        return {'h1':content.find('h1'), 'date':self.tag_to_string(date), 'img':str(img)}
+
+    def render_comic_page(self, data, num, title):
+        fname = ascii_filename('%03d_%s' % (num, title)).replace(' ', '_')
+        path = os.path.join(self.gocomics_dir, fname)
+        html = '<html><body>{h1}<h2>{date}</h2><div>{img}</div></body></html>'.format(**data)
+        with lopen(path, 'wb') as f:
+            f.write(html.encode('utf-8'))
+        return {'title':'Page %d of %s' % ((num + 1), title), 'url': ('file:' if iswindows else 'file://') + path.replace(os.sep, '/')}
+
+    def make_links(self, title, url):
         current_articles = []
         if self.test:
             self.num_comics_to_get = 2
@@ -555,46 +577,14 @@ class GoComics(BasicNewsRecipe):
             page_soup = self.index_to_soup(url)
             if not page_soup:
                 break
-            content = page_soup.find(id='content')
+            content = page_soup.find(attrs={'class':'layout-1col'})
             if content is None:
                 break
-            feature = content.find(name='div', attrs={'class': 'feature'})
-            feature_nav = content.find(
-                name='ul', attrs={'class': 'feature-nav'})
-            if feature is None or feature_nav is None:
-                break
-            try:
-                a = feature.find('h1').find('a', href=True)
-            except:
-                self.log.exception('Failed to find current page link')
-                break
-            page_url = a['href']
-            if page_url.startswith('/'):
-                page_url = 'http://www.gocomics.com' + page_url
-            try:
-                strip_title = self.tag_to_string(
-                    feature.find('h1').find('a', href=True))
-            except:
-                strip_title = 'Error - no Title found'
-            try:
-                date_title = self.tag_to_string(feature_nav.find('li'))
-            except:
-                date_title = 'Error - no Date found'
-            title = strip_title + ' - ' + date_title
-            current_articles.append(
-                {'title': title, 'url': page_url, 'description': '', 'date': ''})
-            a = feature_nav.find('a', href=True, attrs={'class': 'prev'})
+            current_articles.append(self.parse_comic_page(content))
+            a = content.find('a', attrs={'href':True, 'class':lambda x: x and 'fa-caret-left' in x.split()})
             if a is None:
                 break
             url = a['href']
             if url.startswith('/'):
                 url = 'http://www.gocomics.com' + url
-        current_articles.reverse()
-        return current_articles
-
-    def preprocess_html(self, soup):
-        headings = soup.findAll('h1')
-        for h1 in headings[1:]:
-            h1.extract()
-        self.adeify_images(soup)
-        return soup
+        return [self.render_comic_page(ar, i, title) for i, ar in enumerate(reversed(current_articles))]
