@@ -273,11 +273,14 @@ def text_from_serialized_html(data):
     ignore_text = {'script':True, 'style':True}
     while stack.length:
         node = stack.pop()
+        if jstype(node) is 'string':
+            ans.push(node)
+            continue
         src = tag_map[node[0]]
         if not ignore_text[src.n] and src.x:
             ans.push(src.x)
         if src.l:
-            ans.push(src.l)
+            stack.push(src.l)
         for v'var i = node.length - 1; i >= 1; i--':
             stack.push(node[i])
     return ans.join('')
