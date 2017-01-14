@@ -415,27 +415,29 @@ class Dictionaries(object):
         return ans
 
 
-def test_dictionaries():
-    dictionaries = Dictionaries()
-    dictionaries.initialize()
-    eng = parse_lang_code('en')
-    rec = partial(dictionaries.recognized, locale=eng)
-    sg = partial(dictionaries.suggestions, locale=eng)
-    if not rec('recognized'):
-        raise ValueError('recognized not recognized')
-    if not rec('one-half'):
-        raise ValueError('one-half not recognized')
-    if not rec('one\u2010half'):
-        raise ValueError('one\u2010half not recognized with unicode hyphen (U+2010)')
-    if 'one\u2010half' not in sg('oone\u2010half'):
-        raise ValueError('Unicode hyphen not preserved in suggestions')
-    if 'adequately' not in sg('ade-quately'):
-        raise ValueError('adequately not in %s' % sg('ade-quately'))
-    if 'magic. Wand' not in sg('magic.wand'):
-        raise ValueError('magic. Wand not in: %s' % sg('magic.wand'))
-    d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
-    assert d.recognized('Achí')
+def find_tests():
+    import unittest
 
+    class TestDictionaries(unittest.TestCase):
 
-if __name__ == '__main__':
-    test_dictionaries()
+        def setUp(self):
+            dictionaries = Dictionaries()
+            dictionaries.initialize()
+            eng = parse_lang_code('en')
+            self.recognized = partial(dictionaries.recognized, locale=eng)
+            self.suggestions = partial(dictionaries.suggestions, locale=eng)
+
+        def ar(self, w):
+            if not self.recognized(w):
+                raise AssertionError('The word %r was not recognized' % w)
+
+        def test_dictionaries(self):
+            for w in 'recognized one-half one\u2010half'.split():
+                self.ar(w)
+            d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
+            self.assertTrue(d.recognized('Achí'))
+            self.assertIn('one\u2010half', self.suggestions('oone\u2010half'))
+            self.assertIn('adequately', self.suggestions('ade-quately'))
+            self.assertIn('magic. Wand', self.suggestions('magic.wand'))
+
+    return unittest.TestLoader().loadTestsFromTestCase(TestDictionaries)
