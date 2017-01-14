@@ -95,3 +95,5 @@ def find_in_spine(names, book, db, text, proceed):
             db.get_file(book, name, got_one)
         else:
             proceed(None)
+
+    do_one()

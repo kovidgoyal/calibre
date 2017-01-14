@@ -269,7 +269,7 @@ def text_from_serialized_html(data):
     serialized_data = JSON.parse(data)
     tag_map = serialized_data.tag_map
     ans = v'[]'
-    stack = v'[tree[2]]'
+    stack = v'[serialized_data.tree[2]]'
     ignore_text = {'script':True, 'style':True}
     while stack.length:
         node = stack.pop()
