@@ -491,7 +491,7 @@ def html_as_dict(root):
     stack = [(root, tree)]
     while stack:
         elem, node = stack.pop()
-        for i, child in enumerate(elem.iterchildren('*')):
+        for child in elem.iterchildren('*'):
             cnode = serialize_elem(child, nsmap)
             if cnode is not None:
                 tags.append(cnode)
