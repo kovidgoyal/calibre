@@ -22,6 +22,7 @@ simple_vendor_prefixes = {
     'column-gap': v"['webkit', 'moz']",
     'column-width': v"['webkit', 'moz']",
     'column-rule': v"['webkit', 'moz']",
+    'column-fill': v"['moz']",
 }
 
 def set_css(elem, **kw):
