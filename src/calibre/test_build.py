@@ -55,10 +55,6 @@ class BuildTest(unittest.TestCase):
         from calibre.ebooks.oeb.polish.parsing import parse_html5
         parse_html5('<p>xxx')
 
-    def test_spell(self):
-        from calibre.spell.dictionary import test_dictionaries
-        test_dictionaries()
-
     def test_plugins(self):
         exclusions = set()
         if is_ci:
@@ -240,12 +236,15 @@ def find_tests():
     ans.addTests(unittest.defaultTestLoader.loadTestsFromModule(dtests))
     from tinycss.tests.main import find_tests
     ans.addTests(find_tests())
+    from calibre.spell.dictionary import find_tests
+    ans.addTests(find_tests())
     return ans
 
 
 def test():
     from calibre.utils.run_tests import run_cli
     run_cli(find_tests())
+
 
 if __name__ == '__main__':
     test()
