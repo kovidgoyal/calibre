@@ -44,6 +44,7 @@ class UserDictionary(object):
         return {'name':self.name, 'is_active': self.is_active, 'words':[
             (w, l) for w, l in self.words]}
 
+
 _builtins = _custom = None
 
 
@@ -81,6 +82,7 @@ def custom_dictionaries(reread=False):
                 os.path.join(base, '%s.aff' % locale), False, name, os.path.basename(base)))
         _custom = frozenset(dics)
     return _custom
+
 
 default_en_locale = 'en-US'
 try:
@@ -368,7 +370,7 @@ class Dictionaries(object):
                     d = self.dictionary_for_locale(locale)
                     if d is not None:
                         try:
-                            ans = d.obj.recognized(word)
+                            ans = d.obj.recognized(word.replace('\u2010', '-'))
                         except ValueError:
                             pass
                     else:
@@ -381,6 +383,7 @@ class Dictionaries(object):
     def suggestions(self, word, locale=None):
         locale = locale or self.default_locale
         d = self.dictionary_for_locale(locale)
+        has_unicode_hyphen = '\u2010' in word
         ans = ()
 
         def add_suggestion(w, ans):
@@ -407,6 +410,8 @@ class Dictionaries(object):
                                 fw = w1 + m.group() + ' ' + capitalize(w2)
                                 ans = add_suggestion(fw, ans)
 
+        if has_unicode_hyphen:
+            ans = tuple(w.replace('-', '\u2010') for w in ans)
         return ans
 
 
@@ -418,12 +423,19 @@ def test_dictionaries():
     sg = partial(dictionaries.suggestions, locale=eng)
     if not rec('recognized'):
         raise ValueError('recognized not recognized')
+    if not rec('one-half'):
+        raise ValueError('one-half not recognized')
+    if not rec('one\u2010half'):
+        raise ValueError('one\u2010half not recognized with unicode hyphen (U+2010)')
+    if 'one\u2010half' not in sg('oone\u2010half'):
+        raise ValueError('Unicode hyphen not preserved in suggestions')
     if 'adequately' not in sg('ade-quately'):
         raise ValueError('adequately not in %s' % sg('ade-quately'))
     if 'magic. Wand' not in sg('magic.wand'):
         raise ValueError('magic. Wand not in: %s' % sg('magic.wand'))
     d = load_dictionary(get_dictionary(parse_lang_code('es'))).obj
     assert d.recognized('Achí')
+
 
 if __name__ == '__main__':
     test_dictionaries()
