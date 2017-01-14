@@ -8,7 +8,7 @@ import unittest
 
 from setup import Command
 
-TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc library dictionaries'.split())
+TEST_MODULES = frozenset('srv db polish opf css docx cfi matcher icu smartypants build misc library'.split())
 
 
 def find_tests(which_tests=None):
@@ -68,9 +68,6 @@ def find_tests(which_tests=None):
         a(find_tests())
     if ok('library'):
         from calibre.library.test_cli import find_tests
-        a(find_tests())
-    if ok('dictionaries'):
-        from calibre.spell.dictionary import find_tests
         a(find_tests())
 
     tests = unittest.TestSuite(ans)

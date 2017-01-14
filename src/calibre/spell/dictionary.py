@@ -391,7 +391,7 @@ class Dictionaries(object):
 
         if d is not None:
             try:
-                ans = d.obj.suggest(unicode(word))
+                ans = d.obj.suggest(unicode(word).replace('\u2010', '-'))
             except ValueError:
                 pass
             else:
