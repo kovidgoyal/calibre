@@ -87,7 +87,7 @@ class ReadBuffer(object):  # {{{
         return num
 
     def readline(self):
-        # Return whatever is in the buffer upto (and including) the first \n
+        # Return whatever is in the buffer up to (and including) the first \n
         # If no \n is present, returns everything
         if self.read_pos == self.write_pos and self.full_state is WRITE:
             return b''

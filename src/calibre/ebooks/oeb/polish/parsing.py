@@ -369,7 +369,7 @@ class TreeBuilder(BaseTreeBuilder):
         self.promote_elem(elem, token_name)
         position = token.get('position', None)
         if position is not None:
-            # Unfortunately, libxml2 can only store line numbers upto 65535
+            # Unfortunately, libxml2 can only store line numbers up to 65535
             # (unsigned short). If you really need to workaround this, use the
             # patch here:
             # https://bug325533.bugzilla-attachments.gnome.org/attachment.cgi?id=56951

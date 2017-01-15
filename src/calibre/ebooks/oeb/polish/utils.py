@@ -137,7 +137,7 @@ def link_stylesheets(container, names, sheets, remove=False, mtype='text/css'):
 
 def lead_text(top_elem, num_words=10):
     ''' Return the leading text contained in top_elem (including descendants)
-    upto a maximum of num_words words. More efficient than using
+    up to a maximum of num_words words. More efficient than using
     etree.tostring(method='text') as it does not have to serialize the entire
     sub-tree rooted at top_elem.'''
     pat = re.compile(r'\s+', flags=re.UNICODE)

@@ -221,7 +221,7 @@ class ConnectShareAction(InterfaceAction):
         else:
             self.gui.content_server.threaded_exit()
             self.stopping_msg = info_dialog(self.gui, _('Stopping'),
-                    _('Stopping server, this could take upto a minute, please wait...'),
+                    _('Stopping server, this could take up to a minute, please wait...'),
                     show_copy_button=False)
             QTimer.singleShot(1000, self.check_exited)
             self.stopping_msg.exec_()

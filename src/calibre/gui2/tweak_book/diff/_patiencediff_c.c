@@ -1000,7 +1000,7 @@ error:
 static char PatienceSequenceMatcher_get_grouped_opcodes_doc[] =
     "Isolate change clusters by eliminating ranges with no changes.\n"
     "\n"
-    "Return a list of groups with upto n lines of context.\n"
+    "Return a list of groups with up to n lines of context.\n"
     "Each group is in the same format as returned by get_opcodes().\n"
     "\n"
     ">>> from pprint import pprint\n"
