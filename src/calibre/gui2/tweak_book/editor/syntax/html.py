@@ -195,7 +195,7 @@ def close_tag(state, name):
             break
     else:
         return  # No matching open tag found, ignore the closing tag
-    # Remove all tags upto the matching open tag
+    # Remove all tags up to the matching open tag
     state.tags = state.tags[:-len(removed_tags)]
     state.sub_parser_state = None
     # Check if we should still be bold or italic

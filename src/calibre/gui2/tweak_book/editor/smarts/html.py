@@ -436,7 +436,7 @@ class Smarts(NullSmarts):
 
     def cursor_position_with_sourceline(self, cursor, for_position_sync=True, use_matched_tag=True):
         ''' Return the tag just before the current cursor as a source line
-        number and a list of tags defined on that line upto and including the
+        number and a list of tags defined on that line up to and including the
         containing tag. If ``for_position_sync`` is False then the tag
         *containing* the cursor is returned instead of the tag just before the
         cursor. Note that finding the containing tag is expensive, so
