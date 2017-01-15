@@ -800,6 +800,7 @@ class Amazon(Source):
             'br': _('Brazil'),
             'nl': _('Netherlands'),
             'cn': _('China'),
+            'ca': _('Canada'),
     }
 
     options = (
