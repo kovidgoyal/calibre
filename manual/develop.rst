@@ -3,7 +3,7 @@
 Setting up a calibre development environment
 ===========================================================
 
-calibre is completely open source, licensed under the `GNU GPL v3 <http://www.gnu.org/copyleft/gpl.html>`_.
+calibre is completely open source, licensed under the `GNU GPL v3 <https://www.gnu.org/licenses/gpl.html>`_.
 This means that you are free to download and modify the program to your heart's content. In this section,
 you will learn how to get a calibre development environment set up on the operating system of your choice.
 calibre is written primarily in `Python <https://www.python.org>`_ with some C/C++ code for speed and system interfacing.

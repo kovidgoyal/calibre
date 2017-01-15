@@ -4,8 +4,8 @@ XPath Tutorial
 ==============
 
 In this tutorial, you will be given a gentle introduction to 
-`XPath <http://en.wikipedia.org/wiki/XPath>`_, a query language that can be 
-used to select arbitrary parts of `HTML <http://en.wikipedia.org/wiki/HTML>`_
+`XPath <https://en.wikipedia.org/wiki/XPath>`_, a query language that can be 
+used to select arbitrary parts of `HTML <https://en.wikipedia.org/wiki/HTML>`_
 documents in calibre. XPath is a widely
 used standard, and googling it will yield a ton of information. This tutorial, 
 however, focuses on using XPath for ebook related tasks like finding chapter 
