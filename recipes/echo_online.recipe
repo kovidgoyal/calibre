@@ -24,7 +24,7 @@ class Echo_Online(BasicNewsRecipe):
     __author__ = 'Armin Geller'
     language = 'de'
     lang = 'de-DE'
-    encoding = 'iso-8859-1'
+    encoding = 'utf-8'
 
     timefmt = ' [%a, %d %b %Y]'
 
@@ -364,6 +364,11 @@ class Echo_Online(BasicNewsRecipe):
         dict(name='div', attrs={'class': 'skip'}),
         dict(name='ul', attrs={'class': 'funcs'}),
     ]
+
+    def preprocess_html(self, soup):
+        for img in soup.findAll('img', attrs={'data-lazy':True}):
+            img['src'] = img['data-lazy']
+        return soup
 
 
 #    cover_url = 'http://adcounter.darmstaedter-echo.de/webdav/files/config/gui/images/Zeitungsfaecher.gif'
