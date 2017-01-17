@@ -162,6 +162,7 @@ class EbookViewer(MainWindow):
         self.pending_bookmark  = None
         self.pending_restore   = False
         self.pending_goto_page = None
+        self.pending_toc_click = None
         self.cursor_hidden     = False
         self.existing_bookmarks= []
         self.selected_text     = None
@@ -814,6 +815,9 @@ class EbookViewer(MainWindow):
         if self.pending_goto_page is not None:
             pos, self.pending_goto_page = self.pending_goto_page, None
             self.goto_page(pos, loaded_check=False)
+        elif self.pending_toc_click is not None:
+            index, self.pending_toc_click = self.pending_toc_click, None
+            self.toc_clicked(index, force=True)
         else:
             if self.resize_events_stack:
                 self.resize_events_stack[-1].finished(self.view.size(), self.view.multiplier, self.view.last_loaded_path, self.view.document.page_number)
@@ -1011,14 +1015,19 @@ class EbookViewer(MainWindow):
                 if open_at is None:
                     self.next_document()
                 else:
-                    if open_at > self.pos.maximum():
-                        open_at = self.pos.maximum()
-                    if open_at < self.pos.minimum():
-                        open_at = self.pos.minimum()
-                    if self.resize_in_progress:
-                        self.pending_goto_page = open_at
-                    else:
-                        self.goto_page(open_at, loaded_check=False)
+                    if isinstance(open_at, float):
+                        open_at = max(self.pos.minimum(), min(open_at, self.pos.maximum()))
+                        if self.resize_in_progress:
+                            self.pending_goto_page = open_at
+                        else:
+                            self.goto_page(open_at, loaded_check=False)
+                    elif open_at.startswith('toc:'):
+                        index = self.toc_model.search(open_at[4:])
+                        if index.isValid():
+                            if self.resize_in_progress:
+                                self.pending_toc_click = index
+                            else:
+                                self.toc_clicked(index, force=True)
 
     def set_vscrollbar_value(self, pagenum):
         self.vertical_scrollbar.blockSignals(True)
@@ -1144,7 +1153,9 @@ def config(defaults=None):
         help=_('Print javascript alert and console messages to the console'))
     c.add_opt('open_at', ['--open-at'], default=None,
         help=_('The position at which to open the specified book. The position is '
-            'a location as displayed in the top left corner of the viewer.'))
+               'a location as displayed in the top left corner of the viewer. '
+               'Alternately, you can use the form toc:something and it will open '
+               'at the location of the first Table of Contents entry that contains the string "something".'))
     c.add_opt('continue_reading', ['--continue'], default=False,
         help=_('Continue reading at the previously opened book'))
 
@@ -1233,7 +1244,12 @@ def main(args=sys.argv):
 
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    open_at = float(opts.open_at.replace(',', '.')) if opts.open_at else None
+    open_at = None
+    if opts.open_at is not None:
+        if opts.open_at.startswith('toc:'):
+            open_at = opts.open_at
+        else:
+            open_at = float(opts.open_at.replace(',', '.'))
     listener = None
     override = 'calibre-ebook-viewer' if islinux else None
     acc = EventAccumulator()
