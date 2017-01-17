@@ -276,6 +276,7 @@ class PdfEngine(QPaintEngine):
             try:
                 self.fonts[gi.name] = metrics = self.create_sfnt(text_item)
             except UnsupportedFont:
+                self.debug('Failed to load font: %s, drawing text as outlines...' % names)
                 return super(PdfEngine, self).drawTextItem(point, text_item)
         for glyph_id in gi.indices:
             try:
