@@ -20,7 +20,7 @@ from calibre.utils.imghdr import what
 
 
 def sanitize_file_name(x):
-    return re.sub(r'[?&=;]', '_', ascii_filename(x))
+    return re.sub(r'[?&=;#]', '_', ascii_filename(x))
 
 
 class HTMLInput(InputFormatPlugin):
@@ -312,4 +312,3 @@ class HTMLInput(InputFormatPlugin):
             self.log.exception('Failed to read CSS file: %r'%link)
             return (None, None)
         return (None, raw)
-
