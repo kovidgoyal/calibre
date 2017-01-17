@@ -54,7 +54,7 @@ class Mediapart(BasicNewsRecipe):
 
         soup = self.index_to_soup(
             'https://www.mediapart.fr/journal/fil-dactualites')
-        page = soup.find('div', {'class': 'global-wrapper'})
+        page = soup.find('section', {'class': 'global-wrapper'})
         fils = page.find('ul', {'class': 'post-list universe-journal'})
 
         for article in fils.findAll('li'):
