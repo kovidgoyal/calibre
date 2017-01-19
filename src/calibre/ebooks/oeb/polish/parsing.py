@@ -13,8 +13,14 @@ from bisect import bisect
 from lxml.etree import ElementBase, XMLParser, ElementDefaultClassLookup, CommentBase, fromstring, Element as LxmlElement
 
 from html5lib.constants import namespaces, tableInsertModeElements, EOF
-from html5lib.treebuilders._base import TreeBuilder as BaseTreeBuilder
-from html5lib.ihatexml import InfosetFilter, DataLossWarning
+try:
+    from html5lib.treebuilders.base import TreeBuilder as BaseTreeBuilder
+except:
+    from html5lib.treebuilders._base import TreeBuilder as BaseTreeBuilder
+try:
+    from html5lib._ihatexml import InfosetFilter, DataLossWarning
+except:
+    from html5lib.ihatexml import InfosetFilter, DataLossWarning
 from html5lib.html5parser import HTMLParser
 
 from calibre import xml_replace_entities
