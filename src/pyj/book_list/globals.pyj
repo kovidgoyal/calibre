@@ -28,3 +28,9 @@ def get_current_query():
 def set_current_query(val):
     nonlocal current_query
     current_query = val
+
+
+def main_js(newval):
+    if newval is not undefined:
+        main_js.ans = newval
+    return main_js.ans

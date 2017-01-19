@@ -8,7 +8,7 @@ from gettext import gettext as _
 from utils import html_escape
 
 from modals import error_dialog, warning_dialog
-from book_list.globals import get_session_data, get_boss
+from book_list.globals import get_session_data, get_boss, main_js
 from read_book.globals import messenger, iframe_id, current_book, set_current_spine_item
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
@@ -193,8 +193,8 @@ class View:
         side_margin('left', margin_left), side_margin('right', margin_right)
 
     def create_src_doc(self):
-        iframe_script = self.ui.interface_data.main_js.replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
-        self.ui.interface_data.main_js = None
+        iframe_script = main_js().replace(/is_running_in_iframe\s*=\s*false/, 'is_running_in_iframe = true')
+        main_js(None)
         self.src_doc = self.iframe.srcdoc = LOADING_DOC.replace(
             '__BS__', _('Bootstrapping book reader...')).replace(
             '__SCRIPT__', iframe_script)

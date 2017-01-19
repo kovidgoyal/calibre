@@ -1,6 +1,6 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+from __python__ import hash_literals, bound_methods
 
 from ajax import ajax_send
 
@@ -55,8 +55,6 @@ def storage_available(which):
     except:
         return False
 
-session_storage = None
-
 class FakeStorage:
 
     def __init__(self):
@@ -74,17 +72,16 @@ class FakeStorage:
         self.data = {}
 
 def get_session_storage():
-    nonlocal session_storage
-    if session_storage is None:
+    if not get_session_storage.ans:
         if storage_available('localStorage'):
-            session_storage = window.localStorage
+            get_session_storage.ans = window.localStorage
         elif storage_available('sessionStorage'):
-            session_storage = window.sessionStorage
+            get_session_storage.ans = window.sessionStorage
             console.error('localStorage not available using sessionStorage instead')
         else:
-            session_storage = FakeStorage()
+            get_session_storage.ans = FakeStorage()
             console.error('sessionStorage and localStorage not available using a temp cache instead')
-    return session_storage
+    return get_session_storage.ans
 
 class SessionData:
 
@@ -130,10 +127,55 @@ class SessionData:
         self.overflow_storage = {}
         self.has_overflow = False
 
+
 def local_storage():
     if not local_storage.storage:
         local_storage.storage = SessionData('calibre-local-')
     return local_storage.storage
+
+default_interface_data = {
+    'username': None,
+    'output_format': 'EPUB',
+    'input_formats': {'EPUB', 'MOBI', 'AZW3'},
+    'gui_pubdate_display_format': 'MMM yyyy',
+    'gui_timestamp_display_format': 'dd MMM yyyy',
+    'gui_last_modified_display_format': 'dd MMM yyyy',
+    'use_roman_numerals_for_series_number': True,
+    'allow_console_print':False,
+}
+
+def get_interface_data():
+    if not get_interface_data.storage:
+        get_interface_data.storage = SessionData('calibre-interface-data-')
+    ans = get_interface_data.storage.get('current')
+    if ans:
+        ans.is_default = False
+    else:
+        ans = {'is_default': True}
+        for k in default_interface_data:
+            ans[k] = default_interface_data[k]
+    return ans
+
+
+def update_interface_data(new_data):
+    data = get_interface_data()
+    for k in default_interface_data:
+        nval = new_data[k]
+        if k is not undefined:
+            data[k] = nval
+    if not get_interface_data.storage:
+        get_interface_data.storage = SessionData('calibre-interface-data-')
+    get_interface_data.storage.set('current', data)
+
+
+def get_translations(newval):
+    if not get_translations.storage:
+        get_translations.storage = SessionData('calibre-translations-')
+    if newval:
+        get_translations.storage.set('current', newval)
+    else:
+        return get_translations.storage.get('current')
+
 
 class UserSessionData(SessionData):
 

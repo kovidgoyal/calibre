@@ -3,62 +3,11 @@
 from __python__ import hash_literals
 
 import initialize  # noqa: unused-import
-from ajax import ajax, set_allow_console_print
-from elementmaker import E
-from gettext import gettext as _, install
-from session import UserSessionData
-from utils import parse_url_params
+from ajax import ajax
 
-from book_list.boss import Boss
-from book_list.globals import set_session_data
+from book_list.globals import main_js
+from book_list.main import main
 from read_book.iframe import init
-
-def on_library_loaded(end_type, xhr, ev):
-    nonlocal main_js
-    p = document.getElementById('page_load_progress')
-    p.parentNode.removeChild(p)
-    if end_type is 'load':
-        interface_data = JSON.parse(xhr.responseText)
-        interface_data.main_js = main_js
-        set_allow_console_print(interface_data.allow_console_print)
-        main_js = None
-        script = document.getElementById('main_js')
-        if script:
-            script.parentNode.removeChild(script)  # Free up some memory
-        if interface_data.translations:
-            install(interface_data.translations)
-        sd = UserSessionData(interface_data.username, interface_data.user_session_data)
-        set_session_data(sd)
-        sd.set('library_id', interface_data.library_id)
-        Boss(interface_data)
-    else:
-        p = E.p(style='color:red; font-weight: bold; font-size:1.5em')
-        if xhr.status is 401:
-            p.innerHTML = _('You are not authorized to view this site')
-        else:
-            p.innerHTML = xhr.error_html
-        document.body.appendChild(p)
-
-def on_library_load_progress(loaded, total):
-    p = document.querySelector('#page_load_progress > progress')
-    p.max = total
-    p.value = loaded
-
-def load_book_list():
-    temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
-    query = {}
-    library_id = temp.get('library_id')
-    if library_id:
-        query.library_id = library_id
-        query.sort = temp.get_library_option(library_id, 'sort')
-    url_query = parse_url_params()
-    for key in url_query:
-        query[key] = url_query[key]
-    ajax('interface-data/init', on_library_loaded, on_library_load_progress, query=query).send()
-
-def on_load():
-    print('calibre loaded at:', Date().toString())
-    load_book_list()
 
 is_running_in_iframe = False  # Changed before script is loaded in the iframe
 
@@ -66,13 +15,13 @@ if is_running_in_iframe:
     init()
 else:
     script = document.currentScript or document.scripts[0]
-    main_js = script.textContent
+    main_js(script.textContent)
     script.parentNode.removeChild(script) # save some memory
     script = undefined
     # We wait for all page elements to load, since this is a single page app
     # with a largely empty starting document, we can use this to preload any resources
     # we know are going to be needed immediately.
-    window.addEventListener('load', on_load)
+    window.addEventListener('load', main)
 
     ajax('auto-reload', def(end_type, xhr, event):
         if end_type is 'load':
