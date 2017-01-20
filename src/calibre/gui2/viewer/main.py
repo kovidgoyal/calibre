@@ -987,7 +987,7 @@ class EbookViewer(MainWindow):
                 vh.remove(pathtoebook)
             except:
                 pass
-            vh.insert(0, pathtoebook)
+            vh.insert(0, os.path.abspath(pathtoebook))
             vprefs.set('viewer_open_history', vh[:50])
             self.build_recent_menu()
             self.view.set_book_data(self.iterator)
