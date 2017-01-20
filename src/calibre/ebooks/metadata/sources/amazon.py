@@ -1410,7 +1410,7 @@ if __name__ == '__main__':  # tests {{{
     ]  # }}}
 
     ca_tests = [  # {{{
-             (   # Paperback with series
+            (   # Paperback with series
                 {'identifiers':{'isbn':'9781623808747'}},
                 [title_test('Parting Shot', exact=True), authors_test(['Mary Calmes'])]
             ),
@@ -1434,8 +1434,7 @@ if __name__ == '__main__':  # tests {{{
         test_identify_plugin(Amazon.name, tests, modify_plugin=lambda
                 p:(setattr(p, 'testing_domain', domain), setattr(p, 'touched_fields', p.touched_fields - {'tags'})))
 
-    #do_test('com')
-    do_test('ca')
+    do_test('com')
     # do_test('de')
 
 # }}}

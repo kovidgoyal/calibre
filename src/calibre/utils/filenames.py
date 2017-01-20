@@ -525,6 +525,7 @@ def remove_dir_if_empty(path, ignore_metadata_caches=False):
             return
         raise
 
+
 if iswindows:
     # Python's expanduser is broken for non-ASCII usernames
     def expanduser(path):

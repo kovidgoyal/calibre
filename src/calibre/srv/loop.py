@@ -664,6 +664,7 @@ class EchoLine(Connection):  # {{{
             self.rbuf.seek(pos + sent)
 # }}}
 
+
 if __name__ == '__main__':
     s = ServerLoop(EchoLine)
     with HandleInterrupt(s.wakeup):
