@@ -7,9 +7,10 @@ import traceback
 from ajax import ajax, encode_query
 from elementmaker import E
 from gettext import gettext as _
-from book_list.globals import get_boss
 from modals import error_dialog
-from utils import human_readable
+from utils import human_readable, debounce
+
+from book_list.router import update_window_title
 from read_book.db import create_db
 from read_book.view import View
 
@@ -49,6 +50,7 @@ class ReadUI:
             id=self.display_id, style='display:none',
         ))
         self.view = View(container.lastChild, self)
+        window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
 
     def on_resize(self):
         self.view.on_resize()
@@ -134,7 +136,7 @@ class ReadUI:
         self.current_book_id = book_id
         metadata = metadata or self.interface_data.metadata[book_id]
         self.current_metadata = metadata or {'title':_('Book id #') + book_id}
-        get_boss().update_window_title()
+        update_window_title('', self.current_metadata.title)
         self.init_ui()
         if jstype(self.db) is 'string':
             self.show_error(_('Cannot read book'), self.db)

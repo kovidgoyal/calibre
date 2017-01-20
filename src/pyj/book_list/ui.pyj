@@ -3,6 +3,13 @@
 from __python__ import hash_literals
 
 import traceback
+from dom import ensure_id, clear
+from elementmaker import E
+from gettext import gettext as _
+from modals import error_dialog, ajax_progress_dialog
+from popups import install_event_filters
+
+from book_list.constants import book_list_container_id
 from book_list.globals import get_boss, get_session_data, get_current_query
 from book_list.search import SearchPanel
 from book_list.top_bar import TopBar
@@ -10,11 +17,6 @@ from book_list.views import BooksView
 from book_list.item_list import ItemsView, create_item
 from book_list.prefs import PrefsPanel
 from book_list.book_details import BookDetailsPanel
-from dom import ensure_id
-from elementmaker import E
-from gettext import gettext as _
-from modals import error_dialog, ajax_progress_dialog
-from popups import install_event_filters
 
 class BarState:
 
@@ -245,4 +247,25 @@ class UI:
             msg = xhr.error_html
             error_dialog(_('Could not change library'), msg)
 
+panel_handlers = {}
+default_panel_handler = None
 
+
+def set_panel_handler(panel, handler):
+    panel_handlers[panel] = handler
+
+
+def set_default_panel_handler(handler):
+    nonlocal default_panel_handler
+    default_panel_handler = handler
+
+
+
+def apply_url_state(state):
+    panel = state.panel or 'home'
+    c = document.getElementById(book_list_container_id)
+    if c.dataset.panel is panel:
+        return
+    clear(c)
+    c.appendChild(E.div()), c.appendChild(E.div(style='display:none'))
+    c.dataset.panel = panel

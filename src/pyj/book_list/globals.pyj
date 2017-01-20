@@ -2,17 +2,7 @@
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals
 
-boss = None
 session_data = None
-current_query = {}
-
-def get_boss():
-    return boss
-
-def set_boss(obj):
-    nonlocal boss
-    boss = obj
-    return boss
 
 def set_session_data(sd):
     nonlocal session_data
@@ -22,15 +12,12 @@ def set_session_data(sd):
 def get_session_data():
     return session_data
 
-def get_current_query():
-    return current_query
-
-def set_current_query(val):
-    nonlocal current_query
-    current_query = val
-
-
 def main_js(newval):
     if newval is not undefined:
         main_js.ans = newval
     return main_js.ans
+
+def get_current_query(newval):
+    if newval:
+        get_current_query.ans = newval
+    return get_current_query.ans

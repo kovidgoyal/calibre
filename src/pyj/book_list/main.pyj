@@ -13,6 +13,8 @@ from utils import parse_url_params
 
 from book_list.constants import book_list_container_id, read_book_container_id
 from book_list.theme import get_color
+from book_list.router import update_window_title, set_default_mode_handler
+from book_list.ui import apply_url_state as book_list_mode_handler
 
 
 def remove_initial_progress_bar():
@@ -34,6 +36,7 @@ def onerror(msg, script_url, line_number, column_number, error_object):
         console.log('There was an error in the unhandled exception handler')
 
 def init_ui():
+    set_default_mode_handler(book_list_mode_handler)
     window.onerror = onerror
     translations = get_translations()
     if translations:
@@ -41,10 +44,11 @@ def init_ui():
     remove_initial_progress_bar()
     document.head.appendChild(E.style(get_widget_css()))
     set_css(document.body, background_color=get_color('window-background'), color=get_color('window-foreground'))
-    document.body.appendChild(E.div(id='containers'))
+    document.body.appendChild(E.div())
     document.body.lastChild.appendChild(E.div(id=book_list_container_id, style='display: none'))
     document.body.lastChild.appendChild(E.div(id=read_book_container_id, style='display: none'))
     create_modal_container()
+    update_window_title()
 
 def on_data_loaded(end_type, xhr, ev):
     remove_initial_progress_bar()
