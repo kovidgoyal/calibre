@@ -9,16 +9,16 @@
 #   date: 2017-??-??
 #
 #   new features:
-#     - title: 
-#  
+#     - title:
+#
 #   bug fixes:
-#     - title: 
+#     - title:
 #
 #   improved recipes:
-#     - 
+#     -
 #
 #   new recipes:
-#     - title: 
+#     - title:
 
 - version: 2.77.0
   date: 2017-01-13
@@ -353,7 +353,7 @@
     - And many more, see commit logs for details
 
   new recipes:
-    - title: Various Danish news sources 
+    - title: Various Danish news sources
       author: Allan Simonsen
 
 - version: 2.69.0
@@ -395,7 +395,7 @@
     - El tribuno de Salta
 
   new recipes:
-    - title: Various Danish news sources 
+    - title: Various Danish news sources
       author: Allan Simonsen
 
 - version: 2.68.0
@@ -406,7 +406,7 @@
 
   bug fixes:
     - title: "Content server: Fix a regression in the previous release that broke the OPDS feeds for libraries with no custom columns"
-      tickets: [1621642] 
+      tickets: [1621642]
 
     - title: "Edit metadata dialog: Fix auto-generation/validation of author sort values not working when only changing case of the author name."
       tickets: [1623593]
@@ -498,7 +498,7 @@
     - title: "Kobo driver: Add support for firmware version 3.20"
 
   bug fixes:
-    - title: "DOCX Input: Fix right-to-left alignment not working for footnotes." 
+    - title: "DOCX Input: Fix right-to-left alignment not working for footnotes."
       tickets: [1617254]
 
     - title: "Sending email: Allow setting up a mail relay that uses encryption without a username and password."
@@ -519,7 +519,7 @@
     - title: "DOCX Input: Fix a regression in the previous release that could cause invalid values to be output for the text-align CSS property"
 
   new recipes:
-    - title: Contropiano 
+    - title: Contropiano
       author: michele
 
 - version: 2.65.1
@@ -533,7 +533,7 @@
     - title: "Add an option in Preferences->Searching to make searching case-sensitive"
 
     - title: "DOCX Input: Add support for right-to-left text/tables"
-      tickets: [1569771] 
+      tickets: [1569771]
 
   bug fixes:
     - title: "Fix some icons/images in the user interface looking blurred in environments with High DPI scaling enabled, such as OS X retina screens"
@@ -594,7 +594,7 @@
     - El Correo
 
   new recipes:
-    - title: Data News 
+    - title: Data News
       author: oCkz7bJ_
 
 - version: 2.63.0
@@ -671,7 +671,7 @@
     - The Skeptic
 
   new recipes:
-    - title: Various Russian news sources 
+    - title: Various Russian news sources
       author: bugmen00t
 
 - version: 2.61.0
@@ -691,7 +691,7 @@
     - title: "E-book viewer: Fix Qt 5.7 breaking mouse wheel scrolling"
 
     - title: "Kobo driver: Fix a regression in the last release that broke connecting to older devices"
-      tickets: [1596801] 
+      tickets: [1596801]
 
     - title: "Get Books: Fix detection of book formats broken for the Legimi plugin by a website change"
 
@@ -915,17 +915,17 @@
   improved recipes:
     - Forbes
     - Wall Street Journal
-    - Berliner Zeitung 
+    - Berliner Zeitung
     - Tagesspiegel
     - TIME
     - Foreign Affairs
     - New Yorker
 
   new recipes:
-    - title: "1843" 
+    - title: "1843"
       author: Kovid Goyal
 
-    - title: Berlin Policy Journal 
+    - title: Berlin Policy Journal
       author: Aimylios
 
 - version: 2.55.0
@@ -982,7 +982,7 @@
     - Newsweek
 
   new recipes:
-    - title: Kitekinto 
+    - title: Kitekinto
       author: pofa
 
 - version: 2.54.0
@@ -1054,7 +1054,7 @@
       tickets: [1552972]
 
     - title: "Fix keyboard focus lost after merging book records"
-      tickets: [1550520] 
+      tickets: [1550520]
 
     - title: "E-book viewer: Handle <![CDATA[ escapes correctly."
       tickets: [1550966]
@@ -1101,7 +1101,7 @@
     - New York Times Book Review
 
   new recipes:
-    - title: Al-Masry Alyoum 
+    - title: Al-Masry Alyoum
       author: Hassan Williamson
 
 - version: 2.51.0
@@ -1150,7 +1150,7 @@
       tickets: [1526663]
 
     - title: "Update PocketBook 650 driver for latest firmware revision"
-      tickets: [1535801] 
+      tickets: [1535801]
 
   bug fixes:
     - title: "DOCX Input: Fix empty paragraphs with borders being rendered with an empty line inside the borders"
@@ -1224,7 +1224,7 @@
     - Tagesanzeiger
 
   new recipes:
-    - title: LaRed21 
+    - title: LaRed21
       author: Carlos Alves
 
 - version: 2.48.0
@@ -1425,14 +1425,14 @@
       tickets: [1513318]
 
     - title: "Tag mapper: Prevent cycles in the replacement rules from causing the tag mapper to hang"
-      tickets: [1513330] 
+      tickets: [1513330]
 
     - title: "Do not fail on windows systems where the system function to get the users home folder fails"
 
     - title: "E-book viewer: Set the foreground color as well as the background color for the reference mode popup. Makes it legible even when the user specifies a different color theme for the viewer."
 
   new recipes:
-    - title: La Politica Online 
+    - title: La Politica Online
       author: Darko Miletic
 
 - version: 2.42.0
@@ -1549,13 +1549,13 @@
       type: major
 
     - title: "Kobo driver: Support for newly firmware version 3.18"
-      tickets: [1499340] 
+      tickets: [1499340]
 
     - title: "Edit Book: Add a setting to control icon size for the toolbars (Preferences->Toolbars)"
 
   bug fixes:
     - title: "Edit Book: Check Book: Fix automatic correction of missing unique id sometimes not working"
-      tickets: [1498207] 
+      tickets: [1498207]
 
     - title: "Edit Book: Fix (hopefully) View->Browse images in books sometimes not showing changed images"
 
@@ -1579,10 +1579,10 @@
     - Trouw
 
   new recipes:
-    - title: Various Korean news sources 
+    - title: Various Korean news sources
       author: Hoje Lee
 
-    - title: Presseportal DE 
+    - title: Presseportal DE
       author: Volker Heggemann
 
 - version: 2.38.0
@@ -1607,12 +1607,12 @@
 
   improved recipes:
     - Strategy+Business
-    - Ars Technica 
+    - Ars Technica
     - National Geographic
     - New York Times Technology Beat
 
   new recipes:
-    - title: Karsi Gazete 
+    - title: Karsi Gazete
       author: Voltran
 
 - version: 2.37.1
@@ -1699,7 +1699,7 @@
 
   new features:
     - title: "Kobo driver: Add support for the new firmware version 3.17"
-      tickets: [1484516] 
+      tickets: [1484516]
 
     - title: "E-book viewer: Allow setting the number of pages per screen separately for portrait and landscape modes."
       tickets: [1483313]
@@ -1720,7 +1720,7 @@
     - South China Morning Post
 
   new recipes:
-    - title: 3D News and iXBT.com 
+    - title: 3D News and iXBT.com
       author: bugmen00t
 
 - version: 2.34.0
@@ -1803,7 +1803,7 @@
       tickets: [1467129]
 
     - title: "Linux: Various fixes to make calibre work when compiled against the latest versions of Qt and PyQt"
-      tickets: [1471083] 
+      tickets: [1471083]
 
     - title: "Edit Book: Allow drag and drop of files onto dock icon on OS X"
 
@@ -1838,7 +1838,7 @@
       tickets: [1469554]
 
     - title: "Fix corrupted text in the jobs list on some non-English windows installs"
-      tickets: [1469549] 
+      tickets: [1469549]
 
     - title: "Edit Book: Workaround for a Qt regression that caused 'See what changed' after a search and replace on OS X causing the application to become unresponsive."
       tickets: [1466732]
@@ -1861,9 +1861,9 @@
     - Metro UK
 
   new recipes:
-    - title: Slate Star Codex 
+    - title: Slate Star Codex
       author: Ned Letcher
-    - title: Hurriyet 
+    - title: Hurriyet
       author: Adrian Tennessee
 
 - version: 2.31.0
@@ -1905,7 +1905,7 @@
     - Sydney Morning Herald
 
   new recipes:
-    - title: Various Ukranian news sources 
+    - title: Various Ukranian news sources
       author: rpalyvoda
 
 - version: 2.30.0
@@ -2019,7 +2019,7 @@
       tickets: [1449105]
 
     - title: "DOCX Input: Add option to not insert page breaks between endnotes."
-      tickets: [1448433] 
+      tickets: [1448433]
 
     - title: "calibredb list: Allow outputting the book languages as well."
       tickets: [1445853]
@@ -2027,7 +2027,7 @@
     - title: "Italian translation of Quick Start Guide"
 
     - title: "Embed metadata: When embedding metadata fails for some books, add an option to show the failed books in the book list"
-      tickets: [1449076] 
+      tickets: [1449076]
 
     - title: "Animate the main toolbar when a device is connected/disconnected, to indicate that the contents of the toolbar have changed"
 
@@ -2076,7 +2076,7 @@
     - CNN
 
   new recipes:
-    - title: Discover Magazine Monthly 
+    - title: Discover Magazine Monthly
       author: Michael Marotta
 
 - version: 2.25.0
@@ -2122,10 +2122,10 @@
     - Arcamax
 
   new recipes:
-    - title: MIT Technology Review Magazine 
+    - title: MIT Technology Review Magazine
       author: Michael Marotta
 
-    - title: The Codeless Code 
+    - title: The Codeless Code
       author: April King
 
 - version: 2.24.0
@@ -2171,7 +2171,7 @@
     - United Daily
     - Liberty Times
     - Apple Daily
-    - China Times 
+    - China Times
     - House News
     - Providence Journal
     - Harvard Business Review
@@ -2318,7 +2318,7 @@
     - The Daily Mirror
 
   new recipes:
-    - title: Pando Daily 
+    - title: Pando Daily
       author: Darko Miletic
 
 - version: 2.20.0
@@ -2460,13 +2460,13 @@
     - The AJC
 
   new recipes:
-    - title: TheAtlantic.com 
+    - title: TheAtlantic.com
       author: ebrandon
 
-    - title: The Conversation 
+    - title: The Conversation
       author: Krittika Goyal
 
-    - title: Apple Daily (TW) 
+    - title: Apple Daily (TW)
       author: Yulun Shih
 
 - version: 2.16.0
@@ -2498,7 +2498,7 @@
     - Sueddeutsche Zeitung
 
   new recipes:
-    - title: Ajans Firat and Edebiyat Haber 
+    - title: Ajans Firat and Edebiyat Haber
       author: asalet_r
 
 - version: 2.15.0
@@ -2577,10 +2577,10 @@
     - Nikkei News
 
   new recipes:
-    - title: OSEL.cz 
+    - title: OSEL.cz
       author: spacekpe
 
-    - title: Courier Mail 
+    - title: Courier Mail
       author: Krittika Goyal
 
 - version: 2.13.0
@@ -2616,12 +2616,12 @@
       tickets: [1402152]
 
     - title: "Kobo driver: Fix bookmarks not being deleted from device when deleting books on the device"
-      tickets: [1401502] 
+      tickets: [1401502]
 
     - title: "Edit book: Fix auto-complete of closing tag not working when typing the closing tag at just before a word (the word would become the closing tag name)."
 
     - title: "calibredb: Fix list --for-machine ignoring custom columns"
-      tickets: [1401085] 
+      tickets: [1401085]
 
     - title: "Edit book/Book polishing: Fix subsetting of fonts whose @font-face rules use the local() or format() CSS functions not working"
 
@@ -2711,7 +2711,7 @@
   improved recipes:
     - Nikkei News
 
-     
+
 - version: 2.10.0
   date: 2014-11-14
 
@@ -2734,7 +2734,7 @@
     - title: "E-book viewer: Fix popup footnotes not working on windows"
 
     - title: "Fix saving of searches that use the backslash to escape special characters not working"
-      tickets: [1392052] 
+      tickets: [1392052]
 
     - title: "Save to disk: When multiple books end up with the same file name because they have the same metadata, automatically adjust the filename to make it unique."
       tickets: [863472]
@@ -2761,10 +2761,10 @@
     - Ming Pao
 
   new recipes:
-    - title: Various German news sources 
+    - title: Various German news sources
       author: Bernd Boehm
 
-    - title: The Daily WTF 
+    - title: The Daily WTF
       author: Jelle van der Waa
 
 - version: 2.9.0
@@ -2863,7 +2863,7 @@
     - title: "Support for the new Kindle Voyage"
 
     - title: "The notification for the completion of background jobs, such as bulk metadata download, has been redesigned to not interrupt your work. It now waits in the lower right corner of the main window until you are ready to deal with it"
-      tickets: [1382795] 
+      tickets: [1382795]
 
     - title: "Insert metadata as jacket page: Make the invisible tags used for searching across books format better, by giving them their own table row."
 
@@ -2963,7 +2963,7 @@
     - title: 'Edit Book: Spell Check: Fix replaced words coming back into the list when toggling the "Show only misspelled words" setting'
 
     - title: 'Edit Book: Spell Check: Fix replacing a word with multiple words causing the replacements to show up erroneously in the list of misspelled words'
-      tickets: [1370294] 
+      tickets: [1370294]
 
     - title: 'Edit Book: Fix leading or trailing hyphens on words being ignored when spell checking.'
       tickets: [1370288]
@@ -2982,7 +2982,7 @@
       tickets: [1374243]
 
     - title: 'Custom cover generation: Fix disabled color schemes not being saved'
-      tickets: [1374337] 
+      tickets: [1374337]
 
     - title: 'Wireless device driver: Fix a regression in 2.4 that caused book matching to run slowly when connecting to calibre companion'
 
@@ -3044,13 +3044,13 @@
     - High Country News
 
   new recipes:
-    - title: Hurriyet Daily News and Al Monitor 
+    - title: Hurriyet Daily News and Al Monitor
       author: spswerling
 
-    - title: VICE News 
+    - title: VICE News
       author: Adrian Tennessee
 
-    - title: Jagran Josh 
+    - title: Jagran Josh
       author: Krittika Goyal
 
 - version: 2.3.0
@@ -3126,7 +3126,7 @@
       tickets: [1363666]
 
     - title: "Workaround for Qt 5 on windows bug that makes the selected indication for items in any list/table disappear when the widget loses focus"
-      tickets: [1363420] 
+      tickets: [1363420]
 
     - title: "Fix regression in 2.1 that prevented the saved column layout from being applied."
       tickets: [1363470]
@@ -3151,7 +3151,7 @@
     - cracked.com
 
   new recipes:
-    - title: The Hollywood Reporter 
+    - title: The Hollywood Reporter
       author: Darko Miletic
 
 - version: 2.1.0
@@ -3268,7 +3268,7 @@
     - title: "Conversion: Fix the word @page in a comment inside a stylesheet with no following {} causing the rest of the stylesheet to be ignored."
 
     - title: "Fix comparing AZW3 to ORIGINAL_AZW3 from the book details panel not working"
-      tickets: [1354624] 
+      tickets: [1354624]
 
   improved recipes:
     - TIME Magazine
@@ -3280,12 +3280,12 @@
     - Orange County Register
 
   new recipes:
-    - title: General Knowledge Today 
+    - title: General Knowledge Today
       author: Kanika G
 
-    - title: BBC Arabic 
+    - title: BBC Arabic
       author: logophile777
-     
+
 - version: 1.48.0
   date: 2014-08-08
 
@@ -3347,7 +3347,7 @@
       tickets: [1349548]
 
     - title: "Edit Book: Allow customizing the templates used when creating new, blank HTML/CSS files via Preferences->Editor settings."
-      tickets: [1348986] 
+      tickets: [1348986]
 
     - title: "Comic Input: When sorting the pages inside a comic, recognize numbers, so that page2 sorts before page10"
 
@@ -3386,7 +3386,7 @@
     - New Yorker
 
   new recipes:
-    - title: 
+    - title:
 
 - version: 1.46.0
   date: 2014-07-25
@@ -3418,7 +3418,7 @@
     - title: "Fix published date not being merged when merging book records"
 
     - title: "Embed metadata tool: Fix error when trying to embed metadata in corrupted MOBI files or files of other types that are marked as MOBI in the library"
-      tickets: [1348054] 
+      tickets: [1348054]
 
     - title: "Edit Book: Make the warning dialog that pops up when you try to quit while the editor is saving changes in the background a little more clear."
       tickets: [1347171]
@@ -3434,7 +3434,7 @@
   improved recipes:
     - Grandes corresponsales
     - Times of India
-    - Economic Times of India 
+    - Economic Times of India
 
 
 - version: 1.45.0
@@ -3472,7 +3472,7 @@
     - title: "Edit metadata dialog: Do not auto change the title sort field when clicking OK if the title was changed. Instead the title sort field must be changed explicitly."
 
     - title: "Linux binary installer: Fix regression that caused ZSH completion to not be installed"
-      tickets: [1341240] 
+      tickets: [1341240]
 
     - title: "Edit Book: Spell check: When suggesting alternative for a hyphenated word, ensure the first suggestion is the word formed by removing the hyphen, if that is a valid word"
 
@@ -3529,7 +3529,7 @@
     - title: "Edit Book: When using the spell check dialog to change words, detect any changes made to open files outside the spell check dialog and automatically integrate them, to prevent those changes from being lost."
 
     - title: "Update driver for Tolino Shine to handle new firmware"
-      tickets: [1338219] 
+      tickets: [1338219]
 
     - title: "Book polishing: When changing the cover in an EPUB file, place the newly created cover image in the same folder as other images in the book, rather than the root"
 
@@ -3565,12 +3565,12 @@
     - title: "Edit Book: Fix a crash when performing some image editing operations on 64 bit calibre builds"
 
     - title: "Recognize additional leading articles in the titles of Italian language books"
-      tickets: [1332837] 
+      tickets: [1332837]
 
     - title: "Edit Book: Fix an occasional spurious error message when using the Live CSS feature"
 
   new recipes:
-    - title: Dark Reading 
+    - title: Dark Reading
       author: Brandon Allberry
 
 - version: 1.42.0
@@ -3608,7 +3608,7 @@
     - Deadspin
 
   new recipes:
-    - title: Economic and Political Weekly 
+    - title: Economic and Political Weekly
       author: Krittika Goyal
 
 - version: 1.41.0
@@ -3811,7 +3811,7 @@
       tickets: [1318139]
 
   improved recipes:
-    - Wall Street Journal 
+    - Wall Street Journal
 
 - version: 1.36.0
   date: 2014-05-09
@@ -3832,7 +3832,7 @@
 
     - title: "Edit book: Allow copying the list of errors from the Check Book tool to the clipboard by right clicking on the list of errors"
 
-    - title: "Book polishing: If the books being polished have an ORIGINAL_EPUB/AZW3 format, warn the user that polishing will use it as the source and ask for confirmation." 
+    - title: "Book polishing: If the books being polished have an ORIGINAL_EPUB/AZW3 format, warn the user that polishing will use it as the source and ask for confirmation."
       tickets: [1316158]
 
   bug fixes:
@@ -3884,7 +3884,7 @@
       tickets: [1314009]
 
     - title: "Fix regression that prevented the ebook editor from starting on linux systems with locale set to 'C'"
-      tickets: [1315064] 
+      tickets: [1315064]
 
     - title: "DOCX Input: Fix formatting of the generated Index when the index is complex, i.e. with lots of references to the same item, multiple level of sub-items, etc."
 
@@ -3975,7 +3975,7 @@
     - title: "Searching: Fix searching by date not using the system locale to interpret dd/mm vs mm/dd dates on windows"
 
   improved recipes:
-    - Barrons 
+    - Barrons
     - Creative Blog
 
   new recipes:
@@ -4000,7 +4000,7 @@
     - title: "Edit Book: Fix book being marked as modified even when no actual changes were done by various automated tools such as Smarten Punctuation, Subset Fonts, etc."
 
     - title: "Fix ebook-device cp -f failing when destination file already exists"
-      tickets: [1303181] 
+      tickets: [1303181]
 
     - title: "Ensure that the rendered dates in the book list and edit metadata dialogs are always in the same language as the calibre interface, regardless of system language setting"
 
@@ -4065,7 +4065,7 @@
     - Antyweb
 
   new recipes:
-    - title: 
+    - title:
 
 - version: 1.30.0
   date: 2014-03-28
@@ -4102,7 +4102,7 @@
       tickets: [1298071]
 
     - title: "Edit Book: When beautifying treat <img> tags as block tags"
-      tickets: [1297532] 
+      tickets: [1297532]
 
     - title: "Linux binary build: Fix worker processes not working on linux systems with bash >= 4.3"
 
@@ -4152,7 +4152,7 @@
       tickets: [1292841]
 
     - title: "Catalogs: Fix handling of tristate boolean custom columns when creating EPUB/MOBI catalogs."
-      tickets: [1294983] 
+      tickets: [1294983]
 
     - title: "Linux build: Workaround for systems that have broken libc implementations that change the behavior of truncate() on file descriptors with O_APPEND set."
       tickets: [1295366]
@@ -4162,7 +4162,7 @@
     - Wired Daily Edition
 
   new recipes:
-    - title: Applefobia 
+    - title: Applefobia
       author: koliberek
 
 - version: 1.28.0
@@ -4247,7 +4247,7 @@
 
   improved recipes:
     - American Thinker
-    - HNA 
+    - HNA
     - Heise
     - Arguments and Facts
     - Financial Times
@@ -4259,7 +4259,7 @@
     - title: "Edit Book: Allow direct importing of HTML or DOCX files as new books without doing a full conversion. Use File->Import HTML or DOCX to import a file as a new EPUB book with minimal changes from the original."
 
     - title: "Linux binary installer: Various improvements to the binary installer. It now creates an un-installer (calibre-uninstall) that will remove all files created by the installer. It also no longer asks for the installation directory. If you wish to change that, you need to specify it in the installation command itself. Also the installer is now downloaded securely via HTTPS from github and verifies the signature of the installed files. Finally, it can be used to create an isolated install, that only makes changes to files in the installation directory and does not require root privileges."
-      tickets: [1283154] 
+      tickets: [1283154]
 
     - title: "Metadata download: Add an option to merge the downloaded comments into existing comments, instead of overwriting (Preferences->Metadata download)."
       tickets: [1285319]
@@ -4362,7 +4362,7 @@
     - Mac World UK
 
   new recipes:
-    - title: 
+    - title:
 
 - version: 1.24.0
   date: 2014-02-14
@@ -4409,7 +4409,7 @@
 
   improved recipes:
     - Associated Press
-    - NRC Handelsblad 
+    - NRC Handelsblad
     - Cumhuriyet Yazarlar
     - ABC (es)
 
@@ -4485,10 +4485,10 @@
     - New York Times Book Review
 
   new recipes:
-    - title: Disinformatico 
+    - title: Disinformatico
       author: isspro
 
-    - title: Les Echos 
+    - title: Les Echos
       author: Krittika Goyal
 
 - version: 1.22.0
@@ -4554,7 +4554,7 @@
       tickets: [1272089]
 
   new recipes:
-    - title: Various Russian News sources 
+    - title: Various Russian News sources
       author: bug_me_not
 
 - version: 1.21.0
@@ -4689,7 +4689,7 @@
       tickets: [1265175]
 
     - title: "Cybook Orizon driver: Upload cover thumbnails in the correct format and add an option to control what directory books are sent to on the SD card"
-      tickets: [1265225] 
+      tickets: [1265225]
 
     - title: "Portable installer: Do not ask the user for confirmation when upgrading an existing installation during an automated install"
 
@@ -4736,7 +4736,7 @@
     - Neue Osnabrucker Zeitung
 
   new recipes:
-    - title: Nan Feng Chuang 
+    - title: Nan Feng Chuang
       author: Chen Wei
 
 - version: 1.17.0
@@ -4787,7 +4787,7 @@
       tickets: [1263021]
 
   new recipes:
-    - title: Birmingham Evening Mail 
+    - title: Birmingham Evening Mail
       author: Dave Asbury
 
 - version: 1.16.0
@@ -4851,7 +4851,7 @@
 
     - title: "Driver for Onyx Boox C65."
       tickets: [1259914]
- 
+
   bug fixes:
     - title: "Kobo driver: Fix book covers not showing for sideloaded kepubs on the book details screen, with newer Kobo firmware."
       tickets: [1260279]
@@ -4884,7 +4884,7 @@
       tickets: [1257972, 1257143]
 
     - title: "Allow viewer plugins to customize the viewer's user interface"
- 
+
   bug fixes:
     - title: "Table of Contents Editor: Handle generating ToC from headings if the first heading level in the document is not h1 or the document skips some intermediate heading levels"
 
@@ -4948,7 +4948,7 @@ and selecting 'Edit authors'."
     - title: "Metadata download dialog: Fix current cover not copyable to clipboard"
 
     - title: "Fix an incorrect translation of the language 'Polish'"
-      tickets: [1254161] 
+      tickets: [1254161]
 
   improved recipes:
     - Economist
@@ -4969,7 +4969,7 @@ and selecting 'Edit authors'."
 
     - title: "Allow right clicking on covers to copy them in the metadata cover download dialog."
       tickets: [1251793]
- 
+
   bug fixes:
     - title: "Titlecase: Fix incorrect title casing for some non-English words."
       tickets: [1253692]
@@ -5023,7 +5023,7 @@ and selecting 'Edit authors'."
     - title: "Wireless driver: Remove old non-streaming networking code. Apps that still use it must be updated. A message will popup notifying the user of the need to update if such an app is encountered."
 
     - title: "Linux: Add an option to cause calibre to detach from its controlling terminal (--detach)"
- 
+
   bug fixes:
     - title: "DOCX Input: Fix page-breaks created as a page break inside an otherwise empty paragraph not being rendered on conversion to PDF."
       tickets: [1249502]
@@ -5044,7 +5044,7 @@ and selecting 'Edit authors'."
     - El Mundo
 
   new recipes:
-    - title: ARG Noticias 
+    - title: ARG Noticias
       author: Darko Miletic
 
 - version: 1.10.0
@@ -5058,7 +5058,7 @@ and selecting 'Edit authors'."
       tickets: [1246710]
 
     - title: "Quickview: Add a checkbox to lock the quickview window so that it does not change while moving around in the main book list"
- 
+
   bug fixes:
     - title: "Fix number of marked books shown in the drop down menu of the Mark Books action not being updated when marked books are deleted (as opposed to being unmarked)."
       tickets: [1248506]
@@ -5105,7 +5105,7 @@ and selecting 'Edit authors'."
       tickets: [1245076]
 
     - title: "PDF metadata: If one of the keywords in the PDF is a valid ISBN, use it as the ISBN for the book"
- 
+
   bug fixes:
     - title: "Amazon metadata download: Fix spurious ratings being returned for unrated books."
       tickets: [1245449]
@@ -5151,7 +5151,7 @@ and selecting 'Edit authors'."
     - title: "When automerging books during during an add, include the author as well as the title in the report of merged books."
 
     - title: "OS X Mavericks (10.9) breaks connecting to iTunes and iBooks on iOS devices. For more details see: http://www.mobileread.com/forums/showthread.php?t=215624"
- 
+
   bug fixes:
     - title: "OS X: Fix system tray notifications causing crashes on some OS X 10.9 (Mavericks) systems (those that had Growl installed at some point)."
       tickets: [1224491]
@@ -5207,7 +5207,7 @@ and selecting 'Edit authors'."
 
     - title: "An option to mark newly added books with a temporary mark. Option is in Preferences->Adding books."
       tickets: [1238609]
- 
+
     - title: "Edit metadata dialog: Allow turning off the cover size displayed in the bottom right corner of the cover by right clicking the cover and choosing 'Hide cover size'. It can be restored the same way."
 
   bug fixes:
@@ -5232,7 +5232,7 @@ and selecting 'Edit authors'."
       tickets: [1239527]
 
     - title: "HTMLZ Output: Fix incorrect handling of some self closing tags like <br>."
-      tickets: [1239555] 
+      tickets: [1239555]
 
     - title: "Content server: Fix single item categories not working with reverse proxy setup."
       tickets: [1238987]
@@ -5293,7 +5293,7 @@ and selecting 'Edit authors'."
       tickets: [1233711]
 
     - title: "ebook-meta: Add an --identifier option to set identifiers."
- 
+
   bug fixes:
     - title: "Fix a locking error when composite columns containing formats are used and formats are added/deleted."
       tickets: [1233330]
@@ -5332,14 +5332,14 @@ and selecting 'Edit authors'."
     - New York Review of Books
     - Focus (PL)
     - Carta Capital
-    - AM 730 
+    - AM 730
     - Ming Pao (HK)
     - Neu Osnabrucker Zeitung
 
   new recipes:
-    - title: Various Uruguayan news sources 
+    - title: Various Uruguayan news sources
       author: Carlos Alves
-     
+
 - version: 1.5.0
   date: 2013-09-26
 
@@ -5349,7 +5349,7 @@ and selecting 'Edit authors'."
 
     - title: "Bulk metadata edit: Allow setting the comments for all selected books and also allow cloning the covers. Cloning covers means that the cover of the first selected book will be set for all other selected books."
       tickets: [1230040]
- 
+
   bug fixes:
     - title: "Windows: Improved device ejection code. Eject individual drives before trying to eject the device. This fixes incomplete ejection with the Nook devices."
 
@@ -5381,7 +5381,7 @@ and selecting 'Edit authors'."
     - GoComics
 
   new recipes:
-    - title: 
+    - title:
 
 - version: 1.4.0
   date: 2013-09-20
@@ -5393,7 +5393,7 @@ and selecting 'Edit authors'."
     - title: "Kobo driver: Add support for new cover handling in Kobo Aura with updated firmware"
 
     - title: "Driver for Icarus Essence"
-      tickets: [1226304] 
+      tickets: [1226304]
 
     - title: "Show a warning when attempting to copy books between libraries that do not have the same set of custom columns."
       tickets: [1225484]
@@ -5410,7 +5410,7 @@ and selecting 'Edit authors'."
 
     - title: "DOCX Input: Add support for embedded EMF images that are just wrappers around an actual raster image."
       tickets: [1224849]
- 
+
   bug fixes:
     - title: "Conversion: Fix font subsetting not working for large fonts with more than 4000 glyphs, such as CJK fonts"
 
@@ -5442,10 +5442,10 @@ and selecting 'Edit authors'."
     - Politika
 
   new recipes:
-    - title: Sage News 
+    - title: Sage News
       author: Brian Hahn
 
-    - title: Il Cambiamento 
+    - title: Il Cambiamento
       author: ghib9
 
 - version: 1.3.0
@@ -5457,7 +5457,7 @@ and selecting 'Edit authors'."
 
     - title: "Drivers for Oppo Find 5 and PocketBook Mini 515"
       tickets: [1223853]
- 
+
   bug fixes:
     - title: "DOCX Input: Handle numbered paragraphs where the numbering is specified in the paragraph style, instead of on the paragraph directly. Also support the use of arbitrary, styled text for bullets."
 
@@ -5483,11 +5483,11 @@ and selecting 'Edit authors'."
       tickets: [1221552]
 
     - title: "New database backend: Handle databases that contain multiple tags/series/publishers/etc. that differ only in case."
-      tickets: [1221545] 
+      tickets: [1221545]
 
   improved recipes:
     - Harvard Business Review
-    - Jakarta Post 
+    - Jakarta Post
     - Jakarta Globe
     - Dilema Veche
     - Daily Express
@@ -5498,9 +5498,9 @@ and selecting 'Edit authors'."
     - title: Caravan Magazine
       author: Kovid Goyal
 
-    - title: Phys Org 
+    - title: Phys Org
       author: Krittika Goyal
-     
+
 - version: 1.2.0
   date: 2013-09-06
 
@@ -5514,7 +5514,7 @@ and selecting 'Edit authors'."
 
     - title: "Edit metadata dialog: Add an undo option for the Trim cover button."
       tickets: [1219227]
- 
+
   bug fixes:
     - title: "Amazon metadata download: Update to handle website changes at amazon.com"
 
@@ -5535,7 +5535,7 @@ and selecting 'Edit authors'."
     - title: "Output dates in the local timezone instead of UTC when generating CSV catalogs"
 
     - title: "Library maintenance: When doing a check library instead of dumping the database to SQL and restoring it, run a VACUUM. This works around various bugs in the dump and restore capabilities of apsw."
-      tickets: [1217988] 
+      tickets: [1217988]
 
     - title: "Edit metadata dialog: Fix adding an image to an empty comments block not working"
 
@@ -5561,7 +5561,7 @@ and selecting 'Edit authors'."
       tickets: [1216714]
 
     - title: "PocketBook driver: Scan for books files in the entire device not just in the 'books' folder"
- 
+
   bug fixes:
     - title: "Fix a regression in 1.0 that could cause the dates in custom date-type columns to change in some timezones when using the edit metadata dialog to make unrelated changes."
       tickets: [1217096]
@@ -5622,7 +5622,7 @@ and selecting 'Edit authors'."
     - Daily Mirror
 
   new recipes:
-    - title: VFR Magazine 
+    - title: VFR Magazine
       author: Krittika Goyal
 
 - version: 1.0.0
@@ -5644,7 +5644,7 @@ and selecting 'Edit authors'."
       tickets: [1213599]
 
     - title: "Content server: Make virtual libraries available as searches from the start page. They work just like saved searches, clicking on a virtual library will show you all the books in that virtual library."
- 
+
   bug fixes:
     - title: "Remove extra, useless 'language' entry in metadata download configuration dialog"
 
