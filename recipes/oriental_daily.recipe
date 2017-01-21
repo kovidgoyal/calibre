@@ -25,7 +25,7 @@ class OrientalDaily(BasicNewsRecipe):
     conversion_options = {
         'comments': description, 'tags': category, 'language': language, 'publisher': publisher, 'linearize_tables': True
     }
-
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/4/4f/Orisun.JPG'
     remove_tags_after = dict(id='bottomNavCTN')
 
     keep_only_tags = [
