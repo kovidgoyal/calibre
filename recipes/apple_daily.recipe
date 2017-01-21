@@ -116,6 +116,8 @@ class AppleDaily(BasicNewsRecipe):
         soup = self.index_to_soup(url)
         ul = soup.find(attrs={'class': 'list'})
         current_articles = []
+        if ul is None :
+            return current_articles
         for li in ul.findAll('li'):
             a = li.find('a', href=True)
             title = li.find('p', text=True).strip()
