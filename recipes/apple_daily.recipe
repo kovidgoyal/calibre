@@ -9,6 +9,7 @@ from calibre.utils.date import now as nowf
 import os
 import datetime
 import re
+import time
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -33,7 +34,7 @@ class AppleDaily(BasicNewsRecipe):
     no_stylesheets = True
     description = 'http://hkm.appledaily.com/'
     category = 'Chinese, News, Hong Kong'
-    masthead_url = 'http://upload.wikimedia.org/wikipedia/zh/c/cf/AppleDailyLogo1.png'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/zh/thumb/5/52/Apple_Daily_logo.svg/569px-Apple_Daily_logo.svg.png'
 
     extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} h1 {font-size:200%; text-align:left; font-weight:bold;} p[class=video-caption] {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
     keep_only_tags = [dict(name='div', attrs={'id': 'content-article'})]
@@ -104,9 +105,19 @@ class AppleDaily(BasicNewsRecipe):
             relativea = li.find('a', href=True).get('href', False)
             a = 'http://hkm.appledaily.com/' + relativea
             title = li.find('a', text=True).strip()
+            if (time.tzname != 'HKT'):
+                if (title == u'三藩市'):
+                    continue
+                if (title == u'洛杉磯'):
+                    continue
+                if (title == u'紐&nbsp; 約'):
+                    continue
+                if (title == u'美&nbsp; 國'):
+                    continue
             if (not title == u'動新聞') and (relativea.startswith('list.php')):
                 sectionList.append((title, a))
         for title, url in sectionList:
+            title = title.replace("&nbsp;", "")
             articles = self.parse_section(url)
             if articles:
                 feeds.append((title, articles))
@@ -116,6 +127,8 @@ class AppleDaily(BasicNewsRecipe):
         soup = self.index_to_soup(url)
         ul = soup.find(attrs={'class': 'list'})
         current_articles = []
+        if ul is None :
+            return current_articles
         for li in ul.findAll('li'):
             a = li.find('a', href=True)
             title = li.find('p', text=True).strip()
