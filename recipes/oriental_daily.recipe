@@ -42,4 +42,6 @@ class OrientalDaily(BasicNewsRecipe):
 
     remove_attributes = ['width', 'height', 'href']
 
+    summary_length = 0
+
     feeds = [(u'Oriental Daily', u'http://orientaldaily.on.cc/rss/news.xml')]
