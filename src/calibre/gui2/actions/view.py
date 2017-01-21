@@ -40,6 +40,7 @@ class ViewAction(InterfaceAction):
     action_type = 'current'
     action_add_menu = True
     action_menu_clone_qaction = True
+    force_internal_viewer = False
 
     def genesis(self):
         self.persistent_files = []
@@ -49,6 +50,7 @@ class ViewAction(InterfaceAction):
         cm = partial(self.create_menu_action, self.view_menu)
         self.view_specific_action = cm('specific', _('View specific format'),
                 shortcut='Alt+V', triggered=self.view_specific_format)
+        self.internal_view_action = cm('internal', _('View with calibre viewer'), triggered=self.view_internal)
         self.action_pick_random = cm('pick random', _('Read a random book'),
                 icon='random.png', triggered=self.view_random)
         self.clear_sep1 = self.view_menu.addSeparator()
@@ -149,7 +151,7 @@ class ViewAction(InterfaceAction):
         ext = os.path.splitext(name)[1].upper().replace('.',
                 '').replace('ORIGINAL_', '')
         viewer = 'lrfviewer' if ext == 'LRF' else 'ebook-viewer'
-        internal = ext in config['internally_viewed_formats']
+        internal = self.force_internal_viewer or ext in config['internally_viewed_formats']
         self._launch_viewer(name, viewer, internal)
 
     def view_specific_format(self, triggered):
@@ -230,6 +232,13 @@ class ViewAction(InterfaceAction):
     def view_book(self, triggered):
         rows = self.gui.current_view().selectionModel().selectedRows()
         self._view_books(rows)
+
+    def view_internal(self, triggered):
+        try:
+            self.force_internal_viewer = True
+            self.view_book(triggered)
+        finally:
+            self.force_internal_viewer = False
 
     def view_triggered(self, index):
         self._view_books([index])
@@ -313,4 +322,3 @@ class ViewAction(InterfaceAction):
             paths = self.gui.current_view().model().paths(rows)
             for path in paths:
                 self.view_device_book(path)
-
