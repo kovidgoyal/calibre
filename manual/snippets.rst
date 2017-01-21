@@ -40,7 +40,7 @@ Inserting filler text [Lorem]
 
 The first built-in snippet, and the simplest is used to insert filler text into
 a document. The filler text is taken from `De finibus bonorum et malorum
-<http://en.wikipedia.org/wiki/De_finibus_bonorum_et_malorum>`_ a philosophical
+<https://en.wikipedia.org/wiki/De_finibus_bonorum_et_malorum>`_ a philosophical
 work by Cicero (translated to English). To use it simply type ``Lorem`` in an
 HTML file and press |ct|. It will be replaced by a couple of paragraphs of
 filler.

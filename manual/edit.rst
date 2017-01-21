@@ -444,7 +444,7 @@ beautify.  Accessed via :guilabel:`Tools->Beautify all files`.
     beautified.  This can sometimes mean that a particular file will not be
     affected by beautify as it has no suitable block level tags. In such
     cases you can try different beautification tools, that are less careful,
-    for example: `HTML Tidy <http://infohound.net/tidy/>`_.
+    for example: `HTML Tidy <https://infohound.net/tidy/>`_.
 
 
 Inserting an inline Table of Contents
@@ -664,7 +664,7 @@ Spanish languages. You can install your own dictionaries via
 :guilabel:`Preferences->Editor->Manage spelling dictionaries`. The spell
 checker can use dictionaries from the LibreOffice program (in the .oxt
 format). You can download these dictionaries from
-`The LibreOffice Extensions repository <http://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings>`_.
+`The LibreOffice Extensions repository <https://extensions.libreoffice.org/extension-center?getCategories=Dictionary&getCompatibility=any&sort_on=positive_ratings>`_.
 
 
 Inserting special characters

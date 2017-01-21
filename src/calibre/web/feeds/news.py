@@ -226,7 +226,7 @@ class BasicNewsRecipe(Recipe):
     #:    }
     #:
     #: All keys are optional. For a full explanation of the search criteria, see
-    #: `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html#Searching%20the%20Parse%20Tree>`_
+    #: `Beautiful Soup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html#Searching%20the%20Parse%20Tree>`_
     #: A common example::
     #:
     #:   remove_tags = [dict(name='div', attrs={'class':'advert'})]
@@ -320,7 +320,7 @@ class BasicNewsRecipe(Recipe):
     #: are expressed as a percentage of the downloaded cover.
     #: cover_margins = (10, 15, '#ffffff') pads the cover with a white margin
     #: 10px on the left and right, 15px on the top and bottom.
-    #: Color names defined at http://www.imagemagick.org/script/color.php
+    #: Color names defined at https://www.imagemagick.org/script/color.php
     #: Note that for some reason, white does not always work on windows. Use
     #: #ffffff instead
     cover_margins = (0, 0, '#ffffff')
@@ -471,7 +471,7 @@ class BasicNewsRecipe(Recipe):
     def get_browser(self, *args, **kwargs):
         '''
         Return a browser instance used to fetch documents from the web. By default
-        it returns a `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_
+        it returns a `mechanize <https://wwwsearch.sourceforge.net/mechanize/>`_
         browser instance that supports cookies, ignores robots.txt, handles
         refreshes and has a mozilla firefox user agent.
 
@@ -482,7 +482,7 @@ class BasicNewsRecipe(Recipe):
             def get_browser(self):
                 br = BasicNewsRecipe.get_browser(self)
                 if self.username is not None and self.password is not None:
-                    br.open('http://www.nytimes.com/auth/login')
+                    br.open('https://www.nytimes.com/auth/login')
                     br.select_form(name='login')
                     br['USERID']   = self.username
                     br['PASSWORD'] = self.password
@@ -535,7 +535,7 @@ class BasicNewsRecipe(Recipe):
         for key in article.keys():
             if key.endswith('_origlink'):
                 url = article[key]
-                if url and url.startswith('http://'):
+                if url and (url.startswith('http://') or url.startswith('https://')):
                     return url
         ans = article.get('link', None)
         if not ans and getattr(article, 'links', None):
@@ -554,7 +554,7 @@ class BasicNewsRecipe(Recipe):
         an ad page, return the HTML of the real page. Otherwise return
         None.
 
-        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         instance containing the downloaded :term:`HTML`.
         '''
         return None
@@ -596,7 +596,7 @@ class BasicNewsRecipe(Recipe):
         It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
-        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `soup`: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         instance containing the downloaded :term:`HTML`.
         '''
         return soup
@@ -608,7 +608,7 @@ class BasicNewsRecipe(Recipe):
         It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
         It should return `soup` after processing it.
 
-        :param soup: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_  instance containing the downloaded :term:`HTML`.
+        :param soup: A `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_  instance containing the downloaded :term:`HTML`.
         :param first_fetch: True if this is the first page of an article.
 
         '''
@@ -643,7 +643,7 @@ class BasicNewsRecipe(Recipe):
     def index_to_soup(self, url_or_raw, raw=False, as_tree=False):
         '''
         Convenience method that takes an URL to the index page and returns
-        a `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        a `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         of it.
 
         `url_or_raw`: Either a URL or the downloaded index page as a string
@@ -1627,14 +1627,14 @@ class BasicNewsRecipe(Recipe):
     def tag_to_string(self, tag, use_alt=True, normalize_whitespace=True):
         '''
         Convenience method to take a
-        `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         `Tag` and extract the text from it recursively, including any CDATA sections
         and alt tag attributes. Return a possibly empty unicode string.
 
         `use_alt`: If `True` try to use the alt attribute for tags that don't
         have any textual content
 
-        `tag`: `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
+        `tag`: `BeautifulSoup <https://www.crummy.com/software/BeautifulSoup/bs3/documentation.html>`_
         `Tag`
         '''
         if tag is None:
@@ -1755,7 +1755,7 @@ class CalibrePeriodical(BasicNewsRecipe):
     #: Set this to the slug for the calibre periodical
     calibre_periodicals_slug = None
 
-    LOG_IN = 'http://news.calibre-ebook.com/accounts/login'
+    LOG_IN = 'https://news.calibre-ebook.com/accounts/login'
     needs_subscription = True
     __author__ = 'calibre Periodicals'
 
@@ -1777,7 +1777,7 @@ class CalibrePeriodical(BasicNewsRecipe):
         self.log('Fetching downloaded recipe')
         try:
             raw = self.browser.open_novisit(
-                'http://news.calibre-ebook.com/subscribed_files/%s/0/temp.downloaded_recipe'
+                'https://news.calibre-ebook.com/subscribed_files/%s/0/temp.downloaded_recipe'
                 % self.calibre_periodicals_slug
                     ).read()
         except Exception as e:

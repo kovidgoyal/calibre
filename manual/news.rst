@@ -29,7 +29,7 @@ The calibre blog is a blog of posts that describe many useful calibre features
 in a simple and accessible way for new calibre users. In order to download this
 blog into an ebook, we rely on the :term:`RSS` feed of the blog::
 
-    http://blog.calibre-ebook.com/feeds/posts/default
+    https://blog.calibre-ebook.com/feeds/posts/default
 
 I got the RSS URL by looking under "Subscribe to" at the bottom of the blog
 page and choosing :guilabel:`Posts->Atom`. To make calibre download the feeds and convert
@@ -267,7 +267,7 @@ to go to http://www.nytimes.com/pages/todayspaper/index.html and fetch the list
 of articles that appear in *todays* paper. While more complex than simply using
 :term:`RSS`, the recipe creates an ebook that corresponds very closely to the
 days paper. ``parse_index`` makes heavy use of `BeautifulSoup
-<http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ to parse
+<https://www.crummy.com/software/BeautifulSoup/documentation.html>`_ to parse
 the daily paper webpage. You can also use other, more modern parsers if you
 dislike BeatifulSoup. calibre comes with `lxml <http://lxml.de/>`_ and
 `html5lib <https://github.com/html5lib/html5lib-python>`_, which are the

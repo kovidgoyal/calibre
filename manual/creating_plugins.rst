@@ -262,7 +262,7 @@ visible strings as translatable, by surrounding them in _(). For example::
 Then use some program to generate .po files from your plugin source code. There
 should be one .po file for every language you want to translate into. For
 example: de.po for German, fr.po for French and so on. You can use the
-`poedit <http://poedit.net/>`_ program for this.
+`poedit <https://poedit.net/>`_ program for this.
 
 Send these .po files to your translators. Once you get them back, compile them
 into .mo files. You can again use poedit for that, or just do::

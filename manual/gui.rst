@@ -94,7 +94,7 @@ Convert books
     :class: float-right-img
 
 |cei| Ebooks can be converted from a number of formats into whatever format your ebook reader prefers.
-Many ebooks available for purchase will be protected by `Digital Rights Management <http://drmfree.calibre-ebook.com/about#drm>`_ *(DRM)* technology.
+Many ebooks available for purchase will be protected by `Digital Rights Management <https://drmfree.calibre-ebook.com/about#drm>`_ *(DRM)* technology.
 calibre will not convert these ebooks. It is easy to remove the DRM from many formats, but as this may be illegal,
 you will have to find tools to liberate your books yourself and then use calibre to convert them.
 
@@ -338,7 +338,7 @@ are available in the LRF format. Some more examples::
     format:epub publisher:feedbooks.com
 
 Searches are by default 'contains'. An item matches if the search string appears anywhere in the indicated metadata.
-Two other kinds of searches are available: equality search and search using `regular expressions <http://en.wikipedia.org/wiki/Regular_expression>`_.
+Two other kinds of searches are available: equality search and search using `regular expressions <https://en.wikipedia.org/wiki/Regular_expression>`_.
 
 Equality searches are indicated by prefixing the search string with an equals sign (=). For example, the query
 ``tag:"=science"`` will match "science", but not "science fiction" or "hard science". Regular expression searches are

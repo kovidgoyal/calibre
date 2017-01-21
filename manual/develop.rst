@@ -77,7 +77,7 @@ Getting the code
 You can get the calibre source code in two ways, using a version control system or
 directly downloading a `tarball <https://calibre-ebook.com/dist/src>`_.
 
-calibre uses `Git <http://www.git-scm.com/>`_, a distributed version control
+calibre uses `Git <https://www.git-scm.com/>`_, a distributed version control
 system. Git is available on all the platforms calibre supports.  After
 installing Git, you can get the calibre source code with the command::
 

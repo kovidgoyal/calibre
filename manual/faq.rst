@@ -301,7 +301,7 @@ With recent reader iterations, SONY, in all its wisdom has decided to try to for
 use their software. If you install it, it auto-launches whenever you connect the reader.
 If you don't want to uninstall it altogether, there are a couple of tricks you can use. The
 simplest is to simply re-name the executable file that launches the library program. More detail
-`in the forums <http://www.mobileread.com/forums/showthread.php?t=65809>`_.
+`in the forums <https://www.mobileread.com/forums/showthread.php?t=65809>`_.
 
 How do I use calibre with my iPad/iPhone/iPod touch?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -382,7 +382,7 @@ iBooks.
 With the USB cable + iTunes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <http://www.mobileread.com/forums/showthread.php?t=118559>`_.
+Use the 'Connect to iTunes' method in the 'Getting started' instructions in `Calibre + Apple iDevices: Start here <https://www.mobileread.com/forums/showthread.php?t=118559>`_.
 
 This method only works on Windows Vista and higher, and OS X up to 10.8. Linux
 is not supported (iTunes is not available in linux) and OS X newer than 10.8 is
@@ -610,7 +610,7 @@ How does calibre manage author names and sorting?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Author names are complex, especially across cultures, see `this note
-<http://www.w3.org/International/questions/qa-personal-names.en.php?changelang=en>`_
+<https://www.w3.org/International/questions/qa-personal-names.en.php?changelang=en>`_
 for some of the complexities. calibre has a very flexible strategy for managing
 author names. The first thing to understand is that books and authors are
 separate entities in calibre. A book can have more than one author, and an
@@ -811,7 +811,7 @@ I want calibre to download news from my favorite news website.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you are reasonably proficient with computers, you can teach calibre to download news from any website of your choosing. To learn how to do this see :ref:`news`.
 
-Otherwise, you can request a particular news site by posting in the `calibre Recipes forum <http://www.mobileread.com/forums/forumdisplay.php?f=228>`_.
+Otherwise, you can request a particular news site by posting in the `calibre Recipes forum <https://www.mobileread.com/forums/forumdisplay.php?f=228>`_.
 
 
 Why the name calibre?
@@ -865,7 +865,7 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
     calibre-debug -g
 
-Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
+Post any output you see in a help message on the `Forum <https://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
 
 calibre freezes/crashes occasionally?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1083,11 +1083,11 @@ For many reasons:
     updating trivial. Instructions are :ref:`available here <develop>`.
 
   * There are third party automatic updaters for calibre made by calibre users
-    in the `calibre forum <http://www.mobileread.com/forums/forumdisplay.php?f=238>`_.
+    in the `calibre forum <https://www.mobileread.com/forums/forumdisplay.php?f=238>`_.
 
 How is calibre licensed?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-calibre is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute calibre as long as you make the source code available. So if you want to put calibre on a CD with your product, you must also put the calibre source code on the CD. The source code is available `for download <https://download.calibre-ebook.com>`_. You are free to use the results of conversions from calibre however you want. You cannot use either code or libraries from calibre in your software without making your software open source. For details, see `The GNU GPL v3 <http://www.gnu.org/licenses/gpl.html>`_.
+calibre is licensed under the GNU General Public License v3 (an open source license). This means that you are free to redistribute calibre as long as you make the source code available. So if you want to put calibre on a CD with your product, you must also put the calibre source code on the CD. The source code is available `for download <https://download.calibre-ebook.com>`_. You are free to use the results of conversions from calibre however you want. You cannot use either code or libraries from calibre in your software without making your software open source. For details, see `The GNU GPL v3 <https://www.gnu.org/licenses/gpl.html>`_.
 
 How do I run calibre from my USB stick?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

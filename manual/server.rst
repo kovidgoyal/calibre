@@ -112,5 +112,5 @@ Change the path to :file:`calibre-wsgi-adapter.py` to wherever you saved it prev
 
 That's all, you will now be able to access the calibre Content Server under the /calibre URL in your apache server.
 
-.. note:: For more help with using mod_wsgi in Apache, see `mod_wsgi <http://code.google.com/p/modwsgi/wiki/WhereToGetHelp>`_.
+.. note:: For more help with using mod_wsgi in Apache, see `mod_wsgi <https://code.google.com/p/modwsgi/wiki/WhereToGetHelp>`_.
 
