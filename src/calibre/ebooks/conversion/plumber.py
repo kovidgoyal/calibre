@@ -63,6 +63,7 @@ class CompositeProgressReporter(object):
                 (self.global_max - self.global_min)
         self.global_reporter(global_frac, msg)
 
+
 ARCHIVE_FMTS = ('zip', 'rar', 'oebzip')
 
 
@@ -500,7 +501,7 @@ OptionRecommendation(name='smarten_punctuation',
         recommended_value=False, level=OptionRecommendation.LOW,
         help=_('Convert plain quotes, dashes and ellipsis to their '
             'typographically correct equivalents. For details, see '
-            'http://daringfireball.net/projects/smartypants'
+            'https://daringfireball.net/projects/smartypants'
             )
         ),
 
@@ -1230,6 +1231,7 @@ OptionRecommendation(name='search_replace',
 
         self.log(self.output_fmt.upper(), 'output written to', self.output)
         self.flush()
+
 
 # This has to be global as create_oebbook can be called from other locations
 # (for example in the html input plugin)

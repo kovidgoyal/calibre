@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Original Perl version by: John Gruber http://daringfireball.net/ 10 May 2008
+Original Perl version by: John Gruber https://daringfireball.net/ 10 May 2008
 Python version by Stuart Colville http://muffinresearch.co.uk
 Modifications to make it work with non-ascii chars by Kovid Goyal
 License: http://www.opensource.org/licenses/mit-license.php
@@ -100,4 +100,3 @@ def titlecase(text):
     ), result)
 
     return result
-

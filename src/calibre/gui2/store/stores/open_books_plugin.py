@@ -25,7 +25,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class OpenBooksStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://drmfree.calibre-ebook.com/'
+        url = 'https://drmfree.calibre-ebook.com/'
 
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
@@ -36,7 +36,7 @@ class OpenBooksStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://drmfree.calibre-ebook.com/search/?q=' + urllib.quote_plus(query)
+        url = 'https://drmfree.calibre-ebook.com/search/?q=' + urllib.quote_plus(query)
 
         br = browser()
 

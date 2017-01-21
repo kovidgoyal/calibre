@@ -55,6 +55,7 @@ def get_cover_data(stream, ext):  # {{{
     return cdata, area
 # }}}
 
+
 Settings = namedtuple('Settings',
     'remove_all remove add au aus do_aus rating pub do_series do_autonumber do_remove_format '
     'remove_format do_swap_ta do_remove_conv do_auto_author series do_series_restart series_start_value series_increment '
@@ -529,7 +530,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                  'The destination box specifies the field where the result after '
                  'matching and replacement is to be assigned. You can replace '
                  'the text in the field, or prepend or append the matched text. '
-                 'See <a href="http://docs.python.org/library/re.html"> '
+                 'See <a href="https://docs.python.org/library/re.html"> '
                  'this reference</a> for more information on python\'s regular '
                  'expressions, and in particular the \'sub\' function.'
                  )
@@ -1228,5 +1229,3 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.results_count.setValue(999)
         self.starting_from.setValue(1)
         self.multiple_separator.setText(" ::: ")
-
-

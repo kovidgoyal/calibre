@@ -258,6 +258,7 @@ class DynamicConfig(dict):
                 f.truncate()
                 f.write(raw)
 
+
 dynamic = DynamicConfig()
 
 
@@ -267,7 +268,7 @@ class XMLConfig(dict):
     Similar to :class:`DynamicConfig`, except that it uses an XML storage
     backend instead of a pickle file.
 
-    See `http://docs.python.org/dev/library/plistlib.html`_ for the supported
+    See `https://docs.python.org/dev/library/plistlib.html`_ for the supported
     data types.
     '''
 
@@ -428,6 +429,5 @@ class DevicePrefs:
     def __getitem__(self, key):
         return self.overrides.get(key, self.global_prefs[key])
 
+
 device_prefs = DevicePrefs(prefs)
-
-

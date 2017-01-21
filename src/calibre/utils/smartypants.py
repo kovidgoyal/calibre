@@ -305,7 +305,7 @@ Copyright and License
 SmartyPants_ license::
 
     Copyright (c) 2003 John Gruber
-    (http://daringfireball.net/)
+    (https://daringfireball.net/)
     All rights reserved.
 
     Redistribution and use in source and binary forms, with or without
@@ -367,11 +367,11 @@ smartypants.py license::
 
 
 
-.. _John Gruber: http://daringfireball.net/
+.. _John Gruber: https://daringfireball.net/
 .. _Chad Miller: http://web.chad.org/
 
 .. _Pyblosxom: http://roughingit.subtlehints.net/pyblosxom
-.. _SmartyPants: http://daringfireball.net/projects/smartypants/
+.. _SmartyPants: https://daringfireball.net/projects/smartypants/
 .. _Movable Type: http://www.movabletype.org/
 
 """

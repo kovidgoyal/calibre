@@ -56,7 +56,7 @@ class TXTInput(InputFormatPlugin):
                    'as chapter headings and italic text.\n'
                    '* textile: Processing using textile formatting.\n'
                    '* markdown: Processing using markdown formatting. '
-                   'To learn more about markdown see')+' http://daringfireball.net/projects/markdown/'),
+                   'To learn more about markdown see')+' https://daringfireball.net/projects/markdown/'),
         OptionRecommendation(name='preserve_spaces', recommended_value=False,
             help=_('Normally extra spaces are condensed into a single space. '
                 'With this option all spaces will be displayed.')),
@@ -66,7 +66,7 @@ class TXTInput(InputFormatPlugin):
         OptionRecommendation(name="markdown_extensions", recommended_value='footnotes, tables, toc',
             help=_('Enable extensions to markdown syntax. Extensions are formatting that is not part '
                    'of the standard markdown format. The extensions enabled by default: %default.\n'
-                   'To learn more about markdown extensions, see http://pythonhosted.org/Markdown/extensions/index.html\n'
+                   'To learn more about markdown extensions, see https://pythonhosted.org/Markdown/extensions/index.html\n'
                    'This should be a comma separated list of extensions to enable:\n') +
                              '\n'.join('* %s: %s' % (k, MD_EXTENSIONS[k]) for k in sorted(MD_EXTENSIONS))),
     ])
@@ -202,7 +202,7 @@ class TXTInput(InputFormatPlugin):
                 input_mi, html = convert_markdown_with_metadata(txt, extensions=[x.strip() for x in options.markdown_extensions.split(',') if x.strip()])
             except RuntimeError:
                 raise ValueError('This txt file has malformed markup, it cannot be'
-                    ' converted by calibre. See http://daringfireball.net/projects/markdown/syntax')
+                    ' converted by calibre. See https://daringfireball.net/projects/markdown/syntax')
         elif options.formatting_type == 'textile':
             log.debug('Running text through textile conversion...')
             html = convert_textile(txt)
