@@ -117,6 +117,7 @@ class AppleDaily(BasicNewsRecipe):
             if (not title == u'動新聞') and (relativea.startswith('list.php')):
                 sectionList.append((title, a))
         for title, url in sectionList:
+            title = title.replace("&nbsp;", "")
             articles = self.parse_section(url)
             if articles:
                 feeds.append((title, articles))
