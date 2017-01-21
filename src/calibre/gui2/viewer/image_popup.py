@@ -9,9 +9,27 @@ __docformat__ = 'restructuredtext en'
 
 from PyQt5.Qt import (QDialog, QPixmap, QUrl, QScrollArea, QLabel, QSizePolicy,
         QDialogButtonBox, QVBoxLayout, QPalette, QApplication, QSize, QIcon,
-        Qt, QTransform)
+        Qt, QTransform, QSvgRenderer, QImage, QPainter)
 
-from calibre.gui2 import choose_save_file, gprefs, NO_URL_FORMATTING
+from calibre.gui2 import choose_save_file, gprefs, NO_URL_FORMATTING, max_available_height
+
+
+def render_svg(widget, path):
+    img = QPixmap()
+    rend = QSvgRenderer()
+    if rend.load(path):
+        dpr = getattr(widget, 'devicePixelRatioF', widget.devicePixelRatio)()
+        sz = rend.defaultSize()
+        h = (max_available_height() - 50)
+        w = int(h * sz.height() / float(sz.width()))
+        pd = QImage(w * dpr, h * dpr, QImage.Format_RGB32)
+        pd.fill(Qt.white)
+        p = QPainter(pd)
+        rend.render(p)
+        p.end()
+        img = QPixmap.fromImage(pd)
+        img.setDevicePixelRatio(dpr)
+    return img
 
 
 class ImageView(QDialog):
@@ -145,6 +163,7 @@ class ImagePopup(object):
         for d in tuple(self.dialogs):
             if not d.isVisible():
                 self.dialogs.remove(d)
+
 
 if __name__ == '__main__':
     import sys
