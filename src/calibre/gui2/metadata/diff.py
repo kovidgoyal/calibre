@@ -687,6 +687,7 @@ class CompareMany(QDialog):
             return
         return QDialog.keyPressEvent(self, ev)
 
+
 if __name__ == '__main__':
     from calibre.gui2 import Application
     from calibre.library import db
