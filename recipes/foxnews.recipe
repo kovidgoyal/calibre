@@ -34,7 +34,8 @@ class FoxNews(BasicNewsRecipe):
     remove_attributes = ['xmlns', 'lang']
 
     keep_only_tags = [
-        dict(itemprop=['headline', 'articleBody']),
+        dict(name='h1'),
+        dict(attrs={'class':'article-info article-body'.split()}),
     ]
 
     feeds = [
