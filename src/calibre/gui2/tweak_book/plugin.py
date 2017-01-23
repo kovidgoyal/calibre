@@ -117,7 +117,7 @@ def load_plugin_tools(plugin):
         main = importlib.import_module(plugin.__class__.__module__+'.main')
     except ImportError:
         import traceback
-        traceback.print_stack()
+        traceback.print_exc()
     else:
         for x in vars(main).itervalues():
             if isinstance(x, type) and x is not Tool and issubclass(x, Tool):
@@ -128,6 +128,7 @@ def load_plugin_tools(plugin):
 
 def plugin_action_sid(plugin, tool, for_toolbar=True):
     return plugin.name + tool.name + ('toolbar' if for_toolbar else 'menu')
+
 
 plugin_toolbar_actions = []
 
@@ -160,6 +161,7 @@ def create_plugin_action(plugin, tool, for_toolbar, actions=None, toolbar_action
                 plugin_menu_actions.append(ac)
     return ac
 
+
 _tool_memory = []  # Needed to prevent the tool object from being garbage collected
 
 
@@ -182,4 +184,3 @@ def install_plugin(plugin):
             sid = plugin_action_sid(plugin, tool, True)
             if sid not in tprefs['global_plugins_toolbar']:
                 tprefs['global_plugins_toolbar'] = tprefs['global_plugins_toolbar'] + [sid]
-
