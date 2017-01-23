@@ -6,7 +6,7 @@ from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
 import os
 
-from PyQt5.Qt import QNetworkReply, QNetworkAccessManager, QUrl, QNetworkRequest, QTimer, pyqtSignal
+from PyQt5.Qt import QNetworkReply, QNetworkAccessManager, QUrl, QNetworkRequest, QTimer, pyqtSignal, QByteArray
 
 from calibre import guess_type as _guess_type, prints
 from calibre.constants import FAKE_HOST, FAKE_PROTOCOL, DEBUG
@@ -17,6 +17,9 @@ from calibre.utils.short_uuid import uuid4
 
 def guess_type(x):
     return _guess_type(x)[0] or 'application/octet-stream'
+
+
+cc_header = QByteArray(b'Cache-Control'), QByteArray(b'max-age=864001')
 
 
 class NetworkReply(QNetworkReply):
@@ -30,6 +33,7 @@ class NetworkReply(QNetworkReply):
         self.__data = data
         self.setHeader(QNetworkRequest.ContentTypeHeader, mime_type)
         self.setHeader(QNetworkRequest.ContentLengthHeader, len(self.__data))
+        self.setRawHeader(*cc_header)
         QTimer.singleShot(0, self.finalize_reply)
 
     def bytesAvailable(self):

@@ -954,6 +954,7 @@ class EbookViewer(MainWindow):
         while worker.isAlive():
             worker.join(0.1)
             QApplication.processEvents()
+        self.view.settings().clearMemoryCaches()
         if worker.exception is not None:
             tb = worker.traceback.strip()
             if tb and tb.splitlines()[-1].startswith('DRMError:'):
