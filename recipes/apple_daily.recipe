@@ -262,8 +262,8 @@ class AppleDaily(BasicNewsRecipe):
                                                          not self.has_single_feed,
                                                          a.orig_url, __appname__, prefix=prefix,
                                                          center=self.center_navbar)
-                            elem = BeautifulSoup(templ.render(
-                                doctype='xhtml').decode('utf-8')).find('div')
+                            translatedTempl =re.sub('<hr>.*<br><br>','<hr>從<a href="'+a.orig_url+'">蘋果日報</a>下載至'+__appname__+'<br><br>',templ.render(doctype='xhtml').decode('utf-8'),flags=re.S)
+                            elem = BeautifulSoup(translatedTempl).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
                                 fi.write(unicode(soup).encode('utf-8'))
