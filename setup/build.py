@@ -360,8 +360,11 @@ class Build(Command):
             TARGET = headless
             PLUGIN_TYPE = platforms
             PLUGIN_CLASS_NAME = HeadlessIntegrationPlugin
-            load(qt_plugin)
-            QT += core-private gui-private platformsupport-private
+            QT += core-private gui-private
+            greaterThan(QT_MAJOR_VERSION, 5)|greaterThan(QT_MINOR_VERSION, 7): \
+                QT += theme_support-private
+            else: \
+                QT += platformsupport-private
             HEADERS = {headers}
             SOURCES = {sources}
             OTHER_FILES = {others}
