@@ -14,8 +14,11 @@ from utils import parse_url_params
 
 from book_list.constants import book_list_container_id, read_book_container_id
 from book_list.theme import get_color
-from book_list.router import update_window_title, set_default_mode_handler
+from book_list.router import update_window_title, set_default_mode_handler, apply_url
 from book_list.ui import apply_url_state as book_list_mode_handler
+
+# Register the various panels
+import book_list.home  # noqa: unused-import
 
 
 def remove_initial_progress_bar():
@@ -51,6 +54,7 @@ def init_ui():
     document.body.lastChild.appendChild(E.div(id=read_book_container_id, style='display: none'))
     create_modal_container()
     update_window_title()
+    apply_url()
 
 def on_data_loaded(end_type, xhr, ev):
     remove_initial_progress_bar()

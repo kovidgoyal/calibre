@@ -82,8 +82,9 @@ def set_title(container_id, text):
     for bar in bars:
         bar.firstChild.firstChild.nextSibling.textContent = text
 
-def create_top_bar(container_id):
+def create_top_bar(container_id, **kw):
     create_markup(container_id)
+    set_left_data(container_id, **kw)
 
 def add_button(container_id, icon_name=None, action=None, tooltip=''):
     if not icon_name:
