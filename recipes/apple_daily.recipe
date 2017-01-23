@@ -9,7 +9,6 @@ from calibre.utils.date import now as nowf
 import os
 import datetime
 import re
-import time
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -34,7 +33,7 @@ class AppleDaily(BasicNewsRecipe):
     no_stylesheets = True
     description = 'http://hkm.appledaily.com/'
     category = 'Chinese, News, Hong Kong'
-    masthead_url = 'https://upload.wikimedia.org/wikipedia/zh/thumb/5/52/Apple_Daily_logo.svg/569px-Apple_Daily_logo.svg.png'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/8/86/Apple_Daily_Title.svg'
 
     extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} h1 {font-size:200%; text-align:left; font-weight:bold;} p[class=video-caption] {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
     keep_only_tags = [dict(name='div', attrs={'id': 'content-article'})]
@@ -105,16 +104,17 @@ class AppleDaily(BasicNewsRecipe):
             relativea = li.find('a', href=True).get('href', False)
             a = 'http://hkm.appledaily.com/' + relativea
             title = li.find('a', text=True).strip()
-            if (time.tzname != 'HKT'):
-                if (title == u'三藩市'):
-                    continue
-                if (title == u'洛杉磯'):
-                    continue
-                if (title == u'紐&nbsp; 約'):
-                    continue
-                if (title == u'美&nbsp; 國'):
-                    continue
-            if (not title == u'動新聞') and (relativea.startswith('list.php')):
+            # if (time.tzname != 'HKT'):
+            #     if (title == u'三藩市'):
+            #         continue
+            #     if (title == u'洛杉磯'):
+            #         continue
+            #     if (title == u'紐&nbsp; 約'):
+            #         continue
+            #     if (title == u'美&nbsp; 國'):
+            #         continue
+            # if (not title == u'動新聞') and (relativea.startswith('list.php')):
+            if (relativea.find('category=daily')!= -1)and (relativea.startswith('list.php')):
                 sectionList.append((title, a))
         for title, url in sectionList:
             title = title.replace("&nbsp;", "")
@@ -262,8 +262,9 @@ class AppleDaily(BasicNewsRecipe):
                                                          not self.has_single_feed,
                                                          a.orig_url, __appname__, prefix=prefix,
                                                          center=self.center_navbar)
-                            elem = BeautifulSoup(templ.render(
-                                doctype='xhtml').decode('utf-8')).find('div')
+                            translatedTempl =re.sub('<hr>.*<br><br>','<hr>從<a href="'+a.orig_url+'">蘋果日報</a>下載至'+__appname__+
+                                                    '<br><br>',templ.render(doctype='xhtml').decode('utf-8'),flags=re.S)
+                            elem = BeautifulSoup(translatedTempl).find('div')
                             body.insert(len(body.contents), elem)
                             with open(last, 'wb') as fi:
                                 fi.write(unicode(soup).encode('utf-8'))
