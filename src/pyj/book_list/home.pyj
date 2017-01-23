@@ -1,0 +1,11 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from book_list.ui import set_default_panel_handler
+
+
+def init():
+    pass
+
+set_default_panel_handler(init)

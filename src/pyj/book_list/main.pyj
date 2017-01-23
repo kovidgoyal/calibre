@@ -9,6 +9,7 @@ from dom import set_css, get_widget_css
 from modals import create_modal_container, error_dialog
 from session import get_interface_data, UserSessionData, update_interface_data, get_translations
 from gettext import gettext as _, install
+from popups import install_event_filters
 from utils import parse_url_params
 
 from book_list.constants import book_list_container_id, read_book_container_id
@@ -36,6 +37,7 @@ def onerror(msg, script_url, line_number, column_number, error_object):
         console.log('There was an error in the unhandled exception handler')
 
 def init_ui():
+    install_event_filters()
     set_default_mode_handler(book_list_mode_handler)
     window.onerror = onerror
     translations = get_translations()

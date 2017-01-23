@@ -1,251 +1,13 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+from __python__ import hash_literals, bound_methods
 
-import traceback
 from dom import ensure_id, clear
 from elementmaker import E
-from gettext import gettext as _
-from modals import error_dialog, ajax_progress_dialog
-from popups import install_event_filters
 
 from book_list.constants import book_list_container_id
-from book_list.globals import get_boss, get_session_data, get_current_query
-from book_list.search import SearchPanel
-from book_list.top_bar import TopBar
-from book_list.views import BooksView
-from book_list.item_list import ItemsView, create_item
-from book_list.prefs import PrefsPanel
-from book_list.book_details import BookDetailsPanel
+from book_list.globals import get_current_query
 
-class BarState:
-
-    def __init__(self, **kw):
-        self.left_state = kw
-        self.buttons = v'[]'
-
-    def add_button(self, **kw):
-        self.buttons.push(kw)
-
-class ClosePanelBar(BarState):
-
-    def __init__(self, title, tooltip='', close_callback=None):
-        tooltip = tooltip or _('Close this panel')
-        def action():
-            close_panel()
-            if close_callback is not None:
-                close_callback()
-        BarState.__init__(self, title=title, tooltip=tooltip, action=action, icon_name='close')
-
-class UIState:
-
-    def __init__(self, top_bar_state=None, main_panel=None, panel_data=None):
-        self.top_bar_state = top_bar_state
-        self.main_panel = main_panel
-        self.panel_data = panel_data
-
-    def add_button(self, **kw):
-        self.top_bar_state.add_button(**kw)
-
-def close_panel():
-    get_boss().ui.close_panel()
-
-def replace_panel_action(replacement):
-    return def():
-        get_boss().ui.replace_panel(replacement)
-
-def show_panel_action(key):
-    return def():
-        get_boss().ui.show_panel(key)
-
-
-def create_book_view_top_bar_state(books_view):
-    ibs = BarState(run_animation=True, title=def():
-        q = books_view.interface_data['search_result']['query']
-        if q:
-            return {'title': _('Books matching') + '::  ' + q, 'title_tooltip':_('Click to clear this search'),
-                    'title_action':def():
-                books_view.change_search('')
-            }
-        return {'title': 'calibre'}
-    )
-    ibs.add_button(icon_name='sort-amount-desc', tooltip=_('Sort books'), action=show_panel_action('booklist-sort-menu'))
-    ibs.add_button(icon_name='search', tooltip=_('Search for books'), action=show_panel_action('booklist-search'))
-    ibs.add_button(icon_name='ellipsis-v', tooltip=_('More actions'), action=show_panel_action('more-actions-menu'))
-    return ibs
-
-def random_book():
-    get_boss().ui.replace_panel('book-details', extra_query_data={'book-id':'0'})
-
-def change_library_actions():
-    boss = get_boss()
-    interface_data = boss.interface_data
-    ans = []
-    ans.subtitle = _('Currently showing the library: ') + interface_data.library_map[interface_data.library_id]
-    for lid in sorted(interface_data.library_map):
-        if lid is not interface_data.library_id:
-            library_name = interface_data.library_map[lid]
-            ans.append({'title':library_name, 'action':boss.ui.change_library.bind(boss.ui, lid)})
-    return ans
-
-class DevelopPanel:
-
-    # To use, go to URL:
-    # http://localhost:8080/?panel=develop-widgets&widget_module=<module name>
-    # Implement the develop(container) method in that module.
-
-    def __init__(self, interface_data, book_list_container):
-        c = E.div()
-        book_list_container.appendChild(c)
-        self.container_id = ensure_id(c)
-
-    @property
-    def container(self):
-        return document.getElementById(self.container_id)
-
-    @property
-    def is_visible(self):
-        self.container.style.display is 'block'
-
-    @is_visible.setter
-    def is_visible(self, val):
-        self.container.style.display = 'block' if val else 'none'
-
-    def init(self):
-        q = get_current_query()
-        m = q.widget_module
-        if m:
-            m = get_module(m)
-            if m?.develop:
-                m.develop(self.container)
-            else:
-                self.container.textContent = 'The module {} either does not exist or has no develop method.'.format(q.widget_module)
-
-
-class UI:
-
-    ROOT_PANEL = 'books'
-
-    def __init__(self, interface_data, book_list_container):
-        install_event_filters()
-        self.top_bar = TopBar(book_list_container)
-        self.books_view = BooksView(interface_data, book_list_container)
-        self.items_view = ItemsView(interface_data, book_list_container)
-        self.prefs_panel = PrefsPanel(interface_data, book_list_container)
-        self.search_panel = SearchPanel(interface_data, book_list_container)
-        self.book_details_panel = BookDetailsPanel(interface_data, book_list_container)
-        self.develop_panel = DevelopPanel(interface_data, book_list_container)
-        self.panels = [self.books_view, self.items_view, self.search_panel, self.prefs_panel, self.book_details_panel]
-        self.panel_map = {self.ROOT_PANEL: UIState(create_book_view_top_bar_state(self.books_view), main_panel=self.books_view)}
-        self.current_panel = self.ROOT_PANEL
-
-        num_of_libraries = len(interface_data.library_map)
-        actions = [
-            create_item(_('Book List Mode'), replace_panel_action('booklist-mode-menu'), _('Change how the list of books is displayed')),
-            create_item(_('A Random Book'), random_book, _('Choose a random book from your library')),
-        ]
-        if num_of_libraries > 1:
-            actions.push(
-                create_item(_('Change Library'), replace_panel_action('booklist-change-library'), _('Choose a different library to display'))
-            )
-            self.panel_map['booklist-change-library'] = UIState(ClosePanelBar(_('Change Library')), panel_data=change_library_actions)
-
-        self.panel_map['more-actions-menu'] = UIState(ClosePanelBar(_('More actions')), panel_data=actions)
-
-        self.panel_map['booklist-mode-menu'] = UIState(ClosePanelBar(_('Book List Mode')), panel_data=[])
-
-        self.panel_map['booklist-sort-menu'] = UIState(ClosePanelBar(_('Sort books')), panel_data=def():
-            return self.books_view.sort_panel_data(create_item)
-        )
-        self.panel_map['booklist-config-tb'] = self.create_prefences_panel(
-            _('Configure Tag Browser'), close_callback=self.search_panel.apply_prefs.bind(self.search_panel),
-            panel_data=self.search_panel.get_prefs.bind(self.search_panel))
-        self.panel_map['develop-widgets'] = UIState(ClosePanelBar('Develop widgets'), main_panel=self.develop_panel)
-
-        bss = ClosePanelBar(_('Search for books'))
-        bss.add_button(icon_name='cogs', tooltip=_('Configure Tag Browser'), action=show_panel_action('booklist-config-tb'))
-        self.panel_map['booklist-search'] = UIState(bss, main_panel=self.search_panel)
-
-        self.panel_map['book-details'] = bd = UIState(ClosePanelBar(_('Book Details')), main_panel=self.book_details_panel)
-        bd.add_button(icon_name='random', tooltip=_('Pick another random book'), action=self.book_details_panel.show_random.bind(self.book_details_panel))
-        # bd.add_button(icon_name='book', tooltip=_('Read this book'), action=self.book_details_panel.read_book.bind(self.book_details_panel))
-        # bd.add_button(icon_name='cloud-download', tooltip=_('Download this book'), action=self.book_details_panel.download_book.bind(self.book_details_panel))
-
-    def create_prefences_panel(self, title, close_callback=None, panel_data=None):
-        ans = UIState(ClosePanelBar(title), close_callback=close_callback, main_panel=self.prefs_panel, panel_data=panel_data)
-        ans.add_button(icon_name='refresh', tooltip=_('Restore default settings'), action=self.prefs_panel.reset_to_defaults.bind(self.prefs_panel))
-        return ans
-
-    def set_title(self, text):
-        self.top_bar.set_title(text)
-
-    def set_button_visibility(self, icon_name, visible):
-        self.top_bar.set_button_visibility(icon_name, visible)
-
-    def on_resize(self):
-        pass
-
-    def apply_state(self):
-        window.scrollTo(0, 0)
-        state = self.panel_map[self.current_panel]
-        self.top_bar.apply_state(state.top_bar_state.left_state, state.top_bar_state.buttons)
-        main_panel = state.main_panel or self.items_view
-        for panel in self.panels:
-            panel.is_visible = panel is main_panel
-        if callable(main_panel.init):
-            panel_data = state.panel_data() if callable(state.panel_data) else state.panel_data
-            main_panel.init(panel_data)
-        if self.current_panel is self.ROOT_PANEL:
-            # only run the beating heart animation once
-            window.setTimeout(def(): state.top_bar_state.left_state.run_animation = False;, 10)
-
-    def close_panel(self):
-        if get_boss().has_history:
-            window.history.back()
-        else:
-            self.show_panel(self.ROOT_PANEL)
-
-    def replace_panel(self, panel_name, force=False, extra_query_data=None):
-        action_needed = force or panel_name is not self.current_panel
-        if action_needed:
-            self.current_panel = panel_name or self.ROOT_PANEL
-        get_boss().push_state(replace=True, extra_query_data=extra_query_data)
-        if action_needed:
-            self.apply_state()
-
-    def show_panel(self, panel_name, push_state=True, force=False, extra_query_data=None):
-        action_needed = force or panel_name is not self.current_panel
-        if action_needed:
-            self.current_panel = panel_name or self.ROOT_PANEL
-        if push_state:
-            get_boss().push_state(extra_query_data=extra_query_data)
-        if action_needed:
-            self.apply_state()
-
-    def refresh_books_view(self):
-        self.books_view.refresh()
-        if self.current_panel is self.ROOT_PANEL:
-            self.top_bar.refresh_left()
-
-    def change_library(self, library_id):
-        data = {'search':'', 'sort':get_session_data().get_library_option(library_id, 'sort'), 'library_id':library_id}
-        ajax_progress_dialog('interface-data/get-books', self.library_changed.bind(self), _(
-            'Fetching data from server, please wait') + '…', query=data, extra_data_for_callback={'library_id':library_id})
-
-    def library_changed(self, end_type, xhr, ev):
-        if end_type is 'load':
-            boss = get_boss()
-            boss.interface_data.library_id = xhr.extra_data_for_callback.library_id
-            try:
-                data = JSON.parse(xhr.responseText)
-                boss.change_books(data)
-            except Exception as err:
-                return error_dialog(_('Could not change library'), err + '', details=traceback.format_exc())
-            self.show_panel(self.ROOT_PANEL)
-            window.scrollTo(0, 0)
-        elif end_type is not 'abort':
-            msg = xhr.error_html
-            error_dialog(_('Could not change library'), msg)
 
 panel_handlers = {}
 default_panel_handler = None
@@ -260,6 +22,21 @@ def set_default_panel_handler(handler):
     default_panel_handler = handler
 
 
+def develop_panel(container):
+    # To use, go to URL:
+    # http://localhost:8080/?panel=develop-widgets&widget_module=<module name>
+    # Implement the develop(container) method in that module.
+    q = get_current_query()
+    m = q.widget_module
+    if m:
+        m = get_module(m)
+        if m?.develop:
+            m.develop(container)
+        else:
+            container.textContent = 'The module {} either does not exist or has no develop method.'.format(q.widget_module)
+
+set_panel_handler('develop-widgets', develop_panel)
+
 
 def apply_url_state(state):
     panel = state.panel or 'home'
@@ -269,3 +46,5 @@ def apply_url_state(state):
     clear(c)
     c.appendChild(E.div()), c.appendChild(E.div(style='display:none'))
     c.dataset.panel = panel
+    handler = panel_handlers[panel] or default_panel_handler
+    handler(ensure_id(c.firstChild, 'panel'))
