@@ -105,16 +105,17 @@ class AppleDaily(BasicNewsRecipe):
             relativea = li.find('a', href=True).get('href', False)
             a = 'http://hkm.appledaily.com/' + relativea
             title = li.find('a', text=True).strip()
-            if (time.tzname != 'HKT'):
-                if (title == u'三藩市'):
-                    continue
-                if (title == u'洛杉磯'):
-                    continue
-                if (title == u'紐&nbsp; 約'):
-                    continue
-                if (title == u'美&nbsp; 國'):
-                    continue
-            if (not title == u'動新聞') and (relativea.startswith('list.php')):
+            # if (time.tzname != 'HKT'):
+            #     if (title == u'三藩市'):
+            #         continue
+            #     if (title == u'洛杉磯'):
+            #         continue
+            #     if (title == u'紐&nbsp; 約'):
+            #         continue
+            #     if (title == u'美&nbsp; 國'):
+            #         continue
+            # if (not title == u'動新聞') and (relativea.startswith('list.php')):
+            if (relativea.find('category=daily')!= -1 )and (relativea.startswith('list.php')):
                 sectionList.append((title, a))
         for title, url in sectionList:
             title = title.replace("&nbsp;", "")
