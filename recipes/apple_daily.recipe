@@ -22,6 +22,7 @@ class AppleDaily(BasicNewsRecipe):
     title = u'蘋果日報 (香港)'
     __author__ = 'Eddie Lau'
     publisher = '蘋果日報'
+    publication_type= 'newspaper'
     oldest_article = 1
     max_articles_per_feed = 100
     auto_cleanup = False
@@ -35,7 +36,7 @@ class AppleDaily(BasicNewsRecipe):
     category = 'Chinese, News, Hong Kong'
     masthead_url = 'https://upload.wikimedia.org/wikipedia/commons/8/86/Apple_Daily_Title.svg'
 
-    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} h1 {font-size:200%; text-align:left; font-weight:bold;} p[class=video-caption] {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
+    extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 10px; margin-bottom: 10px; max-height:90%;} h1 {font-size:125%; text-align:left; font-weight:bold;} p{font-size:90%;} p[class=video-caption] {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
     keep_only_tags = [dict(name='div', attrs={'id': 'content-article'})]
     remove_tags = [dict(name='div', attrs={'class': 'prev-next-btn'}),
                    dict(name='p', attrs={'class': 'next'})]
@@ -253,7 +254,7 @@ class AppleDaily(BasicNewsRecipe):
                     if os.path.exists(last):
                         with open(last, 'rb') as fi:
                             src = fi.read().decode('utf-8')
-                        src = src.replace('height:260px !important;','display:none')   #fix flow-player div tag parent                            
+                        src = src.replace('height:260px !important;','')   #fix flow-player div tag parent                            
                         soup = BeautifulSoup(src)
                         body = soup.find('body')
                         if body is not None:
