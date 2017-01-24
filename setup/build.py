@@ -14,8 +14,10 @@ isunix = islinux or isosx or isbsd
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 
+
 def absolutize(paths):
     return list(set([x if os.path.isabs(x) else os.path.join(SRC, x.replace('/', os.sep)) for x in paths]))
+
 
 class Extension(object):
 
@@ -83,11 +85,13 @@ def is_ext_allowed(ext):
         return q in only
     return True
 
+
 def parse_extension(ext):
     ext = ext.copy()
     ext.pop('only', None)
     kw = {}
     name = ext.pop('name')
+
     def get(k, default=''):
         ans = ext.pop(k, default)
         if iswindows:
@@ -361,7 +365,12 @@ class Build(Command):
             PLUGIN_TYPE = platforms
             PLUGIN_CLASS_NAME = HeadlessIntegrationPlugin
             load(qt_plugin)
-            QT += core-private gui-private platformsupport-private
+            QT += core-private gui-private
+            greaterThan(QT_MAJOR_VERSION, 5)|greaterThan(QT_MINOR_VERSION, 7): {{
+                QT += theme_support-private
+            }} else {{
+                QT += platformsupport-private
+            }}
             HEADERS = {headers}
             SOURCES = {sources}
             OTHER_FILES = {others}
@@ -400,6 +409,7 @@ class Build(Command):
             self.check_call(cmd)
             self.info('')
         raw = open(sbf, 'rb').read().decode('utf-8')
+
         def read(x):
             ans = re.search('^%s\s*=\s*(.+)$' % x, raw, flags=re.M).group(1).strip()
             if x != 'target':
