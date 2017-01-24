@@ -22,6 +22,7 @@ class AppleDaily(BasicNewsRecipe):
     title = u'蘋果日報 (香港)'
     __author__ = 'Eddie Lau'
     publisher = '蘋果日報'
+    publication_type= 'newspaper'
     oldest_article = 1
     max_articles_per_feed = 100
     auto_cleanup = False
