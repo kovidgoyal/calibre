@@ -1,9 +1,12 @@
 # vim:fileencoding=utf-8
 # License: GPL v3 Copyright: 2016, Kovid Goyal <kovid at kovidgoyal.net>
-from __python__ import hash_literals
+from __python__ import hash_literals, bound_methods
 
 from gettext import gettext as _
 from encodings import base64encode, base64decode
+from modals import error_dialog
+
+from book_list.router import is_reading_book
 
 def upgrade_schema(idb, old_version, new_version):
     print('upgrade_schema:', old_version, new_version)
@@ -31,13 +34,59 @@ DB_VERSION = 2
 
 class DB:
 
-    def __init__(self, idb, ui, supports_blobs):
-        self.interface_data = ui.interface_data
+    def __init__(self, callback, show_read_book_error):
+        self.initialized = False
+        self.initialize_error_msg = None
+        self.callback = callback
+        self.show_read_book_error = show_read_book_error
+        self.initialize_stage1()
+
+    def show_error(self, title, msg, det_msg):
+        if is_reading_book():
+            self.show_read_book_error(title, msg, det_msg)
+        else:
+            error_dialog(title, msg, det_msg)
+
+    def initialize_stage1(self):
+        if not window.indexedDB:
+            self.initialize_error_msg = _('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.')
+            self.initialized = True
+            self.callback()
+            return
+
+        request = window.indexedDB.open(DB_NAME, DB_VERSION)
+
+        request.onupgradeneeded = def(event):
+            upgrade_schema(event.target.result, event.oldVersion, event.newVersion)
+
+        request.onblocked = def(event):
+            self.initialize_error_msg = _('Please close all other browser tabs with calibre open')
+            self.initialized = True
+            self.callback()
+
+        request.onerror = def(event):
+            self.initialize_error_msg = _('You must allow calibre to use IndexedDB storage in your browser to read books')
+            self.initialized = True
+            self.callback()
+
+        request.onsuccess = def(event):
+            blob = Blob(['test'], {'type':"text/plain"})
+            idb = event.target.result
+            try:
+                req = idb.transaction(['files'], 'readwrite').objectStore('files').put(blob, ':-test-blob-:')
+            except Exception:
+                self.initialize_stage2(idb, False)
+            req.onsuccess = def(event):
+                self.initialize_stage2(idb, True)
+            req.onerror = def(event):
+                self.initialize_stage2(idb, False)
+
+    def initialize_stage2(self, idb, supports_blobs):
         self.idb = idb
         self.supports_blobs = supports_blobs
+        self.initialized = True
         if not supports_blobs:
-            print('IndexedDB does not support Blob storage, using base64 encoding instead')
-        self.show_error = ui.show_error.bind(ui)
+            print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
 
         idb.onerror = def(event):
             self.display_error(None, event)
@@ -48,8 +97,9 @@ class DB:
 
         idb.onversionchange = def(event):
             idb.close()
-            ui.show_error(_('Database upgraded!'), _(
+            self.show_error(_('Database upgraded!'), _(
                 'A newer version of calibre is available, please click the reload button in your browser.'))
+        self.callback()
 
     def display_error(self, msg, event):
         if event.already_displayed_by_calibre:
@@ -225,31 +275,8 @@ class DB:
                 books.delete(book.key)
         next_step()
 
-def create_db(ui, interface_data):
-    if not window.indexedDB:
-        return ui.db_initialized(_('Your browser does not support IndexedDB. Cannot read books. Consider using a modern browser, such as Firefox, Chrome or Edge.'))
 
-    request = window.indexedDB.open(DB_NAME, DB_VERSION)
-
-    request.onupgradeneeded = def(event):
-        upgrade_schema(event.target.result, event.oldVersion, event.newVersion)
-
-    request.onblocked = def(event):
-        alert(_('Please close all other tabs with a calibre book open'))
-
-    request.onerror = def(event):
-        ui.db_initialized(_('You must allow calibre to use IndexedDB storage in your browser to read books'))
-
-    request.onsuccess = def(event):
-        blob = Blob(['test'], {'type':"text/plain"})
-        idb = event.target.result
-        try:
-            req = idb.transaction(['files'], 'readwrite').objectStore('files').put(blob, ':-test-blob-:')
-        except Exception:
-            print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
-            return ui.db_initialized(DB(idb, ui, False))
-        req.onsuccess = def(event):
-            ui.db_initialized(DB(idb, ui, True))
-        req.onerror = def(event):
-            print('WARNING: browser does not support blob storage, calibre falling back to base64 encoding')
-            ui.db_initialized(DB(idb, ui, False))
+def get_db(callback, show_read_book_error):
+    if not get_db.ans:
+        get_db.ans = DB(callback)
+    return get_db.ans

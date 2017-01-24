@@ -21,3 +21,15 @@ def get_current_query(newval):
     if newval:
         get_current_query.ans = newval
     return get_current_query.ans
+
+
+def get_db(db):
+    if db:
+        get_db.db = db
+    return get_db.db
+
+
+def get_translations(val):
+    if val:
+        get_translations.ans = val
+    return get_translations.ans

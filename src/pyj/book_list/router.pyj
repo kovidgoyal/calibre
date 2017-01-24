@@ -8,6 +8,7 @@ from utils import parse_url_params
 
 mode_handlers = {}
 default_mode_handler = None
+read_book_mode = 'read_book'
 
 
 def set_mode_handler(mode, handler):
@@ -24,8 +25,13 @@ def update_window_title(subtitle, title='calibre', sep=' :: '):
     document.title = title + extra
 
 
+def is_reading_book():
+    cq = get_current_query
+    return cq and cq.mode is read_book_mode
+
+
 def apply_mode(mode):
-    divid = read_book_container_id if (mode or get_current_query().mode) is 'read_book' else book_list_container_id
+    divid = read_book_container_id if is_reading_book() else book_list_container_id
     for div in document.getElementById(divid).parentNode.childNodes:
         div.style.display = 'block' if div.id is divid else 'none'
 
@@ -37,3 +43,10 @@ def apply_url():
     apply_mode()
     handler = mode_handlers[data.mode] or default_mode_handler
     handler(data)
+
+
+def push_state(query, replace=False, mode='book_list'):
+    query = {k:query[k] for k in query}
+    if mode is not 'book_list':
+        query.mode = mode
+    # TODO: Implement this (see push_state in boos.pyj)

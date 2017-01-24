@@ -10,8 +10,9 @@ from gettext import gettext as _
 from modals import error_dialog
 from utils import human_readable, debounce
 
+from book_list.constants import read_book_container_id
+from read_book.db import get_db
 from book_list.router import update_window_title
-from read_book.db import create_db
 from read_book.view import View
 
 RENDER_VERSION = __RENDER_VERSION__
@@ -19,19 +20,17 @@ MATHJAX_VERSION = "__MATHJAX_VERSION__"
 
 class ReadUI:
 
-    def __init__(self, interface_data, container):
-        self.interface_data = interface_data
-        self.db = None
+    def __init__(self):
         self.current_metadata = {'title': _('Unknown book')}
         self.current_book_id = None
         self.manifest_xhr = None
-        create_db(self, interface_data)
         self.pending_load = None
         self.downloads_in_progress = []
         self.progress_id = 'book-load-progress'
         self.display_id = 'book-iframe-container'
         self.error_id = 'book-global-error-container'
         self.stacked_widgets = [self.progress_id, self.display_id, self.error_id]
+        container = document.getElementById(read_book_container_id)
 
         container.appendChild(E.div(
             id=self.progress_id, style='display:none; text-align: center',
@@ -51,6 +50,7 @@ class ReadUI:
         ))
         self.view = View(container.lastChild, self)
         window.addEventListener('resize', debounce(self.on_resize.bind(self), 250))
+        self.db = get_db(self.db_initialized.bind(self), self.show_error.bind(self))
 
     def on_resize(self):
         self.view.on_resize()
@@ -99,7 +99,7 @@ class ReadUI:
 
     def load_book(self, book_id, fmt, metadata, force_reload):
         self.base_url_data = {'book_id':book_id, 'fmt':fmt}
-        if self.db is None:
+        if not self.db.initialized:
             self.pending_load = [book_id, fmt, metadata, force_reload]
             return
         self.start_load(book_id, fmt, metadata, force_reload)
@@ -126,11 +126,13 @@ class ReadUI:
             ans.bookpos = bookpos
         return ans
 
-    def db_initialized(self, db):
-        self.db = db
+    def db_initialized(self):
         if self.pending_load is not None:
             pl, self.pending_load = self.pending_load, None
-            self.start_load(*pl)
+            if self.db.initialize_error_msg:
+                self.show_error(_('Failed to initialize IndexedDB'), self.db.initialize_error_msg)
+            else:
+                self.start_load(*pl)
 
     def start_load(self, book_id, fmt, metadata, force_reload):
         self.current_book_id = book_id
@@ -402,3 +404,6 @@ class ReadUI:
     def display_book_stage2(self, book):
         self.show_stack(self.display_id)
         self.view.display_book(book)
+
+    def apply_url_state(self, current_query):
+        pass

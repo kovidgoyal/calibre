@@ -8,7 +8,8 @@ from gettext import gettext as _
 from utils import html_escape
 
 from modals import error_dialog, warning_dialog
-from book_list.globals import get_session_data, get_boss, main_js
+from book_list.globals import get_session_data, main_js, get_translations
+from book_list.router import push_state, read_book_mode
 from read_book.globals import messenger, iframe_id, current_book, set_current_spine_item
 from read_book.resources import load_resources
 from read_book.overlay import Overlay
@@ -228,7 +229,7 @@ class View:
 
     def on_iframe_ready(self, data):
         messenger.reset()
-        self.send_message('initialize', secret=messenger.secret, translations=self.ui.interface_data.translations)
+        self.send_message('initialize', secret=messenger.secret, translations=get_translations())
         self.iframe_ready = True
         if self.pending_load:
             data = self.pending_load
@@ -354,7 +355,7 @@ class View:
 
     def on_update_cfi(self, data):
         self.currently_showing.bookpos = data.cfi
-        get_boss().push_state(replace=data.replace_history)
+        push_state(self.url_data, replace=data.replace_history, mode=read_book_mode)
         unkey = username_key(self.ui.interface_data.username)
         if not self.book.last_read_position:
             self.book.last_read_position = {}
