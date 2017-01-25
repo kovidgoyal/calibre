@@ -220,4 +220,3 @@ def cleanup_markup(log, root, styles, dest_dir, detect_cover, XPath):
                     log.debug('Detected an image that looks like a cover')
                     img.getparent().remove(img)
                     return path
-

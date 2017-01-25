@@ -7,19 +7,12 @@ __license__ = 'GPL v3'
 __copyright__ = '2013, Kovid Goyal <kovid at kovidgoyal.net>'
 
 from collections import namedtuple
+from itertools import count
 
 from lxml.etree import tostring
 
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.oeb.polish.toc import elem_to_toc_text
-
-
-class Count(object):
-
-    __slots__ = ('val',)
-
-    def __init__(self):
-        self.val = 0
 
 
 def from_headings(body, log, namespace):
@@ -33,13 +26,12 @@ def from_headings(body, log, namespace):
     level_item_map = {i+1:frozenset(xp(body)) for i, xp in enumerate(xpaths)}
     item_level_map = {e:i for i, elems in level_item_map.iteritems() for e in elems}
 
-    idcount = Count()
+    idcount = count()
 
     def ensure_id(elem):
         ans = elem.get('id', None)
         if not ans:
-            idcount.val += 1
-            ans = 'toc_id_%d' % idcount.val
+            ans = 'toc_id_%d' % (next(idcount) + 1)
             elem.set('id', ans)
         return ans
 
