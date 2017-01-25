@@ -134,7 +134,10 @@ class Images(object):
             with open(src, 'rb') as rawsrc:
                 raw = rawsrc.read()
         else:
-            raw = self.docx.read(fname)
+            try:
+                raw = self.docx.read(fname)
+            except KeyError:
+                raise LinkedImageNotFound(fname)
         base = base or image_filename(fname.rpartition('/')[-1]) or 'image'
         ext = what(None, raw) or base.rpartition('.')[-1] or 'jpeg'
         if ext == 'emf':
