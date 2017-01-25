@@ -140,6 +140,7 @@ class DB:
                 'manifest': None,
                 'cover_width': None,
                 'cover_height': None,
+                'cover_fname': None,
                 'last_read_position': {},
             })
         )
@@ -174,6 +175,7 @@ class DB:
             blob = Blob([data], {'type':'image/jpeg'})
         url = window.URL.createObjectURL(blob)
         img = new Image()
+        book.cover_fname = fname
         proceeded = False
 
         def done():
