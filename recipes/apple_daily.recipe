@@ -264,7 +264,7 @@ class AppleDaily(BasicNewsRecipe):
                                                          not self.has_single_feed,
                                                          a.orig_url, __appname__, prefix=prefix,
                                                          center=self.center_navbar)
-                            translatedTempl =re.sub('<hr.*<br','<hr>從<a href="'+a.orig_url+'">蘋果日報</a>下載至'+__appname__+
+                            translatedTempl =re.sub('<hr.*<br','<hr>本篇由 '+__appname__+' 快取自 <a href="http://hkm.appledaily.com/" >蘋果日報</a> ; <a href="'+a.orig_url+'">本篇來源位置</a>。'+
                                                     '<br',templ.render(doctype='xhtml').decode('utf-8'),flags=re.S)
                             elem = BeautifulSoup(translatedTempl).find('div')
                             body.insert(len(body.contents), elem)
