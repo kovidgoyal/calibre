@@ -313,7 +313,7 @@ def fetch_scheduled_recipe(arg):  # {{{
     if arg['password'] is not None:
         recs.append(('password', arg['password'], OptionRecommendation.HIGH))
 
-    return 'gui_convert', args, _('Fetch news from ')+arg['title'], fmt.upper(), [pt]
+    return 'gui_convert', args, _('Fetch news from %s')%arg['title'], fmt.upper(), [pt]
 
 # }}}
 
