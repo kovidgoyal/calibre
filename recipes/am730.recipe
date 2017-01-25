@@ -15,6 +15,8 @@ from calibre.utils.date import now as nowf
 import os
 import datetime
 import re
+import urllib
+
 from calibre.web.feeds.recipes import BasicNewsRecipe
 from contextlib import nested
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
@@ -24,13 +26,12 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.localization import canonicalize_lang
 
 
-class AppleDaily(BasicNewsRecipe):
+class AM730(BasicNewsRecipe):
     title = u'AM730'
     __author__ = 'Eddie Lau'
     publisher = 'AM730'
     oldest_article = 1
     max_articles_per_feed = 100
-    auto_cleanup = False
     language = 'zh'
     encoding = 'utf-8'
     auto_cleanup = False
@@ -39,240 +40,66 @@ class AppleDaily(BasicNewsRecipe):
     no_stylesheets = True
     description = 'http://www.am730.com.hk'
     category = 'Chinese, News, Hong Kong'
-    masthead_url = 'http://www.am730.com.hk/images/logo.jpg'
+    masthead_url = 'https://upload.wikimedia.org/wikipedia/en/5/58/Am730_Hong_Kong_newspaper_logo.png'
     extra_css = 'img {display: block; margin-left: auto; margin-right: auto; margin-top: 20px; margin-bottom: 20px; max-height:70%;} div[id=articleHeader] {font-size:200%; text-align:left; font-weight:bold;} li {font-size:50%; margin-left:auto; margin-right:auto;}'  # noqa
-    keep_only_tags = [dict(name='h2', attrs={'class': 'printTopic'}),
-                      dict(name='div', attrs={'id': 'article_content'}),
-                      dict(name='div', attrs={'id': 'slider'})]
-    remove_tags = [dict(name='img', attrs={'src': 'images/am730_article_logo.jpg'}),
-                   dict(name='img', attrs={'src': 'images/am_endmark.gif'})]
+    remove_tags =[dict(name='div',attrs={'class':'col-xs-12 col-sm-1 col-md-1 share-button'}),
+                dict(name='div',attrs={'class':'logo-container print-logo'}),
+                dict(name='div',attrs={'id':'galleria'})]
+    keep_only_tags = [dict(name='div', attrs={'class': 'col-xs-12 col-sm-12 col-md-12 news-detail-content-container'}),
+                     #dict(name='div',attrs={'class':'columns-left'})]
+                     ]
+    compress_news_images = True
+    compress_news_images_auto_size = 16
+    compress_news_images_max_size = 20 #kB
+    scale_news_images =(600,800)
+    ignore_duplicate_articles = {'title', 'url'}
 
-    def get_dtlocal(self):
-        dt_utc = datetime.datetime.utcnow()
-        # convert UTC to local hk time - at HKT 6am, all news are available
-        return dt_utc + datetime.timedelta(8.0 / 24) - datetime.timedelta(6.0 / 24)
+    debug=False
 
-    def get_fetchdate(self):
-        if __Date__ != '':
-            return __Date__
-        else:
-            return self.get_dtlocal().strftime("%Y%m%d")
+    def getAMSectionArticles(self, sectionName,url):
+        # print sectionName
+        soup = self.index_to_soup(url)
+        articles = []
+        for aTag in soup.findAll('a',attrs={'class':'newsimglink'}):
+            href = aTag.get('href',False)
+            if not href.encode("utf-8").startswith(url.encode("utf-8")) :
+                continue #not in same section
+            
+            title = href.split('/')[-1].split('-')[0]
+            title = urllib.unquote(title.encode('ASCII'))#.decode('utf-8') 
+            if self.debug:
+                print title
+            try:
+                if articles.index({'title':title,'url':href})>=0:
+                    # print 'already added'
+                    continue #already added
+            except:    
+                pass    
 
-    def get_fetchformatteddate(self):
-        if __Date__ != '':
-            return __Date__[0:4] + '-' + __Date__[4:6] + '-' + __Date__[6:8]
-        else:
-            return self.get_dtlocal().strftime("%Y-%m-%d")
+            articles.append({'title':title,'url':href})
 
-    def get_fetchyear(self):
-        if __Date__ != '':
-            return __Date__[0:4]
-        else:
-            return self.get_dtlocal().strftime("%Y")
-
-    def get_fetchmonth(self):
-        if __Date__ != '':
-            return __Date__[4:6]
-        else:
-            return self.get_dtlocal().strftime("%m")
-
-    def get_fetchday(self):
-        if __Date__ != '':
-            return __Date__[6:8]
-        else:
-            return self.get_dtlocal().strftime("%d")
-
-    # Note: does not work with custom date given by __Date__
-    def get_weekday(self):
-        return self.get_dtlocal().weekday()
-
-    def get_cover_url(self):
-        soup = self.index_to_soup('http://www.am730.com.hk')
-        cover = 'http://www.am730.com.hk/' + \
-            soup.find(attrs={'id': 'mini_news_img'}).find(
-                'img').get('src', False)
-        br = BasicNewsRecipe.get_browser(self)
-        try:
-            br.open(cover)
-        except:
-            cover = None
-        return cover
-
-    def populate_article_metadata(self, article, soup, first):
-        if first and hasattr(self, 'add_toc_thumbnail'):
-            picdiv = soup.find('img')
-            if picdiv is not None:
-                self.add_toc_thumbnail(article, picdiv['src'])
+            if ( len(articles) >= self.max_articles_per_feed ):
+                break
+        if self.debug:
+            print articles
+        return (sectionName,articles)
 
     def parse_index(self):
-        feeds = []
-        soup = self.index_to_soup('http://www.am730.com.hk/')
-        optgroups = soup.findAll('optgroup')
-        for optgroup in optgroups:
-            sectitle = optgroup.get('label')
-            articles = []
-            for option in optgroup.findAll('option'):
-                articlelink = "http://www.am730.com.hk/" + option.get('value')
-                title = option.string
-                articles.append({'title': title, 'url': articlelink})
-            feeds.append((sectitle, articles))
-        return feeds
-
-    def create_opf(self, feeds, dir=None):
-        if dir is None:
-            dir = self.output_dir
-        title = self.short_title()
-        if self.output_profile.periodical_date_in_title:
-            title += strftime(self.timefmt)
-        mi = MetaInformation(title, [__appname__])
-        mi.publisher = __appname__
-        mi.author_sort = __appname__
-        if self.publication_type:
-            mi.publication_type = 'periodical:' + \
-                self.publication_type + ':' + self.short_title()
-        mi.timestamp = nowf()
-        article_titles, aseen = [], set()
-        for f in feeds:
-            for a in f:
-                if a.title and a.title not in aseen:
-                    aseen.add(a.title)
-                    article_titles.append(force_unicode(a.title, 'utf-8'))
-
-        mi.comments = self.description
-        if not isinstance(mi.comments, unicode):
-            mi.comments = mi.comments.decode('utf-8', 'replace')
-        mi.comments += ('\n\n' + _('Articles in this issue: ') + '\n' +
-                        '\n\n'.join(article_titles))
-
-        language = canonicalize_lang(self.language)
-        if language is not None:
-            mi.language = language
-        # This one affects the pub date shown in kindle title
-        # now appears to need the time field to be > 12.00noon as well
-        mi.pubdate = datetime.datetime(int(self.get_fetchyear()), int(
-            self.get_fetchmonth()), int(self.get_fetchday()), 12, 30, 0)
-        opf_path = os.path.join(dir, 'index.opf')
-        ncx_path = os.path.join(dir, 'index.ncx')
-
-        opf = OPFCreator(dir, mi)
-        # Add mastheadImage entry to <guide> section
-        mp = getattr(self, 'masthead_path', None)
-        if mp is not None and os.access(mp, os.R_OK):
-            from calibre.ebooks.metadata.opf2 import Guide
-            ref = Guide.Reference(os.path.basename(
-                self.masthead_path), os.getcwdu())
-            ref.type = 'masthead'
-            ref.title = 'Masthead Image'
-            opf.guide.append(ref)
-
-        manifest = [os.path.join(dir, 'feed_%d' % i)
-                    for i in range(len(feeds))]
-        manifest.append(os.path.join(dir, 'index.html'))
-        manifest.append(os.path.join(dir, 'index.ncx'))
-
-        # Get cover
-        cpath = getattr(self, 'cover_path', None)
-        if cpath is None:
-            pf = open(os.path.join(dir, 'cover.jpg'), 'wb')
-            if self.default_cover(pf):
-                cpath = pf.name
-        if cpath is not None and os.access(cpath, os.R_OK):
-            opf.cover = cpath
-            manifest.append(cpath)
-
-        # Get masthead
-        mpath = getattr(self, 'masthead_path', None)
-        if mpath is not None and os.access(mpath, os.R_OK):
-            manifest.append(mpath)
-
-        opf.create_manifest_from_files_in(manifest)
-        for mani in opf.manifest:
-            if mani.path.endswith('.ncx'):
-                mani.id = 'ncx'
-            if mani.path.endswith('mastheadImage.jpg'):
-                mani.id = 'masthead-image'
-
-        entries = ['index.html']
-        toc = TOC(base_path=dir)
-        self.play_order_counter = 0
-        self.play_order_map = {}
-
-        def feed_index(num, parent):
-            f = feeds[num]
-            for j, a in enumerate(f):
-                if getattr(a, 'downloaded', False):
-                    adir = 'feed_%d/article_%d/' % (num, j)
-                    auth = a.author
-                    if not auth:
-                        auth = None
-                    desc = a.text_summary
-                    if not desc:
-                        desc = None
-                    else:
-                        desc = self.description_limiter(desc)
-                    tt = a.toc_thumbnail if a.toc_thumbnail else None
-                    entries.append('%sindex.html' % adir)
-                    po = self.play_order_map.get(entries[-1], None)
-                    if po is None:
-                        self.play_order_counter += 1
-                        po = self.play_order_counter
-                    parent.add_item('%sindex.html' % adir, None,
-                                    a.title if a.title else _(
-                                        'Untitled Article'),
-                                    play_order=po, author=auth,
-                                    description=desc, toc_thumbnail=tt)
-                    last = os.path.join(
-                        self.output_dir, ('%sindex.html' % adir).replace('/', os.sep))
-                    for sp in a.sub_pages:
-                        prefix = os.path.commonprefix([opf_path, sp])
-                        relp = sp[len(prefix):]
-                        entries.append(relp.replace(os.sep, '/'))
-                        last = sp
-
-                    if os.path.exists(last):
-                        with open(last, 'rb') as fi:
-                            src = fi.read().decode('utf-8')
-                        soup = BeautifulSoup(src)
-                        body = soup.find('body')
-                        if body is not None:
-                            prefix = '/'.join('..'for i in range(2 *
-                                                                 len(re.findall(r'link\d+', last))))
-                            templ = self.navbar.generate(True, num, j, len(f),
-                                                         not self.has_single_feed,
-                                                         a.orig_url, __appname__, prefix=prefix,
-                                                         center=self.center_navbar)
-                            elem = BeautifulSoup(templ.render(
-                                doctype='xhtml').decode('utf-8')).find('div')
-                            body.insert(len(body.contents), elem)
-                            with open(last, 'wb') as fi:
-                                fi.write(unicode(soup).encode('utf-8'))
-        if len(feeds) == 0:
-            raise Exception('All feeds are empty, aborting.')
-
-        if len(feeds) > 1:
-            for i, f in enumerate(feeds):
-                entries.append('feed_%d/index.html' % i)
-                po = self.play_order_map.get(entries[-1], None)
-                if po is None:
-                    self.play_order_counter += 1
-                    po = self.play_order_counter
-                auth = getattr(f, 'author', None)
-                if not auth:
-                    auth = None
-                desc = getattr(f, 'description', None)
-                if not desc:
-                    desc = None
-                feed_index(i, toc.add_item('feed_%d/index.html' % i, None,
-                                           f.title, play_order=po, description=desc, author=auth))
-
-        else:
-            entries.append('feed_%d/index.html' % 0)
-            feed_index(0, toc)
-
-        for i, p in enumerate(entries):
-            entries[i] = os.path.join(dir, p.replace('/', os.sep))
-        opf.create_spine(entries)
-        opf.set_toc(toc)
-
-        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
-            opf.render(opf_file, ncx_file)
+        #hard code sections
+        Sections=[ ('新聞','https://www.am730.com.hk/news/%E6%96%B0%E8%81%9E'),
+        ('財經','https://www.am730.com.hk/news/%E8%B2%A1%E7%B6%93'),
+        ('健康','https://www.am730.com.hk/news/%E5%81%A5%E5%BA%B7'),
+        ('科技','https://www.am730.com.hk/news/%E7%A7%91%E6%8A%80'),
+        ('體育','https://www.am730.com.hk/news/%E9%AB%94%E8%82%B2'),
+        ('娛樂','https://www.am730.com.hk/news/%E5%A8%9B%E6%A8%82'),
+        ('旅遊.飲食','https://www.am730.com.hk/news/%E6%97%85%E9%81%8A.%E9%A3%B2%E9%A3%9F')
+         ]       # articles =[]
+        SectionsArticles=[]
+        for (title, url) in Sections:
+            if self.debug:
+                print title
+                print url
+            SectionsArticles.append(self.getAMSectionArticles(title,url))
+        # articles.append({'title': '狗狗救墮激流同伴？搶樹枝？', 'url': 'https://www.am730.com.hk/news/%E6%96%B0%E8%81%9E/%E7%8B%97%E7%8B%97%E6%95%91%E5%A2%AE%E6%BF%80%E6%B5%81%E5%90%8C%E4%BC%B4%EF%BC%9F%E6%90%B6%E6%A8%B9%E6%9E%9D%EF%BC%9F-15432'})
+#        feeds.append(articles[0]['url'])
+        return SectionsArticles
