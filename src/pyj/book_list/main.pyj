@@ -102,11 +102,20 @@ def load_interface_data():
     ajax('interface-data/init', on_data_loaded, on_data_load_progress, query=query).send()
 
 
+def on_update_interface_data():
+    ajax('interface-data/update', def (end_type, xhr, ev):
+        if end_type is 'load':
+            data = JSON.parse(xhr.responseText)
+            update_interface_data(data)
+    ).send()
+
+
 def main():
-    if get_interface_data().is_default:
+    interface_data = get_interface_data()
+    if interface_data.is_default or not interface_data.library_map:
         load_interface_data()
     else:
-        interface_data = get_interface_data()
         sd = UserSessionData(interface_data.username, interface_data.user_session_data)
         set_session_data(sd)
+        on_update_interface_data()
         init_ui()

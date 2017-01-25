@@ -64,6 +64,7 @@ def get_basic_query_data(ctx, rd):
         sorts, orders = ['timestamp'], ['desc']
     return library_id, db, sorts, orders
 
+
 _cached_translations = None
 
 
@@ -82,17 +83,11 @@ def get_translations():
                 _cached_translations = load_json_file(zf.open(lang, 'r'))
     return _cached_translations
 
+
 DEFAULT_NUMBER_OF_BOOKS = 50
 
 
-@endpoint('/interface-data/init', postprocess=json)
-def interface_data(ctx, rd):
-    '''
-    Return the data needed to create the server main UI
-
-    Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
-              &search=''&extra_books=''
-    '''
+def basic_interface_data(ctx, rd):
     ans = {
         'username':rd.username,
         'output_format':prefs['output_format'].upper(),
@@ -103,8 +98,30 @@ def interface_data(ctx, rd):
         'use_roman_numerals_for_series_number': get_use_roman(),
         'translations': get_translations(),
         'allow_console_print':getattr(rd.opts, 'allow_console_print', False),
+        'icon_map': icon_map(),
+        'icon_path': ctx.url_for('/icon', which=''),
     }
-    ans['library_map'], ans['default_library'] = ctx.library_info(rd)
+    ans['library_map'], ans['default_library_id'] = ctx.library_info(rd)
+    return ans
+
+
+@endpoint('/interface-data/update', postprocess=json)
+def update_interface_data(ctx, rd):
+    '''
+    Return the interface data needed for the server UI
+    '''
+    return basic_interface_data(ctx, rd)
+
+
+@endpoint('/interface-data/init', postprocess=json)
+def interface_data(ctx, rd):
+    '''
+    Return the data needed to create the server UI as well as a list of books.
+
+    Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
+              &search=''&extra_books=''
+    '''
+    ans = basic_interface_data(ctx, rd)
     ud = {}
     if rd.username:
         # Override session data with stored values for the authenticated user,
@@ -133,8 +150,6 @@ def interface_data(ctx, rd):
             sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
                                         key=lambda (field, name):sort_key(name))
         ans['field_metadata'] = db.field_metadata.all_metadata()
-        ans['icon_map'] = icon_map()
-        ans['icon_path'] = ctx.url_for('/icon', which='')
         mdata = ans['metadata'] = {}
         try:
             extra_books = set(int(x) for x in rd.query.get('extra_books', '').split(','))

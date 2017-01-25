@@ -142,6 +142,8 @@ default_interface_data = {
     'gui_last_modified_display_format': 'dd MMM yyyy',
     'use_roman_numerals_for_series_number': True,
     'allow_console_print':False,
+    'default_library_id': None,
+    'library_map': None,
 }
 
 def get_interface_data():
