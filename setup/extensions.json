@@ -218,6 +218,7 @@
         "inc_dirs": "unrar",
         "defines": "SILENT RARDLL UNRAR _FILE_OFFSET_BITS=64 _LARGEFILE_SOURCE",
         "windows_defines": "SILENT RARDLL UNRAR",
+        "haiku_defines": "LITTLE_ENDIAN",
         "optimize_level": 2,
         "windows_libraries": "User32 Advapi32 kernel32 Shell32"
     }
