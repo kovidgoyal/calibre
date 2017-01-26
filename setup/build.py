@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
 from collections import namedtuple
 
-from setup import Command, islinux, isbsd, isosx, SRC, iswindows, __version__
+from setup import Command, islinux, isbsd, isosx, ishaiku, SRC, iswindows, __version__
 isunix = islinux or isosx or isbsd
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
@@ -100,6 +100,8 @@ def parse_extension(ext):
             ans = ext.pop('osx_' + k, ans)
         elif isbsd:
             ans = ext.pop('bsd_' + k, ans)
+        elif ishaiku:
+            ans = ext.pop('haiku_' + k, ans)
         else:
             ans = ext.pop('linux_' + k, ans)
         return ans
@@ -152,6 +154,12 @@ def init_env():
 
     if isbsd:
         cflags.append('-pthread')
+        ldflags.append('-shared')
+        cflags.append('-I'+sysconfig.get_python_inc())
+        ldflags.append('-lpython'+sysconfig.get_python_version())
+
+    if ishaiku:
+        cflags.append('-lpthread')
         ldflags.append('-shared')
         cflags.append('-I'+sysconfig.get_python_inc())
         ldflags.append('-lpython'+sysconfig.get_python_version())
