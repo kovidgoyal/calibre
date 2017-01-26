@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 
 import sys, os, textwrap, subprocess, shutil, tempfile, atexit, glob
 
-from setup import (Command, islinux, isbsd, basenames, modules, functions,
+from setup import (Command, islinux, isbsd, ishaiku, basenames, modules, functions,
         __appname__, __version__)
 
 HEADER = '''\
@@ -115,7 +115,7 @@ class Develop(Command):
             self.info('\tSHARE:', self.staging_sharedir)
 
     def pre_sub_commands(self, opts):
-        if not (islinux or isbsd):
+        if not (islinux or isbsd or ishaiku):
             self.info('\nSetting up a source based development environment is only '
                     'supported on linux. On other platforms, see the User Manual'
                     ' for help with setting up a development environment.')
