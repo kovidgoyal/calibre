@@ -155,11 +155,12 @@ class KF8Writer(object):
     def extract_css_into_flows(self):
         inlines = defaultdict(list)  # Ensure identical <style>s not repeated
         sheets = {}
+        passthrough = getattr(self.opts, 'mobi_passthrough', False)
 
         for item in self.oeb.manifest:
             if item.media_type in OEB_STYLES:
                 sheet = self.data(item)
-                if not self.opts.expand_css and hasattr(item.data, 'cssText'):
+                if not passthrough and not self.opts.expand_css and hasattr(item.data, 'cssText'):
                     condense_sheet(sheet)
                 sheets[item.href] = len(self.flows)
                 self.flows.append(sheet)
@@ -495,4 +496,3 @@ class KF8Writer(object):
 def create_kf8_book(oeb, opts, resources, for_joint=False):
     writer = KF8Writer(oeb, opts, resources)
     return KF8Book(writer, for_joint=for_joint)
-
