@@ -337,7 +337,7 @@ class Build(Command):
 
     def build_headless(self):
         from setup.parallel_build import cpu_count
-        if iswindows or isosx:
+        if iswindows or isosx or ishaiku:
             return  # Dont have headless operation on these platforms
         from setup.build_environment import glib_flags, fontconfig_flags, ft_inc_dirs, QMAKE
         from PyQt5.QtCore import QT_VERSION
