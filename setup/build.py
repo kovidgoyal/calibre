@@ -366,7 +366,9 @@ class Build(Command):
             PLUGIN_CLASS_NAME = HeadlessIntegrationPlugin
             QT += core-private gui-private
             greaterThan(QT_MAJOR_VERSION, 5)|greaterThan(QT_MINOR_VERSION, 7): {{
-                QT += theme_support-private
+                TEMPLATE = lib
+                CONFIG += plugin
+                QT += theme_support-private fontdatabase_support_private service_support_private eventdispatcher_support_private
             }} else {{
                 load(qt_plugin)
                 QT += platformsupport-private
