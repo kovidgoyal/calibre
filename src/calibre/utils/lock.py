@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 Secure access to locked files from multiple processes.
 '''
 
-from calibre.constants import iswindows, __appname__, islinux, win32api, win32event, winerror, fcntl
+from calibre.constants import iswindows, __appname__, islinux, ishaiku, win32api, win32event, winerror, fcntl
 import time, atexit, os, stat, errno
 
 
@@ -227,6 +227,10 @@ elif islinux:
         old_flags = fcntl.fcntl(fd, fcntl.F_GETFD)
         fcntl.fcntl(fd, fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
         atexit.register(sock.close)
+        return True
+elif ishaiku:
+    def singleinstance(name):
+        # Somebody should fix this.
         return True
 else:
     def singleinstance_path(name):

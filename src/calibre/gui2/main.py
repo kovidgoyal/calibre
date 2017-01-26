@@ -10,7 +10,7 @@ from PyQt5.Qt import (
 
 from calibre import prints, plugins, force_unicode
 from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
-        filesystem_encoding, get_portable_base)
+        ishaiku, filesystem_encoding, get_portable_base)
 from calibre.utils.ipc import gui_socket_address, RC
 from calibre.gui2 import (
     initialize_file_icon_provider, Application, choose_dir,
