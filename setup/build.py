@@ -10,7 +10,7 @@ import textwrap, os, shlex, subprocess, glob, shutil, re, sys, json
 from collections import namedtuple
 
 from setup import Command, islinux, isbsd, isosx, ishaiku, SRC, iswindows, __version__
-isunix = islinux or isosx or isbsd
+isunix = islinux or isosx or isbsd or ishaiku
 
 py_lib = os.path.join(sys.prefix, 'libs', 'python%d%d.lib' % sys.version_info[:2])
 
@@ -81,7 +81,7 @@ def is_ext_allowed(ext):
     only = ext.get('only', '')
     if only:
         only = only.split()
-        q = 'windows' if iswindows else 'osx' if isosx else 'bsd' if isbsd else 'linux'
+        q = 'windows' if iswindows else 'osx' if isosx else 'bsd' if isbsd else 'haiku' if ishaiku else 'linux'
         return q in only
     return True
 
