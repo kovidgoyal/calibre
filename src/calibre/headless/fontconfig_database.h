@@ -7,7 +7,11 @@
 #pragma once
 
 #include <qpa/qplatformfontdatabase.h>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtFontDatabaseSupport/private/qbasicfontdatabase_p.h>
+#else
 #include <QtPlatformSupport/private/qbasicfontdatabase_p.h>
+#endif
 
 QT_BEGIN_NAMESPACE
 

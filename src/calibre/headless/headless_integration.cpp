@@ -4,10 +4,18 @@
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 4, 1))
 #include "fontconfig_database.h"
 #else
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtFontDatabaseSupport/private/qfontconfigdatabase_p.h>
+#else
 #include <QtPlatformSupport/private/qfontconfigdatabase_p.h>
 #endif
+#endif
 #ifndef Q_OS_WIN
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 8, 0))
+#include <QtEventDispatcherSupport/private/qgenericunixeventdispatcher_p.h>
+#else
 #include <QtPlatformSupport/private/qgenericunixeventdispatcher_p.h>
+#endif
 #else
 #include <QtCore/private/qeventdispatcher_win_p.h>
 #endif
