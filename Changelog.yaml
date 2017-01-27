@@ -20,6 +20,61 @@
 #   new recipes:
 #     - title:
 
+- version: 2.78.0
+  date: 2017-01-27
+
+  new features:
+    - title: "View button: Add an action to the right click menu that always opens the book with the calibre viewer, regardless of the preferences"
+
+    - title: "Kobo driver: Update to support the newest firmware from Kobo"
+
+    - title: "E-book viewer: Allow opening a specific item from the Table of Contents via the --open-at command line parameter."
+      tickets: [1656573]
+
+    - title: "Amazon metadata download: Add support for downloading from amazon.ca"
+
+  bug fixes:
+    - title: "Edit Book: Do not condense CSS rules when saving AZW3 files regardless of the value of Preferences->Common Options->Look & Feel->Expand CSS"
+
+    - title: "EPUB Output: Fix a duplicate id created in rare circumstances when splitting on page breaks."
+      tickets: [1658744]
+
+    - title: "DOCX Input: Fix error when converting documents that have images pointing to web resources."
+      tickets: [1659142]
+
+    - title: "E-book viewer: Fix a regression that caused an increase in load times when loading the individual HTML files inside an EPUB book."
+      tickets: [1658578]
+
+    - title: "Fix setting a similar books search to use the formats field in Preferences->Searching resulting in an error."
+      tickets: [1658386]
+
+    - title: "Kobo driver: Fix incorrect cover size being uploaded to the Glo HD"
+
+    - title: "E-book viewer: Fix 'View Image' right click menu action not available for svg files included via <img> tags."
+      tickets: [1657717]
+
+    - title: "HTML Input: Remove the # character from input filenames, for maximum compatibility."
+      tickets: [1656833 ]
+
+    - title: "Edit Book: Fix spell check treating the unicode hyphen (U+2010) differently from the normal hyphen (U+002d)."
+      tickets: [1656319]
+
+  improved recipes:
+    - FOX News
+    - Oriental Daily
+    - AM730
+    - The Times
+    - NYTimes
+    - Mediapart
+    - Echo Online
+    - kath.net
+    - GoComics
+    - The Hindu
+
+  new recipes:
+    - title: The Sunday Times Magazine
+      author: Bobby Steel
+
 - version: 2.77.0
   date: 2017-01-13
 
