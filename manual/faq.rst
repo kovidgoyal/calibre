@@ -698,7 +698,7 @@ How do I move my calibre data from one computer to another?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can export all calibre data (books, settings and plugins) and
-then import it on another computer. First let use see how to export the data:
+then import it on another computer. First let's see how to export the data:
 
   * Right click the calibre icon in the main calibre toolbar and select
     :guilabel:`Export/Import all calibre data`. Then click the button labelled
