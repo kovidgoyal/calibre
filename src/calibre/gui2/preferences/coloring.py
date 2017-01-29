@@ -1107,6 +1107,7 @@ class EditRules(QWidget):  # {{{
                 return error_dialog(self, _('No valid rules found'), _(
                     'No valid rules were found in {}.').format(files[0]), det_msg=as_unicode(e), show=True)
             self.model.import_rules(rules)
+            self.changed.emit()
 # }}}
 
 
