@@ -41,7 +41,7 @@ class AppleDaily(BasicNewsRecipe):
     remove_tags = [dict(name='div', attrs={'class': 'prev-next-btn'}),
                    dict(name='p', attrs={'class': 'next'}),
                    dict(name='meta'),
-                   dict(name='link')]]
+                   dict(name='link')]
 
     def get_dtlocal(self):
         dt_utc = datetime.datetime.utcnow()
