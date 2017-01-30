@@ -159,7 +159,7 @@ The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for 
 
 The :guilabel:`Fetch news` action has three variations, accessed by doing a right-click on the button.
 
-    1. **Schedule news download**: Allows you to schedule the download of of your selected news sources from a list of hundreds available.  Scheduling can be set individually for each news source you select and the scheduling is flexible allowing you to select specific days of the week or a frequency of days between downloads.
+    1. **Schedule news download**: Allows you to schedule the download of your selected news sources from a list of hundreds available.  Scheduling can be set individually for each news source you select and the scheduling is flexible allowing you to select specific days of the week or a frequency of days between downloads.
     2. **Add a custom news source**: Allows you to create a simple recipe for downloading news from a custom news site that you wish to access.  Creating the recipe can be as simple as specifying an RSS news feed URL, or you can be more prescriptive by creating Python-based code for the task. For more information see :ref:`news`.
     3. **Download all scheduled news sources**: Causes calibre to immediately begin downloading all news sources that you have scheduled.
 
