@@ -42,9 +42,9 @@ class NewYorker(BasicNewsRecipe):
         ph = soup.find(
             'div', attrs={'class': lambda x: x and 'cover-info' in x.split()})
         if ph is not None:
-            img = ph.find('img', src=True)
+            img = ph.find('img')
             if img is not None:
-                self.cover_url = img['src'].replace('-320.jpg', '.jpg')
+                self.cover_url = img['data-src']
         articles = []
         current_section = 'Current Issue'
         feeds = []
