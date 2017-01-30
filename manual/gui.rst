@@ -80,7 +80,7 @@ Edit metadata
 |emii| The :guilabel:`Edit metadata` action has four variations which can be accessed by doing a right-click on the button.
 
     1. **Edit metadata individually**: Allows you to edit the metadata of books one-by-one with the option of fetching metadata, including covers, from the Internet. It also allows you to add or remove particular ebook formats from a book.
-    2. **Edit metadata in bulk**: Allows you to edit common metadata fields for large numbers of books simulataneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
+    2. **Edit metadata in bulk**: Allows you to edit common metadata fields for large numbers of books simultaneously. It operates on all the books you have selected in the :ref:`Library view <search_sort>`.
     3. **Download metadata and covers**: Downloads metadata and covers (if available) for the books that are selected in the book list.
     4. **Merge book records**: Gives you the capability of merging the metadata and formats of two or more book records. You can choose to either delete or keep the records that were not clicked first.
 
