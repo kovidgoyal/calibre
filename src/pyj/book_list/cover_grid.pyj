@@ -11,7 +11,7 @@ THUMBNAIL_MAX_HEIGHT = 400
 BORDER_RADIUS = 10
 
 def cover_grid_css():
-    sel = '#' + this
+    sel = '.' + this
     ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow='hidden')
 
     # Container for an individual cover
@@ -65,4 +65,3 @@ def create_item(book_id, interface_data, onclick):
 def append_item(container, item):
     first_filler = container.lastChild.querySelector('.cover-grid-filler')
     container.lastChild.insertBefore(item, first_filler)
-

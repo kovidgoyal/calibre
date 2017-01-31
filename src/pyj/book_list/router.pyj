@@ -2,6 +2,8 @@
 # License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
 from __python__ import hash_literals, bound_methods
 
+from ajax import encode_query
+
 from book_list.constants import read_book_container_id, book_list_container_id
 from book_list.globals import get_current_query
 from utils import parse_url_params
@@ -26,7 +28,7 @@ def update_window_title(subtitle, title='calibre', sep=' :: '):
 
 
 def is_reading_book():
-    cq = get_current_query
+    cq = get_current_query()
     return cq and cq.mode is read_book_mode
 
 
@@ -36,17 +38,42 @@ def apply_mode(mode):
         div.style.display = 'block' if div.id is divid else 'none'
 
 
-def apply_url():
+def apply_url(ignore_handler):
     data = parse_url_params()
     data.mode = data.mode or 'book_list'
     get_current_query(data)
     apply_mode()
-    handler = mode_handlers[data.mode] or default_mode_handler
-    handler(data)
+    if not ignore_handler:
+        handler = mode_handlers[data.mode] or default_mode_handler
+        handler(data)
 
 
-def push_state(query, replace=False, mode='book_list'):
+history_count = 0
+
+
+def push_state(query, replace=False, mode='book_list', call_handler=True):
+    nonlocal history_count
     query = {k:query[k] for k in query}
     if mode is not 'book_list':
         query.mode = mode
-    # TODO: Implement this (see push_state in boos.pyj)
+    query = encode_query(query) or '?'
+    if replace:
+        window.history.replaceState(None, '', query)
+    else:
+        window.history.pushState(None, '', query)
+        history_count += 1
+    apply_url(not call_handler)
+
+
+def on_pop_state(ev):
+    nonlocal history_count
+    history_count = max(0, history_count - 1)
+    apply_url()
+
+
+def back():
+    nonlocal history_count
+    if history_count > 0:
+        window.back()
+    else:
+        push_state({}, replace=True)

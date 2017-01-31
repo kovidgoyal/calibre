@@ -25,13 +25,18 @@ def debounce(func, wait, immediate=False):
             func.apply(context, args)
 
 def parse_url_params(url=None, allow_multiple=False):
+    cache = parse_url_params.cache
     url = url or window.location.href
+    if cache[url]:
+        return parse_url_params.cache[url]
     qs = url.indexOf('?')
     ans = {}
     if qs < 0:
+        cache[url] = ans
         return ans
     q = url.slice(qs + 1, ((url.indexOf('#') + 1) or (url.length + 1)))
     if not q:
+        cache[url] = ans
         return ans
     pairs = q.replace(/\+/g, " ").split("&")
     for pair in pairs:
@@ -43,7 +48,9 @@ def parse_url_params(url=None, allow_multiple=False):
             ans[key].append(val)
         else:
             ans[key] = val
+    cache[url] = ans
     return ans
+parse_url_params.cache = {}
 
 _roman = list(zip(
 [1000,900,500,400,100,90,50,40,10,9,5,4,1],

@@ -1,0 +1,46 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+from ajax import ajax
+from session import get_interface_data
+from utils import parse_url_params
+
+
+load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
+library_data = {}
+current_fetch = None
+
+
+def current_library_id():
+    return parse_url_params().library_id or get_interface_data().library_id
+
+
+def update_library_data(data):
+    load_status.loading = False
+    load_status.ok = True
+    load_status.error_html = None
+    for key in 'search_result sortable_fields field_metadata metadata'.split(' '):
+        library_data[key] = data[key]
+
+
+def on_data_loaded(end_type, xhr, ev):
+    load_status.current_fetch = None
+    if end_type is 'load':
+        data = JSON.parse(xhr.responseText)
+        update_library_data(data)
+    else:
+        load_status.ok = False
+        load_status.loading = False
+        load_status.error_html = xhr.error_html
+
+
+def fetch_init_data():
+    if load_status.current_fetch:
+        load_status.current_fetch.abort()
+    query = {'library_id': current_library_id()}
+    url_query = parse_url_params()
+    for key in url_query:
+        query[key] = url_query[key]
+    load_status.current_fetch = ajax('interface-data/books-init', on_data_loaded, query=query)
+    load_status.current_fetch.send()

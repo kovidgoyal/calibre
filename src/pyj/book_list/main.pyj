@@ -13,14 +13,16 @@ from popups import install_event_filters
 from utils import parse_url_params
 
 from book_list.constants import book_list_container_id, read_book_container_id
+from book_list.library_data import fetch_init_data
 from book_list.theme import get_color
-from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler
+from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
 from book_list.globals import get_db, set_session_data
 from book_list.ui import apply_url_state as book_list_mode_handler
 from read_book.ui import ReadUI
 
 # Register the various panels
 import book_list.home  # noqa: unused-import
+import book_list.views # noqa: unused-import
 
 
 def remove_initial_progress_bar():
@@ -48,6 +50,10 @@ def init_ui():
     install_event_filters()
     set_default_mode_handler(book_list_mode_handler)
     window.onerror = onerror
+    setTimeout(def():
+            window.onpopstate = on_pop_state
+        , 0)  # We do this after event loop ticks over to avoid catching popstate events that some browsers send on page load
+
     translations = get_translations()
     if translations:
         install(translations)
@@ -64,6 +70,7 @@ def init_ui():
     get_db(read_ui.db)
     set_mode_handler('read_book', read_ui.apply_url_state.bind(read_ui))
     apply_url()
+
 
 def on_data_loaded(end_type, xhr, ev):
     remove_initial_progress_bar()
@@ -84,10 +91,12 @@ def on_data_loaded(end_type, xhr, ev):
             p.innerHTML = xhr.error_html
         document.body.appendChild(p)
 
+
 def on_data_load_progress(loaded, total):
     p = document.querySelector('#page_load_progress > progress')
     p.max = total
     p.value = loaded
+
 
 def load_interface_data():
     temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
@@ -102,7 +111,7 @@ def load_interface_data():
     ajax('interface-data/init', on_data_loaded, on_data_load_progress, query=query).send()
 
 
-def on_update_interface_data():
+def do_update_interface_data():
     ajax('interface-data/update', def (end_type, xhr, ev):
         if end_type is 'load':
             data = JSON.parse(xhr.responseText)
@@ -117,5 +126,6 @@ def main():
     else:
         sd = UserSessionData(interface_data.username, interface_data.user_session_data)
         set_session_data(sd)
-        on_update_interface_data()
+        do_update_interface_data()
+        fetch_init_data()
         init_ui()

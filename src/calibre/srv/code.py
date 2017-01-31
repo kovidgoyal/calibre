@@ -113,6 +113,52 @@ def update_interface_data(ctx, rd):
     return basic_interface_data(ctx, rd)
 
 
+def get_library_init_data(ctx, rd, db, num, sorts, orders):
+    ans = {}
+    with db.safe_read_lock:
+        try:
+            ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders))
+        except ParseException:
+            ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
+        sf = db.field_metadata.ui_sortable_field_keys()
+        sf.pop('ondevice', None)
+        ans['sortable_fields'] = sorted(((
+            sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
+                                        key=lambda (field, name):sort_key(name))
+        ans['field_metadata'] = db.field_metadata.all_metadata()
+        mdata = ans['metadata'] = {}
+        try:
+            extra_books = set(int(x) for x in rd.query.get('extra_books', '').split(','))
+        except Exception:
+            extra_books = ()
+        for coll in (ans['search_result']['book_ids'], extra_books):
+            for book_id in coll:
+                if book_id not in mdata:
+                    data = book_as_json(db, book_id)
+                    if data is not None:
+                        mdata[book_id] = data
+    return ans
+
+
+@endpoint('/interface-data/books-init', postprocess=json)
+def books(ctx, rd):
+    '''
+    Get data to create list of books
+
+    Optional: ?num=50&sort=timestamp.desc&library_id=<default library>
+              &search=''&extra_books=''
+    '''
+    ans = {}
+    try:
+        num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
+    except Exception:
+        raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
+    library_id, db, sorts, orders = get_basic_query_data(ctx, rd)
+    ans = get_library_init_data(ctx, rd, db, num, sorts, orders)
+    ans['library_id'] = library_id
+    return ans
+
+
 @endpoint('/interface-data/init', postprocess=json)
 def interface_data(ctx, rd):
     '''
@@ -139,29 +185,7 @@ def interface_data(ctx, rd):
         num = int(rd.query.get('num', DEFAULT_NUMBER_OF_BOOKS))
     except Exception:
         raise HTTPNotFound('Invalid number of books: %r' % rd.query.get('num'))
-    with db.safe_read_lock:
-        try:
-            ans['search_result'] = search_result(ctx, rd, db, rd.query.get('search', ''), num, 0, ','.join(sorts), ','.join(orders))
-        except ParseException:
-            ans['search_result'] = search_result(ctx, rd, db, '', num, 0, ','.join(sorts), ','.join(orders))
-        sf = db.field_metadata.ui_sortable_field_keys()
-        sf.pop('ondevice', None)
-        ans['sortable_fields'] = sorted(((
-            sanitize_sort_field_name(db.field_metadata, k), v) for k, v in sf.iteritems()),
-                                        key=lambda (field, name):sort_key(name))
-        ans['field_metadata'] = db.field_metadata.all_metadata()
-        mdata = ans['metadata'] = {}
-        try:
-            extra_books = set(int(x) for x in rd.query.get('extra_books', '').split(','))
-        except Exception:
-            extra_books = ()
-        for coll in (ans['search_result']['book_ids'], extra_books):
-            for book_id in coll:
-                if book_id not in mdata:
-                    data = book_as_json(db, book_id)
-                    if data is not None:
-                        mdata[book_id] = data
-
+    ans.update(get_library_init_data(ctx, rd, db, num, sorts, orders))
     return ans
 
 
