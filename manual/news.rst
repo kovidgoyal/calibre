@@ -259,7 +259,7 @@ The next interesting feature is::
     def get_browser(self):
         ...
 
-``needs_subscription = True`` tells calibre that this recipe needs a username and password in order to access the content. This causes, calibre to ask for a username and password whenever you try to use this recipe. The code in :meth:`calibre.web.feeds.news.BasicNewsRecipe.get_browser` actually does the login into the NYT website. Once logged in, calibre will use the same, logged in, browser instance to fetch all content. See `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_ to understand the code in ``get_browser``.
+``needs_subscription = True`` tells calibre that this recipe needs a username and password in order to access the content. This causes, calibre to ask for a username and password whenever you try to use this recipe. The code in :meth:`calibre.web.feeds.news.BasicNewsRecipe.get_browser` actually does the login into the NYT website. Once logged in, calibre will use the same, logged in, browser instance to fetch all content. See `mechanize <https://github.com/jjlee/mechanize>`_ to understand the code in ``get_browser``.
 
 The next new feature is the
 :meth:`calibre.web.feeds.news.BasicNewsRecipe.parse_index` method. Its job is

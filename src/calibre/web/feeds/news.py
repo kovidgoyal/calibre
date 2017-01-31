@@ -471,7 +471,7 @@ class BasicNewsRecipe(Recipe):
     def get_browser(self, *args, **kwargs):
         '''
         Return a browser instance used to fetch documents from the web. By default
-        it returns a `mechanize <https://wwwsearch.sourceforge.net/mechanize/>`_
+        it returns a `mechanize <https://github.com/jjlee/mechanize>`_
         browser instance that supports cookies, ignores robots.txt, handles
         refreshes and has a mozilla firefox user agent.
 
