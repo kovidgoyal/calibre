@@ -234,7 +234,7 @@ Connect/Share
 .. |csi| image:: images/connect_share.png
     :class: float-right-img
 
-|csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer. It also allows you to set up you calibre library for access via a web browser or email.
+|csi| The :guilabel:`Connect/Share` action allows you to manually connect to a device or folder on your computer. It also allows you to set up your calibre library for access via a web browser or email.
 
     The :guilabel:`Connect/Share` action has four variations, accessed by doing a right-click on the button.
 
