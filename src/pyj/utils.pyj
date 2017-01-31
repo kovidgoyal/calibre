@@ -162,6 +162,13 @@ def uniq(vals):
             ans.push(x)
     return ans
 
+def conditional_timeout(elem_id, timeout, func):
+    def ct_impl():
+        elem = document.getElementById(elem_id)
+        if elem:
+            func.call(elem)
+    window.setTimeout(ct_impl, timeout)
+
 if __name__ is '__main__':
     from pythonize import strings
     strings()
