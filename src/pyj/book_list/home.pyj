@@ -42,7 +42,7 @@ def init(container_id):
         library_name = interface_data.library_map[library_id]
         if library_name:
             cl.appendChild(E.div(E.a(library_name, href='javascript: void(0)', title=library_name, data_lid=library_id, onclick=def(ev):
-                lib_id = ev.currentTarget.dataSet.lid
+                lib_id = ev.currentTarget.dataset.lid
                 show_panel('book_list', {'library_id': lib_id})
             )))
 
