@@ -1101,6 +1101,8 @@ OptionRecommendation(name='search_replace',
         self.opts.source = self.opts.input_profile
         self.opts.dest = self.opts.output_profile
 
+        from calibre.ebooks.oeb.transforms.jacket import RemoveFirstImage
+        RemoveFirstImage()(self.oeb, self.opts, self.user_metadata)
         from calibre.ebooks.oeb.transforms.metadata import MergeMetadata
         MergeMetadata()(self.oeb, self.user_metadata, self.opts,
                 override_input_metadata=self.override_input_metadata)
