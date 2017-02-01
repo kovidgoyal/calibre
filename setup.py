@@ -2,17 +2,22 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import print_function
 
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import sys, os
 
+
 def check_version_info():
     vi = sys.version_info
     if vi[0] == 2 and vi[1:3] >= (7, 9):
-        return None
-    raise SystemExit('calibre requires python >= 2.7.9 and < 3. Current python version: %s' % vi)
+        return
+    raise SystemExit(
+        'calibre requires python >= 2.7.9 and < 3. Current python version: %s'
+        % vi)
+
+
 check_version_info()
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -20,17 +25,29 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import setup.commands as commands
 from setup import prints, get_warnings
 
+
 def option_parser():
     import optparse
     parser = optparse.OptionParser()
-    parser.add_option('-c', '--clean', default=False, action='store_true',
-            help=('Instead of running the command delete all files generated '
-                'by the command'))
-    parser.add_option('--clean-backups', default=False, action='store_true',
-            help='Delete all backup files from the source tree')
-    parser.add_option('--clean-all', default=False, action='store_true',
-            help='Delete all machine generated files from the source tree')
+    parser.add_option(
+        '-c',
+        '--clean',
+        default=False,
+        action='store_true',
+        help=('Instead of running the command delete all files generated '
+              'by the command'))
+    parser.add_option(
+        '--clean-backups',
+        default=False,
+        action='store_true',
+        help='Delete all backup files from the source tree')
+    parser.add_option(
+        '--clean-all',
+        default=False,
+        action='store_true',
+        help='Delete all machine generated files from the source tree')
     return parser
+
 
 def clean_backups():
     for root, _, files in os.walk('.'):
@@ -46,7 +63,7 @@ def main(args=sys.argv):
         print('\nWhere command is one of:')
         print()
         for x in sorted(commands.__all__):
-            print('%-20s -'%x, end=' ')
+            print('%-20s -' % x, end=' ')
             c = getattr(commands, x)
             desc = getattr(c, 'short_description', c.description)
             print(desc)
@@ -57,16 +74,16 @@ def main(args=sys.argv):
 
     command = args[1]
     if command not in commands.__all__:
-        print (command, 'is not a recognized command.')
-        print ('Valid commands:', ', '.join(commands.__all__))
+        print(command, 'is not a recognized command.')
+        print('Valid commands:', ', '.join(commands.__all__))
         return 1
 
     command = getattr(commands, command)
 
     parser = option_parser()
     command.add_all_options(parser)
-    parser.set_usage('Usage: python setup.py %s [options]\n\n'%args[1]+
-            command.description)
+    parser.set_usage('Usage: python setup.py %s [options]\n\n' % args[1] +
+                     command.description)
 
     opts, args = parser.parse_args(args)
 
@@ -96,6 +113,7 @@ def main(args=sys.argv):
             print()
 
     return 0
+
 
 if __name__ == '__main__':
     sys.exit(main())
