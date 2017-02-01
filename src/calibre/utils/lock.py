@@ -1,7 +1,6 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-
 '''
 Secure access to locked files from multiple processes.
 '''
@@ -24,8 +23,9 @@ class WindowsExclFile(object):
         while timeout > 0:
             timeout -= 1
             try:
-                self._handle = w.CreateFile(path,
-                    w.GENERIC_READ|w.GENERIC_WRITE,  # Open for reading and writing
+                self._handle = w.CreateFile(
+                    path,
+                    w.GENERIC_READ | w.GENERIC_WRITE,  # Open for reading and writing
                     0,  # Open exclusive
                     None,  # No security attributes, ensures handle is not inherited by children
                     w.OPEN_ALWAYS,  # If file does not exist, create it
@@ -45,8 +45,8 @@ class WindowsExclFile(object):
     def seek(self, amt, frm=0):
         import win32file as w
         if frm not in (0, 1, 2):
-            raise ValueError('Invalid from for seek: %s'%frm)
-        frm = {0:w.FILE_BEGIN, 1: w.FILE_CURRENT, 2:w.FILE_END}[frm]
+            raise ValueError('Invalid from for seek: %s' % frm)
+        frm = {0: w.FILE_BEGIN, 1: w.FILE_CURRENT, 2: w.FILE_END}[frm]
         if frm is w.FILE_END:
             amt = 0 - amt
         w.SetFilePointer(self._handle, amt, frm)
@@ -77,7 +77,7 @@ class WindowsExclFile(object):
             return ''
         hr, ans = w.ReadFile(self._handle, bytes, None)
         if hr != 0:
-            raise IOError('Error reading file: %s'%hr)
+            raise IOError('Error reading file: %s' % hr)
         return ans
 
     def readlines(self, sizehint=-1):
@@ -118,15 +118,24 @@ def unix_open(path):
     has_cloexec = False
     if hasattr(speedup, 'O_CLOEXEC'):
         try:
-            fd = os.open(path, flags | speedup.O_CLOEXEC, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
+            fd = os.open(
+                path, flags | speedup.O_CLOEXEC, stat.S_IRUSR | stat.S_IWUSR |
+                stat.S_IRGRP | stat.S_IROTH
+            )
             has_cloexec = True
         except EnvironmentError as err:
-            if getattr(err, 'errno', None) == errno.EINVAL:  # Kernel does not support O_CLOEXEC
-                fd = os.open(path, flags, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
+            if getattr(err, 'errno', None) == errno.EINVAL:
+                # Kernel does not support O_CLOEXEC
+                fd = os.open(
+                    path, flags, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP |
+                    stat.S_IROTH
+                )
             else:
                 raise
     else:
-        fd = os.open(path, flags, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
+        fd = os.open(
+            path, flags, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH
+        )
 
     if not has_cloexec:
         fcntl.fcntl(fd, fcntl.F_SETFD, fcntl.FD_CLOEXEC)
@@ -140,13 +149,14 @@ class ExclusiveFile(object):
         self.timeout = timeout
 
     def __enter__(self):
-        self.file = WindowsExclFile(self.path, self.timeout) if iswindows else unix_open(self.path)
+        self.file = WindowsExclFile(self.path, self.timeout
+                                    ) if iswindows else unix_open(self.path)
         self.file.seek(0)
         timeout = self.timeout
         if not iswindows:
             while self.timeout < 0 or timeout >= 0:
                 try:
-                    fcntl.flock(self.file.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
+                    fcntl.flock(self.file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                     break
                 except IOError:
                     time.sleep(1)
@@ -168,18 +178,23 @@ def test_exclusive_file(path=None):
             # Try same process lock
             try:
                 with ExclusiveFile(f, timeout=1):
-                    raise LockError("ExclusiveFile failed to prevent multiple uses in the same process!")
+                    raise LockError(
+                        "ExclusiveFile failed to prevent multiple uses in the same process!"
+                    )
             except LockError:
                 pass
             # Try different process lock
             from calibre.utils.ipc.simple_worker import fork_job
-            err = fork_job('calibre.utils.lock', 'test_exclusive_file', (f,))['result']
+            err = fork_job('calibre.utils.lock', 'test_exclusive_file',
+                           (f, ))['result']
             if err is not None:
                 raise LockError('ExclusiveFile failed with error: %s' % err)
     else:
         try:
             with ExclusiveFile(path, timeout=1):
-                raise Exception('ExclusiveFile failed to prevent multiple uses in different processes!')
+                raise Exception(
+                    'ExclusiveFile failed to prevent multiple uses in different processes!'
+                )
         except LockError:
             pass
         except Exception as err:
@@ -196,10 +211,12 @@ def _clean_lock_file(file):
     except:
         pass
 
+
 if iswindows:
+
     def singleinstance(name):
-        mutexname = 'mutexforsingleinstanceof'+__appname__+name
-        mutex =  win32event.CreateMutex(None, False, mutexname)
+        mutexname = 'mutexforsingleinstanceof' + __appname__ + name
+        mutex = win32event.CreateMutex(None, False, mutexname)
         err = win32api.GetLastError()
         if err == winerror.ERROR_ALREADY_EXISTS:
             # Close this handle other wise this handle will prevent the mutex
@@ -209,6 +226,7 @@ if iswindows:
             atexit.register(win32api.CloseHandle, mutex)
         return not err == winerror.ERROR_ALREADY_EXISTS
 elif islinux:
+
     def singleinstance(name):
         import socket
         from calibre.utils.ipc import eintr_retry_call
@@ -229,18 +247,22 @@ elif islinux:
         atexit.register(sock.close)
         return True
 elif ishaiku:
+
     def singleinstance(name):
         # Somebody should fix this.
         return True
 else:
+
     def singleinstance_path(name):
         home = os.path.expanduser('~')
-        if os.access(home, os.W_OK|os.R_OK|os.X_OK):
-            basename = __appname__+'_'+name+'.lock'
+        if os.access(home, os.W_OK | os.R_OK | os.X_OK):
+            basename = __appname__ + '_' + name + '.lock'
             return os.path.expanduser('~/.' + basename)
         import tempfile
         tdir = tempfile.gettempdir()
-        return os.path.join(tdir, '%s_%s_%s.lock' % (__appname__, name, os.geteuid()))
+        return os.path.join(
+            tdir, '%s_%s_%s.lock' % (__appname__, name, os.geteuid())
+        )
 
     def singleinstance(name):
         '''
@@ -255,7 +277,7 @@ else:
         old_flags = fcntl.fcntl(f.fileno(), fcntl.F_GETFD)
         fcntl.fcntl(f.fileno(), fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
         try:
-            eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
+            eintr_retry_call(fcntl.lockf, f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
             atexit.register(_clean_lock_file, f)
             return True
         except IOError as err:
