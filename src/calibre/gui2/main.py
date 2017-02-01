@@ -1,23 +1,30 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, os, time, socket, traceback, re
+import os
+import re
+import socket
+import sys
+import time
+import traceback
 from functools import partial
 
 import apsw
-from PyQt5.Qt import (
-    QCoreApplication, QIcon, QObject, QTimer)
+from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
 
-from calibre import prints, plugins, force_unicode
-from calibre.constants import (iswindows, __appname__, isosx, DEBUG, islinux,
-        filesystem_encoding, get_portable_base)
-from calibre.utils.ipc import gui_socket_address, RC
+from calibre import force_unicode, plugins, prints
+from calibre.constants import (
+    DEBUG, __appname__, filesystem_encoding, get_portable_base, islinux, isosx,
+    iswindows
+)
 from calibre.gui2 import (
-    initialize_file_icon_provider, Application, choose_dir,
-    error_dialog, question_dialog, gprefs, setup_gui_option_parser)
+    Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
+    question_dialog, setup_gui_option_parser
+)
 from calibre.gui2.main_window import option_parser as _option_parser
 from calibre.gui2.splash_screen import SplashScreen
-from calibre.utils.config import prefs, dynamic
+from calibre.utils.config import dynamic, prefs
+from calibre.utils.ipc import RC, gui_socket_address
 
 if iswindows:
     winutil = plugins['winutil'][0]

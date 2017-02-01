@@ -15,7 +15,8 @@ isfreebsd = 'freebsd' in sys.platform
 isnetbsd = 'netbsd' in sys.platform
 isdragonflybsd = 'dragonfly' in sys.platform
 isbsd = isnetbsd or isfreebsd or isdragonflybsd
-islinux = not isosx and not iswindows and not isbsd
+ishaiku = 'haiku1' in sys.platform
+islinux = not isosx and not iswindows and not isbsd and not ishaiku
 sys.setup_dir = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.abspath(os.path.join(os.path.dirname(sys.setup_dir), 'src'))
 sys.path.insert(0, SRC)
