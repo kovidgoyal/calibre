@@ -13,6 +13,12 @@ from PyQt5.Qt import pyqtSignal, QEventLoop, Qt
 is64bit = sys.maxsize > (1 << 32)
 base = sys.extensions_location if hasattr(sys, 'new_app_layout') else os.path.dirname(sys.executable)
 HELPER = os.path.join(base, 'calibre-file-dialog.exe')
+current_app_uid = None
+
+
+def set_app_uid(val=None):
+    global current_app_uid
+    current_app_uid = val
 
 
 def is_ok():
@@ -122,7 +128,7 @@ def select_initial_dir(q):
 def run_file_dialog(
         parent=None, title=None, initial_folder=None, filename=None, save_path=None,
         allow_multiple=False, only_dirs=False, confirm_overwrite=True, save_as=False, no_symlinks=False,
-        file_types=(), default_ext=None
+        file_types=(), default_ext=None, app_uid=None
 ):
     from calibre.gui2 import sanitize_env_vars
     secret = os.urandom(32).replace(b'\0', b' ')
@@ -169,6 +175,9 @@ def run_file_dialog(
         data.append(serialize_file_types(file_types))
     if default_ext:
         data.append(serialize_string('DEFAULT_EXTENSION', default_ext))
+    app_uid = app_uid or current_app_uid
+    if app_uid:
+        data.append(serialize_string('APP_UID', app_uid))
     loop = Loop()
     server = PipeServer(pipename)
     with sanitize_env_vars():
