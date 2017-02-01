@@ -15,7 +15,7 @@ from PyQt5.Qt import (
     QDialogButtonBox, QIcon, QInputDialog, QUrl, pyqtSignal)
 
 from calibre import prints, isbytestring
-from calibre.constants import cache_dir
+from calibre.constants import cache_dir, iswindows
 from calibre.ptempfile import PersistentTemporaryDirectory, TemporaryDirectory
 from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.polish.main import SUPPORTED, tweak_polish
@@ -342,6 +342,13 @@ class Boss(QObject):
             recent_books.insert(0, path)
             tprefs['recent-books'] = recent_books[:10]
             self.gui.update_recent_books()
+            if iswindows:
+                try:
+                    from win32com.shell import shell, shellcon
+                    shell.SHAddToRecentDocs(shellcon.SHARD_PATHW, path)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
             if ef:
                 if isinstance(ef, type('')):
                     ef = [ef]

@@ -1000,6 +1000,13 @@ class EbookViewer(MainWindow):
                 pass
             vh.insert(0, pathtoebook)
             vprefs.set('viewer_open_history', vh[:50])
+            if iswindows:
+                try:
+                    from win32com.shell import shell, shellcon
+                    shell.SHAddToRecentDocs(shellcon.SHARD_PATHW, pathtoebook)
+                except Exception:
+                    import traceback
+                    traceback.print_exc()
             self.build_recent_menu()
             self.view.set_book_data(self.iterator)
 
