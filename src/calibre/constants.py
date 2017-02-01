@@ -1,8 +1,10 @@
-from future_builtins import map
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
-__docformat__ = 'restructuredtext en'
+from future_builtins import map
+import sys, locale, codecs, os, importlib, collections
+
 __appname__   = u'calibre'
 numeric_version = (2, 78, 0)
 __version__   = u'.'.join(map(unicode, numeric_version))
@@ -12,7 +14,6 @@ __author__    = u"Kovid Goyal <kovid@kovidgoyal.net>"
 Various run time constants.
 '''
 
-import sys, locale, codecs, os, importlib, collections
 
 _plat = sys.platform.lower()
 iswindows = 'win32' in _plat or 'win64' in _plat
@@ -34,7 +35,9 @@ isworker = 'CALIBRE_WORKER' in os.environ or 'CALIBRE_SIMPLE_WORKER' in os.envir
 if isworker:
     os.environ.pop('CALIBRE_FORCE_ANSI', None)
 FAKE_PROTOCOL, FAKE_HOST = 'https', 'calibre-internal.invalid'
-
+VIEWER_APP_UID = 'com.calibre-ebook.viewer'
+EDITOR_APP_UID = 'com.calibre-ebook.edit-book'
+MAIN_APP_UID = 'com.calibre-ebook.main-gui'
 try:
     preferred_encoding = locale.getpreferredencoding()
     codecs.lookup(preferred_encoding)

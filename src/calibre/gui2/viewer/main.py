@@ -1,29 +1,38 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
-import traceback, os, sys, functools
+import functools
+import os
+import sys
+import traceback
 from functools import partial
 from threading import Thread
 
 from PyQt5.Qt import (
-    QApplication, Qt, QIcon, QTimer, QByteArray, QSize, QTime, QObject,
-    QPropertyAnimation, QInputDialog, QAction, QModelIndex, pyqtSignal)
+    QAction, QApplication, QByteArray, QIcon, QInputDialog, QModelIndex, QObject,
+    QPropertyAnimation, QSize, Qt, QTime, QTimer, pyqtSignal
+)
 
-from calibre.gui2.viewer.ui import Main as MainWindow
-from calibre.gui2.viewer.toc import TOC
-from calibre.gui2.widgets import ProgressIndicator
-from calibre.gui2 import (
-    Application, choose_files, info_dialog, error_dialog,
-    open_url, setup_gui_option_parser)
-from calibre.ebooks.oeb.iterator.book import EbookIterator
-from calibre.constants import islinux, filesystem_encoding, DEBUG, iswindows
-from calibre.utils.config import Config, StringConfig, JSONConfig
-from calibre.customize.ui import available_input_formats
 from calibre import as_unicode, force_unicode, isbytestring, prints
+from calibre.constants import (
+    DEBUG, VIEWER_APP_UID, filesystem_encoding, islinux, iswindows
+)
+from calibre.customize.ui import available_input_formats
+from calibre.ebooks.oeb.iterator.book import EbookIterator
+from calibre.gui2 import (
+    Application, choose_files, error_dialog, info_dialog, open_url,
+    setup_gui_option_parser
+)
+from calibre.gui2.viewer.toc import TOC
+from calibre.gui2.viewer.ui import Main as MainWindow
+from calibre.gui2.widgets import ProgressIndicator
 from calibre.ptempfile import reset_base_dir
-from calibre.utils.ipc import viewer_socket_address, RC
+from calibre.utils.config import Config, JSONConfig, StringConfig
+from calibre.utils.ipc import RC, viewer_socket_address
+from calibre.utils.localization import canonicalize_lang, get_lang, lang_as_iso639_1
 from calibre.utils.zipfile import BadZipfile
-from calibre.utils.localization import canonicalize_lang, lang_as_iso639_1, get_lang
+
 try:
     from calibre.utils.monotonic import monotonic
 except RuntimeError:
@@ -1240,7 +1249,7 @@ def main(args=sys.argv):
         # launched from within calibre, as both use calibre-parallel.exe
         import ctypes
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('com.calibre-ebook.viewer')
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(VIEWER_APP_UID)
         except Exception:
             pass  # Only available on windows 7 and newer
 

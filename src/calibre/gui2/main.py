@@ -1,5 +1,6 @@
-__license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+#!/usr/bin/env python2
+# vim:fileencoding=utf-8
+# License: GPLv3 Copyright: 2015, Kovid Goyal <kovid at kovidgoyal.net>
 
 import os
 import re
@@ -15,7 +16,7 @@ from PyQt5.Qt import QCoreApplication, QIcon, QObject, QTimer
 from calibre import force_unicode, plugins, prints
 from calibre.constants import (
     DEBUG, __appname__, filesystem_encoding, get_portable_base, islinux, isosx,
-    iswindows
+    iswindows, MAIN_APP_UID
 )
 from calibre.gui2 import (
     Application, choose_dir, error_dialog, gprefs, initialize_file_icon_provider,
@@ -532,7 +533,7 @@ def main(args=sys.argv):
         # launched from within calibre, as both use calibre-parallel.exe
         import ctypes
         try:
-            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('com.calibre-ebook.main-gui')
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(MAIN_APP_UID)
         except Exception:
             pass  # Only available on windows 7 and newer
 
