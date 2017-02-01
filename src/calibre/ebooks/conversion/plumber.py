@@ -718,6 +718,7 @@ OptionRecommendation(name='search_replace',
         if view_kepub and input_fmt.lower() == 'kepub':
             input_fmt = 'epub'
         self.archive_input_tdir = None
+        self.changed_options = set()
         if input_fmt in ARCHIVE_FMTS:
             self.log('Processing archive...')
             tdir = PersistentTemporaryDirectory('_pl_arc')
@@ -856,8 +857,11 @@ OptionRecommendation(name='search_replace',
         for name, val, level in recommendations:
             rec = self.get_option_by_name(name)
             if rec is not None and rec.level <= level and rec.level < rec.HIGH:
+                changed = rec.recommended_value != val
                 rec.recommended_value = val
                 rec.level = level
+                if changed:
+                    self.changed_options.add(rec)
 
     def opts_to_mi(self, mi):
         from calibre.ebooks.metadata import string_to_authors
@@ -956,6 +960,11 @@ OptionRecommendation(name='search_replace',
                 and self.output_fmt == 'mobi'
         if self.opts.verbose:
             self.log.filter_level = self.log.DEBUG
+        if self.changed_options:
+            self.log('Conversion options changed from defaults:')
+            for rec in self.changed_options:
+                if rec.option.name not in ('username', 'password'):
+                    self.log(' ', '%s:' % rec.option.name, repr(rec.recommended_value))
         if self.opts.verbose > 1:
             self.log.debug('Resolved conversion options')
             try:
