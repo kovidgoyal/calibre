@@ -39,7 +39,7 @@ def build_single(which, bitness, shutdown=True):
         except EnvironmentError:
             pass
         os.link(os.path.join(dist, x), dest)
-    if shutdown and which != 'linux':
+    if shutdown:
         cmd = [sys.executable, os.path.join(build_calibre, which), 'shutdown']
         subprocess.Popen(cmd, env=env, cwd=build_calibre).wait()
 
