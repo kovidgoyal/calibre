@@ -231,7 +231,8 @@ class NYTimes(BasicNewsRecipe):
             re.compile('^module'),
             re.compile('commentCount'),
             'lede-container',
-            'credit'
+            'credit',
+            'caption-video'
         ]}),
         dict(
             attrs={'class': lambda x: x and 'related-coverage-marginalia' in x.split()}),
@@ -255,6 +256,7 @@ class NYTimes(BasicNewsRecipe):
         dict(name='div', attrs={'class': re.compile('nocontent')}),
         dict(name='div', attrs={'id': re.compile('respond')}),  # open
         dict(name='div', attrs={'class': re.compile('entry-tags')}),  # pogue
+        dict(name='h4', attrs={'class': 'headline'}),
         dict(id=[
             'adxLeaderboard',
             'pagelinks',
