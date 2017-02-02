@@ -596,7 +596,7 @@ without changing the contents of the library view.
 
 The Quickview window opens on top of the calibre window and will stay open until you explicitly close it. You can use Quickview and the calibre library view at the same time. For example, if in the calibre library view you click on a category column (tags, series, publisher, authors, etc) for a book, the Quickview window contents will change to show you in the left-hand side pane the items in that category for the selected book (e.g., the tags for that book). The first item in that list will be selected, and Quickview will show you on the right-hand side pane all the books in your library that reference that item. Click on an different item in the left-hand pane to see the books with that different item. 
 
-Double-click on a book in the Quickview window to select that book in the library view. This will also change the items display in the QuickView window(the left-hand pane) to show the items in the newly-selected book.
+Double-click on a book in the Quickview window to select that book in the library view. This will also change the items display in the QuickView window (the left-hand pane) to show the items in the newly-selected book.
 
 Shift- (or Ctrl-) double-click on a book in the Quickview window to open the edit metadata dialog on that book in the calibre window.
 
