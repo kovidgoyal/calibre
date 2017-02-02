@@ -83,7 +83,7 @@ the picture to the left, you can see that the files :guilabel:`cover_image.jpg`
 and :guilabel:`titlepage.xhtml` have the icon of a cover next to them, this
 indicates they are the book cover image and titlepage. Similarly, the
 :guilabel:`content.opf` file has a metadata icon next to it, indicating the
-book metadata is present in it and the the :guilabel:`toc.ncx` file has a T
+book metadata is present in it and the :guilabel:`toc.ncx` file has a T
 icon next to it, indicating it is the Table of Contents.
 
 You can perform many actions on individual files, by right clicking them.
