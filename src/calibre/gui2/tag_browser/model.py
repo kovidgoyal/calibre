@@ -930,8 +930,12 @@ class TagsModel(QAbstractItemModel):  # {{{
                 set_authors=True
             elif fm['datatype'] == 'rating':
                 mi.set(key, len(val) * 2)
-            elif fm['is_custom'] and fm['datatype'] == 'series':
-                mi.set(key, val, extra=1.0)
+            elif fm['datatype'] == 'series':
+                series_index = self.db.new_api.get_next_series_num_for(val, field=key)
+                if fm['is_custom']:
+                    mi.set(key, val, extra=series_index)
+                else:
+                    mi.series, mi.series_index = val, series_index
             elif is_multiple:
                 new_val = mi.get(key, [])
                 if val in new_val:
