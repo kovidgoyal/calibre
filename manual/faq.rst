@@ -412,10 +412,15 @@ single android device out there, so if your device is not automatically
 detected, follow the instructions at :ref:`devsupport` to get your device
 supported in calibre.
 
-.. note:: With newer Android devices, the USB connection is not supported on
-          Windows XP and OS X before Mavericks (10.9). If you are on Windows
-          XP or old versions of OS X, you should use one of the wireless
-          connection methods.
+.. note:: With newer Android devices, you might have to jump through a few hoops
+    to get the connection working, as Google really does not want you to be
+    independent of its cloud. First, unlock the screen before plugging in the
+    USB cable. When you plugin in the USB cable you will get a popup
+    notification. Make sure it says some thing like "Transferring Media files"
+    or "MTP (Media Transfer mode)". If it does not, tap the notification, and
+    change the mode to Media Transfer (MTP).  Finally, you might get a popup on
+    the device every time calibre or the operating system actually tries to
+    connect to it, asking for permission, tap OK.
 
 Over the air
 ^^^^^^^^^^^^^^
