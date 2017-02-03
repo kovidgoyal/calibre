@@ -277,6 +277,7 @@ class NYTimes(BasicNewsRecipe):
             'login',
             'masthead',
             'masthead-nav',
+            'masthead-social',
             'memberTools',
             'navigation', 'navigation-ghost', 'navigation-modal', 'navigation-edge',
             'page-footer',
