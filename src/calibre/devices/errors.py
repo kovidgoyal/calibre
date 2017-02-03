@@ -1,4 +1,4 @@
-__license__   = 'GPL v3'
+__license__ = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
 Defines the errors that the device drivers generate.
@@ -18,8 +18,11 @@ class TimeoutError(ProtocolError):
     """ There was a timeout during communication """
 
     def __init__(self, func_name):
-        ProtocolError.__init__(self,
-        "There was a timeout while communicating with the device in function: " +func_name)
+        ProtocolError.__init__(
+            self,
+            "There was a timeout while communicating with the device in function: " +
+            func_name
+        )
 
 
 class DeviceError(ProtocolError):
@@ -54,7 +57,17 @@ class OpenFeedback(DeviceError):
         If you need to show the user a custom dialog, instead of just
         displaying the feedback_msg, create and return it here.
         '''
-        raise NotImplementedError
+        raise NotImplementedError()
+
+
+class OpenActionNeeded(DeviceError):
+
+    def __init__(self, device_name, msg, only_once_id):
+        self.device_name, self.feedback_msg, self.only_once_id = device_name, msg, only_once_id
+        DeviceError.__init__(self, msg)
+
+    def custom_dialog(self, parent):
+        raise NotImplementedError()
 
 
 class InitialConnectionError(OpenFeedback):
@@ -76,8 +89,10 @@ class DeviceBusy(ProtocolError):
     """ Raised when device is busy """
 
     def __init__(self, uerr=""):
-        ProtocolError.__init__(self, "Device is in use by another application:"
-                               "\nUnderlying error:" + str(uerr))
+        ProtocolError.__init__(
+            self, "Device is in use by another application:"
+            "\nUnderlying error:" + str(uerr)
+        )
 
 
 class DeviceLocked(ProtocolError):
@@ -138,4 +153,3 @@ class BlacklistedDevice(OpenFailed):
     blacklisted by the user. Only used in drivers that manage device presence,
     like the MTP driver. '''
     pass
-

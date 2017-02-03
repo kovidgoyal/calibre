@@ -14,7 +14,7 @@ from PyQt5.Qt import (
 from calibre.customize.ui import (available_input_formats, available_output_formats,
     device_plugins, disabled_device_plugins)
 from calibre.devices.interface import DevicePlugin, currently_connected_device
-from calibre.devices.errors import (UserFeedback, OpenFeedback, OpenFailed,
+from calibre.devices.errors import (UserFeedback, OpenFeedback, OpenFailed, OpenActionNeeded,
                                     InitialConnectionError)
 from calibre.ebooks.covers import cprefs, override_prefs, scale_cover, generate_cover
 from calibre.gui2.dialogs.choose_format_device import ChooseFormatDeviceDialog
@@ -165,6 +165,7 @@ class DeviceManager(Thread):  # {{{
         self.ejected_devices  = set([])
         self.mount_connection_requests = Queue.Queue(0)
         self.open_feedback_slot = open_feedback_slot
+        self.open_feedback_only_once_seen = set()
         self.after_callback_feedback_slot = after_callback_feedback_slot
         self.open_feedback_msg = open_feedback_msg
         self._device_information = None
@@ -296,6 +297,10 @@ class DeviceManager(Thread):  # {{{
                         except BlacklistedDevice as e:
                             prints('Ignoring blacklisted device: %s'%
                                     as_unicode(e))
+                        except OpenActionNeeded as e:
+                            if e.only_once_id not in self.open_feedback_only_once_seen:
+                                self.open_feedback_only_once_seen.add(e.only_once_id)
+                                self.open_feedback_msg(e.device_name, e)
                         except:
                             prints('Error while trying to open %s (Driver: %s)'%
                                     (cd, dev))
@@ -874,6 +879,7 @@ class DeviceSignals(QObject):  # {{{
     #: it is disconnected. If the parameter is True, then it is a connection,
     #: otherwise a disconnection.
     device_connection_changed = pyqtSignal(object)
+
 
 device_signals = DeviceSignals()
 # }}}
