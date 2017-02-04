@@ -316,7 +316,7 @@ class TemplateFormatter(string.Formatter):
 
     _validation_string = 'This Is Some Text THAT SHOULD be LONG Enough.%^&*'
 
-    # Dict to do recursion detection. It is up the the individual get_value
+    # Dict to do recursion detection. It is up to the individual get_value
     # method to use it. It is cleared when starting to format a template
     composite_values = {}
 

@@ -72,7 +72,7 @@ class FootnoteExtension(Extension):
         )
         # Insert a tree-processor that would actually add the footnote div
         # This must be before all other treeprocessors (i.e., inline and
-        # codehilite) so they can run on the the contents of the div.
+        # codehilite) so they can run on the contents of the div.
         md.treeprocessors.add(
             "footnote", FootnoteTreeprocessor(self), "_begin"
         )
