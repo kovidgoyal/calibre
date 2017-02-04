@@ -26,7 +26,7 @@ class TheAtlantic(BasicNewsRecipe):
 
     keep_only_tags = [
         classes(
-            'article-header article-body article-magazine metadata article-cover-content lead-img'),
+            'article-header article-body article-magazine article-cover-content lead-img'),
     ]
     remove_tags = [
         {'name': ['meta', 'link', 'noscript']},
