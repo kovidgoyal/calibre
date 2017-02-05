@@ -208,7 +208,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
         self.setChecked(device.get_pref('manage_collections'))
         self.setToolTip(wrap_msg(_('Create new bookshelves on the Kobo if they do not exist. This is only for firmware V2.0.0 or later.')))
 
-        self.collections_columns_label = QLabel(_('Collections Columns'))
+        self.collections_columns_label = QLabel(_('Collections Columns:'))
         self.collections_columns_edit = QLineEdit(self)
         self.collections_columns_edit.setToolTip(_('The Kobo from firmware V2.0.0 supports bookshelves.'
                 ' These are created on the Kobo. ' +
@@ -226,7 +226,7 @@ class CollectionsGroupBox(DeviceOptionsGroupBox):
                          device.get_pref('delete_empty_collections')
                          )
 
-        self.ignore_collections_names_label = QLabel(_('Ignore Collections'))
+        self.ignore_collections_names_label = QLabel(_('Ignore Collections:'))
         self.ignore_collections_names_edit = QLineEdit(self)
         self.ignore_collections_names_edit.setToolTip(_('List the names of collections to be ignored by ' +
                 'the collection management. The collections listed ' +
