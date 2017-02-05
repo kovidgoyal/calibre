@@ -123,7 +123,7 @@ class WorkRequest:
       callback=None, exc_callback=None):
         """Create a work request for a callable and attach callbacks.
 
-        A work request consists of the a callable to be executed by a
+        A work request consists of the callable to be executed by a
         worker thread, a list of positional arguments, a dictionary
         of keyword arguments.
 

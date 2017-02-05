@@ -49446,7 +49446,7 @@ DUK_INTERNAL duk_uint_fast32_t duk_hobject_pc2line_query(duk_context *ctx, duk_i
  *      duk_tval copies is not problematic with respect to side effects;
  *      care must be taken when holding and using argument duk_tval pointers.
  *
- *    - If a finalizer is executed, it may operate on the the same object
+ *    - If a finalizer is executed, it may operate on the same object
  *      we're currently dealing with.  For instance, the finalizer might
  *      delete a certain property which has already been looked up and
  *      confirmed to exist.  Ideally finalizers would be disabled if GC
@@ -76353,7 +76353,7 @@ void duk_lexer_parse_js_input_element(duk_lexer_ctx *lex_ctx,
 		 *  "pre-parsing", followed by an actual, accurate parser step.
 		 *
 		 *  Note: the leading sign character ('+' or '-') is -not- part of
-		 *  the production in E5 grammar, and that the a DecimalLiteral
+		 *  the production in E5 grammar, and that the DecimalLiteral
 		 *  starting with a '0' must be followed by a non-digit.  Leading
 		 *  zeroes are syntax errors and must be checked for.
 		 *

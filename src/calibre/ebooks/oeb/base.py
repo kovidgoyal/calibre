@@ -1002,7 +1002,7 @@ class Manifest(object):
             entry's associated content.
 
             - XHTML, HTML, and variant content is parsed as necessary to
-              convert and and return as an lxml.etree element in the XHTML
+              convert and return as an lxml.etree element in the XHTML
               namespace.
             - XML content is parsed and returned as an lxml.etree element.
             - CSS and CSS-variant content is parsed and returned as a cssutils

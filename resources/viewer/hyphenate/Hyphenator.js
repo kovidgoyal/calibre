@@ -2010,7 +2010,7 @@ var Hyphenator = (function (window) {
                         exceptions[lang] = exceptions.global;
                     }
                 }
-                //move exceptions from the the local 'exceptions'-obj to the 'language'-object
+                //move exceptions from the local 'exceptions'-obj to the 'language'-object
                 if (exceptions.hasOwnProperty(lang)) {
                     lo.exceptions = convertExceptionsToObject(exceptions[lang]);
                     delete exceptions[lang];

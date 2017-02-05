@@ -3,7 +3,7 @@ Based on the OpenSearch Python module by Ed Summers <ehs@pobox.com> from
 https://github.com/edsu/opensearch .
 
 This module is heavily modified and does not implement all the features from
-the original. The ability for the the module to perform a search and retrieve
+the original. The ability for the module to perform a search and retrieve
 search results has been removed. The original module used a modified version
 of the Universal feed parser from http://feedparser.org/ . The use of
 FeedPaser made getting search results very slow. There is also a bug in the

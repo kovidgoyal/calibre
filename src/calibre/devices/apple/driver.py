@@ -3647,7 +3647,7 @@ class BookList(list):
         self.log = log
 
     def supports_collections(self):
-        ''' Return True if the the device supports collections for this book list. '''
+        ''' Return True if the device supports collections for this book list. '''
         return False
 
     def add_book(self, book, replace_metadata):

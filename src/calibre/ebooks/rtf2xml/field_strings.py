@@ -595,7 +595,7 @@ class FieldStrings:
             name --the changed name according to the dictionary.
             line -- the string to parse.
         Returns:
-            A string with a a value for the type and label attributes
+            A string with a value for the type and label attributes
         Logic:
             The type of sequence--whether figure, graph, my-name, or
             whatever--is represented by the second word in the string. Extract
@@ -614,7 +614,7 @@ class FieldStrings:
             name --the changed name according to the dictionary.
             line -- the string to parse.
         Returns:
-            A string with a a value for the type and label attributes
+            A string with a value for the type and label attributes
         Logic:
         """
         the_string = name
@@ -645,7 +645,7 @@ class FieldStrings:
             name --the changed name according to the dictionary.
             line -- the string to parse.
         Returns:
-            A string with a a value for the type and label attributes
+            A string with a value for the type and label attributes
         Logic:
         """
         # self.__index_insert_blank_line_exp = re.compile(r'\\h\s{1,}""')
