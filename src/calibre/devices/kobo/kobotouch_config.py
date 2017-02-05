@@ -384,7 +384,7 @@ class AdvancedGroupBox(DeviceOptionsGroupBox):
                                'The better the match, the less extraneous output.'),
                              device.get_pref('debugging_title')
                              )
-        self.debugging_title_label = QLabel(_('Title to test when debugging'))
+        self.debugging_title_label = QLabel(_('Title to test when debugging:'))
         self.debugging_title_edit = QLineEdit(self)
         self.debugging_title_edit.setToolTip(_('Part of title of a book that can be used when doing some tests for debugging. '
                     'The test is to see if the string is contained in the title of a book. '
@@ -465,5 +465,3 @@ if __name__ == '__main__':
     if d.exec_() == d.Accepted:
         cw.commit()
     dev.shutdown()
-
-
