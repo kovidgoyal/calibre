@@ -6,7 +6,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2009, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
-import sys, os, json, subprocess, errno, hashlib
+import distutils, errno, hashlib, json, os, subprocess, sys
 from setup import Command, build_cache_dir
 import __builtin__
 
@@ -32,6 +32,19 @@ class Check(Command):
     description = 'Check for errors in the calibre source code'
 
     CACHE = 'check.json'
+
+    def __init__(self, *args, **kwargs):
+        super(Check, self).__init__(*args, **kwargs)
+        self.FLAKE8 = self._which('flake8-python2', 'flake8')
+        self.VIM = self._which('gvim', 'vim')
+
+    @staticmethod
+    def _which(*altnames):
+        for alt in altnames:
+            res = distutils.spawn.find_executable(alt)
+            if res is not None:
+                return res
+        raise EnvironmentError('Failed to find any of %s' % (altnames,))
 
     def get_files(self):
         for x in os.walk(self.j(self.SRC, 'calibre')):
@@ -86,7 +99,7 @@ class Check(Command):
     def file_has_errors(self, f):
         ext = os.path.splitext(f)[1]
         if ext in {'.py', '.recipe'}:
-            p = subprocess.Popen(['flake8-python2', '--filename', '*.py,*.recipe', f])
+            p = subprocess.Popen([self.FLAKE8, '--filename', '*.py,*.recipe', f])
             return p.wait() != 0
         elif ext == '.pyj':
             p = subprocess.Popen(['rapydscript', 'lint', f])
@@ -119,7 +132,7 @@ class Check(Command):
                 self.info('\tChecking', f)
                 if self.file_has_errors(f):
                     self.info('%d files left to check' % (len(dirty_files) - i - 1))
-                    subprocess.call(['gvim', '-c', 'SyntasticCheck', '-c', 'll', '-S',
+                    subprocess.call([self.VIM, '-c', 'SyntasticCheck', '-c', 'll', '-S',
                                     self.j(self.SRC, '../session.vim'), '-f', f])
                     if self.file_has_errors(f):
                         raise SystemExit(1)

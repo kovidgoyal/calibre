@@ -30,6 +30,11 @@ class POT(Command):  # {{{
     TRANSLATIONS = os.path.join(os.path.dirname(Command.SRC), 'translations')
     MANUAL = os.path.join(os.path.dirname(Command.SRC), 'manual')
 
+    def __init__(self, *args, **kwargs):
+        super(POT, self).__init__(*args, **kwargs)
+        if not os.path.isdir(os.path.join(self.TRANSLATIONS, 'manual')):
+            os.makedirs(os.path.join(self.TRANSLATIONS, 'manual'))
+
     def tx(self, cmd, **kw):
         kw['cwd'] = kw.get('cwd', self.TRANSLATIONS)
         if hasattr(cmd, 'format'):
