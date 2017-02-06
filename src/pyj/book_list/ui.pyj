@@ -50,10 +50,9 @@ def number_of_subpanels():
 
 
 def show_panel(panel, query_data, replace=False):
-    if currently_showing_panel() is panel:
-        return
-    query = {k:query_data[k] for k in query}
+    query = {k:query_data[k] for k in query_data}
     if panel is not 'home':
+        query.panel = panel
         lid = current_library_id()
         if lid:
             query.library_id = lid
@@ -79,8 +78,6 @@ def back():
 
 def apply_url_state(state):
     panel = state.panel or 'home'
-    if currently_showing_panel() is panel:
-        return
     c = document.getElementById(book_list_container_id)
     clear(c)
     c.appendChild(E.div())

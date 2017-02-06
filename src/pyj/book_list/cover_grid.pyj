@@ -6,12 +6,15 @@ from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
+from book_list.library_data import cover_url, book_metadata
+
+COVER_GRID_CLASS = 'book-list-cover-grid'
 THUMBNAIL_MAX_WIDTH = 300
 THUMBNAIL_MAX_HEIGHT = 400
 BORDER_RADIUS = 10
 
 def cover_grid_css():
-    sel = '.' + this
+    sel = '.' + COVER_GRID_CLASS
     ans = build_rule(sel, display='flex', flex_wrap='wrap', justify_content='space-around', align_items='flex-end', align_content='flex-start', user_select='none', overflow='hidden')
 
     # Container for an individual cover
@@ -34,7 +37,7 @@ def cover_grid_css():
 
 def init(container):
     clear(container)
-    container.appendChild(E.div(id=this))
+    container.appendChild(E.div(class_=COVER_GRID_CLASS))
     for i in range(12):
         container.lastChild.appendChild(E.div(class_='cover-grid-filler'))
 
@@ -51,15 +54,14 @@ def on_img_load_error(err):
     ))
     set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
-def create_item(book_id, interface_data, onclick):
-    cover_url = 'get/thumb/{}/{}?sz={}x{}'.format(book_id, interface_data['library_id'], Math.ceil(THUMBNAIL_MAX_WIDTH*window.devicePixelRatio), Math.ceil(THUMBNAIL_MAX_HEIGHT*window.devicePixelRatio))
-    metadata = interface_data['metadata'][book_id]
-    alt = _('{} by {}').format(metadata['title'], metadata['authors'].join(' & '))
-    img = E.img(src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '))
+def create_item(book_id, show_book_details):
+    curl = cover_url(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
+    metadata = book_metadata(book_id)
+    alt = _('{} by {}').format(metadata.title, metadata.authors.join(' & '))
+    img = E.img(src=curl, alt=alt, title=alt, data_title=metadata.title, data_authors=metadata.authors.join(' & '))
     img.onerror = on_img_load_error
 
-    ans = E.div(img, data_book_id=str(book_id))
-    ans.addEventListener('click', onclick)
+    ans = E.div(img, data_book_id=str(book_id), onclick=show_book_details)
     return ans
 
 def append_item(container, item):

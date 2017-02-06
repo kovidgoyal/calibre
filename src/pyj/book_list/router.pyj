@@ -74,6 +74,6 @@ def on_pop_state(ev):
 def back():
     nonlocal history_count
     if history_count > 0:
-        window.back()
+        window.history.back()
     else:
         push_state({}, replace=True)

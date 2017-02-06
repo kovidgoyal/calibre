@@ -7,7 +7,7 @@ from session import get_interface_data
 from utils import parse_url_params
 
 
-load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
+load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'library_id': None}
 library_data = {}
 current_fetch = None
 
@@ -38,9 +38,24 @@ def on_data_loaded(end_type, xhr, ev):
 def fetch_init_data():
     if load_status.current_fetch:
         load_status.current_fetch.abort()
-    query = {'library_id': current_library_id()}
+    load_status.library_id = current_library_id()
+    query = {'library_id': load_status.library_id}
     url_query = parse_url_params()
     for key in url_query:
         query[key] = url_query[key]
     load_status.current_fetch = ajax('interface-data/books-init', on_data_loaded, query=query)
     load_status.current_fetch.send()
+
+
+def cover_url(book_id, width, height):
+    return 'get/thumb/{}/{}?sz={}x{}'.format(book_id, current_library_id, Math.ceil(width * window.devicePixelRatio), Math.ceil(height * window.devicePixelRatio))
+
+
+def book_metadata(book_id):
+    return library_data.metadata[book_id]
+
+
+def ensure_current_library_data():
+    # TODO: Handle search/sort parameters as well
+    if load_status.library_id != current_library_id():
+        fetch_init_data()
