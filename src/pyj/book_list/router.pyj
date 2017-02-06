@@ -76,4 +76,10 @@ def back():
     if history_count > 0:
         window.history.back()
     else:
-        push_state({}, replace=True)
+        cq = get_current_query()
+        handler = mode_handlers[cq.mode] or default_mode_handler
+        if handler.back_from_current:
+            q = handler.back_from_current(cq)
+        else:
+            q = {}
+        push_state(q, replace=True)

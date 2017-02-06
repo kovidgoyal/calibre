@@ -7,7 +7,7 @@ from elementmaker import E
 
 from book_list.constants import book_list_container_id
 from book_list.globals import get_current_query
-from book_list.router import push_state, back as router_back
+from book_list.router import push_state
 from book_list.library_data import current_library_id
 
 
@@ -44,10 +44,6 @@ def currently_showing_panel():
     c = document.getElementById(book_list_container_id)
     return c.dataset.panel
 
-def number_of_subpanels():
-    c = document.getElementById(book_list_container_id)
-    return c.lastChild.childNodes.length
-
 
 def show_panel(panel, query_data, replace=False):
     query = {k:query_data[k] for k in query_data}
@@ -59,29 +55,19 @@ def show_panel(panel, query_data, replace=False):
     push_state(query, replace=replace)
 
 
-def close_subpanel():
-    c = document.getElementById(book_list_container_id).lastChild
-    panel_to_remove = c.lastChild
-    if panel_to_remove:
-        c.remove(panel_to_remove)
-        if c.lastChild:
-            c.lastChild.style.display = 'block'
-        else:
-            c.style.display = 'none'
-
-
-def back():
-    if number_of_subpanels() > 0:
-        return close_subpanel()
-    router_back()
-
-
 def apply_url_state(state):
     panel = state.panel or 'home'
     c = document.getElementById(book_list_container_id)
     clear(c)
     c.appendChild(E.div())
-    c.appendChild(E.div(style='display:none'))
     c.dataset.panel = panel
     handler = panel_handlers[panel] or default_panel_handler
     handler(ensure_id(c.firstChild, 'panel'))
+
+
+apply_url_state.back_from_current = def back_from_current(current_query):
+    q = current_query
+    if q.panel and '^' in q.panel:
+        q = {k:q[k] for k in q}
+        q.panel = q.panel.rpartition('^')[0]
+    return q
