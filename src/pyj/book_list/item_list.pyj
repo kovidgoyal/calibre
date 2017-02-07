@@ -30,15 +30,15 @@ def build_list(container, items, subtitle):
     c.appendChild(ul)
     has_icons = False
     for item in items:
-        if item.icon_name:
+        if item.icon:
             has_icons = True
             break
 
     for item in items:
         ic = ''
         if has_icons:
-            if item.icon_name:
-                ic = svgicon(item.icon_name)
+            if item.icon:
+                ic = svgicon(item.icon)
             ic = E.span(ic, '\xa0')
         ul.appendChild(E.li(E.a(href='javascript:void(0)',
             E.div(ic, item.title, class_='item-title')
@@ -50,8 +50,8 @@ def build_list(container, items, subtitle):
         if item.action:
             ul.lastChild.addEventListener('click', item.action)
 
-def create_item(title, action=None, subtitle=None, icon_name=None):
-    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon_name':icon_name}
+def create_item(title, action=None, subtitle=None, icon=None):
+    return {'title':title, 'action':action, 'subtitle':subtitle, 'icon':icon}
 
 
 def create_item_list(container, items, subtitle=None):
