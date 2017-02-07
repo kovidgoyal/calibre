@@ -15,10 +15,11 @@ from widgets import create_button, create_spinner
 
 from book_list.globals import get_session_data
 from book_list.cover_grid import cover_grid_css, create_item as create_cover_grid_item, init as init_cover_grid, append_item as cover_grid_append_item
-from book_list.top_bar import create_top_bar
+from book_list.top_bar import create_top_bar, add_button
 from book_list.router import back
-from book_list.ui import set_panel_handler
-from book_list.library_data import current_library_id, load_status, ensure_current_library_data, library_data
+from book_list.ui import set_panel_handler, show_panel
+from book_list.library_data import load_status, ensure_current_library_data, library_data, current_sorted_field, loaded_books_query, url_books_query
+from book_list.item_list import create_item_list, create_item
 
 ALLOWED_MODES = {'cover_grid'}
 DEFAULT_MODE = 'cover_grid'
@@ -76,6 +77,8 @@ def apply_view_mode(mode=DEFAULT_MODE):
     render_ids()
 
 
+# More button {{{
+
 def update_fetching_status():
     more = document.getElementById(book_list_data.container_id).lastChild
     if book_list_data.fetching_more_books:
@@ -123,7 +126,7 @@ def get_more_books():
         data[key] = library_data.search_result[key]
     book_list_data.fetching_more_books = ajax_send(
         'interface-data/more-books', data, got_more_books,
-        query={'library_id':current_library_id()}
+        query={'library_id':loaded_books_query().library_id}
     )
     update_fetching_status()
 
@@ -142,6 +145,9 @@ def create_more_button(more):
     update_fetching_status()
 
 
+# }}}
+
+
 def create_books_list(container):
     book_list_data.container_id = ensure_id(container)
     book_list_data.shown_book_ids = set()
@@ -151,6 +157,7 @@ def create_books_list(container):
     container.appendChild(E.div()), container.appendChild(E.div())
     apply_view_mode(get_session_data().get('view_mode'))
     create_more_button(container.lastChild)
+    add_button(container.parentNode.id, icon='sort-amount-desc', action=show_panel.bind(None, 'book_list^sort'), tooltip=_('Sort Books'))
 
 
 def check_for_books_loaded():
@@ -169,7 +176,7 @@ def check_for_books_loaded():
             err,
             E.div(
                 style='margin-top: 1em; border-top: solid 1px currentColor; padding-top: 1ex;',
-            E.a(onclick=back, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
+                E.a(onclick=back, href='javascript: void(0)', style='color: blue', _('Go back to the home page')))
             ),
         )
         return
@@ -180,7 +187,7 @@ def init(container_id):
     interface_data = get_interface_data()
     ensure_current_library_data()
     container = document.getElementById(container_id)
-    lid = container.dataset.library_id = current_library_id()
+    lid = container.dataset.library_id = url_books_query().library_id
     title = interface_data.library_map[lid]
     create_top_bar(container_id, title=title, action=back, icon='home')
     container.appendChild(E.div())
@@ -188,4 +195,44 @@ def init(container_id):
     conditional_timeout(container_id, 5, check_for_books_loaded)
 
 
+# Sorting {{{
+
+def change_sort(field, order):
+    abort_get_more_books()
+    sd = get_session_data()
+    so = sd.get('last_sort_order')
+    order = order or so[field] or 'asc'
+    order = 'asc' if order is 'asc' else 'desc'
+    q = loaded_books_query()
+    q.sort = field + '.' + order
+    so[field] = order
+    sd.set('last_sort_order', so)
+    sd.set_library_option(q.library_id, 'sort', q.sort)
+    show_panel('book_list', query=q, replace=True)
+
+
+def create_sort_panel(container_id):
+    if not library_data.sortable_fields:
+        show_panel('book_list', replace=True)
+        return
+    create_top_bar(container_id, title=_('Sort books by…'), action=back, icon='close')
+    items = []
+    csf, csf_order = current_sorted_field()
+    new_sort_order = 'desc' if csf_order is 'asc' else 'asc'
+    if csf is 'date':
+        csf = 'timestamp'
+    for field, name in library_data.sortable_fields:
+        subtitle = icon_name = None
+        if field is csf:
+            subtitle = _('Reverse current sort order')
+            icon_name = 'sort-amount-asc' if csf_order is 'asc' else 'sort-amount-desc'
+            action = change_sort.bind(None, field, new_sort_order)
+        else:
+            action = change_sort.bind(None, field, None)
+        items.push(create_item(name, subtitle=subtitle, icon=icon_name, action=action))
+    create_item_list(document.getElementById(container_id), items, _('Change how the list of books is sorted'))
+# }}}
+
+
 set_panel_handler('book_list', init)
+set_panel_handler('book_list^sort', create_sort_panel)

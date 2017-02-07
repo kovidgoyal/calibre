@@ -6,14 +6,40 @@ from ajax import ajax
 from session import get_interface_data
 from utils import parse_url_params
 
+from book_list.globals import get_session_data
 
-load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None, 'library_id': None}
+load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': None}
 library_data = {}
-current_fetch = None
 
 
-def current_library_id():
-    return parse_url_params().library_id or get_interface_data().library_id
+def url_books_query(sd):
+    q = parse_url_params()
+    sd = sd or get_session_data()
+    lid = q.library_id or get_interface_data().default_library_id
+    return {
+        'library_id': lid,
+        'sort': q.sort or sd.get_library_option(lid, 'sort'),
+    }
+
+
+def loaded_books_query():
+    sr = library_data.search_result
+    sort = None
+    if sr:
+        sort = [s + '.' + o for s, o in zip(sr.sort.split(','), sr.sort_order.split(','))].join(',')
+    return {
+        'library_id': sr.library_id if sr else None,
+        'sort': sort,
+    }
+
+
+def current_sorted_field():
+    if library_data.search_result:
+        return library_data.search_result.sort, library_data.search_result.sort_order
+    sort = url_books_query().sort.partition(',')[0]
+    csf = sort.partition('.')[0]
+    csfo = sort.partition('.')[2] or 'asc'
+    return csf, csfo
 
 
 def update_library_data(data):
@@ -29,6 +55,11 @@ def on_data_loaded(end_type, xhr, ev):
     if end_type is 'load':
         data = JSON.parse(xhr.responseText)
         update_library_data(data)
+        sd = get_session_data()
+        q = loaded_books_query()
+        sd.set_library_option(q.library_id, 'sort', q.sort)
+    elif end_type is 'abort':
+        pass
     else:
         load_status.ok = False
         load_status.loading = False
@@ -38,17 +69,16 @@ def on_data_loaded(end_type, xhr, ev):
 def fetch_init_data():
     if load_status.current_fetch:
         load_status.current_fetch.abort()
-    load_status.library_id = current_library_id()
-    query = {'library_id': load_status.library_id}
-    url_query = parse_url_params()
-    for key in url_query:
-        query[key] = url_query[key]
+    query = url_books_query()
+    load_status.loading = True
+    load_status.ok = False
+    load_status.error_html = None
     load_status.current_fetch = ajax('interface-data/books-init', on_data_loaded, query=query)
     load_status.current_fetch.send()
 
 
 def cover_url(book_id, width, height):
-    return 'get/thumb/{}/{}?sz={}x{}'.format(book_id, current_library_id, Math.ceil(width * window.devicePixelRatio), Math.ceil(height * window.devicePixelRatio))
+    return 'get/thumb/{}/{}?sz={}x{}'.format(book_id, loaded_books_query().library_id, Math.ceil(width * window.devicePixelRatio), Math.ceil(height * window.devicePixelRatio))
 
 
 def book_metadata(book_id):
@@ -56,6 +86,12 @@ def book_metadata(book_id):
 
 
 def ensure_current_library_data():
-    # TODO: Handle search/sort parameters as well
-    if load_status.library_id != current_library_id():
+    q = url_books_query()
+    loaded = loaded_books_query()
+    matches = True
+    for key in q:
+        if q[key] is not loaded[key]:
+            matches = False
+            break
+    if not matches:
         fetch_init_data()

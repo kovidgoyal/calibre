@@ -8,7 +8,6 @@ from elementmaker import E
 from book_list.constants import book_list_container_id
 from book_list.globals import get_current_query
 from book_list.router import push_state
-from book_list.library_data import current_library_id
 
 
 panel_handlers = {}
@@ -45,13 +44,13 @@ def currently_showing_panel():
     return c.dataset.panel
 
 
-def show_panel(panel, query_data, replace=False):
-    query = {k:query_data[k] for k in query_data}
+def show_panel(panel, query=None, replace=False):
+    if query is None:
+        query = {}
+    else:
+        query = {k:query[k] for k in query if k is not 'panel'}
     if panel is not 'home':
         query.panel = panel
-        lid = current_library_id()
-        if lid:
-            query.library_id = lid
     push_state(query, replace=replace)
 
 

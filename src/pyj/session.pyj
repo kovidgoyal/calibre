@@ -8,6 +8,7 @@ defaults = {
     # Book list settings
     'view_mode': 'cover_grid',
     'sort': 'timestamp.desc',  # comma separated list of items of the form: field.order
+    'last_sort_order': {},
 
     # Tag Browser settings
     'partition_method': 'first letter',  # other choices: 'disable', 'partition'

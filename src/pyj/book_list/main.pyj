@@ -10,10 +10,9 @@ from modals import create_modal_container, error_dialog
 from session import get_interface_data, UserSessionData, update_interface_data, get_translations
 from gettext import gettext as _, install
 from popups import install_event_filters
-from utils import parse_url_params
 
 from book_list.constants import book_list_container_id, read_book_container_id
-from book_list.library_data import fetch_init_data
+from book_list.library_data import fetch_init_data, update_library_data, url_books_query
 from book_list.theme import get_color
 from book_list.router import update_window_title, set_default_mode_handler, apply_url, set_mode_handler, on_pop_state
 from book_list.globals import get_db, set_session_data
@@ -77,6 +76,7 @@ def on_data_loaded(end_type, xhr, ev):
     if end_type is 'load':
         data = JSON.parse(xhr.responseText)
         update_interface_data(data)
+        update_library_data(data)
         interface_data = get_interface_data()
         sd = UserSessionData(interface_data.username, interface_data.user_session_data)
         set_session_data(sd)
@@ -99,15 +99,11 @@ def on_data_load_progress(loaded, total):
 
 
 def load_interface_data():
-    temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
+    idata = get_interface_data()
     query = {}
-    library_id = temp.get('library_id')
-    if library_id:
-        query.library_id = library_id
-        query.sort = temp.get_library_option(library_id, 'sort')
-    url_query = parse_url_params()
-    for key in url_query:
-        query[key] = url_query[key]
+    if not idata.is_default:
+        temp = UserSessionData(None, {})  # So that settings for anonymous users are preserved
+        query = url_books_query(temp)
     ajax('interface-data/init', on_data_loaded, on_data_load_progress, query=query).send()
 
 
