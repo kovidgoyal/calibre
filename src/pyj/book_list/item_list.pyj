@@ -7,7 +7,6 @@ from elementmaker import E
 
 from book_list.theme import get_font_size, get_color
 
-iv_counter = 0
 CLASS_NAME = 'generic-items-list'
 
 add_extra_css(def():
@@ -54,30 +53,6 @@ def build_list(container, items, subtitle):
 def create_item(title, action=None, subtitle=None, icon_name=None):
     return {'title':title, 'action':action, 'subtitle':subtitle, 'icon_name':icon_name}
 
-class ItemsView:
 
-    def __init__(self, interface_data, book_list_container):
-        nonlocal iv_counter
-        iv_counter += 1
-        self.container_id = 'items-view-' + iv_counter
-        div = E.div(
-            id=self.container_id, style='display:none', class_=CLASS_NAME,
-        )
-        book_list_container.appendChild(div)
-
-    @property
-    def container(self):
-        return document.getElementById(self.container_id)
-
-    @property
-    def is_visible(self):
-        self.container.style.display is 'block'
-
-    @is_visible.setter
-    def is_visible(self, val):
-        self.container.style.display = 'block' if val else 'none'
-
-    def init(self, data):
-        items = getattr(data, 'items', data)
-        subtitle = getattr(data, 'subtitle', None)
-        build_list(self.container, items, subtitle)
+def create_item_list(container, items, subtitle=None):
+    build_list(container, items, subtitle)
