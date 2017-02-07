@@ -86,24 +86,26 @@ def create_top_bar(container_id, **kw):
     create_markup(container_id)
     set_left_data(container_id, **kw)
 
-def add_button(container_id, icon_name=None, action=None, tooltip=''):
-    if not icon_name:
-        return
+def add_button(container_id, icon, action=None, tooltip=''):
+    if not icon:
+        raise ValueError('An icon must be specified')
     bars = get_bars(container_id)
-    for bar in bars:
+    for i, bar in enumerate(bars):
         right = bar.firstChild.nextSibling
         right.appendChild(E.a(
             style="margin-left: " + SPACING,
-            title=tooltip, svgicon(icon_name),
+            title=tooltip, svgicon(icon),
         ))
-        right.lastChild.setAttribute('id', ('top' if bar is self.bar else 'dummy') + '-bar-icon-' + icon_name)
-        if bar is self.bar:
+        right.lastChild.dataset.buttonIcon = icon
+        if i is 0:
             if action is not None:
-                right.lastChild.addEventListener('click', def(event): event.preventDefault(), action();)
+                right.lastChild.addEventListener('click', def(event):
+                    event.preventDefault(), action()
+                )
 
-def set_button_visibility(container_id, icon_name, visible):
+def set_button_visibility(container_id, icon, visible):
     for bar in get_bars(container_id):
         right = bar.firstChild.nextSibling
-        elem = right.querySelector('#{}-bar-icon-{}'.format(('top' if bar is self.bar else 'dummy'), icon_name))
+        elem = right.querySelector(f'[data-button-icon="{icon}"]')
         if elem:
             elem.style.display = 'inline-block' if visible else 'none'
