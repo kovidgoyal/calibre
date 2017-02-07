@@ -230,7 +230,9 @@ def create_sort_panel(container_id):
         else:
             action = change_sort.bind(None, field, None)
         items.push(create_item(name, subtitle=subtitle, icon=icon_name, action=action))
-    create_item_list(document.getElementById(container_id), items, _('Change how the list of books is sorted'))
+    container = document.getElementById(container_id)
+    container.appendChild(E.div())
+    create_item_list(container.lastChild, items, _('Change how the list of books is sorted'))
 # }}}
 
 
