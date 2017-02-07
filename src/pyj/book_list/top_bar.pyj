@@ -26,8 +26,7 @@ add_extra_css(def():
     return style
 )
 
-def create_markup(container_id):
-    container = document.getElementById(container_id)
+def create_markup(container):
     for i in range(2):
         bar = E.div(
             class_=CLASS_NAME,
@@ -43,12 +42,11 @@ def create_markup(container_id):
         )
         container.appendChild(bar)
 
-def get_bars(container_id):
-    container = document.getElementById(container_id)
+def get_bars(container):
     return container.getElementsByClassName(CLASS_NAME)
 
-def set_left_data(container_id, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None):
-    bars = get_bars(container_id)
+def set_left_data(container, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None):
+    bars = get_bars(container)
     if icon is 'heart':
         if not tooltip:
             tooltip = _('Donate to support calibre development')
@@ -77,19 +75,19 @@ def set_left_data(container_id, title='calibre', icon='heart', action=None, tool
                 a = a.nextSibling
                 a.addEventListener('click', def(event): event.preventDefault(), title_action();)
 
-def set_title(container_id, text):
-    bars = get_bars(container_id)
+def set_title(container, text):
+    bars = get_bars(container)
     for bar in bars:
         bar.firstChild.firstChild.nextSibling.textContent = text
 
-def create_top_bar(container_id, **kw):
-    create_markup(container_id)
-    set_left_data(container_id, **kw)
+def create_top_bar(container, **kw):
+    create_markup(container)
+    set_left_data(container, **kw)
 
-def add_button(container_id, icon, action=None, tooltip=''):
+def add_button(container, icon, action=None, tooltip=''):
     if not icon:
         raise ValueError('An icon must be specified')
-    bars = get_bars(container_id)
+    bars = get_bars(container)
     for i, bar in enumerate(bars):
         right = bar.firstChild.nextSibling
         right.appendChild(E.a(
@@ -103,8 +101,8 @@ def add_button(container_id, icon, action=None, tooltip=''):
                     event.preventDefault(), action()
                 )
 
-def set_button_visibility(container_id, icon, visible):
-    for bar in get_bars(container_id):
+def set_button_visibility(container, icon, visible):
+    for bar in get_bars(container):
         right = bar.firstChild.nextSibling
         elem = right.querySelector(f'[data-button-icon="{icon}"]')
         if elem:

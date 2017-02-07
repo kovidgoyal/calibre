@@ -157,7 +157,7 @@ def create_books_list(container):
     container.appendChild(E.div()), container.appendChild(E.div())
     apply_view_mode(get_session_data().get('view_mode'))
     create_more_button(container.lastChild)
-    add_button(container.parentNode.id, icon='sort-amount-desc', action=show_panel.bind(None, 'book_list^sort'), tooltip=_('Sort Books'))
+    add_button(container.parentNode, icon='sort-amount-desc', action=show_panel.bind(None, 'book_list^sort'), tooltip=_('Sort Books'))
 
 
 def check_for_books_loaded():
@@ -189,7 +189,7 @@ def init(container_id):
     container = document.getElementById(container_id)
     lid = container.dataset.library_id = url_books_query().library_id
     title = interface_data.library_map[lid]
-    create_top_bar(container_id, title=title, action=back, icon='home')
+    create_top_bar(container, title=title, action=back, icon='home')
     container.appendChild(E.div())
     container.lastChild.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
@@ -215,7 +215,8 @@ def create_sort_panel(container_id):
     if not library_data.sortable_fields:
         show_panel('book_list', replace=True)
         return
-    create_top_bar(container_id, title=_('Sort books by…'), action=back, icon='close')
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Sort books by…'), action=back, icon='close')
     items = []
     csf, csf_order = current_sorted_field()
     new_sort_order = 'desc' if csf_order is 'asc' else 'asc'
@@ -230,7 +231,6 @@ def create_sort_panel(container_id):
         else:
             action = change_sort.bind(None, field, None)
         items.push(create_item(name, subtitle=subtitle, icon=icon_name, action=action))
-    container = document.getElementById(container_id)
     container.appendChild(E.div())
     create_item_list(container.lastChild, items, _('Change how the list of books is sorted'))
 # }}}

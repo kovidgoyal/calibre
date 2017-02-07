@@ -22,8 +22,8 @@ def show_recent():
 
 
 def init(container_id):
-    create_top_bar(container_id, run_animation=True)
     container = document.getElementById(container_id)
+    create_top_bar(container, run_animation=True)
     interface_data = get_interface_data()
 
     # Recent books
