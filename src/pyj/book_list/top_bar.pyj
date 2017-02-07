@@ -47,9 +47,9 @@ def get_bars(container_id):
     container = document.getElementById(container_id)
     return container.getElementsByClassName(CLASS_NAME)
 
-def set_left_data(container_id, title='calibre', icon_name='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None):
+def set_left_data(container_id, title='calibre', icon='heart', action=None, tooltip='', run_animation=False, title_action=None, title_tooltip=None):
     bars = get_bars(container_id)
-    if icon_name is 'heart':
+    if icon is 'heart':
         if not tooltip:
             tooltip = _('Donate to support calibre development')
 
@@ -57,12 +57,12 @@ def set_left_data(container_id, title='calibre', icon_name='heart', action=None,
         left = bar.firstChild
         clear(left)
         title_elem = 'a' if callable(title_action) else 'span'
-        left.appendChild(E.a(title=tooltip, svgicon(icon_name)))
+        left.appendChild(E.a(title=tooltip, svgicon(icon)))
         left.appendChild(E(title_elem, title, title=title_tooltip, class_='top-bar-title',
             style='margin-left: {0}; font-weight: bold; padding-top: {1}; padding-bottom: {1}; vertical-align: middle'.format(SPACING, VSPACING)))
         if i is 0:
             a = left.firstChild
-            if icon_name is 'heart':
+            if icon is 'heart':
                 set_css(a,
                     animation_name=THROBBER_NAME, animation_duration='1s', animation_timing_function='ease-in-out',
                     animation_iteration_count='5', animation_play_state='running' if run_animation else 'paused'

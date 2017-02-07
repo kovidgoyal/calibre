@@ -182,7 +182,7 @@ def init(container_id):
     container = document.getElementById(container_id)
     lid = container.dataset.library_id = current_library_id()
     title = interface_data.library_map[lid]
-    create_top_bar(container_id, title=title, action=back, icon='close')
+    create_top_bar(container_id, title=title, action=back, icon='home')
     container.appendChild(E.div())
     container.lastChild.appendChild(E.div(_('Loading books from the {} calibre library, please wait...').format(title), style='margin: 1ex 1em'))
     conditional_timeout(container_id, 5, check_for_books_loaded)
