@@ -8,7 +8,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 
 
 class TheWeek(BasicNewsRecipe):
-    title = 'The Week Magazine'
+    title = 'TheWeek.com'
     __author__ = 'Jim Olo'
     description = "The best of the US and international media.  Daily coverage of commentary and analysis of the day's events, as well as arts, entertainment, people and gossip, and political cartoons."  # noqa
     publisher = 'The Week Publications, Inc.'
