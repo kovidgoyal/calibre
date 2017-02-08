@@ -539,7 +539,7 @@ def _translateToBigCoverUrl(coverUrl):  # {{{
     # http://www.ozon.ru/multimedia/books_covers/1009493080.jpg
     m = re.match(r'.+\/([^\.\\]+).+$', coverUrl)
     if m:
-        coverUrl = 'http://www.ozon.ru/multimedia/books_covers/' + m.group(1) + '.jpg'
+        coverUrl = 'https://www.ozon.ru/multimedia/books_covers/' + m.group(1) + '.jpg'
     return coverUrl
 
 
