@@ -165,7 +165,7 @@ class Douban(Source):
     cached_cover_url_is_reliable = True
 
     DOUBAN_API_KEY = '0bd1672394eb1ebf2374356abec15c3d'
-    DOUBAN_BOOK_URL = 'http://book.douban.com/subject/%s/'
+    DOUBAN_BOOK_URL = 'https://book.douban.com/subject/%s/'
 
     def get_book_url(self, identifiers):  # {{{
         db = identifiers.get('douban', None)
@@ -175,9 +175,9 @@ class Douban(Source):
 
     def create_query(self, log, title=None, authors=None, identifiers={}):  # {{{
         from urllib import urlencode
-        SEARCH_URL = 'http://api.douban.com/book/subjects?'
-        ISBN_URL = 'http://api.douban.com/book/subject/isbn/'
-        SUBJECT_URL = 'http://api.douban.com/book/subject/'
+        SEARCH_URL = 'https://api.douban.com/book/subjects?'
+        ISBN_URL = 'https://api.douban.com/book/subject/isbn/'
+        SUBJECT_URL = 'https://api.douban.com/book/subject/'
 
         q = ''
         t = None
@@ -339,6 +339,7 @@ class Douban(Source):
         return None
     # }}}
 
+
 if __name__ == '__main__':  # tests {{{
     # To run these test use: calibre-debug -e src/calibre/ebooks/metadata/sources/douban.py
     from calibre.ebooks.metadata.sources.test import (test_identify_plugin,
@@ -360,4 +361,3 @@ if __name__ == '__main__':  # tests {{{
             ),
     ])
 # }}}
-

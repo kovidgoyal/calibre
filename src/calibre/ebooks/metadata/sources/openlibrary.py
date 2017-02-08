@@ -17,7 +17,7 @@ class OpenLibrary(Source):
 
     capabilities = frozenset(['cover'])
 
-    OPENLIBRARY = 'http://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
+    OPENLIBRARY = 'https://covers.openlibrary.org/b/isbn/%s-L.jpg?default=false'
 
     def download_cover(self, log, result_queue, abort,
             title=None, authors=None, identifiers={}, timeout=30, get_best_cover=False):
@@ -33,4 +33,3 @@ class OpenLibrary(Source):
                 log.error('No cover for ISBN: %r found'%isbn)
             else:
                 log.exception('Failed to download cover for ISBN:', isbn)
-

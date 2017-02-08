@@ -20,7 +20,7 @@ from calibre.ebooks.metadata.book.base import Metadata
 
 ovrdrv_data_cache = {}
 cache_lock = RLock()
-base_url = 'http://search.overdrive.com/'
+base_url = 'https://search.overdrive.com/'
 
 
 class OverDrive(Source):
@@ -134,11 +134,11 @@ class OverDrive(Source):
 
     def get_base_referer(self):  # to be used for passing referrer headers to cover download
         choices = [
-            'http://overdrive.chipublib.org/82DC601D-7DDE-4212-B43A-09D821935B01/10/375/en/',
-            'http://emedia.clevnet.org/9D321DAD-EC0D-490D-BFD8-64AE2C96ECA8/10/241/en/',
-            'http://singapore.lib.overdrive.com/F11D55BE-A917-4D63-8111-318E88B29740/10/382/en/',
-            'http://ebooks.nypl.org/20E48048-A377-4520-BC43-F8729A42A424/10/257/en/',
-            'http://spl.lib.overdrive.com/5875E082-4CB2-4689-9426-8509F354AFEF/10/335/en/'
+            'https://overdrive.chipublib.org/82DC601D-7DDE-4212-B43A-09D821935B01/10/375/en/',
+            'https://emedia.clevnet.org/9D321DAD-EC0D-490D-BFD8-64AE2C96ECA8/10/241/en/',
+            'https://singapore.lib.overdrive.com/F11D55BE-A917-4D63-8111-318E88B29740/10/382/en/',
+            'https://ebooks.nypl.org/20E48048-A377-4520-BC43-F8729A42A424/10/257/en/',
+            'https://spl.lib.overdrive.com/5875E082-4CB2-4689-9426-8509F354AFEF/10/335/en/'
         ]
         return choices[random.randint(0, len(choices)-1)]
 

@@ -35,7 +35,7 @@ class Ozon(Source):
     supports_gzip_transfer_encoding = True
     has_html_comments = True
 
-    ozon_url = 'http://www.ozon.ru'
+    ozon_url = 'https://www.ozon.ru'
 
     # match any ISBN10/13. From "Regular Expressions Cookbook"
     isbnPattern = r'(?:ISBN(?:-1[03])?:? )?(?=[-0-9 ]{17}|' \
