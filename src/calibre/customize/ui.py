@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, shutil, traceback, functools, sys
 from collections import defaultdict
+from itertools import chain
 
 from calibre.customize import (CatalogPlugin, FileTypePlugin, PluginNotFound,
                               MetadataReaderPlugin, MetadataWriterPlugin,
@@ -122,11 +123,7 @@ _on_postadd          = []
 
 
 def reread_filetype_plugins():
-    global _on_import
-    global _on_postimport
-    global _on_preprocess
-    global _on_postprocess
-    global _on_postadd
+    global _on_import, _on_postimport, _on_preprocess, _on_postprocess, _on_postadd
     _on_import           = defaultdict(list)
     _on_postimport       = defaultdict(list)
     _on_preprocess       = defaultdict(list)
@@ -147,16 +144,21 @@ def reread_filetype_plugins():
                     _on_postprocess[ft].append(plugin)
 
 
+def plugins_for_ft(ft, occasion):
+    op = {
+        'import':_on_import, 'preprocess':_on_preprocess, 'postprocess':_on_postprocess, 'postimport':_on_postimport,
+    }[occasion]
+    for p in chain(op.get(ft, ()), op.get('*', ())):
+        if not is_disabled(p):
+            yield p
+
+
 def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
-    occasion_plugins = {'import':_on_import, 'preprocess':_on_preprocess,
-                'postprocess':_on_postprocess}[occasion]
     customization = config['plugin_customization']
     if ft is None:
         ft = os.path.splitext(path_to_file)[-1].lower().replace('.', '')
     nfp = path_to_file
-    for plugin in occasion_plugins.get(ft, []):
-        if is_disabled(plugin):
-            continue
+    for plugin in plugins_for_ft(ft, occasion):
         plugin.site_customization = customization.get(plugin.name, '')
         oo, oe = sys.stdout, sys.stderr  # Some file type plugins out there override the output streams with buggy implementations
         with plugin:
@@ -170,27 +172,22 @@ def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
                 print >>oe, 'Running file type plugin %s failed with traceback:'%plugin.name
                 traceback.print_exc(file=oe)
         sys.stdout, sys.stderr = oo, oe
-    x = lambda j : os.path.normpath(os.path.normcase(j))
+    x = lambda j: os.path.normpath(os.path.normcase(j))
     if occasion == 'postprocess' and x(nfp) != x(path_to_file):
         shutil.copyfile(nfp, path_to_file)
         nfp = path_to_file
     return nfp
 
 
-run_plugins_on_import      = functools.partial(_run_filetype_plugins,
-                                               occasion='import')
-run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins,
-                                               occasion='preprocess')
-run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
-                                               occasion='postprocess')
+run_plugins_on_import      = functools.partial(_run_filetype_plugins, occasion='import')
+run_plugins_on_preprocess  = functools.partial(_run_filetype_plugins, occasion='preprocess')
+run_plugins_on_postprocess = functools.partial(_run_filetype_plugins, occasion='postprocess')
 
 
 def run_plugins_on_postimport(db, book_id, fmt):
     customization = config['plugin_customization']
     fmt = fmt.lower()
-    for plugin in _on_postimport.get(fmt, []):
-        if is_disabled(plugin):
-            continue
+    for plugin in plugins_for_ft(fmt, 'postimport'):
         plugin.site_customization = customization.get(plugin.name, '')
         with plugin:
             try:
