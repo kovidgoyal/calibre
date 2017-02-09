@@ -4,16 +4,21 @@ from __python__ import hash_literals
 
 import traceback
 from ajax import ajax
-from book_list.globals import get_current_query
 from book_list.theme import get_font_size
 from dom import clear, build_rule, svgicon, add_extra_css
 from elementmaker import E
 from gettext import gettext as _
-from book_list.globals import get_boss
 from modals import error_dialog
 from widgets import create_spinner, create_button
 from date import format_date
-from utils import fmt_sidx
+from session import get_interface_data
+from utils import fmt_sidx, parse_url_params
+
+from book_list.router import back
+from book_list.library_data import book_metadata, cover_url, set_book_metadata, current_library_id, library_data, download_url
+from book_list.top_bar import create_top_bar, set_title, add_button
+from book_list.ui import set_panel_handler
+from book_list.views import search
 
 bd_counter = 0
 
@@ -49,23 +54,31 @@ def field_sorter(field_metadata):
         fm = (field_metadata[field] or {})[field] or {}
         return lvl + (fm.name or 'zzzzz')
 
+
 def execute_search(ev):
-    name, val = JSON.parse(ev.currentTarget.getAttribute('data-search'))
-    search = '{}:"={}"'.format(name, str.replace(val, '"', r'\"'))
-    get_boss().ui.books_view.change_search(search)
+    name, val = JSON.parse(ev.currentTarget.dataset.search)
+    query = '{}:"={}"'.format(name, str.replace(val, '"', r'\"'))
+    search(query)
 
-def download_format(ev):
-    fmt = ev.currentTarget.getAttribute('data-format')
-    get_boss().ui.book_details_panel.download_format(fmt)
 
-def read_format(ev):
-    fmt = ev.currentTarget.getAttribute('data-format')
-    get_boss().ui.book_details_panel.read_format(fmt)
+def on_download_format(ev):
+    fmt = ev.currentTarget.dataset.format
+    book_id = ev.currentTarget.dataset.bookId
+    download_format(int(book_id), fmt)
 
-def render_metadata(mi, interface_data, table, field_list=None):
+
+def on_read_format(ev):
+    fmt = ev.currentTarget.dataset.format
+    book_id = ev.currentTarget.dataset.bookId
+    read_format(int(book_id), fmt)
+
+
+def render_metadata(mi, table, book_id, field_list=None):  # {{{
+    field_metadata = library_data.field_metadata
+    interface_data = get_interface_data()
     def allowed_fields(field):
         if field.endswith('_index'):
-            fm = interface_data.field_metadata[field[:-len('_index')]]
+            fm = field_metadata[field[:-len('_index')]]
             if fm and fm.datatype is 'series':
                 return False
         if field.startswith('#'):
@@ -74,7 +87,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
             return False
         return True
 
-    fields = field_list or sorted(filter(allowed_fields, mi), key=field_sorter(interface_data.field_metadata))
+    fields = field_list or sorted(filter(allowed_fields, mi), key=field_sorter(field_metadata))
     comments = {}
 
     def add_row(name, val, is_searchable=False, is_html=False, join=None):
@@ -130,13 +143,13 @@ def render_metadata(mi, interface_data, table, field_list=None):
                     title=_('Read this book in the {} format').format(fmt),
                     href='javascript:void(0)', style='padding-left: 1em',
                     svgicon('book'),
-                    onclick=read_format, data_format=fmt
+                    onclick=on_read_format, data_format=fmt, data_book_id='' + book_id,
                 ))
             td.lastChild.appendChild(E.a(
                 title=_('Download the {} format of this book').format(fmt),
                 href='javascript:void(0)', style='padding-left: 1em',
                 svgicon('cloud-download'),
-                onclick=download_format, data_format=fmt
+                onclick=on_download_format, data_format=fmt, data_book_id='' + book_id
             ))
             if fmt is not val[-1]:
                 td.lastChild.appendChild(document.createTextNode(','))
@@ -245,7 +258,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
                 add_row(name, val)
 
     for field in fields:
-        fm = interface_data.field_metadata[field]
+        fm = field_metadata[field]
         if not fm:
             continue
         try:
@@ -255,7 +268,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
             traceback.print_exc()
 
     for i, field in enumerate(sorted(comments)):
-        fm = interface_data.field_metadata[field]
+        fm = field_metadata[field]
         comment = comments[field]
         div = E.div()
         div.innerHTML = comment
@@ -265,6 +278,7 @@ def render_metadata(mi, interface_data, table, field_list=None):
         table.parentNode.appendChild(div)
         if i is 0:
             div.style.marginTop = '2ex'
+# }}}
 
 CLASS_NAME = 'book-details-panel'
 
@@ -277,141 +291,140 @@ add_extra_css(def():
     return style
 )
 
-class BookDetailsPanel:
+current_fetch = None
 
-    def __init__(self, interface_data, book_list_container):
-        nonlocal bd_counter
-        bd_counter += 1
-        self.container_id = 'book-details-panel-' + bd_counter
-        div = E.div(
-            id=self.container_id, style='display:none', class_=CLASS_NAME,
-            E.div(),
-        )
-        book_list_container.appendChild(div)
-        self.interface_data = interface_data
-        self.current_book_id = None
+def no_book(container):
+    container.appendChild(E.div(
+        style='margin: 1ex 1em',
+        _('No book found')
+    ))
 
-    @property
-    def container(self):
-        return document.getElementById(self.container_id).lastChild
 
-    @property
-    def is_visible(self):
-        self.container.parentNode.style.display is 'block'
-
-    @is_visible.setter
-    def is_visible(self, val):
-        self.container.parentNode.style.display = 'block' if val else 'none'
-
-    def init(self, data):
-        self.current_book_id = None
-        c = self.container
-        clear(c)
-        book_id = get_current_query()['book-id']
-        if book_id is undefined or book_id is None:
-            self.no_book()
-        elif book_id in self.interface_data.metadata:
-            self.render_book(book_id)
-        else:
-            self.fetch_metadata(book_id)
-        get_boss().ui.set_button_visibility('random', not book_id or book_id is '0')
-
-    def show_random(self):
-        self.fetch_metadata('0')
-
-    def no_book(self, book_id):
-        self.container.appendChild(E.div(
-            style='margin: 1ex 1em',
-            _('No book found')
-        ))
-
-    def fetch_metadata(self, book_id):
-        if self.is_fetching:
-            self.is_fetching.abort()
-        self.is_fetching = ajax('interface-data/book-metadata/' + book_id, self.metadata_fetched.bind(self),
-                                query={'library_id':self.interface_data.library_id})
-        self.is_fetching.send()
-        self.container.appendChild(E.div(
-            style='margin: 1ex 1em',
-            create_spinner(), '\xa0' + _('Fetching metadata for the book, please wait') + '…',
-        ))
-
-    def metadata_fetched(self, end_type, xhr, event):
-        if self.is_fetching is None or self.is_fetching is not xhr:
-            return  # Fetching was aborted
-        self.is_fetching = None
-        c = self.container
-        if end_type is 'load':
-            try:
-                data = JSON.parse(xhr.responseText)
-            except Exception as err:
-                error_dialog(_('Could not fetch metadata for book'), _('Server returned an invalid response'), err.toString())
-                return
-            clear(c)
-            book_id = data['id']
-            self.interface_data.metadata[book_id] = data
-            self.render_book(book_id)
-        elif end_type is not 'abort':
-            clear(c)
-            c.appendChild(E.div(
-                style='margin: 1ex 1em',
-                _('Could not fetch metadata for book'),
-                E.div(style='margin: 1ex 1em')
-            ))
-            c.lastChild.lastChild.innerHTML = xhr.error_html
-
-    def render_book(self, book_id):
-        self.current_book_id = int(book_id)
-        metadata = self.interface_data.metadata[book_id]
-        get_boss().ui.set_title(metadata.title)
-        cover_url = 'get/cover/{}/{}'.format(book_id, self.interface_data['library_id'])
-        alt = _('{} by {}').format(metadata['title'], metadata['authors'].join(' & '))
-        imgdiv = E.div(
-            E.img(
-                src=cover_url, alt=alt, title=alt, data_title=metadata['title'], data_authors=metadata['authors'].join(' & '),
-                style='border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: 20px'.format(get_font_size('title')
-            ))
-        )
-        imgdiv.firstChild.onerror = self.on_img_err.bind(self)
-        c = self.container
-        c.appendChild(E.div(
-            style='display:flex; padding: 1ex 1em; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap',
-            E.div(style='margin-right: 1em; flex-grow: 3; max-width: 500px', data_book_id='' + book_id),
-            imgdiv
-        ))
-        container = c.lastChild.firstChild
-        read_button = create_button(_('Read'), 'book', self.read_book.bind(self), _('Read this book'))
-        download_button = create_button(_('Download'), 'cloud-download', self.download_book.bind(self),
-            _('Download this book in the {} format').format(self.preferred_format(book_id)))
-        row = E.div(read_button, '\xa0\xa0\xa0', download_button, style='margin-bottom: 1ex')
-        if not metadata.formats or not metadata.formats.length:
-            row.style.display = 'none'
-        container.appendChild(row)
-        md = E.div(style='margin-bottom: 2ex')
-        table = E.table(class_='metadata')
-        container.appendChild(md)
-        md.appendChild(table)
-        render_metadata(metadata, self.interface_data, table)
-
-    def on_img_err(self, err):
-        img = err.target
+def on_img_err(err):
+    img = err.target
+    if img.parentNode:
         img.parentNode.style.display = 'none'
 
-    def preferred_format(self, book_id):
-        return get_preferred_format(self.interface_data.metadata[book_id], self.interface_data.output_format, self.interface_data.input_formats)
+def preferred_format(book_id):
+    interface_data = get_interface_data()
+    return get_preferred_format(book_metadata(book_id), interface_data.output_format, interface_data.input_formats)
 
-    def download_format(self, fmt):
-        window.location = 'get/{}/{}/{}'.format(fmt, self.current_book_id, self.interface_data.library_id)
 
-    def download_book(self):
-        book_id = self.current_book_id
-        fmt = self.preferred_format(book_id)
-        self.download_format(fmt)
+def read_format(book_id, fmt):
+    get_boss().read_book(self.current_book_id, fmt, self.interface_data.metadata[self.current_book_id])
 
-    def read_format(self, fmt):
-        get_boss().read_book(self.current_book_id, fmt, self.interface_data.metadata[self.current_book_id])
 
-    def read_book(self):
-        book_id = self.current_book_id
-        fmt = self.preferred_format(book_id)
-        self.read_format(fmt)
+def read_book(book_id):
+    fmt = preferred_format(book_id)
+    read_format(book_id, fmt)
+
+
+def download_format(book_id, fmt):
+    window.location = download_url(book_id, fmt)
+
+
+def download_book(book_id):
+    fmt = preferred_format(book_id)
+    download_format(fmt)
+
+
+def render_book(container_id, book_id):
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    metadata = book_metadata(book_id)
+    set_title(c, metadata.title)
+    alt = _('{} by {}').format(metadata.title, metadata.authors.join(' & '))
+    imgdiv = E.div(
+        E.img(
+            alt=alt, title=alt, data_title=metadata.title, data_authors=metadata.authors.join(' & '),
+            style='border-radius: 20px; max-width: calc(100vw - 2em); max-height: calc(100vh - 4ex - {}); display: block; width:auto; height:auto; border-radius: 20px'.format(get_font_size('title')
+        ))
+    )
+    imgdiv.firstChild.onerror = on_img_err
+    imgdiv.firstChild.src = cover_url(book_id)
+    c = c.lastChild
+    c.appendChild(E.div(
+        style='display:flex; padding: 1ex 1em; align-items: flex-start; justify-content: flex-start; flex-wrap: wrap',
+        E.div(style='margin-right: 1em; flex-grow: 3; max-width: 500px', data_book_id='' + book_id),
+        imgdiv
+    ))
+    container = c.lastChild.firstChild
+    read_button = create_button(_('Read'), 'book', read_book.bind(None, book_id), _('Read this book'))
+    download_button = create_button(_('Download'), 'cloud-download', download_book.bind(None, book_id),
+        _('Download this book in the {} format').format(preferred_format(book_id)))
+    row = E.div(read_button, '\xa0\xa0\xa0', download_button, style='margin-bottom: 1ex')
+    if not metadata.formats or not metadata.formats.length:
+        row.style.display = 'none'
+    container.appendChild(row)
+    md = E.div(style='margin-bottom: 2ex')
+    table = E.table(class_='metadata')
+    container.appendChild(md)
+    md.appendChild(table)
+    render_metadata(metadata, table, book_id)
+
+
+def metadata_fetched(container_id, book_id, end_type, xhr, event):
+    nonlocal current_fetch
+    if current_fetch is None or current_fetch is not xhr:
+        return  # Fetching was aborted
+    current_fetch = None
+    c = document.getElementById(container_id)
+    if not c:
+        return
+    c = c.lastChild
+    if end_type is 'load':
+        try:
+            data = JSON.parse(xhr.responseText)
+        except Exception as err:
+            error_dialog(_('Could not fetch metadata for book'), _('Server returned an invalid response'), err.toString())
+            return
+        clear(c)
+        book_id = int(data['id'])
+        set_book_metadata(book_id, data)
+        render_book(container_id, book_id)
+    elif end_type is not 'abort':
+        clear(c)
+        c.appendChild(E.div(
+            style='margin: 1ex 1em',
+            _('Could not fetch metadata for book'),
+            E.div(style='margin: 1ex 1em')
+        ))
+        c.lastChild.lastChild.innerHTML = xhr.error_html
+
+def fetch_metadata(container_id, book_id):
+    nonlocal current_fetch
+    container = document.getElementById(container_id)
+    if not container:
+        return
+    if current_fetch:
+        current_fetch.abort()
+    current_fetch = ajax('interface-data/book-metadata/' + book_id, metadata_fetched.bind(None, container_id, book_id),
+                            query={'library_id':current_library_id().library_id})
+    current_fetch.send()
+    container = container.lastChild
+    clear(container)
+    container.appendChild(E.div(
+        style='margin: 1ex 1em',
+        create_spinner(), '\xa0' + _('Fetching metadata for the book, please wait') + '…',
+    ))
+
+def init(container_id):
+    q = parse_url_params()
+    current_book_id = q.book_id
+    container = document.getElementById(container_id)
+    create_top_bar(container, title=_('Book details'), action=back, icon='close')
+    if current_book_id is undefined or current_book_id is None:
+        no_book(container)
+        return
+    container.appendChild(E.div())
+    current_book_id = int(current_book_id)
+    if current_book_id is not 0 and book_metadata(current_book_id):
+        render_book(container_id, current_book_id)
+    else:
+        if current_book_id is 0:
+            add_button(container, 'random', def(): fetch_metadata(container_id, 0);)
+        fetch_metadata(container_id, current_book_id)
+
+
+set_panel_handler('book_details', init)

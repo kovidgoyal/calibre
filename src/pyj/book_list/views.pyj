@@ -235,6 +235,12 @@ def create_sort_panel(container_id):
     create_item_list(container.lastChild, items, _('Change how the list of books is sorted'))
 # }}}
 
+# Searching {{{
+
+def search(query, replace=False):
+    pass
+
+# }}}
 
 set_panel_handler('book_list', init)
 set_panel_handler('book_list^sort', create_sort_panel)

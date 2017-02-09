@@ -13,10 +13,15 @@ load_status = {'loading':True, 'ok':False, 'error_html':None, 'current_fetch': N
 library_data = {}
 
 
+def current_library_id():
+    q = parse_url_params()
+    return q.library_id or get_interface_data().default_library_id
+
+
 def url_books_query(sd):
     q = parse_url_params()
     sd = sd or get_session_data()
-    lid = q.library_id or get_interface_data().default_library_id
+    lid = current_library_id()
     return {
         'library_id': lid,
         'sort': q.sort or sd.get_library_option(lid, 'sort'),
@@ -82,8 +87,22 @@ def thumbnail_url(book_id, width, height):
     return 'get/thumb/{}/{}?sz={}x{}'.format(book_id, loaded_books_query().library_id, Math.ceil(width * window.devicePixelRatio), Math.ceil(height * window.devicePixelRatio))
 
 
+def cover_url(book_id):
+    lid = current_library_id()
+    return f'get/cover/{book_id}/{lid}'
+
+
+def download_url(book_id, fmt):
+    lid = current_library_id()
+    return f'get/{fmt}/{book_id}/{lid}}'
+
+
 def book_metadata(book_id):
     return library_data.metadata[book_id]
+
+
+def set_book_metadata(book_id, value):
+    library_data.metadata[book_id] = value
 
 
 def ensure_current_library_data():
