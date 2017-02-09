@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import (unicode_literals, division, absolute_import, print_function)
-store_version = 2  # Needed for dynamic plugin loading
+store_version = 3  # Needed for dynamic plugin loading
 
 __license__ = 'GPL 3'
 __copyright__ = '2011, John Schember <john@nachtimwald.com>'
@@ -25,7 +25,7 @@ from calibre.gui2.store.web_store_dialog import WebStoreDialog
 class GoogleBooksStore(BasicStoreConfig, StorePlugin):
 
     def open(self, parent=None, detail_item=None, external=False):
-        url = 'http://books.google.com/books'
+        url = 'https://books.google.com/books'
         if external or self.config.get('open_external', False):
             open_url(QUrl(url_slash_cleaner(detail_item if detail_item else url)))
         else:
@@ -35,7 +35,7 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
             d.exec_()
 
     def search(self, query, max_results=10, timeout=60):
-        url = 'http://www.google.com/search?tbm=bks&q=' + urllib.quote_plus(query)
+        url = 'https://www.google.com/search?tbm=bks&q=' + urllib.quote_plus(query)
 
         br = browser()
 
@@ -90,4 +90,3 @@ class GoogleBooksStore(BasicStoreConfig, StorePlugin):
                 search_result.formats = _('Unknown')
 
         return True
-
