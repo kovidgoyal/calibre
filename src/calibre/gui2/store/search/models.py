@@ -87,7 +87,7 @@ class Matches(QAbstractItemModel):
 
     def add_result(self, result, store_plugin):
         if result not in self.all_matches:
-            self.layoutAboutToBeChanged.emit()
+            self.modelAboutToBeReset.emit()
             self.all_matches.append(result)
             self.search_filter.add_search_result(result)
             if result.cover_url:
@@ -96,8 +96,8 @@ class Matches(QAbstractItemModel):
             else:
                 result.cover_queued = False
             self.details_pool.add_task(result, store_plugin, self.got_result_details_dispatcher)
-            self.filter_results()
-            self.layoutChanged.emit()
+            self._filter_results()
+            self.modelReset.emit()
 
     def get_result(self, index):
         row = index.row()
@@ -109,8 +109,7 @@ class Matches(QAbstractItemModel):
     def has_results(self):
         return len(self.matches) > 0
 
-    def filter_results(self):
-        self.layoutAboutToBeChanged.emit()
+    def _filter_results(self):
         # Only use the search filter's filtered results when there is a query
         # and it is a filterable query. This allows for the stores best guess
         # matches to come though.
@@ -120,7 +119,11 @@ class Matches(QAbstractItemModel):
             self.matches = list(self.search_filter.universal_set())
         self.total_changed.emit(self.rowCount())
         self.sort(self.sort_col, self.sort_order, False)
-        self.layoutChanged.emit()
+
+    def filter_results(self):
+        self.modelAboutToBeReset.emit()
+        self._filter_results()
+        self.modelReset.emit()
 
     def got_result_details(self, result):
         if not result.cover_queued and result.cover_url:
@@ -470,4 +473,3 @@ class SearchFilter(SearchQueryParser):
         punctuation is removed first, so that a.and.b becomes a b '''
         field = force_unicode(field)
         return self.joiner_pat.sub(' ', field.translate(self.punctuation_table))
-

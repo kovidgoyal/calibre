@@ -191,9 +191,9 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                     if job.is_finished:
                         self.job_done.emit(len(self.unfinished_jobs()))
             if needs_reset:
-                self.layoutAboutToBeChanged.emit()
+                self.modelAboutToBeReset.emit()
                 self.jobs.sort()
-                self.layoutChanged.emit()
+                self.modelReset.emit()
             else:
                 for job in jobs:
                     idx = self.jobs.index(job)
@@ -216,11 +216,11 @@ class JobManager(QAbstractTableModel, AdaptSQP):  # {{{
                         self.server.kill_job(job)
 
     def _add_job(self, job):
-        self.layoutAboutToBeChanged.emit()
+        self.modelAboutToBeReset.emit()
         self.jobs.append(job)
         self.jobs.sort()
         self.job_added.emit(len(self.unfinished_jobs()))
-        self.layoutChanged.emit()
+        self.modelReset.emit()
 
     def done_jobs(self):
         return [j for j in self.jobs if j.is_finished]
