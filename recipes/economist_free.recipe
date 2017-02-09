@@ -19,7 +19,7 @@ class Economist(BasicNewsRecipe):
     language = 'en'
 
     __author__ = "Kovid Goyal"
-    INDEX = 'http://www.economist.com/printedition'
+    INDEX = 'https://www.economist.com/printedition'
     description = ('Global news and current affairs from a European'
                    ' perspective. Best downloaded on Friday mornings (GMT)')
     extra_css      = '''
@@ -82,7 +82,7 @@ class Economist(BasicNewsRecipe):
 
     def economist_parse_index(self):
         # return [('Articles', [{'title':'test',
-        # 'url':'http://www.economist.com/news/americas/21699494-guide-cutting-corners-way-jos'}])]
+        # 'url':'https://www.economist.com/news/americas/21699494-guide-cutting-corners-way-jos'}])]
         soup = self.index_to_soup(self.INDEX)
         div = soup.find('div', attrs={'class': 'issue-image'})
         if div is not None:
@@ -110,7 +110,7 @@ class Economist(BasicNewsRecipe):
                 if a is not None:
                     url = a['href']
                     if url.startswith('/'):
-                        url = 'http://www.economist.com' + url
+                        url = 'https://www.economist.com' + url
                     url += '/print'
                     title = self.tag_to_string(a)
                     if title:

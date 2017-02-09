@@ -409,7 +409,7 @@ horizontal_scrolling_per_column = True
 # calibre in English but want sorting to work in the language where you live.
 # Set the tweak to the desired ISO 639-1 language code, in lower case.
 # You can find the list of supported locales at
-# http://publib.boulder.ibm.com/infocenter/iseries/v5r3/topic/nls/rbagsicusortsequencetables.htm
+# https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
 # Default: locale_for_sorting = '' -- use the language calibre displays in
 # Example: locale_for_sorting = 'fr' -- sort using French rules.
 # Example: locale_for_sorting = 'nb' -- sort using Norwegian rules.

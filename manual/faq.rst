@@ -551,7 +551,7 @@ disconnected from the computer, for the changes to the collections to be
 recognized. As such, it is unlikely that any calibre developers will ever feel
 motivated enough to support it. There is however, a calibre plugin that allows
 you to create collections on your Kindle from the calibre metadata. It is
-available `from here <http://www.mobileread.com/forums/showthread.php?t=244202>`_.
+available `from here <https://www.mobileread.com/forums/showthread.php?t=244202>`_.
 
 .. note::
     Amazon have removed the ability to manipulate collections completely
@@ -686,7 +686,7 @@ fields. In addition, you can add any columns you like. Columns can be added via
 :guilabel:`Preferences->Interface->Add your own columns`.  Watch the tutorial
 `UI Power tips <https://calibre-ebook.com/demo#tutorials>`_ to learn how to
 create your own columns, or read `this blog post
-<http://blog.calibre-ebook.com/2011/11/calibre-custom-columns.html>`_.
+<https://blog.calibre-ebook.com/2011/11/calibre-custom-columns.html>`_.
 
 You can also create "virtual columns" that contain combinations of the metadata
 from other columns. In the add column dialog  use the :guilabel:`Quick create`
@@ -801,7 +801,7 @@ Even with these tools there is danger of data corruption/loss, so only do this
 if you are willing to live with that risk. In particular, be aware that
 **Google Drive** is incompatible with calibre, if you put your calibre library in
 Google Drive, **you will suffer data loss**. See `this thread
-<http://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
+<https://www.mobileread.com/forums/showthread.php?t=205581>`_ for details.
 
 
 Miscellaneous
