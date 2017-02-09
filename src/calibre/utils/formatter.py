@@ -306,6 +306,7 @@ class _CompileParser(_Parser):
         else:
             self.error(_('expression is not function or constant'))
 
+
 compile_counter = 0
 
 
@@ -547,6 +548,7 @@ class ValidateFormatter(TemplateFormatter):
         self.book = Metadata('')
         return self.vformat(x, [], {})
 
+
 validation_formatter = ValidateFormatter()
 
 
@@ -561,6 +563,6 @@ class EvalFormatter(TemplateFormatter):
         key = key.lower()
         return kwargs.get(key, _('No such variable ') + key)
 
+
 # DEPRECATED. This is not thread safe. Do not use.
 eval_formatter = EvalFormatter()
-

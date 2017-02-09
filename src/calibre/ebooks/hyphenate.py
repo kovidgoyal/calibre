@@ -82,6 +82,7 @@ class Hyphenator:
                 pieces.append('')
         return pieces
 
+
 patterns = (
 # Knuth and Liang's original hyphenation patterns from classic TeX.
 # In the public domain.
