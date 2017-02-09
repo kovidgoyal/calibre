@@ -4,7 +4,7 @@
 
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-store_version = 12  # Needed for dynamic plugin loading
+store_version = 13  # Needed for dynamic plugin loading
 
 from contextlib import closing
 import urllib
@@ -18,10 +18,10 @@ from calibre.gui2 import open_url
 from calibre.gui2.store import StorePlugin
 from calibre.gui2.store.search_result import SearchResult
 
-SEARCH_BASE_URL = 'http://www.amazon.co.uk/s/'
+SEARCH_BASE_URL = 'https://www.amazon.co.uk/s/'
 SEARCH_BASE_QUERY = {'url': 'search-alias=digital-text'}
-DETAILS_URL = 'http://amazon.co.uk/dp/'
-STORE_LINK =  'http://www.amazon.co.uk'
+DETAILS_URL = 'https://amazon.co.uk/dp/'
+STORE_LINK =  'https://www.amazon.co.uk'
 DRM_SEARCH_TEXT = 'Simultaneous Device Usage'
 DRM_FREE_TEXT = 'Unlimited'
 
@@ -141,6 +141,7 @@ class AmazonKindleStore(StorePlugin):
             else:
                 search_result.drm = SearchResult.DRM_LOCKED
         return True
+
 
 if __name__ == '__main__':
     import sys
