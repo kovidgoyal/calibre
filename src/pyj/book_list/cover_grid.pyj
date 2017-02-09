@@ -6,7 +6,7 @@ from dom import clear, set_css, build_rule
 from elementmaker import E
 from gettext import gettext as _
 
-from book_list.library_data import cover_url, book_metadata
+from book_list.library_data import thumbnail_cache, book_metadata
 
 COVER_GRID_CLASS = 'book-list-cover-grid'
 THUMBNAIL_MAX_WIDTH = 300
@@ -41,26 +41,26 @@ def init(container):
     for i in range(12):
         container.lastChild.appendChild(E.div(class_='cover-grid-filler'))
 
-def on_img_load_error(err):
-    img = err.target
+def on_img_load(img, load_type):
     div = img.parentNode
     if not div:
         return
-    clear(div)
-    div.appendChild(E.div(
-        E.h2(img.getAttribute('data-title'), style='text-align:center; font-size:larger; font-weight: bold'),
-        E.div(_('by'), style='text-align: center'),
-        E.h2(img.getAttribute('data-authors'), style='text-align:center; font-size:larger; font-weight: bold')
-    ))
-    set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
+    if load_type is not 'load':
+        metadata = book_metadata(int(img.dataset.bookId))
+        if metadata:
+            clear(div)
+            div.appendChild(E.div(
+                E.h2(metadata.title, style='text-align:center; font-size:larger; font-weight: bold'),
+                E.div(_('by'), style='text-align: center'),
+                E.h2(metadata.authors.join(' & '), style='text-align:center; font-size:larger; font-weight: bold')
+            ))
+            set_css(div, border='dashed 1px currentColor', border_radius=BORDER_RADIUS+'px')
 
 def create_item(book_id, show_book_details):
-    curl = cover_url(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT)
     metadata = book_metadata(book_id)
-    alt = _('{} by {}').format(metadata.title, metadata.authors.join(' & '))
-    img = E.img(src=curl, alt=alt, title=alt, data_title=metadata.title, data_authors=metadata.authors.join(' & '))
-    img.onerror = on_img_load_error
-
+    authors = metadata.authors.join(' & ')
+    img = thumbnail_cache.get(book_id, THUMBNAIL_MAX_WIDTH, THUMBNAIL_MAX_HEIGHT, on_img_load)
+    img.setAttribute('alt', _('{} by {}').format(metadata.title, authors))
     ans = E.div(img, data_book_id=str(book_id), onclick=show_book_details)
     return ans
 

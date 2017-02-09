@@ -1,0 +1,70 @@
+# vim:fileencoding=utf-8
+# License: GPL v3 Copyright: 2017, Kovid Goyal <kovid at kovidgoyal.net>
+from __python__ import hash_literals, bound_methods
+
+
+def lru_node(key, val):
+    return {'key': key, 'val':val, 'prev':None, 'next':None}
+
+
+class LRUCache:
+
+    def __init__(self, size):
+        self.limit = 200
+        self.clear(size)
+
+    def set_head(self, node):
+        node.next = self.head
+        node.prev = None
+        if self.head is not None:
+            self.head.prev = node
+        self.head = node
+        if self.tail is None:
+            self.tail = node
+        self.size += 1
+        self.map[node.key] = node
+
+    def pop(self, key):
+        node = self.map[key]
+        if not node:
+            return
+        if node.prev is not None:
+            node.prev.next = node.next
+        else:
+            self.head = node.next
+        if node.next is not None:
+            node.next.prev = node.prev
+        else:
+            self.tail = node.prev
+        v'delete self.map[key]'
+        self.size -= 1
+
+    def set(self, key, val):
+        node = lru_node(key, val)
+        existing = self.map[key]
+        if existing:
+            existing.value = node.value
+            self.pop(node.key)
+        elif self.size > self.limit:
+            v'delete self.map[self.tail.key]'
+            self.size -= 1
+            self.tail = self.tail.prev
+            self.tail.next = None
+        self.set_head(node)
+
+    def get(self, key, defval):
+        existing = self.map[key]
+        if not existing:
+            return None if defval is undefined else defval
+        val = existing.value
+        node = lru_node(key, val)
+        self.pop(key)
+        self.set_head(node)
+        return val
+
+    def clear(self, size):
+        self.size = 0
+        self.map = {}
+        self.head = self.tail = None
+        if jstype(size) is 'number':
+            self.limit = size
