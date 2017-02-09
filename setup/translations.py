@@ -15,6 +15,7 @@ from setup import Command, __appname__, __version__, require_git_master, build_c
 from setup.parallel_build import parallel_check_output
 is_ci = os.environ.get('CI', '').lower() == 'true'
 
+
 def qt_sources():
     qtdir = '/usr/src/qt5'
     j = partial(os.path.join, qtdir)
@@ -23,6 +24,7 @@ def qt_sources():
             'qtbase/src/widgets/dialogs/qcolordialog.cpp',
             'qtbase/src/widgets/dialogs/qfontdialog.cpp',
     ]))
+
 
 class POT(Command):  # {{{
 
@@ -203,6 +205,7 @@ class POT(Command):  # {{{
         return pot
 # }}}
 
+
 class Translations(POT):  # {{{
     description='''Compile the translations'''
     DEST = os.path.join(os.path.dirname(POT.SRC), 'resources', 'localization',
@@ -317,6 +320,7 @@ class Translations(POT):  # {{{
                     lcf.write(cPickle.dumps(ld, -1))
 
         stats = {}
+
         def handle_stats(f, nums):
             trans = nums[0]
             total = trans if len(nums) == 1 else (trans + nums[1])
@@ -478,6 +482,7 @@ class Translations(POT):  # {{{
 
 # }}}
 
+
 class GetTranslations(Translations):  # {{{
 
     description = 'Get updated translations from Transifex'
@@ -545,7 +550,7 @@ class GetTranslations(Translations):  # {{{
         subprocess.check_call(pofilter)
         errfiles = glob.glob(errors+os.sep+'*.po')
         if errfiles:
-            subprocess.check_call(['gvim', '-f', '-p', '--']+errfiles)
+            subprocess.check_call(['vim', '-f', '-p', '--']+errfiles)
             for f in errfiles:
                 with open(f, 'r+b') as f:
                     raw = f.read()
@@ -573,6 +578,7 @@ class GetTranslations(Translations):  # {{{
         cc('git push'.split())
 
 # }}}
+
 
 class ISO639(Command):  # {{{
 
@@ -635,6 +641,7 @@ class ISO639(Command):  # {{{
             os.remove(self.DEST)
 
 # }}}
+
 
 class ISO3166(ISO639):  # {{{
 

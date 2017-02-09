@@ -83,11 +83,11 @@ class ContainerTests(BaseTest):
         for x in files:
             self.assertNotIn(x, raw)
 
-    def run_external_tools(self, container, gvim=False, epubcheck=True):
+    def run_external_tools(self, container, vim=False, epubcheck=True):
         with TemporaryFile(suffix='.epub', dir=self.tdir) as f:
             container.commit(outpath=f)
-            if gvim:
-                subprocess.Popen(['gvim', '-f', f]).wait()
+            if vim:
+                subprocess.Popen(['vim', '-f', f]).wait()
             if epubcheck:
                 subprocess.Popen(['epubcheck', f]).wait()
 
@@ -169,7 +169,7 @@ class ContainerTests(BaseTest):
         rename_files(c, {'index_split_000.html':'Index_split_000.html'})
         self.check_links(c)
 
-        # self.run_external_tools(c, gvim=True)
+        # self.run_external_tools(c, vim=True)
 
     def test_file_add(self):
         ' Test adding of files '
