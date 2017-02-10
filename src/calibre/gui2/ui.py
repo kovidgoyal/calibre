@@ -9,7 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 '''The main GUI'''
 
-import collections, os, sys, textwrap, time, gc, errno
+import collections, os, sys, textwrap, time, gc, errno, re
 from Queue import Queue, Empty
 from threading import Thread
 from collections import OrderedDict
@@ -788,6 +788,19 @@ class Main(MainWindow, MainWindowMixin, DeviceMixin, EmailMixin,  # {{{
                 if not minz:
                     d = error_dialog(self, _('Conversion Failed'), msg,
                             det_msg=job.details)
+                    d.setModal(False)
+                    d.show()
+                    self._modeless_dialogs.append(d)
+                return
+
+            if 'calibre.ebooks.mobi.reader.mobi6.KFXError:' in job.details:
+                if not minz:
+                    title = job.description.split(':')[-1].partition('(')[-1][:-1]
+                    msg = _('<p><b>Failed to convert: %s') % title
+                    idx = job.details.index('calibre.ebooks.mobi.reader.mobi6.KFXError:')
+                    msg += '<p>' + re.sub(r'(https:\S+)', r'<a href="\1">{}</a>'.format(_('here')),
+                                          job.details[idx:].partition(':')[2].strip())
+                    d = error_dialog(self, _('Conversion Failed'), msg, det_msg=job.details)
                     d.setModal(False)
                     d.show()
                     self._modeless_dialogs.append(d)
