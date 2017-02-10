@@ -364,7 +364,7 @@ class UploadToServer(Command):  # {{{
         upload_signatures()
         check_call(['git', 'push'])
         check_call([
-            os['PENV'] + '/gpg-as-kovid', '--armor', '--yes',
+            os.environ['PENV'] + '/gpg-as-kovid', '--armor', '--yes',
             '--detach-sign', src_file
         ])
         check_call(['scp', src_file + '.asc', 'code:/srv/code/signatures/'])
