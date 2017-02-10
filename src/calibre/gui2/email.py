@@ -26,7 +26,7 @@ from calibre.constants import preferred_encoding
 from calibre.gui2 import config, Dispatcher, warning_dialog, error_dialog, gprefs
 from calibre.library.save_to_disk import get_components
 from calibre.utils.config import tweaks, prefs
-from calibre.utils.icu import sort_key
+from calibre.utils.icu import primary_sort_key
 from calibre.gui2.threaded_jobs import ThreadedJob
 
 
@@ -135,6 +135,7 @@ class Sendmail(object):
         finally:
             self.last_send_time = time.time()
 
+
 gui_sendmail = Sendmail()
 
 
@@ -178,6 +179,7 @@ def email_news(mi, remove, get_fmts, done, job_manager):
                 job_manager)
         sent_mails.append(to_s[0])
     return sent_mails
+
 
 plugboard_email_value = 'email'
 plugboard_email_formats = ['epub', 'mobi', 'azw3']
@@ -266,7 +268,11 @@ class SelectRecipients(QDialog):  # {{{
     def init_list(self):
         opts = email_config().parse()
         self.items = []
-        for key in sorted(opts.accounts or (), key=sort_key):
+
+        def sk(account):
+            return primary_sort_key(opts.aliases.get(account) or account)
+
+        for key in sorted(opts.accounts or (), key=sk):
             self.create_item(opts.aliases.get(key, key), key)
 
     def accept(self):
@@ -495,8 +501,8 @@ class EmailMixin(object):  # {{{
 
 # }}}
 
+
 if __name__ == '__main__':
     from PyQt5.Qt import QApplication
     app = QApplication([])  # noqa
     print (select_recipients())
-
