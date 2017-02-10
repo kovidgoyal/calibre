@@ -20,6 +20,43 @@
 #   new recipes:
 #     - title:
 
+- version: 2.79.0
+  date: 2017-02-10
+
+  new features:
+    - title: "Windows: Make recently opened books show up in the jump lists for the standalone viewer and editor programs"
+
+    - title: "OS X/Linux: Show an informational popup message when an Android device is plugged in that needs the user to tap Allow for the connection to work."
+
+    - title: "Conversion: Log options that are different from the defaults separately, for easy reference"
+
+  bug fixes:
+    - title: "Conversion: Fix regression that broke conversion of some epub files when using the 'Remove first image' option."
+      tickets: [1660699]
+
+    - title: "Get Books: Update Kobo plugin for website changes"
+
+    - title: "Windows MTP driver: Fix error when enumerating device storage not being reported during debug device detection"
+
+    - title: "Tag Browser: When dragging and dropping a book onto a series increment the series number."
+      tickets: [1661588]
+
+    - title: "Fix crash when generating covers with Qt 5.8 on linux"
+
+    - title: "Fix Get Books result list and jobs list not being populated on Qt 5.8"
+
+    - title: "Fix importing rules in the coloring/icon rules dialog not enabling the apply button"
+
+  improved recipes:
+    - Strange Horizons
+    - Wall Street Journal
+    - Bangkok Post
+    - The Atlantic
+    - NYTimes
+    - LA Times
+    - New Yorker
+    - The Straits Times
+
 - version: 2.78.0
   date: 2017-01-27
 
