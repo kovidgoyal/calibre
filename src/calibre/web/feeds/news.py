@@ -389,6 +389,10 @@ class BasicNewsRecipe(Recipe):
     #: with the URL scheme of your particular website.
     resolve_internal_links = False
 
+    #: Set to True if you want to use gziped transfers. Note that some old servers flake out with this
+    #: so it is off by default.
+    handle_gzip = False
+
     # See the built-in recipes for examples of these settings.
 
     def short_title(self):
@@ -492,6 +496,8 @@ class BasicNewsRecipe(Recipe):
         '''
         br = browser(*args, **kwargs)
         br.addheaders += [('Accept', '*/*')]
+        if self.handle_gzip:
+            br.set_handle_gzip(True)
         return br
 
     def clone_browser(self, br):
